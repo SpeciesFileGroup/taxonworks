@@ -20,6 +20,13 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  concern :shallow_annotation_routes do |options|
+    resources :citations, shallow: true, only: [:index]
+    resources :depictions, shallow: true, only: [:index]
+    resources :tags, shallow: true, only: [:index]
+    resources :notes, shallow: true, only: [:index]
+  end
+
   root 'dashboard#index'
 
   match '/dashboard', to: 'dashboard#index', via: :get
@@ -118,7 +125,7 @@ TaxonWorks::Application.routes.draw do
 
 
   resources :collection_objects do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes]
     member do
       get 'depictions'
       get 'containerize'
@@ -140,7 +147,7 @@ TaxonWorks::Application.routes.draw do
   match 'collection_profiles/swap_form_attribute_types/:collection_type', to: 'collection_profiles#swap_form_attribute_types', via: :get, method: :js
 
   resources :collecting_events do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes ]
     get :autocomplete_collecting_event_verbatim_locality, on: :collection
     member do
       get :card
@@ -168,12 +175,7 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :contents do
-    concerns [:data_routes]
-    member do
-      get :depictions, param: :content_id, to: 'depictions#index', defaults: {format: :json}
-      get :citations, param: :content_id, to: 'citations#index', defaults: {format: :json}
-      get :confidences, param: :content_id, to: 'confidences#index', defaults: {format: :json}
-    end
+    concerns [:data_routes, :shallow_annotation_routes]
     collection do
       get :filter
     end
@@ -279,9 +281,8 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :otus do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes ]
     resources :contents, only: [:index]
-    resources :citations, only: [:index]
     collection do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
@@ -383,7 +384,7 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :taxon_names do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes ]
     collection do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
