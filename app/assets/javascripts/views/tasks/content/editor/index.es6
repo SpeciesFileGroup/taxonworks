@@ -9,6 +9,8 @@ Object.assign(TW.views.tasks.content.editor, {
 
   init: function() { 
 
+    var
+    token = $('[name="csrf-token"]').attr('content');
     // JOSE - we can make this more generalized I think, but this works
     Vue.http.headers.common['X-CSRF-Token'] = $('[name="csrf-token"]').attr('content');
 
@@ -390,6 +392,7 @@ Object.assign(TW.views.tasks.content.editor, {
           newRecord: true,
           textCompare: '',
           preview: false,
+          showFigure: false,
           compareContent: undefined,
           record: { 
             content: {
@@ -402,6 +405,13 @@ Object.assign(TW.views.tasks.content.editor, {
             status: false,
             toolbar: ["bold", "italic", "code", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "table", "preview"],
             spellChecker: false,
+          },
+          dropzone: {
+              paramName: "depiction[image_attributes][image_file]",
+              url: "/depictions",
+              headers: {
+                'X-CSRF-Token' : token
+              }
           }
         }
       },
@@ -421,7 +431,8 @@ Object.assign(TW.views.tasks.content.editor, {
                     <div class="left"> \
                       <div class="title"><span><span v-if="topic">{{ topic.name }}</span> - <span v-if="otu" v-html="otu.object_tag"></span></span> <select-topic-otu></select-topic-otu></div> \
                       <div v-if="disabled" class="CodeMirror cm-s-paper CodeMirror-wrap"></div> \
-                      <markdown-editor v-else class="edit-content" v-model="record.content.text" :configs="config" @input="handleInput" ref="contentText" v-on:dblclick.native="addCitation()"></markdown-editor> \
+                      <dropzone v-if="showFigure" v-on:vdropzone-sending="sending" id="figure" url="/depictions" :useCustomDropzoneOptions="true" :dropzoneOptions="dropzone"></dropzone> \
+                      <markdown-editor v-if="!disabled && !showFigure" class="edit-content" v-model="record.content.text" :configs="config" @input="handleInput" ref="contentText" v-on:dblclick.native="addCitation()"></markdown-editor> \
                     </div> \
                     <div v-if="compareContent && !preview" class="right"> \
                       <div class="title"><span><span>{{ compareContent.topic.object_tag }}</span> - <span v-html="compareContent.otu.object_tag"></span></span></div> \
@@ -435,7 +446,7 @@ Object.assign(TW.views.tasks.content.editor, {
                     <compare-content class="item menu-item"></compare-content> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation</span></div> \
                     <citation-otu class="item menu-item"></citation-otu> \
-                    <div class="item flex-wrap-column middle menu-item"><span data-icon="new" class="big-icon"></span><span class="tiny_space">Figure</span></div> \
+                    <div class="item flex-wrap-column middle menu-item" @click="showFigure = !showFigure"><span data-icon="new" class="big-icon"></span><span class="tiny_space">Figure</span></div> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="image" class="big-icon"></span><span class="tiny_space">Drag new figure</span></div> \
                   </div> \
                 </div>',
@@ -463,6 +474,10 @@ Object.assign(TW.views.tasks.content.editor, {
         }            
       },
       methods: {
+        'sending': function(file, xhr, formData) {
+          formData.append("depiction[depiction_object_id]", this.record.content.id);
+          formData.append("depiction[depiction_object_type]", "Content");
+        },
         existCitation: function(citation) {
           var exist = false;
           this.$store.getters.getCitationsList.forEach(function(item, index) {
