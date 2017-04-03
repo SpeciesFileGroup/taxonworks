@@ -504,7 +504,6 @@ Object.assign(TW.views.tasks.content.editor, {
                     <div class="item flex-wrap-column middle menu-item" @click="$store.commit(\'changeStateCitations\')" :class="{ active : activeCitations }"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation</span></div> \
                     <citation-otu class="item menu-item"></citation-otu> \
                     <div class="item flex-wrap-column middle menu-item" @click="$store.commit(\'changeStateFigures\')" :class="{ active : activeFigures }"><span data-icon="new" class="big-icon"></span><span class="tiny_space">Figure</span></div> \
-                    <div class="item flex-wrap-column middle menu-item"><span data-icon="image" class="big-icon"></span><span class="tiny_space">Drag new figure</span></div> \
                   </div> \
                 </div>',
       created: function() {
