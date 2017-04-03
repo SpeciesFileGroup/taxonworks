@@ -26,19 +26,6 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
     box_row.html_safe
   end
 
-  #{"DD1"=>{},
-  # "DD2"=>{},
-  # "DM1"=>{},
-  # "DMS2"=>{},
-  # "DM3"=>{:piece=>" N41o42.781' W87o34.498' ", :lat=>"N41º42.781'", :long=>"W87º34.498'"},
-  # "DMS4"=>{},
-  # "DD5"=>{},
-  # "DD6"=>{},
-  # "DD7"=>{},
-  # "(;)"=>{},
-  # "(,)"=>{},
-  # "( )"=>{:piece=>"N41o42.781' W87o34.498'", :lat=>"N41o42.781'", :long=>"W87o34.498'"}}
-
   def make_rows(label, filters)
     return nil if label.nil?
     tests = Utilities::Geo.hunt_wrapper(label, filters)
@@ -55,10 +42,6 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
           content_tag(:td, radio_button_tag('select', dex, false, class: :select_lat_long), align: 'center')
       end
     end.join.html_safe
-    # tests.keys.each { |kee|
-    # next if tests[kee]
-    # }
-    # @matching_items = {@collecting_event.id.to_s => tests.first[:piece]}
   end
 
   # @param [String] pieces is either piece, or lat, long
@@ -107,9 +90,6 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
             end
             concat content_tag(:td, item_data, align: 'center')
           }.to_s.html_safe
-          # item.attributes.collect { |column|
-          #   concat content_tag(:td, item.attributes[column])
-          # }.to_s.html_safe
         end
       }.join().html_safe
     end
@@ -140,11 +120,13 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
       collecting_event_id: current_collecting_event_id,
       filters:             filters).all.with_project_id(sessions_current_project_id).first.try(:id)
     if next_id
-      button_tag('Skip to next record', value: 'skip', id: 'skip')
+      button_tag('Skip to next record',
+                 {value: 'skip', id: 'skip', action: lat_long_skip_path})
       # link_to('Skip to next record', collecting_event_lat_long_task_path(collecting_event_id: next_id))
     else
       content_tag(:span, 'no more matches')
-    end + button_tag('Re-evaluate', value: 're-eval', id: 're-eval')
+    end + button_tag('Re-evaluate',
+                     {value: 're-eval', id: 're-eval', action: lat_long_re_eval_path})
   end
 
   def scan_c_e

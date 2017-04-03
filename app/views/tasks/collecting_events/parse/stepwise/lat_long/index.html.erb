@@ -6,12 +6,11 @@
       <h2>Collecting event
         id:  <%= link_to(@collecting_event.id, collecting_event_path(@collecting_event), target: :_blank) %></h2>
       <%= show_ce_vl(@collecting_event) %>
-      <%= hidden_field_tag(:collecting_event_id, @collecting_event.id) %>
     </div>
 
     <div class="item item2">
-      <%= form_tag(lat_long_process_buttons_path(collecting_event_id: @collecting_event.id),
-                   id: 'lat_long_convert_form') do %>
+      <%= form_tag(lat_long_update_path(collecting_event_id: @collecting_event.id), id: 'lat_long_convert_form') do %>
+          <%= hidden_field_tag(:collecting_event_id, @collecting_event.id) %>
           <%= parse_lat_long_skip(@collecting_event.id, @filters) %>
           <table border="1">
             <tbody>
@@ -70,9 +69,12 @@
           <div id="matching_events" class="item item2">
             <h1>Identical matches (<span id="match_count">#</span>)</h1>
             <%= check_box_tag(:include_values, nil, true) %>Include already set values
-            <%= button_tag('Select all', value: 'select_all', id: 'select_all', disabled: true) %>
-            <%= button_tag('Deselect all', value: 'deselect_all', id: 'deselect_all', disabled: true) %>
-            <%= button_tag('Save matches', value: 'save_selected', id: 'save_selected', disabled: true) %>
+            <%= button_tag('Select all', {value: 'select_all', id: 'select_all', disabled: true}) %>
+            <%= button_tag('Deselect all', {value: 'deselect_all', id: 'deselect_all', disabled: true}) %>
+            <%= button_tag('Save matches', {value:    'save_selected',
+                                            id:       'save_selected',
+                                            disabled: true,
+                                            action:   lat_long_save_selected_path}) %>
             <span id="matching_span"></span>
           </div>
       <% end %><br>
