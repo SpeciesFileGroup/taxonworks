@@ -414,6 +414,7 @@ TaxonWorks::Application.routes.draw do
           scope :dates, controller: 'tasks/collecting_events/parse/stepwise/dates' do
             get 'index', as: 'dates_index_task'
             post 'update', as: 'dates_update_task'
+            get 'skip', as: 'dates_skip'
           end
 
           scope :lat_long, controller: 'tasks/collecting_events/parse/stepwise/lat_long' do

@@ -21,6 +21,11 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     end
   end
 
+  def skip
+    redirect_to dates_index_task_path(collecting_event_id: next_collecting_event_id,
+                                      filters: parse_filters(params))
+  end
+
   # POST
   def update
     process_buttons

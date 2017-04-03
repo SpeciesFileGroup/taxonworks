@@ -16,7 +16,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
 
 
   # @param [Array] must be array of symbols from Utilities::Geo::REGEXP_COORD
-  def make_selected_method_boxes(filters = Utilities::Dates::REGEXP_DATES.keys)
+  def make_dates_selected_method_boxes(filters = Utilities::Dates::REGEXP_DATES.keys)
     list = Utilities::Dates::REGEXP_DATES
     box_row = ""
     list.keys.each { |kee|
@@ -140,7 +140,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
         collecting_event_id: current_collecting_event_id,
         filters: filters).all.with_project_id(sessions_current_project_id).first.try(:id)
     if next_id
-      button_tag('Skip to next record', value: 'skipdiddle', id: 'skiptomyloo', onclick: 'location.href="/tasks/collecting_events/parse/stepwise/lat_long"', name: 'dikfour')
+      button_tag('Skip to next record', value: 'skip', id: 'skip', action: dates_skip_path)
       # link_to('Skip to next record', collecting_event_lat_long_task_path(collecting_event_id: next_id))
     else
       content_tag(:span, 'no more matches')
