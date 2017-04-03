@@ -24,7 +24,10 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
     );
   
     $('#skip').click(function (event) {
-    
+      var params = 'collecting_event_id=' + $('#collecting_event_id').val();
+      $.get('skip', params, function (local_data) {
+      });
+      event.preventDefault();
     });
   
     //  $('#lat_long_update_record').click(function (event) {

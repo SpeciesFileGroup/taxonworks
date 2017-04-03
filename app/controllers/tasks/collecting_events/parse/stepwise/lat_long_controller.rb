@@ -14,19 +14,114 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   # POST
-  # all buttons come here, so we first have to look at the button value
+  def skip
+    # where do we go from here?
+    redirect_to collecting_event_lat_long_task_path(collecting_event_id: next_collecting_event_id,
+                                                    filters:             parse_filters(params))
+  end
+
+  # POST
+  def re_eval
+    # where do we go from here?
+    redirect_to collecting_event_lat_long_task_path(collecting_event_id: current_collecting_event.id,
+                                                    filters:             parse_filters(params))
+  end
+
+  # POST
+  def save_selected
+    selected = params[:selected]
+    next_id  = next_collecting_event_id
+    if selected.blank?
+      message = 'Nothing to save.'
+      success = false
+    else
+      any_failed = false
+      message    = 'Success'
+      selected.each { |item_id|
+        ce = CollectingEvent.find(item_id)
+        unless ce.nil?
+          if ce.update_attributes(collecting_event_params)
+            ce.generate_verbatim_data_georeference(true) if generate_georeference?
+          else
+            any_failed = true
+            message    += 'Failed to update one or more of the collecting events.'
+          end
+        end
+      }
+      success = any_failed ? false : true
+    end
+    if success
+      flash['notice'] = 'Updated.'
+    else
+      flash['alert'] = message
+      next_id        = current_collecting_event.id
+    end
+    # where do we go from here?
+    redirect_to collecting_event_lat_long_task_path(collecting_event_id: next_id,
+                                                    filters:             parse_filters(params))
+  end
+
+  # POST
+  def update
+    next_id = next_collecting_event_id
+    ce      = current_collecting_event
+    success = false
+    if ce.update_attributes(collecting_event_params)
+      ce.generate_verbatim_data_georeference(true) if generate_georeference?
+      success = true
+    end
+    message = 'Failed to update the collecting event.'
+
+    if success
+      flash['notice'] = 'Updated.'
+    else
+      flash['alert'] = message
+      next_id        = current_collecting_event.id
+    end
+    # where do we go from here?
+    redirect_to collecting_event_lat_long_task_path(collecting_event_id: next_id,
+                                                    filters:             parse_filters(params))
+  end
+
+  def convert
+    lat                 = convert_params[:verbatim_latitude]
+    long                = convert_params[:verbatim_longitude]
+    retval              = {}
+    retval[:lat_piece]  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(lat)
+    retval[:long_piece] = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(long)
+    render json: retval
+  end
+
+  def similar_labels
+    retval         = {}
+    lat            = similar_params[:lat]
+    long           = similar_params[:long]
+    piece          = similar_params[:piece]
+    include_values = (similar_params[:include_values].nil?) ? false : true
+    ce             = CollectingEvent.find(similar_params[:collecting_event_id])
+    selected_items = ce.similar_lat_longs(lat, long, piece, include_values)
+
+    retval[:count] = selected_items.count.to_s
+    retval[:table] = render_to_string(partial: 'matching_table',
+                                      locals:  {
+                                        lat:            lat,
+                                        long:           long,
+                                        selected_items: selected_items
+                                      }) #([lat, long], selected_items)
+    render(json: retval)
+  end
+
+  # POST
   def process_buttons
     no_flash = false
     success  = false
-    message  = 'Failed to update '
+    message  = ''
     next_id  = next_collecting_event_id
     case params['button']
       when 're-eval'
         next_id  = current_collecting_event.id
         success  = true # slide right along
         no_flash = true # don't need no stinkin' flashes
-      when 'select_all', 'deselect_all'
-        raise '\'select_all\', and \'deselect_all\' should be preempted by javascript'
       when 'skip'
         success  = true # slide right along
         no_flash = true # don't need no stinkin' flashes
@@ -70,34 +165,6 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
                                                     filters:             parse_filters(params))
   end
 
-  def convert
-    lat                 = convert_params[:verbatim_latitude]
-    long                = convert_params[:verbatim_longitude]
-    retval              = {}
-    retval[:lat_piece]  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(lat)
-    retval[:long_piece] = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(long)
-    render json: retval
-  end
-
-  def similar_labels
-    retval         = {}
-    lat            = similar_params[:lat]
-    long           = similar_params[:long]
-    piece          = similar_params[:piece]
-    include_values = (similar_params[:include_values].nil?) ? false : true
-    ce             = CollectingEvent.find(similar_params[:collecting_event_id])
-    selected_items = ce.similar_lat_longs(lat, long, piece, include_values)
-
-    retval[:count] = selected_items.count.to_s
-    retval[:table] = render_to_string(partial: 'matching_table',
-                                      locals:  {
-                                        lat:            lat,
-                                        long:           long,
-                                        selected_items: selected_items
-                                      }) #([lat, long], selected_items)
-    render(json: retval)
-  end
-
   protected
 
   def collecting_event_id_param
@@ -122,7 +189,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   # TODO: deprecate for valud from view/helper
   def next_collecting_event_id
     filters = parse_filters(params)
-    Queries::CollectingEventLatLongExtractorQuery.new(
+    retval  = Queries::CollectingEventLatLongExtractorQuery.new(
       collecting_event_id: collecting_event_id_param,
       filters:             filters)
       .all
@@ -130,6 +197,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
       .order(:id)
       .limit(1)
       .pluck(:id)[0]
+    retval
   end
 
   def current_collecting_event
