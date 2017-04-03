@@ -70,9 +70,9 @@
           <div id="matching_events" class="item item2">
             <h1>Identical matches (<span id="match_count">#</span>)</h1>
             <%= check_box_tag(:include_values, nil, true) %>Include already set values
-            <%= button_tag('Select all', value: 'select_all', id: 'select_all', disabled: true) %>
-            <%= button_tag('Deselect all', value: 'deselect_all', id: 'deselect_all', disabled: true) %>
-            <%= button_tag('Save matches', value: 'save_selected', id: 'save_selected', disabled: true) %>
+            <%= button_tag('Select all', {value: 'select_all', id: 'select_all', disabled: true}) %>
+            <%= button_tag('Deselect all', {value: 'deselect_all', id: 'deselect_all', disabled: true}) %>
+            <%= button_tag('Save matches', {value: 'save_selected', id: 'save_selected', disabled: true}) %>
             <span id="matching_span"></span>
           </div>
       <% end %><br>
