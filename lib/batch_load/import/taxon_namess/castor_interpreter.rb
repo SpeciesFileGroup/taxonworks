@@ -64,7 +64,10 @@ module BatchLoad
           }
 
           taxon_name_identifiers = []
-          taxon_name_identifiers.push(taxon_name_identifier_castor) if !taxon_name_identifier_castor_text.blank?
+
+          if taxon_name_identifier_castor_text.present? && row["related_name_nomen_class"] != "TaxonNameRelationship::Iczn::Invalidating::Synonym"
+            taxon_name_identifiers.push(taxon_name_identifier_castor) if !taxon_name_identifier_castor_text.blank?
+          end
 
           protonym_attributes = {
             name: row['taxon_name'],
@@ -74,8 +77,8 @@ module BatchLoad
             also_create_otu: @also_create_otu,
             project: @project,
             verbatim_author: verbatim_author(row['author_year']),
-            taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
-            #identifiers_attributes: taxon_name_identifiers
+            taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year'])),
+            identifiers_attributes: taxon_name_identifiers
           }
             
           if row['original_name']
@@ -140,6 +143,15 @@ module BatchLoad
           # TaxonNameClassification
           name_nomen_classification = row['name_nomen_classification']
           p.taxon_name_classifications.new(type: name_nomen_classification) if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(name_nomen_classification)
+
+          # # Attach this taxon name to OTU with matching CASTOR identifier matching the guid value
+          # otus = Otu.with_namespaced_identifier('Castor', row['guid'])
+
+          # otus.each do |otu|
+          #   if !otu.taxon_name
+          #     otu.taxon_name = p 
+          #   end
+          # end
 
           parse_result.objects[:taxon_name].push p
           @total_data_lines += 1 if p.present?
