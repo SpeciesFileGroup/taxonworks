@@ -15,7 +15,9 @@
 			height:100%; 
 		}
 	}
-
+.otu_tag_taxon_name {
+	border-radius: 3px;
+}
 	#panels-content {
 		width: 100%;
 		margin: $standard_margin;
@@ -77,6 +79,10 @@
 		.menu-item:hover {
 			background-color: $color-complement-2;
 		}	
+
+		.active {
+			background-color: $color-complement-2;
+		}
 	}
 
 	#panel-editor {

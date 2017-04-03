@@ -18,6 +18,7 @@ Object.assign(TW.views.tasks.content.editor, {
     const store = new Vuex.Store({
       state: {    
         selected: {
+          content: undefined,
           topic: undefined,
           otu: undefined,
         },
@@ -29,7 +30,9 @@ Object.assign(TW.views.tasks.content.editor, {
         panels: {
           otu: false,
           topic: true,
-          recent: true
+          recent: true,
+          figures: false,
+          citations: false
         },
         citations: []
       },
@@ -48,13 +51,22 @@ Object.assign(TW.views.tasks.content.editor, {
         },
         getOtuSelected(state) {
           return state.selected.otu
-        },     
+        },
+        getContentSelected(state) {
+          return state.selected.content
+        },             
         getCitationsList(state) {
           return state.citations;
-        },
+        },        
         getRecent: (state) => (items) => {
           return state.recent[items];
-        },        
+        }, 
+        panelFigures(state) {
+          return state.panels.figures;
+        },
+        panelCitations(state) {
+          return state.panels.citations;
+        }                       
       },
       mutations: {
         removeCitation(state, index) {
@@ -82,15 +94,25 @@ Object.assign(TW.views.tasks.content.editor, {
           state.recent.otus = list;
         },
         setContentSelected(state, newContent) {
+          state.selected.content = newContent;
           state.selected.otu = newContent.otu;
           state.selected.topic = newContent.topic;
-        },        
+        }, 
+        setContent(state, value) {
+          state.selected.content = value;
+        },
         openOtuPanel(state, value) {
           state.panels.otu = value;
         },
         addToRecentTopics(state, item) {
           state.recent.topics.unshift(item);
         },
+        changeStateFigures(state) {
+          state.panels.figures = !state.panels.figures
+        },
+        changeStateCitations(state) {
+          state.panels.citations = !state.panels.citations
+        },        
         addToRecentContents(state, content) {
           var position = state.recent.contents.findIndex(item => {
                 if(content.id === item.id) {
@@ -111,9 +133,12 @@ Object.assign(TW.views.tasks.content.editor, {
       computed: {
         citations() {
           return this.$store.getters.getCitationsList
+        },
+        activeCitations() {
+          return this.$store.getters.panelCitations
         }
       },
-      template: '<div> \
+      template: '<div v-if="activeCitations"> \
                   <ul v-if="citations.length > 0"> \
                     <li class="flex-separate middle" v-for="item, index in citations">{{ item.source.author_year }} <div @click="removeItem(index, item)" class="circle-button btn-delete">Remove</div> </li> \
                   </ul> \
@@ -383,17 +408,49 @@ Object.assign(TW.views.tasks.content.editor, {
       }
     });
 
+    Vue.component('figures-panel', {
+      template: '<div class="flexbox" v-if="panelFigures && content"> \
+                  <div class="item item1 column-medium panel"> \
+                  </div> \
+                  <div class="item item2 column-tiny "> \
+                    <dropzone v-on:vdropzone-sending="sending" id="figure" url="/depictions" :useCustomDropzoneOptions="true" :dropzoneOptions="dropzone"></dropzone> \
+                  </div> \
+                </div>',
+      computed: {
+        content() {
+          return this.$store.getters.getContentSelected
+        },
+        panelFigures() {
+          return this.$store.getters.panelFigures
+        }
+      },
+      data: function() {
+        return {
+          dropzone: {
+            paramName: "depiction[image_attributes][image_file]",
+            url: "/depictions",
+            headers: {
+              'X-CSRF-Token' : token
+            },
+          }                
+        }
+      },
+      methods: {
+        'sending': function(file, xhr, formData) {
+          formData.append("depiction[depiction_object_id]", this.content.id);
+          formData.append("depiction[depiction_object_type]", "Content");
+        },
+      }  
+    });
+
     Vue.component('content-editor', {
       data: function() { 
         return {
           autosave: 0,
           firstInput: true,
-          citationModal: false,
           currentSourceID: '',
           newRecord: true,
-          textCompare: '',
           preview: false,
-          showFigure: false,
           compareContent: undefined,
           record: { 
             content: {
@@ -407,13 +464,7 @@ Object.assign(TW.views.tasks.content.editor, {
             toolbar: ["bold", "italic", "code", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "table", "preview"],
             spellChecker: false,
           },
-          dropzone: {
-              paramName: "depiction[image_attributes][image_file]",
-              url: "/depictions",
-              headers: {
-                'X-CSRF-Token' : token
-              },
-          }
+
         }
       },
       computed: {
@@ -425,15 +476,20 @@ Object.assign(TW.views.tasks.content.editor, {
         },       
         disabled() {
           return (this.topic == undefined || this.otu == undefined)
-        }         
+        },
+        activeCitations() {
+          return this.$store.getters.panelCitations
+        }, 
+        activeFigures() {
+          return this.$store.getters.panelFigures
+        },                         
       },      
       template: '<div class="panel" id="panel-editor"> \
                   <div class="flexbox"> \
                     <div class="left"> \
                       <div class="title"><span><span v-if="topic">{{ topic.name }}</span> - <span v-if="otu" v-html="otu.object_tag"></span></span> <select-topic-otu></select-topic-otu></div> \
                       <div v-if="disabled" class="CodeMirror cm-s-paper CodeMirror-wrap"></div> \
-                      <dropzone v-if="showFigure" v-on:vdropzone-sending="sending" id="figure" url="/depictions" :useCustomDropzoneOptions="true" :dropzoneOptions="dropzone"></dropzone> \
-                      <markdown-editor v-if="!disabled && !showFigure" class="edit-content" v-model="record.content.text" :configs="config" @input="handleInput" ref="contentText" v-on:dblclick.native="addCitation()"></markdown-editor> \
+                      <markdown-editor v-else class="edit-content" v-model="record.content.text" :configs="config" @input="handleInput" ref="contentText" v-on:dblclick.native="addCitation()"></markdown-editor> \
                     </div> \
                     <div v-if="compareContent && !preview" class="right"> \
                       <div class="title"><span><span>{{ compareContent.topic.object_tag }}</span> - <span v-html="compareContent.otu.object_tag"></span></span></div> \
@@ -445,9 +501,9 @@ Object.assign(TW.views.tasks.content.editor, {
                     <div class="item flex-wrap-column middle menu-item" @click="update" :class="{ saving : autosave }"><span data-icon="savedb" class="big-icon"></span><span class="tiny_space">Save</span></div> \
                     <clone-content class="item menu-item"></clone-content> \
                     <compare-content class="item menu-item"></compare-content> \
-                    <div class="item flex-wrap-column middle menu-item"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation</span></div> \
+                    <div class="item flex-wrap-column middle menu-item" @click="$store.commit(\'changeStateCitations\')" :class="{ active : activeCitations }"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation</span></div> \
                     <citation-otu class="item menu-item"></citation-otu> \
-                    <div class="item flex-wrap-column middle menu-item" @click="showFigure = !showFigure"><span data-icon="new" class="big-icon"></span><span class="tiny_space">Figure</span></div> \
+                    <div class="item flex-wrap-column middle menu-item" @click="$store.commit(\'changeStateFigures\')" :class="{ active : activeFigures }"><span data-icon="new" class="big-icon"></span><span class="tiny_space">Figure</span></div> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="image" class="big-icon"></span><span class="tiny_space">Drag new figure</span></div> \
                   </div> \
                 </div>',
@@ -475,10 +531,6 @@ Object.assign(TW.views.tasks.content.editor, {
         }            
       },
       methods: {
-        'sending': function(file, xhr, formData) {
-          formData.append("depiction[depiction_object_id]", this.record.content.id);
-          formData.append("depiction[depiction_object_type]", "Content");
-        },
         existCitation: function(citation) {
           var exist = false;
           this.$store.getters.getCitationsList.forEach(function(item, index) {
@@ -575,6 +627,7 @@ Object.assign(TW.views.tasks.content.editor, {
             this.$http.post(ajaxUrl, this.record).then(response => {
               this.record.content.id = response.body.id;
               this.$store.commit('addToRecentContents', response.body);
+              this.$store.commit('setContentSelected', response.body);
              });            
           }
           else {
@@ -611,12 +664,14 @@ Object.assign(TW.views.tasks.content.editor, {
               this.record.content.otu_id = response.body[0].otu_id;
               this.newRecord = false;
               this.loadCitationList();
+              this.$store.commit('setContentSelected', response.body[0]);
             }
             else {
               this.record.content.text = '';
               this.record.content.id = '';              
               this.record.content.topic_id = this.topic.id;
               this.record.content.otu_id = this.otu.id;
+              this.$store.commit('setContent', undefined);
               this.newRecord = true;
             }
           }, response => {
@@ -632,8 +687,9 @@ Object.assign(TW.views.tasks.content.editor, {
                     <modal v-if="showModal" @close="showModal = false"> \
                       <h3 slot="header">New topic</h3> \
                       <form  id="new-topic" action="" slot="body"> \
-                        <div class="field"> \
+                        <div class="field flex-separate"> \
                           <input type="text" v-model="topic.controlled_vocabulary_term.name" placeholder="Name" /> \
+                          <input type="color" v-model="topic.controlled_vocabulary_term.css_color" /> \
                         </div> \
                         <div class="field"> \
                           <textarea v-model="topic.controlled_vocabulary_term.definition" placeholder="Definition"></textarea> \
@@ -651,7 +707,7 @@ Object.assign(TW.views.tasks.content.editor, {
           controlled_vocabulary_term: {
             name: '',
             definition: '',
-            type: 'Topic'
+            type: 'Topic',
             }
           }
         }
