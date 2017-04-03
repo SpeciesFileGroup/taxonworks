@@ -319,6 +319,9 @@ TaxonWorks::Application.routes.draw do
 
       post :preview_simple_batch_file_load
       post :create_simple_batch_file_load
+
+      post :preview_castor_batch_load
+      post :create_castor_batch_load
     end
   end
 
