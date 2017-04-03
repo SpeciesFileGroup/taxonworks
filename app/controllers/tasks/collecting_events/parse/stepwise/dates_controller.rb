@@ -15,7 +15,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
   def parse_filters(params)
     # default filter is is all filters
     if params['filters'].blank?
-      Utilities::Geo::REGEXP_COORD.keys
+      Utilities::Dates::REGEXP_DATES.keys
     else
       params.permit(filters: [])[:filters].map(&:to_sym)
     end
@@ -137,7 +137,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     rescue ActionController::ParameterMissing
       # nothing provided, get the first possible one
       # return CollectingEvent.with_project_id(sessions_current_project_id).order(:id).limit(1).pluck(:id)[0]
-      retval = Queries::CollectingEventLatLongExtractorQuery.new(
+      retval = Queries::CollectingEventDatesExtractorQuery.new(
           collecting_event_id: nil,
           filters: parse_filters(params))
                    .all
@@ -152,7 +152,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
   # TODO: deprecate for valud from view/helper
   def next_collecting_event_id
     filters = parse_filters(params)
-    Queries::CollectingEventLatLongExtractorQuery.new(
+    Queries::CollectingEventDatesExtractorQuery.new(
         collecting_event_id: collecting_event_id_param,
         filters: filters)
         .all

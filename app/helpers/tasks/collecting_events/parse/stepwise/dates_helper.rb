@@ -5,7 +5,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
     retval
   end
 
-  def make_method_headers
+  def make_dates_method_headers
     list = Utilities::Dates::REGEXP_DATES
     selector_row = ""
     list.keys.each { |kee|
@@ -136,7 +136,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
   def parse_date_skip(current_collecting_event_id, filters)
     # TODO: Now this has to be bound to next hit
     # filters = Utilities::Geo::REGEXP_COORD.keys
-    next_id = Queries::CollectingEventLatLongExtractorQuery.new(
+    next_id = Queries::CollectingEventDatesExtractorQuery.new(
         collecting_event_id: current_collecting_event_id,
         filters: filters).all.with_project_id(sessions_current_project_id).first.try(:id)
     if next_id

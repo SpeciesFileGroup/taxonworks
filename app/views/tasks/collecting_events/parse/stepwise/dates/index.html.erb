@@ -6,17 +6,17 @@
       <h2>Collecting event
         id:  <%= link_to(@collecting_event.id, collecting_event_path(@collecting_event), target: :_blank) %></h2>
       <%= show_ce_vl(@collecting_event) %>
-      <%= hidden_field_tag(:collecting_event_id, @collecting_event.id) %>
     </div>
 
     <div class="item item2">
       <%= form_tag(dates_update_task_path(collecting_event_id: @collecting_event.id),
                    id: 'dates_convert_form') do %>
+          <%= hidden_field_tag(:collecting_event_id, @collecting_event.id) %>
           <%= parse_date_skip(@collecting_event.id, @filters) %>
           <table border="1">
             <tbody>
             <tr>
-              <%= make_method_headers %>
+              <%= make_dates_method_headers %>
             </tr>
             <tr>
               <%= make_selected_method_boxes(@filters) %>

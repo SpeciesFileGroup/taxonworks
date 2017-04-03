@@ -285,4 +285,142 @@ module Utilities::Dates
     end
   end
 
+  def self.hunt_dates_full(label, filters = REGEXP_DATES.keys)
+    trials = {}
+    filters.each_with_index { |kee, dex|
+      kee_string = kee.to_s.upcase
+      trials[kee_string] = {}
+      regex_title = REGEXP_DATES[kee].match(label)
+      unless regex_title.nil?
+        trials[kee_string][:piece] = regex_title[0]
+        trials[kee_string][:start_date] = regex_title[0]
+        trials[kee_string][:end_date] = regex_title[0]
+        regex_title
+      end
+      trials[kee_string][:method] = "text, #{kee_string}"
+    }
+    trials
+  end
+
+  def self.hunt_dates(label, how = ' ')
+    if how.nil?
+      pieces = [label]
+    else
+      pieces = label.split(how)
+    end
+    dates = {}
+    pieces.each do |piece|
+      # group of possible regex configurations
+      # m = /(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i =~ piece
+      m = REGEXP_DATES[:month_dd_yyyy].match(piece)
+      if m.nil?
+      else
+        dates[:piece] = m[0]
+        dates[:start_date] = m[0]
+        dates[:end_date] = m[0]
+      end
+    end
+    dates
+  end
+
+  def self.hunt_wrapper(label, filters = REGEXP_COORD.keys)
+
+    trials = self.hunt_dates_full(label, filters)
+
+    ';, '.each_char { |sep|
+      trial = self.hunt_dates(label, sep)
+      found = "#{trial[:piece]}"
+      unless trial[:lat].nil? and !trial[:long].nil?
+        found = "(#{sep})" if found.blank?
+      end
+      trials["(#{sep})"] = trial.merge!(method: "(#{sep})")
+    }
+    trials
+  end
+
+  REGEXP_DATES = {
+      # June 27 1946 - July 1 1947
+      month_dd_yyyy: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]\s?(\d\d?)[\.;,]?[\s\.,\/](\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})\s?[-\u2013\/]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]\s?(\d\d?)[\.;,]?[\s,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})"/i,
+
+      # 27 June 1946 - 1 July 1947
+      dd_month_yyyy: /(\d\d?)[\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})\s?[-\u2013\/]\s?(\d\d?)[\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+
+      # 5 27 1946 - 6 1 1947
+      mm_dd_yyyy: /(\d\d?)[\s,\.\/]\s?(\d\d?)[\.,]?[\s\.,\/](\d{4}|\u0027´`\u02B9\u02BC\u02CA]?\s?\?\d{2})\s?[-\u2013\/]\s?(\d\d?)[\s,\.\/]\s?(\d\d?)[\.,]?[\s,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+
+      # June 27 - July 1 1947
+      month_dd_month_dd_yyyy: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]?\s?(\d\d?)\s?[-\u2013\/]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]?\s?(\d\d?)[\s\.;,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+
+      # 27 June - 1 July 1947
+      dd_month_dd_month_yyyy: /(\d\d?)\s?[\.\/,\u2013-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[-\u2013\/]\s?(\d\d?)\s?[\.\/,\u2013-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[,-\u2013\/]?\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+      # 5 27 - 6 1 1947
+      mm_dd_mm_dd_yyyy: /(\d\d?)[\s\.,\/]\s?(\d\d?)\s?[-\u2013\/]\s?(\d\d?)[\s\.,\/]\s?(\d\d?)[\s\.,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+      # June 27-29 1947
+      month_dd_dd_yyyy: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[\.,]?[-\s\u2013,\/]?(\d\d?)\s?[-\u2013\+\/]\s?(\d\d?)[\.,]?[-\s\.\u2013,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+      # 27-29 June 1947
+      dd_dd_month_yyyy: /(\d\d?)\s?[-\u2013\+\/]\s?(\d\d?)[\s\.,\/-]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[-\s\u2013,\/]?\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+      # 5 27-29 1947
+      mm_dd_dd_yyyy: /(\d\d?)\s?[-\u2013\s\.,\/]\s?(\d\d?)\s?[-\u2013\+\/]\s?(\d\d?)[\.,;]?\s?[-\s\u2013,\/](\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i
+      # notDone = False
+      #
+      # a(3) = ""
+      # a(4) = ""
+      # a(5) = ""
+      # ' Jun 29 1947     Jun 29, 1947    June 29 1947    June 29, 1947    VI-29-1947   X.25.2000
+      #       ' Jun 29, '47   June 29, '47    VI-4-08    Jun 29, '47
+      #
+      #       regex.Pattern = "(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[-\u2013_,\/]?\s?(\d\d?)[\.;,]?\s?[\s-\u2013_\/\.\u0027,]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})"
+      #       If notDone And regex.Test(szLine) Then
+      #           Set rmatch = regex.Execute(szLine)
+      #           a(0) = rmatch.Item(0).SubMatches.Item(0)
+      #           a(1) = rmatch.Item(0).SubMatches.Item(1)
+      #           a(2) = rmatch.Item(0).SubMatches.Item(2)
+      #           If update_date_test(rst, a, m) Then
+      #               notDone = False
+      #               m = m + 1
+      #           End If
+      #       End If
+      #
+      #       ' 29 Jun 1947   29 June 1947   2 June, 1983   29 VI 1947   29-VI-1947   25.X.2000 25X2000
+      # ' 29 June '47   29 Jun '47
+      #       regex.Pattern = "(\d\d?)\s?[-\u2013_\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[\.,]?\s?[-,\u2013_\/]?\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})"
+      #       If notDone And regex.Test(szLine) Then
+      #           Set rmatch = regex.Execute(szLine)
+      #           a(0) = rmatch.Item(0).SubMatches.Item(1)
+      #           a(1) = rmatch.Item(0).SubMatches.Item(0)
+      #           a(2) = rmatch.Item(0).SubMatches.Item(2)
+      #           If update_date_test(rst, a, m) Then
+      #               notDone = False
+      #               m = m + 1
+      #           End If
+      #       End If
+      #
+      #               ' 6/29/1947    6-29-1947    6-15 1985    10.25 2000    7.10.1994
+      #       regex.Pattern = "(\d\d?)[\s-\u2013_\.,\/]\s?(\d\d?)[\s-\u2013_\.,\/]\s?(\d{4})"
+      #
+      #       If notDone And regex.Test(szLine) Then
+      #          Set rmatch = regex.Execute(szLine)
+      #           a(0) = rmatch.Item(0).SubMatches.Item(0)
+      #           a(1) = rmatch.Item(0).SubMatches.Item(1)
+      #           a(2) = rmatch.Item(0).SubMatches.Item(2)
+      #           If update_date_test(rst, a, m) Then
+      #               notDone = False
+      #               m = m + 1
+      #           End If
+      #       End If
+      #
+      #       ' 6/29/47    6/29/'47    7.10.94    5-17-97
+      #       regex.Pattern = "(\d\d?)[\s-\u2013_\.,\/]\s?(\d\d?)[\s-\u2013_\.,\/]\s?([\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})"
+      #
+      #       If notDone And regex.Test(szLine) Then
+      #          Set rmatch = regex.Execute(szLine)
+      #           a(0) = rmatch.Item(0).SubMatches.Item(0)
+      #           a(1) = rmatch.Item(0).SubMatches.Item(1)
+      #           a(2) = rmatch.Item(0).SubMatches.Item(2)
+      #           If update_date_test(rst, a, m) Then
+      #               notDone = False
+      #               m = m + 1
+      #           End If
+      #       End If
+  }
 end
