@@ -11,7 +11,7 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
 
     var start_next = 0;
     TW.views.tasks.collecting_events.parse.bind_radio_buttons();
-    
+
     $('#lat_long_convert').click(function (event) {
         // $("#select_area").mx_spinner('show');
         $.get('convert', $("#lat_long_convert_form").serialize(), function (local_data) {
@@ -24,12 +24,12 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
         event.preventDefault();
       }
     );
-  
+
     $('#skip').click(function (event) {
       location.href = whereIgo + 'skip?' + $('#lat_long_convert_form').serialize();
       event.preventDefault();
     });
-  
+
     //  $('#lat_long_update_record').click(function (event) {
     // put the this id into the form before serializatiun
     // $('#collecting_event_id').val($('this_collecting_event').text());
