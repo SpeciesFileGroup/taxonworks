@@ -5,8 +5,10 @@ TW.views.tasks.collecting_events = TW.views.tasks.collecting_events || {};
 TW.views.tasks.collecting_events.parse = TW.views.tasks.collecting_events.parse || {};
 
 Object.assign(TW.views.tasks.collecting_events.parse, {
-  
   init: function () {
+    // var whereIgo = '/tasks/collecting_events/parse/stepwise/lat_long/';
+    var whereIgo = location.pathname.replace('index', '');
+
     var start_next = 0;
     TW.views.tasks.collecting_events.parse.bind_radio_buttons();
     
@@ -24,9 +26,7 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
     );
   
     $('#skip').click(function (event) {
-      var params = 'collecting_event_id=' + $('#collecting_event_id').val();
-      $.get('skip', params, function (local_data) {
-      });
+      location.href = whereIgo + 'skip?' + $('#lat_long_convert_form').serialize();
       event.preventDefault();
     });
   

@@ -6,11 +6,11 @@
       <h2>Collecting event
         id:  <%= link_to(@collecting_event.id, collecting_event_path(@collecting_event), target: :_blank) %></h2>
       <%= show_ce_vl(@collecting_event) %>
-      <%= hidden_field_tag(:collecting_event_id, @collecting_event.id) %>
     </div>
 
     <div class="item item2">
       <%= form_tag(lat_long_update_path(collecting_event_id: @collecting_event.id), id: 'lat_long_convert_form') do %>
+          <%= hidden_field_tag(:collecting_event_id, @collecting_event.id) %>
           <%= parse_lat_long_skip(@collecting_event.id, @filters) %>
           <table border="1">
             <tbody>
