@@ -12,4 +12,9 @@ class MatrixRowItem::SingleOtu < MatrixRowItem
   def otus
     [self.otu]
   end
+
+  def matrix_row_item_object
+    otu 
+  end
+  
 end

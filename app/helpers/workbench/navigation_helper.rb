@@ -1,6 +1,8 @@
 # Methods for 1) generating paths; or 2) generating links.
 module Workbench::NavigationHelper
 
+  NO_NEW_FORMS = %w{MatrixRow MatrixColumn Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem ProtocolRelationship}.freeze
+
   # Slideout panels
 
   def slideout_pinboard
@@ -66,7 +68,7 @@ module Workbench::NavigationHelper
   end
 
   def new_for_model_link(model)
-    if %w{Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem ProtocolRelationship}.include?(model.name)
+    if NO_NEW_FORMS.include?(model.name)
       nil
     elsif model.name == 'ProjectSource'
       link_to('New', new_source_path, 'class' => 'small-icon', 'data-icon' => 'new')
@@ -139,7 +141,7 @@ module Workbench::NavigationHelper
   # return [Boolean]
   #  true if the current user created this object
   def user_is_creator?(object)
-    object.created_by_id == $user_id
+    object.created_by_id == sessions_current_user_id # $user_id
   end
 
   # return [A tag, nil]

@@ -12,4 +12,9 @@ class MatrixRowItem::SingleCollectionObject < MatrixRowItem
   def collection_objects
     [self.collection_object]
   end
+
+  def matrix_row_item_object
+    collection_object
+  end
+
 end

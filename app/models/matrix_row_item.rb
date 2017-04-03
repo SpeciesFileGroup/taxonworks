@@ -1,3 +1,6 @@
+#
+# A MatrixRowItem defines a set of one OR MORE matrix rows depending on their class.
+# 
 class MatrixRowItem < ActiveRecord::Base
   include Housekeeping
   include Shared::Citable
@@ -14,7 +17,7 @@ class MatrixRowItem < ActiveRecord::Base
 
   validates_presence_of :matrix_id
   validate :type_is_subclassed
-  validate :other_subclass_attributes_not_set
+  validate :other_subclass_attributes_not_set, if: '!type.blank?'
 
   after_save :update_matrix_rows
   after_destroy :cleanup_matrix_rows
@@ -88,10 +91,22 @@ class MatrixRowItem < ActiveRecord::Base
     []
   end
 
+  # @return [Object]
+  #   the object used to define the set of matrix rows
+  # override
+  def matrix_row_item_object
+    nil 
+  end
+
+  # @return [matrix_row_item_object, nil]
+  def object_is?(object_type)
+    matrix_row_item_object.class.name == object_type ? matrix_row_item_object : nil
+  end
+
   protected
 
   def other_subclass_attributes_not_set
-    (ALL_STI_ATTRIBUTES - self.class.subclass_attributes).each do |attr|
+    (ALL_STI_ATTRIBUTES - self.type.constantize.subclass_attributes).each do |attr|
       errors.add(attr, 'is not valid for this type of matrix row item') if !send(attr).blank?
     end
   end

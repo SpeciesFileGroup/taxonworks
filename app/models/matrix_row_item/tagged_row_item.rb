@@ -16,4 +16,9 @@ class MatrixRowItem::TaggedRowItem < MatrixRowItem
   def collection_objects
     Tag.where(keyword: controlled_vocabulary_term, tag_object_type: 'CollectionObject').map(&:tag_object)
   end
+
+  def matrix_row_item_object
+    controlled_vocabulary_term 
+  end
+
 end

@@ -68,13 +68,13 @@ class MatrixColumnItemsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_matrix_column_item
-      @matrix_column_item = MatrixColumnItem.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_matrix_column_item
+    @matrix_column_item = MatrixColumnItem.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def matrix_column_item_params
-      params.require(:matrix_column_item).permit(:matrix_id, :type, :descriptor_id, :keyword_id)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def matrix_column_item_params
+    params.require(:matrix_column_item).permit(:matrix_id, :type, :descriptor_id, :keyword_id)
+  end
 end

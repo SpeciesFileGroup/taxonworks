@@ -76,6 +76,6 @@ class MatrixRowItemsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def matrix_row_item_params
-      params.require(:matrix_row_item).permit(:matrix_id, :type, :collection_object_id, :otu_id, :controlled_vocabulary_term_id, :created_by_id, :updated_by_id, :project_id)
+      params.require(:matrix_row_item).permit(:matrix_id, :type, :collection_object_id, :otu_id, :controlled_vocabulary_term_id, :type)
     end
 end
