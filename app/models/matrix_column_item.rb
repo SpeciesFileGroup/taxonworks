@@ -8,6 +8,8 @@ class MatrixColumnItem < ActiveRecord::Base
   include Shared::Notable
   include Shared::Taggable
 
+  acts_as_list scope: [:matrix_id]
+
   ALL_STI_ATTRIBUTES = [:descriptor_id, :controlled_vocabulary_term_id]
 
   belongs_to :matrix

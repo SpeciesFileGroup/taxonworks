@@ -8,6 +8,8 @@ class Descriptor < ActiveRecord::Base
   include Shared::DataAttributes
   include SoftValidation
 
+  acts_as_list scope: [:project_id]
+
   validates_presence_of :name, :type
   validate :type_is_subclassed
   validate :short_name_is_shorter
