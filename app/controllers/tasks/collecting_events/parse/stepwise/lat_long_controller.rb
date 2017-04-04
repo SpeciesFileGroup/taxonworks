@@ -13,21 +13,21 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     @matching_items = []
   end
 
-  # POST
+  # GET
   def skip
     # where do we go from here?
     redirect_to collecting_event_lat_long_task_path(collecting_event_id: next_collecting_event_id,
                                                     filters:             parse_filters(params))
   end
 
-  # POST
+  # GET
   def re_eval
     # where do we go from here?
     redirect_to collecting_event_lat_long_task_path(collecting_event_id: current_collecting_event.id,
                                                     filters:             parse_filters(params))
   end
 
-  # POST
+  # GET
   def save_selected
     selected = params[:selected]
     next_id  = next_collecting_event_id
@@ -83,6 +83,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
                                                     filters:             parse_filters(params))
   end
 
+  # GET
   def convert
     lat                 = convert_params[:verbatim_latitude]
     long                = convert_params[:verbatim_longitude]
@@ -92,6 +93,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     render json: retval
   end
 
+  # GET
   def similar_labels
     retval         = {}
     lat            = similar_params[:lat]
@@ -109,60 +111,6 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
                                         selected_items: selected_items
                                       }) #([lat, long], selected_items)
     render(json: retval)
-  end
-
-  # POST
-  def process_buttons
-    no_flash = false
-    success  = false
-    message  = ''
-    next_id  = next_collecting_event_id
-    case params['button']
-      when 're-eval'
-        next_id  = current_collecting_event.id
-        success  = true # slide right along
-        no_flash = true # don't need no stinkin' flashes
-      when 'skip'
-        success  = true # slide right along
-        no_flash = true # don't need no stinkin' flashes
-      when 'save_selected'
-        selected = params[:selected]
-        if selected.blank?
-          message = 'Nothing to save.'
-          success = false
-        else
-          any_failed = false
-          selected.each { |item_id|
-            ce = CollectingEvent.find(item_id)
-            unless ce.nil?
-              if ce.update_attributes(collecting_event_params)
-                ce.generate_verbatim_data_georeference(true) if generate_georeference?
-              else
-                any_failed = true
-                message    += 'one or more of the collecting events.'
-              end
-            end
-          }
-          success = any_failed ? false : true
-        end
-      when 'save_one'
-        ce = current_collecting_event
-        if ce.update_attributes(collecting_event_params)
-          ce.generate_verbatim_data_georeference(true) if generate_georeference?
-          success = true
-        end
-        message += 'the collecting event.'
-    end
-
-    if success
-      flash['notice'] = 'Updated.' unless no_flash # if we skipped, there is no flash
-    else
-      flash['alert'] = message
-      next_id        = current_collecting_event.id
-    end
-    # where do we go from here?
-    redirect_to collecting_event_lat_long_task_path(collecting_event_id: next_id,
-                                                    filters:             parse_filters(params))
   end
 
   protected
