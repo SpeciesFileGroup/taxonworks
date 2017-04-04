@@ -269,8 +269,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                   role = Role.create!(
                       person_id: get_tw_person_id[sf_person_id],
                       type: 'TaxonNameAuthor',
-                      role_object_id: source_id,
-                      role_object_type: 'Source',
+                      role_object_id: taxon_name_id,
+                      role_object_type: 'TaxonName',
                   # position: row['SeqNum'],
                   project_id: project_id,   # role is project_role
                   # created_at: row['CreatedOn'],

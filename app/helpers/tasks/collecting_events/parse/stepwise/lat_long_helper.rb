@@ -121,12 +121,12 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
       filters:             filters).all.with_project_id(sessions_current_project_id).first.try(:id)
     if next_id
       button_tag('Skip to next record',
-                 {value: 'skip', id: 'skip', action: lat_long_skip_path})
+                 {value: 'skip', id: 'skip'})
       # link_to('Skip to next record', collecting_event_lat_long_task_path(collecting_event_id: next_id))
     else
       content_tag(:span, 'no more matches')
     end + button_tag('Re-evaluate',
-                     {value: 're-eval', id: 're-eval', action: lat_long_re_eval_path})
+                     {value: 're_eval', id: 're_eval'})
   end
 
   def scan_c_e
