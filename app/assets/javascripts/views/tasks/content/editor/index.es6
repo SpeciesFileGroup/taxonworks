@@ -134,24 +134,47 @@ Object.assign(TW.views.tasks.content.editor, {
         citations() {
           return this.$store.getters.getCitationsList
         },
+        content() {
+          return this.$store.getters.getContentSelected
+        },        
         activeCitations() {
           return this.$store.getters.panelCitations
         }
       },
-      template: '<div v-if="activeCitations"> \
+      template: '<div v-if="activeCitations && content"> \
                   <ul v-if="citations.length > 0"> \
                     <li class="flex-separate middle" v-for="item, index in citations">{{ item.source.author_year }} <div @click="removeItem(index, item)" class="circle-button btn-delete">Remove</div> </li> \
                   </ul> \
                 </div>',
-
+      watch: {
+        'content': function(val, oldVal) {
+          if(val != undefined) {
+            if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
+              this.loadContent();
+            }
+          }
+          else {
+            this.$store.commit('setCitationList', []);
+          }
+        }
+      },
       methods: {
         removeItem: function(index, item) {
           this.$http.delete("/citations/"+item.id).then( response => {
             this.$store.commit('removeCitation', index);
           });
+        },
+        loadContent: function() {
+          var ajaxUrl;
+
+          ajaxUrl = `/contents/${this.content.id}/citations`;
+          this.$http.get(ajaxUrl, this.content).then(response => {
+            this.$store.commit('setCitationList', response.body);
+          });
         }
       }
     });
+
     Vue.component('select-topic-otu', {
       template: '<div> \
                   <button @click="showModal = true" class="button normal-input button-default">Select</button> \
@@ -253,8 +276,8 @@ Object.assign(TW.views.tasks.content.editor, {
     });  
 
     Vue.component('clone-content', {
-      template: '<div> \
-                  <div @click="loadContent" class="item flex-wrap-column middle"><span data-icon="clone" class="big-icon"></span><span class="tiny_space">Clone</span></div> \
+      template: '<div :class="{ disabled : contents.length == 0 }"> \
+                  <div @click="showModal = true && contents.length > 0" class="item flex-wrap-column middle"><span data-icon="clone" class="big-icon"></span><span class="tiny_space">Clone</span></div> \
                   <modal v-if="showModal" id="clone-modal"> \
                     <h3 slot="header">Clone</h3> \
                     <div slot="body"> \
@@ -275,15 +298,30 @@ Object.assign(TW.views.tasks.content.editor, {
       },
       computed: {
         disabled() {
-          return (this.$store.getters.getTopicSelected == undefined || this.$store.getters.getOtuSelected == undefined)
+          return (this.$store.getters.getContentSelected == undefined)
         },  
         topic() {
           return this.$store.getters.getTopicSelected
         },
+        content() {
+          return this.$store.getters.getContentSelected
+        },        
         otu() {
           return this.$store.getters.getOtuSelected
         }        
       },
+      watch: {
+        'content': function(val, oldVal) {
+          if(val != undefined) {
+            if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
+              this.loadContent();
+            }
+          }
+          else {
+            this.contents = [];
+          }
+        }
+      },      
       methods: {
         loadContent: function() {
           if (this.disabled) return
@@ -292,8 +330,7 @@ Object.assign(TW.views.tasks.content.editor, {
           ajaxUrl = `/contents/filter.json?topic_id=${this.topic.id}`
 
           this.$http.get(ajaxUrl).then( response => {
-            that.contents = response.body;
-            that.showModal = (response.body.length > 0);            
+            that.contents = response.body;     
           });          
         },
         cloneCitation: function(text) {
@@ -305,8 +342,8 @@ Object.assign(TW.views.tasks.content.editor, {
     })
 
     Vue.component('compare-content', {
-      template: '<div> \
-                  <div class="flex-wrap-column middle"><span data-icon="compare" @click="loadContent()" class="big-icon"></span><span class="tiny_space">Compare</span></div> \
+      template: '<div :class="{ disabled : !content || content.length < 1}" > \
+                  <div class="flex-wrap-column middle"><span data-icon="compare" @click="showModal = contents.length > 0" class="big-icon"></span><span class="tiny_space">Compare</span></div> \
                   <modal v-if="showModal" id="compare-modal"> \
                     <h3 slot="header">Compare content</h3> \
                     <ul slot="body" class="no_bullets"> \
@@ -327,10 +364,25 @@ Object.assign(TW.views.tasks.content.editor, {
         topic() {
             return this.$store.getters.getTopicSelected
         },
+        content() {
+            return this.$store.getters.getContentSelected
+        },        
         disabled() {
           return (this.$store.getters.getTopicSelected == undefined || this.$store.getters.getOtuSelected == undefined)
         }        
       },
+      watch: {
+        'content': function(val, oldVal) {
+          if(val != undefined) {
+            if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
+              this.loadContent();
+            }
+          }
+          else {
+            this.contents = [];
+          }
+        }
+      },      
       methods: {      
         loadContent: function() {
           if (this.disabled) return
@@ -339,8 +391,7 @@ Object.assign(TW.views.tasks.content.editor, {
           ajaxUrl = `/contents/filter.json?topic_id=${this.topic.id}`
 
           this.$http.get(ajaxUrl).then( response => {
-            that.contents = response.body;
-            that.showModal = (response.body.length > 0);            
+            that.contents = response.body;        
           });          
         },
         compareContent: function(content) {
@@ -351,8 +402,8 @@ Object.assign(TW.views.tasks.content.editor, {
     });
 
     Vue.component('citation-otu', {
-      template: '<div> \
-                  <div class="flex-wrap-column middle"><span data-icon="citation" @click="loadContent()" class="big-icon"></span><span class="tiny_space">Citation OTU</span></div> \
+      template: '<div :class="{ disabled : disabled  }"> \
+                  <div class="flex-wrap-column middle"><span data-icon="citation" @click="showModal = citations.length > 0" class="big-icon"></span><span class="tiny_space">Citation OTU</span></div> \
                   <modal v-if="showModal"> \
                     <h3 slot="header">Citation OTU</h3> \
                     <ul slot="body"> \
@@ -366,7 +417,7 @@ Object.assign(TW.views.tasks.content.editor, {
       computed: {
         otu() {
           return this.$store.getters.getOtuSelected
-        },
+        },       
         topic() {
           return this.$store.getters.getTopicSelected
         },
@@ -378,6 +429,13 @@ Object.assign(TW.views.tasks.content.editor, {
         return {
           showModal: false,
           citations: []
+        }
+      },
+      watch: {
+        'otu': function(val, oldVal) {
+          if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
+            this.loadContent();
+          }
         }
       },
       methods: {
@@ -400,9 +458,7 @@ Object.assign(TW.views.tasks.content.editor, {
           ajaxUrl = `/otus/${this.otu.id}/citations.json?topic_id=${this.topic.id}`
 
           this.$http.get(ajaxUrl).then( response => {
-            that.citations = response.body;
-            console.log(response.body);
-            that.showModal = (response.body.length > 0);            
+            that.citations = response.body;         
           });          
         },
       }
@@ -473,7 +529,10 @@ Object.assign(TW.views.tasks.content.editor, {
         },
         otu() {
           return this.$store.getters.getOtuSelected
-        },       
+        },   
+        content() {
+          return this.$store.getters.getContentSelected
+        },               
         disabled() {
           return (this.topic == undefined || this.otu == undefined)
         },
@@ -499,11 +558,11 @@ Object.assign(TW.views.tasks.content.editor, {
                   </div> \
                   <div  class="flex-separate menu-content-editor"> \
                     <div class="item flex-wrap-column middle menu-item" @click="update" :class="{ saving : autosave }"><span data-icon="savedb" class="big-icon"></span><span class="tiny_space">Save</span></div> \
-                    <clone-content class="item menu-item"></clone-content> \
+                    <clone-content :class="{ disabled : !content }" class="item menu-item"></clone-content> \
                     <compare-content class="item menu-item"></compare-content> \
-                    <div class="item flex-wrap-column middle menu-item" @click="$store.commit(\'changeStateCitations\')" :class="{ active : activeCitations }"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation</span></div> \
+                    <div class="item flex-wrap-column middle menu-item" @click="$store.commit(\'changeStateCitations\')" :class="{ active : activeCitations, disabled : $store.getters.getCitationsList < 1 }"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation</span></div> \
                     <citation-otu class="item menu-item"></citation-otu> \
-                    <div class="item flex-wrap-column middle menu-item" @click="$store.commit(\'changeStateFigures\')" :class="{ active : activeFigures }"><span data-icon="new" class="big-icon"></span><span class="tiny_space">Figure</span></div> \
+                    <div class="item flex-wrap-column middle menu-item" @click="$store.commit(\'changeStateFigures\')" :class="{ active : activeFigures, disabled : !content }"><span data-icon="new" class="big-icon"></span><span class="tiny_space">Figure</span></div> \
                   </div> \
                 </div>',
       created: function() {
@@ -636,17 +695,6 @@ Object.assign(TW.views.tasks.content.editor, {
           }          
         },
 
-        loadCitationList: function() {
-          var ajaxUrl;
-
-          ajaxUrl = `/contents/${this.record.content.id}/citations`;
-          this.$http.get(ajaxUrl, this.record).then(response => {
-            this.$store.commit('setCitationList', response.body);
-          }, response => {
-
-          }); 
-        },
-
         loadContent: function() {
           if (this.disabled) return
 
@@ -662,7 +710,6 @@ Object.assign(TW.views.tasks.content.editor, {
               this.record.content.topic_id = response.body[0].topic_id;
               this.record.content.otu_id = response.body[0].otu_id;
               this.newRecord = false;
-              this.loadCitationList();
               this.$store.commit('setContentSelected', response.body[0]);
             }
             else {
