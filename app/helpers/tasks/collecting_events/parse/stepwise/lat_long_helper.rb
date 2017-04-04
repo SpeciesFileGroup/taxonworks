@@ -28,7 +28,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
 
   def make_rows(label, filters)
     return nil if label.nil?
-    tests = Utilities::Dates.hunt_wrapper(label, filters)
+    tests = Utilities::Geo.hunt_wrapper(label, filters)
     tests.keys.collect.with_index do |kee, dex|
       trial  = tests[kee]
       method = trial.delete(:method)

@@ -34,16 +34,16 @@
             </tr>
             </thead>
             <tbody>
-            <%= make_rows(@collecting_event.verbatim_label, @filters) %>
+            <%= make_date_rows(@collecting_event.verbatim_label, @filters) %>
             </tbody>
           </table>
           <table border="1">
             <tbody>
             <tr>
               <th></th>
-              <th style="text-align:center">Latitude</th>
+              <th style="text-align:center">Start Date</th>
               <th></th>
-              <th style="text-align:center">Longitude</th>
+              <th style="text-align:center">End Date</th>
             </tr>
             <tr>
               <td>Verbatim</td>
@@ -56,12 +56,6 @@
               <td></td>
               <td><%= submit_tag('Convert', id: 'dates_convert') %></td>
               <td></td>
-            </tr>
-            <tr>
-              <td>Decimal</td>
-              <td><%= text_field_tag('dd_latitude') %></td>
-              <td></td>
-              <td><%= text_field_tag('dd_longitude') %></td>
             </tr>
             </tbody>
           </table>

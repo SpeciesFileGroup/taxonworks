@@ -102,17 +102,17 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
 
   def similar_labels
     retval = {}
-    lat = similar_params[:lat]
-    long = similar_params[:long]
+    start_date = similar_params[:start_date]
+    end_date = similar_params[:end_date]
     piece = similar_params[:piece]
     # collecting_event_id = collecting_event_params[:collecting_event_id]
     include_values = (similar_params[:include_values].nil?) ? false : true
     sql_1 = '('
-    sql_1 += "verbatim_label LIKE '%#{sql_fix(lat)}%'" unless lat.blank?
-    sql_1 += " or verbatim_label LIKE '%#{sql_fix(long)}%'" unless long.blank?
+    sql_1 += "verbatim_label LIKE '%#{sql_fix(start_date)}%'" unless start_date.blank?
+    sql_1 += " or verbatim_label LIKE '%#{sql_fix(end_date)}%'" unless end_date.blank?
     sql_1 += " or verbatim_label LIKE '%#{sql_fix(piece)}%'" unless piece.blank?
     sql_1 += ')'
-    sql_1 += ' and (verbatim_latitude is null or verbatim_longitude is null)' unless include_values
+    sql_1 += ' and (verbatim__date is null)' unless include_values
     selected_items = CollectingEvent.where(sql_1)
                          .with_project_id(sessions_current_project_id)
                          .order(:id)
@@ -121,8 +121,8 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     retval[:count] = selected_items.count.to_s
     retval[:table] = render_to_string(partial: 'matching_table',
                                       locals: {
-                                          lat: lat,
-                                          long: long,
+                                          start_date: start_date,
+                                          end_date: end_date,
                                           selected_items: selected_items
                                       }) #([lat, long], selected_items)
     render(json: retval)
@@ -181,24 +181,15 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
   end
 
   def similar_params
-    params.permit(:include_values, :piece, :lat, :long)
-  end
-
-  def matched_params
-    retval = {
-        verbatim_latitude: process_params[:matched_latitude],
-        verbatim_longitude: process_params[:matched_longitude],
-        generate_georeference: process_params[:match_gen_georeference]
-    }
-    retval
+    params.permit(:include_values, :piece, :start_date, :end_date)
   end
 
   def collecting_event_params
-    params.permit(:verbatim_latitude, :verbatim_longitude)
+    params.require(:collecting_event).permit(:verbatim_date, :start_date_day, :start_date_month, :start_date_year, :end_date_day, :end_date_month, :end_date_year)
   end
 
   def convert_params
-    params.permit(:include_values, :verbatim_latitude, :verbatim_longitude, :piece, :lat, :long)
+    params.permit(:include_values, :verbatim_date, :piece, :start_date, :end_date)
   end
 
 end
