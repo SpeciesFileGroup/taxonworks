@@ -544,6 +544,11 @@ class CollectingEvent < ActiveRecord::Base
 
   end # << end class methods
 
+  # @param [String] lat
+  # @param [String] long
+  # @param [String] piece
+  # @param [Boolean] include_values true if to include records whicgh already have verbatim lat/longs
+  # @return [Scope] of matching collecting events
   def similar_lat_longs(lat, long, piece = '', include_values = true)
     sql = '('
     sql += "verbatim_label LIKE '%#{sql_tick_fix(lat)}%'" unless lat.blank?
@@ -559,9 +564,10 @@ class CollectingEvent < ActiveRecord::Base
     retval
   end
 
+  # @return [Boolean]
   def has_data?
     CollectingEvent.data_attributes.each do |a|
-      return true if !self.send(a).blank?
+      return true unless self.send(a).blank?
     end
     return true if georeferences.any?
     false

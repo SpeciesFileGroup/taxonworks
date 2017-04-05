@@ -122,9 +122,8 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     rescue ActionController::ParameterMissing
       # nothing provided, get the first possible one
       # return CollectingEvent.with_project_id(sessions_current_project_id).order(:id).limit(1).pluck(:id)[0]
-      retval = Queries::CollectingEventLatLongExtractorQuery.new(
-        collecting_event_id: nil,
-        filters:             parse_filters(params))
+      retval = Queries::CollectingEventLatLongExtractorQuery.new(collecting_event_id: nil,
+                                                                 filters:             parse_filters(params))
                  .all
                  .with_project_id(sessions_current_project_id)
                  .order(:id)
@@ -134,27 +133,20 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     retval
   end
 
-  # TODO: deprecate for valud from view/helper
   def next_collecting_event_id
-    filters = parse_filters(params)
-    retval  = Queries::CollectingEventLatLongExtractorQuery.new(
-      collecting_event_id: collecting_event_id_param,
-      filters:             filters)
-      .all
-      .with_project_id(sessions_current_project_id)
-      .order(:id)
-      .limit(1)
-      .pluck(:id)[0]
+    retval = Queries::CollectingEventLatLongExtractorQuery.new(collecting_event_id: collecting_event_id_param,
+                                                               filters:             parse_filters(params))
+               .all
+               .with_project_id(sessions_current_project_id)
+               .order(:id)
+               .limit(1)
+               .pluck(:id)[0]
     retval
   end
 
   def current_collecting_event
     finding = collecting_event_id_param
-    if finding.nil?
-      CollectingEvent.first
-    else
-      CollectingEvent.find(finding)
-    end
+    finding.nil? ? CollectingEvent.first : CollectingEvent.find(finding)
   end
 
   def similar_params
