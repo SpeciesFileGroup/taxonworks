@@ -541,21 +541,6 @@ class CollectingEvent < ActiveRecord::Base
     def data_attributes
       column_names.reject { |c| %w{id project_id created_by_id updated_by_id created_at updated_at project_id}.include?(c) || c =~ /^cached/ }
     end
-
-    # @param [Integer] collecting_event_id past which to look for more collecting events
-    # @param [Integer] project_id
-    # @param [Array] of key symbols of regex filters (See Utilities::Geo::REGEXP_COORD)
-    # @return [Scope] of matching collecting events
-    def next_id_by_label_lat_long(collecting_event_id, project_id = $project_id, filters = Utilities::Geo::REGEXP_COORD.keys)
-      retval = Queries::CollectingEventLatLongExtractorQuery.new(collecting_event_id: collecting_event_id,
-                                                                 filters:             filters)
-                 .all
-                 .with_project_id(project_id)
-                 .order(:id)
-                 .limit(1)
-                 .pluck(:id)[0]
-      retval
-    end
   end # << end class methods
 
   # @param [String] lat

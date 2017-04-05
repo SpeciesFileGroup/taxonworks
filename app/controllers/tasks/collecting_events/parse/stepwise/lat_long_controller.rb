@@ -122,17 +122,25 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     rescue ActionController::ParameterMissing
       # nothing provided, get the first possible one
       # return CollectingEvent.with_project_id(sessions_current_project_id).order(:id).limit(1).pluck(:id)[0]
-      retval = CollectingEvent.next_id_by_label_lat_long(nil,
-                                                         sessions_current_project_id,
-                                                         parse_filters(params))
+      retval = Queries::CollectingEventLatLongExtractorQuery.new(collecting_event_id: nil,
+                                                                 filters:             parse_filters(params))
+                 .all
+                 .with_project_id(sessions_current_project_id)
+                 .order(:id)
+                 .limit(1)
+                 .pluck(:id)[0]
     end
     retval
   end
 
   def next_collecting_event_id
-    retval = CollectingEvent.next_id_by_label_lat_long(collecting_event_id_param,
-                                                       sessions_current_project_id,
-                                                       parse_filters(params))
+    retval = Queries::CollectingEventLatLongExtractorQuery.new(collecting_event_id: collecting_event_id_param,
+                                                               filters:             parse_filters(params))
+               .all
+               .with_project_id(sessions_current_project_id)
+               .order(:id)
+               .limit(1)
+               .pluck(:id)[0]
     retval
   end
 
