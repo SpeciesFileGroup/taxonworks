@@ -1,0 +1,25 @@
+<h1> Browse sources </h1>
+
+<%= form_tag find_sources_task_path, method: :get do |f| %>
+  <div class="field">
+    <%= label_tag :Terms %>
+    <br>
+    <%= text_field_tag :terms, nil, size: 100 -%>   
+  </div>
+
+  <div class="field">
+    <%= label_tag 'Year' %>
+    <br>
+    <%= text_field_tag :year, nil,  size: 4 -%> 
+  </div>
+
+  <%= submit_tag 'Find' -%>
+<% end %>
+<hr>
+
+<% if @sources.any? %>
+  <%= render('result', sources: @sources) %>
+<% else %> 
+  <p> <em> Complete a search to find sources. </em> </p>
+<% end %>
+
