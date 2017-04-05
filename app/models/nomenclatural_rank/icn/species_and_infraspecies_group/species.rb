@@ -1,4 +1,4 @@
-class NomenclaturalRank::Icn::SpeciesGroup::Species < NomenclaturalRank::Icn::SpeciesGroup
+class NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Species < NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup
 
   def self.parent_rank
     NomenclaturalRank::Icn::GenusGroup::Subseries
