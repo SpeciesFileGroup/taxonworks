@@ -150,7 +150,7 @@ group :test, :development do
 end
 
 group :development do
-  gem 'tunemygc'
+#  gem 'tunemygc'
   gem 'ruby-prof'
   gem 'better_errors', '~> 2.0'
   gem 'binding_of_caller'

@@ -425,7 +425,6 @@ GEM
     treetop (1.4.15)
       polyglot
       polyglot (>= 0.3.1)
-    tunemygc (1.0.69)
     turbolinks (2.5.3)
       coffee-rails
     tzinfo (1.2.3)
@@ -537,7 +536,6 @@ DEPENDENCIES
   term-ansicolor (~> 1.4.0)
   thor (= 0.19.1)
   timecop (~> 0.8.1)
-  tunemygc
   turbolinks (~> 2.5.3)
   uglifier (~> 3.0.02)
   validates_timeliness (~> 4.0.0)
