@@ -8,7 +8,7 @@ class Tasks::Sources::BrowseController < ApplicationController
 
   # GET
   def find
-    @sources = Source.all.limit(10)
+    @sources = Queries::SourceFilterQuery.new(params[:terms], project_id: sessions_current_project_id ).all
     render :index
   end
 
