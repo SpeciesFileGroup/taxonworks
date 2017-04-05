@@ -58,8 +58,12 @@ module Utilities::Dates
   # @return [Integer]
   #    return the month index
   def self.month_index(month_value)
-    return nil if month_value.nil?
-    SHORT_MONTHS.index(SHORT_MONTH_FILTER[month_value].to_s) + 1
+    return nil if month_value.blank?
+    month_test = SHORT_MONTH_FILTER[month_value]
+    return nil if month_test.to_s.to_i > 11 # this is to filter out numeric values > 11, symbols => 0
+    retval = SHORT_MONTHS.index(month_test.to_s) + 1
+    return nil if retval > 12
+    retval
   end
 
   # @return[Time] a UTC time (Uses Time instead of Date so that it can be saved as a UTC object -
@@ -340,41 +344,41 @@ module Utilities::Dates
 
   def self.extract_start_end_dates(trial, match_data)
     case trial[:method].gsub('text, ', '').downcase.to_sym
-      when :month_dd_yyyy_2
-        trial[:start_date_year] = match_data[4]
-        trial[:start_date_month] = month_index(match_data[3]).to_s
-        trial[:start_date_day] = match_data[1]
+      when :month_dd_yyyy_2 #done except failing on 'This is a test september 20 ,1944 - November 19 , 1945' (extra spaces)
+        trial[:start_date_year] = match_data[3]
+        trial[:start_date_month] = month_index(match_data[1]).to_s
+        trial[:start_date_day] = match_data[2]
         trial[:start_date] = trial[:start_date_day] + '/' + trial[:start_date_month] + '/' + trial[:start_date_year]
-        trial[:end_date_year] = match_data[4]
-        trial[:end_date_month] = month_index(match_data[3]).to_s
-        trial[:end_date_day] = match_data[2]
+        trial[:end_date_year] = match_data[6]
+        trial[:end_date_month] = month_index(match_data[4]).to_s
+        trial[:end_date_day] = match_data[5]
         trial[:end_date] = trial[:end_date_day] + '/' + trial[:end_date_month] + '/' + trial[:end_date_year]
-      when :dd_month_yyyy_2
-        trial[:start_date_year] = match_data[4]
-        trial[:start_date_month] = month_index(match_data[3]).to_s
+      when :dd_month_yyyy_2 # done
+        trial[:start_date_year] = match_data[3]
+        trial[:start_date_month] = month_index(match_data[2]).to_s
         trial[:start_date_day] = match_data[1]
         trial[:start_date] = trial[:start_date_day] + '/' + trial[:start_date_month] + '/' + trial[:start_date_year]
-        trial[:end_date_year] = match_data[4]
-        trial[:end_date_month] = month_index(match_data[3]).to_s
-        trial[:end_date_day] = match_data[2]
+        trial[:end_date_year] = match_data[6]
+        trial[:end_date_month] = month_index(match_data[5]).to_s
+        trial[:end_date_day] = match_data[4]
         trial[:end_date] = trial[:end_date_day] + '/' + trial[:end_date_month] + '/' + trial[:end_date_year]
-      when :mm_dd_yyyy_2
-        trial[:start_date_year] = match_data[4]
-        trial[:start_date_month] = month_index(match_data[3]).to_s
-        trial[:start_date_day] = match_data[1]
+      when :mm_dd_yyyy_2 # done
+        trial[:start_date_year] = match_data[3]
+        trial[:start_date_month] = month_index(match_data[1]).to_s
+        trial[:start_date_day] = match_data[2]
         trial[:start_date] = trial[:start_date_day] + '/' + trial[:start_date_month] + '/' + trial[:start_date_year]
-        trial[:end_date_year] = match_data[4]
-        trial[:end_date_month] = month_index(match_data[3]).to_s
-        trial[:end_date_day] = match_data[2]
+        trial[:end_date_year] = match_data[6]
+        trial[:end_date_month] = month_index(match_data[4]).to_s
+        trial[:end_date_day] = match_data[5]
         trial[:end_date] = trial[:end_date_day] + '/' + trial[:end_date_month] + '/' + trial[:end_date_year]
-      when :month_dd_month_dd_yyyy
-        trial[:start_date_year] = match_data[4]
-        trial[:start_date_month] = month_index(match_data[3]).to_s
-        trial[:start_date_day] = match_data[1]
+      when :month_dd_month_dd_yyyy # done
+        trial[:start_date_year] = match_data[5]
+        trial[:start_date_month] = month_index(match_data[1]).to_s
+        trial[:start_date_day] = match_data[2]
         trial[:start_date] = trial[:start_date_day] + '/' + trial[:start_date_month] + '/' + trial[:start_date_year]
-        trial[:end_date_year] = match_data[4]
+        trial[:end_date_year] = match_data[5]
         trial[:end_date_month] = month_index(match_data[3]).to_s
-        trial[:end_date_day] = match_data[2]
+        trial[:end_date_day] = match_data[4]
         trial[:end_date] = trial[:end_date_day] + '/' + trial[:end_date_month] + '/' + trial[:end_date_year]
       when :dd_month_dd_month_yyyy # fails for CE 181 due to bad data
         trial[:start_date_year] = match_data[5]
@@ -385,7 +389,25 @@ module Utilities::Dates
         trial[:end_date_month] = month_index(match_data[4]).to_s
         trial[:end_date_day] = match_data[3]
         trial[:end_date] = trial[:end_date_day] + '/' + trial[:end_date_month] + '/' + trial[:end_date_year]
-      when :mm_dd_mm_dd_yyyy
+      when :mm_dd_mm_dd_yyyy # done
+        trial[:start_date_year] = match_data[5]
+        trial[:start_date_month] = month_index(match_data[1]).to_s
+        trial[:start_date_day] = match_data[2]
+        trial[:start_date] = trial[:start_date_day] + '/' + trial[:start_date_month] + '/' + trial[:start_date_year]
+        trial[:end_date_year] = match_data[5]
+        trial[:end_date_month] = month_index(match_data[3]).to_s
+        trial[:end_date_day] = match_data[4]
+        trial[:end_date] = trial[:end_date_day] + '/' + trial[:end_date_month] + '/' + trial[:end_date_year]
+      when :month_dd_dd_yyyy # done
+        trial[:start_date_year] = match_data[4]
+        trial[:start_date_month] = month_index(match_data[1]).to_s
+        trial[:start_date_day] = match_data[2]
+        trial[:start_date] = trial[:start_date_day] + '/' + trial[:start_date_month] + '/' + trial[:start_date_year]
+        trial[:end_date_year] = match_data[4]
+        trial[:end_date_month] = month_index(match_data[1]).to_s
+        trial[:end_date_day] = match_data[3]
+        trial[:end_date] = trial[:end_date_day] + '/' + trial[:end_date_month] + '/' + trial[:end_date_year]
+      when :dd_dd_month_yyyy # done
         trial[:start_date_year] = match_data[4]
         trial[:start_date_month] = month_index(match_data[3]).to_s
         trial[:start_date_day] = match_data[1]
@@ -394,25 +416,16 @@ module Utilities::Dates
         trial[:end_date_month] = month_index(match_data[3]).to_s
         trial[:end_date_day] = match_data[2]
         trial[:end_date] = trial[:end_date_day] + '/' + trial[:end_date_month] + '/' + trial[:end_date_year]
-      when :dd_dd_month_yyyy #done
-        trial[:start_date_year] = match_data[4]
-        trial[:start_date_month] = month_index(match_data[3]).to_s
-        trial[:start_date_day] = match_data[1]
+      when :mm_dd_dd_yyy # done
+        trial[:start_date_year] = match_data[5]
+        trial[:start_date_month] = month_index(match_data[1]).to_s
+        trial[:start_date_day] = match_data[2]
         trial[:start_date] = trial[:start_date_day] + '/' + trial[:start_date_month] + '/' + trial[:start_date_year]
-        trial[:end_date_year] = match_data[4]
+        trial[:end_date_year] = match_data[5]
         trial[:end_date_month] = month_index(match_data[3]).to_s
-        trial[:end_date_day] = match_data[2]
+        trial[:end_date_day] = match_data[4]
         trial[:end_date] = trial[:end_date_day] + '/' + trial[:end_date_month] + '/' + trial[:end_date_year]
-      when :mm_dd_dd_yyyy
-        trial[:start_date_year] = match_data[4]
-        trial[:start_date_month] = month_index(match_data[3]).to_s
-        trial[:start_date_day] = match_data[1]
-        trial[:start_date] = trial[:start_date_day] + '/' + trial[:start_date_month] + '/' + trial[:start_date_year]
-        trial[:end_date_year] = match_data[4]
-        trial[:end_date_month] = month_index(match_data[3]).to_s
-        trial[:end_date_day] = match_data[2]
-        trial[:end_date] = trial[:end_date_day] + '/' + trial[:end_date_month] + '/' + trial[:end_date_year]
-      when :month_dd_yyy # untested
+      when :month_dd_yyy # done
         trial[:start_date_year] = match_data[3]
         trial[:start_date_month] = month_index(match_data[1]).to_s
         trial[:start_date_day] = match_data[2]
@@ -421,7 +434,7 @@ module Utilities::Dates
         trial[:end_date_month] = month_index(match_data[1]).to_s
         trial[:end_date_day] = match_data[2]
         trial[:end_date] = trial[:end_date_day] + '/' + trial[:end_date_month] + '/' + trial[:end_date_year]
-      when :dd_month_yyy #done for yyyy
+      when :dd_month_yyy # done for yyyy
         trial[:start_date_year] = match_data[3]
         trial[:start_date_month] = month_index(match_data[2]).to_s
         trial[:start_date_day] = match_data[1]
@@ -430,7 +443,7 @@ module Utilities::Dates
         trial[:end_date_month] = month_index(match_data[2]).to_s
         trial[:end_date_day] = match_data[1]
         trial[:end_date] = trial[:end_date_day] + '/' + trial[:end_date_month] + '/' + trial[:end_date_year]
-      when :mm_dd_yyyy #untested
+      when :mm_dd_yyyy # done
         trial[:start_date_year] = match_data[3]
         trial[:start_date_month] = month_index(match_data[1]).to_s
         trial[:start_date_day] = match_data[2]
@@ -439,7 +452,7 @@ module Utilities::Dates
         trial[:end_date_month] = month_index(match_data[1]).to_s
         trial[:end_date_day] = match_data[2]
         trial[:end_date] = trial[:end_date_day] + '/' + trial[:end_date_month] + '/' + trial[:end_date_year]
-      when :mm_dd_yy #fails for CE 183 "31.25, 14"
+      when :mm_dd_yy # done
         trial[:start_date_year] = match_data[3]
         trial[:start_date_month] = month_index(match_data[1]).to_s
         trial[:start_date_day] = match_data[2]
@@ -454,7 +467,7 @@ module Utilities::Dates
 
   REGEXP_DATES = {
       # June 27 1946 - July 1 1947
-      month_dd_yyyy_2: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]\s?(\d\d?)[\.;,]?[\s\.,\/](\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})\s?[-\u2013\/]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]\s?(\d\d?)[\.;,]?[\s,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})"/i,
+      month_dd_yyyy_2: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]\s?(\d\d?)[\.;,]?[\s\.,\/](\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})\s?[-\u2013\/]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]\s?(\d\d?)[\.;,]?[\s,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
 
       # 27 June 1946 - 1 July 1947
       dd_month_yyyy_2: /(\d\d?)[\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})\s?[-\u2013\/]\s?(\d\d?)[\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
@@ -466,7 +479,7 @@ module Utilities::Dates
       month_dd_month_dd_yyyy: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]?\s?(\d\d?)\s?[-\u2013\/]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]?\s?(\d\d?)[\s\.;,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
 
       # 27 June - 1 July 1947
-      dd_month_dd_month_yyyy: /(\d\d?)\s?[\.\/,\u2013-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[-\u2013\/]\s?(\d\d?)\s?[\.\/,\u2013-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[,-\u2013\/]?\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+      dd_month_dd_month_yyyy: /(\d\d?)\s?[\.\/,\u2013-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[-\u2013\/]\s?(\d\d?)\s?[\.\/,\u2013-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[-,\u2013\/]?\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
 
       # 5 27 - 6 1 1947
       mm_dd_mm_dd_yyyy: /(\d\d?)[\s\.,\/]\s?(\d\d?)\s?[-\u2013\/]\s?(\d\d?)[\s\.,\/]\s?(\d\d?)[\s\.,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
@@ -475,10 +488,11 @@ module Utilities::Dates
       month_dd_dd_yyyy: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[\.,]?[-\s\u2013,\/]?(\d\d?)\s?[-\u2013\+\/]\s?(\d\d?)[\.,]?[-\s\.\u2013,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
 
       # 27-29 June 1947
-      # dd_dd_month_yyyy: /(\d\d?)\s?[-\u2013\+\/]\s?(\d\d?)[\s\.,\/-]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[-\s\u2013,\/]?\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+      dd_dd_month_yyyy: /(\d\d?)\s?[-\u2013\+\/]\s?(\d\d?)[\s\.,\/-]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[-\s\u2013,\/]?\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
 
       # 5 27-29 1947
-      mm_dd_dd_yyyy: /(\d\d?)\s?[-\u2013\s\.,\/]\s?(\d\d?)\s?[-\u2013\+\/]\s?(\d\d?)[\.,;]?\s?[-\s\u2013,\/](\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+      # mm_dd_dd_yyyy: /(\d\d?)\s?[-\u2013\s\.,\/]\s?(\d\d?)\s?[-\u2013\+\/]\s?(\d\d?)[\.,;]?\s?[-\s\u2013,\/](\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+      mm_dd_dd_yyyy: /(\d\d?)\s?[-\u2013\s\.,\/]\s?(\d\d?)\s?[-\u2013\+\/]\s?(\d\d?)[\.,;]?\s?[-\u2013\+\/]\s?(\d\d?)[\.,;]?\s?[-\s\u2013,\/](\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2,4})/i,
 
       # Jun 29 1947     Jun 29, 1947    June 29 1947    June 29, 1947    VI-29-1947   X.25.2000
       #   Jun 29, '47   June 29, '47    VI-4-08    Jun 29, '47
@@ -486,7 +500,7 @@ module Utilities::Dates
 
       #  29 Jun 1947   29 June 1947   2 June, 1983   29 VI 1947   29-VI-1947   25.X.2000 25X2000
       #   29 June '47   29 Jun '47
-      # dd_month_yyy: /(\d\d?)\s?[-\u2013_\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[\.,]?\s?[-,\u2013_\/]?\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+      dd_month_yyy: /(\d\d?)\s?[-\u2013_\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[\.,]?\s?[-,\u2013_\/]?\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
 
       #  6/29/1947    6-29-1947    6-15 1985    10.25 2000    7.10.1994
       mm_dd_yyyy: /(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d{4})/i,
