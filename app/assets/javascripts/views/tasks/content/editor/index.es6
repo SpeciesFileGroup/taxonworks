@@ -178,7 +178,7 @@ Object.assign(TW.views.tasks.content.editor, {
     Vue.component('select-topic-otu', {
       template: '<div> \
                   <button @click="showModal = true" class="button normal-input button-default">Select</button> \
-                  <modal v-if="showModal" id="clone-modal"> \
+                  <modal v-if="showModal"> \
                     <h3 slot="header">Select</h3> \
                     <div slot="body"> \
                     <div class="flex-wrap-column"> \
@@ -277,7 +277,7 @@ Object.assign(TW.views.tasks.content.editor, {
 
     Vue.component('clone-content', {
       template: '<div :class="{ disabled : contents.length == 0 }"> \
-                  <div @click="showModal = true && contents.length > 0" class="item flex-wrap-column middle"><span data-icon="clone" class="big-icon"></span><span class="tiny_space">Clone</span></div> \
+                  <div @click="showModal = true && contents.length > 0" class="item flex-wrap-column middle menu-button"><span data-icon="clone" class="big-icon"></span><span class="tiny_space">Clone</span></div> \
                   <modal v-if="showModal" id="clone-modal"> \
                     <h3 slot="header">Clone</h3> \
                     <div slot="body"> \
@@ -343,7 +343,7 @@ Object.assign(TW.views.tasks.content.editor, {
 
     Vue.component('compare-content', {
       template: '<div :class="{ disabled : !content || content.length < 1}" > \
-                  <div class="flex-wrap-column middle"><span data-icon="compare" @click="showModal = contents.length > 0" class="big-icon"></span><span class="tiny_space">Compare</span></div> \
+                  <div class="item flex-wrap-column middle menu-button" @click="showModal = contents.length > 0" ><span data-icon="compare" class="big-icon"></span><span class="tiny_space">Compare</span></div> \
                   <modal v-if="showModal" id="compare-modal"> \
                     <h3 slot="header">Compare content</h3> \
                     <ul slot="body" class="no_bullets"> \
@@ -403,7 +403,7 @@ Object.assign(TW.views.tasks.content.editor, {
 
     Vue.component('citation-otu', {
       template: '<div :class="{ disabled : disabled  }"> \
-                  <div class="flex-wrap-column middle"><span data-icon="citation" @click="showModal = citations.length > 0" class="big-icon"></span><span class="tiny_space">Citation OTU</span></div> \
+                  <div class="flex-wrap-column middle menu-button" @click="showModal = citations.length > 0"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation OTU</span></div> \
                   <modal v-if="showModal"> \
                     <h3 slot="header">Citation OTU</h3> \
                     <ul slot="body"> \
@@ -556,13 +556,13 @@ Object.assign(TW.views.tasks.content.editor, {
                       <div class="compare" @mouseup="copyCompareContent">{{ compareContent.text }}</div> \
                     </div> \
                   </div> \
-                  <div  class="flex-separate menu-content-editor"> \
-                    <div class="item flex-wrap-column middle menu-item" @click="update" :class="{ saving : autosave }"><span data-icon="savedb" class="big-icon"></span><span class="tiny_space">Save</span></div> \
+                  <div class="flex-separate menu-content-editor"> \
+                    <div class="item flex-wrap-column middle menu-item menu-button" @click="update" :class="{ saving : autosave }"><span data-icon="savedb" class="big-icon"></span><span class="tiny_space">Save</span></div> \
                     <clone-content :class="{ disabled : !content }" class="item menu-item"></clone-content> \
                     <compare-content class="item menu-item"></compare-content> \
-                    <div class="item flex-wrap-column middle menu-item" @click="$store.commit(\'changeStateCitations\')" :class="{ active : activeCitations, disabled : $store.getters.getCitationsList < 1 }"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation</span></div> \
+                    <div class="item flex-wrap-column middle menu-item menu-button" @click="$store.commit(\'changeStateCitations\')" :class="{ active : activeCitations, disabled : $store.getters.getCitationsList < 1 }"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation</span></div> \
                     <citation-otu class="item menu-item"></citation-otu> \
-                    <div class="item flex-wrap-column middle menu-item" @click="$store.commit(\'changeStateFigures\')" :class="{ active : activeFigures, disabled : !content }"><span data-icon="new" class="big-icon"></span><span class="tiny_space">Figure</span></div> \
+                    <div class="item flex-wrap-column middle menu-item menu-button" @click="$store.commit(\'changeStateFigures\')" :class="{ active : activeFigures, disabled : !content }"><span data-icon="new" class="big-icon"></span><span class="tiny_space">Figure</span></div> \
                   </div> \
                 </div>',
       created: function() {

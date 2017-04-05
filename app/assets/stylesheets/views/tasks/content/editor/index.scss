@@ -29,6 +29,9 @@
 		}
 	}
 	#clone-modal, #compare-modal {
+		.modal-container {
+			width: 70%;
+		}
 		font-size: 16px;
 		li {
 			cursor: pointer;
@@ -62,16 +65,15 @@
 	}
 
 	.menu-content-editor {
+		margin: 0px;
 		.menu-item {
 			margin-bottom: $standard_margin;
 			cursor: pointer;
-			padding: 12px;
-			padding-bottom: 6px;
 			border-left: 1px solid $navigation_border;
 			border-bottom: 1px solid $navigation_border;
 			.big-icon {
 				opacity: 0.8;
-			}			
+			}	
 		}
 		.menu-item:last-child {
 			border-right:1px solid $navigation_border;
@@ -80,11 +82,19 @@
 			background-color: $color-complement-2;
 		}	
 
+		.menu-button {
+			padding: 12px;
+			box-sizing: content-box;
+		}
+
 		.active {
 			background-color: $color-complement-2;
 		}
 		.disabled {
-			background-color: $navigation_border;
+			background-color: $navigation_background;
+			&:hover {
+				background-color: $navigation_background;
+			}
 		}
 	}
 
@@ -128,14 +138,6 @@
 		}		
 	}		
 
-	#recent-list {
-		.slide-panel-circle-icon {
-			top:calc(80vh - 120px);
-			background-color: #42b983;
-			background-image: image-url('recent_slide.svg');
-		}		
-	}
-
 	#otu_panel {
 		position: relative;
 		z-index: 2000 !important;
@@ -147,7 +149,6 @@
 		top:0px;
 		max-width: 300px;
 		min-width: 300px;		
-		//position: relative;
 		.slide-panel-header {
 			font-weight: 500;
 			color: #42b983;
@@ -163,12 +164,7 @@
 		left:-300px;
 		.selected {
 			background-color: $color-complement-2;
-		}
-		.slide-panel-circle-icon {
-			top:calc(80vh - 120px);
-			background-color: #42b983;
-			background-image: image-url('w_list.svg');
-		}				
+		}		
 	}
 
 	.citation-list {
