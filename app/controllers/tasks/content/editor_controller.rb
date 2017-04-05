@@ -7,7 +7,6 @@ class Tasks::Content::EditorController < ApplicationController
 
   # GET .json
   def recent_topics
-    
     @controlled_vocabulary_terms = Topic.where(project: sessions_current_project).distinct.recently_updated(range_limit(params[:limit])).order(:name)
     render '/controlled_vocabulary_terms/index'
   end
