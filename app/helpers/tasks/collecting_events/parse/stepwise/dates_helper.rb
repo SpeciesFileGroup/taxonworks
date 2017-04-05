@@ -27,7 +27,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
   end
 
 
-  def make_date_rows(label, filters)
+  def make_dates_rows(label, filters)
     return nil if label.nil?
     tests = Utilities::Dates.hunt_wrapper(label, filters)
     tests.keys.collect.with_index do |kee, dex|
@@ -52,7 +52,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
   # @param [String] pieces is either piece, or lat, long
   # @param [Scope] collection is a scope of CollectingEvent
   # "identical matches" result table
-  def make_matching_table(*pieces, collection)
+  def make_dates_matching_table(*pieces, collection)
     columns = ['CEID', 'Match', 'Verbatim Start Date', 'Verbatim End Date', 'Select']
 
     thead = content_tag(:thead) do
