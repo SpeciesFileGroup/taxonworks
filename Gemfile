@@ -73,6 +73,7 @@ gem 'jquery-turbolinks', '~> 2.1'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.5.0'
+gem 'thor', '0.19.1' # See https://github.com/rails/rails/issues/27229
 gem 'chronic', '~> 0.10'
 
 gem 'closure_tree', '~> 6.3.0'
@@ -105,7 +106,6 @@ gem 'capistrano-npm'
 # Versioning
 gem 'paper_trail', '~> 4.0.0.rc'
 
-
 gem 'validates_timeliness', '~> 4.0.0'
 
 # Password encryption
@@ -132,13 +132,12 @@ gem 'dropzonejs-rails', '~> 0.7.3'
 # DwC-A archive handling
 gem 'dwc-archive', '~> 0.9.11'
 
-
-
 gem 'redcarpet', '~> 3.3'
 
 # SFG gems
 gem 'taxonifi', '0.4.0'
 gem 'sqed', '0.2.4'
+
 
 group :test, :development do
   gem 'faker', '~> 1.6.1'
