@@ -407,6 +407,13 @@ TaxonWorks::Application.routes.draw do
   ### End of resources except user related located below scopes ###
 
   scope :tasks do
+    scope :sources do
+      scope :browse, controller: 'tasks/sources/browse' do
+        get 'index', as: 'browse_sources_task'
+        get 'find', as: 'find_sources_task'
+      end
+    end
+
 
     scope :collecting_events do
       scope :parse do

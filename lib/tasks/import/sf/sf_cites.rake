@@ -31,9 +31,9 @@ namespace :tw do
 
 
           count_found = 0
-          # error_counter = 0
+          error_counter = 0
           # no_taxon_counter = 0
-          # cite_found_counter = 0
+          cite_found_counter = 0
           # otu_not_found_counter = 0
           orig_desc_source_id = 0 # make sure only first cite to original description is handled as such (when more than one cite to same source)
           # otu_only_counter = 0
@@ -54,7 +54,7 @@ namespace :tw do
             # otu_id = get_tw_otu_id[sf_taxon_name_id]
             project_id = otu.project_id.to_s
 
-            logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.otu_id #{otu.id},
+            logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{sf_taxon_name_id} = TW.otu_id #{otu.id},
 SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
 
             cite_pages = row['CitePages']
@@ -115,10 +115,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
 
             # byebug
 
-            # if citation != nil and orig_desc_source_id != source_id
-            #   orig_desc_source_id = source_id # prevents duplicate citation to same source being processed as original description
-
-            citation = Citation.create!(
+            citation = Citation.new(
                 metadata.merge(
                     source_id: source_id,
                     pages: cite_pages,
@@ -135,6 +132,26 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                     updated_by_id: get_tw_user_id[row['ModifiedBy']]
                 )
             )
+
+            begin
+              citation.save!
+            rescue
+              # byebug
+              if citation.errors.messages[:source_id].nil?
+                logger.info "Citation ERROR (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
+              else
+                if citation.errors.messages[:source_id].include?('has already been taken') # citation.errors.messages[:source_id][0] == 'has already been taken'
+                  logger.info "Citation (= #{old_citation.id}) to this OTU (= #{otu.id}, SF.TaxonNameID #{sf_taxon_name_id}) from this source (= #{source_id}, SF.RefID #{sf_ref_id}) with these pages (= #{cite_pages}) already exists (cite_found_counter = #{cite_found_counter += 1})"
+                  old_citation = Citation.where(source_id: source_id, citation_object: otu).first # instantiate so nomenclator string can be appended
+                  old_citation.notes << Note.new(text: "Duplicate citation source to same OTU; nomenclator string = '#{get_nomenclator_string[row['NomenclatorID']]}'", project_id: project_id)
+                  note_text = row['Note'].gsub('|', ':')
+                  old_citation.notes << Note.new(text: "Note for duplicate citation = '#{note_text}'", project_id: project_id) unless row['Note'].blank?
+                else
+                  logger.info "Citation ERROR (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
+                end
+              end
+              next
+            end
 
             ### After citation updated or created
 
@@ -156,7 +173,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
             end
           end
         end
-
 
         desc 'time rake tw:project_import:sf_import:cites:create_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :create_citations => [:data_directory, :environment, :user_id] do |logger|
@@ -271,8 +287,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                       type: 'TaxonNameAuthor',
                       role_object_id: taxon_name_id,
                       role_object_type: 'TaxonName',
-                  # position: row['SeqNum'],
-                  project_id: project_id,   # role is project_role
+                      # position: row['SeqNum'],
+                      project_id: project_id, # role is project_role
                   # created_at: row['CreatedOn'],
                   # updated_at: row['LastUpdate'],
                   # created_by_id: get_tw_user_id[row['CreatedBy']],

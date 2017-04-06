@@ -1,3 +1,2 @@
-$('#add_remove_source').html("<%= j add_source_to_project_form(@source) -%>");
+$("[data-source-to-project='<%= @source.id -%>']").parent().replaceWith("<%= j add_source_to_project_form(@source) -%>");
 $('body').mx_spinner('hide'); // hackish, should call the event.
-
