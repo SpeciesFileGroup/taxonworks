@@ -190,3 +190,13 @@ browse_sources_task:
     - source
   status: prototype
   description: 'List sources via a simple keyword/year based search.'
+
+collecting_event_lat_long_task:
+  hub: true
+  name: 'Stepwise collecting event parser - Latitude/Longitude'
+  related:
+    - collecting_events
+  categories:
+    - collecting_event
+  status: prototype
+  description: 'Parse the verbatim label for possible lat/long combinations.'

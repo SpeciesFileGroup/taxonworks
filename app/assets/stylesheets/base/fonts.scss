@@ -28,8 +28,8 @@ $font_title: 16px;
 .font-light {
 	font-weight: 300;
 }
-.regular_type { font-size: 12px; }
-.large_type { font-size: 13px; }
+.regular_type { font-size: 14pt; } 
+.large_type { font-size: 18pt; } 
 
 .normal_type {
 	font-size: $font_normal;
@@ -51,6 +51,11 @@ $font_title: 16px;
 	text-transform: uppercase;
 }
 
+.word_break {
+  word-break: break-all;
+  white-space: -moz-pre-wrap;
+  white-space: pre-wrap; 
+}
 /*
 
 h1, h2, h3 ?

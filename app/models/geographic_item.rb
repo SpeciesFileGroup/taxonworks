@@ -112,7 +112,7 @@ class GeographicItem < ActiveRecord::Base
       ).first.r
     end
 
-    # TODO: * rename to reflect either/or and what is being returned 
+    # TODO: * rename to reflect either/or and what is being returned
     # @param [Integer] geographic_area_id
     # @param [String] shape_in in JSON (TODO: what kind? / details on specification)
     # @param [String] search_object_class
@@ -143,7 +143,7 @@ class GeographicItem < ActiveRecord::Base
 
     # @param [String] feature in JSON
     # @param [String] search_object_class
-    # @return [Scope] of the requested search_object_type 
+    # @return [Scope] of the requested search_object_type
     #   This function takes a feature, i.e. a string that is the result
     #   of drawing on a Google map, and submited as a form variable,
     #   and translates that to a scope for a provided search_object_class.
@@ -152,7 +152,7 @@ class GeographicItem < ActiveRecord::Base
     def gather_map_data(feature, search_object_class)
       finding = search_object_class.constantize
       feature = RGeo::GeoJSON.decode(feature, json_parser: :json)
-      geometry = feature.geometry # isolate the WKT
+      geometry = feature.geometry       # isolate the WKT
       shape_type = geometry.geometry_type.to_s.downcase
       geometry = geometry.as_text
       radius = feature['radius']
