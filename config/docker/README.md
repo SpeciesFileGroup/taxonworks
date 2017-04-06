@@ -5,15 +5,18 @@
 * Present docker setup is for *production*, it is not intendend to work with `docker-compose`. It's target is kubectrl.
 * Docker file that works with docker-compose is perahaps at  f8858d1
 
-
 * Rake inside the service was understanding evaulation, Passenger is not
-
 
 # TODO
 
-* Harcoding database.yml with ERB
+## Production
+
+* If database not built, then build and/or restore
+* 
 
 # Minikube notes 
+
+# remember to build new images, push to Docker hub
 
 * cd ( ... )
 
