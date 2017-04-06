@@ -18,21 +18,21 @@ namespace :tw do
           #  'start:create_source_editor_array',
           #  'start:create_source_roles',
 
-           # 'taxa:create_rank_hash',
-           # 'taxa:create_animalia_below_root',
-           # 'taxa:create_sf_synonym_id_to_new_parent_id_hash',
-           # 'taxa:create_otus_for_ill_formed_names_hash',
-           # 'taxa:create_all_sf_taxa_pass1',
-           # 'taxa:create_type_species',
-           # 'taxa:create_type_genera',
-           # 'taxa:create_some_related_taxa',
-           # 'taxa:create_status_flag_relationships',
+          # 'taxa:create_rank_hash',
+          # 'taxa:create_animalia_below_root',
+          # 'taxa:create_sf_synonym_id_to_new_parent_id_hash',
+          # 'taxa:create_otus_for_ill_formed_names_hash',
+          # 'taxa:create_all_sf_taxa_pass1',
+          # 'taxa:create_type_species',
+          # 'taxa:create_type_genera',
+          # 'taxa:create_some_related_taxa',
+          # 'taxa:create_status_flag_relationships',
 
           # 'cites:import_nomenclator_strings',
           # 'cites:create_cvts_for_citations',
           # 'cites:create_sf_taxon_name_authors',
-          'cites:create_citations',
-          # 'cites:create_otu_cites'
+          # 'cites:create_citations',
+          'cites:create_otu_cites'
       ] do
         puts 'Ran all import tasks!'
       end
