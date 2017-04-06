@@ -17,8 +17,9 @@
         <td><%= source.cached.html_safe %></td>
         <td><%= source.year %></td>
         <td><%= source.citations.where(project_id: sessions_current_project_id).count %></td>
-        <td><%= ProjectSource.where(source: source, project_id: sessions_current_project_id).any? ? 'Yes' : 'No'  %></td>
+        <td><%= add_source_to_project_form(source) %></td>
         <td><%= pin_item_to_pinboard_link(source, sessions_current_user) %></td>
+        <%= fancy_options_cells_tag(source) -%>
       <% end %>
     <% end %>
   </tbody>
