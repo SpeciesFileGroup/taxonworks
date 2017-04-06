@@ -35,13 +35,15 @@ spec:
       containers:
         - name: taxonworks
           image: sfgrp/taxonworks
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 180
-            timeoutSeconds: 3
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: 80
+          #   initialDelaySeconds: 180
+          #   timeoutSeconds: 3
           env:
+            - name: RAILS_ENV
+              value: production
             - name: SERVER_NAME
               value: mini
             - name: POSTGRES_HOST
