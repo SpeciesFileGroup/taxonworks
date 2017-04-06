@@ -12,11 +12,12 @@
 ## Production
 
 * If database not built, then build and/or restore
-* 
-
-# Minikube notes 
 
 # remember to build new images, push to Docker hub
+
+* docker build --rm -t sfgrp/taxonworks .
+
+# Minikube notes 
 
 * cd ( ... )
 
