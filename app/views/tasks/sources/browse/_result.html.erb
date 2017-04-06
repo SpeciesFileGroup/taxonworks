@@ -9,18 +9,19 @@
       <%= fancy_th_tag(name: 'In project') -%>
       <%= fancy_th_tag(name: 'Pin') -%>
     </tr>
+  </thead>
 
-    <tbody>
-      <% @sources.each do |s| -%>
-        <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
-          <td><%= s.cached.html_safe %></td>
-          <td><%= s.year %></td>
-          <td><%= s.citations.where(project_id: sessions_current_project_id).count %></td>
-          <td><%= ProjectSource.where(source: s, project_id: sessions_current_project_id).any? ? 'Yes' : 'No'  %></td>
-          <td><%= 'pin stub' %></td>
-        <% end %>
+  <tbody>
+    <% @sources.each do |source| -%>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+        <td><%= source.cached.html_safe %></td>
+        <td><%= source.year %></td>
+        <td><%= source.citations.where(project_id: sessions_current_project_id).count %></td>
+        <td><%= ProjectSource.where(source: source, project_id: sessions_current_project_id).any? ? 'Yes' : 'No'  %></td>
+        <td><%= pin_item_to_pinboard_link(source, sessions_current_user) %></td>
       <% end %>
-    </tbody>
+    <% end %>
+  </tbody>
 
 </table>
 
