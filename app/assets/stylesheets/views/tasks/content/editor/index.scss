@@ -28,6 +28,63 @@
 			margin-right: 1em;
 		}
 	}
+
+	.figures-container {
+		box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.2);
+		margin: $standard_margin;
+		background-color: #FFF;
+		width: 270px;
+		min-height: 270px;		
+		img {
+			width: 270px;
+			height: 180px;
+		}
+		.header {
+			position: relative;
+		}
+		.figures-body {
+			margin-top: 1em;
+			padding: $standard_padding;
+							color: #444;
+		}
+
+		.figures-header {
+			.figures-label {
+				background-color: #B7B7B7;
+				font-size: $font_title;
+				font-weight: 700;
+				color: #FFF;
+				position: absolute;
+				border-radius: 50%;
+				width: 50px;
+				height: 50px;
+				bottom: -25px;
+				left: $standard_margin;
+			}			
+			.circle-button {
+				box-shadow: 0 1px 1px 0px rgba(0,0,0,0.2);
+				margin: 0px;
+			}
+			position: relative;
+			.circle-button {
+				width: 30px;
+				height: 30px;
+			}
+			.figures-delete {
+			//	background-color: #991010;
+				background-image: image-url("w_trash.svg");
+				position: absolute;
+				top: 12px;
+				right: 12px;
+			}
+			.figures-edit {
+				background-image: image-url("w_pencil.svg");
+				position: absolute;
+				bottom: -15px;
+				right: 12px;
+			}
+		}
+	}
 	#clone-modal, #compare-modal {
 		.modal-container {
 			width: 70%;
@@ -145,6 +202,7 @@
 		margin-right: $standard_margin * -1;
 		margin-left: $standard_margin;
 	}
+
 	.slide-panel {
 		top:0px;
 		max-width: 300px;

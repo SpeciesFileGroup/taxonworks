@@ -141,8 +141,8 @@ Object.assign(TW.views.tasks.content.editor, {
           return this.$store.getters.panelCitations
         }
       },
-      template: '<div v-if="activeCitations && content"> \
-                  <ul v-if="citations.length > 0"> \
+      template: '<div v-if="activeCitations && content && citations.length > 0"> \
+                  <ul> \
                     <li class="flex-separate middle" v-for="item, index in citations">{{ item.source.author_year }} <div @click="removeItem(index, item)" class="circle-button btn-delete">Remove</div> </li> \
                   </ul> \
                 </div>',
@@ -464,11 +464,36 @@ Object.assign(TW.views.tasks.content.editor, {
       }
     });
 
+    Vue.component('figure-item', {
+      template: '<div class="figures-container"> \
+                  <div class="figures-header"> \
+                    <img :src="figure.image.result.url" /> \
+                    <div class="button-delete circle-button figures-delete"></div> \
+                    <div class="button-default circle-button figures-edit"></div> \
+                    <div class="figures-label horizontal-center-content middle">123</div> \
+                  </div> \
+                  <div class="figures-body"> \
+                    <p>{{ figure.caption }}</p> \
+                  </div> \
+                </div>',
+      props: ['figure', 'index'],
+      data: function() { 
+        return {
+
+        }
+      },
+      methods: {
+
+      }
+
+    });
+
     Vue.component('figures-panel', {
       template: '<div class="flexbox" v-if="panelFigures && content"> \
-                  <div class="item item1 column-medium panel"> \
+                  <div class="item item1 column-medium flex-wrap-row"> \
+                    <figure-item v-for="item, index in depictions" :index="index" :figure="item"></figure-item> \
                   </div> \
-                  <div class="item item2 column-tiny "> \
+                  <div class="item item2 column-tiny no-margin"> \
                     <dropzone v-on:vdropzone-sending="sending" id="figure" url="/depictions" :useCustomDropzoneOptions="true" :dropzoneOptions="dropzone"></dropzone> \
                   </div> \
                 </div>',
@@ -488,7 +513,20 @@ Object.assign(TW.views.tasks.content.editor, {
             headers: {
               'X-CSRF-Token' : token
             },
-          }                
+          },
+          depictions: [],                
+        }
+      },
+      watch: {
+        'content': function(val, oldVal) {
+          if(val != undefined) {
+            if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
+              this.loadContent();
+            }
+          }
+          else {
+            //this.$store.commit('setCitationList', []);
+          }
         }
       },
       methods: {
@@ -496,6 +534,13 @@ Object.assign(TW.views.tasks.content.editor, {
           formData.append("depiction[depiction_object_id]", this.content.id);
           formData.append("depiction[depiction_object_type]", "Content");
         },
+        loadContent: function() {
+          var ajaxUrl = `/contents/${this.content.id}/depictions.json`;
+          this.$http.get(ajaxUrl).then( response => {
+            console.log(response.body);
+            this.depictions = response.body;
+          });
+        }
       }  
     });
 
