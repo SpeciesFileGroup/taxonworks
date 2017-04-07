@@ -31,8 +31,8 @@ namespace :tw do
           # 'cites:import_nomenclator_strings',
           # 'cites:create_cvts_for_citations',
           # 'cites:create_sf_taxon_name_authors',
-          # 'cites:create_citations',
-          'cites:create_otu_cites'
+          'cites:create_citations',
+          # 'cites:create_otu_cites'
       ] do
         puts 'Ran all import tasks!'
       end
