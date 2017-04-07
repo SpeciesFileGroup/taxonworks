@@ -26,6 +26,11 @@
     background-color: $color-action-button;  
 }
 
+.button-delete, .button-close { 
+    color: #FFF;
+    background-color: $color-remove-button;
+ }
+
 .button-request {
     color: #FFF;
     background-color: $color-request-button;  
@@ -148,10 +153,16 @@
 
 .pin-button {
     @extend .circle-button;
-    background-color: #00796B;
+    background-color: $color-action-button;
     margin:0px;
     background-size: 14px;
     background-image: image-url("b_pin.svg");
+}
+
+.unpin-button {
+    @extend .pin-button;
+    font-size: 0px;
+    background-color: $color-remove-button;
 }
 
 .disable-button {

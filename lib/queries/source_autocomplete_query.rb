@@ -24,7 +24,7 @@ module Queries
       if no_digits.blank?
         table[:id].eq('-1')
       else
-        table[:cached].matches("%#{no_digits}%")
+        table[:cached].matches("#{query_string}%")
       end
     end
 
@@ -33,11 +33,11 @@ module Queries
     def all 
       ( 
        [ Source.find_by_cached(query_string) ]  +
-       Source.where(with_id.to_sql).limit(9) +
-       Source.where(cached_full_match.and(year).to_sql).limit(5) +
-       Source.where(cached.and(year).to_sql).limit(40) +
+       Source.where(with_id.to_sql).limit(20) + 
+       Source.where(cached_full_match.to_sql).limit(40) +
+       Source.where(cached.and(year).to_sql).limit(30) +
        Source.where(cached.to_sql).limit(20)  
-      ).flatten.compact.uniq
+      ).flatten.compact.uniq.sort_by(&:cached)
     end
 
     def by_project_all

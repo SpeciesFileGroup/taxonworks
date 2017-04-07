@@ -141,11 +141,11 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                 logger.info "Citation ERROR (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
               else
                 if citation.errors.messages[:source_id].include?('has already been taken') # citation.errors.messages[:source_id][0] == 'has already been taken'
-                  logger.info "Citation (= #{old_citation.id}) to this OTU (= #{otu.id}, SF.TaxonNameID #{sf_taxon_name_id}) from this source (= #{source_id}, SF.RefID #{sf_ref_id}) with these pages (= #{cite_pages}) already exists (cite_found_counter = #{cite_found_counter += 1})"
                   old_citation = Citation.where(source_id: source_id, citation_object: otu).first # instantiate so nomenclator string can be appended
+                  logger.info "Citation (= #{old_citation.id}) to this OTU (= #{otu.id}, SF.TaxonNameID #{sf_taxon_name_id}) from this source (= #{source_id}, SF.RefID #{sf_ref_id}) with these pages (= #{cite_pages}) already exists (cite_found_counter = #{cite_found_counter += 1})"
                   old_citation.notes << Note.new(text: "Duplicate citation source to same OTU; nomenclator string = '#{get_nomenclator_string[row['NomenclatorID']]}'", project_id: project_id)
-                  note_text = row['Note'].gsub('|', ':')
-                  old_citation.notes << Note.new(text: "Note for duplicate citation = '#{note_text}'", project_id: project_id) unless row['Note'].blank?
+                  # note_text = row['Note'].gsub('|', ':')
+                  old_citation.notes << Note.new(text: "Note for duplicate citation = '#{row['Note']}'", project_id: project_id) unless row['Note'].blank?
                 else
                   logger.info "Citation ERROR (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
                 end
@@ -214,7 +214,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
               # @todo: Test if OTU exists? Add citation to OTU? Also add notes, nomenclator, tags, confidences?
               sf_taxon_name_id = row['TaxonNameID']
               if get_tw_otu_id.has_key?(sf_taxon_name_id)
-                logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} created as OTU; todo add citation (otu_only_counter = #{otu_only_counter += 1})"
+                logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} created as OTU (otu_only_counter = #{otu_only_counter += 1})"
                 # otu_id = get_tw_otu_id[sf_taxon_name_id]
                 # create_otu_cite(logger, row, otu_id)
               end
@@ -317,9 +317,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
 
               begin
                 citation.save!
-                logger.info "Citation saved"
               rescue ActiveRecord::RecordInvalid # citation not valid
-                logger.info "Citation ERROR (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
+                logger.error "Citation ERROR (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
                 next
               end
             end
