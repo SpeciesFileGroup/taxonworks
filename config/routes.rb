@@ -423,6 +423,7 @@ TaxonWorks::Application.routes.draw do
             post 'update', as: 'dates_update_task'
             get 'skip', as: 'dates_skip'
             get 'similar_labels', as: 'dates_similar_labels'
+            get 'save_selected', as: 'dates_save_selected'
           end
 
           scope :lat_long, controller: 'tasks/collecting_events/parse/stepwise/lat_long' do

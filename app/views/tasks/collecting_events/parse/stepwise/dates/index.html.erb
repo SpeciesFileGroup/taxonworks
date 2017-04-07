@@ -42,14 +42,14 @@
             <tr>
               <th></th>
               <th style="text-align:center">Start Date</th>
-              <th></th>
+              <th style="text-align:center">Verbatim Date</th>
               <th style="text-align:center">End Date</th>
             </tr>
             <tr>
               <td>Verbatim</td>
-              <%= content_tag :td, text_field_tag('verbatim_start_date', test_start_date), data: {help: 'Text with <br> minor html'} %>
-              <td></td>
-              <td><%= text_field_tag('verbatim_end_date', test_end_date) %></td>
+              <td><%= text_field_tag('start_date', test_start_date) %></td>
+              <td><%= text_field_tag('verbatim_date', @collecting_event.verbatim_date) %></td>
+              <td><%= text_field_tag('end_date', test_end_date) %></td>
             </tr>
             <tr>
               <td></td>

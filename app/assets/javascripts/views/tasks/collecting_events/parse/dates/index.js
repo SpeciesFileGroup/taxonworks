@@ -25,11 +25,21 @@ Object.assign(TW.views.tasks.collecting_events.parse.dates, {
       }
     );
 
+    // $('#re_eval').click(function (event) {
+    //   event.preventDefault();
+    //   location.href = whereIgo + 'index?' + $('#dates_convert_form').serialize();
+    // });
+
     $('#skip').click(function (event) {
-      location.href = whereIgo + 'skip?' + $('#dates_convert_form').serialize();
       event.preventDefault();
+      location.href = whereIgo + 'skip?' + $('#dates_convert_form').serialize();
     });
 
+
+    $('#save_selected').click(function (event) {
+      event.preventDefault();
+      location.href = whereIgo + 'save_selected?' + $('#dates_convert_form').serialize();
+    });
     //  $('#lat_long_update_record').click(function (event) {
     // put the this id into the form before serializatiun
     // $('#collecting_event_id').val($('this_collecting_event').text());
@@ -75,8 +85,9 @@ Object.assign(TW.views.tasks.collecting_events.parse.dates, {
       var piece = $(this).parent().parent('.extract_row').children('.piece_value').text();
       var params = '';
       var checck = $('#include_values').serialize();
-      $('#verbatim_start_date').val(start_date);
-      $('#verbatim_end_date').val(end_date);
+      $('#start_date').val(start_date);
+      $('#verbatim_date').val(piece);
+      $('#end_date').val(end_date);
       params += 'piece=' + encodeURI(piece) /* piece.replace(/ /g, '%20') */;
       params += '&start_date=' + encodeURI(start_date) /* lat.replace(/ /g, '%20') */;
       params += '&end_date=' + encodeURI(end_date) /* long.replace(/ /g, '%20') */;

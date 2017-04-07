@@ -462,6 +462,8 @@ module Utilities::Dates
         trial[:end_date_day] = match_data[2]
         trial[:end_date] = trial[:end_date_day] + '/' + trial[:end_date_month] + '/' + trial[:end_date_year]
     end
+    trial[:start_date] = trial[:start_date_year] + '/' + trial[:start_date_month] + '/' + trial[:start_date_day]
+    trial[:end_date] = trial[:end_date_year] + '/' + trial[:end_date_month] + '/' + trial[:end_date_day]
     trial
   end
 

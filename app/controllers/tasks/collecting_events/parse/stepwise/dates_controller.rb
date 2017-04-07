@@ -32,54 +32,40 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
   end
 
   # all buttons come here, so we first have to look at the button value
-  def process_buttons
-    prevention = ['39605', '103244', '57187', '103255']
-    no_flash = false
-    success = false
-    message = 'Failed to update '
-    next_id = next_collecting_event_id
-    case params['button']
-      when 're-eval'
-        next_id = current_collecting_event.id
-        success = true # slide right along
-        no_flash = true # don't need no stinkin' flashes
-      when 'select_all', 'deselect_all'
-        raise '\'select_all\', and \'deselect_all\' should be preempted by javascript'
-      when 'skip'
-        success = true # slide right along
-        no_flash = true # don't need no stinkin' flashes
-      when 'save_selected'
-        selected = params[:selected]
-        if selected.blank?
-          message = 'Nothing to save.'
-          success = false
-        else
-          any_failed = false
-          selected.each { |item_id|
-            ce = CollectingEvent.find(item_id)
-            unless ce.nil?
-              unless prevention.include?(params[:collecting_event_id])
-                if ce.update_attributes(collecting_event_params)
-                  ce.generate_verbatim_data_georeference(true) if generate_georeference?
-                else
-                  any_failed = true
-                  message += 'one or more of the collecting events.'
-                end
-              end
-            end
-          }
-          success = any_failed ? false : true
-        end
-      when 'save_one'
-        unless prevention.include?(params[:collecting_event_id])
-          if current_collecting_event.update_attributes(collecting_event_params)
-            current_collecting_event.generate_verbatim_data_georeference(true) if generate_georeference?
-            success = true
+  def save_selected
+    selected = params[:selected]
+    if selected.blank?
+      message = 'Nothing to save.'
+      success = false
+    else
+      any_failed = false
+      selected.each { |item_id|
+        ce = CollectingEvent.find(item_id)
+        unless ce.nil?
+          start_date = convert_params[:start_date].split('/')
+          end_date = convert_params[:end_date].split('/')
+          start_date_year = start_date[0]
+          start_date_month = start_date[1]
+          start_date_day = start_date[2]
+          end_date_year = end_date[0]
+          end_date_month = end_date[1]
+          end_date_day = end_date[2]
+          if ce.update_attributes({start_date_year: start_date[0],
+                                   start_date_month: start_date[1],
+                                   start_date_day: start_date[2],
+                                   end_date_year: end_date[0],
+                                   end_date_month: end_date[1],
+                                   end_date_day: end_date[2],
+                                   verbatim_date: convert_params['verbatim_date']
+                                  })
+          else
+            any_failed = true
+            message += 'one or more of the collecting events.'
           end
         end
-        message += 'the collecting event.'
+      }
+      success = any_failed ? false : true
     end
-
     if success
       flash['notice'] = 'Updated.' unless no_flash # if we skipped, there is no flash
     else
@@ -121,6 +107,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     retval[:count] = selected_items.count.to_s
     retval[:table] = render_to_string(partial: 'matching_table',
                                       locals: {
+                                          piece: piece,
                                           start_date: start_date,
                                           end_date: end_date,
                                           selected_items: selected_items

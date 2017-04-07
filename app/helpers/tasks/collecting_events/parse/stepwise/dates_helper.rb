@@ -53,7 +53,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
   # @param [Scope] collection is a scope of CollectingEvent
   # "identical matches" result table
   def make_dates_matching_table(*pieces, collection)
-    columns = ['CEID', 'Match', 'Verbatim Start Date', 'Verbatim End Date', 'Select']
+    columns = ['CEID', 'Match', 'Verbatim Date', 'Select']
 
     thead = content_tag(:thead) do
       content_tag(:tr) do
@@ -72,11 +72,9 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
                 item_data = link_to(item.id, item)
               when 1 #'Match'
                 item_data = pieces.join(' ')
-              when 2 #'Verbatim Start'
-                item_data = item.verbatim_start_date
-              when 3 #'Verbatim End'
-                item_data = item.verbatim_end_date
-              when 4 #'Select'
+              when 2 #'Verbatim Date'
+                item_data = item.verbatim_date
+              when 3 #'Select'
                 # check_box_tag(name, value = "1", checked = false, options = {}) public
                 options_for = {disabled: no_georef}
                 options_for[:class] = 'selectable_select' unless no_georef
