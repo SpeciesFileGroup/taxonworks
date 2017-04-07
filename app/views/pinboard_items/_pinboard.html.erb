@@ -19,7 +19,7 @@
                         content_tag(:a, "PDF Viewer", class: :pdfviewerItem , data: { pdfviewer: o.pinned_object.document_file(:original, false) })
                       end
                     %>
-                  <%= link_to('Remove', pinboard_item_path(o), class: :remove, method: :delete) -%>
+                  <%= link_to('Remove', pinboard_item_path(o), class: :remove, method: :delete, remote: true) -%>
                 </div>
               </li>
             <% end %>
