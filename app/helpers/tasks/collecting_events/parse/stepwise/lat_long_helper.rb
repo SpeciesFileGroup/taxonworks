@@ -9,7 +9,8 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
     list         = Utilities::Geo::REGEXP_COORD
     selector_row = ""
     list.keys.each { |kee|
-      selector_row += content_tag(:th, kee.to_s.upcase)
+      selector_row += content_tag(:th, kee.to_s.upcase,
+                                  data: {help: Utilities::Geo::REGEXP_COORD[kee][:hlp]})
     }
     selector_row.html_safe
   end

@@ -68,7 +68,7 @@ module Queries
     # @param [String] key to FILTERS regex string
     # @return [Scope]
     def regex_function(filter)
-      regex = Utilities::Geo::REGEXP_COORD[filter].to_s.gsub('(?i-mx:', '').chomp(')')
+      regex = Utilities::Geo::REGEXP_COORD[filter][:reg].to_s.gsub('(?i-mx:', '').chomp(')')
       "verbatim_label ~* '" + regex + "'"
     end
   end
