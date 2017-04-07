@@ -475,7 +475,7 @@ module Utilities::Dates
       dd_month_yyyy_2: /(\d\d?)[\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})\s?[-\u2013\/]\s?(\d\d?)[\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
 
       # 5 27 1946 - 6 1 1947
-      mm_dd_yyyy_2: /(\d\d?)[\s,\.\/]\s?(\d\d?)[\.,]?[\s\.,\/](\d{4}|\u0027´`\u02B9\u02BC\u02CA]?\s?\?\d{2})\s?[-\u2013\/]\s?(\d\d?)[\s,\.\/]\s?(\d\d?)[\.,]?[\s,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+      mm_dd_yyyy_2: /(\d\d?)[\s,\.\/]\s?(\d\d?)[\.,]?[\s\.,\/](\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\?\d{2})\s?[-\u2013\/]\s?(\d\d?)[\s,\.\/]\s?(\d\d?)[\.,]?[\s,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
 
       # June 27 - July 1 1947
       month_dd_month_dd_yyyy: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]?\s?(\d\d?)\s?[-\u2013\/]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]?\s?(\d\d?)[\s\.;,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
