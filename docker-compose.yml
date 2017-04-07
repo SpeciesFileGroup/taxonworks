@@ -1,7 +1,12 @@
+#
+# docker-compose targets development only
+#
 version: "2"
 services:
   app:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile.development
     volumes: # mount root directory from this machine to the container itself (live development, e.g. Rails sees changes to files without rebuilding container0
       - .:/app
     ports: 
