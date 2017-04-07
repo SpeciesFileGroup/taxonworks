@@ -52,6 +52,10 @@ RUN chmod +x /etc/my_init.d/init.sh && \
     mkdir /app/log && \
     rm -f /etc/service/nginx/down
 
+ENV RAILS_ENV production
+RUN npm install 
+RUN bundle exec rake assets:precompile
+
 CMD ["/sbin/my_init"]
 
 
