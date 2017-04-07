@@ -25,10 +25,10 @@ Object.assign(TW.views.tasks.collecting_events.parse.dates, {
       }
     );
 
-    // $('#re_eval').click(function (event) {
-    //   event.preventDefault();
-    //   location.href = whereIgo + 'index?' + $('#dates_convert_form').serialize();
-    // });
+    $('#re_eval').click(function (event) {
+      event.preventDefault();
+      location.href = whereIgo + 'index?' + $('#dates_convert_form').serialize();
+    });
 
     $('#skip').click(function (event) {
       event.preventDefault();
