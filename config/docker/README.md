@@ -20,7 +20,9 @@ Uses Dockerfile.  Ultimately will track /SpeciesFileGroup/master and build on co
 * `docker build --rm -t sfgrp/taxonworks .` 
 * `docker push sfgrp/taxonworks`
 
-# Minikube notes 
+# Kubernetes/Minikube notes 
+
+See also [https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/](kubectl-cheatsheet)
 
 # One time setup of minikube 
 
