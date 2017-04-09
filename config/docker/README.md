@@ -86,7 +86,7 @@ Using `docker-compose` starts containers that reference your local filesystem re
 
 ## TODO
 
-* Push sfgrp/taxonworks-development based off Dockerfile.development
+* Push `sfgrp/taxonworks-development` based off Dockerfile.development.  Until then `docker-compose build` to start.
 
 ## Basic use
 
@@ -115,3 +115,4 @@ Hackish right now.
 ## Troubleshooting
 
 * `docker-compose up` fails to start the app with something like `A server is already running. Check /app/tmp/pids/server.pid.` If a the app container is not shut down correctly it can leave `tmp/server.pid` in place.  Delete this file on the local system.
+* Cleanup old docker containers.  Try `docker images` and `docker rmi <id>` to cleanup old iamges. 

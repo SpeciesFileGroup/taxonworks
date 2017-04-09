@@ -11,8 +11,6 @@ services:
       - .:/app
     ports: 
       - "127.0.0.1:3000:3000" # local:docker
-        #    env_file: 
-        #- "config/env.sh"
     links:
       - db
     command:
@@ -29,6 +27,3 @@ services:
 volumes:
     pg:
       external: false
-
-
-
