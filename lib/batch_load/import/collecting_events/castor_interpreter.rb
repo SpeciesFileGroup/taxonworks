@@ -16,7 +16,10 @@ module BatchLoad
 
       @total_data_lines = 0
       i = 0
-      # loop throw rows
+
+      # locality code DRM/JSS should be fully parsed
+      # all have guid identifier, all but NONE have field numbers identifiers
+      # for all locality codes put collecting_info into verbatim fields
       csv.each do |row|
         i += 1
         parse_result = BatchLoad::RowParse.new
@@ -24,16 +27,10 @@ module BatchLoad
 
         @processed_rows[i] = parse_result
 
-        # Only accept records from DRM to keep things simple for now
-        next if row['locality_code_prefix'] != "DRM"
-
         begin # processing
-          # use a BatchLoad::ColumnResolver or other method to match row data to TW 
-          #  ...
-
           # Text for identifiers
           ce_identifier_castor_text = row['guid']
-          ce_identifier_drm_field_numbers_text = "#{row['locality_code_prefix']}#{row['locality_code_string']}"#{row['locality_database']}"
+          ce_identifier_drm_field_numbers_text = "#{row['locality_code_prefix']}#{row['locality_code_string']}" if row["locality_code_prefix"] != "NONE"
       
           # Identifiers
           ce_identifier_castor = { namespace: namespace_castor,
