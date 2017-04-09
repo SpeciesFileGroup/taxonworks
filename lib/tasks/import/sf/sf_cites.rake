@@ -157,33 +157,33 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 end
               end
             end
-          end
 
-          # kluge that worked but even uglier
-          # old_citation = Citation.where(source_id: source_id, citation_object: otu).first # instantiate so nomenclator string can be appended
-          # logger.info "Citation (= #{old_citation.id}) to this OTU (= #{otu.id}, SF.TaxonNameID #{sf_taxon_name_id}) from this source (= #{source_id}, SF.RefID #{sf_ref_id}) with these pages (= #{cite_pages}) already exists (cite_found_counter = #{cite_found_counter += 1})"
-          # old_citation.notes << Note.new(text: "Duplicate citation source to same OTU; nomenclator string = '#{get_nomenclator_string[row['NomenclatorID']]}'", project_id: project_id)
-          # # note_text = row['Note'].gsub('|', ':')
-          # old_citation.notes << Note.new(text: "Note for duplicate citation = '#{row['Note']}'", project_id: project_id) unless row['Note'].blank?
+            # kluge that worked but even uglier
+            # old_citation = Citation.where(source_id: source_id, citation_object: otu).first # instantiate so nomenclator string can be appended
+            # logger.info "Citation (= #{old_citation.id}) to this OTU (= #{otu.id}, SF.TaxonNameID #{sf_taxon_name_id}) from this source (= #{source_id}, SF.RefID #{sf_ref_id}) with these pages (= #{cite_pages}) already exists (cite_found_counter = #{cite_found_counter += 1})"
+            # old_citation.notes << Note.new(text: "Duplicate citation source to same OTU; nomenclator string = '#{get_nomenclator_string[row['NomenclatorID']]}'", project_id: project_id)
+            # # note_text = row['Note'].gsub('|', ':')
+            # old_citation.notes << Note.new(text: "Note for duplicate citation = '#{row['Note']}'", project_id: project_id) unless row['Note'].blank?
 
 
-          ### After citation updated or created
+            ### After citation updated or created
 
-          ## Nomenclator: DataAttribute of citation, NomenclatorID > 0
-          if row['NomenclatorID'] != '0' # OR could value: be evaluated below based on NomenclatorID?
-            da = DataAttribute.create!(type: 'ImportAttribute',
-                                       attribute_subject: citation, # replaces next two lines
-                                       # attribute_subject_id: citation.id,
-                                       # attribute_subject_type: 'Citation',
-                                       import_predicate: 'Nomenclator',
-                                       value: get_nomenclator_string[row['NomenclatorID']],
-                                       project_id: project_id,
-                                       created_at: row['CreatedOn'],
-                                       updated_at: row['LastUpdate'],
-                                       created_by_id: get_tw_user_id[row['CreatedBy']],
-                                       updated_by_id: get_tw_user_id[row['ModifiedBy']]
-            )
+            ## Nomenclator: DataAttribute of citation, NomenclatorID > 0
+            if row['NomenclatorID'] != '0' # OR could value: be evaluated below based on NomenclatorID?
+              da = DataAttribute.create!(type: 'ImportAttribute',
+                                         attribute_subject: citation, # replaces next two lines
+                                         # attribute_subject_id: citation.id,
+                                         # attribute_subject_type: 'Citation',
+                                         import_predicate: 'Nomenclator',
+                                         value: get_nomenclator_string[row['NomenclatorID']],
+                                         project_id: project_id,
+                                         created_at: row['CreatedOn'],
+                                         updated_at: row['LastUpdate'],
+                                         created_by_id: get_tw_user_id[row['CreatedBy']],
+                                         updated_by_id: get_tw_user_id[row['ModifiedBy']]
+              )
 
+            end
           end
         end
       end
