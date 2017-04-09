@@ -82,12 +82,36 @@ Uses Dockerfile.  Ultimately will track /SpeciesFileGroup/master and build on co
 
 # docker-compose
 
+Using `docker-compose` starts containers that reference your local filesystem referencing `Dockerfile.development`.  
+
+## TODO
+
+* Push sfgrp/taxonworks-development based off Dockerfile.development
+
+## Basic use
+
+* [https://docs.docker.com/](Docker docs)
+
 * `docker-compose build`
 * `docker-compose down`
 * `docker-compose up`
 * `docker ps`
 * `docker exec -it taxonworks_app_1 bash`
 
+* `docker rm -fv 3dc4293eg17e`  remove a container
+
 ## postgres
 
-* `pg_restore -U postgres -p 15432 -h 0.0.0.0 -d taxonworks_development /path/to/pg_dump.dump`
+### Restore a database dumped from `rake tw:db:dump`. 
+
+Hackish right now. 
+
+* `docker-compose up`
+* `docker rm -fv 3dc4293eg17e` remove the app container only (use `docker ps` to get the container id)
+* `psql -U taxonworks_development -p 15432 -h 0.0.0.0 taxonworks_development` connect directly to the PSQL instance
+* Connect to postgres, drop and create taxonworks_development, exit.
+* `pg_restore -U postgres -p 15432 -h 0.0.0.0 -d taxonworks_development /path/to/pg_dump.dump` Errors re roles can be ignored.  The process will "fail" but be successful.
+
+## Troubleshooting
+
+* `docker-compose up` fails to start the app with something like `A server is already running. Check /app/tmp/pids/server.pid.` If a the app container is not shut down correctly it can leave `tmp/server.pid` in place.  Delete this file on the local system.
