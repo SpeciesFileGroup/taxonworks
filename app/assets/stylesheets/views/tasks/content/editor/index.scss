@@ -43,9 +43,18 @@
 			position: relative;
 		}
 		.figures-body {
-			margin-top: 1em;
+			position: relative;
+			margin-top: 2.5em;
+			height: 120px;
 			padding: $standard_padding;
-							color: #444;
+			padding-top: 0em;
+			color: #444;
+			overflow-y: scroll;
+			textarea {
+				box-sizing: border-box;
+				height: 100%;
+				width: 100%;
+			}
 		}
 
 		.figures-header {
@@ -71,7 +80,6 @@
 				height: 30px;
 			}
 			.figures-delete {
-			//	background-color: #991010;
 				background-image: image-url("w_trash.svg");
 				position: absolute;
 				top: 12px;

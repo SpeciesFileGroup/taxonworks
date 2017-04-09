@@ -34,6 +34,7 @@ Object.assign(TW.views.tasks.content.editor, {
           figures: false,
           citations: false
         },
+        depictions: [],
         citations: []
       },
       getters: {
@@ -57,7 +58,10 @@ Object.assign(TW.views.tasks.content.editor, {
         },             
         getCitationsList(state) {
           return state.citations;
-        },        
+        },   
+        getDepictionsList(state) {
+          return state.depictions;
+        },                
         getRecent: (state) => (items) => {
           return state.recent[items];
         }, 
@@ -75,6 +79,19 @@ Object.assign(TW.views.tasks.content.editor, {
         addCitationToList(state, citation) {
           state.citations.push(citation);
         },
+        addDepictionToList(state, depiction) {
+          state.depictions.push(depiction);
+        },
+        removeDepiction(state, depiction) {
+          var position = state.depictions.findIndex(item => {
+                if(depiction.id === item.id) {
+                  return true;
+                }
+              });
+          if(position >= 0) {
+            state.depictions.splice(position,1);
+          }
+        },        
         setTopicSelected(state, newTopic) {
           state.selected.topic = newTopic;
         },
@@ -84,6 +101,9 @@ Object.assign(TW.views.tasks.content.editor, {
         setCitationList(state, list) {
           state.citations = list;
         }, 
+        setDepictionsList(state, list) {
+          state.depictions = list;
+        },         
         setRecentContents(state, list) {
           state.recent.contents = list;
         }, 
@@ -467,34 +487,63 @@ Object.assign(TW.views.tasks.content.editor, {
     Vue.component('figure-item', {
       template: '<div class="figures-container"> \
                   <div class="figures-header"> \
-                    <img :src="figure.image.result.url" /> \
-                    <div class="button-delete circle-button figures-delete"></div> \
-                    <div class="button-default circle-button figures-edit"></div> \
-                    <div class="figures-label horizontal-center-content middle">123</div> \
+                    <img :src="depiction.image.result.url" /> \
+                    <div class="button-delete circle-button figures-delete" @click="deleteDepiction()"></div> \
+                    <div :class="{ \'button-submit\' : edit, \'button-default\' : !edit }" class="circle-button figures-edit" @click="editChange()"></div> \
+                    <input class="figures-label horizontal-center-content middle" v-if="edit" type="text" v-model="depiction.figure_label"/> \
+                    <div class="figures-label horizontal-center-content middle" v-else> {{ depiction.figure_label }} </div> \
                   </div> \
                   <div class="figures-body"> \
-                    <p>{{ figure.caption }}</p> \
+                    <textarea v-model="depiction.caption" v-if="edit"></textarea> \
+                    <span v-else>{{ depiction.caption }}</span> \
                   </div> \
                 </div>',
-      props: ['figure', 'index'],
+      props: ['figure'],
       data: function() { 
         return {
-
+          depiction: undefined,
+          edit: false
         }
       },
+      created: function() {
+        this.depiction = this.figure;
+      },
       methods: {
+        deleteDepiction: function() {
+          var ajaxUrl = `/depictions/${this.depiction.id}`;
+          this.$http.delete(ajaxUrl).then( response => {
+            this.$store.commit('removeDepiction', this.depiction);
+          })
+        },
+        editChange: function() {
+          if(this.edit) {
+            this.update();
+          }
+          this.edit = !this.edit;
+        },
+        update: function() {
+          var ajaxUrl = `/depictions/${this.depiction.id}`,
+              depiction = {
+                caption: this.depiction.caption,
+                figure_label: this.depiction.figure_label
+              };
 
+
+          this.$http.patch(ajaxUrl, depiction).then( response => {
+            TW.workbench.alert.create("Depiction was successfully updated.", "notice");
+          })
+        }
       }
 
     });
 
     Vue.component('figures-panel', {
-      template: '<div class="flexbox" v-if="panelFigures && content"> \
+      template: '<div class="flex-wrap-column" v-if="panelFigures && content"> \
                   <div class="item item1 column-medium flex-wrap-row"> \
-                    <figure-item v-for="item, index in depictions" :index="index" :figure="item"></figure-item> \
+                    <figure-item v-for="item in depictions" :figure="item"></figure-item> \
                   </div> \
                   <div class="item item2 column-tiny no-margin"> \
-                    <dropzone v-on:vdropzone-sending="sending" id="figure" url="/depictions" :useCustomDropzoneOptions="true" :dropzoneOptions="dropzone"></dropzone> \
+                    <dropzone v-on:vdropzone-sending="sending" v-on:vdropzone-success="success" ref="figure" id="figure" url="/depictions" :useCustomDropzoneOptions="true" :dropzoneOptions="dropzone"></dropzone> \
                   </div> \
                 </div>',
       computed: {
@@ -503,6 +552,9 @@ Object.assign(TW.views.tasks.content.editor, {
         },
         panelFigures() {
           return this.$store.getters.panelFigures
+        },
+        depictions() {
+          return this.$store.getters.getDepictionsList
         }
       },
       data: function() {
@@ -513,8 +565,7 @@ Object.assign(TW.views.tasks.content.editor, {
             headers: {
               'X-CSRF-Token' : token
             },
-          },
-          depictions: [],                
+          },             
         }
       },
       watch: {
@@ -525,11 +576,15 @@ Object.assign(TW.views.tasks.content.editor, {
             }
           }
           else {
-            //this.$store.commit('setCitationList', []);
+            this.$store.commit('setDepictionsList', []);
           }
         }
       },
       methods: {
+        'success': function(file, response) {
+          this.$store.commit('addDepictionToList', response);
+          this.$refs.figure.removeFile(file);
+        },
         'sending': function(file, xhr, formData) {
           formData.append("depiction[depiction_object_id]", this.content.id);
           formData.append("depiction[depiction_object_type]", "Content");
@@ -537,8 +592,7 @@ Object.assign(TW.views.tasks.content.editor, {
         loadContent: function() {
           var ajaxUrl = `/contents/${this.content.id}/depictions.json`;
           this.$http.get(ajaxUrl).then( response => {
-            console.log(response.body);
-            this.depictions = response.body;
+            this.$store.commit('setDepictionsList', response.body);
           });
         }
       }  
