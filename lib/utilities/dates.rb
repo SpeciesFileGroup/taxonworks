@@ -327,7 +327,7 @@ module Utilities::Dates
     dates
   end
 
-  def self.hunt_wrapper(label, filters = REGEXP_COORD.keys)
+  def self.hunt_wrapper(label, filters = REGEXP_DATES.keys)
 
     trials = self.hunt_dates_full(label, filters)
 
