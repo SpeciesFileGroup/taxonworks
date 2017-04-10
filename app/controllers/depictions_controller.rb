@@ -74,6 +74,21 @@ class DepictionsController < ApplicationController
     end
   end
 
+  # PATCH /sort?depiction_ids[]=1&depiction_ids[]=2.json
+  def sort
+    begin 
+      params.require(:depiction_ids).each_with_index do |d|
+        i.update_column(:position, i + 1)
+      end
+    rescue ActionController::ParameterMissing  
+      format.json { render json: {success: false}, status: :unprocessable_entity and return }
+    rescue ActiveRecord::RecordInvalid
+      format.json { render json: {success: false}, status: :unprocessable_entity and return }
+    end
+
+    format.json { render json: {success: true}, status: :ok and return }
+  end
+
   private 
 
   # handle the polymorphic resource
@@ -92,6 +107,10 @@ class DepictionsController < ApplicationController
     return {depiction_object_type: model, depiction_object_id: h.values.first}
   end
 
+  # def depiction_object
+  #   filter_params[:depiction_object_type].find(filter_params[:depiction_object_id])
+  # end
+
   def set_depiction
     @depiction = Depiction.find(params[:id])
   end
@@ -99,4 +118,5 @@ class DepictionsController < ApplicationController
   def depiction_params
     params.require(:depiction).permit(:depiction_object_id, :depiction_object_type, :caption, :figure_label, image_attributes: [:image_file])
   end
+
 end

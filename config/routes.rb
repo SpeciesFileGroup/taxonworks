@@ -195,6 +195,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :depictions do
     concerns [:data_routes]
+    collection do
+      patch :sort
+    end
   end
 
   resources :documents do
