@@ -565,6 +565,8 @@ Object.assign(TW.views.tasks.content.editor, {
             headers: {
               'X-CSRF-Token' : token
             },
+            dictDefaultMessage: "Drop images here to add figures",
+            acceptedFiles: "image/*"
           },             
         }
       },
