@@ -430,36 +430,36 @@ module Utilities::Dates
         trial[:start_date_month] = month_index(match_data[1]).to_s
         trial[:start_date_day] = match_data[2]
         trial[:start_date] = trial[:start_date_day] + '/' + trial[:start_date_month] + '/' + trial[:start_date_year]
-        trial[:end_date_year] = match_data[3]
-        trial[:end_date_month] = month_index(match_data[1]).to_s
-        trial[:end_date_day] = match_data[2]
+        trial[:end_date_year] = '' # match_data[3]
+        trial[:end_date_month] = '' #  month_index(match_data[1]).to_s
+        trial[:end_date_day] = '' #  match_data[2]
         trial[:end_date] = trial[:end_date_day] + '/' + trial[:end_date_month] + '/' + trial[:end_date_year]
       when :dd_month_yyy # done for yyyy
         trial[:start_date_year] = match_data[3]
         trial[:start_date_month] = month_index(match_data[2]).to_s
         trial[:start_date_day] = match_data[1]
         trial[:start_date] = trial[:start_date_day] + '/' + trial[:start_date_month] + '/' + trial[:start_date_year]
-        trial[:end_date_year] = match_data[3]
-        trial[:end_date_month] = month_index(match_data[2]).to_s
-        trial[:end_date_day] = match_data[1]
+        trial[:end_date_year] = '' #  match_data[3]
+        trial[:end_date_month] = '' #  month_index(match_data[2]).to_s
+        trial[:end_date_day] = '' #  match_data[1]
         trial[:end_date] = trial[:end_date_day] + '/' + trial[:end_date_month] + '/' + trial[:end_date_year]
       when :mm_dd_yyyy # done
         trial[:start_date_year] = match_data[3]
         trial[:start_date_month] = month_index(match_data[1]).to_s
         trial[:start_date_day] = match_data[2]
         trial[:start_date] = trial[:start_date_day] + '/' + trial[:start_date_month] + '/' + trial[:start_date_year]
-        trial[:end_date_year] = match_data[3]
-        trial[:end_date_month] = month_index(match_data[1]).to_s
-        trial[:end_date_day] = match_data[2]
+        trial[:end_date_year] = '' #  match_data[3]
+        trial[:end_date_month] = '' #  month_index(match_data[1]).to_s
+        trial[:end_date_day] = '' #  match_data[2]
         trial[:end_date] = trial[:end_date_day] + '/' + trial[:end_date_month] + '/' + trial[:end_date_year]
       when :mm_dd_yy # done
         trial[:start_date_year] = match_data[3]
         trial[:start_date_month] = month_index(match_data[1]).to_s
         trial[:start_date_day] = match_data[2]
         trial[:start_date] = trial[:start_date_day] + '/' + trial[:start_date_month] + '/' + trial[:start_date_year]
-        trial[:end_date_year] = match_data[3]
-        trial[:end_date_month] = month_index(match_data[1]).to_s
-        trial[:end_date_day] = match_data[2]
+        trial[:end_date_year] = '' #  match_data[3]
+        trial[:end_date_month] = '' #  month_index(match_data[1]).to_s
+        trial[:end_date_day] = '' #  match_data[2]
         trial[:end_date] = trial[:end_date_day] + '/' + trial[:end_date_month] + '/' + trial[:end_date_year]
     end
     trial[:start_date] = trial[:start_date_year] + '/' + trial[:start_date_month] + '/' + trial[:start_date_day]

@@ -28,7 +28,45 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
 
   # POST
   def update
-    process_buttons
+    next_id = next_collecting_event_id
+    ce = current_collecting_event
+    any_failed = false
+    # if ce.update_attributes(collecting_event_params)
+    start_date = convert_params[:start_date].split('/')
+    end_date = convert_params[:end_date].split('/')
+    start_date_year = start_date[0]
+    start_date_month = start_date[1]
+    start_date_day = start_date[2]
+    end_date_year = end_date[0] unless end_date[0].nil?
+    end_date_month = end_date[1] unless end_date[0].nil?
+    end_date_day = end_date[2] unless end_date[0].nil?
+    if end_date_year.nil?
+      end_date_year, end_date_month, end_date_day = '', '', ''
+    end
+    if ce.update_attributes({start_date_year: start_date[0],
+                             start_date_month: start_date[1],
+                             start_date_day: start_date[2],
+                             end_date_year: end_date[0],
+                             end_date_month: end_date[1],
+                             end_date_day: end_date[2],
+                             verbatim_date: convert_params['verbatim_date']
+                            })
+    else
+      any_failed = true
+      message += 'one or more of the collecting events.'
+    end
+    # end
+    message = 'Failed to update the collecting event.'
+
+    if any_failed
+      flash['alert'] = message
+      next_id = current_collecting_event.id
+    else # a.k.a. success
+      flash['notice'] = 'Updated.'
+    end
+    # where do we go from here?
+    redirect_to dates_index_task_path(collecting_event_id: next_id,
+                                      filters: parse_filters(params))
   end
 
   # all buttons come here, so we first have to look at the button value
@@ -170,7 +208,8 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
   end
 
   def collecting_event_params
-    params.require(:collecting_event).permit(:verbatim_date, :start_date_day, :start_date_month, :start_date_year, :end_date_day, :end_date_month, :end_date_year)
+    # params.require(:collecting_event).permit(:verbatim_date, :start_date_day, :start_date_month, :start_date_year, :end_date_day, :end_date_month, :end_date_year)
+    params.permit(:verbatim_date, :piece, :start_date, :end_date)
   end
 
   def convert_params
