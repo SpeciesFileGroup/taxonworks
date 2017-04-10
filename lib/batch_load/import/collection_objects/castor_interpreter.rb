@@ -7,7 +7,6 @@ module BatchLoad
       super(args)
     end
 
-    # TODO: update this
     def build_collection_objects
       # Castor            CTR
       # GenBank           GBK
@@ -24,6 +23,7 @@ module BatchLoad
 
       @total_data_lines = 0
       i = 0
+
       # loop throw rows
       csv.each do |row|
         i += 1
@@ -39,27 +39,29 @@ module BatchLoad
         next if row['locality_database'] != "DRM"
         
         begin # processing
-          # use a BatchLoad::ColumnResolver or other method to match row data to TW 
-          #  ...
-
           # Text for sample code identifiers for both extract and specimen
           sample_code_identifier_text = "#{row['sample_code_prefix']}#{row['sample_code']}"
 
           # Extract identifiers
-          extract_identifier_genbank = { namespace: namespace_genbank,
-                                                 type: 'Identifier::Local::CollectionObject',
-                                                 identifier: sample_code_identifier_text }
+          extract_identifier_genbank = { 
+            namespace: namespace_genbank,
+            type: 'Identifier::Local::CollectionObject',
+            identifier: sample_code_identifier_text 
+          }
 
           extract_identifiers = []
           extract_identifiers.push(extract_identifier_genbank) if !sample_code_identifier_text.blank?
 
-          extract_attributes = { quantity_value: 0, 
-                                 quantity_unit: 0, 
-                                 verbatim_anatomical_origin: row['taxon_name'], 
-                                 year_made: 2015, 
-                                 month_made: 10, 
-                                 day_made: 10,
-                                 identifiers_attributes: extract_identifiers }
+          extract_attributes = { 
+            quantity_value: 0, 
+            quantity_unit: 0, 
+            verbatim_anatomical_origin: row['taxon_name'], 
+            year_made: 2015, 
+            month_made: 10, 
+            day_made: 10,
+            identifiers_attributes: extract_identifiers 
+          }
+
           extract = Extract.new(extract_attributes)
 
           parse_result.objects[:extract].push(extract)
@@ -71,28 +73,38 @@ module BatchLoad
           co_identifier_drm_lab_voucher_text = "#{row['voucher_number_prefix']}#{row['voucher_number_stirng']}"
 
           # Collection object identifiers
-          co_identifier_castor = { namespace: namespace_castor,
-                                   type: 'Identifier::Local::CollectionObject',
-                                   identifier: co_identifier_castor_text }
+          co_identifier_castor = { 
+            namespace: namespace_castor,
+            type: 'Identifier::Local::CollectionObject',
+            identifier: co_identifier_castor_text 
+          }
 
-          co_identifier_morphbank = { namespace: namespace_morphbank,
-                                      type: 'Identifier::Local::CollectionObject',
-                                      identifier: co_identifier_morphbank_text }
+          co_identifier_morphbank = { 
+            namespace: namespace_morphbank,
+            type: 'Identifier::Local::CollectionObject',
+            identifier: co_identifier_morphbank_text 
+          }
                                           
-          co_identifier_drm_field_voucher = { namespace: namespace_drm_field_voucher,
-                                              type: 'Identifier::Local::CollectionObject',
-                                              identifier: co_identifier_drm_field_voucher_text }
+          co_identifier_drm_field_voucher = { 
+            namespace: namespace_drm_field_voucher,
+            type: 'Identifier::Local::CollectionObject',
+            identifier: co_identifier_drm_field_voucher_text 
+          }
                                                   
-          co_identifier_drm_lab_voucher = { namespace: namespace_drm_lab_voucher,
-                                            type: 'Identifier::Local::CollectionObject',
-                                            identifier: co_identifier_drm_lab_voucher_text }                                     
+          co_identifier_drm_lab_voucher = { 
+            namespace: namespace_drm_lab_voucher,
+            type: 'Identifier::Local::CollectionObject',
+            identifier: co_identifier_drm_lab_voucher_text 
+          }                                     
 
-          co_identifier_drm_dna = { namespace: namespace_drm_dna_voucher,
-                                               type: 'Identifier::Local::CollectionObject',
-                                               identifier: sample_code_identifier_text }
+          co_identifier_drm_dna = { 
+            namespace: namespace_drm_dna_voucher,
+            type: 'Identifier::Local::CollectionObject',
+            identifier: sample_code_identifier_text
+          }
 
           # OriginRelationship between CollecitonObject and Extract
-          co_origin_relationships_attributes = [{ new_object: extract}]
+          co_origin_relationships_attributes = [{ new_object: extract }]
 
           # Collection object
           co_identifiers = []
@@ -114,23 +126,15 @@ module BatchLoad
           parse_result.objects[:collection_object].push(co);
           @total_data_lines += 1 if co.present?
 
-          # Taxon determination between this object and taxon name otus this object belongs to
-          taxon_names = TaxonName.with_namespaced_identifier('Castor', row["taxon_guid"])
-          taxon_name = nil
-          taxon_name = taxon_names.first if taxon_names.any?
+          # Taxon determination between this object and otus this object belongs to
+          otus = Otu.with_namespaced_identifier('Castor', row["taxon_guid"])
 
-          if taxon_name
-            otus = taxon_name.otus
-
-            otus.each do |otu|
-              taxon_determination = TaxonDetermination.new(otu: otu, biological_collection_object: co)
-              parse_result.objects[:taxon_determination].push(taxon_determination) if taxon_name
-            end
+          otus.each do |otu|
+            taxon_determination = TaxonDetermination.new(otu: otu, biological_collection_object: co)
+            parse_result.objects[:taxon_determination].push(taxon_determination)
           end
 
         #rescue
-           # ....
-           # puts "SOMETHING WENT WRONG WITH COLLECTION OBJECT castor INTERPRETER BATCH LOAD"
         end
       end
 
@@ -143,6 +147,5 @@ module BatchLoad
         @processed = true
       end
     end
-
   end
 end

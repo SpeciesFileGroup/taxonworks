@@ -47,6 +47,7 @@ module BatchLoad
         parse_result.objects[:original_taxon_name] = []
         parse_result.objects[:taxon_name] = []
         parse_result.objects[:taxon_name_relationship] = []
+        parse_result.objects[:otu] = []
 
         @processed_rows[i] = parse_result
 
@@ -57,28 +58,15 @@ module BatchLoad
           next if row['rank'] == "variety"
           next if row['taxon_name'] == "unidentified"
 
-          taxon_name_identifier_castor_text = row["guid"]
-          taxon_name_identifier_castor = { namespace: namespace_castor,
-                                           type: "Identifier::Local::TaxonConcept",
-                                           identifier: taxon_name_identifier_castor_text
-          }
-
-          taxon_name_identifiers = []
-
-          if taxon_name_identifier_castor_text.present? && row["related_name_nomen_class"] != "TaxonNameRelationship::Iczn::Invalidating::Synonym"
-            taxon_name_identifiers.push(taxon_name_identifier_castor) if !taxon_name_identifier_castor_text.blank?
-          end
-
           protonym_attributes = {
             name: row['taxon_name'],
             year_of_publication: year_of_publication(row['author_year']),
             rank_class: Ranks.lookup(@nomenclature_code.to_sym, row['rank']),
             by: @user,
-            also_create_otu: @also_create_otu,
+            also_create_otu: false,
             project: @project,
             verbatim_author: verbatim_author(row['author_year']),
-            taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year'])),
-            identifiers_attributes: taxon_name_identifiers
+            taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
           }
             
           if row['original_name']
@@ -89,7 +77,7 @@ module BatchLoad
               rank_class: Ranks.lookup(@nomenclature_code.to_sym, row['original_rank']),
               parent: parent_taxon_name,
               by: @user,
-              also_create_otu: @also_create_otu,
+              also_create_otu: false,
               project: @project,
               verbatim_author: verbatim_author(row['author_year']),
               taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
@@ -144,14 +132,21 @@ module BatchLoad
           name_nomen_classification = row['name_nomen_classification']
           p.taxon_name_classifications.new(type: name_nomen_classification) if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(name_nomen_classification)
 
-          # # Attach this taxon name to OTU with matching CASTOR identifier matching the guid value
-          # otus = Otu.with_namespaced_identifier('Castor', row['guid'])
+          taxon_concept_identifier_castor_text = row["guid"]
 
-          # otus.each do |otu|
-          #   if !otu.taxon_name
-          #     otu.taxon_name = p 
-          #   end
-          # end
+          if taxon_concept_identifier_castor_text.present?
+            taxon_concept_identifier_castor = { 
+              namespace: namespace_castor,
+              type: "Identifier::Local::TaxonConcept",
+              identifier: taxon_concept_identifier_castor_text
+            }
+
+            taxon_concept_identifiers = []
+            taxon_concept_identifiers.push(taxon_concept_identifier_castor)
+
+            otu = Otu.new(name: row["taxon_concept_name"], taxon_name: p, identifiers_attributes: taxon_concept_identifiers)
+            parse_result.objects[:otu].push(otu)
+          end
 
           parse_result.objects[:taxon_name].push p
           @total_data_lines += 1 if p.present?
