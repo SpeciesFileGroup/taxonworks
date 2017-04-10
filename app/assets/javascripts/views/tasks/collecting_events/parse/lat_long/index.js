@@ -27,18 +27,18 @@ Object.assign(TW.views.tasks.collecting_events.parse.lat_long, {
     );
 
     $('#skip').click(function (event) {
-      location.href = route + 'skip?' + $('#lat_long_convert_form').serialize();
       event.preventDefault();
+      location.href = route + 'skip?' + $('#lat_long_convert_form').serialize();
     });
   
     $('#re_eval').click(function (event) {
-      location.href = route + 're_eval?' + $('#lat_long_convert_form').serialize();
       event.preventDefault();
+      location.href = route + 're_eval?' + $('#lat_long_convert_form').serialize();
     });
   
     $('#save_selected').click(function (event) {
-      location.href = route + 'save_selected?' + $('#lat_long_convert_form').serialize();
       event.preventDefault();
+      location.href = route + 'save_selected?' + $('#lat_long_convert_form').serialize();
     });
 
     //  $('#lat_long_update_record').click(function (event) {
