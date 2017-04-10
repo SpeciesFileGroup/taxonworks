@@ -67,7 +67,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
       success = any_failed ? false : true
     end
     if success
-      flash['notice'] = 'Updated.' unless no_flash # if we skipped, there is no flash
+      flash['notice'] = 'Updated.' # unless no_flash # if we skipped, there is no flash
     else
       flash['alert'] = message
       next_id = current_collecting_event.id
@@ -94,11 +94,9 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     # collecting_event_id = collecting_event_params[:collecting_event_id]
     include_values = (similar_params[:include_values].nil?) ? false : true
     sql_1 = '('
-    sql_1 += "verbatim_label LIKE '%#{sql_fix(start_date)}%'" unless start_date.blank?
-    sql_1 += " or verbatim_label LIKE '%#{sql_fix(end_date)}%'" unless end_date.blank?
-    sql_1 += " or verbatim_label LIKE '%#{sql_fix(piece)}%'" unless piece.blank?
+    sql_1 += "verbatim_label LIKE '%#{sql_fix(piece)}%'" unless piece.blank?
     sql_1 += ')'
-    sql_1 += ' and (verbatim__date is null)' unless include_values
+    sql_1 += ' and (verbatim_date is null)' unless include_values
     selected_items = CollectingEvent.where(sql_1)
                          .with_project_id(sessions_current_project_id)
                          .order(:id)

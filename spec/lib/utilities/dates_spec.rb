@@ -17,7 +17,7 @@ describe 'Dates', group: [:collecting_events, :dates] do
       end
     end
 
-    context 'single use case for dates hunt_wrapper' do
+    context 'single use case for dates hunt_dates' do
       use_case = {'Some text here,  5 V 2003, some more text after the date  ' =>
                     {'MONTH_DD_YYYY_2'        => {:method => 'text, MONTH_DD_YYYY_2'},
                      'DD_MONTH_YYYY_2'        => {:method => 'text, DD_MONTH_YYYY_2'},
@@ -40,10 +40,10 @@ describe 'Dates', group: [:collecting_events, :dates] do
                                                   :end_date_day     => '5',
                                                   :end_date         => '2003/5/5'},
                      'MM_DD_YYYY'             => {:method => 'text, MM_DD_YYYY'},
-                     'MM_DD_YY'               => {:method => 'text, MM_DD_YY'},
-                     '(;)'                    => {:method => '(;)'},
-                     '(,)'                    => {:method => '(,)'},
-                     '( )'                    => {:method => '( )'}
+                     'MM_DD_YY' => {:method => 'text, MM_DD_YY'} #,
+                     # '(;)'                    => {:method => '(;)'},
+                     # '(,)'                    => {:method => '(,)'},
+                     # '( )'                    => {:method => '( )'}
                     }
       }
       @entry   = 0
@@ -51,13 +51,13 @@ describe 'Dates', group: [:collecting_events, :dates] do
       use_case.each { |label, result|
         @entry += 1
         specify "case #{@entry}: #{label} should yield #{result}" do
-          this_case = Utilities::Dates.hunt_wrapper(label)
+          this_case = Utilities::Dates.hunt_dates(label)
           expect(this_case).to eq(result)
         end
       }
     end
 
-    context 'multiple use cases for dates hunt_wrapper' do
+    context 'multiple use cases for dates hunt_dates' do
       use_cases = {
         'Here is some extra text: 4 jan, 2017  More stuff at the end'      =>
           {'MONTH_DD_YYYY_2'        => {:method => 'text, MONTH_DD_YYYY_2'},
@@ -81,10 +81,10 @@ describe 'Dates', group: [:collecting_events, :dates] do
                                         :end_date_day     => '4',
                                         :end_date         => '2017/1/4'},
            'MM_DD_YYYY'             => {:method => 'text, MM_DD_YYYY'},
-           'MM_DD_YY'               => {:method => 'text, MM_DD_YY'},
-           '(;)'                    => {:method => '(;)'},
-           '(,)'                    => {:method => '(,)'},
-           '( )'                    => {:method => '( )'}
+           'MM_DD_YY' => {:method => 'text, MM_DD_YY'} #,
+           # '(;)'                    => {:method => '(;)'},
+           # '(,)'                    => {:method => '(,)'},
+           # '( )'                    => {:method => '( )'}
           },
         'Here is some extra text:,;   22-23 V 2003; More stuff at the end' =>
           {'MONTH_DD_YYYY_2'        => {:method => 'text, MONTH_DD_YYYY_2'},
@@ -117,10 +117,10 @@ describe 'Dates', group: [:collecting_events, :dates] do
                                         :end_date_day     => '23',
                                         :end_date         => '2003/5/23'},
            'MM_DD_YYYY'             => {:method => 'text, MM_DD_YYYY'},
-           'MM_DD_YY'               => {:method => 'text, MM_DD_YY'},
-           '(;)'                    => {:method => '(;)'},
-           '(,)'                    => {:method => '(,)'},
-           '( )'                    => {:method => '( )'}
+           'MM_DD_YY' => {:method => 'text, MM_DD_YY'} #,
+           # '(;)'                    => {:method => '(;)'},
+           # '(,)'                    => {:method => '(,)'},
+           # '( )'                    => {:method => '( )'}
           }
       }
       @entry    = 0
@@ -128,7 +128,7 @@ describe 'Dates', group: [:collecting_events, :dates] do
       use_cases.each { |label, result|
         @entry += 1
         specify "case #{@entry}: #{label} should yield #{result}" do
-          use_case = Utilities::Dates.hunt_wrapper(label)
+          use_case = Utilities::Dates.hunt_dates(label)
           expect(use_case).to eq(result)
         end
       }

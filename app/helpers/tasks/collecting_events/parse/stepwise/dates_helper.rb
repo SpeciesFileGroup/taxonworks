@@ -9,7 +9,8 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
     list = Utilities::Dates::REGEXP_DATES
     selector_row = ""
     list.keys.each { |kee|
-      selector_row += content_tag(:th, kee.to_s.upcase)
+      selector_row += content_tag(:th, kee.to_s.upcase,
+                                  data: {help: Utilities::Dates::REGEXP_DATES[kee][:hlp]})
     }
     selector_row.html_safe
   end
@@ -29,7 +30,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
 
   def make_dates_rows(label, filters)
     return nil if label.nil?
-    tests = Utilities::Dates.hunt_wrapper(label, filters)
+    tests = Utilities::Dates.hunt_dates(label, filters)
     tests.keys.collect.with_index do |kee, dex|
       trial = tests[kee]
       method = trial.delete(:method)
@@ -65,7 +66,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
       collection.collect { |item|
         content_tag (:tr) do
           item_data = ''
-          no_georef = false
+          no_verbatim_date = false
           columns.collect.with_index { |column, dex|
             case dex
               when 0 #'CEID'
@@ -74,10 +75,11 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
                 item_data = pieces.join(' ')
               when 2 #'Verbatim Date'
                 item_data = item.verbatim_date
+                no_verbatim_date = !item.verbatim_date.blank?
               when 3 #'Select'
                 # check_box_tag(name, value = "1", checked = false, options = {}) public
-                options_for = {disabled: no_georef}
-                options_for[:class] = 'selectable_select' unless no_georef
+                options_for = {disabled: no_verbatim_date}
+                options_for[:class] = 'selectable_select' unless no_verbatim_date
                 item_data = check_box_tag('selected[]', item.id, false, options_for)
             end
             concat content_tag(:td, item_data, align: 'center')

@@ -32,7 +32,7 @@ module Queries
         regex_function(kee)
       end.join(' OR ')
       # remove the names from the named groups: these don't work for sql regexs
-      Arel.sql("(#{all_filters.gsub('?<lat>', '').gsub('?<long>', '')})")
+      Arel.sql("(#{all_filters.gsub('?<year>', '').gsub('?<month>', '')})")
     end
 
     def where_sql
@@ -68,7 +68,7 @@ module Queries
     # @param [String] key to FILTERS regex string
     # @return [Scope]
     def regex_function(filter)
-      regex = Utilities::Dates::REGEXP_DATES[filter].to_s.gsub('(?i-mx:', '').chomp(')')
+      regex = Utilities::Dates::REGEXP_DATES[filter][:reg].to_s.gsub('(?i-mx:', '').chomp(')')
       "verbatim_label ~* '" + regex + "'"
     end
   end
