@@ -29,7 +29,7 @@ describe 'Dates', group: [:collecting_events, :dates] do
                              )
       end
     end
-
+    #done except failing on 'This is a test september 20 ,1944 - November 19 , 1945' (extra spaces)
     context 'single use case for dates hunt_dates' do
       use_case = {'Some text here,  5 V 2003, some more text after the date  ' =>
                     {'MONTH_DD_YYYY_2'        => {:method => 'MONTH_DD_YYYY_2'},
