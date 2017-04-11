@@ -12,7 +12,7 @@ class DepictionsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @depictions = Depiction.where(project_id: sessions_current_project_id).where(filter_params)
+        @depictions = Depiction.where(project_id: sessions_current_project_id).where(filter_params).order(:position)
       }
     end
   end
@@ -76,17 +76,19 @@ class DepictionsController < ApplicationController
 
   # PATCH /sort?depiction_ids[]=1&depiction_ids[]=2.json
   def sort
-    begin 
-      params.require(:depiction_ids).each_with_index do |d|
-        i.update_column(:position, i + 1)
+    respond_to do |format|
+      begin 
+        params.require(:depiction_ids).each_with_index do |d, i|
+          Depiction.find(d).update_column(:position, i + 1)
+        end
+      rescue ActionController::ParameterMissing  
+        format.json { render json: {success: false}, status: :unprocessable_entity and return }
+      rescue ActiveRecord::RecordInvalid
+        format.json { render json: {success: false}, status: :unprocessable_entity and return }
       end
-    rescue ActionController::ParameterMissing  
-      format.json { render json: {success: false}, status: :unprocessable_entity and return }
-    rescue ActiveRecord::RecordInvalid
-      format.json { render json: {success: false}, status: :unprocessable_entity and return }
-    end
 
-    format.json { render json: {success: true}, status: :ok and return }
+      format.json { render json: {success: true}, status: :ok and return }
+    end
   end
 
   private 
