@@ -13,11 +13,11 @@ module PinboardItemsHelper
       link_to('Remove', pinboard_item_path(pinboard_item), class: :remove, method: :delete) 
     ]
 
-    options.push source_document_viewer_option_tag(pinboard_item.pinned_object) if pinboard_item.pinned_object.kind_of?(Source)
+    options.push(source_document_viewer_option_tag(pinboard_item.pinned_object)) if pinboard_item.pinned_object.kind_of?(Source)
 
     content_tag(:div, class: 'itemOptions') do
       options.compact.join.html_safe
-    end
+    end.html_safe
   end
      
 end
