@@ -179,13 +179,14 @@ index_editor_task:
   name: 'Content editor'
   related:
   categories:
+    - source
   status: prototype
-  description: 'Edit content per subject'
-
+  description: 'Edit content (text) per subject, for example "Biology of Aus bus". Text can be cited and figured.'
 cite_otus_task_task:
   hub: true
-  name: 'TODO: Task name'
+  name: 'Cite OTUs'
   related:
   categories:
+    - source
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Add citations to OTUs.  Optionally add topics to citations.  For example assertions like "Smith, 1920 referenced Biology of Aus bus" are possible.'
