@@ -1,4 +1,4 @@
-# Shared code for documenting objects.
+# Shared code for documenting objects, i.e. linking a document to a data instance.
 #
 module Shared::Documentation
 
