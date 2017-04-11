@@ -96,8 +96,8 @@ namespace :tw do
             # if get_containing_source_id[get_tw_source_id.has_key?(row['RefID']) is true, use source_id of containing source for author and editor roles (taxon_author_roles will be assigned as taxa are created)
             containing_source_id = get_containing_source_id[source_id]
 
-            ordered_authors = SourceAuthor.where(role_object_id: :containing_source_id).order(:position).pluck(:person_id)
-            ordered_editors = SourceEditor.where(role_object_id: :containing_source_id).order(:position).pluck(:person_id)
+            ordered_authors = SourceAuthor.where(role_object_id: containing_source_id).order(:position).pluck(:person_id)
+            ordered_editors = SourceEditor.where(role_object_id: containing_source_id).order(:position).pluck(:person_id)
 
             ordered_authors.each do |person_id|
               role = SourceAuthor.new(
@@ -114,14 +114,14 @@ namespace :tw do
               )
               begin
                 role.save!
-              rescue
+              rescue ActiveRecord::RecordInvalid
                 "Author role ERROR person_id = #{person_id} (#{author_error_counter += 1}): " + role.errors.full_messages.join(';')
               end
             end
 
             ordered_editors.each do |person_id|
               role = SourceEditor.new(
-                  person_id: get_tw_person_id[row['PersonID']],
+                  person_id: person_id,
                   # type: 'SourceEditor',
                   role_object_id: source_id,
                   role_object_type: 'Source',
@@ -134,7 +134,7 @@ namespace :tw do
               )
               begin
                 role.save!
-              rescue
+              rescue ActiveRecord::RecordInvalid
                 "Editor role ERROR person_id = #{person_id} (#{editor_error_counter += 1}): " + role.errors.full_messages.join(';')
               end
             end
@@ -280,7 +280,7 @@ namespace :tw do
                   updated_by_id: get_tw_user_id[row['ModifiedBy']]
               )
 
-            rescue
+            rescue ActiveRecord::RecordInvalid
               logger.info "Source (ContainingRefID = 0) ERROR (#{error_counter += 1}): " + source.errors.full_messages.join(';')
               # @todo Not found: Slater, J.A. Date unknown. A Catalogue of the Lygaeidae of the world. << RefID = 44058, PubID = 21898
             end
@@ -299,7 +299,7 @@ namespace :tw do
 
             begin
               containing_source = Source.find(containing_source_id)
-            rescue
+            rescue ActiveRecord::RecordInvalid
               logger.info "Source ERROR: containing source not found for RefID = #{containing_source_id} (source not found = #{source_not_found_error += 1})"
               next
             end
@@ -340,7 +340,7 @@ namespace :tw do
               # Also keep db record of containing_source_id for future reference
               source.data_attributes << ImportAttribute.new(import_predicate: 'containing_source_id', value: containing_source_id)
 
-            rescue
+            rescue ActiveRecord::RecordInvalid
               logger.info "Source (Containing_ref_id > 0) ERROR (#{contained_error_counter += 1}): " + source.errors.full_messages.join(';')
             end
 
@@ -642,7 +642,7 @@ namespace :tw do
 
               get_tw_person_id[sf_person_id] = person.id.to_s
 
-            rescue
+            rescue ActiveRecord::RecordInvalid
               logger.info "Person ERROR (#{person_error_counter += 1}): " + person.errors.full_messages.join(';')
             end
 
