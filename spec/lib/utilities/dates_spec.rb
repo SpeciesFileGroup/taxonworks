@@ -8,9 +8,25 @@ describe 'Dates', group: [:collecting_events, :dates] do
 
     context 'bad values' do
 
-      xspecify 'truley bogus data' do
-        expect(Utilities::Dates.hunt_dates('192:5:18.1N')).to eq('{"MONTH_DD_YYYY_2"=>{:method=>"MONTH_DD_YYYY_2"}, "DD_MONTH_YYYY_2"=>{:method=>"DD_MONTH_YYYY_2"}, "MM_DD_YYYY_2"=>{:method=>"MM_DD_YYYY_2"}, "MONTH_DD_MONTH_DD_YYYY"=>{:method=>"MONTH_DD_MONTH_DD_YYYY"}, "DD_MONTH_DD_MONTH_YYYY"=>{:method=>"DD_MONTH_DD_MONTH_YYYY"}, "MM_DD_MM_DD_YYYY"=>{:method=>"MM_DD_MM_DD_YYYY"}, "MONTH_DD_DD_YYYY"=>{:method=>"MONTH_DD_DD_YYYY"}, "DD_DD_MONTH_YYYY"=>{:method=>"DD_DD_MONTH_YYYY"}, "MM_DD_DD_YYYY"=>{:method=>"MM_DD_DD_YYYY"}, "MONTH_DD_YYY"=>{:method=>"MONTH_DD_YYY"}, "DD_MONTH_YYY"=>{:method=>"DD_MONTH_YYY"}, "MM_DD_YYYY"=>{:method=>"MM_DD_YYYY"}, "MM_DD_YY"=>{:method=>"MM_DD_YY"}}'
-                                                              )
+      specify 'truley bogus data' do
+        this_case = Utilities::Dates.hunt_dates('192:5:18.1N')
+
+        expect(this_case).to eq(
+                               {"MONTH_DD_YYYY_2"        => {:method => "MONTH_DD_YYYY_2"},
+                                "DD_MONTH_YYYY_2"        => {:method => "DD_MONTH_YYYY_2"},
+                                "MM_DD_YYYY_2"           => {:method => "MM_DD_YYYY_2"},
+                                "MONTH_DD_MONTH_DD_YYYY" => {:method => "MONTH_DD_MONTH_DD_YYYY"},
+                                "DD_MONTH_DD_MONTH_YYYY" => {:method => "DD_MONTH_DD_MONTH_YYYY"},
+                                "MM_DD_MM_DD_YYYY"       => {:method => "MM_DD_MM_DD_YYYY"},
+                                "MONTH_DD_DD_YYYY"       => {:method => "MONTH_DD_DD_YYYY"},
+                                "DD_DD_MONTH_YYYY"       => {:method => "DD_DD_MONTH_YYYY"},
+                                "MM_DD_DD_YYYY"          => {:method => "MM_DD_DD_YYYY"},
+                                "MONTH_DD_YYY"           => {:method => "MONTH_DD_YYY"},
+                                "DD_MONTH_YYY"           => {:method => "DD_MONTH_YYY"},
+                                "MM_DD_YYYY"             => {:method => "MM_DD_YYYY"},
+                                "MM_DD_YY"               => {:method => "MM_DD_YY"}
+                               }
+                             )
       end
     end
 
