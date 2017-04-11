@@ -31,8 +31,8 @@ namespace :tw do
           # 'cites:import_nomenclator_strings',
           # 'cites:create_cvts_for_citations',
           # 'cites:create_sf_taxon_name_authors',
-          'cites:create_citations',
-          # 'cites:create_otu_cites'
+          # 'create_citations',
+          'cites:create_otu_cites'
       ] do
         puts 'Ran all import tasks!'
       end
@@ -47,8 +47,22 @@ List of error logs user should fix:
 Rake task, kind of error, file or project id [instances]
 
 :create_citations
-[ERROR]2017-03-28 16:32:01.644: DataAttribute Nomenclator ERROR NomenclatorID = 26777, SF.TaxonNameID 1126193 = TW.taxon_name_id 27497 (error_counter = 154): Value has already been taken
-[ERROR]2017-03-28 18:47:12.004: DataAttribute Nomenclator ERROR NomenclatorID = 88205, SF.TaxonNameID 1164407 = TW.taxon_name_id 65689 (error_counter = 468): Value has already been taken
+[ERROR]2017-04-07 20:36:51.143: DataAttribute Nomenclator ERROR NomenclatorID = 26777, SF.TaxonNameID 1126193 = TW.taxon_name_id 27497 (error_counter = 1): Value has already been taken
+[ERROR]2017-04-07 22:49:20.080: DataAttribute Nomenclator ERROR NomenclatorID = 88205, SF.TaxonNameID 1164407 = TW.taxon_name_id 65689 (error_counter = 2): Value has already been taken
+[ERROR]2017-04-07 23:04:24.459: OTU citation ERROR SF.TaxonNameID 1167558 = TW.taxon_name_id 68932 = otu_id 69215 (error_counter = 3): Source has already been taken
+[ERROR]2017-04-07 23:58:48.670: OTU citation ERROR SF.TaxonNameID 1186805 = TW.taxon_name_id 88373 = otu_id 88671 (error_counter = 4): Source has already been taken
+[ERROR]2017-04-07 23:59:41.280: OTU citation ERROR SF.TaxonNameID 1187002 = TW.taxon_name_id 88571 = otu_id 88869 (error_counter = 5): Source has already been taken
+[ERROR]2017-04-07 23:59:43.870: OTU citation ERROR SF.TaxonNameID 1187011 = TW.taxon_name_id 88580 = otu_id 88878 (error_counter = 6): Source has already been taken
+[ERROR]2017-04-08 00:02:39.648: OTU citation ERROR SF.TaxonNameID 1187590 = TW.taxon_name_id 89163 = otu_id 89464 (error_counter = 7): Source has already been taken
+[ERROR]2017-04-08 00:09:35.167: OTU citation ERROR SF.TaxonNameID 1189094 = TW.taxon_name_id 90681 = otu_id 90984 (error_counter = 8): Source has already been taken
+[ERROR]2017-04-08 00:09:54.089: OTU citation ERROR SF.TaxonNameID 1189139 = TW.taxon_name_id 90727 = otu_id 91030 (error_counter = 9): Source has already been taken
+[ERROR]2017-04-08 00:12:54.845: OTU citation ERROR SF.TaxonNameID 1189629 = TW.taxon_name_id 91223 = otu_id 91526 (error_counter = 10): Source has already been taken
+[ERROR]2017-04-08 00:14:10.695: OTU citation ERROR SF.TaxonNameID 1189889 = TW.taxon_name_id 91487 = otu_id 91790 (error_counter = 11): Source has already been taken
+[ERROR]2017-04-08 00:16:15.296: OTU citation ERROR SF.TaxonNameID 1190299 = TW.taxon_name_id 91902 = otu_id 92205 (error_counter = 12): Source has already been taken
+[ERROR]2017-04-08 00:16:15.797: OTU citation ERROR SF.TaxonNameID 1190300 = TW.taxon_name_id 91903 = otu_id 92206 (error_counter = 13): Source has already been taken
+[ERROR]2017-04-08 00:18:43.759: OTU citation ERROR SF.TaxonNameID 1190776 = TW.taxon_name_id 92387 = otu_id 92690 (error_counter = 14): Source has already been taken
+[ERROR]2017-04-08 00:19:24.187: OTU citation ERROR SF.TaxonNameID 1190920 = TW.taxon_name_id 92534 = otu_id 92837 (error_counter = 15): Source has already been taken
+[ERROR]2017-04-08 02:13:20.465: OTU citation ERROR SF.TaxonNameID 1226996 = TW.taxon_name_id 101042 = otu_id 101349 (error_counter = 16): Source has already been taken
 
 
 :create_status_flag_relationships
