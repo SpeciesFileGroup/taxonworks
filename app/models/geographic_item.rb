@@ -96,7 +96,7 @@ class GeographicItem < ActiveRecord::Base
     #   !! StrongParams security considerations
     def crosses_anti_meridian?(wkt)
       GeographicItem.find_by_sql(
-          "SELECT ST_Intersects(ST_GeogFromText('#{wkt}'), ST_GeogFromText('#{ANTI_MERIDIAN}')) as r;"
+        "SELECT ST_Intersects(ST_GeogFromText('#{wkt}'), ST_GeogFromText('#{ANTI_MERIDIAN}')) as r;"
       ).first.r
     end
 
@@ -108,7 +108,7 @@ class GeographicItem < ActiveRecord::Base
     #   UI is to abandon the search, and prompt the user to refactor the query.
     def crosses_anti_meridian_by_id?(*ids)
       GeographicItem.find_by_sql(
-          "SELECT ST_Intersects((SELECT single_geometry FROM (#{GeographicItem.single_geometry_sql(*ids)}) as left_intersect), ST_GeogFromText('#{ANTI_MERIDIAN}')) as r;"
+        "SELECT ST_Intersects((SELECT single_geometry FROM (#{GeographicItem.single_geometry_sql(*ids)}) as left_intersect), ST_GeogFromText('#{ANTI_MERIDIAN}')) as r;"
       ).first.r
     end
 
@@ -122,7 +122,7 @@ class GeographicItem < ActiveRecord::Base
     def gather_selected_data(geographic_area_id, shape_in, search_object_class)
       if shape_in.blank?
         # get the shape from the geographic area, if possible
-        finding = search_object_class.constantize
+        finding                    = search_object_class.constantize
         target_geographic_item_ids = []
         if geographic_area_id.blank?
           found = finding.none
@@ -130,8 +130,8 @@ class GeographicItem < ActiveRecord::Base
           # now use method from collection_object_filter_query
           geographic_area_id.each do |gaid|
             target_geographic_item_ids.push(GeographicArea.joins(:geographic_items)
-                                                .find(gaid)
-                                                .default_geographic_item.id)
+                                              .find(gaid)
+                                              .default_geographic_item.id)
           end
           found = finding.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
         end
@@ -141,7 +141,7 @@ class GeographicItem < ActiveRecord::Base
       found
     end
 
-    # @param [String] feature in JSON
+    # @param [String] feature in JSON, looks like '{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-40.078125,10.614539227964332],[-49.21875,-17.185577279306226],[-23.203125,-15.837353550148276],[-40.078125,10.614539227964332]]]},"properties":{}}'
     # @param [String] search_object_class
     # @return [Scope] of the requested search_object_type
     #   This function takes a feature, i.e. a string that is the result
@@ -150,22 +150,26 @@ class GeographicItem < ActiveRecord::Base
     #   e.g. Return all CollectionObjects in this drawn area
     #        Return all CollectionObjects in the radius around this point
     def gather_map_data(feature, search_object_class)
-      finding = search_object_class.constantize
-      feature = RGeo::GeoJSON.decode(feature, json_parser: :json)
-      geometry = feature.geometry       # isolate the WKT
-      shape_type = geometry.geometry_type.to_s.downcase
-      geometry = geometry.as_text
-      radius = feature['radius']
-
-      query = finding.joins(:geographic_items)
-
-      case shape_type
-      when 'point'
-        query.where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
-      when 'polygon', 'multipolygon'
-        query.where(GeographicItem.contained_by_wkt_sql(geometry))
+      finding   = search_object_class.constantize
+      g_feature = RGeo::GeoJSON.decode(feature, json_parser: :json)
+      if g_feature.nil?
+        finding.none
       else
-        query
+        geometry   = g_feature.geometry # isolate the WKT
+        shape_type = geometry.geometry_type.to_s.downcase
+        geometry   = geometry.as_text
+        radius     = g_feature['radius']
+
+        query = finding.joins(:geographic_items)
+
+        case shape_type
+          when 'point'
+            query.where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
+          when 'polygon', 'multipolygon'
+            query.where(GeographicItem.contained_by_wkt_sql(geometry))
+          else
+            query
+        end
       end
     end
 
@@ -241,10 +245,10 @@ class GeographicItem < ActiveRecord::Base
     end
 
     def is_contained_by_sql(column_name, geographic_item)
-      geo_id = geographic_item.id
+      geo_id   = geographic_item.id
       geo_type = geographic_item.geo_object_type
       template = '(ST_Contains((select geographic_items.%s::geometry from geographic_items where geographic_items.id = %d), %s::geometry))'
-      retval = []
+      retval   = []
       column_name.downcase!
       case column_name
         when 'any'
@@ -345,8 +349,8 @@ class GeographicItem < ActiveRecord::Base
       crossing_ids.each do |id|
         # [61666, 61661, 61659, 61654, 61639]
         r = GeographicItem.where(
-            # GeographicItem.contained_by_wkt_shifted_sql(GeographicItem.find(id).geo_object.to_s)
-            GeographicItem.contained_by_wkt_shifted_sql(ActiveRecord::Base.connection.execute("SELECT ST_AsText((SELECT polygon FROM geographic_items WHERE id = #{id}))").first['st_astext'])
+          # GeographicItem.contained_by_wkt_shifted_sql(GeographicItem.find(id).geo_object.to_s)
+          GeographicItem.contained_by_wkt_shifted_sql(ActiveRecord::Base.connection.execute("SELECT ST_AsText((SELECT polygon FROM geographic_items WHERE id = #{id}))").first['st_astext'])
         ).to_a
         results.push(r)
       end
@@ -484,17 +488,17 @@ class GeographicItem < ActiveRecord::Base
     #
     def with_collecting_event_through_georeferences
       geographic_items = GeographicItem.arel_table
-      georeferences = Georeference.arel_table
-      g1 = georeferences.alias('a')
-      g2 = georeferences.alias('b')
+      georeferences    = Georeference.arel_table
+      g1               = georeferences.alias('a')
+      g2               = georeferences.alias('b')
 
       c = geographic_items.join(g1, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g1[:geographic_item_id]))
-              .join(g2, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g2[:error_geographic_item_id]))
+            .join(g2, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g2[:error_geographic_item_id]))
 
       GeographicItem.joins(# turn the Arel back into scope
-          c.join_sources # translate the Arel join to a join hash(?)
+        c.join_sources # translate the Arel join to a join hash(?)
       ).where(
-          g1[:id].not_eq(nil).or(g2[:id].not_eq(nil)) # returns a Arel::Nodes::Grouping
+        g1[:id].not_eq(nil).or(g2[:id].not_eq(nil)) # returns a Arel::Nodes::Grouping
       ).distinct
     end
 
@@ -690,8 +694,8 @@ class GeographicItem < ActiveRecord::Base
     def ordered_by_longest_distance_from(column_name, geographic_item)
       if true # check_geo_params(column_name, geographic_item)
         q = select_distance_with_geo_object(column_name, geographic_item)
-                .where_distance_greater_than_zero(column_name, geographic_item)
-                .order('distance desc')
+              .where_distance_greater_than_zero(column_name, geographic_item)
+              .order('distance desc')
         q
       else
         where('false')
@@ -767,7 +771,7 @@ class GeographicItem < ActiveRecord::Base
     # example, not used
     def st_multi(*geographic_item_ids)
       GeographicItem.find_by_sql(
-          "SELECT ST_Multi(ST_Collect(g.the_geom)) AS singlegeom
+        "SELECT ST_Multi(ST_Collect(g.the_geom)) AS singlegeom
        FROM (
           SELECT (ST_DUMP(#{GeographicItem::GEOMETRY_SQL})).geom AS the_geom
           FROM geographic_items
@@ -935,14 +939,14 @@ class GeographicItem < ActiveRecord::Base
     # !! The real solution here is to add a sort to prioritize by gazeteer.
     # !! This ordering basically means that if two areas with country (for example) level are found, the first in the alphabet is selected, then sorting by id if equally named
     (containing_geographic_areas
-         .joins(:geographic_areas_geographic_items)
-         .merge(GeographicAreasGeographicItem.ordered_by_data_origin)
-         .order('geographic_areas.name') +
-        geographic_areas
-            .joins(:geographic_areas_geographic_items)
-            .merge(GeographicAreasGeographicItem
-                       .ordered_by_data_origin)
-            .order('geographic_areas.name').limit(1)).each do |a|
+       .joins(:geographic_areas_geographic_items)
+       .merge(GeographicAreasGeographicItem.ordered_by_data_origin)
+       .order('geographic_areas.name') +
+      geographic_areas
+        .joins(:geographic_areas_geographic_items)
+        .merge(GeographicAreasGeographicItem
+                 .ordered_by_data_origin)
+        .order('geographic_areas.name').limit(1)).each do |a|
       v.merge!(a.categorize)
     end
     v
@@ -952,7 +956,7 @@ class GeographicItem < ActiveRecord::Base
   #   the Geographic Areas that contain (gis) this geographic item
   def containing_geographic_areas
     GeographicArea.joins(:geographic_items).includes(:geographic_area_type)
-        .joins("JOIN (#{GeographicItem.containing(id).to_sql}) j on geographic_items.id = j.id")
+      .joins("JOIN (#{GeographicItem.containing(id).to_sql}) j on geographic_items.id = j.id")
   end
 
   # @return [Boolean]
@@ -1078,12 +1082,12 @@ class GeographicItem < ActiveRecord::Base
   def to_geo_json_feature
     @geometry ||= to_geo_json
     {
-        'type' => 'Feature',
-        'geometry' => geometry,
-        'properties' => {
-            'geographic_item' => {
-                'id' => id}
-        }
+      'type'       => 'Feature',
+      'geometry'   => geometry,
+      'properties' => {
+        'geographic_item' => {
+          'id' => id}
+      }
     }
   end
 
@@ -1094,7 +1098,7 @@ class GeographicItem < ActiveRecord::Base
   # @param [String] value
   def shape=(value)
     unless value.blank?
-      geom = RGeo::GeoJSON.decode(value, json_parser: :json)
+      geom      = RGeo::GeoJSON.decode(value, json_parser: :json)
       this_type = JSON.parse(value)['geometry']['type']
 
       # TODO: @tuckerjd isn't this set automatically? Or perhaps the callback isn't hit in this approach?
@@ -1121,7 +1125,7 @@ class GeographicItem < ActiveRecord::Base
 
   def set_type_if_geography_present
     if type.blank?
-      column = geo_type
+      column    = geo_type
       self.type = "GeographicItem::#{column.to_s.camelize}" if column
     end
   end
