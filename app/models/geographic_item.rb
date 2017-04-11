@@ -141,7 +141,7 @@ class GeographicItem < ActiveRecord::Base
       found
     end
 
-    # @param [String] feature in JSON
+    # @param [String] feature in JSON, looks like '{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-40.078125,10.614539227964332],[-49.21875,-17.185577279306226],[-23.203125,-15.837353550148276],[-40.078125,10.614539227964332]]]},"properties":{}}'
     # @param [String] search_object_class
     # @return [Scope] of the requested search_object_type
     #   This function takes a feature, i.e. a string that is the result
@@ -150,22 +150,26 @@ class GeographicItem < ActiveRecord::Base
     #   e.g. Return all CollectionObjects in this drawn area
     #        Return all CollectionObjects in the radius around this point
     def gather_map_data(feature, search_object_class)
-      finding = search_object_class.constantize
-      feature = RGeo::GeoJSON.decode(feature, json_parser: :json)
-      geometry = feature.geometry       # isolate the WKT
-      shape_type = geometry.geometry_type.to_s.downcase
-      geometry = geometry.as_text
-      radius = feature['radius']
+      finding   = search_object_class.constantize
+      g_feature = RGeo::GeoJSON.decode(feature, json_parser: :json)
+      if g_feature.nil?
+        finding.none
+      else
+        geometry   = g_feature.geometry # isolate the WKT
+        shape_type = geometry.geometry_type.to_s.downcase
+        geometry   = geometry.as_text
+        radius     = g_feature['radius']
 
-      query = finding.joins(:geographic_items)
+        query = finding.joins(:geographic_items)
 
-      case shape_type
-        when 'point'
-          query.where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
-        when 'polygon', 'multipolygon'
-          query.where(GeographicItem.contained_by_wkt_sql(geometry))
-        else
-          query
+        case shape_type
+          when 'point'
+            query.where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
+          when 'polygon', 'multipolygon'
+            query.where(GeographicItem.contained_by_wkt_sql(geometry))
+          else
+            query
+        end
       end
     end
 
