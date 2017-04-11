@@ -77,14 +77,15 @@ class DocumentsController < ApplicationController
   end
 
   def autocomplete
-    @documents = Document.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    @documents = Queries::DocumentAutocompleteQuery.new(params[:term], project_id: params[:project_id]).all
     data = @documents.collect do |t|
-      {id: t.id,
-       label: ApplicationController.helpers.document_tag(t),
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html: ApplicationController.helpers.document_autocomplete_selected_tag(t)
+      {
+        id: t.id,
+        label: ApplicationController.helpers.document_tag(t),
+        response_values: {
+          params[:method] => t.id
+        },
+        label_html: ApplicationController.helpers.document_tag(t) 
       }
     end
 
@@ -92,7 +93,7 @@ class DocumentsController < ApplicationController
   end
 
   private
-  
+
   def set_document
     @document = Document.find(params[:id])
   end

@@ -96,10 +96,6 @@ class Document < ActiveRecord::Base
     update_attribute(:page_map, p)
   end
 
-  def self.find_for_autocomplete(params)
-    Queries::DocumentAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
-  end
- 
   def initialize_start_page=(value)
     write_attribute(:page_map, get_page_map(value)) 
   end

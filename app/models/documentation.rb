@@ -43,12 +43,7 @@ class Documentation < ActiveRecord::Base
   accepts_nested_attributes_for :document
   accepts_nested_attributes_for :documentation_object
 
-  def self.find_for_autocomplete(params)
-    Queries::DocumentationAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
-  end
-
   protected 
-
 
   def catch_statement_invalid
     begin

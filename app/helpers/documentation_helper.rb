@@ -2,7 +2,7 @@ module DocumentationHelper
 
   def documentation_tag(documentation)
     return nil if documentation.nil?
-    string = [ documentation.cached,  documentation.verbatim_label, documentation.print_label, documentation.document_label, documentation.field_notes, documentation.to_param].compact.first
+    string = [ documentation.documentation_object_type, ': ', object_tag(documentation.documentation_object)].join.html_safe
     string
   end
 
