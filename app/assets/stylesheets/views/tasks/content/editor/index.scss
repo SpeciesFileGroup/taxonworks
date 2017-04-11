@@ -213,8 +213,8 @@
 
 	.slide-panel {
 		top:0px;
-		max-width: 300px;
-		min-width: 300px;		
+		max-width: 400px;
+		min-width: 400px;		
 		.slide-panel-header {
 			font-weight: 500;
 			color: #42b983;
@@ -227,7 +227,7 @@
 		}			
 	}
 	#topics {
-		left:-300px;
+		left:-400px;
 		.selected {
 			background-color: $color-complement-2;
 		}		

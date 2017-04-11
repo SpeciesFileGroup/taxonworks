@@ -505,6 +505,11 @@ Object.assign(TW.views.tasks.content.editor, {
           edit: false
         }
       },
+      watch: {
+        'figure': function(newVal) {
+          this.depiction = newVal;
+        }
+      },
       created: function() {
         this.depiction = this.figure;
       },
@@ -539,9 +544,9 @@ Object.assign(TW.views.tasks.content.editor, {
 
     Vue.component('figures-panel', {
       template: '<div class="flex-wrap-column" v-if="panelFigures && content"> \
-                  <div class="item item1 column-medium flex-wrap-row"> \
-                    <figure-item v-for="item in depictions" :figure="item"></figure-item> \
-                  </div> \
+                    <draggable v-model="depictions" @start="drag=true" @end="drag=false, updatePosition()" class="item item1 column-medium flex-wrap-row"> \
+                       <figure-item v-for="item in depictions" :figure="item"></figure-item> \
+                    </draggable> \
                   <div class="item item2 column-tiny no-margin"> \
                     <dropzone v-on:vdropzone-sending="sending" v-on:vdropzone-success="success" ref="figure" id="figure" url="/depictions" :useCustomDropzoneOptions="true" :dropzoneOptions="dropzone"></dropzone> \
                   </div> \
@@ -553,12 +558,18 @@ Object.assign(TW.views.tasks.content.editor, {
         panelFigures() {
           return this.$store.getters.panelFigures
         },
-        depictions() {
-          return this.$store.getters.getDepictionsList
-        }
+        depictions: {
+            get() {
+                return this.$store.getters.getDepictionsList
+            },
+            set(value) {
+                this.$store.commit('setDepictionsList', value)
+            }
+        }        
       },
       data: function() {
         return {
+          drag: false,
           dropzone: {
             paramName: "depiction[image_attributes][image_file]",
             url: "/depictions",
@@ -595,6 +606,18 @@ Object.assign(TW.views.tasks.content.editor, {
           var ajaxUrl = `/contents/${this.content.id}/depictions.json`;
           this.$http.get(ajaxUrl).then( response => {
             this.$store.commit('setDepictionsList', response.body);
+          });
+        },
+        updatePosition: function() {
+          var ajaxUrl = `/depictions/sort`,
+              array =  {
+              depiction_ids: []
+            };
+
+          this.depictions.forEach( function(item) {
+              array.depiction_ids.push(item.id);
+          });
+          this.$http.patch(ajaxUrl,array).then( response => {
           });
         }
       }  
