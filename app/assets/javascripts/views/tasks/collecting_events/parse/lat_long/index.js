@@ -59,7 +59,7 @@ Object.assign(TW.views.tasks.collecting_events.parse.lat_long, {
       // find all the checkboxes in the 'matching_span' and set them to 'checked'
       // class is selectable_select
       for (var i = 0; i < selectable.length; i++) {
-        selectable[i].setAttribute('checked', true)
+        selectable[i]['checked'] = true;
       }
       event.preventDefault();
     });
@@ -68,7 +68,7 @@ Object.assign(TW.views.tasks.collecting_events.parse.lat_long, {
       // find all the checkboxes in the 'matching_span' and set them to 'checked'
       // class is selectable_select
       for (var i = 0; i < selectable.length; i++) {
-        selectable[i].removeAttribute('checked')
+        selectable[i]['checked'] = false;
       }
       event.preventDefault();
     });
