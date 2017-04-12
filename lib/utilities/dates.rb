@@ -289,7 +289,7 @@ module Utilities::Dates
     end
   end
 
-  def self.hunt_dates(label, filters = REGEXP_DATES.keys)
+  def self.huntfor_dates(label, filters = REGEXP_DATES.keys)
     trials = {}
     filters.each_with_index { |kee, dex|
       kee_string = kee.to_s.upcase
@@ -307,21 +307,18 @@ module Utilities::Dates
     trials
   end
 
-  def self.hunt_for_dates(label, filters = REGEXP_DATE.keys)
+  def self.hunt_dates(label, filters = REGEXP_DATE.keys)
     trials = {}
     REGEXP_DATE.each_with_index {|kee, dex|
       # filters.each_with_index { |kee, dex|
       kee_string = kee.to_s.upcase
-      trials[kee_string] = {}
-      regex_title = REGEXP_DATES[kee][:reg].match(label)
-      matches = label.to_enum(:scan, Utilities::Dates[REGEXP_DATE][kee.to_sym][:reg]).map {Regexp.last_match}
-      unless regex_title.nil?
-        trials[kee_string][:piece] = regex_title[0]
-        regex_title
-      end
-      trials[kee_string][:method] = "#{kee_string}"
-      unless regex_title.nil?
-        extract_dates(trials[kee_string], regex_title)
+      trials[kee] = {}
+      regex_title = REGEXP_DATE[kee[0]][:reg].match(label)
+      matches = label.to_enum(:scan, REGEXP_DATE[kee[0].to_sym][:reg]).map {Regexp.last_match}
+      unless matches.nil?
+        trials[kee][:method] = kee[0]
+        trials[kee][:piece] = {}
+        extract_dates(trials[kee], matches)
       end
     }
     trials
@@ -363,7 +360,7 @@ module Utilities::Dates
   # end
 
   def self.extract_dates(trial, match_data)
-    case trial[:method].gsub('text, ', '').downcase.to_sym
+    case trial[:method].downcase.to_sym
       when :mm_dd_dd_yyy
         trial[:start_date_year] = match_data[5]
         trial[:start_date_month] = month_index(match_data[1]).to_s
@@ -375,16 +372,21 @@ module Utilities::Dates
         trial[:start_date_year] = match_data[3]
         trial[:start_date_month] = month_index(match_data[1]).to_s
         trial[:start_date_day] = match_data[2]
-        trial[:end_date_year] = '' # match_data[3]
-        trial[:end_date_month] = '' #  month_index(match_data[1]).to_s
-        trial[:end_date_day] = '' #  match_data[2]
+        trial[:piece][0] = match_data[0][0]
       when :dd_month_yyy # done for yyyy
-        trial[:start_date_year] = match_data[3]
-        trial[:start_date_month] = month_index(match_data[2]).to_s
-        trial[:start_date_day] = match_data[1]
+        trial[:start_date_year] = match_data[0][3]
+        trial[:start_date_month] = month_index(match_data[0][2]).to_s
+        trial[:start_date_day] = match_data[0][1]
         trial[:end_date_year] = '' #  match_data[3]
         trial[:end_date_month] = '' #  month_index(match_data[2]).to_s
         trial[:end_date_day] = '' #  match_data[1]
+        trial[:piece][1] = ''
+        if match_data[1]
+          trial[:piece][1] = match_data[1][1]
+          trial[:end_date_year] = match_data[1][3]
+          trial[:end_date_month] = month_index(match_data[1][2]).to_s
+          trial[:end_date_day] = match_data[1][1]
+        end
       when :mm_dd_yyyy
         trial[:start_date_year] = match_data[3]
         trial[:start_date_month] = month_index(match_data[1]).to_s
@@ -549,11 +551,11 @@ module Utilities::Dates
   }
 
   REGEXP_DATE = {
-      month_dd_yyy: {reg: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[-\u2013_,\/]?\s?(\d\d?)[\.;,]?\s?[-\s\u2013_\/\.\u0027,]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
-                     hlp: "Jun 29 1947     Jun 29, 1947    June 29 1947    June 29, 1947    VI-29-1947   X.25.2000 Jun 29, '47   June 29, '47    VI-4-08    Jun 29, '47"},
-
       dd_month_yyy: {reg: /(\d\d?)\s?[-\u2013_\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[\.,]?\s?[-,\u2013_\/]?\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
                      hlp: "29 Jun 1947   29 June 1947   2 June, 1983   29 VI 1947   29-VI-1947   25.X.2000 25X2000 29 June '47   29 Jun '47"},
+
+      month_dd_yyy: {reg: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[-\u2013_,\/]?\s?(\d\d?)[\.;,]?\s?[-\s\u2013_\/\.\u0027,]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+                     hlp: "Jun 29 1947     Jun 29, 1947    June 29 1947    June 29, 1947    VI-29-1947   X.25.2000 Jun 29, '47   June 29, '47    VI-4-08    Jun 29, '47"},
 
       mm_dd_yyyy: {reg: /(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d{4})/i,
                    hlp: '6/29/1947    6-29-1947    6-15 1985    10.25 2000    7.10.1994'},
