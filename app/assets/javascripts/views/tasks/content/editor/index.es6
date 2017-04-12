@@ -199,24 +199,24 @@ Object.assign(TW.views.tasks.content.editor, {
       template: '<div> \
                   <button @click="showModal = true" class="button normal-input button-default">Select</button> \
                   <modal v-if="showModal"> \
-                    <h3 slot="header">Select</h3> \
+                    <div slot="header"><h3>Select</h3><button v-if="topic && otu" class="button normal-input button-normal" @click="closeAll(), showModal = false">Close</button> \ </div> \
                     <div slot="body"> \
-                    <div class="flex-wrap-column"> \
-                            <button @click="closeAll(), topicPanel()" class="button normal-input button-default">\
-                              <span v-if="topic">Change Topic</span> \
+                    <div class="flex-wrap-column middle"> \
+                            <button @click="closeAll(), topicPanel()" class="button button-default button-select">\
+                              <span v-if="topic">Change topic</span> \
                               <span v-else>Topic</span> \
                             </button> \
-                          <button @click="closeAll(), otuPanel()" class="button normal-input button-default separate-top"> \
+                          <button @click="closeAll(), otuPanel()" class="button button-default separate-top button-select"> \
                               <span v-if="otu">Change OTU</span> \
                               <span v-else>OTU</span> \
                           </button> \
-                          <button @click="closeAll(), recentPanel()" class="button normal-input button-default separate-top"> \
+                          <button @click="closeAll(), recentPanel()" class="button button-default separate-top button-select"> \
                               <span>Recent</span> \
                           </button> \
                     </div> \
                     </div> \
                     <div slot="footer" class="flex-separate"> \
-                      <button v-if="topic && otu" class="button button-close normal-input" @click="closeAll(), showModal = false">Close</button> \
+                      <button v-if="topic && otu" class="button normal-input button-normal" @click="closeAll(), showModal = false">Close</button> \
                     </div> \
                   </modal> \
                 </div>',
@@ -423,7 +423,7 @@ Object.assign(TW.views.tasks.content.editor, {
 
     Vue.component('citation-otu', {
       template: '<div :class="{ disabled : disabled  }"> \
-                  <div class="flex-wrap-column middle menu-button" @click="showModal = citations.length > 0"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation OTU</span></div> \
+                  <div class="flex-wrap-column middle menu-button" @click="showModal = citations.length > 0"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">OTU Citation</span></div> \
                   <modal v-if="showModal"> \
                     <h3 slot="header">Citation OTU</h3> \
                     <ul slot="body"> \
