@@ -17,7 +17,7 @@ module SourcesHelper
   def source_document_viewer_option_tag(source)
     return nil if !source.documents.any?
     content_tag(:span, class: 'pdfviewerItem') do
-      source.documents.collect{|d| content_tag(:a, 'View', data: { pdfviewer: d.document_file(:original, false), sourceid: source.id})}.join.html_safe
+      source.documents.collect{|d| content_tag(:a, 'View', class: 'circle-button', data: { pdfviewer: d.document_file(:original, false), sourceid: source.id})}.join.html_safe
     end.html_safe
   end
 
