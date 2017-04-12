@@ -198,8 +198,8 @@ Object.assign(TW.views.tasks.content.editor, {
     Vue.component('select-topic-otu', {
       template: '<div> \
                   <button @click="showModal = true" class="button normal-input button-default">Select</button> \
-                  <modal v-if="showModal"> \
-                    <div slot="header"><h3>Select</h3><button v-if="topic && otu" class="button normal-input button-normal" @click="closeAll(), showModal = false">Close</button> \ </div> \
+                  <modal v-if="showModal" @close="showModal = false"> \
+                    <h3 slot="header">Select</h3> \
                     <div slot="body"> \
                     <div class="flex-wrap-column middle"> \
                             <button @click="closeAll(), topicPanel()" class="button button-default button-select">\
@@ -214,9 +214,6 @@ Object.assign(TW.views.tasks.content.editor, {
                               <span>Recent</span> \
                           </button> \
                     </div> \
-                    </div> \
-                    <div slot="footer" class="flex-separate"> \
-                      <button v-if="topic && otu" class="button normal-input button-normal" @click="closeAll(), showModal = false">Close</button> \
                     </div> \
                   </modal> \
                 </div>',
@@ -298,15 +295,12 @@ Object.assign(TW.views.tasks.content.editor, {
     Vue.component('clone-content', {
       template: '<div :class="{ disabled : contents.length == 0 }"> \
                   <div @click="showModal = true && contents.length > 0" class="item flex-wrap-column middle menu-button"><span data-icon="clone" class="big-icon"></span><span class="tiny_space">Clone</span></div> \
-                  <modal v-if="showModal" id="clone-modal"> \
+                  <modal v-if="showModal" id="clone-modal" @close="showModal = false"> \
                     <h3 slot="header">Clone</h3> \
                     <div slot="body"> \
                       <ul class="no_bullets"> \
                         <li v-for="item in contents" @click="cloneCitation(item.text)"><span data-icon="show"><div class="clone-content-text">{{ item.text }}</div></span><span v-html="item.object_tag"></span></li> \
                       </ul> \
-                    </div> \
-                    <div slot="footer" class="flex-separate"> \
-                      <button class="button button-close normal-input" @click="showModal = false">Close</button> \
                     </div> \
                   </modal> \
                 </div>',
@@ -364,14 +358,11 @@ Object.assign(TW.views.tasks.content.editor, {
     Vue.component('compare-content', {
       template: '<div :class="{ disabled : !content || content.length < 1}" > \
                   <div class="item flex-wrap-column middle menu-button" @click="showModal = contents.length > 0" ><span data-icon="compare" class="big-icon"></span><span class="tiny_space">Compare</span></div> \
-                  <modal v-if="showModal" id="compare-modal"> \
+                  <modal v-if="showModal" id="compare-modal" @close="showModal = false"> \
                     <h3 slot="header">Compare content</h3> \
                     <ul slot="body" class="no_bullets"> \
                       <li v-for="item in contents" @click="compareContent(item)"><span data-icon="show"><div class="clone-content-text">{{ item.text }}</div></span><span v-html="item.topic.object_tag + \' - \' + item.otu.object_tag"></span></li> \
                     </ul> \
-                    <div slot="footer" class="flex-separate"> \
-                      <button class="button button-close normal-input" @click="showModal = false">Close</button> \
-                    </div> \
                   </modal> \
                  </div>',
       data: function() {
@@ -429,9 +420,6 @@ Object.assign(TW.views.tasks.content.editor, {
                     <ul slot="body"> \
                       <li v-for="item in citations"><span @click="pinItem(item)">ASD</span><span v-html="item.object_tag"></span></li> \
                     </ul> \
-                    <div slot="footer" class="flex-separate"> \
-                      <button class="button button-close normal-input" @click="showModal = false">Close</button> \
-                    </div> \
                   </modal> \
                 </div>',
       computed: {
@@ -867,7 +855,6 @@ Object.assign(TW.views.tasks.content.editor, {
                       </form> \
                       <div slot="footer" class="flex-separate"> \
                         <input class="button normal-input" type="submit" v-on:click.prevent="createNewTopic" :disabled="((topic.controlled_vocabulary_term.name.length < 2) || (topic.controlled_vocabulary_term.definition.length < 2)) ? true : false" value="Create"/> \
-                        <button class="button button-close normal-input" @click="showModal = false">Close</button> \
                       </div> \
                     </modal> \
                   <div>',

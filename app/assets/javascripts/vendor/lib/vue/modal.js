@@ -4,6 +4,7 @@ Vue.component('modal', {
                 <div class="modal-wrapper"> \
                   <div class="modal-container"> \
                     <div class="modal-header"> \
+                    <div class="modal-close" @click="$emit(\'close\')"></div> \
                       <slot name="header"> \
                         default header \
                       </slot> \
@@ -15,10 +16,6 @@ Vue.component('modal', {
                     </div> \
                     <div class="modal-footer"> \
                       <slot name="footer"> \
-                        default footer \
-                        <button class="modal-default-button" @click="$emit(\'close\')"> \
-                          OK \
-                        </button> \
                       </slot> \
                     </div> \
                   </div> \
