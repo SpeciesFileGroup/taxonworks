@@ -11,6 +11,19 @@ to be moved to a tw_provision
 * Resolve media in Dockerfile/kubernetes
 * Resolve migration process in kubernetes, including fallback
 
+# Quick Start
+
+_Assumes you have taxonworks cloned, and docker started._
+
+* `cd /path/to/taxonworks`
+* `git checkout docker`
+* `cp config/database.yml.docker.compose config/database.yml`
+* `docker-compose build`
+* `docker-compose up`
+* browse to `127.0.0.1:3000`
+* ... do stuff ...
+* `docker-compose down`
+
 # Docker notes
 
 ## Rebuilding production
@@ -106,13 +119,14 @@ Using `docker-compose` starts containers that reference your local filesystem re
 
 ### Restore a database dumped from `rake tw:db:dump`. 
 
-Hackish right now. 
+_Hackish!_
 
-* `docker-compose up`
-* `docker rm -fv 3dc4293eg17e` remove the app container only (use `docker ps` to get the container id)
-* `psql -U taxonworks_development -p 15432 -h 0.0.0.0 taxonworks_development` connect directly to the PSQL instance
-* Connect to postgres, drop and create taxonworks_development, exit.
-* `pg_restore -U postgres -p 15432 -h 0.0.0.0 -d taxonworks_development /path/to/pg_dump.dump` Errors re roles can be ignored.  The process will "fail" but be successful.
+* Ensure the app is not running:
+* `docker ps` get id
+* `docker stop 3dc4293eg17e` 
+* `psql -U postgres -p 15432 -h 0.0.0.0 taxonworks_development` connect directly to the PSQL instance
+* Drop and create taxonworks_development, exit: `\c postgres`, `drop database taxonworks_development;`, `create database taxonworks_development;`, `\q` 
+* Restore, errors about roles can be ignored.  The process will "fail" but be successful: `pg_restore -U postgres -p 15432 -h 0.0.0.0 -d taxonworks_development /path/to/pg_dump.dump` 
 
 ## Troubleshooting
 
