@@ -125,15 +125,12 @@ class Georeference < ActiveRecord::Base
     else
       unless geographic_item.nil?
         if geographic_item.geo_object_type
-          retval = case geographic_item.geo_object_type
-                     when :point
-                       # TODO: discuss, I don't think we want to imply shape for these calculateions
-                       Utilities::Geo.point_keystone_error_box(geographic_item.geo_object, error_radius) #  geographic_item.keystone_error_box # error_radius_buffer_polygon #
-                     when :polygon, :multi_polygon
-                       geographic_item.geo_object
-                     # else
-                     #   nil
-                   end
+          case geographic_item.geo_object_type
+            when :point
+              retval = Utilities::Geo.error_box_for_point(geographic_item.geo_object, error_radius)
+            when :polygon, :multi_polygon
+              retval = geographic_item.geo_object
+          end
         end
       end
     end
@@ -235,7 +232,7 @@ class Georeference < ActiveRecord::Base
     CSV.generate do |csv|
       csv << column_names
       scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
+        csv << o.attributes.values_at(*column_names).collect {|i|
           i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
         }
       end
