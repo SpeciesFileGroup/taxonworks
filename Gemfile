@@ -140,6 +140,9 @@ gem 'redcarpet', '~> 3.3'
 gem 'taxonifi', '0.4.0'
 gem 'sqed', '0.2.4'
 
+# Docker related/required(?) - review
+gem 'tzinfo-data'
+
 
 group :test, :development do
   gem 'faker', '~> 1.6.1'
