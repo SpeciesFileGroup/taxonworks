@@ -138,7 +138,13 @@ _Hackish!_
 
 ## Troubleshooting
 
-* `docker-compose up` fails to start the app with something like `A server is already running. Check /app/tmp/pids/server.pid.` If a the app container is not shut down correctly it can leave `tmp/server.pid` in place.  Delete this file on the local system.
+### "docker-compose up" fails
+
+* With `A server is already running. Check /app/tmp/pids/server.pid.` If a the app container is not shut down correctly it can leave `tmp/server.pid` in place.  Delete this file on the local system.
+* With `(Bundler::GemNotFound)`. Rebuild the containers: `docker-compose build`
+
+### Misc
+
 * Cleanup old containers.  Try `docker images` and `docker rmi <id>` to cleanup old iamges. 
 * If you are debugging docker/kubernetes you may need to log to STDOUT, see `config/application.rb`
 
