@@ -127,11 +127,6 @@ _Hackish!_
 * Drop and create taxonworks_development, exit: `\c postgres`, `drop database taxonworks_development;`, `create database taxonworks_development;`, `\q` 
 * Restore, errors about roles can be ignored.  The process will "fail" but be successful: `pg_restore -U postgres -p 15432 -h 0.0.0.0 -d taxonworks_development /path/to/pg_dump.dump` 
 
-## Troubleshooting
-
-* `docker-compose up` fails to start the app with something like `A server is already running. Check /app/tmp/pids/server.pid.` If a the app container is not shut down correctly it can leave `tmp/server.pid` in place.  Delete this file on the local system.
-* Cleanup old containers.  Try `docker images` and `docker rmi <id>` to cleanup old iamges. 
-
 # Development
 
 ## Create a user
@@ -140,3 +135,10 @@ _Hackish!_
 * `rails c`
 *  `User.create!(name: 'you', password: 'password', password_confirmation: 'password', self_created: true, is_administrator: true, email: 'user@example.com')`
 * `quit`
+
+## Troubleshooting
+
+* `docker-compose up` fails to start the app with something like `A server is already running. Check /app/tmp/pids/server.pid.` If a the app container is not shut down correctly it can leave `tmp/server.pid` in place.  Delete this file on the local system.
+* Cleanup old containers.  Try `docker images` and `docker rmi <id>` to cleanup old iamges. 
+* If you are debugging docker/kubernetes you may need to log to STDOUT, see `config/application.rb`
+

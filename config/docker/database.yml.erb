@@ -1,3 +1,9 @@
+# 
+# Production configured for kubernetes.
+#
+# development/test here not verified to work in kubernetes
+#
+#
 development:
   adapter: postgis
   encoding: utf8 
@@ -25,9 +31,3 @@ production:
   database: <%= ENV['POSTGRES_DB'] %>
   username: <%= ENV['POSTGRES_USER'] %>
   password: <%= ENV['POSTGRES_PASSWORD'] %>
-
-
-
-
-
-
