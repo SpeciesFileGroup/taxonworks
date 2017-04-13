@@ -1,0 +1,80 @@
+<div id="ce_parse_lat_long">
+  <h1>Task Stepwise collecting event parser - Latitude/Longitude</h1>
+
+  <div class="flexbox">
+    <div class="item item1 one_third_width">
+      <h2>Collecting event
+        id:  <%= link_to(@collecting_event.id, collecting_event_path(@collecting_event), target: :_blank) %></h2>
+      <%= show_ce_vl(@collecting_event) %>
+    </div>
+
+    <div class="item item2">
+      <%= form_tag(lat_long_update_path(collecting_event_id: @collecting_event.id), id: 'lat_long_convert_form') do %>
+          <%= hidden_field_tag(:collecting_event_id, @collecting_event.id) %>
+          <%= parse_lat_long_skip(@collecting_event.id, @filters) %>
+          <table border="1">
+            <tbody>
+            <tr>
+              <%= make_method_headers %>
+            </tr>
+            <tr>
+              <%= make_selected_method_boxes(@filters) %>
+            </tr>
+            </tbody>
+          </table>
+          <table border="1">
+            <thead>
+            <tr>
+              <th>Method</th>
+              <th>Recognized string</th>
+              <th>Latitude</th>
+              <th>Longitude</th>
+              <th>Select</th>
+            </tr>
+            </thead>
+            <tbody>
+            <%= make_rows(@collecting_event.verbatim_label, @filters) %>
+            </tbody>
+          </table>
+          <table border="1">
+            <tbody>
+            <tr>
+              <th></th>
+              <th style="text-align:center">Latitude</th>
+              <th></th>
+              <th style="text-align:center">Longitude</th>
+            </tr>
+            <tr>
+              <td>Verbatim</td>
+              <td><%= text_field_tag('verbatim_latitude', test_lat) %></td>
+              <td></td>
+              <td><%= text_field_tag('verbatim_longitude', test_long) %></td>
+            </tr>
+            <tr>
+              <td></td>
+              <td></td>
+              <td><%= submit_tag('Convert', id: 'lat_long_convert') %></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Decimal</td>
+              <td><%= text_field_tag('dd_latitude') %></td>
+              <td></td>
+              <td><%= text_field_tag('dd_longitude') %></td>
+            </tr>
+            </tbody>
+          </table>
+          <%= button_tag('Save this one', value: 'save_one', id: 'lat_long_update_record') %><br>
+          <%= check_box_tag(:generate_georeference, nil, true) %> Also create Georeference?
+          <div id="matching_events" class="item item2">
+            <h1>Identical matches (<span id="match_count">#</span>)</h1>
+            <%= check_box_tag(:include_values, nil, true) %>Include already set values
+            <%= button_tag('Select all', {value: 'select_all', id: 'select_all', disabled: true}) %>
+            <%= button_tag('Deselect all', {value: 'deselect_all', id: 'deselect_all', disabled: true}) %>
+            <%= button_tag('Save matches', {value: 'save_selected', id: 'save_selected', disabled: true}) %>
+            <span id="matching_span"></span>
+          </div>
+      <% end %><br>
+    </div>
+  </div>
+</div>

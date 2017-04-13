@@ -1164,12 +1164,6 @@ class TaxonName < ActiveRecord::Base
     nil
   end
 
-  # return [Scope]
-  #   a scoped query for autocomplete purposes
-  def self.find_for_autocomplete(params)
-    Queries::TaxonNameAutocompleteQuery.new(params[:term], project_id: params[:project_id]).all
-  end
-
   # A proxy for a scope
   # @return [Array of TaxonName] 
   #   ordered by rank

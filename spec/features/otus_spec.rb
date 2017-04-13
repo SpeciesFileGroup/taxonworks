@@ -9,6 +9,8 @@ describe 'Otus', type: :feature do
   context 'signed in as a user' do
     before do 
       sign_in_user_and_select_project
+      @user.generate_api_access_token
+      @user.save!
     end 
 
     context 'with some records created' do
@@ -47,7 +49,57 @@ describe 'Otus', type: :feature do
 
         it_behaves_like 'a_data_model_with_standard_show'
       end
-      
+
+      describe 'GET /api/v1/otus/by_name/{variants of name}' do
+
+        let(:taxon_name_root) {
+          Protonym.find_or_create_by(name:          'Root',
+                                     rank_class:    'NomenclaturalRank',
+                                     created_by_id: @user.id,
+                                     updated_by_id: @user.id,
+                                     parent_id:     nil,
+                                     project_id:    @project.id)
+        }
+
+        let(:taxon_name) {
+          Protonym.create!(
+            name: 'Adidae',
+            type: 'Protonym',
+            rank_class: Ranks.lookup(:iczn, 'Family'),
+            verbatim_author: 'SueMe',
+            year_of_publication: 1884,
+            by: @user,
+            project: @project,
+            parent: taxon_name_root,
+            also_create_otu: true
+          )
+        }
+
+        let(:otu) { Otu.fifth }
+        let(:otu2) { taxon_name.otus.first }
+
+        it 'Returns a response including an array of ids for an otu name' do
+          route = URI.escape("/api/v1/otus/by_name/#{otu.name}?project_id=#{otu.project.id}&token=#{@user.api_access_token}")
+          visit route 
+          expect(JSON.parse(page.body)['result']['otu_ids']).to eq([otu.id])
+        end
+
+        it 'Returns a response including an arrry of ids for a related taxon_name' do
+          route = URI.escape("/api/v1/otus/by_name/#{otu2.taxon_name.cached}?project_id=#{otu2.project.id}&token=#{@user.api_access_token}")
+          visit route
+          expect(JSON.parse(page.body)['result']['otu_ids']).to eq([otu2.id])
+        end
+
+        it 'Returns a response including an arrry of ids for a related taxon_name plus author/year' do
+          query = otu2.taxon_name.cached + ' ' + otu2.taxon_name.cached_author_year
+          route = URI.escape(
+            "/api/v1/otus/by_name/#{query}?project_id=#{otu2.project.id}&token=#{@user.api_access_token}"
+          )
+          visit route
+          expect(JSON.parse(page.body)['result']['otu_ids']).to eq([otu2.id])
+        end
+      end
+
       context 'creating a new OTU' do
         specify 'I can exercise the new link feature' do
           visit otus_path
@@ -58,11 +110,15 @@ describe 'Otus', type: :feature do
         end
       end
 
-      context 'downloading OTU table', js: true do
+      context 'downloading OTU table' do
         let!(:csv) { Download.generate_csv(Otu.where(project_id: @project.id)) }
-        specify 'otus table can be donwloaded as-is' do
+
+        before do 
           sleep 5 
           visit otus_path
+        end 
+
+        specify 'otus table can be downloaded as-is', js: true do
           click_link('Download')
           expect( Features::Downloads::download_content).to eq(csv)
         end

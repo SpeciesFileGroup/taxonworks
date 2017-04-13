@@ -1,3 +1,7 @@
+#
+# This example is for development only.
+# See config/docker/database.yml.erb for a potential production example.
+#
 development:
   adapter: postgis
   encoding: utf8 
@@ -6,23 +10,16 @@ development:
   database: taxonworks_development 
   username: taxonworks_development
   password:
-
+#  host: db
 test: 
   adapter: postgis
   encoding: utf8 
   postgis_extension: true
   pool: 5
   database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
-  username: taxonworks_development
+  username: taxonworks_test 
   password:
+#  host: db
 
-production:
-  adapter: postgis
-  encoding: utf8 
-  postgis_extension: true
-  pool: 5
-  database: taxonworks_production
-  username: taxonworks_production
-  password: 
 
 

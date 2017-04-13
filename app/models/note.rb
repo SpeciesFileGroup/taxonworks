@@ -28,7 +28,7 @@ class Note < ActiveRecord::Base
   include Shared::Taggable
 
   belongs_to :note_object, polymorphic: true
-  before_validation :no_pipes
+  #  before_validation :no_pipes
 
   # Please DO NOT include the following, they get in the way
   # of the present housekeeping approach. A not null constraint exists
@@ -74,9 +74,9 @@ class Note < ActiveRecord::Base
 
   protected
 
-  def no_pipes
-    if !self.text.blank?
-      errors.add(:text, 'TW notes may not contain a pipe (||)') if self.text.include?('||')
-    end
-  end
+ # def no_pipes
+ #   if !self.text.blank?
+ #     errors.add(:text, 'TW notes may not contain a pipe (||)') if self.text.include?('||')
+ #   end
+ # end
 end

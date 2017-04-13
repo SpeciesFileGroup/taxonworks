@@ -232,7 +232,7 @@ class CollectingEvent < ActiveRecord::Base
 
   validates :start_date_year, date_year: { min_year: 1000, max_year: Time.now.year + 5}
   validates :end_date_year, date_year: { min_year: 1000, max_year: Time.now.year + 5}
-  
+
   validates :start_date_month, date_month: true
   validates :end_date_month, date_month: true
 
@@ -296,7 +296,7 @@ class CollectingEvent < ActiveRecord::Base
     # @return [String] sql for records between the two specific dates
     def date_sql_from_dates(search_start_date, search_end_date, allow_partial = true)
       start_year, start_month, start_day = search_start_date.split('/').map(&:to_i)
-      end_year, end_month, end_day = search_end_date.split('/').map(&:to_i)
+      end_year, end_month, end_day       = search_end_date.split('/').map(&:to_i)
 
       t = 'collecting_events'
 
@@ -366,7 +366,7 @@ class CollectingEvent < ActiveRecord::Base
       en_string = '((' + part_1e + select_1_3 + part_3e + ')' + (part_2e.blank? ? '' : ' or ') + part_2e + ')'
 
       sql_string = st_string + (allow_partial ? ' or ' : ' and ') + en_string + special_part
-      sql_string 
+      sql_string
     end
 
     # @param [Hash] search_start_date string in form 'yyyy/mm/dd'
@@ -474,12 +474,32 @@ class CollectingEvent < ActiveRecord::Base
     def data_attributes
       column_names.reject { |c| %w{id project_id created_by_id updated_by_id created_at updated_at project_id}.include?(c) || c =~ /^cached/ }
     end
-
   end # << end class methods
 
+  # @param [String] lat
+  # @param [String] long
+  # @param [String] piece
+  # @param [Boolean] include_values true if to include records whicgh already have verbatim lat/longs
+  # @return [Scope] of matching collecting events
+  def similar_lat_longs(lat, long, piece = '', include_values = true)
+    sql = '('
+    sql += "verbatim_label LIKE '%#{sql_tick_fix(lat)}%'" unless lat.blank?
+    sql += " or verbatim_label LIKE '%#{sql_tick_fix(long)}%'" unless long.blank?
+    sql += " or verbatim_label LIKE '%#{sql_tick_fix(piece)}%'" unless piece.blank?
+    sql += ')'
+    sql += ' and (verbatim_latitude is null or verbatim_longitude is null)' unless include_values
+
+    retval = CollectingEvent.where(sql)
+               .with_project_id($project_id)
+               .order(:id)
+               .where.not(id: id).distinct
+    retval
+  end
+
+  # @return [Boolean]
   def has_data?
     CollectingEvent.data_attributes.each do |a|
-      return true if !self.send(a).blank?
+      return true unless self.send(a).blank?
     end
     return true if georeferences.any?
     false
@@ -544,13 +564,14 @@ class CollectingEvent < ActiveRecord::Base
   # CollectingEvent.select {|d| !(d.verbatim_latitude.nil? || d.verbatim_longitude.nil?)}
   # .select {|ce| ce.georeferences.empty?}
   # @param [Boolean] reference_self
+  # @param [Boolean] no_cached
   # @return [Georeference::VerbatimData, false]
   #   generates (creates) a Georeference::VerbatimReference from verbatim_latitude and verbatim_longitude values
   def generate_verbatim_data_georeference(reference_self = false, no_cached: false)
     return false if (verbatim_latitude.nil? || verbatim_longitude.nil?)
     begin
       CollectingEvent.transaction do
-        vg_attributes = {collecting_event_id: to_param, no_cached: no_cached}
+        vg_attributes = {collecting_event_id: id.to_s, no_cached: no_cached}
         vg_attributes.merge!(by: self.creator.id, project_id: self.project_id) if reference_self
         a = Georeference::VerbatimData.new(vg_attributes)
         if a.valid?
@@ -590,9 +611,9 @@ class CollectingEvent < ActiveRecord::Base
   #   all geographic_items associated with this collecting_event through georeferences only
   def all_geographic_items
     GeographicItem.
-        joins('LEFT JOIN georeferences g2 ON geographic_items.id = g2.error_geographic_item_id').
-        joins('LEFT JOIN georeferences g1 ON geographic_items.id = g1.geographic_item_id').
-        where(['(g1.collecting_event_id = ? OR g2.collecting_event_id = ?) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)', self.id, self.id])
+      joins('LEFT JOIN georeferences g2 ON geographic_items.id = g2.error_geographic_item_id').
+      joins('LEFT JOIN georeferences g1 ON geographic_items.id = g1.geographic_item_id').
+      where(['(g1.collecting_event_id = ? OR g2.collecting_event_id = ?) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)', self.id, self.id])
   end
 
   # @return [GeographicItem, nil]
@@ -614,8 +635,8 @@ class CollectingEvent < ActiveRecord::Base
     return CollectingEvent.where(id: -1) if !preferred_georeference
     geographic_item_id = preferred_georeference.geographic_item_id
     CollectingEvent.not_self(self)
-        .joins(:geographic_items)
-        .where(GeographicItem.within_radius_of_item_sql(geographic_item_id, distance))
+      .joins(:geographic_items)
+      .where(GeographicItem.within_radius_of_item_sql(geographic_item_id, distance))
   end
 
   # @return [Scope]
@@ -665,9 +686,9 @@ class CollectingEvent < ActiveRecord::Base
   def nearest_by_levenshtein(compared_string = nil, column = 'verbatim_locality', limit = 10)
     return CollectingEvent.none if compared_string.nil?
     order_str = CollectingEvent.send(:sanitize_sql_for_conditions, ["levenshtein(collecting_events.#{column}, ?)", compared_string])
-    CollectingEvent.where('id <> ?', self.to_param).
-        order(order_str).
-        limit(limit)
+    CollectingEvent.where('id <> ?', id.to_s).
+      order(order_str).
+      limit(limit)
   end
 
   # @param [String]
@@ -693,8 +714,8 @@ class CollectingEvent < ActiveRecord::Base
       # pieces  = GeographicItem.where(id: gi_list.flatten.map(&:id).uniq)
       # pieces = gi_list
       ga_list = GeographicArea.joins(:geographic_area_type, :geographic_areas_geographic_items).
-          where(geographic_area_types:             {name: types},
-                geographic_areas_geographic_items: {geographic_item_id: gi_list}).uniq
+        where(geographic_area_types:             {name: types},
+              geographic_areas_geographic_items: {geographic_item_id: gi_list}).uniq
 
       # WAS: now find all of the GAs which have the same names as the ones we collected.
 
@@ -914,11 +935,11 @@ class CollectingEvent < ActiveRecord::Base
   #   parameters from collecting event that are of use to geolocate
   def geolocate_attributes
     parameters = {
-        'country'   => country_name,
-        'state'     => state_or_province_name,
-        'county'    => county_or_equivalent_name,
-        'locality'  => verbatim_locality,
-        'Placename' => verbatim_locality,
+      'country'   => country_name,
+      'state'     => state_or_province_name,
+      'county'    => county_or_equivalent_name,
+      'locality'  => verbatim_locality,
+      'Placename' => verbatim_locality,
     }
 
     focus = case lat_long_source
@@ -931,18 +952,18 @@ class CollectingEvent < ActiveRecord::Base
             end
 
     parameters.merge!(
-        'Longitude' => focus.point.x,
-        'Latitude'  => focus.point.y
+      'Longitude' => focus.point.x,
+      'Latitude'  => focus.point.y
     ) unless focus.nil?
     parameters
   end
 
   def latitude
-    verbatim_map_center.try(:x)
+    verbatim_map_center.try(:y)
   end
 
   def longitude
-    verbatim_map_center.try(:y)
+    verbatim_map_center.try(:x)
   end
 
   # @return [Hash]
@@ -962,12 +983,12 @@ class CollectingEvent < ActiveRecord::Base
     # !! avoid loading the whole geographic item, just grab the bits we need:
     # self.georeferences(true)  # do this to
     to_simple_json_feature.merge({
-                                     'properties' => {
-                                         'collecting_event' => {
-                                             'id'  => self.id,
-                                             'tag' => "Collecting event #{self.id}."
-                                         }
+                                   'properties' => {
+                                     'collecting_event' => {
+                                       'id'  => self.id,
+                                       'tag' => "Collecting event #{self.id}."
                                      }
+                                   }
                                  })
   end
 
@@ -975,8 +996,8 @@ class CollectingEvent < ActiveRecord::Base
   #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
   def to_simple_json_feature
     base = {
-        'type'       => 'Feature',
-        'properties' => {}
+      'type'       => 'Feature',
+      'properties' => {}
     }
 
     if geographic_items.any?
@@ -995,10 +1016,10 @@ class CollectingEvent < ActiveRecord::Base
   #   5.  id
   def next_without_georeference
     CollectingEvent.excluding(self).
-        includes(:georeferences).
-        where(project_id: self.project_id, georeferences: {collecting_event_id: nil}).
-        order(:verbatim_locality, :geographic_area_id, :start_date_year, :updated_at, :id).
-        first
+      includes(:georeferences).
+      where(project_id: self.project_id, georeferences: {collecting_event_id: nil}).
+      order(:verbatim_locality, :geographic_area_id, :start_date_year, :updated_at, :id).
+      first
   end
 
   # @param [Float] delta_z, will be used to fill in the z coordinate of the point
@@ -1092,6 +1113,10 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   protected
+
+  def sql_tick_fix(item)
+    item.gsub("'", "''")
+  end
 
   def set_cached
     if !verbatim_label.blank?

@@ -1,7 +1,7 @@
 Contributing
 ============
 
-###  How do I report a bug
+###  How do I report a bug?
 
 First [read this][14].
 
