@@ -11,9 +11,9 @@ to be moved to a tw_provision
 * Resolve media in Dockerfile/kubernetes
 * Resolve migration process in kubernetes, including fallback
 
-# Quick Start
+# Development quick start
 
-_Assumes you have taxonworks cloned, and docker started._
+_Assumes you have taxonworks cloned, and docker started. This is an empty (no data) TW instance. See below for restoring/adding data._
 
 * `cd /path/to/taxonworks`
 * `git checkout docker`
@@ -37,7 +37,7 @@ Uses Dockerfile.  Ultimately will track /SpeciesFileGroup/master and build on co
 
 See also [https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/](kubectl-cheatsheet)
 
-# One time setup of minikube 
+## One time setup of minikube 
 
 * Set context: (run once, OS X version):
 
@@ -51,11 +51,6 @@ See also [https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/](kubectl-che
 ## Location
 
 * `cd taxworks/k8s`
-
-## Cleanup
-
-## All at once
-* `kubectl delete -f .`
 
 ## Startup
 
@@ -79,19 +74,24 @@ See also [https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/](kubectl-che
 * `kubectl get service` (get port for service)
 * `minikube ip` (get IP for minikube, stable, shouldn't change)
 
-### Run a proxy 
+## Run a proxy 
 
 * `kubectl proxy` (localhost:8001)
 * In the browser: `http://127.0.0.1:8001/ui` (don't forget the /ui)
 
-### Connect to postgres
+## Connect to postgres
 
 * See docker/secrets.yml for secrets
 
 * `psql -U tw -p 31867 -h 192.168.99.100 taxonworks_production` 
 * `pg_restore -U tw -p 31867 -h 192.168.99.100 -d taxonworks_production /path/to/pg_dump.dump` # ignore errors re 'roles'
 
-### Notes
+## Cleanup
+
+## All at once
+* `kubectl delete -f .`
+
+## Notes
 
 * vi in container acts funny, apt install vim as a work around
 
@@ -101,7 +101,7 @@ Using `docker-compose` starts containers that reference your local filesystem re
 
 ## TODO
 
-* Push `sfgrp/taxonworks-development` based off Dockerfile.development.  Until then `docker-compose build` to start.
+* Push `sfgrp/taxonworks-development` to docker hub based off Dockerfile.development.  Until then `docker-compose build` to start.
 
 ## Basic use
 
@@ -112,8 +112,7 @@ Using `docker-compose` starts containers that reference your local filesystem re
 * `docker-compose up`
 * `docker ps`
 * `docker exec -it taxonworks_app_1 bash`
-
-* `docker rm -fv 3dc4293eg17e`  remove a container
+* `docker stop 3dc4293eg17e`  
 
 ## postgres
 
@@ -131,4 +130,13 @@ _Hackish!_
 ## Troubleshooting
 
 * `docker-compose up` fails to start the app with something like `A server is already running. Check /app/tmp/pids/server.pid.` If a the app container is not shut down correctly it can leave `tmp/server.pid` in place.  Delete this file on the local system.
-* Cleanup old docker containers.  Try `docker images` and `docker rmi <id>` to cleanup old iamges. 
+* Cleanup old containers.  Try `docker images` and `docker rmi <id>` to cleanup old iamges. 
+
+# Development
+
+## Create a user
+
+* Shell into your app (see above)
+* `rails c`
+*  `User.create!(name: 'you', password: 'password', password_confirmation: 'password', self_created: true, is_administrator: true, email: 'user@example.com')`
+* `quit`
