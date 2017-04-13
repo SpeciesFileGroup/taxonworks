@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe "matrices/edit", type: :view do
+
   before(:each) do
     @matrix = assign(:matrix, Matrix.create!(
       :name => "MyString",
