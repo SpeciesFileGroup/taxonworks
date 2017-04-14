@@ -83,7 +83,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
               when 0 #'CEID'
                 item_data = link_to(item.id, item)
               when 1 #'Match'
-                item_data = pieces.join(' ')
+                item_data = +content_tag(:vl, pieces.join(' '), data: {help: item.verbatim_label})
               when 2 #'Verbatim Date'
                 item_data = item.verbatim_date
                 no_verbatim_date = !item.verbatim_date.blank?
