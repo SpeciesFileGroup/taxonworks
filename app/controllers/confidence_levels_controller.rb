@@ -1,6 +1,13 @@
 class ConfidenceLevelsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
+ 
+  # GET /index.json
+  def index
+    @controlled_vocabulary_terms = ConfidenceLevel.with_project_id(sessions_current_project_id).order(:position)
+    render '/controlled_vocabulary_terms/index'
+  end
+
   def lookup
     @confidence_levels = Queries::ControlledVocabularyTermAutocompleteQuery.new(term_param, project_id: sessions_current_project_id, object_type: 'ConfidenceLevel').all
     render(:json => @confidence_levels.collect { |t|
