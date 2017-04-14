@@ -2,18 +2,39 @@
 
 <div id="cite_otus">
   <div class="flexbox">
-    <div id="topics" class="slide-panel separate-right slide-left slide-recent item item1 column-tiny" data-panel-position="relative" data-panel-open="true" data-panel-name="topic_list">
-      <div class="slide-panel-header flex-separate"><span>OTU Citation</span><div><select-citation></select-citation></div></div>
+
+    <div class="item1 panel separate-right">
+    <div class="title"><existing-citations> </existing-citations></div>
+      <div class="flex-separate horizontal-center-content content">
+        <div class="content">
+          <source-picker></source-picker>
+          <div v-if="source">
+            <p>{{ source.object_tag }}</p>
+          </div>
+        </div>
+        <div>
+        </div>
+      </div>
+      <div class="flex-separate horizontal-center-content content">
+        <div class="content">
+          <otu-picker></otu-picker>
+          <div v-if="otu">
+            <p v-html="otu.object_tag"></p>
+          </div>
+        </div>
+        <div>
+        </div>
+      </div>    
+      <topics-checklist></topics-checklist>
+    </div>
+
+    <div id="recent_list" class="slide-panel slide-left slide-recent item item2 separate-left" data-panel-position="relative" data-panel-open="true" data-panel-name="recent_list">
+      <div class="slide-panel-header flex-separate"><span>Recent</span></div>
       <div class="slide-panel-content">
-          <existing-citations> </existing-citations>
-          <topics-checklist></topics-checklist> 
-      </div>        
+        <source-citations></source-citations>
+        <otu-citations></otu-citations>         
+      </div>    
     </div>
-    <div class="item2 panel content separate-left">
-      <source-citations></source-citations>
-      <otu-citations></otu-citations>
-    </div>
-  </div>
 
 </div>
 

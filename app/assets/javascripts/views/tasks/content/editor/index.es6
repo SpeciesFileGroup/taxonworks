@@ -910,7 +910,6 @@ Object.assign(TW.views.tasks.content.editor, {
         }
       },
       mounted: function() {
-        //TW.views.shared.slideout.closeHideSlideoutPanel('[data-panel-name="recent_list"]');
         this.loadList();
       },
       methods: {

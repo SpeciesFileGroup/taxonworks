@@ -4,7 +4,6 @@
 @import 'base/form_elements';
 
 #cite_otus {
-	margin-left: -1em;
 	position: relative;
 	#select-citation {
 		color: $default_text;
@@ -15,11 +14,38 @@
 			width: 100%;
 		}
 	}
+
+	.topics {
+		display: flex;
+		flex-direction: column;
+		max-height: 500px;
+		margin: 0px;
+		margin-top: 1em;
+		padding: 0px;
+		.item {
+			width: 150px;
+			max-width: 150px;
+			min-height: 40px;
+			margin-right: $standard_margin;
+		}
+	}
+	.title-citations {
+		color: #888;
+		font-size: 13px;
+	}
+	.citation-button-edit {
+		background-image: image-url("w_pencil.svg");
+	}
+	.title {
+		border-bottom: 1px solid $navigation_border;
+		height: 60px;
+	}
 	.slide-panel {
 		top:0px;
 		position: relative;
 		max-width: 300px;
-		min-width: 300px;		
+		min-width: 300px;
+		z-index: 100;
 		.slide-panel-header {
 			font-weight: 500;
 			color: #42b983;
@@ -31,4 +57,7 @@
 			cursor: pointer;
 		}			
 	}	
+	#delete-citation {
+		width: 100px;
+	}
 }

@@ -135,46 +135,77 @@ Object.assign(TW.views.tasks.citations.otus, {
     });
 
     Vue.component('otu-picker', {
-      template: '<div id="otu_panel" class="field"> \
-                  <label>OTU</label> \
-                  <autocomplete \
-                    url="/otus/autocomplete" \
-                    min="2" \
-                    param="term" \
-                    placeholder="Find OTU" \
-                    event-send="otu_picker" \
-                    label="label"> \
-                  </autocomplete> \
+      template: '<div> \
+                  <div class="flex-wrap-row middle"><h3 class="title-citations">OTU</h3><div class="button-default citation-button-edit circle-button" @click="showModal = true"></div></div> \
+                  <modal @close="showModal = false" v-if="showModal" @otupicker="loadOtu"> \
+                    <h3 slot="header">Select OTU</h3> \
+                    <div slot="body"> \
+                      <autocomplete \
+                        url="/otus/autocomplete" \
+                        min="2" \
+                        param="term" \
+                        placeholder="Find OTU" \
+                        event-send="otupicker" \
+                        label="label"> \
+                      </autocomplete> \
+                    </div> \
+                  </modal> \
                  </div>',
-      mounted: function() {
-        var that = this;
-        this.$on('otu_picker', function (item) {
-          that.$http.get("/otus/" + item.id).then( response => {
-            that.$store.commit('setOtuSelected', response.body); 
-          }) 
-        })                  
+      data: function() {
+        return {
+          showModal: false
+        }
       },
+      computed: {
+        otu() {
+          return this.$store.getters.getOtuSelected
+        }
+      },
+      methods: {
+        loadOtu: function(item) {
+          this.$http.get("/otus/" + item.id).then( response => {
+            this.$store.commit('setOtuSelected', response.body);
+            console.log("asdfa");
+            this.showModal = false; 
+          });
+        }
+      }
     });
 
     Vue.component('source-picker', {
-      template: '<div id="source_panel" class="field"> \
-                  <label>Source</label>\
-                  <autocomplete \
-                    url="/sources/autocomplete" \
-                    min="2" \
-                    param="term" \
-                    placeholder="Find source" \
-                    event-send="source_picker" \
-                    label="label"> \
-                  </autocomplete> \
+      template: '<div> \
+                  <div class="flex-wrap-row middle"><h3 class="title-citations">SOURCE</h3><div class="button-default citation-button-edit circle-button" @click="showModal = true"></div></div> \
+                  <modal @close="showModal = false" v-if="showModal" @sourcepicker="loadSource"> \
+                    <h3 slot="header">Select source</h3> \
+                    <div slot="body" id="source_panel"> \
+                      <autocomplete \
+                        url="/sources/autocomplete" \
+                        min="2" \
+                        param="term" \
+                        placeholder="Find source" \
+                        event-send="sourcepicker" \
+                        label="label"> \
+                      </autocomplete> \
+                    </div> \
+                  </modal> \
                 </div>',
-      mounted: function() {
-        var that = this;
-        this.$on('source_picker', function (item) {
-          that.$http.get("/sources/" + item.id).then( response => {
-            that.$store.commit('setSourceSelected', response.body); 
-          }) 
-        })                  
+      data: function() {
+        return {
+          showModal: false
+        }
+      },
+      computed: {
+        source() {
+          return this.$store.getters.getSourceSelected
+        }
+      },
+      methods: {
+        loadSource: function(item) {
+          this.$http.get("/sources/" + item.id).then( response => {
+            this.$store.commit('setSourceSelected', response.body); 
+            this.showModal = false;
+          }); 
+        }                 
       },
     });
 
@@ -185,12 +216,10 @@ Object.assign(TW.views.tasks.citations.otus, {
         }
       },
 
-      template: '<div v-if="citation"> \
-                  <div class="slide-panel-category-header">Current citation</div> \
-                  <div class="slide-panel-category-content"> \
-                    <b><span class="slide-panel-category-item no_bullets"><span v-html="citation.object_tag"></span><span data-icon="trash" @click="removeCitation(citation)"></span></span></b> \
-                  </div> \
-                </div>',
+      template: '<div v-if="citation" class="flex-separate middle full_width"> \
+                    <span v-html="citation.object_tag"></span><div class="circle-button btn-delete" @click="removeCitation(citation)"></div> \
+                </div> \
+                <div v-else> Select or create new OTU Citation</div>',
       methods: {
         removeCitation: function(item) { 
           this.$http.delete("/citations/" + item.id).then(response => {
@@ -209,11 +238,13 @@ Object.assign(TW.views.tasks.citations.otus, {
         },  
       },
 
-      template: '<div v-if="items.length"> \
-                  <h3>Source citations</h3> \
-                  <ul> \
-                    <li v-for="item in items"><span v-html="item.citation_object_tag"></span><span data-icon="trash" @click="removeCitation(item)"></span></li> \
-                  </ul> \
+      template: '<div v-if="items.length" class="slide-panel-category"> \
+                  <div class="slide-panel-category-header">Source</div> \
+                  <div class="slide-panel-category-content"> \
+                    <ul> \
+                      <li v-for="item in items"><span v-html="item.citation_object_tag"></span><span data-icon="trash" @click="removeCitation(item)"></span></li> \
+                    </ul> \
+                  </div> \
                 </div>',
       methods: {
           removeCitation: function(item) { 
@@ -231,12 +262,13 @@ Object.assign(TW.views.tasks.citations.otus, {
           return this.$store.getters.getOtuCitationsList
         },     
       },
-
-      template: '<div v-if="items.length"> \
-                  <h3>Otu citations</h3> \
-                  <ul> \
-                    <li v-for="item in items"><span v-html="item.source.object_tag"></span><span data-icon="trash" @click="removeCitation(item)"></span></li> \
-                  </ul> \
+      template: '<div v-if="items.length" class="slide-panel-category"> \
+                  <div class="slide-panel-category-header">OTU</div> \
+                  <div class="slide-panel-category-content"> \
+                    <ul> \
+                      <li v-for="item in items"><span v-html="item.source.object_tag"></span><span data-icon="trash" @click="removeCitation(item)"></span></li> \
+                    </ul> \
+                  </div> \
                 </div>',
       methods: {
           removeCitation: function(item) { 
@@ -259,11 +291,13 @@ Object.assign(TW.views.tasks.citations.otus, {
           return this.$store.getters.objectsSelected
         }
       },
-      template: '<div v-if="!disabled"> \
-                  <div class="slide-panel-category-header"> Topics </div>\
-                  <ul class="slide-panel-category-content"> \
-                    <li v-for="item in items" class="slide-panel-category-item no_bullets"><topic-checkbox v-bind:topic=item> </topic-checkbox> </li> \
-                  </ul> \
+      template: '<div v-if="!disabled" class="content"> \
+                  <div class="content"> \
+                    <h3 class="title-citations">TOPICS</h3> \
+                    <ul class="flex-wrap-column topics middle"> \
+                      <li v-for="item in items" class="item no_bullets"><topic-checkbox v-bind:topic=item> </topic-checkbox> </li> \
+                    </ul> \
+                  </div> \
                 </div>',
     });
   
@@ -345,26 +379,6 @@ Object.assign(TW.views.tasks.citations.otus, {
         }
       }
     });
-
-    Vue.component('select-citation', {
-      template: '<div><button class="button button-default normal-input" @click="showModal = true">Select</button>\
-                <modal v-if="showModal" id="select-citation"> \
-                  <h3 slot="header">Select citation</h3>\
-                  <div slot="body"> \
-                    <otu-picker> </otu-picker> \
-                    <source-picker> </source-picker> \
-                  </div> \
-                  <div slot="footer"> \
-                    <button class="button normal-input button-close" @click="showModal = false">Close</button> \
-                  </div> \
-                 </modal></div>',
-
-      data: function() {
-        return {
-          showModal: true
-        }
-      },
-    })
 
     var cite_otus = new Vue({
       el: '#cite_otus',
