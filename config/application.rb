@@ -58,8 +58,9 @@ module TaxonWorks
         wkb_parser:              {support_ewkb: true},
         wkb_generator:           {hex_format: true, emit_ewkb_srid: true})
     end
-
-
+ 
+    # config.logger = Logger.new(STDOUT)
+    # config.logger = Log4r::Logger.new('Application Log')
 
   end
 end

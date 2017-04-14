@@ -1,6 +1,8 @@
+# 
+# Production configured for kubernetes.
 #
-# This example is for development only.
-# See config/docker/database.yml.erb for a potential production example.
+# development/test here not verified to work in kubernetes
+#
 #
 development:
   adapter: postgis
@@ -20,6 +22,12 @@ test:
   username: taxonworks_test 
   password:
 #  host: db
-
-
-
+production:
+  adapter: postgis
+  encoding: utf8 
+  postgis_extension: true
+  pool: 5
+  host: <%= ENV['POSTGRES_HOST'] %>
+  database: <%= ENV['POSTGRES_DB'] %>
+  username: <%= ENV['POSTGRES_USER'] %>
+  password: <%= ENV['POSTGRES_PASSWORD'] %>

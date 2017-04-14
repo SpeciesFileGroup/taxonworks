@@ -8,11 +8,9 @@ describe 'Otus', type: :feature do
 
   context 'signed in as a user' do
     before do 
-     
       sign_in_user_and_select_project
       @user.generate_api_access_token
       @user.save!
-
     end 
 
     context 'with some records created' do
@@ -112,11 +110,15 @@ describe 'Otus', type: :feature do
         end
       end
 
-      context 'downloading OTU table', js: true do
+      context 'downloading OTU table' do
         let!(:csv) { Download.generate_csv(Otu.where(project_id: @project.id)) }
-        specify 'otus table can be donwloaded as-is' do
+
+        before do 
           sleep 5 
           visit otus_path
+        end 
+
+        specify 'otus table can be downloaded as-is', js: true do
           click_link('Download')
           expect( Features::Downloads::download_content).to eq(csv)
         end

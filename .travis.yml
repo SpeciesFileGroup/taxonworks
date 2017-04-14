@@ -23,7 +23,7 @@ install:
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
-  - cp config/database.yml.example config/database.yml
+  - cp config/database.yml.travis config/database.yml
   - cp config/secrets.yml.example config/secrets.yml
   - mkdir tmp/
   - mkdir tmp/downloads 

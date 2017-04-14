@@ -3,9 +3,7 @@ namespace :tw do
     namespace :sf_import do
       require 'fileutils'
       require 'logged_task'
-
       namespace :specimens do
-
 
         desc 'time rake tw:project_import:sf_import:specimens:collecting_events user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :collecting_events => [:data_directory, :environment, :user_id] do |logger|
@@ -16,6 +14,39 @@ namespace :tw do
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
 
           get_tw_collecting_event_id = {} # key = sfUniqueLocColEvents.UniqueID, value = TW.collecting_event_id
+
+          # SF.TimePeriodID to interval code (https://paleobiodb.org/data1.2/intervals/single.json?name=Archaean)
+          TIME_PERIOD_MAP = {
+              768 => 1,     # Cenozoic
+              784 => 12,    # Quaternary
+              790 => 32,    # Holocene
+              795 => 33,    # Pleistocene
+              800 => 13,    # Tertiary
+              804 => 25,    # Neogene
+              805 => 34,    # Pliocene
+              806 => 35,    # Miocene
+              808 => 26,    # Paleogene
+              809 => 36,    # Oligocene
+              810 => 37,    # Eocene
+              811 => 38,    # Paleocene
+              1024 => 2,    # Mesozoic
+              1040 => 14,   # Cretaceous
+              1056 => 15,   # Jurassic
+              1072 => 16,   # Triassic
+              1280 => 3,    # Paleozoic
+              1296 => 17,   # Permian
+              1312 => 18,   # Carboniferous
+              1316 => 27,   # Pennsylvanian
+              1320 => 28,   # Mississippian
+              1328 => 19,   # Devonian
+              1344 => 20,   # Silurian
+              1360 => 21,   # Ordovician
+              1376 => 22,   # Cambrian
+              1536 => nil,  # Precambrian         NO MATCH
+              1552 => 752,  # Proterozoic
+              1568 => 753,  # Archaean vs. Archean
+              1584 => 11    # Hadean
+           }
 
           path = @args[:data_directory] + 'sfUniqueLocColEvents.txt'
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
@@ -38,6 +69,7 @@ namespace :tw do
           # UniqueID
 
           counter = 0
+          error_counter = 0
 
           file.each do |row|
             project_id = get_tw_project_id(row['FileID']).to_i
@@ -47,44 +79,55 @@ namespace :tw do
 
             # TODO: review
             end_date = nil
-            end_date_day, end_date_month, end_date_year = nil, nil, nil
-            if !row['DaysToEnd'].blank?
-              start_date = Date.new(
-                  [row['year'], row['month'], row['day']].join('/')
-              )
+            if row['DaysToEnd'].present?
+              y = row['year'] == '1000' ? '2000' : row['year']
 
+              start_date = Date.new(
+                  [y, row['month'], row['day']].join('/')
+              )
               end_date = row['DaysToEnd'].to_i.days.since(start_date)
             end
 
+            end_date_year, end_date_month, end_date_day = nil, nil, nil
+
+            if end_date
+              end_date_year, end_date_month, end_date_day = end_date.year, end_date.month, end_date.day
+            end
+
+            end_date_year = nil if row['year'] == '1000'
 
             # TODO:
             #  PrecisionCode?  integer
-            #  handle TimePeriodID as data attribute  integer (bitwise)
-            #  handle TimeDetail as data attribute  string
-            #  handle DataFlags as (import predicate)? integer (bitwise)
+            #  XX handle TimePeriodID as data attribute  integer (bitwise) << NO
+            #  handle TimeDetail as data (import) attribute  string
+            #  ignored handle DataFlags as (import predicate)? integer (bitwise)
             #  handle BodyOfWater as data attribute?   string
             #
             #
             #  handle PrecisionRadius as Georeference precision
             #  handle LatLongFrom   of type Verbatim GeoReference
 
-           #  some_precisions_radius_conversion   = row['PrecisionRadius'].to_i  * 10 # METERS
+            #  some_precisions_radius_conversion   = row['PrecisionRadius'].to_i  * 10 # METERS
 
-            begin
-              # c = CollectingEvent.create!(
-              #     verbatim_latitude: row['Latitude'],
-              #     verbatim_longitude: row['Longitude'],
-              #     maximum_elevation: row['MaxElevation'],
-              #     collectors: row['CollectoName'],
-              #     start_date_day: row['day'],
-              #     start_date_month: row['month'],
-              #     start_date_year: row['year'],
-              #     end_date_day: (end_date ? end_date.day : nil),
-              #     end_date_month: (end_date ? end_date.month : nil),
-              #     end_date_year: (end_date ? end_date.year : nil),
-              #     geographic_area: get_tw_geographic_area(row),
-              #
-              #     project_id: project_id
+            start_date_year = row['year'] == '1000' ? nil : row['year'].to_i
+
+              c = CollectingEvent.new(
+                  verbatim_latitude: row['Latitude'],
+                  verbatim_longitude: row['Longitude'],
+                  maximum_elevation: row['MaxElevation'],
+                  collectors: row['CollectoName'],
+                  start_date_day: (row['day'].present? ? row['day'].to_i : nil),
+                  start_date_month: (row['month'].present? ? row['month'].to_i : nil),
+                  start_date_year: start_date_year,
+                  end_date_day: end_date_day,
+                  end_date_month: end_date_month,
+                  end_date_year: end_date_year,
+                  geographic_area: get_tw_geographic_area(row),
+                  #
+                  project_id: get_tw_project_id[row['FileID']],
+                  paleobio_db_interval_id: TIME_PERIOD_MAP[row['TimePeriodID']], # TODO: Matt add attribute to CE !! rember ENVO implications
+
+ 
               #
               #     # add in data attributes, import_predicate,
               #     # georeferences_attributes: [
@@ -100,17 +143,44 @@ namespace :tw do
               #     # ],
               #
               #
+
               #
-              # )
+              )
+
+
+            begin
+              c.save!
+              logger.info "UniqueID #{row['UniqueID']} written"
 
               get_tw_collecting_event_id[row['UniqueID']] = c.id.to_s
 
-              logger.info "UniqueID #{row['UniqueID']} written"
+              # Don't know if embedded attribute objects can have conditions, e.g., only make this object if condition > 0
+              if row['TimeDetail'].present?
+                da = DataAttribute.new(type: 'ImportAttribute',
+                                       attribute_subject_id: c.id,
+                                       attribute_subject_type: CollectingEvent,
+                                       import_predicate: 'TimeDetail',
+                                       value: row['TimeDetail'],
+                                       project_id: project_id)
+                begin
+                  da.save!
+                  puts 'DataAttribute TimeDetail created'
+                rescue ActiveRecord::RecordInvalid # da not valid
+                  logger.error "DataAttribute TimeDetail ERROR SF.UniqueID #{row['UniqueID']} = TW.collecting_event #{c.id} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
+                end
+              end
+
+
+
+
             rescue ActiveRecord::RecordInvalid
 
               logger.info "Failed on UniqueID #{row['UniqueID']}"
 
             end
+
+
+
           end
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
@@ -126,7 +196,7 @@ namespace :tw do
               row['Level2ID'],
               row['Level3ID'],
               row['Level4ID'] # TODO: we have to pad dashes here to match off values
-          ].select { |a| a.length > 0 }.join
+          ].select {|a| a.length > 0}.join
 
           logger.info "target tdwg id: #{tdwg_id}"
 
@@ -138,7 +208,7 @@ namespace :tw do
               row['country'],
               row['state'],
               row['county']
-          ].select { |a| !a.blank? }
+          ].select {|a| !a.blank?}
 
           # If there is no value, just return the tdwg based match
           if finest_sf_level.empty?
@@ -198,9 +268,7 @@ namespace :tw do
 
           puts 'SFSpecimenToUniqueIDs'
           ap get_sf_unique_id
-
         end
-
 
       end
     end

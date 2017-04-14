@@ -619,7 +619,8 @@ class TaxonName < ActiveRecord::Base
       else
         n = nil
     end
-    n.blank? ? self.name : n
+    n = n.blank? ? self.name : n
+    return n
   end
 
   #region Set cached fields
