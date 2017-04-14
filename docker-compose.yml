@@ -18,6 +18,8 @@ services:
        - server
        - "--binding"
        - "0.0.0.0"
+    stdin_open: true
+    tty: true
   db:
     image: mdillon/postgis:9.5
     ports: 
@@ -27,3 +29,4 @@ services:
 volumes:
     pg:
       external: false
+
