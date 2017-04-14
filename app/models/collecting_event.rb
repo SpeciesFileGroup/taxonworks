@@ -1094,15 +1094,15 @@ class CollectingEvent < ActiveRecord::Base
   # @return [RGeo::Geographic::ProjectedPointImpl, nil]
   #   for the *verbatim* latitude/longitude only
   def verbatim_map_center(delta_z = 0.0)
+    retval = nil
     unless verbatim_latitude.blank? or verbatim_longitude.blank?
       lat     = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s)
       long    = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s)
       elev    = Utilities::Geo.distance_in_meters(verbatim_elevation.to_s)
       delta_z = elev unless elev == 0.0
-      Gis::FACTORY.point(long, lat, delta_z)
-    else
-      nil
+      retval  = Gis::FACTORY.point(long, lat, delta_z)
     end
+    retval
   end
 
   # @return [Symbol, nil]
