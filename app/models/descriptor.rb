@@ -23,6 +23,9 @@ class Descriptor < ActiveRecord::Base
     self.name.demodulize.humanize
   end
 
+  def qualitative?
+    type == 'Descriptor::Qualitative'
+  end
   protected
 
   def type_is_subclassed
