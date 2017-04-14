@@ -6,8 +6,15 @@ class DescriptorsController < ApplicationController
   # GET /descriptors
   # GET /descriptors.json
   def index
-    @recent_objects = Descriptor.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = Descriptor.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @descriptors = Descriptor.all.limit(20)
+      }
+    end 
   end
 
   # GET /descriptors/1
