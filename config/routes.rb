@@ -110,7 +110,7 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-  resources :confidence_levels, only: [] do
+  resources :confidence_levels, only: [:index] do
     collection do
       get 'lookup'
     end
@@ -754,6 +754,9 @@ TaxonWorks::Application.routes.draw do
 
       get '/matrices/:id/row',
         to: 'matrices#row'
+
+      get '/confidence_levels',
+        to: 'confidence_levels#index'
 
     end
   end
