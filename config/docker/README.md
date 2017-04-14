@@ -93,8 +93,7 @@ See also [https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/](kubectl-che
 
 ## Notes
 
-* vi in container acts funny, apt install vim as a work around
-
+* vi in container acts funny, apt install vim as a work around 
 # docker-compose
 
 Using `docker-compose` starts containers that reference your local filesystem referencing `Dockerfile.development`.  
@@ -135,6 +134,13 @@ _Hackish!_
 * `rails c`
 *  `User.create!(name: 'you', password: 'password', password_confirmation: 'password', self_created: true, is_administrator: true, email: 'user@example.com')`
 * `quit`
+
+## Use a debugger 
+
+Two steps.  Run docker-compose in daemon mode, then attach to the app. Server log/debugger entry point will appear in the window after requests.
+
+* `docker-compose up -d`
+* `docker attach taxonworks_app_1` 
 
 ## Troubleshooting
 
