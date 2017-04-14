@@ -151,7 +151,7 @@ To add a new (discovered) symbol:
 
     def self.hunt_lat_long_full(label, filters = REGEXP_COORD.keys)
       trials = {}
-      filters.each_with_index { |kee, dex|
+      filters.each_with_index {|kee, dex|
         kee_string         = kee.to_s.upcase
         trials[kee_string] = {}
         named              = REGEXP_COORD[kee][:reg].match(label)
@@ -208,7 +208,7 @@ To add a new (discovered) symbol:
 
       trials = self.hunt_lat_long_full(label, filters)
 
-      ';, '.each_char { |sep|
+      ';, '.each_char {|sep|
         trial = self.hunt_lat_long(label, sep)
         found = "#{trial[:piece]}"
         unless trial[:lat].nil? and !trial[:long].nil?
@@ -269,7 +269,7 @@ To add a new (discovered) symbol:
       end
 
       # >40°26′46″< >40°26′46″<
-      dms.each_char { |c|
+      dms.each_char {|c|
         next unless SPECIAL_LATLONG_SYMBOLS.include?(c)
         /^(?<degrees>-*\d{0,3}(\.\d+)*) # + or - three-digit number with optional '.' and additional decimal digits
             [do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\uc2ba]*\s* # optional special degrees symbol, optional space
@@ -358,7 +358,7 @@ To add a new (discovered) symbol:
     # confirm that this says that the error radius is one degree or smaller
     def self.error_box_for_point(geo_object, error_radius)
       p0      = geo_object
-      delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y * 2 * Math::PI / 360)
+      delta_x = (error_radius / ONE_WEST) / Math.cos(p0.y * Math::PI / 180)
       delta_y = error_radius / ONE_NORTH
 
       Gis::FACTORY.polygon(
@@ -378,7 +378,7 @@ To add a new (discovered) symbol:
     # rubocop:disable Style/FirstParameterIndentation:
     def diamond_error_box
       p0      = geo_object
-      delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y)
+      delta_x = (error_radius / ONE_WEST) / Math.cos(p0.y * Math::PI / 180)
       delta_y = error_radius / ONE_NORTH
 
       retval = Gis::FACTORY.polygon(Gis::FACTORY.line_string(
