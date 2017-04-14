@@ -35,10 +35,12 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
       trial = tests[kee]
       method = trial.delete(:method)
       next if trial.blank?
+      verbatim_date_piece = make_verbatim_date_piece(label, trial[:piece])
       content_tag(:tr, class: :extract_row) do
         content_tag(:td, method, align: 'center') +
             # content_tag(:td, kee == method ? '' : kee) +
-            content_tag(:td, trial[:piece], class: :piece_value, align: 'center') +
+            # content_tag(:td, trial[:piece], class: :piece_value, align: 'center') +
+            content_tag(:td, verbatim_date_piece, class: :piece_value, align: 'center') +
             content_tag(:td, trial[:start_date], class: :start_date_value, align: 'center') +
             content_tag(:td, trial[:end_date], class: :end_date_value, align: 'center') +
             content_tag(:td, radio_button_tag('select', dex, false, class: :select_dates), align: 'center')
@@ -48,6 +50,15 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
     # next if tests[kee]
     # }
     # @matching_items = {@collecting_event.id.to_s => tests.first[:piece]}
+  end
+
+  def make_verbatim_date_piece(label, pieces)
+    left = label.index(pieces[0])
+    right = left + pieces[0].length
+    unless pieces[1].blank?
+      right = label.index(pieces[1]) + pieces[1].length
+    end
+    label[left..right]
   end
 
   # @param [String] pieces is either piece, or lat, long
