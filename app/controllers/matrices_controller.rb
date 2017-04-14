@@ -91,14 +91,19 @@ class MatricesController < ApplicationController
     end
   end
 
+  # GET /matrices/:id/row.json
+  def row
+    @matrix = Matrix.find(params[:id])
+    @descriptors = @matrix.descriptors
+    @otu = Otu.find(params[:otu_id])
+  end
+
   private
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_matrix
     @matrix = Matrix.find(params[:id])
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def matrix_params
     params.require(:matrix).permit(:name)
   end

@@ -31,6 +31,10 @@ TaxonWorks::Application.routes.draw do
           to: 'otus#by_name',
           as: 'api_v1_otu_by_name'
       # get '/otus/:id', to: 'otus#show'
+
+      get '/descriptors',
+        to: 'descriptors#index'
+
     end
   end
 

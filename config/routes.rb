@@ -743,6 +743,22 @@ TaxonWorks::Application.routes.draw do
   #     resources :products
   #   end
   #
+  #
+  #
+  #
+
+   # Future consideration - move this to an engine, or include multiple draw files and include (you apparenlty
+  # lose the autoloading update from the include in this case however)
+  scope :api, :defaults => { :format => :json }, :constraints => { id: /\d+/ } do
+    scope  '/v1' do
+
+      get '/matrices/:id/row',
+        to: 'matrices#row'
+
+    end
+  end
+
+
 end
 
 require_relative 'routes/api'
