@@ -1,13 +1,20 @@
 class ObservationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  
+
   before_action :set_observation, only: [:show, :edit, :update, :destroy]
 
   # GET /observations
   # GET /observations.json
   def index
-    @recent_objects = Observation.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = Observation.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @observations = Observation.where(filter_params).with_project_id(sessions_current_project_id)
+      }
+    end
   end
 
   # GET /observations/1
@@ -69,13 +76,15 @@ class ObservationsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_observation
-      @observation = Observation.find(params[:id])
-    end
+  def set_observation
+    @observation = Observation.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def observation_params
-      params.require(:observation).permit(:descriptor_id, :otu_id, :collection_object_id, :character_state_id, :frequency, :continuous_value, :continuous_unit, :sample_n, :sample_min, :sample_max, :sample_median, :sample_mean, :sample_units, :sample, :sample_standard_error, :presence, :description, :cached, :cached_column_label, :cached_row_label, :type, :created_by_id, :updated_by_id, :project_id)
-    end
+  def observation_params
+    params.require(:observation).permit(:descriptor_id, :otu_id, :collection_object_id, :character_state_id, :frequency, :continuous_value, :continuous_unit, :sample_n, :sample_min, :sample_max, :sample_median, :sample_mean, :sample_units, :sample, :sample_standard_error, :presence, :description, :cached, :cached_column_label, :cached_row_label, :type, :created_by_id, :updated_by_id, :project_id)
+  end
+
+  def filter_params
+    params.permit(:otu_id, :descriptor_id, :collection_object_id)
+  end
 end

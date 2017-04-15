@@ -35,6 +35,9 @@ TaxonWorks::Application.routes.draw do
       get '/descriptors',
         to: 'descriptors#index'
 
+      get '/observations',
+        to: 'observations#index'
+
     end
   end
 

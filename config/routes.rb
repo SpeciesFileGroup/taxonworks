@@ -758,6 +758,11 @@ TaxonWorks::Application.routes.draw do
       get '/confidence_levels',
         to: 'confidence_levels#index'
 
+      get '/observations',
+        to: 'observations#index'
+
+
+
     end
   end
 
