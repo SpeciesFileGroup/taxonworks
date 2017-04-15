@@ -11,13 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170411192800) do
+ActiveRecord::Schema.define(version: 20170414170206) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-  enable_extension "postgis"
-  enable_extension "hstore"
   enable_extension "fuzzystrmatch"
+  enable_extension "hstore"
+  enable_extension "postgis"
 
   create_table "alternate_values", force: :cascade do |t|
     t.text     "value",                            null: false
@@ -468,6 +468,7 @@ ActiveRecord::Schema.define(version: 20170411192800) do
     t.string   "uri"
     t.string   "uri_relation"
     t.string   "css_color"
+    t.integer  "position"
   end
 
   add_index "controlled_vocabulary_terms", ["created_by_id"], name: "index_controlled_vocabulary_terms_on_created_by_id", using: :btree
@@ -523,8 +524,6 @@ ActiveRecord::Schema.define(version: 20170411192800) do
     t.datetime "created_at",            null: false
     t.datetime "updated_at",            null: false
     t.integer  "position"
-    t.text     "caption"
-    t.string   "figure_label"
   end
 
   add_index "depictions", ["created_by_id"], name: "index_depictions_on_created_by_id", using: :btree
@@ -559,6 +558,7 @@ ActiveRecord::Schema.define(version: 20170411192800) do
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
     t.integer  "position"
+    t.text     "description"
   end
 
   add_index "descriptors", ["created_by_id"], name: "index_descriptors_on_created_by_id", using: :btree
@@ -571,6 +571,7 @@ ActiveRecord::Schema.define(version: 20170411192800) do
     t.integer  "documentation_object_id",   null: false
     t.string   "documentation_object_type", null: false
     t.integer  "document_id",               null: false
+    t.json     "page_map"
     t.integer  "project_id",                null: false
     t.integer  "created_by_id",             null: false
     t.integer  "updated_by_id",             null: false
@@ -585,17 +586,15 @@ ActiveRecord::Schema.define(version: 20170411192800) do
   add_index "documentation", ["updated_by_id"], name: "index_documentation_on_updated_by_id", using: :btree
 
   create_table "documents", force: :cascade do |t|
-    t.string   "document_file_file_name",                 null: false
-    t.string   "document_file_content_type",              null: false
-    t.integer  "document_file_file_size",                 null: false
-    t.datetime "document_file_updated_at",                null: false
-    t.integer  "project_id",                              null: false
-    t.integer  "created_by_id",                           null: false
-    t.integer  "updated_by_id",                           null: false
-    t.datetime "created_at",                              null: false
-    t.datetime "updated_at",                              null: false
-    t.jsonb    "page_map",                   default: {}
-    t.integer  "page_total"
+    t.string   "document_file_file_name",    null: false
+    t.string   "document_file_content_type", null: false
+    t.integer  "document_file_file_size",    null: false
+    t.datetime "document_file_updated_at",   null: false
+    t.integer  "project_id",                 null: false
+    t.integer  "created_by_id",              null: false
+    t.integer  "updated_by_id",              null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
   end
 
   add_index "documents", ["document_file_content_type"], name: "index_documents_on_document_file_content_type", using: :btree
