@@ -227,7 +227,7 @@ Object.assign(TW.views.tasks.citations.otus, {
           this.$http.delete("/citations/" + item.id).then(response => {
             this.$store.commit('removeCitationSelected');
               this.$store.commit('removeSourceFormCitationList', item.id);
-              this.$store.commit('removeOtuFormCitationList', item.id);
+              this.$store.commit('setOtuCitationsList', []);
           });
         }
       }                
