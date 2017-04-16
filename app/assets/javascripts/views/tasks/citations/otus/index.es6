@@ -293,8 +293,8 @@ Object.assign(TW.views.tasks.citations.otus, {
       },
       template: '<div v-if="!disabled" class="content"> \
                   <div class="content flex-wrap-row" id="topic-list"> \
-                    <ul class="flex-wrap-column topics" v-for="itemsGroup in items.chunk(items.length/4-1)" > \
-                      <li v-for="item in itemsGroup" class="item no_bullets"><topic-checkbox v-bind:topic=item> </topic-checkbox> </li> \
+                    <ul class="flex-wrap-column no_bullets" v-for="itemsGroup in items.chunk(Math.ceil(items.length/4))"> \
+                      <li class="topics" v-for="item in itemsGroup"><topic-checkbox v-bind:topic=item> </topic-checkbox> </li> \
                     </ul> \
                   </div> \
                 </div>',

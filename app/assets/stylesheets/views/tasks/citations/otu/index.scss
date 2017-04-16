@@ -24,16 +24,6 @@
 			}
 		}
 	}
-	.topics {
-		//margin: 0px;
-		margin-top: 1em;
-		padding: 0px;
-		padding-right: $standard_padding;
-		.item {
-			min-height: 40px;
-			margin-right: $standard_margin;
-		}
-	}
 
 	#topic-list {
 		ul{
@@ -45,7 +35,13 @@
 		}
 		ul:last-child {
 			border-right: none;
-		}		
+		}	
+		.topics {
+			margin-top: 0.5em;
+			margin-bottom: 0.5em;
+			padding: 0px;
+			padding-right: $standard_padding;
+		}			
 	}
 	.title-citations {
 		color: #888;
@@ -79,6 +75,7 @@
 	}	
 	#delete-citation {
 		padding: 25px;
+		max-width: 40px;
 		margin-left: $standard_margin * -1;
 		background-repeat: no-repeat;
 		background-position: center;
