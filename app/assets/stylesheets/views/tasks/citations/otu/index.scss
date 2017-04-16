@@ -14,7 +14,16 @@
 			width: 100%;
 		}
 	}
-
+	#recent_list {
+		.circle-button {
+			display: none;
+		}
+		.slide-panel-category-item:hover {
+			.circle-button {
+				display: block;
+			}
+		}
+	}
 	.topics {
 		display: flex;
 		flex-direction: column;
@@ -33,20 +42,20 @@
 		color: #888;
 		font-size: 14px;
 	}
-	.citation-button-edit {
-		width: 20px;
-		height: 20px;
-		background-image: image-url("w_pencil.svg");
+	#source-picker, #otu-picker {
+		border-bottom: 1px solid $navigation_border;
+		button {
+			width: 100px;
+		}
 	}
 	.title {
+		padding-left: 2em;
 		border-bottom: 1px solid $navigation_border;
 		height: 60px;
 	}
 	.slide-panel {
 		top:0px;
 		position: relative;
-		max-width: 300px;
-		min-width: 300px;
 		z-index: 100;
 		.slide-panel-header {
 			font-weight: 500;
@@ -60,6 +69,16 @@
 		}			
 	}	
 	#delete-citation {
-		width: 100px;
+		padding: 25px;
+		margin-left: $standard_margin * -1;
+		background-repeat: no-repeat;
+		background-position: center;
+		button {
+			background-size: 20px 20px;
+			background-image: image-url('trash.svg');
+		}
+	}
+	#delete-citation:hover {
+		
 	}
 }

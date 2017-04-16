@@ -136,7 +136,10 @@ Object.assign(TW.views.tasks.citations.otus, {
 
     Vue.component('otu-picker', {
       template: '<div> \
-                  <div class="flex-wrap-row middle"><h3 class="title-citations">OTU</h3><div class="button-default citation-button-edit circle-button" @click="showModal = true"></div></div> \
+                  <div class="flex-wrap-row middle"> \
+                    <button class="button button-default normal-input" @click="showModal = true" v-if="otu">Change OTU</button> \
+                    <button class="button button-default normal-input" @click="showModal = true" v-else>Select OTU</button> \
+                  </div> \
                   <modal @close="showModal = false" v-if="showModal" @otupicker="loadOtu"> \
                     <h3 slot="header">Select OTU</h3> \
                     <div slot="body"> \
@@ -165,7 +168,6 @@ Object.assign(TW.views.tasks.citations.otus, {
         loadOtu: function(item) {
           this.$http.get("/otus/" + item.id).then( response => {
             this.$store.commit('setOtuSelected', response.body);
-            console.log("asdfa");
             this.showModal = false; 
           });
         }
@@ -174,7 +176,10 @@ Object.assign(TW.views.tasks.citations.otus, {
 
     Vue.component('source-picker', {
       template: '<div> \
-                  <div class="flex-wrap-row middle"><h3 class="title-citations">SOURCE</h3><div class="button-default citation-button-edit circle-button" @click="showModal = true"></div></div> \
+                  <div class="flex-wrap-row middle"> \
+                    <button class="button button-default normal-input" @click="showModal = true" v-if="source">Change source</button> \
+                    <button class="button button-default normal-input" @click="showModal = true" v-else>Select source</button> \
+                  </div> \
                   <modal @close="showModal = false" v-if="showModal" @sourcepicker="loadSource"> \
                     <h3 slot="header">Select source</h3> \
                     <div slot="body" id="source_panel"> \
@@ -209,17 +214,14 @@ Object.assign(TW.views.tasks.citations.otus, {
       },
     });
 
-    Vue.component('existing-citations', {
+    Vue.component('remove-citation', {
       computed: {
         citation() {
           return this.$store.getters.getCitationSelected
         }
       },
 
-      template: '<div v-if="citation" class="flex-separate middle full_width"> \
-                    <span v-html="citation.object_tag"></span><div class="circle-button btn-delete" @click="removeCitation(citation)"></div> \
-                </div> \
-                <div v-else> Select or create new OTU Citation</div>',
+      template: '<div class="circle-button circle-button-big btn-delete" v-if="citation" @click="removeCitation(citation)"></div>',
       methods: {
         removeCitation: function(item) { 
           this.$http.delete("/citations/" + item.id).then(response => {
@@ -240,11 +242,9 @@ Object.assign(TW.views.tasks.citations.otus, {
 
       template: '<div v-if="items.length" class="slide-panel-category"> \
                   <div class="slide-panel-category-header">Source</div> \
-                  <div class="slide-panel-category-content"> \
-                    <ul> \
-                      <li v-for="item in items"><span v-html="item.citation_object_tag"></span><span data-icon="trash" @click="removeCitation(item)"></span></li> \
-                    </ul> \
-                  </div> \
+                  <ul class="slide-panel-category-content"> \
+                    <li v-for="item in items" class="flex-separate middle slide-panel-category-item"><span v-html="item.citation_object_tag"></span><div class="circle-button btn-delete" @click="removeCitation(item)"></div></li> \
+                  </ul> \
                 </div>',
       methods: {
           removeCitation: function(item) { 
@@ -264,11 +264,9 @@ Object.assign(TW.views.tasks.citations.otus, {
       },
       template: '<div v-if="items.length" class="slide-panel-category"> \
                   <div class="slide-panel-category-header">OTU</div> \
-                  <div class="slide-panel-category-content"> \
-                    <ul> \
-                      <li v-for="item in items"><span v-html="item.source.object_tag"></span><span data-icon="trash" @click="removeCitation(item)"></span></li> \
-                    </ul> \
-                  </div> \
+                  <ul class="slide-panel-category-content"> \
+                    <li v-for="item in items" class="flex-separate middle slide-panel-category-item"><span v-html="item.source.object_tag"></span><div class="circle-button btn-delete" @click="removeCitation(item)"></div></li> \
+                  </ul> \
                 </div>',
       methods: {
           removeCitation: function(item) { 
@@ -293,8 +291,7 @@ Object.assign(TW.views.tasks.citations.otus, {
       },
       template: '<div v-if="!disabled" class="content"> \
                   <div class="content"> \
-                    <h3 class="title-citations">TOPICS</h3> \
-                    <ul class="flex-wrap-column topics middle"> \
+                    <ul class="flex-wrap-column topics"> \
                       <li v-for="item in items" class="item no_bullets"><topic-checkbox v-bind:topic=item> </topic-checkbox> </li> \
                     </ul> \
                   </div> \
