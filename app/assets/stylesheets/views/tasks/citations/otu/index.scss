@@ -25,18 +25,27 @@
 		}
 	}
 	.topics {
-		display: flex;
-		flex-direction: column;
-		max-height: 500px;
-		margin: 0px;
+		//margin: 0px;
 		margin-top: 1em;
 		padding: 0px;
+		padding-right: $standard_padding;
 		.item {
-			width: 150px;
-			max-width: 150px;
 			min-height: 40px;
 			margin-right: $standard_margin;
 		}
+	}
+
+	#topic-list {
+		ul{
+			padding-left: $standard_padding;
+			border-right: 1px solid $navigation_border;
+		}
+		ul:first-child {
+			padding-left: 0px;
+		}
+		ul:last-child {
+			border-right: none;
+		}		
 	}
 	.title-citations {
 		color: #888;

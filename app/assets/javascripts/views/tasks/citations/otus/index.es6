@@ -149,7 +149,8 @@ Object.assign(TW.views.tasks.citations.otus, {
                         param="term" \
                         placeholder="Find OTU" \
                         event-send="otupicker" \
-                        label="label"> \
+                        label="label" \
+                        autofocus="true"> \
                       </autocomplete> \
                     </div> \
                   </modal> \
@@ -189,7 +190,8 @@ Object.assign(TW.views.tasks.citations.otus, {
                         param="term" \
                         placeholder="Find source" \
                         event-send="sourcepicker" \
-                        label="label"> \
+                        label="label" \
+                        autofocus="true"> \
                       </autocomplete> \
                     </div> \
                   </modal> \
@@ -290,9 +292,9 @@ Object.assign(TW.views.tasks.citations.otus, {
         }
       },
       template: '<div v-if="!disabled" class="content"> \
-                  <div class="content"> \
-                    <ul class="flex-wrap-column topics"> \
-                      <li v-for="item in items" class="item no_bullets"><topic-checkbox v-bind:topic=item> </topic-checkbox> </li> \
+                  <div class="content flex-wrap-row" id="topic-list"> \
+                    <ul class="flex-wrap-column topics" v-for="itemsGroup in items.chunk(items.length/4-1)" > \
+                      <li v-for="item in itemsGroup" class="item no_bullets"><topic-checkbox v-bind:topic=item> </topic-checkbox> </li> \
                     </ul> \
                   </div> \
                 </div>',

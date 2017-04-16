@@ -7,6 +7,7 @@ Parameters:
   placeholder: Input placeholder
         label: name of the propierty displayed on the list
    event-send: event name used to pass item selected
+    autofocus: set autofocus
 
    :add-param: Send custom parameters
   
@@ -19,7 +20,7 @@ Parameters:
 
 Vue.component('autocomplete', { 
     template: '<div class="vue-autocomplete"> \
-                <input class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="checkTime" v-model="type" v-bind:class="{ \'ui-autocomplete-loading\' : spinner } " /> \
+                <input class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="checkTime" v-model="type" :autofocus="autofocus" v-bind:class="{ \'ui-autocomplete-loading\' : spinner } " /> \
                 <ul v-show="showList" v-if="type && json.length"> \
                   <li v-for="(item, index) in json" :class="activeClass(index)" @mouseover="itemActive(index)" @click.prevent="{ itemClicked(item[label]), sendItem(item) }" > \
                       <span v-html="item[label]"></span> \
@@ -52,6 +53,11 @@ Vue.component('autocomplete', {
         type: String,
         required: true
       },
+
+      autofocus: {
+        type: String,
+        default: false
+      },      
 
       label: String,
 
