@@ -19,6 +19,13 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  concern :shallow_annotation_routes do |options|
+    resources :citations, shallow: true, only: [:index]
+    resources :depictions, shallow: true, only: [:index]
+    resources :tags, shallow: true, only: [:index]
+    resources :notes, shallow: true, only: [:index]
+  end
+
   root 'dashboard#index'
 
   match '/dashboard', to: 'dashboard#index', via: :get
@@ -303,7 +310,7 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :observations do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes]
   end
 
   resources :otus do
@@ -761,7 +768,11 @@ TaxonWorks::Application.routes.draw do
       get '/observations',
         to: 'observations#index'
 
+      get '/observations/:observation_id/notes',
+        to: 'notes#index'
 
+      get '/observations/:observation_id/confidences',
+        to: 'confidences#index'
 
     end
   end
