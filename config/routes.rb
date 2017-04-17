@@ -107,7 +107,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       get 'filter', defaults: {format: :json}
-    end
+  end
   end
 
   resources :confidences do # , except: [:edit, :show]
@@ -178,7 +178,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes, :shallow_annotation_routes]
     collection do
       get :filter
-    end
+  end
   end
 
   resources :controlled_vocabulary_terms do
@@ -197,7 +197,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       patch :sort
-    end
+  end
   end
 
   resources :documents do
@@ -425,6 +425,7 @@ TaxonWorks::Application.routes.draw do
   ### End of resources except user related located below scopes ###
 
   scope :tasks do
+
     scope :citations do
       scope :otus, controller: 'tasks/citations/otus' do
         get 'index', as: 'cite_otus_task_task'
@@ -436,6 +437,30 @@ TaxonWorks::Application.routes.draw do
         get 'index', as: 'index_editor_task'
         get 'recent_topics', as: 'content_editor_recent_topics_task'
         get 'recent_otus', as: 'content_editor_recent_otus_task'
+      end
+    end
+
+    scope :sources do
+      scope :browse, controller: 'tasks/sources/browse' do
+        get 'index', as: 'browse_sources_task'
+        get 'find', as: 'find_sources_task'
+      end
+    end
+
+
+    scope :collecting_events do
+      scope :parse do
+        scope :stepwise do
+          scope :lat_long, controller: 'tasks/collecting_events/parse/stepwise/lat_long' do
+            get 'index', as: 'collecting_event_lat_long_task'
+            post 'update', as: 'lat_long_update'
+            get 'skip', as: 'lat_long_skip'
+            get 're_eval', as: 'lat_long_re_eval'
+            get 'save_selected', as: 'lat_long_save_selected'
+            get 'convert', as: 'lat_long_convert'
+            get 'similar_labels', as: 'lat_long_similar_labels'
+          end
+        end
       end
     end
 
@@ -538,6 +563,11 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :gis do
+      scope :geographic_area_lookup, controller: 'tasks/gis/geographic_area_lookup' do
+        get 'index', as: 'geographic_area_lookup_task'
+        get 'resolve', as: 'geographic_area_lookup_resolve_task', format: :js
+      end
+
       scope :asserted_distribution, controller: 'tasks/gis/asserted_distribution' do
         get 'new', action: 'new', as: 'new_asserted_distribution_task'
         post 'create', action: 'create', as: 'create_asserted_distribution_task'

@@ -17,6 +17,6 @@ module PinboardItemsHelper
     content_tag(:div, class: 'itemOptions') do
       options.compact.join.html_safe
     end.html_safe
-  end
+    end
      
 end

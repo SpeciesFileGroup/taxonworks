@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'tasks/gis/collection_objects/filter', type: :feature, group: [:geo, :collection_objects] do
+describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :collection_objects] do
   context 'with properly built collection of objects' do
     let(:page_title) { 'Collection objects by area and date' }
     let(:index_path) { collection_objects_filter_task_path }
@@ -30,7 +30,7 @@ describe 'tasks/gis/collection_objects/filter', type: :feature, group: [:geo, :c
             # {geographic_area_id: GeographicArea.where(name: 'Great Northern Land Mass').first.id})
             # expect(response).to have_http_status(:success)
             # expect(JSON.parse(response.body)['html']).to eq('16')
-            fill_autocomplete('geographic_area_id_for_by_area', with: 'Great Northern', select: gnlm.id)
+            fill_area_picker_autocomplete('area_picker_autocomplete', with: 'Great Northern', select: gnlm.id)
             # expect(page).to have_content('Land Mass')
             click_button('Set area')
             expect(find('#area_count')).to have_text('16')
@@ -98,14 +98,16 @@ describe 'tasks/gis/collection_objects/filter', type: :feature, group: [:geo, :c
           it 'renders count of objects and table found using a drawn area and date range' do
             visit(collection_objects_filter_task_path)
             execute_script("document.getElementById('search_start_date').value = '1971/01/01'")
-            execute_script("document.getElementById('search_end_date').value = '1980/12/31'")            
+            execute_script("document.getElementById('search_end_date').value = '1980/12/31'")
             find('#search_start_date').set '1971/01/01'
             find('#search_end_date').set '1980/12/31'
             find('#label_toggle_slide_area').click
+            wait_for_ajax
             execute_script("document.getElementById('drawn_area_shape').type = 'text'")
             this_xpath = find(:xpath, "//input[@id='drawn_area_shape']")
             this_xpath.set drawn_area_shape
             click_button('Set area')
+            wait_for_ajax
             find('#find_area_and_date_commit').click
             find('#result_span', visible: false, text: '3')
             expect(find(:xpath, "//div['show_list']/table[@class='tablesorter']/thead")).to have_text('Catalog Number')

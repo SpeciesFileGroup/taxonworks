@@ -10,7 +10,7 @@
             <% items.each do |o| -%>
               <li class="slide-panel-category-item" id="<%= "order_#{o.id}" -%>">
                 <div class="handle flex-separate middle">
-                  <%= object_link(o.pinned_object) -%>                
+                  <%= object_link(o.pinned_object) -%>
                   <%= pinboard_item_options(o) -%>
                 </div>
               </li>

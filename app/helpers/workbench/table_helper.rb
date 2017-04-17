@@ -17,13 +17,17 @@ module Workbench::TableHelper
   # Use the class ".table-options" to hide those options on the table
   #
   def fancy_metadata_cells_tag(object)
-    m = metamorphosize_if(object)
     content_tag(:td, object_tag(object.updater)) +
       content_tag(:td, object_time_since_update_tag(object)) +
+      fancy_options_cells_tag(object)
+  end
+
+  def fancy_options_cells_tag(object)
+    m = metamorphosize_if(object)
       fancy_show_tag(m) +
       fancy_edit_tag(m) + 
       content_tag(:td, (link_to 'Destroy', m, method: :delete, data: {confirm: 'Are you sure?'}), class: 'table-options', data: {delete: true})
-  end
+  end  
 
   def fancy_show_tag(object)
     defined?(object.annotated_object) ? 

@@ -21,6 +21,9 @@ application_settings.yml
 
 /tags
 
+# Ignore node modules
+/node_modules
+
 .yardoc/
 
 # Temporarily
@@ -65,4 +68,4 @@ spec/test_files/
 
 REVISION
 
-node_modules/
+public/images/tmp

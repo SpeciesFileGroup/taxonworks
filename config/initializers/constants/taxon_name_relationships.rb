@@ -10,6 +10,9 @@ ICZN_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Iczn.descendants.col
 # Array of all ICN TaxonNameRelationship classes, as Strings 
 ICN_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icn.descendants.collect{|d| d.to_s}.freeze
 
+# Array of all ICNB TaxonNameRelationship classes, as Strings
+ICNB_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icnb.descendants.collect{|d| d.to_s}.freeze
+
 # Array of all ICZN + ICN TaxonNameRelationship classes, as Strings
 STATUS_TAXON_NAME_RELATIONSHIP_NAMES = (ICZN_TAXON_NAME_RELATIONSHIP_NAMES + ICN_TAXON_NAME_RELATIONSHIP_NAMES).freeze
 
@@ -19,7 +22,8 @@ TAXON_NAME_RELATIONSHIP_NAMES = TAXON_NAME_RELATIONSHIPS.select{|i| i.assignable
 # Array of all invalid TaxonNameRelationship classes, as Strings
 TAXON_NAME_RELATIONSHIP_NAMES_INVALID = TaxonNameRelationship.
   collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating,
-                                      TaxonNameRelationship::Icn::Unaccepting).freeze
+                                      TaxonNameRelationship::Icn::Unaccepting,
+                                      TaxonNameRelationship::Icnb::Unaccepting).freeze
 
 
 # TODO: check .assignable property prior to building

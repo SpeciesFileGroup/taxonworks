@@ -59,8 +59,9 @@ class NomenclaturalRank
   #   the name of the nomenclatural code, as a short symbol (:iczn, :icn), or nil
   def self.nomenclatural_code
     return :iczn if self.name.to_s =~ /Iczn/
+    return :icnb if self.name.to_s =~ /Icnb/
     return :icn if self.name.to_s =~ /Icn/
-    nil 
+    nil
   end
 
   # @return [NomenclaturalRank, nil]
@@ -69,6 +70,8 @@ class NomenclaturalRank
     case self.nomenclatural_code
     when :iczn
       NomenclaturalRank::Iczn
+    when :icnb
+      NomenclaturalRank::Icnb
     when :icn
       NomenclaturalRank::Icn
     else

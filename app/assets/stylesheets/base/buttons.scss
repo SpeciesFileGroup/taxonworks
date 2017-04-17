@@ -37,7 +37,7 @@
 
 .button-delete, .button-close { 
     color: #FFF;
-    background-color: #F44336;
+    background-color: $color-remove-button;
  }
 
 .button-request {
@@ -111,7 +111,7 @@
 	background-repeat: no-repeat;
 	box-shadow: 0px 1px 2px 0px $navigation_border;
 	margin: 5px;
-    cursor: pointer;  
+    cursor: pointer;
 }
 
 .btn-add {
@@ -174,10 +174,16 @@
 
 .pin-button {
     @extend .circle-button;
-    background-color: #00796B;
+    background-color: $color-action-button;
     margin:0px;
     background-size: 14px;
     background-image: image-url("b_pin.svg");
+}
+
+.unpin-button {
+    @extend .pin-button;
+    font-size: 0px;
+    background-color: $color-remove-button;
 }
 
 .disable-button {

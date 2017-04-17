@@ -57,4 +57,9 @@ module CollectingEventsHelper
     ].compact.join(', ')
   end
 
+  # @return [HTML] a pre tag formatting a label
+  def collecting_event_label_tag(label_text)
+    content_tag(:pre, label_text, class: [:large_type, :word_break] ) # large_type needs to be larger
+  end
+
 end

@@ -43,6 +43,7 @@ class TaxonNameClassification < ActiveRecord::Base
 
   def nomenclature_code
     return :iczn if type.match(/::Iczn/)
+    return :icnb if type.match(/::Icnb/)
     return :icn if type.match(/::Icn/)
     return nil
   end
@@ -143,6 +144,25 @@ class TaxonNameClassification < ActiveRecord::Base
         if type_name =~ /Fossil|Hybrid/
           t.update_columns(cached: t.get_full_name,
                            cached_html: t.get_full_name_html)
+        elsif type_name =~ /Adjective|Participle/ && t.masculine_name.blank? && t.feminine_name.blank? && t.neuter_name.blank?
+          m_name, f_name, n_name = nil, nil, nil
+          if t.name.end_with?('is')
+            m_name, f_name, n_name = t.name, t.name, t.name[0..-3] + 'e'
+          elsif t.name.end_with?('e')
+            m_name, f_name, n_name = t.name[0..-2] + 'is', t.name = t.name[0..-2] + 'is', t.name
+          elsif t.name.end_with?('us')
+            m_name, f_name, n_name = t.name, t.name[0..-3] + 'a', t.name[0..-3] + 'um'
+          elsif t.name.end_with?('er')
+            m_name, f_name, n_name = t.name, t.name[0..-3] + 'ra', t.name[0..-3] + 'rum'
+          elsif t.name.end_with?('um') && !t.name.end_with?('rum')
+            m_name, f_name, n_name = t.name[0..-3] + 'us', t.name[0..-3] + 'a', t.name
+          elsif t.name.end_with?('a') && !t.name.end_with?('ra')
+            m_name, f_name, n_name = t.name[0..-3] + 'us', t.name, t.name[0..-3] + 'um'
+          elsif t.name.end_with?('or')
+          end
+          t.update_columns(:masculine_name => m_name,
+                           :feminine_name => f_name,
+                           :neuter_name => n_name)
         elsif TAXON_NAME_CLASS_NAMES_VALID.include?(type_name)
           vn = t.get_valid_taxon_name
           vn.update_column(:cached_valid_taxon_name_id, vn.id)  # update self too!
@@ -223,12 +243,26 @@ class TaxonNameClassification < ActiveRecord::Base
       when 'TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished'
         soft_validations.add(:type, 'Please specify the reasons for the name being invalidly published')
       when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished'
-
         soft_validations.add(:type, 'Please specify if the name is legitimate or illegitimate')
       when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate'
         soft_validations.add(:type, 'Please specify the reasons for the name being Legitimate')
       when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate'
         soft_validations.add(:type, 'Please specify the reasons for the name being Illegitimate')
+      when 'TaxonNameClassification::Icnb::EffectivelyPublished'
+        soft_validations.add(:type, 'Please specify if the name is validly or invalidly published')
+      when 'TaxonNameClassification::Icnb::EffectivelyPublished::InvalidlyPublished'
+        soft_validations.add(:type, 'Please specify the reasons for the name being invalidly published')
+      when 'TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished'
+        soft_validations.add(:type, 'Please specify if the name is legitimate or illegitimate')
+      when 'TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate'
+        soft_validations.add(:type, 'Please specify the reasons for the name being Legitimate')
+      when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate'
+        soft_validations.add(:type, 'Please specify the reasons for the name being Illegitimate')
+      when 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective' || 'TaxonNameClassification::Latinized::PartOfSpeech::Participle'
+        t = taxon_name.name
+        if !t.end_with?('us') && !t.end_with?('a') && !t.end_with?('um') && !t.end_with?('is') && !t.end_with?('e') && !t.end_with?('or') && !t.end_with?('er')
+            soft_validations.add(:type, 'Adjective or participle name should end with one of the following endings: -us, -a, -um, -is, -e, -er, -or')
+        end
     end
   end
 

@@ -75,12 +75,12 @@ class TaxonNamesController < ApplicationController
   end
 
   def autocomplete
-    @taxon_names = TaxonName.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    @taxon_names = Queries::TaxonNameAutocompleteQuery.new(params[:term], project_id: sessions_current_project_id).all 
 
     data = @taxon_names.collect do |t|
       str = render_to_string(partial: 'autocomplete_tag', locals: {taxon_name: t, term: params[:term] })
       {id:              t.id,
-       label:           t.cached, 
+       label:           ApplicationController.helpers.taxon_name_autocomplete_selected_tag(t),
        response_values: {
          params[:method] => t.id
        },
@@ -92,12 +92,14 @@ class TaxonNamesController < ApplicationController
   end
 
   def list
-    @taxon_names = TaxonName.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @taxon_names = TaxonName.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) 
   end
 
   # GET /taxon_names/download
   def download
-    send_data TaxonName.generate_download( TaxonName.where(project_id: sessions_current_project_id) ), type: 'text', filename: "taxon_names_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(
+      TaxonName.where(project_id: sessions_current_project_id)
+    ), type: 'text', filename: "taxon_names_#{DateTime.now.to_s}.csv"
   end
 
   def batch_load
@@ -130,24 +132,39 @@ class TaxonNamesController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
+
   def set_taxon_name 
     @taxon_name = TaxonName.with_project_id(sessions_current_project_id).includes(:creator, :updater).find(params[:id]) 
     @recent_object = @taxon_name
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def taxon_name_params
-    params.require(:taxon_name).permit(:name, :parent_id,  :year_of_publication,
-                                       :verbatim_author, :rank_class, :type, :masculine_name,
-                                       :feminine_name, :neuter_name, :also_create_otu,
-                                       roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
-                                       origin_citation_attributes: [:id, :_destroy, :source_id] 
-                                      ) 
+    params.require(:taxon_name).permit(
+      :name, 
+      :parent_id, 
+      :year_of_publication,
+      :verbatim_author, :rank_class, :type, :masculine_name,
+      :feminine_name, :neuter_name, :also_create_otu,
+      roles_attributes: [
+        :id, :_destroy, :type, :person_id, :position, 
+        person_attributes: [
+          :last_name, :first_name, :suffix, :prefix
+        ]
+      ],
+      origin_citation_attributes: [:id, :_destroy, :source_id] 
+    ) 
   end
 
   def batch_params
-    params.permit(:file, :parent_taxon_name_id, :nomenclature_code, :also_create_otu, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
+    params.permit(
+      :file, 
+      :parent_taxon_name_id, 
+      :nomenclature_code, 
+      :also_create_otu, 
+      :import_level).merge(
+        user_id: sessions_current_user_id, 
+        project_id: sessions_current_project_id
+      ).symbolize_keys
   end
 
 end

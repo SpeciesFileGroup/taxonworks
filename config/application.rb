@@ -42,6 +42,7 @@ module TaxonWorks
 
     config.active_job.queue_adapter = :delayed_job
 
+    # Babel for js transcompiler
     config.browserify_rails.commandline_options = "-t [ babelify --presets [ es2015 ] --extension=\".es6\" ]"
 
     RGeo::ActiveRecord::SpatialFactoryStore.instance.tap do |config|
@@ -57,8 +58,9 @@ module TaxonWorks
         wkb_parser:              {support_ewkb: true},
         wkb_generator:           {hex_format: true, emit_ewkb_srid: true})
     end
-
-
+ 
+    # config.logger = Logger.new(STDOUT)
+    # config.logger = Log4r::Logger.new('Application Log')
 
   end
 end

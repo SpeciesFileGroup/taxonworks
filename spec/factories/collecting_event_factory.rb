@@ -13,6 +13,13 @@ FactoryGirl.define do
   end
 
   factory :collecting_event, traits: [:housekeeping] do
+    factory :valid_collecting_event_sans_lat_long do
+      verbatim_locality
+      verbatim_latitude nil
+      verbatim_longitude nil
+      verbatim_elevation nil
+    end
+
     factory :valid_collecting_event do
       verbatim_locality
       verbatim_latitude '40.116402'

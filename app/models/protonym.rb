@@ -1,6 +1,7 @@
 # Force the loading of TaxonNameRelationships in all worlds.  This allows us to edit without restarting in development. 
 Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {|file| require_dependency file }
 
+
 # A *monomial* TaxonName, a record implies a first usage. This follows Pyle's concept almost exactly.
 #
 # We inject a lot of relationship helper methods here, in this format. 
@@ -63,7 +64,7 @@ class Protonym < TaxonName
 
   TaxonNameRelationship.descendants.each do |d|
     if d.respond_to?(:assignment_method)
-      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|SourceClassifiedAs)/
+      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icnb|SourceClassifiedAs)/
         relationship = "#{d.assignment_method}_relationship".to_sym
         has_one relationship, class_name: d.name.to_s, foreign_key: :subject_taxon_name_id
         has_one d.assignment_method.to_sym, through: relationship, source: :object_taxon_name
@@ -79,7 +80,7 @@ class Protonym < TaxonName
     end
 
     if d.respond_to?(:inverse_assignment_method)
-      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|SourceClassifiedAs)/
+      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icnb|SourceClassifiedAs)/
         relationships = "#{d.inverse_assignment_method}_relationships".to_sym
         has_many relationships, -> {
           where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
@@ -129,7 +130,7 @@ class Protonym < TaxonName
 
   scope :that_is_valid, -> {
     joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
-    where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type ILIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type ILIKE 'TaxonNameRelationship::Icn::Unaccepting%')")
+    where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type ILIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type ILIKE 'TaxonNameRelationship::Icn::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Icnb::Unaccepting%')")
   }
 
   # @return [Array of Strings]
@@ -201,6 +202,8 @@ class Protonym < TaxonName
       when :iczn
         ay = iczn_author_and_year
       when :icn
+        ay = icn_author_and_year
+      when :icnb
         ay = icn_author_and_year
       else
         ay = ([self.author_string] + [self.year_integer]).compact.join(' ')
@@ -358,6 +361,64 @@ class Protonym < TaxonName
     list1
   end
 
+  def name_with_alternative_spelling
+    if rank_class.nil? || nomenclatural_code != :iczn
+      # rank_string =~ /::Icn::/ # self.class != Protonym
+      return nil
+    elsif is_species_rank? # rank_string =~ /Species/
+      n = name.squish # remove extra spaces and line brakes
+      n = n.split(' ').last
+      n = n[0..-4] + 'ae' if n =~ /^[a-z]*iae$/ # -iae > -ae in the end of word
+      n = n[0..-6] + 'orum' if n =~ /^[a-z]*iorum$/ # -iorum > -orum
+      n = n[0..-6] + 'arum' if n =~ /^[a-z]*iarum$/ # -iarum > -arum
+      n = n[0..-3] + 'a' if n =~ /^[a-z]*um$/ # -um > -a
+      n = n[0..-3] + 'a' if n =~ /^[a-z]*us$/ # -us > -a
+      n = n[0..-3] + 'e' if n =~ /^[a-z]*is$/ # -is > -e
+      n = n[0..-3] + 'ra' if n =~ /^[a-z]*er$/ # -er > -ra
+      n = n[0..-7] + 'ensis' if n =~ /^[a-z]*iensis$/ # -iensis > -ensis
+      n = n[0..-5] + 'ana' if n =~ /^[a-z]*iana$/ # -iana > -ana
+      n = n.gsub('ae', 'e').
+            gsub('oe', 'e').
+            gsub('ai', 'i').
+            gsub('ei', 'i').
+            gsub('ej', 'i').
+            gsub('ii', 'i').
+            gsub('ij', 'i').
+            gsub('jj', 'i').
+            gsub('j', 'i').
+            gsub('y', 'i').
+            gsub('v', 'u').
+            gsub('rh', 'r').
+            gsub('th', 't').
+            gsub('k', 'c').
+            gsub('ch', 'c').
+            gsub('tt', 't').
+            gsub('bb', 'b').
+            gsub('rr', 'r').
+            gsub('nn', 'n').
+            gsub('mm', 'm').
+            gsub('pp', 'p').
+            gsub('ss', 's').
+            gsub('ff', 'f').
+            gsub('ll', 'l').
+            gsub('ct', 't').
+            gsub('ph', 'f').
+            gsub('-', '')
+      n = n[0, 3] + n[3..-4].gsub('o', 'i') + n[-3, 3] if n.length > 6 # connecting vowel in the middle of the word (nigrocinctus vs. nigricinctus)
+    elsif rank_string =~ /Family/
+      n_base = Protonym.family_group_base(self.name)
+      if n_base.nil? || n_base == self.name
+        n = self.name
+      else
+        n = n_base + 'idae'
+      end
+    else
+      n = self.name.squish
+    end
+    
+    return n
+  end
+
   protected
 
   def name_is_latinized
@@ -454,6 +515,33 @@ class Protonym < TaxonName
   end
 
   #endregion
+
+  # Update cached values when a related taxon changes (e.g. new genus, or new original genus) 
+  # Combination caching is handled in Combination
+  def sv_cached_names
+    # if updated, update also set_cached_names
+    # if type == 'Protonym'
+    is_cached = true
+    is_cached = false if self.cached_author_year != get_author_and_year
+
+    if is_cached # don't run the tests if it's already false # self.class == Protonym
+      if self.cached_html != get_full_name_html ||
+          self.cached_misspelling != get_cached_misspelling ||
+          self.cached_original_combination != get_original_combination ||
+          #          self.cached_higher_classification != get_higher_classification ||
+          self.cached_primary_homonym != get_genus_species(:original, :self) ||
+          self.cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
+          self.rank_string =~ /Species/ && (self.cached_secondary_homonym != get_genus_species(:current, :self) || self.cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative))
+        is_cached = false
+      end
+    end
+
+    soft_validations.add(
+      :base, 'Cached values should be updated',
+      fix: :sv_fix_cached_names, success_message: 'Cached values were updated'
+    ) if !is_cached
+    # end
+  end
 
 end
 

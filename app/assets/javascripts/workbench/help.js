@@ -22,6 +22,9 @@ Object.assign(TW.workbench.help, {
 		$('body').append('<div class="help-legend"></div>');
 		$('body').append('<div class="help-background-active"></div>');
 		$('body').append('<div class="help-button"><div class="help-button-description">Help</div></div>');	
+		if($("[data-help]").length) {
+			$('.help-button').addClass("help-button-present");
+		}
 
 		$(document).on({
 		    mouseenter: function (evt) {

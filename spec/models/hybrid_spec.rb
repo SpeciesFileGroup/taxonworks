@@ -62,6 +62,7 @@ describe Hybrid, type: :model, group: [:nomenclature]  do
       expect(hybrid.errors.include?(:rank_class)).to be_truthy
     end
 
+    # TODO: @proceps this is not a good test of valid, didn't catch the bad rank?
     specify 'rank is valid when ICN rank' do 
       hybrid.rank_class = 'NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Species'
       hybrid.valid?
