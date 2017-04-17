@@ -113,6 +113,14 @@ Object.assign(TW.views.tasks.citations.otus, {
                 }
               });
           if(position >= 0) {
+            if(state.selected.citation.id == state.otu_citations[position].id) {
+              state.selected.otu = undefined;
+              state.selected.source = undefined;         
+              state.selected.citation = undefined;
+              state.citations = [];
+              state.source_citations = [],
+              state.otu_citations = []              
+            }            
             state.otu_citations.splice(position, 1);
           }        
         },
@@ -123,6 +131,14 @@ Object.assign(TW.views.tasks.citations.otus, {
                 }
               });
           if(position >= 0) {
+            if(state.selected.citation.id == state.source_citations[position].id) {
+              state.selected.otu = undefined;
+              state.selected.source = undefined;         
+              state.selected.citation = undefined;
+              state.citations = [];
+              state.source_citations = [],
+              state.otu_citations = []              
+            }
             state.source_citations.splice(position, 1);
           }        
         },
@@ -407,7 +423,8 @@ Object.assign(TW.views.tasks.citations.otus, {
         },
         source: function(val, oldVal) {
           if (val !== oldVal) { 
-            this.loadSourceCitations()            
+            if(val != undefined)
+            this.loadSourceCitations();            
             if(!this.disabled) {
               this.loadCitations();
             }
