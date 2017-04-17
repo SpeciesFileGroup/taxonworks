@@ -27,12 +27,11 @@
 
 	#topic-list {
 		ul{
+			width: 200px;
 			padding-left: $standard_padding;
 			border-right: 1px solid $navigation_border;
 		}
-		ul:first-child {
-			padding-left: 0px;
-		}
+
 		ul:last-child {
 			border-right: none;
 		}	
