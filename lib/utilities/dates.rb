@@ -307,16 +307,15 @@ module Utilities::Dates
     trials
   end
 
-  def self.hunt_dates(label, filters = REGEXP_DATE.keys)
+  def self.hunt_dates(label, filters = REGEXP_DATES.keys)
     trials = {}
-    REGEXP_DATE.each_with_index {|kee, dex|
+    filters.each_with_index {|kee, dex|
       # filters.each_with_index { |kee, dex|
       kee_string = kee.to_s.upcase
       trials[kee] = {}
-      regex_title = REGEXP_DATE[kee[0]][:reg].match(label)
-      matches = label.to_enum(:scan, REGEXP_DATE[kee[0].to_sym][:reg]).map {Regexp.last_match}
-      unless matches.nil?
-        trials[kee][:method] = kee[0]
+      matches = label.to_enum(:scan, REGEXP_DATES[kee][:reg]).map {Regexp.last_match}
+      unless matches.blank?
+        trials[kee][:method] = kee
         trials[kee][:piece] = {}
         extract_dates(trials[kee], matches)
       end
@@ -360,146 +359,150 @@ module Utilities::Dates
   # end
 
   def self.extract_dates(trial, match_data)
+    end_date_year, end_date_month, end_date_day = 0, 0, 0
     case trial[:method].downcase.to_sym
-      when :mm_dd_dd_yyy
-        trial[:start_date_year] = match_data[5]
-        trial[:start_date_month] = month_index(match_data[1]).to_s
-        trial[:start_date_day] = match_data[2]
-        trial[:end_date_year] = match_data[5]
-        trial[:end_date_month] = month_index(match_data[3]).to_s
-        trial[:end_date_day] = match_data[4]
+      when :month_dd_yyyy_2
+        start_date_year = 3
+        start_date_month = 1
+        start_date_day = 2
+        end_date_year = 6
+        end_date_month = 4
+        end_date_day = 5
+      when :dd_month_yyyy_2
+        start_date_year = 3
+        start_date_month = 2
+        start_date_day = 1
+        end_date_year = 6
+        end_date_month = 5
+        end_date_day = 4
+      when :mm_dd_yyyy_2
+        start_date_year = 3
+        start_date_month = 1
+        start_date_day = 2
+        end_date_year = 6
+        end_date_month = 4
+        end_date_day = 5
+      when :month_dd_month_dd_yyyy
+        start_date_year = 5
+        start_date_month = 1
+        start_date_day = 2
+        end_date_year = 5
+        end_date_month = 3
+        end_date_day = 4
+      when :dd_month_dd_month_yyyy
+        start_date_year = 5
+        start_date_month = 2
+        start_date_day = 1
+        end_date_year = 5
+        end_date_month = 4
+        end_date_day = 3
+      when :dd_mm_dd_mm_yyyy
+        start_date_year = 5
+        start_date_month = 2
+        start_date_day = 1
+        end_date_year = 5
+        end_date_month = 4
+        end_date_day = 3
+      when :mm_dd_mm_dd_yyyy
+        start_date_year = 5
+        start_date_month = 1
+        start_date_day = 2
+        end_date_year = 5
+        end_date_month = 3
+        end_date_day = 4
+      when :month_dd_dd_yyyy
+        start_date_year = 4
+        start_date_month = 1
+        start_date_day = 2
+        end_date_year = 4
+        end_date_month = 1
+        end_date_day = 3
+      when :dd_dd_month_yyyy
+        start_date_year = 4
+        start_date_month = 3
+        start_date_day = 1
+        end_date_year = 4
+        end_date_month = 3
+        end_date_day = 2
+      when :mm_dd_dd_yyyy
+        start_date_year = 5
+        start_date_month = 1
+        start_date_day = 2
+        end_date_year = 5
+        end_date_month = 3
+        end_date_day = 4
       when :month_dd_yyy
-        trial[:start_date_year] = match_data[3]
-        trial[:start_date_month] = month_index(match_data[1]).to_s
-        trial[:start_date_day] = match_data[2]
-        trial[:piece][0] = match_data[0][0]
-      when :dd_month_yyy # done for yyyy
-        trial[:start_date_year] = match_data[0][3]
-        trial[:start_date_month] = month_index(match_data[0][2]).to_s
-        trial[:start_date_day] = match_data[0][1]
-        trial[:end_date_year] = '' #  match_data[3]
-        trial[:end_date_month] = '' #  month_index(match_data[2]).to_s
-        trial[:end_date_day] = '' #  match_data[1]
-        trial[:piece][1] = ''
+        start_date_year = 3
+        start_date_month = 1
+        start_date_day = 2
         if match_data[1]
-          trial[:piece][1] = match_data[1][1]
-          trial[:end_date_year] = match_data[1][3]
-          trial[:end_date_month] = month_index(match_data[1][2]).to_s
-          trial[:end_date_day] = match_data[1][1]
+          end_date_year = 3
+          end_date_month = 1
+          end_date_day = 2
+        end
+      when :dd_month_yyy # done for yyyy
+        start_date_year = 3
+        start_date_month = 2
+        start_date_day = 1
+        if match_data[1]
+          end_date_year = 3
+          end_date_month = 2
+          end_date_day = 1
         end
       when :mm_dd_yyyy
-        trial[:start_date_year] = match_data[3]
-        trial[:start_date_month] = month_index(match_data[1]).to_s
-        trial[:start_date_day] = match_data[2]
-        trial[:end_date_year] = '' #  match_data[3]
-        trial[:end_date_month] = '' #  month_index(match_data[1]).to_s
-        trial[:end_date_day] = '' #  match_data[2]
+        start_date_year = 3
+        start_date_month = 1
+        start_date_day = 2
+        if match_data[1]
+          end_date_year = 3
+          end_date_month = 1
+          end_date_day = 2
+        end
       when :mm_dd_yy
-        trial[:start_date_year] = match_data[3]
-        trial[:start_date_month] = month_index(match_data[1]).to_s
-        trial[:start_date_day] = match_data[2]
-        trial[:end_date_year] = '' #  match_data[3]
-        trial[:end_date_month] = '' #  month_index(match_data[1]).to_s
-        trial[:end_date_day] = '' #  match_data[2]
+        start_date_year = 3
+        start_date_month = 1
+        start_date_day = 2
+        if match_data[1]
+          end_date_year = 3
+          end_date_month = 1
+          end_date_day = 2
+        end
+      when :yyyy_mm_dd
+        start_date_year = 1
+        start_date_month = 2
+        start_date_day = 3
+        if match_data[1]
+          end_date_year = 1
+          end_date_month = 2
+          end_date_day = 3
+        end
+      when :yyyy_month_dd
+        start_date_year = 1
+        start_date_month = 2
+        start_date_day = 3
+        if match_data[1]
+          end_date_year = 1
+          end_date_month = 2
+          end_date_day = 3
+        end
     end
-    trial[:start_date] = trial[:start_date_year] + ' ' + trial[:start_date_month] + ' ' + trial[:start_date_day]
-    trial[:end_date] = trial[:end_date_year] + ' ' + trial[:end_date_month] + ' ' + trial[:end_date_day]
-    trial
-  end
-
-  def self.extract_start_end_dates(trial, match_data)
-    case trial[:method].gsub('text, ', '').downcase.to_sym
-      when :month_dd_yyyy_2
-        trial[:start_date_year] = match_data[3]
-        trial[:start_date_month] = month_index(match_data[1]).to_s
-        trial[:start_date_day] = match_data[2]
-        trial[:end_date_year] = match_data[6]
-        trial[:end_date_month] = month_index(match_data[4]).to_s
-        trial[:end_date_day] = match_data[5]
-      when :dd_month_yyyy_2
-        trial[:start_date_year] = match_data[3]
-        trial[:start_date_month] = month_index(match_data[2]).to_s
-        trial[:start_date_day] = match_data[1]
-        trial[:end_date_year] = match_data[6]
-        trial[:end_date_month] = month_index(match_data[5]).to_s
-        trial[:end_date_day] = match_data[4]
-      when :mm_dd_yyyy_2
-        trial[:start_date_year] = match_data[3]
-        trial[:start_date_month] = month_index(match_data[1]).to_s
-        trial[:start_date_day] = match_data[2]
-        trial[:end_date_year] = match_data[6]
-        trial[:end_date_month] = month_index(match_data[4]).to_s
-        trial[:end_date_day] = match_data[5]
-      when :month_dd_month_dd_yyyy
-        trial[:start_date_year] = match_data[5]
-        trial[:start_date_month] = month_index(match_data[1]).to_s
-        trial[:start_date_day] = match_data[2]
-        trial[:end_date_year] = match_data[5]
-        trial[:end_date_month] = month_index(match_data[3]).to_s
-        trial[:end_date_day] = match_data[4]
-      when :dd_month_dd_month_yyyy
-        trial[:start_date_year] = match_data[5]
-        trial[:start_date_month] = month_index(match_data[2]).to_s
-        trial[:start_date_day] = match_data[1]
-        trial[:end_date_year] = match_data[5]
-        trial[:end_date_month] = month_index(match_data[4]).to_s
-        trial[:end_date_day] = match_data[3]
-      when :mm_dd_mm_dd_yyyy
-        trial[:start_date_year] = match_data[5]
-        trial[:start_date_month] = month_index(match_data[1]).to_s
-        trial[:start_date_day] = match_data[2]
-        trial[:end_date_year] = match_data[5]
-        trial[:end_date_month] = month_index(match_data[3]).to_s
-        trial[:end_date_day] = match_data[4]
-      when :month_dd_dd_yyyy
-        trial[:start_date_year] = match_data[4]
-        trial[:start_date_month] = month_index(match_data[1]).to_s
-        trial[:start_date_day] = match_data[2]
-        trial[:end_date_year] = match_data[4]
-        trial[:end_date_month] = month_index(match_data[1]).to_s
-        trial[:end_date_day] = match_data[3]
-      when :dd_dd_month_yyyy
-        trial[:start_date_year] = match_data[4]
-        trial[:start_date_month] = month_index(match_data[3]).to_s
-        trial[:start_date_day] = match_data[1]
-        trial[:end_date_year] = match_data[4]
-        trial[:end_date_month] = month_index(match_data[3]).to_s
-        trial[:end_date_day] = match_data[2]
-      when :mm_dd_dd_yyy
-        trial[:start_date_year] = match_data[5]
-        trial[:start_date_month] = month_index(match_data[1]).to_s
-        trial[:start_date_day] = match_data[2]
-        trial[:end_date_year] = match_data[5]
-        trial[:end_date_month] = month_index(match_data[3]).to_s
-        trial[:end_date_day] = match_data[4]
-      when :month_dd_yyy
-        trial[:start_date_year] = match_data[3]
-        trial[:start_date_month] = month_index(match_data[1]).to_s
-        trial[:start_date_day] = match_data[2]
-        trial[:end_date_year] = '' # match_data[3]
-        trial[:end_date_month] = '' #  month_index(match_data[1]).to_s
-        trial[:end_date_day] = '' #  match_data[2]
-      when :dd_month_yyy # done for yyyy
-        trial[:start_date_year] = match_data[3]
-        trial[:start_date_month] = month_index(match_data[2]).to_s
-        trial[:start_date_day] = match_data[1]
-        trial[:end_date_year] = '' #  match_data[3]
-        trial[:end_date_month] = '' #  month_index(match_data[2]).to_s
-        trial[:end_date_day] = '' #  match_data[1]
-      when :mm_dd_yyyy
-        trial[:start_date_year] = match_data[3]
-        trial[:start_date_month] = month_index(match_data[1]).to_s
-        trial[:start_date_day] = match_data[2]
-        trial[:end_date_year] = '' #  match_data[3]
-        trial[:end_date_month] = '' #  month_index(match_data[1]).to_s
-        trial[:end_date_day] = '' #  match_data[2]
-      when :mm_dd_yy
-        trial[:start_date_year] = match_data[3]
-        trial[:start_date_month] = month_index(match_data[1]).to_s
-        trial[:start_date_day] = match_data[2]
-        trial[:end_date_year] = '' #  match_data[3]
-        trial[:end_date_month] = '' #  month_index(match_data[1]).to_s
-        trial[:end_date_day] = '' #  match_data[2]
+    trial[:piece][0] = match_data[0][0]
+    trial[:start_date_year] = match_data[0][start_date_year]
+    trial[:start_date_month] = month_index(match_data[0][start_date_month]).to_s
+    trial[:start_date_day] = match_data[0][start_date_day]
+    trial[:end_date_year] = '' #  match_data[3]
+    trial[:end_date_month] = '' #  month_index(match_data[2]).to_s
+    trial[:end_date_day] = '' #  match_data[1]
+    trial[:piece][1] = ''
+    which_data = 0
+    if match_data[1]
+      which_data = 1
+    end
+    if (end_date_year > 0)
+      trial[:piece][1] = match_data[which_data][0]
+      trial[:end_date_year] = match_data[which_data][end_date_year]
+      trial[:end_date_month] = month_index(match_data[which_data][end_date_month]).to_s
+      trial[:end_date_day] = match_data[which_data][end_date_day]
     end
     trial[:start_date] = trial[:start_date_year] + ' ' + trial[:start_date_month] + ' ' + trial[:start_date_day]
     trial[:end_date] = trial[:end_date_year] + ' ' + trial[:end_date_month] + ' ' + trial[:end_date_day]
@@ -524,6 +527,9 @@ module Utilities::Dates
       dd_month_dd_month_yyyy: {reg: /(\d\d?)\s?[\.\/,\u2013-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[-\u2013\/]\s?(\d\d?)\s?[\.\/,\u2013-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[-,\u2013\/]?\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
                                hlp: '27 June - 1 July 1947'},
 
+      dd_mm_dd_mm_yyyy: {reg: /(\d\d?)[\s\.,\/]\s?(\d\d?)\s?[-\u2013\/]\s?(\d\d?)[\s\.,\/]\s?(\d\d?)[\s\.,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+                         hlp: "14.6-17.6.1994;"},
+
       mm_dd_mm_dd_yyyy: {reg: /(\d\d?)[\s\.,\/]\s?(\d\d?)\s?[-\u2013\/]\s?(\d\d?)[\s\.,\/]\s?(\d\d?)[\s\.,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
                          hlp: '5 27 - 6 1 1947'},
 
@@ -547,20 +553,13 @@ module Utilities::Dates
                    hlp: '6/29/1947    6-29-1947    6-15 1985    10.25 2000    7.10.1994'},
 
       mm_dd_yy: {reg: /(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?([\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
-                 hlp: "6/29/47    6/29/'47    7.10.94    5-17-97"}
+                 hlp: "6/29/47    6/29/'47    7.10.94    5-17-97"},
+
+      yyyy_mm_dd: {reg: /(\d{4})[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)/i,
+                   hlp: "14.6-17.6.1994;"},
+
+      yyyy_month_dd: {reg: /(\d{4})[-\s\u2013_\.,\/]?\s*(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[-\s\u2013_\.,\/]?\s*(\d\d?)/i,
+                      hlp: "14 june-17.JULY.1994;"}
   }
 
-  REGEXP_DATE = {
-      dd_month_yyy: {reg: /(\d\d?)\s?[-\u2013_\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[\.,]?\s?[-,\u2013_\/]?\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
-                     hlp: "29 Jun 1947   29 June 1947   2 June, 1983   29 VI 1947   29-VI-1947   25.X.2000 25X2000 29 June '47   29 Jun '47"},
-
-      month_dd_yyy: {reg: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[-\u2013_,\/]?\s?(\d\d?)[\.;,]?\s?[-\s\u2013_\/\.\u0027,]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
-                     hlp: "Jun 29 1947     Jun 29, 1947    June 29 1947    June 29, 1947    VI-29-1947   X.25.2000 Jun 29, '47   June 29, '47    VI-4-08    Jun 29, '47"},
-
-      mm_dd_yyyy: {reg: /(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d{4})/i,
-                   hlp: '6/29/1947    6-29-1947    6-15 1985    10.25 2000    7.10.1994'},
-
-      mm_dd_yy: {reg: /(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?([\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
-                 hlp: "6/29/47    6/29/'47    7.10.94    5-17-97"}
-  }
 end
