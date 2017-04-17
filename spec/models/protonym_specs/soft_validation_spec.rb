@@ -283,9 +283,17 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       specify 'missing alternative spellings for species participle' do
         c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Participle')
         @species.soft_validate(:species_gender_agreement)
+        expect(@species.soft_validations.messages_on(:masculine_name).size).to eq(0)
+        expect(@species.soft_validations.messages_on(:feminine_name).size).to eq(0)
+        expect(@species.soft_validations.messages_on(:neuter_name).size).to eq(0)
+        @species.masculine_name = nil
+        @species.feminine_name = nil
+        @species.neuter_name = nil
+        @species.soft_validate(:species_gender_agreement)
         expect(@species.soft_validations.messages_on(:masculine_name).size).to eq(1)
         expect(@species.soft_validations.messages_on(:feminine_name).size).to eq(1)
         expect(@species.soft_validations.messages_on(:neuter_name).size).to eq(1)
+
         c1.destroy
       end
 
@@ -320,6 +328,11 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'niger')
         c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
         c2 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+        s.soft_validate(:species_gender_agreement)
+        expect(s.soft_validations.messages_on(:name).size).to eq(0)
+        s.feminine_name = nil
+        s.masculine_name = nil
+        s.neuter_name = nil
         s.soft_validate(:species_gender_agreement)
         expect(s.soft_validations.messages_on(:name).size).to eq(1)
         c1.destroy

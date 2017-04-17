@@ -32,7 +32,7 @@ namespace :tw do
           # 'cites:create_cvts_for_citations',
           # 'cites:create_sf_taxon_name_authors',
           # 'create_citations',
-          'cites:create_otu_cites'
+          # 'cites:create_otu_cites'
       ] do
         puts 'Ran all import tasks!'
       end
