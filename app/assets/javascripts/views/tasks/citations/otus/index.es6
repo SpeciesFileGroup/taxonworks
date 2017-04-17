@@ -243,7 +243,7 @@ Object.assign(TW.views.tasks.citations.otus, {
       },
 
       template: '<div v-if="items.length" class="slide-panel-category"> \
-                  <div class="slide-panel-category-header">Source</div> \
+                  <div class="slide-panel-category-header">OTU</div> \
                   <ul class="slide-panel-category-content"> \
                     <li v-for="item in items" class="flex-separate middle slide-panel-category-item"><span v-html="item.citation_object_tag"></span><div class="circle-button btn-delete" @click="removeCitation(item)"></div></li> \
                   </ul> \
@@ -265,7 +265,7 @@ Object.assign(TW.views.tasks.citations.otus, {
         },     
       },
       template: '<div v-if="items.length" class="slide-panel-category"> \
-                  <div class="slide-panel-category-header">OTU</div> \
+                  <div class="slide-panel-category-header">Source</div> \
                   <ul class="slide-panel-category-content"> \
                     <li v-for="item in items" class="flex-separate middle slide-panel-category-item"><span v-html="item.source.object_tag"></span><div class="circle-button btn-delete" @click="removeCitation(item)"></div></li> \
                   </ul> \
