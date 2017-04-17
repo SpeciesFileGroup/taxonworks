@@ -43,7 +43,7 @@ module TaxonWorks
     config.active_job.queue_adapter = :delayed_job
 
     # Babel for js transcompiler
-    config.browserify_rails.commandline_options = "-t [ babelify --presets [ es2015 stage-0 ] --extension .es6 ]"
+    config.browserify_rails.commandline_options = "-t [ babelify --presets [ es2015 ] --extension=\".es6\" ]"
 
     RGeo::ActiveRecord::SpatialFactoryStore.instance.tap do |config|
       # config.default = RGeo::Geographic.projected_factory(

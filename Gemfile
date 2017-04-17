@@ -26,12 +26,12 @@ gem 'activerecord-postgis-adapter', '~> 3.1.4'
 gem 'delayed_job_active_record'
 gem 'daemons'
 
-gem 'rubyzip', '~> 1.2.0'
+gem 'rubyzip', '~> 1.2.1'
 
 gem 'postgresql_cursor'
 
 # rgeo support
-gem 'ffi-geos'
+gem 'ffi-geos', '~> 1.1.1'
 gem 'rgeo-shapefile', '~> 0.4.1'
 gem 'rgeo-geojson', '~> 0.4.3'
 
@@ -61,6 +61,8 @@ gem 'uglifier', '~> 3.0.02'
 gem 'jquery-rails', '~> 4.1.1'
 gem 'jquery-ui-rails', '~> 5.0.5'
 
+gem 'vuejs'
+
 gem 'rails-jquery-autocomplete'
 gem 'best_in_place', '~> 3.1.0'
 
@@ -88,6 +90,11 @@ gem 'csl-styles', '~> 1.0.1.6'
 
 gem 'ref2bibtex', '~> 0.0.3'
 gem 'latex-decode', '~> 0.2.2'
+
+
+# PDF
+#
+gem 'pdf-reader', '~> 2.0'
 
 # gem 'anystyle-parser' # use when we stabilize
 

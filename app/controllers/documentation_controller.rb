@@ -100,6 +100,6 @@ class DocumentationController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def documentation_params
-      params.require(:documentation).permit(:documentation_object_id, :documentation_object_type, :document_id, :page_map, :type)
+      params.require(:documentation).permit(:documentation_object_id, :documentation_object_type, :document_id)
     end
 end

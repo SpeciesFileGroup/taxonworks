@@ -23,6 +23,11 @@ Object.assign(TW.workbench.alert, {
 		this.play('<%= asset_path("notify.wav") %>');
 	},
 
+	create: function(text,type) {
+		$("body").append('<div class="alert alert-'+type+'"><div class="message">' + text + '</div><div class="alert-close"></div></div>');
+		this.play('<%= asset_path("notify.wav") %>');
+	},	
+
 	play: function(file) {
 		var sound = new Audio(file);
 		sound.play();		

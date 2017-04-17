@@ -1,6 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    Ascii85 (1.0.2)
     actionmailer (4.2.7.1)
       actionpack (= 4.2.7.1)
       actionview (= 4.2.7.1)
@@ -43,7 +44,8 @@ GEM
       activerecord (>= 3.0)
     addressable (2.5.1)
       public_suffix (~> 2.0, >= 2.0.2)
-    airbrussh (1.1.2)
+    afm (0.2.2)
+    airbrussh (1.2.0)
       sshkit (>= 1.6.1, != 1.7.0)
     archive-tar-minitar (0.6.1)
       minitar (~> 0.6)
@@ -158,11 +160,11 @@ GEM
     faker (1.6.6)
       i18n (~> 0.5)
     ffi (1.9.18)
-    ffi-geos (1.2.0)
+    ffi-geos (1.1.1)
       ffi (>= 1.0.0)
     formatador (0.2.5)
-    globalid (0.3.7)
-      activesupport (>= 4.1.0)
+    globalid (0.4.0)
+      activesupport (>= 4.2.0)
     gn_uuid (0.5.0)
     groupdate (3.1.1)
       activesupport (>= 3)
@@ -181,6 +183,7 @@ GEM
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
     hashdiff (0.3.2)
+    hashery (2.1.2)
     hashie (3.5.5)
     hiredis (0.6.1)
     i18n (0.8.1)
@@ -264,6 +267,12 @@ GEM
     passenger (5.0.30)
       rack
       rake (>= 0.8.1)
+    pdf-reader (2.0.0)
+      Ascii85 (~> 1.0.0)
+      afm (~> 0.2.1)
+      hashery (~> 2.0)
+      ruby-rc4
+      ttfunk
     pg (0.18.4)
     polyglot (0.3.5)
     postgresql_cursor (0.6.1)
@@ -365,6 +374,7 @@ GEM
       unicode-display_width (~> 1.0, >= 1.0.1)
     ruby-prof (0.16.2)
     ruby-progressbar (1.8.1)
+    ruby-rc4 (0.1.5)
     ruby_dep (1.5.0)
     rubyzip (1.2.1)
     safe_yaml (1.0.4)
@@ -425,6 +435,7 @@ GEM
     treetop (1.4.15)
       polyglot
       polyglot (>= 0.3.1)
+    ttfunk (1.5.1)
     turbolinks (2.5.3)
       coffee-rails
     tzinfo (1.2.3)
@@ -437,6 +448,7 @@ GEM
     validates_timeliness (4.0.2)
       timeliness (~> 0.3.7)
     vcr (3.0.3)
+    vuejs (1.0.37)
     web-console (3.3.0)
       activemodel (>= 4.2)
       debug_inspector
@@ -486,7 +498,7 @@ DEPENDENCIES
   execjs
   factory_girl_rails (~> 4.7)
   faker (~> 1.6.1)
-  ffi-geos
+  ffi-geos (~> 1.1.1)
   groupdate (~> 3.1.1)
   guard-rspec (~> 4.7)
   hiredis (~> 0.6.1)
@@ -504,6 +516,7 @@ DEPENDENCIES
   paperclip-meta (~> 2.0)
   parallel_tests (~> 2.5.0)
   passenger (~> 5.0.30)
+  pdf-reader (~> 2.0)
   pg (~> 0.18.4)
   postgresql_cursor
   psych (~> 2.0.16)
@@ -524,7 +537,7 @@ DEPENDENCIES
   rspec-rails (~> 3.4)
   rubocop (~> 0.46.0)
   ruby-prof
-  rubyzip (~> 1.2.0)
+  rubyzip (~> 1.2.1)
   sass-rails (~> 5.0.6)
   sdoc
   selenium-webdriver (~> 2.53.4)
@@ -541,6 +554,7 @@ DEPENDENCIES
   uglifier (~> 3.0.02)
   validates_timeliness (~> 4.0.0)
   vcr (~> 3.0.0)
+  vuejs
   web-console (~> 3.3.0)
   webmock (~> 2.1.0)
 

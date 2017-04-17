@@ -13,6 +13,12 @@
       min-height: 12px;
     }
 
+    .big-icon {
+      background-size: 30px 30px;
+      padding-left: 30px;
+      min-height: 30px;
+    }    
+
     .icon-right { 
       background-position: right, center;
       padding-right: 20px;
@@ -32,11 +38,27 @@
 
     [data-icon="help"] {
       background-image: image-url("help.svg");
-    }       
+    }   
+
+    [data-icon="b_help"] {
+      background-image: image-url("b_help.svg");
+    }           
 
     [data-icon="expand"] {
       background-image: image-url("expand.svg");
-    }       
+    }    
+
+    [data-icon="citation"] {
+      background-image: image-url("citation.svg");
+    }          
+
+    [data-icon="clone"] {
+      background-image: image-url("clone.svg");
+    } 
+
+    [data-icon="compare"] {
+      background-image: image-url("compare.svg");
+    }   
 
     [data-icon="contract"] {
       background-image: image-url("contract.svg");
@@ -82,9 +104,17 @@
       background-image: image-url("icons.svg");
     }          
 
+    [data-icon="image"] {
+      background-image: image-url("image.svg");
+    }          
+
     [data-icon="pin"] {
       background-image: image-url("pin.svg");
     } 
+
+    [data-icon="preview"] {
+      background-image: image-url("preview.svg");
+    }     
 
     [data-icon="edit"] {
       background-image: image-url("new.svg");
@@ -172,4 +202,8 @@
 
     [data-icon="ok"] {
       background-image: image-url("ok.svg");
-    }    
+    }   
+
+    [data-icon="savedb"] {
+      background-image: image-url("savedb.svg");
+    }        

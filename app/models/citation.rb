@@ -22,16 +22,16 @@
 #
 class Citation < ActiveRecord::Base
   include Housekeeping
-  include Shared::IsData
   include Shared::Notable
   include Shared::Confidence
   include Shared::DataAttributes
   include Shared::Taggable
+  include Shared::IsData
 
   belongs_to :citation_object, polymorphic: :true
   belongs_to :source, inverse_of: :citations
 
-  has_many :citation_topics, inverse_of: :citation
+  has_many :citation_topics, inverse_of: :citation, dependent: :destroy
   has_many :topics, through: :citation_topics
 
   validates_presence_of  :source_id
@@ -41,6 +41,8 @@ class Citation < ActiveRecord::Base
   accepts_nested_attributes_for :topics, allow_destroy: true, reject_if: :reject_topic
 
   before_destroy :prevent_if_required
+
+  after_create :add_source_to_project
 
   def prevent_if_required
     if !marked_for_destruction? && !new_record? && citation_object.requires_citation? && citation_object.citations(true).count == 1
@@ -83,6 +85,13 @@ class Citation < ActiveRecord::Base
   end
 
   protected
+
+  def add_source_to_project
+    if !ProjectSource.where(source: source).any?
+      ProjectSource.create(project: project, source: source)
+    end
+    true
+  end
 
   def reject_citation_topics(attributed)
     attributes['id'].blank? && attributed['topic_id'].blank? && attributed['topic'].blank? && attributed['topic_attributes'].blank?

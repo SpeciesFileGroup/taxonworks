@@ -14,6 +14,13 @@ module SourcesHelper
     link_to(source_tag(source).html_safe, source.metamorphosize )
   end
 
+  def source_document_viewer_option_tag(source)
+    return nil if !source.documents.any?
+    content_tag(:span, class: 'pdfviewerItem') do
+      source.documents.collect{|d| content_tag(:a, 'View', class: 'circle-button', data: { pdfviewer: d.document_file(:original, false), sourceid: source.id})}.join.html_safe
+    end.html_safe
+  end
+
   def source_attributes_for(source)
     w = content_tag(:em, 'ERROR, unkown class of Source, contact developers', class: :warning)  
     content_for :attributes do
