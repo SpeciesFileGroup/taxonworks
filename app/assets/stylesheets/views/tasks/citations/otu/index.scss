@@ -26,6 +26,11 @@
 	}
 	.modal-container {
 		width: 600px;
+		.vue-autocomplete {
+			input, ul { 
+				width: 600px;
+			}
+		}
 	}
 	#topic-list {
 		ul{
