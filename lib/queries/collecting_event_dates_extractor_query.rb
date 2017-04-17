@@ -71,5 +71,6 @@ module Queries
       regex = Utilities::Dates::REGEXP_DATES[filter][:reg].to_s.gsub('(?i-mx:', '').chomp(')')
       "verbatim_label ~* '" + regex + "'"
     end
+
   end
 end

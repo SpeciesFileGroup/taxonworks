@@ -83,15 +83,17 @@ Object.assign(TW.views.tasks.collecting_events.parse.dates, {
       var start_date = $(this).parent().parent('.extract_row').children('.start_date_value').text();
       var end_date = $(this).parent().parent('.extract_row').children('.end_date_value').text();
       var piece = $(this).parent().parent('.extract_row').children('.piece_value').text();
+      var method = $(this).parent().parent('.extract_row').children('.method_value').text();
       var params = '';
       var checck = $('#include_values').serialize();
       $('#start_date').val(start_date);
       $('#verbatim_date').val(piece);
       $('#end_date').val(end_date);
       params += 'piece=' + encodeURI(piece) /* piece.replace(/ /g, '%20') */;
-      params += '&start_date=' + encodeURI(start_date) /* lat.replace(/ /g, '%20') */;
-      params += '&end_date=' + encodeURI(end_date) /* long.replace(/ /g, '%20') */;
+      params += '&start_date=' + start_date;
+      params += '&end_date=' + end_date;
       params += '&collecting_event_id=' + $('#collecting_event_id').val();
+      params += '&method=' + method;
       if (checck.length) {
         params += '&' + checck;
       }
