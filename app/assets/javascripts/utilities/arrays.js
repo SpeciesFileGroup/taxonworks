@@ -17,9 +17,12 @@
         var result = [];
 
         for (var i = 0; i <= q; i++) {
-            result.push(this.slice(i * chunkSize, i * chunkSize + chunkSize));
-        }
+            var items = this.slice(i * chunkSize, i * chunkSize + chunkSize);
 
+            if(items.length) {
+                result.push(items);
+            }
+        }
         return result;
     };
 })();
