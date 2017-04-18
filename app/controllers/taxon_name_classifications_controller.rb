@@ -93,7 +93,11 @@ class TaxonNameClassificationsController < ApplicationController
 
   # GET /taxon_name_classifications/download
   def download
-    send_data TaxonNameClassification.generate_download( TaxonNameClassification.where(project_id: $project_id) ), type: 'text', filename: "taxon_name_classifications_#{DateTime.now.to_s}.csv"
+    send_data TaxonNameClassification.generate_download( TaxonNameClassification.where(project_id: session_current_project_id) ), type: 'text', filename: "taxon_name_classifications_#{DateTime.now.to_s}.csv"
+  end
+
+  def types
+    render json: TAXON_NAME
   end
 
   private

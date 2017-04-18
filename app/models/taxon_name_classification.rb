@@ -177,7 +177,7 @@ class TaxonNameClassification < ActiveRecord::Base
   end
 
   #region Validation
-  # @todo validate, that all the taxon_classes in the table could be linked to taxon_classes in classes (if those had changed)
+  # @TODO validate, that all the taxon_classes in the table could be linked to taxon_classes in classes (if those had changed)
   def validate_uniqueness_of_latinized
     if /Latinized/.match(self.type_name)
       lat = TaxonNameClassification.where(taxon_name_id: self.taxon_name_id).with_type_contains('Latinized').not_self(self)

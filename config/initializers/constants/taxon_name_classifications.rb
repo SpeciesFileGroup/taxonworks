@@ -15,7 +15,6 @@ ICN_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Icn.descendants.c
 # Array of all ICNB TaxonNameClassifications classes, as Strings
 ICNB_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Icnb.descendants.collect{|d| d.to_s}.freeze
 
-
 TAXON_NAME_CLASSIFICATION_GENDER_CLASSES = TaxonNameClassification::Latinized::Gender.descendants.freeze
 
 ICZN_TAXON_NAME_CLASSIFICATION_HASH = (ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
@@ -61,5 +60,10 @@ TAXON_NAME_CLASS_NAMES_VALID = [
     TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate::Correct,
     TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate::Correct.descendants
 ].flatten.map(&:to_s).freeze
+
+TAXON_NAME_CLASSIFICATION_LOOKUP = {
+
+
+}
 
 

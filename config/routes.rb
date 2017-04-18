@@ -404,6 +404,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :taxon_name_relationships do
     concerns [:data_routes]
+    collection do
+      get :types, {format: :json}
+    end
   end
 
   resources :topics, only: [:create] do
