@@ -4,40 +4,44 @@ module Queries
 
     include Arel::Nodes
 
-    def cached
-      table[:cached].matches_any(strings)
+    def cached_matches_fragments
+      if strings.count < 6
+        if years.empty?
+          table[:cached].matches_any(strings)
+        else
+          table[:cached].matches_any(strings).and(table[:year].eq_any(years))
+        end
+      else
+        nil
+      end
+    end
+
+    def cached_matches
+      table[:cached].matches_any(terms)
     end
 
     def where_sql
-      cached.or(with_id).to_sql
-    end
-    
-    def year
-      if !years.empty?
-        table[:year].eq_any(years) 
-      else
-        table[:id].eq('-1').not
-      end
+      or_clauses.to_sql
     end
 
-    def cached_full_match
-      if no_digits.blank?
-        table[:id].eq('-1')
-      else
-        table[:cached].matches("#{query_string}%")
+    def or_clauses
+      clauses = [
+        with_id,
+        cached_matches,
+        cached_matches_fragments
+      ].compact
+
+      a = clauses.shift
+      clauses.each do |b|
+        a = a.or(b)
       end
-    end
+      a
+    end 
 
     # !! needs major refactoring, thought
     # @return [Array]
     def all 
-      ( 
-       [ Source.find_by_cached(query_string) ]  +
-       Source.where(with_id.to_sql).limit(20) + 
-       Source.where(cached_full_match.to_sql).limit(40) +
-       Source.where(cached.and(year).to_sql).limit(30) +
-       Source.where(cached.to_sql).limit(20)  
-      ).flatten.compact.uniq.sort_by(&:cached)
+      Source.where(where_sql).uniq.limit(50).order(:cached)
     end
 
     def by_project_all

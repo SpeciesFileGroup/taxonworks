@@ -129,15 +129,16 @@ describe 'Sources', type: :feature, group: :sources do
   end
 
   context 'editing an existing source' do
-    before {
-      sign_in_user #   logged in
-      visit sources_path #   when I visit the sources_path
-    }
+    before do 
+      sign_in_user 
+      visit sources_path 
+    end
+
+   let!(:src_bibtex) { factory_girl_create_for_user(:soft_valid_bibtex_source_article, @user) } 
 
     specify 'I can find my bibtex source and it has an edit link & I can edit the source', js: true do
-      @src_bibtex = factory_girl_create_for_user(:soft_valid_bibtex_source_article, @user)
 
-      fill_autocomplete('source_id_for_quick_search_form', with: @src_bibtex.title, select: @src_bibtex.id)
+      fill_autocomplete('source_id_for_quick_search_form', with: src_bibtex.title, select: src_bibtex.id)
       click_button('Show')
       expect(page).to have_content('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
       expect(page).to have_link('Edit')

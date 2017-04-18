@@ -60,13 +60,25 @@ module Queries
       query_string.split(/\s+/).select{|t| Utilities::Strings.is_i?(t)}
     end
 
+    def only_integers?
+      if !integers.empty? && query_string =~ /[^\d\s]/
+        true
+      else
+        false 
+      end
+    end
+
     def wildcard_wrapped_integers
       integers.collect{|i| "%#{i}%"}
     end
 
     def strings
       a = query_string.split(/\s+/).select{|t| !(t =~ /\d+/)} 
-      a.empty? ? [ query_string] : a
+      a.empty? ? [ query_string ] : a
+    end
+
+    def wildcard_wrapped_strings
+      strings
     end
 
     def years
@@ -107,10 +119,10 @@ module Queries
     end
 
     def with_id
-      if integers.any?
+      if only_integers?
         table[:id].eq_any(integers)
       else
-        table[:id].eq(-1)
+        table[:id].not_eq(-1) # TODO, use nil, update with or_clause pattern
       end
     end
 
