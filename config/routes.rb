@@ -621,6 +621,10 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :nomenclature do
+      scope :new_taxon_name, controller: 'tasks/nomenclature/new_taxon_name' do
+        get 'index', as: 'index_new_taxon_name_task'
+      end
+
       scope :original_combination, controller: 'tasks/nomenclature/original_combination' do
         get 'edit/:taxon_name_id', action: :edit, as: 'edit_protonym_original_combination_task'
         patch 'update/:taxon_name_id', action: :update, as: 'update_protonym_original_combination_task'
