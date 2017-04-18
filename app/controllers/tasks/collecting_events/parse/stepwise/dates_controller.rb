@@ -32,8 +32,8 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     ce = current_collecting_event
     any_failed = false
     # if ce.update_attributes(collecting_event_params)
-    start_date = convert_params[:start_date].split('/')
-    end_date = convert_params[:end_date].split('/')
+    start_date = convert_params[:start_date].split(' ')
+    end_date = convert_params[:end_date].split(' ')
     start_date_year = start_date[0]
     start_date_month = start_date[1]
     start_date_day = start_date[2]
@@ -80,8 +80,8 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
       selected.each { |item_id|
         ce = CollectingEvent.find(item_id)
         unless ce.nil?
-          start_date = convert_params[:start_date].split('/')
-          end_date = convert_params[:end_date].split('/')
+          start_date = convert_params[:start_date].split(' ')
+          end_date = convert_params[:end_date].split(' ')
           start_date_year = start_date[0]
           start_date_month = start_date[1]
           start_date_day = start_date[2]

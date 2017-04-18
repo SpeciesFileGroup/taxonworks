@@ -493,13 +493,12 @@ module Utilities::Dates
     trial[:end_date_year] = '' #  match_data[3]
     trial[:end_date_month] = '' #  month_index(match_data[2]).to_s
     trial[:end_date_day] = '' #  match_data[1]
-    trial[:piece][1] = ''
     which_data = 0
-    if match_data[1]
+    unless match_data[1].blank?
       which_data = 1
     end
     if (end_date_year > 0)
-      trial[:piece][1] = match_data[which_data][0]
+      trial[:piece][1] = match_data[which_data][0] unless which_data == 0
       trial[:end_date_year] = match_data[which_data][end_date_year]
       trial[:end_date_month] = month_index(match_data[which_data][end_date_month]).to_s
       trial[:end_date_day] = match_data[which_data][end_date_day]
