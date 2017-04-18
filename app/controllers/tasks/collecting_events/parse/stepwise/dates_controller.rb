@@ -115,9 +115,10 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
                                       filters: parse_filters(params))
   end
 
-  def convert
-    retval = {}
-    render json: retval
+  def reprocess # re-evaluate verbatim label against identical matches
+    # retval = {}
+    # render json: retval
+    similar_labels
   end
 
   def similar_labels
@@ -126,6 +127,9 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     end_date = similar_params[:end_date]
     piece = similar_params[:piece]
     method = similar_params[:method].to_sym
+    if method.blank?
+      method = parse_filters(params)
+    end
     collecting_event_id = similar_params[:collecting_event_id]
     include_values = (similar_params[:include_values].nil?) ? false : true
     sql_1 = regex_on_data(piece)
@@ -133,14 +137,24 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     # selected_items = CollectingEvent.where(sql_1)
     #                      .with_project_id(sessions_current_project_id)
     #                      .order(:id)
-    selected_items = Queries::CollectingEventDatesExtractorQuery.new(
-        collecting_event_id: nil,
-        filters: [method])
-                         .all
-                         .with_project_id(sessions_current_project_id)
-                         .order(:id)
-                         .where.not(id: collecting_event_id)
-                         .where(sql_1).distinct
+    if method.nil?
+      selected_items = Queries::CollectingEventDatesExtractorQuery.new(
+          collecting_event_id: nil,
+          filters: [method])
+                           .all
+                           .with_project_id(sessions_current_project_id)
+                           .order(:id)
+                           .where.not(id: collecting_event_id)
+                           .where(sql_1).distinct
+    else
+      selected_items = Queries::CollectingEventDatesExtractorQuery.new(
+          collecting_event_id: nil)
+                           .all
+                           .with_project_id(sessions_current_project_id)
+                           .order(:id)
+                           .where.not(id: collecting_event_id)
+                           .where(sql_1).distinct
+    end
 
     retval[:count] = selected_items.count.to_s
     retval[:table] = render_to_string(partial: 'make_dates_matching_table',

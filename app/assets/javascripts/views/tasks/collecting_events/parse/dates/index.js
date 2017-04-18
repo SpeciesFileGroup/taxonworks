@@ -14,16 +14,32 @@ Object.assign(TW.views.tasks.collecting_events.parse.dates, {
     var start_next = 0;
     TW.views.tasks.collecting_events.parse.dates.bind_radio_buttons();
 
-    $('#dates_convert').click(function (event) {
-        // $("#select_area").mx_spinner('show');
-        $.get('convert', $("#dates_convert_form").serialize(), function (local_data) {
-            var popcorn = local_data;
-            // $("#select_area").mx_spinner('hide');
-          }, 'json'  // I expect a json response
-        );
-        event.preventDefault();
+    $('#dates_reprocess').click(function (event) {
+      // selector not working
+      var start_date = $('#start_date').val();
+      var end_date = $('#end_date').val();
+      var piece = $('#verbatim_date').val();
+      var method = '';    // maybe we could pick out a viable method?
+      var params = '';
+      var checck = $('#include_values').serialize();
+      params += 'piece=' + encodeURI(piece) /* piece.replace(/ /g, '%20') */;
+      params += '&start_date=' + start_date;
+      params += '&end_date=' + end_date;
+      params += '&collecting_event_id=' + $('#collecting_event_id').val();
+      params += '&method=' + method;
+      if (checck.length) {
+        params += '&' + checck;
       }
-    );
+      params += $('#dates_convert_form').serialize();
+      $.get('similar_labels', params, function (local_data) {
+        $("#match_count").text(local_data.count);
+        $("#matching_span").html(local_data.table);
+        $("#matched_start_date").val(start_date);
+        $("#matched_end_date").val(end_date);
+        TW.views.tasks.collecting_events.parse.dates.bind_sequence_buttons();
+      });
+      event.preventDefault();
+    });
 
     $('#re_eval').click(function (event) {
       event.preventDefault();
