@@ -391,6 +391,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
+      get :ranks, {format: :json}
     end
     member do
       get :browse

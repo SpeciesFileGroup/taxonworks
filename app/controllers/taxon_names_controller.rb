@@ -131,6 +131,11 @@ class TaxonNamesController < ApplicationController
     render :batch_load
   end
 
+  # GET /taxon_names/ranks.json
+  def ranks
+    render json: ::RANKS_LOOKUP.to_json
+  end
+
   private
 
   def set_taxon_name 
