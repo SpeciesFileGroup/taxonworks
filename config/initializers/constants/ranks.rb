@@ -111,20 +111,24 @@ GENUS_AND_SPECIES_RANK_NAMES = ( GENUS_RANK_NAMES + SPECIES_RANK_NAMES ).freeze
 
 RANKS_JSON = {
   iczn: {
-    family_and_higher: {}, 
+    higher: {},
+    family: {}, 
     genus: {},
     species: {},
   },
 
   icn:  {
-    family_and_higher: {},
+    higher: {},
+    family: {},
     genus: {},
     species: {}
   },
   icnb: { 
-    family_and_higher: {},
+    higher: {}
+    family: {},
     genus: {},
     species: {}
   }
 }
 
+# expected parent rank, check for validation purpose
