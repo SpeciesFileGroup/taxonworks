@@ -3,9 +3,10 @@
 
     <div class="field" id="depiction_edit">
       <%= f.label :depiction_object_type %><br>
-      Otu <%= f.radio_button :depiction_object_type, 'Otu', id: :otu %> <br>
-      Collection object <%= f.radio_button :depiction_object_type, 'CollectionObject', id: :collection_object %> <br>
-      Collecting event <%= f.radio_button :depiction_object_type, 'CollectingEvent', id: :collecting_event %>
+      <%= f.radio_button :depiction_object_type, 'Otu', id: :otu %> OTU <br>
+      <%= f.radio_button :depiction_object_type, 'CollectionObject', id: :collection_object %> Collection object  <br>
+      <%= f.radio_button :depiction_object_type, 'CollectingEvent', id: :collecting_event %> Collecting event <br>
+      <%= f.radio_button :depiction_object_type, 'Content', id: :content %> Content 
     </div>
 
     <div id='fields_for_otu'>
@@ -19,7 +20,6 @@
     </div>
 
     <div id='fields_for_collecting_event'>
-
       <%= f.label :collecting_event_id %><br>
       <%= render partial: 'workbench/elements/forms/ajax_select',
                  locals:  {controller: '/collecting_events',
@@ -41,6 +41,15 @@
                            display:    (@depiction.depiction_object ? object_tag(@depiction.depiction_object.metamorphosize) : nil)} %>
     </div>
 
+    <div class="field">
+      <%= f.label :caption %><br>
+      <%= f.text_area :caption, rows: 6, cols: 80 %>
+    </div>
+
+    <div class="field">
+      <%= f.label :figure_label %><br>
+      <%= f.text_field :figure_label%>
+    </div>
 
     <%= f.fields_for :image_attributes do |i| %>
         <div class="field">
@@ -49,7 +58,6 @@
           <%= i.file_field :image_file, class: :required_for_submit %>
         </div>
     <% end %>
-
 
     <div class="actions">
       <%= f.submit %>

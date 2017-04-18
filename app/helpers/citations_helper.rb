@@ -8,7 +8,7 @@ module CitationsHelper
       citation.source.author_year : 
       content_tag(:span, 'author, year not yet provided for source', class: :subtle) 
     )
-   
+  
     str = [citation.citation_object.class.name, ": ", object_tag(citation.citation_object.metamorphosize).html_safe, " in ", citation_string].join
     str = str + ": #{citation.pages}." if !citation.pages.blank?
     if citation.citation_topics.any? 

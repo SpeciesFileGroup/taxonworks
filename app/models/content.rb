@@ -24,6 +24,9 @@
 #
 class Content < ActiveRecord::Base
   include Housekeeping
+  include Shared::Depictions
+  include Shared::Confidence
+  include Shared::Citable 
   include Shared::IsData
 
   has_paper_trail
@@ -31,6 +34,8 @@ class Content < ActiveRecord::Base
   belongs_to :otu, inverse_of: :contents
   belongs_to :topic, inverse_of: :contents
   has_one :public_content
+
+  validates_uniqueness_of :topic, scope: [:otu]
 
   validates_presence_of :text
   validates :topic, presence: true

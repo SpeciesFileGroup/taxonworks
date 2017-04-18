@@ -190,7 +190,6 @@ browse_sources_task:
     - source
   status: prototype
   description: 'List sources via a simple keyword/year based search.'
-
 collecting_event_lat_long_task:
   hub: true
   name: 'Stepwise collecting event parser - Latitude/Longitude'
@@ -200,6 +199,22 @@ collecting_event_lat_long_task:
     - collecting_event
   status: prototype
   description: 'Parse the verbatim label for possible lat/long combinations.'
+index_editor_task:
+  hub: true
+  name: 'Content editor'
+  related:
+  categories:
+    - source
+  status: prototype
+  description: 'Edit content (text) per subject, for example "Biology of Aus bus". Text can be cited and figured.'
+cite_otus_task_task:
+  hub: true
+  name: 'Cite OTUs'
+  related:
+  categories:
+    - source
+  status: prototype
+  description: 'Add citations to OTUs.  Optionally add topics to citations.  For example assertions like "Smith, 1920 referenced Biology of Aus bus" are possible.'
 
 dates_index_task:
   hub: true

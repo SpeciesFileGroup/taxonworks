@@ -1,0 +1,22 @@
+
+@import 'base/palette';
+@import 'base/whitespace';
+
+.otu_tag {
+
+  .otu_tag_otu_name {
+    padding: 3px;
+  }
+
+  .otu_tag_taxon_name {
+  	border-radius: 3px;
+    padding: 3px;
+    padding-left: 6px;
+    padding-right: 6px;
+    color: $color-complement-1;
+    background: $color-secondary-2-3;
+  }
+
+}
+
+
