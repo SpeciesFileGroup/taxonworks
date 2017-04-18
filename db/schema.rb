@@ -11,17 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-<<<<<<< Updated upstream
-ActiveRecord::Schema.define(version: 20170210033821) do
-=======
-ActiveRecord::Schema.define(version: 20170326143108) do
->>>>>>> Stashed changes
+ActiveRecord::Schema.define(version: 20170411192800) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "hstore"
   enable_extension "fuzzystrmatch"
+  enable_extension "hstore"
 
   create_table "alternate_values", force: :cascade do |t|
     t.text     "value",                            null: false
@@ -580,7 +576,6 @@ ActiveRecord::Schema.define(version: 20170326143108) do
     t.integer  "documentation_object_id",   null: false
     t.string   "documentation_object_type", null: false
     t.integer  "document_id",               null: false
-    t.json     "page_map"
     t.integer  "project_id",                null: false
     t.integer  "created_by_id",             null: false
     t.integer  "updated_by_id",             null: false

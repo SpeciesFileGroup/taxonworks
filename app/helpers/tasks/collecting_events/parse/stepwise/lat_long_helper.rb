@@ -47,7 +47,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
 
   # @param [String] pieces is either piece, or lat, long
   # @param [Scope] collection is a scope of CollectingEvent
-  def make_matching_table(*pieces, collection)
+  def make_lat_long_matching_table(*pieces, collection)
     columns = ['CEID', 'Match', 'Verbatim Lat', 'Verbatim Long',
                'Decimal lat', 'Decimal long', 'Is georeferenced?', 'Select']
 
@@ -63,11 +63,13 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
           item_data = ''
           no_georef = false
           columns.collect.with_index { |column, dex|
+            options = {align: 'center'}
             case dex
               when 0 #'CEID'
                 item_data = link_to(item.id, item)
               when 1 #'Match'
-                item_data = pieces.join(' ')
+                item_data      = pieces.join(' ')
+                options[:data] = {help: item.verbatim_label}
               when 2 #'Verbatim Lat'
                 item_data = item.verbatim_latitude
               when 3 #'Verbatim Long'
@@ -89,7 +91,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
                 options_for[:class] = 'selectable_select' unless no_georef
                 item_data           = check_box_tag('selected[]', item.id, false, options_for)
             end
-            concat content_tag(:td, item_data, align: 'center')
+            concat content_tag(:td, item_data, options)
           }.to_s.html_safe
         end
       }.join().html_safe
