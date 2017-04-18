@@ -116,11 +116,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
   end
 
   def convert
-    lat = convert_params[:verbatim_latitude]
-    long = convert_params[:verbatim_longitude]
     retval = {}
-    retval[:lat_piece] = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(lat)
-    retval[:long_piece] = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(long)
     render json: retval
   end
 
@@ -129,31 +125,42 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     start_date = similar_params[:start_date]
     end_date = similar_params[:end_date]
     piece = similar_params[:piece]
-    # collecting_event_id = collecting_event_params[:collecting_event_id]
+    method = similar_params[:method].to_sym
+    collecting_event_id = similar_params[:collecting_event_id]
     include_values = (similar_params[:include_values].nil?) ? false : true
-    sql_1 = '('
-    sql_1 += "verbatim_label LIKE '%#{sql_fix(piece)}%'" unless piece.blank?
-    sql_1 += ')'
+    sql_1 = regex_on_data(piece)
     sql_1 += ' and (verbatim_date is null)' unless include_values
-    selected_items = CollectingEvent.where(sql_1)
+    # selected_items = CollectingEvent.where(sql_1)
+    #                      .with_project_id(sessions_current_project_id)
+    #                      .order(:id)
+    selected_items = Queries::CollectingEventDatesExtractorQuery.new(
+        collecting_event_id: nil,
+        filters: [method])
+                         .all
                          .with_project_id(sessions_current_project_id)
                          .order(:id)
-                         .where.not(id: params[:collecting_event_id]).distinct
+                         .where.not(id: collecting_event_id)
+                         .where(sql_1).distinct
 
     retval[:count] = selected_items.count.to_s
-    retval[:table] = render_to_string(partial: 'matching_table',
+    retval[:table] = render_to_string(partial: 'make_dates_matching_table',
                                       locals: {
                                           piece: piece,
                                           start_date: start_date,
                                           end_date: end_date,
                                           selected_items: selected_items
-                                      }) #([lat, long], selected_items)
+                                      })
     render(json: retval)
   end
 
   protected
 
-  def sql_fix(item)
+  def regex_on_data(match_data_0)
+    # retval = "verbatim_label ~* '(\\D#{sql_fix_tix(match_data_0)}\\D)'" ### originally. but replaced below
+    retval = "verbatim_label ~ '(\\A#{sql_fix_tix(match_data_0)}\\D)|(\\D#{sql_fix_tix(match_data_0)}\\D)|(\\D#{sql_fix_tix(match_data_0)}\\Z)|(\\A#{sql_fix_tix(match_data_0)}\\Z)'"
+  end
+
+  def sql_fix_tix(item)
     retval = item.gsub("'", "''")
     retval
   end
@@ -204,7 +211,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
   end
 
   def similar_params
-    params.permit(:include_values, :piece, :start_date, :end_date)
+    params.permit(:include_values, :piece, :start_date, :end_date, :method, :collecting_event_id)
   end
 
   def collecting_event_params

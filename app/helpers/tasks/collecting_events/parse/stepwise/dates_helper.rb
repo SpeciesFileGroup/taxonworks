@@ -33,11 +33,11 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
     tests = Utilities::Dates.hunt_dates(label, filters)
     tests.keys.collect.with_index do |kee, dex|
       trial = tests[kee]
-      method = trial.delete(:method)
-      next if trial.blank?
+      method = trial.delete(:method) # extract the method from the trial and save it
+      next if trial.blank? # if this leaves the trial empty, skip
       verbatim_date_piece = make_verbatim_date_piece(label, trial[:piece])
       content_tag(:tr, class: :extract_row) do
-        content_tag(:td, method, align: 'center') +
+        content_tag(:td, method, align: 'center', class: :method_value) +
             # content_tag(:td, kee == method ? '' : kee) +
             # content_tag(:td, trial[:piece], class: :piece_value, align: 'center') +
             content_tag(:td, verbatim_date_piece, class: :piece_value, align: 'center') +
