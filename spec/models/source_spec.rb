@@ -4,7 +4,7 @@ describe Source, type: :model, group: :sources do
   let(:source) { Source.new }
 
   after(:all) {
-    Source.delete_all
+    Source.destroy_all
   }
 
   context 'associations' do

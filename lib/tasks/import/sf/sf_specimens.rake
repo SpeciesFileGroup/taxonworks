@@ -15,38 +15,38 @@ namespace :tw do
 
           get_tw_collecting_event_id = {} # key = sfUniqueLocColEvents.UniqueID, value = TW.collecting_event_id
 
-          # SF.TimePeriodID to interval code (https://paleobiodb.org/data1.2/intervals/single.json?name=Archaean)
+          # SF.TimePeriodID to interval code (https://paleobiodb.org/data1.2/intervals/single.json?name='')
           TIME_PERIOD_MAP = {
-              768 => 1,     # Cenozoic
-              784 => 12,    # Quaternary
-              790 => 32,    # Holocene
-              795 => 33,    # Pleistocene
-              800 => 13,    # Tertiary
-              804 => 25,    # Neogene
-              805 => 34,    # Pliocene
-              806 => 35,    # Miocene
-              808 => 26,    # Paleogene
-              809 => 36,    # Oligocene
-              810 => 37,    # Eocene
-              811 => 38,    # Paleocene
-              1024 => 2,    # Mesozoic
-              1040 => 14,   # Cretaceous
-              1056 => 15,   # Jurassic
-              1072 => 16,   # Triassic
-              1280 => 3,    # Paleozoic
-              1296 => 17,   # Permian
-              1312 => 18,   # Carboniferous
-              1316 => 27,   # Pennsylvanian
-              1320 => 28,   # Mississippian
-              1328 => 19,   # Devonian
-              1344 => 20,   # Silurian
-              1360 => 21,   # Ordovician
-              1376 => 22,   # Cambrian
-              1536 => nil,  # Precambrian         NO MATCH
-              1552 => 752,  # Proterozoic
-              1568 => 753,  # Archaean vs. Archean
-              1584 => 11    # Hadean
-           }
+              768 => 1, # Cenozoic
+              784 => 12, # Quaternary
+              790 => 32, # Holocene
+              795 => 33, # Pleistocene
+              800 => 13, # Tertiary
+              804 => 25, # Neogene
+              805 => 34, # Pliocene
+              806 => 35, # Miocene
+              808 => 26, # Paleogene
+              809 => 36, # Oligocene
+              810 => 37, # Eocene
+              811 => 38, # Paleocene
+              1024 => 2, # Mesozoic
+              1040 => 14, # Cretaceous
+              1056 => 15, # Jurassic
+              1072 => 16, # Triassic
+              1280 => 3, # Paleozoic
+              1296 => 17, # Permian
+              1312 => 18, # Carboniferous
+              1316 => 27, # Pennsylvanian
+              1320 => 28, # Mississippian
+              1328 => 19, # Devonian
+              1344 => 20, # Silurian
+              1360 => 21, # Ordovician
+              1376 => 22, # Cambrian
+              # 1536 => nil,  # Precambrian
+              1552 => 752, # Proterozoic
+              1568 => 753, # Archaean vs. Archean
+              1584 => 11 # Hadean
+          }
 
           path = @args[:data_directory] + 'sfUniqueLocColEvents.txt'
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
@@ -58,11 +58,11 @@ namespace :tw do
           # TimePeriodID
           # LocalityDetail
           # TimeDetail
-          # DataFlags: bitwise, 1 = ecological relationship, 2 = character data (not implemented?), 4 = image, 8 = sound, 16 = include specimen locality in maps, 32 = image of specimen label
+          # DataFlags, ignore: bitwise, 1 = ecological relationship, 2 = character data (not implemented?), 4 = image, 8 = sound, 16 = include specimen locality in maps, 32 = image of specimen label
           # Country	State	County
           # BodyOfWater
           # PrecisionRadius
-          # LatLongFrom
+          # LatLongFrom, ignore
           # CollectorName
           # Year MonthDay
           # DaysToEnd
@@ -76,8 +76,7 @@ namespace :tw do
 
             logger.info "Working with TW.project_id = #{project_id}, UniqueID = #{row['UniqueID']} (count #{counter += 1}) \n"
 
-
-            # TODO: review
+            # handle dates
             end_date = nil
             if row['DaysToEnd'].present?
               y = row['year'] == '1000' ? '2000' : row['year']
@@ -95,57 +94,96 @@ namespace :tw do
             end
 
             end_date_year = nil if row['year'] == '1000'
+            start_date_year = row['year'] == '1000' ? nil : row['year'].to_i
 
             # TODO:
             #  PrecisionCode?  integer
-            #  XX handle TimePeriodID as data attribute  integer (bitwise) << NO
-            #  handle TimeDetail as data (import) attribute  string
-            #  ignored handle DataFlags as (import predicate)? integer (bitwise)
-            #  handle BodyOfWater as data attribute?   string
-            #
-            #
             #  handle PrecisionRadius as Georeference precision
-            #  handle LatLongFrom   of type Verbatim GeoReference
-
             #  some_precisions_radius_conversion   = row['PrecisionRadius'].to_i  * 10 # METERS
 
-            start_date_year = row['year'] == '1000' ? nil : row['year'].to_i
+            data_attributes_attributes = {
+                data_attributes_attributes: [],
+                project_id: project_id
+                # rest of housekeeping?
+            }
 
-              c = CollectingEvent.new(
-                  verbatim_latitude: row['Latitude'],
-                  verbatim_longitude: row['Longitude'],
-                  maximum_elevation: row['MaxElevation'],
-                  collectors: row['CollectoName'],
-                  start_date_day: (row['day'].present? ? row['day'].to_i : nil),
-                  start_date_month: (row['month'].present? ? row['month'].to_i : nil),
-                  start_date_year: start_date_year,
-                  end_date_day: end_date_day,
-                  end_date_month: end_date_month,
-                  end_date_year: end_date_year,
-                  geographic_area: get_tw_geographic_area(row),
-                  #
-                  project_id: get_tw_project_id[row['FileID']],
-                  paleobio_db_interval_id: TIME_PERIOD_MAP[row['TimePeriodID']], # TODO: Matt add attribute to CE !! rember ENVO implications
+            if row['TimeDetail'].present?
+              type = 'ImportAttribute'
+              import_predicate = 'TimeDetail'
+              value = row['TimeDetail']
 
- 
-              #
-              #     # add in data attributes, import_predicate,
-              #     # georeferences_attributes: [
-              #      {
-              #          type: 'Georeference::VerbatimGeoreference',
-              #          error_radius: some_precisions_radius_conversion,
-              #          geographic_item_attributes: {
-              #              # JIM WILL HELP YOU WITH THE Rgeo::Point construction
-              #              # basically, the lat long values go here
-              #          }
-              #
-              #      }
-              #     # ],
-              #
-              #
+              data_attributes_attributes[:data_attributes_attributes].push
+            end
 
-              #
-              )
+            if row['BodyOfWater'].present?
+              type = 'ImportAttribute'
+              import_predicate = 'BodyOfWater'
+              value = row['BodyOfWater']
+
+              data_attributes_attributes[:data_attributes_attributes].push
+            end
+
+            precision_code = row['PrecisionCode'].to_i
+            if precision_code > 0
+              type = 'ImportAttribute'
+              import_predicate = 'PrecisionCode'
+              case precision_code
+                when 1 then
+                  value = 'from locality label'
+                when 2 then
+                  value = 'estimated from map and locality label'
+                when 3 then
+                  value = 'based on county or similar modest area specified on locality label'
+                when 4 then
+                  value = 'estimated from less specific locality label'
+                else
+                  value = 'error'
+              end
+
+              data_attributes_attributes[:data_attributes_attributes].push
+            end
+
+
+            metadata = {
+                data_attributes_attributes: data_attributes_attributes
+
+            }
+
+            c = CollectingEvent.new(
+                verbatim_latitude: row['Latitude'],
+                verbatim_longitude: row['Longitude'],
+                maximum_elevation: row['MaxElevation'],
+                collectors: row['CollectoName'],
+                start_date_day: (row['day'].present? ? row['day'].to_i : nil),
+                start_date_month: (row['month'].present? ? row['month'].to_i : nil),
+                start_date_year: start_date_year,
+                end_date_day: end_date_day,
+                end_date_month: end_date_month,
+                end_date_year: end_date_year,
+                geographic_area: get_tw_geographic_area(row),
+
+                project_id: get_tw_project_id[row['FileID']],
+                paleobio_db_interval_id: TIME_PERIOD_MAP[row['TimePeriodID']], # TODO: Matt add attribute to CE !! rember ENVO implications
+
+
+            #
+            #     # add in data attributes, import_predicate,
+            # georeferences_attributes: [
+            #     {
+            #         type: 'Georeference::VerbatimData',
+            #         error_radius: some_precisions_radius_conversion,
+            #         geographic_item_attributes: {
+            #             # JIM WILL HELP YOU WITH THE Rgeo::Point construction
+            #             # basically, the lat long values go here
+            #         }
+            #
+            #     }
+            # ],
+            #
+            #
+
+            #
+            ).merge(metadata) # add a .merge(object_name_created_outside_the_main_object)
 
 
             begin
@@ -153,6 +191,16 @@ namespace :tw do
               logger.info "UniqueID #{row['UniqueID']} written"
 
               get_tw_collecting_event_id[row['UniqueID']] = c.id.to_s
+
+              begin
+                c.generate_verbatim_data_georeference(true, true) # reference self, no cache (c.georeferences.any? is true, then succeeded)
+                c.georeferences[0].error_radius = row['PrecisionRadius'].to_i unless row['PrecisionRadius'] == '0'
+
+              rescue ActiveRecord::RecordInvalid
+
+                logger.error
+              end
+
 
               # Don't know if embedded attribute objects can have conditions, e.g., only make this object if condition > 0
               if row['TimeDetail'].present?
@@ -165,12 +213,27 @@ namespace :tw do
                 begin
                   da.save!
                   puts 'DataAttribute TimeDetail created'
+
+
                 rescue ActiveRecord::RecordInvalid # da not valid
                   logger.error "DataAttribute TimeDetail ERROR SF.UniqueID #{row['UniqueID']} = TW.collecting_event #{c.id} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
                 end
               end
 
-
+              if row['BodyOfWater'].present?
+                da = DataAttribute.new(type: 'ImportAttribute',
+                                       attribute_subject_id: c.id,
+                                       attribute_subject_type: CollectingEvent,
+                                       import_predicate: 'BodyOfWater',
+                                       value: row['BodyOfWater'],
+                                       project_id: project_id)
+                begin
+                  da.save!
+                  puts 'DataAttribute BodyOfWater created'
+                rescue ActiveRecord::RecordInvalid # da not valid
+                  logger.error "DataAttribute BodyOfWater ERROR SF.UniqueID #{row['UniqueID']} = TW.collecting_event #{c.id} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
+                end
+              end
 
 
             rescue ActiveRecord::RecordInvalid
@@ -178,7 +241,6 @@ namespace :tw do
               logger.info "Failed on UniqueID #{row['UniqueID']}"
 
             end
-
 
 
           end

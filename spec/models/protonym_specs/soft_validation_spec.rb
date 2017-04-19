@@ -14,7 +14,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     TaxonNameClassification.delete_all
     TaxonName.delete_all
     Citation.delete_all
-    Source.delete_all
+    Source.destroy_all
     TaxonNameHierarchy.delete_all
   end
 
