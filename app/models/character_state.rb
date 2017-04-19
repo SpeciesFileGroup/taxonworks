@@ -9,6 +9,10 @@ class CharacterState < ActiveRecord::Base
   include Shared::Confidence
   include Shared::Documentation
   include Shared::Citable
+  include Shared::DataAttributes
+  include Shared::AlternateValues
+  include SoftValidation
+
 
   acts_as_list scope: [:descriptor_id]
 

@@ -6,6 +6,9 @@ class Descriptor < ActiveRecord::Base
   include Shared::Taggable
   include Shared::Notable
   include Shared::DataAttributes
+  include Shared::AlternateValues
+  include Shared::Confidence
+  include Shared::Documentation
   include SoftValidation
 
   acts_as_list scope: [:project_id]
