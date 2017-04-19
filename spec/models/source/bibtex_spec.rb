@@ -962,7 +962,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
 
       specify 'sort an array of source by potentially_validating date' do
-        Source.delete_all
+        Source.destroy_all
         @source_bibtex.year = 2002 # @source_bibtex has no date, title: 'article 1 just title'
         expect(@source_bibtex.save).to be_truthy
         FactoryGirl.create(:valid_bibtex_source_book_title_only) # 'valid book with just a title' : no date
