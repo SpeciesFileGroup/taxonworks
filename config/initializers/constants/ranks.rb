@@ -2,9 +2,8 @@
 #
 # !! All constants are now composed of Strings only.  They must not reference a class. !!
 #
-#
-# 
 # Contains NOMEN classes of rank/hierarchy in various format.
+#
 
 # ICN class names ordered in an Array
 ICN = NomenclaturalRank::Icn.ordered_ranks.collect{|r| r.to_s}.freeze
@@ -46,19 +45,22 @@ FAMILY_RANK_NAMES_ICN = NomenclaturalRank::Icn::FamilyGroup.descendants.collect{
 FAMILY_RANK_NAMES_ICNB = NomenclaturalRank::Icnb::FamilyGroup.descendants.collect{|i| i.to_s}.freeze
 
 # All assignable ranks for family group, for ICN, ICNB, and ICZN
-FAMILY_RANK_NAMES =  ( FAMILY_RANK_NAMES_ICZN + FAMILY_RANK_NAMES_ICN + FAMILY_RANK_NAMES_ICNB ).freeze
+FAMILY_RANK_NAMES = ( FAMILY_RANK_NAMES_ICZN + FAMILY_RANK_NAMES_ICN + FAMILY_RANK_NAMES_ICNB ).freeze
+
+HIGHER_RANK_NAMES_ICZN = NomenclaturalRank::Iczn::HigherClassificationGroup.descendants.collect{|i| i.to_s}.freeze
+
+HIGHER_RANK_NAMES_ICN = NomenclaturalRank::Icn::HigherClassificationGroup.descendants.collect{|i| i.to_s}.freeze
+
+HIGHER_RANK_NAMES_ICNB = NomenclaturalRank::Icnb::HigherClassificationGroup.descendants.collect{|i| i.to_s}.freeze
 
 # All assignable ranks for family group and above family names, for ICZN
-FAMILY_AND_ABOVE_RANK_NAMES_ICZN = FAMILY_RANK_NAMES_ICZN +
-  (NomenclaturalRank::Iczn::HigherClassificationGroup.descendants).collect{|i| i.to_s}.freeze
-
+FAMILY_AND_ABOVE_RANK_NAMES_ICZN = FAMILY_RANK_NAMES_ICZN + HIGHER_RANK_NAMES_ICZN
+ 
 # All assignable ranks for family group and above family names, for ICN
-FAMILY_AND_ABOVE_RANK_NAMES_ICN = FAMILY_RANK_NAMES_ICN +
-  (NomenclaturalRank::Icn::HigherClassificationGroup.descendants).collect{|i| i.to_s}.freeze
+FAMILY_AND_ABOVE_RANK_NAMES_ICN = FAMILY_RANK_NAMES_ICN + HIGHER_RANK_NAMES_ICN
 
 # All assignable ranks for family group and above family names, for ICZ
-FAMILY_AND_ABOVE_RANK_NAMES_ICNB = FAMILY_RANK_NAMES_ICNB +
-  (NomenclaturalRank::Icnb::HigherClassificationGroup.descendants).collect{|i| i.to_s}.freeze
+FAMILY_AND_ABOVE_RANK_NAMES_ICNB = FAMILY_RANK_NAMES_ICNB + HIGHER_RANK_NAMES_ICNB
 
 # All assignable ranks for family group and above family names, for ICN, ICNB, and ICZN
 FAMILY_AND_ABOVE_RANK_NAMES = 
@@ -66,15 +68,8 @@ FAMILY_AND_ABOVE_RANK_NAMES =
   FAMILY_AND_ABOVE_RANK_NAMES_ICN +
   FAMILY_AND_ABOVE_RANK_NAMES_ICNB 
 
-# (
-#   NomenclaturalRank::Icn::HigherClassificationGroup.descendants +
-#   NomenclaturalRank::Icn::FamilyGroup.descendants).collect{|i| i.to_s} +
-# (
-#   NomenclaturalRank::Icnb::HigherClassificationGroup.descendants +
-#   NomenclaturalRank::Icnb::FamilyGroup.descendants).collect{|i| i.to_s}.freeze
-
 # All assignable ranks for genus groups, for ICZN
-GENUS_RANK_NAMES_ICZN = NomenclaturalRank::Iczn::GenusGroup.descendants.collect{|i| i.to_s}.freeze
+GENUS_RANK_NAMES_ICZN = NomenclaturalRank::Iczn::GenusGroup.descendants.map(&:to_s).freeze
 
 # All assignable ranks for genus groups, for both ICN
 GENUS_RANK_NAMES_ICN = NomenclaturalRank::Icn::GenusGroup.descendants.collect{|i| i.to_s}.freeze
@@ -124,7 +119,7 @@ RANKS_JSON = {
     species: {}
   },
   icnb: { 
-    higher: {}
+    higher: {},
     family: {},
     genus: {},
     species: {}
