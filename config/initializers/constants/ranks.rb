@@ -82,23 +82,22 @@ GENUS_AND_SPECIES_RANK_NAMES = ( GENUS_RANK_NAMES + SPECIES_RANK_NAMES ).freeze
 
 RANKS_JSON = {
   iczn: {
-    higher: {},
-    family: {}, 
-    genus: {},
-    species: {},
+    higher: HIGHER_RANK_NAMES_ICZN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    family: FAMILY_RANK_NAMES_ICZN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    genus: GENUS_RANK_NAMES_ICZN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    species: SPECIES_RANK_NAMES_ICZN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
   },
-
   icn:  {
-    higher: {},
-    family: {},
-    genus: {},
-    species: {}
+    higher: HIGHER_RANK_NAMES_ICN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    family: FAMILY_RANK_NAMES_ICN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    genus: GENUS_RANK_NAMES_ICN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    species: SPECIES_RANK_NAMES_ICN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
   },
   icnb: { 
-    higher: {},
-    family: {},
-    genus: {},
-    species: {}
+    higher: HIGHER_RANK_NAMES_ICNB.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    family: FAMILY_RANK_NAMES_ICNB.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    genus: GENUS_RANK_NAMES_ICNB.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    species: SPECIES_RANK_NAMES_ICNB.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
   }
 }
 

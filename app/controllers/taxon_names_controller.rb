@@ -133,7 +133,7 @@ class TaxonNamesController < ApplicationController
 
   # GET /taxon_names/ranks.json
   def ranks
-    render json: {iczn: ICZN_LOOKUP, icn: ICN_LOOKUP, icnb: ICNB_LOOKUP}.to_json
+    render json: RANKS_JSON.to_json
   end
 
   private
