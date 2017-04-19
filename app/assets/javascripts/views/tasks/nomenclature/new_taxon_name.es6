@@ -26,14 +26,75 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
 	    	getters: {
 	    		getRankList(state) {
 	    			return state.ranks;
+	    		},
+	    		getTaxonName(state) {
+	    			return state.taxon_name.name;
 	    		}
 	    	},
 	    	mutations: {
 	    		setRankList(state, list) {
 	    			state.ranks = list;
-	    		}                       
+	    		},
+	    		setTaxonName(state,name) {
+	    			state.taxon_name.name = name;
+	    		}, 
+	    		setParentId(state,id) {
+	    			state.taxon_name.parent_id = id;
+	    		} 
 	    	},
 	    });
+
+
+
+  		Vue.component('taxon-name', { 
+  			template: '<input type="text" v-model="taxonName"/>',
+  			computed: {
+  				taxonName: {
+  					get() {
+  						return this.$store.getters.getTaxonName
+  					},
+  					set(value) {
+  						this.$store.commit('setTaxonName', value);
+  					}
+  				}
+  			}
+  		}),
+
+  		Vue.component('parent-picker', {
+  			template: '<autocomplete \
+  						url="/taxon_names/autocomplete" \
+  						label="label_html" \
+  						min="3" \
+  						eventSend="parentSelected" \
+  						display="label" \
+  						param="term">',
+  						
+  			mounted: function() {
+  				this.$on('parentSelected', function(item) {
+  					this.$store.commit('setParentId', item.id)
+  				});
+  			},
+  			methods: {
+  				test: function(item) {
+  					console.log(item);
+  				}
+  			}
+
+  		});
+
+  		Vue.component('source-picker', {
+  			template: '<autocomplete \
+  						url="/sources/autocomplete" \
+  						min="3" \
+  						param="term" \
+  						label="label_html" \
+  						display="label">',
+
+  		});  		
+
+  		Vue.component('rank-selector', {
+  		});
+
 
 	    var new_taxon_name = new Vue({
     		el: '#new_taxon_name_task',
@@ -48,15 +109,12 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
     				});
     			}
     		}
-  		});
-
-  		Vue.component('rank-selector', {
-  		});
+  		});  		
 	}
 });
 
 $(document).ready( function() {
 	if ($("#new_taxon_name_task").length) {
-    	TW.views.tasks.nomenclature.new_taxon_name.init();
+		TW.views.tasks.nomenclature.new_taxon_name.init();
 	}
 });

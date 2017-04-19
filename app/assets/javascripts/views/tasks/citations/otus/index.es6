@@ -166,7 +166,7 @@ Object.assign(TW.views.tasks.citations.otus, {
                         placeholder="Find OTU" \
                         event-send="otupicker" \
                         label="label" \
-                        autofocus="true"> \
+                        :autofocus="true"> \
                       </autocomplete> \
                     </div> \
                   </modal> \
@@ -207,7 +207,7 @@ Object.assign(TW.views.tasks.citations.otus, {
                         placeholder="Find source" \
                         event-send="sourcepicker" \
                         label="label" \
-                        autofocus="true"> \
+                        :autofocus="true"> \
                       </autocomplete> \
                     </div> \
                   </modal> \
