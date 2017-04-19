@@ -125,36 +125,22 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     start_date = similar_params[:start_date]
     end_date = similar_params[:end_date]
     piece = similar_params[:piece]
-    method = similar_params[:method].to_sym
-    if method.blank?
+    method = [similar_params[:method].to_sym]
+    if method[0] == :undefined # where verbatim label is entered without selecting a result and method
       method = parse_filters(params)
     end
     collecting_event_id = similar_params[:collecting_event_id]
     include_values = (similar_params[:include_values].nil?) ? false : true
     sql_1 = regex_on_data(piece)
     sql_1 += ' and (verbatim_date is null)' unless include_values
-    # selected_items = CollectingEvent.where(sql_1)
-    #                      .with_project_id(sessions_current_project_id)
-    #                      .order(:id)
-    if method.blank?
-      method = parse_filters(params)
       selected_items = Queries::CollectingEventDatesExtractorQuery.new(
           collecting_event_id: nil,
-          filters: [method])
+          filters: method)
                            .all
                            .with_project_id(sessions_current_project_id)
                            .order(:id)
                            .where.not(id: collecting_event_id)
                            .where(sql_1).distinct
-    else # is there a more elegant way to JUST omit the filters ?
-      selected_items = Queries::CollectingEventDatesExtractorQuery.new(
-          collecting_event_id: nil)
-                           .all
-                           .with_project_id(sessions_current_project_id)
-                           .order(:id)
-                           .where.not(id: collecting_event_id)
-                           .where(sql_1).distinct
-    end
 
     retval[:count] = selected_items.count.to_s
     retval[:table] = render_to_string(partial: 'make_dates_matching_table',

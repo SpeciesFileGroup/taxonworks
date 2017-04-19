@@ -8,7 +8,6 @@ TW.views.tasks.collecting_events.parse.dates = TW.views.tasks.collecting_events.
 Object.assign(TW.views.tasks.collecting_events.parse.dates, {
 
   init: function () {
-    // var whereIgo = '/tasks/collecting_events/parse/stepwise/lat_long/';
     var whereIgo = location.pathname.replace('index', '');
 
     var start_next = 0;
@@ -19,7 +18,8 @@ Object.assign(TW.views.tasks.collecting_events.parse.dates, {
       var start_date = $('#start_date').val();
       var end_date = $('#end_date').val();
       var piece = $('#verbatim_date').val();
-      var method = '';    // maybe we could pick out a viable method?
+      var method = $("#selected_method").attr('value');
+      ;    // maybe we could pick out a viable method?
       var params = '';
       var checck = $('#include_values').serialize();
       params += 'piece=' + encodeURI(piece) /* piece.replace(/ /g, '%20') */;
@@ -56,11 +56,6 @@ Object.assign(TW.views.tasks.collecting_events.parse.dates, {
       event.preventDefault();
       location.href = whereIgo + 'save_selected?' + $('#dates_convert_form').serialize();
     });
-    //  $('#lat_long_update_record').click(function (event) {
-    // put the this id into the form before serializatiun
-    // $('#collecting_event_id').val($('this_collecting_event').text());
-    //   $.post('update', $("#lat_long_convert_form").serialize() + "&" + $("#gen_georef_box").serialize());
-    //  })
   },
 
   bind_sequence_buttons: function () {    // for identical match buttons section
@@ -100,6 +95,7 @@ Object.assign(TW.views.tasks.collecting_events.parse.dates, {
       var end_date = $(this).parent().parent('.extract_row').children('.end_date_value').text();
       var piece = $(this).parent().parent('.extract_row').children('.piece_value').text();
       var method = $(this).parent().parent('.extract_row').children('.method_value').text();
+      $("#selected_method").attr('value', method);      //
       var params = '';
       var checck = $('#include_values').serialize();
       $('#start_date').val(start_date);
@@ -118,9 +114,9 @@ Object.assign(TW.views.tasks.collecting_events.parse.dates, {
         $("#matching_span").html(local_data.table);
         $("#matched_start_date").val(start_date);
         $("#matched_end_date").val(end_date);
-        // TW.views.tasks.collecting_events.parse.dates.bind_sequence_buttons();
       });
     });
+    TW.views.tasks.collecting_events.parse.dates.bind_sequence_buttons();
   }
 
 });

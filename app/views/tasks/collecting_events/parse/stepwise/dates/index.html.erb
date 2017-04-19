@@ -11,6 +11,7 @@
                    id: 'dates_convert_form') do %>
           <%= hidden_field_tag(:collecting_event_id, @collecting_event.id) %>
           <%= parse_date_skip(@collecting_event.id, @filters) %>
+          <%= hidden_field_tag(:selected_method) %>
           <table border="1">
             <tbody>
             <tr>
@@ -52,7 +53,7 @@
             <tr>
               <td></td>
               <td></td>
-              <td><%= submit_tag('Reprocess', id: 'dates_reprocess') %></td>
+              <td><%= submit_tag('Use edited date', id: 'dates_reprocess') %></td>
               <td></td>
             </tr>
             </tbody>
