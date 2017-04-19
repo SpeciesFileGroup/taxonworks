@@ -8,8 +8,8 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
   def make_dates_method_headers
     list = Utilities::Dates::REGEXP_DATES
     selector_row = ""
-    list.keys.each { |kee|
-      selector_row += content_tag(:th, kee.to_s.upcase,
+    list.keys.each_with_index {|kee, dex|
+      selector_row += content_tag(:th, Utilities::Dates::REGEXP_DATES[kee][:hdr],
                                   data: {help: Utilities::Dates::REGEXP_DATES[kee][:hlp]})
     }
     selector_row.html_safe
@@ -85,7 +85,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
               when 0 #'CEID'
                 item_data = link_to(item.id, item)
               when 1 #'Match'
-                item_data = +content_tag(:vl, pieces.join(' '), data: {help: item.verbatim_label})
+                item_data = content_tag(:vl, pieces.join(' '), data: {help: item.verbatim_label})
               when 2 #'Verbatim Date'
                 item_data = item.verbatim_date
                 no_verbatim_date = !item.verbatim_date.blank?
@@ -104,7 +104,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
       }.join().html_safe
     end
 
-    content_tag(:table, thead.concat(tbody), {id: 'matching_table', border: '1', align: 'center'}).html_safe
+    content_tag(:table, thead.concat(tbody), {id: 'matching_table', border: '1'}).html_safe
   end
 
   def test_start_date # what is "test" about this?

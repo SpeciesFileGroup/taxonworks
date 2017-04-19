@@ -2,13 +2,11 @@
   <h1>Task Stepwise collecting event parser - Dates</h1>
 
   <div class="flexbox">
-    <div class="item item1 one_third_width">
+    <div class="item item1">
       <h2>Collecting event
         id:  <%= link_to(@collecting_event.id, collecting_event_path(@collecting_event), target: :_blank) %></h2>
       <%= show_ce_vl(@collecting_event) %>
-    </div>
-
-    <div class="item item2">
+      <br>
       <%= form_tag(dates_update_task_path(collecting_event_id: @collecting_event.id),
                    id: 'dates_convert_form') do %>
           <%= hidden_field_tag(:collecting_event_id, @collecting_event.id) %>
@@ -60,7 +58,7 @@
             </tbody>
           </table>
           <%= button_tag('Save this one', value: 'save_one', id: 'dates_update_record') %><br>
-          <div id="matching_events" class="item item2">
+          <div id="matching_events" class="item item1">
             <h1>Identical matches (<span id="match_count">#</span>)</h1>
             <%= check_box_tag(:include_values, nil, true) %>Include already set values
             <%= button_tag('Select all', value: 'select_all', id: 'select_all', disabled: true) %>

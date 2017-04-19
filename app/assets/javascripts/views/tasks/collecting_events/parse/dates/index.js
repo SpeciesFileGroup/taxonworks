@@ -118,7 +118,7 @@ Object.assign(TW.views.tasks.collecting_events.parse.dates, {
         $("#matching_span").html(local_data.table);
         $("#matched_start_date").val(start_date);
         $("#matched_end_date").val(end_date);
-        TW.views.tasks.collecting_events.parse.dates.bind_sequence_buttons();
+        // TW.views.tasks.collecting_events.parse.dates.bind_sequence_buttons();
       });
     });
   }

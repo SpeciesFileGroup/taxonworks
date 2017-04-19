@@ -115,10 +115,9 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
                                       filters: parse_filters(params))
   end
 
-  def reprocess # re-evaluate verbatim label against identical matches
-    # retval = {}
-    # render json: retval
-    similar_labels
+  def convert
+    retval = {}
+    render json: retval
   end
 
   def similar_labels
@@ -137,7 +136,8 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     # selected_items = CollectingEvent.where(sql_1)
     #                      .with_project_id(sessions_current_project_id)
     #                      .order(:id)
-    if method.nil?
+    if method.blank?
+      method = parse_filters(params)
       selected_items = Queries::CollectingEventDatesExtractorQuery.new(
           collecting_event_id: nil,
           filters: [method])
@@ -146,7 +146,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
                            .order(:id)
                            .where.not(id: collecting_event_id)
                            .where(sql_1).distinct
-    else
+    else # is there a more elegant way to JUST omit the filters ?
       selected_items = Queries::CollectingEventDatesExtractorQuery.new(
           collecting_event_id: nil)
                            .all
