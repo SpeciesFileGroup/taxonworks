@@ -88,7 +88,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
   scope :where_object_in_taxon_names, -> (taxon_name_array) {where('"taxon_name_relationships"."object_taxon_name_id" IN (?)', taxon_name_array)}
-#  scope :with_type_string, -> (type_string) {where('"taxon_name_relationships"."type" LIKE ?', "#{type_string}" ) }
+  # scope :with_type_string, -> (type_string) {where('"taxon_name_relationships"."type" LIKE ?', "#{type_string}" ) }
 
   scope :with_type_string, -> (type_string) { where(sanitize_sql_array(["taxon_name_relationships.type = '%s'", type_string])) } #   #{?type_string}"where('"taxon_name_relationships"."type" LIKE ?', "#{type_string}" ) }
 
@@ -117,7 +117,6 @@ class TaxonNameRelationship < ActiveRecord::Base
   def self.valid_subject_ranks
     []
   end
-
 
   # @return [Array of NomenclatureRank]
   #   the valid ranks to which the object name can belong, set in subclasses. (right side)
