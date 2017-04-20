@@ -89,9 +89,9 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
       $('#verbatim_longitude').val(long);
       $('#dd_latitude').val('');
       $('#dd_longitude').val('');
-      params += 'piece=' + encodeURI(piece) /* piece.replace(/ /g, '%20') */;
-      params += '&lat=' + encodeURI(lat) /* lat.replace(/ /g, '%20') */;
-      params += '&long=' + encodeURI(long) /* long.replace(/ /g, '%20') */;
+      params += 'piece=' + encodeURIComponent(piece) /* piece.replace(/ /g, '%20') */;
+      params += '&lat=' + encodeURIComponent(lat) /* lat.replace(/ /g, '%20') */;
+      params += '&long=' + encodeURIComponent(long) /* long.replace(/ /g, '%20') */;
       params += '&collecting_event_id=' + $('#collecting_event_id').val();
       if (checck.length) {
         params += '&' + checck;
