@@ -85,14 +85,15 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
               when 0 #'CEID'
                 item_data = link_to(item.id, item)
               when 1 #'Match'
-                item_data = content_tag(:vl, pieces.join(' '), data: {help: item.verbatim_label})
+                item_data = content_tag(:vl, pieces.join(' '))
               when 2 #'Verbatim Date'
-                item_data = item.verbatim_date
+                item_data = content_tag(:vd, item.verbatim_date, data: {help: item.verbatim_label})
                 no_verbatim_date = !item.verbatim_date.blank?
               when 3 #'Select'
                 # check_box_tag(name, value = "1", checked = false, options = {}) public
                 options_for = {disabled: no_verbatim_date}
                 options_for[:class] = 'selectable_select' unless no_verbatim_date
+                options_for[:data] = {help: item.verbatim_label}
                 item_data = check_box_tag('selected[]', item.id, false, options_for)
             end
             concat content_tag(:td, item_data, align: 'center')
