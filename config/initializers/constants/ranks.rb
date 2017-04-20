@@ -82,7 +82,7 @@ GENUS_AND_SPECIES_RANK_NAMES = ( GENUS_RANK_NAMES + SPECIES_RANK_NAMES ).freeze
 
 module RankHelper
   def self.rank_attributes(ranks)
-    ranks.inject({}) {|hsh, r| hsh.merge!(r.constantize.rank_name => {class: r, parent: r.constantize.parent_rank.rank_name })}
+    ranks.inject({}) {|hsh, r| hsh.merge!(r.constantize.rank_name => {rank_class: r, parent: r.constantize.parent_rank.rank_name, name: r.constantize.rank_name })}
   end
 end
 
