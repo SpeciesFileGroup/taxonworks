@@ -9,10 +9,10 @@ Object.assign(TW.views.tasks.collecting_events.parse.lat_long, {
   init: function () {
     // var whereIgo = '/tasks/collecting_events/parse/stepwise/lat_long/';
     var route = location.pathname.replace('index', '');
-
+  
     var start_next = 0;
     TW.views.tasks.collecting_events.parse.lat_long.bind_radio_buttons();
-
+  
     $('#lat_long_convert').click(function (event) {
         // $("#select_area").mx_spinner('show');
         $.get('convert', $("#lat_long_convert_form").serialize(), function (local_data) {
@@ -25,7 +25,7 @@ Object.assign(TW.views.tasks.collecting_events.parse.lat_long, {
         event.preventDefault();
       }
     );
-
+  
     $('#skip').click(function (event) {
       event.preventDefault();
       location.href = route + 'skip?' + $('#lat_long_convert_form').serialize();
@@ -40,7 +40,7 @@ Object.assign(TW.views.tasks.collecting_events.parse.lat_long, {
       event.preventDefault();
       location.href = route + 'save_selected?' + $('#lat_long_convert_form').serialize();
     });
-
+  
     //  $('#lat_long_update_record').click(function (event) {
     // put the this id into the form before serializatiun
     // $('#collecting_event_id').val($('this_collecting_event').text());
@@ -90,9 +90,9 @@ Object.assign(TW.views.tasks.collecting_events.parse.lat_long, {
       $('#verbatim_longitude').val(long);
       $('#dd_latitude').val('');
       $('#dd_longitude').val('');
-      params += 'piece=' + encodeURI(piece) /* piece.replace(/ /g, '%20') */;
-      params += '&lat=' + encodeURI(lat) /* lat.replace(/ /g, '%20') */;
-      params += '&long=' + encodeURI(long) /* long.replace(/ /g, '%20') */;
+      params += 'piece=' + encodeURIComponent(piece) /* piece.replace(/ /g, '%20') */;
+      params += '&lat=' + encodeURIComponent(lat) /* lat.replace(/ /g, '%20') */;
+      params += '&long=' + encodeURIComponent(long) /* long.replace(/ /g, '%20') */;
       params += '&collecting_event_id=' + $('#collecting_event_id').val();
       if (checck.length) {
         params += '&' + checck;
