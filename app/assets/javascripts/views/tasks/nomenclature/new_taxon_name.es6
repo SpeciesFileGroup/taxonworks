@@ -9,37 +9,27 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
 	init: function() { 
 	    Vue.http.headers.common['X-CSRF-Token'] = $('[name="csrf-token"]').attr('content');
 
+      const childOfParent = {
+          higher: 'family',
+          family: 'genus',
+          genus: 'species',
+          species: 'species'
+      }
+
       function findList(list, rankParent) {
         var 
-          tmpPath = [];
-          if(rankParent != null) {
-            tmpPath = rankParent.split("::");
-            tmpPath.shift();
-            tmpPath.splice(tmpPath.length-1,1,childOfParent(tmpPath[tmpPath.length-1]));
-            tmpPath = recursiveSearch(list,tmpPath);
-          }
-          return tmpPath;
+          codeList = list[rankParent.nomenclatural_code];
+          ranksList = codeList[childOfParent[foundRankGroup(codeList,rankParent.rank)]];
+          delete ranksList[rankParent.rank]
+          return ranksList;
       }
 
-      function childOfParent(parentName) {
-        var replace = {
-          HigherClassificationGroup: 'FamilyGroup',
-          FamilyGroup: 'GenusGroup',
-          GenusGroup: 'SpeciesAndInfraspeciesGroup',
-          SpeciesAndInfraspeciesGroup: 'SpeciesAndInfraspeciesGroup'
-        }
-        return replace[parentName];
-      }
-
-      function recursiveSearch(list, find) {
-        for(key in list) {
-          if(find[0] == key) {
-            find.shift();
-            return recursiveSearch(list[key], find);
-            break;
+      function foundRankGroup(list,rankName) {
+        for(var key in list) {
+          if(rankName in list[key]) {
+            return key;
           }
         }
-        return list;       
       }
 
 	    const store = new Vuex.Store({
@@ -126,8 +116,7 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
   				this.$on('parentSelected', function(item) {
   					this.$store.commit('setParentId', item.id);
             this.$http.get(`/taxon_names/${item.id}`).then( response => {
-              console.log(response.body.rank_class.parent_name);
-              that.$store.commit('setRanksChilds', findList(that.$store.getters.getRanksList, response.body.rank_class.parent_name));
+              that.$store.commit('setRanksChilds', findList(that.$store.getters.getRanksList, response.body));
             });
   				});
   			},
@@ -173,7 +162,9 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
 
   		Vue.component('rank-selector', {
         template: '<ul> \
-                    <li v-for="item in ranksChilds"> {{ item }} </li> \
+                    <li v-for="child, key in ranksChilds"> \
+                      <label><input type="radio" name="gender" :value="child.rank_class"/> {{ key }} </label> \
+                    </li> \
                   </ul>',
         computed: {
           ranksChilds() {
@@ -182,6 +173,11 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
           ranks() {
             return this.$store.getters.getRanksList
           }          
+        },
+        data: function() {
+          return {
+
+          }
         }
   		});
 
