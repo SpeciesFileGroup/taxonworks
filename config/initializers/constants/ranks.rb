@@ -81,23 +81,23 @@ GENUS_AND_SPECIES_RANK_NAMES_ICNB = ( GENUS_RANK_NAMES_ICNB + SPECIES_RANK_NAMES
 GENUS_AND_SPECIES_RANK_NAMES = ( GENUS_RANK_NAMES + SPECIES_RANK_NAMES ).freeze
 
 RANKS_JSON = {
-  iczn: {
-    higher: HIGHER_RANK_NAMES_ICZN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
-    family: FAMILY_RANK_NAMES_ICZN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
-    genus: GENUS_RANK_NAMES_ICZN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
-    species: SPECIES_RANK_NAMES_ICZN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+  Iczn: {
+    HigherClassificationGroup: HIGHER_RANK_NAMES_ICZN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    FamilyGroup: FAMILY_RANK_NAMES_ICZN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    GenusGroup: GENUS_RANK_NAMES_ICZN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    SpeciesAndInfraspeciesGroup: SPECIES_RANK_NAMES_ICZN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
   },
-  icn:  {
-    higher: HIGHER_RANK_NAMES_ICN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
-    family: FAMILY_RANK_NAMES_ICN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
-    genus: GENUS_RANK_NAMES_ICN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
-    species: SPECIES_RANK_NAMES_ICN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+  Icn:  {
+    HigherClassificationGroup: HIGHER_RANK_NAMES_ICN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    FamilyGroup: FAMILY_RANK_NAMES_ICN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    GenusGroup: GENUS_RANK_NAMES_ICN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    SpeciesAndInfraspeciesGroup: SPECIES_RANK_NAMES_ICN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
   },
-  icnb: { 
-    higher: HIGHER_RANK_NAMES_ICNB.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
-    family: FAMILY_RANK_NAMES_ICNB.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
-    genus: GENUS_RANK_NAMES_ICNB.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
-    species: SPECIES_RANK_NAMES_ICNB.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+  Icnb: { 
+    HigherClassificationGroup: HIGHER_RANK_NAMES_ICNB.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    FamilyGroup: FAMILY_RANK_NAMES_ICNB.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    GenusGroup: GENUS_RANK_NAMES_ICNB.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    SpeciesAndInfraspeciesGroup: SPECIES_RANK_NAMES_ICNB.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
   }
 }
 
