@@ -80,24 +80,30 @@ GENUS_AND_SPECIES_RANK_NAMES_ICNB = ( GENUS_RANK_NAMES_ICNB + SPECIES_RANK_NAMES
 # Assignable ranks for genus and species groups, for ICN, ICNB, and ICZN
 GENUS_AND_SPECIES_RANK_NAMES = ( GENUS_RANK_NAMES + SPECIES_RANK_NAMES ).freeze
 
+module RankHelper
+  def self.rank_attributes(ranks)
+    ranks.inject({}) {|hsh, r| hsh.merge!(r.constantize.rank_name => {class: r, parent: r.constantize.parent_rank.rank_name })}
+  end
+end
+
 RANKS_JSON = {
   iczn: {
-    higher: HIGHER_RANK_NAMES_ICZN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
-    family: FAMILY_RANK_NAMES_ICZN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
-    genus: GENUS_RANK_NAMES_ICZN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
-    species: SPECIES_RANK_NAMES_ICZN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    higher: RankHelper::rank_attributes(HIGHER_RANK_NAMES_ICZN),
+    family: RankHelper::rank_attributes(FAMILY_RANK_NAMES_ICZN),
+    genus: RankHelper::rank_attributes(GENUS_RANK_NAMES_ICZN),
+    species: RankHelper::rank_attributes(SPECIES_RANK_NAMES_ICZN)
   },
   icn:  {
-    higher: HIGHER_RANK_NAMES_ICN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
-    family: FAMILY_RANK_NAMES_ICN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
-    genus: GENUS_RANK_NAMES_ICN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
-    species: SPECIES_RANK_NAMES_ICN.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    higher: RankHelper::rank_attributes(HIGHER_RANK_NAMES_ICN),
+    family: RankHelper::rank_attributes(FAMILY_RANK_NAMES_ICN),
+    genus: RankHelper::rank_attributes(GENUS_RANK_NAMES_ICN),
+    species: RankHelper::rank_attributes(SPECIES_RANK_NAMES_ICN)
   },
   icnb: { 
-    higher: HIGHER_RANK_NAMES_ICNB.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
-    family: FAMILY_RANK_NAMES_ICNB.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
-    genus: GENUS_RANK_NAMES_ICNB.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
-    species: SPECIES_RANK_NAMES_ICNB.inject({}){|hsh, r| hsh.merge!(r.constantize.rank_name => r)},
+    higher: RankHelper::rank_attributes(HIGHER_RANK_NAMES_ICNB),
+    family: RankHelper::rank_attributes(FAMILY_RANK_NAMES_ICNB),
+    genus: RankHelper::rank_attributes(GENUS_RANK_NAMES_ICNB),
+    species: RankHelper::rank_attributes(SPECIES_RANK_NAMES_ICNB)
   }
 }
 
