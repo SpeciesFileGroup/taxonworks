@@ -140,13 +140,13 @@ To add a new (discovered) symbol:
              hlp: "degrees, minutes, decimal seconds, trailing ordinal, e.g. 24º7'2.0\"S65º24'13.1\"W"},
 
       dd5:  {reg: /(?<lat>[NS]\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ººo\u02DA ])[\.,;]?\s*(?<long>([WE])\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ººo\u02DA ]?)/i,
-             hlp: 'e.g. S42.18° W88.34°'},
+             hlp: 'decimal degrees, leading ordinal, e.g. S42.18° W88.34°'},
 
       dd6:  {reg: /(?<lat>(\d+[\.,]\d+|\d+)\s*[\*°ººo\u02DA ]\s*[NS])[\.,;]?\s*(?<long>(\d+[\.|,]\d+|\d+)\s*[\*°ººo\u02DA ]\s*[WE])/i,
-             hlp: 'e.g. 42.18°S 88.43°W'},
+             hlp: 'decimal degrees, trailing ordinal, e.g. 42.18°S 88.43°W'},
 
       dd7:  {reg: /\[(?<lat>-?\d+[\.,]\d+|\-?d+),.*?(?<long>-?\d+[\.,]\d+|\-?d+)\]/i,
-             hlp: 'e.g. [12.263, -49.398]'}
+             hlp: 'decimal degrees, no ordinal, specific format, e.g. [12.263, -49.398]'}
     }.freeze
 
     def self.hunt_lat_long_full(label, filters = REGEXP_COORD.keys)
