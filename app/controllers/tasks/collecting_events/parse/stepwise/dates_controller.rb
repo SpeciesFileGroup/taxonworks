@@ -77,7 +77,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
       success = false
     else
       any_failed = false
-      selected.each { |item_id|
+      selected.each {|item_id|
         ce = CollectingEvent.find(item_id)
         unless ce.nil?
           start_date = convert_params[:start_date].split(' ')
@@ -125,14 +125,17 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     start_date = similar_params[:start_date]
     end_date = similar_params[:end_date]
     piece = similar_params[:piece]
-    method = [similar_params[:method].to_sym]
-    if method[0] == :undefined # where verbatim label is entered without selecting a result and method
-      method = parse_filters(params)
-    end
     collecting_event_id = similar_params[:collecting_event_id]
     include_values = (similar_params[:include_values].nil?) ? false : true
-    sql_1 = regex_on_data(piece)
-    sql_1 += ' and (verbatim_date is null)' unless include_values
+    method = [similar_params[:method].to_sym]
+    where_clause = regex_on_data(piece)
+    where_clause += ' and (verbatim_date is null)' unless include_values
+    if method[0] == :undefined # where verbatim label is entered without selecting a result and its method
+      selected_items = CollectingEvent.where(where_clause)
+                           .with_project_id($project_id)
+                           .order(:id)
+                           .where.not(id: collecting_event_id).distinct
+    else
       selected_items = Queries::CollectingEventDatesExtractorQuery.new(
           collecting_event_id: nil,
           filters: method)
@@ -140,7 +143,8 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
                            .with_project_id(sessions_current_project_id)
                            .order(:id)
                            .where.not(id: collecting_event_id)
-                           .where(sql_1).distinct
+                           .where(where_clause).distinct
+    end
 
     retval[:count] = selected_items.count.to_s
     retval[:table] = render_to_string(partial: 'make_dates_matching_table',

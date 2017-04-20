@@ -558,9 +558,24 @@ class CollectingEvent < ActiveRecord::Base
     sql += ' and (verbatim_latitude is null or verbatim_longitude is null)' unless include_values
 
     retval = CollectingEvent.where(sql)
-               .with_project_id($project_id)
-               .order(:id)
-               .where.not(id: id).distinct
+                 .with_project_id($project_id)
+                 .order(:id)
+                 .where.not(id: id).distinct
+    retval
+  end
+
+  # @param [String] piece
+  # @param [Boolean] include_values true if to include records whicgh already have verbatim lat/longs
+  # @return [Scope] of matching collecting events
+  def similar_dates(lat, long, piece = '', include_values = true)
+    sql = '('
+    sql += ')'
+    sql += ' and (verbatim_date is null)' unless include_values
+
+    retval = CollectingEvent.where(sql)
+                 .with_project_id($project_id)
+                 .order(:id)
+                 .where.not(id: id).distinct
     retval
   end
 
