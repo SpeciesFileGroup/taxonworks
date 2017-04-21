@@ -12,7 +12,7 @@ RUN apt-get update && \
       apt-get install -y software-properties-common \ 
       git gcc nodejs npm build-essential libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
       pkg-config imagemagick libmagickcore-dev libmagickwand-dev \
-      tesseract-ocr cmake libpq-dev libproj-dev libgeos-dev libgeos++-dev && \
+      tesseract-ocr cmake libpq-dev libproj-dev libgeos-dev libgeos++-dev locales && \
       apt-get clean && \ 
       rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/* 
 
@@ -40,9 +40,6 @@ COPY Gemfile.lock /app/
 RUN bundle install  
 
 COPY . /app
-
-COPY ./config/database.yml.example /app/config/database.yml
-COPY ./config/application_settings.yml.example /app/config/application_settings.yml
 
 # See https://github.com/phusion/passenger-docker 
 RUN mkdir -p /etc/my_init.d
