@@ -32,6 +32,10 @@ spec:
         app: taxonworks
         tier: frontend
     spec:
+      volumes:
+        - name: taxonworks-media-vol
+          persistentVolumeClaim:
+            claimName: taxonworks-media-pv-claim
       containers:
         - name: taxonworks
           image: sfgrp/taxonworks
@@ -70,8 +74,10 @@ spec:
                 secretKeyRef:
                   name: taxonworks
                   key: secret_key_base
-
           ports:
             - containerPort: 80
               name: http
+          volumeMounts:
+            - mountPath: /app/public/system
+              name: taxonworks-media-vol
 
