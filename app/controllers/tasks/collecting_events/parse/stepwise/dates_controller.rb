@@ -37,12 +37,9 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     start_date_year = start_date[0]
     start_date_month = start_date[1]
     start_date_day = start_date[2]
-    end_date_year = end_date[0] unless end_date[0].nil?
-    end_date_month = end_date[1] unless end_date[0].nil?
-    end_date_day = end_date[2] unless end_date[0].nil?
-    if end_date_year.nil?
-      end_date_year, end_date_month, end_date_day = '', '', ''
-    end
+    end_date_year = end_date[0]
+    end_date_month = end_date[1]
+    end_date_day = end_date[2]
     if ce.update_attributes({start_date_year: start_date[0],
                              start_date_month: start_date[1],
                              start_date_day: start_date[2],
@@ -53,10 +50,8 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
                             })
     else
       any_failed = true
-      message += 'one or more of the collecting events.'
+      message = 'Failed to update the collecting event.'
     end
-    # end
-    message = 'Failed to update the collecting event.'
 
     if any_failed
       flash['alert'] = message
@@ -71,6 +66,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
 
   # all buttons come here, so we first have to look at the button value
   def save_selected
+    next_id = next_collecting_event_id
     selected = params[:selected]
     if selected.blank?
       message = 'Nothing to save.'
@@ -98,7 +94,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
                                   })
           else
             any_failed = true
-            message += 'one or more of the collecting events.'
+            message = 'one or more of the collecting events.'
           end
         end
       }

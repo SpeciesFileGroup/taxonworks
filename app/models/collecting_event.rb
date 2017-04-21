@@ -599,6 +599,18 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   # @return [String]
+  def end_y_m_d_string
+    date = end_date
+    "#{'%4d' % date.year} #{'%02d' % date.month} #{'%02d' % date.day}" if has_end_date?
+  end
+
+  # @return [String]
+  def start_y_m_d_string
+    date = start_date
+    "#{'%4d' % date.year} #{'%02d' % date.month} #{'%02d' % date.day}" if has_start_date?
+  end
+
+  # @return [String]
   def end_date_string
     date = end_date
     "#{'%02d' % date.day}/#{'%02d' % date.month}/#{'%4d' % date.year}" unless date.nil?

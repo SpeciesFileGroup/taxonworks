@@ -67,7 +67,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
   # @param [Scope] collection is a scope of CollectingEvent
   # "identical matches" result table
   def make_dates_matching_table(*pieces, collection)
-    columns = ['CEID', 'Match', 'Verbatim Date', 'Select']
+    columns = ['CEID', 'Match', 'Start Date', 'End Date', 'Verbatim Date', 'Select']
 
     thead = content_tag(:thead) do
       content_tag(:tr) do
@@ -86,10 +86,14 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
                 item_data = link_to(item.id, item)
               when 1 #'Match'
                 item_data = content_tag(:vl, pieces.join(' '))
-              when 2 #'Verbatim Date'
+              when 2 # 'Start Date'
+                item_data = item.start_y_m_d_string
+              when 3 # 'End Date'
+                item_data = item.end_y_m_d_string
+              when 4 #'Verbatim Date'
                 item_data = content_tag(:vd, item.verbatim_date, data: {help: item.verbatim_label})
                 no_verbatim_date = !item.verbatim_date.blank?
-              when 3 #'Select'
+              when 5 #'Select'
                 # check_box_tag(name, value = "1", checked = false, options = {}) public
                 options_for = {disabled: no_verbatim_date}
                 options_for[:class] = 'selectable_select' unless no_verbatim_date
@@ -109,11 +113,11 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
   end
 
   def test_start_date # what is "test" about this?
-    @collecting_event.verbatim_date unless @collecting_event.nil?
+    @collecting_event.start_y_m_d_string unless @collecting_event.nil?
   end
 
   def test_end_date
-    @collecting_event.verbatim_date unless @collecting_event.nil?
+    @collecting_event.end_y_m_d_string unless @collecting_event.nil?
   end
 
   def show_ce_vl(collecting_event)
