@@ -5,7 +5,7 @@ class ConfidencesController < ApplicationController
 
   # GET /confidences
   # GET /confidences.json
-   # GET /<model>/:id/confidences.json
+  # GET /<model>/:id/confidences.json
   def index
     respond_to do |format|
       format.html {
@@ -13,7 +13,11 @@ class ConfidencesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @confidences = Confidence.where(project_id: sessions_current_project_id).where(filter_params)
+        @confidences = Confidence.where(project_id: sessions_current_project_id).where(
+          polymorphic_filter_params('confidence_object', [
+            :observation_id,
+          ])
+        )
       }
     end
   end
@@ -96,22 +100,6 @@ class ConfidencesController < ApplicationController
   end
 
   private
-
-  # handle the polymorphic resource
-  def filter_params
-    h = params.permit(
-      :observation_id
-    ).to_h
-    if h.size > 1 
-      respond_to do |format|
-        format.html { render plain: '404 Not Found', status: :unprocessable_entity and return }
-        format.json { render json: {success: false}, status: :unprocessable_entity and return }
-      end
-    end
-
-    model = h.keys.first.split('_').first.classify
-    return {confidence_object_type: model, confidence_object_id: h.values.first}
-  end
 
   def set_confidence
     @confidence = Confidence.find(params[:id])

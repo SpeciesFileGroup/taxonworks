@@ -13,7 +13,15 @@ class NotesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @notes = Note.where(project_id: sessions_current_project_id).where(filter_params)
+        @notes = Note.where(project_id: sessions_current_project_id).where(
+          polymorphic_filter_params('note_object', [
+            :observation_id,
+            :otu_id,
+            :descriptor_id,
+            :collection_object_id,
+            :character_state_id
+          ])
+        )
       }
     end
   end
@@ -101,26 +109,6 @@ class NotesController < ApplicationController
   end
 
   private
-
-  # handle the polymorphic resource
-  def filter_params
-    h = params.permit(
-      :observation_id,
-      :otu_id,
-      :descriptor_id,
-      :collection_object_id,
-      :character_state_id
-    ).to_h
-    if h.size > 1 
-      respond_to do |format|
-        format.html { render plain: '404 Not Found', status: :unprocessable_entity and return }
-        format.json { render json: {success: false}, status: :unprocessable_entity and return }
-      end
-    end
-
-    model = h.keys.first.split('_').first.classify
-    return {note_object_type: model, note_object_id: h.values.first}
-  end
 
   def set_note
     @note = Note.with_project_id(sessions_current_project_id).find(params[:id])

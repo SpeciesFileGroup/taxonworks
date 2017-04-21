@@ -1,7 +1,7 @@
 class MatricesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_matrix, only: [:show, :edit, :update, :destroy]
+  before_action :set_matrix, only: [:show, :edit, :update, :destroy, :row]
 
   # GET /matrices
   # GET /matrices.json
@@ -91,9 +91,8 @@ class MatricesController < ApplicationController
     end
   end
 
-  # GET /matrices/:id/row.json
+  # GET /matrices/:id/row.json?otu_id=1
   def row
-    @matrix = Matrix.find(params[:id])
     @descriptors = @matrix.descriptors
     @otu = Otu.find(params[:otu_id])
   end

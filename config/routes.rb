@@ -195,7 +195,7 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :descriptors do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes]
   end
 
   resources :documents do
@@ -773,6 +773,20 @@ TaxonWorks::Application.routes.draw do
 
       get '/observations/:observation_id/confidences',
         to: 'confidences#index'
+
+      get '/descriptors/:id',
+        to: 'descriptors#show'
+
+      get '/descriptors/:descriptor_id/notes',
+        to: 'notes#index'
+
+      get '/descriptors/:descriptor_id/observations',
+        to: 'observations#index'
+
+      get '/descriptors/:descriptor_id/depictions',
+        to: 'depictions#index'
+
+
 
     end
   end

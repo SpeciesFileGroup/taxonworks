@@ -6,13 +6,22 @@ class DepictionsController < ApplicationController
   # GET /depictions
   # GET /depictions.json
   def index
-    @recent_objects = Depiction.where(project_id: $project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html {
+        @recent_objects = Depiction.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @depictions = Depiction.where(project_id: sessions_current_project_id).where(
+          polymorphic_filter_params('depiction_object', [:observation_id, :content_id, :descriptor_id]) 
+        )
+      }
+    end
   end
 
 
   def list
-    @depictions = Depiction.where(project_id: $project_id).page(params[:page])
+    @depictions = Depiction.where(project_id: sessions_current_project_id).page(params[:page])
   end
 
   # GET /depictions/1
