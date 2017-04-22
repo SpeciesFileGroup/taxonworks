@@ -7,7 +7,7 @@ source 'https://rubygems.org'
   # brew update # then
   # brew upgrade openssl
 
-ruby '2.3.1'
+ruby '2.3.3'
 
 gem 'rails', '~> 4.2.7.1'
 gem 'psych', '~> 2.0.16'

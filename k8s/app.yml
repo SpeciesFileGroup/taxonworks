@@ -36,9 +36,15 @@ spec:
         - name: taxonworks-media-vol
           persistentVolumeClaim:
             claimName: taxonworks-media-pv-claim
+        - name: taxonworks-backup-vol
+          persistentVolumeClaim:
+            claimName: taxonworks-backup-pv-claim
+        - name: taxonworks-staging-vol
+          persistentVolumeClaim:
+            claimName: taxonworks-staging-pv-claim
       containers:
         - name: taxonworks
-          image: sfgrp/taxonworks
+          image: sfgrp/taxonworks:0.0.1
           # livenessProbe:
           #   httpGet:
           #     path: /
@@ -80,4 +86,7 @@ spec:
           volumeMounts:
             - mountPath: /app/public/system
               name: taxonworks-media-vol
-
+            - mountPath: /backup
+              name: taxonworks-backup-vol
+            - mountPath: /staging/
+              name: taxonworks-staging-vol

@@ -10,7 +10,7 @@ ADD config/docker/nginx/gzip_max.conf /etc/nginx/conf.d/gzip_max.conf
 # TaxonWorks dependancies
 RUN apt-get update && \
       apt-get install -y software-properties-common \ 
-      git gcc nodejs npm build-essential libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
+      git gcc build-essential libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
       pkg-config imagemagick libmagickcore-dev libmagickwand-dev \
       tesseract-ocr cmake libpq-dev libproj-dev libgeos-dev libgeos++-dev locales && \
       apt-get clean && \ 
@@ -50,7 +50,6 @@ RUN chmod +x /etc/my_init.d/init.sh && \
     rm -f /etc/service/nginx/down
 
 ENV RAILS_ENV production
-RUN npm install 
 RUN bundle exec rake assets:precompile
 
 CMD ["/sbin/my_init"]

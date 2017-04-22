@@ -29,3 +29,35 @@ spec:
   selector:
     matchLabels:
       name: taxonworks-media-pv
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: tw
+  name: taxonworks-backup-pv-claim
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 4700Gi
+  selector:
+    matchLabels:
+      name: taxonworks-backup-pv
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: tw
+  name: taxonworks-staging-pv-claim
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 4700Gi
+  selector:
+    matchLabels:
+      name: taxonworks-staging-pv
