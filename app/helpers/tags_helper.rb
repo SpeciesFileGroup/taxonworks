@@ -15,7 +15,7 @@ module TagsHelper
 
   def tag_link(tag)
     return nil if tag.nil?
-    link_to(tag_tag(tag).html_safe, metamorphosize_if(tag.tag_object))
+    link_to(tag_tag(tag), metamorphosize_if(tag.tag_object))
   end
 
   def link_to_destroy_tag(link_text, tag)
