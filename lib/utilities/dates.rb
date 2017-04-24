@@ -289,6 +289,21 @@ module Utilities::Dates
     end
   end
 
+  def self.fix_2_digit_year(year)
+    if year.length < 4
+      year = year.gsub("'", '')
+      if year.length < 3
+        tny = Time.now.year
+        if year.to_i > tny%100
+          year = (tny/100 - 1).to_s + year
+        else
+          year = (tny/100).to_s + year
+        end
+      end
+
+    end
+  end
+
   def self.huntfor_dates(label, filters = REGEXP_DATES.keys)
     trials = {}
     filters.each_with_index { |kee, dex|
@@ -487,7 +502,11 @@ module Utilities::Dates
         end
     end
     trial[:piece][0] = match_data[0][0]
-    trial[:start_date_year] = match_data[0][start_date_year]
+    trial_start_date_year = match_data[0][start_date_year]
+    if trial_start_date_year.length < 4
+
+    end
+    trial[:start_date_year] = fix_2_digit_year(match_data[0][start_date_year])
     trial[:start_date_month] = month_index(match_data[0][start_date_month]).to_s
     trial[:start_date_day] = match_data[0][start_date_day]
     trial[:end_date_year] = '' #  match_data[3]
@@ -497,14 +516,16 @@ module Utilities::Dates
     unless match_data[1].blank?
       which_data = 1
     end
+    trial[:start_date] = trial[:start_date_year] + ' ' + trial[:start_date_month] + ' ' + trial[:start_date_day]
+    trial[:end_date] = ''
+
     if (end_date_year > 0)
       trial[:piece][1] = match_data[which_data][0] unless which_data == 0
-      trial[:end_date_year] = match_data[which_data][end_date_year]
+      trial[:end_date_year] = fix_2_digit_year(match_data[which_data][end_date_year])
       trial[:end_date_month] = month_index(match_data[which_data][end_date_month]).to_s
       trial[:end_date_day] = match_data[which_data][end_date_day]
+      trial[:end_date] = trial[:end_date_year] + ' ' + trial[:end_date_month] + ' ' + trial[:end_date_day]
     end
-    trial[:start_date] = trial[:start_date_year] + ' ' + trial[:start_date_month] + ' ' + trial[:start_date_day]
-    trial[:end_date] = trial[:end_date_year] + ' ' + trial[:end_date_month] + ' ' + trial[:end_date_day]
     trial
   end
 

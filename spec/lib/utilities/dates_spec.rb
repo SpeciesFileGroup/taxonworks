@@ -12,19 +12,22 @@ describe 'Dates', group: [:collecting_events, :dates] do
         this_case = Utilities::Dates.hunt_dates('192:5:18.1N')
 
         expect(this_case).to eq(
-                               {'MONTH_DD_YYYY_2'        => {:method => 'MONTH_DD_YYYY_2'},
-                                'DD_MONTH_YYYY_2'        => {:method => 'DD_MONTH_YYYY_2'},
-                                'MM_DD_YYYY_2'           => {:method => 'MM_DD_YYYY_2'},
-                                'MONTH_DD_MONTH_DD_YYYY' => {:method => 'MONTH_DD_MONTH_DD_YYYY'},
-                                'DD_MONTH_DD_MONTH_YYYY' => {:method => 'DD_MONTH_DD_MONTH_YYYY'},
-                                'MM_DD_MM_DD_YYYY'       => {:method => 'MM_DD_MM_DD_YYYY'},
-                                'MONTH_DD_DD_YYYY'       => {:method => 'MONTH_DD_DD_YYYY'},
-                                'DD_DD_MONTH_YYYY'       => {:method => 'DD_DD_MONTH_YYYY'},
-                                'MM_DD_DD_YYYY'          => {:method => 'MM_DD_DD_YYYY'},
-                                'MONTH_DD_YYY'           => {:method => 'MONTH_DD_YYY'},
-                                'DD_MONTH_YYY'           => {:method => 'DD_MONTH_YYY'},
-                                'MM_DD_YYYY'             => {:method => 'MM_DD_YYYY'},
-                                'MM_DD_YY'               => {:method => 'MM_DD_YY'}
+                                 {:dd_dd_month_yyyy => {},
+                                  :dd_mm_dd_mm_yyyy => {},
+                                  :dd_month_dd_month_yyyy => {},
+                                  :dd_month_yyy => {},
+                                  :dd_month_yyyy_2 => {},
+                                  :mm_dd_dd_yyyy => {},
+                                  :mm_dd_mm_dd_yyyy => {},
+                                  :mm_dd_yy => {},
+                                  :mm_dd_yyyy => {},
+                                  :mm_dd_yyyy_2 => {},
+                                  :month_dd_dd_yyyy => {},
+                                  :month_dd_month_dd_yyyy => {},
+                                  :month_dd_yyy => {},
+                                  :month_dd_yyyy_2 => {},
+                                  :yyyy_mm_dd => {},
+                                  :yyyy_month_dd => {}
                                }
                              )
       end
@@ -32,30 +35,55 @@ describe 'Dates', group: [:collecting_events, :dates] do
     #done except failing on 'This is a test september 20 ,1944 - November 19 , 1945' (extra spaces)
     context 'single use case for dates hunt_dates' do
       use_case = {'Some text here,  5 V 2003, some more text after the date  ' =>
-                    {'MONTH_DD_YYYY_2'        => {:method => 'MONTH_DD_YYYY_2'},
-                     'DD_MONTH_YYYY_2'        => {:method => 'DD_MONTH_YYYY_2'},
-                     'MM_DD_YYYY_2'           => {:method => 'MM_DD_YYYY_2'},
-                     'MONTH_DD_MONTH_DD_YYYY' => {:method => 'MONTH_DD_MONTH_DD_YYYY'},
-                     'DD_MONTH_DD_MONTH_YYYY' => {:method => 'DD_MONTH_DD_MONTH_YYYY'},
-                     'MM_DD_MM_DD_YYYY'       => {:method => 'MM_DD_MM_DD_YYYY'},
-                     'MONTH_DD_DD_YYYY'       => {:method => 'MONTH_DD_DD_YYYY'},
-                     'DD_DD_MONTH_YYYY'       => {:method => 'DD_DD_MONTH_YYYY'},
-                     'MM_DD_DD_YYYY'          => {:method => 'MM_DD_DD_YYYY'},
-                     'MONTH_DD_YYY'           => {:method => 'MONTH_DD_YYY'},
-                     'DD_MONTH_YYY'           => {:piece            => '5 V 2003',
-                                                  :method           => 'DD_MONTH_YYY',
-                                                  :start_date_year  => '2003',
-                                                  :start_date_month => '5',
-                                                  :start_date_day   => '5',
-                                                  :start_date       => '2003/5/5',
-                                                  :end_date_year    => '',
-                                                  :end_date_month   => '',
-                                                  :end_date_day     => '',
-                                                  :end_date         => '//'},
-                     'MM_DD_YYYY'             => {:method => 'MM_DD_YYYY'},
-                     'MM_DD_YY'               => {:method => 'MM_DD_YY'}}
+                      {:dd_dd_month_yyyy => {},
+                       :dd_mm_dd_mm_yyyy => {},
+                       :dd_month_dd_month_yyyy => {},
+                       :dd_month_yyy => {:method => :dd_month_yyy, :piece => {0 => "5 V 2003"}, :start_date_year => "2003", :start_date_month => "5", :start_date_day => "5", :end_date_year => "", :end_date_month => "", :end_date_day => "", :start_date => "2003 5 5", :end_date => ""},
+                       :dd_month_yyyy_2 => {},
+                       :mm_dd_dd_yyyy => {},
+                       :mm_dd_mm_dd_yyyy => {},
+                       :mm_dd_yy => {},
+                       :mm_dd_yyyy => {},
+                       :mm_dd_yyyy_2 => {},
+                       :month_dd_dd_yyyy => {},
+                       :month_dd_month_dd_yyyy => {},
+                       :month_dd_yyy => {},
+                       :month_dd_yyyy_2 => {},
+                       :yyyy_mm_dd => {},
+                       :yyyy_month_dd => {}
+                      }
       }
       @entry   = 0
+
+      use_case.each {|label, result|
+        @entry += 1
+        specify "case #{@entry}: #{label} should yield #{result}" do
+          this_case = Utilities::Dates.hunt_dates(label)
+          expect(this_case).to eq(result)
+        end
+      }
+    end
+    context 'two digit year use case for dates hunt_dates' do
+      use_case = {'Some text here,  4 JUL 03, some more text after the date  ' =>
+                      {:dd_dd_month_yyyy => {},
+                       :dd_mm_dd_mm_yyyy => {},
+                       :dd_month_dd_month_yyyy => {},
+                       :dd_month_yyy => {:method => :dd_month_yyy, :piece => {0 => "04 JUL 03"}, :start_date_year => "03", :start_date_month => "7", :start_date_day => "04", :end_date_year => "", :end_date_month => "", :end_date_day => "", :start_date => "03 7 04", :end_date => ""},
+                       :dd_month_yyyy_2 => {},
+                       :mm_dd_dd_yyyy => {},
+                       :mm_dd_mm_dd_yyyy => {},
+                       :mm_dd_yy => {},
+                       :mm_dd_yyyy => {},
+                       :mm_dd_yyyy_2 => {},
+                       :month_dd_dd_yyyy => {},
+                       :month_dd_month_dd_yyyy => {},
+                       :month_dd_yyy => {},
+                       :month_dd_yyyy_2 => {},
+                       :yyyy_mm_dd => {},
+                       :yyyy_month_dd => {}
+                      }
+      }
+      @entry = 0
 
       use_case.each {|label, result|
         @entry += 1
@@ -69,61 +97,40 @@ describe 'Dates', group: [:collecting_events, :dates] do
     context 'multiple use cases for dates hunt_dates' do
       use_cases = {
         'Here is some extra text: 4 jan, 2017  More stuff at the end'      =>
-          {'MONTH_DD_YYYY_2'        => {:method => 'MONTH_DD_YYYY_2'},
-           'DD_MONTH_YYYY_2'        => {:method => 'DD_MONTH_YYYY_2'},
-           'MM_DD_YYYY_2'           => {:method => 'MM_DD_YYYY_2'},
-           'MONTH_DD_MONTH_DD_YYYY' => {:method => 'MONTH_DD_MONTH_DD_YYYY'},
-           'DD_MONTH_DD_MONTH_YYYY' => {:method => 'DD_MONTH_DD_MONTH_YYYY'},
-           'MM_DD_MM_DD_YYYY'       => {:method => 'MM_DD_MM_DD_YYYY'},
-           'MONTH_DD_DD_YYYY'       => {:method => 'MONTH_DD_DD_YYYY'},
-           'DD_DD_MONTH_YYYY'       => {:method => 'DD_DD_MONTH_YYYY'},
-           'MM_DD_DD_YYYY'          => {:method => 'MM_DD_DD_YYYY'},
-           'MONTH_DD_YYY'           => {:method => 'MONTH_DD_YYY'},
-           'DD_MONTH_YYY'           => {:piece            => '4 jan, 2017',
-                                        :method           => 'DD_MONTH_YYY',
-                                        :start_date_year  => '2017',
-                                        :start_date_month => '1',
-                                        :start_date_day   => '4',
-                                        :start_date       => '2017/1/4',
-                                        :end_date_year    => '',
-                                        :end_date_month   => '',
-                                        :end_date_day     => '',
-                                        :end_date         => '//'},
-           'MM_DD_YYYY'             => {:method => 'MM_DD_YYYY'},
-           'MM_DD_YY'               => {:method => 'MM_DD_YY'}
+            {:dd_dd_month_yyyy => {},
+             :dd_mm_dd_mm_yyyy => {},
+             :dd_month_dd_month_yyyy => {},
+             :dd_month_yyy => {:method => :dd_month_yyy, :piece => {0 => "4 jan, 2017"}, :start_date_year => "2017", :start_date_month => "1", :start_date_day => "4", :end_date_year => "", :end_date_month => "", :end_date_day => "", :start_date => "2017 1 4", :end_date => ""},
+             :dd_month_yyyy_2 => {},
+             :mm_dd_dd_yyyy => {},
+             :mm_dd_mm_dd_yyyy => {},
+             :mm_dd_yy => {},
+             :mm_dd_yyyy => {},
+             :mm_dd_yyyy_2 => {},
+             :month_dd_dd_yyyy => {},
+             :month_dd_month_dd_yyyy => {},
+             :month_dd_yyy => {},
+             :month_dd_yyyy_2 => {},
+             :yyyy_mm_dd => {},
+             :yyyy_month_dd => {}
           },
         'Here is some extra text:,;   22-23 V 2003; More stuff at the end' =>
-          {'MONTH_DD_YYYY_2'        => {:method => 'MONTH_DD_YYYY_2'},
-           'DD_MONTH_YYYY_2'        => {:method => 'DD_MONTH_YYYY_2'},
-           'MM_DD_YYYY_2'           => {:method => 'MM_DD_YYYY_2'},
-           'MONTH_DD_MONTH_DD_YYYY' => {:method => 'MONTH_DD_MONTH_DD_YYYY'},
-           'DD_MONTH_DD_MONTH_YYYY' => {:method => 'DD_MONTH_DD_MONTH_YYYY'},
-           'MM_DD_MM_DD_YYYY'       => {:method => 'MM_DD_MM_DD_YYYY'},
-           'MONTH_DD_DD_YYYY'       => {:method => 'MONTH_DD_DD_YYYY'},
-           'DD_DD_MONTH_YYYY'       => {:piece            => '22-23 V 2003',
-                                        :method           => 'DD_DD_MONTH_YYYY',
-                                        :start_date_year  => '2003',
-                                        :start_date_month => '5',
-                                        :start_date_day   => '22',
-                                        :start_date       => '2003/5/22',
-                                        :end_date_year    => '2003',
-                                        :end_date_month   => '5',
-                                        :end_date_day     => '23',
-                                        :end_date         => '2003/5/23'},
-           'MM_DD_DD_YYYY'          => {:method => 'MM_DD_DD_YYYY'},
-           'MONTH_DD_YYY'           => {:method => 'MONTH_DD_YYY'},
-           'DD_MONTH_YYY'           => {:piece            => '23 V 2003',
-                                        :method           => 'DD_MONTH_YYY',
-                                        :start_date_year  => '2003',
-                                        :start_date_month => '5',
-                                        :start_date_day   => '23',
-                                        :start_date       => '2003/5/23',
-                                        :end_date_year    => '',
-                                        :end_date_month   => '',
-                                        :end_date_day     => '',
-                                        :end_date         => '//'},
-           'MM_DD_YYYY'             => {:method => 'MM_DD_YYYY'},
-           'MM_DD_YY'               => {:method => 'MM_DD_YY'}
+            {:dd_dd_month_yyyy => {:method => :dd_dd_month_yyyy, :piece => {0 => "22-23 V 2003"}, :start_date_year => "2003", :start_date_month => "5", :start_date_day => "22", :end_date_year => "2003", :end_date_month => "5", :end_date_day => "23", :start_date => "2003 5 22", :end_date => "2003 5 23"},
+             :dd_mm_dd_mm_yyyy => {},
+             :dd_month_dd_month_yyyy => {},
+             :dd_month_yyy => {:method => :dd_month_yyy, :piece => {0 => "23 V 2003"}, :start_date_year => "2003", :start_date_month => "5", :start_date_day => "23", :end_date_year => "", :end_date_month => "", :end_date_day => "", :start_date => "2003 5 23", :end_date => ""},
+             :dd_month_yyyy_2 => {},
+             :mm_dd_dd_yyyy => {},
+             :mm_dd_mm_dd_yyyy => {},
+             :mm_dd_yy => {},
+             :mm_dd_yyyy => {},
+             :mm_dd_yyyy_2 => {},
+             :month_dd_dd_yyyy => {},
+             :month_dd_month_dd_yyyy => {},
+             :month_dd_yyy => {},
+             :month_dd_yyyy_2 => {},
+             :yyyy_mm_dd => {},
+             :yyyy_month_dd => {}
           }
       }
       @entry    = 0
