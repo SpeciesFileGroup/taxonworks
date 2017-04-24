@@ -14,15 +14,13 @@ describe 'Otus', type: :feature do
     end 
 
     context 'with some records created' do
-      before {
-        10.times { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
+      before do 
+        5.times { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
         FactoryGirl.create(:valid_otu, name: 'Find me', creator: @user, updater: @user, project: @project)
-      }
+      end 
 
       context 'GET /otus' do
-        before {
-          visit index_path
-        }
+        before { visit index_path }
 
         it_behaves_like 'a_data_model_with_standard_index'
 
@@ -30,7 +28,7 @@ describe 'Otus', type: :feature do
           select_text = 'Select a otu'
           expect(page).to have_button('Show')
           expect(page).to have_field(select_text) # TODO: inflect
-          fill_in(select_text, :with => 'a')
+          fill_in(select_text, with: 'a')
         end
       end
 
@@ -43,7 +41,7 @@ describe 'Otus', type: :feature do
       end
 
       describe 'GET /otus/n' do
-        before {
+        before { 
           visit otu_path(Otu.second)
         }
 
@@ -110,15 +108,11 @@ describe 'Otus', type: :feature do
         end
       end
 
-      context 'downloading OTU table' do
+      context 'downloading OTU table', js: true do
         let!(:csv) { Download.generate_csv(Otu.where(project_id: @project.id)) }
 
-        before do 
-          sleep 5 
+        specify 'otus table can be downloaded as-is' do
           visit otus_path
-        end 
-
-        specify 'otus table can be downloaded as-is', js: true do
           click_link('Download')
           expect( Features::Downloads::download_content).to eq(csv)
         end
