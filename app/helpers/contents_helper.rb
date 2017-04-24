@@ -1,3 +1,4 @@
+
 module ContentsHelper
 
   # Note disambiguation from Rails' content_tag()
@@ -5,15 +6,15 @@ module ContentsHelper
     return nil if content.nil?
     content_tag(:span) do
       [
-        topic_tag(content.topic).html_safe,
-        otu_tag(content.otu).html_safe
+        controlled_vocabulary_term_tag(content.topic.metamorphosize),
+        otu_tag(content.otu)
       ].join(' - ').html_safe
     end
   end
 
   def content_link(content)
     return nil if content.nil?
-    link_to(taxon_works_content_tag(content).html_safe, content)
+    link_to(taxon_works_content_tag(content), content)
   end
 
   def contents_search_form
