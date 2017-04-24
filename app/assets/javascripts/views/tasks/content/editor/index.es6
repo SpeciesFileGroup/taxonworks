@@ -15,6 +15,19 @@ Object.assign(TW.views.tasks.content.editor, {
     // JOSE - we can make this more generalized I think, but this works
     Vue.http.headers.common['X-CSRF-Token'] = token;
 
+    function removeDuplicate(list, id) {
+      var 
+        position = list.findIndex(item => {
+          if(id === item.id) {
+            return true;
+          }
+        });
+        if(position >= 0) {
+            list.splice(position,1);
+        }
+      return list;
+    }
+
     const store = new Vuex.Store({
       state: {    
         selected: {
@@ -344,7 +357,7 @@ Object.assign(TW.views.tasks.content.editor, {
           ajaxUrl = `/contents/filter.json?topic_id=${this.topic.id}`
 
           this.$http.get(ajaxUrl).then( response => {
-            that.contents = response.body;     
+            that.contents = removeDuplicate(response.body,this.content.id);
           });          
         },
         cloneCitation: function(text) {
@@ -356,7 +369,7 @@ Object.assign(TW.views.tasks.content.editor, {
     })
 
     Vue.component('compare-content', {
-      template: '<div :class="{ disabled : !content || content.length < 1}" > \
+      template: '<div :class="{ disabled : !content || contents.length < 1}" > \
                   <div class="item flex-wrap-column middle menu-button" @click="showModal = contents.length > 0" ><span data-icon="compare" class="big-icon"></span><span class="tiny_space">Compare</span></div> \
                   <modal v-if="showModal" id="compare-modal" @close="showModal = false"> \
                     <h3 slot="header">Compare content</h3> \
@@ -399,10 +412,10 @@ Object.assign(TW.views.tasks.content.editor, {
           if (this.disabled) return
             
           var that = this;
-          ajaxUrl = `/contents/filter.json?topic_id=${this.topic.id}`
+          ajaxUrl = `/contents/filter.json?topic_id=${this.topic.id}`;
 
           this.$http.get(ajaxUrl).then( response => {
-            that.contents = response.body;        
+            that.contents = removeDuplicate(response.body, this.content.id);
           });          
         },
         compareContent: function(content) {
@@ -415,7 +428,7 @@ Object.assign(TW.views.tasks.content.editor, {
     Vue.component('citation-otu', {
       template: '<div :class="{ disabled : disabled  }"> \
                   <div class="flex-wrap-column middle menu-button" @click="showModal = citations.length > 0"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">OTU Citation</span></div> \
-                  <modal v-if="showModal"> \
+                  <modal v-if="showModal" @close="showModal = false"> \
                     <h3 slot="header">Citation OTU</h3> \
                     <ul slot="body"> \
                       <li v-for="item in citations"><span @click="pinItem(item)">ASD</span><span v-html="item.object_tag"></span></li> \
