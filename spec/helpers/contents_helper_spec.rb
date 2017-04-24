@@ -13,6 +13,10 @@ describe ContentsHelper, type: :helper do
       expect(helper.taxon_works_content_tag(content)).to eq(target)
     end
 
+    specify '#content_link' do
+      expect(helper.content_link(content)).to match(target)
+    end
+
     specify "#content_search_form" do
       expect(helper.contents_search_form).to have_button('Show')
       expect(helper.contents_search_form).to have_field('content_id_for_quick_search_form')
