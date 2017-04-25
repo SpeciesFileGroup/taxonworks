@@ -17,6 +17,7 @@ describe 'Otus', type: :feature do
       before do 
         5.times { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
         FactoryGirl.create(:valid_otu, name: 'Find me', creator: @user, updater: @user, project: @project)
+        Otu.last.update_column(:name, 'something_unmatchable 44')
       end 
 
       context 'GET /otus' do
@@ -73,11 +74,11 @@ describe 'Otus', type: :feature do
           )
         }
 
-        let(:otu) { Otu.fifth }
+        let(:otu) { Otu.fifth } # has custom name
         let(:otu2) { taxon_name.otus.first }
 
         it 'Returns a response including an array of ids for an otu name' do
-          route = URI.escape("/api/v1/otus/by_name/#{otu.name}?project_id=#{otu.project.id}&token=#{@user.api_access_token}")
+          route = URI.escape("/api/v1/otus/by_name/#{otu.name}?project_id=#{@project.id}&token=#{@user.api_access_token}")
           visit route 
           expect(JSON.parse(page.body)['result']['otu_ids']).to eq([otu.id])
         end
