@@ -11,7 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170414170206) do
+<<<<<<< Updated upstream
+ActiveRecord::Schema.define(version: 20170210033821) do
+=======
+ActiveRecord::Schema.define(version: 20170326143108) do
+>>>>>>> Stashed changes
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -39,6 +43,12 @@ ActiveRecord::Schema.define(version: 20170414170206) do
   add_index "alternate_values", ["project_id"], name: "index_alternate_values_on_project_id", using: :btree
   add_index "alternate_values", ["type"], name: "index_alternate_values_on_type", using: :btree
   add_index "alternate_values", ["updated_by_id"], name: "index_alternate_values_on_updated_by_id", using: :btree
+
+  create_table "ar_internal_metadata", primary_key: "key", force: :cascade do |t|
+    t.string   "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "asserted_distributions", force: :cascade do |t|
     t.integer  "otu_id",             null: false
@@ -524,6 +534,8 @@ ActiveRecord::Schema.define(version: 20170414170206) do
     t.datetime "created_at",            null: false
     t.datetime "updated_at",            null: false
     t.integer  "position"
+    t.text     "caption"
+    t.string   "figure_label"
   end
 
   add_index "depictions", ["created_by_id"], name: "index_depictions_on_created_by_id", using: :btree
@@ -586,15 +598,17 @@ ActiveRecord::Schema.define(version: 20170414170206) do
   add_index "documentation", ["updated_by_id"], name: "index_documentation_on_updated_by_id", using: :btree
 
   create_table "documents", force: :cascade do |t|
-    t.string   "document_file_file_name",    null: false
-    t.string   "document_file_content_type", null: false
-    t.integer  "document_file_file_size",    null: false
-    t.datetime "document_file_updated_at",   null: false
-    t.integer  "project_id",                 null: false
-    t.integer  "created_by_id",              null: false
-    t.integer  "updated_by_id",              null: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.string   "document_file_file_name",                 null: false
+    t.string   "document_file_content_type",              null: false
+    t.integer  "document_file_file_size",                 null: false
+    t.datetime "document_file_updated_at",                null: false
+    t.integer  "project_id",                              null: false
+    t.integer  "created_by_id",                           null: false
+    t.integer  "updated_by_id",                           null: false
+    t.datetime "created_at",                              null: false
+    t.datetime "updated_at",                              null: false
+    t.jsonb    "page_map",                   default: {}
+    t.integer  "page_total"
   end
 
   add_index "documents", ["document_file_content_type"], name: "index_documents_on_document_file_content_type", using: :btree
@@ -786,7 +800,7 @@ ActiveRecord::Schema.define(version: 20170414170206) do
   create_table "extracts", force: :cascade do |t|
     t.decimal  "quantity_value",             null: false
     t.string   "quantity_unit",              null: false
-    t.string   "verbatim_anatomical_origin"
+    t.string   "verbatim_anatomical_origin", null: false
     t.integer  "year_made",                  null: false
     t.integer  "month_made",                 null: false
     t.integer  "day_made",                   null: false
@@ -1072,7 +1086,6 @@ ActiveRecord::Schema.define(version: 20170414170206) do
     t.integer  "project_id",                    null: false
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
-    t.integer  "position"
   end
 
   add_index "matrix_column_items", ["controlled_vocabulary_term_id"], name: "index_matrix_column_items_on_controlled_vocabulary_term_id", using: :btree

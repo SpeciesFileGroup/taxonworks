@@ -108,6 +108,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :citations do # except: [:show]
     concerns [:data_routes]
+    collection do
+      get 'filter', defaults: {format: :json}
+  end
   end
 
   resources :confidences do # , except: [:edit, :show]
@@ -125,7 +128,7 @@ TaxonWorks::Application.routes.draw do
 
 
   resources :collection_objects do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes]
     member do
       get 'depictions'
       get 'containerize'
@@ -147,7 +150,7 @@ TaxonWorks::Application.routes.draw do
   match 'collection_profiles/swap_form_attribute_types/:collection_type', to: 'collection_profiles#swap_form_attribute_types', via: :get, method: :js
 
   resources :collecting_events do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes ]
     get :autocomplete_collecting_event_verbatim_locality, on: :collection
     member do
       get :card
@@ -175,7 +178,10 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :contents do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes]
+    collection do
+      get :filter
+  end
   end
 
   resources :controlled_vocabulary_terms do
@@ -192,6 +198,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :depictions do
     concerns [:data_routes]
+    collection do
+      patch :sort
+  end
   end
 
   resources :descriptors do
@@ -314,7 +323,8 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :otus do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes ]
+    resources :contents, only: [:index]
     collection do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
@@ -427,7 +437,7 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :taxon_names do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes ]
     collection do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
@@ -445,11 +455,13 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  resources :topics do
+  resources :topics, only: [:create] do
     collection do
+      get :index, defaults: { format: :json }
       get :lookup_topic
       get 'get_definition/:id', action: 'get_definition'
       get :autocomplete
+      get :list
     end
   end
 
@@ -457,13 +469,27 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-
   match '/favorite_page/:kind/:name', to: 'user_preferences#favorite_page', as: :favorite_page, via: :post
   match '/unfavorite_page/:kind/:name', to: 'user_preferences#unfavorite_page', as: :unfavorite_page, via: :post
 
   ### End of resources except user related located below scopes ###
 
   scope :tasks do
+
+    scope :citations do
+      scope :otus, controller: 'tasks/citations/otus' do
+        get 'index', as: 'cite_otus_task_task'
+      end
+    end
+
+    scope :content do
+      scope :editor, controller: 'tasks/content/editor' do
+        get 'index', as: 'index_editor_task'
+        get 'recent_topics', as: 'content_editor_recent_topics_task'
+        get 'recent_otus', as: 'content_editor_recent_otus_task'
+      end
+    end
+
     scope :sources do
       scope :browse, controller: 'tasks/sources/browse' do
         get 'index', as: 'browse_sources_task'

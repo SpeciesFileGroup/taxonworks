@@ -26,18 +26,18 @@ module GeographicItemsHelper
     geographic_items.collect { |a| geographic_item_link(a) }.join(", ").html_safe
   end
 
-  # A little ugly
   def geographic_item_parent_nav_links(geographic_item)
-    data =   geographic_item.parent_geographic_areas.inject({}) { |hsh,a|
-      hsh[a] = a.geographic_items
-    }
+    data = {} 
+    geographic_item.parent_geographic_areas.each do |a|
+      data[a] = a.geographic_items
+    end 
+
     content_tag(:div,
                 data.collect { |k, v| [
                   content_tag(:ul, v.collect { |b|
                     content_tag(:li, geographic_item_link(b, k.name)) }.join.html_safe)
     ] }.flatten.join.html_safe)
   end
-
 
   def children_through_geographic_areas_links(geographic_item)
     data = {}

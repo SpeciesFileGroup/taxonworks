@@ -14,15 +14,14 @@ describe 'Otus', type: :feature do
     end 
 
     context 'with some records created' do
-      before {
-        10.times { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
+      before do 
+        5.times { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
         FactoryGirl.create(:valid_otu, name: 'Find me', creator: @user, updater: @user, project: @project)
-      }
+        Otu.last.update_column(:name, 'something_unmatchable 44')
+      end 
 
       context 'GET /otus' do
-        before {
-          visit index_path
-        }
+        before { visit index_path }
 
         it_behaves_like 'a_data_model_with_standard_index'
 
@@ -43,7 +42,7 @@ describe 'Otus', type: :feature do
       end
 
       describe 'GET /otus/n' do
-        before {
+        before { 
           visit otu_path(Otu.second)
         }
 
@@ -75,11 +74,11 @@ describe 'Otus', type: :feature do
           )
         }
 
-        let(:otu) { Otu.fifth }
+        let(:otu) { Otu.fifth } # has custom name
         let(:otu2) { taxon_name.otus.first }
 
         it 'Returns a response including an array of ids for an otu name' do
-          route = URI.escape("/api/v1/otus/by_name/#{otu.name}?project_id=#{otu.project.id}&token=#{@user.api_access_token}")
+          route = URI.escape("/api/v1/otus/by_name/#{otu.name}?project_id=#{@project.id}&token=#{@user.api_access_token}")
           visit route 
           expect(JSON.parse(page.body)['result']['otu_ids']).to eq([otu.id])
         end
@@ -110,15 +109,11 @@ describe 'Otus', type: :feature do
         end
       end
 
-      context 'downloading OTU table' do
+      context 'downloading OTU table', js: true do
         let!(:csv) { Download.generate_csv(Otu.where(project_id: @project.id)) }
 
-        before do 
-          sleep 5 
+        specify 'otus table can be downloaded as-is' do
           visit otus_path
-        end 
-
-        specify 'otus table can be downloaded as-is', js: true do
           click_link('Download')
           expect( Features::Downloads::download_content).to eq(csv)
         end

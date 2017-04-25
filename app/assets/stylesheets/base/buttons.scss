@@ -11,6 +11,15 @@
     border-bottom: 2px solid rgba(0,0,0,0.2);
     border-radius: 3px;
 }
+.button-normal {
+    border:1px solid $navigation_border;
+    color: #444;
+    background-color: #FFF; 
+    &:disabled {
+      color: #999;
+      background-color: $color-button-disabled; 
+    }    
+}
 
 .button-default {
     color: #FFF;
@@ -95,6 +104,8 @@
 	display: block;
 	width: 24px;
 	height: 24px;
+    min-width: 24px;
+    min-height: 24px;
 	font-size: 0px;
 	background-position: center;
 	background-repeat: no-repeat;
@@ -102,6 +113,16 @@
 	margin: 5px;
     cursor: pointer;
 }
+
+.btn-add {
+    background-color: #AED581;
+    background-image: image-url("bplus.svg");
+} 
+
+.btn-delete {
+    background-color: #F44336;
+    background-image: image-url("w_trash.svg");
+} 
 
 .circle-button-big {
     width: 30px;

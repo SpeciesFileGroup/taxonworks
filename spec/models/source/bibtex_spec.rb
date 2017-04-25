@@ -962,7 +962,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
 
       specify 'sort an array of source by potentially_validating date' do
-        Source.delete_all
+        Source.destroy_all
         @source_bibtex.year = 2002 # @source_bibtex has no date, title: 'article 1 just title'
         expect(@source_bibtex.save).to be_truthy
         FactoryGirl.create(:valid_bibtex_source_book_title_only) # 'valid book with just a title' : no date
@@ -1016,11 +1016,12 @@ describe Source::Bibtex, type: :model, group: :sources do
         }
 
         specify 'text' do
-          expect(src1.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution. Available from: https://doi.org/10.5962%2Fbhl.title.1086.')
+          expect(src1.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. G. Fischer, Available from: https://doi.org/10.5962%2Fbhl.title.1086.')
           expect(src2.cached_string('text')).to eq('Kevan, D.K.M.E. & Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. Canadian Journal of Earth Sciences 18, 1824–1837.')
         end
         specify 'html' do
-          expect(src1.cached_string('html')).to eq('Brauer, A. (1909) <i>Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.</i> Smithsonian Institution. Available from: https://doi.org/10.5962%2Fbhl.title.1086.')
+          expect(src1.cached_string('html')).to eq(
+            'Brauer, A. (1909) <i>Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.</i> G. Fischer, Available from: https://doi.org/10.5962%2Fbhl.title.1086.')
           expect(src2.cached_string('html')).to eq('Kevan, D.K.M.E. &amp; Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. <i>Canadian Journal of Earth Sciences</i> 18, 1824–1837.')
         end
       end

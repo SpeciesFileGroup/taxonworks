@@ -439,13 +439,16 @@ class TaxonNameRelationship < ActiveRecord::Base
         end
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
         soft_validations.add(:type, 'Names are not similar enough to be homonyms') unless s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling
-      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
+      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary' || 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Forgotten' || 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Suppressed'
         if s.original_genus != o.original_genus
           soft_validations.add(:type, 'Primary homonyms should have the same original genus')
         elsif s.cached_primary_homonym_alternative_spelling != o.cached_primary_homonym_alternative_spelling
           soft_validations.add(:type, 'Names are not similar enough to be homonyms')
         end
-      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary' #!
+        if type == 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Forgotten' && s.year_of_publication > 1899
+          soft_validations.add(:type, 'Taxon was not described after 1899')
+        end
+      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
 
         if s.original_genus == o.original_genus && !s.original_genus.nil?
           soft_validations.add(:type, "Both species described in the same genus, they are 'primary homonyms'")

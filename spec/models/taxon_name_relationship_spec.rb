@@ -14,7 +14,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
   after(:all) { 
     TaxonName.delete_all
     TaxonNameRelationship.delete_all
-    Source.delete_all
+    Source.destroy_all
     TaxonNameHierarchy.delete_all
   } 
 

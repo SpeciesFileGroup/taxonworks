@@ -3,7 +3,7 @@ require 'rails_helper'
 describe Tag, type: :model, group: [:annotators, :tags] do
 
   let(:tag) { Tag.new }
-  let(:keyword) { FactoryGirl.create(:valid_keyword) }
+  let(:keyword) { FactoryGirl.create(:valid_keyword, name: 'tag let keyword') }
   let(:otu) { FactoryGirl.create(:valid_otu) }
 
   context 'associations' do
@@ -12,7 +12,7 @@ describe Tag, type: :model, group: [:annotators, :tags] do
     end
 
     specify 'keyword' do
-      expect(tag.keyword = FactoryGirl.create(:valid_keyword)).to be_truthy
+      expect(tag.keyword = FactoryGirl.create(:valid_keyword, name: 'tag association keyword')).to be_truthy
     end
   end
 
@@ -26,24 +26,24 @@ describe Tag, type: :model, group: [:annotators, :tags] do
     end
 
     specify 'a topic can not be used' do
-      t = Topic.new(name: 'foo', definition: 'Something about foo')
+      t = Topic.new(name: 'foo', definition: 'Something about foo', name: 'not a topic')
       expect{tag.keyword = t}.to raise_error(ActiveRecord::AssociationTypeMismatch)
     end
 
     context 'keyword uniqueness per object' do
-      let(:k) { FactoryGirl.create(:valid_keyword) }
+      let(:k) { FactoryGirl.create(:valid_keyword, name: 'some unique keyword') }
 
-    specify 'a tagged object is only tagged once per keyword' do
+      specify 'a tagged object is only tagged once per keyword' do
         tag.tag_object = otu
-      tag.keyword = k
-      tag.valid?
-      expect(tag.errors.include?(:keyword)).to be_falsey
-      expect(tag.errors.include?(:tag_object)).to be_falsey
-      tag.save!
+        tag.keyword = k
+        tag.valid?
+        expect(tag.errors.include?(:keyword)).to be_falsey
+        expect(tag.errors.include?(:tag_object)).to be_falsey
+        tag.save!
         dupe_tag = FactoryGirl.build(:tag, keyword: k, tag_object: otu)
-      dupe_tag.valid?
-      expect(dupe_tag.errors.include?(:keyword_id)).to be_truthy
-    end
+        dupe_tag.valid?
+        expect(dupe_tag.errors.include?(:keyword_id)).to be_truthy
+      end
 
       specify 'a tagged object is only tagged once per keyword using nested attributes' do
         expect(otu.update(tags_attributes: [{keyword: k}, {keyword: k}])).to be_falsey
@@ -60,7 +60,7 @@ describe Tag, type: :model, group: [:annotators, :tags] do
     end
 
     specify 'tag_object class can be limited with TagObject#taggable_with' do
-      a = FactoryGirl.create(:valid_keyword)
+      a = FactoryGirl.create(:valid_keyword, name: 'some limited keyword')
       b = FactoryGirl.create(:valid_biocuration_class)
       t = Tag.new(tag_object: b, keyword: a)
       expect(t.valid?).to be_falsey
@@ -70,7 +70,7 @@ describe Tag, type: :model, group: [:annotators, :tags] do
 
   context 'STI based tag behaviour' do
     before(:each) {
-      tag.keyword = FactoryGirl.create(:valid_keyword) 
+      tag.keyword = FactoryGirl.create(:valid_keyword, name: 'some sti keyword') 
       tag.tag_object = FactoryGirl.create(:valid_specimen)
     }
 

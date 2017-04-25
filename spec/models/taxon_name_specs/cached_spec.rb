@@ -21,7 +21,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       TaxonNameHierarchy.delete_all
       # TODO: find out why this exists and resolve - presently leaving sources in the models
       Citation.delete_all
-      Source.delete_all 
+      Source.destroy_all
     end
 
     context 'no_cached' do

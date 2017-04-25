@@ -1,6 +1,6 @@
 class DepictionsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  
+
   before_action :set_depiction, only: [:show, :edit, :update, :destroy]
 
   # GET /depictions
@@ -18,7 +18,6 @@ class DepictionsController < ApplicationController
       }
     end
   end
-
 
   def list
     @depictions = Depiction.where(project_id: sessions_current_project_id).page(params[:page])
@@ -77,14 +76,31 @@ class DepictionsController < ApplicationController
     end
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_depiction
-      @depiction = Depiction.find(params[:id])
-    end
+  # PATCH /sort?depiction_ids[]=1&depiction_ids[]=2.json
+  def sort
+    respond_to do |format|
+      begin 
+        params.require(:depiction_ids).each_with_index do |d, i|
+          Depiction.find(d).update_column(:position, i + 1)
+        end
+      rescue ActionController::ParameterMissing  
+        format.json { render json: {success: false}, status: :unprocessable_entity and return }
+      rescue ActiveRecord::RecordInvalid
+        format.json { render json: {success: false}, status: :unprocessable_entity and return }
+      end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def depiction_params
-     params.require(:depiction).permit(:depiction_object_id, :depiction_object_type, image_attributes: [:image_file])
+      format.json { render json: {success: true}, status: :ok and return }
     end
+  end
+
+  private 
+
+  def set_depiction
+    @depiction = Depiction.find(params[:id])
+  end
+
+  def depiction_params
+    params.require(:depiction).permit(:depiction_object_id, :depiction_object_type, :caption, :figure_label, image_attributes: [:image_file])
+  end
+
 end

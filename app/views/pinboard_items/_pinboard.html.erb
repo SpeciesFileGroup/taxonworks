@@ -3,23 +3,15 @@
     <%= content_tag :div, {id: "order_#{object_type.pluralize}" } do -%>
       <div class="slide-panel-category-header"><%= object_type.pluralize -%></div>
         <ul class="slide-panel-category-content"
-            data-pin-caterogy="<%= object_type -%>"
             data-sortable
             data-sortable-items="li"
             data-sortable-on-change-url="<%= update_position_pinboard_items_path -%>"
             >
             <% items.each do |o| -%>
-              <li class="slide-panel-category-item" data-pin-item="<%= o.id -%>" id="<%= "order_#{o.id}" -%>">
-                <div>
-                  <span class="handle" data-icon="scroll-v"></span>
+              <li class="slide-panel-category-item" id="<%= "order_#{o.id}" -%>">
+                <div class="handle flex-separate middle">
                   <%= object_link(o.pinned_object) -%>
-                </div>
-                <div class="itemOptions">
-                  <%= if o.pinned_object_type == 'Document' && o.pinned_object.document_file_content_type.eql?("application/pdf")
-                        content_tag(:a, "PDF Viewer", class: :pdfviewerItem , data: { pdfviewer: o.pinned_object.document_file(:original, false) })
-                      end
-                    %>
-                  <%= link_to('Remove', pinboard_item_path(o), class: :remove, method: :delete, remote: true) -%>
+                  <%= pinboard_item_options(o) -%>
                 </div>
               </li>
             <% end %>

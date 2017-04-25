@@ -1,11 +1,11 @@
-class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::SuppressedHomonym < TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary
+class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Suppressed < TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000108'
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary) +
-        self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::ForgottenHomonym)
+        self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Forgotten)
   end
 
   def object_status

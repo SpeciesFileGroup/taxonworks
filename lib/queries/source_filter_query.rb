@@ -4,50 +4,57 @@ module Queries
 
     include Arel::Nodes
 
+    # @return [ActiveRecord::Relation]
+    def or_clauses
+      clauses = [
+        only_ids,               # only intgers provided
+        cached,                 # should hit titles when provided alone, unfragmented string matches
+        fragment_year_matches   # keyword style ANDs years
+      ].compact
+
+      
+      a = clauses.shift
+      clauses.each do |b|
+        a = a.or(b)
+      end
+      a
+    end
+
+    # @return [String]
     def where_sql
-      cached.or(with_id).to_sql
-    end
-    
-    def year
-      if !years.empty?
-        table[:year].eq_any(years) 
-      else
-        table[:id].eq('-1').not
-      end
+      or_clauses.to_sql
     end
 
+    # @return [ActiveRecord::Relation, nil]
+    #    if user provides 5 or fewer strings and any number of years look for any string && year
+    def fragment_year_matches
+      if fragments.any?
+        s = table[:cached].matches_any(fragments)
+        s = s.and(table[:year].eq_any(years)) if !years.empty? 
+        s
+      else
+        nil
+      end 
+    end
+
+    # @return [ActiveRecord::Relation, nil]
+    # cached matches full query string wildcarded
     def cached
-      table[:cached].matches_any(strings)
-    end
-
-    def cached_full_match
-      if no_digits.blank?
-        table[:id].eq('-1')
+      if !terms.empty?
+        table[:cached].matches_any(terms)
       else
-        table[:cached].matches("#{query_string}%")
+        nil
       end
     end
 
-    # !! needs major refactoring, thought
-    # @return [Array]
+    # @return [ActiveRecord::Relation]
     def all 
-      ( 
-       [ Source.find_by_cached(query_string) ]  +                                      # exact match, only one
-       Source.where(with_id.to_sql).limit(20) +
-       Source.where(cached_full_match.to_sql).limit(500) +
-       Source.where(cached.and(year).to_sql).limit(500) 
-#       Source.where(cached.to_sql).limit(500)  
-      ).flatten.compact.uniq.sort_by(&:cached)
+      Source.where(where_sql).limit(500).uniq.order(:cached)
     end
 
+    # @return [ActiveRecord::Relation]
     def by_project_all
-      ( 
-       [ Source.joins(:project_sources).where(member_of_project_id.to_sql).find_by_cached(query_string) ]  +
-       Source.joins(:project_sources).where(member_of_project_id.to_sql).where(cached_full_match.and(year).to_sql).limit(20) +
-       Source.joins(:project_sources).where(member_of_project_id.to_sql).where(with_id.to_sql).limit(500) +
-       Source.joins(:project_sources).where(member_of_project_id.to_sql).where(cached.and(year).to_sql).limit(500) +
-       Source.joins(:project_sources).where(member_of_project_id.to_sql).where(cached.to_sql).limit(500)  
-      ).flatten.compact.uniq
+      Source.where(where_sql).limit(500).uniq.order(:cached).joins(:project_sources).where(member_of_project_id.to_sql)
     end
 
     def table

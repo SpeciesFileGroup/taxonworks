@@ -2,11 +2,13 @@ module OtusHelper
 
   def otu_tag(otu)
     return nil if otu.nil?
-    [  otu.name,
-       Utilities::Strings.nil_wrap('[', full_taxon_name_tag(otu.taxon_name), ']')
-    ].compact.join(' ').html_safe
+    a = content_tag(:span, otu.name, class: :otu_tag_otu_name) if otu.name
+    b = content_tag(:span, full_taxon_name_tag(otu.taxon_name).html_safe, class: :otu_tag_taxon_name) if otu.taxon_name_id
+    content_tag(:span, [a,b].flatten.join.html_safe, class: :otu_tag)
   end
 
+  # @return [String]
+  #    no HTML inside <input>
   def otu_autocomplete_selected_tag(otu)
     return nil if otu.nil? || (otu.new_record? && !otu.changed?)
     [otu.name, 
