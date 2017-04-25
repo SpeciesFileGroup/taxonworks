@@ -45,6 +45,10 @@ spec:
                port: 80
              initialDelaySeconds: 120 
              timeoutSeconds: 3
+          lifecycle: 
+            preStart:
+              exec:
+                command: ["rake", "tw:fail"]
           env:
             - name: RAILS_ENV
               value: production
