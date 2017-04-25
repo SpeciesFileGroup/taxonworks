@@ -63,12 +63,13 @@ describe 'Dates', group: [:collecting_events, :dates] do
         end
       }
     end
+
     context 'two digit year use case for dates hunt_dates' do
-      use_case = {'Some text here,  4 JUL 03, some more text after the date  ' =>
+      use_case = {"Some text here,  4 JUL '03, some more text after the date  " =>
                       {:dd_dd_month_yyyy => {},
                        :dd_mm_dd_mm_yyyy => {},
                        :dd_month_dd_month_yyyy => {},
-                       :dd_month_yyy => {:method => :dd_month_yyy, :piece => {0 => "04 JUL 03"}, :start_date_year => "03", :start_date_month => "7", :start_date_day => "04", :end_date_year => "", :end_date_month => "", :end_date_day => "", :start_date => "03 7 04", :end_date => ""},
+                       :dd_month_yyy => {:method => :dd_month_yyy, :piece => {0 => "4 JUL '03"}, :start_date_year => "2003", :start_date_month => "7", :start_date_day => "4", :end_date_year => "", :end_date_month => "", :end_date_day => "", :start_date => "2003 7 4", :end_date => ""},
                        :dd_month_yyyy_2 => {},
                        :mm_dd_dd_yyyy => {},
                        :mm_dd_mm_dd_yyyy => {},
@@ -82,6 +83,51 @@ describe 'Dates', group: [:collecting_events, :dates] do
                        :yyyy_mm_dd => {},
                        :yyyy_month_dd => {}
                       }
+      }
+      @entry = 0
+
+      use_case.each {|label, result|
+        @entry += 1
+        specify "case #{@entry}: #{label} should yield #{result}" do
+          this_case = Utilities::Dates.hunt_dates(label)
+          expect(this_case).to eq(result)
+        end
+      }
+    end
+
+
+    context 'use one method at a time hunt_dates' do
+      methods = Utilities::Dates::REGEXP_DATES.keys
+      methods.each_with_index {|method, dex|
+        this_hlp = Utilities::Dates::REGEXP_DATES[method][:hlp]
+
+        specify "method should correctly match all of the examples listed in the hlp attribute " do
+          result = nil
+          this_case = Utilities::Dates.hunt_dates(this_hlp, [method])
+          expect(this_case).to eq(this_case)
+        end
+      }
+      use_case = {"Some text here,  4 JUL '03, some more text after the date  " =>
+                      {:dd_dd_month_yyyy => {},
+                       :dd_mm_dd_mm_yyyy => {},
+                       :dd_month_dd_month_yyyy => {},
+                       :dd_month_yyy => {:method => :dd_month_yyy, :piece => {0 => "4 JUL '03"}, :start_date_year => "2003", :start_date_month => "7", :start_date_day => "4", :end_date_year => "", :end_date_month => "", :end_date_day => "", :start_date => "2003 7 4", :end_date => ""},
+                       :dd_month_yyyy_2 => {},
+                       :mm_dd_dd_yyyy => {},
+                       :mm_dd_mm_dd_yyyy => {},
+                       :mm_dd_yy => {},
+                       :mm_dd_yyyy => {},
+                       :mm_dd_yyyy_2 => {},
+                       :month_dd_dd_yyyy => {},
+                       :month_dd_month_dd_yyyy => {},
+                       :month_dd_yyy => {},
+                       :month_dd_yyyy_2 => {},
+                       :yyyy_mm_dd => {},
+                       :yyyy_month_dd => {}
+                      }
+      }
+      use_cases = {
+
       }
       @entry = 0
 

@@ -304,24 +304,6 @@ module Utilities::Dates
     year
   end
 
-  def self.huntfor_dates(label, filters = REGEXP_DATES.keys)
-    trials = {}
-    filters.each_with_index { |kee, dex|
-      kee_string = kee.to_s.upcase
-      trials[kee_string] = {}
-      regex_title = REGEXP_DATES[kee][:reg].match(label)
-      unless regex_title.nil?
-        trials[kee_string][:piece] = regex_title[0]
-        regex_title
-      end
-      trials[kee_string][:method] = "#{kee_string}"
-      unless regex_title.nil?
-        extract_start_end_dates(trials[kee_string], regex_title)
-      end
-    }
-    trials
-  end
-
   def self.hunt_dates(label, filters = REGEXP_DATES.keys)
     trials = {}
     filters.each_with_index {|kee, dex|
@@ -337,41 +319,6 @@ module Utilities::Dates
     }
     trials
   end
-
-  # def self.hunt_dates(label, how = ' ')
-  #   if how.nil?
-  #     pieces = [label]
-  #   else
-  #     pieces = label.split(how)
-  #   end
-  #   dates = {}
-  #   pieces.each do |piece|
-  #     # group of possible regex configurations
-  #     # m = /(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i =~ piece
-  #     m = REGEXP_DATES[:month_dd_yyyy_2].match(piece)
-  #     unless m.nil?
-  #       dates[:piece] = m[0]
-  #       dates[:start_date] = m[0]
-  #       dates[:end_date] = m[0]
-  #     end
-  #   end
-  #   dates
-  # end
-
-  # def self.hunt_wrapper(label, filters = REGEXP_DATES.keys)
-  #
-  #   trials = self.hunt_dates_full(label, filters)
-  #
-  #   ';, '.each_char { |sep|
-  #     trial = self.hunt_dates(label, sep)
-  #     found = "#{trial[:piece]}"
-  #     unless trial[:start_date].nil? and !trial[:end_date].nil?
-  #       found = "(#{sep})" if found.blank?
-  #     end
-  #     trials["(#{sep})"] = trial.merge!(method: "(#{sep})")
-  #   }
-  #   trials
-  # end
 
   def self.extract_dates(trial, match_data)
     end_date_year, end_date_month, end_date_day = 0, 0, 0
@@ -502,10 +449,6 @@ module Utilities::Dates
         end
     end
     trial[:piece][0] = match_data[0][0]
-    trial_start_date_year = match_data[0][start_date_year]
-    if trial_start_date_year.length < 4
-
-    end
     trial[:start_date_year] = fix_2_digit_year(match_data[0][start_date_year])
     trial[:start_date_month] = month_index(match_data[0][start_date_month]).to_s
     trial[:start_date_day] = match_data[0][start_date_day]
