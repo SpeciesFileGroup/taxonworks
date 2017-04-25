@@ -300,8 +300,8 @@ module Utilities::Dates
           year = (tny/100).to_s + year
         end
       end
-
     end
+    year
   end
 
   def self.huntfor_dates(label, filters = REGEXP_DATES.keys)
