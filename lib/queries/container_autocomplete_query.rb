@@ -5,7 +5,7 @@ module Queries
     include Arel::Nodes
 
     def where_sql
-      with_project_id.and(with_id.or(with_identifier_like))
+      with_project_id.or(with_identifier_like))
     end
 
     def result 

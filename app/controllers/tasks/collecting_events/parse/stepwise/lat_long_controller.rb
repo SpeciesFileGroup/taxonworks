@@ -104,7 +104,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     selected_items = ce.similar_lat_longs(lat, long, piece, include_values)
 
     retval[:count] = selected_items.count.to_s
-    retval[:table] = render_to_string(partial: 'matching_table',
+    retval[:table] = render_to_string(partial: 'lat_long_matching_table',
                                       locals:  {
                                         lat:            lat,
                                         long:           long,

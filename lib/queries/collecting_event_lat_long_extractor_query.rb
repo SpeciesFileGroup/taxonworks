@@ -39,7 +39,7 @@ module Queries
       # with_project_id.and
       # TODO: make sure you select the one of the following which suits your purpose: with or without Verbatim_lat/long preset
       (verbatim_label_not_empty).and(verbatim_lat_long_empty).and(starting_after).and(filter_scopes).to_sql
-        # (verbatim_label_not_empty).and(starting_after).and(filter_scopes).to_sql
+      # (verbatim_label_not_empty).and(starting_after).and(filter_scopes).to_sql
     end
 
     def table
@@ -68,7 +68,7 @@ module Queries
     # @param [String] key to FILTERS regex string
     # @return [Scope]
     def regex_function(filter)
-      regex = Utilities::Geo::REGEXP_COORD[filter].to_s.gsub('(?i-mx:', '').chomp(')')
+      regex = Utilities::Geo::REGEXP_COORD[filter][:reg].to_s.gsub('(?i-mx:', '').chomp(')')
       "verbatim_label ~* '" + regex + "'"
     end
   end

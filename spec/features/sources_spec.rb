@@ -35,6 +35,86 @@ describe 'Sources', type: :feature, group: :sources do
 
       it_behaves_like 'a_data_model_with_standard_show'
     end
+
+
+    context 'editing an existing source' do
+      before {
+        visit sources_path 
+      }
+
+      specify 'I can find my bibtex source and it has an edit link & I can edit the source', js: true do
+        @src_bibtex = factory_girl_create_for_user(:soft_valid_bibtex_source_article, @user)
+
+        fill_autocomplete('source_id_for_quick_search_form', with: @src_bibtex.title, select: @src_bibtex.id)
+        click_button('Show')
+        expect(page).to have_content('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
+        expect(page).to have_link('Edit')
+        click_link('Edit')
+
+        select('article', from: 'source_bibtex_type')
+
+        expect(find_field('Title').value).to eq('I am a soft valid article')
+        expect(find_field('Author').value).to eq('Person, Test')
+        expect(find_field('Journal').value).to eq('Journal of Test Articles')
+        expect(find_field('Year').value).to eq('1700')
+        expect(page.has_field?('Verbatim contents')).to be_truthy
+
+        expect(page).to have_selector('#source_verbatim', visible: false)
+
+        fill_in('Author', with: 'Wombat, H.P.') 
+        fill_in('Year', with: '1920') 
+        click_button('Update Bibtex')
+        expect(page).to have_content("Source was successfully updated.")
+        expect(page).to have_content('Wombat, H.P. (1920) I am a soft valid article. Journal of Test Articles.')
+      end
+
+      specify 'I can find my verbatim source and it has an edit link & I can edit the source', js: true do
+        @src_verbatim = factory_girl_create_for_user(:valid_source_verbatim, @user)
+        tmp           = @src_verbatim.verbatim
+
+        fill_autocomplete('source_id_for_quick_search_form', with: @src_verbatim.cached, select: @src_verbatim.id)
+
+        click_button('Show')
+        expect(page).to have_content(@src_verbatim.cached)
+        expect(page).to have_link('Edit')
+        click_link('Edit')
+
+        # disabled on edit, so this finder isn't working
+        # expect(page.has_checked_field?('source_type_sourceverbatim')).to be_truthy
+
+        expect(find_field('Verbatim').value).to eq(tmp)
+
+        #      expect(page.has_field?('Author')).to be_falsey
+
+        expect(page).to have_selector('#source_author', visible: false)
+        expect(page).to have_selector('#source_journal', visible: false)
+        expect(page).to have_selector('#source_year', visible: false)
+        expect(page).to have_selector('#source_verbatim_contents', visible: false)
+        expect(page).to have_selector('#source_verbatim', visible: true)
+
+        fill_in('Verbatim', with: 'New Verbatim source')
+        click_button('Update Verbatim')
+        expect(page).to have_content('Source was successfully updated.')
+        expect(page).to have_content('New Verbatim source')
+      end
+
+=begin
+    With a bibtex source created by the current user with Roles defined
+    when I edit form
+    I can add an author from the author list and the cached fields are properly updated
+    I can add an editor from the editor list and the cached fields are properly updated
+    I can change an author from the author list and the cached fields are properly updated
+    I can change an editor from the editor list and the cached fields are properly updated
+    I can delete an author from the author list and the cached fields are properly updated
+    I can delete an editor from the editor list and the cached fields are properly updated
+=end
+
+    end
+
+
+
+
+
   end
 
   context "as a user create a record" do
@@ -128,84 +208,7 @@ describe 'Sources', type: :feature, group: :sources do
 
   end
 
-  context 'editing an existing source' do
-    before do 
-      sign_in_user 
-      visit sources_path 
-    end
 
-   let!(:src_bibtex) { factory_girl_create_for_user(:soft_valid_bibtex_source_article, @user) } 
-
-    specify 'I can find my bibtex source and it has an edit link & I can edit the source', js: true do
-
-      fill_autocomplete('source_id_for_quick_search_form', with: src_bibtex.title, select: src_bibtex.id)
-      click_button('Show')
-      expect(page).to have_content('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
-      expect(page).to have_link('Edit')
-      click_link('Edit')
-
-      # Beth - on edit this default to disabled, so taking this out for now
-      # expect(page.has_checked_field?('source_type_sourcebibtex')).to be_truthy
-#      expect(find_field('source_bibtex_type').value).to be('article')
-      select('article', from: 'source_bibtex_type')
-
-      expect(find_field('Title').value).to eq('I am a soft valid article')
-      expect(find_field('Author').value).to eq('Person, Test')
-      expect(find_field('Journal').value).to eq('Journal of Test Articles')
-      expect(find_field('Year').value).to eq('1700')
-      expect(page.has_field?('Verbatim contents')).to be_truthy
-
-      expect(page).to have_selector('#source_verbatim', visible: false)
-
-      fill_in('Author', with: 'Wombat, H.P.') # change Author to 'Wombat, H.P.'
-      fill_in('Year', with: '1920') # change Year to '1920'
-      click_button('Update Bibtex')
-      expect(page).to have_content("Source was successfully updated.")
-      expect(page).to have_content('Wombat, H.P. (1920) I am a soft valid article. Journal of Test Articles.')
-    end
-    
-    specify 'I can find my verbatim source and it has an edit link & I can edit the source', js: true do
-      @src_verbatim = factory_girl_create_for_user(:valid_source_verbatim, @user)
-      tmp           = @src_verbatim.verbatim
-      
-      fill_autocomplete('source_id_for_quick_search_form', with: @src_verbatim.cached, select: @src_verbatim.id)
-     
-      click_button('Show')
-      expect(page).to have_content(@src_verbatim.cached)
-      expect(page).to have_link('Edit')
-      click_link('Edit')
-
-      # disabled on edit, so this finder isn't working
-      # expect(page.has_checked_field?('source_type_sourceverbatim')).to be_truthy
-
-      expect(find_field('Verbatim').value).to eq(tmp)
-
-#      expect(page.has_field?('Author')).to be_falsey
-
-      expect(page).to have_selector('#source_author', visible: false)
-      expect(page).to have_selector('#source_journal', visible: false)
-      expect(page).to have_selector('#source_year', visible: false)
-      expect(page).to have_selector('#source_verbatim_contents', visible: false)
-      expect(page).to have_selector('#source_verbatim', visible: true)
-
-      fill_in('Verbatim', with: 'New Verbatim source')
-      click_button('Update Verbatim')
-      expect(page).to have_content('Source was successfully updated.')
-      expect(page).to have_content('New Verbatim source')
-    end
-
-=begin
-    With a bibtex source created by the current user with Roles defined
-    when I edit form
-    I can add an author from the author list and the cached fields are properly updated
-    I can add an editor from the editor list and the cached fields are properly updated
-    I can change an author from the author list and the cached fields are properly updated
-    I can change an editor from the editor list and the cached fields are properly updated
-    I can delete an author from the author list and the cached fields are properly updated
-    I can delete an editor from the editor list and the cached fields are properly updated
-=end
-
-  end
 
 
 end

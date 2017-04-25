@@ -7,6 +7,8 @@
 #    http://blog.arkency.com/2013/12/rails4-preloading/
 #    User.includes(:addresses).where("addresses.country = ?", "Poland").references(:addresses)
 #  
+# TODO: Define #all as a stub (Array or AR)
+#
 module Queries 
   class Query
     include Arel::Nodes
@@ -60,29 +62,33 @@ module Queries
       query_string.split(/\s+/).select{|t| Utilities::Strings.is_i?(t)}
     end
 
-    def only_integers?
-      if !integers.empty? && query_string =~ /[^\d\s]/
-        true
-      else
-        false 
-      end
-    end
-
     def wildcard_wrapped_integers
       integers.collect{|i| "%#{i}%"}
     end
 
     def strings
       a = query_string.split(/\s+/).select{|t| !(t =~ /\d+/)} 
-      a.empty? ? [ query_string ] : a
-    end
-
-    def wildcard_wrapped_strings
-      strings
+      a.empty? ? [ query_string] : a
     end
 
     def years
       integers.select{|a| a =~ /\b\d{4}\b/}.map(&:to_s).compact
+    end
+
+    # @return [Boolean]
+    #   true if the query string only contains integers
+    def only_integers?
+      !(query_string =~ /[^\d\s]/i) && !integers.empty? 
+    end
+
+    # @return [Array]
+    #   if 5 or fewer strings, those strings wrapped in wildcards, else none
+    def fragments
+      if strings && strings.count < 6
+        strings.collect{|a| "%#{a}%"}
+      else
+        []
+      end
     end
 
     # Replace with a full text indexing approach
@@ -118,12 +124,24 @@ module Queries
       table[:name].matches("#{a}%").and(parent[:name].matches("#{b}%"))
     end
 
+    # @return [Query, nil]
+    #   used in or_clauses
     def with_id
-      if only_integers?
+      if integers.any?
         table[:id].eq_any(integers)
       else
-        table[:id].not_eq(-1) # TODO, use nil, update with or_clause pattern
+        nil
       end
+    end
+
+    # @return [Query, nil]
+    #   used in or_clauses, match on id only if integers alone provided.
+    def only_ids
+      if only_integers?
+       with_id
+      else
+       nil
+      end 
     end
 
     def named
