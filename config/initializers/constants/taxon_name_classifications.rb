@@ -81,7 +81,7 @@ end
 
 TAXON_NAME_CLASSIFICATION_JSON = {
   iczn: TaxonNameClassificationsHelper::classifications_attributes( TaxonNameClassification::Iczn ),
-  icz: TaxonNameClassificationsHelper::classifications_attributes( TaxonNameClassification::Icn ),
+  icn: TaxonNameClassificationsHelper::classifications_attributes( TaxonNameClassification::Icn ),
   icnb: TaxonNameClassificationsHelper::classifications_attributes( TaxonNameClassification::Icnb ),
   latinized: TaxonNameClassificationsHelper::classifications_attributes( TaxonNameClassification::Latinized ),
 }
