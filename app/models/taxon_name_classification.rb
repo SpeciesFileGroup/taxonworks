@@ -112,6 +112,10 @@ class TaxonNameClassification < ActiveRecord::Base
     nil
   end
 
+  def self.common
+    false
+  end
+
   # @todo Perhaps not inherit these three methods?
   
   # @return [Array of Strings]
@@ -172,8 +176,9 @@ class TaxonNameClassification < ActiveRecord::Base
         end
       end
     rescue ActiveRecord::RecordInvalid 
+      # should return false here, right?
     end
-    false
+    false # TODO: why false, success == true?
   end
 
   #region Validation

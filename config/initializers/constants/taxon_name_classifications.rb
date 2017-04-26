@@ -61,9 +61,30 @@ TAXON_NAME_CLASS_NAMES_VALID = [
     TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate::Correct.descendants
 ].flatten.map(&:to_s).freeze
 
-TAXON_NAME_CLASSIFICATION_LOOKUP = {
+
+module TaxonNameClassificationsHelper
+  def self.classifications_attributes(classification)
+    classification.descendants.inject([]) {|ary, r| 
+      ary.push(
+        { 
+          name: 'foo',
+          type: r.to_s,
+          common: r.common,
+          applicable_ranks: []
+        }
+      )
+    }
+  end
+end
 
 
+
+TAXON_NAME_CLASSIFICATION_JSON = {
+  iczn: 
+    TaxonNameClassificationsHelper::classifications_attributes( TaxonNameClassification::Iczn ),
+  icn: {},
+  icnb: {},
+  latinized: {}
 }
 
 

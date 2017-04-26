@@ -97,8 +97,8 @@ class TaxonNameClassificationsController < ApplicationController
     send_data Download.generate_csv(TaxonNameClassification.where(project_id: session_current_project_id)), type: 'text', filename: "taxon_name_classifications_#{DateTime.now.to_s}.csv"
   end
 
-  def types
-    render json: TAXON_NAME
+  def taxon_name_classification_types
+    render json: TAXON_NAME_CLASSIFICATION_JSON
   end
 
   private

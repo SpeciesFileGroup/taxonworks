@@ -400,6 +400,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :taxon_name_classifications, except: [:show] do
     concerns [:data_routes]
+    collection do
+      get :taxon_name_classification_types
+    end
   end
 
   resources :taxon_name_relationships do

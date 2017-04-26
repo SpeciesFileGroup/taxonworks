@@ -14,10 +14,10 @@
 #  
 #    bus valid_name OF aus
 #    
-# Note that we can not say that all names that are subjects are valid, for instance, this is determined on a case by case basis. 
+# Note that we can not say that all names that are subjects are valid, this is determined on a case by case basis. 
 #
 # TaxonNameRelationships have a domain (attributes on the subject) and range (attributes on the object).  So if you use 
-# a relatinship you may be asserting a TaxonNameClassification also exists for the subject or object.
+# a relationship you may be asserting a TaxonNameClassification also exists for the subject or object.
 #
 #
 # @!attribute subject_taxon_name_id
