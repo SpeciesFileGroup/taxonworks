@@ -39,16 +39,16 @@ spec:
       containers:
         - name: taxonworks
           image: sfgrp/taxonworks:dev
-           livenessProbe:
-             httpGet:
-               path: /
-               port: 80
-             initialDelaySeconds: 120 
-             timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 120 
+            timeoutSeconds: 3
           lifecycle: 
-            preStart:
+            postStart:
               exec:
-                command: ["rake", "tw:fail"]
+                command: ["bundle exec", "rake", "tw:fail"]
           env:
             - name: RAILS_ENV
               value: production
