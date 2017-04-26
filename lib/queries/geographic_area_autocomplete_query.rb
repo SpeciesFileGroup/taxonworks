@@ -4,8 +4,9 @@ module Queries
 
     include Arel::Nodes
 
+    # TODO: use or_clauses
     def where_sql
-      named.or(with_id).to_sql
+      named.to_sql
     end
 
     def all 

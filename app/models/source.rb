@@ -219,10 +219,6 @@ class Source < ActiveRecord::Base
     self.citations.collect { |t| t.citation_object }
   end
 
-  def self.find_for_autocomplete(params)
-    Queries::SourceAutocompleteQuery.new(params[:term]).all
-  end
-
   # Create a new Source instance from a full text citatation.  By default
   # try to resolve the citation against Crossref, use the returned
   # bibtex to populate the object if it successfully resolves.
