@@ -40,3 +40,9 @@ end
 
 TAXON_NAME_RELATIONSHIPS_SUBJECT_SELECT = subject_select.freeze
 TAXON_NAME_RELATIONSHIPS_OBJECT_SELECT = object_select.freeze
+
+TAXON_NAME_RELATIONSHIPS_TYPE_JSON = {
+  family:  TAXON_NAME_RELATIONSHIPS_OBJECT_SELECT.select{|a,b| b =~ /.*::Typification::Family/},
+  genus: TAXON_NAME_RELATIONSHIPS_OBJECT_SELECT.select{|a,b| b =~ /.*::Typification::Genus/}
+}
+
