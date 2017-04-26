@@ -218,11 +218,6 @@ class TaxonNameRelationship < ActiveRecord::Base
     TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.safe_constantize : r
   end
 
-  # TODO: match on either name
-  def self.find_for_autocomplete(params)
-    where(id: params[:term]).with_project_id(params[:project_id])
-  end
-
   # @return [String, nil]
   #   the NOMEN uri for this type
   def self.nomen_uri
@@ -766,19 +761,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     false
   end
 
-
   #endregion
-
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
 
   private
 

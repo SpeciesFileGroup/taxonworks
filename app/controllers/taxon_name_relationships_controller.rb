@@ -6,7 +6,7 @@ class TaxonNameRelationshipsController < ApplicationController
   # GET /taxon_name_relationships
   # GET /taxon_name_relationships.json
   def index
-    @recent_objects = TaxonNameRelationship.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = TaxonNameRelationship.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -66,7 +66,7 @@ class TaxonNameRelationshipsController < ApplicationController
   end
 
   def list
-    @taxon_name_relationships = TaxonNameRelationship.with_project_id($project_id).order(:id).page(params[:page])
+    @taxon_name_relationships = TaxonNameRelationship.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
   end
 
   # GET /taxon_name_relationships/search
@@ -79,7 +79,8 @@ class TaxonNameRelationshipsController < ApplicationController
   end
 
   def autocomplete
-    @taxon_name_relationships = TaxonNameRelationship.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    # TODO: match on either name or remove concept
+    @taxon_name_relationships = TaxonNameRelationship.where(id: params[:term]).with_project_id(sessions_current_project_id)
     data = @taxon_name_relationships.collect do |t|
       n = ApplicationController.helpers.taxon_name_relationship_tag(t)
       {id: t.id,
@@ -96,13 +97,13 @@ class TaxonNameRelationshipsController < ApplicationController
 
   # GET /taxon_name_relationships/download
   def download
-    send_data TaxonNameRelationship.generate_download(TaxonNameRelationship.where(project_id: $project_id)), type: 'text', filename: "taxon_name_relationships_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(TaxonNameRelationship.where(project_id: sessions_current_project_id)), type: 'text', filename: "taxon_name_relationships_#{DateTime.now.to_s}.csv"
   end
 
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_taxon_name_relationship
-    @taxon_name_relationship = TaxonNameRelationship.with_project_id($project_id).find(params[:id])
+    @taxon_name_relationship = TaxonNameRelationship.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.
