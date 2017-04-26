@@ -81,29 +81,34 @@ GENUS_AND_SPECIES_RANK_NAMES_ICNB = ( GENUS_RANK_NAMES_ICNB + SPECIES_RANK_NAMES
 GENUS_AND_SPECIES_RANK_NAMES = ( GENUS_RANK_NAMES + SPECIES_RANK_NAMES ).freeze
 
 module RankHelper
-  def self.rank_attributes(ranks)
-    ranks.inject({}) {|hsh, r| hsh.merge!(r.constantize.rank_name => {rank_class: r, parent: r.constantize.parent_rank.rank_name })}
+  def self.rank_attributes(rank)
+    rank.ordered_ranks.inject([]) {|ary, r| 
+      ary.push(
+        { name: r.rank_name, rank_class: r.to_s, parent: r.parent_rank.rank_name }
+      )
+    }
+   
   end
 end
 
 RANKS_JSON = {
   iczn: {
-    higher: RankHelper::rank_attributes(HIGHER_RANK_NAMES_ICZN),
-    family: RankHelper::rank_attributes(FAMILY_RANK_NAMES_ICZN),
-    genus: RankHelper::rank_attributes(GENUS_RANK_NAMES_ICZN),
-    species: RankHelper::rank_attributes(SPECIES_RANK_NAMES_ICZN)
+    higher: RankHelper::rank_attributes(NomenclaturalRank::Iczn::HigherClassificationGroup) ,
+    family: RankHelper::rank_attributes(NomenclaturalRank::Iczn::FamilyGroup),
+    genus: RankHelper::rank_attributes(NomenclaturalRank::Iczn::GenusGroup),
+    species: RankHelper::rank_attributes(NomenclaturalRank::Iczn::SpeciesGroup)
   },
   icn:  {
-    higher: RankHelper::rank_attributes(HIGHER_RANK_NAMES_ICN),
-    family: RankHelper::rank_attributes(FAMILY_RANK_NAMES_ICN),
-    genus: RankHelper::rank_attributes(GENUS_RANK_NAMES_ICN),
-    species: RankHelper::rank_attributes(SPECIES_RANK_NAMES_ICN)
+    higher: RankHelper::rank_attributes(NomenclaturalRank::Icn::HigherClassificationGroup) ,
+    family: RankHelper::rank_attributes(NomenclaturalRank::Icn::FamilyGroup),
+    genus: RankHelper::rank_attributes(NomenclaturalRank::Icn::GenusGroup),
+    species: RankHelper::rank_attributes(NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup)
   },
   icnb: { 
-    higher: RankHelper::rank_attributes(HIGHER_RANK_NAMES_ICNB),
-    family: RankHelper::rank_attributes(FAMILY_RANK_NAMES_ICNB),
-    genus: RankHelper::rank_attributes(GENUS_RANK_NAMES_ICNB),
-    species: RankHelper::rank_attributes(SPECIES_RANK_NAMES_ICNB)
+    higher: RankHelper::rank_attributes(NomenclaturalRank::Icnb::HigherClassificationGroup) ,
+    family: RankHelper::rank_attributes(NomenclaturalRank::Icnb::FamilyGroup),
+    genus: RankHelper::rank_attributes(NomenclaturalRank::Icnb::GenusGroup),
+    species: RankHelper::rank_attributes(NomenclaturalRank::Icnb::SpeciesGroup)
   }
 }
 
