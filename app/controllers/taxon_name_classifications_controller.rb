@@ -77,7 +77,8 @@ class TaxonNameClassificationsController < ApplicationController
   end
 
   def autocomplete
-    @taxon_name_classifications = taxon_name_classification.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    # TODO: make reasonable, if used
+    @taxon_name_classifications = TaxonNameClassification.where(id: params[:term]).with_project_id(params[:project_id])
     data = @taxon_name_classifications.collect do |t|
       {id: t.id,
        label: TaxonNameClassificationsHelper.taxon_name_classification_tag(t),
@@ -93,7 +94,7 @@ class TaxonNameClassificationsController < ApplicationController
 
   # GET /taxon_name_classifications/download
   def download
-    send_data TaxonNameClassification.generate_download( TaxonNameClassification.where(project_id: session_current_project_id) ), type: 'text', filename: "taxon_name_classifications_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(TaxonNameClassification.where(project_id: session_current_project_id)), type: 'text', filename: "taxon_name_classifications_#{DateTime.now.to_s}.csv"
   end
 
   def types
