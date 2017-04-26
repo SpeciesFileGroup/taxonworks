@@ -16,10 +16,19 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
           species: 'species'
       }
 
-      function findList(list, rankParent) {
+      function getParentChilds(list, rankParent) {
         var 
-          codeList = list[rankParent.nomenclatural_code];
+          codeList = list[rankParent.nomenclatural_code],
           ranksList = codeList[childOfParent[foundRankGroup(codeList,rankParent.rank)]];
+          delete ranksList[rankParent.rank]
+          return ranksList;
+      }
+
+      function getParentList(list, rankParent) {
+        if(rankParent.rank == "species") return undefined;
+        var
+          codeList = list[rankParent.nomenclatural_code],
+          ranksList = codeList[foundRankGroup(codeList,rankParent.rank)];
           delete ranksList[rankParent.rank]
           return ranksList;
       }
@@ -30,6 +39,7 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
             return key;
           }
         }
+        return rankName;
       }
 
 	    const store = new Vuex.Store({
@@ -45,6 +55,7 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
 	        		neuter_name: undefined
 	    		},
 	    		ranks: undefined,
+          ranksParents: undefined,
           ranksChilds: undefined
 	    	},
 	    	getters: {
@@ -62,6 +73,12 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
           },
           getRanksChilds(state) {
             return state.ranksChilds;
+          },
+          getRanksParents(state) {
+            return state.ranksParents;
+          },          
+          getRankClass(state) {
+            return state.taxon_name.rank_class;
           }
 	    	},
 	    	mutations: {
@@ -70,6 +87,12 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
 	    		},
           setRanksChilds(state, ranks) {
             state.ranksChilds = ranks;
+          },
+          setRanksParents(state, ranks) {
+            state.ranksParents = ranks;
+          },
+          setRankClass(state, rank) {
+            state.taxon_name.rank_class = rank;
           },
 	    		setTaxonName(state, name) {
 	    			state.taxon_name.name = name;
@@ -116,7 +139,9 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
   				this.$on('parentSelected', function(item) {
   					this.$store.commit('setParentId', item.id);
             this.$http.get(`/taxon_names/${item.id}`).then( response => {
-              that.$store.commit('setRanksChilds', findList(that.$store.getters.getRanksList, response.body));
+              console.log(response.body);
+              that.$store.commit('setRanksChilds', getParentChilds(that.$store.getters.getRanksList, response.body));
+              that.$store.commit('setRanksParents', getParentList(that.$store.getters.getRanksList, response.body));
             });
   				});
   			},
@@ -158,27 +183,74 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
   						label="label_html" \
   						display="label">',
 
-  		});  		
+  		});
+
+      Vue.component('type-selector', {
+        template: '<form class="content" v-if> \
+                    <h3>Type</h3> \
+                    <div class="field"> \
+                      <label>Name</label><br> \
+                      <autocomplete \
+                        url="/taxon_names/autocomplete" \
+                        label="label_html" \
+                        min="3" \
+                        eventSend="parentSelected" \
+                        display="label" \
+                        param="term"> \
+                    </div> \
+                  </form>',
+
+      });
 
   		Vue.component('rank-selector', {
-        template: '<ul> \
-                    <li v-for="child, key in ranksChilds"> \
-                      <label><input type="radio" name="gender" :value="child.rank_class"/> {{ key }} </label> \
-                    </li> \
-                  </ul>',
+        template: '<div class="field" v-if="ranksChilds"> \
+                    <label>Rank</label><br> \
+                    <ul v-if="ranksChilds"> \
+                      <li v-for="(child, key, index) in ranksChilds" v-if="index < currentMaxDisplay"> \
+                        <label><input type="radio" name="rankSelected" v-model="setRankClass" :value="child.rank_class"/> {{ key }} </label> \
+                      </li> \
+                      <li v-for="(child, key, index) in ranksParents" v-if="showParents"> \
+                        <label><input type="radio" name="rankSelected" v-model="setRankClass" :value="child.rank_class"/> {{ key }} </label> \
+                      </li> \
+                      <li v-if="(extendChildsList || (getChildsLength < maxChildsDisplay))"> \
+                        <label v-if="!showParents"><input type="radio" name="extendChild" @click="showParents = true"/> more... </label> \
+                        <label v-else><input type="radio" name="extendChild" @click="showParents = false"/> less... </label> \
+                      </li> \
+                      <li v-if="getChildsLength > maxChildsDisplay && extendChildsList && !showParents"> \
+                        <label><input type="radio" name="extendChild" v-model="currentMaxDisplay" @click="extendChildsList = false" :value="maxChildsDisplay"/> less... </label> \
+                      </li> \
+                      <li v-if="getChildsLength > maxChildsDisplay && !extendChildsList && !showParents"> \
+                        <label><input type="radio" name="extendChild" v-model="currentMaxDisplay" :value="getChildsLength" @click="extendChildsList = true"/> more... </label> \
+                      </li> \
+                    </ul> \
+                  </div>',
         computed: {
           ranksChilds() {
             return this.$store.getters.getRanksChilds
           },
+          ranksParents() {
+            return this.$store.getters.getRanksParents
+          },          
           ranks() {
             return this.$store.getters.getRanksList
-          }          
+          },
+          getChildsLength() {
+            return Object.keys(this.ranksChilds).length;
+          },
+          setRankClass: {
+            set(value) {
+              this.$store.commit('setRankClass', value);
+            }
+          },
         },
         data: function() {
           return {
-
+            maxChildsDisplay: 4,
+            currentMaxDisplay: 4,
+            extendChildsList: false,
+            showParents: false,
           }
-        }
+        },
   		});
 
 
