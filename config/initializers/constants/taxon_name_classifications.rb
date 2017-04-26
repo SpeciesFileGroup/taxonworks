@@ -67,10 +67,10 @@ module TaxonNameClassificationsHelper
     classification.descendants.inject([]) {|ary, r| 
       ary.push(
         { 
-          name: 'foo',
+          name: r.label,
           type: r.to_s,
           common: r.common,
-          applicable_ranks: []
+          applicable_ranks: r.applicable_ranks
         }
       )
     }
@@ -80,11 +80,10 @@ end
 
 
 TAXON_NAME_CLASSIFICATION_JSON = {
-  iczn: 
-    TaxonNameClassificationsHelper::classifications_attributes( TaxonNameClassification::Iczn ),
-  icn: {},
-  icnb: {},
-  latinized: {}
+  iczn: TaxonNameClassificationsHelper::classifications_attributes( TaxonNameClassification::Iczn ),
+  icz: TaxonNameClassificationsHelper::classifications_attributes( TaxonNameClassification::Icn ),
+  icnb: TaxonNameClassificationsHelper::classifications_attributes( TaxonNameClassification::Icnb ),
+  latinized: TaxonNameClassificationsHelper::classifications_attributes( TaxonNameClassification::Latinized ),
 }
 
 

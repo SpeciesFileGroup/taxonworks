@@ -48,6 +48,11 @@ class TaxonNameClassification < ActiveRecord::Base
     return nil
   end
 
+  # TODO: fix
+  def self.label
+    name.demodulize.underscore.humanize.downcase
+  end
+
   # @return [String]
   #   the class name, "validated" against the known list of names
   def type_name
