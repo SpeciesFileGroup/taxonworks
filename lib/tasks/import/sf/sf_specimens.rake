@@ -46,10 +46,10 @@ namespace :tw do
               1552 => 752, # Proterozoic
               1568 => 753, # Archaean vs. Archean
               1584 => 11 # Hadean
-          }
+          }.freeze
 
           path = @args[:data_directory] + 'sfUniqueLocColEvents.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          file = CSV.read(path, col_sep: "\t", quote_char: '"', headers: true, encoding: 'BOM|UTF-8')
 
           # FileID
           # Level1ID	Level2ID	Level3ID	Level4ID
@@ -72,118 +72,94 @@ namespace :tw do
           error_counter = 0
 
           file.each do |row|
-            project_id = get_tw_project_id(row['FileID']).to_i
+            project_id = get_tw_project_id[row['FileID']]
 
             logger.info "Working with TW.project_id = #{project_id}, UniqueID = #{row['UniqueID']} (count #{counter += 1}) \n"
 
             # handle dates
-            end_date = nil
-            if row['DaysToEnd'].present?
-              y = row['year'] == '1000' ? '2000' : row['year']
-
-              start_date = Date.new(
-                  [y, row['month'], row['day']].join('/')
-              )
-              end_date = row['DaysToEnd'].to_i.days.since(start_date)
-            end
-
+            start_date_year = nil
             end_date_year, end_date_month, end_date_day = nil, nil, nil
 
-            if end_date
-              end_date_year, end_date_month, end_date_day = end_date.year, end_date.month, end_date.day
+            if row['Year'] != '0'
+              end_date = nil
+
+              if row['DaysToEnd'].present?
+                y = row['Year'] == '1000' ? '2000' : row['year']
+
+                start_date = Date.new([y.to_i, row['Month'].to_i, row['Day'].to_i].join('/'))
+                end_date = row['DaysToEnd'].to_i.days.since(start_date)
+              end
+
+              if end_date
+                end_date_year, end_date_month, end_date_day = end_date.year, end_date.month, end_date.day
+              end
+
+              end_date_year = nil if row['Year'] == '1000'
+              start_date_year = row['Year'] == '1000' ? nil : row['Year'].to_i
+
             end
 
-            end_date_year = nil if row['year'] == '1000'
-            start_date_year = row['year'] == '1000' ? nil : row['year'].to_i
 
-            # TODO:
-            #  PrecisionCode?  integer
-            #  handle PrecisionRadius as Georeference precision
-            #  some_precisions_radius_conversion   = row['PrecisionRadius'].to_i  * 10 # METERS
-
-            data_attributes_attributes = {
+            data_attributes_bucket = {
                 data_attributes_attributes: [],
-                project_id: project_id
+                # project_id: project_id  # cannot universally assign project_id to all array attribute hashes
                 # rest of housekeeping?
             }
 
-            if row['TimeDetail'].present?
-              type = 'ImportAttribute'
-              import_predicate = 'TimeDetail'
-              value = row['TimeDetail']
 
-              data_attributes_attributes[:data_attributes_attributes].push
+            if row['TimeDetail'].present?
+              time_detail = {type: 'ImportAttribute', import_predicate: 'TimeDetail', value: row['TimeDetail'], project_id: project_id}
+              data_attributes_bucket[:data_attributes_attributes].push(time_detail)
             end
 
             if row['BodyOfWater'].present?
-              type = 'ImportAttribute'
-              import_predicate = 'BodyOfWater'
-              value = row['BodyOfWater']
-
-              data_attributes_attributes[:data_attributes_attributes].push
+              body_of_water = {type: 'ImportAttribute', import_predicate: 'BodyOfWater', value: row['BodyOfWater'], project_id: project_id}
+              data_attributes_bucket[:data_attributes_attributes].push(body_of_water)
             end
 
-            precision_code = row['PrecisionCode'].to_i
-            if precision_code > 0
-              type = 'ImportAttribute'
-              import_predicate = 'PrecisionCode'
-              case precision_code
-                when 1 then
-                  value = 'from locality label'
-                when 2 then
-                  value = 'estimated from map and locality label'
-                when 3 then
-                  value = 'based on county or similar modest area specified on locality label'
-                when 4 then
-                  value = 'estimated from less specific locality label'
-                else
-                  value = 'error'
-              end
+            p_code = row['PrecisionCode'].to_i
+            if p_code > 0
+              value = case p_code
+                        when 1 then
+                          'from locality label'
+                        when 2 then
+                          'estimated from map and locality label'
+                        when 3 then
+                          'based on county or similar modest area specified on locality label'
+                        when 4 then
+                          'estimated from less specific locality label'
+                        else
+                          'error'
+                      end
 
-              data_attributes_attributes[:data_attributes_attributes].push
+              precision_code = {type: 'ImportAttribute', import_predicate: 'PrecisionCode', value: value, project_id: project_id}
+              data_attributes_bucket[:data_attributes_attributes].push(precision_code)
             end
 
 
-            metadata = {
-                data_attributes_attributes: data_attributes_attributes
-
-            }
+            # metadata = {
+            #     # data_attributes_attributes: data_attributes_bucket
+            #
+            #
+            # }.merge(data_attributes_bucket)
 
             c = CollectingEvent.new(
                 verbatim_latitude: row['Latitude'],
                 verbatim_longitude: row['Longitude'],
                 maximum_elevation: row['MaxElevation'],
                 collectors: row['CollectoName'],
-                start_date_day: (row['day'].present? ? row['day'].to_i : nil),
-                start_date_month: (row['month'].present? ? row['month'].to_i : nil),
+                start_date_day: (row['Day'].present? ? row['Day'].to_i : nil),
+                start_date_month: (row['Month'].present? ? row['Month'].to_i : nil),
                 start_date_year: start_date_year,
                 end_date_day: end_date_day,
                 end_date_month: end_date_month,
                 end_date_year: end_date_year,
-                geographic_area: get_tw_geographic_area(row),
+                geographic_area: get_tw_geographic_area(row, logger),
 
-                project_id: get_tw_project_id[row['FileID']],
-                paleobio_db_interval_id: TIME_PERIOD_MAP[row['TimePeriodID']], # TODO: Matt add attribute to CE !! rember ENVO implications
+                project_id: project_id,
+            # paleobio_db_interval_id: TIME_PERIOD_MAP[row['TimePeriodID']], # TODO: Matt add attribute to CE !! rember ENVO implications
 
-
-            #
-            #     # add in data attributes, import_predicate,
-            # georeferences_attributes: [
-            #     {
-            #         type: 'Georeference::VerbatimData',
-            #         error_radius: some_precisions_radius_conversion,
-            #         geographic_item_attributes: {
-            #             # JIM WILL HELP YOU WITH THE Rgeo::Point construction
-            #             # basically, the lat long values go here
-            #         }
-            #
-            #     }
-            # ],
-            #
-            #
-
-            #
-            ).merge(metadata) # add a .merge(object_name_created_outside_the_main_object)
+            ).merge(data_attributes_bucket)
 
 
             begin
@@ -198,48 +174,48 @@ namespace :tw do
 
               rescue ActiveRecord::RecordInvalid
 
-                logger.error
+                logger.error "Error: TW.project_id = #{project_id}, UniqueID = #{row['UniqueID']} (error count #{error_counter += 1}) \n"
               end
 
 
-              # Don't know if embedded attribute objects can have conditions, e.g., only make this object if condition > 0
-              if row['TimeDetail'].present?
-                da = DataAttribute.new(type: 'ImportAttribute',
-                                       attribute_subject_id: c.id,
-                                       attribute_subject_type: CollectingEvent,
-                                       import_predicate: 'TimeDetail',
-                                       value: row['TimeDetail'],
-                                       project_id: project_id)
-                begin
-                  da.save!
-                  puts 'DataAttribute TimeDetail created'
-
-
-                rescue ActiveRecord::RecordInvalid # da not valid
-                  logger.error "DataAttribute TimeDetail ERROR SF.UniqueID #{row['UniqueID']} = TW.collecting_event #{c.id} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
-                end
-              end
-
-              if row['BodyOfWater'].present?
-                da = DataAttribute.new(type: 'ImportAttribute',
-                                       attribute_subject_id: c.id,
-                                       attribute_subject_type: CollectingEvent,
-                                       import_predicate: 'BodyOfWater',
-                                       value: row['BodyOfWater'],
-                                       project_id: project_id)
-                begin
-                  da.save!
-                  puts 'DataAttribute BodyOfWater created'
-                rescue ActiveRecord::RecordInvalid # da not valid
-                  logger.error "DataAttribute BodyOfWater ERROR SF.UniqueID #{row['UniqueID']} = TW.collecting_event #{c.id} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
-                end
-              end
-
-
-            rescue ActiveRecord::RecordInvalid
-
-              logger.info "Failed on UniqueID #{row['UniqueID']}"
-
+              #   # Don't know if nested attribute objects can have conditions, e.g., only make this object if condition > 0
+              #   if row['TimeDetail'].present?
+              #     da = DataAttribute.new(type: 'ImportAttribute',
+              #                            attribute_subject_id: c.id,
+              #                            attribute_subject_type: CollectingEvent,
+              #                            import_predicate: 'TimeDetail',
+              #                            value: row['TimeDetail'],
+              #                            project_id: project_id)
+              #     begin
+              #       da.save!
+              #       puts 'DataAttribute TimeDetail created'
+              #
+              #
+              #     rescue ActiveRecord::RecordInvalid # da not valid
+              #       logger.error "DataAttribute TimeDetail ERROR SF.UniqueID #{row['UniqueID']} = TW.collecting_event #{c.id} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
+              #     end
+              #   end
+              #
+              #   if row['BodyOfWater'].present?
+              #     da = DataAttribute.new(type: 'ImportAttribute',
+              #                            attribute_subject_id: c.id,
+              #                            attribute_subject_type: CollectingEvent,
+              #                            import_predicate: 'BodyOfWater',
+              #                            value: row['BodyOfWater'],
+              #                            project_id: project_id)
+              #     begin
+              #       da.save!
+              #       puts 'DataAttribute BodyOfWater created'
+              #     rescue ActiveRecord::RecordInvalid # da not valid
+              #       logger.error "DataAttribute BodyOfWater ERROR SF.UniqueID #{row['UniqueID']} = TW.collecting_event #{c.id} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
+              #     end
+              #   end
+              #
+              #
+              # rescue ActiveRecord::RecordInvalid
+              #
+              #   logger.info "Failed on UniqueID #{row['UniqueID']}"
+              #
             end
 
 
@@ -248,10 +224,14 @@ namespace :tw do
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFUniqueIDToTWCollectingEventID', get_tw_collecting_event_id)
 
+          puts 'SFUniqueIDToTWCollectingEventID'
+          ap get_tw_collecting_event_id
+
         end
 
         # Find a TW geographic_area
-        def get_tw_geographic_area(row)
+        # @todo JDT HELP!
+        def get_tw_geographic_area(row, logger)
           # we can lookup TDWG id, is this enough to represent country/state/county
           tdwg_id = [
               row['Level1ID'],
@@ -267,9 +247,9 @@ namespace :tw do
 
           # Find values in country/state/county
           finest_sf_level = [
-              row['country'],
-              row['state'],
-              row['county']
+              row['Country'],
+              row['State'],
+              row['County']
           ].select {|a| !a.blank?}
 
           # If there is no value, just return the tdwg based match
