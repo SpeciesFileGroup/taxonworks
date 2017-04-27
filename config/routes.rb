@@ -205,6 +205,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :descriptors do
     concerns [:data_routes, :shallow_annotation_routes]
+    member do
+      get :annotations, defaults: {format: :json}
+    end
   end
 
   resources :documents do
@@ -817,6 +820,9 @@ TaxonWorks::Application.routes.draw do
 
       get '/observations/:id/annotations',
         to: 'observations#annotations'
+
+      get '/descriptors/:id/annotations',
+        to: 'descriptors#annotations'
 
       get '/descriptors/:id',
         to: 'descriptors#show'

@@ -75,7 +75,6 @@ class ObservationsController < ApplicationController
     end
   end
 
-  #   http://127.0.0.1:3000/api/v1/observations/212659/annotations.json?token=RZRT7Voy4vOX26MASONOIQ&project_id=1
   # GET /annotations
   def annotations
     @object = @observation 

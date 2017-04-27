@@ -1,7 +1,7 @@
 class DescriptorsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_descriptor, only: [:show, :edit, :update, :destroy]
+  before_action :set_descriptor, only: [:show, :edit, :update, :destroy, :annotations]
 
   # GET /descriptors
   # GET /descriptors.json
@@ -98,6 +98,14 @@ class DescriptorsController < ApplicationController
       redirect_to descriptor_path(params[:id])
     end
   end
+
+  # GET /annotations
+  def annotations
+    @object = @descriptor
+    render '/shared/data/all/annotations'
+  end
+
+
 
   private
   
