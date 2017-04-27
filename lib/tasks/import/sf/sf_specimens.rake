@@ -236,7 +236,7 @@ namespace :tw do
           tdwg_id = [row['Level1ID'].chomp('0'),
                      row['Level2ID'].chomp('-'),
                      row['Level3ID'].chomp('---'),
-                     '-' + row['Level4ID'].chomp('-').chomp('---') # TODO: we have to pad dashes here to match off values
+                     ('-' + row['Level4ID']).chomp('---').chomp('-') # TODO: we have to pad dashes here to match off values
           ].select {|a| a.length > 0}.join
 
           l1, l2, l3, l4 = row['Level1ID'], row['Level2ID'], row['Level3ID'], row['Level4ID']
