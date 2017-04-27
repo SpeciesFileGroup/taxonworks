@@ -219,7 +219,7 @@ GEM
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     lumberjack (1.0.11)
-    mail (2.6.4)
+    mail (2.6.5)
       mime-types (>= 1.16, < 4)
     method_source (0.8.2)
     mime-types (3.1)
@@ -376,6 +376,7 @@ GEM
     ruby-prof (0.16.2)
     ruby-progressbar (1.8.1)
     ruby-rc4 (0.1.5)
+    ruby-units (2.1.0)
     ruby_dep (1.5.0)
     rubyzip (1.2.1)
     safe_yaml (1.0.4)
@@ -540,6 +541,7 @@ DEPENDENCIES
   rspec-rails (~> 3.4)
   rubocop (~> 0.46.0)
   ruby-prof
+  ruby-units (~> 2.1)
   rubyzip (~> 1.2.1)
   sass-rails (~> 5.0.6)
   sdoc

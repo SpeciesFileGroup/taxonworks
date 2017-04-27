@@ -83,6 +83,10 @@ Core: # a Section
     status: :prototype
     categories:
       - matrix
+  CharacterState:
+    status: protoype
+    categories:
+      - matrix
 Supporting:
   AssertedDistribution:
     status: :prototype

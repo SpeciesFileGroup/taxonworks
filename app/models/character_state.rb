@@ -13,7 +13,6 @@ class CharacterState < ActiveRecord::Base
   include Shared::AlternateValues
   include SoftValidation
 
-
   acts_as_list scope: [:descriptor_id]
 
   belongs_to :descriptor

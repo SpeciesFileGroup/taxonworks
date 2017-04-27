@@ -50,6 +50,7 @@ gem 'sprockets-es6', require: 'sprockets/es6'
 gem 'browserify-rails'
 # gem 'babel-transpiler'
 
+gem 'ruby-units', '~> 2.1'
 
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '~> 3.0.02'

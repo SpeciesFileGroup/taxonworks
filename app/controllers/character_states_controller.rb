@@ -1,10 +1,13 @@
 class CharacterStatesController < ApplicationController
-  before_action :set_character_state, only: [:show, :edit, :update, :destroy]
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
+
+  before_action :set_character_state, only: [:show, :edit, :update, :destroy, :annotations]
 
   # GET /character_states
   # GET /character_states.json
   def index
-    @character_states = CharacterState.all
+    @recent_objects = CharacterState.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # GET /character_states/1
@@ -61,14 +64,23 @@ class CharacterStatesController < ApplicationController
     end
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_character_state
-      @character_state = CharacterState.find(params[:id])
-    end
+  def list
+    @character_states = CharacterState.with_project_id(sessions_current_project_id).page(params[:page])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def character_state_params
-      params.require(:character_state).permit(:name, :label, :descriptor_id, :position, :project_id, :updated_by_id, :created_by_id)
-    end
+  # GET /character_states/annotations.json
+  def annotations
+    @object = @character_state
+    render '/shared/data/all/annotations'
+  end
+
+  private
+  def set_character_state
+    @character_state = CharacterState.find(params[:id])
+  end
+
+  def character_state_params
+    params.require(:character_state).permit(:name, :label, :descriptor_id, :position, :project_id, :updated_by_id, :created_by_id)
+  end
+
 end

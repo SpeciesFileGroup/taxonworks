@@ -100,8 +100,12 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
+  # TODO: only/except
   resources :character_states do
-    # TODO
+    concerns [:data_routes]
+    member do
+      get :annotations, defaults: {format: :json}
+    end
   end
 
   resources :citation_topics, only: [:create, :update, :destroy]
@@ -834,6 +838,11 @@ TaxonWorks::Application.routes.draw do
         to: 'depictions#index'
 
       resources :observations, except: [:new, :edit]
+
+      get '/character_states/:id/annotations',
+        to: 'character_states#annotations'
+
+
 
     end
   end
