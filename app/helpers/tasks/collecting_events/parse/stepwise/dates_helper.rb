@@ -37,7 +37,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
       next if trial.blank? # if this leaves the trial empty, skip
       # ActionController::Redirecting.redirect_to dates_index_task_path(collecting_event_id: next_collecting_event_id,
       #                                                                 filters: parse_filters(params))
-      verbatim_date_piece = make_verbatim_date_piece(label, trial[:piece])
+      verbatim_date_piece = Utilities::Dates::make_verbatim_date_piece(label, trial[:piece])
       content_tag(:tr, class: :extract_row) do
         content_tag(:td, method, align: 'center', class: :method_value) +
             # content_tag(:td, kee == method ? '' : kee) +
@@ -52,15 +52,6 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
     # next if tests[kee]
     # }
     # @matching_items = {@collecting_event.id.to_s => tests.first[:piece]}
-  end
-
-  def make_verbatim_date_piece(label, pieces)
-    left = label.index(pieces[0])
-    right = left + pieces[0].length - 1 #
-    unless pieces[1].blank?
-      right = label.index(pieces[1]) + pieces[1].length - 1
-    end
-    label[left..right]
   end
 
   # @param [String] pieces is either piece, or lat, long

@@ -260,6 +260,15 @@ module Utilities::Dates
     return start_date, end_date
   end
 
+  def self.make_verbatim_date_piece(label, pieces)
+    left = label.index(pieces[0])
+    right = left + pieces[0].length - 1 #
+    unless pieces[1].blank?
+      right = label.index(pieces[1]) + pieces[1].length - 1
+    end
+    label[left..right]
+  end
+
   # @param [String] start_date in the form of 'yyyy/mm/dd'
   # @param [String] end_date in the form of 'yyyy/mm/dd'
   # @return [String, String] start_date, end_date in proper order
@@ -513,7 +522,7 @@ module Utilities::Dates
                          hdr: 'dmdmy2'},
 
       mm_dd_mm_dd_yyyy: {reg: /(\d\d?)[\s\.,\/]\s?(\d\d?)\s?[-\u2013\/]\s?(\d\d?)[\s\.,\/]\s?(\d\d?)[\s\.,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
-                         hlp: '5 27 - 6 1 1947   5/ 26- 6/ 26 1944',
+                         hlp: '5 27 - 6 1 1947 | 5/ 26- 6/ 26 1944',
                          hdr: 'mdmdy2'},
 
       month_dd_dd_yyyy: {reg: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[\.,]?[-\s\u2013,\/]?(\d\d?)\s?[-\u2013\+\/]\s?(\d\d?)[\.,]?[-\s\.\u2013,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
@@ -534,36 +543,35 @@ module Utilities::Dates
                       hdr: 'mddy2'},
 
       month_dd_yyy: {reg: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[-\u2013_,\/]?\s?(\d\d?)[\.;,]?\s?[-\s\u2013_\/\.\u0027,]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
-                     hlp: "Jun 29 1947   Jun 29, 1947   June 29 1947   June 29, 1947   VI-29-1947   X.25.2000   Jun 29, '47   June 29, '47   VI-4-08   Jun 29, '47",
+                     hlp: "Jun 29 1947 | Jun 29, 1947 | June 29 1947 | June 29, 1947 | VI-29-1947 | X.25.2000 | Jun 29, '47 | June 29, '47 | VI-4-08 | Jun 29, '47",
                      hdr: 'mody'},
 
       dd_month_yyy: {reg: /(\d\d?)\s?[-\u2013_\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[\.,]?\s?[-,\u2013_\/]?\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
-                     hlp: "29 Jun 1947   29 June 1947   2 June, 1983   29 VI 1947   29-VI-1947   25.X.2000   25X2000   29 June '47   29 Jun '47",
+                     hlp: "29 Jun 1947 | 29 June 1947 | 2 June, 1983 | 29 VI 1947 | 29-VI-1947 | 25.X.2000 | 25X2000 | 29 June '47 | 29 Jun '47",
                      hdr: 'dmoy'},
 
       mm_dd_yyyy: {reg: /(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d{4})/i,
-                   hlp: '6/29/1947   6-29-1947   6-15 1985   10.25 2000   7.10.1994',
+                   hlp: '6/29/1947 | 6-29-1947 | 6-15 1985 | 10.25 2000 | 7.10.1994',
                    hdr: 'mdy'},
 
       mm_dd_yy: {reg: /(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?([\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
-                 hlp: "6/29/47   6/29/'47   7.10.94   5-17-97",
+                 hlp: "6/29/47 | 6/29/'47 | 7.10.94 | 5-17-97",
                  hdr: 'mdy'},
 
       yyyy_mm_dd: {reg: /(\d{4})[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)/i,
-                   hlp: "1994, 4.16",
+                   hlp: "1994, 4.16 | '02-IV-24'",
                    hdr: 'ymd'},
 
       yyyy_month_dd: {reg: /(\d{4})[-\s\u2013_\.,\/]?\s*(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[-\s\u2013_\.,\/]?\s*(\d\d?)/i,
-                      hlp: "1994 JULY 17",
+                      hlp: "1994 JULY 17 | 2003 June 15 -  2004 July 04 | 2002-IV-27 - 2008-JUL-04",
                       hdr: 'ymod'},
 
       yyyy_mm_dd_mm_dd: {reg: /(\d{4})[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)/i,
                          hlp: "1994, 6.14-6.17",
                          hdr: 'ymdmd'},
-      #                              (\d{4})[-\s\u2013_\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[-\s\u2013_\.,\/]?\s*(\d\d?)[-\s\u2013_\.,\/]?\s*(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[-\s\u2013_\.,\/]?\s*(\d\d?)
-      #                              (\d{4})[-\s\u2013_\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[-\s\u2013_\.,\/]?\s?(\d\d?)\s?[-\s\u2013_\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[-\s\u2013_\.,\/]?\s*(\d\d?)
+
       yyyy_month_dd_month_dd: {reg: /(\d{4})[-\s\u2013_\.,\/]?\s*(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[-\s\u2013_\.,\/]?\s*(\d\d?)\s?[-\s\u2013_\.,\/]?\s*(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[-\s\u2013_\.,\/]?\s*(\d\d?)/i,
-                               hlp: "1994 june 14 -JULY 17",
+                               hlp: "1994 june 14 -JULY 17 | 2002-IV-27 - JUL-04",
                                hdr: 'ymodmod'}
   }
 
