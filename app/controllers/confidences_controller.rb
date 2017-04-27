@@ -16,6 +16,8 @@ class ConfidencesController < ApplicationController
         @confidences = Confidence.where(project_id: sessions_current_project_id).where(
           polymorphic_filter_params('confidence_object', [
             :observation_id,
+            :descriptor_id,
+            :otu_id
           ])
         )
       }

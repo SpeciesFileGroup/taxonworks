@@ -1,7 +1,7 @@
 class ObservationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_observation, only: [:show, :edit, :update, :destroy]
+  before_action :set_observation, only: [:show, :edit, :update, :destroy, :annotations]
 
   # GET /observations
   # GET /observations.json
@@ -75,7 +75,15 @@ class ObservationsController < ApplicationController
     end
   end
 
+  #   http://127.0.0.1:3000/api/v1/observations/212659/annotations.json?token=RZRT7Voy4vOX26MASONOIQ&project_id=1
+  # GET /annotations
+  def annotations
+    @object = @observation 
+    render '/shared/data/all/annotations'
+  end
+
   private
+
   def set_observation
     @observation = Observation.find(params[:id])
   end
@@ -88,9 +96,7 @@ class ObservationsController < ApplicationController
       :sample_n, :sample_min, :sample_max, :sample_median, :sample_mean, :sample_units, :sample, :sample_standard_error,
       :presence,
       :description, 
-      :cached, :cached_column_label, :cached_row_label, 
-      :type, 
-      :created_by_id, :updated_by_id, :project_id)
+      :type)
   end
 
   def filter_params

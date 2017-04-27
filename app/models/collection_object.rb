@@ -116,6 +116,8 @@ class CollectionObject < ActiveRecord::Base
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
   has_many :sqed_depictions, through: :depictions
 
+  has_many :observations, inverse_of: :collection_object
+
   # This must come before taxon determinations !!
   has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
 

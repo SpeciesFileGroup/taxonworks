@@ -7,6 +7,7 @@ class Observation < ActiveRecord::Base
   include Shared::Taggable
   include Shared::IsData
   include Shared::Depictions
+  include Shared::Confidence
 
   belongs_to :descriptor, inverse_of: :observations
   belongs_to :otu, inverse_of: :observations

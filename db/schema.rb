@@ -11,11 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-<<<<<<< Updated upstream
-ActiveRecord::Schema.define(version: 20170210033821) do
-=======
-ActiveRecord::Schema.define(version: 20170326143108) do
->>>>>>> Stashed changes
+ActiveRecord::Schema.define(version: 20170414170206) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -43,12 +39,6 @@ ActiveRecord::Schema.define(version: 20170326143108) do
   add_index "alternate_values", ["project_id"], name: "index_alternate_values_on_project_id", using: :btree
   add_index "alternate_values", ["type"], name: "index_alternate_values_on_type", using: :btree
   add_index "alternate_values", ["updated_by_id"], name: "index_alternate_values_on_updated_by_id", using: :btree
-
-  create_table "ar_internal_metadata", primary_key: "key", force: :cascade do |t|
-    t.string   "value"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
 
   create_table "asserted_distributions", force: :cascade do |t|
     t.integer  "otu_id",             null: false
@@ -583,7 +573,6 @@ ActiveRecord::Schema.define(version: 20170326143108) do
     t.integer  "documentation_object_id",   null: false
     t.string   "documentation_object_type", null: false
     t.integer  "document_id",               null: false
-    t.json     "page_map"
     t.integer  "project_id",                null: false
     t.integer  "created_by_id",             null: false
     t.integer  "updated_by_id",             null: false
@@ -800,7 +789,7 @@ ActiveRecord::Schema.define(version: 20170326143108) do
   create_table "extracts", force: :cascade do |t|
     t.decimal  "quantity_value",             null: false
     t.string   "quantity_unit",              null: false
-    t.string   "verbatim_anatomical_origin", null: false
+    t.string   "verbatim_anatomical_origin"
     t.integer  "year_made",                  null: false
     t.integer  "month_made",                 null: false
     t.integer  "day_made",                   null: false
@@ -1086,6 +1075,7 @@ ActiveRecord::Schema.define(version: 20170326143108) do
     t.integer  "project_id",                    null: false
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
+    t.integer  "position"
   end
 
   add_index "matrix_column_items", ["controlled_vocabulary_term_id"], name: "index_matrix_column_items_on_controlled_vocabulary_term_id", using: :btree

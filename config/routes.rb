@@ -296,6 +296,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :matrices do
     concerns [:data_routes]
+    member do
+      get 'row', {format: :json}
+    end
   end
 
   resources :matrix_columns, only: [:index, :show] do
@@ -320,6 +323,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :observations do
     concerns [:data_routes, :shallow_annotation_routes]
+    member do
+      get :annotations, defaults: {format: :json}
+    end
   end
 
   resources :otus do
@@ -794,11 +800,23 @@ TaxonWorks::Application.routes.draw do
       get '/observations',
         to: 'observations#index'
 
+      get '/observations/:id',
+        to: 'observations#show'
+
       get '/observations/:observation_id/notes',
         to: 'notes#index'
 
       get '/observations/:observation_id/confidences',
         to: 'confidences#index'
+
+      get '/observations/:observation_id/depictions',
+        to: 'depictions#index'
+
+      get '/observations/:observation_id/citations',
+        to: 'citations#index'
+
+      get '/observations/:id/annotations',
+        to: 'observations#annotations'
 
       get '/descriptors/:id',
         to: 'descriptors#show'
@@ -806,12 +824,14 @@ TaxonWorks::Application.routes.draw do
       get '/descriptors/:descriptor_id/notes',
         to: 'notes#index'
 
+      get '/descriptors/:descriptor_id/confidences',
+        to: 'confidences#index'
+
       get '/descriptors/:descriptor_id/observations',
         to: 'observations#index'
 
       get '/descriptors/:descriptor_id/depictions',
         to: 'depictions#index'
-
 
 
     end

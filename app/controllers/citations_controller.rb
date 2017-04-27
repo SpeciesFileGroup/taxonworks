@@ -11,8 +11,12 @@ class CitationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @citations = Citation.where(project_id: sessions_current_project_id).where(shallow_filter_params)
+        @citations = Citation.where(project_id: sessions_current_project_id)
+          .where(polymorphic_filter_params(
+        'citation_object', [:content_id, :otu_id, :observation_id] 
+        ))
       }
+
     end
   end
 
@@ -109,25 +113,6 @@ class CitationsController < ApplicationController
   end
 
   private
-
-  def shallow_filter_params
-    # !! We should only ever get here from a shallow resource
-    h = params.permit(
-      :content_id,
-      :otu_id
-      # add other polymorphic references here as implementd, e.g. taxon_name_id for citations on TaxonNames
-    ).to_h 
-
-    if h.size > 1 || h.size == 0 
-      respond_to do |format|
-        format.html { render plain: '404 Not Found', status: :unprocessable_entity and return }
-        format.json { render json: {success: false}, status: :unprocessable_entity and return }
-      end
-    end
-
-    model = h.keys.first.split('_').first.classify
-    return {citation_object_type: model, citation_object_id: h.values.first}
-  end
 
   def filter_params
     params.permit(:citation_object_type, :citation_object_id, :source_id).merge(project_id: sessions_current_project_id)

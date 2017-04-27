@@ -6,6 +6,10 @@ module DataControllerConfiguration::ProjectDataControllerConfiguration
     before_action :require_sign_in_and_project_selection
   end
 
+  # protected (?)
+
+  # @return [Hash]
+  #    
   def polymorphic_filter_params(object_name, permitted_model_ids = [])
     h = params.permit(permitted_model_ids).to_h
     if h.size > 1 
@@ -18,7 +22,5 @@ module DataControllerConfiguration::ProjectDataControllerConfiguration
     model = h.keys.first.split('_').first.classify
     return {"#{object_name}_type".to_sym => model,"#{object_name}_id".to_sym => h.values.first}
   end
-
-  protected
 
 end
