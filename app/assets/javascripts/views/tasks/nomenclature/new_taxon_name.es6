@@ -59,24 +59,32 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
 
 	    const store = new Vuex.Store({
 	    	state: {
-	        	taxon_name: {
-	        		parent_id: undefined,
-	        		name: undefined,
-	        		rank_class: undefined,
-	        		year_of_publication: undefined,
-	        		verbatim_author: undefined,
-	        		feminine_name: undefined,
-	        		masculine_name: undefined,
-	        		neuter_name: undefined
+	        taxon_name: {
+	        	parent_id: undefined,
+	        	name: undefined,
+	       		rank_class: undefined,
+	      		year_of_publication: undefined,
+	      		verbatim_author: undefined,
+	      		feminine_name: undefined,
+	       		masculine_name: undefined,
+        		neuter_name: undefined
 	    		},
+          parent: undefined,
 	    		ranks: undefined,
+          status: undefined,
           ranksParents: undefined,
           ranksChilds: undefined
 	    	},
 	    	getters: {
+          getParent(state) {
+            return state.parent;
+          },
 	    		getRanksList(state) {
 	    			return state.ranks;
 	    		},
+          getStatusList(state) {
+            return state.status;
+          },
           getTaxonName(state) {
             return state.taxon_name.name;
           },
@@ -97,9 +105,15 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
           }
 	    	},
 	    	mutations: {
-	    		setRanksList(state, list) {
-	    			state.ranks = list;
-	    		},
+          setParent(state, parent) {
+            state.parent = parent;
+          },
+          setRanksList(state, list) {
+            state.ranks = list;
+          },
+          setStatusList(state, list) {
+            state.status = list;
+          },
           setRanksChilds(state, ranks) {
             state.ranksChilds = ranks;
           },
@@ -154,7 +168,7 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
   				this.$on('parentSelected', function(item) {
   					this.$store.commit('setParentId', item.id);
             this.$http.get(`/taxon_names/${item.id}`).then( response => {
-              console.log(response.body);
+              that.$store.commit('setParent', response.body);
               that.$store.commit('setRanksChilds', getParentChilds(that.$store.getters.getRanksList, response.body));
               that.$store.commit('setRanksParents', getParentList(that.$store.getters.getRanksList, response.body));
             });
@@ -188,7 +202,9 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
             }
           }
         }
-      });      
+      });
+
+
 
   		Vue.component('source-picker', {
   			template: '<autocomplete \
@@ -214,6 +230,60 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
                         param="term"> \
                     </div> \
                   </form>',
+      });
+
+      Vue.component('status-selector', {
+        template: '<form class="content" v-if="rankClass"> \
+                    <h3>Status</h3> \
+                    <div class="content flex-wrap-row"> \
+                      <ul class="flex-wrap-column no_bullets" v-for="itemsGroup in list.chunk(Math.ceil(list.length/4))"> \
+                        <li class="status-item" v-for="item in itemsGroup"> \
+                          <label><input type="radio" name="status-item" :value="item.type"/>{{ item.name }}</label> \
+                        </li> \
+                      </ul> \
+                    </div> \
+                  </form>',
+        computed: {
+          statusList: {
+            get() {
+              return this.$store.getters.getStatusList
+            },
+            set(value) {
+              this.$store.commit('setStatusList', value);
+            }
+          },
+          rankClass() {
+            return this.$store.getters.getRankClass
+          },
+          parent() {
+            return this.$store.getters.getParent
+          }
+        },
+        data: function() {
+          return {
+            list: []
+          }
+        },
+        watch: {
+          'rankClass': function(newVal, oldVal) {
+            this.list = this.getStatusListForThisRank(this.statusList,newVal);
+          }
+        },
+        methods: {
+          getStatusListForThisRank(list, findStatus) {
+            var 
+            newList = [];
+            list[this.parent.nomenclatural_code].forEach(function(item) {
+              item['applicable_ranks'].find(status => {
+                  if(status == findStatus) {
+                    newList.push(item);
+                    return true
+                  }
+              });
+            });
+            return newList;
+          }
+        }
       });
 
   		Vue.component('rank-selector', {
@@ -288,13 +358,19 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
     		store: store,
     		mounted: function() {
     			this.loadRanks();
+          this.loadStatus();
     		},
     		methods: {
     			loadRanks: function() {
     				this.$http.get('/taxon_names/ranks').then( response => {
     					this.$store.commit('setRanksList', response.body);
     				});
-    			}
+    			},
+          loadStatus: function() {
+            this.$http.get('/taxon_name_classifications/taxon_name_classification_types').then( response => {
+              this.$store.commit('setStatusList', response.body);
+            });
+          }          
     		}
   		});  		
 	}
