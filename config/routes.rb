@@ -800,12 +800,6 @@ TaxonWorks::Application.routes.draw do
       get '/confidence_levels',
         to: 'confidence_levels#index'
 
-      get '/observations',
-        to: 'observations#index'
-
-      get '/observations/:id',
-        to: 'observations#show'
-
       get '/observations/:observation_id/notes',
         to: 'notes#index'
 
@@ -839,6 +833,7 @@ TaxonWorks::Application.routes.draw do
       get '/descriptors/:descriptor_id/depictions',
         to: 'depictions#index'
 
+      resources :observations, except: [:new, :edit]
 
     end
   end
