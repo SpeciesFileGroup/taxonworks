@@ -1256,10 +1256,16 @@ class TaxonName < ActiveRecord::Base
     true
   end
 
-  # @proceps self.rank_class_was is not a class method anywhere, so this comparison is vs. nil
-  # @mjy: self.rank_class_was returns old value from the database before replacing it with a new value on update.
   def check_new_rank_class
+    # rank_class_was is a AR macro 
+
     if (self.rank_class != self.rank_class_was) && !self.rank_class_was.nil?
+
+      if self.rank_class_was == 'NomenclaturalRank' 
+        errors.add(:rank_class, "Root can not have a new rank")
+        return
+      end
+
       old_rank_group = self.rank_class_was.safe_constantize.parent
       if self.rank_class.parent != old_rank_group
         errors.add(:rank_class, "A new taxon rank (#{rank_name}) should be in the #{old_rank_group.rank_name}")
