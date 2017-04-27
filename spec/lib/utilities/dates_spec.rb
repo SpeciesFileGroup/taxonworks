@@ -27,7 +27,9 @@ describe 'Dates', group: [:collecting_events, :dates] do
                                   :month_dd_yyy => {},
                                   :month_dd_yyyy_2 => {},
                                   :yyyy_mm_dd => {},
-                                  :yyyy_month_dd => {}
+                                  :yyyy_month_dd => {},
+                                  :yyyy_mm_dd_mm_dd => {},
+                                  :yyyy_month_dd_month_dd => {}
                                }
                              )
       end
@@ -50,7 +52,9 @@ describe 'Dates', group: [:collecting_events, :dates] do
                        :month_dd_yyy => {},
                        :month_dd_yyyy_2 => {},
                        :yyyy_mm_dd => {},
-                       :yyyy_month_dd => {}
+                       :yyyy_month_dd => {},
+                       :yyyy_mm_dd_mm_dd => {},
+                       :yyyy_month_dd_month_dd => {}
                       }
       }
       @entry   = 0
@@ -81,7 +85,9 @@ describe 'Dates', group: [:collecting_events, :dates] do
                        :month_dd_yyy => {},
                        :month_dd_yyyy_2 => {},
                        :yyyy_mm_dd => {},
-                       :yyyy_month_dd => {}
+                       :yyyy_month_dd => {},
+                       :yyyy_mm_dd_mm_dd => {},
+                       :yyyy_month_dd_month_dd => {}
                       }
       }
       @entry = 0
@@ -96,11 +102,11 @@ describe 'Dates', group: [:collecting_events, :dates] do
     end
 
 
-    context 'use one method at a time hunt_dates' do
+    context 'use one regex method at a time in hunt_dates against the set of its examples' do
       methods = Utilities::Dates::REGEXP_DATES.keys
       methods.each_with_index {|method, dex|
         this_hlp = Utilities::Dates::REGEXP_DATES[method][:hlp]
-        matches = this_hlp.split('   ')
+        matches = this_hlp.split(' | ')
         matches.each {|this_match|
 
 
@@ -132,7 +138,9 @@ describe 'Dates', group: [:collecting_events, :dates] do
              :month_dd_yyy => {},
              :month_dd_yyyy_2 => {},
              :yyyy_mm_dd => {},
-             :yyyy_month_dd => {}
+             :yyyy_month_dd => {},
+             :yyyy_mm_dd_mm_dd => {},
+             :yyyy_month_dd_month_dd => {}
           },
           'Here is some extra text:,;   22-23 V 2003; More stuff at the end' =>
             {:dd_dd_month_yyyy => {:method => :dd_dd_month_yyyy, :piece => {0 => "22-23 V 2003"}, :start_date_year => "2003", :start_date_month => "5", :start_date_day => "22", :end_date_year => "2003", :end_date_month => "5", :end_date_day => "23", :start_date => "2003 5 22", :end_date => "2003 5 23"},
@@ -150,7 +158,9 @@ describe 'Dates', group: [:collecting_events, :dates] do
              :month_dd_yyy => {},
              :month_dd_yyyy_2 => {},
              :yyyy_mm_dd => {},
-             :yyyy_month_dd => {}
+             :yyyy_month_dd => {:method => :yyyy_month_dd, :piece => {0 => "23 V 20"}, :start_date_year => "1923", :start_date_month => "5", :start_date_day => "20", :end_date_year => "", :end_date_month => "", :end_date_day => "", :start_date => "1923 5 20", :end_date => ""},
+             :yyyy_mm_dd_mm_dd => {},
+             :yyyy_month_dd_month_dd => {}
           }
       }
       @entry    = 0
