@@ -246,6 +246,8 @@ namespace :tw do
           tdwg_id        += l3 unless l3 == '---'
           tdwg_id        += "-#{l4}" unless l4 == '---'
 
+          # TODO if level 4 is a number, look up county name in SFGeoLevel4
+
           logger.info "target tdwg id: #{tdwg_id}"
 
           # Lookup the TDWG geographic area
