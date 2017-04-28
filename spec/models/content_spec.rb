@@ -62,24 +62,27 @@ describe Content, :type => :model do
     end
   end
 
-
   # See the Papertrail gem https://github.com/airblade/paper_trail
-  context 'use', :versioning => true do
+  context 'use in specs' do
     specify 'within a `with_versioning` block it will be turned on' do
-      expect(PaperTrail).to be_enabled
+      with_versioning do
+        expect(PaperTrail).to be_enabled
+      end
     end
 
     context 'some Papertrail methods' do
       let(:c) { FactoryGirl.create(:valid_content) }
 
-      specify 'versions' do
-        expect(c.versions.count).to eq(1)
+      specify 'versions not created on create' do
+        expect(c.versions.count).to eq(0)
       end
 
       specify 'another version' do
-        c.text = 'new text'
-        expect(c.save).to be_truthy
-        expect(c.versions.count).to eq(2)
+        with_versioning do
+          c.text = 'new text'
+          expect(c.save).to be_truthy
+          expect(c.versions.count).to eq(1)
+        end
       end
 
       specify 'live?'  do

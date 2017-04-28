@@ -166,7 +166,7 @@ class CollectingEvent < ActiveRecord::Base
   include Shared::Documentation
   include SoftValidation
 
-  has_paper_trail
+  has_paper_trail :on => [:update]
 
   NEARBY_DISTANCE = 5000
 

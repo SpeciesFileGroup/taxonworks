@@ -78,7 +78,7 @@ class CollectionObject < ActiveRecord::Base
   include CollectionObject::DwcExtensions 
 
   is_origin_for :collection_objects
-  has_paper_trail
+  has_paper_trail :on => [:update] 
 
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze

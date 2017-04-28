@@ -114,7 +114,7 @@
 class TaxonName < ActiveRecord::Base
 
   has_closure_tree
-  has_paper_trail
+  has_paper_trail :on => [:update] 
 
   include Housekeeping
   include Shared::DataAttributes

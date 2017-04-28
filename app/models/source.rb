@@ -194,7 +194,7 @@ class Source < ActiveRecord::Base
   include Shared::IsData
   include Shared::Documentation
 
-  has_paper_trail
+  has_paper_trail :on => [:update]
 
   ALTERNATE_VALUES_FOR = [:address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
                           :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze

@@ -20,6 +20,7 @@ require 'capybara/rails'
 require 'capybara/rspec'
 require 'vcr'
 require 'spec_helper'
+require 'paper_trail/frameworks/rspec'
 
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories. We should likely configure particular support to particular spec tests here.

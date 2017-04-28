@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="Help-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="-633 395 12 12" style="enable-background:new -633 395 12 12;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#FFFFFF;}
+	.st1{fill:#FF8F00;}
+</style>
+<rect x="-630" y="396.3" class="st0" width="5.9" height="9.5"/>
+<g>
+	<g id="help">
+		<path class="st1" d="M-627,395c-3.3,0-6,2.7-6,6s2.7,6,6,6s6-2.7,6-6S-623.7,395-627,395z M-626.4,405.2h-1.2V404h1.2V405.2z
+			 M-625.1,400.6l-0.5,0.5c-0.5,0.4-0.7,0.8-0.7,1.7h-1.2v-0.3c0-0.7,0.2-1.3,0.7-1.7l0.7-0.8c0.2-0.2,0.4-0.5,0.4-0.8
+			c0-0.7-0.5-1.2-1.2-1.2s-1.2,0.5-1.2,1.2h-1.2c0-1.3,1.1-2.4,2.4-2.4s2.4,1.1,2.4,2.4C-624.6,399.7-624.8,400.2-625.1,400.6z"/>
+	</g>
+</g>
+</svg>
