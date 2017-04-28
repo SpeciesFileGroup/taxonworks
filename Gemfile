@@ -61,7 +61,7 @@ gem 'uglifier', '~> 3.0.02'
 gem 'jquery-rails', '~> 4.1.1'
 gem 'jquery-ui-rails', '~> 5.0.5'
 
-gem 'vuejs'
+gem 'vuejs-rails'
 
 gem 'rails-jquery-autocomplete'
 gem 'best_in_place', '~> 3.1.0'
