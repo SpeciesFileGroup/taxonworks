@@ -41,7 +41,7 @@ class Serial < ActiveRecord::Base
   include SoftValidation
   include Shared::SharedAcrossProjects
 
-  has_paper_trail
+  has_paper_trail :on => [:update]
 
   # Class constants
   ALTERNATE_VALUES_FOR = [:name, :publisher, :place_published]

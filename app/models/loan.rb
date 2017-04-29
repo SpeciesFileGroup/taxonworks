@@ -66,7 +66,7 @@ class Loan < ActiveRecord::Base
   include Shared::Depictions
   include Shared::HasRoles
 
-  has_paper_trail
+  has_paper_trail :on => [:update] 
 
   has_many :loan_items, dependent: :restrict_with_error
 

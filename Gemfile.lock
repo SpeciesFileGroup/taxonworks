@@ -74,9 +74,9 @@ GEM
       parallel (~> 1.4)
       treetop (~> 1.4.1)
       unicode_utils (~> 1.4)
-    browserify-rails (4.1.0)
+    browserify-rails (4.2.0)
       addressable (>= 2.4.0)
-      railties (>= 4.0.0, < 5.1)
+      railties (>= 4.0.0, < 5.2)
       sprockets (>= 3.6.0)
     builder (3.2.3)
     byebug (9.0.6)
@@ -452,7 +452,7 @@ GEM
     validates_timeliness (4.0.2)
       timeliness (~> 0.3.7)
     vcr (3.0.3)
-    vuejs (1.0.37)
+    vuejs-rails (2.2.1)
     web-console (3.3.0)
       activemodel (>= 4.2)
       debug_inspector
@@ -560,7 +560,7 @@ DEPENDENCIES
   uglifier (~> 3.0.02)
   validates_timeliness (~> 4.0.0)
   vcr (~> 3.0.0)
-  vuejs
+  vuejs-rails
   web-console (~> 3.3.0)
   webmock (~> 2.1.0)
 

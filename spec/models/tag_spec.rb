@@ -26,7 +26,7 @@ describe Tag, type: :model, group: [:annotators, :tags] do
     end
 
     specify 'a topic can not be used' do
-      t = Topic.new(name: 'foo', definition: 'Something about foo', name: 'not a topic')
+      t = Topic.new(definition: 'Something about foo', name: 'not a topic')
       expect{tag.keyword = t}.to raise_error(ActiveRecord::AssociationTypeMismatch)
     end
 
@@ -48,7 +48,6 @@ describe Tag, type: :model, group: [:annotators, :tags] do
       specify 'a tagged object is only tagged once per keyword using nested attributes' do
         expect(otu.update(tags_attributes: [{keyword: k}, {keyword: k}])).to be_falsey
       end
-
     end
 
     specify 'keywords scope can be limited with Keyword#can_tag' do
@@ -182,7 +181,6 @@ describe Tag, type: :model, group: [:annotators, :tags] do
       context 'combining _destroy and new' do
       end
     end
-
   end
 
   # TODO: Determine if we want to tag individual fields. 

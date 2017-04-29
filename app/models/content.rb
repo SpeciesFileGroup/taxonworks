@@ -29,7 +29,7 @@ class Content < ActiveRecord::Base
   include Shared::Citable 
   include Shared::IsData
 
-  has_paper_trail
+  has_paper_trail :on => [:update] 
 
   belongs_to :otu, inverse_of: :contents
   belongs_to :topic, inverse_of: :contents
