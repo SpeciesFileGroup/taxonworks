@@ -11,13 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170414170206) do
+ActiveRecord::Schema.define(version: 20170430010206) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "postgis"
   enable_extension "fuzzystrmatch"
   enable_extension "hstore"
-  enable_extension "postgis"
 
   create_table "alternate_values", force: :cascade do |t|
     t.text     "value",                            null: false
@@ -885,9 +885,9 @@ ActiveRecord::Schema.define(version: 20170414170206) do
   create_table "geographic_items", force: :cascade do |t|
     t.datetime  "created_at",                                                                                               null: false
     t.datetime  "updated_at",                                                                                               null: false
-    t.geography "point",               limit: {:srid=>4326, :type=>"point", :has_z=>true, :geographic=>true}
+    t.geography "point",               limit: {:srid=>4326, :type=>"st_point", :has_z=>true, :geographic=>true}
     t.geography "line_string",         limit: {:srid=>4326, :type=>"line_string", :has_z=>true, :geographic=>true}
-    t.geography "polygon",             limit: {:srid=>4326, :type=>"polygon", :has_z=>true, :geographic=>true}
+    t.geography "polygon",             limit: {:srid=>4326, :type=>"st_polygon", :has_z=>true, :geographic=>true}
     t.geography "multi_point",         limit: {:srid=>4326, :type=>"multi_point", :has_z=>true, :geographic=>true}
     t.geography "multi_line_string",   limit: {:srid=>4326, :type=>"multi_line_string", :has_z=>true, :geographic=>true}
     t.geography "multi_polygon",       limit: {:srid=>4326, :type=>"multi_polygon", :has_z=>true, :geographic=>true}
@@ -1051,100 +1051,6 @@ ActiveRecord::Schema.define(version: 20170414170206) do
   add_index "loans", ["project_id"], name: "index_loans_on_project_id", using: :btree
   add_index "loans", ["updated_by_id"], name: "index_loans_on_updated_by_id", using: :btree
 
-  create_table "matrices", force: :cascade do |t|
-    t.string   "name",          null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-  end
-
-  add_index "matrices", ["created_by_id"], name: "index_matrices_on_created_by_id", using: :btree
-  add_index "matrices", ["name"], name: "index_matrices_on_name", using: :btree
-  add_index "matrices", ["project_id"], name: "index_matrices_on_project_id", using: :btree
-  add_index "matrices", ["updated_by_id"], name: "index_matrices_on_updated_by_id", using: :btree
-
-  create_table "matrix_column_items", force: :cascade do |t|
-    t.integer  "matrix_id",                     null: false
-    t.string   "type",                          null: false
-    t.integer  "descriptor_id"
-    t.integer  "controlled_vocabulary_term_id"
-    t.integer  "created_by_id",                 null: false
-    t.integer  "updated_by_id",                 null: false
-    t.integer  "project_id",                    null: false
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
-    t.integer  "position"
-  end
-
-  add_index "matrix_column_items", ["controlled_vocabulary_term_id"], name: "index_matrix_column_items_on_controlled_vocabulary_term_id", using: :btree
-  add_index "matrix_column_items", ["created_by_id"], name: "index_matrix_column_items_on_created_by_id", using: :btree
-  add_index "matrix_column_items", ["descriptor_id"], name: "index_matrix_column_items_on_descriptor_id", using: :btree
-  add_index "matrix_column_items", ["matrix_id"], name: "index_matrix_column_items_on_matrix_id", using: :btree
-  add_index "matrix_column_items", ["project_id"], name: "index_matrix_column_items_on_project_id", using: :btree
-  add_index "matrix_column_items", ["updated_by_id"], name: "index_matrix_column_items_on_updated_by_id", using: :btree
-
-  create_table "matrix_columns", force: :cascade do |t|
-    t.integer  "matrix_id",       null: false
-    t.integer  "descriptor_id",   null: false
-    t.integer  "position"
-    t.integer  "created_by_id",   null: false
-    t.integer  "updated_by_id",   null: false
-    t.integer  "project_id",      null: false
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
-    t.integer  "reference_count"
-  end
-
-  add_index "matrix_columns", ["created_by_id"], name: "index_matrix_columns_on_created_by_id", using: :btree
-  add_index "matrix_columns", ["descriptor_id"], name: "index_matrix_columns_on_descriptor_id", using: :btree
-  add_index "matrix_columns", ["matrix_id"], name: "index_matrix_columns_on_matrix_id", using: :btree
-  add_index "matrix_columns", ["project_id"], name: "index_matrix_columns_on_project_id", using: :btree
-  add_index "matrix_columns", ["updated_by_id"], name: "index_matrix_columns_on_updated_by_id", using: :btree
-
-  create_table "matrix_row_items", force: :cascade do |t|
-    t.integer  "matrix_id",                     null: false
-    t.string   "type",                          null: false
-    t.integer  "collection_object_id"
-    t.integer  "otu_id"
-    t.integer  "controlled_vocabulary_term_id"
-    t.integer  "created_by_id",                 null: false
-    t.integer  "updated_by_id",                 null: false
-    t.integer  "project_id",                    null: false
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
-    t.integer  "position"
-  end
-
-  add_index "matrix_row_items", ["collection_object_id"], name: "index_matrix_row_items_on_collection_object_id", using: :btree
-  add_index "matrix_row_items", ["controlled_vocabulary_term_id"], name: "index_matrix_row_items_on_controlled_vocabulary_term_id", using: :btree
-  add_index "matrix_row_items", ["created_by_id"], name: "index_matrix_row_items_on_created_by_id", using: :btree
-  add_index "matrix_row_items", ["matrix_id"], name: "index_matrix_row_items_on_matrix_id", using: :btree
-  add_index "matrix_row_items", ["otu_id"], name: "index_matrix_row_items_on_otu_id", using: :btree
-  add_index "matrix_row_items", ["project_id"], name: "index_matrix_row_items_on_project_id", using: :btree
-  add_index "matrix_row_items", ["updated_by_id"], name: "index_matrix_row_items_on_updated_by_id", using: :btree
-
-  create_table "matrix_rows", force: :cascade do |t|
-    t.integer  "matrix_id",            null: false
-    t.integer  "otu_id"
-    t.integer  "collection_object_id"
-    t.integer  "position"
-    t.integer  "created_by_id",        null: false
-    t.integer  "updated_by_id",        null: false
-    t.integer  "project_id",           null: false
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
-    t.integer  "reference_count"
-  end
-
-  add_index "matrix_rows", ["collection_object_id"], name: "index_matrix_rows_on_collection_object_id", using: :btree
-  add_index "matrix_rows", ["created_by_id"], name: "index_matrix_rows_on_created_by_id", using: :btree
-  add_index "matrix_rows", ["matrix_id"], name: "index_matrix_rows_on_matrix_id", using: :btree
-  add_index "matrix_rows", ["otu_id"], name: "index_matrix_rows_on_otu_id", using: :btree
-  add_index "matrix_rows", ["project_id"], name: "index_matrix_rows_on_project_id", using: :btree
-  add_index "matrix_rows", ["updated_by_id"], name: "index_matrix_rows_on_updated_by_id", using: :btree
-
   create_table "namespaces", force: :cascade do |t|
     t.string   "institution"
     t.string   "name",                null: false
@@ -1175,6 +1081,100 @@ ActiveRecord::Schema.define(version: 20170414170206) do
   add_index "notes", ["note_object_id", "note_object_type"], name: "index_notes_on_note_object_id_and_type", using: :btree
   add_index "notes", ["project_id"], name: "index_notes_on_project_id", using: :btree
   add_index "notes", ["updated_by_id"], name: "index_notes_on_updated_by_id", using: :btree
+
+  create_table "observation_matrices", force: :cascade do |t|
+    t.string   "name",          null: false
+    t.integer  "created_by_id", null: false
+    t.integer  "updated_by_id", null: false
+    t.integer  "project_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "observation_matrices", ["created_by_id"], name: "index_observation_matrices_on_created_by_id", using: :btree
+  add_index "observation_matrices", ["name"], name: "index_observation_matrices_on_name", using: :btree
+  add_index "observation_matrices", ["project_id"], name: "index_observation_matrices_on_project_id", using: :btree
+  add_index "observation_matrices", ["updated_by_id"], name: "index_observation_matrices_on_updated_by_id", using: :btree
+
+  create_table "observation_matrix_column_items", force: :cascade do |t|
+    t.integer  "observation_matrix_id",         null: false
+    t.string   "type",                          null: false
+    t.integer  "descriptor_id"
+    t.integer  "controlled_vocabulary_term_id"
+    t.integer  "created_by_id",                 null: false
+    t.integer  "updated_by_id",                 null: false
+    t.integer  "project_id",                    null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.integer  "position"
+  end
+
+  add_index "observation_matrix_column_items", ["controlled_vocabulary_term_id"], name: "omrc_cvt_index", using: :btree
+  add_index "observation_matrix_column_items", ["created_by_id"], name: "index_observation_matrix_column_items_on_created_by_id", using: :btree
+  add_index "observation_matrix_column_items", ["descriptor_id"], name: "omci_d_index", using: :btree
+  add_index "observation_matrix_column_items", ["observation_matrix_id"], name: "omci_om_index", using: :btree
+  add_index "observation_matrix_column_items", ["project_id"], name: "index_observation_matrix_column_items_on_project_id", using: :btree
+  add_index "observation_matrix_column_items", ["updated_by_id"], name: "index_observation_matrix_column_items_on_updated_by_id", using: :btree
+
+  create_table "observation_matrix_columns", force: :cascade do |t|
+    t.integer  "observation_matrix_id", null: false
+    t.integer  "descriptor_id",         null: false
+    t.integer  "position"
+    t.integer  "created_by_id",         null: false
+    t.integer  "updated_by_id",         null: false
+    t.integer  "project_id",            null: false
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+    t.integer  "reference_count"
+  end
+
+  add_index "observation_matrix_columns", ["created_by_id"], name: "index_observation_matrix_columns_on_created_by_id", using: :btree
+  add_index "observation_matrix_columns", ["descriptor_id"], name: "index_observation_matrix_columns_on_descriptor_id", using: :btree
+  add_index "observation_matrix_columns", ["observation_matrix_id"], name: "imc_om_index", using: :btree
+  add_index "observation_matrix_columns", ["project_id"], name: "index_observation_matrix_columns_on_project_id", using: :btree
+  add_index "observation_matrix_columns", ["updated_by_id"], name: "index_observation_matrix_columns_on_updated_by_id", using: :btree
+
+  create_table "observation_matrix_row_items", force: :cascade do |t|
+    t.integer  "observation_matrix_id",         null: false
+    t.string   "type",                          null: false
+    t.integer  "collection_object_id"
+    t.integer  "otu_id"
+    t.integer  "controlled_vocabulary_term_id"
+    t.integer  "created_by_id",                 null: false
+    t.integer  "updated_by_id",                 null: false
+    t.integer  "project_id",                    null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.integer  "position"
+  end
+
+  add_index "observation_matrix_row_items", ["collection_object_id"], name: "omri_co_index", using: :btree
+  add_index "observation_matrix_row_items", ["controlled_vocabulary_term_id"], name: "omri_cvt_index", using: :btree
+  add_index "observation_matrix_row_items", ["created_by_id"], name: "index_observation_matrix_row_items_on_created_by_id", using: :btree
+  add_index "observation_matrix_row_items", ["observation_matrix_id"], name: "omri_om_index", using: :btree
+  add_index "observation_matrix_row_items", ["otu_id"], name: "index_observation_matrix_row_items_on_otu_id", using: :btree
+  add_index "observation_matrix_row_items", ["project_id"], name: "index_observation_matrix_row_items_on_project_id", using: :btree
+  add_index "observation_matrix_row_items", ["updated_by_id"], name: "index_observation_matrix_row_items_on_updated_by_id", using: :btree
+
+  create_table "observation_matrix_rows", force: :cascade do |t|
+    t.integer  "observation_matrix_id", null: false
+    t.integer  "otu_id"
+    t.integer  "collection_object_id"
+    t.integer  "position"
+    t.integer  "created_by_id",         null: false
+    t.integer  "updated_by_id",         null: false
+    t.integer  "project_id",            null: false
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+    t.integer  "reference_count"
+  end
+
+  add_index "observation_matrix_rows", ["collection_object_id"], name: "index_observation_matrix_rows_on_collection_object_id", using: :btree
+  add_index "observation_matrix_rows", ["created_by_id"], name: "index_observation_matrix_rows_on_created_by_id", using: :btree
+  add_index "observation_matrix_rows", ["observation_matrix_id"], name: "omr_om_index", using: :btree
+  add_index "observation_matrix_rows", ["otu_id"], name: "index_observation_matrix_rows_on_otu_id", using: :btree
+  add_index "observation_matrix_rows", ["project_id"], name: "index_observation_matrix_rows_on_project_id", using: :btree
+  add_index "observation_matrix_rows", ["updated_by_id"], name: "index_observation_matrix_rows_on_updated_by_id", using: :btree
 
   create_table "observations", force: :cascade do |t|
     t.integer  "descriptor_id"
@@ -1987,38 +1987,38 @@ ActiveRecord::Schema.define(version: 20170414170206) do
   add_foreign_key "loans", "projects", name: "loans_project_id_fkey"
   add_foreign_key "loans", "users", column: "created_by_id", name: "loans_created_by_id_fkey"
   add_foreign_key "loans", "users", column: "updated_by_id", name: "loans_updated_by_id_fkey"
-  add_foreign_key "matrices", "projects"
-  add_foreign_key "matrices", "users", column: "created_by_id"
-  add_foreign_key "matrices", "users", column: "updated_by_id"
-  add_foreign_key "matrix_column_items", "controlled_vocabulary_terms"
-  add_foreign_key "matrix_column_items", "descriptors"
-  add_foreign_key "matrix_column_items", "matrices"
-  add_foreign_key "matrix_column_items", "projects"
-  add_foreign_key "matrix_column_items", "users", column: "created_by_id"
-  add_foreign_key "matrix_column_items", "users", column: "updated_by_id"
-  add_foreign_key "matrix_columns", "descriptors"
-  add_foreign_key "matrix_columns", "matrices"
-  add_foreign_key "matrix_columns", "projects"
-  add_foreign_key "matrix_columns", "users", column: "created_by_id"
-  add_foreign_key "matrix_columns", "users", column: "updated_by_id"
-  add_foreign_key "matrix_row_items", "collection_objects"
-  add_foreign_key "matrix_row_items", "controlled_vocabulary_terms"
-  add_foreign_key "matrix_row_items", "matrices"
-  add_foreign_key "matrix_row_items", "otus"
-  add_foreign_key "matrix_row_items", "projects"
-  add_foreign_key "matrix_row_items", "users", column: "created_by_id"
-  add_foreign_key "matrix_row_items", "users", column: "updated_by_id"
-  add_foreign_key "matrix_rows", "collection_objects"
-  add_foreign_key "matrix_rows", "matrices"
-  add_foreign_key "matrix_rows", "otus"
-  add_foreign_key "matrix_rows", "projects"
-  add_foreign_key "matrix_rows", "users", column: "created_by_id"
-  add_foreign_key "matrix_rows", "users", column: "updated_by_id"
   add_foreign_key "namespaces", "users", column: "created_by_id", name: "namespaces_created_by_id_fkey"
   add_foreign_key "namespaces", "users", column: "updated_by_id", name: "namespaces_updated_by_id_fkey"
   add_foreign_key "notes", "projects", name: "notes_project_id_fkey"
   add_foreign_key "notes", "users", column: "created_by_id", name: "notes_created_by_id_fkey"
   add_foreign_key "notes", "users", column: "updated_by_id", name: "notes_updated_by_id_fkey"
+  add_foreign_key "observation_matrices", "projects"
+  add_foreign_key "observation_matrices", "users", column: "created_by_id"
+  add_foreign_key "observation_matrices", "users", column: "updated_by_id"
+  add_foreign_key "observation_matrix_column_items", "controlled_vocabulary_terms"
+  add_foreign_key "observation_matrix_column_items", "descriptors"
+  add_foreign_key "observation_matrix_column_items", "observation_matrices"
+  add_foreign_key "observation_matrix_column_items", "projects"
+  add_foreign_key "observation_matrix_column_items", "users", column: "created_by_id"
+  add_foreign_key "observation_matrix_column_items", "users", column: "updated_by_id"
+  add_foreign_key "observation_matrix_columns", "descriptors"
+  add_foreign_key "observation_matrix_columns", "observation_matrices"
+  add_foreign_key "observation_matrix_columns", "projects"
+  add_foreign_key "observation_matrix_columns", "users", column: "created_by_id"
+  add_foreign_key "observation_matrix_columns", "users", column: "updated_by_id"
+  add_foreign_key "observation_matrix_row_items", "collection_objects"
+  add_foreign_key "observation_matrix_row_items", "controlled_vocabulary_terms"
+  add_foreign_key "observation_matrix_row_items", "observation_matrices"
+  add_foreign_key "observation_matrix_row_items", "otus"
+  add_foreign_key "observation_matrix_row_items", "projects"
+  add_foreign_key "observation_matrix_row_items", "users", column: "created_by_id"
+  add_foreign_key "observation_matrix_row_items", "users", column: "updated_by_id"
+  add_foreign_key "observation_matrix_rows", "collection_objects"
+  add_foreign_key "observation_matrix_rows", "observation_matrices"
+  add_foreign_key "observation_matrix_rows", "otus"
+  add_foreign_key "observation_matrix_rows", "projects"
+  add_foreign_key "observation_matrix_rows", "users", column: "created_by_id"
+  add_foreign_key "observation_matrix_rows", "users", column: "updated_by_id"
   add_foreign_key "observations", "collection_objects"
   add_foreign_key "observations", "descriptors"
   add_foreign_key "observations", "otus"

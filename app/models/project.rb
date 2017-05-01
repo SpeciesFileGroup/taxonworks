@@ -104,11 +104,11 @@ class Project < ActiveRecord::Base
      Observation
      Extract
      GeneAttribute
-     MatrixColumnItem
-     MatrixColumn
-     MatrixRowItem
-     MatrixRow
-     Matrix
+     ObservationMatrixColumnItem
+     ObservationMatrixColumn
+     ObservationMatrixRowItem
+     ObservationMatrixRow
+     ObservationMatrix
      Descriptor
      ProjectMember  
     }

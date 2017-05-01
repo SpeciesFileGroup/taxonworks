@@ -301,26 +301,26 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-  resources :matrices do
+  resources :observation_matrices do
     concerns [:data_routes]
     member do
       get 'row', {format: :json}
     end
   end
 
-  resources :matrix_columns, only: [:index, :show] do
+  resources :observation_matrix_columns, only: [:index, :show] do
     concerns [:data_routes]
   end
 
-  resources :matrix_rows, only: [:index, :show] do
+  resources :observation_matrix_rows, only: [:index, :show] do
     concerns [:data_routes]
   end
 
-  resources :matrix_column_items do
+  resources :observation_matrix_column_items do
     concerns [:data_routes]
   end
 
-  resources :matrix_row_items do
+  resources :observation_matrix_row_items do
     concerns [:data_routes]
   end
   
@@ -488,7 +488,7 @@ TaxonWorks::Application.routes.draw do
   ### End of resources except user related located below scopes ###
 
   scope :tasks do
-    scope :matrices do
+    scope :ObservationMatrices do
       scope :row_coder, controller: 'tasks/matrices/row_coder' do
         get 'index', as: 'index_row_coder_task'
         get 'set', as: 'set_row_coder_task'

@@ -17,7 +17,7 @@ class Descriptor < ActiveRecord::Base
   validate :type_is_subclassed
   validate :short_name_is_shorter
 
-  has_many :observations, inverse_of: :observations, dependent: :restrict_with_error
+  has_many :observations, inverse_of: :descriptor, dependent: :restrict_with_error
   has_many :otus, through: :observations, inverse_of: :descriptors
 
   soft_validate(:sv_short_name_is_short)

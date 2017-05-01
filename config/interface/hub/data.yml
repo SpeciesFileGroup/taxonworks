@@ -79,7 +79,7 @@ Core: # a Section
       - BiologicalRelationship
     categories: 
       - biology
-  Matrix:
+  ObservationMatrix:
     status: :prototype
     categories:
       - matrix
@@ -195,18 +195,18 @@ Supporting:
       - Loan
       - CollectionObject
       - Otu
-  MatrixColumn: 
+  ObservationMatrixColumn: 
     categories: 
       - matrix
     related_models: 
-      - Matrix
+      - ObservationMatrix
       - Descriptor
     status: :prototype
-  MatrixColumnItem: 
+  ObservationMatrixColumnItem: 
     categories: 
       - matrix
     related_models: 
-      - Matrix
+      - ObservationMatrix
       - Descriptor
     status: :prototype
   Observation:
@@ -214,7 +214,7 @@ Supporting:
       - matrix
     related_models:
       - Descriptor
-      - Matrix
+      - ObservationMatrix
   OtuPageLayout:
     status: :prototype
     related_models:
@@ -235,18 +235,18 @@ Supporting:
     status: :prototype
     related_models:
       - ProtocolRelationship
-  MatrixRow:
+  ObservationMatrixRow:
     status: :prototype
     categories:
       - matrix
     related_models:
-      - Matrix
-  MatrixRowItem:
+      - ObservationMatrix
+  ObservationMatrixRowItem:
     status: :prototype
     categories:
       - matrix
     related_models:
-      - Matrix   
+      - ObservationMatrix   
   Namespace:
     status: :prototype
     shared: true

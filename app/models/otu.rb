@@ -55,7 +55,7 @@ class Otu < ActiveRecord::Base
   has_many :geographic_areas_from_collecting_events, through: :collecting_events, source: :geographic_area
   has_many :georeferences, through: :collecting_events
 
-  has_many :observations, inverse_of: :otus
+  has_many :observations, inverse_of: :otu
   has_many :descriptors, through: :observations
 
   has_many :content_topics, through: :contents, source: :topic

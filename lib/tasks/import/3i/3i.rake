@@ -1832,7 +1832,7 @@ namespace :tw do
         file.each_with_index do |row, i|
           next if row['KeyN'].blank?
           if row['Abr'] == 'En'
-            matrix = Matrix.find_or_create_by!(name: row['Title'])
+            matrix = ObservationMatrix.find_or_create_by!(name: row['Title'])
             matrix.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['KeyN'], identifier: row['KeyN'])
             @data.keyn[row['KeyN']] = matrix.id
           else
