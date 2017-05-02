@@ -10,46 +10,46 @@ namespace :tw do
 
           logger.info 'Building new collecting events...'
 
-          import            = Import.find_or_create_by(name: 'SpeciesFileData')
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
 
           get_tw_collecting_event_id = {} # key = sfUniqueLocColEvents.UniqueID, value = TW.collecting_event_id
 
           # SF.TimePeriodID to interval code (https://paleobiodb.org/data1.2/intervals/single.json?name='')
-          TIME_PERIOD_MAP            = {
-            768  => 1, # Cenozoic
-            784  => 12, # Quaternary
-            790  => 32, # Holocene
-            795  => 33, # Pleistocene
-            800  => 13, # Tertiary
-            804  => 25, # Neogene
-            805  => 34, # Pliocene
-            806  => 35, # Miocene
-            808  => 26, # Paleogene
-            809  => 36, # Oligocene
-            810  => 37, # Eocene
-            811  => 38, # Paleocene
-            1024 => 2, # Mesozoic
-            1040 => 14, # Cretaceous
-            1056 => 15, # Jurassic
-            1072 => 16, # Triassic
-            1280 => 3, # Paleozoic
-            1296 => 17, # Permian
-            1312 => 18, # Carboniferous
-            1316 => 27, # Pennsylvanian
-            1320 => 28, # Mississippian
-            1328 => 19, # Devonian
-            1344 => 20, # Silurian
-            1360 => 21, # Ordovician
-            1376 => 22, # Cambrian
-            # 1536 => nil,  # Precambrian
-            1552 => 752, # Proterozoic
-            1568 => 753, # Archaean vs. Archean
-            1584 => 11 # Hadean
+          TIME_PERIOD_MAP = {
+              768 => 1, # Cenozoic
+              784 => 12, # Quaternary
+              790 => 32, # Holocene
+              795 => 33, # Pleistocene
+              800 => 13, # Tertiary
+              804 => 25, # Neogene
+              805 => 34, # Pliocene
+              806 => 35, # Miocene
+              808 => 26, # Paleogene
+              809 => 36, # Oligocene
+              810 => 37, # Eocene
+              811 => 38, # Paleocene
+              1024 => 2, # Mesozoic
+              1040 => 14, # Cretaceous
+              1056 => 15, # Jurassic
+              1072 => 16, # Triassic
+              1280 => 3, # Paleozoic
+              1296 => 17, # Permian
+              1312 => 18, # Carboniferous
+              1316 => 27, # Pennsylvanian
+              1320 => 28, # Mississippian
+              1328 => 19, # Devonian
+              1344 => 20, # Silurian
+              1360 => 21, # Ordovician
+              1376 => 22, # Cambrian
+              # 1536 => nil,  # Precambrian
+              1552 => 752, # Proterozoic
+              1568 => 753, # Archaean vs. Archean
+              1584 => 11 # Hadean
           }.freeze
 
-          path          = @args[:data_directory] + 'sfUniqueLocColEvents.txt'
-          file          = CSV.read(path, col_sep: "\t", quote_char: '"', headers: true, encoding: 'BOM|UTF-8')
+          path = @args[:data_directory] + 'sfUniqueLocColEvents.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           # FileID
           # Level1ID	Level2ID	Level3ID	Level4ID
@@ -68,7 +68,7 @@ namespace :tw do
           # DaysToEnd
           # UniqueID
 
-          counter       = 0
+          counter = 0
           error_counter = 0
 
           file.each do |row|
@@ -77,35 +77,42 @@ namespace :tw do
             logger.info "Working with TW.project_id = #{project_id}, UniqueID = #{row['UniqueID']} (count #{counter += 1}) \n"
 
             # handle dates
-            start_date_year                             = nil
+            start_date_year = nil
             end_date_year, end_date_month, end_date_day = nil, nil, nil
 
             if row['Year'] != '0'
               end_date = nil
 
               if row['DaysToEnd'].present?
-                y = row['Year'] == '1000' ? '2000' : row['year']
+                y = row['Year'] == '1000' ? '2000' : row['Year']
 
-                start_date = Date.new([y.to_i, row['Month'].to_i, row['Day'].to_i].join('/'))
-                end_date   = row['DaysToEnd'].to_i.days.since(start_date)
+                start_date = Date.new(y.to_i, row['Month'].to_i, row['Day'].to_i)
+                
+                end_date = row['DaysToEnd'].to_i.days.from_now(start_date)
               end
 
               if end_date
                 end_date_year, end_date_month, end_date_day = end_date.year, end_date.month, end_date.day
               end
 
-              end_date_year   = nil if row['Year'] == '1000'
+              ap [row['Day'], row['Month'], row['Year'], row['DaysToEnd'], end_date]
+              end_date_year = nil if row['Year'] == '1000' && !row['DaysToEnd'].present?
+              
               start_date_year = row['Year'] == '1000' ? nil : row['Year'].to_i
 
             end
-
+            
+            start_date_day = (row['Day'].present? ? row['Day'].to_i : nil)
+            start_date_month = (row['Month'].present? ? row['Month'].to_i : nil)
+            start_date_day = nil if start_date_day == 0
+            start_date_month = nil if start_date_month == 0
+            
 
             data_attributes_bucket = {
-              data_attributes_attributes: [],
-              # project_id: project_id  # cannot universally assign project_id to all array attribute hashes
-              # rest of housekeeping?
+                data_attributes_attributes: [],
+                # project_id: project_id  # cannot universally assign project_id to all array attribute hashes
+                # rest of housekeeping?
             }
-
 
             if row['TimeDetail'].present?
               time_detail = {type: 'ImportAttribute', import_predicate: 'TimeDetail', value: row['TimeDetail'], project_id: project_id}
@@ -137,29 +144,34 @@ namespace :tw do
             end
 
 
-            # metadata = {
+            ap [ start_date_day, start_date_month, start_date_year, end_date_day, end_date_month, end_date_year ]
+
+               # metadata = {
             #     # data_attributes_attributes: data_attributes_bucket
             #
             #
             # }.merge(data_attributes_bucket)
 
-            c = CollectingEvent.new(
-              verbatim_latitude:  row['Latitude'],
-              verbatim_longitude: row['Longitude'],
-              maximum_elevation:  row['MaxElevation'],
-              collectors:         row['CollectoName'],
-              start_date_day:     (row['Day'].present? ? row['Day'].to_i : nil),
-              start_date_month:   (row['Month'].present? ? row['Month'].to_i : nil),
-              start_date_year:    start_date_year,
-              end_date_day:       end_date_day,
-              end_date_month:     end_date_month,
-              end_date_year:      end_date_year,
-              geographic_area:    get_tw_geographic_area(row, logger),
 
-              project_id:         project_id,
+            c = CollectingEvent.new(
+                                   {
+                verbatim_latitude: row['Latitude'],
+                verbatim_longitude: row['Longitude'],
+                maximum_elevation: row['MaxElevation'],
+                verbatim_locality: row['LocalityDetail'],
+                verbatim_collectors: row['CollectorName'],
+                start_date_day: start_date_day,
+                start_date_month: start_date_month,
+                start_date_year: start_date_year,
+                end_date_day: end_date_day,
+                end_date_month: end_date_month,
+                end_date_year: end_date_year,
+                # geographic_area:    get_tw_geographic_area(row, logger),
+
+                project_id: project_id  }.merge(data_attributes_bucket)
             # paleobio_db_interval_id: TIME_PERIOD_MAP[row['TimePeriodID']], # TODO: Matt add attribute to CE !! rember ENVO implications
 
-            ).merge(data_attributes_bucket)
+            )
 
 
             begin
@@ -169,7 +181,7 @@ namespace :tw do
               get_tw_collecting_event_id[row['UniqueID']] = c.id.to_s
 
               begin
-                c.generate_verbatim_data_georeference(true, true) # reference self, no cache (c.georeferences.any? is true, then succeeded)
+                c.generate_verbatim_data_georeference(true, no_cached: true) # reference self, no cache (c.georeferences.any? is true, then succeeded)
                 c.georeferences[0].error_radius = row['PrecisionRadius'].to_i unless row['PrecisionRadius'] == '0'
 
               rescue ActiveRecord::RecordInvalid
@@ -318,7 +330,7 @@ namespace :tw do
           logger.info 'Running new specimen lists (hash, array)...'
 
           get_new_preserved_specimen_id = [] # array of SF.SpecimenIDs with BasisOfRecord = 0 (not stated) but with DepoID or specimen count
-          get_sf_unique_id              = {} # key = SF.SpecimenID, value = sfUniqueLocColEvents.UniqueID
+          get_sf_unique_id = {} # key = SF.SpecimenID, value = sfUniqueLocColEvents.UniqueID
 
 
           logger.info '1. Getting new preferred specimen ids'
