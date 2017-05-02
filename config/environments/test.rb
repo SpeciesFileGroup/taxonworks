@@ -42,9 +42,6 @@ TaxonWorks::Application.configure do
   #  PaperTrail.enabled = false
   # end
 
-  #Babel transcoder
-  config.browserify_rails.commandline_options = "-t [ babelify --presets [ es2015 ] --extension=\".es6\" ]"
-
   # http://stackoverflow.com/questions/20183877/assets-are-not-loaded-during-capybara-rspec-spec
   # unless ENV['TAXONWORKS_TEST_WITH_PRECOMPILE']
   #   config.assets.prefix = '/assets_test'
