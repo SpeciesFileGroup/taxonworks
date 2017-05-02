@@ -232,6 +232,21 @@ namespace :tw do
         # Find a TW geographic_area
         # @todo JDT HELP!
         def get_tw_geographic_area(row, logger)
+          tw_areas  = GeographicArea.none
+          # best indication of place is lat_long
+          lat, long = row['Latitude'].to_f, row['Longitude'].to_f
+          unless lat * long == 0.0
+            tw_areas << GeographicArea(lat, long)
+          end
+
+          location_string = [row['Country'],
+                             row['State'],
+                             row['County']].join(':')
+
+          unless location_string.blank?
+            tw_areas = GeographicArea.matching(location_string, true, true)
+          end
+
           # we can lookup TDWG id, is this enough to represent country/state/county
           tdwg_id = [row['Level1ID'].chomp('0'),
                      row['Level2ID'].chomp('-'),
@@ -239,19 +254,19 @@ namespace :tw do
                      ('-' + row['Level4ID']).chomp('---').chomp('-') # TODO: we have to pad dashes here to match off values
           ].select {|a| a.length > 0}.join
 
-          l1, l2, l3, l4 = row['Level1ID'], row['Level2ID'], row['Level3ID'], row['Level4ID']
-          tdwg_id        = ''
-          tdwg_id        += l1 unless (l1.blank? or l1 == '0')
-          tdwg_id        += l2 unless l2 == '-'
-          tdwg_id        += l3 unless l3 == '---'
-          tdwg_id        += "-#{l4}" unless l4 == '---'
+          # l1, l2, l3, l4 = row['Level1ID'], row['Level2ID'], row['Level3ID'], row['Level4ID']
+          # tdwg_id        = ''
+          # tdwg_id        += l1 unless (l1.blank? or l1 == '0')
+          # tdwg_id        += l2 unless l2 == '-'
+          # tdwg_id        += l3 unless l3 == '---'
+          # tdwg_id        += "-#{l4}" unless l4 == '---'
 
           # TODO if level 4 is a number, look up county name in SFGeoLevel4
 
           logger.info "target tdwg id: #{tdwg_id}"
 
           # Lookup the TDWG geographic area
-          tdwg_area       = GeographicArea.where(tdwgID: tdwg_id).first # .last.tdwgID
+          tw_areas << GeographicArea.where(tdwgID: tdwg_id).first # .last.tdwgID
 
           # Find values in country/state/county
           finest_sf_level = [row['Country'],
@@ -261,11 +276,11 @@ namespace :tw do
 
           # If there is no political division, just return the tdwg based match
           if finest_sf_level.empty?
-            return tdwg_area
+            return tw_areas.first
 
             # If a value is provided for country/state/county, and that value matches the name we found for tdwg, we're done
-          elsif tdwg_area.name == finest_sf_level.last
-            return tdwg_area
+          elsif tw_areas.name == finest_sf_level.last
+            return tw_areas.first
 
           else
             # TODO: do something else
