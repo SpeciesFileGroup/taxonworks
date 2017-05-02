@@ -111,7 +111,6 @@ describe 'Dates', group: [:collecting_events, :dates] do
 
 
           specify "method  #{method} should correctly match each  #{this_match} example listed in the hlp attribute " do
-          result = nil
           this_case = Utilities::Dates.hunt_dates(this_match, [method])
           verbatim_date = Utilities::Dates.make_verbatim_date_piece(this_match, this_case[method][:piece])
           expect(verbatim_date).to eq(this_match.strip)
