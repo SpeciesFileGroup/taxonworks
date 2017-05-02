@@ -232,39 +232,42 @@ namespace :tw do
         # Find a TW geographic_area
         # @todo JDT HELP!
         def get_tw_geographic_area(row, logger)
-          # text of Country/State/County not used to determine the GA (GeographicArea)
+          begin
+            # text of Country/State/County not used to determine the GA (GeographicArea)
 
-          # TDWG data used to determine GA
-          #   if level4 = '---'
-          #     resolve to level3
-          #   else
-          #     if level4 is alpha
-          #       resolve to level4
-          #     else
-          #       resolve level4 name from GeoLevel4 translater
-          #       resolve by name from level3:level4 (Illinois:Champaign)
-          #         (don't udr level1:level2, because they do not always resolve to country:state names.)
-          #       if no resolution
-          #         no resolution, return nil
-          #       end
-          #     end
-          #   end
+            # TDWG data used to determine GA
+            #   if level4 = '---'
+            #     resolve to level3
+            #   else
+            #     if level4 is alpha
+            #       resolve to level4
+            #     else
+            #       resolve level4 name from GeoLevel4 translater
+            #       resolve by name from level3:level4 (Illinois:Champaign)
+            #         (don't udr level1:level2, because they do not always resolve to country:state names.)
+            #       if no resolution
+            #         no resolution, return nil
+            #       end
+            #     end
+            #   end
+          end
 
-          # tw_areas  = GeographicArea.none
-          # # best indication of place is lat_long
-          # lat, long = row['Latitude'].to_f, row['Longitude'].to_f
-          # unless lat * long == 0.0
-          #   tw_areas << GeographicArea(lat, long)
-          # end
-          #
-          # location_string = [row['Country'],
-          #                    row['State'],
-          #                    row['County']].join(':')
-          #
-          # unless location_string.blank?
-          #   tw_areas = GeographicArea.matching(location_string, true, true)
-          # end
-
+          begin
+            # tw_areas  = GeographicArea.none
+            # # best indication of place is lat_long
+            # lat, long = row['Latitude'].to_f, row['Longitude'].to_f
+            # unless lat * long == 0.0
+            #   tw_areas << GeographicArea(lat, long)
+            # end
+            #
+            # location_string = [row['Country'],
+            #                    row['State'],
+            #                    row['County']].join(':')
+            #
+            # unless location_string.blank?
+            #   tw_areas = GeographicArea.matching(location_string, true, true)
+            # end
+          end
           # we can lookup TDWG id, is this enough to represent country/state/county
           tdwg_id = [row['Level1ID'].chomp('0'),
                      row['Level2ID'].chomp('-'),
