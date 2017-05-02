@@ -20,8 +20,9 @@ class ObservationMatrixColumnsController < ApplicationController
   end
 
   private
+
   def set_observation_matrix_column
-    @matrix_column = ObservationMatrixColumn.find(params[:id])
+    @observation_matrix_column = ObservationMatrixColumn.find(params[:id])
   end
 
 end

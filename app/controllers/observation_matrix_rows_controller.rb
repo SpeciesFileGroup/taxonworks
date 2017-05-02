@@ -22,7 +22,7 @@ class ObservationMatrixRowsController < ApplicationController
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_matrix_row
-    @matrix_row = ObservationMatrixRow.find(params[:id])
+    @observation_matrix_row = ObservationMatrixRow.find(params[:id])
   end
 
 end

@@ -21,7 +21,7 @@ class ObservationMatrixRowItemsController < ApplicationController
 
   # GET /matrix_row_items/new
   def new
-    @matrix_row_item = ObservationMatrixRowItem.new
+    @observation_matrix_row_item = ObservationMatrixRowItem.new
   end
 
   # GET /matrix_row_items/1/edit
@@ -31,15 +31,15 @@ class ObservationMatrixRowItemsController < ApplicationController
   # POST /matrix_row_items
   # POST /matrix_row_items.json
   def create
-    @matrix_row_item = ObservationMatrixRowItem.new(matrix_row_item_params)
+    @observation_matrix_row_item = ObservationMatrixRowItem.new(matrix_row_item_params)
 
     respond_to do |format|
-      if @matrix_row_item.save
-        format.html { redirect_to @matrix_row_item.metamorphosize, notice: 'Matrix row item was successfully created.' }
-        format.json { render :show, status: :created, location: @matrix_row_item }
+      if @observation_matrix_row_item.save
+        format.html { redirect_to @observation_matrix_row_item.metamorphosize, notice: 'Matrix row item was successfully created.' }
+        format.json { render :show, status: :created, location: @observation_matrix_row_item }
       else
         format.html { render :new }
-        format.json { render json: @matrix_row_item.errors, status: :unprocessable_entity }
+        format.json { render json: @observation_matrix_row_item.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -48,12 +48,12 @@ class ObservationMatrixRowItemsController < ApplicationController
   # PATCH/PUT /matrix_row_items/1.json
   def update
     respond_to do |format|
-      if @matrix_row_item.update(matrix_row_item_params)
-        format.html { redirect_to @matrix_row_item.metamorphosize, notice: 'Matrix row item was successfully updated.' }
-        format.json { render :show, status: :ok, location: @matrix_row_item }
+      if @observation_matrix_row_item.update(matrix_row_item_params)
+        format.html { redirect_to @observation_matrix_row_item.metamorphosize, notice: 'Matrix row item was successfully updated.' }
+        format.json { render :show, status: :ok, location: @observation_matrix_row_item }
       else
         format.html { render :edit }
-        format.json { render json: @matrix_row_item.errors, status: :unprocessable_entity }
+        format.json { render json: @observation_matrix_row_item.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -61,7 +61,7 @@ class ObservationMatrixRowItemsController < ApplicationController
   # DELETE /matrix_row_items/1
   # DELETE /matrix_row_items/1.json
   def destroy
-    @matrix_row_item.destroy
+    @observation_matrix_row_item.destroy
     respond_to do |format|
       format.html { redirect_to observation_matrix_row_items_url, notice: 'Matrix row item was successfully destroyed.' }
       format.json { head :no_content }
@@ -71,7 +71,7 @@ class ObservationMatrixRowItemsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_matrix_row_item
-      @matrix_row_item = ObservationMatrixRowItem.find(params[:id])
+      @observation_matrix_row_item = ObservationMatrixRowItem.find(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

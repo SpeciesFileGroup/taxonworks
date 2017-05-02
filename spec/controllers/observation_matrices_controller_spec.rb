@@ -48,7 +48,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
   end
 
   describe "GET #show" do
-    it "assigns the requested matrix as @matrix" do
+    it "assigns the requested matrix as @observation_matrix" do
       observation_matrix = ObservationMatrix.create! valid_attributes
       get :show, {id: observation_matrix.to_param}
       expect(assigns(:observation_matrix)).to eq(observation_matrix)
@@ -56,14 +56,14 @@ RSpec.describe ObservationMatricesController, type: :controller do
   end
 
   describe "GET #new" do
-    it "assigns a new matrix as @matrix" do
+    it "assigns a new matrix as @observation_matrix" do
       get :new, {}, session: valid_session
       expect(assigns(:observation_matrix)).to be_a_new(ObservationMatrix)
     end
   end
 
   describe "GET #edit" do
-    it "assigns the requested matrix as @matrix" do
+    it "assigns the requested matrix as @observation_matrix" do
       observation_matrix = ObservationMatrix.create! valid_attributes
       get :edit, {id: observation_matrix.to_param}, session: valid_session
       expect(assigns(:observation_matrix)).to eq(observation_matrix)
@@ -78,7 +78,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
         }.to change(ObservationMatrix, :count).by(1)
       end
 
-      it "assigns a newly created matrix as @matrix" do
+      it "assigns a newly created matrix as @observation_matrix" do
         post :create, {observation_matrix: valid_attributes}, session: valid_session
         expect(assigns(:observation_matrix)).to be_a(ObservationMatrix)
         expect(assigns(:observation_matrix)).to be_persisted
@@ -91,7 +91,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
     end
 
     context "with invalid params" do
-      it "assigns a newly created but unsaved matrix as @matrix" do
+      it "assigns a newly created but unsaved matrix as @observation_matrix" do
         post :create, {observation_matrix: invalid_attributes}, session: valid_session
         expect(assigns(:observation_matrix)).to be_a_new(ObservationMatrix)
       end

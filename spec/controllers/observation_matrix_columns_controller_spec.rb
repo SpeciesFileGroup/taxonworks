@@ -48,7 +48,7 @@ RSpec.describe ObservationMatrixColumnsController, type: :controller do
   end
 
   describe "GET #show" do
-    it "assigns the requested matrix_column as @matrix_column" do
+    it "assigns the requested matrix_column as @observation_matrix_column" do
       matrix_column = ObservationMatrixColumn.create! valid_attributes
       get :show, {id: matrix_column.to_param}, session: valid_session
       expect(assigns(:matrix_column)).to eq(matrix_column)

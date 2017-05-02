@@ -1,5 +1,5 @@
-<%= form_for(@matrix_row_item.metamorphosize) do |f| %>
-  <%= render 'shared/errors', object: @matrix_row_item %>
+<%= form_for(@observation_matrix_row_item.metamorphosize) do |f| %>
+  <%= render 'shared/errors', object: @observation_matrix_row_item %>
 
 
   <div class="field">
@@ -8,7 +8,7 @@
       options_for_select([['Single OTU', 'MatrixRowItem::SingleOtu'], 
                           ['Single collection object', 'MatrixRowItem::SingleCollectionObject'], 
                           ['Keyword (tagged Otus/Collection objects)', 'MatrixRowItem::TaggedRowItem']
-    ]), {}, disabled: (@matrix_row_item.new_record? ? 'false' : 'true')   -%> 
+    ]), {}, disabled: (@observation_matrix_row_item.new_record? ? 'false' : 'true')   -%> 
   </div>
 
 
@@ -20,7 +20,7 @@
                              object: 'matrix_row_item',
                              method:  'matrix_id',
                              tag_id:  'matrix_id_for_matrix_row_item',
-                             display:  matrix_tag(@matrix_row_item.observation_matrix),
+                             display:  matrix_tag(@observation_matrix_row_item.observation_matrix),
                              size: 20} %>
   </div>
 
@@ -35,7 +35,7 @@
                              object: 'matrix_row_item',
                              method:  'otu_id',
                              tag_id:  'otu_id_for_matrix_row_item',
-                             display:  otu_tag(@matrix_row_item.object_is?('Otu')),
+                             display:  otu_tag(@observation_matrix_row_item.object_is?('Otu')),
                              size: 20} %>
   </div>
 
@@ -47,7 +47,7 @@
                              object: 'matrix_row_item',
                              method:  'collection_object_id',
                              tag_id:  'collection_object_id_for_matrix_row_item',
-                             display:  collection_object_tag(@matrix_row_item.object_is?('CollectionObject')),
+                             display:  collection_object_tag(@observation_matrix_row_item.object_is?('CollectionObject')),
                              size: 20} %>
   </div>
 
@@ -59,7 +59,7 @@
                              object: 'matrix_row_item',
                              method:  'controlled_vocabulary_term_id',
                              tag_id:  'controlled_vocabulary_term_id_for_matrix_row_item',
-                             display:  controlled_vocabulary_term_tag(@matrix_row_item.object_is?('ControlledVocabularyTerm')),
+                             display:  controlled_vocabulary_term_tag(@observation_matrix_row_item.object_is?('ControlledVocabularyTerm')),
                              size: 20} %>
   </div>
 

@@ -1,5 +1,5 @@
-<%= form_for(@matrix_column_item.metamorphosize) do |f| %>
-  <%= render 'shared/errors', object: @matrix_column_item %>
+<%= form_for(@observation_matrix_column_item.metamorphosize) do |f| %>
+  <%= render 'shared/errors', object: @observation_matrix_column_item %>
 
   <div class="field">
     <%= f.label :type %><br>
@@ -15,7 +15,7 @@
                 method:     'matrix_id',
                 tag_id:     'matrix_id_for_matrix_column)item',
                 size:       '50%',
-                display:    object_tag(@matrix_column_item.matrix)} %>
+                display:    object_tag(@observation_matrix_column_item.matrix)} %>
   </div>
 
   <div class="field">
@@ -27,7 +27,7 @@
                 method:     'descriptor_id',
                 tag_id:     'descriptor_id_for_matrix_column_item',
                 size:       '50%',
-                display:    object_tag(@matrix_column_item.descriptor)} %>
+                display:    object_tag(@observation_matrix_column_item.descriptor)} %>
   </div>
 
  
@@ -40,7 +40,7 @@
                 method:     'controlled_vocabulary_term_id',
                 tag_id:     'controlled_vocabulary_term_id_for_matrix_column_item',
                 size:       '50%',
-                display:    object_tag(@matrix_column_item.controlled_vocabulary_term)} %>
+                display:    object_tag(@observation_matrix_column_item.controlled_vocabulary_term)} %>
     </div>
   
   
