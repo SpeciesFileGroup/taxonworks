@@ -870,7 +870,7 @@ Object.assign(TW.views.tasks.content.editor, {
                         <input class="button normal-input" type="submit" v-on:click.prevent="createNewTopic" :disabled="((topic.controlled_vocabulary_term.name.length < 2) || (topic.controlled_vocabulary_term.definition.length < 2)) ? true : false" value="Create"/> \
                       </div> \
                     </modal> \
-                  <div>',
+                  </div>',
       data: function() { return {
         showModal: false,
         topic: {

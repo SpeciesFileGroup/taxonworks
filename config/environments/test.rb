@@ -38,8 +38,9 @@ TaxonWorks::Application.configure do
 
   Paperclip::Attachment.default_options[:path] = "#{Rails.root}/spec/test_files/:class/:id_partition/:style.:extension"
 
-  #Babel transcoder
-  config.browserify_rails.commandline_options = "-t [ babelify --presets [ es2015 ] --extension=\".es6\" ]"
+  # config.after_initialize do
+  #  PaperTrail.enabled = false
+  # end
 
   # http://stackoverflow.com/questions/20183877/assets-are-not-loaded-during-capybara-rspec-spec
   # unless ENV['TAXONWORKS_TEST_WITH_PRECOMPILE']

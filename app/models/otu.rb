@@ -38,7 +38,7 @@ class Otu < ActiveRecord::Base
 
   include SoftValidation
 
-  has_paper_trail
+  has_paper_trail :on => [:update] 
 
   belongs_to :taxon_name, inverse_of: :otus
 

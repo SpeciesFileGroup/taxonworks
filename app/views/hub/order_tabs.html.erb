@@ -12,7 +12,7 @@
     data-sortable
     data-sortable-items="tr"
     data-sortable-on-change-url="<%= update_tab_order_hub_path  -%>">
-    <% @sessions_current_user.hub_tab_order.each_with_index do |t, i| -%>
+    <% sessions_current_user.hub_tab_order.each_with_index do |t, i| -%>
       <%= content_tag :tr, i, {id: "order_#{t}"} do -%>
       <td class="handle">
         <span><%= t -%></span>
