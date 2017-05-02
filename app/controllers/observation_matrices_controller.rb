@@ -3,15 +3,15 @@ class ObservationMatricesController < ApplicationController
 
   before_action :set_matrix, only: [:show, :edit, :update, :destroy, :row]
 
-  # GET /matrices
-  # GET /matrices.json
+  # GET /observation_matrices
+  # GET /observation_matrices.json
   def index
     @recent_objects = ObservationMatrix.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
-  # GET /matrices/1
-  # GET /matrices/1.json
+  # GET /observation_matrices/1
+  # GET /observation_matrices/1.json
   def show
   end
 
@@ -19,17 +19,17 @@ class ObservationMatricesController < ApplicationController
     @observation_matrices = ObservationMatrix.with_project_id(sessions_current_project_id).page(params[:page])
   end
 
-  # GET /matrices/new
+  # GET /observation_matrices/new
   def new
     @observation_matrix = ObservationMatrix.new
   end
 
-  # GET /matrices/1/edit
+  # GET /observation_matrices/1/edit
   def edit
   end
 
-  # POST /matrices
-  # POST /matrices.json
+  # POST /observation_matrices
+  # POST /observation_matrices.json
   def create
     @observation_matrix = ObservationMatrix.new(observation_matrix_params)
 
@@ -44,8 +44,8 @@ class ObservationMatricesController < ApplicationController
     end
   end
 
-  # PATCH/PUT /matrices/1
-  # PATCH/PUT /matrices/1.json
+  # PATCH/PUT /observation_matrices/1
+  # PATCH/PUT /observation_matrices/1.json
   def update
     respond_to do |format|
       if @observation_matrix.update(observation_matrix_params)
@@ -58,8 +58,8 @@ class ObservationMatricesController < ApplicationController
     end
   end
 
-  # DELETE /matrices/1
-  # DELETE /matrices/1.json
+  # DELETE /observation_matrices/1
+  # DELETE /observation_matrices/1.json
   def destroy
     @observation_matrix.destroy
     respond_to do |format|
@@ -91,7 +91,7 @@ class ObservationMatricesController < ApplicationController
     end
   end
 
-  # GET /matrices/:id/row.json?otu_id=1
+  # GET /observation_matrices/:id/row.json?otu_id=1
   def row
     @descriptors = @observation_matrix.descriptors
     @otu = Otu.find(params[:otu_id])

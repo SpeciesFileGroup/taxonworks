@@ -15,6 +15,6 @@ class ObservationMatrix < ActiveRecord::Base
   has_many :observation_matrix_rows
   has_many :observation_matrix_columns
 
-  has_many :descriptors, through: :matrix_columns 
+  has_many :descriptors, through: :observation_matrix_columns 
 
 end

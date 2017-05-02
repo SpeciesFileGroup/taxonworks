@@ -488,8 +488,8 @@ TaxonWorks::Application.routes.draw do
   ### End of resources except user related located below scopes ###
 
   scope :tasks do
-    scope :ObservationMatrices do
-      scope :row_coder, controller: 'tasks/matrices/row_coder' do
+    scope :observation_matrices do
+      scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do
         get 'index', as: 'index_row_coder_task'
         get 'set', as: 'set_row_coder_task'
       end
@@ -804,8 +804,8 @@ TaxonWorks::Application.routes.draw do
   scope :api, :defaults => { :format => :json }, :constraints => { id: /\d+/ } do
     scope  '/v1' do
 
-      get '/matrices/:id/row',
-        to: 'matrices#row'
+      get '/observation_matrices/:id/row',
+        to: 'observation_matrices#row'
 
       get '/confidence_levels',
         to: 'confidence_levels#index'
