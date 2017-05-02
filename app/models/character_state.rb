@@ -15,6 +15,8 @@ class CharacterState < ActiveRecord::Base
 
   acts_as_list scope: [:descriptor_id]
 
+  ALTERNATE_VALUES_FOR = [:name, :label]
+
   belongs_to :descriptor
 
   validates :descriptor, presence: true
