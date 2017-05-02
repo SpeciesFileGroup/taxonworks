@@ -75,7 +75,7 @@ class NotesController < ApplicationController
   end
 
   def list
-    @notes = Note.where(project_id: session_current_project_id).order(:note_object_type).page(params[:page])
+    @notes = Note.where(project_id: sessions_current_project_id).order(:note_object_type).page(params[:page])
   end
 
   # GET /notes/search

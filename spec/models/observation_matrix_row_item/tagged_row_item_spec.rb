@@ -17,7 +17,7 @@ RSpec.describe ObservationMatrixRowItem::TaggedRowItem, type: :model, group: :ob
     end
 
     specify 'type is MatrixRowItem::TaggedRowItem' do
-      expect(observation_matrix_row_item.type).to eq('MatrixRowItem::TaggedRowItem')
+      expect(observation_matrix_row_item.type).to eq('ObservationMatrixRowItem::TaggedRowItem')
     end
 
     context 'other possible subclass attributes are nil' do
@@ -48,7 +48,7 @@ RSpec.describe ObservationMatrixRowItem::TaggedRowItem, type: :model, group: :ob
 
       before{
         observation_matrix_row_item.controlled_vocabulary_term = keyword
-        observation_matrix_row_item.observation_matrix         = observation_matrix
+        observation_matrix_row_item.observation_matrix = observation_matrix
         observation_matrix_row_item.save!
       }
 

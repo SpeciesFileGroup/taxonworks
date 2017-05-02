@@ -12,12 +12,12 @@ RSpec.describe ObservationMatrixRowItem::SingleOtu, type: :model, group: :observ
       end
     end
 
-    specify 'otu_id is required' do
-      expect(observation_matrix_row_item.errors.include?(:otu_id)).to be_truthy
+    specify 'otu is required' do
+      expect(observation_matrix_row_item.errors.include?(:otu)).to be_truthy
     end
 
-    specify 'type is "MatrixRowItem::SingleOtu"' do
-      expect(observation_matrix_row_item.type).to eq('MatrixRowItem::SingleOtu')
+    specify 'type is "ObservationMatrixRowItem::SingleOtu"' do
+      expect(observation_matrix_row_item.type).to eq('ObservationMatrixRowItem::SingleOtu')
     end
 
     context 'other possible subclass attributes are nil' do

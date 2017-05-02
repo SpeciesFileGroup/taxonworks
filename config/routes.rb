@@ -799,7 +799,7 @@ TaxonWorks::Application.routes.draw do
   #
   #
 
-   # Future consideration - move this to an engine, or include multiple draw files and include (you apparenlty
+  # Future consideration - move this to an engine, or include multiple draw files and include (you apparenlty
   # lose the autoloading update from the include in this case however)
   scope :api, :defaults => { :format => :json }, :constraints => { id: /\d+/ } do
     scope  '/v1' do
@@ -848,10 +848,9 @@ TaxonWorks::Application.routes.draw do
       get '/character_states/:id/annotations',
         to: 'character_states#annotations'
 
-
-
     end
   end
+
 
 
 end
