@@ -1,6 +1,8 @@
 class ObservationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
+  skip_before_filter :verify_authenticity_token
+
   before_action :set_observation, only: [:show, :edit, :update, :destroy, :annotations]
 
   # GET /observations
@@ -42,11 +44,11 @@ class ObservationsController < ApplicationController
 
     respond_to do |format|
       if @observation.save
-        format.html { redirect_to observation_path(@observation), notice: 'Observation was successfully created.' }
-        format.json { render :show, status: :created, location: @observation }
+        format.html { redirect_to observation_path(@observation.metamorphosize), notice: 'Observation was successfully created.' }
+        format.json { render :show, status: :created, location: @observation.metamorphosize }
       else
         format.html { render :new }
-        format.json { render json: @observation.errors, status: :unprocessable_entity }
+        format.json { render json: @observation.metamorphosize.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -57,10 +59,10 @@ class ObservationsController < ApplicationController
     respond_to do |format|
       if @observation.update(observation_params)
         format.html { redirect_to @observation.metamorphosize, notice: 'Observation was successfully updated.' }
-        format.json { render :show, status: :ok, location: @observation }
+        format.json { render :show, status: :ok, location: @observation.metamorphosize }
       else
         format.html { render :edit }
-        format.json { render json: @observation.errors, status: :unprocessable_entity }
+        format.json { render json: @observation..metamorphosize.errors, status: :unprocessable_entity }
       end
     end
   end

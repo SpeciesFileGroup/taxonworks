@@ -18,7 +18,7 @@ class Observation < ActiveRecord::Base
   validate :otu_or_collection_object_set
 
   def self.human_name
-      'YAY'
+    'YAY'
   end
 
   protected
