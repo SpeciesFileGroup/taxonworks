@@ -181,7 +181,7 @@ geographic_area_lookup_task:
   categories:
     - collecting_event
   status: prototype
-  description: 'Check the geographic area gazetteer to see if there are records matching a particular name with queries like "Illinois", or "Illinois:Champaign" or "Canada:Saskatchewan.'
+  description: 'Check the geographic area gazetteer to see if there are records matching a particular name with queries like "Illinois", or "Champaign:Illinois" or "Saskatchewan:Canada.'
 browse_sources_task:
   hub: true
   name: 'Browse sources'
