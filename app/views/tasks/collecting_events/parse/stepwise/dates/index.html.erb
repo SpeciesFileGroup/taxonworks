@@ -1,0 +1,73 @@
+<div id="ce_parse_dates">
+  <h1>Task Stepwise collecting event parser - Dates</h1>
+
+  <div class="flexbox">
+    <div class="item item1">
+      <h2>Collecting event
+        id:  <%= link_to(@collecting_event.id, collecting_event_path(@collecting_event), target: :_blank) %></h2>
+      <%= show_ce_vl(@collecting_event) %>
+      <br>
+      <%= form_tag(dates_update_task_path(collecting_event_id: @collecting_event.id),
+                   id: 'dates_convert_form') do %>
+          <%= hidden_field_tag(:collecting_event_id, @collecting_event.id) %>
+          <%= parse_date_skip(@collecting_event.id, @filters) %>
+          <%= hidden_field_tag(:selected_method) %>
+          <table border="1">
+            <tbody>
+            <tr>
+              <%= make_dates_method_headers %>
+            </tr>
+            <tr>
+              <%= make_dates_selected_method_boxes(@filters) %>
+            </tr>
+            </tbody>
+          </table>
+          <table border="1">
+            <thead>
+            <tr>
+              <th>Method</th>
+              <th>Recognized string</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Select</th>
+            </tr>
+            </thead>
+            <tbody>
+            <%= make_dates_rows(@collecting_event.verbatim_label, @filters) %>
+            </tbody>
+          </table>
+          <table border="1">
+            <tbody>
+            <tr>
+              <th></th>
+              <th style="text-align:center">Start Date</th>
+              <th style="text-align:center">Verbatim Date</th>
+              <th style="text-align:center">End Date</th>
+            </tr>
+            <tr>
+              <td>Verbatim</td>
+              <td><%= text_field_tag('start_date', test_start_date) %></td>
+              <td><%= text_field_tag('verbatim_date', @collecting_event.verbatim_date) %></td>
+              <td><%= text_field_tag('end_date', test_end_date) %></td>
+            </tr>
+            <tr>
+              <td></td>
+              <td></td>
+              <td><%= submit_tag('Use edited date', id: 'dates_reprocess') %></td>
+              <td></td>
+            </tr>
+            </tbody>
+          </table>
+          <%= button_tag('Save this one', value: 'save_one', id: 'dates_update_record') %><br>
+          <div id="matching_events" class="item item1">
+            <h1>Identical matches (<span id="match_count">#</span>)</h1>
+            <%= check_box_tag(:include_values, nil, true) %>Include already set values
+            <%= button_tag('Select all', value: 'select_all', id: 'select_all', disabled: true) %>
+            <%= button_tag('Deselect all', value: 'deselect_all', id: 'deselect_all', disabled: true) %>
+            <%= button_tag('Save matches', value: 'save_selected', id: 'save_selected', disabled: true) %>
+            <span id="matching_span"></span>
+          </div>
+      <% end %><br>
+    </div>
+  </div>
+</div>

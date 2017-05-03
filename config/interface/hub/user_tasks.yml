@@ -181,7 +181,7 @@ geographic_area_lookup_task:
   categories:
     - collecting_event
   status: prototype
-  description: 'Check the geographic area gazetteer to see if there are records matching a particular name with queries like "Illinois", or "Illinois:Champaign" or "Canada:Saskatchewan.'
+  description: 'Check the geographic area gazetteer to see if there are records matching a particular name with queries like "Illinois", or "Champaign:Illinois" or "Saskatchewan:Canada.'
 browse_sources_task:
   hub: true
   name: 'Browse sources'
@@ -215,3 +215,11 @@ cite_otus_task_task:
     - source
   status: prototype
   description: 'Add citations to OTUs.  Optionally add topics to citations.  For example assertions like "Smith, 1920 referenced Biology of Aus bus" are possible.'
+
+dates_index_task:
+  hub: true
+  name: 'Stepwise collecting event parser - Dates'
+  related:
+  categories:
+  status: prototype
+  description: "Parse the collecting_events table's verbatim label for possible date combinations."

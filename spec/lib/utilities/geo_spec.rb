@@ -138,7 +138,7 @@ describe 'Geo', group: :geo do
         end
       end
     end
-    context 'single use case for hunt_wrapper' do
+    context 'single use case for lat/long hunt_wrapper' do
       use_case = {"  N 23.23  W 44.44  " => {"DD1A" => {:method => "text, DD1A"},
                                              "DD1B" => {:piece  => "N 23.23  W 44.44",
                                                         :lat    => "N 23.23",
@@ -170,7 +170,7 @@ describe 'Geo', group: :geo do
       }
     end
 
-    context 'multiple use cases for hunt_wrapper' do
+    context 'multiple use cases for lat/long hunt_wrapper' do
       use_cases = {
         "Here is some extra text: N 23.23  W 44.44  More stuff at the end"                                                                                =>
           {"DD1A" => {:method => "text, DD1A"},

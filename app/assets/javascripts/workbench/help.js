@@ -60,11 +60,18 @@ Object.assign(TW.workbench.help, {
 			TW.workbench.help.activeDisableHelp();
 		});	
 	},
+
+	discoverDataHelp: function() {
+
+	},
 	
 	addBubbleTips: function(className) {
 		$(className).each(function(i) {
-			$(this).addClass('help-tip');
-			$(this).append('<div class="help-bubble-tip" data-bubble-id="'+ (i) +'">'+ (i+1) +'</div>');
+			if(!$(this).attr('help-discovered')) {
+				$(this).addClass('help-tip');
+				$(this).append('<div class="help-bubble-tip" data-bubble-id="'+ (i) +'">'+ (i+1) +'</div>');
+				$(this).attr('help-discovered', true);
+			}
 		});
 	},
 
@@ -75,6 +82,7 @@ Object.assign(TW.workbench.help, {
 			firstClick = false;
 		}
 		if(!TW.workbench.help.helpActive()) {
+			TW.workbench.help.addBubbleTips('[data-help]');
 			$('.help-background-active').fadeIn(100);
 			$('.help-bubble-tip').show(100);
 			$('.help-button').addClass('help-button-active');
