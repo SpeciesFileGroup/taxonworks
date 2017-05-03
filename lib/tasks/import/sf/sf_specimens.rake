@@ -10,46 +10,46 @@ namespace :tw do
 
           logger.info 'Building new collecting events...'
 
-          import            = Import.find_or_create_by(name: 'SpeciesFileData')
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
 
           get_tw_collecting_event_id = {} # key = sfUniqueLocColEvents.UniqueID, value = TW.collecting_event_id
 
           # SF.TimePeriodID to interval code (https://paleobiodb.org/data1.2/intervals/single.json?name='')
-          TIME_PERIOD_MAP            = {
-            768  => 1, # Cenozoic
-            784  => 12, # Quaternary
-            790  => 32, # Holocene
-            795  => 33, # Pleistocene
-            800  => 13, # Tertiary
-            804  => 25, # Neogene
-            805  => 34, # Pliocene
-            806  => 35, # Miocene
-            808  => 26, # Paleogene
-            809  => 36, # Oligocene
-            810  => 37, # Eocene
-            811  => 38, # Paleocene
-            1024 => 2, # Mesozoic
-            1040 => 14, # Cretaceous
-            1056 => 15, # Jurassic
-            1072 => 16, # Triassic
-            1280 => 3, # Paleozoic
-            1296 => 17, # Permian
-            1312 => 18, # Carboniferous
-            1316 => 27, # Pennsylvanian
-            1320 => 28, # Mississippian
-            1328 => 19, # Devonian
-            1344 => 20, # Silurian
-            1360 => 21, # Ordovician
-            1376 => 22, # Cambrian
-            # 1536 => nil,  # Precambrian
-            1552 => 752, # Proterozoic
-            1568 => 753, # Archaean vs. Archean
-            1584 => 11 # Hadean
+          TIME_PERIOD_MAP = {
+              768 => 1, # Cenozoic
+              784 => 12, # Quaternary
+              790 => 32, # Holocene
+              795 => 33, # Pleistocene
+              800 => 13, # Tertiary
+              804 => 25, # Neogene
+              805 => 34, # Pliocene
+              806 => 35, # Miocene
+              808 => 26, # Paleogene
+              809 => 36, # Oligocene
+              810 => 37, # Eocene
+              811 => 38, # Paleocene
+              1024 => 2, # Mesozoic
+              1040 => 14, # Cretaceous
+              1056 => 15, # Jurassic
+              1072 => 16, # Triassic
+              1280 => 3, # Paleozoic
+              1296 => 17, # Permian
+              1312 => 18, # Carboniferous
+              1316 => 27, # Pennsylvanian
+              1320 => 28, # Mississippian
+              1328 => 19, # Devonian
+              1344 => 20, # Silurian
+              1360 => 21, # Ordovician
+              1376 => 22, # Cambrian
+              # 1536 => nil,  # Precambrian
+              1552 => 752, # Proterozoic
+              1568 => 753, # Archaean vs. Archean
+              1584 => 11 # Hadean
           }.freeze
 
-          path          = @args[:data_directory] + 'sfUniqueLocColEvents.txt'
-          file          = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          path = @args[:data_directory] + 'sfUniqueLocColEvents.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           # FileID
           # Level1ID	Level2ID	Level3ID	Level4ID
@@ -68,50 +68,101 @@ namespace :tw do
           # DaysToEnd
           # UniqueID
 
-          counter       = 0
+          counter = 0
           error_counter = 0
+
+          # Working with TW.project_id = 3, UniqueID = 42414 (count 42414): Year 1993, Month 2, Day 29 (not a leap year), FileID = 1, TaxonNameID = 1140695, CollectEventID = 6584
+          # ActiveRecord::RecordInvalid: Validation failed: Start date day 29 is not a valid start_date_day for the month provided
+          # [0] 1993,
+          # [1] 2,
+          # [2] 29,
+          # [3] nil,
+          # [4] nil,
+          # [5] nil
+
 
           file.each do |row|
             project_id = get_tw_project_id[row['FileID']]
 
             logger.info "Working with TW.project_id = #{project_id}, UniqueID = #{row['UniqueID']} (count #{counter += 1}) \n"
 
-            # handle dates
-            start_date_year                             = nil
-            end_date_year, end_date_month, end_date_day = nil, nil, nil
+            d = row['Day'] != "0"
+            m = row['Month'] != "0"
+            y = !((row['Year'] == "1000") || (row['Year'] == "0"))
+            dte = row['DaysToEnd'].to_i.abs != 0
 
-            if row['Year'] != '0'
-              end_date = nil
+            start_date_year, start_date_month, start_date_day,
+                end_date_year, end_date_month, end_date_day =
 
-              if row['DaysToEnd'].present?
-                y = row['Year'] == '1000' ? '2000' : row['Year']
+                case [y, m, d, dte] # year, month, day, days_to_end
 
-                start_date = Date.new(y.to_i, row['Month'].to_i, row['Day'].to_i)
+                  when [true, true, true, true] # have (year, month, day, days_to_end)
 
-                end_date = row['DaysToEnd'].to_i.days.from_now(start_date)
-              end
+                  when [true, true, true, false] # have (year, month, day), no days_to_end
+                    [row['Year'].to_i, row['Month'].to_i, row['Day'].to_i, nil, nil, nil]
 
-              if end_date
-                end_date_year, end_date_month, end_date_day = end_date.year, end_date.month, end_date.day
-              end
+                  when [true, true, false, false] # have (year, month), no (day, days_to_end)
+                    [row['Year'].to_i, row['Month'].to_i, nil, nil, nil, nil]
 
-              ap [row['Day'], row['Month'], row['Year'], row['DaysToEnd'], end_date]
-              end_date_year = nil if row['Year'] == '1000' && !row['DaysToEnd'].present?
+                  when [true, false, false, false] # have year, no (month, day, days_to_end)
+                    [row['Year'].to_i, nil, nil, nil, nil, nil]
 
-              start_date_year = row['Year'] == '1000' ? nil : row['Year'].to_i
+                  when [false, true, true, false] # no year, have (month, day), no days_to_end
+                    [nil, row['Month'].to_i, row['Day'].to_i, nil, nil, nil]
 
-            end
+                  when [false, true, true, true] # no year, have (month, day, days_toend)
+                    sdm = row['Month'].to_i
+                    sdd = row['Day'].to_i
+                    dte = row['DaysToEnd'].to_i.abs
+                    start_date = Date.new(1999, sdm, sdd) # an arbitrary non-leap year
+                    end_date = dte.days.from_now(start_date)
 
-            start_date_day   = (row['Day'].present? ? row['Day'].to_i : nil)
-            start_date_month = (row['Month'].present? ? row['Month'].to_i : nil)
-            start_date_day   = nil if start_date_day == 0
-            start_date_month = nil if start_date_month == 0
+                    [nil, sdm, sdd, nil, end_date.month, end_date.year]
+
+                  else
+                    [nil, nil, nil, nil, nil, nil]
+                end
+
+
+            # # handle dates
+            # start_date_year = nil
+            # end_date_year, end_date_month, end_date_day = nil, nil, nil
+            #
+            # if row['Year'] != '0'
+            #   end_date = nil
+            #
+            #
+            #   # when (count 23279)
+            #   if row['DaysToEnd'].present?
+            #     days_to_end = row['DaysToEnd'].to_i.abs # @todo Delete absolute value for next run (errors will be fixed in data and check will be made in export table)
+            #     y = row['Year'] == '1000' ? '2000' : row['Year']
+            #
+            #     start_date = Date.new(y.to_i, row['Month'].to_i, row['Day'].to_i)
+            #
+            #     end_date = days_to_end.days.from_now(start_date)
+            #   end
+            #
+            #   if end_date
+            #     end_date_year, end_date_month, end_date_day = end_date.year, end_date.month, end_date.day
+            #   end
+            #
+            #   ap [row['Day'], row['Month'], row['Year'], days_to_end, end_date]
+            #   end_date_year = nil if row['Year'] == '1000' && !row['DaysToEnd'].present?
+            #
+            #   start_date_year = row['Year'] == '1000' ? nil : row['Year'].to_i
+            #
+            # end
+            #
+            # start_date_day = (row['Day'].present? ? row['Day'].to_i : nil)
+            # start_date_month = (row['Month'].present? ? row['Month'].to_i : nil)
+            # start_date_day = nil if start_date_day == 0
+            # start_date_month = nil if start_date_month == 0
 
 
             data_attributes_bucket = {
-              data_attributes_attributes: [],
-              # project_id: project_id  # cannot universally assign project_id to all array attribute hashes
-              # rest of housekeeping?
+                data_attributes_attributes: [],
+                # project_id: project_id  # cannot universally assign project_id to all array attribute hashes
+                # rest of housekeeping?
             }
 
             if row['TimeDetail'].present?
@@ -143,8 +194,10 @@ namespace :tw do
               data_attributes_bucket[:data_attributes_attributes].push(precision_code)
             end
 
+            # do we still need next line?
+            # start_date_year, end_date_year = nil, nil if row['Year'] == "1000"
 
-            ap [start_date_day, start_date_month, start_date_year, end_date_day, end_date_month, end_date_year]
+            ap [start_date_year, start_date_month, start_date_day, end_date_year, end_date_month, end_date_day]
 
             # metadata = {
             #     # data_attributes_attributes: data_attributes_bucket
@@ -154,24 +207,24 @@ namespace :tw do
 
 
             lat, long = row['Latitude'], row['Longitude']
-            c         = CollectingEvent.new(
-              {
-                verbatim_latitude:   (lat.length > 0) ? lat : nil,
-                verbatim_longitude:  (long.length > 0) ? long : nil,
-                maximum_elevation:   row['MaxElevation'].to_i,
-                verbatim_locality:   row['LocalityDetail'],
-                verbatim_collectors: row['CollectorName'],
-                start_date_day:      start_date_day,
-                start_date_month:    start_date_month,
-                start_date_year:     start_date_year,
-                end_date_day:        end_date_day,
-                end_date_month:      end_date_month,
-                end_date_year:       end_date_year,
-                geographic_area:     get_tw_geographic_area(row, logger),
+            c = CollectingEvent.new(
+                {
+                    verbatim_latitude: (lat.length > 0) ? lat : nil,
+                    verbatim_longitude: (long.length > 0) ? long : nil,
+                    maximum_elevation: row['MaxElevation'].to_i,
+                    verbatim_locality: row['LocalityDetail'],
+                    verbatim_collectors: row['CollectorName'],
+                    start_date_day: start_date_day,
+                    start_date_month: start_date_month,
+                    start_date_year: start_date_year,
+                    end_date_day: end_date_day,
+                    end_date_month: end_date_month,
+                    end_date_year: end_date_year,
+                    # geographic_area: get_tw_geographic_area(row, logger),
 
-                project_id:          project_id}.merge(data_attributes_bucket)
-            # paleobio_db_interval_id: TIME_PERIOD_MAP[row['TimePeriodID']], # TODO: Matt add attribute to CE !! rember ENVO implications
-
+                    project_id: project_id
+                    # paleobio_db_interval_id: TIME_PERIOD_MAP[row['TimePeriodID']], # TODO: Matt add attribute to CE !! rember ENVO implications
+                }.merge(data_attributes_bucket)
             )
 
             begin
@@ -200,49 +253,7 @@ namespace :tw do
 
                 logger.error "Error: TW.project_id = #{project_id}, UniqueID = #{row['UniqueID']} (error count #{error_counter += 1}) \n"
               end
-
-
-              #   # Don't know if nested attribute objects can have conditions, e.g., only make this object if condition > 0
-              #   if row['TimeDetail'].present?
-              #     da = DataAttribute.new(type: 'ImportAttribute',
-              #                            attribute_subject_id: c.id,
-              #                            attribute_subject_type: CollectingEvent,
-              #                            import_predicate: 'TimeDetail',
-              #                            value: row['TimeDetail'],
-              #                            project_id: project_id)
-              #     begin
-              #       da.save!
-              #       puts 'DataAttribute TimeDetail created'
-              #
-              #
-              #     rescue ActiveRecord::RecordInvalid # da not valid
-              #       logger.error "DataAttribute TimeDetail ERROR SF.UniqueID #{row['UniqueID']} = TW.collecting_event #{c.id} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
-              #     end
-              #   end
-              #
-              #   if row['BodyOfWater'].present?
-              #     da = DataAttribute.new(type: 'ImportAttribute',
-              #                            attribute_subject_id: c.id,
-              #                            attribute_subject_type: CollectingEvent,
-              #                            import_predicate: 'BodyOfWater',
-              #                            value: row['BodyOfWater'],
-              #                            project_id: project_id)
-              #     begin
-              #       da.save!
-              #       puts 'DataAttribute BodyOfWater created'
-              #     rescue ActiveRecord::RecordInvalid # da not valid
-              #       logger.error "DataAttribute BodyOfWater ERROR SF.UniqueID #{row['UniqueID']} = TW.collecting_event #{c.id} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
-              #     end
-              #   end
-              #
-              #
-              # rescue ActiveRecord::RecordInvalid
-              #
-              #   logger.info "Failed on UniqueID #{row['UniqueID']}"
-              #
             end
-
-
           end
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
@@ -306,19 +317,19 @@ namespace :tw do
           # tdwg_id        += l3 unless l3 == '---'
           # tdwg_id        += "-#{l4}" unless l4 == '---'
 
-          tw_area        = nil
+          tw_area = nil
           l1, l2, l3, l4 = row['Level1ID'], row['Level2ID'], row['Level3ID'], row['Level4ID']
-          l1             = '' if l1 == '0'
-          l2             = '' if l2 --'-'
-          l3             = '' if l3 == '---'
-          l4             = '' if l4 == '---'
-          t1             = l1
-          t2             = t1 + l2
-          t3             = t2 + l3
-          tdwg_id        = l1
-          tdwg_id        = t3 if l4 == ''
-          tdwg_id        = t2 if l3 == ''
-          tdwg_id        = t1 if l2 == ''
+          l1 = '' if l1 == '0'
+          l2 = '' if l2 --'-'
+          l3 = '' if l3 == '---'
+          l4 = '' if l4 == '---'
+          t1 = l1
+          t2 = t1 + l2
+          t3 = t2 + l3
+          tdwg_id = l1
+          tdwg_id = t3 if l4 == ''
+          tdwg_id = t2 if l3 == ''
+          tdwg_id = t1 if l2 == ''
           tdwg_id.strip!
 
           if tdwg_id.blank?
@@ -326,7 +337,7 @@ namespace :tw do
               when /\d+/ # any digits, needs translation
                 # TODO @MB if level 4 is a number, look up county name in SFGeoLevel4
                 # packet = 0
-                name    = sf_geo_level4[(t3 + t4)][:name].chomp('County').strip
+                name = sf_geo_level4_hash[(t3 + t4)][:name].chomp('County').strip
                 tw_area = GeographicArea.where("\"tdwgID\" like '#{t3}%' and name like '%#{name}%'").first
               when /[a-z]/i # if it exists, it might be directly findable
                 tdwg_id = (t3 + '-' + l4).strip
@@ -373,7 +384,7 @@ namespace :tw do
           logger.info 'Running new specimen lists (hash, array)...'
 
           get_new_preserved_specimen_id = [] # array of SF.SpecimenIDs with BasisOfRecord = 0 (not stated) but with DepoID or specimen count
-          get_sf_unique_id              = {} # key = SF.SpecimenID, value = sfUniqueLocColEvents.UniqueID
+          get_sf_unique_id = {} # key = SF.SpecimenID, value = sfUniqueLocColEvents.UniqueID
 
 
           logger.info '1. Getting new preferred specimen ids'
