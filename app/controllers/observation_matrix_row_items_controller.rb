@@ -1,7 +1,7 @@
 class ObservationMatrixRowItemsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_matrix_row_item, only: [:show, :edit, :update, :destroy]
+  before_action :set_observation_matrix_row_item, only: [:show, :edit, :update, :destroy]
 
   # GET /matrix_row_items
   # GET /matrix_row_items.json
@@ -31,7 +31,7 @@ class ObservationMatrixRowItemsController < ApplicationController
   # POST /matrix_row_items
   # POST /matrix_row_items.json
   def create
-    @observation_matrix_row_item = ObservationMatrixRowItem.new(matrix_row_item_params)
+    @observation_matrix_row_item = ObservationMatrixRowItem.new(observation_matrix_row_item_params)
 
     respond_to do |format|
       if @observation_matrix_row_item.save
@@ -48,7 +48,7 @@ class ObservationMatrixRowItemsController < ApplicationController
   # PATCH/PUT /matrix_row_items/1.json
   def update
     respond_to do |format|
-      if @observation_matrix_row_item.update(matrix_row_item_params)
+      if @observation_matrix_row_item.update(observation_matrix_row_item_params)
         format.html { redirect_to @observation_matrix_row_item.metamorphosize, notice: 'Matrix row item was successfully updated.' }
         format.json { render :show, status: :ok, location: @observation_matrix_row_item }
       else
@@ -69,13 +69,11 @@ class ObservationMatrixRowItemsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_matrix_row_item
+    def set_observation_matrix_row_item
       @observation_matrix_row_item = ObservationMatrixRowItem.find(params[:id])
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def matrix_row_item_params
-      params.require(:matrix_row_item).permit(:observation_matrix_id, :type, :collection_object_id, :otu_id, :controlled_vocabulary_term_id, :type)
+    def observation_matrix_row_item_params
+      params.require(:observation_matrix_row_item).permit(:observation_matrix_id, :type, :collection_object_id, :otu_id, :controlled_vocabulary_term_id, :type)
     end
 end

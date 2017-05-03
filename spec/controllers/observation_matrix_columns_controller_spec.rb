@@ -30,10 +30,6 @@ RSpec.describe ObservationMatrixColumnsController, type: :controller do
     strip_housekeeping_attributes(FactoryGirl.build(:valid_observation_matrix_column).attributes)
   }
 
-  let(:invalid_attributes) {
-    valid_attributes.merge(matrix_id: nil)
-  }
-
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
   # MatrixColumnsController. Be sure to keep this updated too.
@@ -41,17 +37,17 @@ RSpec.describe ObservationMatrixColumnsController, type: :controller do
 
   describe "GET #index" do
     it "assigns recent matrix_columns as @recent_objects" do
-      matrix_column = ObservationMatrixColumn.create! valid_attributes
+      observation_matrix_column = ObservationMatrixColumn.create! valid_attributes
       get :index, {}, session: valid_session
-      expect(assigns(:recent_objects)).to eq([matrix_column])
+      expect(assigns(:recent_objects)).to eq([observation_matrix_column])
     end
   end
 
   describe "GET #show" do
     it "assigns the requested matrix_column as @observation_matrix_column" do
-      matrix_column = ObservationMatrixColumn.create! valid_attributes
-      get :show, {id: matrix_column.to_param}, session: valid_session
-      expect(assigns(:matrix_column)).to eq(matrix_column)
+      observation_matrix_column = ObservationMatrixColumn.create! valid_attributes
+      get :show, {id: observation_matrix_column.to_param}, session: valid_session
+      expect(assigns(:observation_matrix_column)).to eq(observation_matrix_column)
     end
   end
 

@@ -42,32 +42,32 @@ RSpec.describe ObservationMatrixRowItemsController, type: :controller do
 
   describe "GET #index" do
     it "assigns all matrix_row_items as @observation_matrix_row_items" do
-      matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
+      observation_matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
       get :index, {}, session: valid_session
-      expect(assigns(:recent_objects)).to eq([matrix_row_item])
+      expect(assigns(:recent_objects)).to eq([observation_matrix_row_item])
     end
   end
 
   describe "GET #show" do
-    it "assigns the requested matrix_row_item as @observation_matrix_row_item" do
-      matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
-      get :show, {id: matrix_row_item.to_param}, session: valid_session
-      expect(assigns(:matrix_row_item)).to eq(matrix_row_item)
+    it "assigns the requested observation_matrix_row_item as @observation_matrix_row_item" do
+      observation_matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
+      get :show, {id: observation_matrix_row_item.to_param}, session: valid_session
+      expect(assigns(:observation_matrix_row_item)).to eq(observation_matrix_row_item)
     end
   end
 
   describe "GET #new" do
-    it "assigns a new matrix_row_item as @observation_matrix_row_item" do
+    it "assigns a new observation_matrix_row_item as @observation_matrix_row_item" do
       get :new, {}, session: valid_session
-      expect(assigns(:matrix_row_item)).to be_a_new(ObservationMatrixRowItem)
+      expect(assigns(:observation_matrix_row_item)).to be_a_new(ObservationMatrixRowItem)
     end
   end
 
   describe "GET #edit" do
     it "assigns the requested matrix_row_item as @observation_matrix_row_item" do
-      matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
-      get :edit, {id: matrix_row_item.to_param}, session: valid_session
-      expect(assigns(:matrix_row_item)).to eq(matrix_row_item)
+      observation_matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
+      get :edit, {id: observation_matrix_row_item.to_param}, session: valid_session
+      expect(assigns(:observation_matrix_row_item)).to eq(observation_matrix_row_item)
     end
   end
 
@@ -75,30 +75,30 @@ RSpec.describe ObservationMatrixRowItemsController, type: :controller do
     context "with valid params" do
       it "creates a new MatrixRowItem" do
         expect {
-          post :create, {matrix_row_item: valid_attributes}, session: valid_session
+          post :create, {observation_matrix_row_item: valid_attributes}, session: valid_session
         }.to change(ObservationMatrixRowItem, :count).by(1)
       end
 
       it "assigns a newly created matrix_row_item as @observation_matrix_row_item" do
-        post :create, {matrix_row_item: valid_attributes}, session: valid_session
-        expect(assigns(:matrix_row_item)).to be_a(ObservationMatrixRowItem)
-        expect(assigns(:matrix_row_item)).to be_persisted
+        post :create, {observation_matrix_row_item: valid_attributes}, session: valid_session
+        expect(assigns(:observation_matrix_row_item)).to be_a(ObservationMatrixRowItem)
+        expect(assigns(:observation_matrix_row_item)).to be_persisted
       end
 
       it "redirects to the created matrix_row_item" do
-        post :create, {matrix_row_item: valid_attributes}, session: valid_session
+        post :create, {observation_matrix_row_item: valid_attributes}, session: valid_session
         expect(response).to redirect_to(ObservationMatrixRowItem.last.metamorphosize)
       end
     end
 
     context "with invalid params" do
       it "assigns a newly created but unsaved matrix_row_item as @observation_matrix_row_item" do
-        post :create, {matrix_row_item: invalid_attributes}, session: valid_session
-        expect(assigns(:matrix_row_item).metamorphosize).to be_a_new(ObservationMatrixRowItem)
+        post :create, {observation_matrix_row_item: invalid_attributes}, session: valid_session
+        expect(assigns(:observation_matrix_row_item).metamorphosize).to be_a_new(ObservationMatrixRowItem)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {matrix_row_item: invalid_attributes}, session: valid_session
+        post :create, {observation_matrix_row_item: invalid_attributes}, session: valid_session
         expect(response).to render_template("new")
       end
     end
@@ -111,35 +111,35 @@ RSpec.describe ObservationMatrixRowItemsController, type: :controller do
       }
 
       it "updates the requested matrix_row_item" do
-        matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
-        put :update, {id: matrix_row_item.to_param, matrix_row_item: new_attributes}, session: valid_session
-        matrix_row_item.reload
-        expect(matrix_row_item.observation_matrix_id).to eq(new_attributes[:observation_matrix_id])
+        observation_matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
+        put :update, {id: observation_matrix_row_item.to_param, observation_matrix_row_item: new_attributes}, session: valid_session
+        observation_matrix_row_item.reload
+        expect(observation_matrix_row_item.observation_matrix_id).to eq(new_attributes[:observation_matrix_id])
       end
 
       it "assigns the requested matrix_row_item as @observation_matrix_row_item" do
-        matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
-        put :update, {id: matrix_row_item.to_param, matrix_row_item: valid_attributes}, session: valid_session
-        expect(assigns(:matrix_row_item)).to eq(matrix_row_item)
+        observation_matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
+        put :update, {id: observation_matrix_row_item.to_param, observation_matrix_row_item: valid_attributes}, session: valid_session
+        expect(assigns(:observation_matrix_row_item)).to eq(observation_matrix_row_item)
       end
 
       it "redirects to the matrix_row_item" do
-        matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
-        put :update, {id: matrix_row_item.to_param, matrix_row_item: valid_attributes}, session: valid_session
-        expect(response).to redirect_to(matrix_row_item.metamorphosize)
+        observation_matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
+        put :update, {id: observation_matrix_row_item.to_param, observation_matrix_row_item: valid_attributes}, session: valid_session
+        expect(response).to redirect_to(observation_matrix_row_item.metamorphosize)
       end
     end
 
     context "with invalid params" do
       it "assigns the matrix_row_item as @observation_matrix_row_item" do
-        matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
-        put :update, {id: matrix_row_item.to_param, matrix_row_item: invalid_attributes}, session: valid_session
-        expect(assigns(:matrix_row_item)).to eq(matrix_row_item)
+        observation_matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
+        put :update, {id: observation_matrix_row_item.to_param, observation_matrix_row_item: invalid_attributes}, session: valid_session
+        expect(assigns(:observation_matrix_row_item)).to eq(observation_matrix_row_item)
       end
 
       it "re-renders the 'edit' template" do
-        matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
-        put :update, {id: matrix_row_item.to_param, matrix_row_item: invalid_attributes}, session: valid_session
+        observation_matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
+        put :update, {id: observation_matrix_row_item.to_param, observation_matrix_row_item: invalid_attributes}, session: valid_session
         expect(response).to render_template("edit")
       end
     end
@@ -147,15 +147,15 @@ RSpec.describe ObservationMatrixRowItemsController, type: :controller do
 
   describe "DELETE #destroy" do
     it "destroys the requested matrix_row_item" do
-      matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
+      observation_matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
       expect {
-        delete :destroy, {id: matrix_row_item.to_param}, session: valid_session
+        delete :destroy, {id: observation_matrix_row_item.to_param}, session: valid_session
       }.to change(ObservationMatrixRowItem, :count).by(-1)
     end
 
     it "redirects to the matrix_row_items list" do
-      matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
-      delete :destroy, {id: matrix_row_item.to_param}, session: valid_session
+      observation_matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
+      delete :destroy, {id: observation_matrix_row_item.to_param}, session: valid_session
       expect(response).to redirect_to(observation_matrix_row_items_url)
     end
   end

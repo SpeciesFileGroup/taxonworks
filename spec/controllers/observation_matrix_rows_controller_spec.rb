@@ -42,17 +42,17 @@ RSpec.describe ObservationMatrixRowsController, type: :controller do
 
   describe "GET #index" do
     it "assigns all matrix_rows as @recent_objects" do
-      matrix_row = ObservationMatrixRow.create! valid_attributes
+      observation_matrix_row = ObservationMatrixRow.create! valid_attributes
       get :index, {}, session: valid_session
-      expect(assigns(:recent_objects)).to eq([matrix_row])
+      expect(assigns(:recent_objects)).to eq([observation_matrix_row])
     end
   end
 
   describe "GET #show" do
     it "assigns the requested matrix_row as @observation_matrix_row" do
-      matrix_row = ObservationMatrixRow.create! valid_attributes
-      get :show, {id: matrix_row.to_param}, session: valid_session
-      expect(assigns(:matrix_row)).to eq(matrix_row)
+      observation_matrix_row = ObservationMatrixRow.create! valid_attributes
+      get :show, {id: observation_matrix_row.to_param}, session: valid_session
+      expect(assigns(:observation_matrix_row)).to eq(observation_matrix_row)
     end
   end
 
