@@ -17,35 +17,35 @@ namespace :tw do
 
           # SF.TimePeriodID to interval code (https://paleobiodb.org/data1.2/intervals/single.json?name='')
           TIME_PERIOD_MAP = {
-              768 => 1, # Cenozoic
-              784 => 12, # Quaternary
-              790 => 32, # Holocene
-              795 => 33, # Pleistocene
-              800 => 13, # Tertiary
-              804 => 25, # Neogene
-              805 => 34, # Pliocene
-              806 => 35, # Miocene
-              808 => 26, # Paleogene
-              809 => 36, # Oligocene
-              810 => 37, # Eocene
-              811 => 38, # Paleocene
-              1024 => 2, # Mesozoic
-              1040 => 14, # Cretaceous
-              1056 => 15, # Jurassic
-              1072 => 16, # Triassic
-              1280 => 3, # Paleozoic
-              1296 => 17, # Permian
-              1312 => 18, # Carboniferous
-              1316 => 27, # Pennsylvanian
-              1320 => 28, # Mississippian
-              1328 => 19, # Devonian
-              1344 => 20, # Silurian
-              1360 => 21, # Ordovician
-              1376 => 22, # Cambrian
-              # 1536 => nil,  # Precambrian
-              1552 => 752, # Proterozoic
-              1568 => 753, # Archaean vs. Archean
-              1584 => 11 # Hadean
+            768  => 1, # Cenozoic
+            784  => 12, # Quaternary
+            790  => 32, # Holocene
+            795  => 33, # Pleistocene
+            800  => 13, # Tertiary
+            804  => 25, # Neogene
+            805  => 34, # Pliocene
+            806  => 35, # Miocene
+            808  => 26, # Paleogene
+            809  => 36, # Oligocene
+            810  => 37, # Eocene
+            811  => 38, # Paleocene
+            1024 => 2, # Mesozoic
+            1040 => 14, # Cretaceous
+            1056 => 15, # Jurassic
+            1072 => 16, # Triassic
+            1280 => 3, # Paleozoic
+            1296 => 17, # Permian
+            1312 => 18, # Carboniferous
+            1316 => 27, # Pennsylvanian
+            1320 => 28, # Mississippian
+            1328 => 19, # Devonian
+            1344 => 20, # Silurian
+            1360 => 21, # Ordovician
+            1376 => 22, # Cambrian
+            # 1536 => nil,  # Precambrian
+            1552 => 752, # Proterozoic
+            1568 => 753, # Archaean vs. Archean
+            1584 => 11 # Hadean
           }.freeze
 
           path = @args[:data_directory] + 'sfUniqueLocColEvents.txt'
@@ -87,7 +87,7 @@ namespace :tw do
                 y = row['Year'] == '1000' ? '2000' : row['Year']
 
                 start_date = Date.new(y.to_i, row['Month'].to_i, row['Day'].to_i)
-                
+
                 end_date = row['DaysToEnd'].to_i.days.from_now(start_date)
               end
 
@@ -97,21 +97,21 @@ namespace :tw do
 
               ap [row['Day'], row['Month'], row['Year'], row['DaysToEnd'], end_date]
               end_date_year = nil if row['Year'] == '1000' && !row['DaysToEnd'].present?
-              
+
               start_date_year = row['Year'] == '1000' ? nil : row['Year'].to_i
 
             end
-            
+
             start_date_day = (row['Day'].present? ? row['Day'].to_i : nil)
             start_date_month = (row['Month'].present? ? row['Month'].to_i : nil)
             start_date_day = nil if start_date_day == 0
             start_date_month = nil if start_date_month == 0
-            
+
 
             data_attributes_bucket = {
-                data_attributes_attributes: [],
-                # project_id: project_id  # cannot universally assign project_id to all array attribute hashes
-                # rest of housekeeping?
+              data_attributes_attributes: [],
+              # project_id: project_id  # cannot universally assign project_id to all array attribute hashes
+              # rest of housekeeping?
             }
 
             if row['TimeDetail'].present?
@@ -146,43 +146,55 @@ namespace :tw do
 
             ap [ start_date_day, start_date_month, start_date_year, end_date_day, end_date_month, end_date_year ]
 
-               # metadata = {
+            # metadata = {
             #     # data_attributes_attributes: data_attributes_bucket
             #
             #
             # }.merge(data_attributes_bucket)
 
 
-            c = CollectingEvent.new(
-                                   {
-                verbatim_latitude: row['Latitude'],
-                verbatim_longitude: row['Longitude'],
-                maximum_elevation: row['MaxElevation'],
-                verbatim_locality: row['LocalityDetail'],
+            lat, long = row['Latitude'], row['Longitude']
+            c         = CollectingEvent.new(
+              {
+                verbatim_latitude:   (lat.length > 0) ? lat : nil,
+                verbatim_longitude:  (long.length > 0) ? long : nil,
+                maximum_elevation:   row['MaxElevation'].to_i,
+                verbatim_locality:   row['LocalityDetail'],
                 verbatim_collectors: row['CollectorName'],
-                start_date_day: start_date_day,
-                start_date_month: start_date_month,
-                start_date_year: start_date_year,
-                end_date_day: end_date_day,
-                end_date_month: end_date_month,
-                end_date_year: end_date_year,
-                # geographic_area:    get_tw_geographic_area(row, logger),
+                start_date_day:      start_date_day,
+                start_date_month:    start_date_month,
+                start_date_year:     start_date_year,
+                end_date_day:        end_date_day,
+                end_date_month:      end_date_month,
+                end_date_year:       end_date_year,
+                geographic_area:     get_tw_geographic_area(row, logger),
 
-                project_id: project_id  }.merge(data_attributes_bucket)
+                project_id:          project_id}.merge(data_attributes_bucket)
             # paleobio_db_interval_id: TIME_PERIOD_MAP[row['TimePeriodID']], # TODO: Matt add attribute to CE !! rember ENVO implications
 
             )
-
 
             begin
               c.save!
               logger.info "UniqueID #{row['UniqueID']} written"
 
+              # TODO: MB
+              # location_string = [row['Country'],
+              #                    row['State'],
+              #                    row['County']].join(':')
+              #
+              # add location string as a data attribute to the
+
               get_tw_collecting_event_id[row['UniqueID']] = c.id.to_s
 
               begin
-                c.generate_verbatim_data_georeference(true, no_cached: true) # reference self, no cache (c.georeferences.any? is true, then succeeded)
-                c.georeferences[0].error_radius = row['PrecisionRadius'].to_i unless row['PrecisionRadius'] == '0'
+                pr = row['PrecisionRadius'].to_i
+                c.generate_verbatim_data_georeference(true, no_cached: true) # reference self, no cache
+                if c.georeferences.any?
+                  c.georeferences[0].error_radius = pr unless pr == '0'
+                else
+                  # georeference failed (bad lat/long?)
+                end
 
               rescue ActiveRecord::RecordInvalid
 
@@ -281,12 +293,12 @@ namespace :tw do
             # end
           end
           # we can lookup TDWG id, is this enough to represent country/state/county
-          tdwg_id = [row['Level1ID'].chomp('0'),
-                     row['Level2ID'].chomp('-'),
-                     row['Level3ID'].chomp('---'),
-                     ('-' + row['Level4ID']).chomp('---').chomp('-') # TODO: we have to pad dashes here to match off values
-          ].select {|a| a.length > 0}.join
-
+          # tdwg_id = [row['Level1ID'].chomp('0'),
+          #            row['Level2ID'].chomp('-'),
+          #            row['Level3ID'].chomp('---'),
+          #            ('-' + row['Level4ID']).chomp('---').chomp('-') # TODO: we have to pad dashes here to match off values
+          # ].select {|a| a.length > 0}.join
+          #
           # l1, l2, l3, l4 = row['Level1ID'], row['Level2ID'], row['Level3ID'], row['Level4ID']
           # tdwg_id        = ''
           # tdwg_id        += l1 unless (l1.blank? or l1 == '0')
@@ -294,32 +306,62 @@ namespace :tw do
           # tdwg_id        += l3 unless l3 == '---'
           # tdwg_id        += "-#{l4}" unless l4 == '---'
 
-          # TODO if level 4 is a number, look up county name in SFGeoLevel4
+          tw_area        = nil
+          l1, l2, l3, l4 = row['Level1ID'], row['Level2ID'], row['Level3ID'], row['Level4ID']
+          l1             = '' if l1 == '0'
+          l2             = '' if l2 --'-'
+          l3             = '' if l3 == '---'
+          l4             = '' if l4 == '---'
+          t1             = l1
+          t2             = t1 + l2
+          t3             = t2 + l3
+          tdwg_id        = l1
+          tdwg_id        = t3 if l4 == ''
+          tdwg_id        = t2 if l3 == ''
+          tdwg_id        = t1 if l2 == ''
+          tdwg_id.strip!
+
+          if tdwg_id.blank?
+            case l4
+              when /\d+/ # any digits, needs translation
+                # TODO @MB if level 4 is a number, look up county name in SFGeoLevel4
+                packet = 0
+
+              when /[a-z]/i # if it exists, it might be directly findable
+                tdwg_id = (t3 + '-' + l4).strip
+                tw_area = GeographicArea.where(tdwgID: tdwg_id).first
+                if tw_area.nil?
+                  tw_area = GeographicArea.where(tdwgID: t3).first
+                end
+              else # must be ''
+                tw_area = GeographicArea.where(tdwgID: t3).first
+            end
+          end
 
           logger.info "target tdwg id: #{tdwg_id}"
 
           # Lookup the TDWG geographic area
-          tw_areas << GeographicArea.where(tdwgID: tdwg_id).first # .last.tdwgID
+          # tw_area = GeographicArea.where(tdwgID: tdwg_id).first # .last.tdwgID
 
-          # Find values in country/state/county
-          finest_sf_level = [row['Country'],
-                             row['State'],
-                             row['County']
-          ].select {|a| (not a.blank?)}
+          # # Find values in country/state/county
+          # finest_sf_level = [row['Country'],
+          #                    row['State'],
+          #                    row['County']
+          # ].select {|a| (not a.blank?)}
 
           # If there is no political division, just return the tdwg based match
-          if finest_sf_level.empty?
-            return tw_areas.first
-
-            # If a value is provided for country/state/county, and that value matches the name we found for tdwg, we're done
-          elsif tw_areas.name == finest_sf_level.last
-            return tw_areas.first
-
-          else
-            # TODO: do something else
-            return nil
-          end
-
+          # if finest_sf_level.empty?
+          #   return tw_areas.first
+          #
+          #   # If a value is provided for country/state/county, and that value matches the name we found for tdwg, we're done
+          # elsif tw_areas.name == finest_sf_level.last
+          #   return tw_areas.first
+          #
+          # else
+          #   # TODO: do something else
+          #   return nil
+          # end
+          tw_area
         end
 
 
