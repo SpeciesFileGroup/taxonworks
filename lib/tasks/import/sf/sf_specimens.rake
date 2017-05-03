@@ -10,13 +10,13 @@ namespace :tw do
 
           logger.info 'Building new collecting events...'
 
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import            = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
 
           get_tw_collecting_event_id = {} # key = sfUniqueLocColEvents.UniqueID, value = TW.collecting_event_id
 
           # SF.TimePeriodID to interval code (https://paleobiodb.org/data1.2/intervals/single.json?name='')
-          TIME_PERIOD_MAP = {
+          TIME_PERIOD_MAP            = {
             768  => 1, # Cenozoic
             784  => 12, # Quaternary
             790  => 32, # Holocene
@@ -48,8 +48,8 @@ namespace :tw do
             1584 => 11 # Hadean
           }.freeze
 
-          path = @args[:data_directory] + 'sfUniqueLocColEvents.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          path          = @args[:data_directory] + 'sfUniqueLocColEvents.txt'
+          file          = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           # FileID
           # Level1ID	Level2ID	Level3ID	Level4ID
@@ -68,7 +68,7 @@ namespace :tw do
           # DaysToEnd
           # UniqueID
 
-          counter = 0
+          counter       = 0
           error_counter = 0
 
           file.each do |row|
@@ -77,7 +77,7 @@ namespace :tw do
             logger.info "Working with TW.project_id = #{project_id}, UniqueID = #{row['UniqueID']} (count #{counter += 1}) \n"
 
             # handle dates
-            start_date_year = nil
+            start_date_year                             = nil
             end_date_year, end_date_month, end_date_day = nil, nil, nil
 
             if row['Year'] != '0'
@@ -102,9 +102,9 @@ namespace :tw do
 
             end
 
-            start_date_day = (row['Day'].present? ? row['Day'].to_i : nil)
+            start_date_day   = (row['Day'].present? ? row['Day'].to_i : nil)
             start_date_month = (row['Month'].present? ? row['Month'].to_i : nil)
-            start_date_day = nil if start_date_day == 0
+            start_date_day   = nil if start_date_day == 0
             start_date_month = nil if start_date_month == 0
 
 
@@ -144,7 +144,7 @@ namespace :tw do
             end
 
 
-            ap [ start_date_day, start_date_month, start_date_year, end_date_day, end_date_month, end_date_year ]
+            ap [start_date_day, start_date_month, start_date_year, end_date_day, end_date_month, end_date_year]
 
             # metadata = {
             #     # data_attributes_attributes: data_attributes_bucket
@@ -326,7 +326,7 @@ namespace :tw do
               when /\d+/ # any digits, needs translation
                 # TODO @MB if level 4 is a number, look up county name in SFGeoLevel4
                 # packet = 0
-                name    = xlat[(t3 + t4)][:name].chomp('County').strip
+                name    = sf_geo_level4[(t3 + t4)][:name].chomp('County').strip
                 tw_area = GeographicArea.where("\"tdwgID\" like '#{t3}%' and name like '%#{name}%'").first
               when /[a-z]/i # if it exists, it might be directly findable
                 tdwg_id = (t3 + '-' + l4).strip
@@ -373,7 +373,7 @@ namespace :tw do
           logger.info 'Running new specimen lists (hash, array)...'
 
           get_new_preserved_specimen_id = [] # array of SF.SpecimenIDs with BasisOfRecord = 0 (not stated) but with DepoID or specimen count
-          get_sf_unique_id = {} # key = SF.SpecimenID, value = sfUniqueLocColEvents.UniqueID
+          get_sf_unique_id              = {} # key = SF.SpecimenID, value = sfUniqueLocColEvents.UniqueID
 
 
           logger.info '1. Getting new preferred specimen ids'
