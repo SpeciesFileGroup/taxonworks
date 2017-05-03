@@ -325,8 +325,9 @@ namespace :tw do
             case l4
               when /\d+/ # any digits, needs translation
                 # TODO @MB if level 4 is a number, look up county name in SFGeoLevel4
-                packet = 0
-
+                # packet = 0
+                name    = xlat[(t3 + t4)][:name].chomp('County').strip
+                tw_area = GeographicArea.where("\"tdwgID\" like '#{t3}%' and name like '%#{name}%'").first
               when /[a-z]/i # if it exists, it might be directly findable
                 tdwg_id = (t3 + '-' + l4).strip
                 tw_area = GeographicArea.where(tdwgID: tdwg_id).first
