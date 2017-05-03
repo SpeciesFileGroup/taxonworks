@@ -39,8 +39,6 @@ module Settings
     @@config_hash = hash.deep_dup
 
     load_exception_notification(config, hash[:exception_notification])
-    # load_directory(:default_data_directory,  hash[:default_data_directory])
-    # load_directory(:backup_directory,  hash[:backup_directory])
     load_default_data_directory(hash[:default_data_directory])
     load_backup_directory(hash[:backup_directory])
     load_action_mailer_smtp_settings(config, hash[:action_mailer_smtp_settings])
@@ -114,16 +112,21 @@ module Settings
   
   def self.load_exception_notification(config, settings)
     if settings      
-      missing = EXCEPTION_NOTIFICATION_SETTINGS - settings.keys
-      raise Error, "Missing #{missing} settings in exception_notification" unless missing.empty?
-      
-      invalid = settings.keys - EXCEPTION_NOTIFICATION_SETTINGS
-      raise Error, "#{invalid} are not valid settings for exception_notification" unless invalid.empty?
-      
-      raise Error, ":exception_recipients must be an Array" unless settings[:exception_recipients].class == Array
-
-      config.middleware.use ExceptionNotification::Rack, email: settings
+      config.middleware.use ExceptionNotification::Rack, email: process_exception_notification(settings)
     end    
+  end
+
+  def self.process_exception_notification(settings)
+    missing = EXCEPTION_NOTIFICATION_SETTINGS - settings.keys
+    raise Error, "Missing #{missing} settings in exception_notification" unless missing.empty?
+
+    invalid = settings.keys - EXCEPTION_NOTIFICATION_SETTINGS
+    raise Error, "#{invalid} are not valid settings for exception_notification" unless invalid.empty?
+
+    settings[:exception_recipients] =  settings[:exception_recipients].split(',') unless settings[:exception_recipients].class == Array
+    raise Error, ":exception_recipients must be an Array" unless settings[:exception_recipients].class == Array
+
+    settings
   end
 
   def self.load_interface(settings)
