@@ -86,9 +86,16 @@ namespace :tw do
 
             logger.info "Working with TW.project_id = #{project_id}, UniqueID = #{row['UniqueID']} (count #{counter += 1}) \n"
 
-            d = row['Day'] != "0"
-            m = row['Month'] != "0"
-            y = !((row['Year'] == "1000") || (row['Year'] == "0"))
+            this_year, this_month, this_day = row['Year'], row['Month'], row['Day']
+
+            # in rescue below, used collect_event.errors vs. c.error
+            # if (this_year == '1900' || this_year == '1993') && this_month == '2' && this_day == '29'
+            #   this_month, this_day = '3', '1'
+            # end
+
+            d = this_day != "0"
+            m = this_month != "0"
+            y = !((this_year == "1000") || (this_year == "0"))
             dte = row['DaysToEnd'].to_i.abs != 0
 
             start_date_year, start_date_month, start_date_day,
@@ -99,20 +106,20 @@ namespace :tw do
                   when [true, true, true, true] # have (year, month, day, days_to_end)
 
                   when [true, true, true, false] # have (year, month, day), no days_to_end
-                    [row['Year'].to_i, row['Month'].to_i, row['Day'].to_i, nil, nil, nil]
+                    [this_year.to_i, this_month.to_i, this_day.to_i, nil, nil, nil]
 
                   when [true, true, false, false] # have (year, month), no (day, days_to_end)
-                    [row['Year'].to_i, row['Month'].to_i, nil, nil, nil, nil]
+                    [this_year.to_i, this_month.to_i, nil, nil, nil, nil]
 
                   when [true, false, false, false] # have year, no (month, day, days_to_end)
-                    [row['Year'].to_i, nil, nil, nil, nil, nil]
+                    [this_year.to_i, nil, nil, nil, nil, nil]
 
                   when [false, true, true, false] # no year, have (month, day), no days_to_end
-                    [nil, row['Month'].to_i, row['Day'].to_i, nil, nil, nil]
+                    [nil, this_month.to_i, this_day.to_i, nil, nil, nil]
 
-                  when [false, true, true, true] # no year, have (month, day, days_toend)
-                    sdm = row['Month'].to_i
-                    sdd = row['Day'].to_i
+                  when [false, true, true, true] # no year, have (month, day, days_to_end)
+                    sdm = this_month.to_i
+                    sdd = this_day.to_i
                     dte = row['DaysToEnd'].to_i.abs
                     start_date = Date.new(1999, sdm, sdd) # an arbitrary non-leap year
                     end_date = dte.days.from_now(start_date)
@@ -124,58 +131,20 @@ namespace :tw do
                 end
 
 
-            # # handle dates
-            # start_date_year = nil
-            # end_date_year, end_date_month, end_date_day = nil, nil, nil
-            #
-            # if row['Year'] != '0'
-            #   end_date = nil
-            #
-            #
-            #   # when (count 23279)
-            #   if row['DaysToEnd'].present?
-            #     days_to_end = row['DaysToEnd'].to_i.abs # @todo Delete absolute value for next run (errors will be fixed in data and check will be made in export table)
-            #     y = row['Year'] == '1000' ? '2000' : row['Year']
-            #
-            #     start_date = Date.new(y.to_i, row['Month'].to_i, row['Day'].to_i)
-            #
-            #     end_date = days_to_end.days.from_now(start_date)
-            #   end
-            #
-            #   if end_date
-            #     end_date_year, end_date_month, end_date_day = end_date.year, end_date.month, end_date.day
-            #   end
-            #
-            #   ap [row['Day'], row['Month'], row['Year'], days_to_end, end_date]
-            #   end_date_year = nil if row['Year'] == '1000' && !row['DaysToEnd'].present?
-            #
-            #   start_date_year = row['Year'] == '1000' ? nil : row['Year'].to_i
-            #
-            # end
-            #
-            # start_date_day = (row['Day'].present? ? row['Day'].to_i : nil)
-            # start_date_month = (row['Month'].present? ? row['Month'].to_i : nil)
-            # start_date_day = nil if start_date_day == 0
-            # start_date_month = nil if start_date_month == 0
-
-
             data_attributes_bucket = {
                 data_attributes_attributes: [],
                 # project_id: project_id  # cannot universally assign project_id to all array attribute hashes
                 # rest of housekeeping?
             }
 
-            # TODO: MB
-            # location_string = [row['Country'],
-            #                    row['State'],
-            #                    row['County']].select.join(':')
-            #
-            # add location string as a data attribute to the
-
             if row['TimeDetail'].present?
               time_detail = {type: 'ImportAttribute', import_predicate: 'TimeDetail', value: row['TimeDetail'], project_id: project_id}
               data_attributes_bucket[:data_attributes_attributes].push(time_detail)
             end
+
+            location_string = {type: 'ImportAttribute', import_predicate: 'CountryStateCounty',
+                               value: [row['Country'], row['State'], row['County']].join(':'), project_id: project_id}
+            data_attributes_bucket[:data_attributes_attributes].push(location_string)
 
             if row['BodyOfWater'].present?
               body_of_water = {type: 'ImportAttribute', import_predicate: 'BodyOfWater', value: row['BodyOfWater'], project_id: project_id}
@@ -255,7 +224,7 @@ namespace :tw do
               end
 
             rescue ActiveRecord::RecordInvalid # bad date?
-              logger.error "CollectEvent error: FileID = #{row['FileID']}, UniqueID = #{row['UniqueID']}, Year = #{row['Year']}, Month = #{row['Month']}, Day = #{row['Day']}, DaysToEnd = #{row['DaysToEnd']}, (error count #{error_counter += 1})" + collect_event.errors.full_messages.join(';')
+              logger.error "CollectEvent error: FileID = #{row['FileID']}, UniqueID = #{row['UniqueID']}, Year = #{this_year}, Month = #{this_month}, Day = #{this_day}, DaysToEnd = #{row['DaysToEnd']}, (error count #{error_counter += 1})" + c.errors.full_messages.join(';')
               next
             end
           end
@@ -308,6 +277,34 @@ namespace :tw do
           logger.info "target tdwg id: #{tdwg_id}"
 
           tw_area
+        end
+
+        desc 'time rake tw:project_import:sf_import:specimens:create_sf_geo_level4_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        # consists of unique_key: (level3_id, level4_id, name, country_code)
+        LoggedTask.define :create_sf_geo_level4_hash => [:data_directory, :environment, :user_id] do |logger|
+          # Can be run independently at any time
+
+          logger.info 'Running create_sf_book_hash...'
+
+          get_sf_geo_level4 = {} # key = unique_key (combined level3_id + level4_id), value = level3_id, level4_id, name, country_code (from tblGeoLevel4)
+
+          path = @args[:data_directory] + 'sfGeoLevel4.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+          file.each_with_index do |row, i|
+
+            logger.info "working with UniqueKey #{row['UniqueKey']}"
+
+            get_sf_geo_level4[row['UniqueKey']] = {level3_id: row['Level3ID'], level4_id: row['Level4ID'], name: row['Name'], country_code: row['CountryCode']}
+          end
+
+          puts 'Getting ready to display results -- takes longer than it seems it should!'
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFGeoLevel4', get_sf_geo_level4)
+
+          puts 'SFGeoLevel4'
+          ap get_sf_geo_level4
         end
 
 
