@@ -253,6 +253,10 @@ namespace :tw do
 
                 logger.error "Error: TW.project_id = #{project_id}, UniqueID = #{row['UniqueID']} (error count #{error_counter += 1}) \n"
               end
+
+            rescue ActiveRecord::RecordInvalid # bad date?
+              logger.error "CollectEvent error: FileID = #{row['FileID']}, UniqueID = #{row['UniqueID']}, Year = #{row['Year']}, Month = #{row['Month']}, Day = #{row['Day']}, DaysToEnd = #{row['DaysToEnd']}, (error count #{error_counter += 1})" + collect_event.errors.full_messages.join(';')
+              next
             end
           end
 
