@@ -7,6 +7,9 @@ source 'https://rubygems.org'
   # brew update # then
   # brew upgrade openssl
 
+
+gem 'rack-cors', require: 'rack/cors'
+
 ruby '~> 2.3'
 
 gem 'rake', '~> 11.1'
