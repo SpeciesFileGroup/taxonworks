@@ -5,6 +5,29 @@ namespace :tw do
       require 'logged_task'
       namespace :specimens do
 
+        desc 'time rake tw:project_import:sf_import:specimens:collection_objects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :collection_objects => [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Building new collection objects...'
+
+
+          # note with SF.SpecimenID
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          get_tw_project_id = import.get('SFFileIDToTWProjectID')
+
+
+
+
+
+
+
+          
+          end
+
+
+          #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
         desc 'time rake tw:project_import:sf_import:specimens:collecting_events user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :collecting_events => [:data_directory, :environment, :user_id] do |logger|
 
@@ -12,6 +35,9 @@ namespace :tw do
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
+          get_sf_geo_level4 = import.get('SFGeoLevel4')
+
+          # var = get_sf_geo_level4['lskdfj']['Name']
 
           get_tw_collecting_event_id = {} # key = sfUniqueLocColEvents.UniqueID, value = TW.collecting_event_id
 
@@ -196,7 +222,7 @@ namespace :tw do
                     end_date_day: end_date_day,
                     end_date_month: end_date_month,
                     end_date_year: end_date_year,
-                    # geographic_area: get_tw_geographic_area(row, logger),
+                    # geographic_area: get_tw_geographic_area(row, logger, get_sf_geo_level4),
 
                     project_id: project_id
                     # paleobio_db_interval_id: TIME_PERIOD_MAP[row['TimePeriodID']], # TODO: Matt add attribute to CE !! rember ENVO implications
@@ -284,7 +310,7 @@ namespace :tw do
         LoggedTask.define :create_sf_geo_level4_hash => [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
-          logger.info 'Running create_sf_book_hash...'
+          logger.info 'Running create_sf_geo_level4_hash...'
 
           get_sf_geo_level4 = {} # key = unique_key (combined level3_id + level4_id), value = level3_id, level4_id, name, country_code (from tblGeoLevel4)
 
