@@ -10,7 +10,20 @@ namespace :tw do
 
           logger.info 'Building new collection objects...'
 
-
+          # total
+          # type (Specimen, Lot, RangedLot)
+          # preparation_type_id (TW integer, include SF text as data attribute?)
+          # respository_id (could we compress SF depos, similar to collecting events, as a first step?)
+          # buffered_collecting_event (no SF data)
+          # buffered_determinations (no SF data)
+          # buffered_other_labels (no SF data)
+          # ranged_lot_category_id
+          # collecting_event_id
+          # accessioned_at (no SF data)
+          # deaccession_reason (no SF data)
+          # deaccessioned_at (no SF data)
+          # housekeeping
+          
           # note with SF.SpecimenID
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
