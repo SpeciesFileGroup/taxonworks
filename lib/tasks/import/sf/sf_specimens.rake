@@ -11,9 +11,9 @@ namespace :tw do
           logger.info 'Building new collection objects...'
 
           # total
-          # type (Specimen, Lot, RangedLot)
+          # type (Specimen, Lot, RangedLot --  Dmitry uses lot, not ranged lot)
           # preparation_type_id (TW integer, include SF text as data attribute?)
-          # respository_id (could we compress SF depos, similar to collecting events, as a first step?)
+          # respository_id (Dmitry manually reconciled these)
           # buffered_collecting_event (no SF data)
           # buffered_determinations (no SF data)
           # buffered_other_labels (no SF data)
@@ -23,8 +23,26 @@ namespace :tw do
           # deaccession_reason (no SF data)
           # deaccessioned_at (no SF data)
           # housekeeping
-
+          
           # note with SF.SpecimenID
+
+          # About total:
+          # @!attribute total
+          #   @return [Integer]
+          #   The enumerated number of things, as asserted by the person managing the record.  Different totals will default to different subclasses.  How you enumerate your collection objects is up to you.  If you want to call one chunk of coral 50 things, that's fine (total = 50), if you want to call one coral one thing (total = 1) that's fine too.  If not nil then ranged_lot_category_id must be nil.  When =1 the subclass is Specimen, when > 1 the subclass is Lot.
+
+
+          # Need count and description (gender, adult): query => sfSpecimenTypeCounts (SpecimenID, FileID, Count, SingularName)
+          # If count > 1, use lot
+          # If lot contains mixed males, females, adult, nymphs, etc., create a container (have several cases of this in tblSpecimenCounts)
+          # @data.biocuration_classes.merge!(
+          #     "Specimens" => BiocurationClass.find_or_create_by(name: "Adult", definition: 'Adult specimen', project_id: $project_id),
+          #     "Males" => BiocurationClass.find_or_create_by(name: "Male", definition: 'Male specimen', project_id: $project_id),
+          #     "Females" => BiocurationClass.find_or_create_by(name: "Female", definition: 'Female specimen', project_id: $project_id),
+          #     "Nymphs" => BiocurationClass.find_or_create_by(name: "Immature", definition: 'Immature specimen', project_id: $project_id),
+          #     "Exuvia" => BiocurationClass.find_or_create_by(name: "Exuvia", definition: 'Exuvia specimen', project_id: $project_id)
+          # )
+
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
@@ -35,7 +53,7 @@ namespace :tw do
 
 
 
-
+          
           end
 
 
@@ -224,21 +242,21 @@ namespace :tw do
             lat, long = row['Latitude'], row['Longitude']
             c = CollectingEvent.new(
                 {
-                  verbatim_latitude: (lat.length > 0) ? lat : nil,
-                  verbatim_longitude: (long.length > 0) ? long : nil,
-                  maximum_elevation:   row['MaxElevation'].to_i,
-                  verbatim_locality:   row['LocalityDetail'],
-                  verbatim_collectors: row['CollectorName'],
-                  start_date_day:      start_date_day,
-                  start_date_month:    start_date_month,
-                  start_date_year:     start_date_year,
-                  end_date_day:        end_date_day,
-                  end_date_month:      end_date_month,
-                  end_date_year:       end_date_year,
-                  geographic_area:     get_tw_geographic_area(row, logger, get_sf_geo_level4),
+                    verbatim_latitude: (lat.length > 0) ? lat : nil,
+                    verbatim_longitude: (long.length > 0) ? long : nil,
+                    maximum_elevation: row['MaxElevation'].to_i,
+                    verbatim_locality: row['LocalityDetail'],
+                    verbatim_collectors: row['CollectorName'],
+                    start_date_day: start_date_day,
+                    start_date_month: start_date_month,
+                    start_date_year: start_date_year,
+                    end_date_day: end_date_day,
+                    end_date_month: end_date_month,
+                    end_date_year: end_date_year,
+                    geographic_area: get_tw_geographic_area(row, logger, get_sf_geo_level4),
 
-                  project_id:          project_id
-                  # paleobio_db_interval_id: TIME_PERIOD_MAP[row['TimePeriodID']], # TODO: Matt add attribute to CE !! rember ENVO implications
+                    project_id: project_id
+                    # paleobio_db_interval_id: TIME_PERIOD_MAP[row['TimePeriodID']], # TODO: Matt add attribute to CE !! rember ENVO implications
                 }.merge(data_attributes_bucket)
             )
 
@@ -283,7 +301,7 @@ namespace :tw do
           tw_area = nil
           l1, l2, l3, l4 = row['Level1ID'], row['Level2ID'], row['Level3ID'], row['Level4ID']
           l1 = '' if l1 == '0'
-          l2 = '' if l2 --'-'
+          l2 = '' if l2 == '-'
           l3 = '' if l3 == '---'
           l4 = '' if l4 == '---'
           t1 = l1
