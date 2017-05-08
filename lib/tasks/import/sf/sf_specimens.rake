@@ -23,7 +23,7 @@ namespace :tw do
           # deaccession_reason (no SF data)
           # deaccessioned_at (no SF data)
           # housekeeping
-          
+
           # note with SF.SpecimenID
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
@@ -35,7 +35,7 @@ namespace :tw do
 
 
 
-          
+
           end
 
 
@@ -224,21 +224,21 @@ namespace :tw do
             lat, long = row['Latitude'], row['Longitude']
             c = CollectingEvent.new(
                 {
-                    verbatim_latitude: (lat.length > 0) ? lat : nil,
-                    verbatim_longitude: (long.length > 0) ? long : nil,
-                    maximum_elevation: row['MaxElevation'].to_i,
-                    verbatim_locality: row['LocalityDetail'],
-                    verbatim_collectors: row['CollectorName'],
-                    start_date_day: start_date_day,
-                    start_date_month: start_date_month,
-                    start_date_year: start_date_year,
-                    end_date_day: end_date_day,
-                    end_date_month: end_date_month,
-                    end_date_year: end_date_year,
-                    # geographic_area: get_tw_geographic_area(row, logger, get_sf_geo_level4),
+                  verbatim_latitude: (lat.length > 0) ? lat : nil,
+                  verbatim_longitude: (long.length > 0) ? long : nil,
+                  maximum_elevation:   row['MaxElevation'].to_i,
+                  verbatim_locality:   row['LocalityDetail'],
+                  verbatim_collectors: row['CollectorName'],
+                  start_date_day:      start_date_day,
+                  start_date_month:    start_date_month,
+                  start_date_year:     start_date_year,
+                  end_date_day:        end_date_day,
+                  end_date_month:      end_date_month,
+                  end_date_year:       end_date_year,
+                  geographic_area:     get_tw_geographic_area(row, logger, get_sf_geo_level4),
 
-                    project_id: project_id
-                    # paleobio_db_interval_id: TIME_PERIOD_MAP[row['TimePeriodID']], # TODO: Matt add attribute to CE !! rember ENVO implications
+                  project_id:          project_id
+                  # paleobio_db_interval_id: TIME_PERIOD_MAP[row['TimePeriodID']], # TODO: Matt add attribute to CE !! rember ENVO implications
                 }.merge(data_attributes_bucket)
             )
 
@@ -278,7 +278,7 @@ namespace :tw do
 
         # Find a TW geographic_area
         # @todo JDT HELP!
-        def get_tw_geographic_area(row, logger)
+        def get_tw_geographic_area(row, logger, sf_geo_level4_hash)
 
           tw_area = nil
           l1, l2, l3, l4 = row['Level1ID'], row['Level2ID'], row['Level3ID'], row['Level4ID']
