@@ -103,11 +103,11 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         taxon_name_relationship.valid? 
       }
       specify 'subject_taxon_name' do
-        expect(taxon_name_relationship.errors.include?(:subject_taxon_name)).to be_truthy
+        expect(taxon_name_relationship.errors.include?(:subject_taxon_name_id)).to be_truthy
       end
 
       specify 'object_taxon_name' do
-        expect(taxon_name_relationship.errors.include?(:object_taxon_name)).to be_truthy
+        expect(taxon_name_relationship.errors.include?(:object_taxon_name_id)).to be_truthy
       end
 
       specify 'type' do
@@ -119,8 +119,20 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       taxon_name_relationship.object_taxon_name = @species
       taxon_name_relationship.subject_taxon_name = @species 
       taxon_name_relationship.valid?
-      expect(taxon_name_relationship.errors.include?(:object_taxon_name)).to be_truthy
+      expect(taxon_name_relationship.errors.include?(:object_taxon_name_id)).to be_truthy
     end
+
+    specify 'subject_taxon_name != Protonym' do
+      taxon_name_relationship.type = 'TaxonNameRelationship::Combination::Genus'
+      c = FactoryGirl.build(:combination)
+      taxon_name_relationship.object_taxon_name = @genus
+      taxon_name_relationship.subject_taxon_name = c
+      taxon_name_relationship.valid?
+      expect(taxon_name_relationship.errors.include?(:subject_taxon_name_id)).to be_truthy
+      expect(taxon_name_relationship.errors.include?(:object_taxon_name_id)).to be_truthy
+    end
+
+
 
     context 'object and subject should share the same potentially_validating code' do
       specify 'same code' do

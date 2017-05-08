@@ -139,12 +139,12 @@ describe Combination, type: :model, group: :nomenclature do
       end
     end
 
-    specify '#source_classified_as' do
-      basic_combination.source_classified_as = family
-      expect(basic_combination.save).to be_truthy
-      expect(basic_combination.all_taxon_name_relationships.count).to be > 0
-      expect(basic_combination.reload.cached_classified_as).to eq(' (as Aidae)')
-    end
+#    specify '#source_classified_as' do
+#      basic_combination.source_classified_as = family
+#      expect(basic_combination.save).to be_truthy
+#      expect(basic_combination.all_taxon_name_relationships.count).to be > 0
+#      expect(basic_combination.reload.cached_classified_as).to eq(' (as Aidae)')
+#    end
 
     specify '#earliest_protonym_year' do
       basic_combination.subspecies = species2 # 1952 ( with genus 1950, species 1951)

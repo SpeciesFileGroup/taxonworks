@@ -53,8 +53,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   after_destroy :set_cached_names_for_taxon_names, unless: 'self.no_cached'
 
   validates_presence_of :type, message: 'Relationship type should be specified'
-  validates_presence_of :subject_taxon_name, message: 'missing taxon name on left side'
-  validates_presence_of :object_taxon_name, message: 'missing taxon name on right side'
+  validates_presence_of :subject_taxon_name_id, message: 'missing taxon name on left side'
+  validates_presence_of :object_taxon_name_id, message: 'missing taxon name on right side'
 
   # TODO: these are likely not speced!  May have to change them to reference object rather than id
   validates_uniqueness_of :object_taxon_name_id, scope: :type, if: :is_combination?
@@ -66,6 +66,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     v.validate :validate_subject_and_object_share_code,
       :validate_uniqueness_of_typification_object,
       #:validate_uniqueness_of_synonym_subject,
+      :validate_object_and_subject_both_protonyms,
       :validate_object_must_equal_subject_for_uncertain_placement,
       :validate_subject_and_object_ranks,
       :validate_rank_group
@@ -269,7 +270,7 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   def validate_subject_and_object_are_not_identical
     if self.object_taxon_name == self.subject_taxon_name
-      errors.add(:object_taxon_name, 'Taxon should not refer to itself') unless self.type =~ /OriginalCombination/
+      errors.add(:object_taxon_name_id, 'Taxon should not refer to itself') unless self.type =~ /OriginalCombination/
     end
   end
 
@@ -328,6 +329,15 @@ class TaxonNameRelationship < ActiveRecord::Base
         errors.add(:subject_taxon_name_id, "Rank of taxon (#{self.subject_taxon_name.rank_class.rank_name}) is not compatible with the rank of hybrid (#{self.object_taxon_name.rank_class.rank_name})")
       end
     end
+  end
+
+  def validate_object_and_subject_both_protonyms
+    if /TaxonNameRelationship::Combination::/.match(self.type)
+      errors.add(:object_taxon_name_id, 'Not a Combination') if object_taxon_name.type != 'Combination'
+    else
+      errors.add(:object_taxon_name_id, 'Not a Protonym') if object_taxon_name.type == 'Combination'
+    end
+    errors.add(:subject_taxon_name_id, 'Not a Protonym') if subject_taxon_name.type == 'Combination'
   end
 
   def set_cached_names_for_taxon_names
