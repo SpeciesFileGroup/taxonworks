@@ -1,48 +1,6 @@
 <h1> Cite OTUs </h1> 
 
 <div id="cite_otus">
-  <div class="flexbox">
-    <div>
-      <div class="flexbox">
-        <div v-if="!disabled" class="panel item1 flex-wrap-row middle" id="delete-citation">
-          <remove-citation></remove-citation>
-        </div>  
-        <div class="item item1 separate-right">
-          <div>
-            <div class="panel">
-              <div id="source-picker" class="flex-separate horizontal-center-content content">
-                <div class="content full_width">
-                  <div v-if="source">
-                    <p v-html="source.object_tag"></p>
-                  </div>
-                </div>
-                <source-picker></source-picker>
-              </div>
-            </div>
-            <div class="panel">
-              <div id="otu-picker" class="horizontal-left-content content">
-                <div class="content full_width">
-                  <div v-if="otu">
-                    <h3 v-html="otu.object_tag"></h3>
-                  </div>
-                </div>
-                <otu-picker></otu-picker>
-              </div>   
-            </div>
-          </div>
-          <div class="panel" v-if="!disabled">
-            <topics-checklist></topics-checklist>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div id="recent_list" class="slide-panel slide-left slide-recent item item2 separate-left slide-recent" data-panel-position="relative" data-panel-open="true" data-panel-name="recent_list">
-      <div class="slide-panel-header flex-separate"><span>Recent</span></div>
-      <div class="slide-panel-content">
-        <source-citations></source-citations>
-        <otu-citations></otu-citations>         
-      </div>    
-    </div>
 </div>
 
 

@@ -17,17 +17,19 @@ Parameters:
       param="hours_ago">
     </autocomplete>
 */
+<template>
+  <div class="vue-autocomplete">
+    <input class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="checkTime" v-model="type" :autofocus="autofocus" v-bind:class="{'ui-autocomplete-loading' : spinner }"/>
+    <ul v-show="showList" v-if="type && json.length">
+      <li v-for="(item, index) in json" :class="activeClass(index)" @mouseover="itemActive(index)" @click.prevent="itemClicked(item[label]), sendItem(item)">
+        <span v-html="item[label]"></span>
+      </li>
+    </ul>
+  </div>
+</template>
 
-Vue.component('autocomplete', { 
-    template: '<div class="vue-autocomplete"> \
-                <input class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="checkTime" v-model="type" :autofocus="autofocus" v-bind:class="{ \'ui-autocomplete-loading\' : spinner } " /> \
-                <ul v-show="showList" v-if="type && json.length"> \
-                  <li v-for="(item, index) in json" :class="activeClass(index)" @mouseover="itemActive(index)" @click.prevent="itemClicked(item[label]), sendItem(item)" > \
-                      <span v-html="item[label]"></span> \
-                  </li> \
-                </ul> \
-              </div>',
-
+<script>
+export default { 
     data: function () {
       return {
         spinner: false,
@@ -165,4 +167,5 @@ Vue.component('autocomplete', {
           return 'ui-autocomplete-loading'
         },                
       }
-    });
+    };
+</script>

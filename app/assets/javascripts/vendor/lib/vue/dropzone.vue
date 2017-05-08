@@ -1,5 +1,9 @@
-Vue.component("dropzone", {
-	template: '<form :action="url" class="dropzone vue-dropzone" :id="id"></form>',
+<template>
+  <form :action="url" class="dropzone vue-dropzone" :id="id"></form>
+</template>
+
+<script>
+export default {
     props: {
       id: {
         type: String,
@@ -176,4 +180,5 @@ Vue.component("dropzone", {
     beforeDestroy () {
       this.dropzone.destroy();
     }
-  });
+  };
+</script>
