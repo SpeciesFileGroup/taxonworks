@@ -1631,7 +1631,7 @@ namespace :tw do
         file.each_with_index do |row, i|
           print "\r#{i}"
 
-            taxon = find_taxon_ucd(row['TaxonCode'])
+          taxon = find_taxon_ucd(row['TaxonCode'])
           # otu = @data.otus[row['TaxonCode'].to_s]
  
           print "\n TaxonCode: #{row['TaxonCode']} not found \n" if row['TaxonCode'].blank?
@@ -1642,8 +1642,6 @@ namespace :tw do
             next
           end
 
-          #next if otu.nil?
-
           ref = find_source_id_ucd(row['RefCode'])
 
           if ref.nil?
@@ -1653,13 +1651,10 @@ namespace :tw do
 
           page = row['PageRef'].blank? ? nil : row['PageRef']
 
-           c = taxon.citations.find_or_create_by(source_id: ref, pages: page)
-          # c = Citation.find_or_create_by(citation_object_id: otu, citation_object_type: 'Otu', source_id: ref, pages: page)
+          otu = Otu.find_or_create_by(taxon_name_id: taxon.id)
+          c = otu.citations.find_or_create_by(source_id: ref, pages: page)
 
-          # c.citation_topics.find_or_create_by(topic_id: @data.topics[row['Keyword']]) unless row['Keyword'].blank?
           CitationTopic.find_or_create_by(topic_id: @data.topics[row['Keyword']], citation: c) unless row['Keyword'].blank?
-         
-          # c.notes.find_or_create_by(text: row['Notes'].gsub('|','_')) unless row['Notes'].blank?
           Note.find_or_create_by(note_object: c, text: row['Notes'].gsub('|','_') ) unless row['Notes'].blank?
         end
       end
