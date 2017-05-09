@@ -6,7 +6,7 @@ namespace :tw do
       namespace :dwca do
 
         desc 'Import Penn State DWCA speciman data.'
-        task import_dwca: [:file, :environment] do
+        task import_dwca: [:file, :user_id, :project_id, :environment] do
 =begin
 
     catalogNumber
@@ -40,12 +40,17 @@ namespace :tw do
     occurrenceID
 
 =end
-          tasks_ = {
+          @parser = ScientificNameParser.new
+          tasks_  = {
             make_tn:  %w(scientificName taxonRank family kingdom),
+            make_td:  %w(otherPile),
             make_otu: %w(pileMaker),
             make_co:  %w(catalogNumber basisOfRecord individualCount organismQuantity organismQuantityType recordedBy),
             make_ce:  %w(verbatimLocality eventDate decimalLatitude decimalLongitude countryCode recordedBy locationRemarks)
           }
+          parent  = TaxonName.find_or_create_by(name:       'Animalia',
+                                                rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
+                                                project_id: sessions_current_project_id)
 
           text = File.read(ENV['file'])
           csv  = CSV.parse(text, {headers: true, col_sep: "\t"})
@@ -71,15 +76,26 @@ namespace :tw do
         end
 
         def make_otu(row)
-          puts 'otu'
+          'Otu'
         end
 
         def make_co(row)
-          puts 'collection_object'
+          'CollectionObject'
         end
 
         def make_tn(row)
-          puts 'taxon_name'
+          sn  = row['scientificName']
+          snp = @parser.parse(sn)
+
+          t_n = TaxonName.new(name:            snp[:scientificName][:canonical],
+                              rank_class:      Ranks.lookup(:iczn, taxonRank),
+                              also_create_otu: true)
+          t_n.save!
+          t_n
+        end
+
+        def make_td(row)
+          'TaxonDetermination'
         end
 
 =begin
