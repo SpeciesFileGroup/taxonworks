@@ -103,7 +103,7 @@ RSpec.configure do |config|
   config.before(:suite) do
     # See also environments/test.rb
     #if ENV['TAXONWORKS_TEST_WITH_PRECOMPILE']
-       %x[bundle exec rake assets:precompile]
+    #  %x[bundle exec rake assets:precompile]
     #end
     #
 
