@@ -6,7 +6,7 @@ namespace :tw do
       namespace :dwca do
 
         desc 'Import Penn State DWCA speciman data.'
-        task import_dwca: [:file, :user_id, :project_id, :environment] do
+        task import_dwca: [:file, :with_user_and_project, :environment] do
 =begin
 
     catalogNumber
