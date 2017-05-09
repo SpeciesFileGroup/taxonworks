@@ -848,17 +848,18 @@ namespace :tw do
 
       def handle_countries_ucd
         handle = 'handle_countries_ucd' 
-        print "\nHandling COUNTRY "
+        print "\nHandling COUNTRY (COUNTRY_MOD)"
 
         if !@data.done?(handle)
           puts "as new"
-          path = @args[:data_directory] + 'COUNTRY.txt'
+          path = @args[:data_directory] + 'COUNTRY_MOD.txt'
 
           raise "file #{path} not found" if not File.exists?(path)
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
           file.each_with_index do |row, i|
+            next if row['GeographicAreaID'].blank? || (row['GeographicAreaID'] =~ /'no match'/) || row['Country'].blank?
             print "\r#{i}"
-            @data.countries[row['Country'] + '|' + row['State']] = row['UCD_name']
+            @data.countries["#{row['Country']}|#{row['State']}"] = row['GeographicAreaID']
           end
        
           @data.done!(handle)
@@ -905,6 +906,11 @@ namespace :tw do
             c = ConfidenceLevel.find_or_create_by(name: row['Score'], definition: row['Meaning'], project_id: $project_id)
             @data.reliable[row['Score']] = c.id
           end
+
+          @data.reliable['or'] = ConfidenceLevel.find_or_create_by(
+            name: 'Primary source', definition: 'Asserted distribution is taken from a primary source.', project_id: $project_id).id
+          @data.reliable['rv'] = ConfidenceLevel.find_or_create_by(
+            name: 'Secondary source', definition: 'Asserted distribution is not taken from a primary source.', project_id: $project_id).id
 
           @data.done!(handle)
           @data.persist!
@@ -1540,84 +1546,65 @@ namespace :tw do
       end
 
       def handle_dist_ucd
-        keywords = {
-          'PageRef' => Predicate.find_or_create_by(name: 'Dist:PageRef', definition: 'The verbatim value in Dist#PageRef.', project_id: $project_id),
-          'Keyword' => Predicate.find_or_create_by(name: 'Dist:Keyword', definition: 'The verbatim value in Dist#Keyword.', project_id: $project_id),
-          #'Reliable' => Predicate.find_or_create_by(name: 'Dist:Reliable', definition: 'The verbatim value in Dist#Reliable.', project_id: $project_id),
-          'Comment' => Predicate.find_or_create_by(name: 'Dist:Comment', definition: 'The verbatim value in Dist#Comment.', project_id: $project_id),
-        }.freeze
-
         unresolved = {}
         path = @args[:data_directory] + 'DIST.txt'
-        print "\nHandling DIST\n"
+        print "\nHandling DIST \n"
         raise "file #{path} not found" if not File.exists?(path)
+
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+
         i = 0
         file.each do |row|
           i += 1
           print "\r#{i}"
 
-          ref = find_source_id_ucd(row['RefCode'])
-          if ref.nil?  # no point in searching forward, abort
+          source_id = find_source_id_ucd(row['RefCode'])
+          if source_id.nil?  # no point in searching forward, abort
             print "  Reference #{row['RefCode']} not found skipping asserted distribution for this row!\n"
             next
           end
 
-          taxon = find_taxon_id_ucd(row['TaxonCode'])
+          taxon_id = find_taxon_id_ucd(row['TaxonCode'])
 
-          otu = Otu.find_or_create_by(taxon_name_id: taxon)
+          otu = Otu.find_or_create_by(taxon_name_id: taxon_id)
 
           if otu.id.blank? # no point in searching forward, abort - don't check valid, check if ID is there, it has to be valid then
             print " OTU for TaxonCode #{row['TaxonCode']} not found skipping asserted distribution for this row!\n"
             next
           end
 
-          area_name = @data.countries[row['Country'] + '|' + row['State']]
+          match = "#{row['Country']}|#{row['State']}"
 
-          ga = GeographicArea.
-            joins(:geographic_items).                                                            # only records that also have geographic items
-            find_by_self_and_parents([area_name]).
-            limit(1).first
+          geographic_area_id = @data.countries[match] 
 
-          # if ga.count > 1
-          #   ga = ga.select{|g| !g.geographic_items.empty?}
-          #   ga = ga.first unless ga.empty?
-          # elsif ga.count == 1
-          #   ga = ga.first
-          # else
-          #   ga = nil
-          # end
-
-          if ga.nil?
-            print " Geographic Area for TaxonCode #{area_name} not found skipping asserted distribution for this row!\n"
-            unresolved[area_name] = true
+          if geographic_area_id.nil?
+            print "skipping: #{i}: #{match}"
             next
           end
 
           # at this point you know you have an otu, a ga, and a ref, no need to check validity
           ad = AssertedDistribution.find_or_create_by(
             otu: otu,
-            geographic_area: ga,
-            origin_citation_attributes: {source_id: ref, pages: row['PageRef'] },
-            # is_absent: nil,
+            geographic_area_id: geographic_area_id, 
             project_id: $project_id 
           )
 
-          if !ad.id.blank? #  valid? , if found, don't validate it again 
-            # No point to this unless record is not found: should handle these in a different pass or with new logic
-            #            verbatim_geographic_area: @data.countries[row['Country'] + '|' + row['State']],
-            ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Reliable'], value: @data.reliable[row['Reliable']]) unless row['Reliable'].blank?
-            ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Comment'], value: row['Comment']) unless row['Comment'].blank?
-            #              ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['PageRef'], value: row['PageRef']) unless row['PageRef'].blank?
-            ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Keyword'], value: row['Keyword']) unless row['Keyword'].blank?
-            # row['Keyword'] => citation.topic.
-            ad.notes.create(text: row['Notes'].gsub('|','_')) unless row['Notes'].blank?
+          c = nil
+          if ad.id.nil?
+            c = ad.citations.new(source_id: source_id, pages: row['PageRef'])
+            ad.save!
+          else
+            c = ad.citations.find_or_create_by(source_id: source_id, pages: row['PageRef'])
           end
 
-        end
+          if !ad.id.blank? 
+            ad.confidences.create(confidence_level_id: @data.reliable[row['Reliable']]) unless row['Reliable'].blank?
+            ad.confidences.create(confidence_level_id: @data.reliable[row['Comment']]) unless row['Comment'].blank?
+            ad.notes.create(text: row['Notes']) unless row['Notes'].blank?
 
-        unresolved.each_key do |k|
-          print"\n Unresolved locality: #{k}"
+            CitationTopic.find_or_create_by(topic_id: @data.topics[row['Keyword']], citation: c) unless row['Keyword'].blank?
+          end
+
         end
       end
 
