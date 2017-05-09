@@ -70,3 +70,5 @@ REVISION
 
 public/images/tmp
 public/assets/
+/public/packs
+/node_modules
