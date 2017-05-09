@@ -1981,7 +1981,7 @@ namespace :tw do
         print "\nApply soft validation fixes to relationships \n"
         i = 0
      
-        f.find_each do |t|
+        TaxonNameRelationship.where(project_id: $project_id).find_each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
