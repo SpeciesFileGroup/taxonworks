@@ -4890,6 +4890,12 @@ vue@^2.3.3:
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.3.3.tgz#d1eaa8fde5240735a4563e74f2c7fead9cbb064c"
 
+vuedraggable@^2.10.0:
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/vuedraggable/-/vuedraggable-2.10.0.tgz#4584838834a7d944033549d53c8d64387a7ce935"
+  dependencies:
+    sortablejs "^1.5.1"
+
 vueify@^9.4.1:
   version "9.4.1"
   resolved "https://registry.yarnpkg.com/vueify/-/vueify-9.4.1.tgz#d29a9775a33c4b8a8601e186a85da2ab800ca0d6"

@@ -11,8 +11,6 @@
   const GetterNames = require('../store/getters/getters').GetterNames;
   const MutationNames = require('../store/mutations/mutations').MutationNames;
 
-  console.log(GetterNames);
-
   export default {
     props: ['ajaxUrl','setItems', 'select', 'getItems', 'title'],
     name: 'recent-list',

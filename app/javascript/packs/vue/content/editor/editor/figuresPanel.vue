@@ -1,7 +1,7 @@
 <template>
   <div class="flex-wrap-column" v-if="panelFigures && content">
     <draggable v-model="depictions" :options="{ filter:'.dropzone-card', handle: '.card-handle' }" @start="drag=true" @end="drag=false, updatePosition()" class="item item1 column-medium flex-wrap-row">
-      <figure-item v-for="item in depictions" :figure="item"></figure-item>
+      <figure-item v-for="item in depictions" :figure="item" :key="item.id"></figure-item>
       <dropzone class="dropzone-card" v-on:vdropzone-sending="sending" v-on:vdropzone-success="success" ref="figure" id="figure" url="/depictions" :useCustomDropzoneOptions="true" :dropzoneOptions="dropzone"></dropzone>
     </draggable>
     <div class="item item2 column-tiny no-margin">
