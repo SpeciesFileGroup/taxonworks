@@ -1,5 +1,9 @@
 language: ruby
-cache: bundler
+cache: 
+  bundler: true
+  yarn: true
+  directories:
+    - $TRAVIS_BUILD_DIR/node_modules
 dist: trusty
 sudo: required
 rvm:
@@ -20,7 +24,6 @@ addons:
   firefox: "47.0.1"
 before_install:
   - sudo apt-get install -y postgresql-9.5 postgresql-contrib-9.5 libgeos-dev libproj-dev postgresql-9.5-postgis-2.2 postgresql-9.5-postgis-2.2-scripts 
-  - sudo apt-get install yarn
 install:
   - bundle install
   - npm install
