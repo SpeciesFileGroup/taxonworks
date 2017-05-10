@@ -26,7 +26,6 @@ before_install:
   - sudo apt-get install -y postgresql-9.5 postgresql-contrib-9.5 libgeos-dev libproj-dev postgresql-9.5-postgis-2.2 postgresql-9.5-postgis-2.2-scripts 
 install:
   - bundle install
-  - npm install
   - yarn
 before_script:
   - export DISPLAY=:99.0
@@ -39,8 +38,7 @@ before_script:
   - bundle exec rake db:drop  
   - bundle exec rake db:create
   - bundle exec rake db:migrate HPS_ENV=test 
-  - cd $TRAVIS_BUILD_DIR
-  - yarn add --dev webpack webpack-merge webpack-dev-server path-complete-extname babel-loader babel-core babel-preset-latest coffee-loader coffee-script rails-erb-loader glob
+  - bundle exec rake webpacker:install -n
   - bundle exec rake assets:precompile RAILS_ENV=test
 # before_install:
 #  - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16"
