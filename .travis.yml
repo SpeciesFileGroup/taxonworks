@@ -31,8 +31,8 @@ before_script:
   - psql -U postgres -c 'create role taxonworks_development login createdb superuser;' 
   - bundle exec rake db:drop  
   - bundle exec rake db:create
-  - bundle exec rake db:migrate
   - bundle exec rake db:migrate HPS_ENV=test 
+  - bundle exec rake assets:precompile RAILS_ENV=test
 # before_install:
 #  - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16"
 notifications:
