@@ -5,6 +5,7 @@ sudo: required
 rvm:
   - 2.3.3
 bundler_args: --without development
+language: node_js
 node_js:
     - 7
 branches:
