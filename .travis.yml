@@ -23,6 +23,7 @@ before_install:
 install:
   - bundle install
   - npm install
+  - npm install webpack -g
   - npm install webpack-dev-server -g
 before_script:
   - export DISPLAY=:99.0
