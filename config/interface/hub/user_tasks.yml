@@ -220,6 +220,18 @@ dates_index_task:
   hub: true
   name: 'Stepwise collecting event parser - Dates'
   related:
+    - collecting_events
   categories:
+    - collecting_event
   status: prototype
   description: "Parse the collecting_events table's verbatim label for possible date combinations."
+
+psu_import_task:
+  hub: true
+  name: 'Import Penn State DWCA'
+  related:
+    - collecting_events
+  categories:
+    - collecting_event
+  status: prototype
+  description: 'Import a DWCA file from Penn State.'
