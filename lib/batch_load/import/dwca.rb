@@ -82,6 +82,10 @@ module BatchLoad
       end
     end
 
+    def create
+
+    end
+
     private
 
     def make_ce(row)
