@@ -72,3 +72,7 @@ public/images/tmp
 public/assets/
 /public/packs
 /node_modules
+
+bin/bundle
+bin/spring
+bin/delayed_job
