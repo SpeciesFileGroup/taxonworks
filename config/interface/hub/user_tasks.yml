@@ -131,7 +131,7 @@ sqed_depiction_breakdown_todo_map_task:
 simple_specimen_task:
   hub: true
   name: 'Simple new specimen'
-  description: 'A bare bones specimen creation interface. Creates related collectinge events, images, and identifiers.'
+  description: 'A bare bones specimen creation interface. Creates related collecting events, images, and identifiers.'
   categories:
     - collection_object
     - collecting_event

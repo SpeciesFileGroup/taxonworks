@@ -71,7 +71,7 @@ REVISION
 public/images/tmp
 public/assets/
 /public/packs
-/node_modules
+# /node_modules # previously noted, ~line 25
 
 bin/bundle
 bin/spring
