@@ -27,7 +27,7 @@ development:
 
 test:
   <<: *default
-  manifest: manifest-test.json
+  #manifest: manifest-test.json
 
 production:
   <<: *default
