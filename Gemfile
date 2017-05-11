@@ -47,9 +47,9 @@ gem 'sprockets-rails'
 gem 'sprockets', '~> 3.0'
 gem 'sprockets-es6', require: 'sprockets/es6'
 
-gem 'browserify-rails'
 # gem 'babel-transpiler'
 
+gem 'webpacker'
 
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '~> 3.0.02'
