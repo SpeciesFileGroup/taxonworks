@@ -110,7 +110,7 @@ namespace :tw do
       task :import_ucd => [:data_directory, :environment] do |t|
 
         if ENV['reset'] == 'true'
-          Import.where(name: 'UCD IMPORT').destroy
+          Import.where(name: 'UCD IMPORT').destroy_all
           puts 'Resetting import.' 
         end
 
