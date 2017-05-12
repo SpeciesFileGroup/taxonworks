@@ -62,7 +62,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             visit(collection_objects_filter_task_path)
             c_wait = Capybara.default_max_wait_time
             Capybara.default_max_wait_time = 60
-            execute_script("document.getElementById('search_start_date').value = '1971/01/01'")
+            # execute_script("document.getElementById('search_start_date').value = '1971/01/01'")
             execute_script("document.getElementById('search_end_date').value = '1980/12/31'")
             find('#search_start_date').set('1971/01/01')
 
@@ -86,8 +86,9 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             visit(collection_objects_filter_task_path)
             # c_wait = Capybara.default_max_wait_time
             # Capybara.default_max_wait_time = 60
-            fill_autocomplete('otu_id_for_by_otu', with: 'Find me', select: otum1.id)
+            fill_autocomplete('otu_id_for_by_otu', with: 'F', select: otum1.id)
             find('#set_otu').click
+            wait_for_ajax
             expect(find('#otu_count')).to have_content('1')
             # Capybara.default_max_wait_time = c_wait
           end

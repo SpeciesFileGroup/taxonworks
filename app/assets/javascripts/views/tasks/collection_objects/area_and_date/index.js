@@ -25,7 +25,7 @@ Object.assign(TW.views.tasks.collection_objects, {
         $("#toggle-list-map").on("click", function() {
           if($(this).is(":checked")) {
             that.switchMap();
-          } 
+          }
           else {
             that.switchList();
           }
@@ -69,10 +69,10 @@ Object.assign(TW.views.tasks.collection_objects, {
             that.downloadForm(event);
           }
           else {
-            TW.workbench.alert.create("To Download- refine result to less than 1000 records");          
+            TW.workbench.alert.create("To Download- refine result to less than 1000 records");
             return false;
           }
-        });    
+        });
       }
 
       var today = new Date();
@@ -193,26 +193,26 @@ Object.assign(TW.views.tasks.collection_objects, {
       $("#show_list").show();         // reveal the area selector
       $(".result_map_toggle").removeAttr('hidden');            // expose the other link
       $(".result_list_toggle").attr('hidden', 'hidden');
-      $("#drawn_area_shape").attr('value', '');  
+      $("#drawn_area_shape").attr('value', '');
       $("#paging_span").show();
-    },    
-
-    update_and_graph: function(event) {  
-      var that = this;    
+    },
+  
+  update_and_graph: function (event) {
+    var that = this;
 
       this.validateDate(event.target);
-      if(this.validateDates()) { 
-        this.updateRangePicker(new Date($("#search_start_date").val()), new Date($("#search_end_date").val())); 
+    if (this.validateDates()) {
+      this.updateRangePicker(new Date($("#search_start_date").val()), new Date($("#search_end_date").val()));
         $("#select_date_range").mx_spinner('show');
         $.get('set_date', $("#set_date_form").serialize(), function (local_data) {
           $("#date_count").text(local_data.html);
           $("#graph_frame").html(local_data.chart);
-          $("#select_date_range").mx_spinner('hide');  
-          that.validateResult();  
-        }, 'json');  // I expect a json response        
+          $("#select_date_range").mx_spinner('hide');
+          that.validateResult();
+        }, 'json');  // I expect a json response
       }
       event.preventDefault();
-    },    
+  },
 
     cleanResults: function() {
       $("#show_list").empty();
@@ -221,8 +221,8 @@ Object.assign(TW.views.tasks.collection_objects, {
     },
 
     toggleFilter: function() {
-      $("#result_view").toggle();   
-    },    
+      $("#result_view").toggle();
+    },
 
     validateMaxResults: function(value) {
       if(Number($("#result_span").text()) <= value) {
@@ -266,8 +266,8 @@ Object.assign(TW.views.tasks.collection_objects, {
       if ( $('#area_count').text() != '????' ) {
         params.push($("#set_area_form").serialize());
       }
-
-      if ( $('#date_count').text() != '????' ) {    
+  
+      if ($('#date_count').text() != '????') {
         params.push($("#set_date_form").serialize());
       }
 
@@ -284,27 +284,27 @@ Object.assign(TW.views.tasks.collection_objects, {
         $('#download_form').attr('action', "download?" + this.serializeFields()).submit();
       }
       else {
-        $("body").append('<div class="alert alert-error"><div class="message">To Download- refine result to less than 1000 records</div><div class="alert-close"></div></div>');          
+        $("body").append('<div class="alert alert-error"><div class="message">To Download- refine result to less than 1000 records</div><div class="alert-close"></div></div>');
         return false;
       }
-    },     
+    },
 
     ajaxRequest: function(event, href) {
-      if(this.validateDates() && this.validateDateRange()) {   
+      if (this.validateDates() && this.validateDateRange()) {
         $("#find_item").mx_spinner('show');
         $.get(href, this.serializeFields(), function (local_data) {
               // $("#find_item").mx_spinner('hide');  # this has been relocated to .../find.js.erb
             });//, 'json'  // I expect a json response
         $("#download_button").removeAttr("disabled");
-      }          
+      }
       else {
         $("body").append('<div class="alert alert-error"><div class="message">Incorrect dates</div><div class="alert-close"></div></div>');
       }
       event.preventDefault();
-    },    
+    },
 
     validateDate: function(value) {
-      if (is_valid_date($(value).val())) { 
+      if (is_valid_date($(value).val())) {
           $(value).val(convert_date_to_string($(value).val())); // Update the value of input field to prevent bad date with zero
           $(value).parent().find(".warning-date").text("");
         }
@@ -319,7 +319,7 @@ Object.assign(TW.views.tasks.collection_objects, {
 
       validateDateRange: function() {
         return (new Date($("#search_start_date").val())) < (new Date($("#search_end_date").val()));
-      }          
+      }
     });
 
 

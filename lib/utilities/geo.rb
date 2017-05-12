@@ -122,7 +122,7 @@ To add a new (discovered) symbol:
              hlp: 'decimal degrees, trailing ordinal, e.g. 23.23N  44.44W'},
 
       dd1b: {reg: /(?<lat>[NS]\s*\d+\.\d+)\s*(?<long>[EW]\s*\d+\.\d+)/i,
-             hlp: 'decimal degrees leading ordinal, e.g. N23.23  W44.44'},
+             hlp: 'decimal degrees, leading ordinal, e.g. N23.23  W44.44'},
 
       dd2:  {reg: /(?<lat>\d+[\. ]\d+\u0027?\s*[NS]),?\s*(?<long>\d+[\. ]\d+\u0027?\s*[EW])/i,
              hlp: "decimal degrees, trailing ordinal, e.g. 43.836' N, 89.258' W"},

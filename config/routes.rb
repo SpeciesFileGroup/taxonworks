@@ -432,6 +432,15 @@ TaxonWorks::Application.routes.draw do
   ### End of resources except user related located below scopes ###
 
   scope :tasks do
+    scope :import do
+      scope :dwca do
+        scope :psu_import, controller: 'tasks/import/dwca/psu_import' do
+          get 'index', as: 'psu_import_task'
+          post 'preview_psu_import', as: 'preview_psu_import'
+          post 'do_psu_import', as: 'do_psu_import'
+        end
+      end
+    end
 
     scope :citations do
       scope :otus, controller: 'tasks/citations/otus' do
@@ -458,6 +467,14 @@ TaxonWorks::Application.routes.draw do
     scope :collecting_events do
       scope :parse do
         scope :stepwise do
+          scope :dates, controller: 'tasks/collecting_events/parse/stepwise/dates' do
+            get 'index', as: 'dates_index_task'
+            post 'update', as: 'dates_update_task'
+            get 'skip', as: 'dates_skip'
+            get 'similar_labels', as: 'dates_similar_labels'
+            get 'save_selected', as: 'dates_save_selected'
+          end
+
           scope :lat_long, controller: 'tasks/collecting_events/parse/stepwise/lat_long' do
             get 'index', as: 'collecting_event_lat_long_task'
             post 'update', as: 'lat_long_update'

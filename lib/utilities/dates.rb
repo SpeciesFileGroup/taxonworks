@@ -58,8 +58,12 @@ module Utilities::Dates
   # @return [Integer]
   #    return the month index
   def self.month_index(month_value)
-    return nil if month_value.nil?
-    SHORT_MONTHS.index(SHORT_MONTH_FILTER[month_value].to_s) + 1
+    return nil if month_value.blank?
+    month_test = SHORT_MONTH_FILTER[month_value]
+    return nil if month_test.to_s.to_i > 11 # this is to filter out numeric values > 11, symbols => 0
+    retval = SHORT_MONTHS.index(month_test.to_s) + 1
+    return nil if retval > 12
+    retval
   end
 
   # @return[Time] a UTC time (Uses Time instead of Date so that it can be saved as a UTC object -
@@ -256,6 +260,15 @@ module Utilities::Dates
     return start_date, end_date
   end
 
+  def self.make_verbatim_date_piece(label, pieces)
+    left = label.index(pieces[0])
+    right = left + pieces[0].length - 1 #
+    unless pieces[1].blank?
+      right = label.index(pieces[1]) + pieces[1].length - 1
+    end
+    label[left..right]
+  end
+
   # @param [String] start_date in the form of 'yyyy/mm/dd'
   # @param [String] end_date in the form of 'yyyy/mm/dd'
   # @return [String, String] start_date, end_date in proper order
@@ -284,5 +297,282 @@ module Utilities::Dates
       end
     end
   end
+
+  def self.fix_2_digit_year(year)
+    if year.length < 4
+      year = year.gsub("'", '')
+      if year.length < 3
+        tny = Time.now.year
+        if year.to_i > tny%100
+          year = (tny/100 - 1).to_s + year
+        else
+          year = (tny/100).to_s + year
+        end
+      end
+    end
+    year
+  end
+
+  def self.hunt_dates(label, filters = REGEXP_DATES.keys)
+    trials = {}
+    filters.each_with_index {|kee, dex|
+      # filters.each_with_index { |kee, dex|
+      kee_string = kee.to_s.upcase
+      trials[kee] = {}
+      matches = label.to_enum(:scan, REGEXP_DATES[kee][:reg]).map {Regexp.last_match}
+      unless matches.blank?
+        trials[kee][:method] = kee
+        trials[kee][:piece] = {}
+        extract_dates(trials[kee], matches)
+      end
+    }
+    trials
+  end
+
+  def self.extract_dates(trial, match_data)
+    end_date_year, end_date_month, end_date_day = 0, 0, 0
+    case trial[:method].downcase.to_sym
+      when :month_dd_yyyy_2
+        start_date_year = 3
+        start_date_month = 1
+        start_date_day = 2
+        end_date_year = 6
+        end_date_month = 4
+        end_date_day = 5
+      when :dd_month_yyyy_2
+        start_date_year = 3
+        start_date_month = 2
+        start_date_day = 1
+        end_date_year = 6
+        end_date_month = 5
+        end_date_day = 4
+      when :mm_dd_yyyy_2
+        start_date_year = 3
+        start_date_month = 1
+        start_date_day = 2
+        end_date_year = 6
+        end_date_month = 4
+        end_date_day = 5
+      when :month_dd_month_dd_yyyy
+        start_date_year = 5
+        start_date_month = 1
+        start_date_day = 2
+        end_date_year = 5
+        end_date_month = 3
+        end_date_day = 4
+      when :dd_month_dd_month_yyyy
+        start_date_year = 5
+        start_date_month = 2
+        start_date_day = 1
+        end_date_year = 5
+        end_date_month = 4
+        end_date_day = 3
+      when :dd_mm_dd_mm_yyyy
+        start_date_year = 5
+        start_date_month = 2
+        start_date_day = 1
+        end_date_year = 5
+        end_date_month = 4
+        end_date_day = 3
+      when :mm_dd_mm_dd_yyyy
+        start_date_year = 5
+        start_date_month = 1
+        start_date_day = 2
+        end_date_year = 5
+        end_date_month = 3
+        end_date_day = 4
+      when :month_dd_dd_yyyy
+        start_date_year = 4
+        start_date_month = 1
+        start_date_day = 2
+        end_date_year = 4
+        end_date_month = 1
+        end_date_day = 3
+      when :dd_dd_month_yyyy
+        start_date_year = 4
+        start_date_month = 3
+        start_date_day = 1
+        end_date_year = 4
+        end_date_month = 3
+        end_date_day = 2
+      when :mm_dd_dd_yyyy
+        start_date_year = 4
+        start_date_month = 1
+        start_date_day = 2
+        end_date_year = 4
+        end_date_month = 1
+        end_date_day = 3
+      when :month_dd_yyy
+        start_date_year = 3
+        start_date_month = 1
+        start_date_day = 2
+        if match_data[1]
+          end_date_year = 3
+          end_date_month = 1
+          end_date_day = 2
+        end
+      when :dd_month_yyy # done for yyyy
+        start_date_year = 3
+        start_date_month = 2
+        start_date_day = 1
+        if match_data[1]
+          end_date_year = 3
+          end_date_month = 2
+          end_date_day = 1
+        end
+      when :mm_dd_yyyy
+        start_date_year = 3
+        start_date_month = 1
+        start_date_day = 2
+        if match_data[1]
+          end_date_year = 3
+          end_date_month = 1
+          end_date_day = 2
+        end
+      when :mm_dd_yy
+        start_date_year = 3
+        start_date_month = 1
+        start_date_day = 2
+        if match_data[1]
+          end_date_year = 3
+          end_date_month = 1
+          end_date_day = 2
+        end
+      when :yyyy_mm_dd
+        start_date_year = 1
+        start_date_month = 2
+        start_date_day = 3
+        if match_data[1]
+          end_date_year = 1
+          end_date_month = 2
+          end_date_day = 3
+        end
+      when :yyyy_month_dd
+        start_date_year = 1
+        start_date_month = 2
+        start_date_day = 3
+        if match_data[1]
+          end_date_year = 1
+          end_date_month = 2
+          end_date_day = 3
+        end
+      when :yyyy_mm_dd_mm_dd
+        start_date_year = 1
+        start_date_month = 2
+        start_date_day = 3
+        end_date_year = 1
+        end_date_month = 4
+        end_date_day = 5
+      when :yyyy_month_dd_month_dd
+        start_date_year = 1
+        start_date_month = 2
+        start_date_day = 3
+        end_date_year = 1
+        end_date_month = 4
+        end_date_day = 5
+    end
+    trial[:piece][0] = match_data[0][0]
+    trial[:start_date_year] = fix_2_digit_year(match_data[0][start_date_year])
+    trial[:start_date_month] = month_index(match_data[0][start_date_month]).to_s
+    trial[:start_date_day] = match_data[0][start_date_day]
+    trial[:end_date_year] = '' #  match_data[3]
+    trial[:end_date_month] = '' #  month_index(match_data[2]).to_s
+    trial[:end_date_day] = '' #  match_data[1]
+    which_data = 0
+    unless match_data[1].blank?
+      which_data = 1
+    end
+    trial[:start_date] = trial[:start_date_year] + ' ' + trial[:start_date_month] + ' ' + trial[:start_date_day]
+    trial[:end_date] = ''
+
+    if (end_date_year > 0)
+      trial[:piece][1] = match_data[which_data][0] unless which_data == 0
+      trial[:end_date_year] = fix_2_digit_year(match_data[which_data][end_date_year])
+      trial[:end_date_month] = month_index(match_data[which_data][end_date_month]).to_s
+      trial[:end_date_day] = match_data[which_data][end_date_day]
+      trial[:end_date] = trial[:end_date_year] + ' ' + trial[:end_date_month] + ' ' + trial[:end_date_day]
+    end
+    trial
+  end
+
+  REGEXP_DATES = {
+      month_dd_yyyy_2: {reg: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]\s?(\d\d?)[\.;,]?[\s\.,\/](\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})\s?[-\u2013\/]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]\s?(\d\d?)[\.;,]?[\s,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+                        hlp: 'June 27 1946 - July 1 1947',
+                        hdr: 'mody2'},
+
+      # dd_month_yyyy_2: {reg: /(\d\d?)[\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\s?\.?[\s,\/]?\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})\s?[-\.,\/]?\s?(\d\d?)[\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\s?\.?[\s,\/]?\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+      dd_month_yyyy_2: {reg: /(\d\d?)\s*[-\.,\/]?\s*(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\s*[-\.\s,\/]?\s*(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})\s?[-\.,\/]?\s?(\d\d?)\s*[-\.,\/]?\s*(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\s*[-\.\s,\/]?\s*(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+                        hlp: '27 June 1946 - 1 July 1947',
+                        hdr: 'dmoy2'},
+
+      mm_dd_yyyy_2: {reg: /(\d\d?)[\s,\.\/]\s?(\d\d?)[\.,]?[\s\.,\/](\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\?\d{2})\s?[-\u2013\/]\s?(\d\d?)[\s,\.\/]\s?(\d\d?)[\.,]?[\s,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+                     hlp: '5 27 1946 - 6 1 1947',
+                     hdr: 'mdy2'},
+
+      month_dd_month_dd_yyyy: {reg: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]?\s?(\d\d?)\s?[-\u2013\/]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]?\s?(\d\d?)[\s\.;,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+                               hlp: 'June 27 - July 1 1947',
+                               hdr: 'modmody2'},
+
+      dd_month_dd_month_yyyy: {reg: /(\d\d?)\s?[\.\/,\u2013-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[-\u2013\/]\s?(\d\d?)\s?[-\s\u2013_\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[-,\u2013\/]?\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+                               hlp: '27 June - 1 July 1947',
+                               hdr: 'dmodmoy2'},
+
+      dd_mm_dd_mm_yyyy: {reg: /(\d\d?)[\s\.,\/]\s?(\d\d?)\s?[-\u2013\/]\s?(\d\d?)[\s\.,\/]\s?(\d\d?)[\s\.,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+                         hlp: "14.6-17.6.1994",
+                         hdr: 'dmdmy2'},
+
+      mm_dd_mm_dd_yyyy: {reg: /(\d\d?)[\s\.,\/]\s?(\d\d?)\s?[-\u2013\/]\s?(\d\d?)[\s\.,\/]\s?(\d\d?)[\s\.,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+                         hlp: '5 27 - 6 1 1947 | 5/ 26- 6/ 26 1944',
+                         hdr: 'mdmdy2'},
+
+      month_dd_dd_yyyy: {reg: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[\.,]?[-\s\u2013,\/]?(\d\d?)\s?[-\u2013\+\/]\s?(\d\d?)[\.,]?[-\s\.\u2013,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+                         hlp: 'June 27-29 1947',
+                         hdr: 'moddy2'},
+
+      dd_dd_month_yyyy: {reg: /(\d\d?)\s?[-\u2013\+\/]\s?(\d\d?)[\s\.,\/-]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[-\s\u2013,\/]?\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+                         hlp: '27-29 June 1947',
+                         hdr: 'ddmoy2'},
+
+      # mm_dd_mm_dd_yyyy:    /(\d\d?)[\s\.,\/]\s?(\d\d?)\s?[-\u2013\/]\s?(\d\d?)[\s\.,\/]\s?(\d\d?)[\s\.,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+      # mm_dd_dd_yyyy:     /(\d\d?)\s?[-\u2013\s\.,\/]\s?(\d\d?)\s?[-\u2013\+\/]\s?(\d\d?)[\.,;]?\s?[-\s\u2013,\/](\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+      #  THIS REGEX HAS ISSUES WITH THE FIRST EXAMPLE BUT ERRONEOUSLY WORKS FOR THE SECOND
+      # (\d\d?)\s?[-\u2013\s\.,\/]\s?(\d\d?)\s?[-\u2013\+\/]\s?(\d\d?)[\.,;]?\s?[-\u2013\+\/]\s?(\d\d?)[\.,;]?\s?[-\s\u2013,\/](\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2,4})
+
+      mm_dd_dd_yyyy: {reg: /(\d\d?)\s?[-\u2013\s\.,\/]\s?(\d\d?)\s?[-\u2013\+\/]\s?(\d\d?)[\.,;]?\s?[-\u2013\+\/]?\s?[\.,;]?\s?[-\s\u2013,\/]?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2,4})/i,
+                      hlp: ' 5 27-29 1947',
+                      hdr: 'mddy2'},
+
+      month_dd_yyy: {reg: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[-\u2013_,\/]?\s?(\d\d?)[\.;,]?\s?[-\s\u2013_\/\.\u0027,]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+                     hlp: "Jun 29 1947 | Jun 29, 1947 | June 29 1947 | June 29, 1947 | VI-29-1947 | X.25.2000 | Jun 29, '47 | June 29, '47 | VI-4-08 | Jun 29, '47",
+                     hdr: 'mody'},
+
+      dd_month_yyy: {reg: /(\d\d?)\s?[-\u2013_\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[\.,]?\s?[-,\u2013_\/]?\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+                     hlp: "29 Jun 1947 | 29 June 1947 | 2 June, 1983 | 29 VI 1947 | 29-VI-1947 | 25.X.2000 | 25X2000 | 29 June '47 | 29 Jun '47",
+                     hdr: 'dmoy'},
+
+      mm_dd_yyyy: {reg: /(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d{4})/i,
+                   hlp: '6/29/1947 | 6-29-1947 | 6-15 1985 | 10.25 2000 | 7.10.1994',
+                   hdr: 'mdy'},
+
+      mm_dd_yy: {reg: /(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?([\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+                 hlp: "6/29/47 | 6/29/'47 | 7.10.94 | 5-17-97",
+                 hdr: 'mdy'},
+
+      yyyy_mm_dd: {reg: /(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)/i,
+                   hlp: "1994, 4.16 | '02-04-24",
+                   hdr: 'ymd'},
+
+      yyyy_month_dd: {reg: /(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})[-\s\u2013_\.,\/]?\s*(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[-\s\u2013_\.,\/]?\s*(\d\d?)/i,
+                      hlp: "1994 JULY 17 | 2003 June 15 -  2004 July 04 | 2002-IV-27 - 2008-JUL-04",
+                      hdr: 'ymod'},
+
+      yyyy_mm_dd_mm_dd: {reg: /(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)/i,
+                         hlp: "1994, 6.14-6.17",
+                         hdr: 'ymdmd'},
+
+      yyyy_month_dd_month_dd: {reg: /(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})[-\s\u2013_\.,\/]?\s*(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[-\s\u2013_\.,\/]?\s*(\d\d?)\s?[-\s\u2013_\.,\/]?\s*(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[-\s\u2013_\.,\/]?\s*(\d\d?)/i,
+                               hlp: "1994 june 14 -JULY 17 | 2002-IV-27 - JUL-04",
+                               hdr: 'ymodmod'}
+  }
 
 end

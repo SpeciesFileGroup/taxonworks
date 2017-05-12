@@ -225,7 +225,7 @@ module Tasks::Gis::ReportHelper
 
   def table_complete
     unless @c_o_table_store.nil?
-      table_string = @sessions_current_user.email + '-c_o_table_data'
+      table_string = sessions_current_user.email + '-c_o_table_data'
       @c_o_table_store.set(table_string, @c_o_table_data.to_json)
     end
     @c_o_table_data.count

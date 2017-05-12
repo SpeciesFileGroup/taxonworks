@@ -102,9 +102,9 @@ RSpec.configure do |config|
   #
   config.before(:suite) do
     # See also environments/test.rb
-    # if ENV['TAXONWORKS_TEST_WITH_PRECOMPILE']
-    #   %x[bundle exec rake assets:precompile]
-    # end
+    #if ENV['TAXONWORKS_TEST_WITH_PRECOMPILE']
+    #  %x[bundle exec rake assets:precompile]
+    #end
     #
 
     DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys))

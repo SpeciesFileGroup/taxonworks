@@ -47,9 +47,9 @@ gem 'sprockets-rails'
 gem 'sprockets', '~> 3.0'
 gem 'sprockets-es6', require: 'sprockets/es6'
 
-gem 'browserify-rails'
 # gem 'babel-transpiler'
 
+gem 'webpacker'
 
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '~> 3.0.02'
@@ -60,8 +60,6 @@ gem 'uglifier', '~> 3.0.02'
 # Use jquery as the JavaScript library
 gem 'jquery-rails', '~> 4.1.1'
 gem 'jquery-ui-rails', '~> 5.0.5'
-
-gem 'vuejs'
 
 gem 'rails-jquery-autocomplete'
 gem 'best_in_place', '~> 3.1.0'

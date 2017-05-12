@@ -133,7 +133,7 @@ module Workbench::NavigationHelper
   # return [Boolean]
   #  true if the current user has permissions to edit the object in question (does not test whether it is actually editable)
   def user_can_edit?(object)
-    @sessions_current_user.is_administrator? || user_is_creator?(object)
+    sessions_current_user.is_administrator? || user_is_creator?(object)
   end
 
   # return [Boolean]
@@ -153,7 +153,7 @@ module Workbench::NavigationHelper
   end
 
   def destroy_object_link(object)
-    if (!@sessions_current_user.is_administrator?) && (@is_shared_data_model)
+    if (!sessions_current_user.is_administrator?) && (@is_shared_data_model)
       content_tag(:div, content_tag(:span, 'Destroy', 'data-icon' => 'trash', class: 'small-icon'), class: 'navigation-item disable')
     else
       link_to(content_tag(:span, 'Destroy', 'data-icon' => 'trash', class: 'small-icon'), object.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'}, class: 'navigation-item')

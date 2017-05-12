@@ -114,7 +114,7 @@
 class TaxonName < ActiveRecord::Base
 
   has_closure_tree
-  has_paper_trail
+  has_paper_trail :on => [:update] 
 
   include Housekeeping
   include Shared::DataAttributes
@@ -988,32 +988,54 @@ class TaxonName < ActiveRecord::Base
       gender        = nil
 
       relationships.each do |i|
-        case i.type # subject_status
-          when /OriginalGenus/ #'original genus'
-            genus  = '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-            gender = i.subject_taxon_name.gender_name
-          when /OriginalSubgenus/ # 'original subgenus'
-            subgenus += '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when /OriginalSection/ # 'original section'
-            subgenus += 'sect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when /OriginalSubsection/ #'original subsection'
-            subgenus += 'subsect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when /OriginalSeries/ # 'original series'
-            subgenus += 'ser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when /OriginalSubseries/ #  'original subseries'
-            subgenus += 'subser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when /OriginalSpecies/ #  'original species'
-            species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when /OriginalSubSpecies/ # 'original subspecies'
-            species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when /OriginalVariety/ #  'original variety'
-            species += 'var. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when /OriginalSubvariety/ # 'original subvariety'
-            species += 'subvar. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when /OriginalForm/ # 'original form'
-            species += 'f. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when /OriginalSubform/ #  'original subform'
-            species += 'subf. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+        if i.object_taxon_name_id == i.subject_taxon_name_id && !i.object_taxon_name.verbatim_name.blank?
+          case i.type # subject_status
+            when /OriginalGenus/ #'original genus'
+              genus  = '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+              gender = i.subject_taxon_name.gender_name
+            when /OriginalSubgenus/ # 'original subgenus'
+              subgenus += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalSpecies/ #  'original species'
+              species += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalSubSpecies/ # 'original subspecies'
+              species += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalVariety/ #  'original variety'
+              species += 'var. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalSubvariety/ # 'original subvariety'
+              species += 'subvar. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalForm/ # 'original form'
+              species += 'f. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalSubform/ #  'original subform'
+              species += 'subf. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+          end
+        else
+          case i.type # subject_status
+            when /OriginalGenus/ #'original genus'
+              genus  = '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+              gender = i.subject_taxon_name.gender_name
+            when /OriginalSubgenus/ # 'original subgenus'
+              subgenus += '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+  #          when /OriginalSection/ # 'original section'
+  #            subgenus += 'sect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+  #          when /OriginalSubsection/ #'original subsection'
+  #            subgenus += 'subsect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+  #          when /OriginalSeries/ # 'original series'
+  #            subgenus += 'ser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+  #          when /OriginalSubseries/ #  'original subseries'
+  #            subgenus += 'subser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+            when /OriginalSpecies/ #  'original species'
+              species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalSubSpecies/ # 'original subspecies'
+              species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalVariety/ #  'original variety'
+              species += 'var. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalSubvariety/ # 'original subvariety'
+              species += 'subvar. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalForm/ # 'original form'
+              species += 'f. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalSubform/ #  'original subform'
+              species += 'subf. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+          end
         end
       end
 
@@ -1256,10 +1278,16 @@ class TaxonName < ActiveRecord::Base
     true
   end
 
-  # @proceps self.rank_class_was is not a class method anywhere, so this comparison is vs. nil
-  # @mjy: self.rank_class_was returns old value from the database before replacing it with a new value on update.
   def check_new_rank_class
+    # rank_class_was is a AR macro 
+
     if (self.rank_class != self.rank_class_was) && !self.rank_class_was.nil?
+
+      if self.rank_class_was == 'NomenclaturalRank' 
+        errors.add(:rank_class, "Root can not have a new rank")
+        return
+      end
+
       old_rank_group = self.rank_class_was.safe_constantize.parent
       if self.rank_class.parent != old_rank_group
         errors.add(:rank_class, "A new taxon rank (#{rank_name}) should be in the #{old_rank_group.rank_name}")

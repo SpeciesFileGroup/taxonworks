@@ -11,7 +11,7 @@ RUN apt-get update && \
     apt-get install -y tesseract-ocr && \
     apt-get install -y cmake   
 
-RUN apt-get install -y libpq-dev libproj-dev libgeos-dev libgeos++-dev 
+RUN apt-get install -y libpq-dev libproj-dev libgeos-dev libgeos++-dev locales
 
 RUN apt-add-repository ppa:brightbox/ruby-ng && \
     apt-get update && \

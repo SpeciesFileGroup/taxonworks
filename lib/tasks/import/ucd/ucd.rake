@@ -60,7 +60,8 @@ namespace :tw do
           collections
           references 
           topics 
-          combinations 
+          combinations
+          species_codes
           new_combinations 
           reliable 
           ptype
@@ -143,6 +144,8 @@ namespace :tw do
         handle_keywords_ucd
         handle_reliable_ucd
         combinations_codes_ucd
+        species_codes_ucd
+        genus_codes_ucd
 
         handle_references_ucd
 
@@ -419,7 +422,6 @@ namespace :tw do
           i += 1
           print "\r#{i}"
 
-          # byebug if row['TaxonCode'] == 'PentarR' || row['TaxonCode'] == 'TrichoWb' || row['TaxonCode'] == 'TrichoW'
           if !row['ValGenus'].blank? && @data.genera_index[row['ValGenus']].nil?
             name = row['ValGenus']
             taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
@@ -427,23 +429,34 @@ namespace :tw do
             taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil? && row['ValSpecies'].blank?
             taxon.verbatim_author = row['ValAuthor'] if taxon.verbatim_author.nil? && row['ValSpecies'].blank?
             taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus' if taxon.rank_class.nil?
+            origgen = @data.all_genera_index[row['CitGenus']]
 
             begin
-              taxon.save!
+              taxon.save! if taxon.changed?
             rescue ActiveRecord::RecordInvalid
               byebug
             end
 
             @data.all_genera_index[name] = taxon.id
 
-            if row['ValGenus'].to_s == row['CitGenus'] && row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank? && @data.combinations['TaxonCode'].blank?
+            if row['ValGenus'].to_s == row['CitGenus'].to_s && row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank? && !@data.species_codes[row['TaxonCode']].blank?
               @data.genera_index[name] = taxon.id
-
+              if !@data.species_codes[row['TaxonCode']].blank?
+                taxon.original_genus = taxon
+                taxon.save!
+              end
               # !! create identifier
               set_data_for_taxon(taxon, row['TaxonCode'].to_s)
               # @data.taxon_codes[row['TaxonCode']] = taxon.id
               # taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
-
+            elsif row['ValGenus'].to_s == row['CitSubgen'].to_s && !row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank? && !@data.species_codes[row['TaxonCode']].blank?
+              @data.genera_index[name] = taxon.id
+              if !@data.species_codes[row['TaxonCode']].blank?
+                taxon.original_genus = TaxonName.find(origgen) unless origgen.blank?
+                taxon.original_subgenus = taxon
+                taxon.save!
+              end
+              set_data_for_taxon(taxon, row['TaxonCode'].to_s)
             end
           end
         end
@@ -458,17 +471,20 @@ namespace :tw do
         file.each do |row|
           i += 1
           print "\r#{i}"
-          #          byebug if row['TaxonCode'] == 'PentarR' || row['TaxonCode'] == 'TrichoWb' || row['TaxonCode'] == 'TrichoW'
           if !row['CitGenus'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
-            taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: $project_id)
+            if !@data.species_codes[row['TaxonCode']].blank?
+              taxon = Protonym.create(name: row['CitGenus'], project_id: $project_id)
+            else
+              taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: $project_id)
+            end
             taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: $project_id)
             taxon.parent_id = find_family_id_ucd(row['Family']) if taxon.parent_id.nil?
-            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil? && row['CitSpecies'].blank? && row['CitSubgenus'].blank?
-            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil? && row['CitSpecies'].blank? && row['CitSubgenus'].blank?
+#            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil? && row['CitSpecies'].blank? && row['CitSubgen'].blank?
+#            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil? && row['CitSpecies'].blank? && row['CitSubgen'].blank?
             taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus' if taxon.rank_class.nil?
 
             begin
-              taxon.save!
+              taxon.save! if taxon.changed?
             rescue ActiveRecord::RecordInvalid
               taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if !taxon.errors.messages[:name].blank?
               taxon.save!
@@ -477,15 +493,23 @@ namespace :tw do
             @data.all_genera_index[taxon.name] = taxon.id
 
             if row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
-              if @data.combinations['TaxonCode'].blank?
-                if @data.genera_index[row['CitGenus']].nil?
-                  @data.genera_index[taxon.name] = taxon.id
-                  TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
-                end
-              else
-                #@data.new_combinations['TaxonCode'] = {'genus' => row['CitGenus']}
-                c = Combination.new
-                c.genus = TaxonName.find(@data.all_species_index[taxon])
+              if !@data.species_codes[row['TaxonCode']].blank?
+#                r = nil
+                r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
+#                  if !r.nil? && r.id.nil?
+#                    taxon2 = Protonym.create!(name: row['CitGenus'],
+#                                             parent_id: taxon.parent_id,
+#                                             rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus')
+#                    taxon = taxon2
+#                    r = TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
+#                  end
+                taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
+                taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
+                taxon.original_genus = taxon
+                taxon.save!
+              else # elsif taxon.id == taxon1.id
+                c = Combination.new()
+                c.genus = taxon
                 c.save!
                 taxon = c
               end
@@ -508,42 +532,51 @@ namespace :tw do
         file.each do |row|
           i += 1
           print "\r#{i}"
-          #byebug if row['TaxonCode'] == 'PentarR' || row['TaxonCode'] == 'TrichoWb' || row['TaxonCode'] == 'TrichoW'
           if !row['CitSubgen'].blank? && row['CitSpecies'].blank? && row['CitSubsp'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
             name = row['CitSubgen'].gsub(')', '').gsub('?', '').capitalize
             parent = @data.genera_index[row['ValGenus']]
-            taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
+            if !@data.species_codes[row['TaxonCode']].blank?
+              taxon = Protonym.create(name: name, project_id: $project_id)
+            else
+              taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
+            end
             taxon.parent_id = parent if taxon.parent_id.nil? && parent
-            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil? && row['CitSpecies'].blank?
-            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil? && row['CitSpecies'].blank?
+#            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil? && row['CitSpecies'].blank?
+#            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil? && row['CitSpecies'].blank?
             taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Subgenus' if taxon.rank_class.nil? && row['CitSpecies'].blank?
+            taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: $project_id)
+            origgen = @data.all_genera_index[row['CitGenus']]
 
             begin
-              taxon.save!
+              taxon.save! if taxon.changed?
             rescue ActiveRecord::RecordInvalid
               byebug
             end
 
             @data.all_genera_index[name] = taxon.id
 
-            if taxon.rank_class.to_s == 'NomenclaturalRank::Iczn::GenusGroup::Genus' && taxon.name == name
-              if @data.combinations['TaxonCode'].blank?
-                origgen = @data.all_genera_index[row['CitGenus']]
-                c = Combination.new()
-                c.genus = TaxonName.find(origgen) unless origgen.nil?
-                c.subgenus = taxon
-                c.save!
-                taxon = c
-              else
-                #@data.new_combinations['TaxonCode'] = {'genus' => row['CitGenus'], 'subgenus' => row['CitSubgen']}
-                c = Combination.new
-                c.genus = TaxonName.find(@data.all_genera_index[origgen]) unless origgen.blank?
-                c.subgenus = TaxonName.find(@data.all_species_index[taxon])
-                c.save!
-                taxon = c
-              end
-            else
-              @data.genera_index[name] = taxon.id
+            if !@data.species_codes[row['TaxonCode']].blank?
+#              r = nil
+              r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
+#              if !r.nil? && r.id.nil?
+#                taxon2 = Protonym.create!(name: row['CitGenus'],
+#                                          parent_id: taxon.parent_id,
+#                                          rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus')
+#                taxon = taxon2
+#                r = TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
+#              end
+              taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
+              taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
+              taxon.original_genus = TaxonName.find(origgen) unless origgen.blank?
+              taxon.original_subgenus = taxon
+              taxon.save!  if taxon.changed?
+
+            else # elsif taxon.id == parent
+              c = Combination.new()
+              c.genus = TaxonName.find(origgen) unless origgen.nil?
+              c.subgenus = taxon
+              c.save!
+              taxon = c
             end
 
             # !! create identifier
@@ -561,6 +594,8 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         i = 0
         file.each do |row|
+#          byebug if row['TaxonCode'] == 'Achrys pulchG' || row['TaxonCode'] == 'Achrys pulchGb'
+
           i += 1
           print "\r#{i}"
 
@@ -570,34 +605,62 @@ namespace :tw do
           if !row['ValSpecies'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
             parent_id = @data.all_genera_index[row['ValGenus']]  
             name = row['ValSpecies'].to_s
+            n1 = name_to_unified_ucd(name)
+            n2 = name_to_unified_ucd(row['CitSpecies'].to_s)
+            n3 = name_to_unified_ucd(row['CitSubsp'].to_s)
+
             taxon = Protonym.find_or_create_by(name: name, parent_id: parent_id, project_id: $project_id)
             taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil?
             taxon.verbatim_author = row['ValAuthor'] if taxon.verbatim_author.nil?
             taxon.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
+            origgen = @data.all_genera_index[row['CitGenus']]
+            origsubgen = @data.all_genera_index[row['CitSubgen']]
+            origspecies = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['CitSpecies'].to_s]
 
             begin
-              taxon.save!
+              taxon.save! if taxon.changed?
             rescue ActiveRecord::RecordInvalid
               taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if !taxon.errors.messages[:name].blank?
               taxon.save!
             end
 
             @data.all_species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
-            if row['ValSpecies'].to_s == row['CitSpecies'] && row['ValAuthor'] == '(' + row['CitAuthor'] + ')' && row['ValDate'] == row['CitDate'] && row['CitSubsp'].blank? && @data.combinations['TaxonCode'].blank?
-              @data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
-             
-              # !! Create identifier 
-              set_data_for_taxon(taxon, row['TaxonCode'].to_s)
-              # @data.taxon_codes[row['TaxonCode']] = taxon.id
-              # taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
-              
-              origsubgen = @data.all_genera_index[row['CitSubgen']]
-              TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies')
-              TaxonNameRelationship.create!(subject_taxon_name_id: parent_id, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus') if taxon.original_genus.nil?
-              TaxonNameRelationship.create!(subject_taxon_name_id: origsubgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus') if taxon.original_subgenus.nil? && !origsubgen.nil?
+
+            if !@data.species_codes[row['TaxonCode']].blank?
+
+              if n1 == n2 && row['ValAuthor'].to_s.gsub('(', '').gsub(')', '') == row['CitAuthor'].to_s.gsub('(', '').gsub(')', '') && row['ValDate'].to_s == row['CitDate'].to_s && row['CitSubsp'].blank? && !@data.species_codes[row['TaxonCode']].blank? #  && @data.combinations[row['TaxonCode']].blank?
+  #           if row['ValSpecies'].to_s == row['CitSpecies'] && row['ValAuthor'] == '(' + row['CitAuthor'] + ')' && row['ValDate'] == row['CitDate'] && row['CitSubsp'].blank? && @data.combinations['TaxonCode'].blank?
+                taxon.original_subgenus = TaxonName.find(origsubgen) unless origsubgen.nil?
+                taxon.original_genus = TaxonName.find(origgen) unless origgen.nil?
+                taxon.verbatim_name = row['CitSpecies'] if row['ValSpecies'].to_s != row['CitSpecies'].to_s
+                taxon.original_species = taxon
+                @data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
+
+                # !! Create identifier
+                set_data_for_taxon(taxon, row['TaxonCode'].to_s)
+                # @data.taxon_codes[row['TaxonCode']] = taxon.id
+                # taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
+              elsif n1 == n3 && row['ValAuthor'].to_s.gsub('(', '').gsub(')', '') == row['CitAuthor'].to_s.gsub('(', '').gsub(')', '') && row['ValDate'].to_s == row['CitDate'].to_s && !row['CitSubsp'].blank? && !@data.species_codes[row['TaxonCode']].blank? #  && @data.combinations[row['TaxonCode']].blank?
+                taxon.original_subgenus = TaxonName.find(origsubgen) unless origsubgen.nil?
+                taxon.original_genus = TaxonName.find(origgen) unless origgen.nil?
+                taxon.original_subspecies = taxon
+                taxon.original_species = TaxonName.find(origspecies) unless origspecies.nil?
+                taxon.verbatim_name = row['CitSubsp'] if row['ValSpecies'].to_s != row['CitSubsp'].to_s
+                @data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
+                set_data_for_taxon(taxon, row['TaxonCode'].to_s)
+              end
+              taxon.save!  if taxon.changed?
             end
           end
         end
+      end
+
+      def name_to_unified_ucd(n)
+        n = n[0..-3] + 'a' if n =~ /^[a-z]*um$/ # -um > -a
+        n = n[0..-3] + 'a' if n =~ /^[a-z]*us$/ # -us > -a
+        n = n[0..-3] + 'e' if n =~ /^[a-z]*is$/ # -is > -e
+        n = n[0..-3] + 'ra' if n =~ /^[a-z]*er$/ # -er > -ra
+        return n
       end
 
       def handle_master_ucd_invalid_species
@@ -607,6 +670,8 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         i = 0
         file.each do |row|
+#          byebug if row['TaxonCode'] == 'Achrys pulchG' || row['TaxonCode'] == 'Achrys pulchGb'
+
           i += 1
           print "\r#{i}"
           if !row['CitSpecies'].blank? && row['CitSubsp'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
@@ -614,13 +679,17 @@ namespace :tw do
             origgen = @data.all_genera_index[row['CitGenus']]
             origsubgen = @data.all_genera_index[row['CitSubgen']]
             name = row['CitSpecies'].gsub('sp. ', '').to_s
-            taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
-            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
-            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
+            if !@data.species_codes[row['TaxonCode']].blank?
+              taxon = Protonym.create(name: name, parent_id: parent, project_id: $project_id)
+            else
+              taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
+            end
+#            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
+#            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
             taxon.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
 
             begin
-              taxon.save!
+              taxon.save! if taxon.changed?
             rescue ActiveRecord::RecordInvalid
               taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if !taxon.errors.messages[:name].blank?
               taxon.save!
@@ -632,27 +701,29 @@ namespace :tw do
             taxon1 = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
 
             byebug if taxon1.nil?
-            if (taxon.id == taxon1 || !taxon.original_genus.nil?)
-              if @data.combinations['TaxonCode'].blank?
-                c = Combination.new()
-                c.genus = TaxonName.find(origgen) unless origgen.nil?
-                c.subgenus = TaxonName.find(origsubgen) unless origsubgen.nil?
-                c.species = taxon
-                c.save!
-                taxon = c
-              else
-                #@data.new_combinations['TaxonCode'] = {'genus' => row['CitGenus'], 'subgenus' => row['CitSubgen'], 'species' => row['ValGenus'].to_s + ' ' + row['CitSpecies'].to_s}
-                c = Combination.new
-                c.genus = TaxonName.find(@data.all_genera_index[origgen]) unless origgen.blank?
-                c.subgenus = TaxonName.find(@data.all_genera_index[origsubgen]) unless origsubgen.blank?
-                c.species = TaxonName.find(@data.all_species_index[taxon])
-                c.save!
-                taxon = c
-              end
-            else
-              TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: taxon, object_taxon_name_id: taxon1)
-              TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name_id: origgen, object_taxon_name: taxon) if taxon.original_genus.nil?
-              TaxonNameRelationship::OriginalCombination::OriginalSubgenus.create!(subject_taxon_name_id: origsubgen, object_taxon_name: taxon) if taxon.original_subgenus.nil? && !origsubgen.nil?
+            if !@data.species_codes[row['TaxonCode']].blank?
+#              r = nil
+              r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name_id: taxon1) if taxon.id != taxon1
+#              if !r.nil? && r.id.nil?
+#                taxon2 = Protonym.new(name: name, parent_id: parent, project_id: $project_id)
+#                taxon2.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
+#                taxon2.save!
+#                taxon = taxon2
+#                r = TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: taxon, object_taxon_name_id: taxon1) if taxon.id != taxon1
+#              end
+              taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
+              taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
+              taxon.original_genus = TaxonName.find(origgen) unless origgen.blank?
+              taxon.original_subgenus = TaxonName.find(origsubgen) unless origsubgen.blank?
+              taxon.original_species = taxon
+              taxon.save! if taxon.changed?
+            else # elsif taxon.id == taxon1
+              c = Combination.new()
+              c.genus = TaxonName.find(origgen) unless origgen.nil?
+              c.subgenus = TaxonName.find(origsubgen) unless origsubgen.nil?
+              c.species = taxon
+              c.save!
+              taxon = c
             end
             taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
           end
@@ -674,13 +745,17 @@ namespace :tw do
             origsubgen = @data.all_genera_index[row['CitSubgen']]
             origspecies = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['CitSpecies'].to_s]
             name = row['CitSubsp'].gsub('sp. ', '').to_s
-            taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
-            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
-            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
+            if !@data.species_codes[row['TaxonCode']].blank?
+              taxon = Protonym.create(name: name, parent_id: parent, project_id: $project_id)
+            else
+              taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
+            end
+#            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
+#            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
             taxon.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
 
             begin
-              taxon.save!
+              taxon.save! if taxon.changed?
             rescue ActiveRecord::RecordInvalid
               taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if !taxon.errors.messages[:name].blank?
               taxon.save!
@@ -692,36 +767,40 @@ namespace :tw do
             taxon1 = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
 
             byebug if taxon1.nil?
-            if (taxon.id == taxon1 || !taxon.original_genus.nil?)
-              if @data.combinations['TaxonCode'].blank?
-                c = Combination.new()
-                c.genus = TaxonName.find(origgen) unless origgen.nil?
-                c.subgenus = TaxonName.find(origsubgen) unless origsubgen.nil?
-                c.species = TaxonName.find(origspecies) unless origspecies.nil?
-                c.subspecies = taxon
+            if !@data.species_codes[row['TaxonCode']].blank?
+#              r = nil
+              r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name_id: taxon1) if taxon.id != taxon1
+#              if !r.nil? && r.id.nil?
+#                taxon2 = Protonym.new(name: name, parent_id: parent, project_id: $project_id)
+#                taxon2.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
+#                begin
+#                  taxon2.save!
+#                rescue ActiveRecord::RecordInvalid
+#                  taxon2.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if !taxon2.errors.messages[:name].blank?
+#                  taxon2.save!
+#                end
+#                taxon = taxon2
+#                r = TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: taxon, object_taxon_name_id: taxon1) if taxon.id != taxon1
+#              end
+              taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
+              taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
+              taxon.original_genus = TaxonName.find(origgen) unless origgen.blank?
+              taxon.original_subgenus = TaxonName.find(origsubgen) unless origsubgen.blank?
+              taxon.original_species = TaxonName.find(origspecies) unless origspecies.blank?
+              taxon.original_subspecies = taxon
+              taxon.save! if taxon.changed?
+            else # elsif taxon.id == taxon1
+              c = Combination.new()
+              c.genus = TaxonName.find(origgen) unless origgen.nil?
+              c.subgenus = TaxonName.find(origsubgen) unless origsubgen.nil?
+              c.species = TaxonName.find(origspecies) unless origspecies.nil?
+              c.subspecies = taxon
+              begin
                 c.save!
-                taxon = c
-              else
-                #@data.new_combinations['TaxonCode'] = {'genus' => row['CitGenus'], 'subgenus' => row['CitSubgen'], 'species' => row['ValGenus'].to_s + ' ' + row['CitSpecies'].to_s, 'subspecies' => row['ValGenus'].to_s + ' ' + row['CitSubsp'].to_s}
-                c = Combination.new
-                c.genus = TaxonName.find(@data.all_genera_index[origgen]) unless origgen.blank?
-                c.subgenus = TaxonName.find(@data.all_genera_index[origsubgen]) unless origsubgen.blank?
-                c.species = TaxonName.find(@data.all_species_index[origspecies]) unless origspecies.blank?
-                c.subspecies = TaxonName.find(@data.all_species_index[taxon])
-
-                begin
-                  c.save!
-                rescue ActiveRecord::RecordInvalid
-                  byebug 
-                end
-
-                taxon = c
+              rescue ActiveRecord::RecordInvalid
+                byebug
               end
-            else
-              TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name_id: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
-              TaxonNameRelationship.create!(subject_taxon_name_id: origgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus') if taxon.original_genus.nil?
-              TaxonNameRelationship.create!(subject_taxon_name_id: origsubgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus') if taxon.original_subgenus.nil? && !origsubgen.nil?
-              TaxonNameRelationship.create!(subject_taxon_name_id: origspecies, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies') if taxon.original_species.nil? && !origspecies.nil?
+              taxon = c
             end
             taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
           end
@@ -769,17 +848,18 @@ namespace :tw do
 
       def handle_countries_ucd
         handle = 'handle_countries_ucd' 
-        print "\nHandling COUNTRY "
+        print "\nHandling COUNTRY (COUNTRY_MOD)"
 
         if !@data.done?(handle)
           puts "as new"
-          path = @args[:data_directory] + 'COUNTRY.txt'
+          path = @args[:data_directory] + 'COUNTRY_MOD.txt'
 
           raise "file #{path} not found" if not File.exists?(path)
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
           file.each_with_index do |row, i|
+            next if row['GeographicAreaID'].blank? || (row['GeographicAreaID'] =~ /'no match'/) || row['Country'].blank?
             print "\r#{i}"
-            @data.countries[row['Country'] + '|' + row['State']] = row['UCD_name']
+            @data.countries["#{row['Country']}|#{row['State']}"] = row['GeographicAreaID']
           end
        
           @data.done!(handle)
@@ -826,6 +906,11 @@ namespace :tw do
             c = ConfidenceLevel.find_or_create_by(name: row['Score'], definition: row['Meaning'], project_id: $project_id)
             @data.reliable[row['Score']] = c.id
           end
+
+          @data.reliable['or'] = ConfidenceLevel.find_or_create_by(
+            name: 'Primary source', definition: 'Asserted distribution is taken from a primary source.', project_id: $project_id).id
+          @data.reliable['rv'] = ConfidenceLevel.find_or_create_by(
+            name: 'Secondary source', definition: 'Asserted distribution is not taken from a primary source.', project_id: $project_id).id
 
           @data.done!(handle)
           @data.persist!
@@ -953,6 +1038,8 @@ namespace :tw do
           serial_id = Serial.where(name: journal).limit(1).pluck(:id).first
           serial_id ||= Serial.with_any_value_for(:name, journal).limit(1).pluck(:id).first # uses AlternateValues for search as well
 
+#          b = Identifier.find_by(cached: 'UCD_RefCode ' + row['RefCode'] + row['Letter'].to_s).try(:identifier_object)
+
           b = Source::Bibtex.find_or_create_by(
             author: author.split(/\s*\;\s*/).compact.join(' and '),
             year: (year.blank? ? nil : year.to_i),
@@ -972,10 +1059,8 @@ namespace :tw do
             editor: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:editor].split(/\s*\;\s*/).compact.join(' and ') : nil )
           )
 
-          # change this to ID check, must faster
-          if !b.id.blank? 
-            # if b.valid?
-            #b.project_sources.create!
+          if !b.id.blank?
+            b.project_sources.create
             b.identifiers.create(type: 'Identifier::Local::Import', namespace: namespace, identifier: row['RefCode'] + row['Letter'].to_s)
 
             b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Location'], value: row['Location'])   if !row['Location'].blank?
@@ -994,7 +1079,7 @@ namespace :tw do
 
             ['KeywordA', 'KeywordB', 'KeywordC'].each do |i|
               k =  Keyword.with_alternate_value_on(:name, row[i]).first
-              b.tags.build(keyword: k) unless k.nil?
+              b.tags.create(keyword: k) unless k.nil?
             end
             @data.references[row['RefCode']] = b.id
           else
@@ -1006,6 +1091,29 @@ namespace :tw do
         fext_data = nil
         keywords = nil 
       end
+
+      def species_codes_ucd
+        path = @args[:data_directory] + 'SPECIES.txt'
+        print "\nHandling Species Codes\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          @data.species_codes[row['TaxonCode']] = true
+        end
+      end
+
+      def genus_codes_ucd
+        path = @args[:data_directory] + 'GENUS.txt'
+        print "\nHandling Genus Codes\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          @data.species_codes[row['TaxonCode']] = true
+        end
+      end
+
 
       def combinations_codes_ucd
         combinations = {
@@ -1092,7 +1200,7 @@ namespace :tw do
           print "\n Genus Code: #{row['Code']} not found \n" if !row['Code'].blank? && genus.nil?
           unless taxon.nil?
             unless genus.nil?
-              TaxonNameRelationship.create!(type: 'TaxonNameRelationship::Typification::Family', subject_taxon_name_id: genus, object_taxon_name: taxon)
+              TaxonNameRelationship.create(type: 'TaxonNameRelationship::Typification::Family', subject_taxon_name_id: genus, object_taxon_name: taxon)
             end
             unless ref.nil?
               taxon.citations.create!(source_id: ref, pages: row['PageRef'], is_original: true)
@@ -1153,6 +1261,13 @@ namespace :tw do
             unless ref.nil?
               taxon.citations.create(source_id: ref, pages: row['PageRef'], is_original: true)
             end
+            if taxon.type == 'Combination' && !classification_type[row['CurrStat']].nil?
+              # valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
+              valid = taxon.subgenus || taxon.genus
+              byebug if valid.nil?
+              taxon = valid unless valid.nil?
+            end
+
             taxon.notes.create(text: row['Notes'].gsub('|','_')) unless row['Notes'].blank?
             taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Genus:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
           end
@@ -1211,12 +1326,19 @@ namespace :tw do
 
         i = 0
         file.each do |row|
+ #         byebug if row['TaxonCode'] == 'Eupelm acineA' || row['TaxonCode'] == 'Eupelm acineAa'
           i += 1
           print "\r#{i}"
           taxon = find_taxon_ucd(row['TaxonCode'])
           ref = find_source_id_ucd(row['RefCode'])
           print "\n TaxonCode: #{row['TaxonCode']} not found \n" if !row['TaxonCode'].blank? && taxon.nil?
           unless taxon.nil?
+#            if taxon.type == 'Combination' && !classification_type[row['CurrStat']].nil?
+#              # valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
+#              valid = taxon.subspecies || taxon.species
+#              byebug if valid.nil?
+#              taxon = valid unless valid.nil?
+#            end
             unless ref.nil?
               c = taxon.citations.create(source_id: ref, pages: row['PageRef'], is_original: true)
 
@@ -1233,10 +1355,6 @@ namespace :tw do
               da = taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords[k], value: row[k]) unless row[k].blank?
 
               byebug if da && da.id.blank?
-            end
-            if taxon.type == 'Combination' && !classification_type[row['CurrStat']].nil?
-              valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
-              taxon = valid
             end
             taxon.taxon_name_classifications.create(type: classification_type[row['CurrStat']]) unless classification_type[row['CurrStat']].nil?
           end
@@ -1428,84 +1546,65 @@ namespace :tw do
       end
 
       def handle_dist_ucd
-        keywords = {
-          'PageRef' => Predicate.find_or_create_by(name: 'Dist:PageRef', definition: 'The verbatim value in Dist#PageRef.', project_id: $project_id),
-          'Keyword' => Predicate.find_or_create_by(name: 'Dist:Keyword', definition: 'The verbatim value in Dist#Keyword.', project_id: $project_id),
-          #'Reliable' => Predicate.find_or_create_by(name: 'Dist:Reliable', definition: 'The verbatim value in Dist#Reliable.', project_id: $project_id),
-          'Comment' => Predicate.find_or_create_by(name: 'Dist:Comment', definition: 'The verbatim value in Dist#Comment.', project_id: $project_id),
-        }.freeze
-
         unresolved = {}
         path = @args[:data_directory] + 'DIST.txt'
-        print "\nHandling DIST\n"
+        print "\nHandling DIST \n"
         raise "file #{path} not found" if not File.exists?(path)
+
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+
         i = 0
         file.each do |row|
           i += 1
           print "\r#{i}"
 
-          ref = find_source_id_ucd(row['RefCode'])
-          if ref.nil?  # no point in searching forward, abort
+          source_id = find_source_id_ucd(row['RefCode'])
+          if source_id.nil?  # no point in searching forward, abort
             print "  Reference #{row['RefCode']} not found skipping asserted distribution for this row!\n"
             next
           end
 
-          taxon = find_taxon_id_ucd(row['TaxonCode'])
+          taxon_id = find_taxon_id_ucd(row['TaxonCode'])
 
-          otu = Otu.find_or_create_by(taxon_name_id: taxon)
+          otu = Otu.find_or_create_by(taxon_name_id: taxon_id)
 
           if otu.id.blank? # no point in searching forward, abort - don't check valid, check if ID is there, it has to be valid then
             print " OTU for TaxonCode #{row['TaxonCode']} not found skipping asserted distribution for this row!\n"
             next
           end
 
-          area_name = @data.countries[row['Country'] + '|' + row['State']]
+          match = "#{row['Country']}|#{row['State']}"
 
-          ga = GeographicArea.
-            joins(:geographic_items).                                                            # only records that also have geographic items
-            find_by_self_and_parents([area_name]).
-            limit(1).first
+          geographic_area_id = @data.countries[match] 
 
-          # if ga.count > 1
-          #   ga = ga.select{|g| !g.geographic_items.empty?}
-          #   ga = ga.first unless ga.empty?
-          # elsif ga.count == 1
-          #   ga = ga.first
-          # else
-          #   ga = nil
-          # end
-
-          if ga.nil?
-            print " Geographic Area for TaxonCode #{area_name} not found skipping asserted distribution for this row!\n"
-            unresolved[area_name] = true
+          if geographic_area_id.nil?
+            print "skipping: #{i}: #{match}"
             next
           end
 
           # at this point you know you have an otu, a ga, and a ref, no need to check validity
           ad = AssertedDistribution.find_or_create_by(
             otu: otu,
-            geographic_area: ga,
-            origin_citation_attributes: {source_id: ref, pages: row['PageRef'] },
-            # is_absent: nil,
+            geographic_area_id: geographic_area_id, 
             project_id: $project_id 
           )
 
-          if !ad.id.blank? #  valid? , if found, don't validate it again 
-            # No point to this unless record is not found: should handle these in a different pass or with new logic
-            #            verbatim_geographic_area: @data.countries[row['Country'] + '|' + row['State']],
-            ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Reliable'], value: @data.reliable[row['Reliable']]) unless row['Reliable'].blank?
-            ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Comment'], value: row['Comment']) unless row['Comment'].blank?
-            #              ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['PageRef'], value: row['PageRef']) unless row['PageRef'].blank?
-            ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Keyword'], value: row['Keyword']) unless row['Keyword'].blank?
-            # row['Keyword'] => citation.topic.
-            ad.notes.create(text: row['Notes'].gsub('|','_')) unless row['Notes'].blank?
+          c = nil
+          if ad.id.nil?
+            c = ad.citations.new(source_id: source_id, pages: row['PageRef'])
+            ad.save!
+          else
+            c = ad.citations.find_or_create_by(source_id: source_id, pages: row['PageRef'])
           end
 
-        end
+          if !ad.id.blank? 
+            ad.confidences.create(confidence_level_id: @data.reliable[row['Reliable']]) unless row['Reliable'].blank?
+            ad.confidences.create(confidence_level_id: @data.reliable[row['Comment']]) unless row['Comment'].blank?
+            ad.notes.create(text: row['Notes']) unless row['Notes'].blank?
 
-        unresolved.each_key do |k|
-          print"\n Unresolved locality: #{k}"
+            CitationTopic.find_or_create_by(topic_id: @data.topics[row['Keyword']], citation: c) unless row['Keyword'].blank?
+          end
+
         end
       end
 
@@ -1519,13 +1618,16 @@ namespace :tw do
         file.each_with_index do |row, i|
           print "\r#{i}"
 
-          #  taxon = find_taxon_ucd(row['TaxonCode'])
-          otu = @data.otus[row['TaxonCode'].to_s]
+          taxon = find_taxon_ucd(row['TaxonCode'])
+          # otu = @data.otus[row['TaxonCode'].to_s]
  
           print "\n TaxonCode: #{row['TaxonCode']} not found \n" if row['TaxonCode'].blank?
-          print "\n No corresponding OTU for TaxonCode: [#{row['TaxonCode']}] \n" if otu.nil? #  taxon.nil?
+          #print "\n No corresponding OTU for TaxonCode: [#{row['TaxonCode']}] \n" if otu.nil? #  taxon.nil?
 
-          next if otu.nil?
+          if taxon.nil?
+            print "\n Taxon not found. TaxonCode: [#{row['TaxonCode']}] \n"
+            next
+          end
 
           ref = find_source_id_ucd(row['RefCode'])
 
@@ -1536,17 +1638,11 @@ namespace :tw do
 
           page = row['PageRef'].blank? ? nil : row['PageRef']
 
-          # c = taxon.citations.find_or_create_by(source_id: ref, pages: page)
-          c = Citation.find_or_create_by(citation_object: otu, source_id: ref, pages: page)
+          otu = Otu.find_or_create_by(taxon_name_id: taxon.id)
+          c = otu.citations.find_or_create_by(source_id: ref, pages: page)
 
-          # c.citation_topics.find_or_create_by(topic_id: @data.topics[row['Keyword']]) unless row['Keyword'].blank?
           CitationTopic.find_or_create_by(topic_id: @data.topics[row['Keyword']], citation: c) unless row['Keyword'].blank?
-         
-          # c.notes.find_or_create_by(text: row['Notes'].gsub('|','_')) unless row['Notes'].blank?
-          Note.find_or_create_by(
-            note_object: c, 
-            text: row['Notes'].gsub('|','_')
-          ) unless row['Notes'].blank?
+          Note.find_or_create_by(note_object: c, text: row['Notes'].gsub('|','_') ) unless row['Notes'].blank?
         end
       end
 
@@ -1799,7 +1895,7 @@ namespace :tw do
       def set_data_for_taxon(taxon, taxon_code)
         @data.taxon_codes[taxon_code] = taxon.id
         Identifier::Local::Import.create!(identifier_object: taxon, namespace_id: @data.keywords['taxon_id'], identifier: taxon_code)
-        @data.otus[taxon_code] = Otu.find_or_create_by(taxon_name: taxon, project_id: $project_id).id 
+        @data.otus[taxon_code] = Otu.find_or_create_by(taxon_name: taxon, project_id: $project_id).id
       end
 
       # Return a TW TaxonName id 

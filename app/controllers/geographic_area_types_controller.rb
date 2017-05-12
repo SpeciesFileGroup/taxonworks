@@ -28,8 +28,8 @@ class GeographicAreaTypesController < ApplicationController
   # POST /geographic_area_types.json
   def create
     @geographic_area_type = GeographicAreaType.new(geographic_area_type_params)
-    @geographic_area_type.created_by_id = @sessions_current_user.id
-    @geographic_area_type.updated_by_id = @sessions_current_user.id
+    @geographic_area_type.created_by_id = sessions_current_user.id
+    @geographic_area_type.updated_by_id = sessions_current_user.id
 
     respond_to do |format|
       if @geographic_area_type.save
