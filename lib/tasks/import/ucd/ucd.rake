@@ -1,5 +1,7 @@
 require 'fileutils'
 
+
+### ./bin/webpack-dev-server
 ### rake tw:project_import:ucd:import_ucd data_directory=/Users/proceps/src/sf/import/ucd/working/ no_transaction=true
 ### rake tw:db:restore backup_directory=/Users/proceps/src/sf/import/ucd/dump/ file=2016-09-07_211456UTC.dump
 
@@ -62,6 +64,7 @@ namespace :tw do
           topics 
           combinations
           species_codes
+          genus_codes
           new_combinations 
           reliable 
           ptype
@@ -197,7 +200,7 @@ namespace :tw do
           email = 'j.noyes@nhm.ac.uk'
           pwd = rand(36**10).to_s(36)
 
-          print " found existing user #{email} " if user = User.find_by_email(email) 
+          print " found existing user #{email} " if user = User.find_by_email(email)
           user ||= User.create!(email: email , password: pwd, password_confirmation: pwd, name: 'John Noyes', is_flagged_for_password_reset: true, self_created: true )
 
           project = Project.create!(name: 'UCD ' + Time.now.to_s, by: user)
@@ -418,6 +421,7 @@ namespace :tw do
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         i = 0
+
         file.each do |row|
           i += 1
           print "\r#{i}"
@@ -439,9 +443,9 @@ namespace :tw do
 
             @data.all_genera_index[name] = taxon.id
 
-            if row['ValGenus'].to_s == row['CitGenus'].to_s && row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank? && !@data.species_codes[row['TaxonCode']].blank?
+            if row['ValGenus'].to_s == row['CitGenus'].to_s && row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank? && !@data.genus_codes[row['TaxonCode']].blank?
               @data.genera_index[name] = taxon.id
-              if !@data.species_codes[row['TaxonCode']].blank?
+              if !@data.genus_codes[row['TaxonCode']].blank?
                 taxon.original_genus = taxon
                 taxon.save!
               end
@@ -449,9 +453,9 @@ namespace :tw do
               set_data_for_taxon(taxon, row['TaxonCode'].to_s)
               # @data.taxon_codes[row['TaxonCode']] = taxon.id
               # taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
-            elsif row['ValGenus'].to_s == row['CitSubgen'].to_s && !row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank? && !@data.species_codes[row['TaxonCode']].blank?
+            elsif row['ValGenus'].to_s == row['CitSubgen'].to_s && !row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank? && !@data.genus_codes[row['TaxonCode']].blank?
               @data.genera_index[name] = taxon.id
-              if !@data.species_codes[row['TaxonCode']].blank?
+              if !@data.genus_codes[row['TaxonCode']].blank?
                 taxon.original_genus = TaxonName.find(origgen) unless origgen.blank?
                 taxon.original_subgenus = taxon
                 taxon.save!
@@ -471,8 +475,9 @@ namespace :tw do
         file.each do |row|
           i += 1
           print "\r#{i}"
+#          byebug if row['ValGenus'] == 'Acanthochalcis'
           if !row['CitGenus'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
-            if !@data.species_codes[row['TaxonCode']].blank?
+            if !@data.genus_codes[row['TaxonCode']].blank? && row['CitSubgen'].blank?
               taxon = Protonym.create(name: row['CitGenus'], project_id: $project_id)
             else
               taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: $project_id)
@@ -493,7 +498,7 @@ namespace :tw do
             @data.all_genera_index[taxon.name] = taxon.id
 
             if row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
-              if !@data.species_codes[row['TaxonCode']].blank?
+              if !@data.genus_codes[row['TaxonCode']].blank?
 #                r = nil
                 r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
 #                  if !r.nil? && r.id.nil?
@@ -535,7 +540,7 @@ namespace :tw do
           if !row['CitSubgen'].blank? && row['CitSpecies'].blank? && row['CitSubsp'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
             name = row['CitSubgen'].gsub(')', '').gsub('?', '').capitalize
             parent = @data.genera_index[row['ValGenus']]
-            if !@data.species_codes[row['TaxonCode']].blank?
+            if !@data.genus_codes[row['TaxonCode']].blank?
               taxon = Protonym.create(name: name, project_id: $project_id)
             else
               taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
@@ -555,7 +560,7 @@ namespace :tw do
 
             @data.all_genera_index[name] = taxon.id
 
-            if !@data.species_codes[row['TaxonCode']].blank?
+            if !@data.genus_codes[row['TaxonCode']].blank?
 #              r = nil
               r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
 #              if !r.nil? && r.id.nil?
@@ -679,7 +684,7 @@ namespace :tw do
             origgen = @data.all_genera_index[row['CitGenus']]
             origsubgen = @data.all_genera_index[row['CitSubgen']]
             name = row['CitSpecies'].gsub('sp. ', '').to_s
-            if !@data.species_codes[row['TaxonCode']].blank?
+            if !@data.species_codes[row['TaxonCode']].blank? && row['CitSubsp'].blank?
               taxon = Protonym.create(name: name, parent_id: parent, project_id: $project_id)
             else
               taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
@@ -1110,7 +1115,7 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
-          @data.species_codes[row['TaxonCode']] = true
+          @data.genus_codes[row['TaxonCode']] = true
         end
       end
 
