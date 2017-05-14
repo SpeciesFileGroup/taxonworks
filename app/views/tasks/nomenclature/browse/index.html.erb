@@ -24,7 +24,7 @@
 
         <div class="navigation-controls">
           <div class="navigation-item">
-            <%= form_tag( browse_nomenclature_task_path, class: :autocompleteClick, method: :get) do %>
+            <%= form_tag( browse_nomenclature_task_path, method: :get) do %>
               <%= render  'workbench/elements/forms/ajax_select',
                 controller:  '/taxon_names',
                 object: '',
