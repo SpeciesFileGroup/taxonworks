@@ -302,7 +302,7 @@ namespace :tw do
             definition = row['Meaning'].to_s.length < 4 ? row['Meaning'] + '.' : row['Meaning']
             definition = definition + '(' + row['KeyWords'] + ')'
           
-            topic = Topic.create!(name: definition, definition: definition)
+            topic = Topic.find_or_create_by!(name: definition, definition: definition, project_id: $project_id)
 
             topic.tags.create(keyword: tags[row['Category']]) unless row['Category'].blank?
             
@@ -1580,9 +1580,9 @@ namespace :tw do
 
           match = "#{row['Country']}|#{row['State']}"
 
-          geographic_area_id = @data.countries[match] 
+          geographic_area_id = @data.countries[match]
 
-          if geographic_area_id.nil?
+          if geographic_area_id.nil? || geographic_area_id == 'no match'
             print "skipping: #{i}: #{match}"
             next
           end
