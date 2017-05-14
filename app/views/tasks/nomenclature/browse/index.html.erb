@@ -24,11 +24,12 @@
 
         <div class="navigation-controls">
           <div class="navigation-item">
-            <%= form_tag( browse_nomenclature_task_path, method: :get) do %>
+            <%= form_tag( browse_nomenclature_task_path, class: :autocompleteClick, method: :get) do %>
               <%= render  'workbench/elements/forms/ajax_select',
                 controller:  '/taxon_names',
                 object: '',
                 method:  'id',
+                send_select: true,
                 tag_id:  'taxon_name_id_for_browse_nomenclature',
                 size: 20 %>
               <%= submit_tag 'show' -%>
