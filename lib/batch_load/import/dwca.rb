@@ -9,17 +9,25 @@ module BatchLoad
     attr_accessor :parser
     attr_accessor :tasks_
 
+    attr_accessor :rows
+    attr_accessor :row_objects
+
     def initialize(dwca_namespace: nil, **args)
       @collecting_events = {}
+      @rows              = []
+      @row_objects       = {}
       @dwca_namespace    = dwca_namespace
       @parser            = ScientificNameParser.new
       @tasks_            = {
         make_tn:  %w(scientificName taxonRank family kingdom),
         make_td:  %w(otherPile),
         make_otu: %w(pileMaker),
-        make_co:  %w(catalogNumber basisOfRecord individualCount organismQuantity organismQuantityType recordedBy),
-        make_ce:  %w(verbatimLocality eventDate decimalLatitude decimalLongitude countryCode recordedBy locationRemarks)
+        make_co:  %w(pileMaker catalogNumber basisOfRecord individualCount organismQuantity organismQuantityType recordedBy),
+        make_ce:  %w(pileMaker verbatimLocality eventDate decimalLatitude decimalLongitude countryCode recordedBy locationRemarks)
       }.freeze
+
+      pre_load
+
       super(args)
     end
 
@@ -59,7 +67,6 @@ module BatchLoad
       geodeticDatum
       collectionID
       occurrenceID
-
 =end
 # process each row for information:
     def build_dwca
@@ -67,8 +74,9 @@ module BatchLoad
 
       tasks = triage(csv.headers, tasks_)
       csv.each do |row|
+        @row_objects = {}
         tasks.each {|task|
-          send(task, row)
+          @row_objects[task] = send(task, row)
         }
         line_counter += 1
       end
@@ -87,6 +95,34 @@ module BatchLoad
     end
 
     private
+
+# only for use in a TaxonWorks rails console
+    def _setup
+      $project    = Project.where(name: 'BatchLoad Test').first
+      $project_id = $project.id
+      $user       = User.find(185)
+      $user_id    = $user.id
+      @root       = Protonym.find_or_create_by(name:       'Root',
+                                               rank_class: 'NomenclaturalRank',
+                                               parent_id:  nil,
+                                               project_id: $project_id)
+      @animalia   = Protonym.find_or_create_by(name:       'Animalia',
+                                               parent_id:  @root.id,
+                                               rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
+                                               project_id: $project_id)
+    end
+
+# what to do before you try to load the entire file
+    def pre_load
+      @root    = Protonym.find_or_create_by(name:       'Root',
+                                            rank_class: 'NomenclaturalRank',
+                                            parent_id:  nil,
+                                            project_id: sessions_current_project_id)
+      @kingdom = Protonym.find_or_create_by(name:       'Animalia',
+                                            parent_id:  @root.id,
+                                            rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
+                                            project_id: sessions_current_project_id)
+    end
 
     def make_ce(row)
       lat, long = row['decimalLatitude'], row['decimalLongitude']
@@ -109,10 +145,26 @@ module BatchLoad
     end
 
     def make_tn(row)
+      this_kingdom = row['kingdom']
+      unless this_kingdom.name == @kingdom.name
+        @kingdom = Protonym.find_or_create_by(name:       @kingdom.name,
+                                              parent_id:  @root.id,
+                                              rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
+                                              project_id: sessions_current_project_id)
+      end
+
+      this_family = row['family']
+      unless @family.name == this_family
+        @family = Protonym.find_or_create_by(name:       this_family,
+                                             parent_id:  @kingdom.id,
+                                             rank_class: Ranks.lookup(:iczn, 'family'),
+                                             project_id: sessions_current_project_id)
+      end
       sn  = row['scientificName']
       snp = @parser.parse(sn)
 
       t_n = TaxonName.new(name:            snp[:scientificName][:canonical],
+                          parent_id:       @family.id,
                           rank_class:      Ranks.lookup(:iczn, taxonRank),
                           also_create_otu: true)
       t_n.save!
