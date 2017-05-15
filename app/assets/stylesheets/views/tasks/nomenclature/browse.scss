@@ -6,6 +6,18 @@
 	.name {
 		font-size: 18px;
 	}
+
+	.ui-autocomplete {
+		width: 500px;
+		white-space: normal;
+	}
+
+	@media screen and (min-width: 980px) {
+		.ui-autocomplete {
+			width: auto;
+		white-space: nowrap;
+		}
+	}
 }
 
 .history__citation_notes p {

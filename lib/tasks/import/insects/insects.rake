@@ -1095,7 +1095,7 @@ namespace :tw do
         end
         if taxon_name.id.nil?
           o =  Otu.create(
-              name: taxon_name.parent.name + ' ' + taxon_name.name,
+              taxon_name_id: taxon_name.parent_id,name: taxon_name.parent.name + ' ' + taxon_name.name,
               identifiers_attributes: [  {identifier: row['TaxonCode'], namespace: @taxon_namespace, type: 'Identifier::Local::OtuUtility'} ]
           )
         else
