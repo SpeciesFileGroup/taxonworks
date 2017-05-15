@@ -42,7 +42,7 @@ namespace :tw do
       reset_indecies
     end
 
-    desc 'First dump then restore the database. Not intended for Production.'
+    desc 'First dump then restore the database. Not intended for Production uses.'
     task :safe_restore => [:dump, :restore]
 
     desc 'Restore from youngest dump file. Handy!'

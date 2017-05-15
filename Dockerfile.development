@@ -2,8 +2,6 @@ FROM ubuntu:16.04
 MAINTAINER Matt Yoder
 ENV LAST_FULL_REBUILD 2017-03-19
 
-# postgis* postgresql # Check star
-
 RUN apt-get update && \
     apt-get install -y software-properties-common && \ 
     apt-get install -y git gcc nodejs build-essential libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev  && \
@@ -33,7 +31,7 @@ ENV LC_ALL en_US.UTF-8
 RUN echo 'gem: --no-rdoc --no-ri >> "$HOME/.gemrc"'
 
 # Configure Bundler to install everthing globaly
-ENV GEM_HOME /usr/lcoal/bundle
+ENV GEM_HOME /usr/local/bundle
 ENV PATH $GEM_HOME/bin:$PATH
 
 RUN gem install bundler && \
