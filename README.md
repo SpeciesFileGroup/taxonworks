@@ -9,7 +9,7 @@
 
 ## Overview
 
-To get a general overview on the project, its vision, and scope see [taxonworks.org][13].  
+To get a general overview on the project, its vision, and scope see [taxonworks.org][http://taxonworks.org].  
 
 ## Installation
 
