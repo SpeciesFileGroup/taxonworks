@@ -26,7 +26,8 @@ module Support
       $?.to_i
     end
 
-    # This doesn't actually say if the database exists or not!  Try it, load a console, drop the database in another terminal, and call this method.
+    # This doesn't actually say if the database exists or not!  
+    #   Try it, load a console, drop the database in another terminal, and call this method.
     def self.pg_database_exists?
       begin
         ActiveRecord::Base.connection

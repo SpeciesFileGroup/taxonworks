@@ -9,6 +9,14 @@ namespace :tw do
     true
   end
 
+  task :check_for_database do
+    raise TaxonWorks::Error, "can not attach to database" unless Support::Database.pg_database_exists?
+  end
+
+  task :db_user => [:environment] do
+    ENV['db_user'] = Rails.configuration.database_configuration[Rails.env]['username'] if ENV['db_user'].blank?
+  end
+
   desc 'Sets $user_id via "user_id=1" option. checks to see it exists.'
   task :user_id => [:environment] do
     raise "You must specify a user_id like 'user_id=2'" unless ENV["user_id"]
@@ -68,16 +76,17 @@ namespace :tw do
     @args
   end
 
-  desc 'a general purpose task to supply a file path to @args, file=/path/to/file.txt' 
+  desc 'a general purpose task to supply a file @args, file=file.txt' 
   task :file do
     file = ENV['file']
-    raise 'Provide a full path to a file.' if file.nil?
-    if File.exists?(file)
-      @args ||= {}
-      @args.merge!(file: file)
-    else
-      raise "Provided file (#{file}) does not exist."
-    end
+    raise TaxonWorks::Error, Rainbow('Specify a file, like file=myfile.dump').yellow if not ENV['file']
+    @args ||= {}
+    @args.merge!(file: file)
+  end
+
+  desc 'provide file=/foo/something.bar and ensure file exists with provided value'
+  task :existing_file => [:file] do
+    raise TaxonWorks::Error, "Provided file (#{file}) does not exist." unless File.exists?(file)
   end
 
   desc 'set the database_role ENV value if provided, or use "postgres"'
