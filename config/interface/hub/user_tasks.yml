@@ -231,7 +231,9 @@ psu_import_task:
   name: 'Import Penn State DWCA'
   related:
     - collecting_events
+    - collection_objects
   categories:
     - collecting_event
+    - collection_object
   status: prototype
   description: 'Import a DWCA file from Penn State.'
