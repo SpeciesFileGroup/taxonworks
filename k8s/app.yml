@@ -38,7 +38,7 @@ spec:
             claimName: taxonworks-media-pv-claim
       containers:
         - name: taxonworks
-          image: sfgrp/taxonworks:dev
+          image: sfgrp/taxonworks:0.0.2
           livenessProbe:
             httpGet:
               path: /

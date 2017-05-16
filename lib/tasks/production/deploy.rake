@@ -24,7 +24,6 @@ namespace :tw do
         # Result is 
         #   0 - full deploy passed 
         #   1 (non zero) - error, database is unchanged from prior attempt, triggered with raise()
-        #
 
         # Stage 0 - test config, abort if something doesn't jive (subtask)
 

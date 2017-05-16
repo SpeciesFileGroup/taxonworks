@@ -20,7 +20,7 @@ node_modules
 
 .ruby-gemset
 .bundle
-bin
+
 bundle_bin
 
 log
@@ -34,6 +34,8 @@ coverage
 REVISION
 
 public/images/tmp
+public/assets/
+# what about public/packs
 
 .git
 spec
