@@ -62,28 +62,60 @@ TAXON_NAME_CLASS_NAMES_VALID = [
 ].flatten.map(&:to_s).freeze
 
 
+# JSON supporting
 module TaxonNameClassificationsHelper
-  def self.classifications_attributes(classification)
-    classification.descendants.inject([]) {|ary, r| 
-      ary.push(
-        { 
-          name: r.label,
-          type: r.to_s,
-          common: r.common,
-          applicable_ranks: r.applicable_ranks
-        }
+  
+  # @return [Hash]
+  def self.collection(classifications)
+    classifications.inject({}) {|hsh, c| 
+      hsh.merge!(
+        c.name => attributes(c)
       )
     }
+  end
+
+  # @return [Hash]
+  def self.attributes(classification)
+    return { 
+      name: classification.label,
+      type: classification.to_s,
+      applicable_ranks: classification.applicable_ranks
+    }
+  end
+
+  # @return [Hash]
+  def self.descendants_collection(base_classification)
+    collection(base_classification.descendants)
   end
 end
 
 
-
 TAXON_NAME_CLASSIFICATION_JSON = {
-  iczn: TaxonNameClassificationsHelper::classifications_attributes( TaxonNameClassification::Iczn ),
-  icn: TaxonNameClassificationsHelper::classifications_attributes( TaxonNameClassification::Icn ),
-  icnb: TaxonNameClassificationsHelper::classifications_attributes( TaxonNameClassification::Icnb ),
-  latinized: TaxonNameClassificationsHelper::classifications_attributes( TaxonNameClassification::Latinized ),
+  iczn: {
+    tree: ApplicationEnumeration.nested_subclasses(TaxonNameClassification::Iczn),
+    all: TaxonNameClassificationsHelper::descendants_collection( TaxonNameClassification::Iczn ),
+    common: TaxonNameClassificationsHelper.collection([
+      TaxonNameClassification::Iczn::Unavailable,
+      TaxonNameClassification::Iczn::Unavailable::NomenNudum,
+      TaxonNameClassification::Iczn::Available::Invalid::Homonym,
+      TaxonNameClassification::Iczn::Available::Valid::NomenDubium,
+      TaxonNameClassification::Iczn::Fossil 
+    ])
+  }, 
+  icn: {
+    tree: ApplicationEnumeration.nested_subclasses(TaxonNameClassification::Icn),
+    all: TaxonNameClassificationsHelper::descendants_collection( TaxonNameClassification::Icn ),
+    common: TaxonNameClassificationsHelper.collection([])
+  },
+  icnb: {
+    tree: ApplicationEnumeration.nested_subclasses(TaxonNameClassification::Icnb),
+    all: TaxonNameClassificationsHelper::descendants_collection( TaxonNameClassification::Icnb ),
+    common: TaxonNameClassificationsHelper.collection([])
+  },
+  latinized: {
+    tree: ApplicationEnumeration.nested_subclasses(TaxonNameClassification::Latinized),
+    all: TaxonNameClassificationsHelper::descendants_collection( TaxonNameClassification::Latinized ),
+    common: TaxonNameClassificationsHelper.collection([])
+  }
 }
-
 
