@@ -19,11 +19,11 @@ module BatchLoad
       @dwca_namespace    = dwca_namespace
       @parser            = ScientificNameParser.new
       @tasks_            = {
-        make_tn:  %w(scientificName taxonRank family kingdom),
+        make_tn:  %w(scientificname taxonrank family kingdom),
         make_td:  %w(otherPile),
         make_otu: %w(pileMaker),
-        make_co:  %w(pileMaker catalogNumber basisOfRecord individualCount organismQuantity organismQuantityType recordedBy),
-        make_ce:  %w(pileMaker verbatimLocality eventDate decimalLatitude decimalLongitude countryCode recordedBy locationRemarks)
+        make_co:  %w(catalognumber basisofrecord individualcount organismquantity organismquantitytype recordedby),
+        make_ce:  %w(verbatimlocality eventdate decimallatitude decimallongitude countrycode recordedby locationremarks)
       }.freeze
 
       pre_load
@@ -78,9 +78,52 @@ module BatchLoad
         tasks.each {|task|
           @row_objects[task] = send(task, row)
         }
+
+        c_o     = @row_objects[:make_co]
+        c_e     = @row_objects[:make_ce]
+        species = @row_objects[:make_tn][:species]
+        if species.nil?
+          t_n = @row_objects[:make_tn][:genus]
+        else
+          t_n = species
+        end
+
+        t_n.save!
+        otu                  = Otu.create!(taxon_name: t_n)
+        c_o.collecting_event = c_e
+        t_d                  = TaxonDetermination.create!(biological_collection_object: c_o, otu: otu)
+
         line_counter += 1
       end
       @total_lines = line_counter - 1
+    end
+
+    def pilgram
+      @row_objects.keys.each {|kee| # necessary actions are specified by keys
+        @row_objects[kee].each {|item| # objects to correlate
+
+          case kee
+            when 'make_ce'
+              item.save!
+            when 'make_co'
+              item.save!
+            when 'make_tn'
+              item.save!
+              if item.otus.count < 1
+                Otu.create(by: item.creator, project: item.project, taxon_name_id: item.id)
+              end
+              item.valid?
+          end
+
+          if item.valid?
+            item.save!
+          else
+            line = item.errors.messages
+            puts line
+          end
+        }
+      }
+
     end
 
     def build
@@ -114,25 +157,26 @@ module BatchLoad
 
 # what to do before you try to load the entire file
     def pre_load
-      @root    = Protonym.find_or_create_by(name:       'Root',
-                                            rank_class: 'NomenclaturalRank',
-                                            parent_id:  nil,
-                                            project_id: sessions_current_project_id)
-      @kingdom = Protonym.find_or_create_by(name:       'Animalia',
-                                            parent_id:  @root.id,
-                                            rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
-                                            project_id: sessions_current_project_id)
+      @root = Protonym.find_or_create_by(name:       'Root',
+                                         rank_class: 'NomenclaturalRank',
+                                         parent_id:  nil,
+                                         project_id: $project_id)
+      # @kingdom = Protonym.find_or_create_by(name:       'Animalia',
+      #                                       parent_id:  @root.id,
+      #                                       rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
+      #                                       project_id: @project_id)
+      @root.save!
     end
 
     def make_ce(row)
-      lat, long = row['decimalLatitude'], row['decimalLongitude']
+      lat, long = row['decimallatitude'], row['decimallongitude']
       c_e       = CollectingEvent.new(verbatim_latitude:  (lat.length > 0) ? lat : nil,
                                       verbatim_longitude: (long.length > 0) ? long : nil,
-                                      verbatim_locality:  row['verbatimLocality'],
-                                      verbatim_date:      row['eventDate'],
-                                      verbatim_label:     row['locationRemarks']
+                                      verbatim_locality:  row['verbatimlocality'],
+                                      verbatim_date:      row['eventlate'],
+                                      verbatim_label:     row['locationlemarks']
       )
-      c_e.save!
+
       c_e
     end
 
@@ -140,35 +184,91 @@ module BatchLoad
       'Otu'
     end
 
+#         make_co:  %w(catalognumber basisofrecord individualcount organismquantity organismquantitytype recordedby),
     def make_co(row)
-      'CollectionObject'
+      c_o = Specimen.new(total: row[:organismquantity])
+      c_o
     end
 
     def make_tn(row)
+      ret_val      = {species: nil, genus: nil}
       this_kingdom = row['kingdom']
-      unless this_kingdom.name == @kingdom.name
-        @kingdom = Protonym.find_or_create_by(name:       @kingdom.name,
-                                              parent_id:  @root.id,
+      unless @kingdom.try(:name) == this_kingdom
+        @kingdom = Protonym.find_or_create_by(name:       this_kingdom,
                                               rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
-                                              project_id: sessions_current_project_id)
+                                              project_id: $project_id)
+
+        if @kingdom.new_record?
+          @kingdom.parent = @root
+          @kingdom.save!
+          ret_val[:kingdom] = @kingdom
+        end
       end
 
       this_family = row['family']
-      unless @family.name == this_family
+      unless @family.try(:name) == this_family
         @family = Protonym.find_or_create_by(name:       this_family,
-                                             parent_id:  @kingdom.id,
-                                             rank_class: Ranks.lookup(:iczn, 'family'),
-                                             project_id: sessions_current_project_id)
+                                             rank_class: NomenclaturalRank::Iczn::FamilyGroup::Family,
+                                             project_id: $project_id)
+        if @family.new_record?
+          @family.parent = @kingdom
+          @family.save!
+          ret_val[:family] = @family
+        end
       end
-      sn  = row['scientificName']
+      sn  = row['scientificname']
       snp = @parser.parse(sn)
 
-      t_n = TaxonName.new(name:            snp[:scientificName][:canonical],
-                          parent_id:       @family.id,
-                          rank_class:      Ranks.lookup(:iczn, taxonRank),
-                          also_create_otu: true)
-      t_n.save!
-      t_n
+      # find or create Protonym based on exact match of row['scientificname'] and taxon_names.cached
+
+      t_n = Protonym.find_or_create_by(cached: snp[:scientificName][:canonical], project_id: $project_id)
+
+      if t_n.new_record?
+        case row['taxonrank'].downcase
+          when 'species'
+            begin # find or create genus
+              genus_name = snp[:scientificName][:details][0][:genus][:string]
+              @genus     = Protonym.find_or_create_by(name:       genus_name,
+                                                      parent:     @family,
+                                                      rank_class: NomenclaturalRank::Iczn::GenusGroup::Genus,
+                                                      project_id: $project_id)
+              if @genus.new_record?
+                @genus.save!
+                ret_val[:new_genus] = @genus
+              end
+            end
+            species                 = snp[:scientificName][:details][0][:species]
+            t_n.parent              = @genus
+            t_n.rank_class          = NomenclaturalRank::Iczn::SpeciesGroup::Species
+            t_n.name                = species[:string]
+            # t_n.cached_author_year = snp[:scientificName][:details][0][:species][:authorship]
+            t_n.year_of_publication = species[:basionymAuthorTeam][:year].to_i
+            author_name             = species[:basionymAuthorTeam][:authorTeam]
+            if species[:authorship].include?('(')
+              author_name = "(#{author_name})"
+            end
+            t_n.verbatim_author = author_name
+            ret_val[:species]   = t_n
+          when 'genus'
+            genus           = snp[:scientificName][:details][0][:uninomial]
+            t_n.parent      = @family
+            t_n.rank_class  = NomenclaturalRank::Iczn::GenusGroup::Genus
+            t_n.name        = genus[:string]
+            ret_val[:genus] = t_n
+        end
+        # t_n.create_otu
+      else
+        if t_n.otus.count < 1
+          # t_n.create_otu
+        end
+      end
+
+      # t_n = Protonym.new(name:               snp[:scientificName][:canonical],
+      #                     cached_author_year: ,
+      #                     parent_id:          ,
+      #                     rank_class:         ,
+      #                     also_create_otu:    true)
+      ret_val
     end
 
     def make_td(row)

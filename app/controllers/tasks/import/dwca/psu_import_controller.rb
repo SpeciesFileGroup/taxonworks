@@ -10,7 +10,7 @@ class Tasks::Import::Dwca::PsuImportController < ApplicationController
   # POST
   def preview_psu_import
     if params[:file]
-      @result = BatchLoad::Import::DWCA.new(import_params)
+      @result = BatchLoad::Import::DWCA.new(import_params).rows
       digest_cookie(params[:file].tempfile, :psu_import_md5)
       render 'preview_psu_import'
     else
