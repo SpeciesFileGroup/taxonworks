@@ -828,9 +828,9 @@ ActiveRecord::Schema.define(version: 20170411192800) do
   create_table "geographic_items", force: :cascade do |t|
     t.datetime  "created_at",                                                                                               null: false
     t.datetime  "updated_at",                                                                                               null: false
-    t.geography "point",               limit: {:srid=>4326, :type=>"point", :has_z=>true, :geographic=>true}
+    t.geography "point",               limit: {:srid=>4326, :type=>"st_point", :has_z=>true, :geographic=>true}
     t.geography "line_string",         limit: {:srid=>4326, :type=>"line_string", :has_z=>true, :geographic=>true}
-    t.geography "polygon",             limit: {:srid=>4326, :type=>"polygon", :has_z=>true, :geographic=>true}
+    t.geography "polygon",             limit: {:srid=>4326, :type=>"st_polygon", :has_z=>true, :geographic=>true}
     t.geography "multi_point",         limit: {:srid=>4326, :type=>"multi_point", :has_z=>true, :geographic=>true}
     t.geography "multi_line_string",   limit: {:srid=>4326, :type=>"multi_line_string", :has_z=>true, :geographic=>true}
     t.geography "multi_polygon",       limit: {:srid=>4326, :type=>"multi_polygon", :has_z=>true, :geographic=>true}

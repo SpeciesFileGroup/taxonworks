@@ -626,7 +626,7 @@ class TaxonName < ActiveRecord::Base
   #region Set cached fields
 
   def set_type_if_empty
-    self.type = 'Protonym' if self.type.nil?
+    self.type = 'Protonym' if self.type.nil? || self.type == 'TaxonName'
   end
 
   def set_cached_names

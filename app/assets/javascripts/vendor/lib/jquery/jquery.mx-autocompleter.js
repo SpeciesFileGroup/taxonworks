@@ -60,6 +60,9 @@
               }).appendTo($form);
             });
           }
+          if($this.data('send-select')) {
+            $(event.target.form).submit();
+          }
         });
 
       /* Update the response method to add a --NONE-- label when the response is present
