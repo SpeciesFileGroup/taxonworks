@@ -26,7 +26,6 @@
       this.$on('parentSelected', function(item) {
        this.$store.commit('setParentId', item.id);
        this.$http.get(`/taxon_names/${item.id}`).then( response => {
-        console.log(that.$store.getters[GetterNames.GetRankList]);
         var nomenclatureRanks = JSON.parse(JSON.stringify(that.$store.getters[GetterNames.GetRankList][response.body.nomenclatural_code]));
         var group = foundRankGroup(nomenclatureRanks, response.body.rank);
         response.body.rankGroup = group;

@@ -53,14 +53,13 @@ export default {
     props: {
 
       url: {
-        type: String,
-        required: true
+        type: String
       },
 
       autofocus: {
         type: Boolean,
         default: false
-      },      
+      },
 
       label: String,
 
@@ -72,6 +71,11 @@ export default {
       time: {
         type: String,
         default: "500"
+      },
+
+      arrayList: {
+        type: Array,
+        default: undefined
       },
 
       min: {
@@ -151,22 +155,37 @@ export default {
           if(this.type.length < Number(this.min)) return;
           this.spinner = true;
           this.clearResults();   
-
-          this.$http.get(this.ajaxUrl(), {
-            before(request) {
-              if (this.previousRequest) {
-                this.previousRequest.abort();
+          if(this.arrayList) {
+            var finded = [];
+            var that = this;
+            
+            this.arrayList.forEach(function(item) {
+              if(item[that.label].includes(that.type)) {
+                finded.push(item);
               }
-              this.previousRequest = request;
-            }            
-          }).then(response => {
-            this.json = response.body;
+            });
+            
+            this.spinner = false;
+            this.json = finded;
             this.showList = (this.json.length > 0)
-            this.spinner = false;
-          }, response => {
-            // error callback
-            this.spinner = false;
-          });
+          }
+          else {
+            this.$http.get(this.ajaxUrl(), {
+              before(request) {
+                if (this.previousRequest) {
+                  this.previousRequest.abort();
+                }
+                this.previousRequest = request;
+              }            
+            }).then(response => {
+              this.json = response.body;
+              this.showList = (this.json.length > 0)
+              this.spinner = false;
+            }, response => {
+              // error callback
+              this.spinner = false;
+            });
+          }
         },
         activeClass: function activeClass(index) {
           return {
