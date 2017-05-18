@@ -1,7 +1,12 @@
 # Be sure to restart your server (or console) when you modify this file.
 
-# All TaxonNameRelationship Classes
-# TODO: scope to assignable
+# All TaxonNameRelationship as Classes.
+# 
+# !! NOT ALL CLASSES ARE ASSIGNABLE 
+# !! (see TAXON_NAME_RELATIONSHIP_NAMES for the list of assignable one)
+#
+# TODO: deprecate this array of Classes for array of strings
+#
 TAXON_NAME_RELATIONSHIPS = TaxonNameRelationship.descendants.freeze
 
 # Array of all ICZN TaxonNameRelationship classes, as Strings 
@@ -45,4 +50,59 @@ TAXON_NAME_RELATIONSHIPS_TYPE_JSON = {
   family:  TAXON_NAME_RELATIONSHIPS_OBJECT_SELECT.select{|a,b| b =~ /.*::Typification::Family/},
   genus: TAXON_NAME_RELATIONSHIPS_OBJECT_SELECT.select{|a,b| b =~ /.*::Typification::Genus/}
 }
+
+
+# JSON supporting
+module TaxonNameRelationshipsHelper
+  
+  # @return [Hash]
+  def self.collection(relationships)
+    relationships.select{|r| r.assignable }.inject({}) {|hsh, c| 
+      hsh.merge!(
+        c.name => attributes(c)
+      )
+    }
+  end
+
+  # @return [Hash]
+  def self.attributes(taxon_name_relationship_klass)
+    k = taxon_name_relationship_klass
+    n = k.new
+    return { 
+      subject_status_tag: n.subject_status_tag,
+      object_status_tag:  n.object_status_tag
+    }
+  end
+
+  # @return [Hash]
+  def self.descendants_collection(base_classification)
+    collection(base_classification.descendants)
+  end
+end
+
+
+TAXON_NAME_RELATIONSHIPS_JSON = {
+  iczn: {
+    tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Iczn),
+    all: TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Iczn ),
+    common: TaxonNameRelationshipsHelper.collection([
+    ])
+  }, 
+
+  icn: {
+    tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Icn),
+    all: TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Icn ),
+    common: TaxonNameRelationshipsHelper.collection([
+    ])
+  }, 
+
+  icnb: {
+    tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Icnb),
+    all: TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Icnb ),
+    common: TaxonNameRelationshipsHelper.collection([
+    ])
+  } 
+
+}
+
 

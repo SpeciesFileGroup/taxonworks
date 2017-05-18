@@ -105,6 +105,11 @@ class TaxonNameRelationshipsController < ApplicationController
     render json: TAXON_NAME_RELATIONSHIPS_TYPE_JSON
   end
 
+  # GET /taxon_name_relationships/taxon_name_relationship_types
+  def taxon_name_relationship_types
+    render json: TAXON_NAME_RELATIONSHIPS_JSON
+  end
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_taxon_name_relationship

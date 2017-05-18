@@ -409,6 +409,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       get :type_relationships, {format: :json}
+      get :taxon_name_relationship_types, {format: :json}
     end
   end
 
