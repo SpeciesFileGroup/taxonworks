@@ -17,7 +17,7 @@ Instructions for installing TaxonWorks for development and production use, and n
 
 ## Learn more, collaborate
 
-To learn more about using and collaborating with the TaxonWorks community see [taxonworks_doc](https://github.com/SpeciesFileGroup/taxonworks).
+To learn more about using and collaborating with the TaxonWorks community see [taxonworks_doc](https://github.com/SpeciesFileGroup/taxonworks_doc).
 
 ## License
 
