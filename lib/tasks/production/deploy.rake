@@ -5,18 +5,6 @@ namespace :tw do
   namespace :production do
     namespace :deploy do
 
-      task :foo do 
-        raise TaxonWorks::Error, "asdf"
-      end
-
-      task :bar => [:environment] do
-        begin 
-          Rake::Task["tw:production:deploy:foo"].invoke
-        rescue TaxonWorks::Error
-          puts "REEEET REEEET REEET"
-        end
-      end
-
       # Called from within Dockerfile.  The database must exist before this point!
       desc 'A database deployment strategy for Docker/Kubernetes.'
       task :update_database => [:environment, :db_user, :backup_directory, :check_for_database] do
