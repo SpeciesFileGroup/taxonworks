@@ -20,10 +20,11 @@ module BatchLoad
       @parser            = ScientificNameParser.new
       @tasks_            = {
         make_tn:  %w(scientificname taxonrank family kingdom),
-        make_td:  %w(otherPile),
-        make_otu: %w(pileMaker),
+        make_td:  %w(),
+        make_otu: %w(scientificname),
         make_co:  %w(catalognumber basisofrecord individualcount organismquantity organismquantitytype recordedby),
-        make_ce:  %w(verbatimlocality eventdate decimallatitude decimallongitude countrycode recordedby locationremarks)
+        make_gr:  %w(decimallatitude decimallongitude countrycode stateprovince county municipality coordinateuncertaintyinmeters georeferencedby),
+        make_ce:  %w(verbatimlocality eventdate recordedby locationremarks)
       }.freeze
 
       pre_load
@@ -79,26 +80,77 @@ module BatchLoad
           @row_objects[task] = send(task, row)
         }
 
+        otu     = @row_objects[:make_otu]
+        t_d     = @row_objects[:make_td]
         c_o     = @row_objects[:make_co]
         c_e     = @row_objects[:make_ce]
+        g_l     = @row_objects[:make_gr]
         species = @row_objects[:make_tn][:species]
+        genus   = @row_objects[:make_tn][:genus]
+        tribe   = @row_objects[:make_tn][:tribe]
+        t_n     = @row_objects[:make_tn].select {|kee, val| val != nil}.values.first
         if species.nil?
-          t_n = @row_objects[:make_tn][:genus]
+          if genus.nil?
+            t_n = tribe
+          else
+            t_n = genus
+          end
         else
           t_n = species
         end
 
-        t_n.save!
-        otu                  = Otu.create!(taxon_name: t_n)
+        t_n.save! if t_n.new_record?
+        otu.taxon_name = t_n
+        otu.save!
         c_o.collecting_event = c_e
-        t_d                  = TaxonDetermination.create!(biological_collection_object: c_o, otu: otu)
+        c_o.save!
+        t_d.biological_collection_object = c_o
+        t_d.otu                          = otu
+        t_d.save!
+        c_e.save!
+        g_l.collecting_event = c_e
+        g_l.save!
 
+        messages = []
+        begin # make sure all objects for this row get saved
+          @row_objects.keys.each {|kee|
+            objects = @row_objects[kee]
+            case objects.class.to_s
+              when 'Array'
+                objects.each {|object|
+                  if object.valid?
+                    object.save
+                  else
+                    messages.push(object.errors.messages)
+                  end
+                }
+              when 'Hash'
+                objects.keys.each {|rank|
+                  object = objects[rank]
+                  unless object.blank?
+                    if object.valid?
+                      object.save
+                    else
+                      messages.push(object.errors.messages)
+                    end
+                  end
+                }
+              else
+                if objects.valid?
+                  objects.save
+                else
+                  messages.push(objects.errors.messages)
+                end
+            end
+          }
+          messages
+        end
         line_counter += 1
       end
       @total_lines = line_counter - 1
     end
 
-    def pilgram
+    def pilgrim # TODO: remove when result cycler is finished.
       @row_objects.keys.each {|kee| # necessary actions are specified by keys
         @row_objects[kee].each {|item| # objects to correlate
 
@@ -161,39 +213,66 @@ module BatchLoad
                                          rank_class: 'NomenclaturalRank',
                                          parent_id:  nil,
                                          project_id: $project_id)
-      # @kingdom = Protonym.find_or_create_by(name:       'Animalia',
-      #                                       parent_id:  @root.id,
-      #                                       rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
-      #                                       project_id: @project_id)
-      @root.save!
+      @root.save! if @root.new_record?
+      @kingdom = Protonym.find_or_create_by(name:       'Animalia',
+                                            parent_id:  @root.id,
+                                            rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
+                                            project_id: $project_id)
+      @kingdom.save! if @kingdom.new_record?
     end
 
+    def make_gr(row)
+      # faking a Georeference::GeoLocate:
+      lat, long           = row['decimallatitude'], row['decimallongitude']
+      lat, long           = (lat.length > 0) ? lat : nil, (long.length > 0) ? long : nil
+      uncert              = row['coordinateuncertaintyinmeters']
+      gl_req_params       = {country:   GeographicArea.where(iso_3166_a2: row['countrycode']).first.name,
+                             state:     row['stateprovince'],
+                             county:    row['county'],
+                             Placename: row['municipality'],
+                             Uncert:    uncert,
+                             Latitude:  lat,
+                             Longitude: long,
+                             locality:  row['locality'],
+                             gc:        row['georeferencedby']}.stringify_keys
+      req                 = Georeference::GeoLocate::RequestUI.new(gl_req_params)
+      #   1) new the Georeference, without a collecting_event
+      g_l                 = Georeference::GeoLocate.new
+      #   2) save the information from the row in request_hash
+      g_l.api_request     = req.request_params_string
+      #   3) build a fake iframe response in the form '52.65|-106.333333|3036|Unavailable'
+      text                = "#{lat}|#{long}|#{uncert}|Unavailable"
+      #   4) use that fake to stimulate the parser to create the object
+      g_l.iframe_response = text
+
+      g_l
+    end
+
+# available data comes from Tulane geolocation action, reflected by the fact that the georefernce is a GeoLocate
     def make_ce(row)
-      lat, long = row['decimallatitude'], row['decimallongitude']
-      c_e       = CollectingEvent.new(verbatim_latitude:  (lat.length > 0) ? lat : nil,
-                                      verbatim_longitude: (long.length > 0) ? long : nil,
-                                      verbatim_locality:  row['verbatimlocality'],
-                                      verbatim_date:      row['eventlate'],
-                                      verbatim_label:     row['locationlemarks']
+      c_e = CollectingEvent.new(verbatim_locality: row['verbatimlocality'],
+                                verbatim_date:     row['eventdate'],
+                                verbatim_label:    row['locationremarks']
       )
 
       c_e
     end
 
     def make_otu(row)
-      'Otu'
+      Otu.new
     end
 
 #         make_co:  %w(catalognumber basisofrecord individualcount organismquantity organismquantitytype recordedby),
     def make_co(row)
       c_o = Specimen.new(total: row[:organismquantity])
+
       c_o
     end
 
     def make_tn(row)
-      ret_val      = {species: nil, genus: nil}
+      ret_val      = {species: nil, genus: nil, tribe: nil}
       this_kingdom = row['kingdom']
-      unless @kingdom.try(:name) == this_kingdom
+      if @kingdom.try(:name) != this_kingdom
         @kingdom = Protonym.find_or_create_by(name:       this_kingdom,
                                               rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
                                               project_id: $project_id)
@@ -206,7 +285,7 @@ module BatchLoad
       end
 
       this_family = row['family']
-      unless @family.try(:name) == this_family
+      if @family.try(:name) != this_family
         @family = Protonym.find_or_create_by(name:       this_family,
                                              rank_class: NomenclaturalRank::Iczn::FamilyGroup::Family,
                                              project_id: $project_id)
@@ -216,16 +295,17 @@ module BatchLoad
           ret_val[:family] = @family
         end
       end
-      sn  = row['scientificname']
-      snp = @parser.parse(sn)
+      sn        = row['scientificname']
+      snp       = @parser.parse(sn)
 
       # find or create Protonym based on exact match of row['scientificname'] and taxon_names.cached
 
-      t_n = Protonym.find_or_create_by(cached: snp[:scientificName][:canonical], project_id: $project_id)
+      t_n       = Protonym.find_or_create_by(cached: snp[:scientificName][:canonical], project_id: $project_id)
+      this_rank = row['taxonrank'].downcase.to_sym
 
       if t_n.new_record?
-        case row['taxonrank'].downcase
-          when 'species'
+        case this_rank
+          when :species
             begin # find or create genus
               genus_name = snp[:scientificName][:details][0][:genus][:string]
               @genus     = Protonym.find_or_create_by(name:       genus_name,
@@ -249,18 +329,24 @@ module BatchLoad
             end
             t_n.verbatim_author = author_name
             ret_val[:species]   = t_n
-          when 'genus'
+          when :genus
             genus           = snp[:scientificName][:details][0][:uninomial]
             t_n.parent      = @family
             t_n.rank_class  = NomenclaturalRank::Iczn::GenusGroup::Genus
             t_n.name        = genus[:string]
             ret_val[:genus] = t_n
+          when :tribe
+            tribe           = snp[:scientificName][:details][0][:uninomial]
+            t_n.parent      = @family
+            t_n.rank_class  = NomenclaturalRank::Iczn::FamilyGroup::Tribe
+            t_n.name        = tribe[:string]
+            ret_val[:tribe] = t_n
+          else
+            raise "Unknown taxonRank #{this_rank}."
         end
         # t_n.create_otu
       else
-        if t_n.otus.count < 1
-          # t_n.create_otu
-        end
+        ret_val[this_rank] = t_n
       end
 
       # t_n = Protonym.new(name:               snp[:scientificName][:canonical],
@@ -272,7 +358,7 @@ module BatchLoad
     end
 
     def make_td(row)
-      'TaxonDetermination'
+      TaxonDetermination.new
     end
 
 =begin
