@@ -105,17 +105,27 @@ TAXON_NAME_CLASSIFICATION_JSON = {
   icn: {
     tree: ApplicationEnumeration.nested_subclasses(TaxonNameClassification::Icn),
     all: TaxonNameClassificationsHelper::descendants_collection( TaxonNameClassification::Icn ),
-    common: TaxonNameClassificationsHelper.collection([])
+    common: TaxonNameClassificationsHelper.collection([
+      TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
+      TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::NomenNudum,
+      TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate::Homonym,
+      TaxonNameClassification::Icn::Fossil
+    ])
   },
   icnb: {
     tree: ApplicationEnumeration.nested_subclasses(TaxonNameClassification::Icnb),
     all: TaxonNameClassificationsHelper::descendants_collection( TaxonNameClassification::Icnb ),
-    common: TaxonNameClassificationsHelper.collection([])
+    common: TaxonNameClassificationsHelper.collection([
+    
+    ])
   },
   latinized: {
     tree: ApplicationEnumeration.nested_subclasses(TaxonNameClassification::Latinized),
     all: TaxonNameClassificationsHelper::descendants_collection( TaxonNameClassification::Latinized ),
-    common: TaxonNameClassificationsHelper.collection([])
+    common: TaxonNameClassificationsHelper.collection([
+      TaxonNameClassification::Icnb::EffectivelyPublished::InvalidlyPublished,
+      TaxonNameClassification::Icnb::EffectivelyPublished::InvalidlyPublished::NomenNudum,
+      TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Illegitimate::Homonym
+    ])
   }
 }
-
