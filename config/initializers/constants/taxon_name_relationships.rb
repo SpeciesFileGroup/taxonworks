@@ -86,6 +86,10 @@ TAXON_NAME_RELATIONSHIPS_JSON = {
     tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Iczn),
     all: TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Iczn ),
     common: TaxonNameRelationshipsHelper.collection([
+      TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective,
+      TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective,
+      TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
+      TaxonNameRelationship::Iczn::Invalidating::Homonym
     ])
   }, 
 
@@ -93,6 +97,11 @@ TAXON_NAME_RELATIONSHIPS_JSON = {
     tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Icn),
     all: TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Icn ),
     common: TaxonNameRelationshipsHelper.collection([
+     TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic,
+     TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic,
+     TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling,
+     TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym,
+     TaxonNameRelationship::Icn::Unaccepting::Homonym
     ])
   }, 
 
@@ -100,6 +109,10 @@ TAXON_NAME_RELATIONSHIPS_JSON = {
     tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Icnb),
     all: TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Icnb ),
     common: TaxonNameRelationshipsHelper.collection([
+      TaxonNameRelationship::Icnb::Unaccepting::Synonym::Objective,
+      TaxonNameRelationship::Icnb::Unaccepting::Synonym::Subjective,
+      TaxonNameRelationship::Icnb::Unaccepting::Usage::Misspelling,
+      TaxonNameRelationship::Icnb::Unaccepting::Homonym
     ])
   } 
 
