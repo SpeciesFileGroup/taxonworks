@@ -72,20 +72,19 @@ describe Settings do
         end
 
       end
-      
-      context "when invalid directory" do
-        it "throws error when directory does not exist" do
-          invalid_directory = { default_data_directory: 'INVALID_DIRECTORY' }
-          expect { Settings.load_from_hash(rails_config, invalid_directory) }.to raise_error(/.*INVALID_DIRECTORY.*/)
+
+      context "when uncreated directory" do
+        let(:path) { File.absolute_path('DATA_INVALID_DIRECTORY') } 
+        let(:invalid_directory) { { default_data_directory: path } }
+
+        after(:all) { FileUtils.rm_rf( File.absolute_path('DATA_INVALID_DIRECTORY') ) }
+
+        it "creates the directory when it does not exist" do
+          expect(Settings.load_from_hash(rails_config, invalid_directory)).to be_truthy
+          expect( Dir.exists?(path) ).to be_truthy
         end
-        
-        it "throws error when path is not a directory" do
-          file = { default_data_directory: 'spec/settings/file' }
-          expect { Settings.load_from_hash(rails_config, file) }.to raise_error(/.*spec\/settings\/file.*/)
-        end
-        
       end
-      
+
       context "when not present" do
         it "sets ::default_data_directory to nil" do
           Settings.load_from_hash(rails_config, { })
@@ -98,7 +97,7 @@ describe Settings do
       let(:valid_exception_notification) {
         { exception_recipients: valid_full_config[:exception_notification][:exception_recipients],
           email_prefix: 'foo',
-         sender_address: 'bar' 
+          sender_address: 'bar' 
       }
       }       
 
@@ -120,27 +119,23 @@ describe Settings do
 
       end
       
-      context "when invalid directory" do
-        
-        it "throws error when directory does not exist" do
-          invalid_directory = { backup_directory: 'INVALID_DIRECTORY' }
-          expect { Settings.load_from_hash(rails_config, invalid_directory) }.to raise_error(/.*INVALID_DIRECTORY.*/)
+      context "when uncreated directory" do
+        let(:path) { File.absolute_path('INVALID_DIRECTORY') } 
+        let(:invalid_directory) { { backup_directory: path } }
+
+        after(:all) { FileUtils.rm_rf( File.absolute_path('INVALID_DIRECTORY') ) }
+
+        it "creates the directory when it does not exist" do
+          expect(Settings.load_from_hash(rails_config, invalid_directory)).to be_truthy
+          expect( Dir.exists?(path) ).to be_truthy
         end
-        
-        it "throws error when path is not a directory" do
-          file = { backup_directory: 'spec/settings/file' }
-          expect { Settings.load_from_hash(rails_config, file) }.to raise_error(/.*spec\/settings\/file.*/)
-        end
-        
       end
-      
+
       context "when not present" do
-        
         it "sets ::backup_directory to nil" do
           Settings.load_from_hash(rails_config, { })
           expect(Settings.backup_directory).to eq(nil)
         end
-        
       end
       
     end

@@ -46,6 +46,7 @@ module Settings
     load_mail_domain(config, hash[:mail_domain])
     load_interface(hash[:interface])
     load_selenium_config(hash[:selenium]) if hash[:selenium]
+    true
   end
 
   def self.get_config_hash
@@ -92,11 +93,20 @@ module Settings
 
   private
 
+  def self.setup_directory(path)
+    if !Dir.exists?(path)
+      # TODO: use/open a logger
+      Rainbow("Directory #{path} does not exist, creating").purple
+      FileUtils.mkdir_p(path)
+      raise Error, "Directory #{path} could not be made, check permissions" unless Dir.exists?(path)
+    end
+  end
+
   def self.load_default_data_directory(path)
     @@default_data_directory = nil
     if !path.nil?
       full_path = File.absolute_path(path)
-      raise Error, "Directory #{full_path} does not exist" unless Dir.exists?(full_path)
+      setup_directory(full_path)
       @@default_data_directory = full_path
     end
   end
@@ -105,7 +115,7 @@ module Settings
     @@backup_directory = nil
     if !path.nil?
       full_path = File.absolute_path(path)
-      raise Error, "Directory #{full_path} does not exist" unless Dir.exists?(full_path)
+      setup_directory(full_path)
       @@backup_directory = full_path
     end
   end

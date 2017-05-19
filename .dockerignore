@@ -33,15 +33,16 @@ coverage
 
 REVISION
 
+public/system
 public/images/tmp
-public/assets/
-# what about public/packs
+public/assets
+public/packs
 
 .git
 spec
 travis
 k8s
-public/system
+
 
 
 
