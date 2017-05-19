@@ -286,9 +286,9 @@ namespace :tw do
         if !@data.done?(handle)
           puts 'as new'
 
-          tags = {'1' => Keyword.find_or_create_by(name: '1', definition: 'Taxonomic'),
-                  '2' => Keyword.find_or_create_by(name: '2', definition: 'Biological'),
-                  '3' => Keyword.find_or_create_by(name: '3', definition: 'Economic'),
+          tags = {'1' => Keyword.find_or_create_by(name: '1', definition: 'Taxonomic', project_id: $project_id),
+                  '2' => Keyword.find_or_create_by(name: '2', definition: 'Biological', project_id: $project_id),
+                  '3' => Keyword.find_or_create_by(name: '3', definition: 'Economic', project_id: $project_id),
           }.freeze
           
           path = @args[:data_directory] + 'KEYWORDS.txt'
