@@ -75,7 +75,11 @@ class TaxonNamesController < ApplicationController
   end
 
   def autocomplete
-    @taxon_names = Queries::TaxonNameAutocompleteQuery.new(params[:term], project_id: sessions_current_project_id).all 
+    render json: {} and return if params[:term].blank?
+    @taxon_names = Queries::TaxonNameAutocompleteQuery.new(
+      params[:term],
+      autocomplete_params.to_h
+    ).all
 
     data = @taxon_names.collect do |t|
       str = render_to_string(partial: 'autocomplete_tag', locals: {taxon_name: t, term: params[:term] })
@@ -89,6 +93,10 @@ class TaxonNamesController < ApplicationController
     end
 
     render :json => data
+  end
+
+  def autocomplete_params
+    params.permit(:valid, type: [], parent_id: [], nomenclature_group: []).symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   def list
