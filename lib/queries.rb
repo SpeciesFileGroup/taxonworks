@@ -20,7 +20,7 @@ module Queries
     # limit based on size and potentially properties of terms
     attr_accessor :dynamic_limit
 
-    def initialize(string, project_id: nil)
+    def initialize(string, project_id: nil, **keyword_args)
       @query_string = string
       @project_id = project_id
       build_terms
@@ -167,6 +167,17 @@ module Queries
     def with_identifier_like
       identifier_table[:cached].matches(start_and_end_wildcard).or(identifier_table[:cached].matches(wildcard_wrapped_integers))
     end
+
+    # @return [ActiveRecord::Relation, nil]
+    # cached matches full query string wildcarded
+    def cached
+      if !terms.empty?
+        table[:cached].matches_any(terms)
+      else
+        nil
+      end
+    end
+
 
   end
 end

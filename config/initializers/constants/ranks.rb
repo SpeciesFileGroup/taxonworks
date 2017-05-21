@@ -11,7 +11,7 @@ ICZN = NomenclaturalRank::Iczn.ordered_ranks.map(&:to_s).freeze
 ICNB = NomenclaturalRank::Icnb.ordered_ranks.map(&:to_s).freeze
 
 # All assignable Rank Classes 
-RANKS = ( ['NomenclaturalRank'] + ICN + ICZN + ICNB ).freeze
+RANKS = ( ['NomenclaturalRank'] + ICN + ICZN + ICNB).freeze
 
 # ICN Rank Classes in a Hash with keys being the "human" name
 # For example, to return the class for a plant family:
@@ -38,7 +38,7 @@ FAMILY_RANK_NAMES_ICN = NomenclaturalRank::Icn::FamilyGroup.descendants.map(&:to
 FAMILY_RANK_NAMES_ICNB = NomenclaturalRank::Icnb::FamilyGroup.descendants.map(&:to_s).freeze
 
 # All assignable ranks for family group, for ICN, ICNB, and ICZN
-FAMILY_RANK_NAMES = ( FAMILY_RANK_NAMES_ICZN + FAMILY_RANK_NAMES_ICN + FAMILY_RANK_NAMES_ICNB ).freeze
+FAMILY_RANK_NAMES =  ( FAMILY_RANK_NAMES_ICZN + FAMILY_RANK_NAMES_ICN + FAMILY_RANK_NAMES_ICNB ).freeze
 
 # All assignable higher ranks for family group, for ICN, ICNB, and ICZN
 HIGHER_RANK_NAMES_ICZN = NomenclaturalRank::Iczn::HigherClassificationGroup.descendants.map(&:to_s).freeze
@@ -87,7 +87,7 @@ module RankHelper
         { name: r.rank_name, rank_class: r.to_s, parent: r.parent_rank.rank_name }
       )
     }
-   
+
   end
 end
 

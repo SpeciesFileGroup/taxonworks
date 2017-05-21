@@ -61,10 +61,10 @@ class Project < ActiveRecord::Base
      DerivedCollectionObject        
      Note
      PinboardItem
+     TaggedSectionKeyword      
      Tag
      Confidence 
      Role
-     TaggedSectionKeyword   
      AssertedDistribution
      BiocurationClassification
      BiologicalRelationshipType   

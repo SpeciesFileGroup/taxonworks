@@ -154,7 +154,7 @@ class TaxonName < ActiveRecord::Base
   attr_accessor :also_create_otu
 
   # @return [Boolean]
-  #   When true, also cached values are not built
+  #   When true cached values are not built
   attr_accessor :no_cached
 
   before_validation :set_type_if_empty

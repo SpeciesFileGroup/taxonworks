@@ -1,5 +1,5 @@
 #
-# docker-compose targets development only
+# docker-compose is DEVELOPMENT ONLY
 #
 version: "2"
 services:
@@ -13,7 +13,7 @@ services:
       - "127.0.0.1:3000:3000" # local:docker
     links:
       - db
-    command:
+    command: # need also the ./bin/webpack-dev-server one
        - rails
        - server
        - "--binding"

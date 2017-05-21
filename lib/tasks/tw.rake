@@ -14,7 +14,7 @@ namespace :tw do
   end
 
   task :db_user => [:environment] do
-    ENV['db_user'] = Rails.configuration.database_configuration[Rails.env]['username'] if ENV['db_user'].blank?
+    @args[:db_user] = Rails.configuration.database_configuration[Rails.env]['username'] if ENV['db_user'].blank?
   end
 
   desc 'Sets $user_id via "user_id=1" option. checks to see it exists.'
@@ -81,12 +81,18 @@ namespace :tw do
     file = ENV['file']
     raise TaxonWorks::Error, Rainbow('Specify a file, like file=myfile.dump').yellow if not ENV['file']
     @args ||= {}
-    @args.merge!(file: file)
+    @args[:file] = file
   end
 
   desc 'provide file=/foo/something.bar and ensure file exists with provided value'
   task :existing_file => [:file] do
-    raise TaxonWorks::Error, "Provided file (#{file}) does not exist." unless File.exists?(file)
+    raise TaxonWorks::Error, "Provided file (#{@args[:file]}) does not exist." unless File.exists?(@args[:file])
+  end
+
+  task :backup_exists => [:file, :backup_directory] do
+    path = File.join(@args[:backup_directory], @args[:file])
+    raise TaxonWorks::Error, "Provided file (#{path}) does not exist." unless File.exists?(path)
+    @args[:tw_backup_file] = path
   end
 
   desc 'set the database_role ENV value if provided, or use "postgres"'
