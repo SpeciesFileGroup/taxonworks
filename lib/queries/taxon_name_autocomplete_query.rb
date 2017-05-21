@@ -1,23 +1,31 @@
 module Queries
 
+
   class TaxonNameAutocompleteQuery < Queries::Query
 
-    # [:higher, :family, :genus, :species]
+    # @return [Array, nil]
+    #   &nomenclature_group[]=<<Iczn|Icnb|Icn>::<Higher|Family|Genus|Species>>
     attr_accessor :nomenclature_group
 
-    # only with id == cached_valid_taxon_name_id
-    # true, false, nil = true || false
+    # @return [Boolean, nil]
+    #  &valid=<"true"|"false"> 
+    #     if 'true'  then id == cached_valid_taxon_name_id
+    #     if 'false' then id != cached_valid_taxon_name
+    #     if nil   then no check made, i.e. all names
+    #  string is converted to Boolean here
     attr_accessor :valid
 
-    # type == [] 
+    # @return [Array]
+    #   &type[]=<Protonym, Combination, Hybrid, etc.>&type[]=<other type> etc.
     attr_accessor :type
 
-    # parent_id in []
+    # @return [Array]
+    #   &parent_id[]=<int>&parent_id=<other_int> etc.
     attr_accessor :parent_id
     
     def initialize(string, project_id: nil, valid: nil, nomenclature_group: [], type: [], parent_id: [])
       @nomenclature_group = nomenclature_group
-      @valid = valid 
+      @valid = valid == 'true' ? true : (valid == 'false' ? false : nil) 
       @type = type 
       @parent_id = parent_id 
       super
@@ -37,48 +45,12 @@ module Queries
       a
     end
 
-    def valid_state
-      return nil if @valid.nil?
-      valid ? table[:id].eq(table[:cached_valid_taxon_name_id]) : table[:id].not(eq(table[:cached_valid_taxon_name_id]))
-    end
-
-    def is_type
-      return nil if type.empty?
-      table[:type].eq_any(type)
-    end
-
-    def with_parent_id 
-      return nil
-      return nil if parent_id.empty?
-      TaxonName.with_ancestor(parent_id) # plural
-    end
-
-    def taxon_name_heirarchies_table
-      TaxonNameHierarchies.arel_table 
-    end 
-
-    def parent_id
-      taxon_name_heirarchies_table
-    end
-
-    joins(:descendant_hierarchies)
-      .where(taxon_name_hierarchies: {descendant_id: taxon_name.id})
-      .where('taxon_name_hierarchies.ancestor_id != ?', taxon_name.id) 
- 
-
-    def with_nomenclature_group
-      table[:rank_class].matches_any(nomenclature_group)
-    end
-
-    def nomenclature_group
-      @nomenclature_group.collect{|g| "::#{g}%"}
-    end
-
     def and_clauses
       clauses = [
         valid_state,
         is_type,
-        with_parent_id
+        with_parent_id,
+        with_nomenclature_group
       ].compact
 
       return nil if clauses.nil?
@@ -105,18 +77,49 @@ module Queries
       with_project_id.and(or_and).to_sql
     end
 
+    # @return [Arel::Nodes::<>, nil]
+    # and clause
+    def valid_state
+      return nil if @valid.nil?
+      valid ? table[:id].eq(table[:cached_valid_taxon_name_id]) : table[:id].not_eq(table[:cached_valid_taxon_name_id])
+    end
+
+    # and clause
+    def is_type
+      return nil if type.empty?
+      table[:type].eq_any(type)
+    end
+
+    # and clause, limit to ancestors or [ids]
+    def with_parent_id 
+      return nil if parent_id.empty?
+      taxon_name_hierarchies_table[:ancestor_id].eq_any(parent_id)
+    end
+
+    # @return [Arel::Nodes::Grouping, nil]
+    #   and clause
+    def with_nomenclature_group
+      return nil if nomenclature_group.empty?
+      table[:rank_class].matches_any(nomenclature_group)
+    end
+
+    # and_clause
+    def nomenclature_group
+      @nomenclature_group.collect{|g| "%::#{g}%"}
+    end
+
     def all
-      TaxonName.where(where_sql).limit(dynamic_limit).includes(:descendant_hierarchies).order(:cached).uniq.all
-    # a = TaxonName.where(with_project_id.to_sql).where(['name = ?', query_string]).order(:name).all +
-    #  b = TaxonName.joins(parent_child_join).where(with_project_id.to_sql).where(parent_child_where.to_sql).limit(3).order(:name).all       
-    #c = TaxonName.where(where_sql).limit(dynamic_limit).order(:cached).all
-    #(a + b + c).uniq
+      TaxonName.includes(:ancestor_hierarchies).where(where_sql).references(:taxon_name_hierarchies).limit(dynamic_limit).order(:cached).uniq.all
     end
 
     def table
       TaxonName.arel_table
     end
-   
+
+    def taxon_name_hierarchies_table
+      Arel::Table.new('taxon_name_hierarchies')
+    end 
+
     def with_cached_author_year
       table[:cached_author_year].matches_any(terms)
     end

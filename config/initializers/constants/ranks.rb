@@ -8,7 +8,7 @@ ICN = NomenclaturalRank::Icn.ordered_ranks.collect{|r| r.to_s}.freeze
 # ICZN class names  ordered in an Array
 ICZN = NomenclaturalRank::Iczn.ordered_ranks.collect{|r| r.to_s}.freeze
 
-# ICZN class names  ordered in an Array
+# ICNB class names  ordered in an Array
 ICNB = NomenclaturalRank::Icnb.ordered_ranks.collect{|r| r.to_s}.freeze
 
 # All assignable Rank Classes 
