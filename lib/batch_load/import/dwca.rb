@@ -263,122 +263,123 @@ module BatchLoad
                                 project_id:       project_id)
 
       end
+    end
 
 # available data comes from Tulane geolocation action, reflected by the fact that the georefernce is a GeoLocate
-      def make_ce(row)
-        c_e = CollectingEvent.new(verbatim_datum:                   row['geodeticdatum'],
-                                  verbatim_locality:                row['verbatimlocality'],
-                                  verbatim_date:                    row['eventdate'],
-                                  verbatim_label:                   row['locationremarks'],
-                                  verbatim_geolocation_uncertainty: row['coordinateuncertaintyinmeters']
-        )
+    def make_ce(row)
+      c_e = CollectingEvent.new(verbatim_datum:                   row['geodeticdatum'],
+                                verbatim_locality:                row['verbatimlocality'],
+                                verbatim_date:                    row['eventdate'],
+                                verbatim_label:                   row['locationremarks'],
+                                verbatim_geolocation_uncertainty: row['coordinateuncertaintyinmeters']
+      )
 
 
-        c_e
-      end
+      c_e
+    end
 
-      def make_otu(row)
-        Otu.new
-      end
+    def make_otu(row)
+      Otu.new
+    end
 
 #         make_co:  %w(catalognumber basisofrecord individualcount organismquantity organismquantitytype recordedby),
-      def make_co(row)
-        c_o = Specimen.new(total: row[:organismquantity])
+    def make_co(row)
+      c_o = Specimen.new(total: row[:organismquantity])
 
-        c_o
+      c_o
+    end
+
+    def make_tn(row)
+      ret_val      = {species: nil, genus: nil, tribe: nil}
+      this_kingdom = row['kingdom']
+      if @kingdom.try(:name) != this_kingdom
+        @kingdom = Protonym.find_or_create_by(name:       this_kingdom,
+                                              rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
+                                              project_id: $project_id)
+
+        if @kingdom.new_record?
+          @kingdom.parent = @root
+          @kingdom.save!
+          ret_val[:kingdom] = @kingdom
+        end
       end
 
-      def make_tn(row)
-        ret_val      = {species: nil, genus: nil, tribe: nil}
-        this_kingdom = row['kingdom']
-        if @kingdom.try(:name) != this_kingdom
-          @kingdom = Protonym.find_or_create_by(name:       this_kingdom,
-                                                rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
-                                                project_id: $project_id)
-
-          if @kingdom.new_record?
-            @kingdom.parent = @root
-            @kingdom.save!
-            ret_val[:kingdom] = @kingdom
-          end
+      this_family = row['family']
+      if @family.try(:name) != this_family
+        @family = Protonym.find_or_create_by(name:       this_family,
+                                             rank_class: NomenclaturalRank::Iczn::FamilyGroup::Family,
+                                             project_id: $project_id)
+        if @family.new_record?
+          @family.parent = @kingdom
+          @family.save!
+          ret_val[:family] = @family
         end
+      end
+      sn        = row['scientificname']
+      snp       = @parser.parse(sn)
 
-        this_family = row['family']
-        if @family.try(:name) != this_family
-          @family = Protonym.find_or_create_by(name:       this_family,
-                                               rank_class: NomenclaturalRank::Iczn::FamilyGroup::Family,
-                                               project_id: $project_id)
-          if @family.new_record?
-            @family.parent = @kingdom
-            @family.save!
-            ret_val[:family] = @family
-          end
-        end
-        sn        = row['scientificname']
-        snp       = @parser.parse(sn)
+      # find or create Protonym based on exact match of row['scientificname'] and taxon_names.cached
 
-        # find or create Protonym based on exact match of row['scientificname'] and taxon_names.cached
+      t_n       = Protonym.find_or_create_by(cached: snp[:scientificName][:canonical], project_id: $project_id)
+      this_rank = row['taxonrank'].downcase.to_sym
 
-        t_n       = Protonym.find_or_create_by(cached: snp[:scientificName][:canonical], project_id: $project_id)
-        this_rank = row['taxonrank'].downcase.to_sym
-
-        if t_n.new_record?
-          case this_rank
-            when :species
-              begin # find or create genus
-                genus_name = snp[:scientificName][:details][0][:genus][:string]
-                @genus     = Protonym.find_or_create_by(name:       genus_name,
-                                                        parent:     @family,
-                                                        rank_class: NomenclaturalRank::Iczn::GenusGroup::Genus,
-                                                        project_id: $project_id)
-                if @genus.new_record?
-                  @genus.save!
-                  ret_val[:new_genus] = @genus
-                end
+      if t_n.new_record?
+        case this_rank
+          when :species
+            begin # find or create genus
+              genus_name = snp[:scientificName][:details][0][:genus][:string]
+              @genus     = Protonym.find_or_create_by(name:       genus_name,
+                                                      parent:     @family,
+                                                      rank_class: NomenclaturalRank::Iczn::GenusGroup::Genus,
+                                                      project_id: $project_id)
+              if @genus.new_record?
+                @genus.save!
+                ret_val[:new_genus] = @genus
               end
-              species                 = snp[:scientificName][:details][0][:species]
-              t_n.parent              = @genus
-              t_n.rank_class          = NomenclaturalRank::Iczn::SpeciesGroup::Species
-              t_n.name                = species[:string]
-              # t_n.cached_author_year = snp[:scientificName][:details][0][:species][:authorship]
-              t_n.year_of_publication = species[:basionymAuthorTeam][:year].to_i
-              author_name             = species[:basionymAuthorTeam][:authorTeam]
-              if species[:authorship].include?('(')
-                author_name = "(#{author_name})"
-              end
-              t_n.verbatim_author = author_name
-              ret_val[:species]   = t_n
-            when :genus
-              genus           = snp[:scientificName][:details][0][:uninomial]
-              t_n.parent      = @family
-              t_n.rank_class  = NomenclaturalRank::Iczn::GenusGroup::Genus
-              t_n.name        = genus[:string]
-              ret_val[:genus] = t_n
-            when :tribe
-              tribe           = snp[:scientificName][:details][0][:uninomial]
-              t_n.parent      = @family
-              t_n.rank_class  = NomenclaturalRank::Iczn::FamilyGroup::Tribe
-              t_n.name        = tribe[:string]
-              ret_val[:tribe] = t_n
-            else
-              raise "Unknown taxonRank #{this_rank}."
-          end
-          # t_n.create_otu
-        else
-          ret_val[this_rank] = t_n
+            end
+            species                 = snp[:scientificName][:details][0][:species]
+            t_n.parent              = @genus
+            t_n.rank_class          = NomenclaturalRank::Iczn::SpeciesGroup::Species
+            t_n.name                = species[:string]
+            # t_n.cached_author_year = snp[:scientificName][:details][0][:species][:authorship]
+            t_n.year_of_publication = species[:basionymAuthorTeam][:year].to_i
+            author_name             = species[:basionymAuthorTeam][:authorTeam]
+            if species[:authorship].include?('(')
+              author_name = "(#{author_name})"
+            end
+            t_n.verbatim_author = author_name
+            ret_val[:species]   = t_n
+          when :genus
+            genus           = snp[:scientificName][:details][0][:uninomial]
+            t_n.parent      = @family
+            t_n.rank_class  = NomenclaturalRank::Iczn::GenusGroup::Genus
+            t_n.name        = genus[:string]
+            ret_val[:genus] = t_n
+          when :tribe
+            tribe           = snp[:scientificName][:details][0][:uninomial]
+            t_n.parent      = @family
+            t_n.rank_class  = NomenclaturalRank::Iczn::FamilyGroup::Tribe
+            t_n.name        = tribe[:string]
+            ret_val[:tribe] = t_n
+          else
+            raise "Unknown taxonRank #{this_rank}."
         end
-
-        # t_n = Protonym.new(name:               snp[:scientificName][:canonical],
-        #                     cached_author_year: ,
-        #                     parent_id:          ,
-        #                     rank_class:         ,
-        #                     also_create_otu:    true)
-        ret_val
+        # t_n.create_otu
+      else
+        ret_val[this_rank] = t_n
       end
 
-      def make_td(row)
-        TaxonDetermination.new
-      end
+      # t_n = Protonym.new(name:               snp[:scientificName][:canonical],
+      #                     cached_author_year: ,
+      #                     parent_id:          ,
+      #                     rank_class:         ,
+      #                     also_create_otu:    true)
+      ret_val
+    end
+
+    def make_td(row)
+      TaxonDetermination.new
+    end
 
 =begin
           2.3.3 :057 > headers
@@ -391,9 +392,9 @@ module BatchLoad
           => [:foo, :bar]
           2.3.3 :061 >
 =end
-      def triage(headers, tasks)
-        tasks.select {|kee, vlu| vlu & headers == vlu}.keys
-      end
+    def triage(headers, tasks)
+      tasks.select {|kee, vlu| vlu & headers == vlu}.keys
     end
   end
+end
 
