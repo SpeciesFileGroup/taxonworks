@@ -215,7 +215,6 @@ cite_otus_task_task:
     - source
   status: prototype
   description: 'Add citations to OTUs.  Optionally add topics to citations.  For example assertions like "Smith, 1920 referenced Biology of Aus bus" are possible.'
-
 dates_index_task:
   hub: true
   name: 'Stepwise collecting event parser - Dates'
@@ -225,7 +224,6 @@ dates_index_task:
     - collecting_event
   status: prototype
   description: "Parse the collecting_events table's verbatim label for possible date combinations."
-
 psu_import_task:
   hub: true
   name: 'Import Penn State DWCA'
@@ -235,3 +233,11 @@ psu_import_task:
     - collecting_event
   status: prototype
   description: 'Import a DWCA file from Penn State.'
+overdue_loans_task:
+  hub: true
+  name: 'Overdue loans'
+  related:
+  categories:
+    - collection_objects
+  status: prototype
+  description: 'List overdue loans.'

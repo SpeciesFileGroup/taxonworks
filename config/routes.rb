@@ -435,6 +435,12 @@ TaxonWorks::Application.routes.draw do
       end
     end
 
+    scope :loans do
+      scope :overdue, controller: 'tasks/loans/overdue' do
+        get 'index', as: 'overdue_loans_task'
+      end
+    end
+
     scope :citations do
       scope :otus, controller: 'tasks/citations/otus' do
         get 'index', as: 'cite_otus_task_task'
