@@ -81,11 +81,16 @@ class Loan < ActiveRecord::Base
 
   validates :lender_address, presence: true
 
+  validate :recieved_after_sent
+  validate :returned_after_recieved
+  validate :return_expected_after_sent
+
   accepts_nested_attributes_for :loan_items, allow_destroy: true, reject_if: :reject_loan_items
   accepts_nested_attributes_for :loan_supervisors, :loan_supervisor_roles, allow_destroy: true
   accepts_nested_attributes_for :loan_recipients, :loan_recipient_roles, allow_destroy: true
 
-  # TODO: @mjy What *is* the right construct for 'Loan'?
+  scope :overdue, -> {where('now() > loans.date_return_expected AND date_closed IS NULL', Time.now.to_date)}
+
   def self.find_for_autocomplete(params)
     where('recipient_email LIKE ?', "#{params[:term]}%")
   end
@@ -114,8 +119,32 @@ class Loan < ActiveRecord::Base
     end
   end
 
+  def overdue?
+    Time.now.to_date > date_return_expected && !date_closed.present?
+  end
+
+  def days_overdue
+    (Time.now.to_date - date_return_expected).to_i
+  end
+
+  def days_until_due
+    (date_return_expected - Time.now.to_date ).to_i
+  end
+
   protected
 
+  def recieved_after_sent
+    errors.add(:date_received, 'must be received on or after sent') if date_received.present? && date_sent.present? && date_received < date_sent 
+  end
+  
+  def returned_after_recieved
+    errors.add(:date_closed, 'must be closed on or after received') if date_closed.present? && date_received.present? && date_closed < date_received 
+  end
+
+  def return_expected_after_sent
+    errors.add(:date_return_expected, 'must be expected after sent') if date_return_expected.present? && date_sent.present? && date_return_expected < date_sent
+  end
+  
   # @return [Array] collection_object ids
   def collection_object_ids
     # pile1 = Loan.joins(:loan_items).where(loan_items: {loan_id: self.id})
@@ -133,22 +162,6 @@ class Loan < ActiveRecord::Base
     }
     retval.flatten
   end
-
-  # @param [Container] container
-  # @return [Array] of collection objects
-  # def dump_collection_object_ids(container)
-  #   container.dump_container_contents.map(&:id)
-  #   # retval = []
-  #   # container.container_items.each { |item|
-  #   #   case item.contained_object_type
-  #   #     when /contain/i # if this item is a container, try to dump the contents
-  #   #       retval.push(dump_collection_object_ids(item.contained_object))
-  #   #     else  # otherwise, just include what ever it is
-  #   #       retval.push(item.id)
-  #   #   end
-  #   # }
-  #   # retval.flatten
-  # end
 
   def reject_taxon_determinations(attributed)
     attributed['loan_item_object_type'].blank?

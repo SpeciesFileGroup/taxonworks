@@ -28,11 +28,12 @@ namespace :tw do
           Rake::Task["db:restore_last"].invoke
           raise TaxonWorks::Error, "Unable to migrate, restored from #{ENV['file']}."
         end
+      
+        # Stage 4, success
+        puts Rainbow("Successfully updated database").green
+        true 
       end
 
-      # Stage 4, success
-      puts Rainbow("Successfully updated database").green
-      true 
     end
   end
 end
