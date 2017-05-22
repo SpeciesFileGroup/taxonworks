@@ -31,7 +31,7 @@ namespace :tw do
           'cites:import_nomenclator_strings',
           'cites:create_cvts_for_citations',
           'cites:create_sf_taxon_name_authors',
-          'create_citations',
+          'cites:create_citations',
           'cites:create_otu_cites',
           
           'specimens:import_two_specimen_lists',
