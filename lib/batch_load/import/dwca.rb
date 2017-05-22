@@ -19,12 +19,13 @@ module BatchLoad
       @dwca_namespace    = dwca_namespace
       @parser            = ScientificNameParser.new
       @tasks_            = {
-        make_tn:  %w(scientificname taxonrank family kingdom),
-        make_td:  %w(),
-        make_otu: %w(scientificname),
-        make_co:  %w(catalognumber basisofrecord individualcount organismquantity organismquantitytype recordedby),
-        make_gr:  %w(decimallatitude decimallongitude countrycode stateprovince county municipality coordinateuncertaintyinmeters georeferencedby),
-        make_ce:  %w(verbatimlocality eventdate recordedby locationremarks)
+        make_tn:    %w(scientificname taxonrank family kingdom),
+        make_td:    %w(),
+        make_otu:   %w(scientificname),
+        make_co:    %w(basisofrecord individualcount organismquantity organismquantitytype recordedby),
+        make_notes: %w(catalognumber),
+        make_gr:    %w(decimallatitude decimallongitude countrycode stateprovince county municipality coordinateuncertaintyinmeters georeferencedby),
+        make_ce:    %w(coordinateuncertaintyinmeters verbatimlocality eventdate recordedby locationremarks geodeticdatum)
       }.freeze
 
       pre_load
@@ -89,25 +90,25 @@ module BatchLoad
         genus   = @row_objects[:make_tn][:genus]
         tribe   = @row_objects[:make_tn][:tribe]
         t_n     = @row_objects[:make_tn].select {|kee, val| val != nil}.values.first
-        if species.nil?
-          if genus.nil?
-            t_n = tribe
-          else
-            t_n = genus
-          end
-        else
-          t_n = species
-        end
+        # if species.nil?
+        #   if genus.nil?
+        #     t_n = tribe
+        #   else
+        #     t_n = genus
+        #   end
+        # else
+        #   t_n = species
+        # end
 
         t_n.save! if t_n.new_record?
         otu.taxon_name = t_n
         otu.save!
+        c_e.save!
         c_o.collecting_event = c_e
         c_o.save!
         t_d.biological_collection_object = c_o
         t_d.otu                          = otu
         t_d.save!
-        c_e.save!
         g_l.collecting_event = c_e
         g_l.save!
 
@@ -219,14 +220,21 @@ module BatchLoad
                                             rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
                                             project_id: $project_id)
       @kingdom.save! if @kingdom.new_record?
+      @controlled_vocabulary_term = ControlledVocabularyTerm.find_or_create_by(name:       'catalogNumber',
+                                                                               type:       'Predicate',
+                                                                               definition: 'The verbatim value imported from PSUC for "catalogNumber".',
+                                                                               project_id: $project_id)
+      @controlled_vocabulary_term.save! if @controlled_vocabulary_term.new_record?
     end
 
     def make_gr(row)
       # faking a Georeference::GeoLocate:
       lat, long           = row['decimallatitude'], row['decimallongitude']
-      lat, long           = (lat.length > 0) ? lat : nil, (long.length > 0) ? long : nil
+      # lat, long           = (lat.length > 0) ? lat : nil, (long.length > 0) ? long : nil
       uncert              = row['coordinateuncertaintyinmeters']
-      gl_req_params       = {country:   GeographicArea.where(iso_3166_a2: row['countrycode']).first.name,
+      cc                  = row['countrycode']
+      country             = cc.nil? ? nil : GeographicArea.where(iso_3166_a2: cc).first.name
+      gl_req_params       = {country:   country,
                              state:     row['stateprovince'],
                              county:    row['county'],
                              Placename: row['municipality'],
@@ -248,12 +256,23 @@ module BatchLoad
       g_l
     end
 
+    def make_notes(row)
+      cat_no = row['catalognumber']
+      if Note.find_or_create_by(text:,
+                                note_object_type: 'CollectionObject',
+                                project_id:       project_id)
+
+      end
+
 # available data comes from Tulane geolocation action, reflected by the fact that the georefernce is a GeoLocate
     def make_ce(row)
-      c_e = CollectingEvent.new(verbatim_locality: row['verbatimlocality'],
-                                verbatim_date:     row['eventdate'],
-                                verbatim_label:    row['locationremarks']
+      c_e = CollectingEvent.new(verbatim_datum:                   row['geodeticdatum'],
+                                verbatim_locality:                row['verbatimlocality'],
+                                verbatim_date:                    row['eventdate'],
+                                verbatim_label:                   row['locationremarks'],
+                                verbatim_geolocation_uncertainty: row['coordinateuncertaintyinmeters']
       )
+
 
       c_e
     end
