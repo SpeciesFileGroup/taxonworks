@@ -114,6 +114,18 @@ class Loan < ActiveRecord::Base
     end
   end
 
+  def overdue?
+    Time.now.to_date > date_return_expected
+  end
+
+  def days_overdue
+    (Time.now.to_date - date_return_expected).to_i
+  end
+
+  def days_until_due
+    (date_return_expected - Time.now.to_date ).to_i
+  end
+
   protected
 
   # @return [Array] collection_object ids
