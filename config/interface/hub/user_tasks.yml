@@ -238,6 +238,14 @@ overdue_loans_task:
   name: 'Overdue loans'
   related:
   categories:
-    - collection_objects
+    - collection_object
   status: prototype
   description: 'List overdue loans.'
+browse_collection_objects_task:
+  hub: true
+  name: 'Browse collection objects'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Report everything known about a collection object (specimen, lot, ranged lot). Includes determinations, loan history, images, collecting event, catalog numbers, etc.'

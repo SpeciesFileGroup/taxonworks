@@ -488,6 +488,10 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :collection_objects do
+      scope :browse, controller: 'tasks/collection_objects/browse' do
+        get 'index', as: 'browse_collection_objects_task'
+      end
+
       scope :filter, controller: 'tasks/collection_objects/filter' do
         get 'index', as: 'collection_objects_filter_task' #'index_area_and_date_task'
         get 'find', as: 'find_collection_objects_task' # 'find_area_and_date_task'
