@@ -1,0 +1,18 @@
+#new_taxon_name_task {
+		.modal-container {
+			width: 70%;
+			overflow-y: scroll;
+			max-height: 90%;
+			background-color: transparent !important;
+			box-shadow: none;
+		}
+		.tree-status {
+			list-style: none;
+			li {
+				margin-top:6px;
+				button:first-letter {
+					text-transform: capitalize;
+				}
+			}
+		}
+}
