@@ -29,7 +29,7 @@ module CollectionObjectCatalog
       @end_date = end_date
     end
 
-    def object_class
+    def object_class_name
       object.class.name
     end
   end

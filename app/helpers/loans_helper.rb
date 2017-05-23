@@ -32,9 +32,9 @@ module LoansHelper
   def on_loan_tag(object)
     if object.is_loanable? && object.on_loan?
       content_tag(:li) do
-        'On ' + 
+        ('On ' + 
           link_to('loan', object.loan) + '.' +
-          "Due back on #{object.loan_return_date}, #{overdue_tag(object.loan)}."
+          " Due back on #{object.loan_return_date}. #{overdue_tag(object.loan)}").html_safe
       end
     else
       ''

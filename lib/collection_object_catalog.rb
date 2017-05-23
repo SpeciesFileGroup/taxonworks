@@ -27,6 +27,7 @@ module CollectionObjectCatalog
     :tagged,
     :typified,
     :added_attribute,
+    :biologically_classified,
     :fossilized_between, # chronological time period b/w which specimen was fossilized
   ]
 
@@ -36,12 +37,22 @@ module CollectionObjectCatalog
     
     data.items << CollectionObjectCatalog::EntryItem.new(type: :collected_on, object: o.collecting_event, start_date: o.collecting_event.start_date, end_date: o.collecting_event.end_date) 
 
+    o.biocuration_classifications.each do |b|
+      data.items << CollectionObjectCatalog::EntryItem.new(type: :biologically_classified, object: b, start_date: b.created_at.to_time) 
+    end
+
     o.versions.each do |v|
       data.items << CollectionObjectCatalog::EntryItem.new(type: :updated_metadata, object: v, start_date: v.created_at.to_time) 
     end
 
     o.georeferences.each do |g|
       data.items << CollectionObjectCatalog::EntryItem.new(type: :georeferenced, object: g, start_date: g.created_at.to_time)
+    end
+
+    # Broken, definitely broken
+    o.type_designations.each do |t|
+      date = t.origin_citation ? t.origin_citation.nomenclature_date : nil
+      data.items << CollectionObjectCatalog::EntryItem.new(type: :typified, object: t, start_date: date)
     end
 
     o.taxon_determinations.each do |td|
@@ -68,6 +79,15 @@ module CollectionObjectCatalog
     o.notes.each do |n|
       data.items << CollectionObjectCatalog::EntryItem.new(type: :added_note, object: n, start_date: n.created_at.to_time) 
     end
+
+    o.images.each do |i|
+      data.items << CollectionObjectCatalog::EntryItem.new(type: :imaged, object: i, start_date: i.created_at.to_time) 
+    end
+
+    data.items << CollectionObjectCatalog::EntryItem.new(type: :containerized, object: o.container, start_date: c.created_at.to_time)  if o.container
+
+    # in eyelet
+    # extracts, sequences, 
 
     data
   end

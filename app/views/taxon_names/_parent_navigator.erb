@@ -1,8 +1,13 @@
 <div id="show_taxon_name_hierarchy">
   <h3>Hierarchy</h3>
+  <div class="navigation-controls">
+     <!---- @José make each button that toggles visibility of that class of names li class=""  ---->
+    <button> Valid/accepted </button> <button> Invalid/not accepted </button>
+  </div>
+
   <ul>
     <% taxon_name.ancestor_protonyms.each do |p| -%>
-      <li>
+      <li class="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
         <p> 
         <%= link_to(taxon_name_tag(p), send(target, p)) -%>
           <span class="subtle">
