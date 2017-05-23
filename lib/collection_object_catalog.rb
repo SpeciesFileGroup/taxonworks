@@ -40,8 +40,8 @@ module CollectionObjectCatalog
       data.items << CollectionObjectCatalog::EntryItem.new(type: :updated_metadata, object: v, start_date: v.created_at.to_time) 
     end
 
-    o.collecting_event && o.collecting_event.georeferences.each do |g|
-      data.items << CollectionObjectCatalog::EntryItem.new(type: :georeferenced, object: g, start_date: o.collecting_event.start_date) 
+    o.georeferences.each do |g|
+      data.items << CollectionObjectCatalog::EntryItem.new(type: :georeferenced, object: g, start_date: g.created_at.to_time)
     end
 
     o.taxon_determinations.each do |td|
