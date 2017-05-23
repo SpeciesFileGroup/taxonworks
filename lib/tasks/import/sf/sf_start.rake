@@ -299,7 +299,7 @@ namespace :tw do
 
             begin
               containing_source = Source.find(containing_source_id)
-            rescue ActiveRecord::RecordInvalid
+            rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound
               logger.info "Source ERROR: containing source not found for RefID = #{containing_source_id} (source not found = #{source_not_found_error += 1})"
               next
             end
