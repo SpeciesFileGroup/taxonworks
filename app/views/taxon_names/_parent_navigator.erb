@@ -28,7 +28,7 @@
   </ul>
   <ul class="descendent">
     <% taxon_name.children.order(:name).where(type: 'Protonym').each do |p| -%>
-      <li>
+      <li data-valid-toggle="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
         <p>
           <%= link_to(taxon_name_tag(p), send(target, p)) -%>
           <span class="subtle">
