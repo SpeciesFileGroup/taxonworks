@@ -3,13 +3,13 @@
   <form class="content" v-if="rankClass">
     <modal v-if="showModal" @close="showModal = false">
       <h3 slot="header">Status</h3>
-      <div slot="body">
+      <div slot="body" class="tree-list">
         <recursive-list :objectList="tree"></recursive-list>
       </div>
     </modal>
     <h3>Status</h3>
     <button type="button" @click="showAdvance = false">Common</button>
-    <button @click="showAdvance = true" type="button">Advance</button>
+    <button @click="showAdvance = true" type="button">Advanced</button>
     <button @click="showModal = true" type="button">Show all</button>
     <div>
       <autocomplete v-if="showAdvance"
