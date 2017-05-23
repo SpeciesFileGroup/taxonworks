@@ -1,0 +1,52 @@
+@import 'base/palette';
+
+.switch-radio {
+  display: flex;
+  overflow: hidden;
+  .switch-title {
+    margin-bottom: 6px;
+  }
+
+  input {
+      position: absolute !important;
+      clip: rect(0, 0, 0, 0);
+      height: 1px;
+      width: 1px;
+      border: 0;
+      overflow: hidden;
+  }
+
+  label {
+    float: left;
+  }
+
+  label {
+    display: inline-block;
+    width: 60px;
+    font-size: 12px;
+    background-color: $navigation_background;
+    color: rgba(0, 0, 0, 0.6);
+    font-weight: normal;
+    text-align: center;
+    padding: 6px 14px;
+    border: 1px solid $navigation_border;
+    transition: all 0.1s ease-in-out;
+  }
+
+  label:hover {
+      cursor: pointer;
+  }
+
+  input:checked + label {
+    background-color: $color-action-button;
+    border: 1px solid rgba(0, 0, 0, 0.2)
+  }
+
+  label:first-of-type {
+    border-radius: 3px 0 0 3px;
+  }
+
+  label:last-of-type {
+    border-radius: 0 3px 3px 0;
+  }
+}
