@@ -63,6 +63,7 @@
 #
 class Georeference < ActiveRecord::Base
   include Housekeeping
+  include Shared::Notable
   include Shared::Taggable
   include Shared::IsData
   include Shared::Citable

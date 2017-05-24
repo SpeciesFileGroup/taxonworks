@@ -23,9 +23,10 @@ module BatchLoad
         make_td:    %w(),
         make_otu:   %w(scientificname),
         make_co:    %w(basisofrecord individualcount organismquantity organismquantitytype recordedby),
-        make_notes: %w(catalognumber),
+        make_notes: %w(georeferenceremarks locationremarks occurrenceremarks),
+        make_tag:   %w(),
         make_gr:    %w(decimallatitude decimallongitude countrycode stateprovince county municipality coordinateuncertaintyinmeters georeferencedby),
-        make_ce:    %w(coordinateuncertaintyinmeters verbatimlocality eventdate recordedby locationremarks geodeticdatum)
+        make_ce:    %w(decimallatitude decimallongitude coordinateuncertaintyinmeters verbatimlocality eventdate locationremarks recordedby geodeticdatum)
       }.freeze
 
       pre_load
@@ -81,15 +82,19 @@ module BatchLoad
           @row_objects[task] = send(task, row)
         }
 
-        otu     = @row_objects[:make_otu]
-        t_d     = @row_objects[:make_td]
-        c_o     = @row_objects[:make_co]
-        c_e     = @row_objects[:make_ce]
-        g_l     = @row_objects[:make_gr]
-        species = @row_objects[:make_tn][:species]
-        genus   = @row_objects[:make_tn][:genus]
-        tribe   = @row_objects[:make_tn][:tribe]
-        t_n     = @row_objects[:make_tn].select {|kee, val| val != nil}.values.first
+        otu       = @row_objects[:make_otu]
+        t_d       = @row_objects[:make_td]
+        c_o       = @row_objects[:make_co]
+        notes     = @row_objects[:make_notes]
+        c_o_notes = notes[:c_o]
+        c_e_notes = notes[:c_e]
+        g_r_notes = notes[:g_r]
+        c_e       = @row_objects[:make_ce]
+        g_l       = @row_objects[:make_gr]
+        species   = @row_objects[:make_tn][:species]
+        genus     = @row_objects[:make_tn][:genus]
+        tribe     = @row_objects[:make_tn][:tribe]
+        t_n       = @row_objects[:make_tn].select {|kee, val| val != nil}.values.first
         # if species.nil?
         #   if genus.nil?
         #     t_n = tribe
@@ -104,13 +109,28 @@ module BatchLoad
         otu.taxon_name = t_n
         otu.save!
         c_e.save!
+        unless c_e_notes.blank?
+          c_e_notes.keys.each {|kee|
+            c_e_notes[kee].note_object = c_o
+          }
+        end
         c_o.collecting_event = c_e
         c_o.save!
+        unless c_o_notes.blank?
+          c_o_notes.keys.each {|kee|
+            c_o_notes[kee].note_object = c_o
+          }
+        end
         t_d.biological_collection_object = c_o
         t_d.otu                          = otu
         t_d.save!
         g_l.collecting_event = c_e
         g_l.save!
+        unless g_r_notes.blank?
+          g_r_notes.keys.each {|kee|
+            g_r_notes[kee].note_object = g_l
+          }
+        end
 
         messages = []
         begin # make sure all objects for this row get saved
@@ -126,17 +146,8 @@ module BatchLoad
                   end
                 }
               when 'Hash'
-                objects.keys.each {|rank|
-                  object = objects[rank]
-                  unless object.blank?
-                    if object.valid?
-                      object.save
-                    else
-                      messages.push(object.errors.messages)
-                    end
-                  end
-                }
-              else
+                messages.push(save_hash(objects))
+              else # all other single object classes
                 if objects.valid?
                   objects.save
                 else
@@ -144,7 +155,7 @@ module BatchLoad
                 end
             end
           }
-          messages
+          messages.flatten!
         end
         line_counter += 1
       end
@@ -192,6 +203,25 @@ module BatchLoad
 
     private
 
+    def save_hash(objects)
+      messages = []
+      objects.keys.each {|rank|
+        object = objects[rank]
+        unless object.blank?
+          if object.class.to_s == 'Hash'
+            messages.push(save_objects(object))
+          else
+            if object.valid?
+              object.save
+            else
+              messages.push(object.errors.messages)
+            end
+          end
+        end
+      }
+      messages.flatten
+    end
+
 # only for use in a TaxonWorks rails console
     def _setup
       $project    = Project.where(name: 'BatchLoad Test').first
@@ -220,18 +250,21 @@ module BatchLoad
                                             rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
                                             project_id: $project_id)
       @kingdom.save! if @kingdom.new_record?
-      @controlled_vocabulary_term = ControlledVocabularyTerm.find_or_create_by(name:       'catalogNumber',
-                                                                               type:       'Predicate',
-                                                                               definition: 'The verbatim value imported from PSUC for "catalogNumber".',
-                                                                               project_id: $project_id)
-      @controlled_vocabulary_term.save! if @controlled_vocabulary_term.new_record?
+      @cat_no_pred = Predicate.find_or_create_by(name:       'catalogNumber',
+                                                 definition: 'The verbatim value imported from PSUC for "catalogNumber".',
+                                                 project_id: $project_id)
+      @cat_no_pred.save! if @cat_no_pred.new_record?
+      @geo_rem_kw = Keyword.find_or_create_by(name:       'georeferenceRemarks',
+                                              definition: 'The verbatim value imported from PSUC for "georeferenceRemarks".',
+                                              project_id: $project_id)
+      @geo_rem_kw.save! if @geo_rem_kw.new_record?
     end
 
     def make_gr(row)
       # faking a Georeference::GeoLocate:
       lat, long           = row['decimallatitude'], row['decimallongitude']
       # lat, long           = (lat.length > 0) ? lat : nil, (long.length > 0) ? long : nil
-      uncert              = row['coordinateuncertaintyinmeters']
+      uncert              = row['coordinateuncertaintyinmeters'] unless (lat.nil? or long.nil?)
       cc                  = row['countrycode']
       country             = cc.nil? ? nil : GeographicArea.where(iso_3166_a2: cc).first.name
       gl_req_params       = {country:   country,
@@ -256,13 +289,47 @@ module BatchLoad
       g_l
     end
 
+# @return [Hash] of notes where key is object type
     def make_notes(row)
-      cat_no = row['catalognumber']
-      if Note.find_or_create_by(text:             cat_no,
-                                note_object_type: 'CollectionObject',
-                                project_id:       project_id)
-
+      ret_val = {}
+      begin
+        notes      = {}
+        geo_remark = row['georeferenceremarks']
+        unless geo_remark.blank?
+          notes[:remark] = Note.new(text:       geo_remark,
+                                    project_id: $project_id)
+        end
+        ret_val[:g_r] = notes unless notes.blank?
       end
+
+      begin # collecting event notes
+        notes      = {}
+        loc_remark = row['locationremarks']
+        unless loc_remark.blank?
+          notes[:remark] = Note.new(text:                  loc_remark,
+                                    note_object_attribute: :verbatim_locality,
+                                    project_id:            $project_id)
+        end
+        ret_val[:c_e] = notes unless notes.blank?
+      end
+
+      begin # collection object notes
+        notes      = {}
+        occ_remark = row['occurrenceremarks']
+        unless occ_remark.blank?
+          notes[:remark] = Note.new(text:       occ_remark,
+                                    project_id: $project_id)
+        end
+        ret_val[:c_o] = notes unless notes.blank?
+      end
+
+      ret_val
+    end
+
+    def make_tag(row)
+      ret_val = {}
+
+      ret_val
     end
 
 # available data comes from Tulane geolocation action, reflected by the fact that the georefernce is a GeoLocate
@@ -271,9 +338,10 @@ module BatchLoad
                                 verbatim_locality:                row['verbatimlocality'],
                                 verbatim_date:                    row['eventdate'],
                                 verbatim_label:                   row['locationremarks'],
-                                verbatim_geolocation_uncertainty: row['coordinateuncertaintyinmeters']
+                                verbatim_geolocation_uncertainty: row['coordinateuncertaintyinmeters'],
+                                verbatim_latitude:                row['decimallatitude'],
+                                verbatim_longitude:               row['decimallongitude']
       )
-
 
       c_e
     end
