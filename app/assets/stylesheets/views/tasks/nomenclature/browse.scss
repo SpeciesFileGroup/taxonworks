@@ -23,6 +23,22 @@
 		white-space: nowrap;
 		}
 	}
+	.history__origin {
+		color: #FFF;
+		padding-left: 7px;
+		padding-right: 7px;
+		margin-right: 4px;
+		border-radius: 3px;
+		&.protonym {
+			background-color: blue;
+		}
+		&.combination {
+			background-color: orange;
+		}
+		&.taxon_name_relationship {
+			background-color: purple;
+		}
+	}
 }
 
 .history__citation_notes p {

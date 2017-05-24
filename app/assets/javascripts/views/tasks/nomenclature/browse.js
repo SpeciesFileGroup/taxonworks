@@ -46,13 +46,14 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 		$('#filterBrowse').on('click', '.navigation-item', function(selector) {
 
 			if($(this).attr('data-filter-reset') === 'reset') {
-				$('[data-filter]').each( function() {
+				$('[data-filter], [data-filter-font]').each( function(element) {
 					if($(this).hasClass("active")) {
 						isActive($(this),'active');
 					}
-					$($(this).attr('data-filter')).animate({
+					$($(this).attr('data-filter-font')).animate({
 	            		fontSize: '100%'
 	        		});
+	        		$($(this).attr('data-filter')).show(255);
 					$($(this).children()).attr('data-icon', 'show');
 				});
 			}
@@ -60,15 +61,17 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 				isActive($(this),'active');
 				if($(this).children().attr('data-icon') == "show") {
 					$($(this).children()).attr('data-icon', 'hide');
-					$($(this).attr('data-filter')).animate({
-	            	fontSize: '0px'
+					$($(this).attr('data-filter-font')).animate({
+	            		fontSize: '0px'
 	        		});
+					$($(this).attr('data-filter')).hide(255);
 				}
 				else {
 					$($(this).children()).attr('data-icon', 'show');
-					$($(this).attr('data-filter')).animate({
+					$($(this).attr('data-filter-font')).animate({
 	            	fontSize: '100%'
 	        		});			
+	        		$($(this).attr('data-filter')).show(255);
 				}
 			}
 		});
