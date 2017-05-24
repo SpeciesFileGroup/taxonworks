@@ -31,13 +31,16 @@
 		margin-right: 4px;
 		border-radius: 3px;
 		&.protonym {
-			background-color: blue;
+			background-color: #7986CB;
 		}
 		&.combination {
-			background-color: orange;
+			background-color: #FFB74D;
 		}
 		&.taxon_name_relationship {
-			background-color: purple;
+			background-color: #9575CD;
+		}
+		&.error {
+			background-color: #A1887F;
 		}
 	}
 }
