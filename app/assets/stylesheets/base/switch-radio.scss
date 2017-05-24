@@ -38,7 +38,8 @@
   }
 
   input:checked + label {
-    background-color: $color-action-button;
+    background-color: $color-request-button;
+    color: #FFFFFF;
     border: 1px solid rgba(0, 0, 0, 0.2)
   }
 
