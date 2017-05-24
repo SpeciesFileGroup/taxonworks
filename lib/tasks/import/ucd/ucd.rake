@@ -478,7 +478,8 @@ namespace :tw do
 #          byebug if row['ValGenus'] == 'Acanthochalcis'
           if !row['CitGenus'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
             if !@data.genus_codes[row['TaxonCode']].blank? && row['CitSubgen'].blank?
-              taxon = Protonym.create(name: row['CitGenus'], project_id: $project_id)
+              taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: $project_id)
+              taxon = Protonym.create(name: row['CitGenus'], project_id: $project_id) unless taxon.identifiers.empty?
             else
               taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: $project_id)
             end
@@ -498,7 +499,7 @@ namespace :tw do
             @data.all_genera_index[taxon.name] = taxon.id
 
             if row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
-              if !@data.genus_codes[row['TaxonCode']].blank?
+              if !@data.genus_codes[row['TaxonCode']].blank? || taxon.id != taxon1.id
 #                r = nil
                 r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
 #                  if !r.nil? && r.id.nil?
@@ -541,7 +542,8 @@ namespace :tw do
             name = row['CitSubgen'].gsub(')', '').gsub('?', '').capitalize
             parent = @data.genera_index[row['ValGenus']]
             if !@data.genus_codes[row['TaxonCode']].blank?
-              taxon = Protonym.create(name: name, project_id: $project_id)
+              taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
+              taxon = Protonym.create(name: name, project_id: $project_id) unless taxon.identifiers.empty?
             else
               taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
             end
@@ -560,7 +562,7 @@ namespace :tw do
 
             @data.all_genera_index[name] = taxon.id
 
-            if !@data.genus_codes[row['TaxonCode']].blank?
+            if !@data.genus_codes[row['TaxonCode']].blank? || taxon.id != taxon1.id
 #              r = nil
               r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
 #              if !r.nil? && r.id.nil?
@@ -685,7 +687,8 @@ namespace :tw do
             origsubgen = @data.all_genera_index[row['CitSubgen']]
             name = row['CitSpecies'].gsub('sp. ', '').to_s
             if !@data.species_codes[row['TaxonCode']].blank? && row['CitSubsp'].blank?
-              taxon = Protonym.create(name: name, parent_id: parent, project_id: $project_id)
+              taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
+              taxon = Protonym.create(name: name, parent_id: parent, project_id: $project_id) unless taxon.identifiers.emptry?
             else
               taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
             end
@@ -706,7 +709,7 @@ namespace :tw do
             taxon1 = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
 
             byebug if taxon1.nil?
-            if !@data.species_codes[row['TaxonCode']].blank?
+            if !@data.species_codes[row['TaxonCode']].blank? || taxon.id != taxon1
 #              r = nil
               r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name_id: taxon1) if taxon.id != taxon1
 #              if !r.nil? && r.id.nil?
@@ -751,7 +754,8 @@ namespace :tw do
             origspecies = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['CitSpecies'].to_s]
             name = row['CitSubsp'].gsub('sp. ', '').to_s
             if !@data.species_codes[row['TaxonCode']].blank?
-              taxon = Protonym.create(name: name, parent_id: parent, project_id: $project_id)
+              taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
+              taxon = Protonym.create(name: name, parent_id: parent, project_id: $project_id) unless taxon.identifiers.empty?
             else
               taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
             end
@@ -772,7 +776,7 @@ namespace :tw do
             taxon1 = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
 
             byebug if taxon1.nil?
-            if !@data.species_codes[row['TaxonCode']].blank?
+            if !@data.species_codes[row['TaxonCode']].blank? || taxon.id != taxon1
 #              r = nil
               r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name_id: taxon1) if taxon.id != taxon1
 #              if !r.nil? && r.id.nil?
