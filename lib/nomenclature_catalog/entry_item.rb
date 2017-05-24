@@ -63,6 +63,19 @@ module NomenclatureCatalog
       end
     end
 
+    def origin
+      case object_class
+      when 'Protonym'
+        'protonym'
+      when 'Combination'
+        'combination'
+      when /TaxonNameRelationship/
+        'taxon_name_relationship'
+      else
+        'error'
+      end
+    end
+
     protected
 
     def cited_class  
