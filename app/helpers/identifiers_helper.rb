@@ -17,11 +17,10 @@ module IdentifiersHelper
   # @return [String]
   #   assumes the display context is on the object in question
   def identifier_list_tag(object)
-    if object.identifiers.any?
-      content_tag(:h3, 'Identifiers') +
-      content_tag(:ul, class: 'list identifier_list') do
-        object.identifiers.collect{|a| content_tag(:li, identifier_annotation_tag(a)) }.join.html_safe 
-      end
+    return nil unless object.has_identifiers? && object.identifiers.any?
+    content_tag(:h3, 'Identifiers') +
+      content_tag(:ul, class: 'annotations_identifier_list') do
+      object.identifiers.collect{|a| content_tag(:li, identifier_annotation_tag(a)) }.join.html_safe 
     end
   end
 

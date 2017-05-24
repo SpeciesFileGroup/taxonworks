@@ -7,7 +7,7 @@ module DataAttributesHelper
 
   def data_attribute_annotation_tag(data_attribute)
     return nil if data_attribute.nil?
-    s = (data_attribute_predicate_tag(data_attribute) + ' ' + content_tag(:span, data_attribute.value, class: [:annotation__data_attribute_value]) ).html_safe
+    s = (data_attribute_predicate_tag(data_attribute) + ': ' + content_tag(:span, data_attribute.value, class: [:annotation__data_attribute_value]) ).html_safe
     content_tag(:span, s.html_safe, class: [:annotation__data_attribute])
   end
 
@@ -22,11 +22,12 @@ module DataAttributesHelper
   end
 
   def data_attribute_list_tag(object)
-    if object.data_attributes.any?
-      content_tag(:h3, 'Data attributes') +
-      content_tag(:ul, class: 'list data_attribute_list') do
-        object.data_attributes.collect{|a| content_tag(:li, data_attribute_annotation_tag(a)) }.join.html_safe 
-      end
+    return nil unless object.has_data_attributes? && object.data_attributes.any?
+    content_tag(:h3, 'Data attributes') +
+      content_tag(:ul, class: 'annotations__data_attribute_list') do
+      object.data_attributes.collect{|a| 
+        content_tag(:li, data_attribute_annotation_tag(a)) 
+      }.join.html_safe 
     end
   end
 

@@ -36,11 +36,12 @@ module CitationsHelper
   end
 
   def citation_list_tag(object)
-    if object.citations.any?
-      content_tag(:h3, 'Citations') +
-        content_tag(:ul, class: 'citation_list') do
-        object.tags.collect { |a| content_tag(:li, citation_annotation_tag(a)) }.join.html_safe
-      end
+    return nil unless object.has_citations? && object.citations.any? 
+    content_tag(:h3, 'Citations') +
+      content_tag(:ul, class: 'annotations__citation_list') do
+      object.citations.collect{|t| 
+       content_tag(:li, citation_annotation_tag(t)) 
+      }.join.html_safe
     end
   end
 

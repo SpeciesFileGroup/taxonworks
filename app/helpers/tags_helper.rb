@@ -2,9 +2,8 @@ module TagsHelper
 
   def tag_tag(tag)
     return nil if tag.nil?
-    pieces =  [controlled_vocabulary_term_tag(tag.keyword)]
-    pieces += [tag.tag_object_type, object_tag(tag.tag_object)] if context != :self
-    pieces.compact.join(' : ')
+    pieces =  [controlled_vocabulary_term_tag(tag.keyword), tag.tag_object_type, object_tag(tag.tag_object)]
+    pieces.compact.join(': ').html_safe
   end
 
   def tag_annotation_tag(tag)
@@ -15,11 +14,10 @@ module TagsHelper
   # @return [String (html), nil]
   #    a ul/li of tags for the object
   def tag_list_tag(object)
-    if object.tags.any?
-      content_tag(:h3, 'Tags') +
-      content_tag(:ul, class: 'list tag_list') do
-        object.tags.collect { |a| content_tag(:li, tag_annotation_tag(a)) }.join.html_safe
-      end
+    return nil unless object.has_tags? && object.tags.any?
+    content_tag(:h3, 'Tags') +
+      content_tag(:ul, class: 'annotations__tag_list') do
+      object.tags.collect { |a| content_tag(:li, tag_annotation_tag(a)) }.join.html_safe
     end
   end
   
