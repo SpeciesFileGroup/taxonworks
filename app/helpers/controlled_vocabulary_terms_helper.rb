@@ -2,7 +2,7 @@ module ControlledVocabularyTermsHelper
 
   def controlled_vocabulary_term_tag(controlled_vocabulary_term)
     return nil if controlled_vocabulary_term.nil?
-    color_tag(controlled_vocabulary_term.css_color, controlled_vocabulary_term.name)
+    content_tag(:span, color_tag(controlled_vocabulary_term.css_color, controlled_vocabulary_term.name), title: controlled_vocabulary_term.definition)
   end
 
   def controlled_vocabulary_term_link(controlled_vocabulary_term)

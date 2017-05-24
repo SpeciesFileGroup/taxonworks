@@ -7,15 +7,15 @@
 #
 # @!attribute text
 #   @return [String]
-#   @todo
+#     The content of the note, in Markdown if you wish. 
 #
 # @!attribute note_object_type
 #   @return [String]
-#   @todo
+#     The object being annotated. 
 #
 # @!attribute note_object_attribute
 #   @return [String]
-#   @todo
+#     The specific attribute being annotated. 
 #
 # @!attribute project_id
 #   @return [Integer]

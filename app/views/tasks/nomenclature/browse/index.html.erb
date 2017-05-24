@@ -80,13 +80,7 @@
             <%= render "soft_validation" %>
             <div class="panel fullSize content separate-left separate-bottom">
               <div class="attributes information-panel">
-                <div class="title-section"> 
-                  <h2>Annotations</h2>
-                </div>
-                <%= identifier_list_tag(@taxon_name) -%> 
-                <%= data_attribute_list_tag(@taxon_name) -%> 
-                <%= note_list_tag(@taxon_name) -%> 
-                <%= tag_list_tag(@taxon_name) -%> 
+                <%= annotations_summary_tag(@taxon_name) -%>
               </div>
             </div>
             <div class="panel content fullSize separate-left">
