@@ -688,7 +688,7 @@ namespace :tw do
             name = row['CitSpecies'].gsub('sp. ', '').to_s
             if !@data.species_codes[row['TaxonCode']].blank? && row['CitSubsp'].blank?
               taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
-              taxon = Protonym.create(name: name, parent_id: parent, project_id: $project_id) unless taxon.identifiers.emptry?
+              taxon = Protonym.create(name: name, parent_id: parent, project_id: $project_id) unless taxon.identifiers.empty?
             else
               taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
             end
