@@ -35,6 +35,8 @@ TaxonWorks::Application.routes.draw do
   match '/signout', to: 'sessions#destroy', via: :delete
   resources :sessions, only: :create
 
+  get 'soft_validations/validate' => 'soft_validations#validate', defaults: {format: :json}
+
   # Note singular 'resource'
   resource :hub, controller: 'hub', only: [:index] do
     get '/', action: :index
