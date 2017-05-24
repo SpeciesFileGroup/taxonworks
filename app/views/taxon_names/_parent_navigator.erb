@@ -1,8 +1,19 @@
 <div id="show_taxon_name_hierarchy">
   <h3>Hierarchy</h3>
+  <div class="separate-top separate-bottom">
+    <div class="switch-radio">
+      <input type="radio" id="display_herarchy_valid" name="display_herarchy" value="valid"/>
+      <label for="display_herarchy_valid">Valid</label>
+      <input type="radio" id="display_herarchy_invalid" name="display_herarchy" value="invalid" />
+      <label for="display_herarchy_invalid">Invalid</label>
+      <input type="radio" id="display_herarchy_both" name="display_herarchy" value="both" checked/>
+      <label for="display_herarchy_both">Both</label>
+    </div>
+  </div>
+
   <ul>
     <% taxon_name.ancestor_protonyms.each do |p| -%>
-      <li>
+      <li data-valid-toggle="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
         <p> 
         <%= link_to(taxon_name_tag(p), send(target, p)) -%>
           <span class="subtle">
@@ -24,7 +35,7 @@
   </ul>
   <ul class="descendent">
     <% taxon_name.children.order(:name).where(type: 'Protonym').each do |p| -%>
-      <li>
+      <li data-valid-toggle="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
         <p>
           <%= link_to(taxon_name_tag(p), send(target, p)) -%>
           <span class="subtle">

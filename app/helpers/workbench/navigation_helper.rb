@@ -12,7 +12,6 @@ module Workbench::NavigationHelper
   end      
 
   def slideout_pdf_viewer
-
     render(partial: '/shared/data/slideout/document')  if sessions_current_project && sessions_signed_in?
   end    
 
@@ -35,26 +34,49 @@ module Workbench::NavigationHelper
   end 
 
   # A previous record link. 
-  def previous_link(instance)
-    text = 'Previous'
-    if instance.respond_to?(:project_id)
-      link_object = instance.class.base_class.order(id: :desc).with_project_id(instance.project_id).where(['id < ?', instance.id]).limit(1).first
+  def previous_link(instance, text: 'Previous', target: nil)
+    link_text = content_tag(:span, text,  'data-icon' => 'arrow-left', 'class' => 'small-icon')
+    link_object = previous_object(instance)
+    return content_tag(:div, link_text, 'class' => 'navigation-item disable') if link_object.nil? 
+    if target.nil?
+      target ||= link_object.metamorphosize
     else
-      link_object = instance.class.base_class.order(id: :desc).where(['id < ?', instance.id]).limit(1).first
+      target = send(target, id: link_object.id) 
     end
-
-    link_object.nil? ? content_tag(:div,content_tag(:span,text, 'class' => 'small-icon', 'data-icon' => 'arrow-left'), 'class' => 'navigation-item disable') : link_to(content_tag(:span,text, 'data-icon' => 'arrow-left', 'class' => 'small-icon'), link_object.metamorphosize, 'data-arrow' => 'back', 'class' => 'navigation-item')
+    link_to(link_text, target, 'data-arrow' => 'back', 'class' => 'navigation-item')
   end
 
   # A next record link.
-  def next_link(instance)
-    text = 'Next'
-    if instance.respond_to?(:project_id)
-      link_object = instance.class.base_class.order(id: :asc).with_project_id(instance.project_id).where(['id > ?', instance.id]).limit(1).first
+  def next_link(instance, text: 'Next', target: nil)
+    link_text = content_tag(:span, text, 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right')
+    link_object = next_object(instance)
+    return content_tag(:div, link_text, 'class' => 'navigation-item disable') if link_object.nil? 
+    if target.nil?
+      target ||= link_object.metamorphosize
     else
-      link_object = instance.class.base_class.order(id: :asc).where(['id > ?', instance.id]).limit(1).first
+      target = send(target, id: link_object.id) 
     end
-    link_object.nil? ? content_tag(:div,content_tag(:span,text, 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right'), 'class' => 'navigation-item disable') : link_to(content_tag(:span,text, 'data-icon' => 'arrow-right', 'class' => 'small-icon icon-right'), link_object.metamorphosize, 'data-arrow' => 'next', 'class' => 'navigation-item')
+    link_to(link_text, target, 'data-arrow' => 'next', 'class' => 'navigation-item')
+  end
+
+  # Next ordered by ID, no wrapping
+  def next_object(object)
+    base = object.class.base_class.order(id: :asc).where(['id > ?', object.id]).limit(1) 
+    if object.respond_to?(:project_id)
+      base.with_project_id(object.project_id).first
+    else
+      base.first
+    end
+  end
+
+  # Previous ordered by ID, no wrapping
+  def previous_object(object)
+    base = object.class.base_class.order(id: :desc).where(['id < ?', object.id]).limit(1) 
+    if object.respond_to?(:project_id)
+      base.with_project_id(object.project_id).first
+    else
+      base.first
+    end
   end
 
   def new_path_for_model(model)
@@ -77,9 +99,9 @@ module Workbench::NavigationHelper
 
   def list_for_model_link(model)
     if model.any?
-    link_to('List', list_path_for_model(model), 'data-icon' => 'list')
+      link_to('List', list_path_for_model(model), 'data-icon' => 'list')
     else
-     content_tag(:span, 'List', class: :disabled, 'data-icon' => 'list')
+      content_tag(:span, 'List', class: :disabled, 'data-icon' => 'list')
     end
   end
 
@@ -139,7 +161,7 @@ module Workbench::NavigationHelper
   # return [Boolean]
   #  true if the current user created this object
   def user_is_creator?(object)
-    object.created_by_id == $user_id
+    object.created_by_id == sessions_current_user_id 
   end
 
   # return [A tag, nil]
@@ -218,7 +240,7 @@ module Workbench::NavigationHelper
 
   def a_to_z_links(targets = [])
     letters = targets.empty? ? a_to_z_range : a_to_z_range.to_a & targets
-   
+
     content_tag(:div, class: 'navigation-bar-left', id: 'alphabet_nav') do
       content_tag(:ul, class: 'left_justified_navbar context-menu') do
         letters.collect{|l| content_tag(:li, link_to("#{l}", "\##{l}")) }.join.html_safe

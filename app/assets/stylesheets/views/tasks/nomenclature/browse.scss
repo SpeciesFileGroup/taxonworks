@@ -11,11 +11,36 @@
 		width: 500px;
 		white-space: normal;
 	}
+	.ui-autocomplete-input {
+	 	box-sizing: border-box !important;
+	 	min-width: 240px !important;
+	 	max-width: 240px !important;
+	}
 
 	@media screen and (min-width: 980px) {
 		.ui-autocomplete {
 			width: auto;
 		white-space: nowrap;
+		}
+	}
+	.history__origin {
+		display: none;
+		color: #FFF;
+		padding-left: 7px;
+		padding-right: 7px;
+		margin-right: 4px;
+		border-radius: 3px;
+		&.protonym {
+			background-color: #7986CB;
+		}
+		&.combination {
+			background-color: #FFB74D;
+		}
+		&.taxon_name_relationship {
+			background-color: #9575CD;
+		}
+		&.error {
+			background-color: #A1887F;
 		}
 	}
 }
