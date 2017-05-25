@@ -4,7 +4,7 @@ module AnnotationsHelper
   # @return [String]
   # Assumes the context is the object, not a multi-object summary
   def annotations_summary_tag(object)
-    content_tag(:div, class: %w{item panel separate-lef separate-right separate-bottom}) do
+    content_tag(:div, class: %w{item panel separate-left separate-right separate-bottom}) do
       content_tag(:div, class: [:content]) do
         content_tag(:span, '*', id: annotation_id(object), data: {annotation_anchor: true}) + # Radial fly out annotator, float right
           content_tag(:div, class: ['information-panel']) do
