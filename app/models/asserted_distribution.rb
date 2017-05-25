@@ -33,6 +33,7 @@ class AssertedDistribution < ActiveRecord::Base
   include Shared::Taggable
   include Shared::DataAttributes
   include Shared::Citable
+  include Shared::Confidence
 
   include Shared::IsDwcOccurrence
   include AssertedDistribution::DwcExtensions 

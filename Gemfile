@@ -26,6 +26,8 @@ gem 'biodiversity'
 # Postgis
 gem 'activerecord-postgis-adapter', '~> 3.1.4'
 
+gem 'tzinfo-data'
+
 gem 'delayed_job_active_record'
 gem 'daemons'
 
@@ -50,10 +52,9 @@ gem 'sprockets-rails'
 gem 'sprockets', '~> 3.0'
 gem 'sprockets-es6', require: 'sprockets/es6'
 
-gem 'browserify-rails'
 # gem 'babel-transpiler'
 
-gem 'ruby-units', '~> 2.1'
+gem 'webpacker'
 
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '~> 3.0.02'
@@ -64,8 +65,6 @@ gem 'uglifier', '~> 3.0.02'
 # Use jquery as the JavaScript library
 gem 'jquery-rails', '~> 4.1.1'
 gem 'jquery-ui-rails', '~> 5.0.5'
-
-gem 'vuejs-rails'
 
 gem 'rails-jquery-autocomplete'
 gem 'best_in_place', '~> 3.1.0'
@@ -150,9 +149,6 @@ gem 'redcarpet', '~> 3.3'
 # SFG gems
 gem 'taxonifi', '0.4.0'
 gem 'sqed', '0.2.4'
-
-# Docker related/required(?) - review
-gem 'tzinfo-data'
 
 
 group :test, :development do

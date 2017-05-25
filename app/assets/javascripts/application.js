@@ -24,9 +24,6 @@
 //= require autocomplete-rails
 //= require best_in_place
 //= require dropzone
-//= require vue
-//= require vue-resource
-//= require vuex
 //= require_tree ./vendor/src
 //= require_tree ./vendor/lib
 //= require_tree ./vendor/lib/jquery

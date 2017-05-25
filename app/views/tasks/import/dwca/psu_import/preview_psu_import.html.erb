@@ -1,0 +1,37 @@
+<h2> Penn State Import Preview </h2>
+
+<p> Import includes <%= @result.count -%> records. </p>
+
+<p> To complete this import, select the file again and click create:
+  <%= form_tag do_psu_import_path, multipart: true do -%>
+      <%= file_field_tag :file -%>
+      <%= submit_tag 'Do' -%>
+  <% end %>
+</p>
+
+<p><span style='color:green'>Green</span> lines will be imported. If there are soft validation errors
+  they will appear below the green line in <span style="color:brown">brown</span>.
+  <span style="color:red">Red</span> lines will not be imported and are followed by a list of the associated errors.
+</p>
+
+<ol>
+  <% @result.each_with_index do |row, i| %>
+      <% if row.valid? %>
+          <%= content_tag(:li, row.cached_string('html').html_safe, class: 'green') -%>
+          <% if row.soft_validations.messages.count > 0 %>
+              <ul>
+                <% row.soft_validations.messages.each do |e| %>
+                    <%= content_tag(:li, e.to_s.html_safe, class: 'brown') -%>
+                <% end %>
+              </ul>
+          <% end %>
+      <% else %>
+          <%= content_tag(:li, row.cached_string('html').html_safe, class: 'red') -%>
+          <ul>
+            <% row.errors.messages.each do |e| %>
+                <%= content_tag(:li, e.to_s.html_safe) -%>
+            <% end %>
+          </ul>
+      <% end %>
+  <% end %>
+</ol>

@@ -1069,7 +1069,8 @@ namespace :tw do
                 
                 parent_index[row['ID']] = p.id
                 data.taxa_index[row['TaxonCode']] = p
-              rescue ActiveRecord::RecordInvalid 
+                p.notes.create(text: row['Remarks']) unless row['Remarks'].blank?
+              rescue ActiveRecord::RecordInvalid
                 puts "\n#{p.name}"
                 puts p.errors.messages
                 puts
@@ -1080,7 +1081,6 @@ namespace :tw do
               puts "\n  No parent for #{p.name}.\n"
             end
 
-            p.notes.create(text: row['Remarks']) unless row['Remarks'].blank?
           end
 
           parent_index = nil
@@ -1093,10 +1093,17 @@ namespace :tw do
         if row['TaxonCode'].blank?
           return true
         end
-        o =  Otu.create(
-          taxon_name_id: taxon_name.id,
-          identifiers_attributes: [  {identifier: row['TaxonCode'], namespace: @taxon_namespace, type: 'Identifier::Local::OtuUtility'} ]
-        )
+        if taxon_name.id.nil?
+          o =  Otu.create(
+              taxon_name_id: taxon_name.parent_id,name: taxon_name.parent.name + ' ' + taxon_name.name,
+              identifiers_attributes: [  {identifier: row['TaxonCode'], namespace: @taxon_namespace, type: 'Identifier::Local::OtuUtility'} ]
+          )
+        else
+          o =  Otu.create(
+              taxon_name_id: taxon_name.id,
+              identifiers_attributes: [  {identifier: row['TaxonCode'], namespace: @taxon_namespace, type: 'Identifier::Local::OtuUtility'} ]
+          )
+        end
         # data.otus.merge!(row['TaxonCode'] => o)
       end
 

@@ -474,6 +474,7 @@ class CollectingEvent < ActiveRecord::Base
     def data_attributes
       column_names.reject { |c| %w{id project_id created_by_id updated_by_id created_at updated_at project_id}.include?(c) || c =~ /^cached/ }
     end
+
   end # << end class methods
 
   # @param [String] lat
@@ -490,9 +491,24 @@ class CollectingEvent < ActiveRecord::Base
     sql += ' and (verbatim_latitude is null or verbatim_longitude is null)' unless include_values
 
     retval = CollectingEvent.where(sql)
-               .with_project_id($project_id)
-               .order(:id)
-               .where.not(id: id).distinct
+                 .with_project_id($project_id)
+                 .order(:id)
+                 .where.not(id: id).distinct
+    retval
+  end
+
+  # @param [String] piece
+  # @param [Boolean] include_values true if to include records whicgh already have verbatim lat/longs
+  # @return [Scope] of matching collecting events
+  def similar_dates(lat, long, piece = '', include_values = true)
+    sql = '('
+    sql += ')'
+    sql += ' and (verbatim_date is null)' unless include_values
+
+    retval = CollectingEvent.where(sql)
+                 .with_project_id($project_id)
+                 .order(:id)
+                 .where.not(id: id).distinct
     retval
   end
 
@@ -513,6 +529,18 @@ class CollectingEvent < ActiveRecord::Base
   # @return [Boolean]
   def has_end_date?
     !end_date_day.blank? && !end_date_month.blank? && !end_date_year.blank?
+  end
+
+  # @return [String]
+  def end_y_m_d_string
+    date = end_date
+    "#{'%4d' % date.year} #{'%02d' % date.month} #{'%02d' % date.day}" if has_end_date?
+  end
+
+  # @return [String]
+  def start_y_m_d_string
+    date = start_date
+    "#{'%4d' % date.year} #{'%02d' % date.month} #{'%02d' % date.day}" if has_start_date?
   end
 
   # @return [String]
@@ -1026,15 +1054,15 @@ class CollectingEvent < ActiveRecord::Base
   # @return [RGeo::Geographic::ProjectedPointImpl, nil]
   #   for the *verbatim* latitude/longitude only
   def verbatim_map_center(delta_z = 0.0)
+    retval = nil
     unless verbatim_latitude.blank? or verbatim_longitude.blank?
       lat     = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s)
       long    = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s)
       elev    = Utilities::Geo.distance_in_meters(verbatim_elevation.to_s)
       delta_z = elev unless elev == 0.0
-      Gis::FACTORY.point(long, lat, delta_z)
-    else
-      nil
+      retval  = Gis::FACTORY.point(long, lat, delta_z)
     end
+    retval
   end
 
   # @return [Symbol, nil]

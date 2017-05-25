@@ -154,7 +154,7 @@ class TaxonName < ActiveRecord::Base
   attr_accessor :also_create_otu
 
   # @return [Boolean]
-  #   When true, also cached values are not built
+  #   When true cached values are not built
   attr_accessor :no_cached
 
   before_validation :set_type_if_empty
@@ -626,7 +626,7 @@ class TaxonName < ActiveRecord::Base
   #region Set cached fields
 
   def set_type_if_empty
-    self.type = 'Protonym' if self.type.nil?
+    self.type = 'Protonym' if self.type.nil? || self.type == 'TaxonName'
   end
 
   def set_cached_names
@@ -988,32 +988,54 @@ class TaxonName < ActiveRecord::Base
       gender        = nil
 
       relationships.each do |i|
-        case i.type # subject_status
-          when /OriginalGenus/ #'original genus'
-            genus  = '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-            gender = i.subject_taxon_name.gender_name
-          when /OriginalSubgenus/ # 'original subgenus'
-            subgenus += '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when /OriginalSection/ # 'original section'
-            subgenus += 'sect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when /OriginalSubsection/ #'original subsection'
-            subgenus += 'subsect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when /OriginalSeries/ # 'original series'
-            subgenus += 'ser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when /OriginalSubseries/ #  'original subseries'
-            subgenus += 'subser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when /OriginalSpecies/ #  'original species'
-            species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when /OriginalSubSpecies/ # 'original subspecies'
-            species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when /OriginalVariety/ #  'original variety'
-            species += 'var. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when /OriginalSubvariety/ # 'original subvariety'
-            species += 'subvar. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when /OriginalForm/ # 'original form'
-            species += 'f. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when /OriginalSubform/ #  'original subform'
-            species += 'subf. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+        if i.object_taxon_name_id == i.subject_taxon_name_id && !i.object_taxon_name.verbatim_name.blank?
+          case i.type # subject_status
+            when /OriginalGenus/ #'original genus'
+              genus  = '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+              gender = i.subject_taxon_name.gender_name
+            when /OriginalSubgenus/ # 'original subgenus'
+              subgenus += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalSpecies/ #  'original species'
+              species += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalSubSpecies/ # 'original subspecies'
+              species += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalVariety/ #  'original variety'
+              species += 'var. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalSubvariety/ # 'original subvariety'
+              species += 'subvar. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalForm/ # 'original form'
+              species += 'f. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalSubform/ #  'original subform'
+              species += 'subf. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+          end
+        else
+          case i.type # subject_status
+            when /OriginalGenus/ #'original genus'
+              genus  = '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+              gender = i.subject_taxon_name.gender_name
+            when /OriginalSubgenus/ # 'original subgenus'
+              subgenus += '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+  #          when /OriginalSection/ # 'original section'
+  #            subgenus += 'sect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+  #          when /OriginalSubsection/ #'original subsection'
+  #            subgenus += 'subsect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+  #          when /OriginalSeries/ # 'original series'
+  #            subgenus += 'ser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+  #          when /OriginalSubseries/ #  'original subseries'
+  #            subgenus += 'subser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+            when /OriginalSpecies/ #  'original species'
+              species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalSubSpecies/ # 'original subspecies'
+              species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalVariety/ #  'original variety'
+              species += 'var. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalSubvariety/ # 'original subvariety'
+              species += 'subvar. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalForm/ # 'original form'
+              species += 'f. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalSubform/ #  'original subform'
+              species += 'subf. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+          end
         end
       end
 

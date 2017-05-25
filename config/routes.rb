@@ -1,5 +1,5 @@
 TaxonWorks::Application.routes.draw do
- 
+
   # All models that use data controllers should include this concern.
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
   # TODO: This will have to be broken down to core_data_routes, and supporting_data_routes
@@ -33,6 +33,8 @@ TaxonWorks::Application.routes.draw do
   match '/signin', to: 'sessions#new', via: :get
   match '/signout', to: 'sessions#destroy', via: :delete
   resources :sessions, only: :create
+
+  get 'soft_validations/validate' => 'soft_validations#validate', defaults: {format: :json}
 
   # Note singular 'resource'
   resource :hub, controller: 'hub', only: [:index] do
@@ -114,7 +116,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       get 'filter', defaults: {format: :json}
-  end
+    end
   end
 
   resources :confidences do # , except: [:edit, :show]
@@ -185,7 +187,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes, :shallow_annotation_routes]
     collection do
       get :filter
-  end
+    end
   end
 
   resources :controlled_vocabulary_terms do
@@ -204,7 +206,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       patch :sort
-  end
+    end
   end
 
   resources :descriptors do
@@ -225,7 +227,7 @@ TaxonWorks::Application.routes.draw do
   resources :extracts do
     concerns [:data_routes]
   end
-  
+
   resources :geographic_areas do
     concerns [:data_routes]
     collection do
@@ -323,7 +325,7 @@ TaxonWorks::Application.routes.draw do
   resources :observation_matrix_row_items do
     concerns [:data_routes]
   end
-  
+
   resources :notes, except: [:show] do
     concerns [:data_routes]
   end
@@ -426,7 +428,7 @@ TaxonWorks::Application.routes.draw do
   resources :sequence_relationships do
     concerns [:data_routes]
   end
-  
+
   resources :sources do
     concerns [:data_routes]
     collection do
@@ -488,10 +490,27 @@ TaxonWorks::Application.routes.draw do
   ### End of resources except user related located below scopes ###
 
   scope :tasks do
+
     scope :observation_matrices do
       scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do
         get 'index', as: 'index_row_coder_task'
         get 'set', as: 'set_row_coder_task'
+      end
+    end
+
+    scope :import do
+      scope :dwca do
+        scope :psu_import, controller: 'tasks/import/dwca/psu_import' do
+          get 'index', as: 'psu_import_task'
+          post 'preview_psu_import', as: 'preview_psu_import'
+          post 'do_psu_import', as: 'do_psu_import'
+        end
+      end
+    end
+
+    scope :loans do
+      scope :overdue, controller: 'tasks/loans/overdue' do
+        get 'index', as: 'overdue_loans_task'
       end
     end
 
@@ -520,6 +539,14 @@ TaxonWorks::Application.routes.draw do
     scope :collecting_events do
       scope :parse do
         scope :stepwise do
+          scope :dates, controller: 'tasks/collecting_events/parse/stepwise/dates' do
+            get 'index', as: 'dates_index_task'
+            post 'update', as: 'dates_update_task'
+            get 'skip', as: 'dates_skip'
+            get 'similar_labels', as: 'dates_similar_labels'
+            get 'save_selected', as: 'dates_save_selected'
+          end
+
           scope :lat_long, controller: 'tasks/collecting_events/parse/stepwise/lat_long' do
             get 'index', as: 'collecting_event_lat_long_task'
             post 'update', as: 'lat_long_update'
@@ -534,6 +561,10 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :collection_objects do
+      scope :browse, controller: 'tasks/collection_objects/browse' do
+        get 'index', as: 'browse_collection_objects_task'
+      end
+
       scope :filter, controller: 'tasks/collection_objects/filter' do
         get 'index', as: 'collection_objects_filter_task' #'index_area_and_date_task'
         get 'find', as: 'find_collection_objects_task' # 'find_area_and_date_task'
@@ -786,7 +817,7 @@ TaxonWorks::Application.routes.draw do
   #     resources :sales do
   #       get 'recent', on: :collection
   #     end  resources :gene_attributes
-  #   end
+  #     end
 
   # Example resource route within a namespace:
   #   namespace :admin do
@@ -850,8 +881,6 @@ TaxonWorks::Application.routes.draw do
 
     end
   end
-
-
 
 end
 

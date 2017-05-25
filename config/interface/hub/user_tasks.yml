@@ -131,7 +131,7 @@ sqed_depiction_breakdown_todo_map_task:
 simple_specimen_task:
   hub: true
   name: 'Simple new specimen'
-  description: 'A bare bones specimen creation interface. Creates related collectinge events, images, and identifiers.'
+  description: 'A bare bones specimen creation interface. Creates related collecting events, images, and identifiers.'
   categories:
     - collection_object
     - collecting_event
@@ -181,7 +181,7 @@ geographic_area_lookup_task:
   categories:
     - collecting_event
   status: prototype
-  description: 'Check the geographic area gazetteer to see if there are records matching a particular name with queries like "Illinois", or "Illinois:Champaign" or "Canada:Saskatchewan.'
+  description: 'Check the geographic area gazetteer to see if there are records matching a particular name with queries like "Illinois", or "Champaign:Illinois" or "Saskatchewan:Canada.'
 browse_sources_task:
   hub: true
   name: 'Browse sources'
@@ -198,7 +198,7 @@ collecting_event_lat_long_task:
   categories:
     - collecting_event
   status: prototype
-  description: 'Parse the verbatim label for possible lat/long combinations.'
+  description: "Parse the collecting_events table's verbatim label for possible lat/long combinations."
 index_editor_task:
   hub: true
   name: 'Content editor'
@@ -215,6 +215,40 @@ cite_otus_task_task:
     - source
   status: prototype
   description: 'Add citations to OTUs.  Optionally add topics to citations.  For example assertions like "Smith, 1920 referenced Biology of Aus bus" are possible.'
+dates_index_task:
+  hub: true
+  name: 'Stepwise collecting event parser - Dates'
+  related:
+    - collecting_events
+  categories:
+    - collecting_event
+  status: prototype
+  description: "Parse the collecting_events table's verbatim label for possible date combinations."
+psu_import_task:
+  hub: true
+  name: 'Import Penn State DWCA'
+  related:
+    - collecting_events
+  categories:
+    - collecting_event
+  status: prototype
+  description: 'Import a DWCA file from Penn State.'
+overdue_loans_task:
+  hub: true
+  name: 'Overdue loans'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'List overdue loans.'
+browse_collection_objects_task:
+  hub: true
+  name: 'Browse collection objects'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Report everything known about a collection object (specimen, lot, ranged lot). Includes determinations, loan history, images, collecting event, catalog numbers, etc.'
 index_row_coder_task:
   hub: true
   name: 'Matrix row coder'
@@ -223,3 +257,4 @@ index_row_coder_task:
     - matrix
   status: prototype
   description: 'Code a matrix row.'
+

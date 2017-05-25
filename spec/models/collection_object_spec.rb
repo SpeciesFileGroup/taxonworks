@@ -118,7 +118,6 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
           s.update(total: nil, ranged_lot_category: ranged_lot_category)
           expect(s.type).to eq('RangedLot')
         end
-
       end
     end
   end
@@ -160,13 +159,19 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     end
 
     context 'has_many' do
+      before {collection_object.total = 1}
       # technically not supposed to have these, they are to be biological only
       specify 'taxon_determinations' do
         collection_object.taxon_determinations << FactoryGirl.create(:valid_taxon_determination)
-        collection_object.total = 1
         expect(collection_object.save).to be_truthy
         collection_object.reload
         expect(collection_object.taxon_determinations.first).to be_truthy
+      end
+
+      specify 'type_designations' do
+        expect(collection_object.type_designations << FactoryGirl.create(:valid_type_material)).to be_truthy
+        expect(collection_object.save).to be_truthy
+        expect(collection_object.type_designations.count).to eq(1)
       end
     end
   end

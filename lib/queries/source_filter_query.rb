@@ -1,5 +1,4 @@
 module Queries
-
   class SourceFilterQuery < Queries::Query
 
     include Arel::Nodes
@@ -35,16 +34,6 @@ module Queries
       else
         nil
       end 
-    end
-
-    # @return [ActiveRecord::Relation, nil]
-    # cached matches full query string wildcarded
-    def cached
-      if !terms.empty?
-        table[:cached].matches_any(terms)
-      else
-        nil
-      end
     end
 
     # @return [ActiveRecord::Relation]

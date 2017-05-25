@@ -12,7 +12,8 @@ module TaxonNames::CatalogHelper
     c = i.citation
     r = reference_taxon_name
 
-    [  
+    [ 
+      history_origin(i), 
       history_taxon_name(t, r, c, target),        # the subject, or protonym
       history_author_year(t, c),                  # author year of the subject, or protonym
                                                  
@@ -26,6 +27,10 @@ module TaxonNames::CatalogHelper
 #      (i.object.class.name == 'Protonym' ? history_type_material(t, i.is_subsequent?) : nil), # Type material reference 
       history_type_material(i),
     ].compact.join.html_safe
+  end
+
+  def history_origin(i)
+    content_tag(:span, i.origin.humanize, class: ['history__origin', i.origin ])
   end
 
   def history_taxon_name(taxon_name, r, c, target = nil)

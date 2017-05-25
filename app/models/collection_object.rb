@@ -126,7 +126,7 @@ class CollectionObject < ActiveRecord::Base
   # This is a problem, but here for the forseeable future for nested attributes purporses.
   has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object
 
-  has_one :preferred_catalog_number, through: :current_otu, source: :taxon_name
+  has_many :type_designations, class_name: 'TypeMaterial', foreign_key: :biological_object_id, inverse_of: :material
 
   belongs_to :collecting_event, inverse_of: :collection_objects
   belongs_to :preparation_type, inverse_of: :collection_objects
@@ -599,14 +599,24 @@ class CollectionObject < ActiveRecord::Base
   end
 
   def reject_taxon_determinations(attributed)
-    if attributed['otu_id'].blank?
-      return true if attributed['otu_attributes'].nil?  || attributed['otu_attributes'].empty?
 
-      h = attributed['otu_attributes']
-      return true if h['name'].blank? && h['taxon_name_id'].blank?
+    a = attributed['otu_id']
+    b = attributed['otu_attributes'] 
+
+    return true if !a.present? && !b.present?
+
+    if a.present?
+      return true if b.present? && ( b['name'].present? || b['taxon_name_id'].present? ) # not both
+      return false 
     end
+
+    if b.present?
+      return true if !b['name'].present? && !b['taxon_name_id'].present?
+    end 
+
     false
   end
+
 
   def reject_collecting_event(attributed)
     reject = true

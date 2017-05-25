@@ -2,14 +2,26 @@ module TagsHelper
 
   def tag_tag(tag)
     return nil if tag.nil?
-
-    [tag.keyword.name,
-     tag.tag_object_type,
-     object_tag(tag.tag_object)
-    ].compact.join(' : ')
+    pieces =  [controlled_vocabulary_term_tag(tag.keyword), tag.tag_object_type, object_tag(tag.tag_object)]
+    pieces.compact.join(': ').html_safe
   end
 
-    def tags_search_form
+  def tag_annotation_tag(tag)
+    return nil if tag.nil?
+    content_tag(:div, controlled_vocabulary_term_tag(tag.keyword), class: [:annotation__tag])
+  end
+
+  # @return [String (html), nil]
+  #    a ul/li of tags for the object
+  def tag_list_tag(object)
+    return nil unless object.has_tags? && object.tags.any?
+    content_tag(:h3, 'Tags') +
+      content_tag(:ul, class: 'annotations__tag_list') do
+      object.tags.collect { |a| content_tag(:li, tag_annotation_tag(a)) }.join.html_safe
+    end
+  end
+  
+  def tags_search_form
     render '/tags/quick_search_form'
   end
 
@@ -38,17 +50,6 @@ module TagsHelper
   #   indicates a custom partial should be used, see list_helper.rb
   def tags_recent_objects_partial
     true
-  end
-
-  # @return [String (html), nil]
-  #    a ul/li of tags for the object
-  def tag_list_tag(object)
-    if object.tags.any?
-      content_tag(:h3, 'Tags') +
-      content_tag(:ul, class: 'tag_list') do
-        object.tags.collect { |a| content_tag(:li, tag_tag(a)) }.join.html_safe
-      end
-    end
   end
 
 end

@@ -20,7 +20,7 @@ node_modules
 
 .ruby-gemset
 .bundle
-bin
+
 bundle_bin
 
 log
@@ -33,13 +33,16 @@ coverage
 
 REVISION
 
+public/system
 public/images/tmp
+public/assets
+public/packs
 
 .git
 spec
 travis
 k8s
-public/system
+
 
 
 

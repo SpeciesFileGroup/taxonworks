@@ -36,19 +36,21 @@ spec:
         - name: taxonworks-media-vol
           persistentVolumeClaim:
             claimName: taxonworks-media-pv-claim
+        - name: taxonworks-backup-vol
+          persistentVolumeClaim:
+            claimName: taxonworks-backup-pv-claim
+        - name: taxonworks-staging-vol
+          persistentVolumeClaim:
+            claimName: taxonworks-staging-pv-claim
       containers:
         - name: taxonworks
-          image: sfgrp/taxonworks:dev
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 120 
-            timeoutSeconds: 3
-          lifecycle: 
-            postStart:
-              exec:
-                command: ["bundle exec", "rake", "tw:fail"]
+          image: sfgrp/taxonworks:0.0.2
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: 80
+          #   initialDelaySeconds: 180
+          #   timeoutSeconds: 3
           env:
             - name: RAILS_ENV
               value: production
@@ -84,4 +86,8 @@ spec:
           volumeMounts:
             - mountPath: /app/public/system
               name: taxonworks-media-vol
+            - mountPath: /backup
+              name: taxonworks-backup-vol
+            - mountPath: /staging/
+              name: taxonworks-staging-vol
 

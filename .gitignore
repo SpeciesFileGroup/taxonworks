@@ -34,7 +34,7 @@ application_settings.yml
 
 # Ignore bundler config.
 /.bundle
-/bin
+
 /bundle_bin
 
 # Ignore all logfiles and tempfiles.
@@ -70,3 +70,9 @@ REVISION
 
 public/images/tmp
 public/assets/
+/public/packs
+# /node_modules # previously noted, ~line 25
+
+bin/bundle
+bin/spring
+bin/delayed_job

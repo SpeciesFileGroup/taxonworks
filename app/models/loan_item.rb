@@ -52,9 +52,9 @@ class LoanItem < ActiveRecord::Base
   belongs_to :loan
   belongs_to :loan_item_object, polymorphic: true
 
-  validates_presence_of :loan_item_object_id, :loan_item_object_type
+  validates_presence_of :loan_item_object
 
-  validates :loan_id, presence: true
+  validates :loan, presence: true
   validates_uniqueness_of :loan, scope: [:loan_item_object_type, :loan_item_object_id]
 
   validate :total_provided_only_when_otu

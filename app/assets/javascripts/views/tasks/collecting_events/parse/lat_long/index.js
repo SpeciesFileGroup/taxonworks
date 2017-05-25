@@ -3,15 +3,16 @@ TW.views = TW.views || {};
 TW.views.tasks = TW.views.tasks || {};
 TW.views.tasks.collecting_events = TW.views.tasks.collecting_events || {};
 TW.views.tasks.collecting_events.parse = TW.views.tasks.collecting_events.parse || {};
+TW.views.tasks.collecting_events.parse.lat_long = TW.views.tasks.collecting_events.parse.lat_long || {};
 
-Object.assign(TW.views.tasks.collecting_events.parse, {
+Object.assign(TW.views.tasks.collecting_events.parse.lat_long, {
   init: function () {
     // var whereIgo = '/tasks/collecting_events/parse/stepwise/lat_long/';
     var route = location.pathname.replace('index', '');
-
+  
     var start_next = 0;
-    TW.views.tasks.collecting_events.parse.bind_radio_buttons();
-    
+    TW.views.tasks.collecting_events.parse.lat_long.bind_radio_buttons();
+  
     $('#lat_long_convert').click(function (event) {
         // $("#select_area").mx_spinner('show');
         $.get('convert', $("#lat_long_convert_form").serialize(), function (local_data) {
@@ -26,18 +27,18 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
     );
   
     $('#skip').click(function (event) {
-      location.href = route + 'skip?' + $('#lat_long_convert_form').serialize();
       event.preventDefault();
+      location.href = route + 'skip?' + $('#lat_long_convert_form').serialize();
     });
   
     $('#re_eval').click(function (event) {
-      location.href = route + 're_eval?' + $('#lat_long_convert_form').serialize();
       event.preventDefault();
+      location.href = route + 're_eval?' + $('#lat_long_convert_form').serialize();
     });
   
     $('#save_selected').click(function (event) {
-      location.href = route + 'save_selected?' + $('#lat_long_convert_form').serialize();
       event.preventDefault();
+      location.href = route + 'save_selected?' + $('#lat_long_convert_form').serialize();
     });
   
     //  $('#lat_long_update_record').click(function (event) {
@@ -58,7 +59,7 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
       // find all the checkboxes in the 'matching_span' and set them to 'checked'
       // class is selectable_select
       for (var i = 0; i < selectable.length; i++) {
-        selectable[i].setAttribute('checked', true)
+        selectable[i]['checked'] = true;
       }
       event.preventDefault();
     });
@@ -67,7 +68,7 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
       // find all the checkboxes in the 'matching_span' and set them to 'checked'
       // class is selectable_select
       for (var i = 0; i < selectable.length; i++) {
-        selectable[i].removeAttribute('checked')
+        selectable[i]['checked'] = false;
       }
       event.preventDefault();
     });
@@ -102,7 +103,7 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
         $("#matched_latitude").val(lat);
         $("#matched_longitude").val(long);
         $("#match_gen_georeference").val($("#generate_georeference").serialize());
-        TW.views.tasks.collecting_events.parse.bind_sequence_buttons();
+        TW.views.tasks.collecting_events.parse.lat_long.bind_sequence_buttons();
       });
     });
   }
@@ -113,6 +114,6 @@ $(document).ready(function () {
   if ($("#ce_parse_lat_long").length) {
     //  var _init_lat_long_parse = TW.views.tasks.collecting_events.parse;
     // _init_lat_long_parse.init();
-    TW.views.tasks.collecting_events.parse.init();
+    TW.views.tasks.collecting_events.parse.lat_long.init();
   }
 });

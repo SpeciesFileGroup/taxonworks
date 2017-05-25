@@ -2,19 +2,20 @@ require 'rails_helper'
 
 describe ContentsHelper, type: :helper do
   context 'a content needs some helpers' do
-    let!(:content) {FactoryGirl.create(:valid_content) }
-    let(:target) {helper.content_tag(:span, helper.object_tag(content.topic) + ' - ' + helper.object_tag(content.otu))}
+    let(:name) {'My topic'}
+    let(:topic) { FactoryGirl.create(:valid_topic, name: name)}
+    let!(:content) {FactoryGirl.create(:valid_content, topic: topic) }
 
     specify '#taxon_works_content_tag' do
-      expect(helper.taxon_works_content_tag(content)).to eq(target)
+      expect(helper.taxon_works_content_tag(content)).to match(name)
     end
 
     specify '.taxon_works_content_tag' do
-      expect(helper.taxon_works_content_tag(content)).to eq(target)
+      expect(helper.taxon_works_content_tag(content)).to match(name)
     end
 
     specify '#content_link' do
-      expect(helper.content_link(content)).to match(target)
+      expect(helper.content_link(content)).to match(name)
     end
 
     specify "#content_search_form" do

@@ -1,25 +1,30 @@
 language: ruby
-cache: bundler
+cache: 
+  bundler: true
+  yarn: true
+  directories:
+    - $TRAVIS_BUILD_DIR/node_modules
 dist: trusty
 sudo: required
 rvm:
-  - 2.3.1
+  - 2.3.3
 bundler_args: --without development
 branches:
   only:
     - master
     - Rails-5.0
     - development
-    - travis-trusty-beta
     - eyelet 
+    - webpack
 addons:
   postgresql: "9.5"
   firefox: "47.0.1"
 before_install:
   - sudo apt-get install -y postgresql-9.5 postgresql-contrib-9.5 libgeos-dev libproj-dev postgresql-9.5-postgis-2.2 postgresql-9.5-postgis-2.2-scripts 
+  - nvm install node
 install:
   - bundle install
-  - npm install
+  - yarn
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
@@ -28,10 +33,10 @@ before_script:
   - mkdir tmp/
   - mkdir tmp/downloads 
   - psql -U postgres -c 'create role taxonworks_development login createdb superuser;' 
+  - bundle exec rake assets:precompile RAILS_ENV=test  
   - bundle exec rake db:drop  
   - bundle exec rake db:create
-  - bundle exec rake db:migrate
-  - bundle exec rake db:migrate HPS_ENV=test 
+  - bundle exec rake db:migrate HPS_ENV=test
 # before_install:
 #  - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16"
 notifications:
