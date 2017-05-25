@@ -94,42 +94,38 @@ describe Person, :type => :model do
       specify 'type_designations' do
         expect(person).to respond_to(:type_material)
       end
-     end
 
+      specify 'georeferences' do
+        expect(person).to respond_to(:georeferences)
+      end
+    end
 
     context 'usage and rendering' do
-
-      let(:build_people) {
-        @person1 = FactoryGirl.build(:person, first_name: 'J.', last_name: 'Smith')
-        @person2 = FactoryGirl.build(:person, first_name: 'J.', last_name: 'McDonald')
-        @person3 = FactoryGirl.build(:person, first_name: 'D. Keith McE.', last_name: 'Kevan')
-        @person4 = FactoryGirl.build(:person, first_name: 'Ki-Su', last_name: 'Ahn')
-      }
-
-      before do
-        build_people
-      end
+      let(:person1){ FactoryGirl.build(:person, first_name: 'J.', last_name: 'Smith') } 
+      let(:person2){ FactoryGirl.build(:person, first_name: 'J.', last_name: 'McDonald') }
+      let(:person3){ FactoryGirl.build(:person, first_name: 'D. Keith McE.', last_name: 'Kevan') }
+      let(:person4){ FactoryGirl.build(:person, first_name: 'Ki-Su', last_name: 'Ahn') }
 
       context 'usage' do
         specify 'initials and last name only' do
-          expect(@person1.valid?).to be_truthy
+          expect(person1.valid?).to be_truthy
         end
 
         specify 'camel cased last name and initials' do
-          expect(@person2.valid?).to be_truthy
+          expect(person2.valid?).to be_truthy
         end
 
         specify 'cased last initials and last name only' do
-          expect(@person3.valid?).to be_truthy
+          expect(person3.valid?).to be_truthy
         end
 
         specify 'last name, dashed first name' do
-          expect(@person4.valid?).to be_truthy
+          expect(person4.valid?).to be_truthy
         end
 
         context 'rendering' do
           specify "initials, last name only" do
-            expect(@person1.name).to eq("J. Smith")
+            expect(person1.name).to eq("J. Smith")
           end
         end
       end
@@ -138,72 +134,82 @@ describe Person, :type => :model do
     # TODO: Fix. 
     #  ... roles are not getting assigned creator/updater when << is used
     context 'roles' do
-      before(:each) {
-        @vp = FactoryGirl.create(:valid_person)
-      }
+      let(:vp) { FactoryGirl.create(:valid_person) }
 
-      specify '@vp is valid person' do
-        expect(@vp.valid?).to be_truthy
+      specify 'vp is valid person' do
+        expect(vp.valid?).to be_truthy
       end
 
       specify 'is_author?' do
-        expect(@vp).to respond_to(:is_author?)
-        expect(@vp.is_author?).to be_falsey
-        source_bibtex.authors << @vp
+        expect(vp).to respond_to(:is_author?)
+        expect(vp.is_author?).to be_falsey
+        source_bibtex.authors << vp
         source_bibtex.save!
-        @vp.reload
-        expect(@vp.is_author?).to be_truthy
+        vp.reload
+        expect(vp.is_author?).to be_truthy
       end
       specify 'is_editor?' do
-        expect(@vp).to respond_to(:is_editor?)
-        expect(@vp.is_editor?).to be_falsey
-        source_bibtex.editors << @vp
+        expect(vp).to respond_to(:is_editor?)
+        expect(vp.is_editor?).to be_falsey
+        source_bibtex.editors << vp
         source_bibtex.save!
-        @vp.reload
-        expect(@vp.is_editor?).to be_truthy
+        vp.reload
+        expect(vp.is_editor?).to be_truthy
       end
       specify 'is_source?' do
-        expect(@vp).to respond_to(:is_source?)
-        expect(@vp.is_source?).to be_falsey
-        human_source.people << @vp
+        expect(vp).to respond_to(:is_source?)
+        expect(vp.is_source?).to be_falsey
+        human_source.people << vp
         human_source.save!
-        @vp.reload
-        expect(@vp.is_source?).to be_truthy
+        vp.reload
+        expect(vp.is_source?).to be_truthy
       end
       specify 'is_collector?' do
-        expect(@vp).to respond_to(:is_collector?)
-        expect(@vp.is_collector?).to be_falsey
+        expect(vp).to respond_to(:is_collector?)
+        expect(vp.is_collector?).to be_falsey
         coll_event = FactoryGirl.create(:valid_collecting_event) 
-        coll_event.collectors << @vp
+        coll_event.collectors << vp
         coll_event.save!
-        @vp.reload
-        expect(@vp.is_collector?).to be_truthy
+        vp.reload
+        expect(vp.is_collector?).to be_truthy
       end
       specify 'is_determiner?' do
-        expect(@vp).to respond_to(:is_determiner?)
-        expect(@vp.is_determiner?).to be_falsey
+        expect(vp).to respond_to(:is_determiner?)
+        expect(vp.is_determiner?).to be_falsey
         taxon_determination = FactoryGirl.create(:valid_taxon_determination)
-        taxon_determination.determiners << @vp
-        @vp.reload # vp is getting set to 1, not @vp.id with this format
-        expect(@vp.is_determiner?).to be_truthy
+        taxon_determination.determiners << vp
+        vp.reload # vp is getting set to 1, not vp.id with this format
+        expect(vp.is_determiner?).to be_truthy
       end
       specify 'is_taxon_name_author?' do
-        expect(@vp).to respond_to(:is_taxon_name_author?)
-        expect(@vp.is_taxon_name_author?).to be_falsey
+        expect(vp).to respond_to(:is_taxon_name_author?)
+        expect(vp.is_taxon_name_author?).to be_falsey
         taxon_name = FactoryGirl.create(:valid_protonym)
-        taxon_name.taxon_name_authors << @vp
+        taxon_name.taxon_name_authors << vp
         taxon_name.save!
-        @vp.reload
-        expect(@vp.is_taxon_name_author?).to be_truthy
+        vp.reload
+        expect(vp.is_taxon_name_author?).to be_truthy
       end
       specify 'is_type_designator?' do
-        expect(@vp).to respond_to(:is_type_designator?)
-        expect(@vp.is_type_designator?).to be_falsey
+        expect(vp).to respond_to(:is_type_designator?)
+        expect(vp.is_type_designator?).to be_falsey
         type_material = FactoryGirl.create(:valid_type_material)
-        type_material.type_designators << @vp
+        type_material.type_designators << vp
         type_material.save!
-        @vp.reload
-        expect(@vp.is_type_designator?).to be_truthy
+        vp.reload
+        expect(vp.is_type_designator?).to be_truthy
+      end
+
+      specify 'is_georeferencer?' do
+        expect(vp).to respond_to(:is_georeferencer?)
+        expect(vp.is_georeferencer?).to be_falsey
+        georeference = FactoryGirl.create(:valid_georeference)
+        georeference.georeferencers << vp
+        georeference.save!
+        vp.reload
+        expect(vp.is_georeferencer?).to be_truthy
+        expect(vp.georeferencer_roles.first.created_by_id).to be_truthy
+        expect(vp.georeferencer_roles.first.updated_by_id).to be_truthy
       end
     end
   end
