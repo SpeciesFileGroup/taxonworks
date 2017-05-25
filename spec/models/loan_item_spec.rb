@@ -4,17 +4,18 @@ describe LoanItem, type: :model, group: :loans do
 
   let(:loan_item) { LoanItem.new }
   let(:valid_loan_item) { FactoryGirl.create(:valid_loan_item) }
+  let(:loan) { FactoryGirl.create(:valid_loan) }
 
   context 'validation' do
     before{ loan_item.valid? }
 
-    specify 'loan_item_object_id is required' do
-      expect(loan_item.errors.include?(:loan_item_object_id) ).to be_truthy
+    specify 'loan is required' do
+      expect(loan_item.errors.include?(:loan) ).to be_truthy
     end 
 
-    specify 'loan_item_object_type is required' do
-      expect(loan_item.errors.include?(:loan_item_object_type) ).to be_truthy
-    end
+    specify 'loan_item_object is required' do
+      expect(loan_item.errors.include?(:loan_item_object) ).to be_truthy
+    end 
   end
 
   specify 'total can not be provided for Container' do
@@ -25,7 +26,7 @@ describe LoanItem, type: :model, group: :loans do
   end
 
   context 'as part of a loan' do
-    let(:loan) { FactoryGirl.create(:valid_loan) }
+    
     before { loan_item.loan = loan }
 
     specify 'a specimen can be added to loan item' do
@@ -42,6 +43,27 @@ describe LoanItem, type: :model, group: :loans do
       loan_item.loan_item_object = FactoryGirl.create(:valid_otu)
       expect(loan_item.valid?).to be_truthy
     end
+  end
+
+  context 'status' do
+    context 'while on loan' do
+      before { loan_item.date_returned = nil }
+
+      specify '#returned? is false' do
+        expect(loan_item.returned?).to be_falsey
+      end
+    end
+
+    context 'when returned' do
+      before { loan_item.date_returned = Time.now }
+
+      specify '#returned? is true' do
+        expect(loan_item.returned?).to be_truthy
+      end
+
+    end
+
+
   end
 
 

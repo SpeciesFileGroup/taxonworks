@@ -17,7 +17,11 @@
     display: block;
   }
 }
-
+#show {
+  .ui-autocomplete-input {
+    width: 240px;
+  }
+}
 #show_taxon_name_hierarchy {
   p {
     font-size: 12px;

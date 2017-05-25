@@ -43,9 +43,13 @@ RUN gem install bundler && \
     mkdir /app
 
 WORKDIR /app
-COPY . /app
-RUN yarn
+COPY Gemfile /app
+COPY Gemfile.lock /app
+COPY config/secrets.yml.example config/secrets.yml
+COPY config/database.yml.docker.compose.example config/database.yml
+COPY Gemfile.lock /app
 RUN bundle install  
+RUN yarn
 
 CMD ["rails", "server"] 
 

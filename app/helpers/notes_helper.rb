@@ -1,5 +1,22 @@
 module NotesHelper
 
+  def note_tag(note)
+    return nil if note.nil?
+
+    # Note that markdown standard includes a p.  It is upto the style class
+    # to remove/hide this class, do NOT replace it here or post-process it (for the time being).
+    content_tag(:div, MARKDOWN_HTML.render(note.text).html_safe, class: [:annotation__note])
+  end
+  alias_method :note_annotation_tag, :note_tag 
+
+  def note_list_tag(object)
+    return nil unless object.has_notes? && object.notes.any?
+    content_tag(:h3, 'Notes') +
+      content_tag(:ul, class: 'annotations__note_list') do
+      object.notes.collect{|a| content_tag(:li, note_annotation_tag(a)) }.join.html_safe 
+    end
+  end
+
   def link_to_destroy_note(link_text, note)
     link_to(link_text, '', class: 'note-destroy', note_id: note.id)
   end
@@ -34,13 +51,6 @@ module NotesHelper
     destroy_object_link(note)
   end
 
- def note_tag(note)
-    return nil if note.nil?
-
-    # Note that markdown standard includes a p.  It is upto the style class
-    # to remove/hide this class, do NOT replace it here or post-process it (for the time being).
-    MARKDOWN_HTML.render(note.text)
-  end
 
   def note_link(note)
     return nil if note.nil?
@@ -55,15 +65,6 @@ module NotesHelper
   #   indicates a custom partial should be used, see list_helper.rb
   def notes_recent_objects_partial
     true 
-  end
-
-  def note_list_tag(object)
-    if object.notes.any?
-      content_tag(:h3, 'Notes') +
-      content_tag(:ul, class: 'note_list') do
-        object.notes.collect{|a| content_tag(:li, note_tag(a)) }.join.html_safe 
-      end
-    end
   end
 
 end

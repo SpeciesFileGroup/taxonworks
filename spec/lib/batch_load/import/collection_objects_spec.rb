@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'batch_load/import/collection_objects'
 
 describe BatchLoad::Import::CollectionObjects, type: :model do
 
@@ -86,7 +87,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
 
     let(:upload_file) { fixture_file_upload(file_name) }
     let(:evaluate) {
-      BatchLoad::Import::CollectionObjects.new(project_id: project.id,
+      BatchLoad::Import::CollectionObjects::new(project_id: project.id,
                                                user_id:    user.id,
                                                file:       upload_file,
                                                user_header_map:
@@ -167,7 +168,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
 
     let(:upload_file) { fixture_file_upload(file_name) }
     let(:import) {
-      BatchLoad::Import::CollectionObjects.new(project_id: project.id,
+     BatchLoad::Import::CollectionObjects::new(project_id: project.id,
                                                user_id:    user.id,
                                                file:       upload_file,
                                                user_header_map:

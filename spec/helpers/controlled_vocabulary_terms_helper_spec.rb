@@ -1,16 +1,17 @@
 require 'rails_helper'
 
 describe ControlledVocabularyTermsHelper, :type => :helper do
-  context 'a controlled_vocabulary_term needs some helpers' do
-    let(:controlled_vocabulary_term) {FactoryGirl.create(:valid_controlled_vocabulary_term, name:name)}
+  context 'A controlled_vocabulary_term needs some helpers' do
+    let(:controlled_vocabulary_term) { FactoryGirl.create(:valid_controlled_vocabulary_term, name: name, definition: definition)}
     let(:name) {'helper term'}
+    let(:definition) {'helper definition'}
 
     specify '::controlled_vocabulary_term_tag' do
-      expect(helper.controlled_vocabulary_term_tag(controlled_vocabulary_term)).to eq(name)
+      expect(helper.controlled_vocabulary_term_tag(controlled_vocabulary_term)).to match(name)
     end
 
     specify '#controlled_vocabulary_term_tag' do
-      expect(controlled_vocabulary_term_tag(controlled_vocabulary_term)).to eq(name)
+      expect(controlled_vocabulary_term_tag(controlled_vocabulary_term)).to match(name)
     end
 
     specify '#controlled_vocabulary_term_link' do

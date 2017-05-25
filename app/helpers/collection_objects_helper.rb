@@ -56,4 +56,11 @@ module CollectionObjectsHelper
     end.join.html_safe 
   end
 
+  def dwc_table(collection_objects) 
+    content_tag(:table) do
+      dwc_occurrence_table_header_tag + 
+        dwc_occurrence_table_body_tag(collection_objects)
+    end
+  end
+
 end

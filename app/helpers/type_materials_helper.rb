@@ -2,7 +2,7 @@ module TypeMaterialsHelper
 
   def type_material_tag(type_material)
     return nil if type_material.nil?
-    type_material.to_param
+    [type_material.type_type, 'of', object_tag(type_material.protonym)].compact.join(' ')
   end
 
   def type_material_link(type_material)

@@ -6,7 +6,6 @@
       <%= fancy_th_tag(name: 'Documentation object type') -%>
       <%= fancy_th_tag(name: 'Documentation object') -%>
       <%= fancy_th_tag(name: 'Document') -%>
-      <%= fancy_th_tag(name: 'Page map') -%>
       <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
       <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
     </tr>
@@ -18,7 +17,6 @@
         <td><%= documentation.documentation_object_type %></td>
         <td><%= object_tag( documentation.documentation_object ) %></td>
         <td><%= documentation.document.document_file_file_name %></td>
-        <td><%= documentation.page_map %></td>
         <%= fancy_metadata_cells_tag(documentation) -%>
       <% end %>
     <% end %>

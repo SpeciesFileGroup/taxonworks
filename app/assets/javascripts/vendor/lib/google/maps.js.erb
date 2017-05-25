@@ -8,7 +8,6 @@ TW.vendor.lib.google.maps = TW.vendor.lib.google.maps || {};
 
 Object.assign(TW.vendor.lib.google.maps, {               // internally referred to as 'this'; externally as TW.vendor.lib.google.maps
 
-
     initializeMap: function (canvas, feature_collection) {
       var myOptions = {
         zoom: 1,
@@ -18,17 +17,30 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
         navigationControl: true,
         mapTypeId: google.maps.MapTypeId.TERRAIN
       };
-
+      var mapIcons = {    // hash of defined colors and their paths
+        empty: '<%= asset_path('map_icons/mm_20_empty.png') %>',
+        black: '<%= asset_path('map_icons/mm_20_black.png') %>',
+        brown: '<%= asset_path('map_icons/mm_20_brown.png') %>',
+        red: '<%= asset_path('map_icons/mm_20_red.png') %>',
+        orange: '<%= asset_path('map_icons/mm_20_orange.png') %>',
+        yellow: '<%= asset_path('map_icons/mm_20_yellow.png') %>',
+        green: '<%= asset_path('map_icons/mm_20_green.png') %>',
+        blue: '<%= asset_path('map_icons/mm_20_blue.png') %>',
+        purple: '<%= asset_path('map_icons/mm_20_purple.png') %>',
+        white: '<%= asset_path('map_icons/mm_20_white.png') %>',
+        gray: '<%= asset_path('map_icons/mm_20_gray.png') %>',
+        shadow: '<%= asset_path('map_icons/mm_20_shadow.png') %>'
+      };
       //var map = this.initialize_map(canvas, myOptions);
       var map = new google.maps.Map(document.getElementById(canvas), myOptions);
       var data = feature_collection;
 
       map.data.setStyle(function (feature) {
         var color = feature.getProperty('fillColor');   //
-        var icon = '<%= asset_path('map_icons/mm_20_gray.png') %>';
+        var icon = mapIcons['gray'];
         var color_name = feature.getProperty('colorName');
         if (color_name != undefined) {
-          icon = '<%= asset_path("map_icons/mm_20_' + color_name + '.png")%>'
+          icon = mapIcons[color_name]
         }
         var fill_opacity = feature.getProperty('fillOpacity');
         if (fill_opacity == undefined) {
