@@ -7,16 +7,19 @@ module CitationsHelper
   end
 
   def citation_source_body(citation)
-    pages =  ": #{citation.pages}" unless citation.pages.blank?
-    [citation_author_year(citation), pages, citation_topics_tag(citation)].compact.join(': ').html_safe
+    pages = citation.pages unless citation.pages.blank?
+    [[citation_author_year(citation), pages].compact.join(':'), citation_topics_tag(citation)].compact.join(' ').html_safe
   end
 
   def citation_topics_tag(citation)
     return nil unless citation.topics.any?
-    '[' + citation.citation_topics.collect{|ct| 
-      content_tag(:span, (ct.topic.name + (!ct.pages.blank? ? ": #{ct.pages}" : "")), class: [:annotation__citation_topic])
-    }.join(', ') 
-    + ']' 
+    [
+      '[',
+      citation.citation_topics.collect{|ct| 
+      content_tag(:span, (controlled_vocabulary_term_tag(ct.topic.metamorphosize) + (!ct.pages.blank? ? ": #{ct.pages}" : '')), class: [:annotation__citation_topic])
+    }.compact.join(', '),
+      ']'
+    ].join.html_safe
   end
 
   def citation_author_year(citation)
