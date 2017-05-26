@@ -14,22 +14,8 @@
   <span style="color:red">Red</span> lines will not be imported and are followed by a list of the associated errors.
 </p>
 
-<%= ap(@result).html_safe %>
 <ol>
-
-  <% @result.keys do |kee| %>
-      <% result_row = @result[kee] -%>
-      <% if result_row[:err].empty? -%>
-          <%= content_tag(:li, result_row[:row], class: 'green') -%>
-          <% unless result_row[:warn].empty? %>
-              <% result_row[:warn].each do |warning| %>
-                  <ul><%= content_tag(:li, warning, class: 'brown') -%></ul>
-              <% end %>
-          <% end %>
-      <% else %>
-          <% result_row[:err].each do |error| %>
-              <ul><%= content_tag(:li, error, class: 'red') -%></ul>
-          <% end %>
-      <% end %>
+  <% @result.keys.each do |kee| -%>
+      <%= text_roe(@result[kee]) -%>
   <% end %>
 </ol>

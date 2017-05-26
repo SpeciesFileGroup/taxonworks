@@ -94,7 +94,7 @@ module BatchLoad
         c_e_notes = notes[:c_e]
         g_r_notes = notes[:g_r]
         c_e       = @row_objects[:make_ce]
-        g_l       = @row_objects[:make_gr]
+        g_r       = @row_objects[:make_gr]
         # species   = @row_objects[:make_tn][:species]
         # genus     = @row_objects[:make_tn][:genus]
         # tribe     = @row_objects[:make_tn][:tribe]
@@ -128,19 +128,24 @@ module BatchLoad
         t_d.biological_collection_object = c_o
         t_d.otu                          = otu
         t_d.save!
-        g_l.collecting_event = c_e
-        if g_l.valid?
-          g_l.save!
-          unless g_r_notes.blank?
-            g_r_notes.keys.each {|kee|
-              g_r_notes[kee].note_object = g_l
-            }
-          end
+        g_r.collecting_event = c_e
+        if g_r.type.include?('Ver')
+          @row_objects[:make_gr] = nil
+          c_e.generate_verbatim_data_georeference
         else
-          # georeference was (0,0), will be dropped
-          g_l = nil
-          unless g_r_notes.blank?
-            warns.push('Georeference::GeoLocate cannot be created, \'georeferenceRemark\' has been dropped.')
+          if g_r.valid?
+            g_r.save!
+            unless g_r_notes.blank?
+              g_r_notes.keys.each {|kee|
+                g_r_notes[kee].note_object = g_r
+              }
+            end
+          else
+            # georeference was (0,0), will be dropped
+            @row_objects[:make_gr] = nil
+            unless g_r_notes.blank?
+              warns.push('Georeference::GeoLocate cannot be created, \'georeferenceRemark\' has been dropped.')
+            end
           end
         end
 
@@ -166,6 +171,8 @@ module BatchLoad
                 end
             end
           }
+          # warns.push("warning #{line_counter}")
+          # errs.push("error #{line_counter}") if line_counter.even?
           warns.flatten!
           errs.flatten!
           # ap warns
@@ -173,7 +180,7 @@ module BatchLoad
         @rows[line_counter][:err]  = errs
         @rows[line_counter][:warn] = warns
         line_counter               += 1
-        break if line_counter > 10
+        break if line_counter > 100
       end
       @total_lines = line_counter - 1
     end
@@ -277,36 +284,43 @@ module BatchLoad
     end
 
     def make_gr(row)
-      # faking a Georeference::GeoLocate:
-      lat, long = row['decimallatitude'], row['decimallongitude']
+      geo_by = row['georeferencedby']
       # lat, long           = (lat.length > 0) ? lat : nil, (long.length > 0) ? long : nil
       if lat.nil? and long.nil?
         uncert = nil
       else
         uncert = row['coordinateuncertaintyinmeters']
       end
-      cc                  = row['countrycode']
-      country             = cc.nil? ? nil : GeographicArea.where(iso_3166_a2: cc).first.name
-      gl_req_params       = {country:   country,
-                             state:     row['stateprovince'],
-                             county:    row['county'],
-                             Placename: row['municipality'],
-                             Uncert:    uncert,
-                             Latitude:  lat,
-                             Longitude: long,
-                             locality:  row['locality'],
-                             gc:        row['georeferencedby']}.stringify_keys
-      req                 = Georeference::GeoLocate::RequestUI.new(gl_req_params)
-      #   1) new the Georeference, without a collecting_event
-      g_l                 = Georeference::GeoLocate.new
-      #   2) save the information from the row in request_hash
-      g_l.api_request     = req.request_params_string
-      #   3) build a fake iframe response in the form '52.65|-106.333333|3036|Unavailable'
-      text                = "#{lat}|#{long}|#{uncert}|Unavailable"
-      #   4) use that fake to stimulate the parser to create the object
-      g_l.iframe_response = text
+      if geo_by.downcase.include?('verbatim')
+        # make a verbatim reference
+        # fill in what we can, the real work is done when the collecting_event is added
+        g_r = Georeference::VerbatimData.new(error_radius: uncert)
+      else
+        # faking a Georeference::GeoLocate:
+        lat, long           = row['decimallatitude'], row['decimallongitude']
+        cc                  = row['countrycode']
+        country             = cc.nil? ? nil : GeographicArea.where(iso_3166_a2: cc).first.name
+        gl_req_params       = {country:   country,
+                               state:     row['stateprovince'],
+                               county:    row['county'],
+                               Placename: row['municipality'],
+                               Uncert:    uncert,
+                               Latitude:  lat,
+                               Longitude: long,
+                               locality:  row['locality'],
+                               gc:        geo_by}.stringify_keys
+        req                 = Georeference::GeoLocate::RequestUI.new(gl_req_params)
+        #   1) new the Georeference, without a collecting_event
+        g_r                 = Georeference::GeoLocate.new
+        #   2) save the information from the row in request_hash
+        g_r.api_request     = req.request_params_string
+        #   3) build a fake iframe response in the form '52.65|-106.333333|3036|Unavailable'
+        text                = "#{lat}|#{long}|#{uncert}|Unavailable"
+        #   4) use that fake to stimulate the parser to create the object
+        g_r.iframe_response = text
+      end
 
-      g_l
+      g_r
     end
 
 # @return [Hash] of notes where key is object type
