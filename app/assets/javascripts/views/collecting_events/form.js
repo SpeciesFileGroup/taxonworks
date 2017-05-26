@@ -14,6 +14,9 @@ Object.assign(TW.views.collecting_events.form, {
 
     fields.forEach(function(n) {
       $('#' + n).autocomplete({
+        close: function( event, ui) { 
+          $(this).removeClass('ui-autocomplete-loading'); 
+        },
         source: function(request, response) {
           $.ajax({
             url:src,
@@ -28,10 +31,14 @@ Object.assign(TW.views.collecting_events.form, {
               $.each(data['records'], function(i, item) {
                 names.push(item.name);
               });
+              $('#' + n).removeClass("ui-autocomplete-loading");
               response(names);
+            },
+            error: function() {
+              $('#' + n).removeClass("ui-autocomplete-loading");
             }
           });
-        },
+        },     
         min_length: 2,
       });
     });
