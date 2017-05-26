@@ -14,7 +14,7 @@ class Georeference::GeoLocate < Georeference
 
   def iframe_response=(response_string)
     lat, long, error_radius, uncertainty_points = Georeference::GeoLocate.parse_iframe_result(response_string)
-    make_geographic_point(long, lat, '0.0')
+    make_geographic_point(long, lat, '0.0') unless lat.blank? and long.blank?
     if uncertainty_points.nil?
       # make a circle from the geographic_item
       unless error_radius.blank?

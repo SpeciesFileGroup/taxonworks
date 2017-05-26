@@ -14,7 +14,7 @@ module BatchLoad
 
     def initialize(dwca_namespace: nil, **args)
       @collecting_events = {}
-      @rows              = []
+      @rows              = {}
       @row_objects       = {}
       @dwca_namespace    = dwca_namespace
       @parser            = ScientificNameParser.new
@@ -77,7 +77,11 @@ module BatchLoad
 
       tasks = triage(csv.headers, tasks_)
       csv.each do |row|
-        @row_objects = {}
+        warns                     = []
+        errs                      = []
+        @rows[line_counter]       = {}
+        @rows[line_counter][:row] = row
+        @row_objects              = {}
         tasks.each {|task|
           @row_objects[task] = send(task, row)
         }
@@ -91,10 +95,9 @@ module BatchLoad
         g_r_notes = notes[:g_r]
         c_e       = @row_objects[:make_ce]
         g_l       = @row_objects[:make_gr]
-        species   = @row_objects[:make_tn][:species]
-        genus     = @row_objects[:make_tn][:genus]
-        tribe     = @row_objects[:make_tn][:tribe]
-        t_n       = @row_objects[:make_tn].select {|kee, val| val != nil}.values.first
+        # species   = @row_objects[:make_tn][:species]
+        # genus     = @row_objects[:make_tn][:genus]
+        # tribe     = @row_objects[:make_tn][:tribe]
         # if species.nil?
         #   if genus.nil?
         #     t_n = tribe
@@ -104,6 +107,7 @@ module BatchLoad
         # else
         #   t_n = species
         # end
+        t_n       = @row_objects[:make_tn].select {|kee, val| val != nil}.values.first
 
         t_n.save! if t_n.new_record?
         otu.taxon_name = t_n
@@ -125,14 +129,21 @@ module BatchLoad
         t_d.otu                          = otu
         t_d.save!
         g_l.collecting_event = c_e
-        g_l.save!
-        unless g_r_notes.blank?
-          g_r_notes.keys.each {|kee|
-            g_r_notes[kee].note_object = g_l
-          }
+        if g_l.valid?
+          g_l.save!
+          unless g_r_notes.blank?
+            g_r_notes.keys.each {|kee|
+              g_r_notes[kee].note_object = g_l
+            }
+          end
+        else
+          # georeference was (0,0), will be dropped
+          g_l = nil
+          unless g_r_notes.blank?
+            warns.push('Georeference::GeoLocate cannot be created, \'georeferenceRemark\' has been dropped.')
+          end
         end
 
-        messages = []
         begin # make sure all objects for this row get saved
           @row_objects.keys.each {|kee|
             objects = @row_objects[kee]
@@ -142,22 +153,27 @@ module BatchLoad
                   if object.valid?
                     object.save
                   else
-                    messages.push(object.errors.messages)
+                    errs.push(object.errors.messages)
                   end
                 }
               when 'Hash'
-                messages.push(save_hash(objects))
+                errs.push(save_hash(objects))
               else # all other single object classes
                 if objects.valid?
                   objects.save
                 else
-                  messages.push(objects.errors.messages)
+                  errs.push(objects.errors.messages)
                 end
             end
           }
-          messages.flatten!
+          warns.flatten!
+          errs.flatten!
+          # ap warns
         end
-        line_counter += 1
+        @rows[line_counter][:err]  = errs
+        @rows[line_counter][:warn] = warns
+        line_counter               += 1
+        break if line_counter > 10
       end
       @total_lines = line_counter - 1
     end
@@ -204,22 +220,22 @@ module BatchLoad
     private
 
     def save_hash(objects)
-      messages = []
+      errs = []
       objects.keys.each {|rank|
         object = objects[rank]
         unless object.blank?
           if object.class.to_s == 'Hash'
-            messages.push(save_objects(object))
+            errs.push(save_hash(object))
           else
             if object.valid?
               object.save
             else
-              messages.push(object.errors.messages)
+              errs.push(object.errors.messages)
             end
           end
         end
       }
-      messages.flatten
+      errs.flatten
     end
 
 # only for use in a TaxonWorks rails console
@@ -262,9 +278,13 @@ module BatchLoad
 
     def make_gr(row)
       # faking a Georeference::GeoLocate:
-      lat, long           = row['decimallatitude'], row['decimallongitude']
+      lat, long = row['decimallatitude'], row['decimallongitude']
       # lat, long           = (lat.length > 0) ? lat : nil, (long.length > 0) ? long : nil
-      uncert              = row['coordinateuncertaintyinmeters'] unless (lat.nil? or long.nil?)
+      if lat.nil? and long.nil?
+        uncert = nil
+      else
+        uncert = row['coordinateuncertaintyinmeters']
+      end
       cc                  = row['countrycode']
       country             = cc.nil? ? nil : GeographicArea.where(iso_3166_a2: cc).first.name
       gl_req_params       = {country:   country,

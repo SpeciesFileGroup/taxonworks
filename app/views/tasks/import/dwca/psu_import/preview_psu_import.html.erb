@@ -1,4 +1,4 @@
-<h2> Penn State Import Preview </h2>
+<h2> Penn State Import Preview (This isn't really a 'Preview')</h2>
 
 <p> Import includes <%= @result.count -%> records. </p>
 
@@ -14,24 +14,22 @@
   <span style="color:red">Red</span> lines will not be imported and are followed by a list of the associated errors.
 </p>
 
+<%= ap(@result).html_safe %>
 <ol>
-  <% @result.each_with_index do |row, i| %>
-      <% if row.valid? %>
-          <%= content_tag(:li, row.cached_string('html').html_safe, class: 'green') -%>
-          <% if row.soft_validations.messages.count > 0 %>
-              <ul>
-                <% row.soft_validations.messages.each do |e| %>
-                    <%= content_tag(:li, e.to_s.html_safe, class: 'brown') -%>
-                <% end %>
-              </ul>
+
+  <% @result.keys do |kee| %>
+      <% result_row = @result[kee] -%>
+      <% if result_row[:err].empty? -%>
+          <%= content_tag(:li, result_row[:row], class: 'green') -%>
+          <% unless result_row[:warn].empty? %>
+              <% result_row[:warn].each do |warning| %>
+                  <ul><%= content_tag(:li, warning, class: 'brown') -%></ul>
+              <% end %>
           <% end %>
       <% else %>
-          <%= content_tag(:li, row.cached_string('html').html_safe, class: 'red') -%>
-          <ul>
-            <% row.errors.messages.each do |e| %>
-                <%= content_tag(:li, e.to_s.html_safe) -%>
-            <% end %>
-          </ul>
+          <% result_row[:err].each do |error| %>
+              <ul><%= content_tag(:li, error, class: 'red') -%></ul>
+          <% end %>
       <% end %>
   <% end %>
 </ol>
