@@ -23,6 +23,8 @@ gem 'biodiversity'
 # Postgis
 gem 'activerecord-postgis-adapter', '~> 3.1.4'
 
+gem 'tzinfo-data'
+
 gem 'delayed_job_active_record'
 gem 'daemons'
 

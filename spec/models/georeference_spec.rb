@@ -46,6 +46,21 @@ describe Georeference, type: :model, group: :geo do
     end
   end
 
+  context 'georeference role' do
+    let(:georeference) { FactoryGirl.create(:valid_georeference) }
+    specify 'with << and an existing object' do
+      expect(georeference.roles.count).to eq(0)
+      georeference.georeferencers << Person.new(last_name: "Smith")
+      expect(georeference.save).to be_truthy
+
+      expect(georeference.georeferencers.first.creator.nil?).to be_falsey
+      expect(georeference.georeferencers.first.updater.nil?).to be_falsey
+
+      expect(georeference.roles.first.creator.nil?).to be_falsey
+      expect(georeference.roles.first.updater.nil?).to be_falsey
+    end
+  end
+
   context 'validation' do
     before(:each) {
       georeference.valid?

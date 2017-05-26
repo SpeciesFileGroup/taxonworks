@@ -438,6 +438,8 @@ GEM
       coffee-rails
     tzinfo (1.2.3)
       thread_safe (~> 0.1)
+    tzinfo-data (1.2017.2)
+      tzinfo (>= 1.0.0)
     uglifier (3.0.4)
       execjs (>= 0.3.0, < 3)
     unicode (0.4.4.4)
@@ -551,6 +553,7 @@ DEPENDENCIES
   thor (= 0.19.1)
   timecop (~> 0.8.1)
   turbolinks (~> 2.5.3)
+  tzinfo-data
   uglifier (~> 3.0.02)
   validates_timeliness (~> 4.0.0)
   vcr (~> 3.0.0)

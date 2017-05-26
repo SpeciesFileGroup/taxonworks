@@ -478,7 +478,8 @@ namespace :tw do
 #          byebug if row['ValGenus'] == 'Acanthochalcis'
           if !row['CitGenus'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
             if !@data.genus_codes[row['TaxonCode']].blank? && row['CitSubgen'].blank?
-              taxon = Protonym.create(name: row['CitGenus'], project_id: $project_id)
+              taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: $project_id)
+              taxon = Protonym.create(name: row['CitGenus'], project_id: $project_id) unless taxon.identifiers.empty?
             else
               taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: $project_id)
             end
@@ -498,7 +499,7 @@ namespace :tw do
             @data.all_genera_index[taxon.name] = taxon.id
 
             if row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
-              if !@data.genus_codes[row['TaxonCode']].blank?
+              if !@data.genus_codes[row['TaxonCode']].blank? || taxon.id != taxon1.id
 #                r = nil
                 r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
 #                  if !r.nil? && r.id.nil?
@@ -541,7 +542,8 @@ namespace :tw do
             name = row['CitSubgen'].gsub(')', '').gsub('?', '').capitalize
             parent = @data.genera_index[row['ValGenus']]
             if !@data.genus_codes[row['TaxonCode']].blank?
-              taxon = Protonym.create(name: name, project_id: $project_id)
+              taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
+              taxon = Protonym.create(name: name, project_id: $project_id) unless taxon.identifiers.empty?
             else
               taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
             end
@@ -560,7 +562,7 @@ namespace :tw do
 
             @data.all_genera_index[name] = taxon.id
 
-            if !@data.genus_codes[row['TaxonCode']].blank?
+            if !@data.genus_codes[row['TaxonCode']].blank? || taxon.id != taxon1.id
 #              r = nil
               r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
 #              if !r.nil? && r.id.nil?
@@ -685,7 +687,8 @@ namespace :tw do
             origsubgen = @data.all_genera_index[row['CitSubgen']]
             name = row['CitSpecies'].gsub('sp. ', '').to_s
             if !@data.species_codes[row['TaxonCode']].blank? && row['CitSubsp'].blank?
-              taxon = Protonym.create(name: name, parent_id: parent, project_id: $project_id)
+              taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
+              taxon = Protonym.create(name: name, parent_id: parent, project_id: $project_id) unless taxon.identifiers.empty?
             else
               taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
             end
@@ -706,7 +709,7 @@ namespace :tw do
             taxon1 = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
 
             byebug if taxon1.nil?
-            if !@data.species_codes[row['TaxonCode']].blank?
+            if !@data.species_codes[row['TaxonCode']].blank? || taxon.id != taxon1
 #              r = nil
               r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name_id: taxon1) if taxon.id != taxon1
 #              if !r.nil? && r.id.nil?
@@ -751,7 +754,8 @@ namespace :tw do
             origspecies = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['CitSpecies'].to_s]
             name = row['CitSubsp'].gsub('sp. ', '').to_s
             if !@data.species_codes[row['TaxonCode']].blank?
-              taxon = Protonym.create(name: name, parent_id: parent, project_id: $project_id)
+              taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
+              taxon = Protonym.create(name: name, parent_id: parent, project_id: $project_id) unless taxon.identifiers.empty?
             else
               taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
             end
@@ -772,7 +776,7 @@ namespace :tw do
             taxon1 = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
 
             byebug if taxon1.nil?
-            if !@data.species_codes[row['TaxonCode']].blank?
+            if !@data.species_codes[row['TaxonCode']].blank? || taxon.id != taxon1
 #              r = nil
               r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name_id: taxon1) if taxon.id != taxon1
 #              if !r.nil? && r.id.nil?
@@ -837,7 +841,7 @@ namespace :tw do
             c = lng_transl[c] unless lng_transl[c].nil?
             l = Language.where(alpha_2: c).first
             if l.nil?
-              print "\n   Language not resolved: #{row['Code']} - #{row['Language']}\n"
+              print "\n ERROR: Language not resolved: #{row['Code']} - #{row['Language']}\n"
               @data.languages[row['Code'].downcase] = [nil, row['Language']]
             else
               @data.languages[row['Code'].downcase] = [l.id, row['Language']]
@@ -1025,7 +1029,7 @@ namespace :tw do
             stated_year = nil
           end
 
-          print "\nYear out of range: [#{year.to_i == 0 ? 'not provided' : year}]\n" if year.to_i < 1500 || year.to_i > 2018
+          print "\n ERROR: Year out of range: [#{year.to_i == 0 ? 'not provided' : year}]\n" if year.to_i < 1500 || year.to_i > 2018
           year = nil if year.to_i < 1500 || year.to_i > 2018
           stated_year = nil if stated_year.to_i < 1500 || stated_year.to_i > 2018
 
@@ -1201,8 +1205,8 @@ namespace :tw do
           genus = find_taxon_id_ucd(row['Code'])
           ref = find_source_id_ucd(row['RefCode'])
 
-          print "\n TaxonCode: #{row['TaxonCode']} not found \n" if !row['TaxonCode'].blank? && taxon.nil?
-          print "\n Genus Code: #{row['Code']} not found \n" if !row['Code'].blank? && genus.nil?
+          print "\n ERROR: TaxonCode: #{row['TaxonCode']} not found \n" if !row['TaxonCode'].blank? && taxon.nil?
+          print "\n ERROR: Genus Code: #{row['Code']} not found \n" if !row['Code'].blank? && genus.nil?
           unless taxon.nil?
             unless genus.nil?
               TaxonNameRelationship.create(type: 'TaxonNameRelationship::Typification::Family', subject_taxon_name_id: genus, object_taxon_name: taxon)
@@ -1255,8 +1259,8 @@ namespace :tw do
           species = find_taxon_id_ucd(row['Code'])
           ref = find_source_id_ucd(row['RefCode'])
           designator = find_source_id_ucd(row['Designator'])
-          print "\n TaxonCode: #{row['TaxonCode']} not found \n" if !row['TaxonCode'].blank? && taxon.nil?
-          print "\n Species Code: #{row['Code']} not found \n" if !row['Code'].blank? && species.nil?
+          print "\n ERROR: TaxonCode: #{row['TaxonCode']} not found \n" if !row['TaxonCode'].blank? && taxon.nil?
+          print "\n ERROR: Species Code: #{row['Code']} not found \n" if !row['Code'].blank? && species.nil?
           typedesign = row['TypeDesign'].blank? ? type_type[''] : type_type[row['TypeDesign']]
           unless taxon.nil?
             unless species.nil?
@@ -1336,7 +1340,7 @@ namespace :tw do
           print "\r#{i}"
           taxon = find_taxon_ucd(row['TaxonCode'])
           ref = find_source_id_ucd(row['RefCode'])
-          print "\n TaxonCode: #{row['TaxonCode']} not found \n" if !row['TaxonCode'].blank? && taxon.nil?
+          print "\n ERROR: TaxonCode: #{row['TaxonCode']} not found \n" if !row['TaxonCode'].blank? && taxon.nil?
           unless taxon.nil?
 #            if taxon.type == 'Combination' && !classification_type[row['CurrStat']].nil?
 #              # valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
@@ -1545,7 +1549,7 @@ namespace :tw do
             #r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ReliableA'], value: @data.reliable[row['ReliableA']]) unless row['ReliableA'].blank?
             #r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ReliableB'], value: @data.reliable[row['ReliableB']]) unless row['ReliableB'].blank?
           else
-            print "\nInvalid host relationship: TaxonCode: #{row['TaxonCode']}, Relation: #{row['Relation']}, PrimHosFam: #{row['PrimHosFam']}, HosNumber: #{row['HosNumber']}\n"
+            print "\n ERROR: Invalid host relationship: TaxonCode: #{row['TaxonCode']}, Relation: #{row['Relation']}, PrimHosFam: #{row['PrimHosFam']}, HosNumber: #{row['HosNumber']}\n"
           end
         end
       end
@@ -1565,7 +1569,7 @@ namespace :tw do
 
           source_id = find_source_id_ucd(row['RefCode'])
           if source_id.nil?  # no point in searching forward, abort
-            print "  Reference #{row['RefCode']} not found skipping asserted distribution for this row!\n"
+            print " ERROR: Reference #{row['RefCode']} not found skipping asserted distribution for this row!\n"
             next
           end
 
@@ -1574,7 +1578,7 @@ namespace :tw do
           otu = Otu.find_or_create_by(taxon_name_id: taxon_id)
 
           if otu.id.blank? # no point in searching forward, abort - don't check valid, check if ID is there, it has to be valid then
-            print " OTU for TaxonCode #{row['TaxonCode']} not found skipping asserted distribution for this row!\n"
+            print " ERROR: OTU for TaxonCode #{row['TaxonCode']} not found skipping asserted distribution for this row!\n"
             next
           end
 
@@ -1626,18 +1630,18 @@ namespace :tw do
           taxon = find_taxon_ucd(row['TaxonCode'])
           # otu = @data.otus[row['TaxonCode'].to_s]
  
-          print "\n TaxonCode: #{row['TaxonCode']} not found \n" if row['TaxonCode'].blank?
+          print "\n ERROR: TaxonCode: #{row['TaxonCode']} not found \n" if row['TaxonCode'].blank?
           #print "\n No corresponding OTU for TaxonCode: [#{row['TaxonCode']}] \n" if otu.nil? #  taxon.nil?
 
           if taxon.nil?
-            print "\n Taxon not found. TaxonCode: [#{row['TaxonCode']}] \n"
+            print "\n ERROR: Taxon not found. TaxonCode: [#{row['TaxonCode']}] \n"
             next
           end
 
           ref = find_source_id_ucd(row['RefCode'])
 
           if ref.nil?
-            print "\n No reference found for #{row['RefCode']} \n"
+            print "\n ERROR: No reference found for #{row['RefCode']} \n"
             next
           end
 
@@ -1841,7 +1845,7 @@ namespace :tw do
           end
           taxon.notes.create(text: row['Notes'].to_s.gsub('|','_') + ' ' + row['Code'].to_s) if !row['Notes'].blank? && !taxon.nil?
           if taxon.nil?
-            print "\nInvalid TaxonCode: #{row['TaxonCode']}\n"
+            print "\n ERROR: Invalid TaxonCode: #{row['TaxonCode']}\n"
           elsif taxon.type == 'Combination'
             valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
             taxon = valid
@@ -1868,7 +1872,7 @@ namespace :tw do
                 c.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
                 c.citations.create(source_id: ref2, pages: row['PagesB']) unless ref2.nil?
               else
-                print "\nInvalid relationship: TaxonCode: #{row['TaxonCode']}, Status: #{row['Status']}, Code: #{row['Code']}\n"
+                print "\n ERROR: Invalid relationship: TaxonCode: #{row['TaxonCode']}, Status: #{row['Status']}, Code: #{row['Code']}\n"
               end
 
             else
@@ -1884,7 +1888,7 @@ namespace :tw do
               c.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
               c.citations.create(source_id: ref2, pages: row['PagesB']) unless ref2.nil?
             else
-              print "\nInvalid status: TaxonCode: #{row['TaxonCode']}, Status: #{row['Status']}, Code: #{row['Code']}\n"
+              print "\n ERROR: Invalid status: TaxonCode: #{row['TaxonCode']}, Status: #{row['Status']}, Code: #{row['Code']}\n"
             end
           end
         end

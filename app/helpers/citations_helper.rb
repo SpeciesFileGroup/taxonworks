@@ -1,22 +1,60 @@
 module CitationsHelper
 
-
   def citation_tag(citation)
     return nil if citation.nil?
-    citation_string = (
-      (citation.source.type == 'Source::Bibtex' && citation.source.try(:author_year)) ? 
-      citation.source.author_year : 
-      content_tag(:span, 'author, year not yet provided for source', class: :subtle) 
-    )
-  
-    str = [citation.citation_object.class.name, ": ", object_tag(citation.citation_object.metamorphosize).html_safe, " in ", citation_string].join
-    str = str + ": #{citation.pages}." if !citation.pages.blank?
-    if citation.citation_topics.any? 
-      str = str + ' [' + citation.citation_topics.collect{|ct| ct.topic.name + (ct.pages? ? ": #{ct.pages}" : "")}.join(', ') + ']' 
+    citation_string = citation_author_year(citation)
+    [citation.citation_object.class.name, ": ", object_tag(citation.citation_object.metamorphosize), " in ", citation_source_body(citation)].compact.join.html_safe
+  end
+
+  def citation_source_body(citation)
+    pages = citation.pages unless citation.pages.blank?
+    [[citation_author_year(citation), pages].compact.join(':'), citation_topics_tag(citation)].compact.join(' ').html_safe
+  end
+
+  def citation_topics_tag(citation)
+    return nil unless citation.topics.any?
+    [
+      '[',
+      citation.citation_topics.collect{|ct| 
+      content_tag(:span, (controlled_vocabulary_term_tag(ct.topic.metamorphosize) + (!ct.pages.blank? ? ": #{ct.pages}" : '')), class: [:annotation__citation_topic])
+    }.compact.join(', '),
+      ']'
+    ].join.html_safe
+  end
+
+  def citation_author_year(citation)
+    if citation.source && citation.source.type == 'Source::Bibtex' && citation.source.author_year.present?
+      citation.source.author_year 
+    else
+      content_tag(:span, 'Author, year not yet provided for source.', class: :subtle) 
     end
-    str += '.' 
-#    str += citation.is_original? ? ' ORIGINAL' : ' SUBSEQUENT'
-    str.html_safe
+  end
+
+  def citation_annotation_tag(citation)
+    content_tag(:span, citation_source_body(citation), class: [:annotation__citation])
+  end
+
+  def citation_list_tag(object)
+    return nil unless object.has_citations? && object.citations.any? 
+    content_tag(:h3, 'Citations') +
+      content_tag(:ul, class: 'annotations__citation_list') do
+      object.citations.collect{|t| 
+       content_tag(:li, citation_annotation_tag(t)) 
+      }.join.html_safe
+    end
+  end
+
+  # Used in browse/catalog, try to deprecate
+  def citation_author_year_tag(citation)
+    return nil if citation.nil?
+    case citation.source.type
+      when 'Source::Verbatim'
+        citation.source.verbatim
+      when 'Source::Bibtex'
+        citation.source.author_year
+      else
+        'NOT PROVIDED/CACHE ERROR'
+    end
   end
 
   def citation_link(citation)
@@ -36,18 +74,6 @@ module CitationsHelper
 
   def edit_citation_link(citation)
     edit_object_link(citation)
-  end
-
-  def citation_author_year_tag(citation)
-    return nil if citation.nil?
-    case citation.source.type
-      when 'Source::Verbatim'
-        citation.source.verbatim
-      when 'Source::Bibtex'
-        citation.source.author_year
-      else
-        'NOT PROVIDED/CACHE ERROR'
-    end
   end
 
   # @return [True]

@@ -4,14 +4,14 @@ describe TagsHelper, type:  :helper do
   context 'a tag needs some helpers' do
     let(:tag) {FactoryGirl.create(:valid_tag)}
 
-    let(:tag_string) { "#{tag.keyword.name} : Otu : #{helper.object_tag(tag.tag_object)}" }
+    let(:tag_string) { tag.keyword.name }
 
     specify '#tag_tag' do
-      expect(helper.tag_tag(tag)).to eq(tag_string)
+      expect(helper.tag_tag(tag)).to match(tag_string)
     end
 
     specify '#tag_link' do
-      expect(helper.tag_link(tag)).to have_link(tag_string)
+      expect(helper.tag_link(tag)).to match(tag_string)
     end
 
     specify "#tag_search_form" do

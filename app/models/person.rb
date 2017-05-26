@@ -64,6 +64,7 @@ class Person < ActiveRecord::Base
   has_many :determiner_roles, class_name: 'Determiner'
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor'
   has_many :type_designator_roles, class_name: 'TypeDesignator'
+  has_many :georeferencer_roles, class_name: 'Georeferencer'
 
   # has_many :sources, through: :roles   # TODO: test and confirm dependent
 
@@ -74,7 +75,8 @@ class Person < ActiveRecord::Base
   has_many :taxon_determinations, through: :determiner_roles, source: :role_object, source_type: 'TaxonDetermination'
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName'
   has_many :type_material, through: :type_designator_roles, source: :role_object, source_type: 'TypeMaterial'
-
+  has_many :georeferences, through: :georeferencer_roles, source: :role_object, source_type: 'Georeference'
+  
   #scope :named, -> (name) {where(name: name)}
   #scope :named_smith, where(last_name: 'Smith')
   scope :named_smith, -> { where(last_name: 'Smith') }
@@ -136,6 +138,10 @@ class Person < ActiveRecord::Base
 
   def is_type_designator?
     self.type_designator_roles.to_a.length > 0
+  end
+
+  def is_georeferencer?
+    self.georeferencer_roles.to_a.length > 0
   end
 
   # TODO: TEST!

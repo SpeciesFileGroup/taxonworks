@@ -104,7 +104,7 @@
           </div>
         </div>
 
-        <%= render("/shared/data/project/annotations", object: object) if !object.annotations.empty?  %>
+       <%= annotations_summary_tag(object) -%>
 
       </div>
       </div>

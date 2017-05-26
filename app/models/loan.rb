@@ -65,6 +65,7 @@ class Loan < ActiveRecord::Base
   include SoftValidation
   include Shared::Depictions
   include Shared::HasRoles
+  include Shared::Documentation
 
   has_paper_trail :on => [:update] 
 
