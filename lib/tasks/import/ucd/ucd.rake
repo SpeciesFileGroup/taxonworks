@@ -504,13 +504,6 @@ namespace :tw do
               if changed
 #                r = nil
                 r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
-#                  if !r.nil? && r.id.nil?
-#                    taxon2 = Protonym.create!(name: row['CitGenus'],
-#                                             parent_id: taxon.parent_id,
-#                                             rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus')
-#                    taxon = taxon2
-#                    r = TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: taxon, object_taxon_name: taxon1) if taxon.id != taxon1.id
-#                  end
                 taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
                 taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
                 taxon.original_genus = taxon
@@ -1418,6 +1411,11 @@ namespace :tw do
           if row['Family'] =~/^[A-Z]\w*idae/
             if row['SuperFam'] == 'Chalcidoidea'
               taxon = Protonym.find_or_create_by(name: name, cached: name, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: $project_id)
+              if taxon.id.nil?
+                name1 = rotonym.family_group_name_at_rank(name, 'Subfamily')
+                taxon = Protonym.find_or_create_by(name: name1, cached: name1, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Subfamily', project_id: $project_id)
+              end
+
               byebug if taxon.id.nil?
             else
               taxon = Protonym.find_or_create_by(name: name, parent: parent, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: $project_id)
@@ -1899,7 +1897,7 @@ namespace :tw do
                 c.update_column(:type, relationship[row['Status']])
               else
                 c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: relationship[row['Status']])
-                c2 = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: 'TaxonNameClassification::Iczn::Available::Valid') unless c1.nil?
+                c2 = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: 'TaxonNameClassification::Iczn::Available::Valid') if c1.nil?
               end
 
               if !c.id.blank? # valid?
