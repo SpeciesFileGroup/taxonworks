@@ -1412,7 +1412,7 @@ namespace :tw do
             if row['SuperFam'] == 'Chalcidoidea'
               taxon = Protonym.find_or_create_by(name: name, cached: name, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: $project_id)
               if taxon.id.nil?
-                name1 = rotonym.family_group_name_at_rank(name, 'Subfamily')
+                name1 = Protonym.family_group_name_at_rank(name, 'Subfamily')
                 taxon = Protonym.find_or_create_by(name: name1, cached: name1, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Subfamily', project_id: $project_id)
               end
 
