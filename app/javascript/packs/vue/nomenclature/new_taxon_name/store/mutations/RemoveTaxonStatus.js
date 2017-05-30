@@ -4,7 +4,6 @@ module.exports = function(state, status) {
 			return true;
 		}
 	});
-	
 	if (position >= 0) {
 		state.taxon_name.statusList.splice(position, 1);
 	}
