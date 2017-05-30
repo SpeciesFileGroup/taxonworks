@@ -1,4 +1,6 @@
 const MutationNames = {
+	AddTaxonStatus: 'addTaxonStatus',
+	RemoveTaxonStatus: 'removeTaxonStatus',
 	SetAllRanks: 'setAllRanks',
 	SetParent: 'setParent',
 	SetParentId: 'setParentId',
@@ -11,6 +13,8 @@ const MutationNames = {
 };
 
 const MutationFunctions = {
+	[MutationNames.AddTaxonStatus]: require('./addTaxonStatus'),
+	[MutationNames.RemoveTaxonStatus]: require('./removeTaxonStatus'),
 	[MutationNames.SetAllRanks]: require('./setAllRanks'),
 	[MutationNames.SetParent]: require('./setParent'),
 	[MutationNames.SetParentId]: require('./setParentId'),

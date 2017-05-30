@@ -17,17 +17,18 @@
         label="name"
         min="3"
         time="0"
-        eventSend="parentSelected"
+        eventSend="autocompleteStatusSelected"
         param="term">
       </autocomplete>    
       <div v-else class="content flex-wrap-row">
         <ul class="flex-wrap-column no_bullets">
           <li class="status-item" v-for="item in commonList">
-            <label><input type="radio" name="status-item" :value="item.type"/>{{ item.name }}</label>
+            <label><input type="radio" name="status-item" @click="addStatus(item)" :value="item.type"/>{{ item.name }}</label>
           </li>
         </ul>
       </div>
     </div>
+    <list-status></list-status>
   </form>
 </template>
 <script>
@@ -36,12 +37,15 @@
   const MutationNames = require('../store/mutations/mutations').MutationNames;  
   const autocomplete = require('../../../components/autocomplete.vue');
   const recursiveList = require('./recursiveList.vue');
+  const listStatus = require('./listStatus.vue');
   const modal = require('../../../components/modal.vue');
+
 
   export default {
     components: {
       autocomplete,
       recursiveList,
+      listStatus,
       modal
     },
     computed: {
@@ -83,9 +87,15 @@
       var that = this;
       this.$on('closeModal', function () {
         that.showModal = false;
+      });
+      this.$on('autocompleteStatusSelected', function (status) {
+        that.addStatus(status);
       }) 
     },
     methods: {
+      addStatus: function(status) {
+        this.$store.commit(MutationNames.AddTaxonStatus, status);
+      },
       getStatusListForThisRank(list, findStatus) {
         return new Promise(function (resolve, reject) {
           var 

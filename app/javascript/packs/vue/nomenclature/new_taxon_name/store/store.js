@@ -16,7 +16,8 @@ function makeInitialState() {
       verbatim_author: undefined,
       feminine_name: undefined,
       masculine_name: undefined,
-      neuter_name: undefined
+      neuter_name: undefined,
+      statusList: []
     },
     parent: undefined,
     ranks: undefined,
