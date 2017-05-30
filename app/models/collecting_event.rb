@@ -139,6 +139,30 @@
 #   @return [Integer]
 #     the month, from 0-12, that the collecting event ended on
 #
+# @!attribute group 
+#   @return [String, nil]
+#     member sensu PBDB 
+#
+# @!attribute formation 
+#   @return [String, nil]
+#     formation sensu PBDB 
+#
+# @!attribute member 
+#   @return [String, nil]
+#     member sensu PBDB 
+#
+## @!attribute lithology
+#   @return [String, nil]
+#     lithology sensu PBDB 
+#
+## @!attribute max_ma 
+#   @return [Decimal, nil]
+#     max_ma (million years) sensu PBDB 
+#
+## @!attribute min_ma 
+#   @return [Decimal, nil]
+#     min_ma (million years) sensu PBDB 
+#
 # @!attribute cached_level0_geographic_name
 #   @return [String, nil]
 #     the auto-calculated level0 (= country in TaxonWorks) value drawn from GeographicNames, never directly user supplied
@@ -208,7 +232,8 @@ class CollectingEvent < ActiveRecord::Base
 
   validate :check_verbatim_geolocation_uncertainty,
            :check_date_range,
-           :check_elevation_range
+           :check_elevation_range,
+           :check_ma_range
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: 'verbatim_label.blank?'
   validates_presence_of :verbatim_longitude, if: '!verbatim_latitude.blank?'
@@ -272,7 +297,7 @@ class CollectingEvent < ActiveRecord::Base
             numericality: {only_integer: true,
                            greater_than: 1000,
                            less_than:    (Time.now.year + 5),
-                           message:      'start date year must be an integer greater than 1500, and no more than 5 years in the future'},
+                           message:      'start date year must be an integer greater than 1000, and no more than 5 years in the future'},
             length:       {is: 4},
             allow_nil:    true
 
@@ -280,7 +305,7 @@ class CollectingEvent < ActiveRecord::Base
             numericality: {only_integer: true,
                            greater_than: 1000,
                            less_than:    (Time.now.year + 5),
-                           message:      'end date year must be an integer greater than 1500, and no more than 5 years int he future'},
+                           message:      'end date year must be an integer greater than 1000, and no more than 5 years int he future'},
             length:       {is: 4},
             allow_nil:    true
 
@@ -1245,6 +1270,10 @@ class CollectingEvent < ActiveRecord::Base
   def check_date_range
     errors.add(:base, 'End date is earlier than start date.') if has_start_date? && has_end_date? && (start_date > end_date)
     errors.add(:base, 'End date without start date.') if (has_end_date? && !has_start_date?)
+  end
+
+  def check_ma_range
+    errors.add(:min_ma, 'Min ma is < Max ma.') if min_ma.present? && max_ma.present? && min_ma > max_ma
   end
 
   def check_elevation_range
