@@ -19,7 +19,7 @@ module BatchLoad
       @dwca_namespace    = dwca_namespace
       @parser            = ScientificNameParser.new
       @tasks_            = {
-        make_ns:    %w(catalognumber),
+        make_ns_id: %w(catalognumber),
         make_prsn:  %w(georeferencedby),
         make_tn:    %w(scientificname taxonrank family kingdom),
         make_td:    %w(),
@@ -91,24 +91,15 @@ module BatchLoad
         otu       = @row_objects[:make_otu]
         t_d       = @row_objects[:make_td]
         c_o       = @row_objects[:make_co]
+        ns_id     = @row_objects[:make_ns_id]
+        ns        = ns_id[:ns]
+        id_cat_no = ns_id[:id_cat_no]
         notes     = @row_objects[:make_notes]
         c_o_notes = notes[:c_o]
         c_e_notes = notes[:c_e]
         g_r_notes = notes[:g_r]
         c_e       = @row_objects[:make_ce]
         g_r       = @row_objects[:make_gr]
-        # species   = @row_objects[:make_tn][:species]
-        # genus     = @row_objects[:make_tn][:genus]
-        # tribe     = @row_objects[:make_tn][:tribe]
-        # if species.nil?
-        #   if genus.nil?
-        #     t_n = tribe
-        #   else
-        #     t_n = genus
-        #   end
-        # else
-        #   t_n = species
-        # end
         t_n       = @row_objects[:make_tn].select {|kee, val| val != nil}.values.first
 
         t_n.save! if t_n.new_record?
@@ -121,6 +112,7 @@ module BatchLoad
           }
         end
         c_o.collecting_event = c_e
+        c_o.identifiers << id_cat_no
         c_o.save!
         unless c_o_notes.blank?
           c_o_notes.keys.each {|kee|
@@ -182,37 +174,9 @@ module BatchLoad
         @rows[line_counter][:err]  = errs
         @rows[line_counter][:warn] = warns
         line_counter               += 1
-        # break if line_counter > 100
+        # break if line_counter > 2
       end
       @total_lines = line_counter - 1
-    end
-
-    def pilgrim # TODO: remove when result cycler is finished.
-      @row_objects.keys.each {|kee| # necessary actions are specified by keys
-        @row_objects[kee].each {|item| # objects to correlate
-
-          case kee
-            when 'make_ce'
-              item.save!
-            when 'make_co'
-              item.save!
-            when 'make_tn'
-              item.save!
-              if item.otus.count < 1
-                Otu.create(by: item.creator, project: item.project, taxon_name_id: item.id)
-              end
-              item.valid?
-          end
-
-          if item.valid?
-            item.save!
-          else
-            line = item.errors.messages
-            puts line
-          end
-        }
-      }
-
     end
 
     def build
@@ -285,16 +249,24 @@ module BatchLoad
       @geo_rem_kw.save! if @geo_rem_kw.new_record?
     end
 
-    def make_ns(row)
-      n_s    = nil
+    def make_ns_id(row)
+      ns_id  = {}
       cat_no = row['catalognumber'].split
       unless cat_no.blank? # Namespace requires name and short_name to be present, and unique
-        name = cat_no[0]
-        n_s  = Namespace.find_or_create_by(institution: 'Penn State University Collection',
-                                           name:        'Frost Entomological Museum',
-                                           short_name:  name)
+        name       = cat_no[0]
+        ns         = Namespace.find_or_create_by(institution: 'Penn State University Collection',
+                                                 name:        'Frost Entomological Museum',
+                                                 short_name:  name)
+        ns_id[:ns] = ns
+        unless cat_no[1].blank?
+          id = Identifier::Local::CatalogNumber.find_by(namespace: ns, identifier: cat_no[1])
+          if id.blank?
+            id = Identifier::Local::CatalogNumber.new(namespace: ns, identifier: cat_no[1])
+          end
+          ns_id[:id_cat_no] = id
+        end
       end
-      n_s
+      ns_id
     end
 
     def make_prsn(row)
