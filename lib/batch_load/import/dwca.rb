@@ -19,6 +19,8 @@ module BatchLoad
       @dwca_namespace    = dwca_namespace
       @parser            = ScientificNameParser.new
       @tasks_            = {
+        make_ns:    %w(catalognumber),
+        make_prsn:  %w(georeferencedby),
         make_tn:    %w(scientificname taxonrank family kingdom),
         make_td:    %w(),
         make_otu:   %w(scientificname),
@@ -130,7 +132,7 @@ module BatchLoad
         t_d.save!
         g_r.collecting_event = c_e
         if g_r.type.include?('Ver')
-          @row_objects[:make_gr] = nil
+          @row_objects.delete(:make_gr)
           c_e.generate_verbatim_data_georeference
         else
           if g_r.valid?
@@ -142,7 +144,7 @@ module BatchLoad
             end
           else
             # georeference was (0,0), will be dropped
-            @row_objects[:make_gr] = nil
+            @row_objects.delete(:make_gr)
             unless g_r_notes.blank?
               warns.push('Georeference::GeoLocate cannot be created, \'georeferenceRemark\' has been dropped.')
             end
@@ -180,7 +182,7 @@ module BatchLoad
         @rows[line_counter][:err]  = errs
         @rows[line_counter][:warn] = warns
         line_counter               += 1
-        break if line_counter > 100
+        # break if line_counter > 100
       end
       @total_lines = line_counter - 1
     end
@@ -283,21 +285,51 @@ module BatchLoad
       @geo_rem_kw.save! if @geo_rem_kw.new_record?
     end
 
+    def make_ns(row)
+      n_s    = nil
+      cat_no = row['catalognumber'].split
+      unless cat_no.blank? # Namespace requires name and short_name to be present, and unique
+        name = cat_no[0]
+        n_s  = Namespace.find_or_create_by(institution: 'Penn State University Collection',
+                                           name:        'Frost Entomological Museum',
+                                           short_name:  name)
+      end
+      n_s
+    end
+
+    def make_prsn(row)
+      ppl  = {}
+      # check for person's name
+      name = row['georeferencedby']
+      unless name.blank?
+        if name.downcase.include?('verbatim')
+        else
+          # make a person to be used as a 'georeferencer'
+          parsed    = Person.parser(name)
+          pr        = Person.find_or_create_by(last_name:  parsed[0]['family'],
+                                               first_name: parsed[0]['given'])
+          ppl[:g_r] = pr
+        end
+      end
+      ppl
+    end
+
     def make_gr(row)
-      geo_by = row['georeferencedby']
+      geo_by    = row['georeferencedby']
       # lat, long           = (lat.length > 0) ? lat : nil, (long.length > 0) ? long : nil
+      lat, long = row['decimallatitude'], row['decimallongitude']
       if lat.nil? and long.nil?
         uncert = nil
       else
         uncert = row['coordinateuncertaintyinmeters']
       end
+      geo_by = '' if geo_by.nil?
       if geo_by.downcase.include?('verbatim')
         # make a verbatim reference
         # fill in what we can, the real work is done when the collecting_event is added
         g_r = Georeference::VerbatimData.new(error_radius: uncert)
       else
         # faking a Georeference::GeoLocate:
-        lat, long           = row['decimallatitude'], row['decimallongitude']
         cc                  = row['countrycode']
         country             = cc.nil? ? nil : GeographicArea.where(iso_3166_a2: cc).first.name
         gl_req_params       = {country:   country,
@@ -374,8 +406,8 @@ module BatchLoad
                                 verbatim_label:                   row['locationremarks'],
                                 verbatim_geolocation_uncertainty: row['coordinateuncertaintyinmeters'],
                                 verbatim_latitude:                row['decimallatitude'],
-                                verbatim_longitude:               row['decimallongitude']
-      )
+                                verbatim_longitude:               row['decimallongitude'],
+                                verbatim_collectors:              row['recordedby'])
 
       c_e
     end
