@@ -45,6 +45,16 @@ spec:
       containers:
         - name: taxonworks
           image: sfgrp/taxonworks:0.0.1
+          ports:
+            - containerPort: 80
+              name: http
+              volumeMounts:
+                - mountPath: /app/public/system
+                  name: taxonworks-media-vol
+                - mountPath: /backup
+                  name: taxonworks-backup-vol
+                - mountPath: /staging/
+                  name: taxonworks-staging-vol
           # livenessProbe:
           #   httpGet:
           #     path: /
@@ -55,7 +65,7 @@ spec:
             - name: RAILS_ENV
               value: production
             - name: SERVER_NAME
-              value: mini
+              value: sfg.taxonworks.org 
             - name: POSTGRES_HOST
               value: taxonworks-db
             - name: POSTGRES_DB
@@ -74,19 +84,52 @@ spec:
                   name: taxonworks
                   key: db.user.password
             - name: NGINX_SECRET_KEY
-              value: secret!
+              valueFrom:
+                secretKeyRef:
+                  name: taxonworks 
+                  key: nginx.secret 
             - name: SECRET_KEY_BASE
               valueFrom:
                 secretKeyRef:
                   name: taxonworks
                   key: secret_key_base
-          ports:
-            - containerPort: 80
-              name: http
-          volumeMounts:
-            - mountPath: /app/public/system
-              name: taxonworks-media-vol
-            - mountPath: /backup
-              name: taxonworks-backup-vol
-            - mountPath: /staging/
-              name: taxonworks-staging-vol
+            - name: TW_EXCEPTION_NOTIFICATION_EMAIL_PREFIX
+              valueFrom:
+                configMapKeyRef:
+                  name: taxonworks 
+                  key: tw.exception_notification.email_prefix
+            - name: TW_EXCEPTION_NOTIFICATION_SENDER_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: taxonworks 
+                  key: tw.exception_notification.sender_address
+            - name: TW_EXCEPTION_RECIPIENTS
+              valueFrom:
+                configMapKeyRef:
+                  name: taxonworks 
+                  key: tw.exception_recipients
+            - name: TW_ACTION_MAILER_SMTP_SETTINGS_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: taxonworks 
+                  key: tw.action_mailer_smtp_settings.address
+            - name: TW_ACTION_MAILER_SMTP_SETTINGS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: taxonworks 
+                  key: tw.action_mailer_smtp_settings.port
+            - name: TW_ACTION_MAILER_SMTP_SETTINGS_DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  name: taxonworks 
+                  key: tw.action_mailer_smtp_settings.domain
+            - name: TW_ACTION_MAILER_URL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: taxonworks 
+                  key: tw.action_mailer_url_host
+            - name: TW_MAIL_DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  name: taxonworks 
+                  key: tw.mail_domain
