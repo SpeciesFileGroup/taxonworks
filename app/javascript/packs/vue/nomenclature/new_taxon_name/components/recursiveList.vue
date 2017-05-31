@@ -1,10 +1,10 @@
 <template>
 	<ul class="tree-status">
-		<li v-for="item, key in objectList">
+		<li v-for="item, key in objectList" v-if="item.hasOwnProperty(display)">
 			<button type="button" :value="item.type" @click="addStatus(item)" :disabled="item.disabled" class="button button-default"> 
-				{{ item.name }} 
+				{{ item[display] }} 
 			</button>
-			<status-list :objectList="item"></status-list>
+			<recursive-list :display="display" :modal-mutation-name="modalMutationName" :action-mutation-name="actionMutationName" :objectList="item"></recursive-list>
 		</li>
 	</ul>
 </template>
@@ -15,14 +15,14 @@ const MutationNames = require('../store/mutations/mutations').MutationNames;
 
 export default {
 	components: {
-		statusList: recursiveList
+		recursiveList
 	},
-	name: 'status-list',
-	props: ['objectList'],
+	name: 'recursive-list',
+	props: ['objectList','modalMutationName','actionMutationName', 'display'],
 	methods: {
 		addStatus: function(status) {
-			this.$store.commit(MutationNames.SetModalStatus, false);
-			this.$store.commit(MutationNames.AddTaxonStatus, status);
+			this.$store.commit(MutationNames[this.modalMutationName], false);
+			this.$store.commit(MutationNames[this.actionMutationName], status);
 		}
 	}
 }

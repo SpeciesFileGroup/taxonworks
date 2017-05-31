@@ -17,14 +17,17 @@ function makeInitialState() {
       feminine_name: undefined,
       masculine_name: undefined,
       neuter_name: undefined,
-      statusList: []
+      statusList: [],
+      relationshipList: []
     },
     settings: {
-      modalStatus: false
+      modalStatus: false,
+      modalRelationship: false
     },
     parent: undefined,
     ranks: undefined,
     status: [],
+    relationships: [],
     allRanks: [],
   };
 }

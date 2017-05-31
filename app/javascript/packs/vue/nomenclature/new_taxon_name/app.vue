@@ -30,7 +30,8 @@
           <verbatim-year></verbatim-year>
         </div>
       </form>
-      <status-selector></status-selector>
+      <status-picker></status-picker>
+      <relationship-picker></relationship-picker>
     </div>
   </div>
 </template>
@@ -42,7 +43,9 @@
   var sourcePicker = require('./components/sourcePicker.vue');
   var verbatimAuthor = require('./components/verbatimAuthor.vue');
   var verbatimYear = require('./components/verbatimYear.vue');
-  var statusSelector = require('./components/statusSelector.vue');
+  var relationshipPicker = require('./components/relationshipPicker.vue');
+  var statusPicker = require('./components/statusPicker.vue');
+
 
   const MutationNames = require('./store/mutations/mutations').MutationNames;  
 
@@ -55,11 +58,13 @@
       sourcePicker,
       verbatimAuthor,
       verbatimYear,
-      statusSelector
+      statusPicker,
+      relationshipPicker
     },
     mounted: function() {
       this.loadRanks();
       this.loadStatus();
+      this.loadRelationship();
     },
     methods: {
       loadRanks: function() {
@@ -71,7 +76,12 @@
         this.$http.get('/taxon_name_classifications/taxon_name_classification_types').then( response => {
           this.$store.commit(MutationNames.SetStatusList, response.body);
         });
-      }          
+      },
+      loadRelationship: function() {
+        this.$http.get('/taxon_name_relationships/taxon_name_relationship_types').then( response => {
+          this.$store.commit(MutationNames.SetRelationshipList, response.body);
+        });
+      }
     }      
   }
 
