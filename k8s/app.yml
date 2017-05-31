@@ -48,13 +48,13 @@ spec:
           ports:
             - containerPort: 80
               name: http
-              volumeMounts:
-                - mountPath: /app/public/system
-                  name: taxonworks-media-vol
-                - mountPath: /backup
-                  name: taxonworks-backup-vol
-                - mountPath: /staging/
-                  name: taxonworks-staging-vol
+          volumeMounts:
+            - mountPath: /app/public/system
+              name: taxonworks-media-vol
+            - mountPath: /backup
+              name: taxonworks-backup-vol
+            - mountPath: /staging/
+              name: taxonworks-staging-vol
           # livenessProbe:
           #   httpGet:
           #     path: /
