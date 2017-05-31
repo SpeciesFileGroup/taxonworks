@@ -1,6 +1,7 @@
 const GetterNames = {
 	GetTaxonStatusList: 'getTaxonStatusList',
 	GetAllRanks: 'getAllRanks',
+	ActiveModalStatus: 'activeModalStatus',
 	GetParent: 'getParent',
 	GetRankClass: 'getRankClass',
 	GetRankList: 'getRankList',
@@ -11,6 +12,7 @@ const GetterNames = {
 };
 
 const GetterFunctions = {
+	[GetterNames.ActiveModalStatus]: require('./activeModalStatus'),
 	[GetterNames.GetTaxonStatusList]: require('./getTaxonStatusList'),
 	[GetterNames.GetAllRanks]: require('./getAllRanks'),
 	[GetterNames.GetParent]: require('./getParent'),

@@ -1,7 +1,6 @@
 <template>
-
   <form class="content" v-if="rankClass">
-    <modal v-if="showModal" @close="showModal = false">
+    <modal v-if="showModal" @close="activeModalStatus(false)">
       <h3 slot="header">Status</h3>
       <div slot="body" class="tree-list">
         <recursive-list :objectList="tree"></recursive-list>
@@ -10,7 +9,7 @@
     <h3>Status</h3>
     <button type="button" @click="showAdvance = false">Common</button>
     <button @click="showAdvance = true" type="button">Advanced</button>
-    <button @click="showModal = true" type="button">Show all</button>
+    <button @click="activeModalStatus(true)" type="button">Show all</button>
     <div>
       <autocomplete v-if="showAdvance"
         :arrayList="allList"
@@ -59,6 +58,9 @@
       },
       parent() {
         return this.$store.getters[GetterNames.GetParent]
+      },
+      showModal() {
+        return this.$store.getters[GetterNames.ActiveModalStatus]
       }
     },
     data: function() {
@@ -67,7 +69,6 @@
         commonList: [],
         tree: undefined,
         showAdvance: false,
-        showModal: false,
       }
     },
     watch: {
@@ -90,9 +91,12 @@
       });
       this.$on('autocompleteStatusSelected', function (status) {
         that.addStatus(status);
-      }) 
+      })
     },
     methods: {
+      activeModalStatus: function(value) {
+        this.$store.commit(MutationNames.SetModalStatus, value)
+      },
       addStatus: function(status) {
         this.$store.commit(MutationNames.AddTaxonStatus, status);
       },

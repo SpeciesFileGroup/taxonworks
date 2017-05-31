@@ -19,6 +19,9 @@ function makeInitialState() {
       neuter_name: undefined,
       statusList: []
     },
+    settings: {
+      modalStatus: false
+    },
     parent: undefined,
     ranks: undefined,
     status: [],

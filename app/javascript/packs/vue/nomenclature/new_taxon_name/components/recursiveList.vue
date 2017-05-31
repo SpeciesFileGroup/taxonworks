@@ -21,6 +21,7 @@ export default {
 	props: ['objectList'],
 	methods: {
 		addStatus: function(status) {
+			this.$store.commit(MutationNames.SetModalStatus, false);
 			this.$store.commit(MutationNames.AddTaxonStatus, status);
 		}
 	}
