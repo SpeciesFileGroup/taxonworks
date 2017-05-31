@@ -67,6 +67,8 @@ module NomenclatureCatalog
       case object_class
       when 'Protonym'
         'protonym'
+      when 'Hybrid'
+        'hybrid'
       when 'Combination'
         'combination'
       when /TaxonNameRelationship/
