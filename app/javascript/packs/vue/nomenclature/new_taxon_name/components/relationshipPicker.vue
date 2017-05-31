@@ -9,7 +9,7 @@
     mutation-name-list="GetTaxonRelationshipList"
     mutation-name-remove="RemoveTaxonRelationship"
     name-module="Relationship"
-    display-name="object_status_tag">
+    display-name="subject_status_tag">
   </tree-display>
 </template>
 <script>
