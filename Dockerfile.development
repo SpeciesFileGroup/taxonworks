@@ -49,6 +49,6 @@ COPY Gemfile.lock /app
 RUN bundle install  
 RUN yarn
 
-CMD ["/usr/bin/supervisord", "-c", "/app/config/docker/supervisor.conf"]
+CMD ["/exe/docker_compose_start.sh"]
 
 
