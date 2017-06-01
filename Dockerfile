@@ -52,7 +52,7 @@ RUN chmod +x /etc/my_init.d/init.sh && \
 
 ENV RAILS_ENV production
 
-RUN bundle exec rake assets:precompile
+# RUN bundle exec rake assets:precompile
 
 CMD ["/sbin/my_init"]
 
