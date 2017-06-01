@@ -25,7 +25,7 @@ if [ ! -f /app/config/secrets.yml ]; then
   cp /app/config/secrets.yml.example /app/config/secrets.yml
 fi
 
-bundle exec rake:db:migrate RAILS_ENV=development
+bundle exec rake db:migrate RAILS_ENV=development
 
 /usr/bin/supervisord -c /app/config/docker/supervisor.conf
 
