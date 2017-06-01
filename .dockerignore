@@ -11,9 +11,9 @@
 *.sql
 .ruby-version
 
-database.yml
-secrets.yml
-application_settings.yml
+config/database.yml
+config/secrets.yml
+config/application_settings.yml
 
 tags
 node_modules
@@ -25,7 +25,6 @@ bundle_bin
 
 log
 tmp
-index.html
 
 doc
 .yardoc
@@ -34,12 +33,14 @@ coverage
 REVISION
 
 public/images/tmp
+public/system
+public/index.html
 
 .git
 spec
 travis
 k8s
-public/system
+
 
 
 

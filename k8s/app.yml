@@ -138,8 +138,8 @@ spec:
                 configMapKeyRef:
                   name: taxonworks 
                   key: tw.paths.staging
-             - name: TW_PATHS_BACKUP
+            - name: TW_PATHS_BACKUP
               valueFrom:
-                configMapKeyRef:
-                  name: taxonworks 
-                  key: tw.paths.backup
+               configMapKeyRef:
+                 name: taxonworks 
+                 key: tw.paths.backup
