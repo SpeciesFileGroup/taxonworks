@@ -13,11 +13,6 @@ services:
       - "127.0.0.1:3000:3000" # local:docker
     links:
       - db
-    command: # need also the ./bin/webpack-dev-server one
-       - rails
-       - server
-       - "--binding"
-       - "0.0.0.0"
     stdin_open: true
     tty: true
   db:
