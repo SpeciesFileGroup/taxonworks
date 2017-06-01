@@ -21,6 +21,7 @@ RUN apt-get update && \
                        libpq-dev libproj-dev libgeos-dev libgeos++-dev \
                        tesseract-ocr \
                        cmake \
+                       supervisor \
                        nodejs yarn \
                        ruby2.3 ruby2.3-dev && \
     apt clean && \ 
@@ -45,13 +46,9 @@ RUN gem install bundler && \
 WORKDIR /app
 COPY Gemfile /app
 COPY Gemfile.lock /app
-COPY config/secrets.yml.example config/secrets.yml
-COPY config/database.yml.docker.compose.example config/database.yml
-COPY Gemfile.lock /app
 RUN bundle install  
 RUN yarn
 
-CMD ["rails", "server"] 
-
+CMD ["/usr/bin/supervisord", "-c", "/app/config/docker/supervisor.conf"]
 
 
