@@ -48,7 +48,7 @@ COPY Gemfile /app
 COPY Gemfile.lock /app
 RUN bundle install  
 RUN yarn
-RUN chmod +x /app/exec/docker_compose_start.sh
+RUN chmod +x /app/exe/docker_compose_start.sh
 
 CMD ["/app/exe/docker_compose_start.sh"]
 
