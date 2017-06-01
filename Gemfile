@@ -167,7 +167,7 @@ group :development do
   gem 'guard-rspec', '~> 4.7', require: false
   gem 'parallel_tests', '~> 2.5.0'
   gem 'web-console', '~> 3.3.0'
-  gem 'rubocop', '~> 0.46.0'
+  gem 'rubocop', '~> 0.49.0'
 end
 
 group :doc do
