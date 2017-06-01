@@ -6,8 +6,6 @@
     :showModal="showModal" 
     mutation-name-add="AddTaxonStatus" 
     mutation-name-modal="SetModalStatus"
-    mutation-name-list="GetTaxonStatusList"
-    mutation-name-remove="RemoveTaxonStatus"
     name-module="Status"
     display-name="name">
   </tree-display>

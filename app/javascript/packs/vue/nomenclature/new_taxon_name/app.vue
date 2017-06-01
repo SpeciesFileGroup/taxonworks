@@ -30,8 +30,14 @@
           <verbatim-year></verbatim-year>
         </div>
       </form>
-      <status-picker></status-picker>
-      <relationship-picker></relationship-picker>
+      <div>
+        <status-picker></status-picker>
+        <list-entrys mutationNameRemove="RemoveTaxonStatus" list="GetTaxonStatusList" display="name"></list-entrys>
+      </div>
+      <div>
+        <relationship-picker></relationship-picker>
+        <list-entrys mutationNameRemove="RemoveTaxonRelationship" list="GetTaxonRelationshipList" display="subject_status_tag"></list-entrys>
+      </div>
     </div>
   </div>
 </template>
@@ -45,6 +51,7 @@
   var verbatimYear = require('./components/verbatimYear.vue');
   var relationshipPicker = require('./components/relationshipPicker.vue');
   var statusPicker = require('./components/statusPicker.vue');
+  var listEntrys = require('./components/listEntrys.vue');
 
 
   const MutationNames = require('./store/mutations/mutations').MutationNames;  
@@ -59,7 +66,8 @@
       verbatimAuthor,
       verbatimYear,
       statusPicker,
-      relationshipPicker
+      relationshipPicker,
+      listEntrys
     },
     mounted: function() {
       this.loadRanks();

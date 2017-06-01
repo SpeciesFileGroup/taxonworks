@@ -6,8 +6,6 @@
     :showModal="showModal" 
     mutation-name-add="AddTaxonRelationship" 
     mutation-name-modal="SetModalRelationship"
-    mutation-name-list="GetTaxonRelationshipList"
-    mutation-name-remove="RemoveTaxonRelationship"
     name-module="Relationship"
     display-name="subject_status_tag">
   </tree-display>

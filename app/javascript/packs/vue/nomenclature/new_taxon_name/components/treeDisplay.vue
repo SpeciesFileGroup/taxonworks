@@ -27,7 +27,6 @@
         </ul>
       </div>
     </div>
-    <list-entrys :mutationNameRemove="mutationNameRemove" :list="mutationNameList" :display="displayName"></list-entrys>
   </form>
 </template>
 <script>
@@ -48,7 +47,7 @@
       modal
     },
     name: 'tree-display',
-    props: ['treeList', 'parent', 'showModal','mutationNameAdd','mutationNameModal', 'objectLists', 'displayName', 'mutationNameList', 'mutationNameRemove', 'nameModule'],
+    props: ['treeList', 'parent', 'showModal','mutationNameAdd','mutationNameModal', 'objectLists', 'displayName', 'nameModule'],
     data: function() {
       return {
         showAdvance: false,

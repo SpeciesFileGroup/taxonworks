@@ -1,8 +1,8 @@
 <template>
-	<div v-if="list.length">
+	<div v-if="displayList.length">
 		<h4>Selected</h4>
 	    <ul>
-	    	<li v-for="item in taxonStatusList"> {{ item[display] }} <button type="button" @click="removeStatus(item)">Remove</button></li>
+	    	<li v-for="item in displayList"> {{ item[display] }} <button type="button" @click="removeStatus(item)">Remove</button></li>
 	    </ul>
     </div>
 </template>
@@ -15,7 +15,7 @@ export default {
 	props: ['mutationNameRemove', 'list', 'display'],
 	name: 'list-entrys',
 	computed: {
-    	taxonStatusList() {
+    	displayList() {
     		return this.$store.getters[GetterNames[this.list]];
     	}
 	},
