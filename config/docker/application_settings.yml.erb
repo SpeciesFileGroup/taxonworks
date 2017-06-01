@@ -1,4 +1,6 @@
 production:
+  default_data_directory: <%= ENV['TW_PATHS_STAGING'] %>
+  backup_directory: <%= ENV['TW_PATHS_BACKUP'] %>
   exception_notification:
     email_prefix: <%= ENV['TW_EXCEPTION_NOTIFICATION_EMAIL_PREFIX'] %>
     sender_address:  <%= ENV['TW_EXCEPTION_NOTIFICATION_SENDER_ADDRESS'] %>

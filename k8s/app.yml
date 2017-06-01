@@ -55,12 +55,12 @@ spec:
               name: taxonworks-backup-vol
             - mountPath: /staging/
               name: taxonworks-staging-vol
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: 80
-          #   initialDelaySeconds: 180
-          #   timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 180
+            timeoutSeconds: 3
           env:
             - name: RAILS_ENV
               value: production
@@ -133,3 +133,13 @@ spec:
                 configMapKeyRef:
                   name: taxonworks 
                   key: tw.mail_domain
+            - name: TW_PATHS_STAGING
+              valueFrom:
+                configMapKeyRef:
+                  name: taxonworks 
+                  key: tw.paths.staging
+             - name: TW_PATHS_BACKUP
+              valueFrom:
+                configMapKeyRef:
+                  name: taxonworks 
+                  key: tw.paths.backup
