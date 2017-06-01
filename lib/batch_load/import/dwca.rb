@@ -22,7 +22,7 @@ module BatchLoad
         make_ns_id: %w(catalognumber),
         make_prsn:  %w(georeferencedby),
         make_tn:    %w(scientificname taxonrank family kingdom),
-        make_td:    %w(),
+        make_td:    %w(scientificname basisofrecord individualcount organismquantity organismquantitytype recordedby),
         make_otu:   %w(scientificname),
         make_co:    %w(basisofrecord individualcount organismquantity organismquantitytype recordedby),
         make_notes: %w(georeferenceremarks locationremarks occurrenceremarks),
@@ -102,46 +102,60 @@ module BatchLoad
         g_r       = @row_objects[:make_gr]
         t_n       = @row_objects[:make_tn].select {|kee, val| val != nil}.values.first
 
+        # save the (possible new) taxon_name
         t_n.save! if t_n.new_record?
+        # associate the taxon_name with the otu
         otu.taxon_name = t_n
         otu.save!
         c_e.save!
+        # add notes to collecting_event, if required
         unless c_e_notes.blank?
           c_e_notes.keys.each {|kee|
             c_e_notes[kee].note_object = c_o
           }
         end
+        # associate the collection_object with the collecting_event
         c_o.collecting_event = c_e
+        # associate the namespace and catalog number with the collection_object
         c_o.identifiers << id_cat_no
         c_o.save!
+        # add notes to collection_object, if required
         unless c_o_notes.blank?
           c_o_notes.keys.each {|kee|
             c_o_notes[kee].note_object = c_o
           }
         end
+        # associate the collection_object with the otu using the taxon_determiniation
         t_d.biological_collection_object = c_o
         t_d.otu                          = otu
         t_d.save!
+        # associate the georeference with the collecting_event
         g_r.collecting_event = c_e
+        # two different types of georeferences: verbatim, and geolocate
         if g_r.type.include?('Ver')
-          @row_objects.delete(:make_gr)
+          # for verbatim_data, generate a new georeference using the collecting_event
           c_e.generate_verbatim_data_georeference
+          # and replace the pre-built georeference
+          g_r                    = c_e.georeferences.last
+          @row_objects[:make_gr] = g_r
         else
-          if g_r.valid?
-            g_r.save!
-            unless g_r_notes.blank?
-              g_r_notes.keys.each {|kee|
-                g_r_notes[kee].note_object = g_r
-              }
-            end
-          else
+          # is a GeoLocate
+          unless g_r.valid?
             # georeference was (0,0), will be dropped
+            warns.push('Georeference::GeoLocate cannot be created, lat/long not valid.')
             @row_objects.delete(:make_gr)
             unless g_r_notes.blank?
               warns.push('Georeference::GeoLocate cannot be created, \'georeferenceRemark\' has been dropped.')
             end
           end
         end
+        # add notes to georeference, if required
+        unless g_r_notes.blank?
+          g_r_notes.keys.each {|kee|
+            g_r_notes[kee].note_object = g_r}
+        end
+        # either the original, or the ce-created one get saved
+        # g_r.save
 
         begin # make sure all objects for this row get saved
           @row_objects.keys.each {|kee|
