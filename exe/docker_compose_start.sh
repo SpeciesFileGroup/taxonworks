@@ -6,7 +6,7 @@ function wait_for_db {
   sleep 3
 
   while [[ $(pg_isready -h "db" \
-           -U "taxonworks_development") = "no response" ]]; do
+           -U "postgres") = "no response" ]]; do
     echo "Waiting for postgresql to start..."
     sleep 1
   done
