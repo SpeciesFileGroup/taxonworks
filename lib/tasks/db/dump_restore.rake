@@ -5,23 +5,25 @@ namespace :tw do
   namespace :db do
 
     desc 'Dump the data to a PostgreSQL custom-format dump file does NOT include structure'
-    task :dump => [:environment, :backup_directory, :db_user] do
+    task :dump => [:environment, :backup_directory, :db_user, :database_host] do
       if Support::Database.pg_database_exists?
-        puts "Initializing dump for #{Rails.env} environment".yellow 
-        puts 'You may be prompted for the production password.'.yellow if Rails.env == 'production'
+        puts Rainbow('Initializing dump for #{Rails.env} environment').yellow 
+        puts Rainbow('You may be prompted for the production password.').yellow if Rails.env == 'production'
 
         database = ActiveRecord::Base.connection.current_database
         path     = File.join(@args[:backup_directory], Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
 
-        puts "Dumping #{database} to #{path}".yellow
-        puts(Benchmark.measure { `pg_dump --username=#{ENV["db_user"]} --host=localhost --format=custom #{database} --file=#{path}` })
-        raise "pg_dump failed with exit code #{$?.to_i}".red unless $? == 0
+        puts Rainbow("Dumping #{database} to #{path}").yellow
+        args = "--username=#{ENV["db_user"]} --host=#{@args[:database_host]} --format=custom #{database} --file=#{path}"
+        puts Rainbow("with arguments: #{args}").yellow
+        puts(Benchmark.measure { `pg_dump #{args}` })
+        raise Rainbow("pg_dump failed with exit code #{$?.to_i}").red unless $? == 0
         puts 'Dump complete'.yellow
 
-        raise 'Failed to create dump file'.red unless File.exists?(path)
+        raise Rainbow('Failed to create dump file').red unless File.exists?(path)
 
       else
-        puts "Dump for #{Rails.env} environment failed, database does not exist.".red
+        puts Rainbow("Dump for #{Rails.env} environment failed, database does not exist.").red
       end
     end
 
@@ -32,17 +34,17 @@ namespace :tw do
     desc 'Dump the data as a backup, then restore the db from the specified file.'
     task :restore => [:dump, 'db:drop', 'db:create' ] do 
 
-      # TODO: NEED TO DIE IF *RAILS* (server) IS RUNNING
-
       puts "Initializing restore for #{Rails.env} environment".yellow 
       raise 'Specify a dump file: rake tw:db:restore file=myfile.dump'.yellow if not ENV['file']
 
       database = ActiveRecord::Base.connection.current_database
 
       path = File.join(@args[:backup_directory], ENV["file"])
-      puts "Restoring #{database} from #{path}".yellow
+      puts Rainbow("Restoring #{database} from #{path}").yellow
 
-      puts(Benchmark.measure { `pg_restore --username=#{ENV["db_user"]} --host=localhost --format=custom --disable-triggers --dbname=#{database} #{path}` })
+      args = "--username=#{ENV["db_user"]} --host=#{@args[:database_host]} --format=custom --disable-triggers --dbname=#{database} #{path}" 
+      puts "with arguments: #{args}"
+      puts(Benchmark.measure { `pg_restore #{args}` })
       raise "pg_restore failed with exit code #{$?.to_i}".red unless $? == 0
 
       # TODO: Once RAILS is restarted automagically this this can go
@@ -59,10 +61,6 @@ namespace :tw do
       file = Dir[File.join(@args[:backup_directory], '*.dump')].sort.last
       raise 'No dump has been found' unless file
       ENV['file'] = File.basename(file)
-    end
-
-    task :db_user => [:environment] do
-      ENV['db_user'] = Rails.configuration.database_configuration[Rails.env]['username'] if ENV['db_user'].blank?
     end
 
     private 

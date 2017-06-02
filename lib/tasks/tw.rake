@@ -72,10 +72,20 @@ namespace :tw do
     end
   end
 
-  desc 'set the database_role ENV value if provided, or use "postgres"'
+  desc 'set the database_role to ENV value if provided, or use "postgres"'
   task  :database_role do |t| 
     @args ||= {}
     @args.merge!(database_role: (ENV['database_role'] || 'postgres'))
+  end
+
+  desc 'set the db_host to ENV of database_host or use "0.0.0.0"'
+  task  :database_host do |t| 
+    @args ||= {}
+    @args[:database_host] = (ENV['database_host'] || '0.0.0.0')
+  end
+
+  task :db_user => [:environment] do
+    ENV['db_user'] = Rails.configuration.database_configuration[Rails.env]['username'] if ENV['db_user'].blank?
   end
 
   # General purpose table related
