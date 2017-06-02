@@ -8,13 +8,13 @@ class Georeference::GeoLocate < Georeference
   URI_EMBED_PATH = '/geolocate/web/webgeoreflight.aspx?'
 
   def api_response=(response)
-    make_geographic_point(response.coordinates[0], response.coordinates[1])
+    self.geographic_item = make_geographic_point(response.coordinates[0], response.coordinates[1])
     make_error_geographic_item(response.uncertainty_polygon, response.uncertainty_radius)
   end
 
   def iframe_response=(response_string)
     lat, long, error_radius, uncertainty_points = Georeference::GeoLocate.parse_iframe_result(response_string)
-    make_geographic_point(long, lat, '0.0') unless lat.blank? and long.blank?
+    self.geographic_item                        = make_geographic_point(long, lat, '0.0') unless lat.blank? and long.blank?
     if uncertainty_points.nil?
       # make a circle from the geographic_item
       unless error_radius.blank?
@@ -22,7 +22,10 @@ class Georeference::GeoLocate < Georeference
           "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{error_radius.to_f / 111319.444444444});").first['st_buffer']
         circle                     = Gis::FACTORY.parse_wkb(value)
         # make_error_geographic_item([[long, lat], [long, lat], [long, lat]], error_radius)
-        self.error_geographic_item = GeographicItem.new(polygon: circle)
+        # a = GeographicItem.new(polygon: circle)
+        # b = make_err_polygon(value)
+        # self.error_geographic_item = a
+        self.error_geographic_item = make_err_polygon(value)
       end
     else
       make_error_geographic_item(uncertainty_points, error_radius)
@@ -34,9 +37,26 @@ class Georeference::GeoLocate < Georeference
     Hash[*self.api_request.split('&').collect { |a| a.split('=', 2) }.flatten]
   end
 
+  # @param [String] wkb
+  # @return [Object] GeographicItem::Polygon, either found, or created
+  def make_err_polygon(wkb)
+    polygon  = Gis::FACTORY.parse_wkb(wkb)
+    test_grs = GeographicItem::Polygon.where("polygon = ST_GeographyFromText('#{polygon}')")
+    if test_grs.empty?
+      test_grs = [GeographicItem.new(polygon: polygon)]
+    end
+    if test_grs.first.new_record?
+      test_grs.first.save
+    else
+      test_grs.first
+    end
+    test_grs.first
+  end
+
   # @param [String] x = longitude
   # @param [String] y = latitude
-  # @param [String] z = elevation
+  # @param [String] z = elevation, defaults to 0.0
+  # @return [Object] GeographicItem::Point, either found or created.
   def make_geographic_point(x, y, z = '0.0')
     if x.blank? or y.blank?
       test_grs = []
@@ -46,7 +66,7 @@ class Georeference::GeoLocate < Georeference
     if test_grs.empty? # put a new one in the array
       test_grs = [GeographicItem.new(point: Gis::FACTORY.point(x, y, z))]
     end
-    self.geographic_item = test_grs.first
+    test_grs.first
   end
 
   # def make_error_geographic_item(result)
