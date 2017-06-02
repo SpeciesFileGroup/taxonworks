@@ -19,14 +19,20 @@ wait_for_db
 
 if [ ! -f /app/config/database.yml ]; then
   cp /app/config/database.yml.docker.compose.example /app/config/database.yml
+  printf "\n Copying config/database.yml \n" 
+else
+  printf "\n Found config/database.yml \n" 
 fi
 
 if [ ! -f /app/config/secrets.yml ]; then
   cp /app/config/secrets.yml.example /app/config/secrets.yml
 fi
 
-bundle exec rake db:migrate RAILS_ENV=development
+if bundle exec rake db:migrate RAILS_ENV=development; then
+  echo "Done migration successfully"
+else
+  printf "\n\n  !!!!!!!!!! Build the taxonworks_development database first. !!!!!!!!!! \n\n "
+fi
 
-/usr/bin/supervisord -c /app/config/docker/supervisor.conf
-
+bundle exec rails s -p 3000 -b '0.0.0.0'
 

@@ -47,9 +47,9 @@ RUN gem install bundler && \
 WORKDIR /app
 COPY Gemfile /app
 COPY Gemfile.lock /app
-RUN bundle install  
-RUN yarn
+RUN bundle install 
+RUN yarn 
 
-CMD ["/app/exe/docker_compose_start.sh"]
+CMD ["exe/docker_compose_start.sh"]
 
 
