@@ -1,7 +1,6 @@
 language: ruby
 cache: 
   bundler: true
-  yarn: true
   directories:
     - $TRAVIS_BUILD_DIR/node_modules
 dist: trusty
