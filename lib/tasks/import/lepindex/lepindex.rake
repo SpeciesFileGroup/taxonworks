@@ -2,7 +2,7 @@ require 'fileutils'
 
 # require 'ruby-prof'
 
-### rake tw:project_import:lepindex:import_all data_directory=/Users/proceps/src/lep_index/ no_transaction=true
+### rake tw:project_import:lepindex:import_all_lep_index data_directory=/Users/proceps/src/sf/import/lep_index/ no_transaction=true
 
 namespace :tw do
   namespace :project_import do
@@ -29,7 +29,7 @@ namespace :tw do
         end
       end
 
-      task :import_all => [:data_directory, :environment] do |t|
+      task :import_all_lep_index => [:data_directory, :environment] do |t|
 
         @list_of_relationships = []
 
@@ -55,12 +55,14 @@ namespace :tw do
           'Objective replacement name: Valid Name' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
           'Hybrid' => '',
           'Junior homonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
+          'Junior Homonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
           'Manuscript name' => '',
           'Nomen nudum' => '',
           'Nomen nudum: no description' => '',
           'Nomen nudum: No type fixation after 1930' => '',
           'Unavailable name: Infrasubspecific name' => '',
-          'Suppressed name: ICZN official index of rejected and invalid works' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
+          'Unavailable name: infrasubspecific name' => '',
+          'Suppressed name: ICZN official index of rejected and invalid works' => '',
           'Valid Name' => '',
           'Valid name' => '', # tweak to handle alternate form
           'Original_Genus' => 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
@@ -68,7 +70,15 @@ namespace :tw do
           'Original_Species' => 'TaxonNameRelationship::OriginalCombination::OriginalSpecies',
           'Original_Subspecies' => 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies',
           'Original_Infrasubspecies' => 'TaxonNameRelationship::OriginalCombination::OriginalVariety',
-          'Incertae sedis' => 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+          'Incertae sedis' => 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement',
+          'Objective replacement name: Valid name' => 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName',
+          'Suppressed name: ICZN official index of unavailable names' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression',
+          'Nomen oblitum' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName',
+          'Nomen nudum: ICZN no description' => '',
+          'Nomen nudum: No diagnosis after 1930' => '',
+          'Unavailable name: not noun in nominative singular' => '',
+          'Suppressed name: Official Index of Rejected and Invalid Works' => '',
+          'Unavailable name: non binomial' => ''
         }.freeze
 
         @classification_classes = {
@@ -80,9 +90,16 @@ namespace :tw do
           'Nomen nudum: No type fixation after 1930' => 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::NoTypeFixationAfter1930',
           'Nomen nudum: Published as synonym and not validated before 1961' => 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::PublishedAsSynonymAndNotValidatedBefore1961',
           'Unavailable name: Infrasubspecific name' => 'TaxonNameClassification::Iczn::Unavailable::Excluded::Infrasubspecific',
+          'Unavailable name: infrasubspecific name' => 'TaxonNameClassification::Iczn::Unavailable::Excluded::Infrasubspecific',
           'Unavailable name: pre-Linnean' => 'TaxonNameClassification::Iczn::Unavailable::PreLinnean',
           'Suppressed name: ICZN official index of rejected and invalid works' => 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedAndInvalidWorksInZoology',
-          'not latin' => 'TaxonNameClassification::Iczn::Unavailable::NotLatin'
+          'not latin' => 'TaxonNameClassification::Iczn::Unavailable::NotLatin',
+          'Suppressed name: ICZN official index of unavailable names' => 'TaxonNameClassification::Iczn::Unavailable::Suppressed',
+          'Nomen nudum: ICZN no description' => 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::NoDescription',
+          'Nomen nudum: No diagnosis after 1930' => 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::NoDiagnosisAfter1930',
+          'Unavailable name: not noun in nominative singular' => 'TaxonNameClassification::Iczn::Unavailable::NotNounInNominativeSingular',
+          'Suppressed name: Official Index of Rejected and Invalid Works' => 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedAndInvalidWorksInZoology',
+          'Unavailable name: non binomial' => 'TaxonNameClassification::Iczn::Unavailable::NonBinomial'
         }.freeze
 
         if ENV['no_transaction']
@@ -243,7 +260,7 @@ namespace :tw do
           @data.citation_to_publication_index[row['NEW_REF_ID']] = source_id
         end
 
-        file.close
+        #file.close
 
         GC.start
         puts "\nResolved #{@data.publications_index.keys.count} publications\n"
@@ -366,11 +383,11 @@ namespace :tw do
             file.each_with_index do |row, i|
               #if rank == 'GENUS' || i > 0 && i < 1500
 
-              break if i == 2000
+#              break if i == 2000
 
-              if i % 2000 == 0
-                GC.start
-              end
+#              if i % 2000 == 0
+#                GC.start
+#              end
 
               print "\r#{i}"
               if row['Current_rank_of_name'] == rank
@@ -479,9 +496,15 @@ namespace :tw do
                   begin
                     protonym.save!
                   rescue ActiveRecord::RecordInvalid
-                    puts Rainbow("protonym #{protonym.name} failed to save, skipping to next record.").red
-                    puts protonym.errors.messages.join('; ')  
-                    next # Everything beyond this point requires a successful save off
+                    if !protonym.errors.messages[:name].blank?
+                      protonym.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin')
+                      protonym.save!
+                    else
+                      puts Rainbow("protonym #{protonym.name} failed to save, skipping to next record.").red
+                      puts protonym.errors.messages.to_s
+                      next # Everything beyond this point requires a successful save off
+                    end
+
                   end
 
 
@@ -505,17 +528,17 @@ namespace :tw do
 
                   unless @data.images_index[row['TaxonNo']].nil?
                     %w{Card_code Path Front_image Back_image}.each do |k|
-                      protonym.data_attributes.create!(import_predicate: k, value: @data.images_index[row['TaxonNo']][k], type: 'ImportAttribute')
+                      protonym.data_attributes.create!(import_predicate: k, value: @data.images_index[row['TaxonNo']][k], type: 'ImportAttribute') unless @data.images_index[row['TaxonNo']][k].blank?
                     end
 
-                    file1 = @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/') + @data.images_index[row['TaxonNo']]['Front_image']
-                    file2 = @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/') + @data.images_index[row['TaxonNo']]['Back_image']
+                    file1 = @data.images_index[row['TaxonNo']]['Front_image'].blank? ? 'Not provided' : @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/').to_s + @data.images_index[row['TaxonNo']]['Front_image'].to_s
+                    file2 = @data.images_index[row['TaxonNo']]['Back_image'].blank? ? 'Not provided' : @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/').to_s + @data.images_index[row['TaxonNo']]['Back_image'].to_s
 
                     [file1, file2].each do |img|
                       if File.exists?(img)
                         begin
                           f = File.open(img)
-                          Depiction.new(image_attributes: { image_file: f }, depiction_object: protonym) 
+                          Depiction.create(image_attributes: { image_file: f }, depiction_object: protonym)
                         rescue ActiveRecord::RecordInvalid
                           print Rainbow("\nImage file: #{img} is invalid\n").red
                         ensure
@@ -530,7 +553,7 @@ namespace :tw do
                   availability = row['Availability']
 
                   if @relationship_classes[availability].nil?
-                    print "\nInvalid relationship: #{availability} #{protonym.name} [row #{i}]\n"
+                    print "\nInvalid relationship: '#{availability}' #{protonym.name} [row #{i}]\n"
                     @invalid_relationships[availability] ||= 0
                     @invalid_relationships[availability] += 1
 

@@ -294,7 +294,7 @@ module Protonym::SoftValidationExtensions
       if self.rank_class
         rank = rank_string 
         if rank != 'potentially_validating rank' && self.rank_class.nomenclatural_code == :iczn && %w(subspecies subgenus subtribe tribe subfamily).include?(self.rank_class.rank_name)
-          sisters = self.parent.descendants.with_rank_class(rank)
+          sisters = self.parent.descendants.with_rank_class(rank).select{|t| t.id == t.cached_valid_taxon_name_id}
           if rank =~ /Family/
             z = Protonym.family_group_base(self.name)
             search_name = z.nil? ? nil : Protonym::FAMILY_GROUP_ENDINGS.collect{|i| z+i}
