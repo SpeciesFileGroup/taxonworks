@@ -44,7 +44,7 @@ spec:
             claimName: taxonworks-staging-pv-claim
       containers:
         - name: taxonworks
-          image: sfgrp/taxonworks:0.0.2
+          image: sfgrp/taxonworks:0.0.3
           ports:
             - containerPort: 80
               name: http
@@ -53,7 +53,7 @@ spec:
               name: taxonworks-media-vol
             - mountPath: /backup
               name: taxonworks-backup-vol
-            - mountPath: /staging/
+            - mountPath: /staging
               name: taxonworks-staging-vol
           livenessProbe:
             httpGet:
