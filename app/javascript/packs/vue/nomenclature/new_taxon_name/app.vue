@@ -2,19 +2,7 @@
   <div id="new_taxon_name_task">
     <h1>New taxon name</h1>
     <div class="panel content">
-      <form class="content">
-        <h3 class="subtitle">Basic information</h3><br>
-        <div class="field separate-top">
-          <label>Parent</label>
-          <parent-picker></parent-picker>
-        </div>
-        <div class="field">
-          <label>Name</label><br>
-          <taxon-name></taxon-name>
-        </div>
-        <rank-selector></rank-selector>
-      </form>
-
+      <basic-information></basic-information>
       <form class="content">
         <h3 class="">Author/year</h3><br>
         <div class="field separate-top">
@@ -36,22 +24,26 @@
       </div>
       <div>
         <relationship-picker></relationship-picker>
+        <taxon-name-picker></taxon-name-picker>
         <list-entrys mutationNameRemove="RemoveTaxonRelationship" list="GetTaxonRelationshipList" display="subject_status_tag"></list-entrys>
+      </div>
+      <div>
+        <original-combination></original-combination>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-  var parentPicker = require('./components/parentPicker.vue');
-  var taxonName = require('./components/taxonName.vue');
-  var rankSelector = require('./components/rankSelector.vue');
   var sourcePicker = require('./components/sourcePicker.vue');
   var verbatimAuthor = require('./components/verbatimAuthor.vue');
   var verbatimYear = require('./components/verbatimYear.vue');
   var relationshipPicker = require('./components/relationshipPicker.vue');
   var statusPicker = require('./components/statusPicker.vue');
   var listEntrys = require('./components/listEntrys.vue');
+  var taxonNamePicker = require('./components/taxonNamePicker.vue');
+  var basicInformation = require('./components/basicInformation.vue');
+  var originalCombination = require('./components/originalCombination.vue');
 
 
   const MutationNames = require('./store/mutations/mutations').MutationNames;  
@@ -59,15 +51,15 @@
 
   export default {
     components: {
-      parentPicker,
-      taxonName,
-      rankSelector,
       sourcePicker,
       verbatimAuthor,
       verbatimYear,
       statusPicker,
       relationshipPicker,
-      listEntrys
+      listEntrys,
+      taxonNamePicker,
+      basicInformation,
+      originalCombination
     },
     mounted: function() {
       this.loadRanks();
