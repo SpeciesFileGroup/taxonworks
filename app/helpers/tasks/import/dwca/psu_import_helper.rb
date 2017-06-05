@@ -1,6 +1,6 @@
 module Tasks::Import::Dwca::PsuImportHelper
 
-  def text_roe(row)
+  def text_row(row)
     color  = 'green'
     color  = 'red' unless row[:err].blank?
     output = "<li class=#{color}>"
@@ -18,4 +18,11 @@ module Tasks::Import::Dwca::PsuImportHelper
     output += '</li>'
     output.html_safe
   end
+
+  # @return [String]
+  #   short string of use in autocomplete selects
+  def collection_object_namespace_select_tag
+    select_tag(:dwca_namespace, options_for_select(Namespace.pluck(:short_name).uniq), prompt: 'Select a namespace')
+  end
+
 end

@@ -8,11 +8,11 @@ class Tasks::Import::Dwca::PsuImportController < ApplicationController
   end
 
   # POST
-  def preview_psu_import
+  def do_psu_import
     if params[:file]
       @result = BatchLoad::Import::DWCA.new(import_params).rows
       digest_cookie(params[:file].tempfile, :psu_import_md5)
-      render 'preview_psu_import'
+      render 'do_psu_import'
     else
       flash[:notice] = "No file provided!"
       redirect_to action: :index
@@ -20,7 +20,7 @@ class Tasks::Import::Dwca::PsuImportController < ApplicationController
   end
 
   # POST
-  def do_psu_import
+  def do_not_psu_import
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :psu_import_md5)
       @result = BatchLoad::Import::DWCA.new(import_params)
       if @result.create
@@ -37,7 +37,7 @@ class Tasks::Import::Dwca::PsuImportController < ApplicationController
 
   private
   def import_params
-    params.permit(:ce_namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
+    params.permit(:dwca_namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
   end
 
 

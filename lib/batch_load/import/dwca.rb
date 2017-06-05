@@ -188,7 +188,7 @@ module BatchLoad
         @rows[line_counter][:err]  = errs
         @rows[line_counter][:warn] = warns
         line_counter               += 1
-        break if line_counter > 25
+        # break if line_counter > 25
       end
       @total_lines = line_counter - 1
     end
