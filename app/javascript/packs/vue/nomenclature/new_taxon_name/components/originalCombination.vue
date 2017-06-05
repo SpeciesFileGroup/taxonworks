@@ -7,15 +7,31 @@
     </draggable>
     <div class="flexbox original-combination">
 	    <div class="flex-wrap-column rank-name-label">
-		    <label class="row" >Genus</label>
-		    <label class="row" >Subgenus</label>
+		    <label class="row">Genus</label>
+		    <label class="row">Subgenus</label>
 		    <label class="row">Species</label>
 		    <label class="row">Subspecies</label>
 		    <label class="row">Variety</label>
 		    <label class="row">Form</label>
 	    </div>
 		    <draggable class="flex-wrap-column" v-model="ranks" :options="{ group: { name: 'combination', put: true }}" @add="onAdd">
-		    	<input v-if="item.show" class="row" :class="item.class" v-for="item in ranks" :value="item.name" />
+			    <autocomplete  
+			    	v-if="item.show"
+			    	v-for="item, index in ranks"
+			    	:key="item.id"
+			    	:get-object="item.autocomplete"
+			        url="/taxon_names/autocomplete"
+			        label="label"
+			        min="3"
+			        time="0"
+			        v-model="item.autocomplete"
+			        eventSend="autocompleteTaxonSelected"
+			        :addParams="{ type: 'Protonym' }"
+			        param="term">
+			    </autocomplete>
+			    <div class="row" v-else>
+			    	<input disabled class="current-name" type="text" :value="item.name" >
+			    </div>
 		    </draggable>
     </div>
     </form>
@@ -35,19 +51,22 @@
 		data: function() { 
 			return {
 				ranks: [ 
-					{ name: 'Field 0', show: true, class: 'rank-item' }, 
-					{ name: 'Field 1', show: true, class: 'rank-item' }, 
-					{ name: 'Field 2', show: true, class: 'rank-item' }, 
-					{ name: 'Field 3', show: true, class: 'rank-item' } , 
-					{ name: 'Field 4', show: true, class: 'rank-item' }, 
-					{ name: 'Field 5', show: true, class: 'rank-item' } 
+					{ name: 'Field 0', show: true, class: 'rank-item', autocomplete: undefined, id: 1 }, 
+					{ name: 'Field 1', show: true, class: 'rank-item', autocomplete: undefined, id: 2 }, 
+					{ name: 'Field 2', show: true, class: 'rank-item', autocomplete: undefined, id: 3 }, 
+					{ name: 'Field 3', show: true, class: 'rank-item', autocomplete: undefined, id: 4 } , 
+					{ name: 'Field 4', show: true, class: 'rank-item', autocomplete: undefined, id: 5 }, 
+					{ name: 'Field 5', show: true, class: 'rank-item', autocomplete: undefined, id: 6 } 
 					],
-				current: [ { name: 'Current', show: true, class: 'current-name' } ],
+				current: [ { name: 'Current', show: false, class: 'current-name', id: 0 } ],
 				detachObject: undefined
 			}
 		},
 		methods: {
 			onAdd: function(evt) {
+				if((this.ranks.length-1) == evt.newIndex) {
+					this.detachObject = this.ranks.splice((evt.newIndex-1), 1);
+				}
 				this.detachObject = this.ranks.splice((evt.newIndex+1), 1);
 			}
 		}

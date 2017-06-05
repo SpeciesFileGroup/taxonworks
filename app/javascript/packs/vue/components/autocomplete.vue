@@ -111,6 +111,7 @@ export default {
       methods: {
         sendItem: function(item) {
           this.$parent.$emit(this.eventSend, item);
+          this.$emit('input', item);
         },
 
         clearResults: function() {
