@@ -422,6 +422,24 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         #single subgenus in the nominal genus
         expect(@subgenus.soft_validations.messages_on(:base).size).to eq(1)
       end
+      specify 'single non nominotypical taxon' do
+        @subgenus.name = 'Cus'
+        @subgenus.save
+        @subgenus.soft_validate(:single_sub_taxon)
+        expect(@subgenus.soft_validations.messages_on(:base).size).to eq(1)
+        @subgenus.fix_soft_validations
+        @subgenus.reload
+        @subgenus.soft_validate(:single_sub_taxon)
+        expect(@subgenus.soft_validations.messages_on(:base).size).to eq(0)
+      end
+      specify 'single non nominotypical taxon and it is a synonym' do
+        @subgenus.name = 'Cus'
+        @subgenus.save
+        TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: @subgenus, object_taxon_name: @genus)
+        @subgenus.reload
+        @subgenus.soft_validate(:single_sub_taxon)
+        expect(@subgenus.soft_validations.messages_on(:base).size).to eq(0)
+      end
     end
 
 
