@@ -699,7 +699,7 @@ namespace :tw do
             begin
               tr.save!
             rescue ActiveRecord::RecordInvalid
-              puts Rainbox(tr.errors.messages.to_s).red
+              puts Rainbow(tr.errors.messages.to_s).red
             end
           end
         end
