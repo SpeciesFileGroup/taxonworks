@@ -70,6 +70,7 @@ namespace :tw do
           ptype
           otus 
           done
+          valid_taxon_codes
         }.freeze 
 
         LOOKUPS.each do |l|
@@ -442,6 +443,7 @@ namespace :tw do
             end
 
             @data.all_genera_index[name] = taxon.id
+            @data.valid_taxon_codes[taxon.id] = 1
 
             if row['ValGenus'].to_s == row['CitGenus'].to_s && row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank? && !@data.genus_codes[row['TaxonCode']].blank?
               @data.genera_index[name] = taxon.id
@@ -630,6 +632,8 @@ namespace :tw do
 
             @data.all_species_index[row['CitGenus'].to_s + ' ' + name] = taxon.id
             @data.all_species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
+            @data.valid_taxon_codes[taxon.id] = 1
+
 
             if !@data.species_codes[row['TaxonCode']].blank?
 
@@ -1791,20 +1795,20 @@ namespace :tw do
           'CV' => 'Request to ICZN for conservation of name',
           'DI' => 'Division of',
           'EX' => 'Excluded from Chalcidoidea',
-          'ID' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Identified subsequently as',
+          'ID' => 'Identified subsequently as', # 'Identified subsequently as',
           'IS' => 'Incertae sedis',
           'JE' => 'Justified emendation of',
           'JG' => 'Misspelt generic name, justified emendation of',
-          'MA' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Misidentified as',
-          'MI' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Misidentification',
-          'MO' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Misidentification of',
-          'MP' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Misidentification (in part) as',
+          'MA' => 'Misidentified as', # 'Misidentified as',
+          'MI' => 'Misidentification', # 'Misidentification',
+          'MO' => 'Misidentification of', # 'Misidentification of',
+          'MP' => 'Misidentification (in part) as', # 'Misidentification (in part) as',
           'NG' => 'New genus',
           'NS' => 'New species',
           'PC' => 'Possible new combination in',
           'PF' => 'Possible new combination for',
-          'PM' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Misidentification (in part) of',
-          'PO' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Possible misidentification of',
+          'PM' => 'Misidentification (in part) of', # 'Misidentification (in part) of',
+          'PO' => 'TPossible misidentification of', # 'Possible misidentification of',
           'PV' => 'Possibly valid species',
           'RT' => 'Request to ICZN for type species designation as',
           'SP' => 'Request to ICZN for suppression in favour of',
@@ -1891,13 +1895,13 @@ namespace :tw do
             if taxon != taxon1
 
               c = TaxonNameRelationship.where(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating').first
-              c1 = TaxonNameRelationship.where(subject_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating').first
+#              c1 = TaxonNameRelationship.where(subject_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating').first
 
               if relationship[row['Status']].include?('TaxonNameRelationship::Iczn::Invalidating') && !c.nil?
                 c.update_column(:type, relationship[row['Status']])
               else
                 c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: relationship[row['Status']])
-                c2 = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: 'TaxonNameClassification::Iczn::Available::Valid') if c1.nil?
+                c2 = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: 'TaxonNameClassification::Iczn::Available::Valid') if @data.valid_taxon_codes[taxon.id] == 1
               end
 
               if !c.id.blank? # valid?

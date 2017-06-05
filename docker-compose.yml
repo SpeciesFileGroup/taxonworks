@@ -1,5 +1,5 @@
 #
-# docker-compose is DEVELOPMENT ONLY
+# docker-compose targets development only
 #
 version: "2"
 services:
@@ -13,11 +13,6 @@ services:
       - "127.0.0.1:3000:3000" # local:docker
     links:
       - db
-    command: # need also the ./bin/webpack-dev-server one
-       - rails
-       - server
-       - "--binding"
-       - "0.0.0.0"
     stdin_open: true
     tty: true
   db:
@@ -26,6 +21,16 @@ services:
       - "0.0.0.0:15432:5432"
     volumes:
       - pg:/var/lib/postgresql/data
+      - ./volumes/webpack_build:/mnt/rails/public/webpack
+  webpack:
+    build: 
+      context: .
+      dockerfile: Dockerfile.development
+    command: ./bin/webpack-dev-server --host '0.0.0.0'
+    volumes: 
+      - .:/app
+    ports:
+      - '3808:3808'
 volumes:
     pg:
       external: false

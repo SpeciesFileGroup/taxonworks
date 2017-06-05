@@ -294,7 +294,7 @@ module Protonym::SoftValidationExtensions
       if self.rank_class
         rank = rank_string 
         if rank != 'potentially_validating rank' && self.rank_class.nomenclatural_code == :iczn && %w(subspecies subgenus subtribe tribe subfamily).include?(self.rank_class.rank_name)
-          sisters = self.parent.descendants.with_rank_class(rank)
+          sisters = self.parent.descendants.with_rank_class(rank).select{|t| t.id == t.cached_valid_taxon_name_id}
           if rank =~ /Family/
             z = Protonym.family_group_base(self.name)
             search_name = z.nil? ? nil : Protonym::FAMILY_GROUP_ENDINGS.collect{|i| z+i}
@@ -306,7 +306,7 @@ module Protonym::SoftValidationExtensions
           end
           if search_name.include?(self.parent.name) && sisters.count == 1
             soft_validations.add(:base, "This taxon is a single #{self.rank_class.rank_name} in the nominal #{self.parent.rank_class.rank_name}")
-          elsif !sister_names.include?(self.parent.name)
+          elsif !sister_names.include?(self.parent.name) && !sisters.empty?
             soft_validations.add(:base, "The parent #{self.parent.rank_class.rank_name} of this #{self.rank_class.rank_name} does not contain nominotypical #{self.rank_class.rank_name}",
                                  fix: :sv_fix_add_nominotypical_sub, success_message: "Nominotypical #{self.rank_class.rank_name} was added to nominal #{self.parent.rank_class.rank_name}")
           end

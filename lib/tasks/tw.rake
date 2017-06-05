@@ -17,6 +17,12 @@ namespace :tw do
     @args[:db_user] = Rails.configuration.database_configuration[Rails.env]['username'] if ENV['db_user'].blank?
   end
 
+  desc 'set the db_host to ENV of database_host or use "0.0.0.0"'
+  task  :database_host do |t| 
+    @args ||= {}
+    @args[:database_host] = (ENV['database_host'] || '0.0.0.0')
+  end
+
   desc 'Sets $user_id via "user_id=1" option. checks to see it exists.'
   task :user_id => [:environment] do
     raise "You must specify a user_id like 'user_id=2'" unless ENV["user_id"]

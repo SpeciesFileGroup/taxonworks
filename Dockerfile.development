@@ -18,9 +18,11 @@ RUN apt-get update && \
                        git gcc build-essential \
                        libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
                        pkg-config imagemagick libmagickcore-dev libmagickwand-dev \
+                       postgresql-client \
                        libpq-dev libproj-dev libgeos-dev libgeos++-dev \
                        tesseract-ocr \
                        cmake \
+                       supervisor \
                        nodejs yarn \
                        ruby2.3 ruby2.3-dev && \
     apt clean && \ 
@@ -45,13 +47,9 @@ RUN gem install bundler && \
 WORKDIR /app
 COPY Gemfile /app
 COPY Gemfile.lock /app
-COPY config/secrets.yml.example config/secrets.yml
-COPY config/database.yml.docker.compose.example config/database.yml
-COPY Gemfile.lock /app
-RUN bundle install  
-RUN yarn
+RUN bundle install 
+RUN yarn 
 
-CMD ["rails", "server"] 
-
+CMD ["exe/docker_compose_start.sh"]
 
 
