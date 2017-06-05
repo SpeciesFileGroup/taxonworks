@@ -147,6 +147,8 @@ gem 'redcarpet', '~> 3.3'
 gem 'taxonifi', '0.4.0'
 gem 'sqed', '0.2.4'
 
+gem 'mail', '~> 2.7.0.rc1'
+
 
 group :test, :development do
   gem 'faker', '~> 1.6.1'
