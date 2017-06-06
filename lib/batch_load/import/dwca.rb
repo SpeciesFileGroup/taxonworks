@@ -5,6 +5,7 @@ module BatchLoad
     attr_accessor :collecting_events
 
     attr_accessor :dwca_namespace
+    attr_accessor :repo
 
     attr_accessor :parser
     attr_accessor :tasks_
@@ -13,6 +14,7 @@ module BatchLoad
     attr_accessor :row_objects
 
     def initialize(dwca_namespace: nil, **args)
+      @repo              = nil
       @collecting_events = {}
       @rows              = {}
       @row_objects       = {}
@@ -25,6 +27,7 @@ module BatchLoad
         make_td:    %w(scientificname basisofrecord individualcount organismquantity organismquantitytype recordedby),
         make_otu:   %w(scientificname),
         make_co:    %w(basisofrecord individualcount organismquantity organismquantitytype recordedby),
+        make_ba:    %w(associatedtaxa),
         make_notes: %w(georeferenceremarks locationremarks occurrenceremarks),
         make_tag:   %w(),
         make_gr:    %w(decimallatitude decimallongitude countrycode stateprovince county municipality coordinateuncertaintyinmeters georeferencedby),
@@ -94,6 +97,7 @@ module BatchLoad
         ns_id     = @row_objects[:make_ns_id]
         ns        = ns_id[:ns]
         id_cat_no = ns_id[:id_cat_no]
+        b_a_s     = @row_objects[:make_ba]
         notes     = @row_objects[:make_notes]
         c_o_notes = notes[:c_o]
         c_e_notes = notes[:c_e]
@@ -118,7 +122,15 @@ module BatchLoad
         c_o.collecting_event = c_e
         # associate the namespace and catalog number with the collection_object
         c_o.identifiers << id_cat_no
+        c_o.repository = @repo
         c_o.save!
+        # add the possible biological_associations, new2 otu to collection_object
+        unless b_a_s.blank?
+          b_a_s.keys.each {|kee|
+            b_a                                = b_a_s[kee]
+            b_a.biological_association_subject = c_o
+          }
+        end
         # add notes to collection_object, if required
         unless c_o_notes.blank?
           c_o_notes.keys.each {|kee|
@@ -261,6 +273,40 @@ module BatchLoad
                                               definition: 'The verbatim value imported from PSUC for "georeferenceRemarks".',
                                               project_id: $project_id)
       @geo_rem_kw.save! if @geo_rem_kw.new_record?
+
+      @repo = Repository.find_or_create_by(name:                 'Frost Entomological Museum, Penn State University',
+                                           url:                  'http://grbio.org/institution/frost-entomological-museum-penn-state-university',
+                                           status:               'Yes',
+                                           acronym:              'PSUC',
+                                           is_index_herbariorum: false)
+      @repo.save! if @repo.new_record?
+
+      true
+    end
+
+    def make_ba(row)
+      # for each associatedTaxa, find or create an otu, and creata a biological association for it,
+      # connecting it to a collection_object
+      retval = {}
+      bas    = row['associatedtaxa']
+      unless bas.blank?
+        taxa = bas.split('|')
+
+        taxa.each {|bio_assoc|
+          unless bio_assoc.blank?
+            br                = BiologicalRelationship.find_or_create_by(name:       'associated_taxa',
+                                                                         project_id: $project_id)
+            otu               = Otu.find_or_create_by(name:       bio_assoc,
+                                                      project_id: $project_id)
+            ba                = BiologicalAssociation.new(biological_relationship:             br,
+                                                          biological_association_object:       otu,
+                                                          biological_association_object_type:  'Otu',
+                                                          biological_association_subject_type: 'CollectionObject')
+            retval[bio_assoc] = ba
+          end
+        }
+      end
+      retval
     end
 
     def make_ns_id(row)
