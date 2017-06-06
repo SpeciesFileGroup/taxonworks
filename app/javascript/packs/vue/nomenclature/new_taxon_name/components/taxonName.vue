@@ -11,7 +11,7 @@
     computed: {
       taxonName: {
         get() {
-          return this.$store.getters[GetterNames.SetTaxonName]
+          return this.$store.getters[GetterNames.GetTaxonName]
         },
         set(value) {
           this.$store.commit(MutationNames.SetTaxonName, value);

@@ -10,11 +10,14 @@
         	<taxon-name></taxon-name>
         </div>
         <rank-selector></rank-selector>
-        <button class="button">Create</button>
+        <button :disabled="!(parent && name)" class="button">Create</button>
       </form>
 </template>
 
 <script>
+
+  const GetterNames = require('../store/getters/getters').GetterNames;
+
   var parentPicker = require('./parentPicker.vue');
   var taxonName = require('./taxonName.vue');
   var rankSelector = require('./rankSelector.vue');
@@ -23,6 +26,14 @@
 			parentPicker,
 			taxonName,
 			rankSelector
-		}
+		},
+    computed: {
+      parent() {
+        return this.$store.getters[GetterNames.GetParent]
+      },
+      name() {
+        return this.$store.getters[GetterNames.GetTaxonName]
+      }
+    }
 	}
 </script>

@@ -20,7 +20,7 @@ Parameters:
 */
 <template>
   <div class="vue-autocomplete">
-    <input class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="checkTime" v-model="type" :autofocus="autofocus" v-bind:class="{'ui-autocomplete-loading' : spinner }"/>
+    <input class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="checkTime" v-model="type" :autofocus="autofocus" v-bind:class="{'ui-autocomplete-loading' : spinner, 'vue-autocomplete-input-search' : !spinner }"/>
     <ul v-show="showList" v-if="type && json.length">
       <li v-for="(item, index) in json" :class="activeClass(index)" @mouseover="itemActive(index)" @click.prevent="itemClicked(item), sendItem(item)">
         <span v-html="item[label]"></span>

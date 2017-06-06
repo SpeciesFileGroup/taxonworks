@@ -6,7 +6,7 @@
 .original-combination {
 	display: flex;
 	flex-direction: row;
-	width:600px;
+	width:320px;
 	.rank-name-label {
 		width: 100px;
 		margin-right: 4px;
@@ -23,7 +23,12 @@
 		height: 40px;
 	}
 	.current-name {
+		position: static;
 		background-color: rgb(255,255,0);
+	}
+	li {
+		display: flex;
+		flex-direction: row;
 	}
 }
 	.modal-header {
