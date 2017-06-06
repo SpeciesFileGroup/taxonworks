@@ -41,9 +41,12 @@
           taxon_name: {
             name: this.taxon.name,
             parent_id: this.taxon.parent_id,
-            rank_class: this.taxon.rank_class
+            rank_class: this.taxon.rank_class,
+            type: 'Protonym'
           }
         }
+        var token = $('[name="csrf-token"]').attr('content');
+        this.$http.headers.common['X-CSRF-Token'] = token;
         this.$http.post('/taxon_names.json', taxon_name).then(response => {
           console.log(response);
         });
