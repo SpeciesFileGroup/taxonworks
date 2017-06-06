@@ -147,6 +147,8 @@ gem 'redcarpet', '~> 3.3'
 gem 'taxonifi', '0.4.0'
 gem 'sqed', '0.2.4'
 
+gem 'mail', '~> 2.7.0.rc1'
+
 
 group :test, :development do
   gem 'faker', '~> 1.6.1'
@@ -167,7 +169,7 @@ group :development do
   gem 'guard-rspec', '~> 4.7', require: false
   gem 'parallel_tests', '~> 2.5.0'
   gem 'web-console', '~> 3.3.0'
-  gem 'rubocop', '~> 0.46.0'
+  gem 'rubocop', '~> 0.49.0'
 end
 
 group :doc do

@@ -75,8 +75,8 @@ class TaxonNameClassification < ActiveRecord::Base
   #   this is helper-esqe, but also useful in validation, so here for now
   def classification_label
     return nil if type_name.nil?
-    type_name.demodulize.underscore.humanize.downcase + 
-      (nomenclature_code ? " [#{nomenclature_code}]" : '')
+    type_name.demodulize.underscore.humanize.downcase #+
+      #(nomenclature_code ? " [#{nomenclature_code}]" : '')
   end
 
   # @return [String]

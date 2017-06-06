@@ -879,11 +879,11 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       let!(:r1) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b) }
 
       specify '#combined_statuses' do
-        expect(a.combined_statuses).to eq(['synonym', 'unavailable [iczn]'])
+        expect(a.combined_statuses).to eq(['synonym', 'unavailable'])
       end
 
       specify '#statuses_from_classifications' do
-        expect(a.statuses_from_classifications).to eq(['unavailable [iczn]'])
+        expect(a.statuses_from_classifications).to eq(['unavailable'])
       end
 
       specify '#status_from_relationships' do

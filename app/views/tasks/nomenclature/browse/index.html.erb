@@ -78,11 +78,7 @@
           <div class="flex-wrap-row"> 
             <%= render "summary" %>
             <%= render "soft_validation" %>
-            <div class="panel fullSize content separate-left separate-bottom">
-              <div class="attributes information-panel">
-                <%= annotations_summary_tag(@taxon_name) -%>
-              </div>
-            </div>
+            <%= annotations_summary_tag(@taxon_name) -%>
             <div class="panel content fullSize separate-left">
               <div class="attributes">
                 <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @taxon_name}) -%> 

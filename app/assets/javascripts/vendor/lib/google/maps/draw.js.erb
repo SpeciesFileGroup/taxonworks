@@ -127,6 +127,42 @@ Object.assign(TW.vendor.lib.google.maps.draw, {            // internally referre
       return map;             // now no global map object, use this object to add listeners to THIS map
     },
 
+    singleDrawnFeatureToMapListeners: function (this_map, map_item, feature_control) {
+      google.maps.event.addListener(this_map[1], 'overlaycomplete', function (event) {
+          // Remove the last created shape if it exists.
+          if (map_item != null) {
+            if (map_item[0] != null) {
+              TW.vendor.lib.google.maps.draw.removeItemFromMap(map_item[0]);
+            }
+          }
+          map_item = [event.overlay, event.type];
+          var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(map_item[0], map_item[1]);
+          $(feature_control).val(JSON.stringify(feature[0]));
+          // now that new shape is captured and has a postable feature, add a listener
+          if (map_item[1] == 'polygon') {
+            // on a changed or added/removed vertex (assumes only outerPath) for polygon shape
+            google.maps.event.addListener(map_item[0].getPath(), 'set_at', function (event) {
+              var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(map_item[0], map_item[1]);
+              $(feature_control).val(JSON.stringify(feature[0]));
+              // the shape is updated by googleMaps, so no additional treatment is necessary here
+            });
+          }
+          if (map_item[1] == 'circle') {
+            // on a changed or added/removed vertex (assumes only outerPath) for polygon shape
+            google.maps.event.addListener(map_item[0], 'radius_changed', function (event) {
+              var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(map_item[0], map_item[1]);
+              $(feature_control).val(JSON.stringify(feature[0]));
+            });
+            google.maps.event.addListener(map_item[0], 'center_changed', function (event) {
+              var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(map_item[0], map_item[1]);
+              $(feature_control).val(JSON.stringify(feature[0]));
+            });
+            // the shape is updated by googleMaps, so no additional treatment is necessary here
+          }
+        }
+      );
+    },
+
     buildFeatureCollectionFromShape: function (shape, shape_type) {
 
       //  var featureCollection = [];

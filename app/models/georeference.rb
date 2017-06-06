@@ -66,6 +66,7 @@ class Georeference < ActiveRecord::Base
   include Shared::Taggable
   include Shared::IsData
   include Shared::Citable
+  include Shared::HasRoles
 
   attr_accessor :iframe_response # used to pass the geolocate from Tulane through
 
@@ -76,6 +77,9 @@ class Georeference < ActiveRecord::Base
   belongs_to :geographic_item, inverse_of: :georeferences
 
   has_many :collection_objects, through: :collecting_event
+
+  has_many :georeferencer_roles, -> { order('roles.position ASC') }, class_name: 'Georeferencer', as: :role_object, validate: true
+  has_many :georeferencers, -> { order('roles.position ASC') }, through: :georeferencer_roles, source: :person, validate: true
 
   validates :geographic_item, presence: true
   validates :type, presence: true

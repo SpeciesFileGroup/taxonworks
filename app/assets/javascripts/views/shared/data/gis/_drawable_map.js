@@ -16,18 +16,7 @@ _init_drawable_map = function init_drawable_map() {
       $("[name='[geographic_area_id]']").attr('value', '');
       $("#geographic_area_id_for_by_area").prop('value', '');
       drawable_map = TW.vendor.lib.google.maps.draw.initializeGoogleMapWithDrawManager(_drawable_map_form);
-      google.maps.event.addListener(drawable_map[1], 'overlaycomplete', function (event) {
-          // Remove the last created shape if it exists.
-          if (gr_last != null) {
-            if (gr_last[0] != null) {
-              TW.vendor.lib.google.maps.draw.removeItemFromMap(gr_last[0]);
-            }
-          }
-          gr_last = [event.overlay, event.type];
-        var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
-          $("#drawn_area_shape").val(JSON.stringify(feature[0]));
-        }
-      );
+      TW.vendor.lib.google.maps.draw.singleDrawnFeatureToMapListeners(drawable_map, gr_last, "#drawn_area_shape");
     }
 
     function hideDrawableMap() {

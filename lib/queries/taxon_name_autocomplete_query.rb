@@ -109,7 +109,7 @@ module Queries
     end
 
     def all
-      TaxonName.includes(:ancestor_hierarchies).where(where_sql).references(:taxon_name_hierarchies).limit(dynamic_limit).order(:cached).uniq.all
+      TaxonName.select('taxon_names.*, length("cached")').includes(:ancestor_hierarchies).where(where_sql).references(:taxon_name_hierarchies).limit(dynamic_limit).order('length("cached"), "cached"').uniq.all
     end
 
     def table
