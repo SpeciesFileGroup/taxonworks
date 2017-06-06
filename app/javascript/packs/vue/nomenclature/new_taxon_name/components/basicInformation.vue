@@ -10,7 +10,7 @@
         	<taxon-name></taxon-name>
         </div>
         <rank-selector></rank-selector>
-        <button :disabled="!(parent && name)" class="button">Create</button>
+        <button type="button" @click="createTaxonName()" :disabled="!(parent && taxon.name)" class="button">Create</button>
       </form>
 </template>
 
@@ -31,8 +31,22 @@
       parent() {
         return this.$store.getters[GetterNames.GetParent]
       },
-      name() {
-        return this.$store.getters[GetterNames.GetTaxonName]
+      taxon() {
+        return this.$store.getters[GetterNames.GetTaxon]
+      }
+    },
+    methods: {
+      createTaxonName: function() {
+        var taxon_name = {
+          taxon_name: {
+            name: this.taxon.name,
+            parent_id: this.taxon.parent_id,
+            rank_class: this.taxon.rank_class
+          }
+        }
+        this.$http.post('/taxon_names.json', taxon_name).then(response => {
+          console.log(response);
+        });
       }
     }
 	}

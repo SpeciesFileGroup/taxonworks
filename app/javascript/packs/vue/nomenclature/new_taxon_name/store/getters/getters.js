@@ -11,6 +11,7 @@ const GetterNames = {
 	GetTaxonRelationshipList: 'getTaxonRelationshipList',
 	GetTaxonAuthor: 'getTaxonAuthor',
 	GetTaxonName: 'getTaxonName',
+	GetTaxon: 'getTaxon',
 	GetTaxonYearPublication: 'getTaxonYearPublication'
 };
 
@@ -27,6 +28,7 @@ const GetterFunctions = {
 	[GetterNames.GetTaxonRelationshipList]: require('./getTaxonRelationshipList'),
 	[GetterNames.GetTaxonAuthor]: require('./getTaxonAuthor'),
 	[GetterNames.GetTaxonName]: require('./getTaxonName'),
+	[GetterNames.GetTaxon]: require('./getTaxon'),
 	[GetterNames.GetTaxonYearPublication]: require('./getTaxonYearPublication')
 };
 
