@@ -1808,7 +1808,7 @@ namespace :tw do
           'PC' => 'Possible new combination in',
           'PF' => 'Possible new combination for',
           'PM' => 'Misidentification (in part) of', # 'Misidentification (in part) of',
-          'PO' => 'TPossible misidentification of', # 'Possible misidentification of',
+          'PO' => 'Possible misidentification of', # 'Possible misidentification of',
           'PV' => 'Possibly valid species',
           'RT' => 'Request to ICZN for type species designation as',
           'SP' => 'Request to ICZN for suppression in favour of',
@@ -1876,7 +1876,7 @@ namespace :tw do
             end
           end
           if !notes[row['Status']].nil? && !taxon.nil?
-            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Status'], value: notes[row['Status']])
+            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['status'], value: notes[row['Status']])
           end
           taxon.notes.create(text: row['Notes'].to_s.gsub('|','_') + ' ' + row['Code'].to_s) if !row['Notes'].blank? && !taxon.nil?
           if taxon.nil?
