@@ -473,7 +473,6 @@ class TaxonName < ActiveRecord::Base
   #   combination of cached_html and cached_author_year.
   def cached_html_name_and_author_year
     [cached_html, cached_author_year].compact.join(' ')
- 
   end
  
  # @return [String] combination of cached and cached_author_year.
@@ -626,7 +625,7 @@ class TaxonName < ActiveRecord::Base
   #region Set cached fields
 
   def set_type_if_empty
-    self.type = 'Protonym' if self.type.nil? || self.type == 'TaxonName'
+    type = 'Protonym' if type.nil? || type == 'TaxonName'
   end
 
   def set_cached_names
@@ -635,7 +634,6 @@ class TaxonName < ActiveRecord::Base
       self.cached_author_year = NO_CACHED_MESSAGE
       self.cached_classified_as = NO_CACHED_MESSAGE
       self.cached_html = NO_CACHED_MESSAGE
-     #  self.cached_higher_classification = NO_CACHED_MESSAGE
     elsif self.errors.empty?
       set_cached
 

@@ -4,6 +4,41 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
   let(:taxon_name) { TaxonName.new }
 
+  context 'basic use' do
+
+    let!(:root) { Protonym.create!(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil) }
+
+    context 'cache is generated for minimum fields' do
+    
+      let(:family) { Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent_id: root.id) } 
+
+      let(:params) {
+        {
+          "name" => "Test",
+          "parent_id" => family.id,
+          "rank_class" => "NomenclaturalRank::Iczn::GenusGroup::Genus"
+        }
+      }
+      
+      specify 'family name only require rank and parent' do
+        expect(TaxonName.create!(name: 'Aidae', parent: root, rank_class: Ranks.lookup(:iczn, :family))).to be_truthy
+      end
+
+      specify 'genus names only require rank and parent' do
+        expect(TaxonName.create!(name: 'Test', parent: family, rank_class: Ranks.lookup(:iczn, :genus))).to be_truthy
+      end
+
+      specify 'genus names only require rank and parent_id' do
+        expect(TaxonName.create!(name: 'Test', parent_id: family.id, rank_class: Ranks.lookup(:iczn, :genus))).to be_truthy
+      end
+
+      specify 'by params' do
+        expect(TaxonName.create!(params)).to be_truthy
+      end
+    end
+
+  end
+
   context 'using before :all' do
     before(:all) do
       @subspecies = FactoryGirl.create(:iczn_subspecies)
@@ -24,6 +59,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       Source.destroy_all
     end
 
+
     context 'no_cached' do
       let(:n) {Protonym.create(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: @root, no_cached: true) }
 
@@ -42,11 +78,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       specify 'when true cached_html is set to NO_CACHE_MESSAGE' do
         expect(n.cached_html).to eq(TaxonName::NO_CACHED_MESSAGE)
       end
-
-      # Deprecated
-      # specify 'when true cached_higher_classification is set to NO_CACHE_MESSAGE' do
-      #   expect(n.cached_higher_classification).to eq(TaxonName::NO_CACHED_MESSAGE)
-      # end
     end
 
     context 'after save' do
@@ -135,8 +166,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           expect(species.cached_html).to eq('<i>Aus aa</i>')
           expect(species.cached).to eq('Aus aa')
         end
-      
-      
       end
     end
   end
