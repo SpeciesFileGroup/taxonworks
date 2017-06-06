@@ -22,21 +22,33 @@ module Queries
     # @return [Array]
     #   &parent_id[]=<int>&parent_id=<other_int> etc.
     attr_accessor :parent_id
+
+    # @return [Boolean]
+    #   &exact=<"true"|"false">
+    #   if 'true' then only #name = query_string results are returned (no fuzzy matching)
+    attr_accessor :exact
     
-    def initialize(string, project_id: nil, valid: nil, nomenclature_group: [], type: [], parent_id: [])
+    def initialize(string, project_id: nil, valid: nil, nomenclature_group: [], type: [], parent_id: [], exact: false)
       @nomenclature_group = nomenclature_group
       @valid = valid == 'true' ? true : (valid == 'false' ? false : nil) 
       @type = type 
       @parent_id = parent_id 
+      @exact = exact == 'true' ? true : (exact == 'false' ? false : nil) 
       super
     end
 
     def or_clauses
-      clauses = [
+      clauses = []
+
+      clauses.push exactly_named if exact
+
+      clauses += [
         only_ids,
         cached,
         with_cached_author_year,
-      ].compact
+      ] unless exact
+
+      clauses.compact!
 
       a = clauses.shift
       clauses.each do |b|
