@@ -29,12 +29,11 @@ class TaxonNamesController < ApplicationController
   # POST /taxon_names.json
   def create
     @taxon_name = TaxonName.new(taxon_name_params)
-
     respond_to do |format|
       if @taxon_name.save
         format.html { redirect_to @taxon_name.metamorphosize,
-                                  notice: "Taxon name '#{@taxon_name.name}' was successfully created." }
-        format.json { render action: 'show', status: :created, location: @taxon_name }
+                      notice: "Taxon name '#{@taxon_name.name}' was successfully created." }
+        format.json { render :show, status: :created, location: @taxon_name.metamorphosize }
       else
         format.html { render action: 'new' }
         format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
