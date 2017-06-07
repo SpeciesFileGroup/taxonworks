@@ -118,7 +118,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 
 			if($(this).attr('data-filter-reset') === 'reset') {
 				fillSoftValidation();
-				$('[data-filter], [data-filter-font]').each( function(element) {
+				$('[data-filter], [data-filter-font], [data-filter-row]').each( function(element) {
 					if($(this).hasClass("active")) {
 						isActive($(this),'active');
 					}
@@ -136,13 +136,15 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 					$($(this).attr('data-filter-font')).animate({
 	            		fontSize: '0px'
 	        		});
+					$($(this).attr('data-filter-row')).parents('.history__record').hide(255);
 					$($(this).attr('data-filter')).hide(255);
 				}
 				else {
 					$($(this).children()).attr('data-icon', 'show');
 					$($(this).attr('data-filter-font')).animate({
 	            	fontSize: '100%'
-	        		});			
+	        		});
+	        		$($(this).attr('data-filter-row')).parents('.history__record').show(255);		
 	        		$($(this).attr('data-filter')).show(255);
 				}
 			}
