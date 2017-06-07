@@ -86,10 +86,9 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             visit(collection_objects_filter_task_path)
             # c_wait = Capybara.default_max_wait_time
             # Capybara.default_max_wait_time = 60
-            fill_autocomplete('otu_id_for_by_otu', with: 'F', select: otum1.id)
-            click_button('Set OTU')
-            wait_for_ajax
-            expect(find('#otu_count')).to have_content('1')
+            fill_autocomplete('otu_id_for_by_otu', with: 'Find', select: otum1.id)
+            find('#set_otu').click
+            expect(find('#otu_count')).to have_text('1')
             # Capybara.default_max_wait_time = c_wait
           end
         end
