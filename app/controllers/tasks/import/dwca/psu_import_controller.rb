@@ -10,7 +10,8 @@ class Tasks::Import::Dwca::PsuImportController < ApplicationController
   # POST
   def do_psu_import
     if params[:file]
-      @result = BatchLoad::Import::DWCA.new(import_params).rows
+      psuc_params = import_params.merge(pre_load)
+      @result     = BatchLoad::Import::DWCA.new(psuc_params).rows
       digest_cookie(params[:file].tempfile, :psu_import_md5)
       render 'do_psu_import'
     else
@@ -36,9 +37,56 @@ class Tasks::Import::Dwca::PsuImportController < ApplicationController
   end
 
   private
+
   def import_params
     params.permit(:dwca_namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
   end
 
+  # what to do (because you are PSUC_FEM) before you try to load the entire file
+  def pre_load
+    pre_load = {}
+    root     = Protonym.find_or_create_by(name:       'Root',
+                                          rank_class: 'NomenclaturalRank',
+                                          parent_id:  nil,
+                                          project_id: $project_id)
+    root.save! if root.new_record?
+    pre_load[:root] = root
+
+    kingdom = Protonym.find_or_create_by(name:       'Animalia',
+                                         parent_id:  root.id,
+                                         rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
+                                         project_id: $project_id)
+    kingdom.save! if kingdom.new_record?
+    pre_load[:kingdom] = kingdom
+
+    cat_no_pred = Predicate.find_or_create_by(name:       'catalogNumber',
+                                              definition: 'The verbatim value imported from PSUC for "catalogNumber".',
+                                              project_id: $project_id)
+    cat_no_pred.save! if cat_no_pred.new_record?
+    pre_load[:cat_no_pred] = cat_no_pred
+
+    geo_rem_kw = Keyword.find_or_create_by(name:       'georeferenceRemarks',
+                                           definition: 'The verbatim value imported from PSUC for "georeferenceRemarks".',
+                                           project_id: $project_id)
+    geo_rem_kw.save! if geo_rem_kw.new_record?
+    pre_load[:geo_rem_kw] = geo_rem_kw
+
+    repo = Repository.find_or_create_by(name:                 'Frost Entomological Museum, Penn State University',
+                                        url:                  'http://grbio.org/institution/frost-entomological-museum-penn-state-university',
+                                        status:               'Yes',
+                                        acronym:              'PSUC',
+                                        is_index_herbariorum: false)
+    repo.save! if repo.new_record?
+    pre_load[:repo] = repo
+
+    # Namespace requires name and short_name to be present, and unique
+    namespace       = Namespace.find_or_create_by(institution: 'Penn State University Collection',
+                                                  name:        'Frost Entomological Museum',
+                                                  short_name:  'PSUC_FEM')
+    namespace.save! if namespace.new_record?
+    pre_load[:namespace] = namespace
+
+    pre_load
+  end
 
 end

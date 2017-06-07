@@ -14,14 +14,19 @@ module BatchLoad
     attr_accessor :row_objects
 
     def initialize(dwca_namespace: nil, **args)
-      @repo              = nil
+      @dwca_namespace    = dwca_namespace
+      @root              = args.delete(:root)
+      @kingdom           = args.delete(:kingdom)
+      @cat_no_pred       = args.delete(:cat_no_pred)
+      @geo_rem_kw        = args.delete(:geo_rem_kw)
+      @repo              = args.delete(:repo)
+      @namespace         = args.delete(:namespace)
       @collecting_events = {}
       @rows              = {}
       @row_objects       = {}
-      @dwca_namespace    = dwca_namespace
       @parser            = ScientificNameParser.new
       @tasks_            = {
-        make_ns_id: %w(catalognumber),
+        make_ident: %w(catalognumber),
         make_prsn:  %w(georeferencedby),
         make_tn:    %w(scientificname taxonrank family kingdom),
         make_td:    %w(scientificname basisofrecord individualcount organismquantity organismquantitytype recordedby),
@@ -33,8 +38,6 @@ module BatchLoad
         make_gr:    %w(decimallatitude decimallongitude countrycode stateprovince county municipality coordinateuncertaintyinmeters georeferencedby),
         make_ce:    %w(decimallatitude decimallongitude coordinateuncertaintyinmeters verbatimlocality eventdate locationremarks recordedby geodeticdatum)
       }.freeze
-
-      pre_load
 
       super(args)
     end
@@ -82,8 +85,8 @@ module BatchLoad
 
       tasks = triage(csv.headers, tasks_)
       csv.each do |row|
-        warns                     = []
-        errs                      = []
+        @warns                    = []
+        @errs                     = []
         @rows[line_counter]       = {}
         @rows[line_counter][:row] = row
         @row_objects              = {}
@@ -94,9 +97,8 @@ module BatchLoad
         otu       = @row_objects[:make_otu]
         t_d       = @row_objects[:make_td]
         c_o       = @row_objects[:make_co]
-        ns_id     = @row_objects[:make_ns_id]
-        ns        = ns_id[:ns]
-        id_cat_no = ns_id[:id_cat_no]
+        ident     = @row_objects[:make_ident]
+        id_cat_no = ident[:id_cat_no]
         b_a_s     = @row_objects[:make_ba]
         notes     = @row_objects[:make_notes]
         c_o_notes = notes[:c_o]
@@ -154,10 +156,10 @@ module BatchLoad
           # is a GeoLocate
           unless g_r.valid?
             # georeference was (0,0), will be dropped
-            warns.push('Georeference::GeoLocate cannot be created, lat/long not valid.')
+            @warns.push('Georeference::GeoLocate cannot be created, lat/long not valid.')
             @row_objects.delete(:make_gr)
             unless g_r_notes.blank?
-              warns.push('Georeference::GeoLocate cannot be created, \'georeferenceRemark\' has been dropped.')
+              @warns.push('Georeference::GeoLocate cannot be created, \'georeferenceRemark\' has been dropped.')
             end
           end
         end
@@ -166,7 +168,7 @@ module BatchLoad
           g_r_notes.keys.each {|kee|
             g_r_notes[kee].note_object = g_r}
         end
-        # either the original, or the ce-created one get saved
+        # either the original, or the ce-created one gets saved
         # g_r.save
 
         begin # make sure all objects for this row get saved
@@ -178,29 +180,30 @@ module BatchLoad
                   if object.valid?
                     object.save
                   else
-                    errs.push(object.errors.messages)
+                    @errs.push(object.errors.messages)
                   end
                 }
               when 'Hash'
-                errs.push(save_hash(objects))
+                @errs.push(save_hash(objects))
               else # all other single object classes
                 if objects.valid?
                   objects.save
                 else
-                  errs.push(objects.errors.messages)
+                  @errs.push(objects.errors.messages)
                 end
             end
           }
-          # warns.push("warning #{line_counter}")
-          # errs.push("error #{line_counter}") if line_counter.even?
-          warns.flatten!
-          errs.flatten!
-          # ap warns
+          #@warns.push("warning #{line_counter}")
+          #@errs.push("error #{line_counter}") if line_counter.even?
+          @warns.flatten!
+          @errs.flatten!
+          # ap@warns
         end
-        @rows[line_counter][:err]  = errs
-        @rows[line_counter][:warn] = warns
-        line_counter               += 1
-        # break if line_counter > 25
+        @rows[line_counter][:row_objects] = @row_objects
+        @rows[line_counter][:err]         = @errs
+        @rows[line_counter][:warn]        = @warns
+        line_counter                      += 1
+        break if line_counter > 25
       end
       @total_lines = line_counter - 1
     end
@@ -219,22 +222,22 @@ module BatchLoad
     private
 
     def save_hash(objects)
-      errs = []
+      l_errs = []
       objects.keys.each {|rank|
         object = objects[rank]
         unless object.blank?
           if object.class.to_s == 'Hash'
-            errs.push(save_hash(object))
+            l_errs.push(save_hash(object))
           else
             if object.valid?
               object.save
             else
-              errs.push(object.errors.messages)
+              l_errs.push(object.errors.messages)
             end
           end
         end
       }
-      errs.flatten
+      l_errs.flatten
     end
 
 # only for use in a TaxonWorks rails console
@@ -251,37 +254,6 @@ module BatchLoad
                                                parent_id:  @root.id,
                                                rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
                                                project_id: $project_id)
-    end
-
-# what to do before you try to load the entire file
-    def pre_load
-      @root = Protonym.find_or_create_by(name:       'Root',
-                                         rank_class: 'NomenclaturalRank',
-                                         parent_id:  nil,
-                                         project_id: $project_id)
-      @root.save! if @root.new_record?
-      @kingdom = Protonym.find_or_create_by(name:       'Animalia',
-                                            parent_id:  @root.id,
-                                            rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
-                                            project_id: $project_id)
-      @kingdom.save! if @kingdom.new_record?
-      @cat_no_pred = Predicate.find_or_create_by(name:       'catalogNumber',
-                                                 definition: 'The verbatim value imported from PSUC for "catalogNumber".',
-                                                 project_id: $project_id)
-      @cat_no_pred.save! if @cat_no_pred.new_record?
-      @geo_rem_kw = Keyword.find_or_create_by(name:       'georeferenceRemarks',
-                                              definition: 'The verbatim value imported from PSUC for "georeferenceRemarks".',
-                                              project_id: $project_id)
-      @geo_rem_kw.save! if @geo_rem_kw.new_record?
-
-      @repo = Repository.find_or_create_by(name:                 'Frost Entomological Museum, Penn State University',
-                                           url:                  'http://grbio.org/institution/frost-entomological-museum-penn-state-university',
-                                           status:               'Yes',
-                                           acronym:              'PSUC',
-                                           is_index_herbariorum: false)
-      @repo.save! if @repo.new_record?
-
-      true
     end
 
     def make_ba(row)
@@ -309,24 +281,22 @@ module BatchLoad
       retval
     end
 
-    def make_ns_id(row)
-      ns_id  = {}
-      cat_no = row['catalognumber'].split
-      unless cat_no.blank? # Namespace requires name and short_name to be present, and unique
-        name       = cat_no[0]
-        ns         = Namespace.find_or_create_by(institution: 'Penn State University Collection',
-                                                 name:        'Frost Entomological Museum',
-                                                 short_name:  name)
-        ns_id[:ns] = ns
+    def make_ident(row)
+      ident  = {}
+      cat_no = row['catalognumber'].split(' ')
+      unless cat_no.blank?
+        if @namespace.short_name != cat_no[0]
+          @errs.push("Namespace (#{cat_no[0]}) does not match import namespace (#{@namespace.short_name}).")
+        end
         unless cat_no[1].blank?
-          id = Identifier::Local::CatalogNumber.find_by(namespace: ns, identifier: cat_no[1])
+          id = Identifier::Local::CatalogNumber.find_by(namespace: @namespace, identifier: cat_no[1])
           if id.blank?
-            id = Identifier::Local::CatalogNumber.new(namespace: ns, identifier: cat_no[1])
+            id = Identifier::Local::CatalogNumber.new(namespace: @namespace, identifier: cat_no[1])
           end
-          ns_id[:id_cat_no] = id
+          ident[:id_cat_no] = id
         end
       end
-      ns_id
+      ident
     end
 
     def make_prsn(row)
