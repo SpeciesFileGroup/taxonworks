@@ -9,12 +9,10 @@ describe "AlternateValues", type: :feature do
   context 'signed in as a user' do
     before {
       sign_in_user_and_select_project
-
     }
+
     context 'with some record created' do
-
       before {
-
         k = Keyword.create!(name: 'Dictionary', definition: "Book with words", by: @user, project: @project)
 
         ['D.', 'Dict.', 'Di.'].each do |n|
@@ -24,13 +22,11 @@ describe "AlternateValues", type: :feature do
 
       describe 'GET /alternate_values' do
         before { visit alternate_values_path }
-
         it_behaves_like 'a_data_model_with_annotations_index'
       end
 
       describe 'GET /alternate_values/list' do
         before { visit list_alternate_values_path }
-
         it_behaves_like 'a_data_model_with_standard_list_and_records_created'
       end
 
@@ -38,51 +34,55 @@ describe "AlternateValues", type: :feature do
         let(:src_bibtex) { factory_girl_create_for_user(:soft_valid_bibtex_source_article, @user) }
         #  with a Source::BibTeX created (containing at least title)
 
-        specify 'community visible' do
-          # created source has no alternate values
+        specify 'created source has no alternate values' do
           expect(src_bibtex.alternate_valued?).to be_falsey
-
-          #  when I show that record
-          visit source_path(src_bibtex)
-
-          # then there is a link "Add alternate value"
-          expect(page).to have_link('Add alternate value')
-          expect(page.has_content?('Annotations')).to be_falsey
-          expect(page.has_content?('Alternate values')).to be_falsey
-
-          # when I click that link      
-          click_link('Add alternate value')
-
-          # I should see a checkbox allowing the user to create it within the project
-          expect(find_field('project_members_only').checked?).to be_falsey
-
-          # and I select "title" from Alternate value object attribute
-          select('title', from: 'alternate_value_alternate_value_object_attribute')
-
-          # spec/features/alternate_values_spec.rb
-          fill_in('Value', with: 'Alternate Title')
-
-          # and Type has "abbreviation" selected
-          select('abbreviation', from: 'Type')
-
-          # then when I click "Create Alternate value"
-          click_button('Create Alternate value')
-
-          #        I see the message "Alternate value was successfully created."
-          #        I see the alternate value rendered under Annotations/Alternate value in the show
-          expect(page).to have_content('Alternate value was successfully created.')
-          expect(page.has_content?('Annotations')).to be_truthy
-          expect(page.has_content?('Alternate values')).to be_truthy
-          expect(page).to have_content('Alternate Title, abbreviation of "I am a soft valid article" (on \'title\')')
-
-          # check that the alt. value created has a project_id of 0
-          expect(src_bibtex.alternate_valued?).to be_truthy
-          alt_v = src_bibtex.alternate_values[0]
-          expect(alt_v.project_id).to be_nil
-
-          #TODO check visible by different user
         end
-        # pending 'project only visible'
+
+        context 'when I show the record' do
+          before {  visit source_path(src_bibtex) }
+
+          specify 'it is community annotatable' do
+            expect(page).to have_link('Add alternate value')
+          end
+
+          context 'when I choose to annotate' do
+            before {click_link('Add alternate value')}
+
+            specify 'i should see a checkbox allowing the user to create it within the project' do
+              expect(find_field('project_members_only').checked?).to be_falsey
+            end
+
+            context 'when I fill in and click submit' do
+              before {  
+                select('title', from: 'alternate_value_alternate_value_object_attribute')
+                fill_in('Value', with: 'Alternate Title')
+                select('abbreviation', from: 'Type')
+                click_button('Create Alternate value')
+              }
+
+              specify 'the record was indeed annotated' do
+                expect(src_bibtex.alternate_valued?).to be_truthy
+              end
+
+              specify 'and the project_id was not set' do
+                alt_v = src_bibtex.alternate_values[0]
+                expect(alt_v.project_id).to be_nil
+              end
+
+              specify 'then I see the success message' do
+                expect(page).to have_content('Alternate value was successfully created.')
+              end
+
+              specify 'and I see the data presented' do
+                expect(page).to have_content(/Annotations/)
+                expect(page).to have_content(/Alternate values/)
+                expect(page).to have_content('"Alternate Title" abbreviation of title "I am a soft valid article"')
+              end
+            end
+
+            #TODO check visible by different user
+          end
+        end
       end
 
       # pending 'create an alternate value for a project object (controlled vocabulary)' do
@@ -122,27 +122,5 @@ describe "AlternateValues", type: :feature do
       #
       # end
     end
-
-    context 'resource routes' do
-      #  before { 
-      #    sign_in_user_and_select_project
-      #  }
-
-      # The scenario for creating alternate values has not been developed. 
-      # It must handle these three calls for logged in/not logged in users.
-      # It may be that these features are ultimately tested in a task.
-      describe 'POST /create' do
-      end
-
-      describe 'PATCH /update' do
-      end
-
-      describe 'DELETE /destroy' do
-      end
-
-      describe 'the partial form rendered in context of NEW/EDIT on some other page' do
-      end
-    end
-
   end
 end

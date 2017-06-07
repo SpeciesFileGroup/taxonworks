@@ -13,7 +13,10 @@ module AnnotationsHelper
              identifier_list_tag(object), 
              data_attribute_list_tag(object), 
              note_list_tag(object), 
-             tag_list_tag(object) ].compact.join.html_safe
+             tag_list_tag(object),
+             alternate_values_list_tag(object)
+          ].compact.join.html_safe
+
         end
       end
     end
@@ -21,8 +24,6 @@ module AnnotationsHelper
     # depictions
     # confidences
     # protocols
-    # alternate values
-
 
   end
 
