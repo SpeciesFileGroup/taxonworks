@@ -14,11 +14,15 @@
 	h1 {
 		color: #666;
 	}
-	.ui-menu-item, .area_item  {
-		span {
-			display: none;
+
+	.area_selection {
+		.ui-menu-item, .area_item  {
+			span {
+				display: none;
+			}
 		}
 	}
+	
 	.filter-button {
 		background-color: green;
 		background-image: image-url("filter.svg");
