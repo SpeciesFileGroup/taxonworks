@@ -125,6 +125,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 					$($(this).attr('data-filter-font')).animate({
 	            		fontSize: '100%'
 	        		});
+	        		$($(this).attr('data-filter-row')).parents('.history__record').show(255);
 	        		$($(this).attr('data-filter')).show(255);
 					$($(this).children()).attr('data-icon', 'show');
 				});
