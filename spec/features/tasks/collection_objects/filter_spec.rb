@@ -84,15 +84,13 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         describe '#set_otu', js: true do
           it 'renders count of collection objects based on a selected otu' do
             visit(collection_objects_filter_task_path)
-            c_wait = Capybara.default_max_wait_time
-            Capybara.default_max_wait_time = 60
             # c_wait = Capybara.default_max_wait_time
             # Capybara.default_max_wait_time = 60
             fill_autocomplete('otu_id_for_by_otu', with: 'F', select: otum1.id)
             find('#set_otu').click
             wait_for_ajax
+            fill_autocomplete('otu_id_for_by_otu', with: 'F', select: otum1.id)
             expect(find('#otu_count')).to have_content('1')
-            Capybara.default_max_wait_time = c_wait
             # Capybara.default_max_wait_time = c_wait
           end
         end
