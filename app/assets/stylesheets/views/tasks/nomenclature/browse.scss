@@ -20,10 +20,11 @@
 	@media screen and (min-width: 980px) {
 		.ui-autocomplete {
 			width: auto;
-		white-space: nowrap;
+			white-space: nowrap;
 		}
 	}
 	.soft_validation_anchor {
+		cursor: pointer;
 		margin-left: 5px;
 		display: none;
 	}
