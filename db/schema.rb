@@ -11,13 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170526025452) do
+ActiveRecord::Schema.define(version: 20170607175949) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "hstore"
   enable_extension "fuzzystrmatch"
+  enable_extension "hstore"
 
   create_table "alternate_values", force: :cascade do |t|
     t.text     "value",                            null: false
@@ -1533,6 +1533,7 @@ ActiveRecord::Schema.define(version: 20170526025452) do
     t.string   "cached"
     t.string   "verbatim_name"
     t.integer  "cached_valid_taxon_name_id"
+    t.text     "etymology"
   end
 
   add_index "taxon_names", ["created_by_id"], name: "index_taxon_names_on_created_by_id", using: :btree
