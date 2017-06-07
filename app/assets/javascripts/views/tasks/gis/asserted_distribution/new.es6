@@ -163,7 +163,7 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
         map.data.revertStyle();
         map.data.overrideStyle(event.feature, {fillColor: '#880000'});  // mid-level red
         map.data.overrideStyle(event.feature, {strokeWeight: 2});       //embolden borders
-        map.data.overrideStyle(event.feature, {icon: '<%= asset_path("map_icons/mm_20_brown.png") %>'});       // highlight markers
+        map.data.overrideStyle(event.feature, {icon: TW.vendor.lib.google.maps.mapIcons['brown']});       // highlight markers
       });
 
       map.data.addListener('mouseout', function (event) {
@@ -194,7 +194,7 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
         map.data.revertStyle();
         map.data.overrideStyle(event.feature, {fillColor: '#880000'});  // mid-level red
         map.data.overrideStyle(event.feature, {strokeWeight: 2});       //embolden borders
-        map.data.overrideStyle(event.feature, {icon: '<%= asset_path("map_icons/mm_20_brown.png") %>'});       // highlight markers
+        map.data.overrideStyle(event.feature, {icon: TW.vendor.lib.google.maps.mapIcons['brown']});       // highlight markers
       });
 
       map.data.addListener('mouseout', function (event) {

@@ -275,7 +275,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(@subgenus.get_original_combination.nil?).to be_truthy
             @subgenus.original_genus = @genus
             @subgenus.reload
-            expect(@subgenus.get_original_combination).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>)')
+            expect(@subgenus.get_original_combination).to eq('<i>Erythroneura</i>')
           end
 
           specify 'misspelled original combination' do

@@ -882,7 +882,7 @@ class TaxonName < ActiveRecord::Base
     d = full_name_hash
    
     elements = []
-    d['genus'] = [nil, '[' + self.original_genus.cached_html + ']'] if !d['genus'] && self.original_genus
+    d['genus'] = [nil, self.original_genus.cached_html] if !d['genus'] && self.original_genus
     d['genus'] = [nil, '[GENUS UNKNOWN]'] unless d['genus']
 
     elements.push("#{eo}#{d['genus'][1]}#{ec}") if d['genus']
@@ -1040,7 +1040,7 @@ class TaxonName < ActiveRecord::Base
       end
 
       original_name = self.verbatim_name.nil? ? self.name_with_misspelling(nil) : self.verbatim_name
-      if !relationships.empty? && relationships.collect{|i| i.subject_taxon_name_id}.last != self.id
+      if !relationships.empty? && relationships.collect{|i| i.subject_taxon_name}.last.lowest_rank_coordinated_taxon.id != self.lowest_rank_coordinated_taxon.id
         if self.rank_string =~ /Genus/
           if genus.blank?
             genus += '<i>' + original_name + '</i> '
@@ -1059,30 +1059,10 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  # TODO: @proceps is this used for all subclasses, or just Protonym?
+  # return (String)
   def get_genus_species(genus_option, self_option)
-    return nil if rank_class.nil?
-    genus = nil
-    name1 = nil
-
-    if genus_option == :original
-      genus = self.original_genus
-    elsif genus_option == :current
-      genus = self.ancestor_at_rank('genus')
-    else
-      return false
-    end
-    genus = genus.name unless genus.blank?
-
-    return nil if self.rank_string =~ /Species/ && genus.blank?
-    if self_option == :self
-      name1 = self.name
-    elsif self_option == :alternative
-      name1 = name_with_alternative_spelling
-    end
-    
-    return nil if genus.nil? && name1.nil?
-    (genus.to_s + ' ' + name1.to_s).squish
+  # see protonym
+    true
   end
 
   # return [Boolean] whether there is missaplication relationship

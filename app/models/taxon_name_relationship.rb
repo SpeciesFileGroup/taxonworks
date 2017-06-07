@@ -699,50 +699,61 @@ class TaxonNameRelationship < ActiveRecord::Base
   def sv_coordinated_taxa
     s = self.subject_taxon_name
     o = self.object_taxon_name
-    if self.type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn)/
+    if self.type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn|OriginalCombination|Combination|Typification)/
       s_new = s.lowest_rank_coordinated_taxon
-      o_new = o.lowest_rank_coordinated_taxon
+      if s != s_new
+        soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} to #{s_new.rank_class.rank_name}",
+                             fix: :sv_fix_coordinated_subject_taxa, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
+      end
+      if self.type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn)/
+        o_new = o.lowest_rank_coordinated_taxon
 
 
-      if o != o_new && self.subject_taxon_name != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+      if o != o_new && self.type_name != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
         soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} to #{o_new.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_taxa, success_message: "Relationship moved to  #{o_new.rank_class.rank_name}")
-      end
-      if s != s_new
-        soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} to #{s_new.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_taxa, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
-      end
-    
-    elsif self.type_name =~ /TaxonNameRelationship::(OriginalCombination|Combination|SourceClassifiedAs)/
-
-      list = s.list_of_coordinated_names + [s]
-      if s.rank_string =~ /Species/ # species group
-        s_new =  list.detect{|t| t.rank_class.rank_name == 'species'}
-      elsif s.rank_string =~ /Genus/
-        s_new =  list.detect{|t| t.rank_class.rank_name == 'genus'}
-      else
-        s_new = s
+                             fix: :sv_fix_coordinated_object_taxa, success_message: "Relationship moved to  #{o_new.rank_class.rank_name}")
       end
 
-      # TODO: Dima fix
-      return if s_new.nil?
-
-
-      if s != s_new
-        soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} to #{s_new.rank_class.rank_name}",
-                             fix: :sv_fix_combination_relationship, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
       end
+#    elsif self.type_name =~ /TaxonNameRelationship::(OriginalCombination|Combination)/
+
+#      list = s.list_of_coordinated_names + [s]
+#      if s.rank_string =~ /Species/ # species group
+#        s_new =  list.detect{|t| t.rank_class.rank_name == 'species'}
+#      elsif s.rank_string =~ /Genus/
+#        s_new =  list.detect{|t| t.rank_class.rank_name == 'genus'}
+#      else
+#        s_new = s
+#      end
+
+#      if s != s_new
+#        soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} to #{s_new.rank_class.rank_name}",
+#                             fix: :sv_fix_combination_relationship, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
+#      end
     end
   end
 
-  def sv_fix_coordinated_taxa
+  def sv_fix_coordinated_subject_taxa
     s = self.subject_taxon_name
-    o = self.object_taxon_name
     s_new = s.lowest_rank_coordinated_taxon
-    o_new = o.lowest_rank_coordinated_taxon
-    if o != o_new || s != s_new
-      self.object_taxon_name = o_new
+    if s != s_new
       self.subject_taxon_name = s_new
+      begin
+        TaxonNameRelationship.transaction do
+          self.save
+          return true
+        end
+      rescue
+      end
+    end
+    false
+  end
+
+  def sv_fix_coordinated_object_taxa
+    o = self.object_taxon_name
+    o_new = o.lowest_rank_coordinated_taxon
+    if o != o_new
+      self.object_taxon_name = o_new
       begin
         TaxonNameRelationship.transaction do
           self.save

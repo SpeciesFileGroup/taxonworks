@@ -54,7 +54,8 @@ module NomenclatureCatalog
     end
 
     def is_subsequent?
-      object == taxon_name && !citation.try(:is_original?)
+ #     object == taxon_name && !citation.try(:is_original?)
+      object == taxon_name && !citation.nil? && !citation.is_original?
     end
 
     def other_name

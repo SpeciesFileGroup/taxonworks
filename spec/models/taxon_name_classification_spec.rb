@@ -15,16 +15,16 @@ describe TaxonNameClassification, type: :model do
   }
 
   context 'meta/configuration' do
-    specify 'that .classification_label does not overlap' do
-      existing_names = []
-      TaxonNameClassification.descendants.each do |klass|
-        name = klass.new.classification_label
-        if name
-          expect(existing_names.include?(name)).to be(false), "#{name} from #{klass.name} is duplicated!"
-          existing_names.push name
-        end
-      end
-    end
+#    specify 'that .classification_label does not overlap' do
+#      existing_names = []
+#      TaxonNameClassification.descendants.each do |klass|
+#        name = klass.new.classification_label
+#        if name
+#          expect(existing_names.include?(name)).to be(false), "#{name} from #{klass.name} is duplicated!"
+#          existing_names.push name
+#        end
+#      end
+#    end
 
     specify 'missing and duplicate NOMEN_URI' do
       nomen_uris = []

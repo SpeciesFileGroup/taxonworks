@@ -211,6 +211,33 @@ class Protonym < TaxonName
     ay.blank? ? nil : ay
   end
 
+  def get_genus_species(genus_option, self_option)
+    return nil if rank_class.nil?
+    genus = nil
+    name1 = nil
+
+
+    if self.rank_string =~ /Species/
+      if genus_option == :original
+        genus = self.original_genus
+      elsif genus_option == :current
+        genus = self.ancestor_at_rank('genus')
+      else
+        return false
+      end
+      genus = genus.name unless genus.blank?
+      return nil if genus.blank?
+    end
+    if self_option == :self
+      name1 = self.name
+    elsif self_option == :alternative
+      name1 = name_with_alternative_spelling
+    end
+
+    return nil if genus.nil? && name1.nil?
+    (genus.to_s + ' ' + name1.to_s).squish
+  end
+
   def lowest_rank_coordinated_taxon
     list = [self] + list_of_coordinated_names
     if list.count == 1

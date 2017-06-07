@@ -18,7 +18,6 @@ Object.assign(TW.vendor.lib.google.maps.draw, {            // internally referre
 
       // does this need to be set?  would it alter fcdata if not set?
       var mapData = fcdata;
-
       //
       // find a bounding box for the map (and a map center?)
       //
@@ -83,7 +82,7 @@ Object.assign(TW.vendor.lib.google.maps.draw, {            // internally referre
       var map = new google.maps.Map(document.getElementById(map_canvas), mapOptions);
 
       map.data.setStyle({
-        icon: '<%= asset_path("map_icons/mm_20_gray.png") %>',
+        icon: TW.vendor.lib.google.maps.mapIcons['gray'],
         fillColor: '#222222',
         strokeOpacity: 0.5,
         strokeColor: "black",
@@ -312,7 +311,7 @@ Object.assign(TW.vendor.lib.google.maps.draw, {            // internally referre
           drawingModes: drawingModes
         },
         markerOptions: {
-          icon: '<%= asset_path("map_icons/mm_20_red.png") %>',
+          icon: TW.vendor.lib.google.maps.mapIcons['red'],
           editable: true
         },
         circleOptions: {

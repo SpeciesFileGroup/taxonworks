@@ -88,7 +88,7 @@ gem 'bibtex-ruby', '~> 4.4.2'
 gem 'citeproc-ruby', '~> 1.1.4'
 gem 'csl-styles', '~> 1.0.1.6'
 
-gem 'ref2bibtex', '~> 0.0.3'
+gem 'ref2bibtex', '~> 0.1.1'
 gem 'latex-decode', '~> 0.2.2'
 
 
