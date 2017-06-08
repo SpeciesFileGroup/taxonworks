@@ -17,12 +17,16 @@ branches:
     - eyelet
 addons:
   postgresql: "9.5"
-  firefox: "47.0.1"
+  firefox: "53.0.3"
 before_install:
   - sudo apt-get install -y postgresql-9.5 postgresql-contrib-9.5 libgeos-dev libproj-dev postgresql-9.5-postgis-2.2 postgresql-9.5-postgis-2.2-scripts 
   - nvm install node
   - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 0.24.6
   - export PATH=$HOME/.yarn/bin:$PATH
+  - wget https://github.com/mozilla/geckodriver/releases/download/v0.16.1/geckodriver-v0.16.1-linux64.tar.gz
+  - mkdir geckodriver
+  - tar -xzf geckodriver-v0.16.1-linux64.tar.gz -C geckodriver
+  - export PATH=$PATH:$PWD/geckodriver
 install:
   - bundle install
   - yarn
@@ -38,6 +42,7 @@ before_script:
   - bundle exec rake db:drop  
   - bundle exec rake db:create
   - bundle exec rake db:migrate HPS_ENV=test
+#  - geckodriver &
 # before_install:
 #  - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16"
 notifications:

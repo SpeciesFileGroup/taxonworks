@@ -21,21 +21,14 @@ require 'capybara/rspec'
 require 'vcr'
 require 'spec_helper'
 require 'paper_trail/frameworks/rspec'
+require 'selenium/webdriver'
 
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories. We should likely configure particular support to particular spec tests here.
 Dir[Rails.root.join("spec/support/**/*.rb")].sort.reverse.each { |f| require f }
 
-ActiveRecord::Base.connection.tables.each { |t| ActiveRecord::Base.connection.reset_pk_sequence!(t) }
-
-VCR.configure do |c|
-  c.default_cassette_options = { re_record_interval: 1.day } # Lets tolerate the penalty of querying external APIs once a day for now.
-  c.cassette_library_dir = 'spec/fixtures/vcr_cassettes'
-  c.hook_into :webmock
-  c.allow_http_connections_when_no_cassette = true
-end
-
-Capybara.default_max_wait_time = 8
+# ActiveRecord::Base.connection.tables.each { |t| ActiveRecord::Base.connection.reset_pk_sequence!(t) }
+# Capybara.default_max_wait_time = 8
 
 # Set in config/application_settings:
 #
@@ -46,7 +39,7 @@ Capybara.default_max_wait_time = 8
 #     firefox_binary_path: ''                          #  '/Applications/FirefoxDeveloperEdition.app/Contents/MacOS/firefox'
 #     chromedriver_path: '/usr/local/bin/chromedriver' # only possible when test_browser is 'chrome'   
 Capybara.register_driver :selenium do |app|
-  require 'selenium/webdriver'
+  Capybara.server_host = '0.0.0.0'
 
   case Settings.selenium_settings[:browser]
 
@@ -60,20 +53,22 @@ Capybara.register_driver :selenium do |app|
       }
     }
 
-    Capybara::Selenium::Driver.new(app, browser: :chrome, prefs: prefs)
+    Capybara::Selenium::Driver.new(
+      app, 
+      browser: :chrome, 
+      prefs: prefs,
+
+
+    )
 
   when 'firefox'
-    # Currently only 47.0.1 is fully supported 
-    # navigate to https://ftp.mozilla.org/pub/firefox/releases/47.0.1/
-    # download firefox-47.0.1.mac-x86_64.sdk.tar.bz2 
-    # mv ~/Downloads/firefox-sdk/bin/Firefox.app /usr/local/bin/firefox/Firefox.app
+    # https://github.com/SeleniumHQ/selenium/wiki/Ruby-Bindings#Tweaking_Firefox_preferences.md
     # 
     # update config/application_settings test should look _LIKE_ (YRMV):
     #
     #  test: 
     #    selenium:                             
     #      browser: 'firefox'
-    #      marionette: false
     #      firefox_binary_path: '/usr/local/bin/firefox/Firefox.app/Contents/MacOS/firefox'    
 
     p = Settings.selenium_settings[:firefox_binary_path]
@@ -83,23 +78,21 @@ Capybara.register_driver :selenium do |app|
 
     profile = Selenium::WebDriver::Firefox::Profile.new
 
-    # https://forum.shakacode.com/t/how-to-test-file-downloads-with-capybara/347
+    #  https://forum.shakacode.com/t/how-to-test-file-downloads-with-capybara/347
     profile["browser.download.dir"] = ::Features::Downloads::PATH.to_s
     profile['browser.download.folderList'] = 2
     profile['browser.helperApps.alwaysAsk.force'] = false
     profile['browser.download.manager.showWhenStarting'] = false
     profile['browser.helperApps.neverAsk.saveToDisk'] = 'TEXT/PLAIN;application/zip;'
 
-    # !! Marionette not successfully tested
-    # See https://developer.mozilla.org/en-US/docs/Mozilla/QA/Marionette/WebDriver
-    # Download and install 
-    # $ cp ~/Downloads/geckodriver-0.8.0-OSX /usr/local/bin/wire
-    # $ chmod 700 /usr/local/bin/wire
-    if Settings.selenium_settings[:marionette]
-      Capybara::Selenium::Driver.new(app, browser: :firefox, marionette: true, profile: profile)
-    else
-      Capybara::Selenium::Driver.new(app, browser: :firefox, profile: profile)
-    end
+    # prevent redirect
+    # profile["network.http.prompt-temp-redirect"] = false
+
+    Capybara::Selenium::Driver.new(
+      app, 
+      browser: :firefox, 
+      profile: profile
+    )
 
   else
     raise 'Error in selenium settings.'
