@@ -53,7 +53,13 @@ Capybara.register_driver :selenium do |app|
       }
     }
 
-    Capybara::Selenium::Driver.new(app, browser: :chrome, prefs: prefs)
+    Capybara::Selenium::Driver.new(
+      app, 
+      browser: :chrome, 
+      prefs: prefs,
+
+
+    )
 
   when 'firefox'
     # https://github.com/SeleniumHQ/selenium/wiki/Ruby-Bindings#Tweaking_Firefox_preferences.md
@@ -79,7 +85,14 @@ Capybara.register_driver :selenium do |app|
     profile['browser.download.manager.showWhenStarting'] = false
     profile['browser.helperApps.neverAsk.saveToDisk'] = 'TEXT/PLAIN;application/zip;'
 
-    Capybara::Selenium::Driver.new(app, browser: :firefox, profile: profile)
+    # prevent redirect
+    # profile["network.http.prompt-temp-redirect"] = false
+
+    Capybara::Selenium::Driver.new(
+      app, 
+      browser: :firefox, 
+      profile: profile
+    )
 
   else
     raise 'Error in selenium settings.'
