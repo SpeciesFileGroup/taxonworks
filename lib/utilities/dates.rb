@@ -441,6 +441,15 @@ module Utilities::Dates
           end_date_month = 1
           end_date_day = 2
         end
+      when :dd_mm_yy
+        start_date_year = 3
+        start_date_month = 2
+        start_date_day = 1
+        if match_data[1]
+          end_date_year = 3
+          end_date_month = 2
+          end_date_day = 1
+        end
       when :yyyy_mm_dd
         start_date_year = 1
         start_date_month = 2
@@ -560,6 +569,10 @@ module Utilities::Dates
       mm_dd_yy: {reg: /(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?([\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
                  hlp: "6/29/47 | 6/29/'47 | 7.10.94 | 5-17-97",
                  hdr: 'mdy'},
+
+      dd_mm_yy: {reg: /(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?([\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+                 hlp: "29/9/47 | 29/9/'47 | 7.10.94 | 15-07-97",
+                 hdr: 'dmy'},
 
       yyyy_mm_dd: {reg: /(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)/i,
                    hlp: "1994, 4.16 | '02-04-24",
