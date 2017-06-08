@@ -39,7 +39,7 @@ Dir[Rails.root.join("spec/support/**/*.rb")].sort.reverse.each { |f| require f }
 #     firefox_binary_path: ''                          #  '/Applications/FirefoxDeveloperEdition.app/Contents/MacOS/firefox'
 #     chromedriver_path: '/usr/local/bin/chromedriver' # only possible when test_browser is 'chrome'   
 Capybara.register_driver :selenium do |app|
-
+  Capybara.server_host = '0.0.0.0'
 
   case Settings.selenium_settings[:browser]
 
