@@ -95,17 +95,7 @@ RSpec.configure do |config|
   # particularly slow.
   #  config.profile_examples = 10
 
-  # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
-  # config.fixture_path = "#{::Rails.root}/spec/fixtures"
-  #
-  #
-  #
   config.before(:suite) do
-    # See also environments/test.rb
-    #if ENV['TAXONWORKS_TEST_WITH_PRECOMPILE']
-    #  %x[bundle exec rake assets:precompile]
-    #end
-    #
 
     DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys))
         
