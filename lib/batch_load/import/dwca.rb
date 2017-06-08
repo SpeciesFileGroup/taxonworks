@@ -30,7 +30,7 @@ module BatchLoad
         make_prsn:  %w(georeferencedby),
         make_tn:    %w(scientificname taxonrank family kingdom),
         make_td:    %w(scientificname basisofrecord individualcount organismquantity organismquantitytype recordedby),
-        make_otu:   %w(scientificname),
+        # make_otu:   %w(scientificname),
         make_co:    %w(basisofrecord individualcount organismquantity organismquantitytype recordedby),
         make_ba:    %w(associatedtaxa),
         make_notes: %w(georeferenceremarks locationremarks occurrenceremarks),
@@ -94,7 +94,14 @@ module BatchLoad
           @row_objects[task] = send(task, row)
         }
 
-        otu       = @row_objects[:make_otu]
+        t_n = @row_objects[:make_tn].select {|kee, val| val != nil}.values.first
+        # save the (possible new) taxon_name
+        t_n.save! if t_n.new_record?
+        # associate the taxon_name with the otu
+        otu = Otu.find_or_create_by(taxon_name: t_n)
+        otu.save! if otu.new_record?
+        @row_objects[:make_otu] = otu
+
         t_d       = @row_objects[:make_td]
         c_o       = @row_objects[:make_co]
         ident     = @row_objects[:make_ident]
@@ -106,13 +113,7 @@ module BatchLoad
         g_r_notes = notes[:g_r]
         c_e       = @row_objects[:make_ce]
         g_r       = @row_objects[:make_gr]
-        t_n       = @row_objects[:make_tn].select {|kee, val| val != nil}.values.first
 
-        # save the (possible new) taxon_name
-        t_n.save! if t_n.new_record?
-        # associate the taxon_name with the otu
-        otu.taxon_name = t_n
-        otu.save!
         c_e.save!
         # add notes to collecting_event, if required
         unless c_e_notes.blank?
@@ -203,7 +204,7 @@ module BatchLoad
         @rows[line_counter][:err]         = @errs
         @rows[line_counter][:warn]        = @warns
         line_counter                      += 1
-        break if line_counter > 25
+        # break if line_counter > 25
       end
       @total_lines = line_counter - 1
     end
@@ -299,6 +300,7 @@ module BatchLoad
       ident
     end
 
+# make_prsn:  %w(georeferencedby),
     def make_prsn(row)
       ppl  = {}
       # check for person's name
@@ -316,6 +318,7 @@ module BatchLoad
       ppl
     end
 
+# available data comes from Tulane geolocation action, reflected by the fact that the georefernce is a GeoLocate
     def make_gr(row)
       geo_by    = row['georeferencedby']
       # lat, long           = (lat.length > 0) ? lat : nil, (long.length > 0) ? long : nil
@@ -400,31 +403,29 @@ module BatchLoad
       ret_val
     end
 
-# available data comes from Tulane geolocation action, reflected by the fact that the georefernce is a GeoLocate
     def make_ce(row)
-      c_e = CollectingEvent.new(verbatim_datum:                   row['geodeticdatum'],
-                                verbatim_locality:                row['verbatimlocality'],
-                                verbatim_date:                    row['eventdate'],
-                                verbatim_label:                   row['locationremarks'],
-                                verbatim_geolocation_uncertainty: row['coordinateuncertaintyinmeters'],
-                                verbatim_latitude:                row['decimallatitude'],
-                                verbatim_longitude:               row['decimallongitude'],
-                                verbatim_collectors:              row['recordedby'])
-
-      c_e
+      CollectingEvent.new(verbatim_datum:                   row['geodeticdatum'],
+                          verbatim_locality:                row['verbatimlocality'],
+                          verbatim_date:                    row['eventdate'],
+                          verbatim_label:                   row['locationremarks'],
+                          verbatim_geolocation_uncertainty: row['coordinateuncertaintyinmeters'],
+                          verbatim_latitude:                row['decimallatitude'],
+                          verbatim_longitude:               row['decimallongitude'],
+                          verbatim_collectors:              row['recordedby'])
     end
 
     def make_otu(row)
       Otu.new
     end
 
-#         make_co:  %w(catalognumber basisofrecord individualcount organismquantity organismquantitytype recordedby),
+# make_co:  %w(catalognumber basisofrecord individualcount organismquantity organismquantitytype recordedby)
     def make_co(row)
       c_o = Specimen.new(total: row[:organismquantity])
 
       c_o
     end
 
+# make_tn:    %w(scientificname taxonrank family kingdom)
     def make_tn(row)
       ret_val      = {species: nil, genus: nil, tribe: nil}
       this_kingdom = row['kingdom']
@@ -505,14 +506,10 @@ module BatchLoad
         ret_val[this_rank] = t_n
       end
 
-      # t_n = Protonym.new(name:               snp[:scientificName][:canonical],
-      #                     cached_author_year: ,
-      #                     parent_id:          ,
-      #                     rank_class:         ,
-      #                     also_create_otu:    true)
       ret_val
     end
 
+# make_td:    %w(scientificname basisofrecord individualcount organismquantity organismquantitytype recordedby)
     def make_td(row)
       TaxonDetermination.new
     end
@@ -528,6 +525,9 @@ module BatchLoad
           => [:foo, :bar]
           2.3.3 :061 >
 =end
+# @param [Array] of Strings which represent the TSV file headers
+# @param [Hash] of the method names (as keys) for the tasks, with lists of required headers (as values)
+# @return [Array] of named tasks to perform, based on the presents or absence of headers in the header list
     def triage(headers, tasks)
       tasks.select {|kee, vlu| vlu & headers == vlu}.keys
     end
