@@ -5,7 +5,7 @@ module Tasks::Import::Dwca::PsuImportHelper
     color  = 'red' unless row[:err].blank?
     output = "<li class=#{color}>"
     output += (row[:row].to_s + '<br>')
-    output += ap(row[:row_objects])
+    output += ap(row[:row_objects][:make_ce])
     unless row[:warn].blank?
       row[:warn].each do |warning|
         output += content_tag(:ul, content_tag(:li, warning, class: 'brown'))

@@ -114,11 +114,11 @@ module BatchLoad
         c_e       = @row_objects[:make_ce]
         g_r       = @row_objects[:make_gr]
 
-        c_e.save!
+        c_e.save! if c_e.new_record?
         # add notes to collecting_event, if required
         unless c_e_notes.blank?
           c_e_notes.keys.each {|kee|
-            c_e_notes[kee].note_object = c_o
+            c_e_notes[kee].note_object = c_e
           }
         end
         # associate the collection_object with the collecting_event
@@ -127,7 +127,7 @@ module BatchLoad
         c_o.identifiers << id_cat_no
         c_o.repository = @repo
         c_o.save!
-        # add the possible biological_associations, new2 otu to collection_object
+        # add the possible biological_associations, new? otu to collection_object
         unless b_a_s.blank?
           b_a_s.keys.each {|kee|
             b_a                                = b_a_s[kee]
@@ -204,7 +204,7 @@ module BatchLoad
         @rows[line_counter][:err]         = @errs
         @rows[line_counter][:warn]        = @warns
         line_counter                      += 1
-        # break if line_counter > 25
+        break if line_counter > 10
       end
       @total_lines = line_counter - 1
     end
@@ -404,14 +404,39 @@ module BatchLoad
     end
 
     def make_ce(row)
-      CollectingEvent.new(verbatim_datum:                   row['geodeticdatum'],
-                          verbatim_locality:                row['verbatimlocality'],
-                          verbatim_date:                    row['eventdate'],
-                          verbatim_label:                   row['locationremarks'],
-                          verbatim_geolocation_uncertainty: row['coordinateuncertaintyinmeters'],
-                          verbatim_latitude:                row['decimallatitude'],
-                          verbatim_longitude:               row['decimallongitude'],
-                          verbatim_collectors:              row['recordedby'])
+      d_s         = row['eventdate']
+      date_params = {}
+      unless d_s.blank?
+        trials = Utilities::Dates.hunt_dates(d_s, [:yyyy_mm_dd])
+        trial  = trials[:yyyy_mm_dd]
+        unless trial.blank?
+          date_params[:start_date_day]   = trial[:start_date_day]
+          date_params[:start_date_month] = trial[:start_date_month]
+          date_params[:start_date_year]  = trial[:start_date_year]
+          edd                            = trial[:end_date_day]
+          date_params[:end_date_day]     = edd unless edd.blank?
+          edm                            = trial[:end_date_month]
+          date_params[:end_date_month]   = edm unless edm.blank?
+          edy                            = trial[:end_date_year]
+          date_params[:end_date_year]    = edy unless edy.blank?
+        end
+      end
+      hunt_params = {project_id:                       $project_id,
+                     verbatim_datum:                   row['geodeticdatum'],
+                     verbatim_locality:                row['verbatimlocality'],
+                     verbatim_date:                    d_s,
+                     verbatim_label:                   row['locationremarks'],
+                     verbatim_geolocation_uncertainty: row['coordinateuncertaintyinmeters'],
+                     verbatim_latitude:                row['decimallatitude'],
+                     verbatim_longitude:               row['decimallongitude'],
+                     verbatim_collectors:              row['recordedby']}.merge!(date_params)
+      c_e         = CollectingEvent.find_or_create_by(hunt_params)
+      if c_e.new_record?
+        a = d_s
+      else
+        b = d_s
+      end
+      c_e
     end
 
     def make_otu(row)
