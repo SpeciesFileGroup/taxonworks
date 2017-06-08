@@ -323,7 +323,10 @@ module Utilities::Dates
       unless matches.blank?
         trials[kee][:method] = kee
         trials[kee][:piece] = {}
-        extract_dates(trials[kee], matches)
+        trial = extract_dates(trials[kee], matches)
+        if trial[:start_date_day].to_i > 31 || trial[:end_date_day].to_i > 31 || trial[:start_date_month].to_i > 12 || trial[:end_date_month].to_i > 12
+          trials[kee] = {}
+        end
       end
     }
     trials
