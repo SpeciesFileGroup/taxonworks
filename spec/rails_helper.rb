@@ -101,7 +101,7 @@ Capybara.register_driver :selenium do |app|
       app, 
       browser: :firefox, 
       profile: profile # ,
- #     driver_path: '/usr/local/bundle/bin/geckodriver'
+      driver_path: '~/.rvm/gems/ruby-2.3.3/bin/geckodriver'
     )
 
   else
