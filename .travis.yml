@@ -23,6 +23,7 @@ before_install:
   - nvm install node
   - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 0.24.6
   - export PATH=$HOME/.yarn/bin:$PATH
+  - export PATH=$HOME/.rvm/gems/ruby-2.3.3/bin:$PATH
 # - wget https://github.com/mozilla/geckodriver/releases/download/v0.16.1/geckodriver-v0.16.1-linux64.tar.gz
 # - mkdir geckodriver
 # - tar -xzf geckodriver-v0.16.1-linux64.tar.gz -C geckodriver
@@ -42,9 +43,6 @@ before_script:
   - bundle exec rake db:drop  
   - bundle exec rake db:create
   - bundle exec rake db:migrate HPS_ENV=test
-#  - geckodriver &
-# before_install:
-#  - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16"
 notifications:
   email:
     - diapriid@gmail.com 

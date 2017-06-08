@@ -100,8 +100,8 @@ Capybara.register_driver :selenium do |app|
     Capybara::Selenium::Driver.new(
       app, 
       browser: :firefox, 
-      profile: profile,
-      driver_path: '/usr/local/bundle/bin/geckodriver'
+      profile: profile # ,
+ #     driver_path: '/usr/local/bundle/bin/geckodriver'
     )
 
   else
