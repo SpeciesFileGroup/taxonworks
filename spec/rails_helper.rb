@@ -63,17 +63,12 @@ Capybara.register_driver :selenium do |app|
     Capybara::Selenium::Driver.new(app, browser: :chrome, prefs: prefs)
 
   when 'firefox'
-    # Currently only 47.0.1 is fully supported 
-    # navigate to https://ftp.mozilla.org/pub/firefox/releases/47.0.1/
-    # download firefox-47.0.1.mac-x86_64.sdk.tar.bz2 
-    # mv ~/Downloads/firefox-sdk/bin/Firefox.app /usr/local/bin/firefox/Firefox.app
     # 
     # update config/application_settings test should look _LIKE_ (YRMV):
     #
     #  test: 
     #    selenium:                             
     #      browser: 'firefox'
-    #      marionette: false
     #      firefox_binary_path: '/usr/local/bin/firefox/Firefox.app/Contents/MacOS/firefox'    
 
     p = Settings.selenium_settings[:firefox_binary_path]
@@ -83,23 +78,14 @@ Capybara.register_driver :selenium do |app|
 
     profile = Selenium::WebDriver::Firefox::Profile.new
 
-    # https://forum.shakacode.com/t/how-to-test-file-downloads-with-capybara/347
+    #  https://forum.shakacode.com/t/how-to-test-file-downloads-with-capybara/347
     profile["browser.download.dir"] = ::Features::Downloads::PATH.to_s
     profile['browser.download.folderList'] = 2
     profile['browser.helperApps.alwaysAsk.force'] = false
     profile['browser.download.manager.showWhenStarting'] = false
     profile['browser.helperApps.neverAsk.saveToDisk'] = 'TEXT/PLAIN;application/zip;'
 
-    # !! Marionette not successfully tested
-    # See https://developer.mozilla.org/en-US/docs/Mozilla/QA/Marionette/WebDriver
-    # Download and install 
-    # $ cp ~/Downloads/geckodriver-0.8.0-OSX /usr/local/bin/wire
-    # $ chmod 700 /usr/local/bin/wire
-    if Settings.selenium_settings[:marionette]
-      Capybara::Selenium::Driver.new(app, browser: :firefox, marionette: true, profile: profile)
-    else
-      Capybara::Selenium::Driver.new(app, browser: :firefox, profile: profile)
-    end
+    Capybara::Selenium::Driver.new(app, browser: :firefox, profile: profile)
 
   else
     raise 'Error in selenium settings.'

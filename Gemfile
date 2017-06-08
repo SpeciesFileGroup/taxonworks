@@ -157,7 +157,8 @@ group :test, :development do
   gem 'inch', '~> 0.7'
   gem 'byebug', '~> 9.0.5', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_girl_rails', '~> 4.7'
-  gem 'selenium-webdriver', '~> 2.53.4'
+  gem 'selenium-webdriver', '~> 3.4.0' # 2.53.4'
+  gem 'geckodriver-helper'
 end
 
 group :development do
@@ -179,11 +180,11 @@ end
 group :test do
   gem 'rspec', '~> 3.4'
   gem 'coveralls', '~> 0.8.13', require: false
-  gem 'capybara', '~> 2.11.0'
+  gem 'capybara', '~> 2.14.1'
   gem 'timecop', '~> 0.8.1'
   gem 'webmock', '~> 2.1.0'
   gem 'vcr', '~> 3.0.0'
-  gem 'database_cleaner', '~> 1.5.3'
+  gem 'database_cleaner', '~> 1.6.0'
 # gem 'simplecov', :require => false
 # gem 'simplecov-rcov', :require => false
 end

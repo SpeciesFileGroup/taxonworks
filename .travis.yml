@@ -17,7 +17,7 @@ branches:
     - eyelet
 addons:
   postgresql: "9.5"
-  firefox: "47.0.1"
+  firefox: "53.0.3"
 before_install:
   - sudo apt-get install -y postgresql-9.5 postgresql-contrib-9.5 libgeos-dev libproj-dev postgresql-9.5-postgis-2.2 postgresql-9.5-postgis-2.2-scripts 
   - nvm install node
