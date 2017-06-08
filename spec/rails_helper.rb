@@ -16,12 +16,13 @@ ActiveRecord::Migration.maintain_test_schema!
 
 require 'awesome_print' 
 require 'rspec/rails'
+# require 'selenium/webdriver'
 require 'capybara/rails'
 require 'capybara/rspec'
 require 'vcr'
 require 'spec_helper'
 require 'paper_trail/frameworks/rspec'
-require 'selenium/webdriver'
+
 
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories. We should likely configure particular support to particular spec tests here.
@@ -38,11 +39,14 @@ Dir[Rails.root.join("spec/support/**/*.rb")].sort.reverse.each { |f| require f }
 #     marionette: true                                 # only possible when test_browser is 'firefox', and https://github.com/mozilla/geckodriver/releases
 #     firefox_binary_path: ''                          #  '/Applications/FirefoxDeveloperEdition.app/Contents/MacOS/firefox'
 #     chromedriver_path: '/usr/local/bin/chromedriver' # only possible when test_browser is 'chrome'   
+
+
+
+
 Capybara.register_driver :selenium do |app|
-  Capybara.server_host = '0.0.0.0'
 
+  # Settings are taken from config/application_settings.yml
   case Settings.selenium_settings[:browser]
-
   when 'chrome'
     # https://github.com/seleniumhq/selenium-google-code-issue-archive/issues/5929
     prefs = {
@@ -57,9 +61,8 @@ Capybara.register_driver :selenium do |app|
       app, 
       browser: :chrome, 
       prefs: prefs,
-
-
     )
+    
 
   when 'firefox'
     # https://github.com/SeleniumHQ/selenium/wiki/Ruby-Bindings#Tweaking_Firefox_preferences.md
@@ -76,6 +79,9 @@ Capybara.register_driver :selenium do |app|
       Selenium::WebDriver::Firefox::Binary.path = p
     end 
 
+#   caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {"binary" => <path to chrome (example: chrome portable)>})
+#   Capybara::Selenium::Driver.new(app, :browser => :chrome, :driver_path => <path to chrome driver>, :desired_capabilities => caps)
+
     profile = Selenium::WebDriver::Firefox::Profile.new
 
     #  https://forum.shakacode.com/t/how-to-test-file-downloads-with-capybara/347
@@ -91,7 +97,8 @@ Capybara.register_driver :selenium do |app|
     Capybara::Selenium::Driver.new(
       app, 
       browser: :firefox, 
-      profile: profile
+      profile: profile,
+      driver_path: '/usr/local/bundle/bin/geckodriver'
     )
 
   else

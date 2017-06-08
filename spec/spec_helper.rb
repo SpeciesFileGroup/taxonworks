@@ -124,8 +124,13 @@ RSpec.configure do |config|
 
   # Capybara requires truncation strategy!! 
   config.before(:each, js: true) do
+    Capybara.current_driver = Capybara.javascript_driver
     DatabaseCleaner.strategy = :truncation, { except: %w(spatial_ref_sys) }
     Features::Downloads.clear_downloads
+  end
+
+  config.after(:each, js: true) do
+    Capybara.use_default_driver
   end
 
   config.before(:each) do
