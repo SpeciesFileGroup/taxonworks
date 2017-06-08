@@ -41,11 +41,14 @@ Dir[Rails.root.join("spec/support/**/*.rb")].sort.reverse.each { |f| require f }
 #     chromedriver_path: '/usr/local/bin/chromedriver' # only possible when test_browser is 'chrome'   
 
 
+# Settings are taken from config/application_settings.yml
 
+# Potentially informative
+# https://github.com/SeleniumHQ/docker-selenium/issues/198
 
 Capybara.register_driver :selenium do |app|
 
-  # Settings are taken from config/application_settings.yml
+
   case Settings.selenium_settings[:browser]
   when 'chrome'
     # https://github.com/seleniumhq/selenium-google-code-issue-archive/issues/5929
