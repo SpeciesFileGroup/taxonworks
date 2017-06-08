@@ -21,21 +21,14 @@ require 'capybara/rspec'
 require 'vcr'
 require 'spec_helper'
 require 'paper_trail/frameworks/rspec'
+require 'selenium/webdriver'
 
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories. We should likely configure particular support to particular spec tests here.
 Dir[Rails.root.join("spec/support/**/*.rb")].sort.reverse.each { |f| require f }
 
-ActiveRecord::Base.connection.tables.each { |t| ActiveRecord::Base.connection.reset_pk_sequence!(t) }
-
-VCR.configure do |c|
-  c.default_cassette_options = { re_record_interval: 1.day } # Lets tolerate the penalty of querying external APIs once a day for now.
-  c.cassette_library_dir = 'spec/fixtures/vcr_cassettes'
-  c.hook_into :webmock
-  c.allow_http_connections_when_no_cassette = true
-end
-
-Capybara.default_max_wait_time = 8
+# ActiveRecord::Base.connection.tables.each { |t| ActiveRecord::Base.connection.reset_pk_sequence!(t) }
+# Capybara.default_max_wait_time = 8
 
 # Set in config/application_settings:
 #
@@ -46,7 +39,6 @@ Capybara.default_max_wait_time = 8
 #     firefox_binary_path: ''                          #  '/Applications/FirefoxDeveloperEdition.app/Contents/MacOS/firefox'
 #     chromedriver_path: '/usr/local/bin/chromedriver' # only possible when test_browser is 'chrome'   
 Capybara.register_driver :selenium do |app|
-  require 'selenium/webdriver'
 
   case Settings.selenium_settings[:browser]
 
@@ -63,6 +55,7 @@ Capybara.register_driver :selenium do |app|
     Capybara::Selenium::Driver.new(app, browser: :chrome, prefs: prefs)
 
   when 'firefox'
+    # https://github.com/SeleniumHQ/selenium/wiki/Ruby-Bindings#Tweaking_Firefox_preferences.md
     # 
     # update config/application_settings test should look _LIKE_ (YRMV):
     #
