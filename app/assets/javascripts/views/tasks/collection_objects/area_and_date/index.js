@@ -32,7 +32,7 @@ Object.assign(TW.views.tasks.collection_objects, {
       });
 
       $("#set_otu").click(function (event) {
-        $("#otu_count").text('????');
+        $("#otu_count").text('1');
         $("#select_otu").mx_spinner('show');
 
         $.get('set_otu', $("#set_otu_form").serialize(), function (local_data) {
