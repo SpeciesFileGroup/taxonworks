@@ -100,8 +100,8 @@ Capybara.register_driver :selenium do |app|
     Capybara::Selenium::Driver.new(
       app, 
       browser: :firefox, 
-      profile: profile, # ,
-      driver_path: '~/.rvm/gems/ruby-2.3.3/bin/geckodriver'
+      profile: profile #, # ,
+     # driver_path: '~/.rvm/gems/ruby-2.3.3/bin/geckodriver'
     )
 
   else
