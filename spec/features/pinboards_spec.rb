@@ -13,25 +13,21 @@ RSpec.describe "Pinboards", type: :feature do
         end
 
         specify 'a Pin link is visible' do 
-          expect(page.has_link?('Pin')).to be_truthy
+          expect(page).to have_css('a.pin-button')
         end
 
         context 'when Pin is clicked' do
-          before { click_link('Pin') }
+          before { find('.pin-button').click}
 
           specify 'page refreshes and shows as Pinned' do
-            expect(page).to have_content('Pinned')
-          end
-
-          specify 'and link is styled differently' do
-            expect(page).to have_css('span.pin-button.disable-button')
+            expect(page).to have_css('a.unpin-button')
           end
 
           context 'when clicked again reverts' do
-            before { click_link('Pinned') }
+            before { find('.unpin-button').click}
 
             specify 'a Pin link is visible' do 
-              expect(page.has_link?('Pin')).to be_truthy
+              expect(page).to have_css('a.pin-button')
             end
           end
 
