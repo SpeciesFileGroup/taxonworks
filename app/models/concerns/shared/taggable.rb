@@ -20,8 +20,8 @@ module Shared::Taggable
     def identical_new_keywords_are_prevented
       a = []
       tags.each do |t| 
-        errors.add(:base, 'identical keyword attempt') if a.include?(t.keyword.attributes)
-        a.push t.keyword.attributes
+        errors.add(:base, 'identical keyword attempt') if a.include?({:id => t.keyword.id, :name => t.keyword.name, :definition => t.keyword.definition})
+        a.push ({:id => t.keyword.id, :name => t.keyword.name, :definition => t.keyword.definition})
       end
     end
   end
