@@ -12,7 +12,7 @@ RSpec.describe "Pinboards", type: :feature do
           visit otu_path(o)
         end
 
-        specify 'a Pin link is visible' do # fails with js: true, likely because of js styling of items in recent list
+        specify 'a Pin link is visible' do 
           expect(page.has_link?('Pin')).to be_truthy
         end
 
@@ -23,8 +23,16 @@ RSpec.describe "Pinboards", type: :feature do
             expect(page).to have_content('Pinned')
           end
 
-          specify 'and link is gone (should be changed to "Unpin"!)' do
-            expect(page.has_link?('Pin')).to be_falsey
+          specify 'and link is styled differently' do
+            expect(page).to have_css('span.pin-button.disable-button')
+          end
+
+          context 'when clicked again reverts' do
+            before { click_link('Pinned') }
+
+            specify 'a Pin link is visible' do 
+              expect(page.has_link?('Pin')).to be_truthy
+            end
           end
 
         end

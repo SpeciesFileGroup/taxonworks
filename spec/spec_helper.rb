@@ -75,7 +75,6 @@ RSpec.configure do |config|
     config.default_formatter = 'doc'
   end
 
-
   # TaxonWorks tests suites
   #
   # Tests that check/test the testing framework itself
