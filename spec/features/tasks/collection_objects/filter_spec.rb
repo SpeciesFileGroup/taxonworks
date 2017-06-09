@@ -55,9 +55,16 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         end
 
         describe '#set_otu', js: true do
-          before { visit(collection_objects_filter_task_path) }
+          let(:otu_test) {  factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
+          let(:specimen) {   factory_girl_create_for_user_and_project(:valid_specimen, @user, @project) }
+
+          before { 
+            specimen.otus << otu_test
+            visit(collection_objects_filter_task_path) 
+          }
+
           it 'renders count of collection objects based on a selected otu' do
-            fill_autocomplete('otu_id_for_by_otu', with: otum1.name, select: otum1.id)
+            fill_autocomplete('otu_id_for_by_otu', with: otu_test.name, select: otu_test.id)
             find('#set_otu').click
             expect(find('#otu_count')).to have_text('1', :wait => 5)
           end
