@@ -49,10 +49,9 @@ RUN chmod +x /etc/my_init.d/init.sh && \
     mkdir /app/tmp && \
     mkdir /app/log && \
     rm -f /etc/service/nginx/down
+RUN chown app:app -R /app
 
 ENV RAILS_ENV production
-
-# RUN bundle exec rake assets:precompile
 
 CMD ["/sbin/my_init"]
 

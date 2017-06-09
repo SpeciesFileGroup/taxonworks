@@ -23,7 +23,7 @@ metadata:
   name: taxonworks
   namespace: tw
 spec:
-  replicas: 1
+  replicas: 3
   template:
     metadata:
       namespace: tw
@@ -44,7 +44,7 @@ spec:
             claimName: taxonworks-staging-pv-claim
       containers:
         - name: taxonworks
-          image: sfgrp/taxonworks:0.0.3
+          image: sfgrp/taxonworks:0.0.5
           ports:
             - containerPort: 80
               name: http
@@ -57,7 +57,7 @@ spec:
               name: taxonworks-staging-vol
           livenessProbe:
             httpGet:
-              path: /
+              path: /api
               port: 80
             initialDelaySeconds: 180
             timeoutSeconds: 3
