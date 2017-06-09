@@ -87,6 +87,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             # c_wait = Capybara.default_max_wait_time
             # Capybara.default_max_wait_time = 60
             fill_autocomplete('otu_id_for_by_otu', with: otum1.name, select: otum1.id)
+            sleep(10)
             find('#set_otu').click
             expect(find('#otu_count')).to have_text('1', :wait => 5)
             # Capybara.default_max_wait_time = c_wait

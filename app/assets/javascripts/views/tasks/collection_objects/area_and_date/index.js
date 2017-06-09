@@ -61,11 +61,10 @@ Object.assign(TW.views.tasks.collection_objects, {
     }
 
     $("#set_otu").click(function (event) {
-        $("#otu_count").text('2');
+        $("#otu_count").text('????');
         $("#select_otu").mx_spinner('show');
         $.get('set_otu', $("#set_otu_form").serialize(), function (local_data) {
-          var popcorn = local_data;
-          $("#otu_count").text('1');
+          $("#otu_count").text(local_data.html);
           $("#select_otu").mx_spinner('hide');
           that.validateResult();
         }, 'json');
