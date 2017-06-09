@@ -85,7 +85,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             click_button('Set area')
             wait_for_ajax
             find('#find_area_and_date_commit').click
-            find('#result_span', visible: false, text: '3')
+            find('#result_span', visible: false, text: '10')
           }
           
           it 'renders count of objects and table found using a drawn area and date range' do
