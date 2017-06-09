@@ -162,10 +162,10 @@ group :test, :development do
 end
 
 group :development do
-#  gem 'tunemygc'
-  gem 'ruby-prof'
+# gem 'tunemygc'
+  gem 'ruby-prof', '~> 0.16.2'
   gem 'better_errors', '~> 2.0'
-  gem 'binding_of_caller'
+  gem 'binding_of_caller', '~> 0.7'
   gem 'spring-commands-rspec', '~> 1.0.2'
   gem 'guard-rspec', '~> 4.7', require: false
   gem 'parallel_tests', '~> 2.5.0'

@@ -486,7 +486,7 @@ DEPENDENCIES
   best_in_place (~> 3.1.0)
   better_errors (~> 2.0)
   bibtex-ruby (~> 4.4.2)
-  binding_of_caller
+  binding_of_caller (~> 0.7)
   biodiversity
   byebug (~> 9.0.5)
   capistrano-npm
@@ -547,7 +547,7 @@ DEPENDENCIES
   rspec-activemodel-mocks (~> 1.0.2)
   rspec-rails (~> 3.4)
   rubocop (~> 0.49.0)
-  ruby-prof
+  ruby-prof (~> 0.16.2)
   rubyzip (~> 1.2.1)
   sass-rails (~> 5.0.6)
   sdoc
