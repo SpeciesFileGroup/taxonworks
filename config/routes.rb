@@ -1,5 +1,6 @@
 TaxonWorks::Application.routes.draw do
 
+  get :ping, controller: 'ping',  defaults: { format: :json }
 
   # All models that use data controllers should include this concern.
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.

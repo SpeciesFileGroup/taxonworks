@@ -44,7 +44,7 @@ spec:
             claimName: taxonworks-staging-pv-claim
       containers:
         - name: taxonworks
-          image: sfgrp/taxonworks:0.0.6
+          image: sfgrp/taxonworks:0.0.8
           ports:
             - containerPort: 80
               name: http
@@ -55,9 +55,15 @@ spec:
               name: taxonworks-backup-vol
             - mountPath: /staging
               name: taxonworks-staging-vol
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 80
+            initialDelaySeconds: 30 
+            timeoutSeconds: 3
           livenessProbe:
             httpGet:
-              path: /api
+              path: /ping
               port: 80
             initialDelaySeconds: 180
             timeoutSeconds: 3
