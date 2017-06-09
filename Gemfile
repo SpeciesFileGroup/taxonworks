@@ -1,13 +1,7 @@
 source 'https://rubygems.org'
-# only solutions for osx:
-# rvm osx-ssl-certs update all
-# https://rvm.io/support/fixing-broken-ssl-certificates
-#
-# if above doesn't work, try:
-  # brew update # then
-  # brew upgrade openssl
 
 ruby '~> 2.3'
+
 gem 'rake', '~> 11.1'
 gem 'rails', '~> 4.2.7.1'
 gem 'pg', '~> 0.18.4'
@@ -33,7 +27,7 @@ gem 'postgresql_cursor', '~> 0.6.1'
 # API/controllers
 gem 'rabl', '~> 0.13.0' # Used?!
 gem 'jbuilder', '~> 2.5.0'
-gem 'responders', '~> 2.4' # used?  respond_with_bip?!
+gem 'responders', '~> 2.4' # Used?!
 
 # Email
 gem 'exception_notification', '~> 4.2.1'
@@ -46,7 +40,7 @@ gem 'delayed_job_active_record', '~> 4.1.2'
 gem 'validates_timeliness', '~> 4.0.0'
 gem 'paper_trail', '~> 4.0.2'
 gem 'acts_as_list', '~> 0.8.0'
-gem 'modularity', '~> 2.0.1' # used!?
+gem 'modularity', '~> 2.0.1' # Used!?
 gem 'paperclip', '~> 4.3.6'
 gem 'paperclip-meta', '~> 2.0'
 
@@ -64,15 +58,13 @@ gem 'turbolinks', '~> 2.5.3'
 gem 'jquery-turbolinks', '~> 2.1'
 
 # BibTeX handling
-gem 'csl', '~> 1.4.3' # git: 'https://github.com/inkshuk/csl-ruby'
+gem 'csl', '~> 1.4.3'
 gem 'bibtex-ruby', '~> 4.4.2'
 gem 'citeproc-ruby', '~> 1.1.4'
 gem 'csl-styles', '~> 1.0.1.6'
 gem 'ref2bibtex', '~> 0.1.1'
 gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.0'
-# gem 'anystyle-parser' # use when we stabilize
-
 
 # UI/UX
 gem 'chartkick', '~> 2.1.3'
@@ -93,7 +85,7 @@ gem 'biodiversity', '~> 3.4.1'
 gem 'awesome_print', '~> 1.7'
 gem 'indefinite_article', '~> 0.2.4'
 gem 'rainbow', '~> 2.2.2'
-gem 'term-ansicolor', '~> 1.4.0'  # DEPRECATED (will be gone in 5.0 branch)
+gem 'term-ansicolor', '~> 1.4.0' # DEPRECATED
 gem 'chronic', '~> 0.10'
 
 # Deploy, deprecated soon
@@ -106,7 +98,7 @@ group :test, :development do
   gem 'inch', '~> 0.7'
   gem 'byebug', '~> 9.0.6', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_girl_rails', '~> 4.7'
-  gem 'selenium-webdriver', '~> 3.4.0' # 2.53.4'
+  gem 'selenium-webdriver', '~> 3.4.0' 
   gem 'geckodriver-helper', '~> 0.0.3'
 end
 
@@ -123,7 +115,7 @@ group :development do
 end
 
 group :doc do
-  gem 'sdoc', require: false # bundle exec rake doc:rails generates the API under doc/api.
+  gem 'sdoc', require: false 
 end
 
 group :test do
@@ -142,4 +134,5 @@ group :production do
   gem 'execjs', '~> 2.7.0'
   gem 'passenger', '~> 5.0.30'
 end
+
 
