@@ -42,7 +42,7 @@ describe Tag, type: :model, group: [:annotators, :tags] do
         tag.save!
         dupe_tag = FactoryGirl.build(:tag, keyword: k, tag_object: otu)
         dupe_tag.valid?
-        expect(dupe_tag.errors.include?(:keyword_id)).to be_truthy
+        expect(dupe_tag.errors.include?(:tag_object_id)).to be_truthy
       end
 
       specify 'a tagged object is only tagged once per keyword using nested attributes' do
