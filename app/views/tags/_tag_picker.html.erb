@@ -29,7 +29,7 @@
   <div class="keyword_selection">
     <div><%= text_field_tag "keyword_picker_autocomplete", nil, class: 'keyword_picker_autocomplete', placeholder: "Keyword" %></div>
 
-    <div class="new_keyword" hidden>
+    <div class="new_keyword">
       <div class="keyword_picker_form">
         <%= f.fields_for Keyword.new do |fp| %>
           <div class="field">
@@ -38,7 +38,7 @@
           </div>
         <% end %>
 
-        <%= link_to "add new", '#', id: :keyword_picker_add_new, hidden: true, class: [:add_total_row] %>
+        <%= link_to "add new", '#', id: :keyword_picker_add_new, class: [:add_total_row] %>
       </div>
     </div>
   </div>

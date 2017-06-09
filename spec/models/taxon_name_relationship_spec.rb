@@ -554,7 +554,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       end
 
       context 'secondary homonyms missing combination' do
-        let(:message) { 'No combination available showing both species placed in the same genus' }
+        let(:message) { 'No combination available showing <i>Aus vitis</i> McAtee, 1900 and <i>Bus vitis</i> McAtee, 1900 placed in the same genus' }
         let(:f) { FactoryGirl.create(:relationship_family) }
         let(:g1){ FactoryGirl.create(:relationship_genus, name: 'Aus', parent: f) }
         let(:g2){ FactoryGirl.create(:relationship_genus, name: 'Bus', parent: f) }

@@ -171,10 +171,12 @@ describe Tag, type: :model, group: [:annotators, :tags] do
 
       context 'by reference to id/object that are the same' do
         let(:dupe_tag_otu) {
-          Otu.new(name: 'Other otu', tags_attributes: [ 
-            {keyword: keyword},
-            {keyword_id: keyword.id}
-          ])
+          Otu.new(
+            name: 'Other otu', 
+            tags_attributes: [ 
+              {keyword: keyword},
+              {keyword_id: keyword.id}
+            ])
         }
 
         specify 'duplicate existing keywords are rejected' do

@@ -87,7 +87,7 @@ describe 'ControlledVocabularyTerms', :type => :feature do
 
         specify 'should be able to see "Tagged Objects"' do
           # Click on the 'Report' header
-          find('span', text: 'Report').click
+          find('span', text: 'Report').hover
 
           # I click the 'Tagged Objects' link under the 'Report' header
           click_link('Tagged Objects')
