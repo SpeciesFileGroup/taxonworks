@@ -58,7 +58,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
           before { 
             specimen.otus << otu_test
-            force = otu_test.specimens(true) # force the reload?!
+            force = otu_test.collection_objects(true) # force the reload?!
             visit(collection_objects_filter_task_path) 
           }
 
