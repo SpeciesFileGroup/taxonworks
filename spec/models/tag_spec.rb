@@ -42,7 +42,7 @@ describe Tag, type: :model, group: [:annotators, :tags] do
         tag.save!
         dupe_tag = FactoryGirl.build(:tag, keyword: k, tag_object: otu)
         dupe_tag.valid?
-        expect(dupe_tag.errors.include?(:tag_object_id)).to be_truthy
+        expect(dupe_tag.errors.include?(:keyword_id)).to be_truthy
       end
 
       specify 'a tagged object is only tagged once per keyword using nested attributes' do
@@ -170,17 +170,18 @@ describe Tag, type: :model, group: [:annotators, :tags] do
       end
 
       context 'by reference to id/object that are the same' do
+        k = Keyword.create(name: 'Keyword for model test for uniqueness', definition: 'Keyword for model test for uniqueness')
         let(:dupe_tag_otu) {
           Otu.new(
             name: 'Other otu', 
             tags_attributes: [ 
-              {keyword: keyword},
-              {keyword_id: keyword.id}
+              {keyword: k},
+              {keyword_id: k.id}
             ])
         }
 
         specify 'duplicate existing keywords are rejected' do
-          expect(dupe_tag_otu.save).to be_falsey
+          expect(dupe_tag_otu.valid?).to be_falsey
         end
       end
     

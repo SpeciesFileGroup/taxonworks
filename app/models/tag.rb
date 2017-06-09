@@ -42,7 +42,7 @@ class Tag < ActiveRecord::Base
   validate :keyword_is_allowed_on_object
   validate :object_can_be_tagged_with_keyword
 
-  validates_uniqueness_of :tag_object_id, scope: [:keyword_id, :tag_object_type]
+  validates_uniqueness_of :keyword_id, scope: [:tag_object_id, :tag_object_type]
 
   accepts_nested_attributes_for :keyword, reject_if: :reject_keyword, allow_destroy: true
 
