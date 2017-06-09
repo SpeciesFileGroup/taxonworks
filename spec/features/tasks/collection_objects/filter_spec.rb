@@ -21,9 +21,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
         let!(:gnlm) { GeographicArea.where(name: 'Great Northern Land Mass').first }
         let!(:otum1) { Otu.where(name: 'Find me').first }
-
         let(:json_string) { '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}}' }
-
 
         describe '#set_area', js: true do #
           it 'renders count of collection objects in a specific names area' do
@@ -60,6 +58,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
           before { 
             specimen.otus << otu_test
+            force = otu_test.specimens(true) # force the reload?!
             visit(collection_objects_filter_task_path) 
           }
 
@@ -75,8 +74,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             visit(collection_objects_filter_task_path)
             execute_script("document.getElementById('search_start_date').value = '1971/01/01'")
             execute_script("document.getElementById('search_end_date').value = '1980/12/31'")
-            find('#search_start_date').set '1971/01/01'
-            find('#search_end_date').set '1980/12/31'
+          #  find('#search_start_date').set '1971/01/01'
+          #  find('#search_end_date').set '1980/12/31'
             find('#label_toggle_slide_area').click
             wait_for_ajax
             execute_script("document.getElementById('drawn_area_shape').type = 'text'")
