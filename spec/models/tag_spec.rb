@@ -188,6 +188,10 @@ describe Tag, type: :model, group: [:annotators, :tags] do
                     {keyword: k},
                     {keyword_id: k.id}
                 ])
+          expect(otu.tags.to_a.count).to eq(1)
+          expect(otu.tags[0].keyword.attributes).to eq(k.attributes)
+          expect(otu.tags[0].keyword.attributes).to eq(1)
+          expect(otu.tags[1].keyword.attributes).to eq(1)
           expect(otu.valid?).to be_falsey
 #          expect(dupe_tag_otu.valid?).to be_falsey
         end
