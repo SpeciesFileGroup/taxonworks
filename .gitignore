@@ -46,6 +46,7 @@ coverage/
 
 *.sql
 
+/public/packs-test
 .ruby-version
 
 # temp until we figure out where we're going to store images
