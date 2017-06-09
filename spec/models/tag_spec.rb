@@ -180,6 +180,9 @@ describe Tag, type: :model, group: [:annotators, :tags] do
         }
 
         specify 'duplicate existing keywords are rejected' do
+          expect(dupe_tag_otu.tags.to_a.count).to eq(2)
+          expect(dupe_tag_otu.tags[0].keyword.id).to eq(keyword.id)
+          expect(dupe_tag_otu.tags[1].keyword.id).to eq(keyword.id)
           expect(dupe_tag_otu.valid?).to be_falsey
         end
       end
