@@ -170,15 +170,6 @@ describe Tag, type: :model, group: [:annotators, :tags] do
       end
 
       context 'by reference to id/object that are the same' do
-        let(:dupe_tag_otu) {
-          Otu.new(
-            name: 'Other otu', 
-            tags_attributes: [ 
-              {keyword: keyword},
-              {keyword_id: keyword.id}
-            ])
-        }
-
         specify 'duplicate existing keywords are rejected' do
           k = Keyword.create(name: 'a111', definition: 'a111')
           otu =
@@ -188,11 +179,7 @@ describe Tag, type: :model, group: [:annotators, :tags] do
                     {keyword: k},
                     {keyword_id: k.id}
                 ])
-#          expect(otu.tags.to_a.count).to eq(2)
-#          expect(otu.tags[0].keyword.attributes).to eq(k.attributes)
-#          expect(otu.tags[1].keyword.attributes).to eq(k.attributes)
           expect(otu.valid?).to be_falsey
-#          expect(dupe_tag_otu.valid?).to be_falsey
         end
       end
     
