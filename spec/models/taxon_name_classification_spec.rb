@@ -83,7 +83,8 @@ describe TaxonNameClassification, type: :model do
         taxon_name_classification.taxon_name = g
         taxon_name_classification.type_class = 'TaxonNameClassification::Icn::Fossil'
         expect(taxon_name_classification.valid?).to be_falsey
-        expect(taxon_name_classification.errors.full_messages.include?('Taxon name missmatched with asserted nomenclature code')).to be_truthy
+        msg = "Taxon name <i>Aus</i> belongs to iczn nomenclatural code, but the status used from icn nomenclature code"
+        expect(taxon_name_classification.errors.full_messages.include?(msg)).to be_truthy
       end
     end
 
