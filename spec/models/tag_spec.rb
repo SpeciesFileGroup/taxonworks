@@ -180,7 +180,7 @@ describe Tag, type: :model, group: [:annotators, :tags] do
         }
 
         specify 'duplicate existing keywords are rejected' do
-          k = Keyword.create(name: 'Keyword for model test for uniqueness', definition: 'Keyword for model test for uniqueness')
+          k = Keyword.create(name: 'a1', definition: 'a1')
           otu =
             Otu.new(
                 name: 'Other otu',
@@ -188,11 +188,6 @@ describe Tag, type: :model, group: [:annotators, :tags] do
                     {keyword: k},
                     {keyword_id: k.id}
                 ])
-
-          expect([otu.tags[0].keyword.attributes, otu.tags[1].keyword.attributes]).to eq([k.attributes, k.attributes])
-          expect([otu.tags[0].keyword.id, otu.tags[1].keyword.id]).to eq([k.id, k.id])
-          expect(otu.tags[1].keyword.attributes).to eq(1)
-          expect(otu.tags[0].keyword.attributes).to eq(1)
           expect(otu.valid?).to be_falsey
 #          expect(dupe_tag_otu.valid?).to be_falsey
         end
