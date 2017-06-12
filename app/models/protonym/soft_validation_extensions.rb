@@ -268,12 +268,12 @@ module Protonym::SoftValidationExtensions
     def sv_type_placement
       # type of this taxon is not included in this taxon
       if !!self.type_taxon_name
-        soft_validations.add(:base, "#{self.rank_class.rank_name} #{self.cached_html} has the type #{self.type_taxon_name.rank_class.parent.rank_name} classified outside of this taxon") unless self.type_taxon_name.get_valid_taxon_name.ancestors.include?(self.get_valid_taxon_name)
+        soft_validations.add(:base, "#{self.rank_class.rank_name} #{self.cached_html} has the type #{self.type_taxon_name.rank_class.rank_name} #{self.type_taxon_name.cached_html} classified outside of this taxon") unless self.type_taxon_name.get_valid_taxon_name.ancestors.include?(TaxonName.find(self.cached_valid_taxon_name_id))
       end
       # this taxon is a type, but not included in nominal taxon
       if !!self.type_of_taxon_names
         self.type_of_taxon_names.find_each do |t|
-          soft_validations.add(:base, "This #{self.rank_class.rank_name} is the type of #{t.rank_class.rank_name} #{t.cached_html} but it has a parent outside of #{t.cached_html}") unless self.get_valid_taxon_name.ancestors.include?(t.get_valid_taxon_name)
+          soft_validations.add(:base, "#{self.rank_class.rank_name.capitalize} #{self.cached_html} is the type of #{t.rank_class.rank_name} #{t.cached_html} but it has a parent outside of #{t.cached_html}") unless self.get_valid_taxon_name.ancestors.include?(TaxonName.find(t.cached_valid_taxon_name_id))
         end
       end
     end
