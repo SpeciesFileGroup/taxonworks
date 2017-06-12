@@ -105,7 +105,7 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
       var mapLatLng = event.latLng;
       $("#latitude").val(mapLatLng.lat());
       $("#longitude").val(mapLatLng.lng());
-
+      TW.tasks.gis.asserted_distributions.updateCoordinates(map, mapLatLng);
       $("#choices").mx_spinner('show');
 
       // requests and displays choices from asserted_distribution_controller thru .../new...span:qnadf
@@ -138,8 +138,17 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
           var center_lat_long = TW.vendor.lib.google.maps.get_window_center(bounds);
           map.setCenter(center_lat_long);
           map.setZoom(bounds.gzoom);
+          TW.tasks.gis.asserted_distributions.updateCoordinates(map, center_lat_long);
         });
     },
+
+  updateCoordinates: function (map, mapPoint) {
+    if (document.getElementById("map_coords") != undefined) {
+      let nowZoom = document.getElementById("map_coords").textContent.split('ZOOM: ')[1];
+      document.getElementById("map_coords").textContent = 'LAT: ' + mapPoint.lat() + ' - LNG: '
+        + mapPoint.lng() + ' - ZOOM: ' + map.getZoom();
+    }
+  },
 
     add_new_asserted_distribution_map_listeners: function (map) {      // 4 listeners, one for map as a whole 3 for map.data features
       // When the user clicks, set 'isColorful', changing the color of the feature.

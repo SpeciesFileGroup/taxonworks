@@ -327,8 +327,14 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
             }
             else {                                 // i.e., if not Antimeridian span, center on extents about 0
               // case disjoint areas divided by prime meridian or single point
+              // or anti-meridian apparently
               if (wx != 0) {
-                center_long = (xminm + xmaxp) / 2;        // default calculation for both hemisperes having data
+                wxp = 180 - xminp;      // distance to anti-meridian eastern
+                wxm = -(-180 - xmaxm);  // for western hemisphere
+                center_long = (xminm + xmaxp) / 2;        // default calculation for both hemisperes having data @ prime
+                if ((wxp < 90) && (wxm < 90)) {          // fuzzy logic for meridian/antimeridian decision
+                  center_long = (-xmaxm + xminp) / 2;    // calculation for both hemisperes having data @ antimeridian
+                }
                 if (wp == 0) {
                   center_long = xmm;
                 }         // override for single sided western hemisphere
