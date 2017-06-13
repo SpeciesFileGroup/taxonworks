@@ -290,10 +290,7 @@ module BatchLoad
           @errs.push("Namespace (#{cat_no[0]}) does not match import namespace (#{@namespace.short_name}).")
         end
         unless cat_no[1].blank?
-          id = Identifier::Local::CatalogNumber.find_by(namespace: @namespace, identifier: cat_no[1])
-          if id.blank?
-            id = Identifier::Local::CatalogNumber.new(namespace: @namespace, identifier: cat_no[1])
-          end
+          id                = Identifier::Local::CatalogNumber.find_or_initialize_by(namespace: @namespace, identifier: cat_no[1])
           ident[:id_cat_no] = id
         end
       end
@@ -410,14 +407,13 @@ module BatchLoad
         trials = Utilities::Dates.hunt_dates(d_s, [:yyyy_mm_dd])
         trial  = trials[:yyyy_mm_dd]
         unless trial.blank?
-          date_params[:start_date_day]   = trial[:start_date_day]
-          date_params[:start_date_month] = trial[:start_date_month]
-          date_params[:start_date_year]  = trial[:start_date_year]
-          edd                            = trial[:end_date_day]
+          sdd, sdm, sdy                  = trial[:start_date_day], trial[:start_date_month], trial[:start_date_year]
+          edd, edm, edy                  = trial[:end_date_day], trial[:end_date_month], trial[:end_date_year]
+          date_params[:start_date_day]   = sdd unless sdd.blank?
+          date_params[:start_date_month] = sdm unless sdm.blank?
+          date_params[:start_date_year]  = sdy unless sdy.blank?
           date_params[:end_date_day]     = edd unless edd.blank?
-          edm                            = trial[:end_date_month]
           date_params[:end_date_month]   = edm unless edm.blank?
-          edy                            = trial[:end_date_year]
           date_params[:end_date_year]    = edy unless edy.blank?
         end
       end
@@ -430,7 +426,7 @@ module BatchLoad
                      verbatim_latitude:                row['decimallatitude'],
                      verbatim_longitude:               row['decimallongitude'],
                      verbatim_collectors:              row['recordedby']}.merge!(date_params)
-      c_e         = CollectingEvent.find_or_create_by(hunt_params)
+      c_e         = CollectingEvent.find_or_initialize_by(hunt_params)
       if c_e.new_record?
         a = d_s
       else
