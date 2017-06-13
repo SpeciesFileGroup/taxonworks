@@ -7,7 +7,7 @@
           <markdown-editor v-else class="edit-content" v-model="record.content.text" :configs="config" @input="handleInput" ref="contentText" v-on:dblclick.native="addCitation()"></markdown-editor>
       </div>
       <div v-if="compareContent && !preview" class="right">
-        <div class="title"><span><span>{{ compareContent.topic.object_tag }}</span> - <span v-html="compareContent.otu.object_tag"></span></span></div>
+        <div class="title"><span><span v-html="compareContent.topic.object_tag"></span> - <span v-html="compareContent.otu.object_tag"></span></span></div>
         <div class="compare-toolbar middle"><button class="button button-close" @click="compareContent = undefined">Close compare</button></div>
         <div class="compare" @mouseup="copyCompareContent">{{ compareContent.text }}</div>
       </div>
