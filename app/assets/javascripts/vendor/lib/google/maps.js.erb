@@ -39,12 +39,15 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       var data = feature_collection;
 
       map.data.setStyle(function (feature) {
-        var color = feature.getProperty('fillColor');   //
-        var icon = mapIcons['gray'];
-        var color_name = feature.getProperty('colorName');
-        if (color_name != undefined) {
-          icon = mapIcons[color_name]
-        }
+        var color = feature.getProperty('fillColor');       // if server provided a color
+        if (color == undefined) {
+          color = "#191919";
+        }        // otherwise use gray 19 (apologies, Steely Dan
+        var color_name = feature.getProperty('colorName');  // or specified a marker color
+        if (color_name == undefined) {
+          color_name = 'gray'
+        }  // else use the same shade of gray
+        var icon = mapIcons[color_name];                    // get the marker by color_name
         var fill_opacity = feature.getProperty('fillOpacity');
         if (fill_opacity == undefined) {
           fill_opacity = 0.3;

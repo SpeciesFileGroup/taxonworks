@@ -26,7 +26,7 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
     // TODO: Rich move this to the general maps library
     get_canvas_bounds: function (map) {
       // original map canvas parameters are now lost, so we have to find them again
-      var bounds = {};
+      var bounds = bounds || {};
       let canvas = map.data.map.getDiv();
       bounds.canvas_width = canvas.style.width.toString().split('px')[0];
       bounds.canvas_height = canvas.style.height.toString().split('px')[0];
@@ -56,14 +56,14 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
     },
 
     bind_create_buttons: function () {
-      $("[id^=button_]").click(function () {        // set mouseout for each area (condensed)
+      $("[id^=button_]").click(function () {        // set mouseout for each button (condensed)
         var form = $("#new_asserted_distribution_from_map_form");
         form.append($('<input hidden name="asserted_distribution[geographic_area_id]" value="' + $(this).data('geographic-area-id') + '">'));
       });
     },
 
-    bind_mouseover: function (map) {
-      $("[id^=button_]").mouseover(function () {       // set mouseover for each area
+  bind_buttons_mouseover: function (map) {
+    $("[id^=button_]").mouseover(function () {       // set mouseover for each button
         var this_id = this.id;
         var area_id = $(this).data('geographic-area-id');
         map.data.forEach(function (feature) {        // find by geographic area id
@@ -76,20 +76,15 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
           if (this_property.id == area_id) {
             map.data.overrideStyle(this_feature, {fillColor: '#FF0000'});  // red
             map.data.overrideStyle(this_feature, {strokeWeight: 2});       // embolden borders
-            map.data.overrideStyle(this_feature, {fillOpacity: 1.0});      // transparent
+            map.data.overrideStyle(this_feature, {fillOpacity: 1.0});      // opaque
           }
         });
-      });
+    });
     },
 
-    bind_mouseout: function (map) {
-      $("[id^=button_]").mouseout(function () {        // set mouseout for each area (condensed)
-        var this_id = this.id;                      // var this since it goes out of scope with .forEach
-        map.data.forEach(function (feature) {        // find by geographic area id
-          if (feature.getProperty('geographic_area').id == $(this).data('geographic-area-id')) {
+  bind_buttons_mouseout: function (map) {
+    $("[id^=button_]").mouseout(function () {        // set mouseout for each button (condensed)(simplified)
             map.data.revertStyle();
-          }
-        });
       });
     },
 
@@ -123,8 +118,8 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
 
           map.data.addGeoJson(data);      // add the geo features corresponding to the forms
 
-          TW.tasks.gis.asserted_distributions.bind_mouseover(map);
-          TW.tasks.gis.asserted_distributions.bind_mouseout(map);
+          TW.tasks.gis.asserted_distributions.bind_buttons_mouseover(map);
+          TW.tasks.gis.asserted_distributions.bind_buttons_mouseout(map);
 
           // resizes, recenters map based on new features
 
