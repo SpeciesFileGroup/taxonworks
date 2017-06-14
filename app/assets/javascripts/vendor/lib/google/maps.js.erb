@@ -168,6 +168,40 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       return Math.log(x) / Math.LN2;  // log_2(x) = ln(x)/ln(2)
     },
 
+    clear_map: function (map) {
+      map.data.forEach(function (feature) {
+        map.data.remove(feature);
+      });
+    },
+
+    get_canvas_bounds: function (map) {
+      // original map canvas parameters are now lost, so we have to find them again
+      var bounds = bounds || {};
+      let canvas = map.data.map.getDiv();
+      bounds.canvas_width = canvas.style.width.toString().split('px')[0];
+      bounds.canvas_height = canvas.style.height.toString().split('px')[0];
+      bounds.canvas_ratio = bounds.canvas_width / bounds.canvas_height;
+      return bounds
+    },
+
+    // composite function to chain common dsplay stages (used by TW.tasks.gis.asserted_distributions)
+    bound_and_recenter_map: function (data, map) {
+      var bounds = TW.vendor.lib.google.maps.get_canvas_bounds(map);
+      TW.vendor.lib.google.maps.getData(data, bounds);
+      var center_lat_long = TW.vendor.lib.google.maps.get_window_center(bounds);
+      map.setCenter(center_lat_long);
+      map.setZoom(bounds.gzoom);
+      TW.vendor.lib.google.maps.updateCoordinates(map, center_lat_long);
+    },
+
+    updateCoordinates: function (map, mapPoint) {
+      if (document.getElementById("map_coords") != undefined) {
+        let nowZoom = document.getElementById("map_coords").textContent.split('ZOOM: ')[1];
+        document.getElementById("map_coords").textContent = 'LAT: ' + mapPoint.lat() + ' - LNG: '
+          + mapPoint.lng() + ' - ZOOM: ' + map.getZoom();
+      }
+    },
+
     get_window_center: function (bounds) {      // for use with home-brew geoJSON scanner/enumerator
       var xminp = bounds.xminp;           //
       var xmaxp = bounds.xmaxp;           //
