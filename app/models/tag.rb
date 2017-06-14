@@ -98,7 +98,7 @@ class Tag < ActiveRecord::Base
     mci = ObservationMatrixColumnItem::TaggedDescriptor.where(controlled_vocabulary_term_id: keyword_id).limit(1)
 
     if mci.any?
-      return { "matrix_column_item": mci.first, "descriptor": tag_object }
+      return { "matrix_column_item" => mci.first, "descriptor" => tag_object }
     else
       return false
     end
@@ -110,7 +110,7 @@ class Tag < ActiveRecord::Base
     mri = ObservationMatrixRowItem::TaggedRowItem.where(controlled_vocabulary_term_id: keyword_id).limit(1)
     
     if mri.any?
-      return { "matrix_row_item": mri.first, "object": tag_object }
+      return { "matrix_row_item" => mri.first, "object" => tag_object }
     else
       return false
     end
