@@ -114,12 +114,19 @@ module BatchLoad
         c_e       = @row_objects[:make_ce]
         g_r       = @row_objects[:make_gr]
 
-        c_e.save! if c_e.new_record?
-        # add notes to collecting_event, if required
-        unless c_e_notes.blank?
-          c_e_notes.keys.each {|kee|
-            c_e_notes[kee].note_object = c_e
-          }
+        if c_e.valid?
+          c_e.save if c_e.new_record?
+          # add notes to collecting_event, if required
+          unless c_e_notes.blank?
+            c_e_notes.keys.each {|kee|
+              c_e_notes[kee].note_object = c_e
+            }
+          end
+        else
+          @errs.push(c_e.errors.messages)
+          @row_objects.delete(:make_ce)
+          # everything else is a fail.
+          break
         end
         # associate the collection_object with the collecting_event
         c_o.collecting_event = c_e
@@ -157,10 +164,17 @@ module BatchLoad
           # is a GeoLocate
           unless g_r.valid?
             # georeference was (0,0), will be dropped
-            @warns.push('Georeference::GeoLocate cannot be created, lat/long not valid.')
+            err_txt = 'Georeference::GeoLocate cannot be created, '
+            if g_r.errors.messages[:collecting_event_id].present?
+              # what to do here?
+              @warns.push(err_txt + 'duplicate georeference')
+            else
+              @warns.push(err_txt + 'lat/long not valid.')
+            end
             @row_objects.delete(:make_gr)
             unless g_r_notes.blank?
               @warns.push('Georeference::GeoLocate cannot be created, \'georeferenceRemark\' has been dropped.')
+              @row_objects[:make_notes].delete(:g_r)
             end
           end
         end
@@ -204,7 +218,7 @@ module BatchLoad
         @rows[line_counter][:err]         = @errs
         @rows[line_counter][:warn]        = @warns
         line_counter                      += 1
-        break if line_counter > 10
+        # break if line_counter > 10
       end
       @total_lines = line_counter - 1
     end
@@ -290,7 +304,8 @@ module BatchLoad
           @errs.push("Namespace (#{cat_no[0]}) does not match import namespace (#{@namespace.short_name}).")
         end
         unless cat_no[1].blank?
-          id                = Identifier::Local::CatalogNumber.find_or_initialize_by(namespace: @namespace, identifier: cat_no[1])
+          id                = Identifier::Local::CatalogNumber.find_or_initialize_by(namespace:  @namespace,
+                                                                                     identifier: cat_no[1])
           ident[:id_cat_no] = id
         end
       end
@@ -401,21 +416,30 @@ module BatchLoad
     end
 
     def make_ce(row)
+      kees        = [:yyyy_mm_dd, :mm_dd_yy]
       d_s         = row['eventdate']
       date_params = {}
       unless d_s.blank?
-        trials = Utilities::Dates.hunt_dates(d_s, [:yyyy_mm_dd])
-        trial  = trials[:yyyy_mm_dd]
-        unless trial.blank?
-          sdd, sdm, sdy                  = trial[:start_date_day], trial[:start_date_month], trial[:start_date_year]
-          edd, edm, edy                  = trial[:end_date_day], trial[:end_date_month], trial[:end_date_year]
-          date_params[:start_date_day]   = sdd unless sdd.blank?
-          date_params[:start_date_month] = sdm unless sdm.blank?
-          date_params[:start_date_year]  = sdy unless sdy.blank?
-          date_params[:end_date_day]     = edd unless edd.blank?
-          date_params[:end_date_month]   = edm unless edm.blank?
-          date_params[:end_date_year]    = edy unless edy.blank?
-        end
+        trials = Utilities::Dates.hunt_dates(d_s, kees)
+        trials.keys.each {|kee|
+          trial = trials[kee]
+          unless trial.blank?
+            case kee
+              when kees[0]
+                type = kee
+              when kees[1]
+                type = kee
+            end
+            sdd, sdm, sdy                  = trial[:start_date_day], trial[:start_date_month], trial[:start_date_year]
+            edd, edm, edy                  = trial[:end_date_day], trial[:end_date_month], trial[:end_date_year]
+            date_params[:start_date_day]   = sdd unless sdd.blank?
+            date_params[:start_date_month] = sdm unless sdm.blank?
+            date_params[:start_date_year]  = sdy unless sdy.blank?
+            date_params[:end_date_day]     = edd unless edd.blank?
+            date_params[:end_date_month]   = edm unless edm.blank?
+            date_params[:end_date_year]    = edy unless edy.blank?
+          end
+        }
       end
       hunt_params = {project_id:                       $project_id,
                      verbatim_datum:                   row['geodeticdatum'],
@@ -428,9 +452,9 @@ module BatchLoad
                      verbatim_collectors:              row['recordedby']}.merge!(date_params)
       c_e         = CollectingEvent.find_or_initialize_by(hunt_params)
       if c_e.new_record?
-        a = d_s
+        a = c_e.created_at
       else
-        b = d_s
+        b = c_e.updated_at
       end
       c_e
     end
