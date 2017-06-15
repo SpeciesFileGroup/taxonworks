@@ -267,18 +267,18 @@ namespace :tw do
 
         $project_id = 1
         handle_controlled_vocabulary_3i
-        #handle_litauthors_3i
-        #handle_references_3i
-        #handle_transl_3i
-        #handle_taxonomy_3i
-        #handle_taxon_name_relationships_3i
-        #handle_citation_topics_3i
-        #index_collecting_events_from_accessions_new_3i
-        #handle_host_plant_name_dictionary_3i
-        #handle_host_plants_3i
-        #handle_distribution_3i
-        #handle_parasitoids_3i
-        #handle_localities_3i
+        handle_litauthors_3i
+        handle_references_3i
+        handle_transl_3i
+        handle_taxonomy_3i
+        handle_taxon_name_relationships_3i
+        handle_citation_topics_3i
+        index_collecting_events_from_accessions_new_3i
+        handle_host_plant_name_dictionary_3i
+        handle_host_plants_3i
+        handle_distribution_3i
+        handle_parasitoids_3i
+        handle_localities_3i
 
         handle_characters_3i
 
