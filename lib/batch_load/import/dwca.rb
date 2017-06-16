@@ -126,6 +126,10 @@ module BatchLoad
           @errs.push(c_e.errors.messages)
           @row_objects.delete(:make_ce)
           # everything else is a fail.
+          @rows[line_counter][:row_objects] = @row_objects
+          @rows[line_counter][:err]         = @errs
+          @rows[line_counter][:warn]        = @warns
+          line_counter                      += 1
           next
         end
         # associate the collection_object with the collecting_event
@@ -191,7 +195,7 @@ module BatchLoad
             objects = @row_objects[kee]
             case objects.class.to_s
               when 'Array'
-                objects.each {|object|
+                objects.flatten.each {|object|
                   if object.valid?
                     object.save
                   else
@@ -201,10 +205,14 @@ module BatchLoad
               when 'Hash'
                 @errs.push(save_hash(objects))
               else # all other single object classes
-                if objects.valid?
-                  objects.save
-                else
-                  @errs.push(objects.errors.messages)
+                test = objects.try(:valid?)
+                case test
+                  when true
+                    objects.save
+                  when false
+                    @errs.push(objects.errors.messages)
+                  when nil
+                    @warns.push('No georeference exists.')
                 end
             end
           }
@@ -236,10 +244,23 @@ module BatchLoad
 
     private
 
+    def dump_hash(objects)
+      objects.keys.each {|kee|
+        object = objects[kee]
+        unless object.blank?
+          if object.class.to_s == 'Hash'
+            dump_hash(object)
+          else
+            object.destroy
+          end
+        end
+      }
+    end
+
     def save_hash(objects)
       l_errs = []
-      objects.keys.each {|rank|
-        object = objects[rank]
+      objects.keys.each {|kee|
+        object = objects[kee]
         unless object.blank?
           if object.class.to_s == 'Hash'
             l_errs.push(save_hash(object))
@@ -347,16 +368,16 @@ module BatchLoad
         g_r = Georeference::VerbatimData.new(error_radius: uncert)
       else
         # faking a Georeference::GeoLocate:
-        gl_req_params = {country:   code_to_name(row['countrycode']),
-                         state:     row['stateprovince'],
-                         county:    row['county'],
-                         Placename: row['municipality'],
-                         Uncert:    uncert,
-                         Latitude:  lat,
-                         Longitude: long,
-                         locality:  row['locality'],
-                         gc:        geo_by}.stringify_keys
-        req           = Georeference::GeoLocate::RequestUI.new(gl_req_params)
+        gl_req_params       = {country:   code_to_name(row['countrycode']),
+                               state:     row['stateprovince'],
+                               county:    row['county'],
+                               Placename: row['municipality'],
+                               Uncert:    uncert,
+                               Latitude:  lat,
+                               Longitude: long,
+                               locality:  row['locality'],
+                               gc:        geo_by}.stringify_keys
+        req                 = Georeference::GeoLocate::RequestUI.new(gl_req_params)
         #   1) new the Georeference, without a collecting_event
         g_r                 = Georeference::GeoLocate.new
         #   2) save the information from the row in request_hash
