@@ -79,8 +79,8 @@ class Georeference < ActiveRecord::Base
 
   has_many :collection_objects, through: :collecting_event
 
-  has_many :georeferencer_roles, -> { order('roles.position ASC') }, class_name: 'Georeferencer', as: :role_object, validate: true
-  has_many :georeferencers, -> { order('roles.position ASC') }, through: :georeferencer_roles, source: :person, validate: true
+  has_many :georeferencer_roles, -> {order('roles.position ASC')}, class_name: 'Georeferencer', as: :role_object, validate: true
+  has_many :georeferencers, -> {order('roles.position ASC')}, through: :georeferencer_roles, source: :person, validate: true
 
   validates :geographic_item, presence: true
   validates :type, presence: true
@@ -381,10 +381,10 @@ class Georeference < ActiveRecord::Base
     # case 6
     retval = true
     unless collecting_event.nil?
-      unless collecting_event.geographic_area.nil? ||
-        !geographic_item.geo_object ||
-        collecting_event.geographic_area.default_geographic_item.nil?
-        retval = collecting_event.geographic_area.default_geographic_item.contains?(geographic_item.geo_object)
+      unless geographic_item.nil? || collecting_event.geographic_area.nil?
+        unless geographic_item.geo_object.nil? || collecting_event.geographic_area.default_geographic_item.nil?
+          retval = collecting_event.geographic_area.default_geographic_item.contains?(geographic_item.geo_object)
+        end
       end
     end
     retval

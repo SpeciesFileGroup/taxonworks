@@ -35,8 +35,8 @@ module BatchLoad
         make_ba:    %w(associatedtaxa),
         make_notes: %w(georeferenceremarks locationremarks occurrenceremarks),
         make_tag:   %w(),
-        make_gr:    %w(decimallatitude decimallongitude countrycode stateprovince county municipality coordinateuncertaintyinmeters georeferencedby),
-        make_ce:    %w(decimallatitude decimallongitude coordinateuncertaintyinmeters verbatimlocality eventdate locationremarks recordedby geodeticdatum)
+        make_gr:    %w(decimallatitude decimallongitude countrycode stateprovince county municipality locality coordinateuncertaintyinmeters georeferencedby),
+        make_ce:    %w(decimallatitude decimallongitude coordinateuncertaintyinmeters eventdate locationremarks recordedby geodeticdatum countrycode stateprovince county municipality locality)
       }.freeze
 
       super(args)
@@ -126,7 +126,7 @@ module BatchLoad
           @errs.push(c_e.errors.messages)
           @row_objects.delete(:make_ce)
           # everything else is a fail.
-          break
+          next
         end
         # associate the collection_object with the collecting_event
         c_o.collecting_event = c_e
@@ -218,7 +218,7 @@ module BatchLoad
         @rows[line_counter][:err]         = @errs
         @rows[line_counter][:warn]        = @warns
         line_counter                      += 1
-        # break if line_counter > 10
+        # break if line_counter > 30
       end
       @total_lines = line_counter - 1
     end
@@ -347,18 +347,16 @@ module BatchLoad
         g_r = Georeference::VerbatimData.new(error_radius: uncert)
       else
         # faking a Georeference::GeoLocate:
-        cc                  = row['countrycode']
-        country             = cc.nil? ? nil : GeographicArea.where(iso_3166_a2: cc).first.name
-        gl_req_params       = {country:   country,
-                               state:     row['stateprovince'],
-                               county:    row['county'],
-                               Placename: row['municipality'],
-                               Uncert:    uncert,
-                               Latitude:  lat,
-                               Longitude: long,
-                               locality:  row['locality'],
-                               gc:        geo_by}.stringify_keys
-        req                 = Georeference::GeoLocate::RequestUI.new(gl_req_params)
+        gl_req_params = {country:   code_to_name(row['countrycode']),
+                         state:     row['stateprovince'],
+                         county:    row['county'],
+                         Placename: row['municipality'],
+                         Uncert:    uncert,
+                         Latitude:  lat,
+                         Longitude: long,
+                         locality:  row['locality'],
+                         gc:        geo_by}.stringify_keys
+        req           = Georeference::GeoLocate::RequestUI.new(gl_req_params)
         #   1) new the Georeference, without a collecting_event
         g_r                 = Georeference::GeoLocate.new
         #   2) save the information from the row in request_hash
@@ -415,9 +413,11 @@ module BatchLoad
       ret_val
     end
 
+# a full set of symbolized filter names (kees, below) can be found in Utilities::Dates::REGEXP_DATES.keys
     def make_ce(row)
       kees        = [:yyyy_mm_dd, :mm_dd_yy]
       d_s         = row['eventdate']
+      v_l         = [row['municipality'], row['locality']].join(':')
       date_params = {}
       unless d_s.blank?
         trials = Utilities::Dates.hunt_dates(d_s, kees)
@@ -438,12 +438,22 @@ module BatchLoad
             date_params[:end_date_day]     = edd unless edd.blank?
             date_params[:end_date_month]   = edm unless edm.blank?
             date_params[:end_date_year]    = edy unless edy.blank?
+            break # bail after the first with a date
           end
         }
       end
+      g_a_list = [row['county'], row['stateprovince'], code_to_name(row['countrycode'])]
+      g_a_text = g_a_list.select {|name| name.present?}.join(':')
+      if g_a_text.blank?
+        g_a = nil
+      else
+        g_a_matches = GeographicArea.matching(g_a_text, true)
+        g_a         = g_a_matches[g_a_text].try(:first)
+      end
       hunt_params = {project_id:                       $project_id,
+                     geographic_area:                  g_a,
                      verbatim_datum:                   row['geodeticdatum'],
-                     verbatim_locality:                row['verbatimlocality'],
+                     verbatim_locality:                v_l,
                      verbatim_date:                    d_s,
                      verbatim_label:                   row['locationremarks'],
                      verbatim_geolocation_uncertainty: row['coordinateuncertaintyinmeters'],
@@ -557,6 +567,10 @@ module BatchLoad
 # make_td:    %w(scientificname basisofrecord individualcount organismquantity organismquantitytype recordedby)
     def make_td(row)
       TaxonDetermination.new
+    end
+
+    def code_to_name(code)
+      code.nil? ? nil : GeographicArea.where(iso_3166_a2: code).try(:first).try(:name)
     end
 
 =begin
