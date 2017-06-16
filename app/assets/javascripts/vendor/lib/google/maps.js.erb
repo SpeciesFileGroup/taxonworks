@@ -10,18 +10,18 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
 
 
     mapIcons: {    // hash of defined colors and their paths
-        empty: '<%= asset_path('map_icons/mm_20_empty.png') %>',
-        black: '<%= asset_path('map_icons/mm_20_black.png') %>',
-        brown: '<%= asset_path('map_icons/mm_20_brown.png') %>',
-        red: '<%= asset_path('map_icons/mm_20_red.png') %>',
-        orange: '<%= asset_path('map_icons/mm_20_orange.png') %>',
-        yellow: '<%= asset_path('map_icons/mm_20_yellow.png') %>',
-        green: '<%= asset_path('map_icons/mm_20_green.png') %>',
-        blue: '<%= asset_path('map_icons/mm_20_blue.png') %>',
-        purple: '<%= asset_path('map_icons/mm_20_purple.png') %>',
-        white: '<%= asset_path('map_icons/mm_20_white.png') %>',
-        gray: '<%= asset_path('map_icons/mm_20_gray.png') %>',
-        shadow: '<%= asset_path('map_icons/mm_20_shadow.png') %>'
+      empty: '<%= asset_path('map_icons/mm_20_empty.png') %>',
+      black: '<%= asset_path('map_icons/mm_20_black.png') %>',
+      brown: '<%= asset_path('map_icons/mm_20_brown.png') %>',
+      red: '<%= asset_path('map_icons/mm_20_red.png') %>',
+      orange: '<%= asset_path('map_icons/mm_20_orange.png') %>',
+      yellow: '<%= asset_path('map_icons/mm_20_yellow.png') %>',
+      green: '<%= asset_path('map_icons/mm_20_green.png') %>',
+      blue: '<%= asset_path('map_icons/mm_20_blue.png') %>',
+      purple: '<%= asset_path('map_icons/mm_20_purple.png') %>',
+      white: '<%= asset_path('map_icons/mm_20_white.png') %>',
+      gray: '<%= asset_path('map_icons/mm_20_gray.png') %>',
+      shadow: '<%= asset_path('map_icons/mm_20_shadow.png') %>'
     },
 
     initializeMap: function (canvas, feature_collection) {
@@ -232,6 +232,8 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
         center_long = 0.0;
         var wm = 0.0;        // western hemisphere default area width
         var wp = 0.0;        // eastern hemisphere default area width
+        var emptyEast = (xminp == 180 && xmaxp == 0);
+        var emptyWest = (xminm == 0 && xmaxm == -180);
         if ((xminp == 180.0) && (xmaxp == 0.0)) {    //if no points, null out the range for this hemisphere
           xminp = 0.0;                                // possible place to mark singleton point
         }
@@ -244,151 +246,44 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
           center_long = 0.0;
           wx = 360.;
         }
-        else {
-          // case of singleton poiint in either hemisphere not well treated below (still true? - JRF 20JUL2015)
+        else {        // determine distribution of features in hemispheres
           wm = xmaxm - xminm;    // width of western area, if present (incorrect if e.g., Aleutean Islands)
           wp = xmaxp - xminp;    // width of eastern area, if present (incorrect if e.g., Aleutean Islands)
-          var xmm = xminm + 0.5 * wm;     // midpoint of west
-          var xmp = xminp + 0.5 * wp;     // midpoint of east
           var wxp;                    // width to anti/prime meridian east
           var wxm;                    // width to anti/prime meridian west
           var wx;                               // total width of all areas
-          //wx = xmaxp - xminm;             // assume data in both hemispheres default across prime meridian
-          wx = wm + wp;             // assume data in both hemispheres default across prime meridian
-          if (wx > 180) {               // areas are > 180 degrees wide or cross prime meridian
-            if (wm == 0 && wp == 0) {   // this is the case of single longitude in each (both!) hemisphere
-              wx = 360 - wx;                              // so revert to < 180 degree width (smaller distance)
-              center_long = (xminm + xmaxp) / 2 - 180;   // left-hand expression is near antimerdian
+          // determine if only one hemisphere
+          if (emptyEast || emptyWest) {
+            if (emptyEast) {    // then center_long is in the west
+              center_long = xminm + 0.5 * wm;     // midpoint of west
+              wx = wm;
             }
             else {
-              if (wm == 0 || wp == 0) {                // only one point in either hemisphere and multiples/areas in the opposite
-                if (wm == 0) {     // if single point in western hemisphere
-                  wxp = 180 - xminp;    // xmaxp = xminp for single point
-                  wxm = 180 + xmaxm;    // western half
-                  wx = wxp + wxm;
-                  if (wxm > wxp) {      // is western hemisphere part bigger?
-                    center_long = xmaxm - wx / 2 - 180;
-                    wx = wx - 0;     ////  DUMMY
-                  }
-                  else {      // eastern width is greater
-                    center_long = xminp + wx / 2;
-                    wx = wx - 0;     ////  DUMMY
-                  }
-                }
-                else {        // wp = 0
-                  wxp = 180 - xminp;    // xmaxp = xminp for single point
-                  wxm = 180 + xmaxm;    // western half
-                  wx = wxp + wxm;
-                  if (wxm > wxp) {
-                    center_long = -0.5 * (wxp + wxm);
-                    center_long = (xminp + xmaxm) / 2 - 180;
-                    wx = wx - 0;     ////  DUMMY
-                  }
-                  else {
-                    center_long = 0.5 * (wxp + wxm);
-                    wx = wx - 0;     ////  DUMMY
-                  }
-                }
-              }
-              else {        // area in both hemispheres, but spans over 180 degrees or crosses antimeridian
-                if (bounds.anti && bounds.prime) {   // this case is essentially 180 + west and east hangovers
-                  //wx = 180 - (bounds.xxminm + 180) + (bounds.xxmaxp - 180);
-                  //center_long = bounds.xxminm + wx / 2;
-                }
-                else {
-                  if (bounds.prime) {
-                    wxp = xmaxp;
-                    wxm = -xminm;
-                    wx = wxp + wxm;
-                    if (wxp > wxm) {
-                      center_long = xmaxp - wx / 2;
-                    }
-                    else {
-                      center_long = xminm + wx / 2;
-                    }
-                  }
-                  if (bounds.anti) {
-                    wxp = 180 - xminp;    // xmaxp = xminp for single point
-                    wxm = 180 + xmaxm;    // western half
-                    wx = wxp + wxm;
-                    if (wxm > wxp) {
-                      center_long = wx / 2 - 180;
-                      wx = wx - 0;     ////  DUMMY
-                    }
-                    else {
-                      center_long = xminp + wx / 2;
-                      wx = wx - 0;     ////  DUMMY
-                    }
-                    wx = wx - 0;     ////  DUMMY}
-                  }
-                  wx = wx - 0;     ////  DUMMY}
-                }
-                wx = wx - 0;     ////  DUMMY}
-              }
-            }
-            //if (bounds.anti || bounds.prime) {
-            //  //if ((wm > 179) && (wp > 179)) {     // check for prime meridian and anti-meridian case
-            //  wm = 180 - bounds.pminx + 180 + bounds.mmaxx;      // width of putative anti-meridian crossing area
-            //  wp = bounds.pmaxx0 - bounds.mminx0;                // width of putative meridian crossing area
-            //  // are these isolated ?
-            //  if (((bounds.mmaxx < -45) && (bounds.mminx0 > -45)) && ((bounds.pmaxx0 < 45) && (bounds.pminx > 45))) {
-            //    // open space between arbitrary +/-45 boundary
-            //    wx = wm - bounds.mmaxx + bounds.pmaxx0;         // width of map (?)
-            //    center_long = -0.5 * (wm - bounds.mmaxx) + 0.5 * (bounds.pmaxx0);
-            //  }
-            //}
-          }
-          else {            // not an overwide calculation  // bias toward eastern hemisphere removed in xgtlt()
-            if (wp == 0) {
-              wx = wm;
-            }         // override for single sided western hemisphere
-            if (wm == 0) {
+              center_long = xminp + 0.5 * wp;     // midpoint of east
               wx = wp;
-            }         // override for single sided eastern hemisphere
-            if (xmaxp > 179 && xminm < -179) {      // Antimeridian span test
-              wx = wm + wp;                        // total width of eastern and western
-              if (wm > wp) {                       // determine wider group
-                center_long = xmm - wp / 2;        // adjust western mid/mean point by half width of eastern
-                if (center_long < -180) {
-                  center_long = 360 + center_long;  // shift to a valid hemisphere coordinate
-                }       // bias from -180
-              }                                    // e.g., USA
-              else {
-                center_long = xmp + wm / 2;        // adjust positive mean/mid point by half width of western
-                if (center_long > 180) {
-                  center_long = center_long - 360;
-                }        // bias from +180
-              }
-              // assume: calculate center about +/- 180 over contiguous spanning area
-              //center_long = (xminp + xmaxm) / 2.0;    // revised simplified calculation JRF 04AUG2015
             }
-            else {                                 // i.e., if not Antimeridian span, center on extents about 0
-              // case disjoint areas divided by prime meridian or single point
-              // or anti-meridian apparently
-              if (wx != 0) {
-                wxp = 180 - xminp;      // distance to anti-meridian eastern
-                wxm = -(-180 - xmaxm);  // for western hemisphere
-                center_long = (xminm + xmaxp) / 2;        // default calculation for both hemisperes having data @ prime
-                if ((wxp < 90) && (wxm < 90)) {          // fuzzy logic for meridian/antimeridian decision
-                  center_long = (-xmaxm + xminp) / 2;    // calculation for both hemisperes having data @ antimeridian
-                }
-                if (wp == 0) {
-                  center_long = xmm;
-                }         // override for single sided western hemisphere
-                if (wm == 0) {
-                  center_long = xmp;
-                }         // override for single sided eastern hemisphere
-              }
-              else {        // single point
-                if (xmm == 0) {
-                  center_long = xmp;
-                }
-                if (xmp == 0) {
-                  center_long = xmm;
-                }
-              }
+          }         // simple cases treated, continue far below at latitude compensation stage
+          else {    // now known data in BOTH hemispheres
+            // determine whether areas span meridian or antimeridian
+            var primeWidth = xmaxp - xminm;
+            var antiWidth = (180 - xminp) - (-180 - xmaxm);
+            // determine which meridian is spanned
+            var antiSpan = (180 - xmaxp) - (-180 - xminm);
+            var primeSpan = xminp - xmaxm;
+            var eastWest = (primeSpan < antiSpan);
+            if (eastWest) {
+              wx = primeWidth;
+              wxp = xmaxp;
+              wxm = -xminm;
+              center_long = (xmaxp + xminm) / 2;
             }
-          }// e.g., USA
+            else {
+              wx = antiWidth;
+              wxp = 180 - xminp;
+              wxm = 180 + xmaxm;
+              center_long = -180 + (xminp + xmaxm) / 2;
+            }
+          }
         }
       }   // END center_long == undefined
       var offset = 0;                 // scope extended to be used in zoom calculation later
@@ -1011,42 +906,42 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       }
     },
 
-      extendedCheck: function (bounds, lastX, thisX) {
-        // need continuation semaphores for each meridian crossing
-        // if cross both merdians, we were inside the polygon
-        // if cross the same meridian these are the points we want
-        if (bounds.prime_cont) {          // crossing prime meridian is the simpler case
-          if (bounds.prime_dir > 0) {
-            if (thisX > bounds.xxmaxm) {
-              bounds.xxmaxm = thisX
-            }
-          }
-          else {
-            if (thisX < bounds.xxminp) {
-              bounds.xxminp = thisX
-            }
+    extendedCheck: function (bounds, lastX, thisX) {
+      // need continuation semaphores for each meridian crossing
+      // if cross both merdians, we were inside the polygon
+      // if cross the same meridian these are the points we want
+      if (bounds.prime_cont) {          // crossing prime meridian is the simpler case
+        if (bounds.prime_dir > 0) {
+          if (thisX > bounds.xxmaxm) {
+            bounds.xxmaxm = thisX
           }
         }
-        if (bounds.anti_cont) {
-          if (bounds.anti_dir < 0) {
-            if (bounds.anti_now) {
-              thisX = 360 - thisX
-            }
-            if (thisX < bounds.xxminm) {
-              bounds.xxminm = thisX
-            }
-          }
-          else {
-            if (bounds.anti_now) {
-              thisX = thisX - 360
-            }
-            if (thisX > bounds.xxmaxp) {
-              bounds.xxmaxp = thisX
-            }
+        else {
+          if (thisX < bounds.xxminp) {
+            bounds.xxminp = thisX
           }
         }
-        bounds.anti_now = false;
-        bounds.prime_now = false;
+      }
+      if (bounds.anti_cont) {
+        if (bounds.anti_dir < 0) {
+          if (bounds.anti_now) {
+            thisX = 360 - thisX
+          }
+          if (thisX < bounds.xxminm) {
+            bounds.xxminm = thisX
+          }
+        }
+        else {
+          if (bounds.anti_now) {
+            thisX = thisX - 360
+          }
+          if (thisX > bounds.xxmaxp) {
+            bounds.xxmaxp = thisX
+          }
+        }
+      }
+      bounds.anti_now = false;
+      bounds.prime_now = false;
     }
 
   }
