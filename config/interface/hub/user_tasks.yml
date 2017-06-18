@@ -194,7 +194,7 @@ collecting_event_lat_long_task:
   hub: true
   name: 'Stepwise collecting event parser - Latitude/Longitude'
   related:
-    - collecting_events
+    - collecting_event
   categories:
     - collecting_event
   status: prototype
@@ -219,7 +219,7 @@ dates_index_task:
   hub: true
   name: 'Stepwise collecting event parser - Dates'
   related:
-    - collecting_events
+    - collecting_event
   categories:
     - collecting_event
   status: prototype
