@@ -25,6 +25,14 @@ TAXON_NAME_RELATIONSHIP_NAMES_INVALID = TaxonNameRelationship.
                                       TaxonNameRelationship::Icn::Unaccepting,
                                       TaxonNameRelationship::Icnb::Unaccepting).freeze
 
+TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM = TaxonNameRelationship.
+    collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym,
+                                        TaxonNameRelationship::Icn::Unaccepting::Synonym,
+                                        TaxonNameRelationship::Icnb::Unaccepting::Synonym) +
+                                        ['TaxonNameRelationship::Iczn::Invalidating',
+                                         'TaxonNameRelationship::Icn::Unaccepting',
+                                         'TaxonNameRelationship::Icnb::Unaccepting'].freeze
+
 
 # TODO: check .assignable property prior to building
 
