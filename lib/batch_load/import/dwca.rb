@@ -124,12 +124,9 @@ module BatchLoad
           end
         else
           @errs.push(c_e.errors.messages)
-          @row_objects.delete(:make_ce)
+          # @row_objects.delete(:make_ce)
           # everything else is a fail.
-          @rows[line_counter][:row_objects] = @row_objects
-          @rows[line_counter][:err]         = @errs
-          @rows[line_counter][:warn]        = @warns
-          line_counter                      += 1
+          line_counter = loop_end(line_counter)
           next
         end
         # associate the collection_object with the collecting_event
@@ -222,10 +219,7 @@ module BatchLoad
           @errs.flatten!
           # ap@warns
         end
-        @rows[line_counter][:row_objects] = @row_objects
-        @rows[line_counter][:err]         = @errs
-        @rows[line_counter][:warn]        = @warns
-        line_counter                      += 1
+        line_counter = loop_end(line_counter)
         # break if line_counter > 30
       end
       @total_lines = line_counter - 1
@@ -243,6 +237,16 @@ module BatchLoad
     end
 
     private
+
+# package up the results of the process into a hash
+# @param [Integer] current line_counter/rows key
+# @return [Integer] new line_counter/rows key
+    def loop_end(line_counter)
+      @rows[line_counter][:row_objects] = @row_objects
+      @rows[line_counter][:err]         = @errs
+      @rows[line_counter][:warn]        = @warns
+      line_counter + 1
+    end
 
     def dump_hash(objects)
       objects.keys.each {|kee|

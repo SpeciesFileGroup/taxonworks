@@ -4,9 +4,9 @@ module Tasks::Import::Dwca::PsuImportHelper
     color  = 'green'
     color  = 'red' unless row[:err].blank?
     output = "<li class=#{color}>"
-    # output += (row[:row].to_s + '<br>')
-    output += ((ap row[:row]))
-    output += ((ap row[:row_objects][:make_ce]))
+    output += (row[:row].to_s)
+    # output += ((ap row[:row]))
+    # output += ((ap row[:row_objects][:make_ce]))
     # output += ap(row[:row_objects][:make_ce])
     unless row[:warn].blank?
       row[:warn].each do |warning|

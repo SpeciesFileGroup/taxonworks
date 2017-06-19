@@ -148,6 +148,7 @@ class Georeference::GeoLocate < Georeference
   #   '&points=|||low|&georef=run|false|false|true|true|false|false|false|0&gc=Tester'
   # end
 
+  # This class is used to create the string which will be sent to Tulane
   class RequestUI
     REQUEST_PARAMS = {
       'country'       => nil, # name of a country 'USA', or Germany
@@ -183,13 +184,14 @@ class Georeference::GeoLocate < Georeference
     def build_param_string
       # @request_param_string ||= @request_params.collect { |key, value| "#{key}=#{value}" }.join('&')
       ga                     = request_params_hash
-      @request_params_string = 'http://' + URI_HOST +
+      params_string          = 'http://' + URI_HOST +
         URI_EMBED_PATH +
         "country=#{ga['country']}&state=#{ga['state']}&county=#{ga['county']}&locality=#{ga['locality']}&points=" +
         "#{ga['Latitude']}|#{ga['Longitude']}|#{ga['Placename']}|#{ga['Score']}|#{ga['Uncertainty']}" +
         "&georef=run|#{ga['H20']}|#{ga['HwyX']}|#{ga['Uncert']}|#{ga['Poly']}|#{ga['DisplacePoly']}|" +
         "#{ga['RestrictAdmin']}|#{ga['BG']}|#{ga['LanguageIndex']}" +
         "&gc=#{ga['gc']}"
+      @request_params_string = URI.encode(params_string)
     end
 
     # def request_string

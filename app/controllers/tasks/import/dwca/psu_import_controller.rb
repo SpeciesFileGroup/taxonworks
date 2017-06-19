@@ -49,26 +49,22 @@ class Tasks::Import::Dwca::PsuImportController < ApplicationController
                                           rank_class: 'NomenclaturalRank',
                                           parent_id:  nil,
                                           project_id: $project_id)
-    root.save! if root.new_record?
     pre_load[:root] = root
 
     kingdom = Protonym.find_or_create_by(name:       'Animalia',
                                          parent_id:  root.id,
                                          rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
                                          project_id: $project_id)
-    kingdom.save! if kingdom.new_record?
     pre_load[:kingdom] = kingdom
 
     cat_no_pred = Predicate.find_or_create_by(name:       'catalogNumber',
                                               definition: 'The verbatim value imported from PSUC for "catalogNumber".',
                                               project_id: $project_id)
-    cat_no_pred.save! if cat_no_pred.new_record?
     pre_load[:cat_no_pred] = cat_no_pred
 
     geo_rem_kw = Keyword.find_or_create_by(name:       'georeferenceRemarks',
                                            definition: 'The verbatim value imported from PSUC for "georeferenceRemarks".',
                                            project_id: $project_id)
-    geo_rem_kw.save! if geo_rem_kw.new_record?
     pre_load[:geo_rem_kw] = geo_rem_kw
 
     repo = Repository.find_or_create_by(name:                 'Frost Entomological Museum, Penn State University',
@@ -76,14 +72,12 @@ class Tasks::Import::Dwca::PsuImportController < ApplicationController
                                         status:               'Yes',
                                         acronym:              'PSUC',
                                         is_index_herbariorum: false)
-    repo.save! if repo.new_record?
     pre_load[:repo] = repo
 
     # Namespace requires name and short_name to be present, and unique
     namespace       = Namespace.find_or_create_by(institution: 'Penn State University Collection',
                                                   name:        'Frost Entomological Museum',
                                                   short_name:  'PSUC_FEM')
-    namespace.save! if namespace.new_record?
     pre_load[:namespace] = namespace
 
     pre_load
