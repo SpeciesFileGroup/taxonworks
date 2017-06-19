@@ -3,7 +3,7 @@ require 'rails_helper'
 describe Tag, type: :model, group: [:annotators, :tags] do
 
   let(:tag) { Tag.new }
-  let(:keyword) { FactoryGirl.create(:valid_keyword, name: 'tag let keyword') }
+  let(:keyword) { Keyword.create(name: 'Keyword for model test', definition: 'Only used here') }
   let(:otu) { FactoryGirl.create(:valid_otu) }
 
   context 'associations' do
@@ -151,40 +151,40 @@ describe Tag, type: :model, group: [:annotators, :tags] do
       end
     end
 
-    context 'nested attributes' do
-      let(:name) { 'bad_keyword' }
-      let(:definition) {'bad_definition'}
+    context 'duplication' do
+      let(:name)       { 'bad_keyword' }
+      let(:definition) { 'bad_definition'}
       let(:keyword_params) { { name: name, definition: definition } }
 
-      context 'keyword uniqueness' do 
-        specify 'duplicate new keywords are rejected' do
-          o1 = Otu.new(name: 'Other otu', tags_attributes: [
+      context 'by identical params' do 
+        let(:dupe_param_otu) {
+          Otu.new(name: 'Other otu', tags_attributes: [
             {keyword_attributes: keyword_params}, 
             {keyword_attributes: keyword_params}
           ])
-          expect(o1.valid?).to be_falsey
-        end
+        }
 
+        specify 'duplicate new keywords are rejected' do
+          expect(dupe_param_otu.valid?).to be_falsey
+        end
+      end
+
+      context 'by reference to id/object that are the same' do
         specify 'duplicate existing keywords are rejected' do
-          o1 = Otu.new(name: 'Other otu', tags_attributes: [ 
-            {keyword: keyword},
-            {keyword_id: keyword.id}
-          ])
-          expect(o1.save).to be_falsey
+          k = Keyword.create(name: 'a111', definition: 'a111')
+          otu =
+            Otu.new(
+                name: 'Other otu',
+                tags_attributes: [
+                    {keyword: k},
+                    {keyword_id: k.id}
+                ])
+          expect(otu.valid?).to be_falsey
         end
-
       end
-
-      context 'combining position and _destroy' do
-      end
-
-      context 'combining _destroy and new' do
-      end
+    
     end
   end
-
-  # TODO: Determine if we want to tag individual fields. 
-  #  specify 'a attribute is actually a attribute of the tag object'
 
   context 'concerns' do
     it_behaves_like 'is_data'

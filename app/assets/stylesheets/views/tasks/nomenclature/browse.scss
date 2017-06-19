@@ -3,6 +3,9 @@
 @import 'base/fonts'; 
 
 #browse-view {
+	#third-column {
+		max-width: 400px;
+	}
 	.name {
 		font-size: 18px;
 	}
@@ -20,12 +23,19 @@
 	@media screen and (min-width: 980px) {
 		.ui-autocomplete {
 			width: auto;
-		white-space: nowrap;
+			white-space: nowrap;
 		}
 	}
 	.soft_validation_anchor {
+		cursor: pointer;
 		margin-left: 5px;
 		display: none;
+	}
+	.annotation__note {
+		display: none;
+	}
+	.modal-container {
+		width: 600px;
 	}
 	.history__origin {
 		display: none;

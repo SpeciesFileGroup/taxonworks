@@ -8,8 +8,7 @@ describe ApiController, type: :feature do
     context 'with a valid token' do
       it 'shows a JSON success response' do
         visit api_path + "?project_id=1&token=#{user.api_access_token}" 
-        # NOTE: using "find" because js:true causes the response to be wrapped inside an html document
-        expect(JSON.parse(find('pre').text)).to eq({ "success" => true })
+        expect((find('.objectBox').text)).to eq('true')
       end
     end
 
@@ -17,8 +16,7 @@ describe ApiController, type: :feature do
 
       it 'shows a JSON failure response' do
         visit api_path + "?project_id=1&token=FOO" 
-        # NOTE: using "find" because js:true causes the response to be wrapped inside an html document
-        expect(JSON.parse(find('pre').text)).to eq({ "success" => false })
+        expect((find('.objectBox').text)).to eq('false')
       end
     end
   end

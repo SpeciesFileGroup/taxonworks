@@ -75,7 +75,6 @@ RSpec.configure do |config|
     config.default_formatter = 'doc'
   end
 
-
   # TaxonWorks tests suites
   #
   # Tests that check/test the testing framework itself
@@ -95,17 +94,7 @@ RSpec.configure do |config|
   # particularly slow.
   #  config.profile_examples = 10
 
-  # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
-  # config.fixture_path = "#{::Rails.root}/spec/fixtures"
-  #
-  #
-  #
   config.before(:suite) do
-    # See also environments/test.rb
-    #if ENV['TAXONWORKS_TEST_WITH_PRECOMPILE']
-    #  %x[bundle exec rake assets:precompile]
-    #end
-    #
 
     DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys))
         
@@ -124,8 +113,13 @@ RSpec.configure do |config|
 
   # Capybara requires truncation strategy!! 
   config.before(:each, js: true) do
+    Capybara.current_driver = Capybara.javascript_driver
     DatabaseCleaner.strategy = :truncation, { except: %w(spatial_ref_sys) }
     Features::Downloads.clear_downloads
+  end
+
+  config.after(:each, js: true) do
+    Capybara.use_default_driver
   end
 
   config.before(:each) do
@@ -136,8 +130,8 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
   end 
 
-  config.before(:each) do
-    set_selenium_window_size(1250, 800) if Capybara.current_driver == :selenium
-  end  
+# config.before(:each) do
+#   set_selenium_window_size(1250, 800) if Capybara.current_driver == :selenium
+# end  
 
 end

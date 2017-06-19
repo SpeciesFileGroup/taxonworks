@@ -555,7 +555,7 @@ class TaxonName < ActiveRecord::Base
   # @return [TaxonNameRelationship]
   #  returns youngest taxon name relationship where self is the subject.
   def first_possible_valid_taxon_name_relationship
-    taxon_name_relationships(true).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).youngest_by_citation 
+    taxon_name_relationships(true).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
   end
 
   # @return [TaxonName]
@@ -576,7 +576,7 @@ class TaxonName < ActiveRecord::Base
       first_pass = false
       list_of_taxa_to_check = list.empty? ? [self] : list.keys.select{|t| list[t] == false}
       list_of_taxa_to_check.each do |t|
-        potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_oldest_source_first
+        potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).order_by_oldest_source_first
         potentialy_invalid_relationships.find_each do |r|
           if !TaxonNameClassification.where_taxon_name(r.subject_taxon_name).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
             # do nothing, taxon has a status of valid name
@@ -882,7 +882,7 @@ class TaxonName < ActiveRecord::Base
     d = full_name_hash
    
     elements = []
-    d['genus'] = [nil, '[' + self.original_genus.cached_html + ']'] if !d['genus'] && self.original_genus
+    d['genus'] = [nil, self.original_genus.cached_html] if !d['genus'] && self.original_genus
     d['genus'] = [nil, '[GENUS UNKNOWN]'] unless d['genus']
 
     elements.push("#{eo}#{d['genus'][1]}#{ec}") if d['genus']
@@ -997,7 +997,7 @@ class TaxonName < ActiveRecord::Base
               subgenus += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
             when /OriginalSpecies/ #  'original species'
               species += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
-            when /OriginalSubSpecies/ # 'original subspecies'
+            when /OriginalSubspecies/ # 'original subspecies'
               species += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
             when /OriginalVariety/ #  'original variety'
               species += 'var. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
@@ -1025,7 +1025,7 @@ class TaxonName < ActiveRecord::Base
   #            subgenus += 'subser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
             when /OriginalSpecies/ #  'original species'
               species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-            when /OriginalSubSpecies/ # 'original subspecies'
+            when /OriginalSubspecies/ # 'original subspecies'
               species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
             when /OriginalVariety/ #  'original variety'
               species += 'var. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
@@ -1040,7 +1040,7 @@ class TaxonName < ActiveRecord::Base
       end
 
       original_name = self.verbatim_name.nil? ? self.name_with_misspelling(nil) : self.verbatim_name
-      if !relationships.empty? && relationships.collect{|i| i.subject_taxon_name_id}.last != self.id
+      if !relationships.empty? && relationships.collect{|i| i.subject_taxon_name}.last.lowest_rank_coordinated_taxon.id != self.lowest_rank_coordinated_taxon.id
         if self.rank_string =~ /Genus/
           if genus.blank?
             genus += '<i>' + original_name + '</i> '
@@ -1059,30 +1059,10 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  # TODO: @proceps is this used for all subclasses, or just Protonym?
+  # return (String)
   def get_genus_species(genus_option, self_option)
-    return nil if rank_class.nil?
-    genus = nil
-    name1 = nil
-
-    if genus_option == :original
-      genus = self.original_genus
-    elsif genus_option == :current
-      genus = self.ancestor_at_rank('genus')
-    else
-      return false
-    end
-    genus = genus.name unless genus.blank?
-
-    return nil if self.rank_string =~ /Species/ && genus.blank?
-    if self_option == :self
-      name1 = self.name
-    elsif self_option == :alternative
-      name1 = name_with_alternative_spelling
-    end
-    
-    return nil if genus.nil? && name1.nil?
-    (genus.to_s + ' ' + name1.to_s).squish
+  # see protonym
+    true
   end
 
   # return [Boolean] whether there is missaplication relationship
@@ -1226,7 +1206,7 @@ class TaxonName < ActiveRecord::Base
     if leaf? 
       true
     else
-      errors.add(:base, "has attached names, delete these first")
+      errors.add(:base, "This taxon has children names attached, delete those first.")
       false 
     end
   end
@@ -1242,14 +1222,11 @@ class TaxonName < ActiveRecord::Base
   def validate_parent_rank_is_higher
     if self.parent && !self.rank_class.blank? && self.rank_string != 'NomenclaturalRank'
       if RANKS.index(self.rank_string) <= RANKS.index(self.parent.rank_string)
-        errors.add(:parent_id, "The parent rank (#{self.parent.rank_class.rank_name}) is not higher than #{rank_name}")
+        errors.add(:parent_id, "The parent rank (#{self.parent.rank_class.rank_name}) is not higher than the rank (#{rank_name}) of this taxon")
       end
 
-      if (self.rank_class != self.rank_class_was) && # TODO: @proceps this catches nothing, as self.rank_class_was is never defined!
-        self.children &&
-        !self.children.empty? &&
-        RANKS.index(self.rank_string) >= self.children.collect { |r| RANKS.index(r.rank_string) }.max
-        errors.add(:rank_class, "The taxon rank (#{rank_name}) is not higher than child ranks")
+      if (self.rank_class != self.rank_class_was) && self.children && !self.children.empty? && RANKS.index(self.rank_string) >= self.children.collect { |r| RANKS.index(r.rank_string) }.max
+        errors.add(:rank_class, "The rank of this taxon (#{rank_name}) should be higher than the ranks of children")
       end
     end
   end
@@ -1257,7 +1234,7 @@ class TaxonName < ActiveRecord::Base
   def validate_one_root_per_project
     if new_record? || project_id_changed?
       if !parent_is_set? && TaxonName.where(parent_id: nil, project_id: self.project_id).count > 0
-        errors.add(:parent_id, 'is empty, only one root is allowed per project') 
+        errors.add(:parent_id, 'The parent should not be empty (only one root is allowed per project)')
       end
     end 
   end
@@ -1267,7 +1244,7 @@ class TaxonName < ActiveRecord::Base
     if is_protonym? && self.parent_id != self.parent_id_was && !self.parent_id_was.nil? && nomenclatural_code == :iczn
       if old_parent = TaxonName.find_by(id: self.parent_id_was)
         if (rank_name == 'subgenus' || rank_name == 'subspecies') && old_parent.name == self.name
-          errors.add(:parent_id, "The nominotypical #{rank_name} #{name} could not be moved out of the nominal #{old_parent.rank_name}")
+          errors.add(:parent_id, "The nominotypical #{rank_name} #{name} can not be moved out of the nominal #{old_parent.rank_name}")
         end
       end
     end
@@ -1290,7 +1267,7 @@ class TaxonName < ActiveRecord::Base
 
       old_rank_group = self.rank_class_was.safe_constantize.parent
       if self.rank_class.parent != old_rank_group
-        errors.add(:rank_class, "A new taxon rank (#{rank_name}) should be in the #{old_rank_group.rank_name}")
+        errors.add(:rank_class, "A new taxon rank (#{rank_name}) should be in the #{old_rank_group.rank_name} rank group")
       end
     end
   end
@@ -1329,7 +1306,7 @@ class TaxonName < ActiveRecord::Base
 
         misspellings     = misspellings & taxon_name_relationships.pluck(&:type_class) # self.taxon_name_relationships.collect { |c| c.type_class.to_s }
         if invalid_statuses.empty? && misspellings.empty?
-          soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling')
+          soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling or original misspelling')
         end
       end
     end
@@ -1337,7 +1314,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_missing_fields
-    soft_validations.add(:base, 'Source is missing') if self.source.nil?
+    soft_validations.add(:base, 'Original publication is not selected') if self.source.nil?
     soft_validations.add(:verbatim_author, 'Author is missing',
                          fix: :sv_fix_missing_author,
                          success_message: 'Author was updated') if self.author_string.nil?
@@ -1437,7 +1414,7 @@ class TaxonName < ActiveRecord::Base
   # TODO: does this make sense now, with #valid_taxon_name_id in place?
   def sv_not_synonym_of_self
     if list_of_invalid_taxon_names.include?(self)
-      soft_validations.add(:base, "Taxon has two conflicting relationships (invalidating and validating). To resolve a conflict, add a status 'valid' to a valid taxon.")
+      soft_validations.add(:base, "Taxon has two conflicting relationships (invalidating and validating). To resolve a conflict, add a status 'Valid' to a valid taxon.")
     end
   end
 

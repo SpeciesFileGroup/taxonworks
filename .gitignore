@@ -4,8 +4,6 @@
 # or operating system, you probably want to add a global ignore instead:
 #   git config --global core.excludesfile '~/.gitignore_global'
 
-# TaxonWorks specific development
-
 .idea/
 *.tmp
 *~
@@ -13,66 +11,42 @@
 *.swp
 *.swo
 .DS_store
+.byebug_history
+.otto*
+*.orig
 
-# /db/schema.rb
+*.sql
+
 database.yml
 secrets.yml
 application_settings.yml
 
-/tags
-
-# Ignore node modules
-/node_modules
-
 .yardoc/
-
-# Temporarily
-# Gemfile.lock
-
-# Ignore rvm gemset configuration
+/doc
+/log
+/node_modules
+/tags
+/tmp
+/coverage
 /.ruby-gemset
 
-# Ignore bundler config.
 /.bundle
-
 /bundle_bin
 
-# Ignore all logfiles and tempfiles.
-/log
-/tmp
 index.html
-
-# Ignore rdoc folder
-/doc
-
-coverage/
-
-*.sql
 
 .ruby-version
 
-# temp until we figure out where we're going to store images
-public/system
+/bin/bundle
+/bin/spring
+/bin/delayed_job
 
-# temp until we decide how will we deal with repeatability in integration tests with external APIs
+/public/system
+/public/packs-test
+/public/images/tmp
+/public/assets/
+/public/packs
 /spec/fixtures/vcr_cassettes
-
-# home for paperclip in test mode
-spec/test_files/
-
-.byebug_history
-
-.otto*
-
-*.orig
+/spec/test_files/
 
 REVISION
-
-public/images/tmp
-public/assets/
-/public/packs
-# /node_modules # previously noted, ~line 25
-
-bin/bundle
-bin/spring
-bin/delayed_job
