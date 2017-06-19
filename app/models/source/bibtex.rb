@@ -817,11 +817,11 @@ class Source::Bibtex < Source
       tmp                       = cached_string('text')
       self.cached               = tmp
 
-      if self.authors.size > 0
+      if self.author.blank? && self.authors.size > 0
         self.author = self.compute_bibtex_names('author')
       end
 
-      if self.editors.size > 0
+      if self.editor.blank? && self.editors.size > 0
         self.editor = self.compute_bibtex_names('editor')
       end
 
