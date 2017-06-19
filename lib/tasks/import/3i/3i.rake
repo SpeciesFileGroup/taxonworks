@@ -503,7 +503,7 @@ namespace :tw do
                                                      pages: pages,
                                                      volume: volume,
                                                      bibtex_type: 'article'
-          )
+          )###
 
           #source.alternate_values.new(value: row['Author'], type: 'AlternateValue::Abbreviation', alternate_value_object_attribute: 'author') if !row['AuthorDrMetcalf'].blank? && row['AuthorDrMetcalf'] != row['Author']
 
