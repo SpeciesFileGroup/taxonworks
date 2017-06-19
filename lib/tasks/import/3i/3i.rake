@@ -503,7 +503,7 @@ namespace :tw do
                                                      pages: pages,
                                                      volume: volume,
                                                      bibtex_type: 'article'
-          )###
+          )
 
           #source.alternate_values.new(value: row['Author'], type: 'AlternateValue::Abbreviation', alternate_value_object_attribute: 'author') if !row['AuthorDrMetcalf'].blank? && row['AuthorDrMetcalf'] != row['Author']
 
@@ -520,17 +520,20 @@ namespace :tw do
             note.gsub!(' and distribution', '')
           end
           if !note.blank? && note.include?('Taxonomy only')
-            source.tags.create(keyword: @data.keywords['Taxonomy'])
+            tg = source.tags.create(keyword: @data.keywords['Taxonomy'])
+            byebug if tg.id.nil?
             note.gsub!('Taxonomy only', '')
             @data.source_checked_taxonomy[source.id] = true
           end
           if !note.blank? && note.index('T ') == 0
-            source.tags.create(keyword: @data.keywords['Typhlocybinae'])
+            tg = source.tags.create(keyword: @data.keywords['Typhlocybinae'])
+            byebug if tg.id.nil?
             note = note[2..-1]
           end
           #TODO check illustrations
           if !note.blank? && note.include?('Illustrations done')
-            source.tags.create(keyword: @data.keywords['Illustrations'])
+            tg = source.tags.create(keyword: @data.keywords['Illustrations'])
+            byebug if tg.id.nil?
             note.gsub!('Illustrations done', '')
           end
           note.squish! unless note.nil?
@@ -545,10 +548,10 @@ namespace :tw do
             end
           end
 
-          source.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['IDDrMetcalf'], identifier: row['IDDrMetcalf']) unless row['IDDrMetcalf'].blank?
-          source.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['Key3'], identifier: row['Key3']) unless row['Key3'].blank?
-          source.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['FLOW-ID'], identifier: row['FLOW-ID']) if !row['FLOW-ID'].blank? && !row['FLOW-ID'] == '0'
-          source.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['DelphacidaeID'], identifier: row['DelphacidaeID']) if !row['DelphacidaeID'].blank? && !row['DelphacidaeID'] == '0'
+          source.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['IDDrMetcalf'], identifier: row['IDDrMetcalf']) unless row['IDDrMetcalf'].blank?
+          source.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['Key3'], identifier: row['Key3']) unless row['Key3'].blank?
+          source.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['FLOW-ID'], identifier: row['FLOW-ID']) if !row['FLOW-ID'].blank? && row['FLOW-ID'] != '0' #####????????
+          source.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['DelphacidaeID'], identifier: row['DelphacidaeID']) if !row['DelphacidaeID'].blank? && row['DelphacidaeID'] != '0' #############???????
 
 
           begin
