@@ -816,7 +816,6 @@ class Source::Bibtex < Source
     if self.errors.empty?
       tmp                       = cached_string('text')
       self.cached               = tmp
-      self.cached_author_string = authority_name
 
       if self.authors.size > 0
         self.author = self.compute_bibtex_names('author')
@@ -825,6 +824,8 @@ class Source::Bibtex < Source
       if self.editors.size > 0
         self.editor = self.compute_bibtex_names('editor')
       end
+
+      self.cached_author_string = authority_name
     end
   end
 
