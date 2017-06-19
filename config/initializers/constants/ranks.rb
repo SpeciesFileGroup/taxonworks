@@ -8,7 +8,7 @@ ICN = NomenclaturalRank::Icn.ordered_ranks.collect{|r| r.to_s}.freeze
 # ICZN class names  ordered in an Array
 ICZN = NomenclaturalRank::Iczn.ordered_ranks.collect{|r| r.to_s}.freeze
 
-# ICZN class names  ordered in an Array
+# ICNB class names  ordered in an Array
 ICNB = NomenclaturalRank::Icnb.ordered_ranks.collect{|r| r.to_s}.freeze
 
 # All assignable Rank Classes 
@@ -68,7 +68,7 @@ GENUS_RANK_NAMES_ICNB = NomenclaturalRank::Icnb::GenusGroup.descendants.collect{
 SPECIES_RANK_NAMES_ICZN = NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|i| i.to_s}.freeze
 
 # All assignable ranks for species groups, for both ICN
-SPECIES_RANK_NAMES_ICN = NomenclaturalRank::Icn::SpeciesGroup.descendants.collect{|i| i.to_s}.freeze
+SPECIES_RANK_NAMES_ICN = NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants.collect{|i| i.to_s}.freeze
 
 # All assignable ranks for species groups, for both ICNB
 SPECIES_RANK_NAMES_ICNB = NomenclaturalRank::Icnb::SpeciesGroup.descendants.collect{|i| i.to_s}.freeze

@@ -16,9 +16,9 @@ module LoanItemsHelper
     link_to(loan_item_tag(loan_item), loan_item) # metamorphosize_if(loan_item.loan_item_object))
   end
 
-  def loan_items_search_form
-    render('/loan_items/quick_search_form')
-  end
+  #  def loan_items_search_form
+  #    render('/loan_items/quick_search_form')
+  #  end
 
   def loan_item_total_string(loan_item)
     if t = loan_item.total_items

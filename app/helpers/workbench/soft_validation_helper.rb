@@ -1,11 +1,20 @@
 module Workbench::SoftValidationHelper
 
+  # Populated after page load events with a sweeper 
+  #   .soft_validation_anchor { display:none }
+  # After page load
+  #  Hit http://127.0.0.1:3000/soft_validations/validate?global_id=gid%3A%2F%2Ftaxon%2Dworks%2FTaxonNameRelationship%3A%3AIczn%3A%3AValidating%3A%3AUncertainPlacement%2F209410 
+  #  to get JSON back
   def soft_validation_alert_tag(object)
-  #object.soft_validate
-  #content_tag(:span, '', 
-  #            data: { icon: 'attention'},
-  #            title: object.soft_validations.soft_validations.collect{|m| m.message}.join('; ') 
-  #           ) if !object.soft_valid?
+    content_tag(:span, '', 
+                id: object_id_string(object, 'soft_validation'), 
+                class: [:soft_validation_anchor], 
+                data: { icon: 'attention', global_id: URI.escape( object.to_global_id.to_s, /[\W\\]/) }
+               )
+  end
+
+  def object_id_string(object, prefix = nil)
+    [prefix, "#{object.metamorphosize.class}_#{object.id}"].compact.join('_')
   end
 
 end

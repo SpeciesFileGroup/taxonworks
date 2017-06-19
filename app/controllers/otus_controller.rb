@@ -36,8 +36,8 @@ class OtusController < ApplicationController
     respond_to do |format|
       if @otu.save
         format.html { redirect_to @otu,
-                                  notice: "Otu '#{@otu.name}' was successfully created." }
-        format.json { render action: 'show', status: :created, location: @otu }
+                      notice: "Otu '#{@otu.name}' was successfully created." }
+        format.json { render action: :show, status: :created, location: @otu }
       else
         format.html { render action: 'new' }
         format.json { render json: @otu.errors, status: :unprocessable_entity }
@@ -51,7 +51,7 @@ class OtusController < ApplicationController
     respond_to do |format|
       if @otu.update(otu_params)
         format.html { redirect_to @otu, notice: 'Otu was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render :show, location: @otu }
       else
         format.html { render action: 'edit' }
         format.json { render json: @otu.errors, status: :unprocessable_entity }
@@ -86,13 +86,14 @@ class OtusController < ApplicationController
     @otus = Queries::OtuAutocompleteQuery.new(params.require(:term), project_id: sessions_current_project_id).all
 
     data = @otus.collect do |t|
-      {id:              t.id,
-       label:           ApplicationController.helpers.otu_autocomplete_selected_tag(t),
-       gid:             t.to_global_id.to_s,
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html:      ApplicationController.helpers.otu_tag(t)
+      {
+        id:              t.id,
+        label:           ApplicationController.helpers.otu_autocomplete_selected_tag(t),
+        gid:             t.to_global_id.to_s,
+        response_values: {
+          params[:method] => t.id
+        },
+        label_html:      ApplicationController.helpers.otu_tag(t)
       }
     end
 

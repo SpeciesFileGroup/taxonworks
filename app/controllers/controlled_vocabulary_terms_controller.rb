@@ -1,12 +1,12 @@
 class ControlledVocabularyTermsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_controlled_vocabulary_term, only: [:show, :edit, :update, :destroy]
+  before_action :set_controlled_vocabulary_term, only: [:show, :edit, :update, :destroy, :depictions, :citations, :confidences]
 
   # GET /controlled_vocabulary_terms
   # GET /controlled_vocabulary_terms.json
   def index
-    @recent_objects = ControlledVocabularyTerm.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = ControlledVocabularyTerm.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -31,32 +31,18 @@ class ControlledVocabularyTermsController < ApplicationController
     @controlled_vocabulary_term = ControlledVocabularyTerm.new(controlled_vocabulary_term_params)
     respond_to do |format|
       if @controlled_vocabulary_term.save
-        msg = "#{@controlled_vocabulary_term.type} '#{@controlled_vocabulary_term.name}' was successfully created."
-
-        if !params.permit(:return_path)[:return_path].blank?
-          # case - coming from otu -> new tag -> new cvt -> back to tag/new
-          redirect_url = params.permit(:return_path)[:return_path] + "&tag[keyword_id]=#{@controlled_vocabulary_term.to_param}"
-        elsif request.env['HTTP_REFERER'].include?('controlled_vocabulary_terms/new')
-          # case - coming from cvt index -> cvt/new
-          redirect_url = controlled_vocabulary_term_path(@controlled_vocabulary_term)
-        else
-          # case - coming from task -> return to task
-          redirect_url = :back
-        end
-
-        format.html { redirect_to redirect_url, notice: msg } # !! new behaviour to test
-        format.json { render action: 'show', status: :created, location: @controlled_vocabulary_term.metamorphosize }
-
+        format.html { redirect_to @controlled_vocabulary_term.metamorphosize, notice: "#{@controlled_vocabulary_term.type} '#{@controlled_vocabulary_term.name}' was successfully created."}
+        format.json { 
+          render action: 'show', status: :created, location: @controlled_vocabulary_term.metamorphosize 
+        }
       else
         format.html {
           flash[:notice] = 'Controlled vocabulary term NOT successfully created.'
-          if redirect_url == :back
-            redirect_to :back
-          else
-            render action: 'new'
-          end
+          render action: 'new'
         }
-        format.json { render json: @controlled_vocabulary_term.errors, status: :unprocessable_entity }
+        format.json { 
+          render json: @controlled_vocabulary_term.errors, status: :unprocessable_entity
+        }
       end
     end
   end
@@ -95,7 +81,19 @@ class ControlledVocabularyTermsController < ApplicationController
   end
 
   def list
-    @controlled_vocabulary_terms = ControlledVocabularyTerm.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @controlled_vocabulary_terms = ControlledVocabularyTerm.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+  end
+
+  def depictions
+    render json: @controlled_vocabulary_terms.depictions
+  end
+
+  def citations
+    render json: @controlled_vocabulary_terms.citations
+  end
+
+  def confidences
+    render json: @controlled_vocabulary_terms.confidences
   end
 
   def autocomplete
@@ -116,7 +114,7 @@ class ControlledVocabularyTermsController < ApplicationController
 
   # GET /controlled_vocabulary_terms/download
   def download
-    send_data ControlledVocabularyTerm.generate_download(ControlledVocabularyTerm.where(project_id: $project_id)), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now.to_s}.csv"
+    send_data ControlledVocabularyTerm.generate_download(ControlledVocabularyTerm.where(project_id: sessions_current_project_id)), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now.to_s}.csv"
   end
 
   # GET /controlled_vocabulary_terms/1/tagged_objects
@@ -127,7 +125,7 @@ class ControlledVocabularyTermsController < ApplicationController
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_controlled_vocabulary_term
-    @controlled_vocabulary_term = ControlledVocabularyTerm.with_project_id($project_id).find(params[:id])
+    @controlled_vocabulary_term = ControlledVocabularyTerm.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @controlled_vocabulary_term
   end
 

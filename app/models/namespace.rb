@@ -44,7 +44,7 @@ class Namespace < ActiveRecord::Base
   include Shared::SharedAcrossProjects
   include Shared::IsData
 
-  has_paper_trail
+  has_paper_trail :on => [:update] 
 
   validates_presence_of :name, :short_name
   validates_uniqueness_of :name, :short_name

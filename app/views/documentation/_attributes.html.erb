@@ -1,14 +1,10 @@
-  <p>
-    <strong>Documentation object:</strong>
-    <%= object_tag(@documentation.documentation_object) %>
-  </p>
+<p>
+  <strong>Documentation object:</strong>
+  <%= object_link(@documentation.documentation_object) %>
+</p>
 
-  <p>
-    <strong>Document:</strong>
-    <%= object_tag(@documentation.document) %>
-  </p>
+<p>
+  <strong>Document:</strong>
+  <%= object_link(@documentation.document) %>
+</p>
 
-  <p>
-    <strong>Page map:</strong>
-    <%= @documentation.page_map %>
-  </p>

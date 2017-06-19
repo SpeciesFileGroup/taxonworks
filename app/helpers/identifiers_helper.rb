@@ -9,6 +9,21 @@ module IdentifiersHelper
     end
   end
 
+  def identifier_annotation_tag(identifier)
+    return nil if identifier.nil?
+    content_tag(:span, identifier.cached, class: [:annotation__identifier])
+  end
+
+  # @return [String]
+  #   assumes the display context is on the object in question
+  def identifier_list_tag(object)
+    return nil unless object.has_identifiers? && object.identifiers.any?
+    content_tag(:h3, 'Identifiers') +
+      content_tag(:ul, class: 'annotations_identifier_list') do
+      object.identifiers.collect{|a| content_tag(:li, identifier_annotation_tag(a)) }.join.html_safe 
+    end
+  end
+
   def identifiers_tag(object)
     if object.identifiers.any?
       object.identifiers.collect{|a| content_tag(:span, identifier_tag(a))}.join('; ').html_safe
@@ -42,16 +57,6 @@ module IdentifiersHelper
   def identifier_recent_objects_partial
     true 
   end
-
-  def identifier_list_tag(object)
-    if object.identifiers.any?
-      content_tag(:h3, 'Identifiers') +
-      content_tag(:ul, class: 'identifier_list') do
-        object.identifiers.collect{|a| content_tag(:li, identifier_tag(a)) }.join.html_safe 
-      end
-    end
-  end
-
   
   # SHORT_NAMES = {
   #     doi:   Identifier::Global::Doi,

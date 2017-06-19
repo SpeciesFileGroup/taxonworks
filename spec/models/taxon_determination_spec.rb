@@ -69,13 +69,26 @@ describe TaxonDetermination, type: :model do
 
   end
 
-  context 'combination of nested attributes and otu_id passes' do
+  context 'nested taxon determinations' do
+    context 'combination of nested attributes and otu_id passes' do
+      let(:s) { Specimen.create(nested_attributes) }
 
-    let(:s) { Specimen.create(nested_attributes) }
+      specify "both otu_id and empty_otu_attributes works" do
+        expect(s.taxon_determinations(true).count).to eq(1)
+        expect(s.otus.to_a).to contain_exactly(otu)
+      end
+    end
 
-    specify "both otu_id and empty_otu_attributes works" do
-      expect(s.taxon_determinations(true).count).to eq(1)
-      expect(s.otus.to_a).to contain_exactly(otu)
+    context 'empty otu_id' do
+      let(:a) {
+        {
+          "otu_id" => ""
+        }
+      }
+
+      specify 'does not raise or create' do
+        expect(Specimen.create(taxon_determinations_attributes: [a])).to be_truthy
+      end
     end
   end
 

@@ -1,13 +1,13 @@
 require 'rails_helper'
 
 describe Georeference, type: :model, group: :geo do
-  let(:georeference) { Georeference.new }
+  let(:georeference) {Georeference.new}
 
-  let(:earth) { FactoryGirl.create(:earth_geographic_area) }
-  let(:g_a_t) { FactoryGirl.create(:testbox_geographic_area_type) }
+  let(:earth) {FactoryGirl.create(:earth_geographic_area)}
+  let(:g_a_t) {FactoryGirl.create(:testbox_geographic_area_type)}
 
-  let(:e_g_i) { GeographicItem.create(polygon: BOX_1) }
-  let(:item_d) { GeographicItem.create(polygon: BOX_4) }
+  let(:e_g_i) {GeographicItem.create(polygon: BOX_1)}
+  let(:item_d) {GeographicItem.create(polygon: BOX_4)}
 
   let!(:g_a) {
     GeographicArea.create(name:                 'Box_4',
@@ -17,18 +17,18 @@ describe Georeference, type: :model, group: :geo do
   }
 
   # this collecting event should produce a georeference.geographic_item.geo_object of 'Point(0.1 0.1 0.1)'
-  let(:collecting_event_with_geographic_area) { CollectingEvent.create(geographic_area:    g_a,
-                                                                       verbatim_locality:  'Test Event',
-                                                                       minimum_elevation:  0.1,
-                                                                       verbatim_latitude:  '0.1',
-                                                                       verbatim_longitude: '0.1')
+  let(:collecting_event_with_geographic_area) {CollectingEvent.create(geographic_area:    g_a,
+                                                                      verbatim_locality:  'Test Event',
+                                                                      minimum_elevation:  0.1,
+                                                                      verbatim_latitude:  '0.1',
+                                                                      verbatim_longitude: '0.1')
   }
 
   let(:collecting_event_without_geographic_area) {
     CollectingEvent.create(verbatim_locality: 'without geographic area')
   }
 
-  let!(:gagi) { GeographicAreasGeographicItem.create(geographic_item: item_d, geographic_area: g_a) }
+  let!(:gagi) {GeographicAreasGeographicItem.create(geographic_item: item_d, geographic_area: g_a)}
 
   context 'associations' do
     context 'belongs_to' do
@@ -163,27 +163,27 @@ describe Georeference, type: :model, group: :geo do
       end
 
       context 'testing geographic_item/error against geographic area provided through collecting event' do
-        let(:p0) { GeographicItem.new(point: POINT0) }
-        let(:p18) { GeographicItem.new(point: POINT18) }
-        let(:gi_b1) { GeographicItem.create!(polygon: SHAPE_B_OUTER) }
-        let(:gi_b2) { GeographicItem.create!(polygon: SHAPE_B_INNER) }
-        let(:gi_e1) { GeographicItem.create!(polygon: POLY_E1) }
-        let(:ga_e1) { GeographicArea.create!(name:                                         'test area E1',
-                                             data_origin:                                  'Test Data',
-                                             geographic_area_type:                         g_a_t,
-                                             parent:                                       earth,
-                                             geographic_areas_geographic_items_attributes: [{geographic_item: gi_e1,
-                                                                                             data_origin:     'Test Data'}]
-        ) }
-        let(:ga_b1) { GeographicArea.create!(name:                                         'test area B1',
-                                             data_origin:                                  'Test Data',
-                                             geographic_area_type:                         g_a_t,
-                                             parent:                                       earth,
-                                             geographic_areas_geographic_items_attributes: [{geographic_item: gi_b1,
-                                                                                             data_origin:     'Test Data'}]
-        ) }
-        let(:ce_e1) { CollectingEvent.new(geographic_area: ga_e1) }
-        let(:ce_b1) { CollectingEvent.new(geographic_area: ga_b1) }
+        let(:p0) {GeographicItem.new(point: POINT0)}
+        let(:p18) {GeographicItem.new(point: POINT18)}
+        let(:gi_b1) {GeographicItem.create!(polygon: SHAPE_B_OUTER)}
+        let(:gi_b2) {GeographicItem.create!(polygon: SHAPE_B_INNER)}
+        let(:gi_e1) {GeographicItem.create!(polygon: POLY_E1)}
+        let(:ga_e1) {GeographicArea.create!(name:                                         'test area E1',
+                                            data_origin:                                  'Test Data',
+                                            geographic_area_type:                         g_a_t,
+                                            parent:                                       earth,
+                                            geographic_areas_geographic_items_attributes: [{geographic_item: gi_e1,
+                                                                                            data_origin:     'Test Data'}]
+        )}
+        let(:ga_b1) {GeographicArea.create!(name:                                         'test area B1',
+                                            data_origin:                                  'Test Data',
+                                            geographic_area_type:                         g_a_t,
+                                            parent:                                       earth,
+                                            geographic_areas_geographic_items_attributes: [{geographic_item: gi_b1,
+                                                                                            data_origin:     'Test Data'}]
+        )}
+        let(:ce_e1) {CollectingEvent.new(geographic_area: ga_e1)}
+        let(:ce_b1) {CollectingEvent.new(geographic_area: ga_b1)}
 
         before {
           GeographicAreasGeographicItem.create!(geographic_area: ga_e1, geographic_item: gi_e1)
@@ -280,9 +280,8 @@ describe Georeference, type: :model, group: :geo do
         # here, we make sure the geographic_item gets saved.
         expect(collecting_event_with_geographic_area.geographic_area.default_geographic_item.save).to be_truthy
         georeference.save
-        # TODO: the following expectation will not be met, under some circumstances (different math packages on different operating systems), and has been temporarily disabled
-        expect(georeference.error_box.to_s).to match(/POLYGON \(\(-1\.3445210431568\d* 1\.54698968799752\d* 0\.0, 1\.54452104315689\d* 1\.54698968799752\d* 0\.0, 1\.54452104315689\d* -1\.34698968799752\d* 0\.0, -1\.3445210431568\d* -1\.34698968799752\d* 0\.0, -1\.3445210431568\d* 1\.54698968799752\d* 0\.0\)\)/)
-        #expect(georeference.error_box.to_s).to start_with 'POLYGON ((-1.34452104315689'
+        # TODO: the following expectation will not be met, under some circumstances (different math packages on different operating systems), and may have to be temporarily disabled
+        expect(georeference.error_box.to_s).to eq('POLYGON ((-1.337306643915519 1.5469896879975282 0.0, 1.537306643915519 1.5469896879975282 0.0, 1.537306643915519 -1.3469896879975283 0.0, -1.337306643915519 -1.3469896879975283 0.0, -1.337306643915519 1.5469896879975282 0.0))')
       end
 
       specify 'with error_geographic_item returns a shape' do

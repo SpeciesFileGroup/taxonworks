@@ -5,7 +5,36 @@ TW.views.tasks.nomenclature = TW.views.tasks.nomenclature || {};
 TW.views.tasks.nomenclature.browse = TW.views.tasks.nomenclature.browse || {};
 
 Object.assign(TW.views.tasks.nomenclature.browse, {
+
+
 	init: function() {
+		var soft_validations = undefined;
+		function fillSoftValidation() {
+			if(soft_validations == undefined) {
+				$('[data-filter=".soft_validation_anchor"]').mx_spinner('show');
+				soft_validations = {};
+
+				$('[data-global-id]').each(function() {
+					var 
+						that = this;
+					$.ajax({
+						url: "/soft_validations/validate?global_id=" + $(this).attr("data-global-id"),
+						dataType: "json",
+					}).done(function(response) {
+						if(response.validations.soft_validations.length) {
+							if(!soft_validations.hasOwnProperty($(that).attr('id'))) {
+						  		Object.defineProperty(soft_validations, $(that).attr('id'), { value: response.validations.soft_validations });
+						  	}
+						  	console.log(soft_validations);
+						}
+						else {
+						  	$(that).remove();
+						}
+					});
+				});
+			}
+		}
+
 
 		$('.filter .open').on('click', function() {
 			$(this).css('transform', 'rotate(' + ($(this).rotationInfo().deg + 180) + 'deg)');
@@ -25,6 +54,43 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 			}
 		}
 
+		$('[data-global-id]').on('click', function() {
+			var list = '';
+			if(soft_validations.hasOwnProperty($(this).attr('id'))) {
+
+				soft_validations[$(this).attr('id')].forEach(function(item) {
+					list += '<li>' + item.message + '</li>';
+				});
+
+				$('body').append(' \
+				<div class="modal-mask"> \
+			      <div class="modal-wrapper"> \
+			        <div class="modal-container"> \
+			          <div class="modal-header"> \
+			            <div class="modal-close"></div> \
+			            <h3> \
+			              Validation \
+			            </h3> \
+			          </div>\
+			          <div class="modal-body"> \
+			              <ul>' + list + '</ul> \
+			          </div> \
+			          <div class="modal-footer"> \
+			          </div> \
+			        </div>\
+			      </div> \
+			    </div>');
+			}
+		});
+
+		$( document ).ajaxStop(function() {
+		   $('[data-filter=".soft_validation_anchor"]').mx_spinner('hide');
+		});
+		
+		$(document).on('click', '.modal-close', function() {
+			$('.modal-mask').remove();
+		});		
+
 		$.fn.rotationInfo = function() {
 		    var el = $(this),
 		        tr = el.css("-webkit-transform") || el.css("-moz-transform") || el.css("-ms-transform") || el.css("-o-transform") || '',
@@ -43,16 +109,21 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 			$('[data-filter-slide]').slideToggle(250);
 		});
 
+		$('#filterBrowse').on('click', '[data-filter=".soft_validation_anchor"]', function(selector) {
+			fillSoftValidation();
+		});
+
 		$('#filterBrowse').on('click', '.navigation-item', function(selector) {
 
 			if($(this).attr('data-filter-reset') === 'reset') {
-				$('[data-filter]').each( function() {
+				$('[data-filter], [data-filter-font]').each( function(element) {
 					if($(this).hasClass("active")) {
 						isActive($(this),'active');
 					}
-					$($(this).attr('data-filter')).animate({
+					$($(this).attr('data-filter-font')).animate({
 	            		fontSize: '100%'
 	        		});
+	        		$($(this).attr('data-filter')).show(255);
 					$($(this).children()).attr('data-icon', 'show');
 				});
 			}
@@ -60,15 +131,17 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 				isActive($(this),'active');
 				if($(this).children().attr('data-icon') == "show") {
 					$($(this).children()).attr('data-icon', 'hide');
-					$($(this).attr('data-filter')).animate({
-	            	fontSize: '0px'
+					$($(this).attr('data-filter-font')).animate({
+	            		fontSize: '0px'
 	        		});
+					$($(this).attr('data-filter')).hide(255);
 				}
 				else {
 					$($(this).children()).attr('data-icon', 'show');
-					$($(this).attr('data-filter')).animate({
+					$($(this).attr('data-filter-font')).animate({
 	            	fontSize: '100%'
 	        		});			
+	        		$($(this).attr('data-filter')).show(255);
 				}
 			}
 		});

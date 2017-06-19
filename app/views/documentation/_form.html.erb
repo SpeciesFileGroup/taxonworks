@@ -1,30 +1,35 @@
+<p> TODO: write code to toggle through available documentable objects and let the user pick them here. </p>
+
 <%= form_for(@documentation) do |f| %>
-    <%= render 'shared/errors', object: @documentation %>
+  <%= render 'shared/errors', object: @documentation %>
 
-    <div class="field">
-      <%= f.label :documentation_object %><br>
+  <%= f.hidden_field :documentation_object_type, value: 'Source' -%>
 
-      <p> TODO: write code to toggle through available documentable objects and let the user pick them here. </p>
+  <div class="field">
+    <%= f.label :documentation_object, 'Source to document' %><br>
+    <%= render( 'workbench/elements/forms/ajax_select',
+               controller: '/sources',
+               object: 'documentation',
+               method: 'documentation_object_id',
+               tag_id: 'source_id_for_documentation',
+               size: '50%',
+               display: source_tag(@documentation.documentation_object)
+             ) %>
+  </div>
 
+  <div class="field">
     <div class="field">
       <%= f.label :document %><br>
       <%= render partial: 'workbench/elements/forms/ajax_select',
-                 locals: {controller: 'documents',
-                          object: 'documentation',
-                          method: 'document_id',
-                          tag_id: 'document_id_for_documentation',
-                          display: document_tag(@documentation.document)
-                 } %>
-             </div>
+        locals: {controller: 'documents',
+                 object: 'documentation',
+                 method: 'document_id',
+                 tag_id: 'document_id_for_documentation',
+                 display: document_tag(@documentation.document)
+      } %>
+  </div>
 
-             <div class="field">
-
-      <%= f.label :page_map %><br>
-
-      <p> TODO: Come up with a JSON format for page map, and create the form that can serialize it here. </p>
-
-    </div>
-    <div class="actions">
-      <%= f.submit %>
-    </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
 <% end %>

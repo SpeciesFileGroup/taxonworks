@@ -1,0 +1,9 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: taxonworks
+  namespace: tw
+data:
+  db: taxonworks_production
+

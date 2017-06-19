@@ -22,7 +22,7 @@
           <%= s.label :source %>
           <br>
           <%= render( partial: 'workbench/elements/forms/ajax_select', locals:
-                     {controller: 'sources',
+                     {controller: '/sources',
                       related_object: @asserted_distribution.source,
                       object: 'asserted_distribution[origin_citation_attributes]',
                       method: 'source_id',

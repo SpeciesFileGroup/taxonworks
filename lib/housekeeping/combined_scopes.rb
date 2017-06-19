@@ -19,7 +19,10 @@ module Housekeeping::CombinedScopes
       where(c.to_sql) 
     end
 
-  end
+    def recently_updated(limit)
+      self.order(updated_at: :desc).limit(limit)
+    end
 
+  end
 end
 

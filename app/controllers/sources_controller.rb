@@ -92,8 +92,8 @@ class SourcesController < ApplicationController
   end
 
   def autocomplete
-    @sources = Source.find_for_autocomplete(params)
-    data     = @sources.collect do |t|
+    @sources = Queries::SourceFilterQuery.new(params[:term]).all
+    data = @sources.collect do |t|
       {id:              t.id,
        label:           ApplicationController.helpers.source_tag(t),
        response_values: {

@@ -59,7 +59,7 @@ class TypeMaterial < ActiveRecord::Base
       'isosyntypes' => Lot
   }
 
-  belongs_to :material, foreign_key: :biological_object_id, class_name: 'CollectionObject'
+  belongs_to :material, foreign_key: :biological_object_id, class_name: 'CollectionObject', inverse_of: :type_designations
   belongs_to :protonym
   has_many :type_designator_roles, class_name: 'TypeDesignator', as: :role_object
   has_many :type_designators, through: :type_designator_roles, source: :person

@@ -7,17 +7,18 @@ class Observation < ActiveRecord::Base
   include Shared::Taggable
   include Shared::IsData
   include Shared::Depictions
+  include Shared::Confidence
 
   belongs_to :descriptor, inverse_of: :observations
   belongs_to :otu, inverse_of: :observations
   belongs_to :collection_object, inverse_of: :observations
  
-  validates_presence_of :descriptor_id
+  validates_presence_of :descriptor
 
   validate :otu_or_collection_object_set
 
   def self.human_name
-      'YAY'
+    'YAY'
   end
 
   protected

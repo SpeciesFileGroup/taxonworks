@@ -16,7 +16,7 @@ class PreparationType < ActiveRecord::Base
   include Shared::Taggable
   include Shared::SharedAcrossProjects
  
-  has_paper_trail
+  has_paper_trail :on => [:update] 
 
   has_many :collection_objects, dependent: :restrict_with_error
   validates_presence_of :name, :definition

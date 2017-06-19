@@ -42,9 +42,6 @@ module TaxonWorks
 
     config.active_job.queue_adapter = :delayed_job
 
-    # Babel for js transcompiler
-    config.browserify_rails.commandline_options = "-t [ babelify --presets [ es2015 stage-0 ] --extension .es6 ]"
-
     RGeo::ActiveRecord::SpatialFactoryStore.instance.tap do |config|
       # config.default = RGeo::Geographic.projected_factory(
       #   projection_proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
@@ -58,8 +55,26 @@ module TaxonWorks
         wkb_parser:              {support_ewkb: true},
         wkb_generator:           {hex_format: true, emit_ewkb_srid: true})
     end
+ 
+    # config.logger = Logger.new(STDOUT)
+    # config.logger = Log4r::Logger.new('Application Log')
 
+    config.middleware.insert_before 0, "Rack::Cors", :debug => true, :logger => (-> { Rails.logger }) do
+      allow do
+        origins '*'
 
+        resource '/cors',
+          :headers => :any,
+          :methods => [:post],
+          :credentials => true,
+          :max_age => 0
+
+        resource '*',
+          :headers => :any,
+          :methods => [:get, :post, :delete, :put, :patch, :options, :head],
+          :max_age => 0
+      end
+    end
 
   end
 end

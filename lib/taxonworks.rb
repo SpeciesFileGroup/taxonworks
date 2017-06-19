@@ -1,5 +1,5 @@
 module Taxonworks
-  # Internal TODO: Necessary in 4.1?
+  # Our library, check to see if best place to include here (post 4.1)
   require 'activerecord_utilities'
 
   require 'benchmark'

@@ -6,7 +6,7 @@ module TaxonNamesHelper
     return nil if taxon_name.nil?
     return taxon_name.name if taxon_name.new_record?
     # TODO: fix generation of empty string cached author year
-    taxon_name.cached_html.html_safe || taxon_name.name
+    taxon_name.cached_html.html_safe || taxon_name.name.html_safe
   end
 
   # @return [String]
@@ -84,7 +84,7 @@ module TaxonNamesHelper
 
   def original_taxon_name_link(taxon_name)
     return nil if taxon_name.nil?
-    link_to(original_taxon_name_tag(taxon_name).html_safe, browse_taxon_name_path(taxon_name))
+    link_to(original_taxon_name_tag(taxon_name).html_safe, browse_nomenclature_task_path(taxon_name))
   end
 
   def taxon_names_search_form
@@ -143,34 +143,45 @@ module TaxonNamesHelper
 
   def ancestor_browse_taxon_name_link(taxon_name, path = :browse_nomenclature_task_path)
     text = 'Up'
-    taxon_name.ancestors.any? ? 
-      link_to(content_tag(:span, text, data: {icon: 'arrow-up'}, class: 'small-icon'), send(path,taxon_name.ancestors.first.metamorphosize), class: 'navigation-item', data: {arrow: 'ancestor'}) :
+    if taxon_name.ancestors.any?
+      a = taxon_name.ancestors.first.metamorphosize
+      text = object_tag(a)
+      link_to(content_tag(:span, text, data: {icon: 'arrow-up'}, class: 'small-icon'), send(path, a), class: 'navigation-item', data: {arrow: 'ancestor'})
+    else 
       content_tag(:div, content_tag(:span, text, class: 'small-icon', data: {icon: 'arrow-up'}), class: 'navigation-item disable')
+    end
   end
 
   def descendant_browse_taxon_name_link(taxon_name, path = :browse_nomenclature_task_path)
     text = 'Down'
-    taxon_name.descendants.any? ? 
-      link_to(content_tag(:span, text, data: {icon: 'arrow-down'}, class: 'small-icon'), send(path, taxon_name.descendants.first.metamorphosize), class: 'navigation-item', data: {arrow: 'descendant'}) : 
+    if taxon_name.descendants.any? 
+      a = taxon_name.descendants.first.metamorphosize
+      text = taxon_name_tag(a)
+      link_to(content_tag(:span, text, data: {icon: 'arrow-down'}, class: 'small-icon'), send(path, a), class: 'navigation-item', data: {arrow: 'descendant'}) 
+    else 
       content_tag(:div, content_tag(:span, text, class: 'small-icon', data: {icon: 'arrow-down'}), class: 'navigation-item disable') 
+    end
   end
 
   def next_sibling_browse_taxon_name_link(taxon_name, path = :browse_nomenclature_task_path)
     text = 'Next'
     link_object = taxon_name.next_sibling
-
-    link_object.nil? ? 
-      content_tag(:div, content_tag(:span, text, class: 'small-icon icon-right', data: {icon: 'arrow-right'}), class:  'navigation-item disable') : 
-      link_to(content_tag(:span, text, data: {icon: 'arrow-right'}, class: 'small-icon icon-right'), send(path, link_object.metamorphosize), class: 'navigation-item', data: {arrow: 'next'})
+    if link_object.nil? 
+      content_tag(:div, content_tag(:span, text, class: 'small-icon icon-right', data: {icon: 'arrow-right'}), class:  'navigation-item disable')
+    else 
+      link_to(content_tag(:span, taxon_name_tag(link_object), data: {icon: 'arrow-right'}, class: 'small-icon icon-right'), send(path, link_object.metamorphosize), class: 'navigation-item', data: {arrow: 'next'})
+    end
   end
 
   def previous_sibling_browse_taxon_name_link(taxon_name, path = :browse_nomenclature_task_path)
     text = 'Previous'
     link_object = taxon_name.previous_sibling
 
-    link_object.nil? ? 
-      content_tag(:div, content_tag(:span, text, class: 'small-icon', data: {icon: 'arrow-left'}), class: 'navigation-item disable') : 
-      link_to(content_tag(:span, text, data: {icon: 'arrow-left'}, class: 'small-icon'), send(path, link_object.metamorphosize), class: 'navigation-item', data: {arrow: 'back'})
+    if link_object.nil?
+      content_tag(:div, content_tag(:span, text, class: 'small-icon', data: {icon: 'arrow-left'}), class: 'navigation-item disable')
+    else 
+      link_to(content_tag(:span, taxon_name_tag(link_object), data: {icon: 'arrow-left'}, class: 'small-icon'), send(path, link_object.metamorphosize), class: 'navigation-item', data: {arrow: 'back'})
+    end
   end
 
 

@@ -79,7 +79,7 @@ class CollectionObject < ActiveRecord::Base
   include CollectionObject::DwcExtensions 
 
   is_origin_for 'CollectionObject', 'Extract'
-  has_paper_trail
+  has_paper_trail :on => [:update] 
 
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
@@ -116,6 +116,8 @@ class CollectionObject < ActiveRecord::Base
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
   has_many :sqed_depictions, through: :depictions
 
+  has_many :observations, inverse_of: :collection_object
+
   # This must come before taxon determinations !!
   has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
 
@@ -124,7 +126,7 @@ class CollectionObject < ActiveRecord::Base
   # This is a problem, but here for the forseeable future for nested attributes purporses.
   has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object
 
-  has_one :preferred_catalog_number, through: :current_otu, source: :taxon_name
+  has_many :type_designations, class_name: 'TypeMaterial', foreign_key: :biological_object_id, inverse_of: :material
 
   belongs_to :collecting_event, inverse_of: :collection_objects
   belongs_to :preparation_type, inverse_of: :collection_objects
@@ -597,14 +599,24 @@ class CollectionObject < ActiveRecord::Base
   end
 
   def reject_taxon_determinations(attributed)
-    if attributed['otu_id'].blank?
-      return true if attributed['otu_attributes'].nil?  || attributed['otu_attributes'].empty?
 
-      h = attributed['otu_attributes']
-      return true if h['name'].blank? && h['taxon_name_id'].blank?
+    a = attributed['otu_id']
+    b = attributed['otu_attributes'] 
+
+    return true if !a.present? && !b.present?
+
+    if a.present?
+      return true if b.present? && ( b['name'].present? || b['taxon_name_id'].present? ) # not both
+      return false 
     end
+
+    if b.present?
+      return true if !b['name'].present? && !b['taxon_name_id'].present?
+    end 
+
     false
   end
+
 
   def reject_collecting_event(attributed)
     reject = true

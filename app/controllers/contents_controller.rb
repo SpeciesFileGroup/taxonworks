@@ -1,14 +1,20 @@
 class ContentsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :require_sign_in_and_project_selection
   before_action :set_content, only: [:show, :edit, :update, :destroy]
 
   # GET /contents
   # GET /contents.json
   def index
-    @recent_objects = Content.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format| 
+      format.html do 
+        @recent_objects = Content.where(project_id: sessions_current_project_id).recently_updated(10)
+        render '/shared/data/all/index'
+      end 
+      format.json { 
+        @contents = filtered_content 
+      }
+    end
   end
 
   # GET /contents/1
@@ -66,7 +72,7 @@ class ContentsController < ApplicationController
   end
 
   def list
-    @contents = Content.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @contents = Content.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) 
   end
 
   def search
@@ -75,6 +81,12 @@ class ContentsController < ApplicationController
     else
       redirect_to content_path(params[:id])
     end
+  end
+
+  # GET /contents/filter.json
+  def filter
+    @contents = filtered_content
+    render '/contents/index'
   end
 
   def autocomplete
@@ -98,14 +110,20 @@ class ContentsController < ApplicationController
   end
 
   private
-  
-  # Use callbacks to share common setup or constraints between actions.
+ 
+  def filtered_content
+    p =  params.permit(:otu_id, :topic_id, :hours_ago, :most_recent_updates).to_h.symbolize_keys
+    p[:most_recent_updates] = 10 if p.empty? 
+    Queries::ContentFilterQuery.new(p)
+      .all 
+      .with_project_id(sessions_current_project_id)
+  end
+
   def set_content
-    @content = Content.with_project_id($project_id).find(params[:id])
+    @content = Content.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @content
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def content_params
     params.require(:content).permit(:text, :otu_id, :topic_id, :type)
   end

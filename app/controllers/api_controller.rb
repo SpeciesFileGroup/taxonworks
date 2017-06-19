@@ -15,6 +15,6 @@ class ApiController < ApplicationController
   protected
 
   def set_permitted_projects
-    @permitted_projects = @sessions_current_user.projects
+    @permitted_projects = sessions_current_user.projects
   end
 end

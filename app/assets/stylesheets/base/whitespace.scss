@@ -33,6 +33,14 @@ $pane_margin: .2em;
 .x-large_space {
 }
 
+.no-margin {
+	margin: 0px !important;
+}
+
+.no-padding {
+	padding: 0px !important;
+}
+
 .separate-left {
 	margin-left: $standard_margin*0.5;
 }

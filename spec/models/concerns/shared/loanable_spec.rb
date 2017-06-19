@@ -7,9 +7,19 @@ describe 'Loanable', type: :model, group: :loans do
   context 'associations' do
     specify 'has one loan_item' do
       expect(class_with_loan).to respond_to(:loan_item) 
-      expect(class_with_loan.loan_item).to eq(nil) # there are no tags yet.
+      expect(class_with_loan.loan_item).to eq(nil) 
 
       expect(class_with_loan.loan_item = LoanItem.new(loan: loan)).to be_truthy
+    end
+
+    specify 'has many loan_items' do
+      expect(class_with_loan).to respond_to(:loan_items) 
+      expect(class_with_loan.loan_items).to eq([]) 
+    end
+
+    specify 'has many loans' do
+      expect(class_with_loan).to respond_to(:loans) 
+      expect(class_with_loan.loans).to eq([]) 
     end
 
     specify 'setting loan_item sets loan' do
@@ -20,7 +30,7 @@ describe 'Loanable', type: :model, group: :loans do
       expect(class_with_loan.loan_item.id).to be_truthy
     end
 
-    specify 'has one loan' do
+    specify 'has_one loan' do
       expect(class_with_loan).to respond_to(:loan_item) 
       expect(class_with_loan.loan).to eq(nil) # there are no tags yet.
 

@@ -14,6 +14,13 @@ module SourcesHelper
     link_to(source_tag(source).html_safe, source.metamorphosize )
   end
 
+  def source_document_viewer_option_tag(source)
+    return nil if !source.documents.any?
+    content_tag(:span, class: 'pdfviewerItem') do
+      source.documents.collect{|d| content_tag(:a, 'View', class: 'circle-button', data: { pdfviewer: d.document_file(:original, false), sourceid: source.id})}.join.html_safe
+    end.html_safe
+  end
+
   def source_attributes_for(source)
     w = content_tag(:em, 'ERROR, unkown class of Source, contact developers', class: :warning)  
     content_for :attributes do
@@ -46,13 +53,13 @@ module SourcesHelper
 
   def add_source_to_project_form(source)
     if !source_in_project?(source)
-      form_for(ProjectSource.new(source_id: source.to_param, project_id: sessions_current_project_id) , remote: true) do |f|
+      form_for(ProjectSource.new(source_id: source.to_param, project_id: sessions_current_project_id), remote: true) do |f|
         f.hidden_field(:source_id) +
           f.hidden_field(:project_id) +
-          f.submit('Add to project') 
+          f.submit('Add to project', data: { 'source-to-project': source.id.to_s }, class: "button-submit") 
       end
     else
-      button_to('Remove from project', project_source_path(project_source_for_source(source)), method: :delete, remote: true) 
+      button_to('Remove from project', project_source_path(project_source_for_source(source)), method: :delete, remote: true,  data: { 'source-to-project': source.id.to_s }, class: "button-delete") 
     end
   end
 

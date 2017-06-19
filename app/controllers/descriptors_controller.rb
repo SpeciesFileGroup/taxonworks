@@ -1,13 +1,20 @@
 class DescriptorsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_descriptor, only: [:show, :edit, :update, :destroy]
+  before_action :set_descriptor, only: [:show, :edit, :update, :destroy, :annotations]
 
   # GET /descriptors
   # GET /descriptors.json
   def index
-    @recent_objects = Descriptor.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = Descriptor.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @descriptors = Descriptor.all.limit(20)
+      }
+    end 
   end
 
   # GET /descriptors/1
@@ -91,6 +98,14 @@ class DescriptorsController < ApplicationController
       redirect_to descriptor_path(params[:id])
     end
   end
+
+  # GET /annotations
+  def annotations
+    @object = @descriptor
+    render '/shared/data/all/annotations'
+  end
+
+
 
   private
   

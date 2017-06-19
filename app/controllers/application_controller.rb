@@ -3,28 +3,27 @@ class ApplicationController < ActionController::Base
   include Workbench::SessionsHelper
   include ProjectsHelper
 
+
+
+
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
-  # In use
   attr_writer :is_data_controller, :is_task_controller
 
   # Potentially used
   attr_writer :meta_title, :meta_data, :site_name
   attr_accessor :meta_description, :meta_keywords, :page_title
 
-  # In use
   helper_method :is_data_controller?, :is_task_controller?
 
   # Potentially used.
   helper_method :meta_title, :meta_data, :site_name, :page_title
 
   before_action :intercept_api
-
   before_action :set_project_and_user_variables
-
   before_action :notice_user
 
   after_action :log_user_recent_route
@@ -38,12 +37,18 @@ class ApplicationController < ActionController::Base
         render(json: {success: false}, status: :unauthorized) && return
       end
     end
+
+    headers['Access-Control-Allow-Origin'] = '*'
+    headers['Access-Control-Allow-Methods'] = 'POST, PUT, DELETE, GET, OPTIONS'
+    headers['Access-Control-Request-Method'] = '*'
+    headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+
     true
   end
 
   # TODO: Make RecenRoutes modules that handles exceptions, only etc.
   def log_user_recent_route
-    @sessions_current_user.add_recently_visited_to_footprint(request.fullpath, @recent_object) if @sessions_current_user
+    sessions_current_user.add_recently_visited_to_footprint(request.fullpath, @recent_object) if sessions_current_user
   end
 
   def set_project_and_user_variables
@@ -76,7 +81,7 @@ class ApplicationController < ActionController::Base
   def meta_data
     @meta_data ||= {
       description: @meta_description,
-      keywords:    @meta_keywords
+      keywords: @meta_keywords
     }.delete_if { |_k, v| v.nil? }
   end
 
@@ -85,7 +90,7 @@ class ApplicationController < ActionController::Base
   end
 
   def digest_cookie(file, key)
-    sha256       = Digest::SHA256.file(file)
+    sha256 = Digest::SHA256.file(file)
     cookies[key] = sha256.hexdigest
   end
 

@@ -4,7 +4,7 @@
   <%= taxon_name_short_status(@taxon_name) -%>
   The record is for a <%= @taxon_name.type -%>.
   <%= content_tag(:span, taxon_name_latinization_tag(@taxon_name)) -%>
-  There are <%= @data.names.count -%> names are referenced in this entry.
+  There are <%= @data.names.count -%> names referenced in this entry.
   <%= "Citations for this record include following topics: #{@data.topics.map(&:name).to_sentence}." if !@data.topics.empty? -%>
   <%= Utilities::Dates.date_range_sentence_tag(@data.date_range) -%>
   </p>

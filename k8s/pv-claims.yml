@@ -1,0 +1,63 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: tw
+  name: taxonworks-db-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 4Gi
+  selector:
+    matchLabels:
+      name: taxonworks-db-pv
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: tw
+  name: taxonworks-media-pv-claim
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 4Gi
+  selector:
+    matchLabels:
+      name: taxonworks-media-pv
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: tw
+  name: taxonworks-staging-pv-claim
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 4Gi
+  selector:
+    matchLabels:
+      name: taxonworks-staging-pv
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: tw
+  name: taxonworks-backup-pv-claim
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 4Gi
+  selector:
+    matchLabels:
+      name: taxonworks-backup-pv

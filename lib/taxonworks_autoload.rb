@@ -9,10 +9,13 @@ module TaxonWorksAutoload
       /app/models/nomenclatural_rank/**/*.rb
       /app/models/taxon_name_relationship/**/*.rb
       /app/models/taxon_name_classification/**/*.rb
+      /config/routes/api.rb
 }.each do |path|
     a = Dir[Rails.root.to_s + path].sort
     a.each {|file| require_dependency file } # was .sort
   end
+
+  
 
   # handled inline in models at the end of file
   #     /app/models/alternate_value/**/*.rb - 

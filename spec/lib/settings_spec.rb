@@ -9,13 +9,17 @@ describe Settings do
       exception_notification: {
         email_prefix: '[TW-Error] ',
         sender_address: %{"notifier" <notifier@example.com>},
-        exception_recipients: ["exceptions@example.com"]
+        exception_recipients: "exceptions@example.com,other_exceptions@example.com"
       }
     }
   end
-  
+ 
   let(:rails_config) {
-    double('config', middleware: double('middleware'), action_mailer: double('action_mailer'))
+    double(
+      'config', 
+      middleware: double('middleware'), 
+      action_mailer: double('action_mailer'),
+    )
   }
   
   after(:all) do
@@ -23,7 +27,7 @@ describe Settings do
     config = {
       default_data_directory: current_settings_hash[:default_data_directory],
       backup_directory: current_settings_hash[:backup_directory],
-      mail_domain: current_settings_hash[:mail_domain]
+      mail_domain: current_settings_hash[:mail_domain],
     }
     Settings.load_from_hash({}, config)
   end
@@ -34,7 +38,6 @@ describe Settings do
     describe 'exception_notification' do
             
       context 'when valid settings' do
-
         it 'sets up ExceptionNotification middleware with supplied config' do
           expect(rails_config.middleware).to receive(:use).with(ExceptionNotification::Rack, email: valid_config[:exception_notification])
           Settings.load_from_hash(rails_config, valid_config)
@@ -56,17 +59,10 @@ describe Settings do
           valid_config[:exception_notification][:invalid_setting] = 'INVALID'
           expect { Settings.load_from_hash(rails_config, valid_config) }.to raise_error(Settings::Error, /.*\[\:invalid_setting\].*/)
         end
-
-        it "throws error when :exception_recipients is not an Array" do
-          valid_config[:exception_notification][:exception_recipients] = 'NOT AN ARRAY'
-          expect { Settings.load_from_hash(rails_config, valid_config) }.to raise_error(Settings::Error, /.* Array*/) 
-        end
-
       end
     end
     
     describe "default_data_directory" do
-      
       context "when valid directory" do
         let(:valid_directory) { { default_data_directory: valid_full_config[:default_data_directory] } }
         
@@ -76,35 +72,43 @@ describe Settings do
         end
 
       end
-      
-      context "when invalid directory" do
-        
-        it "throws error when directory does not exist" do
-          invalid_directory = { default_data_directory: 'INVALID_DIRECTORY' }
-          expect { Settings.load_from_hash(rails_config, invalid_directory) }.to raise_error(/.*INVALID_DIRECTORY.*/)
+
+      context "when uncreated directory" do
+        let(:path) { File.absolute_path('DATA_INVALID_DIRECTORY') } 
+        let(:invalid_directory) { { default_data_directory: path } }
+
+        after(:all) { FileUtils.rm_rf( File.absolute_path('DATA_INVALID_DIRECTORY') ) }
+
+        it "creates the directory when it does not exist" do
+          expect(Settings.load_from_hash(rails_config, invalid_directory)).to be_truthy
+          expect( Dir.exists?(path) ).to be_truthy
         end
-        
-        it "throws error when path is not a directory" do
-          file = { default_data_directory: 'spec/settings/file' }
-          expect { Settings.load_from_hash(rails_config, file) }.to raise_error(/.*spec\/settings\/file.*/)
-        end
-        
       end
-      
+
       context "when not present" do
-        
         it "sets ::default_data_directory to nil" do
           Settings.load_from_hash(rails_config, { })
           expect(Settings.default_data_directory).to eq(nil)
         end
-        
       end
-      
     end
 
+    describe "exception_recipients" do 
+      let(:valid_exception_notification) {
+        { exception_recipients: valid_full_config[:exception_notification][:exception_recipients],
+          email_prefix: 'foo',
+          sender_address: 'bar' 
+      }
+      }       
+
+      context "is parsed into an array" do
+        it "sets ::exception_recipients splitting on comma" do
+          expect(Settings.send(:process_exception_notification, valid_exception_notification)[:exception_recipients]).to eq(valid_full_config[:exception_notification][:exception_recipients].split(',') )
+        end
+      end
+    end
 
     describe "backup_directory" do
-      
       context "when valid directory" do
         let(:valid_directory) { { backup_directory: valid_full_config[:backup_directory] } }
         
@@ -115,31 +119,26 @@ describe Settings do
 
       end
       
-      context "when invalid directory" do
-        
-        it "throws error when directory does not exist" do
-          invalid_directory = { backup_directory: 'INVALID_DIRECTORY' }
-          expect { Settings.load_from_hash(rails_config, invalid_directory) }.to raise_error(/.*INVALID_DIRECTORY.*/)
+      context "when uncreated directory" do
+        let(:path) { File.absolute_path('INVALID_DIRECTORY') } 
+        let(:invalid_directory) { { backup_directory: path } }
+
+        after(:all) { FileUtils.rm_rf( File.absolute_path('INVALID_DIRECTORY') ) }
+
+        it "creates the directory when it does not exist" do
+          expect(Settings.load_from_hash(rails_config, invalid_directory)).to be_truthy
+          expect( Dir.exists?(path) ).to be_truthy
         end
-        
-        it "throws error when path is not a directory" do
-          file = { backup_directory: 'spec/settings/file' }
-          expect { Settings.load_from_hash(rails_config, file) }.to raise_error(/.*spec\/settings\/file.*/)
-        end
-        
       end
-      
+
       context "when not present" do
-        
         it "sets ::backup_directory to nil" do
           Settings.load_from_hash(rails_config, { })
           expect(Settings.backup_directory).to eq(nil)
         end
-        
       end
       
     end
-
 
 
     describe "action_mailer_smtp_settings" do

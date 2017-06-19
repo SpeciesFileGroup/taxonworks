@@ -9,16 +9,9 @@
             >
             <% items.each do |o| -%>
               <li class="slide-panel-category-item" id="<%= "order_#{o.id}" -%>">
-                <div>
-                  <span class="handle" data-icon="scroll-v"></span>
+                <div class="handle flex-separate middle">
                   <%= object_link(o.pinned_object) -%>
-                </div>
-                <div class="itemOptions">
-                  <%= if o.pinned_object_type == 'Document' && o.pinned_object.document_file_content_type.eql?("application/pdf")
-                        content_tag(:a, "PDF Viewer", class: :pdfviewerItem , data: { pdfviewer: o.pinned_object.document_file(:original, false) })
-                      end
-                    %>
-                  <%= link_to('Remove', pinboard_item_path(o), class: :remove, method: :delete) -%>
+                  <%= pinboard_item_options(o) -%>
                 </div>
               </li>
             <% end %>

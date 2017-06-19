@@ -14,6 +14,7 @@ module Workbench::SessionsHelper
     @sessions_current_user ||= User.find_by(remember_token: User.encrypt(cookies[:remember_token]))
   end
 
+  # Papertrail
   alias_method :current_user, :sessions_current_user
 
   def sessions_current_user_id
@@ -129,7 +130,6 @@ module Workbench::SessionsHelper
     redirect_to root_url, notice: "Please sign in as a project administrator or administrator." unless administers_projects?
   end
  
-
   # TODO: make this a non-controller method
   def session_header_links
     [

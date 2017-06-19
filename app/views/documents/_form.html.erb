@@ -6,6 +6,11 @@
       <div> <%= document_tag(@document) -%> </div>
       <%= f.file_field :document_file, class: :required_for_submit %>
     </div>
+    
+    <div class="field">
+      <%= f.label :initialize_start_page, data: {help: 'If pages (print) are sequential supply the first page number.'} %><br>
+      <%= f.text_field :initialize_start_page %>
+    </div>
 
     <div class="actions">
       <%= f.submit %>

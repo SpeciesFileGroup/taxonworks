@@ -517,7 +517,6 @@ class Protonym < TaxonName
   #endregion
 
   # Update cached values when a related taxon changes (e.g. new genus, or new original genus) 
-  # TODO: Move to Protonym
   # Combination caching is handled in Combination
   def sv_cached_names
     # if updated, update also set_cached_names

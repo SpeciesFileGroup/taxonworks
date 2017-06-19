@@ -52,12 +52,12 @@ RSpec.describe CharacterStatesController, type: :controller do
     end
   end
 
-  describe "GET #new" do
-    it "assigns a new character_state as @character_state" do
-      get :new, params: {}, session: valid_session
-      expect(assigns(:character_state)).to be_a_new(CharacterState)
-    end
-  end
+  # describe "GET #new" do
+  #   it "assigns a new character_state as @character_state" do
+  #     get :new, params: {}, session: valid_session
+  #     expect(assigns(:character_state)).to be_a_new(CharacterState)
+  #   end
+  # end
 
   describe "GET #edit" do
     it "assigns the requested character_state as @character_state" do

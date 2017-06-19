@@ -22,7 +22,8 @@ module Queries
       clauses = [
         named,
         taxon_name_named,
-        taxon_name_author_year_matches 
+        taxon_name_author_year_matches,
+        with_id
       ].compact
 
       a = clauses.shift

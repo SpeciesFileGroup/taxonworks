@@ -1,5 +1,5 @@
 TaxonWorks::Application.routes.draw do
- 
+
   # All models that use data controllers should include this concern.
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
   # TODO: This will have to be broken down to core_data_routes, and supporting_data_routes
@@ -19,6 +19,13 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  concern :shallow_annotation_routes do |options|
+    resources :citations, shallow: true, only: [:index]
+    resources :depictions, shallow: true, only: [:index]
+    resources :tags, shallow: true, only: [:index]
+    resources :notes, shallow: true, only: [:index]
+  end
+
   root 'dashboard#index'
 
   match '/dashboard', to: 'dashboard#index', via: :get
@@ -26,6 +33,8 @@ TaxonWorks::Application.routes.draw do
   match '/signin', to: 'sessions#new', via: :get
   match '/signout', to: 'sessions#destroy', via: :delete
   resources :sessions, only: :create
+
+  get 'soft_validations/validate' => 'soft_validations#validate', defaults: {format: :json}
 
   # Note singular 'resource'
   resource :hub, controller: 'hub', only: [:index] do
@@ -93,14 +102,21 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
+  # TODO: only/except
   resources :character_states do
-    # TODO
+    concerns [:data_routes]
+    member do
+      get :annotations, defaults: {format: :json}
+    end
   end
 
   resources :citation_topics, only: [:create, :update, :destroy]
 
   resources :citations do # except: [:show]
     concerns [:data_routes]
+    collection do
+      get 'filter', defaults: {format: :json}
+    end
   end
 
   resources :confidences do # , except: [:edit, :show]
@@ -110,7 +126,7 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-  resources :confidence_levels, only: [] do
+  resources :confidence_levels, only: [:index] do
     collection do
       get 'lookup'
     end
@@ -118,7 +134,7 @@ TaxonWorks::Application.routes.draw do
 
 
   resources :collection_objects do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes]
     member do
       get 'depictions'
       get 'containerize'
@@ -140,7 +156,7 @@ TaxonWorks::Application.routes.draw do
   match 'collection_profiles/swap_form_attribute_types/:collection_type', to: 'collection_profiles#swap_form_attribute_types', via: :get, method: :js
 
   resources :collecting_events do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes ]
     get :autocomplete_collecting_event_verbatim_locality, on: :collection
     member do
       get :card
@@ -173,7 +189,10 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :contents do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes]
+    collection do
+      get :filter
+    end
   end
 
   resources :controlled_vocabulary_terms do
@@ -190,10 +209,16 @@ TaxonWorks::Application.routes.draw do
 
   resources :depictions do
     concerns [:data_routes]
+    collection do
+      patch :sort
+    end
   end
 
   resources :descriptors do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes]
+    member do
+      get :annotations, defaults: {format: :json}
+    end
   end
 
   resources :documents do
@@ -207,7 +232,7 @@ TaxonWorks::Application.routes.draw do
   resources :extracts do
     concerns [:data_routes]
   end
-  
+
   resources :geographic_areas do
     concerns [:data_routes]
     collection do
@@ -283,36 +308,43 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-  resources :matrices do
+  resources :observation_matrices do
+    concerns [:data_routes]
+    member do
+      get 'row', {format: :json}
+    end
+  end
+
+  resources :observation_matrix_columns, only: [:index, :show] do
     concerns [:data_routes]
   end
 
-  resources :matrix_columns, only: [:index, :show] do
+  resources :observation_matrix_rows, only: [:index, :show] do
     concerns [:data_routes]
   end
 
-  resources :matrix_rows, only: [:index, :show] do
+  resources :observation_matrix_column_items do
     concerns [:data_routes]
   end
 
-  resources :matrix_column_items do
+  resources :observation_matrix_row_items do
     concerns [:data_routes]
   end
 
-  resources :matrix_row_items do
-    concerns [:data_routes]
-  end
-  
   resources :notes, except: [:show] do
     concerns [:data_routes]
   end
 
   resources :observations do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes]
+    member do
+      get :annotations, defaults: {format: :json}
+    end
   end
 
   resources :otus do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes ]
+    resources :contents, only: [:index]
     collection do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
@@ -412,7 +444,7 @@ TaxonWorks::Application.routes.draw do
   resources :sequence_relationships do
     concerns [:data_routes]
   end
-  
+
   resources :sources do
     concerns [:data_routes]
     collection do
@@ -436,7 +468,7 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :taxon_names do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes ]
     collection do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
@@ -457,18 +489,19 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  resources :topics do
+  resources :topics, only: [:create] do
     collection do
+      get :index, defaults: { format: :json }
       get :lookup_topic
       get 'get_definition/:id', action: 'get_definition'
       get :autocomplete
+      get :list
     end
   end
 
   resources :type_materials do
     concerns [:data_routes]
   end
-
 
   match '/favorite_page/:kind/:name', to: 'user_preferences#favorite_page', as: :favorite_page, via: :post
   match '/unfavorite_page/:kind/:name', to: 'user_preferences#unfavorite_page', as: :unfavorite_page, via: :post
@@ -477,7 +510,80 @@ TaxonWorks::Application.routes.draw do
 
   scope :tasks do
 
+    scope :observation_matrices do
+      scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do
+        get 'index', as: 'index_row_coder_task'
+        get 'set', as: 'set_row_coder_task'
+      end
+    end
+
+    scope :import do
+      scope :dwca do
+        scope :psu_import, controller: 'tasks/import/dwca/psu_import' do
+          get 'index', as: 'psu_import_task'
+          post 'preview_psu_import', as: 'preview_psu_import'
+          post 'do_psu_import', as: 'do_psu_import'
+        end
+      end
+    end
+
+    scope :loans do
+      scope :overdue, controller: 'tasks/loans/overdue' do
+        get 'index', as: 'overdue_loans_task'
+      end
+    end
+
+    scope :citations do
+      scope :otus, controller: 'tasks/citations/otus' do
+        get 'index', as: 'cite_otus_task_task'
+      end
+    end
+
+    scope :content do
+      scope :editor, controller: 'tasks/content/editor' do
+        get 'index', as: 'index_editor_task'
+        get 'recent_topics', as: 'content_editor_recent_topics_task'
+        get 'recent_otus', as: 'content_editor_recent_otus_task'
+      end
+    end
+
+    scope :sources do
+      scope :browse, controller: 'tasks/sources/browse' do
+        get 'index', as: 'browse_sources_task'
+        get 'find', as: 'find_sources_task'
+      end
+    end
+
+
+    scope :collecting_events do
+      scope :parse do
+        scope :stepwise do
+          scope :dates, controller: 'tasks/collecting_events/parse/stepwise/dates' do
+            get 'index', as: 'dates_index_task'
+            post 'update', as: 'dates_update_task'
+            get 'skip', as: 'dates_skip'
+            get 'similar_labels', as: 'dates_similar_labels'
+            get 'save_selected', as: 'dates_save_selected'
+          end
+
+          scope :lat_long, controller: 'tasks/collecting_events/parse/stepwise/lat_long' do
+            get 'index', as: 'collecting_event_lat_long_task'
+            post 'update', as: 'lat_long_update'
+            get 'skip', as: 'lat_long_skip'
+            get 're_eval', as: 'lat_long_re_eval'
+            get 'save_selected', as: 'lat_long_save_selected'
+            get 'convert', as: 'lat_long_convert'
+            get 'similar_labels', as: 'lat_long_similar_labels'
+          end
+        end
+      end
+    end
+
     scope :collection_objects do
+      scope :browse, controller: 'tasks/collection_objects/browse' do
+        get 'index', as: 'browse_collection_objects_task'
+      end
+
       scope :filter, controller: 'tasks/collection_objects/filter' do
         get 'index', as: 'collection_objects_filter_task' #'index_area_and_date_task'
         get 'find', as: 'find_collection_objects_task' # 'find_area_and_date_task'
@@ -730,7 +836,7 @@ TaxonWorks::Application.routes.draw do
   #     resources :sales do
   #       get 'recent', on: :collection
   #     end  resources :gene_attributes
-  #   end
+  #     end
 
   # Example resource route within a namespace:
   #   namespace :admin do
@@ -739,6 +845,62 @@ TaxonWorks::Application.routes.draw do
   #     resources :products
   #   end
   #
+  #
+  #
+  #
+
+  # Future consideration - move this to an engine, or include multiple draw files and include (you apparenlty
+  # lose the autoloading update from the include in this case however)
+  scope :api, :defaults => { :format => :json }, :constraints => { id: /\d+/ } do
+    scope  '/v1' do
+
+      get '/observation_matrices/:id/row',
+        to: 'observation_matrices#row'
+
+      get '/confidence_levels',
+        to: 'confidence_levels#index'
+
+      get '/observations/:observation_id/notes',
+        to: 'notes#index'
+
+      get '/observations/:observation_id/confidences',
+        to: 'confidences#index'
+
+      get '/observations/:observation_id/depictions',
+        to: 'depictions#index'
+
+      get '/observations/:observation_id/citations',
+        to: 'citations#index'
+
+      get '/observations/:id/annotations',
+        to: 'observations#annotations'
+
+      get '/descriptors/:id/annotations',
+        to: 'descriptors#annotations'
+
+      get '/descriptors/:id',
+        to: 'descriptors#show'
+
+      get '/descriptors/:descriptor_id/notes',
+        to: 'notes#index'
+
+      get '/descriptors/:descriptor_id/confidences',
+        to: 'confidences#index'
+
+      get '/descriptors/:descriptor_id/observations',
+        to: 'observations#index'
+
+      get '/descriptors/:descriptor_id/depictions',
+        to: 'depictions#index'
+
+      resources :observations, except: [:new, :edit]
+
+      get '/character_states/:id/annotations',
+        to: 'character_states#annotations'
+
+    end
+  end
+
 end
 
 require_relative 'routes/api'

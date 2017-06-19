@@ -2,6 +2,7 @@ require 'rails_helper'
 
 describe TaxonName, type: :model, group: [:nomenclature] do
 
+  # rspec -t group:nomenclature
   let(:taxon_name) { TaxonName.new }
 
   context 'using before :all' do
@@ -22,7 +23,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
       # TODO: find out why this exists and resolve - presently leaving sources in the models
       Citation.delete_all
-      Source.delete_all
+      Source.destroy_all
       TaxonNameHierarchy.delete_all
     end
 

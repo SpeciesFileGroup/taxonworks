@@ -194,7 +194,7 @@ class Source < ActiveRecord::Base
   include Shared::IsData
   include Shared::Documentation
 
-  has_paper_trail
+  has_paper_trail :on => [:update]
 
   ALTERNATE_VALUES_FOR = [:address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
                           :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
@@ -217,10 +217,6 @@ class Source < ActiveRecord::Base
 
   def cited_objects
     self.citations.collect { |t| t.citation_object }
-  end
-
-  def self.find_for_autocomplete(params)
-    Queries::SourceAutocompleteQuery.new(params[:term]).all
   end
 
   # Create a new Source instance from a full text citatation.  By default

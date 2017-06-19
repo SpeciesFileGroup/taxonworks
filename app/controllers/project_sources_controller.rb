@@ -31,7 +31,7 @@ class ProjectSourcesController < ApplicationController
   end
 
   def autocomplete
-   @sources =  Queries::SourceAutocompleteQuery.new(params[:term], project_id: sessions_current_project_id).by_project_all
+    @sources =  Queries::SourceFilterQuery.new(params[:term], project_id: sessions_current_project_id).by_project_all.limit(50)
     data     = @sources.collect do |t|
       {id:              t.id,
        label:           ApplicationController.helpers.source_tag(t),

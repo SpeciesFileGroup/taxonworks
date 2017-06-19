@@ -3,19 +3,35 @@ class NotesController < ApplicationController
 
   before_action :set_note, only: [:update, :destroy]
 
+  # GET /notes
+  # GET /notes.json
+  # GET /<model>/:id/notes.json
+  def index
+    respond_to do |format|
+      format.html {
+        @recent_objects = Note.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @notes = Note.where(project_id: sessions_current_project_id).where(
+          polymorphic_filter_params('note_object', [
+            :observation_id,
+            :otu_id,
+            :descriptor_id,
+            :collection_object_id,
+            :character_state_id
+          ])
+        )
+      }
+    end
+  end
+
   def new
     @note = Note.new(note_params)
   end
 
   def edit
     @note = Note.find_by_id(params[:id]).metamorphosize
-  end
-
-  # GET /notes
-  # GET /notes.json
-  def index
-    @recent_objects = Note.where(project_id: $project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
   end
 
   # POST /notes
@@ -59,7 +75,7 @@ class NotesController < ApplicationController
   end
 
   def list
-    @notes = Note.where(project_id: $project_id).order(:note_object_type).page(params[:page])
+    @notes = Note.where(project_id: sessions_current_project_id).order(:note_object_type).page(params[:page])
   end
 
   # GET /notes/search
@@ -89,17 +105,15 @@ class NotesController < ApplicationController
 
   # GET /notes/download
   def download
-    send_data Note.generate_download(Note.where(project_id: $project_id)), type: 'text', filename: "notes_#{DateTime.now.to_s}.csv"
+    send_data Note.generate_download(Note.where(project_id: sessions_current_project_id)), type: 'text', filename: "notes_#{DateTime.now.to_s}.csv"
   end
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_note
-    @note = Note.with_project_id($project_id).find(params[:id])
+    @note = Note.with_project_id(sessions_current_project_id).find(params[:id])
   end
-
-  # Never trust parameters from the scary internet, only allow the white list through.
+  
   def note_params
     params.require(:note).permit(:text, :note_object_id, :note_object_type, :note_object_attribute)
   end

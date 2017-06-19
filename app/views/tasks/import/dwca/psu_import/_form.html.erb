@@ -1,0 +1,8 @@
+<%= form_tag url, multipart: true do -%>
+    <%= file_field_tag(:file) -%>
+
+    <%#= label_tag :data_origin, 'Namespace for collecting event\'s tripcode', title: 'Choose the namespace for the identifier to be applied to the collecting event.' -%>
+    <%#= collecting_event_namespace_select_tag -%>
+    <%= content_for :warn_level -%>
+    <%= submit_tag submit -%>
+<% end %>

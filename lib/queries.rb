@@ -7,6 +7,8 @@
 #    http://blog.arkency.com/2013/12/rails4-preloading/
 #    User.includes(:addresses).where("addresses.country = ?", "Poland").references(:addresses)
 #  
+# TODO: Define #all as a stub (Array or AR)
+#
 module Queries 
   class Query
     include Arel::Nodes
@@ -18,7 +20,7 @@ module Queries
     # limit based on size and potentially properties of terms
     attr_accessor :dynamic_limit
 
-    def initialize(string, project_id: nil)
+    def initialize(string, project_id: nil, **keyword_args)
       @query_string = string
       @project_id = project_id
       build_terms
@@ -73,6 +75,22 @@ module Queries
       integers.select{|a| a =~ /\b\d{4}\b/}.map(&:to_s).compact
     end
 
+    # @return [Boolean]
+    #   true if the query string only contains integers
+    def only_integers?
+      !(query_string =~ /[^\d\s]/i) && !integers.empty? 
+    end
+
+    # @return [Array]
+    #   if 5 or fewer strings, those strings wrapped in wildcards, else none
+    def fragments
+      if strings && strings.count < 6
+        strings.collect{|a| "%#{a}%"}
+      else
+        []
+      end
+    end
+
     # Replace with a full text indexing approach
     def build_terms
       @terms = [end_wildcard, start_and_end_wildcard]  # query_string.split(/\s+/).compact.collect{|t| [t, "#{t}%", "%#{t}%"]}.flatten
@@ -106,12 +124,24 @@ module Queries
       table[:name].matches("#{a}%").and(parent[:name].matches("#{b}%"))
     end
 
+    # @return [Query, nil]
+    #   used in or_clauses
     def with_id
       if integers.any?
         table[:id].eq_any(integers)
       else
-        table[:id].eq(-1)
+        nil
       end
+    end
+
+    # @return [Query, nil]
+    #   used in or_clauses, match on id only if integers alone provided.
+    def only_ids
+      if only_integers?
+       with_id
+      else
+       nil
+      end 
     end
 
     def named
@@ -137,6 +167,17 @@ module Queries
     def with_identifier_like
       identifier_table[:cached].matches(start_and_end_wildcard).or(identifier_table[:cached].matches(wildcard_wrapped_integers))
     end
+
+    # @return [ActiveRecord::Relation, nil]
+    # cached matches full query string wildcarded
+    def cached
+      if !terms.empty?
+        table[:cached].matches_any(terms)
+      else
+        nil
+      end
+    end
+
 
   end
 end

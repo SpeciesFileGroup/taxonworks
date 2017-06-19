@@ -24,7 +24,7 @@ To add a new (discovered) symbol:
 
     SPECIAL_LATLONG_SYMBOLS = "do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\u0027\u00b4\u02B9\u02BA\u02BB\u02BC\u02CA\u02EE\u2032\u2033\u0022".freeze
 
-    LAT_LON_REGEXP = Regexp.new(/(?<lon>-?\d+\.?\d*),?\s*(?<lat>-?\d+\.?\d*)/)
+    LAT_LON_REGEXP = Regexp.new(/(?<lat>-?\d+\.?\d*),?\s*(?<long>-?\d+\.?\d*)/)
 
     # DMS_REGEX = "(?<degrees>-*\d+)[do*\u00b0\u00ba\u02DA\u030a\u221e\u222b]\s*(?<minutes>\d+\.*\d*)
     # [\u0027\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032]*\s*((?<seconds>\d+\.*\d*)
@@ -91,6 +91,139 @@ To add a new (discovered) symbol:
       elev
     end
 
+    #  ' = \u0027, converted so that the regex can be used for SQL
+    REGEXP_COORD_1 = {
+      # tt1: /\D?(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i,
+      dd1a: /(\d+\.\d+\s*([NS]))\s*(\d+\.\d+\s*([EW]))/i,
+
+      dd1b: /(([NS])\s*\d+\.\d+)\s*(([EW])\s*\d+\.\d+\s*)/i,
+
+      dd2:  /(\d+[\. ]\d+(\u0027?)\s*([NS]))[, ]?\s*(\d+[\. ]\d+(\u0027?)\s*([EW]))/i,
+
+      dm1:  /\D(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.|,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])? ?([NS])[\.,;]? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.|,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])? ?([WE])\W/i,
+
+      dms2: /\W([NS])\.? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+) ?([ ´\u0027\u02B9\u02BC\u02CA]) ?(\d+[\.|,]\d+|\d+) ?([ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA])([´\u0027\u02B9\u02BC\u02CA])?[\.,;]? ?([WE])\.? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+) ?([ \u0027´\u02B9\u02BC\u02CA]) ?(\d+[\.|,]\d+|\d+) ?([ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA])?([´\u0027\u02B9\u02BC\u02CA])?/i,
+
+      dm3:  /\W([NS])\.? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.|,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])[\.,;]? ?([WE])\.? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.|,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])?/i,
+
+      dms4: /\D(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])? ?(\d+)(")? ?([NS])(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])? ?(\d+)(["\u0027])? ?([EW])/i,
+
+      dd5:  /\W([NS])\.? ?(\d+[\.|,]\d+|\d+) ?([\*°ººo\u02DA ])[\.,;]?\s*([WE])\.? ?(\d+[\.|,]\d+|\d+) ?([\*°ººo\u02DA ])?/i,
+
+      dd6:  /\D(\d+[\.|,]\d+|\d+) ?([\*°ººo\u02DA ]) ?([NS])[\.,;]?\s*(\d+[\.|,]\d+|\d+) ?([\*°ººo\u02DA ]) ?([WE])\W/i,
+
+      dd7:  /\[(-?\d+[\.|,]\d+|\-?d+),.*?(-?\d+[\.|,]\d+|\-?d+)\]/i
+    }.freeze
+
+    #  ' = \u0027, converted so that the regex can be used for SQL
+    REGEXP_COORD   = {
+      # tt1: /\D?(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i,
+      dd1a: {reg: /(?<lat>\d+\.\d+\s*[NS])\s*(?<long>\d+\.\d+\s*[EW])/i,
+             hlp: 'decimal degrees, trailing ordinal, e.g. 23.23N  44.44W'},
+
+      dd1b: {reg: /(?<lat>[NS]\s*\d+\.\d+)\s*(?<long>[EW]\s*\d+\.\d+)/i,
+             hlp: 'decimal degrees, leading ordinal, e.g. N23.23  W44.44'},
+
+      dd2:  {reg: /(?<lat>\d+[\. ]\d+\u0027?\s*[NS]),?\s*(?<long>\d+[\. ]\d+\u0027?\s*[EW])/i,
+             hlp: "decimal degrees, trailing ordinal, e.g. 43.836' N, 89.258' W"},
+
+      dm1:  {reg: /(?<lat>\d+\s*[\*°ººo\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*[NS])[\.,;]?\s*(?<long>\d+\s*[\*°ººo\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*[WE])/i,
+             hlp: "degrees, decimal minutes, trailing ordinal, e.g. 45 54.2'N, 78 43.5'E"},
+
+      dms2: {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ººo\u02DA ]\s*\d+\s*[ ´\u0027\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA][´\u0027\u02B9\u02BC\u02CA]?)[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ººo\u02DA ]\s*\d+\s*[ \u0027´\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA]?[´\u0027\u02B9\u02BC\u02CA]?)/i,
+             hlp: "degrees, minutes, decimal seconds, leading ordinal, e.g. S42°5'18.1\" W88º11'43.3\""},
+
+      dm3:  {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ººo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*([ ´\u0027\u02B9\u02BC\u02CA]))[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ººo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?)/i,
+             hlp: "degrees, decimal minutes, leading ordinal, e.g. S42º5.18' W88°11.43'"},
+
+      dms4: {reg: /(?<lat>\d+\s*[\*°ººo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+"?\s*[NS])\s*(?<long>\d+\s*[\*°ººo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+["\u0027]?\s*[EW])/i,
+             hlp: "degrees, minutes, decimal seconds, trailing ordinal, e.g. 24º7'2.0\"S65º24'13.1\"W"},
+
+      dd5:  {reg: /(?<lat>[NS]\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ººo\u02DA ])[\.,;]?\s*(?<long>([WE])\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ººo\u02DA ]?)/i,
+             hlp: 'decimal degrees, leading ordinal, e.g. S42.18° W88.34°'},
+
+      dd6:  {reg: /(?<lat>(\d+[\.,]\d+|\d+)\s*[\*°ººo\u02DA ]\s*[NS])[\.,;]?\s*(?<long>(\d+[\.|,]\d+|\d+)\s*[\*°ººo\u02DA ]\s*[WE])/i,
+             hlp: 'decimal degrees, trailing ordinal, e.g. 42.18°S 88.43°W'},
+
+      dd7:  {reg: /\[(?<lat>-?\d+[\.,]\d+|\-?d+),.*?(?<long>-?\d+[\.,]\d+|\-?d+)\]/i,
+             hlp: 'decimal degrees, no ordinal, specific format, e.g. [12.263, -49.398]'}
+    }.freeze
+
+    def self.hunt_lat_long_full(label, filters = REGEXP_COORD.keys)
+      trials = {}
+      filters.each_with_index {|kee, dex|
+        kee_string         = kee.to_s.upcase
+        trials[kee_string] = {}
+        named              = REGEXP_COORD[kee][:reg].match(label)
+        unless named.nil?
+          trials[kee_string][:piece] = named[0]
+          trials[kee_string][:lat]   = named[:lat]
+          trials[kee_string][:long]  = named[:long]
+          named
+        end
+        trials[kee_string][:method] = "text, #{kee_string}"
+      }
+      trials
+    end
+
+    def self.hunt_lat_long(label, how = ' ')
+      if how.nil?
+        pieces = [label]
+      else
+        pieces = label.split(how)
+      end
+      lat_long = {}
+      pieces.each do |piece|
+        # group of possible regex configurations
+        # m = /(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i =~ piece
+        m = REGEXP_COORD[:dd1a][:reg].match(piece)
+        if m.nil?
+          piece.each_char do |c|
+            next unless SPECIAL_LATLONG_SYMBOLS.include?(c)
+            test = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(piece)
+            unless test.nil?
+              if test.to_f.is_a? Numeric
+                # might be a lat/long
+                lat_long[:piece] = piece
+                if lat_long[:lat].nil?
+                  lat_long[:lat] = piece
+                else
+                  lat_long[:long]  = piece
+                  lat_long[:piece] = [lat_long[:lat], piece].join(how)
+                end
+              end
+            end
+            break
+          end
+        else
+          lat_long[:piece] = m[0]
+          lat_long[:lat]   = m[:lat]
+          lat_long[:long]  = m[:long]
+        end
+      end
+      lat_long
+    end
+
+    def self.hunt_wrapper(label, filters = REGEXP_COORD.keys)
+
+      trials = self.hunt_lat_long_full(label, filters)
+
+      ';, '.each_char {|sep|
+        trial = self.hunt_lat_long(label, sep)
+        found = "#{trial[:piece]}"
+        unless trial[:lat].nil? and !trial[:long].nil?
+          found = "(#{sep})" if found.blank?
+        end
+        trials["(#{sep})"] = trial.merge!(method: "(#{sep})")
+      }
+      trials
+    end
+
+    def self.is_lat_long_special(c)
+      SPECIAL_LATLONG_SYMBOLS.include?(c)
+    end
+
+
     # 42∞5'18.1"S88∞11'43.3"W
     # S42∞5'18.1"W88∞11'43.3"
     # S42∞5.18'W88∞11.43'
@@ -102,7 +235,7 @@ To add a new (discovered) symbol:
     # 42:5:18.1N
     # 88:11:43.3W
     #
-    # no limit test, unless there is a letter included
+    # no limit test, unless there is a ordinal letter included
     #
     def self.degrees_minutes_seconds_to_decimal_degrees(dms_in) # rubocop:disable Metrics/PerceivedComplexity !! But this is too complex :)
       match_string = nil
@@ -114,11 +247,12 @@ To add a new (discovered) symbol:
       # make SURE it is a string! Watch out for dms_in == -10
       dms_in       = dms_in.to_s
       dms          = dms_in.dup.upcase
+      dms          = dms.gsub('DEG', 'º').gsub('DG', 'º')
       dms =~ /[NSEW]/i
-      cardinal = $LAST_MATCH_INFO.to_s
-      # return "#{dms}: Too many letters (#{cardinal})" if cardinal.length > 1
-      # return nil if cardinal.length > 1
-      dms      = dms.gsub!(cardinal, '').strip.downcase
+      ordinal = $LAST_MATCH_INFO.to_s
+      # return "#{dms}: Too many letters (#{ordinal})" if ordinal.length > 1
+      # return nil if ordinal.length > 1
+      dms     = dms.gsub!(ordinal, '').strip.downcase
 
       if dms.include? '.'
         no_point = false
@@ -135,7 +269,7 @@ To add a new (discovered) symbol:
       end
 
       # >40°26′46″< >40°26′46″<
-      dms.each_char { |c|
+      dms.each_char {|c|
         next unless SPECIAL_LATLONG_SYMBOLS.include?(c)
         /^(?<degrees>-*\d{0,3}(\.\d+)*) # + or - three-digit number with optional '.' and additional decimal digits
             [do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\uc2ba]*\s* # optional special degrees symbol, optional space
@@ -151,7 +285,7 @@ To add a new (discovered) symbol:
 
       # @match_string = $&
       degrees = degrees.to_f
-      case cardinal
+      case ordinal
         when 'W', 'S'
           sign = -1.0
         else
@@ -163,7 +297,7 @@ To add a new (discovered) symbol:
       end
       frac = ((minutes.to_f * 60.0) + seconds.to_f) / 3600.0
       dd   = (degrees + frac) * sign
-      case cardinal
+      case ordinal
         when 'N', 'S'
           limit = 90.0
         else
@@ -222,9 +356,9 @@ To add a new (discovered) symbol:
     end
 
     # confirm that this says that the error radius is one degree or smaller
-    def self.point_keystone_error_box(geo_object, error_radius)
+    def self.error_box_for_point(geo_object, error_radius)
       p0      = geo_object
-      delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y)
+      delta_x = (error_radius / ONE_WEST) / Math.cos(p0.y * Math::PI / 180)
       delta_y = error_radius / ONE_NORTH
 
       Gis::FACTORY.polygon(
@@ -244,7 +378,7 @@ To add a new (discovered) symbol:
     # rubocop:disable Style/FirstParameterIndentation:
     def diamond_error_box
       p0      = geo_object
-      delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y)
+      delta_x = (error_radius / ONE_WEST) / Math.cos(p0.y * Math::PI / 180)
       delta_y = error_radius / ONE_NORTH
 
       retval = Gis::FACTORY.polygon(Gis::FACTORY.line_string(

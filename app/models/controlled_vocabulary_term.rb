@@ -30,8 +30,10 @@ class ControlledVocabularyTerm < ActiveRecord::Base
   include Shared::AlternateValues
   include Shared::IsData
   # include Shared::Taggable <- NO!!
+ 
+  has_paper_trail :on => [:update] 
 
-  has_paper_trail
+  acts_as_list scope: [:project_id, :type]
 
   # Class constants
   ALTERNATE_VALUES_FOR = [:name, :definition]
