@@ -90,11 +90,9 @@ namespace :tw do
             1 => Ranks.lookup(:iczn, :subspecies),
             2 => Ranks.lookup(:iczn, :species),
             4 => Ranks.lookup(:iczn, :superspecies),
-            #4 => 'NomenclaturalRank::Iczn::SpeciesGroup::Superspecies',
             6 => Ranks.lookup(:iczn, :subgenus),
             7 => Ranks.lookup(:iczn, :genus),
             8 => Ranks.lookup(:iczn, :supergenus),
-            #8 => 'NomenclaturalRank::Iczn::GenusGroup::Supergenus',
             9 => Ranks.lookup(:iczn, :subtribe),
             10 => Ranks.lookup(:iczn, :tribe),
             11 => Ranks.lookup(:iczn, :supertribe),
@@ -554,8 +552,6 @@ namespace :tw do
 
 
           begin
-            source.save!
-            source.project_sources.create!
             @data.publications_index[row['Key3']] = source.id
             @data.source_ay[row['Key3']] = row['AY']
             authors = row['Author'].gsub('., ', '.|').split('|')
@@ -571,6 +567,8 @@ namespace :tw do
               end
               sa = SourceAuthor.create(person_id: a, role_object: source, position: i + 1) unless a.nil?
             end
+            source.save!
+            source.project_sources.create!
           rescue ActiveRecord::RecordInvalid
             puts "\nDuplicate record: #{row}\n"
           end
@@ -1526,8 +1524,8 @@ namespace :tw do
             verbatim_datum: ce['Datum'],
             field_notes: nil,
             verbatim_date: nil,
-            no_cached: true,
-        #     with_verbatim_data_georeference: true
+#            no_cached: true,
+#     with_verbatim_data_georeference: true
         )
         # byebug unless c.valid?
         begin
@@ -1546,12 +1544,12 @@ namespace :tw do
           unless gr == false
             ga, c.geographic_area_id = c.geographic_area_id, nil
             if gr.valid?
-              c.no_cached = true
+#              c.no_cached = true
               c.save
               gr.save
             else
               c.geographic_area_id = ga
-              c.no_cached = true
+#              c.no_cached = true
               c.save
             end
 
