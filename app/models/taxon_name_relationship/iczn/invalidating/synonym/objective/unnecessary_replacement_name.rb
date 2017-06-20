@@ -6,7 +6,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::Unnecessary
     self.parent.disjoint_taxon_name_relationships +
         self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective,
             TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation,
-            TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym)
+            TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym,
+            TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym)
   end
 
   def object_status
