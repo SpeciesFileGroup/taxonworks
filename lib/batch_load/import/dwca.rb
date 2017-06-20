@@ -104,8 +104,8 @@ module BatchLoad
 
         t_d       = @row_objects[:make_td]
         c_o       = @row_objects[:make_co]
-        ident     = @row_objects[:make_ident]
-        id_cat_no = ident[:id_cat_no]
+        idents    = @row_objects[:make_ident]
+        id_cat_no = idents[:id_cat_no]
         b_a_s     = @row_objects[:make_ba]
         notes     = @row_objects[:make_notes]
         c_o_notes = notes[:c_o]
@@ -113,6 +113,7 @@ module BatchLoad
         g_r_notes = notes[:g_r]
         c_e       = @row_objects[:make_ce]
         g_r       = @row_objects[:make_gr]
+        ppl       = @row_objects[:make_prsn]
 
         if c_e.valid?
           c_e.save if c_e.new_record?
@@ -178,6 +179,11 @@ module BatchLoad
               @row_objects[:make_notes].delete(:g_r)
             end
           end
+        end
+        # add a georeferencer as required
+        g_rer = ppl[:g_r]
+        unless g_rer.blank?
+          g_r.georeferencers << g_rer
         end
         # add notes to georeference, if required
         unless g_r_notes.blank?

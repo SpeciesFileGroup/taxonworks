@@ -2,9 +2,10 @@ require 'rails_helper'
 require 'batch_load/import/collection_objects'
 
 describe BatchLoad::Import::DWCA, type: :model do
-  let(:file_name) {'spec/files/batch/dwca/PSUC3-Test.tsv'}
+  # iconv -f iso-8859-15 -t UTF-8  spec/files/batch/dwca/PSUC3-Test.txt >spec/files/batch/dwca/PSUC3-Test.utf8.txt
+  let(:file_name) {'spec/files/batch/dwca/PSUC3-Test.utf8.txt'}
 
-  xcontext 'building objects from valid tsv lines' do
+  context 'building objects from valid tsv lines' do
 
     let(:user) {User.find(1)}
     let(:project) {Project.find(1)}
@@ -43,16 +44,31 @@ describe BatchLoad::Import::DWCA, type: :model do
                                                 user_id:    user.id,
                                                 file:       upload_file}.merge(pre_load))
     }
+    let(:event) {CollectingEvent.create(verbatim_date: 'some more text')}
 
     context 'file provided' do
       it 'loads supplied data' do
+        pre_load
         result = import.rows
         expect(result).to be_truthy
-        expect(Otu.count).to eq(1)
-        expect(Identifier.count).to eq(304) # one built above, one for each co in import
-        expect(CollectingEvent.count).to eq(140)
-        expect(Georeference.count).to eq(65)
-        expect(result.processed_rows[61].objects[:ce].first.verbatim_locality).to eq('Collecting Event No. 59353')
+        expect(CollectionObject.count).to eq(24)
+        expect(Otu.count).to eq(27)
+        expect(CollectingEvent.count).to eq(20) # some of the collecting events are used more than once
+        expect(TaxonDetermination.count).to eq(24) # one for each new OTU
+        expect(Identifier.count).to eq(24) # 25 identifiers, the last one fails
+        expect(Identifier.first.identifier).to eq('107450')
+        expect(Identifier.last.identifier).to eq('107690')
+        expect(Georeference.count).to eq(19)
+        expect(Georeference::VerbatimData.count).to eq(1) # 'verbatim' in georeferencedBy
+        expect(Georeference::GeoLocate.count).to eq(18)
+        expect(Note.count).to eq(9)
+        expect(TaxonName.count).to eq(43)
+        expect(Person.count).to eq(4)
+        expect(Note.all.map(&:note_object_type).uniq).to include("Georeference",
+                                                                 "CollectingEvent",
+                                                                 "CollectionObject")
+
+        # expect(result.processed_rows[61].objects[:ce].first.verbatim_locality).to eq('Collecting Event No. 59353')
       end
     end
   end
