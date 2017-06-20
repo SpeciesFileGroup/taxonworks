@@ -261,7 +261,6 @@ module Utilities::Dates
   end
 
   def self.make_verbatim_date_piece(label, pieces)
-    left = label
     left = label.index(pieces[0])
     right = left + pieces[0].length - 1 #
     unless pieces[1].blank?
