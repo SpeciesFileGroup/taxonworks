@@ -65,7 +65,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
           specify 'country, state, county are cached on creation of georeference' do
             # expect(collecting_event.cached_geographic_name_classification).to eq( {:country=>"West Boxia", :state=>"QT", :county=>"M1"} )
             expect(collecting_event.cached_geographic_name_classification).to eq( {:country=>"West Boxia", :state=>"West Boxia", :county=>"QTM2"} )
-            
+
           end
         end
 
@@ -338,12 +338,12 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
           specify 'geolocate_ui_params_string from locality' do
             #pending 'creation of a method for geolocate_ui_params_string'
-            expect(@ce_n3.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=Old Boxia&state=N3&county=&locality=Greater Boxia Lake&points=25.5|34.5|Greater Boxia Lake|0|3&georef=run|false|false|true|true|false|false|false|0&gc=Tester')
+            expect(@ce_n3.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=Old%20Boxia&state=N3&county=&locality=Greater%20Boxia%20Lake&points=25.5%7C34.5%7CGreater%20Boxia%20Lake%7C0%7C3&georef=run%7Cfalse%7Cfalse%7Ctrue%7Ctrue%7Cfalse%7Cfalse%7Cfalse%7C0&gc=Tester')
           end
 
           specify 'geolocate_ui_params_string from lat/long' do
             #pending 'creation of a method for geolocate_ui_params_string'
-            expect(@ce_m1.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=Big Boxia&state=QT&county=M1&locality=Lesser Boxia Lake&points=27.5|33.5|Lesser Boxia Lake|0|3&georef=run|false|false|true|true|false|false|false|0&gc=Tester')
+            expect(@ce_m1.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=Big%20Boxia&state=QT&county=M1&locality=Lesser%20Boxia%20Lake&points=27.5%7C33.5%7CLesser%20Boxia%20Lake%7C0%7C3&georef=run%7Cfalse%7Cfalse%7Ctrue%7Ctrue%7Cfalse%7Cfalse%7Cfalse%7C0&gc=Tester')
           end
         end
       end
