@@ -11,7 +11,7 @@ describe Identifier::Global::OccurrenceId, type: :model, group: :identifiers do
       specify 'empty' do
         # identifier is empty
         expect(id.valid?).to be_falsey
-        expect(id.errors.messages[:identifier][0]).to eq('can\'t be blank.')
+        expect(id.errors.messages[:identifier][0]).to eq('can\'t be blank')
       end
 
       specify do
