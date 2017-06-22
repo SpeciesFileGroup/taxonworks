@@ -810,9 +810,9 @@ namespace :tw do
 
 
 
-              if @data.source_ay[source] == row['Author']
+              if @data.source_ay[row['Key3']] == row['Author']
                 SourceAuthor.where(role_object_type: 'Source', role_object_id: source, project_id: $project_id).find_each do |sa|
-                  TaxonNameAuthor.create(person_id: sa.person_id, role_object: taxon, position: sa.position)
+                  TaxonNameAuthor.create(person_id: sa.person_id, role_object: taxon, position: sa.position)                      #################??????????
                 end
               end
 
@@ -831,7 +831,7 @@ namespace :tw do
                 #byebug
               end
               if !row['DescriptEn'].blank? && (row['DescriptEn'].include?('<h2>Notes</h2>') || row['DescriptEn'].include?('<h2>Remarks</h2>'))
-                taxon.otus.first.contents.create(topic_id: @data.keywords['Notes'], text: row['DescriptEn'].gsub('<h2>Notes</h2>').gsub('<h2>Remarks</h2>').squish)
+                taxon.otus.first.contents.create(topic: @data.keywords['Notes'], text: row['DescriptEn'].gsub('<h2>Notes</h2>').gsub('<h2>Remarks</h2>').squish) ####################?????????
               end
             end
             unless row['KeyN'].blank?
@@ -926,14 +926,15 @@ namespace :tw do
                 byebug if tnr.id.nil?
               else
                 if row['YearRem'].to_s.include?('unneded n.nov.')
-                  tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['NomenNovumFor']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName')
+                  tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['NomenNovumFor']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName') ########???
                 else
-                  tnr = TaxonNameRelationship.create(subject_taxon_name: find_taxon_3i(row['NomenNovumFor']), object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym')
+                  tnr = TaxonNameRelationship.create(subject_taxon_name: find_taxon_3i(row['NomenNovumFor']), object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym') ##############????
                 end
               end
             end
             if homonym_statuses.include?(row['Status']) && row['Rank'] == '0'
-              tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+              tnr1 = TaxonNameRelationship.where(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent'])).first
+              tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym') if tnr1.nil?
               byebug if tnr.id.nil?
             end
 
@@ -1025,6 +1026,7 @@ namespace :tw do
                 taxon.original_variety = taxon
               end
             end
+
             begin
               taxon.save!
             rescue ActiveRecord::RecordInvalid
