@@ -106,6 +106,7 @@ module BatchLoad
         c_o       = @row_objects[:make_co]
         idents    = @row_objects[:make_ident]
         id_cat_no = idents[:id_cat_no]
+        id_occ_id = idents[:id_occ_id]
         b_a_s     = @row_objects[:make_ba]
         notes     = @row_objects[:make_notes]
         c_o_notes = notes[:c_o]
@@ -133,7 +134,16 @@ module BatchLoad
         # associate the collection_object with the collecting_event
         c_o.collecting_event = c_e
         # associate the namespace and catalog number with the collection_object
-        c_o.identifiers << id_cat_no
+        if id_cat_no.blank?
+          @warns.push('Missing catalog number.')
+        else
+          c_o.identifiers << id_cat_no
+        end
+        if id_occ_id.blank?
+          # is a warning required?
+        else
+          c_o.identifiers << id_occ_id
+        end
         c_o.repository = @repo
         c_o.save!
         # add the possible biological_associations, new? otu to collection_object
@@ -336,16 +346,23 @@ module BatchLoad
         end
         unless cat_no[1].blank?
           id                = Identifier::Local::CatalogNumber.find_or_initialize_by(namespace:  @namespace,
+                                                                                     project_id: $project_id,
                                                                                      identifier: cat_no[1])
           ident[:id_cat_no] = id
         end
+      end
+      occ_id = row['occurrenceid']
+      unless occ_id.blank?
+        id                = Identifier::Global::OccurrenceId.find_or_initialize_by(project_id: $project_id,
+                                                                                   identifier: occ_id)
+        ident[:id_occ_id] = id
       end
       ident
     end
 
 # make_prsn:  %w(georeferencedby),
     def make_prsn(row)
-      ppl  = {}
+      ppl = {}
       # check for person's name
       name = row['georeferencedby']
       unless name.blank?
@@ -363,7 +380,7 @@ module BatchLoad
 
 # available data comes from Tulane geolocation action, reflected by the fact that the georefernce is a GeoLocate
     def make_gr(row)
-      geo_by    = row['georeferencedby']
+      geo_by = row['georeferencedby']
       # lat, long           = (lat.length > 0) ? lat : nil, (long.length > 0) ? long : nil
       lat, long = row['decimallatitude'], row['decimallongitude']
       if lat.nil? and long.nil?
@@ -378,22 +395,22 @@ module BatchLoad
         g_r = Georeference::VerbatimData.new(error_radius: uncert)
       else
         # faking a Georeference::GeoLocate:
-        gl_req_params       = {country:   code_to_name(row['countrycode']),
-                               state:     row['stateprovince'],
-                               county:    row['county'],
-                               Placename: row['municipality'],
-                               Uncert:    uncert,
-                               Latitude:  lat,
-                               Longitude: long,
-                               locality:  row['locality'],
-                               gc:        geo_by}.stringify_keys
-        req                 = Georeference::GeoLocate::RequestUI.new(gl_req_params)
+        gl_req_params = {country:   code_to_name(row['countrycode']),
+                         state:     row['stateprovince'],
+                         county:    row['county'],
+                         Placename: row['municipality'],
+                         Uncert:    uncert,
+                         Latitude:  lat,
+                         Longitude: long,
+                         locality:  row['locality'],
+                         gc:        geo_by}.stringify_keys
+        req           = Georeference::GeoLocate::RequestUI.new(gl_req_params)
         #   1) new the Georeference, without a collecting_event
-        g_r                 = Georeference::GeoLocate.new
+        g_r = Georeference::GeoLocate.new
         #   2) save the information from the row in request_hash
-        g_r.api_request     = req.request_params_string
+        g_r.api_request = req.request_params_string
         #   3) build a fake iframe response in the form '52.65|-106.333333|3036|Unavailable'
-        text                = "#{lat}|#{long}|#{uncert}|Unavailable"
+        text = "#{lat}|#{long}|#{uncert}|Unavailable"
         #   4) use that fake to stimulate the parser to create the object
         g_r.iframe_response = text
       end
@@ -538,8 +555,8 @@ module BatchLoad
           ret_val[:family] = @family
         end
       end
-      sn        = row['scientificname']
-      snp       = @parser.parse(sn)
+      sn  = row['scientificname']
+      snp = @parser.parse(sn)
 
       # find or create Protonym based on exact match of row['scientificname'] and taxon_names.cached
 
@@ -560,10 +577,10 @@ module BatchLoad
                 ret_val[:new_genus] = @genus
               end
             end
-            species                 = snp[:scientificName][:details][0][:species]
-            t_n.parent              = @genus
-            t_n.rank_class          = NomenclaturalRank::Iczn::SpeciesGroup::Species
-            t_n.name                = species[:string]
+            species        = snp[:scientificName][:details][0][:species]
+            t_n.parent     = @genus
+            t_n.rank_class = NomenclaturalRank::Iczn::SpeciesGroup::Species
+            t_n.name       = species[:string]
             # t_n.cached_author_year = snp[:scientificName][:details][0][:species][:authorship]
             t_n.year_of_publication = species[:basionymAuthorTeam][:year].to_i
             author_name             = species[:basionymAuthorTeam][:authorTeam]
