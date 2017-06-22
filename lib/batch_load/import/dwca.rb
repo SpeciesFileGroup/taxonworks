@@ -26,7 +26,7 @@ module BatchLoad
       @row_objects       = {}
       @parser            = ScientificNameParser.new
       @tasks_            = {
-        make_ident: %w(catalognumber),
+        make_ident: %w(catalognumber occurrenceid),
         make_prsn:  %w(georeferencedby),
         make_tn:    %w(scientificname taxonrank family kingdom),
         make_td:    %w(scientificname basisofrecord individualcount organismquantity organismquantitytype recordedby),
@@ -353,7 +353,8 @@ module BatchLoad
       end
       occ_id = row['occurrenceid']
       unless occ_id.blank?
-        id                = Identifier::Global::OccurrenceId.find_or_initialize_by(project_id: $project_id,
+        id                = Identifier::Global::OccurrenceId.find_or_initialize_by(relation:   'skos:exactMatch',
+                                                                                   project_id: $project_id,
                                                                                    identifier: occ_id)
         ident[:id_occ_id] = id
       end
