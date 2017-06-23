@@ -324,15 +324,29 @@ module Utilities::Dates
         trials[kee][:method] = kee
         trials[kee][:piece] = {}
         trial = extract_dates(trials[kee], matches)
-        if trial[:start_date_day].to_i > 31 or trial[:end_date_day].to_i > 31 \
-            or trial[:start_date_day].to_i < 1 or trial[:end_date_day].to_i < 1 \
-          or trial[:start_date_month].to_i > 12 or trial[:end_date_month].to_i > 12 \
-            or trial[:start_date_month].to_i < 1 or trial[:end_date_month].to_i < 1
+        if invalid_month_day(trial)
           trials[kee] = {}
         end
       end
     }
     trials
+  end
+
+  def self.invalid_month_day(trial)
+    retval = false
+    if trial[:start_date_day].to_i > 31 or trial[:end_date_day].to_i > 31
+      retval = true
+    end
+    if trial[:start_date_day].to_i < 1 or (trial[:end_date_day].to_i < 1 and !trial[:end_date_day].blank?)
+      retval = true
+    end
+    if trial[:start_date_month].to_i > 12 or trial[:end_date_month].to_i > 12
+      retval = true
+    end
+    if trial[:start_date_month].to_i < 1 or (trial[:end_date_month].to_i < 1 and !trial[:end_date_month].blank?)
+      retval = true
+    end
+    retval
   end
 
   def self.extract_dates(trial, match_data)
