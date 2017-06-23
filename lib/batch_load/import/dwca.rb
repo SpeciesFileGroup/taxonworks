@@ -466,7 +466,7 @@ module BatchLoad
     def make_ce(row)
       kees        = [:yyyy_mm_dd, :mm_dd_yy]
       d_s         = row['eventdate']
-      v_l         = [row['municipality'], row['locality']].join(':')
+      v_l = [row['municipality'], row['locality']].select {|name| name.present?}.join(':')
       date_params = {}
       unless d_s.blank?
         trials = Utilities::Dates.hunt_dates(d_s, kees)
@@ -635,9 +635,10 @@ module BatchLoad
 =end
 # @param [Array] of Strings which represent the TSV file headers
 # @param [Hash] of the method names (as keys) for the tasks, with lists of required headers (as values)
-# @return [Array] of named tasks to perform, based on the presents or absence of headers in the header list
+# @return [Array] of named tasks to perform, based on the presents of task's word list in the header list
+# intersection of the word list from the tasks hash (per key) and the list of headers
     def triage(headers, tasks)
-      tasks.select {|kee, vlu| vlu & headers == vlu}.keys
+      tasks.select {|kee, vlu| (vlu & headers) == vlu}.keys
     end
   end
 end
