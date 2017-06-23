@@ -191,7 +191,7 @@ class Georeference::GeoLocate < Georeference
         "&georef=run|#{ga['H20']}|#{ga['HwyX']}|#{ga['Uncert']}|#{ga['Poly']}|#{ga['DisplacePoly']}|" +
         "#{ga['RestrictAdmin']}|#{ga['BG']}|#{ga['LanguageIndex']}" +
         "&gc=#{ga['gc']}"
-      @request_params_string = URI.encode(params_string)
+      @request_params_string = params_string # URI.encode(params_string)
     end
 
     # def request_string
