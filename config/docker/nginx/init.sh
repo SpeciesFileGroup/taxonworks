@@ -11,3 +11,4 @@ bundle exec erb /app/config/docker/application_settings.yml.erb > /app/config/ap
 bundle exec rake assets:precompile
 chown app:app -R /app/log
 chown app:app -R /app/tmp
+chown app:app -R /app/public/images/tmp
