@@ -199,13 +199,22 @@ module BatchLoad
         end
         # add notes to georeference, if required
         unless g_r_notes.blank?
+          apply_note = false
           g_r_notes.keys.each {|kee|
             g_r_n = g_r_notes[kee]
-            g_r.notes.each {|note|
-              unless note.text == g_r_n.text
-                g_r_n.note_object = g_r
-              end
-            }
+            if g_r.notes.present?
+              g_r.notes.each {|note|
+                if note.text == g_r_n.text
+                  # need to drop the object without warning
+                  @row_objects[:make_notes][:g_r].delete(:remark)
+                else
+                  apply_note = true
+                end
+              }
+            else
+              apply_note = true
+            end
+            g_r_n.note_object = g_r if apply_note
           }
         end
         # either the original, or the ce-created one gets saved
