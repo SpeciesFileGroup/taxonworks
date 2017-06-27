@@ -623,6 +623,7 @@ namespace :tw do
 
         # Key !
         # Key3 !
+        # Key3a
         # Name !
         # Author !
         # Year !
@@ -792,6 +793,7 @@ namespace :tw do
             t3 = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedFamilyGroupNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Family-Group Names in Zoology')
             t1 = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedGenericNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Generic Names in Zoology')
             t2 = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedSpecificNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Specific Names in Zoology')
+            t4 = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedAndInvalidWorksInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Works in Zoological Nomenclature')
             if row['Status'].to_i == 24
               if name.length == 1
                 taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters')
@@ -889,7 +891,10 @@ namespace :tw do
                 when 'original designation'
                   taxon.type_species_by_original_designation = find_taxon_3i(row['Type'])
                 when 'subsequent designation'
-                  taxon.type_species_by_subsequent_designation = find_taxon_3i(row['Type'])
+                  #taxon.type_species_by_subsequent_designation = find_taxon_3i(row['Type'])
+                  source1 = row['Key3a'].blank? ? nil : @data.publications_index[row['Key3a']]
+                  tssd = taxon.related_taxon_name_relationships.new(subject_taxon_name: find_taxon_3i(row['Type']),  type: 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation')
+                  tssd.citations.new(source_id: source1, is_original: true)
                 when 'ruling by commission'
                   taxon.type_species_by_ruling_by_Commission = find_taxon_3i(row['Type'])
                 else
@@ -935,7 +940,7 @@ namespace :tw do
             if homonym_statuses.include?(row['Status']) && row['Rank'] == '0'
               tnr1 = TaxonNameRelationship.where(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent'])).first
               tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym') if tnr1.nil?
-              byebug if tnr.id.nil?
+              byebug if !tnr.nil? && tnr.id.nil?
             end
 
 
@@ -1012,7 +1017,7 @@ namespace :tw do
             taxon.original_variety_relationship.destroy unless taxon.original_variety_relationship.blank?
             taxon.original_form_relationship.destroy unless taxon.original_form_relationship.blank?
 
-            taxon = TaxonName.find(taxonid)
+            taxon = TaxonName.find(taxonid) ## Do not delete this line
             taxon.original_species = find_taxon_3i(row['OriginalSpecies']) unless row['OriginalSpecies'].blank?
             taxon.original_subspecies = find_taxon_3i(row['OrigOriginalSubSpecies']) unless row['OriginalSubSpecies'].blank?
             taxon.original_variety = taxon if row['Name'].include?(' var. ')
@@ -1290,7 +1295,7 @@ namespace :tw do
               byebug
             end
             if row['Synonymy'] == '1'
-              tr = p.taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).first
+              tr = p.taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).first
               unless tr.nil?
                 cit = tr.citations.find_or_create_by!(source_id: source, project_id: $project_id)
                 if row['Descriptions'] == '1'
@@ -1368,7 +1373,7 @@ namespace :tw do
       end
 
       def handle_museums_3i
-        #Abbreviation
+        # Abbreviation
         # Museum
         # Country
         # Location
@@ -1382,7 +1387,7 @@ namespace :tw do
 
         file.each_with_index do |row, i|
           print "\r#{i}"
-          @data.museums[row['abbreviation']] = row['TW_acronim'] unless row['TW_acronim'].blank?
+          @data.museums[row['Abbreviation']] = row['TW_acronim'] unless row['TW_acronim'].blank?
         end
       end
 
@@ -1438,6 +1443,7 @@ namespace :tw do
         file.each_with_index do |row, i|
           print "\r#{i}"
           collecting_event = find_or_create_collecting_event_3i(row)
+          repository = nil
           repository = Repository.find_by_acronym(@data.museums[row['Museum']]) unless @data.museums[row['Museum']].blank?
           source = find_publication_id_3i(row['Key3'])
 
@@ -1465,11 +1471,15 @@ namespace :tw do
                 objects += [specimen]
                 specimen.notes.create(text: row['Notes']) unless row['Notes'].blank?
 
-                host = @data.host_plant_index[row['Host']]
-                unless host.blank?
-                  identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: host, project_id: $project_id)
-                  host = identifier.empty? ? nil : identifier.first.identifier_object
-                end
+                host = @data.host_plant_index[row['HostPlant']]
+                host = @data.host_plant_index[row['HostCommonName']] if host.blank?
+                host = @data.host_plant_index[row['HostFamily']] if host.blank?
+                host = Otu.find(host) unless host.nil?
+
+#                unless host.blank?
+#                  identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: host, project_id: $project_id)
+#                  host = identifier.empty? ? nil : identifier.first.identifier_object
+#                end
                 unless host.blank?
                   BiologicalAssociation.create(biological_relationship: br,
                                                biological_association_subject: host,
@@ -1550,9 +1560,10 @@ namespace :tw do
           c.data_attributes.create(import_predicate: 'Country', value: ce['Country'].to_s, type: 'ImportAttribute') unless ce['Country'].blank?
           c.data_attributes.create(import_predicate: 'State', value: ce['State'].to_s, type: 'ImportAttribute') unless ce['State'].blank?
           c.data_attributes.create(import_predicate: 'County', value: ce['County'].to_s, type: 'ImportAttribute') unless ce['County'].blank?
-          gr = geolocation_uncertainty.blank? ? false : c.generate_verbatim_data_georeference(true, no_cached: true)
+          gr = geolocation_uncertainty.blank? ? false : c.generate_verbatim_data_georeference(true, no_cached: false)
           c.notes.create(text: ce['Comments']) unless ce['Comments'].blank?
           c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['HostPlant'], value: ce['Host']) unless ce['Host'].blank?
+          c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['HostPlant'], value: ce['HostPlant']) unless ce['HostPlant'].blank?
           c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode') unless ce['AccessionNumber'].blank?
 
           unless gr == false
@@ -1672,16 +1683,17 @@ namespace :tw do
       def parse_lat_long_3i(ce)
         latitude, longitude = nil, nil
         nlt = ce['LatNS'].blank? ? nil : ce['LatNS'].capitalize
-        ltd = ce['LatDeg'].blank? ? nil : "#{ce['LatDeg']}º"
-        ltm = ce['LatMin'].blank? ? nil : "#{ce['LatMin']}'"
-        lts = ce['LatSec'].blank? ? nil : "#{ce['LatSec']}\""
+        ltd = ce['LatDeg'].blank? ? nil : "#{ce['LatDeg']}º".gsub('.00º', 'º')
+        ltm = ce['LatMin'].blank? ? nil : "#{ce['LatMin']}'".gsub(".00'", "'")
+        lts = ce['LatSec'].blank? ? nil : "#{ce['LatSec']}\"".gsub(".00\"", "\"")
         latitude = [nlt,ltd,ltm,lts].compact.join
         latitude = nil if latitude == '-'
 
         nll = ce['LongEW'].blank? ? nil : ce['LongEW'].capitalize
-        lld = ce['LongDeg'].blank? ? nil : "#{ce['LongDeg']}º"
-        llm = ce['LongMin'].blank? ? nil : "#{ce['LongMin']}'"
-        lls = ce['LongSec'].blank? ? nil : "#{ce['LongSec']}\""
+        lld = ce['LongDeg'].blank? ? nil : "#{ce['LongDeg']}º".gsub('.00º', 'º')
+        llm = ce['LongMin'].blank? ? nil : "#{ce['LongMin']}'".gsub(".00'", "'")
+        lls = ce['LongSec'].blank? ? nil : "#{ce['LongSec']}\"".gsub(".00\"", "\"")
+
         longitude = [nll,lld,llm,lls].compact.join
         longitude = nil if longitude == '-'
 
@@ -1895,7 +1907,7 @@ namespace :tw do
 
         file.each_with_index do |row, i|
           print "\r#{i}"
-          t = row['Numeric'] == '1' ? 'Descriptor::Sample' : 'Descriptor::Qualitative'
+          t = row['Numeric'] == '1' ? 'Descriptor::Continuous' : 'Descriptor::Qualitative'
           descriptor = Descriptor.create!(name: row['CharEn'].empty? ? '?' : row['CharEn'], short_name: row['CharEn'].empty? ? '?' : row['CharEn'], type: t, position: row['Char'].to_i + 1 )
           a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['CharRu'], alternate_value_object: descriptor, alternate_value_object_attribute: 'name', language_id: lngru) unless row['CharRu'].nil?
           a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['CharSp'], alternate_value_object: descriptor, alternate_value_object_attribute: 'name', language_id: lngsp) unless row['CharSp'].nil?
