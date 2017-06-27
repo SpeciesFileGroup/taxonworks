@@ -193,7 +193,9 @@ module BatchLoad
         # add a georeferencer as required
         g_rer = ppl[:g_r]
         unless g_rer.blank?
-          g_r.georeferencers << g_rer
+          unless g_r.georeferencers.include?(g_rer)
+            g_r.georeferencers << g_rer
+          end
         end
         # add notes to georeference, if required
         unless g_r_notes.blank?
@@ -407,13 +409,16 @@ module BatchLoad
                          gc:        geo_by}.stringify_keys
         req           = Georeference::GeoLocate::RequestUI.new(gl_req_params)
         #   1) new the Georeference, without a collecting_event
-        g_r = Georeference::GeoLocate.new
+        g_r = Georeference::GeoLocate::GeoLocate.find_or_initialize_by(api_request: req.request_params_string,
+                                                                       project_id:  $project_id)
         #   2) save the information from the row in request_hash
-        g_r.api_request = req.request_params_string
-        #   3) build a fake iframe response in the form '52.65|-106.333333|3036|Unavailable'
-        text = "#{lat}|#{long}|#{uncert}|Unavailable"
-        #   4) use that fake to stimulate the parser to create the object
-        g_r.iframe_response = text
+        if g_r.new_record?
+          g_r.api_request = req.request_params_string
+          #   3) build a fake iframe response in the form '52.65|-106.333333|3036|Unavailable'
+          text = "#{lat}|#{long}|#{uncert}|Unavailable"
+          #   4) use that fake to stimulate the parser to create the object
+          g_r.iframe_response = text
+        end
       end
 
       g_r
@@ -466,7 +471,7 @@ module BatchLoad
     def make_ce(row)
       kees        = [:yyyy_mm_dd, :mm_dd_yy]
       d_s         = row['eventdate']
-      v_l = [row['municipality'], row['locality']].select {|name| name.present?}.join(':')
+      v_l         = [row['municipality'], row['locality']].select {|name| name.present?}.join(':')
       date_params = {}
       unless d_s.blank?
         trials = Utilities::Dates.hunt_dates(d_s, kees)
