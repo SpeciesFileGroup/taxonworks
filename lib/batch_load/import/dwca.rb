@@ -93,8 +93,8 @@ module BatchLoad
         tasks.each {|task|
           results            = send(task, row)
           @row_objects[task] = results
-          @errs.push(results[:err])
-          @warns.push(results[:warn])
+          # @errs.push(results[:err])
+          # @warns.push(results[:warn])
         }
 
 
@@ -123,11 +123,31 @@ module BatchLoad
         if c_e.valid?
           c_e.save if c_e.new_record?
           # add notes to collecting_event, if required
+          # unless c_e_notes.blank?
+          #   c_e_notes.keys.each {|kee|
+          #     c_e_notes[kee].note_object = c_e
+          #   }
+          # end
           unless c_e_notes.blank?
+            apply_note = false
             c_e_notes.keys.each {|kee|
-              c_e_notes[kee].note_object = c_e
+              c_e_n = c_e_notes[kee]
+              if c_e.notes.present?
+                c_e.notes.each {|note|
+                  if note.text == c_e_n.text
+                    # need to drop the object without warning
+                    @row_objects[:make_notes][:c_e].delete(:remark)
+                  else
+                    apply_note = true
+                  end
+                }
+              else
+                apply_note = true
+              end
+              c_e_n.note_object = c_e if apply_note
             }
           end
+
         else
           @errs.push(c_e.errors.messages)
           # @row_objects.delete(:make_ce)
