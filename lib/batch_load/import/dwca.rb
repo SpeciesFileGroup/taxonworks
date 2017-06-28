@@ -93,8 +93,10 @@ module BatchLoad
         tasks.each {|task|
           results            = send(task, row)
           @row_objects[task] = results
-          # @errs.push(results[:err])
-          # @warns.push(results[:warn])
+          warn               = results[:warn]
+          err                = results[:err]
+          @errs.push(results.delete(:err)) unless err.nil?
+          @warns.push(results.delete(:warn)) unless warn.nil?
         }
 
 
@@ -107,7 +109,7 @@ module BatchLoad
         @row_objects[:make_otu] = otu
 
         t_d       = @row_objects[:make_td]
-        c_o       = @row_objects[:make_co]
+        c_o       = @row_objects[:make_co][:c_o]
         idents    = @row_objects[:make_ident]
         id_cat_no = idents[:id_cat_no]
         id_occ_id = idents[:id_occ_id]
@@ -116,7 +118,7 @@ module BatchLoad
         c_o_notes = notes[:c_o]
         c_e_notes = notes[:c_e]
         g_r_notes = notes[:g_r]
-        c_e       = @row_objects[:make_ce]
+        c_e       = @row_objects[:make_ce][:c_e]
         g_r       = @row_objects[:make_gr]
         ppl       = @row_objects[:make_prsn]
 
@@ -510,6 +512,7 @@ module BatchLoad
 
 # a full set of symbolized filter names (kees, below) can be found in Utilities::Dates::REGEXP_DATES.keys
     def make_ce(row)
+      ret_val     = {}
       kees        = [:yyyy_mm_dd, :mm_dd_yy]
       d_s         = row['eventdate']
       v_l         = [row['municipality'], row['locality']].select {|name| name.present?}.join(':')
@@ -545,17 +548,22 @@ module BatchLoad
         g_a_matches = GeographicArea.matching(g_a_text, true)
         g_a         = g_a_matches[g_a_text].try(:first)
       end
-      hunt_params = {project_id:                       $project_id,
-                     geographic_area:                  g_a,
-                     verbatim_datum:                   row['geodeticdatum'],
-                     verbatim_locality:                v_l,
-                     verbatim_date:                    d_s,
-                     verbatim_label:                   row['locationremarks'],
-                     verbatim_geolocation_uncertainty: row['coordinateuncertaintyinmeters'],
-                     verbatim_latitude:                row['decimallatitude'],
-                     verbatim_longitude:               row['decimallongitude'],
-                     verbatim_collectors:              row['recordedby']}.merge!(date_params)
-      CollectingEvent.find_or_initialize_by(hunt_params)
+      hunt_params   = {project_id:                       $project_id,
+                       geographic_area:                  g_a,
+                       verbatim_datum:                   row['geodeticdatum'],
+                       verbatim_locality:                v_l,
+                       verbatim_date:                    d_s,
+                       verbatim_label:                   row['locationremarks'],
+                       verbatim_geolocation_uncertainty: row['coordinateuncertaintyinmeters'],
+                       verbatim_latitude:                row['decimallatitude'],
+                       verbatim_longitude:               row['decimallongitude'],
+                       verbatim_collectors:              row['recordedby']}.merge!(date_params)
+      c_e           = CollectingEvent.find_or_initialize_by(hunt_params)
+      ret_val[:c_e] = c_e
+      ret_val.merge!(err: [])
+      ret_val.merge!(warn: [])
+
+      ret_val
     end
 
     def make_otu(row)
@@ -564,9 +572,50 @@ module BatchLoad
 
 # make_co:  %w(catalognumber basisofrecord individualcount organismquantity organismquantitytype recordedby)
     def make_co(row)
-      c_o = Specimen.new(total: row['individualcount'])
+      ret_val = {}
+      warn    = []
+      err     = []
+      ic      = row['individualcount']
+      oq      = row['organismquantity']
+      oqt     = row['organismquantitytype']
+      combo   = false
+      if ic.present? and (oqt.present? or oq.present?)
+        warn.push('Choose either individualCount or the combination of organismQuantity and organismQuantityType, not both.')
+        combo = true
+      end
+      if (ic.to_i > 1) and combo
+        # leave ic alone
+        warn.push('individualCount has been used instead of the combination of organismQuantity and organismQuantityType.')
+      else
+        # set ic according to organismQuantityType
+        case oqt
+          when 'individuals'
+            ic = oq.to_i
+          when 'percentageOfSpecies',
+            'percentageOfBiovolume',
+            'percentageOfBiomass',
+            'percentageCoverage',
+            'dominScale',
+            'braunBlanquetScale',
+            'biomassAFDG',
+            'biomassG',
+            'biomassKg',
+            'biovolumeCubicMicrons',
+            'biovolumeMl'
+            ic = oq
+          else
+            warn.push("Unrecognized organismQuantityType #{oqt}.")
+            ic = oq
+        end
+      end
+      # ic will cause the selection of 'lot' or 'specimen'
+      c_o = Specimen.new(total: ic)
 
-      c_o
+      ret_val[:c_o] = c_o
+      ret_val.merge!(err: err)
+      ret_val.merge!(warn: warn)
+
+      ret_val
     end
 
 # make_tn:    %w(scientificname taxonrank family kingdom)

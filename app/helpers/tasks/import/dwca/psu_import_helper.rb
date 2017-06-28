@@ -10,12 +10,16 @@ module Tasks::Import::Dwca::PsuImportHelper
     # output += ap(row[:row_objects][:make_ce])
     unless row[:warn].blank?
       row[:warn].each do |warning|
-        output += content_tag(:ul, content_tag(:li, warning, class: 'brown'))
+        unless warning.blank?
+          output += content_tag(:ul, content_tag(:li, warning, class: 'brown'))
+        end
       end
     end
     unless row[:err].blank?
       row[:err].each do |error|
-        output += content_tag(:ul, content_tag(:li, error, class: 'red'))
+        unless error.blank?
+          output += content_tag(:ul, content_tag(:li, error, class: 'red'))
+        end
       end
     end
     output += '</li>'
