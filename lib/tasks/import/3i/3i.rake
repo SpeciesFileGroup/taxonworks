@@ -443,7 +443,9 @@ namespace :tw do
         print "\nHandling litauthors\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           if row['FullName'].blank?
             person = Person.parse_to_people(row['Author']).first
@@ -487,7 +489,9 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true)
         language = %w(French Russian German Japanese Chinese English Korean Polish Italian Georgian )
 
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           journal, serial_id, volume, pages = parse_bibliography_3i(row['Bibliography'])
           year, year_suffix = parse_year_3i(row['Year'])
@@ -674,8 +678,9 @@ namespace :tw do
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
 
-
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           if row['Name'] == 'Incertae sedis' || row['Name'] == 'Unplaced'
             @data.incertae_sedis[row['Key']] = @data.taxon_index[row['Parent']]
@@ -858,7 +863,9 @@ namespace :tw do
 
         Combination.tap{}
 
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i} (Relationships)"
           taxon = nil
           taxon = find_taxon_3i(row['Key'])
@@ -893,8 +900,8 @@ namespace :tw do
                 when 'subsequent designation'
                   #taxon.type_species_by_subsequent_designation = find_taxon_3i(row['Type'])
                   source1 = row['Key3a'].blank? ? nil : @data.publications_index[row['Key3a']]
-                  tssd = taxon.related_taxon_name_relationships.new(subject_taxon_name: find_taxon_3i(row['Type']),  type: 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation')
-                  tssd.citations.new(source_id: source1, is_original: true)
+                  tssd = taxon.related_taxon_name_relationships.create(subject_taxon_name: find_taxon_3i(row['Type']),  type: 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation')
+                  tssd.citations.create(source_id: source1, is_original: true) unless source1.nil?
                 when 'ruling by commission'
                   taxon.type_species_by_ruling_by_Commission = find_taxon_3i(row['Type'])
                 else
@@ -1123,12 +1130,14 @@ namespace :tw do
         print "\nHandling host plant name dictionary\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
+        rank_a = %w(Phylum Class Order Family Genus Subgenus Species Variety).freeze
 
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           tmp = {}
-          #TODO: make this a frozen constant
-          %w(Phylum Class Order Family Genus Subgenus Species Variety).each do |c|
+          rank_a.each do |c|
             tmp[c] = row[c] unless row[c].blank?
           end
 
@@ -1208,7 +1217,9 @@ namespace :tw do
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
 
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
 
           object = find_otu(row['Key'])
@@ -1266,7 +1277,9 @@ namespace :tw do
         confidence = ConfidenceLevel.find_or_create_by(name: 'Verified', definition: 'Verified against the original source', project_id: $project_id).id
 
 
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
 
           p = find_taxon_3i(row['Key'])
@@ -1320,7 +1333,9 @@ namespace :tw do
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
 
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           otu = find_otu(row['Key'])
           source = find_publication_id_3i(row['Key3'])
@@ -1440,7 +1455,9 @@ namespace :tw do
         preparation_type = @data.keywords['Pin']
         count_fields = %w{ Specimens Males Females Nymphs }.freeze
 
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 0
           print "\r#{i}"
           collecting_event = find_or_create_collecting_event_3i(row)
           repository = nil
@@ -1812,7 +1829,9 @@ namespace :tw do
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
 
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           next if row['Family'].blank?
           print "\r#{i}"
           p = Protonym.find_by(name: row['Order'], rank_class: Ranks.lookup(:iczn, 'Order'), project_id: $project_id)
@@ -1905,7 +1924,9 @@ namespace :tw do
         lngsp = Language.where(alpha_2: 'es').limit(1).first.id
         lngzh = Language.where(alpha_2: 'zh').limit(1).first.id
 
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           t = row['Numeric'] == '1' ? 'Descriptor::Continuous' : 'Descriptor::Qualitative'
           descriptor = Descriptor.create!(name: row['CharEn'].empty? ? '?' : row['CharEn'], short_name: row['CharEn'].empty? ? '?' : row['CharEn'], type: t, position: row['Char'].to_i + 1 )
@@ -1979,7 +2000,9 @@ namespace :tw do
         lngru = Language.where(alpha_2: 'ru').limit(1).first.id
         lngsp = Language.where(alpha_2: 'es').limit(1).first.id
         lngzh = Language.where(alpha_2: 'zh').limit(1).first.id
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           if @data.chars[row['Key1'].to_s][1] == '1'
             @data.states[row['Key2'].to_s] = [nil, @data.chars[row['Key1'].to_s][0], row['StateEn']]
@@ -2004,7 +2027,9 @@ namespace :tw do
         print "\nHandling chartable\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           if @data.states[row['Key2'].to_s][2].nil? # Qualitative
             o = Observation::Qualitative.create(descriptor_id: @data.states[row['Key2'].to_s][1], otu_id: find_otu(row['Key']).id, character_state_id: @data.states[row['Key2'].to_s][0] )
