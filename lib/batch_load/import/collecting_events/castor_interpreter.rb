@@ -48,8 +48,8 @@ module BatchLoad
 
           # Collecting event
           ce_identifiers = []
-          ce_identifiers.push(ce_identifier_castor)             if !ce_identifier_castor.blank?
-          ce_identifiers.push(ce_identifier_drm_field_numbers)  if !ce_identifier_drm_field_numbers.blank?
+          ce_identifiers.push(ce_identifier_castor)             if !ce_identifier_castor_text.blank?
+          ce_identifiers.push(ce_identifier_drm_field_numbers)  if !ce_identifier_drm_field_numbers_text.blank?
 
           ce_attributes = { 
             verbatim_locality:                row['verbatim_location'],
