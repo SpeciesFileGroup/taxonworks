@@ -95,8 +95,8 @@ module BatchLoad
           @row_objects[task] = results
           warn               = results[:warn]
           err                = results[:err]
-          @errs.push(results.delete(:err)) unless err.nil?
-          @warns.push(results.delete(:warn)) unless warn.nil?
+          @errs.push(results.delete(:err)) unless err.blank?
+          @warns.push(results.delete(:warn)) unless warn.blank?
         }
 
 
