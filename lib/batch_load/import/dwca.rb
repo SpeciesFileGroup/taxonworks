@@ -564,7 +564,7 @@ module BatchLoad
 
 # make_co:  %w(catalognumber basisofrecord individualcount organismquantity organismquantitytype recordedby)
     def make_co(row)
-      c_o = Specimen.new(total: row[:organismquantity])
+      c_o = Specimen.new(total: row['individualcount'])
 
       c_o
     end
