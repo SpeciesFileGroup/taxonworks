@@ -91,8 +91,12 @@ module BatchLoad
         @rows[line_counter][:row] = row
         @row_objects              = {}
         tasks.each {|task|
-          @row_objects[task] = send(task, row)
+          results            = send(task, row)
+          @row_objects[task] = results
+          @errs.push(results[:err])
+          @warns.push(results[:warn])
         }
+
 
         t_n = @row_objects[:make_tn].select {|kee, val| val != nil}.values.first
         # save the (possible new) taxon_name
@@ -478,6 +482,8 @@ module BatchLoad
 
     def make_tag(row)
       ret_val = {}
+      ret_val.merge!(err: [])
+      ret_val.merge!(warn: [])
 
       ret_val
     end
@@ -529,13 +535,7 @@ module BatchLoad
                      verbatim_latitude:                row['decimallatitude'],
                      verbatim_longitude:               row['decimallongitude'],
                      verbatim_collectors:              row['recordedby']}.merge!(date_params)
-      c_e         = CollectingEvent.find_or_initialize_by(hunt_params)
-      if c_e.new_record?
-        a = c_e.created_at
-      else
-        b = c_e.updated_at
-      end
-      c_e
+      CollectingEvent.find_or_initialize_by(hunt_params)
     end
 
     def make_otu(row)
