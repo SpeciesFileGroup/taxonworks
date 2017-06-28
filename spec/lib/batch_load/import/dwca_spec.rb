@@ -63,7 +63,7 @@ describe BatchLoad::Import::DWCA, type: :model do
         expect(Georeference.count).to eq(18)
         expect(Georeference::VerbatimData.count).to eq(1) # 'verbatim' in georeferencedBy
         expect(Georeference::GeoLocate.count).to eq(17)
-        expect(Note.count).to eq(8)
+        expect(Note.count).to eq(9)
         expect(TaxonName.count).to eq(43)
         expect(Person.count).to eq(4)
         expect(Note.all.map(&:note_object_type).uniq).to include("Georeference",
