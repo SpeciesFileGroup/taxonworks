@@ -361,7 +361,7 @@ namespace :tw do
             'Key2' => Namespace.find_or_create_by(name: '3i_Key2_ID', short_name: '3i_Key2_ID'),
             'Key' => Namespace.find_or_create_by(name: '3i_Taxon_ID', short_name: '3i_Taxon_ID'),
             'FLOW-ID' => Namespace.find_or_create_by(name: 'FLOW_Source_ID', short_name: 'FLOW_Source_ID'),
-            'DelphacidaeID' => Namespace.find_or_create_by(name: 'Delphacidae_Source_ID', short_name: 'Delphacidae_ID'),
+            'DelphacidaeID' => Namespace.find_or_create_by(name: 'Delphacidae_Source_ID', short_name: 'Delphacidae_Source_ID'),
             'Taxonomy' => Keyword.find_or_create_by(name: 'Taxonomy updated', definition: 'Taxonomical information entered to the DB.', project_id: $project_id),
             'Typhlocybinae' => Keyword.find_or_create_by(name: 'Typhlocybinae updated', definition: 'Information related to Typhlocybinae entered to the DB.', project_id: $project_id),
             'Illustrations' => Keyword.find_or_create_by(name: 'Illustrations exported', definition: 'Illustrations of Typhlocybinae species entered to the DB.', project_id: $project_id),
@@ -678,6 +678,8 @@ namespace :tw do
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
 
+        zzz = 0
+
         i = 0
         file.each do |row|
           i += 1
@@ -818,6 +820,10 @@ namespace :tw do
 
 
               if @data.source_ay[row['Key3']] == row['Author']
+                if zzz = 0
+                  byebug
+                  zzz = 1
+                end
                 SourceAuthor.where(role_object_type: 'Source', role_object_id: source, project_id: $project_id).find_each do |sa|
                   TaxonNameAuthor.create(person_id: sa.person_id, role_object: taxon, position: sa.position)                      #################??????????
                 end
@@ -866,6 +872,7 @@ namespace :tw do
         i = 0
         file.each do |row|
           i += 1
+          next if i<73582
           print "\r#{i} (Relationships)"
           taxon = nil
           taxon = find_taxon_3i(row['Key'])
@@ -901,6 +908,7 @@ namespace :tw do
                   #taxon.type_species_by_subsequent_designation = find_taxon_3i(row['Type'])
                   source1 = row['Key3a'].blank? ? nil : @data.publications_index[row['Key3a']]
                   tssd = taxon.related_taxon_name_relationships.create(subject_taxon_name: find_taxon_3i(row['Type']),  type: 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation')
+                  byebug if tssd.id.nil?
                   tssd.citations.create(source_id: source1, is_original: true) unless source1.nil?
                 when 'ruling by commission'
                   taxon.type_species_by_ruling_by_Commission = find_taxon_3i(row['Type'])
@@ -932,22 +940,24 @@ namespace :tw do
               byebug
             end
 
+            if !row['NomenNovumFor'].blank?
+              if row['YearRem'].to_s.include?('unneded n.nov.')
+                tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['NomenNovumFor']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName') ########???
+              else
+                tnr = TaxonNameRelationship.create(subject_taxon_name: find_taxon_3i(row['NomenNovumFor']), object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym') ##############????
+              end
+            end
             if synonym_statuses.include?(row['Status']) # %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29)
-              if row['NomenNovumFor'].blank?
+              if TaxonNameRelationship.where_subject_is_taxon_name(taxon.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first.nil?
                 tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: @relationship_classes[row['Status'].to_i])
                 byebug if tnr.id.nil?
-              else
-                if row['YearRem'].to_s.include?('unneded n.nov.')
-                  tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['NomenNovumFor']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName') ########???
-                else
-                  tnr = TaxonNameRelationship.create(subject_taxon_name: find_taxon_3i(row['NomenNovumFor']), object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym') ##############????
-                end
               end
             end
             if homonym_statuses.include?(row['Status']) && row['Rank'] == '0'
-              tnr1 = TaxonNameRelationship.where(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent'])).first
-              tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym') if tnr1.nil?
-              byebug if !tnr.nil? && tnr.id.nil?
+              if TaxonNameRelationship.where_subject_is_taxon_name(taxon.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first.nil?
+                tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+                byebug if !tnr.nil? && tnr.id.nil?
+              end
             end
 
 
