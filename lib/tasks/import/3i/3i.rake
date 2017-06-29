@@ -820,7 +820,7 @@ namespace :tw do
 
 
               if @data.source_ay[row['Key3']] == row['Author']
-                if zzz = 0
+                if zzz == 0
                   byebug
                   zzz = 1
                 end
