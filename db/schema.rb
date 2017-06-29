@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170430010206) do
+ActiveRecord::Schema.define(version: 20170607175949) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -255,6 +255,12 @@ ActiveRecord::Schema.define(version: 20170430010206) do
     t.string   "cached_level0_geographic_name"
     t.string   "cached_level1_geographic_name"
     t.string   "cached_level2_geographic_name"
+    t.string   "group"
+    t.string   "formation"
+    t.string   "member"
+    t.string   "lithology"
+    t.decimal  "max_ma"
+    t.decimal  "min_ma"
   end
 
   add_index "collecting_events", ["created_by_id"], name: "index_collecting_events_on_created_by_id", using: :btree
@@ -1738,6 +1744,7 @@ ActiveRecord::Schema.define(version: 20170430010206) do
     t.string   "cached"
     t.string   "verbatim_name"
     t.integer  "cached_valid_taxon_name_id"
+    t.text     "etymology"
   end
 
   add_index "taxon_names", ["created_by_id"], name: "index_taxon_names_on_created_by_id", using: :btree

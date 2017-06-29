@@ -125,8 +125,8 @@ class Protonym < TaxonName
   # TODO, move to IsData or IsProjectData
   scope :with_project, -> (project_id) {where(project_id: project_id)}
 
-  # TODO: isn't this the way to do it now?
-  # scope :that_is_valid, -> {where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') }
+  # TODO: isn't this the way to do it now? (It does not work, may need extra investigation. DD)
+#   scope :that_is_valid, -> {where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') }
 
   scope :that_is_valid, -> {
     joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
@@ -209,6 +209,33 @@ class Protonym < TaxonName
         ay = ([self.author_string] + [self.year_integer]).compact.join(' ')
     end
     ay.blank? ? nil : ay
+  end
+
+  def get_genus_species(genus_option, self_option)
+    return nil if rank_class.nil?
+    genus = nil
+    name1 = nil
+
+
+    if self.rank_string =~ /Species/
+      if genus_option == :original
+        genus = self.original_genus
+      elsif genus_option == :current
+        genus = self.ancestor_at_rank('genus')
+      else
+        return false
+      end
+      genus = genus.name unless genus.blank?
+      return nil if genus.blank?
+    end
+    if self_option == :self
+      name1 = self.name
+    elsif self_option == :alternative
+      name1 = name_with_alternative_spelling
+    end
+
+    return nil if genus.nil? && name1.nil?
+    (genus.to_s + ' ' + name1.to_s).squish
   end
 
   def lowest_rank_coordinated_taxon

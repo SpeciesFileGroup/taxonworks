@@ -35,7 +35,7 @@ module CollectionObjectCatalog
     o = collection_object
     data = CollectionObjectCatalog::CatalogEntry.new(o)
     
-    data.items << CollectionObjectCatalog::EntryItem.new(type: :collected_on, object: o.collecting_event, start_date: o.collecting_event.start_date, end_date: o.collecting_event.end_date) 
+    data.items << CollectionObjectCatalog::EntryItem.new(type: :collected_on, object: o.collecting_event, start_date: o.collecting_event.start_date, end_date: o.collecting_event.end_date) if o.collecting_event_id.present? 
 
     o.biocuration_classifications.each do |b|
       data.items << CollectionObjectCatalog::EntryItem.new(type: :biologically_classified, object: b, start_date: b.created_at.to_time) 

@@ -24,4 +24,27 @@ module PeopleHelper
     people.collect{ |a| a.full_last_name }.to_sentence(last_word_connector: ' & ')
   end
 
+  def author_annotation_tag(author)
+    return nil if author.nil?
+    content_tag(:span, author.name, class: [:annotation__author])
+  end
+
+  def author_list_tag(object)
+    return nil unless object.authors.any?
+    content_tag(:h3, 'Authors') +
+        content_tag(:ul, class: 'annotations_author_list') do
+          object.authors.collect{|a| content_tag(:li, author_annotation_tag(a)) }.join.html_safe
+        end
+  end
+
+  def editor_list_tag(object)
+    return nil unless object.editors.any?
+    content_tag(:h3, 'Editors') +
+        content_tag(:ul, class: 'annotations_editor_list') do
+          object.editors.collect{|a| content_tag(:li, author_annotation_tag(a)) }.join.html_safe
+        end
+  end
+
+
+
 end

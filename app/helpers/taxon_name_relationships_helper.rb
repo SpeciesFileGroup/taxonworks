@@ -34,14 +34,12 @@ module TaxonNameRelationshipsHelper
     ].join(' ').html_safe  
   end
 
-
-
   def type_taxon_name_relationship_tag(taxon_name_relationship, target: :browse_nomenclature_task_path)
     return nil if taxon_name_relationship.nil?
     # TODO: add original citation to relationship rendering
     content_tag(:span, [ taxon_name_relationship.subject_status.capitalize,
-                         link_to( taxon_name_tag(taxon_name_relationship.subject_taxon_name), send(target, taxon_name_relationship.subject_taxon_name)),
-                         taxon_name_relationship.subject_taxon_name.cached_author_year ].join(' ').html_safe, class: 'type_information'
+                         link_to( original_taxon_name_tag( taxon_name_relationship.subject_taxon_name), send(target, taxon_name_relationship.subject_taxon_name)),
+                         original_author_year(taxon_name_relationship.subject_taxon_name)].join(' ').html_safe, class: 'type_information'
                )
   end
 

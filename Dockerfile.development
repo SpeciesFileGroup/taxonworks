@@ -4,26 +4,28 @@ ENV LAST_FULL_REBUILD 2017-05-18
 
 RUN apt-get update && \
     apt-get install -y curl software-properties-common apt-transport-https && \
-    apt clean && \ 
+    apt clean && \
     rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
 
 # Update repos
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 RUN curl -sL https://deb.nodesource.com/setup_7.x | bash -
-RUN apt-add-repository ppa:brightbox/ruby-ng 
+RUN apt-add-repository ppa:brightbox/ruby-ng
 
 RUN apt-get update && \
     apt-get install -y locales \
                        git gcc build-essential \
                        libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
                        pkg-config imagemagick libmagickcore-dev libmagickwand-dev \
+                       postgresql-client \
                        libpq-dev libproj-dev libgeos-dev libgeos++-dev \
                        tesseract-ocr \
                        cmake \
+                       supervisor \
                        nodejs yarn \
                        ruby2.3 ruby2.3-dev && \
-    apt clean && \ 
+    apt clean && \
     rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
 
 RUN locale-gen en_US.UTF-8
@@ -45,13 +47,8 @@ RUN gem install bundler && \
 WORKDIR /app
 COPY Gemfile /app
 COPY Gemfile.lock /app
-COPY config/secrets.yml.example config/secrets.yml
-COPY config/database.yml.docker.compose.example config/database.yml
-COPY Gemfile.lock /app
-RUN bundle install  
-RUN yarn
+RUN bundle install
 
-CMD ["rails", "server"] 
-
+CMD ["exe/docker_compose_start.sh"]
 
 

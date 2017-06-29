@@ -10,9 +10,9 @@ describe Identifier::Global, type: :model, group: :identifiers do
     }
 
     specify 'only one global identifier *without* a relation is allowed per identifier type' do
-      expect(otu.identifiers << Identifier::Global::Uri.new(identifier: 'http://abc.net/foo/1')).to be_truthy
+      expect(otu.identifiers.create(type: 'Identifier::Global::Uri', identifier: 'http://abc.net/foo/1')).to be_truthy
       otu.reload
-      i = Identifier::Global::Uri.new(identifier: 'http://abc.net/foo/2', identifier_object: otu)
+      i = otu.identifiers.new(type: 'Identifier::Global::Uri', identifier: 'http://abc.net/foo/2')
       expect(i.valid?).to be_falsey
       expect(i.errors.include?(:relation)).to be_truthy
     end

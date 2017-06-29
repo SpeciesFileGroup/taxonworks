@@ -361,14 +361,14 @@ class GeographicItem < ActiveRecord::Base
     # @return [String] the SQL fragment for the specific geometry type, shifted by longitude
     # Note: this routine is called when it is already known that the A argument crosses anti-meridian
     def contained_by_wkt_shifted_sql(wkt)
-      retval = "ST_ContainsProperly(ST_Shift_Longitude(ST_GeomFromText('#{wkt}', 4326)), (
+      retval = "ST_ContainsProperly(ST_ShiftLongitude(ST_GeomFromText('#{wkt}', 4326)), (
           CASE geographic_items.type
-             WHEN 'GeographicItem::MultiPolygon' THEN ST_Shift_Longitude(multi_polygon::geometry)
-             WHEN 'GeographicItem::Point' THEN ST_Shift_Longitude(point::geometry)
-             WHEN 'GeographicItem::LineString' THEN ST_Shift_Longitude(line_string::geometry)
-             WHEN 'GeographicItem::Polygon' THEN ST_Shift_Longitude(polygon::geometry)
-             WHEN 'GeographicItem::MultiLineString' THEN ST_Shift_Longitude(multi_line_string::geometry)
-             WHEN 'GeographicItem::MultiPoint' THEN ST_Shift_Longitude(multi_point::geometry)
+             WHEN 'GeographicItem::MultiPolygon' THEN ST_ShiftLongitude(multi_polygon::geometry)
+             WHEN 'GeographicItem::Point' THEN ST_ShiftLongitude(point::geometry)
+             WHEN 'GeographicItem::LineString' THEN ST_ShiftLongitude(line_string::geometry)
+             WHEN 'GeographicItem::Polygon' THEN ST_ShiftLongitude(polygon::geometry)
+             WHEN 'GeographicItem::MultiLineString' THEN ST_ShiftLongitude(multi_line_string::geometry)
+             WHEN 'GeographicItem::MultiPoint' THEN ST_ShiftLongitude(multi_point::geometry)
           END
           )
         )"

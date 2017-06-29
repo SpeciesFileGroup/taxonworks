@@ -96,7 +96,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def autocomplete_params
-    params.permit(:valid, type: [], parent_id: [], nomenclature_group: []).symbolize_keys.merge(project_id: sessions_current_project_id)
+    params.permit(:valid, :exact, type: [], parent_id: [], nomenclature_group: []).symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   def list
@@ -187,6 +187,7 @@ class TaxonNamesController < ApplicationController
       :name, 
       :parent_id, 
       :year_of_publication,
+      :etymology,
       :verbatim_author, :rank_class, :type, :masculine_name,
       :feminine_name, :neuter_name, :also_create_otu,
       roles_attributes: [

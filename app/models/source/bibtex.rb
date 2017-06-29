@@ -622,20 +622,20 @@ class Source::Bibtex < Source
     end
   end
 
-  # @return [String]
+  # @return [String, nil]
   #   last names formatted as displayed in nomenclatural authority (iczn), prioritizes
   #   normalized people records before bibtex author string
   def authority_name
-    if self.authors.count == 0 # no normalized people, use string, !! not .any? because of in-memory setting?!
-      if self.author.blank?
-        return ('')
+    if authors.count == 0 # no normalized people, use string, !! not .any? because of in-memory setting?!
+      if author.blank?
+        return nil 
       else
-        b = self.to_bibtex
+        b = to_bibtex
         b.parse_names
         return b.author.tokens.collect{ |t| t.last }.to_sentence(last_word_connector: ' & ', two_words_connector: ' & ')
       end
     else # use normalized records 
-      return self.authors.collect{ |a| a.full_last_name }.to_sentence(last_word_connector: ' & ', two_words_connector: ' & ')
+      return authors.collect{ |a| a.full_last_name }.to_sentence(last_word_connector: ' & ', two_words_connector: ' & ')
     end
   end
 
@@ -807,15 +807,16 @@ class Source::Bibtex < Source
     if self.errors.empty?
       tmp                       = cached_string('text')
       self.cached               = tmp
-      self.cached_author_string = authority_name
 
-      if self.authors.size > 0
+      if self.author.blank? && self.authors.size > 0
         self.author = self.compute_bibtex_names('author')
       end
 
-      if self.editors.size > 0
+      if self.editor.blank? && self.editors.size > 0
         self.editor = self.compute_bibtex_names('editor')
       end
+
+      self.cached_author_string = authority_name
     end
   end
 

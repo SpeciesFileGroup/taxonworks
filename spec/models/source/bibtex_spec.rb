@@ -610,21 +610,20 @@ describe Source::Bibtex, type: :model, group: :sources do
         end
 
         context 'correctly creates authority_name & cached_author_string' do
-          before {
-            @source_bibtex = FactoryGirl.build(:valid_source_bibtex)
-          }
+          let(:source_bibtex) { FactoryGirl.build(:valid_source_bibtex) }
+          
           context 'with author, but without authors' do
             specify 'single author' do
-              @source_bibtex.author = 'Thomas, D.'
-              @source_bibtex.save
-              expect(@source_bibtex.cached_author_string).to eq('Thomas')
-              expect(@source_bibtex.authority_name).to eq('Thomas')
+              source_bibtex.author = 'Thomas, D.'
+              source_bibtex.save
+              expect(source_bibtex.cached_author_string).to eq('Thomas')
+              expect(source_bibtex.authority_name).to eq('Thomas')
             end
             specify 'multiple authors' do
-              @source_bibtex.author ='Thomas, D. and Fowler, Chad and Hunt, Andy'
-              @source_bibtex.save
-              expect(@source_bibtex.cached_author_string).to eq('Thomas, Fowler & Hunt')
-              expect(@source_bibtex.authority_name).to eq('Thomas, Fowler & Hunt')
+              source_bibtex.author ='Thomas, D. and Fowler, Chad and Hunt, Andy'
+              source_bibtex.save
+              expect(source_bibtex.cached_author_string).to eq('Thomas, Fowler & Hunt')
+              expect(source_bibtex.authority_name).to eq('Thomas, Fowler & Hunt')
             end
             specify 'valid Source::Bibtex but not valid BibTex::Entry' do
               l_src.year = nil
@@ -634,6 +633,16 @@ describe Source::Bibtex, type: :model, group: :sources do
               expect(l_src.cached_author_string).to eq('Thomas, Fowler & Hunt')
             end
           end
+
+          context 'without author or authors' do
+            specify 'cached_author_string is nil' do
+              source_bibtex.author = nil
+              source_bibtex.save
+              expect(source_bibtex.authority_name).to eq(nil)
+              expect(source_bibtex.cached_author_string).to eq(nil)
+            end
+          end
+
         end
 
         specify 'cached string should be correct' do

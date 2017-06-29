@@ -959,6 +959,7 @@ namespace :tw do
               elsif c.variety.nil?
                 c.variety = taxon
               end
+              #
             elsif taxon.rank_string =~ /Family/
               tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
               byebug unless tnr.valid?

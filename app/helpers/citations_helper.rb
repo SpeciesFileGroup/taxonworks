@@ -3,24 +3,23 @@ module CitationsHelper
   def citation_tag(citation)
     return nil if citation.nil?
     citation_string = citation_author_year(citation)
-
-    [citation.citation_object.class.name, ": ", object_tag(citation.citation_object.metamorphosize).html_safe, " in ", citation_source_body(citation)].compact.join.html_safe
+    [citation.citation_object.class.name, ": ", object_tag(citation.citation_object.metamorphosize), " in ", citation_source_body(citation)].compact.join.html_safe
   end
 
   def citation_source_body(citation)
-    pages =  ": #{citation.pages}." if !citation.pages.blank?
-    [citation_author_year(citation), pages, citation_topics_tag(citation)].compact.join(': ').html_safe
+    pages = citation.pages unless citation.pages.blank?
+    [[citation_author_year(citation), pages].compact.join(':'), citation_topics_tag(citation)].compact.join(' ').html_safe
   end
 
   def citation_topics_tag(citation)
-    if citation.topics.any?
-      '[' + citation.citation_topics.collect{|ct| 
-        content_tag(:span, (ct.topic.name + (ct.pages? ? ": #{ct.pages}" : "")), class: [:annotation_citation_topic])
-      }.join(', ') 
-      + ']' 
-    else
-      nil
-    end
+    return nil unless citation.topics.any?
+    [
+      '[',
+      citation.citation_topics.collect{|ct| 
+      content_tag(:span, (controlled_vocabulary_term_tag(ct.topic.metamorphosize) + (!ct.pages.blank? ? ": #{ct.pages}" : '')), class: [:annotation__citation_topic])
+    }.compact.join(', '),
+      ']'
+    ].join.html_safe
   end
 
   def citation_author_year(citation)
@@ -32,7 +31,7 @@ module CitationsHelper
   end
 
   def citation_annotation_tag(citation)
-    content_tag(:span, citation_source_body(citation), class: [:annotation_citation])
+    content_tag(:span, citation_source_body(citation), class: [:annotation__citation])
   end
 
   def citation_list_tag(object)
@@ -44,8 +43,6 @@ module CitationsHelper
       }.join.html_safe
     end
   end
-
-
 
   # Used in browse/catalog, try to deprecate
   def citation_author_year_tag(citation)

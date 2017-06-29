@@ -194,6 +194,7 @@ class CollectingEventsController < ApplicationController
       :elevation_precision, :time_start_hour, :time_start_minute, :time_start_second,
       :time_end_hour, :time_end_minute, :time_end_second, :start_date_day,
       :start_date_month, :start_date_year, :end_date_day, :end_date_month,
+      :group, :member, :formation, :lithology, :max_ma, :min_ma,
       :end_date_year, :verbatim_habitat, :field_notes, :verbatim_datum,
       :verbatim_elevation,
       roles_attributes: [:id, :_destroy, :type, :person_id, :position,
