@@ -92,14 +92,14 @@ mark {
   }
 
   strong {
-    font-weight: 300;
+    font-weight: 400;
   }
   p {
-    font-size: $font_subtitle;
+    font-size: $font_normal;
     color: $default_text;
   }
   a {
-    font-size: $font_subtitle;
+    font-size: $font_normal;
   }
 }
 

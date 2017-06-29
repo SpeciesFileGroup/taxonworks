@@ -25,9 +25,21 @@
     <%= content_tag(:li, 'None.') if !@loan.loan_supervisors.any? -%>
   </ul>
 
+  <h3> Documentation </h3>
+  <ul>
+    <% @loan.documents.each do |d| %>
+      <li> 
+        <%=  object_link(d) %>
+        <%= link_to "Download", d.document_file.url(:original, false) %>
+      </li>
+    <% end %>
+    <%= content_tag(:li, 'None.') if !@loan.documents.any? -%>
+  </ul>
+
   <h3> Loan Items </h3>
-    <%= render('/loan_items/loan_table', loan_items: @loan.loan_items.order(:position)) -%>
+  <%= render('/loan_items/loan_table', loan_items: @loan.loan_items.order(:position)) -%>
   <%= @loan.loan_items.any? ? nil : content_tag(:span, 'None.', class: :warning) -%>
+
 <% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @loan}) -%>

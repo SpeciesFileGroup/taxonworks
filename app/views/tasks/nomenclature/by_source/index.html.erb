@@ -73,10 +73,13 @@
 
           <div class="panel fullSize content separate-left separate-bottom">
             <div class="attributes information-panel">
-              <%= identifier_list_tag(@source) -%> 
-              <%= data_attribute_list_tag(@source) -%> 
+              <%= identifier_list_tag(@source) -%>
+              <%= author_list_tag(@source) -%>
+              <%= editor_list_tag(@source) -%>
+              <%= data_attribute_list_tag(@source) -%>
               <%= note_list_tag(@source) -%> 
-              <%= tag_list_tag(@source) -%> 
+              <%= tag_list_tag(@source) -%>
+              <%= source_in_other_project_tag(@source) -%>
             </div>
           </div>
           <div class="panel content fullSize separate-left">

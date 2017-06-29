@@ -18,7 +18,6 @@ Object.assign(TW.vendor.lib.google.maps.draw, {            // internally referre
 
       // does this need to be set?  would it alter fcdata if not set?
       var mapData = fcdata;
-
       //
       // find a bounding box for the map (and a map center?)
       //
@@ -83,7 +82,7 @@ Object.assign(TW.vendor.lib.google.maps.draw, {            // internally referre
       var map = new google.maps.Map(document.getElementById(map_canvas), mapOptions);
 
       map.data.setStyle({
-        icon: '<%= asset_path("map_icons/mm_20_gray.png") %>',
+        icon: TW.vendor.lib.google.maps.mapIcons['gray'],
         fillColor: '#222222',
         strokeOpacity: 0.5,
         strokeColor: "black",
@@ -125,6 +124,42 @@ Object.assign(TW.vendor.lib.google.maps.draw, {            // internally referre
       };
       map.data.addGeoJson(bounds_box);
       return map;             // now no global map object, use this object to add listeners to THIS map
+    },
+
+    singleDrawnFeatureToMapListeners: function (this_map, map_item, feature_control) {
+      google.maps.event.addListener(this_map[1], 'overlaycomplete', function (event) {
+          // Remove the last created shape if it exists.
+          if (map_item != null) {
+            if (map_item[0] != null) {
+              TW.vendor.lib.google.maps.draw.removeItemFromMap(map_item[0]);
+            }
+          }
+          map_item = [event.overlay, event.type];
+          var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(map_item[0], map_item[1]);
+          $(feature_control).val(JSON.stringify(feature[0]));
+          // now that new shape is captured and has a postable feature, add a listener
+          if (map_item[1] == 'polygon') {
+            // on a changed or added/removed vertex (assumes only outerPath) for polygon shape
+            google.maps.event.addListener(map_item[0].getPath(), 'set_at', function (event) {
+              var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(map_item[0], map_item[1]);
+              $(feature_control).val(JSON.stringify(feature[0]));
+              // the shape is updated by googleMaps, so no additional treatment is necessary here
+            });
+          }
+          if (map_item[1] == 'circle') {
+            // on a changed or added/removed vertex (assumes only outerPath) for polygon shape
+            google.maps.event.addListener(map_item[0], 'radius_changed', function (event) {
+              var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(map_item[0], map_item[1]);
+              $(feature_control).val(JSON.stringify(feature[0]));
+            });
+            google.maps.event.addListener(map_item[0], 'center_changed', function (event) {
+              var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(map_item[0], map_item[1]);
+              $(feature_control).val(JSON.stringify(feature[0]));
+            });
+            // the shape is updated by googleMaps, so no additional treatment is necessary here
+          }
+        }
+      );
     },
 
     buildFeatureCollectionFromShape: function (shape, shape_type) {
@@ -276,7 +311,7 @@ Object.assign(TW.vendor.lib.google.maps.draw, {            // internally referre
           drawingModes: drawingModes
         },
         markerOptions: {
-          icon: '<%= asset_path("map_icons/mm_20_red.png") %>',
+          icon: TW.vendor.lib.google.maps.mapIcons['red'],
           editable: true
         },
         circleOptions: {

@@ -422,13 +422,31 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         #single subgenus in the nominal genus
         expect(@subgenus.soft_validations.messages_on(:base).size).to eq(1)
       end
+      specify 'single non nominotypical taxon' do
+        @subgenus.name = 'Cus'
+        @subgenus.save
+        @subgenus.soft_validate(:single_sub_taxon)
+        expect(@subgenus.soft_validations.messages_on(:base).size).to eq(1)
+        @subgenus.fix_soft_validations
+        @subgenus.reload
+        @subgenus.soft_validate(:single_sub_taxon)
+        expect(@subgenus.soft_validations.messages_on(:base).size).to eq(0)
+      end
+      specify 'single non nominotypical taxon and it is a synonym' do
+        @subgenus.name = 'Cus'
+        @subgenus.save
+        TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: @subgenus, object_taxon_name: @genus)
+        @subgenus.reload
+        @subgenus.soft_validate(:single_sub_taxon)
+        expect(@subgenus.soft_validations.messages_on(:base).size).to eq(0)
+      end
     end
 
 
     context 'missing synonym relationship' do
 
       specify 'same type species' do
-        msg = "Taxon should be a synonym of <i>Bus</i> Say, 1850 since they share the same type"
+        msg = "Missing relationship: genus <i>Aus</i> should be a synonym of <i>Bus</i> Say, 1850 since they share the same type"
         g1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
         g2 = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family)
         s1 = FactoryGirl.create(:relationship_species, name: 'cus', parent: g1)

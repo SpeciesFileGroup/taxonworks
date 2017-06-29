@@ -146,23 +146,24 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#result_from_post").attr("hidden", true);
 
       ce_map = TW.vendor.lib.google.maps.draw.initializeGoogleMapWithDrawManager("#_draw_ce_form");  //set up a blank draw canvas
-      $("#ce_commit").click(function (event) {      // register the click handler for the made-from-scratch-button
-        var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(ce_last[0], ce_last[1]);
-          $("#ce_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
-        }
-      );
-      google.maps.event.addListener(ce_map[1], 'overlaycomplete', function (event) {
-          // Remove the last created shape if it exists.
-          if (ce_last != null) {
-            if (ce_last[0] != null) {
-              TW.vendor.lib.google.maps.draw.removeItemFromMap(ce_last[0]);
-            }
-          }
-          ce_last = [event.overlay, event.type];
-        var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(ce_last[0], ce_last[1]);
-          $("#ce_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
-        }
-      );
+//      $("#ce_commit").click(function (event) {      // register the click handler for the made-from-scratch-button
+//        var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(ce_last[0], ce_last[1]);
+//          $("#ce_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
+//        }
+//      );
+      TW.vendor.lib.google.maps.draw.singleDrawnFeatureToMapListeners(ce_map, ce_last, "#ce_geographic_item_attributes_shape");
+//      google.maps.event.addListener(ce_map[1], 'overlaycomplete', function (event) {
+//          // Remove the last created shape if it exists.
+//          if (ce_last != null) {
+//            if (ce_last[0] != null) {
+//              TW.vendor.lib.google.maps.draw.removeItemFromMap(ce_last[0]);
+//            }
+//          }
+//          ce_last = [event.overlay, event.type];
+//        var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(ce_last[0], ce_last[1]);
+//          $("#ce_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
+//        }
+//      );
       event.preventDefault();
     });
 
@@ -368,24 +369,25 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
       gr_map = TW.vendor.lib.google.maps.draw.initializeGoogleMapWithDrawManager("#_draw_gr_form");  //set up a blank draw canvas
 
-      $("#gr_commit").click(function (event) {      // register the click handler for the made-from-scratch-button
-        var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
-          $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
-        }
-      );
+//      $("#gr_commit").click(function (event) {      // register the click handler for the made-from-scratch-button
+//        var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
+//          $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
+//        }
+//      );
 
-      google.maps.event.addListener(gr_map[1], 'overlaycomplete', function (event) {
-          // Remove the last created shape if it exists.
-          if (gr_last != null) {
-            if (gr_last[0] != null) {
-              TW.vendor.lib.google.maps.draw.removeItemFromMap(gr_last[0]);
-            }
-          }
-          gr_last = [event.overlay, event.type];
-        var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
-          $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
-        }
-      );
+      TW.vendor.lib.google.maps.draw.singleDrawnFeatureToMapListeners(gr_map, gr_last, "#gr_geographic_item_attributes_shape");
+//      google.maps.event.addListener(gr_map[1], 'overlaycomplete', function (event) {
+//          // Remove the last created shape if it exists.
+//          if (gr_last != null) {
+//            if (gr_last[0] != null) {
+//              TW.vendor.lib.google.maps.draw.removeItemFromMap(gr_last[0]);
+//            }
+//          }
+//          gr_last = [event.overlay, event.type];
+//        var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
+//          $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
+//        }
+//      );
 
       event.preventDefault();
     });
@@ -563,7 +565,7 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
     map.data.revertStyle();
     map.data.overrideStyle(event.feature, {fillColor: '#880000'});  // mid-level red
     map.data.overrideStyle(event.feature, {strokeWeight: 2});       //embolden borders
-    map.data.overrideStyle(event.feature, {icon: '<%= asset_path("map_icons/mm_20_brown.png") %>'});       // highlight markers
+    map.data.overrideStyle(event.feature, {icon: TW.vendor.lib.google.maps.mapIcons['brown']});       // highlight markers
   });
 
   map.data.addListener('mouseout', function (event) {

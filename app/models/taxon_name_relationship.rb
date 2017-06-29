@@ -57,8 +57,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   after_destroy :set_cached_names_for_taxon_names, unless: 'self.no_cached'
 
   validates_presence_of :type, message: 'Relationship type should be specified'
-  validates_presence_of :subject_taxon_name_id, message: 'missing taxon name on left side'
-  validates_presence_of :object_taxon_name_id, message: 'missing taxon name on right side'
+  validates_presence_of :subject_taxon_name_id, message: 'Missing taxon name on the left side'
+  validates_presence_of :object_taxon_name_id, message: 'Missing taxon name on the right side'
 
   # TODO: these are likely not speced!  May have to change them to reference object rather than id
   validates_uniqueness_of :object_taxon_name_id, scope: :type, if: :is_combination?
@@ -268,19 +268,19 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   def validate_subject_and_object_share_code
     if object_taxon_name.type  == 'Protonym' && subject_taxon_name.type == 'Protonym'
-      errors.add(:object_taxon_name_id, 'The related taxon is from different potentially_validating code') if subject_taxon_name.rank_class.nomenclatural_code != object_taxon_name.rank_class.nomenclatural_code
+      errors.add(:object_taxon_name_id, 'The related taxon is not in the same monenclatural group (ICZN, ICN, ICNB') if subject_taxon_name.rank_class.nomenclatural_code != object_taxon_name.rank_class.nomenclatural_code
     end
   end
 
   def validate_subject_and_object_are_not_identical
-    if self.object_taxon_name == self.subject_taxon_name
-      errors.add(:object_taxon_name_id, 'Taxon should not refer to itself') unless self.type =~ /OriginalCombination/
+    if !self.object_taxon_name_id.nil? && self.object_taxon_name == self.subject_taxon_name
+      errors.add(:object_taxon_name_id, "#{self.object_taxon_name.cached_html} should not refer to itself") unless self.type =~ /OriginalCombination/
     end
   end
 
   def validate_object_must_equal_subject_for_uncertain_placement
     if self.object_taxon_name_id != self.subject_taxon_name.parent_id && self.type_name == 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
-      errors.add(:object_taxon_name_id, 'The parent and related taxon should match')
+      errors.add(:object_taxon_name_id, "The parent #{self.subject_taxon_name.parent.cached_html} and the Incertae Sedis placement (#{self.object_taxon_name.cached_html}) should match")
     end
   end
 
@@ -290,7 +290,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     if tname =~ /TaxonNameRelationship::(Icnb|Icn|Iczn)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
       rank_group = self.subject_taxon_name.rank_class.parent
       unless rank_group == self.object_taxon_name.rank_class.parent
-        errors.add(:object_taxon_name_id, "Rank of related taxon should be in the #{rank_group.rank_name}")
+        errors.add(:object_taxon_name_id, "Rank of related taxon should be in the #{rank_group.rank_name} rank group, not #{self.object_taxon_name.rank_class.rank_name}")
       end
     end
 
@@ -298,8 +298,8 @@ class TaxonNameRelationship < ActiveRecord::Base
       if object_taxon_name
         if object_taxon_name.type == 'Protonym' || object_taxon_name.type == 'Hybrid'
           unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_string)
-            errors.add(:object_taxon_name_id, 'Rank of this taxon is not compatible with the relationship')
-            errors.add(:type, 'Not compatible with the rank of object taxon')
+            errors.add(:object_taxon_name_id, "#{self.object_taxon_name.rank_class.rank_name.capitalize} rank of #{self.object_taxon_name.cached_html} is not compatible with the #{self.subject_status} relationship")
+            errors.add(:type, "Relationship #{self.subject_status} is not compatible with the #{self.object_taxon_name.rank_class.rank_name} rank of #{self.object_taxon_name.cached_html}")
           end
         end
       end
@@ -307,8 +307,8 @@ class TaxonNameRelationship < ActiveRecord::Base
       if subject_taxon_name
         if subject_taxon_name.type == 'Protonym' || subject_taxon_name.type == 'Hybrid'
           unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.parent.rank_string)
-            soft_validations.add(:subject_taxon_name_id, 'Rank of this taxon is not compatible with the relationship')
-            soft_validations.add(:type, 'Not compatible with the rank of subject taxon')
+            soft_validations.add(:subject_taxon_name_id, "#{self.subject_taxon_name.rank_class.rank_name.capitalize} rank of #{self.subject_taxon_name.cached_html} is not compatible with the #{self.subject_status} relationship")
+            soft_validations.add(:type, "Relationship #{self.subject_status} is not compatible with the #{self.subject_taxon_name.rank_class.rank_name} rank of #{self.subject_taxon_name.cached_html}")
           end
         end
       end
@@ -323,14 +323,14 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   def validate_uniqueness_of_typification_object
     if /Typification/.match(self.type_name) && !TaxonNameRelationship.where(object_taxon_name_id: self.object_taxon_name_id).with_type_contains('Typification').not_self(self).empty?
-      errors.add(:object_taxon_name_id, 'Only one type relationship is allowed')
+      errors.add(:object_taxon_name_id, 'Only one Type designation relationship is allowed')
     end
   end
 
   def validate_rank_group
     if self.type =~ /Hybrid/ && self.subject_taxon_name && self.object_taxon_name
       if self.subject_taxon_name.rank_class.parent != self.object_taxon_name.rank_class.parent
-        errors.add(:subject_taxon_name_id, "Rank of taxon (#{self.subject_taxon_name.rank_class.rank_name}) is not compatible with the rank of hybrid (#{self.object_taxon_name.rank_class.rank_name})")
+        errors.add(:subject_taxon_name_id, "#{self.subject_taxon_name.rank_class.rank_name.capitalize} rank of #{self.subject_taxon_name.cached_html} is not compatible with the rank of hybrid (#{self.object_taxon_name.rank_class.rank_name})")
       end
     end
   end
@@ -411,7 +411,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     subject_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
     subject_relationships.find_each  do |i|
       if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
-        soft_validations.add(:type, "Conflicting with another relationship: '#{i.subject_status}'")
+        soft_validations.add(:type, "#{self.subject_status.capitalize} relationship is conflicting with another relationship: '#{i.subject_status}'")
       end
     end
   end
@@ -422,8 +422,8 @@ class TaxonNameRelationship < ActiveRecord::Base
     compare = disjoint_object_classes & classifications
     compare.each do |i|
       c = i.demodulize.underscore.humanize.downcase
-      soft_validations.add(:type, "Relationship conflicting with the status: '#{c}'")
-      soft_validations.add(:object_taxon_name_id, "Taxon has a conflicting status: '#{c}'")
+      soft_validations.add(:type, "#{self.subject_status.capitalize} relationship is conflicting with the taxon status: '#{c}'")
+      soft_validations.add(:object_taxon_name_id, "{self.object_taxon_name.cached_html} has a conflicting status: '#{c}'")
     end
   end
 
@@ -433,8 +433,8 @@ class TaxonNameRelationship < ActiveRecord::Base
     compare = disjoint_subject_classes & classifications
     compare.each do |i|
       c = i.demodulize.underscore.humanize.downcase
-      soft_validations.add(:type, "Relationship conflicting with the status: '#{c}'")
-      soft_validations.add(:subject_taxon_name_id, "Taxon has a conflicting status: '#{c}'")
+      soft_validations.add(:type, "#{self.subject_status.capitalize} ronflicting with the status: '#{c}'")
+      soft_validations.add(:subject_taxon_name_id, "{self.subject_taxon_name.cached_html} has a conflicting status: '#{c}'")
     end
   end
 
@@ -445,51 +445,55 @@ class TaxonNameRelationship < ActiveRecord::Base
     case type # self.type_name
       when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' || 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic'
         if (s.type_taxon_name == o.type_taxon_name && !s.type_taxon_name.nil? ) || (!s.get_primary_type.empty? && s.has_same_primary_type(o) )
-          soft_validations.add(:type, 'Subjective synonyms should not have the same type')
+          soft_validations.add(:type, "Subjective synonyms #{s.cached_html} and #{o.cached_html} should not have the same type")
         end
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
-        soft_validations.add(:type, 'Names are not similar enough to be homonyms') unless s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling
+        soft_validations.add(:type, "#{self.subject_taxon_name.cached_html_name_and_author_year} and #{self.object_taxon_name.cached_html_name_and_author_year} are not similar enough to be homonyms") unless s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary' || 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Forgotten' || 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Suppressed'
         if s.original_genus != o.original_genus
-          soft_validations.add(:type, 'Primary homonyms should have the same original genus')
+          soft_validations.add(:type, "Primary homonyms {s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} should have the same original genus")
         elsif s.cached_primary_homonym_alternative_spelling != o.cached_primary_homonym_alternative_spelling
-          soft_validations.add(:type, 'Names are not similar enough to be homonyms')
+          soft_validations.add(:type, "#{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} are not similar enough to be homonyms")
         end
         if type == 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Forgotten' && s.year_of_publication > 1899
-          soft_validations.add(:type, 'Taxon was not described after 1899')
+          soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described after 1899")
         end
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
 
         if s.original_genus == o.original_genus && !s.original_genus.nil?
-          soft_validations.add(:type, "Both species described in the same genus, they are 'primary homonyms'")
+          soft_validations.add(:type, "#{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} species described in the same original genus #{s.original_genus}, they are primary homonyms")
         elsif s.get_valid_taxon_name.ancestor_at_rank('genus') != o.get_valid_taxon_name.ancestor_at_rank('genus')
-          soft_validations.add(:type, "Secondary homonyms should be placed in the same genus, the homonymy should be deleted or changed to 'secondary homonym replaced before 1961'")
+          soft_validations.add(:type, "Secondary homonyms #{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} should be placed in the same parent genus, the homonymy should be deleted or changed to 'secondary homonym replaced before 1961'")
         elsif s.cached_secondary_homonym_alternative_spelling != o.cached_secondary_homonym_alternative_spelling
-          soft_validations.add(:type, 'Names are not similar enough to be homonyms')
+          soft_validations.add(:type, "#{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} are not similar enough to be homonyms")
         end
 
         if (s.all_generic_placements & o.all_generic_placements).empty?
-          soft_validations.add(:base, 'No combination available showing both species placed in the same genus') 
+          soft_validations.add(:base, "No combination available showing #{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} placed in the same genus")
         end
 
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961'
        
-        soft_validations.add(:type, 'Taxon was not described before 1961') if s.year_of_publication > 1960
-        soft_validations.add(:type, "Both species described in the same genus, they are 'primary homonyms'") if s.original_genus == o.original_genus && !s.original_genus.nil?
-        soft_validations.add(:base, 'Source is not selected') unless source 
+        soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described before 1961") if s.year_of_publication > 1960
+        soft_validations.add(:type, "#{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} described in the same original genus #{s.original_genus}, they are primary homonyms") if s.original_genus == o.original_genus && !s.original_genus.nil?
+        soft_validations.add(:base, 'The first publication is not selected') unless source
        
-        soft_validations.add(:base, 'Taxon should be treated a homonym before 1961') if self.source && self.source.year > 1960
+        soft_validations.add(:base, "#{s.cached_html_name_and_author_year} should not be treated as a homonym established before 1961") if self.source && self.source.year > 1960
 
         if (s.all_generic_placements & o.all_generic_placements).empty?
-          soft_validations.add(:base, 'No combination available showing both species placed in the same genus') 
+          soft_validations.add(:base, "No combination available showing #{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} placed in the same genus")
         end
 
       when 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961'
-        soft_validations.add(:type, 'Taxon was not described before 1961') if s.year_of_publication > 1960
-        soft_validations.add(:base, 'Taxon should be accepted as a replacement name before 1961') if self.source && self.source.year > 1960
+        soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described before 1961") if s.year_of_publication > 1960
+        soft_validations.add(:base, "#{s.cached_html_name_and_author_year} should be accepted as a replacement name before 1961") if self.source && self.source.year > 1960
 
       when 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
-        soft_validations.add(:type, 'Genus described after 1930 is nomen nudum, if type was not designated in the original publication') if o.year_of_publication > 1930
+        soft_validations.add(:type, "Genus #{o.cached_html_name_and_author_year} described after 1930 is nomen nudum, if type was not designated in the original publication") if o.year_of_publication > 1930
+      when 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName'
+        r1 = TaxonNameRelationshin.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym', subject_taxon_name_id: o.id, object_taxon_name_id: s.id).first
+        r2 = TaxonNameRelationshin.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName', subject_taxon_name_id: s.id, object_taxon_name_id: o.id).first
+        soft_validations.add(:base, "Missing relationship: #{s.cached_html_name_and_author_year} is a replacement name for #{o.cached_html_name_and_author_year}. Please add an objective synonym relationship(either 'replaced homonym' or 'unnecessary replacement name')") if r1.nil? && r2.nil?
       when 'TaxonNameRelationship::Typification::Genus::Monotypy::Original'
         # @todo Check if more than one species associated with the genus in the original paper
     end
@@ -500,7 +504,7 @@ class TaxonNameRelationship < ActiveRecord::Base
       s = self.subject_taxon_name
       o = self.object_taxon_name
       if (s.type_taxon_name != o.type_taxon_name ) || !s.has_same_primary_type(o)
-        soft_validations.add(:type, 'Objective synonyms should have the same type')
+        soft_validations.add(:type, "Objective synonyms {s.cached_html} and #{o.cached_html} should have the same type")
       end
     end
   end
@@ -514,10 +518,10 @@ class TaxonNameRelationship < ActiveRecord::Base
         date1 = self.source.cached_nomenclature_date.to_time
         date2 = self.subject_taxon_name.nomenclature_date
         if !!date1 && !!date2
-          soft_validations.add(:base, 'Taxon was not described at the time of citation') if date2 > date1
+          soft_validations.add(:base, "#{self.subject_taxon_name.cached_html_name_and_author_year} was not described at the time of citation (#{date1}") if date2 > date1
         end
       else
-        soft_validations.add(:base, 'Source is not selected')
+        soft_validations.add(:base, 'The first publication is not selected')
       end
     end
   end
@@ -616,10 +620,10 @@ class TaxonNameRelationship < ActiveRecord::Base
       obj = self.object_taxon_name
       subj = self.subject_taxon_name
       if obj.get_valid_taxon_name != obj
-        soft_validations.add(:object_taxon_name_id, "The #{self.subject_status} should be associated with a valid name",
+        soft_validations.add(:object_taxon_name_id, "#{self.subject_status.capitalize} #{subj.cached_html_name_and_author_year} should be associated with a valid name",
                              fix: :sv_fix_synonym_linked_to_valid_name, success_message: 'The associated taxon was updated')
       elsif obj.parent_id != subj.parent_id
-        soft_validations.add(:subject_taxon_name_id, "The #{self.subject_status} should have the same parent with the associated taxon",
+        soft_validations.add(:subject_taxon_name_id, "#{self.subject_status.capitalize}  #{subj.cached_html_name_and_author_year} should have the same parent with  #{obj.cached_html_name_and_author_year}",
                              fix: :sv_fix_subject_parent_update, success_message: 'The parent was updated')
       end
     end
@@ -663,7 +667,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   def sv_matching_type_genus
     if self.type_name == 'TaxonNameRelationship::Typification::Family'
       if self.object_taxon_name.name.slice(0, 1) != self.subject_taxon_name.name.slice(0, 1)
-        soft_validations.add(:object_taxon_name_id, 'Type genus should have the same initial letters as the family-group name')
+        soft_validations.add(:object_taxon_name_id, "The type genus #{self.subject_taxon_name.cached_html_name_and_author_year} should have the same initial letters as the family-group name #{self.object_taxon_name.cached_html_name_and_author_year}")
       end
     end
   end
@@ -678,19 +682,19 @@ class TaxonNameRelationship < ActiveRecord::Base
           when :direct
             if date2 > date1 && invalid_statuses.empty?
               if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Homonym/
-                soft_validations.add(:type, "#{self.object_status.capitalize} should not be older than related taxon")
+                soft_validations.add(:type, "#{self.object_status.capitalize} #{self.object_taxon_name.cached_html_name_and_author_year} should not be older than #{self.subject_taxon_name.cached_html_name_and_author_year}")
               elsif self.type_name =~ /::Iczn::/ && TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).with_two_type_bases('TaxonNameRelationship::Iczn::Invalidating::Homonym', 'TaxonNameRelationship::Iczn::Validating').not_self(self).empty?
-                soft_validations.add(:type, "#{self.object_status.capitalize} should not be older than related taxon, unless it is also a homonym or conserved")
+                soft_validations.add(:type, "#{self.object_status.capitalize} #{self.object_taxon_name.cached_html_name_and_author_year} should not be older than #{self.subject_taxon_name.cached_html_name_and_author_year}, unless it is also a homonym or conserved name")
               elsif self.type_name =~ /::Icn::/ && TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).with_two_type_bases('TaxonNameRelationship::Icn::Accepting::Conserved', 'TaxonNameRelationship::Icn::Accepting::Sanctioned').not_self(self).empty?
-                soft_validations.add(:type, "#{self.object_status.capitalize} should not be older than related taxon, unless it is also conserved or sanctioned")
+                soft_validations.add(:type, "#{self.object_status.capitalize} #{self.object_taxon_name.cached_html_name_and_author_year} should not be older than #{self.subject_taxon_name.cached_html_name_and_author_year}, unless it is also conserved or sanctioned name")
               end
             end
           when :reverse
             if date1 > date2 && invalid_statuses.empty?
               if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination)/ && self.type_name != 'TaxonNameRelationship::Typification::Genus::RulingByCommission'
-                soft_validations.add(:subject_taxon_name_id, "#{self.subject_status.capitalize} should not be younger than the taxon")
+                soft_validations.add(:subject_taxon_name_id, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
               else
-                soft_validations.add(:type, "#{self.subject_status.capitalize} should not be younger than related taxon")
+                soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
               end
             end
         end
@@ -703,50 +707,61 @@ class TaxonNameRelationship < ActiveRecord::Base
   def sv_coordinated_taxa
     s = self.subject_taxon_name
     o = self.object_taxon_name
-    if self.type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn)/
+    if self.type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn|OriginalCombination|Combination|Typification)/
       s_new = s.lowest_rank_coordinated_taxon
-      o_new = o.lowest_rank_coordinated_taxon
-
-
-      if o != o_new && self.subject_taxon_name != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
-        soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} to #{o_new.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_taxa, success_message: "Relationship moved to  #{o_new.rank_class.rank_name}")
-      end
       if s != s_new
-        soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} to #{s_new.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_taxa, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
+        soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} #{s.cached_html} to #{s_new.rank_class.rank_name} #{s.cached_html}",
+                             fix: :sv_fix_coordinated_subject_taxa, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
       end
-    
-    elsif self.type_name =~ /TaxonNameRelationship::(OriginalCombination|Combination|SourceClassifiedAs)/
+      if self.type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn)/
+        o_new = o.lowest_rank_coordinated_taxon
 
-      list = s.list_of_coordinated_names + [s]
-      if s.rank_string =~ /Species/ # species group
-        s_new =  list.detect{|t| t.rank_class.rank_name == 'species'}
-      elsif s.rank_string =~ /Genus/
-        s_new =  list.detect{|t| t.rank_class.rank_name == 'genus'}
-      else
-        s_new = s
+
+      if o != o_new && self.type_name != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+        soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o.cached_html}",
+                             fix: :sv_fix_coordinated_object_taxa, success_message: "Relationship moved to  #{o_new.rank_class.rank_name}")
       end
 
-      # TODO: Dima fix
-      return if s_new.nil?
-
-
-      if s != s_new
-        soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} to #{s_new.rank_class.rank_name}",
-                             fix: :sv_fix_combination_relationship, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
       end
+#    elsif self.type_name =~ /TaxonNameRelationship::(OriginalCombination|Combination)/
+
+#      list = s.list_of_coordinated_names + [s]
+#      if s.rank_string =~ /Species/ # species group
+#        s_new =  list.detect{|t| t.rank_class.rank_name == 'species'}
+#      elsif s.rank_string =~ /Genus/
+#        s_new =  list.detect{|t| t.rank_class.rank_name == 'genus'}
+#      else
+#        s_new = s
+#      end
+
+#      if s != s_new
+#        soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} to #{s_new.rank_class.rank_name}",
+#                             fix: :sv_fix_combination_relationship, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
+#      end
     end
   end
 
-  def sv_fix_coordinated_taxa
+  def sv_fix_coordinated_subject_taxa
     s = self.subject_taxon_name
-    o = self.object_taxon_name
     s_new = s.lowest_rank_coordinated_taxon
-    o_new = o.lowest_rank_coordinated_taxon
-    if o != o_new || s != s_new
-      self.object_taxon_name = o_new
+    if s != s_new
       self.subject_taxon_name = s_new
+      begin
+        TaxonNameRelationship.transaction do
+          self.save
+          return true
+        end
+      rescue
+      end
+    end
+    false
+  end
+
+  def sv_fix_coordinated_object_taxa
+    o = self.object_taxon_name
+    o_new = o.lowest_rank_coordinated_taxon
+    if o != o_new
+      self.object_taxon_name = o_new
       begin
         TaxonNameRelationship.transaction do
           self.save

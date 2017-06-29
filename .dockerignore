@@ -11,9 +11,9 @@
 *.sql
 .ruby-version
 
-database.yml
-secrets.yml
-application_settings.yml
+config/database.yml
+config/secrets.yml
+config/application_settings.yml
 
 tags
 node_modules

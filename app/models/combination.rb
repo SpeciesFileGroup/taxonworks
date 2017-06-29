@@ -276,7 +276,7 @@ class Combination < TaxonName
   def sv_year_of_publication_matches_source
     source_year = self.source.nomenclature_year if self.source
     if self.year_of_publication && source_year
-      soft_validations.add(:year_of_publication, 'the asserted published date is not the same as provided by the source') if source_year != self.year_of_publication
+      soft_validations.add(:year_of_publication, 'The published date of the combination is not the same as provided by the original publication') if source_year != self.year_of_publication
     end
   end
 
@@ -284,7 +284,7 @@ class Combination < TaxonName
     source_year = self.source.nomenclature_year if self.source
     target_year = earliest_protonym_year
     if source_year && target_year
-      soft_validations.add(:base, 'the published date for the source is older than a name in the combination') if source_year < target_year
+      soft_validations.add(:base, "The publication date of combination (#{source_year}) is older than the original publication date of one of the taxa in the combination (#{target_year}") if source_year < target_year
     end
   end
 
@@ -292,13 +292,12 @@ class Combination < TaxonName
     combination_year = self.year_of_publication
     target_year = earliest_protonym_year
     if combination_year && target_year
-      soft_validations.add(:year_of_publication, 'the asserted published date is older than a name in the combination') if combination_year < target_year
+      soft_validations.add(:year_of_publication,  "The publication date of combination (#{combination_year}) is older than the original publication date of one of the taxa in the combination (#{target_year}") if combination_year < target_year
     end
   end
 
   def sv_combination_duplicates
     duplicate = Combination.not_self(self).with_cached_html(self.cached_html)
-#    duplicate = Combination.not_self(self).with_parent_id(self.parent_id).with_cached_html(self.cached_html)
     soft_validations.add(:base, 'Combination is a duplicate') unless duplicate.empty?
   end
 
@@ -347,7 +346,7 @@ class Combination < TaxonName
 
   
   def validate_rank_class_class
-    errors.add(:rank_class, 'Combination should not have rank') if !!self.rank_class
+    errors.add(:rank_class, 'Combination should not have rank. Delete the rank') if !!self.rank_class
   end
 
 end

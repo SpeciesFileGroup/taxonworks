@@ -106,3 +106,9 @@
     }
   }
 }
+
+  @media screen and (max-width: 980px) {
+    .navigation-controls {
+      flex-direction: column;
+    }
+  }
