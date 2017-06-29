@@ -31,7 +31,7 @@ module BatchLoad
         make_tn:    %w(scientificname taxonrank family kingdom),
         make_td:    %w(scientificname basisofrecord individualcount organismquantity organismquantitytype recordedby),
         # make_otu:   %w(scientificname),
-        make_co:    %w(basisofrecord individualcount organismquantity organismquantitytype recordedby),
+        make_co:    %w(individualcount organismquantity organismquantitytype),
         make_ba:    %w(associatedtaxa),
         make_notes: %w(georeferenceremarks locationremarks occurrenceremarks),
         make_tag:   %w(),
@@ -570,7 +570,8 @@ module BatchLoad
       Otu.new
     end
 
-# make_co:  %w(catalognumber basisofrecord individualcount organismquantity organismquantitytype recordedby)
+# make_co:  %w(individualcount organismquantity organismquantitytype)
+# http://rs.gbif.org/vocabulary/gbif/quantity_type_2015-07-10.xml
     def make_co(row)
       ret_val = {}
       warn    = []
@@ -580,7 +581,7 @@ module BatchLoad
       oqt     = row['organismquantitytype']
       combo   = false
       if ic.present? and (oqt.present? or oq.present?)
-        warn.push('Choose either individualCount or the combination of organismQuantity and organismQuantityType, not both.')
+        # warn.push('Choose either individualCount or the combination of organismQuantity and organismQuantityType, not both.')
         combo = true
       end
       if (ic.to_i > 1) and combo

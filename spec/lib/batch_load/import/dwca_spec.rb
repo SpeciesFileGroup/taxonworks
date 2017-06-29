@@ -53,6 +53,8 @@ describe BatchLoad::Import::DWCA, type: :model do
         expect(result).to be_truthy
         expect(CollectionObject.count).to eq(24)
         expect(Otu.count).to eq(27)
+        expect(BiologicalRelationship.count).to eq(1)
+        expect(BiologicalAssociation.count).to eq(5)
         expect(CollectingEvent.count).to eq(21) # some of the collecting events are used more than once
         expect(TaxonDetermination.count).to eq(24) # one for each new OTU
         expect(Identifier.count).to eq(35) # 25 identifiers, the last one fails
