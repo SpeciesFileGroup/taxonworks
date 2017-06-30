@@ -11,11 +11,19 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHom
   end
 
   def object_status
-    'replacing name'
+    'replacment name'
   end
 
   def subject_status
-    'homonym replaced by'
+    'homonym replaced'
+  end
+
+  def subject_status_connector_to_object
+    ' by'
+  end
+
+  def object_status_connector_to_subject
+    ' for'
   end
 
   def self.assignment_method
