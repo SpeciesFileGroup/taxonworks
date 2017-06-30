@@ -472,7 +472,7 @@ class TaxonNameRelationship < ActiveRecord::Base
        
         soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described before 1961") if s.year_of_publication > 1960
         soft_validations.add(:type, "#{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} described in the same original genus #{s.original_genus}, they are primary homonyms") if s.original_genus == o.original_genus && !s.original_genus.nil?
-        soft_validations.add(:base, 'The first publication is not selected') unless source
+        soft_validations.add(:base, 'The original publication is not selected') unless source
        
         soft_validations.add(:base, "#{s.cached_html_name_and_author_year} should not be treated as a homonym established before 1961") if self.source && self.source.year > 1960
 
@@ -506,7 +506,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def sv_synonym_relationship
-    relationships = TAXON_NAME_RELATIONSHIP_NAMES_INVALID +
+    relationships = TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM +
         TaxonNameRelationship.collect_to_s(TaxonNameRelationship::Typification::Genus::SubsequentDesignation,
             TaxonNameRelationship::Typification::Genus::RulingByCommission)
     if relationships.include?(self.type_name)
@@ -517,7 +517,7 @@ class TaxonNameRelationship < ActiveRecord::Base
           soft_validations.add(:base, "#{self.subject_taxon_name.cached_html_name_and_author_year} was not described at the time of citation (#{date1}") if date2 > date1
         end
       else
-        soft_validations.add(:base, 'The first publication is not selected')
+        soft_validations.add(:base, 'The original publication is not selected')
       end
     end
   end
@@ -612,7 +612,7 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   def sv_synonym_linked_to_valid_name
     #synonyms and misspellings should be linked to valid names
-    if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
+    if TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)
       obj = self.object_taxon_name
       subj = self.subject_taxon_name
 #      if obj.get_valid_taxon_name != obj
@@ -644,7 +644,7 @@ class TaxonNameRelationship < ActiveRecord::Base
 #  end
 
   def sv_fix_subject_parent_update
-    if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
+    if TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)
       obj = self.object_taxon_name
       subj = self.subject_taxon_name
       unless obj.parent_id == subj.parent_id
