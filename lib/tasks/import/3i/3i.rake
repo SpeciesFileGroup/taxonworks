@@ -934,11 +934,13 @@ namespace :tw do
             end
 
             if !row['NomenNovumFor'].blank?
+              source = row['Key3'].blank? ? nil : @data.publications_index[row['Key3']]
               if row['YearRem'].to_s.include?('unneded n.nov.')
                 tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['NomenNovumFor']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName') ########???
               else
                 tnr = TaxonNameRelationship.create(subject_taxon_name: find_taxon_3i(row['NomenNovumFor']), object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym') ##############????
               end
+              tnr.citations.create(source_id: source, pages: row['Page'], is_original: true) unless source.blank?
             end
             if synonym_statuses.include?(row['Status']) # %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29)
               if TaxonNameRelationship.where_subject_is_taxon_name(taxon.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first.nil?
