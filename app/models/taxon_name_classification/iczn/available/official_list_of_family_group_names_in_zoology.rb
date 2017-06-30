@@ -13,4 +13,7 @@ class TaxonNameClassification::Iczn::Available::OfficialListOfFamilyGroupNamesIn
     )
   end
 
+  def classification_label
+    'Official List of Family Group Names in Zoological Nomenclature'
+  end
 end

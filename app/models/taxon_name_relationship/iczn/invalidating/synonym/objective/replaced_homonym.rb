@@ -15,7 +15,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHom
   end
 
   def subject_status
-    'replaced homonym'
+    'homonym replaced by'
   end
 
   def self.assignment_method
