@@ -619,32 +619,33 @@ class TaxonNameRelationship < ActiveRecord::Base
     if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
       obj = self.object_taxon_name
       subj = self.subject_taxon_name
-      if obj.get_valid_taxon_name != obj
-        soft_validations.add(:object_taxon_name_id, "#{self.subject_status.capitalize} #{subj.cached_html_name_and_author_year} should be associated with a valid name",
-                             fix: :sv_fix_synonym_linked_to_valid_name, success_message: 'The associated taxon was updated')
-      elsif obj.parent_id != subj.parent_id
+#      if obj.get_valid_taxon_name != obj
+#        soft_validations.add(:object_taxon_name_id, "#{self.subject_status.capitalize} #{subj.cached_html_name_and_author_year} should be associated with a valid name",
+#                             fix: :sv_fix_synonym_linked_to_valid_name, success_message: 'The associated taxon was updated')
+#      elsif obj.parent_id != subj.parent_id
+      if obj.parent_id != subj.parent_id
         soft_validations.add(:subject_taxon_name_id, "#{self.subject_status.capitalize}  #{subj.cached_html_name_and_author_year} should have the same parent with  #{obj.cached_html_name_and_author_year}",
                              fix: :sv_fix_subject_parent_update, success_message: 'The parent was updated')
       end
     end
   end
 
-  def sv_fix_synonym_linked_to_valid_name
-    if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
-      obj = self.object_taxon_name
-      unless obj.get_valid_taxon_name == obj
-        self.object_taxon_name = obj.get_valid_taxon_name
-        begin
-          TaxonName.transaction do
-            self.save
-            return true
-          end
-        rescue
-        end
-      end
-    end
-    false
-  end
+#  def sv_fix_synonym_linked_to_valid_name
+#    if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
+#      obj = self.object_taxon_name
+#      unless obj.get_valid_taxon_name == obj
+#        self.object_taxon_name = obj.get_valid_taxon_name
+#        begin
+#          TaxonName.transaction do
+#            self.save
+#            return true
+#          end
+#        rescue
+#        end
+#      end
+#    end
+#    false
+#  end
 
   def sv_fix_subject_parent_update
     if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
