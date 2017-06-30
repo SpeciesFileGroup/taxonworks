@@ -15,4 +15,7 @@ class TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRej
         TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedGenericNamesInZoology)
   end
 
+  def classification_label
+    'Official Index of Rejected Specific Names in Zoological Nomenclature'
+  end
 end
