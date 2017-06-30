@@ -678,8 +678,6 @@ namespace :tw do
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
 
-        zzz = 0
-
         i = 0
         file.each do |row|
           i += 1
@@ -819,12 +817,8 @@ namespace :tw do
 
 
 
-              if @data.source_ay[row['Key3']] == row['Author']
-                if zzz == 0
-                  byebug
-                  zzz = 1
-                end
-                SourceAuthor.where(role_object_type: 'Source', role_object_id: source, project_id: $project_id).find_each do |sa|
+              if !row['Author'].nil? && @data.source_ay[row['Key3']] == row['Author']
+                SourceAuthor.where(role_object_type: 'Source', role_object_id: source).find_each do |sa|
                   TaxonNameAuthor.create(person_id: sa.person_id, role_object: taxon, position: sa.position)                      #################??????????
                 end
               end
@@ -872,7 +866,6 @@ namespace :tw do
         i = 0
         file.each do |row|
           i += 1
-          next if i<73582
           print "\r#{i} (Relationships)"
           taxon = nil
           taxon = find_taxon_3i(row['Key'])
