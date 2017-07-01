@@ -5,9 +5,14 @@
 	        <label>Parent</label>
 	        <parent-picker></parent-picker>
         </div>
-        <div class="field">
-        	<label>Name</label><br>
-        	<taxon-name></taxon-name>
+        <div class="horizontal-left-content align-start">
+          <div class="field">
+          	<label>Name</label><br>
+          	<taxon-name></taxon-name>
+          </div>
+          <div>
+            <check-exist class="separate-left" url="/taxon_names/autocomplete" label="label_html" :search="taxon.name" param="term" :add-params="{ exact: true }"></check-exist>
+          </div>
         </div>
         <rank-selector></rank-selector>
         <button type="button" @click="createTaxonName()" :disabled="!(parent && taxon.name)" class="button">Create</button>
@@ -20,12 +25,15 @@
 
   var parentPicker = require('./parentPicker.vue');
   var taxonName = require('./taxonName.vue');
+  var checkExist = require('./findExistTaxonName.vue');
   var rankSelector = require('./rankSelector.vue');
+
 	export default {
 		components: {
 			parentPicker,
 			taxonName,
-			rankSelector
+			rankSelector,
+      checkExist
 		},
     computed: {
       parent() {
