@@ -215,7 +215,7 @@ cite_otus_task_task:
     - source
   status: prototype
   description: 'Add citations to OTUs.  Optionally add topics to citations.  For example assertions like "Smith, 1920 referenced Biology of Aus bus" are possible.'
-index_new_taxon_name_task:
+new_taxon_name_task:
   hub: true
   name: 'New taxon name'
   related:

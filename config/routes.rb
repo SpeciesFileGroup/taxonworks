@@ -659,7 +659,7 @@ TaxonWorks::Application.routes.draw do
 
     scope :nomenclature do
       scope :new_taxon_name, controller: 'tasks/nomenclature/new_taxon_name' do
-        get 'index', as: 'index_new_taxon_name_task'
+        get '(:id)', action: :index, as: 'new_taxon_name_task'
       end
 
       scope :original_combination, controller: 'tasks/nomenclature/original_combination' do
