@@ -73,13 +73,12 @@
     },
     mounted: function() {
       let taxonId = location.pathname.split('/')[4];
-
         this.loadRanks();
         this.loadStatus();
         this.loadRelationship();
-      if(taxonId != undefined) {
-        this.fillTaxonName(taxonId);
-      }
+        if(/^\d+$/.test(taxonId)) {
+          this.fillTaxonName(taxonId);
+        }
     },
     methods: {
       loadRanks: function() {
@@ -113,7 +112,7 @@
           this.$store.commit(MutationNames.SetTaxon, taxon_name);
           this.$store.dispatch(ActionNames.SetParentAndRanks, response.body.parent);
         }, response => {
-          //Didnt exist
+          TW.workbench.alert.create("There is no taxon name associated to that ID", "error");
         });
       }
     }      
