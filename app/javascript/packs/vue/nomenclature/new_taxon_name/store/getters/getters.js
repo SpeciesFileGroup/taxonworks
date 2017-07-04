@@ -12,6 +12,7 @@ const GetterNames = {
 	GetTaxonAuthor: 'getTaxonAuthor',
 	GetTaxonName: 'getTaxonName',
 	GetTaxon: 'getTaxon',
+	GetParentRankGroup: 'getParentRankGroup',
 	GetTaxonYearPublication: 'getTaxonYearPublication'
 };
 
@@ -29,6 +30,7 @@ const GetterFunctions = {
 	[GetterNames.GetTaxonAuthor]: require('./getTaxonAuthor'),
 	[GetterNames.GetTaxonName]: require('./getTaxonName'),
 	[GetterNames.GetTaxon]: require('./getTaxon'),
+	[GetterNames.GetParentRankGroup]: require('./getParentRankGroup'),
 	[GetterNames.GetTaxonYearPublication]: require('./getTaxonYearPublication')
 };
 

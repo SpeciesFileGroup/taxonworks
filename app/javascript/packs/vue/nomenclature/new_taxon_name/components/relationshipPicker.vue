@@ -32,24 +32,28 @@
     },
     data: function() {
       return { 
-        objectLists: {
-          tree: undefined,
-          commonList: [],
-          allList: [],
-        }
+        objectLists: this.makeLists()
       }
     },
     watch: {
-      'parent': function(newVal, oldVal) {
-        this.objectLists.tree = Object.assign({}, this.treeList[this.parent.nomenclatural_code].tree);
-        this.objectLists.commonList = Object.assign({}, this.treeList[this.parent.nomenclatural_code].common);
-        this.objectLists.allList = Object.assign({}, this.treeList[this.parent.nomenclatural_code].all);
+      parent: function(newVal, oldVal) {
+        let copyList = Object.assign({},this.treeList[this.parent.nomenclatural_code]);
+        this.objectLists.tree = Object.assign({}, copyList.tree);
+        this.objectLists.commonList = Object.assign({}, copyList.common);
+        this.objectLists.allList = Object.assign({}, copyList.all);
         this.objectLists.allList = Object.keys(this.objectLists.allList).map(key => this.objectLists.allList[key])
-        this.getTreeList(this.objectLists.tree, this.treeList[this.parent.nomenclatural_code].all);
+        this.getTreeList(this.objectLists.tree, copyList.all);
         this.addType(this.objectLists.commonList);
       }
     },
     methods: {
+      makeLists: function() {
+        return {
+          tree: undefined,
+          commonList: [],
+          allList: [],
+        }
+      },
       getTreeList(list, ranksList) {
         for(var key in list) {
             if(key in ranksList) {

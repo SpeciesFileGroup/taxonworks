@@ -10,10 +10,13 @@ const MutationNames = {
 	SetParentId: 'setParentId',
 	SetRankClass: 'setRankClass',
 	SetRankList: 'setRankList',
+	SetParentRankGroup: 'setParentRankGroup',
 	SetRelationshipList: 'setRelationshipList',
 	SetStatusList: 'setStatusList',
 	SetTaxonAuthor: 'setTaxonAuthor',
 	SetTaxonName: 'setTaxonName',
+	SetTaxonId: 'setTaxonId',
+	SetTaxon: 'setTaxon',
 	SetTaxonYearPublication: 'setTaxonYearPublication'
 };
 
@@ -33,6 +36,9 @@ const MutationFunctions = {
 	[MutationNames.SetStatusList]: require('./setStatusList'),
 	[MutationNames.SetTaxonAuthor]: require('./setTaxonAuthor'),
 	[MutationNames.SetTaxonName]: require('./setTaxonName'),
+	[MutationNames.SetTaxonId]: require('./setTaxonId'),
+	[MutationNames.SetTaxon]: require('./setTaxon'),
+	[MutationNames.SetParentRankGroup]: require('./setParentRankGroup'),
 	[MutationNames.SetTaxonYearPublication]: require('./setTaxonYearPublication'),
 };
 

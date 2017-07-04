@@ -3,12 +3,14 @@ import Vuex from 'vuex';
 
 const getters = require('./getters/getters');
 const mutations = require('./mutations/mutations');
+const actions = require('./actions/actions');
 
 Vue.use(Vuex);
 
 function makeInitialState() {
   return {
     taxon_name: {
+      id: undefined,
       parent_id: undefined,
       name: undefined,
       rank_class: undefined,
@@ -26,6 +28,7 @@ function makeInitialState() {
     },
     parent: undefined,
     ranks: undefined,
+    rankGroup: undefined,
     status: [],
     relationships: [],
     allRanks: [],
@@ -36,7 +39,8 @@ function newStore() {
   return new Vuex.Store({
     state: makeInitialState(),
     getters: getters.GetterFunctions,
-    mutations: mutations.MutationFunctions
+    mutations: mutations.MutationFunctions,
+    actions: actions.ActionFunctions
   });
 }
 

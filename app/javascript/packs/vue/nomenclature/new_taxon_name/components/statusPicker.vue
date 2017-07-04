@@ -33,28 +33,34 @@
     },
     data: function() {
       return { 
-        objectLists: {
-          tree: undefined,
-          commonList: [],
-          allList: [],
-        }
+        objectLists: this.makeLists()
       }
     },
     watch: {
-      'parent': function(newVal, oldVal) {
-        this.objectLists.tree = Object.assign({}, this.treeList[this.parent.nomenclatural_code].tree);
+      parent: function(newVal, oldVal) {
+        let copyList = Object.assign({},this.treeList[this.parent.nomenclatural_code]);
         
-        this.getStatusListForThisRank(this.treeList[this.parent.nomenclatural_code].all,this.parent.rank_string).then( resolve => {
+        this.objectLists = Object.assign({}, this.makeLists());
+        this.objectLists.tree = Object.assign({}, copyList.tree);
+        
+        this.getStatusListForThisRank(copyList.all,this.parent.rank_string).then( resolve => {
           this.objectLists.allList = resolve;
-          this.getTreeListForThisRank(this.objectLists.tree, this.treeList[this.parent.nomenclatural_code].all, resolve);
+          this.getTreeListForThisRank(this.objectLists.tree, copyList.all, resolve);
         });
-        this.getStatusListForThisRank(this.treeList[this.parent.nomenclatural_code].common,this.parent.rank_string).then( resolve => {
+        this.getStatusListForThisRank(copyList.common,this.parent.rank_string).then( resolve => {
           this.objectLists.commonList = resolve;
         });
       }
     },
     methods: {
-     getStatusListForThisRank(list, findStatus) {
+      makeLists: function() {
+        return {
+          tree: undefined,
+          commonList: [],
+          allList: [],
+        }
+      },
+      getStatusListForThisRank(list, findStatus) {
         return new Promise(function (resolve, reject) {
           var 
           newList = [];
@@ -80,10 +86,10 @@
                 return true;
               }
             })) {
-              Object.defineProperty(list[key], 'disabled', { value: false });
+              Object.defineProperty(list[key], 'disabled', { value: false, configurable: true });
             }
             else {
-              Object.defineProperty(list[key], 'disabled', { value: true });
+              Object.defineProperty(list[key], 'disabled', { value: true, configurable: true });
             }
             this.getTreeListForThisRank(list[key], ranksList, filteredList);
         }

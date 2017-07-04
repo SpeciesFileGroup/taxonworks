@@ -47,6 +47,8 @@
 
 
   const MutationNames = require('./store/mutations/mutations').MutationNames;  
+  const GetterNames = require('./store/getters/getters').GetterNames; 
+  const ActionNames = require('./store/actions/actions').ActionNames;  
 
 
   export default {
@@ -61,10 +63,23 @@
       basicInformation,
       originalCombination
     },
+    computed: {
+      getTaxon() {
+        return this.$store.getters[GetterNames.GetTaxon];
+      },
+      getParent() {
+        return this.$store.getters[GetterNames.GetParent];
+      }
+    },
     mounted: function() {
-      this.loadRanks();
-      this.loadStatus();
-      this.loadRelationship();
+      let taxonId = location.pathname.split('/')[4];
+
+        this.loadRanks();
+        this.loadStatus();
+        this.loadRelationship();
+      if(taxonId != undefined) {
+        this.fillTaxonName(taxonId);
+      }
     },
     methods: {
       loadRanks: function() {
@@ -80,6 +95,25 @@
       loadRelationship: function() {
         this.$http.get('/taxon_name_relationships/taxon_name_relationship_types').then( response => {
           this.$store.commit(MutationNames.SetRelationshipList, response.body);
+        });
+      },
+      fillTaxonName: function(id) {
+        this.$http.get(`/taxon_names/${id}`).then( response => {
+          let taxon_name = {
+            id: response.body.id,
+            parent_id: response.body.parent.parent_id,
+            name: response.body.name,
+            rank_class: response.body.rank,
+            year_of_publication: response.body.year_of_publication,
+            verbatim_author: response.body.year_of_publication,
+            feminine_name: response.body.feminine_name,
+            masculine_name: response.body.masculine_name,
+            neuter_name: response.body.neuter_name,
+          }
+          this.$store.commit(MutationNames.SetTaxon, taxon_name);
+          this.$store.dispatch(ActionNames.SetParentAndRanks, response.body.parent);
+        }, response => {
+          //Didnt exist
         });
       }
     }      

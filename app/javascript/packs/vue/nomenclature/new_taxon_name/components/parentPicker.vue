@@ -5,6 +5,7 @@
     min="3"
     eventSend="parentSelected"
     display="label"
+    :value="getParent.name"
     param="term">
   </autocomplete>
 </template>
@@ -13,6 +14,7 @@
   const autocomplete = require('../../../components/autocomplete.vue');
   const GetterNames = require('../store/getters/getters').GetterNames;
   const MutationNames = require('../store/mutations/mutations').MutationNames;
+  const ActionNames = require('../store/actions/actions').ActionNames;
 
   var foundRankGroup = require('../helpers/foundRankGroup');
   var truncateAtRank = require('../helpers/truncateAtRank');
@@ -21,17 +23,21 @@
     components: {
       autocomplete
     },
+    computed: {
+      getParent: {
+        get() {
+          let value = this.$store.getters[GetterNames.GetParent];
+          return (value != undefined ? value : '');
+        }
+      }
+    },
     mounted: function() {
       var that = this;
       this.$on('parentSelected', function(item) {
-       this.$store.commit('setParentId', item.id);
+       this.$store.commit(MutationNames.SetParentId, item.id);
        this.$http.get(`/taxon_names/${item.id}`).then( response => {
-        var nomenclatureRanks = JSON.parse(JSON.stringify(that.$store.getters[GetterNames.GetRankList][response.body.nomenclatural_code]));
-        var group = foundRankGroup(nomenclatureRanks, response.body.rank);
-        response.body.rankGroup = group;
-        nomenclatureRanks[group] = truncateAtRank(nomenclatureRanks[group], response.body.rank);
-        that.$store.commit(MutationNames.SetParent, response.body);
-        that.$store.commit(MutationNames.SetAllRanks, nomenclatureRanks);
+
+        this.$store.dispatch(ActionNames.SetParentAndRanks, response.body.parent);
       });
      });
     },

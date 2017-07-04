@@ -36,7 +36,7 @@ export default {
         spinner: false,
         showList: false,
         getRequest: 0,
-        type: "",
+        type: this.value,
         json: [],
         current: -1
       };
@@ -47,6 +47,9 @@ export default {
         if(this.type.length < Number(this.min)) {
           this.json = [];
         }
+      },
+      value: function(val) {
+        this.type = val
       }
     },
 
@@ -54,6 +57,11 @@ export default {
 
       url: {
         type: String
+      },
+
+      value: {
+        type: String,
+        default: ''
       },
 
       autofocus: {
