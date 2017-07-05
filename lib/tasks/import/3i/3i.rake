@@ -354,14 +354,14 @@ namespace :tw do
             'FirstRevisor' => Predicate.find_or_create_by(name: 'first_revisor_action', definition: 'First revisor action', project_id: $project_id),
             'PageAuthor' => Predicate.find_or_create_by(name: 'page_author', definition: 'Page author.', project_id: $project_id),
             'SimilarSpecies' => Predicate.find_or_create_by(name: 'similar_species', definition: 'Similar species.', project_id: $project_id),
-            'IDDrMetcalf' => Namespace.find_or_create_by(name: 'DrMetcalf_Source_ID', short_name: 'DrMetcalf_ID'),
-            'KeyN' => Namespace.find_or_create_by(name: '3i_KeyN_ID', short_name: '3i_KeyN_ID'),
-            'Key3' => Namespace.find_or_create_by(name: '3i_Source_ID', short_name: '3i_Source_ID'),
-            'Key1' => Namespace.find_or_create_by(name: '3i_Key1_ID', short_name: '3i_Key1_ID'),
-            'Key2' => Namespace.find_or_create_by(name: '3i_Key2_ID', short_name: '3i_Key2_ID'),
-            'Key' => Namespace.find_or_create_by(name: '3i_Taxon_ID', short_name: '3i_Taxon_ID'),
-            'FLOW-ID' => Namespace.find_or_create_by(name: 'FLOW_Source_ID', short_name: 'FLOW_Source_ID'),
-            'DelphacidaeID' => Namespace.find_or_create_by(name: 'Delphacidae_Source_ID', short_name: 'Delphacidae_Source_ID'),
+            'IDDrMetcalf' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: 'DrMetcalf_Source_ID', short_name: 'DrMetcalf_ID'),
+            'KeyN' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: '3i_KeyN_ID', short_name: '3i_KeyN_ID'),
+            'Key3' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: '3i_Source_ID', short_name: '3i_Source_ID'),
+            'Key1' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: '3i_Key1_ID', short_name: '3i_Key1_ID'),
+            'Key2' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: '3i_Key2_ID', short_name: '3i_Key2_ID'),
+            'Key' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: '3i_Taxon_ID', short_name: '3i_Taxon_ID'),
+            'FLOW-ID' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: 'FLOW_Source_ID', short_name: 'FLOW_Source_ID'),
+            'DelphacidaeID' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: 'Delphacidae_Source_ID', short_name: 'Delphacidae_Source_ID'),
             'Taxonomy' => Keyword.find_or_create_by(name: 'Taxonomy updated', definition: 'Taxonomical information entered to the DB.', project_id: $project_id),
             'Typhlocybinae' => Keyword.find_or_create_by(name: 'Typhlocybinae updated', definition: 'Information related to Typhlocybinae entered to the DB.', project_id: $project_id),
             'Illustrations' => Keyword.find_or_create_by(name: 'Illustrations exported', definition: 'Illustrations of Typhlocybinae species entered to the DB.', project_id: $project_id),
@@ -792,13 +792,20 @@ namespace :tw do
             byebug if row['Status'].blank?
             taxon.taxon_name_classifications.new(type: @classification_classes[row['Status'].to_i]) unless @classification_classes[row['Status'].to_i].blank?
 
-            taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Available::OfficialListOfFamilyGroupNamesInZoology') if row['YearRem'].to_s.include?('Official List of Family-Group Names in Zoology')
-            taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Available::OfficialListOfGenericNamesInZoology') if row['YearRem'].to_s.include?('Official List of Generic Names in Zoology')
-            taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Available::OfficialListOfSpecificNamesInZoology') if row['YearRem'].to_s.include?('Official List of Specific Names in Zoology')
-            t3 = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedFamilyGroupNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Family-Group Names in Zoology')
-            t1 = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedGenericNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Generic Names in Zoology')
-            t2 = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedSpecificNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Specific Names in Zoology')
-            t4 = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedAndInvalidWorksInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Works in Zoological Nomenclature')
+            of_tnr = nil
+            of_tnr = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Available::OfficialListOfFamilyGroupNamesInZoology') if row['YearRem'].to_s.include?('Official List of Family-Group Names in Zoology')
+            of_tnr = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Available::OfficialListOfGenericNamesInZoology') if row['YearRem'].to_s.include?('Official List of Generic Names in Zoology')
+            of_tnr = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Available::OfficialListOfSpecificNamesInZoology') if row['YearRem'].to_s.include?('Official List of Specific Names in Zoology')
+            of_tnr = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedFamilyGroupNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Family-Group Names in Zoology')
+            of_tnr = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedGenericNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Generic Names in Zoology')
+            of_tnr = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedSpecificNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Specific Names in Zoology')
+            of_tnr = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedAndInvalidWorksInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Works in Zoological Nomenclature')
+
+            if !of_tnr.nil? && row['TypeDesignation'] !='subsequent designation'
+              source1 = row['Key3a'].blank? ? nil : @data.publications_index[row['Key3a']]
+              of_tnr.citations.new(source_id: source1, is_original: true) unless source1.nil?
+            end
+
             if row['Status'].to_i == 24
               if name.length == 1
                 taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters')
@@ -940,7 +947,12 @@ namespace :tw do
               else
                 tnr = TaxonNameRelationship.create(subject_taxon_name: find_taxon_3i(row['NomenNovumFor']), object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym') ##############????
               end
-              tnr.citations.create(source_id: source, pages: row['Page'], is_original: true) unless source.blank?
+              if !source.blank? && !tnr.id.nil?
+                tnr.citations.create(source_id: source, pages: row['Page'], is_original: true)
+              elsif tnr.id.nil?
+                byebug
+              end
+
             end
             if synonym_statuses.include?(row['Status']) # %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29)
               if TaxonNameRelationship.where_subject_is_taxon_name(taxon.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first.nil?
