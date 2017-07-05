@@ -1095,7 +1095,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   @area_old_boxia = FactoryGirl.create(:level0_geographic_area,
                                        name:                 'Old Boxia',
                                        geographic_area_type: gat_country,
-                                       iso_3166_a3:          nil,
+                                       iso_3166_a3: OB1,
                                        iso_3166_a2:          nil,
                                        parent:               @area_land_mass)
   @area_old_boxia.geographic_items << @item_ob
