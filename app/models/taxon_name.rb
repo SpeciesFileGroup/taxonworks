@@ -1354,7 +1354,7 @@ class TaxonName < ActiveRecord::Base
         end
       end
     end
-    false
+    false#
   end
 
   # TODO: Protonym check only?  Why can't we reference #cached_valid_taxon_name_id?
