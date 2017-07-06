@@ -431,7 +431,6 @@ TaxonWorks::Application.routes.draw do
       scope :dwca do
         scope :psu_import, controller: 'tasks/import/dwca/psu_import' do
           get 'index', as: 'psu_import_task'
-          # post 'preview_psu_import', as: 'preview_psu_import'
           post 'do_psu_import', as: 'do_psu_import'
         end
       end

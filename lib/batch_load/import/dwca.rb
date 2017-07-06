@@ -356,7 +356,7 @@ module BatchLoad
                                                project_id: $project_id)
       @animalia   = Protonym.find_or_create_by(name:       'Animalia',
                                                parent_id:  @root.id,
-                                               rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
+                                               rank_class: Ranks.lookup(:iczn, :kingdom),
                                                project_id: $project_id)
     end
 
@@ -630,7 +630,7 @@ module BatchLoad
       this_kingdom = row['kingdom']
       if @kingdom.try(:name) != this_kingdom
         @kingdom = Protonym.find_or_create_by(name:       this_kingdom,
-                                              rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
+                                              rank_class: Ranks.lookup(:iczn, :kingdom),
                                               project_id: @project_id)
 
         if @kingdom.new_record?
@@ -643,7 +643,7 @@ module BatchLoad
       this_family = row['family']
       if @family.try(:name) != this_family
         @family = Protonym.find_or_create_by(name:       this_family,
-                                             rank_class: NomenclaturalRank::Iczn::FamilyGroup::Family,
+                                             rank_class: Ranks.lookup(:iczn, :family),
                                              project_id: @project_id)
         if @family.new_record?
           @family.parent = @kingdom
@@ -666,7 +666,7 @@ module BatchLoad
               genus_name = snp[:scientificName][:details][0][:genus][:string]
               @genus     = Protonym.find_or_create_by(name:       genus_name,
                                                       parent:     @family,
-                                                      rank_class: NomenclaturalRank::Iczn::GenusGroup::Genus,
+                                                      rank_class: Ranks.lookup(:iczn, :genus),
                                                       project_id: @project_id)
               if @genus.new_record?
                 @genus.save!
@@ -675,7 +675,7 @@ module BatchLoad
             end
             species        = snp[:scientificName][:details][0][:species]
             t_n.parent     = @genus
-            t_n.rank_class = NomenclaturalRank::Iczn::SpeciesGroup::Species
+            t_n.rank_class = Ranks.lookup(:iczn, :species)
             t_n.name       = species[:string]
             # t_n.cached_author_year = snp[:scientificName][:details][0][:species][:authorship]
             t_n.year_of_publication = species[:basionymAuthorTeam][:year].to_i
@@ -688,13 +688,13 @@ module BatchLoad
           when :genus
             genus           = snp[:scientificName][:details][0][:uninomial]
             t_n.parent      = @family
-            t_n.rank_class  = NomenclaturalRank::Iczn::GenusGroup::Genus
+            t_n.rank_class  = Ranks.lookup(:iczn, :genus)
             t_n.name        = genus[:string]
             ret_val[:genus] = t_n
           when :tribe
             tribe           = snp[:scientificName][:details][0][:uninomial]
             t_n.parent      = @family
-            t_n.rank_class  = NomenclaturalRank::Iczn::FamilyGroup::Tribe
+            t_n.rank_class  = Ranks.lookup(:iczn, :tribe)
             t_n.name        = tribe[:string]
             ret_val[:tribe] = t_n
           else

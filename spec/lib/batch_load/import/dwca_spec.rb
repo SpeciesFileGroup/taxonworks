@@ -2,7 +2,14 @@ require 'rails_helper'
 require 'batch_load/import/collection_objects'
 
 describe BatchLoad::Import::DWCA, type: :model do
-  # iconv -f iso-8859-15 -t UTF-8  spec/files/batch/dwca/PSUC3-Test.txt >spec/files/batch/dwca/PSUC3-Test.utf8.txt
+  # In order to excerpt data rows from the original source,
+  #  !. copy rows(s) from  CurculionidaePSUC3.xlsx into PSUC3-Test.xls
+  #  2. save the new version.
+  #  3. 'save-as' a Tab Delimited Text file named PSUC3-Test.txt
+  #  4. convert the PSUC3-Test.txt file to UTF-8 using this command line in a terminal:
+  # `iconv -f iso-8859-15 -t UTF-8  spec/files/batch/dwca/PSUC3-Test.txt > spec/files/batch/dwca/PSUC3-Test.utf8.txt`
+  # which is then used in the spec.
+
   let(:file_name) {'spec/files/batch/dwca/PSUC3-Test.utf8.txt'}
 
   context 'building objects from valid tsv lines' do
@@ -18,7 +25,7 @@ describe BatchLoad::Import::DWCA, type: :model do
     }
     let(:kingdom) {Protonym.find_or_create_by(name:       'Animalia',
                                               parent:     root,
-                                              rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
+                                              rank_class: Ranks.lookup(:iczn, :kingdom),
                                               project:    project)}
     let(:cat_no_pred) {Predicate.find_or_create_by(name:       'catalogNumber',
                                                    definition: 'The verbatim value imported from PSUC for "catalogNumber".',
