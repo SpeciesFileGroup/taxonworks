@@ -21,5 +21,4 @@ module NamespacesHelper
       nil
     end
   end
-
 end

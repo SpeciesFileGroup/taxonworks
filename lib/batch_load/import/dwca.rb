@@ -366,9 +366,9 @@ module BatchLoad
         taxa.each {|bio_assoc|
           unless bio_assoc.blank?
             br                = BiologicalRelationship.find_or_create_by(name:       'associated_taxa',
-                                                                         project_id: $project_id)
+                                                                         project_id: @project_id)
             otu               = Otu.find_or_create_by(name:       bio_assoc,
-                                                      project_id: $project_id)
+                                                      project_id: @project_id)
             ba                = BiologicalAssociation.new(biological_relationship:             br,
                                                           biological_association_object:       otu,
                                                           biological_association_object_type:  'Otu',
@@ -389,7 +389,7 @@ module BatchLoad
         end
         unless cat_no[1].blank?
           id                = Identifier::Local::CatalogNumber.find_or_initialize_by(namespace:  @namespace,
-                                                                                     project_id: $project_id,
+                                                                                     project_id: @project_id,
                                                                                      identifier: cat_no[1])
           ident[:id_cat_no] = id
         end
@@ -397,7 +397,7 @@ module BatchLoad
       occ_id = row['occurrenceid']
       unless occ_id.blank?
         id                = Identifier::Global::OccurrenceId.find_or_initialize_by(relation:   'skos:exactMatch',
-                                                                                   project_id: $project_id,
+                                                                                   project_id: @project_id,
                                                                                    identifier: occ_id)
         ident[:id_occ_id] = id
       end
@@ -451,7 +451,7 @@ module BatchLoad
         req           = Georeference::GeoLocate::RequestUI.new(gl_req_params)
         #   1) new the Georeference, without a collecting_event
         g_r = Georeference::GeoLocate::GeoLocate.find_or_initialize_by(api_request: req.request_params_string,
-                                                                       project_id:  $project_id)
+                                                                       project_id:  @project_id)
         #   2) save the information from the row in request_hash
         if g_r.new_record?
           g_r.api_request = req.request_params_string
@@ -473,7 +473,7 @@ module BatchLoad
         geo_remark = row['georeferenceremarks']
         unless geo_remark.blank?
           notes[:remark] = Note.new(text:       geo_remark,
-                                    project_id: $project_id)
+                                    project_id: @project_id)
         end
         ret_val[:g_r] = notes unless notes.blank?
       end
@@ -484,7 +484,7 @@ module BatchLoad
         unless loc_remark.blank?
           notes[:remark] = Note.new(text:                  loc_remark,
                                     note_object_attribute: :verbatim_locality,
-                                    project_id:            $project_id)
+                                    project_id:            @project_id)
         end
         ret_val[:c_e] = notes unless notes.blank?
       end
@@ -494,7 +494,7 @@ module BatchLoad
         occ_remark = row['occurrenceremarks']
         unless occ_remark.blank?
           notes[:remark] = Note.new(text:       occ_remark,
-                                    project_id: $project_id)
+                                    project_id: @project_id)
         end
         ret_val[:c_o] = notes unless notes.blank?
       end
@@ -548,16 +548,16 @@ module BatchLoad
         g_a_matches = GeographicArea.matching(g_a_text, true)
         g_a         = g_a_matches[g_a_text].try(:first)
       end
-      hunt_params   = {project_id:                       $project_id,
-                       geographic_area:                  g_a,
-                       verbatim_datum:                   row['geodeticdatum'],
-                       verbatim_locality:                v_l,
-                       verbatim_date:                    d_s,
-                       verbatim_label:                   row['locationremarks'],
-                       verbatim_geolocation_uncertainty: row['coordinateuncertaintyinmeters'],
-                       verbatim_latitude:                row['decimallatitude'],
-                       verbatim_longitude:               row['decimallongitude'],
-                       verbatim_collectors:              row['recordedby']}.merge!(date_params)
+      hunt_params = {project_id:                       @project_id,
+                     geographic_area:                  g_a,
+                     verbatim_datum:                   row['geodeticdatum'],
+                     verbatim_locality:                v_l,
+                     verbatim_date:                    d_s,
+                     verbatim_label:                   row['locationremarks'],
+                     verbatim_geolocation_uncertainty: row['coordinateuncertaintyinmeters'],
+                     verbatim_latitude:                row['decimallatitude'],
+                     verbatim_longitude:               row['decimallongitude'],
+                     verbatim_collectors:              row['recordedby']}.merge!(date_params)
       c_e           = CollectingEvent.find_or_initialize_by(hunt_params)
       ret_val[:c_e] = c_e
       ret_val.merge!(err: [])
@@ -626,7 +626,7 @@ module BatchLoad
       if @kingdom.try(:name) != this_kingdom
         @kingdom = Protonym.find_or_create_by(name:       this_kingdom,
                                               rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
-                                              project_id: $project_id)
+                                              project_id: @project_id)
 
         if @kingdom.new_record?
           @kingdom.parent = @root
@@ -639,7 +639,7 @@ module BatchLoad
       if @family.try(:name) != this_family
         @family = Protonym.find_or_create_by(name:       this_family,
                                              rank_class: NomenclaturalRank::Iczn::FamilyGroup::Family,
-                                             project_id: $project_id)
+                                             project_id: @project_id)
         if @family.new_record?
           @family.parent = @kingdom
           @family.save!
@@ -651,7 +651,7 @@ module BatchLoad
 
       # find or create Protonym based on exact match of row['scientificname'] and taxon_names.cached
 
-      t_n       = Protonym.find_or_create_by(cached: snp[:scientificName][:canonical], project_id: $project_id)
+      t_n       = Protonym.find_or_create_by(cached: snp[:scientificName][:canonical], project_id: @project_id)
       this_rank = row['taxonrank'].downcase.to_sym
 
       if t_n.new_record?
@@ -662,7 +662,7 @@ module BatchLoad
               @genus     = Protonym.find_or_create_by(name:       genus_name,
                                                       parent:     @family,
                                                       rank_class: NomenclaturalRank::Iczn::GenusGroup::Genus,
-                                                      project_id: $project_id)
+                                                      project_id: @project_id)
               if @genus.new_record?
                 @genus.save!
                 ret_val[:new_genus] = @genus
