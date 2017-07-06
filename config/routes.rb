@@ -405,6 +405,9 @@ TaxonWorks::Application.routes.draw do
     collection do
       get :taxon_name_classification_types
     end
+    member do
+      get :show, {format: :json}
+    end
   end
 
   resources :taxon_name_relationships do

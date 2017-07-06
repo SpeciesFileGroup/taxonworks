@@ -1,13 +1,17 @@
 class TaxonNameClassificationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_name_classification, only: [ :update, :destroy]
+  before_action :set_taxon_name_classification, only: [ :update, :destroy, :show]
 
   # GET /taxon_name_relationships
   # GET /taxon_name_relationships.json
   def index
     @recent_objects = TaxonNameClassification.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
+  end
+
+  # GET /taxon_name_relationships/:id.json
+  def show
   end
 
   # POST /taxon_name_classifications

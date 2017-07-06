@@ -47,7 +47,7 @@ class TaxonNamesController < ApplicationController
     respond_to do |format|
       if @taxon_name.update(taxon_name_params)
         format.html { redirect_to @taxon_name.metamorphosize, notice: 'Taxon name was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render :show, status: :ok, location: @taxon_name.metamorphosize }
       else
         format.html { render action: 'edit' }
         format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
