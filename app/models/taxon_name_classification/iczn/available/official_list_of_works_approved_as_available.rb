@@ -2,4 +2,7 @@ class TaxonNameClassification::Iczn::Available::OfficialListOfWorksApprovedAsAva
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000025'
 
+  def classification_label
+    'Official List of Works Approved as Available in Zoological Nomenclature'
+  end
 end

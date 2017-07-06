@@ -554,7 +554,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       end
 
       context 'secondary homonyms missing combination' do
-        let(:message) { 'No combination available showing both species placed in the same genus' }
+        let(:message) { 'No combination available showing <i>Aus vitis</i> McAtee, 1900 and <i>Bus vitis</i> McAtee, 1900 placed in the same genus' }
         let(:f) { FactoryGirl.create(:relationship_family) }
         let(:g1){ FactoryGirl.create(:relationship_genus, name: 'Aus', parent: f) }
         let(:g2){ FactoryGirl.create(:relationship_genus, name: 'Bus', parent: f) }
@@ -781,18 +781,6 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(r1.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_truthy
         expect(r1.object_taxon_name_id).to eq(ssp.id)
       end
-
-      # @proceps - this doesn't reference genera anywhere, and is failing now, please update/rename.
-      # specify 'original combination linked to genus is subject' do
-      #   ssp = FactoryGirl.create(:iczn_subspecies, source: nil, parent: @s1, name: @s1.name)
-      #   r1 = TaxonNameRelationship.create(subject_taxon_name: ssp, object_taxon_name: @s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies')
-      #   r1.soft_validate(:coordinated_taxa)
-      #   expect(r1.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
-      #   r1.fix_soft_validations
-      #   r1.soft_validate(:coordinated_taxa)
-      #   expect(r1.soft_validations.messages_on(:subject_taxon_name_id).empty?).to be_truthy
-      #   expect(r1.subject_taxon_name_id).to eq(@s1.id)
-      # end
     end
   end
 

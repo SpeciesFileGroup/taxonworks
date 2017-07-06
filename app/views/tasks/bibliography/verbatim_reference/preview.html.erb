@@ -9,19 +9,19 @@
 <% if @source.class == Source::Verbatim -%>
   <%= content_tag(:p, 'CrossRef did not find a match.', class: :failure) -%>
 <% else %>
-  <%= content_tag(:p, 'CrossRef found a match.', class: :success) -%>
+  <%= content_tag(:p, "CrossRef found a match above the default score #{Ref2bibtex.cutoff}.", class: :success, data: {help: "The score cutoff is somewhat arbitratry, and does not necessarily represent a good match."}) -%>
 <% end %>
 
 <hr/>
 
 <% if @source.class == Source::Bibtex -%>
-  <h3> Create a source in BibTex format. </h3>
+  <h3 data-help="Create a source record with data fully parsed into fields."> Create a source in BibTex format. </h3>
   <%= form_tag create_bibtex_from_reference_task_path do %>
     as: <%= @source.cached_string('html').html_safe %> <br>
 
     <%= hidden_field_tag(:in_cite, params[:citation]) %>
     <div class="field">
-      <%= label_tag :also_create_people_records_from_authors_and_editors_of_BibTeX_source? %>
+      <%= label_tag 'also_create', 'Also create people from authors and editors of BibTeX source?' %>
       <%= check_box_tag :create_roles, false %>
     </div>
 
@@ -31,7 +31,7 @@
 
 <hr/>
 
-<h3> Create a source in Verbatim format. </h3>
+<h3 data-help="Create a source record with verbatim data only, i.e. the full citation."> Create a source in Verbatim format. </h3>
 <%= form_for Source::Bibtex.new(verbatim: params[:citation]), as: :source, url: create_verbatim_from_reference_task_path do |f| %>
   <%= hidden_field_tag(:in_cite, params[:citation]) %>
   <p> as: <%= params[:citation] %> </p>

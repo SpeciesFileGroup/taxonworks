@@ -13,5 +13,7 @@ class TaxonNameClassification::Iczn::Available::OfficialListOfGenericNamesInZool
     )
   end
 
-
+  def classification_label
+    'Official List of Generic Names in Zoological Nomenclature'
+  end
 end

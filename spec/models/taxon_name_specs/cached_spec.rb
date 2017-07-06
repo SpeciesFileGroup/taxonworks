@@ -166,7 +166,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           expect(species.cached_html).to eq('<i>Aus aa</i>')
           expect(species.cached).to eq('Aus aa')
         end
+        end
       end
     end
   end
-end

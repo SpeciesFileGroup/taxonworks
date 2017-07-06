@@ -44,7 +44,7 @@ describe 'Confidences', type: :feature, group: :annotations do
 
       context 'using the annotation menu' do
         before do
-          find('#show_annotate_dropdown').click
+          find('#show_annotate_dropdown').hover
           click_link 'Add confidence'
 
           fill_autocomplete_and_select('confidence_level_picker_autocomplete',
@@ -52,6 +52,7 @@ describe 'Confidences', type: :feature, group: :annotations do
                                        with: confidence_levels[2].name,
                                        select_id: confidence_levels[2].id)
           click_button('Update')
+          expect(page).to have_text('Successfully updated record.')
         end
 
         specify 'confidence is added', js: true do

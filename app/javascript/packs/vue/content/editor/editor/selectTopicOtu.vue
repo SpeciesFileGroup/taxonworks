@@ -1,7 +1,7 @@
 <template>
   <div>
     <button @click="showModal = true" class="button normal-input button-default">Select</button>
-    <modal v-if="showModal" @close="showModal = false">
+    <modal v-if="showModal" @close="closeModal()">
       <h3 slot="header">Select</h3>
       <div slot="body">
         <div class="flex-wrap-column middle">
@@ -78,7 +78,12 @@
         },
         otuPanel: function() {
           this.$store.commit(MutationNames.OpenOtuPanel, true);         
-        }        
+        },
+        closeModal: function() {
+          if(this.otu && this.topic) { 
+            this.showModal = false;
+          }
+        }      
       }
     };
 </script>

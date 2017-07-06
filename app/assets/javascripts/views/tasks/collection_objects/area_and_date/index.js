@@ -31,19 +31,6 @@ Object.assign(TW.views.tasks.collection_objects, {
         }
       });
 
-      $("#set_otu").click(function (event) {
-        $("#otu_count").text('????');
-        $("#select_otu").mx_spinner('show');
-
-        $.get('set_otu', $("#set_otu_form").serialize(), function (local_data) {
-          $("#otu_count").text(local_data.html);
-          $("#select_otu").mx_spinner('hide');
-          that.validateResult();
-        }, 'json');
-        event.preventDefault();
-      }
-      );
-
       $("#set_area").click(function (event) {      // register the click handler for the made-from-scratch-button
         $("#area_count").text('????');
         $("#select_area").mx_spinner('show');
@@ -52,9 +39,7 @@ Object.assign(TW.views.tasks.collection_objects, {
           $("#area_count").text(local_data.html);
           $("#select_area").mx_spinner('hide');
           that.validateResult();
-        }, 'json'  // I expect a json response
-        );
-
+        }, 'json');
         event.preventDefault();
       }
       );
@@ -74,6 +59,18 @@ Object.assign(TW.views.tasks.collection_objects, {
         }
       });
     }
+
+    $("#set_otu").click(function (event) {
+        $("#otu_count").text('????');
+        $("#select_otu").mx_spinner('show');
+        $.get('set_otu', $("#set_otu_form").serialize(), function (local_data) {
+          $("#otu_count").text(local_data.html);
+          $("#select_otu").mx_spinner('hide');
+          that.validateResult();
+        }, 'json');
+        event.preventDefault();
+      }
+    );
 
     var today = new Date();
     var year = today.getFullYear();

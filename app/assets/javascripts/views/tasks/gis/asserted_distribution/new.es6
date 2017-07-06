@@ -16,24 +16,6 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
       }
     },
 
-    // TODO Rich- move this to general JS libraries
-    clear_map: function (map) {
-      map.data.forEach(function (feature) {
-        map.data.remove(feature);
-      });
-    },
-
-    // TODO: Rich move this to the general maps library
-    get_canvas_bounds: function (map) {
-      // original map canvas parameters are now lost, so we have to find them again
-      var bounds = {};
-      let canvas = map.data.map.getDiv();
-      bounds.canvas_width = canvas.style.width.toString().split('px')[0];
-      bounds.canvas_height = canvas.style.height.toString().split('px')[0];
-      bounds.canvas_ratio = bounds.canvas_width / bounds.canvas_height;
-      return bounds
-    },
-
     // prevent map click action if otu and source are not selected
     new_asserted_distribution_check_preemption: function () {
       // add_listeners end
@@ -56,14 +38,14 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
     },
 
     bind_create_buttons: function () {
-      $("[id^=button_]").click(function () {        // set mouseout for each area (condensed)
+      $("[id^=button_]").click(function () {        // set mouseout for each button (condensed)
         var form = $("#new_asserted_distribution_from_map_form");
         form.append($('<input hidden name="asserted_distribution[geographic_area_id]" value="' + $(this).data('geographic-area-id') + '">'));
       });
     },
 
-    bind_mouseover: function (map) {
-      $("[id^=button_]").mouseover(function () {       // set mouseover for each area
+  bind_buttons_mouseover: function (map) {
+    $("[id^=button_]").mouseover(function () {       // set mouseover for each button
         var this_id = this.id;
         var area_id = $(this).data('geographic-area-id');
         map.data.forEach(function (feature) {        // find by geographic area id
@@ -76,20 +58,15 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
           if (this_property.id == area_id) {
             map.data.overrideStyle(this_feature, {fillColor: '#FF0000'});  // red
             map.data.overrideStyle(this_feature, {strokeWeight: 2});       // embolden borders
-            map.data.overrideStyle(this_feature, {fillOpacity: 1.0});      // transparent
+            map.data.overrideStyle(this_feature, {fillOpacity: 1.0});      // opaque
           }
         });
-      });
+    });
     },
 
-    bind_mouseout: function (map) {
-      $("[id^=button_]").mouseout(function () {        // set mouseout for each area (condensed)
-        var this_id = this.id;                      // var this since it goes out of scope with .forEach
-        map.data.forEach(function (feature) {        // find by geographic area id
-          if (feature.getProperty('geographic_area').id == $(this).data('geographic-area-id')) {
+  bind_buttons_mouseout: function (map) {
+    $("[id^=button_]").mouseout(function () {        // set mouseout for each button (condensed)(simplified)
             map.data.revertStyle();
-          }
-        });
       });
     },
 
@@ -105,7 +82,7 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
       var mapLatLng = event.latLng;
       $("#latitude").val(mapLatLng.lat());
       $("#longitude").val(mapLatLng.lng());
-
+      TW.tasks.gis.asserted_distributions.updateCoordinates(map, mapLatLng);
       $("#choices").mx_spinner('show');
 
       // requests and displays choices from asserted_distribution_controller thru .../new...span:qnadf
@@ -119,27 +96,36 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
           $("#choices").html(local_data['html']);
 
           TW.tasks.gis.asserted_distributions.bind_create_buttons();
-          TW.tasks.gis.asserted_distributions.clear_map(map);          // clears previous map data features
+          TW.vendor.lib.google.maps.clear_map(map);          // clears previous map data features
 
           map.data.addGeoJson(data);      // add the geo features corresponding to the forms
 
-          TW.tasks.gis.asserted_distributions.bind_mouseover(map);
-          TW.tasks.gis.asserted_distributions.bind_mouseout(map);
+          TW.tasks.gis.asserted_distributions.bind_buttons_mouseover(map);
+          TW.tasks.gis.asserted_distributions.bind_buttons_mouseout(map);
 
           // resizes, recenters map based on new features
 
-          // TODO: all of the following code should be in general maps library
+          // TODONE: all of the following code should be in general maps library
           //       called something like TW.vendor.lib.google.maps.bound_and_recenter(map, feature_collection)
-          // TODO: where the hell is feature_collection getting initialized?!
-          var bounds = TW.tasks.gis.asserted_distributions.get_canvas_bounds(map);
-
-          // TODO: new bounds is not working, because feature_collection is undefined
-          TW.vendor.lib.google.maps.getData(data, bounds);
-          var center_lat_long = TW.vendor.lib.google.maps.get_window_center(bounds);
-          map.setCenter(center_lat_long);
-          map.setZoom(bounds.gzoom);
+          // TODO: where the hell is feature_collection getting initialized?! @ .done(function (local_data) { var data = local_data['feature_collection'];
+          // var bounds = TW.vendor.lib.google.maps.get_canvas_bounds(map);
+          //
+          // TW.vendor.lib.google.maps.getData(data, bounds);
+          // var center_lat_long = TW.vendor.lib.google.maps.get_window_center(bounds);
+          // map.setCenter(center_lat_long);
+          // map.setZoom(bounds.gzoom);
+          // TW.vendor.lib.google.maps.updateCoordinates(map, center_lat_long);
+          TW.vendor.lib.google.maps.bound_and_recenter_map(data, map);
         });
     },
+
+  updateCoordinates: function (map, mapPoint) {
+    if (document.getElementById("map_coords") != undefined) {
+      let nowZoom = document.getElementById("map_coords").textContent.split('ZOOM: ')[1];
+      document.getElementById("map_coords").textContent = 'LAT: ' + mapPoint.lat() + ' - LNG: '
+        + mapPoint.lng() + ' - ZOOM: ' + map.getZoom();
+    }
+  },
 
     add_new_asserted_distribution_map_listeners: function (map) {      // 4 listeners, one for map as a whole 3 for map.data features
       // When the user clicks, set 'isColorful', changing the color of the feature.
@@ -163,7 +149,7 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
         map.data.revertStyle();
         map.data.overrideStyle(event.feature, {fillColor: '#880000'});  // mid-level red
         map.data.overrideStyle(event.feature, {strokeWeight: 2});       //embolden borders
-        map.data.overrideStyle(event.feature, {icon: '<%= asset_path("map_icons/mm_20_brown.png") %>'});       // highlight markers
+        map.data.overrideStyle(event.feature, {icon: TW.vendor.lib.google.maps.mapIcons['brown']});       // highlight markers
       });
 
       map.data.addListener('mouseout', function (event) {
@@ -194,7 +180,7 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
         map.data.revertStyle();
         map.data.overrideStyle(event.feature, {fillColor: '#880000'});  // mid-level red
         map.data.overrideStyle(event.feature, {strokeWeight: 2});       //embolden borders
-        map.data.overrideStyle(event.feature, {icon: '<%= asset_path("map_icons/mm_20_brown.png") %>'});       // highlight markers
+        map.data.overrideStyle(event.feature, {icon: TW.vendor.lib.google.maps.mapIcons['brown']});       // highlight markers
       });
 
       map.data.addListener('mouseout', function (event) {

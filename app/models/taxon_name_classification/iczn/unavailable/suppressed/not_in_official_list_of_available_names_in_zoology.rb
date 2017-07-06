@@ -11,4 +11,7 @@ class TaxonNameClassification::Iczn::Unavailable::Suppressed::NotInOfficialListO
         TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedSpecificNamesInZoology)
   end
 
+  def classification_label
+    'not in Official List of Available Names in Zoological Nomenclature'
+  end
 end
