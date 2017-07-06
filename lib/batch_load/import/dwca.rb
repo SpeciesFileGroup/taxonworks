@@ -194,10 +194,15 @@ module BatchLoad
         # two different types of georeferences: verbatim, and geolocate
         if g_r.type.include?('Ver')
           # for verbatim_data, generate a new georeference using the collecting_event
-          c_e.generate_verbatim_data_georeference
-          # and replace the pre-built georeference
-          g_r                    = c_e.georeferences.last
-          @row_objects[:make_gr] = g_r
+          a = c_e.generate_verbatim_data_georeference
+          if a.valid?
+            # and replace the pre-built georeference
+            g_r = c_e.georeferences.last
+            @row_objects[:make_gr] = g_r
+          else
+            @warns.push(a.errors.messages)
+            @row_objects.delete(:make_gr)
+          end
         else
           # is a GeoLocate
           unless g_r.valid?

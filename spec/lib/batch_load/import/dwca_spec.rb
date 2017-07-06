@@ -51,22 +51,22 @@ describe BatchLoad::Import::DWCA, type: :model do
         pre_load
         result = import.rows
         expect(result).to be_truthy
-        expect(CollectionObject.count).to eq(25)
-        expect(Otu.count).to eq(28)
+        expect(CollectionObject.count).to eq(26)
+        expect(Otu.count).to eq(29)
         expect(BiologicalRelationship.count).to eq(1)
         expect(BiologicalAssociation.count).to eq(5)
-        expect(CollectingEvent.count).to eq(22) # some of the collecting events are used more than once
-        expect(TaxonDetermination.count).to eq(25) # one for each new OTU
-        expect(Identifier.count).to eq(37) # 25 identifiers, the last one fails
-        expect(Identifier.of_type(:catalog_number).count).to eq(25)
-        expect(Identifier.of_type(:occurrence_id).count).to eq(12)
+        expect(CollectingEvent.count).to eq(23) # some of the collecting events are used more than once
+        expect(TaxonDetermination.count).to eq(26) # one for each new OTU
+        expect(Identifier.count).to eq(39) # 25 identifiers, the last one fails
+        expect(Identifier.of_type(:catalog_number).count).to eq(26)
+        expect(Identifier.of_type(:occurrence_id).count).to eq(13)
         expect(Identifier.of_type(:catalog_number).first.identifier).to eq('107450')
         expect(Identifier.of_type(:catalog_number).last.identifier).to eq('107599')
-        expect(Georeference.count).to eq(19)
-        expect(Georeference::VerbatimData.count).to eq(1) # 'verbatim' in georeferencedBy
+        expect(Georeference.count).to eq(20)
+        expect(Georeference::VerbatimData.count).to eq(2) # 'verbatim' in georeferencedBy
         expect(Georeference::GeoLocate.count).to eq(18)
-        expect(Note.count).to eq(9)
-        expect(TaxonName.count).to eq(44)
+        expect(Note.count).to eq(10)
+        expect(TaxonName.count).to eq(46)
         expect(Person.count).to eq(4)
         expect(Note.all.map(&:note_object_type).uniq).to include("Georeference",
                                                                  "CollectingEvent",
