@@ -882,8 +882,8 @@ class TaxonName < ActiveRecord::Base
     d = full_name_hash
    
     elements = []
-    d['genus'] = [nil, self.original_genus.cached_html] if !d['genus'] && self.original_genus
-    d['genus'] = [nil, '[GENUS UNKNOWN]'] unless d['genus']
+    d['genus'] = [nil, self.original_genus.name] if d['genus'].blank? && self.original_genus
+    d['genus'] = [nil, '[GENUS UNKNOWN]'] if d['genus'].blank?
 
     elements.push("#{eo}#{d['genus'][1]}#{ec}") if d['genus']
     elements.push ['(', %w{subgenus section subsection series subseries superspecies}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
@@ -1387,6 +1387,11 @@ class TaxonName < ActiveRecord::Base
       new_parent = self.parent.get_valid_taxon_name
       if self.parent != new_parent
         self.parent = new_parent
+        if self.parent.rank_class.parent.to_s == 'NomenclaturalRank::Iczn::GenusGroup' && self.rank_class.to_s == 'NomenclaturalRank::Iczn::SpeciesGroup::Subspecies'
+          self.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
+        elsif self.parent.rank_class.parent.to_s == 'NomenclaturalRank::Iczn::FamilyGroup' && self.rank_class.to_s == 'NomenclaturalRank::Iczn::GenusGroup::Subgenus'
+          self.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
+        end
         begin
           TaxonName.transaction do
             self.save
