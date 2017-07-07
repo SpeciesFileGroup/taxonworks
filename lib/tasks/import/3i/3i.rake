@@ -266,19 +266,19 @@ namespace :tw do
         handle_projects_and_users_3i
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
-        #$project_id = 1
+        $project_id = 1
         handle_controlled_vocabulary_3i
-        handle_litauthors_3i
-        handle_references_3i
-        handle_transl_3i
-        handle_taxonomy_3i
-        handle_taxon_name_relationships_3i
-        handle_citation_topics_3i
-        index_collecting_events_from_accessions_new_3i
-        handle_host_plant_name_dictionary_3i
-        handle_host_plants_3i
-        handle_distribution_3i
-        handle_parasitoids_3i
+        #handle_litauthors_3i
+        #handle_references_3i
+        #handle_transl_3i
+        #handle_taxonomy_3i
+        #handle_taxon_name_relationships_3i
+        #handle_citation_topics_3i
+        #index_collecting_events_from_accessions_new_3i
+        #handle_host_plant_name_dictionary_3i
+        #handle_host_plants_3i
+        #handle_distribution_3i
+        #handle_parasitoids_3i
         handle_localities_3i
 
         handle_characters_3i
@@ -1475,7 +1475,7 @@ namespace :tw do
 
         i = 0
         file.each do |row|
-          i += 0
+          i += 1
           print "\r#{i}"
           collecting_event = find_or_create_collecting_event_3i(row)
           repository = nil
@@ -1516,7 +1516,7 @@ namespace :tw do
 #                  host = identifier.empty? ? nil : identifier.first.identifier_object
 #                end
                 unless host.blank?
-                  BiologicalAssociation.create(biological_relationship: br,
+                  BiologicalAssociation.create(biological_relationship: @host_plant_relationship,
                                                biological_association_subject: host,
                                                biological_association_object: specimen
                   )
@@ -1583,7 +1583,7 @@ namespace :tw do
             verbatim_datum: ce['Datum'],
             field_notes: nil,
             verbatim_date: nil,
-#            no_cached: true,
+            no_cached: true,
 #     with_verbatim_data_georeference: true
         )
         # byebug unless c.valid?
@@ -1604,12 +1604,12 @@ namespace :tw do
           unless gr == false
             ga, c.geographic_area_id = c.geographic_area_id, nil
             if gr.valid?
-#              c.no_cached = true
+              c.no_cached = true
               c.save
               gr.save
             else
               c.geographic_area_id = ga
-#              c.no_cached = true
+              c.no_cached = true
               c.save
             end
 
