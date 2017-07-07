@@ -5,9 +5,23 @@ class ConfidencesController < ApplicationController
 
   # GET /confidences
   # GET /confidences.json
+  # GET /<model>/:id/confidences.json
   def index
-    @recent_objects = Confidence.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html {
+        @recent_objects = Confidence.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @confidences = Confidence.where(project_id: sessions_current_project_id).where(
+          polymorphic_filter_params('confidence_object', [
+            :observation_id,
+            :descriptor_id,
+            :otu_id
+          ])
+        )
+      }
+    end
   end
 
   # GET /confidences/new
@@ -88,7 +102,7 @@ class ConfidencesController < ApplicationController
   end
 
   private
-  
+
   def set_confidence
     @confidence = Confidence.find(params[:id])
   end

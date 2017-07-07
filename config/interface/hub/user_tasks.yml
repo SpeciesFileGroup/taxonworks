@@ -13,7 +13,7 @@
 #   description - a sentence or two further defining what the task will do for the user
 #   related_prefixes - an array members must be route prefixes and may include user tasks or data prefixes
 #   hub - true if this tasks should appear at the hub, these tasks MAY NOT require parameters
-#   categories - an array of one ore more of [CollectingEvent, CollectionObject, Source, TaxonName]
+#   categories - an array of one ore more of [collecting_events, geographic_areas, source, nomenclature, matrix, dna]
 #   status - one of [complete, stable, prototype,  unknown (default) ]
 #               complete: users can expect the interfaces to remain in their present form
 #               stable: primary elements are complete, but minor changes (CSS, feedback etc.) may change
@@ -251,3 +251,12 @@ browse_collection_objects_task:
     - collection_object
   status: prototype
   description: 'Report everything known about a collection object (specimen, lot, ranged lot). Includes determinations, loan history, images, collecting event, catalog numbers, etc.'
+index_row_coder_task:
+  hub: true
+  name: 'Matrix row coder'
+  related:
+  categories:
+    - matrix
+  status: prototype
+  description: 'Code a matrix row.'
+

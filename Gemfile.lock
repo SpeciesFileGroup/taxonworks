@@ -291,6 +291,7 @@ GEM
     rabl (0.13.1)
       activesupport (>= 2.3.14)
     rack (1.6.8)
+    rack-cors (0.4.1)
     rack-test (0.6.3)
       rack (>= 1.0)
     rails (4.2.7.1)
@@ -530,6 +531,7 @@ DEPENDENCIES
   postgresql_cursor (~> 0.6.1)
   psych (~> 2.1)
   rabl (~> 0.13.0)
+  rack-cors
   rails (~> 4.2.7.1)
   rails-jquery-autocomplete
   rainbow (~> 2.2.2)

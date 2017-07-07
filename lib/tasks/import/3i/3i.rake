@@ -6,8 +6,8 @@ require 'fileutils'
 # Authors
 # BrochCharacters
 # Brochosomes
-# Characters
-# CharTable
+#! Characters
+#! CharTable
 # Collections-
 #! Countries!
 #! CountrTable!
@@ -25,14 +25,14 @@ require 'fileutils'
 #! Literature!
 #! LitTable!
 #! Localities!
-# Morph
+#! Morph
 #! Museums!
 #! Parasitoids!
 #! Rank!
-# State
+#! State
 #! Status!
 #! Taxon!
-# Transl
+#! Transl
 #! UnchangedSpeciesNames!
 
 
@@ -48,7 +48,7 @@ namespace :tw do
                       :parent_id_index, :statuses, :taxon_index, :citation_to_publication_index, :keywords,
                       :incertae_sedis, :emendation, :original_combination, :unique_host_plant_index,
                       :host_plant_index, :topics, :nouns, :countries, :geographic_areas, :museums, :namespaces, :biocuration_classes,
-                      :people, :source_ay, :source_checked_taxonomy, :keyn, :morph
+                      :people, :source_ay, :source_checked_taxonomy, :keyn, :chars, :states, :morph
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @people_index = {}              # PeopleID -> Person object
@@ -77,6 +77,8 @@ namespace :tw do
           @source_ay = {}
           @source_checked_taxonomy = {}
           @keyn = {}
+          @chars = {}
+          @states = {}
           @morph = {}
         end
       end
@@ -139,6 +141,7 @@ namespace :tw do
             27 => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication',
             28 => 'TaxonNameRelationship::Iczn::Invalidating', ### invalid
             29 => 'TaxonNameRelationship::Iczn::Invalidating', ### infrasubspecific
+            30 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::ForgottenHomonym',
 
             'type species' => 'TaxonNameRelationship::Typification::Genus',
             'absolute tautonymy' => 'TaxonNameRelationship::Typification::Genus::Tautonomy::Absolute',
@@ -265,7 +268,7 @@ namespace :tw do
         handle_projects_and_users_3i
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
-        $project_id = 1
+        #$project_id = 1
         handle_controlled_vocabulary_3i
         handle_litauthors_3i
         handle_references_3i
@@ -281,6 +284,8 @@ namespace :tw do
         handle_localities_3i
 
         handle_characters_3i
+        handle_state_3i
+        handle_chartable_3i
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
@@ -354,6 +359,8 @@ namespace :tw do
             'IDDrMetcalf' => Namespace.find_or_create_by(name: 'DrMetcalf_Source_ID', short_name: 'DrMetcalf_ID'),
             'KeyN' => Namespace.find_or_create_by(name: '3i_KeyN_ID', short_name: '3i_KeyN_ID'),
             'Key3' => Namespace.find_or_create_by(name: '3i_Source_ID', short_name: '3i_Source_ID'),
+            'Key1' => Namespace.find_or_create_by(name: '3i_Key1_ID', short_name: '3i_Key1_ID'),
+            'Key2' => Namespace.find_or_create_by(name: '3i_Key2_ID', short_name: '3i_Key2_ID'),
             'Key' => Namespace.find_or_create_by(name: '3i_Taxon_ID', short_name: '3i_Taxon_ID'),
             'FLOW-ID' => Namespace.find_or_create_by(name: 'FLOW_Source_ID', short_name: 'FLOW_Source_ID'),
             'DelphacidaeID' => Namespace.find_or_create_by(name: 'Delphacidae_Source_ID', short_name: 'Delphacidae_ID'),
@@ -722,8 +729,8 @@ namespace :tw do
 
             #rank = row['Rank'] == '0' ? parent.rank_class : @ranks[row['Rank'].to_i]
             source = row['Key3'].blank? ? nil : @data.publications_index[row['Key3']] # Source.with_identifier('3i_Source_ID ' + row['Key3']).first
-            source_id = Identifier.where(cached: '3i_KeyN_ID ' + row['KeyN'].to_s).limit(1).first if source.nil? && !row['KeyN'].blank?
-            source = source_id.object if source.nil? && !source_id.nil?
+            #source_id = Identifier.where(cached: '3i_Source_ID ' + row['Key3'].to_s).limit(1).first if source.nil? && !row['Key3'].blank?
+            #source = source_id.identifier_object if source.nil? && !source_id.nil?
             if row['Rank'] == '0'
               byebug if parent.parent.nil?
               parent = parent.parent
@@ -751,6 +758,7 @@ namespace :tw do
             taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['TypeDepository'].id, value: row['TypeDepository']) unless row['TypeDepository'].blank?
             taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['YearRem'].id, value: row['YearRem']) unless row['YearRem'].blank?
             taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['PageAuthor'].id, value: row['PageAuthor']) unless row['PageAuthor'].blank?
+
 
             if @data.source_checked_taxonomy[source]
               taxon.confidences.new(position: 1, confidence_level_id: confidence)
@@ -824,6 +832,13 @@ namespace :tw do
                 taxon.otus.first.contents.create(topic_id: @data.keywords['Notes'], text: row['DescriptEn'].gsub('<h2>Notes</h2>').gsub('<h2>Remarks</h2>').squish)
               end
             end
+            unless row['KeyN'].blank?
+              row['KeyN'].gsub(' ', '').split(',').each do |kn|
+                a = ObservationMatrixRowItem::SingleOtu.create(observation_matrix_id: @data.keyn[kn], otu_id: taxon.otus.first.id)
+                byebug if a.id.nil?
+              end
+            end
+
           end
         end
       end
@@ -1488,34 +1503,34 @@ namespace :tw do
         geolocation_uncertainty = parse_geolocation_uncertainty_3i(ce)
         locality =  ce['SLocality'].blank? ? ce['GLocality'] : ce['GLocality'].to_s + ', ' + ce['SLocality'].to_s
         locality = ce['Locality'] if locality.blank? && !ce['Locality'].blank?
-        collector =
+        #collector =
 
-            c = CollectingEvent.new(
-                geographic_area: geographic_area,
-                verbatim_label: ce['LocalityLabel'],
-                verbatim_locality: locality,
-                verbatim_collectors: ce['Collectors'],
-                verbatim_method: ce['Method'],
-                start_date_day: sdd,
-                start_date_month: sdm,
-                start_date_year: sdy,
-                end_date_day: edd,
-                end_date_month: edm,
-                end_date_year: edy,
-                verbatim_habitat: ce['Ecology'],
-                minimum_elevation: elevation,
-                maximum_elevation: nil,
-                verbatim_elevation: verbatim_elevation,
-                verbatim_latitude: latitude,
-                verbatim_longitude: longitude,
-                verbatim_geolocation_uncertainty: geolocation_uncertainty,
-                verbatim_datum: ce['Datum'],
-                field_notes: nil,
-                verbatim_date: nil,
-                no_cached: true,
-            #     with_verbatim_data_georeference: true
-            )
-        byebug unless c.valid?
+        c = CollectingEvent.new(
+            geographic_area: geographic_area,
+            verbatim_label: ce['LocalityLabel'],
+            verbatim_locality: locality,
+            verbatim_collectors: ce['Collectors'],
+            verbatim_method: ce['Method'],
+            start_date_day: sdd,
+            start_date_month: sdm,
+            start_date_year: sdy,
+            end_date_day: edd,
+            end_date_month: edm,
+            end_date_year: edy,
+            verbatim_habitat: ce['Ecology'],
+            minimum_elevation: elevation,
+            maximum_elevation: nil,
+            verbatim_elevation: verbatim_elevation,
+            verbatim_latitude: latitude,
+            verbatim_longitude: longitude,
+            verbatim_geolocation_uncertainty: geolocation_uncertainty,
+            verbatim_datum: ce['Datum'],
+            field_notes: nil,
+            verbatim_date: nil,
+            no_cached: true,
+        #     with_verbatim_data_georeference: true
+        )
+        # byebug unless c.valid?
         begin
           c.save
           if c.id.nil? && !c.errors.messages[:md5_of_verbatim_label].blank?
@@ -1524,7 +1539,7 @@ namespace :tw do
           c.data_attributes.create(import_predicate: 'Country', value: ce['Country'].to_s, type: 'ImportAttribute') unless ce['Country'].blank?
           c.data_attributes.create(import_predicate: 'State', value: ce['State'].to_s, type: 'ImportAttribute') unless ce['State'].blank?
           c.data_attributes.create(import_predicate: 'County', value: ce['County'].to_s, type: 'ImportAttribute') unless ce['County'].blank?
-          gr = geolocation_uncertainty.nil? ? false : c.generate_verbatim_data_georeference(true, no_cached: true)
+          gr = geolocation_uncertainty.blank? ? false : c.generate_verbatim_data_georeference(true, no_cached: true)
           c.notes.create(text: ce['Comments']) unless ce['Comments'].blank?
           c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['HostPlant'], value: ce['Host']) unless ce['Host'].blank?
           c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode') unless ce['AccessionNumber'].blank?
@@ -1826,14 +1841,13 @@ namespace :tw do
         file.each_with_index do |row, i|
           next if row['KeyN'].blank?
           if row['Abr'] == 'En'
-            matrix = Matrix.find_or_create_by!(name: row['Title'])
-            matrix.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['KeyN'], identifier: row['KeyN'])
+            matrix = ObservationMatrix.find_or_create_by!(name: row['Title'])
+            matrix.identifiers.find_or_create_by!(type: 'Identifier::Local::Import', namespace: @data.keywords['KeyN'], identifier: row['KeyN'])
             @data.keyn[row['KeyN']] = matrix.id
           else
             matrix = Identifier.where(cached: '3i_KeyN_ID ' + row['KeyN']).limit(1).first.identifier_object
             lng = Language.where(alpha_2: row['Abr'].downcase).limit(1).first
             a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['Title'], alternate_value_object: matrix, alternate_value_object_attribute: 'name', language_id:lng.id)
-            byebug unless a.valid?
           end
         end
       end
@@ -1860,31 +1874,43 @@ namespace :tw do
         # # DescrSp
         # # DescrZh
         path = @args[:data_directory] + 'characters.txt'
-        print "\nHandling characters\n"
+        print "\nHandling craracters\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
 
+        lngru = Language.where(alpha_2: 'ru').limit(1).first.id
+        lngsp = Language.where(alpha_2: 'es').limit(1).first.id
+        lngzh = Language.where(alpha_2: 'zh').limit(1).first.id
+
         file.each_with_index do |row, i|
           print "\r#{i}"
-          if row['Numeric'] == 1
-            dtype = 'Observation::Continuous'
-          else
-            dtype = 'Observation::Qualitative'
+          t = row['Numeric'] == '1' ? 'Descriptor::Sample' : 'Descriptor::Qualitative'
+          descriptor = Descriptor.create!(name: row['CharEn'].empty? ? '?' : row['CharEn'], short_name: row['CharEn'].empty? ? '?' : row['CharEn'], type: t, position: row['Char'].to_i + 1 )
+          a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['CharRu'], alternate_value_object: descriptor, alternate_value_object_attribute: 'name', language_id: lngru) unless row['CharRu'].nil?
+          a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['CharSp'], alternate_value_object: descriptor, alternate_value_object_attribute: 'name', language_id: lngsp) unless row['CharSp'].nil?
+          a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['CharZh'], alternate_value_object: descriptor, alternate_value_object_attribute: 'name', language_id: lngzh) unless row['CharZh'].nil?
+          descriptor.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['Key1'], identifier: row['Key1'].to_s) unless row['Key1'].blank?
+          descriptor.data_attributes.create(type: 'ImportAttribute', import_predicate: 'char_weight', value: row['Weight'].to_s) unless row['Weight'].blank?
+          descriptor.data_attributes.create(type: 'ImportAttribute', import_predicate: 'descr_ru', value: row['DescrRu']) unless row['DescrRu'].blank?
+          descriptor.data_attributes.create(type: 'ImportAttribute', import_predicate: 'descr_en', value: row['DescrEn']) unless row['DescrEn'].blank?
+          descriptor.data_attributes.create(type: 'ImportAttribute', import_predicate: 'descr_sp', value: row['DescrSp']) unless row['DescrSp'].blank?
+          descriptor.data_attributes.create(type: 'ImportAttribute', import_predicate: 'descr_zh', value: row['DescrZh']) unless row['DescrZh'].blank?
+          descriptor.tags.create(keyword_id: @data.morph[row['Morph'].to_s]) unless row['Morph'].blank?
+          descriptor.tags.create(keyword_id: @data.morph['n']) if row['Type'].include?('n')
+          descriptor.tags.create(keyword_id: @data.morph['m']) if row['Type'].include?('m')
+          descriptor.tags.create(keyword_id: @data.morph['f']) if row['Type'].include?('f')
+
+          unless row['KeyN'].blank?
+            row['KeyN'].gsub(' ', '').split(',').each do |kn|
+              ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph[row['Morph']], project_id: $project_id) unless row['Morph'].blank?
+              ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph['n'], project_id: $project_id) if row['Type'].include?('n')
+              ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph['m'], project_id: $project_id) if row['Type'].include?('m')
+              ObservationMatrixColumnItem::TaggedDescriptor.find_or_create_by!(observation_matrix_id: @data.keyn[kn], controlled_vocabulary_term_id: @data.morph['f'], project_id: $project_id) if row['Type'].include?('f')
+              ObservationMatrixColumnItem::SingleDescriptor.create!(observation_matrix_id: @data.keyn[kn], descriptor_id: descriptor.id, position: row['Char'].to_i + 1)
+            end
           end
 
-          descriptor = Descriptor.create(name: row['CharEn'], type: dtype)
-
-          byebug if descriptor.id.nil?
-          unless row['Morph'].blank?
-            descriptor.data_attributes.new(type: 'ImportAttribute', import_predicate: '3i_MorphID', value: row['Morph'])
-            descriptor.data_attributes.new(type: 'ImportAttribute', import_predicate: '3i_MorphEn', value: @data.morph[row['Morph']]['MorphEn']) unless @data.morph[row['Morph']]['MorphEn'].blank?
-            descriptor.data_attributes.new(type: 'ImportAttribute', import_predicate: '3i_MorphRu', value: @data.morph[row['Morph']]['MorphRu']) unless @data.morph[row['Morph']]['MorphRu'].blank?
-            descriptor.data_attributes.new(type: 'ImportAttribute', import_predicate: '3i_MorphSp', value: @data.morph[row['Morph']]['MorphSp']) unless @data.morph[row['Morph']]['MorphSp'].blank?
-            descriptor.data_attributes.new(type: 'ImportAttribute', import_predicate: '3i_MorphZh', value: @data.morph[row['Morph']]['MorphZh']) unless @data.morph[row['Morph']]['MorphZn'].blank?
-          end
-
-
-
+          @data.chars[row['Key1'].to_s] = [descriptor.id, row['Numeric'].to_s]
         end
       end
 
@@ -1892,22 +1918,80 @@ namespace :tw do
         # Morph
         # MorphEn
         # MorphRu
+        # MorphDt
+        # MorphFr
         # MorphSp
         # MorphZh
         path = @args[:data_directory] + 'morph.txt'
         print "\nHandling morph\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
-
         file.each_with_index do |row, i|
-          print "\r#{i}"
-          @data.morph[row['Morph']] = {'MorphEn' => row['MorphEn'], 'MorphRu' => row['MorphRu'], 'MorphSp' => row['MorphSp'], 'MorphZh' => row['MorphZh']}
+          kw = Keyword.find_or_create_by(name: row['MorphEn'], definition: 'Morphological group of descriptors: ' + row['MorphEn'].to_s + ' (' + row['Morph'].to_s + ')', project_id: $project_id)
+          @data.morph[row['Morph'].to_s] = kw.id
         end
-
+        kw1 = Keyword.find_or_create_by(name: 'Nymphs', definition: 'Morphological group of descriptors: Nymphs', project_id: $project_id)
+        @data.morph['n'] = kw1.id unless kw1.blank?
+        kw2 = Keyword.find_or_create_by(name: 'Males', definition: 'Morphological group of descriptors: Males', project_id: $project_id)
+        @data.morph['m'] = kw2.id unless kw2.blank?
+        kw3 = Keyword.find_or_create_by(name: 'Females', definition: 'Morphological group of descriptors: Females', project_id: $project_id)
+        @data.morph['f'] = kw3.id unless kw3.blank?
       end
 
+      def handle_state_3i
+        # Key2
+        # State
+        # Key1
+        # StateRu
+        # StateEn
+        # StateDt
+        # StateFr
+        # StateSp
+        # StateZh
+        # Fig
+        path = @args[:data_directory] + 'state.txt'
+        print "\nHandling state\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+        lngru = Language.where(alpha_2: 'ru').limit(1).first.id
+        lngsp = Language.where(alpha_2: 'es').limit(1).first.id
+        lngzh = Language.where(alpha_2: 'zh').limit(1).first.id
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          if @data.chars[row['Key1'].to_s][1] == '1'
+            @data.states[row['Key2'].to_s] = [nil, @data.chars[row['Key1'].to_s][0], row['StateEn']]
+          else
+            cs = CharacterState.create(name: row['StateEn'], label: row['StateEn'], descriptor_id: @data.chars[row['Key1']][0], position: row['State'].to_i + 1)
+            cs.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['Key2'], identifier: row['Key2']) unless row['Key2'].blank?
+            a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['StateRu'], alternate_value_object: cs, alternate_value_object_attribute: 'name', language_id: lngru) unless row['StateRu'].nil?
+            a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['StateSp'], alternate_value_object: cs, alternate_value_object_attribute: 'name', language_id: lngsp) unless row['StateSp'].nil?
+            a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['StateZh'], alternate_value_object: cs, alternate_value_object_attribute: 'name', language_id: lngzh) unless row['StateZh'].nil?
+            cs.data_attributes.create(type: 'ImportAttribute', import_predicate: 'figure', value: row['Fig']) unless row['Fig'].blank?
+            @data.states[row['Key2'].to_s] = [cs.id, @data.chars[row['Key1'].to_s][0], nil]
+          end
+        end
+      end
 
-
+      def handle_chartable_3i
+        # Key
+        # Key2
+        # NumericFrom
+        # NumericTo
+        path = @args[:data_directory] + 'chartable.txt'
+        print "\nHandling chartable\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          if @data.states[row['Key2'].to_s][2].nil? # Qualitative
+            o = Observation::Qualitative.create(descriptor_id: @data.states[row['Key2'].to_s][1], otu_id: find_otu(row['Key']).id, character_state_id: @data.states[row['Key2'].to_s][0] )
+            byebug if o.id.nil?
+          else # Sample
+            o = Observation::Sample.create(descriptor_id: @data.states[row['Key2'].to_s][1], otu_id: find_otu(row['Key']).id, sample_min: row['NumericFrom'].to_f, sample_max: row['NumericTo'].to_f, sample_units: @data.states[row['Key2'].to_s][2])
+            byebug if o.id.nil?
+          end
+        end
+      end
     end
   end
 end

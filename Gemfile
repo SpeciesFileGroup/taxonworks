@@ -1,5 +1,8 @@
 source 'https://rubygems.org'
 
+
+gem 'rack-cors', require: 'rack/cors'
+
 ruby '~> 2.3'
 
 gem 'rake', '~> 11.1'

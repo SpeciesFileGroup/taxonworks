@@ -455,6 +455,7 @@ ActiveRecord::Schema.define(version: 20170607175949) do
     t.string   "uri"
     t.string   "uri_relation"
     t.string   "css_color"
+    t.integer  "position"
   end
 
   add_index "controlled_vocabulary_terms", ["created_by_id"], name: "index_controlled_vocabulary_terms_on_created_by_id", using: :btree
@@ -545,6 +546,8 @@ ActiveRecord::Schema.define(version: 20170607175949) do
     t.integer  "project_id",    null: false
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
+    t.integer  "position"
+    t.text     "description"
   end
 
   add_index "descriptors", ["created_by_id"], name: "index_descriptors_on_created_by_id", using: :btree

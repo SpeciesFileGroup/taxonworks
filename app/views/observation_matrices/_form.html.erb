@@ -1,0 +1,12 @@
+<%= form_for(@observation_matrix) do |f| %>
+  <%= render 'shared/errors', object: @observation_matrix %>
+
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

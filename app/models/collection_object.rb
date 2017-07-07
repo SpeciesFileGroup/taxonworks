@@ -72,12 +72,13 @@ class CollectionObject < ActiveRecord::Base
   include Shared::OriginRelationship
   include Shared::Confidence
   include Shared::IsData
+  include Shared::Protocols
   include SoftValidation
 
   include Shared::IsDwcOccurrence
   include CollectionObject::DwcExtensions 
 
-  is_origin_for :collection_objects
+  is_origin_for 'CollectionObject', 'Extract'
   has_paper_trail :on => [:update] 
 
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
@@ -114,6 +115,8 @@ class CollectionObject < ActiveRecord::Base
   has_many :derived_collection_objects, inverse_of: :collection_object
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
   has_many :sqed_depictions, through: :depictions
+
+  has_many :observations, inverse_of: :collection_object
 
   # This must come before taxon determinations !!
   has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects

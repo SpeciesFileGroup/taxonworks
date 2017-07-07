@@ -34,3 +34,4 @@ services:
 volumes:
     pg:
       external: false
+

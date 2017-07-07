@@ -1,0 +1,13 @@
+<% content_for :warn_level do %>
+  <%= render partial: '/shared/data/all/batch_file_load/warn_level_input' %>
+<% end %>
+
+<%= content_for :batch_form do -%>
+  <%= render partial: '/otus/batch_file_load/simple/form', locals: {url: create_simple_batch_file_load_otus_path, submit: :create} -%>
+<% end %>
+
+<!-- Uncomment this section to write your own preview files breakdown view -->
+<%#= content_for :files_breakdown do -%>
+<%# end %>
+
+<%= render partial: '/shared/data/all/batch_file_load/preview' -%>
