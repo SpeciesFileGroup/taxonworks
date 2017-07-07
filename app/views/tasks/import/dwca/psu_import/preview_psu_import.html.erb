@@ -1,4 +1,4 @@
-<h2> Penn State Import Preview </h2>
+<h2> Penn State Import Preview (This isn't really a 'Preview')</h2>
 
 <p> Import includes <%= @result.count -%> records. </p>
 
@@ -15,23 +15,7 @@
 </p>
 
 <ol>
-  <% @result.each_with_index do |row, i| %>
-      <% if row.valid? %>
-          <%= content_tag(:li, row.cached_string('html').html_safe, class: 'green') -%>
-          <% if row.soft_validations.messages.count > 0 %>
-              <ul>
-                <% row.soft_validations.messages.each do |e| %>
-                    <%= content_tag(:li, e.to_s.html_safe, class: 'brown') -%>
-                <% end %>
-              </ul>
-          <% end %>
-      <% else %>
-          <%= content_tag(:li, row.cached_string('html').html_safe, class: 'red') -%>
-          <ul>
-            <% row.errors.messages.each do |e| %>
-                <%= content_tag(:li, e.to_s.html_safe) -%>
-            <% end %>
-          </ul>
-      <% end %>
+  <% @result.keys.each do |kee| -%>
+      <%= text_row(@result[kee]) -%>
   <% end %>
 </ol>
