@@ -266,24 +266,26 @@ namespace :tw do
         handle_projects_and_users_3i
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
-        $project_id = 1
+        #$project_id = 1
         handle_controlled_vocabulary_3i
-        #handle_litauthors_3i
-        #handle_references_3i
+        handle_litauthors_3i
+        handle_references_3i
         handle_transl_3i
-        #handle_taxonomy_3i
-        #handle_taxon_name_relationships_3i
-        #handle_citation_topics_3i
-        #index_collecting_events_from_accessions_new_3i
-        #handle_host_plant_name_dictionary_3i
-        #handle_host_plants_3i
-        #handle_distribution_3i
-        #handle_parasitoids_3i
-        #handle_localities_3i
+        handle_taxonomy_3i
+        handle_taxon_name_relationships_3i
+        handle_citation_topics_3i
+        index_collecting_events_from_accessions_new_3i
+        handle_host_plant_name_dictionary_3i
+        handle_host_plants_3i
+        handle_distribution_3i
+        handle_parasitoids_3i
+        handle_localities_3i
 
         handle_characters_3i
         handle_state_3i
         handle_chartable_3i
+
+        soft_validations_3i
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
@@ -554,8 +556,8 @@ namespace :tw do
 
           source.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['IDDrMetcalf'], identifier: row['IDDrMetcalf']) unless row['IDDrMetcalf'].blank?
           source.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['Key3'], identifier: row['Key3']) unless row['Key3'].blank?
-          source.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['FLOW-ID'], identifier: row['FLOW-ID']) if !row['FLOW-ID'].blank? && row['FLOW-ID'] != '0' #####????????
-          source.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['DelphacidaeID'], identifier: row['DelphacidaeID']) if !row['DelphacidaeID'].blank? && row['DelphacidaeID'] != '0' #############???????
+          source.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['FLOW-ID'], identifier: row['FLOW-ID']) if !row['FLOW-ID'].blank? && row['FLOW-ID'] != '0'
+          source.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['DelphacidaeID'], identifier: row['DelphacidaeID']) if !row['DelphacidaeID'].blank? && row['DelphacidaeID'] != '0'
 
 
           begin
@@ -826,7 +828,7 @@ namespace :tw do
 
               if !row['Author'].nil? && @data.source_ay[row['Key3']] == row['Author']
                 SourceAuthor.where(role_object_type: 'Source', role_object_id: source).find_each do |sa|
-                  TaxonNameAuthor.create(person_id: sa.person_id, role_object: taxon, position: sa.position)                      #################??????????
+                  TaxonNameAuthor.create(person_id: sa.person_id, role_object: taxon, position: sa.position)
                 end
               end
 
@@ -845,7 +847,7 @@ namespace :tw do
                 #byebug
               end
               if !row['DescriptEn'].blank? && (row['DescriptEn'].include?('<h2>Notes</h2>') || row['DescriptEn'].include?('<h2>Remarks</h2>'))
-                taxon.otus.first.contents.create(topic: @data.keywords['Notes'], text: row['DescriptEn'].gsub('<h2>Notes</h2>').gsub('<h2>Remarks</h2>').squish) ####################?????????
+                taxon.otus.first.contents.create(topic: @data.keywords['Notes'], text: row['DescriptEn'].gsub('<h2>Notes</h2>', '').gsub('<h2>Remarks</h2>', '').squish) ####################?????????
               end
             end
             unless row['KeyN'].blank?
@@ -943,9 +945,9 @@ namespace :tw do
             if !row['NomenNovumFor'].blank?
               source = row['Key3'].blank? ? nil : @data.publications_index[row['Key3']]
               if row['YearRem'].to_s.include?('unneded n.nov.')
-                tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['NomenNovumFor']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName') ########???
+                tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['NomenNovumFor']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName')
               else
-                tnr = TaxonNameRelationship.create(subject_taxon_name: find_taxon_3i(row['NomenNovumFor']), object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym') ##############????
+                tnr = TaxonNameRelationship.create(subject_taxon_name: find_taxon_3i(row['NomenNovumFor']), object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym')
               end
               if !source.blank? && !tnr.id.nil?
                 tnr.citations.create(source_id: source, pages: row['Page'], is_original: true)
@@ -2058,6 +2060,44 @@ namespace :tw do
           end
         end
       end
+
+      def soft_validations_3i
+        fixed = 0
+        print "\nApply soft validation fixes to taxa 1st pass \n"
+        i = 0
+        TaxonName.where(project_id: $project_id).find_each do |t|
+          i += 1
+          print "\r#{i}    Fixes applied: #{fixed}"
+          t.soft_validate
+          t.fix_soft_validations
+          t.soft_validations.soft_validations.each do |f|
+            fixed += 1  if f.fixed?
+          end
+        end
+        print "\nApply soft validation fixes to relationships \n"
+        i = 0
+        TaxonNameRelationship.where(project_id: $project_id).find_each do |t|
+          i += 1
+          print "\r#{i}    Fixes applied: #{fixed}"
+          t.soft_validate
+          t.fix_soft_validations
+          t.soft_validations.soft_validations.each do |f|
+            fixed += 1  if f.fixed?
+          end
+        end
+        print "\nApply soft validation fixes to taxa 2nd pass \n"
+        i = 0
+        TaxonName.where(project_id: $project_id).find_each do |t|
+          i += 1
+          print "\r#{i}    Fixes applied: #{fixed}"
+          t.soft_validate
+          t.fix_soft_validations
+          t.soft_validations.soft_validations.each do |f|
+            fixed += 1  if f.fixed?
+          end
+        end
+      end
+
     end
   end
 end
