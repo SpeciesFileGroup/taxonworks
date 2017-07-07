@@ -8,12 +8,12 @@ namespace :tw do
   namespace :project_import do
     namespace :lepindex do
 
-     # @import_name = 'lepindex'
+      # @import_name = 'lepindex'
 
       # A utility class to index data.
       class ImportedData
         attr_accessor :people_index, :user_index, :publications_index, :citations_index, :genera_index, :images_index,
-          :parent_id_index, :statuses, :taxonno_index, :citation_to_publication_index
+          :parent_id_index, :statuses, :taxonno_index, :citation_to_publication_index, :image_index_filename
 
         def initialize()
           @people_index = {}                  # PeopleID -> Person object
@@ -26,40 +26,58 @@ namespace :tw do
           @parent_id_index = {}               # Rank:TaxonName -> Taxon.id
           @statuses = {}                    
           @taxonno_index = {}                 #TaxonNo -> Taxon.id
+          @image_index_filename = 'image_index.tab'
         end
       end
 
-      task :import_images => [:data_directory, :environment] do |t|
+      task :import_images => [:environment, :data_directory, :user_id, :project_id] do |t|
+        path = @args[:data_directory] + 'image_index.tab' #  @data.image_index_filename 
 
-      # file = CSV.foreach(path, col_sep: "\t")
-      # file.each do |row|
-      #   id = row[0]
-      #   f = row[1]
-      #   if File.exists(f)
-      #     begin
+        start_row = ENV['start_row'] 
+        start_row ||= 1
 
-      #     rescue
+        transaction_size = 20
+        i = 1
 
-      #     ensure
+        file = CSV.foreach(path, col_sep: "\t")
+        file.each_slice(transaction_size) do |slice|
+          next if i < start_row
 
-      #     end 
-      #   end
+          begin
+            ActiveRecord::Base.transaction do 
+              slice.each do |row|
+                id = row[0]
+                f = row[1]
 
-      #   #[file1, file2].each do |img|
-      #   #  if File.exists?(img)
-      #   #    begin
-      #   #      f = File.open(img)
-      #   #      Depiction.create(image_attributes: { image_file: f }, depiction_object: protonym)
-      #   #    rescue ActiveRecord::RecordInvalid
-      #   #      print Rainbow("\nImage file: #{img} is invalid\n").red
-      #   #    ensure
-      #   #      f.close
-      #   #    end
-      #   #  end
-      #   #end
+                if File.exists?(f)
+                 
+                  if Depiction.joins(:image).where(images: {image_file_fingerprint: Digest::MD5.file(f).hexdigest }, project_id: $project_id).any?
+                    puts Rainbow("#{f} for #{id} exists as depiction, skipping\n").red
+                    next
+                  end
 
+                  puts "processing #{f}, for #{id}"
 
-      # end
+                  begin
+                    image = Image.new(image_file: File.open(f))
+                    Depiction.create!(image_attributes: { image_file: f }, depiction_object_id: id, depiction_object_type: 'TaxonName')
+                  ensure
+                    f.close
+                  end
+
+                else
+                  puts Rainbow("Error: Can not find image #{f}, for id: #{id}, skipping!").red
+                end
+              end
+              puts Rainbow("group handled").yellow
+              i += transaction_size 
+            end
+
+          rescue ActiveRecord::RecordInvalid
+            puts Rainbow("\nrecord is invalid, group is aborted").red
+            raise
+          end
+        end
       end
 
       task :import_all_lep_index => [:data_directory, :environment] do |t|
@@ -154,8 +172,8 @@ namespace :tw do
       def main_build_loop_lepindex
         puts Rainbow("\nStart time: #{Time.now}\n").yellow
 
-      # @import = Import.find_or_create_by(name: @import_name)
-      # @import.metadata ||= {}
+        # @import = Import.find_or_create_by(name: @import_name)
+        # @import.metadata ||= {}
 
         @data =  ImportedData.new
 
@@ -168,7 +186,7 @@ namespace :tw do
         handle_list_of_genera_lepindex
         handle_images_lepindex
         handle_species_lepindex
-        
+
         # soft_validations_lepindex
 
         puts Rainbow("\n\n !! Success. End time: #{Time.now} \n\n").yellow
@@ -229,7 +247,7 @@ namespace :tw do
         print "\nHandling references\n"
         raise "file #{path} not found" if not File.exists?(path)
 
-        # TODO: use a converter here
+        # TODO: use a converter here (blank cells)
 
         file = CSV.foreach(path, col_sep: "\t", encoding: 'iso-8859-1:UTF-8', headers: true)
 
@@ -287,7 +305,8 @@ namespace :tw do
 
             @data.publications_index[tmp] = source_id
           else
-            source = @data.publications_index[tmp]
+            # was source = ?!
+            source_id = @data.publications_index[tmp]
           end
 
           @data.citations_index[row['NEW_REF_ID']] = row
@@ -408,234 +427,228 @@ namespace :tw do
         data_attribute_fields = %w{TaxonNo Original_Genus OrigSubgen Original_Species Original_Subspecies Original_Infrasubspecies Availability valid_parent_id ButmothNo}.freeze 
         original_combination_fields =  %w{Original_Genus OrigSubgen Original_Species Original_Subspecies Original_Infrasubspecies}.freeze
 
+        @image_index = nil
+
         begin # ensure file open/closes
-        # Open a new file for writing
-        image_index = File.new(Dir.join(@args[:data_directory], 'image_index.tab'), '+w')
+          @image_index = File.new( File.join(@args[:data_directory], @data.image_index_filename), 'w')
 
-        #        result = RubyProf.profile do
+          #        result = RubyProf.profile do
 
-        ['GENUS', 'SUBGENUS', 'SPECIES', 'SUBSPECIES'].each do |rank|
-          GC.start
-          print "\n#{rank}\n"
+          ['GENUS', 'SUBGENUS', 'SPECIES', 'SUBSPECIES'].each do |rank|
+            GC.start
+            print "\n#{rank}\n"
 
-          file.each_with_index do |row, i|
-            #if rank == 'GENUS' || i > 0 && i < 1500
+            file.each_with_index do |row, i|
+              #if rank == 'GENUS' || i > 0 && i < 1500
 
-            #              break if i == 2000
+              #              break if i == 2000
 
-            #              if i % 2000 == 0
-            #                GC.start
-            #              end
+              #              if i % 2000 == 0
+              #                GC.start
+              #              end
+              #  break if i > 200
 
-            print "\r#{i}"
-            if row['Current_rank_of_name'] == rank
-              genus, subgenus, species = nil, nil, nil
-              superfamily = @data.parent_id_index['superfamily:' + row['Current_superfamily'].to_s]
-              family = @data.parent_id_index['family:' + row['Current_family'].to_s]
-              subfamily = @data.parent_id_index['subfamily:' + row['Current_subfamily'].to_s]
-              tribe = @data.parent_id_index['tribe:' + row['Current_tribe'].to_s]
-              subtribe = @data.parent_id_index['subtribe:' + row['Current_tribe'].to_s]
-              genus = @data.parent_id_index['genus:' + row['Current_genus'].to_s] if rank != 'GENUS'
-              subgenus = @data.parent_id_index['subgenus:' + row['CurrSubgen'].to_s] if rank != 'GENUS' && rank != 'SUBGENUS'
-              species = @data.parent_id_index['species:' + row['Current_genus'].to_s + ' ' + row['Current_species'].to_s] if rank != 'GENUS' && rank != 'SUBGENUS'  && rank != 'SPECIES'
+              print "\r#{i}"
+              if row['Current_rank_of_name'] == rank
+                genus, subgenus, species = nil, nil, nil
+                superfamily = @data.parent_id_index['superfamily:' + row['Current_superfamily'].to_s]
+                family = @data.parent_id_index['family:' + row['Current_family'].to_s]
+                subfamily = @data.parent_id_index['subfamily:' + row['Current_subfamily'].to_s]
+                tribe = @data.parent_id_index['tribe:' + row['Current_tribe'].to_s]
+                subtribe = @data.parent_id_index['subtribe:' + row['Current_tribe'].to_s]
+                genus = @data.parent_id_index['genus:' + row['Current_genus'].to_s] if rank != 'GENUS'
+                subgenus = @data.parent_id_index['subgenus:' + row['CurrSubgen'].to_s] if rank != 'GENUS' && rank != 'SUBGENUS'
+                species = @data.parent_id_index['species:' + row['Current_genus'].to_s + ' ' + row['Current_species'].to_s] if rank != 'GENUS' && rank != 'SUBGENUS'  && rank != 'SPECIES'
 
-              parent_id = @lepidoptera.id
+                parent_id = @lepidoptera.id
 
-              if superfamily.nil? && !row['Current_superfamily'].blank?
-                superfamily = Protonym.find_or_create_by(name: row['Current_superfamily'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'superfamily'), project_id: $project_id).id
-                @data.parent_id_index['superfamily:' + row['Current_superfamily'].to_s] = superfamily
-              end
-
-              parent_id = superfamily unless superfamily.nil?
-              if family.nil? && !row['Current_family'].blank?
-                family = Protonym.find_or_create_by(name: row['Current_family'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'family'), project_id: $project_id).id
-                @data.parent_id_index['family:' + row['Current_family'].to_s] = family
-              end
-
-              parent_id = family unless family.nil?
-              if subfamily.nil? && !row['Current_subfamily'].blank? && row['Current_subfamily'] != 'Subfamily unassigned'
-                if row['Current_subfamily'] =~ / group/
-                  subfamily = Protonym.find_or_create_by(name: row['Current_subfamily'].gsub(' group', ''), parent_id: parent_id, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Supergenus', project_id: $project_id).id
-                else
-                  subfamily = Protonym.find_or_create_by(name: row['Current_subfamily'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subfamily'), project_id: $project_id).id
-                end
-                @data.parent_id_index['subfamily:' + row['Current_subfamily'].to_s] = subfamily
-              end
-
-              parent_id = subfamily unless subfamily.nil?
-              if tribe.nil? && !row['Current_tribe'].blank? && row['Current_tribe'] != 'Tribe unassigned'
-                tribe = Protonym.find_or_create_by(name: row['Current_tribe'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'tribe'), project_id: $project_id).id
-                @data.parent_id_index['tribe:' + row['Current_tribe'].to_s] = tribe
-              end
-
-              parent_id = tribe unless tribe.nil?
-              if subtribe.nil? && !row['Current_subtribe'].blank?
-                subtribe = Protonym.find_or_create_by(name: row['Current_subtribe'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subtribe'), project_id: $project_id).id
-                @data.parent_id_index['subtribe:' + row['Current_subtribe'].to_s] = subtribe
-              end
-
-              parent_id = subtribe unless subtribe.nil?
-              if genus.nil? && !row['Current_genus'].blank? && rank != 'GENUS' && row['Current_genus'] != 'GENUS UNKNOWN' && row['Current_genus'] != 'ORIGINAL GENUS UNDETERMINED' && row['Current_genus'] !=~ /_AUCTORUM/
-                genus = Protonym.find_or_create_by(name: row['Current_genus'].titleize, parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'genus'), project_id: $project_id).id
-                @data.parent_id_index['genus:' + row['Current_genus'].to_s] = genus
-              end
-
-              parent_id = genus unless genus.nil?
-              if subgenus.nil? && !row['CurrSubgen'].blank? && rank != 'GENUS' && rank != 'SUBGENUS'
-                subgenus = Protonym.find_or_create_by(name: row['CurrSubgen'].titleize, parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subgenus'), project_id: $project_id).id
-                @data.parent_id_index['subgenus:' + row['CurrSubgen'].to_s] = subgenus
-              end
-
-              parent_id = subgenus unless subgenus.nil?
-              if species.nil? && !row['Current_species'].blank? && rank != 'GENUS' && rank != 'SUBGENUS'  && rank != 'SPECIES'
-                species = Protonym.find_or_create_by(name: row['Current_species'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'species'), project_id: $project_id).id
-                @data.parent_id_index['species:' + row['Current_genus'].to_s + ' ' + row['Current_species'].to_s] = species
-              end
-
-              parent_id = species unless species.nil?
-              #byebug if row['Original_Genus'] == 'ACANTHOSPHINX'
-
-              unless row['SCIENTIFIC_NAME_on_card'] == 'GENUS UNKNOWN' || row['SCIENTIFIC_NAME_on_card'] =~ /_AUCTORUM/
-                name = (rank =~ /GENUS/) ? row['SCIENTIFIC_NAME_on_card'].titleize : row['SCIENTIFIC_NAME_on_card']
-                verbatim_name = nil
-
-                name = name.gsub('x ', '') if name =~/\Ax ./
-
-                if name =~ /..(-|_| )../
-                  verbatim_name = name.gsub('-', ' ').gsub('_', ' ')
-                  name = verbatim_name.split(' ').last
+                if superfamily.nil? && !row['Current_superfamily'].blank?
+                  superfamily = Protonym.find_or_create_by(name: row['Current_superfamily'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'superfamily'), project_id: $project_id).id
+                  @data.parent_id_index['superfamily:' + row['Current_superfamily'].to_s] = superfamily
                 end
 
-                year = row['Original_Year'] =~ /\A\d\d\d\d\z/ ? row['Original_Year'] : nil
-
-                protonym = Protonym.new(name: name,
-                                        parent_id: parent_id,
-                                        #  source_id: nil,
-                                        year_of_publication: year,
-                                        verbatim_author: row['Original_Author'],
-                                        rank_class: rank_classes[row['Current_rank_of_name']],
-                                        verbatim_name: verbatim_name,
-                                        project_id: $project_id,
-                                        created_by_id: find_or_create_user_lepindex(row['Last_changed_by']),
-                                        updated_by_id: $user_id,
-                                        created_at: time_from_field(row['Date_changed']),
-                                        updated_at: $user_id
-                                       )
-
-                data_attribute_fields.each do |k|
-                  protonym.data_attributes.new(import_predicate: k, value: row[k], type: 'ImportAttribute') unless row[k].blank?
+                parent_id = superfamily unless superfamily.nil?
+                if family.nil? && !row['Current_family'].blank?
+                  family = Protonym.find_or_create_by(name: row['Current_family'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'family'), project_id: $project_id).id
+                  @data.parent_id_index['family:' + row['Current_family'].to_s] = family
                 end
 
-                protonym.data_attributes.new(import_predicate: 'Original_Year', value: row['Original_Year'], type: 'ImportAttribute') if !row['Original_Year'].blank? && protonym.year_of_publication.blank?
-                protonym.taxon_name_classifications.new(type: @classification_classes['not latin']) if name =~ /\d+-../
+                parent_id = family unless family.nil?
+                if subfamily.nil? && !row['Current_subfamily'].blank? && row['Current_subfamily'] != 'Subfamily unassigned'
+                  if row['Current_subfamily'] =~ / group/
+                    subfamily = Protonym.find_or_create_by(name: row['Current_subfamily'].gsub(' group', ''), parent_id: parent_id, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Supergenus', project_id: $project_id).id
+                  else
+                    subfamily = Protonym.find_or_create_by(name: row['Current_subfamily'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subfamily'), project_id: $project_id).id
+                  end
+                  @data.parent_id_index['subfamily:' + row['Current_subfamily'].to_s] = subfamily
+                end
 
-                begin
-                  protonym.save!
-                rescue ActiveRecord::RecordInvalid
-                  if !protonym.errors.messages[:name].blank?
-                    protonym.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin')
+                parent_id = subfamily unless subfamily.nil?
+                if tribe.nil? && !row['Current_tribe'].blank? && row['Current_tribe'] != 'Tribe unassigned'
+                  tribe = Protonym.find_or_create_by(name: row['Current_tribe'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'tribe'), project_id: $project_id).id
+                  @data.parent_id_index['tribe:' + row['Current_tribe'].to_s] = tribe
+                end
+
+                parent_id = tribe unless tribe.nil?
+                if subtribe.nil? && !row['Current_subtribe'].blank?
+                  subtribe = Protonym.find_or_create_by(name: row['Current_subtribe'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subtribe'), project_id: $project_id).id
+                  @data.parent_id_index['subtribe:' + row['Current_subtribe'].to_s] = subtribe
+                end
+
+                parent_id = subtribe unless subtribe.nil?
+                if genus.nil? && !row['Current_genus'].blank? && rank != 'GENUS' && row['Current_genus'] != 'GENUS UNKNOWN' && row['Current_genus'] != 'ORIGINAL GENUS UNDETERMINED' && row['Current_genus'] !=~ /_AUCTORUM/
+                  genus = Protonym.find_or_create_by(name: row['Current_genus'].titleize, parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'genus'), project_id: $project_id).id
+                  @data.parent_id_index['genus:' + row['Current_genus'].to_s] = genus
+                end
+
+                parent_id = genus unless genus.nil?
+                if subgenus.nil? && !row['CurrSubgen'].blank? && rank != 'GENUS' && rank != 'SUBGENUS'
+                  subgenus = Protonym.find_or_create_by(name: row['CurrSubgen'].titleize, parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subgenus'), project_id: $project_id).id
+                  @data.parent_id_index['subgenus:' + row['CurrSubgen'].to_s] = subgenus
+                end
+
+                parent_id = subgenus unless subgenus.nil?
+                if species.nil? && !row['Current_species'].blank? && rank != 'GENUS' && rank != 'SUBGENUS'  && rank != 'SPECIES'
+                  species = Protonym.find_or_create_by(name: row['Current_species'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'species'), project_id: $project_id).id
+                  @data.parent_id_index['species:' + row['Current_genus'].to_s + ' ' + row['Current_species'].to_s] = species
+                end
+
+                parent_id = species unless species.nil?
+                #byebug if row['Original_Genus'] == 'ACANTHOSPHINX'
+
+                unless row['SCIENTIFIC_NAME_on_card'] == 'GENUS UNKNOWN' || row['SCIENTIFIC_NAME_on_card'] =~ /_AUCTORUM/
+                  name = (rank =~ /GENUS/) ? row['SCIENTIFIC_NAME_on_card'].titleize : row['SCIENTIFIC_NAME_on_card']
+                  verbatim_name = nil
+
+                  name = name.gsub('x ', '') if name =~/\Ax ./
+
+                  if name =~ /..(-|_| )../
+                    verbatim_name = name.gsub('-', ' ').gsub('_', ' ')
+                    name = verbatim_name.split(' ').last
+                  end
+
+                  year = row['Original_Year'] =~ /\A\d\d\d\d\z/ ? row['Original_Year'] : nil
+
+                  protonym = Protonym.new(name: name,
+                                          parent_id: parent_id,
+                                          #  source_id: nil,
+                                          year_of_publication: year,
+                                          verbatim_author: row['Original_Author'],
+                                          rank_class: rank_classes[row['Current_rank_of_name']],
+                                          verbatim_name: verbatim_name,
+                                          project_id: $project_id,
+                                          created_by_id: find_or_create_user_lepindex(row['Last_changed_by']),
+                                          updated_by_id: $user_id,
+                                          created_at: time_from_field(row['Date_changed']),
+                                          updated_at: $user_id
+                                         )
+
+                  data_attribute_fields.each do |k|
+                    protonym.data_attributes.new(import_predicate: k, value: row[k], type: 'ImportAttribute') unless row[k].blank?
+                  end
+
+                  protonym.data_attributes.new(import_predicate: 'Original_Year', value: row['Original_Year'], type: 'ImportAttribute') if !row['Original_Year'].blank? && protonym.year_of_publication.blank?
+                  protonym.taxon_name_classifications.new(type: @classification_classes['not latin']) if name =~ /\d+-../
+
+                  begin
                     protonym.save!
-                  else
-                    puts Rainbow("protonym #{protonym.name} failed to save, skipping to next record.").red
-                    puts protonym.errors.messages.to_s
-                    next # Everything beyond this point requires a successful save off
-                  end
-                end
-
-                if row['Current_genus'] =~ /(_AUCTORUM|GENUS UNKNOWN)/ && rank =~ /SPECIES/
-                  @list_of_relationships << {'taxon' => protonym.id, 'relationship' => 'Incertae sedis', 'valid species' => parent_id}
-                end
-
-                if row['valid_parent_id'].blank?
-                  case rank
-                  when 'GENUS'
-                    @data.parent_id_index['genus:' + row['SCIENTIFIC_NAME_on_card'].to_s] = protonym.id
-                  when 'SUBGENUS'
-                    @data.parent_id_index['subgenus:' + row['SCIENTIFIC_NAME_on_card'].to_s] = protonym.id
-                  when 'SPECIES'
-                    @data.parent_id_index['species:' + row['Current_genus'].to_s + ' ' + row['SCIENTIFIC_NAME_on_card'].to_s] = protonym.id
-                  when 'SUBSPECIES'
-                    @data.parent_id_index['species:' + row['Current_genus'].to_s + ' ' + row['Current_species'].to_s + ' ' + row['SCIENTIFIC_NAME_on_card'].to_s] = protonym.id
-                  end
-                end
-
-                unless @data.images_index[row['TaxonNo']].nil?
-                  %w{Card_code Path Front_image Back_image}.each do |k|
-                    protonym.data_attributes.create!(import_predicate: k, value: @data.images_index[row['TaxonNo']][k], type: 'ImportAttribute') unless @data.images_index[row['TaxonNo']][k].blank?
-                  end
-
-                  file1 = @data.images_index[row['TaxonNo']]['Front_image'].blank? ? nil : @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/').to_s + @data.images_index[row['TaxonNo']]['Front_image'].to_s
-                  file2 = @data.images_index[row['TaxonNo']]['Back_image'].blank? ? nil : @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/').to_s + @data.images_index[row['TaxonNo']]['Back_image'].to_s
-
-                  image_index.puts [protonym.id, file1].join("\t") if file1
-                  image_index.puts [protonym.id, file2].join("\t") if file2
-
-                end
-
-                @data.taxonno_index[row['TaxonNo'].to_i.to_s] = protonym.id
-
-                availability = row['Availability']
-
-                if @relationship_classes[availability].nil?
-                  print "\nInvalid relationship: '#{availability}' #{protonym.name} [row #{i}]\n"
-                  @invalid_relationships[availability] ||= 0
-                  @invalid_relationships[availability] += 1
-
-                elsif !row['valid_parent_id'].blank?
-                  @list_of_relationships << {'taxon' => protonym.id, 'relationship' => availability, 'valid species' => row['valid_parent_id']}
-                end
-
-                unless row['ButmothNo'].blank?
-                  brow = @data.genera_index[row['ButmothNo'].to_i]
-
-                  if brow.nil?
-                    print "\nButmothNo #{row['ButmothNo']} is invalid\n"
-                  else
-                    butmoth_fields.each do |f|
-                      protonym.data_attributes.find_or_create_by(import_predicate: f, value: brow[f], type: 'ImportAttribute', project_id: $project_id) unless brow[f].blank?
+                  rescue ActiveRecord::RecordInvalid
+                    if !protonym.errors.messages[:name].blank?
+                      protonym.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin')
+                      protonym.save!
+                    else
+                      puts Rainbow("protonym #{protonym.name} failed to save, skipping to next record.").red
+                      puts protonym.errors.messages.to_s
+                      next # Everything beyond this point requires a successful save off
                     end
                   end
 
-                  ref = brow.nil? ? nil : @data.citation_to_publication_index[brow['GENUS_REF']]
-
-                  citation = brow.nil? ? nil : @data.citations_index[brow['GENUS_REF']]
-                  c = Citation.create!(citation_object: protonym, is_original: true, source_id: ref, pages: citation['PAGE']) unless ref.nil? || citation.nil?
-
-                  @list_of_relationships << {'taxon' => protonym.id, 'relationship' => 'type species', 'type species' => brow['TS_SPECIES'], 'type species reference' => brow['TS_REF'], 'type designation' => brow['TSD_DESIGNATION'], 'ButmothNo' => brow['ButmothNo'].to_i, 'valid genus' => row['valid_parent_id']} unless brow.nil?
-                end
-
-                unless @classification_classes[availability].nil?
-                  TaxonNameClassification.create!(taxon_name_id: protonym.id, type: @classification_classes[availability])
-                end
-
-                #byebug if row['TaxonNo'] == '48940'
-
-                original_combination_fields.each do |t|
-                  if t == 'Original_Genus' || t == 'OrigSubgen'
-                    n = row[t]
-                  elsif t == 'Original_Species'
-                    n = row['Original_Genus'].to_s + ' ' + row[t].to_s
-                  elsif t == 'Original_Subspecies'
-                    n = row['Original_Genus'].to_s + ' ' + row['Original_Species'].to_s + ' ' + row[t].to_s
+                  if row['Current_genus'] =~ /(_AUCTORUM|GENUS UNKNOWN)/ && rank =~ /SPECIES/
+                    @list_of_relationships << {'taxon' => protonym.id, 'relationship' => 'Incertae sedis', 'valid species' => parent_id}
                   end
-                  @list_of_relationships << {'taxon' => protonym.id, 'relationship' => t, 'original' => n} unless row[t].blank?
+
+                  if row['valid_parent_id'].blank?
+                    case rank
+                    when 'GENUS'
+                      @data.parent_id_index['genus:' + row['SCIENTIFIC_NAME_on_card'].to_s] = protonym.id
+                    when 'SUBGENUS'
+                      @data.parent_id_index['subgenus:' + row['SCIENTIFIC_NAME_on_card'].to_s] = protonym.id
+                    when 'SPECIES'
+                      @data.parent_id_index['species:' + row['Current_genus'].to_s + ' ' + row['SCIENTIFIC_NAME_on_card'].to_s] = protonym.id
+                    when 'SUBSPECIES'
+                      @data.parent_id_index['species:' + row['Current_genus'].to_s + ' ' + row['Current_species'].to_s + ' ' + row['SCIENTIFIC_NAME_on_card'].to_s] = protonym.id
+                    end
+                  end
+
+                  unless @data.images_index[row['TaxonNo']].nil?
+                    %w{Card_code Path Front_image Back_image}.each do |k|
+                      protonym.data_attributes.create!(import_predicate: k, value: @data.images_index[row['TaxonNo']][k], type: 'ImportAttribute') unless @data.images_index[row['TaxonNo']][k].blank?
+                    end
+
+                    file1 = @data.images_index[row['TaxonNo']]['Front_image'].blank? ? nil : @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/').to_s + @data.images_index[row['TaxonNo']]['Front_image'].to_s
+                    file2 = @data.images_index[row['TaxonNo']]['Back_image'].blank? ? nil : @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/').to_s + @data.images_index[row['TaxonNo']]['Back_image'].to_s
+
+                    @image_index.puts [protonym.id, "\t", file1, "\n"].join if file1
+                    @image_index.puts [protonym.id, "\t", file2, "\n"].join if file2
+                  end
+
+                  @data.taxonno_index[row['TaxonNo'].to_i.to_s] = protonym.id
+
+                  availability = row['Availability']
+
+                  if @relationship_classes[availability].nil?
+                    print "\nInvalid relationship: '#{availability}' #{protonym.name} [row #{i}]\n"
+                    @invalid_relationships[availability] ||= 0
+                    @invalid_relationships[availability] += 1
+
+                  elsif !row['valid_parent_id'].blank?
+                    @list_of_relationships << {'taxon' => protonym.id, 'relationship' => availability, 'valid species' => row['valid_parent_id']}
+                  end
+
+                  unless row['ButmothNo'].blank?
+                    brow = @data.genera_index[row['ButmothNo'].to_i]
+
+                    if brow.nil?
+                      print "\nButmothNo #{row['ButmothNo']} is invalid\n"
+                    else
+                      butmoth_fields.each do |f|
+                        protonym.data_attributes.find_or_create_by(import_predicate: f, value: brow[f], type: 'ImportAttribute', project_id: $project_id) unless brow[f].blank?
+                      end
+                    end
+
+                    ref = brow.nil? ? nil : @data.citation_to_publication_index[brow['GENUS_REF']]
+
+                    citation = brow.nil? ? nil : @data.citations_index[brow['GENUS_REF']]
+                    c = Citation.create!(citation_object: protonym, is_original: true, source_id: ref, pages: citation['PAGE']) unless ref.nil? || citation.nil?
+
+                    @list_of_relationships << {'taxon' => protonym.id, 'relationship' => 'type species', 'type species' => brow['TS_SPECIES'], 'type species reference' => brow['TS_REF'], 'type designation' => brow['TSD_DESIGNATION'], 'ButmothNo' => brow['ButmothNo'].to_i, 'valid genus' => row['valid_parent_id']} unless brow.nil?
+                  end
+
+                  unless @classification_classes[availability].nil?
+                    TaxonNameClassification.create!(taxon_name_id: protonym.id, type: @classification_classes[availability])
+                  end
+
+                  #byebug if row['TaxonNo'] == '48940'
+
+                  original_combination_fields.each do |t|
+                    if t == 'Original_Genus' || t == 'OrigSubgen'
+                      n = row[t]
+                    elsif t == 'Original_Species'
+                      n = row['Original_Genus'].to_s + ' ' + row[t].to_s
+                    elsif t == 'Original_Subspecies'
+                      n = row['Original_Genus'].to_s + ' ' + row['Original_Species'].to_s + ' ' + row[t].to_s
+                    end
+                    @list_of_relationships << {'taxon' => protonym.id, 'relationship' => t, 'original' => n} unless row[t].blank?
+                  end
+
                 end
-
-                # POINTLESS HERE!
-                # begin
-                #   protonym.save!
-                # rescue ActiveRecord::RecordInvalid
-                #   puts Rainbow(protonym.errors.messages.join('; ')).red
-                # end
-
               end
             end
           end
-        end
 
-      ensure
-        image_index.close
-      end
+        ensure
+          @image_index.close
+        end
         #        end # End RubyProf
 
         #        printer = RubyProf::GraphHtmlPrinter.new(result)
