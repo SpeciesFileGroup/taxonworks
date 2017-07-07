@@ -1605,6 +1605,7 @@ ActiveRecord::Schema.define(version: 20170607175949) do
     t.json     "hub_favorites"
     t.datetime "last_seen_at"
     t.integer  "time_active",                   default: 0
+    t.string   "temp"
   end
 
   add_index "users", ["created_by_id"], name: "index_users_on_created_by_id", using: :btree
