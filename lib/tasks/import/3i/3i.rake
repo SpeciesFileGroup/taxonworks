@@ -270,7 +270,7 @@ namespace :tw do
         handle_controlled_vocabulary_3i
         #handle_litauthors_3i
         #handle_references_3i
-        #handle_transl_3i
+        handle_transl_3i
         #handle_taxonomy_3i
         #handle_taxon_name_relationships_3i
         #handle_citation_topics_3i
@@ -279,7 +279,7 @@ namespace :tw do
         #handle_host_plants_3i
         #handle_distribution_3i
         #handle_parasitoids_3i
-        handle_localities_3i
+        #handle_localities_3i
 
         handle_characters_3i
         handle_state_3i

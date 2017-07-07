@@ -98,7 +98,7 @@ class Tag < ActiveRecord::Base
     mci = ObservationMatrixColumnItem::TaggedDescriptor.where(controlled_vocabulary_term_id: keyword_id).limit(1)
 
     if mci.any?
-      return { "matrix_column_item" => mci.first, "descriptor" => tag_object }
+      return { :matrix_column_item => mci.first, :descriptor => tag_object }
     else
       return false
     end
