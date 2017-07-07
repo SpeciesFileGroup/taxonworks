@@ -13,7 +13,9 @@ const GetterNames = {
 	GetTaxonName: 'getTaxonName',
 	GetTaxon: 'getTaxon',
 	GetParentRankGroup: 'getParentRankGroup',
-	GetTaxonYearPublication: 'getTaxonYearPublication'
+	GetTaxonYearPublication: 'getTaxonYearPublication',
+	GetNomenclaturalCode: 'getNomenclaturalCode',
+	GetSource: 'getSource'
 };
 
 const GetterFunctions = {
@@ -31,7 +33,9 @@ const GetterFunctions = {
 	[GetterNames.GetTaxonName]: require('./getTaxonName'),
 	[GetterNames.GetTaxon]: require('./getTaxon'),
 	[GetterNames.GetParentRankGroup]: require('./getParentRankGroup'),
-	[GetterNames.GetTaxonYearPublication]: require('./getTaxonYearPublication')
+	[GetterNames.GetTaxonYearPublication]: require('./getTaxonYearPublication'),
+	[GetterNames.GetNomenclaturalCode]: require('./getNomenclaturalCode'),
+	[GetterNames.GetSource]: require('./getSource')
 };
 
 module.exports = {

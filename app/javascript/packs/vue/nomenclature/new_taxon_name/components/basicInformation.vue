@@ -1,12 +1,15 @@
 <template>
-    <form class="content">
-        <h3 class="subtitle">Basic information</h3><br>
+    <form class="content panel basic-information">
+      <div class="header">
+        <h3 class="">Basic information</h3>
+      </div>
+      <div class="body">
         <div class="field separate-top">
 	        <label>Parent</label>
 	        <parent-picker></parent-picker>
         </div>
         <div class="horizontal-left-content align-start">
-          <div class="field">
+          <div class="field separate-right">
           	<label>Name</label><br>
           	<taxon-name></taxon-name>
           </div>
@@ -15,7 +18,8 @@
           </div>
         </div>
         <rank-selector></rank-selector>
-        <button type="button" @click="createTaxonName()" :disabled="!(parent && taxon.name)" class="button">Create</button>
+        <button type="button" @click="taxon.id == undefined ? createTaxonName() : updateTaxonName()" :disabled="!(parent && taxon.name)" class="button">{{ taxon.id == undefined ? 'Create': 'Update' }}</button>
+        </div>
       </form>
 </template>
 
@@ -53,12 +57,40 @@
             type: 'Protonym'
           }
         }
-        var token = $('[name="csrf-token"]').attr('content');
-        this.$http.headers.common['X-CSRF-Token'] = token;
         this.$http.post('/taxon_names.json', taxon_name).then(response => {
-          console.log(response);
+          TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully created.`, "success");
+        });
+      },
+      updateTaxonName: function() {
+        var taxon_name = {
+          taxon_name: {
+            name: this.taxon.name,
+            parent_id: this.taxon.parent_id,
+            rank_class: this.taxon.rank_class,
+            type: 'Protonym'
+          }
+        }        
+        this.$http.patch(`/taxon_names/${this.taxon.id}.json`, taxon_name).then(response => {
+          TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully updated.`, "success");
         });
       }
     }
 	}
 </script>
+
+<style type="text/css">
+  .basic-information {
+    .header {
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .body {
+      padding: 12px;
+    }
+    .vue-autocomplete-input {
+      width: 100% ;
+    }
+    width: 900px;
+    padding: 12px;
+    box-shadow: 0 0 2px 0px rgba(0,0,0,0.2);
+  }
+</style>

@@ -1,13 +1,12 @@
 <template>
   <div id="new_taxon_name_task">
     <h1>New taxon name</h1>
-    <div class="panel content">
+    <div>
       <basic-information></basic-information>
+      <source-picker class="separate-top"></source-picker>
       <form class="content">
-        <h3 class="">Author/year</h3><br>
         <div class="field separate-top">
-          <label>Source</label>
-          <source-picker></source-picker>
+
         </div>      
         <div class="field separate-top">
           <label>Verbatim author</label><br>
@@ -98,9 +97,10 @@
       },
       fillTaxonName: function(id) {
         this.$http.get(`/taxon_names/${id}`).then( response => {
+          console.log(response.body);
           let taxon_name = {
             id: response.body.id,
-            parent_id: response.body.parent.parent_id,
+            parent_id: response.body.parent_id,
             name: response.body.name,
             rank_class: response.body.rank,
             year_of_publication: response.body.year_of_publication,
@@ -109,12 +109,15 @@
             masculine_name: response.body.masculine_name,
             neuter_name: response.body.neuter_name,
           }
+          //this.$store.commit(MutationNames.GetRelatioships, response.body.source);
+          this.$store.commit(MutationNames.SetSource, response.body.source);
+          this.$store.commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code);
           this.$store.commit(MutationNames.SetTaxon, taxon_name);
           this.$store.dispatch(ActionNames.SetParentAndRanks, response.body.parent);
         }, response => {
           TW.workbench.alert.create("There is no taxon name associated to that ID", "error");
         });
-      }
+      },
     }      
   }
 

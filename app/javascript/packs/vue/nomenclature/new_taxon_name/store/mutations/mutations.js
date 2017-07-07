@@ -17,7 +17,9 @@ const MutationNames = {
 	SetTaxonName: 'setTaxonName',
 	SetTaxonId: 'setTaxonId',
 	SetTaxon: 'setTaxon',
-	SetTaxonYearPublication: 'setTaxonYearPublication'
+	SetSource: 'setSource',
+	SetTaxonYearPublication: 'setTaxonYearPublication',
+	SetNomenclaturalCode: 'setNomenclaturalCode'
 };
 
 const MutationFunctions = {
@@ -38,8 +40,10 @@ const MutationFunctions = {
 	[MutationNames.SetTaxonName]: require('./setTaxonName'),
 	[MutationNames.SetTaxonId]: require('./setTaxonId'),
 	[MutationNames.SetTaxon]: require('./setTaxon'),
+	[MutationNames.SetSource]: require('./setSource'),
 	[MutationNames.SetParentRankGroup]: require('./setParentRankGroup'),
 	[MutationNames.SetTaxonYearPublication]: require('./setTaxonYearPublication'),
+	[MutationNames.SetNomenclaturalCode]: require('./setNomenclaturalCode'),
 };
 
 module.exports = {

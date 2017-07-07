@@ -26,6 +26,9 @@
       parent() {
         return this.$store.getters[GetterNames.GetParent]
       },
+      nomenclaturalCode() {
+        return this.$store.getters[GetterNames.GetNomenclaturalCode]
+      },
       showModal() {
         return this.$store.getters[GetterNames.ActiveModalRelationship]
       }
@@ -37,7 +40,7 @@
     },
     watch: {
       parent: function(newVal, oldVal) {
-        let copyList = Object.assign({},this.treeList[this.parent.nomenclatural_code]);
+        let copyList = Object.assign({},this.treeList[this.nomenclaturalCode]);
         this.objectLists.tree = Object.assign({}, copyList.tree);
         this.objectLists.commonList = Object.assign({}, copyList.common);
         this.objectLists.allList = Object.assign({}, copyList.all);

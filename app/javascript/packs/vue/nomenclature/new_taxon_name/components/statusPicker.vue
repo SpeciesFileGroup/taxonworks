@@ -27,6 +27,9 @@
       parent() {
         return this.$store.getters[GetterNames.GetParent]
       },
+      nomenclaturalCode() {
+        return this.$store.getters[GetterNames.GetNomenclaturalCode]
+      },
       showModal() {
         return this.$store.getters[GetterNames.ActiveModalStatus]
       }
@@ -38,7 +41,7 @@
     },
     watch: {
       parent: function(newVal, oldVal) {
-        let copyList = Object.assign({},this.treeList[this.parent.nomenclatural_code]);
+        let copyList = Object.assign({},this.treeList[this.nomenclaturalCode]);
         
         this.objectLists = Object.assign({}, this.makeLists());
         this.objectLists.tree = Object.assign({}, copyList.tree);

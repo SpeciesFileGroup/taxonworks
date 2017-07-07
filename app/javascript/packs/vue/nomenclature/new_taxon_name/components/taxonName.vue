@@ -1,5 +1,5 @@
 <template>
-  <input type="text" v-model="taxonName"/>
+  <input class="taxonName-input" type="text" v-model="taxonName"/>
 </template>
 
 <script>
@@ -20,3 +20,11 @@
     }
   }
 </script>
+
+<style>
+.taxonName-input {
+  width: 500px;
+  max-width: 300px;
+  //min-width: 500px;
+}
+</style>

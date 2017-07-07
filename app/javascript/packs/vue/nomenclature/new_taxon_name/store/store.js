@@ -19,13 +19,16 @@ function makeInitialState() {
       feminine_name: undefined,
       masculine_name: undefined,
       neuter_name: undefined,
+      source: undefined,
       statusList: [],
       relationshipList: []
     },
+    source: null,
     settings: {
       modalStatus: false,
       modalRelationship: false
     },
+    nomenclatural_code: undefined,
     parent: undefined,
     ranks: undefined,
     rankGroup: undefined,
