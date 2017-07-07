@@ -2,8 +2,29 @@ module AlternateValuesHelper
 
   def alternate_value_tag(alternate_value)
     return nil if alternate_value.nil?
-    ["#{alternate_value.value},", alternate_value.klass_name, "of \"#{alternate_value.original_value}\"", "(on '#{alternate_value.alternate_value_object_attribute}')('#{alternate_value.project_id.nil? ? "public" : "project only"}')"].join(' ')
+    [alternate_value_string(alternate_value), " (on '#{alternate_value.alternate_value_object_attribute}') ('#{alternate_value.project_id.nil? ? "public" : "project only"}')"].join(' ')
   end
+
+  def alternate_value_string(alternate_value)
+    ["\"#{alternate_value.value}\" ",  alternate_value.klass_name, ' of ', "#{alternate_value.alternate_value_object_attribute}", " \"#{alternate_value.original_value}\""].join
+  end
+
+  def alternate_value_annotation_tag(alternate_value)
+    return nil if alternate_value.nil?
+    content_tag(:span, alternate_value_string(alternate_value), class: [:annotation__alternate_value])
+  end
+
+  # @return [String (html), nil]
+  #    a ul/li of alternate_values for the object
+  def alternate_values_list_tag(object)
+    return nil unless object.has_alternate_values? && object.alternate_values.any?
+    content_tag(:h3, 'Alternate values') +
+      content_tag(:ul, class: 'annotations__alternate_value_list') do
+      object.alternate_values.collect { |a| content_tag(:li, alternate_value_annotation_tag(a)) }.join.html_safe
+    end
+  end
+
+
 
   def link_to_destroy_alternate_value(link_text, alternate_value)
     link_to(link_text, '', class: 'alternate-value-destroy', alternate_value_id: alternate_value.id)

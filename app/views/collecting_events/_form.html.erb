@@ -1,4 +1,4 @@
-<%= form_for(@collecting_event) do |f| %>
+<%= form_for(@collecting_event, html: {id: :collecting_event_form}) do |f| %>
     <%= render 'shared/errors', object: @collecting_event %>
 
     <div class="flexbox">
@@ -72,10 +72,10 @@
         </div>
       </div>
 
-      <div class="item item2 inline_fields">
-        <%= render partial: '/people/role_picker', locals: {role: Collector.new(), object: @collecting_event, f: f} %>
-
+      <div class="item item2">
         <h3> Parsed data </h3>
+
+        <%= render partial: '/people/role_picker', locals: {role: Collector.new(), object: @collecting_event, f: f} %>
 
         <div class="field">
           <%= f.label :geographic_area_id, 'Geographic area' %>
@@ -187,21 +187,64 @@
         </div>
 
         <h4> Elevation </h4>
-
         <p><em> All values in meters</em></p>
 
         <table>
           <tr>
-            <td class="field"><%= f.label :minimum_elevation, :Minimum %> </td>
-            <td class="field"><%= f.label :maximum_elevation, :Maximum %> </td>
-            <td class="field"><%= f.label :elevation_precision, :Precision %> </td>
+            <td class="field"><%= f.label :minimum_elevation, :Minimum %></td>
+            <td class="field"><%= f.label :maximum_elevation, :Maximum %></td>
+            <td class="field"><%= f.label :elevation_precision, :Precision %></td>
           </tr>
           <tr>
-            <td class="field"> <%= f.text_field :minimum_elevation, size: 6 %>  </td>
-            <td class="field"> <%= f.text_field :maximum_elevation, size: 6 %> </td>
-            <td class="field"> <%= f.text_field :elevation_precision, size: 6 %></td>
+            <td class="field"><%= f.number_field :minimum_elevation, size: 6, step: :any %></td>
+            <td class="field"><%= f.number_field :maximum_elevation, size: 6, step: :any %></td>
+            <td class="field"><%= f.number_field :elevation_precision, size: 6, step: :any %></td>
           </tr>
         </table>
+
+        <h4 data-help="Autocomplete boxes draw literal values from the Paleobiology database."> Stratigraphy </h4>
+
+        <div class="flexbox">
+          <div class="item item1">
+            <div class="field">
+              <%= f.label :group %>
+              <br>
+              <%= f.text_field :group, id: :group %>
+            </div>
+
+            <div class="field">
+              <%= f.label :formation %>
+              <br>
+              <%= f.text_field :formation, id: :formation %>
+            </div>
+
+            <div class="field">
+              <%= f.label :member %>
+              <br>
+              <%= f.text_field :member, id: :member %>
+            </div>
+
+            <div class="field">
+              <%= f.label :lithology %>
+              <br>
+              <%= f.text_field :lithology, id: :lithology %>
+            </div>
+          </div>
+
+          <div class="item item2">
+            <div class="field">
+              <%= f.label :min_ma %>
+              <br>
+              <%= f.number_field :min_ma, step: :any, min: 0 %>
+            </div>
+
+            <div class="field">
+              <%= f.label :max_ma %>
+              <br>
+              <%= f.number_field :max_ma, step: :any, min: 0 %>
+            </div>
+          </div>
+        </div>
 
         <br />
         <div class="field label_above">

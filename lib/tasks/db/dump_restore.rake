@@ -4,7 +4,7 @@ namespace :tw do
   namespace :db do
 
     desc 'Dump the data to a PostgreSQL custom-format dump file does NOT include structure'
-    task :dump => [:environment, :backup_directory, :db_user] do
+    task :dump => [:environment, :backup_directory, :db_user, :database_host] do
       if Support::Database.pg_database_exists?
         puts Rainbow("Initializing dump for #{Rails.env} environment").yellow 
         puts Rainbow('You may be prompted for the production password.').yellow if Rails.env == 'production'
@@ -13,12 +13,13 @@ namespace :tw do
         path  = File.join(@args[:backup_directory], Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
 
         puts Rainbow("Dumping #{database} to #{path}").yellow
-        puts(Benchmark.measure { `pg_dump --username=#{@args[:db_user]} --host=localhost --format=custom #{database} --file=#{path}` })
+        args = "--username=#{@args[:db_user]} --host=#{@args[:database_host]} --format=custom #{database} --file=#{path}"  
+        puts Rainbow("with arguments: #{args}").yellow
+        puts(Benchmark.measure { `pg_dump #{args}` })
         raise TaxonWorks::Error, "pg_dump failed with exit code #{$?.to_i}".red unless $? == 0
         puts Rainbow('Dump complete').yellow
 
         raise TaxonWorks::Error, Rainbow('Failed to create dump file').red unless File.exists?(path)
-
       else
         puts Rainbow("Dump for #{Rails.env} environment skipped, database does not exist.").red
       end
@@ -34,7 +35,10 @@ namespace :tw do
       database = ActiveRecord::Base.connection.current_database
       puts Rainbow("Restoring #{database} from #{@args[:tw_backup_file]}").yellow
 
-      puts(Benchmark.measure{ `pg_restore --username=#{@args[:db_user]} --host=localhost --format=custom --no-acl --disable-triggers --dbname=#{database} #{@args[:tw_backup_file]}` })
+      args = "--username=#{@args[:db_user]} --host=localhost --format=custom --no-acl --disable-triggers --dbname=#{database} #{@args[:tw_backup_file]}"
+      puts Rainbow("with arguments: #{args}").yellow
+
+      puts(Benchmark.measure{ `pg_restore #{args}` })
       raise TaxonWorks::Error, Rainbow("pg_restore failed with exit code #{$?.to_i}").red unless $? == 0
 
       # TODO: Once RAILS is restarted automagically this this can go

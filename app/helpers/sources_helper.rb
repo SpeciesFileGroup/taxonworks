@@ -75,6 +75,12 @@ module SourcesHelper
     source.project_sources.where.not(project_id: sessions_current_project_id).references(:projects_sources).any?
   end
 
+  def source_in_other_project_tag(object)
+    if source_in_other_project?(object)
+      content_tag(:h3, 'This source is used in another project.', class: :warning)
+    end
+  end
+
   def source_nomenclature_tag(source, topics)
     t = [source_tag(source)]
     t.push [':', topic_list_tag(topics).html_safe] if !topics.blank?

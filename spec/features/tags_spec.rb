@@ -45,7 +45,7 @@ describe 'Tags', type: :feature, group: :tags do
 
       context 'using the annotation menu' do
         before do
-          find('#show_annotate_dropdown').click
+          find('#show_annotate_dropdown').hover
           click_link 'Add tag'
         end
 
@@ -57,6 +57,7 @@ describe 'Tags', type: :feature, group: :tags do
             fill_in("#{o.class.name}_#{o.id}_new_keyword_definition", with: 'asdfasf asdf')
             find('#keyword_picker_add_new').click
             click_button('Update')
+            expect(find('.tag_list')).to have_selector('.tag_item', :count => 4, :wait => 5)
           end
 
           specify 'and the tag is added' do
@@ -72,7 +73,7 @@ describe 'Tags', type: :feature, group: :tags do
     describe 'the structure of tag_splat', js: true do
       specify 'has a splat' do
         visit collecting_event_path(ce) 
-        find('#show_annotate_dropdown').click
+        find('#show_annotate_dropdown').hover
         expect(find("#tag_splat_#{ce.class.name}_#{ce.id}").text).to have_text('Add tag')
       end
     end
@@ -85,11 +86,12 @@ describe 'Tags', type: :feature, group: :tags do
 
         before do
           visit collecting_event_path(ce) 
-          find('#show_annotate_dropdown').click
+          find('#show_annotate_dropdown').hover
           find("#tag_splat_#{ce.class.name}_#{ce.id}").click
           fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'me', select: m.id)
           fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'sl', select: s.id)
           click_button('Update')
+          expect(find('.tag_list')).to have_selector('.tag_item', :count => 2, :wait => 5)
         end
 
         specify 'two tags were created' do
@@ -99,10 +101,11 @@ describe 'Tags', type: :feature, group: :tags do
         context 'removing one of two tags from tagged collecting event' do
           before do
             visit collecting_event_path(ce) 
-            find('#show_annotate_dropdown').click
+            find('#show_annotate_dropdown').hover
             find("#tag_splat_#{ce.class.name}_#{ce.id}").click
             find(%Q{li[data-tag-id="#{ce.tags.where(keyword: s).first.id}"] a}).click
             click_button('Update')
+            expect(find('.tag_list')).to have_selector('.tag_item', :count => 1, :wait => 5)
           end
 
           specify 'remove existing tag' do

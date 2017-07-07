@@ -17,4 +17,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage < TaxonNameRelationship::
     [ TaxonNameClassification::Iczn::Unavailable ]
   end
 
+  def subject_status_connector_to_object
+    ' of'
+  end
+
 end

@@ -6,23 +6,28 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::Unnecessary
     self.parent.disjoint_taxon_name_relationships +
         self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective,
             TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation,
-            TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym)
+            TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym,
+            TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym)
   end
 
   def object_status
-    'unnecessary replaced'
+    'replaced'
   end
 
   def subject_status
     'unnecessary replacement'
   end
 
-  def self.gbif_status_of_subject
-    'superfluum'
-  end
-
   def subject_status_connector_to_object
     ' for'
+  end
+
+  def object_status_connector_to_subject
+    ' by'
+  end
+
+  def self.gbif_status_of_subject
+    'superfluum'
   end
 
   def self.assignment_method

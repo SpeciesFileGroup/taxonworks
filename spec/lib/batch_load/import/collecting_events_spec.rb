@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'batch_load/import/collection_objects'
 
 describe BatchLoad::Import::CollectionObjects, type: :model do
 

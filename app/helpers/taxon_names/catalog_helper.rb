@@ -15,14 +15,13 @@ module TaxonNames::CatalogHelper
     [ 
       history_origin(i), 
       history_taxon_name(t, r, c, target),        # the subject, or protonym
-      history_author_year(t, c),                  # author year of the subject, or protonym
-                                                 
-      history_subject_original_citation(i),      
       history_statuses(i),                        # TaxonNameClassification summary
+      history_author_year(t, c),                  # author year of the subject, or protonym
+      history_subject_original_citation(i),
       history_other_name(i, r),                   # The TaxonNameRelaltionship
-      history_in(t, c),                           #  citation for related name 
+      history_in(t, c),                           #  citation for related name
       history_pages(c),                           #  pages for citation of related name
-      history_citation_notes(c),                  # Notes on the citation 
+      history_citation_notes(c),                  # Notes on the citation
       history_topics(c),                          # Topics on the citation
 #      (i.object.class.name == 'Protonym' ? history_type_material(t, i.is_subsequent?) : nil), # Type material reference 
       history_type_material(i),
@@ -108,7 +107,7 @@ module TaxonNames::CatalogHelper
   def history_statuses(i)
     s = i.taxon_name.taxon_name_classifications_for_statuses
     return nil if (s.empty? || i.is_subsequent?)
-    return nil if !i.from_relationship?
+    return nil if i.from_relationship?
 
     content_tag(:span, class: [:history__statuses]) do
       (' (' +
@@ -129,12 +128,12 @@ module TaxonNames::CatalogHelper
     t = catalog_item.object.subject_taxon_name
     c = t.origin_citation
 
-    a = history_author_year_tag(t) 
+    a = history_author_year_tag(t)
     b = citation_author_year_tag(c)
 
     body =  [
-      (a != b ?  ': ' + citation_author_year_tag(c) : nil),
-      history_pages(c)
+      (a != b ?  ': ' + citation_author_year_tag(c) : nil) #,
+      #history_pages(c)
     ].compact.join.html_safe
 
     content_tag(:span, body, class: :history__subject_original_citation) unless body.blank?

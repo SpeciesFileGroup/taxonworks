@@ -139,6 +139,30 @@
 #   @return [Integer]
 #     the month, from 0-12, that the collecting event ended on
 #
+# @!attribute group 
+#   @return [String, nil]
+#     member sensu PBDB 
+#
+# @!attribute formation 
+#   @return [String, nil]
+#     formation sensu PBDB 
+#
+# @!attribute member 
+#   @return [String, nil]
+#     member sensu PBDB 
+#
+## @!attribute lithology
+#   @return [String, nil]
+#     lithology sensu PBDB 
+#
+## @!attribute max_ma 
+#   @return [Decimal, nil]
+#     max_ma (million years) sensu PBDB 
+#
+## @!attribute min_ma 
+#   @return [Decimal, nil]
+#     min_ma (million years) sensu PBDB 
+#
 # @!attribute cached_level0_geographic_name
 #   @return [String, nil]
 #     the auto-calculated level0 (= country in TaxonWorks) value drawn from GeographicNames, never directly user supplied
@@ -208,7 +232,8 @@ class CollectingEvent < ActiveRecord::Base
 
   validate :check_verbatim_geolocation_uncertainty,
            :check_date_range,
-           :check_elevation_range
+           :check_elevation_range,
+           :check_ma_range
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: 'verbatim_label.blank?'
   validates_presence_of :verbatim_longitude, if: '!verbatim_latitude.blank?'
@@ -216,25 +241,82 @@ class CollectingEvent < ActiveRecord::Base
 
   validates :geographic_area, presence: true, allow_nil: true
 
-  validates :time_start_hour, time_hour: true
-  validates :time_start_minute, time_minute: true
-  validates :time_start_second, time_second: true
+  validates :time_start_hour,
+            allow_nil:    true,
+            numericality: {
+              only_integer: true,
+              greater_than: -1, less_than: 24,
+              message:      'start time hour must be 0-23'
+            }
+
+  validates :time_start_minute,
+            allow_nil:    true,
+            numericality: {
+              only_integer: true,
+              greater_than: -1, less_than: 60,
+              message:      'start time minute must be 0-59'
+            }
+
+  validates :time_start_second,
+            allow_nil:    true,
+            numericality: {
+              only_integer: true,
+              greater_than: -1, less_than: 60,
+              message:      'start time second must be 0-59'
+            }
 
   validates_presence_of :time_start_minute, if: '!self.time_start_second.blank?'
   validates_presence_of :time_start_hour, if: '!self.time_start_minute.blank?'
 
-  validates :time_end_hour, time_hour: true
-  validates :time_end_minute, time_minute: true
-  validates :time_end_second, time_second: true
+  validates :time_end_hour,
+            allow_nil:    true,
+            numericality: {
+              only_integer: true,
+              in:           (0..23),
+              message:      'end time hour must be 0-23'}
+
+  validates :time_end_minute,
+            allow_nil:    true,
+            numericality: {
+              only_integer: true,
+              in:           (0..59),
+              message:      'end time minute must be 0-59'}
+
+  validates :time_end_second,
+            allow_nil:    true,
+            numericality: {
+              only_integer: true,
+              in:           (0..59),
+              message:      'end time second must be 0-59'}
 
   validates_presence_of :time_end_minute, if: '!self.time_end_second.blank?'
   validates_presence_of :time_end_hour, if: '!self.time_end_minute.blank?'
 
-  validates :start_date_year, date_year: { min_year: 1000, max_year: Time.now.year + 5}
-  validates :end_date_year, date_year: { min_year: 1000, max_year: Time.now.year + 5}
+  # @todo factor these out (see also TaxonDetermination, Source::Bibtex)
+  validates :start_date_year,
+            numericality: {only_integer: true,
+                           greater_than: 1000,
+                           less_than:    (Time.now.year + 5),
+                           message:      'start date year must be an integer greater than 1000, and no more than 5 years in the future'},
+            length:       {is: 4},
+            allow_nil:    true
 
-  validates :start_date_month, date_month: true
-  validates :end_date_month, date_month: true
+  validates :end_date_year,
+            numericality: {only_integer: true,
+                           greater_than: 1000,
+                           less_than:    (Time.now.year + 5),
+                           message:      'end date year must be an integer greater than 1000, and no more than 5 years int he future'},
+            length:       {is: 4},
+            allow_nil:    true
+
+  # @todo these are just simple integer validations now, fix!
+  validates :start_date_month,
+            numericality: {only_integer: true, greater_than: 0, less_than: 13},
+            unless:       'start_date_month.blank?'
+
+  validates :end_date_month,
+            numericality: {only_integer: true, greater_than: 0, less_than: 13},
+            unless:       'end_date_month.blank?'
 
   validates_presence_of :start_date_month,
                         if: '!start_date_day.nil?'
@@ -242,11 +324,21 @@ class CollectingEvent < ActiveRecord::Base
   validates_presence_of :end_date_month,
                         if: '!end_date_day.nil?'
 
-  validates :end_date_day, date_day: { year_sym: :end_date_year, month_sym: :end_date_month },
-            unless: 'end_date_year.nil? || end_date_month.nil?'
+  validates_numericality_of :end_date_day,
+                            allow_nil:             true,
+                            only_integer:          true,
+                            greater_than:          0,
+                            less_than_or_equal_to: Proc.new { |a| Time.utc(a.end_date_year, a.end_date_month).end_of_month.day },
+                            unless:                'end_date_year.nil? || end_date_month.nil?',
+                            message:               '%{value} is not a valid end_date_day for the month provided'
 
-  validates :start_date_day, date_day: { year_sym: :start_date_year, month_sym: :start_date_month },
-            unless: 'start_date_year.nil? || start_date_month.nil?'
+  validates_numericality_of :start_date_day,
+                            allow_nil:             true,
+                            only_integer:          true,
+                            greater_than:          0,
+                            less_than_or_equal_to: Proc.new { |a| Time.utc(a.start_date_year, a.start_date_month).end_of_month.day },
+                            unless:                'start_date_year.nil? || start_date_month.nil?',
+                            message:               '%{value} is not a valid start_date_day for the month provided'
 
 
   soft_validate(:sv_minimally_check_for_a_label)
@@ -1178,6 +1270,10 @@ class CollectingEvent < ActiveRecord::Base
   def check_date_range
     errors.add(:base, 'End date is earlier than start date.') if has_start_date? && has_end_date? && (start_date > end_date)
     errors.add(:base, 'End date without start date.') if (has_end_date? && !has_start_date?)
+  end
+
+  def check_ma_range
+    errors.add(:min_ma, 'Min ma is < Max ma.') if min_ma.present? && max_ma.present? && min_ma > max_ma
   end
 
   def check_elevation_range

@@ -148,6 +148,10 @@ module Queries
       table[:name].matches_any(terms)
     end
 
+    def exactly_named
+      table[:name].eq(query_string)
+    end
+
     def parent 
       table.alias 
     end
@@ -177,7 +181,6 @@ module Queries
         nil
       end
     end
-
 
   end
 end

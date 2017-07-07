@@ -135,7 +135,31 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           expect(species.cached_html).to eq('<i>Aus aa</i>')
           expect(species.cached).to eq('Aus aa')
         end
-      
+
+        specify 'nomimotypical subgenus original combination' do
+          genus1 = FactoryGirl.create(:relationship_genus, name: 'Aus')
+          subgenus1 = FactoryGirl.create(:iczn_subgenus, name: 'Bus', parent: genus1)
+          r = TaxonNameRelationship::OriginalCombination::OriginalGenus.create(subject_taxon_name: genus1, object_taxon_name: genus1)
+          genus1.original_genus = genus1
+          genus1.save
+          genus1.reload
+          expect(genus1.cached_original_combination).to eq('<i>Aus</i>')
+          expect(genus1.cached_primary_homonym).to eq('Aus')
+
+          subgenus1.soft_validate(:single_sub_taxon)
+          subgenus1.fix_soft_validations
+          genus1.soft_validate(:single_sub_taxon)
+          genus1.fix_soft_validations
+          r.soft_validate(:single_sub_taxon)
+          r.fix_soft_validations
+          genus1.reload
+          expect(genus1.cached_original_combination).to eq('<i>Aus</i>')
+          expect(genus1.cached_primary_homonym).to eq('Aus')
+          subgenus2 = genus1.lowest_rank_coordinated_taxon
+          expect(subgenus2.name).to eq('Aus')
+          expect(subgenus2.rank_name).to eq('subgenus')
+          expect(subgenus2.get_original_combination).to eq('<i>Aus</i>')
+        end
       
       end
     end

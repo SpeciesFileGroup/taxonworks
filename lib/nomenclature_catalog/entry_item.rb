@@ -21,7 +21,7 @@ module NomenclatureCatalog
 
     def initialize(object: nil, taxon_name: nil, citation: nil, nomenclature_date: nil, citation_date: nil)
       raise if object.nil? || taxon_name.nil?
-      raise if nomenclature_date.nil? && !(object.class == 'Protonym' || 'Combination' || 'TaxonNameRelationship')
+      raise if nomenclature_date.nil? && !(object.class.to_s == 'Protonym' || 'Combination' || 'TaxonNameRelationship')
 
       @object = object
       @taxon_name = taxon_name
@@ -54,7 +54,8 @@ module NomenclatureCatalog
     end
 
     def is_subsequent?
-      object == taxon_name && !citation.try(:is_original?)
+ #     object == taxon_name && !citation.try(:is_original?)
+      object == taxon_name && !citation.nil? && !citation.is_original?
     end
 
     def other_name
@@ -67,6 +68,8 @@ module NomenclatureCatalog
       case object_class
       when 'Protonym'
         'protonym'
+      when 'Hybrid'
+        'hybrid'
       when 'Combination'
         'combination'
       when /TaxonNameRelationship/

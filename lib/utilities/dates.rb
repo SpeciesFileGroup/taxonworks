@@ -1,26 +1,26 @@
 module Utilities::Dates
 
-  LONG_MONTHS  = %w{january february march april may june july august september october november december}
+  LONG_MONTHS = %w{january february march april may june july august september october november december}
   SHORT_MONTHS = %w{jan feb mar apr may jun jul aug sep oct nov dec}
   ROMAN_MONTHS = %i{i ii iii iv v vi vii viii ix x xi xii}
 
-  MONTHS_FOR_SELECT = LONG_MONTHS.collect { |m| [m.capitalize, LONG_MONTHS.index(m) + 1] }
+  MONTHS_FOR_SELECT = LONG_MONTHS.collect {|m| [m.capitalize, LONG_MONTHS.index(m) + 1]}
 
   # This following is the better long term approach than using
   # a preset LEGAL_MONTHS, as it depends on extending
   # SHORT_MONTH_FILTER correctly.
   #    SHORT_MONTHS.include?(SHORT_MONTH_FILTER[value].to_s)
-  LEGAL_MONTHS      = (1..12).to_a +
-    (1..12).to_a.collect { |d| d.to_s } +
-    ROMAN_MONTHS.map(&:to_s) +
-    ROMAN_MONTHS.map(&:to_s).map(&:upcase) +
-    SHORT_MONTHS +
-    SHORT_MONTHS.map(&:capitalize) +
-    SHORT_MONTHS.map(&:upcase) +
-    SHORT_MONTHS.map(&:to_sym) +
-    LONG_MONTHS +
-    LONG_MONTHS.map(&:capitalize) +
-    LONG_MONTHS.map(&:upcase)
+  LEGAL_MONTHS = (1..12).to_a +
+      (1..12).to_a.collect {|d| d.to_s} +
+      ROMAN_MONTHS.map(&:to_s) +
+      ROMAN_MONTHS.map(&:to_s).map(&:upcase) +
+      SHORT_MONTHS +
+      SHORT_MONTHS.map(&:capitalize) +
+      SHORT_MONTHS.map(&:upcase) +
+      SHORT_MONTHS.map(&:to_sym) +
+      LONG_MONTHS +
+      LONG_MONTHS.map(&:capitalize) +
+      LONG_MONTHS.map(&:upcase)
   LONG_MONTHS.map(&:to_sym)
 
   # TODO: Write unit tests
@@ -32,25 +32,25 @@ module Utilities::Dates
   #   SHORT_MONTH_FILTER['I']       # => :jan
   #   SHORT_MONTH_FILTER['foo']     # => 'foo':
   SHORT_MONTH_FILTER =
-    Hash.new do |h, k|
-      v = k.to_s.strip
-      if v =~ /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i
-        h[k] = v[0, 3].downcase.to_sym
-      else
-        i = nil
-        if v =~ /^\d\d?$/
-          i = v.to_i
-        elsif ROMAN_MONTHS.include?(v.downcase.to_sym)
-          i = ROMAN_MONTHS.index(v.downcase.to_sym) + 1
-        end
+      Hash.new do |h, k|
+        v = k.to_s.strip
+        if v =~ /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i
+          h[k] = v[0, 3].downcase.to_sym
+        else
+          i = nil
+          if v =~ /^\d\d?$/
+            i = v.to_i
+          elsif ROMAN_MONTHS.include?(v.downcase.to_sym)
+            i = ROMAN_MONTHS.index(v.downcase.to_sym) + 1
+          end
 
-        if !i.nil? && i > 0 && i < 13
-          h[k] = DateTime.new(1, i, 1).strftime('%b').downcase.to_sym
-        else # return the value passed if it doesn't match
-          k
+          if !i.nil? && i > 0 && i < 13
+            h[k] = DateTime.new(1, i, 1).strftime('%b').downcase.to_sym
+          else # return the value passed if it doesn't match
+            k
+          end
         end
       end
-    end
 
   # @param [String]
   # @param [Integer]
@@ -104,34 +104,34 @@ module Utilities::Dates
   # @param [Hash] params
   # TODO: still needs more work for some date combinations
   def self.date_sql_from_params(params)
-    st_date, end_date         = params['st_datepicker'], params['en_datepicker']
+    st_date, end_date = params['st_datepicker'], params['en_datepicker']
 # processing start date data
     st_year, st_month, st_day = params['start_date_year'], params['start_date_month'], params['start_date_day']
     unless st_date.blank?
-      parts                     = st_date.split('/')
+      parts = st_date.split('/')
       st_year, st_month, st_day = parts[2], parts[0], parts[1]
     end
-    st_my                        = (!st_month.blank? and !st_year.blank?)
-    st_m                         = (!st_month.blank? and st_year.blank?)
-    st_y                         = (st_month.blank? and !st_year.blank?)
-    st_blank                     = (st_year.blank? and st_month.blank? and st_day.blank?)
-    st_full                      = (!st_year.blank? and !st_month.blank? and !st_day.blank?)
-    st_partial                   = (!st_blank and (st_year.blank? or st_month.blank? or st_day.blank?))
-    start_time                   = fix_time(st_year, st_month, st_day) if st_full
+    st_my = (!st_month.blank? and !st_year.blank?)
+    st_m = (!st_month.blank? and st_year.blank?)
+    st_y = (st_month.blank? and !st_year.blank?)
+    st_blank = (st_year.blank? and st_month.blank? and st_day.blank?)
+    st_full = (!st_year.blank? and !st_month.blank? and !st_day.blank?)
+    st_partial = (!st_blank and (st_year.blank? or st_month.blank? or st_day.blank?))
+    start_time = fix_time(st_year, st_month, st_day) if st_full
 
 # processing end date data
     end_year, end_month, end_day = params['end_date_year'], params['end_date_month'], params['end_date_day']
     unless end_date.blank?
-      parts                        = end_date.split('/')
+      parts = end_date.split('/')
       end_year, end_month, end_day = parts[2], parts[0], parts[1]
     end
-    end_my      = (!end_month.blank? and !end_year.blank?)
-    end_m       = (!end_month.blank? and end_year.blank?)
-    end_y       = (end_month.blank? and !end_year.blank?)
-    end_blank   = (end_year.blank? and end_month.blank? and end_day.blank?)
-    end_full    = (!end_year.blank? and !end_month.blank? and !end_day.blank?)
+    end_my = (!end_month.blank? and !end_year.blank?)
+    end_m = (!end_month.blank? and end_year.blank?)
+    end_y = (end_month.blank? and !end_year.blank?)
+    end_blank = (end_year.blank? and end_month.blank? and end_day.blank?)
+    end_full = (!end_year.blank? and !end_month.blank? and !end_day.blank?)
     end_partial = (!end_blank and (end_year.blank? or end_month.blank? or end_day.blank?))
-    end_time    = fix_time(end_year, end_month, end_day) if end_full
+    end_time = fix_time(end_year, end_month, end_day) if end_full
 
     sql_string = ''
 # if all the date information is blank, skip the date testing
@@ -180,9 +180,9 @@ module Utilities::Dates
   # Pass integers
   def self.format_to_hours_minutes_seconds(hour, minute, second)
     h, m, s = nil, nil, nil
-    h       = ('%02d' % hour) if hour
-    m       = ('%02d' % minute) if minute
-    s       = ('%02d' % second) if second
+    h = ('%02d' % hour) if hour
+    m = ('%02d' % minute) if minute
+    s = ('%02d' % second) if second
     [h, m, s].compact.join(':')
   end
 
@@ -194,7 +194,7 @@ module Utilities::Dates
   def self.add_st_year(sql, st_year)
     unless st_year.blank?
       prefix = sql.blank? ? '' : ' and '
-      sql    += "#{prefix}(start_date_year = #{st_year})"
+      sql += "#{prefix}(start_date_year = #{st_year})"
     end
     sql
   end
@@ -205,7 +205,7 @@ module Utilities::Dates
   def self.add_st_month(sql, st_month)
     unless st_month.blank?
       prefix = sql.blank? ? '' : ' and '
-      sql    += "#{prefix}(start_date_month = #{st_month})"
+      sql += "#{prefix}(start_date_month = #{st_month})"
     end
     sql
   end
@@ -216,7 +216,7 @@ module Utilities::Dates
   def self.add_st_day(sql, st_day)
     unless st_day.blank?
       prefix = sql.blank? ? '' : ' and '
-      sql    += "#{prefix}(start_date_day = #{st_day})"
+      sql += "#{prefix}(start_date_day = #{st_day})"
     end
     sql
   end
@@ -245,7 +245,7 @@ module Utilities::Dates
   def self.normalize_and_order_dates(start_date, end_date)
     if start_date.blank? and end_date.blank? # set entire range
       start_date = '1700/1/1'
-      end_date   = Date.today.strftime('%Y/%m/%d')
+      end_date = Date.today.strftime('%Y/%m/%d')
     else
       if end_date.blank? # set a one-day range
         end_date = start_date
@@ -289,7 +289,7 @@ module Utilities::Dates
       nil
     else
       if date_range.size == 2
-        'Records exist in the date range ' + date_range.collect{|d| d.strftime(format)}.join(' to ') + '.'
+        'Records exist in the date range ' + date_range.collect {|d| d.strftime(format)}.join(' to ') + '.'
       elsif date_range.size == 1
         "A record exists from #{date_range.first.strftime(format)}."
       else
@@ -323,10 +323,30 @@ module Utilities::Dates
       unless matches.blank?
         trials[kee][:method] = kee
         trials[kee][:piece] = {}
-        extract_dates(trials[kee], matches)
+        trial = extract_dates(trials[kee], matches)
+        if invalid_month_day(trial)
+          trials[kee] = {}
+        end
       end
     }
     trials
+  end
+
+  def self.invalid_month_day(trial)
+    retval = false
+    if trial[:start_date_day].to_i > 31 or trial[:end_date_day].to_i > 31
+      retval = true
+    end
+    if trial[:start_date_day].to_i < 1 or (trial[:end_date_day].to_i < 1 and !trial[:end_date_day].blank?)
+      retval = true
+    end
+    if trial[:start_date_month].to_i > 12 or trial[:end_date_month].to_i > 12
+      retval = true
+    end
+    if trial[:start_date_month].to_i < 1 or (trial[:end_date_month].to_i < 1 and !trial[:end_date_month].blank?)
+      retval = true
+    end
+    retval
   end
 
   def self.extract_dates(trial, match_data)
@@ -437,6 +457,15 @@ module Utilities::Dates
           end_date_year = 3
           end_date_month = 1
           end_date_day = 2
+        end
+      when :dd_mm_yy
+        start_date_year = 3
+        start_date_month = 2
+        start_date_day = 1
+        if match_data[1]
+          end_date_year = 3
+          end_date_month = 2
+          end_date_day = 1
         end
       when :yyyy_mm_dd
         start_date_year = 1
@@ -557,6 +586,10 @@ module Utilities::Dates
       mm_dd_yy: {reg: /(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?([\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
                  hlp: "6/29/47 | 6/29/'47 | 7.10.94 | 5-17-97",
                  hdr: 'mdy'},
+
+      dd_mm_yy: {reg: /(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?([\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
+                 hlp: "29/9/47 | 29/9/'47 | 7.10.94 | 15-07-97",
+                 hdr: 'dmy'},
 
       yyyy_mm_dd: {reg: /(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)/i,
                    hlp: "1994, 4.16 | '02-04-24",
