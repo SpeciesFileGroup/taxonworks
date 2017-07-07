@@ -122,14 +122,27 @@ module BatchLoad
         g_r       = @row_objects[:make_gr]
         ppl       = @row_objects[:make_prsn]
 
-        if c_e.valid?
+        unless c_e.valid?
+          test_list = c_e.errors.keys
+          if test_list.include?(:start_date_day) or
+            test_list.include?(:start_date_month) or
+            test_list.include?(:start_date_year) or
+            test_list.include?(:end_date_day) or
+            test_list.include?(:end_date_month) or
+            test_list.include?(:end_date_year)
+            @warns.push("eventDate (#{c_e.verbatim_date}) does not parse properly.")
+
+            c_e.start_date_day   = nil
+            c_e.start_date_month = nil
+            c_e.start_date_year  = nil
+            c_e.end_date_day     = nil
+            c_e.end_date_month   = nil
+            c_e.end_date_year    = nil
+          end
+        end
+
+        if c_e.valid? # check c_e again
           c_e.save if c_e.new_record?
-          # add notes to collecting_event, if required
-          # unless c_e_notes.blank?
-          #   c_e_notes.keys.each {|kee|
-          #     c_e_notes[kee].note_object = c_e
-          #   }
-          # end
           unless c_e_notes.blank?
             apply_note = false
             c_e_notes.keys.each {|kee|
@@ -149,10 +162,8 @@ module BatchLoad
               c_e_n.note_object = c_e if apply_note
             }
           end
-
         else
-          @errs.push(c_e.errors.messages)
-          # @row_objects.delete(:make_ce)
+          @errs.push(c_e.errors.full_messages.flatten)
           # everything else is a fail.
           line_counter = loop_end(line_counter)
           next
@@ -197,10 +208,10 @@ module BatchLoad
           a = c_e.generate_verbatim_data_georeference
           if a.valid?
             # and replace the pre-built georeference
-            g_r = c_e.georeferences.last
+            g_r                    = c_e.georeferences.last
             @row_objects[:make_gr] = g_r
           else
-            @warns.push(a.errors.messages)
+            @warns.push(a.errors.full_messages)
             @row_objects.delete(:make_gr)
           end
         else
@@ -260,7 +271,7 @@ module BatchLoad
                   if object.valid?
                     object.save
                   else
-                    @errs.push(object.errors.messages)
+                    @errs.push(object.errors.full_messages)
                   end
                 }
               when 'Hash'
@@ -271,7 +282,7 @@ module BatchLoad
                   when true
                     objects.save
                   when false
-                    @errs.push(objects.errors.messages)
+                    @errs.push(objects.errors.full_messages)
                   when nil
                     @warns.push('No georeference exists.')
                 end
@@ -336,7 +347,7 @@ module BatchLoad
             if object.valid?
               object.save
             else
-              l_errs.push(object.errors.messages)
+              l_errs.push(object.errors.full_messages)
             end
           end
         end
@@ -553,16 +564,16 @@ module BatchLoad
         g_a_matches = GeographicArea.matching(g_a_text, true)
         g_a         = g_a_matches[g_a_text].try(:first)
       end
-      hunt_params = {project_id:                       @project_id,
-                     geographic_area:                  g_a,
-                     verbatim_datum:                   row['geodeticdatum'],
-                     verbatim_locality:                v_l,
-                     verbatim_date:                    d_s,
-                     verbatim_label:                   row['locationremarks'],
-                     verbatim_geolocation_uncertainty: row['coordinateuncertaintyinmeters'],
-                     verbatim_latitude:                row['decimallatitude'],
-                     verbatim_longitude:               row['decimallongitude'],
-                     verbatim_collectors:              row['recordedby']}.merge!(date_params)
+      hunt_params   = {project_id:                       @project_id,
+                       geographic_area:                  g_a,
+                       verbatim_datum:                   row['geodeticdatum'],
+                       verbatim_locality:                v_l,
+                       verbatim_date:                    d_s,
+                       verbatim_label:                   row['locationremarks'],
+                       verbatim_geolocation_uncertainty: row['coordinateuncertaintyinmeters'],
+                       verbatim_latitude:                row['decimallatitude'],
+                       verbatim_longitude:               row['decimallongitude'],
+                       verbatim_collectors:              row['recordedby']}.merge!(date_params)
       c_e           = CollectingEvent.find_or_initialize_by(hunt_params)
       ret_val[:c_e] = c_e
       ret_val.merge!(err: [])

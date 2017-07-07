@@ -426,8 +426,10 @@ class Georeference < ActiveRecord::Base
   # @return [Boolean] true iff collecting_event contains georeference geographic_item.
   def add_obj_inside_area
     unless check_obj_inside_area
-      errors.add(:geographic_item, 'for georeference is not contained in the geographic area bound to the collecting event')
-      errors.add(:collecting_event, 'is assigned to a geographic area outside the supplied georeference/geographic item')
+      errors.add(:geographic_item,
+                 'for georeference is not contained in the geographic area bound to the collecting event')
+      errors.add(:collecting_event,
+                 'is assigned a geographic area which does not contain the supplied georeference/geographic item')
     end
   end
 
