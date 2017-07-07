@@ -1,6 +1,6 @@
 # TODO: THIS IS A GENERATED STUB, it does not function
 module BatchLoad
-  class Import::TaxonNamess::CastorInterpreter < BatchLoad::Import
+  class Import::TaxonNames::CastorInterpreter < BatchLoad::Import
 
     # The parent for the top level names
     attr_accessor :parent_taxon_name
