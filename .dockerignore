@@ -20,12 +20,11 @@ node_modules
 
 .ruby-gemset
 .bundle
-
+bin
 bundle_bin
 
 log
 tmp
-index.html
 
 doc
 .yardoc
@@ -33,10 +32,9 @@ coverage
 
 REVISION
 
-public/system
 public/images/tmp
-public/assets
-public/packs
+public/system
+public/index.html
 
 .git
 spec

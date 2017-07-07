@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 
 # Fail after the first non zero
 set -e 

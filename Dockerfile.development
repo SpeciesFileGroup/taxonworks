@@ -47,7 +47,7 @@ RUN gem install bundler && \
 WORKDIR /app
 COPY Gemfile /app
 COPY Gemfile.lock /app
-RUN bundle install
+RUN bundle install  
 
 CMD ["exe/docker_compose_start.sh"]
 
