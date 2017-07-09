@@ -1,10 +1,9 @@
 <template>
-	<div class="find-taxonname-picker">
+	<div>
     <div v-if="spinner" class="spinner">
       <div class="box-spinner"></div>
     </div>
-    <h4 v-if="search && json.length == 0">No existing matches</h4>
-    <ul class="no_bullets" v-if="json.length > 0">
+    <ul class="no_bullets find-taxonname-picker" v-if="json.length > 0">
      <li v-for="item, index in json" v-if="index < maxResults"><a :href="makeUrl(item.id)" v-html="item[label]"></a></li>
    </ul>
  </div>
@@ -114,17 +113,18 @@
 
 <style type="text/css">
   .find-taxonname-picker {
-    margin-top: 15px;
+    margin-top: 1.5em;
+    box-sizing: border-box;
     border: 1px solid #f5f5f5;
+    padding: 12px;
+    border-radius: 3px;
     .header {
       border-bottom: 1px solid #f5f5f5;
     }
     .body {
       padding: 12px;
     }
-    .vue-autocomplete-input {
-      width: 100% ;
-    }
+
     li a {
       transition: padding 0.3s ease;
       cursor: pointer;
@@ -133,9 +133,5 @@
       padding-left: 12px;
       transition: padding 0.3s ease;
     }
-    width: 100%;
-    padding: 12px;
-    border-radius: 3px;
-//    box-shadow: 0 0 2px 0px rgba(0,0,0,0.2);
   }
 </style>

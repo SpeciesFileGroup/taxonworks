@@ -1,36 +1,48 @@
 <template>
-<div>
-	<div class="source-picker panel">
-		<div class="header">
-			<h3>Source</h3>
+	<form>
+		<div class="source-picker panel">
+			<div class="header">
+				<h3>Source</h3>
+			</div>
+			<div class="body">
+				<autocomplete
+					url="/sources/autocomplete"
+					min="3"
+					param="term"
+					event-send="sourceSelect"
+					label="label_html"
+					placeholder="Type for search..."
+					display="label">
+				</autocomplete>
+				<div v-if="source != undefined">
+					<p>{{ source.object_tag }}</p>
+				</div>
+				<hr>
+		        <div class="field separate-top">
+		          <label>Verbatim author</label><br>
+		          <verbatim-author></verbatim-author>
+		        </div>
+		        <div class="fields">
+		          <label>Verbatim year</label><br>
+		          <verbatim-year></verbatim-year>
+		        </div>
+			</div>
 		</div>
-		<div class="body">
-		<autocomplete
-			url="/sources/autocomplete"
-			min="3"
-			param="term"
-			event-send="sourceSelect"
-			label="label_html"
-			placeholder="Type for search..."
-			display="label">
-		</autocomplete>
-		<div v-if="source != undefined">
-			<p>{{ source.object_tag }}</p>
-		</div>
-		</div>
-	</div>
-	</div>
+	</form>
 </template>
 
 <script>
-
+	const verbatimAuthor = require('./verbatimAuthor.vue');
+	const verbatimYear = require('./verbatimYear.vue');
   	const GetterNames = require('../store/getters/getters').GetterNames; 
 	const MutationNames = require('../store/mutations/mutations').MutationNames;  
  	const autocomplete = require('../../../components/autocomplete.vue');
 
 	export default {
 		components: {
-			autocomplete
+			autocomplete,
+			verbatimAuthor,
+			verbatimYear,
 		},
 		computed: {
 			source() {
@@ -58,6 +70,14 @@
 		}
 		.vue-autocomplete-input {
 			width: 100% ;
+		}
+		hr {
+		    height: 1px;
+		    color: #f5f5f5;
+		    background: #f5f5f5;
+		    font-size: 0;
+		    margin: 15px;
+		    border: 0;
 		}
 		width: 900px;
 		padding: 12px;

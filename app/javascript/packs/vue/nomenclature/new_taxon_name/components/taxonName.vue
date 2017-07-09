@@ -20,11 +20,3 @@
     }
   }
 </script>
-
-<style>
-.taxonName-input {
-  width: 500px;
-  max-width: 300px;
-  //min-width: 500px;
-}
-</style>

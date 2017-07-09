@@ -1,29 +1,16 @@
 <template>
   <div id="new_taxon_name_task">
+    <spinner :full-screen="true" :logo-size="{ width: '100px', height: '100px'}"v-if="loading"></spinner>
     <h1>New taxon name</h1>
     <div>
       <basic-information></basic-information>
       <source-picker class="separate-top"></source-picker>
-      <form class="content">
-        <div class="field separate-top">
-
-        </div>      
-        <div class="field separate-top">
-          <label>Verbatim author</label><br>
-          <verbatim-author></verbatim-author>
-        </div>
-        <div class="fields">
-          <label>Verbatim year</label><br>
-          <verbatim-year></verbatim-year>
-        </div>
-      </form>
       <div>
         <status-picker></status-picker>
         <list-entrys mutationNameRemove="RemoveTaxonStatus" list="GetTaxonStatusList" display="name"></list-entrys>
       </div>
       <div>
         <relationship-picker></relationship-picker>
-        <taxon-name-picker></taxon-name-picker>
         <list-entrys mutationNameRemove="RemoveTaxonRelationship" list="GetTaxonRelationshipList" display="subject_status_tag"></list-entrys>
       </div>
       <div>
@@ -35,14 +22,13 @@
 
 <script>
   var sourcePicker = require('./components/sourcePicker.vue');
-  var verbatimAuthor = require('./components/verbatimAuthor.vue');
-  var verbatimYear = require('./components/verbatimYear.vue');
   var relationshipPicker = require('./components/relationshipPicker.vue');
   var statusPicker = require('./components/statusPicker.vue');
   var listEntrys = require('./components/listEntrys.vue');
-  var taxonNamePicker = require('./components/taxonNamePicker.vue');
+  
   var basicInformation = require('./components/basicInformation.vue');
   var originalCombination = require('./components/originalCombination.vue');
+  var spinner = require('../../components/spinner.vue');
 
 
   const MutationNames = require('./store/mutations/mutations').MutationNames;  
@@ -53,12 +39,10 @@
   export default {
     components: {
       sourcePicker,
-      verbatimAuthor,
-      verbatimYear,
+      spinner,
       statusPicker,
       relationshipPicker,
       listEntrys,
-      taxonNamePicker,
       basicInformation,
       originalCombination
     },
@@ -70,29 +54,57 @@
         return this.$store.getters[GetterNames.GetParent];
       }
     },
+    data: function() {
+      return {
+        loading: true
+      }
+    },
     mounted: function() {
+      let that = this;
       let taxonId = location.pathname.split('/')[4];
-        this.loadRanks();
-        this.loadStatus();
-        this.loadRelationship();
+      this.initLoad().then(function() {
         if(/^\d+$/.test(taxonId)) {
-          this.fillTaxonName(taxonId);
+          that.fillTaxonName(taxonId);
         }
+        else {
+          that.loading = false;
+        }
+      });
     },
     methods: {
       loadRanks: function() {
-        this.$http.get('/taxon_names/ranks').then( response => {
-          this.$store.commit(MutationNames.SetRankList, response.body);
+        let that = this;
+        return new Promise(function (resolve, reject) {
+          that.$http.get('/taxon_names/ranks').then( response => {
+            that.$store.commit(MutationNames.SetRankList, response.body);
+           return resolve(true);
         });
+      });
+         
       },
       loadStatus: function() {
-        this.$http.get('/taxon_name_classifications/taxon_name_classification_types').then( response => {
-          this.$store.commit(MutationNames.SetStatusList, response.body);
+        let that = this;
+        return new Promise(function (resolve, reject) {
+        that.$http.get('/taxon_name_classifications/taxon_name_classification_types').then( response => {
+          that.$store.commit(MutationNames.SetStatusList, response.body);
+          return resolve(true);
         });
+      });
       },
       loadRelationship: function() {
-        this.$http.get('/taxon_name_relationships/taxon_name_relationship_types').then( response => {
-          this.$store.commit(MutationNames.SetRelationshipList, response.body);
+        let that = this;
+        return new Promise(function (resolve, reject) {
+        that.$http.get('/taxon_name_relationships/taxon_name_relationship_types').then( response => {
+          that.$store.commit(MutationNames.SetRelationshipList, response.body);
+          return resolve(true);
+        });
+      });
+        
+      },
+      initLoad: function() {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+          return resolve(that.loadRanks().then(that.loadStatus).then(that.loadRelationship));
         });
       },
       fillTaxonName: function(id) {
@@ -102,18 +114,18 @@
             id: response.body.id,
             parent_id: response.body.parent_id,
             name: response.body.name,
-            rank_class: response.body.rank,
+            rank_class: response.body.rank_string,
             year_of_publication: response.body.year_of_publication,
-            verbatim_author: response.body.year_of_publication,
+            verbatim_author: response.body.verbatim_author,
             feminine_name: response.body.feminine_name,
             masculine_name: response.body.masculine_name,
             neuter_name: response.body.neuter_name,
           }
-          //this.$store.commit(MutationNames.GetRelatioships, response.body.source);
           this.$store.commit(MutationNames.SetSource, response.body.source);
           this.$store.commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code);
           this.$store.commit(MutationNames.SetTaxon, taxon_name);
           this.$store.dispatch(ActionNames.SetParentAndRanks, response.body.parent);
+          this.loading = false;
         }, response => {
           TW.workbench.alert.create("There is no taxon name associated to that ID", "error");
         });

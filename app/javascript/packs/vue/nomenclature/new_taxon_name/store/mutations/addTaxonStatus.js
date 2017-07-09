@@ -1,11 +1,11 @@
 module.exports = function(state, status) {
-	var position = state.taxon_name.statusList.findIndex( item => {
+	var position = state.taxonStatusList.findIndex( item => {
 		if(item.type == status.type) {
 			return true;
 		}
 	});
 	
 	if (position < 0) {
-		state.taxon_name.statusList.push(status);
+		state.taxonStatusList.push(status);
 	}
 };

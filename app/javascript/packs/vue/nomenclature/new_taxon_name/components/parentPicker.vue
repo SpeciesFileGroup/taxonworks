@@ -36,6 +36,7 @@
       this.$on('parentSelected', function(item) {
        this.$store.commit(MutationNames.SetParentId, item.id);
        this.$http.get(`/taxon_names/${item.id}`).then( response => {
+        this.$store.commit(MutationNames.SetRankClass, undefined);
         this.$store.commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code);
         this.$store.dispatch(ActionNames.SetParentAndRanks, response.body.parent);
       });

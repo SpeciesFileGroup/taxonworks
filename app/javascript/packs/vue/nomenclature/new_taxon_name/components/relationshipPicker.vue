@@ -1,22 +1,27 @@
 <template>
-  <tree-display 
-    :tree-list="treeList" 
-    :parent="parent" 
-    :objectLists="objectLists" 
-    :showModal="showModal" 
-    mutation-name-add="AddTaxonRelationship" 
-    mutation-name-modal="SetModalRelationship"
-    name-module="Relationship"
-    display-name="subject_status_tag">
-  </tree-display>
+  <div>
+    <tree-display 
+      :tree-list="treeList" 
+      :parent="parent" 
+      :objectLists="objectLists" 
+      :showModal="showModal" 
+      mutation-name-add="AddTaxonRelationship" 
+      mutation-name-modal="SetModalRelationship"
+      name-module="Relationship"
+      display-name="subject_status_tag">
+    </tree-display>
+    <taxon-name-picker></taxon-name-picker>
+  </div>
 </template>
 <script>
 
   const GetterNames = require('../store/getters/getters').GetterNames;
   const treeDisplay = require('./treeDisplay.vue');
+  const taxonNamePicker = require('./taxonNamePicker.vue');
 
   export default {
     components: {
+      taxonNamePicker,
       treeDisplay
     },
     computed: {

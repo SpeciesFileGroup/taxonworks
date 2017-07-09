@@ -3,22 +3,22 @@
       <div class="header">
         <h3 class="">Basic information</h3>
       </div>
-      <div class="body">
-        <div class="field separate-top">
-	        <label>Parent</label>
-	        <parent-picker></parent-picker>
-        </div>
-        <div class="horizontal-left-content align-start">
+      <div class="body horizontal-left-content align-start">
+        <div class="column-left">
+          <div class="field separate-top">
+            <label>Parent</label>
+            <parent-picker></parent-picker>
+          </div>
           <div class="field separate-right">
           	<label>Name</label><br>
           	<taxon-name></taxon-name>
           </div>
-          <div>
-            <check-exist class="separate-left" url="/taxon_names/autocomplete" label="label_html" :search="taxon.name" param="term" :add-params="{ exact: true }"></check-exist>
-          </div>
+          <rank-selector></rank-selector>
+          <button type="button" @click="taxon.id == undefined ? createTaxonName() : updateTaxonName()" :disabled="!(parent && taxon.name)" class="button normal-input">{{ taxon.id == undefined ? 'Create': 'Update' }}</button>
         </div>
-        <rank-selector></rank-selector>
-        <button type="button" @click="taxon.id == undefined ? createTaxonName() : updateTaxonName()" :disabled="!(parent && taxon.name)" class="button">{{ taxon.id == undefined ? 'Create': 'Update' }}</button>
+        <div class="column-right item">
+          <check-exist class="separate-left" url="/taxon_names/autocomplete" label="label_html" :search="taxon.name" param="term" :add-params="{ exact: true }"></check-exist>
+        </div>
         </div>
       </form>
 </template>
@@ -58,7 +58,7 @@
           }
         }
         this.$http.post('/taxon_names.json', taxon_name).then(response => {
-          TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully created.`, "success");
+          TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully created.`, "notice");
         });
       },
       updateTaxonName: function() {
@@ -71,7 +71,7 @@
           }
         }        
         this.$http.patch(`/taxon_names/${this.taxon.id}.json`, taxon_name).then(response => {
-          TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully updated.`, "success");
+          TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully updated.`, "notice");
         });
       }
     }
@@ -80,6 +80,9 @@
 
 <style type="text/css">
   .basic-information {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     .header {
       border-bottom: 1px solid #f5f5f5;
     }
@@ -87,8 +90,12 @@
       padding: 12px;
     }
     .vue-autocomplete-input {
-      width: 100% ;
+      width: 300px;
     }
+    .taxonName-input {
+      width: 300px;
+    }
+
     width: 900px;
     padding: 12px;
     box-shadow: 0 0 2px 0px rgba(0,0,0,0.2);

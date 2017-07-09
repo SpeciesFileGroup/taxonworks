@@ -20,14 +20,14 @@ function makeInitialState() {
       masculine_name: undefined,
       neuter_name: undefined,
       source: undefined,
-      statusList: [],
-      relationshipList: []
     },
     source: null,
     settings: {
       modalStatus: false,
       modalRelationship: false
     },
+    taxonStatusList: [],
+    taxonRelationshipList: [],
     nomenclatural_code: undefined,
     parent: undefined,
     ranks: undefined,
