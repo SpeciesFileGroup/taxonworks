@@ -453,6 +453,7 @@ TaxonWorks::Application.routes.draw do
 
   resources :taxon_names do
     concerns [:data_routes, :shallow_annotation_routes ]
+    resources :taxon_name_classifications, shallow: true, only: [:index], defaults: {format: :json}
     collection do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
@@ -461,6 +462,7 @@ TaxonWorks::Application.routes.draw do
     member do
       get :browse
     end
+    
   end
 
   resources :taxon_name_classifications, except: [:show] do

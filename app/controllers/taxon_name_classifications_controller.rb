@@ -6,8 +6,15 @@ class TaxonNameClassificationsController < ApplicationController
   # GET /taxon_name_relationships
   # GET /taxon_name_relationships.json
   def index
-    @recent_objects = TaxonNameClassification.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = TaxonNameClassification.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @taxon_name_classifications = TaxonNameClassification.where(filter_params).with_project_id(sessions_current_project_id)
+      }
+    end
   end
 
   # GET /taxon_name_relationships/:id.json
@@ -48,8 +55,8 @@ class TaxonNameClassificationsController < ApplicationController
     taxon_name_id = params[:taxon_name_classification].try(:[], :taxon_name_id)
 
     taxon_name = TaxonName.where(
-        id:  taxon_name_id,
-        project_id: $project_id
+      id:  taxon_name_id,
+      project_id: $project_id
     ).first
 
     @taxon_name_classification = TaxonNameClassification.new(
@@ -87,7 +94,7 @@ class TaxonNameClassificationsController < ApplicationController
       {id: t.id,
        label: TaxonNameClassificationsHelper.taxon_name_classification_tag(t),
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
        label_html: TaxonNameClassificationsHelper.taxon_name_classification_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
@@ -106,13 +113,16 @@ class TaxonNameClassificationsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_taxon_name_classification
-      @taxon_name_classification = TaxonNameClassification.with_project_id($project_id).find(params[:id])
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def taxon_name_classification_params
-      params.require(:taxon_name_classification).permit(:taxon_name_id, :type)
-    end
+  def filter_params
+    params.permit(:taxon_name_id)
+  end
+
+  def set_taxon_name_classification
+    @taxon_name_classification = TaxonNameClassification.with_project_id($project_id).find(params[:id])
+  end
+
+  def taxon_name_classification_params
+    params.require(:taxon_name_classification).permit(:taxon_name_id, :type)
+  end
 end
