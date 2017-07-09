@@ -6,7 +6,6 @@ module DataControllerConfiguration
   end
 
   def related
-    
     if @data_model.is_community?
       @object = @data_model.find(params[:id])
     else

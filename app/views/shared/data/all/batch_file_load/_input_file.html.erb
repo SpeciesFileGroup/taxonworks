@@ -1,0 +1,6 @@
+<% @result.filenames.each_with_index do |name, index| %>
+  <h4>File <%= index + 1 %>: <%= name %></h4>
+  <pre>
+    <%= @result.file_contents[index] %>
+  </pre>
+<% end %>

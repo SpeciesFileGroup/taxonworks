@@ -127,6 +127,32 @@ class OtusController < ApplicationController
     end
   end
 
+  def preview_simple_batch_file_load
+    if params[:files]
+      @result = BatchFileLoad::Import::Otus::SimpleInterpreter.new(batch_params)
+      digest_cookie(params[:files][0].tempfile, :batch_file_load_simple_md5)
+      render 'otus/batch_file_load/simple/preview'
+    else
+      flash[:notice] = 'No file(s) provided!'
+      redirect_to action: :batch_load
+    end
+  end
+
+  def create_simple_batch_file_load
+    if params[:files] && digested_cookie_exists?(params[:files][0].tempfile, :batch_file_load_simple_md5)
+      @result = BatchFileLoad::Import::Otus::SimpleInterpreter.new(batch_params)
+
+      if @result.create
+        flash[:notice] = "Successfully processed #{@result.total_files_processed} file(s), #{@result.total_records_created} otus were created."
+        render 'otus/batch_file_load/simple/create'
+        return
+      else
+        flash[:alert] = 'Batch import failed.'
+        render :batch_load
+      end
+    end
+  end
+
   # GET /otus/download
   def download
     send_data Download.generate_csv(Otu.where(project_id: sessions_current_project_id)), type: 'text', filename: "otus_#{DateTime.now.to_s}.csv"
@@ -150,7 +176,7 @@ class OtusController < ApplicationController
   end
 
   def batch_params
-    params.permit(:name, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
+    params.permit(:name, :file, :import_level, :files => []).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
   end
 
   def user_map

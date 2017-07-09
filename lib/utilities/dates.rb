@@ -476,6 +476,15 @@ module Utilities::Dates
           end_date_month = 2
           end_date_day = 3
         end
+      when :yyy_mm_dd
+        start_date_year = 1
+        start_date_month = 2
+        start_date_day = 3
+        if match_data[1]
+          end_date_year = 1
+          end_date_month = 2
+          end_date_day = 3
+        end
       when :yyyy_month_dd
         start_date_year = 1
         start_date_month = 2
@@ -591,8 +600,12 @@ module Utilities::Dates
                  hlp: "29/9/47 | 29/9/'47 | 7.10.94 | 15-07-97",
                  hdr: 'dmy'},
 
-      yyyy_mm_dd: {reg: /(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)/i,
-                   hlp: "1994, 4.16 | '02-04-24",
+      yyyy_mm_dd: {reg: /(\d{4})[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)/i,
+                   hlp: "1994, 4.16 | 1902-04-24",
+                   hdr: 'yyymd'},
+
+      yyy_mm_dd: {reg: /(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)/i,
+                  hlp: "1994, 4.16 | '02-04-24 | 02-04-24",
                    hdr: 'ymd'},
 
       yyyy_month_dd: {reg: /(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})[-\s\u2013_\.,\/]?\s*(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[-\s\u2013_\.,\/]?\s*(\d\d?)/i,

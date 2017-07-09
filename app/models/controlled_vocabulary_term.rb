@@ -33,6 +33,8 @@ class ControlledVocabularyTerm < ActiveRecord::Base
  
   has_paper_trail :on => [:update] 
 
+  acts_as_list scope: [:project_id, :type]
+
   # Class constants
   ALTERNATE_VALUES_FOR = [:name, :definition]
 

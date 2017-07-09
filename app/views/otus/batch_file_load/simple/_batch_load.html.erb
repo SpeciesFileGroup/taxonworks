@@ -1,0 +1,31 @@
+<div>
+  <h2> Simple batch file load </h2>
+
+  <div class="flexbox full_viewport_whitespace">
+    <div class="item item1 one_third_width">
+      <h3> Description and requirements </h3>
+
+      <p> Creates a new OTU, one for each file provided. </p>
+      <ul>
+        <li>A UTF-8 compatible text file is required.</li>
+        <li>The Otu name will be the entire contents of each file</li>
+        <li>Example Otu file (see <%= link_to('sample template', asset_path('batch_file_load_templates/otus/simple/simple.txt'), target: '_blank') -%>).</li>
+        <li>You can only upload 127 files max at once</li>
+      </ul>
+    </div>
+
+    <div class="item item2 one_third_width">
+      <h3> Example file </h3>
+
+      <p>A file with a bunch of words to comprise the Otu name</p>
+
+      <pre class="fixed_width_font">
+        Otu name...</pre>
+    </div>
+
+    <div class="item item3">
+      <h3> Go! </h3>
+      <%= render partial: '/otus/batch_file_load/simple/form', locals: {url: preview_simple_batch_file_load_otus_path, submit: :preview} -%>
+    </div>
+  </div>
+</div>

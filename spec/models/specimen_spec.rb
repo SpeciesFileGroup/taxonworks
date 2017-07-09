@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Specimen, :type => :model do
+describe Specimen, type: :model, group: :collection_objects do
   let(:specimen) { Specimen.new }
 
   context "validation" do
@@ -10,14 +10,16 @@ describe Specimen, :type => :model do
 
     specify 'valid_specimen is valid' do
       s = FactoryGirl.build(:valid_specimen)
-      expect(s.creator == s.updater).to be_truthy
-      expect(s.project).to be_truthy
-      expect(s.save).to be_truthy
+      expect(s.valid?).to be_truthy
     end
 
-    specify "total must be one" do 
+    specify "#total must be one" do 
       expect(specimen.total).to eq(1)
     end
+  end
+
+  specify '#derived_extracts' do
+    expect(specimen).to respond_to(:derived_extracts)
   end
 
   context "concerns" do

@@ -48,6 +48,7 @@ class Project < ActiveRecord::Base
     order = %w{
      DwcOccurrence
      ProtocolRelationship
+     CharacterState
      Protocol
      AlternateValue
      DataAttribute 
@@ -98,6 +99,17 @@ class Project < ActiveRecord::Base
      TaxonName 
      ControlledVocabularyTerm
      OriginRelationship
+     Sequence
+     SequenceRelationship
+     Observation
+     Extract
+     GeneAttribute
+     ObservationMatrixColumnItem
+     ObservationMatrixColumn
+     ObservationMatrixRowItem
+     ObservationMatrixRow
+     ObservationMatrix
+     Descriptor
      ProjectMember  
     }
 

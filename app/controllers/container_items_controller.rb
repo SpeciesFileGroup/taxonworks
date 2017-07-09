@@ -6,7 +6,7 @@ class ContainerItemsController < ApplicationController
   # GET /container_items
   # GET /container_items.json
   def index
-    @recent_objects = ContainerItem.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = ContainerItem.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -16,7 +16,7 @@ class ContainerItemsController < ApplicationController
   end
 
   def list
-    @container_items = ContainerItem.with_project_id($project_id).order(:id).page(params[:page]) #.per(10)
+    @container_items = ContainerItem.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10)
   end
 
   # POST /container_items

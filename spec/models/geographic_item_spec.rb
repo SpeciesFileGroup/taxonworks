@@ -211,6 +211,13 @@ describe GeographicItem, type: :model, group: :geo do
         expect(@p17.within?(@k.geo_object)).to be_falsey
       end
 
+      specify 'That one object intersects another, or not.' do # using geographic_item.intersects?
+        expect(@e1.intersects?(@e2.geo_object)).to be_truthy
+        expect(@e1.intersects?(@e3.geo_object)).to be_falsey
+        expect(@p1.intersects?(@k.geo_object)).to be_truthy
+        expect(@p17.intersects?(@k.geo_object)).to be_falsey
+      end
+
       specify 'Two polygons may have various intersections.' do
         @e.reload
         e0      = @e.geo_object # a collection of polygons

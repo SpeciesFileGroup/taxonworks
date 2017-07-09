@@ -1,6 +1,8 @@
 # A collection object that is classified as being biological in origin. 
 #
 class CollectionObject::BiologicalCollectionObject < CollectionObject
+  is_origin_for 'Extract', 'CollectionObject::BiologicalCollectionObject'
+
   has_many :biocuration_classifications,  inverse_of: :biological_collection_object
   has_many :biocuration_classes, through: :biocuration_classifications, inverse_of: :biological_collection_objects
  
