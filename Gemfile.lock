@@ -186,7 +186,7 @@ GEM
     hashery (2.1.2)
     hashie (3.5.5)
     hiredis (0.6.1)
-    i18n (0.8.4)
+    i18n (0.8.6)
     inch (0.7.1)
       pry
       sparkr (>= 0.2.0)
@@ -383,7 +383,7 @@ GEM
     ruby_dep (1.5.0)
     rubyzip (1.2.1)
     safe_yaml (1.0.4)
-    sass (3.4.24)
+    sass (3.4.25)
     sass-rails (5.0.6)
       railties (>= 4.0.0, < 6)
       sass (~> 3.1)
@@ -572,4 +572,4 @@ RUBY VERSION
    ruby 2.3.1p112
 
 BUNDLED WITH
-   1.15.0
+   1.15.1
