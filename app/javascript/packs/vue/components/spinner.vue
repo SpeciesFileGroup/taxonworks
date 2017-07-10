@@ -119,7 +119,7 @@
 				this.cssPropierties.left = domElement.getBoundingClientRect().left;
 			}
 			if (!this.showSpinner) {
-				this.cssPropierties['z-indez'] = (domElement.style.zIndex == '' ? 2 : domElement.style.zIndex+1);
+				this.cssPropierties['z-index'] = (domElement.style.zIndex == '' ? 2 : (domElement.style.zIndex+1));
 			}
 		},
 		methods: {
