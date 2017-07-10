@@ -9,10 +9,10 @@ namespace :tw do
     end
 
     desc 'Dump the data to a PostgreSQL custom-format dump file does NOT include structure'
-    task :dump => [:environment, :backup_directory, :database_host, :database_user, :database_password] do
+    task :dump => [:environment, :backup_directory, :database_host, :database_user] do
       if Support::Database.pg_database_exists?
         puts Rainbow("Initializing dump for #{Rails.env} environment").yellow 
-        puts Rainbow('You may be prompted for the production password.').yellow if Rails.env == 'production'
+        puts Rainbow('You may be prompted for the production password, alternately set it in ~/.pgpass').yellow if Rails.env == 'production'
 
         database = ActiveRecord::Base.connection.current_database
         path  = File.join(@args[:backup_directory], Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
@@ -27,7 +27,6 @@ namespace :tw do
             '--dbname' => database,
             '--username' => @args[:database_user],
             '--host' => @args[:database_host],
-            '--password' => @args[:database_password], 
           }
         )
 
@@ -47,7 +46,7 @@ namespace :tw do
     #    Remedy: Ensure your database is not used by other processes. Check to see how many connections to the database exist.
     #    Do not modify this task to make that check, nest this in checks if needed
     desc "Restores a database generated from dump 'rake tw:db:restore backup_directory=/your/path/ file=2017-07-10_154344UTC.dump'" 
-    task :restore => ['environment', 'tw:backup_exists', 'tw:database_user', 'tw:database_password', 'db:drop', 'db:create' ] do 
+    task :restore => ['environment', 'tw:backup_exists', 'tw:database_user', 'db:drop', 'db:create' ] do 
       puts Rainbow("Initializing restore for #{Rails.env} environment").yellow 
       database = ActiveRecord::Base.connection.current_database
       puts Rainbow("Restoring #{database} from #{@args[:tw_backup_file]}").yellow
@@ -58,7 +57,6 @@ namespace :tw do
           '--dbname' => database,
           '--username' => @args[:database_user],
           '--host' => @args[:database_host],
-          '--password' => @args[:database_password]
         }
       )
 

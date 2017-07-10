@@ -24,12 +24,6 @@ namespace :tw do
     @args[:database_host] = (ENV['database_host'] || '0.0.0.0')
   end
 
-  desc "set the database_password to ENV['database_password'] only if provided" 
-  task  :database_password do |t| 
-    @args ||= {}
-    @args[:database_password] = ENV['database_password'] if ENV['database_password'] 
-  end
-
   desc 'Sets $user_id via "user_id=1" option. checks to see it exists.'
   task :user_id => [:environment] do
     raise "You must specify a user_id like 'user_id=2'" unless ENV["user_id"]
