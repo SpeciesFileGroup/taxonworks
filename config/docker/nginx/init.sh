@@ -15,7 +15,7 @@ bundle exec erb /app/config/docker/application_settings.yml.erb > /app/config/ap
 bundle exec erb /app/config/docker/pgpass.erb > /app/.pgpass
 chmod 0600 /app/.pgpass
 
-ls -al /root
-cat /root/.pgpass
+cat /app/.pgpass
+env
 
 bundle exec rake tw:production:deploy:update_database database_user=$POSTGRES_USER database_host=$POSTGRES_HOST 

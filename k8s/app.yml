@@ -44,7 +44,7 @@ spec:
             claimName: taxonworks-staging-pv-claim
       containers:
         - name: taxonworks
-          image: sfgrp/taxonworks:0.2.8
+          image: sfgrp/taxonworks:0.2.9
           ports:
             - containerPort: 80
               name: http
