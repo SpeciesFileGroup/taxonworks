@@ -11,7 +11,13 @@
           </div>
           <div class="field separate-right">
           	<label>Name</label><br>
-          	<taxon-name></taxon-name>
+          	<taxon-name :class="{ field_with_errors : error }"></taxon-name>
+          </div>
+          <div id="error_explanation" v-if="error">
+          <h2>{{error.length }} errors prohibited this protonym from being saved:</h2>
+            <ul>
+              <li v-for="message in error">{{ message }}</li>
+            </ul>
           </div>
           <rank-selector></rank-selector>
           <button type="button" @click="taxon.id == undefined ? createTaxonName() : updateTaxonName()" :disabled="!(parent && taxon.name)" class="button normal-input">{{ taxon.id == undefined ? 'Create': 'Update' }}</button>
@@ -48,6 +54,11 @@
         return this.$store.getters[GetterNames.GetTaxon]
       }
     },
+    data: function() {
+      return {
+        error: undefined
+      }
+    },
     methods: {
       createTaxonName: function() {
         var taxon_name = {
@@ -60,7 +71,10 @@
         }
         this.$http.post('/taxon_names.json', taxon_name).then(response => {
           this.$store.commit(MutationNames.SetTaxonId, response.body.id);
+          this.error = undefined;
           TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully created.`, "notice");
+        }, response => {
+          this.error = response.body.name;
         });
       },
       updateTaxonName: function() {
@@ -94,7 +108,7 @@
     .vue-autocomplete-input {
       width: 300px;
     }
-    .taxonName-input {
+    .taxonName-input,#error_explanation {
       width: 300px;
     }
 

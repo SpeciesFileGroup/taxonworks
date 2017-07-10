@@ -2,29 +2,38 @@
 	<form>
 		<div class="source-picker panel">
 			<div class="header">
-				<h3>Source</h3>
+				<h3>Author</h3>
 			</div>
 			<div class="body">
-				<autocomplete
-					url="/sources/autocomplete"
-					min="3"
-					param="term"
-					event-send="sourceSelect"
-					label="label_html"
-					placeholder="Type for search..."
-					display="label">
-				</autocomplete>
-				<div v-if="source != undefined">
-					<p>{{ source.object_tag }}</p>
+				<div class="separate-bottom">
+				    <button class="normal-input" @click="show = 'source'" type="button">Source</button>
+				    <button class="normal-input" @click="show = 'verbatim'" type="button">Verbatim</button>
+				    <button class="normal-input" @click="show = 'person'" type="button">Person</button>
+			    </div>
+			    <div v-if="show == 'source'">
+					<autocomplete
+						url="/sources/autocomplete"
+						min="3"
+						param="term"
+						event-send="sourceSelect"
+						label="label_html"
+						placeholder="Type for search..."
+						display="label">
+					</autocomplete>
+					<hr>
+					<div v-if="source != undefined">
+						<p>{{ source.object_tag }}</p>
+					</div>
 				</div>
-				<hr>
-		        <div class="field separate-top">
-		          <label>Verbatim author</label><br>
-		          <verbatim-author></verbatim-author>
-		        </div>
-		        <div class="fields">
-		          <label>Verbatim year</label><br>
-		          <verbatim-year></verbatim-year>
+				<div v-if="show == 'verbatim'">
+			        <div class="field separate-top">
+			          <label>Verbatim author</label><br>
+			          <verbatim-author></verbatim-author>
+			        </div>
+			        <div class="fields">
+			          <label>Verbatim year</label><br>
+			          <verbatim-year></verbatim-year>
+			        </div>
 		        </div>
 			</div>
 		</div>
@@ -47,6 +56,11 @@
 		computed: {
 			source() {
 				return this.$store.getters[GetterNames.GetSource]
+			}
+		},
+		data: function() {
+			return {
+				show: 'source'
 			}
 		},
 		mounted: function() {
