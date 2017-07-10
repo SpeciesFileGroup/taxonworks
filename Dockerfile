@@ -25,7 +25,7 @@ ENV LC_ALL en_US.UTF-8
 RUN echo 'gem: --no-rdoc --no-ri >> "$HOME/.gemrc"'
 
 # Configure Bundler to install everthing globaly
-# ENV GEM_HOME /usr/lcoal/bundle
+# ENV GEM_HOME /usr/local/bundle
 # ENV PATH $GEM_HOME/bin:$PATH
 
 # RUN gem install bundler && \
