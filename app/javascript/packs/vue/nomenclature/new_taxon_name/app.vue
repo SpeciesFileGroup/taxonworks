@@ -4,14 +4,21 @@
     <h1>New taxon name</h1>
     <div>
       <basic-information></basic-information>
-      <source-picker v-show="getTaxon.id" class="separate-top"></source-picker>
-      <status-picker v-show="getTaxon.id" class="separate-top"></status-picker>
-      <div v-show="getTaxon.id">
-        <relationship-picker></relationship-picker>
-        <list-entrys mutationNameRemove="RemoveTaxonRelationship" list="GetTaxonRelationshipList" display="subject_status_tag"></list-entrys>
+      <div class="new-taxon-name-block">
+        <spinner :showSpinner="false" :showLegend="false" v-if="!getTaxon.id"></spinner>
+        <source-picker class="separate-top"></source-picker>
       </div>
-      <div v-show="getTaxon.id">
-        <original-combination></original-combination>
+      <div class="new-taxon-name-block">
+        <spinner :showSpinner="false" :showLegend="false" v-if="!getTaxon.id"></spinner>
+      <status-picker class="separate-top"></status-picker>
+      </div>
+      <div class="new-taxon-name-block">
+        <spinner :showSpinner="false" :showLegend="false" v-if="!getTaxon.id"></spinner>
+        <relationship-picker class="separate-top"></relationship-picker>
+      </div>
+      <div class="new-taxon-name-block">
+        <spinner :showSpinner="false" :showLegend="false" v-if="!getTaxon.id"></spinner>
+        <original-combination class="separate-top"></original-combination>
       </div>
     </div>
   </div>
@@ -21,7 +28,6 @@
   var sourcePicker = require('./components/sourcePicker.vue');
   var relationshipPicker = require('./components/relationshipPicker.vue');
   var statusPicker = require('./components/statusPicker.vue');
-  var listEntrys = require('./components/listEntrys.vue');
   
   var basicInformation = require('./components/basicInformation.vue');
   var originalCombination = require('./components/originalCombination.vue');
@@ -39,7 +45,6 @@
       spinner,
       statusPicker,
       relationshipPicker,
-      listEntrys,
       basicInformation,
       originalCombination
     },
@@ -139,3 +144,8 @@
   }
 
 </script>
+<style type="text/css">
+  .new-taxon-name-block {
+    width: 924px;
+  }
+</style>

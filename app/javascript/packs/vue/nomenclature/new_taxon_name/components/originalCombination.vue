@@ -1,47 +1,49 @@
 <template>
-	<div>
-	<h3>Original combination</h3>
-	<form>
-    <draggable v-model="current" :options="{ sort: false, group: { name: 'combination', put: false }}">
-    	<li v-for="item in current" class="no_bullets">
-    		<input disabled class="row" :value="taxonName" />
-    		<span class="handle" data-icon="scroll-v"></span>
-    	</li>
-    </draggable>
-    <div class="flexbox original-combination">
-	    <div class="flex-wrap-column rank-name-label">
-		    <label class="row">Genus</label>
-		    <label class="row">Subgenus</label>
-		    <label class="row">Species</label>
-		    <label class="row">Subspecies</label>
-		    <label class="row">Variety</label>
-		    <label class="row">Form</label>
-	    </div>
-		    <draggable class="flex-wrap-column" v-model="ranks" :options="{ animation: 150, group: { name: 'combination', put: true }}" @add="onAdd">
-		    	<li v-for="item, index in ranks" class="no_bullets" v-if="item.show" :key="item.id">
-				    <autocomplete  
-				    	:get-object="item.autocomplete"
-				        url="/taxon_names/autocomplete"
-				        label="label"
-				        min="3"
-				        time="0"
-				        v-model="item.autocomplete"
-				        eventSend="autocompleteTaxonSelected"
-				        :addParams="{ type: 'Protonym' }"
-				        param="term">
-				    </autocomplete>
-				    <span class="handle" data-icon="scroll-v"></span>
-			    </li>
-			    <li class="no_bullets" v-else :key="item.id">
-			    	<div class="vue-autocomplete">
-				    	<input disabled class="current-name" type="text" :value="taxonName" >
-			    	</div>
-			    	<span class="handle" data-icon="scroll-v"></span>
-			    </li>
-		    </draggable>
-    </div>
-    </form>
-    </div>
+	<form class="panel basic-information">
+		<div class="header">
+			<h3>Original combination</h3>
+		</div>
+		<div class="body">
+		<draggable v-model="current" :options="{ sort: false, group: { name: 'combination', put: false }}">
+	    	<li v-for="item in current" class="no_bullets">
+	    		<input disabled class="row" :value="taxonName" />
+	    		<span class="handle" data-icon="scroll-v"></span>
+	    	</li>
+    	</draggable>
+	    <div class="flexbox original-combination">
+		    <div class="flex-wrap-column rank-name-label">
+			    <label class="row">Genus</label>
+			    <label class="row">Subgenus</label>
+			    <label class="row">Species</label>
+			    <label class="row">Subspecies</label>
+			    <label class="row">Variety</label>
+			    <label class="row">Form</label>
+		    </div>
+			    <draggable class="flex-wrap-column" v-model="ranks" :options="{ animation: 150, group: { name: 'combination', put: true }}" @add="onAdd">
+			    	<li v-for="item, index in ranks" class="no_bullets" v-if="item.show" :key="item.id">
+					    <autocomplete  
+					    	:get-object="item.autocomplete"
+					        url="/taxon_names/autocomplete"
+					        label="label"
+					        min="3"
+					        time="0"
+					        v-model="item.autocomplete"
+					        eventSend="autocompleteTaxonSelected"
+					        :addParams="{ type: 'Protonym' }"
+					        param="term">
+					    </autocomplete>
+					    <span class="handle" data-icon="scroll-v"></span>
+				    </li>
+				    <li class="no_bullets" v-else :key="item.id">
+				    	<div class="vue-autocomplete">
+					    	<input disabled class="current-name" type="text" :value="taxonName" >
+				    	</div>
+				    	<span class="handle" data-icon="scroll-v"></span>
+				    </li>
+			    </draggable>
+			</div>
+		</div>
+	</form>
 </template>
 <script>
   	const draggable = require('vuedraggable');

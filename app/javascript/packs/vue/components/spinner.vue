@@ -2,6 +2,7 @@
 	target: sets the parent DOM Element
 	logoSize: sets the size of the logo
 	legend: sets the legend description
+	showSpinner: disable the spinner animation
 	show-legend: activate the legend
 */
 
@@ -9,7 +10,7 @@
 	<transition name="fade">
 		<div class="middle box-spinner mx-spinner" v-bind:style="cssPropierties">
 			<div class="tw-spinner">
-				<svg version="1.1" id="tw-spinner-logo" v-bind:style="logoSize" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+				<svg version="1.1" id="tw-spinner-logo" v-if="showSpinner" v-bind:style="logoSize" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
                                viewBox="0 0 194.6 200" style="enable-background:new 0 0 194.6 200;" xml:space="preserve">
 					<path class="st0" id="LeftTop" d="M14.2,63.1C24.3,63.1,28,76.3,28,76.3s5,15.5,15.3,15.5c7.7,0,9.4-6.3,9.8-9.1c0-0.1,0-0.2,0-0.4s0-0.5,0.1-0.8
                               c0-0.1,0-0.1,0-0.2c0.3-2-0.8-4-2.7-4.8l0,0c-3.1-1.1-5.9-3-8-5.6c-6.4-7.4-3-17,4.5-23.6c-3.5-4-8-8.7-12-10.8
@@ -74,6 +75,10 @@
 				type: Boolean,
 				default: true
 			},
+			showSpinner: {
+				type: Boolean,
+				default: true
+			},
 			logoSize: {
 				type: Object,
 				default: function() {
@@ -91,6 +96,7 @@
 					height: undefined,
 					position: 'absolute',
 					top: undefined,
+					'z-index': undefined,
 					left: undefined
 				},
 			}
@@ -112,7 +118,9 @@
 				this.cssPropierties.top = domElement.getBoundingClientRect().top;
 				this.cssPropierties.left = domElement.getBoundingClientRect().left;
 			}
-
+			if (!this.showSpinner) {
+				this.cssPropierties['z-indez'] = (domElement.style.zIndex == '' ? 2 : domElement.style.zIndex+1);
+			}
 		},
 		methods: {
 			outerWidth: function(el) {
