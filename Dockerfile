@@ -7,14 +7,28 @@ ENV HOME /root
 RUN rm /etc/nginx/sites-enabled/default
 ADD config/docker/nginx/gzip_max.conf /etc/nginx/conf.d/gzip_max.conf
 
+# RUN apt-get update && \
+#     apt-get install -y curl software-properties-common apt-transport-https && \
+#     apt clean && \
+#     rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
+
+# Update repos
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+RUN curl -sL https://deb.nodesource.com/setup_7.x | bash -
+
 # TaxonWorks dependancies
 RUN apt-get update && \
-      apt-get install -y software-properties-common \ 
+      apt-get install -y locales software-properties-common \ 
       postgresql-client \
-      git gcc build-essential libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
+      git gcc build-essential \
+      libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
       pkg-config imagemagick libmagickcore-dev libmagickwand-dev \
-      tesseract-ocr cmake libpq-dev libproj-dev libgeos-dev libgeos++-dev locales && \
-      apt-get clean && \ 
+      libpq-dev libproj-dev libgeos-dev libgeos++-dev \
+      tesseract-ocr \
+      cmake \
+      nodejs yarn && \
+      apt clean && \ 
       rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/* 
 
 RUN locale-gen en_US.UTF-8
@@ -31,13 +45,13 @@ RUN echo 'gem: --no-rdoc --no-ri >> "$HOME/.gemrc"'
 # RUN gem install bundler && \
 #     bundler config --global path "$GEM_HOME" && \
 #     bundle config --global bin "$GEM_HOME/bin" && \
-#     mkdir /app
 
 WORKDIR /app
 # ENV BUNDLE_APP_CONFIG $GEM_HOME
 
 COPY Gemfile /app/
 COPY Gemfile.lock /app/
+RUN gem update bundler
 RUN bundle install  
 
 COPY . /app
