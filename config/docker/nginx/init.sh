@@ -15,7 +15,4 @@ bundle exec erb /app/config/docker/application_settings.yml.erb > /app/config/ap
 bundle exec erb /app/config/docker/pgpass.erb > /root/.pgpass
 chmod 0600 /root/.pgpass
 
-cat /app/.pgpass
-env
-
 bundle exec rake tw:production:deploy:update_database database_user=$POSTGRES_USER database_host=$TAXONWORKS_DB_PORT_5432_TCP_ADDR 

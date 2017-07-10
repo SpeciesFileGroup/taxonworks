@@ -13,9 +13,11 @@ namespace :tw do
     raise TaxonWorks::Error, "can not attach to database" unless Support::Database.pg_database_exists?
   end
 
-  # TODO: update "username" to something more specific and reflective of what we see in Kubernetes by default
+  # TODO: update "database_username" to something more specific and reflective of what we see in Kubernetes by default?
   task :database_user => [:environment] do
-    @args[:database_user] = Rails.configuration.database_configuration[Rails.env]['username'] if ENV['database_user'].blank?
+    @args ||= {}
+    @args[:database_user] = ENV['database_user'] 
+    @args[:database_user] ||= Rails.configuration.database_configuration[Rails.env]['username'] 
   end
 
   desc 'set the database_host to ENV of database_host or use "0.0.0.0"'
