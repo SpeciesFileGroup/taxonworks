@@ -63,9 +63,12 @@ RUN chmod +x /etc/my_init.d/init.sh && \
     mkdir /app/tmp && \
     mkdir /app/log && \
     mkdir /app/public/images/tmp && \
+    chmod +x /app/public/images/tmp && \
     rm -f /etc/service/nginx/down
 
 ENV RAILS_ENV production
+
+RUN bundle exec rails webpacker:install
 
 CMD ["/sbin/my_init"]
 
