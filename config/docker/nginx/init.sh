@@ -18,4 +18,4 @@ chmod 0600 /app/.pgpass
 cat /app/.pgpass
 env
 
-bundle exec rake tw:production:deploy:update_database database_user=$POSTGRES_USER database_host=$POSTGRES_HOST 
+bundle exec rake tw:production:deploy:update_database database_user=$POSTGRES_USER database_host=$TAXONWORKS_DB_PORT_5432_TCP_ADDR 
