@@ -6,8 +6,15 @@ class TaxonNameRelationshipsController < ApplicationController
   # GET /taxon_name_relationships
   # GET /taxon_name_relationships.json
   def index
-    @recent_objects = TaxonNameRelationship.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = TaxonNameRelationship.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @taxon_name_relationships = TaxonNameRelationship.where(filter_params).with_project_id(sessions_current_project_id)
+      }
+    end
   end
 
   # GET /taxon_name_relationships/1
@@ -86,7 +93,7 @@ class TaxonNameRelationshipsController < ApplicationController
       {id: t.id,
        label: n,
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
        label_html: n
       }
@@ -111,16 +118,22 @@ class TaxonNameRelationshipsController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
   def set_taxon_name_relationship
     @taxon_name_relationship = TaxonNameRelationship.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def taxon_name_relationship_params
     params.require(:taxon_name_relationship).permit(
       :subject_taxon_name_id, :object_taxon_name_id, :type,
       origin_citation_attributes: [:id, :_destroy, :source_id] 
     ) 
   end
+
+  def filter_params
+    p = params.permit(:taxon_name_id)
+    h = {}
+    h[:subject_taxon_name_id] = p['taxon_name_id']
+    h
+  end
+
 end
