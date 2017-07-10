@@ -12,8 +12,8 @@ bundle exec erb /app/config/docker/secrets.yml.erb > /app/config/secrets.yml
 bundle exec erb /app/config/docker/database.yml.erb > /app/config/database.yml
 bundle exec erb /app/config/docker/application_settings.yml.erb > /app/config/application_settings.yml
 
-bundle exec erb /app/config/docker/pgpass.erb > /app/.pgpass
-chmod 0600 /app/.pgpass
+bundle exec erb /app/config/docker/pgpass.erb > /root/.pgpass
+chmod 0600 /root/.pgpass
 
 cat /app/.pgpass
 env

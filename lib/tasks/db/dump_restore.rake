@@ -24,11 +24,12 @@ namespace :tw do
           {
             '--format' => 'custom',
             '--file' => path,
-            '--dbname' => database,
             '--username' => @args[:database_user],
             '--host' => @args[:database_host],
           }
         )
+
+        args = args + " #{database}"
 
         puts Rainbow("with arguments: #{args}").yellow
         puts(Benchmark.measure { `pg_dump #{args}` })
