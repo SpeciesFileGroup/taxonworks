@@ -35,6 +35,7 @@ REVISION
 public/images/tmp
 public/system
 public/index.html
+public/packs-test
 
 .git
 spec
