@@ -137,13 +137,11 @@
 						domElement = document.getElementById(el.substring(1));
 						break;
 					case ".":
-					console.log(".");
 						domElement = document.getElementsByClassName(el.substring(1));
 						break;
 					default:
 						domElement = document.getElementsByTagName(el)[0];
 				}
-				console.log(domElement);
 				return domElement;
 			}
 		}

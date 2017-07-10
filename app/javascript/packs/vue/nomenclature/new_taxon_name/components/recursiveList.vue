@@ -12,6 +12,7 @@
 <script>
 var recursiveList = require('./recursiveList.vue');
 const MutationNames = require('../store/mutations/mutations').MutationNames;
+const ActionNames = require('../store/actions/actions').ActionNames;
 
 export default {
 	components: {
@@ -22,7 +23,7 @@ export default {
 	methods: {
 		addStatus: function(status) {
 			this.$store.commit(MutationNames[this.modalMutationName], false);
-			this.$store.commit(MutationNames[this.actionMutationName], status);
+			this.$store.dispatch(ActionNames[this.actionMutationName], status);
 		}
 	}
 }

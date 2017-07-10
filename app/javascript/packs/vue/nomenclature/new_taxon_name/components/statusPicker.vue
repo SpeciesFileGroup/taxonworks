@@ -1,23 +1,34 @@
 <template>
-  <tree-display 
-    :tree-list="treeList" 
-    :objectLists="objectLists" 
-    :parent="parent" 
-    :showModal="showModal" 
-    mutation-name-add="AddTaxonStatus" 
-    mutation-name-modal="SetModalStatus"
-    name-module="Status"
-    display-name="name">
-  </tree-display>
+  <form class="panel basic-information">
+    <div class="header">
+      <h3 class="">Status</h3>
+    </div>
+    <div class="body">
+      <tree-display 
+          :tree-list="treeList" 
+          :objectLists="objectLists" 
+          :parent="parent" 
+          :showModal="showModal" 
+          mutation-name-add="AddTaxonStatus" 
+          mutation-name-modal="SetModalStatus"
+          name-module="Status"
+          display-name="name">
+      </tree-display>
+      <list-entrys mutationNameRemove="removeTaxonStatus" list="GetTaxonStatusList" display="object_tag"></list-entrys>
+    </div>
+    
+  </form>
 </template>
 
 <script>
 
   const GetterNames = require('../store/getters/getters').GetterNames;
   const treeDisplay = require('./treeDisplay.vue');
+  const listEntrys = require('./listEntrys.vue');
 
   export default {
     components: {
+      listEntrys,
       treeDisplay
     },
     computed: {

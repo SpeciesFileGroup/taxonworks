@@ -5,10 +5,7 @@
     <div>
       <basic-information></basic-information>
       <source-picker class="separate-top"></source-picker>
-      <div>
-        <status-picker></status-picker>
-        <list-entrys mutationNameRemove="RemoveTaxonStatus" list="GetTaxonStatusList" display="name"></list-entrys>
-      </div>
+      <status-picker class="separate-top"></status-picker>
       <div>
         <relationship-picker></relationship-picker>
         <list-entrys mutationNameRemove="RemoveTaxonRelationship" list="GetTaxonRelationshipList" display="subject_status_tag"></list-entrys>
@@ -85,21 +82,29 @@
       loadStatus: function() {
         let that = this;
         return new Promise(function (resolve, reject) {
-        that.$http.get('/taxon_name_classifications/taxon_name_classification_types').then( response => {
-          that.$store.commit(MutationNames.SetStatusList, response.body);
-          return resolve(true);
+          that.$http.get('/taxon_name_classifications/taxon_name_classification_types').then( response => {
+            that.$store.commit(MutationNames.SetStatusList, response.body);
+            return resolve(true);
+          });
         });
-      });
       },
       loadRelationship: function() {
         let that = this;
         return new Promise(function (resolve, reject) {
-        that.$http.get('/taxon_name_relationships/taxon_name_relationship_types').then( response => {
-          that.$store.commit(MutationNames.SetRelationshipList, response.body);
-          return resolve(true);
+          that.$http.get('/taxon_name_relationships/taxon_name_relationship_types').then( response => {
+            that.$store.commit(MutationNames.SetRelationshipList, response.body);
+            return resolve(true);
+          });
         });
-      });
-        
+      },
+      loadTaxonStatus: function(id) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+          that.$http.get(`/taxon_names/${id}/taxon_name_classifications`).then( response => {
+            that.$store.commit(MutationNames.SetTaxonStatusList, response.body);
+            return resolve(true);
+          });
+        });
       },
       initLoad: function() {
         let that = this;
@@ -109,7 +114,6 @@
       },
       fillTaxonName: function(id) {
         this.$http.get(`/taxon_names/${id}`).then( response => {
-          console.log(response.body);
           let taxon_name = {
             id: response.body.id,
             parent_id: response.body.parent_id,
@@ -121,6 +125,7 @@
             masculine_name: response.body.masculine_name,
             neuter_name: response.body.neuter_name,
           }
+          this.loadTaxonStatus(response.body.id);
           this.$store.commit(MutationNames.SetSource, response.body.source);
           this.$store.commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code);
           this.$store.commit(MutationNames.SetTaxon, taxon_name);

@@ -1,15 +1,14 @@
 <template>
 	<div v-if="displayList.length">
-		<h4>Selected</h4>
-	    <ul>
-	    	<li v-for="item in displayList"> {{ item[display] }} <button type="button" @click="removeStatus(item)">Remove</button></li>
+	    <ul class="table-status">
+	    	<li v-for="item in displayList" class="flex-separate middle"> {{ item[display] }} <span type="button" class="circle-button btn-delete" @click="removeStatus(item)">Remove</span></li>
 	    </ul>
     </div>
 </template>
 <script>
 
+const ActionNames = require('../store/actions/actions').ActionNames;
 const GetterNames = require('../store/getters/getters').GetterNames;
-const MutationNames = require('../store/mutations/mutations').MutationNames;
 
 export default {
 	props: ['mutationNameRemove', 'list', 'display'],
@@ -21,8 +20,21 @@ export default {
 	},
 	methods: {
 		removeStatus: function(status) {
-			this.$store.commit(MutationNames[this.mutationNameRemove], status)
+			this.$store.dispatch(ActionNames[this.mutationNameRemove], status);
 		}
 	}
 }
 </script>
+
+<style type="text/css">
+  .table-status {
+  	padding: 0px;
+
+    li {
+    	text-transform: capitalize;
+		margin: 0px;
+		padding: 6px;
+		border-top: 1px solid #f5f5f5;
+    }
+  }
+</style>
