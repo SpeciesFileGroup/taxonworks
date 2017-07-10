@@ -1,5 +1,5 @@
 <template>
-  <form>
+  <form v-if="parent">
     <modal v-if="showModal" @close="activeModal(false)">
       <h3 slot="header">{{ nameModule }}</h3>
       <div slot="body" class="tree-list">

@@ -4,13 +4,13 @@
     <h1>New taxon name</h1>
     <div>
       <basic-information></basic-information>
-      <source-picker v-if="getTaxon.id" class="separate-top"></source-picker>
-      <status-picker v-if="getTaxon.id" class="separate-top"></status-picker>
-      <div v-if="getTaxon.id">
+      <source-picker v-show="getTaxon.id" class="separate-top"></source-picker>
+      <status-picker v-show="getTaxon.id" class="separate-top"></status-picker>
+      <div v-show="getTaxon.id">
         <relationship-picker></relationship-picker>
         <list-entrys mutationNameRemove="RemoveTaxonRelationship" list="GetTaxonRelationshipList" display="subject_status_tag"></list-entrys>
       </div>
-      <div v-if="getTaxon.id">
+      <div v-show="getTaxon.id">
         <original-combination></original-combination>
       </div>
     </div>
