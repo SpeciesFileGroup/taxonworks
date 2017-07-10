@@ -11,17 +11,17 @@
 *.sql
 .ruby-version
 
+tags/
+.bundle_bin/
+
 config/database.yml
 config/secrets.yml
 config/application_settings.yml
 
-tags
 node_modules
 
 .ruby-gemset
 .bundle
-bin
-bundle_bin
 
 log
 tmp
