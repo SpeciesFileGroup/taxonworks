@@ -26,6 +26,7 @@
 <script>
 
   const GetterNames = require('../store/getters/getters').GetterNames;
+  const MutationNames = require('../store/mutations/mutations').MutationNames;
 
   var parentPicker = require('./parentPicker.vue');
   var taxonName = require('./taxonName.vue');
@@ -58,6 +59,7 @@
           }
         }
         this.$http.post('/taxon_names.json', taxon_name).then(response => {
+          this.$store.commit(MutationNames.SetTaxonId, response.body.id);
           TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully created.`, "notice");
         });
       },
