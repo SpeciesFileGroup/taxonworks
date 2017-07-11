@@ -1,7 +1,7 @@
 class Tasks::LoansController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_filter :set_objects, only: [:complete, :update_status, :return_items, :add_determination]
+  before_action :set_objects, only: [:complete, :update_status, :return_items, :add_determination]
 
   def complete
     @loan                = Loan.find(params['id'])

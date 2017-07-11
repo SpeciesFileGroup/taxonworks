@@ -1,6 +1,6 @@
 class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationController
   include TaskControllerConfiguration
-  before_filter :set_fixed_variables, :get_recent
+  before_action :set_fixed_variables, :get_recent
 
   # GET quick_verbatim_material_task
   def new
@@ -35,9 +35,9 @@ class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationControll
 
 
   def set_fixed_variables
-    @repositories = Repository.order(:name).all
-    @namespaces = Namespace.order(:name).all
-    @biocuration_groups = BiocurationGroup.with_project_id($project_id) 
+    @repositories       = Repository.order(:name).all
+    @namespaces         = Namespace.order(:name).all
+    @biocuration_groups = BiocurationGroup.with_project_id($project_id)
   end
 
   def set_variable_variables(material)
@@ -54,5 +54,5 @@ class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationControll
     # params.require(:identifier) , :locks, :repository, :collection_object, :note, :collection_objects).permit(:note, :collection_object, :identifier, :repository, :locks)
   end
 
-  
+
 end
