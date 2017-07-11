@@ -125,14 +125,14 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
   context 'after save' do
     let!(:c) { Delayed::Job.count }
     context 'without no_cached = true' do
-      before { Specimen.create! } 
+      before {Specimen.create!}
       specify 'a delayed_job is added' do
         expect(Delayed::Job.count).to eq(c + 1)
       end
     end
 
     context 'with no_cached = true' do
-      before { Specimen.create!(no_cached: true) } 
+      before {Specimen.create!(no_cached: true)}
       specify 'a delayed_job not added' do
         expect(Delayed::Job.count).to eq(c )
       end
@@ -270,7 +270,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
       after(:all) {
         clean_slate_geo
       }
-      
+
       describe 'spanning a single day' do
         specify "should find 1 record" do
           collection_objects = CollectionObject.in_date_range({search_start_date: '1981/01/01', search_end_date: '1981/1/1'})
@@ -406,6 +406,8 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
         expect(collection_objects.count).to eq(2)
         found_c_os = [@co_m3, @co_n3]
         collection_objects.each_with_index { |c_o, index|
+          # TODO: ActiveRecord_Relation no longer accepts the setting of an indexed element? 07/11/17
+          # @mjy
           collection_objects[index] = collection_objects[index].metamorphosize
         }
         expect(collection_objects).to contain_exactly(*found_c_os)
