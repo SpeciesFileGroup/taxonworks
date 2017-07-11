@@ -3,12 +3,12 @@ source 'https://rubygems.org'
 
 gem 'rack-cors', require: 'rack/cors'
 
-ruby '~> 2.3'
+ruby '~> 2.3.1'
 
 gem 'rake', '~> 11.1'
-gem 'rails', '~> 4.2.7.1'
+gem 'rails', '~> 5.0'
 gem 'pg', '~> 0.18.4'
-gem 'activerecord-postgis-adapter', '~> 3.1.4'
+gem 'activerecord-postgis-adapter', '~> 4.0.0'
 
 gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 3.3.1'
@@ -36,7 +36,7 @@ gem 'responders', '~> 2.4' # Used?!
 gem 'exception_notification', '~> 4.2.1'
 gem 'mail', '~> 2.7.0.rc1'
 
-# Models 
+# Models
 gem 'bcrypt', '~> 3.1.11'
 gem 'closure_tree', '~> 6.3.0'
 gem 'delayed_job_active_record', '~> 4.1.2'
@@ -47,7 +47,7 @@ gem 'modularity', '~> 2.0.1' # Used!?
 gem 'paperclip', '~> 4.3.6'
 gem 'paperclip-meta', '~> 2.0'
 
-# javascript 
+# javascript
 gem 'sprockets-rails', '~> 3.2.0'
 gem 'sprockets', '~> 3.0'
 gem 'sprockets-es6', require: 'sprockets/es6'
@@ -73,7 +73,7 @@ gem 'pdf-reader', '~> 2.0'
 gem 'chartkick', '~> 2.1.3'
 gem 'groupdate', '~> 3.1.1'
 gem 'dropzonejs-rails', '~> 0.7.3'
-gem 'kaminari', '~> 0.17.0' 
+gem 'kaminari', '~> 0.17.0'
 gem 'best_in_place', '~> 3.1.1'
 gem 'sass-rails', '~> 5.0.6'
 gem 'redcarpet', '~> 3.3'
@@ -101,7 +101,7 @@ group :test, :development do
   gem 'inch', '~> 0.7'
   gem 'byebug', '~> 9.0.6', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_girl_rails', '~> 4.7'
-  gem 'selenium-webdriver', '~> 3.4.0' 
+  gem 'selenium-webdriver', '~> 3.4.0'
   gem 'geckodriver-helper', '~> 0.0.3'
 end
 
@@ -118,7 +118,7 @@ group :development do
 end
 
 group :doc do
-  gem 'sdoc', require: false 
+  gem 'sdoc', require: false
 end
 
 group :test do
