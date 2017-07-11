@@ -468,7 +468,7 @@ class CollectingEvent < ApplicationRecord
     def in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
       allow_partial = (partial_overlap.downcase == 'off' ? false : true)
       sql_string    = date_sql_from_dates(search_start_date, search_end_date, allow_partial)
-      where(sql_string).uniq # TODO: uniq should likely not be here
+      where(sql_string).distinct # TODO: uniq should likely not be here
     end
 
     # @param [Hash] of parameters in the style of 'params'
