@@ -1,28 +1,28 @@
-# A GeneAttribute defines an attribute that must be matched for a Sequence to be classified as a Descriptor::Gene. 
+# A GeneAttribute defines an attribute that must be matched for a Sequence to be classified as a Descriptor::Gene.
 # There are two key attributes, sequence, and sequence relationship.  A GeneAttribute will return all sequences
 # who are the object of a taxon name relationship whose subject is Sequence and whose Type is #sequence_relationship_type
-# 
-# @!attribute descriptor_id 
+#
+# @!attribute descriptor_id
 #   @return [Integer]
 #      the descriptor id (Gene) that this attribute defines
 #
-# @!attribute sequence_id 
+# @!attribute sequence_id
 #   @return [Integer]
 #      the sequence id (Gene), defines the nucleotides in the attribute
 #
 # @!attribute sequence_relationship_type
 #   @return [String]
-#      a SequenceRelationship#type, defines how the sequence was used in this attribute 
+#      a SequenceRelationship#type, defines how the sequence was used in this attribute
 #
 # @!attribute controlled_vocabulary_termi_id
 #   @return [Integer]
-#      not yet implemented, intent/idea is to define a subclass of CVT that represents GO terms. 
+#      not yet implemented, intent/idea is to define a subclass of CVT that represents GO terms.
 #
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
-#  
-class GeneAttribute < ActiveRecord::Base
+#
+class GeneAttribute < ApplicationRecord
   include Housekeeping
   include Shared::Identifiable
   include Shared::IsData
@@ -38,7 +38,7 @@ class GeneAttribute < ActiveRecord::Base
 
   validates :descriptor, presence: true
   validates :sequence, presence: true
- 
+
   validates_uniqueness_of :sequence, scope: [:descriptor, :sequence_relationship_type]
 
 end

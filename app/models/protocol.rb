@@ -1,9 +1,9 @@
-# A Protocol is a recipe for how something is done. 
+# A Protocol is a recipe for how something is done.
 #
 # Protocols are simple records, they can be Document(ed) with
 #  external files (pdfs, text files, etc.)
-# 
-class Protocol < ActiveRecord::Base
+#
+class Protocol < ApplicationRecord
   include Housekeeping
   include Shared::IsData
 #  include Shared::Documentable

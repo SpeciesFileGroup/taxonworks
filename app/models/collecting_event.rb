@@ -139,29 +139,29 @@
 #   @return [Integer]
 #     the month, from 0-12, that the collecting event ended on
 #
-# @!attribute group 
+# @!attribute group
 #   @return [String, nil]
-#     member sensu PBDB 
+#     member sensu PBDB
 #
-# @!attribute formation 
+# @!attribute formation
 #   @return [String, nil]
-#     formation sensu PBDB 
+#     formation sensu PBDB
 #
-# @!attribute member 
+# @!attribute member
 #   @return [String, nil]
-#     member sensu PBDB 
+#     member sensu PBDB
 #
 ## @!attribute lithology
 #   @return [String, nil]
-#     lithology sensu PBDB 
+#     lithology sensu PBDB
 #
-## @!attribute max_ma 
+## @!attribute max_ma
 #   @return [Decimal, nil]
-#     max_ma (million years) sensu PBDB 
+#     max_ma (million years) sensu PBDB
 #
-## @!attribute min_ma 
+## @!attribute min_ma
 #   @return [Decimal, nil]
-#     min_ma (million years) sensu PBDB 
+#     min_ma (million years) sensu PBDB
 #
 # @!attribute cached_level0_geographic_name
 #   @return [String, nil]
@@ -176,7 +176,7 @@
 #     the auto-calculated level2 value (e.g. county) drawn from GeographicNames, never directly user supplied
 #
 #
-class CollectingEvent < ActiveRecord::Base
+class CollectingEvent < ApplicationRecord
   include Housekeeping
   include Shared::Citable
   include Shared::DataAttributes

@@ -2,29 +2,29 @@
 #
 # @!attribute person_id
 #   @return [Integer]
-#    The ID of the person in the role. 
+#    The ID of the person in the role.
 #
 # @!attribute type
 #   @return [String]
-#    The type (subclass) of the role, e.g. TaxonDeterminer. 
+#    The type (subclass) of the role, e.g. TaxonDeterminer.
 #
 # @!attribute role_object_id
 #   @return [Integer]
-#     The id of the object the role is bound to. 
+#     The id of the object the role is bound to.
 #
 # @!attribute role_object_type
 #   @return [String]
-#     THe class of the object the role is bound to. 
+#     THe class of the object the role is bound to.
 #
 # @!attribute position
 #   @return [Integer]
-#     Sort order. 
+#     Sort order.
 #
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
 #
-class Role < ActiveRecord::Base
+class Role < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::IsData

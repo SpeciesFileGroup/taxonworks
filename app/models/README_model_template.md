@@ -8,7 +8,7 @@ with comments _is not required_ and should only be done if absolutely necessary 
 development.
 
   ```
-  class Foo << ActiveRecord::Base
+  class Foo << ApplicationRecord
 
     # Include statements
     include Housekeeping

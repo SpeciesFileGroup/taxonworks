@@ -79,7 +79,7 @@ describe 'AlternateValues', :type => :model do
   end
 end
 
-class TestAlternateValue < ActiveRecord::Base
+class TestAlternateValue < ApplicationRecord
   include FakeTable
   include Shared::AlternateValues
 

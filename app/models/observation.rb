@@ -1,6 +1,6 @@
-class Observation < ActiveRecord::Base
+class Observation < ApplicationRecord
   include Housekeeping
-  include Shared::Citable             
+  include Shared::Citable
   include Shared::DataAttributes
   include Shared::Identifiable
   include Shared::Notable
@@ -12,7 +12,7 @@ class Observation < ActiveRecord::Base
   belongs_to :descriptor, inverse_of: :observations
   belongs_to :otu, inverse_of: :observations
   belongs_to :collection_object, inverse_of: :observations
- 
+
   validates_presence_of :descriptor
 
   validate :otu_or_collection_object_set
@@ -25,10 +25,10 @@ class Observation < ActiveRecord::Base
 
   def otu_or_collection_object_set
     if otu_id.blank? && collection_object_id.blank?
-      errors.add(:base, 'observations must reference an Otu or collection object') 
+      errors.add(:base, 'observations must reference an Otu or collection object')
     end
   end
-  
+
 end
 
 

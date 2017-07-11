@@ -1,13 +1,13 @@
 
 # A Darwin Core Record for the Occurence core.  Field generated from Ruby dwc-meta, which references
 # the same spec that is used in the IPT, and the Dwc Assistant.  Each record
-# references a specific CollectionObject or AssertedDistribution. 
+# references a specific CollectionObject or AssertedDistribution.
 #
-# Important: This is a cache/index, data here are periodically (regenerated) from multiple tables in TW.  
+# Important: This is a cache/index, data here are periodically (regenerated) from multiple tables in TW.
 #
 # TODO: The basisOfRecord CVTs are not super informative.
 #    We know collection object is definitely 1:1 with PreservedSpecimen, however
-#    AssertedDistribution could be HumanObservation (if source is person), or ... what? if 
+#    AssertedDistribution could be HumanObservation (if source is person), or ... what? if
 #    its a published record.  Seems we need a 'PublishedAssertation', just like we model the data.
 #
 # DWC attributes are camelCase to facilitate matching
@@ -16,8 +16,8 @@
 #
 # All DC attributes (attributes not in DwcOccurrence::TW_ATTRIBUTES) in this table are namespaced to dc ("http://purl.org/dc/terms/", "http://rs.tdwg.org/dwc/terms/")
 #
-class DwcOccurrence < ActiveRecord::Base
-  self.inheritance_column = nil 
+class DwcOccurrence < ApplicationRecord
+  self.inheritance_column = nil
 
   include Housekeeping
 
@@ -44,10 +44,10 @@ class DwcOccurrence < ActiveRecord::Base
     d ? d : field
   end
 
-  belongs_to :dwc_occurrence_object, polymorphic: true 
+  belongs_to :dwc_occurrence_object, polymorphic: true
 
   def self.collection_objects_join
-    joins("JOIN collection_objects c on c.id = dwc_occurrences.dwc_occurrence_object_id AND dwc_occurrence_object_type = 'CollectionObject'") 
+    joins("JOIN collection_objects c on c.id = dwc_occurrences.dwc_occurrence_object_id AND dwc_occurrence_object_type = 'CollectionObject'")
   end
 
   before_validation :set_basis_of_record
@@ -58,10 +58,10 @@ class DwcOccurrence < ActiveRecord::Base
 
   # @return [Scope]
   def self.computed_columns
-    select(['id', 'basisOfRecord'] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys ) 
+    select(['id', 'basisOfRecord'] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys)
   end
 
-  def basis 
+  def basis
     case dwc_occurrence_object_type
     when 'CollectionObject'
       return 'PreservedSpecimen'
@@ -76,7 +76,7 @@ class DwcOccurrence < ActiveRecord::Base
     'Undefined'
   end
 
-  def stale? 
+  def stale?
      dwc_occurrence_object.updated_at > updated_at
   end
 

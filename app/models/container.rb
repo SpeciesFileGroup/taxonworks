@@ -1,4 +1,4 @@
-# A container localizes the proximity of one ore more physical things, at this point in TW this is restricted to a number of collection objects. 
+# A container localizes the proximity of one ore more physical things, at this point in TW this is restricted to a number of collection objects.
 # Objects are placed in containers by reference through a ContainerItem.
 #
 # @!attribute type
@@ -17,7 +17,7 @@
 #   @return [String]
 #     a free text description of the position of this container
 #
-class Container < ActiveRecord::Base
+class Container < ApplicationRecord
 
   include Housekeeping
   include Shared::IsData
@@ -28,7 +28,7 @@ class Container < ActiveRecord::Base
   include Shared::Taggable
   include SoftValidation
   include Shared::Loanable
-  
+
   has_many :collection_profiles
   has_many :container_labels
 
@@ -91,7 +91,7 @@ class Container < ActiveRecord::Base
   end
 
   # @return [Boolean]
-  #   whether this container is nested in other containers 
+  #   whether this container is nested in other containers
   def is_nested?
     container_item && container_item.ancestors.any?
   end
@@ -144,7 +144,7 @@ class Container < ActiveRecord::Base
 
   # @return [Container]
   #   places all objects in a new, parent-less container, saves it off,
-  #   None of the objects are permitted to be new_records.  
+  #   None of the objects are permitted to be new_records.
   #   !! If an object is in another container it is moved to the new container created here.
   def self.containerize(objects, klass = Container::Virtual)
     new_container = nil
@@ -172,7 +172,7 @@ class Container < ActiveRecord::Base
   #    add the objects to this container
   def add_container_items(objects)
     return false if new_record?
-    
+
     # TODO: Figure out why this reload is required.
     self.reload # this seems to be required under some (as yet undefined) circumstances.
     begin

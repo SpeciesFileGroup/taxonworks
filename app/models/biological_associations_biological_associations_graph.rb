@@ -13,9 +13,9 @@
 #   @return [Integer]
 #   the project ID
 #
-class BiologicalAssociationsBiologicalAssociationsGraph < ActiveRecord::Base
+class BiologicalAssociationsBiologicalAssociationsGraph < ApplicationRecord
   include Housekeeping
-  include Shared::IsData 
+  include Shared::IsData
 
 
   belongs_to :biological_associations_graph, inverse_of: :biological_associations_biological_associations_graphs

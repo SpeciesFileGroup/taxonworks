@@ -1,6 +1,6 @@
 # An Otu (loosely, operational taxonomic unit) can be thought of as a unit of study.  In most cases an otu is a taxon.
 #
-# An Otu is defined by its underlying data and may be labeled with a name (TaxonName). Otus are used to represent rows 
+# An Otu is defined by its underlying data and may be labeled with a name (TaxonName). Otus are used to represent rows
 # in matrices, taxon pages, individuals or populations, or arbitrary clusters of organisms (e.g. 'unsorted specimens in this container').
 # Otus are a primary unit of work in TaxonWorks.
 #
@@ -17,10 +17,10 @@
 #
 # @!attribute taxon_name_id
 #   @return [Integer]
-#   The id of the nomenclatural name for this OTU.  The presence of a nomenclatural name carries no biological meaning, it is 
+#   The id of the nomenclatural name for this OTU.  The presence of a nomenclatural name carries no biological meaning, it is
 #   simply a means to organize concepts within a nomenclatural system.
 #
-class Otu < ActiveRecord::Base
+class Otu < ApplicationRecord
 
   # TODO Add simple semantics (same_as etc.) describing taxon_name_id
 
@@ -38,7 +38,7 @@ class Otu < ActiveRecord::Base
 
   include SoftValidation
 
-  has_paper_trail :on => [:update] 
+  has_paper_trail :on => [:update]
 
   belongs_to :taxon_name, inverse_of: :otus
 
@@ -48,7 +48,7 @@ class Otu < ActiveRecord::Base
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus, class_name: 'CollectionObject::BiologicalCollectionObject'
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
 
-  has_many :common_names, dependent: :destroy 
+  has_many :common_names, dependent: :destroy
   has_many :collection_profiles # @proceps dependent: what?
   has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :geographic_areas_from_asserted_distributions, through: :asserted_distributions, source: :geographic_area
@@ -84,7 +84,7 @@ class Otu < ActiveRecord::Base
 
   # return [Scope] the otus bound to that taxon name and its descendants
   def self.for_taxon_name(taxon_name)
-    if taxon_name.kind_of?(String) || taxon_name.kind_of?(Integer) 
+    if taxon_name.kind_of?(String) || taxon_name.kind_of?(Integer)
       tn = TaxonName.find(taxon_name)
     else
       tn = taxon_name

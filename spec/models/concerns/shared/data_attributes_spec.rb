@@ -1,12 +1,12 @@
 require 'rails_helper'
 
 describe 'DataAttributes', :type => :model do
-  let(:class_with_data_attributes) { TestDataAttribute.new } 
+  let(:class_with_data_attributes) {TestDataAttribute.new}
 
   context 'associations' do
     specify 'has many data_attributes - includes creating a data_attribute' do
-      expect(class_with_data_attributes).to respond_to(:data_attributes) 
-      expect(class_with_data_attributes.data_attributes.to_a).to eq([]) 
+      expect(class_with_data_attributes).to respond_to(:data_attributes)
+      expect(class_with_data_attributes.data_attributes.to_a).to eq([])
       expect(class_with_data_attributes.data_attributes << FactoryGirl.build(:data_attribute, value: '10', import_predicate: 'foos', type: 'DataAttribute::ImportAttribute')).to be_truthy
       expect(class_with_data_attributes.data_attributes.size).to eq(1)
       expect(class_with_data_attributes.save).to be_truthy
@@ -17,7 +17,7 @@ describe 'DataAttributes', :type => :model do
 
   context 'methods' do
     before(:each) {
-      class_with_data_attributes.data_attributes.delete_all 
+      class_with_data_attributes.data_attributes.delete_all
     }
 
 
@@ -55,7 +55,7 @@ describe 'DataAttributes', :type => :model do
 
 end
 
-class TestDataAttribute < ActiveRecord::Base
+class TestDataAttribute < ApplicationRecord
   include FakeTable
   include Shared::DataAttributes
 end

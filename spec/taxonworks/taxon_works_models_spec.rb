@@ -3,7 +3,7 @@ require 'rails_helper'
 
 # These are meta-model tests, to c
 #
-# 
+#
 describe TaxonWorks do
   # Since Rails doesn't load classes unless it needs them, so you must eager load them to get all the models.
   Rails.application.eager_load!
@@ -28,7 +28,7 @@ describe TaxonWorks do
 
     # if model <= Shared::Annotates
     #   it "#{model} should define an #annotated_object method" do
-    #     expect(model.new).to respond_to(:annotated_object) 
+    #     expect(model.new).to respond_to(:annotated_object)
     #   end
     # end
 
@@ -75,8 +75,8 @@ describe TaxonWorks do
 end
 
 module TaxonWorksModels
-  class GenericModel  < ActiveRecord::Base 
-    include FakeTable  
+  class GenericModel < ApplicationRecord
+    include FakeTable
   end
 end
 

@@ -11,7 +11,7 @@
 #
 # @!attribute alternate_value_object_attribute
 #   @return [String]
-#    the attribute (column) that this is an alternate value for 
+#    the attribute (column) that this is an alternate value for
 #
 # @!attribute attribute_value_object_id
 #   @return [Integer]
@@ -29,7 +29,7 @@
 #   @return [Integer]
 #   the project ID
 #
-class AlternateValue < ActiveRecord::Base
+class AlternateValue < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::IsData
@@ -75,7 +75,7 @@ class AlternateValue < ActiveRecord::Base
   end
 
   # @return [NoteObject]
-  #   alias to simplify reference across classes 
+  #   alias to simplify reference across classes
   def annotated_object
     alternate_value_object
   end

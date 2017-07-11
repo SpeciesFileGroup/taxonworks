@@ -1,16 +1,16 @@
-# TypeMaterial is a definition of goverened type  
+# TypeMaterial is a definition of goverened type
 #
 # @!attribute protonym_id
 #   @return [Integer]
-#     the protonym in question 
+#     the protonym in question
 #
 # @!attribute biological_object_id
 #   @return [Integer]
-#     the specimen record 
+#     the specimen record
 #
 # @!attribute type_type
 #   @return [String]
-#     the type of Type relationship (e.g. holotyp) 
+#     the type of Type relationship (e.g. holotyp)
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -18,9 +18,9 @@
 #
 # @!attribute position
 #   @return [Integer]
-#    sort column 
+#    sort column
 #
-class TypeMaterial < ActiveRecord::Base
+class TypeMaterial < ApplicationRecord
   include Housekeeping
   include Shared::Citable
   include Shared::DataAttributes
@@ -30,7 +30,7 @@ class TypeMaterial < ActiveRecord::Base
   include Shared::Notable
   include Shared::Taggable
   include SoftValidation
-  
+
   # Keys are valid values for type_type, values are
   # required Class for material
   ICZN_TYPES = {
@@ -44,7 +44,7 @@ class TypeMaterial < ActiveRecord::Base
     'syntypes' => Lot,
     'paralectotypes' => Lot
   }
-     
+
   ICN_TYPES = {
       'holotype' => Specimen,
       'paratype' => Specimen,
@@ -118,9 +118,9 @@ class TypeMaterial < ActiveRecord::Base
 
   def check_type_type
     if self.protonym
-      code = self.protonym.rank_class.nomenclatural_code 
+      code = self.protonym.rank_class.nomenclatural_code
       if (code == :iczn && !ICZN_TYPES.keys.include?(self.type_type)) || (code == :icn && !ICN_TYPES.keys.include?(self.type_type))
-        errors.add(:type_type, 'Not a legal type for the nomenclatural code provided') 
+        errors.add(:type_type, 'Not a legal type for the nomenclatural code provided')
       end
       unless self.protonym.rank_class.parent.to_s =~ /Species/
         errors.add(:protonym_id, 'Type cannot be designated, name is not a species group name')
@@ -144,7 +144,7 @@ class TypeMaterial < ActiveRecord::Base
   end
 
   def sv_type_source
-    soft_validations.add(:base, 'Source is not selected neither for type nor for taxon') unless type_source 
+    soft_validations.add(:base, 'Source is not selected neither for type nor for taxon') unless type_source
   end
 
   #endregion

@@ -1,13 +1,13 @@
 # An OriginRelationship asserts that one object is derived_from another.
-class OriginRelationship < ActiveRecord::Base
+class OriginRelationship < ApplicationRecord
   include Housekeeping
-  
+
   belongs_to :old_object, polymorphic: true # Source of new object
   belongs_to :new_object, polymorphic: true # Comes from the old object, result
 
 =begin
 old_object           new_object
- 
+
 field_observation / collection_object
 
 collection_object / collection_object

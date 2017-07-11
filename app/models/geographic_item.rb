@@ -26,7 +26,7 @@ require 'rgeo'
 #   @return [String]
 #     Rails STI, determines the geography column as well
 #
-class GeographicItem < ActiveRecord::Base
+class GeographicItem < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::IsData

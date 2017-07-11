@@ -1,4 +1,4 @@
-class ObservationMatrixColumn < ActiveRecord::Base
+class ObservationMatrixColumn < ApplicationRecord
   include Housekeeping
   include Shared::IsData
   include Shared::Taggable

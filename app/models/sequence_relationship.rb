@@ -5,10 +5,10 @@
 # This is used to define primers, reference sequences, query sequences, etc.
 #
 #
-class SequenceRelationship < ActiveRecord::Base
+class SequenceRelationship < ApplicationRecord
   include Housekeeping
-  
-  # not sure we need these 3: 
+
+  # not sure we need these 3:
   # include Shared::Protocol
   # include Shared::Confidence
   # include Shared::Documentation

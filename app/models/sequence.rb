@@ -3,7 +3,7 @@ require_dependency 'sequence_relationship'
 # A DNA, RNA, or Amino Acid, as defined by a string of letters.
 # All other attributes are stored in related tables, the overal model is basically an graph with nodes having attributes.
 #
-class Sequence < ActiveRecord::Base
+class Sequence < ApplicationRecord
 
   include Housekeeping
 
@@ -19,7 +19,7 @@ class Sequence < ActiveRecord::Base
 
   is_origin_for 'Sequence'
   has_paper_trail
-  
+
   ALTERNATE_VALUES_FOR = [:name]
 
   has_many :sequence_relationships, foreign_key: :subject_sequence_id, inverse_of: :subject_sequence
@@ -39,7 +39,7 @@ class Sequence < ActiveRecord::Base
     has_many sequences, class_name: 'Sequence', through: relationships, source: :subject_sequence, inverse_of: :sequences
 
     accepts_nested_attributes_for sequences
-    accepts_nested_attributes_for relationships 
+    accepts_nested_attributes_for relationships
   end
 
   validates_presence_of :sequence

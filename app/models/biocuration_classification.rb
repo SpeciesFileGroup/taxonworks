@@ -17,12 +17,12 @@
 #   @return [Integer]
 #   the project ID
 #
-class BiocurationClassification < ActiveRecord::Base
+class BiocurationClassification < ApplicationRecord
   acts_as_list scope: [:biological_collection_object]
 
   include Housekeeping
-  include Shared::IsData 
-  
+  include Shared::IsData
+
   belongs_to :biocuration_class, inverse_of: :biocuration_classifications
   belongs_to :biological_collection_object, class_name: 'CollectionObject::BiologicalCollectionObject', inverse_of: :biocuration_classifications
 

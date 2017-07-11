@@ -36,7 +36,7 @@
 #   @return [Integer]
 #     a z coordinate for this item in its container
 #
-class ContainerItem < ActiveRecord::Base
+class ContainerItem < ApplicationRecord
   has_closure_tree
 
   include Housekeeping

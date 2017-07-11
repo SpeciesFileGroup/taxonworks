@@ -56,7 +56,7 @@
 #   @return [Date]
 #   The date when the object was removed from tracking.  If provide then Repository must be null?! TODO: resolve
 #
-class CollectionObject < ActiveRecord::Base
+class CollectionObject < ApplicationRecord
 
   include GlobalID::Identification
   include Housekeeping
@@ -76,10 +76,10 @@ class CollectionObject < ActiveRecord::Base
   include SoftValidation
 
   include Shared::IsDwcOccurrence
-  include CollectionObject::DwcExtensions 
+  include CollectionObject::DwcExtensions
 
   is_origin_for 'CollectionObject', 'Extract'
-  has_paper_trail :on => [:update] 
+  has_paper_trail :on => [:update]
 
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
@@ -89,7 +89,7 @@ class CollectionObject < ActiveRecord::Base
   attr_accessor :no_cached
 
   after_save :add_to_dwc_occurrence, if: '!self.no_cached'
-  
+
   # Otu delegations
   delegate :name, to: :current_otu, prefix: :otu, allow_nil: true # could be Otu#otu_name?
   delegate :id, to: :current_otu, prefix: :otu, allow_nil: true
@@ -102,7 +102,7 @@ class CollectionObject < ActiveRecord::Base
 
   # Repository delegations
   delegate :acronym, to: :repository, prefix: :repository, allow_nil: true
-  delegate :url, to: :repository, prefix: :repository, allow_nil: true 
+  delegate :url, to: :repository, prefix: :repository, allow_nil: true
 
   # Preparation delegations
   delegate :name, to: :preparation_type, prefix: :preparation_type, allow_nil: true
@@ -150,7 +150,7 @@ class CollectionObject < ActiveRecord::Base
   soft_validate(:sv_missing_deaccession_fields, set: :missing_deaccession_fields)
 
   def preferred_catalog_number
-    Identifier::Local::CatalogNumber.where(identifier_object: self).first 
+    Identifier::Local::CatalogNumber.where(identifier_object: self).first
   end
 
   def missing_determination
@@ -218,7 +218,7 @@ class CollectionObject < ActiveRecord::Base
     (h['biocuration classifications'] = self.biocuration_classes) if self.biological? && self.biocuration_classifications.any?
     h
   end
-  
+
   # @param [String] rank
   # @return [String] if a determination exists, and the Otu in the determination has a taxon name then return the taxon name at the rank supplied
   def name_at_rank_string(rank)
@@ -281,7 +281,7 @@ class CollectionObject < ActiveRecord::Base
   end
 
 
-  # TODO: this should be refactored to be collection object centric AFTER 
+  # TODO: this should be refactored to be collection object centric AFTER
   # it is spec'd
   def self.earliest_date(project_id)
     a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).minimum(:start_date_year)
@@ -301,7 +301,7 @@ class CollectionObject < ActiveRecord::Base
     d.to_s + '/01/01'
   end
 
-  # TODO: this should be refactored to be collection object centric AFTER 
+  # TODO: this should be refactored to be collection object centric AFTER
   # it is spec'd
   def self.latest_date(project_id)
     a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:start_date_year)
@@ -532,7 +532,7 @@ class CollectionObject < ActiveRecord::Base
         area_objects_clause = 'false'
       end
     end
-    
+
     retval = CollectionObject.joins(:collecting_event)
                  .where(collecting_events_clause)
                  .where(area_objects_clause)
@@ -601,18 +601,18 @@ class CollectionObject < ActiveRecord::Base
   def reject_taxon_determinations(attributed)
 
     a = attributed['otu_id']
-    b = attributed['otu_attributes'] 
+    b = attributed['otu_attributes']
 
     return true if !a.present? && !b.present?
 
     if a.present?
       return true if b.present? && ( b['name'].present? || b['taxon_name_id'].present? ) # not both
-      return false 
+      return false
     end
 
     if b.present?
       return true if !b['name'].present? && !b['taxon_name_id'].present?
-    end 
+    end
 
     false
   end
