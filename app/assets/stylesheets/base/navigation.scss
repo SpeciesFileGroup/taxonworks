@@ -68,14 +68,14 @@ a {
 
   .on_hub {
       background-color: $color-secondary-2-4 !important;
-      background-image: image-url('w_hub.svg') !important;
+      background-image: image-url('taxonworks-white-circle.svg') !important;
   }
 
   .hub_link {
     opacity: 0.6;
     position: absolute;
     margin-left: 1em;
-    background-image: image-url('hub.svg');
+    background-image: image-url('taxonworks-black-circle.svg');
     background-size:24px;
     background-repeat:no-repeat;
     background-position: center; 

@@ -15,11 +15,16 @@
 	}
 
 	#taxonworks {
-		a {
-			color: #FFF;
+
+
+		.logo {
+			width:200px;
+			height:20px;
+			background-image: image-url('taxonworks-white.svg');
+			background-size: contain;
+			background-repeat: no-repeat;
+			background-position: left center;
 			padding: 0px;
-			font-size: 20px;
-			font-weight: 300;
 			text-decoration: none;
 		}
 	}
