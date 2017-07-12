@@ -19,6 +19,7 @@ const MutationNames = {
 	SetTaxonId: 'setTaxonId',
 	SetTaxon: 'setTaxon',
 	SetSource: 'setSource',
+	SetSoftValidation: 'setSoftValidation',
 	SetTaxonYearPublication: 'setTaxonYearPublication',
 	SetNomenclaturalCode: 'setNomenclaturalCode'
 };
@@ -43,6 +44,7 @@ const MutationFunctions = {
 	[MutationNames.SetTaxonId]: require('./setTaxonId'),
 	[MutationNames.SetTaxon]: require('./setTaxon'),
 	[MutationNames.SetSource]: require('./setSource'),
+	[MutationNames.SetSoftValidation]: require('./setSoftValidation'),
 	[MutationNames.SetParentRankGroup]: require('./setParentRankGroup'),
 	[MutationNames.SetTaxonYearPublication]: require('./setTaxonYearPublication'),
 	[MutationNames.SetNomenclaturalCode]: require('./setNomenclaturalCode'),

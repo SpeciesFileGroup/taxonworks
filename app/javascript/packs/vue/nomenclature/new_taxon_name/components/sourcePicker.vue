@@ -1,10 +1,12 @@
 <template>
 	<form>
 		<div class="source-picker panel">
-			<div class="header">
+			<a name="author" class="anchor"></a>
+			<div class="header flex-separate">
 				<h3>Author</h3>
+				<expand @changed="expanded = !expanded" :expanded="expanded"></expand>
 			</div>
-			<div class="body">
+			<div class="body" v-show="expanded">
 				<div class="separate-bottom">
 				    <button class="normal-input" @click="show = 'source'" type="button">Source</button>
 				    <button class="normal-input" @click="show = 'verbatim'" type="button">Verbatim</button>
@@ -22,7 +24,9 @@
 					</autocomplete>
 					<hr>
 					<div v-if="source != undefined">
-						<p>{{ source.object_tag }}</p>
+						<div class="flex-separate middle">
+							<p>{{ source.object_tag }}</p><span class="circle-button btn-delete" @click="removeSource(taxon.id)"></span>
+						</div>
 					</div>
 				</div>
 				<div v-if="show == 'verbatim'">
@@ -44,23 +48,30 @@
 	const verbatimAuthor = require('./verbatimAuthor.vue');
 	const verbatimYear = require('./verbatimYear.vue');
   	const GetterNames = require('../store/getters/getters').GetterNames; 
-	const MutationNames = require('../store/mutations/mutations').MutationNames;  
+	const MutationNames = require('../store/mutations/mutations').MutationNames; 
+	const ActionNames = require('../store/actions/actions').ActionNames;  
  	const autocomplete = require('../../../components/autocomplete.vue');
+	const expand = require('./expand.vue');
 
 	export default {
 		components: {
 			autocomplete,
 			verbatimAuthor,
 			verbatimYear,
+			expand
 		},
 		computed: {
 			source() {
 				return this.$store.getters[GetterNames.GetSource]
+			},
+			taxon() {
+				return this.$store.getters[GetterNames.GetTaxon]
 			}
 		},
 		data: function() {
 			return {
-				show: 'source'
+				show: 'source',
+				expanded: true
 			}
 		},
 		mounted: function() {
@@ -70,13 +81,20 @@
 				})
 				
 			});
+		},
+		methods: {
+			removeSource: function(id) {
+				this.$store.dispatch(ActionNames.RemoveSource, id);
+			}
 		}
 	};
 </script>
 
 <style type="text/css">
 	.source-picker {
+		box-sizing: border-box;
 		.header {
+			padding-left: 12px;
 			border-bottom: 1px solid #f5f5f5;
 		}
 		.body {
@@ -93,7 +111,6 @@
 		    margin: 15px;
 		    border: 0;
 		}
-		width: 900px;
 		padding: 12px;
 		box-shadow: 0 0 2px 0px rgba(0,0,0,0.2);
 	}

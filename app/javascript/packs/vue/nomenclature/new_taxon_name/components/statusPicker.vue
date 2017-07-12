@@ -1,9 +1,11 @@
 <template>
   <form class="panel basic-information">
-    <div class="header">
+  <a class="anchor" name="status"></a>
+    <div class="header flex-separate">
       <h3 class="">Status</h3>
+      <expand @changed="expanded = !expanded" :expanded="expanded"></expand>
     </div>
-    <div class="body">
+    <div class="body" v-if="expanded">
       <tree-display 
           :tree-list="treeList" 
           :objectLists="objectLists" 
@@ -25,10 +27,12 @@
   const GetterNames = require('../store/getters/getters').GetterNames;
   const treeDisplay = require('./treeDisplay.vue');
   const listEntrys = require('./listEntrys.vue');
+  const expand = require('./expand.vue');
 
   export default {
     components: {
       listEntrys,
+      expand,
       treeDisplay
     },
     computed: {
@@ -47,7 +51,8 @@
     },
     data: function() {
       return { 
-        objectLists: this.makeLists()
+        objectLists: this.makeLists(),
+        expanded: true
       }
     },
     watch: {

@@ -28,6 +28,7 @@ function makeInitialState() {
     },
     taxonStatusList: [],
     taxonRelationshipList: [],
+    softValidation: undefined,
     nomenclatural_code: undefined,
     parent: undefined,
     ranks: undefined,

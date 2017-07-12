@@ -15,6 +15,7 @@ const GetterNames = {
 	GetParentRankGroup: 'getParentRankGroup',
 	GetTaxonYearPublication: 'getTaxonYearPublication',
 	GetNomenclaturalCode: 'getNomenclaturalCode',
+	GetSoftValidation: 'getSoftValidation',
 	GetSource: 'getSource'
 };
 
@@ -35,6 +36,7 @@ const GetterFunctions = {
 	[GetterNames.GetParentRankGroup]: require('./getParentRankGroup'),
 	[GetterNames.GetTaxonYearPublication]: require('./getTaxonYearPublication'),
 	[GetterNames.GetNomenclaturalCode]: require('./getNomenclaturalCode'),
+	[GetterNames.GetSoftValidation]: require('./getSoftValidation'),
 	[GetterNames.GetSource]: require('./getSource')
 };
 

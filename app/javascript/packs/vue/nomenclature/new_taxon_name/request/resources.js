@@ -22,7 +22,25 @@ const removeTaxonStatus = function(id) {
   });
 }
 
+const removeTaxonSource = function(id) {
+  return new Promise(function (resolve, reject) {
+    let taxon_name = { 
+      taxon_name: {
+        id: id,
+        origin_citation_attributes: {
+          _destroy: true
+        }
+      }
+    }
+
+    Vue.http.patch(`/taxon_names/${id}`, taxon_name).then( response => {
+      return resolve(response.body);
+    });
+  });
+}
+
 export {
   saveNewTaxonStatus,
-  removeTaxonStatus
+  removeTaxonStatus,
+  removeTaxonSource
 }

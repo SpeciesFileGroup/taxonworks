@@ -1,9 +1,11 @@
 <template>
   <form class="panel basic-information">
-    <div class="header">
+    <a name="relationship" class="anchor"></a>
+    <div class="header flex-separate">
       <h3 class="">Relationship</h3>
+      <expand @changed="expanded = !expanded" :expanded="expanded"></expand>
     </div>
-    <div class="body">
+    <div class="body" v-if="expanded">
       <tree-display 
         :tree-list="treeList" 
         :parent="parent" 
@@ -25,11 +27,13 @@
   const treeDisplay = require('./treeDisplay.vue');
   const taxonNamePicker = require('./taxonNamePicker.vue');
   const listEntrys = require('./listEntrys.vue');
+  const expand = require('./expand.vue');
 
   export default {
     components: {
       taxonNamePicker,
       listEntrys,
+      expand,
       treeDisplay
     },
     computed: {
@@ -48,7 +52,8 @@
     },
     data: function() {
       return { 
-        objectLists: this.makeLists()
+        objectLists: this.makeLists(),
+        expanded: true
       }
     },
     watch: {

@@ -1,9 +1,11 @@
 <template>
 	<form class="panel basic-information">
-		<div class="header">
+		<a name="original-combination" class="anchor"></a>
+		<div class="header flex-separate">
 			<h3>Original combination</h3>
+			<expand @changed="expanded = !expanded" :expanded="expanded"></expand>
 		</div>
-		<div class="body">
+		<div class="body" v-if="expanded">
 		<draggable v-model="current" :options="{ sort: false, group: { name: 'combination', put: false }}">
 	    	<li v-for="item in current" class="no_bullets">
 	    		<input disabled class="row" :value="taxonName" />
@@ -50,11 +52,13 @@
 	const GetterNames = require('../store/getters/getters').GetterNames;
 	const MutationNames = require('../store/mutations/mutations').MutationNames;  
 	const autocomplete = require('../../../components/autocomplete.vue');
+	const expand = require('./expand.vue');
 
 	export default {
 		components: {
 			autocomplete,
-			draggable
+			draggable,
+			expand
 		},
 		computed: {
 			taxonName() {
@@ -63,6 +67,7 @@
 		},
 		data: function() { 
 			return {
+				expanded: true,
 				ranks: [ 
 					{ name: 'Field 0', show: true, class: 'rank-item', autocomplete: undefined, id: 1 }, 
 					{ name: 'Field 1', show: true, class: 'rank-item', autocomplete: undefined, id: 2 }, 
