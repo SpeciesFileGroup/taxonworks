@@ -1,5 +1,5 @@
 <template>
-	<button type="button" :class="{ disable : !validateInfo() }" @click="saveTaxon()">{{ taxon.id == undefined ? 'Create': 'Save' }}</button>
+	<button type="button" :disabled="!validateInfo()" @click="saveTaxon()">{{ taxon.id == undefined ? 'Create': 'Save' }}</button>
 </template>
 
 <script>
