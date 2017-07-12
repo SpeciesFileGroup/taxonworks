@@ -44,7 +44,8 @@ describe AlternateValuesController, :type => :controller do
       it 'assigns a newly created but unsaved alternate_value as @alternate_value' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AlternateValue).to receive(:save).and_return(false)
-        post :create, params: {alternate_value: {value: 'Bar'}}, args: valid_session
+        post :create, params: ({alternate_value: {value: 'Bar'}}), args: valid_session
+        # post :create, params: ActionController::Parameters.new(parameters: {alternate_value: {value: 'Bar'}}), args: valid_session
         expect(assigns(:alternate_value)).to be_a_new(AlternateValue)
       end
 
@@ -67,7 +68,8 @@ describe AlternateValuesController, :type => :controller do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         expect_any_instance_of(AlternateValue).to receive(:update).with({'value' => 'Smorf'})
-        put :update, {:id => alternate_value.to_param, :alternate_value => {value: 'Smorf'}}, valid_session
+        # put :update, {:id => alternate_value.to_param, :alternate_value => {value: 'Smorf'}}, valid_session
+        put :update, params: {id: alternate_value.to_param, alternate_value: {value: 'Smorf'}}, args: valid_session
       end
 
       it 'assigns the requested alternate_value as @alternate_value' do
