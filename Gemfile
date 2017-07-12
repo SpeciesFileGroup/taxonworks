@@ -129,7 +129,7 @@ group :test do
   gem 'webmock', '~> 2.1.0'
   gem 'vcr', '~> 3.0.0'
   gem 'database_cleaner', '~> 1.6.0'
-  gem 'rails-controller-testing'
+  gem 'rails-controller-testing', '~> 1.0.0'
 # gem 'simplecov', :require => false
 # gem 'simplecov-rcov', :require => false
 end
