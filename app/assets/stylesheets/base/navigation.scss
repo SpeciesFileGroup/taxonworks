@@ -71,6 +71,33 @@ a {
       background-image: image-url('taxonworks-white-circle.svg') !important;
   }
 
+  .hub_link_background {
+    opacity: 1 !important;
+    background-color: white;
+  }
+
+  .on_hub_link_background {
+    opacity: 1 !important;
+    background-color: $color-secondary-2-4 !important;
+  }
+  .hub_circle {
+    opacity: 1;
+    position: absolute;
+    margin-left: 1em;
+    background-size:24px;
+    background-repeat:no-repeat;
+    background-position: center; 
+    z-index: 1100;
+    font-size: 0px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 54px;
+    height: 54px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100%; 
+  }
+
   .hub_link {
     opacity: 0.6;
     position: absolute;
