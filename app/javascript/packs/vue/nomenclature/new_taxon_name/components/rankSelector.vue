@@ -1,17 +1,17 @@
 <template>
   <div class="field ranks-list" v-if="parent && rankGroup && ranks[rankGroup].length">
-    <label>Rank</label><br>
+    <h4>Rank</h4>
     <ul class="no_bullet " v-for="(group, key) in Object.keys(this.ranks)" v-if="!isMajor(rankGroup, group) && (showAll || group == childOfParent[rankGroup])">
       <li v-if="((extendChildsList || (ranks[childOfParent[rankGroup]].lenght < maxChildsDisplay)) && (group == childOfParent[rankGroup]))">
-        <label v-if="!showAll"><input type="radio" name="extendChild" @click="showAll = true" :checked="false"/> all... </label>
-        <label v-else><input type="radio" name="extendChild" @click="showAll = false" :checked="false"/> less... </label>
+        <label class="middle" v-if="!showAll"><input type="radio" name="extendChild" @click="showAll = true" :checked="false"/> all... </label>
+        <label class="middle" v-else><input type="radio" name="extendChild" @click="showAll = false" :checked="false"/> less... </label>
       </li>
       <li v-for="(child, index) in (ranks[group])" v-if="((extendChildsList || (index < maxChildsDisplay)))">
-        <label><input type="radio" name="rankSelected" v-model="setRankClass" :checked="child.rank_class == this.setRankClass" :value="child.rank_class"/> {{ child.name }} </label>
+        <label class="middle"><input type="radio" name="rankSelected" v-model="setRankClass" :checked="child.rank_class == this.setRankClass" :value="child.rank_class"/> {{ child.name }} </label>
       </li>
       <li v-if="(ranks[group].length > maxChildsDisplay) && (group == childOfParent[rankGroup]) && !showAll">
-        <label v-if="extendChildsList"><input type="radio" name="extendChild" v-model="currentMaxDisplay" @click="extendChildsList = false" :value="maxChildsDisplay" :checked="false"/> less... </label>
-        <label v-else><input type="radio" name="extendChild" v-model="currentMaxDisplay" :value="ranks[group].length" @click="extendChildsList = true" :checked="false"/> more... </label>
+        <label class="middle" v-if="extendChildsList"><input type="radio" name="extendChild" v-model="currentMaxDisplay" @click="extendChildsList = false" :value="maxChildsDisplay" :checked="false"/> less... </label>
+        <label class="middle" v-else><input type="radio" name="extendChild" v-model="currentMaxDisplay" :value="ranks[group].length" @click="extendChildsList = true" :checked="false"/> more... </label>
       </li>
     </ul>
   </div>

@@ -22,7 +22,7 @@
       <div v-else class="flex-wrap-row">
         <ul class="flex-wrap-column no_bullets">
           <li class="status-item" v-for="item in objectLists.commonList">
-            <label><input type="radio" name="status-item" @click="addEntry(item)" :value="item.type"/>{{ item[displayName] }}</label>
+            <label class="middle"><input type="radio" name="status-item" @click="addEntry(item)" :value="item.type"/>{{ item[displayName] }}</label>
           </li>
         </ul>
       </div>
