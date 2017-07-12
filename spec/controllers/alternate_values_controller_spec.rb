@@ -24,18 +24,18 @@ describe AlternateValuesController, :type => :controller do
     describe 'with valid params' do
       it 'creates a new AlternateValue' do
         expect {
-          post :create, {:alternate_value => valid_attributes}, valid_session
+          post :create, params: {alternate_value: valid_attributes}, args: valid_session
         }.to change(AlternateValue, :count).by(1)
       end
 
       it 'assigns a newly created alternate_value as @alternate_value' do
-        post :create, {:alternate_value => valid_attributes}, valid_session
+        post :create, params: {alternate_value: valid_attributes}, args: valid_session
         expect(assigns(:alternate_value)).to be_a(AlternateValue)
         expect(assigns(:alternate_value)).to be_persisted
       end
 
       it 'redirects to :back' do
-        post :create, {:alternate_value => valid_attributes}, valid_session
+        post :create, params: {alternate_value: valid_attributes}, args: valid_session
         expect(response).to redirect_to(source_path(o))
       end
     end
@@ -44,14 +44,15 @@ describe AlternateValuesController, :type => :controller do
       it 'assigns a newly created but unsaved alternate_value as @alternate_value' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AlternateValue).to receive(:save).and_return(false)
-        post :create, {:alternate_value => {value: 'Bar'}}, valid_session
+        post :create, params: {alternate_value: {value: 'Bar'}}, args: valid_session
         expect(assigns(:alternate_value)).to be_a_new(AlternateValue)
       end
 
       it 're-renders the :back template' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AlternateValue).to receive(:save).and_return(false)
-        post :create, {:alternate_value => {value: 'Foo'}}, valid_session
+        # post :create, {:alternate_value => {value: 'Foo'}}, valid_session  # deprecated form
+        post :create, params: {alternate_value: {value: 'Foo'}}, args: valid_session
         expect(response).to render_template("new")
       end
     end
