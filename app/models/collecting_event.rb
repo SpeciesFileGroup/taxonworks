@@ -511,7 +511,7 @@ class CollectingEvent < ApplicationRecord
       if sql_string.blank?
         collecting_events = CollectingEvent.none
       else
-        collecting_events = CollectingEvent.where(sql_string).uniq
+        collecting_events = CollectingEvent.where(sql_string).distinct
       end
 
       collecting_events
@@ -762,7 +762,7 @@ class CollectingEvent < ApplicationRecord
   # @return [Scope]
   # Find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self
   def collecting_events_intersecting_with
-    pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).uniq
+    pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).distinct
     gr     = [] # all collecting events for a geographic_item
 
     pieces.each {|o|
