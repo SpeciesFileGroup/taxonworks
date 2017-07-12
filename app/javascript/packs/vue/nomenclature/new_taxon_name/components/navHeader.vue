@@ -6,16 +6,16 @@
 		<div slot="footer"><button @click="deleteTaxon()" type="button" class="normal-input button button-delete align-end">Delete</button></div>
 	</modal>
 	<div id="taxonNavBar">
-		<div class="panel separate-bottom">
-			<div class="content">
-				<div v-if="taxon.id" class="flex-separate middle">
+		<div class="panel basic-information separate-bottom">
+			<div class="content header">
+				<h3 v-if="taxon.id" class="flex-separate middle">
 					<span class="taxonname"> 
 						<span v-html="parent.object_tag"></span> 
 						<span> {{ taxon.name }} </span>
 					</span>
-					<span v-if="taxon.id" @click="showModal = true" class="circle-button btn-delete"></span>
-				</div>
-				<span class="taxonname" v-else>New</span>
+					<span v-if="taxon.id" @click="showModal = true" data-icon="trash"></span>
+				</h3>
+				<h3 class="taxonname" v-else>New</h3>
 				
 			</div>
 			<div class="content">
@@ -100,18 +100,25 @@ export default {
 		position: fixed;
 	}
 	#taxonNavBar {
+		.header {
+			padding: 1em;
+			border: 1px solid #f5f5f5;
+			.circle-button {
+				margin: 0px;
+			}
+		}
 		width: 300px;
 		button {
 			margin: 6px;
 			width: 100%;
 		}
 		.taxonname {
-			font-size: 120%;
+			font-weight: 300;
 		}
-		.horizontal_navbar {
-			padding-left: 0px;
+		li { 
+			padding-top: 0.75em;
 			a {
-				width: 100%;
+			font-size: 13px;
 			}
 		}
 	}
