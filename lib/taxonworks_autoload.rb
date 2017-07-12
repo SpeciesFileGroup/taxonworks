@@ -9,7 +9,8 @@ module TaxonWorksAutoload
       /app/models/nomenclatural_rank/**/*.rb
       /app/models/taxon_name_relationship/**/*.rb
       /app/models/taxon_name_classification/**/*.rb
-}.each do |path|
+      /lib/vendor/**/*.rb
+  }.each do |path|
     a = Dir[Rails.root.to_s + path].sort
     a.each {|file| require_dependency file } # was .sort
   end

@@ -1,5 +1,3 @@
-require_dependency 'lib/vendor/sqed_to_taxonworks.rb'
-
 class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationController
   include TaskControllerConfiguration
 
