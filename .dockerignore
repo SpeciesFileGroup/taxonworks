@@ -11,21 +11,20 @@
 *.sql
 .ruby-version
 
+tags/
+.bundle_bin/
+
 config/database.yml
 config/secrets.yml
 config/application_settings.yml
 
-tags
 node_modules
 
 .ruby-gemset
 .bundle
 
-bundle_bin
-
 log
 tmp
-index.html
 
 doc
 .yardoc
@@ -33,10 +32,10 @@ coverage
 
 REVISION
 
-public/system
 public/images/tmp
-public/assets
-public/packs
+public/system
+public/index.html
+public/packs-test
 
 .git
 spec

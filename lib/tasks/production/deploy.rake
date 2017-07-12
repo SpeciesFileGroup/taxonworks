@@ -7,7 +7,7 @@ namespace :tw do
 
       # Called from within Dockerfile.  The database must exist before this point!
       desc 'A database deployment strategy for Docker/Kubernetes.'
-      task :update_database => [:environment, :db_user, :backup_directory, :check_for_database] do
+      task :update_database => [:environment, :database_user, :database_host, :backup_directory, :check_for_database] do
 
         # Result is 
         #   0 - full deploy passed 
