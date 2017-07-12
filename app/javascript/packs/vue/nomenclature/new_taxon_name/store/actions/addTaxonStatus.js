@@ -9,8 +9,10 @@ module.exports = function({ commit, state }, status) {
 	});
 	if (position < 0) {
 		let newClassification = {
-			taxon_name_id: state.taxon_name.id,
-			type: status.type
+			taxon_name_classification: {
+				taxon_name_id: state.taxon_name.id,
+				type: status.type
+			}
 		}
 		saveTaxonStatus(newClassification).then( response => {
 			Object.defineProperty(response, 'type', { value: status.type });
