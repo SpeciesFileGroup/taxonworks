@@ -405,12 +405,14 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
         expect(collecting_event_ids.count).to eq(11)
         expect(collection_objects.count).to eq(2)
         found_c_os = [@co_m3, @co_n3]
+        c_os       = []
         collection_objects.each_with_index { |c_o, index|
-          # TODO: ActiveRecord_Relation no longer accepts the setting of an indexed element? 07/11/17
+          # TODO: R5.0 ActiveRecord_Relation no longer accepts the setting of an indexed element? 07/11/17
           # @mjy
-          collection_objects[index] = collection_objects[index].metamorphosize
+          # collection_objects[index] = collection_objects[index].metamorphosize
+          c_os[index] = collection_objects[index].metamorphosize
         }
-        expect(collection_objects).to contain_exactly(*found_c_os)
+        expect(c_os).to contain_exactly(*found_c_os)
       end
 
       specify 'should find 0 collecting objects' do
