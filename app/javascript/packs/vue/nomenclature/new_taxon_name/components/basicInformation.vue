@@ -87,6 +87,7 @@
     .body {
       padding: 2em;
       padding-top: 1em;
+      padding-bottom: 1em;
     }
     .vue-autocomplete-input {
       width: 300px;
