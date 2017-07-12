@@ -115,3 +115,4 @@ end
 require_dependency 'alternate_value/misspelling'
 require_dependency 'alternate_value/translation'
 require_dependency 'alternate_value/abbreviation'
+require_dependency 'alternate_value/alternate_spelling'
