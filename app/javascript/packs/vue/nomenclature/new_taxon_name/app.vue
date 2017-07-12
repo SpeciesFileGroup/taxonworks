@@ -161,9 +161,7 @@
     margin: 0 auto;
     margin-top: 1em;
     max-width: 1240px;
-    h3 {
-      color: #555;
-    }
+
     .cleft {
       width: 300px;
     }
@@ -175,6 +173,14 @@
        height:10px;
        margin-top:-10px;
        visibility:hidden;
+    }
+    hr {
+        height: 1px;
+        color: #f5f5f5;
+        background: #f5f5f5;
+        font-size: 0;
+        margin: 15px;
+        border: 0;
     }
   }
 

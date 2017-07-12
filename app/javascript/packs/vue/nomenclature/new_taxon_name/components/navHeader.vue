@@ -1,5 +1,10 @@
 <template>
 <div>
+	<modal v-if="showModal" @close="showModal = false">
+		<h3 slot="header">Confirm delete</h3>
+		<div slot="body">Are you sure you want to delete <span v-html="parent.object_tag"></span> {{taxon.name}} ?</div>
+		<div slot="footer"><button @click="deleteTaxon()" type="button" class="normal-input button button-delete align-end">Delete</button></div>
+	</modal>
 	<div id="taxonNavBar">
 		<div class="panel separate-bottom">
 			<div class="content">
@@ -8,7 +13,7 @@
 						<span v-html="parent.object_tag"></span> 
 						<span> {{ taxon.name }} </span>
 					</span>
-					<span v-if="taxon.id" class="circle-button btn-delete"></span>
+					<span v-if="taxon.id" @click="showModal = true" class="circle-button btn-delete"></span>
 				</div>
 				<span class="taxonname" v-else>New</span>
 				
@@ -34,11 +39,13 @@
 
 const GetterNames = require('../store/getters/getters').GetterNames
 const saveTaxonName = require('./saveTaxonName.vue');
+const modal = require('../../../components/modal.vue');
 
 export default {
 
 	components: {
-		saveTaxonName
+		saveTaxonName,
+		modal
 	},
 	computed: {
 		taxon() {
@@ -50,6 +57,7 @@ export default {
 	},
 	data: function() {
 		return {
+			showModal: false,
 			activePosition: 0,
 			anchorLink: {
 				'Basic information': '#basic-information',
@@ -63,6 +71,11 @@ export default {
 	methods: {
 		reloadPage: function() {
 			window.location.href = '/tasks/nomenclature/new_taxon_name/'
+		},
+		deleteTaxon: function() {
+			this.$http.delete(`/taxon_names/${this.taxon.id}`).then(response => {
+				this.reloadPage();
+			});
 		}
 	},
 	created: function() {

@@ -1,7 +1,7 @@
 <template>
-    <form class="content panel basic-information">
+    <form class="panel basic-information">
     <a name="basic-information" class="anchor"></a>
-      <div class="header flex-separate">
+      <div class="header flex-separate middle">
         <h3 class="">Basic information</h3>
         <expand @changed="expanded = !expanded" :expanded="expanded"></expand>
       </div>
@@ -70,18 +70,24 @@
 
 <style type="text/css">
   .basic-information {
+
     height: 100%;
     box-sizing: border-box;
-    padding: 12px;
-    box-shadow: 0 0 2px 0px rgba(0,0,0,0.2);
     display: flex;
     flex-direction: column;
     .header {
-      padding-left: 12px;
-      border-bottom: 1px solid #f5f5f5;
+      border-left:4px solid green;
+      h3 {
+      font-weight: 300;
+    }
+    padding: 1em;
+    padding-left: 1.5em;
+    border-bottom: 1px solid #f5f5f5;
     }
     .body {
-      padding: 12px;
+      padding-top: 1em;
+      padding-left: 2em;
+      padding-right: 2em;
     }
     .vue-autocomplete-input {
       width: 300px;

@@ -1,8 +1,8 @@
 <template>
 	<form>
-		<div class="source-picker panel">
+		<div class="basic-information panel">
 			<a name="author" class="anchor"></a>
-			<div class="header flex-separate">
+			<div class="header flex-separate middle">
 				<h3>Author</h3>
 				<expand @changed="expanded = !expanded" :expanded="expanded"></expand>
 			</div>
@@ -89,29 +89,3 @@
 		}
 	};
 </script>
-
-<style type="text/css">
-	.source-picker {
-		box-sizing: border-box;
-		.header {
-			padding-left: 12px;
-			border-bottom: 1px solid #f5f5f5;
-		}
-		.body {
-			padding: 12px;
-		}
-		.vue-autocomplete-input {
-			width: 100% ;
-		}
-		hr {
-		    height: 1px;
-		    color: #f5f5f5;
-		    background: #f5f5f5;
-		    font-size: 0;
-		    margin: 15px;
-		    border: 0;
-		}
-		padding: 12px;
-		box-shadow: 0 0 2px 0px rgba(0,0,0,0.2);
-	}
-</style>

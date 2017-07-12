@@ -1,7 +1,7 @@
 <template>
 	<form class="panel basic-information">
 		<a name="original-combination" class="anchor"></a>
-		<div class="header flex-separate">
+		<div class="header flex-separate middle">
 			<h3>Original combination</h3>
 			<expand @changed="expanded = !expanded" :expanded="expanded"></expand>
 		</div>

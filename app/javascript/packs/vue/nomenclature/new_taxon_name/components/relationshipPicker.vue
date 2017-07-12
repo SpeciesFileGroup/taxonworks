@@ -1,7 +1,7 @@
 <template>
   <form class="panel basic-information">
     <a name="relationship" class="anchor"></a>
-    <div class="header flex-separate">
+    <div class="header flex-separate middle">
       <h3 class="">Relationship</h3>
       <expand @changed="expanded = !expanded" :expanded="expanded"></expand>
     </div>

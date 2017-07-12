@@ -1,7 +1,4 @@
 #new_taxon_name_task {
-.sortable-chosen {
-	//position:fixed;
-}
 
 .original-combination {
 	display: flex;
@@ -31,19 +28,20 @@
 		flex-direction: row;
 	}
 }
-	.modal-header {
+	.taxon-modal {
+		.modal-header {
 
-		h3 {
-			margin: 2em;
-			margin-right: 0px;
-			margin-top: 0px;
-			padding: 6px;
-			padding-left:12px;
-			border-radius: 3px;
-			background-color: rgba(0, 0, 0, .3);
-			color: rgba(255, 255, 255, .5);
+			h3 {
+				margin: 2em;
+				margin-right: 0px;
+				margin-top: 0px;
+				padding: 6px;
+				padding-left:12px;
+				border-radius: 3px;
+				background-color: rgba(0, 0, 0, .3);
+				color: rgba(255, 255, 255, .5);
+			}
 		}
-	}
 		.modal-close {
 			right: 42px;
 			top:30px;
@@ -86,6 +84,7 @@
 			} 
 			}
 		}
+	}
 		
 		button:disabled {
 			background-color: transparent;
