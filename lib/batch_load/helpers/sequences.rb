@@ -1,25 +1,36 @@
 module BatchLoad
   module Helpers::Sequences
     def create_sequence(filename, file_content)
-      # GenBank GBK
+      # GenBank GBK, DRMSequenceId DRMSEQID
       namespace_genbank = Namespace.find_by(name: 'GenBank')
+      namespace_sequence_id = Namespace.find_by(name: 'DRMSequenceId')
 
       # Sequence attributes
-      sequence_attributes = { name: nil, sequence_type: nil, sequence: nil, identifiers_attributes: [] }
-
-      sequence_attributes[:name] = get_taxon_name(filename) + "_" + get_voucher_number(filename) + "_" + get_gene_fragement(filename)
-      sequence_attributes[:sequence_type] = get_sequence_type(filename)
-      sequence_attributes[:sequence] = get_sequence(file_content)
+      sequence_attributes = {
+        name: get_taxon_name(filename) + "_" + get_voucher_number(filename) + "_" + get_gene_fragement(filename),
+        sequence_type: get_sequence_type(filename),
+        sequence: get_sequence(file_content),
+        identifiers_attributes: []
+      }
 
       # Identifiers for Sequence
       sequence_identifier_genbank_text = get_genbank_text(filename)
-      
+      sequence_identifier_genbank = { 
+        namespace: namespace_genbank,
+        type: 'Identifier::Local::Sequence',
+        identifier: sequence_identifier_genbank_text 
+      }
 
-      sequence_identifier_genbank = { namespace: namespace_genbank,
-                                      type: 'Identifier::Local::Sequence',
-                                      identifier: sequence_identifier_genbank_text }
+      sequence_identifier_sequence_id_text = get_sequence_id_text(filename)
+      sequence_identifier_sequence_id = {
+        namespace: namespace_sequence_id,
+        type: 'Identifier::Local::Sequence',
+        identifier: sequence_identifier_sequence_id_text
+      }
 
       sequence_attributes[:identifiers_attributes].push(sequence_identifier_genbank) if !sequence_identifier_genbank_text.blank?
+      sequence_attributes[:identifiers_attributes].push(sequence_identifier_sequence_id) if !sequence_identifier_sequence_id_text.blank?
+            
       sequence = Sequence.new(sequence_attributes)
       sequence
     end
@@ -44,6 +55,11 @@ module BatchLoad
     def get_genbank_text(filename)
       # _&aKJ624355_&
       return get_between_strings(filename, "_&a", "_&")
+    end
+
+    def get_sequence_id_text(filename)
+      # &iSEQID00000349_&
+      return get_between_strings(filename, "&i", "_&")
     end
 
     def get_sequence(file_content)

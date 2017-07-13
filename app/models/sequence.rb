@@ -8,6 +8,7 @@ class Sequence < ActiveRecord::Base
   include Housekeeping
 
   include Shared::AlternateValues
+  include Shared::DataAttributes
   include Shared::Confidence
   include Shared::Documentation
   include Shared::Identifiable
@@ -29,6 +30,8 @@ class Sequence < ActiveRecord::Base
   has_many :related_sequences, through: :related_sequence_relationships, source: :subject_sequence
 
   has_many :gene_attributes, inverse_of: :sequences
+
+  accepts_nested_attributes_for :alternate_values
 
   SequenceRelationship.descendants.each do |d|
     t = d.name.demodulize.tableize.singularize

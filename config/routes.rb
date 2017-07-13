@@ -438,11 +438,19 @@ TaxonWorks::Application.routes.draw do
 
       post :preview_genbank_batch_load
       post :create_genbank_batch_load
+
+      post :preview_primers_batch_load
+      post :create_primers_batch_load
     end
   end
 
   resources :sequence_relationships do
     concerns [:data_routes]
+
+    collection do
+      post :preview_primers_batch_load
+      post :create_primers_batch_load
+    end
   end
 
   resources :sources do
