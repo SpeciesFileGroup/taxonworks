@@ -2,4 +2,5 @@ json.extract! taxon_name_relationship, :id, :subject_taxon_name_id, :object_taxo
 
 json.object_tag taxon_name_relationship_tag(taxon_name_relationship.metamorphosize)
 json.url taxon_name_relationship_url(taxon_name_relationship.metamorphosize, format: :json)
+json.global_id taxon_name_relationship.to_global_id.to_s
 
