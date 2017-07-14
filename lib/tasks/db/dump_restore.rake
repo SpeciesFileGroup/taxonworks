@@ -8,6 +8,16 @@ namespace :tw do
       hsh.collect{|k,v| "#{k}=#{v}"}.join(' ') 
     end
 
+    desc 'Remove all connections but the current one' 
+    task :drop_connections => [:environment] do
+      ActiveRecord::Base.connection.execute(
+        "SELECT pg_terminate_backend(pg_stat_activity.pid)
+        FROM pg_stat_activity
+        WHERE pg_stat_activity.datname = 'TARGET_DB'
+        AND pid <> pg_backend_pid();"
+      )
+    end
+
     desc 'Dump the data to a PostgreSQL custom-format dump file does NOT include structure'
     task :dump => [:environment, :backup_directory, :database_host, :database_user] do
       if Support::Database.pg_database_exists?
