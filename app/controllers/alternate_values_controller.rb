@@ -42,8 +42,6 @@ class AlternateValuesController < ApplicationController
   # PATCH/PUT /alternate_values/1.json
   def update
     respond_to do |format|
-      @alternate_value.project_id = sessions_current_project_id if params[:project_members_only] == 'checked'
-
       if @alternate_value.update(alternate_value_params)
         format.html { redirect_to @alternate_value.alternate_value_object.metamorphosize, notice: 'Alternate value was successfully updated.' }
         format.json { render json: @alternate_value, status: :created, location: @alternate_value }
@@ -100,16 +98,13 @@ class AlternateValuesController < ApplicationController
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_alternate_value
     @alternate_value = AlternateValue.find(params[:id])
-
     render status: 404 if !@alternate_value.project_id.blank? && (sessions_current_project_id != @alternate_value.project_id)
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def alternate_value_params
-    params.require(:alternate_value).permit(:value, :type, :language_id, :alternate_value_object_type, :alternate_value_object_id, :alternate_value_object_attribute, :project_members_only)
+    params.require(:alternate_value).permit(:value, :type, :language_id, :alternate_value_object_type, :alternate_value_object_id, :alternate_value_object_attribute, :is_community_annotation)
   end
 
   def breakout_types(collection)
