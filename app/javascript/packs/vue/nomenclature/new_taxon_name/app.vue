@@ -131,16 +131,6 @@
           });
         });
       },
-      loadSoftValidation: function(global_id) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-          that.$http.get(`/soft_validations/validate?global_id=${global_id}`).then( response => {
-            that.$store.commit(MutationNames.SetSoftValidation, response.body.validations.soft_validations);
-            console.log(response.body);
-            return resolve(true);
-          });
-        });
-      },
       initLoad: function() {
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -162,14 +152,13 @@
             masculine_name: response.body.masculine_name,
             neuter_name: response.body.neuter_name,
           }
-          console.log(response.body);
-          this.loadSoftValidation(response.body.global_id);
           this.loadTaxonRelationships(response.body.id);
           this.loadTaxonStatus(response.body.id);
           this.$store.commit(MutationNames.SetSource, response.body.source);
           this.$store.commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code);
           this.$store.commit(MutationNames.SetTaxon, taxon_name);
           this.$store.dispatch(ActionNames.SetParentAndRanks, response.body.parent);
+          this.$store.dispatch(ActionNames.LoadSoftValidation);
           this.loading = false;
         }, response => {
           TW.workbench.alert.create("There is no taxon name associated to that ID", "error");

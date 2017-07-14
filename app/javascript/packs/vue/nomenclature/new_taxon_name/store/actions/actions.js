@@ -4,10 +4,12 @@ const ActionNames = {
 	AddTaxonRelationship: 'addTaxonRelationship',
 	RemoveTaxonStatus: 'removeTaxonStatus',
 	RemoveTaxonRelationship: 'removeTaxonRelationship',
+	LoadSoftValidation: 'loadSoftValidation',
 	RemoveSource: 'removeSource',
 };
 
 const ActionFunctions = {
+	[ActionNames.LoadSoftValidation]: require('./loadSoftValidation'),
 	[ActionNames.SetParentAndRanks]: require('./setParentAndRanks'),
 	[ActionNames.AddTaxonStatus]: require('./addTaxonStatus'),
 	[ActionNames.AddTaxonRelationship]: require('./addTaxonRelationship'),

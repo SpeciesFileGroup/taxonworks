@@ -32,6 +32,16 @@ const createTaxonRelationship = function(relationship) {
   });
 }
 
+const loadSoftValidation = function(global_id) {
+  return new Promise(function (resolve, reject) {
+    Vue.http.get(`/soft_validations/validate?global_id=${global_id}`).then( response => {
+      return resolve(response.body.validations.soft_validations);
+    }, response => {
+      return reject(response.body);
+    });
+  });
+}
+
 const removeTaxonRelationship = function(relationship) {
   return new Promise(function (resolve, reject) {
     Vue.http.delete(`/taxon_name_relationships/${relationship.id}`).then( response => {
@@ -60,6 +70,7 @@ const removeTaxonSource = function(id) {
 }
 
 export {
+  loadSoftValidation,
   saveNewTaxonStatus,
   removeTaxonStatus,
   removeTaxonSource,

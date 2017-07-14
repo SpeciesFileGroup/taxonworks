@@ -6,6 +6,8 @@
 
 const GetterNames = require('../store/getters/getters').GetterNames;
 const MutationNames = require('../store/mutations/mutations').MutationNames;
+const ActionNames = require('../store/actions/actions').ActionNames;
+
 export default {
 	computed: {
 		parent() {
@@ -39,8 +41,9 @@ export default {
 	          }
 	        }
 	        this.$http.post('/taxon_names.json', taxon_name).then(response => {
-	          this.$store.commit(MutationNames.SetTaxonId, response.body.id);
+	          this.$store.commit(MutationNames.SetTaxon, response.body);
 	          this.$store.commit(MutationNames.SetHardValidation, undefined);
+	          this.$store.dispatch(ActionNames.LoadSoftValidation);
 	          TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully created.`, "notice");
 	        }, response => {
 	          this.$store.commit(MutationNames.SetHardValidation, response.body);
@@ -52,12 +55,15 @@ export default {
 	            name: this.taxon.name,
 	            parent_id: this.taxon.parent_id,
 	            rank_class: this.taxon.rank_class,
+			    year_of_publication: this.taxon.year_of_publication,
+			    verbatim_author: this.taxon.verbatim_author,
 	            type: 'Protonym'
 	          }
 	        }
 	        this.$store.commit(MutationNames.SetHardValidation, undefined);
 	        this.$http.patch(`/taxon_names/${this.taxon.id}.json`, taxon_name).then(response => {
-	          TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully updated.`, "notice");
+	        	this.$store.dispatch(ActionNames.LoadSoftValidation);
+	          	TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully updated.`, "notice");
 	        }, response => {
 	          this.$store.commit(MutationNames.SetHardValidation, response.body);
 			});
