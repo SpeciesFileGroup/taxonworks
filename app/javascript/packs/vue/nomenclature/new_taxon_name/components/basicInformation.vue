@@ -52,7 +52,7 @@
         return this.$store.getters[GetterNames.GetTaxon]
       },
       errors() {
-        return this.$store.getters[GetterNames.GetSoftValidation]
+        return this.$store.getters[GetterNames.GetHardValidation]
       }
     },
     data: function() {

@@ -22,6 +22,26 @@ const removeTaxonStatus = function(id) {
   });
 }
 
+const createTaxonRelationship = function(relationship) {
+  return new Promise(function (resolve, reject) {
+    Vue.http.post(`/taxon_name_relationships`, relationship).then( response => {
+      return resolve(response.body);
+    }, response => {
+      return reject(response.body);
+    });
+  });
+}
+
+const removeTaxonRelationship = function(relationship) {
+  return new Promise(function (resolve, reject) {
+    Vue.http.delete(`/taxon_name_relationships/${relationship.id}`).then( response => {
+      return resolve(response.body);
+    }, response => {
+      return reject(response.body);
+    });
+  });
+}
+
 const removeTaxonSource = function(id) {
   return new Promise(function (resolve, reject) {
     let taxon_name = { 
@@ -42,5 +62,7 @@ const removeTaxonSource = function(id) {
 export {
   saveNewTaxonStatus,
   removeTaxonStatus,
-  removeTaxonSource
+  removeTaxonSource,
+  removeTaxonRelationship,
+  createTaxonRelationship
 }

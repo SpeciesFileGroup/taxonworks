@@ -9,6 +9,7 @@ const GetterNames = {
 	GetStatusList: 'getStatusList',
 	GetTaxonStatusList: 'getTaxonStatusList',
 	GetTaxonRelationshipList: 'getTaxonRelationshipList',
+	GetTaxonRelationship: 'getTaxonRelationship',
 	GetTaxonAuthor: 'getTaxonAuthor',
 	GetTaxonName: 'getTaxonName',
 	GetTaxon: 'getTaxon',
@@ -16,6 +17,7 @@ const GetterNames = {
 	GetTaxonYearPublication: 'getTaxonYearPublication',
 	GetNomenclaturalCode: 'getNomenclaturalCode',
 	GetSoftValidation: 'getSoftValidation',
+	GetHardValidation: 'getHardValidation',
 	GetSource: 'getSource'
 };
 
@@ -29,6 +31,7 @@ const GetterFunctions = {
 	[GetterNames.GetRankList]: require('./getRankList'),
 	[GetterNames.GetStatusList]: require('./getStatusList'),
 	[GetterNames.GetTaxonStatusList]: require('./getTaxonStatusList'),
+	[GetterNames.GetTaxonRelationship]: require('./getTaxonRelationship'),
 	[GetterNames.GetTaxonRelationshipList]: require('./getTaxonRelationshipList'),
 	[GetterNames.GetTaxonAuthor]: require('./getTaxonAuthor'),
 	[GetterNames.GetTaxonName]: require('./getTaxonName'),
@@ -37,6 +40,7 @@ const GetterFunctions = {
 	[GetterNames.GetTaxonYearPublication]: require('./getTaxonYearPublication'),
 	[GetterNames.GetNomenclaturalCode]: require('./getNomenclaturalCode'),
 	[GetterNames.GetSoftValidation]: require('./getSoftValidation'),
+	[GetterNames.GetHardValidation]: require('./getHardValidation'),
 	[GetterNames.GetSource]: require('./getSource')
 };
 

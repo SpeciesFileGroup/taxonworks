@@ -1,10 +1,10 @@
-module.exports = function(state, status) {
-	var position = state.taxon_name.relationshipList.findIndex( item => {
-		if(item.type == status.type) {
+module.exports = function(state, relationship) {
+	var position = state.taxonRelationshipList.findIndex( item => {
+		if(item.type == relationship.type) {
 			return true;
 		}
 	});
 	if (position >= 0) {
-		state.taxon_name.relationshipList.splice(position, 1);
+		state.taxonRelationshipList.splice(position, 1);
 	}
 };

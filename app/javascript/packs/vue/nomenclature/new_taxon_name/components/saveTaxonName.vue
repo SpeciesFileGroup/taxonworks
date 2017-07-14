@@ -40,10 +40,10 @@ export default {
 	        }
 	        this.$http.post('/taxon_names.json', taxon_name).then(response => {
 	          this.$store.commit(MutationNames.SetTaxonId, response.body.id);
-	          this.$store.commit(MutationNames.SetSoftValidation, undefined);
+	          this.$store.commit(MutationNames.SetHardValidation, undefined);
 	          TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully created.`, "notice");
 	        }, response => {
-	          this.$store.commit(MutationNames.SetSoftValidation, response.body);
+	          this.$store.commit(MutationNames.SetHardValidation, response.body);
 	        });
 	      },
 	      updateTaxonName: function() {
@@ -55,11 +55,11 @@ export default {
 	            type: 'Protonym'
 	          }
 	        }
-	        this.$store.commit(MutationNames.SetSoftValidation, undefined);
+	        this.$store.commit(MutationNames.SetHardValidation, undefined);
 	        this.$http.patch(`/taxon_names/${this.taxon.id}.json`, taxon_name).then(response => {
 	          TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully updated.`, "notice");
 	        }, response => {
-	          this.$store.commit(MutationNames.SetSoftValidation, response.body);
+	          this.$store.commit(MutationNames.SetHardValidation, response.body);
 			});
 		},
 	}

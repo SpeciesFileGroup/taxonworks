@@ -1,14 +1,14 @@
 <template>
-	<transition name="slide-fade">
-		<div v-if="errors" class="soft-validation-box">
-		<div class="header flex-separate"><h3>Soft Validation</h3> <span @click="close()" class="small-icon" data-icon="close"></span></div>
-			<div class="body">
-				<ul class="" v-for="key in Object.keys(errors)">
-					<li v-for="description in errors[key]"> {{ description }} </li>
-				</ul>
-			</div>
+	<div v-if="errors" :class="{ 'validation-warning' : errors }" class="panel content soft-validation-box">
+		<div class="header flex-separate">
+			<h3>Soft Validation</h3> 
 		</div>
-	</transition>
+		<div class="body">
+			<ul class="no_bullets">
+				<li v-for="error in errors"> <span data-icon="warning"></span><span v-html="error.message"></span></li>
+			</ul>
+		</div>
+	</div>
 </template>
 
 <script>
@@ -22,31 +22,17 @@ export default {
 			return this.$store.getters[GetterNames.GetSoftValidation]
 		}
 	},
-	watch: {
-		errors: function(val) {
-			if(val) {
-				TW.workbench.alert.play();
-			}
-		}
-	},
-	methods: {
-		close: function() {
-			this.$store.commit(MutationNames.SetSoftValidation, undefined);
-		}
-	}
 }
 </script>
 <style type="text/css">
+	.soft-validation-box.validation-warning {
+		border-left: 4px solid #ff8c00;
+	}
 	.soft-validation-box {
 		background-color: #FFF9F9;
-		border-left: 4px solid red;
-		box-shadow: 0 0 4px 0 rgba(0,0,0,0.2);
-		position: fixed;
-		bottom: 0px;
+		//box-shadow: 0 0 4px 0 rgba(0,0,0,0.2);
 		z-index:999;
-		width: 500px;
-		left:50%;
-		transform: translate(-50%, 0%);
+		width: 300px;
 		
 		.body {
 			padding: 12px;
@@ -58,23 +44,13 @@ export default {
 		ul {
 			margin: 0px;
 			padding: 0px;
-			padding-left: 15px;
+
+		}
+		li {
+			margin-top: 12px;
 		}
 		li:first-letter {
 			text-transform: capitalize;
 		}
-	}
-	.slide-fade-enter-active {
-	  transition: all .3s ease;
-	  left:50%;
-	  transform: translate(-50%, 0%);
-	}
-	.slide-fade-leave-active {
-	  transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
-	}
-	.slide-fade-enter, .slide-fade-leave-to
-	/* .slide-fade-leave-active for <2.1.8 */ {
-		transform: translate(-50%, 50%);
-	  opacity: 0;
 	}
 </style>

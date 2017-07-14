@@ -2,10 +2,10 @@
   <div id="new_taxon_name_task">
   <h1>New taxon name</h1>
     <div class="flexbox horizontal-center-content align-start">
-    <div class="cleft item">
+    <div class="cleft item separate-right">
       <nav-header></nav-header>
     </div>
-    <div class="cright item">
+    <div class="ccenter item separate-right separate-left">
       <spinner :full-screen="true" :logo-size="{ width: '100px', height: '100px'}"v-if="loading"></spinner>
       <basic-information class="separate-bottom"></basic-information>
       <div class="new-taxon-name-block">
@@ -24,6 +24,8 @@
         <spinner :showSpinner="false" :showLegend="false" v-if="!getTaxon.id"></spinner>
         <original-combination class="separate-top separate-bottom"></original-combination>
       </div>
+    </div>
+    <div class="cright item separate-left">
       <soft-validation></soft-validation>
     </div>
   </div>
@@ -90,9 +92,8 @@
           that.$http.get('/taxon_names/ranks').then( response => {
             that.$store.commit(MutationNames.SetRankList, response.body);
            return resolve(true);
+          });
         });
-      });
-         
       },
       loadStatus: function() {
         let that = this;
@@ -121,6 +122,25 @@
           });
         });
       },
+      loadTaxonRelationships: function(id) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+          that.$http.get(`/taxon_names/${id}/taxon_name_relationships`).then( response => {
+            that.$store.commit(MutationNames.SetTaxonRelationshipList, response.body);
+            return resolve(true);
+          });
+        });
+      },
+      loadSoftValidation: function(global_id) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+          that.$http.get(`/soft_validations/validate?global_id=${global_id}`).then( response => {
+            that.$store.commit(MutationNames.SetSoftValidation, response.body.validations.soft_validations);
+            console.log(response.body);
+            return resolve(true);
+          });
+        });
+      },
       initLoad: function() {
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -132,6 +152,7 @@
           let taxon_name = {
             id: response.body.id,
             parent_id: response.body.parent_id,
+            global_id: response.body.global_id,
             name: response.body.name,
             rank_class: response.body.rank_string,
             year_of_publication: response.body.year_of_publication,
@@ -141,6 +162,9 @@
             masculine_name: response.body.masculine_name,
             neuter_name: response.body.neuter_name,
           }
+          console.log(response.body);
+          this.loadSoftValidation(response.body.global_id);
+          this.loadTaxonRelationships(response.body.id);
           this.loadTaxonStatus(response.body.id);
           this.$store.commit(MutationNames.SetSource, response.body.source);
           this.$store.commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code);
@@ -162,11 +186,11 @@
     margin-top: 1em;
     max-width: 1240px;
 
-    .cleft {
-      width: 300px;
+    .cleft, .cright {
+      min-width: 300px;
     }
-    .cright {
-      width: 910px;
+    .ccenter {
+      width: 100%;
     }
     .anchor {
        display:block;

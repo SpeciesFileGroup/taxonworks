@@ -6,33 +6,54 @@
       <expand @changed="expanded = !expanded" :expanded="expanded"></expand>
     </div>
     <div class="body" v-if="expanded">
-      <tree-display 
-        :tree-list="treeList" 
-        :parent="parent" 
-        :objectLists="objectLists" 
-        :showModal="showModal" 
-        mutation-name-add="AddTaxonRelationship" 
-        mutation-name-modal="SetModalRelationship"
-        name-module="Relationship"
-        display-name="subject_status_tag">
-      </tree-display>
-      <taxon-name-picker></taxon-name-picker>
-      <list-entrys mutationNameRemove="RemoveTaxonRelationship" list="GetTaxonRelationshipList" display="subject_status_tag"></list-entrys>
+      <div v-if="!taxonRelation">
+        <autocomplete
+            :class="{ field_with_errors : existError('object_taxon_name_id') }"
+            url="/taxon_names/autocomplete"
+            label="label_html"
+            min="3"
+            time="0"
+            v-model="taxonRelation"
+            eventSend="autocompleteTaxonRelationshipSelected"
+            placeholder="Search taxon name for the new relationship..."
+            :addParams="{ type: 'Protonym' }"
+            param="term">
+        </autocomplete>
+        <div v-if="existError('object_taxon_name_id')">
+          <span v-for="error in errors.object_taxon_name_id">{{ error }}</span>
+        </div>
+      </div>
+      <div v-else>
+        <tree-display 
+          :tree-list="treeList" 
+          :parent="parent" 
+          :objectLists="objectLists" 
+          :showModal="showModal" 
+          mutation-name-add="AddTaxonRelationship" 
+          mutation-name-modal="SetModalRelationship"
+          name-module="Relationship"
+          display-name="subject_status_tag">
+        </tree-display>
+      </div>
+      <list-entrys mutationNameRemove="RemoveTaxonRelationship" list="GetTaxonRelationshipList" display="object_tag"></list-entrys>
     </div>
   </form>
 </template>
 <script>
 
   const GetterNames = require('../store/getters/getters').GetterNames;
+  const MutationNames = require('../store/mutations/mutations').MutationNames;
   const treeDisplay = require('./treeDisplay.vue');
   const taxonNamePicker = require('./taxonNamePicker.vue');
   const listEntrys = require('./listEntrys.vue');
   const expand = require('./expand.vue');
+  const autocomplete = require('../../../components/autocomplete.vue');
 
   export default {
     components: {
       taxonNamePicker,
       listEntrys,
+      autocomplete,
       expand,
       treeDisplay
     },
@@ -42,6 +63,17 @@
       },
       parent() {
         return this.$store.getters[GetterNames.GetParent]
+      },
+      errors() {
+        return this.$store.getters[GetterNames.GetHardValidation]
+      },
+      taxonRelation: {
+        get() {
+          return this.$store.getters[GetterNames.GetTaxonRelationship]
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetTaxonRelationship, value);
+        }
       },
       nomenclaturalCode() {
         return this.$store.getters[GetterNames.GetNomenclaturalCode]
@@ -53,7 +85,7 @@
     data: function() {
       return { 
         objectLists: this.makeLists(),
-        expanded: true
+        expanded: true,
       }
     },
     watch: {
@@ -68,6 +100,9 @@
       }
     },
     methods: {
+      existError: function(type) {
+        return (this.errors && this.errors.hasOwnProperty(type));
+      },
       makeLists: function() {
         return {
           tree: undefined,

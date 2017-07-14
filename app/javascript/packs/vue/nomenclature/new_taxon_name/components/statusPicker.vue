@@ -16,7 +16,7 @@
           name-module="Status"
           display-name="name">
       </tree-display>
-      <list-entrys mutationNameRemove="removeTaxonStatus" list="GetTaxonStatusList" display="object_tag"></list-entrys>
+      <list-entrys mutationNameRemove="RemoveTaxonStatus" list="GetTaxonStatusList" display="object_tag"></list-entrys>
     </div>
     
   </form>

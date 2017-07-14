@@ -73,7 +73,7 @@
         this.$store.commit(MutationNames[this.mutationNameModal], value)
       },
       addEntry: function(item) {
-        this.$store.dispatch(ActionNames.AddTaxonStatus, item);
+        this.$store.dispatch(ActionNames[this.mutationNameAdd], item);
       },
     }
   };

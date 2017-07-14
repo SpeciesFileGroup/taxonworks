@@ -11,6 +11,7 @@ function makeInitialState() {
   return {
     taxon_name: {
       id: undefined,
+      global_id: undefined,
       parent_id: undefined,
       name: undefined,
       rank_class: undefined,
@@ -28,7 +29,9 @@ function makeInitialState() {
     },
     taxonStatusList: [],
     taxonRelationshipList: [],
+    taxonRelationship: undefined,
     softValidation: undefined,
+    hardValidation: undefined,
     nomenclatural_code: undefined,
     parent: undefined,
     ranks: undefined,

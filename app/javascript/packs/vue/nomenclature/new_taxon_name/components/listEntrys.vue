@@ -1,7 +1,10 @@
 <template>
 	<div v-if="displayList.length">
-	    <ul class="table-status">
-	    	<li v-for="item in displayList" class="flex-separate middle"> {{ item[display] }} <span type="button" class="circle-button btn-delete" @click="removeStatus(item)">Remove</span></li>
+	    <ul class="table-entrys-list">
+	    	<li v-for="item in displayList" class="flex-separate middle">
+		    	<span v-html="item[display]"></span> 
+		    	<span type="button" class="circle-button btn-delete" @click="removeStatus(item)">Remove</span>
+	    	</li>
 	    </ul>
     </div>
 </template>
@@ -19,15 +22,15 @@ export default {
     	}
 	},
 	methods: {
-		removeStatus: function(status) {
-			this.$store.dispatch(ActionNames[this.mutationNameRemove], status);
+		removeStatus: function(item) {
+			this.$store.dispatch(ActionNames[this.mutationNameRemove], item);
 		}
 	}
 }
 </script>
 
 <style type="text/css">
-  .table-status {
+  .table-entrys-list {
   	padding: 0px;
 
     li {
