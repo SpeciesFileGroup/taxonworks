@@ -40,7 +40,15 @@ module SqedDepictionsHelper
     }.join().html_safe 
   end
 
+  def sqed_done_tag(project_id)
+    SqedDepiction.where(project_id: project_id).count - SqedDepiction.without_collection_object_data.where(project_id: project_id).count
+  end
 
-  # protected
+  def sqed_not_done_tag(project_id)
+    SqedDepiction.where(project_id: project_id).without_collection_object_data.count
+  end
+
+
+
 
 end

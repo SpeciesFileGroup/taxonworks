@@ -657,21 +657,21 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       end
     end
 
-    specify 'parent is a synonym' do
-      g1 = FactoryGirl.create(:relationship_genus, parent: @family)
-      g2 = FactoryGirl.create(:relationship_genus, parent: @family)
-      r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: @genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-      r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-      r1.soft_validate(:synonym_linked_to_valid_name)
-      r2.soft_validate(:synonym_linked_to_valid_name)
-      expect(r1.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_truthy
-      # parent is a synonym of another taxon
-      expect(r2.soft_validations.messages_on(:object_taxon_name_id).size).to eq(1)
-      r2.fix_soft_validations
-      r2.soft_validate(:synonym_linked_to_valid_name)
-      # parent updated to valid name
-      expect(r2.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_truthy
-    end
+#    specify 'parent is a synonym' do #### We allow synonyms of synonyms in a new model. This test is not needed any more.
+#      g1 = FactoryGirl.create(:relationship_genus, parent: @family)
+#      g2 = FactoryGirl.create(:relationship_genus, parent: @family)
+#      r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: @genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+#      r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+#      r1.soft_validate(:synonym_linked_to_valid_name)
+#      r2.soft_validate(:synonym_linked_to_valid_name)
+#      expect(r1.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_truthy
+#      # parent is a synonym of another taxon
+#      expect(r2.soft_validations.messages_on(:object_taxon_name_id).size).to eq(1)
+#      r2.fix_soft_validations
+#      r2.soft_validate(:synonym_linked_to_valid_name)
+#      # parent updated to valid name
+#      expect(r2.soft_validations.messages_on(:object_taxon_name_id).empty?).to be_truthy
+#    end
 
     specify 'synonym should have same parent' do
       f = FactoryGirl.create(:relationship_family, parent: @kingdom)

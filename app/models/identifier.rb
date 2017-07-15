@@ -1,9 +1,9 @@
 # The information that can be use to differentiate concepts.
 # Note this definition is presently very narrow, and that an identifier
-# can in practice be used for a lot more than differentiation (i.e. 
-# it can often be resolved etc.).  
+# can in practice be used for a lot more than differentiation (i.e.
+# it can often be resolved etc.).
 #
-# In TW identifiers are either global, in which case they 
+# In TW identifiers are either global, in which case they
 # are subclassed by type, and do not include a namespace,
 # or local, in which case they have a namespace.
 #
@@ -40,11 +40,10 @@
 #
 class Identifier < ActiveRecord::Base
 
-  acts_as_list scope: [:identifier_object_id, :identifier_object_type]
+  acts_as_list scope: [:project_id, :identifier_object_id, :identifier_object_type]
 
-  # @todo @mjy resolve this to not require project id
   include Housekeeping
-  include Shared::IsData 
+  include Shared::IsData
   include Shared::DualAnnotator
 
   before_save :set_cached
@@ -57,17 +56,18 @@ class Identifier < ActiveRecord::Base
   # !! If there are inheritance issues with validation the position
   # !! of this constant is likely the problem
   SHORT_NAMES = {
-    doi:   Identifier::Global::Doi,
-    isbn:  Identifier::Global::Isbn,
-    issn:  Identifier::Global::Issn,
-    lccn:  Identifier::Global::Lccn,
-    orcid: Identifier::Global::Orcid,
-    uri:   Identifier::Global::Uri,
-    uuid:  Identifier::Global::Uuid,
+    doi:            Identifier::Global::Doi,
+    isbn:           Identifier::Global::Isbn,
+    issn:           Identifier::Global::Issn,
+    lccn:           Identifier::Global::Lccn,
+    occurrence_id:  Identifier::Global::OccurrenceId,
+    orcid:          Identifier::Global::Orcid,
+    uri:            Identifier::Global::Uri,
+    uuid:           Identifier::Global::Uuid,
     catalog_number: Identifier::Local::CatalogNumber,
-    trip_code: Identifier::Local::TripCode,
-    import: Identifier::Local::Import,
-    otu_utility: Identifier::Local::OtuUtility,
+    trip_code:      Identifier::Local::TripCode,
+    import:         Identifier::Local::Import,
+    otu_utility:    Identifier::Local::OtuUtility,
     accession_code: Identifier::Local::AccessionCode,
     unknown: Identifier::Unknown,
     collecting_event: Identifier::Local::CollectingEvent,
@@ -75,8 +75,8 @@ class Identifier < ActiveRecord::Base
     collection_object: Identifier::Local::CollectionObject
   }
 
-  # Please DO NOT include the following: 
-  #   validates :identifier_object, presence: true 
+  # Please DO NOT include the following:
+  #   validates :identifier_object, presence: true
   #   validates_presence_of :identifier_object_type, :identifier_object_id
   validates_presence_of :type, :identifier
 
@@ -89,9 +89,9 @@ class Identifier < ActiveRecord::Base
   end
 
   # @return [NoteObject]
-  #   alias to simplify reference across classes 
+  #   alias to simplify reference across classes
   def annotated_object
-    identifier_object  
+    identifier_object
   end
 
   def self.class_name
@@ -106,7 +106,7 @@ class Identifier < ActiveRecord::Base
     CSV.generate do |csv|
       csv << column_names
       scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
+        csv << o.attributes.values_at(*column_names).collect {|i|
           i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
         }
       end
@@ -122,5 +122,5 @@ class Identifier < ActiveRecord::Base
 
   def set_cached
   end
-  
+
 end

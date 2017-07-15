@@ -3,17 +3,43 @@ require 'rake'
 namespace :tw do
   namespace :db do
 
+    def postgres_arguments(hsh = {})
+      hsh.select!{|k,v| !v.nil?}
+      hsh.collect{|k,v| "#{k}=#{v}"}.join(' ') 
+    end
+
+    desc 'Remove all connections but the current one' 
+    task :drop_connections => [:environment] do
+      ActiveRecord::Base.connection.execute(
+        "SELECT pg_terminate_backend(pg_stat_activity.pid)
+        FROM pg_stat_activity
+        WHERE pg_stat_activity.datname = 'TARGET_DB'
+        AND pid <> pg_backend_pid();"
+      )
+    end
+
     desc 'Dump the data to a PostgreSQL custom-format dump file does NOT include structure'
-    task :dump => [:environment, :backup_directory, :db_user, :database_host] do
+    task :dump => [:environment, :backup_directory, :server_name, :database_host, :database_user] do
       if Support::Database.pg_database_exists?
         puts Rainbow("Initializing dump for #{Rails.env} environment").yellow 
-        puts Rainbow('You may be prompted for the production password.').yellow if Rails.env == 'production'
+        puts Rainbow('You may be prompted for the production password, alternately set it in ~/.pgpass').yellow if Rails.env == 'production'
 
         database = ActiveRecord::Base.connection.current_database
-        path  = File.join(@args[:backup_directory], Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
+        path  = File.join(@args[:backup_directory], @args[:server_name] + '_' + Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
 
         puts Rainbow("Dumping #{database} to #{path}").yellow
-        args = "--username=#{@args[:db_user]} --host=#{@args[:database_host]} --format=custom #{database} --file=#{path}"  
+
+        args = postgres_arguments(
+          {
+            '--format' => 'custom',
+            '--file' => path,
+            '--username' => @args[:database_user],
+            '--host' => @args[:database_host],
+          }
+        )
+
+        args = args + " #{database}"
+
         puts Rainbow("with arguments: #{args}").yellow
         puts(Benchmark.measure { `pg_dump #{args}` })
         raise TaxonWorks::Error, "pg_dump failed with exit code #{$?.to_i}".red unless $? == 0
@@ -29,13 +55,23 @@ namespace :tw do
     # 1) Drop fails because database is in use by other processes.
     #    Remedy: Ensure your database is not used by other processes. Check to see how many connections to the database exist.
     #    Do not modify this task to make that check, nest this in checks if needed
-    desc 'Restores the db from the specified file. Intended to be wrapped in other checks.'
-    task :restore => ['tw:backup_exists', 'tw:db_user', 'db:drop', 'db:create' ] do 
+    desc "Restores a database generated from dump 'rake tw:db:restore backup_directory=/your/path/ file=2017-07-10_154344UTC.dump'" 
+    task :restore => ['environment', 'tw:backup_exists', 'tw:database_user', 'db:drop', 'db:create' ] do 
       puts Rainbow("Initializing restore for #{Rails.env} environment").yellow 
       database = ActiveRecord::Base.connection.current_database
       puts Rainbow("Restoring #{database} from #{@args[:tw_backup_file]}").yellow
 
-      args = "--username=#{@args[:db_user]} --host=localhost --format=custom --no-acl --disable-triggers --dbname=#{database} #{@args[:tw_backup_file]}"
+      args = postgres_arguments(
+        {
+          '--format' => 'custom',
+          '--dbname' => database,
+          '--username' => @args[:database_user],
+          '--host' => @args[:database_host],
+        }
+      )
+
+      args += " --no-acl --disable-triggers #{@args[:tw_backup_file]}" 
+
       puts Rainbow("with arguments: #{args}").yellow
 
       puts(Benchmark.measure{ `pg_restore #{args}` })

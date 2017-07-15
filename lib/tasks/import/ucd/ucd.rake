@@ -549,7 +549,7 @@ namespace :tw do
             taxon.parent_id = parent if taxon.parent_id.nil? && parent
 #            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil? && row['CitSpecies'].blank?
 #            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil? && row['CitSpecies'].blank?
-            taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Subgenus' if taxon.rank_class.nil? && row['CitSpecies'].blank?
+            taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus' if taxon.rank_class.nil? && row['CitSpecies'].blank?
             taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: $project_id)
             origgen = @data.all_genera_index[row['CitGenus']]
 
@@ -1399,11 +1399,11 @@ namespace :tw do
           if name.blank?
             taxon = @root
           else
-            taxon = Protonym.find_or_create_by(name: name, parent: @root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', project_id: $project_id)
+            rnk = 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order'
             if row['Family'] =~/^[A-Z]\w*aceae/
-              taxon.rank_class = 'NomenclaturalRank::Icn::HigherClassificationGroup::Order'
-              taxon.save
+              rnk = 'NomenclaturalRank::Icn::HigherClassificationGroup::Order'
             end
+            taxon = Protonym.find_or_create_by(name: name, parent: @root, rank_class: rnk, project_id: $project_id)
           end
           parent = taxon
           if row['SuperFam'] =~/^[A-Z]\w*oidea/

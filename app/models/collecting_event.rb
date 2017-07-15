@@ -216,7 +216,7 @@ class CollectingEvent < ActiveRecord::Base
   has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object, dependent: :destroy
   has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
   has_one :verbatim_data_georeference, class_name: 'Georeference::VerbatimData'
-  has_one :preferred_georeference, -> { order(:position) }, class_name: 'Georeference', foreign_key: :collecting_event_id
+  has_one :preferred_georeference, -> {order(:position)}, class_name: 'Georeference', foreign_key: :collecting_event_id
 
   has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy
@@ -272,8 +272,7 @@ class CollectingEvent < ActiveRecord::Base
 
   validates :start_date_day, date_day: { year_sym: :start_date_year, month_sym: :start_date_month },
             unless: 'start_date_year.nil? || start_date_month.nil?'
-
-
+              
   soft_validate(:sv_minimally_check_for_a_label)
 
   # @param [String]
@@ -456,7 +455,7 @@ class CollectingEvent < ActiveRecord::Base
       CSV.generate do |csv|
         csv << column_names
         scope.order(id: :asc).each do |o|
-          csv << o.attributes.values_at(*column_names).collect { |i|
+          csv << o.attributes.values_at(*column_names).collect {|i|
             i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
           }
         end
@@ -497,7 +496,7 @@ class CollectingEvent < ActiveRecord::Base
     end
 
     def data_attributes
-      column_names.reject { |c| %w{id project_id created_by_id updated_by_id created_at updated_at project_id}.include?(c) || c =~ /^cached/ }
+      column_names.reject {|c| %w{id project_id created_by_id updated_by_id created_at updated_at project_id}.include?(c) || c =~ /^cached/}
     end
 
   end # << end class methods
@@ -516,9 +515,9 @@ class CollectingEvent < ActiveRecord::Base
     sql += ' and (verbatim_latitude is null or verbatim_longitude is null)' unless include_values
 
     retval = CollectingEvent.where(sql)
-                 .with_project_id($project_id)
-                 .order(:id)
-                 .where.not(id: id).distinct
+               .with_project_id($project_id)
+               .order(:id)
+               .where.not(id: id).distinct
     retval
   end
 
@@ -531,9 +530,9 @@ class CollectingEvent < ActiveRecord::Base
     sql += ' and (verbatim_date is null)' unless include_values
 
     retval = CollectingEvent.where(sql)
-                 .with_project_id($project_id)
-                 .order(:id)
-                 .where.not(id: id).distinct
+               .with_project_id($project_id)
+               .order(:id)
+               .where.not(id: id).distinct
     retval
   end
 
@@ -639,7 +638,7 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   # @return [GeographicItem, nil]
-  #    a GeographicItem instance representing a translation of the verbaitm values, not saved
+  #    a GeographicItem instance representing a translation of the verbatim values, not saved
   def build_verbatim_geographic_item
     if self.verbatim_latitude && self.verbatim_longitude && !self.new_record?
       local_latitude  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude)
@@ -698,7 +697,7 @@ class CollectingEvent < ActiveRecord::Base
     pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).uniq
     gr     = [] # all collecting events for a geographic_item
 
-    pieces.each { |o|
+    pieces.each {|o|
       gr.push(o.collecting_events_through_georeferences.to_a)
       gr.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
     }
@@ -719,12 +718,12 @@ class CollectingEvent < ActiveRecord::Base
     me = self.error_geographic_items.first.geo_object
     gi = []
     # collect all the GIs which are within the EGI
-    pieces.each { |o|
+    pieces.each {|o|
       gi.push(o) if o.geo_object.within?(me)
     }
     # collect all the CEs which refer to these GIs
     ce = []
-    gi.each { |o|
+    gi.each {|o|
       ce.push(o.collecting_events_through_georeferences.to_a)
       ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
     }
@@ -773,7 +772,7 @@ class CollectingEvent < ActiveRecord::Base
       # WAS: now find all of the GAs which have the same names as the ones we collected.
 
       # map the names to an array of results
-      ga_list.each { |i|
+      ga_list.each {|i|
         retval[i.name] ||= [] # if we haven't come across this name yet, set it to point to a blank array
         retval[i.name].push i # we now have at least a blank array, push the result into it
       }
@@ -1115,7 +1114,7 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   def names
-    geographic_area.nil? ? [] : geographic_area.self_and_ancestors.where("name != 'Earth'").collect { |ga| ga.name }
+    geographic_area.nil? ? [] : geographic_area.self_and_ancestors.where("name != 'Earth'").collect {|ga| ga.name}
   end
 
   def georeference_latitude
@@ -1182,7 +1181,7 @@ class CollectingEvent < ActiveRecord::Base
       name       = cached_geographic_name_classification.values.join(': ')
       date       = [start_date_string, end_date_string].compact.join('-')
       place_date = [verbatim_locality, date].compact.join(', ')
-      string     = [name, place_date, verbatim_collectors, verbatim_method].select { |a| !a.blank? }.join("\n")
+      string     = [name, place_date, verbatim_collectors, verbatim_method].select {|a| !a.blank?}.join("\n")
     end
 
     string = "[#{self.to_param}]" if string.blank?

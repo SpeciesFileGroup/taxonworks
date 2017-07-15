@@ -22,4 +22,7 @@ module NamespacesHelper
     end
   end
 
+  def namespace_select_tag(namespace_element)
+    select_tag(namespace_element, options_for_select(Namespace.pluck(:short_name).uniq), prompt: 'Select a namespace')
+  end
 end

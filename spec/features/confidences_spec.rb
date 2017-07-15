@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Confidences', type: :feature, group: :annotations do
+describe 'Confidences', type: :feature, group: :annotators do
   let(:index_path) { confidences_path }
   let(:page_title) { 'Confidences' }
 
@@ -63,6 +63,3 @@ describe 'Confidences', type: :feature, group: :annotations do
 
   end
 end
-
-
-

@@ -23,7 +23,12 @@
 
 <p>
   <strong>Count of collecting events using this same geographic item:</strong>
-  <%= collecting_events_count_using_this_georeference(@georeference.geographic_item_id) %>
+  <%= collecting_events_count_using_this_geographic_item(@georeference.geographic_item_id) %>
+</p>
+
+<p>
+  <strong>Count of collecting events using this same error geographic item:</strong>
+  <%= collecting_events_count_using_this_error_geographic_item(@georeference.error_geographic_item_id) %>
 </p>
 
 <p>

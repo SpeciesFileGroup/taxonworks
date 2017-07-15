@@ -1,7 +1,7 @@
 <nav id="quick_bar">
 <div class="horizontal_navbar">
   <div class="hub-project">
-	<%= link_to('Hub', hub_path, class: [:hub_link, (request.path == '/hub' ? :on_hub : nil)].compact) -%>
+	<%= content_tag(:div,link_to('Hub', hub_path, class: [:hub_link, (request.path == '/hub' ? :on_hub : nil)].compact), class: [:hub_circle, :hub_link_background]) -%>
 
   <% if request.path == '/' -%>
     <%= content_tag(:h1, "Dashboard for " + user_tag(sessions_current_user), class: :hub_project_name) -%> 

@@ -53,11 +53,11 @@ class SqedDepiction < ActiveRecord::Base
 
   def extraction_metadata
     {
-      boundary_color: self.boundary_color.to_sym,
+      boundary_color: boundary_color.to_sym,
       boundary_finder: boundary_finder,
-      has_border: self.has_border,
-      target_layout: self.layout.to_sym,
-      metadata_map: sqed_metadata_map
+      has_border: has_border,
+      target_layout: layout.to_sym,
+      target_metadata_map: sqed_metadata_map
     }
  end
 
@@ -65,17 +65,21 @@ class SqedDepiction < ActiveRecord::Base
     depiction.depiction_object
   end
 
+  def self.without_collection_object_data
+    CollectionObject.joins(:sqed_depictions).where(buffered_collecting_event: nil, buffered_determinations: nil, buffered_other_labels: nil)
+  end
+
   # @return [SqedDepiction]
   #   the next record in which the collection object has no buffered data
   def next_without_data
-    object = CollectionObject.joins(:sqed_depictions).where(project_id: self.project_id, buffered_collecting_event: nil, buffered_determinations: nil, buffered_other_labels: nil).where('collection_objects.id <> ?', self.depiction_object.id).order(:id).first
-    object.nil? ? SqedDepiction.where(project_id: self.project_id).order(:id).first : object.sqed_depictions.first
+    object =  SqedDepiction.without_collection_object_data.with_project_id(project_id).where('collection_objects.id <> ?', self.depiction_object.id).order(:id).first
+    object.nil? ? SqedDepiction.where(project_id: project_id).order(:id).first : object.sqed_depictions.first
   end
 
   # @return [CollectionObject, nil]
   #    the next collection object, by :id, created from the addition of a SqedDepiction
   def next_collection_object
-    object = CollectionObject.joins(:sqed_depictions).where(project_id: self.project_id).where('sqed_depictions.id > ?', self.id).where('collection_objects.id <> ?', self.depiction_object.id).order(:id).first
+    object = CollectionObject.joins(:sqed_depictions).where(project_id: project_id).where('sqed_depictions.id > ?', id).where('collection_objects.id <> ?', depiction_object.id).order(:id).first
     object = CollectionObject.joins(:sqed_depictions).order(:id).first if object.nil?
     object
   end
@@ -87,18 +91,18 @@ class SqedDepiction < ActiveRecord::Base
   end
 
   def nearby_sqed_depictions(before = 5, after = 5)
-    a = SqedDepiction.where(project_id: self.project_id).where("id > ?", self.id).order(:id).limit(after)
-    b = SqedDepiction.where(project_id: self.project_id).where("id < ?", self.id).order('id DESC').limit(before)
+    a = SqedDepiction.where(project_id: project_id).where("id > ?", id).order(:id).limit(after)
+    b = SqedDepiction.where(project_id: project_id).where("id < ?", id).order('id DESC').limit(before)
     return { before: b, after: a}
   end
 
   def next_sqed_depiction
-    sd = SqedDepiction.where(project_id: self.project_id).where("id > ?", self.id).order(:id).limit(1)
-    sd.any? ? sd.first : SqedDepiction.where(project_id: self.project_id).first
+    sd = SqedDepiction.where(project_id: project_id).where("id > ?", id).order(:id).limit(1)
+    sd.any? ? sd.first : SqedDepiction.where(project_id: project_id).first
   end
 
   def preprocess
-    result = SqedToTaxonworks::Result.new(depiction_id: self.depiction.id)
+    result = SqedToTaxonworks::Result.new(depiction_id: depiction.id)
     result.cache_all
   end
 
@@ -119,7 +123,7 @@ class SqedDepiction < ActiveRecord::Base
   protected
 
   def sqed_metadata_map
-    self.metadata_map.inject({}){|hsh, i| hsh.merge(i[0].to_i => i[1].to_sym)}
+    metadata_map.inject({}){|hsh, i| hsh.merge(i[0].to_i => i[1].to_sym)}
   end 
 
 end
