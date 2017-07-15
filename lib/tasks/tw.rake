@@ -9,11 +9,18 @@ namespace :tw do
     true
   end
 
+  task :server_name => [:environment] do
+    @args ||= {}
+    n = @args[:server_name] 
+    n ||= 'localhost' 
+    @args[:server_name] = n
+  end
+
   task :check_for_database do
     raise TaxonWorks::Error, "can not attach to database" unless Support::Database.pg_database_exists?
   end
 
-  # TODO: update "database_username" to something more specific and reflective of what we see in Kubernetes by default?
+  # TODO: update "database_user" to something more specific and reflective of what we see in Kubernetes by default?
   task :database_user => [:environment] do
     @args ||= {}
     @args[:database_user] = ENV['database_user'] 

@@ -19,17 +19,16 @@ namespace :tw do
     end
 
     desc 'Dump the data to a PostgreSQL custom-format dump file does NOT include structure'
-    task :dump => [:environment, :backup_directory, :database_host, :database_user] do
+    task :dump => [:environment, :backup_directory, :server_name, :database_host, :database_user] do
       if Support::Database.pg_database_exists?
         puts Rainbow("Initializing dump for #{Rails.env} environment").yellow 
         puts Rainbow('You may be prompted for the production password, alternately set it in ~/.pgpass').yellow if Rails.env == 'production'
 
         database = ActiveRecord::Base.connection.current_database
-        path  = File.join(@args[:backup_directory], Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
+        path  = File.join(@args[:backup_directory], @args[:server_name] + '_' + Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
 
         puts Rainbow("Dumping #{database} to #{path}").yellow
 
-        # "--username=#{@args[:database_user]} --host=#{@args[:database_host]} --format=custom #{database} --file=#{path}"
         args = postgres_arguments(
           {
             '--format' => 'custom',
