@@ -11,19 +11,23 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::Unnecessary
   end
 
   def object_status
-    'unnecessary replaced'
+    'replaced'
   end
 
   def subject_status
     'unnecessary replacement'
   end
 
-  def self.gbif_status_of_subject
-    'superfluum'
-  end
-
   def subject_status_connector_to_object
     ' for'
+  end
+
+  def object_status_connector_to_subject
+    ' by'
+  end
+
+  def self.gbif_status_of_subject
+    'superfluum'
   end
 
   def self.assignment_method

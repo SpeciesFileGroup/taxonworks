@@ -48,10 +48,10 @@ gem 'paperclip', '~> 4.3.6'
 gem 'paperclip-meta', '~> 2.0'
 
 # javascript 
-gem 'sprockets-rails'
+gem 'sprockets-rails', '~> 3.2.0'
 gem 'sprockets', '~> 3.0'
 gem 'sprockets-es6', require: 'sprockets/es6'
-gem 'webpacker'
+gem 'webpacker', '~> 2.0'
 gem 'uglifier', '~> 3.0.02'
 
 gem 'jquery-rails', '~> 4.1.1'
@@ -62,9 +62,9 @@ gem 'jquery-turbolinks', '~> 2.1'
 
 # BibTeX handling
 gem 'csl', '~> 1.4.3'
-gem 'bibtex-ruby', '~> 4.4.2'
-gem 'citeproc-ruby', '~> 1.1.4'
-gem 'csl-styles', '~> 1.0.1.6'
+gem 'bibtex-ruby', '~> 4.4.4'
+gem 'citeproc-ruby', '~> 1.1.7'
+gem 'csl-styles', '~> 1.0.1.8'
 gem 'ref2bibtex', '~> 0.1.1'
 gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.0'
@@ -80,7 +80,7 @@ gem 'redcarpet', '~> 3.3'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
-gem 'sqed', '0.2.4'
+gem 'sqed', '0.3.0'
 gem 'dwc-archive', '~> 0.9.11'
 gem 'biodiversity', '~> 3.4.1'
 
@@ -135,7 +135,7 @@ end
 
 group :production do
   gem 'execjs', '~> 2.7.0'
-  gem 'passenger', '~> 5.0.30'
+  gem 'passenger', '~> 5.1.5'
 end
 
 

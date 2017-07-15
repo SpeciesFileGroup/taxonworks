@@ -8,21 +8,24 @@ class Georeference::GeoLocate < Georeference
   URI_EMBED_PATH = '/geolocate/web/webgeoreflight.aspx?'
 
   def api_response=(response)
-    make_geographic_point(response.coordinates[0], response.coordinates[1])
+    self.geographic_item = make_geographic_point(response.coordinates[0], response.coordinates[1])
     make_error_geographic_item(response.uncertainty_polygon, response.uncertainty_radius)
   end
 
   def iframe_response=(response_string)
     lat, long, error_radius, uncertainty_points = Georeference::GeoLocate.parse_iframe_result(response_string)
-    make_geographic_point(long, lat, '0.0')
+    self.geographic_item                        = make_geographic_point(long, lat, '0.0') unless lat.blank? and long.blank?
     if uncertainty_points.nil?
       # make a circle from the geographic_item
       unless error_radius.blank?
         value                      = GeographicItem.connection.select_all(
           "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{error_radius.to_f / 111319.444444444});").first['st_buffer']
-        circle                     = Gis::FACTORY.parse_wkb(value)
+        # circle                     = Gis::FACTORY.parse_wkb(value)
         # make_error_geographic_item([[long, lat], [long, lat], [long, lat]], error_radius)
-        self.error_geographic_item = GeographicItem.new(polygon: circle)
+        # a = GeographicItem.new(polygon: circle)
+        # b = make_err_polygon(value)
+        # self.error_geographic_item = a
+        self.error_geographic_item = make_err_polygon(value)
       end
     else
       make_error_geographic_item(uncertainty_points, error_radius)
@@ -34,9 +37,26 @@ class Georeference::GeoLocate < Georeference
     Hash[*self.api_request.split('&').collect { |a| a.split('=', 2) }.flatten]
   end
 
+  # @param [String] wkb
+  # @return [Object] GeographicItem::Polygon, either found, or created
+  def make_err_polygon(wkb)
+    polygon  = Gis::FACTORY.parse_wkb(wkb)
+    test_grs = GeographicItem::Polygon.where("polygon = ST_GeographyFromText('#{polygon}')")
+    if test_grs.empty?
+      test_grs = [GeographicItem.new(polygon: polygon)]
+    end
+    if test_grs.first.new_record?
+      test_grs.first.save
+    else
+      test_grs.first
+    end
+    test_grs.first
+  end
+
   # @param [String] x = longitude
   # @param [String] y = latitude
-  # @param [String] z = elevation
+  # @param [String] z = elevation, defaults to 0.0
+  # @return [Object] GeographicItem::Point, either found or created.
   def make_geographic_point(x, y, z = '0.0')
     if x.blank? or y.blank?
       test_grs = []
@@ -46,7 +66,7 @@ class Georeference::GeoLocate < Georeference
     if test_grs.empty? # put a new one in the array
       test_grs = [GeographicItem.new(point: Gis::FACTORY.point(x, y, z))]
     end
-    self.geographic_item = test_grs.first
+    test_grs.first
   end
 
   # def make_error_geographic_item(result)
@@ -119,7 +139,7 @@ class Georeference::GeoLocate < Georeference
       g.api_response = request.response
       g.api_request  = request.request_param_string
     else
-      g.errors.add(:api_request, 'requested parameters did not succeed to return a result')
+      g.errors.add(:api_request, 'requested parameters did not succeed in returning a result')
     end
     g
   end
@@ -128,6 +148,7 @@ class Georeference::GeoLocate < Georeference
   #   '&points=|||low|&georef=run|false|false|true|true|false|false|false|0&gc=Tester'
   # end
 
+  # This class is used to create the string which will be sent to Tulane
   class RequestUI
     REQUEST_PARAMS = {
       'country'       => nil, # name of a country 'USA', or Germany
@@ -163,13 +184,14 @@ class Georeference::GeoLocate < Georeference
     def build_param_string
       # @request_param_string ||= @request_params.collect { |key, value| "#{key}=#{value}" }.join('&')
       ga                     = request_params_hash
-      @request_params_string = 'http://' + URI_HOST +
+      params_string          = 'http://' + URI_HOST +
         URI_EMBED_PATH +
         "country=#{ga['country']}&state=#{ga['state']}&county=#{ga['county']}&locality=#{ga['locality']}&points=" +
         "#{ga['Latitude']}|#{ga['Longitude']}|#{ga['Placename']}|#{ga['Score']}|#{ga['Uncertainty']}" +
         "&georef=run|#{ga['H20']}|#{ga['HwyX']}|#{ga['Uncert']}|#{ga['Poly']}|#{ga['DisplacePoly']}|" +
         "#{ga['RestrictAdmin']}|#{ga['BG']}|#{ga['LanguageIndex']}" +
         "&gc=#{ga['gc']}"
+      @request_params_string = params_string # URI.encode(params_string)
     end
 
     # def request_string

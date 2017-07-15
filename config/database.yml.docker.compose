@@ -1,0 +1,31 @@
+development:
+  adapter: postgis
+  encoding: utf8 
+  postgis_extension: true
+  pool: 5
+  database: taxonworks_development 
+  password:
+  username: postgres 
+  host: db
+test: 
+  adapter: postgis
+  encoding: utf8 
+  postgis_extension: true
+  pool: 5
+  database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
+  username: taxonworks_development
+  password:
+#  host: db
+production:
+  adapter: postgis
+  encoding: utf8 
+  postgis_extension: true
+  pool: 5
+  database: <%= ENV['DB_DATABASE'] %>
+  username: <%= ENV['DB_USERNAME'] %>
+  password: <%= ENV['DB_PASSWORD'] %>
+
+
+
+
+

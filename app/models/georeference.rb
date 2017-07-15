@@ -63,6 +63,7 @@
 #
 class Georeference < ActiveRecord::Base
   include Housekeeping
+  include Shared::Notable
   include Shared::Taggable
   include Shared::IsData
   include Shared::Citable
@@ -78,8 +79,8 @@ class Georeference < ActiveRecord::Base
 
   has_many :collection_objects, through: :collecting_event
 
-  has_many :georeferencer_roles, -> { order('roles.position ASC') }, class_name: 'Georeferencer', as: :role_object, validate: true
-  has_many :georeferencers, -> { order('roles.position ASC') }, through: :georeferencer_roles, source: :person, validate: true
+  has_many :georeferencer_roles, -> {order('roles.position ASC')}, class_name: 'Georeferencer', as: :role_object, validate: true
+  has_many :georeferencers, -> {order('roles.position ASC')}, through: :georeferencer_roles, source: :person, validate: true
 
   validates :geographic_item, presence: true
   validates :type, presence: true
@@ -94,7 +95,8 @@ class Georeference < ActiveRecord::Base
   validate :add_obj_inside_err_radius
   validate :add_err_geo_item_inside_err_radius
   validate :add_error_radius_inside_area
-  validate :add_error_geo_item_inside_area
+  validate :add_error_geo_item_intersects_area
+  # validate :add_error_geo_item_inside_area
   validate :add_obj_inside_area
 
   validate :geographic_item_present_if_error_radius_provided
@@ -375,15 +377,32 @@ class Georeference < ActiveRecord::Base
     retval
   end
 
+  # @return [Boolean] true if error_geographic_item.geo_object intersects (overlaps)
+  # collecting_event.geographic_area.default_geographic_item
+  def check_error_geo_item_intersects_area
+    # case 5.5
+    retval = true
+    unless collecting_event.nil?
+      unless error_geographic_item.nil?
+        if error_geographic_item.geo_object # is NOT false
+          unless collecting_event.geographic_area.nil?
+            retval = collecting_event.geographic_area.default_geographic_item.intersects?(error_geographic_item.geo_object)
+          end
+        end
+      end
+    end
+    retval
+  end
+
   # @return [Boolean] true if geographic_item.geo_object is completely contained in collecting_event.geographic_area.default_geographic_item
   def check_obj_inside_area
     # case 6
     retval = true
     unless collecting_event.nil?
-      unless collecting_event.geographic_area.nil? ||
-        !geographic_item.geo_object ||
-        collecting_event.geographic_area.default_geographic_item.nil?
-        retval = collecting_event.geographic_area.default_geographic_item.contains?(geographic_item.geo_object)
+      unless geographic_item.nil? || collecting_event.geographic_area.nil?
+        unless geographic_item.geo_object.nil? || collecting_event.geographic_area.default_geographic_item.nil?
+          retval = collecting_event.geographic_area.default_geographic_item.contains?(geographic_item.geo_object)
+        end
       end
     end
     retval
@@ -407,8 +426,10 @@ class Georeference < ActiveRecord::Base
   # @return [Boolean] true iff collecting_event contains georeference geographic_item.
   def add_obj_inside_area
     unless check_obj_inside_area
-      errors.add(:geographic_item, 'for georeference is not contained in the geographic area bound to the collecting event')
-      errors.add(:collecting_event, 'is assigned to a geographic area outside the supplied georeference/geographic item')
+      errors.add(:geographic_item,
+                 'for georeference is not contained in the geographic area bound to the collecting event')
+      errors.add(:collecting_event,
+                 'is assigned a geographic area which does not contain the supplied georeference/geographic item')
     end
   end
 
@@ -416,6 +437,15 @@ class Georeference < ActiveRecord::Base
   def add_error_geo_item_inside_area
     unless check_error_geo_item_inside_area
       problem = 'collecting_event geographic area must contain georeference error_geographic_item.'
+      errors.add(:error_geographic_item, problem)
+      errors.add(:collecting_event, problem)
+    end
+  end
+
+  # @return [Boolean] true iff collecting_event area intersects georeference error_geographic_item.
+  def add_error_geo_item_intersects_area
+    unless check_error_geo_item_intersects_area
+      problem = 'collecting_event geographic area must intersect georeference error_geographic_item.'
       errors.add(:error_geographic_item, problem)
       errors.add(:collecting_event, problem)
     end

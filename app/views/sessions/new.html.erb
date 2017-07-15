@@ -1,7 +1,8 @@
 <div id="login-container">
-    <h1>TaxonWorks</h1>
+  <div class="logo"></div>
+    <div class="logo-text"></div>
   <div class="box-login">
-  <h3>Sign in to start you session</h3>
+  <h3>Sign in to start your session</h3>
     <%= form_for :session, url: sessions_path do |f| %>
       <div>
         <div class="field">
@@ -13,11 +14,10 @@
         </div>
         <%= f.submit 'Sign in', id: :sign_in, "class" => "big-input button button-request" %>
       </div>
-          <div class="item">
-      <%= link_to('Forgot password?', forgot_password_path) -%>
-      <%= link_to('Find out more', 'http://taxonworks.org') -%>
-    </div> 
+      <div class="item">
+        <%= link_to('Forgot password?', forgot_password_path) -%>
+        <%= link_to('Find out more', 'http://taxonworks.org') -%>
+      </div> 
     <% end %>
   </div>
- 
 </div>

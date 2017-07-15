@@ -13,5 +13,7 @@ class TaxonNameClassification::Iczn::Available::OfficialListOfSpecificNamesInZoo
     )
   end
 
-
+  def classification_label
+    'Official List of Specific Names in Zoological Nomenclature'
+  end
 end

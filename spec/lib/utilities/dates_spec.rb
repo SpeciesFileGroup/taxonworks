@@ -27,6 +27,7 @@ describe 'Dates', group: [:collecting_events, :dates] do
                                   :month_dd_yyy => {},
                                   :month_dd_yyyy_2 => {},
                                   :yyyy_mm_dd => {},
+                                  :yyy_mm_dd => {},
                                   :yyyy_month_dd => {},
                                   :yyyy_mm_dd_mm_dd => {},
                                   :yyyy_month_dd_month_dd => {}
@@ -53,6 +54,7 @@ describe 'Dates', group: [:collecting_events, :dates] do
                        :month_dd_yyy => {},
                        :month_dd_yyyy_2 => {},
                        :yyyy_mm_dd => {},
+                       :yyy_mm_dd => {},
                        :yyyy_month_dd => {},
                        :yyyy_mm_dd_mm_dd => {},
                        :yyyy_month_dd_month_dd => {}
@@ -87,6 +89,7 @@ describe 'Dates', group: [:collecting_events, :dates] do
                        :month_dd_yyy => {},
                        :month_dd_yyyy_2 => {},
                        :yyyy_mm_dd => {},
+                       :yyy_mm_dd => {},
                        :yyyy_month_dd => {},
                        :yyyy_mm_dd_mm_dd => {},
                        :yyyy_month_dd_month_dd => {}
@@ -140,6 +143,7 @@ describe 'Dates', group: [:collecting_events, :dates] do
                :month_dd_yyy => {},
                :month_dd_yyyy_2 => {},
                :yyyy_mm_dd => {},
+               :yyy_mm_dd => {},
                :yyyy_month_dd => {},
                :yyyy_mm_dd_mm_dd => {},
                :yyyy_month_dd_month_dd => {}
@@ -161,6 +165,7 @@ describe 'Dates', group: [:collecting_events, :dates] do
                :month_dd_yyy => {},
                :month_dd_yyyy_2 => {},
                :yyyy_mm_dd => {},
+               :yyy_mm_dd => {},
                :yyyy_month_dd => {:method => :yyyy_month_dd, :piece => {0 => "23 V 20"}, :start_date_year => "1923", :start_date_month => "5", :start_date_day => "20", :end_date_year => "", :end_date_month => "", :end_date_day => "", :start_date => "1923 5 20", :end_date => ""},
                :yyyy_mm_dd_mm_dd => {},
                :yyyy_month_dd_month_dd => {}

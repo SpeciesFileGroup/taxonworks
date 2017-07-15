@@ -22,7 +22,6 @@ RUN apt-get update && \
                        libpq-dev libproj-dev libgeos-dev libgeos++-dev \
                        tesseract-ocr \
                        cmake \
-                       supervisor \
                        nodejs yarn \
                        ruby2.3 ruby2.3-dev && \
     apt clean && \

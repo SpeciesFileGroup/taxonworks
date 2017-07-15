@@ -1047,6 +1047,12 @@ class GeographicItem < ActiveRecord::Base
     self.geo_object.within?(geo_object)
   end
 
+  # @param [geo_object]
+  # @return [Boolean]
+  def intersects?(geo_object)
+    self.geo_object.intersects?(geo_object)
+  end
+
   # @TODO doesn't work?
   # @param [geo_object]
   # @return [Boolean]
