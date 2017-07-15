@@ -30,8 +30,10 @@ module Shared::AttributeAnnotations
 
   # Tests presence of original value AND legality of attribute being annotated
   def attribute_to_annotate_is_valid_for_object
-    if !ApplicationEnumeration.annotatable_attributes(annotated_object).include?(annotated_column.to_sym)
-      errors.add(self.class.annotated_attribute_column, "#{annotated_column} is not annotatable, it may be empty or non-annotatable") 
+    if annotated_object
+      if !ApplicationEnumeration.annotatable_attributes(annotated_object).include?(annotated_column.to_sym)
+        errors.add(self.class.annotated_attribute_column, "#{annotated_column} is not annotatable, it may be empty or non-annotatable") 
+      end
     end
   end
 

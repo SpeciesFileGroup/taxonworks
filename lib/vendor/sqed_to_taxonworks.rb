@@ -107,7 +107,7 @@ module SqedToTaxonworks
     end
 
     def ocr_for(layout_section_type)
-      index = sqed_depiction.extraction_metadata[:metadata_map].key(layout_section_type)
+      index = sqed_depiction.extraction_metadata[:target_metadata_map].key(layout_section_type)
       if ocr_cached?
         sqed_depiction.result_ocr[layout_section_type.to_s] &&sqed_depiction.result_ocr[layout_section_type.to_s]['text']
       else
@@ -118,7 +118,7 @@ module SqedToTaxonworks
     end
 
     def coords_for(layout_section_type)
-      index = sqed_depiction.extraction_metadata[:metadata_map].key(layout_section_type)
+      index = sqed_depiction.extraction_metadata[:target_metadata_map].key(layout_section_type)
       if boundaries_cached?
         sqed_depiction.result_boundary_coordinates[index.to_s].to_a # TODO- hmm, why the to_s needed here
       else # do not do the OCR if only coords asked for
@@ -150,7 +150,7 @@ module SqedToTaxonworks
 
     # @return [Array]
     def image_sections
-      (sqed_depiction.extraction_metadata[:metadata_map].values - [:image_registration, :specimen])
+      (sqed_depiction.extraction_metadata[:target_metadata_map].values - [:image_registration, :specimen])
     end
 
     # @return [Symbol]

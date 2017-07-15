@@ -47,17 +47,38 @@ namespace :tw do
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
 
+        end
+
+        desc 'time rake tw:project_import:sf_import:specimens:import_sf_depos user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :import_sf_depos => [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Importing SF depo_strings and SF to TW depo/repo mappings...'
+
+          get_sf_depo_string = {} # key = sf.DepoID, value = sf.depo_string
+          get_tw_repo_id = {} # key = sf.DepoID, value = tw respositories.id
+
+          # "23, 25, 567".split(", ").map(&:to_i)
+          # [23, 25, 567]
+          # a = [23, 25, 567]
+          # [23, 25, 567]
+          # v = 40
+          # 40
+          # myhash = {}
+          # {}
+          # a.each do |mykeys|
+          #   myhash[mykeys] = v
+          # end
+          # [23, 25, 567]
+          # myhash
+          # {23=>40, 25=>40, 567=>40}
+
+
+        end
 
 
 
 
-
-
-          
-          end
-
-
-          #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         desc 'time rake tw:project_import:sf_import:specimens:collecting_events user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :collecting_events => [:data_directory, :environment, :user_id] do |logger|

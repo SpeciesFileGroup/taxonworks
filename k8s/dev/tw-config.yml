@@ -1,0 +1,18 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: taxonworks
+  namespace: tw
+data:
+  nginx.secret: nginx_secret_here
+  server.name: 127.0.0.1 
+  db: taxonworks_production
+  tw.exception_notification.email_prefix:  '"[TW-Error] "'
+  tw.exception_notification.sender_address: '"\"notifier\" <admin@example.com>"'
+  tw.exception_recipients: "admin@example.com"
+  tw.action_mailer_smtp_settings.address: 
+  tw.action_mailer_smtp_settings.port: "25"
+  tw.action_mailer_smtp_settings.domain: example.org
+  tw.action_mailer_url_host: subdomain.example.org
+  tw.mail_domain: example.org 

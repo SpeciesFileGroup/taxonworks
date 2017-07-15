@@ -130,6 +130,7 @@ module BatchLoad
             test_list.include?(:end_date_day) or
             test_list.include?(:end_date_month) or
             test_list.include?(:end_date_year)
+            @warns.push(c_e.errors.full_messages)
             @warns.push("eventDate (#{c_e.verbatim_date}) does not parse properly.")
 
             c_e.start_date_day   = nil

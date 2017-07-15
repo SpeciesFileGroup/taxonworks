@@ -11,9 +11,13 @@
     width: 400px;
     height: 200px;
     text-align:center;
-    h1 {
-    	font-size: 200%;
-    	margin-bottom: $standard_margin;
+    .logo-text {
+    	background-image: image-url('taxonworks-black.svg');
+    	height: 30px;
+    	background-repeat: no-repeat;
+    	background-position: center;
+    	background-size: contain;
+    	margin-bottom: $standard_margin*4;
     }
 
     h3 {

@@ -68,15 +68,43 @@ a {
 
   .on_hub {
       background-color: $color-secondary-2-4 !important;
-      background-image: image-url('w_hub.svg') !important;
+      background-image: image-url('taxonworks-white-circle.svg') !important;
+      background-size:38px !important;
+  }
+
+  .hub_link_background {
+    opacity: 1 !important;
+    background-color: white;
+  }
+
+  .on_hub_link_background {
+    opacity: 1 !important;
+    background-color: $color-secondary-2-4 !important;
+  }
+  .hub_circle {
+    opacity: 1;
+    position: absolute;
+    margin-left: 1em;
+    background-size:24px;
+    background-repeat:no-repeat;
+    background-position: center; 
+    z-index: 1100;
+    font-size: 0px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 54px;
+    height: 54px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100%; 
   }
 
   .hub_link {
     opacity: 0.6;
     position: absolute;
     margin-left: 1em;
-    background-image: image-url('hub.svg');
-    background-size:24px;
+    background-image: image-url('taxonworks-black-circle.svg');
+    background-size:30px;
     background-repeat:no-repeat;
     background-position: center; 
     z-index: 1100;
@@ -91,7 +119,7 @@ a {
     border-radius: 100%; 
     box-shadow: 0 1px 2px 0 rgba(0,0,0,0.2);
  
-      transition: background-size 0.3s ease,
+    transition: background-size 0.3s ease,
                   background-color 0.3s ease,
                   opacity 0.5s ease,        
   }
@@ -109,7 +137,7 @@ a {
       transition: background-size 0.3s ease,
                   background-color 0.3s ease,
                   opacity 0.5s ease;
-      background-size:34px;
+      background-size:40px;
       color: $default_text;
     }
   }

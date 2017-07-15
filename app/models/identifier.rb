@@ -40,9 +40,8 @@
 #
 class Identifier < ActiveRecord::Base
 
-  acts_as_list scope: [:identifier_object_id, :identifier_object_type]
+  acts_as_list scope: [:project_id, :identifier_object_id, :identifier_object_type]
 
-  # @todo @mjy resolve this to not require project id
   include Housekeeping
   include Shared::IsData
   include Shared::DualAnnotator

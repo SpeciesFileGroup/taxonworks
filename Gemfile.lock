@@ -184,9 +184,9 @@ GEM
       rspec (>= 2.99.0, < 4.0)
     hashdiff (0.3.4)
     hashery (2.1.2)
-    hashie (3.5.5)
+    hashie (3.5.6)
     hiredis (0.6.1)
-    i18n (0.8.4)
+    i18n (0.8.6)
     inch (0.7.1)
       pry
       sparkr (>= 0.2.0)
@@ -370,7 +370,8 @@ GEM
       rspec-mocks (~> 3.6.0)
       rspec-support (~> 3.6.0)
     rspec-support (3.6.0)
-    rtesseract (1.2.6)
+    rtesseract (2.1.0)
+      nokogiri
     rubocop (0.49.1)
       parallel (~> 1.10)
       parser (>= 2.3.3.1, < 3.0)
@@ -384,7 +385,7 @@ GEM
     ruby_dep (1.5.0)
     rubyzip (1.2.1)
     safe_yaml (1.0.4)
-    sass (3.4.24)
+    sass (3.4.25)
     sass-rails (5.0.6)
       railties (>= 4.0.0, < 6)
       sass (~> 3.1)
@@ -420,10 +421,10 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
-    sqed (0.2.4)
+    sqed (0.3.0)
       rake (~> 11.1.2)
-      rmagick (~> 2.14)
-      rtesseract (~> 1.2.6)
+      rmagick (~> 2.16)
+      rtesseract (~> 2.1.0)
     sshkit (1.14.0)
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
@@ -556,7 +557,7 @@ DEPENDENCIES
   sprockets (~> 3.0)
   sprockets-es6
   sprockets-rails (~> 3.2.0)
-  sqed (= 0.2.4)
+  sqed (= 0.3.0)
   taxonifi (= 0.4.0)
   term-ansicolor (~> 1.4.0)
   thor (= 0.19.1)
@@ -574,4 +575,4 @@ RUBY VERSION
    ruby 2.3.1p112
 
 BUNDLED WITH
-   1.15.0
+   1.15.1
