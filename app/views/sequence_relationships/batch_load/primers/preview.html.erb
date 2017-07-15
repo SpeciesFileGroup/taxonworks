@@ -13,6 +13,7 @@
       <th class="four_character_width">data count</th>
       <th> name(s) </th>
       <th class=""> data errors* </th>
+      <th class=""> parse errors </th>
     </tr>
 
     <% @result.sorted_processed_rows.each do |i, rp| -%>
@@ -20,13 +21,10 @@
         <%= batch_line_link_td(i) -%> 
         <%= batch_all_objects_count_td(rp) -%>
         <td>
-          <%= 'EXAMPLE' -%>
+          <%= rp.objects[:sequence_relationship].collect{ |sequence_relationship| sequence_relationship_tag(sequence_relationship) }.join('<br>').html_safe -%>
         </td> 
-
-        <td>
-          <%= 'EXAMPLE' -%>
-        </td> 
-
+        <%= batch_data_errors_td(rp) -%>
+        <%= batch_parse_errors_td(rp) -%>
       </tr>
     <% end -%> 
   </table>

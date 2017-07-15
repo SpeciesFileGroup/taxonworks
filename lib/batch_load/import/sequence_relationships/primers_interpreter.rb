@@ -24,7 +24,7 @@ module BatchLoad
         begin # processing
           sequence_id = row["identifier"]
           primers = get_primers(row["primers"])
-
+          created_sequence_relationship = false
 
           primers.each do |primer|
             sequences = Sequence.with_namespaced_identifier("DRMSequenceId", sequence_id)
@@ -42,8 +42,14 @@ module BatchLoad
                 })
 
                 parse_result.objects[:sequence_relationship].push(sequence_relationship)
+                created_sequence_relationship = true
               end
             end
+
+          end
+          
+          if created_sequence_relationship
+            @total_data_lines += 1
           end
         # rescue
         end

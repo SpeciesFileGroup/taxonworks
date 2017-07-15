@@ -5,14 +5,11 @@
     <div class="item item1 one_third_width">
       <h3> Description and requirements </h3>
 
-      <p> TODO: Does X. </p>
+      <p>Create sequence relationships between sequences and primer sequences</p>
       <ul>
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
-        <li>Column headers are XXX (see <%= link_to('sample template', asset_path('batch_load_templates/sequence_relationships__batch_load.tab'), target: '_blank') -%>).</li>
-        <li>If X then Y.</li>
-        <li>Multiple uploads of the same data will X.</li>
-        <li>It is assumed Z1.</li>
-        <li>It is assumed Z2.</li>
+        <li>Column headers are (see <%= link_to('sample template', asset_path('batch_load_templates/sequence_relationships/sequence_relationships_primers_batch_load.tab'), target: '_blank') -%>).</li>
+        <li>Multiple uploads of the same data will create duplicated data.</li>
         <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>
       </ul>
     </div>
@@ -20,14 +17,11 @@
     <div class="item item2 one_third_width">
       <h3> Example file </h3>
 
-      <p> A tab delimited formatted file ... DESCRIPTION ... 
-        In the example whitespace is a tab. View sample file template.</p>
+      <p> A tab delimited formatted file. In the example whitespace is a tab. View sample file template.</p>
 
       <pre class="fixed_width_font">
-        header1 header2 header3
-        Aidae Aus bus
-        Aidae Aus cus
-        Bidae Bus eus</pre>
+        identifier sample_code gene fragment publication taxon_name primers
+      </pre>
     </div>
 
     <div class="item item3">
