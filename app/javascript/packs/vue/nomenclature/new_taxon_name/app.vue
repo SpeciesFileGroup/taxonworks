@@ -118,6 +118,7 @@
         return new Promise(function (resolve, reject) {
           that.$http.get(`/taxon_names/${id}/taxon_name_classifications`).then( response => {
             that.$store.commit(MutationNames.SetTaxonStatusList, response.body);
+            that.$store.dispatch(ActionNames.LoadSoftValidation, 'taxonStatusList');
             return resolve(true);
           });
         });
@@ -127,6 +128,7 @@
         return new Promise(function (resolve, reject) {
           that.$http.get(`/taxon_names/${id}/taxon_name_relationships`).then( response => {
             that.$store.commit(MutationNames.SetTaxonRelationshipList, response.body);
+            that.$store.dispatch(ActionNames.LoadSoftValidation, 'taxonRelationshipList');
             return resolve(true);
           });
         });
@@ -158,7 +160,7 @@
           this.$store.commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code);
           this.$store.commit(MutationNames.SetTaxon, taxon_name);
           this.$store.dispatch(ActionNames.SetParentAndRanks, response.body.parent);
-          this.$store.dispatch(ActionNames.LoadSoftValidation);
+          this.$store.dispatch(ActionNames.LoadSoftValidation, 'taxon_name');
           this.loading = false;
         }, response => {
           TW.workbench.alert.create("There is no taxon name associated to that ID", "error");

@@ -1,7 +1,7 @@
 <template>
   <form class="panel basic-information">
     <a name="relationship" class="anchor"></a>
-    <div class="header flex-separate middle">
+    <div class="header flex-separate middle" :class="{ 'validation-warning' : softValidation.taxonRelationshipList.list.length }">
       <h3 class="">Relationship</h3>
       <expand @changed="expanded = !expanded" :expanded="expanded"></expand>
     </div>
@@ -66,6 +66,9 @@
       },
       errors() {
         return this.$store.getters[GetterNames.GetHardValidation]
+      },
+      softValidation() {
+        return this.$store.getters[GetterNames.GetSoftValidation]
       },
       taxonRelation: {
         get() {

@@ -70,7 +70,12 @@
 
 <style type="text/css">
   .basic-information {
+    .validation-warning {
+      border-left: 4px solid #ff8c00 !important;
+    }
+    .soft-success {
 
+    }
     height: 100%;
     box-sizing: border-box;
     display: flex;

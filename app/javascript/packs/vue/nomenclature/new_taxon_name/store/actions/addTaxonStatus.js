@@ -1,7 +1,7 @@
 const saveTaxonStatus = require('../../request/resources').saveNewTaxonStatus;
-const MutationNames = require('../mutations/mutations').MutationNames;  
+const MutationNames = require('../mutations/mutations').MutationNames;
 
-module.exports = function({ commit, state }, status) {
+module.exports = function({ dispatch, commit, state }, status) {
 	var position = state.taxonStatusList.findIndex( item => {
 		if(item.type == status.type) {
 			return true;
@@ -17,7 +17,10 @@ module.exports = function({ commit, state }, status) {
 		saveTaxonStatus(newClassification).then( response => {
 			Object.defineProperty(response, 'type', { value: status.type });
 			Object.defineProperty(response, 'object_tag', { value: status.name });
+			console.log(response);
 			commit(MutationNames.AddTaxonStatus, response);
+			//dispatch('loadSoftValidation', 'taxonStatusList');
+			//Needs get the global_id when the object is created
 		});
 	}
 

@@ -4,9 +4,16 @@
 			<h3>Soft Validation</h3> 
 		</div>
 		<div class="body">
-			<ul class="no_bullets">
-				<li v-for="error in errors"> <span data-icon="warning"></span><span v-html="error.message"></span></li>
-			</ul>
+			<div v-for="key in Object.keys(errors)" v-if="errors[key].list.length">
+				<hr>
+				<h3>{{ errors[key].title }}</h3>
+				<hr>
+				<ul class="no_bullets">
+					<li v-for="error in errors[key].list"> 
+						<span data-icon="warning"></span><span v-html="error.message"></span>
+					</li>
+				</ul>
+			</div>
 		</div>
 	</div>
 </template>

@@ -30,7 +30,20 @@ function makeInitialState() {
     taxonStatusList: [],
     taxonRelationshipList: [],
     taxonRelationship: undefined,
-    softValidation: undefined,
+    softValidation: {
+      taxon_name: {
+        title: 'Taxon name',
+        list: [],
+      },
+      taxonRelationshipList: {
+        title: 'Relationships',
+        list: [],
+      },
+      taxonStatusList: {
+        title: 'Status',
+        list: [],
+      },
+    },
     hardValidation: undefined,
     nomenclatural_code: undefined,
     parent: undefined,

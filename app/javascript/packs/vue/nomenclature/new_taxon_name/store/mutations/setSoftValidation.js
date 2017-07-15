@@ -1,3 +1,3 @@
-module.exports = function(state, value) {
-	state.softValidation = value;
+module.exports = function(state, validation) {
+	state.softValidation[validation.type].list = validation.response;
 };
