@@ -79,9 +79,7 @@ module BatchLoad
           sequence_attributes[:alternate_values_attributes].push({
             type: "AlternateValue::AlternateSpelling",
             alternate_value_object_attribute: "name",
-            value: alternate_name,
-            created_by_id: $user_id,
-            updated_by_id: $user_id
+            value: alternate_name
           })
         end
 
