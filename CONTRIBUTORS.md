@@ -1,15 +1,17 @@
 # Contributors
 
-See [contributors](https://github.com/SpeciesFileGroup/taxonworks/graphs/contributors) for contributors to code and resources in this repository. 
+_This is a list in progress, we apologize for errors of ommission, feel free to suggest additions._
 
-See also anyone who has contributed an issue or comment on an issue.
+Contributors include: 
 
-This is a list in progress It includes not only those who have submitted code, but also ideas, interfaces layouts, suggestions, 
-
-* David Maddison
-* Maria Marta Cigliano
-* Ed DeWalt
-* John Noyes
-* John Heraty
-* Jim Woolley
-* ... you!
+* [Contributors](https://github.com/SpeciesFileGroup/taxonworks/graphs/contributors) to the code and resources in this specific repository
+* [Contributors](https://github.com/SpeciesFileGroup) to code and resources in other modules spawned from this project
+* Anyone who has contributed an [Issue](https://github.com/SpeciesFileGroup/taxonworks/issues) or Comment on that issue
+* Contributors who have provided ideas, interfaces layouts, suggestions but who have not otherwised been listed in the categories above:
+```
+Ed DeWalt
+David Maddison
+Maria Marta Cigliano
+John Noyes
+John Heraty
+ ```
