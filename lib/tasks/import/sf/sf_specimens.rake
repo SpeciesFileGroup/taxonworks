@@ -55,23 +55,47 @@ namespace :tw do
           logger.info 'Importing SF depo_strings and SF to TW depo/repo mappings...'
 
           get_sf_depo_string = {} # key = sf.DepoID, value = sf.depo_string
-          get_tw_repo_id = {} # key = sf.DepoID, value = tw respositories.id
+          get_tw_repo_id = {} # key = sf.DepoID, value = tw respository.id; ex. ["23, 25, 567"] => {1 => tw_repo_id, 2 => tw_repo_id, 3 => tw_repo_id}
+          # Note: Many SF DepoIDs will not be mapped to TW repo_ids
 
-          # "23, 25, 567".split(", ").map(&:to_i)
-          # [23, 25, 567]
-          # a = [23, 25, 567]
-          # [23, 25, 567]
-          # v = 40
-          # 40
-          # myhash = {}
-          # {}
-          # a.each do |mykeys|
-          #   myhash[mykeys] = v
-          # end
-          # [23, 25, 567]
-          # myhash
-          # {23=>40, 25=>40, 567=>40}
+          count_found = 0
 
+          path = @args[:data_directory] + 'sfDepoStrings.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+          file.each_with_index do |row, i|
+            depo_id = row['DepoID']
+
+            depo_string = row['DepoString']
+
+            logger.info "Working with SF.DepoID '#{depo_id}', SF.NomenclatorString '#{depo_string}' (count #{count_found += 1}) \n"
+
+            get_sf_depo_string[depo_id] = depo_string
+          end
+
+          file.each_with_index do |row, i|
+            sf_depo_id_array = row['SFDepoIDarray']
+            next if sf_depo_id_array.nil?
+
+            tw_repo_id = row['TWDepoID']
+
+            logger.info "Working with TWD/RepoID '#{tw_repo_id}', SFDepoIDarray '#{sf_depo_id_array}' \n"
+
+            sf_depo_id_array = sf_depo_id_array.split(", ").map(&:to_i)
+            sf_depo_id_array.each do |each_id|
+              get_tw_repo_id[each_id] = tw_repo_id
+            end
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFDepoIDToSFDepoString', get_sf_depo_string)
+          import.set('SFDepoIDToTWRepoID', get_tw_repo_id)
+
+          puts = 'SFDepoIDToSFDepoString'
+          ap get_sf_depo_string
+
+          puts = 'SFDepoIDToTWRepoID'
+          ap get_tw_repo_id
 
         end
 
