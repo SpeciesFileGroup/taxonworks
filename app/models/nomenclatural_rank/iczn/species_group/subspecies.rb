@@ -12,4 +12,8 @@ class NomenclaturalRank::Iczn::SpeciesGroup::Subspecies < NomenclaturalRank::Icz
     'ssp.'
   end
 
+  def self.typical_use
+    true
+  end
+
 end

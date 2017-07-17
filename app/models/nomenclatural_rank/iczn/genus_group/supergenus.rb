@@ -4,4 +4,8 @@ class NomenclaturalRank::Iczn::GenusGroup::Supergenus < NomenclaturalRank::Iczn:
     NomenclaturalRank::Iczn::FamilyGroup::Infratribe
   end
 
+  def self.typical_use
+    false
+  end
+
 end

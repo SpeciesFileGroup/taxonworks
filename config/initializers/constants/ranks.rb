@@ -84,7 +84,12 @@ module RankHelper
   def self.rank_attributes(rank)
     rank.ordered_ranks.inject([]) {|ary, r| 
       ary.push(
-        { name: r.rank_name, rank_class: r.to_s, parent: r.parent_rank.rank_name }
+        {
+          name: r.rank_name,
+          rank_class: r.to_s,
+          parent: r.parent_rank.rank_name,
+          typical_use: r.typical_use
+        }
       )
     }
 

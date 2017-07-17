@@ -11,4 +11,9 @@ class NomenclaturalRank::Iczn::GenusGroup::Supersubgenus < NomenclaturalRank::Ic
   def self.abbreviation
     '' 
   end
+
+  def self.typical_use
+    false
+  end
+
 end

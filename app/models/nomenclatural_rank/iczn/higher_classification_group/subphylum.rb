@@ -8,4 +8,8 @@ class NomenclaturalRank::Iczn::HigherClassificationGroup::Subphylum < Nomenclatu
     [NomenclaturalRank::Iczn::HigherClassificationGroup::Phylum.to_s]
   end
 
+  def self.typical_use
+    false
+  end
+
 end
