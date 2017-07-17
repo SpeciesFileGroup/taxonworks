@@ -6,7 +6,7 @@
         <label class="middle" v-if="!showAll"><input type="radio" name="extendChild" @click="showAll = true" :checked="false"/> all... </label>
         <label class="middle" v-else><input type="radio" name="extendChild" @click="showAll = false" :checked="false"/> less... </label>
       </li>
-      <li v-for="(child, index) in (ranks[group])" v-if="((extendChildsList || (index < maxChildsDisplay)))">
+      <li v-for="(child, index) in (ranks[group])" v-if="(child.typical_use && (extendChildsList || (index < maxChildsDisplay)))">
         <label class="middle"><input type="radio" name="rankSelected" v-model="setRankClass" :checked="child.rank_class == this.setRankClass" :value="child.rank_class"/> {{ child.name }} </label>
       </li>
       <li v-if="(ranks[group].length > maxChildsDisplay) && (group == childOfParent[rankGroup]) && !showAll">
