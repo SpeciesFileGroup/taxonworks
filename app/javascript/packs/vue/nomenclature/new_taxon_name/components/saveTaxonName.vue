@@ -43,7 +43,7 @@ export default {
 	        this.$http.post('/taxon_names.json', taxon_name).then(response => {
 	          this.$store.commit(MutationNames.SetTaxon, response.body);
 	          this.$store.commit(MutationNames.SetHardValidation, undefined);
-	          this.$store.dispatch(ActionNames.LoadSoftValidation);
+	          this.$store.dispatch(ActionNames.LoadSoftValidation, 'taxon_name');
 	          TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully created.`, "notice");
 	        }, response => {
 	          this.$store.commit(MutationNames.SetHardValidation, response.body);
@@ -62,7 +62,7 @@ export default {
 	        }
 	        this.$store.commit(MutationNames.SetHardValidation, undefined);
 	        this.$http.patch(`/taxon_names/${this.taxon.id}.json`, taxon_name).then(response => {
-	        	this.$store.dispatch(ActionNames.LoadSoftValidation);
+	        	this.$store.dispatch(ActionNames.LoadSoftValidation, 'taxon_name');
 	          	TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully updated.`, "notice");
 	        }, response => {
 	          this.$store.commit(MutationNames.SetHardValidation, response.body);
