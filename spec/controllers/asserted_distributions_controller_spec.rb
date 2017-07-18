@@ -85,18 +85,19 @@ describe AssertedDistributionsController, :type => :controller do
     describe "with valid params" do
       it "creates a new AssertedDistribution" do
         expect {
-          post :create, {:asserted_distribution => valid_attributes}, valid_session
+          # post :create, {:asserted_distribution => valid_attributes}, valid_session
+          post :create, params: {asserted_distribution: valid_attributes}, args: valid_session
         }.to change(AssertedDistribution, :count).by(1)
       end
 
       it "assigns a newly created asserted_distribution as @asserted_distribution" do
-        post :create, {:asserted_distribution => valid_attributes}, valid_session
+        post :create, params: {asserted_distribution: valid_attributes}, args: valid_session
         expect(assigns(:asserted_distribution)).to be_a(AssertedDistribution)
         expect(assigns(:asserted_distribution)).to be_persisted
       end
 
       it "redirects to the created asserted_distribution" do
-        post :create, {:asserted_distribution => valid_attributes}, valid_session
+        post :create, params: {asserted_distribution: valid_attributes}, args: valid_session
         expect(response).to redirect_to(AssertedDistribution.last)
       end
     end
@@ -105,14 +106,14 @@ describe AssertedDistributionsController, :type => :controller do
       it "assigns a newly created but unsaved asserted_distribution as @asserted_distribution" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AssertedDistribution).to receive(:save).and_return(false)
-        post :create, {:asserted_distribution => {"verbatim_label" => "invalid value"}}, valid_session
+        post :create, params: {asserted_distribution: {"verbatim_label" => "invalid value"}}, args: valid_session
         expect(assigns(:asserted_distribution)).to be_a_new(AssertedDistribution)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AssertedDistribution).to receive(:save).and_return(false)
-        post :create, {:asserted_distribution => {"verbatim_label" => "invalid value"}}, valid_session
+        post :create, params: {asserted_distribution: {"verbatim_label" => "invalid value"}}, args: valid_session
         expect(response).to render_template("new")
       end
     end
