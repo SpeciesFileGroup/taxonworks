@@ -49,12 +49,13 @@ namespace :tw do
 
         end
 
+
         desc 'time rake tw:project_import:sf_import:specimens:import_sf_depos user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :import_sf_depos => [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Importing SF depo_strings and SF to TW depo/repo mappings...'
 
-          get_sf_depo_string = {} # key = sf.DepoID, value = sf.depo_string
+          # get_sf_depo_string = {} # key = sf.DepoID, value = sf.depo_string
           get_tw_repo_id = {} # key = sf.DepoID, value = tw respository.id; ex. ["23, 25, 567"] => {1 => tw_repo_id, 2 => tw_repo_id, 3 => tw_repo_id}
           # Note: Many SF DepoIDs will not be mapped to TW repo_ids
 
@@ -73,12 +74,14 @@ namespace :tw do
             get_sf_depo_string[depo_id] = depo_string
           end
 
+          path = @args[:data_directory] + 'sfTWDepoMappings.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
           file.each_with_index do |row, i|
             sf_depo_id_array = row['SFDepoIDarray']
-            next if sf_depo_id_array.nil?
+            next if sf_depo_id_array.blank?
 
             tw_repo_id = row['TWDepoID']
-
             logger.info "Working with TWD/RepoID '#{tw_repo_id}', SFDepoIDarray '#{sf_depo_id_array}' \n"
 
             sf_depo_id_array = sf_depo_id_array.split(", ").map(&:to_i)
@@ -91,18 +94,14 @@ namespace :tw do
           import.set('SFDepoIDToSFDepoString', get_sf_depo_string)
           import.set('SFDepoIDToTWRepoID', get_tw_repo_id)
 
-          puts = 'SFDepoIDToSFDepoString'
+          puts 'SFDepoIDToSFDepoString'
           ap get_sf_depo_string
 
-          puts = 'SFDepoIDToTWRepoID'
+          puts 'SFDepoIDToTWRepoID'
           ap get_tw_repo_id
 
         end
 
-
-
-
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         desc 'time rake tw:project_import:sf_import:specimens:collecting_events user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :collecting_events => [:data_directory, :environment, :user_id] do |logger|
@@ -380,6 +379,7 @@ namespace :tw do
 
           tw_area
         end
+
 
         desc 'time rake tw:project_import:sf_import:specimens:create_sf_geo_level4_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # consists of unique_key: (level3_id, level4_id, name, country_code)
