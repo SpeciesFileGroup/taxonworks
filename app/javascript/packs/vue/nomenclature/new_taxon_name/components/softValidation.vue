@@ -1,5 +1,5 @@
 <template>
-	<div v-if="errors" :class="{ 'validation-warning' : errors }" class="panel content soft-validation-box">
+	<div v-if="checkSoftValidation()" :class="{ 'validation-warning' : errors }" class="panel content soft-validation-box">
 		<div class="header flex-separate">
 			<h3>Soft Validation</h3> 
 		</div>
@@ -27,8 +27,13 @@ export default {
 	computed: {
 		errors() {
 			return this.$store.getters[GetterNames.GetSoftValidation]
-		}
+		},
 	},
+	methods: {
+		checkSoftValidation: function() {
+			return (this.errors.taxon_name.list.length || this.errors.taxonStatusList.list.length || this.errors.taxonRelationshipList.list.length)
+		}
+	}
 }
 </script>
 <style type="text/css">
@@ -37,7 +42,6 @@ export default {
 	}
 	.soft-validation-box {
 		background-color: #FFF9F9;
-		//box-shadow: 0 0 4px 0 rgba(0,0,0,0.2);
 		z-index:999;
 		width: 300px;
 		
