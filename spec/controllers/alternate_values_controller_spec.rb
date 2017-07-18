@@ -112,13 +112,15 @@ describe AlternateValuesController, :type => :controller do
     it 'destroys the requested alternate_value' do
       alternate_value = AlternateValue.create! valid_attributes
       expect {
-        delete :destroy, {:id => alternate_value.to_param}, valid_session
+        # delete :destroy, {:id => alternate_value.to_param}, valid_session
+        delete :destroy, params: {id: alternate_value.to_param}, args: valid_session
       }.to change(AlternateValue, :count).by(-1)
     end
 
     it 'redirects to :back' do
       alternate_value = AlternateValue.create! valid_attributes
-      delete :destroy, {:id => alternate_value.to_param}, valid_session
+      # delete :destroy, {:id => alternate_value.to_param}, valid_session
+      delete :destroy, params: {id: alternate_value.to_param}, args: valid_session
       expect(response).to redirect_to(list_otus_path)
     end
   end
