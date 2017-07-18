@@ -36,7 +36,7 @@ export default {
         spinner: false,
         showList: false,
         getRequest: 0,
-        type: this.value,
+        type: this.sendLabel,
         json: [],
         current: -1
       };
@@ -48,8 +48,10 @@ export default {
           this.json = [];
         }
       },
-      value: function(val) {
-        this.type = val
+      sendLabel: function(val) {
+        if(val) {
+          this.type = val
+        }
       }
     },
 
@@ -59,7 +61,7 @@ export default {
         type: String
       },
 
-      value: {
+      sendLabel: {
         type: String,
         default: ''
       },

@@ -5,7 +5,7 @@
     min="3"
     eventSend="parentSelected"
     display="label"
-    :value="getParent.name"
+    :sendLabel="getParent.name"
     param="term">
   </autocomplete>
 </template>
