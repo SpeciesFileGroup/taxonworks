@@ -43,8 +43,8 @@ class AlternateValuesController < ApplicationController
   def update
     respond_to do |format|
       @alternate_value.project_id = sessions_current_project_id if params[:project_members_only] == 'checked'
-
       if @alternate_value.update(alternate_value_params)
+        # if @alternate_value.update(ActionController::Parameters.new(alternate_value_params))
         format.html { redirect_to @alternate_value.alternate_value_object.metamorphosize, notice: 'Alternate value was successfully updated.' }
         format.json { render json: @alternate_value, status: :created, location: @alternate_value }
       else
@@ -111,6 +111,14 @@ class AlternateValuesController < ApplicationController
   def alternate_value_params
     params.require(:alternate_value).permit(:value, :type, :language_id, :alternate_value_object_type, :alternate_value_object_id, :alternate_value_object_attribute, :project_members_only)
   end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  # def alternate_value_params
+  #   a_v_params = ActionController::Parameters.new({
+  #
+  #                                                 })
+  #   a_v_params.require(:alternate_value).permit(:value, :type, :language_id, :alternate_value_object_type, :alternate_value_object_id, :alternate_value_object_attribute, :project_members_only)
+  # end
 
   def breakout_types(collection)
     collection

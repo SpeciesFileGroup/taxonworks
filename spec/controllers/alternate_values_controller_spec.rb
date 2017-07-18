@@ -45,7 +45,6 @@ describe AlternateValuesController, :type => :controller do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AlternateValue).to receive(:save).and_return(false)
         post :create, params: ({alternate_value: {value: 'Bar'}}), args: valid_session
-        # post :create, params: ActionController::Parameters.new(parameters: {alternate_value: {value: 'Bar'}}), args: valid_session
         expect(assigns(:alternate_value)).to be_a_new(AlternateValue)
       end
 
@@ -70,17 +69,20 @@ describe AlternateValuesController, :type => :controller do
         expect_any_instance_of(AlternateValue).to receive(:update).with({'value' => 'Smorf'})
         # put :update, {:id => alternate_value.to_param, :alternate_value => {value: 'Smorf'}}, valid_session
         put :update, params: {id: alternate_value.to_param, alternate_value: {value: 'Smorf'}}, args: valid_session
+        # put :update, params: {id: alternate_value.to_param, alternate_value: 'Smorf'}, args: valid_session
       end
 
       it 'assigns the requested alternate_value as @alternate_value' do
         alternate_value = AlternateValue.create! valid_attributes
-        put :update, {:id => alternate_value.to_param, :alternate_value => valid_attributes}, valid_session
+        # put :update, {:id => alternate_value.to_param, :alternate_value => valid_attributes}, valid_session
+        put :update, params: {id: alternate_value.to_param, alternate_value: valid_attributes}, args: valid_session
         expect(assigns(:alternate_value)).to eq(alternate_value)
       end
 
       it 'redirects to :back' do
         alternate_value = AlternateValue.create! valid_attributes
-        put :update, {:id => alternate_value.to_param, :alternate_value => valid_attributes}, valid_session
+        # put :update, {:id => alternate_value.to_param, :alternate_value => valid_attributes}, valid_session
+        put :update, params: {id: alternate_value.to_param, alternate_value: valid_attributes}, args: valid_session
         expect(response).to redirect_to(source_path(o))
       end
     end
