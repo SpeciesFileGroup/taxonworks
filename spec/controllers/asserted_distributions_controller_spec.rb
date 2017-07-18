@@ -127,19 +127,21 @@ describe AssertedDistributionsController, :type => :controller do
         # specifies that the AssertedDistribution created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        expect_any_instance_of(AssertedDistribution).to receive(:update).with({"is_absent" => true})
-        put :update, {:id => asserted_distribution.to_param, :asserted_distribution => {"is_absent" => true}}, valid_session
+        # TODO:  this test seems to fail whether or not deprecations are removed
+        expect_any_instance_of(AssertedDistribution).to receive(:update).with(ActionController::Parameters.new({"is_absent" => true}))
+        # put :update, {:id => asserted_distribution.to_param, :asserted_distribution => {"is_absent" => false}}, valid_session
+        put :update, params: {id: asserted_distribution.to_param, asserted_distribution: {"is_absent" => true}}, args: valid_session
       end
 
       it "assigns the requested asserted_distribution as @asserted_distribution" do
         asserted_distribution = AssertedDistribution.create! valid_attributes
-        put :update, {:id => asserted_distribution.to_param, :asserted_distribution => valid_attributes}, valid_session
+        put :update, params: {id: asserted_distribution.to_param, asserted_distribution: valid_attributes}, args: valid_session
         expect(assigns(:asserted_distribution)).to eq(asserted_distribution)
       end
 
       it "redirects to the asserted_distribution" do
         asserted_distribution = AssertedDistribution.create! valid_attributes
-        put :update, {:id => asserted_distribution.to_param, :asserted_distribution => valid_attributes}, valid_session
+        put :update, params: {id: asserted_distribution.to_param, asserted_distribution: valid_attributes}, args: valid_session
         expect(response).to redirect_to(asserted_distribution)
       end
     end
@@ -149,7 +151,7 @@ describe AssertedDistributionsController, :type => :controller do
         asserted_distribution = AssertedDistribution.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AssertedDistribution).to receive(:save).and_return(false)
-        put :update, {:id => asserted_distribution.to_param, :asserted_distribution => {"verbatim_label" => "invalid value"}}, valid_session
+        put :update, params: {id: asserted_distribution.to_param, asserted_distribution: {"verbatim_label" => "invalid value"}}, args: valid_session
         expect(assigns(:asserted_distribution)).to eq(asserted_distribution)
       end
 
@@ -157,7 +159,7 @@ describe AssertedDistributionsController, :type => :controller do
         asserted_distribution = AssertedDistribution.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AssertedDistribution).to receive(:save).and_return(false)
-        put :update, {:id => asserted_distribution.to_param, :asserted_distribution => {"verbatim_label" => "invalid value"}}, valid_session
+        put :update, params: {id: asserted_distribution.to_param, asserted_distribution: {"verbatim_label" => "invalid value"}}, args: valid_session
         expect(response).to render_template("edit")
       end
     end
@@ -167,13 +169,13 @@ describe AssertedDistributionsController, :type => :controller do
     it "destroys the requested asserted_distribution" do
       asserted_distribution = AssertedDistribution.create! valid_attributes
       expect {
-        delete :destroy, {:id => asserted_distribution.to_param}, valid_session
+        delete :destroy, params: {id: asserted_distribution.to_param}, args: valid_session
       }.to change(AssertedDistribution, :count).by(-1)
     end
 
     it "redirects to the asserted_distributions list" do
       asserted_distribution = AssertedDistribution.create! valid_attributes
-      delete :destroy, {:id => asserted_distribution.to_param}, valid_session
+      delete :destroy, params: {id: asserted_distribution.to_param}, args: valid_session
       expect(response).to redirect_to(asserted_distributions_url)
     end
   end
