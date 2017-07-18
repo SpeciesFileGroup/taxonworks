@@ -80,10 +80,10 @@
         justify-content: center;
         align-items: center;
         margin-bottom: $standard_padding*0.5;
-        margin-right: $standard_padding*2;
       }
-      
+
       a {
+        padding: $standard_padding*2;
         padding-top: $standard_padding;
         padding-bottom: $standard_padding*0.9;
         font-size:$font_small;
