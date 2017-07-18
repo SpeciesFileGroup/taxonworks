@@ -39,12 +39,12 @@ describe AssertedDistributionsController, :type => :controller do
   describe "GET list" do
     it "with no other parameters, assigns 20/page asserted_distributions as @controlled_vocabulary_terms" do
       asserted_distribution = AssertedDistribution.create! valid_attributes
-      get :list, {}, valid_session
+      get :list, params: {}, args: valid_session
       expect(assigns(:asserted_distributions)).to include(asserted_distribution)
     end
 
     it "renders the list template" do
-      get :list, {}, valid_session
+      get :list, params: {}, args: valid_session
       expect(response).to render_template("list")
     end
   end
@@ -52,7 +52,7 @@ describe AssertedDistributionsController, :type => :controller do
   describe "GET index" do
     it "assigns all asserted_distributions as @asserted_distributions" do
       asserted_distribution = AssertedDistribution.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, args: valid_session
       expect(assigns(:recent_objects)).to include(asserted_distribution)
     end
   end
@@ -60,14 +60,15 @@ describe AssertedDistributionsController, :type => :controller do
   describe "GET show" do
     it "assigns the requested asserted_distribution as @asserted_distribution" do
       asserted_distribution = AssertedDistribution.create! valid_attributes
-      get :show, {:id => asserted_distribution.to_param}, valid_session
+      get :show, params: {id: asserted_distribution.to_param}, args: valid_session
       expect(assigns(:asserted_distribution)).to eq(asserted_distribution)
     end
   end
 
   describe "GET new" do
     it "assigns a new asserted_distribution as @asserted_distribution" do
-      get :new, {}, valid_session
+      # get :new, {}, valid_session
+      get :new, params: {}, args: valid_session
       expect(assigns(:asserted_distribution)).to be_a_new(AssertedDistribution)
     end
   end
@@ -75,7 +76,7 @@ describe AssertedDistributionsController, :type => :controller do
   describe "GET edit" do
     it "assigns the requested asserted_distribution as @asserted_distribution" do
       asserted_distribution = AssertedDistribution.create! valid_attributes
-      get :edit, {:id => asserted_distribution.to_param}, valid_session
+      get :edit, params: {id: asserted_distribution.to_param}, args: valid_session
       expect(assigns(:asserted_distribution)).to eq(asserted_distribution)
     end
   end
