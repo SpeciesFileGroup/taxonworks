@@ -92,7 +92,8 @@ describe AlternateValuesController, :type => :controller do
         alternate_value = AlternateValue.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AlternateValue).to receive(:save).and_return(false)
-        put :update, {:id => alternate_value.to_param, :alternate_value => {foo: 'Bar'}}, valid_session
+        # put :update, {:id => alternate_value.to_param, :alternate_value => {foo: 'Bar'}}, valid_session
+        put :update, params: {id: alternate_value.to_param, alternate_value: {value: 'Bar'}}, args: valid_session
         expect(assigns(:alternate_value)).to eq(alternate_value)
       end
 
@@ -100,7 +101,8 @@ describe AlternateValuesController, :type => :controller do
         alternate_value = AlternateValue.create!(valid_attributes)
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AlternateValue).to receive(:save).and_return(false)
-        put :update, {:id => alternate_value.to_param, :alternate_value => {value: 'Smorf'}}, valid_session
+        # put :update, {:id => alternate_value.to_param, :alternate_value => {value: 'Smorf'}}, valid_session
+        put :update, params: {id: alternate_value.to_param, alternate_value: {value: 'Smorf'}}, args: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
