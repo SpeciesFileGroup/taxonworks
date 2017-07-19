@@ -10,20 +10,20 @@ namespace :tw do
 
           logger.info 'Building new collection objects...'
 
-          # total
+          # total (see below)
           # type (Specimen, Lot, RangedLot --  Dmitry uses lot, not ranged lot)
           # preparation_type_id (TW integer, include SF text as data attribute?)
-          # respository_id (Dmitry manually reconciled these)
+          # respository_id (Dmitry manually reconciled these); manually reconciled, not all will be found, add sf_depo_id and sf_depo_string as attribute
           # buffered_collecting_event (no SF data)
           # buffered_determinations (no SF data)
           # buffered_other_labels (no SF data)
-          # ranged_lot_category_id
+          # ranged_lot_category_id (leave nil)
           # collecting_event_id
           # accessioned_at (no SF data)
           # deaccession_reason (no SF data)
           # deaccessioned_at (no SF data)
           # housekeeping
-          
+
           # note with SF.SpecimenID
 
           # About total:
@@ -46,7 +46,8 @@ namespace :tw do
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
-
+          get_sf_unique_id = import.get('SFSpecimenToUniqueIDs') # get the unique_id for given SF specimen_id
+          get_tw_collecting_event_id = import.get('SFUniqueIDToTWCollectingEventID') # use unique_id as key to collecting_event_id
         end
 
 
