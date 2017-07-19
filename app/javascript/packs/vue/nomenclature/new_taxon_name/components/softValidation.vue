@@ -41,10 +41,7 @@ export default {
 		border-left: 4px solid #ff8c00;
 	}
 	.soft-validation-box {
-		background-color: #FFF9F9;
-		z-index:999;
-		width: 300px;
-		
+		background-color: #FFF9F9;		
 		.body {
 			padding: 12px;
 		}
@@ -55,7 +52,6 @@ export default {
 		ul {
 			margin: 0px;
 			padding: 0px;
-
 		}
 		li {
 			margin-top: 12px;

@@ -1,37 +1,22 @@
 <template>
 <div>
-	<modal v-if="showModal" @close="showModal = false">
-		<h3 slot="header">Confirm delete</h3>
-		<div slot="body">Are you sure you want to delete <span v-html="parent.object_tag"></span> {{taxon.name}} ?</div>
-		<div slot="footer"><button @click="deleteTaxon()" type="button" class="normal-input button button-delete align-end">Delete</button></div>
-	</modal>
 	<div id="taxonNavBar">
 		<div class="panel basic-information separate-bottom">
-			<div class="content header">
-				<h3 v-if="taxon.id" class="flex-separate middle">
-					<span class="taxonname"> 
-						<span v-html="parent.object_tag"></span> 
-						<span> {{ taxon.name }} </span>
-					</span>
-					<span v-if="taxon.id" @click="showModal = true" data-icon="trash"></span>
-				</h3>
-				<h3 class="taxonname" v-else>New</h3>
-				
-			</div>
 			<div class="content">
 				<div class="flex-separate">
-					<ul class="no_bullets">
+					<ul class="no_bullets horizontal_navbar middle">
 						<li class="navigation-item" v-for="link,key,index in anchorLink">
 							<a :class="{ active : (activePosition == index)}" :href="anchorLink[key]" @click="activePosition = index" >{{key}}</a>
 						</li>
 					</ul>
+					<form class="horizontal-center-content">
+						<save-taxon-name class="normal-input button button-submit"></save-taxon-name>
+						<button type="button" class="normal-input button button-default" @click="reloadPage()">New</button>
+					</form>
 				</div>
 			</div>
 		</div>
-		<form class="separate-top separate-bottom horizontal-center-content">
-			<button type="button" class="normal-input button button-default" @click="reloadPage()">New</button>
-			<save-taxon-name class="normal-input button button-submit"></save-taxon-name>
-		</form>
+
 	</div>
 </div>
 </template>
@@ -39,13 +24,11 @@
 
 const GetterNames = require('../store/getters/getters').GetterNames
 const saveTaxonName = require('./saveTaxonName.vue');
-const modal = require('../../../components/modal.vue');
 
 export default {
 
 	components: {
 		saveTaxonName,
-		modal
 	},
 	computed: {
 		taxon() {
@@ -96,29 +79,25 @@ export default {
 <style>
 	#taxonNavBar.navbar-fixed-top {
 		top:0px;
+		width: 1240px;
 		z-index:200;
 		position: fixed;
 	}
 	#taxonNavBar {
-		.header {
-			padding: 1em;
-			border: 1px solid #f5f5f5;
-			.circle-button {
-				margin: 0px;
-			}
-		}
-		width: 300px;
 		button {
-			margin: 6px;
+			margin-left: 6px;
+			min-width: 100px;
 			width: 100%;
 		}
 		.taxonname {
 			font-weight: 300;
 		}
 		li { 
-			padding-top: 0.75em;
 			a {
 			font-size: 13px;
+			}
+			a:first-child {
+				padding-left: 0px;
 			}
 		}
 	}

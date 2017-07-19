@@ -1,11 +1,10 @@
 <template>
   <div id="new_taxon_name_task">
   <h1>New taxon name</h1>
+  <div>
+  <nav-header></nav-header>
     <div class="flexbox horizontal-center-content align-start">
-    <div class="cleft item separate-right">
-      <nav-header></nav-header>
-    </div>
-    <div class="ccenter item separate-right separate-left">
+    <div class="ccenter item separate-right">
       <spinner :full-screen="true" :logo-size="{ width: '100px', height: '100px'}"v-if="loading"></spinner>
       <basic-information class="separate-bottom"></basic-information>
       <div class="new-taxon-name-block">
@@ -25,9 +24,11 @@
         <original-combination class="separate-top separate-bottom"></original-combination>
       </div>
     </div>
-    <div class="cright item separate-left">
-      <soft-validation></soft-validation>
+    <div v-if="getTaxon.id" class="cright item separate-left">
+      <taxon-name-box class="separate-bottom"></taxon-name-box>
+      <soft-validation class="separate-top"></soft-validation>
     </div>
+  </div>
   </div>
   </div>
 </template>
@@ -37,6 +38,7 @@
   var relationshipPicker = require('./components/relationshipPicker.vue');
   var statusPicker = require('./components/statusPicker.vue');
   var navHeader = require('./components/navHeader.vue');
+  var taxonNameBox = require('./components/taxonNameBox.vue');
   
   var basicInformation = require('./components/basicInformation.vue');
   var originalCombination = require('./components/originalCombination.vue');
@@ -55,6 +57,7 @@
       spinner,
       navHeader,
       statusPicker,
+      taxonNameBox,
       relationshipPicker,
       basicInformation,
       softValidation,
@@ -179,14 +182,12 @@
 
     .cleft, .cright {
       min-width: 300px;
-    }
-    .ccenter {
-      width: 100%;
+      width: 300px;
     }
     .anchor {
        display:block;
-       height:10px;
-       margin-top:-10px;
+       height:65px;
+       margin-top:-65px;
        visibility:hidden;
     }
     hr {
