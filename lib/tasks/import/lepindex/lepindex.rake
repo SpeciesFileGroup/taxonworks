@@ -93,7 +93,7 @@ namespace :tw do
                   end
 
                 else
-                  puts Rainbow("Error: Can not find image #{f}, for id: #{id}, skipping!").red
+                  puts Rainbow("Error: Can not find image #{f}, for id: #{id}, skipped").red
                 end
               end
               puts Rainbow("group handled").yellow
@@ -101,8 +101,8 @@ namespace :tw do
             end
 
           rescue ActiveRecord::RecordInvalid
-            puts Rainbow("\nrecord is invalid, group is aborted").red
-            raise
+            puts Rainbow(" Error: record is invalid, row skipped").red
+            next 
           end
         end
       end
