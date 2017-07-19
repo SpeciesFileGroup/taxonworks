@@ -8,6 +8,31 @@ namespace :tw do
   namespace :project_import do
     namespace :lepindex do
 
+      task :validate_images => [:environment, :data_directory] do 
+        path = @args[:data_directory] + 'image_index.tab' 
+        errors = 0 
+        passed = 0
+
+        file = CSV.foreach(path, col_sep: "\t")
+        file.each_slice(100) do |slice|
+          slice.each do |row|
+            id = row[0]
+            f = row[1]
+            
+            f.strip!
+            f.downcase!
+
+            unless File.exists?(f)
+              errors += 1
+            else
+              passed +=1
+            end
+          end
+        end
+        puts Rainbow("Errors: #{errors}.").red
+        puts Rainbow("Passed: #{passed}.").yellow
+      end
+
       # @import_name = 'lepindex'
 
       # A utility class to index data.
@@ -48,6 +73,8 @@ namespace :tw do
               slice.each do |row|
                 id = row[0]
                 f = row[1]
+                f.strip!
+                f.downcase!
 
                 if File.exists?(f)
                  
@@ -59,10 +86,10 @@ namespace :tw do
                   puts "processing #{f}, for #{id}"
 
                   begin
-                    image = Image.new(image_file: File.open(f))
-                    Depiction.create!(image_attributes: { image_file: f }, depiction_object_id: id, depiction_object_type: 'TaxonName')
+                    p = File.open(f)
+                    Depiction.create!(image_attributes: { image_file: p }, depiction_object_id: id, depiction_object_type: 'TaxonName')
                   ensure
-                    f.close
+                    p.close
                   end
 
                 else
