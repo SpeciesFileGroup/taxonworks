@@ -19,7 +19,6 @@
 # TaxonNameRelationships have a domain (attributes on the subject) and range (attributes on the object).  So if you use 
 # a relatinship you may be asserting a TaxonNameClassification also exists for the subject or object.
 #
-# @todo Note that many of the TODOs do not show up in Yard?? They are copied here so you can find them in the code:
 # @todo SourceClassifiedAs is not really Combination in the other sense
 # @todo validate, that all the relationships in the table could be linked to relationships in classes (if those had changed)
 # @todo Check if more than one species associated with the genus in the original paper
@@ -57,10 +56,9 @@ class TaxonNameRelationship < ActiveRecord::Base
   after_destroy :set_cached_names_for_taxon_names, unless: 'self.no_cached'
 
   validates_presence_of :type, message: 'Relationship type should be specified'
-  validates_presence_of :subject_taxon_name_id, message: 'Missing taxon name on the left side'
-  validates_presence_of :object_taxon_name_id, message: 'Missing taxon name on the right side'
+  validates_presence_of :subject_taxon_name, message: 'Missing taxon name on the left side'
+  validates_presence_of :object_taxon_name, message: 'Missing taxon name on the right side'
 
-  # TODO: these are likely not speced!  May have to change them to reference object rather than id
   validates_uniqueness_of :object_taxon_name_id, scope: :type, if: :is_combination?
   validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id], unless: :is_combination?
 
@@ -93,9 +91,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
   scope :where_object_in_taxon_names, -> (taxon_name_array) {where('"taxon_name_relationships"."object_taxon_name_id" IN (?)', taxon_name_array)}
-#  scope :with_type_string, -> (type_string) {where('"taxon_name_relationships"."type" LIKE ?', "#{type_string}" ) }
 
-  scope :with_type_string, -> (type_string) { where(sanitize_sql_array(["taxon_name_relationships.type = '%s'", type_string])) } #   #{?type_string}"where('"taxon_name_relationships"."type" LIKE ?', "#{type_string}" ) }
+  scope :with_type_string, -> (type_string) { where(sanitize_sql_array(["taxon_name_relationships.type = '%s'", type_string])) }
 
   scope :with_type_base,     -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "#{base_string}%" ) } 
   scope :with_type_contains, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "%#{base_string}%" ) } 
@@ -703,47 +700,45 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
   end
 
-
-
   def sv_coordinated_taxa
-    s = self.subject_taxon_name
-    o = self.object_taxon_name
-    if self.type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn|OriginalCombination|Combination|Typification)/
+    s = subject_taxon_name
+    o = object_taxon_name
+    if type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn|OriginalCombination|Combination|Typification)/
       s_new = s.lowest_rank_coordinated_taxon
       if s != s_new
         soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} #{s.cached_html} to #{s_new.rank_class.rank_name} #{s.cached_html}",
                              fix: :sv_fix_coordinated_subject_taxa, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
       end
-      if self.type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn)/
+      if type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn)/
         o_new = o.lowest_rank_coordinated_taxon
 
 
-      if o != o_new && self.type_name != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
-        soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o.cached_html}",
-                             fix: :sv_fix_coordinated_object_taxa, success_message: "Relationship moved to  #{o_new.rank_class.rank_name}")
-      end
+        if o != o_new && type_name != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+          soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o.cached_html}",
+                               fix: :sv_fix_coordinated_object_taxa, success_message: "Relationship moved to  #{o_new.rank_class.rank_name}")
+        end
 
       end
-#    elsif self.type_name =~ /TaxonNameRelationship::(OriginalCombination|Combination)/
+      #    elsif self.type_name =~ /TaxonNameRelationship::(OriginalCombination|Combination)/
 
-#      list = s.list_of_coordinated_names + [s]
-#      if s.rank_string =~ /Species/ # species group
-#        s_new =  list.detect{|t| t.rank_class.rank_name == 'species'}
-#      elsif s.rank_string =~ /Genus/
-#        s_new =  list.detect{|t| t.rank_class.rank_name == 'genus'}
-#      else
-#        s_new = s
-#      end
+      #      list = s.list_of_coordinated_names + [s]
+      #      if s.rank_string =~ /Species/ # species group
+      #        s_new =  list.detect{|t| t.rank_class.rank_name == 'species'}
+      #      elsif s.rank_string =~ /Genus/
+      #        s_new =  list.detect{|t| t.rank_class.rank_name == 'genus'}
+      #      else
+      #        s_new = s
+      #      end
 
-#      if s != s_new
-#        soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} to #{s_new.rank_class.rank_name}",
-#                             fix: :sv_fix_combination_relationship, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
-#      end
+      #      if s != s_new
+      #        soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} to #{s_new.rank_class.rank_name}",
+      #                             fix: :sv_fix_combination_relationship, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
+      #      end
     end
   end
 
   def sv_fix_coordinated_subject_taxa
-    s = self.subject_taxon_name
+    s = subject_taxon_name
     s_new = s.lowest_rank_coordinated_taxon
     if s != s_new
       self.subject_taxon_name = s_new
