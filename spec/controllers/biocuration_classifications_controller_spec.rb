@@ -75,6 +75,9 @@ describe BiocurationClassificationsController, :type => :controller do
   end
 
   describe "PUT update" do
+
+    let(:update_params) {ActionController::Parameters.new({biocuration_class_id: '1'}).permit(:biocuration_class_id)}
+
     describe "with valid params" do
       it "updates the requested biocuration_classification" do
         biocuration_classification = BiocurationClassification.create! valid_attributes
@@ -82,7 +85,7 @@ describe BiocurationClassificationsController, :type => :controller do
         # specifies that the BiocurationClassification created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        expect_any_instance_of(BiocurationClassification).to receive(:update).with({ "biocuration_class_id" => "1" })
+        expect_any_instance_of(BiocurationClassification).to receive(:update).with(update_params)
         put :update, params: {id: biocuration_classification.to_param, biocuration_classification: {"biocuration_class_id" => "1"}}, args: valid_session
       end
 
