@@ -25,8 +25,7 @@ class BiocurationClassificationsController < ApplicationController
   # PATCH/PUT /biocuration_classifications/1.json
   def update
     respond_to do |format|
-      if @biocuration_classification.update(biocuration_classification_params) # TODO: fix biocuration_classification_params
-        # format.html { redirect_to :back, notice: 'Biocuration classification was successfully updated.' }
+      if @biocuration_classification.update(biocuration_classification_params)
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Biocuration classification was NOT successfully updated.')}
         format.json { head :no_content }
       else

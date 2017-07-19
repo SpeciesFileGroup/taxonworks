@@ -121,16 +121,17 @@ describe AssertedDistributionsController, :type => :controller do
 
   describe "PUT update" do
     describe "with valid params" do
-      it "updates the requested asserted_distribution" do
+
+      let(:update_params) {ActionController::Parameters.new({is_absent: 'true'}).permit(:is_absent)}
+
+      it 'updates the requested asserted_distribution' do
         asserted_distribution = AssertedDistribution.create! valid_attributes
         # Assuming there are no other asserted_distributions in the database, this
         # specifies that the AssertedDistribution created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        # TODO:  this test seems to fail whether or not deprecations are removed
-        expect_any_instance_of(AssertedDistribution).to receive(:update).with(ActionController::Parameters.new({"is_absent" => true}))
-        # put :update, {:id => asserted_distribution.to_param, :asserted_distribution => {"is_absent" => false}}, valid_session
-        put :update, params: {id: asserted_distribution.to_param, asserted_distribution: {"is_absent" => true}}, args: valid_session
+        expect_any_instance_of(AssertedDistribution).to receive(:update).with(update_params)
+        put :update, params: {id: asserted_distribution.to_param, asserted_distribution: {is_absent: 'true'}}, args: valid_session
       end
 
       it "assigns the requested asserted_distribution as @asserted_distribution" do

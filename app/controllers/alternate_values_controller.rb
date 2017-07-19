@@ -44,7 +44,6 @@ class AlternateValuesController < ApplicationController
     respond_to do |format|
       @alternate_value.project_id = sessions_current_project_id if params[:project_members_only] == 'checked'
       if @alternate_value.update(alternate_value_params)
-        # if @alternate_value.update(ActionController::Parameters.new(alternate_value_params))
         format.html { redirect_to @alternate_value.alternate_value_object.metamorphosize, notice: 'Alternate value was successfully updated.' }
         format.json { render json: @alternate_value, status: :created, location: @alternate_value }
       else
