@@ -5,7 +5,7 @@ class Taxonworks::BatchLoadGenerator < Rails::Generators::Base
   source_root File.expand_path("../templates", __FILE__)
 
   argument :model_name, type: 'string', required: true, banner: '<ModelName>'
-  argument :name, type: 'string', required: true, banner: '<batch_loader_name>'
+  argument :batch_loader_name, type: 'string', required: true, banner: '<batch_loader_name>'
 
   # when I generate a new batch_load
   #    then I can see that batch_load in the application
@@ -13,7 +13,7 @@ class Taxonworks::BatchLoadGenerator < Rails::Generators::Base
  
   # Fail if existing batch_loader exists 
   def create_interpreter 
-    template 'interpreter', "lib/batch_load/import/#{model_path_prefix}/#{name}_interpreter.rb"
+    template 'interpreter', "lib/batch_load/import/#{table_name}/#{batch_loader_name}_interpreter.rb"
   end
 
   def add_routes
@@ -23,7 +23,7 @@ class Taxonworks::BatchLoadGenerator < Rails::Generators::Base
   end
 
   def add_batch_load_index
-    f = "app/views/#{model_path_prefix}/batch_load.html.erb"
+    f = "app/views/#{table_name}/batch_load.html.erb"
     create_file f
     index_block = ERB.new(File.open(find_in_source_paths('index.tt')).read)
     append_to_file f, index_block.result(binding)
@@ -31,12 +31,12 @@ class Taxonworks::BatchLoadGenerator < Rails::Generators::Base
 
   def add_views
     %w{_batch_load _form create preview}.each do |t|
-      template "views/#{t}", "app/views/#{model_path_prefix}/batch_load/#{name}/#{t}.html.erb"
+      template "views/#{t}", "app/views/#{table_name}/batch_load/#{batch_loader_name}/#{t}.html.erb"
     end
   end
 
   def add_controller_stubs
-    f = "app/controllers/#{model_path_prefix}_controller.rb"
+    f = "app/controllers/#{table_name}_controller.rb"
     actions_block = ERB.new(File.open(find_in_source_paths('actions.tt')).read)
     inject_into_class f, model_controller, actions_block.result(binding)
   end
@@ -53,32 +53,30 @@ class Taxonworks::BatchLoadGenerator < Rails::Generators::Base
   private
 
   def interpreter_class
-    "BatchLoad::Import::#{model_name.pluralize}::#{name.classify}Interpreter"
+    "#{batch_loader_name.split('_').map(&:capitalize).join('')}Interpreter"
   end
 
-  def batch_load_name
-    name.capitalize.humanize
+  def full_interpreter_class
+    "BatchLoad::Import::#{model_name.pluralize}::#{interpreter_class}"
   end
 
-  def model_path_prefix 
+  def table_name 
     "#{model_name.tableize}"
   end
 
   def cookie_name
-    batch_load_name + '_' + model_path_prefix + '_md5'
+    batch_loader_name + '_batch_load_' + table_name + '_md5'
   end
 
   def model_controller
-    "#{model_name}sController"
+    "#{model_name.pluralize}Controller"
   end
 
   def preview_url
-    "preview_#{name}_batch_load_#{model_path_prefix}_path"  
+    "preview_#{batch_loader_name}_batch_load_#{table_name}_path"  
   end
 
   def create_url
-    "create_#{name}_batch_load_#{model_path_prefix}"  
+    "create_#{batch_loader_name}_batch_load_#{table_name}_path"  
   end
-
-
 end

@@ -1,2 +1,1 @@
-<%%= render '<%= model_path_prefix %>/batch_load/<%= name %>/batch_load' -%>
-
+<%%= render '<%= table_name %>/batch_load/<%= batch_loader_name %>/batch_load' -%>
