@@ -146,7 +146,6 @@
       },
       fillTaxonName: function(id) {
         this.$http.get(`/taxon_names/${id}`).then( response => {
-          console.log(response.body);
           let taxon_name = {
             id: response.body.id,
             parent_id: response.body.parent_id,

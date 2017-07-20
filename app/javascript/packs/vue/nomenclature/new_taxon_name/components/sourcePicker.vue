@@ -23,9 +23,9 @@
 						display="label">
 					</autocomplete>
 					<hr>
-					<div v-if="source != undefined">
+					<div v-if="citation != undefined">
 						<div class="flex-separate middle">
-							<p>{{ source.object_tag }}</p><span class="circle-button btn-delete" @click="removeSource(taxon.id)"></span>
+							<p>{{ citation.source.object_tag }}</p><span class="circle-button btn-delete" @click="removeSource(taxon.origin_citation.id)"></span>
 						</div>
 					</div>
 				</div>
@@ -63,8 +63,8 @@
 			expand
 		},
 		computed: {
-			source() {
-				return this.$store.getters[GetterNames.GetSource]
+			citation() {
+				return this.$store.getters[GetterNames.GetCitation]
 			},
 			taxon() {
 				return this.$store.getters[GetterNames.GetTaxon]

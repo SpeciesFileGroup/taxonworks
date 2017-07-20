@@ -52,36 +52,35 @@ const removeTaxonRelationship = function(relationship) {
   });
 }
 
-const removeTaxonSource = function(id) {
+const removeTaxonSource = function(taxonId, citationId) {
   return new Promise(function (resolve, reject) {
-    let taxon_name = { 
+    let data = { 
       taxon_name: {
         origin_citation_attributes: {
+          id: citationId,
           _destroy: true
         }
       }
     }
 
-    Vue.http.patch(`/taxon_names/${id}`, taxon_name).then( response => {
+    Vue.http.patch(`/taxon_names/${taxonId}`, data).then( response => {
       return resolve(response.body);
     });
   });
 }
 
-const changeTaxonSource = function(taxonId, sourceId) {
+const changeTaxonSource = function(taxonId, sourceId, citation) {
   return new Promise(function (resolve, reject) {
     let data = { 
-
       taxon_name: {
-        id: taxonId,
         origin_citation_attributes: {
+          id: (citation == undefined ? null : citation.id),
           source_id: sourceId
         }
       }
     }
-        console.log(data);
+
     Vue.http.patch(`/taxon_names/${taxonId}`, data).then( response => {
-          console.log(response.body);
       return resolve(response.body);
     });
   });

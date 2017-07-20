@@ -18,7 +18,7 @@ const GetterNames = {
 	GetNomenclaturalCode: 'getNomenclaturalCode',
 	GetSoftValidation: 'getSoftValidation',
 	GetHardValidation: 'getHardValidation',
-	GetSource: 'getSource'
+	GetCitation: 'getCitation'
 };
 
 const GetterFunctions = {
@@ -41,7 +41,7 @@ const GetterFunctions = {
 	[GetterNames.GetNomenclaturalCode]: require('./getNomenclaturalCode'),
 	[GetterNames.GetSoftValidation]: require('./getSoftValidation'),
 	[GetterNames.GetHardValidation]: require('./getHardValidation'),
-	[GetterNames.GetSource]: require('./getSource')
+	[GetterNames.GetCitation]: require('./getCitation')
 };
 
 module.exports = {

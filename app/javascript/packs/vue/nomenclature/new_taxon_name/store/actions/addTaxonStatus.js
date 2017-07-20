@@ -17,7 +17,6 @@ module.exports = function({ dispatch, commit, state }, status) {
 		saveTaxonStatus(newClassification).then( response => {
 			Object.defineProperty(response, 'type', { value: status.type });
 			Object.defineProperty(response, 'object_tag', { value: status.name });
-			console.log(response);
 			commit(MutationNames.AddTaxonStatus, response);
 			//dispatch('loadSoftValidation', 'taxonStatusList');
 			//Needs get the global_id when the object is created
