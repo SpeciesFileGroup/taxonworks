@@ -10,20 +10,20 @@ namespace :tw do
 
           logger.info 'Building new collection objects...'
 
-          # total
+          # total (see below)
           # type (Specimen, Lot, RangedLot --  Dmitry uses lot, not ranged lot)
           # preparation_type_id (TW integer, include SF text as data attribute?)
-          # respository_id (Dmitry manually reconciled these)
+          # respository_id (Dmitry manually reconciled these); manually reconciled, not all will be found, add sf_depo_id and sf_depo_string as attribute
           # buffered_collecting_event (no SF data)
           # buffered_determinations (no SF data)
           # buffered_other_labels (no SF data)
-          # ranged_lot_category_id
+          # ranged_lot_category_id (leave nil)
           # collecting_event_id
           # accessioned_at (no SF data)
           # deaccession_reason (no SF data)
           # deaccessioned_at (no SF data)
           # housekeeping
-          
+
           # note with SF.SpecimenID
 
           # About total:
@@ -46,39 +46,63 @@ namespace :tw do
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
-
+          get_sf_unique_id = import.get('SFSpecimenToUniqueIDs') # get the unique_id for given SF specimen_id
+          get_tw_collecting_event_id = import.get('SFUniqueIDToTWCollectingEventID') # use unique_id as key to collecting_event_id
         end
+
 
         desc 'time rake tw:project_import:sf_import:specimens:import_sf_depos user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :import_sf_depos => [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Importing SF depo_strings and SF to TW depo/repo mappings...'
 
-          get_sf_depo_string = {} # key = sf.DepoID, value = sf.depo_string
-          get_tw_repo_id = {} # key = sf.DepoID, value = tw respositories.id
+          # get_sf_depo_string = {} # key = sf.DepoID, value = sf.depo_string
+          get_tw_repo_id = {} # key = sf.DepoID, value = tw respository.id; ex. ["23, 25, 567"] => {1 => tw_repo_id, 2 => tw_repo_id, 3 => tw_repo_id}
+          # Note: Many SF DepoIDs will not be mapped to TW repo_ids
 
-          # "23, 25, 567".split(", ").map(&:to_i)
-          # [23, 25, 567]
-          # a = [23, 25, 567]
-          # [23, 25, 567]
-          # v = 40
-          # 40
-          # myhash = {}
-          # {}
-          # a.each do |mykeys|
-          #   myhash[mykeys] = v
-          # end
-          # [23, 25, 567]
-          # myhash
-          # {23=>40, 25=>40, 567=>40}
+          count_found = 0
 
+          path = @args[:data_directory] + 'sfDepoStrings.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+          file.each_with_index do |row, i|
+            depo_id = row['DepoID']
+
+            depo_string = row['DepoString']
+
+            logger.info "Working with SF.DepoID '#{depo_id}', SF.NomenclatorString '#{depo_string}' (count #{count_found += 1}) \n"
+
+            get_sf_depo_string[depo_id] = depo_string
+          end
+
+          path = @args[:data_directory] + 'sfTWDepoMappings.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+          file.each_with_index do |row, i|
+            sf_depo_id_array = row['SFDepoIDarray']
+            next if sf_depo_id_array.blank?
+
+            tw_repo_id = row['TWDepoID']
+            logger.info "Working with TWD/RepoID '#{tw_repo_id}', SFDepoIDarray '#{sf_depo_id_array}' \n"
+
+            sf_depo_id_array = sf_depo_id_array.split(", ").map(&:to_i)
+            sf_depo_id_array.each do |each_id|
+              get_tw_repo_id[each_id] = tw_repo_id
+            end
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFDepoIDToSFDepoString', get_sf_depo_string)
+          import.set('SFDepoIDToTWRepoID', get_tw_repo_id)
+
+          puts 'SFDepoIDToSFDepoString'
+          ap get_sf_depo_string
+
+          puts 'SFDepoIDToTWRepoID'
+          ap get_tw_repo_id
 
         end
 
-
-
-
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         desc 'time rake tw:project_import:sf_import:specimens:collecting_events user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :collecting_events => [:data_directory, :environment, :user_id] do |logger|
@@ -356,6 +380,7 @@ namespace :tw do
 
           tw_area
         end
+
 
         desc 'time rake tw:project_import:sf_import:specimens:create_sf_geo_level4_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # consists of unique_key: (level3_id, level4_id, name, country_code)
