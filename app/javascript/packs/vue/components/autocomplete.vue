@@ -26,6 +26,9 @@ Parameters:
         <span v-html="item[label]"></span>
       </li>
     </ul>
+    <ul v-if="type && searchEnd && !json.length">
+      <li>--None--</li>
+    </ul>
   </div>
 </template>
 
@@ -35,6 +38,7 @@ export default {
       return {
         spinner: false,
         showList: false,
+        searchEnd: false,
         getRequest: 0,
         type: this.sendLabel,
         json: [],
@@ -154,6 +158,7 @@ export default {
 
         checkTime: function() {
           var that = this;
+          this.searchEnd = false;
           if(this.getRequest) {
             clearTimeout(this.getRequest);
           }   
@@ -178,6 +183,7 @@ export default {
             
             this.spinner = false;
             this.json = finded;
+            this.searchEnd = true;
             this.showList = (this.json.length > 0)
           }
           else {
@@ -192,6 +198,7 @@ export default {
               this.json = response.body;
               this.showList = (this.json.length > 0)
               this.spinner = false;
+              this.searchEnd = true;
             }, response => {
               // error callback
               this.spinner = false;
