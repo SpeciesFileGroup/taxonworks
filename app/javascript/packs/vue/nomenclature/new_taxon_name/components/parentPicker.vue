@@ -2,7 +2,7 @@
   <autocomplete
     url="/taxon_names/autocomplete"
     label="label_html"
-    min="3"
+    min="2"
     eventSend="parentSelected"
     display="label"
     :sendLabel="getParent.name"
