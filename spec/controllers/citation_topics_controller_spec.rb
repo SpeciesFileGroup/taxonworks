@@ -76,6 +76,7 @@ describe CitationTopicsController, :type => :controller do
 
   describe "PUT update" do
     describe "with valid params" do
+
       let(:t) {Topic.create!(name: 'Space Ghosts', definition: 'Coast to coast.')}
       let(:update_params) {ActionController::Parameters.new({topic_id: t.id.to_s}).permit(:topic_id)}
 
@@ -91,7 +92,6 @@ describe CitationTopicsController, :type => :controller do
 
       it "assigns the requested citation_topic as @citation_topic" do
         citation_topic = CitationTopic.create! valid_attributes
-        # put :update, {:id => citation_topic.to_param, :citation_topic => valid_attributes}, valid_session
         put :update, params: {id: citation_topic.to_param, citation_topic: valid_attributes}, session: valid_session
         expect(assigns(:citation_topic)).to eq(citation_topic)
       end
