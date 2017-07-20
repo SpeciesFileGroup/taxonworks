@@ -57,6 +57,7 @@ export default {
 	            rank_class: this.taxon.rank_class,
 			    year_of_publication: this.taxon.year_of_publication,
 			    verbatim_author: this.taxon.verbatim_author,
+			    etymology: this.taxon.etymology,
 	            type: 'Protonym'
 	          }
 	        }

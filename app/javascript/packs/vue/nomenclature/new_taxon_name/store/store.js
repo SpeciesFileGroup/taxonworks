@@ -21,6 +21,7 @@ function makeInitialState() {
       masculine_name: undefined,
       neuter_name: undefined,
       origin_citation: undefined,
+      etymology: ''
     },
     settings: {
       modalStatus: false,

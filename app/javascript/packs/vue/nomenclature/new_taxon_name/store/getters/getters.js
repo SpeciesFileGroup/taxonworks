@@ -18,7 +18,8 @@ const GetterNames = {
 	GetNomenclaturalCode: 'getNomenclaturalCode',
 	GetSoftValidation: 'getSoftValidation',
 	GetHardValidation: 'getHardValidation',
-	GetCitation: 'getCitation'
+	GetCitation: 'getCitation',
+	GetEtymology: 'getEtymology'
 };
 
 const GetterFunctions = {
@@ -41,7 +42,8 @@ const GetterFunctions = {
 	[GetterNames.GetNomenclaturalCode]: require('./getNomenclaturalCode'),
 	[GetterNames.GetSoftValidation]: require('./getSoftValidation'),
 	[GetterNames.GetHardValidation]: require('./getHardValidation'),
-	[GetterNames.GetCitation]: require('./getCitation')
+	[GetterNames.GetCitation]: require('./getCitation'),
+	[GetterNames.GetEtymology]: require('./getEtymology')
 };
 
 module.exports = {

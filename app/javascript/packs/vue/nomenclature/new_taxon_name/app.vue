@@ -152,6 +152,7 @@
       },
       fillTaxonName: function(id) {
         this.$http.get(`/taxon_names/${id}`).then( response => {
+          console.log(response.body);
           let taxon_name = {
             id: response.body.id,
             parent_id: response.body.parent_id,
@@ -163,7 +164,8 @@
             feminine_name: response.body.feminine_name,
             masculine_name: response.body.masculine_name,
             neuter_name: response.body.neuter_name,
-            origin_citation: response.body.origin_citation
+            origin_citation: response.body.origin_citation,
+            etymology: response.body.etymology
           }
           this.loadTaxonRelationships(response.body.id);
           this.loadTaxonStatus(response.body.id);
