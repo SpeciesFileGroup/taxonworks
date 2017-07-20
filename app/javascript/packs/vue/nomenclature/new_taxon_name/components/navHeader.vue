@@ -47,7 +47,8 @@ export default {
 				'Author': '#author',
 				'Status': '#status',
 				'Relationship': '#relationship',
-				'Original combination': '#original-combination'
+				'Original combination': '#original-combination',
+				'Etymology': '#etymology'
 			}
 		}
 	},

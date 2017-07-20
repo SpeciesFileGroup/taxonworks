@@ -23,6 +23,10 @@
         <spinner :showSpinner="false" :showLegend="false" v-if="!getTaxon.id"></spinner>
         <original-combination class="separate-top separate-bottom"></original-combination>
       </div>
+      <div class="new-taxon-name-block">
+        <spinner :showSpinner="false" :showLegend="false" v-if="!getTaxon.id"></spinner>
+        <etymology class="separate-top separate-bottom"></etymology>
+      </div>
     </div>
     <div v-if="getTaxon.id" class="cright item separate-left">
       <taxon-name-box class="separate-bottom"></taxon-name-box>
@@ -39,6 +43,7 @@
   var statusPicker = require('./components/statusPicker.vue');
   var navHeader = require('./components/navHeader.vue');
   var taxonNameBox = require('./components/taxonNameBox.vue');
+  var etymology = require('./components/etymology.vue');
   
   var basicInformation = require('./components/basicInformation.vue');
   var originalCombination = require('./components/originalCombination.vue');
@@ -55,6 +60,7 @@
 
   export default {
     components: {
+      etymology,
       sourcePicker,
       spinner,
       navHeader,
