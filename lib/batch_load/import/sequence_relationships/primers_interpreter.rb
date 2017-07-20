@@ -66,7 +66,7 @@ module BatchLoad
     end
 
     def get_primers(primers)
-      primers.split(",")
+      primers.split(", ")
     end
 
     def get_relationship_type(primer)
