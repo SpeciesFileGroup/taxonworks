@@ -1,3 +1,3 @@
 module.exports = function(state) {
-	return state.taxon_name.source;
+	return state.taxon_name.origin_citation.source;
 };

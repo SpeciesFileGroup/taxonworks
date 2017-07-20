@@ -56,7 +56,6 @@ const removeTaxonSource = function(id) {
   return new Promise(function (resolve, reject) {
     let taxon_name = { 
       taxon_name: {
-        id: id,
         origin_citation_attributes: {
           _destroy: true
         }
@@ -69,11 +68,31 @@ const removeTaxonSource = function(id) {
   });
 }
 
+const changeTaxonSource = function(taxonId, sourceId) {
+  return new Promise(function (resolve, reject) {
+    let data = { 
+      taxon_name: {
+        origin_citation_attributes: {
+          source_id: sourceId
+        }
+      }
+    }
+        console.log(data);
+    Vue.http.patch(`/taxon_names/${taxonId}`, data).then( response => {
+          console.log(response.body);
+      return resolve(response.body);
+    });
+  });
+}
+
+
+
 export {
   loadSoftValidation,
   saveNewTaxonStatus,
   removeTaxonStatus,
   removeTaxonSource,
   removeTaxonRelationship,
-  createTaxonRelationship
+  createTaxonRelationship,
+  changeTaxonSource
 }

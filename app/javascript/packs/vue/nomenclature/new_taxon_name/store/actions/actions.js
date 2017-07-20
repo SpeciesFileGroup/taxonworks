@@ -5,6 +5,7 @@ const ActionNames = {
 	RemoveTaxonStatus: 'removeTaxonStatus',
 	RemoveTaxonRelationship: 'removeTaxonRelationship',
 	LoadSoftValidation: 'loadSoftValidation',
+	ChangeTaxonSource: 'changeTaxonSource',
 	RemoveSource: 'removeSource',
 };
 
@@ -16,6 +17,7 @@ const ActionFunctions = {
 	[ActionNames.RemoveTaxonStatus]: require('./removeTaxonStatus'),
 	[ActionNames.RemoveTaxonRelationship]: require('./removeTaxonRelationship'),
 	[ActionNames.RemoveSource]: require('./removeSource'),
+	[ActionNames.ChangeTaxonSource]: require('./changeTaxonSource'),
 };
 
 module.exports = {

@@ -45,11 +45,13 @@
 </template>
 
 <script>
+
+  	const GetterNames = require('../store/getters/getters').GetterNames;
+	const MutationNames = require('../store/mutations/mutations').MutationNames;
+	const ActionNames = require('../store/actions/actions').ActionNames;
+
 	const verbatimAuthor = require('./verbatimAuthor.vue');
 	const verbatimYear = require('./verbatimYear.vue');
-  	const GetterNames = require('../store/getters/getters').GetterNames; 
-	const MutationNames = require('../store/mutations/mutations').MutationNames; 
-	const ActionNames = require('../store/actions/actions').ActionNames;  
  	const autocomplete = require('../../../components/autocomplete.vue');
 	const expand = require('./expand.vue');
 
@@ -76,10 +78,7 @@
 		},
 		mounted: function() {
 			this.$on('sourceSelect', function(value) {
-				this.$http.get(`/sources/${value.id}`).then( response => {
-					this.$store.commit(MutationNames.SetSource, response.body);
-				})
-				
+				this.$store.dispatch(ActionNames.ChangeTaxonSource, value.id)
 			});
 		},
 		methods: {

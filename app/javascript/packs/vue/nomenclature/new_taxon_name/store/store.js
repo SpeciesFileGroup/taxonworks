@@ -20,9 +20,10 @@ function makeInitialState() {
       feminine_name: undefined,
       masculine_name: undefined,
       neuter_name: undefined,
-      source: undefined,
+      origin_citation: {
+        source: undefined,
+      }
     },
-    source: null,
     settings: {
       modalStatus: false,
       modalRelationship: false

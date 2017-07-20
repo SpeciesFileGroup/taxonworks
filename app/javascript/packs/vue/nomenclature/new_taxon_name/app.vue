@@ -45,6 +45,8 @@
   var softValidation = require('./components/softValidation.vue');
   var spinner = require('../../components/spinner.vue');
 
+  var filterObject = require('./helpers/filterObject');
+
 
   const MutationNames = require('./store/mutations/mutations').MutationNames;  
   const GetterNames = require('./store/getters/getters').GetterNames; 
@@ -144,6 +146,7 @@
       },
       fillTaxonName: function(id) {
         this.$http.get(`/taxon_names/${id}`).then( response => {
+          console.log(response.body);
           let taxon_name = {
             id: response.body.id,
             parent_id: response.body.parent_id,
@@ -153,15 +156,14 @@
             year_of_publication: response.body.year_of_publication,
             verbatim_author: response.body.verbatim_author,
             feminine_name: response.body.feminine_name,
-            source: response.body.source,
             masculine_name: response.body.masculine_name,
             neuter_name: response.body.neuter_name,
+            origin_citation: response.body.origin_citation
           }
           this.loadTaxonRelationships(response.body.id);
           this.loadTaxonStatus(response.body.id);
-          this.$store.commit(MutationNames.SetSource, response.body.source);
           this.$store.commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code);
-          this.$store.commit(MutationNames.SetTaxon, taxon_name);
+          this.$store.commit(MutationNames.SetTaxon, filterObject(response.body));
           this.$store.dispatch(ActionNames.SetParentAndRanks, response.body.parent);
           this.$store.dispatch(ActionNames.LoadSoftValidation, 'taxon_name');
           this.loading = false;
@@ -181,7 +183,8 @@
     max-width: 1240px;
 
     .cleft, .cright {
-      min-width: 300px;
+      min-width: 350px;
+      max-width: 350px;
       width: 300px;
     }
     .anchor {
