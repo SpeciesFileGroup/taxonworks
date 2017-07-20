@@ -23,7 +23,7 @@ class Taxonworks::BatchLoadGenerator < Rails::Generators::Base
   end
 
   def add_batch_load_index
-    f = "app/views/#{table_name}/batch_load.html.erb"
+    f = "app/views/#{model_path_prefix}/batch_load.html.erb"
     create_file f
     index_block = ERB.new(File.open(find_in_source_paths('index.tt')).read)
     append_to_file f, index_block.result(binding)
@@ -31,12 +31,12 @@ class Taxonworks::BatchLoadGenerator < Rails::Generators::Base
 
   def add_views
     %w{_batch_load _form create preview}.each do |t|
-      template "views/#{t}", "app/views/#{table_name}/batch_load/#{batch_loader_name}/#{t}.html.erb"
+      template "views/#{t}", "app/views/#{model_path_prefix}/batch_load/#{batch_loader_name}/#{t}.html.erb"
     end
   end
 
   def add_controller_stubs
-    f = "app/controllers/#{table_name}_controller.rb"
+    f = "app/controllers/#{model_path_prefix}_controller.rb"
     actions_block = ERB.new(File.open(find_in_source_paths('actions.tt')).read)
     inject_into_class f, model_controller, actions_block.result(binding)
   end
@@ -60,12 +60,16 @@ class Taxonworks::BatchLoadGenerator < Rails::Generators::Base
     "BatchLoad::Import::#{model_name.pluralize}::#{interpreter_class}"
   end
 
+  def model_path_prefix
+    table_name
+  end
+
   def table_name 
-    "#{model_name.tableize}"
+    model_name.tableize
   end
 
   def cookie_name
-    batch_loader_name + '_batch_load_' + table_name + '_md5'
+    "#{batch_loader_name}_batch_load_#{table_name}_md5"
   end
 
   def model_controller
