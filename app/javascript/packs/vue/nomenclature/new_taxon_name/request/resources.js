@@ -71,7 +71,9 @@ const removeTaxonSource = function(id) {
 const changeTaxonSource = function(taxonId, sourceId) {
   return new Promise(function (resolve, reject) {
     let data = { 
+
       taxon_name: {
+        id: taxonId,
         origin_citation_attributes: {
           source_id: sourceId
         }
