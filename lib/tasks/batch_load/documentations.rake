@@ -5,9 +5,8 @@ namespace :tw do
       # Format
       #   rake tw:batch_load:documentations data_directory="/chromatograms/" meta_data_file="/chromatograms.csv project_id=1 user_id=2"
       # 
-      # The expected format for the meta data file is to be tab delimitted with 3 columns of "namespace_short_name", "identifier", and "filenames"
-      # namespace_short_name contains the short name of the namespace
-      # identifier contains the text of the identifier
+      # The expected format for the meta data file is to be tab delimitted with 2 columns of "identifier" and "filenames"
+      # identifier contains the namespace short name and text of the identifier e.g. "DRM 12345"
       # filenames contains the filenames of the files to be attached, multiple files can be in this field if separated by a ", "
       desc '
         Imports files in the filenames column as documents and attaches 
@@ -29,11 +28,10 @@ namespace :tw do
         documentations_created = 0
 
         csv.each do |row|
-          namespace_short_name = row["namespace_short_name"]
           identifier = row["identifier"]
           filenames = row["filenames"].split(", ")
-          
-          identifier_objects = Identifier.where(cached: "#{namespace_short_name} #{identifier}")
+
+          identifier_objects = Identifier.where(cached: identifier)
           identifier_object = nil
           identifier_object = identifier_objects.first.identifier_object if identifier_objects.any?
 
@@ -49,9 +47,11 @@ namespace :tw do
                 documentation.save!
                 documentations_created += 1
               else
-                puts "File #{file_path} does not exist".green
+                puts "File \"#{file_path}\" does not exist".yellow
               end
             end
+          else
+            puts "Object with identifier \"#{identifier}\" not found".yellow
           end
         end
 
