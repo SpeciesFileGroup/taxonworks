@@ -16,6 +16,7 @@ namespace :tw do
       task :import => [:environment, :project_id, :user_id] do
         data_directory_path = ENV["data_directory"]
         meta_data_file_path = ENV["meta_data_file"]
+        transaction_total = ENV["transaction_total"] || 20
 
         raise "Path to data directory not provided".red if data_directory_path.nil?
         raise "Data directory does not exist at #{data_directory_path}".red unless File.directory?(data_directory_path)
@@ -26,32 +27,51 @@ namespace :tw do
 
         puts "Processing files".yellow
         documentations_created = 0
+        rows_processed = 0
 
-        csv.each do |row|
-          identifier = row["identifier"]
-          filenames = row["filenames"].split(", ")
+        csv.each_slice(transaction_total) do |row_group|
+          begin
+            ActiveRecord::Base.transaction do
+              row_group.each do |row|
+                rows_processed += 1
+                identifier = row["identifier"]
+                filenames = row["filenames"].split(", ")
 
-          identifier_objects = Identifier.where(cached: identifier)
-          identifier_object = nil
-          identifier_object = identifier_objects.first.identifier_object if identifier_objects.any?
+                identifier_objects = Identifier.where(cached: identifier)
+                identifier_object = nil
+                identifier_object = identifier_objects.first.identifier_object if identifier_objects.any?
 
-          if !identifier_object.nil?
-            filenames.each do |filename|
-              file_path = File.join(data_directory_path, filename)
+                if !identifier_object.nil?
+                  filenames.each do |filename|
+                    file_path = File.join(data_directory_path, filename)
 
-              if File.exists?(file_path)
-                document = Document.new(document_file: File.open(file_path))
-                document.save!
+                    if File.exists?(file_path)
+                      document = Document.new(document_file: File.open(file_path))
 
-                documentation = Documentation.new(document: document, documentation_object: identifier_object)
-                documentation.save!
-                documentations_created += 1
-              else
-                puts "File \"#{file_path}\" does not exist".yellow
+                      if document.valid?
+                        document.save!
+                        documentation = Documentation.new(document: document, documentation_object: identifier_object)
+
+                        if documentation.valid?
+                          documentation.save!
+                          documentations_created += 1
+                        else
+                          puts "Documentation invalid on row #{rows_processed} - #{documentation.errors.full_messages.join("; ")}".red
+                        end
+                      else
+                        puts "Document invalid on row #{rows_processed} - #{document.errors.full_messages.join("; ")}".red
+                      end
+                    else
+                      puts "File \"#{filename}\" not found on row #{rows_processed}".yellow
+                    end
+                  end
+                else
+                  puts "Object with identifier \"#{identifier}\" not found on row #{rows_processed}".yellow
+                end
               end
             end
-          else
-            puts "Object with identifier \"#{identifier}\" not found".yellow
+          rescue ActiveRecord::RecordInvalid
+            raise "Transaction aborted, this group of records not stored because row #{rows_processed} failed."
           end
         end
 
