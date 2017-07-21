@@ -25,7 +25,7 @@ namespace :tw do
 
         csv = CSV.parse(File.read(meta_data_file_path), { headers: true, col_sep: "\t" })
 
-        puts "Processing files".yellow
+        puts Rainbow("Processing files").yellow
         documents_created = 0
         documentations_created = 0
         rows_processed = 0
@@ -40,7 +40,7 @@ namespace :tw do
                 identifier = Identifier.find_by(cached: identifier_text)
 
                 if identifier.nil?
-                  puts "Object with identifier \"#{identifier_text}\" not found on row #{rows_processed}".yellow
+                  puts Rainbow("Object with identifier \"#{identifier_text}\" not found on row #{rows_processed}").yellow
                 else
                   identifier_object = identifier.identifier_object
 
@@ -59,10 +59,10 @@ namespace :tw do
                           document.save!
                           documents_created += 1
                         else
-                          puts "Document invalid on row #{rows_processed} - #{document.errors.full_messages.join("; ")}".red
+                          puts Rainbow("Document invalid on row #{rows_processed} - #{document.errors.full_messages.join("; ")}").red
                         end
                       else
-                          puts "Document already exists on row #{rows_processed}".yellow                        
+                          puts Rainbow("Document already exists on row #{rows_processed}").yellow                        
                       end
 
                       # If document exists and has been saved, create documentation with it
@@ -78,14 +78,14 @@ namespace :tw do
                             documentation.save!
                             documentations_created += 1
                           else
-                            puts "Documentation invalid on row #{rows_processed} - #{documentation.errors.full_messages.join("; ")}".red
+                            puts Rainbow("Documentation invalid on row #{rows_processed} - #{documentation.errors.full_messages.join("; ")}").red
                           end
                         else
-                          puts "Documentation already exists with this document/identifier_object pair on row #{rows_processed}".yellow
+                          puts Rainbow("Documentation already exists with this document/identifier_object pair on row #{rows_processed}").yellow
                         end
                       end
                     else
-                      puts "File \"#{filename}\" not found on row #{rows_processed}".yellow
+                      puts Rainbow("File \"#{filename}\" not found on row #{rows_processed}").yellow
                     end
                   end
                 end
@@ -96,8 +96,8 @@ namespace :tw do
           end
         end
 
-        puts "Finished processing files".yellow
-        puts "Created #{documentations_created} documentations and #{documents_created} documents".green
+        puts Rainbow("Finished processing files").yellow
+        puts Rainbow("Created #{documentations_created} documentations and #{documents_created} documents").green
       end
     end
   end
