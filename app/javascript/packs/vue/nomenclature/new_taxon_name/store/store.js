@@ -14,6 +14,7 @@ function makeInitialState() {
       global_id: undefined,
       parent_id: undefined,
       name: undefined,
+      rank: undefined,
       rank_class: undefined,
       year_of_publication: undefined,
       verbatim_author: undefined,

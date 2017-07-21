@@ -23,7 +23,7 @@
         <spinner :showSpinner="false" :showLegend="false" v-if="!getTaxon.id"></spinner>
         <original-combination class="separate-top separate-bottom"></original-combination>
       </div>
-      <div class="new-taxon-name-block">
+      <div class="new-taxon-name-block" v-if="getTaxon.id && (['species','genus'].indexOf(getTaxon.rank) > -1)">
         <spinner :showSpinner="false" :showLegend="false" v-if="!getTaxon.id"></spinner>
         <etymology class="separate-top separate-bottom"></etymology>
       </div>
