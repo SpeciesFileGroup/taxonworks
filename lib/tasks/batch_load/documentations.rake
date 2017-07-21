@@ -26,6 +26,7 @@ namespace :tw do
         csv = CSV.parse(File.read(meta_data_file_path), { headers: true, col_sep: "\t" })
 
         puts "Processing files".yellow
+        documents_created = 0
         documentations_created = 0
         rows_processed = 0
 
@@ -34,39 +35,59 @@ namespace :tw do
             ActiveRecord::Base.transaction do
               row_group.each do |row|
                 rows_processed += 1
-                identifier = row["identifier"]
+                identifier_text = row["identifier"]
                 filenames = row["filenames"].split(", ")
+                identifier = Identifier.find_by(cached: identifier_text)
 
-                identifier_objects = Identifier.where(cached: identifier)
-                identifier_object = nil
-                identifier_object = identifier_objects.first.identifier_object if identifier_objects.any?
+                if identifier.nil?
+                  puts "Object with identifier \"#{identifier_text}\" not found on row #{rows_processed}".yellow
+                else
+                  identifier_object = identifier.identifier_object
 
-                if !identifier_object.nil?
                   filenames.each do |filename|
                     file_path = File.join(data_directory_path, filename)
 
                     if File.exists?(file_path)
-                      document = Document.new(document_file: File.open(file_path))
+                      # Check if the document already exists
+                      document = Document.find_by(document_file_fingerprint: Digest::MD5.file(file_path).hexdigest)
+                      
+                      # If document doesn't exist, create it
+                      if document.nil?
+                        document = Document.new(document_file: File.open(file_path))
 
-                      if document.valid?
-                        document.save!
-                        documentation = Documentation.new(document: document, documentation_object: identifier_object)
-
-                        if documentation.valid?
-                          documentation.save!
-                          documentations_created += 1
+                        if document.valid?
+                          document.save!
+                          documents_created += 1
                         else
-                          puts "Documentation invalid on row #{rows_processed} - #{documentation.errors.full_messages.join("; ")}".red
+                          puts "Document invalid on row #{rows_processed} - #{document.errors.full_messages.join("; ")}".red
                         end
                       else
-                        puts "Document invalid on row #{rows_processed} - #{document.errors.full_messages.join("; ")}".red
+                          puts "Document already exists on row #{rows_processed}".yellow                        
+                      end
+
+                      # If document exists and has been saved, create documentation with it
+                      if !document.nil? && document.persisted?
+                        # Check if documentation already exists with this rows document and identifier_object pair
+                        documentation = Documentation.find_by(document: document, documentation_object: identifier_object)
+
+                        # If documentation with this document/identifier_object pair doesn't exist, create it
+                        if documentation.nil?
+                          documentation = Documentation.new(document: document, documentation_object: identifier_object)
+
+                          if documentation.valid?
+                            documentation.save!
+                            documentations_created += 1
+                          else
+                            puts "Documentation invalid on row #{rows_processed} - #{documentation.errors.full_messages.join("; ")}".red
+                          end
+                        else
+                          puts "Documentation already exists with this document/identifier_object pair on row #{rows_processed}".yellow
+                        end
                       end
                     else
                       puts "File \"#{filename}\" not found on row #{rows_processed}".yellow
                     end
                   end
-                else
-                  puts "Object with identifier \"#{identifier}\" not found on row #{rows_processed}".yellow
                 end
               end
             end
@@ -76,7 +97,7 @@ namespace :tw do
         end
 
         puts "Finished processing files".yellow
-        puts "Created #{documentations_created} documentations".green
+        puts "Created #{documentations_created} documentations and #{documents_created} documents".green
       end
     end
   end
