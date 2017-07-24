@@ -1,7 +1,7 @@
 class TaxonNamesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse]
+  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination]
 
   # GET /taxon_names
   # GET /taxon_names.json
@@ -141,6 +141,10 @@ class TaxonNamesController < ApplicationController
   # GET /taxon_names/ranks.json
   def ranks
     render json: RANKS_JSON.to_json
+  end
+
+  # GET /taxon_names/:id/original_combination.json
+  def original_combination
   end
 
   private
