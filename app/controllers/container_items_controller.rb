@@ -26,10 +26,10 @@ class ContainerItemsController < ApplicationController
 
     respond_to do |format|
       if @container_item.save
-        format.html { redirect_to :back, notice: 'Container item was successfully created.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container item was successfully created.')}
         format.json { render json: @container_item, status: :created, location: @container_item }
       else
-        format.html { redirect_to :back, notice: 'Container item was NOT successfully created.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container item was NOT successfully created.')}
         format.json { render json: @container_item.errors, status: :unprocessable_entity }
       end
     end
@@ -40,10 +40,10 @@ class ContainerItemsController < ApplicationController
   def update
     respond_to do |format|
       if @container_item.update(container_item_params)
-        format.html { redirect_to :back, notice: 'Container item was successfully updated.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container item was successfully created.')}
         format.json { render json: @container_item, status: :ok, location: @container_item }
       else
-        format.html { redirect_to :back, notice: 'Container item was NOT successfully updated.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container item was NOT successfully updated.')}
         format.json { render json: @container_item.errors, status: :unprocessable_entity }
       end
     end
@@ -54,7 +54,7 @@ class ContainerItemsController < ApplicationController
   def destroy
     @container_item.destroy
     respond_to do |format|
-      format.html { redirect_to :back, notice: 'Container item was successfully destroyed.' }
+      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container item was successfully destroyed.')}
       format.json { head :no_content }
     end
   end
