@@ -59,19 +59,12 @@
       }
     },
     watch: {
-      parent: function(newVal, oldVal) {
-        let copyList = Object.assign({},this.treeList[this.nomenclaturalCode]);
-        
-        this.objectLists = Object.assign({}, this.makeLists());
-        this.objectLists.tree = Object.assign({}, copyList.tree);
-        
-        this.getStatusListForThisRank(copyList.all,this.parent.rank_string).then( resolve => {
-          this.objectLists.allList = resolve;
-          this.getTreeListForThisRank(this.objectLists.tree, copyList.all, resolve);
-        });
-        this.getStatusListForThisRank(copyList.common,this.parent.rank_string).then( resolve => {
-          this.objectLists.commonList = resolve;
-        });
+      parent: {
+        handler: function(newVal) {
+          if(newVal == null) return true
+          this.refresh();
+        },
+        immediate: true
       }
     },
     methods: {
@@ -81,6 +74,20 @@
           commonList: [],
           allList: [],
         }
+      },
+      refresh: function() {
+          let copyList = Object.assign({},this.treeList[this.nomenclaturalCode]);
+          
+          this.objectLists = Object.assign({}, this.makeLists());
+          this.objectLists.tree = Object.assign({}, copyList.tree);
+          
+          this.getStatusListForThisRank(copyList.all,this.parent.rank_string).then( resolve => {
+            this.objectLists.allList = resolve;
+            this.getTreeListForThisRank(this.objectLists.tree, copyList.all, resolve);
+          });
+          this.getStatusListForThisRank(copyList.common,this.parent.rank_string).then( resolve => {
+            this.objectLists.commonList = resolve;
+          });
       },
       getStatusListForThisRank(list, findStatus) {
         return new Promise(function (resolve, reject) {

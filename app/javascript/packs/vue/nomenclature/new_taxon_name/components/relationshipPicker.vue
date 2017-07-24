@@ -92,7 +92,19 @@
       }
     },
     watch: {
-      parent: function(newVal, oldVal) {
+      parent: {
+        handler: function(newVal) {
+          if(newVal == null) return true
+          this.refresh();
+        },
+        immediate: true
+      }
+    },
+    methods: {
+      existError: function(type) {
+        return (this.errors && this.errors.hasOwnProperty(type));
+      },
+      refresh: function() {
         let copyList = Object.assign({},this.treeList[this.nomenclaturalCode]);
         this.objectLists.tree = Object.assign({}, copyList.tree);
         this.objectLists.commonList = Object.assign({}, copyList.common);
@@ -100,11 +112,6 @@
         this.objectLists.allList = Object.keys(this.objectLists.allList).map(key => this.objectLists.allList[key])
         this.getTreeList(this.objectLists.tree, copyList.all);
         this.addType(this.objectLists.commonList);
-      }
-    },
-    methods: {
-      existError: function(type) {
-        return (this.errors && this.errors.hasOwnProperty(type));
       },
       makeLists: function() {
         return {
