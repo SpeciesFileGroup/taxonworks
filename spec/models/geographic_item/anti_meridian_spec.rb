@@ -22,7 +22,7 @@ describe GeographicItem, type: :model, group: :geo do
 
   # after(:all) { clean_slate_geo }
 
-  let(:shift_method) { PSQL_VERSION == '2.2' ? "ST_ShiftLongitude" : "ST_Shift_Longitude" }
+  let(:shift_method) { PSQL_VERSION >= 2.2 ? "ST_ShiftLongitude" : "ST_Shift_Longitude" }
 
   context 'anti-meridian' do
     # Containers left side/object/A component of ST_Contains(A, B)
