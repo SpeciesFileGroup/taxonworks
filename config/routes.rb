@@ -463,10 +463,11 @@ TaxonWorks::Application.routes.draw do
       post :create_simple_batch_load
       get :ranks, {format: :json}
     end
+
     member do
       get :browse
+      get :original_combination, defaults: {format: :json}
     end
-    
   end
 
   resources :taxon_name_classifications, except: [:show] do
