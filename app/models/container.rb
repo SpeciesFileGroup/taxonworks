@@ -39,14 +39,15 @@ class Container < ApplicationRecord
 
   # @return [ContainerItem Scope]
   #    return all ContainerItems contained in this container (non recursive)
+  # TODO: fix Please call `reload_container_item` instead. (called from container_items at /Users/jrflood/src/taxonworks/app/models/container.rb:43)
   def container_items
-    container_item(true).try(:children) || ContainerItem.none
+    reload_container_item.try(:children) || ContainerItem.none
   end
 
   # @return [ContainerItem Scope]
   #   return all ContainerItems contained in this container (recursive)
   def all_container_items
-    container_item(true).try(:descendants) || ContainerItem.none
+    creload_container_item.try(:descendants) || ContainerItem.none
   end
 
   # @return [Array]
