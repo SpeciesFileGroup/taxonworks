@@ -47,20 +47,20 @@ class Container < ApplicationRecord
   # @return [ContainerItem Scope]
   #   return all ContainerItems contained in this container (recursive)
   def all_container_items
-    creload_container_item.try(:descendants) || ContainerItem.none
+    reload_container_item.try(:descendants) || ContainerItem.none
   end
 
   # @return [Array]
   #   return all #contained_object(s) (non-recursive)
   def contained_objects
-    return [] if !container_item(true)
+    return [] if !reload_container_item
     container_item.children.map(&:contained_object)
   end
 
   # @return [Array]
   #   return all #contained_object(s) (recursive)
   def all_contained_objects
-    return [] if !container_item(true)
+    return [] if !reload_container_item
     container_item.descendants.map(&:contained_object)
   end
 
