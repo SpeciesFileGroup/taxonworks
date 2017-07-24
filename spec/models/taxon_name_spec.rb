@@ -97,8 +97,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     context 'validation' do
       before { taxon_name.valid? }
 
-      specify 'sets type to Protonym if not provided' do
-        expect(taxon_name.type).to eq('Protonym')
+      specify 'type is required, do not instantiate TaxonName' do
+        expect(taxon_name.errors.include?(:type)).to be_truthy
       end 
 
       context 'proper taxon rank' do

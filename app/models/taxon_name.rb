@@ -129,6 +129,7 @@ class TaxonName < ActiveRecord::Base
   include SoftValidation
   include Shared::AlternateValues
 
+  # Allows users to provide arbitrary annotations that "over-ride" rank string
   ALTERNATE_VALUES_FOR = [:rank_class].freeze # don't even think about putting this on #name
 
   EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS = [
@@ -157,13 +158,17 @@ class TaxonName < ActiveRecord::Base
   #   When true cached values are not built
   attr_accessor :no_cached
 
-  before_validation :set_type_if_empty
+  # Deprecated
+  # before_validation :set_type_if_empty
 
   before_save :set_cached_names
-  after_save :create_new_combination_if_absent, unless: 'self.no_cached'
+
   after_save :set_cached_names_for_dependants_and_self, unless: 'self.no_cached' # !!! do we run set cached names 2 x !?!
+
   after_save :set_cached_valid_taxon_name_id
-  
+
+  after_create :create_otu,  if: 'self.also_create_otu'
+
   before_destroy :check_for_children, prepend: true
 
   validate :validate_rank_class_class,
@@ -624,9 +629,10 @@ class TaxonName < ActiveRecord::Base
 
   #region Set cached fields
 
-  def set_type_if_empty
-    type = 'Protonym' if type.nil? || type == 'TaxonName'
-  end
+  # Deprecated
+  # def set_type_if_empty
+  #   type = 'Protonym' if type.nil? || type == 'TaxonName'
+  # end
 
   def set_cached_names
     if self.no_cached
@@ -645,98 +651,64 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  def create_new_combination_if_absent
-    return true unless self.type == 'Protonym'
-    if !TaxonName.with_cached_html(self.cached_html).count == 0
-      begin
-        TaxonName.transaction do
-          c = Combination.new
-          safe_self_and_ancestors.each do |i|
-            case i.rank
-              when 'genus'
-                c.genus = i
-              when 'subgenus'
-                c.subgenus = i
-              when 'species'
-                c.species = i
-              when 'subspecies'
-                c.subspecies = i
-            end
-          end
-          c.save
-        end
-      rescue
-      end
-      false
-    end
-  end
+  
 
+  # Set in Protonym and Combination
   def set_cached_valid_taxon_name_id
-    true # set in protonym and combination
+    true 
   end
 
   def set_cached_names_for_dependants_and_self
     dependants = []
-    original_combination_relationships = []
+    related_through_original_combination_relationships = []
     combination_relationships = []
-    
-    begin
-      TaxonName.transaction do
 
-        if rank_string =~/Species|Genus/
-          dependants = Protonym.descendants_of(self).to_a # self.descendant_protonyms 
-          original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
-          combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
-        end
+    # begin
+    TaxonName.transaction do
 
-        dependants.push(self)
-        classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
-        hybrid_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('Hybrid')
-
-        unless dependants.empty?
-          dependants.each do |i|
-            i.update_columns(cached: i.get_full_name,
-                             cached_html: i.get_full_name_html)
-            if i.rank_string =~ /Species/
-              i.update_columns(:cached_secondary_homonym => i.get_genus_species(:current, :self),
-                               :cached_secondary_homonym_alternative_spelling => i.get_genus_species(:current, :alternative))
-            end
-          end
-        end
-
-        unless original_combination_relationships.empty?
-          related_taxa = original_combination_relationships.collect{|i| i.object_taxon_name}.uniq
-          related_taxa.each do |i|
-            i.update_cached_original_combinations
-          end
-        end
-
-        unless combination_relationships.empty?
-          related_taxa = combination_relationships.collect{|i| i.object_taxon_name}.uniq
-          related_taxa.each do |i|
-            i.update_columns(cached: i.get_full_name,
-                             cached_html: i.get_full_name_html)
-          end
-        end
-
-        unless classified_as_relationships.empty?
-          related_taxa = classified_as_relationships.collect{|i| i.subject_taxon_name}.uniq
-          related_taxa.each do |i|
-            i.update_column(:cached_classified_as, i.get_cached_classified_as)
-          end
-        end
-
-        unless hybrid_relationships.empty?
-          related_taxa = classified_as_relationships.collect{|i| i.object_taxon_name}.uniq
-          related_taxa.each do |i|
-            i.update_columns(cached: i.get_full_name,
-                             cached_html: i.get_full_name_html)
-          end
-        end
-
+      if rank_string =~/Species|Genus/
+        dependants = Protonym.descendants_of(self).to_a # self.descendant_protonyms 
+        related_through_original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
+        combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
       end
-      rescue
-    end
+
+      dependants.push(self)
+      classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
+      hybrid_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('Hybrid')
+
+      dependants.each do |i|
+        i.update_columns(cached: i.get_full_name,
+                         cached_html: i.get_full_name_html)
+        if i.rank_string =~ /Species/
+          i.update_columns(cached_secondary_homonym: i.get_genus_species(:current, :self),
+                           cached_secondary_homonym_alternative_spelling: i.get_genus_species(:current, :alternative))
+        end
+      end
+
+      related_through_original_combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
+        i.update_cached_original_combinations
+      end
+
+      combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
+        i.update_columns(
+          cached: i.get_full_name,
+          cached_html: i.get_full_name_html)
+      end
+
+      classified_as_relationships.collect{|i| i.subject_taxon_name}.uniq.each do |i|
+        i.update_column(:cached_classified_as, i.get_cached_classified_as)
+      end
+
+      classified_as_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
+        i.update_columns(
+          cached: i.get_full_name,
+          cached_html: i.get_full_name_html
+        )
+      end
+
+    end 
+    #    rescue # Don't rescue without a specific Error
+    #    end
   end
 
   def update_cached_original_combinations
@@ -771,16 +743,15 @@ class TaxonName < ActiveRecord::Base
 
   def get_cached_misspelling
     misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Usage::Misspelling')
-    #misspelling = TaxonName.as_subject_with_taxon_name_relationship_containing('::Usage::Misspelling')
     misspelling.empty? ? nil : true
   end
 
   def is_protonym?
-    self.type == 'Protonym'
+    type == 'Protonym'
   end
 
   def is_combination?
-    self.type == 'Combination' 
+    type == 'Combination' 
   end
 
   # Returns an Array of ancestors
@@ -972,7 +943,7 @@ class TaxonName < ActiveRecord::Base
     str = nil
 
     if GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) && is_protonym?
-      relationships = self.original_combination_relationships(true) # force a reload of the relationships
+      relationships = original_combination_relationships(true) # force a reload of the relationships
 
       return nil if relationships.count == 0
 
@@ -1071,8 +1042,8 @@ class TaxonName < ActiveRecord::Base
 
   # return [String]
   #   the author and year of the name, adds parenthesis where asserted
+  #   abstract, see Protonym and Combination
   def get_author_and_year
-    # see protonym and combination
     true
   end
 
@@ -1196,6 +1167,10 @@ class TaxonName < ActiveRecord::Base
     else
       nil 
     end
+  end
+
+  def create_otu
+    Otu.create(by: self.creator, project: self.project, taxon_name_id: self.id)
   end
 
   protected

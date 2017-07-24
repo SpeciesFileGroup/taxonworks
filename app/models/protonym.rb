@@ -32,7 +32,8 @@ class Protonym < TaxonName
     :name_is_latinized,
     :name_is_valid_format
 
-  after_create :create_otu,  if: 'self.also_create_otu'
+  after_save :create_new_combination_if_absent, unless: 'self.no_cached'
+
 
   has_one :type_taxon_name_relationship, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
@@ -50,6 +51,7 @@ class Protonym < TaxonName
 
   has_many :type_of_taxon_names, through: :type_of_relationships, source: :object_taxon_name
 
+  # TODO: how come this is object_taxon_name and cached in TaxonName maps to subject?!
   has_many :original_combination_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
@@ -126,7 +128,7 @@ class Protonym < TaxonName
   scope :with_project, -> (project_id) {where(project_id: project_id)}
 
   # TODO: isn't this the way to do it now? (It does not work, may need extra investigation. DD)
-#   scope :that_is_valid, -> {where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') }
+  #   scope :that_is_valid, -> {where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') }
 
   scope :that_is_valid, -> {
     joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
@@ -295,8 +297,8 @@ class Protonym < TaxonName
     taxon1_types.map(&:biological_object_id) == taxon2_types.map(&:biological_object_id) # collect{|i| i.biological_object_id} 
   end
 
-  # return [Array of TaxonNameRelationship]
-  #   classes that are applicable to this name, as deterimined by Rank
+  # return [Array]
+  #  TaxonNameRelationship classes that are applicable to this name, as deterimined by Rank
   def original_combination_class_relationships
     relations = []
     TaxonNameRelationship::OriginalCombination.descendants.each do |r|
@@ -305,6 +307,8 @@ class Protonym < TaxonName
     relations
   end
 
+  # @return [Array]
+  #   A relationships for each possible original combination relationship
   def original_combination_relationships_and_stubs
     # TODO: figure out where to really put this, likely in one big sort
     display_order = [
@@ -324,7 +328,6 @@ class Protonym < TaxonName
     }
   end
 
-
   # @return [Boolean]
   #   whether this name has one of the TaxonNameClassifications that except it from being tested as latinized
   def has_latinized_exceptions?
@@ -332,10 +335,8 @@ class Protonym < TaxonName
     # !((type == 'Protonym') && (taxon_name_classifications.collect{|t| t.type} & EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?)
 
     # Is faster than above?
-    if type == 'Protonym'
-      taxon_name_classifications.each do |tc| # ! find_each
-        return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
-      end
+    taxon_name_classifications.each do |tc| # ! find_each
+      return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
     end
     false
   end
@@ -446,6 +447,32 @@ class Protonym < TaxonName
     return n
   end
 
+
+  def create_new_combination_if_absent
+    if !TaxonName.with_cached_html(self.cached_html).count == 0
+      begin
+        TaxonName.transaction do
+          c = Combination.new
+          safe_self_and_ancestors.each do |i|
+            case i.rank
+              when 'genus'
+                c.genus = i
+              when 'subgenus'
+                c.subgenus = i
+              when 'species'
+                c.species = i
+              when 'subspecies'
+                c.subspecies = i
+            end
+          end
+          c.save
+        end
+      rescue ActiveRecord::RecordInvalid
+      end
+      false
+    end
+  end
+
   protected
 
   def name_is_latinized
@@ -454,10 +481,6 @@ class Protonym < TaxonName
 
   def name_is_valid_format
     rank_class.validate_name_format(self) if rank_class && rank_class.respond_to?(:validate_name_format) && !has_latinized_exceptions?
-  end
-
-  def create_otu
-    Otu.create(by: self.creator, project: self.project, taxon_name_id: self.id)
   end
 
   #region Validation
@@ -532,13 +555,12 @@ class Protonym < TaxonName
   end
 
   def set_cached_valid_taxon_name_id
-    begin
-      TaxonName.transaction do
-        self.update_column(:cached_valid_taxon_name_id, self.get_valid_taxon_name.id)
-        #self.valid_taxon_name = get_valid_taxon_name
-      end
-    rescue
+    #begin
+    TaxonName.transaction do
+      self.update_column(:cached_valid_taxon_name_id, self.get_valid_taxon_name.id)
     end
+    # rescue  
+    # end
   end
 
   #endregion
