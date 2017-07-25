@@ -6,13 +6,7 @@
 			<expand @changed="expanded = !expanded" :expanded="expanded"></expand>
 		</div>
 		<div class="body" v-if="expanded">
-		<draggable v-model="current" :options="{ sort: false, group: { name: 'combination', put: false }}">
-	    	<li v-for="item in current" class="no_bullets">
-	    		<input disabled class="row" :value="taxonName" />
-	    		<span class="handle" data-icon="scroll-v"></span>
-	    	</li>
-    	</draggable>
-	    <div class="flexbox original-combination">
+	    <div class="original-combination">
 		    <div class="flex-wrap-column rank-name-label">
 			    <label class="row">Genus</label>
 			    <label class="row">Subgenus</label>
@@ -21,8 +15,9 @@
 			    <label class="row">Variety</label>
 			    <label class="row">Form</label>
 		    </div>
-			    <draggable class="flex-wrap-column" v-model="ranks" :options="{ animation: 150, group: { name: 'combination', put: true }}" @add="onAdd">
-			    	<li v-for="item, index in ranks" class="no_bullets" v-if="item.show" :key="item.id">
+		    <div>
+			    <draggable class="flex-wrap-column" v-model="genus" :options="options" :move="onMove">
+			    	<div v-for="item, index in genus" :class="{ 'item-filter' : (taxon.rank == 'genus')}" class="no_bullets item-draggable" v-if="(genus[index].value.length == 0)" :key="item.id">
 					    <autocomplete  
 					    	:get-object="item.autocomplete"
 					        url="/taxon_names/autocomplete"
@@ -31,26 +26,50 @@
 					        time="0"
 					        v-model="item.autocomplete"
 					        eventSend="autocompleteTaxonSelected"
-					        :addParams="{ type: 'Protonym' }"
+					        :addParams="{ type: 'Protonym', 'nomenclature_group[]': 'Genus' }"
 					        param="term">
 					    </autocomplete>
 					    <span class="handle" data-icon="scroll-v"></span>
-				    </li>
-				    <li class="no_bullets" v-else :key="item.id">
+				    </div>
+				    <div class="no_bullets item-draggable item-filter" v-else :key="item.id">
+						<span v-html="showLabel(genus[index].value)"></span>
+				    </div>
+			    </draggable>
+			    <draggable class="flex-wrap-column" v-model="species" :options="options" :move="onMove">
+			    	<div v-for="item, index in species" class="no_bullets item-draggable" v-if="item.show" :key="item.id">
+					    <autocomplete
+					    	:get-object="item.autocomplete"
+					        url="/taxon_names/autocomplete"
+					        label="label"
+					        min="3"
+					        time="0"
+					        v-model="item.autocomplete"
+					        eventSend="autocompleteTaxonSelected"
+					        :addParams="{ type: 'Protonym', 'nomenclature_group[]': 'Species' }"
+					        param="term">
+					    </autocomplete>
+					    <span class="handle" data-icon="scroll-v"></span>
+				    </div>
+				    <div class="no_bullets item-draggable" v-else :key="item.id">
 				    	<div class="vue-autocomplete">
-					    	<input disabled class="current-name" type="text" :value="taxonName" >
+					    	<input disabled class="current-name" type="text" :value="taxon.name" >
 				    	</div>
 				    	<span class="handle" data-icon="scroll-v"></span>
-				    </li>
+				    </div>
 			    </draggable>
+			    </div>
 			</div>
 		</div>
 	</form>
 </template>
 <script>
+
+	//TODO: I should pass as props species, genus and originaltypes to not repeat code.
+
   	const draggable = require('vuedraggable');
 	const GetterNames = require('../store/getters/getters').GetterNames;
-	const MutationNames = require('../store/mutations/mutations').MutationNames;  
+	const MutationNames = require('../store/mutations/mutations').MutationNames; 
+	const ActionNames = require('../store/actions/actions').ActionNames;  
 	const autocomplete = require('../../../components/autocomplete.vue');
 	const expand = require('./expand.vue');
 
@@ -61,32 +80,126 @@
 			expand
 		},
 		computed: {
-			taxonName() {
-				return this.$store.getters[GetterNames.GetTaxonName]
+			taxon() {
+				return this.$store.getters[GetterNames.GetTaxon]
+			},
+			originalCombination() {
+				return this.$store.getters[GetterNames.GetOriginalCombination]
 			}
 		},
 		data: function() { 
 			return {
+				options: {
+					animation: 150, 
+					group: { 
+						name: 'combination', 
+						put: true,
+						pull: false
+					},
+					filter: '.item-filter'
+				},
 				expanded: true,
-				ranks: [ 
-					{ name: 'Field 0', show: true, class: 'rank-item', autocomplete: undefined, id: 1 }, 
-					{ name: 'Field 1', show: true, class: 'rank-item', autocomplete: undefined, id: 2 }, 
-					{ name: 'Field 2', show: true, class: 'rank-item', autocomplete: undefined, id: 3 }, 
-					{ name: 'Field 3', show: true, class: 'rank-item', autocomplete: undefined, id: 4 } , 
-					{ name: 'Field 4', show: true, class: 'rank-item', autocomplete: undefined, id: 5 }, 
-					{ name: 'Field 5', show: true, class: 'rank-item', autocomplete: undefined, id: 6 } 
+				genus: [ 
+					{ name: 'genus', value: '', show: true, autocomplete: undefined, id: 1 }, 
+					{ name: 'subgenus', value: '', show: true, autocomplete: undefined, id: 2 }, 
 					],
-				current: [ { name: 'Current', show: false, class: 'current-name', id: 0 } ],
-				detachObject: undefined
+				species: [ 
+					{ name: 'species', value: '', show: true, autocomplete: undefined, id: 1 }, 
+					{ name: 'subspecies', value: '', show: true, autocomplete: undefined, id: 2 }, 
+					{ name: 'variety', value: '', show: true, autocomplete: undefined, id: 3 }, 
+					{ name: 'form', value: '', show: true, autocomplete: undefined, id: 4 } 
+					],
+				copyGenus: undefined,
+				copySpecies:undefined,
+				originalGenusType: [
+					'TaxonNameRelationship::OriginalCombination::OriginalGenus',
+					'TaxonNameRelationship::OriginalCombination::OriginalSubgenus',
+				],
+				originalSpeciesType: [
+					'TaxonNameRelationship::OriginalCombination::OriginalSpecies',
+					'TaxonNameRelationship::OriginalCombination::OriginalSubspecies',
+					'TaxonNameRelationship::OriginalCombination::OriginalVariety',
+					'TaxonNameRelationship::OriginalCombination::OriginalForm'
+				],
+
+			}
+		},
+		created: function() {
+			this.copyGenus = JSON.parse(JSON.stringify(this.genus));
+			this.copySpecies = JSON.parse(JSON.stringify(this.species));
+		},
+		watch: {
+			taxon: { 
+				handler: function(taxon) {
+					if(taxon.id == undefined) return true
+					this.loadCombinations(taxon.id);
+				},
+				immediate: true
+			},
+			originalCombination: {
+				handler: function(newVal, oldVal) {
+					if(newVal == undefined) return true
+					this.SetOriginalCombination(newVal);
+				},
+				immediate: true			
+			},
+			genus: {
+				handler: function(newVal,oldVal) {
+					if (JSON.stringify(newVal) == JSON.stringify(this.copyGenus)) return true
+					this.copyGenus = this.searchForChanges(newVal, this.copyGenus, this.originalGenusType);
+				},
+				deep: true
+			},
+			species: {
+				handler: function(newVal,oldVal) {
+					if (JSON.stringify(newVal) == JSON.stringify(this.copySpecies)) return true
+					this.copySpecies = this.searchForChanges(newVal, this.copySpecies, this.originalSpeciesType);
+				},
+				deep: true
 			}
 		},
 		methods: {
-			onAdd: function(evt) {
-				if((this.ranks.length-1) == evt.newIndex) {
-					this.detachObject = this.ranks.splice((evt.newIndex-1), 1);
+			searchForChanges: function(newVal, copyOld, originalTypes) {
+				var that = this;
+				newVal.forEach(function(element, index) {
+					if(JSON.stringify(newVal[index]) != JSON.stringify(copyOld[index])) {
+						if(JSON.stringify(newVal[index].id) != JSON.stringify(copyOld[index].id)) {
+							console.log("Change ID position");
+						}
+						else if(JSON.stringify(newVal[index].autocomplete) != JSON.stringify(copyOld[index].autocomplete)) {
+							console.log("Change content: " + index);
+							that.addOriginalCombination(newVal[index], index, originalTypes);
+						}
+					}
+				});
+				return JSON.parse(JSON.stringify(newVal));
+			},
+			addOriginalCombination: function(element, index, originalTypes) {
+				var data = {
+					type: originalTypes[index],
+					id: element.autocomplete.id
 				}
-				this.detachObject = this.ranks.splice((evt.newIndex+1), 1);
-			}
+				this.$store.dispatch(ActionNames.AddOriginalCombination, data);
+			},
+			SetOriginalCombination: function(newCombination) {
+				this.genus[0].value = (newCombination.hasOwnProperty('original_genus') ? newCombination.original_genus : '');
+				this.genus[1].value = (newCombination.hasOwnProperty('original_subgenus') ? newCombination.original_subgenus : '');
+				this.species[0].value = (newCombination.hasOwnProperty('original_species') ? newCombination.original_species : '');
+				this.species[1].value = (newCombination.hasOwnProperty('original_subspecies') ? newCombination.original_subspecies : '');
+				this.species[2].value = (newCombination.hasOwnProperty('original_variety') ? newCombination.original_variety : '');
+				this.species[3].value = (newCombination.hasOwnProperty('original_form') ? newCombination.original_form : '');
+			},
+			showLabel: function(label) {
+				return (label && label.hasOwnProperty('object_tag') ? label.object_tag : '')
+			},
+		    onMove: function(evt) {
+		         return !evt.related.classList.contains('item-filter');
+		    },
+			loadCombinations: function(id) {
+				this.$http.get(`/taxon_names/${id}/original_combination.json`).then( response => {
+					this.$store.commit(MutationNames.SetOriginalCombination, response.body);
+				});
+			},
 		}
 	}
 </script>

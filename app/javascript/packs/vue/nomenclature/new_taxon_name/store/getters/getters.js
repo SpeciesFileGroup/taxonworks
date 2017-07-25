@@ -18,6 +18,7 @@ const GetterNames = {
 	GetNomenclaturalCode: 'getNomenclaturalCode',
 	GetSoftValidation: 'getSoftValidation',
 	GetHardValidation: 'getHardValidation',
+	GetOriginalCombination: 'getOriginalCombination',
 	GetCitation: 'getCitation',
 	GetEtymology: 'getEtymology'
 };
@@ -40,6 +41,7 @@ const GetterFunctions = {
 	[GetterNames.GetParentRankGroup]: require('./getParentRankGroup'),
 	[GetterNames.GetTaxonYearPublication]: require('./getTaxonYearPublication'),
 	[GetterNames.GetNomenclaturalCode]: require('./getNomenclaturalCode'),
+	[GetterNames.GetOriginalCombination]: require('./getOriginalCombination'),
 	[GetterNames.GetSoftValidation]: require('./getSoftValidation'),
 	[GetterNames.GetHardValidation]: require('./getHardValidation'),
 	[GetterNames.GetCitation]: require('./getCitation'),

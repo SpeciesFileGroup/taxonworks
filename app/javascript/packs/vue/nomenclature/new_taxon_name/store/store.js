@@ -53,6 +53,7 @@ function makeInitialState() {
     status: [],
     relationships: [],
     allRanks: [],
+    original_combination: []
   };
 }
 
