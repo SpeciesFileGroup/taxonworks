@@ -8,9 +8,7 @@ module BatchLoad
     end
 
     def build_collecting_events
-      # Castor          CTR
       # DRMFieldNumbers DRMFN
-      namespace_castor = Namespace.find_by(name: 'Castor')
       namespace_drm_field_numbers = Namespace.find_by(name: 'DRMFieldNumbers')
 
       @total_data_lines = 0
@@ -34,22 +32,21 @@ module BatchLoad
           ce_identifier_drm_field_numbers_text = "#{row['locality_code_prefix']}#{row['locality_code_string']}" if row["locality_code_prefix"] != "NONE"
       
           # Identifiers
-          ce_identifier_castor = { 
-            namespace: namespace_castor,
-            type: 'Identifier::Local::CollectingEvent',
+          ce_identifier_castor = {
+            type: 'Identifier::Global::Uri',
             identifier: ce_identifier_castor_text 
           }
                                           
           ce_identifier_drm_field_numbers = { 
             namespace: namespace_drm_field_numbers,
-            type: 'Identifier::Local::CollectingEvent',
+            type: 'Identifier::Local::TripCode',
             identifier: ce_identifier_drm_field_numbers_text 
           }
 
           # Collecting event
           ce_identifiers = []
-          ce_identifiers.push(ce_identifier_castor)             if !ce_identifier_castor_text.blank?
-          ce_identifiers.push(ce_identifier_drm_field_numbers)  if !ce_identifier_drm_field_numbers_text.blank?
+          ce_identifiers.push(ce_identifier_castor)             if ce_identifier_castor_text.present?
+          ce_identifiers.push(ce_identifier_drm_field_numbers)  if ce_identifier_drm_field_numbers_text.present?
 
           ce_attributes = { 
             verbatim_locality:                row['verbatim_location'],

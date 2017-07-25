@@ -36,8 +36,6 @@ module BatchLoad
     def build_taxon_names
       @total_data_lines = 0
       i = 0
-
-      namespace_castor = Namespace.find_by(name: "Castor")
       taxon_names = {}
 
       csv.each do |row|
@@ -135,9 +133,8 @@ module BatchLoad
           taxon_concept_identifier_castor_text = row["guid"]
 
           if taxon_concept_identifier_castor_text.present?
-            taxon_concept_identifier_castor = { 
-              namespace: namespace_castor,
-              type: "Identifier::Local::TaxonConcept",
+            taxon_concept_identifier_castor = {
+              type: "Identifier::Global::Uri",
               identifier: taxon_concept_identifier_castor_text
             }
 

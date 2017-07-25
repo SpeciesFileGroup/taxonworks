@@ -8,15 +8,11 @@ module BatchLoad
     end
 
     def build_collection_objects
-      # Castor            CTR
       # GenBank           GBK
-      # Morphbank         MBK
       # DRMLabVoucher     DRMLV
       # DRMFieldVoucher   DRMFV
       # DRMDNAVoucher     DRMDNA
-      namespace_castor = Namespace.find_by(name: 'Castor')
       namespace_genbank = Namespace.find_by(name: 'GenBank')
-      namespace_morphbank = Namespace.find_by(name: 'Morphbank')
       namespace_drm_lab_voucher = Namespace.find_by(name: 'DRMLabVoucher')
       namespace_drm_field_voucher = Namespace.find_by(name: 'DRMFieldVoucher')
       namespace_drm_dna_voucher = Namespace.find_by(name: 'DRMDNAVoucher')
@@ -45,12 +41,12 @@ module BatchLoad
           # Extract identifiers
           extract_identifier_genbank = { 
             namespace: namespace_genbank,
-            type: 'Identifier::Local::CollectionObject',
+            type: 'Identifier::Local::CatalogNumber',
             identifier: sample_code_identifier_text 
           }
 
           extract_identifiers = []
-          extract_identifiers.push(extract_identifier_genbank) if !sample_code_identifier_text.blank?
+          extract_identifiers.push(extract_identifier_genbank) if sample_code_identifier_text.present?
 
           extract_attributes = { 
             quantity_value: 0, 
@@ -73,33 +69,31 @@ module BatchLoad
           co_identifier_drm_lab_voucher_text = "#{row['voucher_number_prefix']}#{row['voucher_number_stirng']}"
 
           # Collection object identifiers
-          co_identifier_castor = { 
-            namespace: namespace_castor,
-            type: 'Identifier::Local::CollectionObject',
+          co_identifier_castor = {
+            type: 'Identifier::Global::Uri',
             identifier: co_identifier_castor_text 
           }
 
-          co_identifier_morphbank = { 
-            namespace: namespace_morphbank,
-            type: 'Identifier::Local::CollectionObject',
+          co_identifier_morphbank = {
+            type: 'Identifier::Global::MorphbankSpecimenNumber',
             identifier: co_identifier_morphbank_text 
           }
                                           
           co_identifier_drm_field_voucher = { 
             namespace: namespace_drm_field_voucher,
-            type: 'Identifier::Local::CollectionObject',
+            type: 'Identifier::Local::CatalogNumber',
             identifier: co_identifier_drm_field_voucher_text 
           }
                                                   
           co_identifier_drm_lab_voucher = { 
             namespace: namespace_drm_lab_voucher,
-            type: 'Identifier::Local::CollectionObject',
+            type: 'Identifier::Local::CatalogNumber',
             identifier: co_identifier_drm_lab_voucher_text 
           }                                     
 
           co_identifier_drm_dna = { 
             namespace: namespace_drm_dna_voucher,
-            type: 'Identifier::Local::CollectionObject',
+            type: 'Identifier::Local::CatalogNumber',
             identifier: sample_code_identifier_text
           }
 
@@ -108,26 +102,24 @@ module BatchLoad
 
           # Collection object
           co_identifiers = []
-          co_identifiers.push(co_identifier_castor)             if !co_identifier_castor_text.blank?
-          co_identifiers.push(co_identifier_morphbank)          if !co_identifier_morphbank_text.blank?
-          co_identifiers.push(co_identifier_drm_field_voucher)  if !co_identifier_drm_field_voucher_text.blank?
-          co_identifiers.push(co_identifier_drm_lab_voucher)    if !co_identifier_drm_lab_voucher_text.blank?
-          co_identifiers.push(co_identifier_drm_dna)            if !sample_code_identifier_text.blank?
+          co_identifiers.push(co_identifier_castor)             if co_identifier_castor_text.present?
+          co_identifiers.push(co_identifier_morphbank)          if co_identifier_morphbank_text.present?
+          co_identifiers.push(co_identifier_drm_field_voucher)  if co_identifier_drm_field_voucher_text.present?
+          co_identifiers.push(co_identifier_drm_lab_voucher)    if co_identifier_drm_lab_voucher_text.present?
+          co_identifiers.push(co_identifier_drm_dna)            if sample_code_identifier_text.present?
 
           co_attributes = { type: 'Specimen', total: 1, identifiers_attributes: co_identifiers, origin_relationships_attributes: co_origin_relationships_attributes }
           co = CollectionObject.new(co_attributes)
 
           # Collecting event that this collection object corresponds to
-          ces = CollectingEvent.with_namespaced_identifier('Castor', row['collecting_event_guid'])
-          ce = nil
-          ce = ces.first if ces.any?
-          co.collecting_event = ce if !ce.nil?
+          ce = CollectingEvent.with_identifier(row['collecting_event_guid']).take
+          co.collecting_event = ce if ce.present?
 
           parse_result.objects[:collection_object].push(co);
           @total_data_lines += 1 if co.present?
 
           # Taxon determination between this object and otus this object belongs to
-          otus = Otu.with_namespaced_identifier('Castor', row["taxon_guid"])
+          otus = Otu.with_identifier(row["taxon_guid"])
 
           otus.each do |otu|
             taxon_determination = TaxonDetermination.new(otu: otu, biological_collection_object: co)

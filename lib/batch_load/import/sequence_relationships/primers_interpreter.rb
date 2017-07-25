@@ -27,12 +27,10 @@ module BatchLoad
           created_sequence_relationship = false
 
           primers.each do |primer|
-            sequences = Sequence.with_namespaced_identifier("DRMSequenceId", sequence_id)
-            sequence = nil
-            sequence = sequences.first if sequences.any?
+            sequence = Sequence.with_namespaced_identifier("DRMSequenceId", sequence_id).take
 
             if sequence
-              primer_sequence = get_primer_sequence(primer)
+              primer_sequence = Sequence.with_any_value_for(:name, primer).take
 
               if primer_sequence
                 sequence_relationship = SequenceRelationship.new({
@@ -83,12 +81,6 @@ module BatchLoad
           end
         end
       end
-    end
-
-    def get_primer_sequence(primer_name)
-      sequences = Sequence.with_any_value_for(:name, primer_name)
-      sequence = nil
-      sequence = sequences.first if sequences.any?
     end
   end
 end

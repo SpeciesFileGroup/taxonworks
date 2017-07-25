@@ -1,8 +1,7 @@
 module BatchLoad
   module Helpers::Sequences
     def create_sequence(filename, file_content)
-      # GenBank GBK, DRMSequenceId DRMSEQID
-      namespace_genbank = Namespace.find_by(name: 'GenBank')
+      # DRMSequenceId DRMSEQID
       namespace_sequence_id = Namespace.find_by(name: 'DRMSequenceId')
 
       # Sequence attributes
@@ -15,16 +14,15 @@ module BatchLoad
 
       # Identifiers for Sequence
       sequence_identifier_genbank_text = get_genbank_text(filename)
-      sequence_identifier_genbank = { 
-        namespace: namespace_genbank,
-        type: 'Identifier::Local::Sequence',
+      sequence_identifier_genbank = {
+        type: 'Identifier::Global::GenBank',
         identifier: sequence_identifier_genbank_text 
       }
 
       sequence_identifier_sequence_id_text = get_sequence_id_text(filename)
       sequence_identifier_sequence_id = {
         namespace: namespace_sequence_id,
-        type: 'Identifier::Local::Sequence',
+        type: 'Identifier::Local::Import',
         identifier: sequence_identifier_sequence_id_text
       }
 
@@ -37,9 +35,7 @@ module BatchLoad
 
     def create_origin_relationship(filename, sequence)
       # Extract that this sequence came from
-      extracts = Extract.with_namespaced_identifier('GenBank', get_voucher_number(filename))  
-      extract = nil
-      extract = extracts.first if extracts.any?
+      extract = Extract.with_namespaced_identifier('GenBank', get_voucher_number(filename)).take
 
       # OriginRelationship for Extract(source) and Sequence(target)
       origin_relationship = nil
@@ -88,15 +84,11 @@ module BatchLoad
       voucher_number = get_voucher_number(filename)
       identifier_text = voucher_number
 
-      collection_objects = CollectionObject.with_namespaced_identifier("DRMDNA", identifier_text)
-      collection_object = nil
-      collection_object = collection_objects.first if collection_objects.any?
+      collection_object = CollectionObject.with_namespaced_identifier("DRMDNA", identifier_text).take
 
       # Taxon determination associated with collection object
       if collection_object
-        taxon_determinations = TaxonDetermination.where(biological_collection_object_id: collection_object.id)
-        taxon_determination = nil
-        taxon_determination = taxon_determinations.first if taxon_determinations.any?
+        taxon_determination = TaxonDetermination.where(biological_collection_object_id: collection_object.id).take
 
         if taxon_determination
           otu = taxon_determination.otu
