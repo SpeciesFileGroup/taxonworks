@@ -178,24 +178,37 @@
 					}
 				});
 				if(positions.length) {
-					this.copySpecies = JSON.parse(JSON.stringify(newVal));
-					this.setNewCombinations();
-					this.updateNames('species');
-					this.processChange(positions, originalTypes);
-
+					if(type == 'species') {
+						this.copySpecies = JSON.parse(JSON.stringify(newVal));
+						this.setNewCombinationsSpecies();
+						this.updateNamesSpecies();
+						this.processChangeSpecies(positions, originalTypes);
+					}
+					else {
+						this.copyGenus = JSON.parse(JSON.stringify(newVal));
+						this.setNewCombinationsGenus();
+						this.updateNamesGenus();
+						this.processChangeGenus(positions, originalTypes);
+					}
 				}
 				return JSON.parse(JSON.stringify(newVal));
 			},
-			setNewCombinations: function() {
+			setNewCombinationsSpecies: function() {
 				var that = this;
 				this.species.forEach(function(element, index) {
 					that.species[index].value = that.GetOriginal(that.species[index].name);
 				});
 			},
-			processChange: function(positions, originalTypes) {
+			setNewCombinationsGenus: function() {
+				var that = this;
+				this.genus.forEach(function(element, index) {
+					that.genus[index].value = that.GetOriginal(that.genus[index].name);
+				});
+			},
+			processChangeSpecies: function(positions, originalTypes) {
 				var that = this;
 				var copyCombinations = [];
-				let allDeleted = [];
+				let allDelete = [];
 				positions.forEach(function(element, index) {
 					copyCombinations.push(JSON.parse(JSON.stringify(that.species[element])));
 					if(that.species[element].value != '') {
@@ -206,7 +219,29 @@
 						)
 					}
 				});
-				Promise.all(allDeleted).then( response => {
+				Promise.all(allDelete).then( response => {
+					positions.forEach(function(element, index) {
+						if(copyCombinations[index].value != '') {
+							that.addOriginalCombination(copyCombinations[index].value.subject_taxon_name_id, element, originalTypes);
+						}
+					})	
+				});
+			},
+			processChangeGenus: function(positions, originalTypes) {
+				var that = this;
+				var copyCombinations = [];
+				let allDelete = [];
+				positions.forEach(function(element, index) {
+					copyCombinations.push(JSON.parse(JSON.stringify(that.genus[element])));
+					if(that.genus[element].value != '') {
+						allDelete.push(
+							that.$store.dispatch(ActionNames.RemoveOriginalCombination, that.genus[element].value).then( response => {
+								return true;
+							})
+						)
+					}
+				});
+				Promise.all(allDelete).then( response => {
 					positions.forEach(function(element, index) {
 						if(copyCombinations[index].value != '') {
 							that.addOriginalCombination(copyCombinations[index].value.subject_taxon_name_id, element, originalTypes);
@@ -232,10 +267,16 @@
 		    onMove: function(evt) {
 		         return !evt.related.classList.contains('item-filter');
 		    },
-		    updateNames: function(group) {
+		    updateNamesSpecies: function(group) {
 		    	var that = this;
 		    	this.species.forEach(function(element, index) {
-		    		that.species[index].name = that.originalRanks[group][index]
+		    		that.species[index].name = that.originalRanks['species'][index]
+		    	});
+		    },
+		    updateNamesGenus: function(group) {
+		    	var that = this;
+		    	this.genus.forEach(function(element, index) {
+		    		that.genus[index].name = that.originalRanks['genus'][index]
 		    	});
 		    },
 			loadCombinations: function(id) {
