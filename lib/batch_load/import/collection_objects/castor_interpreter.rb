@@ -10,11 +10,9 @@ module BatchLoad
     def build_collection_objects
       # GenBank           GBK
       # DRMLabVoucher     DRMLV
-      # DRMFieldVoucher   DRMFV
       # DRMDNAVoucher     DRMDNA
       namespace_genbank = Namespace.find_by(name: 'GenBank')
       namespace_drm_lab_voucher = Namespace.find_by(name: 'DRMLabVoucher')
-      namespace_drm_field_voucher = Namespace.find_by(name: 'DRMFieldVoucher')
       namespace_drm_dna_voucher = Namespace.find_by(name: 'DRMDNAVoucher')
 
       @total_data_lines = 0
@@ -65,7 +63,6 @@ module BatchLoad
           # Text for collection object identifiers
           co_identifier_castor_text = row['guid']
           co_identifier_morphbank_text = row['morphbank_specimen_id']
-          co_identifier_drm_field_voucher_text = row['specimen_number']
           co_identifier_drm_lab_voucher_text = "#{row['voucher_number_prefix']}#{row['voucher_number_string']}"
 
           # Collection object identifiers
@@ -78,13 +75,7 @@ module BatchLoad
             type: 'Identifier::Global::MorphbankSpecimenNumber',
             identifier: co_identifier_morphbank_text 
           }
-                                          
-          co_identifier_drm_field_voucher = { 
-            namespace: namespace_drm_field_voucher,
-            type: 'Identifier::Local::CatalogNumber',
-            identifier: co_identifier_drm_field_voucher_text 
-          }
-                                                  
+                                   
           co_identifier_drm_lab_voucher = { 
             namespace: namespace_drm_lab_voucher,
             type: 'Identifier::Local::CatalogNumber',
@@ -97,19 +88,35 @@ module BatchLoad
             identifier: sample_code_identifier_text
           }
 
-          # OriginRelationship between CollecitonObject and Extract
-          co_origin_relationships_attributes = [{ new_object: extract }]
-
-          # Collection object
+          # Add collection object identifiers
           co_identifiers = []
           co_identifiers.push(co_identifier_castor)             if co_identifier_castor_text.present?
           co_identifiers.push(co_identifier_morphbank)          if co_identifier_morphbank_text.present?
-          co_identifiers.push(co_identifier_drm_field_voucher)  if co_identifier_drm_field_voucher_text.present?
           co_identifiers.push(co_identifier_drm_lab_voucher)    if co_identifier_drm_lab_voucher_text.present?
           co_identifiers.push(co_identifier_drm_dna)            if sample_code_identifier_text.present?
+          
+          # OriginRelationship between CollecitonObject and Extract
+          co_origin_relationships_attributes = [{ new_object: extract }]
 
-          co_attributes = { type: 'Specimen', total: 1, identifiers_attributes: co_identifiers, origin_relationships_attributes: co_origin_relationships_attributes }
-          co = CollectionObject.new(co_attributes)
+          # Data attributes
+          co_data_attributes = []
+          
+          if row["specimen_number"].present?
+            co_data_attributes.push({
+              type: "ImportAttribute",
+              import_predicate: "SpecimenNumber",
+              value: row["specimen_number"] 
+            })
+          end
+
+          # Create collection object
+          co = CollectionObject.new({ 
+            type: 'Specimen',
+            total: 1,
+            identifiers_attributes: co_identifiers,
+            origin_relationships_attributes: co_origin_relationships_attributes,
+            data_attributes_attributes: co_data_attributes
+          })
 
           # Collecting event that this collection object corresponds to
           ce = CollectingEvent.with_identifier(row['collecting_event_guid']).take
