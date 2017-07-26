@@ -186,19 +186,19 @@ module Protonym::SoftValidationExtensions
         t_gender = t.gender_class
 
         if gender.nil? && gender != t_gender
-          self.TaxonNameClassification.build(type: t_gender.to_s)
+          self.taxon_name_classifications.build(type: t_gender.to_s)
           fixed = true
         end
 
         t_speech = t.part_of_speech_class
 
         if speech.nil? && speech != t_speech
-          self.TaxonNameClassification.build(type: t_speech.to_s)
+          self.taxon_name_classifications.build(type: t_speech.to_s)
           fixed = true
         end
 
         if self.gender_class.nil? && !t.gender_class.nil?
-          self.taxon_name_classification.build(type: t.gender_name)
+          self.taxon_name_classifications.build(type: t.gender_name)
           fixed = true
         end
 

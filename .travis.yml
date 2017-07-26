@@ -14,10 +14,6 @@ branches:
     - master
     - Rails-5.0
     - development
-    - travis-trusty-beta
-    - eyelet
-    - importing-from-castor
-    - webpack
 addons:
   postgresql: "9.5"
   firefox: "53.0.3"
