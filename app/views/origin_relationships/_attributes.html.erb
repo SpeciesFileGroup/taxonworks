@@ -1,0 +1,19 @@
+<p>
+  <strong>Source:</strong>
+  <%= object_link(@origin_relationship.old_object) %>
+</p>
+
+<p>
+  <strong>Source type:</strong>
+  <%= @origin_relationship.old_object_type %>
+</p>
+
+<p>
+  <strong>Target:</strong>
+  <%= object_link(@origin_relationship.new_object)%>
+</p>
+
+<p>
+  <strong>Target type:</strong>
+  <%= @origin_relationship.new_object_type %>
+</p>

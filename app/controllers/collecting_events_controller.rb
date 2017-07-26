@@ -133,7 +133,7 @@ class CollectingEventsController < ApplicationController
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_collecting_events_md5)
       @result = BatchLoad::Import::CollectingEvent.new(batch_params)
       if @result.create
-        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collection objects were created."
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collecting events were created."
         render 'collecting_events/batch_load/simple/create' and return
       else
         flash[:alert] = 'Batch import failed.'
@@ -144,6 +144,32 @@ class CollectingEventsController < ApplicationController
     render :batch_load
   end
 
+  def preview_castor_batch_load 
+    if params[:file] 
+      @result = BatchLoad::Import::CollectingEvents::CastorInterpreter.new(batch_params)
+      digest_cookie(params[:file].tempfile, :Castor_collecting_events_md5)
+      render 'collecting_events/batch_load/castor/preview'
+    else
+      flash[:notice] = "No file provided!"
+      redirect_to action: :batch_load 
+    end
+  end
+
+  def create_castor_batch_load
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Castor_collecting_events_md5)
+      @result = BatchLoad::Import::CollectingEvents::CastorInterpreter.new(batch_params)
+      if @result.create
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collecting events were created."
+        render 'collecting_events/batch_load/castor/create' and return
+      else
+        flash[:alert] = 'Batch import failed.'
+      end
+    else
+      flash[:alert] = 'File to batch upload must be supplied.'
+    end
+    render :batch_load
+  end
+  
   private
 
   # Use callbacks to share common setup or constraints between actions.
