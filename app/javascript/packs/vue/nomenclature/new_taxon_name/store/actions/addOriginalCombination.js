@@ -10,7 +10,7 @@ module.exports = function({ commit, state }, data) {
 		}
 	}
 	createTaxonRelationship(relationship).then( response => {
-		//commit(MutationNames.AddTaxonRelationship, response);
+		commit(MutationNames.AddOriginalCombination, response);
 	}, response => {
 		commit(MutationNames.SetHardValidation, response);
 	});

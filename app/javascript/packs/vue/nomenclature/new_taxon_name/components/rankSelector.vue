@@ -61,7 +61,6 @@
     watch: {
       'ranks': function(val, oldVal) {
         if(this.setRankClass == undefined) {
-          console.log("adfas");
           this.ranks[this.childOfParent[this.rankGroup]].find(item => {
             if(this.defaultRanks.indexOf(item.name) >= 0) {
               this.setRankClass = item.rank_class;

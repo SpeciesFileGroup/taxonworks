@@ -5,6 +5,7 @@ const ActionNames = {
 	AddOriginalCombination: 'addOriginalCombination',
 	RemoveTaxonStatus: 'removeTaxonStatus',
 	RemoveTaxonRelationship: 'removeTaxonRelationship',
+	RemoveOriginalCombination: 'removeOriginalCombination',
 	LoadSoftValidation: 'loadSoftValidation',
 	ChangeTaxonSource: 'changeTaxonSource',
 	RemoveSource: 'removeSource',
@@ -18,6 +19,7 @@ const ActionFunctions = {
 	[ActionNames.AddOriginalCombination]: require('./addOriginalCombination'),
 	[ActionNames.RemoveTaxonStatus]: require('./removeTaxonStatus'),
 	[ActionNames.RemoveTaxonRelationship]: require('./removeTaxonRelationship'),
+	[ActionNames.RemoveOriginalCombination]: require('./removeOriginalCombination'),
 	[ActionNames.RemoveSource]: require('./removeSource'),
 	[ActionNames.ChangeTaxonSource]: require('./changeTaxonSource'),
 };

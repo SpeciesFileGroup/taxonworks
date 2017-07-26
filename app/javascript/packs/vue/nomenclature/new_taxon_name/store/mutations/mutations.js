@@ -1,8 +1,10 @@
 const MutationNames = {
 	AddTaxonStatus: 'addTaxonStatus',
 	AddTaxonRelationship: 'addTaxonRelationship',
+	AddOriginalCombination: 'addOriginalCombination',
 	RemoveTaxonStatus: 'removeTaxonStatus',
 	RemoveTaxonRelationship: 'removeTaxonRelationship',
+	RemoveOriginalCombination: 'removeOriginalCombination',
 	SetModalStatus: 'setModalStatus',
 	SetModalRelationship: 'setModalRelationship',
 	SetAllRanks: 'setAllRanks',
@@ -32,8 +34,10 @@ const MutationNames = {
 const MutationFunctions = {
 	[MutationNames.AddTaxonStatus]: require('./addTaxonStatus'),
 	[MutationNames.AddTaxonRelationship]: require('./addTaxonRelationship'),
+	[MutationNames.AddOriginalCombination]: require('./addOriginalCombination'),
 	[MutationNames.RemoveTaxonStatus]: require('./removeTaxonStatus'),
 	[MutationNames.RemoveTaxonRelationship]: require('./removeTaxonRelationship'),
+	[MutationNames.RemoveOriginalCombination]: require('./removeOriginalCombination'),
 	[MutationNames.SetModalStatus]: require('./setModalStatus'),
 	[MutationNames.SetModalRelationship]: require('./setModalRelationship'),
 	[MutationNames.SetAllRanks]: require('./setAllRanks'),

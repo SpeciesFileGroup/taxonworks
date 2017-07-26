@@ -17,7 +17,7 @@
 		    </div>
 		    <div>
 			    <draggable class="flex-wrap-column" v-model="genus" :options="options" :move="onMove">
-			    	<div v-for="item, index in genus" :class="{ 'item-filter' : (taxon.rank == 'genus')}" class="no_bullets item-draggable" v-if="(genus[index].value.length == 0)" :key="item.id">
+			    	<div v-for="item, index in genus" :class="{ 'item-filter' : (taxon.rank == 'genus')}" class="no_bullets item-draggable" v-if="(GetOriginal(genus[index].name).length == 0)" :key="item.id">
 					    <autocomplete  
 					    	:get-object="item.autocomplete"
 					        url="/taxon_names/autocomplete"
@@ -32,13 +32,13 @@
 					    <span class="handle" data-icon="scroll-v"></span>
 				    </div>
 				    <div class="no_bullets item-draggable" v-else :key="item.id">
-						<span v-html="showLabel(genus[index].value)"></span>
+						<span v-html="GetOriginal(genus[index].name).object_tag"></span>
 						<span class="handle" data-icon="scroll-v"></span>
-						<span class="circle-button btn-delete"></span>
+						<span class="circle-button btn-delete" @click="removeCombination(GetOriginal(genus[index].name))"></span>
 				    </div>
 			    </draggable>
 			    <draggable class="flex-wrap-column" v-model="species" :options="options" :move="onMove">
-			    	<div v-for="item, index in species" class="no_bullets item-draggable" v-if="item.show" :key="item.id">
+			    	<div v-for="item, index in species" class="no_bullets item-draggable" v-if="(GetOriginal(species[index].name).length == 0)" :key="item.id">
 					    <autocomplete
 					    	:get-object="item.autocomplete"
 					        url="/taxon_names/autocomplete"
@@ -53,7 +53,9 @@
 					    <span class="handle" data-icon="scroll-v"></span>
 				    </div>
 				    <div class="no_bullets item-draggable" v-else :key="item.id">
-						<span v-html="showLabel(species[index].value)"></span>
+						<span v-html="GetOriginal(species[index].name).object_tag"></span>
+						<span class="handle" data-icon="scroll-v"></span>
+						<span class="circle-button btn-delete" @click="removeCombination(GetOriginal(species[index].name))"></span>
 				    </div>
 			    </draggable>
 			    </div>
@@ -99,15 +101,19 @@
 				},
 				expanded: true,
 				genus: [ 
-					{ name: 'genus', value: '', show: true, autocomplete: undefined, id: 1 }, 
-					{ name: 'subgenus', value: '', show: true, autocomplete: undefined, id: 2 }, 
+					{ name: 'genus', value: '', show: true, autocomplete: undefined, id: 0 }, 
+					{ name: 'subgenus', value: '', show: true, autocomplete: undefined, id: 1 }, 
 					],
 				species: [ 
-					{ name: 'species', value: '', show: true, autocomplete: undefined, id: 1 }, 
-					{ name: 'subspecies', value: '', show: true, autocomplete: undefined, id: 2 }, 
-					{ name: 'variety', value: '', show: true, autocomplete: undefined, id: 3 }, 
-					{ name: 'form', value: '', show: true, autocomplete: undefined, id: 4 } 
+					{ name: 'species', value: '', show: true, autocomplete: undefined, id: 2 }, 
+					{ name: 'subspecies', value: '', show: true, autocomplete: undefined, id: 3 }, 
+					{ name: 'variety', value: '', show: true, autocomplete: undefined, id: 4 }, 
+					{ name: 'form', value: '', show: true, autocomplete: undefined, id: 5 } 
 					],
+				originalRanks: {
+					species: ['species', 'subspecies', 'variety', 'form'],
+					genus: ['genus', 'subgenus'],
+				},
 				copyGenus: undefined,
 				copySpecies:undefined,
 				originalGenusType: [
@@ -136,63 +142,101 @@
 				immediate: true
 			},
 			originalCombination: {
-				handler: function(newVal, oldVal) {
-					if(newVal == undefined) return true
-					this.SetOriginalCombination(newVal);
+				handler: function(combinations) {
 				},
-				immediate: true			
+				immediate: true				
 			},
 			genus: {
 				handler: function(newVal,oldVal) {
 					if (JSON.stringify(newVal) == JSON.stringify(this.copyGenus)) return true
-					this.copyGenus = this.searchForChanges(newVal, this.copyGenus, this.originalGenusType);
+					this.copyGenus = this.searchForChanges(newVal, this.copyGenus, this.originalGenusType, 'genus');
 				},
 				deep: true
 			},
 			species: {
 				handler: function(newVal,oldVal) {
 					if (JSON.stringify(newVal) == JSON.stringify(this.copySpecies)) return true
-					this.copySpecies = this.searchForChanges(newVal, this.copySpecies, this.originalSpeciesType);
+					this.copySpecies = this.searchForChanges(newVal, this.copySpecies, this.originalSpeciesType, 'species');
 				},
 				deep: true
 			}
 		},
 		methods: {
-			searchForChanges: function(newVal, copyOld, originalTypes) {
+			searchForChanges: function(newVal, copyOld, originalTypes, type) {
 				var that = this;
+				let positions = [];
 				newVal.forEach(function(element, index) {
 					if(JSON.stringify(newVal[index]) != JSON.stringify(copyOld[index])) {
 						if(JSON.stringify(newVal[index].id) != JSON.stringify(copyOld[index].id)) {
 							console.log("Change ID position");
+							positions.push(index);
 						}
 						else if(JSON.stringify(newVal[index].autocomplete) != JSON.stringify(copyOld[index].autocomplete)) {
 							console.log("Change content: " + index);
-							that.addOriginalCombination(newVal[index], index, originalTypes);
+							that.addOriginalCombination(newVal[index].autocomplete.id, index, originalTypes);
 						}
 					}
 				});
+				if(positions.length) {
+					this.copySpecies = JSON.parse(JSON.stringify(newVal));
+					this.setNewCombinations();
+					this.updateNames('species');
+					this.processChange(positions, originalTypes);
+
+				}
 				return JSON.parse(JSON.stringify(newVal));
 			},
-			addOriginalCombination: function(element, index, originalTypes) {
+			setNewCombinations: function() {
+				var that = this;
+				this.species.forEach(function(element, index) {
+					that.species[index].value = that.GetOriginal(that.species[index].name);
+				});
+			},
+			processChange: function(positions, originalTypes) {
+				var that = this;
+				var copyCombinations = [];
+				let allDeleted = [];
+				positions.forEach(function(element, index) {
+					copyCombinations.push(JSON.parse(JSON.stringify(that.species[element])));
+					if(that.species[element].value != '') {
+						allDelete.push(
+							that.$store.dispatch(ActionNames.RemoveOriginalCombination, that.species[element].value).then( response => {
+								return true;
+							})
+						)
+					}
+				});
+				Promise.all(allDeleted).then( response => {
+					positions.forEach(function(element, index) {
+						if(copyCombinations[index].value != '') {
+							that.addOriginalCombination(copyCombinations[index].value.subject_taxon_name_id, element, originalTypes);
+						}
+					})	
+				});
+			},
+			addOriginalCombination: function(elementId, index, originalTypes) {
 				var data = {
 					type: originalTypes[index],
-					id: element.autocomplete.id
+					id: elementId
 				}
 				this.$store.dispatch(ActionNames.AddOriginalCombination, data);
 			},
-			SetOriginalCombination: function(newCombination) {
-				this.genus[0].value = (newCombination.hasOwnProperty('original_genus') ? newCombination.original_genus : '');
-				this.genus[1].value = (newCombination.hasOwnProperty('original_subgenus') ? newCombination.original_subgenus : '');
-				this.species[0].value = (newCombination.hasOwnProperty('original_species') ? newCombination.original_species : '');
-				this.species[1].value = (newCombination.hasOwnProperty('original_subspecies') ? newCombination.original_subspecies : '');
-				this.species[2].value = (newCombination.hasOwnProperty('original_variety') ? newCombination.original_variety : '');
-				this.species[3].value = (newCombination.hasOwnProperty('original_form') ? newCombination.original_form : '');
+			GetOriginal: function(name) {
+				let key = 'original_'+name;
+				return (this.originalCombination.hasOwnProperty(key) ? this.originalCombination[key] : '');
 			},
-			showLabel: function(label) {
-				return (label && label.hasOwnProperty('object_tag') ? label.object_tag : '')
+
+			removeCombination: function(value) {
+				this.$store.dispatch(ActionNames.RemoveOriginalCombination, value);
 			},
 		    onMove: function(evt) {
 		         return !evt.related.classList.contains('item-filter');
+		    },
+		    updateNames: function(group) {
+		    	var that = this;
+		    	this.species.forEach(function(element, index) {
+		    		that.species[index].name = that.originalRanks[group][index]
+		    	});
 		    },
 			loadCombinations: function(id) {
 				this.$http.get(`/taxon_names/${id}/original_combination.json`).then( response => {
