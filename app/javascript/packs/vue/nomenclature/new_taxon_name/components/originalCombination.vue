@@ -31,8 +31,10 @@
 					    </autocomplete>
 					    <span class="handle" data-icon="scroll-v"></span>
 				    </div>
-				    <div class="no_bullets item-draggable item-filter" v-else :key="item.id">
+				    <div class="no_bullets item-draggable" v-else :key="item.id">
 						<span v-html="showLabel(genus[index].value)"></span>
+						<span class="handle" data-icon="scroll-v"></span>
+						<span class="circle-button btn-delete"></span>
 				    </div>
 			    </draggable>
 			    <draggable class="flex-wrap-column" v-model="species" :options="options" :move="onMove">
@@ -51,10 +53,7 @@
 					    <span class="handle" data-icon="scroll-v"></span>
 				    </div>
 				    <div class="no_bullets item-draggable" v-else :key="item.id">
-				    	<div class="vue-autocomplete">
-					    	<input disabled class="current-name" type="text" :value="taxon.name" >
-				    	</div>
-				    	<span class="handle" data-icon="scroll-v"></span>
+						<span v-html="showLabel(species[index].value)"></span>
 				    </div>
 			    </draggable>
 			    </div>
