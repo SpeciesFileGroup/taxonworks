@@ -92,6 +92,12 @@ class AssertedDistribution < ActiveRecord::Base
     retval
   end
 
+  # @return [True]
+  #   see citable.rb
+  def requires_citation?
+    true
+  end
+
   protected
 
   def new_records_include_citation
