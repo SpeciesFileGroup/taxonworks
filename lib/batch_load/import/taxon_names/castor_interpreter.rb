@@ -1,4 +1,3 @@
-# TODO: THIS IS A GENERATED STUB, it does not function
 module BatchLoad
   class Import::TaxonNames::CastorInterpreter < BatchLoad::Import
 
