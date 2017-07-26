@@ -75,27 +75,62 @@ namespace :tw do
             depo_id = row['DepoID']
             project_id = get_tw_project_id[row['FileID']]
 
-            metadata = {
+            import_attribute_attributes = []
+            if row['PreparationType'].present?
+              import_attribute_attributes = {import_predicate: 'preparation_type',
+                                             value: row['PreparationType'],
+                                             project_id: project_id}
+
+            end
+
+            specimen_dataflags = row['DataFlags'].to_i
+            if specimen_dataflags > 0
+              dataflags_array = Utilities::Numbers.get_bits(dataflags)
+
+              # for bit_position in 0..status_flags_array.length - 1 # length is number of bits set
+              dataflag_text = ''
+              dataflags_array.each do |bit_position|
+                # 1 = ecological relationship, 2 = character data not yet implemented, 4 = image, 8 = sound, 16 = include specimen locality in maps, 32 = image of specimen label
+                case bit_position
+                  when 0  # ecological relationship (1)
+                    dataflag_text = '(ecological relationship)'
+                  when 1  # character data not yet implemended (2)
+                    dataflag_text.concat('(character data not yet implemented)')
+                  when 2  # image (4)
+                    dataflag_text.concat('(image)')
+                  when 3  # sound (8)
+                    dataflag_text.concat('(sound)')
+                  when 4  # include specimen locality in maps (16)
+                    dataflag_text.concat('(include specimen locality in maps)')
+                  when 5  # image of specimen label (32)
+                    dataflag_text.concat('(image of specimen label)')
+
+                end
+                
+
+              end
+            end
+
+
+            metadata = {notes_attributes: [{text: row['Note'],
+                                            project_id: project_id,
+                                            created_at: row['CreatedOn'],
+                                            updated_at: row['LastUpdate'],
+                                            created_by_id: get_tw_user_id[row['CreatedBy']],
+                                            updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
+
+                        import_attribute_attributes: import_attribute_attributes,
+
+
             }
 
             biological_collection_object = BiologicalCollectionObject.new(
                 metadata.merge(
 
                     collecting_event_id: get_tw_collecting_event_id[get_sf_unique_id[specimen_id]],
-                    
+
                     repository_id: get_tw_repo_id.has_key?(depo_id) ? get_tw_repo_id[depo_id] : nil,
 
-                    notes_attributes: [{text: row['Note'],
-                                        project_id: project_id,
-                                        created_at: row['CreatedOn'],
-                                        updated_at: row['LastUpdate'],
-                                        created_by_id: get_tw_user_id[row['CreatedBy']],
-                                        updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
-
-                    import_attribute_attributes: [{import_predicate: 'preparation_type',
-                                                  value: row['PreparationType'],
-                                                  project_id: project_id}],
-                    
                     # housekeeping for collection_object
                     project_id: project_id,
                     created_at: row['CreatedOn'],
