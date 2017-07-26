@@ -12,9 +12,8 @@
         <li>Multiple uploads of the same data will do something, not sure.</li>
         <li>Only creates collecting events if the column value of "locality_database" of the current row is "DRM"</li>
         <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>
-        <li>Assumes a namespace with name "Castor" and shortname "CTR" exists</li>
         <li>Assumes a namespace with name "DRMFieldNumbers" and shortname "DRMFN" exists</li>
-        <li>Identifier with namespace Castor will be attached with the value of the "guid" column if not blank</li>
+        <li>Identifier Global::Uri will be attached with the value of the "guid" column if not blank</li>
         <li>Identifier with namespace DRMFieldNumbers will be attached with the value of the "locality_code_prefix" + "locality_code_string" column if not blank and "locality_code_prefix" is not "NONE"</li>
       </ul>
     </div>

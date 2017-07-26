@@ -66,7 +66,7 @@ module BatchLoad
           co_identifier_castor_text = row['guid']
           co_identifier_morphbank_text = row['morphbank_specimen_id']
           co_identifier_drm_field_voucher_text = row['specimen_number']
-          co_identifier_drm_lab_voucher_text = "#{row['voucher_number_prefix']}#{row['voucher_number_stirng']}"
+          co_identifier_drm_lab_voucher_text = "#{row['voucher_number_prefix']}#{row['voucher_number_string']}"
 
           # Collection object identifiers
           co_identifier_castor = {

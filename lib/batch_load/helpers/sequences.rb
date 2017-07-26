@@ -15,7 +15,7 @@ module BatchLoad
       # Identifiers for Sequence
       sequence_identifier_genbank_text = get_genbank_text(filename)
       sequence_identifier_genbank = {
-        type: 'Identifier::Global::GenBank',
+        type: 'Identifier::Global::GenBankAccessionCode',
         identifier: sequence_identifier_genbank_text 
       }
 
@@ -26,8 +26,8 @@ module BatchLoad
         identifier: sequence_identifier_sequence_id_text
       }
 
-      sequence_attributes[:identifiers_attributes].push(sequence_identifier_genbank) if !sequence_identifier_genbank_text.blank?
-      sequence_attributes[:identifiers_attributes].push(sequence_identifier_sequence_id) if !sequence_identifier_sequence_id_text.blank?
+      sequence_attributes[:identifiers_attributes].push(sequence_identifier_genbank) if sequence_identifier_genbank_text.present?
+      sequence_attributes[:identifiers_attributes].push(sequence_identifier_sequence_id) if sequence_identifier_sequence_id_text.present?
             
       sequence = Sequence.new(sequence_attributes)
       sequence
@@ -40,7 +40,7 @@ module BatchLoad
       # OriginRelationship for Extract(source) and Sequence(target)
       origin_relationship = nil
       
-      if !extract.nil?
+      if extract.present?
         origin_relationship_attributes = { old_object: extract, new_object: sequence }
         origin_relationship = OriginRelationship.new(origin_relationship_attributes)
       end

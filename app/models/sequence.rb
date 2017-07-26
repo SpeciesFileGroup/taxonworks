@@ -31,8 +31,6 @@ class Sequence < ActiveRecord::Base
 
   has_many :gene_attributes, inverse_of: :sequences
 
-  accepts_nested_attributes_for :alternate_values
-
   SequenceRelationship.descendants.each do |d|
     t = d.name.demodulize.tableize.singularize
     relationships = "#{t}_relationships".to_sym
