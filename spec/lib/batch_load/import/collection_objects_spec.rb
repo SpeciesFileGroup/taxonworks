@@ -109,7 +109,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
         expect(bingo).to be_truthy
         expect(bingo.total_lines).to eq(208)
         expect(bingo.processed_rows[1].parse_errors).to include('No collection object with cached identifier \'MuleDeer 35614\' exists.')
-        expect(bingo.processed_rows[11].parse_errors).to include('Collecting event problems: identifiers.identifier: has already been taken: ')
+        expect(bingo.processed_rows[11].parse_errors).to include('Collecting event problems: identifiers.identifier: 58170 already taken: ')
         expect(bingo.processed_rows[16].parse_errors).to include('No available namespace \'MuleDear\'.', 'Collecting event problems: identifiers.namespace: can\'t be blank: ')
         expect(bingo.processed_rows[61].objects[:ce].first.verbatim_locality).to eq('Collecting Event No. 59353')
       end

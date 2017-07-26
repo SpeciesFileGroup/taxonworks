@@ -7,7 +7,7 @@ module BatchFileLoad
     attr_reader :file_errors
     attr_reader :filenames
     attr_reader :file_contents
-    
+
     def initialize(project_id: nil, user_id: nil, files: nil, import_level: :warn)
       @project_id = project_id
       @user = User.find(user_id)

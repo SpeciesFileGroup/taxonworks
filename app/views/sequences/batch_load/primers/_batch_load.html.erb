@@ -1,0 +1,34 @@
+<div>
+  <h2> Primers batch load </h2>
+
+  <div class="flexbox full_viewport_whitespace">
+    <div class="item item1 one_third_width">
+      <h3> Description and requirements </h3>
+
+      <p>Creates sequences and attaches at most 2 data attributes to each sequence</p>
+      <ul>
+        <li>A tab-delimited, UTF-8 compatible text file is required.</li>
+        <li>Column headers are "name", "gene_name", "type", "sequence" (see <%= link_to('sample template', asset_path('batch_load_templates/sequences/sequences_primers_batch_load.tab'), target: '_blank') -%>).</li>
+        <li>Multiple uploads of the same data will be ignored.</li>
+        <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>
+        <li>DataAttribute of predicate "GeneName" with value of "gene_name" column will be attached if not blank to each sequence.</li>
+        <li>DataAttribute of predicate "Type" with value of "type" column will be attached if not blank to each sequence.</li>
+      </ul>
+    </div>
+
+    <div class="item item2 one_third_width">
+      <h3> Example file </h3>
+
+      <p> A tab delimited formatted file. In the example whitespace is a tab. View sample file template.</p>
+
+      <pre class="fixed_width_font">
+        name gene_name type sequence
+      </pre>
+    </div>
+
+    <div class="item item3">
+      <h3> Go! </h3>
+      <%= render partial: '/sequences/batch_load/primers/form', locals: {url: preview_primers_batch_load_sequences_path, submit: :preview} -%>
+    </div>
+  </div>
+</div>
