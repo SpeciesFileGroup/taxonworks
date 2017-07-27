@@ -48,7 +48,8 @@ export default {
 				'Status': '#status',
 				'Relationship': '#relationship',
 				'Original combination': '#original-combination',
-				'Etymology': '#etymology'
+				'Etymology': '#etymology',
+				'Gender': '#gender'
 			}
 		}
 	},

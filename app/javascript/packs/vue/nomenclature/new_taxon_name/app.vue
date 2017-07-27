@@ -1,6 +1,6 @@
 <template>
   <div id="new_taxon_name_task">
-  <h1>New taxon name</h1>
+    <h1>New taxon name</h1>
   <div>
   <nav-header></nav-header>
     <div class="flexbox horizontal-center-content align-start">
@@ -21,11 +21,38 @@
       </div>
       <div class="new-taxon-name-block">
         <spinner :showSpinner="false" :showLegend="false" v-if="!getTaxon.id"></spinner>
-        <original-combination class="separate-top separate-bottom"></original-combination>
+        <block-layout anchor="original-combination">
+          <h3 slot="header">Original Combination</h3>
+          <div slot="body">
+            <original-combination class="separate-top separate-bottom" 
+              nomenclature-group="Genus"
+              :relationships="{
+                  genus: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
+                  subgenus: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus',
+              }
+              ">
+            </original-combination>
+            <hr>
+            <original-combination class="separate-top separate-bottom" 
+              nomenclature-group="Species"
+              :relationships="{
+                  species: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies',
+                  subspecies: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies',
+                  variety: 'TaxonNameRelationship::OriginalCombination::OriginalVariety',
+                  form: 'TaxonNameRelationship::OriginalCombination::OriginalForm',
+              }
+              ">
+            </original-combination>
+          </div>
+        </block-layout>
       </div>
       <div class="new-taxon-name-block" v-if="getTaxon.id && (['species','genus'].indexOf(getTaxon.rank) > -1)">
         <spinner :showSpinner="false" :showLegend="false" v-if="!getTaxon.id"></spinner>
         <etymology class="separate-top separate-bottom"></etymology>
+      </div>
+      <div class="new-taxon-name-block" v-if="(getTaxon.rank == 'species' || getTaxon.rank == 'gender') ">
+        <spinner :showSpinner="false" :showLegend="false" v-if="!getTaxon.id"></spinner>
+        <gender class="separate-top separate-bottom"></gender>
       </div>
     </div>
     <div v-if="getTaxon.id" class="cright item separate-left">
@@ -44,11 +71,13 @@
   var navHeader = require('./components/navHeader.vue');
   var taxonNameBox = require('./components/taxonNameBox.vue');
   var etymology = require('./components/etymology.vue');
-  
+  var gender = require('./components/gender.vue');
   var basicInformation = require('./components/basicInformation.vue');
   var originalCombination = require('./components/originalCombination.vue');
+
   var softValidation = require('./components/softValidation.vue');
   var spinner = require('../../components/spinner.vue');
+  var blockLayout = require('./components/blockLayout');
 
   var filterObject = require('./helpers/filterObject');
 
@@ -69,7 +98,9 @@
       relationshipPicker,
       basicInformation,
       softValidation,
-      originalCombination
+      blockLayout,
+      originalCombination,
+      gender
     },
     computed: {
       getTaxon() {

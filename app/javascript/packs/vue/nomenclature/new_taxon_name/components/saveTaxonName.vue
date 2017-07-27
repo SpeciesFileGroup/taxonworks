@@ -58,9 +58,13 @@ export default {
 			    year_of_publication: this.taxon.year_of_publication,
 			    verbatim_author: this.taxon.verbatim_author,
 			    etymology: this.taxon.etymology,
+			    feminine_name: this.taxon.feminine_name,
+			    masculine_name: this.taxon.masculine_name,
+			    neuter_name: this.taxon.neuter_name,
 	            type: 'Protonym'
 	          }
 	        }
+	        console.log(taxon_name);
 	        this.$store.commit(MutationNames.SetHardValidation, undefined);
 	        this.$http.patch(`/taxon_names/${this.taxon.id}.json`, taxon_name).then(response => {
 	        	this.$store.dispatch(ActionNames.LoadSoftValidation, 'taxon_name');
