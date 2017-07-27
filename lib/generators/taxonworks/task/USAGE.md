@@ -2,9 +2,9 @@ Description:
     Stubs out the basic needed files for creating a TaxonWorks task
     
 Command structure:  
-    &nbsp;&nbsp;&nbsp;rails generate taxonworks:task <controller_base_name> "<path_to_controller>" <method_actions>      
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<method_actions> = <method_action>\[<method_action>]  
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<method_action> = <method_name>:\<verb>[:route_name]  
+    rails generate taxonworks:task <controller_base_name> "<path_to_controller>" <method_actions>      
+    <method_actions> = <method_action>\[<method_action>]  
+    <method_action> = <method_name>:\<verb>[:route_name]  
     NOTE: <path_to_controller> sereptitiously prepended with <controller_base_name>/
 
 Example:
