@@ -1,36 +1,76 @@
 <template>
-	<form class="horizontal-left-content">
-		<draggable class="flex-wrap-column" v-model="taxonOriginal" v-if="!existOriginalCombination"
+	<div class="original-combination-picker">
+		<form class="horizontal-left-content">
+			<div class="button-current separate-right">
+				<button  v-if="!existOriginalCombination" type="button" @click="addOriginalCombination()" class="button">Set as current</button>
+			</div>
+			<div>
+				<draggable class="flex-wrap-column" v-model="taxonOriginal" v-if="!existOriginalCombination"
+					:options="{
+						animation: 150, 
+						group: { 
+							name: 'combination', 
+							put: false,
+							pull: true
+						},
+						filter: '.item-filter'
+					}">
+					<div v-for="item in taxonOriginal" class="horizontal-left-content middle item-draggable">
+						<input type="text" class="normal-input current-taxon" :value="item.name" disabled/>
+						<span class="handle" data-icon="scroll-v"></span>
+					</div>
+				</draggable>
+				<button v-else type="button" class="button button-delete" @click="removeAllCombinations()">Delete all combinations</button>
+			</div>
+		</form>
+		<hr>
+		<original-combination class="separate-top separate-bottom"
+			nomenclature-group="Genus"
+			:disabled="!existOriginalCombination"
 			:options="{
 				animation: 150, 
 				group: { 
 					name: 'combination', 
-					put: false,
-					pull: true
-				},
-				filter: '.item-filter'
-			}">
-			<div v-for="item in taxonOriginal" class="horizontal-left-content middle item-draggable">
-				<input type="text" class="normal-input" :value="item.name" disabled/>
-				<span class="handle" data-icon="scroll-v"></span>
-			</div>
-		</draggable>
-	</form>
+						put: (taxon.rank == 'genus'),
+						pull: false
+					},
+					filter: '.item-filter'
+				}"
+			:relationships="genusGroup">
+		</original-combination>
+		<original-combination class="separate-top separate-bottom" 
+			nomenclature-group="Species"
+			:disabled="!existOriginalCombination"
+			:relationships="speciesGroup">
+		</original-combination>
+	</div>
 </template>
 <script>
 
 	const GetterNames = require('../store/getters/getters').GetterNames;
-	const MutationNames = require('../store/mutations/mutations').MutationNames; 
 	const ActionNames = require('../store/actions/actions').ActionNames;  
   	const draggable = require('vuedraggable');
+
+  	const originalCombination = require('./originalCombination.vue');
 
 	export default {
 		components: {
 			draggable,
+			originalCombination
 		},
 		data: function() {
 			return {
-				taxonOriginal: []
+				taxonOriginal: [],
+				genusGroup: {
+					genus: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
+					subgenus: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus',
+				},
+				speciesGroup: {
+					species: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies',
+					subspecies: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies',
+					variety: 'TaxonNameRelationship::OriginalCombination::OriginalVariety',
+					form: 'TaxonNameRelationship::OriginalCombination::OriginalForm',
+				}
 			}
 		},
 		computed: {
@@ -70,7 +110,37 @@
 					autocomplete: undefined, 
 					id: this.$store.getters[GetterNames.GetTaxon].id
 				}]
-			}
+			},
+			removeAllCombinations: function() {
+				let combinations = this.$store.getters[GetterNames.GetOriginalCombination];
+				for(var key in combinations) {
+					this.$store.dispatch(ActionNames.RemoveOriginalCombination, combinations[key]);
+				}
+			},
+			addOriginalCombination: function() {
+				let types = Object.assign({}, this.genusGroup, this.speciesGroup);
+				var data = {
+					type: types[this.taxon.rank],
+					id: this.taxon.id
+				}
+				this.$store.dispatch(ActionNames.AddOriginalCombination, data);
+			},
 		}
 	}
 </script>
+<style>
+.original-combination-picker {
+	.button-current {
+		width: 100px;
+	}
+	.current-taxon {
+		width: 300px;
+	}
+	.handle {
+		width: 15px;
+		background-position: center;
+
+	}
+}
+
+</style>

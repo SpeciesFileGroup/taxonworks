@@ -25,25 +25,6 @@
           <h3 slot="header">Original Combination</h3>
           <div slot="body">
             <pick-original-combination></pick-original-combination>
-            <original-combination class="separate-top separate-bottom" 
-              nomenclature-group="Genus"
-              :relationships="{
-                  genus: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
-                  subgenus: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus',
-              }
-              ">
-            </original-combination>
-            <hr>
-            <original-combination class="separate-top separate-bottom" 
-              nomenclature-group="Species"
-              :relationships="{
-                  species: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies',
-                  subspecies: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies',
-                  variety: 'TaxonNameRelationship::OriginalCombination::OriginalVariety',
-                  form: 'TaxonNameRelationship::OriginalCombination::OriginalForm',
-              }
-              ">
-            </original-combination>
           </div>
         </block-layout>
       </div>

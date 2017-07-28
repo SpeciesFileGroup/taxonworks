@@ -31,8 +31,6 @@
 </template>
 <script>
 
-	//TODO: Add current taxon on drag and drop.
-
   	const draggable = require('vuedraggable');
 	const GetterNames = require('../store/getters/getters').GetterNames;
 	const MutationNames = require('../store/mutations/mutations').MutationNames; 
@@ -64,19 +62,24 @@
 			nomenclatureGroup: {
 				type: String,
 				required: true
+			},
+			options: {
+				type: Object,
+				default: function() {
+					return { 
+						animation: 150, 
+						group: { 
+							name: 'combination', 
+							put: true,
+							pull: true
+						},
+						filter: '.item-filter'
+					}
+				}	
 			}
 		},
 		data: function() { 
 			return {
-				options: {
-					animation: 150, 
-					group: { 
-						name: 'combination', 
-						put: true,
-						pull: true
-					},
-					filter: '.item-filter'
-				},
 				expanded: true,
 				rankGroup: [],
 				orderRank: [],
