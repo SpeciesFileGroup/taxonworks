@@ -41,6 +41,15 @@
 		<original-combination class="separate-top separate-bottom" 
 			nomenclature-group="Species"
 			:disabled="!existOriginalCombination"
+			:options="{
+				animation: 150, 
+				group: { 
+					name: 'combination', 
+						put: (taxon.rank == 'species'),
+						pull: false
+					},
+					filter: '.item-filter'
+				}"
 			:relationships="speciesGroup">
 		</original-combination>
 	</div>
