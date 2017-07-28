@@ -42,7 +42,7 @@ class IdentifiersController < ApplicationController
         format.html { redirect_to @identifier.identifier_object.metamorphosize, notice: 'Identifier was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { redirect_to :back, notice: 'Identifier was NOT successfully updated.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Identifier was NOT successfully created.')}
         format.json { render json: @identifier.errors, status: :unprocessable_entity }
       end
     end
@@ -53,7 +53,7 @@ class IdentifiersController < ApplicationController
   def destroy
     @identifier.destroy
     respond_to do |format|
-      format.html { redirect_to :back, notice: 'Identifier was successfully destroyed.' }
+      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Identifier was successfully destroyed.')}
       format.json { head :no_content }
     end
   end
