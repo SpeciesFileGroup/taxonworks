@@ -4,16 +4,17 @@
 			<label v-for="item in rankGroup" class="row capitalize"> {{ item.name }} </label>
 		</div>
 		<div>
-			<draggable class="flex-wrap-column" v-model="rankGroup" :options="options" :move="onMove">
+			<draggable class="flex-wrap-column" v-model="rankGroup" :options="options" @add="onAdd" @autocomplete="searchForChanges(rankGroup,copyRankGroup)" @update="onUpdate" :move="onMove">
 				<div v-for="item, index in rankGroup" :class="{ 'item-filter' : (taxon.rank == 'genus')}" class="horizontal-left-content middle" v-if="(GetOriginal(rankGroup[index].name).length == 0)" :key="item.id">
 					<autocomplete  
 						:get-object="item.autocomplete"
 						url="/taxon_names/autocomplete"
 						label="label"
 						min="3"
+						:disabled="disabled"
 						time="0"
 						v-model="item.autocomplete"
-						eventSend="autocompleteTaxonSelected"
+						eventSend="autocomplete"
 						:addParams="{ type: 'Protonym', 'nomenclature_group[]': nomenclatureGroup }"
 						param="term">
 					</autocomplete>
@@ -52,6 +53,10 @@
 			}
 		},
 		props: {
+			disabled: {
+				type: Boolean,
+				default: false
+			},
 			relationships: {
 				type: Object,
 				required: true
@@ -68,7 +73,7 @@
 					group: { 
 						name: 'combination', 
 						put: true,
-						pull: false
+						pull: true
 					},
 					filter: '.item-filter'
 				},
@@ -90,10 +95,10 @@
 				},
 				immediate: true
 			},
-			rankGroup: {
+			originalCombination: {
 				handler: function(newVal,oldVal) {
 					if (JSON.stringify(newVal) == JSON.stringify(this.copyRankGroup)) return true
-					this.copyRankGroup = this.searchForChanges(newVal, this.copyRankGroup);
+					this.setNewCombinations();
 				},
 				deep: true
 			},
@@ -118,26 +123,19 @@
 			},
 			searchForChanges: function(newVal, copyOld) {
 				var that = this;
-				let positions = [];
 				newVal.forEach(function(element, index) {
 					if(JSON.stringify(newVal[index]) != JSON.stringify(copyOld[index])) {
-						if(JSON.stringify(newVal[index].id) != JSON.stringify(copyOld[index].id)) {
-							console.log("Change ID position");
-							positions.push(index);
-						}
-						else if(JSON.stringify(newVal[index].autocomplete) != JSON.stringify(copyOld[index].autocomplete)) {
-							console.log("Change content: " + index);
-							that.addOriginalCombination(newVal[index].autocomplete.id, index);
+						if(JSON.stringify(newVal[index].id) == JSON.stringify(copyOld[index].id)) {
+							if(JSON.stringify(newVal[index].autocomplete) != JSON.stringify(copyOld[index].autocomplete)) {
+								//console.log("Change content: " + index);
+								if(newVal[index].autocomplete) {
+									that.addOriginalCombination(newVal[index].autocomplete.id, index);
+									that.copyRankGroup = JSON.parse(JSON.stringify(newVal));
+								}
+							}
 						}
 					}
 				});
-				if(positions.length) {
-					this.copyRankGroup = JSON.parse(JSON.stringify(newVal));
-					this.setNewCombinations();
-					this.updateNames();
-					this.processChange(positions);
-				}
-				return JSON.parse(JSON.stringify(newVal));
 			},
 			setNewCombinations: function() {
 				var that = this;
@@ -149,6 +147,7 @@
 				var that = this;
 				var copyCombinations = [];
 				let allDelete = [];
+
 				positions.forEach(function(element, index) {
 					copyCombinations.push(JSON.parse(JSON.stringify(that.rankGroup[element])));
 					if(that.rankGroup[element].value != '') {
@@ -184,6 +183,35 @@
 			},
 		    onMove: function(evt) {
 		         return !evt.related.classList.contains('item-filter');
+		    },
+			onAdd: function(evt) {
+				let index = evt.newIndex;
+				if((this.rankGroup.length-1) == evt.newIndex) {
+					this.rankGroup.splice((evt.newIndex-1), 1);
+					index = evt.newIndex-1;
+				}
+				this.rankGroup.splice((evt.newIndex+1), 1);
+				this.updateNames();
+				this.addOriginalCombination(this.rankGroup[index].value.subject_taxon_name_id, index);
+			},
+		    onUpdate: function(evt) {
+		    	let newVal = this.rankGroup;
+		    	let copyOld = this.copyRankGroup;
+		    	let positions = [];
+				newVal.forEach(function(element, index) {
+					if(JSON.stringify(newVal[index]) != JSON.stringify(copyOld[index])) {
+						if(JSON.stringify(newVal[index].id) != JSON.stringify(copyOld[index].id)) {
+							//console.log("Change ID position");
+							positions.push(index);
+						}
+					}
+				});
+				if(positions.length) {
+					this.copyRankGroup = JSON.parse(JSON.stringify(newVal));
+					this.setNewCombinations();
+					this.updateNames();
+					this.processChange(positions);
+				}
 		    },
 		    updateNames: function(group) {
 		    	var that = this;

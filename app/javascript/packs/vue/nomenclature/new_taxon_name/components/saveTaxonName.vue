@@ -64,7 +64,6 @@ export default {
 	            type: 'Protonym'
 	          }
 	        }
-	        console.log(taxon_name);
 	        this.$store.commit(MutationNames.SetHardValidation, undefined);
 	        this.$http.patch(`/taxon_names/${this.taxon.id}.json`, taxon_name).then(response => {
 	        	this.$store.dispatch(ActionNames.LoadSoftValidation, 'taxon_name');

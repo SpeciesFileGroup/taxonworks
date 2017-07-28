@@ -24,6 +24,7 @@
         <block-layout anchor="original-combination">
           <h3 slot="header">Original Combination</h3>
           <div slot="body">
+            <pick-original-combination></pick-original-combination>
             <original-combination class="separate-top separate-bottom" 
               nomenclature-group="Genus"
               :relationships="{
@@ -74,6 +75,7 @@
   var gender = require('./components/gender.vue');
   var basicInformation = require('./components/basicInformation.vue');
   var originalCombination = require('./components/originalCombination.vue');
+  var pickOriginalCombination = require('./components/pickOriginalCombination.vue');
 
   var softValidation = require('./components/softValidation.vue');
   var spinner = require('../../components/spinner.vue');
@@ -100,6 +102,7 @@
       softValidation,
       blockLayout,
       originalCombination,
+      pickOriginalCombination,
       gender
     },
     computed: {

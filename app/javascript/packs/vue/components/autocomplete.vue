@@ -20,7 +20,7 @@ Parameters:
 */
 <template>
   <div class="vue-autocomplete">
-    <input class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="checkTime" v-model="type" :autofocus="autofocus" v-bind:class="{'ui-autocomplete-loading' : spinner, 'vue-autocomplete-input-search' : !spinner }"/>
+    <input class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="checkTime" v-model="type" :autofocus="autofocus" :disabled="disabled" v-bind:class="{'ui-autocomplete-loading' : spinner, 'vue-autocomplete-input-search' : !spinner }"/>
     <ul v-show="showList" v-if="type && json.length">
       <li v-for="(item, index) in json" :class="activeClass(index)" @mouseover="itemActive(index)" @click.prevent="itemClicked(item), sendItem(item)">
         <span v-html="item[label]"></span>
@@ -60,6 +60,11 @@ export default {
     },
 
     props: {
+
+      disabled: {
+        type: Boolean,
+        default: false
+      },
 
       url: {
         type: String
@@ -124,8 +129,8 @@ export default {
   
       methods: {
         sendItem: function(item) {
-          this.$parent.$emit(this.eventSend, item);
           this.$emit('input', item);
+          this.$parent.$emit(this.eventSend, item);
         },
 
         clearResults: function() {
