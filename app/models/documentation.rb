@@ -49,7 +49,7 @@ class Documentation < ApplicationRecord
     begin
       yield # calls :after_save callback
     rescue ActiveRecord::StatementInvalid => e
-      if e.original_exception.class.name == 'PG::NotNullViolation'
+      if e.cause.class.name == 'PG::NotNullViolation'
         errors.add(:base, 'a required field was not provided')
       else
         raise

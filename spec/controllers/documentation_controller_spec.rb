@@ -45,7 +45,7 @@ RSpec.describe DocumentationController, type: :controller do
   describe 'GET #index' do
     it 'assigns all recent documentation as @recent_objects' do
       documentation = Documentation.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       expect(assigns(:recent_objects)).to eq([documentation])
     end
   end
@@ -53,14 +53,14 @@ RSpec.describe DocumentationController, type: :controller do
   describe 'GET #show' do
     it 'assigns the requested documentation as @documentation' do
       documentation = Documentation.create! valid_attributes
-      get :show, {:id => documentation.to_param}, valid_session
+      get :show, params: {id: documentation.to_param}, session: valid_session
       expect(assigns(:documentation)).to eq(documentation)
     end
   end
 
   describe 'GET #new' do
     it 'assigns a new documentation as @documentation' do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       expect(assigns(:documentation)).to be_a_new(Documentation)
     end
   end
@@ -68,7 +68,7 @@ RSpec.describe DocumentationController, type: :controller do
   describe 'GET #edit' do
     it 'assigns the requested documentation as @documentation' do
       documentation = Documentation.create! valid_attributes
-      get :edit, {:id => documentation.to_param}, valid_session
+      get :edit, params: {id: documentation.to_param}, session: valid_session
       expect(assigns(:documentation)).to eq(documentation)
     end
   end
@@ -77,18 +77,18 @@ RSpec.describe DocumentationController, type: :controller do
     context 'with valid params' do
       it 'creates a new Documentation' do
         expect {
-          post :create, {:documentation => valid_attributes}, valid_session
+          post :create, params: {documentation: valid_attributes}, session: valid_session
         }.to change(Documentation, :count).by(1)
       end
 
       it 'assigns a newly created documentation as @documentation' do
-        post :create, {:documentation => valid_attributes}, valid_session
+        post :create, params: {documentation: valid_attributes}, session: valid_session
         expect(assigns(:documentation)).to be_a(Documentation)
         expect(assigns(:documentation)).to be_persisted
       end
 
       it 'redirects to the created documentation' do
-        post :create, {:documentation => valid_attributes}, valid_session
+        post :create, params: {documentation: valid_attributes}, session: valid_session
         expect(response).to redirect_to(Documentation.last.metamorphosize)
       end
     end
@@ -96,12 +96,12 @@ RSpec.describe DocumentationController, type: :controller do
     # TODO: @mjy need to re-define the validation process in the face of accepts_nested_attributes
     context 'with invalid params' do
       it 'assigns a newly created but unsaved documentation as @documentation' do
-        post :create, {:documentation => {documentation_object_id: 1}}, valid_session
+        post :create, params: {documentation: {documentation_object_id: 1}}, session: valid_session
         expect(assigns(:documentation)).to be_a_new(Documentation)
       end
 
       it 're-renders the \'new\' template' do
-        post :create, {:documentation => {documentation_object_id: 1}}, valid_session
+        post :create, params: {documentation: {documentation_object_id: 1}}, session: valid_session
         expect(response).to render_template('new')
       end
     end
@@ -115,20 +115,20 @@ RSpec.describe DocumentationController, type: :controller do
 
       # it 'updates the requested documentation' do
       #   documentation = Documentation.create! valid_attributes
-      #   put :update, {:id => documentation.to_param, :documentation => new_attributes}, valid_session
+      #   put :update, {id: documentation.to_param, documentation: new_attributes}, session: valid_session
       #   documentation.reload
       #   skip('Add assertions for updated state')
       # end
 
       it 'assigns the requested documentation as @documentation' do
         documentation = Documentation.create! valid_attributes
-        put :update, {:id => documentation.to_param, :documentation => valid_attributes}, valid_session
+        put :update, params: {id: documentation.to_param, documentation: valid_attributes}, session: valid_session
         expect(assigns(:documentation)).to eq(documentation)
       end
 
       it 'redirects to the documentation' do
         documentation = Documentation.create! valid_attributes
-        put :update, {:id => documentation.to_param, :documentation => valid_attributes}, valid_session
+        put :update, params: {id: documentation.to_param, documentation: valid_attributes}, session: valid_session
         expect(response).to redirect_to(documentation.metamorphosize)
       end
     end
@@ -136,13 +136,13 @@ RSpec.describe DocumentationController, type: :controller do
     context 'with invalid params' do
       it 'assigns the documentation as @documentation' do
         documentation = Documentation.create! valid_attributes
-        put :update, {:id => documentation.to_param, :documentation => {documentation_object_id: 1}}, valid_session
+        put :update, params: {id: documentation.to_param, documentation: {documentation_object_id: 1}}, session: valid_session
         expect(assigns(:documentation)).to eq(documentation)
       end
 
       it 're-renders the \'edit\' template' do
         documentation = Documentation.create! valid_attributes
-        put :update, {:id => documentation.to_param, :documentation => {documentation_object_id: nil}}, valid_session
+        put :update, params: {id: documentation.to_param, documentation: {documentation_object_id: nil}}, session: valid_session
         expect(response).to render_template('edit')
       end
     end
@@ -152,13 +152,13 @@ RSpec.describe DocumentationController, type: :controller do
     it 'destroys the requested documentation' do
       documentation = Documentation.create! valid_attributes
       expect {
-        delete :destroy, {:id => documentation.to_param}, valid_session
+        delete :destroy, params: {id: documentation.to_param}, session: valid_session
       }.to change(Documentation, :count).by(-1)
     end
 
     it 'redirects to the documentation list' do
       documentation = Documentation.create! valid_attributes
-      delete :destroy, {:id => documentation.to_param}, valid_session
+      delete :destroy, params: {id: documentation.to_param}, session: valid_session
       expect(response).to redirect_to(documentation_index_url)
     end
   end
