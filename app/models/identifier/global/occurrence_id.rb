@@ -4,8 +4,6 @@ class Identifier::Global::OccurrenceId < Identifier::Global
   validate :using_occurrence_id_class
 
   def using_occurrence_id_class
-    retval = true
     # todo: decide exactly what rules to use to qualify this class as acceptable.
-    retval
   end
 end
