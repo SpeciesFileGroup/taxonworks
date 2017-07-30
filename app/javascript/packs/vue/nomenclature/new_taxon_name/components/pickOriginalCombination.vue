@@ -31,7 +31,7 @@
 				animation: 150, 
 				group: { 
 					name: 'combination', 
-						put: (taxon.rank == 'genus'),
+						put: isGenus,
 						pull: false
 					},
 					filter: '.item-filter'
@@ -45,7 +45,7 @@
 				animation: 150, 
 				group: { 
 					name: 'combination', 
-						put: (taxon.rank == 'species'),
+						put: !isGenus,
 						pull: false
 					},
 					filter: '.item-filter'
@@ -85,6 +85,9 @@
 		computed: {
 			taxon() {
 				return this.$store.getters[GetterNames.GetTaxon]
+			},
+			isGenus() {
+				return this.$store.getters[GetterNames.GetTaxon] == 'genus'
 			},
 			existOriginalCombination: {
 				get: function() { 
