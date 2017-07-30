@@ -20,13 +20,12 @@
 						<span class="handle" data-icon="scroll-v"></span>
 					</div>
 				</draggable>
-				<button v-else type="button" class="normal-input button button-delete" @click="removeAllCombinations()">Delete all combinations</button>
+				<button v-else type="button" class="normal-input button button-delete" @click="removeAllCombinations()">Delete original combinations</button>
 			</div>
 		</form>
 		<hr>
 		<original-combination class="separate-top separate-bottom"
 			nomenclature-group="Genus"
-			:disabled="!existOriginalCombination"
 			:options="{
 				animation: 150, 
 				group: { 
@@ -40,7 +39,6 @@
 		</original-combination>
 		<original-combination class="separate-top separate-bottom" 
 			nomenclature-group="Species"
-			:disabled="!existOriginalCombination"
 			:options="{
 				animation: 150, 
 				group: { 
