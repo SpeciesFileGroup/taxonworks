@@ -1,5 +1,5 @@
 module BatchLoad
-  class Import::Otus::CastorInterpreter < BatchLoad::Import
+  class Import::Otus::IdentifiersInterpreter < BatchLoad::Import
 
     def initialize(**args)
       super(args)
@@ -19,23 +19,21 @@ module BatchLoad
         @processed_rows[i] = parse_result
 
         begin # processing
-          otu_identifier_castor_text = row["guid"]
-          otu_identifier_castor = {
+          otu_identifier_uri_text = row["uri"]
+          otu_identifier_uri = {
             type: "Identifier::Global::Uri",
-            identifier: otu_identifier_castor_text
+            identifier: otu_identifier_uri_text
           }
 
           otu_identifiers = []
-          otu_identifiers.push(otu_identifier_castor) if otu_identifier_castor.present?
-
-          taxon_name = TaxonName.with_identifier(row["guid"]).take
+          otu_identifiers.push(otu_identifier_uri) if otu_identifier_uri_text.present?
 
           otu_attributes = {
-            name: row["name"]
+            name: row["name"],
+            identifiers_attributes: otu_identifiers
           }
 
           otu = Otu.new(otu_attributes)
-          otu.taxon_name = taxon_name if taxon_name.present?
           parse_result.objects[:otu].push otu
 
           @total_data_lines += 1 if otu.present?

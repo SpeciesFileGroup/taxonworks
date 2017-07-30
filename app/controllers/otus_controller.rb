@@ -127,23 +127,23 @@ class OtusController < ApplicationController
     end
   end
 
-  def preview_castor_batch_load
+  def preview_identifiers_batch_load
     if params[:file]
-      @result = BatchLoad::Import::Otus::CastorInterpreter.new(batch_params)
-      digest_cookie(params[:file].tempfile, :batch_load_otus_castor_md5)
-      render('otus/batch_load/castor/preview')
+      @result = BatchLoad::Import::Otus::IdentifiersInterpreter.new(batch_params)
+      digest_cookie(params[:file].tempfile, :batch_load_otus_identifiers_md5)
+      render('otus/batch_load/identifiers/preview')
     else
       flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end
 
-  def create_castor_batch_load
-    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_load_otus_castor_md5)
-      @result = BatchLoad::Import::Otus::CastorInterpreter.new(batch_params)
+  def create_identifiers_batch_load
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_load_otus_identifiers_md5)
+      @result = BatchLoad::Import::Otus::IdentifiersInterpreter.new(batch_params)
       if @result.create
         flash[:notice] = "Successfully processed file, #{@result.total_records_created} otus were created."
-        render('otus/batch_load/castor/create')
+        render('otus/batch_load/identifiers/create')
         return
       else
         flash[:alert] = 'Batch import failed.'
