@@ -4,7 +4,7 @@
 			<label v-for="item, index in rankGroup" :class="{ 'new-position' : index == newPosition }" class="row capitalize"> {{ item.name }} </label>
 		</div>
 		<div>
-			<draggable class="flex-wrap-column" v-model="rankGroup" :options="options" @end="onEnd" @sort="onSort" @add="onAdd" @autocomplete="searchForChanges(rankGroup,copyRankGroup)" @update="onUpdate" :move="onMove">
+			<draggable class="flex-wrap-column" v-model="rankGroup" :options="options" @end="onEnd" @add="onAdd" @autocomplete="searchForChanges(rankGroup,copyRankGroup)" @update="onUpdate" :move="onMove">
 				<div v-for="item, index in rankGroup" :class="{ 'item-filter' : (taxon.rank == 'genus')}" class="horizontal-left-content middle" v-if="(GetOriginal(rankGroup[index].name).length == 0)" :key="item.id">
 					<autocomplete  
 						:get-object="item.autocomplete"
