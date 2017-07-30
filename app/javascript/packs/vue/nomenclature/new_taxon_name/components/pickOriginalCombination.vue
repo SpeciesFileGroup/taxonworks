@@ -26,6 +26,7 @@
 		<hr>
 		<original-combination class="separate-top separate-bottom"
 			nomenclature-group="Genus"
+			:disabled="!existOriginalCombination"
 			:options="{
 				animation: 150, 
 				group: { 
@@ -39,6 +40,7 @@
 		</original-combination>
 		<original-combination class="separate-top separate-bottom" 
 			nomenclature-group="Species"
+			:disabled="!existOriginalCombination"
 			:options="{
 				animation: 150, 
 				group: { 
@@ -96,7 +98,8 @@
 							exist = true;
 						}
 					}
-					return exist;
+					//return exist;
+					return true
 				}
 			},
 		},

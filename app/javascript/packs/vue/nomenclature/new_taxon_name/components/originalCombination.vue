@@ -1,10 +1,10 @@
 <template>
 	<div class="original-combination">
 		<div class="flex-wrap-column rank-name-label">
-			<label v-for="item in rankGroup" class="row capitalize"> {{ item.name }} </label>
+			<label v-for="item, index in rankGroup" :class="{ 'new-position' : index == newPosition }" class="row capitalize"> {{ item.name }} </label>
 		</div>
 		<div>
-			<draggable class="flex-wrap-column" v-model="rankGroup" :options="options" @add="onAdd" @autocomplete="searchForChanges(rankGroup,copyRankGroup)" @update="onUpdate" :move="onMove">
+			<draggable class="flex-wrap-column" v-model="rankGroup" :options="options" @end="onEnd" @sort="onSort" @add="onAdd" @autocomplete="searchForChanges(rankGroup,copyRankGroup)" @update="onUpdate" :move="onMove">
 				<div v-for="item, index in rankGroup" :class="{ 'item-filter' : (taxon.rank == 'genus')}" class="horizontal-left-content middle" v-if="(GetOriginal(rankGroup[index].name).length == 0)" :key="item.id">
 					<autocomplete  
 						:get-object="item.autocomplete"
@@ -85,6 +85,7 @@
 				orderRank: [],
 				copyRankGroup: undefined,
 				originalTypes: [],
+				newPosition: -1
 			}
 		},
 		created: function() {
@@ -185,7 +186,8 @@
 				this.$store.dispatch(ActionNames.RemoveOriginalCombination, value);
 			},
 		    onMove: function(evt) {
-		         return !evt.related.classList.contains('item-filter');
+		    	this.newPosition = evt.draggedContext.futureIndex;
+		        return !evt.related.classList.contains('item-filter');
 		    },
 			onAdd: function(evt) {
 				let index = evt.newIndex;
@@ -196,6 +198,9 @@
 				this.rankGroup.splice((evt.newIndex+1), 1);
 				this.updateNames();
 				this.addOriginalCombination(this.rankGroup[index].value.subject_taxon_name_id, index);
+			},
+			onEnd: function(evt) {
+				this.newPosition = -1;
 			},
 		    onUpdate: function(evt) {
 		    	let newVal = this.rankGroup;
@@ -230,3 +235,11 @@
 		}
 	}
 </script>
+<style>
+ .original-combination {
+ 	.new-position {
+ 		color: red;
+ 		font-weight: 900;
+ 	}
+ }
+</style>

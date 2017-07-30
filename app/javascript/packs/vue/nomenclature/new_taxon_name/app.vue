@@ -21,7 +21,7 @@
       </div>
       <div class="new-taxon-name-block">
         <spinner :showSpinner="false" :showLegend="false" v-if="!getTaxon.id"></spinner>
-        <block-layout anchor="original-combination">
+        <block-layout anchor="original-combination" v-if="getTaxon.rank == 'genus' || getTaxon.rank == 'species'">
           <h3 slot="header">Original Combination</h3>
           <div slot="body">
             <pick-original-combination></pick-original-combination>
