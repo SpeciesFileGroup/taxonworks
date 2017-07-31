@@ -116,17 +116,18 @@ RSpec.describe ExtractsController, type: :controller, group: :extract do
     context "with valid params" do
       let(:new_attributes) {
         attributes = valid_attributes
-        attributes[:quantity_value] = 1000
+        attributes['quantity_value'] = 1000
         attributes
       }
 
       it "updates the requested extract" do
         extract = Extract.create! valid_attributes
-        extract[:quantity_value] = new_attributes[:quantity_value]
-        #TODO: the above new_attributes adds a new quantity_value pair to the hash, but it is not transmitted to the controller
+        #TODO: expect_any_instance_of test was not present, and has param mismatch if used
+        # update_params = ActionController::Parameters.new({id: extract.id, extract: new_attributes}).permit(:id, :extract)
+        # expect_any_instance_of(Extract).to receive(:update).with(update_params)
         put :update, params: {id: extract.to_param, extract: new_attributes}, session: valid_session
         extract.reload
-        expect(extract.quantity_value == new_attributes[:quantity_value]).to be true
+        expect(extract.quantity_value == new_attributes['quantity_value']).to be true
       end
 
       it "assigns the requested extract as @extract" do
