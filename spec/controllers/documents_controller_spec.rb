@@ -133,7 +133,7 @@ RSpec.describe DocumentsController, type: :controller do
         expect(assigns(:document)).to eq(document)
       end
 
-      #TODO: this test fails, but reason not clear to JRF (update succeeds instead of failing)
+      #TODO: this test fails, but reason not clear to JRF (update succeeds instead of failing) @mjy
       it "re-renders the 'edit' template" do
         document = Document.create! valid_attributes
         put :update, params: {id: document.to_param, document: invalid_attributes}, session: valid_session
