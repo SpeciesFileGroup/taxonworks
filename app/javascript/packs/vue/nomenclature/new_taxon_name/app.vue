@@ -19,20 +19,20 @@
         <spinner :showSpinner="false" :showLegend="false" v-if="!getTaxon.id"></spinner>
         <relationship-picker class="separate-top separate-bottom"></relationship-picker>
       </div>
-      <div class="new-taxon-name-block">
+      <div class="new-taxon-name-block" v-if="showForThisGroup(['SpeciesGroup','GenusGroup'])">
         <spinner :showSpinner="false" :showLegend="false" v-if="!getTaxon.id"></spinner>
-        <block-layout anchor="original-combination" v-if="getTaxon.rank == 'genus' || getTaxon.rank == 'species'">
+        <block-layout anchor="original-combination">
           <h3 slot="header">Original Combination</h3>
           <div slot="body">
             <pick-original-combination></pick-original-combination>
           </div>
         </block-layout>
       </div>
-      <div class="new-taxon-name-block" v-if="getTaxon.id && (['species','genus'].indexOf(getTaxon.rank) > -1)">
+      <div class="new-taxon-name-block" v-if="getTaxon.id && showForThisGroup(['SpeciesGroup','GenusGroup'])">
         <spinner :showSpinner="false" :showLegend="false" v-if="!getTaxon.id"></spinner>
         <etymology class="separate-top separate-bottom"></etymology>
       </div>
-      <div class="new-taxon-name-block" v-if="(getTaxon.rank == 'species' || getTaxon.rank == 'gender') ">
+      <div class="new-taxon-name-block" v-if="showForThisGroup(['SpeciesGroup','GenusGroup'])">
         <spinner :showSpinner="false" :showLegend="false" v-if="!getTaxon.id"></spinner>
         <gender class="separate-top separate-bottom"></gender>
       </div>
@@ -62,8 +62,7 @@
   var spinner = require('../../components/spinner.vue');
   var blockLayout = require('./components/blockLayout');
 
-  var filterObject = require('./helpers/filterObject');
-
+  const filterObject = require('./helpers/filterObject');
 
   const MutationNames = require('./store/mutations/mutations').MutationNames;  
   const GetterNames = require('./store/getters/getters').GetterNames; 
@@ -112,6 +111,9 @@
       });
     },
     methods: {
+      showForThisGroup: function(findInGroups){
+        return (this.getTaxon.rank_string ? findInGroups.indexOf(this.getTaxon.rank_string.split('::')[2] > -1) : undefined);
+      },
       loadRanks: function() {
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -168,20 +170,6 @@
       fillTaxonName: function(id) {
         this.$http.get(`/taxon_names/${id}`).then( response => {
           console.log(response.body);
-          let taxon_name = {
-            id: response.body.id,
-            parent_id: response.body.parent_id,
-            global_id: response.body.global_id,
-            name: response.body.name,
-            rank_class: response.body.rank_string,
-            year_of_publication: response.body.year_of_publication,
-            verbatim_author: response.body.verbatim_author,
-            feminine_name: response.body.feminine_name,
-            masculine_name: response.body.masculine_name,
-            neuter_name: response.body.neuter_name,
-            origin_citation: response.body.origin_citation,
-            etymology: response.body.etymology
-          }
           this.loadTaxonRelationships(response.body.id);
           this.loadTaxonStatus(response.body.id);
           this.$store.commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code);

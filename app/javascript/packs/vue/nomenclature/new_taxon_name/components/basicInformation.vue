@@ -15,14 +15,17 @@
           	<label>Name</label><br>
           	<taxon-name :class="{ field_with_errors : existError('name') }"></taxon-name>
           </div>
-          <rank-selector></rank-selector>
-
+          <rank-selector v-if="parent"></rank-selector>
+          
         </div>
         <div class="column-right item">
           <check-exist class="separate-left" url="/taxon_names/autocomplete" label="label_html" :search="taxon.name" param="term" :add-params="{ exact: true }"></check-exist>
         </div>
-        </div>
-      </form>
+      </div>
+      <div class="body" v-if="taxon.name && taxon.rank_string && !taxon.id">
+        <save-taxon-name class="normal-input button button-submit create-button"></save-taxon-name>
+      </div>
+    </form>
 </template>
 
 <script>
@@ -30,6 +33,7 @@
   const GetterNames = require('../store/getters/getters').GetterNames;
   const MutationNames = require('../store/mutations/mutations').MutationNames;
 
+  var saveTaxonName = require('./saveTaxonName.vue');
   var parentPicker = require('./parentPicker.vue');
   var taxonName = require('./taxonName.vue');
   var expand = require('./expand.vue');
@@ -42,7 +46,8 @@
 			taxonName,
       expand,
 			rankSelector,
-      checkExist
+      checkExist,
+      saveTaxonName
 		},
     computed: {
       parent() {
@@ -72,6 +77,9 @@
   .basic-information {
     .validation-warning {
       border-left: 4px solid #ff8c00 !important;
+    }
+    .create-button {
+      min-width: 100px;
     }
     .soft-success {
 

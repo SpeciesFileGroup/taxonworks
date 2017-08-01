@@ -16,6 +16,7 @@ function makeInitialState() {
       name: undefined,
       rank: undefined,
       rank_class: undefined,
+      rank_string: undefined,
       year_of_publication: undefined,
       verbatim_author: undefined,
       feminine_name: undefined,

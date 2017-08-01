@@ -32,8 +32,9 @@
 	}
 }
 	.taxon-modal {
+			background-color: rgba(0,0,0,0.8) !important;
+	
 		.modal-header {
-
 			h3 {
 				margin: 2em;
 				margin-right: 0px;
@@ -48,6 +49,8 @@
 		.modal-close {
 			right: 42px;
 			top:30px;
+			color: rgba(255, 255, 255, .5);
+			background-image: image-url('w_close.svg');
 		}
 		.modal-container {
 			width: 70%;

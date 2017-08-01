@@ -36,17 +36,18 @@ export default {
 	          taxon_name: {
 	            name: this.taxon.name,
 	            parent_id: this.taxon.parent_id,
-	            rank_class: this.taxon.rank_class,
+	            rank_class: this.taxon.rank_string,
 	            type: 'Protonym'
 	          }
 	        }
 	        this.$http.post('/taxon_names.json', taxon_name).then(response => {
-	          this.$store.commit(MutationNames.SetTaxon, response.body);
-	          this.$store.commit(MutationNames.SetHardValidation, undefined);
-	          this.$store.dispatch(ActionNames.LoadSoftValidation, 'taxon_name');
-	          TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully created.`, "notice");
+	        	history.pushState(null, null, `/tasks/nomenclature/new_taxon_name/${response.body.id}`);
+	        	this.$store.commit(MutationNames.SetTaxon, response.body);
+				this.$store.commit(MutationNames.SetHardValidation, undefined);
+				this.$store.dispatch(ActionNames.LoadSoftValidation, 'taxon_name');
+				TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully created.`, "notice");
 	        }, response => {
-	          this.$store.commit(MutationNames.SetHardValidation, response.body);
+				this.$store.commit(MutationNames.SetHardValidation, response.body);
 	        });
 	      },
 	      updateTaxonName: function() {
@@ -54,7 +55,7 @@ export default {
 	          taxon_name: {
 	            name: this.taxon.name,
 	            parent_id: this.taxon.parent_id,
-	            rank_class: this.taxon.rank_class,
+	            rank_class: this.taxon.rank_string,
 			    year_of_publication: this.taxon.year_of_publication,
 			    verbatim_author: this.taxon.verbatim_author,
 			    etymology: this.taxon.etymology,

@@ -1,3 +1,3 @@
 module.exports = function(state) {
-	return state.taxon_name.rank_class;
+	return state.taxon_name.rank_string;
 };

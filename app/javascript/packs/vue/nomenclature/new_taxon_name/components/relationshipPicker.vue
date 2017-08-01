@@ -20,7 +20,7 @@
             param="term">
         </autocomplete>
         <div v-if="existError('object_taxon_name_id')">
-          <span v-for="error in errors.object_taxon_name_id">{{ error }}</span>
+          <span v-for="error in errors.object_taxon_name_id" v-html="error"></span>
         </div>
       </div>
       <div v-else>

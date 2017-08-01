@@ -1,16 +1,20 @@
 <template>
-	<div>
-    <div v-if="spinner" class="spinner">
-      <div class="box-spinner"></div>
-    </div>
-    <ul class="no_bullets find-taxonname-picker" v-if="json.length > 0">
+	<div class="find-taxonname-picker">
+    <ul class="no_bullets find-taxonname-list" v-if="json.length > 0">
      <li v-for="item, index in json" v-if="index < maxResults"><a :href="makeUrl(item.id)" v-html="item[label]"></a></li>
    </ul>
+    <spinner legend="Checking for identical spellings" :legend-style="{ fontSize: '14px', color: '#444', textAlign: 'center', paddingTop: '20px'}" v-if="spinner"></spinner>
  </div>
 </template>
 
 <script>
+
+  const spinner = require('../../../components/spinner.vue');
+
   export default {
+    components: {
+      spinner
+    },
     props: { 
       url: {
         type: String,
@@ -113,6 +117,9 @@
 
 <style type="text/css">
   .find-taxonname-picker {
+    min-height:100px;
+  }
+  .find-taxonname-list {
     margin-top: 1.5em;
     box-sizing: border-box;
     border: 1px solid #f5f5f5;

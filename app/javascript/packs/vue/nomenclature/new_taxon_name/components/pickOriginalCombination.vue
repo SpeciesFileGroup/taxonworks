@@ -98,8 +98,7 @@
 							exist = true;
 						}
 					}
-					//return exist;
-					return true
+					return exist;
 				}
 			},
 		},
