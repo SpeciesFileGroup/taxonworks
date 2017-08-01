@@ -109,7 +109,7 @@ describe ProjectsController, :type => :controller do
         # specifies that the Project created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        update_params = ActionController::Parameters.new({name: "MuString"}).permit(:name)
+        update_params = ActionController::Parameters.new({name: "MyString"}).permit(:name)
         expect_any_instance_of(Project).to receive(:update).with(update_params)
         put :update, params: {id: project.to_param, project: update_params}, session: valid_session
       end
