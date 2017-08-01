@@ -47,7 +47,7 @@ RSpec.describe SqedDepiction, type: :model do
     end
 
     specify ':metadata_map' do
-      expect(valid_sqed_depiction.extraction_metadata[:metadata_map]).to eq({0 => :curator_metadata, 1 => :identifier, 2 => :image_registration, 3 => :annotated_specimen })
+      expect(valid_sqed_depiction.extraction_metadata[:target_metadata_map]).to eq({0 => :curator_metadata, 1 => :identifier, 2 => :image_registration, 3 => :annotated_specimen })
     end
 
     specify ':has_border' do

@@ -1,13 +1,15 @@
 production:
+  default_data_directory: <%= ENV['TW_PATHS_STAGING'] %>
+  backup_directory: <%= ENV['TW_PATHS_BACKUP'] %>
   exception_notification:
     email_prefix: <%= ENV['TW_EXCEPTION_NOTIFICATION_EMAIL_PREFIX'] %>
     sender_address:  <%= ENV['TW_EXCEPTION_NOTIFICATION_SENDER_ADDRESS'] %>
-    exception_recipients: <%= ENV['TW_EXCEPTION_NOTIFICATION_SENDER_ADDRESS'] %>
+    exception_recipients: <%= ENV['TW_EXCEPTION_RECIPIENTS'] %>
   action_mailer_smtp_settings:
     address: <%= ENV['TW_ACTION_MAILER_SMTP_SETTINGS_ADDRESS'] %>
     port: <%= ENV['TW_ACTION_MAILER_SMTP_SETTINGS_PORT'] %>
     domain: <%= ENV['TW_ACTION_MAILER_SMTP_SETTINGS_DOMAIN'] %>
     enable_starttls_auto: false
   action_mailer_url_host:  <%= ENV['TW_ACTION_MAILER_URL_HOST'] %>
-  mail_domain: <%= ENV['TW_ACTION_MAILER_URL_MAIL_DOMAIN'] %>
+  mail_domain: <%= ENV['TW_MAIL_DOMAIN'] %>
 

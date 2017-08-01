@@ -103,11 +103,11 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         taxon_name_relationship.valid? 
       }
       specify 'subject_taxon_name' do
-        expect(taxon_name_relationship.errors.include?(:subject_taxon_name_id)).to be_truthy
+        expect(taxon_name_relationship.errors.include?(:subject_taxon_name)).to be_truthy
       end
 
       specify 'object_taxon_name' do
-        expect(taxon_name_relationship.errors.include?(:object_taxon_name_id)).to be_truthy
+        expect(taxon_name_relationship.errors.include?(:object_taxon_name)).to be_truthy
       end
 
       specify 'type' do

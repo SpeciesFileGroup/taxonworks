@@ -1,0 +1,36 @@
+<div>
+  <h2> Genbank batch load </h2>
+
+  <div class="flexbox full_viewport_whitespace">
+    <div class="item item1 one_third_width">
+      <h3> Description and requirements </h3>
+
+      <p>Creates sequences and origin relationships and attaches at most 2 identifiers to each sequence</p>
+      <ul>
+        <li>A tab-delimited, UTF-8 compatible text file is required.</li>
+        <li>Column headers are "filename" and "file_content" (see <%= link_to('sample template', asset_path('batch_load_templates/sequences/sequences_genbank_batch_load.tab'), target: '_blank') -%>).</li>
+        <li>Multiple uploads of the same data will fail.</li>
+        <li>Assumes a namespace with name "DRMSequenceId" and shortname "DRMSEQID" exists</li>
+        <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>
+        <li>Identifier Global::GenBankAccessionCode will be attached with the value of the voucher number if not blank to each sequence</li>
+        <li>Identifier with namespace DRMSequenceId will be attached with the value of the sequence id if not blank to each sequence</li>
+        <li>Creates origin relationship between sequence and extract that has an attached Identifier of namespace GenBank matching the sequences GenBank voucher identifier.</li>
+      </ul>
+    </div>
+
+    <div class="item item2 one_third_width">
+      <h3> Example file </h3>
+
+      <p> A tab delimited formatted file. In the example whitespace is a tab. View sample file template.</p>
+
+      <pre class="fixed_width_font">
+        filename file_content
+      </pre>
+    </div>
+
+    <div class="item item3">
+      <h3> Go! </h3>
+      <%= render partial: '/sequences/batch_load/genbank/form', locals: {url: preview_genbank_batch_load_sequences_path, submit: :preview} -%>
+    </div>
+  </div>
+</div>

@@ -2,6 +2,8 @@
 
 <p><em> Cards with no background color have no verbatim collecting event information.</em></p>
 
+<%= sqed_done_tag(sessions_current_project_id) -%> done. <%= sqed_not_done_tag(sessions_current_project_id) -%> remaining. 
+
 <p><%= page_entries_info @sqed_depictions %></p> <%= paginate @sqed_depictions %> 
 <div id="todo_map">
 

@@ -133,7 +133,8 @@ module Settings
     invalid = settings.keys - EXCEPTION_NOTIFICATION_SETTINGS
     raise Error, "#{invalid} are not valid settings for exception_notification" unless invalid.empty?
 
-    settings[:exception_recipients] =  settings[:exception_recipients].split(',') unless settings[:exception_recipients].class == Array
+    settings[:exception_recipients] =  settings[:exception_recipients].split(',') unless settings[:exception_recipients].class == Array || settings[:exception_recipients].blank?
+
     raise Error, ":exception_recipients must be an Array" unless settings[:exception_recipients].class == Array
 
     settings

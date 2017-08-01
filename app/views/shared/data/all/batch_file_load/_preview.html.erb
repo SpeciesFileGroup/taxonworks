@@ -20,6 +20,7 @@
         <th>Count</th>
         <th>Type</th>
         <th>Valid</th>
+        <th>Validation Errors</th>
       </tr>
 
       <% object_count = 0 %>
@@ -32,6 +33,7 @@
             <td><%= object_count %>
             <td><%= object.class.name.demodulize %></td>
             <td><%= object.valid? %></td>
+            <td><%= object.errors.full_messages.join('; ') %></td>
           </tr>
         <% end %>
       <% end %>

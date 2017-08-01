@@ -6,11 +6,11 @@ describe AlternateValue, group: :annotators do
   context 'associations' do
     context 'belongs_to' do
       specify 'language' do
-        expect(alternate_value).to respond_to(:language)
+        expect(alternate_value.language = Language.new).to be_truthy 
       end
 
       specify 'alternate_value_object' do
-        expect(alternate_value).to respond_to(:alternate_value_object)
+        expect(alternate_value.alternate_value_object = Serial.new).to be_truthy 
       end
     end
   end
@@ -20,8 +20,13 @@ describe AlternateValue, group: :annotators do
       before(:each) {
         alternate_value.valid?
       }
-      specify 'alternate_value_object' do
-        expect(alternate_value.errors.include?(:alternate_value_object)).to be_truthy
+
+      specify 'alternate_value_object' do 
+        # This eliminate all model based validation requirements
+        alternate_value.type = 'AlternateValue::Abbreviation'
+        alternate_value.value = 'asdf'
+        alternate_value.alternate_value_object_attribute = 'name'
+        expect{alternate_value.save}.to raise_error ActiveRecord::StatementInvalid
       end
 
       specify 'alternate_value_object_attribute' do
@@ -38,14 +43,14 @@ describe AlternateValue, group: :annotators do
     end
 
     specify 'illegal column name invalidates' do
-      alternate_value.alternate_value_object           = FactoryGirl.build(:valid_serial)
+      alternate_value.alternate_value_object = FactoryGirl.build(:valid_serial)
       alternate_value.alternate_value_object_attribute = 'foo'
       alternate_value.valid?
       expect(alternate_value.errors.include?(:alternate_value_object_attribute)).to be_truthy
     end
 
     specify 'legal column name is legal' do
-      alternate_value.alternate_value_object           = FactoryGirl.build(:valid_serial)
+      alternate_value.alternate_value_object = FactoryGirl.build(:valid_serial)
       alternate_value.alternate_value_object_attribute = 'name'
       alternate_value.value = "10"
       alternate_value.valid?
@@ -53,7 +58,7 @@ describe AlternateValue, group: :annotators do
     end
 
     specify 'value is not identical to existing value' do
-      alternate_value.alternate_value_object  = FactoryGirl.build(:valid_serial, name: 'foo')
+      alternate_value.alternate_value_object = FactoryGirl.build(:valid_serial, name: 'foo')
       alternate_value.alternate_value_object_attribute = 'name'
       alternate_value.value = 'foo'
      
@@ -74,9 +79,9 @@ describe AlternateValue, group: :annotators do
 
     specify 'can not provide an alternate value for a empty or nil field' do
       sb  = FactoryGirl.build_stubbed(:valid_source_bibtex) # relies on valid_source_bibtex not having an assigned author
-      alternate_value.alternate_value_object  = sb
+      alternate_value.alternate_value_object = sb
       alternate_value.alternate_value_object_attribute = 'author'
-      alternate_value.value  = 'foo'
+      alternate_value.value = 'foo'
       alternate_value.valid?
       expect(alternate_value.errors.include?(:alternate_value_object_attribute)).to be_truthy
     end
@@ -94,11 +99,28 @@ describe AlternateValue, group: :annotators do
   end
 
   context 'use' do
-    specify 'adding an alternate value' do
-      s = FactoryGirl.create(:valid_serial)
-      s.alternate_values << FactoryGirl.build(:valid_alternate_value_abbreviation, value: 'JOR')
-      expect(s.save).to be_truthy
-      expect(s.alternate_values.count).to eq(1)
+
+    context 'adding an alternate_value' do
+      specify 'with <<' do
+        s = FactoryGirl.create(:valid_serial)
+        s.alternate_values << FactoryGirl.build(:valid_alternate_value_abbreviation, value: 'JOR')
+        expect(s.save).to be_truthy
+        expect(s.alternate_values.count).to eq(1)
+      end
+
+      specify 'with nested_attributes' do
+        s = Sequence.new(
+          sequence: 'ACGT', 
+          name: 'foo', 
+          sequence_type: 'DNA',
+          alternate_values_attributes: [
+            {type: 'AlternateValue::Abbreviation', 
+             value: 'fo.', 
+             alternate_value_object_attribute: :name}
+          ])
+        expect(s.save!).to be_truthy
+        expect(s.alternate_values(true).first.value).to eq('fo.')
+      end
     end
 
     specify 'original_value' do

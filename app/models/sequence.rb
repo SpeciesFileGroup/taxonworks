@@ -8,6 +8,7 @@ class Sequence < ApplicationRecord
   include Housekeeping
 
   include Shared::AlternateValues
+  include Shared::DataAttributes
   include Shared::Confidence
   include Shared::Documentation
   include Shared::Identifiable

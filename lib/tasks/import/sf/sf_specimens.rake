@@ -8,23 +8,25 @@ namespace :tw do
         desc 'time rake tw:project_import:sf_import:specimens:collection_objects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :collection_objects => [:data_directory, :environment, :user_id] do |logger|
 
-          logger.info 'Building new collection objects...'
+          logger.info 'Importing specimen records as collection objects...'
 
-          # total
+          # total (see below)
           # type (Specimen, Lot, RangedLot --  Dmitry uses lot, not ranged lot)
           # preparation_type_id (TW integer, include SF text as data attribute?)
-          # respository_id (Dmitry manually reconciled these)
+          # respository_id (Dmitry manually reconciled these); manually reconciled, not all will be found, add sf_depo_id and sf_depo_string as attribute
           # buffered_collecting_event (no SF data)
           # buffered_determinations (no SF data)
           # buffered_other_labels (no SF data)
-          # ranged_lot_category_id
+          # ranged_lot_category_id (leave nil)
           # collecting_event_id
           # accessioned_at (no SF data)
           # deaccession_reason (no SF data)
           # deaccessioned_at (no SF data)
           # housekeeping
-          
-          # note with SF.SpecimenID
+
+          # add specimen note
+          # add specimen status note (identifier?): 0 = presumed Ok, 1 = missing, 2 = destroyed, 3 = lost, 4 = unknown, 5 = missing?, 6 = destroyed?, 7 = lost?, 8 = damaged, 9 = damaged?, 10 = no data entered
+          # specimen dataflags: 1 = ecological relationship, 2 = character data not yet implemented, 4 = image, 8 = sound, 16 = include specimen locality in maps, 32 = image of specimen label
 
           # About total:
           # @!attribute total
@@ -32,7 +34,7 @@ namespace :tw do
           #   The enumerated number of things, as asserted by the person managing the record.  Different totals will default to different subclasses.  How you enumerate your collection objects is up to you.  If you want to call one chunk of coral 50 things, that's fine (total = 50), if you want to call one coral one thing (total = 1) that's fine too.  If not nil then ranged_lot_category_id must be nil.  When =1 the subclass is Specimen, when > 1 the subclass is Lot.
 
 
-          # Need count and description (gender, adult): query => sfSpecimenTypeCounts (SpecimenID, FileID, Count, SingularName)
+          # Need count and description (gender, adult): query => sfSpecimenTypeCounts (SpecimenID, FileID, Count, SpmnCategoryID) # > 1 entry per SpecimenID
           # If count > 1, use lot
           # If lot contains mixed males, females, adult, nymphs, etc., create a container (have several cases of this in tblSpecimenCounts)
           # @data.biocuration_classes.merge!(
@@ -43,21 +45,177 @@ namespace :tw do
           #     "Exuvia" => BiocurationClass.find_or_create_by(name: "Exuvia", definition: 'Exuvia specimen', project_id: $project_id)
           # )
 
+          # cat # = identifier on collecting event, controlled vocab term
+          # basis of record = confidence on collection object
+          # preparation type = controlled vocabulary term for collection object
+          # specimen count and description = BiocurationClass, object tied to collection_object (??)
+
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
+          get_sf_unique_id = import.get('SFSpecimenToUniqueIDs') # get the unique_id for given SF specimen_id
+          get_tw_collecting_event_id = import.get('SFUniqueIDToTWCollectingEventID') # use unique_id as key to collecting_event_id
+          get_tw_repo_id = import.get('SFDepoIDToTWRepoID')
 
 
+          get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object_id
+
+          path = @args[:data_directory] + 'tblSpecimens.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each_with_index do |row, i|
+            specimen_id = row['SpecimenID']
+            next if specimen_id == '0'
+
+            # total (later)
+            # specimen or lot (later)
+            # preparation_type_id (add as data_attribute)
+
+            depo_id = row['DepoID']
+            project_id = get_tw_project_id[row['FileID']]
+
+            import_attribute_attributes = []
+            if row['PreparationType'].present?
+              import_attribute_attributes = {import_predicate: 'preparation_type',
+                                             value: row['PreparationType'],
+                                             project_id: project_id}
+
+            end
+
+            specimen_dataflags = row['DataFlags'].to_i
+            if specimen_dataflags > 0
+              dataflags_array = Utilities::Numbers.get_bits(dataflags)
+
+              # for bit_position in 0..status_flags_array.length - 1 # length is number of bits set
+              dataflag_text = ''
+              dataflags_array.each do |bit_position|
+                # 1 = ecological relationship, 2 = character data not yet implemented, 4 = image, 8 = sound, 16 = include specimen locality in maps, 32 = image of specimen label
+                case bit_position
+                  when 0  # ecological relationship (1)
+                    dataflag_text = '(ecological relationship)'
+                  when 1  # character data not yet implemended (2)
+                    dataflag_text.concat('(character data not yet implemented)')
+                  when 2  # image (4)
+                    dataflag_text.concat('(image)')
+                  when 3  # sound (8)
+                    dataflag_text.concat('(sound)')
+                  when 4  # include specimen locality in maps (16)
+                    dataflag_text.concat('(include specimen locality in maps)')
+                  when 5  # image of specimen label (32)
+                    dataflag_text.concat('(image of specimen label)')
+
+                end
+                
+
+              end
+            end
 
 
+            metadata = {notes_attributes: [{text: row['Note'],
+                                            project_id: project_id,
+                                            created_at: row['CreatedOn'],
+                                            updated_at: row['LastUpdate'],
+                                            created_by_id: get_tw_user_id[row['CreatedBy']],
+                                            updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
+
+                        import_attribute_attributes: import_attribute_attributes,
 
 
+            }
 
-          
+            biological_collection_object = BiologicalCollectionObject.new(
+                metadata.merge(
+
+                    collecting_event_id: get_tw_collecting_event_id[get_sf_unique_id[specimen_id]],
+
+                    repository_id: get_tw_repo_id.has_key?(depo_id) ? get_tw_repo_id[depo_id] : nil,
+
+                    # housekeeping for collection_object
+                    project_id: project_id,
+                    created_at: row['CreatedOn'],
+                    updated_at: row['LastUpdate'],
+                    created_by_id: get_tw_user_id[row['CreatedBy']],
+                    updated_by_id: get_tw_user_id[row['ModifiedBy']]
+
+                ))
+
+            # example of data_attribute created after subject_id created
+            # if row['NecAuthor'].length > 0
+            #   da = DataAttribute.new(type: 'ImportAttribute',
+            #                          attribute_subject_id: taxon_name_id,
+            #                          attribute_subject_type: TaxonName,
+            #                          import_predicate: 'Nec author',
+            #                          value: row['NecAuthor'],
+            #                          project_id: project_id)
+            #   begin
+            #     da.save!
+            #     puts 'DataAttribute NecAuthor created'
+            #   rescue ActiveRecord::RecordInvalid # da not valid
+            #     logger.error "DataAttribute NecAuthor ERROR SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
+            #   end
           end
 
+          import.set('SFSpecimenIDToCollObjID', get_tw_collection_object_id)
 
-          #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          puts 'SFSpecimenIDToCollObjID'
+          ap get_tw_collection_object_id
+
+        end
+
+
+        desc 'time rake tw:project_import:sf_import:specimens:import_sf_depos user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :import_sf_depos => [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Importing SF depo_strings and SF to TW depo/repo mappings...'
+
+          # get_sf_depo_string = {} # key = sf.DepoID, value = sf.depo_string
+          get_tw_repo_id = {} # key = sf.DepoID, value = tw respository.id; ex. ["23, 25, 567"] => {1 => tw_repo_id, 2 => tw_repo_id, 3 => tw_repo_id}
+          # Note: Many SF DepoIDs will not be mapped to TW repo_ids
+
+          count_found = 0
+
+          path = @args[:data_directory] + 'sfDepoStrings.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+          file.each_with_index do |row, i|
+            depo_id = row['DepoID']
+
+            depo_string = row['DepoString']
+
+            logger.info "Working with SF.DepoID '#{depo_id}', SF.NomenclatorString '#{depo_string}' (count #{count_found += 1}) \n"
+
+            get_sf_depo_string[depo_id] = depo_string
+          end
+
+          path = @args[:data_directory] + 'sfTWDepoMappings.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+          file.each_with_index do |row, i|
+            sf_depo_id_array = row['SFDepoIDarray']
+            next if sf_depo_id_array.blank?
+
+            tw_repo_id = row['TWDepoID']
+            logger.info "Working with TWD/RepoID '#{tw_repo_id}', SFDepoIDarray '#{sf_depo_id_array}' \n"
+
+            sf_depo_id_array = sf_depo_id_array.split(", ").map(&:to_i)
+            sf_depo_id_array.each do |each_id|
+              get_tw_repo_id[each_id] = tw_repo_id
+            end
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFDepoIDToSFDepoString', get_sf_depo_string)
+          import.set('SFDepoIDToTWRepoID', get_tw_repo_id)
+
+          puts 'SFDepoIDToSFDepoString'
+          ap get_sf_depo_string
+
+          puts 'SFDepoIDToTWRepoID'
+          ap get_tw_repo_id
+
+        end
+
 
         desc 'time rake tw:project_import:sf_import:specimens:collecting_events user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :collecting_events => [:data_directory, :environment, :user_id] do |logger|
@@ -335,6 +493,7 @@ namespace :tw do
 
           tw_area
         end
+
 
         desc 'time rake tw:project_import:sf_import:specimens:create_sf_geo_level4_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # consists of unique_key: (level3_id, level4_id, name, country_code)

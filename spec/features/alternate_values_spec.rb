@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "AlternateValues", type: :feature do
+describe "AlternateValues", type: :feature, group: [:annotators] do
   let(:index_path) { alternate_values_path }
   let(:page_title) { 'Alternate values' }
 
@@ -16,7 +16,7 @@ describe "AlternateValues", type: :feature do
         k = Keyword.create!(name: 'Dictionary', definition: "Book with words", by: @user, project: @project)
 
         ['D.', 'Dict.', 'Di.'].each do |n|
-          AlternateValue::Abbreviation.create!(alternate_value_object: k, value: n, alternate_value_object_attribute: :name, by: @user)
+          AlternateValue::Abbreviation.create!(alternate_value_object: k, value: n, alternate_value_object_attribute: :name, by: @user, project: @project)
         end
       }
 
@@ -49,7 +49,7 @@ describe "AlternateValues", type: :feature do
             before {click_link('Add alternate value')}
 
             specify 'i should see a checkbox allowing the user to create it within the project' do
-              expect(find_field('project_members_only').checked?).to be_falsey
+              expect(find_field('alternate_value_is_community_annotation').checked?).to be_falsey
             end
 
             context 'when I fill in and click submit' do
@@ -57,6 +57,7 @@ describe "AlternateValues", type: :feature do
                 select('title', from: 'alternate_value_alternate_value_object_attribute')
                 fill_in('Value', with: 'Alternate Title')
                 select('abbreviation', from: 'Type')
+                find(:css, '#alternate_value_is_community_annotation').set(true)
                 click_button('Create Alternate value')
               }
 

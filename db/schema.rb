@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170607175949) do
+ActiveRecord::Schema.define(version: 20170721210127) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -604,6 +604,7 @@ ActiveRecord::Schema.define(version: 20170607175949) do
     t.datetime "updated_at",                              null: false
     t.jsonb    "page_map",                   default: {}
     t.integer  "page_total"
+    t.string   "document_file_fingerprint"
   end
 
   add_index "documents", ["document_file_content_type"], name: "index_documents_on_document_file_content_type", using: :btree

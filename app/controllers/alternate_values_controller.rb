@@ -99,16 +99,13 @@ class AlternateValuesController < ApplicationController
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_alternate_value
     @alternate_value = AlternateValue.find(params[:id])
-
     render status: 404 if !@alternate_value.project_id.blank? && (sessions_current_project_id != @alternate_value.project_id)
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def alternate_value_params
-    params.require(:alternate_value).permit(:value, :type, :language_id, :alternate_value_object_type, :alternate_value_object_id, :alternate_value_object_attribute, :project_members_only)
+    params.require(:alternate_value).permit(:value, :type, :language_id, :alternate_value_object_type, :alternate_value_object_id, :alternate_value_object_attribute, :is_community_annotation)
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

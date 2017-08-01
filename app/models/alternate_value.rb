@@ -36,14 +36,15 @@ class AlternateValue < ApplicationRecord
   include Shared::DualAnnotator
   include Shared::AttributeAnnotations
 
-  belongs_to :language
   belongs_to :alternate_value_object, polymorphic: true
-
-  before_validation :set_project
+  belongs_to :language
 
   validates :language, presence: true, allow_blank: true
+
+  # Please DO NOT include the following:
+  # validates :alternate_value_object, presence: true
+
   validates_presence_of :type, :value, :alternate_value_object_attribute
-  validates :alternate_value_object, presence: true
 
   validates_uniqueness_of :value, scope: [:alternate_value_object, :type, :alternate_value_object_attribute, :project_id] # !! think about project/community on same object
 
@@ -101,17 +102,9 @@ class AlternateValue < ApplicationRecord
     end
   end
 
-  protected
-  def set_project
-    begin
-      if annotated_object.respond_to?(:project_id)
-        self.project_id = annotated_object.project_id
-      end
-    end
-
-  end
 end
 
 require_dependency 'alternate_value/misspelling'
 require_dependency 'alternate_value/translation'
 require_dependency 'alternate_value/abbreviation'
+require_dependency 'alternate_value/alternate_spelling'

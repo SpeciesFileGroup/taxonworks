@@ -1,5 +1,7 @@
 TaxonWorks::Application.routes.draw do
 
+  get :ping, controller: 'ping',  defaults: { format: :json }
+
   # All models that use data controllers should include this concern.
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
   # TODO: This will have to be broken down to core_data_routes, and supporting_data_routes
@@ -116,7 +118,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       get 'filter', defaults: {format: :json}
-    end
+  end
   end
 
   resources :confidences do # , except: [:edit, :show]
@@ -140,8 +142,8 @@ TaxonWorks::Application.routes.draw do
       get 'containerize'
     end
     collection do
-      get :preview_simple_batch_load # should be get
-      post :create_simple_batch_load
+      post :preview_castor_batch_load
+      post :create_castor_batch_load
     end
   end
   match 'collection_objects/by_identifier/:identifier', to: 'collection_objects#by_identifier', via: :get
@@ -165,6 +167,11 @@ TaxonWorks::Application.routes.draw do
     #   post :preview_simple_batch_load # should be get
     #   post :create_simple_batch_load
     # end
+
+    collection do
+      post :preview_castor_batch_load
+      post :create_castor_batch_load
+    end
   end
 
   resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
@@ -187,7 +194,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes, :shallow_annotation_routes]
     collection do
       get :filter
-    end
+  end
   end
 
   resources :controlled_vocabulary_terms do
@@ -206,7 +213,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       patch :sort
-    end
+  end
   end
 
   resources :descriptors do
@@ -346,6 +353,9 @@ TaxonWorks::Application.routes.draw do
 
       post :preview_simple_batch_file_load
       post :create_simple_batch_file_load
+
+      post :preview_identifiers_batch_load
+      post :create_identifiers_batch_load
     end
   end
 
@@ -423,10 +433,26 @@ TaxonWorks::Application.routes.draw do
 
   resources :sequences do
     concerns [:data_routes]
+
+    collection do
+      post :preview_genbank_batch_file_load
+      post :create_genbank_batch_file_load
+
+      post :preview_genbank_batch_load
+      post :create_genbank_batch_load
+
+      post :preview_primers_batch_load
+      post :create_primers_batch_load
+    end
   end
 
   resources :sequence_relationships do
     concerns [:data_routes]
+
+    collection do
+      post :preview_primers_batch_load
+      post :create_primers_batch_load
+    end
   end
 
   resources :sources do
@@ -456,6 +482,9 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
+
+      post :preview_castor_batch_load
+      post :create_castor_batch_load
     end
     member do
       get :browse
@@ -878,7 +907,7 @@ TaxonWorks::Application.routes.draw do
       get '/character_states/:id/annotations',
         to: 'character_states#annotations'
 
-    end
+end
   end
 
 end
