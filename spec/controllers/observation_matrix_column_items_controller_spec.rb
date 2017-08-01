@@ -24,11 +24,11 @@ RSpec.describe ObservationMatrixColumnItemsController, type: :controller do
   # ObservationMatrixColumnItemsController. As you add validations to ObservationMatrixColumnItemsController, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_observation_matrix_column_item).attributes) 
+    strip_housekeeping_attributes(FactoryGirl.build(:valid_observation_matrix_column_item).attributes)
   }
 
   let(:invalid_attributes) {
-    valid_attributes.merge(observation_matrix_id: nil)
+    valid_attributes.merge('observation_matrix_id' => nil)
   }
 
   # This should return the minimal set of values that should be in the session
@@ -89,12 +89,12 @@ RSpec.describe ObservationMatrixColumnItemsController, type: :controller do
 
     context "with invalid params" do
       it "assigns a newly created but unsaved observation_matrix_column_item as @observation_matrix_column_item" do
-        post :create, {observation_matrix_column_item: invalid_attributes}, session: valid_session
+        post :create, params: {observation_matrix_column_item: invalid_attributes}, session: valid_session
         expect(assigns(:observation_matrix_column_item).metamorphosize).to be_a_new(ObservationMatrixColumnItem)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {observation_matrix_column_item: invalid_attributes}, session: valid_session
+        post :create, params: {observation_matrix_column_item: invalid_attributes}, session: valid_session
         expect(response).to render_template("new")
       end
     end
