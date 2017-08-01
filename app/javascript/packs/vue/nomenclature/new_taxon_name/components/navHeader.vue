@@ -11,7 +11,7 @@
 						</ul>
 						<form class="horizontal-center-content">
 							<save-taxon-name class="normal-input button button-submit"></save-taxon-name>
-							<button type="button" class="normal-input button button-default" @click="reloadPage()">New</button>
+							<create-new-button></create-new-button>
 						</form>
 					</div>
 				</div>
@@ -21,8 +21,8 @@
 </template>
 <script>
 
-const GetterNames = require('../store/getters/getters').GetterNames
 const saveTaxonName = require('./saveTaxonName.vue');
+const createNewButton = require('./createNewButton.vue');
 
 export default {
 	props: {
@@ -33,29 +33,11 @@ export default {
 	},
 	components: {
 		saveTaxonName,
-	},
-	computed: {
-		taxon() {
-			return this.$store.getters[GetterNames.GetTaxon]
-		},
-		parent() {
-			return this.$store.getters[GetterNames.GetParent]
-		}
+		createNewButton
 	},
 	data: function() {
 		return {
-			showModal: false,
 			activePosition: 0,
-		}
-	},
-	methods: {
-		reloadPage: function() {
-			window.location.href = '/tasks/nomenclature/new_taxon_name/'
-		},
-		deleteTaxon: function() {
-			this.$http.delete(`/taxon_names/${this.taxon.id}`).then(response => {
-				this.reloadPage();
-			});
 		}
 	},
 	created: function() {
