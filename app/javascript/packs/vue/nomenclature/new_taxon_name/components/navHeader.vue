@@ -1,24 +1,23 @@
 <template>
-<div>
-	<div id="taxonNavBar">
-		<div class="panel basic-information separate-bottom">
-			<div class="content">
-				<div class="flex-separate">
-					<ul class="no_bullets horizontal_navbar middle">
-						<li class="navigation-item" v-for="link,key,index in anchorLink">
-							<a :class="{ active : (activePosition == index)}" :href="anchorLink[key]" @click="activePosition = index" >{{key}}</a>
-						</li>
-					</ul>
-					<form class="horizontal-center-content">
-						<save-taxon-name class="normal-input button button-submit"></save-taxon-name>
-						<button type="button" class="normal-input button button-default" @click="reloadPage()">New</button>
-					</form>
+	<div>
+		<div id="taxonNavBar">
+			<div class="panel basic-information separate-bottom">
+				<div class="content">
+					<div class="flex-separate">
+						<ul class="no_bullets horizontal_navbar middle">
+							<li class="navigation-item" v-for="link,key,index in menu" v-if="link">
+								<a :class="{ active : (activePosition == index)}" :href="'#' + key.toLowerCase().replace(' ','-')" @click="activePosition = index">{{key}}</a>
+							</li>
+						</ul>
+						<form class="horizontal-center-content">
+							<save-taxon-name class="normal-input button button-submit"></save-taxon-name>
+							<button type="button" class="normal-input button button-default" @click="reloadPage()">New</button>
+						</form>
+					</div>
 				</div>
 			</div>
 		</div>
-
 	</div>
-</div>
 </template>
 <script>
 
@@ -26,7 +25,12 @@ const GetterNames = require('../store/getters/getters').GetterNames
 const saveTaxonName = require('./saveTaxonName.vue');
 
 export default {
-
+	props: {
+		menu: {
+			type: Object,
+			required: true
+		}
+	},
 	components: {
 		saveTaxonName,
 	},
@@ -42,15 +46,6 @@ export default {
 		return {
 			showModal: false,
 			activePosition: 0,
-			anchorLink: {
-				'Basic information': '#basic-information',
-				'Author': '#author',
-				'Status': '#status',
-				'Relationship': '#relationship',
-				'Original combination': '#original-combination',
-				'Etymology': '#etymology',
-				'Gender': '#gender'
-			}
 		}
 	},
 	methods: {

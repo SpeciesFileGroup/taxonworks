@@ -2,7 +2,7 @@
   <div id="new_taxon_name_task">
     <h1>New taxon name</h1>
   <div>
-  <nav-header></nav-header>
+  <nav-header :menu="menu"></nav-header>
     <div class="flexbox horizontal-center-content align-start">
     <div class="ccenter item separate-right">
       <spinner :full-screen="true" :logo-size="{ width: '100px', height: '100px'}"v-if="loading"></spinner>
@@ -91,6 +91,17 @@
       },
       getParent() {
         return this.$store.getters[GetterNames.GetParent];
+      },
+      menu() {
+        return {
+          'Basic information': true,
+          'Author': true,
+          'Status': true,
+          'Relationship': true,
+          'Original combination': this.showForThisGroup(['SpeciesGroup','GenusGroup']),
+          'Etymology': this.showForThisGroup(['SpeciesGroup','GenusGroup']),
+          'Gender': this.showForThisGroup(['SpeciesGroup','GenusGroup']),
+        }
       }
     },
     data: function() {
@@ -112,7 +123,7 @@
     },
     methods: {
       showForThisGroup: function(findInGroups){
-        return (this.getTaxon.rank_string ? findInGroups.indexOf(this.getTaxon.rank_string.split('::')[2] > -1) : undefined);
+        return (this.getTaxon.rank_string ? (findInGroups.indexOf(this.getTaxon.rank_string.split('::')[2]) > -1) : false);
       },
       loadRanks: function() {
         let that = this;
