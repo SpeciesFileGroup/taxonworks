@@ -136,7 +136,7 @@ RSpec.describe ObservationMatrixColumnItemsController, type: :controller do
 
       it "re-renders the 'edit' template" do
         observation_matrix_column_item = ObservationMatrixColumnItem.create! valid_attributes
-        put :update, {id: observation_matrix_column_item.to_param, observation_matrix_column_item: invalid_attributes}, session: valid_session
+        put :update, params: {id: observation_matrix_column_item.to_param, observation_matrix_column_item: invalid_attributes}, session: valid_session
         expect(response).to render_template("edit")
       end
     end
