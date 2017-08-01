@@ -10,7 +10,7 @@
 						animation: 150, 
 						group: { 
 							name: 'combination', 
-							put: false,
+							put: isGenus,
 							pull: true
 						},
 						filter: '.item-filter'
@@ -87,7 +87,7 @@
 				return this.$store.getters[GetterNames.GetTaxon]
 			},
 			isGenus() {
-				return this.$store.getters[GetterNames.GetTaxon] == 'genus'
+				return this.$store.getters[GetterNames.GetTaxon].rank == 'genus'
 			},
 			existOriginalCombination: {
 				get: function() { 
