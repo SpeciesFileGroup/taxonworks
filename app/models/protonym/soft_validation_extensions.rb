@@ -128,6 +128,7 @@ module Protonym::SoftValidationExtensions
 
     # !! TODO: @proceps - make these individual validations !! way too complex here
     def sv_validate_coordinated_names
+      r = self.iczn_set_as_incorrect_original_spelling_of_relationship
       list_of_coordinated_names.each do |t|
         soft_validations.add(:base, "The original publication does not match with the original publication of the coordinated #{t.rank_class.rank_name}",
                              fix: :sv_fix_coordinated_names, success_message: 'Original publication was updated') unless (self.source && t.source) && (self.source.id == t.source.id)
@@ -140,11 +141,11 @@ module Protonym::SoftValidationExtensions
         soft_validations.add(:base, "The part of speech status does not match with the part of speech of the coordinated #{t.rank_class.rank_name}",
                              fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if rank_string =~ /Species/ && self.part_of_speech_class != t.part_of_speech_class
         soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Original genus was updated') unless self.original_genus == t.original_genus
+                             fix: :sv_fix_coordinated_names, success_message: 'Original genus was updated') if self.original_genus != t.original_genus && r.blank?
         soft_validations.add(:base, "The original subgenus does not match with the original subgenus of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Original subgenus was updated') unless self.original_subgenus == t.original_subgenus
+                             fix: :sv_fix_coordinated_names, success_message: 'Original subgenus was updated') if self.original_subgenus != t.original_subgenus && r.blank?
         soft_validations.add(:base, "The original species does not match with the original species of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Original species was updated') unless self.original_species == t.original_species
+                             fix: :sv_fix_coordinated_names, success_message: 'Original species was updated') if self.original_species != t.original_species && r.blank?
         soft_validations.add(:base, "The type species does not match with the type species of the coordinated #{t.rank_class.rank_name}",
                              fix: :sv_fix_coordinated_names, success_message: 'Type species was updated') unless self.type_species == t.type_species
         soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}",
@@ -198,7 +199,7 @@ module Protonym::SoftValidationExtensions
         end
 
         if self.gender_class.nil? && !t.gender_class.nil?
-          self.taxon_name_classifications.build(type: t.gender_name)
+          self.taxon_name_classifications.build(type: t.gender_class.to_s)
           fixed = true
         end
 
@@ -292,7 +293,7 @@ module Protonym::SoftValidationExtensions
 
     def sv_single_sub_taxon
       if self.rank_class
-        rank = rank_string 
+        rank = rank_string
         if rank != 'potentially_validating rank' && self.rank_class.nomenclatural_code == :iczn && %w(subspecies subgenus subtribe tribe subfamily).include?(self.rank_class.rank_name)
           sisters = self.parent.descendants.with_rank_class(rank).select{|t| t.id == t.cached_valid_taxon_name_id}
           if rank =~ /Family/
@@ -306,6 +307,8 @@ module Protonym::SoftValidationExtensions
           end
           if search_name.include?(self.parent.name) && sisters.count == 1
             soft_validations.add(:base, "#{self.cached_html} is a single #{self.rank_class.rank_name} in the nominal #{self.parent.rank_class.rank_name} #{self.parent.cached_html}")
+          elsif !sister_names.include?(self.parent.name) && !sisters.empty? && self.parent.name == Protonym.family_group_base(self.parent.name) && rank =~ /Family/
+            # do nothing
           elsif !sister_names.include?(self.parent.name) && !sisters.empty?
             soft_validations.add(:base, "The parent #{self.parent.rank_class.rank_name} #{self.parent.cached_html} of this #{self.rank_class.rank_name} does not contain nominotypical #{self.rank_class.rank_name} #{self.parent.name}",
                                  fix: :sv_fix_add_nominotypical_sub, success_message: "Nominotypical #{self.rank_class.rank_name} #{self.parent.name} was added to nominal #{self.parent.rank_class.rank_name} #{self.parent.name}")
@@ -342,6 +345,7 @@ module Protonym::SoftValidationExtensions
             return true
           end
         rescue ActiveRecord::RecordInvalid # naked rescue is very bad
+          byebug
           return false
         end
       end
@@ -376,6 +380,8 @@ module Protonym::SoftValidationExtensions
               p = primary_types.collect!{|t| t.biological_object_id}
               possible_synonyms = Protonym.with_type_material_array(p).that_is_valid.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self).with_project(self.project_id)
             end
+          elsif rank_string =~ /Family/ && self.name == Protonym.family_group_base(self.name)
+            # do nothing
           else
             type = self.type_taxon_name
             unless type.nil?
@@ -469,9 +475,11 @@ module Protonym::SoftValidationExtensions
       unless self.parent_id.blank?
         if self.is_fossil?
           taxa = Protonym.where(parent_id: self.id)
+          z = 0
           unless taxa.empty?
             taxa.find_each do |t|
-              soft_validations.add(:base, 'Extinct taxon #{self.cached_html} has extant children') unless t.is_fossil?
+              soft_validations.add(:base, "Extinct taxon #{self.cached_html} has extant children") if !t.is_fossil? && z == 0
+              z = 1
             end
           end
         end

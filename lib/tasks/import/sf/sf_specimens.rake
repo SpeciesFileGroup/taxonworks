@@ -66,7 +66,7 @@ namespace :tw do
 
           file.each_with_index do |row, i|
             specimen_id = row['SpecimenID']
-            next if specimen_id = '0'
+            next if specimen_id == '0'
 
             # total (later)
             # specimen or lot (later)

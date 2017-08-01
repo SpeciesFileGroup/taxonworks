@@ -53,7 +53,7 @@ class Combination < TaxonName
   include Shared::Citable
 
   # The ranks that can be used to build combinations.
-  APPLICABLE_RANKS = %w{genus subgenus section subsection series subseries species subspecies variety subvariety form subform}
+  APPLICABLE_RANKS = %w{family subfamily tribe subtribe genus subgenus section subsection series subseries species subspecies variety subvariety form subform}
 
   before_validation :set_parent
 

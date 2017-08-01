@@ -139,7 +139,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         specify 'nomimotypical subgenus original combination' do
           genus1 = FactoryGirl.create(:relationship_genus, name: 'Aus')
           subgenus1 = FactoryGirl.create(:iczn_subgenus, name: 'Bus', parent: genus1)
-          r = TaxonNameRelationship::OriginalCombination::OriginalGenus.create(subject_taxon_name: genus1, object_taxon_name: genus1)
+          #r = TaxonNameRelationship::OriginalCombination::OriginalGenus.create(subject_taxon_name: genus1, object_taxon_name: genus1)
           genus1.original_genus = genus1
           genus1.save
           genus1.reload
@@ -150,8 +150,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           subgenus1.fix_soft_validations
           genus1.soft_validate(:single_sub_taxon)
           genus1.fix_soft_validations
-          r.soft_validate(:single_sub_taxon)
-          r.fix_soft_validations
+          #r.soft_validate(:single_sub_taxon)
+          #r.fix_soft_validations
           genus1.reload
           expect(genus1.cached_original_combination).to eq('<i>Aus</i>')
           expect(genus1.cached_primary_homonym).to eq('Aus')
