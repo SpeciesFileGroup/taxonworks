@@ -42,7 +42,7 @@ RSpec.describe ProtocolRelationshipsController, type: :controller do
   describe "GET #index" do
     it "assigns all protocol_relationships as @protocol_relationships" do
       protocol_relationship = ProtocolRelationship.create! valid_attributes
-      get :index, {}, session: valid_session
+      get :index, params: {}, session: valid_session
       expect(assigns(:recent_objects)).to eq([protocol_relationship])
     end
   end
@@ -50,14 +50,14 @@ RSpec.describe ProtocolRelationshipsController, type: :controller do
   describe "GET #show" do
     it "assigns the requested protocol_relationship as @protocol_relationship" do
       protocol_relationship = ProtocolRelationship.create! valid_attributes
-      get :show, {id: protocol_relationship.to_param}, session: valid_session
+      get :show, params: {id: protocol_relationship.to_param}, session: valid_session
       expect(assigns(:protocol_relationship)).to eq(protocol_relationship)
     end
   end
 
   describe "GET #new" do
     it "assigns a new protocol_relationship as @protocol_relationship" do
-      get :new, {}, session: valid_session
+      get :new, params: {}, session: valid_session
       expect(assigns(:protocol_relationship)).to be_a_new(ProtocolRelationship)
     end
   end
@@ -65,7 +65,7 @@ RSpec.describe ProtocolRelationshipsController, type: :controller do
   describe "GET #edit" do
     it "assigns the requested protocol_relationship as @protocol_relationship" do
       protocol_relationship = ProtocolRelationship.create! valid_attributes
-      get :edit, {id: protocol_relationship.to_param}, session: valid_session
+      get :edit, params: {id: protocol_relationship.to_param}, session: valid_session
       expect(assigns(:protocol_relationship)).to eq(protocol_relationship)
     end
   end
@@ -74,30 +74,30 @@ RSpec.describe ProtocolRelationshipsController, type: :controller do
     context "with valid params" do
       it "creates a new ProtocolRelationship" do
         expect {
-          post :create, {protocol_relationship: valid_attributes}, session: valid_session
+          post :create, params: {protocol_relationship: valid_attributes}, session: valid_session
         }.to change(ProtocolRelationship, :count).by(1)
       end
 
       it "assigns a newly created protocol_relationship as @protocol_relationship" do
-        post :create, {protocol_relationship: valid_attributes}, session: valid_session
+        post :create, params: {protocol_relationship: valid_attributes}, session: valid_session
         expect(assigns(:protocol_relationship)).to be_a(ProtocolRelationship)
         expect(assigns(:protocol_relationship)).to be_persisted
       end
 
       it "redirects to the created protocol_relationship" do
-        post :create, {protocol_relationship: valid_attributes}, session: valid_session
+        post :create, params: {protocol_relationship: valid_attributes}, session: valid_session
         expect(response).to redirect_to(ProtocolRelationship.last)
       end
     end
 
     context "with invalid params" do
       it "assigns a newly created but unsaved protocol_relationship as @protocol_relationship" do
-        post :create, {protocol_relationship: invalid_attributes}, session: valid_session
+        post :create, params: {protocol_relationship: invalid_attributes}, session: valid_session
         expect(assigns(:protocol_relationship)).to be_a_new(ProtocolRelationship)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {protocol_relationship: invalid_attributes}, session: valid_session
+        post :create, params: {protocol_relationship: invalid_attributes}, session: valid_session
         expect(response).to render_template("new")
       end
     end
@@ -111,20 +111,20 @@ RSpec.describe ProtocolRelationshipsController, type: :controller do
 
       it "updates the requested protocol_relationship" do
         protocol_relationship = ProtocolRelationship.create! valid_attributes
-        put :update, {id: protocol_relationship.to_param, protocol_relationship: new_attributes}, session: valid_session
+        put :update, params: {id: protocol_relationship.to_param, protocol_relationship: new_attributes}, session: valid_session
         protocol_relationship.reload
         skip("Add assertions for updated state")
       end
 
       it "assigns the requested protocol_relationship as @protocol_relationship" do
         protocol_relationship = ProtocolRelationship.create! valid_attributes
-        put :update, {id: protocol_relationship.to_param, protocol_relationship: valid_attributes}, session: valid_session
+        put :update, params: {id: protocol_relationship.to_param, protocol_relationship: valid_attributes}, session: valid_session
         expect(assigns(:protocol_relationship)).to eq(protocol_relationship)
       end
 
       it "redirects to the protocol_relationship" do
         protocol_relationship = ProtocolRelationship.create! valid_attributes
-        put :update, {id: protocol_relationship.to_param, protocol_relationship: valid_attributes}, session: valid_session
+        put :update, params: {id: protocol_relationship.to_param, protocol_relationship: valid_attributes}, session: valid_session
         expect(response).to redirect_to(protocol_relationship)
       end
     end
@@ -132,13 +132,13 @@ RSpec.describe ProtocolRelationshipsController, type: :controller do
     context "with invalid params" do
       it "assigns the protocol_relationship as @protocol_relationship" do
         protocol_relationship = ProtocolRelationship.create! valid_attributes
-        put :update, {id: protocol_relationship.to_param, protocol_relationship: invalid_attributes}, session: valid_session
+        put :update, params: {id: protocol_relationship.to_param, protocol_relationship: invalid_attributes}, session: valid_session
         expect(assigns(:protocol_relationship)).to eq(protocol_relationship)
       end
 
       it "re-renders the 'edit' template" do
         protocol_relationship = ProtocolRelationship.create! valid_attributes
-        put :update, {id: protocol_relationship.to_param, protocol_relationship: invalid_attributes}, session: valid_session
+        put :update, params: {id: protocol_relationship.to_param, protocol_relationship: invalid_attributes}, session: valid_session
         expect(response).to render_template("edit")
       end
     end
@@ -148,13 +148,13 @@ RSpec.describe ProtocolRelationshipsController, type: :controller do
     it "destroys the requested protocol_relationship" do
       protocol_relationship = ProtocolRelationship.create! valid_attributes
       expect {
-        delete :destroy, {id: protocol_relationship.to_param}, session: valid_session
+        delete :destroy, params: {id: protocol_relationship.to_param}, session: valid_session
       }.to change(ProtocolRelationship, :count).by(-1)
     end
 
     it "redirects to the protocol_relationships list" do
       protocol_relationship = ProtocolRelationship.create! valid_attributes
-      delete :destroy, {id: protocol_relationship.to_param}, session: valid_session
+      delete :destroy, params: {id: protocol_relationship.to_param}, session: valid_session
       expect(response).to redirect_to(protocol_relationships_url)
     end
   end
