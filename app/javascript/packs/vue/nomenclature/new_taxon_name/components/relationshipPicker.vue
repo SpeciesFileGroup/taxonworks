@@ -44,14 +44,12 @@
   const GetterNames = require('../store/getters/getters').GetterNames;
   const MutationNames = require('../store/mutations/mutations').MutationNames;
   const treeDisplay = require('./treeDisplay.vue');
-  const taxonNamePicker = require('./taxonNamePicker.vue');
   const listEntrys = require('./listEntrys.vue');
   const expand = require('./expand.vue');
   const autocomplete = require('../../../components/autocomplete.vue');
 
   export default {
     components: {
-      taxonNamePicker,
       listEntrys,
       autocomplete,
       expand,
