@@ -7,6 +7,7 @@
     </div>
     <div class="body" v-if="expanded">
       <tree-display 
+          v-if="taxon.id"
           :tree-list="treeList" 
           :objectLists="objectLists" 
           :parent="parent" 
@@ -41,6 +42,9 @@
       },
       parent() {
         return this.$store.getters[GetterNames.GetParent]
+      },
+      taxon() {
+        return this.$store.getters[GetterNames.GetTaxon]
       },
       nomenclaturalCode() {
         return this.$store.getters[GetterNames.GetNomenclaturalCode]

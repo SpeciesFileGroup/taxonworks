@@ -1,11 +1,11 @@
 <template>
 <div v-if="rankGroup && ranks[rankGroup].length">
   <modal class="taxon-modal" v-if="showModal" @close="showModal = false">
-    <h3 slot="header">Status</h3>
+    <h3 slot="header">Ranks</h3>
     <div slot="body">
       <ul class="tree-status" v-for="(group, key) in Object.keys(this.ranks)" v-if="!isMajor(rankGroup, group)">
         <li v-for="(child, index) in (ranks[group])">
-          <button type="button" class="button button-default" name="rankSelected" @click="rankClass = child.rank_class, showModal = false" :value="child.rank_class"> {{ child.name }} </button> 
+          <button type="button" class="normal-input button button-default" name="rankSelected" @click="rankClass = child.rank_class, showModal = false" :value="child.rank_class"> {{ child.name }} </button> 
         </li>
       </ul>
     </div>
