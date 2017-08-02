@@ -12,7 +12,7 @@
 				<h3 v-if="taxon.id" class="flex-separate middle">
 					<span class="taxonname"> 
 						<span v-html="parent.object_tag"></span> 
-						<span> {{ taxon.name }} </span>
+						<span> {{ taxon.name }} {{ showAuthor() }}</span>
 					</span>
 					<span v-if="taxon.id" @click="showModal = true" data-icon="trash"></span>
 				</h3>
@@ -41,6 +41,9 @@ export default {
 		},
 		parent() {
 			return this.$store.getters[GetterNames.GetParent]
+		},
+		citation() {
+			return this.$store.getters[GetterNames.GetCitation]
 		}
 	},
 	methods: {
@@ -51,6 +54,9 @@ export default {
 		},
 		reloadPage: function() {
 			window.location.href = '/tasks/nomenclature/new_taxon_name/'
+		},
+		showAuthor: function() {
+			return (this.taxon.verbatim_author ? (this.taxon.verbatim_author + (this.taxon.year_of_publication ? (', ' + this.taxon.year_of_publication) : '')) : this.citation.source.author_year)
 		}
 	},
 }
