@@ -56,7 +56,7 @@ export default {
 			window.location.href = '/tasks/nomenclature/new_taxon_name/'
 		},
 		showAuthor: function() {
-			return (this.taxon.verbatim_author ? (this.taxon.verbatim_author + (this.taxon.year_of_publication ? (', ' + this.taxon.year_of_publication) : '')) : this.citation.source.author_year)
+			return (this.taxon.verbatim_author ? (this.taxon.verbatim_author + (this.taxon.year_of_publication ? (', ' + this.taxon.year_of_publication) : '')) : (this.citation ? this.citation.source.author_year : ''))
 		}
 	},
 }
