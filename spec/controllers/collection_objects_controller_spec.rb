@@ -310,16 +310,17 @@ describe CollectionObjectsController, :type => :controller do
     end
   end
 
-  describe "PUT update" do
-    describe "with valid params" do
-      it "updates the requested collection_object" do
+  describe 'PUT update' do
+    describe 'with valid params' do
+      it 'updates the requested collection_object' do
         collection_object = CollectionObject.create! valid_attributes
         # Assuming there are no other collection_objects in the database, this
         # specifies that the CollectionObject created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        expect_any_instance_of(CollectionObject).to receive(:update).with({"total" => "1"})
-        put :update, params: {id: collection_object.to_param, collection_object: {"total" => "1"}}, session: valid_session
+        update_params = ActionController::Parameters.new({'total' => '1'}).permit(:total)
+        expect_any_instance_of(CollectionObject).to receive(:update).with(update_params)
+        put :update, params: {id: collection_object.to_param, collection_object: {'total' => '1'}}, session: valid_session
       end
 
       it "assigns the requested collection_object as @collection_object" do
