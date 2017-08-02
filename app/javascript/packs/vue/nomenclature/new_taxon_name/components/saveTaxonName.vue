@@ -1,5 +1,5 @@
 <template>
-	<button type="button" :disabled="!validateInfo()" @click="saveTaxon()">{{ taxon.id == undefined ? 'Create': 'Save' }}</button>
+	<button type="button" v-shortkey="[getMacKey(), 's']" @shortkey="saveTaxon()" :disabled="!validateInfo()" @click="saveTaxon()">{{ taxon.id == undefined ? 'Create': 'Save' }}</button>
 </template>
 
 <script>
@@ -30,6 +30,9 @@ export default {
 		},
 		validateInfo: function() {
 			return (this.parent != undefined && (this.taxon.name != undefined && this.taxon.name != ''));
+		},
+		getMacKey: function() {
+			return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt');
 		},
 	    createTaxonName: function() {
 	        var taxon_name = {
