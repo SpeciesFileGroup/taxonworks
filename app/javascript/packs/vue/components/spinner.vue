@@ -8,7 +8,7 @@
 
 <template>
 	<transition name="fade">
-		<div class="middle box-spinner mx-spinner" v-bind:style="cssPropierties">
+		<div class="middle box-spinner mx-spinner" :style="cssPropierties">
 			<div class="tw-spinner">
 				<svg version="1.1" id="tw-spinner-logo" v-if="showSpinner" v-bind:style="logoSize" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
                                viewBox="0 0 194.6 200" style="enable-background:new 0 0 194.6 200;" xml:space="preserve">
@@ -106,31 +106,13 @@
 					height: undefined,
 					position: 'absolute',
 					top: undefined,
-					'z-index': undefined,
+					zIndex: undefined,
 					left: undefined
 				},
 			}
 		},
 		mounted: function() {
-
-			let domElement = this.target != undefined ? this.loadElement(this.target) : this.$el.parentNode;
-
-			if (this.fullScreen) {
-				this.cssPropierties.position = 'fixed';
-				this.cssPropierties.width = '100vw';
-				this.cssPropierties.height = '100vh';
-				this.cssPropierties.top = '0px';
-				this.cssPropierties.left = '0px';
-			}
-			else {
-				this.cssPropierties.width = this.outerWidth(domElement) + 'px';
-				this.cssPropierties.height = this.outerHeight(domElement) + 'px';
-				this.cssPropierties.top = domElement.getBoundingClientRect().top;
-				this.cssPropierties.left = domElement.getBoundingClientRect().left;
-			}
-			if (!this.showSpinner) {
-				this.cssPropierties['z-index'] = (domElement.style.zIndex == '' ? 2 : (domElement.style.zIndex+1));
-			}
+			this.init();
 		},
 		methods: {
 			outerWidth: function(el) {
@@ -146,6 +128,27 @@
 
 				height += parseInt(style.marginTop) + parseInt(style.marginBottom);
 				return height;
+			},
+			init: function() {
+				let domElement = this.target != undefined ? this.loadElement(this.target) : this.$el.parentNode;
+
+				if (this.fullScreen) {
+					this.cssPropierties.position = 'fixed';
+					this.cssPropierties.width = '100vw';
+					this.cssPropierties.height = '100vh';
+					this.cssPropierties.top = '0px';
+					this.cssPropierties.left = '0px';
+				}
+				else {
+					this.cssPropierties.width = this.outerWidth(domElement) + 'px';
+					this.cssPropierties.height = this.outerHeight(domElement) + 'px';
+					this.cssPropierties.top = domElement.getBoundingClientRect().top;
+					this.cssPropierties.left = domElement.getBoundingClientRect().left;
+				}
+				if (!this.showSpinner) {
+					this.cssPropierties.zIndex = (domElement.style.zIndex == '' ? 2 : (domElement.style.zIndex+1));
+				}
+				this.$set(this.cssPropierties, this.cssPropierties);
 			},
 			loadElement: function(el) {
 				let domElement;
