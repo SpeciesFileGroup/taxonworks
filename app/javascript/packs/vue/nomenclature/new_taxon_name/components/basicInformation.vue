@@ -22,7 +22,7 @@
           <check-exist class="separate-left" url="/taxon_names/autocomplete" label="label_html" :search="taxon.name" param="term" :add-params="{ exact: true }"></check-exist>
         </div>
       </div>
-      <div class="body" v-if="taxon.name && taxon.rank_string && !taxon.id">
+      <div class="body" v-if="!taxon.id">
         <save-taxon-name class="normal-input button button-submit create-button"></save-taxon-name>
       </div>
     </form>

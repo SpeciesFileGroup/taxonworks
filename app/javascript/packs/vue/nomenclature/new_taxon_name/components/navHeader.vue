@@ -10,8 +10,8 @@
 							</li>
 						</ul>
 						<form class="horizontal-center-content">
-							<save-taxon-name class="normal-input button button-submit"></save-taxon-name>
-							<create-new-button></create-new-button>
+							<save-taxon-name v-if="taxon.id" class="normal-input button button-submit"></save-taxon-name>
+							<create-new-button ></create-new-button>
 						</form>
 					</div>
 				</div>
@@ -23,6 +23,7 @@
 
 const saveTaxonName = require('./saveTaxonName.vue');
 const createNewButton = require('./createNewButton.vue');
+const GetterNames = require('../store/getters/getters').GetterNames;
 
 export default {
 	props: {
@@ -34,6 +35,11 @@ export default {
 	components: {
 		saveTaxonName,
 		createNewButton
+	},
+	computed: {
+		taxon() {
+			return this.$store.getters[GetterNames.GetTaxon]
+		}
 	},
 	data: function() {
 		return {
