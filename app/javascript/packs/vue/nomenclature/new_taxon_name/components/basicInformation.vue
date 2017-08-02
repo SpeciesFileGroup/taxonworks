@@ -7,13 +7,13 @@
       </div>
       <div class="body horizontal-left-content align-start" v-show="expanded">
         <div class="column-left">
-          <div class="field separate-top">
-            <label>Parent</label>
-            <parent-picker></parent-picker>
-          </div>
           <div class="field separate-right">
           	<label>Name</label><br>
           	<taxon-name :class="{ field_with_errors : existError('name') }"></taxon-name>
+          </div>
+          <div class="field separate-top">
+            <label>Parent</label>
+            <parent-picker></parent-picker>
           </div>
           <rank-selector v-if="parent"></rank-selector>
           
