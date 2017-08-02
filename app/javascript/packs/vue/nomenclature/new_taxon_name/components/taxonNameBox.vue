@@ -48,6 +48,9 @@ export default {
 			this.$http.delete(`/taxon_names/${this.taxon.id}`).then(response => {
 				this.reloadPage();
 			});
+		},
+		reloadPage: function() {
+			window.location.href = '/tasks/nomenclature/new_taxon_name/'
 		}
 	},
 }
