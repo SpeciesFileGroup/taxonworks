@@ -95,25 +95,26 @@ describe GeographicAreasGeographicItemsController, :type => :controller do
     end
   end
 
-  describe "PUT update" do
-    describe "with valid params" do
-      it "updates the requested geographic_areas_geographic_item" do
+  describe 'PUT update' do
+    describe 'with valid params' do
+      it 'updates the requested geographic_areas_geographic_item' do
         geographic_areas_geographic_item = GeographicAreasGeographicItem.create! valid_attributes
         # Assuming there are no other geographic_areas_geographic_items in the database, this
         # specifies that the GeographicAreasGeographicItem created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        expect_any_instance_of(GeographicAreasGeographicItem).to receive(:update).with({geographic_area_id: "1"})
-        put :update, params: {id: geographic_areas_geographic_item.to_param, geographic_areas_geographic_item: {geographic_area_id: "1"}}, session: valid_session
+        update_params = ActionController::Parameters.new({geographic_area_id: '1'}).permit(:geographic_area_id)
+        expect_any_instance_of(GeographicAreasGeographicItem).to receive(:update).with(update_params)
+        put :update, params: {id: geographic_areas_geographic_item.to_param, geographic_areas_geographic_item: {geographic_area_id: '1'}}, session: valid_session
       end
 
-      it "assigns the requested geographic_areas_geographic_item as @geographic_areas_geographic_item" do
+      it 'assigns the requested geographic_areas_geographic_item as @geographic_areas_geographic_item' do
         geographic_areas_geographic_item = GeographicAreasGeographicItem.create! valid_attributes
         put :update, params: {id: geographic_areas_geographic_item.to_param, geographic_areas_geographic_item: valid_attributes}, session: valid_session
         expect(assigns(:geographic_areas_geographic_item)).to eq(geographic_areas_geographic_item)
       end
 
-      it "redirects to the geographic_areas_geographic_item" do
+      it 'redirects to the geographic_areas_geographic_item' do
         geographic_areas_geographic_item = GeographicAreasGeographicItem.create! valid_attributes
         put :update, params: {id: geographic_areas_geographic_item.to_param, geographic_areas_geographic_item: valid_attributes}, session: valid_session
         expect(response).to redirect_to(geographic_areas_geographic_item)
