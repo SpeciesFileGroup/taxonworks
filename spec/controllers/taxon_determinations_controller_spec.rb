@@ -47,7 +47,7 @@ describe TaxonDeterminationsController, :type => :controller do
   describe "GET show" do
     it "assigns the requested taxon_determination as @taxon_determination" do
       taxon_determination = TaxonDetermination.create! valid_attributes
-      get :show, params: {:id => taxon_determination.to_param}, session: valid_session
+      get :show, params: {id: taxon_determination.to_param}, session: valid_session
       expect(assigns(:taxon_determination)).to eq(taxon_determination)
     end
   end
@@ -62,7 +62,7 @@ describe TaxonDeterminationsController, :type => :controller do
   describe "GET edit" do
     it "assigns the requested taxon_determination as @taxon_determination" do
       taxon_determination = TaxonDetermination.create! valid_attributes
-      get :edit, params: {:id => taxon_determination.to_param}, session: valid_session
+      get :edit, params: {id: taxon_determination.to_param}, session: valid_session
       expect(assigns(:taxon_determination)).to eq(taxon_determination)
     end
   end
@@ -76,13 +76,13 @@ describe TaxonDeterminationsController, :type => :controller do
       end
 
       it "assigns a newly created taxon_determination as @taxon_determination" do
-        post :create, params: {:taxon_determination => valid_attributes}, session: valid_session
+        post :create, params: {taxon_determination: valid_attributes}, session: valid_session
         expect(assigns(:taxon_determination)).to be_a(TaxonDetermination)
         expect(assigns(:taxon_determination)).to be_persisted
       end
 
       it "redirects to the created taxon_determination" do
-        post :create, params: {:taxon_determination => valid_attributes}, session: valid_session
+        post :create, params: {taxon_determination: valid_attributes}, session: valid_session
         expect(response).to redirect_to(TaxonDetermination.last)
       end
     end
@@ -91,14 +91,14 @@ describe TaxonDeterminationsController, :type => :controller do
       it "assigns a newly created but unsaved taxon_determination as @taxon_determination" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaxonDetermination).to receive(:save).and_return(false)
-        post :create, params: {:taxon_determination => {"biological_collection_object_id" => "invalid value"}}, session: valid_session
+        post :create, params: {taxon_determination: {biological_collection_object_id: 'invalid value'}}, session: valid_session
         expect(assigns(:taxon_determination)).to be_a_new(TaxonDetermination)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaxonDetermination).to receive(:save).and_return(false)
-        post :create, params: {:taxon_determination => {"biological_collection_object_id" => "invalid value"}}, session: valid_session
+        post :create, params: {taxon_determination: {biological_collection_object_id: 'invalid value'}}, session: valid_session
         expect(response).to render_template("new")
       end
     end
@@ -112,20 +112,20 @@ describe TaxonDeterminationsController, :type => :controller do
         # specifies that the TaxonDetermination created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        update_params = ActionController::Parameters.new({"biological_collection_object_id" => "1"}).permit(:biological_collection_object_id)
+        update_params = ActionController::Parameters.new({biological_collection_object_id: '1'}).permit(:biological_collection_object_id)
         expect_any_instance_of(TaxonDetermination).to receive(:update).with(update_params)
-        put :update, params: {:id => taxon_determination.to_param, :taxon_determination => {"biological_collection_object_id" => "1"}}, session: valid_session
+        put :update, params: {id: taxon_determination.to_param, taxon_determination: {biological_collection_object_id: '1'}}, session: valid_session
       end
 
       it "assigns the requested taxon_determination as @taxon_determination" do
         taxon_determination = TaxonDetermination.create! valid_attributes
-        put :update, params: {:id => taxon_determination.to_param, :taxon_determination => valid_attributes}, session: valid_session
+        put :update, params: {id: taxon_determination.to_param, taxon_determination: valid_attributes}, session: valid_session
         expect(assigns(:taxon_determination)).to eq(taxon_determination)
       end
 
       it "redirects to the taxon_determination" do
         taxon_determination = TaxonDetermination.create! valid_attributes
-        put :update, params: {:id => taxon_determination.to_param, :taxon_determination => valid_attributes}, session: valid_session
+        put :update, params: {id: taxon_determination.to_param, taxon_determination: valid_attributes}, session: valid_session
         expect(response).to redirect_to(taxon_determination)
       end
     end
@@ -135,7 +135,7 @@ describe TaxonDeterminationsController, :type => :controller do
         taxon_determination = TaxonDetermination.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaxonDetermination).to receive(:save).and_return(false)
-        put :update, params: {:id => taxon_determination.to_param, :taxon_determination => {"biological_collection_object_id" => "invalid value"}}, session: valid_session
+        put :update, params: {id: taxon_determination.to_param, taxon_determination: {biological_collection_object_id: 'invalid value'}}, session: valid_session
         expect(assigns(:taxon_determination)).to eq(taxon_determination)
       end
 
@@ -143,7 +143,7 @@ describe TaxonDeterminationsController, :type => :controller do
         taxon_determination = TaxonDetermination.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaxonDetermination).to receive(:save).and_return(false)
-        put :update, params: {:id => taxon_determination.to_param, :taxon_determination => {"biological_collection_object_id" => "invalid value"}}, session: valid_session
+        put :update, params: {id: taxon_determination.to_param, taxon_determination: {biological_collection_object_id: 'invalid value'}}, session: valid_session
         expect(response).to render_template("edit")
       end
     end
@@ -153,13 +153,13 @@ describe TaxonDeterminationsController, :type => :controller do
     it "destroys the requested taxon_determination" do
       taxon_determination = TaxonDetermination.create! valid_attributes
       expect {
-        delete :destroy, params: {:id => taxon_determination.to_param}, session: valid_session
+        delete :destroy, params: {id: taxon_determination.to_param}, session: valid_session
       }.to change(TaxonDetermination, :count).by(-1)
     end
 
     it "redirects to the taxon_determinations list" do
       taxon_determination = TaxonDetermination.create! valid_attributes
-      delete :destroy, params: {:id => taxon_determination.to_param}, session: valid_session
+      delete :destroy, params: {id: taxon_determination.to_param}, session: valid_session
       expect(response).to redirect_to(taxon_determinations_url)
     end
   end

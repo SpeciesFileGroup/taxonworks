@@ -555,7 +555,7 @@ class TaxonName < ApplicationRecord
   # @return [TaxonNameRelationship]
   #  returns youngest taxon name relationship where self is the subject.
   def first_possible_valid_taxon_name_relationship
-    taxon_name_relationships(true).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
+    taxon_name_relationships.reload.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
   end
 
   # @return [TaxonName]
@@ -1160,7 +1160,7 @@ class TaxonName < ApplicationRecord
 
   def get_cached_classified_as
     return nil unless is_protonym? || is_combination?
-    r = self.source_classified_as(true)
+    r = self.reload_source_classified_as
     unless r.blank?
       return " (as #{r.name})"
     end
