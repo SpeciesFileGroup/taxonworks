@@ -8,7 +8,7 @@ describe Tasks::Gis::OtuDistributionDataController, type: :controller do
 
   describe "GET #show" do
     it "returns http success" do
-      get :show, {:id => otu.to_param}
+      get :show, params: {:id => otu.to_param}
       # get 'tasks/gis/otu_distribution_data'
       # pending 'construction of proper otu in this context'
       expect(response).to have_http_status(:success)
