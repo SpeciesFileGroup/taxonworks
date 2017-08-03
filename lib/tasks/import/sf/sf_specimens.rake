@@ -45,7 +45,9 @@ namespace :tw do
           #     "Exuvia" => BiocurationClass.find_or_create_by(name: "Exuvia", definition: 'Exuvia specimen', project_id: $project_id)
           # )
 
-          # cat # = identifier on collecting event, controlled vocab term
+          # cat # = identifier on collecting event, controlled vocab term - create sf.specimen_id to catalog number hash (can do here)
+            # where does the biocuration_class_id come from?
+            # requires collection_object_id (biological_collection_object_id)
           # basis of record = confidence on collection object
           # preparation type = controlled vocabulary term for collection object
           # specimen count and description = BiocurationClass, object tied to collection_object (??)
@@ -60,6 +62,7 @@ namespace :tw do
 
 
           get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object_id
+          get_depo_catalog_number = {} # key = SF.SpecimenID, value = depo catalog number (store in 'SFSpecimenIDToCatalogNumber')
 
           path = @args[:data_directory] + 'tblSpecimens.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -75,16 +78,19 @@ namespace :tw do
             depo_id = row['DepoID']
             project_id = get_tw_project_id[row['FileID']]
 
-            import_attribute_attributes = []
+            
+
+            # preparation_type = []
             if row['PreparationType'].present?
-              import_attribute_attributes = {import_predicate: 'preparation_type',
+              preparation_type = {import_predicate: 'preparation_type',
                                              value: row['PreparationType'],
                                              project_id: project_id}
 
             end
 
-            specimen_dataflags = row['DataFlags'].to_i
-            if specimen_dataflags > 0
+            # specimen_dataflags = []
+            dataflags = row['DataFlags'].to_i
+            if dataflags > 0
               dataflags_array = Utilities::Numbers.get_bits(dataflags)
 
               # for bit_position in 0..status_flags_array.length - 1 # length is number of bits set
@@ -106,12 +112,14 @@ namespace :tw do
                     dataflag_text.concat('(image of specimen label)')
 
                 end
-                
 
+                specimen_dataflags = {import_predicate: 'specimen_dataflags',
+                                      value: dataflag_text,
+                                      project_id: project_id}
               end
             end
 
-
+            import_attribute_attributes = []
             metadata = {notes_attributes: [{text: row['Note'],
                                             project_id: project_id,
                                             created_at: row['CreatedOn'],
@@ -119,7 +127,7 @@ namespace :tw do
                                             created_by_id: get_tw_user_id[row['CreatedBy']],
                                             updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
 
-                        import_attribute_attributes: import_attribute_attributes,
+                        import_attribute_attributes: import_attribute_attributes.concat(preparation_type, specimen_dataflags),
 
 
             }
@@ -154,6 +162,9 @@ namespace :tw do
             #   rescue ActiveRecord::RecordInvalid # da not valid
             #     logger.error "DataAttribute NecAuthor ERROR SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
             #   end
+
+            # after save, create hash entry SF.SpecimenID => biological_collection_object.id
+            
           end
 
           import.set('SFSpecimenIDToCollObjID', get_tw_collection_object_id)
