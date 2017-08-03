@@ -1,7 +1,7 @@
 <template>
-	<div>
+	<div id="taxonNavBarSlot">
 		<div id="taxonNavBar">
-			<div class="panel basic-information separate-bottom">
+			<div class="navbar panel basic-information separate-bottom">
 				<div class="content">
 					<div class="flex-separate">
 						<ul class="no_bullets horizontal_navbar middle">
@@ -49,11 +49,11 @@ export default {
 	created: function() {
 		$(document).ready(function() {
 		  $(window).scroll(function () { 
-		    if ($(window).scrollTop() > 150) {
+		    if ($(window).scrollTop() > 155) {
 		      $('#taxonNavBar').addClass('navbar-fixed-top');
 		    }
 
-		    if ($(window).scrollTop() < 151) {
+		    if ($(window).scrollTop() < 156) {
 		      $('#taxonNavBar').removeClass('navbar-fixed-top');
 		    }
 		  });
@@ -67,6 +67,9 @@ export default {
 		width: 1240px;
 		z-index:200;
 		position: fixed;
+	}
+	#taxonNavBarSlot {
+		height: 67px;
 	}
 	#taxonNavBar {
 		button {
