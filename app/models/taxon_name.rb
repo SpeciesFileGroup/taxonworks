@@ -805,7 +805,7 @@ class TaxonName < ApplicationRecord
       ancestors_through_parents
     else
 
-      self.self_and_ancestors(true).to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
+      self.self_and_ancestors.reload.to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
     end
   end
 
@@ -974,7 +974,7 @@ class TaxonName < ApplicationRecord
     str = nil
 
     if GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) && is_protonym?
-      relationships = self.original_combination_relationships(true) # force a reload of the relationships
+      relationships = self.original_combination_relationships.reload # force a reload of the relationships
 
       return nil if relationships.count == 0
 
