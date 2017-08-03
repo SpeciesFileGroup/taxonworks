@@ -47,7 +47,7 @@ describe SourcesController, :type => :controller do
   describe 'GET show' do
     it 'assigns the requested source as @source' do
       source = Source.create! valid_attributes
-      get :show, params: {:id => source.to_param}, session: valid_session
+      get :show, params: {id: source.to_param}, session: valid_session
       expect(assigns(:source)).to eq(source)
     end
   end
@@ -62,7 +62,7 @@ describe SourcesController, :type => :controller do
   describe 'GET edit' do
     it 'assigns the requested source as @source' do
       source = Source.create! valid_attributes
-      get :edit, params: {:id => source.to_param}, session: valid_session
+      get :edit, params: {id: source.to_param}, session: valid_session
       expect(assigns(:source)).to eq(source)
     end
   end
@@ -115,18 +115,19 @@ describe SourcesController, :type => :controller do
         # expect_any_instance_of(Source).to receive(:update).with({'serial_id' => '1', 'project_sources_attributes' => [{'project_id' => '1'}]})
         update_params = ActionController::Parameters.new({serial_id: '1'}).permit(:serial_id)
         expect_any_instance_of(Source).to receive(:update).with(update_params)
-        put :update, params: {:id => source.to_param, :source => {'serial_id' => '1'}}, session: valid_session
+        put :update, params: {id: source.to_param, :source => {'serial_id' => '1'}}, session: valid_session
+        # put :update, params: {id: source.to_param, source: update_params}, session: valid_session
       end
 
       it 'assigns the requested source as @source' do
         source = Source.create! valid_attributes
-        put :update, params: {:id => source.to_param, :source => valid_attributes}, session: valid_session
+        put :update, params: {id: source.to_param, :source => valid_attributes}, session: valid_session
         expect(assigns(:source)).to eq(source)
       end
 
       it 'redirects to the source' do
         source = Source.create! valid_attributes
-        put :update, params: {:id => source.to_param, :source => valid_attributes}, session: valid_session
+        put :update, params: {id: source.to_param, :source => valid_attributes}, session: valid_session
         expect(response).to redirect_to(source.becomes(Source))
       end
     end
@@ -136,7 +137,7 @@ describe SourcesController, :type => :controller do
         source = Source.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Source).to receive(:save).and_return(false)
-        put :update, params: {:id => source.to_param, :source => {'serial_id' => 'invalid value'}}, session: valid_session
+        put :update, params: {id: source.to_param, :source => {'serial_id' => 'invalid value'}}, session: valid_session
         expect(assigns(:source)).to eq(source)
       end
 
@@ -144,7 +145,7 @@ describe SourcesController, :type => :controller do
         source = Source.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Source).to receive(:save).and_return(false)
-        put :update, params: {:id => source.to_param, :source => {'serial_id' => 'invalid value'}}, session: valid_session
+        put :update, params: {id: source.to_param, :source => {'serial_id' => 'invalid value'}}, session: valid_session
         expect(response).to render_template('edit')
       end
     end
@@ -154,13 +155,13 @@ describe SourcesController, :type => :controller do
     it 'destroys the requested source' do
       source = Source.create! valid_attributes
       expect {
-        delete :destroy, params: {:id => source.to_param}, session: valid_session
+        delete :destroy, params: {id: source.to_param}, session: valid_session
       }.to change(Source, :count).by(-1)
     end
 
     it 'redirects to the sources list' do
       source = Source.create! valid_attributes
-      delete :destroy, params: {:id => source.to_param}, session: valid_session
+      delete :destroy, params: {id: source.to_param}, session: valid_session
       expect(response).to redirect_to(sources_url)
     end
   end
