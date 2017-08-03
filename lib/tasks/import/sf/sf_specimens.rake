@@ -46,8 +46,8 @@ namespace :tw do
           # )
 
           # cat # = identifier on collecting event, controlled vocab term - create sf.specimen_id to catalog number hash (can do here)
-            # where does the biocuration_class_id come from?
-            # requires collection_object_id (biological_collection_object_id)
+          # where does the biocuration_class_id come from?
+          # requires collection_object_id (biological_collection_object_id)
           # basis of record = confidence on collection object
           # preparation type = controlled vocabulary term for collection object
           # specimen count and description = BiocurationClass, object tied to collection_object (??)
@@ -62,7 +62,7 @@ namespace :tw do
 
 
           get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object_id
-          get_depo_catalog_number = {} # key = SF.SpecimenID, value = depo catalog number (store in 'SFSpecimenIDToCatalogNumber')
+          get_depo_catalog_number = {} # key = SF.SpecimenID, value = depo catalog number
 
           path = @args[:data_directory] + 'tblSpecimens.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -73,18 +73,18 @@ namespace :tw do
 
             # total (later)
             # specimen or lot (later)
-            # preparation_type_id (add as data_attribute)
 
             depo_id = row['DepoID']
             project_id = get_tw_project_id[row['FileID']]
 
-            
+            get_depo_catalog_number[specimen_id] = row['DepoCatNo'] if row['DepoCatNo'].present?
+
 
             # preparation_type = []
             if row['PreparationType'].present?
               preparation_type = {import_predicate: 'preparation_type',
-                                             value: row['PreparationType'],
-                                             project_id: project_id}
+                                  value: row['PreparationType'],
+                                  project_id: project_id}
 
             end
 
@@ -98,17 +98,17 @@ namespace :tw do
               dataflags_array.each do |bit_position|
                 # 1 = ecological relationship, 2 = character data not yet implemented, 4 = image, 8 = sound, 16 = include specimen locality in maps, 32 = image of specimen label
                 case bit_position
-                  when 0  # ecological relationship (1)
+                  when 0 # ecological relationship (1)
                     dataflag_text = '(ecological relationship)'
-                  when 1  # character data not yet implemended (2)
+                  when 1 # character data not yet implemended (2)
                     dataflag_text.concat('(character data not yet implemented)')
-                  when 2  # image (4)
+                  when 2 # image (4)
                     dataflag_text.concat('(image)')
-                  when 3  # sound (8)
+                  when 3 # sound (8)
                     dataflag_text.concat('(sound)')
-                  when 4  # include specimen locality in maps (16)
+                  when 4 # include specimen locality in maps (16)
                     dataflag_text.concat('(include specimen locality in maps)')
-                  when 5  # image of specimen label (32)
+                  when 5 # image of specimen label (32)
                     dataflag_text.concat('(image of specimen label)')
 
                 end
@@ -164,14 +164,44 @@ namespace :tw do
             #   end
 
             # after save, create hash entry SF.SpecimenID => biological_collection_object.id
-            
+
           end
 
           import.set('SFSpecimenIDToCollObjID', get_tw_collection_object_id)
+          import.set('SFSpecimenIDToCatalogNumber', get_depo_catalog_number)
 
           puts 'SFSpecimenIDToCollObjID'
           ap get_tw_collection_object_id
 
+          puts 'SFSpecimenIDToCatalogNumber'
+          ap get_depo_catalog_number
+
+        end
+
+
+        desc 'time rake tw:project_import:sf_import:specimens:create_specimen_totals_categories_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :create_specimen_totals_categories_hash => [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Creating SF specimen totals and categories hash...'
+
+          get_specimen_totals_categories = {} # key = SF.SpecimenID, value = FileID, Total, Categories from tblSpecimenCounts and tblSpecimenCategories
+
+          path = @args[:data_directory] + 'sfSpecimenTotalsCategories.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+          file.each_with_index do |row, i|
+            specimen_id = row['SpecimenID']
+
+            logger.info "Working with SF.SpecimenID '#{specimen_id}' \n"
+
+            get_specimen_totals_categories[specimen_id] = {file_id: row['FileID'], total: row['Total'], categories: row['Categories']}
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SpecimenTotalsCategories', get_specimen_totals_categories)
+
+          puts 'SpecimenTotalsCategories'
+          ap get_specimen_totals_categories
         end
 
 
@@ -217,7 +247,7 @@ namespace :tw do
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFDepoIDToSFDepoString', get_sf_depo_string)
-          import.set('SFDepoIDToTWRepoID', get_tw_repo_id)
+          import.set('SFSpecimenIDToCatalogNumber', get_depo_catalog_number)
 
           puts 'SFDepoIDToSFDepoString'
           ap get_sf_depo_string
