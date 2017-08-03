@@ -51,8 +51,8 @@ describe AlternateValuesController, :type => :controller do
       it 're-renders the :back template' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AlternateValue).to receive(:save).and_return(false)
-        # post :create, {:alternate_value => {value: 'Foo'}}, valid_session  # deprecated form
-        post :create, params: {alternate_value: {value: 'Foo'}}, args: valid_session
+        # post :create, {:alternate_value => {value: 'Foo'}}, session: valid_session  # deprecated form
+        post :create, params: {alternate_value: {value: 'Foo'}}, session: valid_session
         expect(response).to render_template("new")
       end
     end

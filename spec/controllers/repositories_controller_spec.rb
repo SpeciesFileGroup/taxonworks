@@ -46,7 +46,7 @@ describe RepositoriesController, :type => :controller do
   describe 'GET show' do
     it 'assigns the requested repository as @repository' do
       repository = Repository.create! valid_attributes
-      get :show, params: {:id => repository.to_param}, session: valid_session
+      get :show, params: {id: repository.to_param}, session: valid_session
       expect(assigns(:repository)).to eq(repository)
     end
   end
@@ -61,7 +61,7 @@ describe RepositoriesController, :type => :controller do
   describe 'GET edit' do
     it 'assigns the requested repository as @repository' do
       repository = Repository.create! valid_attributes
-      get :edit, params: {:id => repository.to_param}, session: valid_session
+      get :edit, params: {id: repository.to_param}, session: valid_session
       expect(assigns(:repository)).to eq(repository)
     end
   end
@@ -113,18 +113,18 @@ describe RepositoriesController, :type => :controller do
         # submitted in the request.
         update_params = ActionController::Parameters.new({'name' => 'MyString'}).permit(:name)
         expect_any_instance_of(Repository).to receive(:update).with(update_params)
-        put :update, params: {:id => repository.to_param, :repository => {'name' => 'MyString'}}, session: valid_session
+        put :update, params: {id: repository.to_param, :repository => {'name' => 'MyString'}}, session: valid_session
       end
 
       it 'assigns the requested repository as @repository' do
         repository = Repository.create! valid_attributes
-        put :update, params: {:id => repository.to_param, :repository => valid_attributes}, session: valid_session
+        put :update, params: {id: repository.to_param, :repository => valid_attributes}, session: valid_session
         expect(assigns(:repository)).to eq(repository)
       end
 
       it 'redirects to the repository' do
         repository = Repository.create! valid_attributes
-        put :update, params: {:id => repository.to_param, :repository => valid_attributes}, session: valid_session
+        put :update, params: {id: repository.to_param, :repository => valid_attributes}, session: valid_session
         expect(response).to redirect_to(repository)
       end
     end
@@ -134,7 +134,7 @@ describe RepositoriesController, :type => :controller do
         repository = Repository.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Repository).to receive(:save).and_return(false)
-        put :update, params: {:id => repository.to_param, :repository => {'name' => 'invalid value'}}, session: valid_session
+        put :update, params: {id: repository.to_param, :repository => {'name' => 'invalid value'}}, session: valid_session
         expect(assigns(:repository)).to eq(repository)
       end
 
@@ -142,7 +142,7 @@ describe RepositoriesController, :type => :controller do
         repository = Repository.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Repository).to receive(:save).and_return(false)
-        put :update, params: {:id => repository.to_param, :repository => {'name' => 'invalid value'}}, session: valid_session
+        put :update, params: {id: repository.to_param, :repository => {'name' => 'invalid value'}}, session: valid_session
         expect(response).to render_template('edit')
       end
     end
@@ -152,13 +152,13 @@ describe RepositoriesController, :type => :controller do
     it 'destroys the requested repository' do
       repository = Repository.create! valid_attributes
       expect {
-        delete :destroy, params: {:id => repository.to_param}, session: valid_session
+        delete :destroy, params: {id: repository.to_param}, session: valid_session
       }.to change(Repository, :count).by(-1)
     end
 
     it 'redirects to the repositories list' do
       repository = Repository.create! valid_attributes
-      delete :destroy, params: {:id => repository.to_param}, session: valid_session
+      delete :destroy, params: {id: repository.to_param}, session: valid_session
       expect(response).to redirect_to(repositories_url)
     end
   end
