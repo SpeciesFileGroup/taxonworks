@@ -12,3 +12,9 @@ if taxon_name.origin_citation
   end
 end
 
+if taxon_name.children.any?
+  json.children do
+    json.array! taxon_name.children.pluck(:id) 
+  end
+end 
+
