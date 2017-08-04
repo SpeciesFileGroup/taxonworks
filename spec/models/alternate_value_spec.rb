@@ -119,7 +119,7 @@ describe AlternateValue, group: :annotators do
              alternate_value_object_attribute: :name}
           ])
         expect(s.save!).to be_truthy
-        expect(s.alternate_values(true).first.value).to eq('fo.')
+        expect(s.alternate_values.reload.first.value).to eq('fo.')
       end
     end
 
