@@ -3,9 +3,38 @@ require 'rails_helper'
 RSpec.describe Sequence, type: :model, group: [:dna] do
   let(:sequence) {Sequence.new}
   let(:primer) { FactoryGirl.create(:valid_sequence) }
+  let(:primer2) { FactoryGirl.create(:valid_sequence) }
+
+  context 'attributes' do
+    specify '#name' do
+      expect(sequence).to respond_to(:name)
+    end
+
+    context '#describe_with' do
+      let!(:descriptor) { 
+        Descriptor::Gene.create(
+          name: 'DESC_WITH', 
+          gene_attributes_attributes: [
+            { sequence: primer, 
+              sequence_relationship_type: 'SequenceRelationship::ForwardPrimer'},
+              { sequence: primer2, 
+                sequence_relationship_type: 'SequenceRelationship::ReversePrimer'},
+          ] ) }
+
+      before do 
+        sequence.describe_with = descriptor
+        sequence.sequence = 'ACT'
+        sequence.sequence_type = :dna
+        sequence.save!
+      end
+
+      specify 'sequence_relationships are created' do
+        expect(sequence.related_sequence_relationships(true).count).to eq(2)
+      end
+    end
+  end
 
   context 'validation' do
-
     specify '.valid_new_object_classes' do
       expect(Sequence.valid_new_object_classes).to contain_exactly('Sequence')
     end
@@ -90,7 +119,6 @@ RSpec.describe Sequence, type: :model, group: [:dna] do
               expect(sequence.related_sequences.first.sequence).to eq('ACgT') 
             end
           end
-          
         end
       end
     end
