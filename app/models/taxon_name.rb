@@ -449,16 +449,16 @@ class TaxonName < ApplicationRecord
   # @return [Array of String]
   #   the unique string labels derived from both TaxonNameClassifications and TaxonNameRelationships
   def combined_statuses
-    (statuses_from_classifications + statuses_from_relationships).distinct.sort
+    (statuses_from_classifications + statuses_from_relationships).uniq.sort
   end
 
   # @return [Array of Protonym]
   #   all of the names this name has been in in combinations
   def combination_list_all
     # list = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_base('TaxonNameRelationship::Combination')
-    taxon_name_relationships.with_type_base('TaxonNameRelationship::Combination').collect {|r| r.object_taxon_name}.distinct
+    taxon_name_relationships.with_type_base('TaxonNameRelationship::Combination').collect {|r| r.object_taxon_name}.uniq
     # return [] if list.empty?
-    # list.collect{|r| r.object_taxon_name}.distinct
+    # list.collect{|r| r.object_taxon_name}.uniq
   end
 
   # @return [Array of Protonym]
@@ -707,14 +707,14 @@ class TaxonName < ApplicationRecord
         end
 
         unless original_combination_relationships.empty?
-          related_taxa = original_combination_relationships.collect {|i| i.object_taxon_name}.distinct
+          related_taxa = original_combination_relationships.collect {|i| i.object_taxon_name}.uniq
           related_taxa.each do |i|
             i.update_cached_original_combinations
           end
         end
 
         unless combination_relationships.empty?
-          related_taxa = combination_relationships.collect {|i| i.object_taxon_name}.distinct
+          related_taxa = combination_relationships.collect {|i| i.object_taxon_name}.uniq
           related_taxa.each do |i|
             i.update_columns(cached: i.get_full_name,
                              cached_html: i.get_full_name_html)
@@ -722,14 +722,14 @@ class TaxonName < ApplicationRecord
         end
 
         unless classified_as_relationships.empty?
-          related_taxa = classified_as_relationships.collect {|i| i.subject_taxon_name}.distinct
+          related_taxa = classified_as_relationships.collect {|i| i.subject_taxon_name}.uniq
           related_taxa.each do |i|
             i.update_column(:cached_classified_as, i.get_cached_classified_as)
           end
         end
 
         unless hybrid_relationships.empty?
-          related_taxa = classified_as_relationships.collect {|i| i.object_taxon_name}.distinct
+          related_taxa = classified_as_relationships.collect {|i| i.object_taxon_name}.uniq
           related_taxa.each do |i|
             i.update_columns(cached: i.get_full_name,
                              cached_html: i.get_full_name_html)

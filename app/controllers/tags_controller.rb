@@ -21,7 +21,8 @@ class TagsController < ApplicationController
 
   def tag_object_update 
     taggable_object.update(taggable_object_params)
-    redirect_to :back
+    # redirect_to :back
+    redirect_back(fallback_location: (request.referer || root_path))
   end
 
   # POST /tags

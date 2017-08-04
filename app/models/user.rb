@@ -202,7 +202,7 @@ class User < ApplicationRecord
     u = hub_favorites.clone
 
     u[p] = { 'data' => [], 'tasks' => []} if !u[p]
-    u[p][k] = u[p][k].push(n).distinct[0..19].sort
+    u[p][k] = u[p][k].push(n).uniq[0..19].sort
 
     update_column(:hub_favorites, u)
     true
@@ -250,7 +250,7 @@ class User < ApplicationRecord
       end
 
       fp['recently_visited'].unshift(attrs)
-      fp['recently_visited'] = fp['recently_visited'].distinct {|a| a.keys}[0..19]
+      fp['recently_visited'] = fp['recently_visited'].uniq {|a| a.keys}[0..19]
 
       self.footprints_will_change!  # if this isn't thrown weird caching happens !
       self.update_column(:footprints, fp)

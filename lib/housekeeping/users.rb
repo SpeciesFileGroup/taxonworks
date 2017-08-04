@@ -37,13 +37,13 @@ module Housekeeping::Users
     # @return [Scope]
     #   for all uniq Users that created this class
     def all_creators
-      User.joins("created_#{self.name.demodulize.underscore.pluralize}".to_sym).distinct
+      User.joins("created_#{self.name.demodulize.underscore.pluralize}".to_sym).uniq
     end
 
     # @return [Scope]
     #   scope for all uniq Users that updated this class (as currently recorded, does not include Papertrail)
     def all_updaters
-      User.joins("updated_#{self.name.demodulize.underscore.pluralize}".to_sym).distinct
+      User.joins("updated_#{self.name.demodulize.underscore.pluralize}".to_sym).uniq
     end
   end
 

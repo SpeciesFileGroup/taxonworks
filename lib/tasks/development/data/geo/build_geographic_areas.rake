@@ -188,7 +188,7 @@ namespace :tw do
           end
 
           def duplicate_name_strings
-            @duplicate_names.collect {|a| a.name}.sort.distinct
+            @duplicate_names.collect {|a| a.name}.sort.uniq
           end
 
           def internal_names

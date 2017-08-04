@@ -355,7 +355,7 @@ class GeographicItem < ApplicationRecord
         results.push(r)
       end
 
-      results.flatten.distinct
+      results.flatten.uniq
     end
 
     # @return [String] the SQL fragment for the specific geometry type, shifted by longitude

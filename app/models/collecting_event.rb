@@ -703,7 +703,7 @@ class CollectingEvent < ApplicationRecord
     }
 
     # @todo change 'id in (?)' to some other sql construct
-    pieces = CollectingEvent.where(id: gr.flatten.map(&:id).distinct)
+    pieces = CollectingEvent.where(id: gr.flatten.map(&:id).uniq)
     pieces.excluding(self)
   end
 
@@ -729,7 +729,7 @@ class CollectingEvent < ApplicationRecord
     }
 
     # @todo Directly map this
-    pieces = CollectingEvent.where(id: ce.flatten.map(&:id).distinct)
+    pieces = CollectingEvent.where(id: ce.flatten.map(&:id).uniq)
     pieces.excluding(self)
   end
 
@@ -858,14 +858,14 @@ class CollectingEvent < ApplicationRecord
       #  Struck EGI, EGI must contain GI, therefor anything that contains EGI contains GI, threfor containing GI will always be the bigger set
       #   !! and there was no tests broken
       # GeographicItem.are_contained_in_item('any_poly', self.geographic_items.to_a).pluck(:id).uniq
-      gi_list = GeographicItem.containing(*geographic_items.pluck(:id)).pluck(:id).distinct
+      gi_list = GeographicItem.containing(*geographic_items.pluck(:id)).pluck(:id).uniq
 
     else
       # use geographic_area only if there are no GIs or EGIs
       unless self.geographic_area.nil?
         # unless self.geographic_area.geographic_items.empty?
         # we need to use the geographic_area directly
-        gi_list = GeographicItem.are_contained_in_item('any_poly', self.geographic_area.geographic_items).pluck(:id).distinct
+        gi_list = GeographicItem.are_contained_in_item('any_poly', self.geographic_area.geographic_items).pluck(:id).uniq
         # end
       end
     end

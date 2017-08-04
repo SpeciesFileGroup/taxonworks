@@ -45,7 +45,7 @@ module NomenclatureCatalog
       items.each do |i|
         topics += i.object.topics if i.source == source
       end
-      topics.distinct
+      topics.uniq
     end
 
     def topics
@@ -87,7 +87,7 @@ module NomenclatureCatalog
    protected 
 
     def item_names(catalog_item)
-      [reference_taxon_name, catalog_item.taxon_name, catalog_item.other_name].compact.distinct
+      [reference_taxon_name, catalog_item.taxon_name, catalog_item.other_name].compact.uniq
     end
 
     def all_names
@@ -95,7 +95,7 @@ module NomenclatureCatalog
       items.each do |i|
         n.push item_names(i) 
       end
-      n.flatten.distinct.sort_by!(&:cached)
+      n.flatten.uniq.sort_by!(&:cached)
       n
     end 
 
@@ -109,7 +109,7 @@ module NomenclatureCatalog
           s.push i.object.subject_taxon_name.origin_citation.try(:source) if i.object.object_taxon_name != reference_taxon_name
         end
       end
-      s.compact.distinct.sort_by {|a| a.cached}
+      s.compact.uniq.sort_by {|a| a.cached}
     end
 
     def all_dates
@@ -129,7 +129,7 @@ module NomenclatureCatalog
       sources.each do |s|
         t.push topics_for_source(s)
       end
-      t.flatten.distinct.compact.sort
+      t.flatten.uniq.compact.sort
     end
 
   end

@@ -282,7 +282,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
               end
 
             end # transaction end
-            puts "\n#{ap(error_msg.flatten.distinct)}\n"
+            puts "\n#{ap(error_msg.flatten.uniq)}\n"
             puts 'Successful load of primary serial file'
             #raise 'preventing load of transaction' # causes it to always fail and rollback the transaction
           end
@@ -393,7 +393,7 @@ SFImportIDMap.txt
                 # raise 's not valid'
               end
             end # end of row
-            puts "\n ERRORS \n #{ap(error_msg.flatten.distinct)}\n"
+            puts "\n ERRORS \n #{ap(error_msg.flatten.uniq)}\n"
             #puts "\n Warnings \n #{ap(warn_msg.flatten.uniq)}\n"
             puts 'Successful load of SF & SF registry IDs'
             # raise 'to prevent saving to db while testing rake'
@@ -515,8 +515,8 @@ Column : SQL column name :  data desc
                 error_msg << msg
               end
             end # end of row
-            puts "\n#{ap(error_msg.flatten.distinct)}\n"
-            #puts "\n#{ap(warn_msg.flatten.distinct)}\n"
+            puts "\n#{ap(error_msg.flatten.uniq)}\n"
+            #puts "\n#{ap(warn_msg.flatten.uniq)}\n"
             puts 'Successful load of SF alternate names'
             #raise 'to prevent saving to db while testing rake'
           end # end transaction
