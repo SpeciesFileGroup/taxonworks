@@ -26,14 +26,14 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     end
 
     specify 'injecting a name after save' do
-      n = Protonym.create(name: 'Baidae', parent: root, rank_class: Ranks.lookup(:iczn, 'family')) 
-      expect(root.children(true).all.to_a).to contain_exactly(family_a, n, family_b, family_c, family_d)
+      n = Protonym.create(name: 'Baidae', parent: root, rank_class: Ranks.lookup(:iczn, 'family'))
+      expect(root.children.reload.all.to_a).to contain_exactly(family_a, n, family_b, family_c, family_d)
     end
 
     specify 'updating a name reorders' do
       family_a.name = "Zidae" 
       family_a.save!
-      expect(root.children(true).all.to_a).to contain_exactly(family_b, family_c, family_d, family_a)
+      expect(root.children.reload.all.to_a).to contain_exactly(family_b, family_c, family_d, family_a)
     end
  
 

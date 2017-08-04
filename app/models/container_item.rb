@@ -75,7 +75,7 @@ class ContainerItem < ApplicationRecord
   # @return [container]
   #   the container for this ContainerItem
   def container
-    parent(true).try(:contained_object) || Container.none
+    reload_parent.try(:contained_object) || Container.none
   end
 
   def global_entity

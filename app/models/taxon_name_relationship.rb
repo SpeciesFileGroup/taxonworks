@@ -414,7 +414,7 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   def sv_validate_disjoint_object
-    classifications = self.object_taxon_name.taxon_name_classifications(true).map{|i| i.type_name}
+    classifications = self.object_taxon_name.taxon_name_classifications.reload.map {|i| i.type_name}
     disjoint_object_classes = self.type_class.disjoint_object_classes
     compare = disjoint_object_classes & classifications
     compare.each do |i|
@@ -425,7 +425,7 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   def sv_validate_disjoint_subject
-    classifications = self.subject_taxon_name.taxon_name_classifications(true).map{|i| i.type_name}
+    classifications = self.subject_taxon_name.taxon_name_classifications.reload.map {|i| i.type_name}
     disjoint_subject_classes = self.type_class.disjoint_subject_classes
     compare = disjoint_subject_classes & classifications
     compare.each do |i|

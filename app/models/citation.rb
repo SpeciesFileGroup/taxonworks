@@ -45,7 +45,7 @@ class Citation < ApplicationRecord
   after_create :add_source_to_project
 
   def prevent_if_required
-    if !marked_for_destruction? && !new_record? && citation_object.requires_citation? && citation_object.citations(true).count == 1
+    if !marked_for_destruction? && !new_record? && citation_object.requires_citation? && citation_object.citations.reload.count == 1
       errors.add(:base, 'at least one citation is required')
       return false
     end

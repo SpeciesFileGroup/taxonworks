@@ -11,7 +11,7 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
       class_with_citations.save!
       class_with_citations.citations << Citation.new(source: source)
       expect(class_with_citations.save!).to be_truthy
-      expect(class_with_citations.citations(true).count).to eq(1)
+      expect(class_with_citations.citations.reload.count).to eq(1)
     end
   end
 
@@ -41,7 +41,7 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
       specify '#source can be set with nested attributes' do
         t = TestCitable.new(origin_citation_attributes: {source_id: source.to_param})
         expect(t.save).to be_truthy
-        expect(t.citations(true).count).to eq(1)
+        expect(t.citations.reload.count).to eq(1)
         expect(t.citations.first.is_original?).to be_truthy
       end
 

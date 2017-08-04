@@ -1366,7 +1366,7 @@ class TaxonName < ApplicationRecord
                            fix:             :sv_fix_parent_is_valid_name,
                            success_message: 'Parent was updated')
     else # TODO: This seems like a different validation, split with above?
-      classifications      = self.taxon_name_classifications(true)
+      classifications = self.taxon_name_classifications.reload
       classification_names = classifications.map { |i| i.type_name }
       compare              = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & classification_names
       unless compare.empty?
