@@ -230,7 +230,7 @@ namespace :tw do
           user = User.where(email: email)
           if user.empty?
             pwd = rand(36**10).to_s(36)
-            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true, is_flagged_for_password_reset: true)
+            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true, is_flagged_for_password_reset: false)
           else
             user = user.first
           end
@@ -377,11 +377,13 @@ namespace :tw do
         if import.metadata['namespaces']
           @taxon_namespace = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS Taxon Code', short_name: 'Taxon Code').first
           @accession_namespace = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS Legacy Accession Code', short_name: 'Accession Code').first
+          @user_namespace = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS Legacy User ID', short_name: 'User ID').first
           print "from database.\n"
         else
           print "as newly parsed.\n"
           @taxon_namespace = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS Taxon Code', short_name: 'Taxon Code')
           @accession_namespace = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS Legacy Accession Code', short_name: 'Accession Code')
+          @user_namespace = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS Legacy User ID', short_name: 'User ID')
           import.metadata['namespaces'] = true
         end
 
@@ -705,11 +707,11 @@ namespace :tw do
           if existing_user.empty?
             pwd = rand(36**10).to_s(36)
             user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, is_flagged_for_password_reset: true,
-                   data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: 'PeopleID', type: 'ImportAttribute'} ],
+                   #data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: 'PeopleID', type: 'ImportAttribute'} ],
                    tags_attributes:   [ { keyword: data.keywords['INHS_imported'] } ]
             )
-#                   data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: data.keywords['PeopleID'].name, controlled_vocabulary_term_id: data.keywords['PeopleID'].id, type: 'ImportAttribute'} ],
-            #user.tags.create(keyword: data.keywords['INHS_imported'])
+            c.identifiers.create(identifier: p['PeopleID'], namespace: @user_namespace, type: 'Identifier::Local::Import')
+
           else
             user = existing_user.first
           end
