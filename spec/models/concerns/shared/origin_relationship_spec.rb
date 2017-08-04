@@ -15,10 +15,6 @@ context 'OriginRelationship', type: :model do
     specify '#valid_new_object_classes' do
       expect(t.valid_new_object_classes).to contain_exactly('TestClass') 
     end
-
-    specify '#dervied_' do
-      expect(t).to respond_to(:derived_test_classes)
-    end
   end
 
   context 'associations' do
@@ -34,10 +30,14 @@ context 'OriginRelationship', type: :model do
 
     context 'with "is_origin_for"' do
       context 'matching target origins' do
-        specify 'origin_relationship successfully added' do
-          origin_object = WithIsOriginForMatching.new(matching_origin_targets)
-          origin_object.save!
 
+        let(:origin_object) { WithIsOriginForMatching.new(matching_origin_targets) }
+
+        before {
+          origin_object.save!
+        }
+
+        specify 'origin_relationship successfully added' do
           expect(origin_object.origin_relationships.length).to be 1
         end
       end
@@ -65,6 +65,31 @@ context 'OriginRelationship', type: :model do
   context 'new/old objects' do
     let(:o) { WithIsOriginForMatching.create }
     let(:n) { TestClass.create }
+
+
+    context '#origin' do
+      context 'with #origin=' do
+        before do
+          n.origin = o
+          n.save 
+        end
+
+        specify 'can create a relationship' do
+          expect(n.related_origin_relationships.count).to eq(1)
+        end
+      end
+
+      context 'with params' do
+        let!(:z) { TestClass.create!(origin: o) }
+      
+        specify 'can create a relationship' do
+          expect(z.related_origin_relationships.count).to eq(1)
+          expect(z.old_objects).to contain_exactly(o)
+        end 
+      end
+
+    end
+
 
     specify '#old_objects' do 
       expect(o).to respond_to(:old_objects)
