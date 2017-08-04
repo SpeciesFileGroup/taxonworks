@@ -14,7 +14,8 @@
 #   @return [String]
 #      a SequenceRelationship#type, defines how the sequence was used in this attribute 
 #
-# @!attribute controlled_vocabulary_termi_id
+# ! Deprecated?
+# @!attribute controlled_vocabulary_term_id
 #   @return [Integer]
 #      not yet implemented, intent/idea is to define a subclass of CVT that represents GO terms. 
 #

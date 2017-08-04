@@ -6,6 +6,12 @@
 class Descriptor::Gene < Descriptor
 
   has_many :gene_attributes, inverse_of: :descriptor, foreign_key: :descriptor_id
+  accepts_nested_attributes_for :gene_attributes
+
+  # Pass a Sequence to clone that sequence description to this descriptor
+  attr_accessor :base_on_sequence
+
+  before_validation :add_gene_attributes, if: 'base_on_sequence.present?'
 
   # @return [Scope]
   #   a Sequence scope that returns sequences for this Descriptor::Gene
@@ -13,7 +19,7 @@ class Descriptor::Gene < Descriptor
   # Arel is use to represent this raw SQL approach:
   #
   #  js = data.collect{|j, k| " INNER JOIN sequence_relationships b#{j} ON s.id = b#{j}.object_sequence_id AND b#{j}.type = '#{k}' AND b#{j}.subject_sequence_id = #{j}"}.join  
-
+  #
   #  z = 'SELECT s.* FROM sequences s' +
   #      ' INNER JOIN sequence_relationships sr ON sr.object_sequence_id = s.id' +
   #      js + 
@@ -63,6 +69,14 @@ class Descriptor::Gene < Descriptor
 
   def gene_attribute_sequence_retlationship_types
     gene_attribute_pairs.collect{|id, z| z}
+  end
+
+  protected
+
+  def add_gene_attributes
+    base_on_sequence.related_sequence_relationships.each do |sa|
+      gene_attributes.build(sequence: sa.sequence, type: sa.type)
+    end
   end
 
 end
