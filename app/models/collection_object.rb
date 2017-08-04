@@ -338,11 +338,11 @@ class CollectionObject < ApplicationRecord
       # find the geographic_items inside gi
       step_1 = GeographicItem.is_contained_by('any', gi) # .pluck(:id)
       # find the georeferences from the geographic_items
-      step_2 = step_1.map(&:georeferences).uniq.flatten
+      step_2 = step_1.map(&:georeferences).distinct.flatten
       # find the collecting events connected to the georeferences
-      step_3 = step_2.map(&:collecting_event).uniq.flatten
+      step_3 = step_2.map(&:collecting_event).distinct.flatten
       # find the collection objects associated with the collecting events
-      step_4 = step_3.map(&:collection_objects).flatten.map(&:id).uniq
+      step_4 = step_3.map(&:collection_objects).flatten.map(&:id).distinct
       retval = CollectionObject.where(id: step_4.sort)
     else
       retval = CollectionObject.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(geographic_item.id)).limit(limit).includes(:data_attributes, :collecting_event)
@@ -371,7 +371,7 @@ class CollectionObject < ApplicationRecord
       @selected_column_names[:ce][:in][column_name] = {checked: '0'}
     }
     ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
-      .pluck(:import_predicate).uniq.sort.each { |column_name|
+        .pluck(:import_predicate).distinct.sort.each {|column_name|
       @selected_column_names[:ce][:im][column_name] = {checked: '0'}
     }
     @selected_column_names
@@ -431,7 +431,7 @@ class CollectionObject < ApplicationRecord
       @selected_column_names[:co][:in][column_name] = {checked: '0'}
     }
     ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
-      .pluck(:import_predicate).uniq.sort.each { |column_name|
+        .pluck(:import_predicate).distinct.sort.each {|column_name|
       @selected_column_names[:co][:im][column_name] = {checked: '0'}
     }
     @selected_column_names

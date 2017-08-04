@@ -236,8 +236,8 @@ namespace :tw do
         puts TaxonName.all
 
         ap higher
-        ap subfams.uniq
-        ap tribes.uniq 
+        ap subfams.distinct
+        ap tribes.distinct
       end
 
       task :handle_genera => [:data_directory, :environment] do |t, args|

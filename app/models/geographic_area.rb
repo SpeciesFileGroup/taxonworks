@@ -169,7 +169,7 @@ class GeographicArea < ApplicationRecord
       pieces.each { |other|
         others.push(other.geographic_areas.to_a)
       }
-      pieces = GeographicArea.where('id in (?)', others.flatten.map(&:id).uniq)
+      pieces = GeographicArea.where('id in (?)', others.flatten.map(&:id).distinct)
     end
     pieces
   end
@@ -184,7 +184,7 @@ class GeographicArea < ApplicationRecord
       pieces.each { |other|
         others.push(other.geographic_areas.to_a)
       }
-      pieces = GeographicArea.where('id in (?)', others.flatten.map(&:id).uniq)
+      pieces = GeographicArea.where('id in (?)', others.flatten.map(&:id).distinct)
     end
     pieces
   end

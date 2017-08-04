@@ -26,7 +26,7 @@ module CollectingEventsHelper
   # @return [String]
   #   short string of use in autocomplete selects
   def collecting_event_namespace_select_tag
-    select_tag(:ce_namespace, options_for_select(Namespace.pluck(:short_name).uniq), prompt: 'Select a namespace')
+    select_tag(:ce_namespace, options_for_select(Namespace.pluck(:short_name).distinct), prompt: 'Select a namespace')
   end
 
   # @return [String, nil]
