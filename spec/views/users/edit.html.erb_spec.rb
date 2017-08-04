@@ -1,5 +1,6 @@
 require 'rails_helper'
 
+=begin
 describe "users/edit", :type => :view do
   before(:each) do
     @user = assign(:user, stub_model(User,
@@ -21,3 +22,4 @@ describe "users/edit", :type => :view do
     end
   end
 end
+=end
