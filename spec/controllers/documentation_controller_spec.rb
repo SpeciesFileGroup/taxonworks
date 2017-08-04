@@ -26,21 +26,21 @@ RSpec.describe DocumentationController, type: :controller do
   # This should return the minimal set of attributes required to create a valid
   # Documentation. As you add validations to Documentation, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_documentation).attributes) }
+  let(:valid_attributes) {strip_housekeeping_attributes(FactoryGirl.build(:valid_documentation).attributes)}
 
-  let(:documentation_target) { FactoryGirl.create(:valid_collecting_event) }
-  let(:document) { FactoryGirl.create(:valid_document) }
+  let(:documentation_target) {FactoryGirl.create(:valid_collecting_event)}
+  let(:document) {FactoryGirl.create(:valid_document)}
 
   let(:creatable_documentation) {
-    FactoryGirl.create(:valid_documentation, {type:                      Documentation::CollectingEventDocumentation,
-                                              document_id:               document.id,
-                                              documentation_object_id:   documentation_target.id,
-                                              documentation_object_type: documentation_target.class}) }
+    FactoryGirl.create(:valid_documentation, params: {type: Documentation::CollectingEventDocumentation,
+                                                      document_id: document.id,
+                                                      documentation_object_id: documentation_target.id,
+                                                      documentation_object_type: documentation_target.class})}
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
   # DocumentationController. Be sure to keep this updated too.
-  let(:valid_session) { {} }
+  let(:valid_session) {{}}
 
   describe 'GET #index' do
     it 'assigns all recent documentation as @recent_objects' do
