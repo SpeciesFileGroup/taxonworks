@@ -83,6 +83,7 @@ gem 'taxonifi', '0.4.0'
 gem 'sqed', '0.3.0'
 gem 'dwc-archive', '~> 0.9.11'
 gem 'biodiversity', '~> 3.4.1'
+gem 'ruby-units', '~> 2.1.0', require: 'ruby_units/namespaced'
 
 # Minor Utils/helpers
 gem 'awesome_print', '~> 1.7'
