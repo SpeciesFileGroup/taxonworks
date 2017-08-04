@@ -22,4 +22,4 @@ describe 'users/forgot_password', :type => :view do
   end
 
 end
-==end
+=end
