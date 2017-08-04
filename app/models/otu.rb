@@ -20,9 +20,10 @@
 #   The id of the nomenclatural name for this OTU.  The presence of a nomenclatural name carries no biological meaning, it is 
 #   simply a means to organize concepts within a nomenclatural system.
 #
+#
+# TODO Semantics vs. taxon_name_id
+#
 class Otu < ActiveRecord::Base
-
-  # TODO Add simple semantics (same_as etc.) describing taxon_name_id
 
   include Housekeeping
   #include Shared::AlternateValues  # 1/26/15 with MJY - not going to allow alternate values in Burlap
