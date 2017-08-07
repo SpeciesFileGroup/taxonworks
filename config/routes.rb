@@ -367,6 +367,7 @@ TaxonWorks::Application.routes.draw do
 
   resources :otu_page_layout_sections, only: [:create, :update, :destroy]
 
+  match 'people/role_types', to: 'people#role_types', via: :get, method: :json
   resources :people do
     concerns [:data_routes]
     member do
@@ -765,7 +766,7 @@ TaxonWorks::Application.routes.draw do
 
     scope :people, controller: 'tasks/people/author' do
       get 'author', action: 'list', as: 'author_list_task'
-      get 'source_list_for_author/:id', action: 'source_list_for_author', as: 'author_source_list_task'
+      get 'source_list_for_author/:id', action: 'source_list_for_author', as: 'author_source_list_task'  
     end
 
     scope :serials, controller: 'tasks/serials/similar' do
