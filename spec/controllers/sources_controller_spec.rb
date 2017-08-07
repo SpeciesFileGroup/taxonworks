@@ -71,18 +71,18 @@ describe SourcesController, :type => :controller do
     describe 'with valid params' do
       it 'creates a new Source' do
         expect {
-          post :create, params: {:source => valid_attributes}, session: valid_session
+          post :create, params: {source: valid_attributes}, session: valid_session
         }.to change(Source, :count).by(1)
       end
 
       it 'assigns a newly created source as @source' do
-        post :create, params: {:source => valid_attributes}, session: valid_session
+        post :create, params: {source: valid_attributes}, session: valid_session
         expect(assigns(:source)).to be_a(Source)
         expect(assigns(:source)).to be_persisted
       end
 
       it 'redirects to the created source' do
-        post :create, params: {:source => valid_attributes}, session: valid_session
+        post :create, params: {source: valid_attributes}, session: valid_session
         expect(response).to redirect_to(Source.last.metamorphosize)
       end
     end
@@ -91,14 +91,14 @@ describe SourcesController, :type => :controller do
       it 'assigns a newly created but unsaved source as @source' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Source).to receive(:save).and_return(false)
-        post :create, params: {:source => {'serial_id' => 'invalid value'}}, session: valid_session
+        post :create, params: {source: {serial_id: 'invalid value'}}, session: valid_session
         expect(assigns(:source)).to be_a_new(Source)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Source).to receive(:save).and_return(false)
-        post :create, params: {:source => {'serial_id' => 'invalid value'}}, session: valid_session
+        post :create, params: {source: {serial_id: 'invalid value'}}, session: valid_session
         expect(response).to render_template('new')
       end
     end
@@ -112,22 +112,20 @@ describe SourcesController, :type => :controller do
         # specifies that the Source created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        # expect_any_instance_of(Source).to receive(:update).with({'serial_id' => '1', 'project_sources_attributes' => [{'project_id' => '1'}]})
-        update_params = ActionController::Parameters.new({serial_id: '1'}).permit(:serial_id)
+        update_params = ActionController::Parameters.new({serial_id: '1', project_sources_attributes: [{project_id: '1'}]}).permit(:serial_id, project_sources_attributes: [:project_id])
         expect_any_instance_of(Source).to receive(:update).with(update_params)
-        put :update, params: {id: source.to_param, :source => {'serial_id' => '1'}}, session: valid_session
-        # put :update, params: {id: source.to_param, source: update_params}, session: valid_session
+        put :update, params: {id: source.to_param, source: {serial_id: '1'}}, session: valid_session
       end
 
       it 'assigns the requested source as @source' do
         source = Source.create! valid_attributes
-        put :update, params: {id: source.to_param, :source => valid_attributes}, session: valid_session
+        put :update, params: {id: source.to_param, source: valid_attributes}, session: valid_session
         expect(assigns(:source)).to eq(source)
       end
 
       it 'redirects to the source' do
         source = Source.create! valid_attributes
-        put :update, params: {id: source.to_param, :source => valid_attributes}, session: valid_session
+        put :update, params: {id: source.to_param, source: valid_attributes}, session: valid_session
         expect(response).to redirect_to(source.becomes(Source))
       end
     end
@@ -137,7 +135,7 @@ describe SourcesController, :type => :controller do
         source = Source.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Source).to receive(:save).and_return(false)
-        put :update, params: {id: source.to_param, :source => {'serial_id' => 'invalid value'}}, session: valid_session
+        put :update, params: {id: source.to_param, source: {serial_id: 'invalid value'}}, session: valid_session
         expect(assigns(:source)).to eq(source)
       end
 
@@ -145,7 +143,7 @@ describe SourcesController, :type => :controller do
         source = Source.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Source).to receive(:save).and_return(false)
-        put :update, params: {id: source.to_param, :source => {'serial_id' => 'invalid value'}}, session: valid_session
+        put :update, params: {id: source.to_param, source: {serial_id: 'invalid value'}}, session: valid_session
         expect(response).to render_template('edit')
       end
     end
