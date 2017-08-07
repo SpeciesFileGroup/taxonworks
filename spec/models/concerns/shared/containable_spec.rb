@@ -18,7 +18,7 @@ describe 'Containables', type: :model, group: :containers do
     end
 
     specify 'container can not be set directly' do
-      expect {containable_class.container =  Container.new}.to raise_error ActiveRecord::HasManyThroughNestedAssociationsAreReadonly
+      expect {containable_class.container = Container.new}.to raise_error ActiveRecord::HasOneThroughNestedAssociationsAreReadonly
     end
 
     specify "container_item" do
