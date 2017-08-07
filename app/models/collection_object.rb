@@ -149,16 +149,17 @@ class CollectionObject < ApplicationRecord
   soft_validate(:sv_missing_accession_fields, set: :missing_accession_fields)
   soft_validate(:sv_missing_deaccession_fields, set: :missing_deaccession_fields)
 
-  def preferred_catalog_number
-    Identifier::Local::CatalogNumber.where(identifier_object: self).first
-  end
+  scope :with_sequence_name, -> (name) { joins(derived_extracts: [:derived_sequences]).where(sequences: {name: name}) }
+  scope :via_descriptor, -> (descriptor) { joins(derived_extracts: [:derived_sequences]).where(sequences: {id: descriptor.sequences}) }
 
-  def missing_determination
-    # see BiologicalCollectionObject
-  end
-
+  # TODO: Deprecate
   def self.find_for_autocomplete(params)
-    Queries::BiologicalCollectionObjectAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id]).includes(taxon_determinations: [:determiners]).limit(50)
+    Queries::BiologicalCollectionObjectAutocompleteQuery.new(
+      params[:term])
+      .all
+      .where(project_id: params[:project_id])
+      .includes(taxon_determinations: [:determiners])
+      .limit(50)
   end
 
   # TODO: move to a helper
@@ -205,6 +206,16 @@ class CollectionObject < ApplicationRecord
     end
 
     breakdown
+  end
+
+  # @return [Identifier::Local::CatalogNumber, nil]
+  #   the first (position) catalog number for this collection object
+  def preferred_catalog_number
+    Identifier::Local::CatalogNumber.where(identifier_object: self).first
+  end
+
+  # see BiologicalCollectionObject
+  def missing_determination
   end
 
   # return [Boolean]
@@ -371,7 +382,7 @@ class CollectionObject < ApplicationRecord
       @selected_column_names[:ce][:in][column_name] = {checked: '0'}
     }
     ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
-        .pluck(:import_predicate).uniq.sort.each {|column_name|
+      .pluck(:import_predicate).uniq.sort.each { |column_name|
       @selected_column_names[:ce][:im][column_name] = {checked: '0'}
     }
     @selected_column_names
@@ -431,7 +442,7 @@ class CollectionObject < ApplicationRecord
       @selected_column_names[:co][:in][column_name] = {checked: '0'}
     }
     ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
-        .pluck(:import_predicate).uniq.sort.each {|column_name|
+      .pluck(:import_predicate).uniq.sort.each { |column_name|
       @selected_column_names[:co][:im][column_name] = {checked: '0'}
     }
     @selected_column_names
@@ -598,8 +609,8 @@ class CollectionObject < ApplicationRecord
     true
   end
 
+  # @return [Boolean]
   def reject_taxon_determinations(attributed)
-
     a = attributed['otu_id']
     b = attributed['otu_attributes']
 

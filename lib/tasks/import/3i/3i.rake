@@ -35,7 +35,6 @@ require 'fileutils'
 #! Transl
 #! UnchangedSpeciesNames!
 
-
 namespace :tw do
   namespace :project_import do
     namespace :access3i do
@@ -266,8 +265,8 @@ namespace :tw do
         handle_projects_and_users_3i
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
-        $project_id = 1
-=begin
+#        $project_id = 1
+#=begin
         handle_controlled_vocabulary_3i
         handle_litauthors_3i
         handle_references_3i
@@ -285,7 +284,6 @@ namespace :tw do
         handle_characters_3i
         handle_state_3i
         handle_chartable_3i
-=end
 
         soft_validations_3i
 
@@ -689,7 +687,7 @@ namespace :tw do
           if row['Name'] == 'Incertae sedis' || row['Name'] == 'Unplaced'
             @data.incertae_sedis[row['Key']] = @data.taxon_index[row['Parent']]
           elsif row['Status'] == '7' ### common name
-          elsif row['Status'] == '8' && !find_taxon_3i(row['Parent']).try(:rank_class).to_s.include?('Family') ### combination
+          elsif row['Status'] == '8' #### && !find_taxon_3i(row['Parent']).try(:rank_class).to_s.include?('Family') ### combination
           elsif row['Status'] == '2'
             @data.original_combination[row['OriginalCombinationOf']] = row
           elsif row['Status'] == '16'
@@ -870,7 +868,7 @@ namespace :tw do
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
 
-        synonym_statuses = %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29).freeze
+        synonym_statuses = %w(1 6 10 11 14 17 22 23 24 26 27 28 29).freeze
         homonym_statuses = %w(3 4 5).freeze
 
         Combination.tap{}
@@ -959,7 +957,7 @@ namespace :tw do
               end
 
             end
-            if synonym_statuses.include?(row['Status']) # %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29)
+            if synonym_statuses.include?(row['Status']) # %w(1 6 10 11 14 17 22 23 24 26 27 28 29)
               if TaxonNameRelationship.where_subject_is_taxon_name(taxon.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first.nil?
                 tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: @relationship_classes[row['Status'].to_i])
                 byebug if tnr.id.nil?
@@ -1131,7 +1129,6 @@ namespace :tw do
       def geo_translate_3i(name)
         GEO_NAME_TRANSLATOR[name] ? GEO_NAME_TRANSLATOR[name] : name
       end
-
 
       def handle_host_plant_name_dictionary_3i
         #CommonName
@@ -1431,7 +1428,6 @@ namespace :tw do
         end
       end
 
-
       def handle_localities_3i
         handle_museums_3i
 
@@ -1659,14 +1655,12 @@ namespace :tw do
         return geolocation_uncertainty
       end
 
-
       def add_bioculation_class_3i(o, bcc)
         BiocurationClassification.create(biocuration_class: @data.biocuration_classes['Specimens'], biological_collection_object: o) if bcc == 'Specimens'
         BiocurationClassification.create(biocuration_class: @data.biocuration_classes['Males'], biological_collection_object: o) if bcc == 'Males'
         BiocurationClassification.create(biocuration_class: @data.biocuration_classes['Females'], biological_collection_object: o) if bcc == 'Females'
         BiocurationClassification.create(biocuration_class: @data.biocuration_classes['Nymphs'], biological_collection_object: o) if bcc == 'Nymphs'
       end
-
 
       def add_identifiers_3i(objects, row)
         return nil if row['ID'].blank?
@@ -1720,7 +1714,6 @@ namespace :tw do
           end
         end
       end
-
 
       def parse_lat_long_3i(ce)
         latitude, longitude = nil, nil
@@ -1800,7 +1793,6 @@ namespace :tw do
         end
         return geolocation_uncertainty
       end
-
 
       def find_taxon_id_3i(key)
         #@data.taxon_index[key.to_s] || Protonym.with_identifier('3i_Taxon_ID ' + key.to_s).find_by(project_id: $project_id).try(:id)
