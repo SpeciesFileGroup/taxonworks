@@ -11,7 +11,6 @@ if taxon_name.roles.any?
   end
 end 
 
-
 if taxon_name.parent
   json.parent do |parent|
     json.partial! '/taxon_names/base_attributes', taxon_name: taxon_name.parent
@@ -29,4 +28,20 @@ if taxon_name.children.any?
     json.array! taxon_name.children.pluck(:id) 
   end
 end 
+
+if taxon_name.taxon_name_classifications.any?
+  json.taxon_name_classifications do
+    json.array! taxon_name.taxon_name_classifications.each do |tc|
+      json.partial! '/taxon_name_classifications/attributes', taxon_name_classification: tc 
+    end
+  end
+end
+
+if taxon_name.taxon_name_relationships.any?
+  json.taxon_name_relationships do
+    json.array! taxon_name.taxon_name_relationships.each do |tr|
+      json.partial! '/taxon_name_relationships/attributes', taxon_name_classification: tr 
+    end
+  end
+end
 
