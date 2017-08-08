@@ -65,11 +65,14 @@ export default {
 			    feminine_name: this.taxon.feminine_name,
 			    masculine_name: this.taxon.masculine_name,
 			    neuter_name: this.taxon.neuter_name,
+			    roles_attributes: this.taxon.taxon_name_author_roles,
 	            type: 'Protonym'
 	          }
 	        }
 	        this.$store.commit(MutationNames.SetHardValidation, undefined);
 	        this.$http.patch(`/taxon_names/${this.taxon.id}.json`, taxon_name).then(response => {
+	        	console.log(taxon_name);
+	        	console.log(response.body);	        	
 	        	this.$store.dispatch(ActionNames.LoadSoftValidation, 'taxon_name');
 	          	TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully updated.`, "notice");
 	        }, response => {

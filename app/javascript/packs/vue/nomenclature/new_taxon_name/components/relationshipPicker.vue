@@ -34,17 +34,34 @@
           name-module="Relationship"
           display-name="subject_status_tag">
         </tree-display>
+        <button class="normal-input" type="button" @click="showAdvance = false">Common</button>
+        <button class="normal-input" @click="showAdvance = true" type="button">Advanced</button>
+        <button class="normal-input" @click="activeModal(true)" type="button">Show all</button>
+        <div class="separate-top">
+          <autocomplete v-if="showAdvance"
+            :arrayList="objectLists.allList"
+            label="name"
+            min="3"
+            time="0"
+            placeholder="Search"
+            eventSend="autocompleteStatusSelected"
+            param="term">
+          </autocomplete>    
+          <list-common :object-lists="objectLists" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"></list-common>
+        </div>
       </div>
-      <list-entrys mutationNameRemove="RemoveTaxonRelationship" list="GetTaxonRelationshipList" display="object_tag"></list-entrys>
+      <list-entrys mutationNameRemove="RemoveTaxonRelationship" :list="GetRelationshipsCreated" display="object_tag"></list-entrys>
     </div>
   </form>
 </template>
 <script>
 
+  const ActionNames = require('../store/actions/actions').ActionNames;
   const GetterNames = require('../store/getters/getters').GetterNames;
   const MutationNames = require('../store/mutations/mutations').MutationNames;
   const treeDisplay = require('./treeDisplay.vue');
   const listEntrys = require('./listEntrys.vue');
+  const listCommon = require('./commonList.vue');
   const expand = require('./expand.vue');
   const autocomplete = require('../../../components/autocomplete.vue');
 
@@ -53,11 +70,15 @@
       listEntrys,
       autocomplete,
       expand,
-      treeDisplay
+      treeDisplay,
+      listCommon
     },
     computed: {
       treeList() {
         return this.$store.getters[GetterNames.GetRelationshipList]
+      },
+      GetRelationshipsCreated() {
+        return this.$store.getters[GetterNames.GetTaxonRelationshipList]
       },
       parent() {
         return this.$store.getters[GetterNames.GetParent]
@@ -87,6 +108,7 @@
       return { 
         objectLists: this.makeLists(),
         expanded: true,
+        showAdvance: false,
       }
     },
     watch: {
@@ -117,6 +139,14 @@
           commonList: [],
           allList: [],
         }
+      },
+      filterAlreadyPicked: function(list, type) {
+        return list.find(function(item) {
+          return (item.type == type)
+        });
+      },
+      addEntry: function(item) {
+        this.$store.dispatch(ActionNames.AddTaxonRelationship, item);
       },
       getTreeList(list, ranksList) {
         for(var key in list) {

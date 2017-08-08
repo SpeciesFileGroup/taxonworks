@@ -18,8 +18,7 @@ module.exports = function({ dispatch, commit, state }, status) {
 			Object.defineProperty(response, 'type', { value: status.type });
 			Object.defineProperty(response, 'object_tag', { value: status.name });
 			commit(MutationNames.AddTaxonStatus, response);
-			//dispatch('loadSoftValidation', 'taxonStatusList');
-			//Needs get the global_id when the object is created
+			dispatch('loadSoftValidation', 'taxonStatusList');
 		});
 	}
 

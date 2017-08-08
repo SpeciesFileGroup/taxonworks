@@ -1,4 +1,4 @@
-json.extract! taxon_name_relationship, :id, :subject_taxon_name_id, :object_taxon_name_id, :type, :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
+json.extract! taxon_name_relationship, :id, :subject_taxon_name_id, :object_taxon_name_id, :subject_status_tag, :object_status_tag, :type, :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
 
 json.inverse_assignment_method taxon_name_relationship.class.inverse_assignment_method
 json.assignment_method taxon_name_relationship.class.assignment_method

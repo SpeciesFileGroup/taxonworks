@@ -6,27 +6,6 @@
         <recursive-list :display="displayName" :modal-mutation-name="mutationNameModal" :action-mutation-name="mutationNameAdd" :objectList="objectLists.tree"></recursive-list>
       </div>
     </modal>
-    <button class="normal-input" type="button" @click="showAdvance = false">Common</button>
-    <button class="normal-input" @click="showAdvance = true" type="button">Advanced</button>
-    <button class="normal-input" @click="activeModal(true)" type="button">Show all</button>
-    <div class="separate-top">
-      <autocomplete v-if="showAdvance"
-        :arrayList="objectLists.allList"
-        :label="displayName"
-        min="3"
-        time="0"
-        placeholder="Search"
-        eventSend="autocompleteStatusSelected"
-        param="term">
-      </autocomplete>    
-      <div v-else class="flex-wrap-row">
-        <ul class="flex-wrap-column no_bullets">
-          <li class="status-item" v-for="item in objectLists.commonList">
-            <label class="middle"><input type="radio" name="status-item" @click="addEntry(item)" :value="item.type"/>{{ item[displayName] }}</label>
-          </li>
-        </ul>
-      </div>
-    </div>
   </form>
 </template>
 <script>
@@ -71,10 +50,7 @@
     methods: {
       activeModal: function(value) {
         this.$store.commit(MutationNames[this.mutationNameModal], value)
-      },
-      addEntry: function(item) {
-        this.$store.dispatch(ActionNames[this.mutationNameAdd], item);
-      },
+      }
     }
   };
 </script>

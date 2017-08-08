@@ -8,33 +8,49 @@
     <div class="body" v-if="expanded">
       <tree-display 
           v-if="taxon.id"
-          :tree-list="treeList" 
-          :objectLists="objectLists" 
-          :parent="parent" 
-          :showModal="showModal" 
+          :tree-list="treeList"
+          :objectLists="objectLists"
+          :parent="parent"
+          :showModal="showModal"
           mutation-name-add="AddTaxonStatus" 
           mutation-name-modal="SetModalStatus"
           name-module="Status"
           display-name="name">
       </tree-display>
-      <list-entrys mutationNameRemove="RemoveTaxonStatus" list="GetTaxonStatusList" display="object_tag"></list-entrys>
+      <button class="normal-input" type="button" @click="showAdvance = false">Common</button>
+      <button class="normal-input" @click="showAdvance = true" type="button">Advanced</button>
+      <button class="normal-input" @click="activeModal(true)" type="button">Show all</button>
+      <div class="separate-top">
+        <autocomplete v-if="showAdvance"
+          :arrayList="objectLists.allList"
+          label="name"
+          min="3"
+          time="0"
+          placeholder="Search"
+          eventSend="autocompleteStatusSelected"
+          param="term">
+        </autocomplete>    
+        <list-common :filter="true" :object-lists="objectLists" display="name" @addEntry="addEntry" :list-created="getStatusCreated"></list-common>
+      </div>
+      <list-entrys mutationNameRemove="RemoveTaxonStatus" :list="getStatusCreated" display="object_tag"></list-entrys>
     </div>
-    
   </form>
 </template>
 
 <script>
-
+  const ActionNames = require('../store/actions/actions').ActionNames;  
   const GetterNames = require('../store/getters/getters').GetterNames;
   const treeDisplay = require('./treeDisplay.vue');
   const listEntrys = require('./listEntrys.vue');
+  const listCommon = require('./commonList.vue');
   const expand = require('./expand.vue');
 
   export default {
     components: {
       listEntrys,
       expand,
-      treeDisplay
+      treeDisplay,
+      listCommon
     },
     computed: {
       treeList() {
@@ -54,12 +70,16 @@
       },
       softValidation() {
         return this.$store.getters[GetterNames.GetSoftValidation]
+      },
+      getStatusCreated() {
+        return this.$store.getters[GetterNames.GetTaxonStatusList]
       }
     },
     data: function() {
       return { 
         objectLists: this.makeLists(),
-        expanded: true
+        expanded: true,
+        showAdvance: false,
       }
     },
     watch: {
@@ -78,6 +98,10 @@
           commonList: [],
           allList: [],
         }
+      },
+      addEntry: function(item) {
+        console.log(item);
+        this.$store.dispatch(ActionNames.AddTaxonStatus, item);
       },
       refresh: function() {
           let copyList = Object.assign({},this.treeList[this.nomenclaturalCode]);

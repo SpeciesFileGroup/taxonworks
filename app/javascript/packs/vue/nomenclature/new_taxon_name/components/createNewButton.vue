@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<modal v-if="showModal" @close="showModal = false">
-			<h3 slot="header">Confirm delete</h3>
+			<h3 slot="header">Confirm</h3>
 			<div slot="body">Are you sure you want to create a new taxon name? All unsaved changes will be lost.</div>
 			<div slot="footer">
 				<button @click="reloadPage()" type="button" class="normal-input button button-default">New</button>

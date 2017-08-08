@@ -39,6 +39,9 @@
 			          <verbatim-year></verbatim-year>
 			        </div>
 		        </div>
+		        <div v-if="show == 'person'">
+		        	<role-picker v-model="roles" type="TaxonNameAuthor"></role-picker>
+		        </div>
 			</div>
 		</div>
 	</form>
@@ -53,6 +56,7 @@
 	const verbatimAuthor = require('./verbatimAuthor.vue');
 	const verbatimYear = require('./verbatimYear.vue');
  	const autocomplete = require('../../../components/autocomplete.vue');
+  	const rolePicker = require('../../../components/role_picker.vue');
 	const expand = require('./expand.vue');
 
 	export default {
@@ -60,6 +64,7 @@
 			autocomplete,
 			verbatimAuthor,
 			verbatimYear,
+			rolePicker,
 			expand
 		},
 		computed: {
@@ -68,6 +73,14 @@
 			},
 			taxon() {
 				return this.$store.getters[GetterNames.GetTaxon]
+			},
+			roles: {
+				get() {
+					return this.$store.getters[GetterNames.GetRoles]
+				},
+				set(value) {
+					this.$store.commit(MutationNames.SetRoles, value)
+				}
 			}
 		},
 		data: function() {

@@ -39,6 +39,7 @@
 			:relationships="genusGroup">
 		</original-combination>
 		<original-combination class="separate-top separate-bottom" 
+			v-if="!isGenus"
 			nomenclature-group="Species"
 			:disabled="!existOriginalCombination"
 			:options="{

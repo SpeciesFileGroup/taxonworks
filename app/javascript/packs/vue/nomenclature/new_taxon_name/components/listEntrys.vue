@@ -1,7 +1,7 @@
 <template>
-	<div v-if="displayList.length">
+	<div v-if="list.length">
 	    <ul class="table-entrys-list">
-	    	<li v-for="item in displayList" class="flex-separate middle">
+	    	<li v-for="item in list" class="flex-separate middle">
 		    	<span v-html="item[display]"></span> 
 		    	<span type="button" class="circle-button btn-delete" @click="removeStatus(item)">Remove</span>
 	    	</li>
@@ -16,11 +16,6 @@ const GetterNames = require('../store/getters/getters').GetterNames;
 export default {
 	props: ['mutationNameRemove', 'list', 'display'],
 	name: 'list-entrys',
-	computed: {
-    	displayList() {
-    		return this.$store.getters[GetterNames[this.list]];
-    	}
-	},
 	methods: {
 		removeStatus: function(item) {
 			this.$store.dispatch(ActionNames[this.mutationNameRemove], item);
