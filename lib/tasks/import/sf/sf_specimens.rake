@@ -52,6 +52,13 @@ namespace :tw do
           # preparation type = controlled vocabulary term for collection object
           # specimen count and description = BiocurationClass, object tied to collection_object (??)
 
+          # Columns in tblSpecimens not accounted for:
+          #   SpecimenStatus
+          #   DepoCatNo -- recorded in hash for now
+          #   SourceID
+          #   BasisOfRecord
+          #   VerbatimLabel
+
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
@@ -59,6 +66,7 @@ namespace :tw do
           get_sf_unique_id = import.get('SFSpecimenToUniqueIDs') # get the unique_id for given SF specimen_id
           get_tw_collecting_event_id = import.get('SFUniqueIDToTWCollectingEventID') # use unique_id as key to collecting_event_id
           get_tw_repo_id = import.get('SFDepoIDToTWRepoID')
+          get_specimen_totals_categories = import.get('SpecimenTotalsCategories')
 
 
           get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object_id
@@ -71,13 +79,11 @@ namespace :tw do
             specimen_id = row['SpecimenID']
             next if specimen_id == '0'
 
-            # total (later)
-            # specimen or lot (later)
-
             depo_id = row['DepoID']
             project_id = get_tw_project_id[row['FileID']]
 
             get_depo_catalog_number[specimen_id] = row['DepoCatNo'] if row['DepoCatNo'].present?
+            specimen_total = get_specimen_totals_categories[specimen_id][Total]
 
 
             # preparation_type = []
@@ -135,8 +141,9 @@ namespace :tw do
             biological_collection_object = BiologicalCollectionObject.new(
                 metadata.merge(
 
+                    total: specimen_total,
+                    type: specimen_total == 1 ? 'specimen' : 'lot',
                     collecting_event_id: get_tw_collecting_event_id[get_sf_unique_id[specimen_id]],
-
                     repository_id: get_tw_repo_id.has_key?(depo_id) ? get_tw_repo_id[depo_id] : nil,
 
                     # housekeeping for collection_object
