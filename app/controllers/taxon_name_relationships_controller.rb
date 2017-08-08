@@ -54,7 +54,7 @@ class TaxonNameRelationshipsController < ApplicationController
     respond_to do |format|
       if @taxon_name_relationship.update(taxon_name_relationship_params)
         format.html { redirect_to @taxon_name_relationship.metamorphosize, notice: 'Taxon name relationship was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render :show, status: :ok, location: @taxon_name_relationship.metamorphosize }
       else
         format.html { render action: 'edit' }
         format.json { render json: @taxon_name_relationship.errors, status: :unprocessable_entity }
