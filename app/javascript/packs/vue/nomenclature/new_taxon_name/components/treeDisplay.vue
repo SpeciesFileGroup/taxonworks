@@ -3,7 +3,7 @@
     <modal class="taxon-modal" v-if="showModal" @close="activeModal(false)">
       <h3 slot="header">{{ nameModule }}</h3>
       <div slot="body" class="tree-list">
-        <recursive-list :display="displayName" :modal-mutation-name="mutationNameModal" :action-mutation-name="mutationNameAdd" :objectList="objectLists.tree"></recursive-list>
+        <recursive-list :getter-list="getterList" :display="displayName" :modal-mutation-name="mutationNameModal" :action-mutation-name="mutationNameAdd" :objectList="objectLists.tree"></recursive-list>
       </div>
     </modal>
   </form>
@@ -27,7 +27,7 @@
       modal
     },
     name: 'tree-display',
-    props: ['treeList', 'parent', 'showModal','mutationNameAdd','mutationNameModal', 'objectLists', 'displayName', 'nameModule'],
+    props: ['treeList', 'parent', 'showModal','mutationNameAdd','mutationNameModal', 'objectLists', 'displayName', 'nameModule', 'getterList'],
     data: function() {
       return {
         showAdvance: false,

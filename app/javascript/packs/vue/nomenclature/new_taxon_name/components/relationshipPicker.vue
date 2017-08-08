@@ -133,6 +133,9 @@
         this.getTreeList(this.objectLists.tree, copyList.all);
         this.addType(this.objectLists.commonList);
       },
+      activeModal: function(value) {
+        this.$store.commit(MutationNames.SetModalRelationship, value)
+      },
       makeLists: function() {
         return {
           tree: undefined,

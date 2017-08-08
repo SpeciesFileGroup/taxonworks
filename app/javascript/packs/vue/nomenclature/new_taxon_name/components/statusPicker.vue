@@ -12,8 +12,10 @@
           :objectLists="objectLists"
           :parent="parent"
           :showModal="showModal"
+          :filter="getStatusCreated"
           mutation-name-add="AddTaxonStatus" 
           mutation-name-modal="SetModalStatus"
+          getter-list="GetTaxonStatusList"
           name-module="Status"
           display-name="name">
       </tree-display>
@@ -40,6 +42,7 @@
 <script>
   const ActionNames = require('../store/actions/actions').ActionNames;  
   const GetterNames = require('../store/getters/getters').GetterNames;
+  const MutationNames = require('../store/mutations/mutations').MutationNames;
   const treeDisplay = require('./treeDisplay.vue');
   const listEntrys = require('./listEntrys.vue');
   const listCommon = require('./commonList.vue');
@@ -102,6 +105,9 @@
       addEntry: function(item) {
         console.log(item);
         this.$store.dispatch(ActionNames.AddTaxonStatus, item);
+      },
+      activeModal: function(value) {
+        this.$store.commit(MutationNames.SetModalStatus, value)
       },
       refresh: function() {
           let copyList = Object.assign({},this.treeList[this.nomenclaturalCode]);
