@@ -9,6 +9,8 @@ Parameters:
    event-send: event name used to pass item selected
     autofocus: set autofocus
       display: Sets the label of the item selected to be display on the input field
+      getInput: Get the input text
+   clearAfter: Clear the input field after an item is selected
 
    :add-param: Send custom parameters
   
@@ -20,7 +22,7 @@ Parameters:
 */
 <template>
   <div class="vue-autocomplete">
-    <input class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="checkTime" v-model="type" :autofocus="autofocus" :disabled="disabled" v-bind:class="{'ui-autocomplete-loading' : spinner, 'vue-autocomplete-input-search' : !spinner }"/>
+    <input class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="checkTime(), sendType()" v-model="type" :autofocus="autofocus" :disabled="disabled" v-bind:class="{'ui-autocomplete-loading' : spinner, 'vue-autocomplete-input-search' : !spinner }"/>
     <ul v-show="showList" v-if="type && json.length">
       <li v-for="(item, index) in json" :class="activeClass(index)" @mouseover="itemActive(index)" @click.prevent="itemClicked(item), sendItem(item)">
         <span v-html="item[label]"></span>
@@ -68,6 +70,11 @@ export default {
 
       url: {
         type: String
+      },
+
+      clearAfter: {
+        type: Boolean,
+        default: false
       },
 
       sendLabel: {
@@ -139,10 +146,10 @@ export default {
 
         itemClicked: function(item) {
           if(this.display.length)
-            this.type = item[this.display];
+            this.type = (this.clearAfter ? '' : item[this.display]);
           else {
-            this.type = item[this.label]
-          }     
+            this.type = (this.clearAfter ? '' : item[this.label]);
+          }
           this.showList = false;
         },
 
@@ -159,7 +166,11 @@ export default {
             })
           }   
           return tempUrl + params;           
-        },   
+        },
+
+        sendType: function() {
+          this.$emit('getInput', this.type)
+        },
 
         checkTime: function() {
           var that = this;

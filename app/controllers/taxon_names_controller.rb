@@ -112,6 +112,10 @@ class TaxonNamesController < ApplicationController
   def batch_load
   end
 
+  def ranks
+    render json: RANKS_JSON.to_json
+  end
+
   def preview_simple_batch_load 
     if params[:file] 
       @result =  BatchLoad::Import::TaxonifiToTaxonworks.new(batch_params)

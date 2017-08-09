@@ -1,20 +1,49 @@
 <template>
 	<div>
-		<autocomplete
-			url="/people/lookup_person"
-			label="label"
-		    min="2"
-		    eventSend="role_picker"
-		    placeholder="Family name, given name"
-		    param="term">
-		</autocomplete>
-		<select class="normal-input" v-if="!type">
-			<option v-for="role, key in role_types">{{ role }}</option>
-		</select>
+		<div class="horizontal-left-content align-start">
+			<autocomplete
+				class="separate-right"
+				url="/people/lookup_person"
+				label="label"
+			    min="2"
+			    @getInput="setInput"
+			    eventSend="role_picker"
+			    :clearAfter="true"
+			    placeholder="Family name, given name"
+			    param="term">
+			</autocomplete>
+			<div class="flex-wrap-column separate-left" v-if="searchPerson.length > 0">
+				<div>
+					<button type="button" class=" normal-input" @click="createPerson()">Add new</button>
+					<span class="normal-input">{{ newNamePerson }}</span>
+					<button type="button" class=" normal-input" @click="switchName(newNamePerson)">Switch</button>
+					<button type="button" class=" normal-input" @click="expandPerson = !expandPerson">Expand</button>
+				</div>
+				<hr>
+				<div class="flex-wrap-column separate-top" v-if="expandPerson">
+					<div class="field">
+						<label>Given name</label><br>
+						<input v-model="person_attributes.first_name" type="text">
+					</div>
+					<div class="field">
+						<label>Family name prefix</label><br>
+						<input v-model="person_attributes.prefix" type="text">
+					</div>
+					<div class="field">
+						<label>Family name</label><br>
+						<input v-model="person_attributes.last_name" type="text">
+					</div>
+					<div class="field">
+						<label>Family name suffix</label><br>
+						<input v-model="person_attributes.suffix" type="text" name="">
+					</div>
+				</div>
+			</div>
+		</div>
 		<ul class="table-entrys-list">
 			<draggable v-model="roles_attributes" @end="onSortable">
 				<li class="flex-separate middle" v-for="role, index in roles_attributes" v-if="!role.hasOwnProperty('_destroy')">
-					<span v-html="getFullName(role.first_name, role.last_name)"></span>
+					<span v-html="getLabel(role)"></span>
 					<span class="circle-button btn-delete" @click="removePerson(index)"></span>
 				</li>
 			</draggable>
@@ -33,7 +62,7 @@
 			draggable
 		},
 		props: {
-			type: {
+			roleType: {
 				type: String,
 				default: undefined
 			},
@@ -41,13 +70,14 @@
 		},
 		data: function() {
 			return {
-				roleSelected: this.type,
+				expandPerson: false,
+				searchPerson: '',
+				newNamePerson: '',
+				person_attributes: this.makeNewPerson(),
 				roles_attributes: this.sortPosition(this.processedList(this.value)),
-				role_types: undefined
 			}
 		},
 		mounted: function() {
-			this.loadRoles();
 			this.$on('role_picker', function(item) {
 				this.roles_attributes.push(this.addPerson(item));
 				this.$emit('input', this.roles_attributes);
@@ -56,17 +86,53 @@
 		watch: {
 			value: function(newVal) {
 				this.roles_attributes = this.sortPosition(this.processedList(this.value))
+			},
+			searchPerson: function(newVal) {
+				if(newVal.length > 0) {
+					this.newNamePerson = newVal;
+					this.fillFields(newVal);
+				}
+			},
+			person_attributes: {
+				handler: function(newVal) {
+					this.newNamePerson = this.getFullName(newVal.first_name, newVal.last_name);
+				},
+				deep: true
 			}
 		},
 		methods: {
-			loadRoles: function() {
-				this.$http.get('/people/role_types.json').then( response => {
-					this.role_types = response.body;
-				})
+			makeNewPerson: function() {
+				return	{
+					first_name: '',
+					last_name: '',
+					suffix: '',
+					prefix: '',
+				}
+			},
+			getLabel: function(person) {
+				if(person.hasOwnProperty('person_attributes')) {
+					return this.getFullName(person.person_attributes.first_name, person.person_attributes.last_name);
+				}
+				else {
+					return this.getFullName(person.first_name, person.last_name);
+				}
+			},
+			switchName: function(name) {
+				let tmp = this.person_attributes.first_name;
+				this.person_attributes.first_name = this.person_attributes.last_name;
+				this.person_attributes.last_name = tmp;
+				return this.getFullName(this.person_attributes.first_name, tmp);
+			},
+			fillFields: function(name) {
+				this.person_attributes.first_name = this.getFirstName(name);
+				this.person_attributes.last_name = this.getLastName(name);
 			},
 			removePerson: function(index) {
 				this.$set(this.roles_attributes[index], '_destroy', true);
 				this.$emit('input', this.roles_attributes);
+			},
+			setInput: function(text) {
+				this.searchPerson = text;
 			},
 			sortPosition: function(list) {
 				list.sort(function(a, b){
@@ -130,7 +196,7 @@
 				if ((string.indexOf(",") > 1) || (string.indexOf(" ") > 1)) {
 					return this.findName(string, 1);
 				} else {
-					return null;
+					return '';
 				}
 			},
 			getLastName: function (string) {
@@ -148,9 +214,20 @@
 				}
 				return (last_name + separator + first_name);
 			},
+			createPerson: function() {
+				let person = { 
+					type: this.roleType,
+					person_attributes: this.person_attributes,
+					position: (this.roles_attributes.length+1)
+				} 
+				this.roles_attributes.push(person);
+				this.$emit('input', this.roles_attributes);
+				this.expandPerson = false;
+				this.person_attributes = this.makeNewPerson();
+			},
 			addPerson: function(item) {
 				return {
-					type: this.roleSelected,
+					type: this.roleType,
 					person_id: item.object_id,
 					first_name: this.getFirstName(item.label),
 					last_name: this.getLastName(item.label),
