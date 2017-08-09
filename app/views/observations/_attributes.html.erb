@@ -17,10 +17,14 @@
   <%= collection_object_tag( @observation.collection_object ) %>
 </p>
 
+
+<% if @observation.type =~ /Qualitative/ -%>
+
 <p>
   <strong>Character state:</strong>
   <%= character_state_tag( @observation.character_state ) %>
 </p>
+<% end %>
 
 <p>
   <strong>Frequency:</strong>
@@ -66,11 +70,6 @@
 <p>
   <strong>Sample units:</strong>
   <%= @observation.sample_units %>
-</p>
-
-<p>
-  <strong>Sample:</strong>
-  <%= @observation.sample %>
 </p>
 
 <p>
