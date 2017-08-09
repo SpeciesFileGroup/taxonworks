@@ -855,7 +855,8 @@ class TaxonName < ActiveRecord::Base
     d['genus'] = [nil, '[GENUS UNKNOWN]'] if d['genus'].blank?
 
     elements.push("#{eo}#{d['genus'][1]}#{ec}") if d['genus']
-    elements.push ['(', %w{subgenus section subsection series subseries superspecies}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
+    elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
+    elements.push ['(', %w{superspecies}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
 
     SPECIES_EPITHET_RANKS.each do |r|
       elements.push(d[r][0], "#{eo}#{d[r][1]}#{ec}") if d[r]
