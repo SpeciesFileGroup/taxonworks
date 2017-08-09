@@ -62,7 +62,7 @@ module Queries
 
     def starting_after_id
       start_id = Arel::Attribute.new(Arel::Table.new(:collecting_events), :id)
-      start_id.gt(collecting_event_id)
+      start_id.gt(Arel::Nodes::Quoted.new(collecting_event_id))
     end
 
     # @param [String] key to FILTERS regex string
