@@ -206,7 +206,8 @@ class Container < ApplicationRecord
   def check_for_contents
     if container_items.any?
       errors.add(:base, 'is not empty, empty it before destroying it')
-      return false
+      # return false
+      throw :abort
     end
   end
 end
