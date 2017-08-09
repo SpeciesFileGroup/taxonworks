@@ -142,6 +142,8 @@ TaxonWorks::Application.routes.draw do
       get 'containerize'
     end
     collection do
+      post :preview_castor_batch_load
+      post :create_castor_batch_load
       get :preview_simple_batch_load # should be get
       post :create_simple_batch_load
     end
@@ -167,6 +169,11 @@ TaxonWorks::Application.routes.draw do
     #   post :preview_simple_batch_load # should be get
     #   post :create_simple_batch_load
     # end
+
+    collection do
+      post :preview_castor_batch_load
+      post :create_castor_batch_load
+    end
   end
 
   resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
@@ -348,6 +355,9 @@ TaxonWorks::Application.routes.draw do
 
       post :preview_simple_batch_file_load
       post :create_simple_batch_file_load
+
+      post :preview_identifiers_batch_load
+      post :create_identifiers_batch_load
     end
   end
 
@@ -426,10 +436,26 @@ TaxonWorks::Application.routes.draw do
 
   resources :sequences do
     concerns [:data_routes]
+
+    collection do
+      post :preview_genbank_batch_file_load
+      post :create_genbank_batch_file_load
+
+      post :preview_genbank_batch_load
+      post :create_genbank_batch_load
+
+      post :preview_primers_batch_load
+      post :create_primers_batch_load
+    end
   end
 
   resources :sequence_relationships do
     concerns [:data_routes]
+
+    collection do
+      post :preview_primers_batch_load
+      post :create_primers_batch_load
+    end
   end
 
   resources :sources do
@@ -463,6 +489,9 @@ TaxonWorks::Application.routes.draw do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
       get :ranks, {format: :json}
+
+      post :preview_castor_batch_load
+      post :create_castor_batch_load
     end
 
     member do
@@ -475,7 +504,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       get :taxon_name_classification_types
-    end
+  end
     member do
       get :show, {format: :json}
     end
@@ -486,7 +515,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       get :type_relationships, {format: :json}
       get :taxon_name_relationship_types, {format: :json}
-    end
+  end
   end
 
   resources :topics, only: [:create] do
@@ -766,7 +795,7 @@ TaxonWorks::Application.routes.draw do
 
     scope :people, controller: 'tasks/people/author' do
       get 'author', action: 'list', as: 'author_list_task'
-      get 'source_list_for_author/:id', action: 'source_list_for_author', as: 'author_source_list_task'  
+      get 'source_list_for_author/:id', action: 'source_list_for_author', as: 'author_source_list_task'
     end
 
     scope :serials, controller: 'tasks/serials/similar' do

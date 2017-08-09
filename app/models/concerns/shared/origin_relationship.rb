@@ -1,14 +1,14 @@
 =begin
 Shared code for extending data classes with an OriginRelationship
 
-  Instructions on how to use this concern:
-    1) In BOTH related models, Include this concern (include Shared::OriginRelationship) 
+  How to use this concern:
+    1) In BOTH related models, Include this concern (`include Shared::OriginRelationship`) 
     2) In the "old" model call "is_origin_for" with valid class names, as strings, e.g.:
-       is_origin_for 'CollectionObject', 'CollectionObject::BiologicalCollectionObject'
+       `is_origin_for 'CollectionObject', 'CollectionObject::BiologicalCollectionObject'`
     3) has_many :derived_<foo> associations are created for each is_origin_for()
 
-      You must redundantly provide STI subclasses and parent classes if you want to allow both.  Providing
-      a superclass does *not* provide the subclasses.
+    !! You must redundantly provide STI subclasses and parent classes if you want to allow both.  Providing
+       a superclass does *not* provide the subclasses.
 
 =end
 module Shared::OriginRelationship
@@ -17,11 +17,21 @@ module Shared::OriginRelationship
   included do
     related_class = self.name
 
-    # these are technically only necessary on the new side, but are OK to spam on the old side (some of which need it)
+    attr_accessor :origin
+
+    # These are technically only necessary on the new side, but are OK to spam on the old side (some of which need it)
     has_many :origin_relationships, as: :old_object, validate: true, dependent: :destroy
     has_many :related_origin_relationships, class_name: 'OriginRelationship', as: :new_object, validate: true, dependent: :destroy
 
     accepts_nested_attributes_for :origin_relationships, reject_if: :reject_origin_relationships
+
+    before_validation :set_origin, if: '!origin.blank?'
+  end
+
+  def set_origin
+    [origin].flatten.each do |object|
+      related_origin_relationships.build(old_object: object)
+    end
   end
 
   module ClassMethods
@@ -49,10 +59,14 @@ module Shared::OriginRelationship
     end
   end
 
+  # @return [Objects]
+  #   an array of instances, the source of this object
   def old_objects
     related_origin_relationships.collect{|a| a.old_object}
   end
 
+  # @return [Objects]
+  #   an array of instances
   def new_objects
     origin_relationships.collect{|a| a.new_object}
   end

@@ -31,12 +31,10 @@
   <tbody>
   <% @observations.each do |observation| %>
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
-          <td><%= otu.name %></td>
-          <td><%= taxon_name_link(otu.taxon_name) %></td>
-
+          <td><%= descriptor_tag(observation.descriptor) %></td>
           <td><%= otu_tag(observation.otu) %></td>
           <td><%= collection_object_tag(observation.collection_object) %></td>
-          <td><%= observation.character_state %>TODO: UPDATE ME</td>
+          <td><%= observation.character_state if observation.respond_to?(:character_state) %></td>
           <td><%= observation.frequency %></td>
           <td><%= observation.continuous_value %></td>
           <td><%= observation.continuous_unit %></td>
@@ -46,12 +44,11 @@
           <td><%= observation.sample_median %></td>
           <td><%= observation.sample_mean %></td>
           <td><%= observation.sample_units %></td>
-          <td><%= observation.sample %></td>
           <td><%= observation.sample_standard_error %></td>
           <td><%= observation.presence %></td>
           <td><%= observation.description %></td>
 
-          <%= fancy_metadata_cells_tag(otu) -%>
+          <%= fancy_metadata_cells_tag(observation) -%>
         <% end %>
   <% end %>
   </tbody>

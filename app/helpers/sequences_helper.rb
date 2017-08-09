@@ -1,7 +1,7 @@
 module SequencesHelper
   def sequence_tag(sequence)
     return nil if sequence.nil?
-    sequence.sequence
+    sequence.name
   end
 
   def sequence_autocomplete_selected_tag(sequence)

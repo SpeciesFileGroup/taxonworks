@@ -11,7 +11,7 @@ describe 'Dashboard' do
     before { visit root_path }
 
     it 'should provide access to sign in' do
-      expect(page).to have_selector('h1', text: 'TaxonWorks')
+      expect(page).to have_selector('h3', text: 'Sign in to start your session')
       expect(page).to have_selector('form') { |form|
         expect(form).to have_selector('input[name="session[email]"]')
         expect(form).to have_selector('input[name="session[password]"]')

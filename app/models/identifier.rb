@@ -56,20 +56,22 @@ class Identifier < ActiveRecord::Base
   # !! If there are inheritance issues with validation the position
   # !! of this constant is likely the problem
   SHORT_NAMES = {
-    doi:            Identifier::Global::Doi,
-    isbn:           Identifier::Global::Isbn,
-    issn:           Identifier::Global::Issn,
-    lccn:           Identifier::Global::Lccn,
-    occurrence_id:  Identifier::Global::OccurrenceId,
-    orcid:          Identifier::Global::Orcid,
-    uri:            Identifier::Global::Uri,
-    uuid:           Identifier::Global::Uuid,
-    catalog_number: Identifier::Local::CatalogNumber,
-    trip_code:      Identifier::Local::TripCode,
-    import:         Identifier::Local::Import,
-    otu_utility:    Identifier::Local::OtuUtility,
-    accession_code: Identifier::Local::AccessionCode,
-    unknown:        Identifier::Unknown
+    doi:                       Identifier::Global::Doi,
+    isbn:                      Identifier::Global::Isbn,
+    issn:                      Identifier::Global::Issn,
+    lccn:                      Identifier::Global::Lccn,
+    occurrence_id:             Identifier::Global::OccurrenceId,
+    orcid:                     Identifier::Global::Orcid,
+    uri:                       Identifier::Global::Uri,
+    uuid:                      Identifier::Global::Uuid,
+    gen_bank_accession_code:   Identifier::Global::GenBankAccessionCode,
+    morphbank_specimen_number: Identifier::Global::MorphbankSpecimenNumber,
+    catalog_number:            Identifier::Local::CatalogNumber,
+    trip_code:                 Identifier::Local::TripCode,
+    import:                    Identifier::Local::Import,
+    otu_utility:               Identifier::Local::OtuUtility,
+    accession_code:            Identifier::Local::AccessionCode,
+    unknown:                   Identifier::Unknown
   }
 
   # Please DO NOT include the following:

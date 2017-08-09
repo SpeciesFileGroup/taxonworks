@@ -1,9 +1,17 @@
-#
 # A SequenceRelationship relates to strings of DNA/RNA/AA to one other in the form:
-#  #subject is_a #type of #object
-
-# This is used to define primers, reference sequences, query sequences, etc.
+#  #subject is_a #type of #object 
+#  subject ForwardPrimer of object
 #
+# In this case the subject is the primer, then object is the sequence using that primer.  
+# Also use for deriving sequences from queries, etc.
+#
+# @!attribute subject_sequence_id 
+#   @return [Integer]
+#     the subject sequence 
+#
+# @!attribute object_sequence_id 
+#   @return [Integer]
+#     the subject sequence 
 #
 class SequenceRelationship < ActiveRecord::Base
   include Housekeeping

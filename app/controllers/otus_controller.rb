@@ -127,6 +127,31 @@ class OtusController < ApplicationController
     end
   end
 
+  def preview_identifiers_batch_load
+    if params[:file]
+      @result = BatchLoad::Import::Otus::IdentifiersInterpreter.new(batch_params)
+      digest_cookie(params[:file].tempfile, :batch_load_otus_identifiers_md5)
+      render('otus/batch_load/identifiers/preview')
+    else
+      flash[:notice] = 'No file provided!'
+      redirect_to action: :batch_load
+    end
+  end
+
+  def create_identifiers_batch_load
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_load_otus_identifiers_md5)
+      @result = BatchLoad::Import::Otus::IdentifiersInterpreter.new(batch_params)
+      if @result.create
+        flash[:notice] = "Successfully processed file, #{@result.total_records_created} otus were created."
+        render('otus/batch_load/identifiers/create')
+        return
+      else
+        flash[:alert] = 'Batch import failed.'
+      end
+      render(:batch_load)
+    end
+  end
+
   def preview_simple_batch_file_load
     if params[:files]
       @result = BatchFileLoad::Import::Otus::SimpleInterpreter.new(batch_params)

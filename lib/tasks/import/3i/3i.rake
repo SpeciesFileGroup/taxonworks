@@ -35,7 +35,6 @@ require 'fileutils'
 #! Transl
 #! UnchangedSpeciesNames!
 
-
 namespace :tw do
   namespace :project_import do
     namespace :access3i do
@@ -117,7 +116,7 @@ namespace :tw do
             5 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym', ## Preocupied
             6 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression',
             7 => '', ###common name
-            8 => 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm', #### combination => Combination
+            8 => '', ##### 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm', #### combination => Combination
             9 => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
             10 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
             11 => 'TaxonNameRelationship::Iczn::Invalidating', #### misaplication
@@ -266,7 +265,8 @@ namespace :tw do
         handle_projects_and_users_3i
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
-        #$project_id = 1
+#        $project_id = 1
+#=begin
         handle_controlled_vocabulary_3i
         handle_litauthors_3i
         handle_references_3i
@@ -368,7 +368,7 @@ namespace :tw do
             'Typhlocybinae' => Keyword.find_or_create_by(name: 'Typhlocybinae updated', definition: 'Information related to Typhlocybinae entered to the DB.', project_id: $project_id),
             'Illustrations' => Keyword.find_or_create_by(name: 'Illustrations exported', definition: 'Illustrations of Typhlocybinae species entered to the DB.', project_id: $project_id),
             'Distribution' => Keyword.find_or_create_by(name: 'Distribution exported', definition: 'Illustrations on species distribution entered to the DB.', project_id: $project_id),
-            'Notes' => Topic.find_or_create_by(name: 'notes', definition: 'Notes topic on the OTU.', project_id: $project_id),
+            'Notes' => Topic.find_or_create_by(name: 'Notes', definition: 'Notes topic on the OTU.', project_id: $project_id),
             'Host' => BiologicalProperty.find_or_create_by(name: 'Host', definition: 'An animal or plant on or in which a parasite or commensal organism lives.', project_id: $project_id),
             'Herbivor' => BiologicalProperty.find_or_create_by(name: 'Herbivor', definition: 'An animal that feeds on plants.', project_id: $project_id),
             'Parasitoid' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition: 'An organism that lives in or on another organism.', project_id: $project_id),
@@ -673,7 +673,7 @@ namespace :tw do
 
         confidence = ConfidenceLevel.find_or_create_by(name: 'Verified', definition: 'Verified against the original source', project_id: $project_id).id
 
-        synonym_statuses = %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29).freeze
+        synonym_statuses = %w(1 6 10 11 14 17 22 23 24 26 27 28 29).freeze
 
         path = @args[:data_directory] + 'taxon.txt'
         print "\nHandling taxonomy\n"
@@ -687,7 +687,7 @@ namespace :tw do
           if row['Name'] == 'Incertae sedis' || row['Name'] == 'Unplaced'
             @data.incertae_sedis[row['Key']] = @data.taxon_index[row['Parent']]
           elsif row['Status'] == '7' ### common name
-          elsif row['Status'] == '8' && !find_taxon_3i(row['Parent']).try(:rank_class).to_s.include?('Family') ### combination
+          elsif row['Status'] == '8' #### && !find_taxon_3i(row['Parent']).try(:rank_class).to_s.include?('Family') ### combination
           elsif row['Status'] == '2'
             @data.original_combination[row['OriginalCombinationOf']] = row
           elsif row['Status'] == '16'
@@ -846,9 +846,10 @@ namespace :tw do
                 print "\n#{taxon.errors.full_messages}\n"
                 #byebug
               end
-              if !row['DescriptEn'].blank? && (row['DescriptEn'].include?('<h2>Notes</h2>') || row['DescriptEn'].include?('<h2>Remarks</h2>'))
-                taxon.otus.first.contents.create(topic: @data.keywords['Notes'], text: row['DescriptEn'].gsub('<h2>Notes</h2>', '').gsub('<h2>Remarks</h2>', '').squish) ####################?????????
-              end
+            end
+            if !row['DescriptEn'].blank? && (row['DescriptEn'].include?('<h2>Notes</h2>') || row['DescriptEn'].include?('<h2>Remarks</h2>'))
+              content = taxon.otus.first.contents.create(topic: @data.keywords['Notes'], text: row['DescriptEn'].gsub('<h2>Notes</h2>', '').gsub('<h2>Remarks</h2>', '').squish) ####################?????????
+              byebug if content.id.nil?
             end
             unless row['KeyN'].blank?
               row['KeyN'].gsub(' ', '').split(',').each do |kn|
@@ -867,7 +868,7 @@ namespace :tw do
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
 
-        synonym_statuses = %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29).freeze
+        synonym_statuses = %w(1 6 10 11 14 17 22 23 24 26 27 28 29).freeze
         homonym_statuses = %w(3 4 5).freeze
 
         Combination.tap{}
@@ -923,8 +924,8 @@ namespace :tw do
             taxon.iczn_set_as_secondary_homonym_of = find_taxon_3i(row['Homonym']) if !row['Homonym'].blank? && row['Status'] == '4'
             taxon.iczn_set_as_homonym_of = find_taxon_3i(row['Homonym']) if !row['Homonym'].blank? && row['Status'] == '5'
             taxon.iczn_set_as_replacement_name_of = find_taxon_3i(row['NomenNovumFor']) if !row['NomenNovumFor'].blank?
-            taxon.iczn_set_as_misspelling_of = find_taxon_3i(row['MisspellingOf']) if !row['MisspellingOf'].blank?
-            taxon.iczn_set_as_misspelling_of = find_taxon_3i(row['Parent']) if row['MisspellingOf'].blank? && row['Status'] == '9'
+            taxon.iczn_set_as_misspelling_of = find_taxon_3i(row['MisspellingOf']) if row['OriginalCombinationOf'].blank? && !row['MisspellingOf'].blank?
+            taxon.iczn_set_as_misspelling_of = find_taxon_3i(row['Parent']) if row['OriginalCombinationOf'].blank? && row['MisspellingOf'].blank? && row['Status'] == '9'
             taxon.iczn_set_as_incorrect_original_spelling_of = find_taxon_3i(row['OriginalCombinationOf']) if !row['OriginalCombinationOf'].blank? && row['Status'] == '9'
             taxon.iczn_set_as_misapplication_of = find_taxon_3i(row['MisapplicationFor']) if !row['MisapplicationFor'].blank? && row['Status'] == '11'
             #taxon.iczn_first_revisor_action = @data.taxon_index[row['Parent']] if !row['OriginalCombinationOf'].blank? && row['Status'] == '9'
@@ -956,7 +957,7 @@ namespace :tw do
               end
 
             end
-            if synonym_statuses.include?(row['Status']) # %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29)
+            if synonym_statuses.include?(row['Status']) # %w(1 6 10 11 14 17 22 23 24 26 27 28 29)
               if TaxonNameRelationship.where_subject_is_taxon_name(taxon.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first.nil?
                 tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: @relationship_classes[row['Status'].to_i])
                 byebug if tnr.id.nil?
@@ -1003,8 +1004,10 @@ namespace :tw do
               end
               #
             elsif taxon.rank_string =~ /Family/
-              tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
-              byebug unless tnr.valid?
+              c.family = taxon
+              c.verbatim_name = row['Name'].to_s
+              #tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
+              #byebug unless tnr.valid?
             end
             c.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['YearRem'].id, value: row['YearRem']) unless row['YearRem'].blank?
 
@@ -1016,13 +1019,13 @@ namespace :tw do
 
 
             begin
-              c.save!
               if !i3_combination.blank? && i3_combination != c.cached
                 #c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'combination_in_3i', value: i3_combination)
                 #c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'name_in_3i', value: row['Name'])
-                c.verbatim_name = i3_combination
-                c.valid? ? c.save! : byebug
+                c.verbatim_name = i3_combination if c.verbatim_name.blank?
+#                c.valid? ? c.save! : byebug
               end
+              c.save!
             rescue ActiveRecord::RecordInvalid
               print "\n#{row['Key']}         #{row['Name']}"
               print "\n#{c.errors.full_messages}\n"
@@ -1126,7 +1129,6 @@ namespace :tw do
       def geo_translate_3i(name)
         GEO_NAME_TRANSLATOR[name] ? GEO_NAME_TRANSLATOR[name] : name
       end
-
 
       def handle_host_plant_name_dictionary_3i
         #CommonName
@@ -1426,7 +1428,6 @@ namespace :tw do
         end
       end
 
-
       def handle_localities_3i
         handle_museums_3i
 
@@ -1654,14 +1655,12 @@ namespace :tw do
         return geolocation_uncertainty
       end
 
-
       def add_bioculation_class_3i(o, bcc)
         BiocurationClassification.create(biocuration_class: @data.biocuration_classes['Specimens'], biological_collection_object: o) if bcc == 'Specimens'
         BiocurationClassification.create(biocuration_class: @data.biocuration_classes['Males'], biological_collection_object: o) if bcc == 'Males'
         BiocurationClassification.create(biocuration_class: @data.biocuration_classes['Females'], biological_collection_object: o) if bcc == 'Females'
         BiocurationClassification.create(biocuration_class: @data.biocuration_classes['Nymphs'], biological_collection_object: o) if bcc == 'Nymphs'
       end
-
 
       def add_identifiers_3i(objects, row)
         return nil if row['ID'].blank?
@@ -1715,7 +1714,6 @@ namespace :tw do
           end
         end
       end
-
 
       def parse_lat_long_3i(ce)
         latitude, longitude = nil, nil
@@ -1795,7 +1793,6 @@ namespace :tw do
         end
         return geolocation_uncertainty
       end
-
 
       def find_taxon_id_3i(key)
         #@data.taxon_index[key.to_s] || Protonym.with_identifier('3i_Taxon_ID ' + key.to_s).find_by(project_id: $project_id).try(:id)
@@ -2067,10 +2064,13 @@ namespace :tw do
         i = 0
         TaxonName.where(project_id: $project_id).find_each do |t|
           i += 1
+          next if i < 50000
+          byebug if i == 55256
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
           t.fix_soft_validations
           t.soft_validations.soft_validations.each do |f|
+            byebug if fixed == 0 && f.fixed?
             fixed += 1  if f.fixed?
           end
         end

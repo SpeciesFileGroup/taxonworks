@@ -7,6 +7,10 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dn
   let(:attribute1) { GeneAttribute.new(descriptor: descriptor, sequence: sequence1, sequence_relationship_type: SequenceRelationship::ForwardPrimer) } 
   let(:attribute2) { GeneAttribute.new(descriptor: descriptor, sequence: sequence2, sequence_relationship_type: SequenceRelationship::ReversePrimer) }
 
+  let(:forward_primer) { FactoryGirl.create(:valid_sequence) }
+  let(:reverse_primer) { FactoryGirl.create(:valid_sequence) }
+
+
   context 'validation' do
     context 'sequence / relationship_type combination must be unique' do
       before {
@@ -42,7 +46,6 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dn
           expect(attribute2.valid?).to be_truthy
         end
       end
-
     end
   end
 
@@ -51,12 +54,10 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dn
       expect(descriptor.gene_attributes << GeneAttribute.new).to be_truthy
     end
   end
-
+  
   context '#sequences' do
     let(:specimen) { FactoryGirl.create(:valid_specimen) }
     let(:extract) { specimen.derived_extracts.create!(quantity_value: 42, quantity_unit: 'kg', year_made: 2012, day_made: 2, month_made: 3) } 
-    let(:forward_primer) { FactoryGirl.create(:valid_sequence) }
-    let(:reverse_primer) { FactoryGirl.create(:valid_sequence) }
     let!(:target_sequence1) { extract.derived_sequences.create!(
       sequence: 'ACGT', 
       sequence_type: 'DNA',
@@ -89,7 +90,7 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dn
       end 
 
       specify '#gene_attribute_pairs' do
-        expect(descriptor.gene_attribute_pairs).to contain_exactly([forward_primer.id, 'SequenceRelationship::ForwardPrimer',],[reverse_primer.id, 'SequenceRelationship::ReversePrimer'])
+        expect(descriptor.gene_attribute_pairs).to contain_exactly([forward_primer.id, 'SequenceRelationship::ForwardPrimer'],[reverse_primer.id, 'SequenceRelationship::ReversePrimer'])
       end
 
       specify '#gene_attribute_sequence_ids' do

@@ -18,13 +18,12 @@ class Observation < ActiveRecord::Base
   validate :otu_or_collection_object_set
 
   def self.human_name
-    'YAY'
   end
 
   protected
 
   def otu_or_collection_object_set
-    if otu_id.blank? && collection_object_id.blank?
+    if otu_id.blank? && collection_object_id.blank? && otu.blank? && collection_object.blank?
       errors.add(:base, 'observations must reference an Otu or collection object') 
     end
   end

@@ -6,12 +6,14 @@ module BatchLoad
     end
 
     def build_namespaces
-      i = 1
+      @total_data_lines = 0
+      i = 0
 
       namespaces = {};
 
       # loop throw rows
       csv.each do |row|
+        i += 1
 
         parse_result = BatchLoad::RowParse.new
         parse_result.objects[:namespaces] = []
@@ -28,12 +30,12 @@ module BatchLoad
 
           namespace = Namespace.new(namespace_attributes)
           parse_result.objects[:namespaces].push namespace
+          @total_data_lines += 1 if namespace.present?
         # rescue TODO: THIS IS A GENERATED STUB, it does not function
         end
-        i += 1
       end
 
-      @total_lines = i - 1
+      @total_lines = i
     end
 
     def build

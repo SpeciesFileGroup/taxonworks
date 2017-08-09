@@ -66,13 +66,14 @@ module TaxonWorks
         resource '/cors',
           :headers => :any,
           :methods => [:post],
-          :credentials => true,
+          :credentials => false, # true,
           :max_age => 0
 
         resource '*',
           :headers => :any,
           :methods => [:get, :post, :delete, :put, :patch, :options, :head],
-          :max_age => 0
+          :max_age => 0,
+          :credentials => false
       end
     end
 

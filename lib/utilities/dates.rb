@@ -304,9 +304,9 @@ module Utilities::Dates
       if year.length < 3
         tny = Time.now.year
         if year.to_i > tny%100
-          year = (tny/100 - 1).to_s + year
+          year = ((tny/100).to_i - 1).to_s + year
         else
-          year = (tny/100).to_s + year
+          year = (tny/100).to_i.to_s + year
         end
       end
     end

@@ -273,7 +273,6 @@ class Image < ActiveRecord::Base
     end
   end
 
-  #region soft_validation
   # Check md5 fingerprint against existing fingerprints
   def sv_duplicate_image?
     if has_duplicate?
@@ -281,5 +280,4 @@ class Image < ActiveRecord::Base
     end
   end
 
-  #endregion  soft_validation
 end

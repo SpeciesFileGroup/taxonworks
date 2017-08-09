@@ -32,7 +32,7 @@ class TaxonNamesController < ApplicationController
     respond_to do |format|
       if @taxon_name.save
         format.html { redirect_to @taxon_name.metamorphosize,
-                      notice: "Taxon name '#{@taxon_name.name}' was successfully created." }
+                                  notice: "Taxon name '#{@taxon_name.name}' was successfully created." }
         format.json { render :show, status: :created, location: @taxon_name.metamorphosize }
       else
         format.html { render action: 'new' }
@@ -138,13 +138,34 @@ class TaxonNamesController < ApplicationController
     render :batch_load
   end
 
-  # GET /taxon_names/ranks.json
-  def ranks
-    render json: RANKS_JSON.to_json
+  def preview_castor_batch_load 
+    if params[:file] 
+      @result = BatchLoad::Import::TaxonNames::CastorInterpreter.new(batch_params)
+      digest_cookie(params[:file].tempfile, :Castor_taxon_names_md5)
+      render 'taxon_names/batch_load/castor/preview'
+    else
+      flash[:notice] = "No file provided!"
+      redirect_to action: :batch_load 
+    end
   end
 
-  # GET /taxon_names/:id/original_combination.json
-  def original_combination
+  def create_castor_batch_load
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Castor_taxon_names_md5)
+      @result = BatchLoad::Import::TaxonNames::CastorInterpreter.new(batch_params)
+      if @result.create
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
+        render 'taxon_names/batch_load/castor/create' and return
+      else
+        flash[:alert] = 'Batch import failed.'
+      end
+    else
+      flash[:alert] = 'File to batch upload must be supplied.'
+    end
+    render :batch_load
+  end
+
+  def browse
+    @data = NomenclatureCatalog.data_for(@taxon_name)
   end
 
   private
@@ -185,3 +206,5 @@ class TaxonNamesController < ApplicationController
   end
 
 end
+
+require_dependency Rails.root.to_s + '/lib/batch_load/import/taxon_names/castor_interpreter.rb'

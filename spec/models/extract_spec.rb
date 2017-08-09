@@ -36,6 +36,44 @@ RSpec.describe Extract, type: :model, group: :extract do
       end
     end
 
+    context '#quantity_unit format' do
+      let(:a) { 
+        a = Extract.new(quantity_value: '22')
+      }
+
+      specify 'adds errors when unknown by RubyUnits' do
+        a.quantity_unit = 'foo'
+        a.valid?
+        expect(a.errors.include?(:quantity_unit)).to be_truthy
+      end
+
+      specify 'recognizes units' do
+        a.quantity_unit = 'mm'
+        a.valid?
+        expect(a.errors.include?(:quantity_unit)).to be_falsey
+      end
+    end
+
+    context 'sets dates with #is_made_now' do
+      before {
+        extract.is_made_now = true
+        extract.quantity_value = 22
+        extract.quantity_unit = 'mm'
+        extract.save!
+      }
+
+      specify '#year_made is set' do
+        expect(extract.year_made).to eq(Time.now.year)
+      end
+
+      specify '#month_made is set' do
+        expect(extract.year_made).to eq(Time.now.year)
+      end
+
+      specify '#day_made is set' do
+        expect(extract.year_made).to eq(Time.now.year)
+      end
+    end
 
     context 'fails when given invalid dates' do
       let(:valid_extract) {
