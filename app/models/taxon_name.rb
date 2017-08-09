@@ -1207,7 +1207,8 @@ class TaxonName < ApplicationRecord
       true
     else
       errors.add(:base, "This taxon has children names attached, delete those first.")
-      false
+      # false
+      throw :abort
     end
   end
 
