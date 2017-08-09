@@ -14,8 +14,8 @@
 			</autocomplete>
 			<div class="flex-wrap-column separate-left" v-if="searchPerson.length > 0">
 				<div>
+					<input class="normal-input" disabled :value="newNamePerson"/>
 					<button type="button" class=" normal-input" @click="createPerson()">Add new</button>
-					<span class="normal-input">{{ newNamePerson }}</span>
 					<button type="button" class=" normal-input" @click="switchName(newNamePerson)">Switch</button>
 					<button type="button" class=" normal-input" @click="expandPerson = !expandPerson">Expand</button>
 				</div>
