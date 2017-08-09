@@ -24,6 +24,7 @@ function makeInitialState() {
       neuter_name: undefined,
       origin_citation: undefined,
       taxon_name_author_roles: undefined,
+      roles_attributes: [],
       etymology: ''
     },
     settings: {

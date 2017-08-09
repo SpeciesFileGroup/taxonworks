@@ -40,7 +40,7 @@
 			        </div>
 		        </div>
 		        <div v-if="show == 'person'">
-		        	<role-picker v-model="roles" type="TaxonNameAuthor"></role-picker>
+		        	<role-picker v-model="roles" @update="updatePersons" type="TaxonNameAuthor"></role-picker>
 		        </div>
 			</div>
 		</div>
@@ -76,7 +76,10 @@
 			},
 			roles: {
 				get() {
-					return this.$store.getters[GetterNames.GetRoles]
+					if(this.$store.getters[GetterNames.GetRoles] == undefined) return [];
+					return this.$store.getters[GetterNames.GetRoles].sort(function(a, b) {
+						return (a.position - b.position)
+					});
 				},
 				set(value) {
 					this.$store.commit(MutationNames.SetRoles, value)
@@ -95,9 +98,26 @@
 			});
 		},
 		methods: {
+			updatePersons: function(list) {
+				this.$store.commit(MutationNames.SetRoles, list)
+			},
 			removeSource: function(id) {
 				this.$store.dispatch(ActionNames.RemoveSource, id);
 			}
 		}
 	};
 </script>
+
+<style type="text/css">
+  .table-entrys-list {
+  	padding: 0px;
+
+    li {
+    	cursor: pointer;
+    	text-transform: capitalize;
+		margin: 0px;
+		padding: 6px;
+		border-top: 1px solid #f5f5f5;
+    }
+  }
+</style>
