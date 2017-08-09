@@ -4,14 +4,14 @@ class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationControll
 
   # GET quick_verbatim_material_task
   def new
-    @material = Material::QuickVerbatimResponse.new(params)
+    @material = Material::QuickVerbatimResponse.new(material_params)
     @related_routes = UserTasks.related_routes('quick_verbatim_material_task')
     set_variable_variables(@material)
   end
 
   # POST tasks_accessions_quick_verbatim_material_create_path
   def create
-    @material = Material.create_quick_verbatim(params)
+    @material = Material.create_quick_verbatim(material_params)
 
     saved, errors = @material.save
 
@@ -51,7 +51,8 @@ class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationControll
   end
 
   def material_params
-    # params.require(:identifier) , :locks, :repository, :collection_object, :note, :collection_objects).permit(:note, :collection_object, :identifier, :repository, :locks)
+    #TODO is this a potential security problem needing resolution? @mjy
+    params.permit(:collection_object, :identifier, :repository, :locks, :note, :collection_objects).to_unsafe_h
   end
 
 

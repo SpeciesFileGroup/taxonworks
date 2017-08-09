@@ -11,7 +11,7 @@ module Material
       'biocuration_classes' => [],
       'repository' => {'id' => nil},
       'collection_object' => {}
-    }.merge!(options)
+    }.merge(options)
 
     response = QuickVerbatimResponse.new(opts)
 

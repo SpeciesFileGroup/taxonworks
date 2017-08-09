@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 
 gem 'rack-cors', require: 'rack/cors'
 
-ruby '~> 2.3.1'
+ruby '~> 2.3.3'
 
 gem 'rake', '~> 11.1'
 gem 'rails', '~> 5.0'
@@ -83,7 +83,7 @@ gem 'taxonifi', '0.4.0'
 gem 'sqed', '0.3.0'
 gem 'dwc-archive', '~> 0.9.11'
 gem 'biodiversity', '~> 3.4.1'
-gem 'ruby-units', '~> 2.1.0', require: 'ruby_units/namespaced'
+gem 'ruby-units', '~> 2.2.0', require: 'ruby_units/namespaced'
 
 # Minor Utils/helpers
 gem 'awesome_print', '~> 1.7'
