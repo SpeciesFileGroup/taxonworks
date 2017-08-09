@@ -190,14 +190,6 @@ namespace :tw do
 
           logger.info 'Creating biocuration classes...'
 
-          # specimencategoryid = biocurationclassid
-
-          # spmnCategoryIDToBiocurationId = {}
-          # tblSpecimenCategories.each do |row|
-          #   b = BiocurationClass.create!(name: row['SingularName'], project_id: <>, created_by:, modified_by: )
-          #   spmnCategoryIDToBiocurationId[row['SpmnCategoryId']] = b.id
-          # end
-
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
 
@@ -208,10 +200,12 @@ namespace :tw do
 
           file.each_with_index do |row, i|
             spmn_category_id = row['SpmnCategoryID']
+            next if spmn_category_id == '0'
+            project_id = get_tw_project_id[row['FileID']]
 
-            logger.info "Working with SF.SpmnCategoryID '#{spmn_category_id}' \n"
+            logger.info "Working with SF.SpmnCategoryID '#{spmn_category_id}', SF.FileID '#{row['FileID']}', project.id = '#{project_id}' \n"
 
-            biocuration_class = biocuration_class.create!(name: row['SingularName'], project_id: get_tw_project_id[row['FileID']])
+            biocuration_class = BiocurationClass.create!(name: row['SingularName'], definition: row['PluralName'], project_id: project_id)
             get_biocuration_class_id[spmn_category_id] = biocuration_class.id.to_s
           end
 
