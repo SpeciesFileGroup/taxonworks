@@ -1,7 +1,7 @@
 <template>
 	<form>
 		<block-layout anchor="gender">
-			<h3 slot="header">Gender</h3>
+			<h3 slot="header">Gender and form</h3>
 			<div slot="body">
 				<div v-if="taxon.rank == 'genus'">
 					<div class="field">
