@@ -364,7 +364,7 @@ class TaxonName < ActiveRecord::Base
   # Important, string format priority is 1) as provided verbatim, 2) as generated from people, and 3) as taken from the source.
   def author_string
     return verbatim_author if !verbatim_author.nil?
-    return taxon_name_authors.pluck(&:last_name).to_sentence if taxon_name_authors.any?
+    return taxon_name_authors.pluck(:last_name).to_sentence if taxon_name_authors.any?
     return source.authority_name if !source.nil?
     nil
   end
