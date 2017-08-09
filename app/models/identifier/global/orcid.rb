@@ -5,7 +5,6 @@ class Identifier::Global::Orcid < Identifier::Global
 
   # 'http://orcid.org/0000-0002-1825-0097'
   def using_orcid_class
-    retval = true
     unless identifier.nil?
       orcid = identifier.upcase
 
@@ -13,15 +12,14 @@ class Identifier::Global::Orcid < Identifier::Global
 
       if domain.nil? or part_1.nil? or part_2.nil? or part_3.nil? or part_4.nil? or last.nil?
         errors.add(:identifier, "'#{identifier}' is an improperly formed ORCID ID.")
-        return false
+        return
       end
 
       if last != generate_check_digit(part_1 + part_2 + part_3 + part_4)
         errors.add(:identifier, "'#{identifier}' has bad check digit.")
-        return false
+        return
       end
     end
-    retval
   end
 
   def generate_check_digit(base_digits)
