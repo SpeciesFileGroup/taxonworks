@@ -51,8 +51,9 @@ class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationControll
   end
 
   def material_params
-    #TODO is this a potential security problem needing resolution? @mjy
-    params.permit(:collection_object, :identifier, :repository, :locks, :note, :collection_objects).to_unsafe_h
+    # params.permit(:collection_object, :identifier, :repository, :locks, :note, :collection_objects, :commit).to_unsafe_h
+    #TODO this is a security problem needing resolution @mjy
+    params.to_unsafe_h
   end
 
 
