@@ -106,7 +106,7 @@
 			updateIndex: function() {
 				var that = this;
 				this.roles_attributes.forEach(function(element, index) {
-					that.roles_attributes[index].position = index;
+					that.roles_attributes[index].position = (index+1);
 				});
 			},
 			onSortable: function() {
@@ -154,7 +154,7 @@
 					person_id: item.object_id,
 					first_name: this.getFirstName(item.label),
 					last_name: this.getLastName(item.label),
-					position: this.roles_attributes.length
+					position: (this.roles_attributes.length+1)
 				}
 			}
 		}
