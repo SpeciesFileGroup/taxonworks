@@ -20,7 +20,7 @@
 					<button type="button" class=" normal-input" @click="expandPerson = !expandPerson">Expand</button>
 				</div>
 				<hr>
-				<div class="flex-wrap-column separate-top" v-if="expandPerson">
+				<div class="flex-wrap-column" v-if="expandPerson">
 					<div class="field">
 						<label>Given name</label><br>
 						<input v-model="person_attributes.first_name" type="text">
@@ -79,8 +79,10 @@
 		},
 		mounted: function() {
 			this.$on('role_picker', function(item) {
-				this.roles_attributes.push(this.addPerson(item));
-				this.$emit('input', this.roles_attributes);
+				if(!this.alreadyExist(item.object_id)) {
+					this.roles_attributes.push(this.addPerson(item));
+					this.$emit('input', this.roles_attributes);
+				}
 			});
 		},
 		watch: {
@@ -142,30 +144,26 @@
 				});
 				return list;
 			},
+			alreadyExist: function(personId) {
+				return (this.roles_attributes.find(function(item) {
+					return (personId == item.person.id)
+				}) == undefined ? false : true );
+			},
 			processedList: function(list) {
 				if(list == undefined) return [];
 				let tmp = [];
 
 				list.forEach(function(element, index) {
-					if(element.hasOwnProperty('person')) {
-						let item = {
-							id: element.id,
-							first_name: element.person.first_name,
-							last_name: element.person.last_name,
-							position: element.position
-						}
-						tmp.push(item);
+					let item = {
+						id: element.id,
+						person: {
+							id: element.person.id
+						},
+						first_name: element.person.first_name,
+						last_name: element.person.last_name,
+						position: element.position
 					}
-					else {
-						let item = {
-							type: element.type,
-							person_id: element.person_id,
-							first_name: element.first_name,
-							last_name: element.last_name,
-							position: element.position
-						}
-						tmp.push(item);
-					}
+					tmp.push(item);
 				});
 				return tmp;
 			},
@@ -229,6 +227,9 @@
 				return {
 					type: this.roleType,
 					person_id: item.object_id,
+					person: {
+						id: item.object_id
+					},
 					first_name: this.getFirstName(item.label),
 					last_name: this.getLastName(item.label),
 					position: (this.roles_attributes.length+1)
