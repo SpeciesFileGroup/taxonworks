@@ -13,11 +13,11 @@ gem 'activerecord-postgis-adapter', '~> 4.0.0'
 # hold for Rails 5.1 gem 'activerecord-postgis-adapter', '~> 5.0', '>= 5.0.2'
 
 gem 'hiredis', '~> 0.6.1'
-# gem 'redis', '~> 3.3.1'
 gem 'redis', '~> 3.3', '>= 3.3.3'
 
 # System
-gem 'thor', '0.19.1' # See https://github.com/rails/rails/issues/27229
+gem 'thor', '~> 0.19.1' # See https://github.com/rails/rails/issues/27229
+# R5.0
 gem 'rubyzip', '~> 1.2.1'
 gem 'daemons', '~> 1.2.4'
 gem 'tzinfo-data', '~> 1.2017.2'
