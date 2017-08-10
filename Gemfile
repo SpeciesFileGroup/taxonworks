@@ -83,7 +83,7 @@ gem 'redcarpet', '~> 3.3'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
-gem 'sqed', '0.3.0'
+gem 'sqed', '0.3.1'
 gem 'dwc-archive', '~> 0.9.11'
 gem 'biodiversity', '~> 3.4.1'
 gem 'ruby-units', '~> 2.2.0', require: 'ruby_units/namespaced'
