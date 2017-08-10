@@ -16,12 +16,13 @@ gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 3.3', '>= 3.3.3'
 
 # System
-gem 'thor', '~> 0.19.1' # See https://github.com/rails/rails/issues/27229
-# R5.0
+gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
 gem 'rubyzip', '~> 1.2.1'
 gem 'daemons', '~> 1.2.4'
 gem 'tzinfo-data', '~> 1.2017.2'
-gem 'psych', '~> 2.1'
+# R5.0
+# gem 'psych', '~> 2.1'
+gem 'psych', '~> 2.2', '>= 2.2.4'
 gem 'rmagick', '~> 2.16'
 
 # Geo
