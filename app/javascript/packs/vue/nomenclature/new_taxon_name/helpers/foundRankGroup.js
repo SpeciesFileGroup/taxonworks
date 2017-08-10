@@ -1,5 +1,5 @@
 module.exports = function(list,rankName) {
-  var found = '';
+  var found = undefined;
   for(var groupName in list) {
     list[groupName].find(function(item) {
       if(rankName == item.name) {

@@ -1,5 +1,5 @@
 <template>
-<div v-if="rankGroup && ranks[rankGroup].length">
+<div v-if="existRanks">
   <modal class="taxon-modal" v-if="showModal" @close="showModal = false">
     <h3 slot="header">Ranks</h3>
     <div slot="body">
@@ -64,11 +64,13 @@
       ranks: {
         handler: function(val, oldVal) {
           if(this.rankClass == undefined) {
-            this.ranks[this.childOfParent[this.rankGroup]].find(item => {
-              if(this.defaultRanks.indexOf(item.name) >= 0) {
-                this.rankClass = item.rank_class;
-              }
-            });
+            if(this.rankGroup) {
+              this.ranks[this.childOfParent[this.rankGroup]].find(item => {
+                if(this.defaultRanks.indexOf(item.name) >= 0) {
+                  this.rankClass = item.rank_class;
+                }
+              });
+            }
           }
         },
         immediate: true
@@ -84,6 +86,9 @@
       },
       checkDisplay: function(child) {
         return ((this.rankClass == child.rank_class) || ((this.taxon.id == undefined) && (child.typical_use)))
+      },
+      existRanks: function() {
+        return this.ranks.length;
       }
     }
   };

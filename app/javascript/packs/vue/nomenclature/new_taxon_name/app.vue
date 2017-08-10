@@ -89,9 +89,6 @@
       getTaxon() {
         return this.$store.getters[GetterNames.GetTaxon];
       },
-      getParent() {
-        return this.$store.getters[GetterNames.GetParent];
-      },
       menu() {
         return {
           'Basic information': true,
