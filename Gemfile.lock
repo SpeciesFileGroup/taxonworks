@@ -583,7 +583,7 @@ DEPENDENCIES
   turbolinks (~> 2.5.3)
   tzinfo-data (~> 1.2017.2)
   uglifier (~> 3.0.02)
-  validates_timeliness (~> 4.0.0)
+  validates_timeliness (~> 4.0, >= 4.0.2)
   vcr (~> 3.0.0)
   web-console (~> 3.3.0)
   webmock (~> 2.1.0)
