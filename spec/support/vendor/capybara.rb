@@ -21,11 +21,16 @@ require 'capybara/rspec'
 
 Capybara.register_driver :selenium do |app|
 
-
   case Settings.selenium_settings[:browser]
 
-  # Untested
+    
   when 'chrome'
+   
+   # !! Untested !!
+   
+    # caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {"binary" => <path to chrome (example: chrome portable)>})
+    # Capybara::Selenium::Driver.new(app, :browser => :chrome, :driver_path => <path to chrome driver>, :desired_capabilities => caps)
+
     # https://github.com/seleniumhq/selenium-google-code-issue-archive/issues/5929
     prefs = {
       'download' => {
@@ -41,6 +46,8 @@ Capybara.register_driver :selenium do |app|
       prefs: prefs,
     )
 
+
+
   when 'firefox'
     # https://github.com/SeleniumHQ/selenium/wiki/Ruby-Bindings#Tweaking_Firefox_preferences.md
     # 
@@ -51,13 +58,13 @@ Capybara.register_driver :selenium do |app|
     #      browser: 'firefox'
     #      firefox_binary_path: '/usr/local/bin/firefox/Firefox.app/Contents/MacOS/firefox'    
 
+    geckodriver = which('geckodriver')
+    raise Rainbow('Please install geckodriver to run browser tests.').purple if geckodriver.blank?
+
     p = Settings.selenium_settings[:firefox_binary_path]
     if p 
       Selenium::WebDriver::Firefox::Binary.path = p
     end 
-
-#   caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {"binary" => <path to chrome (example: chrome portable)>})
-#   Capybara::Selenium::Driver.new(app, :browser => :chrome, :driver_path => <path to chrome driver>, :desired_capabilities => caps)
 
     profile = Selenium::WebDriver::Firefox::Profile.new
 
@@ -68,17 +75,13 @@ Capybara.register_driver :selenium do |app|
     profile['browser.download.manager.showWhenStarting'] = false
     profile['browser.helperApps.neverAsk.saveToDisk'] = 'TEXT/PLAIN;application/zip;'
 
-    # prevent redirect
-    # profile["network.http.prompt-temp-redirect"] = false
-
-    # 10000lb solution
-    geckodriver = which('geckodriver')
-    raise 'install geckodriver' if geckodriver.blank?
+    options = Selenium::WebDriver::Firefox::Options.new
+    options.profile = profile
 
     Capybara::Selenium::Driver.new(
       app, 
       browser: :firefox, 
-      profile: profile,
+      options: options,
       driver_path: geckodriver
     )
 
