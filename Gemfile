@@ -46,6 +46,7 @@ gem 'delayed_job_active_record', '~> 4.1.2'
 gem 'validates_timeliness', '~> 4.0', '>= 4.0.2'
 # R5.0
 # gem 'paper_trail', '~> 4.0.2'
+# TODO: The invocation of some paper_trail methods have changed (c.live? becomes c.paper_trail.live?). All paper_trail methods used should be checked, and perhaps tests added.
 gem 'paper_trail', '~> 7.1'
 gem 'acts_as_list', '~> 0.8.0'
 # gem 'acts_as_list', '~> 0.9.7'
