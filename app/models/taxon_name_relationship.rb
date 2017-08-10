@@ -488,8 +488,8 @@ class TaxonNameRelationship < ActiveRecord::Base
       when 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
         soft_validations.add(:type, "Genus #{o.cached_html_name_and_author_year} described after 1930 is nomen nudum, if type was not designated in the original publication") if o.year_of_publication > 1930
       when 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName'
-        r1 = TaxonNameRelationshin.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym', subject_taxon_name_id: o.id, object_taxon_name_id: s.id).first
-        r2 = TaxonNameRelationshin.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName', subject_taxon_name_id: s.id, object_taxon_name_id: o.id).first
+        r1 = TaxonNameRelationship.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym', subject_taxon_name_id: o.id, object_taxon_name_id: s.id).first
+        r2 = TaxonNameRelationship.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName', subject_taxon_name_id: s.id, object_taxon_name_id: o.id).first
         soft_validations.add(:base, "Missing relationship: #{s.cached_html_name_and_author_year} is a replacement name for #{o.cached_html_name_and_author_year}. Please add an objective synonym relationship(either 'replaced homonym' or 'unnecessary replacement name')") if r1.nil? && r2.nil?
       when 'TaxonNameRelationship::Typification::Genus::Monotypy::Original'
         # @todo Check if more than one species associated with the genus in the original paper
