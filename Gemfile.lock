@@ -42,7 +42,7 @@ GEM
       i18n (~> 0.7)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
-    acts_as_list (0.8.2)
+    acts_as_list (0.9.7)
       activerecord (>= 3.0)
     addressable (2.5.1)
       public_suffix (~> 2.0, >= 2.0.2)
@@ -495,7 +495,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord-postgis-adapter (~> 4.0.0)
-  acts_as_list (~> 0.8.0)
+  acts_as_list (~> 0.9.7)
   awesome_print (~> 1.7)
   bcrypt (~> 3.1.11)
   best_in_place (~> 3.1.1)
