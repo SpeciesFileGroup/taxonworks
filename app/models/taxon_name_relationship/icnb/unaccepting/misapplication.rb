@@ -1,4 +1,4 @@
-class TaxonNameRelationship::Icnb::Unaccepting::Usage::Misapplication < TaxonNameRelationship::Icnb::Unaccepting::Usage
+class TaxonNameRelationship::Icnb::Unaccepting::Misapplication < TaxonNameRelationship::Icnb::Unaccepting
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000100'
 
