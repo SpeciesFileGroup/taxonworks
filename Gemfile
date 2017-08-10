@@ -25,15 +25,14 @@ gem 'rmagick', '~> 2.16'
 
 # Geo
 gem 'ffi-geos', '~> 1.2'
-# gem 'rgeo-shapefile', '~> 0.4.1'
-# R5.0
 gem 'rgeo-shapefile', '~> 0.4.2'
 gem 'rgeo-geojson', '~> 0.4.3'
 gem 'postgresql_cursor', '~> 0.6.1'
 
 # API/controllers
-gem 'rabl', '~> 0.13.0' # Used?!
-# gem 'rabl', '~> 0.13.1'
+# R5.0
+# gem 'rabl', '~> 0.13.0' # Used?!
+gem 'rabl', '~> 0.13.1'
 gem 'jbuilder', '~> 2.5.0'
 # gem 'jbuilder', '~> 2.7'
 gem 'responders', '~> 2.4' # Used?!
@@ -170,18 +169,26 @@ group :test do
   gem 'coveralls', '~> 0.8.13', require: false
   # gem 'coveralls', '~> 0.8.21', require: false
   gem 'capybara', '~> 2.14.1'
+  # gem 'capybara', '~> 2.15', '>= 2.15.1'
   gem 'timecop', '~> 0.8.1'
+  # gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 2.1.0'
+  # gem 'webmock', '~> 3.0', '>= 3.0.1'
   gem 'vcr', '~> 3.0.0'
+  # gem 'vcr', '~> 3.0', '>= 3.0.3'
   gem 'database_cleaner', '~> 1.6.0'
+  # gem 'database_cleaner', '~> 1.6', '>= 1.6.1'
   gem 'rails-controller-testing', '~> 1.0.0'
-# gem 'simplecov', :require => false
-# gem 'simplecov-rcov', :require => false
+  # gem 'rails-controller-testing', '~> 1.0', '>= 1.0.2'
+
+  # gem 'simplecov', :require => false
+  # gem 'simplecov-rcov', :require => false
 end
 
 group :production do
   gem 'execjs', '~> 2.7.0'
   gem 'passenger', '~> 5.1.5'
+  # gem 'passenger', '~> 5.1', '>= 5.1.7'
 end
 
 
