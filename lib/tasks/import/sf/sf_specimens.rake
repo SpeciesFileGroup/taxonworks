@@ -42,7 +42,7 @@ namespace :tw do
 
           # Columns in tblSpecimens not accounted for:
           #   SpecimenStatus
-          #   DepoCatNo -- recorded in hash for now, will be identifier
+          #   DepoCatNo -- recorded in hash for now, will be identifier  <<< NO, add as import_attribute
           #   SourceID citation to collection object (refID) + description as import attribute
           #   BasisOfRecord  type 5 will be asserted distribution, ignore 3, 4, and 6 (for all of 5 bor, what doesn't have refid in sourceid)
           #   VerbatimLabel NOT USED in SF, perhaps buffered collecting event
@@ -58,22 +58,25 @@ namespace :tw do
           get_specimen_category_counts = import.get('SFSpecimenIDCategoryIDCount')
 
           get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id
-          get_depo_catalog_number = {} # key = SF.SpecimenID, value = depo catalog number
+          # get_depo_catalog_number = {} # key = SF.SpecimenID, value = depo catalog number
 
           path = @args[:data_directory] + 'tblSpecimens.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          error_counter = 0
 
           file.each_with_index do |row, i|
             specimen_id = row['SpecimenID']
             next if specimen_id == '0'
 
-
+            # RIGHT HERE - jump out of the loop if the basis of record will NOT lead to a collection object
+            # BoR (BasisofRecord), create co if 0 if extra data indicates, 1, 2; 5 is asserted dist if SourceID contains RefID and known distribution no finer than county
 
             depo_id = row['DepoID']
             project_id = get_tw_project_id[row['FileID']]
 
-          #  get_depo_catalog_number[specimen_id] = row['DepoCatNo'] if row['DepoCatNo'].present?
-            specimen_total = get_specimen_totals_categories[specimen_id][Total]
+            #  get_depo_catalog_number[specimen_id] = row['DepoCatNo'] if row['DepoCatNo'].present?
+            # specimen_total = get_specimen_totals_categories[specimen_id][Total] # get_specimen_totals_categories is obsolete
 
 
             preparation_type = []
@@ -114,7 +117,7 @@ namespace :tw do
             end
 
             specimen_status = [] # 0 = presumed Ok, 1 = missing, 2 = destroyed, 3 = lost, 4 = unknown, 5 = missing?, 6 = destroyed?, 7 = lost?, 8 = damaged, 9 = damaged?, 10 = no data entered
-            specimen_status_id = row['SpecimenStatusID']
+            specimen_status_id = row['SpecimenStatusID'].to_i
             if specimen_status_id > 0
               case specimen_status_id
                 when 1
@@ -140,6 +143,34 @@ namespace :tw do
               end
             end
 
+            # depo_catalog_number = []
+            # if row['DepoCatNo'].present?
+            #   depo_catalog_number = {import_predicate: 'tblSpecimens.DepoCatNo',
+            #                          value: row['DepoCatNo'],
+            #                          project_id: project_id}
+            # end
+
+            # Handle SourceID:
+            # Query for tblSpecimens where SourceID > 0
+            # create hash SpecimenID, RefID, Description
+
+            # citation = Citation.new(
+            #     metadata.merge(
+            #         source_id: source_id,
+            #         pages: cite_pages,
+            #         # is_original: (row['SeqNum'] == '1' ? true : false),
+            #         citation_object: otu, # this one line replaces the next two lines
+            #         # citation_object_type: 'Otu',
+            #         # citation_object_id: otu_id,
+            #
+            #         # housekeeping for citation
+            #         project_id: project_id,
+            #         created_at: row['CreatedOn'],
+            #         updated_at: row['LastUpdate'],
+            #         created_by_id: get_tw_user_id[row['CreatedBy']],
+            #         updated_by_id: get_tw_user_id[row['ModifiedBy']]
+
+
             import_attribute_attributes = []
             metadata = {notes_attributes: [{text: row['Note'],
                                             project_id: project_id,
@@ -148,69 +179,87 @@ namespace :tw do
                                             created_by_id: get_tw_user_id[row['CreatedBy']],
                                             updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
 
-                        import_attribute_attributes: import_attribute_attributes.concat(preparation_type, specimen_dataflags),
+                        import_attribute_attributes: import_attribute_attributes.concat(preparation_type, specimen_dataflags, specimen_status),
 
-
+                        # if SourceID > 0: create a citation (if SourceID contains RefID) and/or create an import_attribute (if SourceID has description)
             }
 
             # At this point all the related metadata except specimen category and count must be set
 
-            current_objects = []   # stores all objects created in the row below temporarily
 
-            get_specimen_category_counts[specimen_id].each do |specimen_category_id, count|
+            begin
 
-              collection_object = CollectionObject.new(
-                  metadata.merge(
-                      total: count,
-                      collecting_event_id: get_tw_collecting_event_id[get_sf_unique_id[specimen_id]],
-                      repository_id: get_tw_repo_id.has_key?(depo_id) ? get_tw_repo_id[depo_id] : nil,
+              ActiveRecord::Base.transaction do
+                current_objects = [] # stores all objects created in the row below temporarily
 
-                      bicuration_classification_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s]}],
+                # This outer loop loops through total, category pairs, we create
+                # a new collection object for each pair
+                get_specimen_category_counts[specimen_id].each do |specimen_category_id, count|
 
-                      # housekeeping for collection_object
-                      project_id: project_id,
-                      created_at: row['CreatedOn'],
-                      updated_at: row['LastUpdate'],
-                      created_by_id: get_tw_user_id[row['CreatedBy']],
-                      updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                  ))
+                  collection_object = CollectionObject.new(
+                      metadata.merge(
+                          total: count,
+                          collecting_event_id: get_tw_collecting_event_id[get_sf_unique_id[specimen_id]],
+                          repository_id: get_tw_repo_id.has_key?(depo_id) ? get_tw_repo_id[depo_id] : nil,
 
-              collection_object.save!
+                          bicuration_classification_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s]}],
 
-              current_objects.push(collection_object)
+                          # housekeeping for collection_object
+                          project_id: project_id,
+                          created_at: row['CreatedOn'],
+                          updated_at: row['LastUpdate'],
+                          created_by_id: get_tw_user_id[row['CreatedBy']],
+                          updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                      ))
 
-            end
+                  collection_object.save!
 
-            identifer = nil
-            if row['DepoCatNo']
-              identifier = ImportAttribute.new(value: row['DepotCatNum', import_predicate: 'SF_DEPOT_NUMBER'], project_id: project_id)
-            end
+                  current_objects.push(collection_object)
 
-            if current_objects.count == 1
-              # The "Identifier" is attached to the only collection object that is created
-              current_objects.first.data_attributes << identifier if identifier
+                end
 
-            elsif current_objects > 1
-              # There is more than one object, put them in a virtual container
-              c = Container::Virtual.create!(project_id: project_id)
-              current_objects.each do |o|
-                o.put_in_container(c)
+                # At this point the collection objects have been saved successfully
+
+                
+                # Here we need to do 2 things
+                # 1) if there were two collection objects with the same SF specimen ID then put them
+                # in a virtual container
+                # 2) If there was an "indentifer" associate that with the single object or the container if there
+                # was a container
+                identifer = nil
+                if row['DepoCatNo']
+                  identifier = ImportAttribute.new(value: row['DepotCatNum', import_predicate: 'SF_DEPOT_NUMBER'], project_id: project_id)
+                end
+
+                if current_objects.count == 1
+                  # The "Identifier" is attached to the only collection object that is created
+                  current_objects.first.data_attributes << identifier if identifier
+
+                elsif current_objects > 1
+                  # There is more than one object, put them in a virtual container
+                  c = Container::Virtual.create!(project_id: project_id)
+                  current_objects.each do |o|
+                    o.put_in_container(c)
+                  end
+
+                  c.data_attributes << identifier if identifier
+
+                  # instead of attaching the "identifier" (=ImportAttribute) to a single object, attach it to the virtual container
+
+
+                else
+                  puts "OOPS"
+                end
+
               end
 
-              c.data_attributes << identifier if identifier
+              puts 'CollectionObject created'
+              get_tw_collection_object_id[specimen_id] = current_objects.collect {|a| a.id} # an arry of collection object ids for this specimen_id
 
-            # instead of attaching the "identifier" (=ImportAttribute) to a single object, attach it to the virtual container
+            rescue ActiveRecord::RecordInvalid => e
+              logger.error "CollectionObject ERROR SF.SpecimenID = #{specimen_id} (#{error_counter += 1}): " + e.errors.full_messages.join(';')
+            end
 
-
-            else
-            puts "OOPS"
-          end
-
-          get_tw_collection_object_id[specimen_id] = current_objects.collect{|a| a.id}  # an arry of collection object ids for this specimen_id
-
-
-
-            # after save, create hash entry SF.SpecimenID => biological_collection_object.id
 
           end
 
@@ -249,7 +298,7 @@ namespace :tw do
 
             else # this is a new SpecimenID, start new category/count
               get_specimen_category_counts[specimen_id] = [[specimen_category_id, count]]
-             # previous_specimen_id = specimen_id
+              # previous_specimen_id = specimen_id
             end
           end
 
