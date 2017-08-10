@@ -23,13 +23,13 @@ Object.assign(TW.workbench.alert, {
 	},
 
 	create: function(text) {
-		$(".alert.alert-notice").remove();
+		$(".alert[class*='alert-']").remove();
 		$("body").append('<div class="alert alert-error"><div class="message">' + text + '</div><div class="alert-close"></div></div>');
 		this.play('default');
 	},
 
 	create: function(text,type) {
-		$(".alert.alert-notice").remove();
+		$(".alert[class*='alert-']").remove();
 		$("body").append('<div class="alert alert-'+type+'"><div class="message">' + text + '</div><div class="alert-close"></div></div>');
 		this.play(type);
 	},	
