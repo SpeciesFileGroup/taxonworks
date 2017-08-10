@@ -20,20 +20,23 @@ gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
 gem 'rubyzip', '~> 1.2.1'
 gem 'daemons', '~> 1.2.4'
 gem 'tzinfo-data', '~> 1.2017.2'
-# R5.0
-# gem 'psych', '~> 2.1'
 gem 'psych', '~> 2.2', '>= 2.2.4'
 gem 'rmagick', '~> 2.16'
 
 # Geo
-gem 'ffi-geos', '~> 1.1.1'
+# R5.0
+# gem 'ffi-geos', '~> 1.1.1'
+gem 'ffi-geos', '~> 1.2'
 gem 'rgeo-shapefile', '~> 0.4.1'
+# gem 'rgeo-shapefile', '~> 0.4.2'
 gem 'rgeo-geojson', '~> 0.4.3'
 gem 'postgresql_cursor', '~> 0.6.1'
 
 # API/controllers
 gem 'rabl', '~> 0.13.0' # Used?!
+# gem 'rabl', '~> 0.13.1'
 gem 'jbuilder', '~> 2.5.0'
+# gem 'jbuilder', '~> 2.7'
 gem 'responders', '~> 2.4' # Used?!
 
 # Email
@@ -43,25 +46,38 @@ gem 'mail', '~> 2.7.0.rc1'
 # Models
 gem 'bcrypt', '~> 3.1.11'
 gem 'closure_tree', '~> 6.3.0'
+# gem 'closure_tree', '~> 6.6'
 gem 'delayed_job_active_record', '~> 4.1.2'
 gem 'validates_timeliness', '~> 4.0.0'
+# gem 'validates_timeliness', '~> 4.0', '>= 4.0.2'
 gem 'paper_trail', '~> 4.0.2'
+# gem 'paper_trail', '~> 7.1'
 gem 'acts_as_list', '~> 0.8.0'
+# gem 'acts_as_list', '~> 0.9.7'
 gem 'modularity', '~> 2.0.1' # Used!?
 gem 'paperclip', '~> 4.3.6'
+# gem 'paperclip', '~> 5.1'
 gem 'paperclip-meta', '~> 2.0'
+# gem 'paperclip-meta', '~> 3.0'
 
 # javascript
 gem 'sprockets-rails', '~> 3.2.0'
 gem 'sprockets', '~> 3.0'
+# gem 'sprockets', '~> 3.7', '>= 3.7.1'
 gem 'sprockets-es6', require: 'sprockets/es6'
+# gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
 gem 'webpacker', '~> 2.0'
 gem 'uglifier', '~> 3.0.02'
+# gem 'uglifier', '~> 3.2'
 
 gem 'jquery-rails', '~> 4.1.1'
+# gem 'jquery-rails', '~> 4.3', '>= 4.3.1'
 gem 'jquery-ui-rails', '~> 5.0.5'
+# gem 'jquery-ui-rails', '~> 6.0', '>= 6.0.1'
 gem 'rails-jquery-autocomplete'
+# gem 'rails-jquery-autocomplete', '~> 1.0', '>= 1.0.3'
 gem 'turbolinks', '~> 2.5.3'
+# gem 'turbolinks', '~> 5.0', '>= 5.0.1'
 gem 'jquery-turbolinks', '~> 2.1'
 
 # BibTeX handling
