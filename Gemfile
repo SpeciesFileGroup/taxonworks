@@ -7,8 +7,10 @@ gem 'rack-cors', '~> 1.0', '>= 1.0.1', require: 'rack/cors'
 ruby '2.3.3'
 
 gem 'rake', '~> 11.1'
+# gem 'rake', '~> 12.0'
 gem 'rails', '~> 5.0'
-gem 'pg', '~> 0.19.0'
+# gem 'pg', '~> 0.19.0'
+gem 'pg', '~> 0.21.0'
 gem 'activerecord-postgis-adapter', '~> 4.0.0'
 
 gem 'hiredis', '~> 0.6.1'
