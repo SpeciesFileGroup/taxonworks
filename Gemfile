@@ -6,15 +6,15 @@ gem 'rack-cors', '~> 1.0', '>= 1.0.1', require: 'rack/cors'
 
 ruby '2.3.3'
 
-gem 'rake', '~> 11.1'
-# gem 'rake', '~> 12.0'
+gem 'rake', '~> 12.0'
 gem 'rails', '~> 5.0'
-# gem 'pg', '~> 0.19.0'
 gem 'pg', '~> 0.21.0'
 gem 'activerecord-postgis-adapter', '~> 4.0.0'
+# hold for Rails 5.1 gem 'activerecord-postgis-adapter', '~> 5.0', '>= 5.0.2'
 
 gem 'hiredis', '~> 0.6.1'
-gem 'redis', '~> 3.3.1'
+# gem 'redis', '~> 3.3.1'
+gem 'redis', '~> 3.3', '>= 3.3.3'
 
 # System
 gem 'thor', '0.19.1' # See https://github.com/rails/rails/issues/27229
