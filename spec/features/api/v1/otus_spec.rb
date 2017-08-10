@@ -11,7 +11,7 @@ describe 'API::v1::Otus', type: :feature do
 
     context 'with some records created' do
       before {
-        10.times { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
+        3.times { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
         FactoryGirl.create(:valid_otu, name: 'Find me', creator: @user, updater: @user, project: @project)
       }
 
@@ -37,12 +37,12 @@ describe 'API::v1::Otus', type: :feature do
             by: @user,
             project: @project,
             parent: taxon_name_root,
-            also_create_otu: true
+            also_create_otu: false 
           )
         }
 
-        let(:otu) { Otu.fifth }
-        let(:otu2) { taxon_name.otus.first }
+        let(:otu) { Otu.where(name: 'Find me').first }
+        let(:otu2) { Otu.create!(name: 'Not me', taxon_name: taxon_name, by: @user, project: @project) }
 
         it 'Returns a response including an array of ids for an otu name' do
           route = URI.escape("/api/v1/otus/by_name/#{otu.name}?project_id=#{otu.project.id}&token=#{@user.api_access_token}")
@@ -50,7 +50,7 @@ describe 'API::v1::Otus', type: :feature do
           expect(JSON.parse(page.body)['result']['otu_ids']).to eq([otu.id])
         end
 
-        it 'Returns a response including an arrry of ids for a related taxon_name' do
+        it 'Returns a response including an array of ids for a related taxon_name' do
           route = URI.escape("/api/v1/otus/by_name/#{otu2.taxon_name.cached}?project_id=#{otu2.project.id}&token=#{@user.api_access_token}")
           visit route
           expect(JSON.parse(page.body)['result']['otu_ids']).to eq([otu2.id])
