@@ -24,17 +24,15 @@ gem 'psych', '~> 2.2', '>= 2.2.4'
 gem 'rmagick', '~> 2.16'
 
 # Geo
-gem 'ffi-geos', '~> 1.2'
+gem 'ffi-geos', '~> 1.2.0'
 gem 'rgeo-shapefile', '~> 0.4.2'
 gem 'rgeo-geojson', '~> 0.4.3'
 gem 'postgresql_cursor', '~> 0.6.1'
 
 # API/controllers
-# R5.0
 # gem 'rabl', '~> 0.13.0' # Used?!
 gem 'rabl', '~> 0.13.1'
-gem 'jbuilder', '~> 2.5.0'
-# gem 'jbuilder', '~> 2.7'
+gem 'jbuilder', '~> 2.7'
 gem 'responders', '~> 2.4' # Used?!
 
 # Email
@@ -43,9 +41,9 @@ gem 'mail', '~> 2.7.0.rc1'
 
 # Models
 gem 'bcrypt', '~> 3.1.11'
-gem 'closure_tree', '~> 6.3.0'
-# gem 'closure_tree', '~> 6.6'
+gem 'closure_tree', '~> 6.6'
 gem 'delayed_job_active_record', '~> 4.1.2'
+# R5.0
 gem 'validates_timeliness', '~> 4.0.0'
 # gem 'validates_timeliness', '~> 4.0', '>= 4.0.2'
 gem 'paper_trail', '~> 4.0.2'
