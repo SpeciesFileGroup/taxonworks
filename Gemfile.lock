@@ -559,7 +559,7 @@ DEPENDENCIES
   ref2bibtex (~> 0.1.1)
   responders (~> 2.4)
   rgeo-geojson (~> 0.4.3)
-  rgeo-shapefile (~> 0.4.1)
+  rgeo-shapefile (~> 0.4.2)
   rmagick (~> 2.16)
   rspec (~> 3.4)
   rspec-activemodel-mocks (~> 1.0.2)
