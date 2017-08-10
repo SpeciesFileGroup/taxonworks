@@ -74,12 +74,12 @@ describe 'Otus', type: :feature do
           )
         }
 
-        let(:otu) { Otu.fifth } # has custom name
+        let(:otu) { Otu.where(name: 'something_unmatchable 44').first } # has custom name
         let(:otu2) { taxon_name.otus.first }
 
         it 'Returns a response including an array of ids for an otu name' do
           route = URI.escape("/api/v1/otus/by_name/#{otu.name}?project_id=#{@project.id}&token=#{@user.api_access_token}")
-          visit route 
+          visit route
           expect(JSON.parse(page.body)['result']['otu_ids']).to eq([otu.id])
         end
 
