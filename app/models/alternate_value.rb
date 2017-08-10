@@ -30,8 +30,7 @@
 #   the project ID
 #
 class AlternateValue < ApplicationRecord
-  include Housekeeping::Users
-  include Housekeeping::Timestamps
+  include Housekeeping
   include Shared::IsData
   include Shared::DualAnnotator
   include Shared::AttributeAnnotations
