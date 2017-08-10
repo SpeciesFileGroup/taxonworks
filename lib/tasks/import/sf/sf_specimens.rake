@@ -33,18 +33,6 @@ namespace :tw do
           #   @return [Integer]
           #   The enumerated number of things, as asserted by the person managing the record.  Different totals will default to different subclasses.  How you enumerate your collection objects is up to you.  If you want to call one chunk of coral 50 things, that's fine (total = 50), if you want to call one coral one thing (total = 1) that's fine too.  If not nil then ranged_lot_category_id must be nil.  When =1 the subclass is Specimen, when > 1 the subclass is Lot.
 
-
-          # Need count and description (gender, adult): query => sfSpecimenTypeCounts (SpecimenID, FileID, Count, SpmnCategoryID) # > 1 entry per SpecimenID
-          # If count > 1, use lot
-          # If lot contains mixed males, females, adult, nymphs, etc., create a container (have several cases of this in tblSpecimenCounts)
-          # @data.biocuration_classes.merge!(
-          #     "Specimens" => BiocurationClass.find_or_create_by(name: "Adult", definition: 'Adult specimen', project_id: $project_id),
-          #     "Males" => BiocurationClass.find_or_create_by(name: "Male", definition: 'Male specimen', project_id: $project_id),
-          #     "Females" => BiocurationClass.find_or_create_by(name: "Female", definition: 'Female specimen', project_id: $project_id),
-          #     "Nymphs" => BiocurationClass.find_or_create_by(name: "Immature", definition: 'Immature specimen', project_id: $project_id),
-          #     "Exuvia" => BiocurationClass.find_or_create_by(name: "Exuvia", definition: 'Exuvia specimen', project_id: $project_id)
-          # )
-
           # cat # = identifier on collecting event, controlled vocab term - create sf.specimen_id to catalog number hash (can do here)
           # where does the biocuration_class_id come from?
           # requires collection_object_id (biological_collection_object_id)
@@ -57,8 +45,7 @@ namespace :tw do
           #   DepoCatNo -- recorded in hash for now, will be identifier
           #   SourceID citation to collection object (refID) + description as import attribute
           #   BasisOfRecord  type 5 will be asserted distribution, ignore 3, 4, and 6 (for all of 5 bor, what doesn't have refid in sourceid)
-          #   VerbatimLabel perhaps buffered collecting event
-
+          #   VerbatimLabel NOT USED in SF, perhaps buffered collecting event
 
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
@@ -67,10 +54,10 @@ namespace :tw do
           get_sf_unique_id = import.get('SFSpecimenToUniqueIDs') # get the unique_id for given SF specimen_id
           get_tw_collecting_event_id = import.get('SFUniqueIDToTWCollectingEventID') # use unique_id as key to collecting_event_id
           get_tw_repo_id = import.get('SFDepoIDToTWRepoID')
-          get_specimen_totals_categories = import.get('SpecimenTotalsCategories')
+          get_biocuration_class_id = import.get('SpmnCategoryIDToBiocurationClassID')
+          get_specimen_category_counts = import.get('SFSpecimenIDCategoryIDCount')
 
-
-          get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object_id
+          get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id
           get_depo_catalog_number = {} # key = SF.SpecimenID, value = depo catalog number
 
           path = @args[:data_directory] + 'tblSpecimens.txt'
@@ -80,21 +67,23 @@ namespace :tw do
             specimen_id = row['SpecimenID']
             next if specimen_id == '0'
 
+
+
             depo_id = row['DepoID']
             project_id = get_tw_project_id[row['FileID']]
 
-            get_depo_catalog_number[specimen_id] = row['DepoCatNo'] if row['DepoCatNo'].present?
+          #  get_depo_catalog_number[specimen_id] = row['DepoCatNo'] if row['DepoCatNo'].present?
             specimen_total = get_specimen_totals_categories[specimen_id][Total]
 
 
-            # preparation_type = []
+            preparation_type = []
             if row['PreparationType'].present?
               preparation_type = {import_predicate: 'preparation_type',
                                   value: row['PreparationType'],
                                   project_id: project_id}
             end
 
-            # specimen_dataflags = []
+            specimen_dataflags = []
             dataflags = row['DataFlags'].to_i
             if dataflags > 0
               dataflags_array = Utilities::Numbers.get_bits(dataflags)
@@ -103,7 +92,7 @@ namespace :tw do
               dataflag_text = ''
               dataflags_array.each do |bit_position|
                 # 1 = ecological relationship, 2 = character data not yet implemented, 4 = image, 8 = sound, 16 = include specimen locality in maps, 32 = image of specimen label
-                case bit_position  # array use .join(','), flatten?
+                case bit_position # array use .join(','), flatten?
                   when 0 # ecological relationship (1)
                     dataflag_text = '(ecological relationship)'
                   when 1 # character data not yet implemended (2)
@@ -124,6 +113,33 @@ namespace :tw do
               end
             end
 
+            specimen_status = [] # 0 = presumed Ok, 1 = missing, 2 = destroyed, 3 = lost, 4 = unknown, 5 = missing?, 6 = destroyed?, 7 = lost?, 8 = damaged, 9 = damaged?, 10 = no data entered
+            specimen_status_id = row['SpecimenStatusID']
+            if specimen_status_id > 0
+              case specimen_status_id
+                when 1
+                  specimen_status = 'missing'
+                when 2
+                  specimen_status = 'destroyed'
+                when 3
+                  specimen_status = 'lost'
+                when 4
+                  specimen_status = 'unknown'
+                when 5
+                  specimen_status = 'missing?'
+                when 6
+                  specimen_status = 'destroyed?'
+                when 7
+                  specimen_status = 'lost?'
+                when 8
+                  specimen_status = 'damaged'
+                when 9
+                  specimen_status = 'damaged?'
+                when 10
+                  specimen_status = 'no data entered'
+              end
+            end
+
             import_attribute_attributes = []
             metadata = {notes_attributes: [{text: row['Note'],
                                             project_id: project_id,
@@ -137,37 +153,62 @@ namespace :tw do
 
             }
 
-            collection_object = CollectionObject.new(
-                metadata.merge(
+            # At this point all the related metadata except specimen category and count must be set
 
-                    total: specimen_total,
-                    type: (specimen_total == 1 ? 'Specimen' : 'Lot'),
-                    collecting_event_id: get_tw_collecting_event_id[get_sf_unique_id[specimen_id]],
-                    repository_id: get_tw_repo_id.has_key?(depo_id) ? get_tw_repo_id[depo_id] : nil,
+            current_objects = []   # stores all objects created in the row below temporarily
 
-                    # housekeeping for collection_object
-                    project_id: project_id,
-                    created_at: row['CreatedOn'],
-                    updated_at: row['LastUpdate'],
-                    created_by_id: get_tw_user_id[row['CreatedBy']],
-                    updated_by_id: get_tw_user_id[row['ModifiedBy']]
+            get_specimen_category_counts[specimen_id].each do |specimen_category_id, count|
 
-                ))
+              collection_object = CollectionObject.new(
+                  metadata.merge(
+                      total: count,
+                      collecting_event_id: get_tw_collecting_event_id[get_sf_unique_id[specimen_id]],
+                      repository_id: get_tw_repo_id.has_key?(depo_id) ? get_tw_repo_id[depo_id] : nil,
 
-            # example of data_attribute created after subject_id created
-            # if row['NecAuthor'].length > 0
-            #   da = DataAttribute.new(type: 'ImportAttribute',
-            #                          attribute_subject_id: taxon_name_id,
-            #                          attribute_subject_type: TaxonName,
-            #                          import_predicate: 'Nec author',
-            #                          value: row['NecAuthor'],
-            #                          project_id: project_id)
-            #   begin
-            #     da.save!
-            #     puts 'DataAttribute NecAuthor created'
-            #   rescue ActiveRecord::RecordInvalid # da not valid
-            #     logger.error "DataAttribute NecAuthor ERROR SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
-            #   end
+                      bicuration_classification_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s]}],
+
+                      # housekeeping for collection_object
+                      project_id: project_id,
+                      created_at: row['CreatedOn'],
+                      updated_at: row['LastUpdate'],
+                      created_by_id: get_tw_user_id[row['CreatedBy']],
+                      updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                  ))
+
+              collection_object.save!
+
+              current_objects.push(collection_object)
+
+            end
+
+            identifer = nil
+            if row['DepoCatNo']
+              identifier = ImportAttribute.new(value: row['DepotCatNum', import_predicate: 'SF_DEPOT_NUMBER'], project_id: project_id)
+            end
+
+            if current_objects.count == 1
+              # The "Identifier" is attached to the only collection object that is created
+              current_objects.first.data_attributes << identifier if identifier
+
+            elsif current_objects > 1
+              # There is more than one object, put them in a virtual container
+              c = Container::Virtual.create!(project_id: project_id)
+              current_objects.each do |o|
+                o.put_in_container(c)
+              end
+
+              c.data_attributes << identifier if identifier
+
+            # instead of attaching the "identifier" (=ImportAttribute) to a single object, attach it to the virtual container
+
+
+            else
+            puts "OOPS"
+          end
+
+          get_tw_collection_object_id[specimen_id] = current_objects.collect{|a| a.id}  # an arry of collection object ids for this specimen_id
+
+
 
             # after save, create hash entry SF.SpecimenID => biological_collection_object.id
 
@@ -185,18 +226,45 @@ namespace :tw do
         end
 
 
+        desc 'time rake tw:project_import:sf_import:specimens:create_specimen_category_counts user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :create_specimen_category_counts => [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Creating specimen category counts...'
+
+          get_specimen_category_counts = {} # key = SF.SpecimenID, value = array [category0, count0] [category1, count1]
+          #previous_specimen_id = '0'
+
+          path = @args[:data_directory] + 'tblSpecimenCounts.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each do |row|
+            specimen_id = row['SpecimenID']
+            specimen_category_id = row['SpmnCategoryID'].to_i
+            count = row['Count'].to_i.abs
+
+            logger.info "Working with SF.SpecimenID = '#{specimen_id}', specimen_category_id = '#{specimen_category_id}', count = '#{count}' \n"
+
+            if get_specimen_category_counts[specimen_id] # specimen_id == previous_specimen_id # this is the same SpecimenID as last row, add another category/count
+              get_specimen_category_counts[specimen_id].push [specimen_category_id, count]
+
+            else # this is a new SpecimenID, start new category/count
+              get_specimen_category_counts[specimen_id] = [[specimen_category_id, count]]
+             # previous_specimen_id = specimen_id
+            end
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFSpecimenIDCategoryIDCount', get_specimen_category_counts)
+
+          puts 'SFSpecimenIDCategoryIDCount'
+          ap get_specimen_category_counts
+        end
+
+
         desc 'time rake tw:project_import:sf_import:specimens:create_biocuration_classes user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :create_biocuration_classes => [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating biocuration classes...'
-
-          # specimencategoryid = biocurationclassid
-
-          # spmnCategoryIDToBiocurationId = {}
-          # tblSpecimenCategories.each do |row|
-          #   b = BiocurationClass.create!(name: row['SingularName'], project_id: <>, created_by:, modified_by: )
-          #   spmnCategoryIDToBiocurationId[row['SpmnCategoryId']] = b.id
-          # end
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
@@ -208,10 +276,12 @@ namespace :tw do
 
           file.each_with_index do |row, i|
             spmn_category_id = row['SpmnCategoryID']
+            next if spmn_category_id == '0'
+            project_id = get_tw_project_id[row['FileID']]
 
-            logger.info "Working with SF.SpmnCategoryID '#{spmn_category_id}' \n"
+            logger.info "Working with SF.SpmnCategoryID '#{spmn_category_id}', SF.FileID '#{row['FileID']}', project.id = '#{project_id}' \n"
 
-            biocuration_class = biocuration_class.create!(name: row['SingularName'], project_id: get_tw_project_id[row['FileID']])
+            biocuration_class = BiocurationClass.create!(name: row['SingularName'], definition: row['PluralName'], project_id: project_id)
             get_biocuration_class_id[spmn_category_id] = biocuration_class.id.to_s
           end
 

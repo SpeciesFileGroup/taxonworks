@@ -364,7 +364,7 @@ class TaxonName < ApplicationRecord
   # Important, string format priority is 1) as provided verbatim, 2) as generated from people, and 3) as taken from the source.
   def author_string
     return verbatim_author if !verbatim_author.nil?
-    return taxon_name_authors.pluck(&:last_name).to_sentence if taxon_name_authors.any?
+    return taxon_name_authors.pluck(:last_name).to_sentence if taxon_name_authors.any?
     return source.authority_name if !source.nil?
     nil
   end
@@ -886,7 +886,8 @@ class TaxonName < ApplicationRecord
     d['genus'] = [nil, '[GENUS UNKNOWN]'] if d['genus'].blank?
 
     elements.push("#{eo}#{d['genus'][1]}#{ec}") if d['genus']
-    elements.push ['(', %w{subgenus section subsection series subseries superspecies}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
+    elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
+    elements.push ['(', %w{superspecies}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
 
     SPECIES_EPITHET_RANKS.each do |r|
       elements.push(d[r][0], "#{eo}#{d[r][1]}#{ec}") if d[r]
