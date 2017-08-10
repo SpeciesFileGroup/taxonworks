@@ -1,9 +1,10 @@
 source 'https://rubygems.org'
 
 
-gem 'rack-cors', require: 'rack/cors'
+# gem 'rack-cors', require: 'rack/cors'
+gem 'rack-cors', '~> 1.0', '>= 1.0.1', require: 'rack/cors'
 
-ruby '~> 2.3.3'
+ruby '2.3.3'
 
 gem 'rake', '~> 11.1'
 gem 'rails', '~> 5.0'
