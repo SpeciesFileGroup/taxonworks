@@ -77,11 +77,11 @@ gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.0'
 
 # UI/UX
-# R5.0
 # gem 'chartkick', '~> 2.1.3'
 gem 'chartkick', '~> 2.2', '>= 2.2.4'
-gem 'groupdate', '~> 3.1.1'
-# gem 'groupdate', '~> 3.2'
+# R5.0
+# gem 'groupdate', '~> 3.1.1'
+gem 'groupdate', '~> 3.2'
 gem 'dropzonejs-rails', '~> 0.7.3'
 # gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 0.17.0'
