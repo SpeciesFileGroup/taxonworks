@@ -10,6 +10,7 @@
 							</li>
 						</ul>
 						<form class="horizontal-center-content">
+							<pin-object v-if="taxon.id" :pin-object="taxon['pinboard_item']" :object-id="taxon.id" :type="taxon.type"></pin-object>
 							<save-taxon-name v-if="taxon.id" class="normal-input button button-submit"></save-taxon-name>
 							<create-new-button ></create-new-button>
 						</form>
@@ -25,6 +26,8 @@ const saveTaxonName = require('./saveTaxonName.vue');
 const createNewButton = require('./createNewButton.vue');
 const GetterNames = require('../store/getters/getters').GetterNames;
 
+const pinObject = require('../../../components/pin.vue');
+
 export default {
 	props: {
 		menu: {
@@ -34,7 +37,8 @@ export default {
 	},
 	components: {
 		saveTaxonName,
-		createNewButton
+		createNewButton,
+		pinObject
 	},
 	computed: {
 		taxon() {
