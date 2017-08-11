@@ -15,7 +15,7 @@
               v-model="taxonRelation"
               eventSend="autocompleteTaxonRelationshipSelected"
               placeholder="Search taxon name for the new relationship..."
-              :addParams="{ type: 'Protonym' }"
+              :addParams="{ type: 'Protonym', 'nomenclature_group[]': getRankGroup }"
               param="term">
           </autocomplete>
         </hard-validation>
@@ -82,6 +82,10 @@
     computed: {
       treeList() {
         return this.$store.getters[GetterNames.GetRelationshipList]
+      },
+      getRankGroup() {
+        let rank_string = this.$store.getters[GetterNames.GetTaxon].rank_string;
+        return (rank_string ? rank_string.split('::')[2].split('Group')[0] : undefined)
       },
       GetRelationshipsCreated() {
         return this.$store.getters[GetterNames.GetTaxonRelationshipList]

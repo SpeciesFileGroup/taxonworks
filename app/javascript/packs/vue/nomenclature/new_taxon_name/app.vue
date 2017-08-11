@@ -5,7 +5,7 @@
   <nav-header :menu="menu"></nav-header>
     <div class="flexbox horizontal-center-content align-start">
     <div class="ccenter item separate-right">
-      <spinner :full-screen="true" :logo-size="{ width: '100px', height: '100px'}" v-if="loading"></spinner>
+      <spinner :full-screen="true" legend="Loading..." :logo-size="{ width: '100px', height: '100px'}" v-if="loading"></spinner>
       <basic-information class="separate-bottom"></basic-information>
       <div class="new-taxon-name-block">
         <spinner :show-spinner="false" :show-legend="false" v-if="!getTaxon.id"></spinner>
