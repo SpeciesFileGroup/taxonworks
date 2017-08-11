@@ -47,14 +47,13 @@ gem 'validates_timeliness', '~> 4.0', '>= 4.0.2'
 # gem 'paper_trail', '~> 4.0.2'
 # TODO: R5.0 The invocation of some paper_trail methods have changed (c.live? becomes c.paper_trail.live?). All paper_trail methods used should be checked, and perhaps tests added.
 gem 'paper_trail', '~> 7.1'
-# R5.0
-# gem 'acts_as_list', '~> 0.8.0'
 gem 'acts_as_list', '~> 0.9.7'
 gem 'modularity', '~> 2.0.1' # Used!?
-gem 'paperclip', '~> 4.3.6'
-# gem 'paperclip', '~> 5.1'
-gem 'paperclip-meta', '~> 2.0'
-# gem 'paperclip-meta', '~> 3.0'
+# R5.0
+# gem 'paperclip', '~> 4.3.6'
+gem 'paperclip', '~> 5.1'
+# gem 'paperclip-meta', '~> 2.0'
+gem 'paperclip-meta', '~> 3.0'
 
 # javascript
 gem 'sprockets-rails', '~> 3.2.0'
