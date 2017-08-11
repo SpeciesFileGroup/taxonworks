@@ -138,6 +138,7 @@ export default {
         sendItem: function(item) {
           this.$emit('input', item);
           this.$parent.$emit(this.eventSend, item);
+          this.$emit('getItem', item);
         },
 
         clearResults: function() {

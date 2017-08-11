@@ -19,9 +19,14 @@
           name-module="Status"
           display-name="name">
       </tree-display>
-      <button class="normal-input" type="button" @click="showAdvance = false">Common</button>
-      <button class="normal-input" @click="showAdvance = true" type="button">Advanced</button>
-      <button class="normal-input" @click="activeModal(true)" type="button">Show all</button>
+      <div class="switch-radio">
+        <input name="status-picker-options" id="status-picker-common" checked type="radio" class="normal-input button-active" @click="showAdvance = false"/>
+        <label for="status-picker-common">Common</label>
+        <input name="status-picker-options" id="status-picker-advanced" type="radio" class="normal-input" @click="showAdvance = true"/>
+        <label for="status-picker-advanced">Advanced</label>
+        <input name="status-picker-options" id="status-picker-showall" type="radio" class="normal-input" @click="activeModal(true)"/>
+        <label for="status-picker-showall">Show all</label>
+      </div>
       <div class="separate-top">
         <autocomplete v-if="showAdvance"
           :arrayList="objectLists.allList"
@@ -30,9 +35,10 @@
           time="0"
           placeholder="Search"
           eventSend="autocompleteStatusSelected"
+          @getItem="addEntry"
           param="term">
         </autocomplete>    
-        <list-common :filter="true" :object-lists="objectLists" display="name" @addEntry="addEntry" :list-created="getStatusCreated"></list-common>
+        <list-common v-if="!showAdvance" :filter="true" :object-lists="objectLists" display="name" @addEntry="addEntry" :list-created="getStatusCreated"></list-common>
       </div>
       <list-entrys mutationNameRemove="RemoveTaxonStatus" :list="getStatusCreated" display="object_tag"></list-entrys>
     </div>
@@ -46,6 +52,7 @@
   const treeDisplay = require('./treeDisplay.vue');
   const listEntrys = require('./listEntrys.vue');
   const listCommon = require('./commonList.vue');
+  const autocomplete = require('../../../components/autocomplete.vue');
   const expand = require('./expand.vue');
 
   export default {
@@ -53,7 +60,8 @@
       listEntrys,
       expand,
       treeDisplay,
-      listCommon
+      listCommon,
+      autocomplete
     },
     computed: {
       treeList() {

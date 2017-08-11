@@ -8,9 +8,14 @@
 			</div>
 			<div class="body" v-show="expanded">
 				<div class="separate-bottom">
-				    <button class="normal-input" @click="show = 'source'" type="button">Source</button>
-				    <button class="normal-input" @click="show = 'verbatim'" type="button">Verbatim</button>
-				    <button class="normal-input" @click="show = 'person'" type="button">Person</button>
+			        <div class="switch-radio">
+						<input name="author-picker-options" id="author-picker-common" checked type="radio" class="normal-input button-active" v-model="show" value="source"/>
+						<label for="author-picker-common">Source</label>
+						<input name="author-picker-options" id="author-picker-advanced" type="radio" class="normal-input" v-model="show" value="verbatim"/>
+						<label for="author-picker-advanced">Verbatim</label>
+						<input name="author-picker-options" id="author-picker-showall" type="radio" class="normal-input" v-model="show" value="person"/>
+						<label for="author-picker-showall">Person</label>
+			        </div>
 			    </div>
 			    <div v-if="show == 'source'">
 					<autocomplete

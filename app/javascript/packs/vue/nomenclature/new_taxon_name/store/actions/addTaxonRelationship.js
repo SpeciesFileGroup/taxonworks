@@ -1,7 +1,7 @@
 const createTaxonRelationship = require('../../request/resources').createTaxonRelationship;
 const MutationNames = require('../mutations/mutations').MutationNames;  
 
-module.exports = function({ commit, state }, data) {
+module.exports = function({ commit, state, dispatch }, data) {
 	let relationship = { 
 		taxon_name_relationship: {
 			object_taxon_name_id: state.taxonRelationship.id,

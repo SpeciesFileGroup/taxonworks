@@ -32,20 +32,26 @@
           name-module="Relationship"
           display-name="subject_status_tag">
         </tree-display>
-        <button class="normal-input" type="button" @click="showAdvance = false">Common</button>
-        <button class="normal-input" @click="showAdvance = true" type="button">Advanced</button>
-        <button class="normal-input" @click="activeModal(true)" type="button">Show all</button>
+        <div class="switch-radio">
+          <input name="relationship-picker-options" id="relationship-picker-common" checked type="radio" class="normal-input button-active" @click="showAdvance = false"/>
+          <label for="relationship-picker-common">Common</label>
+          <input name="relationship-picker-options" id="relationship-picker-advanced" type="radio" class="normal-input" @click="showAdvance = true"/>
+          <label for="relationship-picker-advanced">Advanced</label>
+          <input name="relationship-picker-options" id="relationship-picker-showall" type="radio" class="normal-input" @click="activeModal(true)"/>
+          <label for="relationship-picker-showall">Show all</label>
+        </div>
         <div class="separate-top">
           <autocomplete v-if="showAdvance"
             :arrayList="objectLists.allList"
-            label="name"
+            label="subject_status_tag"
             min="3"
             time="0"
             placeholder="Search"
-            eventSend="autocompleteStatusSelected"
+            eventSend="autocompleteRelationshipSelected"
+            @getItem="addEntry"
             param="term">
           </autocomplete>    
-          <list-common :object-lists="objectLists" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"></list-common>
+          <list-common v-if="!showAdvance" :object-lists="objectLists" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"></list-common>
         </div>
       </div>
       <list-entrys mutationNameRemove="RemoveTaxonRelationship" :list="GetRelationshipsCreated" display="object_tag"></list-entrys>
@@ -83,9 +89,6 @@
       parent() {
         return this.$store.getters[GetterNames.GetParent]
       },
-      errors() {
-        return this.$store.getters[GetterNames.GetHardValidation]
-      },
       softValidation() {
         return this.$store.getters[GetterNames.GetSoftValidation]
       },
@@ -121,14 +124,12 @@
       }
     },
     methods: {
-      existError: function(type) {
-        return (this.errors && this.errors.hasOwnProperty(type));
-      },
       refresh: function() {
         let copyList = Object.assign({},this.treeList[this.nomenclaturalCode]);
         this.objectLists.tree = Object.assign({}, copyList.tree);
         this.objectLists.commonList = Object.assign({}, copyList.common);
         this.objectLists.allList = Object.assign({}, copyList.all);
+        this.addType(this.objectLists.allList);
         this.objectLists.allList = Object.keys(this.objectLists.allList).map(key => this.objectLists.allList[key])
         this.getTreeList(this.objectLists.tree, copyList.all);
         this.addType(this.objectLists.commonList);
