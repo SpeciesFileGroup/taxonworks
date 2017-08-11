@@ -11,6 +11,11 @@
 		text-transform:uppercase;
 	}
 }
+.status-item {
+	span::first-letter {
+		text-transform:uppercase;
+	}
+}
 .original-combination {
 	display: flex;
 	flex-direction: row;

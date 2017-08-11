@@ -12,7 +12,6 @@
               url="/taxon_names/autocomplete"
               label="label_html"
               min="3"
-              time="0"
               v-model="taxonRelation"
               eventSend="autocompleteTaxonRelationshipSelected"
               placeholder="Search taxon name for the new relationship..."
@@ -40,6 +39,7 @@
           <input name="relationship-picker-options" id="relationship-picker-showall" type="radio" class="normal-input" @click="activeModal(true)"/>
           <label for="relationship-picker-showall">Show all</label>
         </div>
+        <p v-html="taxonRelation.label_html"></p>
         <div class="separate-top">
           <autocomplete v-if="showAdvance"
             :arrayList="objectLists.allList"

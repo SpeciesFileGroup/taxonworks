@@ -7,12 +7,10 @@
 			<draggable class="flex-wrap-column" v-model="rankGroup" :options="options" @end="onEnd" @add="onAdd" @autocomplete="searchForChanges(rankGroup,copyRankGroup)" @update="onUpdate" :move="onMove">
 				<div v-for="item, index in rankGroup" class="horizontal-left-content middle" v-if="(GetOriginal(rankGroup[index].name).length == 0)" :key="item.id">
 					<autocomplete 
-						:get-object="item.autocomplete"
 						url="/taxon_names/autocomplete"
 						label="label"
 						min="3"
 						:disabled="disabled"
-						time="0"
 						v-model="item.autocomplete"
 						eventSend="autocomplete"
 						:addParams="{ type: 'Protonym', 'nomenclature_group[]': nomenclatureGroup }"
@@ -21,8 +19,8 @@
 					<span class="handle" data-icon="scroll-v"></span>
 				</div>
 				<div class="horizontal-left-content middle item-draggable" v-else :key="item.id">
-				<div class="item vue-autocomplete-input normal-input middle combination">
-					<span v-html="GetOriginal(rankGroup[index].name).subject_object_tag"></span>
+					<div class="item vue-autocomplete-input normal-input middle combination">
+						<span v-html="GetOriginal(rankGroup[index].name).subject_object_tag"></span>
 					</div>
 					<span class="handle" data-icon="scroll-v"></span>
 					<span class="circle-button btn-delete" @click="removeCombination(GetOriginal(rankGroup[index].name))"></span>
