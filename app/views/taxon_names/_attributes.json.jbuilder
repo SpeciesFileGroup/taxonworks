@@ -11,6 +11,8 @@ if taxon_name.roles.any?
   end
 end 
 
+json.pinned taxon_name.pinned?(sessions_current_user)
+
 if taxon_name.parent
   json.parent do |parent|
     json.partial! '/taxon_names/base_attributes', taxon_name: taxon_name.parent
