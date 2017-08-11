@@ -68,8 +68,6 @@ gem 'turbolinks', '~> 2.5.3'
 gem 'jquery-turbolinks', '~> 2.1'
 
 # BibTeX handling
-# R5.0
-# gem 'csl', '~> 1.4.3'
 gem 'csl', '~> 1.4', '>= 1.4.5'
 gem 'bibtex-ruby', '~> 4.4.4'
 gem 'citeproc-ruby', '~> 1.1.7'
@@ -79,8 +77,9 @@ gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.0'
 
 # UI/UX
-gem 'chartkick', '~> 2.1.3'
-# gem 'chartkick', '~> 2.2', '>= 2.2.4'
+# R5.0
+# gem 'chartkick', '~> 2.1.3'
+gem 'chartkick', '~> 2.2', '>= 2.2.4'
 gem 'groupdate', '~> 3.1.1'
 # gem 'groupdate', '~> 3.2'
 gem 'dropzonejs-rails', '~> 0.7.3'
