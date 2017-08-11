@@ -18,8 +18,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
   let(:root) { FactoryGirl.create(:root_taxon_name, project_id: 1) }
 
-  context 'with TaxonNameClassifications and NotLatin' do
-
+  context 'with Roles attributes and purposefully invalid name (name is not capitalized for genus group rank' do
+    # when models/role.rb has 
+    # belongs_to :role_object, polymorphic: :true, validate: true
+    # then this test fails, removing the validate: true lets it pass
     let(:p) {
       Protonym.new({
         parent: root,
