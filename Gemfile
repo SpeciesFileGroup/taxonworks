@@ -60,8 +60,8 @@ gem 'webpacker', '~> 2.0'
 gem 'uglifier', '~> 3.2'
 
 # R5.0
-gem 'jquery-rails', '~> 4.1.1'
-# gem 'jquery-rails', '~> 4.3', '>= 4.3.1'
+# gem 'jquery-rails', '~> 4.1.1'
+gem 'jquery-rails', '~> 4.3', '>= 4.3.1'
 gem 'jquery-ui-rails', '~> 5.0.5'
 # gem 'jquery-ui-rails', '~> 6.0', '>= 6.0.1'
 gem 'rails-jquery-autocomplete'
