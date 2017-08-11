@@ -166,7 +166,7 @@ namespace :tw do
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression'
                     bit_flag_name = 'suppressed by ruling'
                   when 9 # misapplied
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication'
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Misapplication'
                     bit_flag_name = 'misapplied'
 
                   # - - -
@@ -361,7 +361,7 @@ namespace :tw do
                                  '4' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
                                  '5' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
                                  '6' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName',
-                                 '7' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication',
+                                 '7' => 'TaxonNameRelationship::Iczn::Invalidating::Misapplication',
                                  '8' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling', # lapsus calami>>corrected lapsus
                                  '9' => 'TaxonNameRelationship::Iczn::Invalidating' # ::Synonym' # nomen nudum>>nomen nudum made available
             }

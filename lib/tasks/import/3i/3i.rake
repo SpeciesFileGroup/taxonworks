@@ -135,7 +135,7 @@ namespace :tw do
             24 => 'TaxonNameRelationship::Iczn::Invalidating', ### not available
             25 => 'TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction', #### justified emendation
             26 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym',
-            27 => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication',
+            27 => 'TaxonNameRelationship::Iczn::Invalidating::Misapplication',
             28 => 'TaxonNameRelationship::Iczn::Invalidating', ### invalid
             29 => 'TaxonNameRelationship::Iczn::Invalidating', ### infrasubspecific
             30 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::ForgottenHomonym',
@@ -152,7 +152,7 @@ namespace :tw do
             'Junior objective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective',
             'Junior subjective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
             'Junior subjective Synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
-            'Misidentification' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication',
+            'Misidentification' => 'TaxonNameRelationship::Iczn::Invalidating::Misapplication',
             'Nomen nudum: Published as synonym and not validated before 1961' => 'TaxonNameRelationship::Iczn::Invalidating',
             'Objective replacement name: Junior subjective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
             'Unnecessary replacement name' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName',
