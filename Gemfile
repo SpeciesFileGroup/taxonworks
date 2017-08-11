@@ -54,15 +54,12 @@ gem 'paperclip-meta', '~> 3.0'
 
 # javascript
 gem 'sprockets-rails', '~> 3.2.0'
-# R5.0
-# gem 'sprockets', '~> 3.0'
 gem 'sprockets', '~> 3.7', '>= 3.7.1'
-# gem 'sprockets-es6', require: 'sprockets/es6'
 gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
 gem 'webpacker', '~> 2.0'
-gem 'uglifier', '~> 3.0.02'
-# gem 'uglifier', '~> 3.2'
+gem 'uglifier', '~> 3.2'
 
+# R5.0
 gem 'jquery-rails', '~> 4.1.1'
 # gem 'jquery-rails', '~> 4.3', '>= 4.3.1'
 gem 'jquery-ui-rails', '~> 5.0.5'
