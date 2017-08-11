@@ -30,7 +30,6 @@ gem 'rgeo-geojson', '~> 0.4.3'
 gem 'postgresql_cursor', '~> 0.6.1'
 
 # API/controllers
-# gem 'rabl', '~> 0.13.0' # Used?!
 gem 'rabl', '~> 0.13.1'
 gem 'jbuilder', '~> 2.7'
 gem 'responders', '~> 2.4' # Used?!
@@ -59,20 +58,19 @@ gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
 gem 'webpacker', '~> 2.0'
 gem 'uglifier', '~> 3.2'
 
-# R5.0
-# gem 'jquery-rails', '~> 4.1.1'
 gem 'jquery-rails', '~> 4.3', '>= 4.3.1'
-# gem 'jquery-ui-rails', '~> 5.0.5'
 gem 'jquery-ui-rails', '~> 6.0', '>= 6.0.1'
-# gem 'rails-jquery-autocomplete'
 gem 'rails-jquery-autocomplete', '~> 1.0', '>= 1.0.3'
 gem 'turbolinks', '~> 2.5.3'
+# TODO: New version of turbolinks is major fail, Hold for further investigation
+# Ref 'LoadError: cannot load such file -- coffee_script'
 # gem 'turbolinks', '~> 5.0', '>= 5.0.1'
 gem 'jquery-turbolinks', '~> 2.1'
 
 # BibTeX handling
-gem 'csl', '~> 1.4.3'
-# gem 'csl', '~> 1.4', '>= 1.4.5'
+# R5.0
+# gem 'csl', '~> 1.4.3'
+gem 'csl', '~> 1.4', '>= 1.4.5'
 gem 'bibtex-ruby', '~> 4.4.4'
 gem 'citeproc-ruby', '~> 1.1.7'
 gem 'csl-styles', '~> 1.0.1.8'

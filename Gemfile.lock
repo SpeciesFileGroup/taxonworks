@@ -511,7 +511,7 @@ DEPENDENCIES
   citeproc-ruby (~> 1.1.7)
   closure_tree (~> 6.6)
   coveralls (~> 0.8.13)
-  csl (~> 1.4.3)
+  csl (~> 1.4, >= 1.4.5)
   csl-styles (~> 1.0.1.8)
   daemons (~> 1.2.4)
   database_cleaner (~> 1.6.0)
