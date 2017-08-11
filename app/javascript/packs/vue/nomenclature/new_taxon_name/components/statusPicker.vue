@@ -40,7 +40,7 @@
         </autocomplete>    
         <list-common v-if="!showAdvance" :filter="true" :object-lists="objectLists" display="name" @addEntry="addEntry" :list-created="getStatusCreated"></list-common>
       </div>
-      <list-entrys mutationNameRemove="RemoveTaxonStatus" :list="getStatusCreated" display="object_tag"></list-entrys>
+      <list-entrys mutationNameRemove="RemoveTaxonStatus" :list="getStatusCreated" :display="['object_tag']"></list-entrys>
     </div>
   </form>
 </template>

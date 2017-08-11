@@ -2,7 +2,7 @@
         <div v-else class="flex-wrap-row">
           <ul class="flex-wrap-column no_bullets">
             <li class="status-item" v-for="item in objectLists.commonList" v-if="!filter || filterAlreadyPicked(listCreated, item.type) == undefined">
-              <label class="middle"><input type="radio" name="status-item" @click="$emit('addEntry', item)" :value="item.type"/>{{ item[display] }}</label>
+              <label class="middle capitalize"><input type="radio" name="status-item" @click="$emit('addEntry', item)" :value="item.type"/>{{ item[display] }}</label>
             </li>
           </ul>
         </div>

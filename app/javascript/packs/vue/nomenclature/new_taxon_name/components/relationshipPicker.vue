@@ -54,7 +54,7 @@
           <list-common v-if="!showAdvance" :object-lists="objectLists" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"></list-common>
         </div>
       </div>
-      <list-entrys mutationNameRemove="RemoveTaxonRelationship" :list="GetRelationshipsCreated" display="object_tag"></list-entrys>
+      <list-entrys mutationNameRemove="RemoveTaxonRelationship" :list="GetRelationshipsCreated" :display="['subject_status_tag', 'object_object_tag']"></list-entrys>
     </div>
   </form>
 </template>

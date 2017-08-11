@@ -6,7 +6,7 @@
 		<div>
 			<draggable class="flex-wrap-column" v-model="rankGroup" :options="options" @end="onEnd" @add="onAdd" @autocomplete="searchForChanges(rankGroup,copyRankGroup)" @update="onUpdate" :move="onMove">
 				<div v-for="item, index in rankGroup" class="horizontal-left-content middle" v-if="(GetOriginal(rankGroup[index].name).length == 0)" :key="item.id">
-					<autocomplete  
+					<autocomplete 
 						:get-object="item.autocomplete"
 						url="/taxon_names/autocomplete"
 						label="label"
@@ -21,7 +21,9 @@
 					<span class="handle" data-icon="scroll-v"></span>
 				</div>
 				<div class="horizontal-left-content middle item-draggable" v-else :key="item.id">
-					<span class="item" v-html="GetOriginal(rankGroup[index].name).object_tag"></span>
+				<div class="item vue-autocomplete-input normal-input middle combination">
+					<span v-html="GetOriginal(rankGroup[index].name).subject_object_tag"></span>
+					</div>
 					<span class="handle" data-icon="scroll-v"></span>
 					<span class="circle-button btn-delete" @click="removeCombination(GetOriginal(rankGroup[index].name))"></span>
 				</div>
@@ -131,7 +133,6 @@
 					if(JSON.stringify(newVal[index]) != JSON.stringify(copyOld[index])) {
 						if(JSON.stringify(newVal[index].id) == JSON.stringify(copyOld[index].id)) {
 							if(JSON.stringify(newVal[index].autocomplete) != JSON.stringify(copyOld[index].autocomplete)) {
-								//console.log("Change content: " + index);
 								if(newVal[index].autocomplete) {
 									that.addOriginalCombination(newVal[index].autocomplete.id, index);
 									that.copyRankGroup = JSON.parse(JSON.stringify(newVal));
@@ -209,7 +210,6 @@
 				newVal.forEach(function(element, index) {
 					if(JSON.stringify(newVal[index]) != JSON.stringify(copyOld[index])) {
 						if(JSON.stringify(newVal[index].id) != JSON.stringify(copyOld[index].id)) {
-							//console.log("Change ID position");
 							positions.push(index);
 						}
 					}
@@ -240,6 +240,12 @@
  	.new-position {
  		color: red;
  		font-weight: 900;
+ 	}
+ 	.vue-autocomplete-input {
+ 		min-width: 500px;
+ 	}
+ 	.combination {
+ 		background-color: #F5F5F5;
  	}
  }
 </style>

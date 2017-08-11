@@ -2,7 +2,9 @@
 	<div v-if="list.length">
 	    <ul class="table-entrys-list">
 	    	<li v-for="item in list" class="flex-separate middle">
-		    	<span v-html="item[display]"></span> 
+		    	<div>
+			    	<span v-for="show in display" v-html="item[show] + ' '"></span>
+			    </div>
 		    	<span type="button" class="circle-button btn-delete" @click="removeStatus(item)">Remove</span>
 	    	</li>
 	    </ul>
