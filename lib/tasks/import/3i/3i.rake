@@ -2064,13 +2064,11 @@ namespace :tw do
         i = 0
         TaxonName.where(project_id: $project_id).find_each do |t|
           i += 1
-          #next if i < 50000
-          #byebug if i == 55256
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
           t.fix_soft_validations
           t.soft_validations.soft_validations.each do |f|
-            #byebug if fixed == 0 && f.fixed?
+            byebug if fixed == 0 && f.fixed?
             fixed += 1  if f.fixed?
           end
         end

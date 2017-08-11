@@ -75,7 +75,7 @@ describe 'Otus', type: :feature do
           )
         }
 
-        let(:otu) { Otu.fifth } # has custom name
+        let(:otu) { Otu.where(name: 'something_unmatchable 44').first } # has custom name
         let(:otu2) { taxon_name.otus.first }
 
         it 'Returns a response including an array of ids for an otu name' do
