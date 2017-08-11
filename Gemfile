@@ -83,13 +83,13 @@ gem 'chartkick', '~> 2.2', '>= 2.2.4'
 gem 'groupdate', '~> 3.2'
 # gem 'dropzonejs-rails', '~> 0.7.3'
 gem 'dropzonejs-rails', '~> 0.8.1'
-# R5.0
 # gem 'kaminari', '~> 0.17.0'
 gem 'kaminari', '~> 1.0', '>= 1.0.1'
 gem 'best_in_place', '~> 3.1.1'
 gem 'sass-rails', '~> 5.0.6'
-gem 'redcarpet', '~> 3.3'
-# gem 'redcarpet', '~> 3.4'
+# R5.0
+# gem 'redcarpet', '~> 3.3'
+gem 'redcarpet', '~> 3.4'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
