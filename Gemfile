@@ -49,14 +49,12 @@ gem 'validates_timeliness', '~> 4.0', '>= 4.0.2'
 gem 'paper_trail', '~> 7.1'
 gem 'acts_as_list', '~> 0.9.7'
 gem 'modularity', '~> 2.0.1' # Used!?
-# R5.0
-# gem 'paperclip', '~> 4.3.6'
 gem 'paperclip', '~> 5.1'
-# gem 'paperclip-meta', '~> 2.0'
 gem 'paperclip-meta', '~> 3.0'
 
 # javascript
 gem 'sprockets-rails', '~> 3.2.0'
+# R5.0
 gem 'sprockets', '~> 3.0'
 # gem 'sprockets', '~> 3.7', '>= 3.7.1'
 gem 'sprockets-es6', require: 'sprockets/es6'
