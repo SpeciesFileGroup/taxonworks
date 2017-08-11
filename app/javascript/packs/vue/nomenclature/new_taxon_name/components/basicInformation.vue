@@ -9,13 +9,17 @@
         <div class="column-left">
           <div class="field separate-right">
           	<label>Name</label><br>
-          	<taxon-name :class="{ field_with_errors : existError('name') }"></taxon-name>
+            <hard-validation field="name">
+              <input slot="body" class="taxonName-input" type="text" v-model="taxonName"/>
+            </hard-validation>
           </div>
           <div class="field separate-top">
             <label>Parent</label>
             <parent-picker></parent-picker>
           </div>
           <rank-selector v-if="parent"></rank-selector>
+          <hard-validation field="rank_class">
+          </hard-validation>
           
         </div>
         <div class="column-right item">
@@ -39,6 +43,7 @@
   var expand = require('./expand.vue');
   var checkExist = require('./findExistTaxonName.vue');
   var rankSelector = require('./rankSelector.vue');
+  var hardValidation = require('./hardValidation.vue');
 
 	export default {
 		components: {
@@ -47,7 +52,8 @@
       expand,
 			rankSelector,
       checkExist,
-      saveTaxonName
+      saveTaxonName,
+      hardValidation
 		},
     computed: {
       parent() {
@@ -55,6 +61,14 @@
       },
       taxon() {
         return this.$store.getters[GetterNames.GetTaxon]
+      },
+      taxonName: {
+        get() {
+          return this.$store.getters[GetterNames.GetTaxonName]
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetTaxonName, value);
+        }
       },
       errors() {
         return this.$store.getters[GetterNames.GetHardValidation]
@@ -68,6 +82,14 @@
     methods: {
       existError: function(type) {
         return (this.errors && this.errors.hasOwnProperty(type));
+      },
+      displayError(type) {
+        if(this.existError(type)) {
+          return this.errors[type]
+        }
+        else {
+          return undefined
+        }
       }
     }
 	}

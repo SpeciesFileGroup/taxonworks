@@ -29,7 +29,6 @@ export default {
   	padding: 0px;
 
     li {
-    	text-transform: capitalize;
 		margin: 0px;
 		padding: 6px;
 		border-top: 1px solid #f5f5f5;

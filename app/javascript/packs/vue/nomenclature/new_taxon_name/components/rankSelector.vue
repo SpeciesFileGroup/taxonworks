@@ -1,5 +1,5 @@
 <template>
-<div v-if="existRanks">
+<div v-if="existRanks()">
   <modal class="taxon-modal" v-if="showModal" @close="showModal = false">
     <h3 slot="header">Ranks</h3>
     <div slot="body">
@@ -73,6 +73,7 @@
             }
           }
         },
+        deep: true,
         immediate: true
       }
     }, 
@@ -88,7 +89,7 @@
         return ((this.rankClass == child.rank_class) || ((this.taxon.id == undefined) && (child.typical_use)))
       },
       existRanks: function() {
-        return this.ranks.length;
+        return Object.keys(this.ranks).length;
       }
     }
   };

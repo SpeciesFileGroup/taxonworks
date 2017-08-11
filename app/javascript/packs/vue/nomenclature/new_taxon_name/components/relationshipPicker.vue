@@ -7,21 +7,19 @@
     </div>
     <div class="body" v-if="expanded">
       <div v-if="!taxonRelation">
-        <autocomplete
-            :class="{ field_with_errors : existError('object_taxon_name_id') }"
-            url="/taxon_names/autocomplete"
-            label="label_html"
-            min="3"
-            time="0"
-            v-model="taxonRelation"
-            eventSend="autocompleteTaxonRelationshipSelected"
-            placeholder="Search taxon name for the new relationship..."
-            :addParams="{ type: 'Protonym' }"
-            param="term">
-        </autocomplete>
-        <div v-if="existError('object_taxon_name_id')">
-          <span v-for="error in errors.object_taxon_name_id" v-html="error"></span>
-        </div>
+        <hard-validation field="object_taxon_name_id">
+          <autocomplete slot="body"
+              url="/taxon_names/autocomplete"
+              label="label_html"
+              min="3"
+              time="0"
+              v-model="taxonRelation"
+              eventSend="autocompleteTaxonRelationshipSelected"
+              placeholder="Search taxon name for the new relationship..."
+              :addParams="{ type: 'Protonym' }"
+              param="term">
+          </autocomplete>
+        </hard-validation>
       </div>
       <div v-else>
         <tree-display 
@@ -64,6 +62,7 @@
   const listCommon = require('./commonList.vue');
   const expand = require('./expand.vue');
   const autocomplete = require('../../../components/autocomplete.vue');
+  const hardValidation = require('./hardValidation.vue');
 
   export default {
     components: {
@@ -71,7 +70,8 @@
       autocomplete,
       expand,
       treeDisplay,
-      listCommon
+      listCommon,
+      hardValidation
     },
     computed: {
       treeList() {

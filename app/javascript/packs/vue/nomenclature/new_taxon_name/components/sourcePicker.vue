@@ -107,17 +107,3 @@
 		}
 	};
 </script>
-
-<style type="text/css">
-  .table-entrys-list {
-  	padding: 0px;
-
-    li {
-    	cursor: pointer;
-    	text-transform: capitalize;
-		margin: 0px;
-		padding: 6px;
-		border-top: 1px solid #f5f5f5;
-    }
-  }
-</style>

@@ -1,5 +1,16 @@
 #new_taxon_name_task {
 
+.hardValidation {
+	color: red;
+	&::first-letter {
+    	text-transform: uppercase;
+	}
+}
+.table-entrys-list {
+	li::first-letter {
+		text-transform:uppercase;
+	}
+}
 .original-combination {
 	display: flex;
 	flex-direction: row;
