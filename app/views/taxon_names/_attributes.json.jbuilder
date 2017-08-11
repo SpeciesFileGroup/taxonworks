@@ -11,7 +11,12 @@ if taxon_name.roles.any?
   end
 end 
 
-json.pinned taxon_name.pinned?(sessions_current_user)
+
+if taxon_name.pinned?(sessions_current_user)
+  json.pinboard_item do
+    json.id taxon_name.pinboard_item_for(sessions_current_user).id
+  end
+end
 
 if taxon_name.parent
   json.parent do |parent|

@@ -2,4 +2,4 @@ json.extract! taxon_name, :id, :name, :parent_id, :cached_html, :feminine_name, 
 json.object_tag taxon_name_tag(taxon_name)
 json.url taxon_name_url(taxon_name, format: :json)
 json.global_id taxon_name.to_global_id.to_s
-
+json.type 'TaxonName'
