@@ -3,15 +3,7 @@
 		<block-layout anchor="gender">
 			<h3 slot="header">Gender and form</h3>
 			<div slot="body">
-				<div v-if="inGroup('Genus')">
-					<div class="separate-top">
-						<label class="middle" v-for="item in list">
-							<input class="separate-right" type="radio" name="gender" @click="addEntry(item)" :checked="checkExist(item.type)" :value="item.type">
-							<span>{{ item.name }}</span>
-						</label>
-					</div>
-				</div>
-				<div v-else>
+				<div v-if="inGroup('Species')">
 					<div class="field">
 						<label>Feminine </label><br>
 						<input v-model="feminine" type="text"/>
@@ -24,12 +16,12 @@
 						<label>Neuter</label><br>
 						<input v-model="neuter" type="text"/>
 					</div>
-					<div class="separate-top">
-						<label class="middle" v-for="item in list">
-							<input class="separate-right" type="radio" @click="addEntry(item)" :checked="checkExist(item.type)" name="gender" :value="item.type"> 
-							<span>{{ item.name }}</span>
-						</label>
-					</div>
+				</div>
+				<div class="separate-top">
+					<label class="middle" v-for="item in list">
+						<input class="separate-right" type="radio" name="gender" @click="addEntry(item)" :checked="checkExist(item.type)" :value="item.type">
+						<span>{{ item.name }}</span>
+					</label>
 				</div>
 			</div>
 		</block-layout>
