@@ -3,35 +3,32 @@
 		<block-layout anchor="gender">
 			<h3 slot="header">Gender and form</h3>
 			<div slot="body">
-				<div v-if="taxon.rank == 'genus'">
-					<div class="field">
-						<input v-if="radioGender == 'masculine'" v-model="masculine" type="text"/>
-						<input v-if="radioGender == 'feminine'" v-model="feminine" type="text"/>
-						<input v-if="radioGender == 'neuter'" v-model="neuter" type="text"/>
-					</div>
+				<div v-if="inGroup('Genus')">
 					<div class="separate-top">
-						<label class="middle"><input class="separate-right" type="radio" name="gender" v-model="radioGender" value="feminine" checked>Feminine</label>
-						<label class="middle"><input class="separate-right" type="radio" name="gender" v-model="radioGender" value="masculine">Masculine</label>
-						<label class="middle"><input class="separate-right" type="radio" name="gender" v-model="radioGender" value="neuter">Neuter</label>
+						<label class="middle" v-for="item in list">
+							<input class="separate-right" type="radio" name="gender" @click="addEntry(item)" :checked="checkExist(item.type)" :value="item.type">
+							<span>{{ item.name }}</span>
+						</label>
 					</div>
 				</div>
 				<div v-else>
 					<div class="field">
 						<label>Feminine </label><br>
-						<input type="text"/>
+						<input v-model="feminine" type="text"/>
 					</div>
 					<div class="field">
 						<label>Masculine</label><br>
-						<input type="text"/>
+						<input v-model="masculine" type="text"/>
 					</div>
 					<div class="field">
 						<label>Neuter</label><br>
-						<input type="text"/>
+						<input v-model="neuter" type="text"/>
 					</div>
 					<div class="separate-top">
-						<label class="middle"><input class="separate-right" type="radio" name="gender" value="male">Masculine</label>
-						<label class="middle"><input class="separate-right" type="radio" name="gender" value="female">Feminine</label>
-						<label class="middle"><input class="separate-right" type="radio" name="gender" value="other">Neuter</label>
+						<label class="middle" v-for="item in list">
+							<input class="separate-right" type="radio" @click="addEntry(item)" :checked="checkExist(item.type)" name="gender" :value="item.type"> 
+							<span>{{ item.name }}</span>
+						</label>
 					</div>
 				</div>
 			</div>
@@ -44,18 +41,31 @@
 	const ActionNames = require('../store/actions/actions').ActionNames;  
 	const blockLayout = require('./blockLayout.vue');
 
+	const getRankGroup = require('../helpers/getRankGroup');
+
 	export default {
 		components: {
 			blockLayout,
 		},
 		data: function() {
 			return {
-				radioGender: "masculine"
+				radioGender: "masculine",
+				list: [],
+				filterList: ['gender']
 			}
 		},
+		mounted: function() {
+			this.getList();
+		},
 		computed: {
+			getStatusCreated() {
+				return this.$store.getters[GetterNames.GetTaxonStatusList]
+			},
 			taxon() {
 				return this.$store.getters[GetterNames.GetTaxon];
+			},
+			getStatusList: function() {
+				return this.$store.getters[GetterNames.GetStatusList].latinized.all
 			},
 			feminine: {
 				get() {
@@ -80,6 +90,52 @@
 				set(value) {
 					this.$store.commit(MutationNames.SetTaxonNeuter, value);
 				}
+			}
+		},
+		methods: {
+			getList: function() {
+				for(var key in this.getStatusList) {
+					if(this.applicableRank(this.getStatusList[key].applicable_ranks, this.taxon.rank_string)) {
+						if(this.filterList.indexOf(this.getStatusList[key].name) < 0)
+							this.list.push(this.getStatusList[key])
+					}
+				}
+			},
+			checkExist: function(type) {
+				return ((this.getStatusCreated.map(function(item) { return item.type })).indexOf(type) > -1);
+			},
+			searchExisting: function(type) {
+				let alreadyStored = this.getStatusCreated.map(function(item) { return item.type });
+				let list = this.list.map(function(item) { return item.type });
+
+				return this.getStatusCreated.find(function(item) {
+					if(list.indexOf(item.type) > -1) {
+						return item;
+					}
+				});
+			},
+			addEntry: function(item) {
+				let that = this;
+				let alreadyStored = this.searchExisting();
+
+				if(alreadyStored) {
+					this.$store.dispatch(ActionNames.RemoveTaxonStatus, alreadyStored).then( response => {
+						that.$store.dispatch(ActionNames.AddTaxonStatus, item)
+					});
+				}
+				else {
+					this.$store.dispatch(ActionNames.AddTaxonStatus, item);
+				}
+			},
+			applicableRank: function(list, type) {
+				let found = list.find(function(item) {
+					if(item == type)
+						return true
+				});
+				return (found ? true : false);
+			},
+			inGroup: function(group) {
+				return (getRankGroup(this.taxon.rank_string) == group)
 			}
 		}
 	}

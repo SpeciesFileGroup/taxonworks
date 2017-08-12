@@ -111,7 +111,6 @@
         }
       },
       addEntry: function(item) {
-        console.log(item);
         this.$store.dispatch(ActionNames.AddTaxonStatus, item);
       },
       activeModal: function(value) {

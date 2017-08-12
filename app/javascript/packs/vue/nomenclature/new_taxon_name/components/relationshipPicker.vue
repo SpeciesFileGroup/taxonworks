@@ -69,6 +69,7 @@
   const expand = require('./expand.vue');
   const autocomplete = require('../../../components/autocomplete.vue');
   const hardValidation = require('./hardValidation.vue');
+  const getRankGroup = require('../helpers/getRankGroup');
 
   export default {
     components: {
@@ -84,8 +85,7 @@
         return this.$store.getters[GetterNames.GetRelationshipList]
       },
       getRankGroup() {
-        let rank_string = this.$store.getters[GetterNames.GetTaxon].rank_string;
-        return (rank_string ? rank_string.split('::')[2].split('Group')[0] : undefined)
+        return getRankGroup(this.$store.getters[GetterNames.GetTaxon].rank_string);
       },
       GetRelationshipsCreated() {
         return this.$store.getters[GetterNames.GetTaxonRelationshipList]
