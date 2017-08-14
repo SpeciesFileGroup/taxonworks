@@ -536,7 +536,7 @@ DEPENDENCIES
   groupdate (~> 3.2)
   guard-rspec (~> 4.7)
   hiredis (~> 0.6.1)
-  inch (~> 0.7)
+  inch (~> 0.7.1)
   indefinite_article (~> 0.2.4)
   jbuilder (~> 2.7)
   jquery-rails (~> 4.3, >= 4.3.1)
