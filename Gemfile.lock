@@ -516,7 +516,7 @@ DEPENDENCIES
   capistrano-npm (~> 1.0.2)
   capybara (~> 2.14.1)
   chartkick (~> 2.2, >= 2.2.4)
-  chronic (~> 0.10)
+  chronic (~> 0.10.2)
   citeproc-ruby (~> 1.1.7)
   closure_tree (~> 6.6)
   coveralls (~> 0.8.13)

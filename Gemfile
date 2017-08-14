@@ -101,11 +101,11 @@ gem 'ruby-units', '~> 2.2.0', require: 'ruby_units/namespaced'
 gem 'awesome_print', '~> 1.8'
 gem 'indefinite_article', '~> 0.2.4'
 gem 'rainbow', '~> 2.2.2'
-# R5.0
 # gem 'term-ansicolor', '~> 1.4.0' # DEPRECATED
 gem 'term-ansicolor', '~> 1.6' # DEPRECATED
-gem 'chronic', '~> 0.10'
-# gem 'chronic', '~> 0.10.2'
+# R5.0
+# gem 'chronic', '~> 0.10'
+gem 'chronic', '~> 0.10.2'
 
 # Deploy, deprecated soon
 gem 'capistrano-npm', '~> 1.0.2'
