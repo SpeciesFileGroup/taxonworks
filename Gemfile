@@ -110,20 +110,20 @@ gem 'chronic', '~> 0.10.2'
 gem 'capistrano-npm', '~> 1.0.2'
 
 group :test, :development do
-# R5.0
 #   gem 'faker', '~> 1.6.1'
   gem 'faker', '~> 1.8', '>= 1.8.4'
-  gem 'rspec-rails', '~> 3.4'
-  # gem 'rspec-rails', '~> 3.6'
+# R5.0
+#   gem 'rspec-rails', '~> 3.4'
+  gem 'rspec-rails', '~> 3.6'
   gem 'rspec-activemodel-mocks', '~> 1.0.2'
-  # gem 'rspec-activemodel-mocks', '~> 1.0', '>= 1.0.3'
+# gem 'rspec-activemodel-mocks', '~> 1.0', '>= 1.0.3'
   gem 'inch', '~> 0.7'
-  # gem 'inch', '~> 0.7.1'
+# gem 'inch', '~> 0.7.1'
   gem 'byebug', '~> 9.0.6', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_girl_rails', '~> 4.7'
-  # gem 'factory_girl_rails', '~> 4.8'
+# gem 'factory_girl_rails', '~> 4.8'
   gem 'selenium-webdriver', '~> 3.4.0'
-  # gem 'selenium-webdriver', '~> 3.5'
+# gem 'selenium-webdriver', '~> 3.5'
   gem 'geckodriver-helper', '~> 0.0.3'
 end
 
