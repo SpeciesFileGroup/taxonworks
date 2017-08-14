@@ -147,8 +147,8 @@ end
 
 group :doc do
 # R5.0
-  gem 'sdoc', require: false
-# gem 'sdoc', '~> 0.4.2', require: false
+#   gem 'sdoc', require: false
+  gem 'sdoc', '~> 0.4.2', require: false
 end
 
 group :test do
