@@ -119,11 +119,11 @@ group :test, :development do
 #   gem 'inch', '~> 0.7'
   gem 'inch', '~> 0.7.1'
   gem 'byebug', '~> 9.0.6', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
-# R5.0
 # gem 'factory_girl_rails', '~> 4.7'
   gem 'factory_girl_rails', '~> 4.8'
-  gem 'selenium-webdriver', '~> 3.4.0'
-# gem 'selenium-webdriver', '~> 3.5'
+# R5.0
+#   gem 'selenium-webdriver', '~> 3.4.0'
+  gem 'selenium-webdriver', '~> 3.5'
   gem 'geckodriver-helper', '~> 0.0.3'
 end
 
