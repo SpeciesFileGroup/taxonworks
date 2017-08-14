@@ -529,7 +529,7 @@ DEPENDENCIES
   dwc-archive (~> 0.9.11)
   exception_notification (~> 4.2.1)
   execjs (~> 2.7.0)
-  factory_girl_rails (~> 4.7)
+  factory_girl_rails (~> 4.8)
   faker (~> 1.8, >= 1.8.4)
   ffi-geos (~> 1.2.0)
   geckodriver-helper (~> 0.0.3)
