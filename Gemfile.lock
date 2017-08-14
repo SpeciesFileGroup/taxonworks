@@ -510,7 +510,7 @@ DEPENDENCIES
   best_in_place (~> 3.1.1)
   better_errors (~> 2.3)
   bibtex-ruby (~> 4.4.4)
-  binding_of_caller (~> 0.7)
+  binding_of_caller (~> 0.7.2)
   biodiversity (~> 3.4.1)
   byebug (~> 9.0.6)
   capistrano-npm (~> 1.0.2)

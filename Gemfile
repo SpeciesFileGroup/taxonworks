@@ -129,11 +129,11 @@ end
 group :development do
 # gem 'tunemygc'
   gem 'ruby-prof', '~> 0.16.2'
-# R5.0
 #   gem 'better_errors', '~> 2.0'
   gem 'better_errors', '~> 2.3'
-  gem 'binding_of_caller', '~> 0.7'
-# gem 'binding_of_caller', '~> 0.7.2'
+# R5.0
+#   gem 'binding_of_caller', '~> 0.7'
+  gem 'binding_of_caller', '~> 0.7.2'
   gem 'spring-commands-rspec', '~> 1.0.2'
 # gem 'spring-commands-rspec', '~> 1.0', '>= 1.0.4'
   gem 'guard-rspec', '~> 4.7', require: false
