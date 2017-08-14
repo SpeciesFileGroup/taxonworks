@@ -139,16 +139,16 @@ group :development do
   gem 'guard-rspec', '~> 4.7', '>= 4.7.3', require: false
 #   gem 'parallel_tests', '~> 2.5.0'
   gem 'parallel_tests', '~> 2.14', '>= 2.14.2'
-# R5.0
 #   gem 'web-console', '~> 3.3.0'
   gem 'web-console', '~> 3.5', '>= 3.5.1'
-  gem 'rubocop', '~> 0.49.0'
-# gem 'rubocop', '~> 0.49.1'
+# gem 'rubocop', '~> 0.49.0'
+  gem 'rubocop', '~> 0.49.1'
 end
 
 group :doc do
+# R5.0
   gem 'sdoc', require: false
-  # gem 'sdoc', '~> 0.4.2', require: false
+# gem 'sdoc', '~> 0.4.2', require: false
 end
 
 group :test do
