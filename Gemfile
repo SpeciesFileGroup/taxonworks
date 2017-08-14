@@ -97,13 +97,13 @@ gem 'biodiversity', '~> 3.4.1'
 gem 'ruby-units', '~> 2.2.0', require: 'ruby_units/namespaced'
 
 # Minor Utils/helpers
-# R5.0
 # gem 'awesome_print', '~> 1.7'
 gem 'awesome_print', '~> 1.8'
 gem 'indefinite_article', '~> 0.2.4'
 gem 'rainbow', '~> 2.2.2'
-gem 'term-ansicolor', '~> 1.4.0' # DEPRECATED
-# gem 'term-ansicolor', '~> 1.6' # DEPRECATED
+# R5.0
+# gem 'term-ansicolor', '~> 1.4.0' # DEPRECATED
+gem 'term-ansicolor', '~> 1.6' # DEPRECATED
 gem 'chronic', '~> 0.10'
 # gem 'chronic', '~> 0.10.2'
 
