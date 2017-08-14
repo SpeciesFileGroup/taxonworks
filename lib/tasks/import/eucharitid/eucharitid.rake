@@ -267,7 +267,7 @@ namespace :tw do
         citations = {
           "SD" => 'subsequent description',
           "SU" => 'subsequent use',  # also 'in key ()' derived from data
-          "MI" => nil,  #  'missidentification'  .. ? 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication'       
+          "MI" => nil,  #  'missidentification'  .. ? 'TaxonNameRelationship::Iczn::Invalidating::Misapplication'
         
         }
 

@@ -1069,7 +1069,7 @@ class TaxonName < ApplicationRecord
   # return [Boolean] whether there is missaplication relationship
   def name_is_missapplied?
     TaxonNameRelationship.where_subject_is_taxon_name(self).
-      with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication').empty?
+      with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication').empty?
   end
 
   # return [String]
@@ -1087,7 +1087,7 @@ class TaxonName < ApplicationRecord
     b_sub = basionym.empty? ? nil : basionym.first.subject_taxon_name
 
     misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).
-      with_type_string('TaxonNameRelationship::Icn::Unaccepting::Usage::Misapplication')
+      with_type_string('TaxonNameRelationship::Icn::Unaccepting::Misapplication')
     m_obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
 
     t  = [self.author_string]
@@ -1111,7 +1111,7 @@ class TaxonName < ApplicationRecord
     ay = nil
     p = nil
 
-    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication')
+    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication')
 
     if self.type == 'Combination'
       c = self.protonyms_by_rank
