@@ -146,16 +146,16 @@ group :development do
 end
 
 group :doc do
-# R5.0
 #   gem 'sdoc', require: false
   gem 'sdoc', '~> 0.4.2', require: false
 end
 
 group :test do
-  gem 'rspec', '~> 3.4'
-  # gem 'rspec', '~> 3.6'
-  gem 'coveralls', '~> 0.8.13', require: false
-  # gem 'coveralls', '~> 0.8.21', require: false
+# R5.0
+#   gem 'rspec', '~> 3.4'
+  gem 'rspec', '~> 3.6'
+  # gem 'coveralls', '~> 0.8.13', require: false
+  gem 'coveralls', '~> 0.8.21', require: false
   gem 'capybara', '~> 2.14.1'
   # gem 'capybara', '~> 2.15', '>= 2.15.1'
   gem 'timecop', '~> 0.8.1'
@@ -167,10 +167,10 @@ group :test do
   gem 'database_cleaner', '~> 1.6.0'
   # gem 'database_cleaner', '~> 1.6', '>= 1.6.1'
   gem 'rails-controller-testing', '~> 1.0.0'
-  # gem 'rails-controller-testing', '~> 1.0', '>= 1.0.2'
+# gem 'rails-controller-testing', '~> 1.0', '>= 1.0.2'
 
-  # gem 'simplecov', :require => false
-  # gem 'simplecov-rcov', :require => false
+# gem 'simplecov', :require => false
+# gem 'simplecov-rcov', :require => false
 end
 
 group :production do
