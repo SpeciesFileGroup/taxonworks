@@ -166,8 +166,8 @@ group :test do
   gem 'vcr', '~> 3.0', '>= 3.0.3'
   # gem 'database_cleaner', '~> 1.6.0'
   gem 'database_cleaner', '~> 1.6', '>= 1.6.1'
-  gem 'rails-controller-testing', '~> 1.0.0'
-# gem 'rails-controller-testing', '~> 1.0', '>= 1.0.2'
+  # gem 'rails-controller-testing', '~> 1.0.0'
+  gem 'rails-controller-testing', '~> 1.0', '>= 1.0.2'
 
 # gem 'simplecov', :require => false
 # gem 'simplecov-rcov', :require => false
