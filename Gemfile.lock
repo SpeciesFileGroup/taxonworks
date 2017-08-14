@@ -551,7 +551,7 @@ DEPENDENCIES
   paperclip (~> 5.1)
   paperclip-meta (~> 3.0)
   parallel_tests (~> 2.14, >= 2.14.2)
-  passenger (~> 5.1.5)
+  passenger (~> 5.1, >= 5.1.7)
   pdf-reader (~> 2.0)
   pg (~> 0.21.0)
   postgresql_cursor (~> 0.6.1)
