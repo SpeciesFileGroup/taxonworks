@@ -103,7 +103,6 @@ gem 'indefinite_article', '~> 0.2.4'
 gem 'rainbow', '~> 2.2.2'
 # gem 'term-ansicolor', '~> 1.4.0' # DEPRECATED
 gem 'term-ansicolor', '~> 1.6' # DEPRECATED
-# R5.0
 # gem 'chronic', '~> 0.10'
 gem 'chronic', '~> 0.10.2'
 
@@ -111,8 +110,9 @@ gem 'chronic', '~> 0.10.2'
 gem 'capistrano-npm', '~> 1.0.2'
 
 group :test, :development do
-  gem 'faker', '~> 1.6.1'
-  # gem 'faker', '~> 1.8', '>= 1.8.4'
+# R5.0
+#   gem 'faker', '~> 1.6.1'
+  gem 'faker', '~> 1.8', '>= 1.8.4'
   gem 'rspec-rails', '~> 3.4'
   # gem 'rspec-rails', '~> 3.6'
   gem 'rspec-activemodel-mocks', '~> 1.0.2'
