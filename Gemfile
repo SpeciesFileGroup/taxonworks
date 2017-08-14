@@ -121,7 +121,6 @@ group :test, :development do
   gem 'byebug', '~> 9.0.6', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
 # gem 'factory_girl_rails', '~> 4.7'
   gem 'factory_girl_rails', '~> 4.8'
-# R5.0
 #   gem 'selenium-webdriver', '~> 3.4.0'
   gem 'selenium-webdriver', '~> 3.5'
   gem 'geckodriver-helper', '~> 0.0.3'
@@ -130,18 +129,19 @@ end
 group :development do
 # gem 'tunemygc'
   gem 'ruby-prof', '~> 0.16.2'
-  gem 'better_errors', '~> 2.0'
-  # gem 'better_errors', '~> 2.3'
+# R5.0
+#   gem 'better_errors', '~> 2.0'
+  gem 'better_errors', '~> 2.3'
   gem 'binding_of_caller', '~> 0.7'
-  # gem 'binding_of_caller', '~> 0.7.2'
+# gem 'binding_of_caller', '~> 0.7.2'
   gem 'spring-commands-rspec', '~> 1.0.2'
-  # gem 'spring-commands-rspec', '~> 1.0', '>= 1.0.4'
+# gem 'spring-commands-rspec', '~> 1.0', '>= 1.0.4'
   gem 'guard-rspec', '~> 4.7', require: false
-  # gem 'guard-rspec', '~> 4.7', '>= 4.7.3', require: false
+# gem 'guard-rspec', '~> 4.7', '>= 4.7.3', require: false
   gem 'parallel_tests', '~> 2.5.0'
-  # gem 'parallel_tests', '~> 2.14', '>= 2.14.2'
+# gem 'parallel_tests', '~> 2.14', '>= 2.14.2'
   gem 'web-console', '~> 3.3.0'
-  # gem 'web-console', '~> 3.5', '>= 3.5.1'
+# gem 'web-console', '~> 3.5', '>= 3.5.1'
   gem 'rubocop', '~> 0.49.0'
 # gem 'rubocop', '~> 0.49.1'
 end
