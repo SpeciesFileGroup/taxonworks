@@ -87,8 +87,6 @@ gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.0', '>= 1.0.1'
 gem 'best_in_place', '~> 3.1.1'
 gem 'sass-rails', '~> 5.0.6'
-# R5.0
-# gem 'redcarpet', '~> 3.3'
 gem 'redcarpet', '~> 3.4'
 
 # "Bio" and SFG gems
@@ -99,8 +97,9 @@ gem 'biodiversity', '~> 3.4.1'
 gem 'ruby-units', '~> 2.2.0', require: 'ruby_units/namespaced'
 
 # Minor Utils/helpers
-gem 'awesome_print', '~> 1.7'
-# gem 'awesome_print', '~> 1.8'
+# R5.0
+# gem 'awesome_print', '~> 1.7'
+gem 'awesome_print', '~> 1.8'
 gem 'indefinite_article', '~> 0.2.4'
 gem 'rainbow', '~> 2.2.2'
 gem 'term-ansicolor', '~> 1.4.0' # DEPRECATED
