@@ -156,10 +156,10 @@ group :test do
   gem 'rspec', '~> 3.6'
   # gem 'coveralls', '~> 0.8.13', require: false
   gem 'coveralls', '~> 0.8.21', require: false
-  gem 'capybara', '~> 2.14.1'
-  # gem 'capybara', '~> 2.15', '>= 2.15.1'
-  gem 'timecop', '~> 0.8.1'
-  # gem 'timecop', '~> 0.9.1'
+  # gem 'capybara', '~> 2.14.1'
+  gem 'capybara', '~> 2.15', '>= 2.15.1'
+  # gem 'timecop', '~> 0.8.1'
+  gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 2.1.0'
   # gem 'webmock', '~> 3.0', '>= 3.0.1'
   gem 'vcr', '~> 3.0.0'
