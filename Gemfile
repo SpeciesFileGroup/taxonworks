@@ -133,11 +133,11 @@ group :development do
   gem 'better_errors', '~> 2.3'
 #   gem 'binding_of_caller', '~> 0.7'
   gem 'binding_of_caller', '~> 0.7.2'
-# R5.0
 #   gem 'spring-commands-rspec', '~> 1.0.2'
   gem 'spring-commands-rspec', '~> 1.0', '>= 1.0.4'
-  gem 'guard-rspec', '~> 4.7', require: false
-# gem 'guard-rspec', '~> 4.7', '>= 4.7.3', require: false
+# R5.0
+#   gem 'guard-rspec', '~> 4.7', require: false
+  gem 'guard-rspec', '~> 4.7', '>= 4.7.3', require: false
   gem 'parallel_tests', '~> 2.5.0'
 # gem 'parallel_tests', '~> 2.14', '>= 2.14.2'
   gem 'web-console', '~> 3.3.0'

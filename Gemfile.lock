@@ -534,7 +534,7 @@ DEPENDENCIES
   ffi-geos (~> 1.2.0)
   geckodriver-helper (~> 0.0.3)
   groupdate (~> 3.2)
-  guard-rspec (~> 4.7)
+  guard-rspec (~> 4.7, >= 4.7.3)
   hiredis (~> 0.6.1)
   inch (~> 0.7.1)
   indefinite_article (~> 0.2.4)
