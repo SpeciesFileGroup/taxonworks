@@ -91,7 +91,7 @@ gem 'redcarpet', '~> 3.4'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
-gem 'sqed', '0.3.1'
+gem 'sqed', '0.3.2'
 gem 'dwc-archive', '~> 0.9.11'
 gem 'biodiversity', '~> 3.4.1'
 gem 'ruby-units', '~> 2.2.0', require: 'ruby_units/namespaced'
@@ -151,7 +151,6 @@ group :doc do
 end
 
 group :test do
-# R5.0
 #   gem 'rspec', '~> 3.4'
   gem 'rspec', '~> 3.6'
   # gem 'coveralls', '~> 0.8.13', require: false
