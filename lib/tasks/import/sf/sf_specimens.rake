@@ -44,9 +44,11 @@ namespace :tw do
           #   SpecimenStatus
           #   DepoCatNo -- recorded in hash for now, will be identifier  <<< NO, add as import_attribute
           #   SourceID citation to collection object (refID) + description as import attribute
-          #   BasisOfRecord  type 5 will be asserted distribution, ignore 3, 4, and 6 (for all of 5 bor, what doesn't have refid in sourceid)
+          #   BasisOfRecord as data_attribute  type 5 will be asserted distribution, ignore 3, 4, and 6 (for all of 5 bor, what doesn't have refid in sourceid)
           #   VerbatimLabel NOT USED in SF, perhaps buffered collecting event
 
+
+          # no count = 1?
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
@@ -72,8 +74,16 @@ namespace :tw do
             # RIGHT HERE - jump out of the loop if the basis of record will NOT lead to a collection object
             # BoR (BasisofRecord), create co if 0 if extra data indicates, 1, 2; 5 is asserted dist if SourceID contains RefID and known distribution no finer than county
 
-            depo_id = row['DepoID']
             project_id = get_tw_project_id[row['FileID']]
+
+            repository_id = get_tw_repo_id.has_key?(row['DepoID']) ? get_tw_repo_id[row['DepoID']] : nil
+
+            collecting_event_id = get_tw_collecting_event_id[get_sf_unique_id[specimen_id]]
+
+            # get otu id from sf taxon name id, a taxon determination, called 'the primary otu id'   (what about otus without tw taxon names?)
+
+
+            
 
             #  get_depo_catalog_number[specimen_id] = row['DepoCatNo'] if row['DepoCatNo'].present?
             # specimen_total = get_specimen_totals_categories[specimen_id][Total] # get_specimen_totals_categories is obsolete
@@ -116,9 +126,9 @@ namespace :tw do
               end
             end
 
-            specimen_status = [] # 0 = presumed Ok, 1 = missing, 2 = destroyed, 3 = lost, 4 = unknown, 5 = missing?, 6 = destroyed?, 7 = lost?, 8 = damaged, 9 = damaged?, 10 = no data entered
+            specimen_status = [] # (disposition) 0 = presumed Ok, 1 = missing, 2 = destroyed, 3 = lost, 4 = unknown, 5 = missing?, 6 = destroyed?, 7 = lost?, 8 = damaged, 9 = damaged?, 10 = no data entered
             specimen_status_id = row['SpecimenStatusID'].to_i
-            if specimen_status_id > 0
+            if specimen_status_id > 0 || specimen_status_id == 10
               case specimen_status_id
                 when 1
                   specimen_status = 'missing'
@@ -138,9 +148,7 @@ namespace :tw do
                   specimen_status = 'damaged'
                 when 9
                   specimen_status = 'damaged?'
-                when 10
-                  specimen_status = 'no data entered'
-              end
+               end
             end
 
             # depo_catalog_number = []
@@ -181,7 +189,29 @@ namespace :tw do
 
                         import_attribute_attributes: import_attribute_attributes.concat(preparation_type, specimen_dataflags, specimen_status),
 
-                        # if SourceID > 0: create a citation (if SourceID contains RefID) and/or create an import_attribute (if SourceID has description)
+                        # import_attribute to do:  BasisOfRecord
+
+                        # data_attributes to do:
+                        #   # add source.RefID hash ---- pass SourceID, and get metadata (getSourceMetaData)
+                            # if SourceID > 0: create a citation (if SourceID contains RefID) and/or create an import_attribute (if SourceID has description)      LATER
+                            # ditto tblIdentifications but array of hashes because of multi Identifications, make IdentifierName into People attributes
+
+                        # specimenID2Identifiers = {
+                        #
+                        # 3099 => [{ higher_taxon_name: nil,
+                        #            seqnum: {}
+                        #           identifier_name: {
+                        #                   initialis: "L",
+                        #                   family_name: "Chopard"
+                        #                 }
+                        #           }
+                        #
+                        # }        ]
+
+                        # }
+
+                        # first_names, family_name = row['IdnetifierName'].split(" ")
+                        
             }
 
             # At this point all the related metadata except specimen category and count must be set
@@ -199,8 +229,8 @@ namespace :tw do
                   collection_object = CollectionObject.new(
                       metadata.merge(
                           total: count,
-                          collecting_event_id: get_tw_collecting_event_id[get_sf_unique_id[specimen_id]],
-                          repository_id: get_tw_repo_id.has_key?(depo_id) ? get_tw_repo_id[depo_id] : nil,
+                          collecting_event_id: collecting_event_id,
+                          repository_id: repository_id,
 
                           bicuration_classification_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s]}],
 
@@ -228,7 +258,7 @@ namespace :tw do
                 # was a container
                 identifer = nil
                 if row['DepoCatNo']
-                  identifier = ImportAttribute.new(value: row['DepotCatNum', import_predicate: 'SF_DEPOT_NUMBER'], project_id: project_id)
+                  identifier = ImportAttribute.new(value: row['DepotCatNum', import_predicate: 'SF.DepotCatNum'], project_id: project_id)
                 end
 
                 if current_objects.count == 1
@@ -251,6 +281,9 @@ namespace :tw do
                   puts "OOPS"
                 end
 
+                # create type specimen if tblIdentifications.TypeTaxonNameID maybe
+
+                
               end
 
               puts 'CollectionObject created'
