@@ -56,10 +56,10 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
           let(:otu_test) {  factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
           let(:specimen) {   factory_girl_create_for_user_and_project(:valid_specimen, @user, @project) }
 
-          before { 
+          before {
             specimen.otus << otu_test
             force = otu_test.collection_objects.reload # force the reload?!
-            visit(collection_objects_filter_task_path) 
+            visit(collection_objects_filter_task_path)
           }
 
           it 'renders count of collection objects based on a selected otu' do
@@ -74,8 +74,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             visit(collection_objects_filter_task_path)
             execute_script("document.getElementById('search_start_date').value = '1971/01/01'")
             execute_script("document.getElementById('search_end_date').value = '1980/12/31'")
-          #  find('#search_start_date').set '1971/01/01'
-          #  find('#search_end_date').set '1980/12/31'
+            #  find('#search_start_date').set '1971/01/01'
+            #  find('#search_end_date').set '1980/12/31'
             find('#label_toggle_slide_area').click
             wait_for_ajax
             execute_script("document.getElementById('drawn_area_shape').type = 'text'")
@@ -84,13 +84,14 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             click_button('Set area')
             wait_for_ajax
             find('#find_area_and_date_commit').click
-            find('#result_span', visible: false, text: '10')
+            # find('#result_span', visible: false, text: '10')
+            find('#area_count', visible: true, text: '10')
           }
-          
+
           it 'renders count of objects and table found using a drawn area and date range' do
             expect(find(:xpath, "//div['show_list']/table[@class='tablesorter']/thead")).to have_text('Catalog Number')
           end
-          
+
         end
       end
     end
