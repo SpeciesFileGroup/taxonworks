@@ -54,7 +54,7 @@ describe TaxonNameClassification, type: :model do
         TAXON_NAME_CLASSIFICATION_CLASSES.each do |r|
           r1 = r.disjoint_taxon_name_classes.collect{|i| i.to_s}
           r1 = ['a'] + r1
-          r1 = r1.collect{|i| i.class.to_s}.uniq
+          r1 = r1.collect {|i| i.class.to_s}.uniq
           expect(r1.first).to eq('String')
           expect(r1.size).to eq(1)
         end
@@ -64,7 +64,7 @@ describe TaxonNameClassification, type: :model do
         TAXON_NAME_CLASSIFICATION_CLASSES.each do |r|
           r1 = r.applicable_ranks.collect{|i| i.to_s}
           r1 = ['a'] + r1
-          r1 = r1.collect{|i| i.class.to_s}.uniq
+          r1 = r1.collect {|i| i.class.to_s}.uniq
           expect(r1.first).to eq('String')
           expect(r1.size).to eq(1)
         end

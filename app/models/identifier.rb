@@ -38,7 +38,7 @@
 #   @return [String]
 #   The type of the identified object, used in a polymorphic relationship.
 #
-class Identifier < ActiveRecord::Base
+class Identifier < ApplicationRecord
 
   acts_as_list scope: [:project_id, :identifier_object_id, :identifier_object_type]
 

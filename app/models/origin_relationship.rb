@@ -1,13 +1,13 @@
 # An OriginRelationship asserts that one object is derived_from another.
 #
 # The old object is the source_of or origin_of the new object.
-# The new object originates_from the old_object.  
+# The new object originates_from the old_object.
 #
 # Currently these combinations are planned (* not implemented):
 #
 # old_object / new_object
-#  
-# * field_observation / collection_object  
+#
+# * field_observation / collection_object
 # collection_object / collection_object
 # collection_object / extract
 # * collection_object / part_of (anatomy)
@@ -17,7 +17,7 @@
 # extract / sequence
 # sequence / sequence
 #
-# @!attribute old_object_id 
+# @!attribute old_object_id
 #   @return [Integer]
 #     id of the old (original) object
 #
@@ -25,7 +25,7 @@
 #   @return [Integer]
 #     type of the old (original) object
 #
-# @!attribute new_object_id 
+# @!attribute new_object_id
 #   @return [Integer]
 #     id of the new (original) object
 #
@@ -33,22 +33,22 @@
 #   @return [Integer]
 #     type of the new (original) object
 #
-# @!attribute position 
+# @!attribute position
 #   @return [Integer]
-#     order relative to old object 
+#     order relative to old object
 #
 # @!attribute project_id
 #   @return [Integer]
-#     the project ID  
+#     the project ID
 #
-class OriginRelationship < ActiveRecord::Base
+class OriginRelationship < ApplicationRecord
   include Housekeeping
   include Shared::IsData
 
   acts_as_list scope: [:project_id, :old_object_id, :old_object_type]
 
-  belongs_to :old_object, polymorphic: true 
-  belongs_to :new_object, polymorphic: true 
+  belongs_to :old_object, polymorphic: true
+  belongs_to :new_object, polymorphic: true
 
   # Don't validate presence of old_object or new_object
   # so that nested attributes can work in such a way that

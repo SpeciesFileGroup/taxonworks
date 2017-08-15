@@ -21,7 +21,8 @@ class TagsController < ApplicationController
 
   def tag_object_update 
     taggable_object.update(taggable_object_params)
-    redirect_to :back
+    # redirect_to :back
+    redirect_back(fallback_location: (request.referer || root_path))
   end
 
   # POST /tags
@@ -35,7 +36,7 @@ class TagsController < ApplicationController
         format.json { render json: @tag, status: :created, location: @tag }
       else
         format.html {
-          redirect_to :back, notice: 'Tag was NOT successfully created.'
+          redirect_back(fallback_location: (request.referer || root_path), notice: 'Tag was NOT successfully created.')
         }
         format.json { render json: @tag.errors, status: :unprocessable_entity }
       end
@@ -47,10 +48,11 @@ class TagsController < ApplicationController
   def update
     respond_to do |format|
       if @tag.update(tag_params)
-        format.html { redirect_to @tag.tag_object.metamorphosize, notice: 'Tag was successfully created.' }
+        format.html {redirect_to @tag.tag_object.metamorphosize, notice: 'Tag was successfully updated.'}
         format.json { render json: @tag, status: :created, location: @tag }
       else
-        format.html { redirect_to :back, notice: 'Tag was NOT successfully updated.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Tag was NOT successfully updated.')
+        }
         format.json { render json: @tag.errors, status: :unprocessable_entity }
       end
     end
@@ -61,7 +63,7 @@ class TagsController < ApplicationController
   def destroy
     @tag.destroy
     respond_to do |format|
-      format.html { redirect_to :back, notice: 'Tag was successfully destroyed.' }
+      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Tag was successfully destroyed.')}
       format.json { head :no_content }
     end
   end

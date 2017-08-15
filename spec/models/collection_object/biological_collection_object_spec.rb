@@ -76,11 +76,11 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
 
     # expected behaviour is that the last determination created is the first on the list
     specify '#current_taxon_determination' do
-      expect(o.current_taxon_determination(true).position).to eq(1)
+      expect(o.current_taxon_determination.reload.position).to eq(1)
     end
 
     specify '#current_otu' do
-      expect(o.current_otu(true).name).to eq('two')
+      expect(o.current_otu.reload.name).to eq('two')
     end
   end
 

@@ -1,4 +1,4 @@
-class CharacterState < ActiveRecord::Base
+class CharacterState < ApplicationRecord
 
   include Housekeeping
   include Shared::Depictions
@@ -32,5 +32,5 @@ class CharacterState < ActiveRecord::Base
   def descriptor_kind
     errors.add(:descriptor, 'must be Descriptor::Qualitative') if descriptor && descriptor.type != 'Descriptor::Qualitative'
   end
-  
+
 end

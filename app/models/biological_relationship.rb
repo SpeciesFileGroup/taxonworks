@@ -1,22 +1,22 @@
-# A biological relationship defines a biological relationship type between two biological entities (e.g. specimen and specimen, otu and specimen etc.) 
+# A biological relationship defines a biological relationship type between two biological entities (e.g. specimen and specimen, otu and specimen etc.)
 #
 # @!attribute name
 #   @return [String]
-#     the name of the relationship 
+#     the name of the relationship
 #
 # @!attribute is_transitive
 #   @return [Boolean]
-#     whether the relationship is transitive, i.e. if A is_a B is_a C then if is_a is transitive A is_a C 
+#     whether the relationship is transitive, i.e. if A is_a B is_a C then if is_a is transitive A is_a C
 #
 # @!attribute is_reflexive
 #   @return [Boolean]
-#     whether the relationship is reflexive, i.e. if A is_a B and is_a is_reflexive then B is_a A 
+#     whether the relationship is reflexive, i.e. if A is_a B and is_a is_reflexive then B is_a A
 #
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
 #
-class BiologicalRelationship < ActiveRecord::Base
+class BiologicalRelationship < ApplicationRecord
   include Housekeeping
   include Shared::Taggable
   include Shared::Notable

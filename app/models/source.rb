@@ -2,7 +2,7 @@
 #
 # The primary purpose of Source metadata is to allow the user to find the source, that's all.
 #
-# See https://en.wikipedia.org/wiki/BibTeX for a definition of attributes, in nearly all cases they are 1:1 with the TW model.  We use this https://github.com/inukshuk/bibtex-ruby awesomeness.  See https://github.com/inukshuk/bibtex-ruby/tree/master/lib/bibtex/entry, in particular rdf_converter.rb for the types of field managed. 
+# See https://en.wikipedia.org/wiki/BibTeX for a definition of attributes, in nearly all cases they are 1:1 with the TW model.  We use this https://github.com/inukshuk/bibtex-ruby awesomeness.  See https://github.com/inukshuk/bibtex-ruby/tree/master/lib/bibtex/entry, in particular rdf_converter.rb for the types of field managed.
 #
 #
 # @!attribute serial_id
@@ -111,7 +111,7 @@
 #
 # @!attribute doi
 #   @return [String]
-#    When provided also cloned to an Identifier::Global. See https://en.wikipedia.org/wiki/BibTeX#Field_types  
+#    When provided also cloned to an Identifier::Global. See https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute abstract
 #   @return [String]
@@ -143,7 +143,7 @@
 #
 # @!attribute verbatim
 #   @return [String]
-#     the full citation, used only for type = SourceVerbatim 
+#     the full citation, used only for type = SourceVerbatim
 #
 # @!attribute verbatim_contents
 #   @return [String]
@@ -155,7 +155,7 @@
 #
 # @!attribute language_id
 #   @return [Integer]
-#     The TaxonWorks normalization of language to Language. 
+#     The TaxonWorks normalization of language to Language.
 #
 # @!attribute translator
 #   @return [String]
@@ -163,7 +163,7 @@
 #
 # @!attribute year_suffix
 #   @return [String]
-#     Arbitrary user-provided suffix to the year.  Use is highly discouraged. 
+#     Arbitrary user-provided suffix to the year.  Use is highly discouraged.
 #
 # @!attribute url
 #   @return [String]
@@ -179,9 +179,9 @@
 #
 # @!attribute cached_nomenclature_date
 #   @return [DateTime]
-#     Date sensu nomenclature algorithm in TaxonWorks (see Utilities::Dates) 
+#     Date sensu nomenclature algorithm in TaxonWorks (see Utilities::Dates)
 #
-class Source < ActiveRecord::Base
+class Source < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::AlternateValues
@@ -200,7 +200,7 @@ class Source < ActiveRecord::Base
                           :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
 
   has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
-  has_many :citations, inverse_of: :source, dependent: :restrict_with_error 
+  has_many :citations, inverse_of: :source, dependent: :restrict_with_error
   has_many :project_sources, dependent: :destroy
   has_many :projects, through: :project_sources
 
@@ -209,11 +209,11 @@ class Source < ActiveRecord::Base
   validates_presence_of :type
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
- 
+
   def reject_project_sources(attributed)
-    return true if attributed['project_id'].blank? 
+    return true if attributed['project_id'].blank?
     return true if ProjectSource.where(project_id: attributed['project_id'], source_id: id).any?
-  end 
+  end
 
   def cited_objects
     self.citations.collect { |t| t.citation_object }

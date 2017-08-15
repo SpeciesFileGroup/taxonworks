@@ -25,7 +25,7 @@ describe GeographicAreasController, :type => :controller do
       geographic_area_3 = GeographicArea.find(four_id - 1)
       geographic_area_2 = GeographicArea.find(four_id - 2)
       geographic_area_1 = GeographicArea.find(four_id - 3)
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       expect(assigns(:recent_objects).include?(geographic_area_1)).to eq(true)
       expect(assigns(:recent_objects).include?(geographic_area_2)).to eq(true)
       expect(assigns(:recent_objects).include?(geographic_area_3)).to eq(true)
@@ -36,7 +36,7 @@ describe GeographicAreasController, :type => :controller do
   describe 'GET show' do
     it 'assigns the requested geographic_area as @geographic_area' do
       geographic_area = FactoryGirl.create(:level2_geographic_area)
-      get :show, {:id => geographic_area.to_param}, valid_session
+      get :show, params: {id: geographic_area.to_param}, session: valid_session
       expect(assigns(:geographic_area)).to eq(geographic_area)
     end
   end
@@ -44,7 +44,7 @@ describe GeographicAreasController, :type => :controller do
   describe 'GET list' do
     it 'assigns the requested geographic_areas as @geographic_areas' do
       geographic_area = FactoryGirl.create(:level2_geographic_area)
-      get :list, {}, valid_session
+      get :list, params: {}, session: valid_session
       expect(assigns(:geographic_areas).count).to be > 1
     end
   end

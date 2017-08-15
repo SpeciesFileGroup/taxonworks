@@ -2,9 +2,9 @@
 class Tasks::Accessions::Breakdown::BufferedDataController < ApplicationController
   include TaskControllerConfiguration
 
-  before_filter :set_collection_object, only: [:index, :update]
+  before_action :set_collection_object, only: [:index, :update]
 
-  # before_filter 
+  # before_filter
 
   # GET /tasks/accession/breakdown/buffered_data/:id
   def index
@@ -12,16 +12,16 @@ class Tasks::Accessions::Breakdown::BufferedDataController < ApplicationControll
     @collection_object.collecting_event.identifiers.build(type: 'Identifier::Local::AccessionCode')
   end
 
-  def thumb_navigator 
+  def thumb_navigator
     render partial: '/tasks/accessions/breakdown/buffered_data/thumb_navigator', locals: { sqed_depiction: SqedDepiction.find(params[:id])  }
   end
 
   def update
     @collection_object.update(collection_object_params)
     @collection_object.valid?
-    flash[:notice] = 'Collection object was' + ( @collection_object.valid?  ? '' : ' NOT') + ' successfully updated.' + ( @collection_object.valid?  ? '' : @collection_object.errors.full_messages.join('; ')) 
+    flash[:notice] = 'Collection object was' + (@collection_object.valid? ? '' : ' NOT') + ' successfully updated.' + (@collection_object.valid? ? '' : @collection_object.errors.full_messages.join('; '))
 
-    respond_to do |format| 
+    respond_to do |format|
       if params[:commit] == 'Save changes'
         format.html { redirect_to collection_object_buffered_data_breakdown_task_path(@collection_object) }
       elsif params[:commit] == 'Save and next'
@@ -39,8 +39,8 @@ class Tasks::Accessions::Breakdown::BufferedDataController < ApplicationControll
   def collection_object_params
     params.require(:collection_object).permit(
       :buffered_collecting_event, # :buffered_other_labels, :buffered_determinations, :total,
-      collecting_event_attributes: [ :id, :verbatim_locality, :geographic_area_id, 
-                                     identifiers_attributes: 
+      collecting_event_attributes: [:id, :verbatim_locality, :geographic_area_id,
+                                    identifiers_attributes:
                                     [:id, :namespace_id, :identifier, :type, :_destroy]],
     # tags_attributes: [:id, :keyword_id, :_destroy],
       # taxon_determinations_attributes: [:id, :otu_id, :_destroy],

@@ -50,7 +50,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       TAXON_NAME_RELATIONSHIPS.each do |r|
         r1 = r.disjoint_taxon_name_relationships.collect{|i| i.to_s}
         r1 = ['string'] + r1
-        r1 = r1.collect{|i| i.class.to_s}.uniq
+        r1 = r1.collect {|i| i.class.to_s}.uniq
         expect(r1.first).to eq('String')
         expect(r1.size).to eq(1)
       end
@@ -60,7 +60,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       TAXON_NAME_RELATIONSHIPS.each do |r|
         r1 = r.disjoint_subject_classes.collect{|i| i.to_s}
         r1 = ['string'] + r1
-        r1 = r1.collect{|i| i.class.to_s}.uniq
+        r1 = r1.collect {|i| i.class.to_s}.uniq
         expect(r1.first).to eq('String')
         expect(r1.size).to eq(1)
       end
@@ -70,7 +70,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       TAXON_NAME_RELATIONSHIPS.each do |r|
         r1 = r.disjoint_object_classes.collect{|i| i.to_s}
         r1 = ['string'] + r1
-        r1 = r1.collect{|i| i.class.to_s}.uniq
+        r1 = r1.collect {|i| i.class.to_s}.uniq
         expect(r1.first).to eq('String')
         expect(r1.size).to eq(1)
       end
@@ -80,7 +80,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       TAXON_NAME_RELATIONSHIPS.each do |r|
         r1 = r.valid_object_ranks.collect{|i| i.to_s}
         r1 = ['string'] + r1
-        r1 = r1.collect{|i| i.class.to_s}.uniq
+        r1 = r1.collect {|i| i.class.to_s}.uniq
         expect(r1.first).to eq('String')
         expect(r1.size).to eq(1)
       end
@@ -90,7 +90,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       TAXON_NAME_RELATIONSHIPS.each do |r|
         r1 = r.valid_subject_ranks.collect{|i| i.to_s}
         r1 = ['string'] + r1
-        r1 = r1.collect{|i| i.class.to_s}.uniq
+        r1 = r1.collect {|i| i.class.to_s}.uniq
         expect(r1.first).to eq('String')
         expect(r1.size).to eq(1)
       end

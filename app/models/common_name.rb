@@ -1,7 +1,7 @@
-class CommonName < ActiveRecord::Base
+class CommonName < ApplicationRecord
   include Housekeeping
-  include Shared::AlternateValues 
-  include Shared::Citable         
+  include Shared::AlternateValues
+  include Shared::Citable
   include Shared::DataAttributes
   include Shared::Identifiable
   include Shared::Notable

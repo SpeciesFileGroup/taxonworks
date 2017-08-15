@@ -4,13 +4,13 @@
 #
 # @!attribute name
 #   @return [String]
-#     The name of the project 
+#     The name of the project
 #
 # @!attribute workbench_settings
 #   @return [Hash]
-#     Settings for the project (for all users)   
+#     Settings for the project (for all users)
 #
-class Project < ActiveRecord::Base
+class Project < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Housekeeping::AssociationHelpers
@@ -43,7 +43,7 @@ class Project < ActiveRecord::Base
   # @return [Boolean]
   #   based on whether the project has successfully been deleted.  Can also raise on detected problems with configuration.
   def nuke
-    known = ActiveRecord::Base.subclasses.select { |a| a.column_names.include?('project_id') }.map(&:name)
+    known = ApplicationRecord.subclasses.select {|a| a.column_names.include?('project_id')}.map(&:name)
 
     order = %w{
      DwcOccurrence
@@ -51,52 +51,52 @@ class Project < ActiveRecord::Base
      CharacterState
      Protocol
      AlternateValue
-     DataAttribute 
+     DataAttribute
      CitationTopic
      Citation
-     SqedDepiction 
+     SqedDepiction
      Depiction
      Documentation
-     Document 
-     CollectionObjectObservation  
-     DerivedCollectionObject        
+     Document
+     CollectionObjectObservation
+     DerivedCollectionObject
      Note
      PinboardItem
-     TaggedSectionKeyword      
+     TaggedSectionKeyword
      Tag
-     Confidence 
+     Confidence
      Role
      AssertedDistribution
      BiocurationClassification
-     BiologicalRelationshipType   
+     BiologicalRelationshipType
      BiologicalAssociationsBiologicalAssociationsGraph
      BiologicalAssociation
      BiologicalRelationship
-     BiologicalAssociationsGraph   
-     CollectionProfile   
+     BiologicalAssociationsGraph
+     CollectionProfile
      ContainerLabel
-     ContainerItem  
+     ContainerItem
      Container
      PublicContent
      Content
      Georeference
      Identifier
-     LoanItem  
+     LoanItem
      Loan
-     OtuPageLayoutSection   
+     OtuPageLayoutSection
      OtuPageLayout
      ProjectSource
      TaxonDetermination
-     TypeMaterial       
-     CollectionObject   
+     TypeMaterial
+     CollectionObject
      CollectingEvent
      RangedLotCategory
-     Image  
+     Image
      CommonName
-     Otu 
+     Otu
      TaxonNameClassification
      TaxonNameRelationship
-     TaxonName 
+     TaxonName
      ControlledVocabularyTerm
      OriginRelationship
      Sequence
@@ -110,7 +110,7 @@ class Project < ActiveRecord::Base
      ObservationMatrixRow
      ObservationMatrix
      Descriptor
-     ProjectMember  
+     ProjectMember
     }
 
     known.each do |k|
@@ -135,13 +135,13 @@ class Project < ActiveRecord::Base
   end
 
   def root_taxon_name
-    # Calling TaxonName is a hack to load the required has_many into Project, 
-    # "has_many :taxon_names" is invoked through TaxonName within Housekeeping::Project 
-    # Within TaxonName closure_tree (appears to?) require a database connection.  Note 
+    # Calling TaxonName is a hack to load the required has_many into Project,
+    # "has_many :taxon_names" is invoked through TaxonName within Housekeeping::Project
+    # Within TaxonName closure_tree (appears to?) require a database connection.  Note
     # closure_tree is apparently not robustly tested for Ruby 2.3.
     # Since we shouldn't (can't?) initiate a connection prior to a require_dependency
     # we simply load TaxonName for the first time here.
-    TaxonName.tap{}  
+    TaxonName.tap {}
     self.taxon_names.root
   end
 

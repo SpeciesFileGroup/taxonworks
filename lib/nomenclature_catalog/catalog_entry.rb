@@ -109,7 +109,7 @@ module NomenclatureCatalog
           s.push i.object.subject_taxon_name.origin_citation.try(:source) if i.object.object_taxon_name != reference_taxon_name
         end
       end
-      s.compact.uniq.sort_by{|a| a.cached}
+      s.compact.uniq.sort_by {|a| a.cached}
     end
 
     def all_dates

@@ -74,7 +74,7 @@ describe TaxonDetermination, type: :model do
       let(:s) { Specimen.create(nested_attributes) }
 
       specify "both otu_id and empty_otu_attributes works" do
-        expect(s.taxon_determinations(true).count).to eq(1)
+        expect(s.taxon_determinations.reload.count).to eq(1)
         expect(s.otus.to_a).to contain_exactly(otu)
       end
     end

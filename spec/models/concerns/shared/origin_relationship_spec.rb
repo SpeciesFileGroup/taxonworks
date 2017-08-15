@@ -116,13 +116,13 @@ context 'OriginRelationship', type: :model do
   end
 end
 
-class BaseOriginRelationShip < ActiveRecord::Base
+class BaseOriginRelationShip < ApplicationRecord
   include Housekeeping
   include FakeTable
   include Shared::OriginRelationship
 end
 
-class WithIsOriginForMatching < ActiveRecord::Base
+class WithIsOriginForMatching < ApplicationRecord
   include Housekeeping
   include FakeTable
   include Shared::OriginRelationship
@@ -132,13 +132,13 @@ end
 
 # This has to be named "TestClass" since the fake table type
 # when converted to a symbol is ":test_classes"
-class TestClass < ActiveRecord::Base
+class TestClass < ApplicationRecord
   include Housekeeping
   include FakeTable
   include Shared::OriginRelationship
 end
 
-class MismatchingClass < ActiveRecord::Base
+class MismatchingClass < ApplicationRecord
   include Housekeeping
   include FakeTable
 end

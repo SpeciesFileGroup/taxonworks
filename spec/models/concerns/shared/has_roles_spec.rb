@@ -1,7 +1,7 @@
 require 'rails_helper'
 describe 'Has_roles', :type => :model do
-  let(:class_with_roles) { TestHasRole.new } 
- 
+  let(:class_with_roles) {TestHasRole.new}
+
   context "associations" do
     specify "has many roles" do
       expect(class_with_roles).to respond_to(:roles)
@@ -25,7 +25,7 @@ describe 'Has_roles', :type => :model do
   end
 end
 
-class TestHasRole < ActiveRecord::Base
+class TestHasRole < ApplicationRecord
   include FakeTable
   include Shared::HasRoles
 end

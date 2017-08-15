@@ -41,18 +41,18 @@ describe OtuPageLayoutSectionsController, type: :controller do
     describe "with valid params" do
       it "creates a new OtuPageLayoutSection" do
         expect {
-          post :create, {:otu_page_layout_section => valid_attributes}, valid_session
+          post :create, params: {otu_page_layout_section: valid_attributes}, session: valid_session
         }.to change(OtuPageLayoutSection, :count).by(1)
       end
 
       it "assigns a newly created otu_page_layout_section as @otu_page_layout_section" do
-        post :create, {:otu_page_layout_section => valid_attributes}, valid_session
+        post :create, params: {otu_page_layout_section: valid_attributes}, session: valid_session
         expect(assigns(:otu_page_layout_section)).to be_a(OtuPageLayoutSection)
         expect(assigns(:otu_page_layout_section)).to be_persisted
       end
 
       it "redirects to :back" do
-        post :create, {:otu_page_layout_section => valid_attributes}, valid_session
+        post :create, params: {otu_page_layout_section: valid_attributes}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
@@ -61,14 +61,14 @@ describe OtuPageLayoutSectionsController, type: :controller do
       it "assigns a newly created but unsaved otu_page_layout_section as @otu_page_layout_section" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(OtuPageLayoutSection).to receive(:save).and_return(false)
-        post :create, {:otu_page_layout_section => {:invalid => 'parms'}}, valid_session
+        post :create, params: {otu_page_layout_section: {:invalid => 'parms'}}, session: valid_session
         expect(assigns(:otu_page_layout_section)).to be_a_new(OtuPageLayoutSection)
       end
 
       it "re-renders the :back template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(OtuPageLayoutSection).to receive(:save).and_return(false)
-        post :create, {:otu_page_layout_section => {:invalid => 'parms'}}, valid_session
+        post :create, params: {otu_page_layout_section: {:invalid => 'parms'}}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
@@ -84,19 +84,20 @@ describe OtuPageLayoutSectionsController, type: :controller do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         t = FactoryGirl.create(:random_controlled_vocabulary_term, type: 'Topic')
-        expect_any_instance_of(OtuPageLayoutSection).to receive(:update).with({"topic_id" => t.id.to_s})
-        put :update, {:id => otu_page_layout_section.to_param, :otu_page_layout_section => {:topic_id => t.id.to_s}}, valid_session
+        update_params = ActionController::Parameters.new({topic_id: t.id.to_s}).permit(:topic_id)
+        expect_any_instance_of(OtuPageLayoutSection).to receive(:update).with(update_params)
+        put :update, params: {id: otu_page_layout_section.to_param, otu_page_layout_section: update_params}, session: valid_session
       end
 
       it "assigns the requested otu_page_layout_section as @otu_page_layout_section" do
         otu_page_layout_section = OtuPageLayoutSection.create! valid_attributes
-        put :update, {:id => otu_page_layout_section.to_param, :otu_page_layout_section => valid_attributes}, valid_session
+        put :update, params: {id: otu_page_layout_section.to_param, otu_page_layout_section: valid_attributes}, session: valid_session
         expect(assigns(:otu_page_layout_section)).to eq(otu_page_layout_section)
       end
 
       it "redirects to :back" do
         otu_page_layout_section = OtuPageLayoutSection.create! valid_attributes
-        put :update, {:id => otu_page_layout_section.to_param, :otu_page_layout_section => valid_attributes}, valid_session
+        put :update, params: {id: otu_page_layout_section.to_param, otu_page_layout_section: valid_attributes}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
@@ -106,7 +107,7 @@ describe OtuPageLayoutSectionsController, type: :controller do
         otu_page_layout_section = OtuPageLayoutSection.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(OtuPageLayoutSection).to receive(:save).and_return(false)
-        put :update, {:id => otu_page_layout_section.to_param, :otu_page_layout_section => {:invalid => 'parms'}}, valid_session
+        put :update, params: {id: otu_page_layout_section.to_param, otu_page_layout_section: {:invalid => 'parms'}}, session: valid_session
         expect(assigns(:otu_page_layout_section)).to eq(otu_page_layout_section)
       end
 
@@ -114,7 +115,7 @@ describe OtuPageLayoutSectionsController, type: :controller do
         otu_page_layout_section = OtuPageLayoutSection.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(OtuPageLayoutSection).to receive(:save).and_return(false)
-        put :update, {:id => otu_page_layout_section.to_param, :otu_page_layout_section => {:invalid => 'parms'}}, valid_session
+        put :update, params: {id: otu_page_layout_section.to_param, otu_page_layout_section: {:invalid => 'parms'}}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
@@ -124,13 +125,13 @@ describe OtuPageLayoutSectionsController, type: :controller do
     it "destroys the requested otu_page_layout_section" do
       otu_page_layout_section = OtuPageLayoutSection.create! valid_attributes
       expect {
-        delete :destroy, {:id => otu_page_layout_section.to_param}, valid_session
+        delete :destroy, params: {id: otu_page_layout_section.to_param}, session: valid_session
       }.to change(OtuPageLayoutSection, :count).by(-1)
     end
 
     it "redirects to :back" do
       otu_page_layout_section = OtuPageLayoutSection.create! valid_attributes
-      delete :destroy, {:id => otu_page_layout_section.to_param}, valid_session
+      delete :destroy, params: {id: otu_page_layout_section.to_param}, session: valid_session
       expect(response).to redirect_to(list_otus_path)
     end
   end

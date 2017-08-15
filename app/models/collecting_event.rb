@@ -139,29 +139,29 @@
 #   @return [Integer]
 #     the month, from 0-12, that the collecting event ended on
 #
-# @!attribute group 
+# @!attribute group
 #   @return [String, nil]
-#     member sensu PBDB 
+#     member sensu PBDB
 #
-# @!attribute formation 
+# @!attribute formation
 #   @return [String, nil]
-#     formation sensu PBDB 
+#     formation sensu PBDB
 #
-# @!attribute member 
+# @!attribute member
 #   @return [String, nil]
-#     member sensu PBDB 
+#     member sensu PBDB
 #
 ## @!attribute lithology
 #   @return [String, nil]
-#     lithology sensu PBDB 
+#     lithology sensu PBDB
 #
-## @!attribute max_ma 
+## @!attribute max_ma
 #   @return [Decimal, nil]
-#     max_ma (million years) sensu PBDB 
+#     max_ma (million years) sensu PBDB
 #
-## @!attribute min_ma 
+## @!attribute min_ma
 #   @return [Decimal, nil]
-#     min_ma (million years) sensu PBDB 
+#     min_ma (million years) sensu PBDB
 #
 # @!attribute cached_level0_geographic_name
 #   @return [String, nil]
@@ -176,7 +176,7 @@
 #     the auto-calculated level2 value (e.g. county) drawn from GeographicNames, never directly user supplied
 #
 #
-class CollectingEvent < ActiveRecord::Base
+class CollectingEvent < ApplicationRecord
   include Housekeeping
   include Shared::Citable
   include Shared::DataAttributes
@@ -400,7 +400,7 @@ class CollectingEvent < ActiveRecord::Base
     def in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
       allow_partial = (partial_overlap.downcase == 'off' ? false : true)
       sql_string    = date_sql_from_dates(search_start_date, search_end_date, allow_partial)
-      where(sql_string).uniq # TODO: uniq should likely not be here
+      where(sql_string).distinct # TODO: uniq should likely not be here
     end
 
     # @param [Hash] of parameters in the style of 'params'
@@ -443,7 +443,7 @@ class CollectingEvent < ActiveRecord::Base
       if sql_string.blank?
         collecting_events = CollectingEvent.none
       else
-        collecting_events = CollectingEvent.where(sql_string).uniq
+        collecting_events = CollectingEvent.where(sql_string).distinct
       end
 
       collecting_events
@@ -694,7 +694,7 @@ class CollectingEvent < ActiveRecord::Base
   # @return [Scope]
   # Find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self
   def collecting_events_intersecting_with
-    pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).uniq
+    pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).distinct
     gr     = [] # all collecting events for a geographic_item
 
     pieces.each {|o|
@@ -767,7 +767,7 @@ class CollectingEvent < ActiveRecord::Base
       # pieces = gi_list
       ga_list = GeographicArea.joins(:geographic_area_type, :geographic_areas_geographic_items).
         where(geographic_area_types:             {name: types},
-              geographic_areas_geographic_items: {geographic_item_id: gi_list}).uniq
+              geographic_areas_geographic_items: {geographic_item_id: gi_list}).distinct
 
       # WAS: now find all of the GAs which have the same names as the ones we collected.
 

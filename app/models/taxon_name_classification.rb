@@ -2,17 +2,17 @@
 #
 # @!attribute taxon_name_id
 #   @return [Integer]
-#     the id of the TaxonName being classified 
+#     the id of the TaxonName being classified
 #
 # @!attribute type
 #   @return [String]
-#     the type of classifiction (Rails STI) 
+#     the type of classifiction (Rails STI)
 #
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
 #
-class TaxonNameClassification < ActiveRecord::Base
+class TaxonNameClassification < ApplicationRecord
   include Housekeeping
   include Shared::Citable
   include Shared::IsData
@@ -65,7 +65,7 @@ class TaxonNameClassification < ActiveRecord::Base
   end
 
   # @return [String]
-  #   a humanized class name, with code appended to differentiate 
+  #   a humanized class name, with code appended to differentiate
   #   !! explored idea of LABEL in individual subclasses, use this if this doesn't work
   #   this is helper-esqe, but also useful in validation, so here for now
   def classification_label
@@ -93,7 +93,7 @@ class TaxonNameClassification < ActiveRecord::Base
   def self.code_applicability_end_year
     9999
   end
- 
+
   # @return [Array of Strings of NomenclaturalRank names]
   # nomenclatural ranks to which this class is applicable, that is, only {TaxonName}s of these {NomenclaturalRank}s may be classified as this class
   def self.applicable_ranks
@@ -107,13 +107,13 @@ class TaxonNameClassification < ActiveRecord::Base
   end
 
   # @return [String, nil]
-  #  if applicable, a DWC gbif status for this class 
+  #  if applicable, a DWC gbif status for this class
   def self.gbif_status
     nil
   end
 
   # @todo Perhaps not inherit these three methods?
-  
+
   # @return [Array of Strings]
   #   the possible suffixes for a {TaxonName} name (species) classified as this class, for example see {TaxonNameClassification::Latinized::Gender::Masculine}
   #   used to validate gender agreement of species name with a genus
@@ -122,7 +122,7 @@ class TaxonNameClassification < ActiveRecord::Base
   end
 
   # @return [Array of Strings]
-  #   the questionable suffixes for a {TaxonName} name classified as this class, for example see {TaxonNameClassification::Latinized::Gender::Masculine} 
+  #   the questionable suffixes for a {TaxonName} name classified as this class, for example see {TaxonNameClassification::Latinized::Gender::Masculine}
   def self.questionable_species_endings
     []
   end
@@ -171,7 +171,7 @@ class TaxonNameClassification < ActiveRecord::Base
           end
         end
       end
-    rescue ActiveRecord::RecordInvalid 
+    rescue ActiveRecord::RecordInvalid
     end
     false
   end
@@ -308,7 +308,7 @@ class TaxonNameClassification < ActiveRecord::Base
   def self.collect_to_s(*args)
     args.collect{|arg| arg.to_s}
   end
-  
+
   # @todo move these to a shared library (see NomenclaturalRank too)
   # !! using this strongly suggests something can be optimized, meomized etc.
   def self.collect_descendants_to_s(*classes)
@@ -316,13 +316,13 @@ class TaxonNameClassification < ActiveRecord::Base
     classes.each do |klass|
       ans += klass.descendants.collect{|k| k.to_s}
     end
-    ans    
+    ans
   end
- 
+
   # @todo move these to a shared library (see NomenclaturalRank too)
   # !! using this strongly suggests something can be optimized, meomized etc.
   def self.collect_descendants_and_itself_to_s(*classes)
     classes.collect{|k| k.to_s} + self.collect_descendants_to_s(*classes)
   end
-  
+
 end

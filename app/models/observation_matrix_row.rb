@@ -1,13 +1,13 @@
-class ObservationMatrixRow < ActiveRecord::Base
+class ObservationMatrixRow < ApplicationRecord
   include Housekeeping
   include Shared::Citable
   include Shared::Identifiable
   include Shared::IsData
   include Shared::Taggable
   include Shared::Notable
-  
+
   acts_as_list
-  
+
   belongs_to :observation_matrix
   belongs_to :otu
   belongs_to :collection_object

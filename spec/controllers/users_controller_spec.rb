@@ -39,7 +39,7 @@ describe UsersController, :type => :controller do
 
     it "assigns all users as @users" do
       user = User.create!(valid_attributes)
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       expect(assigns(:users)).to eq(User.all.order(:name, :email))
     end
   end
@@ -47,7 +47,7 @@ describe UsersController, :type => :controller do
   describe "GET show" do
     it "assigns the requested user as @user" do
       user = User.create!(valid_attributes)
-      get :show, {:id => user.to_param}, valid_session
+      get :show, params: {id: user.to_param}, session: valid_session
       expect(assigns(:user)).to eq(user)
     end
   end
@@ -55,7 +55,7 @@ describe UsersController, :type => :controller do
   describe "GET new" do
     before { sign_in_administrator } 
     it "assigns a new user as @user" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       expect(assigns(:user)).to be_a_new(User)
     end
   end
@@ -64,7 +64,7 @@ describe UsersController, :type => :controller do
     before { sign_in_user } 
     it "assigns the requested user as @user" do
       user = User.create! valid_attributes
-      get :edit, {:id => user.to_param}, valid_session
+      get :edit, params: {id: user.to_param}, session: valid_session
       expect(assigns(:user)).to eq(user)
     end
   end
@@ -75,24 +75,24 @@ describe UsersController, :type => :controller do
     describe "with valid params" do
       it "creates a new User" do
         expect {
-          post :create, {:user => valid_attributes}, valid_session
+          post :create, params: {user: valid_attributes}, session: valid_session
         }.to change(User, :count).by(1)
       end
 
       it "assigns a newly created user as @user" do
-        post :create, {:user => valid_attributes}, valid_session
+        post :create, params: {user: valid_attributes}, session: valid_session
         expect(assigns(:user)).to be_a(User)
         expect(assigns(:user)).to be_persisted
       end
       
       it "flags the newly created user for password reset when created by a superuser" do
-        post :create, {:user => valid_attributes}, { project_id: 1 }
+        post :create, params: {user: valid_attributes, project_id: 1}
         expect(User.find_by_email(valid_attributes[:email]).is_flagged_for_password_reset).to be_truthy
       end
 
       # TODO: maybe not
       it "redirects to the created user" do
-        post :create, {:user => valid_attributes}, valid_session
+        post :create, params: {user: valid_attributes}, session: valid_session
         expect(response).to redirect_to(root_path)
       end
     end
@@ -100,13 +100,13 @@ describe UsersController, :type => :controller do
     describe "with invalid params" do
       it "assigns a newly created but unsaved user as @user" do
         # Trigger the behavior that occurs when invalid params are submitted
-        post :create, {:user =>  invalid_attributes }, valid_session
+        post :create, params: {:user => invalid_attributes}, session: valid_session
         expect(assigns(:user)).to be_a_new(User)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        post :create, {:user =>  invalid_attributes }, valid_session
+        post :create, params: {:user => invalid_attributes}, session: valid_session
         expect(response).to render_template("new")
       end
     end
@@ -122,20 +122,20 @@ describe UsersController, :type => :controller do
     describe "with valid params" do
       it "updates the requested user" do
         user = User.create! valid_attributes
-        put :update, {:id => user.to_param, :user => new_attributes }, valid_session
+        put :update, params: {id: user.to_param, user: new_attributes}, session: valid_session
         user.reload
         expect(user.email).to eq('fooa1@bar.com') 
       end
 
       it "assigns the requested user as @user" do
         user = User.create! valid_attributes
-        put :update, {:id => user.to_param, :user => valid_attributes}, valid_session
+        put :update, params: {id: user.to_param, user: valid_attributes}, session: valid_session
         expect(assigns(:user)).to eq(user)
       end
 
       it "redirects to the user" do
         user = User.create! valid_attributes
-        put :update, {:id => user.to_param, :user => valid_attributes}, valid_session
+        put :update, params: {id: user.to_param, user: valid_attributes}, session: valid_session
         expect(response).to redirect_to(user)
       end
     end
@@ -143,13 +143,13 @@ describe UsersController, :type => :controller do
     describe "with invalid params" do
       it "assigns the user as @user" do
         user = User.create! valid_attributes
-        put :update, {:id => user.to_param, :user => invalid_attributes}, valid_session
+        put :update, params: {id: user.to_param, user: invalid_attributes}, session: valid_session
         expect(assigns(:user)).to eq(user)
       end
 
       it "re-renders the 'edit' template" do
         user = User.create! valid_attributes
-        put :update, {:id => user.to_param, :user => invalid_attributes }, valid_session
+        put :update, params: {id: user.to_param, user: invalid_attributes}, session: valid_session
         expect(response).to render_template("edit")
       end
     end
@@ -161,13 +161,13 @@ describe UsersController, :type => :controller do
     it "destroys the requested user" do
       user = User.create! valid_attributes
       expect {
-        delete :destroy, {:id => user.to_param}, valid_session
+        delete :destroy, params: {id: user.to_param}, session: valid_session
       }.to change(User, :count).by(-1)
     end
 
     it "redirects to the users list" do
       user = User.create! valid_attributes
-      delete :destroy, {:id => user.to_param}, valid_session
+      delete :destroy, params: {id: user.to_param}, session: valid_session
       expect(response).to redirect_to(root_path)
     end
   end
@@ -175,7 +175,7 @@ describe UsersController, :type => :controller do
   describe "GET forgot_password" do
     
     it "renders password reset template" do
-      get :forgot_password, {}, valid_session
+      get :forgot_password, params: {}, session: valid_session
       expect(response).to render_template(:forgot_password)
     end
     
@@ -184,18 +184,18 @@ describe UsersController, :type => :controller do
   describe "POST send_password_reset" do
     
     context "when e-mail not provided" do
-      let(:examples) { [{}, { :email => nil }, { :email => '' }, { :email => ' ' }] }
+      let(:examples) {[{}, {email: nil}, {email: ''}, {email: ' '}]}
       
       it "redirects to forgot_password" do
         examples.each do |param|
-          post :send_password_reset, param, valid_session
+          post :send_password_reset, params: param, session: valid_session
           expect(response).to redirect_to(:forgot_password)
         end
       end
       
       it "notifies no e-mail was provided in flash[:notice]" do
         examples.each do |param|
-          post :send_password_reset, param, valid_session
+          post :send_password_reset, params: param, session: valid_session
           expect(flash[:notice]).to match(/^No e-mail was given/)
         end
       end
@@ -203,7 +203,7 @@ describe UsersController, :type => :controller do
     end
     
     context "when e-mail does not exist" do
-      before { post :send_password_reset, { :email => "non-existant@example.com" }, valid_session }
+      before {post :send_password_reset, params: {email: "non-existant@example.com"}, session: valid_session}
       
       it "redirects to forgot_password" do
         expect(response).to redirect_to(:forgot_password)
@@ -218,7 +218,7 @@ describe UsersController, :type => :controller do
       let(:user) { FactoryGirl.create(:valid_user) }
       
       describe "response to browser" do
-        before { post :send_password_reset, { :email => user.email }, valid_session }
+        before {post :send_password_reset, params: {email: user.email}, session: valid_session}
 
         it "renders e-mail sent notification page" do
           expect(response).to render_template(:send_password_reset)
@@ -232,7 +232,7 @@ describe UsersController, :type => :controller do
       describe "mailing" do 
         it "sends an e-mail" do
           count = ActionMailer::Base.deliveries.count + 1
-          post :send_password_reset, { :email => user.email }, valid_session 
+          post :send_password_reset, params: {email: user.email}, session: valid_session
           expect(ActionMailer::Base.deliveries.count).to eq(count)
         end
       end
@@ -243,7 +243,7 @@ describe UsersController, :type => :controller do
 
     context "when invalid token" do
       it "renders invalid token template" do
-        get :password_reset, { token: 'INVALID' }
+        get :password_reset, params: {token: 'INVALID'}
         expect(response).to render_template('users/invalid_token.html.erb')
       end
     end
@@ -259,7 +259,7 @@ describe UsersController, :type => :controller do
       
       it "renders invalid token template" do
         Timecop.travel(1.day.from_now) do
-          get :password_reset, { token: token }
+          get :password_reset, params: {token: token}
           expect(response).to render_template('users/invalid_token.html.erb')
         end
       end

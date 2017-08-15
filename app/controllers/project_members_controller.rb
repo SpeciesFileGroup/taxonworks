@@ -84,7 +84,7 @@ class ProjectMembersController < ApplicationController
   end
 
   def set_form_variables
-    @target_letters = @available_users.collect{|u| u.name[0].upcase}.uniq
+    @target_letters = @available_users.collect {|u| u.name[0].upcase}.uniq
   end
 
   def set_project_member
