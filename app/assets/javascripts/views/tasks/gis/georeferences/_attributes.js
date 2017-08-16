@@ -1,7 +1,7 @@
 
 //DISPLAY/SHOW google map of georeference
 // initialization function for georeference google map
-$document.on("turbolinks:load", function() {
+$(document).on("turbolinks:load", function() {
 
   if ($('#georeference_google_map_canvas').length) {    //preempt omni-listener affecting wrong canvas
     if ($('#feature_collection').length) {
