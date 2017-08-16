@@ -190,5 +190,5 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
   }
 ); // end widget
 
-$(document).ready(TW.tasks.gis.asserted_distributions.init_asserted_distributions_map);
+$(document).on('turbolinks:load', TW.tasks.gis.asserted_distributions.init_asserted_distributions_map);
 

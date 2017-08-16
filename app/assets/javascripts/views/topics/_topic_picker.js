@@ -150,15 +150,11 @@ Object.assign(TW.views.topics.topic_picker, {
 
 });
 
-var _initialize_topic_picker_widget;
-
-_initialize_topic_picker_widget = function
-  init_topic_picker() {
-  $('.topic_picker').each(function () {
-    initialize_topic_picker($(this));
-  });
-};
-
 // Initialize the script on page load
-$(document).ready(_initialize_topic_picker_widget);
+$(document).on('turbolinks:load', function() {
+      $('.topic_picker').each(function () {
+        initialize_topic_picker($(this));
+      });
+    }
+)
 

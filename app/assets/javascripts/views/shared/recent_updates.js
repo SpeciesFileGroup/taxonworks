@@ -49,9 +49,10 @@ Object.assign(TW.views.shared.recent_updates, {
 	}	
 });
 
-$(document).ready(function() {
+$(document).on('turbolinks:load', function() {
   if($("#model_index").length) {
-    var init_recent_updates = TW.views.shared.recent_updates;
+    // TODO: we need the init?
+    var init_recent_updates = TW.views.shared.recent_updates.init();
     init_recent_updates.init();
   }
 });
