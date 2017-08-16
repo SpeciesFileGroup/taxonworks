@@ -5,6 +5,7 @@ TW.views.shared.slideout = TW.views.shared.slideout || {};
 
 Object.assign(TW.views.shared.slideout, {
 	init: function() {
+		console.log("ASDFASFASFA");
 		var that = this;
 		$(document).on('click', '.slide-panel-circle-icon', function() {		
 			that.closeHideSlideoutPanel($(this).closest('.slide-panel'));
@@ -83,6 +84,5 @@ Object.assign(TW.views.shared.slideout, {
 });
 
 $(document).on('turbolinks:load', function() {
-	var slideout = TW.views.shared.slideout;
-	slideout.init();
+	TW.views.shared.slideout.init();
 });

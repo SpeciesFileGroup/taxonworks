@@ -288,5 +288,5 @@ $(document).on("turbolinks:load", function()  {
     var role_type = $(this).data('role-type');
     TW.views.people.role_picker.initialize_role_picker($(this), role_type);
   });
-})
+});
 

@@ -96,13 +96,9 @@ Object.assign(TW.views.shared.list, {
     }
   });
 
-  // TODO: check turbolinks
-  $(document).on("turbolinks:load", initContextMenus);
-  $(document).on('page:change', initContextMenus);
-  $(document).on("turbolinks:load", headerTableOptions);
-  $(document).on('page:change', headerTableOptions);
-  $(document).on("turbolinks:load", orderLists);
-  $(document).on('page:load', orderLists);
+  initContextMenus();
+  headerTableOptions();
+  orderLists();
 
   function orderLists() {
     $("table").tablesorter({
@@ -168,7 +164,6 @@ Object.assign(TW.views.shared.list, {
 
 $(document).on('turbolinks:load', function() {
   if ($("table").length) {
-    var lists = TW.views.shared.list
-    lists.init();
+    TW.views.shared.list.init();
   }
 });
