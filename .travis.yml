@@ -12,7 +12,7 @@ bundler_args: --without development
 branches:
   only:
     - master
-    - R5.0
+    - R5.1
     - development
 addons:
   postgresql: "9.5"
