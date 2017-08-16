@@ -52,8 +52,8 @@ class TaxonNameRelationship < ApplicationRecord
   belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id, inverse_of: :taxon_name_relationships  # left side
   belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id, inverse_of: :related_taxon_name_relationships    # right side
 
-  after_save :set_cached_names_for_taxon_names, unless: 'self.no_cached'
-  after_destroy :set_cached_names_for_taxon_names, unless: 'self.no_cached'
+  after_save :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
+  after_destroy :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
 
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name, message: 'Missing taxon name on the left side'
@@ -64,7 +64,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   validate :validate_type, :validate_subject_and_object_are_not_identical
 
-  with_options unless: '!subject_taxon_name || !object_taxon_name' do |v|
+  with_options unless: -> {!subject_taxon_name || !object_taxon_name} do |v|
     v.validate :validate_subject_and_object_share_code,
       :validate_uniqueness_of_typification_object,
       #:validate_uniqueness_of_synonym_subject,

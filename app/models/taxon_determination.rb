@@ -60,7 +60,7 @@ class TaxonDetermination < ApplicationRecord
 
   validates :year_made, date_year: { min_year: 1757, max_year: Time.now.year }
   validates :month_made, date_month: true
-  validates :day_made, date_day: { year_sym: :year_made, month_sym: :month_made }, unless: 'year_made.nil? || month_made.nil?'
+  validates :day_made, date_day: {year_sym: :year_made, month_sym: :month_made}, unless: -> {year_made.nil? || month_made.nil?}
 
   before_save :set_made_fields_if_not_provided
   after_create :sort_to_top

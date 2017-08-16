@@ -1,8 +1,8 @@
 # A Descriptor::Gene defines a set of sequeces, i.e. column in a "matrix" whose
-# cells contains sequences that match the a set (logical AND) of GeneAttributes. 
+# cells contains sequences that match the a set (logical AND) of GeneAttributes.
 #
 # The column (conceptually set of sequences) is populated by things that match (all) of the GeneAttibutes attached to the Descriptor::Gene.
-# 
+#
 class Descriptor::Gene < Descriptor
 
   has_many :gene_attributes, inverse_of: :descriptor, foreign_key: :descriptor_id
@@ -11,20 +11,20 @@ class Descriptor::Gene < Descriptor
   # Pass a Sequence to clone that sequence description to this descriptor
   attr_accessor :base_on_sequence
 
-  before_validation :add_gene_attributes, if: 'base_on_sequence.present?'
+  before_validation :add_gene_attributes, if: -> {base_on_sequence.present?}
 
   # @return [Scope]
   #   a Sequence scope that returns sequences for this Descriptor::Gene
   #
   # Arel is use to represent this raw SQL approach:
   #
-  #  js = data.collect{|j, k| " INNER JOIN sequence_relationships b#{j} ON s.id = b#{j}.object_sequence_id AND b#{j}.type = '#{k}' AND b#{j}.subject_sequence_id = #{j}"}.join  
+  #  js = data.collect{|j, k| " INNER JOIN sequence_relationships b#{j} ON s.id = b#{j}.object_sequence_id AND b#{j}.type = '#{k}' AND b#{j}.subject_sequence_id = #{j}"}.join
   #
   #  z = 'SELECT s.* FROM sequences s' +
   #      ' INNER JOIN sequence_relationships sr ON sr.object_sequence_id = s.id' +
-  #      js + 
+  #      js +
   #      ' GROUP BY s.id' +
-  #      " HAVING COUNT(sr.object_sequence_id) = #{data.count};" 
+  #      " HAVING COUNT(sr.object_sequence_id) = #{data.count};"
   #
   def sequences
     return Sequence.none if !gene_attributes.any?
@@ -45,7 +45,7 @@ class Descriptor::Gene < Descriptor
       sr_a = sr.alias("b#{id}")
       b = b.join(sr_a).on(
         sr_a['object_sequence_id'].eq(j['id']),
-        sr_a['type'].eq(type), 
+        sr_a['type'].eq(type),
         sr_a['subject_sequence_id'].eq(id)
       )
     end
