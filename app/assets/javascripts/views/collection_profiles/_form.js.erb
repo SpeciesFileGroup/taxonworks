@@ -25,14 +25,10 @@ Object.assign(TW.views.collection_profiles.form, {
 );
 
 
-var _initialize_collection_profile_form;
-
-_initialize_collection_profile_form = function
-initialize_collection_profile_form() {
+$(document).on('turbolinks:load', function() {
   if ( $('#collection_profile_typed_attributes').length ) {
-    TW.views.collection_profiles.form.initialize_selector(); 
+    TW.views.collection_profiles.form.initialize_selector();
   }
-};
+});
 
-$(document).ready(_initialize_collection_profile_form);
 
