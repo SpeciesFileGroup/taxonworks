@@ -26,7 +26,7 @@ function initialize_js(root) {
 }
 
 
-$(document).ready(function() {
+$(document).on('turbolinks:load', function() {
   initialize_js($("body"));
   $('body').mx_flash();
 

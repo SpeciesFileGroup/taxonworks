@@ -115,4 +115,4 @@ PAPERTRAIL_COMPARE = {
     },
 };
 
-$(document).ready(PAPERTRAIL_COMPARE.initialize);
+$(document).on('tubolinks:load', PAPERTRAIL_COMPARE.initialize);
