@@ -160,7 +160,5 @@ $(document).on('turbolinks:load', function() {
   $('.citation_topic_picker').each( function() {
     initialize_citation_topic_picker($(this));
   });
-})
-
 });
 
