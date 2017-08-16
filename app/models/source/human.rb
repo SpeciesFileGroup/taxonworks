@@ -4,7 +4,7 @@ class Source::Human < Source
 
   has_many :roles
   has_many :source_source_roles, class_name: 'SourceSource', as: :role_object
-  has_many :people, through: :source_source_roles 
+  has_many :people, through: :source_source_roles
 
   accepts_nested_attributes_for :people
 
@@ -18,12 +18,12 @@ class Source::Human < Source
   protected
 
   def set_cached
-    self.cached = self.authority_name 
+    self.cached = self.authority_name
   end
 
   def at_least_one_person_is_provided
     if self.people.size == 0 # size not count
-      errors.add(:base, 'at least one person must be provided')     
+      errors.add(:base, 'at least one person must be provided')
     end
   end
 end
