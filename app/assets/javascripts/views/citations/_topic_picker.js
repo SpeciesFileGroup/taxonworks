@@ -161,5 +161,5 @@ $(document).on('turbolinks:load', function() {
     initialize_citation_topic_picker($(this));
   });
 
-}
+});
 
