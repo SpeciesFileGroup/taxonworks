@@ -117,7 +117,6 @@ group :development do
 # gem 'tunemygc'
   gem 'ruby-prof', '~> 0.16.2'
   gem 'better_errors', '~> 2.3'       # TODO: native in R5?
-  gem 'binding_of_caller', '~> 0.7.2' # TODO: native in R5?
   gem 'spring-commands-rspec', '~> 1.0', '>= 1.0.4'
   gem 'guard-rspec', '~> 4.7', '>= 4.7.3', require: false
   gem 'parallel_tests', '~> 2.14', '>= 2.14.2'
