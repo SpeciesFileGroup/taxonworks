@@ -1,6 +1,5 @@
 source 'https://rubygems.org'
 
-# gem 'rack-cors', require: 'rack/cors'
 gem 'rack-cors', '~> 1.0.1', require: 'rack/cors'
 
 ruby '2.4.1'
@@ -9,7 +8,7 @@ gem 'rake', '~> 12.0'
 gem 'rails', '~> 5.0'
 gem 'pg', '~> 0.21.0'
 gem 'activerecord-postgis-adapter', '~> 4.0.0'
-# TODO: R5.0 hold for Rails 5.1 gem 'activerecord-postgis-adapter', '~> 5.0', '>= 5.0.2'
+# TODO: R5.0 hold for Rails 5.1 gem 'activerecord-postgis-adapter', '~> 5.0'
 
 gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 3.3.3'
@@ -42,7 +41,6 @@ gem 'bcrypt', '~> 3.1.11'
 gem 'closure_tree', '~> 6.6'
 gem 'delayed_job_active_record', '~> 4.1.2'
 gem 'validates_timeliness', '~> 4.0.2'
-# TODO: R5.0 The invocation of some paper_trail methods have changed (c.live? becomes c.paper_trail.live?). All paper_trail methods used should be checked, and perhaps tests added.
 gem 'paper_trail', '~> 7.1'
 gem 'acts_as_list', '~> 0.9.7'
 gem 'modularity', '~> 2.0.1' # Used!?
@@ -59,6 +57,7 @@ gem 'uglifier', '~> 3.2'
 gem 'jquery-rails', '~> 4.3.1'
 gem 'jquery-ui-rails', '~> 6.0.1'
 gem 'rails-jquery-autocomplete', '~> 1.0.3'
+
 gem 'turbolinks', '~> 2.5.3'
 # TODO: New version of turbolinks is major fail, Hold for further investigation
 # Ref 'LoadError: cannot load such file -- coffee_script'
