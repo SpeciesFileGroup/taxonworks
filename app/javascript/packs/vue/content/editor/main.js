@@ -26,7 +26,7 @@ Object.assign(TW.views.tasks.content.editor, {
 	}
 });
 
-$(document).ready( function() {
+$(document).on('turbolinks:load', function() {
   if ($("#content_editor").length) {
     TW.views.tasks.content.editor.init();
   }

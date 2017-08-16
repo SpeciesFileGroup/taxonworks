@@ -315,6 +315,6 @@ Object.assign(TW.views.shared.slideout.pdf, {
   }
 });
 
-$(document).ready(function() {
+$(document).on('turbolinks:load', function() {
   TW.views.shared.slideout.pdf.init();
 });
