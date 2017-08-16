@@ -97,14 +97,10 @@ OTU_PICKER_WIDGET = {
   }
 }; // end widget 
 
-var _initialize_otu_picker_widget;
 
-_initialize_otu_picker_widget = function
-    init_otu_picker() {
+$(document).on("turbolinks:load", function() {
   $('.otu_picker').each(function () {
     OTU_PICKER_WIDGET.initialize_otu_picker($(this));
   });
-};
-
-$(document).ready(_initialize_otu_picker_widget);
+});
 

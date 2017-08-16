@@ -24,9 +24,8 @@ Object.assign(TW.views.hub.filter, {
 });
 
 
-$(document).ready(function() {
+$(document).on('turbolinks:load', function() {
 	if($("#data_cards").length || $("#task_carrousel").length) {
-		var filterHub = TW.views.hub.filter;
-		filterHub.init();
+		TW.views.hub.filter.init();
 	}
 });

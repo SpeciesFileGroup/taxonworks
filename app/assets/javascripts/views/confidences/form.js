@@ -111,5 +111,5 @@ Object.assign(TW.views.confidences.form, {
   }
 });
 
-$(document).ready(TW.views.confidences.form.initialize);
+$(document).on('turbolinks:load', TW.views.confidences.form.initialize);
 

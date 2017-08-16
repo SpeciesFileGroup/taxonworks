@@ -120,5 +120,5 @@ _initialize_area_picker_widget = function
   });
 };
 
-$(document).ready(_initialize_area_picker_widget);
+$(document).on("turbolinks:load", _initialize_area_picker_widget);
 
