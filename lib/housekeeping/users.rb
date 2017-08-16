@@ -9,11 +9,11 @@ module Housekeeping::Users
     belongs_to :creator, foreign_key: :created_by_id, class_name: 'User'
     belongs_to :updater, foreign_key: :updated_by_id, class_name: 'User'
 
-    clause = lambda {self.class.name == "User" && self.self_created}
-    validates :creator, presence: true, unless: clause # lambda, proc, or block
-    validates :updater, presence: true, unless: clause
+    unless_user = lambda {self.class.name == "User" && self.self_created}
+    validates :creator, presence: true, unless: unless_user # lambda, proc, or block
+    validates :updater, presence: true, unless: unless_user
 
-    before_validation(on: :create, unless: clause) do
+    before_validation(on: :create, unless: unless_user) do
       set_updated_by_id
       set_created_by_id
     end
