@@ -94,7 +94,5 @@ function addMouseoverListenerForOtuSpans(otu_id, type, map) {
     }
   );
 }
-$(document).ready(_init_otu_distribution_data_widget);
-$(document).on("page:load", _init_otu_distribution_data_widget);
 
-//google.maps.event.addDomListener(window, 'load', init_otu_distribution_data);
+$(document).on("turbolinks:load", _init_otu_distribution_data_widget);

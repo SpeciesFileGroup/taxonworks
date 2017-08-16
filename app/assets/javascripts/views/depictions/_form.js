@@ -14,7 +14,7 @@ function toggle_depiction_form_fields(type_label) {
   $('#fields_for_' + to_show).show();
 }
 
-$(document).ready( function() {
+$(document).on('tubolinks:load', function() {
   if ($('#depiction_edit').length > 0) {
     var current_type = $('#depiction_edit input[checked="checked"]').first();
 

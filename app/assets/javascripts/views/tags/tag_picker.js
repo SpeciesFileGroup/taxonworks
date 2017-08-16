@@ -223,15 +223,11 @@ Object.assign(TW.views.tags.tag_picker, {
 
 });
 
-var _initialize_tag_picker_widget;
+// Initialize the script on page load
 
-_initialize_tag_picker_widget = function
-  init_tag_picker() {
+$(document).on('turbolinks:load', function() {
   $('.tag_picker').each(function () {
     TW.views.tags.tag_picker.initialize_tag_picker($(this));
   });
-};
-
-// Initialize the script on page load
-$(document).ready(_initialize_tag_picker_widget);
+});
 

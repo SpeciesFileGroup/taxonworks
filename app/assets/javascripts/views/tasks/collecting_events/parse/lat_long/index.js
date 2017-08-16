@@ -110,7 +110,7 @@ Object.assign(TW.views.tasks.collecting_events.parse.lat_long, {
   
 });
 
-$(document).ready(function () {
+$(document).on("turbolinks:load", function () {
   if ($("#ce_parse_lat_long").length) {
     //  var _init_lat_long_parse = TW.views.tasks.collecting_events.parse;
     // _init_lat_long_parse.init();

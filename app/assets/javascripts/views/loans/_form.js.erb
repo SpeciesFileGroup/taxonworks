@@ -123,16 +123,10 @@ Object.assign(TW.views.loans.form, {
 );
 
 
-var _initialize_loan_item_selector_widget;
-
-_initialize_loan_item_selector_widget = function
-init_loan_item_selector() {
-
+$(document).on("turbolinks:load", function() {
   if ( $('#loan_item_selector').length ) {
-    TW.views.loans.form.initialize_selector($('#loan_item_selector')); 
+    TW.views.loans.form.initialize_selector($('#loan_item_selector'));
   }
+})
 
-};
-
-$(document).ready(_initialize_loan_item_selector_widget);
 

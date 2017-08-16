@@ -156,13 +156,9 @@ function initialize_citation_topic_picker(form) { // initialize_citation_topic_p
 };
 
 
-var _initialize_citation_topic_widget;
-_initialize_citation_topic_widget = function
-  init_citation_topic_picker() {
-    $('.citation_topic_picker').each( function() {
-      initialize_citation_topic_picker($(this)); 
-    });
-};
-
-$(document).ready(_initialize_citation_topic_widget);
+$(document).on('turbolinks:load', function() {
+  $('.citation_topic_picker').each( function() {
+    initialize_citation_topic_picker($(this));
+  });
+});
 
