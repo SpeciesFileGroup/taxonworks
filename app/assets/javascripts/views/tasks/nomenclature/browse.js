@@ -153,7 +153,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 	}
 });
 
-$(document).ready(function() {
+$(document).on('turbolinks:load', function() {
   if($("#browse-view").length) {
   	var init_browseNomenclature = TW.views.tasks.nomenclature.browse;
   	init_browseNomenclature.init();
