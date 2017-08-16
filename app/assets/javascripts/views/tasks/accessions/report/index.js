@@ -28,5 +28,8 @@ Object.assign(TW.tasks.accessions.report.dwc, {
 } 
 ); // end widget
 
-$(document).ready(TW.tasks.accessions.report.dwc.init_dwc_report);
+$(document).on('turbolinks:load', function() {
+  TW.tasks.accessions.report.dwc.init_dwc_report
+});
+
 

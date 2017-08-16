@@ -121,7 +121,7 @@ Object.assign(TW.views.tasks.collecting_events.parse.dates, {
 
 });
 
-$(document).ready(function () {
+$(document).on("turbolinks:load", function () {
   if ($("#ce_parse_dates").length) {
     //  var _init_lat_long_parse = TW.views.tasks.collecting_events.parse;
     // _init_lat_long_parse.init();

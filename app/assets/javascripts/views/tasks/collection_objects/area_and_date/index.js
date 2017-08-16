@@ -320,7 +320,7 @@ Object.assign(TW.views.tasks.collection_objects, {
 });
 
 
-$(document).ready( function() {
+$(document).on("turbolinks:load", function() {
   if ($("#co_by_area_and_date").length) {
     var _init_map_table = TW.views.tasks.collection_objects;
     _init_map_table.init();

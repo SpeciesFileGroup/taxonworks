@@ -1,8 +1,9 @@
-$(document).ready(function() {
+$(document).on('turbolinks:load', function() {
   if($("#filter").length) {
     initFilterBar();
   }
 });
+
 
 function initFilterBar() {
 	$('[data-filter-category="nomenclature"]').prepend('<img src="<%= asset_path("new.svg") %>"/>');
