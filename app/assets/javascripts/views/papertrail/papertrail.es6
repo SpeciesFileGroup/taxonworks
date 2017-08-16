@@ -369,4 +369,4 @@ PAPERTRAIL = {
     }
 };
 
-$(document).ready(PAPERTRAIL.initialize);
+$(document).on('turbolinks:load', PAPERTRAIL.initialize);

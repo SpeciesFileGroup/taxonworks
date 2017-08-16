@@ -15,6 +15,5 @@ _init_simple_map = function init_simple_map() {
   }
 };
 
-$(document).ready(_init_simple_map);
-$(document).on('page:load', _init_simple_map);
+$(document).on('turbolinks:load', _init_simple_map);
 

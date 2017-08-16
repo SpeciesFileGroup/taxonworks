@@ -283,17 +283,10 @@ Object.assign(TW.views.people.role_picker, {
 
 });
 
-var _initialize_role_picker_widget;
-
-_initialize_role_picker_widget = function
-  init_role_picker() {
+$(document).on("turbolinks:load", function()  {
   $('.role_picker').each(function () {
     var role_type = $(this).data('role-type');
     TW.views.people.role_picker.initialize_role_picker($(this), role_type);
   });
-};
+}
 
-// Initialize the script on page load
-$(document).ready(_initialize_role_picker_widget);
-
-// This event is added by jquery.turbolinks automatically!? - see https://github.com/rails/turbolinks#jqueryturbolinks

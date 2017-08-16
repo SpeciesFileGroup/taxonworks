@@ -29,7 +29,7 @@ function toggle_source_form_fields(type_label) {
   $('[name=source\\[serial_id\\]]').val("")
 }
 
-$(document).ready(function() {
+$(document).on('turbolinks:load', function() {
   if ($('#source_edit_type').length > 0) {
     var current_type = $('#source_edit_type input[checked="checked"]').first();
 

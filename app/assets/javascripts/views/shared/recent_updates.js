@@ -48,7 +48,7 @@ Object.assign(TW.views.shared.recent_updates, {
 	}	
 });
 
-$(document).ready(function() {
+$(document).on('turbolinks:load', function() {
   if($("#model_index").length) {
     TW.views.shared.recent_updates.init();
   }
