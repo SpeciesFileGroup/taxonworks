@@ -11,8 +11,7 @@ Object.assign(TW.views.shared.recent_updates, {
 		});
 		
 		this.opacityUpdates();
-		$(document).ready(recentUpdatesContextMenu);
-		$(document).on('page:change', recentUpdatesContextMenu);
+		recentUpdatesContextMenu();
 
 		function recentUpdatesContextMenu() {
 		  	$.contextMenu('destroy', ".recent_updates li" );
@@ -51,7 +50,6 @@ Object.assign(TW.views.shared.recent_updates, {
 
 $(document).ready(function() {
   if($("#model_index").length) {
-    var init_recent_updates = TW.views.shared.recent_updates;
-    init_recent_updates.init();
+    TW.views.shared.recent_updates.init();
   }
 });
