@@ -23,31 +23,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       shadow: '<%= asset_path('map_icons/mm_20_shadow.png') %>'
     },
 
-    //Needed to load first the API before execute the initializeMap code.
-    loadAsync: function(src,callback) {
-      var script = document.createElement("script");
-      script.type = "text/javascript";
-      if(callback)script.onload=callback;
-      document.getElementsByTagName("head")[0].appendChild(script);
-      script.src = src;
-    },
-
-
-    //Splitted the init method to handle the API load
-    initializeMap: function(canvas, feature_collection) {
-      if(window.google == undefined) {
-        let that = this;
-        this.loadAsync('http://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyDKkPt458dNMlfIWbpQCbClJoVq2vP_k4E&libraries=drawing',
-          function() {
-            that.init(canvas, feature_collection);
-        });
-      }
-      else {
-        this.init(canvas, feature_collection);
-      }
-    },
-
-    init: function (canvas, feature_collection) {
+    initializeMap: function (canvas, feature_collection) {
       var myOptions = {
         zoom: 1,
         center: {lat: 0, lng: 0}, //center_lat_long, set to 0,0

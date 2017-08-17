@@ -29,6 +29,6 @@ module MatchGeoreferencesHelper
   # @param [String] type of (ce, gr)
   # @return [Link] to visualize a particular partial
   def link_to_georeference_match_type(method, type)
-    link_to("#{method}", '', class: "#{method}-#{type}")
+    link_to("#{method}", '#', data: { turbolinks: false }, class: "#{method}-#{type}")
   end
 end
