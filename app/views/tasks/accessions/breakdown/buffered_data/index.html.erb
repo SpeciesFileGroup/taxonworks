@@ -20,7 +20,7 @@
     </div>
 
     <p class="subtle"> 
-      highlight to copy | <%= link_to('edit in place', '#', id: 'verbatim_locality_edit') -%>  
+      highlight to copy | <%= link_to('edit in place', '#', data: { turbolinks: false }, id: 'verbatim_locality_edit') -%>  
     </p>
 
     <div id="bigbox">
@@ -353,9 +353,9 @@
     });
   }
 
-    $( document ).ready(function() {
-      load_thumb_nav();
-    });
+$(document).on('turbolinks:load', function() {
+    load_thumb_nav();
+});
 
 </script>
 

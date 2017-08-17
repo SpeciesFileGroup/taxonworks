@@ -171,7 +171,7 @@ Object.assign(TW.views.people.role_picker, {
   },
 
   remove_link: function () {
-    var link = $('<a href="#" class="remove_role">remove</a>');
+    var link = $('<a href="#" data-turbolinks="false" data-icon="trash" class="remove_role"></a>');
     TW.views.people.role_picker.bind_remove_links(link);
     return link;
   },

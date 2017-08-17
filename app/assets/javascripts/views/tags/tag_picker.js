@@ -177,7 +177,7 @@ Object.assign(TW.views.tags.tag_picker, {
   },
 
   remove_link: function () {
-    var link = $('<a href="#" class="remove_tag">remove</a>');
+    var link = $('<a href="#" data-turbolinks="false" class="remove_tag">remove</a>');
     TW.views.tags.tag_picker.bind_remove_links(link);
     return link;
   },
