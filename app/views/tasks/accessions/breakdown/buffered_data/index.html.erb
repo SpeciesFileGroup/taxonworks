@@ -2,7 +2,7 @@
 
 <div class="breakdown_nav">
   <%= render '/tasks/accessions/breakdown/breakdown_nav_items' -%>
-  <div> <%= link_to('Depiction breakdown', sqed_depiction_breakdown_task_path(@result.sqed_depiction), 'data-no-turbolink' => true) -%> </div>
+  <div> <%= link_to('Depiction breakdown', sqed_depiction_breakdown_task_path(@result.sqed_depiction), 'data-turbolinks' => false) -%> </div>
 </div>
 
 <div class="flexbox sqed_breakdown" id="breakdown_buffered_data">
