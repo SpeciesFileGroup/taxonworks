@@ -96,7 +96,7 @@ function insert_new_topic(form) {
 };
 
 function remove_citation_topic_link() {
-  var link = $('<a href="#" class="remove_citation_topic delete-circle">remove</a>');
+  var link = $('<a href="#" data-turbolinks="false" class="remove_citation_topic delete-circle">remove</a>');
   bind_remove_citation_topic_links(link);
   return link;
 }

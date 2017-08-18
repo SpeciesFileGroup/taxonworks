@@ -1,7 +1,7 @@
 <div>
   <span id="textAreaSelector">Select the area_by_name selector, or the area_by_map selector.</span>
-  <%= link_to('Area', '#', class: :on_selector, hidden: :true) %>
-  <%= link_to('Map', '#', class: :map_toggle) %>
+  <%= link_to('Area', '#', data: { turbolinks: false }, class: :on_selector, hidden: :true) %>
+  <%= link_to('Map', '#', data: { turbolinks: false }, class: :map_toggle) %>
 
   <div id="area_selector">
     <span id="geographic_areaError" style="color: #DD0000"></span>

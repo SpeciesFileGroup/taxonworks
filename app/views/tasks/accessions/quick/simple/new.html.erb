@@ -105,7 +105,7 @@
 
             <div class="flex-wrap-column tiny_space">
               <%= lock_tag(@locks, :collecting_event, :collecting_event_id) -%>
-              <%= link_to("return", "#", id: 'collecting_event_form_toggle', class: ['button-undo'], hidden: (@specimen.collecting_event_id ? false : true)) -%>
+              <%= link_to("return", "#", id: 'collecting_event_form_toggle', data: { turbolinks: false }, class: ['button-undo'], hidden: (@specimen.collecting_event_id ? false : true)) -%>
             </div>
           </div>
         </div> <!---- end column 1 ---->
