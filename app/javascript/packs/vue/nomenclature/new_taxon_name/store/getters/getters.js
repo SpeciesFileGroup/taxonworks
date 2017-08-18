@@ -1,6 +1,7 @@
 const GetterNames = {
 	GetAllRanks: 'getAllRanks',
 	ActiveModalStatus: 'activeModalStatus',
+	ActiveModalType: 'activeModalType',
 	ActiveModalRelationship: 'activeModalRelationship',
 	GetParent: 'getParent',
 	GetRankClass: 'getRankClass',
@@ -29,6 +30,7 @@ const GetterNames = {
 
 const GetterFunctions = {
 	[GetterNames.ActiveModalStatus]: require('./activeModalStatus'),
+	[GetterNames.ActiveModalType]: require('./activeModalType'),
 	[GetterNames.ActiveModalRelationship]: require('./activeModalRelationship'),
 	[GetterNames.GetAllRanks]: require('./getAllRanks'),
 	[GetterNames.GetParent]: require('./getParent'),

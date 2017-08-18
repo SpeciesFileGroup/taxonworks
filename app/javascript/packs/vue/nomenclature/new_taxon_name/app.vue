@@ -19,6 +19,9 @@
         <spinner :show-spinner="false" :show-legend="false" v-if="!getTaxon.id"></spinner>
         <relationship-picker class="separate-top separate-bottom"></relationship-picker>
       </div>
+      <div class="new-taxon-name-block">
+        <type-block v-if="getTaxon.id && showForThisGroup(['SpeciesGroup','GenusGroup'])" class="separate-top separate-bottom"></type-block>
+      </div>
       <div class="new-taxon-name-block" v-if="showForThisGroup(['SpeciesGroup','GenusGroup'])">
         <spinner :show-spinner="false" :show-legend="false" v-if="!getTaxon.id"></spinner>
         <block-layout anchor="original-combination">
@@ -34,7 +37,7 @@
       </div>
       <div class="new-taxon-name-block" v-if="showForThisGroup(['SpeciesGroup','GenusGroup'])">
         <spinner :show-spinner="false" :show-legend="false" v-if="!getTaxon.id"></spinner>
-        <gender class="separate-top separate-bottom"></gender>
+        <gender-block class="separate-top separate-bottom"></gender-block>
       </div>
     </div>
     <div v-if="getTaxon.id" class="cright item separate-left">
@@ -53,7 +56,8 @@
   var navHeader = require('./components/navHeader.vue');
   var taxonNameBox = require('./components/taxonNameBox.vue');
   var etymology = require('./components/etymology.vue');
-  var gender = require('./components/gender.vue');
+  var genderBlock = require('./components/gender.vue');
+  var typeBlock = require('./components/type.vue');
   var basicInformation = require('./components/basicInformation.vue');
   var originalCombination = require('./components/originalCombination.vue');
   var pickOriginalCombination = require('./components/pickOriginalCombination.vue');
@@ -83,7 +87,8 @@
       blockLayout,
       originalCombination,
       pickOriginalCombination,
-      gender
+      typeBlock,
+      genderBlock
     },
     computed: {
       getTaxon() {

@@ -29,6 +29,7 @@ function makeInitialState() {
     },
     settings: {
       modalStatus: false,
+      modalType: false,
       modalRelationship: false
     },
     taxonStatusList: [],
