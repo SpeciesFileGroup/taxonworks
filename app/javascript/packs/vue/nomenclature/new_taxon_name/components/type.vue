@@ -1,6 +1,6 @@
 <template>
   <form class="panel basic-information">
-    <a name="relationship" class="anchor"></a>
+    <a name="type" class="anchor"></a>
     <div class="header flex-separate middle" :class="{ 'validation-warning' : softValidation.taxonRelationshipList.list.length }">
       <h3 class="">Type</h3>
       <expand @changed="expanded = !expanded" :expanded="expanded"></expand>
@@ -34,8 +34,6 @@
         <div class="switch-radio">
           <input name="type-picker-options" id="type-picker-common" checked type="radio" class="normal-input button-active" @click="showAdvance = false"/>
           <label for="type-picker-common">Common</label>
-          <input name="type-picker-options" id="type-picker-advanced" type="radio" class="normal-input" @click="showAdvance = true"/>
-          <label for="type-picker-advanced">Advanced</label>
           <input name="type-picker-options" id="type-picker-showall" type="radio" class="normal-input" @click="activeModal(true)"/>
           <label for="type-picker-showall">Show all</label>
         </div>

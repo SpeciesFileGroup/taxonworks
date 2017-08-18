@@ -100,6 +100,7 @@
           'Author': true,
           'Status': true,
           'Relationship': true,
+          'Type': this.showForThisGroup(['SpeciesGroup','GenusGroup']),
           'Original combination': this.showForThisGroup(['SpeciesGroup','GenusGroup']),
           'Etymology': this.showForThisGroup(['SpeciesGroup','GenusGroup']),
           'Gender': this.showForThisGroup(['SpeciesGroup','GenusGroup']),
