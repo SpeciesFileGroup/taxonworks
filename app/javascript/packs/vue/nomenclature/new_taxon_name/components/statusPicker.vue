@@ -83,7 +83,16 @@
         return this.$store.getters[GetterNames.GetSoftValidation]
       },
       getStatusCreated() {
-        return this.$store.getters[GetterNames.GetTaxonStatusList]
+        var list = this.$store.getters[GetterNames.GetTaxonStatusList];
+        var tmp = [];
+        
+        list.forEach(function(item, index) {
+          if(item.type.split('::')[1] != 'Latinized') {
+            tmp.push(item);
+          }
+        });
+
+        return tmp
       }
     },
     data: function() {

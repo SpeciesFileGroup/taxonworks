@@ -88,7 +88,16 @@
         return getRankGroup(this.$store.getters[GetterNames.GetTaxon].rank_string);
       },
       GetRelationshipsCreated() {
-        return this.$store.getters[GetterNames.GetTaxonRelationshipList]
+
+        var list = this.$store.getters[GetterNames.GetTaxonRelationshipList];
+        var tmp = [];
+        list.forEach(function(item, index) {
+          if(item.type.split('::')[1] != 'OriginalCombination') {
+            tmp.push(item);
+          }
+        });
+
+        return tmp
       },
       parent() {
         return this.$store.getters[GetterNames.GetParent]
