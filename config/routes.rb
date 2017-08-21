@@ -892,6 +892,9 @@ TaxonWorks::Application.routes.draw do
       get '/confidence_levels',
         to: 'confidence_levels#index'
 
+      get '/taxon_names/:id',
+        to: 'taxon_names#show'
+
       get '/observations/:observation_id/notes',
         to: 'notes#index'
 
@@ -931,6 +934,13 @@ TaxonWorks::Application.routes.draw do
         to: 'character_states#annotations'
 
 end
+  end
+
+  scope :api, :defaults => { :format => :html } do
+    scope  '/v1' do
+      get '/taxon_names/autocomplete',
+          to: 'taxon_names#autocomplete'
+    end
   end
 
 end
