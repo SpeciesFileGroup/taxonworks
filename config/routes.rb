@@ -936,6 +936,13 @@ TaxonWorks::Application.routes.draw do
 end
   end
 
+  scope :api, :defaults => { :format => :html } do
+    scope  '/v1' do
+      get '/taxon_names/autocomplete',
+          to: 'taxon_names#autocomplete'
+    end
+  end
+
 end
 
 require_relative 'routes/api'
