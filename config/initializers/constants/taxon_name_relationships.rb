@@ -94,15 +94,21 @@ end
 
 TAXON_NAME_RELATIONSHIPS_JSON = {
   iczn: {
-    tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Iczn),
-    all: TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Iczn ),
-    typification: TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Iczn::Typification ),
-    common: TaxonNameRelationshipsHelper.collection([
-      TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective,
-      TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective,
-      TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
-      TaxonNameRelationship::Iczn::Invalidating::Homonym
-    ])
+    general: {
+      tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Iczn),
+      all: TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Iczn ),
+      common: TaxonNameRelationshipsHelper.collection([
+        TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective,
+        TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective,
+        TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
+        TaxonNameRelationship::Iczn::Invalidating::Homonym
+      ])
+    },
+    typification: {
+      all:  TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Iczn::Typification ),
+      common:  TaxonNameRelationshipsHelper.collection([])
+      tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Iczn::Typification)
+    }
   }, 
 
   icn: {
