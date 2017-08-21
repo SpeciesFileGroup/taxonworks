@@ -1,8 +1,12 @@
-# A Descriptor::Gene defines a set of sequeces, i.e. column in a "matrix" whose
-# cells contains sequences that match the a set (logical AND) of GeneAttributes. 
+# A Descriptor::Gene defines a set of sequences, i.e. column in a "matrix" whose
+# cells contains sequences that match the a set of GeneAttributes. 
 #
 # The column (conceptually set of sequences) is populated by things that match (all) of the GeneAttibutes attached to the Descriptor::Gene.
 # 
+
+
+# LogicalQuery::LiteralNode.include Patches::LogicalQuery::LiteralNode
+
 class Descriptor::Gene < Descriptor
 
   has_many :gene_attributes, inverse_of: :descriptor, foreign_key: :descriptor_id
@@ -13,8 +17,14 @@ class Descriptor::Gene < Descriptor
 
   before_validation :add_gene_attributes, if: 'base_on_sequence.present?'
 
+  after_save :generate_cached_gene_attribute_sql
+  after_save :validate_gene_attribute_logic
+
   # @return [Scope]
   #   a Sequence scope that returns sequences for this Descriptor::Gene
+  #   
+  #   Only those Sequences that exactly match all, and only those
+  #   gene attributes are returned
   #
   # Arel is use to represent this raw SQL approach:
   #
@@ -27,7 +37,7 @@ class Descriptor::Gene < Descriptor
   #      " HAVING COUNT(sr.object_sequence_id) = #{data.count};" 
   #
   def sequences
-    return Sequence.none if !gene_attributes.any?
+    return Sequence.none if !gene_attributes.all.any?
 
     data = gene_attribute_pairs
 
@@ -37,7 +47,7 @@ class Descriptor::Gene < Descriptor
     j = s.alias('j') # required for group/having purposes
 
     b = s.project(j[Arel.star]).from(j)
-      .join(sr )
+      .join(sr)
       .on(sr['object_sequence_id'].eq(j['id']))
 
     # Build an aliased join for each set of attributes
@@ -57,18 +67,51 @@ class Descriptor::Gene < Descriptor
     Sequence.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(s['id']))))
   end
 
+  def or_sequences
+    return Sequence.none if !gene_attributes.all.any?
+
+    s = Sequence.arel_table
+    sr = SequenceRelationship.arel_table
+
+    clauses = gene_attribute_pairs.collect{ |subject_sequence_id, type|
+      sr[:subject_sequence_id].eq(subject_sequence_id)
+        .and(sr[:type].eq(type))
+    } 
+
+    q = clauses.shift 
+    clauses.each do |c|
+      q = q.or(c)
+    end
+
+    Sequence.joins(:related_sequence_relationships).where(q.to_sql).references(:sequence_relationships).distinct
+  end
+
+  def build_sql(str = "a AND b")
+    parser = LogicalQueryParser.new
+    byebug 
+    parser.parse(str).sequence_sql # to_sql(model: self.class, columns: %w(c1 c2))
+  end
+
   # @return [Array]
   #   of arrays, like [[id, type], [id, type]]
   def gene_attribute_pairs
-     gene_attributes.pluck(:sequence_id, :sequence_relationship_type)
+    gene_attributes.all.pluck(:sequence_id, :sequence_relationship_type)
   end
 
   def gene_attribute_sequence_ids
     gene_attribute_pairs.collect{|id, z| id}
   end
 
-  def gene_attribute_sequence_retlationship_types
+  def gene_attribute_sequence_relationship_types
     gene_attribute_pairs.collect{|id, z| z}
+  end
+
+  def add_to_logic(gene_attribute, logic = :and)
+    logic.downcase!.to_sym! unless logic.kind_of?(Symbol)
+    raise if ![:and,:or].include?(logic)
+
+    v = [gene_attribute_logic, gene_attribute_logic.blank? ? nil : ' AND ', gene_attribute.to_param].compact.join
+    update_column(:gene_attribute_logic, v)
   end
 
   protected
@@ -77,6 +120,16 @@ class Descriptor::Gene < Descriptor
     base_on_sequence.related_sequence_relationships.each do |sa|
       gene_attributes.build(sequence: sa.sequence, type: sa.type)
     end
+  end
+
+  def validate_gene_attribute_logic
+    gene_attributes.each do |ga|
+      error.add(:base, 'gene_attribute not referenced in gene attribute logic') unless gene_attribute_logic =~ /#{ga.to_param}/
+    end
+  end
+
+  def generate_cached_gene_attribute_sql
+
   end
 
 end

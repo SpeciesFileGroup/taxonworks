@@ -29,6 +29,8 @@ class GeneAttribute < ApplicationRecord
   include Shared::IsData
   include Shared::Notable
   include Shared::Taggable
+  
+  acts_as_list scope: [:descriptor_id]
 
   belongs_to :descriptor, class_name: 'Descriptor::Gene', inverse_of: :gene_attributes
   belongs_to :sequence, inverse_of: :gene_attributes
@@ -41,5 +43,13 @@ class GeneAttribute < ApplicationRecord
   validates :sequence, presence: true
 
   validates_uniqueness_of :sequence, scope: [:descriptor, :sequence_relationship_type]
+
+  after_save :add_to_descriptor_logic_if_absent
+
+  protected
+
+  def add_to_descriptor_logic_if_absent
+    descriptor.add_to_logic(self, :and)
+  end
 
 end
