@@ -59,7 +59,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify '#original_combination_relationships maps object to related' do
-        expect(species.original_combination_relationships(true).first.object_taxon_name).to eq(species) 
+        expect(species.original_combination_relationships.reload.first.object_taxon_name).to eq(species) 
       end
 
       specify 'rebuild method is called on destroy' do
