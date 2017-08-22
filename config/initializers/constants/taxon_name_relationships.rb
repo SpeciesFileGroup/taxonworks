@@ -31,15 +31,15 @@ TAXON_NAME_RELATIONSHIP_NAMES_INVALID = TaxonNameRelationship.
                                       TaxonNameRelationship::Icnb::Unaccepting).freeze
 
 TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM = TaxonNameRelationship.
-    collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym,
-                                        TaxonNameRelationship::Iczn::Invalidating::Usage,
-                                        TaxonNameRelationship::Icn::Unaccepting::Synonym,
-                                        TaxonNameRelationship::Icn::Unaccepting::Usage,
-                                        TaxonNameRelationship::Icnb::Unaccepting::Synonym,
-                                        TaxonNameRelationship::Icnb::Unaccepting::Usage) +
-                                        ['TaxonNameRelationship::Iczn::Invalidating',
-                                         'TaxonNameRelationship::Icn::Unaccepting',
-                                         'TaxonNameRelationship::Icnb::Unaccepting'].freeze
+  collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym,
+                                      TaxonNameRelationship::Iczn::Invalidating::Usage,
+                                      TaxonNameRelationship::Icn::Unaccepting::Synonym,
+                                      TaxonNameRelationship::Icn::Unaccepting::Usage,
+                                      TaxonNameRelationship::Icnb::Unaccepting::Synonym,
+                                      TaxonNameRelationship::Icnb::Unaccepting::Usage) +
+                                     ['TaxonNameRelationship::Iczn::Invalidating',
+                                      'TaxonNameRelationship::Icn::Unaccepting',
+                                      'TaxonNameRelationship::Icnb::Unaccepting'].freeze
 
 
 # TODO: check .assignable property prior to building
@@ -65,7 +65,7 @@ TAXON_NAME_RELATIONSHIPS_TYPE_JSON = {
 
 # JSON supporting
 module TaxonNameRelationshipsHelper
-  
+
   # @return [Hash]
   def self.collection(relationships)
     relationships.select{|r| r.assignable }.inject({}) {|hsh, c| 
@@ -94,47 +94,49 @@ end
 
 TAXON_NAME_RELATIONSHIPS_JSON = {
   iczn: {
-    general: {
-      tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Iczn),
-      all: TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Iczn ),
-      common: TaxonNameRelationshipsHelper.collection([
-        TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective,
-        TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective,
-        TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
-        TaxonNameRelationship::Iczn::Invalidating::Homonym
-      ])
-    },
-    typification: {
-      all:  TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Iczn::Typification ),
-      common:  TaxonNameRelationshipsHelper.collection([])
-      tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Iczn::Typification)
-    }
+    tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Iczn),
+    all: TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Iczn ),
+    common: TaxonNameRelationshipsHelper.collection([
+      TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective,
+      TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective,
+      TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
+      TaxonNameRelationship::Iczn::Invalidating::Homonym
+    ])
   }, 
 
-  icn: {
-    tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Icn),
-    all: TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Icn ),
-    typification: TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Icn::Typification ),
-    common: TaxonNameRelationshipsHelper.collection([
+ icn: {
+   tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Icn),
+   all: TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Icn ),
+   common: TaxonNameRelationshipsHelper.collection([
      TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic,
      TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic,
      TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling,
      TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym,
      TaxonNameRelationship::Icn::Unaccepting::Homonym
-    ])
-  }, 
+   ])
+ }, 
 
-  icnb: {
-    tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Icnb),
-    all: TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Icnb ),
-    typification: TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Icnb::Typification ),
-    common: TaxonNameRelationshipsHelper.collection([
-      TaxonNameRelationship::Icnb::Unaccepting::Synonym::Objective,
-      TaxonNameRelationship::Icnb::Unaccepting::Synonym::Subjective,
-      TaxonNameRelationship::Icnb::Unaccepting::Usage::Misspelling,
-      TaxonNameRelationship::Icnb::Unaccepting::Homonym
-    ])
-  } 
+ icnb: {
+   tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Icnb),
+   all: TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Icnb ),
+   common: TaxonNameRelationshipsHelper.collection([
+     TaxonNameRelationship::Icnb::Unaccepting::Synonym::Objective,
+     TaxonNameRelationship::Icnb::Unaccepting::Synonym::Subjective,
+     TaxonNameRelationship::Icnb::Unaccepting::Usage::Misspelling,
+     TaxonNameRelationship::Icnb::Unaccepting::Homonym
+   ])
+ },
+
+ typification: {
+    all:  TaxonNameRelationshipsHelper::descendants_collection( TaxonNameRelationship::Typification ),
+    common:  TaxonNameRelationshipsHelper.collection([
+      TaxonNameRelationship::Typification::Genus::OriginalDesignation,
+      TaxonNameRelationship::Typification::Genus::Monotypy::Original,
+      TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent
+    ]),
+    tree: [] 
+  }
+
 
 }
 
