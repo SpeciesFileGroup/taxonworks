@@ -37,13 +37,13 @@ module Queries
     end
 
     # @return [ActiveRecord::Relation]
-    def all 
-      Source.where(where_sql).limit(500).uniq.order(:cached)
+    def all
+      Source.where(where_sql).limit(500).distinct.order(:cached)
     end
 
     # @return [ActiveRecord::Relation]
     def by_project_all
-      Source.where(where_sql).limit(500).uniq.order(:cached).joins(:project_sources).where(member_of_project_id.to_sql)
+      Source.where(where_sql).limit(500).distinct.order(:cached).joins(:project_sources).where(member_of_project_id.to_sql)
     end
 
     def table

@@ -44,7 +44,7 @@ describe DataAttributesController, :type => :controller do
   describe "GET index" do
     it "assigns all data_attributes as @recent_objects" do
       data_attribute = DataAttribute.create!(valid_attributes)
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       expect(assigns(:recent_objects)).to include(data_attribute)
     end
   end
@@ -61,18 +61,18 @@ describe DataAttributesController, :type => :controller do
     describe "with valid params" do
       it "creates a new DataAttribute" do
         expect {
-          post :create, {:data_attribute => valid_attributes}, valid_session
+          post :create, params: {data_attribute: valid_attributes}, session: valid_session
         }.to change(DataAttribute, :count).by(1)
       end
 
       it "assigns a newly created data_attribute as @data_attribute" do
-        post :create, {:data_attribute => valid_attributes}, valid_session
+        post :create, params: {data_attribute: valid_attributes}, session: valid_session
         expect(assigns(:data_attribute)).to be_a(DataAttribute)
         expect(assigns(:data_attribute)).to be_persisted
       end
 
       it "redirects to :back" do
-        post :create, {:data_attribute => valid_attributes}, valid_session
+        post :create, params: {data_attribute: valid_attributes}, session: valid_session
         expect(response).to redirect_to(otu_path(o))
       end
     end
@@ -81,14 +81,14 @@ describe DataAttributesController, :type => :controller do
       it "assigns a newly created but unsaved data_attribute as @data_attribute" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(DataAttribute).to receive(:save).and_return(false)
-        post :create, {:data_attribute => {:invalid => 'params'}}, valid_session
+        post :create, params: {data_attribute: {:invalid => 'params'}}, session: valid_session
         expect(assigns(:data_attribute)).to be_a_new(DataAttribute)
       end
 
       it "re-renders the :back template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(DataAttribute).to receive(:save).and_return(false)
-        post :create, {:data_attribute => {:invalid => 'params'}}, valid_session
+        post :create, params: {data_attribute: {:invalid => 'params'}}, session: valid_session
         expect(response).to redirect_to(new_data_attribute_path)
       end
     end
@@ -100,25 +100,27 @@ describe DataAttributesController, :type => :controller do
     }
 
     describe "with valid params" do
+      let(:update_params) {ActionController::Parameters.new({value: 'black'}).permit(:value)}
+
       it "updates the requested data_attribute" do
         data_attribute = DataAttribute.create! valid_attributes
         # Assuming there are no other data_attributes in the database, this
         # specifies that the DataAttribute created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        expect_any_instance_of(DataAttribute).to receive(:update).with({'value'  => 'black'})
-        put :update, {:id => data_attribute.to_param, :data_attribute => {:value  => 'black'}}, valid_session
+        expect_any_instance_of(DataAttribute).to receive(:update).with(update_params)
+        put :update, params: {id: data_attribute.to_param, data_attribute: {:value => 'black'}}, session: valid_session
       end
 
       it "assigns the requested data_attribute as @data_attribute" do
         data_attribute = DataAttribute.create! valid_attributes
-        put :update, {:id => data_attribute.to_param, :data_attribute => valid_attributes}, valid_session
+        put :update, params: {id: data_attribute.to_param, data_attribute: valid_attributes}, session: valid_session
         expect(assigns(:data_attribute)).to eq(data_attribute)
       end
 
       it "redirects to :back" do
         data_attribute = DataAttribute.create! valid_attributes
-        put :update, {:id => data_attribute.to_param, :data_attribute => valid_attributes}, valid_session
+        put :update, params: {id: data_attribute.to_param, data_attribute: valid_attributes}, session: valid_session
         expect(response).to redirect_to(otu_path(o))
       end
     end
@@ -128,7 +130,7 @@ describe DataAttributesController, :type => :controller do
         data_attribute = DataAttribute.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(DataAttribute).to receive(:save).and_return(false)
-        put :update, {:id => data_attribute.to_param, :data_attribute => {:invalid => 'parms'}}, valid_session
+        put :update, params: {id: data_attribute.to_param, data_attribute: {:invalid => 'parms'}}, session: valid_session
         expect(assigns(:data_attribute)).to eq(data_attribute)
       end
 
@@ -136,7 +138,7 @@ describe DataAttributesController, :type => :controller do
         data_attribute = DataAttribute.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(DataAttribute).to receive(:save).and_return(false)
-        put :update, {:id => data_attribute.to_param, :data_attribute => {:invalid => 'parms'}}, valid_session
+        put :update, params: {id: data_attribute.to_param, data_attribute: {:invalid => 'parms'}}, session: valid_session
         expect(response).to redirect_to(data_attribute_path(1))
       end
     end
@@ -146,13 +148,13 @@ describe DataAttributesController, :type => :controller do
     it "destroys the requested data_attribute" do
       data_attribute = DataAttribute.create! valid_attributes
       expect {
-        delete :destroy, {:id => data_attribute.to_param}, valid_session
+        delete :destroy, params: {id: data_attribute.to_param}, session: valid_session
       }.to change(DataAttribute, :count).by(-1)
     end
 
     it "redirects to :back" do
       data_attribute = DataAttribute.create! valid_attributes
-      delete :destroy, {:id => data_attribute.to_param}, valid_session
+      delete :destroy, params: {id: data_attribute.to_param}, session: valid_session
       expect(response).to redirect_to(list_otus_path)
     end
   end

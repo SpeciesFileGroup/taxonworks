@@ -6,7 +6,7 @@ describe 'Depictions', type: :model do
   let(:image1) { fixture_file_upload(Rails.root + 'spec/files/images/tiny.png', 'image/png') }
   let(:image2) { fixture_file_upload(Rails.root + 'spec/files/images/W3$rd fi(le%=name!.png', 'image/png') }
 
-  let(:image_attributes) { 
+  let(:image_attributes) {
     { image_file: image1  }
    }
 
@@ -66,14 +66,14 @@ describe 'Depictions', type: :model do
     }
 
     specify '#image_array' do
-      expect(instance_with_depiction).to respond_to('image_array=') 
+      expect(instance_with_depiction).to respond_to('image_array=')
     end
 
     specify 'succeeds' do
       instance_with_depiction.image_array = data
       expect(instance_with_depiction.save).to be_truthy
       expect(instance_with_depiction.images.count).to eq(2)
-      expect(instance_with_depiction.images.first.id).to be_truthy 
+      expect(instance_with_depiction.images.first.id).to be_truthy
     end
 
   end
@@ -81,7 +81,7 @@ describe 'Depictions', type: :model do
 
 end
 
-class TestDepictionable < ActiveRecord::Base
+class TestDepictionable < ApplicationRecord
   include FakeTable
   include Shared::Depictions
 end

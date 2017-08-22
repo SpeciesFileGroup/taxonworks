@@ -1,7 +1,7 @@
 class ObservationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  skip_before_filter :verify_authenticity_token
+  skip_before_action :verify_authenticity_token
 
   before_action :set_observation, only: [:show, :edit, :update, :destroy, :annotations]
 
@@ -79,7 +79,7 @@ class ObservationsController < ApplicationController
 
   # GET /annotations
   def annotations
-    @object = @observation 
+    @object = @observation
     render '/shared/data/all/annotations'
   end
 
@@ -96,7 +96,7 @@ class ObservationsController < ApplicationController
       :continuous_value, :continuous_unit,
       :sample_n, :sample_min, :sample_max, :sample_median, :sample_mean, :sample_units, :sample, :sample_standard_error,
       :presence,
-      :description, 
+      :description,
       :type)
   end
 

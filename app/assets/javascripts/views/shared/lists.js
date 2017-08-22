@@ -96,12 +96,9 @@ Object.assign(TW.views.shared.list, {
     }
   });
 
-  $(document).ready(initContextMenus);
-  $(document).on('page:change', initContextMenus);
-  $(document).ready(headerTableOptions);
-  $(document).on('page:change', headerTableOptions);
-  $(document).ready(orderLists);
-  $(document).on('page:load', orderLists);
+  initContextMenus();
+  headerTableOptions();
+  orderLists();
 
   function orderLists() {
     $("table").tablesorter({
@@ -165,9 +162,8 @@ Object.assign(TW.views.shared.list, {
 }
 });
 
-$(document).ready(function () {
+$(document).on('turbolinks:load', function() {
   if ($("table").length) {
-    var lists = TW.views.shared.list
-    lists.init();
+    TW.views.shared.list.init();
   }
 });

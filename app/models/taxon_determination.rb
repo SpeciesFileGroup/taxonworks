@@ -17,7 +17,7 @@
 # @!attribute position
 #   @return [Integer]
 #     for acts_as_list, !! the determinations with the smallest position is the current/preferred determination,
-#     i.e. the one that you want to be seen for the collection object, it is NOT necessarily the most recent 
+#     i.e. the one that you want to be seen for the collection object, it is NOT necessarily the most recent
 #     determination made
 #
 # @!attribute project_id
@@ -38,7 +38,7 @@
 #   @return [Integer]
 #   the day of the month the determination was made
 #
-class TaxonDetermination < ActiveRecord::Base
+class TaxonDetermination < ApplicationRecord
   acts_as_list scope: [:biological_collection_object_id]
 
   include Housekeeping
@@ -65,7 +65,7 @@ class TaxonDetermination < ActiveRecord::Base
   before_save :set_made_fields_if_not_provided
   after_create :sort_to_top
 
-  def sort_to_top 
+  def sort_to_top
     reload
     self.move_to_top
   end

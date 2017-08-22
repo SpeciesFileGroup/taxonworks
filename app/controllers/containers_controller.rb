@@ -35,10 +35,10 @@ class ContainersController < ApplicationController
 
     respond_to do |format|
       if @container.save
-        format.html { redirect_to :back, notice: 'Container was successfully created.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was successfully created.')}
         format.json { render json: @container, status: :created, location: @container }
       else
-        format.html { redirect_to :back, notice: 'Container was NOT successfully created.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was NOT successfully created.')}
         format.json { render json: @container.errors, status: :unprocessable_entity }
       end
     end
@@ -49,10 +49,10 @@ class ContainersController < ApplicationController
   def update
     respond_to do |format|
       if @container.update(container_params)
-        format.html { redirect_to :back, notice: 'Container was successfully updated.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was successfully updated.')}
         format.json { head :no_content }
       else
-        format.html { redirect_to :back, notice: 'Container was NOT successfully updated.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was NOT successfully updated.')}
         format.json { render json: @container.errors, status: :unprocessable_entity }
       end
     end
@@ -63,7 +63,7 @@ class ContainersController < ApplicationController
   def destroy
     @container.destroy
     respond_to do |format|
-      format.html { redirect_to :back, notice: 'Container was successfully destroyed.' }
+      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was successfully destroyed.')}
       format.json { head :no_content }
     end
   end

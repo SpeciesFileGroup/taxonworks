@@ -1,10 +1,10 @@
-# Force the loading of TaxonNameRelationships in all worlds.  This allows us to edit without restarting in development. 
+# Force the loading of TaxonNameRelationships in all worlds.  This allows us to edit without restarting in development.
 Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {|file| require_dependency file }
 
 
 # A *monomial* TaxonName, a record implies a first usage. This follows Pyle's concept almost exactly.
 #
-# We inject a lot of relationship helper methods here, in this format. 
+# We inject a lot of relationship helper methods here, in this format.
 #   subject                      object
 #   Aus      original_genus of   bus
 #   aus      type_species of     Bus
@@ -20,9 +20,9 @@ class Protonym < TaxonName
   FAMILY_GROUP_ENDINGS = %w{ini ina inae idae oidae odd ad oidea}
 
   validates_presence_of :name
-  validates_presence_of :rank_class, message: 'is a required field' 
-  validates_presence_of :name, message: 'is a required field' 
-  
+  validates_presence_of :rank_class, message: 'is a required field'
+  validates_presence_of :name, message: 'is a required field'
+
   validate :validate_rank_class_class,
     :validate_parent_rank_is_higher,
     :check_new_rank_class,
@@ -100,8 +100,8 @@ class Protonym < TaxonName
 
   # TODO: this is not really needed
   scope :named, -> (name) {where(name: name)}
-  
-  scope :with_name_in_array, -> (array) { where('name in (?)', array) }  
+
+  scope :with_name_in_array, -> (array) {where('name in (?)', array)}
 
   # find classifications for taxon
   scope :with_taxon_name_classifications_on_taxon_name, -> (t) { includes(:taxon_name_classifications).where('taxon_name_classifications.taxon_name_id = ?', t).references(:taxon_name_classifications) }
@@ -142,12 +142,12 @@ class Protonym < TaxonName
     return nil unless valid_name.rank_string !=~/Species/
     descendants_and_self = valid_name.descendants + [self] + self.combinations
     relationships        = TaxonNameRelationship.where_object_in_taxon_names(descendants_and_self).with_two_type_bases('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::Combination::Genus')
-    (relationships.collect { |r| r.subject_taxon_name.name } + [self.ancestor_at_rank('genus').name]).uniq
+    (relationships.collect {|r| r.subject_taxon_name.name} + [self.ancestor_at_rank('genus').name]).uniq
   end
 
   # @return [boolean]
   def is_fossil?
-    taxon_name_classifications.with_type_contains('::Fossil').any? 
+    taxon_name_classifications.with_type_contains('::Fossil').any?
   end
 
   def list_of_coordinated_names
@@ -170,8 +170,10 @@ class Protonym < TaxonName
         unless search_name.nil?
           list = Protonym.ancestors_and_descendants_of(self).not_self(self).
             with_rank_class_including(search_rank).
-            with_name_in_array(search_name).
-            as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym') 
+            # TODO @proceps Rails 5.0 makes this scope fail, for reasons I have not yet investigated. @tuckerjd
+            # with_name_in_array(search_name).
+            where('name in (?)', search_name).
+            as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym')
         else
           list = []
         end
@@ -285,8 +287,8 @@ class Protonym < TaxonName
 
   # !! TODO: Should not be possible- fix the incoming data
   # @return [Boolean]
-  #    true if taxon2 has the same primary type 
-  def has_same_primary_type(taxon2) 
+  #    true if taxon2 has the same primary type
+  def has_same_primary_type(taxon2)
     return true unless rank_class.parent.to_s =~ /Species/
 
     taxon1_types = get_primary_type.sort_by{|i| i.id}
@@ -294,7 +296,7 @@ class Protonym < TaxonName
     return true if taxon1_types.empty? && taxon2_types.empty? # both are empty !! If they are both empty then they don't have the same type, the have no types  !!
     return false if taxon1_types.empty? || taxon2_types.empty? # one is empty
 
-    taxon1_types.map(&:biological_object_id) == taxon2_types.map(&:biological_object_id) # collect{|i| i.biological_object_id} 
+    taxon1_types.map(&:biological_object_id) == taxon2_types.map(&:biological_object_id) # collect{|i| i.biological_object_id}
   end
 
   # return [Array]
@@ -316,15 +318,15 @@ class Protonym < TaxonName
     ]
 
     defined_relations = self.original_combination_relationships.all
-    created_already = defined_relations.collect{|a| a.class}
-    new_relations = [] 
+    created_already   = defined_relations.collect{|a| a.class}
+    new_relations     = []
 
     original_combination_class_relationships.each do |r|
       new_relations.push( r.new(object_taxon_name: self) ) if !created_already.include?(r)
     end
 
     (new_relations + defined_relations).sort{|a,b|
-      display_order.index(a.class.inverse_assignment_method) <=> display_order.index(b.class.inverse_assignment_method) 
+      display_order.index(a.class.inverse_assignment_method) <=> display_order.index(b.class.inverse_assignment_method)
     }
   end
 
@@ -443,7 +445,7 @@ class Protonym < TaxonName
     else
       n = self.name.squish
     end
-    
+
     return n
   end
 
@@ -496,13 +498,13 @@ class Protonym < TaxonName
 
   def validate_rank_class_class
     errors.add(:rank_class, 'Rank not found') unless RANKS.include?(rank_string)
-  end 
+  end
 
   #endregion
 
 
   def set_cached_names
-    super 
+    super
     if self.errors.empty? && !self.no_cached
 
       # set_cached_higher_classification
@@ -565,7 +567,7 @@ class Protonym < TaxonName
 
   #endregion
 
-  # Update cached values when a related taxon changes (e.g. new genus, or new original genus) 
+  # Update cached values when a related taxon changes (e.g. new genus, or new original genus)
   # Combination caching is handled in Combination
   def sv_cached_names
     # if updated, update also set_cached_names

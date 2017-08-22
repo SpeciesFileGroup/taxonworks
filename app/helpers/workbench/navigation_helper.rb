@@ -7,15 +7,15 @@ module Workbench::NavigationHelper
 
   def slideout_pinboard
     render(partial: '/shared/data/slideout/pinboard')  if sessions_current_project && sessions_signed_in?
-  end  
+  end
 
   def slideout_recent
     render(partial: '/shared/data/slideout/recent')  if sessions_current_project && sessions_signed_in?
-  end      
+  end
 
   def slideout_pdf_viewer
     render(partial: '/shared/data/slideout/document')  if sessions_current_project && sessions_signed_in?
-  end    
+  end
 
   def quick_bar
     render(partial: '/workbench/navigation/quick_bar')  if sessions_signed_in?
@@ -33,17 +33,17 @@ module Workbench::NavigationHelper
 
   def forward_back_links(instance)
     content_tag(:span, (previous_link(instance) + ' | ' + next_link(instance)).html_safe)
-  end 
+  end
 
-  # A previous record link. 
+  # A previous record link.
   def previous_link(instance, text: 'Previous', target: nil)
     link_text = content_tag(:span, text,  'data-icon' => 'arrow-left', 'class' => 'small-icon')
     link_object = previous_object(instance)
-    return content_tag(:div, link_text, 'class' => 'navigation-item disable') if link_object.nil? 
+    return content_tag(:div, link_text, 'class' => 'navigation-item disable') if link_object.nil?
     if target.nil?
       target ||= link_object.metamorphosize
     else
-      target = send(target, id: link_object.id) 
+      target = send(target, id: link_object.id)
     end
     link_to(link_text, target, 'data-arrow' => 'back', 'class' => 'navigation-item')
   end
@@ -52,18 +52,18 @@ module Workbench::NavigationHelper
   def next_link(instance, text: 'Next', target: nil)
     link_text = content_tag(:span, text, 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right')
     link_object = next_object(instance)
-    return content_tag(:div, link_text, 'class' => 'navigation-item disable') if link_object.nil? 
+    return content_tag(:div, link_text, 'class' => 'navigation-item disable') if link_object.nil?
     if target.nil?
       target ||= link_object.metamorphosize
     else
-      target = send(target, id: link_object.id) 
+      target = send(target, id: link_object.id)
     end
     link_to(link_text, target, 'data-arrow' => 'next', 'class' => 'navigation-item')
   end
 
   # Next ordered by ID, no wrapping
   def next_object(object)
-    base = object.class.base_class.order(id: :asc).where(['id > ?', object.id]).limit(1) 
+    base = object.class.base_class.order(id: :asc).where(['id > ?', object.id]).limit(1)
     if object.respond_to?(:project_id)
       base.with_project_id(object.project_id).first
     else
@@ -73,7 +73,7 @@ module Workbench::NavigationHelper
 
   # Previous ordered by ID, no wrapping
   def previous_object(object)
-    base = object.class.base_class.order(id: :desc).where(['id < ?', object.id]).limit(1) 
+    base = object.class.base_class.order(id: :desc).where(['id < ?', object.id]).limit(1)
     if object.respond_to?(:project_id)
       base.with_project_id(object.project_id).first
     else
@@ -127,7 +127,7 @@ module Workbench::NavigationHelper
     # if a customized link to method is available use that, otherwise use a generic
     if self.respond_to?(link_method)
       send(link_method, object)
-    else 
+    else
       t = object_tag(object)
       return "Unable to link to data #{object.class.name} id:#{object.id}." if t.blank?
       link_to(t.html_safe, metamorphosize_if(object))
@@ -139,12 +139,12 @@ module Workbench::NavigationHelper
   end
 
   def edit_object_path_string(object)
-    default = "edit_#{metamorphosize_if(object).class.base_class.name.underscore}_path"
-    specific = default + '_string' 
+    default  = "edit_#{metamorphosize_if(object).class.base_class.name.underscore}_path"
+    specific = default + '_string'
     if self.respond_to?(specific)
       self.send(specific, object)
     else
-      default 
+      default
     end
   end
 
@@ -163,7 +163,7 @@ module Workbench::NavigationHelper
   # return [Boolean]
   #  true if the current user created this object
   def user_is_creator?(object)
-    object.created_by_id == sessions_current_user_id 
+    object.created_by_id == sessions_current_user_id
   end
 
   # return [A tag, nil]
@@ -185,10 +185,10 @@ module Workbench::NavigationHelper
   end
 
   def batch_load_link
-    if self.controller.respond_to?(:batch_load) 
-      link_to('Batch load', { action: :batch_load, controller: self.controller_name } ,'data-icon' => 'batch') 
-    else 
-      content_tag(:span, 'Batch load', class: 'disabled', 'data-icon' => 'batch') 
+    if self.controller.respond_to?(:batch_load)
+      link_to('Batch load', {action: :batch_load, controller: self.controller_name}, 'data-icon' => 'batch')
+    else
+      content_tag(:span, 'Batch load', class: 'disabled', 'data-icon' => 'batch')
     end
   end
 
@@ -209,7 +209,7 @@ module Workbench::NavigationHelper
       begin
         return hsh['object_type'].constantize.find(hsh['object_id'])
       rescue ActiveRecord::RecordNotFound
-        return false 
+        return false
       end
     end
     nil
@@ -219,16 +219,16 @@ module Workbench::NavigationHelper
     route = hsh.keys.first
     o = safe_object_from_attributes(hsh[route])
     if o.nil?
-      link_to(route.parameterize(' - ').humanize.capitalize, route)
+      link_to(route.parameterize(separator: ' - ').humanize.capitalize, route)
     elsif o
       o = o.metamorphosize if o.respond_to?(:metamorphosize)
-      link_to(object_tag(o) +  " [#{hsh[route]['object_type']}]" , route) 
+      link_to(object_tag(o) + " [#{hsh[route]['object_type']}]", route)
     else
       content_tag(:em, 'Data no longer available.', class: :warning)
     end
   end
 
-  # @return [<a> tag, nil] 
+  # @return [<a> tag, nil]
   #   a link to the related data page
   def related_data_link_tag(object)
     return nil if object.nil?

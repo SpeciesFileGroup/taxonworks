@@ -10,10 +10,10 @@ class OtuPageLayoutSectionsController < ApplicationController
 
     respond_to do |format|
       if @otu_page_layout_section.save
-        format.html { redirect_to :back, notice: 'Otu page layout section was successfully created.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu page layout section was successfully created.')}
         format.json { render json: @otu_page_layout_section, status: :created, location: @otu_page_layout_section }
       else
-        format.html { redirect_to :back, notice: 'Otu page layout section was NOT successfully created.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu page layout section was NOT successfully created.')}
         format.json { render json: @otu_page_layout_section.errors, status: :unprocessable_entity }
       end
     end
@@ -24,10 +24,10 @@ class OtuPageLayoutSectionsController < ApplicationController
   def update
     respond_to do |format|
       if @otu_page_layout_section.update(otu_page_layout_section_params)
-        format.html { redirect_to :back, notice: 'Otu page layout section was successfully updated.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu page layout section was successfully updated.')}
         format.json { render json @otu_page_layout_section, status: :ok, location: @otu_page_layout_section }
       else
-        format.html { redirect_to :back, notice: 'Otu page layout section was NOT successfully updated.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu page layout section was NOT successfully updated.')}
         format.json { render json: @otu_page_layout_section.errors, status: :unprocessable_entity }
       end
     end
@@ -38,7 +38,7 @@ class OtuPageLayoutSectionsController < ApplicationController
   def destroy
     @otu_page_layout_section.destroy
     respond_to do |format|
-      format.html { redirect_to :back, notice: 'Otu page layout section was successfully destroyed.' }
+      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu page layout section was successfully destroyed.')}
       format.json { head :no_content }
     end
   end

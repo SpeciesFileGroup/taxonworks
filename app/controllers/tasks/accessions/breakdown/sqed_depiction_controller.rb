@@ -2,7 +2,7 @@
 class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationController
   include TaskControllerConfiguration
 
-  before_filter :set_sqed_depiction, except: [:todo_map]
+  before_action :set_sqed_depiction, except: [:todo_map]
 
   # GET /tasks/accession/breakdown/depiction/:id
   def index
@@ -14,7 +14,7 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
     @identifier_prototype = Identifier.prototype_identifier(sessions_current_project_id, sessions_current_user_id)
   end
 
-  def update 
+  def update
     if @sqed_depiction.depiction.depiction_object.update(collection_object_params)
       flash[:notice] = 'Successfully updated'
     else
@@ -28,7 +28,7 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
   end
 
   def todo_map
-   @sqed_depictions = SqedDepiction.with_project_id($project_id).order(:id).page(params[:page]).per(100) 
+    @sqed_depictions = SqedDepiction.with_project_id($project_id).order(:id).page(params[:page]).per(100)
   end
 
   protected

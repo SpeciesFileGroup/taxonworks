@@ -33,9 +33,8 @@ Object.assign(TW.views.shared.index, {
 	}	
 });
 
-$(document).ready(function() {
+$(document).on('turbolinks:load', function() {
 	if($('#model_index').length) {
-		var _init_index = TW.views.shared.index;
-		_init_index.init();
+		TW.views.shared.index.init();
 	}
 });

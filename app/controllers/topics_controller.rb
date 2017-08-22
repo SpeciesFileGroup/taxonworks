@@ -51,7 +51,7 @@ class TopicsController < ApplicationController
         format.html {
           flash[:notice] = 'Controlled vocabulary term NOT successfully created.'
           if redirect_url == :back
-            redirect_to :back
+            redirect_back(fallback_location: (request.referer || root_path), notice: 'Controlled vocabulary term NOT successfully created.')
           else
             render action: 'new'
           end

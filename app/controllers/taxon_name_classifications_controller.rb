@@ -8,9 +8,9 @@ class TaxonNameClassificationsController < ApplicationController
   def index
     respond_to do |format|
       format.html do
-        @recent_objects = TaxonNameClassification.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-        render '/shared/data/all/index'
-      end
+    @recent_objects = TaxonNameClassification.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
+  end
       format.json {
         @taxon_name_classifications = TaxonNameClassification.where(filter_params).with_project_id(sessions_current_project_id)
       }
@@ -28,11 +28,11 @@ class TaxonNameClassificationsController < ApplicationController
 
     respond_to do |format|
       if @taxon_name_classification.save
-        format.html { redirect_to @taxon_name_classification.taxon_name.metamorphosize, notice: 'Taxon name classification was successfully created.' }
+        format.html {redirect_to @taxon_name_classification.taxon_name.metamorphosize, notice: 'Taxon name classification was successfully created.'}
         format.json { render :show, status: :created, location: @taxon_name_classification.metamorphosize }
       else
-        format.html { redirect_to :back, notice: 'Taxon name classification was NOT successfully created.' }
-        format.json { render json: @taxon_name_classification.errors, status: :unprocessable_entity }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Taxon name classification was NOT successfully created.')}
+        format.json {render json: @taxon_name_classification.errors, status: :unprocessable_entity}
       end
     end
   end
@@ -42,11 +42,11 @@ class TaxonNameClassificationsController < ApplicationController
   def update
     respond_to do |format|
       if @taxon_name_classification.update(taxon_name_classification_params)
-        format.html { redirect_to :back, notice: 'Taxon name classification was successfully updated.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Taxon name classification was successfully updated.')}
         format.json { render :show, status: :ok, location: @taxon_name_classification.metamorphosize }
       else
-        format.html { redirect_to :back, notice: 'Taxon name classification was NOT successfully updated.' }
-        format.json { render json: @taxon_name_classification.errors, status: :unprocessable_entity }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Taxon name classification was NOT successfully updated.')}
+        format.json {render json: @taxon_name_classification.errors, status: :unprocessable_entity}
       end
     end
   end
@@ -55,7 +55,7 @@ class TaxonNameClassificationsController < ApplicationController
     taxon_name_id = params[:taxon_name_classification].try(:[], :taxon_name_id)
 
     taxon_name = TaxonName.where(
-      id:  taxon_name_id,
+      id:         taxon_name_id,
       project_id: $project_id
     ).first
 
@@ -69,8 +69,8 @@ class TaxonNameClassificationsController < ApplicationController
   def destroy
     @taxon_name_classification.destroy
     respond_to do |format|
-      format.html { redirect_to :back, notice: 'Taxon name classification was successfully destroyed.' }
-      format.json { head :no_content }
+      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Taxon name classification was successfully destroyed.')}
+      format.json {head :no_content}
     end
   end
 
@@ -90,13 +90,13 @@ class TaxonNameClassificationsController < ApplicationController
   def autocomplete
     # TODO: make reasonable, if used
     @taxon_name_classifications = TaxonNameClassification.where(id: params[:term]).with_project_id(params[:project_id])
-    data = @taxon_name_classifications.collect do |t|
-      {id: t.id,
-       label: TaxonNameClassificationsHelper.taxon_name_classification_tag(t),
+    data                        = @taxon_name_classifications.collect do |t|
+      {id:              t.id,
+       label:           TaxonNameClassificationsHelper.taxon_name_classification_tag(t),
        response_values: {
          params[:method] => t.id
        },
-       label_html: TaxonNameClassificationsHelper.taxon_name_classification_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html:      TaxonNameClassificationsHelper.taxon_name_classification_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
 

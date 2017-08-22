@@ -26,10 +26,10 @@
 #   @return [String]
 #   @todo
 #
-class Language < ActiveRecord::Base
+class Language < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
-  include Shared::IsData 
+  include Shared::IsData
   include Shared::IsApplicationData
 
   has_many :serials, inverse_of: :language
@@ -56,7 +56,7 @@ class Language < ActiveRecord::Base
 
   def self.find_for_autocomplete(params)
     term = "#{params[:term]}%"
-    where('english_name ILIKE ? OR english_name = ?', term, params[:term] )  
+    where('english_name ILIKE ? OR english_name = ?', term, params[:term])
   end
 
 end

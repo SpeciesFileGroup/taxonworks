@@ -10,10 +10,10 @@ class BiocurationClassificationsController < ApplicationController
 
     respond_to do |format|
       if @biocuration_classification.save
-        format.html { redirect_to :back, notice: 'Biocuration classification was successfully created.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Biocuration classification was successfully created.')}
         format.json { render json: @biocuration_classification, status: :created, location: @biocuration_classification }
       else
-        format.html { redirect_to :back, notice: 'Biocuration classification was NOT successfully created.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Biocuration classification was NOT successfully created.')}
         format.json { render json: @biocuration_classification.errors, status: :unprocessable_entity }
       end
     end
@@ -24,10 +24,10 @@ class BiocurationClassificationsController < ApplicationController
   def update
     respond_to do |format|
       if @biocuration_classification.update(biocuration_classification_params)
-        format.html { redirect_to :back, notice: 'Biocuration classification was successfully updated.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Biocuration classification was NOT successfully updated.')}
         format.json { head :no_content }
       else
-        format.html { redirect_to :back, notice: 'Biocuration classification was NOT successfully updated.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Biocuration classification was NOT successfully updated.')}
         format.json { render json: @biocuration_classification.errors, status: :unprocessable_entity }
       end
     end
@@ -38,7 +38,7 @@ class BiocurationClassificationsController < ApplicationController
   def destroy
     @biocuration_classification.destroy
     respond_to do |format|
-      format.html { redirect_to :back, notice: 'Biocuration classification was successfully destroyed.' }
+      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Biocuration classification was successfully destroyed.')}
       format.json { head :no_content }
     end
   end

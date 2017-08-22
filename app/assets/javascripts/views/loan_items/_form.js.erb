@@ -39,7 +39,7 @@ Object.assign(TW.views.loan_items.form, {
   },
 
   remove_link: function() {
-    var link = $('<td><a href="#" class="remove_loan_item">remove</a></td>');
+    var link = $('<td><a href="#" data-turbolinks="false" class="remove_loan_item">remove</a></td>');
     this.bind_remove_links(link);
     return link;
   },
@@ -103,18 +103,11 @@ Object.assign(TW.views.loan_items.form, {
 }
 );
 
+$(document).on('turbolinks:load', function() {
+      if ( $('.loan_item_form').length ) {
+        TW.views.loan_items.form.initialize($('.loan_item_form'));
+      }
+    }
+)
 
-var _initialize_loan_items_form;
-
-_initialize_loan_items_form = function
-initialize_loan_items_form() {
-
-
-  if ( $('.loan_item_form').length ) {
-    TW.views.loan_items.form.initialize($('.loan_item_form')); 
-  }
-
-};
-
-$(document).ready(_initialize_loan_items_form);
 

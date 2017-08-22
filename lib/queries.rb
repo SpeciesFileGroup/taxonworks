@@ -169,7 +169,7 @@ module Queries
     end
 
     def with_identifier_like
-      identifier_table[:cached].matches(start_and_end_wildcard).or(identifier_table[:cached].matches(wildcard_wrapped_integers))
+      identifier_table[:cached].matches(start_and_end_wildcard).or(identifier_table[:cached].matches_any(wildcard_wrapped_integers))
     end
 
     # @return [ActiveRecord::Relation, nil]

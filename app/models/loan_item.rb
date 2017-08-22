@@ -36,7 +36,7 @@
 #   @return [Integer]
 #     when type is OTU an arbitrary total can be provided
 #
-class LoanItem < ActiveRecord::Base
+class LoanItem < ApplicationRecord
   acts_as_list scope: :loan
 
   include Housekeeping

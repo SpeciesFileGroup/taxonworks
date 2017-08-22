@@ -1,4 +1,4 @@
-# A ProjectMember is the link between projects and users.  
+# A ProjectMember is the link between projects and users.
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -6,16 +6,16 @@
 #
 # @!attribute user_id
 #   @return [Integer]
-#     the user 
+#     the user
 #
 # @!attribute is_project_administrator
 #   @return [Boolean]
-#    whether the user is a project administrator 
+#    whether the user is a project administrator
 #
-class ProjectMember < ActiveRecord::Base
+class ProjectMember < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
-  include Shared::IsData 
+  include Shared::IsData
 
   belongs_to :project, inverse_of: :project_members
   belongs_to :user, inverse_of: :project_members

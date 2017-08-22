@@ -42,8 +42,8 @@ describe 'Housekeeping::User' do
       end
 
       specify 'does not override creator' do
-        instance.creator = user 
-        instance.by = other_user
+        instance.creator = user
+        instance.by      = other_user
         expect(instance.creator).to eq(user)
       end
 
@@ -67,7 +67,7 @@ describe 'Housekeeping::User' do
       let(:i) { HousekeepingTestClass::WithUser.new }
 
       context 'presence of the id itself' do
-        before(:each) { $user_id = nil } 
+        before(:each) {$user_id = nil}
 
         specify 'created_by_id is required' do
           i.valid?
@@ -84,12 +84,12 @@ describe 'Housekeeping::User' do
         before(:each) { $user_id = 49999 } # better not be one, but fragile
 
         specify 'creator must exist' do
-          i.valid? 
+          i.valid?
           expect(i.errors.include?(:creator)).to be_truthy
         end
 
         specify 'updater must exist' do
-          i.valid? 
+          i.valid?
           expect(i.errors.include?(:updater)).to be_truthy
         end
       end
@@ -112,10 +112,10 @@ describe 'Housekeeping::User' do
 
           context 'when provided' do
             before {
-              $user_id = user.id
-              i.created_by_id = other_user.id 
-              i.updated_by_id = other_user.id 
-              i.valid? 
+              $user_id        = user.id
+              i.created_by_id = other_user.id
+              i.updated_by_id = other_user.id
+              i.valid?
             }
             specify 'creator should not be overridden' do
               expect(i.creator).to eq(other_user)
@@ -161,9 +161,9 @@ describe 'Housekeeping::User' do
           before {
             $user_id = user.id
           }
-          let(:created_instance) { 
-            a = HousekeepingTestClass::WithUser.new() 
-            a.save! 
+          let(:created_instance) {
+            a = HousekeepingTestClass::WithUser.new()
+            a.save!
             a
           }
 
@@ -176,18 +176,18 @@ describe 'Housekeeping::User' do
           end
         end
 
-               
+
 
         context 'after save, subsequent updates' do
           before {
             $user_id = user.id
             i.save!
           }
- 
+
           context 'on updated and updater is provided' do
             before {
-              i.updated_by_id = other_user.id 
-              i.valid? 
+              i.updated_by_id = other_user.id
+              i.valid?
             }
             specify 'updater should be that provided' do
               expect(i.updater).to eq(other_user)
@@ -196,9 +196,9 @@ describe 'Housekeeping::User' do
 
           context 'on updated and updater is not provided' do
             before {
-              $user_id = other_user.id 
+              $user_id = other_user.id
               i.string = "Foo"
-              i.valid? 
+              i.valid?
             }
 
             specify 'updater should be that provided' do
@@ -233,14 +233,14 @@ describe 'Housekeeping::User' do
 end
 
 module HousekeepingTestClass
-  class WithBoth  < ActiveRecord::Base 
-    include FakeTable  
-    include Housekeeping 
+  class WithBoth < ApplicationRecord
+    include FakeTable
+    include Housekeeping
   end
 
-  class WithUser < ActiveRecord::Base
-    include FakeTable 
-    include Housekeeping::Users 
+  class WithUser < ApplicationRecord
+    include FakeTable
+    include Housekeeping::Users
   end
 
 end

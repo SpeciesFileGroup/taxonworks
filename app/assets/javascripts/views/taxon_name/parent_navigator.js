@@ -27,7 +27,7 @@ Object.assign(TW.views.taxon_name.parent_navigator, {
 	}
 });
 
-$(document).ready(function() {
+$(document).on('turbolinks:load', function() {
   if($("#show_taxon_name_hierarchy").length) {
   	var init_parentNavigator = TW.views.taxon_name.parent_navigator;
   	init_parentNavigator.init();

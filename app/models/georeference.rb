@@ -61,7 +61,7 @@
 #   @return [Boolean]
 #   True if this georeference represents an average vertical distance, otherwise false.
 #
-class Georeference < ActiveRecord::Base
+class Georeference < ApplicationRecord
   include Housekeeping
   include Shared::Notable
   include Shared::Taggable

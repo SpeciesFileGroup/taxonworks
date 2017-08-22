@@ -29,7 +29,7 @@ RSpec.describe Sequence, type: :model, group: [:dna] do
       end
 
       specify 'sequence_relationships are created' do
-        expect(sequence.related_sequence_relationships(true).count).to eq(2)
+        expect(sequence.related_sequence_relationships.reload.count).to eq(2)
       end
     end
   end

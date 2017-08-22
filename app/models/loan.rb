@@ -55,7 +55,7 @@
 #   @return [String]
 #     as in Prof. Mrs. Dr. M. Mr. etc.
 #
-class Loan < ActiveRecord::Base
+class Loan < ApplicationRecord
   include Housekeeping
   include Shared::IsData
   include Shared::DataAttributes
@@ -67,7 +67,7 @@ class Loan < ActiveRecord::Base
   include Shared::HasRoles
   include Shared::Documentation
 
-  has_paper_trail :on => [:update] 
+  has_paper_trail :on => [:update]
 
   has_many :loan_items, dependent: :restrict_with_error
 
@@ -135,17 +135,17 @@ class Loan < ActiveRecord::Base
   protected
 
   def recieved_after_sent
-    errors.add(:date_received, 'must be received on or after sent') if date_received.present? && date_sent.present? && date_received < date_sent 
+    errors.add(:date_received, 'must be received on or after sent') if date_received.present? && date_sent.present? && date_received < date_sent
   end
-  
+
   def returned_after_recieved
-    errors.add(:date_closed, 'must be closed on or after received') if date_closed.present? && date_received.present? && date_closed < date_received 
+    errors.add(:date_closed, 'must be closed on or after received') if date_closed.present? && date_received.present? && date_closed < date_received
   end
 
   def return_expected_after_sent
     errors.add(:date_return_expected, 'must be expected after sent') if date_return_expected.present? && date_sent.present? && date_return_expected < date_sent
   end
-  
+
   # @return [Array] collection_object ids
   def collection_object_ids
     # pile1 = Loan.joins(:loan_items).where(loan_items: {loan_id: self.id})

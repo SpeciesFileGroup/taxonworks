@@ -38,7 +38,7 @@
 #   @return (String)
 #   Added by paperclip_meta gem, stores the sizes of derived images
 #
-class Image < ActiveRecord::Base
+class Image < ApplicationRecord
   include Housekeeping
   include Shared::Identifiable
   include Shared::Notable
@@ -195,21 +195,21 @@ class Image < ActiveRecord::Base
     end
   end
 
- #  def filename(layout_section_type)
- #    'tmp/' + tempfile(layout_section_type).path.split('/').last
- #  end
+  #  def filename(layout_section_type)
+  #    'tmp/' + tempfile(layout_section_type).path.split('/').last
+  #  end
 
- #  def tempfile(layout_section_type)
- #    tempfile = Tempfile.new([layout_section_type.to_s, '.jpg'], "#{Rails.root.to_s}/public/images/tmp", encoding: 'ASCII-8BIT' ) 
- #    tempfile.write(zoomed_image(layout_section_type).to_blob)
- #    tempfile
- #  end
+  #  def tempfile(layout_section_type)
+  #    tempfile = Tempfile.new([layout_section_type.to_s, '.jpg'], "#{Rails.root.to_s}/public/images/tmp", encoding: 'ASCII-8BIT' )
+  #    tempfile.write(zoomed_image(layout_section_type).to_blob)
+  #    tempfile
+  #  end
 
   def self.cropped(params)
     image = Image.find(params[:id])
     img = Magick::Image.read(image.image_file.path(:original)).first
 
-    cropped = img.crop(   
+    cropped = img.crop(
                        params[:x].to_i,
                        params[:y].to_i,
                        params[:width].to_i,
@@ -235,9 +235,9 @@ class Image < ActiveRecord::Base
       else # tall into wide
         c.resize((params[:box_width ].to_f * ratio / box_ratio).to_i, params[:box_height].to_i )
       end
-    else  # < 
+    else # <
       if ratio > 1 # wide into tall
-        c.resize(params[:box_width ].to_i, (params[:box_height].to_f / ratio * box_ratio).to_i )   
+        c.resize(params[:box_width].to_i, (params[:box_height].to_f / ratio * box_ratio).to_i)
       else # tall into tall
         c.resize((params[:box_width ].to_f / ratio * box_ratio).to_i, params[:box_height].to_i)
       end
@@ -246,7 +246,7 @@ class Image < ActiveRecord::Base
 
   def self.scaled_to_box_blob(params)
     scaled_to_box(params).to_blob
-  end 
+  end
 
   def self.resized_blob(params)
     resized(params).to_blob

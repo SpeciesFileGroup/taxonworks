@@ -1,4 +1,4 @@
-<h2><%= object_tag(@user) %> <%=  sessions_current_user == @user ? content_tag(:span, 'You!', class: :subtle) : content_tag(:span, 'NOT YOU!', class: :warning) -%>  </h2>
+<h2><%= user_tag(@user) %> <%= sessions_current_user == @user ? content_tag(:span, 'You!', class: :subtle) : content_tag(:span, 'NOT YOU!', class: :warning) -%>  </h2>
 
 <div class="flexbox">
     <div class="item item1">

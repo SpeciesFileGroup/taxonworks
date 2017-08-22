@@ -78,7 +78,7 @@ Object.assign(TW.views.filter.area_picker, {
   // Binding actions (clicks) to links
   //
   remove_link: function () {
-    var link = $('<a href="#" class="remove_area" data-icon="trash"></a>');
+    var link = $('<a href="#" data-turbolinks="false" class="remove_area" data-icon="trash"></a>');
     TW.views.filter.area_picker.bind_remove_links(link);
     return link;
   },
@@ -120,5 +120,5 @@ _initialize_area_picker_widget = function
   });
 };
 
-$(document).ready(_initialize_area_picker_widget);
+$(document).on("turbolinks:load", _initialize_area_picker_widget);
 

@@ -481,7 +481,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
    // Datepicker fix
 
-  $(document).ready(function () {
+$(document).on('turbolinks:load', function() {
     if ($("#st_datepicker").length) {  // see if we need a datepicker for start date
       var d = new Date();
       var n = d.getFullYear();
@@ -505,8 +505,6 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
   });
 };
 
-$(document).ready(_init_match_georeference_page_widget);
-// $(document).on("page:load", _init_match_georeference_page_widget);
 
 
 function add_click_services_to_match_georeferences_map(map, event) {     // click event passed in
@@ -572,4 +570,8 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
     map.data.revertStyle();
   });
 }           // add_listeners end
+
+$(document).on('turbolinks:load', _init_match_georeference_page_widget);
+
+
 

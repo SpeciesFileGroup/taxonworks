@@ -166,7 +166,7 @@ namespace :tw do
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression'
                     bit_flag_name = 'suppressed by ruling'
                   when 9 # misapplied
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication'
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Misapplication'
                     bit_flag_name = 'misapplied'
 
                   # - - -
@@ -361,7 +361,7 @@ namespace :tw do
                                  '4' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
                                  '5' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
                                  '6' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName',
-                                 '7' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication',
+                                 '7' => 'TaxonNameRelationship::Iczn::Invalidating::Misapplication',
                                  '8' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling', # lapsus calami>>corrected lapsus
                                  '9' => 'TaxonNameRelationship::Iczn::Invalidating' # ::Synonym' # nomen nudum>>nomen nudum made available
             }
@@ -819,6 +819,16 @@ namespace :tw do
                   name: row['Name'],
                   parent_id: parent_id,
                   rank_class: get_tw_rank_string[row['RankID']],
+
+
+
+                  # ADD TaxonNameID as a identifier local import, create a namespace for each project, see GitHub https://github.com/SpeciesFileGroup/taxonworks/issues/166
+                  #  or add as separate rake task
+
+
+
+
+
 
                   # housekeeping attributed to SF last_editor, etc.
                   origin_citation_attributes: {source_id: get_tw_source_id[row['RefID']],

@@ -38,7 +38,7 @@ describe 'Shared::IsData', type: :model do
 
 end
 
-class TestIsData < ActiveRecord::Base
+class TestIsData < ApplicationRecord
   include FakeTable
-  include Shared::IsData 
+  include Shared::IsData
 end

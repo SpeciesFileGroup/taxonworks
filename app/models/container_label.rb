@@ -2,11 +2,11 @@
 #
 # @!attribute label
 #   @return [String]
-#     the physical label applied or to be applied to the drawers 
+#     the physical label applied or to be applied to the drawers
 #
 # @!attribute date_printed
 #   @return [DateTime]
-#     date the label was printed 
+#     date the label was printed
 #
 # @!attribute print_style
 #   @return [String]
@@ -18,9 +18,9 @@
 #
 # @!attribute container_id
 #   @return [Integer]
-#     the container the label will be attached to 
+#     the container the label will be attached to
 #
-class ContainerLabel < ActiveRecord::Base
+class ContainerLabel < ApplicationRecord
 
   acts_as_list scope: [:container]
 

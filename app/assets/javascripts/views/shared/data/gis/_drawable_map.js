@@ -1,3 +1,5 @@
+// TODO: needs namespacing, badly
+
 var _init_drawable_map;
 
 _init_drawable_map = function init_drawable_map() {
@@ -60,6 +62,5 @@ _init_drawable_map = function init_drawable_map() {
   // }
 };
 
-$(document).ready(_init_drawable_map);
-$(document).on('page:load', _init_drawable_map);
+$(document).on('turbolinks:load', _init_drawable_map);
 

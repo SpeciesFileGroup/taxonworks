@@ -237,7 +237,7 @@ namespace :tw do
 
         ap higher
         ap subfams.uniq
-        ap tribes.uniq 
+        ap tribes.uniq
       end
 
       task :handle_genera => [:data_directory, :environment] do |t, args|
@@ -267,7 +267,7 @@ namespace :tw do
         citations = {
           "SD" => 'subsequent description',
           "SU" => 'subsequent use',  # also 'in key ()' derived from data
-          "MI" => nil,  #  'missidentification'  .. ? 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication'       
+          "MI" => nil,  #  'missidentification'  .. ? 'TaxonNameRelationship::Iczn::Invalidating::Misapplication'
         
         }
 

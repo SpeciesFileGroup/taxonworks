@@ -38,12 +38,12 @@ describe ControlledVocabularyTermsController, :type => :controller do
   describe "GET list" do
     it "with no other parameters, assigns 20/page controlled_vocabulary_terms as @controlled_vocabulary_terms" do
       controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
-      get :list, {}, valid_session
+      get :list, params: {}, session: valid_session
       expect(assigns(:controlled_vocabulary_terms)).to include(controlled_vocabulary_term)
     end
 
     it "renders the list template" do
-      get :list, {}, valid_session
+      get :list, params: {}, session: valid_session
       expect(response).to render_template("list")
     end
   end
@@ -51,7 +51,7 @@ describe ControlledVocabularyTermsController, :type => :controller do
   describe "GET index" do
     it "assigns all controlled_vocabulary_terms as @recent_objects" do
       controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       expect(assigns(:recent_objects)).to include(controlled_vocabulary_term)
     end
   end
@@ -59,14 +59,14 @@ describe ControlledVocabularyTermsController, :type => :controller do
   describe "GET show" do
     it "assigns the requested controlled_vocabulary_term as @controlled_vocabulary_term" do
       controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
-      get :show, {:id => controlled_vocabulary_term.to_param}, valid_session
+      get :show, params: {id: controlled_vocabulary_term.to_param}, session: valid_session
       expect(assigns(:controlled_vocabulary_term)).to eq(controlled_vocabulary_term)
     end
   end
 
   describe "GET new" do
     it "assigns a new controlled_vocabulary_term as @controlled_vocabulary_term" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       expect(assigns(:controlled_vocabulary_term)).to be_a_new(ControlledVocabularyTerm)
     end
   end
@@ -74,7 +74,7 @@ describe ControlledVocabularyTermsController, :type => :controller do
   describe "GET edit" do
     it "assigns the requested controlled_vocabulary_term as @controlled_vocabulary_term" do
       controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
-      get :edit, {:id => controlled_vocabulary_term.to_param}, valid_session
+      get :edit, params: {id: controlled_vocabulary_term.to_param}, session: valid_session
       expect(assigns(:controlled_vocabulary_term)).to eq(controlled_vocabulary_term)
     end
   end
@@ -87,18 +87,18 @@ describe ControlledVocabularyTermsController, :type => :controller do
 
       it "creates a new ControlledVocabularyTerm" do
         expect {
-          post :create, {:controlled_vocabulary_term => valid_attributes}, valid_session
+          post :create, params: {:controlled_vocabulary_term => valid_attributes}, session: valid_session
         }.to change(ControlledVocabularyTerm, :count).by(1)
       end
 
       it "assigns a newly created controlled_vocabulary_term as @controlled_vocabulary_term" do
-        post :create, {:controlled_vocabulary_term => valid_attributes}, valid_session
+        post :create, params: {:controlled_vocabulary_term => valid_attributes}, session: valid_session
         expect(assigns(:controlled_vocabulary_term)).to be_a(ControlledVocabularyTerm)
         expect(assigns(:controlled_vocabulary_term)).to be_persisted
       end
 
       it "redirects to the created controlled_vocabulary_term" do
-        post :create, {:controlled_vocabulary_term => valid_attributes}, valid_session
+        post :create, params: {:controlled_vocabulary_term => valid_attributes}, session: valid_session
         expect(response).to redirect_to(ControlledVocabularyTerm.last.metamorphosize)
       end
     end
@@ -110,14 +110,14 @@ describe ControlledVocabularyTermsController, :type => :controller do
       it "assigns a newly created but unsaved controlled_vocabulary_term as @controlled_vocabulary_term" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(ControlledVocabularyTerm).to receive(:save).and_return(false)
-        post :create, {:controlled_vocabulary_term => {"name" => nil}}, valid_session
+        post :create, params: {:controlled_vocabulary_term => {"name" => nil}}, session: valid_session
         expect(assigns(:controlled_vocabulary_term)).to be_a_new(ControlledVocabularyTerm)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(ControlledVocabularyTerm).to receive(:save).and_return(false)
-        post :create, {:controlled_vocabulary_term => {"name" => nil}}, valid_session
+        post :create, params: {:controlled_vocabulary_term => {"name" => nil}}, session: valid_session
         expect(response).to render_template("new")
       end
     end
@@ -125,25 +125,26 @@ describe ControlledVocabularyTermsController, :type => :controller do
 
   describe "PUT update" do
     describe "with valid params" do
+      let(:update_params) {ActionController::Parameters.new({type: ""}).permit(:type)}
       it "updates the requested controlled_vocabulary_term" do
         controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
         # Assuming there are no other controlled_vocabulary_terms in the database, this
         # specifies that the ControlledVocabularyTerm created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        expect_any_instance_of(ControlledVocabularyTerm).to receive(:update).with({"type" => ""})
-        put :update, {:id => controlled_vocabulary_term.to_param, :controlled_vocabulary_term => {"type" => ""}}, valid_session
+        expect_any_instance_of(ControlledVocabularyTerm).to receive(:update).with(update_params)
+        put :update, params: {id: controlled_vocabulary_term.to_param, controlled_vocabulary_term: update_params}, session: valid_session
       end
 
       it "assigns the requested controlled_vocabulary_term as @controlled_vocabulary_term" do
         controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
-        put :update, {:id => controlled_vocabulary_term.to_param, :controlled_vocabulary_term => valid_attributes}, valid_session
+        put :update, params: {id: controlled_vocabulary_term.to_param, :controlled_vocabulary_term => valid_attributes}, session: valid_session
         expect(assigns(:controlled_vocabulary_term)).to eq(controlled_vocabulary_term)
       end
 
       it "redirects to the controlled_vocabulary_term" do
         controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
-        put :update, {:id => controlled_vocabulary_term.to_param, :controlled_vocabulary_term => valid_attributes}, valid_session
+        put :update, params: {id: controlled_vocabulary_term.to_param, :controlled_vocabulary_term => valid_attributes}, session: valid_session
         expect(response).to redirect_to(controlled_vocabulary_term.becomes(ControlledVocabularyTerm))
       end
     end
@@ -153,7 +154,7 @@ describe ControlledVocabularyTermsController, :type => :controller do
         controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(ControlledVocabularyTerm).to receive(:save).and_return(false)
-        put :update, {:id => controlled_vocabulary_term.to_param, :controlled_vocabulary_term => {"type" => "invalid value"}}, valid_session
+        put :update, params: {id: controlled_vocabulary_term.to_param, :controlled_vocabulary_term => {"type" => "invalid value"}}, session: valid_session
         expect(assigns(:controlled_vocabulary_term)).to eq(controlled_vocabulary_term)
       end
 
@@ -161,7 +162,7 @@ describe ControlledVocabularyTermsController, :type => :controller do
         controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(ControlledVocabularyTerm).to receive(:save).and_return(false)
-        put :update, {:id => controlled_vocabulary_term.to_param, :controlled_vocabulary_term => {"type" => "invalid value"}}, valid_session
+        put :update, params: {id: controlled_vocabulary_term.to_param, :controlled_vocabulary_term => {"type" => "invalid value"}}, session: valid_session
         expect(response).to render_template("edit")
       end
     end
@@ -172,14 +173,14 @@ describe ControlledVocabularyTermsController, :type => :controller do
       controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
       request.env["HTTP_REFERER"] = controlled_vocabulary_term_path(controlled_vocabulary_term)
       expect {
-        delete :destroy, {:id => controlled_vocabulary_term.to_param}, valid_session
+        delete :destroy, params: {id: controlled_vocabulary_term.to_param}, session: valid_session
       }.to change(ControlledVocabularyTerm, :count).by(-1)
     end
 
     it "redirects to the controlled_vocabulary_terms list" do
       controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
       request.env["HTTP_REFERER"] = controlled_vocabulary_term_path(controlled_vocabulary_term)
-      delete :destroy, {:id => controlled_vocabulary_term.to_param}, valid_session
+      delete :destroy, params: {id: controlled_vocabulary_term.to_param}, session: valid_session
       expect(response).to redirect_to(controlled_vocabulary_terms_url)
     end
   end

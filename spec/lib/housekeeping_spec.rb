@@ -4,7 +4,7 @@ describe 'Housekeeping::User' do
 
   # Do not extend these tests. This is just to ensure
   # we include both submodules when we 'require Housekeeping'.
-  
+
   context 'Housekeeping' do
     let(:instance) {
       stub_model HousekeepingTestClass::WithBoth, id: 10
@@ -21,8 +21,8 @@ describe 'Housekeeping::User' do
 end
 
 module HousekeepingTestClass
-  class WithBoth  < ActiveRecord::Base 
-    include FakeTable  
-    include Housekeeping 
+  class WithBoth < ApplicationRecord
+    include FakeTable
+    include Housekeeping
   end
 end

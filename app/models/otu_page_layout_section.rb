@@ -25,11 +25,11 @@
 #   @return [Integer]
 #   the project ID
 #
-class OtuPageLayoutSection < ActiveRecord::Base
+class OtuPageLayoutSection < ApplicationRecord
   acts_as_list scope: :otu_page_layout
 
-  include Housekeeping 
-  include Shared::IsData 
+  include Housekeeping
+  include Shared::IsData
 
   belongs_to :otu_page_layout
   belongs_to :topic, inverse_of: :otu_page_layout_sections
@@ -37,12 +37,12 @@ class OtuPageLayoutSection < ActiveRecord::Base
   validates_presence_of :type
   validates_uniqueness_of :topic_id, scope: [:otu_page_layout_id]
 
- 
+
 #  def self.title
-#    'empty' # nil 
+#    'empty' # nil
 #  end
 #
-#  def title 
+#  def title
 #    self.class.title
 #  end
 #

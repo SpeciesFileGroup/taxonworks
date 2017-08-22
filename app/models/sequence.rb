@@ -19,7 +19,7 @@ require_dependency 'sequence_relationship'
 #     inferrning that those sequences with particular metadata have a 
 #     specific gene name (Descriptor::Gene#name).  
 #
-class Sequence < ActiveRecord::Base
+class Sequence < ApplicationRecord
 
   include Housekeeping
 
@@ -63,7 +63,7 @@ class Sequence < ActiveRecord::Base
     has_many sequences, class_name: 'Sequence', through: relationships, source: :subject_sequence, inverse_of: :sequences
 
     accepts_nested_attributes_for sequences
-    accepts_nested_attributes_for relationships 
+    accepts_nested_attributes_for relationships
   end
 
   validates_presence_of :sequence

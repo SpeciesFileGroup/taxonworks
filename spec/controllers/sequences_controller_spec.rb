@@ -41,7 +41,7 @@ RSpec.describe SequencesController, type: :controller do
   describe "GET #index" do
     it "assigns all sequences as @sequences" do
       sequence = Sequence.create! valid_attributes
-      get :index, {}, session: valid_session
+      get :index, params: {}, session: valid_session
       expect(assigns(:recent_objects)).to eq([sequence])
     end
   end
@@ -49,14 +49,14 @@ RSpec.describe SequencesController, type: :controller do
   describe "GET #show" do
     it "assigns the requested sequence as @sequence" do
       sequence = Sequence.create! valid_attributes
-      get :show, {id: sequence.to_param}, session: valid_session
+      get :show, params: {id: sequence.to_param}, session: valid_session
       expect(assigns(:sequence)).to eq(sequence)
     end
   end
 
   describe "GET #new" do
     it "assigns a new sequence as @sequence" do
-      get :new, {}, session: valid_session
+      get :new, params: {}, session: valid_session
       expect(assigns(:sequence)).to be_a_new(Sequence)
     end
   end
@@ -64,7 +64,7 @@ RSpec.describe SequencesController, type: :controller do
   describe "GET #edit" do
     it "assigns the requested sequence as @sequence" do
       sequence = Sequence.create! valid_attributes
-      get :edit, {id: sequence.to_param}, session: valid_session
+      get :edit, params: {id: sequence.to_param}, session: valid_session
       expect(assigns(:sequence)).to eq(sequence)
     end
   end
@@ -73,30 +73,30 @@ RSpec.describe SequencesController, type: :controller do
     context "with valid params" do
       it "creates a new Sequence" do
         expect {
-          post :create, {sequence: valid_attributes}, session: valid_session
+          post :create, params: {sequence: valid_attributes}, session: valid_session
         }.to change(Sequence, :count).by(1)
       end
 
       it "assigns a newly created sequence as @sequence" do
-        post :create, {sequence: valid_attributes}, session: valid_session
+        post :create, params: {sequence: valid_attributes}, session: valid_session
         expect(assigns(:sequence)).to be_a(Sequence)
         expect(assigns(:sequence)).to be_persisted
       end
 
       it "redirects to the created sequence" do
-        post :create, {sequence: valid_attributes}, session: valid_session
+        post :create, params: {sequence: valid_attributes}, session: valid_session
         expect(response).to redirect_to(Sequence.last)
       end
     end
 
     context "with invalid params" do
       it "assigns a newly created but unsaved sequence as @sequence" do
-        post :create, {sequence: invalid_attributes}, session: valid_session
+        post :create, params: {sequence: invalid_attributes}, session: valid_session
         expect(assigns(:sequence)).to be_a_new(Sequence)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {sequence: invalid_attributes}, session: valid_session
+        post :create, params: {sequence: invalid_attributes}, session: valid_session
         expect(response).to render_template("new")
       end
     end
@@ -110,7 +110,7 @@ RSpec.describe SequencesController, type: :controller do
 
       it "updates the requested sequence" do
         sequence = Sequence.create! valid_attributes
-        put :update, {id: sequence.to_param, sequence: new_attributes}, session: valid_session
+        put :update, params: {id: sequence.to_param, sequence: new_attributes}, session: valid_session
         sequence.reload
 
         expect(sequence.sequence == new_attributes[:sequence])
@@ -118,13 +118,13 @@ RSpec.describe SequencesController, type: :controller do
 
       it "assigns the requested sequence as @sequence" do
         sequence = Sequence.create! valid_attributes
-        put :update, {id: sequence.to_param, sequence: valid_attributes}, session: valid_session
+        put :update, params: {id: sequence.to_param, sequence: valid_attributes}, session: valid_session
         expect(assigns(:sequence)).to eq(sequence)
       end
 
       it "redirects to the sequence" do
         sequence = Sequence.create! valid_attributes
-        put :update, {id: sequence.to_param, sequence: valid_attributes}, session: valid_session
+        put :update, params: {id: sequence.to_param, sequence: valid_attributes}, session: valid_session
         expect(response).to redirect_to(sequence)
       end
     end
@@ -132,13 +132,13 @@ RSpec.describe SequencesController, type: :controller do
     context "with invalid params" do
       it "assigns the sequence as @sequence" do
         sequence = Sequence.create! valid_attributes
-        put :update, {id: sequence.to_param, sequence: invalid_attributes}, session: valid_session
+        put :update, params: {id: sequence.to_param, sequence: invalid_attributes}, session: valid_session
         expect(assigns(:sequence)).to eq(sequence)
       end
 
       it "re-renders the 'edit' template" do
         sequence = Sequence.create! valid_attributes
-        put :update, {id: sequence.to_param, sequence: invalid_attributes}, session: valid_session
+        put :update, params: {id: sequence.to_param, sequence: invalid_attributes}, session: valid_session
         expect(response).to render_template("edit")
       end
     end
@@ -148,13 +148,13 @@ RSpec.describe SequencesController, type: :controller do
     it "destroys the requested sequence" do
       sequence = Sequence.create! valid_attributes
       expect {
-        delete :destroy, {id: sequence.to_param}, session: valid_session
+        delete :destroy, params: {id: sequence.to_param}, session: valid_session
       }.to change(Sequence, :count).by(-1)
     end
 
     it "redirects to the sequences list" do
       sequence = Sequence.create! valid_attributes
-      delete :destroy, {id: sequence.to_param}, session: valid_session
+      delete :destroy, params: {id: sequence.to_param}, session: valid_session
       expect(response).to redirect_to(sequences_url)
     end
   end

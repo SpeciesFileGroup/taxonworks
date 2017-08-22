@@ -38,7 +38,7 @@ module TaxonNameClassificationsHelper
   #   a span summarizing taxon name classification
   def taxon_name_classification_status_tag(taxon_name)
     if taxon_name.unavailable_or_invalid?  
-      values = TaxonNameClassification.where_taxon_name(taxon_name).with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES).collect{|c| 
+      values = TaxonNameClassification.where_taxon_name(taxon_name).with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES).collect{|c|
         c.classification_label}.uniq.sort
 
       content_tag(:span, "Is an  #{values.to_sentence} name.", class: [:brief_status], data: [ 'icon-alert' ])  
