@@ -5,7 +5,12 @@ menu structure:
 	{
 		label: 'Citation',
 		count: 11,
-		event: 'citation'
+		event: 'citation',
+		icon: {
+			url: 'image.svg',
+			width: '20',
+			height: '20'
+		}
 	},
 ]
 
@@ -36,6 +41,16 @@ menu structure:
 			padding: {
 				type: Number,
 				default: 4
+			},
+			color: {
+				type: Object,
+				default: function() {
+					return {
+						text: '#000000',
+						background: '#FFFFFF',
+						backgroundHover: '#CACACA'
+					}
+				}
 			}
 		},
 		data: function() {
@@ -43,12 +58,16 @@ menu structure:
 				ctx: undefined,
 				segmentWidth: this.maxAngle/this.menu.length,
 				optionSelected: undefined,
+				img: this.createImage(require('./images/image.svg')),
+				icons: [],
 			}
 		},
 		mounted: function() {
+			var that = this;
 			this.addFunctions();
 			this.ctx = this.createCanvasContext();
-			this.update(false);
+			this.loadIcons();
+			that.update(false);
 		},
 		methods: {
 			getPosition: function(e) {
@@ -57,6 +76,32 @@ menu structure:
 					y: e.pageY - e.currentTarget.offsetTop
 				}
 
+			},
+			loadIcons: function(){
+				var that = this;
+			    this.menu.forEach(function(item, index) {
+			    	if(item.hasOwnProperty('icon')) {
+			    		let icon = {};
+			    			icon['image'] = new Image();
+			    			icon['image'].src = (require(`${item.icon.url}`));
+			    			icon['loaded'] = false;
+			    			icon['image'].onload = function() {
+			    				icon['loaded'] = true;
+			    				icon['width'] = item.icon['width'] ? item.icon.width : icon['image'].width;
+			    				icon['height'] = item.icon['height'] ? item.icon.height : icon['image'].height;
+			    				that.update(false);
+			    			}
+			    			that.icons.push(icon);
+			    	}
+			    	else {
+			    		that.icons.push(undefined);
+			    	}
+			    })
+			},
+			createImage: function(src) {
+				let image = new Image();
+				image.src = src;
+				return image;
 			},
 			createCanvasContext: function() {
 			    var canvas = this.$el;
@@ -131,11 +176,10 @@ menu structure:
 			        this.ctx.beginPath();
 			        this.ctx.annulus(positionArcCount.x, positionArcCount.y, startPosition, endPosition, angle, angle + Math.radians(this.segmentWidth), false);
 			        this.ctx.fillStyle = color;
-			        this.ctx.fill();
+			        this.ctx.fill();		        
 			        this.ctx.closePath();
 			},
-			drawText(text, colorText, textPosition, angle) {
-				var position = this.findNewPoint(this.width/2,this.height/2,Math.degrees(angle) + ((this.segmentWidth)/2), textPosition);
+			drawText(position, text, colorText) {
 					this.ctx.beginPath();
 			        this.ctx.textAlign="center"; 
 			        this.ctx.textBaseline="middle"
@@ -143,6 +187,9 @@ menu structure:
 			        this.ctx.font="12px Arial";
 			        this.ctx.fillText(text,position.x,position.y);
 			        this.ctx.closePath();				
+			},
+			drawImage: function(img, position, width, height) {
+				this.ctx.drawImage(img, (x - width/2), (y - height/2),size,size);
 			},
 			isInside: function(E,position) {
 				if(E === false) return
@@ -177,21 +224,27 @@ menu structure:
 
 			    for (var i = 0; i < slices; i++) {
 			        var angle = Math.radians(segmentWidth*i);
-			        if(this.menu[i].count) {
+			        if(this.menu[i]['count']) {
 						this.drawOption("green", angle, this.width/2-30, this.width/2-4);
-			        	this.drawText(this.menu[i].count, "#FFFFFF", this.width/2-14, angle);
+			        	this.drawText(this.findNewPoint(this.width/2,this.height/2, Math.degrees(angle) + ((this.segmentWidth)/2), this.width/2-14), this.menu[i].count, "#FFFFFF");
 			    	}
 
 			        if (this.isInside(E,i)) {
-			            this.drawOption("#CACACA", angle, 40, this.width/2-40);
+			            this.drawOption(this.color.backgroundHover, angle, 40, this.width/2-40);
 			            this.optionSelected = this.menu[i];
 			            this.$el.style.cursor = "pointer";
 			        } 
 			        else {
-			            this.drawOption("#FFFFFF", angle, 40, this.width/2-40);
+			            this.drawOption(this.color.background, angle, 40, this.width/2-40);
 			        }
-			             
-					this.drawText(this.menu[i].label, "#000000", this.width/3.5, angle);
+			        let position = this.findNewPoint(this.width/2,this.height/2, Math.degrees(angle) + ((this.segmentWidth)/2), this.width/3.5);
+			        if(this.icons[i] && this.icons[i].loaded) {
+			        	let icon = this.icons[i];
+
+						this.ctx.drawImage(icon.image, (position.x - icon.width/2), (position.y - icon.height), icon.width, icon.height);
+					}
+					position.y = position.y +14;
+					this.drawText(position, this.menu[i].label, this.color.text);
 			    }
 			}
 		},
