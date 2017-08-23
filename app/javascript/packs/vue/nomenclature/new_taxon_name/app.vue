@@ -20,7 +20,7 @@
         <relationship-picker class="separate-top separate-bottom"></relationship-picker>
       </div>
       <div class="new-taxon-name-block">
-        <type-block v-if="getTaxon.id && showForThisGroup(['SpeciesGroup','GenusGroup'])" class="separate-top separate-bottom"></type-block>
+        <type-block v-if="getTaxon.id && showForThisGroup(['FamilyGroup','GenusGroup'])" class="separate-top separate-bottom"></type-block>
       </div>
       <div class="new-taxon-name-block" v-if="showForThisGroup(['SpeciesGroup','GenusGroup'])">
         <spinner :show-spinner="false" :show-legend="false" v-if="!getTaxon.id"></spinner>

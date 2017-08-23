@@ -7,7 +7,7 @@
     </div>
     <div class="body" v-if="expanded">
       <div v-if="!taxonRelation">
-        <hard-validation field="type">
+        <hard-validation field="type" v-if="!(getRankGroup == 'Family' && GetRelationshipsCreated.length)">
           <autocomplete slot="body"
               url="/taxon_names/autocomplete"
               label="label_html"
@@ -43,7 +43,7 @@
           <list-common :object-lists="objectLists.common" :filter="true" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"></list-common>
         </div>
       </div>
-      <list-entrys mutationNameRemove="RemoveTaxonRelationship" :list="GetRelationshipsCreated" :display="['subject_status_tag', 'object_object_tag']"></list-entrys>
+      <list-entrys mutationNameRemove="RemoveTaxonRelationship" :list="GetRelationshipsCreated" :display="['subject_status_tag', 'subject_object_tag']"></list-entrys>
     </div>
   </form>
 </template>
