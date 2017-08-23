@@ -46,10 +46,14 @@ class GeneAttribute < ApplicationRecord
 
   after_save :add_to_descriptor_logic_if_absent
 
+  def to_logic_literal
+    "#{sequence_relationship_type}.#{id}"
+  end
+
   protected
 
-  def add_to_descriptor_logic_if_absent
-    descriptor.add_to_logic(self, :and)
+  def add_to_descriptor_logic_if_absent 
+    descriptor.extend_gene_attribute_logic(self, :and) unless descriptor.contains_logic_for?(self)
   end
 
 end

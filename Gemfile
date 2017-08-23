@@ -95,6 +95,7 @@ gem 'rainbow', '~> 2.2.2'
 gem 'term-ansicolor', '~> 1.6' # DEPRECATED
 gem 'chronic', '~> 0.10.2'
 gem 'logical_query_parser'
+gem 'logic_tools'
 
 # Deploy, deprecated soon
 gem 'capistrano-npm', '~> 1.0.2'

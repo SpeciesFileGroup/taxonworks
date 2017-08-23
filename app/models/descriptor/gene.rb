@@ -4,8 +4,10 @@
 # The column (conceptually set of sequences) is populated by things that match (all) of the GeneAttibutes attached to the Descriptor::Gene.
 # 
 
-
-# LogicalQuery::LiteralNode.include Patches::LogicalQuery::LiteralNode
+# require "logic_tools/logictree.rb"
+# require "logic_tools/logicparse.rb"
+# require "logic_tools/logicsimplify_es.rb"
+# include LogicTools
 
 class Descriptor::Gene < Descriptor
 
@@ -15,9 +17,9 @@ class Descriptor::Gene < Descriptor
   # Pass a Sequence to clone that sequence description to this descriptor
   attr_accessor :base_on_sequence
 
-  before_validation :add_gene_attributes, if: 'base_on_sequence.present?'
+  before_validation :add_gene_attributes, if: -> { base_on_sequence.present? } 
+  before_validation :cache_gene_attribute_logic_sql, if: :gene_attribute_logic_changed? 
 
-  after_save :generate_cached_gene_attribute_sql
   after_save :validate_gene_attribute_logic
 
   # @return [Scope]
@@ -36,6 +38,7 @@ class Descriptor::Gene < Descriptor
   #      ' GROUP BY s.id' +
   #      " HAVING COUNT(sr.object_sequence_id) = #{data.count};" 
   #
+  # TODO: move to exact_and
   def sequences
     return Sequence.none if !gene_attributes.all.any?
 
@@ -70,7 +73,7 @@ class Descriptor::Gene < Descriptor
   def or_sequences
     return Sequence.none if !gene_attributes.all.any?
 
-    s = Sequence.arel_table
+#    s = Sequence.arel_table
     sr = SequenceRelationship.arel_table
 
     clauses = gene_attribute_pairs.collect{ |subject_sequence_id, type|
@@ -86,10 +89,10 @@ class Descriptor::Gene < Descriptor
     Sequence.joins(:related_sequence_relationships).where(q.to_sql).references(:sequence_relationships).distinct
   end
 
-  def build_sql(str = "a AND b")
-    parser = LogicalQueryParser.new
-    byebug 
-    parser.parse(str).sequence_sql # to_sql(model: self.class, columns: %w(c1 c2))
+  def ga_sequences
+    return Sequence.none if !gene_attributes.all.any?
+
+    Sequence.joins(:related_sequence_relationships).where(cached_gene_attribute_sql).references(:sequence_relationships).where(sequence_relationships: {object_sequence_id: id}).distinct
   end
 
   # @return [Array]
@@ -106,12 +109,24 @@ class Descriptor::Gene < Descriptor
     gene_attribute_pairs.collect{|id, z| z}
   end
 
-  def add_to_logic(gene_attribute, logic = :and)
+  def build_gene_attribute_logic_sql(str = nil)
+    return nil if str.nil?
+    parser = LogicalQueryParser.new
+    parser.parse(str).to_sequence_relationship_sql 
+  end
+
+  def extend_gene_attribute_logic(gene_attribute, logic = :and)
     logic.downcase!.to_sym! unless logic.kind_of?(Symbol)
     raise if ![:and,:or].include?(logic)
 
-    v = [gene_attribute_logic, gene_attribute_logic.blank? ? nil : ' AND ', gene_attribute.to_param].compact.join
-    update_column(:gene_attribute_logic, v)
+    append_gene_attribute_logic(gene_attribute, logic)
+    cache_gene_attribute_logic_sql
+  end
+
+  # @return [Boolean]
+  #     true if the current logic statement contains the attribute in question
+  def contains_logic_for?(gene_attribute)
+    gene_attribute_logic =~ /#{gene_attribute.to_logic_literal}/  ? true : false
   end
 
   protected
@@ -124,12 +139,19 @@ class Descriptor::Gene < Descriptor
 
   def validate_gene_attribute_logic
     gene_attributes.each do |ga|
-      error.add(:base, 'gene_attribute not referenced in gene attribute logic') unless gene_attribute_logic =~ /#{ga.to_param}/
+      error.add(:base, 'gene_attribute not referenced in gene attribute logic') unless contains_logic_for?(ga)
     end
   end
 
-  def generate_cached_gene_attribute_sql
-
+  def append_gene_attribute_logic(gene_attribute, logic = :and)
+    v = [gene_attribute_logic, gene_attribute.to_logic_literal].compact.join(' AND ')
+    update_column(:gene_attribute_logic, v)
   end
+
+  def cache_gene_attribute_logic_sql
+    write_attribute(:cached_gene_attribute_sql, build_gene_attribute_logic_sql(gene_attribute_logic))
+  end
+
+
 
 end
