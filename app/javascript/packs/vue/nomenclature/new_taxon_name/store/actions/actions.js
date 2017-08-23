@@ -1,6 +1,7 @@
 const ActionNames = {
 	SetParentAndRanks: 'setParentAndRanks',
 	AddTaxonStatus: 'addTaxonStatus',
+	AddTaxonType: 'addTaxonType',
 	AddTaxonRelationship: 'addTaxonRelationship',
 	AddOriginalCombination: 'addOriginalCombination',
 	RemoveTaxonStatus: 'removeTaxonStatus',
@@ -15,6 +16,7 @@ const ActionFunctions = {
 	[ActionNames.LoadSoftValidation]: require('./loadSoftValidation'),
 	[ActionNames.SetParentAndRanks]: require('./setParentAndRanks'),
 	[ActionNames.AddTaxonStatus]: require('./addTaxonStatus'),
+	[ActionNames.AddTaxonType]: require('./addTaxonType'),
 	[ActionNames.AddTaxonRelationship]: require('./addTaxonRelationship'),
 	[ActionNames.AddOriginalCombination]: require('./addOriginalCombination'),
 	[ActionNames.RemoveTaxonStatus]: require('./removeTaxonStatus'),

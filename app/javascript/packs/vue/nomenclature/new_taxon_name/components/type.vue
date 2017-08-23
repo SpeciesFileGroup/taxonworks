@@ -27,7 +27,7 @@
           :parent="parent" 
           :objectLists="objectLists" 
           :showModal="showModal" 
-          mutation-name-add="AddTaxonRelationship" 
+          mutation-name-add="AddTaxonType" 
           mutation-name-modal="SetModalType"
           name-module="Types"
           display-name="subject_status_tag">
@@ -40,7 +40,7 @@
         </div>
         <p v-html="taxonRelation.label_html"></p>
         <div class="separate-top">
-          <list-common :object-lists="objectLists.common" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"></list-common>
+          <list-common :object-lists="objectLists.common" :filter="true" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"></list-common>
         </div>
       </div>
       <list-entrys mutationNameRemove="RemoveTaxonRelationship" :list="GetRelationshipsCreated" :display="['subject_status_tag', 'object_object_tag']"></list-entrys>
@@ -140,7 +140,7 @@
       		this.addEntry(this.objectLists.tree[Object.keys(this.objectLists.tree)[0]]);
       },
       addEntry: function(item) {
-        this.$store.dispatch(ActionNames.AddTaxonRelationship, item);
+        this.$store.dispatch(ActionNames.AddTaxonType, item);
       },
       filterList: function(list, filter) {
       	let tmp = {};

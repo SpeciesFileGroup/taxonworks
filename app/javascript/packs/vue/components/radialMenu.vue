@@ -58,7 +58,6 @@ menu structure:
 				ctx: undefined,
 				segmentWidth: this.maxAngle/this.menu.length,
 				optionSelected: undefined,
-				img: this.createImage(require('./images/image.svg')),
 				icons: [],
 			}
 		},
@@ -187,9 +186,6 @@ menu structure:
 			        this.ctx.font="12px Arial";
 			        this.ctx.fillText(text,position.x,position.y);
 			        this.ctx.closePath();				
-			},
-			drawImage: function(img, position, width, height) {
-				this.ctx.drawImage(img, (x - width/2), (y - height/2),size,size);
 			},
 			isInside: function(E,position) {
 				if(E === false) return
