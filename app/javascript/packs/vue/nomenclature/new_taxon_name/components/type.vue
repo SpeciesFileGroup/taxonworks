@@ -7,15 +7,16 @@
     </div>
     <div class="body" v-if="expanded">
       <div v-if="!taxonRelation">
-        <hard-validation field="object_taxon_name_id">
+        <hard-validation field="type">
           <autocomplete slot="body"
               url="/taxon_names/autocomplete"
               label="label_html"
+              display="label"
               min="3"
-              v-model="taxonRelation"
-              eventSend="autocompleteTaxonRelationshipSelected"
+              eventSend="autocompleteType"
+              @getItem="addTaxonType"
               placeholder="Search taxon name for the new relationship..."
-              :addParams="{ type: 'Protonym', 'nomenclature_group[]': getRankGroup }"
+              :addParams="{ type: 'Protonym', 'nomenclature_group[]': childOfParent[getRankGroup.toLowerCase()] }"
               param="term">
           </autocomplete>
         </hard-validation>
@@ -39,17 +40,7 @@
         </div>
         <p v-html="taxonRelation.label_html"></p>
         <div class="separate-top">
-          <autocomplete v-if="showAdvance"
-            :arrayList="objectLists.allList"
-            label="subject_status_tag"
-            min="3"
-            time="0"
-            placeholder="Search"
-            eventSend="autocompleteRelationshipSelected"
-            @getItem="addEntry"
-            param="term">
-          </autocomplete>    
-          <list-common v-if="!showAdvance" :object-lists="objectLists" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"></list-common>
+          <list-common :object-lists="objectLists.common" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"></list-common>
         </div>
       </div>
       <list-entrys mutationNameRemove="RemoveTaxonRelationship" :list="GetRelationshipsCreated" :display="['subject_status_tag', 'object_object_tag']"></list-entrys>
@@ -68,6 +59,7 @@
   const autocomplete = require('../../../components/autocomplete.vue');
   const hardValidation = require('./hardValidation.vue');
   const getRankGroup = require('../helpers/getRankGroup');
+  const childOfParent = require('../helpers/childOfParent');
 
   export default {
     components: {
@@ -86,7 +78,9 @@
         return getRankGroup(this.$store.getters[GetterNames.GetTaxon].rank_string);
       },
       GetRelationshipsCreated() {
-        return this.$store.getters[GetterNames.GetTaxonRelationshipList]
+        return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(function(item) { 
+          return (item.type.split('::')[1] == 'Typification')
+        });
       },
       parent() {
         return this.$store.getters[GetterNames.GetParent]
@@ -114,6 +108,7 @@
         objectLists: this.makeLists(),
         expanded: true,
         showAdvance: false,
+        childOfParent: childOfParent,
       }
     },
     watch: {
@@ -127,7 +122,8 @@
     },
     methods: {
       refresh: function() {
-        this.objectLists.tree = this.addType(Object.assign({},this.treeList[this.nomenclaturalCode].typification));
+        this.objectLists.tree = this.filterList(this.addType(Object.assign({},this.treeList.typification.all)),this.getRankGroup);
+        this.objectLists.common = this.filterList(this.addType(Object.assign({},this.treeList.typification.common)),this.getRankGroup);
       },
       activeModal: function(value) {
         this.$store.commit(MutationNames.SetModalType, value)
@@ -135,10 +131,25 @@
       makeLists: function() {
         return {
           tree: undefined,
+          common: undefined
         }
+      },
+      addTaxonType: function(taxon) {
+      	this.taxonRelation = taxon;
+      	if(this.getRankGroup == 'Family')
+      		this.addEntry(this.objectLists.tree[Object.keys(this.objectLists.tree)[0]]);
       },
       addEntry: function(item) {
         this.$store.dispatch(ActionNames.AddTaxonRelationship, item);
+      },
+      filterList: function(list, filter) {
+      	let tmp = {};
+
+      	for(var key in list) {
+      		if(key.split('::')[2] == filter)
+      			tmp[key] = list[key]
+      	}
+      	return tmp;
       },
       addType(list) {
         for(var key in list) {

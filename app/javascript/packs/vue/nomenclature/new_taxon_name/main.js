@@ -28,7 +28,7 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
 	}
 });
 
-$(document).ready( function() {
+$(document).on('turbolinks:load', function() {
   if ($("#new_taxon_name_task").length) {
     TW.views.tasks.nomenclature.new_taxon_name.init();
   }

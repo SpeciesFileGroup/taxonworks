@@ -51,7 +51,7 @@
             @getItem="addEntry"
             param="term">
           </autocomplete>    
-          <list-common v-if="!showAdvance" :object-lists="objectLists" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"></list-common>
+          <list-common v-if="!showAdvance" :object-lists="objectLists.commonList" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"></list-common>
         </div>
       </div>
       <list-entrys mutationNameRemove="RemoveTaxonRelationship" :list="GetRelationshipsCreated" :display="['subject_status_tag', 'object_object_tag']"></list-entrys>
@@ -88,16 +88,9 @@
         return getRankGroup(this.$store.getters[GetterNames.GetTaxon].rank_string);
       },
       GetRelationshipsCreated() {
-
-        var list = this.$store.getters[GetterNames.GetTaxonRelationshipList];
-        var tmp = [];
-        list.forEach(function(item, index) {
-          if(item.type.split('::')[1] != 'OriginalCombination') {
-            tmp.push(item);
-          }
+        return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(function(item) { 
+          return (item.type.split('::')[1] != 'OriginalCombination')
         });
-
-        return tmp
       },
       parent() {
         return this.$store.getters[GetterNames.GetParent]

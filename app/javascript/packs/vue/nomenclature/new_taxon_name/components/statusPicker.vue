@@ -38,7 +38,7 @@
           @getItem="addEntry"
           param="term">
         </autocomplete>    
-        <list-common v-if="!showAdvance" :filter="true" :object-lists="objectLists" display="name" @addEntry="addEntry" :list-created="getStatusCreated"></list-common>
+        <list-common v-if="!showAdvance" :filter="true" :object-lists="objectLists.commonList" display="name" @addEntry="addEntry" :list-created="getStatusCreated"></list-common>
       </div>
       <list-entrys mutationNameRemove="RemoveTaxonStatus" :list="getStatusCreated" :display="['object_tag']"></list-entrys>
     </div>
@@ -83,16 +83,9 @@
         return this.$store.getters[GetterNames.GetSoftValidation]
       },
       getStatusCreated() {
-        var list = this.$store.getters[GetterNames.GetTaxonStatusList];
-        var tmp = [];
-        
-        list.forEach(function(item, index) {
-          if(item.type.split('::')[1] != 'Latinized') {
-            tmp.push(item);
-          }
+        return this.$store.getters[GetterNames.GetTaxonStatusList].filter(function(item) { 
+          return (item.type.split('::')[1] != 'Latinized')
         });
-
-        return tmp
       }
     },
     data: function() {
