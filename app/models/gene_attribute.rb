@@ -47,7 +47,7 @@ class GeneAttribute < ApplicationRecord
   after_save :add_to_descriptor_logic_if_absent
 
   def to_logic_literal
-    "#{sequence_relationship_type}.#{id}"
+    "#{sequence_relationship_type}.#{sequence_id}"
   end
 
   protected

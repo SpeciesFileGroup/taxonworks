@@ -1,5 +1,8 @@
 require 'rails_helper'
 
+# See also 
+#   descriptor/gene/logic_spec.rb
+#   descriptor/gene/sequences_spec.rb
 RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dna] do
   let(:descriptor) { Descriptor::Gene.new(name: '28s') }
 
@@ -11,6 +14,12 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dn
 
   let(:attribute1) { GeneAttribute.new(descriptor: descriptor, sequence: forward_primer, sequence_relationship_type: SequenceRelationship::ForwardPrimer) } 
   let(:attribute2) { GeneAttribute.new(descriptor: descriptor, sequence: reverse_primer, sequence_relationship_type: SequenceRelationship::ReversePrimer) }
+
+  context 'associations' do
+    specify '#gene_attributes' do
+      expect(descriptor.gene_attributes << GeneAttribute.new).to be_truthy
+    end
+  end
 
   context 'validation' do
     context 'sequence / relationship_type combination must be unique' do
@@ -51,41 +60,6 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dn
     end
   end
 
-  context 'associations' do
-    specify '#gene_attributes' do
-      expect(descriptor.gene_attributes << GeneAttribute.new).to be_truthy
-    end
-  end
-
-  context 'gene_attribute logic' do
-    before { descriptor.save! }
-
-    context 'does not contain attribute' do
-      before { attribute1.save! }
-
-      specify 'attributes are automatically appended' do
-        expect(descriptor.gene_attribute_logic).to eq(attribute1.to_logic_literal)
-      end
-
-      specify 'with AND' do
-        attribute2.save!
-        expect(descriptor.gene_attribute_logic).to eq(attribute1.to_logic_literal + ' AND ' + attribute2.to_logic_literal)
-      end
-    end
-
-    context 'user provided' do
-      before do
-        attribute1.save! 
-        attribute2.save!
-        descriptor.gene_attribute_logic = "#{attribute1.to_logic_literal} OR #{attribute2.to_logic_literal}"
-        descriptor.save!
-      end 
-
-      specify 'logic does not contain duplicate reference to gene attribute' do
-        expect(descriptor.gene_attribute_logic).to eq("#{attribute1.to_logic_literal} OR #{attribute2.to_logic_literal}")
-      end
-    end
-  end
 
   context 'given some sequences' do
     let(:specimen) { FactoryGirl.create(:valid_specimen) }
@@ -108,16 +82,6 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dn
       sequence_type: 'DNA'
     )}
 
-    context 'a descriptor with no attributes' do
-      specify 'returns no #sequences' do
-        expect(descriptor.sequences).to eq([])
-      end
-
-      specify 'returns no #or_sequences' do
-        expect(descriptor.or_sequences).to eq([])
-      end
-    end
-
     context 'a descriptor with attributes' do
       before do
         descriptor.save!
@@ -126,85 +90,22 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dn
       end 
 
       specify '#gene_attribute_pairs' do
-        expect(descriptor.gene_attribute_pairs).to contain_exactly([forward_primer.id, 'SequenceRelationship::ForwardPrimer'],[reverse_primer.id, 'SequenceRelationship::ReversePrimer'])
+        expect(descriptor.gene_attribute_pairs).to contain_exactly(
+          [forward_primer.id, 'SequenceRelationship::ForwardPrimer'],[reverse_primer.id, 'SequenceRelationship::ReversePrimer'])
+      end
+
+      specify '.gene_attribute_pairs' do
+        expect(Descriptor::Gene.gene_attribute_pairs(descriptor.gene_attributes.all)).to contain_exactly(
+          [forward_primer.id, 'SequenceRelationship::ForwardPrimer'],[reverse_primer.id, 'SequenceRelationship::ReversePrimer'])
       end
 
       specify '#gene_attribute_sequence_ids' do
         expect(descriptor.gene_attribute_sequence_ids).to contain_exactly(forward_primer.id, reverse_primer.id)
       end
 
-      specify '#gene_attribute_sequence_retlationship_types' do
+      specify '#gene_attribute_sequence_relationship_types' do
         expect(descriptor.gene_attribute_sequence_relationship_types).to contain_exactly('SequenceRelationship::ForwardPrimer','SequenceRelationship::ReversePrimer')
       end
-
-      specify 'returns matching #sequences' do
-        expect(descriptor.sequences).to contain_exactly(target_sequence1)
-      end
-
-      specify 'returns #or_sequences' do
-        expect(descriptor.or_sequences).to contain_exactly(target_sequence1, target_sequence2)
-      end
-
-      specify 'returns #ge_sequences' do
-        expect(descriptor.ga_sequences).to contain_exactly(target_sequence1)
-      end
-
-      context 'gene attribute logic' do\
-        context '#build_gene_attribute_logic_sql' do
-          let(:basic_logic) { 'SequenceRelationship::ForwardPrimer.999' }   
-
-          specify 'returns a useful SQL fragment' do
-            expect(descriptor.build_gene_attribute_logic_sql(basic_logic)).to eq(
-              %Q{"sequence_relationships"."type" = 'SequenceRelationship::ForwardPrimer' AND "sequence_relationships"."subject_sequence_id" = 999}  
-            )
-          end
-
-          specify 'moar' do
-            l = 'A.1 AND (B.2 OR B.3)'
-            byebug
-            expect(descriptor.build_gene_attribute_logic_sql(l)).to eq(
-              %Q{"sequence_relationships"."type" = 'SequenceRelationship::ForwardPrimer' AND "sequence_relationships"."subject_sequence_id" = 999}  
-            )
-          end
-
-        end
-
-        context '#gene_attribute_logic' do
-          specify 'is rendered as AND when not otherwise provided' do
-            expect(descriptor.gene_attribute_logic).to eq("#{attribute1.to_logic_literal} AND #{attribute2.to_logic_literal}")
-          end
-        end
-
-        context '#cached_gene_attribute_sql' do
-          specify 'is rendered as AND when not otherwise provided' do
-            expect(descriptor.cached_gene_attribute_sql).to eq(
-              %Q{"sequence_relationships"."type" = 'SequenceRelationship::ForwardPrimer' AND "sequence_relationships"."subject_sequence_id" = } +
-              attribute1.to_param +
-              ' AND ' +
-              %Q{"sequence_relationships"."type" = 'SequenceRelationship::ReversePrimer' AND "sequence_relationships"."subject_sequence_id" = } +
-              attribute2.to_param
-            )
-          end
-
-          context 'when #gene_attribute_logic is user updated' do
-            before do
-              descriptor.gene_attribute_logic = "#{attribute1.to_logic_literal} OR #{attribute2.to_logic_literal}"
-              descriptor.save
-            end
-
-            specify 'corresponding cached SQL is as well' do
-              expect(descriptor.cached_gene_attribute_sql).to eq(
-                %Q{"sequence_relationships"."type" = 'SequenceRelationship::ForwardPrimer' AND "sequence_relationships"."subject_sequence_id" = } +
-                attribute1.to_param +
-                ' OR ' +
-                %Q{"sequence_relationships"."type" = 'SequenceRelationship::ReversePrimer' AND "sequence_relationships"."subject_sequence_id" = } +
-                attribute2.to_param
-              )
-            end 
-          end
-        end
-      end # end gene attribute logic
-
     end
   end 
 end

@@ -19,8 +19,6 @@ module LogicalQuery
   module ExpParenNode
     def to_sequence_relationship_sql(opts, sql = '')
       lparen.to_sql(opts, sql)
-
-      puts '--- EXP ---'
       exp.to_sequence_relationship_sql(opts, sql)
       rparen.to_sql(opts, sql)
     end
@@ -30,7 +28,6 @@ module LogicalQuery
     def to_sequence_relationship_sql(opts, sql = '')
       lexp.to_sequence_relationship_sql(opts, sql)
       logic.to_sql(opts, sql)
-      puts '--- COND ---'
       rexp.to_sequence_relationship_sql(opts, sql)
     end
   end
@@ -38,10 +35,7 @@ module LogicalQuery
   module LiteralSeqNode
     def to_sequence_relationship_sql(opts, sql = '')
       lliteral.to_sequence_relationship_sql(opts, sql)
-
       sql << ' AND '
-
-      puts '--- AND ---'
       rliteral.to_sequence_relationship_sql(opts, sql)
     end
   end
