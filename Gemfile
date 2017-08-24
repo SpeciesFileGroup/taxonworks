@@ -85,7 +85,7 @@ gem 'redcarpet', '~> 3.4'
 gem 'taxonifi', '0.4.0'
 gem 'sqed', '0.3.2'
 gem 'dwc-archive', '~> 0.9.11'
-gem 'biodiversity', '~> 3.4.1'
+gem 'biodiversity', '~> 3.4.2'
 gem 'ruby-units', '~> 2.2.0', require: 'ruby_units/namespaced'
 
 # Minor Utils/helpers
@@ -94,6 +94,8 @@ gem 'indefinite_article', '~> 0.2.4'
 gem 'rainbow', '~> 2.2.2'
 gem 'term-ansicolor', '~> 1.6' # DEPRECATED
 gem 'chronic', '~> 0.10.2'
+gem 'logical_query_parser'
+gem 'logic_tools'
 
 # Deploy, deprecated soon
 gem 'capistrano-npm', '~> 1.0.2'

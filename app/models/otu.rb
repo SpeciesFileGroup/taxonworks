@@ -6,7 +6,6 @@
 #
 # OTU is labeled with a name, either arbitrarily given or specifically linked to a taxon_name_id.
 #
-#
 # @!attribute name
 #   @return [String]
 #   A label for the OTU.

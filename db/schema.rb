@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170721210127) do
+ActiveRecord::Schema.define(version: 20170818165706) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -529,16 +529,18 @@ ActiveRecord::Schema.define(version: 20170721210127) do
   end
 
   create_table "descriptors", force: :cascade do |t|
-    t.string   "name",          null: false
+    t.string   "name",                      null: false
     t.string   "short_name"
-    t.string   "type",          null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.string   "type",                      null: false
+    t.integer  "created_by_id",             null: false
+    t.integer  "updated_by_id",             null: false
+    t.integer  "project_id",                null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
     t.integer  "position"
     t.text     "description"
+    t.string   "gene_attribute_logic"
+    t.string   "cached_gene_attribute_sql"
     t.index ["created_by_id"], name: "index_descriptors_on_created_by_id", using: :btree
     t.index ["name"], name: "index_descriptors_on_name", using: :btree
     t.index ["project_id"], name: "index_descriptors_on_project_id", using: :btree

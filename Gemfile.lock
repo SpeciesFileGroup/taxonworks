@@ -179,7 +179,7 @@ GEM
       guard (~> 2.1)
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
-    hashdiff (0.3.5)
+    hashdiff (0.3.6)
     hashery (2.1.2)
     hashie (3.5.6)
     hiredis (0.6.1)
@@ -223,6 +223,10 @@ GEM
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
       ruby_dep (~> 1.2)
+    logic_tools (0.3.9)
+      parslet
+    logical_query_parser (0.1.0)
+      treetop (~> 1.6.8)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     lumberjack (1.0.12)
@@ -253,7 +257,7 @@ GEM
     notiffany (0.1.1)
       nenv (~> 0.1)
       shellany (~> 0.0)
-    paper_trail (7.1.0)
+    paper_trail (7.1.1)
       activerecord (>= 4.0, < 5.2)
       request_store (~> 1.1)
     paperclip (5.1.0)
@@ -265,10 +269,11 @@ GEM
     paperclip-meta (3.0.0)
       paperclip (~> 5.0)
     parallel (1.12.0)
-    parallel_tests (2.14.2)
+    parallel_tests (2.14.3)
       parallel
     parser (2.4.0.0)
       ast (~> 2.2)
+    parslet (1.8.0)
     parsley-store (0.3.6)
       biodiversity (~> 3.1)
       redis (~> 3.0)
@@ -486,7 +491,7 @@ GEM
     websocket-driver (0.6.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.2)
-    with_advisory_lock (3.1.0)
+    with_advisory_lock (3.1.1)
       activerecord (>= 3.2)
       thread_safe
     xpath (2.1.0)
@@ -505,7 +510,7 @@ DEPENDENCIES
   better_errors (~> 2.3)
   bibtex-ruby (~> 4.4.4)
   binding_of_caller
-  biodiversity (~> 3.4.1)
+  biodiversity (~> 3.4.2)
   byebug (~> 9.0.6)
   capistrano-npm (~> 1.0.2)
   capybara (~> 2.15.1)
@@ -538,6 +543,8 @@ DEPENDENCIES
   jquery-ui-rails (~> 6.0.1)
   kaminari (~> 1.0.1)
   latex-decode (~> 0.2.2)
+  logic_tools
+  logical_query_parser
   mail (~> 2.7.0.rc1)
   modularity (~> 2.0.1)
   paper_trail (~> 7.1)
@@ -595,4 +602,4 @@ RUBY VERSION
    ruby 2.4.1p111
 
 BUNDLED WITH
-   1.15.3
+   1.15.4
