@@ -52,3 +52,9 @@ if taxon_name.taxon_name_relationships.any?
   end
 end
 
+json.type_taxon_name_relationship do
+  if taxon_name.type_taxon_name_relationship
+    json.partial! '/taxon_name_relationships/attributes', taxon_name_relationship: taxon_name.type_taxon_name_relationship
+  end
+end
+
