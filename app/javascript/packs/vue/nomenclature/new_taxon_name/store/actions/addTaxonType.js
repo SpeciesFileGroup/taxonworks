@@ -5,7 +5,7 @@ module.exports = function({ commit, state, dispatch }, data) {
 	let relationship = { 
 		taxon_name_relationship: {
 			object_taxon_name_id: state.taxon_name.id,
-			subject_taxon_name_id: state.taxonRelationship.id,
+			subject_taxon_name_id: state.taxonType.id,
 			type: data.type
 		}
 	}
@@ -15,5 +15,5 @@ module.exports = function({ commit, state, dispatch }, data) {
 	}, response => {
 		commit(MutationNames.SetHardValidation, response);
 	});
-	state.taxonRelationship = undefined;
+	state.taxonType = undefined;
 };

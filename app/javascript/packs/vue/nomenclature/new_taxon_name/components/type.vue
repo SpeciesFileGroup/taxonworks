@@ -7,7 +7,7 @@
     </div>
     <div class="body" v-if="expanded">
       <div v-if="!taxonRelation">
-        <hard-validation field="type" v-if="!(getRankGroup == 'Family' && GetRelationshipsCreated.length)">
+        <hard-validation field="type" v-if="!(GetRelationshipsCreated.length)">
           <autocomplete slot="body"
               url="/taxon_names/autocomplete"
               label="label_html"
@@ -90,10 +90,10 @@
       },
       taxonRelation: {
         get() {
-          return this.$store.getters[GetterNames.GetTaxonRelationship]
+          return this.$store.getters[GetterNames.GetTaxonType]
         },
         set(value) {
-          this.$store.commit(MutationNames.SetTaxonRelationship, value);
+          this.$store.commit(MutationNames.SetTaxonType, value);
         }
       },
       nomenclaturalCode() {
