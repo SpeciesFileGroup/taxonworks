@@ -89,7 +89,7 @@
       },
       GetRelationshipsCreated() {
         return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(function(item) { 
-          return (item.type.split('::')[1] != 'OriginalCombination')
+          return (item.type.split('::')[1] != 'OriginalCombination' && item.type.split('::')[1] != 'Typification')
         });
       },
       parent() {
