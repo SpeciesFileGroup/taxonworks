@@ -12,7 +12,7 @@ class TaxonNameRelationshipsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_name_relationships = TaxonNameRelationship.where(filter_params).with_project_id(sessions_current_project_id)
+        @taxon_name_relationships = TaxonNameRelationship.where(filter_sql).with_project_id(sessions_current_project_id)
       }
     end
   end
@@ -129,11 +129,10 @@ class TaxonNameRelationshipsController < ApplicationController
     ) 
   end
 
-  def filter_params
-    p = params.permit(:taxon_name_id)
-    h = {}
-    h[:subject_taxon_name_id] = p['taxon_name_id']
-    h
+  def filter_sql
+    p = params.permit(:taxon_name_id)[:taxon_name_id]
+    a = TaxonNameRelationship.arel_table
+    a[:subject_taxon_name_id].eq(p).or(a[:object_taxon_name_id].eq(p))
   end
 
 end
