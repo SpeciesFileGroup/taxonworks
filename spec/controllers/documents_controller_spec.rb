@@ -24,11 +24,11 @@ RSpec.describe DocumentsController, type: :controller do
   }
 
   let(:valid_attributes) {
-       {document_file:  fixture_file_upload((Rails.root + 'spec/files/documents/tiny.pdf'), 'application/pdf') }
+    {document_file:  fixture_file_upload((Rails.root + 'spec/files/documents/tiny.pdf'), 'application/pdf') }
   }
 
   let(:invalid_attributes) {
-    {'document_file' => nil}
+    {document_file:  fixture_file_upload((Rails.root + 'spec/files/images/tiny.png'), 'image/png') }
   }
 
   # This should return the minimal set of values that should be in the session
