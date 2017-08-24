@@ -1,11 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dna] do
-
-
+  
   # The following data is described in this spec:
   #
   # Arbitrary (and anonymous, i.e. it doesn't matter what the ACGT values are, nor that the "primer" sequences are nonsensical values) lengths of DNA.
+  #
   # * Indicates a related sequence (primer, blast query, etc.)
   #
   # Sequences
@@ -18,7 +18,6 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dn
   #         |       |   |  | |    |         |    |                 
   #         ------------------    -----------    -------------   -----
   #                                                    
-  #
   # Target sequence attributes
   #
   # 1
@@ -44,7 +43,7 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dn
   # 14
   # (undescribed!)
   #
-
+  #
   # 5 letter sequences are targets
   # 4 letter are fwd
   # 3 letter are rev

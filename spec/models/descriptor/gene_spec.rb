@@ -99,13 +99,6 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dn
           [forward_primer.id, 'SequenceRelationship::ForwardPrimer'],[reverse_primer.id, 'SequenceRelationship::ReversePrimer'])
       end
 
-      specify '#gene_attribute_sequence_ids' do
-        expect(descriptor.gene_attribute_sequence_ids).to contain_exactly(forward_primer.id, reverse_primer.id)
-      end
-
-      specify '#gene_attribute_sequence_relationship_types' do
-        expect(descriptor.gene_attribute_sequence_relationship_types).to contain_exactly('SequenceRelationship::ForwardPrimer','SequenceRelationship::ReversePrimer')
-      end
     end
   end 
 end
