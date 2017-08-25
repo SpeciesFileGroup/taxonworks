@@ -65,7 +65,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
           it 'renders count of collection objects based on a selected otu' do
             fill_autocomplete('otu_id_for_by_otu', with: otu_test.name, select: otu_test.id)
             find('#set_otu').click
-            expect(find('#otu_count')).to have_text('1', wait: 10.0)
+            wait_for_ajax
+            expect(find('#otu_count')).to have_text('1')
           end
         end
 
