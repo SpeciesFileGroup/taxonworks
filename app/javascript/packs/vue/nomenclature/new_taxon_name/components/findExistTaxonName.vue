@@ -122,6 +122,7 @@
   .find-taxonname-list {
     margin-top: 1.5em;
     box-sizing: border-box;
+    min-width: 250px;
     border: 1px solid #f5f5f5;
     padding: 12px;
     border-radius: 3px;
