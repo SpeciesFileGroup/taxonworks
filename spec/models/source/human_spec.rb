@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Source::Human, :type => :model do
+describe Source::Human, :type => :model, group: [:human] do
   let(:tom) { Person.create(last_name: 'Smith', first_name: 'Tom')  }
   let(:sue) { Person.create(last_name: 'Sunny', first_name: 'Sue')  }
   let(:franklin) { Person.create(last_name: 'Roosevelt', first_name: 'Franklin')  }
@@ -26,7 +26,7 @@ describe Source::Human, :type => :model do
   context 'validation' do
     before { source_human.save }
     specify 'at least one person is provided' do
-      expect(source_human.errors.include?(:base)).to be_truthy 
+      expect(source_human.errors.include?(:base)).to be_truthy
     end
   end
 
@@ -38,8 +38,8 @@ describe Source::Human, :type => :model do
     end
 
     specify 'add multiple people, save the source' do
-      expect(source_human.people << tom).to be_truthy 
-      expect(source_human.people << sue).to be_truthy 
+      expect(source_human.people << tom).to be_truthy
+      expect(source_human.people << sue).to be_truthy
       expect(source_human.save).to be_truthy
       expect(source_human.people.count).to eq(2)
     end
@@ -61,21 +61,21 @@ describe Source::Human, :type => :model do
       source_human.people << sue
       source_human.save
       expect(source_human.cached).to eq(tom.last_name + ' & ' + sue.last_name)
-    end 
+    end
 
     specify '#cached with three (or more) people comman with & between last two' do
       source_human.people << sue
-      source_human.people << franklin 
+      source_human.people << franklin
       source_human.save
       expect(source_human.cached).to eq(tom.last_name + ', ' + sue.last_name + ' & ' + franklin.last_name)
-    end 
+    end
   end
 
   context 'position' do
-    before {  
+    before {
       source_human.people << tom
-      source_human.people << sue 
-      source_human.people << franklin 
+      source_human.people << sue
+      source_human.people << franklin
       source_human.save
     }
     specify 'is calculated' do
