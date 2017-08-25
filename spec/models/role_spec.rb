@@ -57,7 +57,7 @@ describe Role, :type => :model do
 
         specify 'a person with two roles becomes vetted' do
           other_collecting_event.collectors << person
-          expect(person.roles(false).size).to eq(2)
+          expect(person.roles.size).to eq(2)
           expect(person.reload.type).to eq('Person::Vetted')
         end
       end
