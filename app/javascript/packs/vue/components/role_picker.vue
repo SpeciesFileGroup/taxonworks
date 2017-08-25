@@ -133,6 +133,7 @@
 			removePerson: function(index) {
 				this.$set(this.roles_attributes[index], '_destroy', true);
 				this.$emit('input', this.roles_attributes);
+				this.$emit('delete', this.roles_attributes[index]);
 			},
 			setInput: function(text) {
 				this.searchPerson = text;

@@ -45,7 +45,7 @@
 			        </div>
 		        </div>
 		        <div v-if="show == 'person'">
-		        	<role-picker @create="updateTaxonName" v-model="roles" @update="updatePersons" role-type="TaxonNameAuthor"></role-picker>
+		        	<role-picker @create="updateTaxonName" @delete="updateTaxonName" v-model="roles" @update="updatePersons" role-type="TaxonNameAuthor"></role-picker>
 		        </div>
 			</div>
 		</div>
