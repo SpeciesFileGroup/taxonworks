@@ -480,7 +480,7 @@ class TaxonNameRelationship < ApplicationRecord
         soft_validations.add(:base, "#{s.cached_html_name_and_author_year} should be accepted as a replacement name before 1961") if self.source && self.source.year > 1960
 
       when 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
-        soft_validations.add(:type, "Genus #{o.cached_html_name_and_author_year} described after 1930 is nomen nudum, if type was not designated in the original publication") if o.year_of_publication > 1930
+        soft_validations.add(:type, "Genus #{o.cached_html_name_and_author_year} described after 1930 is nomen nudum, if type was not designated in the original publication") if o.year_of_publication && o.year_of_publication > 1930
       when 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName'
         r1 = TaxonNameRelationship.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym', subject_taxon_name_id: o.id, object_taxon_name_id: s.id).first
         r2 = TaxonNameRelationship.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName', subject_taxon_name_id: s.id, object_taxon_name_id: o.id).first
