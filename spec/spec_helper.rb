@@ -99,8 +99,7 @@ RSpec.configure do |config|
     DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys))
         
     ActiveRecord::Base.connection.select_all("SELECT PostGIS_version() v").first['v'] =~ /(\d+.\d+)/
-
-    PSQL_VERSION = $1.to_f
+    PSQL_VERSION = $1.to_f 
   end
 
   config.after(:suite) do

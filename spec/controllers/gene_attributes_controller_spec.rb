@@ -106,14 +106,14 @@ RSpec.describe GeneAttributesController, type: :controller do
   describe "PUT #update" do
     context "with valid params" do
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        { sequence_relationship_type: 'SequenceRelationship::ReversePrimer' }
       }
 
       it "updates the requested gene_attribute" do
         gene_attribute = GeneAttribute.create! valid_attributes
         put :update, params: {id: gene_attribute.to_param, gene_attribute: new_attributes}, session: valid_session
         gene_attribute.reload
-        skip("Add assertions for updated state")
+        expect(gene_attribute.sequence_relationship_type).to eq('SequenceRelationship::ReversePrimer')
       end
 
       it "assigns the requested gene_attribute as @gene_attribute" do

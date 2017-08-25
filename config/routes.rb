@@ -104,7 +104,6 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  # TODO: only/except
   resources :character_states do
     concerns [:data_routes]
     member do

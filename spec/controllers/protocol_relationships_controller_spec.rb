@@ -105,15 +105,16 @@ RSpec.describe ProtocolRelationshipsController, type: :controller do
 
   describe "PUT #update" do
     context "with valid params" do
+      let(:other_object) { FactoryGirl.create(:valid_collection_object) }
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        { protocol_relationship_object_id: other_object.id, protocol_relationship_object_type: 'CollectionObject'}  
       }
 
       it "updates the requested protocol_relationship" do
         protocol_relationship = ProtocolRelationship.create! valid_attributes
         put :update, params: {id: protocol_relationship.to_param, protocol_relationship: new_attributes}, session: valid_session
         protocol_relationship.reload
-        skip("Add assertions for updated state")
+        expect(protocol_relationship.protocol_relationship_object).to eq(other_object) 
       end
 
       it "assigns the requested protocol_relationship as @protocol_relationship" do
