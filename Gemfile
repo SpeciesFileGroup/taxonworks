@@ -5,7 +5,7 @@ gem 'rack-cors', '~> 1.0.1', require: 'rack/cors'
 ruby '2.4.1'
 
 gem 'rake', '~> 12.0'
-gem 'rails', '~> 5.1'
+gem 'rails', '~> 5.1.3'
 gem 'pg', '~> 0.21.0'
 gem 'activerecord-postgis-adapter', '~> 5.0'
 
