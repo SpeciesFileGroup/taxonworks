@@ -130,8 +130,8 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
   end 
 
-# config.before(:each) do
-#   set_selenium_window_size(1250, 800) if Capybara.current_driver == :selenium
-# end  
+ config.before(:each) do
+   set_selenium_window_size(1250, 800) if Capybara.current_driver == :selenium
+ end  
 
 end
