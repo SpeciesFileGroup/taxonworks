@@ -8,7 +8,7 @@ module Shared::Containable
     # A Container that is !new_record, or a container_id
     attr_accessor :contained_in
 
-    after_save :contain, if: '!contained_in.blank?' #  || !contained_in_id.blank?'
+    after_save :contain, if: -> {!contained_in.blank?} #  || !contained_in_id.blank?
 
     has_one :container_item, as: :contained_object
     has_one :parent_container_item, through: :container_item, source: :parent, class_name: 'ContainerItem'

@@ -52,7 +52,7 @@ class Citation < ApplicationRecord
     end
   end
 
-  after_save :update_related_cached_values, if: 'is_original?'
+  after_save :update_related_cached_values, if: -> {is_original?}
 
   # @return [Scope of matching sources]
   def self.find_for_autocomplete(params)

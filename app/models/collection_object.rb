@@ -88,7 +88,7 @@ class CollectionObject < ApplicationRecord
   #  When true, cached values are not built
   attr_accessor :no_cached
 
-  after_save :add_to_dwc_occurrence, if: '!self.no_cached'
+  after_save :add_to_dwc_occurrence, if: -> {!self.no_cached}
 
   # Otu delegations
   delegate :name, to: :current_otu, prefix: :otu, allow_nil: true # could be Otu#otu_name?
@@ -118,13 +118,13 @@ class CollectionObject < ApplicationRecord
 
   has_many :observations, inverse_of: :collection_object
 
+  # This is a problem, but here for the foreseeable future for nested attributes purporses.
+  has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object
+
   # This must come before taxon determinations !!
   has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
 
   has_many :taxon_names, through: :otus
-
-  # This is a problem, but here for the forseeable future for nested attributes purporses.
-  has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object
 
   has_many :type_designations, class_name: 'TypeMaterial', foreign_key: :biological_object_id, inverse_of: :material
 
