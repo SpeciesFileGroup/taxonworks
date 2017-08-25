@@ -78,7 +78,7 @@ Object.assign(TW.views.confidences.form, {
   },
 
   remove_link: function () {
-    var link = $('<a href="#" class="remove_confidence_level">remove</a>');
+    var link = $('<a href="#" data-turbolinks="false" class="remove_confidence_level">remove</a>');
     TW.views.confidences.form.bind_remove_links(link);
     return link;
   },

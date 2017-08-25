@@ -83,8 +83,6 @@ namespace :tw do
             # get otu id from sf taxon name id, a taxon determination, called 'the primary otu id'   (what about otus without tw taxon names?)
 
 
-            
-
             #  get_depo_catalog_number[specimen_id] = row['DepoCatNo'] if row['DepoCatNo'].present?
             # specimen_total = get_specimen_totals_categories[specimen_id][Total] # get_specimen_totals_categories is obsolete
 
@@ -148,7 +146,7 @@ namespace :tw do
                   specimen_status = 'damaged'
                 when 9
                   specimen_status = 'damaged?'
-               end
+              end
             end
 
             # depo_catalog_number = []
@@ -193,8 +191,8 @@ namespace :tw do
 
                         # data_attributes to do:
                         #   # add source.RefID hash ---- pass SourceID, and get metadata (getSourceMetaData)
-                            # if SourceID > 0: create a citation (if SourceID contains RefID) and/or create an import_attribute (if SourceID has description)      LATER
-                            # ditto tblIdentifications but array of hashes because of multi Identifications, make IdentifierName into People attributes
+                        # if SourceID > 0: create a citation (if SourceID contains RefID) and/or create an import_attribute (if SourceID has description)      LATER
+                        # ditto tblIdentifications but array of hashes because of multi Identifications, make IdentifierName into People attributes
 
                         # specimenID2Identifiers = {
                         #
@@ -211,7 +209,7 @@ namespace :tw do
                         # }
 
                         # first_names, family_name = row['IdnetifierName'].split(" ")
-                        
+
             }
 
             # At this point all the related metadata except specimen category and count must be set
@@ -250,15 +248,15 @@ namespace :tw do
 
                 # At this point the collection objects have been saved successfully
 
-                
+
                 # Here we need to do 2 things
                 # 1) if there were two collection objects with the same SF specimen ID then put them
                 # in a virtual container
-                # 2) If there was an "indentifer" associate that with the single object or the container if there
+                # 2) If there was an "identifer" associate that with the single object or the container if there
                 # was a container
                 identifer = nil
                 if row['DepoCatNo']
-                  identifier = ImportAttribute.new(value: row['DepotCatNum', import_predicate: 'SF.DepotCatNum'], project_id: project_id)
+                  identifier = ImportAttribute.new(value: row['DepotCatNum', import_predicate: 'DepotCatNo'], project_id: project_id)
                 end
 
                 if current_objects.count == 1
@@ -283,7 +281,7 @@ namespace :tw do
 
                 # create type specimen if tblIdentifications.TypeTaxonNameID maybe
 
-                
+
               end
 
               puts 'CollectionObject created'
@@ -305,6 +303,33 @@ namespace :tw do
           puts 'SFSpecimenIDToCatalogNumber'
           ap get_depo_catalog_number
 
+        end
+
+
+        desc 'time rake tw:project_import:sf_import:specimens:create_sf_source_metadata user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :create_sf_source_metadata => [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Creating SF tblSources metadata...'
+
+          get_sf_source_metadata = {} # key = SF.SourceID, value = hash (SourceID, FileID, RefID, Description)
+
+          path = @args[:data_directory] + 'tblSources.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each do |row|
+            source_id = row['SourceID']
+            next if source_id == '0'
+
+            logger.info "Working with SF.SourceID = '#{source_id}' \n"
+
+            get_sf_source_metadata[source_id] = {file_id: row['FileID'], ref_id: row['RefID'], description: row['Description']}
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFSourceMetadata', get_sf_source_metadata)
+
+          puts 'SFSourceMetadata'
+          ap get_sf_source_metadata
         end
 
 
@@ -379,7 +404,7 @@ namespace :tw do
 
           logger.info 'Importing SF depo_strings and SF to TW depo/repo mappings...'
 
-          # get_sf_depo_string = {} # key = sf.DepoID, value = sf.depo_string
+          get_sf_depo_string = {} # key = sf.DepoID, value = sf.depo_string
           get_tw_repo_id = {} # key = sf.DepoID, value = tw respository.id; ex. ["23, 25, 567"] => {1 => tw_repo_id, 2 => tw_repo_id, 3 => tw_repo_id}
           # Note: Many SF DepoIDs will not be mapped to TW repo_ids
 
@@ -730,28 +755,28 @@ namespace :tw do
           import.set('SFGeoLevel4', get_sf_geo_level4)
 
           puts 'SFGeoLevel4'
-          ap get_sf_geo_level4
+          ap SFGeoLevel4
         end
 
 
-        desc 'time rake tw:project_import:sf_import:specimens:import_two_specimen_lists user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :import_two_specimen_lists => [:data_directory, :environment, :user_id] do |logger|
+        desc 'time rake tw:project_import:sf_import:specimens:create_specimen_unique_id user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :create_specimen_unique_id => [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
           logger.info 'Running new specimen lists (hash, array)...'
 
-          get_new_preserved_specimen_id = [] # array of SF.SpecimenIDs with BasisOfRecord = 0 (not stated) but with DepoID or specimen count
+          # get_new_preserved_specimen_id = [] # array of SF.SpecimenIDs with BasisOfRecord = 0 (not stated) but with DepoID or specimen count
           get_sf_unique_id = {} # key = SF.SpecimenID, value = sfUniqueLocColEvents.UniqueID
 
 
-          logger.info '1. Getting new preferred specimen ids'
-
-          path = @args[:data_directory] + 'sfAddPreservedSpecimens.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
-
-          file.each do |row|
-            get_new_preserved_specimen_id.push(row[0])
-          end
+          # logger.info '1. Getting new preferred specimen ids'
+          #
+          # path = @args[:data_directory] + 'sfAddPreservedSpecimens.txt'
+          # file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+          #
+          # file.each do |row|
+          #   get_new_preserved_specimen_id.push(row[0])
+          # end
 
 
           logger.info '2. Getting SF SpecimenID to UniqueID hash'
@@ -768,11 +793,11 @@ namespace :tw do
 
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
-          import.set('SFNewPreservedSpecimens', get_new_preserved_specimen_id)
+          # import.set('SFNewPreservedSpecimens', get_new_preserved_specimen_id)
           import.set('SFSpecimenToUniqueIDs', get_sf_unique_id)
 
-          puts 'SFNewPreservedSpecimens'
-          ap get_new_preserved_specimen_id
+          # puts 'SFNewPreservedSpecimens'
+          # ap get_new_preserved_specimen_id
 
           puts 'SFSpecimenToUniqueIDs'
           ap get_sf_unique_id

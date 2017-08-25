@@ -6,7 +6,7 @@
     <%= f.fields_for :confidences, @confidence_object.confidences do |confidence_fields| %>
       <li class="confidence_item" data-confidence-id="<%= confidence_fields.object.id -%>" data-confidence-index="<%= confidence_fields.index -%>">
         <%= object_tag(confidence_fields.object) -%>
-        <%= link_to('remove', "#", class: :remove_confidence) -%>
+        <%= link_to('remove', "#", data: { turbolinks: false }, class: :remove_confidence) -%>
       </li>
     <% end %>
   </ul>

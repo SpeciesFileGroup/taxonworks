@@ -36,7 +36,7 @@ module SqedDepictionsHelper
     content_tag(:div, " this record ", class: 'sqed_thumb_nav_current') +
    
     around[:after].collect{|s| 
-      link_to(sqed_depiction_collecting_event_label_thumb_preview(s), collection_object_buffered_data_breakdown_task_path(s.depiction.depiction_object), 'data-no-turbolink' => 'true')  
+      link_to(sqed_depiction_collecting_event_label_thumb_preview(s), collection_object_buffered_data_breakdown_task_path(s.depiction.depiction_object), 'data-turbolinks' => 'false')  
     }.join().html_safe 
   end
 

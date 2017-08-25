@@ -118,7 +118,7 @@ Object.assign(TW.views.topics.topic_picker, {
   },
 
   remove_link: function () {
-    var link = $('<a href="#" class="remove_topic">remove</a>');
+    var link = $('<a href="#" data-turbolinks="false" class="remove_topic">remove</a>');
     TW.views.topics.topic_picker.bind_remove_section_links(link);
     return link;
   },

@@ -39,7 +39,7 @@ Object.assign(TW.views.loan_items.form, {
   },
 
   remove_link: function() {
-    var link = $('<td><a href="#" class="remove_loan_item">remove</a></td>');
+    var link = $('<td><a href="#" data-turbolinks="false" class="remove_loan_item">remove</a></td>');
     this.bind_remove_links(link);
     return link;
   },

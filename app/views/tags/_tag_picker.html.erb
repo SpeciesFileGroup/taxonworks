@@ -12,14 +12,14 @@
             <%= tag_fields.fields_for :keyword do |keyword_fields| %>
               <%= keyword_fields.hidden_field :name -%>
               <%= keyword_fields.hidden_field :definition -%>
-              <%= tag_annotation_tag(keyword_fields.object.tag) -%> <%= link_to('remove', "#", class: :remove_tag) -%>
+              <%= tag_annotation_tag(keyword_fields.object.tag) -%> <%= link_to('remove', "#", data: { turbolinks: false }, class: :remove_tag) -%>
             <% end %>
           <% end %>
         <% else %>
           <li class="tag_item" data-tag-id="<%= tag_fields.object.id -%>" data-tag-index="<%= tag_fields.index -%>">
             <%= tag_fields.object.position %>
             <%= tag_annotation_tag(tag_fields.object) -%>
-            <%= link_to('remove', "#", class: :remove_tag) -%>
+            <%= link_to('remove', "#",  data: { turbolinks: false }, class: :remove_tag) -%>
           </li>
         <% end %>
       <% end %>
@@ -38,7 +38,7 @@
           </div>
         <% end %>
 
-        <%= link_to "add new", '#', id: :keyword_picker_add_new, class: [:add_total_row] %>
+        <%= link_to "add new", '#',  data: { turbolinks: false }, id: :keyword_picker_add_new, class: [:add_total_row] %>
       </div>
     </div>
   </div>

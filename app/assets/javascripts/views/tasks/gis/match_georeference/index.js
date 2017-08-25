@@ -481,7 +481,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
    // Datepicker fix
 
-  $(document).ready(function () {
+$(document).on('turbolinks:load', function() {
     if ($("#st_datepicker").length) {  // see if we need a datepicker for start date
       var d = new Date();
       var n = d.getFullYear();

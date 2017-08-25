@@ -181,7 +181,7 @@ Object.assign(TW.views.tasks.collection_objects, {
     $(".result_list_toggle").removeAttr('hidden');           // expose the other link
     $(".result_map_toggle").attr('hidden', 'hidden');
     $("[name='[geographic_area_id]']").attr('value', '');
-    this.result_map = _init_simple_map();
+    this.result_map = TW.views.shared.gis.simple_map.init();
     this.result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
   },
 

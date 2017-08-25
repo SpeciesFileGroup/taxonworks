@@ -26,7 +26,7 @@
         <%= link_to("List", users_path, "data-icon" => "list") %>
       </div>
       <div class="item item3" style="display:flex; justify-content: center;">
-        <%= link_to("Activity", user_activity_path, data: { no_turbolink: true }, "data-icon" => "list") %>
+        <%= link_to("Activity", user_activity_path, data: { turbolinks: false }, "data-icon" => "list") %>
       </div>
     </nav>
   </div>
@@ -37,7 +37,7 @@
     </div>
     <div class="content">
       <ul class="no_bullets list list-arrow">
-        <%= content_tag(:li, link_to("Overview", data_overview_path, data: { no_turbolink: true })) -%>
+        <%= content_tag(:li, link_to("Overview", data_overview_path, data: { turbolinks: false })) -%>
       </ul>
     </div>
   </div>

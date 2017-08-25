@@ -16,7 +16,7 @@
           </div>
         <% end %>
 
-        <%= link_to "add new", '#', class: [ :citation_topic_picker_add_new, "circle-button new_plus" ], hidden: true %>
+        <%= link_to "add new", '#', data: { turbolinks: false }, class: [ :citation_topic_picker_add_new, "circle-button new_plus" ], hidden: true %>
       </div>
     </div>
     <ul class="citation_topic_list">
@@ -30,7 +30,7 @@
               <%= citation_topic_fields.fields_for :topic do |topic_fields| %>
                 <%= topic_fields.hidden_field :name -%> 
                 <%= topic_fields.hidden_field :definition -%> 
-                <%= topic_tag(topic_fields.object.topic) -%> <%= link_to('remove', "#", class: :remove_citation_topic) -%>
+                <%= topic_tag(topic_fields.object.topic) -%> <%= link_to('remove', "#", data: { turbolinks: false }, class: :remove_citation_topic) -%>
               <% end %>
 
             <% end %>
@@ -45,7 +45,7 @@
                 </div>
                 <%= citation_topic_fields.text_field :pages, placeholder: :Pages -%> 
               </div>
-              <%= link_to('remove', "#", class: [ :remove_citation_topic, "delete-circle" ]) -%>
+              <%= link_to('remove', "#", data: { turbolinks: false }, class: [ :remove_citation_topic, "delete-circle" ]) -%>
             </li>
           <% end %>
         <% end %>

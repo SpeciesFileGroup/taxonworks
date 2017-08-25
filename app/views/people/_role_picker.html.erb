@@ -18,14 +18,14 @@
                 <%= person_fields.hidden_field :first_name-%> 
                 <%= person_fields.hidden_field :prefix -%> 
                 <%= person_fields.hidden_field :suffix -%> 
-                <%= object_tag(role_fields.object.person) -%> <%= link_to('', "#", class: :remove_role, data: {icon: :trash}) -%>
+                <%= object_tag(role_fields.object.person) -%> <%= link_to('', "#", class: :remove_role, data: {icon: :trash, turbolinks: :false}) -%>
               <% end %>
             <% end %>
 
           <% else %>
             <li class="role_item" data-role-id="<%= role_fields.object.id -%>" data-role-index="<%= role_fields.index -%>" >
             <%= role_fields.text_field :id, hidden: true -%>
-            <%= object_tag(role_fields.object.person) -%> <%= link_to('', "#", class: :remove_role, data: {icon: :trash}) -%>
+            <%= object_tag(role_fields.object.person) -%> <%= link_to('', "#", class: :remove_role, data: {turbolinks: :false, icon: :trash}) -%>
             </li>
           <% end %>
         <% end %>

@@ -20,7 +20,7 @@
             <%= section_fields.text_field(:id, hidden: true) -%>
           <% end %>
 
-          <%= section_fields.object.position -%> : <%= object_tag(section_fields.object.topic) -%> <%= link_to('remove', "#", class: :remove_topic) -%>
+          <%= section_fields.object.position -%> : <%= object_tag(section_fields.object.topic) -%> <%= link_to('remove', "#", data: { turbolinks: false }, class: :remove_topic) -%>
         </li>
       <% end %>
     </ul>

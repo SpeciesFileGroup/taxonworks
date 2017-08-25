@@ -19,16 +19,19 @@ require 'rails_helper'
 # that an instance is receiving a specific message.
 
 RSpec.describe CharacterStatesController, type: :controller do
+  before(:each){
+    sign_in
+  }
 
   # This should return the minimal set of attributes required to create a valid
   # CharacterState. As you add validations to CharacterState, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+    strip_housekeeping_attributes(FactoryGirl.build(:valid_character_state).attributes)
   }
 
   let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+    {name: nil}
   }
 
   # This should return the minimal set of values that should be in the session
@@ -40,7 +43,7 @@ RSpec.describe CharacterStatesController, type: :controller do
     it "assigns all character_states as @character_states" do
       character_state = CharacterState.create! valid_attributes
       get :index, params: {}, session: valid_session
-      expect(assigns(:character_states)).to eq([character_state])
+      expect(assigns(:recent_objects)).to eq([character_state])
     end
   end
 
@@ -103,14 +106,14 @@ RSpec.describe CharacterStatesController, type: :controller do
   describe "PUT #update" do
     context "with valid params" do
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        { name: 'new name' }
       }
 
       it "updates the requested character_state" do
         character_state = CharacterState.create! valid_attributes
         put :update, params: {id: character_state.to_param, character_state: new_attributes}, session: valid_session
         character_state.reload
-        skip("Add assertions for updated state")
+        expect(character_state.name).to eq('new name') 
       end
 
       it "assigns the requested character_state as @character_state" do
