@@ -41,6 +41,10 @@
         type: String,
         default: "value"
       },
+      taxon: {
+        type: Object,
+        default: undefined
+      }
     },
     data: function() {
       return {
@@ -53,8 +57,11 @@
       search: function(val) {
         if(val != undefined) {
          this.checkTime();
-       }
-     }
+        }
+      },
+      taxon: function(val) {
+        this.json = [];
+      }
    },
    methods: {
     ajaxUrl: function() {
