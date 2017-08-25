@@ -21,5 +21,7 @@ Object.assign(TW.views.shared.gis.simple_map, {
   }
 });
 
-$(document).on('turbolinks:load', TW.views.shared.gis.simple_map.init());
+$(document).on('turbolinks:load', function() {
+  var _simple_maps = TW.views.shared.gis.simple_map.init();
+});
 
