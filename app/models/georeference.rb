@@ -107,7 +107,7 @@ class Georeference < ApplicationRecord
   #  When true, cascading cached values (e.g. in CollectingEvent) are not built
   attr_accessor :no_cached
 
-  after_save :set_cached, if: '!self.no_cached'
+  after_save :set_cached, unless: -> {self.no_cached}
 
   # instance methods
 

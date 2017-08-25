@@ -44,9 +44,9 @@ class Otu < ApplicationRecord
 
   has_many :asserted_distributions, inverse_of: :otu
 
+  has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus, class_name: 'CollectionObject::BiologicalCollectionObject'
   has_many :collecting_events, -> {distinct}, through: :collection_objects
-  has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
 
   has_many :common_names, dependent: :destroy
   has_many :collection_profiles # @proceps dependent: what?
