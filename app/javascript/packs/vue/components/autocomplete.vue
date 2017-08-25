@@ -22,7 +22,7 @@ Parameters:
 */
 <template>
   <div class="vue-autocomplete">
-    <input class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="checkTime(), sendType()" v-model="type" :autofocus="autofocus" :disabled="disabled" v-bind:class="{'ui-autocomplete-loading' : spinner, 'vue-autocomplete-input-search' : !spinner }"/>
+    <input ref="autofocus" class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="checkTime(), sendType()" v-model="type" :autofocus="autofocus" :disabled="disabled" v-bind:class="{'ui-autocomplete-loading' : spinner, 'vue-autocomplete-input-search' : !spinner }"/>
     <ul v-show="showList" v-if="type && json.length">
       <li v-for="(item, index) in json" :class="activeClass(index)" @mouseover="itemActive(index)" @click.prevent="itemClicked(item), sendItem(item)">
         <span v-html="item[label]"></span>
@@ -62,6 +62,11 @@ export default {
     },
 
     props: {
+
+      autofocus: {
+        type: Boolean,
+        default: false
+      },
 
       disabled: {
         type: Boolean,
@@ -150,6 +155,10 @@ export default {
             this.type = (this.clearAfter ? '' : item[this.display]);
           else {
             this.type = (this.clearAfter ? '' : item[this.label]);
+          }
+
+          if(this.autofocus) {
+            this.$refs.autofocus.focus();
           }
           this.showList = false;
         },

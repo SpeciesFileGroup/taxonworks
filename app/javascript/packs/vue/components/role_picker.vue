@@ -2,6 +2,7 @@
 	<div>
 		<div class="horizontal-left-content align-start">
 			<autocomplete
+				:autofocus="true"
 				class="separate-right"
 				url="/people/lookup_person"
 				label="label"
