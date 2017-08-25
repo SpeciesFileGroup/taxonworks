@@ -208,8 +208,8 @@ class CollectingEvent < ApplicationRecord
 
   before_save :set_times_to_nil_if_form_provided_blank
 
-  after_save :cache_geographic_names, if: '!self.no_cached && geographic_area_id_changed?'
-  after_save :set_cached, if: '!self.no_cached'
+  after_save :cache_geographic_names, if: -> {!self.no_cached && geographic_area_id_changed?}
+  after_save :set_cached, if: -> {!self.no_cached}
 
   belongs_to :geographic_area, inverse_of: :collecting_events
 
@@ -324,7 +324,7 @@ class CollectingEvent < ApplicationRecord
 
       t = 'collecting_events'
 
-      part_0  = "#{t}.start_date_year is not null"
+      part_0 = "#{t}.start_date_year is not null"
 
       # start_date is inside supplied range
       # string has to have four pieces (part_s):

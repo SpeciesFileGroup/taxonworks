@@ -17,7 +17,7 @@ class ObservationMatrixRowItem < ApplicationRecord
 
   validates_presence_of :observation_matrix
   validate :type_is_subclassed
-  validate :other_subclass_attributes_not_set, if: '!type.blank?'
+  validate :other_subclass_attributes_not_set, if: -> {!type.blank?}
 
   after_save :update_matrix_rows
   after_destroy :cleanup_matrix_rows
