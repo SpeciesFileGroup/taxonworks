@@ -106,14 +106,14 @@ RSpec.describe ObservationsController, type: :controller do
   describe "PUT #update" do
     context "with valid params" do
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        { continuous_value: 99  } 
       }
 
       it "updates the requested observation" do
         observation = Observation.create! valid_attributes
         put :update, params: {id: observation.to_param, observation: new_attributes}, session: valid_session
         observation.reload
-        skip("Add assertions for updated state")
+        expect(observation.continuous_value).to eq(99) 
       end
 
       it "assigns the requested observation as @observation" do

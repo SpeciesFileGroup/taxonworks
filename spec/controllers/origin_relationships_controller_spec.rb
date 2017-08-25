@@ -105,15 +105,16 @@ RSpec.describe OriginRelationshipsController, type: :controller do
 
   describe "PUT #update" do
     context "with valid params" do
+      let(:other_collection_object) { FactoryGirl.create(:valid_collection_object) }
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        { old_object_id: other_collection_object.id  } 
       }
 
       it "updates the requested origin_relationship" do
         origin_relationship = OriginRelationship.create! valid_attributes
         put :update, params: {id: origin_relationship.to_param, origin_relationship: new_attributes}, session: valid_session
         origin_relationship.reload
-        skip("Add assertions for updated state")
+        expect(origin_relationship.old_object.id).to eq(other_collection_object.id) 
       end
 
       it "assigns the requested origin_relationship as @origin_relationship" do
