@@ -76,22 +76,6 @@ class Tag < ApplicationRecord
     tag_object
   end
 
-  # the column name containing the attribute name being annotated
-  def self.annotated_attribute_column
-    :tag_object_attribute
-  end
-
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
   # @return [{"matrix_column_item": matrix_column_item, "descriptor": descriptor}, false]
   #   the hash corresponding to the keyword used in this tag if it exists
   def matrix_column_item
