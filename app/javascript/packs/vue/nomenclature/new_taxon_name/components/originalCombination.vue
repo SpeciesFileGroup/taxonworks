@@ -240,7 +240,8 @@
  		font-weight: 900;
  	}
  	.vue-autocomplete-input {
- 		min-width: 500px;
+ 		min-width: 400px;
+ 		max-width: 500px;
  	}
  	.combination {
  		background-color: #F5F5F5;
