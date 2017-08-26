@@ -20,7 +20,9 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         }
 
         let!(:gnlm) { GeographicArea.where(name: 'Great Northern Land Mass').first }
+
         let!(:otum1) { Otu.where(name: 'Find me').first }
+
         let(:json_string) { '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}}' }
 
         describe '#set_area', js: true do #
@@ -63,8 +65,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
           it 'renders count of collection objects based on a selected otu' do
             fill_autocomplete('otu_id_for_by_otu', with: otu_test.name, select: otu_test.to_param)
-            find('#set_otu').click
             wait_for_ajax
+            find('#set_otu').click
             expect(find('#otu_count')).to have_text('1', wait: 10)
           end
         end
