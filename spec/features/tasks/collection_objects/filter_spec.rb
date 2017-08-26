@@ -54,7 +54,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
           end
         end
 
-        describe '#set_otu', js: true do
+        describe '#set_otu', js: true, resolution: true do
           let(:otu_test) { Otu.create!(name: 'zzzzz', by: @user, project: @project) }
           let(:specimen) { Specimen.create!(by: @user, project: @project) }
 
