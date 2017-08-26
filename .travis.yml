@@ -27,6 +27,8 @@ install:
   - bundle install
   - yarn
 before_script:
+  - export DISPLAY=:99.0
+  - sleep 3
   - cp config/database.yml.travis config/database.yml
   - cp config/secrets.yml.example config/secrets.yml
   - mkdir tmp/
