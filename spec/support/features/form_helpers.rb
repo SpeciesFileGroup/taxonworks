@@ -17,8 +17,8 @@ module Features
       page_body = page.body
       css_selector = %Q{li.ui-menu-item a[data-model-id="#{options[:select]}"]}
       expect(page).to have_css(css_selector)
-      #page.execute_script(%Q{ $('#{css_selector}').trigger('mouseenter').click(); })
-      find(css_selector).click()
+      page.execute_script(%Q{ $('#{css_selector}').trigger('mouseenter').click(); })
+      #find(css_selector).click()
     end
 
     def fill_role_picker_autocomplete(field, options = {})
