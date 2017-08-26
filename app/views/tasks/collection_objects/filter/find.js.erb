@@ -23,7 +23,9 @@ else {
 result_collection = <%= ::Gis::GeoJSON.feature_collection(Georeference.joins(:collection_objects).where(collection_objects: {id: @collection_objects})).to_json.html_safe %>;
 if (result_collection) {
   if ($("#show_map").attr("hidden") != "hidden") {
-    result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
+  	TW.vendor.lib.google.maps.loadGoogleMapsAPI().then( resolve => {
+    	result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
+	});
   }
 }
 

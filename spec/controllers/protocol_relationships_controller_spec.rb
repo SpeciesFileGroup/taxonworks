@@ -114,7 +114,7 @@ RSpec.describe ProtocolRelationshipsController, type: :controller do
         protocol_relationship = ProtocolRelationship.create! valid_attributes
         put :update, params: {id: protocol_relationship.to_param, protocol_relationship: new_attributes}, session: valid_session
         protocol_relationship.reload
-        expect(protocol_relationship.protocol_relationship_object).to eq(other_object) 
+        expect(protocol_relationship.protocol_relationship_object.id).to eq(other_object.id) 
       end
 
       it "assigns the requested protocol_relationship as @protocol_relationship" do

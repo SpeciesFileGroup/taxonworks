@@ -20,10 +20,6 @@ module Housekeeping::Users
     before_validation(on: :update) do
       set_updated_by_id 
     end
-    
-    before_save(on: :update) do
-      PaperTrail.whodunnit = $user_id
-    end
 
     # And extend User
     User.class_eval do

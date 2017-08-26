@@ -95,7 +95,6 @@ RSpec.configure do |config|
   #  config.profile_examples = 10
 
   config.before(:suite) do
-
     DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys))
         
     ActiveRecord::Base.connection.select_all("SELECT PostGIS_version() v").first['v'] =~ /(\d+.\d+)/
@@ -130,8 +129,8 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
   end 
 
-# config.before(:each) do
-#   set_selenium_window_size(1250, 800) if Capybara.current_driver == :selenium
-# end  
+ config.before(:each) do
+   set_selenium_window_size(1250, 800) if Capybara.current_driver == :selenium
+ end  
 
 end
