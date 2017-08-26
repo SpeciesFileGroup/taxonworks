@@ -56,16 +56,16 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
           let(:otu_test) { Otu.create!(name: 'zzzzz', by: @user, project: @project) }
           let(:specimen) { Specimen.create!(by: @user, project: @project) }
 
-          before {
+          before do
             TaxonDetermination.create!(otu: otu_test, biological_collection_object: specimen, by: @user, project: @project)
             visit(collection_objects_filter_task_path)
-          }
+          end 
 
           it 'renders count of collection objects based on a selected otu' do
-            fill_autocomplete('otu_id_for_by_otu', with: otu_test.name, select: otu_test.id)
+            fill_autocomplete('otu_id_for_by_otu', with: otu_test.name, select: otu_test.to_param)
             find('#set_otu').click
             wait_for_ajax
-            expect(find('#otu_count')).to have_text('1')
+            expect(find('#otu_count')).to have_text('1', wait: 10)
           end
         end
 
