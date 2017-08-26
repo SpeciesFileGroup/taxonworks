@@ -53,12 +53,11 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         end
 
         describe '#set_otu', js: true do
-          let(:otu_test) {  factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
-          let(:specimen) {   factory_girl_create_for_user_and_project(:valid_specimen, @user, @project) }
+          let(:otu_test) { Otu.create!(name: 'zzzzz', by: @user, project: @project) }
+          let(:specimen) { Specimen.create!(by: @user, project: @project) }
 
           before {
-            specimen.otus << otu_test
-            force = otu_test.collection_objects.reload # force the reload?!
+            TaxonDetermination.create!(otu: otu_test, biological_collection_object: specimen, by: @user, project: @project)
             visit(collection_objects_filter_task_path)
           }
 
