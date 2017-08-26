@@ -1,7 +1,13 @@
-var _init_match_georeference_page_widget;
+var TW = TW || {};
+TW.views = TW.views || {};
+TW.views.tasks = TW.views.tasks || {};
+TW.views.tasks.gis = TW.views.tasks.gis || {};
+TW.views.tasks.gis.match_georeference = TW.views.tasks.gis.match_georeference || {};
 
-_init_match_georeference_page_widget = function init_match_georeference_page() {
-  if ($('#match_georeference_widget').length) {
+Object.assign(TW.views.tasks.gis.match_georeference, {
+
+  init: function() {
+
 
 //        send polygon or circle to controller from right-hand draw map
 //        reconfigure drawn map to mimic asserted distributions behavior
@@ -144,26 +150,10 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#_recent_ce_form").attr("hidden", true);
       $('#_selecting_ce_form').attr('hidden', true);
       $("#result_from_post").attr("hidden", true);
-
-      ce_map = TW.vendor.lib.google.maps.draw.initializeGoogleMapWithDrawManager("#_draw_ce_form");  //set up a blank draw canvas
-//      $("#ce_commit").click(function (event) {      // register the click handler for the made-from-scratch-button
-//        var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(ce_last[0], ce_last[1]);
-//          $("#ce_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
-//        }
-//      );
-      TW.vendor.lib.google.maps.draw.singleDrawnFeatureToMapListeners(ce_map, ce_last, "#ce_geographic_item_attributes_shape");
-//      google.maps.event.addListener(ce_map[1], 'overlaycomplete', function (event) {
-//          // Remove the last created shape if it exists.
-//          if (ce_last != null) {
-//            if (ce_last[0] != null) {
-//              TW.vendor.lib.google.maps.draw.removeItemFromMap(ce_last[0]);
-//            }
-//          }
-//          ce_last = [event.overlay, event.type];
-//        var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(ce_last[0], ce_last[1]);
-//          $("#ce_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
-//        }
-//      );
+      TW.vendor.lib.google.maps.loadGoogleMapsAPI().then(function() {
+        ce_map = TW.vendor.lib.google.maps.draw.initializeGoogleMapWithDrawManager("#_draw_ce_form");  //set up a blank draw canvas
+        TW.vendor.lib.google.maps.draw.singleDrawnFeatureToMapListeners(ce_map, ce_last, "#ce_geographic_item_attributes_shape");
+      })
       event.preventDefault();
     });
 
@@ -367,28 +357,10 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#_recent_gr_form").attr("hidden", true);
       $('#_selecting_gr_form').attr("hidden", true);
 
-      gr_map = TW.vendor.lib.google.maps.draw.initializeGoogleMapWithDrawManager("#_draw_gr_form");  //set up a blank draw canvas
-
-//      $("#gr_commit").click(function (event) {      // register the click handler for the made-from-scratch-button
-//        var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
-//          $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
-//        }
-//      );
-
-      TW.vendor.lib.google.maps.draw.singleDrawnFeatureToMapListeners(gr_map, gr_last, "#gr_geographic_item_attributes_shape");
-//      google.maps.event.addListener(gr_map[1], 'overlaycomplete', function (event) {
-//          // Remove the last created shape if it exists.
-//          if (gr_last != null) {
-//            if (gr_last[0] != null) {
-//              TW.vendor.lib.google.maps.draw.removeItemFromMap(gr_last[0]);
-//            }
-//          }
-//          gr_last = [event.overlay, event.type];
-//        var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
-//          $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
-//        }
-//      );
-
+      TW.vendor.lib.google.maps.loadGoogleMapsAPI().then(function() {
+        gr_map = TW.vendor.lib.google.maps.draw.initializeGoogleMapWithDrawManager("#_draw_gr_form");  //set up a blank draw canvas
+        TW.vendor.lib.google.maps.draw.singleDrawnFeatureToMapListeners(gr_map, gr_last, "#gr_geographic_item_attributes_shape");
+      });
       event.preventDefault();
     });
 
@@ -476,12 +448,12 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         event.preventDefault();
       }
     );
-  }
+  
 
 
    // Datepicker fix
 
-$(document).on('turbolinks:load', function() {
+  $(document).on('turbolinks:load', function() {
     if ($("#st_datepicker").length) {  // see if we need a datepicker for start date
       var d = new Date();
       var n = d.getFullYear();
@@ -503,75 +475,82 @@ $(document).on('turbolinks:load', function() {
       dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
     }
   });
-};
 
 
 
-function add_click_services_to_match_georeferences_map(map, event) {     // click event passed in
-  // clears previous map data features
-  $.get('drawn_georeferences', $('form#_select_gr_form').serialize(), function (local_data) {
-      //map.data.forEach(function(feature) {map.data.remove(feature);});    // clear the map.data
-      map = TW.vendor.lib.google.maps.initializeMap("show_gr_canvas", local_data['feature_collection']);
-      map.data.addGeoJson(local_data['feature_collection']);      // add the geo features corresponding to the forms
-    },
-    'json' // I expect a JSON response
-  );
-}
+  function add_click_services_to_match_georeferences_map(map, event) {     // click event passed in
+    // clears previous map data features
+    $.get('drawn_georeferences', $('form#_select_gr_form').serialize(), function (local_data) {
+        //map.data.forEach(function(feature) {map.data.remove(feature);});    // clear the map.data
+        map = TW.vendor.lib.google.maps.initializeMap("show_gr_canvas", local_data['feature_collection']);
+        map.data.addGeoJson(local_data['feature_collection']);      // add the geo features corresponding to the forms
+      },
+      'json' // I expect a JSON response
+    );
+  }
 
 
-function add_match_georeferences_map_listeners(map) {      // 4 listeners, one for map as a whole 3 for map.data features
-  // When the user clicks, set 'isColorful', changing the color of the feature.
-  var selected_map;
-  map.data.addListener('click', function (event) {
-    if (event.feature.getProperty('isColorful')) {           // reset selected color if
-      event.feature.setProperty('isColorful', false);     // previously selected
-      event.feature.setProperty('fillColor', "#440000");  // to dimmer red
-    }
-    else {      // if not already "Colorful", make it so
-      event.feature.setProperty('isColorful', true);
-      event.feature.setProperty('fillColor', "#CC0000");  //brighter red
-      // selectable area has been clicked, get the feature
-      //  var selected_feature_georeference_id = event.feature["A"].georeference.id;      // unfortunate Google maps reference
-      if (event.feature.getProperty('georeference')) {
-        var selected_feature_georeference_id = event.feature.getProperty('georeference').id;      // unfortunate Google maps reference
-        $("#selected_georeference_id").val(selected_feature_georeference_id);           // plant the clicked ID in a safe place
-//    literal-based hide the "instructions" div
-        $("#_filter_gr_form").attr("hidden", true);   //CLEAR EVERYTHING (all gr-selectors) if we click a found feature
-        $("#_tag_gr_form").attr("hidden", true);
-        $("#_draw_gr_form").attr("hidden", true);
-        $("#_recent_gr_form").attr("hidden", true);
-        $("#_selected_gr_form").removeAttr("hidden");   // literal-based reveal the map
-        var feature_collection = $("#_select_gr_form").data('feature-collection');      // literal-based form data reference
-        for (var i = 0; i < feature_collection.features.length; i++) {                  // scan the feature_collection
-          if (feature_collection.features[i].properties['georeference']) {
-            if (selected_feature_georeference_id == feature_collection.features[i].properties['georeference'].id) {  // for the match
-            var fc = {"type": "FeatureCollection", "features": []};         // construct the new feature collection for the target
-            fc.features.push(feature_collection.features[i]);           // inject the matching feature found by georeference id
-            selected_map = TW.vendor.lib.google.maps.initializeMap("selected_gr_canvas", fc);              // plot it on the center map, knowing literally where it is
-            }
-          }                                                  // selected_map can be used to bind other listeners
+  function add_match_georeferences_map_listeners(map) {      // 4 listeners, one for map as a whole 3 for map.data features
+    // When the user clicks, set 'isColorful', changing the color of the feature.
+    var selected_map;
+    map.data.addListener('click', function (event) {
+      if (event.feature.getProperty('isColorful')) {           // reset selected color if
+        event.feature.setProperty('isColorful', false);     // previously selected
+        event.feature.setProperty('fillColor', "#440000");  // to dimmer red
+      }
+      else {      // if not already "Colorful", make it so
+        event.feature.setProperty('isColorful', true);
+        event.feature.setProperty('fillColor', "#CC0000");  //brighter red
+        // selectable area has been clicked, get the feature
+        //  var selected_feature_georeference_id = event.feature["A"].georeference.id;      // unfortunate Google maps reference
+        if (event.feature.getProperty('georeference')) {
+          var selected_feature_georeference_id = event.feature.getProperty('georeference').id;      // unfortunate Google maps reference
+          $("#selected_georeference_id").val(selected_feature_georeference_id);           // plant the clicked ID in a safe place
+  //    literal-based hide the "instructions" div
+          $("#_filter_gr_form").attr("hidden", true);   //CLEAR EVERYTHING (all gr-selectors) if we click a found feature
+          $("#_tag_gr_form").attr("hidden", true);
+          $("#_draw_gr_form").attr("hidden", true);
+          $("#_recent_gr_form").attr("hidden", true);
+          $("#_selected_gr_form").removeAttr("hidden");   // literal-based reveal the map
+          var feature_collection = $("#_select_gr_form").data('feature-collection');      // literal-based form data reference
+          for (var i = 0; i < feature_collection.features.length; i++) {                  // scan the feature_collection
+            if (feature_collection.features[i].properties['georeference']) {
+              if (selected_feature_georeference_id == feature_collection.features[i].properties['georeference'].id) {  // for the match
+              var fc = {"type": "FeatureCollection", "features": []};         // construct the new feature collection for the target
+              fc.features.push(feature_collection.features[i]);           // inject the matching feature found by georeference id
+              selected_map = TW.vendor.lib.google.maps.initializeMap("selected_gr_canvas", fc);              // plot it on the center map, knowing literally where it is
+              }
+            }                                                  // selected_map can be used to bind other listeners
+          }
         }
       }
-    }
-    // DON'T: none to add at this point; add_click_services_to_match_georeferences_map(map, event);
-  });
+      // DON'T: none to add at this point; add_click_services_to_match_georeferences_map(map, event);
+    });
 
-  // When the user hovers, tempt them to click by outlining the letters.
-  // Call revertStyle() to remove all overrides. This will use the style rules
-  // defined in the function passed to setStyle()
-  map.data.addListener('mouseover', function (event) {
-    map.data.revertStyle();
-    map.data.overrideStyle(event.feature, {fillColor: '#880000'});  // mid-level red
-    map.data.overrideStyle(event.feature, {strokeWeight: 2});       //embolden borders
-    map.data.overrideStyle(event.feature, {icon: TW.vendor.lib.google.maps.mapIcons['brown']});       // highlight markers
-  });
+    // When the user hovers, tempt them to click by outlining the letters.
+    // Call revertStyle() to remove all overrides. This will use the style rules
+    // defined in the function passed to setStyle()
+    map.data.addListener('mouseover', function (event) {
+      map.data.revertStyle();
+      map.data.overrideStyle(event.feature, {fillColor: '#880000'});  // mid-level red
+      map.data.overrideStyle(event.feature, {strokeWeight: 2});       //embolden borders
+      map.data.overrideStyle(event.feature, {icon: TW.vendor.lib.google.maps.mapIcons['brown']});       // highlight markers
+    });
 
-  map.data.addListener('mouseout', function (event) {
-    map.data.revertStyle();
-  });
-}           // add_listeners end
+    map.data.addListener('mouseout', function (event) {
+      map.data.revertStyle();
+    });
+  }
+}
+});           // add_listeners end
 
-$(document).on('turbolinks:load', _init_match_georeference_page_widget);
+$(document).on('turbolinks:load', function() { 
+  if ($('#match_georeference_widget').length) {
+    TW.vendor.lib.google.maps.loadGoogleMapsAPI().then(function() {
+      TW.views.tasks.gis.match_georeference.init(); 
+    });
+  }
+});
 
 
 

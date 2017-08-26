@@ -7,8 +7,9 @@ $(document).on("turbolinks:load", function() {
     if ($('#feature_collection').length) {
       var newfcdata = $("#feature_collection");
       var fcdata = newfcdata.data('feature-collection');
-
-      TW.vendor.lib.google.maps.initializeMap("georeference_google_map_canvas", fcdata);
+      TW.vendor.lib.google.maps.loadGoogleMapsAPI().then( resolve => {
+        TW.vendor.lib.google.maps.initializeMap("georeference_google_map_canvas", fcdata);
+  	  });
     }
   }
 })
