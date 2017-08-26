@@ -67,6 +67,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             fill_autocomplete('otu_id_for_by_otu', with: otu_test.name, select: otu_test.to_param)
             wait_for_ajax
             find('#set_otu').click
+            wait_for_ajax
             expect(find('#otu_count')).to have_text('1', wait: 10)
           end
         end
