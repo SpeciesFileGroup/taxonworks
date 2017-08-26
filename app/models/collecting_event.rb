@@ -188,9 +188,8 @@ class CollectingEvent < ApplicationRecord
   include Shared::IsData
   include Shared::Confidence
   include Shared::Documentation
+  include Shared::HasPapertrail
   include SoftValidation
-
-  has_paper_trail :on => [:update]
 
   NEARBY_DISTANCE = 5000
 

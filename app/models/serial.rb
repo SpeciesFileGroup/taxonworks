@@ -40,8 +40,7 @@ class Serial < ApplicationRecord
   include Shared::IsData
   include SoftValidation
   include Shared::SharedAcrossProjects
-
-  has_paper_trail :on => [:update]
+  include Shared::HasPapertrail
 
   # Class constants
   ALTERNATE_VALUES_FOR = [:name, :publisher, :place_published]

@@ -114,7 +114,6 @@
 class TaxonName < ApplicationRecord
 
   has_closure_tree
-  has_paper_trail :on => [:update]
 
   include Housekeeping
   include Shared::DataAttributes
@@ -128,6 +127,7 @@ class TaxonName < ApplicationRecord
   include Shared::Confidence
   include SoftValidation
   include Shared::AlternateValues
+  include Shared::HasPapertrail
 
   ALTERNATE_VALUES_FOR = [:rank_class].freeze # don't even think about putting this on #name
 

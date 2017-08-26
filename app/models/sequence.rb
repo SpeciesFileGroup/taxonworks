@@ -33,9 +33,9 @@ class Sequence < ApplicationRecord
   include Shared::OriginRelationship
   include Shared::Protocols
   include Shared::Taggable
+  include Shared::HasPapertrail
 
   is_origin_for 'Sequence'
-  has_paper_trail
 
   ALTERNATE_VALUES_FOR = [:name]
 

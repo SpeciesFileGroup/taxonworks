@@ -42,9 +42,8 @@ class Namespace < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::SharedAcrossProjects
+  include Shared::HasPapertrail
   include Shared::IsData
-
-  has_paper_trail :on => [:update]
 
   validates_presence_of :name, :short_name
   validates_uniqueness_of :name, :short_name

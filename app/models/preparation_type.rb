@@ -15,8 +15,7 @@ class PreparationType < ApplicationRecord
   include Shared::IsData
   include Shared::Taggable
   include Shared::SharedAcrossProjects
-
-  has_paper_trail :on => [:update]
+  include Shared::HasPapertrail
 
   has_many :collection_objects, dependent: :restrict_with_error
   validates_presence_of :name, :definition

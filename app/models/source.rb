@@ -193,8 +193,7 @@ class Source < ApplicationRecord
   include Shared::Taggable
   include Shared::IsData
   include Shared::Documentation
-
-  has_paper_trail :on => [:update]
+  include Shared::HasPapertrail
 
   ALTERNATE_VALUES_FOR = [:address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
                           :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
