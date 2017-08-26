@@ -64,8 +64,7 @@ Object.assign(TW.views.tasks.collection_objects, {
         $("#otu_count").text('????');
         $("#select_otu").mx_spinner('show');
         $.get('set_otu', $("#set_otu_form").serialize(), function (local_data) {
-          //$("#otu_count").text(local_data.html);$("#set_otu_form ul").html()
-          $("#otu_count").text($("#set_otu_form ul").html());
+          $("#otu_count").text(local_data.html);
           $("#select_otu").mx_spinner('hide');
           that.validateResult();
         }, 'json');
