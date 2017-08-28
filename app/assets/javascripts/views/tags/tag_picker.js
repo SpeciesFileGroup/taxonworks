@@ -140,7 +140,7 @@ Object.assign(TW.views.tags.tag_picker, {
     // Add a citation_topic to the list via the add new form
     form.find("#keyword_picker_add_new").click(function () {
       TW.views.tags.tag_picker.insert_new_tag(form);
-      form.find('.new_keyword').show(); // attr("hidden", true);
+      form.find('.new_keyword').hide(); // attr("hidden", true);
       TW.views.tags.tag_picker.clear_keyword_picker(form);
     });
   },
