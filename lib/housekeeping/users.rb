@@ -22,10 +22,6 @@ module Housekeeping::Users
       set_updated_by_id
     end
 
-    before_save(on: :update) do
-      PaperTrail.whodunnit = $user_id
-    end
-
     # And extend User
     User.class_eval do
       raise 'Class name collision for User#has_many' if self.methods and self.methods.include?(:related_instances)

@@ -35,10 +35,8 @@ class Otu < ApplicationRecord
   include Shared::Depictions
   include Shared::Loanable
   include Shared::Confidence
-
+  include Shared::HasPapertrail
   include SoftValidation
-
-  has_paper_trail :on => [:update]
 
   belongs_to :taxon_name, inverse_of: :otus
 

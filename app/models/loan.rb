@@ -66,8 +66,7 @@ class Loan < ApplicationRecord
   include Shared::Depictions
   include Shared::HasRoles
   include Shared::Documentation
-
-  has_paper_trail :on => [:update]
+  include Shared::HasPapertrail
 
   has_many :loan_items, dependent: :restrict_with_error
 

@@ -29,9 +29,8 @@ class ControlledVocabularyTerm < ApplicationRecord
   include Housekeeping
   include Shared::AlternateValues
   include Shared::IsData
+  include Shared::HasPapertrail
   # include Shared::Taggable <- NO!!
-
-  has_paper_trail :on => [:update]
 
   acts_as_list scope: [:project_id, :type]
 

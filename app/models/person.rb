@@ -39,10 +39,8 @@ class Person < ApplicationRecord
   include Shared::Identifiable
   include Shared::Notable
   include Shared::SharedAcrossProjects
+  include Shared::HasPapertrail 
   include Shared::IsData
-
-
-  has_paper_trail :on => [:update]
 
   # Class constants
   ALTERNATE_VALUES_FOR = [:last_name, :first_name]
