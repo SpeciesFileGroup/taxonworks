@@ -207,7 +207,8 @@ class CollectingEvent < ApplicationRecord
 
   before_save :set_times_to_nil_if_form_provided_blank
 
-  after_save :cache_geographic_names, if: -> {!self.no_cached && geographic_area_id_changed?}
+  # after_save :cache_geographic_names, if: -> {!self.no_cached && geographic_area_id_changed?}
+  after_save :cache_geographic_names, if: -> {!self.no_cached && saved_change_to_attribute?(:geographic_area_id)}
   after_save :set_cached, if: -> {!self.no_cached}
 
   belongs_to :geographic_area, inverse_of: :collecting_events
