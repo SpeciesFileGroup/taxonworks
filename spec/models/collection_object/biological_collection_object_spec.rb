@@ -27,7 +27,7 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
     end
   end
 
-  context 'validation' do 
+  context 'validation' do
     specify 'subclass is properly assigned when total is 1' do
       biological_collection_object.total = 1
       biological_collection_object.save!
@@ -123,7 +123,7 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
 
       specify 'can be destroyed' do
         expect(o.save).to be_truthy
-        o.update(taxon_determinations_attributes: [{id: o.taxon_determinations.first.id, _destroy: '1'}])  
+        o.update(taxon_determinations_attributes: [{id: o.taxon_determinations.first.id, _destroy: '1'}])
         expect(o.save).to be_truthy
         expect(TaxonDetermination.all.size).to eq(0)
       end
