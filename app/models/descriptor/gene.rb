@@ -29,9 +29,9 @@ class Descriptor::Gene < Descriptor
 
   validate :gene_attribute_logic_compresses, if: :gene_attribute_logic_changed?
   validate :gene_attribute_logic_parses, if: -> { gene_attribute_logic_changed? && !errors.any? }
-  validate :gene_attribute_logic_matches_gene_attributes, if: :gene_attribute_logic_changed? 
-  
-  after_save :cache_gene_attribute_logic_sql, if: -> { gene_attribute_logic_changed? && valid? }
+  validate :gene_attribute_logic_matches_gene_attributes, if: :gene_attribute_logic_changed?
+
+  after_save :cache_gene_attribute_logic_sql, if: -> {saved_change_to_attribute?(:gene_attribute_logic) && valid?}
 
 
   # @return [Scope]
