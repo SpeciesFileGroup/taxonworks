@@ -546,7 +546,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           source_bibtex.year = 1945
         }
         specify 'if day is present there must be a month' do
-          error_msg         = 'month is required when day is provided'
+          error_msg         = 'is required when day is provided'
           source_bibtex.day = 31
           expect(source_bibtex.valid?).to be_falsey
           expect(source_bibtex.errors.messages[:month].include?(error_msg)).to be_truthy
