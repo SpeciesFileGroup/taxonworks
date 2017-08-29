@@ -306,6 +306,55 @@ namespace :tw do
         end
 
 
+        desc 'time rake tw:project_import:sf_import:specimens:create_sf_identification_metadata user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :create_sf_identification_metadata => [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Creating SF tblIdentifications metadata...'
+
+          get_sf_identification_metadata = {} # key = SF.SpecimenID, value = array of hashes [{SeqNum => s, relevant columns => etc}, {}]
+
+          path = @args[:data_directory] + 'tblIdentifications.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each do |row|
+            specimen_id = row['SpecimenID']
+            seqnum = row['SeqNum']
+
+            logger.info "Working with SF.SpecimenID = '#{specimen_id}', SeqNum = '#{seqnum}' \n"
+
+            this_ident = {
+                :seqnum => seqnum,
+                :higher_taxon_name => row['HigherTaxonName'],
+                :nomenclator_id => row['NomenclatorID'],
+                :taxon_ident_note => row['TaxonIdentNote'],
+                :type_kind_id => row['TypeKindID'],
+                :topotype => row['Topotype'],
+                :type_taxon_name_id => row['TypeTaxonNameID'],
+                :ref_id => row['RefID'],
+                :identifier_name => row['IdentifierName'],
+                :year => row['Year'],
+                :place_in_collection => row['PlaceInCollection'],
+                :identification_mode_note => row['IdentificationModeNote'],
+                :verbatim_label => row['VerbatimLabel']
+            }
+
+            if get_sf_identification_metadata[specimen_id] # this is the same SpecimenID as last row with another seqnum, add another identification record
+              get_sf_identification_metadata[specimen_id].push this_ident
+
+            else # this is a new SpecimenID, start new identification
+              get_sf_identification_metadata[specimen_id] = [this_ident]
+            end
+
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFIdentificationMetadata', get_sf_identification_metadata)
+
+          puts 'SFIdentificationMetadata'
+          ap get_sf_identification_metadata
+        end
+
+
         desc 'time rake tw:project_import:sf_import:specimens:create_sf_source_metadata user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :create_sf_source_metadata => [:data_directory, :environment, :user_id] do |logger|
 
