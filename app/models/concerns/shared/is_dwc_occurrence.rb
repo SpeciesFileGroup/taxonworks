@@ -9,7 +9,7 @@ module Shared::IsDwcOccurrence
 
     has_one :dwc_occurrence, as: :dwc_occurrence_object
     attr_accessor :generate_dwc_occurrence
-    after_save :set_dwc_occurrence, if: 'generate_dwc_occurrence'
+    after_save :set_dwc_occurrence, if: -> {generate_dwc_occurrence}
   end
 
   module ClassMethods

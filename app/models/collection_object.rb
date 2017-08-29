@@ -88,7 +88,7 @@ class CollectionObject < ApplicationRecord
   #  When true, cached values are not built
   attr_accessor :no_cached
 
-  after_save :add_to_dwc_occurrence, if: '!self.no_cached'
+  after_save :add_to_dwc_occurrence, unless: -> {self.no_cached}
 
   # Otu delegations
   delegate :name, to: :current_otu, prefix: :otu, allow_nil: true # could be Otu#otu_name?
