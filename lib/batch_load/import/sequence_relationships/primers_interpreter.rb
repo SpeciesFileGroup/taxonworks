@@ -6,10 +6,11 @@ module BatchLoad
       super(args)
     end
 
-    # TODO: update this
     def build_sequence_relationships
       @total_data_lines = 0
       i = 0
+      gene_descriptors = {}
+      gene_attributes = {}
 
       # loop throw rows
       csv.each do |row|
@@ -17,36 +18,60 @@ module BatchLoad
 
         parse_result = BatchLoad::RowParse.new
         parse_result.objects[:sequence_relationship] = []
+        parse_result.objects[:gene_descriptor] = []
+        parse_result.objects[:gene_attribute] = []
 
         @processed_rows[i] = parse_result
 
         begin # processing
+          # gene descriptor
+          gene_name = row["gene"]
+          gene_descriptor = gene_descriptors[gene_name]
+
+          if !gene_descriptor
+            gene_descriptor = Descriptor::Gene.new(name: gene_name)
+            gene_descriptors[gene_name] = gene_descriptor
+            parse_result.objects[:gene_descriptor].push(gene_descriptor)
+          end
+
+          # sequence relationships/gene attributes
           sequence_id = row["identifier"]
-          primers = get_primers(row["primers"])
-          created_sequence_relationship = false
+          sequence = Sequence.with_namespaced_identifier("DRMSequenceId", sequence_id).take
+          
+          if sequence
+            primers = row["primers"].split(", ")
+            created_sequence_relationship = false
 
-          primers.each do |primer|
-            sequence = Sequence.with_namespaced_identifier("DRMSequenceId", sequence_id).take
-
-            if sequence
+            primers.each do |primer|
               primer_sequence = Sequence.with_any_value_for(:name, primer).take
 
               if primer_sequence
+                sequence_relationship_type = get_relationship_type(primer_sequence)
                 sequence_relationship = SequenceRelationship.new({
                   subject_sequence: primer_sequence,
                   object_sequence: sequence,
-                  type: get_relationship_type(primer_sequence)
+                  type: sequence_relationship_type
                 })
 
                 parse_result.objects[:sequence_relationship].push(sequence_relationship)
                 created_sequence_relationship = true
+
+                gene_attribute_props = {
+                  descriptor: gene_descriptor,
+                  sequence: primer_sequence,
+                  sequence_relationship_type: sequence_relationship_type
+                }
+
+                if !gene_attributes.key?(gene_attribute_props)
+                  gene_attributes[gene_attribute_props] = true
+                  parse_result.objects[:gene_attribute].push(GeneAttribute.new(gene_attribute_props))
+                end
               end
             end
 
-          end
-          
-          if created_sequence_relationship
-            @total_data_lines += 1
+            if created_sequence_relationship
+              @total_data_lines += 1
+            end
           end
         # rescue
         end
@@ -60,10 +85,6 @@ module BatchLoad
         build_sequence_relationships
         @processed = true
       end
-    end
-
-    def get_primers(primers)
-      primers.split(", ")
     end
 
     def get_relationship_type(primer)
