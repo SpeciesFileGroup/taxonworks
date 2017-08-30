@@ -65,6 +65,7 @@ module Housekeeping::Users
   end
 
   # TODO: This method _is not_ called in an 'after_save' operation (in User), so this deprecation warning does not apply (?) It _may_ be called in an 'after_save' situation through some other model. It may help to unwind the logic.
+  # WRT .changed? vs .saved_changes? Deprecation warning
   def set_updated_by_id
     ActiveSupport::Deprecation.silence do
       if (self.changed? || self.new_record?) && !self.updated_by_id_changed? && self.by.blank?
