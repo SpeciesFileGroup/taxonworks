@@ -65,7 +65,7 @@ module Housekeeping::Users
   end
 
   def set_updated_by_id
-    if (self.saved_changes? || self.new_record?) && !self.updated_by_id_changed? && self.by.blank?
+    if (self.changed? || self.new_record?) && !self.updated_by_id_changed? && self.by.blank?
       self.updated_by_id = $user_id
     end
   end
