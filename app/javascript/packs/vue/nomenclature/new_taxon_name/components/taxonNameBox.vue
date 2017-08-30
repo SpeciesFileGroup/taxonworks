@@ -47,12 +47,10 @@ export default {
 		},
 		roles() {
 			let roles = this.$store.getters[GetterNames.GetRoles];
-			let count = roles.length;
+			console.log(roles);
+			let count = (roles == undefined ? 0 : roles.length);
 			let stringRoles = '';
 
-			if(count == 0) {
-				return []
-			}
 			if(count > 0) {
 				roles.forEach(function(element, index) {
 					stringRoles = stringRoles + element.person.last_name
