@@ -44,6 +44,31 @@ export default {
 		},
 		citation() {
 			return this.$store.getters[GetterNames.GetCitation]
+		},
+		roles() {
+			let roles = this.$store.getters[GetterNames.GetRoles];
+			let count = roles.length;
+			let stringRoles = '';
+
+			if(count == 0) {
+				return []
+			}
+			if(count > 0) {
+				roles.forEach(function(element, index) {
+					stringRoles = stringRoles + element.person.last_name
+
+					if(index < (count-2)) {
+						stringRoles = stringRoles + ", ";
+					}
+					else
+					{
+						if(index == (count-2))
+						stringRoles = stringRoles + " & ";
+					}
+				});
+			}
+			return stringRoles
+
 		}
 	},
 	methods: {
@@ -56,7 +81,12 @@ export default {
 			window.location.href = '/tasks/nomenclature/new_taxon_name/'
 		},
 		showAuthor: function() {
-			return (this.taxon.verbatim_author ? (this.taxon.verbatim_author + (this.taxon.year_of_publication ? (', ' + this.taxon.year_of_publication) : '')) : (this.citation ? this.citation.source.author_year : ''))
+			if(this.roles.length) {
+				return this.roles
+			}
+			else {
+				return (this.taxon.verbatim_author ? (this.taxon.verbatim_author + (this.taxon.year_of_publication ? (', ' + this.taxon.year_of_publication) : '')) : (this.citation ? this.citation.source.author_year : ''))
+			}
 		}
 	},
 }

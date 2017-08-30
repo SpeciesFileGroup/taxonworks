@@ -179,6 +179,7 @@
 			onSortable: function() {
 				this.updateIndex();
 				this.$emit('input', this.roles_attributes);
+				this.$emit('sortable', this.roles_attributes);
 			},
 			findName: function(string, position) {
 				var delimiter;
