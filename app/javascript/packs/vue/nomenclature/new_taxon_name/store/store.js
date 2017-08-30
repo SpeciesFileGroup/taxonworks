@@ -30,7 +30,9 @@ function makeInitialState() {
     settings: {
       modalStatus: false,
       modalType: false,
-      modalRelationship: false
+      modalRelationship: false,
+      lastSave: 0,
+      lastChange: 0
     },
     taxonStatusList: [],
     taxonRelationshipList: [],

@@ -14,7 +14,8 @@
           return this.$store.getters[GetterNames.GetTaxonAuthor];
         },
         set(value) {
-          this.$store.commit(MutationNames.SetTaxonAuthor, value)
+          this.$store.commit(MutationNames.SetTaxonAuthor, value);
+          this.$store.commit(MutationNames.UpdateLastChange)
         }
       }
     }

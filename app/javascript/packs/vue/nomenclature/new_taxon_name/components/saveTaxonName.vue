@@ -48,6 +48,7 @@ export default {
 	        	this.$store.commit(MutationNames.SetTaxon, response.body);
 				this.$store.commit(MutationNames.SetHardValidation, undefined);
 				this.$store.dispatch(ActionNames.LoadSoftValidation, 'taxon_name');
+				this.$store.commit(MutationNames.UpdateLastSave);
 				TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully created.`, "notice");
 	        }, response => {
 				this.$store.commit(MutationNames.SetHardValidation, response.body);
@@ -77,6 +78,7 @@ export default {
 	        	response.body.roles_attributes = [];
 	        	this.$store.commit(MutationNames.SetTaxon, response.body);
 	        	this.$store.dispatch(ActionNames.LoadSoftValidation, 'taxon_name');
+	        	this.$store.commit(MutationNames.UpdateLastSave);
 	          	TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully updated.`, "notice");
 	        }, response => {
 	          this.$store.commit(MutationNames.SetHardValidation, response.body);

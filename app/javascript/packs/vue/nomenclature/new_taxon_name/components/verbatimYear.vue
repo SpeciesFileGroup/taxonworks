@@ -13,6 +13,7 @@
         },
         set(value) {
           this.$store.commit(MutationNames.SetTaxonYearPublication, value)
+          this.$store.commit(MutationNames.UpdateLastChange)
         }
       }
     }

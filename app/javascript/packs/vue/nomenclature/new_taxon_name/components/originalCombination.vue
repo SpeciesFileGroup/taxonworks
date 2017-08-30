@@ -244,6 +244,7 @@
  		max-width: 500px;
  	}
  	.combination {
+ 		z-index:1;
  		background-color: #F5F5F5;
  	}
  }

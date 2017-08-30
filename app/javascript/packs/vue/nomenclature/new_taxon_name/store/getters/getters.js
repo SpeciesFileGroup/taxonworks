@@ -26,7 +26,9 @@ const GetterNames = {
 	GetHardValidation: 'getHardValidation',
 	GetOriginalCombination: 'getOriginalCombination',
 	GetCitation: 'getCitation',
-	GetEtymology: 'getEtymology'
+	GetEtymology: 'getEtymology',
+	GetLastChange: 'getLastChange',
+	GetLastSave: 'getLastSave'
 };
 
 const GetterFunctions = {
@@ -57,7 +59,9 @@ const GetterFunctions = {
 	[GetterNames.GetSoftValidation]: require('./getSoftValidation'),
 	[GetterNames.GetHardValidation]: require('./getHardValidation'),
 	[GetterNames.GetCitation]: require('./getCitation'),
-	[GetterNames.GetEtymology]: require('./getEtymology')
+	[GetterNames.GetEtymology]: require('./getEtymology'),
+	[GetterNames.GetLastChange]: require('./getLastChange'),
+	[GetterNames.GetLastSave]: require('./getLastSave')
 };
 
 module.exports = {

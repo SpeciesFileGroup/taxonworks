@@ -34,7 +34,9 @@ const MutationNames = {
 	SetHardValidation: 'setHardValidation',
 	SetTaxonYearPublication: 'setTaxonYearPublication',
 	SetOriginalCombination: 'setOriginalCombination',
-	SetNomenclaturalCode: 'setNomenclaturalCode'
+	SetNomenclaturalCode: 'setNomenclaturalCode',
+	UpdateLastChange: 'updateLastChange',
+	UpdateLastSave: 'updateLastSave'
 };
 
 const MutationFunctions = {
@@ -74,6 +76,8 @@ const MutationFunctions = {
 	[MutationNames.SetTaxonYearPublication]: require('./setTaxonYearPublication'),
 	[MutationNames.SetOriginalCombination]: require('./setOriginalCombination'),
 	[MutationNames.SetNomenclaturalCode]: require('./setNomenclaturalCode'),
+	[MutationNames.UpdateLastChange]: require('./updateLastChange'),
+	[MutationNames.UpdateLastSave]: require('./updateLastSave'),
 };
 
 module.exports = {

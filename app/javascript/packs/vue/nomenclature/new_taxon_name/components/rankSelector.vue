@@ -50,6 +50,7 @@
         },
         set(value) {
           this.$store.commit(MutationNames.SetRankClass, value);
+          this.$store.commit(MutationNames.UpdateLastChange);
         }
       },
     },

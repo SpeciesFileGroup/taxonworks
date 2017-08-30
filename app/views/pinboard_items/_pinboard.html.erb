@@ -1,6 +1,6 @@
 <div id="pinboard" data-observe-field-spinner-target>
   <% sessions_current_user.pinboard_hash(sessions_current_project_id).each do |object_type, items| -%>
-    <%= content_tag :div, {id: "order_#{object_type.pluralize}" } do -%>
+    <%= content_tag :div, {id: "order_#{object_type.pluralize}", data: { 'pinboard-section' =>  object_type.pluralize} } do -%>
       <div class="slide-panel-category-header"><%= object_type.pluralize -%></div>
         <ul class="slide-panel-category-content"
             data-sortable
@@ -8,7 +8,7 @@
             data-sortable-on-change-url="<%= update_position_pinboard_items_path -%>"
             >
             <% items.each do |o| -%>
-              <li class="slide-panel-category-item" id="<%= "order_#{o.id}" -%>">
+              <li class="slide-panel-category-item" data-pinboard-object-id="<%= o.pinned_object.id -%>" id="<%= "order_#{o.id}" -%>">
                 <div class="handle flex-separate middle">
                   <%= object_link(o.pinned_object) -%>
                   <%= pinboard_item_options(o) -%>

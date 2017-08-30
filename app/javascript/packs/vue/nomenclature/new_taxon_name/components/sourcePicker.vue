@@ -18,15 +18,18 @@
 			        </div>
 			    </div>
 			    <div v-if="show == 'source'">
-					<autocomplete
-						url="/sources/autocomplete"
-						min="3"
-						param="term"
-						event-send="sourceSelect"
-						label="label_html"
-						placeholder="Type for search..."
-						display="label">
-					</autocomplete>
+				    <div class="horizontal-left-content">
+						<autocomplete
+							url="/sources/autocomplete"
+							min="3"
+							param="term"
+							event-send="sourceSelect"
+							label="label_html"
+							placeholder="Type for search..."
+							display="label">
+						</autocomplete>
+						<button type="button" class="normal-input" @click="setDefaultSource()">Use default source</button>
+					</div>
 					<hr>
 					<div v-if="citation != undefined">
 						<div class="flex-separate middle">
@@ -102,7 +105,23 @@
 				this.$store.dispatch(ActionNames.ChangeTaxonSource, value.id)
 			});
 		},
+		watch: {
+			taxon: function(newVal, oldVal) {
+				if(oldVal.id == undefined) {
+					this.setDefaultSource()
+				}
+			}
+		},
 		methods: {
+			setDefaultSource: function() {
+				var that = this;
+				setTimeout(function () {
+					var sourceId = document.querySelector('[data-pinboard-section="Sources"] [data-pinboard-object-id]').dataset.pinboardObjectId;
+					if(sourceId && this.citation == undefined) {
+						that.$store.dispatch(ActionNames.ChangeTaxonSource, sourceId)
+					}
+				}, 500);
+			},
 			updatePersons: function(list) {
 				this.$store.commit(MutationNames.SetRoles, list)
 			},

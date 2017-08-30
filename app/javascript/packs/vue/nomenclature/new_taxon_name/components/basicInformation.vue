@@ -68,6 +68,7 @@
         },
         set(value) {
           this.$store.commit(MutationNames.SetTaxonName, value);
+          this.$store.commit(MutationNames.UpdateLastChange)
         }
       },
       errors() {
@@ -97,6 +98,7 @@
 
 <style type="text/css">
   .basic-information {
+    transition: all 1s;
     .validation-warning {
       border-left: 4px solid #ff8c00 !important;
     }

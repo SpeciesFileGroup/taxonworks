@@ -64,6 +64,7 @@
 					return this.$store.getters[GetterNames.GetTaxonFeminine];
 				},
 				set(value) {
+					this.$store.commit(MutationNames.UpdateLastChange);
 					this.$store.commit(MutationNames.SetTaxonFeminine, value);
 				}
 			},
@@ -72,6 +73,7 @@
 					return this.$store.getters[GetterNames.GetTaxonMasculine];
 				},
 				set(value) {
+					this.$store.commit(MutationNames.UpdateLastChange);
 					this.$store.commit(MutationNames.SetTaxonMasculine, value);
 				}
 			},
@@ -80,6 +82,7 @@
 					return this.$store.getters[GetterNames.GetTaxonNeuter];
 				},
 				set(value) {
+					this.$store.commit(MutationNames.UpdateLastChange);
 					this.$store.commit(MutationNames.SetTaxonNeuter, value);
 				}
 			}

@@ -1,15 +1,18 @@
 <template>
 	<div id="taxonNavBarSlot">
-		<div id="taxonNavBar">
-			<div class="navbar panel basic-information separate-bottom">
+		<div id="taxonNavBar" class="separate-bottom">
+			<div class="navbar panel basic-information">
 				<div class="content">
 					<div class="flex-separate">
 						<ul class="no_bullets horizontal_navbar middle">
 							<li class="navigation-item" v-for="link,key,index in menu" v-if="link">
-								<a :class="{ active : (activePosition == index)}" :href="'#' + key.toLowerCase().replace(' ','-')" @click="activePosition = index">{{key}}</a>
+								<a data-turbolinks="false" :class="{ active : (activePosition == index)}" :href="'#' + key.toLowerCase().replace(' ','-')" @click="activePosition = index">{{key}}</a>
 							</li>
 						</ul>
 						<form class="horizontal-center-content">
+							<transition name="fade">
+								<span data-icon="warning" title="You have unsaved changes." class="medium-icon separate-right" v-if="unsavedChanges"></span>
+							</transition>
 							<pin-object v-if="taxon.id" :pin-object="taxon['pinboard_item']" :object-id="taxon.id" :type="taxon.type"></pin-object>
 							<save-taxon-name v-if="taxon.id" class="normal-input button button-submit"></save-taxon-name>
 							<create-new-button ></create-new-button>
@@ -38,9 +41,12 @@ export default {
 	components: {
 		saveTaxonName,
 		createNewButton,
-		pinObject
+		pinObject,
 	},
 	computed: {
+		unsavedChanges() {
+			return (this.$store.getters[GetterNames.GetLastChange] > this.$store.getters[GetterNames.GetLastSave])
+		},
 		taxon() {
 			return this.$store.getters[GetterNames.GetTaxon]
 		}
@@ -84,6 +90,7 @@ export default {
 		.taxonname {
 			font-weight: 300;
 		}
+		.unsaved
 		li { 
 			a {
 			font-size: 13px;

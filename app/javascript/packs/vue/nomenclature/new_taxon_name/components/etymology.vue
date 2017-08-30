@@ -29,6 +29,7 @@
 				},
 				set(text) {
 					this.$store.commit(MutationNames.SetEtymology, text);
+					this.$store.commit(MutationNames.UpdateLastChange)
 				}
 			}
 		},

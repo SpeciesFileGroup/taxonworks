@@ -1,4 +1,5 @@
 <template>
+
 	<div v-if="checkSoftValidation()" :class="{ 'validation-warning' : errors }" class="panel content soft-validation-box">
 		<div class="header flex-separate">
 			<h3>Soft Validation</h3> 
@@ -16,6 +17,7 @@
 			</div>
 		</div>
 	</div>
+
 </template>
 
 <script>

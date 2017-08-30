@@ -13,6 +13,12 @@
       min-height: 12px;
     }
 
+    .medium-icon {
+      background-size: 24px 24px;
+      padding-left: 24px;
+      min-height: 24px;
+    }  
+
     .big-icon {
       background-size: 30px 30px;
       padding-left: 30px;
@@ -210,4 +216,4 @@
 
     [data-icon="warning"] {
       background-image: image-url("attention.svg");
-    }   
+    } 
