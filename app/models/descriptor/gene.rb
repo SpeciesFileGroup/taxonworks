@@ -28,10 +28,14 @@ class Descriptor::Gene < Descriptor
   before_validation :add_gene_attributes, if: -> { base_on_sequence.present? } 
 
   validate :gene_attribute_logic_compresses, if: :gene_attribute_logic_changed?
-  validate :gene_attribute_logic_parses, if: -> { gene_attribute_logic_changed? && !errors.any? }
+  validate :gene_attribute_logic_parses, if: -> {
+    ActiveSupport::Deprecation.silence do
+      gene_attribute_logic_changed? && !errors.any?
+    end
+  }
   validate :gene_attribute_logic_matches_gene_attributes, if: :gene_attribute_logic_changed?
 
-  after_save :cache_gene_attribute_logic_sql, if: -> {saved_change_to_attribute?(:gene_attribute_logic) && valid?}
+  after_save :cache_gene_attribute_logic_sql, if: -> {saved_change_to_gene_attribute_logic? && valid?}
 
 
   # @return [Scope]

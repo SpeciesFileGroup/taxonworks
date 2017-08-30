@@ -54,7 +54,13 @@ class Document < ApplicationRecord
 
   accepts_nested_attributes_for :documentation, allow_destroy: true, reject_if: :reject_documentation
 
-  before_save :set_pdf_metadata, if: -> {changed_attributes.include?('document_file_file_size') && document_file_content_type =~ /pdf/}
+  before_save :set_pdf_metadata, if: -> {
+    ActiveSupport::Deprecation.silence do
+      changed_attributes.include?('document_file_file_size') &&
+          document_file_content_type =~ /pdf/
+    end
+  }
+
   def set_pages_by_start(sp = 1)
     update_attribute(:page_map, get_page_map(sp))
   end
