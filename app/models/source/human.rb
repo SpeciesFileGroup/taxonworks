@@ -1,10 +1,9 @@
 # A human source can be either a single individual person or a group of people (e.g. Tom, Dick and
 # Harry decided that this species is the same as that but haven't written it up yet.)
-class Source::Human < Source
+class Source::Human < Role::SourceRole
 
-  has_many :roles
   has_many :source_source_roles, class_name: 'SourceSource', as: :role_object
-  has_many :people, through: :source_source_roles
+  has_many :people, through: :source_source_roles, source: :person, validate: true
 
   accepts_nested_attributes_for :people
 
