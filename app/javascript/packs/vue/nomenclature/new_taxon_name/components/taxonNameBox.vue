@@ -47,7 +47,6 @@ export default {
 		},
 		roles() {
 			let roles = this.$store.getters[GetterNames.GetRoles];
-			console.log(roles);
 			let count = (roles == undefined ? 0 : roles.length);
 			let stringRoles = '';
 

@@ -9,12 +9,21 @@
 			<div class="body" v-show="expanded">
 				<div class="separate-bottom">
 			        <div class="switch-radio">
-						<input name="author-picker-options" id="author-picker-common" checked type="radio" class="normal-input button-active" v-model="show" value="source"/>
-						<label for="author-picker-common">Source</label>
-						<input name="author-picker-options" id="author-picker-advanced" type="radio" class="normal-input" v-model="show" value="verbatim"/>
-						<label for="author-picker-advanced">Verbatim</label>
-						<input name="author-picker-options" id="author-picker-showall" type="radio" class="normal-input" v-model="show" value="person"/>
-						<label for="author-picker-showall">Person</label>
+						<input name="author-picker-options" id="author-picker-source" checked type="radio" class="normal-input button-active" v-model="show" value="source"/>
+						<label for="author-picker-source" class="">
+							<span>Source</span> 
+							<div v-if="citation"><span class="small-icon icon-without-space" data-icon="ok"></span></div>
+							</label>
+						<input name="author-picker-options" id="author-picker-verbatim" type="radio" class="normal-input" v-model="show" value="verbatim"/>
+						<label for="author-picker-verbatim">
+							Verbatim
+							<div v-if="verbatimFieldsWithData"><span class="small-icon icon-without-space" data-icon="ok"></span></div>
+						</label>
+						<input name="author-picker-options" id="author-picker-person" type="radio" class="normal-input" v-model="show" value="person"/>
+						<label for="author-picker-person">
+							<span>Person</span> 
+							<span v-if="roles.length">({{ roles.length }})</span>
+						</label>
 			        </div>
 			    </div>
 			    <div v-if="show == 'source'">
@@ -82,6 +91,9 @@
 			taxon() {
 				return this.$store.getters[GetterNames.GetTaxon]
 			},
+			verbatimFieldsWithData() {
+				return (this.taxon.verbatim_author || this.taxon.year_of_publication)
+			},
 			roles: {
 				get() {
 					if(this.$store.getters[GetterNames.GetRoles] == undefined) return [];
@@ -121,6 +133,10 @@
 						that.$store.dispatch(ActionNames.ChangeTaxonSource, sourceId)
 					}
 				}, 500);
+			},
+			getVerbatimCount: function() {
+				var author = (taxon.year_of_publication && taxon.year_of_publication.length ? taxon.year_of_publication.length : 0)
+				return taxon.year_of_publication
 			},
 			updatePersons: function(list) {
 				this.$store.commit(MutationNames.SetRoles, list)
