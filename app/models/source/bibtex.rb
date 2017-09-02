@@ -310,7 +310,6 @@ require 'csl/styles'
 #      the date of the publication for nomenclatural purposes
 #
 class Source::Bibtex < Source
-  include SoftValidation
 
   attr_accessor :authors_to_create
 
@@ -340,7 +339,8 @@ class Source::Bibtex < Source
 
   before_validation :create_authors, if: -> {!authors_to_create.nil?}
   before_validation :check_has_field
-  before_save :set_cached_nomenclature_date
+ 
+  # before_save :set_cached_nomenclature_date
 
   #region validations
   validates_inclusion_of :bibtex_type,
@@ -740,7 +740,7 @@ class Source::Bibtex < Source
   #  An memoizer, getter for cached_nomenclature_date, computes if not .persisted?
   def date
     set_cached_nomenclature_date if !self.persisted?
-    self.cached_nomenclature_date
+    cached_nomenclature_date
   end
 
   # @return [Integer]
@@ -750,11 +750,13 @@ class Source::Bibtex < Source
   end
 
   def set_cached_nomenclature_date
-    self.cached_nomenclature_date = Utilities::Dates.nomenclature_date(
-      self.day,
-      Utilities::Dates.month_index(self.month), # this allows values from bibtex like 'may' to be handled
-      self.year
+    update_column(:cached_nomenclature_date,
+                  Utilities::Dates.nomenclature_date(
+                    self.day,
+                    Utilities::Dates.month_index(self.month), # this allows values from bibtex like 'may' to be handled
+                    self.year
     )
+                 )
   end
 
   #endregion    time/date related
@@ -804,19 +806,21 @@ class Source::Bibtex < Source
 
   # set cached values and copies active record relations into bibtex values
   def set_cached
-    if self.errors.empty?
+    if errors.empty?
+      set_cached_nomenclature_date
+      
       tmp         = cached_string('text')
-      self.cached = tmp
+      update_column(:cached, tmp)
 
-      if self.author.blank? && self.authors.size > 0
-        self.author = self.compute_bibtex_names('author')
+      if author.blank? && authors.size > 0
+        update_column(:author, compute_bibtex_names('author')) 
       end
 
-      if self.editor.blank? && self.editors.size > 0
-        self.editor = self.compute_bibtex_names('editor')
+      if editor.blank? && editors.size > 0
+        update_column(:editor, compute_bibtex_names('editor')) 
       end
 
-      self.cached_author_string = authority_name
+      update_column(:cached_author_string, authority_name)
     end
   end
 
