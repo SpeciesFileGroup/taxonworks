@@ -733,6 +733,7 @@ class CollectingEvent < ApplicationRecord
     pieces.excluding(self)
   end
 
+  # DEPRECATED for shared code
   # @param [String, String, Integer]
   # @return [Scope]
   def nearest_by_levenshtein(compared_string = nil, column = 'verbatim_locality', limit = 10)
