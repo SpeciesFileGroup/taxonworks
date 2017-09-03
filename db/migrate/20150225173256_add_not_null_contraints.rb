@@ -1,4 +1,4 @@
-class AddNotNullContraints < ActiveRecord::Migration
+class AddNotNullContraints < ActiveRecord::Migration[4.2]
   def change
       # AlternateValue
        AlternateValue.connection.execute('alter table alternate_values alter value set not null;')

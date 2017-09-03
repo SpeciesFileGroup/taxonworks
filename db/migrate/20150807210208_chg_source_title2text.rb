@@ -1,4 +1,4 @@
-class ChgSourceTitle2text < ActiveRecord::Migration
+class ChgSourceTitle2text < ActiveRecord::Migration[4.2]
   def change
     reversible do |dir|
       change_table :sources do |t|

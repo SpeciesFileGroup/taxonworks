@@ -1,4 +1,4 @@
-class DropAwesomeNestedSetFromContainers < ActiveRecord::Migration
+class DropAwesomeNestedSetFromContainers < ActiveRecord::Migration[4.2]
   def change
 
     remove_column :containers, :rgt

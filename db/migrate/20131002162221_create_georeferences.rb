@@ -1,4 +1,4 @@
-class CreateGeoreferences < ActiveRecord::Migration
+class CreateGeoreferences < ActiveRecord::Migration[4.2]
   def change
     create_table :georeferences do |t|
       t.integer :geographic_item_id

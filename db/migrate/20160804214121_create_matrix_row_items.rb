@@ -1,4 +1,4 @@
-class CreateMatrixRowItems < ActiveRecord::Migration
+class CreateMatrixRowItems < ActiveRecord::Migration[4.2]
   def change
     create_table :matrix_row_items do |t|
       t.references :matrix, null: false, index: true, foreign_key: true

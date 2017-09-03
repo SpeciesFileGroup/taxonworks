@@ -1,4 +1,4 @@
-class CreateVersionAssociations < ActiveRecord::Migration
+class CreateVersionAssociations < ActiveRecord::Migration[4.2]
   def self.up
     create_table :version_associations do |t|
       t.integer  :version_id

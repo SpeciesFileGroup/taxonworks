@@ -1,4 +1,4 @@
-class CreateSpecimenContainers < ActiveRecord::Migration
+class CreateSpecimenContainers < ActiveRecord::Migration[4.2]
   def change
     create_table :specimen_containers do |t|
       t.references :specimen_id, index: true

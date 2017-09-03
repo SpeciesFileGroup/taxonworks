@@ -1,4 +1,4 @@
-class RecastBadColumnTypes < ActiveRecord::Migration
+class RecastBadColumnTypes < ActiveRecord::Migration[4.2]
   def change
 
     remove_column :loans, :supervisor_person_id

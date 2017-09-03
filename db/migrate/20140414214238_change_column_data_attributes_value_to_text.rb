@@ -1,4 +1,4 @@
-class ChangeColumnDataAttributesValueToText < ActiveRecord::Migration
+class ChangeColumnDataAttributesValueToText < ActiveRecord::Migration[4.2]
   def change
     change_column :data_attributes, :value, :text
   end

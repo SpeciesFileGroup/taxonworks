@@ -1,4 +1,4 @@
-class CreateGeographicAreaHierarchies < ActiveRecord::Migration
+class CreateGeographicAreaHierarchies < ActiveRecord::Migration[4.2]
   def change
     create_table :geographic_area_hierarchies, id: false do |t|
       t.integer :ancestor_id, null: false

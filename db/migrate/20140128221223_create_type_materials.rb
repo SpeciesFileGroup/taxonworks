@@ -1,4 +1,4 @@
-class CreateTypeMaterials < ActiveRecord::Migration
+class CreateTypeMaterials < ActiveRecord::Migration[4.2]
   def change
     create_table :type_materials do |t|
       t.integer :protonym_id

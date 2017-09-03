@@ -1,4 +1,4 @@
-class CreateConfidences < ActiveRecord::Migration
+class CreateConfidences < ActiveRecord::Migration[4.2]
   def change
     create_table :confidences do |t|
       t.references :confidence_object, polymorphic: true, null: false

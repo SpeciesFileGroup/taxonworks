@@ -1,4 +1,4 @@
-class AlernateObjectToAlternateValueObject < ActiveRecord::Migration
+class AlernateObjectToAlternateValueObject < ActiveRecord::Migration[4.2]
   def change
     # rename_column :alternate_values, :alternate_object_attribute, :alternate_value_object_attribute
     remove_column(:alternate_values, :alternate_object_attribute)

@@ -1,4 +1,4 @@
-class MakeContainersANestedSet < ActiveRecord::Migration
+class MakeContainersANestedSet < ActiveRecord::Migration[4.2]
   def change
     add_column :containers, :lft, :integer
     add_column :containers, :rgt, :integer

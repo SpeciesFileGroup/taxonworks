@@ -1,4 +1,4 @@
-class CreateAssertedDistributions < ActiveRecord::Migration
+class CreateAssertedDistributions < ActiveRecord::Migration[4.2]
   def change
     create_table :asserted_distributions do |t|
       t.references :otu, index: true

@@ -1,4 +1,4 @@
-class TweakTaxonNames < ActiveRecord::Migration
+class TweakTaxonNames < ActiveRecord::Migration[4.2]
   def change
     rename_column :taxon_names, :higher_classification, :cached_higher_classification
     add_column :taxon_names, :year_of_publication, :integer

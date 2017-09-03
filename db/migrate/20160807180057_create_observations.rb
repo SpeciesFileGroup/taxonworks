@@ -1,4 +1,4 @@
-class CreateObservations < ActiveRecord::Migration
+class CreateObservations < ActiveRecord::Migration[4.2]
   def change
     create_table :observations do |t|
       t.references :descriptor, index: true, foreign_key: true, null: true

@@ -1,4 +1,4 @@
-class TweakCollectingEventsForElevation < ActiveRecord::Migration
+class TweakCollectingEventsForElevation < ActiveRecord::Migration[4.2]
   def change
     remove_column :collecting_events, :elevation_unit
     add_column :collecting_events, :verbatim_elevation, :string

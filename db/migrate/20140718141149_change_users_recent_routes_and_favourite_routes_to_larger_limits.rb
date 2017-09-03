@@ -1,4 +1,4 @@
-class ChangeUsersRecentRoutesAndFavouriteRoutesToLargerLimits < ActiveRecord::Migration
+class ChangeUsersRecentRoutesAndFavouriteRoutesToLargerLimits < ActiveRecord::Migration[4.2]
   def change
     change_table :users do |t|
       t.change :favorite_routes, :string, array: true, length: 20, default: '{}', limit: 8191
