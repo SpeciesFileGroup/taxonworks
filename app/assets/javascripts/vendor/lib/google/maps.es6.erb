@@ -29,7 +29,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
     //Load Google Maps
     loadGoogleMapsAPI: function() {
       return new Promise(function(resolve) {
-        if (this.isGoogleMapsAPILoaded) {
+        if (this.isGoogleMapsAPILoaded || (typeof window.google == 'object')) {
             resolve(true);
         } 
         else {
@@ -39,7 +39,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
           script.type = "text/javascript";
           script.src = "http://maps.google.com/maps/api/js?v=3&key=AIzaSyDKkPt458dNMlfIWbpQCbClJoVq2vP_k4E&libraries=drawing";
           if(!this.isProcessing) {
-            document.body.appendChild(script);
+            document.head.appendChild(script);
           }
           this.isProcessing = true;
           script.onload = function() {
