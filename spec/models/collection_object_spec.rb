@@ -212,20 +212,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     end
   end
 
-  context 'nested attributes' do
-    specify 'a new otu and determination can be created' do
-      s = CollectionObject.new(total:                           1,
-                               taxon_determinations_attributes: [
-                                                                  {otu_attributes: {name: 'King Kong'}}
-                                                                ]
-      )
-
-      expect(s.save).to be_truthy
-      expect(s.taxon_determinations.count).to eq(1)
-      expect(s.taxon_determinations.first.otu.name).to eq('King Kong')
-      expect(s.taxon_determinations.first.otu.id).to be_truthy
-    end
-  end
+  # See spec/models/biological_collection_object for nested attributes and taxon determinations
 
   context 'soft validation' do
     let(:o) { Specimen.new }

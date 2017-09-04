@@ -616,9 +616,10 @@ class CollectionObject < ApplicationRecord
   def reject_taxon_determinations(attributed)
     a = attributed['otu_id']
     b = attributed['otu']
-   
-    return true if a.blank? && b.blank?
-    return true if a.present? && b.present?
+    c = attributed['otu_attributes'] 
+
+    return true if a.blank? && b.blank? && c.blank?
+    return true if a.present? && b.present? && c.present?
     false
   end
 

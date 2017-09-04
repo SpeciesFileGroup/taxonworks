@@ -2,6 +2,7 @@ require 'rails_helper'
 describe CollectionObject::BiologicalCollectionObject, type: :model, group: :collection_objects do
 
   let(:biological_collection_object) { FactoryGirl.build(:collection_object_biological_collection_object) }
+  let(:otu) { Otu.create(name: 'zzz') }
 
   specify '.valid_new_object_classes' do
     expect(CollectionObject::BiologicalCollectionObject.valid_new_object_classes).to contain_exactly('Extract', 'CollectionObject::BiologicalCollectionObject')
@@ -42,14 +43,33 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
   end
 
   context 'nested attributes' do
-    let(:s) { Specimen.create!(otus_attributes: [{name: 'one'}, {name: 'two'}] ) }
 
-    specify 'creates otus' do
-      expect(s.otus.count).to eq(2)
+    let(:s) { Specimen.create!(otus_attributes: [{name: 'one'}, {name: 'two'}] ) }
+    let(:t) { Specimen.create!(taxon_determinations_attributes: [{otu: Otu.create(name: 'abc') }, {otu_id: otu.id} ] ) } 
+    let(:u) { Specimen.create!(taxon_determinations_attributes: [ {otu_attributes: {name: 'King Kong'}} ]) }
+
+    context 'via otus_attributes' do
+      specify 'creates otus' do
+        expect(s.otus.count).to eq(2)
+      end
+
+      specify 'creates taxon_determinations' do
+        expect(s.taxon_determinations.count).to eq(2)
+      end
     end
 
-    specify 'creates taxon_deterimatiosn' do
-      expect(s.taxon_determinations.count).to eq(2)
+    context 'via taxon_determinations_attributes' do
+      specify 'creates otus' do
+        expect(t.otus.count).to eq(2)
+      end
+
+      specify 'creates taxon_determinations' do
+        expect(s.taxon_determinations.count).to eq(2)
+      end
+    end
+
+    specify 'creates taxon_determinations via both nested attributes' do
+      expect(u.taxon_determinations.count).to eq(1)
     end
 
     specify 'can be destroyed' do
