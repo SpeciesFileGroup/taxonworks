@@ -99,7 +99,7 @@ class TaxonDetermination < ApplicationRecord
   protected
 
   def reject_otu(attributed)
-    attributed['name'].blank?  attributed['taxon_name_id'].blank?
+    attributed['name'].blank? && attributed['taxon_name_id'].blank?
   end
 
   def set_made_fields_if_not_provided
