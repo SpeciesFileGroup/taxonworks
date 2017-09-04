@@ -43,7 +43,8 @@ class Otu < ApplicationRecord
   has_many :asserted_distributions, inverse_of: :otu
 
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
-  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus, class_name: 'CollectionObject::BiologicalCollectionObject'
+  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
+
   has_many :collecting_events, -> {distinct}, through: :collection_objects
 
   has_many :common_names, dependent: :destroy
@@ -162,7 +163,7 @@ class Otu < ApplicationRecord
   protected
 
   def check_required_fields
-    if self.taxon_name_id.nil? && self.name.blank?
+    if taxon_name_id.blank? && name.blank?
       errors.add(:taxon_name_id, 'and/or name should be selected')
       errors.add(:name, 'and/or taxon name should be selected')
     end

@@ -120,10 +120,7 @@ class CollectionObject < ApplicationRecord
 
   # This is a problem, but here for the foreseeable future for nested attributes purporses.
   has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object
-
-  # This must come before taxon determinations !!
   has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
-
   has_many :taxon_names, through: :otus
 
   has_many :type_designations, class_name: 'TypeMaterial', foreign_key: :biological_object_id, inverse_of: :material
@@ -136,7 +133,7 @@ class CollectionObject < ApplicationRecord
   has_many :georeferences, through: :collecting_event
   has_many :geographic_items, through: :georeferences
 
-  accepts_nested_attributes_for :otus, allow_destroy: true
+  accepts_nested_attributes_for :otus, allow_destroy: true, reject_if: :reject_otus
   accepts_nested_attributes_for :taxon_determinations, allow_destroy: true, reject_if: :reject_taxon_determinations
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
@@ -609,25 +606,21 @@ class CollectionObject < ApplicationRecord
     true
   end
 
+  def reject_otus(attributed)
+    a = attributed['taxon_name_id']
+    b = attributed['name']
+    a.blank? && b.blank?
+  end
+
   # @return [Boolean]
   def reject_taxon_determinations(attributed)
     a = attributed['otu_id']
-    b = attributed['otu_attributes']
-
-    return true if !a.present? && !b.present?
-
-    if a.present?
-      return true if b.present? && ( b['name'].present? || b['taxon_name_id'].present? ) # not both
-      return false
-    end
-
-    if b.present?
-      return true if !b['name'].present? && !b['taxon_name_id'].present?
-    end
-
+    b = attributed['otu']
+   
+    return true if a.blank? && b.blank?
+    return true if a.present? && b.present?
     false
   end
-
 
   def reject_collecting_event(attributed)
     reject = true
