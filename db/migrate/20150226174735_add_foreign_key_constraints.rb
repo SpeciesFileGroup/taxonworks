@@ -1,4 +1,4 @@
-class AddForeignKeyConstraints < ActiveRecord::Migration
+class AddForeignKeyConstraints < ActiveRecord::Migration[4.2]
   def change
 
     AlternateValue.connection.execute('alter table alternate_values add foreign key (language_id) references languages (id);')

@@ -7,9 +7,11 @@ class Role::SourceRole < Role
   include Shared::SharedAcrossProjects
 
   validates :project_id, absence: true
+
   after_save :update_source_cached
 
   def update_source_cached
-    self.role_object.save
+    role_object.set_cached if role_object.respond_to?(:set_cached)
   end
+
 end

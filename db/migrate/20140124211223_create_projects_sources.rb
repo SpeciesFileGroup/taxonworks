@@ -1,4 +1,4 @@
-class CreateProjectsSources < ActiveRecord::Migration
+class CreateProjectsSources < ActiveRecord::Migration[4.2]
   def change
     create_table :projects_sources do |t|
       t.references :project, index: true

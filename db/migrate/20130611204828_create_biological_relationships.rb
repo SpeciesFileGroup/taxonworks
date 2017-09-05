@@ -1,4 +1,4 @@
-class CreateBiologicalRelationships < ActiveRecord::Migration
+class CreateBiologicalRelationships < ActiveRecord::Migration[4.2]
   def change
     create_table :biological_relationships do |t|
       t.string :name

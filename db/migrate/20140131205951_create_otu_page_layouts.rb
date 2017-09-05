@@ -1,4 +1,4 @@
-class CreateOtuPageLayouts < ActiveRecord::Migration
+class CreateOtuPageLayouts < ActiveRecord::Migration[4.2]
   def change
     create_table :otu_page_layouts do |t|
       t.string :name

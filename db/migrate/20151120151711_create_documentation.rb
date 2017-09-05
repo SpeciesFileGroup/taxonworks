@@ -1,4 +1,4 @@
-class CreateDocumentation < ActiveRecord::Migration
+class CreateDocumentation < ActiveRecord::Migration[4.2]
   def change
     create_table :documentation do |t|
       t.references :documentation_object, polymorphic: true,  null: false

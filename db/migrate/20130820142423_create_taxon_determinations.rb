@@ -1,4 +1,4 @@
-class CreateTaxonDeterminations < ActiveRecord::Migration
+class CreateTaxonDeterminations < ActiveRecord::Migration[4.2]
   def change
     create_table :taxon_determinations do |t|
       t.integer :biological_collection_object_id

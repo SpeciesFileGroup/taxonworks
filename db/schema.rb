@@ -15,858 +15,858 @@ ActiveRecord::Schema.define(version: 20170818150142) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "fuzzystrmatch"
   enable_extension "hstore"
+  enable_extension "fuzzystrmatch"
 
-  create_table "alternate_values", force: :cascade do |t|
-    t.text     "value",                            null: false
-    t.string   "type",                             null: false
-    t.integer  "language_id"
-    t.datetime "created_at",                       null: false
-    t.datetime "updated_at",                       null: false
-    t.integer  "created_by_id",                    null: false
-    t.integer  "updated_by_id",                    null: false
-    t.string   "alternate_value_object_attribute"
-    t.integer  "alternate_value_object_id",        null: false
-    t.string   "alternate_value_object_type",      null: false
-    t.integer  "project_id"
-    t.index ["alternate_value_object_id", "alternate_value_object_type"], name: "index_alternate_values_on_alternate_value_object_id_and_type", using: :btree
-    t.index ["created_by_id"], name: "index_alternate_values_on_created_by_id", using: :btree
-    t.index ["language_id"], name: "index_alternate_values_on_language_id", using: :btree
-    t.index ["project_id"], name: "index_alternate_values_on_project_id", using: :btree
-    t.index ["type"], name: "index_alternate_values_on_type", using: :btree
-    t.index ["updated_by_id"], name: "index_alternate_values_on_updated_by_id", using: :btree
+  create_table "alternate_values", id: :serial, force: :cascade do |t|
+    t.text "value", null: false
+    t.string "type", null: false
+    t.integer "language_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.string "alternate_value_object_attribute"
+    t.integer "alternate_value_object_id", null: false
+    t.string "alternate_value_object_type", null: false
+    t.integer "project_id"
+    t.index ["alternate_value_object_id", "alternate_value_object_type"], name: "index_alternate_values_on_alternate_value_object_id_and_type"
+    t.index ["created_by_id"], name: "index_alternate_values_on_created_by_id"
+    t.index ["language_id"], name: "index_alternate_values_on_language_id"
+    t.index ["project_id"], name: "index_alternate_values_on_project_id"
+    t.index ["type"], name: "index_alternate_values_on_type"
+    t.index ["updated_by_id"], name: "index_alternate_values_on_updated_by_id"
   end
 
-  create_table "asserted_distributions", force: :cascade do |t|
-    t.integer  "otu_id",             null: false
-    t.integer  "geographic_area_id", null: false
-    t.integer  "project_id",         null: false
-    t.integer  "created_by_id",      null: false
-    t.integer  "updated_by_id",      null: false
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
-    t.boolean  "is_absent"
-    t.index ["created_by_id"], name: "index_asserted_distributions_on_created_by_id", using: :btree
-    t.index ["geographic_area_id"], name: "index_asserted_distributions_on_geographic_area_id", using: :btree
-    t.index ["otu_id"], name: "index_asserted_distributions_on_otu_id", using: :btree
-    t.index ["project_id"], name: "index_asserted_distributions_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_asserted_distributions_on_updated_by_id", using: :btree
+  create_table "asserted_distributions", id: :serial, force: :cascade do |t|
+    t.integer "otu_id", null: false
+    t.integer "geographic_area_id", null: false
+    t.integer "project_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "is_absent"
+    t.index ["created_by_id"], name: "index_asserted_distributions_on_created_by_id"
+    t.index ["geographic_area_id"], name: "index_asserted_distributions_on_geographic_area_id"
+    t.index ["otu_id"], name: "index_asserted_distributions_on_otu_id"
+    t.index ["project_id"], name: "index_asserted_distributions_on_project_id"
+    t.index ["updated_by_id"], name: "index_asserted_distributions_on_updated_by_id"
   end
 
-  create_table "biocuration_classifications", force: :cascade do |t|
-    t.integer  "biocuration_class_id",            null: false
-    t.integer  "biological_collection_object_id", null: false
-    t.integer  "position",                        null: false
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
-    t.integer  "created_by_id",                   null: false
-    t.integer  "updated_by_id",                   null: false
-    t.integer  "project_id",                      null: false
-    t.index ["biocuration_class_id"], name: "index_biocuration_classifications_on_biocuration_class_id", using: :btree
-    t.index ["biological_collection_object_id"], name: "bio_c_bio_collection_object", using: :btree
-    t.index ["created_by_id"], name: "index_biocuration_classifications_on_created_by_id", using: :btree
-    t.index ["position"], name: "index_biocuration_classifications_on_position", using: :btree
-    t.index ["project_id"], name: "index_biocuration_classifications_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_biocuration_classifications_on_updated_by_id", using: :btree
+  create_table "biocuration_classifications", id: :serial, force: :cascade do |t|
+    t.integer "biocuration_class_id", null: false
+    t.integer "biological_collection_object_id", null: false
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.index ["biocuration_class_id"], name: "index_biocuration_classifications_on_biocuration_class_id"
+    t.index ["biological_collection_object_id"], name: "bio_c_bio_collection_object"
+    t.index ["created_by_id"], name: "index_biocuration_classifications_on_created_by_id"
+    t.index ["position"], name: "index_biocuration_classifications_on_position"
+    t.index ["project_id"], name: "index_biocuration_classifications_on_project_id"
+    t.index ["updated_by_id"], name: "index_biocuration_classifications_on_updated_by_id"
   end
 
-  create_table "biological_associations", force: :cascade do |t|
-    t.integer  "biological_relationship_id",          null: false
-    t.integer  "biological_association_subject_id",   null: false
-    t.string   "biological_association_subject_type", null: false
-    t.integer  "biological_association_object_id",    null: false
-    t.string   "biological_association_object_type",  null: false
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
-    t.integer  "created_by_id",                       null: false
-    t.integer  "updated_by_id",                       null: false
-    t.integer  "project_id",                          null: false
-    t.index ["biological_association_object_id", "biological_association_object_type"], name: "index_biological_associations_on_object_id_and_type", using: :btree
-    t.index ["biological_association_subject_id", "biological_association_subject_type"], name: "index_biological_associations_on_subject_id_and_type", using: :btree
-    t.index ["biological_relationship_id"], name: "index_biological_associations_on_biological_relationship_id", using: :btree
-    t.index ["created_by_id"], name: "index_biological_associations_on_created_by_id", using: :btree
-    t.index ["project_id"], name: "index_biological_associations_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_biological_associations_on_updated_by_id", using: :btree
+  create_table "biological_associations", id: :serial, force: :cascade do |t|
+    t.integer "biological_relationship_id", null: false
+    t.integer "biological_association_subject_id", null: false
+    t.string "biological_association_subject_type", null: false
+    t.integer "biological_association_object_id", null: false
+    t.string "biological_association_object_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.index ["biological_association_object_id", "biological_association_object_type"], name: "index_biological_associations_on_object_id_and_type"
+    t.index ["biological_association_subject_id", "biological_association_subject_type"], name: "index_biological_associations_on_subject_id_and_type"
+    t.index ["biological_relationship_id"], name: "index_biological_associations_on_biological_relationship_id"
+    t.index ["created_by_id"], name: "index_biological_associations_on_created_by_id"
+    t.index ["project_id"], name: "index_biological_associations_on_project_id"
+    t.index ["updated_by_id"], name: "index_biological_associations_on_updated_by_id"
   end
 
-  create_table "biological_associations_biological_associations_graphs", force: :cascade do |t|
-    t.integer  "biological_associations_graph_id", null: false
-    t.integer  "biological_association_id",        null: false
-    t.datetime "created_at",                       null: false
-    t.datetime "updated_at",                       null: false
-    t.integer  "created_by_id",                    null: false
-    t.integer  "updated_by_id",                    null: false
-    t.integer  "project_id",                       null: false
-    t.index ["biological_association_id"], name: "bio_asc_bio_asc_graph_bio_asc", using: :btree
-    t.index ["biological_associations_graph_id"], name: "bio_asc_bio_asc_graph_bio_asc_graph", using: :btree
-    t.index ["created_by_id"], name: "bio_asc_bio_asc_graph_created_by", using: :btree
-    t.index ["project_id"], name: "bio_asc_bio_asc_graph_project", using: :btree
-    t.index ["updated_by_id"], name: "bio_asc_bio_asc_graph_updated_by", using: :btree
+  create_table "biological_associations_biological_associations_graphs", id: :serial, force: :cascade do |t|
+    t.integer "biological_associations_graph_id", null: false
+    t.integer "biological_association_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.index ["biological_association_id"], name: "bio_asc_bio_asc_graph_bio_asc"
+    t.index ["biological_associations_graph_id"], name: "bio_asc_bio_asc_graph_bio_asc_graph"
+    t.index ["created_by_id"], name: "bio_asc_bio_asc_graph_created_by"
+    t.index ["project_id"], name: "bio_asc_bio_asc_graph_project"
+    t.index ["updated_by_id"], name: "bio_asc_bio_asc_graph_updated_by"
   end
 
-  create_table "biological_associations_graphs", force: :cascade do |t|
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.string   "name"
-    t.index ["created_by_id"], name: "index_biological_associations_graphs_on_created_by_id", using: :btree
-    t.index ["project_id"], name: "index_biological_associations_graphs_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_biological_associations_graphs_on_updated_by_id", using: :btree
+  create_table "biological_associations_graphs", id: :serial, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.string "name"
+    t.index ["created_by_id"], name: "index_biological_associations_graphs_on_created_by_id"
+    t.index ["project_id"], name: "index_biological_associations_graphs_on_project_id"
+    t.index ["updated_by_id"], name: "index_biological_associations_graphs_on_updated_by_id"
   end
 
-  create_table "biological_relationship_types", force: :cascade do |t|
-    t.string   "type",                       null: false
-    t.integer  "biological_property_id",     null: false
-    t.integer  "biological_relationship_id", null: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
-    t.integer  "created_by_id",              null: false
-    t.integer  "updated_by_id",              null: false
-    t.integer  "project_id",                 null: false
-    t.index ["biological_property_id"], name: "index_biological_relationship_types_on_biological_property_id", using: :btree
-    t.index ["biological_relationship_id"], name: "bio_rel_type_bio_rel", using: :btree
-    t.index ["created_by_id"], name: "bio_rel_type_created_by", using: :btree
-    t.index ["project_id"], name: "bio_rel_type_project", using: :btree
-    t.index ["type"], name: "index_biological_relationship_types_on_type", using: :btree
-    t.index ["updated_by_id"], name: "bio_rel_type_updated_by", using: :btree
+  create_table "biological_relationship_types", id: :serial, force: :cascade do |t|
+    t.string "type", null: false
+    t.integer "biological_property_id", null: false
+    t.integer "biological_relationship_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.index ["biological_property_id"], name: "index_biological_relationship_types_on_biological_property_id"
+    t.index ["biological_relationship_id"], name: "bio_rel_type_bio_rel"
+    t.index ["created_by_id"], name: "bio_rel_type_created_by"
+    t.index ["project_id"], name: "bio_rel_type_project"
+    t.index ["type"], name: "index_biological_relationship_types_on_type"
+    t.index ["updated_by_id"], name: "bio_rel_type_updated_by"
   end
 
-  create_table "biological_relationships", force: :cascade do |t|
-    t.string   "name",          null: false
-    t.boolean  "is_transitive"
-    t.boolean  "is_reflexive"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.index ["created_by_id"], name: "bio_rel_created_by", using: :btree
-    t.index ["project_id"], name: "bio_rel_project", using: :btree
-    t.index ["updated_by_id"], name: "bio_rel_updated_by", using: :btree
+  create_table "biological_relationships", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
+    t.boolean "is_transitive"
+    t.boolean "is_reflexive"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.index ["created_by_id"], name: "bio_rel_created_by"
+    t.index ["project_id"], name: "bio_rel_project"
+    t.index ["updated_by_id"], name: "bio_rel_updated_by"
   end
 
-  create_table "character_states", force: :cascade do |t|
-    t.string   "name",          null: false
-    t.string   "label",         null: false
-    t.integer  "descriptor_id", null: false
-    t.integer  "position"
-    t.integer  "project_id"
-    t.integer  "updated_by_id", null: false
-    t.integer  "created_by_id", null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.index ["created_by_id"], name: "index_character_states_on_created_by_id", using: :btree
-    t.index ["descriptor_id"], name: "index_character_states_on_descriptor_id", using: :btree
-    t.index ["label"], name: "index_character_states_on_label", using: :btree
-    t.index ["name"], name: "index_character_states_on_name", using: :btree
-    t.index ["project_id"], name: "index_character_states_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_character_states_on_updated_by_id", using: :btree
+  create_table "character_states", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
+    t.string "label", null: false
+    t.integer "descriptor_id", null: false
+    t.integer "position"
+    t.integer "project_id"
+    t.integer "updated_by_id", null: false
+    t.integer "created_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_character_states_on_created_by_id"
+    t.index ["descriptor_id"], name: "index_character_states_on_descriptor_id"
+    t.index ["label"], name: "index_character_states_on_label"
+    t.index ["name"], name: "index_character_states_on_name"
+    t.index ["project_id"], name: "index_character_states_on_project_id"
+    t.index ["updated_by_id"], name: "index_character_states_on_updated_by_id"
   end
 
-  create_table "citation_topics", force: :cascade do |t|
-    t.integer  "topic_id",      null: false
-    t.integer  "citation_id",   null: false
-    t.string   "pages"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.index ["citation_id"], name: "index_citation_topics_on_citation_id", using: :btree
-    t.index ["created_by_id"], name: "index_citation_topics_on_created_by_id", using: :btree
-    t.index ["project_id"], name: "index_citation_topics_on_project_id", using: :btree
-    t.index ["topic_id"], name: "index_citation_topics_on_topic_id", using: :btree
-    t.index ["updated_by_id"], name: "index_citation_topics_on_updated_by_id", using: :btree
+  create_table "citation_topics", id: :serial, force: :cascade do |t|
+    t.integer "topic_id", null: false
+    t.integer "citation_id", null: false
+    t.string "pages"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.index ["citation_id"], name: "index_citation_topics_on_citation_id"
+    t.index ["created_by_id"], name: "index_citation_topics_on_created_by_id"
+    t.index ["project_id"], name: "index_citation_topics_on_project_id"
+    t.index ["topic_id"], name: "index_citation_topics_on_topic_id"
+    t.index ["updated_by_id"], name: "index_citation_topics_on_updated_by_id"
   end
 
-  create_table "citations", force: :cascade do |t|
-    t.string   "citation_object_type", null: false
-    t.integer  "source_id",            null: false
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
-    t.integer  "created_by_id",        null: false
-    t.integer  "updated_by_id",        null: false
-    t.integer  "project_id",           null: false
-    t.integer  "citation_object_id",   null: false
-    t.string   "pages"
-    t.boolean  "is_original"
-    t.index ["citation_object_id"], name: "index_citations_on_citation_object_id", using: :btree
-    t.index ["citation_object_type"], name: "index_citations_on_citation_object_type", using: :btree
-    t.index ["created_by_id"], name: "index_citations_on_created_by_id", using: :btree
-    t.index ["project_id"], name: "index_citations_on_project_id", using: :btree
-    t.index ["source_id"], name: "index_citations_on_source_id", using: :btree
-    t.index ["updated_by_id"], name: "index_citations_on_updated_by_id", using: :btree
+  create_table "citations", id: :serial, force: :cascade do |t|
+    t.string "citation_object_type", null: false
+    t.integer "source_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.integer "citation_object_id", null: false
+    t.string "pages"
+    t.boolean "is_original"
+    t.index ["citation_object_id"], name: "index_citations_on_citation_object_id"
+    t.index ["citation_object_type"], name: "index_citations_on_citation_object_type"
+    t.index ["created_by_id"], name: "index_citations_on_created_by_id"
+    t.index ["project_id"], name: "index_citations_on_project_id"
+    t.index ["source_id"], name: "index_citations_on_source_id"
+    t.index ["updated_by_id"], name: "index_citations_on_updated_by_id"
   end
 
-  create_table "collecting_events", force: :cascade do |t|
-    t.text     "verbatim_label"
-    t.text     "print_label"
-    t.text     "document_label"
-    t.string   "verbatim_locality"
-    t.string   "verbatim_longitude"
-    t.string   "verbatim_latitude"
-    t.string   "verbatim_geolocation_uncertainty"
-    t.string   "verbatim_trip_identifier"
-    t.string   "verbatim_collectors"
-    t.string   "verbatim_method"
-    t.integer  "geographic_area_id"
-    t.decimal  "minimum_elevation"
-    t.decimal  "maximum_elevation"
-    t.string   "elevation_precision"
-    t.text     "field_notes"
-    t.string   "md5_of_verbatim_label"
-    t.datetime "created_at",                                 null: false
-    t.datetime "updated_at",                                 null: false
-    t.text     "cached"
-    t.integer  "created_by_id",                              null: false
-    t.integer  "updated_by_id",                              null: false
-    t.integer  "project_id",                                 null: false
-    t.integer  "start_date_year"
-    t.integer  "end_date_year"
-    t.integer  "start_date_day"
-    t.integer  "end_date_day"
-    t.string   "verbatim_elevation"
-    t.text     "verbatim_habitat"
-    t.string   "verbatim_datum"
-    t.integer  "time_start_hour",                  limit: 2
-    t.integer  "time_start_minute",                limit: 2
-    t.integer  "time_start_second",                limit: 2
-    t.integer  "time_end_hour",                    limit: 2
-    t.integer  "time_end_minute",                  limit: 2
-    t.integer  "time_end_second",                  limit: 2
-    t.string   "verbatim_date"
-    t.integer  "start_date_month"
-    t.integer  "end_date_month"
-    t.string   "cached_level0_geographic_name"
-    t.string   "cached_level1_geographic_name"
-    t.string   "cached_level2_geographic_name"
-    t.string   "group"
-    t.string   "formation"
-    t.string   "member"
-    t.string   "lithology"
-    t.decimal  "max_ma"
-    t.decimal  "min_ma"
-    t.index ["created_by_id"], name: "index_collecting_events_on_created_by_id", using: :btree
-    t.index ["geographic_area_id"], name: "index_collecting_events_on_geographic_area_id", using: :btree
-    t.index ["project_id"], name: "index_collecting_events_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_collecting_events_on_updated_by_id", using: :btree
+  create_table "collecting_events", id: :serial, force: :cascade do |t|
+    t.text "verbatim_label"
+    t.text "print_label"
+    t.text "document_label"
+    t.string "verbatim_locality"
+    t.string "verbatim_longitude"
+    t.string "verbatim_latitude"
+    t.string "verbatim_geolocation_uncertainty"
+    t.string "verbatim_trip_identifier"
+    t.string "verbatim_collectors"
+    t.string "verbatim_method"
+    t.integer "geographic_area_id"
+    t.decimal "minimum_elevation"
+    t.decimal "maximum_elevation"
+    t.string "elevation_precision"
+    t.text "field_notes"
+    t.string "md5_of_verbatim_label"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "cached"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.integer "start_date_year"
+    t.integer "end_date_year"
+    t.integer "start_date_day"
+    t.integer "end_date_day"
+    t.string "verbatim_elevation"
+    t.text "verbatim_habitat"
+    t.string "verbatim_datum"
+    t.integer "time_start_hour", limit: 2
+    t.integer "time_start_minute", limit: 2
+    t.integer "time_start_second", limit: 2
+    t.integer "time_end_hour", limit: 2
+    t.integer "time_end_minute", limit: 2
+    t.integer "time_end_second", limit: 2
+    t.string "verbatim_date"
+    t.integer "start_date_month"
+    t.integer "end_date_month"
+    t.string "cached_level0_geographic_name"
+    t.string "cached_level1_geographic_name"
+    t.string "cached_level2_geographic_name"
+    t.string "group"
+    t.string "formation"
+    t.string "member"
+    t.string "lithology"
+    t.decimal "max_ma"
+    t.decimal "min_ma"
+    t.index ["created_by_id"], name: "index_collecting_events_on_created_by_id"
+    t.index ["geographic_area_id"], name: "index_collecting_events_on_geographic_area_id"
+    t.index ["project_id"], name: "index_collecting_events_on_project_id"
+    t.index ["updated_by_id"], name: "index_collecting_events_on_updated_by_id"
   end
 
-  create_table "collection_object_observations", force: :cascade do |t|
-    t.text     "data",          null: false
-    t.integer  "project_id",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.index ["created_by_id"], name: "index_collection_object_observations_on_created_by_id", using: :btree
-    t.index ["data"], name: "index_collection_object_observations_on_data", using: :btree
-    t.index ["project_id"], name: "index_collection_object_observations_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_collection_object_observations_on_updated_by_id", using: :btree
+  create_table "collection_object_observations", id: :serial, force: :cascade do |t|
+    t.text "data", null: false
+    t.integer "project_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_collection_object_observations_on_created_by_id"
+    t.index ["data"], name: "index_collection_object_observations_on_data"
+    t.index ["project_id"], name: "index_collection_object_observations_on_project_id"
+    t.index ["updated_by_id"], name: "index_collection_object_observations_on_updated_by_id"
   end
 
-  create_table "collection_objects", force: :cascade do |t|
-    t.integer  "total"
-    t.string   "type",                      null: false
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
-    t.integer  "preparation_type_id"
-    t.integer  "repository_id"
-    t.integer  "created_by_id",             null: false
-    t.integer  "updated_by_id",             null: false
-    t.integer  "project_id",                null: false
-    t.text     "buffered_collecting_event"
-    t.text     "buffered_determinations"
-    t.text     "buffered_other_labels"
-    t.integer  "ranged_lot_category_id"
-    t.integer  "collecting_event_id"
-    t.date     "accessioned_at"
-    t.string   "deaccession_reason"
-    t.date     "deaccessioned_at"
-    t.index ["collecting_event_id"], name: "index_collection_objects_on_collecting_event_id", using: :btree
-    t.index ["created_by_id"], name: "index_collection_objects_on_created_by_id", using: :btree
-    t.index ["preparation_type_id"], name: "index_collection_objects_on_preparation_type_id", using: :btree
-    t.index ["project_id"], name: "index_collection_objects_on_project_id", using: :btree
-    t.index ["ranged_lot_category_id"], name: "index_collection_objects_on_ranged_lot_category_id", using: :btree
-    t.index ["repository_id"], name: "index_collection_objects_on_repository_id", using: :btree
-    t.index ["type"], name: "index_collection_objects_on_type", using: :btree
-    t.index ["updated_by_id"], name: "index_collection_objects_on_updated_by_id", using: :btree
+  create_table "collection_objects", id: :serial, force: :cascade do |t|
+    t.integer "total"
+    t.string "type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "preparation_type_id"
+    t.integer "repository_id"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.text "buffered_collecting_event"
+    t.text "buffered_determinations"
+    t.text "buffered_other_labels"
+    t.integer "ranged_lot_category_id"
+    t.integer "collecting_event_id"
+    t.date "accessioned_at"
+    t.string "deaccession_reason"
+    t.date "deaccessioned_at"
+    t.index ["collecting_event_id"], name: "index_collection_objects_on_collecting_event_id"
+    t.index ["created_by_id"], name: "index_collection_objects_on_created_by_id"
+    t.index ["preparation_type_id"], name: "index_collection_objects_on_preparation_type_id"
+    t.index ["project_id"], name: "index_collection_objects_on_project_id"
+    t.index ["ranged_lot_category_id"], name: "index_collection_objects_on_ranged_lot_category_id"
+    t.index ["repository_id"], name: "index_collection_objects_on_repository_id"
+    t.index ["type"], name: "index_collection_objects_on_type"
+    t.index ["updated_by_id"], name: "index_collection_objects_on_updated_by_id"
   end
 
-  create_table "collection_profiles", force: :cascade do |t|
-    t.integer  "container_id"
-    t.integer  "otu_id"
-    t.integer  "conservation_status"
-    t.integer  "processing_state"
-    t.integer  "container_condition"
-    t.integer  "condition_of_labels"
-    t.integer  "identification_level"
-    t.integer  "arrangement_level"
-    t.integer  "data_quality"
-    t.integer  "computerization_level"
-    t.integer  "number_of_collection_objects"
-    t.integer  "number_of_containers"
-    t.integer  "created_by_id",                null: false
-    t.integer  "updated_by_id",                null: false
-    t.integer  "project_id",                   null: false
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
-    t.string   "collection_type"
-    t.index ["collection_type"], name: "index_collection_profiles_on_collection_type", using: :btree
-    t.index ["container_id"], name: "index_collection_profiles_on_container_id", using: :btree
-    t.index ["created_by_id"], name: "index_collection_profiles_on_created_by_id", using: :btree
-    t.index ["otu_id"], name: "index_collection_profiles_on_otu_id", using: :btree
-    t.index ["project_id"], name: "index_collection_profiles_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_collection_profiles_on_updated_by_id", using: :btree
+  create_table "collection_profiles", id: :serial, force: :cascade do |t|
+    t.integer "container_id"
+    t.integer "otu_id"
+    t.integer "conservation_status"
+    t.integer "processing_state"
+    t.integer "container_condition"
+    t.integer "condition_of_labels"
+    t.integer "identification_level"
+    t.integer "arrangement_level"
+    t.integer "data_quality"
+    t.integer "computerization_level"
+    t.integer "number_of_collection_objects"
+    t.integer "number_of_containers"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "collection_type"
+    t.index ["collection_type"], name: "index_collection_profiles_on_collection_type"
+    t.index ["container_id"], name: "index_collection_profiles_on_container_id"
+    t.index ["created_by_id"], name: "index_collection_profiles_on_created_by_id"
+    t.index ["otu_id"], name: "index_collection_profiles_on_otu_id"
+    t.index ["project_id"], name: "index_collection_profiles_on_project_id"
+    t.index ["updated_by_id"], name: "index_collection_profiles_on_updated_by_id"
   end
 
-  create_table "common_names", force: :cascade do |t|
-    t.string   "name",               null: false
-    t.integer  "geographic_area_id"
-    t.integer  "otu_id"
-    t.integer  "language_id"
-    t.integer  "start_year"
-    t.integer  "end_year"
-    t.integer  "project_id",         null: false
-    t.integer  "created_by_id",      null: false
-    t.integer  "updated_by_id",      null: false
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
-    t.index ["created_by_id"], name: "index_common_names_on_created_by_id", using: :btree
-    t.index ["geographic_area_id"], name: "index_common_names_on_geographic_area_id", using: :btree
-    t.index ["language_id"], name: "index_common_names_on_language_id", using: :btree
-    t.index ["name"], name: "index_common_names_on_name", using: :btree
-    t.index ["otu_id"], name: "index_common_names_on_otu_id", using: :btree
-    t.index ["project_id"], name: "index_common_names_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_common_names_on_updated_by_id", using: :btree
+  create_table "common_names", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "geographic_area_id"
+    t.integer "otu_id"
+    t.integer "language_id"
+    t.integer "start_year"
+    t.integer "end_year"
+    t.integer "project_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_common_names_on_created_by_id"
+    t.index ["geographic_area_id"], name: "index_common_names_on_geographic_area_id"
+    t.index ["language_id"], name: "index_common_names_on_language_id"
+    t.index ["name"], name: "index_common_names_on_name"
+    t.index ["otu_id"], name: "index_common_names_on_otu_id"
+    t.index ["project_id"], name: "index_common_names_on_project_id"
+    t.index ["updated_by_id"], name: "index_common_names_on_updated_by_id"
   end
 
-  create_table "confidences", force: :cascade do |t|
-    t.integer  "confidence_object_id",   null: false
-    t.string   "confidence_object_type", null: false
-    t.integer  "position",               null: false
-    t.integer  "created_by_id",          null: false
-    t.integer  "updated_by_id",          null: false
-    t.integer  "project_id",             null: false
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
-    t.integer  "confidence_level_id",    null: false
-    t.index ["project_id"], name: "index_confidences_on_project_id", using: :btree
+  create_table "confidences", id: :serial, force: :cascade do |t|
+    t.string "confidence_object_type", null: false
+    t.integer "confidence_object_id", null: false
+    t.integer "position", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "confidence_level_id", null: false
+    t.index ["project_id"], name: "index_confidences_on_project_id"
   end
 
   create_table "container_item_hierarchies", id: false, force: :cascade do |t|
-    t.integer "ancestor_id",   null: false
+    t.integer "ancestor_id", null: false
     t.integer "descendant_id", null: false
-    t.integer "generations",   null: false
-    t.index ["ancestor_id", "descendant_id", "generations"], name: "container_item_anc_desc_idx", unique: true, using: :btree
-    t.index ["descendant_id"], name: "container_item_desc_idx", using: :btree
+    t.integer "generations", null: false
+    t.index ["ancestor_id", "descendant_id", "generations"], name: "container_item_anc_desc_idx", unique: true
+    t.index ["descendant_id"], name: "container_item_desc_idx"
   end
 
-  create_table "container_items", force: :cascade do |t|
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
-    t.integer  "contained_object_id",   null: false
-    t.string   "contained_object_type", null: false
-    t.string   "disposition"
-    t.integer  "created_by_id",         null: false
-    t.integer  "updated_by_id",         null: false
-    t.integer  "project_id",            null: false
-    t.integer  "disposition_x"
-    t.integer  "disposition_y"
-    t.integer  "disposition_z"
-    t.integer  "parent_id"
-    t.index ["contained_object_id", "contained_object_type"], name: "index_container_items_on_contained_object_id_and_type", using: :btree
-    t.index ["created_by_id"], name: "index_container_items_on_created_by_id", using: :btree
-    t.index ["project_id"], name: "index_container_items_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_container_items_on_updated_by_id", using: :btree
+  create_table "container_items", id: :serial, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "contained_object_id", null: false
+    t.string "contained_object_type", null: false
+    t.string "disposition"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.integer "disposition_x"
+    t.integer "disposition_y"
+    t.integer "disposition_z"
+    t.integer "parent_id"
+    t.index ["contained_object_id", "contained_object_type"], name: "index_container_items_on_contained_object_id_and_type"
+    t.index ["created_by_id"], name: "index_container_items_on_created_by_id"
+    t.index ["project_id"], name: "index_container_items_on_project_id"
+    t.index ["updated_by_id"], name: "index_container_items_on_updated_by_id"
   end
 
-  create_table "container_labels", force: :cascade do |t|
-    t.text     "label",         null: false
-    t.date     "date_printed"
-    t.string   "print_style"
-    t.integer  "position",      null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "container_id",  null: false
-    t.index ["container_id"], name: "index_container_labels_on_container_id", using: :btree
-    t.index ["created_by_id"], name: "index_container_labels_on_created_by_id", using: :btree
-    t.index ["position"], name: "index_container_labels_on_position", using: :btree
-    t.index ["project_id"], name: "index_container_labels_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_container_labels_on_updated_by_id", using: :btree
+  create_table "container_labels", id: :serial, force: :cascade do |t|
+    t.text "label", null: false
+    t.date "date_printed"
+    t.string "print_style"
+    t.integer "position", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "container_id", null: false
+    t.index ["container_id"], name: "index_container_labels_on_container_id"
+    t.index ["created_by_id"], name: "index_container_labels_on_created_by_id"
+    t.index ["position"], name: "index_container_labels_on_position"
+    t.index ["project_id"], name: "index_container_labels_on_project_id"
+    t.index ["updated_by_id"], name: "index_container_labels_on_updated_by_id"
   end
 
-  create_table "containers", force: :cascade do |t|
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.string   "type",          null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.string   "name"
-    t.string   "disposition"
-    t.integer  "size_x"
-    t.integer  "size_y"
-    t.integer  "size_z"
-    t.index ["created_by_id"], name: "index_containers_on_created_by_id", using: :btree
-    t.index ["disposition"], name: "index_containers_on_disposition", using: :btree
-    t.index ["project_id"], name: "index_containers_on_project_id", using: :btree
-    t.index ["type"], name: "index_containers_on_type", using: :btree
-    t.index ["updated_by_id"], name: "index_containers_on_updated_by_id", using: :btree
+  create_table "containers", id: :serial, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "type", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.string "name"
+    t.string "disposition"
+    t.integer "size_x"
+    t.integer "size_y"
+    t.integer "size_z"
+    t.index ["created_by_id"], name: "index_containers_on_created_by_id"
+    t.index ["disposition"], name: "index_containers_on_disposition"
+    t.index ["project_id"], name: "index_containers_on_project_id"
+    t.index ["type"], name: "index_containers_on_type"
+    t.index ["updated_by_id"], name: "index_containers_on_updated_by_id"
   end
 
-  create_table "contents", force: :cascade do |t|
-    t.text     "text",          null: false
-    t.integer  "otu_id",        null: false
-    t.integer  "topic_id",      null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.integer  "revision_id"
-    t.index ["created_by_id"], name: "index_contents_on_created_by_id", using: :btree
-    t.index ["otu_id"], name: "index_contents_on_otu_id", using: :btree
-    t.index ["project_id"], name: "index_contents_on_project_id", using: :btree
-    t.index ["revision_id"], name: "index_contents_on_revision_id", using: :btree
-    t.index ["topic_id"], name: "index_contents_on_topic_id", using: :btree
-    t.index ["updated_by_id"], name: "index_contents_on_updated_by_id", using: :btree
+  create_table "contents", id: :serial, force: :cascade do |t|
+    t.text "text", null: false
+    t.integer "otu_id", null: false
+    t.integer "topic_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.integer "revision_id"
+    t.index ["created_by_id"], name: "index_contents_on_created_by_id"
+    t.index ["otu_id"], name: "index_contents_on_otu_id"
+    t.index ["project_id"], name: "index_contents_on_project_id"
+    t.index ["revision_id"], name: "index_contents_on_revision_id"
+    t.index ["topic_id"], name: "index_contents_on_topic_id"
+    t.index ["updated_by_id"], name: "index_contents_on_updated_by_id"
   end
 
-  create_table "controlled_vocabulary_terms", force: :cascade do |t|
-    t.string   "type",          null: false
-    t.string   "name",          null: false
-    t.text     "definition",    null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.string   "uri"
-    t.string   "uri_relation"
-    t.string   "css_color"
-    t.integer  "position"
-    t.index ["created_by_id"], name: "index_controlled_vocabulary_terms_on_created_by_id", using: :btree
-    t.index ["project_id"], name: "index_controlled_vocabulary_terms_on_project_id", using: :btree
-    t.index ["type"], name: "index_controlled_vocabulary_terms_on_type", using: :btree
-    t.index ["updated_by_id"], name: "index_controlled_vocabulary_terms_on_updated_by_id", using: :btree
+  create_table "controlled_vocabulary_terms", id: :serial, force: :cascade do |t|
+    t.string "type", null: false
+    t.string "name", null: false
+    t.text "definition", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.string "uri"
+    t.string "uri_relation"
+    t.string "css_color"
+    t.integer "position"
+    t.index ["created_by_id"], name: "index_controlled_vocabulary_terms_on_created_by_id"
+    t.index ["project_id"], name: "index_controlled_vocabulary_terms_on_project_id"
+    t.index ["type"], name: "index_controlled_vocabulary_terms_on_type"
+    t.index ["updated_by_id"], name: "index_controlled_vocabulary_terms_on_updated_by_id"
   end
 
-  create_table "data_attributes", force: :cascade do |t|
-    t.string   "type",                          null: false
-    t.integer  "attribute_subject_id",          null: false
-    t.string   "attribute_subject_type",        null: false
-    t.integer  "controlled_vocabulary_term_id"
-    t.string   "import_predicate"
-    t.text     "value",                         null: false
-    t.integer  "created_by_id",                 null: false
-    t.integer  "updated_by_id",                 null: false
-    t.integer  "project_id"
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
-    t.index ["attribute_subject_id", "attribute_subject_type"], name: "index_data_attributes_on_attribute_subject_id_and_type", using: :btree
-    t.index ["attribute_subject_type"], name: "index_data_attributes_on_attribute_subject_type", using: :btree
-    t.index ["controlled_vocabulary_term_id"], name: "index_data_attributes_on_controlled_vocabulary_term_id", using: :btree
-    t.index ["created_by_id"], name: "index_data_attributes_on_created_by_id", using: :btree
-    t.index ["project_id"], name: "index_data_attributes_on_project_id", using: :btree
-    t.index ["type"], name: "index_data_attributes_on_type", using: :btree
-    t.index ["updated_by_id"], name: "index_data_attributes_on_updated_by_id", using: :btree
+  create_table "data_attributes", id: :serial, force: :cascade do |t|
+    t.string "type", null: false
+    t.integer "attribute_subject_id", null: false
+    t.string "attribute_subject_type", null: false
+    t.integer "controlled_vocabulary_term_id"
+    t.string "import_predicate"
+    t.text "value", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["attribute_subject_id", "attribute_subject_type"], name: "index_data_attributes_on_attribute_subject_id_and_type"
+    t.index ["attribute_subject_type"], name: "index_data_attributes_on_attribute_subject_type"
+    t.index ["controlled_vocabulary_term_id"], name: "index_data_attributes_on_controlled_vocabulary_term_id"
+    t.index ["created_by_id"], name: "index_data_attributes_on_created_by_id"
+    t.index ["project_id"], name: "index_data_attributes_on_project_id"
+    t.index ["type"], name: "index_data_attributes_on_type"
+    t.index ["updated_by_id"], name: "index_data_attributes_on_updated_by_id"
   end
 
-  create_table "delayed_jobs", force: :cascade do |t|
-    t.integer  "priority",   default: 0, null: false
-    t.integer  "attempts",   default: 0, null: false
-    t.text     "handler",                null: false
-    t.text     "last_error"
+  create_table "delayed_jobs", id: :serial, force: :cascade do |t|
+    t.integer "priority", default: 0, null: false
+    t.integer "attempts", default: 0, null: false
+    t.text "handler", null: false
+    t.text "last_error"
     t.datetime "run_at"
     t.datetime "locked_at"
     t.datetime "failed_at"
-    t.string   "locked_by"
-    t.string   "queue"
+    t.string "locked_by"
+    t.string "queue"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.index ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
+    t.index ["priority", "run_at"], name: "delayed_jobs_priority"
   end
 
-  create_table "depictions", force: :cascade do |t|
-    t.string   "depiction_object_type", null: false
-    t.integer  "depiction_object_id",   null: false
-    t.integer  "image_id",              null: false
-    t.integer  "created_by_id",         null: false
-    t.integer  "updated_by_id",         null: false
-    t.integer  "project_id",            null: false
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
-    t.integer  "position"
-    t.text     "caption"
-    t.string   "figure_label"
-    t.index ["created_by_id"], name: "index_depictions_on_created_by_id", using: :btree
-    t.index ["depiction_object_id"], name: "index_depictions_on_depiction_object_id", using: :btree
-    t.index ["depiction_object_type"], name: "index_depictions_on_depiction_object_type", using: :btree
-    t.index ["image_id"], name: "index_depictions_on_image_id", using: :btree
-    t.index ["project_id"], name: "index_depictions_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_depictions_on_updated_by_id", using: :btree
+  create_table "depictions", id: :serial, force: :cascade do |t|
+    t.string "depiction_object_type", null: false
+    t.integer "depiction_object_id", null: false
+    t.integer "image_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "position"
+    t.text "caption"
+    t.string "figure_label"
+    t.index ["created_by_id"], name: "index_depictions_on_created_by_id"
+    t.index ["depiction_object_id"], name: "index_depictions_on_depiction_object_id"
+    t.index ["depiction_object_type"], name: "index_depictions_on_depiction_object_type"
+    t.index ["image_id"], name: "index_depictions_on_image_id"
+    t.index ["project_id"], name: "index_depictions_on_project_id"
+    t.index ["updated_by_id"], name: "index_depictions_on_updated_by_id"
   end
 
-  create_table "derived_collection_objects", force: :cascade do |t|
-    t.integer  "collection_object_observation_id", null: false
-    t.integer  "collection_object_id",             null: false
-    t.integer  "position"
-    t.integer  "project_id",                       null: false
-    t.integer  "created_by_id",                    null: false
-    t.integer  "updated_by_id",                    null: false
-    t.datetime "created_at",                       null: false
-    t.datetime "updated_at",                       null: false
-    t.index ["collection_object_id"], name: "dco_collection_object", using: :btree
-    t.index ["collection_object_observation_id"], name: "dco_collection_object_observation", using: :btree
-    t.index ["project_id"], name: "index_derived_collection_objects_on_project_id", using: :btree
+  create_table "derived_collection_objects", id: :serial, force: :cascade do |t|
+    t.integer "collection_object_observation_id", null: false
+    t.integer "collection_object_id", null: false
+    t.integer "position"
+    t.integer "project_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["collection_object_id"], name: "dco_collection_object"
+    t.index ["collection_object_observation_id"], name: "dco_collection_object_observation"
+    t.index ["project_id"], name: "index_derived_collection_objects_on_project_id"
   end
 
-  create_table "descriptors", force: :cascade do |t|
-    t.string   "name",                      null: false
-    t.string   "short_name"
-    t.string   "type",                      null: false
-    t.integer  "created_by_id",             null: false
-    t.integer  "updated_by_id",             null: false
-    t.integer  "project_id",                null: false
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
-    t.integer  "position"
-    t.text     "description"
-    t.string   "gene_attribute_logic"
-    t.string   "cached_gene_attribute_sql"
-    t.index ["created_by_id"], name: "index_descriptors_on_created_by_id", using: :btree
-    t.index ["name"], name: "index_descriptors_on_name", using: :btree
-    t.index ["project_id"], name: "index_descriptors_on_project_id", using: :btree
-    t.index ["short_name"], name: "index_descriptors_on_short_name", using: :btree
-    t.index ["updated_by_id"], name: "index_descriptors_on_updated_by_id", using: :btree
+  create_table "descriptors", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
+    t.string "short_name"
+    t.string "type", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "position"
+    t.text "description"
+    t.string "gene_attribute_logic"
+    t.string "cached_gene_attribute_sql"
+    t.index ["created_by_id"], name: "index_descriptors_on_created_by_id"
+    t.index ["name"], name: "index_descriptors_on_name"
+    t.index ["project_id"], name: "index_descriptors_on_project_id"
+    t.index ["short_name"], name: "index_descriptors_on_short_name"
+    t.index ["updated_by_id"], name: "index_descriptors_on_updated_by_id"
   end
 
-  create_table "documentation", force: :cascade do |t|
-    t.integer  "documentation_object_id",   null: false
-    t.string   "documentation_object_type", null: false
-    t.integer  "document_id",               null: false
-    t.integer  "project_id",                null: false
-    t.integer  "created_by_id",             null: false
-    t.integer  "updated_by_id",             null: false
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
-    t.index ["created_by_id"], name: "index_documentation_on_created_by_id", using: :btree
-    t.index ["document_id"], name: "index_documentation_on_document_id", using: :btree
-    t.index ["documentation_object_id", "documentation_object_type"], name: "index_doc_on_doc_object_type_and_doc_object_id", using: :btree
-    t.index ["project_id"], name: "index_documentation_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_documentation_on_updated_by_id", using: :btree
+  create_table "documentation", id: :serial, force: :cascade do |t|
+    t.string "documentation_object_type", null: false
+    t.integer "documentation_object_id", null: false
+    t.integer "document_id", null: false
+    t.integer "project_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_documentation_on_created_by_id"
+    t.index ["document_id"], name: "index_documentation_on_document_id"
+    t.index ["documentation_object_id", "documentation_object_type"], name: "index_doc_on_doc_object_type_and_doc_object_id"
+    t.index ["project_id"], name: "index_documentation_on_project_id"
+    t.index ["updated_by_id"], name: "index_documentation_on_updated_by_id"
   end
 
-  create_table "documents", force: :cascade do |t|
-    t.string   "document_file_file_name",                 null: false
-    t.string   "document_file_content_type",              null: false
-    t.integer  "document_file_file_size",                 null: false
-    t.datetime "document_file_updated_at",                null: false
-    t.integer  "project_id",                              null: false
-    t.integer  "created_by_id",                           null: false
-    t.integer  "updated_by_id",                           null: false
-    t.datetime "created_at",                              null: false
-    t.datetime "updated_at",                              null: false
-    t.jsonb    "page_map",                   default: {}
-    t.integer  "page_total"
-    t.string   "document_file_fingerprint"
-    t.index ["document_file_content_type"], name: "index_documents_on_document_file_content_type", using: :btree
-    t.index ["document_file_file_name"], name: "index_documents_on_document_file_file_name", using: :btree
-    t.index ["document_file_file_size"], name: "index_documents_on_document_file_file_size", using: :btree
-    t.index ["document_file_updated_at"], name: "index_documents_on_document_file_updated_at", using: :btree
+  create_table "documents", id: :serial, force: :cascade do |t|
+    t.string "document_file_file_name", null: false
+    t.string "document_file_content_type", null: false
+    t.integer "document_file_file_size", null: false
+    t.datetime "document_file_updated_at", null: false
+    t.integer "project_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.jsonb "page_map", default: {}
+    t.integer "page_total"
+    t.string "document_file_fingerprint"
+    t.index ["document_file_content_type"], name: "index_documents_on_document_file_content_type"
+    t.index ["document_file_file_name"], name: "index_documents_on_document_file_file_name"
+    t.index ["document_file_file_size"], name: "index_documents_on_document_file_file_size"
+    t.index ["document_file_updated_at"], name: "index_documents_on_document_file_updated_at"
   end
 
-  create_table "dwc_occurrences", force: :cascade do |t|
-    t.string   "acceptedNameUsage"
-    t.string   "acceptedNameUsageID"
-    t.string   "accessRights"
-    t.string   "associatedMedia"
-    t.string   "associatedOccurrences"
-    t.string   "associatedOrganisms"
-    t.string   "associatedReferences"
-    t.string   "associatedSequences"
-    t.string   "associatedTaxa"
-    t.string   "basisOfRecord"
-    t.string   "bed"
-    t.string   "behavior"
-    t.string   "bibliographicCitation"
-    t.string   "catalogNumber"
-    t.string   "dwcClass"
-    t.string   "collectionCode"
-    t.string   "collectionID"
-    t.string   "continent"
-    t.string   "coordinatePrecision"
-    t.string   "coordinateUncertaintyInMeters"
-    t.string   "country"
-    t.string   "countryCode"
-    t.string   "county"
-    t.string   "dataGeneralizations"
-    t.string   "datasetID"
-    t.string   "datasetName"
-    t.string   "dateIdentified"
-    t.string   "day"
-    t.string   "decimalLatitude"
-    t.string   "decimalLongitude"
-    t.string   "disposition"
-    t.string   "dynamicProperties"
-    t.string   "earliestAgeOrLowestStage"
-    t.string   "earliestEonOrLowestEonothem"
-    t.string   "earliestEpochOrLowestSeries"
-    t.string   "earliestEraOrLowestErathem"
-    t.string   "earliestPeriodOrLowestSystem"
-    t.string   "endDayOfYear"
-    t.string   "establishmentMeans"
-    t.string   "eventDate"
-    t.string   "eventID"
-    t.string   "eventRemarks"
-    t.string   "eventTime"
-    t.string   "family"
-    t.string   "fieldNotes"
-    t.string   "fieldNumber"
-    t.string   "footprintSRS"
-    t.string   "footprintSpatialFit"
-    t.string   "footprintWKT"
-    t.string   "formation"
-    t.string   "genus"
-    t.string   "geodeticDatum"
-    t.string   "geologicalContextID"
-    t.string   "georeferenceProtocol"
-    t.string   "georeferenceRemarks"
-    t.string   "georeferenceSources"
-    t.string   "georeferenceVerificationStatus"
-    t.string   "georeferencedBy"
-    t.string   "georeferencedDate"
-    t.string   "group"
-    t.string   "habitat"
-    t.string   "higherClassification"
-    t.string   "higherGeography"
-    t.string   "higherGeographyID"
-    t.string   "highestBiostratigraphicZone"
-    t.string   "identificationID"
-    t.string   "identificationQualifier"
-    t.string   "identificationReferences"
-    t.string   "identificationRemarks"
-    t.string   "identificationVerificationStatus"
-    t.string   "identifiedBy"
-    t.string   "individualCount"
-    t.string   "informationWithheld"
-    t.string   "infraspecificEpithet"
-    t.string   "institutionCode"
-    t.string   "institutionID"
-    t.string   "island"
-    t.string   "islandGroup"
-    t.string   "kingdom"
-    t.string   "language"
-    t.string   "latestAgeOrHighestStage"
-    t.string   "latestEonOrHighestEonothem"
-    t.string   "latestEpochOrHighestSeries"
-    t.string   "latestEraOrHighestErathem"
-    t.string   "latestPeriodOrHighestSystem"
-    t.string   "license"
-    t.string   "lifeStage"
-    t.string   "lithostratigraphicTerms"
-    t.string   "locality"
-    t.string   "locationAccordingTo"
-    t.string   "locationID"
-    t.string   "locationRemarks"
-    t.string   "lowestBiostratigraphicZone"
-    t.string   "materialSampleID"
-    t.string   "maximumDepthInMeters"
-    t.string   "maximumDistanceAboveSurfaceInMeters"
-    t.string   "maximumElevationInMeters"
-    t.string   "member"
-    t.string   "minimumDepthInMeters"
-    t.string   "minimumDistanceAboveSurfaceInMeters"
-    t.string   "minimumElevationInMeters"
-    t.string   "modified"
-    t.string   "month"
-    t.string   "municipality"
-    t.string   "nameAccordingTo"
-    t.string   "nameAccordingToID"
-    t.string   "namePublishedIn"
-    t.string   "namePublishedInID"
-    t.string   "namePublishedInYear"
-    t.string   "nomenclaturalCode"
-    t.string   "nomenclaturalStatus"
-    t.string   "occurrenceID"
-    t.string   "occurrenceRemarks"
-    t.string   "occurrenceStatus"
-    t.string   "order"
-    t.string   "organismID"
-    t.string   "organismName"
-    t.string   "organismQuantity"
-    t.string   "organismQuantityType"
-    t.string   "organismRemarks"
-    t.string   "organismScope"
-    t.string   "originalNameUsage"
-    t.string   "originalNameUsageID"
-    t.string   "otherCatalogNumbers"
-    t.string   "ownerInstitutionCode"
-    t.string   "parentEventID"
-    t.string   "parentNameUsage"
-    t.string   "parentNameUsageID"
-    t.string   "phylum"
-    t.string   "pointRadiusSpatialFit"
-    t.string   "preparations"
-    t.string   "previousIdentifications"
-    t.string   "recordNumber"
-    t.string   "recordedBy"
-    t.string   "references"
-    t.string   "reproductiveCondition"
-    t.string   "rightsHolder"
-    t.string   "sampleSizeUnit"
-    t.string   "sampleSizeValue"
-    t.string   "samplingEffort"
-    t.string   "samplingProtocol"
-    t.string   "scientificName"
-    t.string   "scientificNameAuthorship"
-    t.string   "scientificNameID"
-    t.string   "sex"
-    t.string   "specificEpithet"
-    t.string   "startDayOfYear"
-    t.string   "stateProvince"
-    t.string   "subgenus"
-    t.string   "taxonConceptID"
-    t.string   "taxonID"
-    t.string   "taxonRank"
-    t.string   "taxonRemarks"
-    t.string   "taxonomicStatus"
-    t.string   "type"
-    t.string   "typeStatus"
-    t.string   "verbatimCoordinateSystem"
-    t.string   "verbatimCoordinates"
-    t.string   "verbatimDepth"
-    t.string   "verbatimElevation"
-    t.string   "verbatimEventDate"
-    t.string   "verbatimLatitude"
-    t.string   "verbatimLocality"
-    t.string   "verbatimLongitude"
-    t.string   "verbatimSRS"
-    t.string   "verbatimTaxonRank"
-    t.string   "vernacularName"
-    t.string   "waterBody"
-    t.string   "year"
-    t.integer  "dwc_occurrence_object_id"
-    t.string   "dwc_occurrence_object_type"
-    t.integer  "created_by_id",                       null: false
-    t.integer  "updated_by_id",                       null: false
-    t.integer  "project_id"
+  create_table "dwc_occurrences", id: :serial, force: :cascade do |t|
+    t.string "acceptedNameUsage"
+    t.string "acceptedNameUsageID"
+    t.string "accessRights"
+    t.string "associatedMedia"
+    t.string "associatedOccurrences"
+    t.string "associatedOrganisms"
+    t.string "associatedReferences"
+    t.string "associatedSequences"
+    t.string "associatedTaxa"
+    t.string "basisOfRecord"
+    t.string "bed"
+    t.string "behavior"
+    t.string "bibliographicCitation"
+    t.string "catalogNumber"
+    t.string "dwcClass"
+    t.string "collectionCode"
+    t.string "collectionID"
+    t.string "continent"
+    t.string "coordinatePrecision"
+    t.string "coordinateUncertaintyInMeters"
+    t.string "country"
+    t.string "countryCode"
+    t.string "county"
+    t.string "dataGeneralizations"
+    t.string "datasetID"
+    t.string "datasetName"
+    t.string "dateIdentified"
+    t.string "day"
+    t.string "decimalLatitude"
+    t.string "decimalLongitude"
+    t.string "disposition"
+    t.string "dynamicProperties"
+    t.string "earliestAgeOrLowestStage"
+    t.string "earliestEonOrLowestEonothem"
+    t.string "earliestEpochOrLowestSeries"
+    t.string "earliestEraOrLowestErathem"
+    t.string "earliestPeriodOrLowestSystem"
+    t.string "endDayOfYear"
+    t.string "establishmentMeans"
+    t.string "eventDate"
+    t.string "eventID"
+    t.string "eventRemarks"
+    t.string "eventTime"
+    t.string "family"
+    t.string "fieldNotes"
+    t.string "fieldNumber"
+    t.string "footprintSRS"
+    t.string "footprintSpatialFit"
+    t.string "footprintWKT"
+    t.string "formation"
+    t.string "genus"
+    t.string "geodeticDatum"
+    t.string "geologicalContextID"
+    t.string "georeferenceProtocol"
+    t.string "georeferenceRemarks"
+    t.string "georeferenceSources"
+    t.string "georeferenceVerificationStatus"
+    t.string "georeferencedBy"
+    t.string "georeferencedDate"
+    t.string "group"
+    t.string "habitat"
+    t.string "higherClassification"
+    t.string "higherGeography"
+    t.string "higherGeographyID"
+    t.string "highestBiostratigraphicZone"
+    t.string "identificationID"
+    t.string "identificationQualifier"
+    t.string "identificationReferences"
+    t.string "identificationRemarks"
+    t.string "identificationVerificationStatus"
+    t.string "identifiedBy"
+    t.string "individualCount"
+    t.string "informationWithheld"
+    t.string "infraspecificEpithet"
+    t.string "institutionCode"
+    t.string "institutionID"
+    t.string "island"
+    t.string "islandGroup"
+    t.string "kingdom"
+    t.string "language"
+    t.string "latestAgeOrHighestStage"
+    t.string "latestEonOrHighestEonothem"
+    t.string "latestEpochOrHighestSeries"
+    t.string "latestEraOrHighestErathem"
+    t.string "latestPeriodOrHighestSystem"
+    t.string "license"
+    t.string "lifeStage"
+    t.string "lithostratigraphicTerms"
+    t.string "locality"
+    t.string "locationAccordingTo"
+    t.string "locationID"
+    t.string "locationRemarks"
+    t.string "lowestBiostratigraphicZone"
+    t.string "materialSampleID"
+    t.string "maximumDepthInMeters"
+    t.string "maximumDistanceAboveSurfaceInMeters"
+    t.string "maximumElevationInMeters"
+    t.string "member"
+    t.string "minimumDepthInMeters"
+    t.string "minimumDistanceAboveSurfaceInMeters"
+    t.string "minimumElevationInMeters"
+    t.string "modified"
+    t.string "month"
+    t.string "municipality"
+    t.string "nameAccordingTo"
+    t.string "nameAccordingToID"
+    t.string "namePublishedIn"
+    t.string "namePublishedInID"
+    t.string "namePublishedInYear"
+    t.string "nomenclaturalCode"
+    t.string "nomenclaturalStatus"
+    t.string "occurrenceID"
+    t.string "occurrenceRemarks"
+    t.string "occurrenceStatus"
+    t.string "order"
+    t.string "organismID"
+    t.string "organismName"
+    t.string "organismQuantity"
+    t.string "organismQuantityType"
+    t.string "organismRemarks"
+    t.string "organismScope"
+    t.string "originalNameUsage"
+    t.string "originalNameUsageID"
+    t.string "otherCatalogNumbers"
+    t.string "ownerInstitutionCode"
+    t.string "parentEventID"
+    t.string "parentNameUsage"
+    t.string "parentNameUsageID"
+    t.string "phylum"
+    t.string "pointRadiusSpatialFit"
+    t.string "preparations"
+    t.string "previousIdentifications"
+    t.string "recordNumber"
+    t.string "recordedBy"
+    t.string "references"
+    t.string "reproductiveCondition"
+    t.string "rightsHolder"
+    t.string "sampleSizeUnit"
+    t.string "sampleSizeValue"
+    t.string "samplingEffort"
+    t.string "samplingProtocol"
+    t.string "scientificName"
+    t.string "scientificNameAuthorship"
+    t.string "scientificNameID"
+    t.string "sex"
+    t.string "specificEpithet"
+    t.string "startDayOfYear"
+    t.string "stateProvince"
+    t.string "subgenus"
+    t.string "taxonConceptID"
+    t.string "taxonID"
+    t.string "taxonRank"
+    t.string "taxonRemarks"
+    t.string "taxonomicStatus"
+    t.string "type"
+    t.string "typeStatus"
+    t.string "verbatimCoordinateSystem"
+    t.string "verbatimCoordinates"
+    t.string "verbatimDepth"
+    t.string "verbatimElevation"
+    t.string "verbatimEventDate"
+    t.string "verbatimLatitude"
+    t.string "verbatimLocality"
+    t.string "verbatimLongitude"
+    t.string "verbatimSRS"
+    t.string "verbatimTaxonRank"
+    t.string "vernacularName"
+    t.string "waterBody"
+    t.string "year"
+    t.string "dwc_occurrence_object_type"
+    t.integer "dwc_occurrence_object_id"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.index ["project_id"], name: "index_dwc_occurrences_on_project_id", using: :btree
+    t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
   end
 
-  create_table "extracts", force: :cascade do |t|
-    t.decimal  "quantity_value",             null: false
-    t.string   "quantity_unit",              null: false
-    t.string   "verbatim_anatomical_origin"
-    t.integer  "year_made",                  null: false
-    t.integer  "month_made",                 null: false
-    t.integer  "day_made",                   null: false
-    t.integer  "created_by_id",              null: false
-    t.integer  "updated_by_id",              null: false
-    t.integer  "project_id",                 null: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
-    t.decimal  "concentration_value"
-    t.string   "concentration_unit"
-    t.index ["project_id"], name: "index_extracts_on_project_id", using: :btree
+  create_table "extracts", id: :serial, force: :cascade do |t|
+    t.decimal "quantity_value", null: false
+    t.string "quantity_unit", null: false
+    t.string "verbatim_anatomical_origin"
+    t.integer "year_made", null: false
+    t.integer "month_made", null: false
+    t.integer "day_made", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "concentration_value"
+    t.string "concentration_unit"
+    t.index ["project_id"], name: "index_extracts_on_project_id"
   end
 
-  create_table "gene_attributes", force: :cascade do |t|
-    t.integer  "descriptor_id",                 null: false
-    t.integer  "sequence_id",                   null: false
-    t.string   "sequence_relationship_type"
-    t.integer  "controlled_vocabulary_term_id"
-    t.integer  "position"
-    t.integer  "created_by_id",                 null: false
-    t.integer  "updated_by_id",                 null: false
-    t.integer  "project_id",                    null: false
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
-    t.index ["controlled_vocabulary_term_id"], name: "index_gene_attributes_on_controlled_vocabulary_term_id", using: :btree
-    t.index ["project_id"], name: "index_gene_attributes_on_project_id", using: :btree
-    t.index ["sequence_id"], name: "index_gene_attributes_on_sequence_id", using: :btree
+  create_table "gene_attributes", id: :serial, force: :cascade do |t|
+    t.integer "descriptor_id", null: false
+    t.integer "sequence_id", null: false
+    t.string "sequence_relationship_type"
+    t.integer "controlled_vocabulary_term_id"
+    t.integer "position"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["controlled_vocabulary_term_id"], name: "index_gene_attributes_on_controlled_vocabulary_term_id"
+    t.index ["project_id"], name: "index_gene_attributes_on_project_id"
+    t.index ["sequence_id"], name: "index_gene_attributes_on_sequence_id"
   end
 
   create_table "geographic_area_hierarchies", id: false, force: :cascade do |t|
-    t.integer "ancestor_id",   null: false
+    t.integer "ancestor_id", null: false
     t.integer "descendant_id", null: false
-    t.integer "generations",   null: false
-    t.index ["ancestor_id", "descendant_id", "generations"], name: "geographic_area_anc_desc_idx", unique: true, using: :btree
-    t.index ["descendant_id"], name: "geographic_area_desc_idx", using: :btree
+    t.integer "generations", null: false
+    t.index ["ancestor_id", "descendant_id", "generations"], name: "geographic_area_anc_desc_idx", unique: true
+    t.index ["descendant_id"], name: "geographic_area_desc_idx"
   end
 
-  create_table "geographic_area_types", force: :cascade do |t|
-    t.string   "name",          null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.index ["created_by_id"], name: "index_geographic_area_types_on_created_by_id", using: :btree
-    t.index ["name"], name: "index_geographic_area_types_on_name", using: :btree
-    t.index ["updated_by_id"], name: "index_geographic_area_types_on_updated_by_id", using: :btree
+  create_table "geographic_area_types", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.index ["created_by_id"], name: "index_geographic_area_types_on_created_by_id"
+    t.index ["name"], name: "index_geographic_area_types_on_name"
+    t.index ["updated_by_id"], name: "index_geographic_area_types_on_updated_by_id"
   end
 
-  create_table "geographic_areas", force: :cascade do |t|
-    t.string   "name",                    null: false
-    t.integer  "level0_id"
-    t.integer  "level1_id"
-    t.integer  "level2_id"
-    t.integer  "parent_id"
-    t.integer  "geographic_area_type_id"
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
-    t.string   "iso_3166_a2"
-    t.string   "iso_3166_a3"
-    t.string   "tdwgID"
-    t.string   "data_origin",             null: false
-    t.integer  "created_by_id",           null: false
-    t.integer  "updated_by_id",           null: false
-    t.index ["created_by_id"], name: "index_geographic_areas_on_created_by_id", using: :btree
-    t.index ["geographic_area_type_id"], name: "index_geographic_areas_on_geographic_area_type_id", using: :btree
-    t.index ["level0_id"], name: "index_geographic_areas_on_level0_id", using: :btree
-    t.index ["level1_id"], name: "index_geographic_areas_on_level1_id", using: :btree
-    t.index ["level2_id"], name: "index_geographic_areas_on_level2_id", using: :btree
-    t.index ["name"], name: "index_geographic_areas_on_name", using: :btree
-    t.index ["parent_id"], name: "index_geographic_areas_on_parent_id", using: :btree
-    t.index ["updated_by_id"], name: "index_geographic_areas_on_updated_by_id", using: :btree
+  create_table "geographic_areas", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "level0_id"
+    t.integer "level1_id"
+    t.integer "level2_id"
+    t.integer "parent_id"
+    t.integer "geographic_area_type_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "iso_3166_a2"
+    t.string "iso_3166_a3"
+    t.string "tdwgID"
+    t.string "data_origin", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.index ["created_by_id"], name: "index_geographic_areas_on_created_by_id"
+    t.index ["geographic_area_type_id"], name: "index_geographic_areas_on_geographic_area_type_id"
+    t.index ["level0_id"], name: "index_geographic_areas_on_level0_id"
+    t.index ["level1_id"], name: "index_geographic_areas_on_level1_id"
+    t.index ["level2_id"], name: "index_geographic_areas_on_level2_id"
+    t.index ["name"], name: "index_geographic_areas_on_name"
+    t.index ["parent_id"], name: "index_geographic_areas_on_parent_id"
+    t.index ["updated_by_id"], name: "index_geographic_areas_on_updated_by_id"
   end
 
-  create_table "geographic_areas_geographic_items", force: :cascade do |t|
-    t.integer  "geographic_area_id", null: false
-    t.integer  "geographic_item_id"
-    t.string   "data_origin"
-    t.integer  "origin_gid"
-    t.string   "date_valid_from"
-    t.string   "date_valid_to"
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
-    t.index ["geographic_area_id"], name: "index_geographic_areas_geographic_items_on_geographic_area_id", using: :btree
-    t.index ["geographic_item_id"], name: "index_geographic_areas_geographic_items_on_geographic_item_id", using: :btree
+  create_table "geographic_areas_geographic_items", id: :serial, force: :cascade do |t|
+    t.integer "geographic_area_id", null: false
+    t.integer "geographic_item_id"
+    t.string "data_origin"
+    t.integer "origin_gid"
+    t.string "date_valid_from"
+    t.string "date_valid_to"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["geographic_area_id"], name: "index_geographic_areas_geographic_items_on_geographic_area_id"
+    t.index ["geographic_item_id"], name: "index_geographic_areas_geographic_items_on_geographic_item_id"
   end
 
-  create_table "geographic_items", force: :cascade do |t|
-    t.datetime  "created_at",                                                                                               null: false
-    t.datetime  "updated_at",                                                                                               null: false
-    t.geography "point",               limit: {:srid=>4326, :type=>"st_point", :has_z=>true, :geographic=>true}
-    t.geography "line_string",         limit: {:srid=>4326, :type=>"line_string", :has_z=>true, :geographic=>true}
-    t.geography "polygon",             limit: {:srid=>4326, :type=>"st_polygon", :has_z=>true, :geographic=>true}
-    t.geography "multi_point",         limit: {:srid=>4326, :type=>"multi_point", :has_z=>true, :geographic=>true}
-    t.geography "multi_line_string",   limit: {:srid=>4326, :type=>"multi_line_string", :has_z=>true, :geographic=>true}
-    t.geography "multi_polygon",       limit: {:srid=>4326, :type=>"multi_polygon", :has_z=>true, :geographic=>true}
+  create_table "geographic_items", id: :serial, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.geography "point", limit: {:srid=>4326, :type=>"st_point", :has_z=>true, :geographic=>true}
+    t.geography "line_string", limit: {:srid=>4326, :type=>"line_string", :has_z=>true, :geographic=>true}
+    t.geography "polygon", limit: {:srid=>4326, :type=>"st_polygon", :has_z=>true, :geographic=>true}
+    t.geography "multi_point", limit: {:srid=>4326, :type=>"multi_point", :has_z=>true, :geographic=>true}
+    t.geography "multi_line_string", limit: {:srid=>4326, :type=>"multi_line_string", :has_z=>true, :geographic=>true}
+    t.geography "multi_polygon", limit: {:srid=>4326, :type=>"multi_polygon", :has_z=>true, :geographic=>true}
     t.geography "geometry_collection", limit: {:srid=>4326, :type=>"geometry_collection", :has_z=>true, :geographic=>true}
-    t.integer   "created_by_id",                                                                                            null: false
-    t.integer   "updated_by_id",                                                                                            null: false
-    t.string    "type",                                                                                                     null: false
-    t.index ["created_by_id"], name: "index_geographic_items_on_created_by_id", using: :btree
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.string "type", null: false
+    t.index ["created_by_id"], name: "index_geographic_items_on_created_by_id"
     t.index ["geometry_collection"], name: "geometry_collection_gix", using: :gist
     t.index ["line_string"], name: "line_string_gix", using: :gist
     t.index ["multi_line_string"], name: "multi_line_string_gix", using: :gist
@@ -874,891 +874,891 @@ ActiveRecord::Schema.define(version: 20170818150142) do
     t.index ["multi_polygon"], name: "multi_polygon_gix", using: :gist
     t.index ["point"], name: "point_gix", using: :gist
     t.index ["polygon"], name: "polygon_gix", using: :gist
-    t.index ["type"], name: "index_geographic_items_on_type", using: :btree
-    t.index ["updated_by_id"], name: "index_geographic_items_on_updated_by_id", using: :btree
+    t.index ["type"], name: "index_geographic_items_on_type"
+    t.index ["updated_by_id"], name: "index_geographic_items_on_updated_by_id"
   end
 
-  create_table "georeferences", force: :cascade do |t|
-    t.integer  "geographic_item_id",                       null: false
-    t.integer  "collecting_event_id",                      null: false
-    t.decimal  "error_radius"
-    t.decimal  "error_depth"
-    t.integer  "error_geographic_item_id"
-    t.string   "type",                                     null: false
-    t.integer  "position",                                 null: false
-    t.datetime "created_at",                               null: false
-    t.datetime "updated_at",                               null: false
-    t.boolean  "is_public",                default: false, null: false
-    t.string   "api_request"
-    t.integer  "created_by_id",                            null: false
-    t.integer  "updated_by_id",                            null: false
-    t.integer  "project_id",                               null: false
-    t.boolean  "is_undefined_z"
-    t.boolean  "is_median_z"
-    t.index ["collecting_event_id"], name: "index_georeferences_on_collecting_event_id", using: :btree
-    t.index ["created_by_id"], name: "index_georeferences_on_created_by_id", using: :btree
-    t.index ["error_geographic_item_id"], name: "index_georeferences_on_error_geographic_item_id", using: :btree
-    t.index ["geographic_item_id"], name: "index_georeferences_on_geographic_item_id", using: :btree
-    t.index ["position"], name: "index_georeferences_on_position", using: :btree
-    t.index ["project_id"], name: "index_georeferences_on_project_id", using: :btree
-    t.index ["type"], name: "index_georeferences_on_type", using: :btree
-    t.index ["updated_by_id"], name: "index_georeferences_on_updated_by_id", using: :btree
+  create_table "georeferences", id: :serial, force: :cascade do |t|
+    t.integer "geographic_item_id", null: false
+    t.integer "collecting_event_id", null: false
+    t.decimal "error_radius"
+    t.decimal "error_depth"
+    t.integer "error_geographic_item_id"
+    t.string "type", null: false
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "is_public", default: false, null: false
+    t.string "api_request"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.boolean "is_undefined_z"
+    t.boolean "is_median_z"
+    t.index ["collecting_event_id"], name: "index_georeferences_on_collecting_event_id"
+    t.index ["created_by_id"], name: "index_georeferences_on_created_by_id"
+    t.index ["error_geographic_item_id"], name: "index_georeferences_on_error_geographic_item_id"
+    t.index ["geographic_item_id"], name: "index_georeferences_on_geographic_item_id"
+    t.index ["position"], name: "index_georeferences_on_position"
+    t.index ["project_id"], name: "index_georeferences_on_project_id"
+    t.index ["type"], name: "index_georeferences_on_type"
+    t.index ["updated_by_id"], name: "index_georeferences_on_updated_by_id"
   end
 
-  create_table "identifiers", force: :cascade do |t|
-    t.string   "identifier",             null: false
-    t.string   "type",                   null: false
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
-    t.integer  "namespace_id"
-    t.integer  "created_by_id",          null: false
-    t.integer  "updated_by_id",          null: false
-    t.integer  "project_id"
-    t.text     "cached"
-    t.integer  "identifier_object_id",   null: false
-    t.string   "identifier_object_type", null: false
-    t.string   "relation"
-    t.integer  "position"
-    t.index ["created_by_id"], name: "index_identifiers_on_created_by_id", using: :btree
-    t.index ["identifier_object_id", "identifier_object_type"], name: "index_identifiers_on_identifier_object_id_and_type", using: :btree
-    t.index ["namespace_id"], name: "index_identifiers_on_namespace_id", using: :btree
-    t.index ["project_id"], name: "index_identifiers_on_project_id", using: :btree
-    t.index ["type"], name: "index_identifiers_on_type", using: :btree
-    t.index ["updated_by_id"], name: "index_identifiers_on_updated_by_id", using: :btree
+  create_table "identifiers", id: :serial, force: :cascade do |t|
+    t.string "identifier", null: false
+    t.string "type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "namespace_id"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id"
+    t.text "cached"
+    t.integer "identifier_object_id", null: false
+    t.string "identifier_object_type", null: false
+    t.string "relation"
+    t.integer "position"
+    t.index ["created_by_id"], name: "index_identifiers_on_created_by_id"
+    t.index ["identifier_object_id", "identifier_object_type"], name: "index_identifiers_on_identifier_object_id_and_type"
+    t.index ["namespace_id"], name: "index_identifiers_on_namespace_id"
+    t.index ["project_id"], name: "index_identifiers_on_project_id"
+    t.index ["type"], name: "index_identifiers_on_type"
+    t.index ["updated_by_id"], name: "index_identifiers_on_updated_by_id"
   end
 
-  create_table "images", force: :cascade do |t|
-    t.string   "user_file_name"
-    t.integer  "height"
-    t.integer  "width"
-    t.string   "image_file_fingerprint"
-    t.integer  "created_by_id",           null: false
-    t.integer  "project_id",              null: false
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
-    t.string   "image_file_file_name"
-    t.string   "image_file_content_type"
-    t.integer  "image_file_file_size"
+  create_table "images", id: :serial, force: :cascade do |t|
+    t.string "user_file_name"
+    t.integer "height"
+    t.integer "width"
+    t.string "image_file_fingerprint"
+    t.integer "created_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "image_file_file_name"
+    t.string "image_file_content_type"
+    t.integer "image_file_file_size"
     t.datetime "image_file_updated_at"
-    t.integer  "updated_by_id",           null: false
-    t.text     "image_file_meta"
-    t.index ["created_by_id"], name: "index_images_on_created_by_id", using: :btree
-    t.index ["image_file_content_type"], name: "index_images_on_image_file_content_type", using: :btree
-    t.index ["project_id"], name: "index_images_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_images_on_updated_by_id", using: :btree
+    t.integer "updated_by_id", null: false
+    t.text "image_file_meta"
+    t.index ["created_by_id"], name: "index_images_on_created_by_id"
+    t.index ["image_file_content_type"], name: "index_images_on_image_file_content_type"
+    t.index ["project_id"], name: "index_images_on_project_id"
+    t.index ["updated_by_id"], name: "index_images_on_updated_by_id"
   end
 
-  create_table "imports", force: :cascade do |t|
-    t.string   "name"
-    t.hstore   "metadata"
+  create_table "imports", id: :serial, force: :cascade do |t|
+    t.string "name"
+    t.hstore "metadata"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.json     "metadata_json"
+    t.json "metadata_json"
   end
 
-  create_table "languages", force: :cascade do |t|
-    t.string   "alpha_3_bibliographic"
-    t.string   "alpha_3_terminologic"
-    t.string   "alpha_2"
-    t.string   "english_name"
-    t.string   "french_name"
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
-    t.integer  "created_by_id",         null: false
-    t.integer  "updated_by_id",         null: false
-    t.index ["created_by_id"], name: "index_languages_on_created_by_id", using: :btree
-    t.index ["updated_by_id"], name: "index_languages_on_updated_by_id", using: :btree
+  create_table "languages", id: :serial, force: :cascade do |t|
+    t.string "alpha_3_bibliographic"
+    t.string "alpha_3_terminologic"
+    t.string "alpha_2"
+    t.string "english_name"
+    t.string "french_name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.index ["created_by_id"], name: "index_languages_on_created_by_id"
+    t.index ["updated_by_id"], name: "index_languages_on_updated_by_id"
   end
 
-  create_table "loan_items", force: :cascade do |t|
-    t.integer  "loan_id",               null: false
-    t.date     "date_returned"
-    t.integer  "position",              null: false
-    t.integer  "created_by_id",         null: false
-    t.integer  "updated_by_id",         null: false
-    t.integer  "project_id",            null: false
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
-    t.integer  "loan_item_object_id"
-    t.string   "loan_item_object_type"
-    t.integer  "total"
-    t.string   "disposition"
-    t.index ["created_by_id"], name: "index_loan_items_on_created_by_id", using: :btree
-    t.index ["loan_id"], name: "index_loan_items_on_loan_id", using: :btree
-    t.index ["position"], name: "index_loan_items_on_position", using: :btree
-    t.index ["project_id"], name: "index_loan_items_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_loan_items_on_updated_by_id", using: :btree
+  create_table "loan_items", id: :serial, force: :cascade do |t|
+    t.integer "loan_id", null: false
+    t.date "date_returned"
+    t.integer "position", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "loan_item_object_type"
+    t.integer "loan_item_object_id"
+    t.integer "total"
+    t.string "disposition"
+    t.index ["created_by_id"], name: "index_loan_items_on_created_by_id"
+    t.index ["loan_id"], name: "index_loan_items_on_loan_id"
+    t.index ["position"], name: "index_loan_items_on_position"
+    t.index ["project_id"], name: "index_loan_items_on_project_id"
+    t.index ["updated_by_id"], name: "index_loan_items_on_updated_by_id"
   end
 
-  create_table "loans", force: :cascade do |t|
-    t.date     "date_requested"
-    t.string   "request_method"
-    t.date     "date_sent"
-    t.date     "date_received"
-    t.date     "date_return_expected"
-    t.string   "recipient_address"
-    t.string   "recipient_email"
-    t.string   "recipient_phone"
-    t.string   "supervisor_email"
-    t.string   "supervisor_phone"
-    t.date     "date_closed"
-    t.integer  "created_by_id",                                                   null: false
-    t.integer  "updated_by_id",                                                   null: false
-    t.integer  "project_id",                                                      null: false
-    t.datetime "created_at",                                                      null: false
-    t.datetime "updated_at",                                                      null: false
-    t.string   "recipient_honorarium"
-    t.string   "recipient_country"
-    t.text     "lender_address",       default: "Lender's address not provided.", null: false
-    t.index ["created_by_id"], name: "index_loans_on_created_by_id", using: :btree
-    t.index ["project_id"], name: "index_loans_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_loans_on_updated_by_id", using: :btree
+  create_table "loans", id: :serial, force: :cascade do |t|
+    t.date "date_requested"
+    t.string "request_method"
+    t.date "date_sent"
+    t.date "date_received"
+    t.date "date_return_expected"
+    t.string "recipient_address"
+    t.string "recipient_email"
+    t.string "recipient_phone"
+    t.string "supervisor_email"
+    t.string "supervisor_phone"
+    t.date "date_closed"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "recipient_honorarium"
+    t.string "recipient_country"
+    t.text "lender_address", null: false
+    t.index ["created_by_id"], name: "index_loans_on_created_by_id"
+    t.index ["project_id"], name: "index_loans_on_project_id"
+    t.index ["updated_by_id"], name: "index_loans_on_updated_by_id"
   end
 
-  create_table "namespaces", force: :cascade do |t|
-    t.string   "institution"
-    t.string   "name",                null: false
-    t.string   "short_name",          null: false
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
-    t.integer  "created_by_id",       null: false
-    t.integer  "updated_by_id",       null: false
-    t.string   "verbatim_short_name"
-    t.index ["created_by_id"], name: "index_namespaces_on_created_by_id", using: :btree
-    t.index ["updated_by_id"], name: "index_namespaces_on_updated_by_id", using: :btree
+  create_table "namespaces", id: :serial, force: :cascade do |t|
+    t.string "institution"
+    t.string "name", null: false
+    t.string "short_name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.string "verbatim_short_name"
+    t.index ["created_by_id"], name: "index_namespaces_on_created_by_id"
+    t.index ["updated_by_id"], name: "index_namespaces_on_updated_by_id"
   end
 
-  create_table "notes", force: :cascade do |t|
-    t.text     "text",                  null: false
-    t.integer  "note_object_id",        null: false
-    t.string   "note_object_type",      null: false
-    t.string   "note_object_attribute"
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
-    t.integer  "created_by_id",         null: false
-    t.integer  "updated_by_id",         null: false
-    t.integer  "project_id",            null: false
-    t.index ["created_by_id"], name: "index_notes_on_created_by_id", using: :btree
-    t.index ["note_object_id", "note_object_type"], name: "index_notes_on_note_object_id_and_type", using: :btree
-    t.index ["project_id"], name: "index_notes_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_notes_on_updated_by_id", using: :btree
+  create_table "notes", id: :serial, force: :cascade do |t|
+    t.text "text", null: false
+    t.integer "note_object_id", null: false
+    t.string "note_object_type", null: false
+    t.string "note_object_attribute"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.index ["created_by_id"], name: "index_notes_on_created_by_id"
+    t.index ["note_object_id", "note_object_type"], name: "index_notes_on_note_object_id_and_type"
+    t.index ["project_id"], name: "index_notes_on_project_id"
+    t.index ["updated_by_id"], name: "index_notes_on_updated_by_id"
   end
 
-  create_table "observation_matrices", force: :cascade do |t|
-    t.string   "name",          null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.index ["created_by_id"], name: "index_observation_matrices_on_created_by_id", using: :btree
-    t.index ["name"], name: "index_observation_matrices_on_name", using: :btree
-    t.index ["project_id"], name: "index_observation_matrices_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_observation_matrices_on_updated_by_id", using: :btree
+  create_table "observation_matrices", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_observation_matrices_on_created_by_id"
+    t.index ["name"], name: "index_observation_matrices_on_name"
+    t.index ["project_id"], name: "index_observation_matrices_on_project_id"
+    t.index ["updated_by_id"], name: "index_observation_matrices_on_updated_by_id"
   end
 
-  create_table "observation_matrix_column_items", force: :cascade do |t|
-    t.integer  "observation_matrix_id",         null: false
-    t.string   "type",                          null: false
-    t.integer  "descriptor_id"
-    t.integer  "controlled_vocabulary_term_id"
-    t.integer  "created_by_id",                 null: false
-    t.integer  "updated_by_id",                 null: false
-    t.integer  "project_id",                    null: false
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
-    t.integer  "position"
-    t.index ["controlled_vocabulary_term_id"], name: "omrc_cvt_index", using: :btree
-    t.index ["created_by_id"], name: "index_observation_matrix_column_items_on_created_by_id", using: :btree
-    t.index ["descriptor_id"], name: "omci_d_index", using: :btree
-    t.index ["observation_matrix_id"], name: "omci_om_index", using: :btree
-    t.index ["project_id"], name: "index_observation_matrix_column_items_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_observation_matrix_column_items_on_updated_by_id", using: :btree
+  create_table "observation_matrix_column_items", id: :serial, force: :cascade do |t|
+    t.integer "observation_matrix_id", null: false
+    t.string "type", null: false
+    t.integer "descriptor_id"
+    t.integer "controlled_vocabulary_term_id"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "position"
+    t.index ["controlled_vocabulary_term_id"], name: "omrc_cvt_index"
+    t.index ["created_by_id"], name: "index_observation_matrix_column_items_on_created_by_id"
+    t.index ["descriptor_id"], name: "omci_d_index"
+    t.index ["observation_matrix_id"], name: "omci_om_index"
+    t.index ["project_id"], name: "index_observation_matrix_column_items_on_project_id"
+    t.index ["updated_by_id"], name: "index_observation_matrix_column_items_on_updated_by_id"
   end
 
-  create_table "observation_matrix_columns", force: :cascade do |t|
-    t.integer  "observation_matrix_id", null: false
-    t.integer  "descriptor_id",         null: false
-    t.integer  "position"
-    t.integer  "created_by_id",         null: false
-    t.integer  "updated_by_id",         null: false
-    t.integer  "project_id",            null: false
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
-    t.integer  "reference_count"
-    t.index ["created_by_id"], name: "index_observation_matrix_columns_on_created_by_id", using: :btree
-    t.index ["descriptor_id"], name: "index_observation_matrix_columns_on_descriptor_id", using: :btree
-    t.index ["observation_matrix_id"], name: "imc_om_index", using: :btree
-    t.index ["project_id"], name: "index_observation_matrix_columns_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_observation_matrix_columns_on_updated_by_id", using: :btree
+  create_table "observation_matrix_columns", id: :serial, force: :cascade do |t|
+    t.integer "observation_matrix_id", null: false
+    t.integer "descriptor_id", null: false
+    t.integer "position"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "reference_count"
+    t.index ["created_by_id"], name: "index_observation_matrix_columns_on_created_by_id"
+    t.index ["descriptor_id"], name: "index_observation_matrix_columns_on_descriptor_id"
+    t.index ["observation_matrix_id"], name: "imc_om_index"
+    t.index ["project_id"], name: "index_observation_matrix_columns_on_project_id"
+    t.index ["updated_by_id"], name: "index_observation_matrix_columns_on_updated_by_id"
   end
 
-  create_table "observation_matrix_row_items", force: :cascade do |t|
-    t.integer  "observation_matrix_id",         null: false
-    t.string   "type",                          null: false
-    t.integer  "collection_object_id"
-    t.integer  "otu_id"
-    t.integer  "controlled_vocabulary_term_id"
-    t.integer  "created_by_id",                 null: false
-    t.integer  "updated_by_id",                 null: false
-    t.integer  "project_id",                    null: false
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
-    t.integer  "position"
-    t.index ["collection_object_id"], name: "omri_co_index", using: :btree
-    t.index ["controlled_vocabulary_term_id"], name: "omri_cvt_index", using: :btree
-    t.index ["created_by_id"], name: "index_observation_matrix_row_items_on_created_by_id", using: :btree
-    t.index ["observation_matrix_id"], name: "omri_om_index", using: :btree
-    t.index ["otu_id"], name: "index_observation_matrix_row_items_on_otu_id", using: :btree
-    t.index ["project_id"], name: "index_observation_matrix_row_items_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_observation_matrix_row_items_on_updated_by_id", using: :btree
+  create_table "observation_matrix_row_items", id: :serial, force: :cascade do |t|
+    t.integer "observation_matrix_id", null: false
+    t.string "type", null: false
+    t.integer "collection_object_id"
+    t.integer "otu_id"
+    t.integer "controlled_vocabulary_term_id"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "position"
+    t.index ["collection_object_id"], name: "omri_co_index"
+    t.index ["controlled_vocabulary_term_id"], name: "omri_cvt_index"
+    t.index ["created_by_id"], name: "index_observation_matrix_row_items_on_created_by_id"
+    t.index ["observation_matrix_id"], name: "omri_om_index"
+    t.index ["otu_id"], name: "index_observation_matrix_row_items_on_otu_id"
+    t.index ["project_id"], name: "index_observation_matrix_row_items_on_project_id"
+    t.index ["updated_by_id"], name: "index_observation_matrix_row_items_on_updated_by_id"
   end
 
-  create_table "observation_matrix_rows", force: :cascade do |t|
-    t.integer  "observation_matrix_id", null: false
-    t.integer  "otu_id"
-    t.integer  "collection_object_id"
-    t.integer  "position"
-    t.integer  "created_by_id",         null: false
-    t.integer  "updated_by_id",         null: false
-    t.integer  "project_id",            null: false
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
-    t.integer  "reference_count"
-    t.index ["collection_object_id"], name: "index_observation_matrix_rows_on_collection_object_id", using: :btree
-    t.index ["created_by_id"], name: "index_observation_matrix_rows_on_created_by_id", using: :btree
-    t.index ["observation_matrix_id"], name: "omr_om_index", using: :btree
-    t.index ["otu_id"], name: "index_observation_matrix_rows_on_otu_id", using: :btree
-    t.index ["project_id"], name: "index_observation_matrix_rows_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_observation_matrix_rows_on_updated_by_id", using: :btree
+  create_table "observation_matrix_rows", id: :serial, force: :cascade do |t|
+    t.integer "observation_matrix_id", null: false
+    t.integer "otu_id"
+    t.integer "collection_object_id"
+    t.integer "position"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "reference_count"
+    t.index ["collection_object_id"], name: "index_observation_matrix_rows_on_collection_object_id"
+    t.index ["created_by_id"], name: "index_observation_matrix_rows_on_created_by_id"
+    t.index ["observation_matrix_id"], name: "omr_om_index"
+    t.index ["otu_id"], name: "index_observation_matrix_rows_on_otu_id"
+    t.index ["project_id"], name: "index_observation_matrix_rows_on_project_id"
+    t.index ["updated_by_id"], name: "index_observation_matrix_rows_on_updated_by_id"
   end
 
-  create_table "observations", force: :cascade do |t|
-    t.integer  "descriptor_id"
-    t.integer  "otu_id"
-    t.integer  "collection_object_id"
-    t.integer  "character_state_id"
-    t.string   "frequency"
-    t.decimal  "continuous_value"
-    t.string   "continuous_unit"
-    t.integer  "sample_n"
-    t.decimal  "sample_min"
-    t.decimal  "sample_max"
-    t.decimal  "sample_median"
-    t.decimal  "sample_mean"
-    t.string   "sample_units"
-    t.decimal  "sample_standard_deviation"
-    t.decimal  "sample_standard_error"
-    t.boolean  "presence"
-    t.text     "description"
-    t.string   "cached"
-    t.string   "cached_column_label"
-    t.string   "cached_row_label"
-    t.integer  "created_by_id",             null: false
-    t.integer  "updated_by_id",             null: false
-    t.integer  "project_id",                null: false
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
-    t.string   "type",                      null: false
-    t.index ["character_state_id"], name: "index_observations_on_character_state_id", using: :btree
-    t.index ["collection_object_id"], name: "index_observations_on_collection_object_id", using: :btree
-    t.index ["descriptor_id"], name: "index_observations_on_descriptor_id", using: :btree
-    t.index ["otu_id"], name: "index_observations_on_otu_id", using: :btree
-    t.index ["project_id"], name: "index_observations_on_project_id", using: :btree
+  create_table "observations", id: :serial, force: :cascade do |t|
+    t.integer "descriptor_id"
+    t.integer "otu_id"
+    t.integer "collection_object_id"
+    t.integer "character_state_id"
+    t.string "frequency"
+    t.decimal "continuous_value"
+    t.string "continuous_unit"
+    t.integer "sample_n"
+    t.decimal "sample_min"
+    t.decimal "sample_max"
+    t.decimal "sample_median"
+    t.decimal "sample_mean"
+    t.string "sample_units"
+    t.decimal "sample_standard_deviation"
+    t.decimal "sample_standard_error"
+    t.boolean "presence"
+    t.text "description"
+    t.string "cached"
+    t.string "cached_column_label"
+    t.string "cached_row_label"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "type", null: false
+    t.index ["character_state_id"], name: "index_observations_on_character_state_id"
+    t.index ["collection_object_id"], name: "index_observations_on_collection_object_id"
+    t.index ["descriptor_id"], name: "index_observations_on_descriptor_id"
+    t.index ["otu_id"], name: "index_observations_on_otu_id"
+    t.index ["project_id"], name: "index_observations_on_project_id"
   end
 
-  create_table "origin_relationships", force: :cascade do |t|
-    t.integer  "old_object_id",   null: false
-    t.string   "old_object_type", null: false
-    t.integer  "new_object_id",   null: false
-    t.string   "new_object_type", null: false
-    t.integer  "position"
-    t.integer  "created_by_id",   null: false
-    t.integer  "updated_by_id",   null: false
-    t.integer  "project_id",      null: false
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
-    t.index ["created_by_id"], name: "index_origin_relationships_on_created_by_id", using: :btree
-    t.index ["new_object_type", "new_object_id"], name: "index_origin_relationships_on_new_object_type_and_new_object_id", using: :btree
-    t.index ["old_object_type", "old_object_id"], name: "index_origin_relationships_on_old_object_type_and_old_object_id", using: :btree
-    t.index ["project_id"], name: "index_origin_relationships_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_origin_relationships_on_updated_by_id", using: :btree
+  create_table "origin_relationships", id: :serial, force: :cascade do |t|
+    t.string "old_object_type", null: false
+    t.integer "old_object_id", null: false
+    t.string "new_object_type", null: false
+    t.integer "new_object_id", null: false
+    t.integer "position"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_origin_relationships_on_created_by_id"
+    t.index ["new_object_type", "new_object_id"], name: "index_origin_relationships_on_new_object_type_and_new_object_id"
+    t.index ["old_object_type", "old_object_id"], name: "index_origin_relationships_on_old_object_type_and_old_object_id"
+    t.index ["project_id"], name: "index_origin_relationships_on_project_id"
+    t.index ["updated_by_id"], name: "index_origin_relationships_on_updated_by_id"
   end
 
-  create_table "otu_page_layout_sections", force: :cascade do |t|
-    t.integer  "otu_page_layout_id",    null: false
-    t.string   "type",                  null: false
-    t.integer  "position",              null: false
-    t.integer  "topic_id"
-    t.string   "dynamic_content_class"
-    t.integer  "created_by_id",         null: false
-    t.integer  "updated_by_id",         null: false
-    t.integer  "project_id",            null: false
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
-    t.index ["created_by_id"], name: "index_otu_page_layout_sections_on_created_by_id", using: :btree
-    t.index ["otu_page_layout_id"], name: "index_otu_page_layout_sections_on_otu_page_layout_id", using: :btree
-    t.index ["position"], name: "index_otu_page_layout_sections_on_position", using: :btree
-    t.index ["project_id"], name: "index_otu_page_layout_sections_on_project_id", using: :btree
-    t.index ["topic_id"], name: "index_otu_page_layout_sections_on_topic_id", using: :btree
-    t.index ["type"], name: "index_otu_page_layout_sections_on_type", using: :btree
-    t.index ["updated_by_id"], name: "index_otu_page_layout_sections_on_updated_by_id", using: :btree
+  create_table "otu_page_layout_sections", id: :serial, force: :cascade do |t|
+    t.integer "otu_page_layout_id", null: false
+    t.string "type", null: false
+    t.integer "position", null: false
+    t.integer "topic_id"
+    t.string "dynamic_content_class"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_otu_page_layout_sections_on_created_by_id"
+    t.index ["otu_page_layout_id"], name: "index_otu_page_layout_sections_on_otu_page_layout_id"
+    t.index ["position"], name: "index_otu_page_layout_sections_on_position"
+    t.index ["project_id"], name: "index_otu_page_layout_sections_on_project_id"
+    t.index ["topic_id"], name: "index_otu_page_layout_sections_on_topic_id"
+    t.index ["type"], name: "index_otu_page_layout_sections_on_type"
+    t.index ["updated_by_id"], name: "index_otu_page_layout_sections_on_updated_by_id"
   end
 
-  create_table "otu_page_layouts", force: :cascade do |t|
-    t.string   "name",          null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.index ["created_by_id"], name: "index_otu_page_layouts_on_created_by_id", using: :btree
-    t.index ["project_id"], name: "index_otu_page_layouts_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_otu_page_layouts_on_updated_by_id", using: :btree
+  create_table "otu_page_layouts", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_otu_page_layouts_on_created_by_id"
+    t.index ["project_id"], name: "index_otu_page_layouts_on_project_id"
+    t.index ["updated_by_id"], name: "index_otu_page_layouts_on_updated_by_id"
   end
 
-  create_table "otus", force: :cascade do |t|
-    t.string   "name"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.integer  "taxon_name_id"
-    t.index ["created_by_id"], name: "index_otus_on_created_by_id", using: :btree
-    t.index ["project_id"], name: "index_otus_on_project_id", using: :btree
-    t.index ["taxon_name_id"], name: "index_otus_on_taxon_name_id", using: :btree
-    t.index ["updated_by_id"], name: "index_otus_on_updated_by_id", using: :btree
+  create_table "otus", id: :serial, force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.integer "taxon_name_id"
+    t.index ["created_by_id"], name: "index_otus_on_created_by_id"
+    t.index ["project_id"], name: "index_otus_on_project_id"
+    t.index ["taxon_name_id"], name: "index_otus_on_taxon_name_id"
+    t.index ["updated_by_id"], name: "index_otus_on_updated_by_id"
   end
 
-  create_table "people", force: :cascade do |t|
-    t.string   "type",          null: false
-    t.string   "last_name",     null: false
-    t.string   "first_name"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.string   "suffix"
-    t.string   "prefix"
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.text     "cached"
-    t.index ["created_by_id"], name: "index_people_on_created_by_id", using: :btree
-    t.index ["type"], name: "index_people_on_type", using: :btree
-    t.index ["updated_by_id"], name: "index_people_on_updated_by_id", using: :btree
+  create_table "people", id: :serial, force: :cascade do |t|
+    t.string "type", null: false
+    t.string "last_name", null: false
+    t.string "first_name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "suffix"
+    t.string "prefix"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.text "cached"
+    t.index ["created_by_id"], name: "index_people_on_created_by_id"
+    t.index ["type"], name: "index_people_on_type"
+    t.index ["updated_by_id"], name: "index_people_on_updated_by_id"
   end
 
-  create_table "pinboard_items", force: :cascade do |t|
-    t.integer  "pinned_object_id",   null: false
-    t.string   "pinned_object_type", null: false
-    t.integer  "user_id",            null: false
-    t.integer  "project_id",         null: false
-    t.integer  "position",           null: false
-    t.boolean  "is_inserted"
-    t.boolean  "is_cross_project"
-    t.integer  "inserted_count"
-    t.integer  "created_by_id",      null: false
-    t.integer  "updated_by_id",      null: false
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
-    t.index ["created_by_id"], name: "index_pinboard_items_on_created_by_id", using: :btree
-    t.index ["pinned_object_type", "pinned_object_id"], name: "index_pinboard_items_on_pinned_object_type_and_pinned_object_id", using: :btree
-    t.index ["position"], name: "index_pinboard_items_on_position", using: :btree
-    t.index ["project_id"], name: "index_pinboard_items_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_pinboard_items_on_updated_by_id", using: :btree
-    t.index ["user_id"], name: "index_pinboard_items_on_user_id", using: :btree
+  create_table "pinboard_items", id: :serial, force: :cascade do |t|
+    t.string "pinned_object_type", null: false
+    t.integer "pinned_object_id", null: false
+    t.integer "user_id", null: false
+    t.integer "project_id", null: false
+    t.integer "position", null: false
+    t.boolean "is_inserted"
+    t.boolean "is_cross_project"
+    t.integer "inserted_count"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_pinboard_items_on_created_by_id"
+    t.index ["pinned_object_type", "pinned_object_id"], name: "index_pinboard_items_on_pinned_object_type_and_pinned_object_id"
+    t.index ["position"], name: "index_pinboard_items_on_position"
+    t.index ["project_id"], name: "index_pinboard_items_on_project_id"
+    t.index ["updated_by_id"], name: "index_pinboard_items_on_updated_by_id"
+    t.index ["user_id"], name: "index_pinboard_items_on_user_id"
   end
 
-  create_table "preparation_types", force: :cascade do |t|
-    t.string   "name",          null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.text     "definition",    null: false
-    t.index ["created_by_id"], name: "index_preparation_types_on_created_by_id", using: :btree
-    t.index ["updated_by_id"], name: "index_preparation_types_on_updated_by_id", using: :btree
+  create_table "preparation_types", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.text "definition", null: false
+    t.index ["created_by_id"], name: "index_preparation_types_on_created_by_id"
+    t.index ["updated_by_id"], name: "index_preparation_types_on_updated_by_id"
   end
 
-  create_table "project_members", force: :cascade do |t|
-    t.integer  "project_id",               null: false
-    t.integer  "user_id",                  null: false
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
-    t.integer  "created_by_id",            null: false
-    t.integer  "updated_by_id",            null: false
-    t.boolean  "is_project_administrator"
-    t.index ["created_by_id"], name: "index_project_members_on_created_by_id", using: :btree
-    t.index ["project_id"], name: "index_project_members_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_project_members_on_updated_by_id", using: :btree
-    t.index ["user_id"], name: "index_project_members_on_user_id", using: :btree
+  create_table "project_members", id: :serial, force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.boolean "is_project_administrator"
+    t.index ["created_by_id"], name: "index_project_members_on_created_by_id"
+    t.index ["project_id"], name: "index_project_members_on_project_id"
+    t.index ["updated_by_id"], name: "index_project_members_on_updated_by_id"
+    t.index ["user_id"], name: "index_project_members_on_user_id"
   end
 
-  create_table "project_sources", force: :cascade do |t|
-    t.integer  "project_id",    null: false
-    t.integer  "source_id",     null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.index ["created_by_id"], name: "index_project_sources_on_created_by_id", using: :btree
-    t.index ["project_id"], name: "index_project_sources_on_project_id", using: :btree
-    t.index ["source_id"], name: "index_project_sources_on_source_id", using: :btree
-    t.index ["updated_by_id"], name: "index_project_sources_on_updated_by_id", using: :btree
+  create_table "project_sources", id: :serial, force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.integer "source_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_project_sources_on_created_by_id"
+    t.index ["project_id"], name: "index_project_sources_on_project_id"
+    t.index ["source_id"], name: "index_project_sources_on_source_id"
+    t.index ["updated_by_id"], name: "index_project_sources_on_updated_by_id"
   end
 
-  create_table "projects", force: :cascade do |t|
-    t.string   "name",               null: false
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
-    t.integer  "created_by_id",      null: false
-    t.integer  "updated_by_id",      null: false
-    t.hstore   "workbench_settings", null: false
-    t.index ["created_by_id"], name: "index_projects_on_created_by_id", using: :btree
-    t.index ["updated_by_id"], name: "index_projects_on_updated_by_id", using: :btree
+  create_table "projects", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.hstore "workbench_settings", null: false
+    t.index ["created_by_id"], name: "index_projects_on_created_by_id"
+    t.index ["updated_by_id"], name: "index_projects_on_updated_by_id"
   end
 
-  create_table "protocol_relationships", force: :cascade do |t|
-    t.integer  "protocol_id",                       null: false
-    t.integer  "protocol_relationship_object_id",   null: false
-    t.string   "protocol_relationship_object_type", null: false
-    t.integer  "position",                          null: false
-    t.integer  "created_by_id",                     null: false
-    t.integer  "updated_by_id",                     null: false
-    t.integer  "project_id",                        null: false
-    t.datetime "created_at",                        null: false
-    t.datetime "updated_at",                        null: false
-    t.index ["project_id"], name: "index_protocol_relationships_on_project_id", using: :btree
-    t.index ["protocol_id"], name: "index_protocol_relationships_on_protocol_id", using: :btree
+  create_table "protocol_relationships", id: :serial, force: :cascade do |t|
+    t.integer "protocol_id", null: false
+    t.string "protocol_relationship_object_type", null: false
+    t.integer "protocol_relationship_object_id", null: false
+    t.integer "position", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_protocol_relationships_on_project_id"
+    t.index ["protocol_id"], name: "index_protocol_relationships_on_protocol_id"
   end
 
-  create_table "protocols", force: :cascade do |t|
-    t.string   "name",          null: false
-    t.text     "short_name",    null: false
-    t.text     "description",   null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.index ["project_id"], name: "index_protocols_on_project_id", using: :btree
+  create_table "protocols", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
+    t.text "short_name", null: false
+    t.text "description", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_protocols_on_project_id"
   end
 
-  create_table "public_contents", force: :cascade do |t|
-    t.integer  "otu_id",        null: false
-    t.integer  "topic_id",      null: false
-    t.text     "text",          null: false
-    t.integer  "project_id",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "content_id",    null: false
-    t.index ["content_id"], name: "index_public_contents_on_content_id", using: :btree
-    t.index ["created_by_id"], name: "index_public_contents_on_created_by_id", using: :btree
-    t.index ["otu_id"], name: "index_public_contents_on_otu_id", using: :btree
-    t.index ["project_id"], name: "index_public_contents_on_project_id", using: :btree
-    t.index ["topic_id"], name: "index_public_contents_on_topic_id", using: :btree
-    t.index ["updated_by_id"], name: "index_public_contents_on_updated_by_id", using: :btree
+  create_table "public_contents", id: :serial, force: :cascade do |t|
+    t.integer "otu_id", null: false
+    t.integer "topic_id", null: false
+    t.text "text", null: false
+    t.integer "project_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "content_id", null: false
+    t.index ["content_id"], name: "index_public_contents_on_content_id"
+    t.index ["created_by_id"], name: "index_public_contents_on_created_by_id"
+    t.index ["otu_id"], name: "index_public_contents_on_otu_id"
+    t.index ["project_id"], name: "index_public_contents_on_project_id"
+    t.index ["topic_id"], name: "index_public_contents_on_topic_id"
+    t.index ["updated_by_id"], name: "index_public_contents_on_updated_by_id"
   end
 
-  create_table "ranged_lot_categories", force: :cascade do |t|
-    t.string   "name",          null: false
-    t.integer  "minimum_value", null: false
-    t.integer  "maximum_value"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.index ["created_by_id"], name: "index_ranged_lot_categories_on_created_by_id", using: :btree
-    t.index ["project_id"], name: "index_ranged_lot_categories_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_ranged_lot_categories_on_updated_by_id", using: :btree
+  create_table "ranged_lot_categories", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "minimum_value", null: false
+    t.integer "maximum_value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.index ["created_by_id"], name: "index_ranged_lot_categories_on_created_by_id"
+    t.index ["project_id"], name: "index_ranged_lot_categories_on_project_id"
+    t.index ["updated_by_id"], name: "index_ranged_lot_categories_on_updated_by_id"
   end
 
-  create_table "repositories", force: :cascade do |t|
-    t.string   "name",                 null: false
-    t.string   "url"
-    t.string   "acronym"
-    t.string   "status"
-    t.string   "institutional_LSID"
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
-    t.integer  "created_by_id",        null: false
-    t.integer  "updated_by_id",        null: false
-    t.boolean  "is_index_herbariorum"
-    t.index ["created_by_id"], name: "index_repositories_on_created_by_id", using: :btree
-    t.index ["updated_by_id"], name: "index_repositories_on_updated_by_id", using: :btree
+  create_table "repositories", id: :serial, force: :cascade do |t|
+    t.string "name", null: false
+    t.string "url"
+    t.string "acronym"
+    t.string "status"
+    t.string "institutional_LSID"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.boolean "is_index_herbariorum"
+    t.index ["created_by_id"], name: "index_repositories_on_created_by_id"
+    t.index ["updated_by_id"], name: "index_repositories_on_updated_by_id"
   end
 
-  create_table "roles", force: :cascade do |t|
-    t.integer  "person_id",        null: false
-    t.string   "type",             null: false
-    t.integer  "role_object_id",   null: false
-    t.string   "role_object_type", null: false
-    t.integer  "position",         null: false
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
-    t.integer  "created_by_id",    null: false
-    t.integer  "updated_by_id",    null: false
-    t.integer  "project_id"
-    t.index ["created_by_id"], name: "index_roles_on_created_by_id", using: :btree
-    t.index ["person_id"], name: "index_roles_on_person_id", using: :btree
-    t.index ["position"], name: "index_roles_on_position", using: :btree
-    t.index ["project_id"], name: "index_roles_on_project_id", using: :btree
-    t.index ["role_object_id", "role_object_type"], name: "index_roles_on_role_object_id_and_type", using: :btree
-    t.index ["type"], name: "index_roles_on_type", using: :btree
-    t.index ["updated_by_id"], name: "index_roles_on_updated_by_id", using: :btree
+  create_table "roles", id: :serial, force: :cascade do |t|
+    t.integer "person_id", null: false
+    t.string "type", null: false
+    t.integer "role_object_id", null: false
+    t.string "role_object_type", null: false
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id"
+    t.index ["created_by_id"], name: "index_roles_on_created_by_id"
+    t.index ["person_id"], name: "index_roles_on_person_id"
+    t.index ["position"], name: "index_roles_on_position"
+    t.index ["project_id"], name: "index_roles_on_project_id"
+    t.index ["role_object_id", "role_object_type"], name: "index_roles_on_role_object_id_and_type"
+    t.index ["type"], name: "index_roles_on_type"
+    t.index ["updated_by_id"], name: "index_roles_on_updated_by_id"
   end
 
-  create_table "sequence_relationships", force: :cascade do |t|
-    t.integer  "subject_sequence_id", null: false
-    t.integer  "object_sequence_id",  null: false
-    t.integer  "created_by_id",       null: false
-    t.integer  "updated_by_id",       null: false
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
-    t.integer  "project_id",          null: false
-    t.string   "type",                null: false
+  create_table "sequence_relationships", id: :serial, force: :cascade do |t|
+    t.integer "subject_sequence_id", null: false
+    t.integer "object_sequence_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "project_id", null: false
+    t.string "type", null: false
   end
 
-  create_table "sequences", force: :cascade do |t|
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.text     "sequence",      null: false
-    t.string   "sequence_type", null: false
-    t.integer  "project_id",    null: false
-    t.string   "name"
-    t.index ["created_by_id"], name: "index_sequences_on_created_by_id", using: :btree
-    t.index ["updated_by_id"], name: "index_sequences_on_updated_by_id", using: :btree
+  create_table "sequences", id: :serial, force: :cascade do |t|
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "sequence", null: false
+    t.string "sequence_type", null: false
+    t.integer "project_id", null: false
+    t.string "name"
+    t.index ["created_by_id"], name: "index_sequences_on_created_by_id"
+    t.index ["updated_by_id"], name: "index_sequences_on_updated_by_id"
   end
 
-  create_table "serial_chronologies", force: :cascade do |t|
-    t.integer  "preceding_serial_id",  null: false
-    t.integer  "succeeding_serial_id", null: false
-    t.integer  "created_by_id",        null: false
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
-    t.integer  "updated_by_id",        null: false
-    t.string   "type",                 null: false
-    t.index ["created_by_id"], name: "index_serial_chronologies_on_created_by_id", using: :btree
-    t.index ["preceding_serial_id"], name: "index_serial_chronologies_on_preceding_serial_id", using: :btree
-    t.index ["succeeding_serial_id"], name: "index_serial_chronologies_on_succeeding_serial_id", using: :btree
-    t.index ["type"], name: "index_serial_chronologies_on_type", using: :btree
-    t.index ["updated_by_id"], name: "index_serial_chronologies_on_updated_by_id", using: :btree
+  create_table "serial_chronologies", id: :serial, force: :cascade do |t|
+    t.integer "preceding_serial_id", null: false
+    t.integer "succeeding_serial_id", null: false
+    t.integer "created_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "updated_by_id", null: false
+    t.string "type", null: false
+    t.index ["created_by_id"], name: "index_serial_chronologies_on_created_by_id"
+    t.index ["preceding_serial_id"], name: "index_serial_chronologies_on_preceding_serial_id"
+    t.index ["succeeding_serial_id"], name: "index_serial_chronologies_on_succeeding_serial_id"
+    t.index ["type"], name: "index_serial_chronologies_on_type"
+    t.index ["updated_by_id"], name: "index_serial_chronologies_on_updated_by_id"
   end
 
-  create_table "serials", force: :cascade do |t|
-    t.integer  "created_by_id",                       null: false
-    t.integer  "updated_by_id",                       null: false
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
-    t.string   "place_published"
-    t.integer  "primary_language_id"
-    t.integer  "first_year_of_issue",       limit: 2
-    t.integer  "last_year_of_issue",        limit: 2
-    t.integer  "translated_from_serial_id"
-    t.text     "publisher"
-    t.text     "name",                                null: false
-    t.index ["created_by_id"], name: "index_serials_on_created_by_id", using: :btree
-    t.index ["primary_language_id"], name: "index_serials_on_primary_language_id", using: :btree
-    t.index ["translated_from_serial_id"], name: "index_serials_on_translated_from_serial_id", using: :btree
-    t.index ["updated_by_id"], name: "index_serials_on_updated_by_id", using: :btree
+  create_table "serials", id: :serial, force: :cascade do |t|
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "place_published"
+    t.integer "primary_language_id"
+    t.integer "first_year_of_issue", limit: 2
+    t.integer "last_year_of_issue", limit: 2
+    t.integer "translated_from_serial_id"
+    t.text "publisher"
+    t.text "name", null: false
+    t.index ["created_by_id"], name: "index_serials_on_created_by_id"
+    t.index ["primary_language_id"], name: "index_serials_on_primary_language_id"
+    t.index ["translated_from_serial_id"], name: "index_serials_on_translated_from_serial_id"
+    t.index ["updated_by_id"], name: "index_serials_on_updated_by_id"
   end
 
-  create_table "sources", force: :cascade do |t|
-    t.integer  "serial_id"
-    t.string   "address"
-    t.string   "annote"
-    t.string   "booktitle"
-    t.string   "chapter"
-    t.string   "crossref"
-    t.string   "edition"
-    t.string   "editor"
-    t.string   "howpublished"
-    t.string   "institution"
-    t.string   "journal"
-    t.string   "key"
-    t.string   "month"
-    t.string   "note"
-    t.string   "number"
-    t.string   "organization"
-    t.string   "pages"
-    t.string   "publisher"
-    t.string   "school"
-    t.string   "series"
-    t.text     "title"
-    t.string   "type",                               null: false
-    t.string   "volume"
-    t.string   "doi"
-    t.text     "abstract"
-    t.text     "copyright"
-    t.string   "language"
-    t.string   "stated_year"
-    t.string   "verbatim"
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
-    t.string   "bibtex_type"
-    t.integer  "created_by_id",                      null: false
-    t.integer  "updated_by_id",                      null: false
-    t.integer  "day",                      limit: 2
-    t.integer  "year",                     limit: 2
-    t.string   "isbn"
-    t.string   "issn"
-    t.text     "verbatim_contents"
-    t.text     "verbatim_keywords"
-    t.integer  "language_id"
-    t.string   "translator"
-    t.string   "year_suffix"
-    t.string   "url"
-    t.text     "author"
-    t.text     "cached"
-    t.text     "cached_author_string"
-    t.date     "cached_nomenclature_date"
-    t.index ["bibtex_type"], name: "index_sources_on_bibtex_type", using: :btree
-    t.index ["created_by_id"], name: "index_sources_on_created_by_id", using: :btree
-    t.index ["language_id"], name: "index_sources_on_language_id", using: :btree
-    t.index ["serial_id"], name: "index_sources_on_serial_id", using: :btree
-    t.index ["type"], name: "index_sources_on_type", using: :btree
-    t.index ["updated_by_id"], name: "index_sources_on_updated_by_id", using: :btree
+  create_table "sources", id: :serial, force: :cascade do |t|
+    t.integer "serial_id"
+    t.string "address"
+    t.string "annote"
+    t.string "booktitle"
+    t.string "chapter"
+    t.string "crossref"
+    t.string "edition"
+    t.string "editor"
+    t.string "howpublished"
+    t.string "institution"
+    t.string "journal"
+    t.string "key"
+    t.string "month"
+    t.string "note"
+    t.string "number"
+    t.string "organization"
+    t.string "pages"
+    t.string "publisher"
+    t.string "school"
+    t.string "series"
+    t.text "title"
+    t.string "type", null: false
+    t.string "volume"
+    t.string "doi"
+    t.text "abstract"
+    t.text "copyright"
+    t.string "language"
+    t.string "stated_year"
+    t.string "verbatim"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "bibtex_type"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "day", limit: 2
+    t.integer "year", limit: 2
+    t.string "isbn"
+    t.string "issn"
+    t.text "verbatim_contents"
+    t.text "verbatim_keywords"
+    t.integer "language_id"
+    t.string "translator"
+    t.string "year_suffix"
+    t.string "url"
+    t.text "author"
+    t.text "cached"
+    t.text "cached_author_string"
+    t.date "cached_nomenclature_date"
+    t.index ["bibtex_type"], name: "index_sources_on_bibtex_type"
+    t.index ["created_by_id"], name: "index_sources_on_created_by_id"
+    t.index ["language_id"], name: "index_sources_on_language_id"
+    t.index ["serial_id"], name: "index_sources_on_serial_id"
+    t.index ["type"], name: "index_sources_on_type"
+    t.index ["updated_by_id"], name: "index_sources_on_updated_by_id"
   end
 
-  create_table "sqed_depictions", force: :cascade do |t|
-    t.integer  "depiction_id",                null: false
-    t.string   "boundary_color",              null: false
-    t.string   "boundary_finder",             null: false
-    t.boolean  "has_border",                  null: false
-    t.string   "layout",                      null: false
-    t.hstore   "metadata_map",                null: false
-    t.hstore   "specimen_coordinates"
-    t.integer  "project_id",                  null: false
-    t.integer  "created_by_id",               null: false
-    t.integer  "updated_by_id",               null: false
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
-    t.json     "result_boundary_coordinates"
-    t.json     "result_ocr"
-    t.index ["depiction_id"], name: "index_sqed_depictions_on_depiction_id", using: :btree
-    t.index ["project_id"], name: "index_sqed_depictions_on_project_id", using: :btree
+  create_table "sqed_depictions", id: :serial, force: :cascade do |t|
+    t.integer "depiction_id", null: false
+    t.string "boundary_color", null: false
+    t.string "boundary_finder", null: false
+    t.boolean "has_border", null: false
+    t.string "layout", null: false
+    t.hstore "metadata_map", null: false
+    t.hstore "specimen_coordinates"
+    t.integer "project_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.json "result_boundary_coordinates"
+    t.json "result_ocr"
+    t.index ["depiction_id"], name: "index_sqed_depictions_on_depiction_id"
+    t.index ["project_id"], name: "index_sqed_depictions_on_project_id"
   end
 
-  create_table "tagged_section_keywords", force: :cascade do |t|
-    t.integer  "otu_page_layout_section_id", null: false
-    t.integer  "position",                   null: false
-    t.integer  "created_by_id",              null: false
-    t.integer  "updated_by_id",              null: false
-    t.integer  "project_id",                 null: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
-    t.integer  "keyword_id",                 null: false
-    t.index ["created_by_id"], name: "index_tagged_section_keywords_on_created_by_id", using: :btree
-    t.index ["keyword_id"], name: "index_tagged_section_keywords_on_keyword_id", using: :btree
-    t.index ["otu_page_layout_section_id"], name: "index_tagged_section_keywords_on_otu_page_layout_section_id", using: :btree
-    t.index ["position"], name: "index_tagged_section_keywords_on_position", using: :btree
-    t.index ["project_id"], name: "index_tagged_section_keywords_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_tagged_section_keywords_on_updated_by_id", using: :btree
+  create_table "tagged_section_keywords", id: :serial, force: :cascade do |t|
+    t.integer "otu_page_layout_section_id", null: false
+    t.integer "position", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "keyword_id", null: false
+    t.index ["created_by_id"], name: "index_tagged_section_keywords_on_created_by_id"
+    t.index ["keyword_id"], name: "index_tagged_section_keywords_on_keyword_id"
+    t.index ["otu_page_layout_section_id"], name: "index_tagged_section_keywords_on_otu_page_layout_section_id"
+    t.index ["position"], name: "index_tagged_section_keywords_on_position"
+    t.index ["project_id"], name: "index_tagged_section_keywords_on_project_id"
+    t.index ["updated_by_id"], name: "index_tagged_section_keywords_on_updated_by_id"
   end
 
-  create_table "tags", force: :cascade do |t|
-    t.integer  "keyword_id",           null: false
-    t.integer  "tag_object_id",        null: false
-    t.string   "tag_object_type",      null: false
-    t.string   "tag_object_attribute"
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
-    t.integer  "created_by_id",        null: false
-    t.integer  "updated_by_id",        null: false
-    t.integer  "project_id",           null: false
-    t.integer  "position",             null: false
-    t.index ["created_by_id"], name: "index_tags_on_created_by_id", using: :btree
-    t.index ["keyword_id"], name: "index_tags_on_keyword_id", using: :btree
-    t.index ["position"], name: "index_tags_on_position", using: :btree
-    t.index ["project_id"], name: "index_tags_on_project_id", using: :btree
-    t.index ["tag_object_id", "tag_object_type"], name: "index_tags_on_tag_object_id_and_type", using: :btree
-    t.index ["updated_by_id"], name: "index_tags_on_updated_by_id", using: :btree
+  create_table "tags", id: :serial, force: :cascade do |t|
+    t.integer "keyword_id", null: false
+    t.integer "tag_object_id", null: false
+    t.string "tag_object_type", null: false
+    t.string "tag_object_attribute"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.integer "position", null: false
+    t.index ["created_by_id"], name: "index_tags_on_created_by_id"
+    t.index ["keyword_id"], name: "index_tags_on_keyword_id"
+    t.index ["position"], name: "index_tags_on_position"
+    t.index ["project_id"], name: "index_tags_on_project_id"
+    t.index ["tag_object_id", "tag_object_type"], name: "index_tags_on_tag_object_id_and_type"
+    t.index ["updated_by_id"], name: "index_tags_on_updated_by_id"
   end
 
-  create_table "taxon_determinations", force: :cascade do |t|
-    t.integer  "biological_collection_object_id", null: false
-    t.integer  "otu_id",                          null: false
-    t.integer  "position",                        null: false
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
-    t.integer  "created_by_id",                   null: false
-    t.integer  "updated_by_id",                   null: false
-    t.integer  "project_id",                      null: false
-    t.integer  "year_made"
-    t.integer  "month_made"
-    t.integer  "day_made"
-    t.index ["biological_collection_object_id"], name: "index_taxon_determinations_on_biological_collection_object_id", using: :btree
-    t.index ["created_by_id"], name: "index_taxon_determinations_on_created_by_id", using: :btree
-    t.index ["otu_id"], name: "index_taxon_determinations_on_otu_id", using: :btree
-    t.index ["position"], name: "index_taxon_determinations_on_position", using: :btree
-    t.index ["project_id"], name: "index_taxon_determinations_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_taxon_determinations_on_updated_by_id", using: :btree
+  create_table "taxon_determinations", id: :serial, force: :cascade do |t|
+    t.integer "biological_collection_object_id", null: false
+    t.integer "otu_id", null: false
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.integer "year_made"
+    t.integer "month_made"
+    t.integer "day_made"
+    t.index ["biological_collection_object_id"], name: "index_taxon_determinations_on_biological_collection_object_id"
+    t.index ["created_by_id"], name: "index_taxon_determinations_on_created_by_id"
+    t.index ["otu_id"], name: "index_taxon_determinations_on_otu_id"
+    t.index ["position"], name: "index_taxon_determinations_on_position"
+    t.index ["project_id"], name: "index_taxon_determinations_on_project_id"
+    t.index ["updated_by_id"], name: "index_taxon_determinations_on_updated_by_id"
   end
 
-  create_table "taxon_name_classifications", force: :cascade do |t|
-    t.integer  "taxon_name_id", null: false
-    t.string   "type",          null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.index ["created_by_id"], name: "index_taxon_name_classifications_on_created_by_id", using: :btree
-    t.index ["project_id"], name: "index_taxon_name_classifications_on_project_id", using: :btree
-    t.index ["taxon_name_id"], name: "index_taxon_name_classifications_on_taxon_name_id", using: :btree
-    t.index ["type"], name: "index_taxon_name_classifications_on_type", using: :btree
-    t.index ["updated_by_id"], name: "index_taxon_name_classifications_on_updated_by_id", using: :btree
+  create_table "taxon_name_classifications", id: :serial, force: :cascade do |t|
+    t.integer "taxon_name_id", null: false
+    t.string "type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.index ["created_by_id"], name: "index_taxon_name_classifications_on_created_by_id"
+    t.index ["project_id"], name: "index_taxon_name_classifications_on_project_id"
+    t.index ["taxon_name_id"], name: "index_taxon_name_classifications_on_taxon_name_id"
+    t.index ["type"], name: "index_taxon_name_classifications_on_type"
+    t.index ["updated_by_id"], name: "index_taxon_name_classifications_on_updated_by_id"
   end
 
   create_table "taxon_name_hierarchies", id: false, force: :cascade do |t|
-    t.integer "ancestor_id",   null: false
+    t.integer "ancestor_id", null: false
     t.integer "descendant_id", null: false
-    t.integer "generations",   null: false
-    t.index ["ancestor_id", "descendant_id", "generations"], name: "taxon_name_anc_desc_idx", unique: true, using: :btree
-    t.index ["descendant_id"], name: "taxon_name_desc_idx", using: :btree
+    t.integer "generations", null: false
+    t.index ["ancestor_id", "descendant_id", "generations"], name: "taxon_name_anc_desc_idx", unique: true
+    t.index ["descendant_id"], name: "taxon_name_desc_idx"
   end
 
-  create_table "taxon_name_relationships", force: :cascade do |t|
-    t.integer  "subject_taxon_name_id", null: false
-    t.integer  "object_taxon_name_id",  null: false
-    t.string   "type",                  null: false
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
-    t.integer  "created_by_id",         null: false
-    t.integer  "updated_by_id",         null: false
-    t.integer  "project_id",            null: false
-    t.index ["created_by_id"], name: "index_taxon_name_relationships_on_created_by_id", using: :btree
-    t.index ["object_taxon_name_id"], name: "index_taxon_name_relationships_on_object_taxon_name_id", using: :btree
-    t.index ["project_id"], name: "index_taxon_name_relationships_on_project_id", using: :btree
-    t.index ["subject_taxon_name_id"], name: "index_taxon_name_relationships_on_subject_taxon_name_id", using: :btree
-    t.index ["type"], name: "index_taxon_name_relationships_on_type", using: :btree
-    t.index ["updated_by_id"], name: "index_taxon_name_relationships_on_updated_by_id", using: :btree
+  create_table "taxon_name_relationships", id: :serial, force: :cascade do |t|
+    t.integer "subject_taxon_name_id", null: false
+    t.integer "object_taxon_name_id", null: false
+    t.string "type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.index ["created_by_id"], name: "index_taxon_name_relationships_on_created_by_id"
+    t.index ["object_taxon_name_id"], name: "index_taxon_name_relationships_on_object_taxon_name_id"
+    t.index ["project_id"], name: "index_taxon_name_relationships_on_project_id"
+    t.index ["subject_taxon_name_id"], name: "index_taxon_name_relationships_on_subject_taxon_name_id"
+    t.index ["type"], name: "index_taxon_name_relationships_on_type"
+    t.index ["updated_by_id"], name: "index_taxon_name_relationships_on_updated_by_id"
   end
 
-  create_table "taxon_names", force: :cascade do |t|
-    t.string   "name"
-    t.integer  "parent_id"
-    t.string   "cached_html",                                   null: false
-    t.string   "cached_author_year"
-    t.string   "cached_higher_classification"
-    t.datetime "created_at",                                    null: false
-    t.datetime "updated_at",                                    null: false
-    t.integer  "year_of_publication"
-    t.string   "verbatim_author"
-    t.string   "rank_class"
-    t.string   "type",                                          null: false
-    t.integer  "created_by_id",                                 null: false
-    t.integer  "updated_by_id",                                 null: false
-    t.integer  "project_id",                                    null: false
-    t.string   "cached_original_combination"
-    t.string   "cached_secondary_homonym"
-    t.string   "cached_primary_homonym"
-    t.string   "cached_secondary_homonym_alternative_spelling"
-    t.string   "cached_primary_homonym_alternative_spelling"
-    t.boolean  "cached_misspelling"
-    t.string   "masculine_name"
-    t.string   "feminine_name"
-    t.string   "neuter_name"
-    t.string   "cached_classified_as"
-    t.string   "cached"
-    t.string   "verbatim_name"
-    t.integer  "cached_valid_taxon_name_id"
-    t.text     "etymology"
-    t.index ["created_by_id"], name: "index_taxon_names_on_created_by_id", using: :btree
-    t.index ["name"], name: "index_taxon_names_on_name", using: :btree
-    t.index ["parent_id"], name: "index_taxon_names_on_parent_id", using: :btree
-    t.index ["project_id"], name: "index_taxon_names_on_project_id", using: :btree
-    t.index ["rank_class"], name: "index_taxon_names_on_rank_class", using: :btree
-    t.index ["type"], name: "index_taxon_names_on_type", using: :btree
-    t.index ["updated_by_id"], name: "index_taxon_names_on_updated_by_id", using: :btree
+  create_table "taxon_names", id: :serial, force: :cascade do |t|
+    t.string "name"
+    t.integer "parent_id"
+    t.string "cached_html", null: false
+    t.string "cached_author_year"
+    t.string "cached_higher_classification"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "year_of_publication"
+    t.string "verbatim_author"
+    t.string "rank_class"
+    t.string "type", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.string "cached_original_combination"
+    t.string "cached_secondary_homonym"
+    t.string "cached_primary_homonym"
+    t.string "cached_secondary_homonym_alternative_spelling"
+    t.string "cached_primary_homonym_alternative_spelling"
+    t.boolean "cached_misspelling"
+    t.string "masculine_name"
+    t.string "feminine_name"
+    t.string "neuter_name"
+    t.string "cached_classified_as"
+    t.string "cached"
+    t.string "verbatim_name"
+    t.integer "cached_valid_taxon_name_id"
+    t.text "etymology"
+    t.index ["created_by_id"], name: "index_taxon_names_on_created_by_id"
+    t.index ["name"], name: "index_taxon_names_on_name"
+    t.index ["parent_id"], name: "index_taxon_names_on_parent_id"
+    t.index ["project_id"], name: "index_taxon_names_on_project_id"
+    t.index ["rank_class"], name: "index_taxon_names_on_rank_class"
+    t.index ["type"], name: "index_taxon_names_on_type"
+    t.index ["updated_by_id"], name: "index_taxon_names_on_updated_by_id"
   end
 
-  create_table "test_classes", force: :cascade do |t|
-    t.integer  "project_id"
-    t.integer  "created_by_id"
-    t.integer  "updated_by_id"
-    t.string   "string"
-    t.boolean  "boolean"
-    t.text     "text"
-    t.integer  "integer"
+  create_table "test_classes", id: :serial, force: :cascade do |t|
+    t.integer "project_id"
+    t.integer "created_by_id"
+    t.integer "updated_by_id"
+    t.string "string"
+    t.boolean "boolean"
+    t.text "text"
+    t.integer "integer"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "type"
-    t.integer  "sti_id"
-    t.string   "sti_type"
-    t.index ["created_by_id"], name: "index_test_classes_on_created_by_id", using: :btree
-    t.index ["project_id"], name: "index_test_classes_on_project_id", using: :btree
-    t.index ["updated_by_id"], name: "index_test_classes_on_updated_by_id", using: :btree
+    t.string "type"
+    t.integer "sti_id"
+    t.string "sti_type"
+    t.index ["created_by_id"], name: "index_test_classes_on_created_by_id"
+    t.index ["project_id"], name: "index_test_classes_on_project_id"
+    t.index ["updated_by_id"], name: "index_test_classes_on_updated_by_id"
   end
 
-  create_table "type_materials", force: :cascade do |t|
-    t.integer  "protonym_id",          null: false
-    t.integer  "biological_object_id", null: false
-    t.string   "type_type",            null: false
-    t.integer  "created_by_id",        null: false
-    t.integer  "updated_by_id",        null: false
-    t.integer  "project_id",           null: false
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
-    t.index ["biological_object_id"], name: "index_type_materials_on_biological_object_id", using: :btree
-    t.index ["created_by_id"], name: "index_type_materials_on_created_by_id", using: :btree
-    t.index ["project_id"], name: "index_type_materials_on_project_id", using: :btree
-    t.index ["protonym_id"], name: "index_type_materials_on_protonym_id", using: :btree
-    t.index ["type_type"], name: "index_type_materials_on_type_type", using: :btree
-    t.index ["updated_by_id"], name: "index_type_materials_on_updated_by_id", using: :btree
+  create_table "type_materials", id: :serial, force: :cascade do |t|
+    t.integer "protonym_id", null: false
+    t.integer "biological_object_id", null: false
+    t.string "type_type", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["biological_object_id"], name: "index_type_materials_on_biological_object_id"
+    t.index ["created_by_id"], name: "index_type_materials_on_created_by_id"
+    t.index ["project_id"], name: "index_type_materials_on_project_id"
+    t.index ["protonym_id"], name: "index_type_materials_on_protonym_id"
+    t.index ["type_type"], name: "index_type_materials_on_type_type"
+    t.index ["updated_by_id"], name: "index_type_materials_on_updated_by_id"
   end
 
-  create_table "users", force: :cascade do |t|
-    t.string   "email",                                         null: false
-    t.string   "password_digest",                               null: false
-    t.datetime "created_at",                                    null: false
-    t.datetime "updated_at",                                    null: false
-    t.string   "remember_token"
-    t.integer  "created_by_id"
-    t.integer  "updated_by_id"
-    t.boolean  "is_administrator"
-    t.string   "password_reset_token"
+  create_table "users", id: :serial, force: :cascade do |t|
+    t.string "email", null: false
+    t.string "password_digest", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "remember_token"
+    t.integer "created_by_id"
+    t.integer "updated_by_id"
+    t.boolean "is_administrator"
+    t.string "password_reset_token"
     t.datetime "password_reset_token_date"
-    t.string   "name",                                          null: false
+    t.string "name", null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
-    t.string   "current_sign_in_ip"
-    t.string   "last_sign_in_ip"
-    t.text     "hub_tab_order",                 default: [],                 array: true
-    t.string   "api_access_token"
-    t.boolean  "is_flagged_for_password_reset", default: false
-    t.json     "footprints",                    default: {}
-    t.integer  "sign_in_count",                 default: 0
-    t.json     "hub_favorites"
+    t.string "current_sign_in_ip"
+    t.string "last_sign_in_ip"
+    t.text "hub_tab_order", default: [], array: true
+    t.string "api_access_token"
+    t.boolean "is_flagged_for_password_reset", default: false
+    t.json "footprints", default: {}
+    t.integer "sign_in_count", default: 0
+    t.json "hub_favorites"
     t.datetime "last_seen_at"
-    t.integer  "time_active",                   default: 0
-    t.index ["created_by_id"], name: "index_users_on_created_by_id", using: :btree
-    t.index ["remember_token"], name: "index_users_on_remember_token", using: :btree
-    t.index ["updated_by_id"], name: "index_users_on_updated_by_id", using: :btree
+    t.integer "time_active", default: 0
+    t.index ["created_by_id"], name: "index_users_on_created_by_id"
+    t.index ["remember_token"], name: "index_users_on_remember_token"
+    t.index ["updated_by_id"], name: "index_users_on_updated_by_id"
   end
 
-  create_table "version_associations", force: :cascade do |t|
+  create_table "version_associations", id: :serial, force: :cascade do |t|
     t.integer "version_id"
-    t.string  "foreign_key_name", null: false
+    t.string "foreign_key_name", null: false
     t.integer "foreign_key_id"
-    t.index ["foreign_key_name", "foreign_key_id"], name: "index_version_associations_on_foreign_key", using: :btree
-    t.index ["version_id"], name: "index_version_associations_on_version_id", using: :btree
+    t.index ["foreign_key_name", "foreign_key_id"], name: "index_version_associations_on_foreign_key"
+    t.index ["version_id"], name: "index_version_associations_on_version_id"
   end
 
-  create_table "versions", force: :cascade do |t|
-    t.string   "item_type",      null: false
-    t.integer  "item_id",        null: false
-    t.string   "event",          null: false
-    t.string   "whodunnit"
-    t.text     "object"
-    t.datetime "created_at",     null: false
-    t.integer  "transaction_id"
-    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id", using: :btree
-    t.index ["transaction_id"], name: "index_versions_on_transaction_id", using: :btree
+  create_table "versions", id: :serial, force: :cascade do |t|
+    t.string "item_type", null: false
+    t.integer "item_id", null: false
+    t.string "event", null: false
+    t.string "whodunnit"
+    t.text "object"
+    t.datetime "created_at", null: false
+    t.integer "transaction_id"
+    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
+    t.index ["transaction_id"], name: "index_versions_on_transaction_id"
   end
 
   add_foreign_key "alternate_values", "languages", name: "alternate_values_language_id_fkey"

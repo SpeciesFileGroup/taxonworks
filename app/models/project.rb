@@ -30,7 +30,7 @@ class Project < ApplicationRecord
   has_many :project_sources, dependent: :restrict_with_error
 
   after_initialize :set_default_workbench_settings
-  after_create :create_root_taxon_name, unless: 'self.without_root_taxon_name == true'
+  after_create :create_root_taxon_name, unless: -> {self.without_root_taxon_name == true}
 
   validates_presence_of :name
   validates_uniqueness_of :name

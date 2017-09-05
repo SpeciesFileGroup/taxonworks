@@ -1,4 +1,4 @@
-class CreateControlledVocabularyTerms < ActiveRecord::Migration
+class CreateControlledVocabularyTerms < ActiveRecord::Migration[4.2]
   def change
     create_table :controlled_vocabulary_terms do |t|
       t.string :type

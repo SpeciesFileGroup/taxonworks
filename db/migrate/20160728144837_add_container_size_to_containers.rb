@@ -1,4 +1,4 @@
-class AddContainerSizeToContainers < ActiveRecord::Migration
+class AddContainerSizeToContainers < ActiveRecord::Migration[4.2]
   def change
     add_column :containers, :size_x, :integer
     add_column :containers, :size_y, :integer

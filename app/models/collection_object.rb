@@ -88,7 +88,7 @@ class CollectionObject < ApplicationRecord
   #  When true, cached values are not built
   attr_accessor :no_cached
 
-  after_save :add_to_dwc_occurrence, if: '!self.no_cached'
+  after_save :add_to_dwc_occurrence, unless: -> {self.no_cached}
 
   # Otu delegations
   delegate :name, to: :current_otu, prefix: :otu, allow_nil: true # could be Otu#otu_name?
@@ -118,13 +118,10 @@ class CollectionObject < ApplicationRecord
 
   has_many :observations, inverse_of: :collection_object
 
-  # This must come before taxon determinations !!
-  has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
-
-  has_many :taxon_names, through: :otus
-
-  # This is a problem, but here for the forseeable future for nested attributes purporses.
+  # This is a problem, but here for the foreseeable future for nested attributes purporses.
   has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object
+  has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
+  has_many :taxon_names, through: :otus
 
   has_many :type_designations, class_name: 'TypeMaterial', foreign_key: :biological_object_id, inverse_of: :material
 
@@ -136,7 +133,7 @@ class CollectionObject < ApplicationRecord
   has_many :georeferences, through: :collecting_event
   has_many :geographic_items, through: :georeferences
 
-  accepts_nested_attributes_for :otus, allow_destroy: true
+  accepts_nested_attributes_for :otus, allow_destroy: true, reject_if: :reject_otus
   accepts_nested_attributes_for :taxon_determinations, allow_destroy: true, reject_if: :reject_taxon_determinations
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
@@ -149,8 +146,28 @@ class CollectionObject < ApplicationRecord
   soft_validate(:sv_missing_accession_fields, set: :missing_accession_fields)
   soft_validate(:sv_missing_deaccession_fields, set: :missing_deaccession_fields)
 
-  scope :with_sequence_name, -> (name) { joins(derived_extracts: [:derived_sequences]).where(sequences: {name: name}) }
-  scope :via_descriptor, -> (descriptor) { joins(derived_extracts: [:derived_sequences]).where(sequences: {id: descriptor.sequences}) }
+  scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
+  scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
+
+  # This is a hack, maybe related to a Rails 5.1 bug.
+  # It returns the SQL that works in 5.0/4.2 that
+  # links CollectionObject to Sequences:
+  # joins(derived_extracts: [:derived_sequences])
+  def self.sequence_join_hack_sql
+    %Q{INNER JOIN  "origin_relationships"
+               ON  "origin_relationships"."old_object_id" = "collection_objects"."id"
+                  AND  "origin_relationships"."new_object_type" = 'Extract'
+                  AND  "origin_relationships"."old_object_type" = 'CollectionObject'
+       INNER JOIN  "extracts"
+               ON  "extracts"."id" =  "origin_relationships"."new_object_id"
+       INNER JOIN  "origin_relationships" "origin_relationships_extracts_join"
+               ON  "origin_relationships_extracts_join"."old_object_id" = "extracts"."id"
+                  AND  "origin_relationships_extracts_join"."new_object_type" = 'Sequence'
+                  AND  "origin_relationships_extracts_join"."old_object_type" = 'Extract'
+       INNER JOIN  "sequences"
+               ON  "sequences"."id" = "origin_relationships_extracts_join"."new_object_id"}
+ 
+  end
 
   # TODO: Deprecate
   def self.find_for_autocomplete(params)
@@ -609,25 +626,22 @@ class CollectionObject < ApplicationRecord
     true
   end
 
+  def reject_otus(attributed)
+    a = attributed['taxon_name_id']
+    b = attributed['name']
+    a.blank? && b.blank?
+  end
+
   # @return [Boolean]
   def reject_taxon_determinations(attributed)
     a = attributed['otu_id']
-    b = attributed['otu_attributes']
+    b = attributed['otu']
+    c = attributed['otu_attributes'] 
 
-    return true if !a.present? && !b.present?
-
-    if a.present?
-      return true if b.present? && ( b['name'].present? || b['taxon_name_id'].present? ) # not both
-      return false
-    end
-
-    if b.present?
-      return true if !b['name'].present? && !b['taxon_name_id'].present?
-    end
-
+    return true if a.blank? && b.blank? && c.blank?
+    return true if a.present? && b.present? && c.present?
     false
   end
-
 
   def reject_collecting_event(attributed)
     reject = true

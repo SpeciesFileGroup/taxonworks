@@ -1,4 +1,4 @@
-class AddIndices < ActiveRecord::Migration
+class AddIndices < ActiveRecord::Migration[4.2]
   def change
 
     add_index :alternate_values, :alternate_object_id

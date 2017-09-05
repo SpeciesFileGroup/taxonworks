@@ -1,4 +1,4 @@
-class CreateCitations < ActiveRecord::Migration
+class CreateCitations < ActiveRecord::Migration[4.2]
   def change
     create_table :citations do |t|
       t.string :citation_object_id

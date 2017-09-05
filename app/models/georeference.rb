@@ -107,7 +107,7 @@ class Georeference < ApplicationRecord
   #  When true, cascading cached values (e.g. in CollectingEvent) are not built
   attr_accessor :no_cached
 
-  after_save :set_cached, if: '!self.no_cached'
+  after_save :set_cached, unless: -> {self.no_cached}
 
   # instance methods
 
@@ -394,7 +394,7 @@ class Georeference < ApplicationRecord
     retval
   end
 
-  # @return [Boolean] 
+  # @return [Boolean]
   #    true if geographic_item.geo_object is completely contained in collecting_event.geographic_area.default_geographic_item
   def check_obj_inside_area
     # case 6

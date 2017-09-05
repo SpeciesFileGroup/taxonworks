@@ -5,10 +5,9 @@ gem 'rack-cors', '~> 1.0.1', require: 'rack/cors'
 ruby '2.4.1'
 
 gem 'rake', '~> 12.0'
-gem 'rails', '~> 5.0'
+gem 'rails', '~> 5.1.3'
 gem 'pg', '~> 0.21.0'
-gem 'activerecord-postgis-adapter', '~> 4.0.0'
-# TODO: R5.0 hold for Rails 5.1 gem 'activerecord-postgis-adapter', '~> 5.0'
+gem 'activerecord-postgis-adapter', '~> 5.0'
 
 gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 3.3.3'
@@ -114,7 +113,7 @@ end
 group :development do
 # gem 'tunemygc'
   gem 'ruby-prof', '~> 0.16.2'
-  gem 'better_errors', '~> 2.3'      
+  gem 'better_errors', '~> 2.3'
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false

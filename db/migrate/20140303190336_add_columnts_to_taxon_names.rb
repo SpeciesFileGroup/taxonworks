@@ -1,4 +1,4 @@
-class AddColumntsToTaxonNames < ActiveRecord::Migration
+class AddColumntsToTaxonNames < ActiveRecord::Migration[4.2]
   def change
     add_column :taxon_names, :masculine_name, :string
     add_column :taxon_names, :feminine_name, :string

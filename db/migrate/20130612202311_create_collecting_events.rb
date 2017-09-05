@@ -1,4 +1,4 @@
-class CreateCollectingEvents < ActiveRecord::Migration
+class CreateCollectingEvents < ActiveRecord::Migration[4.2]
   def change
     create_table :collecting_events do |t|
       t.text :verbatim_label

@@ -24,18 +24,18 @@ describe AlternateValuesController, :type => :controller do
     describe 'with valid params' do
       it 'creates a new AlternateValue' do
         expect {
-          post :create, params: {alternate_value: valid_attributes}, args: valid_session
+          post :create, params: {alternate_value: valid_attributes}, session: valid_session
         }.to change(AlternateValue, :count).by(1)
       end
 
       it 'assigns a newly created alternate_value as @alternate_value' do
-        post :create, params: {alternate_value: valid_attributes}, args: valid_session
+        post :create, params: {alternate_value: valid_attributes}, session: valid_session
         expect(assigns(:alternate_value)).to be_a(AlternateValue)
         expect(assigns(:alternate_value)).to be_persisted
       end
 
       it 'redirects to :back' do
-        post :create, params: {alternate_value: valid_attributes}, args: valid_session
+        post :create, params: {alternate_value: valid_attributes}, session: valid_session
         expect(response).to redirect_to(source_path(o))
       end
     end
@@ -44,7 +44,7 @@ describe AlternateValuesController, :type => :controller do
       it 'assigns a newly created but unsaved alternate_value as @alternate_value' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AlternateValue).to receive(:save).and_return(false)
-        post :create, params: ({alternate_value: {value: 'Bar'}}), args: valid_session
+        post :create, params: ({alternate_value: {value: 'Bar'}}), session: valid_session
         expect(assigns(:alternate_value)).to be_a_new(AlternateValue)
       end
 
@@ -70,18 +70,18 @@ describe AlternateValuesController, :type => :controller do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         expect_any_instance_of(AlternateValue).to receive(:update).with(update_params)
-        put :update, params: {id: alternate_value.to_param, alternate_value: {value: 'Smorf'}}, args: valid_session
+        put :update, params: {id: alternate_value.to_param, alternate_value: {value: 'Smorf'}}, session: valid_session
       end
 
       it 'assigns the requested alternate_value as @alternate_value' do
         alternate_value = AlternateValue.create! valid_attributes
-        put :update, params: {id: alternate_value.to_param, alternate_value: valid_attributes}, args: valid_session
+        put :update, params: {id: alternate_value.to_param, alternate_value: valid_attributes}, session: valid_session
         expect(assigns(:alternate_value)).to eq(alternate_value)
       end
 
       it 'redirects to :back' do
         alternate_value = AlternateValue.create! valid_attributes
-        put :update, params: {id: alternate_value.to_param, alternate_value: valid_attributes}, args: valid_session
+        put :update, params: {id: alternate_value.to_param, alternate_value: valid_attributes}, session: valid_session
         expect(response).to redirect_to(source_path(o))
       end
     end
@@ -91,7 +91,7 @@ describe AlternateValuesController, :type => :controller do
         alternate_value = AlternateValue.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AlternateValue).to receive(:save).and_return(false)
-        put :update, params: {id: alternate_value.to_param, alternate_value: {value: 'Bar'}}, args: valid_session
+        put :update, params: {id: alternate_value.to_param, alternate_value: {value: 'Bar'}}, session: valid_session
         expect(assigns(:alternate_value)).to eq(alternate_value)
       end
 
@@ -99,7 +99,7 @@ describe AlternateValuesController, :type => :controller do
         alternate_value = AlternateValue.create!(valid_attributes)
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AlternateValue).to receive(:save).and_return(false)
-        put :update, params: {id: alternate_value.to_param, alternate_value: {value: 'Smorf'}}, args: valid_session
+        put :update, params: {id: alternate_value.to_param, alternate_value: {value: 'Smorf'}}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
@@ -109,13 +109,13 @@ describe AlternateValuesController, :type => :controller do
     it 'destroys the requested alternate_value' do
       alternate_value = AlternateValue.create! valid_attributes
       expect {
-        delete :destroy, params: {id: alternate_value.to_param}, args: valid_session
+        delete :destroy, params: {id: alternate_value.to_param}, session: valid_session
       }.to change(AlternateValue, :count).by(-1)
     end
 
     it 'redirects to :back' do
       alternate_value = AlternateValue.create! valid_attributes
-      delete :destroy, params: {id: alternate_value.to_param}, args: valid_session
+      delete :destroy, params: {id: alternate_value.to_param}, session: valid_session
       expect(response).to redirect_to(list_otus_path)
     end
   end

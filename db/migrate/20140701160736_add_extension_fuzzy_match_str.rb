@@ -1,4 +1,4 @@
-class AddExtensionFuzzyMatchStr < ActiveRecord::Migration
+class AddExtensionFuzzyMatchStr < ActiveRecord::Migration[4.2]
   def up
     execute 'CREATE EXTENSION IF NOT EXISTS fuzzystrmatch'
   end

@@ -98,7 +98,7 @@ class CollectionProfile < ApplicationRecord
            :validate_number,
            :validate_indices
 
-  validate :prevent_editing, unless: 'self.force_update'
+  validate :prevent_editing, unless: -> {self.force_update}
 
   # region Profile indices
 

@@ -1,4 +1,4 @@
-class RenameAdoptedByPersoonToAdoptedByPersoon < ActiveRecord::Migration
+class RenameAdoptedByPersoonToAdoptedByPersoon < ActiveRecord::Migration[4.2]
   def change
   end
 end

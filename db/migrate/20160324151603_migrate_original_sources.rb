@@ -1,4 +1,4 @@
-class MigrateOriginalSources < ActiveRecord::Migration
+class MigrateOriginalSources < ActiveRecord::Migration[4.2]
 
   ActiveRecord::Base.transaction do
     [TaxonName, TaxonNameRelationship,Georeference, BiologicalAssociationsGraph, TypeMaterial].each do |k|

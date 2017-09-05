@@ -1,4 +1,4 @@
-class CreateDescriptors < ActiveRecord::Migration
+class CreateDescriptors < ActiveRecord::Migration[4.2]
   def change
     create_table :descriptors do |t|
       t.string :name, null: false, index: true

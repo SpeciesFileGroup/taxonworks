@@ -1,4 +1,4 @@
-class CreateSerialChronology < ActiveRecord::Migration
+class CreateSerialChronology < ActiveRecord::Migration[4.2]
   def change
     create_table :serial_chronologies do |t|
       t.references :preceding_serial
