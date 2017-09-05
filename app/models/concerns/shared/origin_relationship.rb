@@ -25,7 +25,7 @@ module Shared::OriginRelationship
 
     accepts_nested_attributes_for :origin_relationships, reject_if: :reject_origin_relationships
 
-    before_validation :set_origin, if: -> {!origin.blank?}
+    before_validation :set_origin, if: -> {origin.present?}
   end
 
   def set_origin

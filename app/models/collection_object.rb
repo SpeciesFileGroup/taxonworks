@@ -146,8 +146,28 @@ class CollectionObject < ApplicationRecord
   soft_validate(:sv_missing_accession_fields, set: :missing_accession_fields)
   soft_validate(:sv_missing_deaccession_fields, set: :missing_deaccession_fields)
 
-  scope :with_sequence_name, -> (name) { joins(derived_extracts: [:derived_sequences]).where(sequences: {name: name}) }
-  scope :via_descriptor, -> (descriptor) { joins(derived_extracts: [:derived_sequences]).where(sequences: {id: descriptor.sequences}) }
+  scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
+  scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
+
+  # This is a hack, maybe related to a Rails 5.1 bug.
+  # It returns the SQL that works in 5.0/4.2 that
+  # links CollectionObject to Sequences:
+  # joins(derived_extracts: [:derived_sequences])
+  def self.sequence_join_hack_sql
+    %Q{INNER JOIN  "origin_relationships"
+               ON  "origin_relationships"."old_object_id" = "collection_objects"."id"
+                  AND  "origin_relationships"."new_object_type" = 'Extract'
+                  AND  "origin_relationships"."old_object_type" = 'CollectionObject'
+       INNER JOIN  "extracts"
+               ON  "extracts"."id" =  "origin_relationships"."new_object_id"
+       INNER JOIN  "origin_relationships" "origin_relationships_extracts_join"
+               ON  "origin_relationships_extracts_join"."old_object_id" = "extracts"."id"
+                  AND  "origin_relationships_extracts_join"."new_object_type" = 'Sequence'
+                  AND  "origin_relationships_extracts_join"."old_object_type" = 'Extract'
+       INNER JOIN  "sequences"
+               ON  "sequences"."id" = "origin_relationships_extracts_join"."new_object_id"}
+ 
+  end
 
   # TODO: Deprecate
   def self.find_for_autocomplete(params)
