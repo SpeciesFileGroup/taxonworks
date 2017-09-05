@@ -69,6 +69,7 @@ class PinboardItem < ApplicationRecord
 
   protected
 
+  # ARG get rid of project_id
   def validate_is_inserted
     errors.add(:is_inserted, 'only one item per type can be inserted automatically') if is_inserted? && PinboardItem.where(is_inserted: true, pinned_object_type: pinned_object.class.to_s, project_id: $project_id).reload.count > 0
   end

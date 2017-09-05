@@ -20,9 +20,23 @@ module PinboardItemsHelper
     ]
     options.push(source_document_viewer_option_tag(pinboard_item.pinned_object)) if pinboard_item.pinned_object.kind_of?(Source)
 
+    if pinboard_item.is_inserted
+      options.push link_to('Disable default', '/' )  # <- new route here
+    else
+      options.push link_to('Make default', '/') # <- new route here
+    end
+
     content_tag(:div, class: 'itemOptions') do
       options.compact.join.html_safe
     end.html_safe
+  end
+
+  def pinboard_item_li_tag(pinboard_item)
+    content_tag(:li, class: 'slide-panel-category-item', data: { pinboard_object_id: pinboard_item.pinned_object.id, insert: pinboard_item.is_inserted }, id: "order_#{pinboard_item.id}") do
+      content_tag(:div, class: [:handle, 'flex-separate', :middle]) do
+        object_link(pinboard_item.pinned_object) +  pinboard_item_options(pinboard_item)
+      end
+    end 
   end
 
 end

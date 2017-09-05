@@ -8,12 +8,7 @@
             data-sortable-on-change-url="<%= update_position_pinboard_items_path -%>"
             >
             <% items.each do |o| -%>
-              <li class="slide-panel-category-item" data-pinboard-object-id="<%= o.pinned_object.id -%>" id="<%= "order_#{o.id}" -%>">
-                <div class="handle flex-separate middle">
-                  <%= object_link(o.pinned_object) -%>
-                  <%= pinboard_item_options(o) -%>
-                </div>
-              </li>
+              <%= pinboard_item_li_tag(o) -%>
             <% end %>
         </ul>
     <% end %>
