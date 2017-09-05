@@ -74,7 +74,6 @@ TaxonWorks::Application.routes.draw do
       post 'update_position'
       post 'update_type_position'
     end
-    # new routes here.
   end
 
   ### Below this point, please keep objects in alphabetical order ###

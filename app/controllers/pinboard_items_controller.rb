@@ -18,7 +18,6 @@ class PinboardItemsController < ApplicationController
     end
   end
 
-
   # PATCH/PUT /pinboard_items/1
   # PATCH/PUT /pinboard_items/1.json
   def update
@@ -26,9 +25,11 @@ class PinboardItemsController < ApplicationController
       if @pinboard_item.update(pinboard_item_params)
         format.html { redirect_to @pinboard_item, notice: 'Pinboard items was successfully updated.' }
         format.json { render :show, location: @pinboard_item }
+        format.js {}
       else
         format.html { render action: 'edit' }
         format.json { render json: @pinboard_item.errors, status: :unprocessable_entity }
+        format.js {}
       end
     end
   end
