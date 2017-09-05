@@ -3,9 +3,9 @@
 #
 # A user may define the set of sequences returned by the descriptor via a logical expression.  For example
 # show me all sequences with this set of forward primers and that set of reverse primers.  The logic
-# can be expanded as extensively as needed, up to a maximum 52 attributes. 
-# 
-# @!attribute gene_attribute_logic 
+# can be expanded as extensively as needed, up to a maximum 52 attributes.
+#
+# @!attribute gene_attribute_logic
 #   @return [String]
 #     A logical expression describing how the gene attributes (e.g. primers) should be intepretted when
 #     return sequences. Call @gene_attribute.to_logic_literal for the format of individual gene attribute references.
@@ -22,10 +22,10 @@ class Descriptor::Gene < Descriptor
   has_many :gene_attributes, inverse_of: :descriptor, foreign_key: :descriptor_id
   accepts_nested_attributes_for :gene_attributes
 
-  # A Sequence, if provided clone that sequence description to this Descriptor::Gene 
+  # A Sequence, if provided clone that sequence description to this Descriptor::Gene
   attr_accessor :base_on_sequence
 
-  before_validation :add_gene_attributes, if: -> { base_on_sequence.present? } 
+  before_validation :add_gene_attributes, if: -> {base_on_sequence.present?}
 
   validate :gene_attribute_logic_compresses, if: :gene_attribute_logic_changed?
   validate :gene_attribute_logic_parses, if: -> {
@@ -35,8 +35,9 @@ class Descriptor::Gene < Descriptor
   }
   validate :gene_attribute_logic_matches_gene_attributes, if: :gene_attribute_logic_changed?
 
-  after_save :cache_gene_attribute_logic_sql, if: -> {saved_change_to_gene_attribute_logic? && valid?}
-
+  ActiveSupport::Deprecation.silence do
+    after_save :cache_gene_attribute_logic_sql, if: -> {saved_change_to_gene_attribute_logic? && valid?}
+  end
 
   # @return [Scope]
   #   Sequences using AND for the supplied target attributes
@@ -44,30 +45,30 @@ class Descriptor::Gene < Descriptor
   # @param :target_attributes
   #    [[], [] ...] an array as generated from #sequence_query_set
   def self.sequences_for_gene_attributes(object_sequence_id = nil, target_attributes = [], table_alias = nil)
-    return Sequence.none if target_attributes.empty? 
+    return Sequence.none if target_attributes.empty?
 
-    s = Sequence.arel_table
+    s  = Sequence.arel_table
     sr = SequenceRelationship.arel_table
 
-    a = s.alias("a_#{table_alias}") 
+    a = s.alias("a_#{table_alias}")
 
     b = s.project(a[Arel.star]).from(a)
-      .join(sr)
-      .on(sr['object_sequence_id'].eq(a['id']))
+          .join(sr)
+          .on(sr['object_sequence_id'].eq(a['id']))
 
     i = 0
     target_attributes.each do |sequence_type, id|
       sr_a = sr.alias("#{table_alias}_#{i}")
-      b = b.join(sr_a).on(
+      b    = b.join(sr_a).on(
         sr_a['object_sequence_id'].eq(a['id']),
-        sr_a['type'].eq(sequence_type), 
+        sr_a['type'].eq(sequence_type),
         sr_a['subject_sequence_id'].eq(id)
       )
-      i += 1
+      i    += 1
     end
 
     b = b.group(a['id']).having(sr['object_sequence_id'].count.gteq(target_attributes.count))
-    b = b.as("z_#{table_alias}") 
+    b = b.as("z_#{table_alias}")
 
     Sequence.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(s['id']))))
   end
@@ -84,7 +85,7 @@ class Descriptor::Gene < Descriptor
   def sequences
     return Sequence.none if !gene_attributes.all.any?
     return sequences_matching_any_gene_attributes if gene_attribute_logic.blank?
-    Sequence.from("(#{cached_gene_attribute_sql}) as sequences").distinct      
+    Sequence.from("(#{cached_gene_attribute_sql}) as sequences").distinct
   end
 
   # @return [Scope]
@@ -95,28 +96,28 @@ class Descriptor::Gene < Descriptor
 
     data = gene_attribute_pairs
 
-    s = Sequence.arel_table
+    s  = Sequence.arel_table
     sr = SequenceRelationship.arel_table
 
     j = s.alias('j') # required for group/having purposes
 
     b = s.project(j[Arel.star]).from(j)
-      .join(sr)
-      .on(sr['object_sequence_id'].eq(j['id']))
+          .join(sr)
+          .on(sr['object_sequence_id'].eq(j['id']))
 
     # Build an aliased join for each set of attributes
     data.each do |id, type|
       sr_a = sr.alias("b#{id}")
-      b = b.join(sr_a).on(
+      b    = b.join(sr_a).on(
         sr_a['object_sequence_id'].eq(j['id']),
-        sr_a['type'].eq(type), 
+        sr_a['type'].eq(type),
         sr_a['subject_sequence_id'].eq(id)
       )
     end
 
-    # match only those sequences with exactly these attributes, no more, no less 
+    # match only those sequences with exactly these attributes, no more, no less
     b = b.group(j['id']).having(sr['object_sequence_id'].count.eq(data.count))
-    
+
     b = b.as('join_alias')
 
     Sequence.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(s['id']))))
@@ -124,18 +125,18 @@ class Descriptor::Gene < Descriptor
 
   # @return [Scope]
   #   Sequences matching any #gene_attributes
-  #   !! This ignores logic in gene_attribute_logic !! 
+  #   !! This ignores logic in gene_attribute_logic !!
   def sequences_matching_any_gene_attributes
     return Sequence.none if !gene_attributes.all.any?
 
     sr = SequenceRelationship.arel_table
 
-    clauses = gene_attribute_pairs.collect{ |subject_sequence_id, type|
+    clauses = gene_attribute_pairs.collect {|subject_sequence_id, type|
       sr[:subject_sequence_id].eq(subject_sequence_id)
         .and(sr[:type].eq(type))
-    } 
+    }
 
-    q = clauses.shift 
+    q = clauses.shift
     clauses.each do |c|
       q = q.or(c)
     end
@@ -150,26 +151,26 @@ class Descriptor::Gene < Descriptor
   end
 
   # @return [Boolean]
-  #   true if the current logic statement contains the gene_attribute 
+  #   true if the current logic statement contains the gene_attribute
   def contains_logic_for?(gene_attribute)
-    gene_attribute_logic =~ /#{gene_attribute.to_logic_literal}/  ? true : false
+    gene_attribute_logic =~ /#{gene_attribute.to_logic_literal}/ ? true : false
   end
 
   # @return [Array]
   def sequence_query_set
     attributes_from_or_queries(
       Utilities::Logic.or_queries(compress_logic)
-    ) 
+    )
   end
 
   # @return [Array]
   def attributes_from_or_queries(queries)
     translate = gene_attribute_term_index.invert
-    a = []
+    a         = []
     queries.each do |v|
       b = []
       v.split(//).each do |axiom|
-        b.push translate[axiom].split(/\./) 
+        b.push translate[axiom].split(/\./)
       end
       a.push b
     end
@@ -178,11 +179,11 @@ class Descriptor::Gene < Descriptor
 
   # @return [Hash]
   #   a lookup linking key/value terms to their single letter representation
-  #   note that 
+  #   note that
   def gene_attribute_term_index
     symbols = ("a".."z").to_a + ("A".."Z").to_a
     matches = gene_attribute_logic.scan(/([A-Za-z:]+\.[\d]+)/).flatten
-    h = {}
+    h       = {}
     matches.each_with_index do |m, i|
       h[m] = symbols[i]
     end
@@ -190,14 +191,14 @@ class Descriptor::Gene < Descriptor
   end
 
   # @return [String]
-  #   translates each key/value (SequenceRelationshipType.SequenceID) term into a single letter term 
+  #   translates each key/value (SequenceRelationshipType.SequenceID) term into a single letter term
   #   and translates 'AND' to '+' and 'OR' to '.'
   def compress_logic
     a = gene_attribute_logic.dup
     b = gene_attribute_term_index
 
-    b.each do |k,v|
-      a.gsub!(/#{k}/, v) 
+    b.each do |k, v|
+      a.gsub!(/#{k}/, v)
     end
     a.gsub!(/\s+OR\s+/, '+')
     a.gsub!(/\s+AND\s+/, '.')
@@ -205,10 +206,10 @@ class Descriptor::Gene < Descriptor
     a
   end
 
-  # See use in GeneAttribute 
+  # See use in GeneAttribute
   def extend_gene_attribute_logic(gene_attribute, logic = :and)
     logic.downcase!.to_sym! unless logic.kind_of?(Symbol)
-    raise if ![:and,:or].include?(logic)
+    raise if ![:and, :or].include?(logic)
 
     append_gene_attribute_logic(gene_attribute, logic)
     cache_gene_attribute_logic_sql
@@ -232,7 +233,7 @@ class Descriptor::Gene < Descriptor
 
   def gene_attribute_logic_matches_gene_attributes
     a = gene_attribute_term_index.keys
-    b = gene_attributes.collect{|ga| ga.to_logic_literal}
+    b = gene_attributes.collect {|ga| ga.to_logic_literal}
     c = a - b
     d = b - a
     errors.add(:gene_attribute_logic, "provided logic without matching gene attribute: #{c.join(';')}") if !c.empty?
@@ -257,7 +258,7 @@ class Descriptor::Gene < Descriptor
       queries.push Descriptor::Gene.sequences_for_gene_attributes(id, target_attributes, "uq#{i}")
     end
 
-    queries.collect{|q| "(#{q.to_sql})"}.join(' UNION ')
+    queries.collect {|q| "(#{q.to_sql})"}.join(' UNION ')
   end
 
   def cache_gene_attribute_logic_sql
