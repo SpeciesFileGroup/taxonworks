@@ -58,6 +58,8 @@ namespace :tw do
           get_tw_repo_id = import.get('SFDepoIDToTWRepoID')
           get_biocuration_class_id = import.get('SpmnCategoryIDToBiocurationClassID')
           get_specimen_category_counts = import.get('SFSpecimenIDCategoryIDCount')
+          get_sf_source_metadata = import.get('SFSourceMetadata')
+          get_sf_identification_metadata = import.get('SFIdentificationMetadata')
 
           get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id
           # get_depo_catalog_number = {} # key = SF.SpecimenID, value = depo catalog number
@@ -149,16 +151,18 @@ namespace :tw do
               end
             end
 
-            # depo_catalog_number = []
-            # if row['DepoCatNo'].present?
-            #   depo_catalog_number = {import_predicate: 'tblSpecimens.DepoCatNo',
-            #                          value: row['DepoCatNo'],
-            #                          project_id: project_id}
-            # end
+            if row['SourceID'] != '0'
+              sf_source_id = row['SourceID']
 
-            # Handle SourceID:
-            # Query for tblSpecimens where SourceID > 0
-            # create hash SpecimenID, RefID, Description
+              if get_sf_source_metadata[sf_source_id][row['RefID']] != '0' # there is a RefID, create citation for collection object (assuming it will be created)
+                # does citations_attributes exist? what if collection_object is not created?
+              end
+
+              if get_sf_source_metadata[sf_source_id][row['Description']].length > 0 # there is a description, create an import_attribute
+              end
+
+            end
+
 
             # citation = Citation.new(
             #     metadata.merge(
@@ -190,25 +194,9 @@ namespace :tw do
                         # import_attribute to do:  BasisOfRecord
 
                         # data_attributes to do:
-                        #   # add source.RefID hash ---- pass SourceID, and get metadata (getSourceMetaData)
-                        # if SourceID > 0: create a citation (if SourceID contains RefID) and/or create an import_attribute (if SourceID has description)      LATER
-                        # ditto tblIdentifications but array of hashes because of multi Identifications, make IdentifierName into People attributes
-
-                        # specimenID2Identifiers = {
-                        #
-                        # 3099 => [{ higher_taxon_name: nil,
-                        #            seqnum: {}
-                        #           identifier_name: {
-                        #                   initialis: "L",
-                        #                   family_name: "Chopard"
-                        #                 }
-                        #           }
-                        #
-                        # }        ]
-
-                        # }
-
-                        # first_names, family_name = row['IdnetifierName'].split(" ")
+                        #   citation if source.RefID
+                        #   import_attribute if source.Description
+                        #   import_attribute if identification.IdentifierName
 
             }
 
