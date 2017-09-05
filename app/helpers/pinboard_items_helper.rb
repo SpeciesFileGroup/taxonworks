@@ -21,9 +21,9 @@ module PinboardItemsHelper
     options.push(source_document_viewer_option_tag(pinboard_item.pinned_object)) if pinboard_item.pinned_object.kind_of?(Source)
 
     if pinboard_item.is_inserted
-      options.push link_to('Disable default', '/' )  # <- new route here
+      options.push link_to('Disable default', pinboard_item_path(pinboard_item: {id: pinboard_item.to_param, is_inserted: false}), class: [ ], method: :put, remote: true ) 
     else
-      options.push link_to('Make default', '/') # <- new route here
+      options.push link_to('Make default', pinboard_item_path(pinboard_item: {id: pinboard_item.to_param, is_inserted: true}), class: [ ],  method: :put, remote: true ) # <- new route here
     end
 
     content_tag(:div, class: 'itemOptions') do

@@ -69,7 +69,7 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-  resources :pinboard_items, only: [:create, :destroy] do
+  resources :pinboard_items, only: [:create, :destroy, :update] do
     collection do
       post 'update_position'
       post 'update_type_position'

@@ -34,12 +34,11 @@ RSpec.describe PinboardItem do
       expect(a.is_inserted?).to be(true)
       expect(b.is_inserted?).to be(false)
 
-      expect(b.set_as_insertable).to be_truthy
+      expect(b.update(is_inserted: true)).to be_truthy
 
       expect(b.is_inserted?).to be(true)  # should be true now
       expect(c.is_inserted?).to be(true)  # should be untouched
-      a.reload
-      expect(a.is_inserted?).to be(false) # should be false now
+      expect(a.reload.is_inserted?).to be(false) # should be false now
    end
   end
 
@@ -48,14 +47,6 @@ RSpec.describe PinboardItem do
     specify 'user_id is required' do
       pinboard_item.valid?
       expect(pinboard_item.errors.include?(:user_id)).to be(true)
-    end
-
-    specify 'only one is_inserted per project per type' do
-      a = PinboardItem.new(pinned_object: FactoryGirl.create(:valid_otu), is_inserted: true, user_id: 1)
-      b = PinboardItem.new(pinned_object: FactoryGirl.create(:valid_otu, name: 'blorf'), is_inserted: true, user_id: 1)
-      expect(a.save).to be_truthy
-      expect(b.save).to be_falsey
-      expect(b.errors.include?(:is_inserted)).to be_truthy
     end
 
     specify 'is_cross_project' do

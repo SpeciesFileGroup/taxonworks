@@ -44,6 +44,8 @@ class PinboardItem < ApplicationRecord
   validates_presence_of :user_id, :pinned_object_id, :pinned_object_type
   validates_uniqueness_of :user_id, scope: [ :pinned_object_id, :pinned_object_type ]
 
+  after_save :update_insertable
+
   scope :for_object, -> (object) {where(pinned_object_id: object.id, pinned_object_type: object.class.to_s) }
 
   def self.reorder(pinboard_item_ids)
@@ -62,12 +64,17 @@ class PinboardItem < ApplicationRecord
 
   def set_as_insertable
     PinboardItem.where(project_id: project_id, pinned_object_type: pinned_object_type).find_each do |p|
-      p.update(is_inserted: false)
+      p.update_column(:is_inserted, false)
     end
-    update(is_inserted: true)
   end
 
   protected
+
+  def update_insertable
+    if is_inserted?
+      set_as_insertable
+    end
+  end
 
   # ARG get rid of project_id
   def validate_is_inserted

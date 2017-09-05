@@ -1,6 +1,6 @@
 class PinboardItemsController < ApplicationController
   before_action :require_sign_in 
-  before_action :set_pinboard_item, only: [:destroy]
+  before_action :set_pinboard_item, only: [:destroy, :update]
 
   # POST /pinboard_items
   # POST /pinboard_items.json
@@ -13,6 +13,21 @@ class PinboardItemsController < ApplicationController
         format.js {}
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: "Couldn't pin this item! Is it already there?")}
+        format.json { render json: @pinboard_item.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+
+  # PATCH/PUT /pinboard_items/1
+  # PATCH/PUT /pinboard_items/1.json
+  def update
+    respond_to do |format|
+      if @pinboard_item.update(pinboard_item_params)
+        format.html { redirect_to @pinboard_item, notice: 'Pinboard items was successfully updated.' }
+        format.json { render :show, location: @pinboard_item }
+      else
+        format.html { render action: 'edit' }
         format.json { render json: @pinboard_item.errors, status: :unprocessable_entity }
       end
     end
