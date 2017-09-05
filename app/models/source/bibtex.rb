@@ -326,7 +326,7 @@ class Source::Bibtex < Source
     :journal,
     :year,
     :stated_year
-  ] # either year or stated_year is acceptable
+  ].freeze # either year or stated_year is acceptable
 
   belongs_to :serial, inverse_of: :sources
   belongs_to :source_language, class_name: "Language", foreign_key: :language_id, inverse_of: :sources
@@ -499,9 +499,9 @@ class Source::Bibtex < Source
   # Usage:
   #    a = BibTeX::Entry.new(bibtex_type: 'book', title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
   #    b = Source::Bibtex.new(a)
-  # 
-  # @param bibtex_entry [BibTex::Entry] the BibTex::Entry to convert 
-  # @return [Source::BibTex.new] a new instance 
+  #
+  # @param bibtex_entry [BibTex::Entry] the BibTex::Entry to convert
+  # @return [Source::BibTex.new] a new instance
   # @todo annote to project specific note?
   # @todo if it finds one & only one match for serial assigns the serial ID, and if not it just store in journal title
   # serial with alternate_value on name .count = 1 assign .first
@@ -628,13 +628,13 @@ class Source::Bibtex < Source
   def authority_name
     if authors.count == 0 # no normalized people, use string, !! not .any? because of in-memory setting?!
       if author.blank?
-        return nil 
+        return nil
       else
         b = to_bibtex
         b.parse_names
         return b.author.tokens.collect{ |t| t.last }.to_sentence(last_word_connector: ' & ', two_words_connector: ' & ')
       end
-    else # use normalized records 
+    else # use normalized records
       return authors.collect{ |a| a.full_last_name }.to_sentence(last_word_connector: ' & ', two_words_connector: ' & ')
     end
   end
@@ -736,7 +736,7 @@ class Source::Bibtex < Source
 
   #region time/date related
 
-  # @return [Date] 
+  # @return [Date]
   #  An memoizer, getter for cached_nomenclature_date, computes if not .persisted?
   def date
     set_cached_nomenclature_date if !self.persisted?
@@ -752,7 +752,7 @@ class Source::Bibtex < Source
   def set_cached_nomenclature_date
     self.cached_nomenclature_date = Utilities::Dates.nomenclature_date(
       self.day,
-      Utilities::Dates.month_index(self.month), # this allows values from bibtex like 'may' to be handled 
+      Utilities::Dates.month_index(self.month), # this allows values from bibtex like 'may' to be handled
       self.year
     )
   end
@@ -776,7 +776,7 @@ class Source::Bibtex < Source
     cp = CiteProc::Processor.new(style: style, format: format) # There is a problem with the zootaxa format and letters!
     cp.import(bibtex_bibliography.to_citeproc)
     cp.render(:bibliography, id: cp.items.keys.first).first.strip
-  end 
+  end
 
   # @return [String]
   #   a full representation, using bibtex
