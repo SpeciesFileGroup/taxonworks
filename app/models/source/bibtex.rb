@@ -736,31 +736,28 @@ class Source::Bibtex < Source
 
   #region time/date related
 
-  # @return [Date]
-  #  An memoizer, getter for cached_nomenclature_date, computes if not .persisted?
-  def date
-    set_cached_nomenclature_date if !self.persisted?
-    cached_nomenclature_date
-  end
-
   # @return [Integer]
   #  The effective year of publication as per nomenclatural rules
   def nomenclature_year
-    date.year if date
+    cached_nomenclature_date.year 
   end
 
-  def set_cached_nomenclature_date
-    update_column(:cached_nomenclature_date,
-                  Utilities::Dates.nomenclature_date(
-                    self.day,
-                    Utilities::Dates.month_index(self.month), # this allows values from bibtex like 'may' to be handled
-                    self.year
-    )
-                 )
+  #  Month handling allows values from bibtex like 'may' to be handled
+  def nomenclature_date
+    Utilities::Dates.nomenclature_date( day,  Utilities::Dates.month_index(month), year) 
+  end
+
+  # @return [Date]
+  #  An memoizer, getter for cached_nomenclature_date, computes if not .persisted?
+  def cached_nomenclature_date
+    if !persisted? 
+      nomenclature_date
+    else
+      read_attribute(:cached_nomenclature_date)
+    end
   end
 
   #endregion    time/date related
-
 
   # @return [BibTex::Bibliography]
   #   initialized with this source as an entry
@@ -802,6 +799,10 @@ class Source::Bibtex < Source
     rescue
       errors.add(:base, 'invalid author parameters')
     end
+  end
+
+  def set_cached_nomenclature_date
+    update_column(:cached_nomenclature_date, nomenclature_date)
   end
 
   # set cached values and copies active record relations into bibtex values
