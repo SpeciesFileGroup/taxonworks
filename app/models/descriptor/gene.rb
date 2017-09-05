@@ -35,9 +35,11 @@ class Descriptor::Gene < Descriptor
   }
   validate :gene_attribute_logic_matches_gene_attributes, if: :gene_attribute_logic_changed?
 
-  ActiveSupport::Deprecation.silence do
-    after_save :cache_gene_attribute_logic_sql, if: -> {saved_change_to_gene_attribute_logic? && valid?}
-  end
+  after_save :cache_gene_attribute_logic_sql, if: -> {
+    ActiveSupport::Deprecation.silence do
+      saved_change_to_gene_attribute_logic? && valid?
+    end
+  }
 
   # @return [Scope]
   #   Sequences using AND for the supplied target attributes
