@@ -345,8 +345,8 @@ ActiveRecord::Schema.define(version: 20170818150142) do
   end
 
   create_table "confidences", id: :serial, force: :cascade do |t|
-    t.integer "confidence_object_id", null: false
     t.string "confidence_object_type", null: false
+    t.integer "confidence_object_id", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -549,8 +549,8 @@ ActiveRecord::Schema.define(version: 20170818150142) do
   end
 
   create_table "documentation", id: :serial, force: :cascade do |t|
-    t.integer "documentation_object_id", null: false
     t.string "documentation_object_type", null: false
+    t.integer "documentation_object_id", null: false
     t.integer "document_id", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -753,8 +753,8 @@ ActiveRecord::Schema.define(version: 20170818150142) do
     t.string "vernacularName"
     t.string "waterBody"
     t.string "year"
-    t.integer "dwc_occurrence_object_id"
     t.string "dwc_occurrence_object_type"
+    t.integer "dwc_occurrence_object_id"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
@@ -856,12 +856,12 @@ ActiveRecord::Schema.define(version: 20170818150142) do
   create_table "geographic_items", id: :serial, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.geography "point", limit: {:srid => 4326, :type => "st_point", :has_z => true, :geographic => true}
-    t.geography "line_string", limit: {:srid => 4326, :type => "line_string", :has_z => true, :geographic => true}
-    t.geography "polygon", limit: {:srid => 4326, :type => "st_polygon", :has_z => true, :geographic => true}
-    t.geography "multi_point", limit: {:srid => 4326, :type => "multi_point", :has_z => true, :geographic => true}
-    t.geography "multi_line_string", limit: {:srid => 4326, :type => "multi_line_string", :has_z => true, :geographic => true}
-    t.geography "multi_polygon", limit: {:srid => 4326, :type => "multi_polygon", :has_z => true, :geographic => true}
+    t.geography "point", limit: {:srid=>4326, :type=>"st_point", :has_z=>true, :geographic=>true}
+    t.geography "line_string", limit: {:srid=>4326, :type=>"line_string", :has_z=>true, :geographic=>true}
+    t.geography "polygon", limit: {:srid=>4326, :type=>"st_polygon", :has_z=>true, :geographic=>true}
+    t.geography "multi_point", limit: {:srid=>4326, :type=>"multi_point", :has_z=>true, :geographic=>true}
+    t.geography "multi_line_string", limit: {:srid=>4326, :type=>"multi_line_string", :has_z=>true, :geographic=>true}
+    t.geography "multi_polygon", limit: {:srid=>4326, :type=>"multi_polygon", :has_z=>true, :geographic=>true}
     t.geography "geometry_collection", limit: {:srid=>4326, :type=>"geometry_collection", :has_z=>true, :geographic=>true}
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -979,8 +979,8 @@ ActiveRecord::Schema.define(version: 20170818150142) do
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "loan_item_object_id"
     t.string "loan_item_object_type"
+    t.integer "loan_item_object_id"
     t.integer "total"
     t.string "disposition"
     t.index ["created_by_id"], name: "index_loan_items_on_created_by_id"
@@ -1009,7 +1009,7 @@ ActiveRecord::Schema.define(version: 20170818150142) do
     t.datetime "updated_at", null: false
     t.string "recipient_honorarium"
     t.string "recipient_country"
-    t.text "lender_address", default: "Lender's address not provided.", null: false
+    t.text "lender_address", null: false
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
     t.index ["project_id"], name: "index_loans_on_project_id"
     t.index ["updated_by_id"], name: "index_loans_on_updated_by_id"
@@ -1168,10 +1168,10 @@ ActiveRecord::Schema.define(version: 20170818150142) do
   end
 
   create_table "origin_relationships", id: :serial, force: :cascade do |t|
-    t.integer "old_object_id", null: false
     t.string "old_object_type", null: false
-    t.integer "new_object_id", null: false
+    t.integer "old_object_id", null: false
     t.string "new_object_type", null: false
+    t.integer "new_object_id", null: false
     t.integer "position"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1248,8 +1248,8 @@ ActiveRecord::Schema.define(version: 20170818150142) do
   end
 
   create_table "pinboard_items", id: :serial, force: :cascade do |t|
-    t.integer "pinned_object_id", null: false
     t.string "pinned_object_type", null: false
+    t.integer "pinned_object_id", null: false
     t.integer "user_id", null: false
     t.integer "project_id", null: false
     t.integer "position", null: false
@@ -1319,8 +1319,8 @@ ActiveRecord::Schema.define(version: 20170818150142) do
 
   create_table "protocol_relationships", id: :serial, force: :cascade do |t|
     t.integer "protocol_id", null: false
-    t.integer "protocol_relationship_object_id", null: false
     t.string "protocol_relationship_object_type", null: false
+    t.integer "protocol_relationship_object_id", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
