@@ -47,9 +47,9 @@ describe BatchLoad::Import::DWCA, type: :model do
                      geo_rem_kw:  geo_rem_kw,
                      repo:        repo,
                      namespace:   namespace}}
-    let(:import) {BatchLoad::Import::DWCA::new({project_id: project.id,
-                                                user_id:    user.id,
-                                                file:       upload_file}.merge(pre_load))
+    let(:import) {BatchLoad::Import::DWCA.new({project_id: project.id,
+                                               user_id:    user.id,
+                                               file:       upload_file}.merge(pre_load))
     }
     let(:event) {CollectingEvent.create(verbatim_date: 'some more text')}
 
