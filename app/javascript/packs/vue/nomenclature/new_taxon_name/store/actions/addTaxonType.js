@@ -12,7 +12,7 @@ module.exports = function({ commit, state, dispatch }, data) {
 	createTaxonRelationship(relationship).then( response => {
 		commit(MutationNames.AddTaxonRelationship, response);
 		dispatch('loadSoftValidation', 'taxonRelationshipList');
-		dispatch('loadSoftValidation','taxon_name');
+		dispatch('loadSoftValidation', 'taxon_name');
 	}, response => {
 		commit(MutationNames.SetHardValidation, response);
 	});

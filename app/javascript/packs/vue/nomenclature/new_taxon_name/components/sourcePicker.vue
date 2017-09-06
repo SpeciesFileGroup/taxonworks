@@ -117,13 +117,6 @@
 				this.$store.dispatch(ActionNames.ChangeTaxonSource, value.id)
 			});
 		},
-		watch: {
-			taxon: function(newVal, oldVal) {
-				if(oldVal.id == undefined) {
-					this.setDefaultSource()
-				}
-			}
-		},
 		methods: {
 			setDefaultSource: function() {
 				var that = this,

@@ -23,6 +23,7 @@
 						<span>{{ item.name }}</span>
 					</label>
 				</div>
+				<list-entrys @delete="removeGender" :list="getStatusGender" :display="['object_tag']"></list-entrys>
 			</div>
 		</block-layout>
 	</form>
@@ -32,12 +33,14 @@
 	const MutationNames = require('../store/mutations/mutations').MutationNames; 
 	const ActionNames = require('../store/actions/actions').ActionNames;  
 	const blockLayout = require('./blockLayout.vue');
+	const listEntrys = require('./listEntrys.vue');
 
 	const getRankGroup = require('../helpers/getRankGroup');
 
 	export default {
 		components: {
 			blockLayout,
+			listEntrys
 		},
 		data: function() {
 			return {
@@ -50,6 +53,11 @@
 			this.getList();
 		},
 		computed: {
+			getStatusGender() {
+				return this.$store.getters[GetterNames.GetTaxonStatusList].filter(function(item) { 
+					return (item.type.split('::')[1] == 'Latinized')
+				});
+			},
 			getStatusCreated() {
 				return this.$store.getters[GetterNames.GetTaxonStatusList]
 			},
@@ -88,6 +96,9 @@
 			}
 		},
 		methods: {
+			removeGender: function(item) {
+				this.$store.dispatch(ActionNames.RemoveTaxonStatus, item);
+			},
 			getList: function() {
 				for(var key in this.getStatusList) {
 					if(this.applicableRank(this.getStatusList[key].applicable_ranks, this.taxon.rank_string)) {
