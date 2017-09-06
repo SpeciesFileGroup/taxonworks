@@ -13,7 +13,6 @@ Object.assign(TW.views.pinboard, {
 		if(this.defaultExist != undefined) {
 			this.changeLink(this.defaultExist, false);
 		}
-		console.log("adsfasfds");
 
 		this.changeLink(this.pinboardItem, (this.alreadyInserted ? true : false));
 		this.eventPinboardInsert();
@@ -28,6 +27,7 @@ Object.assign(TW.views.pinboard, {
 
 	createUrl: function(id, inserted) {
 		var newEl = document.createElement('a');
+
 		newEl.innerHTML = (inserted ? 'Make default' : 'Disable default');
 		newEl.setAttribute('href', '/pinboard_items/' + id + '?pinboard_item%5Bis_inserted%5D=' + inserted);
 		newEl.setAttribute('data-remote', 'true');
