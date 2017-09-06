@@ -5,7 +5,7 @@ module.exports = function({ commit, state, dispatch }, combination) {
 	 return new Promise((resolve, reject) => {
 		removeTaxonRelationship(combination).then( response => {
 			commit(MutationNames.RemoveOriginalCombination, combination);
-			//dispatch('loadSoftValidation','taxonRelationshipList');
+			dispatch('loadSoftValidation','taxonRelationshipList');
 			resolve(response);
 		});
 	});

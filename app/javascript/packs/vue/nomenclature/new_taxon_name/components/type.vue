@@ -43,7 +43,7 @@
           <list-common :object-lists="objectLists.common" :filter="true" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"></list-common>
         </div>
       </div>
-      <list-entrys mutationNameRemove="RemoveTaxonRelationship" :list="GetRelationshipsCreated" :display="['subject_status_tag', 'subject_object_tag']"></list-entrys>
+      <list-entrys :list="GetRelationshipsCreated" @delete="removeType" :display="['subject_status_tag', 'subject_object_tag']"></list-entrys>
     </div>
   </form>
 </template>
@@ -121,6 +121,9 @@
       }
     },
     methods: {
+      removeType: function(item) {
+        this.$store.dispatch(ActionNames.RemoveTaxonRelationship, item);
+      },
       refresh: function() {
         this.objectLists.tree = this.filterList(this.addType(Object.assign({},this.treeList.typification.all)),this.getRankGroup);
         this.objectLists.common = this.filterList(this.addType(Object.assign({},this.treeList.typification.common)),this.getRankGroup);

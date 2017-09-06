@@ -3,7 +3,7 @@
 	    	<transition-group class="table-entrys-list" name="list-complete" tag="ul">
 	    	<li v-for="item, index in list" :key="item.id" class="list-complete-item flex-separate middle">
 			    <span><span v-for="show in display" v-html="item[show] + ' '"></span></span>
-		    	<span type="button" class="circle-button btn-delete" @click="removeStatus(item)">Remove</span>
+		    	<span type="button" class="circle-button btn-delete" @click="$emit('delete',item)">Remove</span>
 	    	</li>
 	    	</transition-group>
     </div>
@@ -14,13 +14,8 @@ const ActionNames = require('../store/actions/actions').ActionNames;
 const GetterNames = require('../store/getters/getters').GetterNames;
 
 export default {
-	props: ['mutationNameRemove', 'list', 'display'],
+	props: ['list', 'display'],
 	name: 'list-entrys',
-	methods: {
-		removeStatus: function(item) {
-			this.$store.dispatch(ActionNames[this.mutationNameRemove], item);
-		}
-	}
 }
 </script>
 

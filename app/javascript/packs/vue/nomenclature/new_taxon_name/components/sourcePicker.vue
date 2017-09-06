@@ -37,7 +37,7 @@
 							placeholder="Type for search..."
 							display="label">
 						</autocomplete>
-						<button type="button" class="normal-input" @click="setDefaultSource()">Use default source</button>
+						<button type="button" class="normal-input" v-if="!citation" @click="setDefaultSource()">Use default source</button>
 					</div>
 					<hr>
 					<div v-if="citation != undefined">
@@ -128,8 +128,8 @@
 			setDefaultSource: function() {
 				var that = this;
 				setTimeout(function () {
-					var sourceId = document.querySelector('[data-pinboard-section="Sources"] [data-pinboard-object-id]').dataset.pinboardObjectId;
-					if(sourceId && this.citation == undefined) {
+					var sourceId = document.querySelector('[data-pinboard-section="Sources"] [data-insert="true"]').dataset.pinboardObjectId;
+					if(sourceId && that.citation == undefined) {
 						that.$store.dispatch(ActionNames.ChangeTaxonSource, sourceId)
 					}
 				}, 500);
@@ -145,26 +145,15 @@
 				this.$store.dispatch(ActionNames.RemoveSource, id);
 			},
 		    updateTaxonName: function() {
-		      	//TODO: Move this to request file and refactor to get this work as an action on Vuex.
 		        var taxon_name = {
 		          taxon_name: {
+		          	id: this.taxon.id,
 				    roles_attributes: this.taxon.roles_attributes,
 		            type: 'Protonym'
 		          }
 		        }
-		        this.$store.commit(MutationNames.SetHardValidation, undefined);
-		        this.$http.patch(`/taxon_names/${this.taxon.id}.json`, taxon_name).then(response => {
-		        	if(!response.body.hasOwnProperty('taxon_name_author_roles')) {
-		        		response.body['taxon_name_author_roles'] = [];
-		        	}
-		        	response.body.roles_attributes = [];
-		        	this.$store.commit(MutationNames.SetTaxon, response.body);
-		        	this.$store.dispatch(ActionNames.LoadSoftValidation, 'taxon_name');
-		          	TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully updated.`, "notice");
-		        }, response => {
-		          this.$store.commit(MutationNames.SetHardValidation, response.body);
-				});
-			},
+		      	this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon);
+			}
 		}
 	};
 </script>

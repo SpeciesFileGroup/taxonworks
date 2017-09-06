@@ -24,6 +24,11 @@
 		justify-content: space-around;
 	}
 }
+.gender {
+	span:first-letter {
+		text-transform: capitalize;
+	}
+}
 .original-combination {
 	display: flex;
 	flex-direction: row;

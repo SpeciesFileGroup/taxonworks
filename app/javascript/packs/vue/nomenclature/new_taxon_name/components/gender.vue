@@ -1,5 +1,5 @@
 <template>
-	<form>
+	<form class="gender">
 		<block-layout anchor="gender">
 			<h3 slot="header">Gender and form</h3>
 			<div slot="body">

@@ -54,8 +54,8 @@
       }
     },
     watch: {
-      search: function(val) {
-        if(val != undefined) {
+      search: function(newVal, oldVal) {
+        if(oldVal != undefined) {
          this.checkTime();
         }
       },
@@ -122,12 +122,12 @@
 }
 </script>
 
-<style type="text/css">
+<style type="text/css" scoped>
   .find-taxonname-picker {
     min-height:100px;
   }
   .find-taxonname-list {
-    margin-top: 1.5em;
+    margin-top: 1.2em;
     box-sizing: border-box;
     min-width: 250px;
     border: 1px solid #f5f5f5;

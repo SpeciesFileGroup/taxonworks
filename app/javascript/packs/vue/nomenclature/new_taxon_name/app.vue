@@ -68,8 +68,6 @@
   var spinner = require('../../components/spinner.vue');
   var blockLayout = require('./components/blockLayout');
 
-  const filterObject = require('./helpers/filterObject');
-
   const MutationNames = require('./store/mutations/mutations').MutationNames;  
   const GetterNames = require('./store/getters/getters').GetterNames; 
   const ActionNames = require('./store/actions/actions').ActionNames;  
@@ -120,7 +118,9 @@
       let taxonId = location.pathname.split('/')[4];
       this.initLoad().then(function() {
         if(/^\d+$/.test(taxonId)) {
-          that.fillTaxonName(taxonId);
+          that.$store.dispatch(ActionNames.LoadTaxonName, taxonId).then( function(){
+            that.loading = false;
+          });
         }
         else {
           that.loading = false;
@@ -131,72 +131,17 @@
       showForThisGroup: function(findInGroups){
         return (this.getTaxon.rank_string ? (findInGroups.indexOf(this.getTaxon.rank_string.split('::')[2]) > -1) : false);
       },
-      loadRanks: function() {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-          that.$http.get('/taxon_names/ranks').then( response => {
-            that.$store.commit(MutationNames.SetRankList, response.body);
-           return resolve(true);
-          });
-        });
-      },
-      loadStatus: function() {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-          that.$http.get('/taxon_name_classifications/taxon_name_classification_types').then( response => {
-            that.$store.commit(MutationNames.SetStatusList, response.body);
-            return resolve(true);
-          });
-        });
-      },
-      loadRelationship: function() {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-          that.$http.get('/taxon_name_relationships/taxon_name_relationship_types').then( response => {
-            that.$store.commit(MutationNames.SetRelationshipList, response.body);
-            return resolve(true);
-          });
-        });
-      },
-      loadTaxonStatus: function(id) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-          that.$http.get(`/taxon_names/${id}/taxon_name_classifications`).then( response => {
-            that.$store.commit(MutationNames.SetTaxonStatusList, response.body);
-            that.$store.dispatch(ActionNames.LoadSoftValidation, 'taxonStatusList');
-            return resolve(true);
-          });
-        });
-      },
-      loadTaxonRelationships: function(id) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-          that.$http.get(`/taxon_names/${id}/taxon_name_relationships`).then( response => {
-            that.$store.commit(MutationNames.SetTaxonRelationshipList, response.body);
-            that.$store.dispatch(ActionNames.LoadSoftValidation, 'taxonRelationshipList');
-            return resolve(true);
-          });
-        });
-      },
       initLoad: function() {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-          return resolve(that.loadRanks().then(that.loadStatus).then(that.loadRelationship));
-        });
-      },
-      fillTaxonName: function(id) {
-        this.$http.get(`/taxon_names/${id}`).then( response => {
-          console.log(response.body);
-          this.loadTaxonRelationships(response.body.id);
-          this.loadTaxonStatus(response.body.id);
-          this.$store.commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code);
-          this.$store.commit(MutationNames.SetTaxon, filterObject(response.body));
-          this.$store.dispatch(ActionNames.SetParentAndRanks, response.body.parent);
-          this.$store.dispatch(ActionNames.LoadSoftValidation, 'taxon_name');
-          this.loading = false;
-        }, response => {
-          TW.workbench.alert.create("There is no taxon name associated to that ID", "error");
-        });
+        let actions = [
+              this.$store.dispatch(ActionNames.LoadRanks),
+              this.$store.dispatch(ActionNames.LoadStatus),
+              this.$store.dispatch(ActionNames.LoadRelationships)
+            ]
+        return new Promise(function(resolve,reject){          
+          Promise.all(actions).then(function() {
+            return resolve(true);
+          })
+        })
       },
     }      
   }
