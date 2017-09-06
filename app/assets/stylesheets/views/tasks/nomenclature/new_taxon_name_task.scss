@@ -29,6 +29,11 @@
 		text-transform: capitalize;
 	}
 }
+
+	.edit-content, .CodeMirror, .CodeMirror-scroll {
+		min-height: 150px;
+	}
+
 .original-combination {
 	display: flex;
 	flex-direction: row;

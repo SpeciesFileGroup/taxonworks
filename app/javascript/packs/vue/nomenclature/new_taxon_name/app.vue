@@ -31,13 +31,13 @@
               </div>
             </block-layout>
           </div>
-          <div class="new-taxon-name-block" v-if="getTaxon.id && showForThisGroup(['SpeciesGroup','GenusGroup'])">
-            <spinner :show-spinner="false" :show-legend="false" v-if="!getTaxon.id"></spinner>
-            <etymology class="separate-top separate-bottom"></etymology>
-          </div>
           <div class="new-taxon-name-block" v-if="showForThisGroup(['SpeciesGroup','GenusGroup'])">
             <spinner :show-spinner="false" :show-legend="false" v-if="!getTaxon.id"></spinner>
             <gender-block class="separate-top separate-bottom"></gender-block>
+          </div>
+          <div class="new-taxon-name-block" v-if="getTaxon.id && showForThisGroup(['SpeciesGroup','GenusGroup'])">
+            <spinner :show-spinner="false" :show-legend="false" v-if="!getTaxon.id"></spinner>
+            <etymology class="separate-top separate-bottom"></etymology>
           </div>
         </div>
         <div v-if="getTaxon.id" class="cright item separate-left">

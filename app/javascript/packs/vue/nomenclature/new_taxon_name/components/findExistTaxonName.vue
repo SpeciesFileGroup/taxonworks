@@ -1,7 +1,7 @@
 <template>
 	<div class="find-taxonname-picker">
     <ul class="no_bullets find-taxonname-list" v-if="json.length > 0">
-     <li v-for="item, index in json" v-if="index < maxResults"><a :href="makeUrl(item.id)" v-html="item[label]"></a></li>
+     <li v-for="item, index in json" v-if="index < maxResults"><a target="_blank" :href="makeUrl(item.id)" v-html="item[label]"></a></li>
    </ul>
     <spinner legend="Checking for identical spellings" :legend-style="{ fontSize: '14px', color: '#444', textAlign: 'center', paddingTop: '20px'}" v-if="spinner"></spinner>
  </div>
