@@ -151,34 +151,22 @@ namespace :tw do
               end
             end
 
+            sf_source_description = []
+            citations_attributes = []
             if row['SourceID'] != '0'
               sf_source_id = row['SourceID']
 
-              if get_sf_source_metadata[sf_source_id][row['RefID']] != '0' # there is a RefID, create citation for collection object (assuming it will be created)
-                # does citations_attributes exist? what if collection_object is not created?
+              if get_sf_source_metadata[sf_source_id][row['RefID']] != '0' # SF.Source has RefID, create citation for collection object (assuming it will be created)
+                citations_attributes = {source_id: sf_source_id, project_id: project_id}
               end
 
-              if get_sf_source_metadata[sf_source_id][row['Description']].length > 0 # there is a description, create an import_attribute
+              if get_sf_source_metadata[sf_source_id][row['Description']].length > 0 # SF.Source has description, create an import_attribute
+                sf_source_description = {import_predicate: 'sf_source_description',
+                                         value: row['Description'],
+                                         project_id: project_id}
               end
 
             end
-
-
-            # citation = Citation.new(
-            #     metadata.merge(
-            #         source_id: source_id,
-            #         pages: cite_pages,
-            #         # is_original: (row['SeqNum'] == '1' ? true : false),
-            #         citation_object: otu, # this one line replaces the next two lines
-            #         # citation_object_type: 'Otu',
-            #         # citation_object_id: otu_id,
-            #
-            #         # housekeeping for citation
-            #         project_id: project_id,
-            #         created_at: row['CreatedOn'],
-            #         updated_at: row['LastUpdate'],
-            #         created_by_id: get_tw_user_id[row['CreatedBy']],
-            #         updated_by_id: get_tw_user_id[row['ModifiedBy']]
 
 
             import_attribute_attributes = []
@@ -189,13 +177,13 @@ namespace :tw do
                                             created_by_id: get_tw_user_id[row['CreatedBy']],
                                             updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
 
-                        import_attribute_attributes: import_attribute_attributes.concat(preparation_type, specimen_dataflags, specimen_status),
+                        import_attributes_attributes: import_attribute_attributes.concat(preparation_type, specimen_dataflags, specimen_status, sf_source_description),
+                        citations_attributes: citations_attributes,
+
 
                         # import_attribute to do:  BasisOfRecord
 
                         # data_attributes to do:
-                        #   citation if source.RefID
-                        #   import_attribute if source.Description
                         #   import_attribute if identification.IdentifierName
 
             }
