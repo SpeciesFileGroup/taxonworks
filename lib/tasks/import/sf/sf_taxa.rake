@@ -1018,7 +1018,7 @@ namespace :tw do
             animalia_taxon_name = Protonym.new(
                 name: 'Animalia',
                 parent_id: this_project.root_taxon_name.id,
-                rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
+                rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom',
                 project_id: project_id,
             )
 
