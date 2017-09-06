@@ -10,9 +10,9 @@ module PinboardItemsHelper
 
   def insert_pinboard_item_link(pinboard_item)
     if pinboard_item.is_inserted
-      link_to('Disable default', pinboard_item_path(pinboard_item, pinboard_item: {is_inserted: false}), class: [ ], method: :put, remote: true ) 
+      link_to('Disable default', pinboard_item_path(pinboard_item, pinboard_item: {is_inserted: false}), class: ['option-default'], method: :put, remote: true ) 
     else
-      link_to('Make default', pinboard_item_path(pinboard_item, pinboard_item: {is_inserted: true}), class: [ ],method: :put, remote: true )
+      link_to('Make default', pinboard_item_path(pinboard_item, pinboard_item: {is_inserted: true}), class: ['option-default'], method: :put, remote: true )
     end
   end
 
@@ -35,7 +35,7 @@ module PinboardItemsHelper
   end
 
   def pinboard_item_li_tag(pinboard_item)
-    content_tag(:li, class: 'slide-panel-category-item', data: { pinboard_object_id: pinboard_item.pinned_object.id, insert: pinboard_item.is_inserted }, id: "order_#{pinboard_item.id}") do
+    content_tag(:li, class: 'slide-panel-category-item', id: "order_#{pinboard_item.id}", data: { pinboard_object_id: pinboard_item.pinned_object.id, pinboard_item_id: pinboard_item.id, insert: pinboard_item.is_inserted }) do
       content_tag(:div, class: [:handle, 'flex-separate', :middle]) do
         object_link(pinboard_item.pinned_object) +  pinboard_item_options(pinboard_item)
       end

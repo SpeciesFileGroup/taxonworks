@@ -126,13 +126,18 @@
 		},
 		methods: {
 			setDefaultSource: function() {
-				var that = this;
-				setTimeout(function () {
-					var sourceId = document.querySelector('[data-pinboard-section="Sources"] [data-insert="true"]').dataset.pinboardObjectId;
-					if(sourceId && that.citation == undefined) {
-						that.$store.dispatch(ActionNames.ChangeTaxonSource, sourceId)
-					}
-				}, 500);
+				var that = this,
+					sourceElement = document.querySelector('[data-pinboard-section="Sources"] [data-insert="true"]');
+
+				if(sourceElement) {
+					setTimeout(function () {
+						let sourceId = sourceElement.dataset.pinboardObjectId;
+
+						if(sourceId && that.citation == undefined) {
+							that.$store.dispatch(ActionNames.ChangeTaxonSource, sourceId)
+						}
+					}, 500);
+				}
 			},
 			getVerbatimCount: function() {
 				var author = (taxon.year_of_publication && taxon.year_of_publication.length ? taxon.year_of_publication.length : 0)

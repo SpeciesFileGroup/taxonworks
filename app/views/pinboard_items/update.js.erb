@@ -1,0 +1,54 @@
+var TW = TW || {};
+TW.views = TW.view || {};
+TW.views.pinboard = TW.views.pinboard || {};
+
+Object.assign(TW.views.pinboard, {
+
+	alreadyInserted: <%= @pinboard_item.is_inserted -%>,
+	pinboardItem: document.querySelector('[data-pinboard-object-id="<%= @pinboard_item.pinned_object.id -%>"]'),
+	defaultExist: document.querySelector('[data-pinboard-object-id="<%= @pinboard_item.pinned_object.id -%>"]')
+															.parentNode.querySelector('[data-insert="true"]'),
+
+	init: function() {
+		if(this.defaultExist != undefined) {
+			this.changeLink(this.defaultExist, false);
+		}
+		console.log("adsfasfds");
+
+		this.changeLink(this.pinboardItem, (this.alreadyInserted ? true : false));
+		this.eventPinboardInsert();
+		$('body').mx_spinner('hide');
+	},
+
+	changeLink: function(pinElement, inserted) {
+		pinElement.setAttribute('data-insert', inserted);
+		pinElement.querySelector('.itemOptions').replaceChild(this.createUrl(pinElement.dataset.pinboardItemId, (!inserted)), 
+													pinElement.querySelector('.itemOptions .option-default'));
+	},
+
+	createUrl: function(id, inserted) {
+		var newEl = document.createElement('a');
+		newEl.innerHTML = (inserted ? 'Make default' : 'Disable default');
+		newEl.setAttribute('href', '/pinboard_items/' + id + '?pinboard_item%5Bis_inserted%5D=' + inserted);
+		newEl.setAttribute('data-remote', 'true');
+		newEl.setAttribute('rel', 'nofollow');
+		newEl.setAttribute('data-method','put');
+		newEl.className = 'option-default';
+
+		return newEl;
+	},
+
+	eventPinboardInsert: function() {
+		var event = new CustomEvent("pinboard:insert", {
+		  detail: {
+		  	id: <%= @pinboard_item.pinned_object_id -%>,
+		    object_id: <%= @pinboard_item.pinned_object.id -%>,
+		    is_inserted: <%= @pinboard_item.is_inserted -%>
+		  }
+		});
+		document.dispatchEvent(event);
+	}
+});
+
+TW.views.pinboard.init();
+
