@@ -6,7 +6,6 @@ TW.views.tasks.nomenclature.browse = TW.views.tasks.nomenclature.browse || {};
 
 Object.assign(TW.views.tasks.nomenclature.browse, {
 
-
 	init: function() {
 		var soft_validations = undefined;
 		function fillSoftValidation() {
@@ -36,7 +35,6 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 			}
 		}
 
-
 		$('.filter .open').on('click', function() {
 			$(this).css('transform', 'rotate(' + ($(this).rotationInfo().deg + 180) + 'deg)');
 			if($(this).rotationInfo().deg == 360) { 
@@ -44,6 +42,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 			}
 		});
 
+    // TODO: move to an external generic utilities helper
 		function isActive(tag, className) {
 			if($(tag).hasClass(className)) {
 				$(tag).removeClass(className);
@@ -155,7 +154,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 
 $(document).on('turbolinks:load', function() {
   if($("#browse-view").length) {
-  	var init_browseNomenclature = TW.views.tasks.nomenclature.browse;
-  	init_browseNomenclature.init();
+    // no need for var, right?
+    TW.views.tasks.nomenclature.browse.init();
   }
 });

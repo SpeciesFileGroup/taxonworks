@@ -79,6 +79,10 @@ module NomenclatureCatalog
       end
     end
 
+    def is_valid_name?
+      object_class == 'Protonym' && object.is_valid?
+    end
+
     protected
 
     def cited_class  
