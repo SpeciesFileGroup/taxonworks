@@ -42,7 +42,7 @@ RSpec.describe OriginRelationshipsController, type: :controller do
   describe "GET #index" do
     it "assigns all origin_relationships as @origin_relationships" do
       origin_relationship = OriginRelationship.create! valid_attributes
-      get :index, {}, session: valid_session
+      get :index, params: {}, session: valid_session
       expect(assigns(:recent_objects)).to eq([origin_relationship])
     end
   end
@@ -50,14 +50,14 @@ RSpec.describe OriginRelationshipsController, type: :controller do
   describe "GET #show" do
     it "assigns the requested origin_relationship as @origin_relationship" do
       origin_relationship = OriginRelationship.create! valid_attributes
-      get :show, {id: origin_relationship.to_param}, session: valid_session
+      get :show, params: {id: origin_relationship.to_param}, session: valid_session
       expect(assigns(:origin_relationship)).to eq(origin_relationship)
     end
   end
 
   describe "GET #new" do
     it "assigns a new origin_relationship as @origin_relationship" do
-      get :new, {}, session: valid_session
+      get :new, params: {}, session: valid_session
       expect(assigns(:origin_relationship)).to be_a_new(OriginRelationship)
     end
   end
@@ -65,7 +65,7 @@ RSpec.describe OriginRelationshipsController, type: :controller do
   describe "GET #edit" do
     it "assigns the requested origin_relationship as @origin_relationship" do
       origin_relationship = OriginRelationship.create! valid_attributes
-      get :edit, {id: origin_relationship.to_param}, session: valid_session
+      get :edit, params: {id: origin_relationship.to_param}, session: valid_session
       expect(assigns(:origin_relationship)).to eq(origin_relationship)
     end
   end
@@ -74,30 +74,30 @@ RSpec.describe OriginRelationshipsController, type: :controller do
     context "with valid params" do
       it "creates a new OriginRelationship" do
         expect {
-          post :create, {origin_relationship: valid_attributes}, session: valid_session
+          post :create, params: {origin_relationship: valid_attributes}, session: valid_session
         }.to change(OriginRelationship, :count).by(1)
       end
 
       it "assigns a newly created origin_relationship as @origin_relationship" do
-        post :create, {origin_relationship: valid_attributes}, session: valid_session
+        post :create, params: {origin_relationship: valid_attributes}, session: valid_session
         expect(assigns(:origin_relationship)).to be_a(OriginRelationship)
         expect(assigns(:origin_relationship)).to be_persisted
       end
 
       it "redirects to the created origin_relationship" do
-        post :create, {origin_relationship: valid_attributes}, session: valid_session
+        post :create, params: {origin_relationship: valid_attributes}, session: valid_session
         expect(response).to redirect_to(OriginRelationship.last)
       end
     end
 
     context "with invalid params" do
       it "assigns a newly created but unsaved origin_relationship as @origin_relationship" do
-        post :create, {origin_relationship: invalid_attributes}, session: valid_session
+        post :create, params: {origin_relationship: invalid_attributes}, session: valid_session
         expect(assigns(:origin_relationship)).to be_a_new(OriginRelationship)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {origin_relationship: invalid_attributes}, session: valid_session
+        post :create, params: {origin_relationship: invalid_attributes}, session: valid_session
         expect(response).to render_template("new")
       end
     end
@@ -105,26 +105,27 @@ RSpec.describe OriginRelationshipsController, type: :controller do
 
   describe "PUT #update" do
     context "with valid params" do
+      let(:other_collection_object) { FactoryGirl.create(:valid_collection_object) }
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        { old_object_id: other_collection_object.id  } 
       }
 
       it "updates the requested origin_relationship" do
         origin_relationship = OriginRelationship.create! valid_attributes
-        put :update, {id: origin_relationship.to_param, origin_relationship: new_attributes}, session: valid_session
+        put :update, params: {id: origin_relationship.to_param, origin_relationship: new_attributes}, session: valid_session
         origin_relationship.reload
-        skip("Add assertions for updated state")
+        expect(origin_relationship.old_object.id).to eq(other_collection_object.id) 
       end
 
       it "assigns the requested origin_relationship as @origin_relationship" do
         origin_relationship = OriginRelationship.create! valid_attributes
-        put :update, {id: origin_relationship.to_param, origin_relationship: valid_attributes}, session: valid_session
+        put :update, params: {id: origin_relationship.to_param, origin_relationship: valid_attributes}, session: valid_session
         expect(assigns(:origin_relationship)).to eq(origin_relationship)
       end
 
       it "redirects to the origin_relationship" do
         origin_relationship = OriginRelationship.create! valid_attributes
-        put :update, {id: origin_relationship.to_param, origin_relationship: valid_attributes}, session: valid_session
+        put :update, params: {id: origin_relationship.to_param, origin_relationship: valid_attributes}, session: valid_session
         expect(response).to redirect_to(origin_relationship)
       end
     end
@@ -132,13 +133,13 @@ RSpec.describe OriginRelationshipsController, type: :controller do
     context "with invalid params" do
       it "assigns the origin_relationship as @origin_relationship" do
         origin_relationship = OriginRelationship.create! valid_attributes
-        put :update, {id: origin_relationship.to_param, origin_relationship: invalid_attributes}, session: valid_session
+        put :update, params: {id: origin_relationship.to_param, origin_relationship: invalid_attributes}, session: valid_session
         expect(assigns(:origin_relationship)).to eq(origin_relationship)
       end
 
       it "re-renders the 'edit' template" do
         origin_relationship = OriginRelationship.create! valid_attributes
-        put :update, {id: origin_relationship.to_param, origin_relationship: invalid_attributes}, session: valid_session
+        put :update, params: {id: origin_relationship.to_param, origin_relationship: invalid_attributes}, session: valid_session
         expect(response).to render_template("edit")
       end
     end
@@ -148,13 +149,13 @@ RSpec.describe OriginRelationshipsController, type: :controller do
     it "destroys the requested origin_relationship" do
       origin_relationship = OriginRelationship.create! valid_attributes
       expect {
-        delete :destroy, {id: origin_relationship.to_param}, session: valid_session
+        delete :destroy, params: {id: origin_relationship.to_param}, session: valid_session
       }.to change(OriginRelationship, :count).by(-1)
     end
 
     it "redirects to the origin_relationships list" do
       origin_relationship = OriginRelationship.create! valid_attributes
-      delete :destroy, {id: origin_relationship.to_param}, session: valid_session
+      delete :destroy, params: {id: origin_relationship.to_param}, session: valid_session
       expect(response).to redirect_to(origin_relationships_url)
     end
   end

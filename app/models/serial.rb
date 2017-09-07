@@ -28,7 +28,7 @@
 #   @return [String]
 #   @todo
 #
-class Serial < ActiveRecord::Base
+class Serial < ApplicationRecord
   # Include statements, and acts_as_type
   include Housekeeping::Users
   include Housekeeping::Timestamps  # needed for the views
@@ -40,8 +40,7 @@ class Serial < ActiveRecord::Base
   include Shared::IsData
   include SoftValidation
   include Shared::SharedAcrossProjects
-
-  has_paper_trail :on => [:update]
+  include Shared::HasPapertrail
 
   # Class constants
   ALTERNATE_VALUES_FOR = [:name, :publisher, :place_published]
@@ -122,7 +121,7 @@ class Serial < ActiveRecord::Base
 
 
   # @return [Scope]
-  #   Levenshtein calculated related records per supplied column 
+  #   Levenshtein calculated related records per supplied column
   def nearest_by_levenshtein(compared_string = nil, column = 'name', limit = 10)
     return Serial.none if compared_string.blank?
 
@@ -153,7 +152,7 @@ class Serial < ActiveRecord::Base
         ret_val = true
       end
     end
-    ret_val 
+    ret_val
   end
 
 =begin

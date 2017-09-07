@@ -2,13 +2,7 @@
     <%= on_loan_tag(@container) -%>
 
     <h3> Container labels</h3>
-    <% if @container.container_labels.any? -%>
-        <% @container.container_labels.each do |i| -%>
-            <%= content_tag(:pre, i.label) -%> </br>
-        <% end %>
-    <% else %>
-        <%= content_tag(:em, 'Unlabeled.') -%>
-    <% end %>
+    <%= @container.print_label -%>
 
     <h3> Nesting containers </h3>
     <% if @container.is_nested? -%>

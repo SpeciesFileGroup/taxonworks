@@ -15,7 +15,8 @@
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
-# The settings below are suggested to provide a good initial experience
+
+  # The settings below are suggested to provide a good initial experience
 # with RSpec, but feel free to customize to your heart's content.
 =begin
   # These two settings work together to allow you to limit a spec run
@@ -65,9 +66,6 @@ RSpec.configure do |config|
   config.use_transactional_fixtures = false
   config.infer_base_class_for_anonymous_controllers = false 
 
-  # Many RSpec users commonly either run the entire suite or an individual
-  # file, and it's useful to allow more verbose output when running an
-  # individual spec file.
   if config.files_to_run.one?
     # Use the documentation formatter for detailed output,
     # unless a formatter has already been configured
@@ -87,6 +85,11 @@ RSpec.configure do |config|
     test_excludes.merge!(lint: true)  
   end
 
+  # Tests that require a specific screen resolution to work no .travis
+  # unless ENV['TAXONWORKS_TEST_RESOLUTION']
+  #   test_excludes.merge!(resolution: true)  
+  # end
+
   config.filter_run_excluding test_excludes 
 
   # Print the 10 slowest examples and example groups at the
@@ -95,11 +98,10 @@ RSpec.configure do |config|
   #  config.profile_examples = 10
 
   config.before(:suite) do
-
     DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys))
         
     ActiveRecord::Base.connection.select_all("SELECT PostGIS_version() v").first['v'] =~ /(\d+.\d+)/
-    PSQL_VERSION = $1 
+    PSQL_VERSION = $1.to_f 
   end
 
   config.after(:suite) do
@@ -120,6 +122,7 @@ RSpec.configure do |config|
 
   config.after(:each, js: true) do
     Capybara.use_default_driver
+    set_selenium_window_size(1600, 1200) if Capybara.current_driver == :selenium
   end
 
   config.before(:each) do
@@ -130,8 +133,5 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
   end 
 
-# config.before(:each) do
-#   set_selenium_window_size(1250, 800) if Capybara.current_driver == :selenium
-# end  
 
 end

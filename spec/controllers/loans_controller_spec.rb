@@ -36,12 +36,12 @@ describe LoansController, :type => :controller do
   describe "GET list" do
     it "with no other parameters, assigns 20/page loans as @loans" do
       loan = Loan.create! valid_attributes
-      get :list, {}, valid_session
+      get :list, params: {}, session: valid_session
       expect(assigns(:loans)).to include(loan)
     end
 
     it "renders the list template" do
-      get :list, {}, valid_session
+      get :list, params: {}, session: valid_session
       expect(response).to render_template("list")
     end
   end
@@ -49,7 +49,7 @@ describe LoansController, :type => :controller do
   describe "GET index" do
     it "assigns all loans as @recent_objects" do
       loan = Loan.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       expect(assigns(:recent_objects).to_a).to include(loan)
     end
   end
@@ -57,14 +57,14 @@ describe LoansController, :type => :controller do
   describe "GET show" do
     it "assigns the requested loan as @loan" do
       loan = Loan.create! valid_attributes
-      get :show, {:id => loan.to_param}, valid_session
+      get :show, params: {:id => loan.to_param}, session: valid_session
       expect(assigns(:loan)).to eq(loan)
     end
   end
 
   describe "GET new" do
     it "assigns a new loan as @loan" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       expect(assigns(:loan)).to be_a_new(Loan)
     end
   end
@@ -72,7 +72,7 @@ describe LoansController, :type => :controller do
   describe "GET edit" do
     it "assigns the requested loan as @loan" do
       loan = Loan.create! valid_attributes
-      get :edit, {:id => loan.to_param}, valid_session
+      get :edit, params: {id: loan.to_param}, session: valid_session
       expect(assigns(:loan)).to eq(loan)
     end
   end
@@ -81,18 +81,18 @@ describe LoansController, :type => :controller do
     describe "with valid params" do
       it "creates a new Loan" do
         expect {
-          post :create, {:loan => valid_attributes}, valid_session
+          post :create, params: {loan: valid_attributes}, session: valid_session
         }.to change(Loan, :count).by(1)
       end
 
       it "assigns a newly created loan as @loan" do
-        post :create, {:loan => valid_attributes}, valid_session
+        post :create, params: {loan: valid_attributes}, session: valid_session
         expect(assigns(:loan)).to be_a(Loan)
         expect(assigns(:loan)).to be_persisted
       end
 
       it "redirects to the created loan" do
-        post :create, {:loan => valid_attributes}, valid_session
+        post :create, params: {loan: valid_attributes}, session: valid_session
         expect(response).to redirect_to(Loan.last)
       end
     end
@@ -101,14 +101,14 @@ describe LoansController, :type => :controller do
       it "assigns a newly created but unsaved loan as @loan" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Loan).to receive(:save).and_return(false)
-        post :create, {:loan => {:invalid => 'parms'}}, valid_session
+        post :create, params: {loan: {invalid: 'parms'}}, session: valid_session
         expect(assigns(:loan)).to be_a_new(Loan)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Loan).to receive(:save).and_return(false)
-        post :create, {:loan => {:invalid => 'parms'}}, valid_session
+        post :create, params: {loan: {invalid: 'parms'}}, session: valid_session
         expect(response).to render_template("new")
       end
     end
@@ -122,19 +122,20 @@ describe LoansController, :type => :controller do
         # specifies that the Loan created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        expect_any_instance_of(Loan).to receive(:update).with({'supervisor_email' => 'ugly'})
-        put :update, {:id => loan.to_param, :loan => {:supervisor_email => 'ugly'}}, valid_session
+        update_params = ActionController::Parameters.new({supervisor_email: 'ugly'}).permit(:supervisor_email)
+        expect_any_instance_of(Loan).to receive(:update).with(update_params)
+        put :update, params: {id: loan.to_param, loan: update_params}, session: valid_session
       end
 
       it "assigns the requested loan as @loan" do
         loan = Loan.create! valid_attributes
-        put :update, {:id => loan.to_param, :loan => valid_attributes}, valid_session
+        put :update, params: {id: loan.to_param, loan: valid_attributes}, session: valid_session
         expect(assigns(:loan)).to eq(loan)
       end
 
       it "redirects to the loan" do
         loan = Loan.create! valid_attributes
-        put :update, {:id => loan.to_param, :loan => valid_attributes}, valid_session
+        put :update, params: {id: loan.to_param, loan: valid_attributes}, session: valid_session
         expect(response).to redirect_to(loan)
       end
     end
@@ -144,7 +145,7 @@ describe LoansController, :type => :controller do
         loan = Loan.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Loan).to receive(:save).and_return(false)
-        put :update, {:id => loan.to_param, :loan => {:invalid => 'parms'}}, valid_session
+        put :update, params: {id: loan.to_param, loan: {invalid: 'parms'}}, session: valid_session
         expect(assigns(:loan)).to eq(loan)
       end
 
@@ -152,7 +153,7 @@ describe LoansController, :type => :controller do
         loan = Loan.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Loan).to receive(:save).and_return(false)
-        put :update, {:id => loan.to_param, :loan => {:invalid => 'parms'}}, valid_session
+        put :update, params: {id: loan.to_param, loan: {invalid: 'parms'}}, session: valid_session
         expect(response).to render_template("edit")
       end
     end
@@ -162,13 +163,13 @@ describe LoansController, :type => :controller do
     it "destroys the requested loan" do
       loan = Loan.create! valid_attributes
       expect {
-        delete :destroy, {:id => loan.to_param}, valid_session
+        delete :destroy, params: {id: loan.to_param}, session: valid_session
       }.to change(Loan, :count).by(-1)
     end
 
     it "redirects to the loans list" do
       loan = Loan.create! valid_attributes
-      delete :destroy, {:id => loan.to_param}, valid_session
+      delete :destroy, params: {id: loan.to_param}, session: valid_session
       expect(response).to redirect_to(loans_url)
     end
   end

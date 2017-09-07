@@ -1,10 +1,10 @@
 class Tasks::Accessions::Verify::MaterialController < ApplicationController
   include TaskControllerConfiguration
 
-  before_filter :get_data_to_verify
+  before_action :get_data_to_verify
 
   def index
-  end 
+  end
 
   protected
 
@@ -13,11 +13,11 @@ class Tasks::Accessions::Verify::MaterialController < ApplicationController
   def get_data_to_verify
 
     @collection_objects = []
-   
 
-    
+
+
     @identifier = nil
-    @container = nil 
+    @container  = nil
 
     case params[:by].to_sym
     when :container
@@ -25,17 +25,17 @@ class Tasks::Accessions::Verify::MaterialController < ApplicationController
       @collection_objects = @container.collection_objects
       @identifier = @container.identifiers.first
     when :collection_object
-      o = CollectionObject.find(params[:id])
-      @collection_objects = [o] 
-      @container = o.container
-      @identifier = o.identifiers.first if o.identifiers.any?
+      o                   = CollectionObject.find(params[:id])
+      @collection_objects = [o]
+      @container          = o.container
+      @identifier         = o.identifiers.first if o.identifiers.any?
     when :identifier
       @identifier = Identifier.find(params[:id])
       o = @identifier.identifier_object
       if o.class == Container
        @container = o
       elsif o.class == CollectionObject
-        @collection_objects = [o] 
+        @collection_objects = [o]
       else
         # raise an error
       end

@@ -7,7 +7,7 @@ describe NomenclaturalRank, type: :model do
   specify 'ranks should have an integer index' do
     rank_class = Ranks.lookup(:iczn, 'family')
     rank_class2 = Ranks.lookup(:iczn, 'genus')
-    expect(RANKS.index(rank_class).class).to eq(Fixnum)
+    expect(RANKS.index(rank_class).class).to eq(Integer)
     expect(RANKS.index(rank_class) < RANKS.index(rank_class2)).to be_truthy
   end
 
@@ -25,7 +25,7 @@ describe NomenclaturalRank, type: :model do
       specify { expect(NomenclaturalRank).to respond_to(:top_rank) }
 
       specify "returns the 'top' assignable rank" do
-        # The top two levels 
+        # The top two levels
         expect(NomenclaturalRank::Iczn.top_rank).to eq(NomenclaturalRank::Iczn::HigherClassificationGroup::Superkingdom)
         expect(NomenclaturalRank::Icn.top_rank).to eq(NomenclaturalRank::Icn::HigherClassificationGroup::Kingdom)
 
@@ -47,7 +47,7 @@ describe NomenclaturalRank, type: :model do
     end
 
   end
-  
+
   context 'relation properties' do
     specify "recursively following parent_rank class method is a cycle-free path" do
       curr = nil
@@ -59,17 +59,17 @@ describe NomenclaturalRank, type: :model do
           visited << curr
           curr = curr.parent_rank
         end
-        
+
         expect(curr).to be_nil
-      end     
+      end
     end
-    
+
     specify "there is at most on top_rank candidate" do
       NomenclaturalRank.descendants.each do |rank|
         all = rank.descendants
         candidates = all.reject { |r| r.parent_rank.nil? or all.include?(r.parent_rank) }
         expect(candidates.size < 2).to be_truthy
       end
-    end 
-  end    
+    end
+  end
 end

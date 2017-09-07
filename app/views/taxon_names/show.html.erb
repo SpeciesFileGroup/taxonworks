@@ -37,7 +37,7 @@
       <%= content_tag(:li, link_to(
         'Distribution',
         taxon_name_distribution_data_task_path(@taxon_name.to_param),
-        'data-no-turbolink' => true)) 
+        'data-turbolinks' => false)) 
       %>
   <% end %>
 

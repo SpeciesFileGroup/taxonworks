@@ -1,4 +1,4 @@
-class DropAwesomeNestedSetFromGeographicAreas < ActiveRecord::Migration
+class DropAwesomeNestedSetFromGeographicAreas < ActiveRecord::Migration[4.2]
   def change
 
     remove_column :geographic_areas, :lft

@@ -1,6 +1,6 @@
-class ObservationMatrix < ActiveRecord::Base
+class ObservationMatrix < ApplicationRecord
   include Housekeeping
-  include Shared::Citable              
+  include Shared::Citable
   include Shared::Identifiable
   include Shared::IsData
   include Shared::Taggable
@@ -15,6 +15,6 @@ class ObservationMatrix < ActiveRecord::Base
   has_many :observation_matrix_rows
   has_many :observation_matrix_columns
 
-  has_many :descriptors, through: :observation_matrix_columns 
+  has_many :descriptors, through: :observation_matrix_columns
 
 end

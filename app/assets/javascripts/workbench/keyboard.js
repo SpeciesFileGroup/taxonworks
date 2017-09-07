@@ -126,7 +126,7 @@ Object.assign(TW.workbench.keyboard, {
 	}	
 });
 
-$(document).ready(function() {
+$(document).on('turbolinks:load', function() {
 	if($("[data-shortcut-key]").length) {
 	  	if (!$("[data-help]").length) {
 		    TW.workbench.help.init_helpSystem();

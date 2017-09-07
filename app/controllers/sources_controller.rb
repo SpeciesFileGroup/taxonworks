@@ -37,14 +37,14 @@ class SourcesController < ApplicationController
       if @source.save
         case @source.type
           when 'Source::Bibtex'
-            format.html { redirect_to @source.metamorphosize, notice: "Source by '#{@source.author}' was successfully created." }
+            format.html {redirect_to @source.metamorphosize, notice: "Source by '#{@source.author}' was successfully created."}
           when 'Source::Verbatim'
-            format.html { redirect_to @source.metamorphosize, notice: "Source '#{@source.cached}' was successfully created." }
+            format.html {redirect_to @source.metamorphosize, notice: "Source '#{@source.cached}' was successfully created."}
           else # type human
-            format.html { redirect_to @source.metamorphosize, notice: "Source '#{@source.cached_author_string}' was successfully created." }
+            format.html {redirect_to @source.metamorphosize, notice: "Source '#{@source.cached_author_string}' was successfully created."}
         end
 
-        format.json { render action: 'show', status: :created, location: @source }
+        format.json {render action: 'show', status: :created, location: @source}
       else
         if @source.type == 'Source::Bibtex' && source_params['roles_attributes'].try(:count).to_i > 0
           # has an author or editor so force create...
@@ -53,15 +53,15 @@ class SourcesController < ApplicationController
             if @source.save
               @source.title = ''
               @source.save #TODO may need to add a test to confirm it saves the second time.
-              format.html { redirect_to @source.metamorphosize, notice: "Source by '#{@source.author}' was successfully created." }
+              format.html {redirect_to @source.metamorphosize, notice: "Source by '#{@source.author}' was successfully created."}
             else
-              format.html { render action: 'new' }
-              format.json { render json: @source.errors, status: :unprocessable_entity }
+              format.html {render action: 'new'}
+              format.json {render json: @source.errors, status: :unprocessable_entity}
             end
           end
         else
-          format.html { render action: 'new' }
-          format.json { render json: @source.errors, status: :unprocessable_entity }
+          format.html {render action: 'new'}
+          format.json {render json: @source.errors, status: :unprocessable_entity}
         end
       end
     end
@@ -72,11 +72,11 @@ class SourcesController < ApplicationController
   def update
     respond_to do |format|
       if @source.update(source_params)
-        format.html { redirect_to @source.metamorphosize, notice: 'Source was successfully updated.' }
-        format.json { head :no_content }
+        format.html {redirect_to @source.metamorphosize, notice: 'Source was successfully updated.'}
+        format.json {head :no_content}
       else
-        format.html { render action: 'edit' }
-        format.json { render json: @source.errors, status: :unprocessable_entity }
+        format.html {render action: 'edit'}
+        format.json {render json: @source.errors, status: :unprocessable_entity}
       end
     end
   end
@@ -86,14 +86,14 @@ class SourcesController < ApplicationController
   def destroy
     @source.destroy
     respond_to do |format|
-      format.html { redirect_to sources_url }
-      format.json { head :no_content }
+      format.html {redirect_to sources_url}
+      format.json {head :no_content}
     end
   end
 
   def autocomplete
     @sources = Queries::SourceFilterQuery.new(params[:term]).all
-    data = @sources.collect do |t|
+    data     = @sources.collect do |t|
       {id:              t.id,
        label:           ApplicationController.helpers.source_tag(t),
        response_values: {
@@ -180,16 +180,22 @@ class SourcesController < ApplicationController
 
   def source_params
     params['source'][:project_sources_attributes] = [{project_id: sessions_current_project_id.to_s}]
-    params.require(:source).permit(
-      :serial_id, :address, :annote, :author, :booktitle, :chapter,
-      :crossref, :edition, :editor, :howpublished, :institution,
-      :journal, :key, :month, :note, :number, :organization, :pages,
-      :publisher, :school, :series, :title, :type, :volume, :doi,
-      :abstract, :copyright, :language, :stated_year, :verbatim,
-      :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
-      :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type,
-      roles_attributes:           [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
-      project_sources_attributes: [:project_id]
+    params.require(:source).permit(:serial_id, :address, :annote, :author, :booktitle, :chapter,
+                                   :crossref, :edition, :editor, :howpublished, :institution,
+                                   :journal, :key, :month, :note, :number, :organization, :pages,
+                                   :publisher, :school, :series, :title, :type, :volume, :doi,
+                                   :abstract, :copyright, :language, :stated_year, :verbatim,
+                                   :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
+                                   :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type,
+                                   roles_attributes:           [:id,
+                                                                :_destroy,
+                                                                :type,
+                                                                :person_id,
+                                                                :position,
+                                                                person_attributes:
+                                                                  [:last_name, :first_name, :suffix, :prefix]
+                                                               ],
+                                   project_sources_attributes: [:project_id]
     )
   end
 end

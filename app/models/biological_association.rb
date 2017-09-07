@@ -6,25 +6,25 @@
 #
 # @!attribute biological_association_subject_id
 #   @return [Integer]
-#     id of the subject of the relationship 
+#     id of the subject of the relationship
 #
 # @!attribute biological_association_subject_type
 #   @return [String]
-#    type fo the subject (e.g. Otu) 
+#    type fo the subject (e.g. Otu)
 #
 # @!attribute biological_association_object_id
 #   @return [Integer]
-#    id of the object  
+#    id of the object
 #
 # @!attribute biological_association_object_type
 #   @return [String]
-#    type of the object (e.g. CollectionObject) 
+#    type of the object (e.g. CollectionObject)
 #
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
 #
-class BiologicalAssociation < ActiveRecord::Base
+class BiologicalAssociation < ApplicationRecord
   include Housekeeping
   include Shared::Citable
   include Shared::IsData

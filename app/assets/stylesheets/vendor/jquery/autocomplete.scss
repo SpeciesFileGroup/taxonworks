@@ -31,6 +31,12 @@
 
 .ui-menu {
 	width: auto;
+	max-width: 90vw;
+	background-color: #FFF;
+	z-index:99;
+	list-style: none;
+	margin-left: 0px;
+	padding-left: 0px;
 }
 
 .ui-menu a {
@@ -59,10 +65,20 @@
 	}
 }  
 
+.ui-helper-hidden-accessible{
+    display:none !important;
+}
+
 .ui-menu-item:hover {
 	background: none;
 	background-color: $color-complement-2;
 	border:1px solid transparent;
+}
+
+.ui-menu-item-wrapper, .ui-menu-item-wrapper:hover {
+	background-color: transparent !important;
+	background-image: none !important;
+	border: none !important;
 }
 
 
@@ -76,7 +92,6 @@
 	width: 400px;
 	font-size: 12px;
 	padding: 5px;
-	//font-weight: bold;
 	color: $color-secondary-2-4;
 	.subtle {
 		font-size: 10px;

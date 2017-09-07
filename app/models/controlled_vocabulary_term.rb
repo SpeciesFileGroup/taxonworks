@@ -2,11 +2,11 @@
 #
 # @!attribute type
 #   @return [String]
-#    The subclass of the CVT. 
+#    The subclass of the CVT.
 #
 # @!attribute name
 #   @return [String]
-#     The term name. 
+#     The term name.
 #
 # @!attribute definition
 #   @return [String]
@@ -18,20 +18,19 @@
 #
 # @!attribute uri
 #   @return [String]
-#    A URI for an external concept that matches this CVT. 
+#    A URI for an external concept that matches this CVT.
 #
 # @!attribute uri_relation
 #   @return [String]
-#     A SKOS relationship that defines/describes the relationship between the concept identified by the URI and the concept defined in the definition. 
+#     A SKOS relationship that defines/describes the relationship between the concept identified by the URI and the concept defined in the definition.
 #
-class ControlledVocabularyTerm < ActiveRecord::Base
+class ControlledVocabularyTerm < ApplicationRecord
 
   include Housekeeping
   include Shared::AlternateValues
   include Shared::IsData
+  include Shared::HasPapertrail
   # include Shared::Taggable <- NO!!
- 
-  has_paper_trail :on => [:update] 
 
   acts_as_list scope: [:project_id, :type]
 
@@ -44,10 +43,10 @@ class ControlledVocabularyTerm < ActiveRecord::Base
   validates_uniqueness_of :name, scope: [:type, :project_id]
   validates_uniqueness_of :definition, scope: [:project_id]
   validates_uniqueness_of :uri, scope: [:project_id, :uri_relation], allow_blank: true
-  validates_presence_of :uri_relation, unless: 'uri.blank?', message: 'must be provided if uri is provided'
-  validates_presence_of :uri, unless: 'uri_relation.blank?', message: 'must be provided if uri_relation is provided'
+  validates_presence_of :uri_relation, unless: -> {uri.blank?}, message: 'must be provided if uri is provided'
+  validates_presence_of :uri, unless: -> {uri_relation.blank?}, message: 'must be provided if uri_relation is provided'
 
-  validate :uri_relation_is_a_skos_relation, unless: 'uri_relation.blank?'
+  validate :uri_relation_is_a_skos_relation, unless: -> {uri_relation.blank?}
 
   scope :of_type, -> (type) { where(type: type.to_s.capitalize) }
 

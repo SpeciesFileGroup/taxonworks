@@ -26,7 +26,7 @@ require 'rgeo'
 #   @return [String]
 #     Rails STI, determines the geography column as well
 #
-class GeographicItem < ActiveRecord::Base
+class GeographicItem < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::IsData
@@ -1037,39 +1037,40 @@ class GeographicItem < ActiveRecord::Base
 
   # @param [geo_object]
   # @return [Boolean]
-  def contains?(geo_object)
-    self.geo_object.contains?(geo_object)
+  def contains?(target_geo_object)
+    return nil if target_geo_object.nil? 
+    self.geo_object.contains?(target_geo_object)
   end
 
   # @param [geo_object]
   # @return [Boolean]
-  def within?(geo_object)
-    self.geo_object.within?(geo_object)
+  def within?(target_geo_object)
+    self.geo_object.within?(target_geo_object)
   end
 
   # @param [geo_object]
   # @return [Boolean]
-  def intersects?(geo_object)
-    self.geo_object.intersects?(geo_object)
+  def intersects?(target_geo_object)
+    self.geo_object.intersects?(target_geo_object)
   end
 
   # @TODO doesn't work?
   # @param [geo_object]
   # @return [Boolean]
-  def distance?(geo_object)
-    self.geo_object.distance?(geo_object)
+  def distance?(target_geo_object)
+    self.geo_object.distance?(target_geo_object)
   end
 
   # @param [geo_object, Double]
   # @return [Boolean]
-  def near(geo_object, distance)
-    self.geo_object.buffer(distance).contains?(geo_object)
+  def near(target_geo_object, distance)
+    self.geo_object.buffer(distance).contains?(target_geo_object)
   end
 
   # @param [geo_object, Double]
   # @return [Boolean]
-  def far(geo_object, distance)
-    !near(geo_object, distance)
+  def far(target_geo_object, distance)
+    !near(target_geo_object, distance)
   end
 
   # @return [GeoJSON hash]

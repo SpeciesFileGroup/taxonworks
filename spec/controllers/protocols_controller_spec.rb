@@ -42,7 +42,7 @@ RSpec.describe ProtocolsController, type: :controller do
   describe "GET #index" do
     it "assigns all protocols as @protocols" do
       protocol = Protocol.create! valid_attributes
-      get :index, {}, session: valid_session
+      get :index, params: {}, session: valid_session
       expect(assigns(:recent_objects)).to eq([protocol])
     end
   end
@@ -50,14 +50,14 @@ RSpec.describe ProtocolsController, type: :controller do
   describe "GET #show" do
     it "assigns the requested protocol as @protocol" do
       protocol = Protocol.create! valid_attributes
-      get :show, {id: protocol.to_param}, session: valid_session
+      get :show, params: {id: protocol.to_param}, session: valid_session
       expect(assigns(:protocol)).to eq(protocol)
     end
   end
 
   describe "GET #new" do
     it "assigns a new protocol as @protocol" do
-      get :new, {}, session: valid_session
+      get :new, params: {}, session: valid_session
       expect(assigns(:protocol)).to be_a_new(Protocol)
     end
   end
@@ -65,7 +65,7 @@ RSpec.describe ProtocolsController, type: :controller do
   describe "GET #edit" do
     it "assigns the requested protocol as @protocol" do
       protocol = Protocol.create! valid_attributes
-      get :edit, {id: protocol.to_param}, session: valid_session
+      get :edit, params: {id: protocol.to_param}, session: valid_session
       expect(assigns(:protocol)).to eq(protocol)
     end
   end
@@ -74,30 +74,30 @@ RSpec.describe ProtocolsController, type: :controller do
     context "with valid params" do
       it "creates a new Protocol" do
         expect {
-          post :create, {protocol: valid_attributes}, session: valid_session
+          post :create, params: {protocol: valid_attributes}, session: valid_session
         }.to change(Protocol, :count).by(1)
       end
 
       it "assigns a newly created protocol as @protocol" do
-        post :create, {protocol: valid_attributes}, session: valid_session
+        post :create, params: {protocol: valid_attributes}, session: valid_session
         expect(assigns(:protocol)).to be_a(Protocol)
         expect(assigns(:protocol)).to be_persisted
       end
 
       it "redirects to the created protocol" do
-        post :create, {protocol: valid_attributes}, session: valid_session
+        post :create, params: {protocol: valid_attributes}, session: valid_session
         expect(response).to redirect_to(Protocol.last)
       end
     end
 
     context "with invalid params" do
       it "assigns a newly created but unsaved protocol as @protocol" do
-        post :create, {protocol: invalid_attributes}, session: valid_session
+        post :create, params: {protocol: invalid_attributes}, session: valid_session
         expect(assigns(:protocol)).to be_a_new(Protocol)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {protocol: invalid_attributes}, session: valid_session
+        post :create, params: {protocol: invalid_attributes}, session: valid_session
         expect(response).to render_template("new")
       end
     end
@@ -115,7 +115,7 @@ RSpec.describe ProtocolsController, type: :controller do
 
       it "updates the requested protocol" do
         protocol = Protocol.create! valid_attributes
-        put :update, {id: protocol.to_param, protocol: new_attributes}, session: valid_session
+        put :update, params: {id: protocol.to_param, protocol: new_attributes}, session: valid_session
         protocol.reload
 
         expect(protocol.name == valid_protocol_name).to be true
@@ -124,13 +124,13 @@ RSpec.describe ProtocolsController, type: :controller do
 
       it "assigns the requested protocol as @protocol" do
         protocol = Protocol.create! valid_attributes
-        put :update, {id: protocol.to_param, protocol: valid_attributes}, session: valid_session
+        put :update, params: {id: protocol.to_param, protocol: valid_attributes}, session: valid_session
         expect(assigns(:protocol)).to eq(protocol)
       end
 
       it "redirects to the protocol" do
         protocol = Protocol.create! valid_attributes
-        put :update, {id: protocol.to_param, protocol: valid_attributes}, session: valid_session
+        put :update, params: {id: protocol.to_param, protocol: valid_attributes}, session: valid_session
         expect(response).to redirect_to(protocol)
       end
     end
@@ -138,13 +138,13 @@ RSpec.describe ProtocolsController, type: :controller do
     context "with invalid params" do
       it "assigns the protocol as @protocol" do
         protocol = Protocol.create! valid_attributes
-        put :update, {id: protocol.to_param, protocol: invalid_attributes}, session: valid_session
+        put :update, params: {id: protocol.to_param, protocol: invalid_attributes}, session: valid_session
         expect(assigns(:protocol)).to eq(protocol)
       end
 
       it "re-renders the 'edit' template" do
         protocol = Protocol.create! valid_attributes
-        put :update, {id: protocol.to_param, protocol: invalid_attributes}, session: valid_session
+        put :update, params: {id: protocol.to_param, protocol: invalid_attributes}, session: valid_session
         expect(response).to render_template("edit")
       end
     end
@@ -154,13 +154,13 @@ RSpec.describe ProtocolsController, type: :controller do
     it "destroys the requested protocol" do
       protocol = Protocol.create! valid_attributes
       expect {
-        delete :destroy, {id: protocol.to_param}, session: valid_session
+        delete :destroy, params: {id: protocol.to_param}, session: valid_session
       }.to change(Protocol, :count).by(-1)
     end
 
     it "redirects to the protocols list" do
       protocol = Protocol.create! valid_attributes
-      delete :destroy, {id: protocol.to_param}, session: valid_session
+      delete :destroy, params: {id: protocol.to_param}, session: valid_session
       expect(response).to redirect_to(protocols_url)
     end
   end

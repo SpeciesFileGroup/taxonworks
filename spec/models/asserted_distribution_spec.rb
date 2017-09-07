@@ -85,14 +85,14 @@ describe AssertedDistribution, type: :model, group: :geo do
           asserted_distribution.source = source
           asserted_distribution.save!
           expect(asserted_distribution.citations.count).to eq(1)
-          expect(asserted_distribution.citations(true).first.destroy).to be_falsey
+          expect(asserted_distribution.citations.reload.first.destroy).to be_falsey
         end
 
         specify 'when citation is not origin citation' do
           asserted_distribution.citations << Citation.new(source: source)
           expect(asserted_distribution.save).to be_truthy
           expect(asserted_distribution.citations.count).to eq(1)
-          expect(asserted_distribution.citations(true).first.destroy).to be_falsey
+          expect(asserted_distribution.citations.reload.first.destroy).to be_falsey
         end
       end
     end

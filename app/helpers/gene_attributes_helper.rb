@@ -1,7 +1,7 @@
 module GeneAttributesHelper
   def gene_attribute_tag(gene_attribute)
     return nil if gene_attribute.nil?
-    gene_attribute.id
+    gene_attribute.id.to_s
   end
 
   def gene_attributes_search_form

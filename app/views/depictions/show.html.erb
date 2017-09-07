@@ -1,5 +1,5 @@
 <%= content_for :tasks do -%>
-  <%= content_tag(:li, link_to('Transcribe', sqed_depiction_breakdown_task_path(@depiction.sqed_depiction), 'data-no-turbolink' => 'true')) if @depiction.sqed_depiction -%>
+  <%= content_tag(:li, link_to('Transcribe', sqed_depiction_breakdown_task_path(@depiction.sqed_depiction), 'data-turbolinks' => 'false')) if @depiction.sqed_depiction -%>
 <% end %>
 
 <%= content_for :associated do -%>

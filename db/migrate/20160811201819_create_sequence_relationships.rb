@@ -1,4 +1,4 @@
-class CreateSequenceRelationships < ActiveRecord::Migration
+class CreateSequenceRelationships < ActiveRecord::Migration[4.2]
   def change
     create_table :sequence_relationships do |t|
       t.references :subject_sequence, polymorphic: true, null: false

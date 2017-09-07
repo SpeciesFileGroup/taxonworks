@@ -11,11 +11,11 @@ class SerialChronologiesController < ApplicationController
 
     respond_to do |format|
       if @serial_chronology.save
-        format.html { redirect_to :back, notice: 'Serial chronology was successfully created.' }
-        format.json { render json: @serial_chronology, status: :created, location: @serial_chronology }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Serial chronology was successfully created.')}
+        format.json {render json: @serial_chronology, status: :created, location: @serial_chronology}
       else
-        format.html { redirect_to :back, notice: 'Serial chronology was NOT successfully created.' }
-        format.json { render json: @serial_chronology.errors, status: :unprocessable_entity }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Serial chronology was NOT successfully created.')}
+        format.json {render json: @serial_chronology.errors, status: :unprocessable_entity}
       end
     end
   end
@@ -25,11 +25,11 @@ class SerialChronologiesController < ApplicationController
   def update
     respond_to do |format|
       if @serial_chronology.update(serial_chronology_params)
-        format.html { redirect_to :back, notice: 'Serial chronology was successfully updated.' }
-        format.json { head :no_content }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Serial chronology was successfully updated.')}
+        format.json {head :no_content}
       else
-        format.html { redirect_to :back, notice: 'Serial chronology was NOT successfully updated.' }
-        format.json { render json: @serial_chronology.errors, status: :unprocessable_entity }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Serial chronology was NOT successfully updated.')}
+        format.json {render json: @serial_chronology.errors, status: :unprocessable_entity}
       end
     end
   end
@@ -39,20 +39,20 @@ class SerialChronologiesController < ApplicationController
   def destroy
     @serial_chronology.destroy
     respond_to do |format|
-      format.html { redirect_to :back, notice: 'Serial chronology was successfully destroyed.' }
-      format.json { head :no_content }
+      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Serial chronology was successfully destroyed.')}
+      format.json {head :no_content}
     end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_serial_chronology
-      @serial_chronology = SerialChronology.find(params[:id])
-      @recent_object = @serial_chronology
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_serial_chronology
+    @serial_chronology = SerialChronology.find(params[:id])
+    @recent_object     = @serial_chronology
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def serial_chronology_params
-      params.require(:serial_chronology).permit(:preceding_serial_id, :succeeding_serial_id, :type)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def serial_chronology_params
+    params.require(:serial_chronology).permit(:preceding_serial_id, :succeeding_serial_id, :type)
+  end
 end

@@ -119,7 +119,7 @@ Object.assign(TW.workbench.help, {
 
 });
 
-$(document).ready( function() {
+$(document).on('turbolinks:load', function() {
 	if($("[data-help]").length) {
 	    TW.workbench.help.init_helpSystem();
 	}	

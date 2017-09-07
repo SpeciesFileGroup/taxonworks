@@ -156,15 +156,13 @@ describe Georeference, type: :model, group: :geo do
     context 'geographic_item related' do
       # TODO: Remove.  The georeference should assume the geographic items handle their own error checking
       context 'malformed geographic_items' do
-
         specify 'errors which result from badly formed error_geographic_item values' do
-          g = Georeference::VerbatimData.new(collecting_event:      collecting_event_with_geographic_area,
+          g = Georeference::VerbatimData.new(collecting_event: collecting_event_with_geographic_area,
                                              error_geographic_item: GeographicItem.new(polygon: POLY_E1))
           g.valid?
           expect(g.errors.keys.include?(:error_geographic_item)).to be_truthy
           expect(g.errors.keys.include?(:collecting_event)).to be_truthy
         end
-
       end
 
       # TODO: what does this test?  We need to resolve the meaning of error_radius
@@ -205,7 +203,7 @@ describe Georeference, type: :model, group: :geo do
           GeographicAreasGeographicItem.create!(geographic_area: ga_b1, geographic_item: gi_b1)
         }
 
-        xspecify 'errors which result from badly formed collecting_event area values and error_geographic_item' do
+        specify 'errors which result from badly formed collecting_event area values and error_geographic_item' do
           # error_geographic_item exists,  but is not inside ce_e1
           g = Georeference::VerbatimData.new(collecting_event:      ce_e1,
                                              # e_g_i is test_box_1

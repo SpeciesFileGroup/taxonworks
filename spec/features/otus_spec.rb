@@ -7,18 +7,19 @@ describe 'Otus', type: :feature do
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
   context 'signed in as a user' do
-    before do 
+    before do
+      # TODO: Fix occasional "Capybara::ElementNotFound: Unable to find field "session_email" with id session_email"
       sign_in_user_and_select_project
       @user.generate_api_access_token
       @user.save!
-    end 
+    end
 
     context 'with some records created' do
-      before do 
+      before do
         5.times { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
         FactoryGirl.create(:valid_otu, name: 'Find me', creator: @user, updater: @user, project: @project)
         Otu.last.update_column(:name, 'something_unmatchable 44')
-      end 
+      end
 
       context 'GET /otus' do
         before { visit index_path }
@@ -42,7 +43,7 @@ describe 'Otus', type: :feature do
       end
 
       describe 'GET /otus/n' do
-        before { 
+        before {
           visit otu_path(Otu.second)
         }
 

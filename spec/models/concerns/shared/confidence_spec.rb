@@ -2,11 +2,11 @@ require 'rails_helper'
 
 describe 'Confidence', type: :model, group: :confidence do
   let(:class_with_confidences) { TestConfidence.new }
-  let(:confidence_level) { FactoryGirl.create(:valid_confidence_level) } 
+  let(:confidence_level) {FactoryGirl.create(:valid_confidence_level)}
 
   context 'associations' do
     specify 'has many confidences' do
-      expect(class_with_confidences).to respond_to(:confidences) 
+      expect(class_with_confidences).to respond_to(:confidences)
       expect(class_with_confidences.confidences.to_a).to eq([]) # there are no confidences yet.
 
       expect(class_with_confidences.confidences << FactoryGirl.build(:valid_confidence)).to be_truthy
@@ -27,7 +27,7 @@ describe 'Confidence', type: :model, group: :confidence do
 
       specify 'without confidences' do
         expect(class_with_confidences.class.without_confidences.count).to eq(0)
-      end 
+      end
 
       specify 'with_confidences' do
         expect(class_with_confidences.class.with_confidences.pluck(:id)).to eq( [ class_with_confidences.id  ] )
@@ -38,7 +38,7 @@ describe 'Confidence', type: :model, group: :confidence do
       specify 'without confidences' do
         class_with_confidences.save
         expect(TestConfidence.without_confidences.pluck(:id)).to eq([class_with_confidences.id])
-      end 
+      end
 
       specify 'with_confidences' do
         expect(class_with_confidences.class.with_confidences.to_a).to eq( [ ] )
@@ -60,7 +60,7 @@ describe 'Confidence', type: :model, group: :confidence do
   end
 end
 
-class TestConfidence < ActiveRecord::Base
+class TestConfidence < ApplicationRecord
   include FakeTable
   include Shared::Confidence
 end

@@ -4,7 +4,7 @@ describe Content, :type => :model do
   let(:content) { Content.new() }
   let(:topic) { FactoryGirl.create(:valid_topic)  }
   let(:otu) { FactoryGirl.create(:valid_otu) }
-  let(:not_topic) { FactoryGirl.create(:valid_keyword) } 
+  let(:not_topic) {FactoryGirl.create(:valid_keyword)}
 
   context 'validation' do
     before { content.valid?}
@@ -24,7 +24,7 @@ describe Content, :type => :model do
     context 'topic' do
       specify 'must only be a topic' do
         expect {content.topic = not_topic}.to raise_error(ActiveRecord::AssociationTypeMismatch)
-      end 
+      end
     end
   end
 
@@ -86,7 +86,7 @@ describe Content, :type => :model do
       end
 
       specify 'live?'  do
-        expect(c.live?).to be_truthy
+        expect(c.paper_trail.live?).to be_truthy
       end
     end
   end

@@ -8,6 +8,7 @@ describe 'Confidences', type: :feature, group: :annotators do
 
   context 'signed in as a user, with some records created' do
     before do
+      # TODO: Fix occasional "Capybara::ElementNotFound: Unable to find field "session_email" with id session_email"
       sign_in_user_and_select_project
     end
 
@@ -16,10 +17,10 @@ describe 'Confidences', type: :feature, group: :annotators do
     let!(:confidence_levels) do
       confidence_levels = []
       ['Sure', 'Maybe', 'No!'].each do |n|
-        confidence_levels.push ConfidenceLevel.create!(name: n, definition: "Really, #{n}.", by: @user, project: @project) 
+        confidence_levels.push ConfidenceLevel.create!(name: n, definition: "Really, #{n}.", by: @user, project: @project)
       end
       confidence_levels
-    end 
+    end
 
     let!(:confidences) do
       confidences = []

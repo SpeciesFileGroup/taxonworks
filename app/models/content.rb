@@ -6,11 +6,11 @@
 #   @return [String]
 #   The written content.
 #
-# @!attribute otu_id 
+# @!attribute otu_id
 #   @return [Integer]
 #   When OtuContent::Text the id of the Otu the content pertains to.  At present required.
 #
-# @!attribute topic_id 
+# @!attribute topic_id
 #   @return [Integer]
 #   When OtuContent::Text the id of the Topic the content pertains to. At present required.
 #
@@ -22,14 +22,13 @@
 #   @return [Integer]
 #   Stubbed placeholder for Revision (sensus taxonomy) model.  NOT PRESENTLY USED.
 #
-class Content < ActiveRecord::Base
+class Content < ApplicationRecord
   include Housekeeping
   include Shared::Depictions
   include Shared::Confidence
-  include Shared::Citable 
+  include Shared::Citable
   include Shared::IsData
-
-  has_paper_trail :on => [:update] 
+  include Shared::HasPapertrail
 
   belongs_to :otu, inverse_of: :contents
   belongs_to :topic, inverse_of: :contents
@@ -90,7 +89,7 @@ class Content < ActiveRecord::Base
   end
 
   # @return [CSV]
-  # Generate a version of the raw contents table for the given scope 
+  # Generate a version of the raw contents table for the given scope
   # Ripped from http://railscasts.com/episodes/362-exporting-csv-and-excel
   def self.generate_download(scope)
     CSV.generate do |csv|

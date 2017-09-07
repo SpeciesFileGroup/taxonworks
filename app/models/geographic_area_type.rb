@@ -5,7 +5,7 @@
 #   @return [String]
 #   The name of the geographic area type.
 #
-class GeographicAreaType < ActiveRecord::Base
+class GeographicAreaType < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::IsData

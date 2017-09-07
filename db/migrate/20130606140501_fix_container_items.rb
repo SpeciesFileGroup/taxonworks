@@ -1,4 +1,4 @@
-class FixContainerItems < ActiveRecord::Migration
+class FixContainerItems < ActiveRecord::Migration[4.2]
   def change
     remove_column :container_items, :otu_id
     add_column :container_items, :containable_id, :integer

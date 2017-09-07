@@ -1,5 +1,5 @@
 # A note is a text annotation on a data instance (record).
-# 
+#
 # Notes are text only notes on instances that belong to some project (e.g. models that include Shared::IsData).
 # For global instances use DataAttribute.
 #
@@ -7,23 +7,23 @@
 #
 # @!attribute text
 #   @return [String]
-#     The content of the note, in Markdown if you wish. 
+#     The content of the note, in Markdown if you wish.
 #
 # @!attribute note_object_type
 #   @return [String]
-#     The object being annotated. 
+#     The object being annotated.
 #
 # @!attribute note_object_attribute
 #   @return [String]
-#     The specific attribute being annotated. 
+#     The specific attribute being annotated.
 #
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
 #
-class Note < ActiveRecord::Base
+class Note < ApplicationRecord
   include Housekeeping
-  include Shared::IsData 
+  include Shared::IsData
   include Shared::AttributeAnnotations
   include Shared::Taggable
 
@@ -32,7 +32,7 @@ class Note < ActiveRecord::Base
 
   # Please DO NOT include the following, they get in the way
   # of the present housekeeping approach. A not null constraint exists
-  # to catch these at present. 
+  # to catch these at present.
   #    validates_associated :note_object
   #    validates_presence_of :note_object_id, :note_object_type
   validates_presence_of :text
@@ -44,9 +44,9 @@ class Note < ActiveRecord::Base
   end
 
   # @return [NoteObject]
-  #   alias to simplify reference across classes 
+  #   alias to simplify reference across classes
   def annotated_object
-    note_object 
+    note_object
   end
 
   def self.annotated_attribute_column

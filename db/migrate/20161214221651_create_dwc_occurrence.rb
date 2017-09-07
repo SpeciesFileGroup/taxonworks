@@ -4,7 +4,7 @@
 #
 # You will need to add this line to your model:
 #    self.inheritance_column = nil
-class CreateDwcOccurrence < ActiveRecord::Migration
+class CreateDwcOccurrence < ActiveRecord::Migration[4.2]
   def change
     create_table :dwc_occurrences do |t|
       t.string :acceptedNameUsage

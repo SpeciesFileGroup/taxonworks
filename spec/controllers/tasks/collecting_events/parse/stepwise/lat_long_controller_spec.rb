@@ -23,7 +23,7 @@ describe Tasks::CollectingEvents::Parse::Stepwise::LatLongController, type: :con
     it 'assigns one specific collecting event to @collecting_event' do
       ce_dont_find
       this_ce = ce_find # specific order to hide the one we want
-      get(:index, {}, valid_session)
+      get(:index, params: {}, session: valid_session)
       expect(assigns(:collecting_event)).to eq(this_ce)
     end
   end

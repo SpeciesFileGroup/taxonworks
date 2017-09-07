@@ -1,4 +1,4 @@
-class AddlSerialFlds < ActiveRecord::Migration
+class AddlSerialFlds < ActiveRecord::Migration[4.2]
   def change
     rename_column :serials, :full_name, :name
     add_column :serials, :publisher, :string

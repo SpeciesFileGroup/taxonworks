@@ -1,4 +1,4 @@
-class CreateContainerItems < ActiveRecord::Migration
+class CreateContainerItems < ActiveRecord::Migration[4.2]
   def change
     create_table :container_items do |t|
       t.references :container, index: true

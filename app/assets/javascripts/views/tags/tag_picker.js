@@ -140,7 +140,7 @@ Object.assign(TW.views.tags.tag_picker, {
     // Add a citation_topic to the list via the add new form
     form.find("#keyword_picker_add_new").click(function () {
       TW.views.tags.tag_picker.insert_new_tag(form);
-      form.find('.new_keyword').show(); // attr("hidden", true);
+      form.find('.new_keyword').hide(); // attr("hidden", true);
       TW.views.tags.tag_picker.clear_keyword_picker(form);
     });
   },
@@ -177,7 +177,7 @@ Object.assign(TW.views.tags.tag_picker, {
   },
 
   remove_link: function () {
-    var link = $('<a href="#" class="remove_tag">remove</a>');
+    var link = $('<a href="#" data-turbolinks="false" class="remove_tag">remove</a>');
     TW.views.tags.tag_picker.bind_remove_links(link);
     return link;
   },
@@ -223,15 +223,11 @@ Object.assign(TW.views.tags.tag_picker, {
 
 });
 
-var _initialize_tag_picker_widget;
+// Initialize the script on page load
 
-_initialize_tag_picker_widget = function
-  init_tag_picker() {
+$(document).on('turbolinks:load', function() {
   $('.tag_picker').each(function () {
     TW.views.tags.tag_picker.initialize_tag_picker($(this));
   });
-};
-
-// Initialize the script on page load
-$(document).ready(_initialize_tag_picker_widget);
+});
 

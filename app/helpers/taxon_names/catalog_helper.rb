@@ -3,7 +3,22 @@
 module TaxonNames::CatalogHelper
 
   def nomenclature_catalog_li_tag(nomenclature_catalog_item, reference_taxon_name, target = :browse_nomenclature_task_path)
-    content_tag(:li, nomenclature_line_tag(nomenclature_catalog_item, reference_taxon_name, target), class: :history__record)
+    content_tag(
+      :li,
+      nomenclature_line_tag(nomenclature_catalog_item, reference_taxon_name, target).html_safe, 
+      class: [:history__record],
+      data: nomenclature_catalog_li_tag_data_attributes(nomenclature_catalog_item)
+    ) 
+  end
+
+  def nomenclature_catalog_li_tag_data_attributes(nomenclature_catalog_item)
+    n = nomenclature_catalog_item
+    data = {
+      'history-origin' => n.origin,
+      'history-object-id' => n.object.id,
+      'history-valid-name' => n.is_valid_name?
+    }
+    data
   end
 
   def nomenclature_line_tag(nomenclature_catalog_item, reference_taxon_name, target = :browse_nomenclature_task_path)
@@ -13,7 +28,7 @@ module TaxonNames::CatalogHelper
     r = reference_taxon_name
 
     [ 
-      history_origin(i), 
+#      history_origin(i), 
       history_taxon_name(t, r, c, target),        # the subject, or protonym
       history_statuses(i),                        # TaxonNameClassification summary
       history_author_year(t, c),                  # author year of the subject, or protonym
@@ -25,12 +40,12 @@ module TaxonNames::CatalogHelper
       history_topics(c),                          # Topics on the citation
 #      (i.object.class.name == 'Protonym' ? history_type_material(t, i.is_subsequent?) : nil), # Type material reference 
       history_type_material(i),
-    ].compact.join.html_safe
+    ].compact.join("\n").html_safe
   end
 
-  def history_origin(i)
-    content_tag(:span, i.origin.humanize, class: ['history__origin', i.origin ])
-  end
+# def history_origin(i)
+#   content_tag(:span, i.origin.humanize, class: ['history__origin', i.origin ])
+# end
 
   def history_taxon_name(taxon_name, r, c, target = nil)
     name = original_taxon_name_tag(taxon_name)
@@ -116,7 +131,7 @@ module TaxonNames::CatalogHelper
       }.join(', ')
       ).html_safe +
       ')'
-    end
+    end.to_s
   end
 
   # @return [String, nil]

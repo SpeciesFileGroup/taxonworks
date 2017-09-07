@@ -1,14 +1,14 @@
 #
 # A MatrixRowItem defines a set of one OR MORE matrix rows depending on their class.
-# 
-class ObservationMatrixRowItem < ActiveRecord::Base
+#
+class ObservationMatrixRowItem < ApplicationRecord
   include Housekeeping
   include Shared::Citable
   include Shared::Identifiable
   include Shared::IsData
   include Shared::Taggable
   include Shared::Notable
-  
+
   acts_as_list
 
   ALL_STI_ATTRIBUTES = [:otu_id, :collection_object_id, :controlled_vocabulary_term_id]
@@ -17,7 +17,7 @@ class ObservationMatrixRowItem < ActiveRecord::Base
 
   validates_presence_of :observation_matrix
   validate :type_is_subclassed
-  validate :other_subclass_attributes_not_set, if: '!type.blank?'
+  validate :other_subclass_attributes_not_set, if: -> {!type.blank?}
 
   after_save :update_matrix_rows
   after_destroy :cleanup_matrix_rows
@@ -95,7 +95,7 @@ class ObservationMatrixRowItem < ActiveRecord::Base
   #   the object used to define the set of matrix rows
   # override
   def matrix_row_item_object
-    nil 
+    nil
   end
 
   # @return [matrix_row_item_object, nil]

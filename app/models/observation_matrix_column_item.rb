@@ -1,7 +1,7 @@
 #
 # Each ObservationMatrixColumnItem is set of descriptors
 #
-class ObservationMatrixColumnItem < ActiveRecord::Base
+class ObservationMatrixColumnItem < ApplicationRecord
   include Housekeeping
   include Shared::Identifiable
   include Shared::IsData
@@ -14,7 +14,11 @@ class ObservationMatrixColumnItem < ActiveRecord::Base
 
   belongs_to :observation_matrix
 
-  #  belongs_to :controlled_vocabulary_term (belongs elsewhere) 
+  # TODO: remove from subclasses
+  belongs_to :descriptor
+  belongs_to :controlled_vocabulary_term
+
+  #  belongs_to :controlled_vocabulary_term (belongs elsewhere)
 
   validates_presence_of :observation_matrix
   validate :type_is_subclassed
@@ -38,8 +42,8 @@ class ObservationMatrixColumnItem < ActiveRecord::Base
 
   def cleanup_single_matrix_column(descriptor_id, mc = nil)
     mc ||= ObservationMatrixColumn.where(descriptor_id: descriptor_id, observation_matrix: observation_matrix).first
-    
-    current = mc.reference_count - 1 
+
+    current = mc.reference_count - 1
     if current == 0
       mc.delete
     else
@@ -64,10 +68,10 @@ class ObservationMatrixColumnItem < ActiveRecord::Base
   end
 
   # @return [Array]
-  #    the descriptors "defined" by this matrix column item 
+  #    the descriptors "defined" by this matrix column item
   # override
   def descriptors
-    false    
+    false
   end
 
   protected

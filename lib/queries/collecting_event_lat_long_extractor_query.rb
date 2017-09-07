@@ -1,4 +1,21 @@
 module Queries
+=begin
+For example:
+
+start_id.gt(collecting_event_id)
+            becomes
+start_id.gt(Arel::Nodes::Quoted.new(collecting_event_id))
+
+Arel performing automatic type casting is deprecated, and will be removed in Arel 8.0. If you are seeing this, it is because you are manually passing a value to an Arel predicate, and the `Arel::Table` object was constructed manually. The easiest way to remove this warning is to use an `Arel::Table` object returned from calling `arel_table` on an ActiveRecord::Base subclass.
+
+If you're certain the value is already of the right type, change `attribute.eq(value)` to `attribute.eq(Arel::Nodes::Quoted.new(value))` (you will be able to remove that in Arel 8.0, it is only required to silence this deprecation warning).
+
+You can also silence this warning globally by setting `$arel_silence_type_casting_deprecation` to `true`. (Do NOT do this if you are a library author)
+
+If you are passing user input to a predicate, you must either give an appropriate type caster object to the `Arel::Table`, or manually cast the value before passing it to Arel.
+DEPRECATION WARNING: Passing a column to `quote` has been deprecated. It is only used for type casting, which should be handled elsewhere. See https://github.com/rails/arel/commit/6160bfbda1d1781c3b08a33ec4955f170e95be11 for more information. (called from where_sql at /Users/tuckerjd/src/taxonworks/lib/queries/collecting_event_lat_long_extractor_query.rb:41)
+=end
+
   class CollectingEventLatLongExtractorQuery # < Queries::Query
     include Arel::Nodes
 
@@ -37,7 +54,7 @@ module Queries
 
     def where_sql
       # with_project_id.and
-      # TODO: make sure you select the one of the following which suits your purpose: with or without Verbatim_lat/long preset
+      # TODO: make sure you select the one of the following lines which suits your purpose: with or without Verbatim_lat/long present (default: Verbatim_lat/long is empty)
       (verbatim_label_not_empty).and(verbatim_lat_long_empty).and(starting_after).and(filter_scopes).to_sql
       # (verbatim_label_not_empty).and(starting_after).and(filter_scopes).to_sql
     end
@@ -54,6 +71,7 @@ module Queries
     def verbatim_label_not_empty
       vl = Arel::Attribute.new(Arel::Table.new(:collecting_events), :verbatim_label)
       Arel::Nodes::NamedFunction.new('length', [vl]).gt(0)
+        # Arel::Nodes::NamedFunction.new('length', [vl]).gt(Arel::Nodes::Quoted.new(0))
     end
 
     def verbatim_lat_long_empty
@@ -62,7 +80,7 @@ module Queries
 
     def starting_after
       start_id = Arel::Attribute.new(Arel::Table.new(:collecting_events), :id)
-      start_id.gt(collecting_event_id)
+      start_id.gt(Arel::Nodes::Quoted.new(collecting_event_id))
     end
 
     # @param [String] key to FILTERS regex string

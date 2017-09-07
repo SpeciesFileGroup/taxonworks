@@ -6,7 +6,7 @@ describe 'Documention', type: :model, group: :documentation do
   let(:document1) { fixture_file_upload(Rails.root + 'spec/files/documents/tiny.pdf', 'application/pdf') }
   let(:document2) { fixture_file_upload(Rails.root + 'spec/files/documents/tiny.txt', 'text/plain') }
 
-  let(:document_attributes) { 
+  let(:document_attributes) {
     { document_file: document1 }
   }
 
@@ -66,20 +66,20 @@ describe 'Documention', type: :model, group: :documentation do
     }
 
     specify '#document_array' do
-      expect(instance_with_documentation).to respond_to('document_array=') 
+      expect(instance_with_documentation).to respond_to('document_array=')
     end
 
     specify 'succeeds' do
       instance_with_documentation.document_array = data
       expect(instance_with_documentation.save).to be_truthy
       expect(instance_with_documentation.documents.count).to eq(2)
-      expect(instance_with_documentation.documents.first.id).to be_truthy 
+      expect(instance_with_documentation.documents.first.id).to be_truthy
     end
   end
 
 end
 
-class TestDocumentable < ActiveRecord::Base
+class TestDocumentable < ApplicationRecord
   include FakeTable
   include Shared::Documentation
 end

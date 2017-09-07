@@ -1,4 +1,4 @@
-class CreateSources < ActiveRecord::Migration
+class CreateSources < ActiveRecord::Migration[4.2]
   def change
     create_table :sources do |t|
       t.references :serial, index: true

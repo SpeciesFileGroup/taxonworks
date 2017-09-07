@@ -1,11 +1,10 @@
 # An Otu (loosely, operational taxonomic unit) can be thought of as a unit of study.  In most cases an otu is a taxon.
 #
-# An Otu is defined by its underlying data and may be labeled with a name (TaxonName). Otus are used to represent rows 
+# An Otu is defined by its underlying data and may be labeled with a name (TaxonName). Otus are used to represent rows
 # in matrices, taxon pages, individuals or populations, or arbitrary clusters of organisms (e.g. 'unsorted specimens in this container').
 # Otus are a primary unit of work in TaxonWorks.
 #
 # OTU is labeled with a name, either arbitrarily given or specifically linked to a taxon_name_id.
-#
 #
 # @!attribute name
 #   @return [String]
@@ -17,13 +16,13 @@
 #
 # @!attribute taxon_name_id
 #   @return [Integer]
-#   The id of the nomenclatural name for this OTU.  The presence of a nomenclatural name carries no biological meaning, it is 
+#   The id of the nomenclatural name for this OTU.  The presence of a nomenclatural name carries no biological meaning, it is
 #   simply a means to organize concepts within a nomenclatural system.
 #
 #
 # TODO Semantics vs. taxon_name_id
 #
-class Otu < ActiveRecord::Base
+class Otu < ApplicationRecord
 
   include Housekeeping
   #include Shared::AlternateValues  # 1/26/15 with MJY - not going to allow alternate values in Burlap
@@ -36,20 +35,19 @@ class Otu < ActiveRecord::Base
   include Shared::Depictions
   include Shared::Loanable
   include Shared::Confidence
-
+  include Shared::HasPapertrail
   include SoftValidation
-
-  has_paper_trail :on => [:update] 
 
   belongs_to :taxon_name, inverse_of: :otus
 
   has_many :asserted_distributions, inverse_of: :otu
-  has_many :collecting_events, -> { uniq }, through: :collection_objects
 
-  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus, class_name: 'CollectionObject::BiologicalCollectionObject'
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
+  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
 
-  has_many :common_names, dependent: :destroy 
+  has_many :collecting_events, -> {distinct}, through: :collection_objects
+
+  has_many :common_names, dependent: :destroy
   has_many :collection_profiles # @proceps dependent: what?
   has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :geographic_areas_from_asserted_distributions, through: :asserted_distributions, source: :geographic_area
@@ -85,7 +83,7 @@ class Otu < ActiveRecord::Base
 
   # return [Scope] the otus bound to that taxon name and its descendants
   def self.for_taxon_name(taxon_name)
-    if taxon_name.kind_of?(String) || taxon_name.kind_of?(Integer) 
+    if taxon_name.kind_of?(String) || taxon_name.kind_of?(Integer)
       tn = TaxonName.find(taxon_name)
     else
       tn = taxon_name
@@ -165,7 +163,7 @@ class Otu < ActiveRecord::Base
   protected
 
   def check_required_fields
-    if self.taxon_name_id.nil? && self.name.blank?
+    if taxon_name_id.blank? && name.blank?
       errors.add(:taxon_name_id, 'and/or name should be selected')
       errors.add(:name, 'and/or taxon name should be selected')
     end

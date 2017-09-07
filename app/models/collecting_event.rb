@@ -139,29 +139,29 @@
 #   @return [Integer]
 #     the month, from 0-12, that the collecting event ended on
 #
-# @!attribute group 
+# @!attribute group
 #   @return [String, nil]
-#     member sensu PBDB 
+#     member sensu PBDB
 #
-# @!attribute formation 
+# @!attribute formation
 #   @return [String, nil]
-#     formation sensu PBDB 
+#     formation sensu PBDB
 #
-# @!attribute member 
+# @!attribute member
 #   @return [String, nil]
-#     member sensu PBDB 
+#     member sensu PBDB
 #
 ## @!attribute lithology
 #   @return [String, nil]
-#     lithology sensu PBDB 
+#     lithology sensu PBDB
 #
-## @!attribute max_ma 
+## @!attribute max_ma
 #   @return [Decimal, nil]
-#     max_ma (million years) sensu PBDB 
+#     max_ma (million years) sensu PBDB
 #
-## @!attribute min_ma 
+## @!attribute min_ma
 #   @return [Decimal, nil]
-#     min_ma (million years) sensu PBDB 
+#     min_ma (million years) sensu PBDB
 #
 # @!attribute cached_level0_geographic_name
 #   @return [String, nil]
@@ -176,7 +176,7 @@
 #     the auto-calculated level2 value (e.g. county) drawn from GeographicNames, never directly user supplied
 #
 #
-class CollectingEvent < ActiveRecord::Base
+class CollectingEvent < ApplicationRecord
   include Housekeeping
   include Shared::Citable
   include Shared::DataAttributes
@@ -188,9 +188,8 @@ class CollectingEvent < ActiveRecord::Base
   include Shared::IsData
   include Shared::Confidence
   include Shared::Documentation
+  include Shared::HasPapertrail
   include SoftValidation
-
-  has_paper_trail :on => [:update]
 
   NEARBY_DISTANCE = 5000
 
@@ -208,8 +207,9 @@ class CollectingEvent < ActiveRecord::Base
 
   before_save :set_times_to_nil_if_form_provided_blank
 
-  after_save :cache_geographic_names, if: '!self.no_cached && geographic_area_id_changed?'
-  after_save :set_cached, if: '!self.no_cached'
+  # after_save :cache_geographic_names, if: -> {!self.no_cached && geographic_area_id_changed?}
+  after_save :cache_geographic_names, if: -> {!self.no_cached && saved_change_to_attribute?(:geographic_area_id)}
+  after_save :set_cached, if: -> {!self.no_cached}
 
   belongs_to :geographic_area, inverse_of: :collecting_events
 
@@ -221,9 +221,9 @@ class CollectingEvent < ActiveRecord::Base
   has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy
   has_many :collectors, through: :collector_roles, source: :person
+  has_many :georeferences, dependent: :destroy
   has_many :error_geographic_items, through: :georeferences, source: :error_geographic_item
   has_many :geographic_items, through: :georeferences # See also all_geographic_items, the union
-  has_many :georeferences, dependent: :destroy
   has_many :geo_locate_georeferences, class_name: 'Georeference::GeoLocate', dependent: :destroy
 
   accepts_nested_attributes_for :geo_locate_georeferences
@@ -235,9 +235,9 @@ class CollectingEvent < ActiveRecord::Base
            :check_elevation_range,
            :check_ma_range
 
-  validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: 'verbatim_label.blank?'
-  validates_presence_of :verbatim_longitude, if: '!verbatim_latitude.blank?'
-  validates_presence_of :verbatim_latitude, if: '!verbatim_longitude.blank?'
+  validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: -> {verbatim_label.blank?}
+  validates_presence_of :verbatim_longitude, if: -> {!verbatim_latitude.blank?}
+  validates_presence_of :verbatim_latitude, if: -> {!verbatim_longitude.blank?}
 
   validates :geographic_area, presence: true, allow_nil: true
 
@@ -245,34 +245,34 @@ class CollectingEvent < ActiveRecord::Base
   validates :time_start_minute, time_minute: true
   validates :time_start_second, time_second: true
 
-  validates_presence_of :time_start_minute, if: '!self.time_start_second.blank?'
-  validates_presence_of :time_start_hour, if: '!self.time_start_minute.blank?'
+  validates_presence_of :time_start_minute, if: -> {!self.time_start_second.blank?}
+  validates_presence_of :time_start_hour, if: -> {!self.time_start_minute.blank?}
 
   validates :time_end_hour, time_hour: true
   validates :time_end_minute, time_minute: true
   validates :time_end_second, time_second: true
 
-  validates_presence_of :time_end_minute, if: '!self.time_end_second.blank?'
-  validates_presence_of :time_end_hour, if: '!self.time_end_minute.blank?'
+  validates_presence_of :time_end_minute, if: -> {!self.time_end_second.blank?}
+  validates_presence_of :time_end_hour, if: -> {!self.time_end_minute.blank?}
 
-  validates :start_date_year, date_year: { min_year: 1000, max_year: Time.now.year + 5}
-  validates :end_date_year, date_year: { min_year: 1000, max_year: Time.now.year + 5}
+  validates :start_date_year, date_year: {min_year: 1000, max_year: Time.now.year + 5}
+  validates :end_date_year, date_year: {min_year: 1000, max_year: Time.now.year + 5}
 
   validates :start_date_month, date_month: true
   validates :end_date_month, date_month: true
 
   validates_presence_of :start_date_month,
-                        if: '!start_date_day.nil?'
+                        if: -> {!start_date_day.nil?}
 
   validates_presence_of :end_date_month,
-                        if: '!end_date_day.nil?'
+                        if: -> {!end_date_day.nil?}
 
-  validates :end_date_day, date_day: { year_sym: :end_date_year, month_sym: :end_date_month },
-            unless: 'end_date_year.nil? || end_date_month.nil?'
+  validates :end_date_day, date_day: {year_sym: :end_date_year, month_sym: :end_date_month},
+            unless:                  -> {end_date_year.nil? || end_date_month.nil?}
 
-  validates :start_date_day, date_day: { year_sym: :start_date_year, month_sym: :start_date_month },
-            unless: 'start_date_year.nil? || start_date_month.nil?'
-              
+  validates :start_date_day, date_day: {year_sym: :start_date_year, month_sym: :start_date_month},
+            unless:                    -> {start_date_year.nil? || start_date_month.nil?}
+
   soft_validate(:sv_minimally_check_for_a_label)
 
   # @param [String]
@@ -324,7 +324,7 @@ class CollectingEvent < ActiveRecord::Base
 
       t = 'collecting_events'
 
-      part_0         = "#{t}.start_date_year is not null"
+      part_0 = "#{t}.start_date_year is not null"
 
       # start_date is inside supplied range
       # string has to have four pieces (part_s):
@@ -377,10 +377,10 @@ class CollectingEvent < ActiveRecord::Base
       #   2) any full years between start and end
       #   3) last part of start year
 
-      part_1e    = "(#{t}.end_date_year = #{end_year}"
-      part_1e    += " and ((#{t}.end_date_month between 1 and #{end_month - 1})"
-      part_1e    += " or (#{t}.end_date_month = #{end_month} and #{t}.end_date_day <= #{end_day})))"
-      part_1e    = "((#{t}.end_date_year is NULL) and (#{st_string})) OR " + part_1e
+      part_1e = "(#{t}.end_date_year = #{end_year}"
+      part_1e += " and ((#{t}.end_date_month between 1 and #{end_month - 1})"
+      part_1e += " or (#{t}.end_date_month = #{end_month} and #{t}.end_date_day <= #{end_day})))"
+      part_1e = "((#{t}.end_date_year is NULL) and (#{st_string})) OR " + part_1e
 
       part_3e = "(#{t}.end_date_year = #{start_year}"
       part_3e += " and ((#{t}.end_date_month > #{start_month})"
@@ -400,7 +400,7 @@ class CollectingEvent < ActiveRecord::Base
     def in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
       allow_partial = (partial_overlap.downcase == 'off' ? false : true)
       sql_string    = date_sql_from_dates(search_start_date, search_end_date, allow_partial)
-      where(sql_string).uniq # TODO: uniq should likely not be here
+      where(sql_string).distinct # TODO: uniq should likely not be here
     end
 
     # @param [Hash] of parameters in the style of 'params'
@@ -409,7 +409,7 @@ class CollectingEvent < ActiveRecord::Base
     def filter(params)
       sql_string = ''
       unless params.blank? # not strictly necessary, but handy for debugging
-        sql_string          = Utilities::Dates.date_sql_from_params(params)
+        sql_string = Utilities::Dates.date_sql_from_params(params)
 
         # processing text data
         v_locality_fragment = params['verbatim_locality_text']
@@ -443,7 +443,7 @@ class CollectingEvent < ActiveRecord::Base
       if sql_string.blank?
         collecting_events = CollectingEvent.none
       else
-        collecting_events = CollectingEvent.where(sql_string).uniq
+        collecting_events = CollectingEvent.where(sql_string).distinct
       end
 
       collecting_events
@@ -694,7 +694,7 @@ class CollectingEvent < ActiveRecord::Base
   # @return [Scope]
   # Find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self
   def collecting_events_intersecting_with
-    pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).uniq
+    pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).distinct
     gr     = [] # all collecting events for a geographic_item
 
     pieces.each {|o|
@@ -733,6 +733,7 @@ class CollectingEvent < ActiveRecord::Base
     pieces.excluding(self)
   end
 
+  # DEPRECATED for shared code
   # @param [String, String, Integer]
   # @return [Scope]
   def nearest_by_levenshtein(compared_string = nil, column = 'verbatim_locality', limit = 10)
@@ -767,7 +768,7 @@ class CollectingEvent < ActiveRecord::Base
       # pieces = gi_list
       ga_list = GeographicArea.joins(:geographic_area_type, :geographic_areas_geographic_items).
         where(geographic_area_types:             {name: types},
-              geographic_areas_geographic_items: {geographic_item_id: gi_list}).uniq
+              geographic_areas_geographic_items: {geographic_item_id: gi_list}).distinct
 
       # WAS: now find all of the GAs which have the same names as the ones we collected.
 

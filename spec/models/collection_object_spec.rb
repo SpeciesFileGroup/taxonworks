@@ -134,14 +134,14 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
   context 'after save' do
     let!(:c) { Delayed::Job.count }
     context 'without no_cached = true' do
-      before { Specimen.create! } 
+      before {Specimen.create!}
       specify 'a delayed_job is added' do
         expect(Delayed::Job.count).to eq(c + 1)
       end
     end
 
     context 'with no_cached = true' do
-      before { Specimen.create!(no_cached: true) } 
+      before {Specimen.create!(no_cached: true)}
       specify 'a delayed_job not added' do
         expect(Delayed::Job.count).to eq(c )
       end
@@ -212,20 +212,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     end
   end
 
-  context 'nested attributes' do
-    specify 'a new otu and determination can be created' do
-      s = CollectionObject.new(total:                           1,
-                               taxon_determinations_attributes: [
-                                                                  {otu_attributes: {name: 'King Kong'}}
-                                                                ]
-      )
-
-      expect(s.save).to be_truthy
-      expect(s.taxon_determinations.count).to eq(1)
-      expect(s.taxon_determinations.first.otu.name).to eq('King Kong')
-      expect(s.taxon_determinations.first.otu.id).to be_truthy
-    end
-  end
+  # See spec/models/biological_collection_object for nested attributes and taxon determinations
 
   context 'soft validation' do
     let(:o) { Specimen.new }
@@ -279,7 +266,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
       after(:all) {
         clean_slate_geo
       }
-      
+
       describe 'spanning a single day' do
         specify "should find 1 record" do
           collection_objects = CollectionObject.in_date_range({search_start_date: '1981/01/01', search_end_date: '1981/1/1'})
@@ -414,10 +401,14 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
         expect(collecting_event_ids.count).to eq(11)
         expect(collection_objects.count).to eq(2)
         found_c_os = [@co_m3, @co_n3]
+        c_os       = []
         collection_objects.each_with_index { |c_o, index|
-          collection_objects[index] = collection_objects[index].metamorphosize
+          # TODO: R5.0 ActiveRecord_Relation no longer accepts the setting of an indexed element? 07/11/17
+          # @mjy
+          # collection_objects[index] = collection_objects[index].metamorphosize
+          c_os[index] = collection_objects[index].metamorphosize
         }
-        expect(collection_objects).to contain_exactly(*found_c_os)
+        expect(c_os).to contain_exactly(*found_c_os)
       end
 
       specify 'should find 0 collecting objects' do

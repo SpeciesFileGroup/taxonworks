@@ -1,4 +1,4 @@
-class RenameBiologicalAssociationTypeColumns < ActiveRecord::Migration
+class RenameBiologicalAssociationTypeColumns < ActiveRecord::Migration[4.2]
   def change
     rename_column :biological_associations, :object_type, :biological_association_object_type
     rename_column :biological_associations, :subject_type, :biological_association_subject_type

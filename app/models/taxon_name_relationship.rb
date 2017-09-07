@@ -5,18 +5,18 @@
 # For example the triple:
 #
 #    Subject: Aus aus - TaxonNameRelationship::Iczn::Invalidating::Synonym - Object: Bus bus
-# 
-# Can be read as:
-#   
-#    aus synonym OF bus
-#  
-#  Note that not all relationships are reflective.  We can't say, for the example above we can't say
-#  
-#    bus valid_name OF aus
-#    
-# Note that we can not say that all names that are subjects are valid, for instance, this is determined on a case by case basis. 
 #
-# TaxonNameRelationships have a domain (attributes on the subject) and range (attributes on the object).  So if you use 
+# Can be read as:
+#
+#    aus synonym OF bus
+#
+#  Note that not all relationships are reflective.  We can't say, for the example above we can't say
+#
+#    bus valid_name OF aus
+#
+# Note that we can not say that all names that are subjects are valid, for instance, this is determined on a case by case basis.
+#
+# TaxonNameRelationships have a domain (attributes on the subject) and range (attributes on the object).  So if you use
 # a relatinship you may be asserting a TaxonNameClassification also exists for the subject or object.
 #
 # @todo SourceClassifiedAs is not really Combination in the other sense
@@ -29,7 +29,7 @@
 #
 # @!attribute object_taxon_name_id
 #   @return [Integer]
-#    the object taxon name 
+#    the object taxon name
 #
 # @!attribute type
 #   @return [String]
@@ -39,7 +39,7 @@
 #   @return [Integer]
 #   the project ID
 #
-class TaxonNameRelationship < ActiveRecord::Base
+class TaxonNameRelationship < ApplicationRecord
   include Housekeeping
   include Shared::Citable
   include Shared::IsData
@@ -52,8 +52,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id, inverse_of: :taxon_name_relationships  # left side
   belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id, inverse_of: :related_taxon_name_relationships    # right side
 
-  after_save :set_cached_names_for_taxon_names, unless: 'self.no_cached'
-  after_destroy :set_cached_names_for_taxon_names, unless: 'self.no_cached'
+  after_save :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
+  after_destroy :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
 
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name, message: 'Missing taxon name on the left side'
@@ -64,7 +64,7 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   validate :validate_type, :validate_subject_and_object_are_not_identical
 
-  with_options unless: '!subject_taxon_name || !object_taxon_name' do |v|
+  with_options unless: -> {!subject_taxon_name || !object_taxon_name} do |v|
     v.validate :validate_subject_and_object_share_code,
       :validate_uniqueness_of_typification_object,
       #:validate_uniqueness_of_synonym_subject,
@@ -94,15 +94,15 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   scope :with_type_string, -> (type_string) { where(sanitize_sql_array(["taxon_name_relationships.type = '%s'", type_string])) }
 
-  scope :with_type_base,     -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "#{base_string}%" ) } 
-  scope :with_type_contains, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "%#{base_string}%" ) } 
+  scope :with_type_base, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "#{base_string}%")}
+  scope :with_type_contains, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "%#{base_string}%")}
 
   scope :with_two_type_bases, -> (base_string1, base_string2) {where("taxon_name_relationships.type LIKE '#{base_string1}%' OR taxon_name_relationships.type LIKE '#{base_string2}%'" ) }
   scope :with_type_array, -> (base_array) {where('taxon_name_relationships.type IN (?)', base_array ) }
 
   # @return [Array of TaxonNameClassification]
   #  the inferable TaxonNameClassification(s) added to the subject when this relationship is used
-  #  !! Not implemented 
+  #  !! Not implemented
   def subject_properties
     []
   end
@@ -164,17 +164,17 @@ class TaxonNameRelationship < ActiveRecord::Base
   #   :direct - subject is younger than object
   #   :reverse - object is younger than subject
   def self.nomenclatural_priority
-    nil 
+    nil
   end
 
   # @return [String]
-  #    the status inferred by the relationship to the object name 
+  #    the status inferred by the relationship to the object name
   def object_status
     self.type_name.demodulize.underscore.humanize.downcase
   end
 
   # @return [String]
-  #    the status inferred by the relationship to the subject name 
+  #    the status inferred by the relationship to the subject name
   def subject_status
     self.type_name.demodulize.underscore.humanize.downcase
   end
@@ -414,7 +414,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def sv_validate_disjoint_object
-    classifications = self.object_taxon_name.taxon_name_classifications(true).map{|i| i.type_name}
+    classifications = self.object_taxon_name.taxon_name_classifications.reload.map {|i| i.type_name}
     disjoint_object_classes = self.type_class.disjoint_object_classes
     compare = disjoint_object_classes & classifications
     compare.each do |i|
@@ -425,7 +425,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def sv_validate_disjoint_subject
-    classifications = self.subject_taxon_name.taxon_name_classifications(true).map{|i| i.type_name}
+    classifications = self.subject_taxon_name.taxon_name_classifications.reload.map {|i| i.type_name}
     disjoint_subject_classes = self.type_class.disjoint_subject_classes
     compare = disjoint_subject_classes & classifications
     compare.each do |i|
@@ -470,11 +470,11 @@ class TaxonNameRelationship < ActiveRecord::Base
         end
 
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961'
-       
+
         soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described before 1961") if s.year_of_publication > 1960
         soft_validations.add(:type, "#{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} described in the same original genus #{s.original_genus}, they are primary homonyms") if s.original_genus == o.original_genus && !s.original_genus.nil?
         soft_validations.add(:base, 'The original publication is not selected') unless source
-       
+
         soft_validations.add(:base, "#{s.cached_html_name_and_author_year} should not be treated as a homonym established before 1961") if self.source && self.source.year > 1960
 
         if (s.all_generic_placements & o.all_generic_placements).empty?
@@ -627,22 +627,22 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
   end
 
-#  def sv_fix_synonym_linked_to_valid_name
-#    if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
-#      obj = self.object_taxon_name
-#      unless obj.get_valid_taxon_name == obj
-#        self.object_taxon_name = obj.get_valid_taxon_name
-#        begin
-#          TaxonName.transaction do
-#            self.save
-#            return true
-#          end
-#        rescue
-#        end
-#      end
-#    end
-#    false
-#  end
+  #  def sv_fix_synonym_linked_to_valid_name
+  #    if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
+  #      obj = self.object_taxon_name
+  #      unless obj.get_valid_taxon_name == obj
+  #        self.object_taxon_name = obj.get_valid_taxon_name
+  #        begin
+  #          TaxonName.transaction do
+  #            self.save
+  #            return true
+  #          end
+  #        rescue
+  #        end
+  #      end
+  #    end
+  #    false
+  #  end
 
   def sv_fix_subject_parent_update
     if TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)
@@ -817,7 +817,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     classes.each do |klass|
       ans += klass.descendants.collect{|k| k.to_s}
     end
-    ans    
+    ans
   end
 
   def self.collect_descendants_and_itself_to_s(*classes)

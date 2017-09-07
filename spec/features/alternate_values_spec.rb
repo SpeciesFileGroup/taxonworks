@@ -1,8 +1,8 @@
 require 'rails_helper'
 
 describe "AlternateValues", type: :feature, group: [:annotators] do
-  let(:index_path) { alternate_values_path }
-  let(:page_title) { 'Alternate values' }
+  let(:index_path) {alternate_values_path}
+  let(:page_title) {'Alternate values'}
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
@@ -16,22 +16,26 @@ describe "AlternateValues", type: :feature, group: [:annotators] do
         k = Keyword.create!(name: 'Dictionary', definition: "Book with words", by: @user, project: @project)
 
         ['D.', 'Dict.', 'Di.'].each do |n|
-          AlternateValue::Abbreviation.create!(alternate_value_object: k, value: n, alternate_value_object_attribute: :name, by: @user, project: @project)
+          AlternateValue::Abbreviation.create!(alternate_value_object:           k,
+                                               value:                            n,
+                                               alternate_value_object_attribute: :name,
+                                               by:                               @user,
+                                               project_id:                       @project.id)
         end
       }
 
       describe 'GET /alternate_values' do
-        before { visit alternate_values_path }
+        before {visit alternate_values_path}
         it_behaves_like 'a_data_model_with_annotations_index'
       end
 
       describe 'GET /alternate_values/list' do
-        before { visit list_alternate_values_path }
+        before {visit list_alternate_values_path}
         it_behaves_like 'a_data_model_with_standard_list_and_records_created'
       end
 
       context 'create an alternate value for a community object (Source::Bibtex)' do
-        let(:src_bibtex) { factory_girl_create_for_user(:soft_valid_bibtex_source_article, @user) }
+        let(:src_bibtex) {factory_girl_create_for_user(:soft_valid_bibtex_source_article, @user)}
         #  with a Source::BibTeX created (containing at least title)
 
         specify 'created source has no alternate values' do
@@ -39,7 +43,7 @@ describe "AlternateValues", type: :feature, group: [:annotators] do
         end
 
         context 'when I show the record' do
-          before {  visit source_path(src_bibtex) }
+          before {visit source_path(src_bibtex)}
 
           specify 'it is community annotatable' do
             expect(page).to have_link('Add alternate value')
@@ -53,7 +57,7 @@ describe "AlternateValues", type: :feature, group: [:annotators] do
             end
 
             context 'when I fill in and click submit' do
-              before {  
+              before {
                 select('title', from: 'alternate_value_alternate_value_object_attribute')
                 fill_in('Value', with: 'Alternate Title')
                 select('abbreviation', from: 'Type')

@@ -16,7 +16,7 @@
 #
 # @!attribute controlled_vocabulary_term_id
 #   @return [Integer]
-#     Id of the Predicate for InternalAttributes 
+#     Id of the Predicate for InternalAttributes
 #
 # @!attribute value
 #   @return [String]
@@ -26,9 +26,9 @@
 #   @return [Integer]
 #   the project ID
 #
-class DataAttribute < ActiveRecord::Base
+class DataAttribute < ApplicationRecord
   include Housekeeping
-  include Shared::IsData 
+  include Shared::IsData
   include Shared::DualAnnotator
 
   belongs_to :attribute_subject, polymorphic: true
@@ -44,7 +44,7 @@ class DataAttribute < ActiveRecord::Base
   end
 
   # @return [NoteObject]
-  #   alias to simplify reference across classes 
+  #   alias to simplify reference across classes
   def annotated_object
     attribute_subject
   end

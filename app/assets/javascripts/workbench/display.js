@@ -45,11 +45,10 @@ Object.assign(TW.workbench.display, {
 	}
 });
 
-$(document).ready(function() {
-	var _init_display = TW.workbench.display;
-	_init_display.init();
+$(document).on('turbolinks:load', function() {
+	TW.workbench.display.init();
 
 	if($('.attribute_set').length > 0) {
-		_init_display.render_attribute_set_headers();
+		TW.workbench.display.render_attribute_set_headers();
 	}
 });

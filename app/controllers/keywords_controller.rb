@@ -2,7 +2,7 @@ class KeywordsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   def autocomplete
-    predicates = Keyword.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).uniq
+    predicates = Keyword.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).distinct
 
     data = predicates.collect do |t|
       str = t.name + ": " + t.definition

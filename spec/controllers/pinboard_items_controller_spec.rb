@@ -48,30 +48,30 @@ RSpec.describe PinboardItemsController, :type => :controller do
     describe "with valid params" do
       it "creates a new PinboardItem" do
         expect {
-          post :create, {:pinboard_item => valid_attributes}, valid_session
+          post :create, params: {:pinboard_item => valid_attributes}, session: valid_session
         }.to change(PinboardItem, :count).by(1)
       end
 
       it "assigns a newly created pinboard_item as @pinboard_item" do
-        post :create, {:pinboard_item => valid_attributes}, valid_session
+        post :create, params: {:pinboard_item => valid_attributes}, session: valid_session
         expect(assigns(:pinboard_item)).to be_a(PinboardItem)
         expect(assigns(:pinboard_item)).to be_persisted
       end
 
       it "redirects to the previous page" do
-        post :create, {:pinboard_item => valid_attributes}, valid_session
+        post :create, params: {:pinboard_item => valid_attributes}, session: valid_session
         expect(response).to redirect_to(otus_path)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved pinboard_item as @pinboard_item" do
-        post :create, {:pinboard_item => invalid_attributes}, valid_session
+        post :create, params: {:pinboard_item => invalid_attributes}, session: valid_session
         expect(assigns(:pinboard_item)).to be_a_new(PinboardItem)
       end
 
       it "redirects to the previous page" do
-        post :create, {:pinboard_item => invalid_attributes}, valid_session
+        post :create, params: {:pinboard_item => invalid_attributes}, session: valid_session
         expect(response).to redirect_to(otus_path)
       end
     end
@@ -85,13 +85,13 @@ RSpec.describe PinboardItemsController, :type => :controller do
     it "destroys the requested pinboard_item" do
       pinboard_item = PinboardItem.create! valid_attributes
       expect {
-        delete :destroy, {id: pinboard_item.to_param}, valid_session
+        delete :destroy, params: {id: pinboard_item.to_param}, session: valid_session
       }.to change(PinboardItem, :count).by(-1)
     end
 
     it "redirects to the pinboard_items list" do
       pinboard_item = PinboardItem.create! valid_attributes
-      delete :destroy, {id: pinboard_item.to_param}, valid_session
+      delete :destroy, params: {id: pinboard_item.to_param}, session: valid_session
       expect(response).to redirect_to(dashboard_path)
     end
   end

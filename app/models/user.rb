@@ -1,6 +1,6 @@
 # A User is a TaxonWorks user, at present someone who can logon to the private workebench.
 #
-# All Data Models contain created_by_id and updated_by_id that references a User.  
+# All Data Models contain created_by_id and updated_by_id that references a User.
 #
 # A user may have a number of *attributes* that define roles/subclasses of a sort:
 #
@@ -8,7 +8,7 @@
 # project, and across any project, *except* set User#is_administrator = false.  It is intended that there
 # be only 1-2 administrators per instance of TaxonWorks.
 #
-# 2) Project Administrators (ProjectMember#is_project_administrator). 
+# 2) Project Administrators (ProjectMember#is_project_administrator).
 # A project administrator can set Project settings and preferences, including the views that a Worker can see.
 #
 # 3) Superuser. A super_user (code only) is a User that is a profromct administrator OR administrator.
@@ -26,7 +26,7 @@
 #
 # @!attribute password_digest
 #   @return [String]
-#     the users password 
+#     the users password
 #
 # @!attribute remember_token
 #   @return [String]
@@ -34,12 +34,12 @@
 #
 # @!attribute is_administrator
 #   @return [Boolean]
-#     true if user is an administrator, administrators can do *everything* in any project taxonworks 
+#     true if user is an administrator, administrators can do *everything* in any project taxonworks
 #
-# @!attribute hub_favorites 
+# @!attribute hub_favorites
 #   @return [Hash]
 #    per project favorites named from items in user_tasks.yml or hub_data.yml
-#    format is 
+#    format is
 #    { project_id: {data: [ 'ModelName' ], tasks: [ :task_index_name ] }, ... }
 #
 # @!attribute password_reset_token
@@ -56,11 +56,11 @@
 #
 # @!attribute current_sign_in_at
 #   @return [ActiveSupport::TimeWithZone]
-#     time of current sign in 
+#     time of current sign in
 #
 # @!attribute last_sign_in_at
 #   @return [ActiveSupport::TimeWithZone]
-#    time of sign in prior to this sign in 
+#    time of sign in prior to this sign in
 #
 # @!attribute last_sign_in_ip
 #   @return [String]
@@ -68,7 +68,7 @@
 #
 # @!attribute current_sign_in_ip
 #   @return [String]
-#    IP address of the machine user is currently logged in from 
+#    IP address of the machine user is currently logged in from
 #
 # @!attribute hub_tab_order
 #   @return [Array]
@@ -76,11 +76,11 @@
 #
 # @!attribute api_access_token
 #   @return [String]
-#    authentication token used to authenticate against /api endpoints 
+#    authentication token used to authenticate against /api endpoints
 #
 # @!attribute is_flagged_for_password_reset
 #   @return [Boolean]
-#     when true user must reset their password before doing anything further 
+#     when true user must reset their password before doing anything further
 #
 # @!attribute footprints
 #   @return [Hash]
@@ -88,14 +88,14 @@
 #
 # @!attribute sign_in_count
 #   @return [Integer]
-#     a count of the number of times a user has logged in 
+#     a count of the number of times a user has logged in
 #
 # @!attribute self_created [r]
 #   @return [true, false]
 #   Only used for when .new_record? is true. If true assigns creator and updater as self.
 #
 #
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Housekeeping::AssociationHelpers
@@ -112,15 +112,15 @@ class User < ActiveRecord::Base
   attr_accessor :self_created
 
   before_validation { self.email = email.to_s.downcase }
- 
-  before_save :generate_api_access_token,  if: 'self.set_new_api_access_token'
+
+  before_save :generate_api_access_token, if: :set_new_api_access_token
   # @todo downcase does not work for non-ascii characters which means our validation for uniqueness will fail ... why?
   # @see http://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-email-address
   # @see http://unicode-utils.rubyforge.org/
   before_save { self.email = email.to_s.downcase }
 
-  after_save :configure_self_created,  if: "self.self_created"
-  
+  after_save :configure_self_created, if: :self_created
+
   before_create :set_remember_token
   before_create { self.hub_tab_order = DEFAULT_HUB_TAB_ORDER }
 
@@ -133,7 +133,7 @@ class User < ActiveRecord::Base
             :confirmation => {:if => :validate_password?}
 
   validates :name, presence: true
-  validates :name, length: {minimum: 2}, unless: 'self.name.blank?'
+  validates :name, length: {minimum: 2}, unless: -> {self.name.blank?}
 
   has_many :project_members, dependent: :destroy
   has_many :projects, through: :project_members
@@ -142,7 +142,7 @@ class User < ActiveRecord::Base
   scope :is_administrator, -> {where(is_administrator: true)}
 
   def administered_projects
-    projects.where(id: project_members.where(is_project_administrator: true).pluck(:project_id) ) 
+    projects.where(id: project_members.where(is_project_administrator: true).pluck(:project_id))
   end
 
   def administers_projects?
@@ -150,7 +150,7 @@ class User < ActiveRecord::Base
   end
 
   def self.not_in_project(project_id)
-    ids =   ProjectMember.where(project_id: project_id).pluck(:user_id) 
+    ids = ProjectMember.where(project_id: project_id).pluck(:user_id)
     return where(false) if ids.empty?
 
     User.where( User.arel_table[:id].not_eq_all( ids ))
@@ -194,8 +194,8 @@ class User < ActiveRecord::Base
     read_attribute(:hub_favorites) || {}
   end
 
-  def add_page_to_favorites(options = {} ) # name: nil, kind: nil, project_id: nil 
-    validate_favorite_options(options) 
+  def add_page_to_favorites(options = {}) # name: nil, kind: nil, project_id: nil
+    validate_favorite_options(options)
     n = options[:name]
     p = options[:project_id].to_s
     k = options[:kind]
@@ -209,7 +209,7 @@ class User < ActiveRecord::Base
   end
 
   def remove_page_from_favorites(options = {} ) # name: nil, kind: nil, project_id: nil
-    validate_favorite_options(options) 
+    validate_favorite_options(options)
     new_routes = hub_favorites.clone
     new_routes[options['project_id'].to_s][options['kind']].delete(options['name'])
     update_column(:hub_favorites, new_routes )
@@ -222,12 +222,12 @@ class User < ActiveRecord::Base
   end
 
   def update_last_seen_at
-   
-    a = 0 
-  
+
+    a = 0
+
     if !last_seen_at.nil?
       t = Time.now - last_seen_at
-      a = t < 301 ? time_active + t : time_active 
+      a = t < 301 ? time_active + t : time_active
     end
 
     update_columns(last_seen_at: Time.now, time_active: a)
@@ -241,8 +241,8 @@ class User < ActiveRecord::Base
     when /\/autocomplete\?/ # any path used for AJAX autocomplete
     else
 
-      fp = footprints.dup 
-      fp['recently_visited'] ||= [] 
+      fp                     = footprints.dup
+      fp['recently_visited'] ||= []
 
       attrs = { recent_route => {}  }
       if !recent_object.nil?
@@ -250,7 +250,7 @@ class User < ActiveRecord::Base
       end
 
       fp['recently_visited'].unshift(attrs)
-      fp['recently_visited'] = fp['recently_visited'].uniq{|a| a.keys}[0..19]
+      fp['recently_visited'] = fp['recently_visited'].uniq {|a| a.keys}[0..19]
 
       self.footprints_will_change!  # if this isn't thrown weird caching happens !
       self.update_column(:footprints, fp)
@@ -275,7 +275,7 @@ class User < ActiveRecord::Base
   end
 
   # @return [Hash]
-  # 
+  #
   # @user.get_class_created_updated # => { "projects" => {created: 10, first_created: datetime, updated: 10, last_updated: datetime} }
   def get_class_created_updated
     Rails.application.eager_load! if Rails.env.development?
@@ -313,11 +313,11 @@ class User < ActiveRecord::Base
     end
     data
   end
-  
+
   def generate_api_access_token
     self.api_access_token = RandomToken.generate
   end
-  
+
   def require_password_presence
     @require_password_presence = true
   end

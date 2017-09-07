@@ -1,4 +1,4 @@
-class AddIndexesToGeographicItem < ActiveRecord::Migration
+class AddIndexesToGeographicItem < ActiveRecord::Migration[4.2]
   def change
 
     GeographicItem.connection.execute('CREATE INDEX point_gix ON geographic_items USING GIST (point);')

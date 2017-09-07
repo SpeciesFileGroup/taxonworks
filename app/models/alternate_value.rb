@@ -11,7 +11,7 @@
 #
 # @!attribute alternate_value_object_attribute
 #   @return [String]
-#    the attribute (column) that this is an alternate value for 
+#    the attribute (column) that this is an alternate value for
 #
 # @!attribute attribute_value_object_id
 #   @return [Integer]
@@ -29,7 +29,7 @@
 #   @return [Integer]
 #   the project ID
 #
-class AlternateValue < ActiveRecord::Base
+class AlternateValue < ApplicationRecord
   include Housekeeping
   include Shared::IsData
   include Shared::DualAnnotator
@@ -42,7 +42,7 @@ class AlternateValue < ActiveRecord::Base
 
   # Please DO NOT include the following:
   # validates :alternate_value_object, presence: true
-  
+
   validates_presence_of :type, :value, :alternate_value_object_attribute
 
   validates_uniqueness_of :value, scope: [:alternate_value_object, :type, :alternate_value_object_attribute, :project_id] # !! think about project/community on same object
@@ -75,7 +75,7 @@ class AlternateValue < ActiveRecord::Base
   end
 
   # @return [NoteObject]
-  #   alias to simplify reference across classes 
+  #   alias to simplify reference across classes
   def annotated_object
     alternate_value_object
   end

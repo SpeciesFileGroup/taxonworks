@@ -1,4 +1,4 @@
-class FleshOutUserFields < ActiveRecord::Migration
+class FleshOutUserFields < ActiveRecord::Migration[4.2]
   def change
     add_column :users, :name, :string
     add_column :users, :sign_in_count, :integer

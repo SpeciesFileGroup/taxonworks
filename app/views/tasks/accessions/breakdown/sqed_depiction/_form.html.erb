@@ -108,6 +108,6 @@
 
   <%= submit_tag -%>
   <%= submit_tag('Save and next [n]', id: :save_and_next) -%> 
-  <%= link_to('Skip to next', sqed_depiction_breakdown_task_path(@sqed_depiction.next_without_data, @result.namespace_id), 'data-no-turbolink' => 'true') -%> 
+  <%= link_to('Skip to next', sqed_depiction_breakdown_task_path(@sqed_depiction.next_without_data, @result.namespace_id), 'data-turbolinks' => 'false') -%> 
 
 <% end %>

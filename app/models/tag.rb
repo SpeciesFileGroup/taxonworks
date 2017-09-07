@@ -1,8 +1,8 @@
-# A Tag links a ControlledVocabularyTerm::Keyword to a Data object. 
+# A Tag links a ControlledVocabularyTerm::Keyword to a Data object.
 #
 # @!attribute keyword_id
 #   @return [Integer]
-#      the keyword used in this tag 
+#      the keyword used in this tag
 #
 # @!attribute tag_object_id
 #   @return [Integer]
@@ -10,7 +10,7 @@
 #
 # @!attribute tag_object_type
 #   @return [String]
-#      Rails polymorphic, type of the object being tagged 
+#      Rails polymorphic, type of the object being tagged
 #
 # @!attribute tag_object_attribute
 #   @return [String]
@@ -23,8 +23,8 @@
 # @!attribute position
 #   @return [Integer]
 #     a user definable sort code on the tags on an object, handled by acts_as_list
-#      
-class Tag < ActiveRecord::Base
+#
+class Tag < ApplicationRecord
   include Housekeeping
   include Shared::IsData
   include Shared::AttributeAnnotations
@@ -66,30 +66,14 @@ class Tag < ActiveRecord::Base
   def self.find_for_autocomplete(params)
     # TODO: @mjy below code is running but not giving results we want
     terms = params[:term].split.collect { |t| "'#{t}%'" }.join(' or ')
-    joins(:keyword).where('controlled_vocabulary_terms.name like ?', terms).with_project_id(params[:project_id]) 
+    joins(:keyword).where('controlled_vocabulary_terms.name like ?', terms).with_project_id(params[:project_id])
     terms
   end
 
   # @return [TagObject]
-  #   alias to simplify reference across classes 
+  #   alias to simplify reference across classes
   def annotated_object
     tag_object
-  end
-
-  # the column name containing the attribute name being annotated
-  def self.annotated_attribute_column
-    :tag_object_attribute
-  end
-
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
   end
 
   # @return [{"matrix_column_item": matrix_column_item, "descriptor": descriptor}, false]
@@ -108,7 +92,7 @@ class Tag < ActiveRecord::Base
   # the hash corresponding to the keyword used in this tag if it exists
   def matrix_row_item
     mri = ObservationMatrixRowItem::TaggedRowItem.where(controlled_vocabulary_term_id: keyword_id).limit(1)
-    
+
     if mri.any?
       return { :matrix_row_item => mri.first, :object => tag_object }
     else

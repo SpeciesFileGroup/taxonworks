@@ -17,9 +17,9 @@
 #   @return [Integer]
 #   @todo
 #
-class TaggedSectionKeyword < ActiveRecord::Base
+class TaggedSectionKeyword < ApplicationRecord
   include Housekeeping
-  include Shared::IsData 
+  include Shared::IsData
 
 
   acts_as_list scope: [:otu_page_layout_section]
@@ -29,5 +29,5 @@ class TaggedSectionKeyword < ActiveRecord::Base
 
   validates :keyword, presence: true
   validates :otu_page_layout_section, presence: true
-  
+
 end

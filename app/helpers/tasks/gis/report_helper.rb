@@ -174,15 +174,15 @@ module Tasks::Gis::ReportHelper
     retstring
   end
 
-  # @return [Array]
-  #   TODO: of array of Georeferences OR geographic areas? -> why
+  # @return [Array] of geo_objects which may have a shape to display
   def report_georeferences(collection_objects, geographic_area)
 
     # all georeferences for a set of collection objects
     #  retval = collection_objects.map(&:collecting_event).uniq.map(&:georeferences).flatten
-    retval = Georeference.joins(collecting_event: [:collection_objects]).where(collection_objects: {id: collection_objects})
+    retval = Georeference.joins(collecting_event: [:collection_objects]).
+      where(collection_objects: {id: collection_objects}).to_a
 
-    if retval.empty?
+    if retval.empty? # if no georeferences, show the geographic_area
       retval.push(geographic_area)
     end
     retval

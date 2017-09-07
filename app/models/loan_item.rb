@@ -36,7 +36,7 @@
 #   @return [Integer]
 #     when type is OTU an arbitrary total can be provided
 #
-class LoanItem < ActiveRecord::Base
+class LoanItem < ApplicationRecord
   acts_as_list scope: :loan
 
   include Housekeeping
@@ -60,7 +60,7 @@ class LoanItem < ActiveRecord::Base
   validate :total_provided_only_when_otu
   validate :loan_object_is_loanable
 
-  validates_inclusion_of :disposition, in: STATUS, if: '!disposition.blank?'
+  validates_inclusion_of :disposition, in: STATUS, if: -> {!disposition.blank?}
 
   def global_entity
     self.loan_item_object.to_global_id if self.loan_item_object.present?

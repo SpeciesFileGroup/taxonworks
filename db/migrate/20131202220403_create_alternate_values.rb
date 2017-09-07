@@ -1,4 +1,4 @@
-class CreateAlternateValues < ActiveRecord::Migration
+class CreateAlternateValues < ActiveRecord::Migration[4.2]
   def change
     create_table :alternate_values do |t|
       t.text :value

@@ -820,6 +820,16 @@ namespace :tw do
                   parent_id: parent_id,
                   rank_class: get_tw_rank_string[row['RankID']],
 
+
+
+                  # ADD TaxonNameID as a identifier local import, create a namespace for each project, see GitHub https://github.com/SpeciesFileGroup/taxonworks/issues/166
+                  #  or add as separate rake task
+
+
+
+
+
+
                   # housekeeping attributed to SF last_editor, etc.
                   origin_citation_attributes: {source_id: get_tw_source_id[row['RefID']],
                                                project_id: project_id,
@@ -1008,7 +1018,7 @@ namespace :tw do
             animalia_taxon_name = Protonym.new(
                 name: 'Animalia',
                 parent_id: this_project.root_taxon_name.id,
-                rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
+                rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom',
                 project_id: project_id,
             )
 

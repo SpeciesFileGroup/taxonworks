@@ -42,11 +42,12 @@ class AlternateValuesController < ApplicationController
   # PATCH/PUT /alternate_values/1.json
   def update
     respond_to do |format|
+      @alternate_value.project_id = sessions_current_project_id if params[:project_members_only] == 'checked'
       if @alternate_value.update(alternate_value_params)
         format.html { redirect_to @alternate_value.alternate_value_object.metamorphosize, notice: 'Alternate value was successfully updated.' }
         format.json { render json: @alternate_value, status: :created, location: @alternate_value }
       else
-        format.html { redirect_to :back, notice: 'Alternate value was NOT successfully updated.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Alternate value was NOT successfully updated.')}
         format.json { render json: @alternate_value.errors, status: :unprocessable_entity }
       end
     end
@@ -57,7 +58,7 @@ class AlternateValuesController < ApplicationController
   def destroy
     @alternate_value.destroy
     respond_to do |format|
-      format.html { redirect_to :back, notice: 'Alternate value was successfully destroyed.' }
+      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Alternate value was successfully destroyed.')}
       format.json { head :no_content }
     end
   end
@@ -106,6 +107,14 @@ class AlternateValuesController < ApplicationController
   def alternate_value_params
     params.require(:alternate_value).permit(:value, :type, :language_id, :alternate_value_object_type, :alternate_value_object_id, :alternate_value_object_attribute, :is_community_annotation)
   end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  # def alternate_value_params
+  #   a_v_params = ActionController::Parameters.new({
+  #
+  #                                                 })
+  #   a_v_params.require(:alternate_value).permit(:value, :type, :language_id, :alternate_value_object_type, :alternate_value_object_id, :alternate_value_object_attribute, :project_members_only)
+  # end
 
   def breakout_types(collection)
     collection

@@ -10,10 +10,10 @@ class CitationTopicsController < ApplicationController
 
     respond_to do |format|
       if @citation_topic.save
-        format.html { redirect_to :back, notice: 'Citation topic was successfully created.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation topic was successfully updated.')}
         format.json { render json: @citation_topic, status: :created, location: @citation_topic }
       else
-        format.html { redirect_to :back, notice: 'Citation topic was NOT successfully created.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation topic was NOT successfully updated.')}
         format.json { render json: @citation_topic.errors, status: :unprocessable_entity }
       end
     end
@@ -24,10 +24,10 @@ class CitationTopicsController < ApplicationController
   def update
     respond_to do |format|
       if @citation_topic.update(citation_topic_params)
-        format.html { redirect_to :back, notice: 'Citation topic was successfully updated.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation topic was successfully updated.')}
         format.json { render json: @citation_topic, status: :ok, location: @citation_topic }
       else
-        format.html { redirect_to :back, notice: 'Citation topic was NOT successfully updated.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation topic was NOT successfully updated.')}
         format.json { render json: @citation_topic.errors, status: :unprocessable_entity }
       end
     end
@@ -38,7 +38,7 @@ class CitationTopicsController < ApplicationController
   def destroy
     @citation_topic.destroy
     respond_to do |format|
-      format.html { redirect_to :back, notice: 'Citation topic was successfully destroyed.' }
+      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation topic was successfully destroyed.')}
       format.json { head :no_content }
     end
   end

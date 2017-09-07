@@ -45,18 +45,18 @@ describe PublicContentsController, :type => :controller do
     describe "with valid params" do
       it "creates a new PublicContent" do
         expect {
-          post :create, {:public_content => valid_attributes}, valid_session
+          post :create, params: {public_content: valid_attributes}, session: valid_session
         }.to change(PublicContent, :count).by(1)
       end
 
       it "assigns a newly created public_content as @public_content" do
-        post :create, {:public_content => valid_attributes}, valid_session
+        post :create, params: {public_content: valid_attributes}, session: valid_session
         expect(assigns(:public_content)).to be_a(PublicContent)
         expect(assigns(:public_content)).to be_persisted
       end
 
       it "redirects to :back" do
-        post :create, {:public_content => valid_attributes}, valid_session
+        post :create, params: {public_content: valid_attributes}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
@@ -65,14 +65,14 @@ describe PublicContentsController, :type => :controller do
       it "assigns a newly created but unsaved public_content as @public_content" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(PublicContent).to receive(:save).and_return(false)
-        post :create, {:public_content => {:invalid => 'parms'}}, valid_session
+        post :create, params: {public_content: {invalid: 'parms'}}, session: valid_session
         expect(assigns(:public_content)).to be_a_new(PublicContent)
       end
 
       it "re-renders the :back template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(PublicContent).to receive(:save).and_return(false)
-        post :create, {:public_content => {:invalid => 'parms'}}, valid_session
+        post :create, params: {public_content: {invalid: 'parms'}}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
@@ -86,19 +86,20 @@ describe PublicContentsController, :type => :controller do
         # specifies that the PublicContent created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        expect_any_instance_of(PublicContent).to receive(:update).with({"text" => "New text"})
-        put :update, {:id => public_content.to_param, :public_content => { text: 'New text'}}, valid_session
+        update_params = ActionController::Parameters.new({text: "New text"}).permit(:text)
+        expect_any_instance_of(PublicContent).to receive(:update).with(update_params)
+        put :update, params: {id: public_content.to_param, public_content: update_params}, session: valid_session
       end
 
       it "assigns the requested public_content as @public_content" do
         public_content = PublicContent.create! valid_attributes
-        put :update, {:id => public_content.to_param, :public_content => valid_attributes}, valid_session
+        put :update, params: {id: public_content.to_param, public_content: valid_attributes}, session: valid_session
         expect(assigns(:public_content)).to eq(public_content)
       end
 
       it "redirects to :back" do
         public_content = PublicContent.create! valid_attributes
-        put :update, {:id => public_content.to_param, :public_content => valid_attributes}, valid_session
+        put :update, params: {id: public_content.to_param, public_content: valid_attributes}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
@@ -108,7 +109,7 @@ describe PublicContentsController, :type => :controller do
         public_content = PublicContent.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(PublicContent).to receive(:save).and_return(false)
-        put :update, {:id => public_content.to_param, :public_content => {foo: 'bar'}}, valid_session
+        put :update, params: {id: public_content.to_param, public_content: {foo: 'bar'}}, session: valid_session
         expect(assigns(:public_content)).to eq(public_content)
       end
 
@@ -116,7 +117,7 @@ describe PublicContentsController, :type => :controller do
         public_content = PublicContent.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(PublicContent).to receive(:save).and_return(false)
-        put :update, {:id => public_content.to_param, :public_content => {foo: 'bar'}}, valid_session
+        put :update, params: {id: public_content.to_param, public_content: {foo: 'bar'}}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
@@ -126,13 +127,13 @@ describe PublicContentsController, :type => :controller do
     it "destroys the requested public_content" do
       public_content = PublicContent.create! valid_attributes
       expect {
-        delete :destroy, {:id => public_content.to_param}, valid_session
+        delete :destroy, params: {id: public_content.to_param}, session: valid_session
       }.to change(PublicContent, :count).by(-1)
     end
 
     it "redirects to :back" do
       public_content = PublicContent.create! valid_attributes
-      delete :destroy, {:id => public_content.to_param}, valid_session
+      delete :destroy, params: {id: public_content.to_param}, session: valid_session
       expect(response).to redirect_to(list_otus_path)
     end
   end

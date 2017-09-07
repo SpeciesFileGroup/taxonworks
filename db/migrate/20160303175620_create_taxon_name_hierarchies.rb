@@ -1,4 +1,4 @@
-class CreateTaxonNameHierarchies < ActiveRecord::Migration
+class CreateTaxonNameHierarchies < ActiveRecord::Migration[4.2]
   def change
     create_table :taxon_name_hierarchies, id: false do |t|
       t.integer :ancestor_id, null: false

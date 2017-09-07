@@ -27,7 +27,7 @@ Object.assign(TW.views.tasks.citations.otus, {
   }
 });
 
-$(document).ready( function() {
+$(document).on('turbolinks:load', function() {
   if ($("#cite_otus").length) {
     TW.views.tasks.citations.otus.init();
   }

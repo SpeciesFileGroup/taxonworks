@@ -1,4 +1,4 @@
-class ModifySourceDateFields < ActiveRecord::Migration
+class ModifySourceDateFields < ActiveRecord::Migration[4.2]
   def change
     add_column :sources, :year_suffix, :string
     reversible do |dir|

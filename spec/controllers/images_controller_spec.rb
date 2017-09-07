@@ -42,12 +42,12 @@ describe ImagesController, :type => :controller do
   describe "GET list" do
     it "with no other parameters, assigns 20/page images as @controlled_vocabulary_terms" do
       image = Image.create! valid_attributes
-      get :list, {}, valid_session
+      get :list, params: {}, session: valid_session
       expect(assigns(:images)).to include(image)
     end
 
     it "renders the list template" do
-      get :list, {}, valid_session
+      get :list, params: {}, session: valid_session
       expect(response).to render_template("list")
     end
   end
@@ -55,7 +55,7 @@ describe ImagesController, :type => :controller do
   describe "GET index" do
     it "assigns all images as @images" do
       image = Image.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       # expect(assigns(:images)).to eq([image])
       expect(assigns(:recent_objects)).to include(image)
     end
@@ -65,7 +65,7 @@ describe ImagesController, :type => :controller do
     let (:image) { Image.create! valid_attributes }
 
     it "assigns the requested image as @image" do
-      get :show, {:id => image.to_param}, valid_session
+      get :show, params: {id: image.to_param}, session: valid_session
       expect(assigns(:image)).to eq(image)
     end
 
@@ -73,7 +73,7 @@ describe ImagesController, :type => :controller do
       render_views
 
       context "valid image" do
-        before { get :show, { :id => image.to_param, :format => :json }, valid_session }
+        before {get :show, params: {id: image.to_param, :format => :json}, session: valid_session}
         let (:data) { JSON.parse(response.body) }
 
         it "returns a successful JSON response" do
@@ -175,7 +175,7 @@ describe ImagesController, :type => :controller do
       end
 
       context "invalid image" do
-        before { get :show, { :id => -1, :format => :json }, valid_session }
+        before {get :show, params: {id: -1, :format => :json}, session: valid_session}
 
         it "returns an unsuccessful JSON response" do
           expect(JSON.parse(response.body)).to eq({ "success" => false })
@@ -187,7 +187,7 @@ describe ImagesController, :type => :controller do
 
   describe "GET new" do
     it "assigns a new image as @image" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       expect(assigns(:image)).to be_a_new(Image)
     end
   end
@@ -195,7 +195,7 @@ describe ImagesController, :type => :controller do
   describe "GET edit" do
     it "assigns the requested image as @image" do
       image = Image.create! valid_attributes
-      get :edit, {:id => image.to_param}, valid_session
+      get :edit, params: {id: image.to_param}, session: valid_session
       expect(assigns(:image)).to eq(image)
     end
   end
@@ -204,30 +204,30 @@ describe ImagesController, :type => :controller do
     describe "with valid params" do
       it "creates a new Image" do
         expect {
-          post :create, {:image => valid_attributes}, valid_session
+          post :create, params: {image: valid_attributes}, session: valid_session
         }.to change(Image, :count).by(1)
       end
 
       it "assigns a newly created image as @image" do
-        post :create, {:image => valid_attributes}, valid_session
+        post :create, params: {image: valid_attributes}, session: valid_session
         expect(assigns(:image)).to be_a(Image)
         expect(assigns(:image)).to be_persisted
       end
 
       it "redirects to the created image" do
-        post :create, {:image => valid_attributes}, valid_session
+        post :create, params: {image: valid_attributes}, session: valid_session
         expect(response).to redirect_to(Image.last)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved image as @image" do
-        post :create, {:image => invalid_attributes}, valid_session
+        post :create, params: {image: invalid_attributes}, session: valid_session
         expect(assigns(:image)).to be_a_new(Image)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {:image => invalid_attributes}, valid_session
+        post :create, params: {image: invalid_attributes}, session: valid_session
         expect(response).to render_template("new")
       end
     end
@@ -241,20 +241,20 @@ describe ImagesController, :type => :controller do
 
       it "updates the requested image" do
         image = Image.create! valid_attributes
-        put :update, {:id => image.to_param, image: {:image_file => fixture_file_upload((Rails.root + 'spec/files/images/Samsung_Phone.jpg'), 'image/jpg')}}, valid_session
+        put :update, params: {id: image.to_param, image: {:image_file => fixture_file_upload((Rails.root + 'spec/files/images/Samsung_Phone.jpg'), 'image/jpg')}}, session: valid_session
         image.reload
         expect(image.user_file_name).to eq('Samsung_Phone.jpg')
       end
 
       it "assigns the requested image as @image" do
         image = Image.create! valid_attributes
-        put :update, {:id => image.to_param, :image => valid_attributes}, valid_session
+        put :update, params: {id: image.to_param, image: valid_attributes}, session: valid_session
         expect(assigns(:image)).to eq(image)
       end
 
       it "redirects to the image" do
         image = Image.create! valid_attributes
-        put :update, {:id => image.to_param, :image => valid_attributes}, valid_session
+        put :update, params: {id: image.to_param, image: valid_attributes}, session: valid_session
         expect(response).to redirect_to(image)
       end
     end
@@ -263,14 +263,14 @@ describe ImagesController, :type => :controller do
       it "assigns the image as @image" do
         image = Image.create! valid_attributes
         allow_any_instance_of(Image).to receive(:save).and_return(false)
-        put :update, {:id => image.to_param, :image => invalid_attributes}, valid_session
+        put :update, params: {id: image.to_param, image: invalid_attributes}, session: valid_session
         expect(assigns(:image)).to eq(image)
       end
 
       it "re-renders the 'edit' template" do
         image = Image.create! valid_attributes
         allow_any_instance_of(Image).to receive(:save).and_return(false)
-        put :update, {:id => image.to_param, :image => invalid_attributes}, valid_session
+        put :update, params: {id: image.to_param, image: invalid_attributes}, session: valid_session
         expect(response).to render_template("edit")
       end
     end
@@ -280,13 +280,13 @@ describe ImagesController, :type => :controller do
     it "destroys the requested image" do
       image = Image.create! valid_attributes
       expect {
-        delete :destroy, {:id => image.to_param}, valid_session
+        delete :destroy, params: {id: image.to_param}, session: valid_session
       }.to change(Image, :count).by(-1)
     end
 
     it "redirects to the images list" do
       image = Image.create! valid_attributes
-      delete :destroy, {:id => image.to_param}, valid_session
+      delete :destroy, params: {id: image.to_param}, session: valid_session
       expect(response).to redirect_to(images_url)
     end
   end

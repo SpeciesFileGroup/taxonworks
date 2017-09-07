@@ -450,7 +450,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       let(:source_bibtex) { FactoryGirl.build(:valid_source_bibtex) }
 
       specify 'if present year, must be an integer an greater than 999 and no more than 2 years in the future' do
-        error_msg          = 'year must be an integer greater than 999 and no more than 2 years in the future'
+        error_msg          = 'must be an integer greater than 999 and no more than 2 years in the future'
         source_bibtex.year = 'test'
         expect(source_bibtex.valid?).to be_falsey
         expect(source_bibtex.errors.messages[:year].include?(error_msg)).to be_truthy
@@ -478,7 +478,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
 
       specify 'if month is set, there must be a year' do
-        error_msg           = 'year is required when month or stated_year is provided'
+        error_msg           = 'is required when month or stated_year is provided'
         source_bibtex.month = 'feb'
         expect(source_bibtex.valid?).to be_falsey
         expect(source_bibtex.errors.messages[:year].include?(error_msg)).to be_truthy
@@ -546,7 +546,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           source_bibtex.year = 1945
         }
         specify 'if day is present there must be a month' do
-          error_msg         = 'month is required when day is provided'
+          error_msg         = 'is required when day is provided'
           source_bibtex.day = 31
           expect(source_bibtex.valid?).to be_falsey
           expect(source_bibtex.errors.messages[:month].include?(error_msg)).to be_truthy
@@ -611,7 +611,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
         context 'correctly creates authority_name & cached_author_string' do
           let(:source_bibtex) { FactoryGirl.build(:valid_source_bibtex) }
-          
+
           context 'with author, but without authors' do
             specify 'single author' do
               source_bibtex.author = 'Thomas, D.'
@@ -1246,10 +1246,10 @@ describe Source::Bibtex, type: :model, group: :sources do
         ) }
         let(:b) { Source::Bibtex.create!(params) }
         specify 'has one role' do
-          expect(b.roles(true).size).to eq(1)
+          expect(b.roles.reload.size).to eq(1)
         end
         specify 'has one author' do
-          expect(b.authors(true).size).to eq(1)
+          expect(b.authors.reload.size).to eq(1)
         end
       end
 
@@ -1259,10 +1259,10 @@ describe Source::Bibtex, type: :model, group: :sources do
         ) }
         let(:b) { Source::Bibtex.create!(params) }
         specify 'has one role' do
-          expect(b.roles(true).size).to eq(1)
+          expect(b.roles.reload.size).to eq(1)
         end
         specify 'has one author' do
-          expect(b.authors(true).size).to eq(1)
+          expect(b.authors.reload.size).to eq(1)
         end
       end
 
@@ -1287,7 +1287,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         let(:params) { required_params.merge(one_author_params) }
         specify 'update adds role' do
           expect(b.update(params)).to be_truthy
-          expect(b.roles(true).size).to eq(1)
+          expect(b.roles.reload.size).to eq(1)
         end
       end
 
@@ -1297,7 +1297,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         ) }
         specify 'update adds role' do
           expect(b.update(params)).to be_truthy
-          expect(b.roles(true).size).to eq(1)
+          expect(b.roles.reload.size).to eq(1)
         end
       end
 
@@ -1308,9 +1308,9 @@ describe Source::Bibtex, type: :model, group: :sources do
             author_roles_attributes: [{id: b.roles.first.id, _destroy: 1}]
           } }
           specify 'update destroys role' do
-            expect(b.roles(true).size).to eq(1)
+            expect(b.roles.reload.size).to eq(1)
             expect(b.update(params)).to be_truthy
-            expect(b.roles(true).size).to eq(0)
+            expect(b.roles.reload.size).to eq(0)
           end
         end
       end
@@ -1321,15 +1321,15 @@ describe Source::Bibtex, type: :model, group: :sources do
           author_roles_attributes: [{id: b.roles.second.id, _destroy: 1}]
         } }
         specify 'three authors exist' do
-          expect(b.authors(true).size).to eq(3)
+          expect(b.authors.reload.size).to eq(3)
         end
         specify 'update updates position' do
-          expect(b.authors(true).count).to eq(3)
+          expect(b.authors.reload.count).to eq(3)
           expect(b.authority_name).to eq('un, deux & trois')
           expect(b.update(params)).to be_truthy
-          expect(b.authors(true).count).to eq(2)
+          expect(b.authors.reload.count).to eq(2)
           expect(b.authority_name).to eq('un & trois')
-          expect(b.roles(true).first.position).to eq(1)
+          expect(b.roles.reload.first.position).to eq(1)
           expect(b.roles.last.position).to eq(2)
           expect(b.authors.last.last_name).to eq('trois')
         end
@@ -1341,11 +1341,11 @@ describe Source::Bibtex, type: :model, group: :sources do
           author_roles_attributes: [{id: b.roles.second.id, position: 1}, {id: b.roles.third.id, position: 2}, {id: b.roles.first.id, position: 3}]
         } }
         specify 'update updates position' do
-          expect(b.authors(true).count).to eq(3)
+          expect(b.authors.reload.count).to eq(3)
           expect(b.authority_name).to eq('un, deux & trois')
           expect(b.update(params)).to be_truthy
-          expect(b.authors(true).collect { |a| a.last_name }).to eq(%w{deux trois un})
-          expect(b.authors(true).count).to eq(3)
+          expect(b.authors.reload.collect {|a| a.last_name}).to eq(%w{deux trois un})
+          expect(b.authors.reload.count).to eq(3)
           expect(b.authority_name).to eq('deux, trois & un')
         end
       end
@@ -1420,7 +1420,7 @@ describe Source::Bibtex, type: :model, group: :sources do
     #       # array.push(LaTeX.decode %q{" \`{o} \"{o} \.{o} \H{o} \d{o} {\OE} \aa \O \ss "})
 
     #       # array.push(LaTeX.decode %q{ '{o} \~{o} \u{o} \H{o} \t{oo} \b{o} \ae \AA \l  ?'})
-    #       # 
+    #       #
     #       # array.push(LaTeX.decode %q{" \^{o} \={o} \V{o} \c{o} \oe \ae \o \L !' "})
 
     #       # array.push(LaTeX.decode %q{" \`{e} \"{a} \.{a} \c{c} {\oe}  \\{oe}a"})

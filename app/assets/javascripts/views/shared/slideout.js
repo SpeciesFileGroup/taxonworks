@@ -82,7 +82,6 @@ Object.assign(TW.views.shared.slideout, {
 	}				
 });
 
-$(document).ready(function() {
-	var slideout = TW.views.shared.slideout;
-	slideout.init();
+$(document).on('turbolinks:load', function() {
+	TW.views.shared.slideout.init();
 });

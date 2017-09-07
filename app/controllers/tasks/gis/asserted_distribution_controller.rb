@@ -1,9 +1,9 @@
 class Tasks::Gis::AssertedDistributionController < ApplicationController
   include TaskControllerConfiguration
- 
-  before_filter :build_locks, only: [:new, :create, :generate_choices]
 
-  # GET /new 
+  before_action :build_locks, only: [:new, :create, :generate_choices]
+
+  # GET /new
   def new
     @asserted_distribution = AssertedDistribution.new(asserted_distribution_params)
     @asserted_distribution.origin_citation ||= Citation.new
@@ -13,8 +13,8 @@ class Tasks::Gis::AssertedDistributionController < ApplicationController
   def create
     @asserted_distribution = AssertedDistribution.new(asserted_distribution_params)
     if @asserted_distribution.save
-      flash[:notice] = 'Asserted distribution was successfully created.' 
-      @asserted_distribution = AssertedDistribution.stub( defaults: locked_params(locks: @locks)) 
+      flash[:notice]         = 'Asserted distribution was successfully created.'
+      @asserted_distribution = AssertedDistribution.stub(defaults: locked_params(locks: @locks))
     else
       flash[:notice] = 'Failed to create asserted distribution.'
     end
@@ -30,8 +30,8 @@ class Tasks::Gis::AssertedDistributionController < ApplicationController
     feature_collection = ::Gis::GeoJSON.feature_collection(geographic_areas)
 
     asserted_distributions = AssertedDistribution.stub_new(
-      otu_id: otu_id_param,       
-      source_id: source_id_param, 
+      otu_id:           otu_id_param,
+      source_id:        source_id_param,
       geographic_areas: geographic_areas
     )
 
@@ -54,7 +54,7 @@ class Tasks::Gis::AssertedDistributionController < ApplicationController
   # @return [Hash]
   #   the state of the locks, values are 1 for locked locks
   def lock_params
-    params.permit(locks: {asserted_distribution: [:otu_id, :source_id]})[:locks] 
+    params.permit(locks: {asserted_distribution: [:otu_id, :source_id]})[:locks]
   end
 
   # @return [Hash]
@@ -87,7 +87,7 @@ class Tasks::Gis::AssertedDistributionController < ApplicationController
   def asserted_distribution_params
     begin
       params.require(:asserted_distribution).permit(:otu_id, :geographic_area_id, :is_absent,
-                                                    origin_citation_attributes: [ :source_id ]) 
+                                                    origin_citation_attributes: [:source_id])
     rescue ActionController::ParameterMissing
       return ActionController::Parameters.new(AssertedDistribution.new.attributes).permit!
     end

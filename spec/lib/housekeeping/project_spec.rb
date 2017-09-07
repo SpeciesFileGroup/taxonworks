@@ -33,16 +33,16 @@ describe 'Housekeeping::Project' do
         context 'when $project_id is set' do
           before(:each) {
             project.save!
-            $project_id = project.id 
+            $project_id = project.id
           }
 
           specify 'project_id is set with before_validation' do
-            i.valid? 
+            i.valid?
             expect(i.project_id).to eq(project.id)  # see support/set_user_and_project
           end
 
           specify 'project is set from $project_id ' do
-            $project_id = nil # TODO: make a with_no_project method 
+            $project_id = nil # TODO: make a with_no_project method
             i.valid?
             expect(i.project_id.nil?).to be_truthy
             expect(i.errors.include?(:project)).to be_truthy
@@ -67,13 +67,13 @@ describe 'Housekeeping::Project' do
             end
 
             # xspecify 'instance must belong to the project before save' do
-              # $project_id = @project1.id
-              # expect(i.valid?).to be_truthy
-              # expect(i.project_id).to eq(@project1.id)
-              # expect(i.save).to be_truthy
+            # $project_id = @project1.id
+            # expect(i.valid?).to be_truthy
+            # expect(i.project_id).to eq(@project1.id)
+            # expect(i.save).to be_truthy
 
-              # i.project_id = @project2.id 
-              # expect{i.save}.to raise_error
+            # i.project_id = @project2.id
+            # expect{i.save}.to raise_error
             # end
           end
         end
@@ -83,8 +83,8 @@ describe 'Housekeeping::Project' do
 end
 
 module HousekeepingTestClass
-  class WithProject < ActiveRecord::Base
-    include FakeTable 
-    include Housekeeping::Projects 
+  class WithProject < ApplicationRecord
+    include FakeTable
+    include Housekeeping::Projects
   end
 end

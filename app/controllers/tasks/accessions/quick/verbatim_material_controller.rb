@@ -1,17 +1,17 @@
 class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationController
   include TaskControllerConfiguration
-  before_filter :set_fixed_variables, :get_recent
+  before_action :set_fixed_variables, :get_recent
 
   # GET quick_verbatim_material_task
   def new
-    @material = Material::QuickVerbatimResponse.new(params)
+    @material = Material::QuickVerbatimResponse.new(material_params)
     @related_routes = UserTasks.related_routes('quick_verbatim_material_task')
     set_variable_variables(@material)
   end
 
   # POST tasks_accessions_quick_verbatim_material_create_path
   def create
-    @material = Material.create_quick_verbatim(params)
+    @material = Material.create_quick_verbatim(material_params)
 
     saved, errors = @material.save
 
@@ -35,9 +35,9 @@ class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationControll
 
 
   def set_fixed_variables
-    @repositories = Repository.order(:name).all
-    @namespaces = Namespace.order(:name).all
-    @biocuration_groups = BiocurationGroup.with_project_id($project_id) 
+    @repositories       = Repository.order(:name).all
+    @namespaces         = Namespace.order(:name).all
+    @biocuration_groups = BiocurationGroup.with_project_id($project_id)
   end
 
   def set_variable_variables(material)
@@ -51,8 +51,10 @@ class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationControll
   end
 
   def material_params
-    # params.require(:identifier) , :locks, :repository, :collection_object, :note, :collection_objects).permit(:note, :collection_object, :identifier, :repository, :locks)
+    # params.permit(:collection_object, :identifier, :repository, :locks, :note, :collection_objects, :commit).to_unsafe_h
+    #TODO this is a security problem needing resolution @mjy
+    params.to_unsafe_h
   end
 
-  
+
 end

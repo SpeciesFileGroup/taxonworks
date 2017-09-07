@@ -1,4 +1,4 @@
-class AddHousekeepingFields < ActiveRecord::Migration
+class AddHousekeepingFields < ActiveRecord::Migration[4.2]
   def change
     add_column :taxon_name_relationships, :created_by_id, :integer, index: true
     add_column :taxon_name_relationships, :updated_by_id, :integer, index: true

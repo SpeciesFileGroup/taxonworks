@@ -3,20 +3,19 @@
 #
 # @!attribute name
 #   @return [String]
-#     the name of the preparation 
+#     the name of the preparation
 #
 # @!attribute definition
 #   @return [String]
-#     a definition describing the preparation 
+#     a definition describing the preparation
 #
-class PreparationType < ActiveRecord::Base
+class PreparationType < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::IsData
   include Shared::Taggable
   include Shared::SharedAcrossProjects
- 
-  has_paper_trail :on => [:update] 
+  include Shared::HasPapertrail
 
   has_many :collection_objects, dependent: :restrict_with_error
   validates_presence_of :name, :definition

@@ -42,12 +42,12 @@ describe TypeMaterialsController, :type => :controller do
   describe "GET list" do
     it "with no other parameters, assigns 20/page type_materials as @controlled_vocabulary_terms" do
       type_material = TypeMaterial.create! valid_attributes
-      get :list, {}, valid_session
+      get :list, params: {}, session: valid_session
       expect(assigns(:type_materials)).to include(type_material)
     end
 
     it "renders the list template" do
-      get :list, {}, valid_session
+      get :list, params: {}, session: valid_session
       expect(response).to render_template("list")
     end
   end
@@ -55,7 +55,7 @@ describe TypeMaterialsController, :type => :controller do
   describe "GET index" do
     it "assigns all type_materials as @type_materials" do
       type_material = TypeMaterial.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       expect(assigns(:recent_objects)).to eq([type_material])
     end
   end
@@ -63,14 +63,14 @@ describe TypeMaterialsController, :type => :controller do
   describe "GET show" do
     it "assigns the requested type_material as @type_material" do
       type_material = TypeMaterial.create! valid_attributes
-      get :show, {:id => type_material.to_param}, valid_session
+      get :show, params: {id: type_material.to_param}, session: valid_session
       expect(assigns(:type_material)).to eq(type_material)
     end
   end
 
   describe "GET new" do
     it "assigns a new type_material as @type_material" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       expect(assigns(:type_material)).to be_a_new(TypeMaterial)
     end
   end
@@ -78,7 +78,7 @@ describe TypeMaterialsController, :type => :controller do
   describe "GET edit" do
     it "assigns the requested type_material as @type_material" do
       type_material = TypeMaterial.create! valid_attributes
-      get :edit, {:id => type_material.to_param}, valid_session
+      get :edit, params: {id: type_material.to_param}, session: valid_session
       expect(assigns(:type_material)).to eq(type_material)
     end
   end
@@ -87,18 +87,18 @@ describe TypeMaterialsController, :type => :controller do
     describe "with valid params" do
       it "creates a new TypeMaterial" do
         expect {
-          post :create, {:type_material => valid_attributes}, valid_session
+          post :create, params: {:type_material => valid_attributes}, session: valid_session
         }.to change(TypeMaterial, :count).by(1)
       end
 
       it "assigns a newly created type_material as @type_material" do
-        post :create, {:type_material => valid_attributes}, valid_session
+        post :create, params: {:type_material => valid_attributes}, session: valid_session
         expect(assigns(:type_material)).to be_a(TypeMaterial)
         expect(assigns(:type_material)).to be_persisted
       end
 
       it "redirects to the created type_material" do
-        post :create, {:type_material => valid_attributes}, valid_session
+        post :create, params: {:type_material => valid_attributes}, session: valid_session
         expect(response).to redirect_to(TypeMaterial.last)
       end
     end
@@ -106,13 +106,13 @@ describe TypeMaterialsController, :type => :controller do
     describe "with invalid params" do
       it "assigns a newly created but unsaved type_material as @type_material" do
         allow_any_instance_of(TypeMaterial).to receive(:save).and_return(false)
-        post :create, {:type_material => invalid_attributes}, valid_session
+        post :create, params: {:type_material => invalid_attributes}, session: valid_session
         expect(assigns(:type_material)).to be_a_new(TypeMaterial)
       end
 
       it "re-renders the 'new' template" do
         allow_any_instance_of(TypeMaterial).to receive(:save).and_return(false)
-        post :create, {:type_material => invalid_attributes}, valid_session
+        post :create, params: {:type_material => invalid_attributes}, session: valid_session
         expect(response).to render_template("new")
       end
     end
@@ -126,7 +126,7 @@ describe TypeMaterialsController, :type => :controller do
 
       it "updates the requested type_material" do
         type_material = TypeMaterial.create! valid_attributes
-        put :update, {:id => type_material.to_param, :type_material => new_attributes}, valid_session
+        put :update, params: {id: type_material.to_param, :type_material => new_attributes}, session: valid_session
         type_material.reload
         # skip("Add assertions for updated state")
         expect(assigns(:type_material)).to eq(type_material)
@@ -134,13 +134,13 @@ describe TypeMaterialsController, :type => :controller do
 
       it "assigns the requested type_material as @type_material" do
         type_material = TypeMaterial.create! valid_attributes
-        put :update, {:id => type_material.to_param, :type_material => valid_attributes}, valid_session
+        put :update, params: {id: type_material.to_param, :type_material => valid_attributes}, session: valid_session
         expect(assigns(:type_material)).to eq(type_material)
       end
 
       it "redirects to the type_material" do
         type_material = TypeMaterial.create! valid_attributes
-        put :update, {:id => type_material.to_param, :type_material => valid_attributes}, valid_session
+        put :update, params: {id: type_material.to_param, :type_material => valid_attributes}, session: valid_session
         expect(response).to redirect_to(type_material)
       end
     end
@@ -148,13 +148,13 @@ describe TypeMaterialsController, :type => :controller do
     describe "with invalid params" do
       it "assigns the type_material as @type_material" do
         type_material = TypeMaterial.create! valid_attributes
-        put :update, {:id => type_material.to_param, :type_material => invalid_attributes}, valid_session
+        put :update, params: {id: type_material.to_param, :type_material => invalid_attributes}, session: valid_session
         expect(assigns(:type_material)).to eq(type_material)
       end
 
       it "re-renders the 'edit' template" do
         type_material = TypeMaterial.create! valid_attributes
-        put :update, {:id => type_material.to_param, :type_material => invalid_attributes}, valid_session
+        put :update, params: {id: type_material.to_param, :type_material => invalid_attributes}, session: valid_session
         expect(response).to render_template("edit")
       end
     end
@@ -164,13 +164,13 @@ describe TypeMaterialsController, :type => :controller do
     it "destroys the requested type_material" do
       type_material = TypeMaterial.create! valid_attributes
       expect {
-        delete :destroy, {:id => type_material.to_param}, valid_session
+        delete :destroy, params: {id: type_material.to_param}, session: valid_session
       }.to change(TypeMaterial, :count).by(-1)
     end
 
     it "redirects to the type_materials list" do
       type_material = TypeMaterial.create! valid_attributes
-      delete :destroy, {:id => type_material.to_param}, valid_session
+      delete :destroy, params: {id: type_material.to_param}, session: valid_session
       expect(response).to redirect_to(type_materials_url)
     end
   end

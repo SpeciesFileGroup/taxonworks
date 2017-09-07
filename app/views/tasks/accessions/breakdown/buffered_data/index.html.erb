@@ -2,7 +2,7 @@
 
 <div class="breakdown_nav">
   <%= render '/tasks/accessions/breakdown/breakdown_nav_items' -%>
-  <div> <%= link_to('Depiction breakdown', sqed_depiction_breakdown_task_path(@result.sqed_depiction), 'data-no-turbolink' => true) -%> </div>
+  <div> <%= link_to('Depiction breakdown', sqed_depiction_breakdown_task_path(@result.sqed_depiction), 'data-turbolinks' => false) -%> </div>
 </div>
 
 <div class="flexbox sqed_breakdown" id="breakdown_buffered_data">
@@ -20,7 +20,7 @@
     </div>
 
     <p class="subtle"> 
-      highlight to copy | <%= link_to('edit in place', '#', id: 'verbatim_locality_edit') -%>  
+      highlight to copy | <%= link_to('edit in place', '#', data: { turbolinks: false }, id: 'verbatim_locality_edit') -%>  
     </p>
 
     <div id="bigbox">
@@ -353,9 +353,9 @@
     });
   }
 
-    $( document ).ready(function() {
-      load_thumb_nav();
-    });
+$(document).on('turbolinks:load', function() {
+    load_thumb_nav();
+});
 
 </script>
 

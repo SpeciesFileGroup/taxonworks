@@ -8,7 +8,7 @@
 # * Has no or 1 role
 # * Has no annotations
 #
-# A unvetted person becomes automatically vetted when they have > 1 roles or they 
+# A unvetted person becomes automatically vetted when they have > 1 roles or they
 # have an annotation associated with them.
 #
 # @!attribute type
@@ -18,8 +18,8 @@
 # @!attribute last_name
 #   @return [String]
 #   the last/family name
-#     
-# @!attribute first name 
+#
+# @!attribute first name
 #   @return [String]
 #   the first name, includes initials if the are provided
 #
@@ -31,7 +31,7 @@
 #   @return [String]
 #   @todo
 #
-class Person < ActiveRecord::Base
+class Person < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::AlternateValues
@@ -39,10 +39,8 @@ class Person < ActiveRecord::Base
   include Shared::Identifiable
   include Shared::Notable
   include Shared::SharedAcrossProjects
+  include Shared::HasPapertrail 
   include Shared::IsData
-
- 
- has_paper_trail :on => [:update] 
 
   # Class constants
   ALTERNATE_VALUES_FOR = [:last_name, :first_name]
@@ -76,7 +74,7 @@ class Person < ActiveRecord::Base
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName'
   has_many :type_material, through: :type_designator_roles, source: :role_object, source_type: 'TypeMaterial'
   has_many :georeferences, through: :georeferencer_roles, source: :role_object, source_type: 'Georeference'
-  
+
   #scope :named, -> (name) {where(name: name)}
   #scope :named_smith, where(last_name: 'Smith')
   scope :named_smith, -> { where(last_name: 'Smith') }
@@ -172,7 +170,7 @@ class Person < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    where('cached ILIKE ? OR cached ILIKE ? OR cached = ?', "#{params[:term]}%", "%#{params[:term]}%", params[:term]) 
+    where('cached ILIKE ? OR cached ILIKE ? OR cached = ?', "#{params[:term]}%", "%#{params[:term]}%", params[:term])
   end
 
   def set_cached

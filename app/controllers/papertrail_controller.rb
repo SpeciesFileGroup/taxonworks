@@ -1,5 +1,5 @@
 class PapertrailController < ApplicationController
-  before_filter :require_sign_in_and_project_selection
+  before_action :require_sign_in_and_project_selection
 
   # GET /papertrail
   def papertrail
@@ -10,7 +10,7 @@ class PapertrailController < ApplicationController
   def show
     @version = PaperTrail::Version.find(params[:id])
     @object = @version.item
-    if invalid_object(@object) 
+    if invalid_object(@object)
       record_not_found
     else
       render 'papertrail'
@@ -25,7 +25,7 @@ class PapertrailController < ApplicationController
     else
       new_attributes = params[:attributes]
 
-      if !new_attributes.nil? 
+      if !new_attributes.nil?
         new_attributes.each do |key, value|
           if @object.has_attribute?(key)
             @object.assign_attributes(Hash[key, value])
@@ -43,8 +43,8 @@ class PapertrailController < ApplicationController
 
       json_resp = { "url": papertrail_path(object_type: @object.class, object_id: @object.id) }
 
-      # If the object is a child class of "ControlledVocabularyTerm" then we need to use the 
-      # type member variable since the class member variable doesn't reflect the new class 
+      # If the object is a child class of "ControlledVocabularyTerm" then we need to use the
+      # type member variable since the class member variable doesn't reflect the new class
       # yet and the type is the correct one thus the link thats generated will be correct
       if ControlledVocabularyTerm > @object.class
         json_resp["url"] = papertrail_path(object_type: @object.type, object_id: @object.id)
@@ -76,7 +76,7 @@ class PapertrailController < ApplicationController
       end
 
       # If version_b index is outside the range treat it as if it means that
-      # we should compare the current version to an older version, thus set it 
+      # we should compare the current version to an older version, thus set it
       # equal to version_a index for simplicity for later on
       if version_index_b <= 0 || version_index_b >= @object.versions.length
         version_index_b = version_index_a;
@@ -91,7 +91,7 @@ class PapertrailController < ApplicationController
         version_index_b = version_index_a
         version_index_a = tmp_version_index
       end
-      
+
       # version_a will point to the newer version
       # version_b will point to the older version
       version_a = @object.versions[version_index_a]

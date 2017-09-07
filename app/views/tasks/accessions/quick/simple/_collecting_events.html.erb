@@ -1,6 +1,6 @@
 <ul>
   <% collecting_events.each do |ce| -%>
     <li> 
-      <%= collecting_event_tag(ce)  -%> <%= link_to("use", "#", 'data-collecting-event-id' => ce.id, class: [:collecting_event_picklist, :checkmark]) -%> </li>
+      <%= collecting_event_tag(ce)  -%> <%= link_to("use", "#", 'data-collecting-event-id' => ce.id, data: { turbolinks: false }, class: [:collecting_event_picklist, :checkmark]) -%> </li>
   <% end %>
 </ul>

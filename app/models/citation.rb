@@ -1,8 +1,8 @@
-# A Citation is an assertion that the subject (i.e. citation object/record/data instance), or some attribute of it, was referenced or originate in a Source. 
+# A Citation is an assertion that the subject (i.e. citation object/record/data instance), or some attribute of it, was referenced or originate in a Source.
 #
 # @!attribute citation_object_type
 #   @return [String]
-#     Rails STI, the class of the object being cited 
+#     Rails STI, the class of the object being cited
 #
 # @!attribute source_id
 #   @return [Integer]
@@ -14,13 +14,13 @@
 #
 # @!attribute citation_object_id
 #   @return [Integer]
-#    Rails STI, the id of the object being cited 
+#    Rails STI, the id of the object being cited
 #
 # @!attribute pages
 #   @return [String]
-#     a specific location/localization for the data in the Source  
+#     a specific location/localization for the data in the Source
 #
-class Citation < ActiveRecord::Base
+class Citation < ApplicationRecord
   include Housekeeping
   include Shared::Notable
   include Shared::Confidence
@@ -45,13 +45,14 @@ class Citation < ActiveRecord::Base
   after_create :add_source_to_project
 
   def prevent_if_required
-    if !marked_for_destruction? && !new_record? && citation_object.requires_citation? && citation_object.citations(true).count == 1
+    if !marked_for_destruction? && !new_record? && citation_object.requires_citation? && citation_object.citations.reload.count == 1
       errors.add(:base, 'at least one citation is required')
-      return false
-    end 
+      # return false
+      throw :abort
+    end
   end
 
-  after_save :update_related_cached_values, if: 'is_original?'
+  after_save :update_related_cached_values, if: :is_original?
 
   # @return [Scope of matching sources]
   def self.find_for_autocomplete(params)
@@ -62,13 +63,13 @@ class Citation < ActiveRecord::Base
   end
 
   # @return [NoteObject]
-  #   alias to simplify reference across classes 
+  #   alias to simplify reference across classes
   def annotated_object
     citation_object
   end
 
   # @return [Boolean]
-  #   true if is_original is checked, false if nil/false 
+  #   true if is_original is checked, false if nil/false
   def is_original?
     is_original ? true : false
   end

@@ -45,7 +45,7 @@
 #   @return [String]
 #   Text describing the source of the data used for creation (TDWG, GADM, NaturalEarth, etc.).
 #
-class GeographicArea < ActiveRecord::Base
+class GeographicArea < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::IsData
@@ -68,14 +68,14 @@ class GeographicArea < ActiveRecord::Base
   validates :geographic_area_type, presence: true
   validates_presence_of :geographic_area_type_id
 
-  validates :parent, presence: true, unless: 'self.name == "Earth"' || ENV['NO_GEO_VALID']
-  validates :level0, presence: true, allow_nil: true, unless: 'self.name == "Earth"'
+  validates :parent, presence: true, unless: -> {self.name == 'Earth'} # || ENV['NO_GEO_VALID']}
+  validates :level0, presence: true, allow_nil: true, unless: -> {self.name == 'Earth'}
   validates :level1, presence: true, allow_nil: true
   validates :level2, presence: true, allow_nil: true
   validates :name, presence: true, length: {minimum: 1}
   validates :data_origin, presence: true
 
-  scope :descendants_of, -> (geographic_area) {with_ancestor(geographic_area) } 
+  scope :descendants_of, -> (geographic_area) {with_ancestor(geographic_area)}
   scope :ancestors_of, -> (geographic_area) { joins(:descendant_hierarchies).order('geographic_area_hierarchies.generations DESC').where(geographic_area_hierarchies: {descendant_id: geographic_area.id}).where('geographic_area_hierarchies.ancestor_id != ?', geographic_area.id) }
 
   scope :self_and_ancestors_of, -> (geographic_area) {
@@ -92,12 +92,12 @@ class GeographicArea < ActiveRecord::Base
   #     .uniq
   # }
 
-  #  HashAggregate  (cost=100.89..100.97 rows=8 width=77) 
+  #  HashAggregate  (cost=100.89..100.97 rows=8 width=77)
   scope :ancestors_and_descendants_of, -> (geographic_area) do
     a = GeographicArea.self_and_ancestors_of(geographic_area)
     b = GeographicArea.descendants_of(geographic_area)
     GeographicArea.from("((#{a.to_sql}) UNION (#{b.to_sql})) as geographic_areas")
-  end 
+  end
 
   scope :with_name_like, lambda { |string|
     where(['name like ?', "#{string}%"])
@@ -370,26 +370,26 @@ class GeographicArea < ActiveRecord::Base
 
   # @return [Hash]
   #   query_line => [Array of GeographicArea]
-  # @params [text] 
+  # @params [text]
   #   one result set per line (\r\n)
   #   lines can have child:parent:parent name patterns
   def self.matching(text, has_shape = false, invert = false)
     if text.nil? || text.length == 0
-      return Hash.new('No query provided!' => []) 
+      return Hash.new('No query provided!' => [])
     end
 
     text.gsub!(/\r\n/, "\n")
 
-    result = {} 
+    result  = {}
     queries = text.split("\n")
     queries.each do |q|
       names = q.strip.split(':')
-      names.reverse! if invert 
+      names.reverse! if invert
       names.collect{|s| s.strip}
-      r = GeographicArea.with_name_and_parent_names(names)
-      r = r.joins(:geographic_items) if has_shape
-      result[q] = r 
-    end 
+      r         = GeographicArea.with_name_and_parent_names(names)
+      r         = r.joins(:geographic_items) if has_shape
+      result[q] = r
+    end
     result
   end
 

@@ -23,4 +23,18 @@ RSpec.describe GeneAttribute, type: :model do
       end
     end
   end
+
+  context '#to_logic_literal' do
+    before do
+      gene_attribute.sequence_relationship_type = 'SequenceRelationship::ForwardPrimer'
+      gene_attribute.sequence = FactoryGirl.create(:valid_sequence)
+      gene_attribute.descriptor = FactoryGirl.create(:valid_descriptor_gene)
+      gene_attribute.save!
+    end
+
+    specify 'includes type and id' do
+      expect(gene_attribute.to_logic_literal).to eq("SequenceRelationship::ForwardPrimer.#{gene_attribute.sequence_id}")
+    end
+  end
+
 end

@@ -51,7 +51,7 @@ RSpec.describe ExtractsController, type: :controller, group: :extract do
   describe "GET #index" do
     it "assigns all extracts as @extracts" do
       extract = Extract.create! valid_attributes
-      get :index, {}, session: valid_session
+      get :index, params: {}, session: valid_session
       expect(assigns(:recent_objects)).to eq([extract])
     end
   end
@@ -59,14 +59,14 @@ RSpec.describe ExtractsController, type: :controller, group: :extract do
   describe "GET #show" do
     it "assigns the requested extract as @extract" do
       extract = Extract.create! valid_attributes
-      get :show, {id: extract.to_param}, session: valid_session
+      get :show, params: {id: extract.to_param}, session: valid_session
       expect(assigns(:extract)).to eq(extract)
     end
   end
 
   describe "GET #new" do
     it "assigns a new extract as @extract" do
-      get :new, {}, session: valid_session
+      get :new, params: {}, session: valid_session
       expect(assigns(:extract)).to be_a_new(Extract)
     end
   end
@@ -74,7 +74,7 @@ RSpec.describe ExtractsController, type: :controller, group: :extract do
   describe "GET #edit" do
     it "assigns the requested extract as @extract" do
       extract = Extract.create! valid_attributes
-      get :edit, {id: extract.to_param}, session: valid_session
+      get :edit, params: {id: extract.to_param}, session: valid_session
       expect(assigns(:extract)).to eq(extract)
     end
   end
@@ -83,30 +83,30 @@ RSpec.describe ExtractsController, type: :controller, group: :extract do
     context "with valid params" do
       it "creates a new Extract" do
         expect {
-          post :create, {extract: valid_attributes}, session: valid_session
+          post :create, params: {extract: valid_attributes}, session: valid_session
         }.to change(Extract, :count).by(1)
       end
 
       it "assigns a newly created extract as @extract" do
-        post :create, {extract: valid_attributes}, session: valid_session
+        post :create, params: {extract: valid_attributes}, session: valid_session
         expect(assigns(:extract)).to be_a(Extract)
         expect(assigns(:extract)).to be_persisted
       end
 
       it "redirects to the created extract" do
-        post :create, {extract: valid_attributes}, session: valid_session
+        post :create, params: {extract: valid_attributes}, session: valid_session
         expect(response).to redirect_to(Extract.last)
       end
     end
 
     context "with invalid params" do
       it "assigns a newly created but unsaved extract as @extract" do
-        post :create, {extract: invalid_attributes}, session: valid_session
+        post :create, params: {extract: invalid_attributes}, session: valid_session
         expect(assigns(:extract)).to be_a_new(Extract)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {extract: invalid_attributes}, session: valid_session
+        post :create, params: {extract: invalid_attributes}, session: valid_session
         expect(response).to render_template("new")
       end
     end
@@ -116,26 +116,29 @@ RSpec.describe ExtractsController, type: :controller, group: :extract do
     context "with valid params" do
       let(:new_attributes) {
         attributes = valid_attributes
-        attributes[:quantity_value] = 1000
+        attributes['quantity_value'] = 1000
         attributes
       }
 
       it "updates the requested extract" do
         extract = Extract.create! valid_attributes
-        put :update, {id: extract.to_param, extract: new_attributes}, session: valid_session
+        #TODO: expect_any_instance_of test was not present, and has param mismatch if used
+        # update_params = ActionController::Parameters.new({id: extract.id, extract: new_attributes}).permit(:id, :extract)
+        # expect_any_instance_of(Extract).to receive(:update).with(update_params)
+        put :update, params: {id: extract.to_param, extract: new_attributes}, session: valid_session
         extract.reload
-        expect(extract.quantity_value == new_attributes[:quantity_value]).to be true
+        expect(extract.quantity_value == new_attributes['quantity_value']).to be true
       end
 
       it "assigns the requested extract as @extract" do
         extract = Extract.create! valid_attributes
-        put :update, {id: extract.to_param, extract: valid_attributes}, session: valid_session
+        put :update, params: {id: extract.to_param, extract: valid_attributes}, session: valid_session
         expect(assigns(:extract)).to eq(extract)
       end
 
       it "redirects to the extract" do
         extract = Extract.create! valid_attributes
-        put :update, {id: extract.to_param, extract: valid_attributes}, session: valid_session
+        put :update, params: {id: extract.to_param, extract: valid_attributes}, session: valid_session
         expect(response).to redirect_to(extract)
       end
     end
@@ -143,13 +146,13 @@ RSpec.describe ExtractsController, type: :controller, group: :extract do
     context "with invalid params" do
       it "assigns the extract as @extract" do
         extract = Extract.create! valid_attributes
-        put :update, {id: extract.to_param, extract: invalid_attributes}, session: valid_session
+        put :update, params: {id: extract.to_param, extract: invalid_attributes}, session: valid_session
         expect(assigns(:extract)).to eq(extract)
       end
 
       it "re-renders the 'edit' template" do
         extract = Extract.create! valid_attributes
-        put :update, {id: extract.to_param, extract: invalid_attributes}, session: valid_session
+        put :update, params: {id: extract.to_param, extract: invalid_attributes}, session: valid_session
         expect(response).to render_template("edit")
       end
     end
@@ -159,13 +162,13 @@ RSpec.describe ExtractsController, type: :controller, group: :extract do
     it "destroys the requested extract" do
       extract = Extract.create! valid_attributes
       expect {
-        delete :destroy, {id: extract.to_param}, session: valid_session
+        delete :destroy, params: {id: extract.to_param}, session: valid_session
       }.to change(Extract, :count).by(-1)
     end
 
     it "redirects to the extracts list" do
       extract = Extract.create! valid_attributes
-      delete :destroy, {id: extract.to_param}, session: valid_session
+      delete :destroy, params: {id: extract.to_param}, session: valid_session
       expect(response).to redirect_to(extracts_url)
     end
   end

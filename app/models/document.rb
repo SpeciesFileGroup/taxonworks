@@ -6,17 +6,17 @@
 #   @return [String]
 #   the name of the file as uploaded by the user.
 #
-# @!attribute document_file_content_type 
+# @!attribute document_file_content_type
 #   @return [String]
-#    the content type (mime) 
+#    the content type (mime)
 #
-# @!attribute document_file_file_size 
+# @!attribute document_file_file_size
 #   @return [Integer]
-#     size fo the document in K 
+#     size fo the document in K
 #
 # @!attribute document_file_updated_at
 #   @return [Timestamp]
-#     last time this document was updated 
+#     last time this document was updated
 #
 # @!attribute page_map
 #   @return [Hash]
@@ -24,7 +24,7 @@
 #      behaviour:
 #         if no integer exists for a PDF page then page is assumed to be the page # of the PDF (almost never the real case)
 #         if an integer is provided it points to the page(s) represented in print
-#         e.g.: 
+#         e.g.:
 #            { "1": "300",
 #              "2": ["301", "302", "xi"]
 #            }
@@ -32,8 +32,8 @@
 #            { "1": ["300", "301"]
 #              "2": ["301"]
 #            } ... printed page 301 is on pdf pages 1,2; page 1 contains printed pages 300, and part of 301
-#           
-class Document < ActiveRecord::Base
+#
+class Document < ApplicationRecord
   include Housekeeping
   include Shared::Identifiable
   include Shared::Notable
@@ -54,7 +54,12 @@ class Document < ActiveRecord::Base
 
   accepts_nested_attributes_for :documentation, allow_destroy: true, reject_if: :reject_documentation
 
-  before_save :set_pdf_metadata, if: 'changed_attributes.include?("document_file_file_size") && document_file_content_type =~ /pdf/'
+  before_save :set_pdf_metadata, if: -> {
+    ActiveSupport::Deprecation.silence do
+      changed_attributes.include?('document_file_file_size') &&
+          document_file_content_type =~ /pdf/
+    end
+  }
 
   def set_pages_by_start(sp = 1)
     update_attribute(:page_map, get_page_map(sp))
@@ -87,24 +92,24 @@ class Document < ActiveRecord::Base
 
     [index].flatten.map(&:to_s).each do |i|
       if page.kind_of?(Array)
-        p[i] = page.map(&:to_s) 
+        p[i] = page.map(&:to_s)
       else
         p[i] = page.to_s
-      end 
+      end
     end
 
     update_attribute(:page_map, p)
   end
 
   def initialize_start_page=(value)
-    write_attribute(:page_map, get_page_map(value)) 
+    write_attribute(:page_map, get_page_map(value))
   end
 
   protected
 
   def set_pdf_metadata
     begin
-      File.open(document_file.staged_path, "rb") do |io| 
+      File.open(document_file.staged_path, "rb") do |io|
         reader = PDF::Reader.new(io)
         write_attribute(:page_total, reader.page_count)
       end

@@ -7,7 +7,7 @@
     <%= fancy_th_tag(name: 'Type') -%>
     <%= fancy_th_tag(name: 'Container') -%>
     <%= fancy_th_tag(name: 'Disposition') -%>
-    <%= fancy_th_tag(name: 'Labels', group: 'associated') -%>
+    <%= fancy_th_tag(name: 'Labels') -%>
     <%= fancy_th_tag(name: 'Identifier', group: 'associated') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
@@ -21,7 +21,7 @@
         <td><%= container.type %></td>
         <td><%= container_tag(container.container)  %></td> <!---- containers_helper.rb ---->
         <td><%= container.disposition %></td>
-        <td><%= container_labels_tag(container) %></td>
+        <td><%= container.print_label %></td>
         <td><%= identifiers_tag(container) -%></td> 
         <%= fancy_metadata_cells_tag(container) -%>
       <% end %>

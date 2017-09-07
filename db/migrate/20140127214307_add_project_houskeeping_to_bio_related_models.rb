@@ -1,4 +1,4 @@
-class AddProjectHouskeepingToBioRelatedModels < ActiveRecord::Migration
+class AddProjectHouskeepingToBioRelatedModels < ActiveRecord::Migration[4.2]
   def change
     add_column :biological_associations_biological_associations_graphs, :project_id, :integer
   end

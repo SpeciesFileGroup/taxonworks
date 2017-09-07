@@ -1,4 +1,4 @@
-class CreateOtuPageLayoutSections < ActiveRecord::Migration
+class CreateOtuPageLayoutSections < ActiveRecord::Migration[4.2]
   def change
     create_table :otu_page_layout_sections do |t|
       t.references :otu_page_layout, index: true

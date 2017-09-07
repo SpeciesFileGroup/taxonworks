@@ -31,7 +31,7 @@ describe 'Protocols', type: :model, group: :protocol do
   end
 end
 
-class TestProtocol < ActiveRecord::Base
+class TestProtocol < ApplicationRecord
   include FakeTable
   include Shared::Protocols
 end

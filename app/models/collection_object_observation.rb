@@ -1,6 +1,6 @@
 # A special purpose notes field that records the notes of someone observing one or more collection objects.
 #
-# Includes verbatim block of text (perhaps json too ultimately) that details observations on a collection object.  
+# Includes verbatim block of text (perhaps json too ultimately) that details observations on a collection object.
 # Should only include notes on CollectionObjects, not field observations, i.e. this is a precursor of a CollectionObject instance.
 #
 # Example usages:
@@ -16,7 +16,7 @@
 #   @return [Integer]
 #   the project ID
 #
-class CollectionObjectObservation < ActiveRecord::Base
+class CollectionObjectObservation < ApplicationRecord
   include Housekeeping
   include Shared::IsData
   include Shared::Taggable

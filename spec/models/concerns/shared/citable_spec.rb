@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe 'Citable', type: :model, group: [:nomenclature, :citations] do
-  let(:class_with_citations) { TestCitable.new } 
+  let(:class_with_citations) {TestCitable.new}
   let(:citation) { FactoryGirl.build(:citation, source: source) }
 
   let!(:source) { FactoryGirl.create(:valid_source_bibtex, year: 1905) }
@@ -11,7 +11,7 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
       class_with_citations.save!
       class_with_citations.citations << Citation.new(source: source)
       expect(class_with_citations.save!).to be_truthy
-      expect(class_with_citations.citations(true).count).to eq(1)
+      expect(class_with_citations.citations.reload.count).to eq(1)
     end
   end
 
@@ -29,7 +29,7 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
 
     context 'has_one' do
       specify '#source' do
-        expect(class_with_citations).to respond_to(:source) 
+        expect(class_with_citations).to respond_to(:source)
       end
 
       specify '#source can be set with =' do
@@ -39,14 +39,14 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
       end
 
       specify '#source can be set with nested attributes' do
-        t = TestCitable.new( origin_citation_attributes: {source_id: source.to_param} )  
+        t = TestCitable.new(origin_citation_attributes: {source_id: source.to_param})
         expect(t.save).to be_truthy
-        expect(t.citations(true).count).to eq(1)
+        expect(t.citations.reload.count).to eq(1)
         expect(t.citations.first.is_original?).to be_truthy
       end
 
       context 'with a is_original citation' do
-        before do 
+        before do
           citation.is_original = true
           class_with_citations.citations << citation
           class_with_citations.save!
@@ -65,7 +65,7 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
     end
 
     specify '#cited? with some citations' do
-      class_with_citations.citations << citation 
+      class_with_citations.citations << citation
       expect(class_with_citations.cited?).to eq(true)
     end
   end
@@ -74,7 +74,7 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
     context 'on destroy' do
       specify 'attached citations are destroyed' do
         class_with_citations.save
-        class_with_citations.citations << citation 
+        class_with_citations.citations << citation
         expect(class_with_citations.citations.count).to eq(1)
         expect(class_with_citations.destroy)
         expect(Citation.count).to eq(0)
@@ -84,8 +84,8 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
 
   context 'ordering by source date' do
     let!(:a) { TestCitable.create }
-    let!(:b) { TestCitable.create } 
-    let!(:c) { TestCitable.create } 
+    let!(:b) {TestCitable.create}
+    let!(:c) {TestCitable.create}
 
     let(:youngest_source) { FactoryGirl.create(:valid_source_bibtex, year: Time.now.year) }
     let(:young_source) { FactoryGirl.create(:valid_source_bibtex, year: 2010) }
@@ -96,9 +96,9 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
     let(:nil_source) { FactoryGirl.create(:valid_source_bibtex, year: nil) }
 
     before do
-      Citation.create(citation_object: a, source: oldest_source) 
-      Citation.create(citation_object: b, source: young_source)                
-      Citation.create(citation_object: c, source: old_source)   
+      Citation.create(citation_object: a, source: oldest_source)
+      Citation.create(citation_object: b, source: young_source)
+      Citation.create(citation_object: c, source: old_source)
     end
 
     context '.without_citations' do
@@ -129,7 +129,7 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
 
     specify '.order_by_yougest_source_first' do
       expect(TestCitable.order_by_youngest_source_first.to_a).to eq([b, c, a])
-    end 
+    end
 
     specify ".youngest_by_citation" do
       expect(TestCitable.youngest_by_citation).to eq(b)
@@ -150,7 +150,7 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
     context 'with multiple citations' do
       context 'one of which is nil' do
         before do
-          Citation.create(citation_object: c, source: nil_source)   
+          Citation.create(citation_object: c, source: nil_source)
         end
 
         specify ".order_by_oldest_source_first.to_a" do
@@ -167,7 +167,7 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
 
         specify '.order_by_yougest_source_first.to_a' do
           expect(TestCitable.order_by_youngest_source_first.to_a).to eq([b, c, a])
-        end 
+        end
 
         specify ".youngest_by_citation" do
           expect(TestCitable.youngest_by_citation).to eq(b)
@@ -176,7 +176,7 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
 
       context 'one of which is older' do
         before do
-          Citation.create(citation_object: c, source: first_source_ever)   
+          Citation.create(citation_object: c, source: first_source_ever)
         end
 
         specify ".order_by_oldest_source_first.to_a" do
@@ -194,12 +194,12 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
 
       context 'one of which is younger' do
         before do
-          Citation.create(citation_object: c, source: youngest_source)   
+          Citation.create(citation_object: c, source: youngest_source)
         end
 
         specify '.order_by_yougest_source_first.to_a' do
           expect(TestCitable.order_by_youngest_source_first.to_a).to eq([c, b, a])
-        end 
+        end
 
         specify ".youngest_by_citation" do
           expect(TestCitable.youngest_by_citation).to eq(c)
@@ -209,7 +209,7 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
 
 
     context 'with nils' do
-      let!(:d) { TestCitable.create } 
+      let!(:d) {TestCitable.create}
 
       specify '#order_by_oldest_source_first with no citation' do
         expect(TestCitable.order_by_oldest_source_first.to_a).to eq([a,c,b,d])
@@ -228,10 +228,10 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
       end
 
       specify "with nils" do
-        Citation.create(citation_object: d, source: nil_source)  
+        Citation.create(citation_object: d, source: nil_source)
         expect(TestCitable.order_by_oldest_source_first.to_a).to eq([a,c,b,d])
       end
-    
+
       context 'AND' do
 
         before {
@@ -269,7 +269,7 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
   end
 
   context 'with no citations' do
-    let!(:d) { TestCitable.create } 
+    let!(:d) {TestCitable.create}
 
     specify '#order_by_oldest_source_first with no citation' do
       expect(TestCitable.order_by_oldest_source_first.to_a).to eq([d])
@@ -290,7 +290,7 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
 
 end
 
-class TestCitable < ActiveRecord::Base
+class TestCitable < ApplicationRecord
   include FakeTable
   include Shared::Citable
 end

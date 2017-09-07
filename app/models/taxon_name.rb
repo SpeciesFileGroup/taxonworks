@@ -1,6 +1,6 @@
 # A taxonomic name (nomenclature only). See also NOMEN.
 #
-# There are 3 subclasses, Protonym, Combination, and Hybrid.  
+# There are 3 subclasses, Protonym, Combination, and Hybrid.
 #
 # @!attribute name
 #   @return [String, nil]
@@ -40,11 +40,11 @@
 #
 # @!attribute rank_class
 #   @return [String]
-#   The TW rank of this name 
+#   The TW rank of this name
 #
 # @!attribute type
 #   @return [String]
-#   The subclass of this taxon name, e.g. Protonym or Combination 
+#   The subclass of this taxon name, e.g. Protonym or Combination
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -111,10 +111,9 @@
 #   The sole purpose of this string is to represent visual differences from what is recorded in the
 #   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed
 #
-class TaxonName < ActiveRecord::Base
+class TaxonName < ApplicationRecord
 
   has_closure_tree
-  has_paper_trail :on => [:update] 
 
   include Housekeeping
   include Shared::DataAttributes
@@ -128,6 +127,7 @@ class TaxonName < ActiveRecord::Base
   include Shared::Confidence
   include SoftValidation
   include Shared::AlternateValues
+  include Shared::HasPapertrail
 
   ALTERNATE_VALUES_FOR = [:rank_class].freeze # don't even think about putting this on #name
 
@@ -141,9 +141,9 @@ class TaxonName < ActiveRecord::Base
   ].freeze
 
   NO_CACHED_MESSAGE = 'PROJECT REQUIRES TAXON NAME CACHE REBUILD'.freeze
-  
+
   SPECIES_EPITHET_RANKS = %w{species subspecies variety subvariety form subform}.freeze
- 
+
   NOT_LATIN = Regexp.new(/[^a-zA-Z|\-]/).freeze # Dash is allowed?
 
   delegate :nomenclatural_code, to: :rank_class
@@ -160,10 +160,10 @@ class TaxonName < ActiveRecord::Base
   before_validation :set_type_if_empty
 
   before_save :set_cached_names
-  after_save :create_new_combination_if_absent, unless: 'self.no_cached'
-  after_save :set_cached_names_for_dependants_and_self, unless: 'self.no_cached' # !!! do we run set cached names 2 x !?!
+  after_save :create_new_combination_if_absent, unless: :no_cached
+  after_save :set_cached_names_for_dependants_and_self, unless: :no_cached # !!! do we run set cached names 2 x !?!
   after_save :set_cached_valid_taxon_name_id
-  
+
   before_destroy :check_for_children, prepend: true
 
   validate :validate_rank_class_class,
@@ -178,16 +178,16 @@ class TaxonName < ActiveRecord::Base
   validates_presence_of :type, message: 'is not specified'
 
   # TODO: think of a different name, and test
-  has_many :historical_taxon_names, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id 
+  has_many :historical_taxon_names, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
 
   belongs_to :valid_taxon_name, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
   has_one :source_classified_as_relationship, -> {
-    where(taxon_name_relationships: {type: 'TaxonNameRelationship::SourceClassifiedAs'} ) 
+    where(taxon_name_relationships: {type: 'TaxonNameRelationship::SourceClassifiedAs'})
   }, class_name: 'TaxonNameRelationship::SourceClassifiedAs', foreign_key: :subject_taxon_name_id
 
-  has_one :source_classified_as, through: :source_classified_as_relationship, source: :object_taxon_name 
+  has_one :source_classified_as, through: :source_classified_as_relationship, source: :object_taxon_name
 
-  has_many :otus, inverse_of: :taxon_name, dependent: :restrict_with_error 
+  has_many :otus, inverse_of: :taxon_name, dependent: :restrict_with_error
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :restrict_with_error, inverse_of: :object_taxon_name
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
@@ -199,19 +199,19 @@ class TaxonName < ActiveRecord::Base
   accepts_nested_attributes_for :taxon_name_authors, :taxon_name_author_roles, allow_destroy: true
   accepts_nested_attributes_for :taxon_name_classifications, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank?  }
 
-  scope :with_type, -> (type) {where(type: type)} 
+  scope :with_type, -> (type) {where(type: type)}
 
   scope :descendants_of, -> (taxon_name) { with_ancestor(taxon_name )}
 
-  scope :ancestors_of, -> (taxon_name) { 
+  scope :ancestors_of, -> (taxon_name) {
     joins(:descendant_hierarchies)
       .where(taxon_name_hierarchies: {descendant_id: taxon_name.id})
-      .where('taxon_name_hierarchies.ancestor_id != ?', taxon_name.id) 
+      .where('taxon_name_hierarchies.ancestor_id != ?', taxon_name.id)
       .order('taxon_name_hierarchies.generations DESC') # root is at index 0
   }
 
   # LEAVE UNORDERED, if you want order:
-  #   .order('taxon_name_hierarchies.generations DESC') 
+  #   .order('taxon_name_hierarchies.generations DESC')
   scope :self_and_ancestors_of, -> (taxon_name) {
     joins(:descendant_hierarchies)
       .where(taxon_name_hierarchies: {descendant_id: taxon_name.id})
@@ -221,14 +221,14 @@ class TaxonName < ActiveRecord::Base
   #  !! careful, using .pluck on this will give incorrect results, as uniq is applied to strings,
   #  forcing, for example, identical subspecies or subgenera names to be excluded
   # (cost=1537445.24..1537473.50 rows=2826 width=366)
-  #  scope :ancestors_and_descendants_of, -> (taxon_name) { 
+  #  scope :ancestors_and_descendants_of, -> (taxon_name) {
   #    joins('LEFT OUTER JOIN taxon_name_hierarchies a ON taxon_names.id = a.descendant_id
   #          LEFT JOIN taxon_name_hierarchies b ON taxon_names.id = b.ancestor_id')
   #      .where("(a.ancestor_id = ?) OR (b.descendant_id = ?)", taxon_name.id, taxon_name.id )
-  #      .uniq 
+  #      .uniq
   #  }
   #
-  # Replaces with: 
+  # Replaces with:
   #
   # (cost=2372.84..2375.07 rows=223 width=366)
   #  Subtly different, it includes the target taxon, it also doesn't order the result
@@ -236,7 +236,7 @@ class TaxonName < ActiveRecord::Base
     a = TaxonName.self_and_ancestors_of(taxon_name)
     b = TaxonName.descendants_of(taxon_name)
     TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
-  end 
+  end
 
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
   scope :with_parent_taxon_name, -> (parent) { where(parent_id: parent) }
@@ -294,8 +294,8 @@ class TaxonName < ActiveRecord::Base
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
   scope :with_cached_html, -> (html) { where(cached_html: html) }
 
-  # @return [Scope] Protonym(s) the **broad sense** synonyms of this name 
-  def synonyms 
+  # @return [Scope] Protonym(s) the **broad sense** synonyms of this name
+  def synonyms
     TaxonName.with_cached_valid_taxon_name_id(self.id)
   end
 
@@ -311,12 +311,12 @@ class TaxonName < ActiveRecord::Base
   def all_taxon_name_relationships
     # !! If self relationships are ever made possible this needs a DISTINCT clause
     TaxonNameRelationship.find_by_sql(
-      "SELECT taxon_name_relationships.* 
-         FROM taxon_name_relationships 
-         WHERE taxon_name_relationships.subject_taxon_name_id = #{self.id} 
+      "SELECT taxon_name_relationships.*
+         FROM taxon_name_relationships
+         WHERE taxon_name_relationships.subject_taxon_name_id = #{self.id}
        UNION
-       SELECT taxon_name_relationships.* 
-         FROM taxon_name_relationships 
+       SELECT taxon_name_relationships.*
+         FROM taxon_name_relationships
          WHERE taxon_name_relationships.object_taxon_name_id = #{self.id}")
   end
 
@@ -330,12 +330,12 @@ class TaxonName < ActiveRecord::Base
        #                   LEFT JOIN taxon_name_relationships tnr2 ON tn.id = tnr2.object_taxon_name_id
        #                   WHERE tnr1.object_taxon_name_id = #{self.id} OR tnr2.subject_taxon_name_id = #{self.id};")
     TaxonName.find_by_sql(
-      "SELECT tn.* from taxon_names tn join taxon_name_relationships tnr1 on tn.id = tnr1.subject_taxon_name_id and tnr1.object_taxon_name_id = #{self.id} 
+      "SELECT tn.* from taxon_names tn join taxon_name_relationships tnr1 on tn.id = tnr1.subject_taxon_name_id and tnr1.object_taxon_name_id = #{self.id}
       UNION
       SELECT tn.* from taxon_names tn join taxon_name_relationships tnr2 on tn.id = tnr2.object_taxon_name_id and tnr2.subject_taxon_name_id = #{self.id}"
     )
   end
-  
+
   # @return [String]
   #   rank as human readable shortform, like 'genus' or 'species'
   def rank
@@ -400,7 +400,7 @@ class TaxonName < ActiveRecord::Base
     gender_instance.try(:type_class)
   end
 
-  # @return [TaxonNameClassification instance, nil]  
+  # @return [TaxonNameClassification instance, nil]
   #    the gender classification of this name, if provided
   def gender_instance
     taxon_name_classifications.with_type_base('TaxonNameClassification::Latinized::Gender').first
@@ -425,11 +425,11 @@ class TaxonName < ActiveRecord::Base
   # @return [String]
   #   part of speech of a species as string.
   def part_of_speech_name
-    part_of_speech_instance.try(:classification_label).try(:downcase) 
+    part_of_speech_instance.try(:classification_label).try(:downcase)
   end
 
   # @return [Array of String]
-  #   the unique string labels derived from TaxonNameClassifications 
+  #   the unique string labels derived from TaxonNameClassifications
   def statuses_from_classifications
     list = taxon_name_classifications_for_statuses
     list.empty? ? [] : list.collect{|c| c.classification_label }.sort
@@ -456,7 +456,7 @@ class TaxonName < ActiveRecord::Base
   #   all of the names this name has been in in combinations
   def combination_list_all
     # list = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_base('TaxonNameRelationship::Combination')
-    taxon_name_relationships.with_type_base('TaxonNameRelationship::Combination').collect{|r| r.object_taxon_name}.uniq
+    taxon_name_relationships.with_type_base('TaxonNameRelationship::Combination').collect {|r| r.object_taxon_name}.uniq
     # return [] if list.empty?
     # list.collect{|r| r.object_taxon_name}.uniq
   end
@@ -464,7 +464,7 @@ class TaxonName < ActiveRecord::Base
   # @return [Array of Protonym]
   #   for all names this name has been in combination with, select those names that are of the same rank (!! CONFIRM?)
   def combination_list_self
-    # list = 
+    # list =
     # return [] if list.empty?
     combination_list_all.select{|c| c.protonyms_by_rank[c.protonyms_by_rank.keys.last] == self}
   end
@@ -473,10 +473,10 @@ class TaxonName < ActiveRecord::Base
   #   combination of cached_html and cached_author_year.
   def cached_html_name_and_author_year
     [cached_html, cached_author_year].compact.join(' ')
- 
+
   end
- 
- # @return [String] combination of cached and cached_author_year.
+
+  # @return [String] combination of cached and cached_author_year.
  def cached_name_and_author_year
    [cached, cached_author_year].compact.join(' ')
  end
@@ -507,9 +507,9 @@ class TaxonName < ActiveRecord::Base
   end
 
   # @return [Boolean]
-  #   true if there is a relationship where then name is asserted to be invalid 
+  #   true if there is a relationship where then name is asserted to be invalid
   def relationship_invalid?
-    !first_possible_valid_taxon_name_relationship.nil? 
+    !first_possible_valid_taxon_name_relationship.nil?
   end
 
   # @return [Boolean]
@@ -524,7 +524,7 @@ class TaxonName < ActiveRecord::Base
     taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).any? # !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
   end
 
-  #  @return [Boolean] 
+  #  @return [Boolean]
   #     return true if name is unavailable OR invalid, else false, checks both classifications and relationships
   def unavailable_or_invalid?
     return false if classification_valid?
@@ -539,7 +539,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   # @return [True|False]
-  #   true if this name has a TaxonNameClassification of hybrid 
+  #   true if this name has a TaxonNameClassification of hybrid
   def hybrid?
     taxon_name_classifications.where_taxon_name(self).with_type_contains('Hybrid').any?
     #   !TaxonNameClassification.where_taxon_name(self).with_type_contains('Hybrid').empty? ? true : false
@@ -555,14 +555,14 @@ class TaxonName < ActiveRecord::Base
   # @return [TaxonNameRelationship]
   #  returns youngest taxon name relationship where self is the subject.
   def first_possible_valid_taxon_name_relationship
-    taxon_name_relationships(true).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
+    taxon_name_relationships.reload.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
   end
 
   # @return [TaxonName]
   #    returns the youngest #object_taxon_name from the youngest taxon name relationship.
   def first_possible_valid_taxon_name
     return self if !unavailable_or_invalid?                      # catches all cases where no Classifications or Relationships are provided
-    relationship = first_possible_valid_taxon_name_relationship  
+    relationship = first_possible_valid_taxon_name_relationship
     relationship.nil? ? self : relationship.object_taxon_name    # ?! probably the if is caught by unavailable_or_invalid already
    end
 
@@ -594,7 +594,7 @@ class TaxonName < ActiveRecord::Base
 
   def gbif_status_array
     return nil if self.class.nil?
-    return ['combination'] if self.class == 'Combination' 
+    return ['combination'] if self.class == 'Combination'
     s1 = self.taxon_name_classifications.collect{|c| c.class.gbif_status}.compact
     return s1 unless s1.empty?
     s2 = self.taxon_name_relationships.collect{|r| r.class.gbif_status_of_subject}
@@ -681,14 +681,14 @@ class TaxonName < ActiveRecord::Base
     dependants = []
     original_combination_relationships = []
     combination_relationships = []
-    
+
     begin
       TaxonName.transaction do
 
         if rank_string =~/Species|Genus/
-          dependants = Protonym.descendants_of(self).to_a # self.descendant_protonyms 
+          dependants                         = Protonym.descendants_of(self).to_a # self.descendant_protonyms
           original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
-          combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
+          combination_relationships          = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
         end
 
         dependants.push(self)
@@ -707,14 +707,14 @@ class TaxonName < ActiveRecord::Base
         end
 
         unless original_combination_relationships.empty?
-          related_taxa = original_combination_relationships.collect{|i| i.object_taxon_name}.uniq
+          related_taxa = original_combination_relationships.collect {|i| i.object_taxon_name}.uniq
           related_taxa.each do |i|
             i.update_cached_original_combinations
           end
         end
 
         unless combination_relationships.empty?
-          related_taxa = combination_relationships.collect{|i| i.object_taxon_name}.uniq
+          related_taxa = combination_relationships.collect {|i| i.object_taxon_name}.uniq
           related_taxa.each do |i|
             i.update_columns(cached: i.get_full_name,
                              cached_html: i.get_full_name_html)
@@ -722,14 +722,14 @@ class TaxonName < ActiveRecord::Base
         end
 
         unless classified_as_relationships.empty?
-          related_taxa = classified_as_relationships.collect{|i| i.subject_taxon_name}.uniq
+          related_taxa = classified_as_relationships.collect {|i| i.subject_taxon_name}.uniq
           related_taxa.each do |i|
             i.update_column(:cached_classified_as, i.get_cached_classified_as)
           end
         end
 
         unless hybrid_relationships.empty?
-          related_taxa = classified_as_relationships.collect{|i| i.object_taxon_name}.uniq
+          related_taxa = classified_as_relationships.collect {|i| i.object_taxon_name}.uniq
           related_taxa.each do |i|
             i.update_columns(cached: i.get_full_name,
                              cached_html: i.get_full_name_html)
@@ -748,7 +748,7 @@ class TaxonName < ActiveRecord::Base
       cached_primary_homonym_alternative_spelling: self.get_genus_species(:original, :alternative))
   end
 
-  # Abstract method 
+  # Abstract method
   def set_cached
     true
   end
@@ -758,7 +758,7 @@ class TaxonName < ActiveRecord::Base
     true
   end
 
-  # overwridden in subclasses 
+  # overwridden in subclasses
   def set_cached_original_combination
     true
   end
@@ -782,7 +782,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def is_combination?
-    self.type == 'Combination' 
+    self.type == 'Combination'
   end
 
   # Returns an Array of ancestors
@@ -804,12 +804,12 @@ class TaxonName < ActiveRecord::Base
     if self.new_record?
       ancestors_through_parents
     else
-    
-      self.self_and_ancestors(true).to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
+
+      self.self_and_ancestors.reload.to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
     end
   end
 
-  # @return [ [rank, prefix, name], ...] for genus and below 
+  # @return [ [rank, prefix, name], ...] for genus and below
   # @taxon_name.full_name_array # =>  {"genus"=>[nil, "Aus"], "subgenus"=>[nil, "Aus"], "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]\}
   def full_name_array
     gender = nil
@@ -824,14 +824,14 @@ class TaxonName < ActiveRecord::Base
   end
 
   # @!return [ { rank => [prefix, name] }
-  #   Returns a hash of rank => [prefix, name] for genus and below 
-  # @taxon_name.full_name_hash # => 
-  #      {"genus" => [nil, "Aus"], 
-  #       "subgenus" => [nil, "Aus"], 
-  #       "section" => ["sect.", "Aus"], 
-  #       "series" => ["ser.", "Aus"], 
-  #       "species" => [nil, "aaa"], 
-  #       "subspecies" => [nil, "bbb"], 
+  #   Returns a hash of rank => [prefix, name] for genus and below
+  # @taxon_name.full_name_hash # =>
+  #      {"genus" => [nil, "Aus"],
+  #       "subgenus" => [nil, "Aus"],
+  #       "section" => ["sect.", "Aus"],
+  #       "series" => ["ser.", "Aus"],
+  #       "species" => [nil, "aaa"],
+  #       "subspecies" => [nil, "bbb"],
   #       "variety" => ["var.", "ccc"]}
   def full_name_hash
 
@@ -854,7 +854,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   # @return [String]
-  #  a monomial if names is above genus, or a full epithet if below. 
+  #  a monomial if names is above genus, or a full epithet if below.
   def get_full_name
     return verbatim_name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
     return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
@@ -880,7 +880,7 @@ class TaxonName < ActiveRecord::Base
     return "#{eo}#{verbatim_name}#{ec}".gsub(' f. ', ec + ' f. ' + eo).gsub(' var. ', ec + ' var. ' + eo) if !self.verbatim_name.nil? && self.type == 'Combination'
     return "#{eo}#{name}#{ec}" if self.rank_string == 'NomenclaturalRank::Iczn::GenusGroup::Supergenus' || self.rank_string == 'NomenclaturalRank::Icnb::GenusGroup::Supergenus'
     d = full_name_hash
-   
+
     elements = []
     d['genus'] = [nil, self.original_genus.name] if d['genus'].blank? && self.original_genus
     d['genus'] = [nil, '[GENUS UNKNOWN]'] if d['genus'].blank?
@@ -975,7 +975,7 @@ class TaxonName < ActiveRecord::Base
     str = nil
 
     if GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) && is_protonym?
-      relationships = self.original_combination_relationships(true) # force a reload of the relationships
+      relationships = self.original_combination_relationships.reload # force a reload of the relationships
 
       return nil if relationships.count == 0
 
@@ -1103,7 +1103,7 @@ class TaxonName < ActiveRecord::Base
       t  += ['(' + m_obj.year_integer.to_s + ')'] unless m_obj.year_integer.nil?
       ay = t.compact.join(' ')
     end
-    
+
     ay.blank? ? nil : ay
   end
 
@@ -1160,8 +1160,8 @@ class TaxonName < ActiveRecord::Base
   end
 
   def get_cached_classified_as
-    return nil unless   is_protonym? || is_combination? 
-    r = self.source_classified_as(true)
+    return nil unless is_protonym? || is_combination?
+    r = self.reload_source_classified_as
     unless r.blank?
       return " (as #{r.name})"
     end
@@ -1169,10 +1169,10 @@ class TaxonName < ActiveRecord::Base
   end
 
   # A proxy for a scope
-  # @return [Array of TaxonName] 
+  # @return [Array of TaxonName]
   #   ordered by rank
   def self.sort_by_rank(taxon_names)
-    taxon_names.sort!{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string)} 
+    taxon_names.sort! {|a, b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string)}
   end
 
   #endregion
@@ -1195,20 +1195,21 @@ class TaxonName < ActiveRecord::Base
     if siblings.any?
       siblings = self_and_siblings.order(:cached).pluck(:id)
       s = siblings.index(id)
-      TaxonName.find(siblings[ s - 1]) if s != 0 
+      TaxonName.find(siblings[s - 1]) if s != 0
     else
-      nil 
+      nil
     end
   end
 
   protected
 
   def check_for_children
-    if leaf? 
+    if leaf?
       true
     else
       errors.add(:base, "This taxon has children names attached, delete those first.")
-      false 
+      # false
+      throw :abort
     end
   end
 
@@ -1237,7 +1238,7 @@ class TaxonName < ActiveRecord::Base
       if !parent_is_set? && TaxonName.where(parent_id: nil, project_id: self.project_id).count > 0
         errors.add(:parent_id, 'The parent should not be empty (only one root is allowed per project)')
       end
-    end 
+    end
   end
 
   # TODO: move to Protonym
@@ -1257,11 +1258,11 @@ class TaxonName < ActiveRecord::Base
   end
 
   def check_new_rank_class
-    # rank_class_was is a AR macro 
+    # rank_class_was is a AR macro
 
     if (self.rank_class != self.rank_class_was) && !self.rank_class_was.nil?
 
-      if self.rank_class_was == 'NomenclaturalRank' 
+      if self.rank_class_was == 'NomenclaturalRank'
         errors.add(:rank_class, "Root can not have a new rank")
         return
       end
@@ -1288,7 +1289,7 @@ class TaxonName < ActiveRecord::Base
 
     if self.rank_class
       # TODO: name these Regexp somewhere
-      if (self.name =~ /^[a-zA-Z]*$/) || # !! should reference NOT_LATIN 
+      if (self.name =~ /^[a-zA-Z]*$/) || # !! should reference NOT_LATIN
           (nomenclatural_code == :iczn && self.name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
           (nomenclatural_code == :icnb && self.name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
           (nomenclatural_code == :icn && self.name =~  /^[a-zA-Z]*-[a-zA-Z]*$/) ||
@@ -1367,11 +1368,11 @@ class TaxonName < ActiveRecord::Base
                            fix:             :sv_fix_parent_is_valid_name,
                            success_message: 'Parent was updated')
     else # TODO: This seems like a different validation, split with above?
-      classifications      = self.taxon_name_classifications(true)
+      classifications = self.taxon_name_classifications.reload
       classification_names = classifications.map { |i| i.type_name }
       compare              = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & classification_names
       unless compare.empty?
-        
+
         unless Protonym.with_parent_taxon_name(self).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
 
           compare.each do |i|

@@ -1,4 +1,4 @@
-class CreatePublicContents < ActiveRecord::Migration
+class CreatePublicContents < ActiveRecord::Migration[4.2]
   def change
     create_table :public_contents do |t|
       t.references :otu, index: true

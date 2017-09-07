@@ -10,10 +10,8 @@ TW.tasks.gis.asserted_distributions = TW.tasks.asserted_distributions || {};
 Object.assign(TW.tasks.gis.asserted_distributions, {
 
     init_asserted_distributions_map: function () {
-      if ($("#new_asserted_distribution_map_canvas").length) {
-        var map = TW.vendor.lib.google.maps.initializeMap("new_asserted_distribution_map_canvas", null);
-        TW.tasks.gis.asserted_distributions.add_new_asserted_distribution_map_listeners(map);
-      }
+      var map = TW.vendor.lib.google.maps.initializeMap("new_asserted_distribution_map_canvas", null);
+      TW.tasks.gis.asserted_distributions.add_new_asserted_distribution_map_listeners(map);
     },
 
     // prevent map click action if otu and source are not selected
@@ -190,5 +188,11 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
   }
 ); // end widget
 
-$(document).ready(TW.tasks.gis.asserted_distributions.init_asserted_distributions_map);
+$(document).on('turbolinks:load', function() {
+  if ($("#new_asserted_distribution_map_canvas").length) {
+    TW.vendor.lib.google.maps.loadGoogleMapsAPI().then(function() {
+      TW.tasks.gis.asserted_distributions.init_asserted_distributions_map();
+    });
+  }
+});
 

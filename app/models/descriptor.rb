@@ -1,6 +1,15 @@
-class Descriptor < ActiveRecord::Base
+# Descriptors are the general mechanism for describing CollectionObjects (individual specimens) or Otus (taxa).
+#
+# They come in various types, reflecting the approaches commonly used to describe specimens and OTUs:
+#
+#  Working - raw notes or images, "primal" observations, not yet refined to states or measurements
+#  Qualitative - Represents character/character_state expressions as traditionally understood.
+#  Quantitative - Single measurements.
+#  Sample - Summaries of multiple observations recorded in a statistical manner. Only valid for Otus. For example "length 42-77mm (n=5, min: 42, max:Only valid for Otus." 
+#
+class Descriptor < ApplicationRecord
   include Housekeeping
-  include Shared::Citable              
+  include Shared::Citable
   include Shared::Identifiable
   include Shared::IsData
   include Shared::Taggable

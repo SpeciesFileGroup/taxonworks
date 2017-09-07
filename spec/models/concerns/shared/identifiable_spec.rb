@@ -1,8 +1,8 @@
 require 'rails_helper'
 
 describe 'Identifiable', :type => :model do
-  let(:identifiable_instance) { TestIdentifiable.new } 
-  let(:identifiable_class) { TestIdentifiable } 
+  let(:identifiable_instance) {TestIdentifiable.new}
+  let(:identifiable_class) {TestIdentifiable}
 
   context 'associations' do
     specify 'has many identifiers' do
@@ -51,16 +51,16 @@ describe 'Identifiable', :type => :model do
         specify 'attached identifiers are destroyed' do
           expect(identifiable_instance.identifiers.count).to eq(3)
           expect(identifiable_instance.destroy).to be_truthy
-          expect(Identifier.count).to eq(0) 
+          expect(Identifier.count).to eq(0)
         end
       end
- 
+
     end
   end
 
 end
 
-class TestIdentifiable < ActiveRecord::Base
+class TestIdentifiable < ApplicationRecord
   include FakeTable
   include Shared::Identifiable
 end

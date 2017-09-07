@@ -283,8 +283,9 @@ module Utilities::Dates
   # @return [String, nil]
   #   a sentence spelling out the date range
   def self.date_range_sentence_tag(date_range)
-    format = "%Y-%b-%d"
+    format = "%d-%b-%Y"
     date_range.compact!
+    date_range.pop if date_range[0] == date_range[1]
     if date_range.empty?
       nil
     else
@@ -304,9 +305,9 @@ module Utilities::Dates
       if year.length < 3
         tny = Time.now.year
         if year.to_i > tny%100
-          year = ((tny/100).to_i - 1).to_s + year
+          year = ((tny/100) - 1).to_s + year
         else
-          year = (tny/100).to_i.to_s + year
+          year = (tny/100).to_s + year
         end
       end
     end

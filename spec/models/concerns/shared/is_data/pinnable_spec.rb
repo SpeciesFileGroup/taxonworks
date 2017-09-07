@@ -43,7 +43,7 @@ describe 'Pinnable', type: :model do
   end
 end
 
-class TestPinnable < ActiveRecord::Base
+class TestPinnable < ApplicationRecord
   include FakeTable
   include Shared::IsData
 end
