@@ -74,7 +74,6 @@ class Project < ApplicationRecord
      BiologicalRelationship
      BiologicalAssociationsGraph
      CollectionProfile
-     ContainerLabel
      ContainerItem
      Container
      PublicContent
