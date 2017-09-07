@@ -14,6 +14,10 @@ class ObservationMatrixColumnItem < ApplicationRecord
 
   belongs_to :observation_matrix
 
+  # TODO: remove from subclasses
+  belongs_to :descriptor
+  belongs_to :controlled_vocabulary_term
+
   #  belongs_to :controlled_vocabulary_term (belongs elsewhere)
 
   validates_presence_of :observation_matrix
