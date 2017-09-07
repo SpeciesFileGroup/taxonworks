@@ -54,6 +54,10 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 			}
 		}
 
+		$('[data-history-valid-name="true"]').each(function() {
+			$(this).append('<span class="valid">Valid</span>');
+		})
+
 		$('[data-global-id]').on('click', function() {
 			var list = '';
 			if(soft_validations.hasOwnProperty($(this).attr('id'))) {

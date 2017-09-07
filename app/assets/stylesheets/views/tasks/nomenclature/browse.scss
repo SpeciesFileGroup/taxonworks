@@ -57,6 +57,17 @@
 			background-color: #A1887F;
 		}
 	}
+
+	.history__record {
+			.valid {
+			color: #FFF;
+			padding-left: 7px;
+			padding-right: 7px;
+			margin-right: 4px;
+			border-radius: 3px;
+			background-color: green;
+		}
+	}
 }
 
 .history__citation_notes p {
