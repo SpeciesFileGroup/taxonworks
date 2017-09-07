@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170818150142) do
+ActiveRecord::Schema.define(version: 20170907164133) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -384,24 +384,6 @@ ActiveRecord::Schema.define(version: 20170818150142) do
     t.index ["updated_by_id"], name: "index_container_items_on_updated_by_id"
   end
 
-  create_table "container_labels", id: :serial, force: :cascade do |t|
-    t.text "label", null: false
-    t.date "date_printed"
-    t.string "print_style"
-    t.integer "position", null: false
-    t.integer "created_by_id", null: false
-    t.integer "updated_by_id", null: false
-    t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "container_id", null: false
-    t.index ["container_id"], name: "index_container_labels_on_container_id"
-    t.index ["created_by_id"], name: "index_container_labels_on_created_by_id"
-    t.index ["position"], name: "index_container_labels_on_position"
-    t.index ["project_id"], name: "index_container_labels_on_project_id"
-    t.index ["updated_by_id"], name: "index_container_labels_on_updated_by_id"
-  end
-
   create_table "containers", id: :serial, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -414,6 +396,7 @@ ActiveRecord::Schema.define(version: 20170818150142) do
     t.integer "size_x"
     t.integer "size_y"
     t.integer "size_z"
+    t.text "print_label"
     t.index ["created_by_id"], name: "index_containers_on_created_by_id"
     t.index ["disposition"], name: "index_containers_on_disposition"
     t.index ["project_id"], name: "index_containers_on_project_id"
@@ -1591,6 +1574,7 @@ ActiveRecord::Schema.define(version: 20170818150142) do
     t.integer "year_made"
     t.integer "month_made"
     t.integer "day_made"
+    t.text "print_label"
     t.index ["biological_collection_object_id"], name: "index_taxon_determinations_on_biological_collection_object_id"
     t.index ["created_by_id"], name: "index_taxon_determinations_on_created_by_id"
     t.index ["otu_id"], name: "index_taxon_determinations_on_otu_id"
@@ -1837,10 +1821,6 @@ ActiveRecord::Schema.define(version: 20170818150142) do
   add_foreign_key "container_items", "projects", name: "container_items_project_id_fkey"
   add_foreign_key "container_items", "users", column: "created_by_id", name: "container_items_created_by_id_fkey"
   add_foreign_key "container_items", "users", column: "updated_by_id", name: "container_items_updated_by_id_fkey"
-  add_foreign_key "container_labels", "containers", name: "container_labels_container_id_fkey"
-  add_foreign_key "container_labels", "projects", name: "container_labels_project_id_fkey"
-  add_foreign_key "container_labels", "users", column: "created_by_id", name: "container_labels_created_by_id_fkey"
-  add_foreign_key "container_labels", "users", column: "updated_by_id", name: "container_labels_updated_by_id_fkey"
   add_foreign_key "containers", "projects", name: "containers_project_id_fkey"
   add_foreign_key "containers", "users", column: "created_by_id", name: "containers_created_by_id_fkey"
   add_foreign_key "containers", "users", column: "updated_by_id", name: "containers_updated_by_id_fkey"
