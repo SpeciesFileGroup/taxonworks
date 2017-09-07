@@ -57,6 +57,10 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 		$('[data-history-valid-name="true"]').each(function() {
 			$(this).prepend('<span data-icon="ok"></span>');
 		})
+		$('[data-history-origin]').each(function() {
+			var type = $(this).attr("data-history-origin");
+			$(this).prepend('<span class="history__origin ' + type + '">' + type + '</span>');
+		})
 
 		$('[data-global-id]').on('click', function() {
 			var list = '';
