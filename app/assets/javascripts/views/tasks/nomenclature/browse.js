@@ -55,7 +55,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 		}
 
 		$('[data-history-valid-name="true"]').each(function() {
-			$(this).append('<span class="valid">Valid</span>');
+			$(this).prepend('<span data-icon="ok"></span>');
 		})
 
 		$('[data-global-id]').on('click', function() {
