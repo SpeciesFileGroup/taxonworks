@@ -1,4 +1,4 @@
-class CreateRangedLotCategories < ActiveRecord::Migration
+class CreateRangedLotCategories < ActiveRecord::Migration[4.2]
   def change
     create_table :ranged_lot_categories do |t|
       t.string :name

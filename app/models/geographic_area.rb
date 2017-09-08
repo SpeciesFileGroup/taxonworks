@@ -68,8 +68,8 @@ class GeographicArea < ApplicationRecord
   validates :geographic_area_type, presence: true
   validates_presence_of :geographic_area_type_id
 
-  validates :parent, presence: true, unless: 'self.name == "Earth"' || ENV['NO_GEO_VALID']
-  validates :level0, presence: true, allow_nil: true, unless: 'self.name == "Earth"'
+  validates :parent, presence: true, unless: -> {self.name == 'Earth'} # || ENV['NO_GEO_VALID']}
+  validates :level0, presence: true, allow_nil: true, unless: -> {self.name == 'Earth'}
   validates :level1, presence: true, allow_nil: true
   validates :level2, presence: true, allow_nil: true
   validates :name, presence: true, length: {minimum: 1}

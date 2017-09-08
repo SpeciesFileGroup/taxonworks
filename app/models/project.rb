@@ -30,7 +30,7 @@ class Project < ApplicationRecord
   has_many :project_sources, dependent: :restrict_with_error
 
   after_initialize :set_default_workbench_settings
-  after_create :create_root_taxon_name, unless: 'self.without_root_taxon_name == true'
+  after_create :create_root_taxon_name, unless: -> {self.without_root_taxon_name == true}
 
   validates_presence_of :name
   validates_uniqueness_of :name
@@ -74,7 +74,6 @@ class Project < ApplicationRecord
      BiologicalRelationship
      BiologicalAssociationsGraph
      CollectionProfile
-     ContainerLabel
      ContainerItem
      Container
      PublicContent
@@ -156,7 +155,7 @@ class Project < ApplicationRecord
   end
 
   def create_root_taxon_name
-    Protonym.create!(name: 'Root', rank_class: NomenclaturalRank, parent_id: nil, project: self, creator: self.creator, updater: self.updater)
+    Protonym.create!(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project: self, creator: self.creator, updater: self.updater)
   end
 
 end

@@ -1,4 +1,4 @@
-class CreateSerialsTbl < ActiveRecord::Migration
+class CreateSerialsTbl < ActiveRecord::Migration[4.2]
   def change
     create_table :serials do |t|
       t.string :full_name

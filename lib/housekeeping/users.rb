@@ -1,24 +1,25 @@
 # Concern that provides housekeeping and related methods for models that belong_to a creator and updator
-module Housekeeping::Users 
+module Housekeeping::Users
   extend ActiveSupport::Concern
 
   included do
     related_instances = self.name.demodulize.underscore.pluralize.to_sym # if 'One::Two::Three' then :threes
-    related_class = self.name
+    related_class     = self.name
 
     belongs_to :creator, foreign_key: :created_by_id, class_name: 'User'
     belongs_to :updater, foreign_key: :updated_by_id, class_name: 'User'
 
-    validates :creator, presence: true, unless: 'self.class.name == "User" && self.self_created'
-    validates :updater, presence: true, unless: 'self.class.name == "User" && self.self_created'
+    unless_user = lambda {self.class.name == "User" && self.self_created}
+    validates :creator, presence: true, unless: unless_user # lambda, proc, or block
+    validates :updater, presence: true, unless: unless_user
 
-    before_validation(on: :create, unless: 'self.class.name == "User" && self.self_created') do
-      set_updated_by_id 
+    before_validation(on: :create, unless: unless_user) do
+      set_updated_by_id
       set_created_by_id
     end
 
     before_validation(on: :update) do
-      set_updated_by_id 
+      set_updated_by_id
     end
 
     # And extend User
@@ -63,9 +64,13 @@ module Housekeeping::Users
     self.created_by_id ||= $user_id
   end
 
-  def set_updated_by_id 
-    if (self.changed? || self.new_record?) && !self.updated_by_id_changed? && self.by.blank?
-      self.updated_by_id = $user_id
+  # TODO: This method _is not_ called in an 'after_save' operation (in User), so this deprecation warning does not apply (?) It _may_ be called in an 'after_save' situation through some other model. It may help to unwind the logic.
+  # WRT .changed? vs .saved_changes? Deprecation warning
+  def set_updated_by_id
+    ActiveSupport::Deprecation.silence do
+      if (self.changed? || self.new_record?) && !self.updated_by_id_changed? && self.by.blank?
+        self.updated_by_id = $user_id
+      end
     end
   end
 

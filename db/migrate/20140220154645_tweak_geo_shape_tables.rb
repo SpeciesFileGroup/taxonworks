@@ -1,4 +1,4 @@
-class TweakGeoShapeTables < ActiveRecord::Migration
+class TweakGeoShapeTables < ActiveRecord::Migration[4.2]
   def change
 
     add_column :geographic_items, :created_by_id, :integer, index: true

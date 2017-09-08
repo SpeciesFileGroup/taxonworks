@@ -1,4 +1,4 @@
-class AddRemoveColumnsSequences < ActiveRecord::Migration
+class AddRemoveColumnsSequences < ActiveRecord::Migration[4.2]
   def change
     remove_column :sequences, :sequence
     remove_column :sequences, :sequence_type

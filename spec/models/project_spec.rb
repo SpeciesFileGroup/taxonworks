@@ -87,7 +87,7 @@ describe Project, type: :model do
       project.name = 'Workbench settings'
       project.save!
     }
-    
+
     specify 'are set to default' do
       expect(project.workbench_settings).to eq(Project::DEFAULT_WORKBENCH_SETTINGS)
     end
@@ -96,7 +96,7 @@ describe Project, type: :model do
       expect(project.clear_workbench_settings).to be_truthy
       expect(project.workbench_settings).to eq(Project::DEFAULT_WORKBENCH_SETTINGS)
     end
-    
+
     specify 'default_path defaults to DEFAULT_WORKBENCH_STARTING_PATH' do
       expect(project.workbench_starting_path).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
       expect(project.workbench_settings['workbench_starting_path']).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
@@ -104,7 +104,8 @@ describe Project, type: :model do
 
     specify 'updating an attribute is a little tricky, use _will_change!' do
       expect(project.workbench_starting_path).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
-      expect(project.workbench_settings_will_change!).to eq({"workbench_starting_path" => "/hub"}) # was changed from nil
+      expect(project.workbench_settings).to eq({"workbench_starting_path" => "/hub"}) # was changed from nil
+      # expect(project.workbench_settings_will_change!).to eq({"workbench_starting_path" => "/hub"}) # was changed from nil
       expect(project.workbench_settings['workbench_starting_path'] = '/dashboard').to be_truthy
       expect(project.save!).to be_truthy
       project.reload
@@ -117,7 +118,7 @@ describe Project, type: :model do
       project.name = 'Root taxon name'
     }
 
-    context 'anything but true creates a name' do 
+    context 'anything but true creates a name' do
       specify 'on save by default a root taxon name is created' do
         expect(TaxonName.any?).to be_falsey
         project.save!
@@ -175,7 +176,7 @@ describe Project, type: :model do
   end
 
   context 'destroying (nuking) a project' do
-    let(:u) { FactoryGirl.create(:valid_user, email: 'tester@example.com', name: 'Dr. Strangeglove') } 
+    let(:u) {FactoryGirl.create(:valid_user, email: 'tester@example.com', name: 'Dr. Strangeglove')}
     let(:p) { Project.create!(name: 'a little bit of everything', created_by_id: u.to_param, updated_by_id: u.to_param) }
 
     after(:all) {
@@ -228,7 +229,7 @@ describe Project, type: :model do
 
         end
       }
-      
+
       length = @failed_factories.length
       if length > 0
         @project_build_err_msg += "\n#{length} invalid #{'factory'.pluralize(length)}.\n"
@@ -249,7 +250,7 @@ describe Project, type: :model do
       before(:each) {
         p.nuke
       }
-     
+
       # need to wipe image folder here
 
       specify '#nuke nukes "everything"' do

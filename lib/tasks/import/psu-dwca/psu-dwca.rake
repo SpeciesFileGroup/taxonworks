@@ -49,7 +49,7 @@ namespace :tw do
             make_ce:  %w(verbatimLocality eventDate decimalLatitude decimalLongitude countryCode recordedBy locationRemarks)
           }
           parent  = TaxonName.find_or_create_by(name:       'Animalia',
-                                                rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
+                                                rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom',
                                                 project_id: sessions_current_project_id)
 
           text = File.read(ENV['file'])

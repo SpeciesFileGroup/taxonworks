@@ -1,4 +1,4 @@
-class IdentifiedObjectToIdentifierObject < ActiveRecord::Migration
+class IdentifiedObjectToIdentifierObject < ActiveRecord::Migration[4.2]
   def change
     remove_column(:identifiers, :identified_object_id)
     add_column(:identifiers, :identifier_object_id, :integer)

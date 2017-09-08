@@ -1,4 +1,4 @@
-class AddIndexesToGeographicAreas < ActiveRecord::Migration
+class AddIndexesToGeographicAreas < ActiveRecord::Migration[4.2]
   def change
 
     add_index :geographic_areas, :lft

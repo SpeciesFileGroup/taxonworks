@@ -33,7 +33,7 @@ class Source::Verbatim < Source
   protected
 
   def set_cached
-    self.cached = self.verbatim
+    update_column(:cached, verbatim)
   end
 
   def only_verbatim_is_populated

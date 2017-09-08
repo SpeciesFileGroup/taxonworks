@@ -11,7 +11,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   end
 
   let(:protonym) { Protonym.new }
-  let!(:root) { Protonym.create!(name: 'Root', rank_class: NomenclaturalRank)  }
+  let!(:root) { Protonym.create!(name: 'Root', rank_class: 'NomenclaturalRank')  }
 
   let(:order) { Protonym.create!(name: 'Hymenoptera', parent: root, rank_class: Ranks.lookup(:iczn, :order ) ) } 
   let(:family) { Protonym.create!(name: 'Aidae', parent: order, rank_class: Ranks.lookup(:iczn, :family ) )  }

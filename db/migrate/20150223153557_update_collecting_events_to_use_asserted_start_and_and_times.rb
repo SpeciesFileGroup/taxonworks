@@ -1,4 +1,4 @@
-class UpdateCollectingEventsToUseAssertedStartAndAndTimes < ActiveRecord::Migration
+class UpdateCollectingEventsToUseAssertedStartAndAndTimes < ActiveRecord::Migration[4.2]
   def change
 
     remove_column :collecting_events, :time_start

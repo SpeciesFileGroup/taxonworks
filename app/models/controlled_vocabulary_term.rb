@@ -43,10 +43,10 @@ class ControlledVocabularyTerm < ApplicationRecord
   validates_uniqueness_of :name, scope: [:type, :project_id]
   validates_uniqueness_of :definition, scope: [:project_id]
   validates_uniqueness_of :uri, scope: [:project_id, :uri_relation], allow_blank: true
-  validates_presence_of :uri_relation, unless: 'uri.blank?', message: 'must be provided if uri is provided'
-  validates_presence_of :uri, unless: 'uri_relation.blank?', message: 'must be provided if uri_relation is provided'
+  validates_presence_of :uri_relation, unless: -> {uri.blank?}, message: 'must be provided if uri is provided'
+  validates_presence_of :uri, unless: -> {uri_relation.blank?}, message: 'must be provided if uri_relation is provided'
 
-  validate :uri_relation_is_a_skos_relation, unless: 'uri_relation.blank?'
+  validate :uri_relation_is_a_skos_relation, unless: -> {uri_relation.blank?}
 
   scope :of_type, -> (type) { where(type: type.to_s.capitalize) }
 

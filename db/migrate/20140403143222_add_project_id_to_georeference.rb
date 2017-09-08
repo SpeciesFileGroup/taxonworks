@@ -1,4 +1,4 @@
-class AddProjectIdToGeoreference < ActiveRecord::Migration
+class AddProjectIdToGeoreference < ActiveRecord::Migration[4.2]
   def change
 
     add_column :georeferences, :project_id, :integer

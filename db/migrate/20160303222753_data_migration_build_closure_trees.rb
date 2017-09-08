@@ -1,4 +1,4 @@
-class DataMigrationBuildClosureTrees < ActiveRecord::Migration
+class DataMigrationBuildClosureTrees < ActiveRecord::Migration[4.2]
   def change
     # !! not original, updated to reflect absence in Container
     TaxonName.rebuild! if TaxonName.respond_to?(:rebuild!)

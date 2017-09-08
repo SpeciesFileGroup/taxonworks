@@ -14,22 +14,23 @@ describe 'API::v1::CollectionObjects', type: :feature do
         @user.generate_api_access_token
         @user.save!
       end
+
       let(:valid_attributes) {
         FactoryGirl.build(:valid_collection_object).attributes.merge({creator: @user, updater: @user, project: @project})
       }
-      let(:collecting_event) do
-        FactoryGirl.create(:valid_collecting_event,
-                           created_by_id: @user.id,
-                           updated_by_id: @user.id,
-                           project:       @project)
+
+      let!(:collecting_event) do
+        CollectingEvent.create!(by: @user, project: @project)
       end
-      let(:geographic_item) do
+      
+      let!(:geographic_item) do
         FactoryGirl.create(:geographic_item_with_polygon,
                            polygon: SHAPE_K,
                            creator: @user,
                            updater: @user)
       end
-      let(:georeference) do
+     
+      let!(:georeference) do
         FactoryGirl.create(:valid_georeference,
                            creator:          @user,
                            updater:          @user,
@@ -37,10 +38,8 @@ describe 'API::v1::CollectionObjects', type: :feature do
                            collecting_event: collecting_event,
                            geographic_item:  geographic_item)
       end
+
       let(:collection_object) do
-        collecting_event
-        geographic_item
-        georeference
         CollectionObject.create! valid_attributes.merge(
           {
             depictions_attributes: [

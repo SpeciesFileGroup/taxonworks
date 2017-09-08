@@ -464,9 +464,9 @@ module Protonym::SoftValidationExtensions
         ids = relationships.collect{|r| r.subject_taxon_name_id}
 
         if !ids.include?(self.id)
-          soft_validations.add(:base, 'Missing relationship: In the original combination, the original rank of #{self.cached_html} is not specified.')
+          soft_validations.add(:base, "Missing relationship: In the original combination, the original rank of #{self.cached_html} is not specified.")
         elsif ids.last != self.id
-          soft_validations.add(:base, 'Invalid original combination relationship: #{self.cached_html} should be moved to the lowest rank')
+          soft_validations.add(:base, "Invalid original combination relationship: #{self.cached_html} should be moved to the lowest rank")
         end
       end
     end

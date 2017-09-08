@@ -194,6 +194,7 @@ class Source < ApplicationRecord
   include Shared::IsData
   include Shared::Documentation
   include Shared::HasPapertrail
+  include SoftValidation
 
   ALTERNATE_VALUES_FOR = [:address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
                           :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
@@ -203,7 +204,7 @@ class Source < ApplicationRecord
   has_many :project_sources, dependent: :destroy
   has_many :projects, through: :project_sources
 
-  before_save :set_cached
+  after_save :set_cached
 
   validates_presence_of :type
 
@@ -300,15 +301,7 @@ class Source < ApplicationRecord
     {records: @sources, count: @valid}
   end
 
-  # TODO: remove and use code in  Shared::IsData::Levenshtein
-  def nearest_by_levenshtein(compared_string: nil, column: 'cached', limit: 10)
-    return Source.none if compared_string.nil?
-    order_str = Source.send(:sanitize_sql_for_conditions, ["levenshtein(sources.#{column}, ?)", compared_string])
-    Source.where('id <> ?', self.to_param).
-      order(order_str).
-      limit(limit)
-  end
-
+  # TODO: remove
   def self.generate_download(scope)
     CSV.generate do |csv|
       csv << column_names
@@ -326,8 +319,8 @@ class Source < ApplicationRecord
 
   protected
 
+  # in subclasses
   def set_cached
-    # in subclasses
   end
 
 end

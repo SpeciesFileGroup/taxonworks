@@ -1,4 +1,4 @@
-class TweakCollectingEventDays < ActiveRecord::Migration
+class TweakCollectingEventDays < ActiveRecord::Migration[4.2]
   def change
     remove_column :collecting_events, :start_date_day
     remove_column :collecting_events, :end_date_day

@@ -1,4 +1,4 @@
-class CreateSqedDepictions < ActiveRecord::Migration
+class CreateSqedDepictions < ActiveRecord::Migration[4.2]
   def change
     create_table :sqed_depictions do |t|
       t.references :depiction, index: true, foreign_key: true, null: false

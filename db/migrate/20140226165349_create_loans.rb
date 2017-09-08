@@ -1,4 +1,4 @@
-class CreateLoans < ActiveRecord::Migration
+class CreateLoans < ActiveRecord::Migration[4.2]
   def change
     create_table :loans do |t|
       t.date :date_requested

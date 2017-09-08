@@ -1,4 +1,4 @@
-class AddCurationAttributesToCollectionObjects < ActiveRecord::Migration
+class AddCurationAttributesToCollectionObjects < ActiveRecord::Migration[4.2]
   def change
     add_column :collection_objects, :accessioned_at, :date
     add_column :collection_objects, :deaccession_at, :date

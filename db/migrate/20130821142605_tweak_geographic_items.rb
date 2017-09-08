@@ -1,4 +1,4 @@
-class TweakGeographicItems < ActiveRecord::Migration
+class TweakGeographicItems < ActiveRecord::Migration[4.2]
   def change
     remove_columns :geographic_items, :a_name, :a_simple_line, :a_linear_ring
     rename_column :geographic_items, :a_point, :point

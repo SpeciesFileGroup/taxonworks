@@ -2,7 +2,7 @@
 Shared code for extending data classes with an OriginRelationship
 
   How to use this concern:
-    1) In BOTH related models, Include this concern (`include Shared::OriginRelationship`) 
+    1) In BOTH related models, Include this concern (`include Shared::OriginRelationship`)
     2) In the "old" model call "is_origin_for" with valid class names, as strings, e.g.:
        `is_origin_for 'CollectionObject', 'CollectionObject::BiologicalCollectionObject'`
     3) has_many :derived_<foo> associations are created for each is_origin_for()
@@ -25,7 +25,7 @@ module Shared::OriginRelationship
 
     accepts_nested_attributes_for :origin_relationships, reject_if: :reject_origin_relationships
 
-    before_validation :set_origin, if: '!origin.blank?'
+    before_validation :set_origin, if: -> {origin.present?}
   end
 
   def set_origin
@@ -53,8 +53,8 @@ module Shared::OriginRelationship
       end
 
       args.each do |a|
-        relationship = 'derived_' + a.demodulize.tableize 
-        has_many relationship.to_sym, source_type: a, through: :origin_relationships, source: :new_object 
+        relationship = 'derived_' + a.demodulize.tableize
+        has_many relationship.to_sym, source_type: a, through: :origin_relationships, source: :new_object
       end
     end
   end
@@ -74,7 +74,7 @@ module Shared::OriginRelationship
   private
 
   def reject_origin_relationships(attributes)
-    o = attributes['new_object'] 
+    o = attributes['new_object']
     if !defined? valid_new_object_classes
       raise NoMethodError.new("#{self.class.name} missing module 'Shared::OriginRelationship' or \"is_origin_for()\" is not being called")
     end

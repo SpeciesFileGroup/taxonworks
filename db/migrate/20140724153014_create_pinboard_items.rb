@@ -1,4 +1,4 @@
-class CreatePinboardItems < ActiveRecord::Migration
+class CreatePinboardItems < ActiveRecord::Migration[4.2]
   def change
     create_table :pinboard_items do |t|
       t.references :pinned_object, polymorphic: true, index: true

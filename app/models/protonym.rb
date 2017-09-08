@@ -32,7 +32,7 @@ class Protonym < TaxonName
     :name_is_latinized,
     :name_is_valid_format
 
-  after_save :create_new_combination_if_absent, unless: 'self.no_cached'
+  after_create :create_otu, if: -> {self.also_create_otu}
 
 
   has_one :type_taxon_name_relationship, -> {
@@ -142,7 +142,7 @@ class Protonym < TaxonName
     return nil unless valid_name.rank_string !=~/Species/
     descendants_and_self = valid_name.descendants + [self] + self.combinations
     relationships        = TaxonNameRelationship.where_object_in_taxon_names(descendants_and_self).with_two_type_bases('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::Combination::Genus')
-    (relationships.collect {|r| r.subject_taxon_name.name} + [self.ancestor_at_rank('genus').name]).uniq
+    (relationships.collect { |r| r.subject_taxon_name.name } + [self.ancestor_at_rank('genus').try(:name)]).uniq
   end
 
   # @return [boolean]
@@ -337,9 +337,9 @@ class Protonym < TaxonName
     # !((type == 'Protonym') && (taxon_name_classifications.collect{|t| t.type} & EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?)
 
     # Is faster than above?
-    taxon_name_classifications.each do |tc| # ! find_each
-      return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
-    end
+      taxon_name_classifications.each do |tc| # ! find_each
+        return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
+      end
     false
   end
 
@@ -449,32 +449,6 @@ class Protonym < TaxonName
     return n
   end
 
-
-  def create_new_combination_if_absent
-    if !TaxonName.with_cached_html(self.cached_html).count == 0
-      begin
-        TaxonName.transaction do
-          c = Combination.new
-          safe_self_and_ancestors.each do |i|
-            case i.rank
-              when 'genus'
-                c.genus = i
-              when 'subgenus'
-                c.subgenus = i
-              when 'species'
-                c.species = i
-              when 'subspecies'
-                c.subspecies = i
-            end
-          end
-          c.save
-        end
-      rescue ActiveRecord::RecordInvalid
-      end
-      false
-    end
-  end
-
   protected
 
   def name_is_latinized
@@ -483,6 +457,10 @@ class Protonym < TaxonName
 
   def name_is_valid_format
     rank_class.validate_name_format(self) if rank_class && rank_class.respond_to?(:validate_name_format) && !has_latinized_exceptions?
+  end
+
+  def create_otu
+    Otu.create(by: self.creator, project: self.project, taxon_name_id: self.id)
   end
 
   #region Validation
@@ -558,12 +536,12 @@ class Protonym < TaxonName
 
   def set_cached_valid_taxon_name_id
     #begin
-    TaxonName.transaction do
-      self.update_column(:cached_valid_taxon_name_id, self.get_valid_taxon_name.id)
-    end
+      TaxonName.transaction do
+        self.update_column(:cached_valid_taxon_name_id, self.get_valid_taxon_name.id)
+      end
     # rescue  
     # end
-  end
+    end
 
   #endregion
 

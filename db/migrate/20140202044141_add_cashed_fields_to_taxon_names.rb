@@ -1,4 +1,4 @@
-class AddCashedFieldsToTaxonNames < ActiveRecord::Migration
+class AddCashedFieldsToTaxonNames < ActiveRecord::Migration[4.2]
   def change
     add_column :taxon_names, :cached_original_name, :string, :after => :cached_name
     add_column :taxon_names, :cached_genus_species, :string, :after => :cached_higher_classification

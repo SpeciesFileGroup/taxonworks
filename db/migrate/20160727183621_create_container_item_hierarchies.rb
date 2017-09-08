@@ -1,4 +1,4 @@
-class CreateContainerItemHierarchies < ActiveRecord::Migration
+class CreateContainerItemHierarchies < ActiveRecord::Migration[4.2]
   def change
     create_table :container_item_hierarchies, id: false do |t|
       t.integer :ancestor_id, null: false

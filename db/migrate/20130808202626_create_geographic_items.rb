@@ -1,4 +1,4 @@
-class CreateGeographicItems < ActiveRecord::Migration
+class CreateGeographicItems < ActiveRecord::Migration[4.2]
   def change
     create_table :geographic_items do |t|
       t.string :a_name, :geographic => false
