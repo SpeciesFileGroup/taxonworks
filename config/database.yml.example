@@ -17,7 +17,7 @@ test:
   postgis_extension: true
   pool: 5
   database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
-  username: taxonworks_test 
+  username: taxonworks_development 
   password:
 #  host: db
 
