@@ -1,4 +1,4 @@
-class TweakCollectingEvents < ActiveRecord::Migration
+class TweakCollectingEvents < ActiveRecord::Migration[4.2]
   def change
     remove_column :collecting_events, :start_date_year
     add_column :collecting_events, :start_date_year, :integer, length: 4

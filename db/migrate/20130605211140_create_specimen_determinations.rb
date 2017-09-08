@@ -1,4 +1,4 @@
-class CreateSpecimenDeterminations < ActiveRecord::Migration
+class CreateSpecimenDeterminations < ActiveRecord::Migration[4.2]
   def change
     create_table :specimen_determinations do |t|
       t.references :otu_id, index: true

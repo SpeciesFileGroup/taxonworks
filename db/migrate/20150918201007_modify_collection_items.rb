@@ -1,4 +1,4 @@
-class ModifyCollectionItems < ActiveRecord::Migration
+class ModifyCollectionItems < ActiveRecord::Migration[4.2]
   def change
     remove_column :loan_items, :collection_object_id
     remove_column :loan_items, :container_id

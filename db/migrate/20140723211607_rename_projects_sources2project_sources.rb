@@ -1,4 +1,4 @@
-class RenameProjectsSources2projectSources < ActiveRecord::Migration
+class RenameProjectsSources2projectSources < ActiveRecord::Migration[4.2]
   def change
     drop_table :projects_sources
     create_table :project_sources do |t|

@@ -47,9 +47,9 @@ describe BatchLoad::Import::DWCA, type: :model do
                      geo_rem_kw:  geo_rem_kw,
                      repo:        repo,
                      namespace:   namespace}}
-    let(:import) {BatchLoad::Import::DWCA::new({project_id: project.id,
-                                                user_id:    user.id,
-                                                file:       upload_file}.merge(pre_load))
+    let(:import) {BatchLoad::Import::DWCA.new({project_id: project.id,
+                                               user_id:    user.id,
+                                               file:       upload_file}.merge(pre_load))
     }
     let(:event) {CollectingEvent.create(verbatim_date: 'some more text')}
 
@@ -75,6 +75,7 @@ describe BatchLoad::Import::DWCA, type: :model do
         expect(Note.count).to eq(11)
         expect(TaxonName.count).to eq(46)
         expect(Person.count).to eq(4)
+        expect(Person.last.georeferences).to eq(15)
         expect(Note.all.map(&:note_object_type).uniq).to include("Georeference",
                                                                  "CollectingEvent",
                                                                  "CollectionObject")

@@ -1,4 +1,4 @@
-class TweakTaxonDeterminations < ActiveRecord::Migration
+class TweakTaxonDeterminations < ActiveRecord::Migration[4.2]
   def change
     remove_column :taxon_determinations, :year_made
     remove_column :taxon_determinations, :month_made

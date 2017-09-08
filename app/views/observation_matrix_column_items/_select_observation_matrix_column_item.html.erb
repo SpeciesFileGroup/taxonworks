@@ -1,0 +1,13 @@
+<div class="observation_matrix_column_item_selection flexbox" id="">
+  <div class="item item1"> Select column type: </div>
+  <div class="autocomplete_type_selector item item2">
+    <%= radio_button_tag(:autocomplete_type, 'collection_objects', true) -%> Collection object  <br>
+    <%= radio_button_tag(:autocomplete_type, 'otus') -%> OTU  <br>
+    <%= radio_button_tag(:autocomplete_type, 'controlled_vocabulary_terms') -%> Keyword  <br>
+  </div>
+
+  <div class="item item3"> 
+    <%= text_field_tag 'observation_matrix  _column_item_autocomplete', nil, id: 'observation_matrix_column_item_autocomplete', placeholder: 'Select a column item' %> 
+    <span id="observation_matrix_column_item_not_found" class="warning"></span>         
+  </div>
+</div>

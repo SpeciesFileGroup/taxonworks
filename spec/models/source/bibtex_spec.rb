@@ -450,7 +450,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       let(:source_bibtex) { FactoryGirl.build(:valid_source_bibtex) }
 
       specify 'if present year, must be an integer an greater than 999 and no more than 2 years in the future' do
-        error_msg          = 'year must be an integer greater than 999 and no more than 2 years in the future'
+        error_msg          = 'must be an integer greater than 999 and no more than 2 years in the future'
         source_bibtex.year = 'test'
         expect(source_bibtex.valid?).to be_falsey
         expect(source_bibtex.errors.messages[:year].include?(error_msg)).to be_truthy
@@ -478,7 +478,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
 
       specify 'if month is set, there must be a year' do
-        error_msg           = 'year is required when month or stated_year is provided'
+        error_msg           = 'is required when month or stated_year is provided'
         source_bibtex.month = 'feb'
         expect(source_bibtex.valid?).to be_falsey
         expect(source_bibtex.errors.messages[:year].include?(error_msg)).to be_truthy
@@ -546,7 +546,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           source_bibtex.year = 1945
         }
         specify 'if day is present there must be a month' do
-          error_msg         = 'month is required when day is provided'
+          error_msg         = 'is required when day is provided'
           source_bibtex.day = 31
           expect(source_bibtex.valid?).to be_falsey
           expect(source_bibtex.errors.messages[:month].include?(error_msg)).to be_truthy
@@ -611,7 +611,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
         context 'correctly creates authority_name & cached_author_string' do
           let(:source_bibtex) { FactoryGirl.build(:valid_source_bibtex) }
-          
+
           context 'with author, but without authors' do
             specify 'single author' do
               source_bibtex.author = 'Thomas, D.'
@@ -1420,7 +1420,7 @@ describe Source::Bibtex, type: :model, group: :sources do
     #       # array.push(LaTeX.decode %q{" \`{o} \"{o} \.{o} \H{o} \d{o} {\OE} \aa \O \ss "})
 
     #       # array.push(LaTeX.decode %q{ '{o} \~{o} \u{o} \H{o} \t{oo} \b{o} \ae \AA \l  ?'})
-    #       # 
+    #       #
     #       # array.push(LaTeX.decode %q{" \^{o} \={o} \V{o} \c{o} \oe \ae \o \L !' "})
 
     #       # array.push(LaTeX.decode %q{" \`{e} \"{a} \.{a} \c{c} {\oe}  \\{oe}a"})

@@ -160,8 +160,8 @@ class TaxonName < ApplicationRecord
   before_validation :set_type_if_empty
 
   before_save :set_cached_names
-  after_save :create_new_combination_if_absent, unless: 'self.no_cached'
-  after_save :set_cached_names_for_dependants_and_self, unless: 'self.no_cached' # !!! do we run set cached names 2 x !?!
+  after_save :create_new_combination_if_absent, unless: :no_cached
+  after_save :set_cached_names_for_dependants_and_self, unless: :no_cached # !!! do we run set cached names 2 x !?!
   after_save :set_cached_valid_taxon_name_id
 
   before_destroy :check_for_children, prepend: true

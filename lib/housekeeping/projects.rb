@@ -10,13 +10,14 @@ module Housekeeping::Projects
     # these are added to the model
     belongs_to :project, inverse_of: related_instances
 
-    before_validation :set_project_id,  if: '!self.annotates_community_object?' # 'self.annotates? && self.annotates_community?'
-    validates :project, presence: true, if: '!self.annotates_community_object?' # 'self.annotates? && self.annotates_community?'
+    not_self = lambda {!self.annotates_community_object?}
+    before_validation :set_project_id, if: not_self # 'self.annotates? && self.annotates_community?'
+    validates :project, presence: true, if: not_self # 'self.annotates? && self.annotates_community?'
 
     #  before_save :prevent_alteration_in_other_projects
     #  before_destroy :prevent_alteration_in_other_projects
 
-    # extend Project 
+    # extend Project
     Project.class_eval do
       raise 'Class name collision for Project#has_many' if self.methods and self.methods.include?(:related_instances)
       has_many related_instances, class_name: related_class, dependent: :restrict_with_error, inverse_of: :project

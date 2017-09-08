@@ -1,4 +1,4 @@
-class ExtendDepictionsToActAsFigures < ActiveRecord::Migration
+class ExtendDepictionsToActAsFigures < ActiveRecord::Migration[4.2]
 
   def change
     add_column :depictions, :caption, :text, index: true

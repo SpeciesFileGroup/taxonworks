@@ -10,13 +10,14 @@
 	</p>
 
 	<p>
+	<strong>Created at:</strong>
+	 <%=object.created_at.to_formatted_s(:long)    -%> 
+	</p>
+
+	<p>
 	<strong>Updated at:</strong>
 	<%= object.updated_at.to_formatted_s(:long)    -%> 
 	</p>
 
-	<p>
-	<strong>Created at:</strong>
-	 <%=object.created_at.to_formatted_s(:long)    -%> 
-	</p>
 </div>
 

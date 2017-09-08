@@ -1,4 +1,4 @@
-class TweakGeographicAreas7 < ActiveRecord::Migration
+class TweakGeographicAreas7 < ActiveRecord::Migration[4.2]
   def change
 
     remove_column :geographic_areas, :ne_geo_item_id

@@ -1,4 +1,4 @@
-class CreateCollectionObjects < ActiveRecord::Migration
+class CreateCollectionObjects < ActiveRecord::Migration[4.2]
   def change
     create_table :collection_objects do |t|
       t.integer :total

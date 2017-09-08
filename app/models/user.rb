@@ -113,13 +113,13 @@ class User < ApplicationRecord
 
   before_validation { self.email = email.to_s.downcase }
 
-  before_save :generate_api_access_token,  if: 'self.set_new_api_access_token'
+  before_save :generate_api_access_token, if: :set_new_api_access_token
   # @todo downcase does not work for non-ascii characters which means our validation for uniqueness will fail ... why?
   # @see http://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-email-address
   # @see http://unicode-utils.rubyforge.org/
   before_save { self.email = email.to_s.downcase }
 
-  after_save :configure_self_created,  if: "self.self_created"
+  after_save :configure_self_created, if: :self_created
 
   before_create :set_remember_token
   before_create { self.hub_tab_order = DEFAULT_HUB_TAB_ORDER }
@@ -133,7 +133,7 @@ class User < ApplicationRecord
             :confirmation => {:if => :validate_password?}
 
   validates :name, presence: true
-  validates :name, length: {minimum: 2}, unless: 'self.name.blank?'
+  validates :name, length: {minimum: 2}, unless: -> {self.name.blank?}
 
   has_many :project_members, dependent: :destroy
   has_many :projects, through: :project_members

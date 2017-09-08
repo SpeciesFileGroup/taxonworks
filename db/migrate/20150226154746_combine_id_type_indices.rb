@@ -1,4 +1,4 @@
-class CombineIdTypeIndices < ActiveRecord::Migration
+class CombineIdTypeIndices < ActiveRecord::Migration[4.2]
   def change
 
     remove_index :alternate_values, :alternate_value_object_id

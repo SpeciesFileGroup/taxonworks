@@ -1,4 +1,4 @@
-class RemoveClosureTreeFromContainer < ActiveRecord::Migration
+class RemoveClosureTreeFromContainer < ActiveRecord::Migration[4.2]
   # THIS IS A BREAKING migration, we are not trying to migrate date
   # forward
   def change

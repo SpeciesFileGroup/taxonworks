@@ -1,4 +1,4 @@
-class TweakGeographicArea4 < ActiveRecord::Migration
+class TweakGeographicArea4 < ActiveRecord::Migration[4.2]
   def change
 
     rename_column     :geographic_areas, :iso_3166, :iso_3166_a2

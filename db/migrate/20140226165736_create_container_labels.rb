@@ -1,4 +1,4 @@
-class CreateContainerLabels < ActiveRecord::Migration
+class CreateContainerLabels < ActiveRecord::Migration[4.2]
   def change
     create_table :container_labels do |t|
       t.text :label

@@ -1,4 +1,4 @@
-class AddIndeciesToTaxonNames < ActiveRecord::Migration
+class AddIndeciesToTaxonNames < ActiveRecord::Migration[4.2]
   def change
     add_index :taxon_names, :parent_id
     add_index :taxon_names, :lft

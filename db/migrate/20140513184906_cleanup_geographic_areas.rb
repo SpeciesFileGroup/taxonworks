@@ -1,4 +1,4 @@
-class CleanupGeographicAreas < ActiveRecord::Migration
+class CleanupGeographicAreas < ActiveRecord::Migration[4.2]
   def change
     remove_column :geographic_areas, :gadmID
     remove_column :geographic_areas, :gadm_geo_item_id

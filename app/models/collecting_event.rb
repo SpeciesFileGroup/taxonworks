@@ -207,8 +207,9 @@ class CollectingEvent < ApplicationRecord
 
   before_save :set_times_to_nil_if_form_provided_blank
 
-  after_save :cache_geographic_names, if: '!self.no_cached && geographic_area_id_changed?'
-  after_save :set_cached, if: '!self.no_cached'
+  # after_save :cache_geographic_names, if: -> {!self.no_cached && geographic_area_id_changed?}
+  after_save :cache_geographic_names, if: -> {!self.no_cached && saved_change_to_attribute?(:geographic_area_id)}
+  after_save :set_cached, if: -> {!self.no_cached}
 
   belongs_to :geographic_area, inverse_of: :collecting_events
 
@@ -220,9 +221,9 @@ class CollectingEvent < ApplicationRecord
   has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy
   has_many :collectors, through: :collector_roles, source: :person
+  has_many :georeferences, dependent: :destroy
   has_many :error_geographic_items, through: :georeferences, source: :error_geographic_item
   has_many :geographic_items, through: :georeferences # See also all_geographic_items, the union
-  has_many :georeferences, dependent: :destroy
   has_many :geo_locate_georeferences, class_name: 'Georeference::GeoLocate', dependent: :destroy
 
   accepts_nested_attributes_for :geo_locate_georeferences
@@ -234,9 +235,9 @@ class CollectingEvent < ApplicationRecord
            :check_elevation_range,
            :check_ma_range
 
-  validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: 'verbatim_label.blank?'
-  validates_presence_of :verbatim_longitude, if: '!verbatim_latitude.blank?'
-  validates_presence_of :verbatim_latitude, if: '!verbatim_longitude.blank?'
+  validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: -> {verbatim_label.blank?}
+  validates_presence_of :verbatim_longitude, if: -> {!verbatim_latitude.blank?}
+  validates_presence_of :verbatim_latitude, if: -> {!verbatim_longitude.blank?}
 
   validates :geographic_area, presence: true, allow_nil: true
 
@@ -244,34 +245,34 @@ class CollectingEvent < ApplicationRecord
   validates :time_start_minute, time_minute: true
   validates :time_start_second, time_second: true
 
-  validates_presence_of :time_start_minute, if: '!self.time_start_second.blank?'
-  validates_presence_of :time_start_hour, if: '!self.time_start_minute.blank?'
+  validates_presence_of :time_start_minute, if: -> {!self.time_start_second.blank?}
+  validates_presence_of :time_start_hour, if: -> {!self.time_start_minute.blank?}
 
   validates :time_end_hour, time_hour: true
   validates :time_end_minute, time_minute: true
   validates :time_end_second, time_second: true
 
-  validates_presence_of :time_end_minute, if: '!self.time_end_second.blank?'
-  validates_presence_of :time_end_hour, if: '!self.time_end_minute.blank?'
+  validates_presence_of :time_end_minute, if: -> {!self.time_end_second.blank?}
+  validates_presence_of :time_end_hour, if: -> {!self.time_end_minute.blank?}
 
-  validates :start_date_year, date_year: { min_year: 1000, max_year: Time.now.year + 5}
-  validates :end_date_year, date_year: { min_year: 1000, max_year: Time.now.year + 5}
+  validates :start_date_year, date_year: {min_year: 1000, max_year: Time.now.year + 5}
+  validates :end_date_year, date_year: {min_year: 1000, max_year: Time.now.year + 5}
 
   validates :start_date_month, date_month: true
   validates :end_date_month, date_month: true
 
   validates_presence_of :start_date_month,
-                        if: '!start_date_day.nil?'
+                        if: -> {!start_date_day.nil?}
 
   validates_presence_of :end_date_month,
-                        if: '!end_date_day.nil?'
+                        if: -> {!end_date_day.nil?}
 
-  validates :end_date_day, date_day: { year_sym: :end_date_year, month_sym: :end_date_month },
-            unless: 'end_date_year.nil? || end_date_month.nil?'
+  validates :end_date_day, date_day: {year_sym: :end_date_year, month_sym: :end_date_month},
+            unless:                  -> {end_date_year.nil? || end_date_month.nil?}
 
-  validates :start_date_day, date_day: { year_sym: :start_date_year, month_sym: :start_date_month },
-            unless: 'start_date_year.nil? || start_date_month.nil?'
-              
+  validates :start_date_day, date_day: {year_sym: :start_date_year, month_sym: :start_date_month},
+            unless:                    -> {start_date_year.nil? || start_date_month.nil?}
+
   soft_validate(:sv_minimally_check_for_a_label)
 
   # @param [String]
@@ -323,7 +324,7 @@ class CollectingEvent < ApplicationRecord
 
       t = 'collecting_events'
 
-      part_0         = "#{t}.start_date_year is not null"
+      part_0 = "#{t}.start_date_year is not null"
 
       # start_date is inside supplied range
       # string has to have four pieces (part_s):
@@ -376,10 +377,10 @@ class CollectingEvent < ApplicationRecord
       #   2) any full years between start and end
       #   3) last part of start year
 
-      part_1e    = "(#{t}.end_date_year = #{end_year}"
-      part_1e    += " and ((#{t}.end_date_month between 1 and #{end_month - 1})"
-      part_1e    += " or (#{t}.end_date_month = #{end_month} and #{t}.end_date_day <= #{end_day})))"
-      part_1e    = "((#{t}.end_date_year is NULL) and (#{st_string})) OR " + part_1e
+      part_1e = "(#{t}.end_date_year = #{end_year}"
+      part_1e += " and ((#{t}.end_date_month between 1 and #{end_month - 1})"
+      part_1e += " or (#{t}.end_date_month = #{end_month} and #{t}.end_date_day <= #{end_day})))"
+      part_1e = "((#{t}.end_date_year is NULL) and (#{st_string})) OR " + part_1e
 
       part_3e = "(#{t}.end_date_year = #{start_year}"
       part_3e += " and ((#{t}.end_date_month > #{start_month})"
@@ -408,7 +409,7 @@ class CollectingEvent < ApplicationRecord
     def filter(params)
       sql_string = ''
       unless params.blank? # not strictly necessary, but handy for debugging
-        sql_string          = Utilities::Dates.date_sql_from_params(params)
+        sql_string = Utilities::Dates.date_sql_from_params(params)
 
         # processing text data
         v_locality_fragment = params['verbatim_locality_text']
@@ -732,6 +733,7 @@ class CollectingEvent < ApplicationRecord
     pieces.excluding(self)
   end
 
+  # DEPRECATED for shared code
   # @param [String, String, Integer]
   # @return [Scope]
   def nearest_by_levenshtein(compared_string = nil, column = 'verbatim_locality', limit = 10)

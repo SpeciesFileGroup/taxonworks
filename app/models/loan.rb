@@ -76,8 +76,9 @@ class Loan < ApplicationRecord
   has_many :loan_recipients, through: :loan_recipient_roles, source: :person
   has_many :loan_supervisors, through: :loan_supervisor_roles, source: :person
 
-  validates :supervisor_email, format: {with: User::VALID_EMAIL_REGEX}, if: '!supervisor_email.blank?'
-  validates :recipient_email, format: {with: User::VALID_EMAIL_REGEX}, if: '!recipient_email.blank?'
+  not_super = lambda {!supervisor_email.blank?}
+  validates :supervisor_email, format: {with: User::VALID_EMAIL_REGEX}, if: not_super
+  validates :recipient_email, format: {with: User::VALID_EMAIL_REGEX}, if: not_super
 
   validates :lender_address, presence: true
 

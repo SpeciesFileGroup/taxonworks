@@ -1,4 +1,4 @@
-class CreateProtocolRelationships < ActiveRecord::Migration
+class CreateProtocolRelationships < ActiveRecord::Migration[4.2]
   def change
     create_table :protocol_relationships do |t|
       t.references :protocol, index: true, foreign_key: true, null: false

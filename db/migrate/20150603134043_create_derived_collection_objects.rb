@@ -1,4 +1,4 @@
-class CreateDerivedCollectionObjects < ActiveRecord::Migration
+class CreateDerivedCollectionObjects < ActiveRecord::Migration[4.2]
   def change
     create_table :derived_collection_objects do |t|
       t.references :collection_object_observation

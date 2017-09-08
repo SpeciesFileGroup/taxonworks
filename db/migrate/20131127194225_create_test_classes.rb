@@ -1,5 +1,5 @@
 # This class is only used in rspec stubbing of models
-class CreateTestClasses < ActiveRecord::Migration
+class CreateTestClasses < ActiveRecord::Migration[4.2]
   def change
     create_table :test_classes do |t|
       t.integer :project_id

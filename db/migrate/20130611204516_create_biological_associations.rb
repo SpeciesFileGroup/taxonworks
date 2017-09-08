@@ -1,4 +1,4 @@
-class CreateBiologicalAssociations < ActiveRecord::Migration
+class CreateBiologicalAssociations < ActiveRecord::Migration[4.2]
   def change
     create_table :biological_associations do |t|
       t.references :biological_relationship, index: true

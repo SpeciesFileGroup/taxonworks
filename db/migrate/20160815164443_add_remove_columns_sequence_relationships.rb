@@ -1,4 +1,4 @@
-class AddRemoveColumnsSequenceRelationships < ActiveRecord::Migration
+class AddRemoveColumnsSequenceRelationships < ActiveRecord::Migration[4.2]
   def change
     remove_column :sequence_relationships, :subject_sequence_type
     remove_column :sequence_relationships, :relationship_type

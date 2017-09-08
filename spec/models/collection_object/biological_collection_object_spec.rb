@@ -2,6 +2,7 @@ require 'rails_helper'
 describe CollectionObject::BiologicalCollectionObject, type: :model, group: :collection_objects do
 
   let(:biological_collection_object) { FactoryGirl.build(:collection_object_biological_collection_object) }
+  let(:otu) { Otu.create(name: 'zzz') }
 
   specify '.valid_new_object_classes' do
     expect(CollectionObject::BiologicalCollectionObject.valid_new_object_classes).to contain_exactly('Extract', 'CollectionObject::BiologicalCollectionObject')
@@ -10,24 +11,24 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
   context 'associations' do
     context 'has_many' do
       specify 'biocuration_classifications' do
-        expect(biological_collection_object.biocuration_classifications << BiocurationClassification.new()).to be_truthy
+        expect(biological_collection_object.biocuration_classifications.push BiocurationClassification.new()).to be_truthy
       end
 
       specify 'biocuration_classes' do
-        expect(biological_collection_object.biocuration_classes << BiocurationClass.new()).to be_truthy
+        expect(biological_collection_object.biocuration_classes.push BiocurationClass.new()).to be_truthy
       end
 
       specify 'taxon_determinations' do
-        expect(biological_collection_object.taxon_determinations << TaxonDetermination.new()).to be_truthy
+        expect(biological_collection_object.taxon_determinations.push TaxonDetermination.new()).to be_truthy
       end
 
       specify 'otus' do
-        expect(biological_collection_object.otus << Otu.new()).to be_truthy
+        expect(biological_collection_object.otus.push Otu.new()).to be_truthy
       end
     end
   end
 
-  context 'validation' do 
+  context 'validation' do
     specify 'subclass is properly assigned when total is 1' do
       biological_collection_object.total = 1
       biological_collection_object.save!
@@ -41,92 +42,112 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
     end
   end
 
-  context 'use' do
+  context 'nested attributes' do
 
-    context 'with a saved off OTU' do
-      specify 'create and also create otus, and determinations (nested_attributes_for :otus)' do
-        o = Specimen.new(otus_attributes: [{name: 'one'}, {name: 'two'}])
-        expect(o.save).to be_truthy
-        o.reload
-        expect(o.otus.count).to eq(2)
-        expect(o.taxon_determinations.count).to eq(2)
+    let(:s) { Specimen.create!(otus_attributes: [{name: 'one'}, {name: 'two'}] ) }
+    let(:t) { Specimen.create!(taxon_determinations_attributes: [{otu: Otu.create(name: 'abc') }, {otu_id: otu.id} ] ) } 
+    let(:u) { Specimen.create!(taxon_determinations_attributes: [ {otu_attributes: {name: 'King Kong'}} ]) }
+
+    context 'via otus_attributes' do
+      specify 'creates otus' do
+        expect(s.otus.count).to eq(2)
       end
+
+      specify 'creates taxon_determinations' do
+        expect(s.taxon_determinations.count).to eq(2)
+      end
+    end
+
+    context 'via taxon_determinations_attributes' do
+      specify 'creates otus' do
+        expect(t.otus.count).to eq(2)
+      end
+
+      specify 'creates taxon_determinations' do
+        expect(s.taxon_determinations.count).to eq(2)
+      end
+    end
+
+    specify 'creates taxon_determinations via both nested attributes' do
+      expect(u.taxon_determinations.count).to eq(1)
+    end
+
+    specify 'can be destroyed' do
+      s.update(taxon_determinations_attributes: [{id: s.taxon_determinations.first.id, _destroy: '1'}])
+      s.save
+      expect(s.taxon_determinations.reload.count).to eq(1)
+    end
+  end
+
+  context 'ordering deteriminations' do
+    let!(:o) { 
+      Specimen.create!(total: 1, otus_attributes: [ {name: 'one'}, {name: 'two'}, {name: 'three'} ])
+    }
+
+    specify '#current_taxon_determination, last created, first on list by default' do
+      expect(o.current_taxon_determination.reload.position).to eq(1)
+    end
+
+    specify '#current_otu (is last created)' do
+      expect(o.current_otu.reload.name).to eq('three')
     end
 
     specify '#reorder_determinations_by(:year)' do
       expect(biological_collection_object).to respond_to(:reorder_determinations_by)
-      o = Specimen.new(otus_attributes: [{name: 'one'}, {name: 'two'}, {name: 'three'}])
+    end
 
-      expect(o.save).to be_truthy
-
-      o.taxon_determinations.first.update(year_made: 1920)
-      o.taxon_determinations.last.update(year_made:  1980)
-
+    specify '#reorder_determinations()' do 
       expect(o.reorder_determinations_by()).to be_truthy
-      o.reload
-      y = Time.now.year.to_i
-      expect(o.taxon_determinations.order('taxon_determinations.position').map(&:year_made)).to eq([y, 1980, 1920])
-      expect(o.current_taxon_determination.year_made).to eq(y)
-    end
-  end
+    end 
 
-  context 'instance methods' do
-    let(:o) { Specimen.new(otus_attributes: [{name: 'one'}, {name: 'two'}]) }
-    before { o.save }
+    context 'when reordered' do
+      let(:y) { Time.now.year.to_i }
+      before do
+        o.taxon_determinations.first.update(year_made: 1920)
+        o.taxon_determinations.last.update(year_made: 1980) 
+        o.reorder_determinations_by() 
+        o.reload
+      end
 
-    # expected behaviour is that the last determination created is the first on the list
-    specify '#current_taxon_determination' do
-      expect(o.current_taxon_determination.reload.position).to eq(1)
-    end
+      specify 'ordered by position' do
+        expect(o.taxon_determinations.order('taxon_determinations.position').map(&:year_made)).to eq([y, 1980, 1920])
+      end
 
-    specify '#current_otu' do
-      expect(o.current_otu.reload.name).to eq('two')
+      specify '#current_taxon_determination' do
+        expect(o.current_taxon_determination.year_made).to eq(y)
+      end
     end
   end
 
   context 'soft validation' do
+    let(:o) { Specimen.create }
+
     specify 'determination is missing' do
-      o = Specimen.new
-      expect(o.save).to be_truthy
       o.soft_validate(:missing_determination)
       expect(o.soft_validations.messages_on(:base).count).to eq(1)
+    end
+
+    specify 'determination not missing' do
       o.update(otus_attributes: [{name: 'name'}])
-      expect(o.save).to be_truthy
       o.soft_validate(:missing_determination)
       expect(o.soft_validations.messages_on(:base).count).to eq(0)
     end
 
-    specify 'collecting_event and preparation_type are missing' do
-      o = Specimen.new
+    specify 'collecting_event missing' do
       o.soft_validate(:missing_collecting_event)
       expect(o.soft_validations.messages_on(:collecting_event_id).count).to eq(1)
+    end
+
+    specify 'preparation_type missing' do
       o.soft_validate(:missing_preparation_type)
       expect(o.soft_validations.messages_on(:preparation_type_id).count).to eq(1)
+    end 
+
+    specify 'repository missing' do
       o.soft_validate(:missing_repository)
       expect(o.soft_validations.messages_on(:repository_id).count).to eq(1)
     end
   end
 
-  context 'nested attributes' do
-    let(:o) { Specimen.new }
-    let(:otu) { Otu.create!(name: 'Zeezaw whee') }
-
-    context 'taxon_determinations' do
-      before {
-        o.taxon_determinations_attributes = [ {otu_id: otu.id } ]
-      }
-
-      specify 'can be created' do
-        expect(o.save).to be_truthy
-        expect(o.taxon_determinations.first.valid?).to be_truthy
-      end
-
-      specify 'can be destroyed' do
-        expect(o.save).to be_truthy
-        o.update(taxon_determinations_attributes: [{id: o.taxon_determinations.first.id, _destroy: '1'}])  
-        expect(o.save).to be_truthy
-        expect(TaxonDetermination.all.size).to eq(0)
-      end
-    end
-  end
 end
+

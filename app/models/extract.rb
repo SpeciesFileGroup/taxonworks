@@ -44,7 +44,7 @@ class Extract < ApplicationRecord
   validates_presence_of :quantity_value
   attr_accessor :is_made_now
 
-  before_validation :set_made, if: 'is_made_now'
+  before_validation :set_made, if: -> {is_made_now}
 
   validates_presence_of :quantity_value
   validates_presence_of :quantity_unit

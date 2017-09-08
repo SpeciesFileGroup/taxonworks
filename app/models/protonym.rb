@@ -32,7 +32,7 @@ class Protonym < TaxonName
     :name_is_latinized,
     :name_is_valid_format
 
-  after_create :create_otu,  if: 'self.also_create_otu'
+  after_create :create_otu, if: -> {self.also_create_otu}
 
   has_one :type_taxon_name_relationship, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
@@ -140,7 +140,7 @@ class Protonym < TaxonName
     return nil unless valid_name.rank_string !=~/Species/
     descendants_and_self = valid_name.descendants + [self] + self.combinations
     relationships        = TaxonNameRelationship.where_object_in_taxon_names(descendants_and_self).with_two_type_bases('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::Combination::Genus')
-    (relationships.collect {|r| r.subject_taxon_name.name} + [self.ancestor_at_rank('genus').name]).uniq
+    (relationships.collect { |r| r.subject_taxon_name.name } + [self.ancestor_at_rank('genus').try(:name)]).uniq
   end
 
   # @return [boolean]

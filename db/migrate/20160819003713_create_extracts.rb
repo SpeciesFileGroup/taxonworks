@@ -1,4 +1,4 @@
-class CreateExtracts < ActiveRecord::Migration
+class CreateExtracts < ActiveRecord::Migration[4.2]
   def change
     create_table :extracts do |t|
       t.decimal :quantity_value, null: false
