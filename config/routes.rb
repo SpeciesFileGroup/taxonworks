@@ -1,7 +1,7 @@
 TaxonWorks::Application.routes.draw do
 
   get :ping, controller: 'ping',  defaults: { format: :json }
-
+  
   # All models that use data controllers should include this concern.
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
   # TODO: This will have to be broken down to core_data_routes, and supporting_data_routes
@@ -15,36 +15,36 @@ TaxonWorks::Application.routes.draw do
       get 'autocomplete'
       get 'search'
     end
-
+    
     member do
       get 'related'
     end
   end
-
+  
   concern :shallow_annotation_routes do |options|
     resources :citations, shallow: true, only: [:index]
     resources :depictions, shallow: true, only: [:index]
     resources :tags, shallow: true, only: [:index]
     resources :notes, shallow: true, only: [:index]
   end
-
+  
   root 'dashboard#index'
-
+  
   match '/dashboard', to: 'dashboard#index', via: :get
-
+  
   match '/signin', to: 'sessions#new', via: :get
   match '/signout', to: 'sessions#destroy', via: :delete
   resources :sessions, only: :create
-
+  
   get 'soft_validations/validate' => 'soft_validations#validate', defaults: {format: :json}
-
+  
   # Note singular 'resource'
   resource :hub, controller: 'hub', only: [:index] do
     get '/', action: :index
     get 'order_tabs' # should be POST
     post 'update_tab_order'
   end
-
+  
   resources :projects do
     concerns [:data_routes]
     member do
@@ -55,33 +55,33 @@ TaxonWorks::Application.routes.draw do
       get 'per_relationship_recent_stats/:relationship', action: :per_relationship_recent_stats, as: :per_relationship_recent_stats
     end
   end
-
+  
   scope :administration, controller: :administration do
     match '/', action: :index, as: 'administration', via: :get
     get 'user_activity'
     get 'data_overview'
   end
-
+  
   resources :project_members, except: [:index, :show] do
     collection do
       get :many_new
       post :create_many
     end
   end
-
+  
   resources :pinboard_items, only: [:create, :destroy] do
     collection do
       post 'update_position'
       post 'update_type_position'
     end
   end
-
+  
   ### Below this point, please keep objects in alphabetical order ###
-
+  
   resources :alternate_values, except: [:show] do
     concerns [:data_routes]
   end
-
+  
   resources :asserted_distributions do
     concerns [:data_routes]
     collection do
@@ -89,51 +89,51 @@ TaxonWorks::Application.routes.draw do
       post :create_simple_batch_load
     end
   end
-
+  
   resources :biocuration_classifications, only: [:create, :update, :destroy]
-
+  
   resources :biological_associations do
     concerns [:data_routes]
   end
-
+  
   resources :biological_associations_graphs do
     concerns [:data_routes]
   end
-
+  
   resources :biological_relationships do
     concerns [:data_routes]
   end
-
+  
   resources :character_states do
     concerns [:data_routes]
     member do
       get :annotations, defaults: {format: :json}
     end
   end
-
+  
   resources :citation_topics, only: [:create, :update, :destroy]
-
+  
   resources :citations do # except: [:show]
     concerns [:data_routes]
     collection do
       get 'filter', defaults: {format: :json}
+    end
   end
-  end
-
+  
   resources :confidences do # , except: [:edit, :show]
     concerns [:data_routes]
     collection do
       post :confidence_object_update
     end
   end
-
+  
   resources :confidence_levels, only: [:index] do
     collection do
       get 'lookup'
     end
   end
-
-
+  
+  
   resources :collection_objects do
     concerns [:data_routes, :shallow_annotation_routes]
     member do
@@ -146,16 +146,16 @@ TaxonWorks::Application.routes.draw do
     end
   end
   match 'collection_objects/by_identifier/:identifier', to: 'collection_objects#by_identifier', via: :get
-
+  
   resources :collection_object_observations do
     concerns [:data_routes]
   end
-
+  
   resources :collection_profiles do
     concerns [:data_routes]
   end
   match 'collection_profiles/swap_form_attribute_types/:collection_type', to: 'collection_profiles#swap_form_attribute_types', via: :get, method: :js
-
+  
   resources :collecting_events do
     concerns [:data_routes, :shallow_annotation_routes ]
     get :autocomplete_collecting_event_verbatim_locality, on: :collection
@@ -163,71 +163,75 @@ TaxonWorks::Application.routes.draw do
       get :card
     end
     # collection do
-    #   post :preview_simple_batch_load # should be get
-    #   post :create_simple_batch_load
-    # end
-
-    collection do
-      post :preview_castor_batch_load
-      post :create_castor_batch_load
+      #   post :preview_simple_batch_load # should be get
+      #   post :create_simple_batch_load
+      # end
+      
+      collection do
+        post :preview_castor_batch_load
+        post :create_castor_batch_load
+      end
     end
-  end
-
-  resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
-    concerns [:data_routes]
-  end
-
-  resources :common_names do
-    concerns [:data_routes]
-  end
-
-  resources :containers do # , only: [:create, :update, :destroy] do
-    concerns [:data_routes]
-  end
-
-  resources :container_items, except: [:edit] do
-    concerns [:data_routes]
-  end
-
-  resources :contents do
-    concerns [:data_routes, :shallow_annotation_routes]
-    collection do
-      get :filter
-  end
-  end
-
-  resources :controlled_vocabulary_terms do
-    concerns [:data_routes]
-
-    member do
-      get 'tagged_objects'
+    
+    resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
+      concerns [:data_routes]
     end
-  end
-
-  resources :data_attributes, except: [:show] do
-    concerns [:data_routes]
-  end
-
-  resources :depictions do
-    concerns [:data_routes]
-    collection do
-      patch :sort
-  end
-  end
-
-  resources :descriptors do
-    concerns [:data_routes, :shallow_annotation_routes]
-    member do
-      get :annotations, defaults: {format: :json}
+    
+    resources :common_names do
+      concerns [:data_routes]
     end
-  end
-
-  resources :documents do
-    concerns [:data_routes]
-  end
-
-  resources :documentation do
-    concerns [:data_routes]
+    
+    resources :containers do # , only: [:create, :update, :destroy] do
+      concerns [:data_routes]
+    end
+    
+    resources :container_items, except: [:edit] do
+      concerns [:data_routes]
+    end
+    
+    resources :contents do
+      concerns [:data_routes, :shallow_annotation_routes]
+      collection do
+        get :filter
+      end
+    end
+    
+    resources :controlled_vocabulary_terms do
+      concerns [:data_routes]
+      
+      member do
+        get 'tagged_objects'
+      end
+    end
+    
+    resources :data_attributes, except: [:show] do
+      concerns [:data_routes]
+    end
+    
+    resources :depictions do
+      concerns [:data_routes]
+      collection do
+        patch :sort
+      end
+    end
+    
+    resources :descriptors do
+      concerns [:data_routes, :shallow_annotation_routes]
+      member do
+        get :annotations, defaults: {format: :json}
+      end
+      collection do
+        post :preview_modify_gene_descriptor_batch_load
+        post :create_modify_gene_descriptor_batch_load
+      end
+    end
+    
+    resources :documents do
+      concerns [:data_routes]
+    end
+    
+    resources :documentation do
+      concerns [:data_routes]
   end
 
   resources :extracts do
