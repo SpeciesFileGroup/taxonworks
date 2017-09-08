@@ -24,7 +24,6 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 								if(!soft_validations.hasOwnProperty($(that).attr('id'))) {
 							  		Object.defineProperty(soft_validations, $(that).attr('id'), { value: response.validations.soft_validations });
 							  	}
-							  	console.log(soft_validations);
 							}
 							else {
 							  	$(that).remove();
@@ -144,7 +143,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 					$($(this).attr('data-filter-font')).animate({
 	            		fontSize: '0px'
 	        		});
-					$($(this).attr('data-filter-row')).parents('.history__record').hide(255);
+					$($(this).attr('data-filter-row')).hide(255);
 					$($(this).attr('data-filter')).hide(255);
 				}
 				else {
@@ -152,7 +151,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 					$($(this).attr('data-filter-font')).animate({
 	            	fontSize: '100%'
 	        		});
-	        		$($(this).attr('data-filter-row')).parents('.history__record').show(255);		
+	        		$($(this).attr('data-filter-row')).show(255);		
 	        		$($(this).attr('data-filter')).show(255);
 				}
 			}
