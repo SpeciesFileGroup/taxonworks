@@ -203,7 +203,7 @@ class TaxonNamesController < ApplicationController
       :import_level).merge(
       user_id:    sessions_current_user_id,
       project_id: sessions_current_project_id
-      ).symbolize_keys
+      ).to_h.symbolize_keys
   end
 
 end

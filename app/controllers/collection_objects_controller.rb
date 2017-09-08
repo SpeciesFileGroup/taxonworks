@@ -212,7 +212,7 @@ class CollectionObjectsController < ApplicationController
   end
 
   def batch_params
-    params.permit(:namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: $project_id).symbolize_keys
+    params.permit(:namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: $project_id).to_h.symbolize_keys
   end
 
   def user_map
