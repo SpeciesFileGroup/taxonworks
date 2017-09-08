@@ -132,7 +132,9 @@
 						if(JSON.stringify(newVal[index].id) == JSON.stringify(copyOld[index].id)) {
 							if(JSON.stringify(newVal[index].autocomplete) != JSON.stringify(copyOld[index].autocomplete)) {
 								if(newVal[index].autocomplete) {
-									that.addOriginalCombination(newVal[index].autocomplete.id, index);
+									that.addOriginalCombination(newVal[index].autocomplete.id, index).then( response => {
+										that.$emit('create', response);
+									});
 									that.copyRankGroup = JSON.parse(JSON.stringify(newVal));
 								}
 							}
@@ -155,26 +157,40 @@
 					copyCombinations.push(JSON.parse(JSON.stringify(that.rankGroup[element])));
 					if(that.rankGroup[element].value != '') {
 						allDelete.push(
-							that.$store.dispatch(ActionNames.RemoveOriginalCombination, that.rankGroup[element].value).then( response => {
+							that.$store.dispatch(ActionNames.RemoveOriginalCombination, that.rankGroup[element].value).then(response => {
 								return true;
-							})
+							}, response => { return true})
 						)
 					}
 				});
 				Promise.all(allDelete).then( response => {
+					let allCreated = [];
+
 					positions.forEach(function(element, index) {
 						if(copyCombinations[index].value != '') {
-							that.addOriginalCombination(copyCombinations[index].value.subject_taxon_name_id, element, that.originalTypes);
+							allCreated.push(
+								that.addOriginalCombination(copyCombinations[index].value.subject_taxon_name_id, element, that.originalTypes).then(response => { 
+									return true
+								})
+							)
 						}
-					})	
+					})
+					Promise.all(allDelete).then( response => { 
+						that.$emit('processed', true)
+					});
 				});
 			},
 			addOriginalCombination: function(elementId, index) {
+				var that = this;
 				var data = {
 					type: this.originalTypes[index],
 					id: elementId
 				}
-				this.$store.dispatch(ActionNames.AddOriginalCombination, data);
+				return new Promise(function(resolve, reject) {
+					that.$store.dispatch(ActionNames.AddOriginalCombination, data).then(response => {
+						resolve(response);
+					});
+				})
 			},
 			GetOriginal: function(name) {
 				let key = 'original_'+name;
@@ -182,13 +198,18 @@
 			},
 
 			removeCombination: function(value) {
-				this.$store.dispatch(ActionNames.RemoveOriginalCombination, value);
+				let that = this;
+
+				this.$store.dispatch(ActionNames.RemoveOriginalCombination, value).then(response => {
+					that.$emit('delete', response);
+				});
 			},
 		    onMove: function(evt) {
 		    	this.newPosition = evt.draggedContext.futureIndex;
 		        return !evt.related.classList.contains('item-filter');
 		    },
 			onAdd: function(evt) {
+				let that = this;
 				let index = evt.newIndex;
 				if((this.rankGroup.length-1) == evt.newIndex) {
 					this.rankGroup.splice((evt.newIndex-1), 1);
@@ -196,7 +217,9 @@
 				}
 				this.rankGroup.splice((evt.newIndex+1), 1);
 				this.updateNames();
-				this.addOriginalCombination(this.rankGroup[index].value.subject_taxon_name_id, index);
+				this.addOriginalCombination(this.rankGroup[index].value.subject_taxon_name_id, index).then( response => {
+					that.$emit('create');
+				});
 			},
 			onEnd: function(evt) {
 				this.newPosition = -1;

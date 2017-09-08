@@ -9,9 +9,13 @@ module.exports = function({ commit, state }, data) {
 			type: data.type
 		}
 	}
-	createTaxonRelationship(relationship).then( response => {
-		commit(MutationNames.AddOriginalCombination, response);
-	}, response => {
-		commit(MutationNames.SetHardValidation, response);
+	return new Promise((resolve, reject) => {
+		createTaxonRelationship(relationship).then( response => {
+			commit(MutationNames.AddOriginalCombination, response);
+			resolve(response);
+		}, response => {
+			commit(MutationNames.SetHardValidation, response);
+			reject(response);
+		});
 	});
 };

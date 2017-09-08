@@ -26,6 +26,9 @@
 		<hr>
 		<original-combination class="separate-top separate-bottom"
 			nomenclature-group="Genus"
+			@processed="saveTaxonName"
+			@delete="saveTaxonName"
+			@create="saveTaxonName"
 			:disabled="!existOriginalCombination"
 			:options="{
 				animation: 150, 
@@ -41,6 +44,9 @@
 		<original-combination class="separate-top separate-bottom" 
 			v-if="!isGenus"
 			nomenclature-group="Species"
+			@processed="saveTaxonName"
+			@delete="saveTaxonName"
+			@create="saveTaxonName"
 			:disabled="!existOriginalCombination"
 			:options="{
 				animation: 150, 
@@ -113,6 +119,12 @@
 			}
 		},
 		methods: {
+			saveTaxonName: function() {
+				var taxon_name = {
+					taxon_name: this.taxon
+				}
+				this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon);
+			},
 			createTaxonOriginal: function() {
 				this.taxonOriginal = [{
 					name: this.$store.getters[GetterNames.GetTaxon].name, 
@@ -125,10 +137,17 @@
 				}]
 			},
 			removeAllCombinations: function() {
+				let that = this;
 				let combinations = this.$store.getters[GetterNames.GetOriginalCombination];
+				let allDelete = [];
 				for(var key in combinations) {
-					this.$store.dispatch(ActionNames.RemoveOriginalCombination, combinations[key]);
+					allDelete.push(this.$store.dispatch(ActionNames.RemoveOriginalCombination, combinations[key]).then(response => {
+						return true
+					}));
 				}
+				Promise.all(allDelete).then(function() {
+					that.saveTaxonName();
+				})
 			},
 			addOriginalCombination: function() {
 				let types = Object.assign({}, this.genusGroup, this.speciesGroup);
@@ -137,6 +156,7 @@
 					id: this.taxon.id
 				}
 				this.$store.dispatch(ActionNames.AddOriginalCombination, data);
+				this.saveTaxonName();
 			},
 		}
 	}
