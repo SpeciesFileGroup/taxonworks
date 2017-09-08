@@ -38,7 +38,7 @@
           @getItem="addEntry"
           param="term">
         </autocomplete>    
-        <list-common v-if="!showAdvance" :filter="true" :object-lists="objectLists.commonList" display="name" @addEntry="addEntry" :list-created="getStatusCreated"></list-common>
+        <list-common v-if="!showAdvance && taxon.id" :filter="true" :object-lists="objectLists.commonList" display="name" @addEntry="addEntry" :list-created="getStatusCreated"></list-common>
       </div>
       <list-entrys @delete="removeStatus" :list="getStatusCreated" :display="['object_tag']"></list-entrys>
     </div>
