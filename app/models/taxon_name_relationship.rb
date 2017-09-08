@@ -158,6 +158,15 @@ class TaxonNameRelationship < ApplicationRecord
     false
   end
 
+  def self.assignment_method
+    false
+  end
+
+  def self.inverse_assignment_method
+    false
+  end
+
+
   # @return [Symbol]
   #   determine the relative age of subject and object
   #   :direct - subject is younger than object
