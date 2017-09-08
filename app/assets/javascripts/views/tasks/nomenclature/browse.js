@@ -34,6 +34,8 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 			}
 		}
 
+
+
 		$('.filter .open').on('click', function() {
 			$(this).css('transform', 'rotate(' + ($(this).rotationInfo().deg + 180) + 'deg)');
 			if($(this).rotationInfo().deg == 360) { 
@@ -92,7 +94,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 			}
 		});
 
-		$( document ).ajaxStop(function() {
+		$(document).ajaxStop(function() {
 		   $('[data-filter=".soft_validation_anchor"]').mx_spinner('hide');
 		});
 		
@@ -163,7 +165,6 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 
 $(document).on('turbolinks:load', function() {
   if($("#browse-view").length) {
-    // no need for var, right?
     TW.views.tasks.nomenclature.browse.init();
   }
 });
