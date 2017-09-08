@@ -54,7 +54,9 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 		}
 
 		$('[data-history-valid-name="true"]').each(function() {
-			$(this).prepend('<span data-icon="ok"></span>');
+			if(!$(this).has('[data-icon="ok"]').length) {
+				$(this).prepend('<span data-icon="ok"></span>');
+			}
 		})
 		$('[data-history-origin]').each(function() {
 			var type = $(this).attr("data-history-origin");
