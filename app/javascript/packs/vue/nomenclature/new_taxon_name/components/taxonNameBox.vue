@@ -14,7 +14,7 @@
 						<span v-html="parent.object_tag"></span> 
 						<span> {{ taxon.name }} {{ showAuthor() }}</span>
 					</span>
-					<span v-if="taxon.id" @click="showModal = true" data-icon="trash"></span>
+					<span v-if="taxon.id" @click="showModal = true" class="circle-button btn-delete"></span>
 				</h3>
 				<h3 class="taxonname" v-else>New</h3>
 			</div>
