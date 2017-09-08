@@ -32,7 +32,8 @@ namespace :tw do
     task :check_for_clean_database => [:environment] do |t|
       Rails.application.eager_load!
       errored = false
-      ActiveRecord::Base.descendants.each do |klass|
+      ApplicationRecord.descendants.each do |klass|
+        puts "#{klass.name}"
         if klass.count > 0
           puts "#{klass.name} has records".red
           errored = true
