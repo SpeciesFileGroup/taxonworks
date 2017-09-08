@@ -75,6 +75,7 @@ describe BatchLoad::Import::DWCA, type: :model do
         expect(Note.count).to eq(11)
         expect(TaxonName.count).to eq(46)
         expect(Person.count).to eq(4)
+        expect(Person.last.georeferences).to eq(15)
         expect(Note.all.map(&:note_object_type).uniq).to include("Georeference",
                                                                  "CollectingEvent",
                                                                  "CollectionObject")
