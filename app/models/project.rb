@@ -155,7 +155,7 @@ class Project < ApplicationRecord
   end
 
   def create_root_taxon_name
-    Protonym.create!(name: 'Root', rank_class: NomenclaturalRank, parent_id: nil, project: self, creator: self.creator, updater: self.updater)
+    Protonym.create!(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project: self, creator: self.creator, updater: self.updater)
   end
 
 end
