@@ -1881,18 +1881,6 @@ namespace :tw do
           
           room = find_or_create_room_insects(row, data)
 
-          container = Container.create!(created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
-                                       created_at: time_from_field(row['CreatedOn']),
-                                       updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
-                                       updated_at: time_from_field(row['ModifiedOn']),
-                                       #parent_id: room,
-                                       type: container_type[row['CollectionType']],
-                                       name: nil,
-                                       contained_in: room
-          )
-          container.identifiers.create!(namespace: data.namespaces['container'], identifier: row['ID'], type: 'Identifier::Local::ContainerCode') unless row['ID'].blank?
-
-
           ['Label1_1', 'Label1_2', 'Label1_3', 'Label1_4', 'Label2_1', 'Label2_2', 'Label2_3', 'Label2_4'].each do |l|
             row[l] = nil if row[l].blank?
           end
@@ -1909,28 +1897,45 @@ namespace :tw do
               label1 = [label1.join(' '), label2.join(' ')].compact.join("\n")
               label2 = nil
           end
-          unless label1.blank?
-            cl1 = ContainerLabel.create!(label: label1,
-                                        date_printed: time_from_field(row['ModifiedOn']),
-                                        position: 1,
-                                        created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
-                                        created_at: time_from_field(row['CreatedOn']),
-                                        updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
-                                        updated_at: time_from_field(row['ModifiedOn']),
-                                        container: container
-              )
-          end
-          unless label2.blank?
-            cl2 = ContainerLabel.create!(label: label2,
-                                        date_printed: time_from_field(row['ModifiedOn']),
-                                        position: 2,
-                                        created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
-                                        created_at: time_from_field(row['CreatedOn']),
-                                        updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
-                                        updated_at: time_from_field(row['ModifiedOn']),
-                                        container: container
-              )
-          end
+
+          labels = [label1, label2].compact.join("\n----\n")
+
+
+          container = Container.create!(created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
+                                       created_at: time_from_field(row['CreatedOn']),
+                                       updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
+                                       updated_at: time_from_field(row['ModifiedOn']),
+                                       #parent_id: room,
+                                       type: container_type[row['CollectionType']],
+                                       name: nil,
+                                       contained_in: room,
+                                       print_label: labels
+          )
+          container.identifiers.create!(namespace: data.namespaces['container'], identifier: row['ID'], type: 'Identifier::Local::ContainerCode') unless row['ID'].blank?
+
+
+#          unless label1.blank?
+#            cl1 = ContainerLabel.create!(label: label1,
+#                                        date_printed: time_from_field(row['ModifiedOn']),
+#                                        position: 1,
+#                                        created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
+#                                        created_at: time_from_field(row['CreatedOn']),
+#                                        updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
+#                                        updated_at: time_from_field(row['ModifiedOn']),
+#                                        container: container
+#              )
+#          end
+#          unless label2.blank?
+#            cl2 = ContainerLabel.create!(label: label2,
+#                                        date_printed: time_from_field(row['ModifiedOn']),
+#                                        position: 2,
+#                                        created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
+#                                        created_at: time_from_field(row['CreatedOn']),
+#                                        updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
+#                                        updated_at: time_from_field(row['ModifiedOn']),
+#                                        container: container
+#              )
+#          end
 
           cp = CollectionProfile.create!(container: container,
                                    otu_id: otu,
