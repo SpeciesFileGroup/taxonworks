@@ -45,7 +45,7 @@ class TaxonNameClassificationsController < ApplicationController
 
     taxon_name = TaxonName.where(
       id:         taxon_name_id,
-      project_id: $project_id
+      project_id: sessions_current_project_id
     ).first
 
     @taxon_name_classification = TaxonNameClassification.new(
@@ -93,13 +93,13 @@ class TaxonNameClassificationsController < ApplicationController
 
   # GET /taxon_name_classifications/download
   def download
-    send_data TaxonNameClassification.generate_download(TaxonNameClassification.where(project_id: $project_id)), type: 'text', filename: "taxon_name_classifications_#{DateTime.now.to_s}.csv"
+    send_data TaxonNameClassification.generate_download(TaxonNameClassification.where(project_id: sessions_current_project_id)), type: 'text', filename: "taxon_name_classifications_#{DateTime.now.to_s}.csv"
   end
 
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_taxon_name_classification
-    @taxon_name_classification = TaxonNameClassification.with_project_id($project_id).find(params[:id])
+    @taxon_name_classification = TaxonNameClassification.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

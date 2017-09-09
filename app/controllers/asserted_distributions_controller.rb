@@ -6,7 +6,7 @@ class AssertedDistributionsController < ApplicationController
   # GET /asserted_distributions
   # GET /asserted_distributions.json
   def index
-    @recent_objects = AssertedDistribution.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = AssertedDistribution.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -68,7 +68,7 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def list
-    @asserted_distributions = AssertedDistribution.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @asserted_distributions = AssertedDistribution.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   def autocomplete
@@ -95,7 +95,7 @@ class AssertedDistributionsController < ApplicationController
 
   # GET /asserted_distributions/download
   def download
-    send_data AssertedDistribution.generate_download(AssertedDistribution.where(project_id: $project_id)), type: 'text', filename: "asserted_distributions_#{DateTime.now.to_s}.csv"
+    send_data AssertedDistribution.generate_download(AssertedDistribution.where(project_id: sessions_current_project_id)), type: 'text', filename: "asserted_distributions_#{DateTime.now.to_s}.csv"
   end
 
   # GET /asserted_distributions/batch_load
@@ -131,7 +131,7 @@ class AssertedDistributionsController < ApplicationController
   private
   
   def set_asserted_distribution
-    @asserted_distribution = AssertedDistribution.with_project_id($project_id).find(params[:id])
+    @asserted_distribution = AssertedDistribution.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object         = @asserted_distribution
   end
 

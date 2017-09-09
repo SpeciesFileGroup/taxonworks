@@ -6,7 +6,7 @@ class ContainersController < ApplicationController
   # GET /containers
   # GET /containers.json
   def index
-    @recent_objects = Container.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = Container.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -25,7 +25,7 @@ class ContainersController < ApplicationController
   end
 
   def list
-    @containers = Container.with_project_id($project_id).order(:id).page(params[:page]) #.per(10)
+    @containers = Container.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10)
   end
 
   # POST /containers
@@ -95,7 +95,7 @@ class ContainersController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_container
-      @container = Container.with_project_id($project_id).find(params[:id])
+      @container = Container.with_project_id(sessions_current_project_id).find(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

@@ -21,7 +21,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   def recent_collecting_events
     message = ''
     how_many = params['how_many']
-    @collecting_events = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).limit(how_many.to_i)
+    @collecting_events = CollectingEvent.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(how_many.to_i)
 
     if @collecting_events.length == 0
       message = 'no recent objects selected'
@@ -37,7 +37,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       @collecting_events = CollectingEvent.where('false')
     else
       keyword = Keyword.find(params[:keyword_id])
-      @collecting_events = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).tagged_with_keyword(keyword)
+      @collecting_events = CollectingEvent.where(project_id: sessions_current_project_id).order(updated_at: :desc).tagged_with_keyword(keyword)
     end
 
     if @collecting_events.length == 0
@@ -86,7 +86,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   def recent_georeferences
     message = ''
     how_many = params['how_many']
-    @georeferences = Georeference.where(project_id: $project_id).order(updated_at: :desc).limit(how_many.to_i)
+    @georeferences = Georeference.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(how_many.to_i)
     if @georeferences.length == 0
       message = 'no recent georeferences selected'
     end
@@ -102,7 +102,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       @georeferences = Georeference.where('false')
     else
       keyword = Keyword.find(params[:keyword_id])
-      @georeferences = Georeference.where(project_id: $project_id).order(updated_at: :desc).tagged_with_keyword(keyword)
+      @georeferences = Georeference.where(project_id: sessions_current_project_id).order(updated_at: :desc).tagged_with_keyword(keyword)
     end
     if @georeferences.length == 0
       message = 'no tagged objects selected'

@@ -15,7 +15,7 @@ class IdentifiersController < ApplicationController
   # GET /identifiers
   # GET /identifiers.json
   def index
-    @recent_objects = Identifier.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = Identifier.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -59,7 +59,7 @@ class IdentifiersController < ApplicationController
   end
 
   def list
-    @identifiers = Identifier.where(project_id: $project_id).includes(:updater).page(params[:page])
+    @identifiers = Identifier.where(project_id: sessions_current_project_id).includes(:updater).page(params[:page])
   end
 
   # GET /identifier/search
@@ -92,13 +92,13 @@ class IdentifiersController < ApplicationController
 
   # GET /identifiers/download
   def download
-    send_data Identifier.generate_download( Identifier.where(project_id: $project_id) ), type: 'text', filename: "identifiers_#{DateTime.now.to_s}.csv"
+    send_data Identifier.generate_download( Identifier.where(project_id: sessions_current_project_id) ), type: 'text', filename: "identifiers_#{DateTime.now.to_s}.csv"
   end
 
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_identifier
-    @identifier = Identifier.with_project_id($project_id).find(params[:id])
+    @identifier = Identifier.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

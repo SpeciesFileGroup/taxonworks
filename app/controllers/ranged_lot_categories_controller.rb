@@ -6,7 +6,7 @@ class RangedLotCategoriesController < ApplicationController
   # GET /ranged_lot_categories
   # GET /ranged_lot_categories.json
   def index
-    @recent_objects = RangedLotCategory.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = RangedLotCategory.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -65,19 +65,19 @@ class RangedLotCategoriesController < ApplicationController
   end
 
   def list
-    @ranged_lot_categories = RangedLotCategory.with_project_id($project_id).order(:id).page(params[:page])
+    @ranged_lot_categories = RangedLotCategory.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
   end
 
   # GET /ranged_lot_categories/download
   def download
-    send_data RangedLotCategory.generate_download( RangedLotCategory.where(project_id: $project_id) ), type: 'text', filename: "ranged_lot_categories_#{DateTime.now.to_s}.csv"
+    send_data RangedLotCategory.generate_download( RangedLotCategory.where(project_id: sessions_current_project_id) ), type: 'text', filename: "ranged_lot_categories_#{DateTime.now.to_s}.csv"
   end
 
 
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_ranged_lot_category
-      @ranged_lot_category = RangedLotCategory.with_project_id($project_id).find(params[:id])
+      @ranged_lot_category = RangedLotCategory.with_project_id(sessions_current_project_id).find(params[:id])
       @recent_object = @ranged_lot_category 
     end
 

@@ -6,7 +6,7 @@ class CollectingEventsController < ApplicationController
   # GET /collecting_events
   # GET /collecting_events.jso
   def index
-    @recent_objects = CollectingEvent.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = CollectingEvent.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -72,7 +72,7 @@ class CollectingEventsController < ApplicationController
   end
 
   def list
-    @collecting_events = CollectingEvent.with_project_id($project_id).order(:id).page(params[:page])
+    @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
   end
 
   # GET /collecting_events/search
@@ -105,13 +105,13 @@ class CollectingEventsController < ApplicationController
   # see rails-jquery-autocomplete
   def autocomplete_collecting_event_verbatim_locality
     term = params[:term]
-    values = CollectingEvent.where(project_id: $project_id).where("verbatim_locality ILIKE ?", term + '%').select(:verbatim_locality, 'length(verbatim_locality)').distinct.limit(20).order('length(verbatim_locality)').order('verbatim_locality ASC').all
+    values = CollectingEvent.where(project_id: sessions_current_project_id).where("verbatim_locality ILIKE ?", term + '%').select(:verbatim_locality, 'length(verbatim_locality)').distinct.limit(20).order('length(verbatim_locality)').order('verbatim_locality ASC').all
     render :json => values.map { |v| { :label => v.verbatim_locality, :value => v.verbatim_locality} }
   end
 
   # GET /collecting_events/download
   def download
-    send_data CollectingEvent.generate_download(CollectingEvent.where(project_id: $project_id)), type: 'text', filename: "collecting_events_#{DateTime.now.to_s}.csv"
+    send_data CollectingEvent.generate_download(CollectingEvent.where(project_id: sessions_current_project_id)), type: 'text', filename: "collecting_events_#{DateTime.now.to_s}.csv"
   end
 
    # GET collecting_events/batch_load
@@ -174,7 +174,7 @@ class CollectingEventsController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_collecting_event
-    @collecting_event = CollectingEvent.with_project_id($project_id).find(params[:id])
+    @collecting_event = CollectingEvent.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object    = @collecting_event
   end
 
