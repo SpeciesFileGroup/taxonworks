@@ -6,7 +6,7 @@ class DataAttributesController < ApplicationController
   # GET /data_attributes
   # GET /data_attributes.json
   def index
-    @recent_objects = DataAttribute.where(project_id: $project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = DataAttribute.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -62,7 +62,7 @@ class DataAttributesController < ApplicationController
   end
 
   def list
-    @data_attributes = DataAttribute.where(project_id: $project_id).order(:attribute_subject_type).page(params[:page])
+    @data_attributes = DataAttribute.where(project_id: sessions_current_project_id).order(:attribute_subject_type).page(params[:page])
   end
 
   # GET /data_attributes/search
@@ -92,7 +92,7 @@ class DataAttributesController < ApplicationController
 
   # GET /data_attributes/download
   def download
-    send_data DataAttribute.generate_download( DataAttribute.where(project_id: $project_id) ), type: 'text', filename: "data_attributes_#{DateTime.now.to_s}.csv"
+    send_data DataAttribute.generate_download( DataAttribute.where(project_id: sessions_current_project_id) ), type: 'text', filename: "data_attributes_#{DateTime.now.to_s}.csv"
   end
 
   private
@@ -100,7 +100,7 @@ class DataAttributesController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_data_attribute
     @data_attribute = DataAttribute.find(params[:id])
-    if !@data_attribute.project_id.blank? && ($project_id != @data_attribute.project_id)
+    if !@data_attribute.project_id.blank? && (sessions_current_project_id != @data_attribute.project_id)
       render status: 404 and return
     end
   end

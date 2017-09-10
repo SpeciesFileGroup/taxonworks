@@ -6,7 +6,7 @@ class DocumentationController < ApplicationController
   # GET /documentation
   # GET /documentation.json
   def index
-    @recent_objects = Documentation.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = Documentation.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -65,7 +65,7 @@ class DocumentationController < ApplicationController
   end
 
   def list
-    @documentation = Documentation.with_project_id($project_id).order(:id).page(params[:page]) #.per(10)
+    @documentation = Documentation.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10)
   end
 
   def search

@@ -37,7 +37,7 @@ class PinboardItemsController < ApplicationController
 
   private
   def set_pinboard_item
-    @pinboard_item = PinboardItem.with_project_id($project_id).find(params[:id])
+    @pinboard_item = PinboardItem.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
   def pinboard_item_params

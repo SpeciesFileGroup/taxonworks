@@ -201,7 +201,7 @@ class OtusController < ApplicationController
   end
 
   def batch_params
-    params.permit(:name, :file, :import_level, :files => []).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
+    params.permit(:name, :file, :import_level, :files => []).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
   def user_map
