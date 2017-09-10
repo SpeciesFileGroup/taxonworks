@@ -6,7 +6,7 @@ class ImagesController < ApplicationController
   # GET /images
   # GET /images.json
   def index
-    @recent_objects = Image.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = Image.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -65,7 +65,7 @@ class ImagesController < ApplicationController
   end
 
   def list
-    @images = Image.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @images = Image.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   def search
@@ -93,7 +93,7 @@ class ImagesController < ApplicationController
 
   # GET /images/download
   def download
-    send_data Image.generate_download( Image.where(project_id: $project_id) ), type: 'text', filename: "images_#{DateTime.now.to_s}.csv"
+    send_data Image.generate_download( Image.where(project_id: sessions_current_project_id) ), type: 'text', filename: "images_#{DateTime.now.to_s}.csv"
   end
 
   # GET /images/:id/extract/:x/:y/:height/:width
@@ -123,7 +123,7 @@ class ImagesController < ApplicationController
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_image
-    @image = Image.with_project_id($project_id).find(params[:id])
+    @image = Image.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @image 
   end
 

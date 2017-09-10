@@ -6,7 +6,7 @@ class BiologicalAssociationsController < ApplicationController
   # GET /biological_associations
   # GET /biological_associations.json
   def index
-    @recent_objects = BiologicalAssociation.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = BiologicalAssociation.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -25,7 +25,7 @@ class BiologicalAssociationsController < ApplicationController
   end
 
   def list
-    @biological_associations = BiologicalAssociation.with_project_id($project_id).order(:id).page(params[:page]) #.per(10)
+    @biological_associations = BiologicalAssociation.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10)
   end
 
   # POST /biological_associations

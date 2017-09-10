@@ -9,7 +9,7 @@ module DataControllerConfiguration
     if @data_model.is_community?
       @object = @data_model.find(params[:id])
     else
-      @object = @data_model.where(project_id: $project_id).find(params[:id])
+      @object = @data_model.where(project_id: sessions_current_project_id).find(params[:id])
     end
 
     render '/shared/data/project/related'

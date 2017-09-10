@@ -6,7 +6,7 @@ class DocumentsController < ApplicationController
   # GET /documents
   # GET /documents.json
   def index
-    @recent_objects = Document.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = Document.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -65,7 +65,7 @@ class DocumentsController < ApplicationController
   end
 
   def list
-    @documents = Document.with_project_id($project_id).order(:id).page(params[:page]) #.per(10)
+    @documents = Document.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10)
   end
 
   def search

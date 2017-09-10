@@ -7,12 +7,12 @@ class GeoreferencesController < ApplicationController
   # GET /georeferences
   # GET /georeferences.json
   def index
-    @recent_objects = Georeference.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = Georeference.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
   def list
-    @georeferences = Georeference.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @georeferences = Georeference.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   # GET /georeferences/1
@@ -120,13 +120,13 @@ class GeoreferencesController < ApplicationController
 
   # GET /georeferences/download
   def download
-    send_data Georeference.generate_download(Georeference.where(project_id: $project_id)), type: 'text', filename: "georeferences_#{DateTime.now.to_s}.csv"
+    send_data Georeference.generate_download(Georeference.where(project_id: sessions_current_project_id)), type: 'text', filename: "georeferences_#{DateTime.now.to_s}.csv"
   end
 
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_georeference
-    @georeference = Georeference.with_project_id($project_id).find(params[:id])
+    @georeference = Georeference.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @georeference 
   end
 
