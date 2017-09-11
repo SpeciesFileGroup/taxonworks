@@ -186,6 +186,10 @@ namespace :tw do
                         # data_attributes to do:
                         #   import_attribute if identification.IdentifierName
 
+                        # citation (collection object) to container vs collection object (specimen)
+
+                        # depo catalogue id
+
             }
 
             # At this point all the related metadata except specimen category and count must be set
@@ -200,6 +204,9 @@ namespace :tw do
                 # a new collection object for each pair
                 get_specimen_category_counts[specimen_id].each do |specimen_category_id, count|
 
+                  # BoR
+
+                  # collection_object.type
                   collection_object = CollectionObject.new(
                       metadata.merge(
                           total: count,
@@ -228,8 +235,8 @@ namespace :tw do
                 # Here we need to do 2 things
                 # 1) if there were two collection objects with the same SF specimen ID then put them
                 # in a virtual container
-                # 2) If there was an "identifer" associate that with the single object or the container if there
-                # was a container
+                # 2) If there was an "identifer" associated with the single object or the container (if there
+                # was a container)
                 identifer = nil
                 if row['DepoCatNo']
                   identifier = ImportAttribute.new(value: row['DepotCatNum', import_predicate: 'DepotCatNo'], project_id: project_id)
@@ -250,9 +257,8 @@ namespace :tw do
 
                   # instead of attaching the "identifier" (=ImportAttribute) to a single object, attach it to the virtual container
 
-
                 else
-                  puts "OOPS"
+                  puts "OOPS" # would this happen?
                 end
 
                 # create type specimen if tblIdentifications.TypeTaxonNameID maybe
