@@ -11,7 +11,7 @@
 			<div class="content header">
 				<h3 v-if="taxon.id" class="flex-separate middle">
 					<span class="taxonname"> 
-						<span v-html="parent.object_tag"></span> 
+						<span v-if="showParent" v-html="parent.object_tag"></span> 
 						<span> {{ taxon.name }} {{ showAuthor() }}</span>
 					</span>
 					<span v-if="taxon.id" @click="showModal = true" class="circle-button btn-delete"></span>
@@ -44,6 +44,12 @@ export default {
 		},
 		citation() {
 			return this.$store.getters[GetterNames.GetCitation]
+		},
+		showParent() {
+			if(this.taxon.rank == 'genus') return false;
+			
+			let groups = ['SpeciesGroup','GenusGroup'];
+			return (this.taxon.rank_string ? (groups.indexOf(this.taxon.rank_string.split('::')[2]) > -1) : false);
 		},
 		roles() {
 			let roles = this.$store.getters[GetterNames.GetRoles];
