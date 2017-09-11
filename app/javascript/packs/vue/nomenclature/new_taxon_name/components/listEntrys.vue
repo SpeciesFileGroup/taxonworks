@@ -43,7 +43,7 @@ export default {
 				id: item.id,
 				source_id: event.id
 			}
-			Object.defineProperty(item, 'origin_citation_attributes', { value: citation });
+			item['origin_citation_attributes'] = citation;
 			console.log(item);
 			this.$store.dispatch(ActionNames.UpdateClassification,item)
 		}
