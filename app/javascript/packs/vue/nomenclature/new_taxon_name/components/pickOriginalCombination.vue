@@ -20,7 +20,6 @@
 						<span class="handle" data-icon="scroll-v"></span>
 					</div>
 				</draggable>
-				<button v-else type="button" class="normal-input button button-delete" @click="removeAllCombinations()">Delete original combinations</button>
 			</div>
 		</form>
 		<hr>
@@ -59,6 +58,15 @@
 				}"
 			:relationships="speciesGroup">
 		</original-combination>
+		<div class="original-combination separate-top separate-bottom">
+			<div class="flex-wrap-column rank-name-label">
+				<label class="row capitalize"></label>
+			</div>
+			<div v-if="existOriginalCombination" class="flex-separate middle">
+				<span class="original-combination-name" v-html="taxon.original_combination"></span>
+				<span class="circle-button btn-delete" @click="removeAllCombinations()"></span>
+			</div>
+		</div>
 	</div>
 </template>
 <script>
@@ -66,11 +74,13 @@
 	const GetterNames = require('../store/getters/getters').GetterNames;
 	const ActionNames = require('../store/actions/actions').ActionNames;  
   	const draggable = require('vuedraggable');
-
+	const listEntrys = require('./listEntrys.vue');
   	const originalCombination = require('./originalCombination.vue');
+
 
 	export default {
 		components: {
+			listEntrys,
 			draggable,
 			originalCombination
 		},
@@ -167,7 +177,11 @@
 		width: 100px;
 	}
 	.current-taxon {
-		width: 300px;
+		width: 400px;
+	}
+	.original-combination-name {
+		margin-right:35px;
+		width: 400px;
 	}
 	.handle {
 		width: 15px;
