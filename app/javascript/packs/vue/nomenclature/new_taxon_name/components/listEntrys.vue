@@ -40,7 +40,7 @@ export default {
 		},
 		test(event,item) {
 			let citation = {
-				id: item.id,
+				id: (item.hasOwnProperty('origin_citation') ? item.origin_citation.id : null),
 				source_id: event.id
 			}
 			item['origin_citation_attributes'] = citation;
