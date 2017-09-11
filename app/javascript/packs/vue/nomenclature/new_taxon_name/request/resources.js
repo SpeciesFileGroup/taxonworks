@@ -193,7 +193,7 @@ const loadTaxonStatus = function(id) {
 
 const loadTaxonRelationships = function(id) {
   return new Promise(function (resolve, reject) {
-    Vue.http.get(`/taxon_names/${id}/taxon_name_relationships`).then( response => {
+    Vue.http.get(`/taxon_names/${id}/taxon_name_relationships?as_subject=true&of_type[]=synonym&of_type[]=status`).then( response => {
       return resolve(response.body);
     }, response => {
       return reject(response.body);
