@@ -1,4 +1,4 @@
-const createTaxonStatus = require('../../request/resources').createTaxonStatus;
+const updateClassification = require('../../request/resources').updateClassification;
 const MutationNames = require('../mutations/mutations').MutationNames;
 
 module.exports = function({ dispatch, commit, state }, status) {
@@ -7,19 +7,18 @@ module.exports = function({ dispatch, commit, state }, status) {
 			return true;
 		}
 	});
-	if (position < 0) {
-		let newClassification = {
-			taxon_name_classification: {
-				taxon_name_id: state.taxon_name.id,
-				type: status.type
-			}
+//	if (position < 0) {
+		let patchClassification = {
+			taxon_name_classification: status
 		}
-		createTaxonStatus(newClassification).then( response => {
+		console.log(patchClassification);
+		updateClassification(patchClassification).then( response => {
+			console.log(response);
 			Object.defineProperty(response, 'type', { value: status.type });
 			Object.defineProperty(response, 'object_tag', { value: status.name });
-			commit(MutationNames.AddTaxonStatus, response);
+			commit(MutationNames.addTaxonStatus, response);
 			dispatch('loadSoftValidation', 'taxon_name');
 			dispatch('loadSoftValidation', 'taxonStatusList');
 		});
-	}
+//	}
 };

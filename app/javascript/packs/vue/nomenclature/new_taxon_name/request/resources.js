@@ -70,7 +70,15 @@ const loadTaxonName = function(id) {
   });
 }
 
-const saveNewTaxonStatus = function(newClassification) {
+const updateClassification = function(classification) {
+  return new Promise(function (resolve, reject) {
+    Vue.http.patch(`/taxon_name_classifications/${classification.taxon_name_classification.id}`, classification).then( response => {
+      return resolve(response.body);
+    });
+  });
+}
+
+const createTaxonStatus = function(newClassification) {
   return new Promise(function (resolve, reject) {
     Vue.http.post('/taxon_name_classifications', newClassification).then( response => {
       return resolve(response.body);
@@ -206,6 +214,7 @@ const loadTaxonRelationships = function(id) {
 export {
   createTaxonName,
   updateTaxonName,
+  updateClassification,
   loadTaxonName,
   loadRanks,
   loadStatus,
@@ -213,7 +222,7 @@ export {
   loadTaxonStatus,
   loadTaxonRelationships,
   loadSoftValidation,
-  saveNewTaxonStatus,
+  createTaxonStatus,
   removeTaxonStatus,
   removeTaxonSource,
   removeTaxonRelationship,

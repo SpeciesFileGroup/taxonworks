@@ -3,7 +3,21 @@
 	    	<transition-group class="table-entrys-list" name="list-complete" tag="ul">
 	    	<li v-for="item, index in list" :key="item.id" class="list-complete-item flex-separate middle">
 			    <span><span v-for="show in display" v-html="item[show] + ' '"></span></span>
-		    	<span type="button" class="circle-button btn-delete" @click="$emit('delete',item)">Remove</span>
+			    <div class="horizontal-left-content">
+					<autocomplete
+						url="/sources/autocomplete"
+						min="3"
+						param="term"
+						event-send="sourceSelect"
+						@getItem="test($event,item)"
+						label="label_html"
+						placeholder="Type for search..."
+						:sendLabel="getCitation(item)"
+						display="label">
+					</autocomplete>
+					<input :disabled="!getCitation(item)" placeholder="Pages" class="pages" type="text"/>
+		    		<span type="button" class="circle-button btn-delete" @click="$emit('delete',item)">Remove</span>
+		    	</div>
 	    	</li>
 	    	</transition-group>
     </div>
@@ -12,14 +26,38 @@
 
 const ActionNames = require('../store/actions/actions').ActionNames;
 const GetterNames = require('../store/getters/getters').GetterNames;
+const autocomplete = require('../../../components/autocomplete.vue');
 
 export default {
+	components: {
+		autocomplete
+	},
 	props: ['list', 'display'],
 	name: 'list-entrys',
+	methods: {
+		getCitation: function(item) {
+			return (item.hasOwnProperty('original_citation') ? item.original_citation.source.object_tag : undefined)
+		},
+		test(event,item) {
+			let citation = {
+				id: item.id,
+				source_id: event.id
+			}
+			Object.defineProperty(item, 'origin_citation_attributes', { value: citation });
+			console.log(item);
+			this.$store.dispatch(ActionNames.UpdateClassification,item)
+		}
+	}
 }
 </script>
 
-<style type="text/css">
+<style type="text/css" scoped>
+.pages {
+	width: 80px;
+}
+.pages:disabled {
+	background-color: #F5F5F5;
+}
 .table-entrys-list {
   	padding: 0px;
   	position: relative;

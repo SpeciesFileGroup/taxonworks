@@ -16,6 +16,7 @@ const ActionNames = {
 	LoadRelationships: 'loadRelationships',
 	ChangeTaxonSource: 'changeTaxonSource',
 	RemoveSource: 'removeSource',
+	UpdateClassification: 'updateClassification'
 };
 
 const ActionFunctions = {
@@ -36,6 +37,7 @@ const ActionFunctions = {
 	[ActionNames.RemoveOriginalCombination]: require('./removeOriginalCombination'),
 	[ActionNames.RemoveSource]: require('./removeSource'),
 	[ActionNames.ChangeTaxonSource]: require('./changeTaxonSource'),
+	[ActionNames.UpdateClassification]: require('./updateClassification'),
 };
 
 module.exports = {
