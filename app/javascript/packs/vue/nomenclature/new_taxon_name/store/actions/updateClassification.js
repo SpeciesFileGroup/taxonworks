@@ -13,10 +13,7 @@ module.exports = function({ dispatch, commit, state }, status) {
 		}
 		console.log(patchClassification);
 		updateClassification(patchClassification).then( response => {
-			console.log(response);
-			Object.defineProperty(response, 'type', { value: status.type });
-			Object.defineProperty(response, 'object_tag', { value: status.name });
-			commit(MutationNames.addTaxonStatus, response);
+			commit(MutationNames.AddTaxonStatus, response);
 			dispatch('loadSoftValidation', 'taxon_name');
 			dispatch('loadSoftValidation', 'taxonStatusList');
 		});

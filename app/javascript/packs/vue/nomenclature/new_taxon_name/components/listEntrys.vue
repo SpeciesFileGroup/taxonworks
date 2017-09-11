@@ -36,7 +36,6 @@ export default {
 	name: 'list-entrys',
 	methods: {
 		getCitation: function(item) {
-			console.log(item.hasOwnProperty('origin_citation') ? item.origin_citation.source.object_tag : undefined);
 			return (item.hasOwnProperty('origin_citation') ? item.origin_citation.source.object_tag : undefined)
 		},
 		test(event,item) {
