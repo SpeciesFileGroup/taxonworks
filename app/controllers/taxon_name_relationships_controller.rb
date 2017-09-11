@@ -130,9 +130,8 @@ class TaxonNameRelationshipsController < ApplicationController
   end
 
   def filter_sql
-    p = params.permit(:taxon_name_id)[:taxon_name_id]
-    a = TaxonNameRelationship.arel_table
-    a[:subject_taxon_name_id].eq(p).or(a[:object_taxon_name_id].eq(p))
+    h = params.permit(:taxon_name_id, :as_object, :as_subject, of_type: []).to_h.symbolize_keys
+    Queries::TaxonNameRelationshipsFilterQuery.new(h).where_sql
   end
 
 end
