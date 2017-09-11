@@ -44,9 +44,9 @@ if taxon_name.taxon_name_classifications.any?
   end
 end
 
-if taxon_name.taxon_name_relationships.any?
+if taxon_name.taxon_name_relationships.with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES).any?
   json.taxon_name_relationships do
-    json.array! taxon_name.taxon_name_relationships.each do |tr|
+    json.array! taxon_name.taxon_name_relationships.with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES).each do |tr|
       json.partial! '/taxon_name_relationships/attributes', taxon_name_relationship: tr 
     end
   end
