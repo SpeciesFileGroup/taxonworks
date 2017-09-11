@@ -8,9 +8,9 @@ class TaxonNameClassificationsController < ApplicationController
   def index
     respond_to do |format|
       format.html do
-    @recent_objects = TaxonNameClassification.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
-  end
+        @recent_objects = TaxonNameClassification.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
       format.json {
         @taxon_name_classifications = TaxonNameClassification.where(filter_params).with_project_id(sessions_current_project_id)
       }
@@ -56,7 +56,7 @@ class TaxonNameClassificationsController < ApplicationController
 
     taxon_name = TaxonName.where(
       id:         taxon_name_id,
-      project_id: $project_id
+      project_id: sessions_current_project_id 
     ).first
 
     @taxon_name_classification = TaxonNameClassification.new(
@@ -119,7 +119,7 @@ class TaxonNameClassificationsController < ApplicationController
   end
 
   def set_taxon_name_classification
-    @taxon_name_classification = TaxonNameClassification.with_project_id($project_id).find(params[:id])
+    @taxon_name_classification = TaxonNameClassification.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
   def taxon_name_classification_params
