@@ -104,7 +104,7 @@
 				return this.$store.getters[GetterNames.GetTaxon]
 			},
 			isGenus() {
-				return this.$store.getters[GetterNames.GetTaxon].rank == 'genus'
+				return (this.$store.getters[GetterNames.GetTaxon].rank_string.split('::')[2] == 'GenusGroup')
 			},
 			existOriginalCombination: {
 				get: function() { 
