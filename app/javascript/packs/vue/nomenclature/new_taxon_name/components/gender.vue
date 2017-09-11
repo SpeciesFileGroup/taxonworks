@@ -2,14 +2,14 @@
 	<form class="gender">
 		<block-layout anchor="gender">
 			<h3 slot="header">Gender and form</h3>
-			<div slot="body">
+			<div slot="body" v-if="taxon.id">
 				<div class="separate-bottom">
 					<label class="middle" v-for="item in list">
 						<input class="separate-right" type="radio" name="gender" @click="addEntry(item)" :checked="checkExist(item.type)" :value="item.type">
 						<span>{{ item.name }}</span>
 					</label>
 				</div>
-				<div v-if="inGroup('Species')">
+				<div v-if="inGroup('Species') && adjectiveOrParticiple">
 					<div class="field">
 						<label>Feminine </label><br>
 						<input v-model="feminine" type="text"/>
@@ -60,6 +60,13 @@
 			},
 			getStatusCreated() {
 				return this.$store.getters[GetterNames.GetTaxonStatusList]
+			},
+			adjectiveOrParticiple() {
+				let find = this.$store.getters[GetterNames.GetTaxonStatusList].filter(function(item) { 
+					return (item.type == 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective' ||
+							item.type == 'TaxonNameClassification::Latinized::PartOfSpeech::Participle')
+				});
+				return (find.length ? true : false);
 			},
 			taxon() {
 				return this.$store.getters[GetterNames.GetTaxon];
