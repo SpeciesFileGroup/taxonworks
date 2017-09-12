@@ -71,7 +71,6 @@
       this.$on('parentSelected', function(item) {
        this.$store.commit(MutationNames.SetParentId, item.id);
        this.$http.get(`/taxon_names/${item.id}`).then( response => {
-        console.log(response.body);
         if(response.body.parent_id != null) {
           this.$store.commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code);
           this.setParentRank(response.body);

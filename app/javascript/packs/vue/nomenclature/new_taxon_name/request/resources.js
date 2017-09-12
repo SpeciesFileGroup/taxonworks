@@ -78,6 +78,14 @@ const updateClassification = function(classification) {
   });
 }
 
+const updateTaxonRelationship = function(relationship) {
+  return new Promise(function (resolve, reject) {
+    Vue.http.patch(`/taxon_name_relationships/${relationship.taxon_name_relationship.id}`, relationship).then( response => {
+      return resolve(response.body);
+    });
+  });
+}
+
 const createTaxonStatus = function(newClassification) {
   return new Promise(function (resolve, reject) {
     Vue.http.post('/taxon_name_classifications', newClassification).then( response => {
@@ -215,6 +223,7 @@ export {
   createTaxonName,
   updateTaxonName,
   updateClassification,
+  updateTaxonRelationship,
   loadTaxonName,
   loadRanks,
   loadStatus,

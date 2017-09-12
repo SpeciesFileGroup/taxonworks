@@ -1,3 +1,5 @@
+import Vue from 'vue'; 
+
 module.exports = function(state, status) {
 	var position = state.taxonStatusList.findIndex( item => {
 		if(item.type == status.type) {
@@ -8,6 +10,6 @@ module.exports = function(state, status) {
 		state.taxonStatusList.push(status);
 	}
 	else {
-		state.taxonStatusList[position] = status
+		Vue.set(state.taxonStatusList, position, status);
 	}
 };

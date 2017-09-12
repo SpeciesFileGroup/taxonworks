@@ -3,19 +3,24 @@
 	    	<transition-group class="table-entrys-list" name="list-complete" tag="ul">
 	    	<li v-for="item, index in list" :key="item.id" class="list-complete-item flex-separate middle">
 			    <span><span v-for="show in display" v-html="item[show] + ' '"></span></span>
-			    <div class="horizontal-left-content">
-					<autocomplete
-						url="/sources/autocomplete"
-						min="3"
-						param="term"
-						event-send="sourceSelect"
-						@getItem="test($event,item)"
-						label="label_html"
-						placeholder="Type for search..."
-						:sendLabel="getCitation(item)"
-						display="label">
-					</autocomplete>
-					<input :disabled="!getCitation(item)" placeholder="Pages" class="pages" type="text"/>
+			    <div class="list-controls">
+			    	<span v-if="getCitation(item)" v-html="getCitation(item)"></span>
+			    	<div class="list-controls" v-else>
+						<autocomplete 
+							url="/sources/autocomplete"
+							min="3"
+							param="term"
+							event-send="sourceSelect"
+							@getItem="sendCitation($event.id,item)"
+							label="label_html"
+							placeholder="Type for search..."
+							:sendLabel="getCitation(item)"
+							display="label">
+						</autocomplete>
+						<default-element label="source" section="Sources" @getId="sendCitation($event,item)"></default-element>
+					</div>
+					<input ref="inputPages" :disabled="!getCitation(item)" placeholder="Pages" class="pages" type="text"/>
+					<!-- <span @click="setPages(index, item)">Set</span> -->
 		    		<span type="button" class="circle-button btn-delete" @click="$emit('delete',item)">Remove</span>
 		    	</div>
 	    	</li>
@@ -27,10 +32,12 @@
 const ActionNames = require('../store/actions/actions').ActionNames;
 const GetterNames = require('../store/getters/getters').GetterNames;
 const autocomplete = require('../../../components/autocomplete.vue');
+const defaultElement = require('../../../components/getDefaultPin.vue');
 
 export default {
 	components: {
-		autocomplete
+		autocomplete,
+		defaultElement
 	},
 	props: ['list', 'display'],
 	name: 'list-entrys',
@@ -38,14 +45,19 @@ export default {
 		getCitation: function(item) {
 			return (item.hasOwnProperty('origin_citation') ? item.origin_citation.source.object_tag : undefined)
 		},
-		test(event,item) {
+		sendCitation(sourceId,item) {
 			let citation = {
 				id: (item.hasOwnProperty('origin_citation') ? item.origin_citation.id : null),
-				source_id: event.id
+				source_id: sourceId
 			}
-			item['origin_citation_attributes'] = citation;
-			console.log(item);
-			this.$store.dispatch(ActionNames.UpdateClassification,item)
+
+			let copy = Object.assign({}, item)
+			copy['origin_citation_attributes'] = citation;
+
+			this.$emit('addCitation', copy);
+		},
+		setPages(index, item) {
+			let input = this.$refs.inputPages[index].value;
 		}
 	}
 }
@@ -53,7 +65,15 @@ export default {
 
 <style type="text/css" scoped>
 .pages {
-	width: 80px;
+	margin-left: 8px;
+	width: 70px;
+}
+.list-controls {
+ 	display: flex;
+ 	align-items:center;
+ 	flex-direction:row;
+ 	justify-content: flex-end;
+	width: 550px;
 }
 .pages:disabled {
 	background-color: #F5F5F5;

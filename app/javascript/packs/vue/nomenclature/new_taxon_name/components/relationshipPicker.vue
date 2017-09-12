@@ -54,7 +54,7 @@
           <list-common v-if="!showAdvance" :object-lists="objectLists.commonList" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"></list-common>
         </div>
       </div>
-      <list-entrys @delete="removeRelationship" :list="GetRelationshipsCreated" :display="['subject_status_tag', 'object_object_tag']"></list-entrys>
+      <list-entrys @addCitation="setRelationship" @delete="removeRelationship" :list="GetRelationshipsCreated" :display="['subject_status_tag', 'object_object_tag']"></list-entrys>
     </div>
   </form>
 </template>
@@ -132,6 +132,9 @@
     methods: {
       removeRelationship: function(item) {
         this.$store.dispatch(ActionNames.RemoveTaxonRelationship, item);
+      },
+      setRelationship(item) {
+        this.$store.dispatch(ActionNames.UpdateTaxonRelationship, item);
       },
       refresh: function() {
         let copyList = Object.assign({},this.treeList[this.nomenclaturalCode]);
