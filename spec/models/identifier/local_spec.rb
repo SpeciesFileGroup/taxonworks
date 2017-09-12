@@ -20,35 +20,43 @@ describe Identifier::Local, type: :model, group: :identifiers do
       end
     end
 
-    specify 'you can add multiple identifiers of the same type to a single object as long as namespace differs' do
-      i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
-      i2 = Identifier::Local::CatalogNumber.new(namespace: namespace2, identifier_object: specimen1, identifier: 345)
-      expect(i1.save).to be_truthy
-      expect(i2.save).to be_truthy
+    context 'you can add multiple identifiers' do
+      specify 'of the same type to a single object as long as namespace differs' do
+        i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
+        i2 = Identifier::Local::CatalogNumber.new(namespace: namespace2, identifier_object: specimen1, identifier: 345)
+        expect(i1.save).to be_truthy
+        expect(i2.save).to be_truthy
+      end
+
+      specify 'of the same type with the same namespace to a single object as long as the identifier differs' do
+        i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
+        i2 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 345)
+        expect(i1.save).to be_truthy
+        expect(i2.save).to be_truthy
+      end
     end
 
-    specify 'you can add multiple identifiers of the same type with the same namespace to a single object as long as the identifier differs' do
-      i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
-      i2 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 345)
-      expect(i1.save).to be_truthy
-      expect(i2.save).to be_truthy
-    end
+    context 'you can not add' do
+      specify 'the same namespaced identifier to more than one object (of the same type)' do
+        i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
+        i2 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen2, identifier: 123)
+        expect(i1.save).to be_truthy
+        expect(i2.save).to be_falsey
+        expect(i2.errors.include?(:identifier)).to be_truthy
+      end
 
-    specify 'you can not add the same namespaced identifier to more than one object (of the same type)' do
-      i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
-      i2 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen2, identifier: 123)
-      expect(i1.save).to be_truthy
-      expect(i2.save).to be_falsey
-      expect(i2.errors.include?(:identifier)).to be_truthy
+      specify 'the same namespaced identifier to more than one object (of different types)' do
+        i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
+        i2 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: otu, identifier: 123)
+        expect(i1.save).to be_truthy
+        expect(i2.save).to be_falsey
+        expect(i2.errors.include?(:identifier)).to be_truthy
+      end
     end
+  end
 
-    specify 'you can not add the same namespaced identifier to more than one object (of different types)' do
-      i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
-      i2 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: otu, identifier: 123)
-      expect(i1.save).to be_truthy
-      expect(i2.save).to be_falsey
-      expect(i2.errors.include?(:identifier)).to be_truthy
-    end
-
+  specify 'cache is populated' do
+    i1 = Identifier::Local::CatalogNumber.create(namespace: namespace, identifier_object: specimen1, identifier: 123)
+    expect(i1.cached).to eq("#{namespace.short_name} 123")
   end
 end
