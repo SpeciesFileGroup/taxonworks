@@ -33,11 +33,8 @@
 		},
 		methods: {
 			sendDefault: function() {
-				var that = this,
-					defaultElement = document.querySelector(`[data-pinboard-section="${this.section}"] [data-insert="true"]`);
-				if(defaultElement) {
-					let id = defaultElement.dataset.pinboardObjectId;
-					this.$emit('getId', id)
+				if(this.getDefault) {
+					this.$emit('getId', this.getDefault)
 				}
 			},
 			checkForDefault: function() {

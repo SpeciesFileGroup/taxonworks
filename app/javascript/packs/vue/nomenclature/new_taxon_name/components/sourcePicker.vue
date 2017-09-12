@@ -37,7 +37,7 @@
 							placeholder="Type for search..."
 							display="label">
 						</autocomplete>
-						<button type="button" class="normal-input" v-if="!citation" @click="setDefaultSource()">Use default source</button>
+						<default-element v-if="!citation" label="source" type="Source" section="Sources" @getId="setDefaultSource"></default-element>
 					</div>
 					<hr>
 					<div v-if="citation != undefined">
@@ -74,6 +74,7 @@
 	const verbatimYear = require('./verbatimYear.vue');
  	const autocomplete = require('../../../components/autocomplete.vue');
   	const rolePicker = require('../../../components/role_picker.vue');
+	const defaultElement = require('../../../components/getDefaultPin.vue');
 	const expand = require('./expand.vue');
 
 	export default {
@@ -82,6 +83,7 @@
 			verbatimAuthor,
 			verbatimYear,
 			rolePicker,
+			defaultElement,
 			expand
 		},
 		computed: {
@@ -118,19 +120,8 @@
 			});
 		},
 		methods: {
-			setDefaultSource: function() {
-				var that = this,
-					sourceElement = document.querySelector('[data-pinboard-section="Sources"] [data-insert="true"]');
-
-				if(sourceElement) {
-					setTimeout(function () {
-						let sourceId = sourceElement.dataset.pinboardObjectId;
-
-						if(sourceId && that.citation == undefined) {
-							that.$store.dispatch(ActionNames.ChangeTaxonSource, sourceId)
-						}
-					}, 500);
-				}
+			setDefaultSource: function(sourceId) {
+				this.$store.dispatch(ActionNames.ChangeTaxonSource, sourceId)
 			},
 			getVerbatimCount: function() {
 				var author = (taxon.year_of_publication && taxon.year_of_publication.length ? taxon.year_of_publication.length : 0)
