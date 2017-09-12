@@ -1,5 +1,5 @@
 <template>
-	<button type="button" class="normal-input" @click="sendDefault()">Use default {{ this.label }}</button>
+	<button v-if="getDefault != undefined" type="button" class="normal-input" @click="sendDefault()">Use default {{ this.label }}</button>
 </template>
 <script>
 	export default {
@@ -11,6 +11,24 @@
 			label: {
 				type: String,
 				default: ''
+			},
+			type: {
+				type: String,
+				required: true
+			}
+		},
+		mounted: function() {
+			var that = this;
+
+			this.checkForDefault();
+			document.addEventListener("pinboard:insert", function(event) {
+				if(event.detail.type == that.type)
+					that.checkForDefault();
+			})
+		},
+		data: function() {
+			return {
+				getDefault: undefined
 			}
 		},
 		methods: {
@@ -21,6 +39,10 @@
 					let id = defaultElement.dataset.pinboardObjectId;
 					this.$emit('getId', id)
 				}
+			},
+			checkForDefault: function() {
+				let defaultElement = document.querySelector(`[data-pinboard-section="${this.section}"] [data-insert="true"]`);
+				this.getDefault = (defaultElement ? defaultElement.dataset.pinboardObjectId : undefined);
 			}
 		}
 	}

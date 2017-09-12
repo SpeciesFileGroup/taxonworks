@@ -17,7 +17,7 @@
 							:sendLabel="getCitation(item)"
 							display="label">
 						</autocomplete>
-						<default-element label="source" section="Sources" @getId="sendCitation($event,item)"></default-element>
+						<default-element label="source" type="Source" section="Sources" @getId="sendCitation($event,item)"></default-element>
 					</div>
 					<input ref="inputPages" :disabled="!getCitation(item)" placeholder="Pages" class="pages" type="text"/>
 					<!-- <span @click="setPages(index, item)">Set</span> -->

@@ -42,6 +42,7 @@ Object.assign(TW.views.pinboard, {
 		var event = new CustomEvent("pinboard:insert", {
 		  detail: {
 		  	id: <%= @pinboard_item.pinned_object_id -%>,
+		  	type: "<%= @pinboard_item.pinned_object_type -%>",
 		    object_id: <%= @pinboard_item.pinned_object.id -%>,
 		    is_inserted: <%= @pinboard_item.is_inserted -%>
 		  }
