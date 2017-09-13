@@ -28,6 +28,7 @@ const GetterNames = {
 	GetCitation: 'getCitation',
 	GetEtymology: 'getEtymology',
 	GetLastChange: 'getLastChange',
+	GetSaving: 'getSaving',
 	GetLastSave: 'getLastSave'
 };
 
@@ -37,6 +38,7 @@ const GetterFunctions = {
 	[GetterNames.ActiveModalRelationship]: require('./activeModalRelationship'),
 	[GetterNames.GetAllRanks]: require('./getAllRanks'),
 	[GetterNames.GetParent]: require('./getParent'),
+	[GetterNames.GetSaving]: require('./getSaving'),
 	[GetterNames.GetRankClass]: require('./getRankClass'),
 	[GetterNames.GetRelationshipList]: require('./getRelationshipList'),
 	[GetterNames.GetRankList]: require('./getRankList'),

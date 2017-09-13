@@ -24,7 +24,7 @@ Parameters:
   <div class="vue-autocomplete">
     <input ref="autofocus" class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="checkTime(), sendType()" v-model="type" :autofocus="autofocus" :disabled="disabled" v-bind:class="{'ui-autocomplete-loading' : spinner, 'vue-autocomplete-input-search' : !spinner }"/>
     <ul v-show="showList" v-if="type && json.length">
-      <li v-for="(item, index) in json" :class="activeClass(index)" @mouseover="itemActive(index)" @click.prevent="itemClicked(item), sendItem(item)">
+      <li v-for="(item, index) in limitList(json)" :class="activeClass(index)" @mouseover="itemActive(index)" @click.prevent="itemClicked(item), sendItem(item)">
         <span v-html="item[label]"></span>
       </li>
     </ul>
@@ -119,8 +119,8 @@ export default {
       },
 
       limit: {
-        type: String,
-        default: ''
+        type: Number,
+        default: 0
       },   
 
       placeholder: {
@@ -144,6 +144,13 @@ export default {
           this.$emit('input', item);
           this.$parent.$emit(this.eventSend, item);
           this.$emit('getItem', item);
+        },
+
+        limitList: function(list) {
+          if(this.limit == 0) 
+            return list
+
+          return list.slice(0, this.limit);
         },
 
         clearResults: function() {
