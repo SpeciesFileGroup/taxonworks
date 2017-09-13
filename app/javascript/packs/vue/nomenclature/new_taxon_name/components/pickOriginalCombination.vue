@@ -160,14 +160,20 @@
 				})
 			},
 			addOriginalCombination: function() {
-				let types = Object.assign({}, this.genusGroup, this.speciesGroup);
-				var data = {
-					type: types[this.taxon.rank],
-					id: this.taxon.id
-				}
-				this.$store.dispatch(ActionNames.AddOriginalCombination, data);
+				this.createCombination(this.taxon);
+				this.createCombination(this.taxon.parent);			
 				this.saveTaxonName();
 			},
+			createCombination: function(taxon) {
+				let types = Object.assign({}, this.genusGroup, this.speciesGroup);
+				var data = {
+					type: types[taxon.rank],
+					id: taxon.id
+				}
+				if(data.type) {
+					this.$store.dispatch(ActionNames.AddOriginalCombination, data);
+				}				
+			}
 		}
 	}
 </script>
