@@ -7,16 +7,22 @@
 				<button @click="reloadPage()" type="button" class="normal-input button button-default">New</button>
 			</div>
 		</modal>
-		<button type="button" class="normal-input button button-default" @click="showModal = true">New</button>
+		<button type="button" class="normal-input button button-default" @click="createNew()">New</button>
 	</div>
 </template>
 <script>
 
+const GetterNames = require('../store/getters/getters').GetterNames;
 const modal = require('../../../components/modal.vue');
 
 export default {
 	components: {
 		modal
+	},
+	computed: {
+		unsavedChanges() {
+			return (this.$store.getters[GetterNames.GetLastChange] > this.$store.getters[GetterNames.GetLastSave])
+		},
 	},
 	data: function() {
 		return {
@@ -27,6 +33,14 @@ export default {
 		reloadPage: function() {
 			window.location.href = '/tasks/nomenclature/new_taxon_name/'
 		},
+		createNew() {
+			if(this.unsavedChanges) {
+				this.showModal = true;
+			}
+			else {
+				this.reloadPage();
+			}
+		}
 	},
 }
 </script>
