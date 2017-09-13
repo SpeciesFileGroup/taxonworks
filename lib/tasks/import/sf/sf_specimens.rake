@@ -77,6 +77,8 @@ namespace :tw do
             specimen_id = row['SpecimenID']
             next if specimen_id == '0'
 
+            next if get_specimen_category_counts[specimen_id].blank? # ignore no critter counts for now
+
             project_id = get_tw_project_id[row['FileID']]
 
             sf_depo_id = row['DepoID']
@@ -84,10 +86,13 @@ namespace :tw do
 
             collecting_event_id = get_tw_collecting_event_id[get_sf_unique_id[specimen_id]]
 
+            logger.info "working with SF.SpecimenID: #{specimen_id}, SF.FileID: #{row['FileID']} \n"
+
+
             # get otu id from sf taxon name id, a taxon determination, called 'the primary otu id'   (what about otus without tw taxon names?)
 
             # list of import_attributes:
-            basis_of_record_string = []
+            basis_of_record_attribute = []
             # Note: collection_objects are made for all specimen records, regardless of basis of record (for now)
             basis_of_record = row['BasisOfRecord'].to_i
             if basis_of_record > 0
@@ -105,6 +110,9 @@ namespace :tw do
                 when 6
                   basis_of_record_string = 'Personal observation'
               end
+              basis_of_record_attribute = {import_predicate: 'basis_of_record',
+                                           value: basis_of_record_string,
+                                           project_id: project_id}
             end
 
             preparation_type = []
@@ -192,7 +200,9 @@ namespace :tw do
                                 project_id: project_id}
             end
 
-            import_attribute_attributes = []
+
+
+            import_attributes_attributes = []
             metadata = {notes_attributes: [{text: row['Note'],
                                             project_id: project_id,
                                             created_at: row['CreatedOn'],
@@ -200,7 +210,7 @@ namespace :tw do
                                             created_by_id: get_tw_user_id[row['CreatedBy']],
                                             updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
 
-                        import_attributes_attributes: import_attribute_attributes.concat(basis_of_record_string, preparation_type, specimen_dataflags, specimen_status, sf_source_description, sf_depo_string),
+                        data_attributes_attributes: import_attributes_attributes.concat([basis_of_record_attribute, preparation_type, specimen_dataflags, specimen_status, sf_source_description, sf_depo_string]),
                         citations_attributes: citations_attributes,
 
                         # data_attributes to do:
