@@ -19,8 +19,7 @@
 						</autocomplete>
 						<default-element label="source" type="Source" section="Sources" @getId="sendCitation($event,item)"></default-element>
 					</div>
-					<input ref="inputPages" :disabled="!getCitation(item)" placeholder="Pages" class="pages" type="text"/>
-					<!-- <span @click="setPages(index, item)">Set</span> -->
+					<input ref="inputPages" :disabled="!getCitation(item)" @input="autoSave(index, item)" placeholder="Pages" class="pages" type="text"/>
 		    		<span type="button" class="circle-button btn-delete" @click="$emit('delete',item)">Remove</span>
 		    	</div>
 	    	</li>
@@ -41,6 +40,11 @@ export default {
 	},
 	props: ['list', 'display'],
 	name: 'list-entrys',
+	data: function() {
+		return {
+			autosave: [],
+		}
+	},
 	methods: {
 		getCitation: function(item) {
 			return (item.hasOwnProperty('origin_citation') ? item.origin_citation.source.object_tag : undefined)
@@ -58,7 +62,29 @@ export default {
 		},
 		setPages(index, item) {
 			let input = this.$refs.inputPages[index].value;
-		}
+			let citation = {
+				id: (item.hasOwnProperty('origin_citation') ? item.origin_citation.id : null),
+				pages: input
+			}
+			let copy = Object.assign({}, item)
+				copy['origin_citation_attributes'] = citation;
+
+			this.$emit('addCitation', copy);
+			console.log(copy);
+		},
+        resetAutoSave: function(index) {
+          clearTimeout(this.autosave[index]);
+          this.autosave[index] = null          
+        },  
+        autoSave: function(index, item) {
+          var that = this;
+          if(this.autosave[index]) {
+            this.resetAutoSave(index);
+          }   
+          this.autosave[index] = setTimeout(function() {    
+            that.setPages(index, item);  
+          }, 3000);
+        },
 	}
 }
 </script>

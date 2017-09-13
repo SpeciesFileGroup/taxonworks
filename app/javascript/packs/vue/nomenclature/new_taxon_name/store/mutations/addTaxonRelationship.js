@@ -1,11 +1,16 @@
-module.exports = function(state, status) {
+import Vue from 'vue'; 
+
+module.exports = function(state, relationship) {
 	var position = state.taxonRelationshipList.findIndex( item => {
-		if(item.type == status.type) {
+		if(item.type == relationship.type) {
 			return true;
 		}
 	});
 	
 	if (position < 0) {
-		state.taxonRelationshipList.push(status);
+		state.taxonRelationshipList.push(relationship);
+	}
+	else {
+		Vue.set(state.taxonRelationshipList, position, relationship);
 	}
 };
