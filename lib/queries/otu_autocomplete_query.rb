@@ -12,7 +12,6 @@ module Queries
 
   # Lots of optimization possible, at minimum this is nice for nested OR
   class OtuAutocompleteQuery < Queries::Query
-    include Arel::Nodes
 
     def where_sql
       with_project_id.and(or_clauses).to_sql

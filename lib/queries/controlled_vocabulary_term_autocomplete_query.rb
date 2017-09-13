@@ -1,7 +1,6 @@
 module Queries
 
   class ControlledVocabularyTermAutocompleteQuery < Queries::Query
-    include Arel::Nodes
 
     attr_accessor :object_type
 
