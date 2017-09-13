@@ -1,7 +1,6 @@
 module Queries
 
   class TagAutocompleteQuery < Queries::Query
-    include Arel::Nodes
 
     def where_sql
       with_project_id.and(or_clauses).to_sql
