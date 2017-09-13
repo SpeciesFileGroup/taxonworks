@@ -146,7 +146,7 @@ class GeoreferencesController < ApplicationController
                                          :is_undefined_z,
                                          :is_median_z,
                                          :geographic_item_attributes => [:shape],
-                                         origin_citation_attributes: [:id, :_destroy, :source_id] 
+                                         origin_citation_attributes: [:id, :_destroy, :source_id, :pages] 
                                         ) 
   end
 end

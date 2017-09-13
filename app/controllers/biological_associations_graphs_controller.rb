@@ -101,7 +101,7 @@ class BiologicalAssociationsGraphsController < ApplicationController
   def biological_associations_graph_params
     params.require(:biological_associations_graph).permit(
       :name,
-      origin_citation_attributes: [:id, :_destroy, :source_id] 
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages] 
     )
   end
 end

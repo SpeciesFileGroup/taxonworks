@@ -125,7 +125,7 @@ class TaxonNameRelationshipsController < ApplicationController
   def taxon_name_relationship_params
     params.require(:taxon_name_relationship).permit(
       :subject_taxon_name_id, :object_taxon_name_id, :type,
-      origin_citation_attributes: [:id, :_destroy, :source_id] 
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages] 
     ) 
   end
 

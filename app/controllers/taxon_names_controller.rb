@@ -193,7 +193,7 @@ class TaxonNamesController < ApplicationController
           :last_name, :first_name, :suffix, :prefix
         ]
       ],
-      origin_citation_attributes: [:id, :_destroy, :source_id]
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
     )
   end
 

@@ -55,7 +55,7 @@ class Georeferences::GeoLocatesController < ApplicationController
                                          :type,
                                          :is_public,
                                          :api_request,
-                                         origin_citation_attributes: [:id, :_destroy, :source_id]
+                                         origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
     )
   end
 

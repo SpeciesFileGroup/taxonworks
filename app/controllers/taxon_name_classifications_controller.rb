@@ -125,6 +125,6 @@ class TaxonNameClassificationsController < ApplicationController
   def taxon_name_classification_params
     params.require(:taxon_name_classification).permit(
       :taxon_name_id, :type,
-      origin_citation_attributes: [:id, :_destroy, :source_id])
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages])
   end
 end
