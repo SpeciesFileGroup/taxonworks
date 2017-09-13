@@ -22,7 +22,7 @@
 						<input name="author-picker-options" id="author-picker-person" type="radio" class="normal-input" v-model="show" value="person"/>
 						<label for="author-picker-person">
 							<span>Person</span> 
-							<div v-if="roles.length"><span class="small-icon icon-without-space" data-icon="ok"></span></div>
+							<div v-if="roles.length">({{ roles.length }})<span class="small-icon icon-without-space" data-icon="ok"></span></div>
 						</label>
 			        </div>
 			    </div>
