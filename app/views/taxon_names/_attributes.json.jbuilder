@@ -11,6 +11,15 @@ if taxon_name.roles.any?
   end
 end 
 
+json.ancestor_ids do
+  json.array! taxon_name.ancestors.pluck(:id, :rank_class)
+end
+
+if taxon_name.children.any?
+  json.children do
+    json.array! taxon_name.children.pluck(:id) 
+  end
+end 
 
 if taxon_name.pinned?(sessions_current_user)
   json.pinboard_item do
@@ -30,11 +39,6 @@ if taxon_name.origin_citation
   end
 end
 
-if taxon_name.children.any?
-  json.children do
-    json.array! taxon_name.children.pluck(:id) 
-  end
-end 
 
 if taxon_name.taxon_name_classifications.any?
   json.taxon_name_classifications do
