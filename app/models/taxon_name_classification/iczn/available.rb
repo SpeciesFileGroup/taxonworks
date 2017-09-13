@@ -11,4 +11,8 @@ class TaxonNameClassification::Iczn::Available < TaxonNameClassification::Iczn
     'available'
   end
 
+  def self.assignable
+    true
+  end
+
 end

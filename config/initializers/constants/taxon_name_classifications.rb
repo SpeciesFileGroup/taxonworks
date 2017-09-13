@@ -67,10 +67,8 @@ module TaxonNameClassificationsHelper
   
   # @return [Hash]
   def self.collection(classifications)
-    classifications.inject({}) {|hsh, c| 
-      hsh.merge!(
-        c.name => attributes(c)
-      )
+    classifications.select{ |s| s.assignable }.inject({}) {|hsh, c| 
+      hsh.merge!(c.name => attributes(c))
     }
   end
 

@@ -117,11 +117,15 @@ class TaxonNameClassification < ApplicationRecord
     nil
   end
 
-  def self.common
+  def self.assignable
     false
   end
 
-  # @todo Perhaps not inherit these three methods?
+ #def self.common
+ #  false
+ #end
+
+  # @todo Perhaps not inherit these three meaxonNameClassificationsHelper::descendants_collection( TaxonNameClassification::Latinized )thods?
 
   # @return [Array of Strings]
   #   the possible suffixes for a {TaxonName} name (species) classified as this class, for example see {TaxonNameClassification::Latinized::Gender::Masculine}
@@ -321,3 +325,5 @@ class TaxonNameClassification < ApplicationRecord
   end
 
 end
+
+
