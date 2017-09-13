@@ -72,7 +72,7 @@
 <script>
 
 	const GetterNames = require('../store/getters/getters').GetterNames;
-	const ActionNames = require('../store/actions/actions').ActionNames;  
+	const ActionNames = require('../store/actions/actions').ActionNames;
   	const draggable = require('vuedraggable');
 	const listEntrys = require('./listEntrys.vue');
   	const originalCombination = require('./originalCombination.vue');
@@ -160,15 +160,20 @@
 				})
 			},
 			addOriginalCombination: function() {
-				this.createCombination(this.taxon);
-				this.createCombination(this.taxon.parent);			
+				var that = this;
+				this.createCombination(this.taxon.id, this.taxon.rank);
+				this.taxon.ancestor_ids.forEach(function(item) {
+					let rank = item[1].split('::')[3];
+					if(rank)
+						that.createCombination(item[0],rank.toLowerCase());
+				});	
 				this.saveTaxonName();
 			},
-			createCombination: function(taxon) {
+			createCombination: function(id, rank) {
 				let types = Object.assign({}, this.genusGroup, this.speciesGroup);
 				var data = {
-					type: types[taxon.rank],
-					id: taxon.id
+					type: types[rank],
+					id: id
 				}
 				if(data.type) {
 					this.$store.dispatch(ActionNames.AddOriginalCombination, data);
