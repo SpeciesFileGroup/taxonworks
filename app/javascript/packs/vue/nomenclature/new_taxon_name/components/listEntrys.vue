@@ -19,7 +19,7 @@
 						</autocomplete>
 						<default-element label="source" type="Source" section="Sources" @getId="sendCitation($event,item)"></default-element>
 					</div>
-					<input ref="inputPages" :disabled="!getCitation(item)" @input="autoSave(index, item)" placeholder="Pages" class="pages" type="text"/>
+					<input ref="inputPages" :disabled="!getCitation(item)" :value="getPages(item)" @input="autoSave(index, item)" placeholder="Pages" class="pages" type="text"/>
 		    		<span type="button" class="circle-button btn-delete" @click="$emit('delete',item)">Remove</span>
 		    	</div>
 	    	</li>
@@ -51,26 +51,28 @@ export default {
 		},
 		sendCitation(sourceId,item) {
 			let citation = {
-				id: (item.hasOwnProperty('origin_citation') ? item.origin_citation.id : null),
-				source_id: sourceId
+				id: item.id,
+				origin_citation_attributes: {
+					id: (item.hasOwnProperty('origin_citation') ? item.origin_citation.id : null),
+					source_id: sourceId
+				}
 			}
-
-			let copy = Object.assign({}, item)
-			copy['origin_citation_attributes'] = citation;
-
-			this.$emit('addCitation', copy);
+			this.$emit('addCitation', citation);
+		},
+		getPages(item) {
+			return (item.hasOwnProperty('origin_citation') ? item.origin_citation.pages : '')
 		},
 		setPages(index, item) {
 			let input = this.$refs.inputPages[index].value;
 			let citation = {
-				id: (item.hasOwnProperty('origin_citation') ? item.origin_citation.id : null),
-				pages: input
+				id: item.id,
+				origin_citation_attributes: {
+					id: (item.hasOwnProperty('origin_citation') ? item.origin_citation.id : null),
+					source_id: (item.hasOwnProperty('origin_citation') ? item.origin_citation.source_id : null),
+					pages: input
+				}
 			}
-			let copy = Object.assign({}, item)
-				copy['origin_citation_attributes'] = citation;
-
-			this.$emit('addCitation', copy);
-			console.log(copy);
+			this.$emit('addCitation', citation);
 		},
         resetAutoSave: function(index) {
           clearTimeout(this.autosave[index]);
