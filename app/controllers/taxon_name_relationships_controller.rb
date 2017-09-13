@@ -9,8 +9,8 @@ class TaxonNameRelationshipsController < ApplicationController
     respond_to do |format|
       format.html do
         @recent_objects = TaxonNameRelationship.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-        render '/shared/data/all/index'
-      end
+    render '/shared/data/all/index'
+  end
       format.json {
         @taxon_name_relationships = TaxonNameRelationship.where(filter_sql).with_project_id(sessions_current_project_id)
       }
@@ -87,14 +87,13 @@ class TaxonNameRelationshipsController < ApplicationController
   end
 
   def autocomplete
-    # TODO: match on either name or remove concept
-    @taxon_name_relationships = TaxonNameRelationship.where(id: params[:term]).with_project_id(sessions_current_project_id)
+    @taxon_name_relationships = TaxonNameRelationship.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
     data = @taxon_name_relationships.collect do |t|
       n = ApplicationController.helpers.taxon_name_relationship_tag(t)
       {id: t.id,
        label: n,
        response_values: {
-         params[:method] => t.id
+           params[:method] => t.id
        },
        label_html: n
       }
@@ -133,6 +132,6 @@ class TaxonNameRelationshipsController < ApplicationController
   def filter_sql
     h = params.permit(:taxon_name_id, :as_object, :as_subject, of_type: []).to_h.symbolize_keys
     Queries::TaxonNameRelationshipsFilterQuery.new(h).where_sql
-  end
+end
 
 end

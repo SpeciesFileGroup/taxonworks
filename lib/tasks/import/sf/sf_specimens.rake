@@ -56,6 +56,7 @@ namespace :tw do
           get_sf_unique_id = import.get('SFSpecimenToUniqueIDs') # get the unique_id for given SF specimen_id
           get_tw_collecting_event_id = import.get('SFUniqueIDToTWCollectingEventID') # use unique_id as key to collecting_event_id
           get_tw_repo_id = import.get('SFDepoIDToTWRepoID')
+          get_sf_depo_string = import.get('SFDepoIDToSFDepoString')
           get_biocuration_class_id = import.get('SpmnCategoryIDToBiocurationClassID')
           get_specimen_category_counts = import.get('SFSpecimenIDCategoryIDCount')
           get_sf_source_metadata = import.get('SFSourceMetadata')
@@ -63,6 +64,9 @@ namespace :tw do
 
           get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id
           # get_depo_catalog_number = {} # key = SF.SpecimenID, value = depo catalog number
+
+          depo_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'SpecimenDepository', short_name: 'Depo')
+
 
           path = @args[:data_directory] + 'tblSpecimens.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -73,21 +77,43 @@ namespace :tw do
             specimen_id = row['SpecimenID']
             next if specimen_id == '0'
 
-            # RIGHT HERE - jump out of the loop if the basis of record will NOT lead to a collection object
-            # BoR (BasisofRecord), create co if 0 if extra data indicates, 1, 2; 5 is asserted dist if SourceID contains RefID and known distribution no finer than county
+            next if get_specimen_category_counts[specimen_id].blank? # ignore no critter counts for now
 
             project_id = get_tw_project_id[row['FileID']]
 
-            repository_id = get_tw_repo_id.has_key?(row['DepoID']) ? get_tw_repo_id[row['DepoID']] : nil
+            sf_depo_id = row['DepoID']
+            repository_id = get_tw_repo_id.has_key?(sf_depo_id) ? get_tw_repo_id[sf_depo_id] : nil
 
             collecting_event_id = get_tw_collecting_event_id[get_sf_unique_id[specimen_id]]
 
+            logger.info "working with SF.SpecimenID: #{specimen_id}, SF.FileID: #{row['FileID']} \n"
+
+
             # get otu id from sf taxon name id, a taxon determination, called 'the primary otu id'   (what about otus without tw taxon names?)
 
-
-            #  get_depo_catalog_number[specimen_id] = row['DepoCatNo'] if row['DepoCatNo'].present?
-            # specimen_total = get_specimen_totals_categories[specimen_id][Total] # get_specimen_totals_categories is obsolete
-
+            # list of import_attributes:
+            basis_of_record_attribute = []
+            # Note: collection_objects are made for all specimen records, regardless of basis of record (for now)
+            basis_of_record = row['BasisOfRecord'].to_i
+            if basis_of_record > 0
+              case basis_of_record
+                when 1
+                  basis_of_record_string = 'Preserved specimen'
+                when 2
+                  basis_of_record_string = 'Fossil specimen'
+                when 3
+                  basis_of_record_string = 'Image (still or video)'
+                when 4
+                  basis_of_record_string = 'Audio recording'
+                when 5
+                  basis_of_record_string = 'Checklist/Literature/Map'
+                when 6
+                  basis_of_record_string = 'Personal observation'
+              end
+              basis_of_record_attribute = {import_predicate: 'basis_of_record',
+                                           value: basis_of_record_string,
+                                           project_id: project_id}
+            end
 
             preparation_type = []
             if row['PreparationType'].present?
@@ -165,11 +191,18 @@ namespace :tw do
                                          value: row['Description'],
                                          project_id: project_id}
               end
+            end
 
+            sf_depo_string = []
+            if sf_depo_id > '0'
+              sf_depo_string = {import_predicate: 'sf_depo_string',
+                                value: get_sf_depo_string[sf_depo_string],
+                                project_id: project_id}
             end
 
 
-            import_attribute_attributes = []
+
+            import_attributes_attributes = []
             metadata = {notes_attributes: [{text: row['Note'],
                                             project_id: project_id,
                                             created_at: row['CreatedOn'],
@@ -177,19 +210,19 @@ namespace :tw do
                                             created_by_id: get_tw_user_id[row['CreatedBy']],
                                             updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
 
-                        import_attributes_attributes: import_attribute_attributes.concat(preparation_type, specimen_dataflags, specimen_status, sf_source_description),
+                        data_attributes_attributes: import_attributes_attributes.concat([basis_of_record_attribute, preparation_type, specimen_dataflags, specimen_status, sf_source_description, sf_depo_string]),
                         citations_attributes: citations_attributes,
-
-
-                        # import_attribute to do:  BasisOfRecord
 
                         # data_attributes to do:
                         #   import_attribute if identification.IdentifierName
 
+                        # create taxon determination for species this is attached to
+                        # create type specimen if tblIdentifications.TypeTaxonNameID maybe
+
+
             }
 
             # At this point all the related metadata except specimen category and count must be set
-
 
             begin
 
@@ -225,19 +258,22 @@ namespace :tw do
                 # At this point the collection objects have been saved successfully
 
 
-                # Here we need to do 2 things
-                # 1) if there were two collection objects with the same SF specimen ID then put them
+                # 1) if there were two collection objects with the same SF specimen ID, then put them
                 # in a virtual container
-                # 2) If there was an "identifer" associate that with the single object or the container if there
-                # was a container
-                identifer = nil
+                # 2) If there is an "identifier", associate it with a single collection object or the container (if applicable)
+                identifier = nil
                 if row['DepoCatNo']
-                  identifier = ImportAttribute.new(value: row['DepotCatNum', import_predicate: 'DepotCatNo'], project_id: project_id)
+                  identifier = Identifier::Local::CatalogNumber.create!(
+                      namespace: depo_namespace,
+                      project_id: project_id,
+                      identifier: "SF.DepoID#{sf_depo_id} #{row['DepoCatNo']}"
+                  )
+                  # identifier = ImportAttribute.new(value: row['DepotCatNo'], import_predicate: 'DepotCatNo', project_id: project_id)
                 end
 
                 if current_objects.count == 1
                   # The "Identifier" is attached to the only collection object that is created
-                  current_objects.first.data_attributes << identifier if identifier
+                  current_objects.first.identifiers << identifier if identifier
 
                 elsif current_objects > 1
                   # There is more than one object, put them in a virtual container
@@ -246,28 +282,20 @@ namespace :tw do
                     o.put_in_container(c)
                   end
 
-                  c.data_attributes << identifier if identifier
-
-                  # instead of attaching the "identifier" (=ImportAttribute) to a single object, attach it to the virtual container
-
+                  c.identifiers << identifier if identifier
 
                 else
-                  puts "OOPS"
+                  puts "OOPS" # would this happen?
                 end
 
-                # create type specimen if tblIdentifications.TypeTaxonNameID maybe
-
+                puts 'CollectionObject created'
+                get_tw_collection_object_id[specimen_id] = current_objects.collect {|a| a.id} # an arry of collection object ids for this specimen_id
 
               end
-
-              puts 'CollectionObject created'
-              get_tw_collection_object_id[specimen_id] = current_objects.collect {|a| a.id} # an arry of collection object ids for this specimen_id
 
             rescue ActiveRecord::RecordInvalid => e
               logger.error "CollectionObject ERROR SF.SpecimenID = #{specimen_id} (#{error_counter += 1}): " + e.errors.full_messages.join(';')
             end
-
-
           end
 
           import.set('SFSpecimenIDToCollObjID', get_tw_collection_object_id)

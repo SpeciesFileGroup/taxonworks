@@ -128,7 +128,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     where_clause += ' and (verbatim_date is null)' unless include_values
     if method[0] == :undefined # where verbatim label is entered without selecting a result and its method
       selected_items = CollectingEvent.where(where_clause)
-                           .with_project_id($project_id)
+                           .with_project_id(sessions_current_project_id)
                            .order(:id)
                            .where.not(id: collecting_event_id).distinct
     else

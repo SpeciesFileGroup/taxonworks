@@ -7,7 +7,7 @@ class LoansController < ApplicationController
   # GET /loans
   # GET /loans.json
   def index
-    @recent_objects = Loan.includes(:loan_items).recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = Loan.includes(:loan_items, :identifiers).recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -70,7 +70,7 @@ class LoansController < ApplicationController
   end
 
   def list
-    @loans = Loan.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @loans = Loan.includes(:identifiers).with_project_id(sessions_current_project_id).order("CAST(coalesce(identifiers.identifier, '0') AS integer) DESC").references(:identifiers).page(params[:page]) #.per(10) #.per(3)
   end
 
   def search

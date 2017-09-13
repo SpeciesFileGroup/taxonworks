@@ -7,7 +7,7 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects
   # GET /collection_objects.json
   def index
-    @recent_objects = CollectionObject.recent_from_project_id($project_id)
+    @recent_objects = CollectionObject.recent_from_project_id(sessions_current_project_id)
                         .order(updated_at: :desc)
                         .includes(:identifiers, :taxon_determinations)
                         .limit(10)
@@ -100,7 +100,7 @@ class CollectionObjectsController < ApplicationController
 
   # GET /collection_objects/list
   def list
-    @collection_objects = CollectionObject.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @collection_objects = CollectionObject.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   # GET /collection_object/search
@@ -113,15 +113,20 @@ class CollectionObjectsController < ApplicationController
   end
 
   def autocomplete
-    @collection_objects = CollectionObject.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
-    data                = @collection_objects.collect do |t|
-      {id:              t.id,
-       label:           ApplicationController.helpers.collection_object_tag(t),
+    @collection_objects = 
+      Queries::BiologicalCollectionObjectAutocompleteQuery.new(
+        params[:term], 
+        project_id: sessions_current_project_id
+    ).autocomplete
+
+    data = @collection_objects.collect do |t|
+      {id: t.id,
+       label: ApplicationController.helpers.collection_object_tag(t),
        gid: t.to_global_id.to_s,
        response_values: {
          params[:method] => t.id
        },
-       label_html:      ApplicationController.helpers.collection_object_tag(t) # render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html:  ApplicationController.helpers.collection_object_tag(t) # render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
     render :json => data
@@ -196,7 +201,7 @@ class CollectionObjectsController < ApplicationController
   private
 
   def set_collection_object
-    @collection_object = CollectionObject.with_project_id($project_id).find(params[:id])
+    @collection_object = CollectionObject.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object     = @collection_object
   end
 
@@ -212,7 +217,7 @@ class CollectionObjectsController < ApplicationController
   end
 
   def batch_params
-    params.permit(:namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: $project_id).symbolize_keys
+    params.permit(:namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
   def user_map

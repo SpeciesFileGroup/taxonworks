@@ -6,7 +6,7 @@ class TypeMaterialsController < ApplicationController
   # GET /type_materials
   # GET /type_materials.json
   def index
-    @recent_objects = TypeMaterial.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = TypeMaterial.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -90,14 +90,14 @@ class TypeMaterialsController < ApplicationController
 
   # GET /type_materials/download
   def download
-    send_data TypeMaterial.generate_download(TypeMaterial.where(project_id: $project_id)), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now.to_s}.csv"
+    send_data TypeMaterial.generate_download(TypeMaterial.where(project_id: sessions_current_project_id)), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now.to_s}.csv"
   end
 
 
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_type_material
-    @type_material = TypeMaterial.with_project_id($project_id).find(params[:id])
+    @type_material = TypeMaterial.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @type_material
   end
 

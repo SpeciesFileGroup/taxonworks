@@ -61,7 +61,7 @@ class CombinationsController < ApplicationController
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_content
-    @combination = Combination.with_project_id($project_id).find(params[:id])
+    @combination = Combination.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @combination 
   end
 

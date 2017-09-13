@@ -78,7 +78,7 @@ class PeopleController < ApplicationController
   end
 
   def autocomplete
-    @people = Person.find_for_autocomplete(params)
+    @people = Person.find_for_autocomplete(params).limit(50)
     data = @people.collect do |t|
       {id:              t.id,
        label:           t.name,

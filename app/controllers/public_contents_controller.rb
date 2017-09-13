@@ -46,7 +46,7 @@ class PublicContentsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_public_content
-      @public_content = PublicContent.with_project_id($project_id).find(params[:id])
+      @public_content = PublicContent.with_project_id(sessions_current_project_id).find(params[:id])
       @recent_object = @public_content 
     end
 

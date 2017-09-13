@@ -98,15 +98,15 @@ class Tasks::Gis::ReportController < ApplicationController
     limit            = include_page ? 25 : total_records
     # params[:page] = 2
     if @geographic_area.has_shape?
-      @all_collection_objects_count = CollectionObject.where(project_id: $project_id)
+      @all_collection_objects_count = CollectionObject.where(project_id: sessions_current_project_id)
                                         .in_geographic_item(@geographic_area.default_geographic_item, total_records).count
       if include_page
-        @list_collection_objects = CollectionObject.where(project_id: $project_id)
+        @list_collection_objects = CollectionObject.where(project_id: sessions_current_project_id)
                                      .in_geographic_item(@geographic_area.default_geographic_item, limit)
                                      .order(:id)
                                      .page(params[:page])
       else
-        @list_collection_objects = CollectionObject.where(project_id: $project_id)
+        @list_collection_objects = CollectionObject.where(project_id: sessions_current_project_id)
                                      .in_geographic_item(@geographic_area.default_geographic_item, limit)
                                      .order(:id)
       end
@@ -137,13 +137,13 @@ class Tasks::Gis::ReportController < ApplicationController
         when 'point'
           @list_collection_objects = CollectionObject
                                        .joins(:geographic_items)
-                                       .where(project_id: $project_id)
+                                       .where(project_id: sessions_current_project_id)
                                        .where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
                                        .page(params[:page])
         when 'polygon'
           @list_collection_objects = CollectionObject
                                        .joins(:geographic_items)
-                                       .where(project_id: $project_id)
+                                       .where(project_id: sessions_current_project_id)
                                        .where(GeographicItem.contained_by_wkt_sql(geometry))
                                        .page(params[:page])
         else

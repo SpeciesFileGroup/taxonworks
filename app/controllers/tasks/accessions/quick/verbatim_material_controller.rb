@@ -37,7 +37,7 @@ class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationControll
   def set_fixed_variables
     @repositories       = Repository.order(:name).all
     @namespaces         = Namespace.order(:name).all
-    @biocuration_groups = BiocurationGroup.with_project_id($project_id)
+    @biocuration_groups = BiocurationGroup.with_project_id(sessions_current_project_id)
   end
 
   def set_variable_variables(material)

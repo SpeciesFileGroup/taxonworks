@@ -63,6 +63,11 @@ describe Identifier::Global, type: :model, group: :identifiers do
       global_identifier.valid?
       expect(global_identifier.errors.include?(:namespace_id)).to be_truthy
     end
+  end
 
+  specify 'cached is set' do
+    id = 'http://abc.net/bar/22'
+    i = Identifier::Global::Uri.create!(identifier: id, identifier_object: Otu.create(name: 'aaa'))
+    expect(i.reload.cached).to eq(id)
   end
 end

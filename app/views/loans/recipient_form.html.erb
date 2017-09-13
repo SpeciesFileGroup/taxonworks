@@ -23,7 +23,7 @@
     </div>
   </div>
 
-  <div id="return_date"> Date sent: <%= @loan.date_sent -%> </div>
+  <div id="sent_date"> Date sent: <%= @loan.date_sent -%> </div>
   <div id="return_date"> Date return due: <%= @loan.date_return_expected -%></div>
 
   <div id="loan_items">
@@ -36,20 +36,15 @@
       <table class="comments">
         <thead>
         <th>
-          Comments
+         Notes / Comments 
         </th>
         </thead>
-        <tr>
-          <td></td>
-        </tr>
-        <tr>
-          <td></td>
-        </tr>
-        <tr>
-          <td></td>
-        </tr>
 
+        <tbody>
+          <%= @loan.notes.collect{|n| content_tag(:tr, content_tag(:td, n.text))}.join.html_safe -%>
+        </tbody>
       </table>
+
       <p>I agree to the terms of this loan.</p>
       <div class="panels-container">
         <p class="signature_line">Signature</p>

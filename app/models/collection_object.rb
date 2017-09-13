@@ -166,17 +166,6 @@ class CollectionObject < ApplicationRecord
                   AND  "origin_relationships_extracts_join"."old_object_type" = 'Extract'
        INNER JOIN  "sequences"
                ON  "sequences"."id" = "origin_relationships_extracts_join"."new_object_id"}
- 
-  end
-
-  # TODO: Deprecate
-  def self.find_for_autocomplete(params)
-    Queries::BiologicalCollectionObjectAutocompleteQuery.new(
-      params[:term])
-      .all
-      .where(project_id: params[:project_id])
-      .includes(taxon_determinations: [:determiners])
-      .limit(50)
   end
 
   # TODO: move to a helper
