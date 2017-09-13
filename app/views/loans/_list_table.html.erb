@@ -2,6 +2,7 @@
 <table class="tablesorter">
   <thead>
   <tr>
+    <%= fancy_th_tag(name: 'Loan number (Identifiers)') -%>
     <%= fancy_th_tag(name: 'Date requested') -%>
     <%= fancy_th_tag(name: 'Request method') -%>
     <%= fancy_th_tag(name: 'Date sent') -%>
@@ -22,7 +23,8 @@
 
   <tbody>
   <% @loans.each do |loan| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+    <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= simple_identifier_list_tag(loan) %></td>
           <td><%= loan.date_requested %></td>
           <td><%= loan.request_method %></td>
           <td><%= loan.date_sent %></td>
