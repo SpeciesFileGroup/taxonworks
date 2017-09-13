@@ -6,6 +6,10 @@
       min="2"
       eventSend="parentSelected"
       display="label"
+      :add-params="{
+        'type[]': 'Protonym',
+        valid: true
+      }"
       :sendLabel="parent.name"
       param="term">
     </autocomplete>

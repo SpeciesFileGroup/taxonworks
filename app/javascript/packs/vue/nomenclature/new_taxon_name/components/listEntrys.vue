@@ -19,7 +19,8 @@
 						</autocomplete>
 						<default-element label="source" type="Source" section="Sources" @getId="sendCitation($event,item)"></default-element>
 					</div>
-					<input ref="inputPages" :disabled="!getCitation(item)" :value="getPages(item)" @input="autoSave(index, item)" placeholder="Pages" class="pages" type="text"/>
+					<input ref="inputPages" :disabled="!getCitation(item)" :value="getPages(item)" @input="autoSave(index, item)" placeholder="Pages" class="pages" type="text"/>					
+					<span type="button" title="Remove citation" class="circle-button btn-undo" v-if="getCitation(item)" @click="removeCitation(item)"></span>
 		    		<span type="button" class="circle-button btn-delete" @click="$emit('delete',item)">Remove</span>
 		    	</div>
 	    	</li>
@@ -62,29 +63,40 @@ export default {
 		getPages(item) {
 			return (item.hasOwnProperty('origin_citation') ? item.origin_citation.pages : '')
 		},
-		setPages(index, item) {
-			let input = this.$refs.inputPages[index].value;
+		setPages(value, item) {
 			let citation = {
 				id: item.id,
 				origin_citation_attributes: {
 					id: (item.hasOwnProperty('origin_citation') ? item.origin_citation.id : null),
 					source_id: (item.hasOwnProperty('origin_citation') ? item.origin_citation.source_id : null),
-					pages: input
+					pages: value
 				}
 			}
 			this.$emit('addCitation', citation);
+		},
+		removeCitation(item) {
+			let citation = {
+				id: item.id,
+				origin_citation_attributes: {
+					id: (item.hasOwnProperty('origin_citation') ? item.origin_citation.id : null),
+					_destroy: true
+				}
+			}
+			this.resetAutoSave(item.id);
+			this.$emit('addCitation', citation);		
 		},
         resetAutoSave: function(index) {
           clearTimeout(this.autosave[index]);
           this.autosave[index] = null          
         },  
         autoSave: function(index, item) {
-          var that = this;
-          if(this.autosave[index]) {
-            this.resetAutoSave(index);
+          var that = this,
+          	  input = this.$refs.inputPages[index].value;
+          if(this.autosave[item.id]) {
+            this.resetAutoSave(item.id);
           }   
-          this.autosave[index] = setTimeout(function() {    
-            that.setPages(index, item);  
+          this.autosave[item.id] = setTimeout(function() {    
+            that.setPages(input, item);  
           }, 3000);
         },
 	}

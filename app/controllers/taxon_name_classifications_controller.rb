@@ -42,6 +42,7 @@ class TaxonNameClassificationsController < ApplicationController
   def update
     respond_to do |format|
       if @taxon_name_classification.update(taxon_name_classification_params)
+        @taxon_name_classification.reload
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Taxon name classification was successfully updated.')}
         format.json { render :show, status: :ok, location: @taxon_name_classification.metamorphosize }
       else

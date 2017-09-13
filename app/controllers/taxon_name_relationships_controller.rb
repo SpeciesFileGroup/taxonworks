@@ -53,6 +53,7 @@ class TaxonNameRelationshipsController < ApplicationController
   def update
     respond_to do |format|
       if @taxon_name_relationship.update(taxon_name_relationship_params)
+        @taxon_name_relationship.reload
         format.html { redirect_to @taxon_name_relationship.metamorphosize, notice: 'Taxon name relationship was successfully updated.' }
         format.json { render :show, status: :ok, location: @taxon_name_relationship.metamorphosize }
       else

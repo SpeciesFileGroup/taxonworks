@@ -6,6 +6,7 @@
       <div class="flexbox horizontal-center-content align-start">
         <div class="ccenter item separate-right">
           <spinner :full-screen="true" legend="Loading..." :logo-size="{ width: '100px', height: '100px'}" v-if="loading"></spinner>
+          <spinner :full-screen="true" legend="Saving changes..." :logo-size="{ width: '100px', height: '100px'}" v-if="getSaving"></spinner>
           <basic-information class="separate-bottom"></basic-information>
           <div class="new-taxon-name-block">
             <spinner :show-spinner="false" :show-legend="false" v-if="!getTaxon.id"></spinner>
@@ -94,6 +95,9 @@
     computed: {
       getTaxon() {
         return this.$store.getters[GetterNames.GetTaxon];
+      },
+      getSaving() {
+        return this.$store.getters[GetterNames.GetSaving];
       },
       menu() {
         return {

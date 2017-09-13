@@ -214,7 +214,7 @@
 				if (!!last_name && !!first_name) {
 					separator = ", ";
 				}
-				return (last_name + separator + first_name);
+				return (last_name + separator + (first_name != null ? first_name : ''));
 			},
 			createPerson: function() {
 				let person = { 

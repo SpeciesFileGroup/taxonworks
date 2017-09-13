@@ -31,6 +31,7 @@ function makeInitialState() {
       modalStatus: false,
       modalType: false,
       modalRelationship: false,
+      saving: false,
       lastSave: 0,
       lastChange: 0
     },
