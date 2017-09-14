@@ -1,4 +1,6 @@
 <template>
+  <div>
+  <spinner :show-spinner="false" :show-legend="false" v-if="spinner"></spinner>
   <div class="panel basic-information">
     <a v-if="anchor" :name="anchor" class="anchor"></a>
     <div class="header flex-separate middle">
@@ -13,19 +15,25 @@
       </slot>
     </div>
   </div>
+</div>
 </template>
 
 <script>
   const expand = require('./expand.vue');
+  const spinner = require('../../../components/spinner.vue');
 
 export default {
   components: {
-    expand
+    expand,
+    spinner
   },
   props: {
     anchor: {
       type: String,
       default: undefined
+    },
+    spinner: {
+      default: false
     }
   },
   data: function() {

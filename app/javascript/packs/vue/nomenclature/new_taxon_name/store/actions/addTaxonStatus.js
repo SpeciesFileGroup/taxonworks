@@ -14,12 +14,17 @@ module.exports = function({ dispatch, commit, state }, status) {
 				type: status.type
 			}
 		}
-		createTaxonStatus(newClassification).then( response => {
-			Object.defineProperty(response, 'type', { value: status.type });
-			Object.defineProperty(response, 'object_tag', { value: status.name });
-			commit(MutationNames.AddTaxonStatus, response);
-			dispatch('loadSoftValidation', 'taxon_name');
-			dispatch('loadSoftValidation', 'taxonStatusList');
+		new Promise(function(resolve,reject) {
+			createTaxonStatus(newClassification).then( response => {
+				Object.defineProperty(response, 'type', { value: status.type });
+				Object.defineProperty(response, 'object_tag', { value: status.name });
+				commit(MutationNames.AddTaxonStatus, response);
+				dispatch('loadSoftValidation', 'taxon_name');
+				dispatch('loadSoftValidation', 'taxonStatusList');
+				return resolve(response);
+			}, response => {
+				return reject(response);
+			});
 		});
 	}
 };

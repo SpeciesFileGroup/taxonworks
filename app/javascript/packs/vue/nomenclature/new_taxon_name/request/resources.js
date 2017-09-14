@@ -90,6 +90,8 @@ const createTaxonStatus = function(newClassification) {
   return new Promise(function (resolve, reject) {
     Vue.http.post('/taxon_name_classifications', newClassification).then( response => {
       return resolve(response.body);
+    }, response => {
+      return reject(response.body);
     });
   });
 }

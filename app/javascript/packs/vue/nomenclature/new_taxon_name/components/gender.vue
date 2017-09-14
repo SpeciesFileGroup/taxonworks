@@ -1,6 +1,6 @@
 <template>
 	<form class="gender">
-		<block-layout anchor="gender">
+		<block-layout anchor="gender" :spinner="saving">
 			<h3 slot="header">Gender and form</h3>
 			<div slot="body" v-if="taxon.id">
 				<div class="separate-bottom">
@@ -23,7 +23,7 @@
 						<input v-model="neuter" type="text"/>
 					</div>
 				</div>
-				<list-entrys @delete="removeGender" :list="getStatusGender" :display="['object_tag']"></list-entrys>
+				<list-entrys @delete="removeGender" @addCitation="setCitation" :list="getStatusGender" :display="['object_tag']"></list-entrys>
 			</div>
 		</block-layout>
 	</form>
@@ -46,7 +46,8 @@
 			return {
 				radioGender: "masculine",
 				list: [],
-				filterList: ['gender']
+				filterList: ['gender', 'part of speech'],
+				saving: false
 			}
 		},
 		mounted: function() {
@@ -106,6 +107,9 @@
 			removeGender: function(item) {
 				this.$store.dispatch(ActionNames.RemoveTaxonStatus, item);
 			},
+			setCitation: function(item) {
+				this.$store.dispatch(ActionNames.UpdateClassification, item)
+			},
 			getList: function() {
 				for(var key in this.getStatusList) {
 					if(this.applicableRank(this.getStatusList[key].applicable_ranks, this.taxon.rank_string)) {
@@ -130,14 +134,18 @@
 			addEntry: function(item) {
 				let that = this;
 				let alreadyStored = this.searchExisting();
-
+				this.saving = true;
 				if(alreadyStored) {
 					this.$store.dispatch(ActionNames.RemoveTaxonStatus, alreadyStored).then( response => {
-						that.$store.dispatch(ActionNames.AddTaxonStatus, item)
+						that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
+							that.saving = false;
+						});
 					});
 				}
 				else {
-					this.$store.dispatch(ActionNames.AddTaxonStatus, item);
+					this.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
+						that.saving = false;
+					});
 				}
 			},
 			applicableRank: function(list, type) {
