@@ -72,6 +72,7 @@ namespace :tw do
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           error_counter = 0
+          saved_counter = 0
 
           file.each_with_index do |row, i|
             specimen_id = row['SpecimenID']
@@ -117,7 +118,7 @@ namespace :tw do
                                  import_predicate: 'basis_of_record',
                                  value: basis_of_record_string,
                                  project_id: project_id}
-              data_attributes_bucket[:data_attributes_attributes].push(basis_record)
+              data_attributes_bucket[:data_attributes_attributes].push(basis_of_record)
             end
 
             if row['PreparationType'].present?
@@ -187,14 +188,14 @@ namespace :tw do
               data_attributes_bucket[:data_attributes_attributes].push(specimen_status)
             end
 
-            citations_attributes = nil  # if nil will it get ignored in metadata?
+            citations_attributes = nil # if nil will it get ignored in metadata?
             if row['SourceID'] != '0'
               sf_source_id = row['SourceID']
 
               if get_sf_source_metadata[sf_source_id][row['RefID']] != '0' # SF.Source has RefID, create citation for collection object (assuming it will be created)
                 citations_attributes = {source_id: sf_source_id, project_id: project_id}
               end
-              if get_sf_source_metadata[sf_source_id][row['Description']].length > 0 # SF.Source has description, create an import_attribute
+              if get_sf_source_metadata[sf_source_id][row['Description']].present? # SF.Source has description, create an import_attribute
                 sf_source_description = {type: 'ImportAttribute',
                                          import_predicate: 'sf_source_description',
                                          value: row['Description'],
@@ -249,7 +250,7 @@ namespace :tw do
                       collecting_event_id: collecting_event_id,
                       repository_id: repository_id,
 
-                      biocuration_classifications_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s]}],
+                      biocuration_classifications_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s], project_id: project_id}],
 
                       # housekeeping for collection_object
                       project_id: project_id,
@@ -260,6 +261,8 @@ namespace :tw do
                   ) #)
 
                   collection_object.save!
+
+                  puts "Collection object is saved, number #{saved_counter += 1}"
 
                   current_objects.push(collection_object)
 
@@ -272,30 +275,31 @@ namespace :tw do
                 # in a virtual container
                 # 2) If there is an "identifier", associate it with a single collection object or the container (if applicable)
                 identifier = nil
-                if row['DepoCatNo']
-                  identifier = Identifier::Local::CatalogNumber.create!(
+                if row['DepoCatNo'].present?
+                  identifier = Identifier::Local::CatalogNumber.new(
+                      identifier: "SF.DepoID #{sf_depo_id},  #{row['DepoCatNo']}",
                       namespace: depo_namespace,
-                      project_id: project_id,
-                      identifier: "SF.DepoID#{sf_depo_id} #{row['DepoCatNo']}"
-                  )
+                       project_id: project_id)
                   # identifier = ImportAttribute.new(value: row['DepotCatNo'], import_predicate: 'DepotCatNo', project_id: project_id)
-                end
 
-                if current_objects.count == 1
-                  # The "Identifier" is attached to the only collection object that is created
-                  current_objects.first.identifiers << identifier if identifier
+                  if current_objects.count == 1
+                    # The "Identifier" is attached to the only collection object that is created
 
-                elsif current_objects > 1
-                  # There is more than one object, put them in a virtual container
-                  c = Container::Virtual.create!(project_id: project_id)
-                  current_objects.each do |o|
-                    o.put_in_container(c)
+                    current_objects.first.identifiers << identifier if identifier
+
+                  elsif current_objects.count > 1
+                    # There is more than one object, put them in a virtual container
+                    c = Container::Virtual.create!(project_id: project_id)
+                    current_objects.each do |o|
+                      o.put_in_container(c)
+                    end
+
+                    c.identifiers << identifier if identifier
+
+
+                  else
+                    puts "OOPS" # would this happen?
                   end
-
-                  c.identifiers << identifier if identifier
-
-                else
-                  puts "OOPS" # would this happen?
                 end
 
                 puts 'CollectionObject created'
