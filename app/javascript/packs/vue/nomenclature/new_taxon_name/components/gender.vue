@@ -132,21 +132,32 @@
 				});
 			},
 			addEntry: function(item) {
-				let that = this;
-				let alreadyStored = this.searchExisting();
+				let that = this,
+					alreadyStored = this.searchExisting(),
+					taxon_name = {
+						verbatim_author: this.taxon.verbatim_author,
+						feminine_name: this.taxon.feminine_name,
+						masculine_name: this.taxon.masculine_name,
+					}
 				this.saving = true;
-				if(alreadyStored) {
-					this.$store.dispatch(ActionNames.RemoveTaxonStatus, alreadyStored).then( response => {
-						that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
-							that.saving = false;
+				this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon).then(function() {
+					if(alreadyStored) {
+						that.$store.dispatch(ActionNames.RemoveTaxonStatus, alreadyStored).then( response => {
+							that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
+								that.$store.dispatch(ActionNames.LoadTaxonName, that.taxon.id).then(function() {
+									that.saving = false;
+								});
+							});
 						});
-					});
-				}
-				else {
-					this.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
-						that.saving = false;
-					});
-				}
+					}
+					else {
+						that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
+							that.$store.dispatch(ActionNames.LoadTaxonName, that.taxon.id).then(function() {
+								that.saving = false;
+							});
+						});
+					}
+				});
 			},
 			applicableRank: function(list, type) {
 				let found = list.find(function(item) {

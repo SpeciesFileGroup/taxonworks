@@ -6,9 +6,12 @@ module.exports = function({ dispatch, commit, state }, classification) {
 	let patchClassification = {
 		taxon_name_classification: classification
 	}
-	updateClassification(patchClassification).then( response => {
-		commit(MutationNames.AddTaxonStatus, response);
-		dispatch('loadSoftValidation', 'taxon_name');
-		dispatch('loadSoftValidation', 'taxonStatusList');
+	return new Promise(function(resolve, reject) {
+		updateClassification(patchClassification).then( response => {
+			commit(MutationNames.AddTaxonStatus, response);
+			dispatch('loadSoftValidation', 'taxon_name');
+			dispatch('loadSoftValidation', 'taxonStatusList');
+			resolve(response);
+		});
 	});
 };

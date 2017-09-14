@@ -122,7 +122,9 @@
       let taxonId = location.pathname.split('/')[4];
       this.initLoad().then(function() {
         if(/^\d+$/.test(taxonId)) {
-          that.$store.dispatch(ActionNames.LoadTaxonName, taxonId).then( function(){
+          that.$store.dispatch(ActionNames.LoadTaxonName, taxonId).then( function() {
+            that.$store.dispatch(ActionNames.LoadTaxonStatus, taxonId);
+            that.$store.dispatch(ActionNames.LoadTaxonRelationships, taxonId);
             that.loading = false;
           });
         }
