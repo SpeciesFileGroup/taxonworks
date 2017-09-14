@@ -614,15 +614,15 @@ class TaxonName < ApplicationRecord
   def name_in_gender(gender = nil)
     case gender
       when 'masculine'
-        n = self.masculine_name
+        n = masculine_name
       when 'feminine'
-        n = self.feminine_name
+        n = feminine_name
       when 'neuter'
-        n = self.neuter_name
+        n = neuter_name
       else
         n = nil
     end
-    n = n.blank? ? self.name : n
+    n = n.blank? ? name : n
     return n
   end
 
@@ -950,12 +950,12 @@ class TaxonName < ApplicationRecord
   end
 
   def name_with_misspelling(gender)
-    if self.cached_misspelling
-      self.name.to_s + ' [sic]'
-    elsif gender.nil? || self.rank_string =~ /Genus/
-      self.name.to_s
+    if cached_misspelling
+      name.to_s + ' [sic]'
+    elsif gender.nil? || rank_string =~ /Genus/
+      name.to_s
     else
-      self.name_in_gender(gender).to_s
+      name_in_gender(gender).to_s
     end
   end
 
