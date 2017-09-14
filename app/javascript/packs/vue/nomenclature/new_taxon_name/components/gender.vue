@@ -152,9 +152,11 @@
 					}
 					else {
 						that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
-							that.$store.dispatch(ActionNames.LoadTaxonName, that.taxon.id).then(function() {
-								that.saving = false;
-							});
+							setTimeout(function() {    
+								that.$store.dispatch(ActionNames.LoadTaxonName, that.taxon.id).then(function() {
+									that.saving = false;
+								});
+          					}, 1000);
 						});
 					}
 				});
