@@ -2,46 +2,77 @@ require 'rails_helper'
 
 describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :collection_objects] do
   context 'with properly built collection of objects' do
-    let(:page_title) { 'Collection objects by area and date' }
-    let(:index_path) { collection_objects_filter_task_path }
+    let(:page_title) {'Collection objects by area and date'}
+    let(:index_path) {collection_objects_filter_task_path}
 
     it_behaves_like 'a_login_required_and_project_selected_controller'
 
-    after(:all) { clean_slate_geo }
+    after(:all) {clean_slate_geo}
 
     context 'signed in as a user' do
       before(:each) {
         sign_in_user_and_select_project
       }
 
-      describe '#set_otu', js: true, resolution: true do
-        let(:otu_test) { Otu.create!(name: 'zzzzz', by: @user, project: @project) }
-        let(:specimen) { Specimen.create!(by: @user, project: @project) }
+      context 'triggering the by_otu facet' do
+        describe '#set_otu', js: true, resolution: true do
+          let(:otu_test) {Otu.create!(name: 'zzzzz', by: @user, project: @project)}
+          let(:specimen) {Specimen.create!(by: @user, project: @project)}
 
-        before do
-          TaxonDetermination.create!(otu: otu_test, biological_collection_object: specimen, by: @user, project: @project)
-          visit(collection_objects_filter_task_path)
-        end
+          before do
+            TaxonDetermination.create!(otu: otu_test, biological_collection_object: specimen, by: @user, project: @project)
+            visit(collection_objects_filter_task_path)
+          end
 
-        it 'renders count of collection objects based on a selected otu' do
-          fill_autocomplete('otu_id_for_by_otu', with: otu_test.name, select: otu_test.to_param)
-          wait_for_ajax
-          find('#set_otu').click
-          wait_for_ajax
-          expect(find('#otu_count')).to have_text('1', wait: 10)
+          it 'renders count of collection objects based on a selected otu' do
+            fill_autocomplete('otu_id_for_by_otu', with: otu_test.name, select: otu_test.to_param)
+            wait_for_ajax
+            find('#set_otu').click
+            wait_for_ajax
+            expect(find('#otu_count')).to have_text('1', wait: 10)
+          end
         end
       end
 
-      context 'signed in as user, with some records created' do
+      context 'triggering the by_identifier facet' do
+        describe '#set_identifier', js: true, resolution: true do
+
+          before do
+            2.times {FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)}
+            ns1 = Namespace.first
+            ns2 = Namespace.second
+            2.times {FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)}
+            (1..10).each {|identifier|
+              sp = FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)
+              id = FactoryGirl.create(:identifier_local_catalog_number,
+                                      updater:           @user,
+                                      project:           @project,
+                                      creator:           @user,
+                                      identifier_object: sp,
+                                      namespace:         ((identifier % 2) == 0 ? ns1 : ns2),
+                                      identifier:        identifier)
+            }
+            visit(collection_objects_filter_task_path)
+          end
+          it 'renders the count of collection objects based on a selected range of identifiers' do
+            expect(Specimen.count).to eq(12)
+            expect(Identifier.count).to eq(10)
+            expect(Namespace.count).to eq(2)
+            expect(true).to be_truthy
+          end
+        end
+      end
+
+      context 'with some records created' do
         before {
           generate_political_areas_with_collecting_events(@user.id, @project.id)
         }
 
-        let!(:gnlm) { GeographicArea.where(name: 'Great Northern Land Mass').first }
+        let!(:gnlm) {GeographicArea.where(name: 'Great Northern Land Mass').first}
 
-        let!(:otum1) { Otu.where(name: 'Find me').first }
+        let!(:otum1) {Otu.where(name: 'Find me').first}
 
-        let(:json_string) { '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}}' }
+        let(:json_string) {'{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}}'}
 
         describe '#set_area', js: true do #
           it 'renders count of collection objects in a specific names area' do
@@ -63,7 +94,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         end
 
         describe '#set_date', js: true do
-          before { visit(collection_objects_filter_task_path) }
+          before {visit(collection_objects_filter_task_path)}
           it 'renders count of collection objects based on the start and end dates' do
             execute_script("document.getElementById('search_end_date').value = '1980/12/31'")
             find('#search_start_date').set('1971/01/01')
