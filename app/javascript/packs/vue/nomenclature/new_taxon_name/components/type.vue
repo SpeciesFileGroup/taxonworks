@@ -43,7 +43,7 @@
           <list-common :object-lists="objectLists.common" :filter="true" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"></list-common>
         </div>
       </div>
-      <list-entrys :list="GetRelationshipsCreated" @delete="removeType" :display="['subject_status_tag', { link: '/tasks/nomenclature/browse/', label: 'object_object_tag', param: 'object_taxon_name_id'}]"></list-entrys>
+      <list-entrys @addCitation="setType" :list="GetRelationshipsCreated" @delete="removeType" :display="['object_status_tag', { link: '/tasks/nomenclature/browse/', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"></list-entrys>
     </div>
   </form>
 </template>
@@ -77,10 +77,21 @@
       getRankGroup() {
         return getRankGroup(this.$store.getters[GetterNames.GetTaxon].rank_string);
       },
+      taxon() {
+        return this.$store.getters[GetterNames.GetTaxon];
+      },
       GetRelationshipsCreated() {
-        return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(function(item) { 
+        var type = []
+        type = this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(function(item) { 
           return (item.type.split('::')[1] == 'Typification')
         });
+        if(!type.length) {
+          if(this.taxon.hasOwnProperty('type_taxon_name_relationship') && this.taxon['type_taxon_name_relationship']) {
+            type.push(this.taxon.type_taxon_name_relationship);
+            return type
+          }
+        }
+        return type;
       },
       parent() {
         return this.$store.getters[GetterNames.GetParent]
@@ -121,8 +132,15 @@
       }
     },
     methods: {
+      setType(item) {
+        this.$store.dispatch(ActionNames.UpdateTaxonRelationship, item);
+      },
       removeType: function(item) {
+        let taxon_name = Object.assign({}, this.$store.getters[GetterNames.GetTaxon])
+
+        taxon_name['type_taxon_name_relationship'] = undefined;
         this.$store.dispatch(ActionNames.RemoveTaxonRelationship, item);
+        this.$store.commit(MutationNames.SetTaxon, taxon_name);        
       },
       refresh: function() {
         this.objectLists.tree = this.filterList(this.addType(Object.assign({},this.treeList.typification.all)),this.getRankGroup);
