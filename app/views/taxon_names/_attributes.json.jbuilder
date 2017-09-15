@@ -39,23 +39,6 @@ if taxon_name.origin_citation
   end
 end
 
-
-if taxon_name.taxon_name_classifications.any?
-  json.taxon_name_classifications do
-    json.array! taxon_name.taxon_name_classifications.each do |tc|
-      json.partial! '/taxon_name_classifications/attributes', taxon_name_classification: tc 
-    end
-  end
-end
-
-if taxon_name.taxon_name_relationships.with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES).any?
-  json.taxon_name_relationships do
-    json.array! taxon_name.taxon_name_relationships.with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES).each do |tr|
-      json.partial! '/taxon_name_relationships/attributes', taxon_name_relationship: tr 
-    end
-  end
-end
-
 json.type_taxon_name_relationship do
   if taxon_name.type_taxon_name_relationship
     json.partial! '/taxon_name_relationships/attributes', taxon_name_relationship: taxon_name.type_taxon_name_relationship
