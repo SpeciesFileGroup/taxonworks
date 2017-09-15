@@ -49,7 +49,7 @@ class Person < ApplicationRecord
   before_validation :set_type_if_blank
 
   # after_save :update_bibtex_sources
-  before_save :set_cached
+  after_save :set_cached
 
   validates :type, inclusion: {in:      ['Person::Vetted', 'Person::Unvetted'],
                                message: "%{value} is not a validly_published type"}
@@ -174,7 +174,7 @@ class Person < ApplicationRecord
   end
 
   def set_cached
-    self.cached = self.bibtex_name if self.errors.empty?
+    update_column(:cached, self.bibtex_name) if errors.empty? 
   end
 
 end
