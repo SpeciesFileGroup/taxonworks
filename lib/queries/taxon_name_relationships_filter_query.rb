@@ -55,7 +55,7 @@ module Queries
       of_types.each do |i|
         t = t + STATUS_TAXON_NAME_RELATIONSHIP_NAMES if i == 'status'
         t = t + TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM if i == 'synonym'
-        t = t + (TAXON_NAME_RELATIONSHIPS_OBJECT_SELECT.select{|a,b| b =~ /.*::Typification::Family/} + TAXON_NAME_RELATIONSHIPS_OBJECT_SELECT.select{|a,b| b =~ /.*::Typification::Genus/})  if i == 'type'
+        t = t + TAXON_NAME_RELATIONSHIPS_JSON[:typification][:all].keys if i == 'type'
       end
       t
     end
