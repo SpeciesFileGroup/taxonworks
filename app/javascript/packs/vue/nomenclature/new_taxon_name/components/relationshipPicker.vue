@@ -54,7 +54,7 @@
           <list-common v-if="!showAdvance" :object-lists="objectLists.commonList" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"></list-common>
         </div>
       </div>
-      <list-entrys @addCitation="setRelationship" @delete="removeRelationship" :list="GetRelationshipsCreated" :display="['subject_status_tag', 'object_object_tag']"></list-entrys>
+      <list-entrys @addCitation="setRelationship" @delete="removeRelationship" :list="GetRelationshipsCreated" :display="['subject_status_tag', { link: '/tasks/nomenclature/browse/', label: 'object_object_tag', param: 'object_taxon_name_id'}]"></list-entrys>
     </div>
   </form>
 </template>

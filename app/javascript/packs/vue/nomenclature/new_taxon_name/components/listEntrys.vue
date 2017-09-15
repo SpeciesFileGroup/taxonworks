@@ -2,9 +2,14 @@
 	<div v-show="list.length">
 	    	<transition-group class="table-entrys-list" name="list-complete" tag="ul">
 	    	<li v-for="item, index in list" :key="item.id" class="list-complete-item flex-separate middle">
-			    <span><span v-for="show in display" v-html="item[show] + ' '"></span></span>
+			    <span class="list-item">
+			    	<template v-for="show in display"> 
+			    		<a v-if="isLink(show)" target="_blank" :href="composeLink(item, show)" v-html="item[show.label]"></a>
+			    		<span v-else v-html="item[show]"></span>
+			    	</template> 
+			    </span>
 			    <div class="list-controls">
-			    	<span v-if="getCitation(item)" v-html="getCitation(item)"></span>
+			    	<a :href="`/sources/${item.origin_citation.source_id}/edit`" target="_blank" v-if="getCitation(item)" v-html="getCitation(item)"></a>
 			    	<div class="list-controls" v-else>
 						<autocomplete 
 							url="/sources/autocomplete"
@@ -47,6 +52,17 @@ export default {
 		}
 	},
 	methods: {
+		composeLink(item, show) {
+			return show.link + item[show.param]
+		},
+		isLink(show) {
+			if(typeof show === 'string' || show instanceof String) {
+				return false;
+			}
+			else {
+				return true;
+			}
+		},
 		getCitation: function(item) {
 			return (item.hasOwnProperty('origin_citation') ? item.origin_citation.source.object_tag : undefined)
 		},
@@ -117,6 +133,12 @@ export default {
 }
 .pages:disabled {
 	background-color: #F5F5F5;
+}
+.list-item {
+	a {
+		padding-left: 4px;
+		padding-right: 4px;
+	}
 }
 .table-entrys-list {
   	padding: 0px;
