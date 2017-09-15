@@ -264,7 +264,7 @@ class Descriptor::Gene < Descriptor
   end
 
   def cache_gene_attribute_logic_sql
-    write_attribute(:cached_gene_attribute_sql, build_gene_attribute_logic_sql)
+    update_column(:cached_gene_attribute_sql, build_gene_attribute_logic_sql)
   end
 
 end
