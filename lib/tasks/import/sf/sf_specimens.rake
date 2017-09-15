@@ -61,9 +61,9 @@ namespace :tw do
           get_specimen_category_counts = import.get('SFSpecimenIDCategoryIDCount')
           get_sf_source_metadata = import.get('SFSourceMetadata')
           get_sf_identification_metadata = import.get('SFIdentificationMetadata')
+          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
 
           get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id
-          # get_depo_catalog_number = {} # key = SF.SpecimenID, value = depo catalog number
 
           depo_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'SpecimenDepository', short_name: 'Depo')
 
@@ -252,7 +252,15 @@ namespace :tw do
 
                       biocuration_classifications_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s], project_id: project_id}],
 
-                      # housekeeping for collection_object
+                      # td = TaxonDetermination.create(
+                      #     biological_collection_object: o,
+                      #     otu: otu,
+                      #     year_made: year_from_field(row['DateID'])
+                      # )
+
+                      taxon_determinations_attributes: [{otu: get_tw_otu_id[row['TaxonNameID']], project_id: project_id}],
+
+                  # housekeeping for collection_object
                       project_id: project_id,
                       created_at: row['CreatedOn'],
                       updated_at: row['LastUpdate'],
@@ -279,7 +287,7 @@ namespace :tw do
                   identifier = Identifier::Local::CatalogNumber.new(
                       identifier: "SF.DepoID #{sf_depo_id},  #{row['DepoCatNo']}",
                       namespace: depo_namespace,
-                       project_id: project_id)
+                      project_id: project_id)
                   # identifier = ImportAttribute.new(value: row['DepotCatNo'], import_predicate: 'DepotCatNo', project_id: project_id)
 
                   if current_objects.count == 1
@@ -314,13 +322,8 @@ namespace :tw do
           end
 
           import.set('SFSpecimenIDToCollObjID', get_tw_collection_object_id)
-          import.set('SFSpecimenIDToCatalogNumber', get_depo_catalog_number)
-
           puts 'SFSpecimenIDToCollObjID'
           ap get_tw_collection_object_id
-
-          puts 'SFSpecimenIDToCatalogNumber'
-          ap get_depo_catalog_number
 
         end
 
