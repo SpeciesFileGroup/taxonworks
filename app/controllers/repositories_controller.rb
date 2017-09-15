@@ -78,7 +78,8 @@ class RepositoriesController < ApplicationController
   end
 
   def autocomplete
-    @repositories = Repository.find_for_autocomplete(params)
+
+    @repositories = Queries::RepositoryAutocompleteQuery.new(params[:term]).all
 
     data = @repositories.collect do |t|
       {id:              t.id,
@@ -95,7 +96,7 @@ class RepositoriesController < ApplicationController
 
   # GET /repositories/download
   def download
-    send_data Repository.generate_download( Repository.all ), type: 'text', filename: "repositories_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Repository.all), type: 'text', filename: "repositories_#{DateTime.now.to_s}.csv"
   end
 
   private

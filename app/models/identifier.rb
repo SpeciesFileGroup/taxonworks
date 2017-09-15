@@ -46,7 +46,7 @@ class Identifier < ApplicationRecord
   include Shared::IsData
   include Shared::DualAnnotator
 
-  before_save :set_cached
+  after_save :set_cached
 
   # must come before SHORT_NAMES for weird inheritance issue
   belongs_to :identifier_object, polymorphic: :true
@@ -80,8 +80,8 @@ class Identifier < ApplicationRecord
   validates_presence_of :type, :identifier
 
   # @todo test  - pendings are in the identifier_spec
-  scope :of_type, -> (type) { where(type: Identifier::SHORT_NAMES[type].to_s) }
-  scope :with_type_string, -> (base_string) {where('type LIKE ?', "#{base_string}" ) }
+  scope :of_type, -> (type) {where(type: Identifier::SHORT_NAMES[type].to_s)}
+  scope :with_type_string, -> (base_string) {where('type LIKE ?', "#{base_string}")}
 
   def self.find_for_autocomplete(params)
     where('identifier LIKE ?', "#{params[:term]}%")

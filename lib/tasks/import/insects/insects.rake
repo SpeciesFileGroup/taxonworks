@@ -710,7 +710,7 @@ namespace :tw do
                    #data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: 'PeopleID', type: 'ImportAttribute'} ],
                    tags_attributes:   [ { keyword: data.keywords['INHS_imported'] } ]
             )
-            c.identifiers.create(identifier: p['PeopleID'], namespace: @user_namespace, type: 'Identifier::Local::Import')
+            user.identifiers.create(identifier: p['PeopleID'], namespace: @user_namespace, type: 'Identifier::Local::Import')
 
           else
             user = existing_user.first
@@ -1697,6 +1697,7 @@ namespace :tw do
         else
           print "as newly parsed.\n"
           i = 0
+          lender_address = 'INHS Insect Collection, Illinois Natural History Survey, 1816 S. Oak st., Champaign, IL 61820'
           lo.each do |row|
             i += 1
             print "\r#{i}"
@@ -1712,6 +1713,8 @@ namespace :tw do
             recipient_email = data.people_id[row['RecipientID']]['Email']
             recipient_email = nil if recipient_email.to_s.include?(' ') || recipient_email.to_s.include?("\r") || recipient_email.to_s.include?(",") || recipient_email.to_s.include?("’")
 
+            row['DateReceived'] = '' if time_from_field(row['DateReceived']) < time_from_field(row['DateProcessed'])
+
             l = Loan.create( date_requested: time_from_field(row['DateRequested']),
                              request_method: row['MethodOfRequest'],
                              date_sent: time_from_field(row['DateProcessed']),
@@ -1726,6 +1729,7 @@ namespace :tw do
                              #supervisor_person: supervisor,
                              supervisor_email: supervisor_email,
                              supervisor_phone: supervisor_phone,
+                             lender_address: lender_address,
                              date_closed: date_closed,
                              created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
                              created_at: time_from_field(row['CreatedOn'])

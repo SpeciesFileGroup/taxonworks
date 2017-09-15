@@ -24,6 +24,10 @@ module IdentifiersHelper
     end
   end
 
+  def simple_identifier_list_tag(object)
+    object.identifiers.collect{|a| content_tag(:spane, identifier_annotation_tag(a)) }.join.html_safe 
+  end
+
   def identifiers_tag(object)
     if object.identifiers.any?
       object.identifiers.collect{|a| content_tag(:span, identifier_tag(a))}.join('; ').html_safe

@@ -1,8 +1,6 @@
 module Queries
   class SourceFilterQuery < Queries::Query
 
-    include Arel::Nodes
-
     # @return [ActiveRecord::Relation]
     def or_clauses
       clauses = [
