@@ -5,7 +5,7 @@
     <div class="item item1 one_third_width">
       <h3> Description and requirements </h3>
 
-      <p>Create sequence relationships between sequences and primer sequences</p>
+      <p>Create sequence relationships between sequences and primer sequences and creates gene descriptors and gene attributes</p>
       <ul>
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
         <li>Column headers are (see <%= link_to('sample template', asset_path('batch_load_templates/sequence_relationships/sequence_relationships_primers_batch_load.tab'), target: '_blank') -%>).</li>
@@ -20,7 +20,7 @@
       <p> A tab delimited formatted file. In the example whitespace is a tab. View sample file template.</p>
 
       <pre class="fixed_width_font">
-        identifier sample_code gene fragment publication taxon_name primers
+        identifier dna_number gene_name forward_primers reverse_primers
       </pre>
     </div>
 

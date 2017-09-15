@@ -1,4 +1,3 @@
-# TODO: THIS IS A GENERATED STUB, it does not function
 module BatchLoad
   class Import::Descriptors::ModifyGeneDescriptorInterpreter < BatchLoad::Import
 
@@ -7,7 +6,6 @@ module BatchLoad
       super(args)
     end
 
-    # TODO: update this
     def build_descriptors
       @total_data_lines = 0
       i = 0
@@ -39,8 +37,7 @@ module BatchLoad
               primer_sequence = Sequence.with_any_value_for(:name, primer_name).take
               next if primer_sequence.blank?
               
-              primer_relationship_type = "SequenceRelationship::ForwardPrimer"
-              primer_relationship_type = "SequenceRelationship::ReversePrimer" if primer_type == "reverse_primers"
+              primer_relationship_type = "SequenceRelationship::" + primer_type.singularize.camelize
 
               gene_attribute = GeneAttribute.find_by(descriptor: gene_descriptor, sequence: primer_sequence, sequence_relationship_type: primer_relationship_type)
               next if gene_attribute.blank?
@@ -51,10 +48,11 @@ module BatchLoad
 
           gene_descriptor_logic = ""
           gene_descriptor_logic += "(" + primers_logic[:forward_primers].join(" OR ") + ")"
-          gene_descriptor_logic += " OR "
+          gene_descriptor_logic += " AND "
           gene_descriptor_logic += "(" + primers_logic[:reverse_primers].join(" OR ") + ")"
           gene_descriptor.gene_attribute_logic = gene_descriptor_logic
           parse_result.objects[:descriptor].push(gene_descriptor)
+          @total_data_lines += 1
         # rescue
         end
       end
