@@ -11,8 +11,8 @@
 			<div class="content header">
 				<h3 v-if="taxon.id" class="flex-separate middle">
 					<a :href="`/tasks/nomenclature/browse/${taxon.id}`" target="_blank" class="taxonname"> 
-						<span v-if="showParent" v-html="parent.object_tag"></span> 
-						<span> {{ taxon.name }} {{ showAuthor() }}</span>
+						<span v-html="taxon.cached_html"></span>
+						<span v-html="taxon.cached_author_year"></span>
 					</a>
 					<span v-if="taxon.id" @click="showModal = true" class="circle-button btn-delete"></span>
 				</h3>
