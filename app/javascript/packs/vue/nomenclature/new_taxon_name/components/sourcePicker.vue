@@ -42,7 +42,9 @@
 					<hr>
 					<div v-if="citation != undefined">
 						<div class="flex-separate middle">
-							<p>{{ citation.source.object_tag }}</p><span class="circle-button btn-delete" @click="removeSource(taxon.origin_citation.id)"></span>
+							<p>
+								<a :href="`/sources/${taxon.origin_citation.source_id}/edit`" target="_blank">{{ citation.source.object_tag }}</a>
+							</p><span class="circle-button btn-delete" @click="removeSource(taxon.origin_citation.id)"></span>
 						</div>
 					</div>
 				</div>
