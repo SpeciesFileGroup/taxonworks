@@ -43,7 +43,7 @@
           <list-common :object-lists="objectLists.common" :filter="true" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"></list-common>
         </div>
       </div>
-      <list-entrys :list="GetRelationshipsCreated" @delete="removeType" :display="['subject_status_tag', 'subject_object_tag']"></list-entrys>
+      <list-entrys :list="GetRelationshipsCreated" @delete="removeType" :display="['subject_status_tag', { link: '/tasks/nomenclature/browse/', label: 'object_object_tag', param: 'object_taxon_name_id'}]"></list-entrys>
     </div>
   </form>
 </template>

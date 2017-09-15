@@ -10,10 +10,10 @@
 		<div class="panel basic-information">
 			<div class="content header">
 				<h3 v-if="taxon.id" class="flex-separate middle">
-					<span class="taxonname"> 
+					<a :href="`/tasks/nomenclature/browse/${taxon.id}`" target="_blank" class="taxonname"> 
 						<span v-if="showParent" v-html="parent.object_tag"></span> 
 						<span> {{ taxon.name }} {{ showAuthor() }}</span>
-					</span>
+					</a>
 					<span v-if="taxon.id" @click="showModal = true" class="circle-button btn-delete"></span>
 				</h3>
 				<h3 class="taxonname" v-else>New</h3>
@@ -102,6 +102,9 @@ export default {
 			.circle-button {
 				margin: 0px;
 			}
+		}
+		.taxonname {
+			font-size: 14px;
 		}
 	}
 </style>
