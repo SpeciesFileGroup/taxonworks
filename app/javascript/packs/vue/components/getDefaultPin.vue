@@ -1,5 +1,5 @@
 <template>
-	<button v-if="getDefault != undefined" type="button" class="normal-input" @click="sendDefault()">Use default {{ this.label }}</button>
+	<button v-if="getDefault != undefined" type="button" class="normal-input button" @click="sendDefault()">Use default {{ this.label }}</button>
 </template>
 <script>
 	export default {

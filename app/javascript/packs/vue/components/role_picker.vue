@@ -16,9 +16,9 @@
 			<div class="flex-wrap-column separate-left" v-if="searchPerson.length > 0">
 				<div>
 					<input class="normal-input" disabled :value="newNamePerson"/>
-					<button type="button" class=" normal-input" @click="createPerson()">Add new</button>
-					<button type="button" class=" normal-input" @click="switchName(newNamePerson)">Switch</button>
-					<button type="button" class=" normal-input" @click="expandPerson = !expandPerson">Expand</button>
+					<button type="button" class=" normal-input button button-submit" @click="createPerson()">Add new</button>
+					<button type="button" class=" normal-input button" @click="switchName(newNamePerson)">Switch</button>
+					<button type="button" class=" normal-input button" @click="expandPerson = !expandPerson">Expand</button>
 				</div>
 				<hr>
 				<div class="flex-wrap-column" v-if="expandPerson">
