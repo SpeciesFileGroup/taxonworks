@@ -23,11 +23,27 @@ describe 'tasks/import/dwca/psu_import', type: :feature, group: [:collection_obj
         end
 
         # TODO: Add some more tests...
-        it 'displays a page with which to interact' do
-          # fill_autocomplete('dwca_namespace', with: @ns2.short_name, select: @ns2.id)
-          # wait_for_ajax
-          expect(page).to have_button('import')
-        end # dwca_namespace
+        context 'ways to interact with the page' do
+
+          it 'displays a page with which to interact' do
+            expect(page).to have_button('import')
+            s = find(:select, 'dwca_namespace')
+            s.send_keys("PSUC\t")
+            expect(page).to have_text('PSUC_FEM')
+            click_button('import')
+            # find(:select)
+            # fill_in('dwca_namespace', with: 'PS')
+            # fill_autocomplete('dwca_namespace', with: @ns2.short_name, select: @ns2.id)
+            # wait_for_ajax
+            expect(page).to have_text('No file provided!')
+          end # dwca_namespace
+
+          it 'finds and upload a file' do
+            f = find('#file')
+            # f.text = './spec/files/batch/dwca/PSUC3-Test.utf8.txt'
+            # expect(page).to have_text('PSUC3')
+          end
+        end
       end
     end
   end

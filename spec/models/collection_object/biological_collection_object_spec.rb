@@ -1,8 +1,8 @@
 require 'rails_helper'
 describe CollectionObject::BiologicalCollectionObject, type: :model, group: :collection_objects do
 
-  let(:biological_collection_object) { FactoryGirl.build(:collection_object_biological_collection_object) }
-  let(:otu) { Otu.create(name: 'zzz') }
+  let(:biological_collection_object) {FactoryGirl.build(:collection_object_biological_collection_object)}
+  let(:otu) {Otu.create(name: 'zzz')}
 
   specify '.valid_new_object_classes' do
     expect(CollectionObject::BiologicalCollectionObject.valid_new_object_classes).to contain_exactly('Extract', 'CollectionObject::BiologicalCollectionObject')
@@ -44,9 +44,9 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
 
   context 'nested attributes' do
 
-    let(:s) { Specimen.create!(otus_attributes: [{name: 'one'}, {name: 'two'}] ) }
-    let(:t) { Specimen.create!(taxon_determinations_attributes: [{otu: Otu.create(name: 'abc') }, {otu_id: otu.id} ] ) } 
-    let(:u) { Specimen.create!(taxon_determinations_attributes: [ {otu_attributes: {name: 'King Kong'}} ]) }
+    let(:s) {Specimen.create!(otus_attributes: [{name: 'one'}, {name: 'two'}])}
+    let(:t) {Specimen.create!(taxon_determinations_attributes: [{otu: Otu.create(name: 'abc')}, {otu_id: otu.id}])}
+    let(:u) {Specimen.create!(taxon_determinations_attributes: [{otu_attributes: {name: 'King Kong'}}])}
 
     context 'via otus_attributes' do
       specify 'creates otus' do
@@ -80,8 +80,8 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
   end
 
   context 'ordering deteriminations' do
-    let!(:o) { 
-      Specimen.create!(total: 1, otus_attributes: [ {name: 'one'}, {name: 'two'}, {name: 'three'} ])
+    let!(:o) {
+      Specimen.create!(total: 1, otus_attributes: [{name: 'one'}, {name: 'two'}, {name: 'three'}])
     }
 
     specify '#current_taxon_determination, last created, first on list by default' do
@@ -96,16 +96,16 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
       expect(biological_collection_object).to respond_to(:reorder_determinations_by)
     end
 
-    specify '#reorder_determinations()' do 
+    specify '#reorder_determinations()' do
       expect(o.reorder_determinations_by()).to be_truthy
-    end 
+    end
 
     context 'when reordered' do
-      let(:y) { Time.now.year.to_i }
+      let(:y) {Time.now.year.to_i}
       before do
         o.taxon_determinations.first.update(year_made: 1920)
-        o.taxon_determinations.last.update(year_made: 1980) 
-        o.reorder_determinations_by() 
+        o.taxon_determinations.last.update(year_made: 1980)
+        o.reorder_determinations_by()
         o.reload
       end
 
@@ -120,7 +120,7 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
   end
 
   context 'soft validation' do
-    let(:o) { Specimen.create }
+    let(:o) {Specimen.create}
 
     specify 'determination is missing' do
       o.soft_validate(:missing_determination)
@@ -141,11 +141,67 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
     specify 'preparation_type missing' do
       o.soft_validate(:missing_preparation_type)
       expect(o.soft_validations.messages_on(:preparation_type_id).count).to eq(1)
-    end 
+    end
 
     specify 'repository missing' do
       o.soft_validate(:missing_repository)
       expect(o.soft_validations.messages_on(:repository_id).count).to eq(1)
+    end
+  end
+
+  context 'finding collection objects by identifier' do
+    let(:ns1) {Namespace.first}
+    let(:ns2) {Namespace.second}
+
+    let(:id_attributes) {{namespace:  nil,
+                          project_id: $project_id,
+                          type:       nil,
+                          identifier: nil}}
+    before do
+      2.times {FactoryGirl.create(:valid_namespace)}
+      2.times {FactoryGirl.create(:valid_specimen)}
+      (1..10).each {|identifier|
+        sp = FactoryGirl.create(:valid_specimen)
+        id = FactoryGirl.create(:identifier_local_catalog_number,
+                                identifier_object: sp,
+                                namespace:         ((identifier % 2) == 0 ? ns1 : ns2),
+                                identifier:        identifier)
+      }
+    end
+
+    describe 'with namespace' do
+      specify 'uses Local::CatalogNumber' do
+        this_id = id_attributes.merge({namespace:  ns1,
+                                       type:       'Identifier::Local::CatalogNumber',
+                                       identifier: '1'})
+        pile    = CollectionObject.with_project_id($project_id)
+                    .includes(:identifiers)
+                    .where('identifiers.type = ?', 'Identifier::Local::CatalogNumber')
+                    .where('identifiers.namespace_id = ?', ns1.id)
+                    .order("CAST(coalesce(identifiers.identifier, '0') AS integer) DESC")
+                    .references(:identifiers)
+
+        expect(pile.collect {|item| item.identifiers.first.identifier}).to eq(['10', '8', '6', '4', '2'])
+        expect(pile.count).to eq(5)
+      end
+
+    end
+
+    describe 'without namespace' do
+      specify 'uses Local::CatalogNumber' do
+        this_id = id_attributes.merge({namespace:  ns1,
+                                       type:       'Identifier::Local::CatalogNumber',
+                                       identifier: '1'})
+        pile    = CollectionObject.with_project_id($project_id)
+                    .includes(:identifiers)
+                    .where('identifiers.type = ?', 'Identifier::Local::CatalogNumber')
+                    .order("CAST(coalesce(identifiers.identifier, '0') AS integer) DESC")
+                    .references(:identifiers)
+
+        expect(pile.collect {|item| item.identifiers.first.identifier}).to eq(['10', '9', '8', '7', '6',
+                                                                               '5', '4', '3', '2', '1'])
+        expect(pile.count).to eq(10)
+      end
     end
   end
 
