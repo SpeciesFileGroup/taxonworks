@@ -46,6 +46,7 @@ class TaxonNamesController < ApplicationController
   def update
     respond_to do |format|
       if @taxon_name.update(taxon_name_params)
+        @taxon_name.reload
         format.html { redirect_to @taxon_name.metamorphosize, notice: 'Taxon name was successfully updated.' }
         format.json { render :show, status: :ok, location: @taxon_name.metamorphosize }
       else
@@ -78,7 +79,7 @@ class TaxonNamesController < ApplicationController
     @taxon_names = Queries::TaxonNameAutocompleteQuery.new(
       params[:term],
       autocomplete_params.to_h
-    ).all
+    ).autocomplete
 
     data = @taxon_names.collect do |t|
       str = render_to_string(partial: 'autocomplete_tag', locals: {taxon_name: t, term: params[:term] })
@@ -87,7 +88,7 @@ class TaxonNamesController < ApplicationController
        response_values: {
          params[:method] => t.id
        },
-       label_html:       str
+       label_html: str
       }
     end
 
