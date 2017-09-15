@@ -38,8 +38,10 @@ class TaxonNameClassification < ApplicationRecord
   soft_validate(:sv_validate_disjoint_classes, set: :validate_disjoint_classes)
   soft_validate(:sv_not_specific_classes, set: :not_specific_classes)
 
-  after_save :set_cached_names_for_taxon_names
-  after_destroy :set_cached_names_for_taxon_names
+  after_save :set_cached
+  after_destroy :set_cached
+  #  after_save :set_cached_names_for_taxon_names
+  # after_destroy :set_cached_names_for_taxon_names
 
   def nomenclature_code
     return :iczn if type.match(/::Iczn/)
@@ -150,32 +152,21 @@ class TaxonNameClassification < ApplicationRecord
     const_defined?(:NOMEN_URI, false) ? self::NOMEN_URI : nil
   end
 
+  def set_cached
+    set_cached_names_for_taxon_names
+  end
+
   def set_cached_names_for_taxon_names
     begin
       TaxonName.transaction do
         t = taxon_name
+        
         if type_name =~ /Fossil|Hybrid/
-          t.update_columns(cached: t.get_full_name,
-                           cached_html: t.get_full_name_html)
-        elsif type_name =~ /Adjective|Participle/ && t.masculine_name.blank? && t.feminine_name.blank? && t.neuter_name.blank?
-          m_name, f_name, n_name = nil, nil, nil
-          if t.name.end_with?('is')
-            m_name, f_name, n_name = t.name, t.name, t.name[0..-3] + 'e'
-          elsif t.name.end_with?('e')
-            m_name, f_name, n_name = t.name[0..-2] + 'is', t.name = t.name[0..-2] + 'is', t.name
-          elsif t.name.end_with?('us')
-            m_name, f_name, n_name = t.name, t.name[0..-3] + 'a', t.name[0..-3] + 'um'
-          elsif t.name.end_with?('er')
-            m_name, f_name, n_name = t.name, t.name[0..-3] + 'ra', t.name[0..-3] + 'rum'
-          elsif t.name.end_with?('um') && !t.name.end_with?('rum')
-            m_name, f_name, n_name = t.name[0..-3] + 'us', t.name[0..-3] + 'a', t.name
-          elsif t.name.end_with?('a') && !t.name.end_with?('ra')
-            m_name, f_name, n_name = t.name[0..-3] + 'us', t.name, t.name[0..-3] + 'um'
-          elsif t.name.end_with?('or')
-          end
-          t.update_columns(:masculine_name => m_name,
-                           :feminine_name => f_name,
-                           :neuter_name => n_name)
+          t.update_columns(
+            cached: t.get_full_name,
+            cached_html: t.get_full_name_html
+          )
+
         elsif TAXON_NAME_CLASS_NAMES_VALID.include?(type_name)
           vn = t.get_valid_taxon_name
           vn.update_column(:cached_valid_taxon_name_id, vn.id)  # update self too!
@@ -325,5 +316,3 @@ class TaxonNameClassification < ApplicationRecord
   end
 
 end
-
-

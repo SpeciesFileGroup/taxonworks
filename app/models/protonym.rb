@@ -1,14 +1,12 @@
 # Force the loading of TaxonNameRelationships in all worlds.  This allows us to edit without restarting in development.
 Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {|file| require_dependency file }
 
-
 # A *monomial* TaxonName, a record implies a first usage. This follows Pyle's concept almost exactly.
 #
 # We inject a lot of relationship helper methods here, in this format.
 #   subject                      object
 #   Aus      original_genus of   bus
 #   aus      type_species of     Bus
-#
 #
 class Protonym < TaxonName
 
@@ -51,7 +49,6 @@ class Protonym < TaxonName
 
   has_many :type_of_taxon_names, through: :type_of_relationships, source: :object_taxon_name
 
-  # TODO: how come this is object_taxon_name and cached in TaxonName maps to subject?!
   has_many :original_combination_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::OriginalCombination::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
@@ -359,25 +356,7 @@ class Protonym < TaxonName
     FAMILY_RANK_NAMES.include?(rank_string)
   end
 
-  # TODO: Why protected?  What does it do?
-  def genus_suggested_gender
-    return nil unless rank_string =~/Genus/
-    TAXON_NAME_CLASSIFICATION_GENDER_CLASSES.each do |g|
-      g.possible_genus_endings.each do |e|
-        return g.name.demodulize.underscore.humanize.downcase if self.name =~ /^[a-zA-Z]*#{e}$/
-      end
-    end
-    nil
-  end
 
-  # TODO: why protected?
-  def species_questionable_ending(g, n)
-    return nil unless rank_string =~ /Species/
-    g.questionable_species_endings.each do |e|
-      return e if n =~ /^[a-z]*#{e}$/
-    end
-    nil
-  end
 
   def reduce_list_of_synonyms(list)
     return [] if list.empty?
@@ -449,6 +428,24 @@ class Protonym < TaxonName
     return n
   end
 
+  def genus_suggested_gender
+    return nil unless rank_string =~/Genus/
+    TAXON_NAME_CLASSIFICATION_GENDER_CLASSES.each do |g|
+      g.possible_genus_endings.each do |e|
+        return g.name.demodulize.underscore.humanize.downcase if self.name =~ /^[a-zA-Z]*#{e}$/
+      end
+    end
+    nil
+  end
+
+  def species_questionable_ending(taxon_name_classification_class, tested_name)
+    return nil unless is_species_rank? 
+    taxon_name_classification_class.questionable_species_endings.each do |e|
+      return e if tested_name =~ /^[a-z]*#{e}$/
+    end
+    nil
+  end
+
   protected
 
   def name_is_latinized
@@ -463,8 +460,6 @@ class Protonym < TaxonName
     Otu.create(by: self.creator, project: self.project, taxon_name_id: self.id)
   end
 
-  #region Validation
-
   def new_parent_taxon_name
     r = self.iczn_uncertain_placement_relationship
     unless r.blank?
@@ -477,9 +472,6 @@ class Protonym < TaxonName
   def validate_rank_class_class
     errors.add(:rank_class, 'Rank not found') unless RANKS.include?(rank_string)
   end
-
-  #endregion
-
 
   def set_cached_names
     super
@@ -557,7 +549,7 @@ class Protonym < TaxonName
       if self.cached_html != get_full_name_html ||
           self.cached_misspelling != get_cached_misspelling ||
           self.cached_original_combination != get_original_combination ||
-          #          self.cached_higher_classification != get_higher_classification ||
+          #  self.cached_higher_classification != get_higher_classification ||
           self.cached_primary_homonym != get_genus_species(:original, :self) ||
           self.cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
           self.rank_string =~ /Species/ && (self.cached_secondary_homonym != get_genus_species(:current, :self) || self.cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative))
