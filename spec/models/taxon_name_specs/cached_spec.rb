@@ -45,6 +45,12 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
       end
 
+      let(:family) { FactoryGirl.create(:relationship_family) }
+      let(:genus1) { FactoryGirl.create(:relationship_genus, name: 'Aus', parent: family) }
+      let(:genus2) { FactoryGirl.create(:relationship_genus, name: 'Bus', parent: family) }
+      let(:species) { FactoryGirl.create(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758) }
+      let(:t) {species.created_at}
+
       context 'basic use' do
         let!(:sp) { FactoryGirl.create(:relationship_species) }
 
@@ -57,13 +63,17 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
       end
 
-      context '#set_cached_names_for_dependants_and_self' do
-        let(:family) { FactoryGirl.create(:relationship_family) }
-        let(:genus1) { FactoryGirl.create(:relationship_genus, name: 'Aus', parent: family) }
-        let(:genus2) { FactoryGirl.create(:relationship_genus, name: 'Bus', parent: family) }
-        let(:species) { FactoryGirl.create(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758) }
-        let(:t) {species.created_at}
+      context '#combination_verbatim_name' do
+        let(:c) {Combination.create(genus: genus1, species: species, verbatim_name: 'Aa aa')}
 
+        specify 'over-rides #cached when provided' do
+          expect(c.cached).to eq('Aa aa')
+        end 
+
+      end
+
+      context '#set_cached_names_for_dependants_and_self' do
+        
         context 'species methods' do
           before do 
             species.original_genus = genus2
@@ -95,7 +105,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           context 'changing the genus (parent) name' do
             before do 
               genus1.name = 'Cus'
-              genus1.save
+              genus1.save!
               species.reload
             end 
 

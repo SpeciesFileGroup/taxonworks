@@ -763,7 +763,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
       end
 
-      context 'nomenclature_date' do
+      context '#nomenclature_date' do
         let(:f1) { FactoryGirl.create(:relationship_family, year_of_publication: 1900) }
         let(:f2) { FactoryGirl.create(:relationship_family, year_of_publication: 1950) }
 
@@ -929,7 +929,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
 
         specify 'scope project_root' do
-          root1.save
+          root1
           expect(TaxonName.project_root(1).first).to eq(root1)
         end
       end
