@@ -144,7 +144,7 @@ module Queries
 
     def autocomplete_genus_species2(result)
       return nil if result.nil?
-      a = table[:cached].matches(z + '%')
+      a = table[:cached].matches(result + '%')
       base_query.where(a.to_sql).order('type DESC, cached ASC').limit(8)
     end
 
