@@ -232,7 +232,7 @@ class TaxonNameRelationship < ApplicationRecord
     self.source ? (self.source.cached_nomenclature_date ? self.source.cached_nomenclature_date.to_time : Time.now) : Time.now
   end
 
-  # @todo SourceClassifiedAs is not really Combination in the other sense
+  # @TODO SourceClassifiedAs is not really Combination in the other sense
   def is_combination?
     !!/TaxonNameRelationship::(OriginalCombination|Combination)/.match(self.type.to_s)
   end
@@ -345,26 +345,30 @@ class TaxonNameRelationship < ApplicationRecord
        #  t.update_columns(:cached_original_combination => t.get_original_combination,
        #                   :cached_primary_homonym => t.get_genus_species(:original, :self),
        #                   :cached_primary_homonym_alternative_spelling => t.get_genus_species(:original, :alternative))
-        if self.is_combination?
-          t = self.object_taxon_name
-          t.update_columns(:cached_original_combination => t.get_original_combination,
-                           :cached => t.get_full_name,
-                           :cached_html => t.get_full_name_html,
-                           :cached_author_year => t.get_author_and_year,
-                           :cached_valid_taxon_name_id => t.get_valid_taxon_name.id)
-#        elsif self.type_name =~/Misspelling/
-#          t = self.subject_taxon_name
+        if is_combination?
+          t = object_taxon_name
+          t.update_columns(
+            cached_original_combination:  t.get_original_combination,
+            cached: t.get_full_name,
+            cached_html: t.get_full_name_html,
+            cached_author_year: t.get_author_and_year,
+            cached_valid_taxon_name_id: t.get_valid_taxon_name.id
+          )
+          #        elsif self.type_name =~/Misspelling/
+          #          t = self.subject_taxon_name
 #          t.update_column(:cached_misspelling, t.get_cached_misspelling)
-        elsif self.type_name =~/TaxonNameRelationship::Hybrid/
-          t = self.object_taxon_name
-          t.update_columns(:cached => t.get_full_name,
-                           :cached_html => t.get_full_name_html)
-        elsif self.type_name =~/SourceClassifiedAs/
-          t = self.subject_taxon_name
+        elsif type_name =~/TaxonNameRelationship::Hybrid/ # TODO: move to Hybrid
+          t = object_taxon_name
+          t.update_columns(
+            cached: t.get_full_name,
+            cached_html: t.get_full_name_html
+          )
+        elsif type_name =~/SourceClassifiedAs/ 
+          t = subject_taxon_name
           t.update_column(:cached_classified_as, t.get_cached_classified_as)
-        elsif TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
-          t = self.subject_taxon_name
-          if self.type_name =~/Misspelling/
+        elsif TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(type_name)
+          t = subject_taxon_name
+          if type_name =~/Misspelling/
             t.update_column(:cached_misspelling, t.get_cached_misspelling)
           end
           t.update_columns(:cached => t.get_full_name,
@@ -380,7 +384,7 @@ class TaxonNameRelationship < ApplicationRecord
       end
 
     # no point in rescuing and not returning somthing
-    rescue
+    rescue ActiveRecord::RecordInvalid
       raise
     end
     false
