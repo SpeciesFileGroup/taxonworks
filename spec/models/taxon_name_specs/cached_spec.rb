@@ -2,10 +2,7 @@ require 'rails_helper'
 
 describe TaxonName, type: :model, group: [:nomenclature] do
 
-  let(:root) {
-    subspecies = FactoryGirl.create(:iczn_subspecies)
-    subspecies.root
-  }
+  let(:root) { FactoryGirl.create(:root_taxon_name) }
 
   after(:all) do
     TaxonNameRelationship.delete_all
