@@ -161,8 +161,6 @@ class TaxonName < ApplicationRecord
   # Deprecated
   # before_validation :set_type_if_empty
 
-  attr_accessor :times_cached 
-
   after_save :create_new_combination_if_absent 
 
   after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
@@ -662,7 +660,6 @@ class TaxonName < ApplicationRecord
     end
   end
 
-
   def set_cached_warnings
     update_columns(
       cached:  NO_CACHED_MESSAGE,
@@ -672,96 +669,33 @@ class TaxonName < ApplicationRecord
     )
   end
 
-  def times_called 
-    @times_cached ||= 0
-    @times_cached += 1
-    if @times_cached > 1
-      print Rainbow(@times_cached).blue.bold
-    end 
-  end
+  # Debugging/optimizing caching
+  # attr_accessor :times_cached 
+  # after_save :reset_times_called
+  
+  # def reset_times_called
+  #   @times_cached = 0
+  # end
+  
+  # def times_called 
+  #   @times_cached ||= 0
+  #   @times_cached += 1
+  #   if @times_cached > 1
+  #     print Rainbow(@times_cached).blue.bold
+  #   end 
+  # end
 
   def set_cached
     update_column(:cached, get_full_name)
-    set_cached_names 
-    set_cached_names_for_dependants_and_self  # !!! do we run set cached names 2 x !?!
+    set_cached_html
+    set_cached_author_year 
+    set_cached_classified_as
     set_cached_valid_taxon_name_id
   end
 
-  def set_cached_names
-    # OLD :if updated, update also sv_cached_names
-    set_cached_html
-    set_cached_author_year
-    set_cached_classified_as
-  end
 
   def set_cached_valid_taxon_name_id
-    #begin
-      TaxonName.transaction do
-        update_column(:cached_valid_taxon_name_id, get_valid_taxon_name.id)
-      end
-    # rescue  
-    # end
-    end
-
-  def set_cached_names_for_dependants_and_self
-    dependants = []
-    related_through_original_combination_relationships = []
-    combination_relationships = []
-
-    # begin
-    TaxonName.transaction do
-
-      if rank_string =~/Species|Genus/
-        dependants = Protonym.descendants_of(self).to_a # self.descendant_protonyms
-        related_through_original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
-        combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
-      end
-
-      dependants.push(self)
-      classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
-      hybrid_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('Hybrid')
-
-      dependants.each do |i|
-        i.update_columns(
-          cached: i.get_full_name,
-          cached_html: i.get_full_name_html)
-        if i.rank_string =~ /Species/
-          i.update_columns(
-            cached_secondary_homonym: i.get_genus_species(:current, :self),
-            cached_secondary_homonym_alternative_spelling: i.get_genus_species(:current, :alternative))
-        end
-      end
-
-      related_through_original_combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
-        i.update_cached_original_combinations
-      end
-
-      combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
-        i.update_columns(
-          cached: i.get_full_name,
-          cached_html: i.get_full_name_html)
-      end
-
-      classified_as_relationships.collect{|i| i.subject_taxon_name}.uniq.each do |i|
-        i.update_column(:cached_classified_as, i.get_cached_classified_as)
-      end
-
-      classified_as_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
-        i.update_columns(
-          cached: i.get_full_name,
-          cached_html: i.get_full_name_html
-        )
-      end
-    end
-    #    rescue # Don't rescue without a specific Error
-    #    end
-    end
-
-  def update_cached_original_combinations
-    update_columns(
-      cached_original_combination: get_original_combination,
-      cached_primary_homonym: get_genus_species(:original, :self),
-      cached_primary_homonym_alternative_spelling: get_genus_species(:original, :alternative))
+    update_column(:cached_valid_taxon_name_id, get_valid_taxon_name.id)
   end
 
   # Only Protonym, but 
@@ -776,7 +710,6 @@ class TaxonName < ApplicationRecord
   end
 
   def set_cached_author_year
-    times_called
     update_column(:cached_author_year, get_author_and_year)
   end
 
