@@ -26,11 +26,12 @@
 						</label>
 			        </div>
 			    </div>
-			    <div v-if="show == 'source'">
+			    <div v-if="show == 'source' && taxon.id">
 				    <div class="horizontal-left-content">
 						<autocomplete
 							url="/sources/autocomplete"
 							min="3"
+							:autofocus="true"
 							param="term"
 							event-send="sourceSelect"
 							label="label_html"

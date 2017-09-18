@@ -39,7 +39,10 @@
           <input name="relationship-picker-options" id="relationship-picker-showall" type="radio" class="normal-input" @click="activeModal(true)"/>
           <label for="relationship-picker-showall">Show all</label>
         </div>
-        <p v-html="taxonRelation.label_html"></p>
+        <p class="inline">
+          <span v-html="taxonRelation.label_html"></span>
+          <span type="button" title="Remove" class="circle-button btn-undo" @click="taxonRelation = undefined"></span>
+        </p>
         <div class="separate-top">
           <autocomplete v-if="showAdvance"
             :arrayList="objectLists.allList"

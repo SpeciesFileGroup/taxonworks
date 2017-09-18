@@ -38,7 +38,10 @@
           <input name="type-picker-options" id="type-picker-showall" type="radio" class="normal-input" @click="activeModal(true)"/>
           <label for="type-picker-showall">Show all</label>
         </div>
-        <p v-html="taxonRelation.label_html"></p>
+        <p class="inline">
+          <span v-html="taxonRelation.label_html"></span>
+          <span type="button" title="Remove" class="circle-button btn-undo" @click="taxonRelation = undefined"></span>
+        </p>
         <div class="separate-top">
           <list-common :object-lists="objectLists.common" :filter="true" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"></list-common>
         </div>

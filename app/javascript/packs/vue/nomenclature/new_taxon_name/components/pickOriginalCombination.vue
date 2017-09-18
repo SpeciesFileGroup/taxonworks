@@ -2,7 +2,7 @@
 	<div class="original-combination-picker">
 		<form class="horizontal-left-content">
 			<div class="button-current separate-right">
-				<button  v-if="!existOriginalCombination" type="button" @click="addOriginalCombination()" class="normal-input button">Set as current</button>
+				<button  v-if="!existOriginalCombination" type="button" @click="addOriginalCombination()" class="normal-input button button-submit">Set as current</button>
 			</div>
 			<div>
 				<draggable class="flex-wrap-column" v-model="taxonOriginal" v-if="!existOriginalCombination"

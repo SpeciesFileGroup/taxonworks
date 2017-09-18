@@ -63,7 +63,7 @@ export default {
 		      $('#taxonNavBar').addClass('navbar-fixed-top');
 		    }
 
-		    if ($(window).scrollTop() < 156) {
+		    if ($(window).scrollTop() < 162) {
 		      $('#taxonNavBar').removeClass('navbar-fixed-top');
 		    }
 		  });
