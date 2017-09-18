@@ -48,6 +48,12 @@ export default {
       };
     },
 
+    mounted: function() {
+      if(this.autofocus) {
+        this.$refs.autofocus.focus();
+      }
+    },
+
     watch: {
       type: function() {
         if(this.type.length < Number(this.min)) {
