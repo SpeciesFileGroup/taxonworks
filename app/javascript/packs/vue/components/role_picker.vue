@@ -44,7 +44,7 @@
 		<ul class="table-entrys-list">
 			<draggable v-model="roles_attributes" @end="onSortable">
 				<li class="flex-separate middle" v-for="role, index in roles_attributes" v-if="!role.hasOwnProperty('_destroy')">
-					<span v-html="getLabel(role)"></span>
+					<a :href="getUrl(role)" target="_blank" v-html="getLabel(role)"></a>
 					<span class="circle-button btn-delete" @click="removePerson(index)"></span>
 				</li>
 			</draggable>
@@ -105,6 +105,12 @@
 			}
 		},
 		methods: {
+			getUrl(role) {
+				if(role.hasOwnProperty('person'))
+					return `/people/${role.person.id}/edit`
+				else
+					return '#'
+			},
 			makeNewPerson: function() {
 				return	{
 					first_name: '',
