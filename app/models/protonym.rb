@@ -199,7 +199,7 @@ class Protonym < TaxonName
   # @return [String, nil]
   #   a string, without parenthesis, that includes author and year
   def get_author_and_year
-    times_called 
+    # times_called 
     case rank_class.try(:nomenclatural_code)
       when :iczn
         ay = iczn_author_and_year
