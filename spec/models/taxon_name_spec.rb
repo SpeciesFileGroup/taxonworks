@@ -141,29 +141,45 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
       context 'name' do
         context 'validate cached values' do
-          specify 'ICZN ' do
-            # expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
-            expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
+          specify 'ICZN #cached_author_year' do
+            expect(@subspecies.reload.cached_author_year).to eq('McAtee, 1900')
+          end
+
+          specify 'ICZN #cached_html' do
             expect(@subspecies.cached_html).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis vitata</i>')
           end
 
-          specify 'fossil' do
-            sp = FactoryGirl.create(:relationship_species, parent: @genus)
-            c  = FactoryGirl.create(:taxon_name_classification, taxon_name: sp, type: 'TaxonNameClassification::Iczn::Fossil')
-            sp.reload
-            expect(sp.get_full_name_html).to eq('&#8224; <i>Erythroneura vitis</i>')
-            expect(sp.cached_html).to eq('&#8224; <i>Erythroneura vitis</i>')
-            expect(sp.cached).to eq('Erythroneura vitis')
+          context 'fossil' do
+            let(:sp) { FactoryGirl.create(:relationship_species, parent: @genus) }
+            let!(:c) { FactoryGirl.create(:taxon_name_classification, taxon_name: sp, type: 'TaxonNameClassification::Iczn::Fossil')}
+
+            specify '#get_full_name' do
+              expect(sp.get_full_name_html).to eq('&#8224; <i>Erythroneura vitis</i>')
+            end
+
+            specify '#cached_html' do
+              expect(sp.cached_html).to eq('&#8224; <i>Erythroneura vitis</i>')
+            end
+
+            specify 'cached' do
+              expect(sp.cached).to eq('Erythroneura vitis')
+            end
           end
 
-          specify 'hybrid' do
-            g = FactoryGirl.create(:icn_genus)
-            sp = FactoryGirl.create(:icn_species, parent: g)
-            c  = FactoryGirl.create(:taxon_name_classification, taxon_name: sp, type: 'TaxonNameClassification::Icn::Hybrid')
-            sp.reload
-            expect(sp.cached_html).to eq('&#215; <i>Aus aaa</i>')
-            expect(sp.cached).to eq('Aus aaa')
+          context 'hybrid' do
+            let(:g) { FactoryGirl.create(:icn_genus) }
+            let(:sp) { FactoryGirl.create(:icn_species, parent: g) }
+            let!(:c) { FactoryGirl.create(:taxon_name_classification, taxon_name: sp, type: 'TaxonNameClassification::Icn::Hybrid') }
+
+            specify '#cached_html' do
+              expect(sp.cached_html).to eq('&#215; <i>Aus aaa</i>')
+            end
+
+            specify '#cached' do
+              expect(sp.cached).to eq('Aus aaa')
+            end
           end
+
 
           specify 'ICZN subspecies' do
             # expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
@@ -172,7 +188,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
 
           specify 'ICZN species misspelling' do
-            sp                               = FactoryGirl.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: @genus)
+            sp  = FactoryGirl.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: @genus)
             sp.iczn_set_as_misapplication_of = @species
             expect(sp.save).to be_truthy
             expect(sp.cached_author_year).to eq('Smith, 2000 nec McAtee, 1830')
@@ -182,10 +198,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             g1 = FactoryGirl.create(:relationship_genus, parent: @family, name: 'Aus')
             s = FactoryGirl.create(:relationship_species, parent: g1, name: 'aus', year_of_publication: 1900, verbatim_author: 'McAtee')
             s.save!
-            c1 = Combination.new
-            c1.genus = g1
-            c1.species = s
-            c1.save
+            c1 = Combination.create!(genus: g1, species: s)
             expect(c1.cached_author_year).to eq('McAtee, 1900')
           end
 
@@ -196,10 +209,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             s.original_genus = g2
             s.save!
             s.reload
-            c1 = Combination.new
-            c1.genus = g1
-            c1.species = s
-            c1.save
+            c1 = Combination.create!(genus: g1, species: s)
             expect(c1.cached_author_year).to eq('(McAtee, 1900)')
           end
 
@@ -209,7 +219,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               expect(@family.cached_author_year).to eq('Say, 1800')
             end
 
-            specify 'cached_author_year with parenteses' do
+            specify 'cached_author_year with parentheses' do
               sp = FactoryGirl.create(:relationship_species, parent: @genus, year_of_publication: 2000, verbatim_author: '(Dmitriev)')
               expect(sp.cached_author_year).to eq('(Dmitriev, 2000)')
             end
@@ -219,7 +229,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             end
 
             specify 'original combination' do
-              sp                = FactoryGirl.create(:relationship_species, name: 'albonigra', verbatim_name: 'albo-nigra', parent: @genus)
+              sp = FactoryGirl.create(:relationship_species, name: 'albonigra', verbatim_name: 'albo-nigra', parent: @genus)
               sp.original_genus = @genus
               sp.save
               expect(sp.cached_html).to eq('<i>Erythroneura albonigra</i>')
@@ -753,7 +763,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
       end
 
-      context 'nomenclature_date' do
+      context '#nomenclature_date' do
         let(:f1) { FactoryGirl.create(:relationship_family, year_of_publication: 1900) }
         let(:f2) { FactoryGirl.create(:relationship_family, year_of_publication: 1950) }
 
@@ -919,7 +929,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
 
         specify 'scope project_root' do
-          root1.save
+          root1
           expect(TaxonName.project_root(1).first).to eq(root1)
         end
       end

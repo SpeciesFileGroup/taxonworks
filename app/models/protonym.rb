@@ -199,7 +199,8 @@ class Protonym < TaxonName
   # @return [String, nil]
   #   a string, without parenthesis, that includes author and year
   def get_author_and_year
-    case self.rank_class.try(:nomenclatural_code)
+    times_called 
+    case rank_class.try(:nomenclatural_code)
       when :iczn
         ay = iczn_author_and_year
       when :icn
@@ -207,7 +208,7 @@ class Protonym < TaxonName
       when :icnb
         ay = icn_author_and_year
       else
-        ay = ([self.author_string] + [self.year_integer]).compact.join(' ')
+        ay = ([author_string] + [year_integer]).compact.join(' ')
     end
     ay.blank? ? nil : ay
   end
@@ -216,7 +217,6 @@ class Protonym < TaxonName
     return nil if rank_class.nil?
     genus = nil
     name1 = nil
-
 
     if self.rank_string =~ /Species/
       if genus_option == :original
@@ -352,10 +352,13 @@ class Protonym < TaxonName
     GENUS_RANK_NAMES.include?(rank_string)
   end
 
+  def is_genus_or_species_rank?
+    is_species_rank? || is_genus_rank?
+  end
+
   def is_family_rank?
     FAMILY_RANK_NAMES.include?(rank_string)
   end
-
 
 
   def reduce_list_of_synonyms(list)
@@ -446,6 +449,179 @@ class Protonym < TaxonName
     nil
   end
 
+
+  # TODO: refactor to use us a hash!
+  # Returns a String representing the name as originally published
+  def get_original_combination
+    # strategy is to get the original hash, and swap in values for pertinent relationships
+    str = nil
+
+    if is_genus_or_species_rank?  # TODO: by definition it's a protonym
+      relationships = self.original_combination_relationships.reload # force a reload of the relationships
+
+      return nil if relationships.count == 0
+
+      # This can be greatly simplified by swapping in names to the hash method
+
+      relationships = relationships.sort_by{|r| r.type_class.order_index }
+      genus         = ''
+      subgenus      = ''
+      superspecies  = ''
+      species       = ''
+      gender        = nil
+
+      relationships.each do |i|
+        if i.object_taxon_name_id == i.subject_taxon_name_id && !i.object_taxon_name.verbatim_name.blank?
+          case i.type # subject_status
+            when /OriginalGenus/ #'original genus'
+              genus  = '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+              gender = i.subject_taxon_name.gender_name
+            when /OriginalSubgenus/ # 'original subgenus'
+              subgenus += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalSpecies/ #  'original species'
+              species += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalSubspecies/ # 'original subspecies'
+              species += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalVariety/ #  'original variety'
+              species += 'var. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalSubvariety/ # 'original subvariety'
+              species += 'subvar. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalForm/ # 'original form'
+              species += 'f. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalSubform/ #  'original subform'
+              species += 'subf. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+          end
+        else
+          case i.type # subject_status
+            when /OriginalGenus/ #'original genus'
+              genus  = '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+              gender = i.subject_taxon_name.gender_name
+            when /OriginalSubgenus/ # 'original subgenus'
+              subgenus += '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+  #          when /OriginalSection/ # 'original section'
+  #            subgenus += 'sect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+  #          when /OriginalSubsection/ #'original subsection'
+  #            subgenus += 'subsect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+  #          when /OriginalSeries/ # 'original series'
+  #            subgenus += 'ser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+  #          when /OriginalSubseries/ #  'original subseries'
+  #            subgenus += 'subser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+            when /OriginalSpecies/ #  'original species'
+              species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalSubspecies/ # 'original subspecies'
+              species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalVariety/ #  'original variety'
+              species += 'var. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalSubvariety/ # 'original subvariety'
+              species += 'subvar. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalForm/ # 'original form'
+              species += 'f. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalSubform/ #  'original subform'
+              species += 'subf. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+          end
+        end
+      end
+
+      original_name = self.verbatim_name.nil? ? self.name_with_misspelling(nil) : self.verbatim_name
+      if !relationships.empty? && relationships.collect{|i| i.subject_taxon_name}.last.lowest_rank_coordinated_taxon.id != self.lowest_rank_coordinated_taxon.id
+        if self.rank_string =~ /Genus/
+          if genus.blank?
+            genus += '<i>' + original_name + '</i> '
+          else
+            subgenus += '<i>' + original_name + '</i> '
+          end
+        elsif self.rank_string =~ /Species/
+          species += '<i>' + original_name + '</i> '
+          genus = '<i>' + self.ancestor_at_rank('genus').name_with_misspelling(nil) + '</i> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
+        end
+      end
+
+      subgenus = '(' + subgenus.squish + ') ' unless subgenus.empty?
+      str = (genus + subgenus + superspecies + species).gsub(' [sic]', '</i> [sic]<i>').gsub('</i> <i>', ' ').gsub('<i></i>', '').gsub('<i> ', ' <i>').squish
+    end
+    str.blank? ? nil : str
+  end
+
+
+  # TODO: @proceps - confirm this is only applicable to Protonym, NOT Combination
+  def update_cached_original_combinations
+    update_columns(
+      cached_original_combination: get_original_combination,
+      cached_primary_homonym: get_genus_species(:original, :self),
+      cached_primary_homonym_alternative_spelling: get_genus_species(:original, :alternative))
+  end
+
+
+  def set_cached_species_homonym
+    update_columns(
+      cached_secondary_homonym: get_genus_species(:current, :self),
+      cached_secondary_homonym_alternative_spelling: get_genus_species(:current, :alternative)
+    )
+  end
+
+  # TODO: @proceps - confirm this is only applicable to Protonym, NOT Combination
+  # Should this be in Protonym 
+  def set_cached_names_for_dependants
+    dependants = []
+    related_through_original_combination_relationships = []
+    combination_relationships = []
+
+    TaxonName.transaction do
+      if is_genus_or_species_rank?
+        dependants = Protonym.descendants_of(self).to_a 
+        related_through_original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
+        combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
+      end
+
+     #  dependants.push(self) # combination does hit here
+
+      # Combination can hit here
+      classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
+
+      # TODO: not used!? 
+      # hybrid_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('Hybrid')
+
+      dependants.each do |i|
+        columns_to_update = {
+          cached: i.get_full_name,
+          cached_html: i.get_full_name_html
+        } 
+
+        if i.is_species_rank?
+          columns_to_update[:cached_secondary_homonym] = i.get_genus_species(:current, :self)
+          columns_to_update[:cached_secondary_homonym_alternative_spelling] = i.get_genus_species(:current, :alternative)
+        end 
+        
+        i.update_columns(columns_to_update)
+      end
+
+      related_through_original_combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
+        i.update_cached_original_combinations
+      end
+
+      # Update values in Combinations
+      combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
+        i.update_columns(
+          cached: i.get_full_name,
+          cached_html: i.get_full_name_html)
+      end
+
+      classified_as_relationships.collect{|i| i.subject_taxon_name}.uniq.each do |i|
+        i.update_column(:cached_classified_as, i.get_cached_classified_as)
+      end
+
+      classified_as_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
+        i.update_columns(
+          cached: i.get_full_name,
+          cached_html: i.get_full_name_html
+        )
+      end
+
+    end
+  end
+
+
+
   protected
 
   def name_is_latinized
@@ -473,67 +649,31 @@ class Protonym < TaxonName
     errors.add(:rank_class, 'Rank not found') unless RANKS.include?(rank_string)
   end
 
-  def set_cached_names
-    super
-    if self.errors.empty? && !self.no_cached
-
-      # set_cached_higher_classification
-      set_primary_homonym
-      set_primary_homonym_alternative_spelling
-
-      if rank_string =~ /Species/
-        set_secondary_homonym
-        set_secondary_homonym_alternative_spelling
-      end
-      set_cached_misspelling
-    end
-  end
-
   def set_cached
-    self.cached = get_full_name
+    super 
+    set_cached_names_for_dependants # !!! do we run set cached names 2 x !?!
+    set_cached_original_combination
+    set_cached_homonymy
+    set_cached_species_homonym if is_species_rank?
+    set_cached_misspelling
   end
 
-  def set_cached_html
-    self.cached_html = get_full_name_html
+
+  def set_cached_homonymy
+    update_columns(
+      cached_primary_homonym: get_genus_species(:original, :self),
+      cached_primary_homonym_alternative_spelling: get_genus_species(:original, :alternative)
+    )
   end
 
+  # all three in one update here
   def set_cached_misspelling
-    self.cached_misspelling = get_cached_misspelling
-  end
-
-  # Deprecated
-  # def set_cached_higher_classification
-  #   self.cached_higher_classification = get_higher_classification
-  # end
-
-  def set_primary_homonym
-    self.cached_primary_homonym = get_genus_species(:original, :self)
-  end
-
-  def set_primary_homonym_alternative_spelling
-    self.cached_primary_homonym_alternative_spelling = get_genus_species(:original, :alternative)
-  end
-
-  def set_secondary_homonym
-    self.cached_secondary_homonym = get_genus_species(:current, :self)
-  end
-
-  def set_secondary_homonym_alternative_spelling
-    self.cached_secondary_homonym_alternative_spelling = get_genus_species(:current, :alternative)
+    update_column(:cached_misspelling, get_cached_misspelling)
   end
 
   def set_cached_original_combination
-    self.cached_original_combination = get_original_combination
+    update_column(:cached_original_combination, get_original_combination)
   end
-
-  def set_cached_valid_taxon_name_id
-    #begin
-      TaxonName.transaction do
-        self.update_column(:cached_valid_taxon_name_id, self.get_valid_taxon_name.id)
-      end
-    # rescue  
-    # end
-    end
 
   #endregion
 
@@ -541,18 +681,16 @@ class Protonym < TaxonName
   # Combination caching is handled in Combination
   def sv_cached_names
     # if updated, update also set_cached_names
-    # if type == 'Protonym'
     is_cached = true
-    is_cached = false if self.cached_author_year != get_author_and_year
+    is_cached = false if cached_author_year != get_author_and_year
 
     if is_cached # don't run the tests if it's already false # self.class == Protonym
-      if self.cached_html != get_full_name_html ||
-          self.cached_misspelling != get_cached_misspelling ||
-          self.cached_original_combination != get_original_combination ||
-          #  self.cached_higher_classification != get_higher_classification ||
-          self.cached_primary_homonym != get_genus_species(:original, :self) ||
-          self.cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
-          self.rank_string =~ /Species/ && (self.cached_secondary_homonym != get_genus_species(:current, :self) || self.cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative))
+      if  cached_html != get_full_name_html ||
+          cached_misspelling != get_cached_misspelling ||
+          cached_original_combination != get_original_combination ||
+          cached_primary_homonym != get_genus_species(:original, :self) ||
+          cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
+          rank_string =~ /Species/ && (cached_secondary_homonym != get_genus_species(:current, :self) || cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative))
         is_cached = false
       end
     end
@@ -561,7 +699,6 @@ class Protonym < TaxonName
       :base, 'Cached values should be updated',
       fix: :sv_fix_cached_names, success_message: 'Cached values were updated'
     ) if !is_cached
-    # end
   end
 
 end

@@ -21,7 +21,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       #end
 
       specify 'year still comes from source' do
-        expect(species.reload.cached_author_year).to match('1927')
+        expect(species.cached_author_year).to match('1927')
       end
     end
 
@@ -29,7 +29,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       before {  species.update(roles_attributes: [{person_id: person.id, type: 'TaxonNameAuthor'}]) }
 
       specify 'updates #cached_author_year' do
-        expect(species.cached_author_year).to eq('Smith')
+        expect(species.cached_author_year).to eq('Smith, 1927')
       end
     end
 

@@ -27,8 +27,8 @@ describe AssertedDistributionsController, :type => :controller do
 #   # AssertedDistribution. As you add validations to AssertedDistribution, be sure to
 #   # adjust the attributes here as well.
   let(:valid_attributes) {
-    h = strip_housekeeping_attributes(FactoryGirl.build(:valid_asserted_distribution).attributes)
-    h.merge(origin_citation_attributes: {source_id: FactoryGirl.create(:valid_source).id})
+    h = strip_housekeeping_attributes( FactoryGirl.build(:valid_asserted_distribution).attributes)
+    h.merge(origin_citation_attributes: {source_id: FactoryGirl.create(:valid_source).id} )
   }
 
   # This should return the minimal set of values that should be in the session
@@ -135,13 +135,13 @@ describe AssertedDistributionsController, :type => :controller do
 
       it "assigns the requested asserted_distribution as @asserted_distribution" do
         asserted_distribution = AssertedDistribution.create! valid_attributes
-        put :update, params: {id: asserted_distribution.to_param, asserted_distribution: valid_attributes}, session: valid_session
+        put :update, params: {id: asserted_distribution.to_param, asserted_distribution: {is_absent: 'true'}}, session: valid_session
         expect(assigns(:asserted_distribution)).to eq(asserted_distribution)
       end
 
       it "redirects to the asserted_distribution" do
         asserted_distribution = AssertedDistribution.create! valid_attributes
-        put :update, params: {id: asserted_distribution.to_param, asserted_distribution: valid_attributes}, session: valid_session
+        put :update, params: {id: asserted_distribution.to_param, asserted_distribution: {is_absent: 'true'}}, session: valid_session
         expect(response).to redirect_to(asserted_distribution)
       end
     end

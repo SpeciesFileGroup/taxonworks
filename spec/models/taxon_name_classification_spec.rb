@@ -90,9 +90,7 @@ describe TaxonNameClassification, type: :model do
 
     context "validate type" do
       specify "an invalid type" do
-        c = FactoryGirl.build(:taxon_name_classification, type: 'aaa')
-        c.valid?
-        expect(c.errors.include?(:type)).to be_truthy
+        expect { FactoryGirl.build(:taxon_name_classification, type: 'aaa') }.to raise_error ActiveRecord::SubclassNotFound
       end
 
       specify "another invalid type" do

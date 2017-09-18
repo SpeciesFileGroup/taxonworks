@@ -57,7 +57,7 @@ RSpec.describe ObservationMatrixRowItem::TaggedRowItem, type: :model, group: :ob
       end
 
       specify '.collection_objects' do
-        expect(observation_matrix_row_item.collection_objects.map(&:metamorphosize)).to contain_exactly(co1)
+        expect(observation_matrix_row_item.collection_objects).to contain_exactly(co1)
       end
 
       context 'adding an item synchronizes observation_matrix_rows' do
@@ -66,7 +66,7 @@ RSpec.describe ObservationMatrixRowItem::TaggedRowItem, type: :model, group: :ob
         end
 
         specify 'saving a record adds collection objects observation_matrix_rows' do
-          expect(ObservationMatrixRow.all.map(&:collection_object).map do |o| o.metamorphosize if !o.nil? end).to contain_exactly(nil, nil, co1)
+          expect(ObservationMatrixRow.all.map(&:collection_object)).to contain_exactly(nil, nil, co1)
         end
 
         specify 'added observation_matrix_rows have reference_count = 1' do
@@ -90,7 +90,7 @@ RSpec.describe ObservationMatrixRowItem::TaggedRowItem, type: :model, group: :ob
         end
 
         specify 'observation_matrix_row collection objects are still unique' do
-          expect(ObservationMatrixRow.all.map(&:collection_object).map do |o| o.metamorphosize if !o.nil? end).to contain_exactly(nil, nil, co1)
+          expect(ObservationMatrixRow.all.map(&:collection_object)).to contain_exactly(nil, nil, co1)
         end
 
         specify 'observation_matrix_row reference_count is incremented' do
@@ -105,7 +105,7 @@ RSpec.describe ObservationMatrixRowItem::TaggedRowItem, type: :model, group: :ob
           end
 
           specify 'observation_matrix_row collection_object are left in' do
-            expect(ObservationMatrixRow.all.map(&:collection_object).map(&:metamorphosize)).to contain_exactly(co1)
+            expect(ObservationMatrixRow.all.map(&:collection_object)).to contain_exactly(co1)
           end
         end
 
@@ -120,7 +120,7 @@ RSpec.describe ObservationMatrixRowItem::TaggedRowItem, type: :model, group: :ob
           end
 
           specify 'collection_object observation_matrix_row is added' do
-            expect(ObservationMatrixRow.all.map(&:collection_object).map do |o| o.metamorphosize if !o.nil? end).to contain_exactly(nil, nil, co1, nil, co2)
+            expect(ObservationMatrixRow.all.map(&:collection_object)).to contain_exactly(nil, nil, co1, nil, co2)
           end
 
           specify 'only added observation_matrix rows are incremented' do
