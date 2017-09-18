@@ -81,7 +81,7 @@ class CollectionObject < ApplicationRecord
 
   is_origin_for 'CollectionObject', 'Extract'
 
-  CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
+  CO_OTU_HEADERS = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
 
   # @return [Boolean]
@@ -146,8 +146,11 @@ class CollectionObject < ApplicationRecord
   soft_validate(:sv_missing_accession_fields, set: :missing_accession_fields)
   soft_validate(:sv_missing_deaccession_fields, set: :missing_deaccession_fields)
 
-  scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
-  scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
+  scope :with_sequence_name, ->(name) {joins(sequence_join_hack_sql).where(sequences: {name: name})}
+  scope :via_descriptor, ->(descriptor) {joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences})}
+  scope :with_identifier_type, ->(id_type) {includes(:identifiers).where('identifiers.type = ?', id_type).references(:identifiers)}
+  scope :with_identifier_namespace, ->(id_namespace) {includes(:identifiers).where('identifiers.namespace_id = ?', id_namespace.id).references(:identifiers)}
+  scope :with_identifiers_sorted, -> {includes(:identifiers).order("CAST(coalesce(identifiers.identifier, '0') AS integer) DESC").references(:identifiers)}
 
   # This is a hack, maybe related to a Rails 5.1 bug.
   # It returns the SQL that works in 5.0/4.2 that
@@ -173,10 +176,10 @@ class CollectionObject < ApplicationRecord
     collection_objects = [collection_objects] if !(collection_objects.class == Array)
 
     breakdown = {
-      total_objects:     collection_objects.length,
+      total_objects: collection_objects.length,
       collecting_events: {},
-      determinations:    {},
-      bio_overview:      []
+      determinations: {},
+      bio_overview: []
     }
 
     breakdown.merge!(breakdown_buffered(collection_objects))
@@ -184,7 +187,7 @@ class CollectionObject < ApplicationRecord
     collection_objects.each do |co|
       breakdown[:collecting_events].merge!(co => co.collecting_event) if co.collecting_event
       breakdown[:determinations].merge!(co => co.taxon_determinations) if co.taxon_determinations.any?
-      breakdown[:bio_overview].push([co.total, co.biocuration_classes.collect { |a| a.name }])
+      breakdown[:bio_overview].push([co.total, co.biocuration_classes.collect {|a| a.name}])
     end
 
     breakdown
@@ -194,8 +197,8 @@ class CollectionObject < ApplicationRecord
   #   a unque list of buffered_ values observed in the collection objects passed
   def self.breakdown_buffered(collection_objects)
     collection_objects = [collection_objects] if !(collection_objects.class == Array)
-    breakdown          = {}
-    categories         = BUFFERED_ATTRIBUTES
+    breakdown = {}
+    categories = BUFFERED_ATTRIBUTES
 
     categories.each do |c|
       breakdown[c] = []
@@ -251,7 +254,7 @@ class CollectionObject < ApplicationRecord
     CSV.generate do |csv|
       row = CO_OTU_HEADERS
       unless col_defs.nil?
-        %w(ce co bc).each { |column_type|
+        %w(ce co bc).each {|column_type|
           items = []
           unless col_defs[column_type.to_sym].nil?
             unless col_defs[column_type.to_sym][:in].nil?
@@ -282,14 +285,14 @@ class CollectionObject < ApplicationRecord
           row += ce_attributes(c_o, col_defs)
           row += co_attributes(c_o, col_defs)
           row += bc_attributes(c_o, col_defs)
-          csv << row.collect { |item|
+          csv << row.collect {|item|
             item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
           }
 
         end
       else
-        table_data.each { |_key, value|
-          csv << value.collect { |item|
+        table_data.each {|_key, value|
+          csv << value.collect {|item|
             item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
           }
         }
@@ -351,7 +354,7 @@ class CollectionObject < ApplicationRecord
   def self.in_geographic_item(geographic_item, limit, steps = false)
     geographic_item_id = geographic_item.id
     if steps
-      gi     = GeographicItem.find(geographic_item_id)
+      gi = GeographicItem.find(geographic_item_id)
       # find the geographic_items inside gi
       step_1 = GeographicItem.is_contained_by('any', gi) # .pluck(:id)
       # find the georeferences from the geographic_items
@@ -384,11 +387,11 @@ class CollectionObject < ApplicationRecord
                  .distinct
                  .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
-    ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each { |column_name|
+    ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each {|column_name|
       @selected_column_names[:ce][:in][column_name] = {checked: '0'}
     }
     ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
-      .pluck(:import_predicate).uniq.sort.each { |column_name|
+      .pluck(:import_predicate).uniq.sort.each {|column_name|
       @selected_column_names[:ce][:im][column_name] = {checked: '0'}
     }
     @selected_column_names
@@ -403,15 +406,15 @@ class CollectionObject < ApplicationRecord
     unless collection.nil?
       # for this collection object, gather all the possible data_attributes
       all_internal_das = collection_object.collecting_event.internal_attributes
-      all_import_das   = collection_object.collecting_event.import_attributes
-      group            = collection[:ce]
+      all_import_das = collection_object.collecting_event.import_attributes
+      group = collection[:ce]
       unless group.nil?
-        group.keys.each { |type_key|
-          group[type_key.to_sym].keys.each { |header|
+        group.keys.each {|type_key|
+          group[type_key.to_sym].keys.each {|header|
             this_val = nil
             case type_key.to_sym
               when :in
-                all_internal_das.each { |da|
+                all_internal_das.each {|da|
                   if da.predicate.name == header
                     this_val = da.value
                     break
@@ -419,7 +422,7 @@ class CollectionObject < ApplicationRecord
                 }
                 retval.push(this_val) # push one value (nil or not) for each selected header
               when :im
-                all_import_das.each { |da|
+                all_import_das.each {|da|
                   if da.import_predicate == header
                     this_val = da.value
                     break
@@ -444,11 +447,11 @@ class CollectionObject < ApplicationRecord
                  .distinct
                  .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
-    ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each { |column_name|
+    ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each {|column_name|
       @selected_column_names[:co][:in][column_name] = {checked: '0'}
     }
     ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
-      .pluck(:import_predicate).uniq.sort.each { |column_name|
+      .pluck(:import_predicate).uniq.sort.each {|column_name|
       @selected_column_names[:co][:im][column_name] = {checked: '0'}
     }
     @selected_column_names
@@ -463,14 +466,14 @@ class CollectionObject < ApplicationRecord
     unless collection.nil?
       # for this collection object, gather all the possible data_attributes
       all_internal_das = collection_object.internal_attributes
-      all_import_das   = collection_object.import_attributes
-      group            = collection[:co]
+      all_import_das = collection_object.import_attributes
+      group = collection[:co]
       unless group.nil?
         unless group.empty?
           unless group[:in].empty?
-            group[:in].keys.each { |header|
+            group[:in].keys.each {|header|
               this_val = nil
-              all_internal_das.each { |da|
+              all_internal_das.each {|da|
                 if da.predicate.name == header
                   this_val = da.value
                 end
@@ -481,9 +484,9 @@ class CollectionObject < ApplicationRecord
         end
         unless group.empty?
           unless group[:im].empty?
-            group[:im].keys.each { |header|
+            group[:im].keys.each {|header|
               this_val = nil
-              all_import_das.each { |da|
+              all_import_das.each {|da|
                 if da.import_predicate == header
                   this_val = da.value
                 end
@@ -503,7 +506,7 @@ class CollectionObject < ApplicationRecord
   def self.bc_headers(project_id)
     CollectionObject.selected_column_names
     # add selectable column names (unselected) to the column name list list
-    BiocurationClass.where(project_id: project_id).map(&:name).each { |column_name|
+    BiocurationClass.where(project_id: project_id).map(&:name).each {|column_name|
       @selected_column_names[:bc][:in][column_name] = {checked: '0'}
     }
     @selected_column_names
@@ -520,7 +523,7 @@ class CollectionObject < ApplicationRecord
       unless group.nil?
         unless group.empty?
           unless group[:in].empty?
-            group[:in].keys.each { |header|
+            group[:in].keys.each {|header|
               this_val = collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0'
               retval.push(this_val) # push one value (nil or not) for each selected header
             }
@@ -551,8 +554,8 @@ class CollectionObject < ApplicationRecord
     end
 
     retval = CollectionObject.joins(:collecting_event)
-                 .where(collecting_events_clause)
-                 .where(area_objects_clause)
+               .where(collecting_events_clause)
+               .where(area_objects_clause)
     retval
   end
 
@@ -564,6 +567,30 @@ class CollectionObject < ApplicationRecord
     allow_partial = (partial_overlap.downcase == 'off' ? false : true) # TODO: Just get the correct values from the form!
     where_sql = CollectingEvent.date_sql_from_dates(search_start_date, search_end_date, allow_partial)
     joins(:collecting_event).where(where_sql)
+  end
+
+  def self.with_identifier_type_and_namespace(id_type, namespace = nil, sorted = true)
+    if namespace.present?
+      if sorted
+        with_project_id($project_id)
+          .with_identifier_type(id_type)
+          .with_identifier_namespace(namespace)
+          .with_identifiers_sorted
+      else
+        with_project_id($project_id)
+          .with_identifier_type(id_type)
+          .with_identifier_namespace(namespace)
+      end
+    else
+      if sorted
+        with_project_id($project_id)
+          .with_identifier_type(id_type)
+          .with_identifiers_sorted
+      else
+        with_project_id($project_id)
+          .with_identifier_type(id_type)
+      end
+    end
   end
 
   def sv_missing_accession_fields
@@ -594,7 +621,8 @@ class CollectionObject < ApplicationRecord
   def add_to_dwc_occurrence
     get_dwc_occurrence
   end
-  handle_asynchronously :add_to_dwc_occurrence, run_at: Proc.new { 20.seconds.from_now }
+
+  handle_asynchronously :add_to_dwc_occurrence, run_at: Proc.new {20.seconds.from_now}
 
   def check_that_both_of_category_and_total_are_not_present
     errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if !ranged_lot_category_id.blank? && !total.blank?
@@ -625,7 +653,7 @@ class CollectionObject < ApplicationRecord
   def reject_taxon_determinations(attributed)
     a = attributed['otu_id']
     b = attributed['otu']
-    c = attributed['otu_attributes'] 
+    c = attributed['otu_attributes']
 
     return true if a.blank? && b.blank? && c.blank?
     return true if a.present? && b.present? && c.present?

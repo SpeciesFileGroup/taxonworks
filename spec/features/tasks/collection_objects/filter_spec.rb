@@ -103,6 +103,10 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
           end
         end
 
+        describe '#with_identifier' do
+
+        end
+
         describe '#find', js: true do
           before {
             visit(collection_objects_filter_task_path)
