@@ -42,9 +42,11 @@
           </div>
         </div>
         <div v-if="getTaxon.id" class="cright item separate-left">
-          <check-changes></check-changes>
-          <taxon-name-box class="separate-bottom"></taxon-name-box>
-          <soft-validation class="separate-top"></soft-validation>
+          <div id="cright-panel">
+            <check-changes></check-changes>
+            <taxon-name-box class="separate-bottom"></taxon-name-box>
+            <soft-validation class="separate-top"></soft-validation>
+          </div>
         </div>
       </div>
     </div>
@@ -118,7 +120,20 @@
       }
     },
     mounted: function() {
-      let that = this;
+      var that = this;
+
+      $(window).scroll(function() { 
+        let element = document.querySelector('#cright-panel');
+        if(element) {
+          if (($(window).scrollTop() > 154) && (that.isMinor())) {
+            element.classList.add('cright-fixed-top');
+          }
+          else {
+            element.classList.remove('cright-fixed-top');
+          }
+        }
+      });
+
       let taxonId = location.pathname.split('/')[4];
       this.initLoad().then(function() {
         if(/^\d+$/.test(taxonId)) {
@@ -134,6 +149,17 @@
       });
     },
     methods: {
+      isMinor: function() {
+        let element = document.querySelector('#cright-panel');
+        let navBar = document.querySelector('#taxonNavBar');
+
+        if(element && navBar) {
+          return ((element.offsetHeight + navBar.offsetHeight) < window.innerHeight)
+        }
+        else {
+          return true;
+        }
+      },
       showForThisGroup: function(findInGroups){
         return (this.getTaxon.rank_string ? (findInGroups.indexOf(this.getTaxon.rank_string.split('::')[2]) > -1) : false);
       },
@@ -164,6 +190,16 @@
       min-width: 350px;
       max-width: 350px;
       width: 300px;
+    }
+    #cright-panel {
+      width: 350px;
+      max-width: 350px;
+    }
+    .cright-fixed-top {
+      top:68px;
+      width: 1240px;
+      z-index:200;
+      position: fixed;
     }
     .anchor {
        display:block;
