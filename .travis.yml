@@ -14,6 +14,7 @@ branches:
     - master
     - R5.1
     - development
+    - taxon_name_task
 addons:
   postgresql: "9.5"
   firefox: "latest"
