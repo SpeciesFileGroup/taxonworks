@@ -8,7 +8,7 @@
 module ApplicationEnumeration
 
   # TODO: This should be a require check likely, for lib/taxon_works.rb or some such
-  Rails.application.eager_load!
+  # Rails.application.eager_load!
 
   # return [Array]
   #   a list symbols that represent of populated, non "cached", non "_id", non reserved attributes
@@ -45,7 +45,7 @@ module ApplicationEnumeration
   # @return [Array of Classes]
   #   the classes in TaxonWorks that are project based/have a project_id
   def self.project_data_classes
-    ActiveRecord::Base.descendants.select{|a| a.superclass == ApplicationRecord &&  a.column_names.include?('project_id') }
+    ApplicationRecord.descendants.select{|a| a.superclass == ApplicationRecord &&  a.column_names.include?('project_id') }
   end
 
   # @return [Array]
