@@ -61,9 +61,9 @@ namespace :tw do
           get_specimen_category_counts = import.get('SFSpecimenIDCategoryIDCount')
           get_sf_source_metadata = import.get('SFSourceMetadata')
           get_sf_identification_metadata = import.get('SFIdentificationMetadata')
+          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
 
           get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id
-          # get_depo_catalog_number = {} # key = SF.SpecimenID, value = depo catalog number
 
           depo_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'SpecimenDepository', short_name: 'Depo')
 
@@ -72,6 +72,7 @@ namespace :tw do
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           error_counter = 0
+          saved_counter = 0
 
           file.each_with_index do |row, i|
             specimen_id = row['SpecimenID']
@@ -91,12 +92,15 @@ namespace :tw do
 
             # get otu id from sf taxon name id, a taxon determination, called 'the primary otu id'   (what about otus without tw taxon names?)
 
-            # list of import_attributes:
-            basis_of_record_attribute = []
+            # list of import_attributes (aka data_attribute with type = 'ImportAttribute'):
+            data_attributes_bucket = {
+                data_attributes_attributes: [],
+            }
+
             # Note: collection_objects are made for all specimen records, regardless of basis of record (for now)
-            basis_of_record = row['BasisOfRecord'].to_i
-            if basis_of_record > 0
-              case basis_of_record
+            #   -- except when there is no count
+            if row['BasisOfRecord'].to_i > 0
+              case row['BasisOfRecord'].to_i
                 when 1
                   basis_of_record_string = 'Preserved specimen'
                 when 2
@@ -110,19 +114,21 @@ namespace :tw do
                 when 6
                   basis_of_record_string = 'Personal observation'
               end
-              basis_of_record_attribute = {import_predicate: 'basis_of_record',
-                                           value: basis_of_record_string,
-                                           project_id: project_id}
+              basis_of_record = {type: 'ImportAttribute',
+                                 import_predicate: 'basis_of_record',
+                                 value: basis_of_record_string,
+                                 project_id: project_id}
+              data_attributes_bucket[:data_attributes_attributes].push(basis_of_record)
             end
 
-            preparation_type = []
             if row['PreparationType'].present?
-              preparation_type = {import_predicate: 'preparation_type',
+              preparation_type = {type: 'ImportAttribute',
+                                  import_predicate: 'preparation_type',
                                   value: row['PreparationType'],
                                   project_id: project_id}
+              data_attributes_bucket[:data_attributes_attributes].push(preparation_type)
             end
 
-            specimen_dataflags = []
             dataflags = row['DataFlags'].to_i
             if dataflags > 0
               dataflags_array = Utilities::Numbers.get_bits(dataflags)
@@ -145,61 +151,66 @@ namespace :tw do
                   when 5 # image of specimen label (32)
                     dataflag_text.concat('(image of specimen label)')
                 end
-
-                specimen_dataflags = {import_predicate: 'specimen_dataflags',
+                specimen_dataflags = {type: 'ImportAttribute',
+                                      import_predicate: 'specimen_dataflags',
                                       value: dataflag_text,
                                       project_id: project_id}
+                data_attributes_bucket[:data_attributes_attributes].push(specimen_dataflags)
               end
             end
 
-            specimen_status = [] # (disposition) 0 = presumed Ok, 1 = missing, 2 = destroyed, 3 = lost, 4 = unknown, 5 = missing?, 6 = destroyed?, 7 = lost?, 8 = damaged, 9 = damaged?, 10 = no data entered
             specimen_status_id = row['SpecimenStatusID'].to_i
-            if specimen_status_id > 0 || specimen_status_id == 10
+            if specimen_status_id > 0 || specimen_status_id == 10 # 0 = presumed Ok, 10 = no data entered
               case specimen_status_id
                 when 1
-                  specimen_status = 'missing'
+                  specimen_status_string = 'missing'
                 when 2
-                  specimen_status = 'destroyed'
+                  specimen_status_string = 'destroyed'
                 when 3
-                  specimen_status = 'lost'
+                  specimen_status_string = 'lost'
                 when 4
-                  specimen_status = 'unknown'
+                  specimen_status_string = 'unknown'
                 when 5
-                  specimen_status = 'missing?'
+                  specimen_status_string = 'missing?'
                 when 6
-                  specimen_status = 'destroyed?'
+                  specimen_status_string = 'destroyed?'
                 when 7
-                  specimen_status = 'lost?'
+                  specimen_status_string = 'lost?'
                 when 8
-                  specimen_status = 'damaged'
+                  specimen_status_string = 'damaged'
                 when 9
-                  specimen_status = 'damaged?'
+                  specimen_status_string = 'damaged?'
               end
+              specimen_status = {type: 'ImportAttribute',
+                                 import_predicate: 'specimen_status',
+                                 value: specimen_status_string,
+                                 project_id: project_id}
+              data_attributes_bucket[:data_attributes_attributes].push(specimen_status)
             end
 
-            sf_source_description = []
-            citations_attributes = []
+            citations_attributes = nil # if nil will it get ignored in metadata?
             if row['SourceID'] != '0'
               sf_source_id = row['SourceID']
 
               if get_sf_source_metadata[sf_source_id][row['RefID']] != '0' # SF.Source has RefID, create citation for collection object (assuming it will be created)
                 citations_attributes = {source_id: sf_source_id, project_id: project_id}
               end
-
-              if get_sf_source_metadata[sf_source_id][row['Description']].length > 0 # SF.Source has description, create an import_attribute
-                sf_source_description = {import_predicate: 'sf_source_description',
+              if get_sf_source_metadata[sf_source_id][row['Description']].present? # SF.Source has description, create an import_attribute
+                sf_source_description = {type: 'ImportAttribute',
+                                         import_predicate: 'sf_source_description',
                                          value: row['Description'],
                                          project_id: project_id}
+                data_attributes_bucket[:data_attributes_attributes].push(sf_source_description)
               end
             end
 
-            sf_depo_string = []
             if sf_depo_id > '0'
-              sf_depo_string = {import_predicate: 'sf_depo_string',
+              sf_depo_string = {type: 'ImportAttribute',
+                                import_predicate: 'sf_depo_string',
                                 value: get_sf_depo_string[sf_depo_string],
                                 project_id: project_id}
+              data_attributes_bucket[:data_attributes_attributes].push(sf_depo_string)
             end
-
 
 
             import_attributes_attributes = []
@@ -210,8 +221,8 @@ namespace :tw do
                                             created_by_id: get_tw_user_id[row['CreatedBy']],
                                             updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
 
-                        data_attributes_attributes: import_attributes_attributes.concat([basis_of_record_attribute, preparation_type, specimen_dataflags, specimen_status, sf_source_description, sf_depo_string]),
-                        citations_attributes: citations_attributes,
+                        data_attributes_attributes: data_attributes_bucket,
+                        citations_attributes: citations_attributes, # not sure how to initialize above
 
                         # data_attributes to do:
                         #   import_attribute if identification.IdentifierName
@@ -233,23 +244,33 @@ namespace :tw do
                 # a new collection object for each pair
                 get_specimen_category_counts[specimen_id].each do |specimen_category_id, count|
 
-                  collection_object = CollectionObject.new(
-                      metadata.merge(
-                          total: count,
-                          collecting_event_id: collecting_event_id,
-                          repository_id: repository_id,
+                  collection_object = CollectionObject::BiologicalCollectionObject.new(
+                      # metadata.merge(
+                      total: count,
+                      collecting_event_id: collecting_event_id,
+                      repository_id: repository_id,
 
-                          bicuration_classification_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s]}],
+                      biocuration_classifications_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s], project_id: project_id}],
 
-                          # housekeeping for collection_object
-                          project_id: project_id,
-                          created_at: row['CreatedOn'],
-                          updated_at: row['LastUpdate'],
-                          created_by_id: get_tw_user_id[row['CreatedBy']],
-                          updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                      ))
+                      # td = TaxonDetermination.create(
+                      #     biological_collection_object: o,
+                      #     otu: otu,
+                      #     year_made: year_from_field(row['DateID'])
+                      # )
+
+                      taxon_determinations_attributes: [{otu: get_tw_otu_id[row['TaxonNameID']], project_id: project_id}],
+
+                  # housekeeping for collection_object
+                      project_id: project_id,
+                      created_at: row['CreatedOn'],
+                      updated_at: row['LastUpdate'],
+                      created_by_id: get_tw_user_id[row['CreatedBy']],
+                      updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                  ) #)
 
                   collection_object.save!
+
+                  puts "Collection object is saved, number #{saved_counter += 1}"
 
                   current_objects.push(collection_object)
 
@@ -262,30 +283,31 @@ namespace :tw do
                 # in a virtual container
                 # 2) If there is an "identifier", associate it with a single collection object or the container (if applicable)
                 identifier = nil
-                if row['DepoCatNo']
-                  identifier = Identifier::Local::CatalogNumber.create!(
+                if row['DepoCatNo'].present?
+                  identifier = Identifier::Local::CatalogNumber.new(
+                      identifier: "SF.DepoID #{sf_depo_id},  #{row['DepoCatNo']}",
                       namespace: depo_namespace,
-                      project_id: project_id,
-                      identifier: "SF.DepoID#{sf_depo_id} #{row['DepoCatNo']}"
-                  )
+                      project_id: project_id)
                   # identifier = ImportAttribute.new(value: row['DepotCatNo'], import_predicate: 'DepotCatNo', project_id: project_id)
-                end
 
-                if current_objects.count == 1
-                  # The "Identifier" is attached to the only collection object that is created
-                  current_objects.first.identifiers << identifier if identifier
+                  if current_objects.count == 1
+                    # The "Identifier" is attached to the only collection object that is created
 
-                elsif current_objects > 1
-                  # There is more than one object, put them in a virtual container
-                  c = Container::Virtual.create!(project_id: project_id)
-                  current_objects.each do |o|
-                    o.put_in_container(c)
+                    current_objects.first.identifiers << identifier if identifier
+
+                  elsif current_objects.count > 1
+                    # There is more than one object, put them in a virtual container
+                    c = Container::Virtual.create!(project_id: project_id)
+                    current_objects.each do |o|
+                      o.put_in_container(c)
+                    end
+
+                    c.identifiers << identifier if identifier
+
+
+                  else
+                    puts "OOPS" # would this happen?
                   end
-
-                  c.identifiers << identifier if identifier
-
-                else
-                  puts "OOPS" # would this happen?
                 end
 
                 puts 'CollectionObject created'
@@ -294,18 +316,14 @@ namespace :tw do
               end
 
             rescue ActiveRecord::RecordInvalid => e
+              # logger.error "CollectionObject ERROR SF.SpecimenID = #{specimen_id} (#{error_counter += 1}): " + collection_object.errors.full_messages.join(';')
               logger.error "CollectionObject ERROR SF.SpecimenID = #{specimen_id} (#{error_counter += 1}): " + e.errors.full_messages.join(';')
             end
           end
 
           import.set('SFSpecimenIDToCollObjID', get_tw_collection_object_id)
-          import.set('SFSpecimenIDToCatalogNumber', get_depo_catalog_number)
-
           puts 'SFSpecimenIDToCollObjID'
           ap get_tw_collection_object_id
-
-          puts 'SFSpecimenIDToCatalogNumber'
-          ap get_depo_catalog_number
 
         end
 

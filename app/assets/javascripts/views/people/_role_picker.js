@@ -142,12 +142,11 @@ Object.assign(TW.views.people.role_picker, {
     var random_index = new Date().getTime();
     var role_list = form.find(".role_list");
 
-    // type
-    role_list.append($('<input hidden name="' + base_class + '[roles_attributes][' + random_index + '][type]" value="' + form.data('role-type') + '" >'));
-    role_list.append($('<input hidden name="' + base_class + '[roles_attributes][' + random_index + '][person_id]" value="' + person_id + '" >'));
-
     // insert visible list item
-    role_list.append($('<li class="role_item" data-role-index="' + random_index + '">').append(label).append('&nbsp;').append(TW.views.people.role_picker.remove_link()));
+    role_list.append($('<li class="role_item" data-role-index="' + random_index + '">').append(label).append('&nbsp;').append(TW.views.people.role_picker.remove_link())
+    .append($('<input hidden name="' + base_class + '[roles_attributes][' + random_index + '][type]" value="' + form.data('role-type') + '" >'))
+    .append($('<input hidden name="' + base_class + '[roles_attributes][' + random_index + '][person_id]" value="' + person_id + '" >')));
+
   },
 
   insert_new_person: function (form) {

@@ -99,6 +99,11 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dn
       let!(:attribute5) { GeneAttribute.create!(descriptor: descriptor, sequence: s5, sequence_relationship_type: SequenceRelationship::ForwardPrimer) } 
       let!(:attribute9) { GeneAttribute.create!(descriptor: descriptor, sequence: s9, sequence_relationship_type: SequenceRelationship::ReversePrimer) }
 
+      specify 'cached gene attribute sql persisted in database with gene attributes created' do
+        descriptor.reload
+        expect(descriptor.cached_gene_attribute_sql).not_to be_nil
+      end
+
       specify 'with default logic #sequences returns target' do
         expect(descriptor.sequences).to contain_exactly(s1)
       end

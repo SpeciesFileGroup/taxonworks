@@ -16,7 +16,8 @@ module TaxonNames::CatalogHelper
     data = {
       'history-origin' => n.origin,
       'history-object-id' => n.object.id,
-      'history-valid-name' => n.is_valid_name?
+      'history-valid-name' => n.is_valid_name? && !n.is_subsequent?,
+      'history-is-subsequent' => n.is_subsequent?
     }
     data
   end
