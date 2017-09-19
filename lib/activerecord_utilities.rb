@@ -1,11 +1,14 @@
+# Shared ApplicationRecord utilities, like string manipulation methods.
+# See app/models/application_record.rb for inclusion.
 module ActiverecordUtilities
-  # this is for shared utilies, like string manipulation methods.
 
   extend ActiveSupport::Concern
 
   included do
-    # these are the extensions (like has_many)
     before_validation :trim_attributes
+   
+    # @param [Array] 
+    #   a symbolized list of attributes to be trimmed automatically
     class_attribute :attributes_to_trim
   end
 
@@ -18,7 +21,7 @@ module ActiverecordUtilities
   end
 
   protected
-  # any def below this is an instance method
+
   def trim_attributes
     if !self.attributes_to_trim.nil?
       self.attributes_to_trim.each do |a|
@@ -28,9 +31,4 @@ module ActiverecordUtilities
   end
 
 end
-
-# class ApplicationRecord < ActiveRecord::Base
-#   include ActiverecordUtilities
-# end
-
 
