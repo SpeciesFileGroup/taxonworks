@@ -1,7 +1,9 @@
 language: ruby
+env:
+  - RAILS_ENV=test
+  - HPS_ENV=test 
 cache:
   bundler: true
-  yarn: true
   directories:
     - $TRAVIS_BUILD_DIR/node_modules
 dist: trusty
@@ -36,10 +38,11 @@ before_script:
   - mkdir tmp/downloads
   - psql -U postgres -c 'create role taxonworks_development login createdb superuser;'
   - bundle exec rake db:drop
-  - bundle exec rake db:create HPS_ENV=test 
+  - bundle exec rake db:create 
   - bundle exec rake db:migrate 
-  - bundle exec rake assets:precompile RAILS_ENV=test
+  - bundle exec rake assets:precompile 
 notifications:
   email:
-    - diapriid@gmail.com
-  on_failure: change
+    recipients:
+      - diapriid@gmail.com
+    on_failure: change
