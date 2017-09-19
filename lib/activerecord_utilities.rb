@@ -29,9 +29,8 @@ module ActiverecordUtilities
 
 end
 
-class ApplicationRecord < ActiveRecord::Base
-  include ActiverecordUtilities
-  self.abstract_class = true
-end
+# class ApplicationRecord < ActiveRecord::Base
+#   include ActiverecordUtilities
+# end
 
 
