@@ -34,7 +34,6 @@ before_script:
   - mkdir tmp/
   - mkdir tmp/downloads
   - psql -U postgres -c 'create role taxonworks_development login createdb superuser;'
-  - bundle exec rake db:drop RAILS_ENV=test 
   - bundle exec rake db:create RAILS_ENV=test 
   - bundle exec rake db:migrate RAILS_ENV=test
   - bundle exec rake assets:precompile RAILS_ENV=test
