@@ -24,6 +24,16 @@ http://flexboxin5.com/
   align-items: center;
  }
 
+ .align-start {
+  display: flex;
+  align-items: flex-start;
+ }
+
+ .align-end {
+  display: flex;
+  align-items: flex-end;
+ }
+
  .flex-separate {
  	display: flex;
  	justify-content: space-between;

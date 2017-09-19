@@ -9,5 +9,10 @@ class TaxonNameClassification::Latinized::PartOfSpeech::NounInApposition < Taxon
                                                  TaxonNameClassification::Latinized::PartOfSpeech::Participle)
   end
 
+  def self.assignable
+    true
+  end
+
+
 
 end

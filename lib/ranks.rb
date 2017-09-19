@@ -1,4 +1,4 @@
-# require 'application_enumeration'
+ require_dependency 'application_enumeration'
 
 # Contains methods used in /config/initializers/constants/ranks.rb to generate Rank Classes
 module Ranks

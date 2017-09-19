@@ -44,7 +44,7 @@ namespace :tw do
           #   SpecimenStatus
           #   DepoCatNo -- recorded in hash for now, will be identifier  <<< NO, add as import_attribute
           #   SourceID citation to collection object (refID) + description as import attribute
-          #   BasisOfRecord as data_attribute  type 5 will be asserted distribution, ignore 3, 4, and 6 (for all of 5 bor, what doesn't have refid in sourceid)
+          #   BasisOfRecord  type 5 will be asserted distribution, ignore 3, 4, and 6 (for all of 5 bor, what doesn't have refid in sourceid)
           #   VerbatimLabel NOT USED in SF, perhaps buffered collecting event
 
 

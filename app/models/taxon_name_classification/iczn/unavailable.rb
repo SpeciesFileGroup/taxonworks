@@ -1,5 +1,9 @@
 class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
 
+  def self.assignable
+    true
+  end
+
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000168'
 
   def self.disjoint_taxon_name_classes

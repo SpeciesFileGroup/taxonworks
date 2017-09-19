@@ -2,7 +2,7 @@ module SourcesHelper
 
   def source_tag(source)
     return nil if source.nil?
-    source.cached ? source.cached : (source.new_record? ? nil : 'ERROR - Source cache not set, please notify admin.')
+    source.cached ? source.cached.html_safe : (source.new_record? ? nil : 'ERROR - Source cache not set, please notify admin.')
   end
 
   def sources_search_form

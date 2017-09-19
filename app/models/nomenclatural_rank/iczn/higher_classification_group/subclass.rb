@@ -8,4 +8,8 @@ class NomenclaturalRank::Iczn::HigherClassificationGroup::Subclass < Nomenclatur
     [NomenclaturalRank::Iczn::HigherClassificationGroup::ClassRank.to_s]
   end
 
+  def self.typical_use
+    false
+  end
+
 end

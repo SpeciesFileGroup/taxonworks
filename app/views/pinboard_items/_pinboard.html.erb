@@ -6,14 +6,10 @@
             data-sortable
             data-sortable-items="li"
             data-sortable-on-change-url="<%= update_position_pinboard_items_path -%>"
+            data-pinboard-section="<%= object_type.pluralize -%>"
             >
             <% items.each do |o| -%>
-              <li class="slide-panel-category-item" id="<%= "order_#{o.id}" -%>">
-                <div class="handle flex-separate middle">
-                  <%= object_link(o.pinned_object) -%>
-                  <%= pinboard_item_options(o) -%>
-                </div>
-              </li>
+              <%= pinboard_item_li_tag(o) -%>
             <% end %>
         </ul>
     <% end %>

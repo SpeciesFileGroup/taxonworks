@@ -6,8 +6,15 @@ class TaxonNameRelationshipsController < ApplicationController
   # GET /taxon_name_relationships
   # GET /taxon_name_relationships.json
   def index
-    @recent_objects = TaxonNameRelationship.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+    respond_to do |format|
+      format.html do
+        @recent_objects = TaxonNameRelationship.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
+  end
+      format.json {
+        @taxon_name_relationships = TaxonNameRelationship.where(filter_sql).with_project_id(sessions_current_project_id)
+      }
+    end
   end
 
   # GET /taxon_name_relationships/1
@@ -46,8 +53,9 @@ class TaxonNameRelationshipsController < ApplicationController
   def update
     respond_to do |format|
       if @taxon_name_relationship.update(taxon_name_relationship_params)
+        @taxon_name_relationship.reload
         format.html { redirect_to @taxon_name_relationship.metamorphosize, notice: 'Taxon name relationship was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render :show, status: :ok, location: @taxon_name_relationship.metamorphosize }
       else
         format.html { render action: 'edit' }
         format.json { render json: @taxon_name_relationship.errors, status: :unprocessable_entity }
@@ -96,20 +104,34 @@ class TaxonNameRelationshipsController < ApplicationController
 
   # GET /taxon_name_relationships/download
   def download
-    send_data TaxonNameRelationship.generate_download(TaxonNameRelationship.where(project_id: sessions_current_project_id)), type: 'text', filename: "taxon_name_relationships_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(TaxonNameRelationship.where(project_id: sessions_current_project_id)), type: 'text', filename: "taxon_name_relationships_#{DateTime.now.to_s}.csv"
+  end
+
+  # GET /taxon_name_relationships/type_relationships
+  def type_relationships
+    render json: TAXON_NAME_RELATIONSHIPS_TYPE_JSON
+  end
+
+  # GET /taxon_name_relationships/taxon_name_relationship_types
+  def taxon_name_relationship_types
+    render json: TAXON_NAME_RELATIONSHIPS_JSON
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
   def set_taxon_name_relationship
     @taxon_name_relationship = TaxonNameRelationship.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def taxon_name_relationship_params
     params.require(:taxon_name_relationship).permit(
       :subject_taxon_name_id, :object_taxon_name_id, :type,
-      origin_citation_attributes: [:id, :_destroy, :source_id] 
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages] 
     ) 
   end
+
+  def filter_sql
+    h = params.permit(:taxon_name_id, :as_object, :as_subject, of_type: []).to_h.symbolize_keys
+    Queries::TaxonNameRelationshipsFilterQuery.new(h).where_sql
+end
+
 end

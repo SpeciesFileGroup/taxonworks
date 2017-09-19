@@ -121,7 +121,7 @@ namespace :tw do
 
   # True if the table exists in the present environment's database
   def table_exists(table_name)
-    ActiveRecord::Base.connection.execute("SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name = '#{table_name}');").first['exists'] == 't'
+    ApplicationRecord.connection.execute("SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name = '#{table_name}');").first['exists'] == 't'
   end
 
 end

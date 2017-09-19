@@ -20,4 +20,4 @@ require 'spec_helper'
 
 Dir[Rails.root.join("spec/support/**/*.rb")].sort.reverse.each { |f| require f }
 
-ActiveRecord::Base.connection.tables.each { |t| ActiveRecord::Base.connection.reset_pk_sequence!(t) }
+ApplicationRecord.connection.tables.each { |t| ApplicationRecord.connection.reset_pk_sequence!(t) }

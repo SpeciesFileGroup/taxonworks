@@ -7,4 +7,9 @@ class NomenclaturalRank::Iczn::HigherClassificationGroup::Suborder < Nomenclatur
   def self.valid_parents
     [NomenclaturalRank::Iczn::HigherClassificationGroup::Order.to_s]
   end
+
+  def self.typical_use
+    false
+  end
+
 end
