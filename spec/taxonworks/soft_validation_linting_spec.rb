@@ -7,7 +7,7 @@ describe TaxonWorks, group: :soft_validation, type: :model do
 
   context 'model includes/attributes' do
     let(:paths) { Rails.application.routes.named_routes }
-    ActiveRecord::Base.descendants.each { |model|
+    ApplicationRecord.descendants.each { |model|
 
       if model < SoftValidation
   #     it "#{model} has soft validations resolutions for routes that exist" do
