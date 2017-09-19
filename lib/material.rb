@@ -142,7 +142,7 @@ module Material
       end
 
       begin
-        ActiveRecord::Base.transaction do
+        ApplicationRecord.transaction do
 
           collection_objects.each do |o|
             if o.contained_in
