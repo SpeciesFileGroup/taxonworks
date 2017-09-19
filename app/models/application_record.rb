@@ -3,7 +3,6 @@ class ApplicationRecord < ActiveRecord::Base
   
   require 'application_enumeration'
 
-
     # def []=(index, object)
     #   super(index, object)
     # end
