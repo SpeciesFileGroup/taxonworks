@@ -45,12 +45,12 @@ module ApplicationEnumeration
   # @return [Array of Classes]
   #   the classes in TaxonWorks that are project based/have a project_id
   def self.project_data_classes
-    ActiveRecord::Base.descendants.select{|a| a.superclass == ActiveRecord::Base &&  a.column_names.include?('project_id') }
+    ActiveRecord::Base.descendants.select{|a| a.superclass == ApplicationRecord &&  a.column_names.include?('project_id') }
   end
 
   # @return [Array]
   def self.community_data_classes
-    ActiveRecord::Base.descendants.select{|a|  a.superclass == ActiveRecord::Base && (a < Shared::SharedAcrossProjects) }
+    ApplicationRecord.descendants.select{|a|  a.superclass == ApplicationRecord && (a < Shared::SharedAcrossProjects) }
   end 
 
   # @return [Hash]

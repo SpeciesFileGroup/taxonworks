@@ -5,6 +5,12 @@
 module TaxonWorksAutoload
   # Order matters throughout this block (sigh)
 
+
+  # Our library, check to see if best place to include here (post 4.1)
+
+
+
+
   %w{
       /app/models/nomenclatural_rank/**/*.rb
       /app/models/taxon_name_relationship/**/*.rb
