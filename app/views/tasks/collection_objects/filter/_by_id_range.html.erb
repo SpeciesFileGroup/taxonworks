@@ -1,4 +1,4 @@
-<%= form_tag(set_id_range_for_collection_object_filter_url, id: 'set_identifier_form', remote: true) do %>
+<%= form_tag(set_id_range_for_collection_object_filter_url, id: 'set_id_range_form', remote: true) do %>
     Namespace (optional): <%= namespace_select_tag(:id_namespace) -%><br>
     Range:<br>
     <%= id_range_select_tag(:range_start) -%><br>

@@ -7,7 +7,11 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
     it_behaves_like 'a_login_required_and_project_selected_controller'
 
-    after(:all) {clean_slate_geo}
+    after(:all) {
+      clean_slate_geo
+      CollectionObject.destroy_all
+      Namespace.destroy_all
+    }
 
     context 'signed in as a user' do
       before(:each) {
@@ -45,12 +49,12 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             (1..10).each {|identifier|
               sp = FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)
               id = FactoryGirl.create(:identifier_local_catalog_number,
-                                      updater:           @user,
-                                      project:           @project,
-                                      creator:           @user,
+                                      updater: @user,
+                                      project: @project,
+                                      creator: @user,
                                       identifier_object: sp,
-                                      namespace:         ((identifier % 2) == 0 ? ns1 : ns2),
-                                      identifier:        identifier)
+                                      namespace: ((identifier % 2) == 0 ? ns1 : ns2),
+                                      identifier: identifier)
             }
             visit(collection_objects_filter_task_path)
           end
@@ -103,10 +107,6 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
           end
         end
 
-        describe '#with_identifier' do
-
-        end
-
         describe '#find', js: true do
           before {
             visit(collection_objects_filter_task_path)
@@ -131,6 +131,60 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
           end
 
         end
+      end
+
+      context 'with records specific to identifiers' do
+        describe 'select a namespace' do
+          it 'should find the correct namespace' do
+            @ns1 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)
+            @ns2 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
+            visit(collection_objects_filter_task_path)
+            expect(page).to have_button('Set Identifier Range')
+            s = find(:select, 'id_namespace')
+            s.send_keys("P\t")
+            expect(page).to have_text('PSUC_FEM')
+          end
+        end
+
+        describe 'select start and stop identifiers', js: true do
+          it 'should find the start and stop selectors' do
+            3.times {FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)}
+            2.times {FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)}
+            FactoryGirl.create(:identifier_local_import,
+                               identifier_object: Specimen.first,
+                               namespace: Namespace.third,
+                               identifier: 'First specimen', creator: @user, updater: @user, project: @project)
+            FactoryGirl.create(:identifier_local_import,
+                               identifier_object: Specimen.second,
+                               namespace: Namespace.third,
+                               identifier: 'Second specimen', creator: @user, updater: @user, project: @project)
+            (1..10).each {|identifier|
+              sp = FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)
+              id = FactoryGirl.create(:identifier_local_catalog_number,
+                                      identifier_object: sp,
+                                      namespace: ((identifier % 2) == 0 ? Namespace.first : Namespace.second),
+                                      identifier: identifier, creator: @user, updater: @user, project: @project)
+            }
+            visit(collection_objects_filter_task_path)
+            s1 = find(:select, 'range_start')
+            s2 = find(:select, 'range_stop')
+
+            s1.send_keys("3\t")
+            s2.send_keys("8\t")
+
+            click_button('Set Identifier Range')
+            expect(find('#id_range_count')).to have_content('6')
+          end
+        end
+
+        describe '#set_id_range' do
+
+        end
+
+        describe 'get_id_range' do
+
+        end
+
       end
     end
   end

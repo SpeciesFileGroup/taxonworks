@@ -47,10 +47,6 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
     render json: {html: collection_objects.count}
   end
 
-  def get_id_range
-    raise
-  end
-
   def set_id_range
     raise
   end
