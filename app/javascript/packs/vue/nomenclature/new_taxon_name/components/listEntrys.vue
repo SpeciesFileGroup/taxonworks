@@ -24,7 +24,7 @@
 						</autocomplete>
 						<default-element label="source" type="Source" section="Sources" @getId="sendCitation($event,item)"></default-element>
 					</div>
-					<citation-pages :disabled="!getCitation(item)" @setPages="$emit('addCitation', $event)" :citation="item"></citation-pages>				
+					<citation-pages @setPages="$emit('addCitation', $event)" :citation="item"></citation-pages>				
 					<span type="button" title="Remove citation" class="circle-button btn-undo" v-if="getCitation(item)" @click="removeCitation(item)"></span>
 		    		<span type="button" class="circle-button btn-delete" @click="$emit('delete',item)">Remove</span>
 		    	</div>

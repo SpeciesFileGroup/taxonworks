@@ -26,6 +26,8 @@
 				return (item.hasOwnProperty('origin_citation') ? item.origin_citation.pages : '')
 			},
 			setPages(value, item) {
+				if(item['origin_citation'] == undefined) return
+					
 				let citation = {
 					id: item.id,
 					origin_citation_attributes: {
