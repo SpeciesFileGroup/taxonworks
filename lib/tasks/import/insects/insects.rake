@@ -114,7 +114,7 @@ namespace :tw do
             puts 'Importing without a transaction (data will be left in the database).'
             main_build_loop_insects
           else
-            ActiveRecord::Base.transaction do 
+            ApplicationRecord.transaction do 
               main_build_loop_insects
               raise
             end
@@ -2143,7 +2143,7 @@ namespace :tw do
       def restore_from_pg_dump
         raise 'Database is not empty, it is not possible to restore from all.dump.' if Project.count > 0
         puts 'Restoring from all.dump (to avoid this use no_dump_load=true when calling the rake task).'
-        ActiveRecord::Base.connection.execute('delete from schema_migrations')
+        ApplicationRecord.connection.execute('delete from schema_migrations')
         Support::Database.pg_restore_all('taxonworks_development', dump_directory(@args[:data_directory]),  'all.dump')
       end
 

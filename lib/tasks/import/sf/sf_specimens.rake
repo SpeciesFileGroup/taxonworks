@@ -238,7 +238,7 @@ namespace :tw do
 
             begin
 
-              ActiveRecord::Base.transaction do
+              ApplicationRecord.transaction do
                 current_objects = [] # stores all objects created in the row below temporarily
 
                 # This outer loop loops through total, category pairs, we create

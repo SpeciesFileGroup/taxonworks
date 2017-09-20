@@ -122,7 +122,7 @@ namespace :tw do
           puts 'Importing without a transaction (data will be left in the database on fail).'
           main_build_loop_ucd
         else
-          ActiveRecord::Base.transaction do
+          ApplicationRecord.transaction do
             begin
               main_build_loop_ucd
             rescue
