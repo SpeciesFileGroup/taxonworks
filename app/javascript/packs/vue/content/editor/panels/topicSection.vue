@@ -14,7 +14,7 @@
 
   const GetterNames = require('../store/getters/getters').GetterNames;
   const MutationNames = require('../store/mutations/mutations').MutationNames;
-  const newTopic = require('./newTopic.vue');
+  const newTopic = require('./newTopic.vue').default;
 
   export default {
     data: function() { 

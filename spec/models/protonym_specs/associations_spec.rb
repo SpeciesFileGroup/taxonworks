@@ -121,7 +121,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       context 'latinized' do
         specify 'has at most one latinization' do
           c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
-          c2 = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Ajective')
+          c2 = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
           expect(c2.valid?).to be_falsey
         end
       end 

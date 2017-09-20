@@ -4,6 +4,10 @@ TW.workbench.alert = TW.workbench.alert || {};
 
 Object.assign(TW.workbench.alert, {
 
+	audioFile: {
+		default: '<%= asset_path("notify.wav") %>',
+	},
+
 	init: function() {
 		$(document).on("click", ".alert-close", function() {
 			$(this).parent(".alert").animate({
@@ -19,17 +23,19 @@ Object.assign(TW.workbench.alert, {
 	},
 
 	create: function(text) {
+		$(".alert[class*='alert-']").remove();
 		$("body").append('<div class="alert alert-error"><div class="message">' + text + '</div><div class="alert-close"></div></div>');
-		this.play('<%= asset_path("notify.wav") %>');
+		this.play('default');
 	},
 
 	create: function(text,type) {
+		$(".alert[class*='alert-']").remove();
 		$("body").append('<div class="alert alert-'+type+'"><div class="message">' + text + '</div><div class="alert-close"></div></div>');
-		this.play('<%= asset_path("notify.wav") %>');
+		this.play(type);
 	},	
 
-	play: function(file) {
-		var sound = new Audio(file);
+	play: function(type) {
+		var sound = new Audio((this.audioFile[type] == undefined ? this.audioFile.default : this.audioFile[type]));
 		sound.play();		
 	}
 });

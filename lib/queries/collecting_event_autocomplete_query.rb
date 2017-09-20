@@ -1,4 +1,5 @@
 module Queries
+  
   # Presently, search by:
   #   !! UPDATE THIS
   #    id
@@ -6,7 +7,7 @@ module Queries
   #    identifier#cached
   #    geographic_area#name (term, term%)
   #
-
+  #
   class CollectingEventAutocompleteQuery
 
     def initialize(string)

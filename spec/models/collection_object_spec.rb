@@ -2,8 +2,8 @@ require 'rails_helper'
 
 describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 
-  let(:collection_object) {CollectionObject.new()}
-  let(:ranged_lot_category) {FactoryGirl.create(:valid_ranged_lot_category)}
+  let(:collection_object) { CollectionObject.new() }
+  let(:ranged_lot_category) { FactoryGirl.create(:valid_ranged_lot_category) }
 
   context 'validation' do
     specify '.valid_new_object_classes' do
@@ -35,7 +35,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 
     context 'both total and ranged_lot_category_id may not be present' do
       before {
-        collection_object.total = 10
+        collection_object.total                  = 10
         collection_object.ranged_lot_category_id = 10
       }
       specify 'when a CollectionObject' do
@@ -68,8 +68,8 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     end
 
     context 'switching roles' do
-      let(:s) {Specimen.create}
-      let(:l) {Lot.create(total: 4)}
+      let(:s) { Specimen.create }
+      let(:l) { Lot.create(total: 4) }
 
       specify 'a specimen when total changed to > 1 changes to a Lot' do
         s.total = 5
@@ -84,14 +84,14 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
       end
 
       specify 'a Lot when assigned a ranged lot and nilled total changes to RangedLot' do
-        l.total = nil
+        l.total               = nil
         l.ranged_lot_category = ranged_lot_category
         l.save!
         expect(l.type).to eq('RangedLot')
       end
 
       specify 'a Specimen when assigned a ranged lot and nilled total changes to RangedLot' do
-        s.total = nil
+        s.total               = nil
         s.ranged_lot_category = ranged_lot_category
         s.save!
         expect(s.type).to eq('RangedLot')
@@ -132,7 +132,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
   end
 
   context 'after save' do
-    let!(:c) {Delayed::Job.count}
+    let!(:c) { Delayed::Job.count }
     context 'without no_cached = true' do
       before {Specimen.create!}
       specify 'a delayed_job is added' do
@@ -143,7 +143,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     context 'with no_cached = true' do
       before {Specimen.create!(no_cached: true)}
       specify 'a delayed_job not added' do
-        expect(Delayed::Job.count).to eq(c)
+        expect(Delayed::Job.count).to eq(c )
       end
     end
   end
@@ -215,8 +215,8 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
   # See spec/models/biological_collection_object for nested attributes and taxon determinations
 
   context 'soft validation' do
-    let(:o) {Specimen.new}
-    let(:p) {Person.new}
+    let(:o) { Specimen.new }
+    let(:p) { Person.new }
 
     context 'accession fields are missing' do
       specify 'accessioned_at is missing' do
@@ -235,7 +235,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 
     context 'deaccession fields are missing' do
       specify 'deaccession_reason is missing' do
-        o.deaccessioned_at = '12/12/2014'
+        o.deaccessioned_at      = '12/12/2014'
         o.deaccession_recipient = p
         o.soft_validate(:missing_deaccession_fields)
         expect(o.soft_validations.messages_on(:deaccession_reason).count).to eq(1)
@@ -249,7 +249,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 
       specify 'deaccessioned_at is missing' do
         o.deaccession_reason = 'Because.'
-        o.deaccessioned_at = '12/12/2014'
+        o.deaccessioned_at   = '12/12/2014'
         o.soft_validate(:missing_deaccession_fields)
         expect(o.soft_validations.messages_on(:base).count).to eq(1)
       end
@@ -346,13 +346,17 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     before(:all) {
       generate_political_areas_with_collecting_events
     }
+
     after(:all) {
       clean_slate_geo
     }
+
+    let(:project_id) { CollectionObject.order(:id).first.project_id }
+
     describe 'all collecting events' do
       specify 'should find 19 collection objects' do
         collecting_event_ids = CollectingEvent.all.pluck(:id)
-        collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, [], false, $project_id)
+        collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids, [], false, project_id)
         expect(CollectionObject.count).to eq(20)
         expect(collection_objects.count).to eq(19)
       end
@@ -364,10 +368,10 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
         # collection object
         collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01', search_end_date: '1979/12/31', partial_overlap: 'on'}).pluck(:id)
         area_object_ids = CollectionObject.all.pluck(:id) # equivalent to the whole world - not a very good isolation test
-        collection_objects = CollectionObject.from_collecting_events(collecting_event_ids,
-                                                                     area_object_ids,
-                                                                     true,
-                                                                     $project_id)
+        collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
+                                                                       area_object_ids,
+                                                                       true,
+                                                                       project_id)
         expect(collecting_event_ids.count).to eq(9)
         expect(collection_objects.count).to eq(10)
       end
@@ -376,18 +380,15 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     describe 'slice of collecting_events by area' do
       specify 'should find 1 collecting object' do
         collecting_event_ids = CollectingEvent.contained_within(@item_r).pluck(:id) + (CollectingEvent.contained_within(@item_s).pluck(:id))
-        area_object_ids = CollectionObject.where(collecting_event_id: collecting_event_ids).map(&:id)
+        area_object_ids      = CollectionObject.where(collecting_event_id: collecting_event_ids).map(&:id)
         collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01', search_end_date: '1982/12/31', partial_overlap: 'off'}).pluck(:id)
-        collection_objects = CollectionObject.from_collecting_events(collecting_event_ids,
-                                                                     area_object_ids,
-                                                                     false,
-                                                                     $project_id)
+        collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
+                                                                       area_object_ids,
+                                                                       false,
+                                                                       project_id)
         expect(collecting_event_ids.count).to eq(10)
         expect(collection_objects.count).to eq(1)
-        found_c_os = [@co_m3]
-        found_c_os.each_with_index {|c_o, index|
-          expect(collection_objects[index].metamorphosize).to eq(c_o)
-        }
+        expect(collection_objects).to contain_exactly(@co_m3)
       end
 
       specify 'should find 2 collecting objects' do
@@ -397,26 +398,18 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
         collection_objects = CollectionObject.from_collecting_events(collecting_event_ids,
                                                                      area_object_ids,
                                                                      false,
-                                                                     $project_id)
+                                                                     project_id)
         expect(collecting_event_ids.count).to eq(11)
         expect(collection_objects.count).to eq(2)
-        found_c_os = [@co_m3, @co_n3]
-        c_os = []
-        collection_objects.each_with_index {|c_o, index|
-          # TODO: R5.0 ActiveRecord_Relation no longer accepts the setting of an indexed element? 07/11/17
-          # @mjy
-          # collection_objects[index] = collection_objects[index].metamorphosize
-          c_os[index] = collection_objects[index].metamorphosize
-        }
-        expect(c_os).to contain_exactly(*found_c_os)
+        expect(collection_objects).to contain_exactly(@co_m3, @co_n3)
       end
 
       specify 'should find 0 collecting objects' do
         collecting_event_ids = CollectingEvent.contained_within(@item_wb).pluck(:id)
-        collection_objects = CollectionObject.from_collecting_events(collecting_event_ids,
-                                                                     [],
-                                                                     true,
-                                                                     $project_id)
+        collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
+                                                                       [],
+                                                                       true,
+                                                                       project_id)
         expect(collecting_event_ids.count).to eq(6)
         expect(collection_objects.count).to eq(0)
       end

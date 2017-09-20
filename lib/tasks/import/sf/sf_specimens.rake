@@ -44,7 +44,7 @@ namespace :tw do
           #   SpecimenStatus
           #   DepoCatNo -- recorded in hash for now, will be identifier  <<< NO, add as import_attribute
           #   SourceID citation to collection object (refID) + description as import attribute
-          #   BasisOfRecord as data_attribute  type 5 will be asserted distribution, ignore 3, 4, and 6 (for all of 5 bor, what doesn't have refid in sourceid)
+          #   BasisOfRecord  type 5 will be asserted distribution, ignore 3, 4, and 6 (for all of 5 bor, what doesn't have refid in sourceid)
           #   VerbatimLabel NOT USED in SF, perhaps buffered collecting event
 
 
@@ -61,7 +61,11 @@ namespace :tw do
           get_specimen_category_counts = import.get('SFSpecimenIDCategoryIDCount')
           get_sf_source_metadata = import.get('SFSourceMetadata')
           get_sf_identification_metadata = import.get('SFIdentificationMetadata')
-          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
+          # get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
+
+          # to get associated OTU, get TW taxon id, then get OTU from TW taxon id
+          get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
+          get_otu_from_tw_taxon_id = import.get('TWTaxonNameIDToOtuID')
 
           get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id
 
@@ -93,9 +97,7 @@ namespace :tw do
             # get otu id from sf taxon name id, a taxon determination, called 'the primary otu id'   (what about otus without tw taxon names?)
 
             # list of import_attributes (aka data_attribute with type = 'ImportAttribute'):
-            data_attributes_bucket = {
-                data_attributes_attributes: [],
-            }
+            data_attributes_attributes = []
 
             # Note: collection_objects are made for all specimen records, regardless of basis of record (for now)
             #   -- except when there is no count
@@ -118,7 +120,7 @@ namespace :tw do
                                  import_predicate: 'basis_of_record',
                                  value: basis_of_record_string,
                                  project_id: project_id}
-              data_attributes_bucket[:data_attributes_attributes].push(basis_of_record)
+              data_attributes_attributes.push(basis_of_record)
             end
 
             if row['PreparationType'].present?
@@ -126,7 +128,7 @@ namespace :tw do
                                   import_predicate: 'preparation_type',
                                   value: row['PreparationType'],
                                   project_id: project_id}
-              data_attributes_bucket[:data_attributes_attributes].push(preparation_type)
+              data_attributes_attributes.push(preparation_type)
             end
 
             dataflags = row['DataFlags'].to_i
@@ -155,7 +157,7 @@ namespace :tw do
                                       import_predicate: 'specimen_dataflags',
                                       value: dataflag_text,
                                       project_id: project_id}
-                data_attributes_bucket[:data_attributes_attributes].push(specimen_dataflags)
+                data_attributes_attributes.push(specimen_dataflags)
               end
             end
 
@@ -185,22 +187,23 @@ namespace :tw do
                                  import_predicate: 'specimen_status',
                                  value: specimen_status_string,
                                  project_id: project_id}
-              data_attributes_bucket[:data_attributes_attributes].push(specimen_status)
+              data_attributes_attributes.push(specimen_status)
             end
 
-            citations_attributes = nil # if nil will it get ignored in metadata?
+            citations_attributes = [] # if empty array will be ignored in metadata
             if row['SourceID'] != '0'
               sf_source_id = row['SourceID']
 
               if get_sf_source_metadata[sf_source_id][row['RefID']] != '0' # SF.Source has RefID, create citation for collection object (assuming it will be created)
-                citations_attributes = {source_id: sf_source_id, project_id: project_id}
+                citations_attributes.push({source_id: sf_source_id, project_id: project_id})
               end
+
               if get_sf_source_metadata[sf_source_id][row['Description']].present? # SF.Source has description, create an import_attribute
                 sf_source_description = {type: 'ImportAttribute',
                                          import_predicate: 'sf_source_description',
                                          value: row['Description'],
                                          project_id: project_id}
-                data_attributes_bucket[:data_attributes_attributes].push(sf_source_description)
+                data_attributes_attributes.push(sf_source_description)
               end
             end
 
@@ -209,11 +212,9 @@ namespace :tw do
                                 import_predicate: 'sf_depo_string',
                                 value: get_sf_depo_string[sf_depo_string],
                                 project_id: project_id}
-              data_attributes_bucket[:data_attributes_attributes].push(sf_depo_string)
+              data_attributes_attributes.push(sf_depo_string)
             end
 
-
-            import_attributes_attributes = []
             metadata = {notes_attributes: [{text: row['Note'],
                                             project_id: project_id,
                                             created_at: row['CreatedOn'],
@@ -221,13 +222,13 @@ namespace :tw do
                                             created_by_id: get_tw_user_id[row['CreatedBy']],
                                             updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
 
-                        data_attributes_attributes: data_attributes_bucket,
-                        citations_attributes: citations_attributes, # not sure how to initialize above
+                        data_attributes_attributes: data_attributes_attributes,
+                        citations_attributes: citations_attributes,
 
                         # data_attributes to do:
                         #   import_attribute if identification.IdentifierName
+                        #   other fields in tblIdentifications?
 
-                        # create taxon determination for species this is attached to
                         # create type specimen if tblIdentifications.TypeTaxonNameID maybe
 
 
@@ -245,28 +246,27 @@ namespace :tw do
                 get_specimen_category_counts[specimen_id].each do |specimen_category_id, count|
 
                   collection_object = CollectionObject::BiologicalCollectionObject.new(
-                      # metadata.merge(
+                      metadata.merge(
                       total: count,
                       collecting_event_id: collecting_event_id,
                       repository_id: repository_id,
 
                       biocuration_classifications_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s], project_id: project_id}],
 
-                      # td = TaxonDetermination.create(
-                      #     biological_collection_object: o,
-                      #     otu: otu,
-                      #     year_made: year_from_field(row['DateID'])
-                      # )
+                      taxon_determinations_attributes: [{otu_id: get_otu_from_tw_taxon_id[get_tw_taxon_name_id[row['TaxonNameID']]], project_id: project_id}],
 
-                      taxon_determinations_attributes: [{otu: get_tw_otu_id[row['TaxonNameID']], project_id: project_id}],
+                      # metadata attributes:
 
-                  # housekeeping for collection_object
+                      # citations_attributes: citations_attributes,
+
+
+                      # housekeeping for collection_object
                       project_id: project_id,
                       created_at: row['CreatedOn'],
                       updated_at: row['LastUpdate'],
                       created_by_id: get_tw_user_id[row['CreatedBy']],
                       updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                  ) #)
+                  ))
 
                   collection_object.save!
 
@@ -310,14 +310,16 @@ namespace :tw do
                   end
                 end
 
+                # if type_type is present "holotype"
+                # tm = TypeMaterial.create!(biological_collection_object_id: current_objects.first.id, type_type: "holotype", taxon_name_id: getSomeTNID, project_id ... )
+
                 puts 'CollectionObject created'
-                get_tw_collection_object_id[specimen_id] = current_objects.collect {|a| a.id} # an arry of collection object ids for this specimen_id
+                get_tw_collection_object_id[specimen_id] = current_objects.collect {|a| a.id} # an array of collection object ids for this specimen_id
 
               end
 
             rescue ActiveRecord::RecordInvalid => e
-              # logger.error "CollectionObject ERROR SF.SpecimenID = #{specimen_id} (#{error_counter += 1}): " + collection_object.errors.full_messages.join(';')
-              logger.error "CollectionObject ERROR SF.SpecimenID = #{specimen_id} (#{error_counter += 1}): " + e.errors.full_messages.join(';')
+              logger.error "CollectionObject ERROR SF.SpecimenID = #{specimen_id} (#{error_counter += 1}): " + e.record.errors.full_messages.join(';')
             end
           end
 

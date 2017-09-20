@@ -24,11 +24,11 @@
 </template>
 
 <script>
-    const cloneContent = require('./clone.vue');
-    const compareContent = require('./compare.vue');
-    const citationOtu = require('./compare.vue');
-    const selectTopicOtu = require('./selectTopicOtu.vue');
-    const markdownEditor = require('../../../components/markdown-editor.vue');
+    const cloneContent = require('./clone.vue').default;
+    const compareContent = require('./compare.vue').default;
+    const citationOtu = require('./compare.vue').default;
+    const selectTopicOtu = require('./selectTopicOtu.vue').default;
+    const markdownEditor = require('../../../components/markdown-editor.vue').default;
     const GetterNames = require('../store/getters/getters').GetterNames;
     const MutationNames = require('../store/mutations/mutations').MutationNames;
 

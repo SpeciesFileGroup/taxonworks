@@ -22,4 +22,5 @@ module NilifyBlanks
 
 end
 
-ActiveRecord::Base.send(:include, NilifyBlanks) 
+ApplicationRecord.send(:include, NilifyBlanks)
+# ActiveRecord::Base.send(:include, NilifyBlanks) 

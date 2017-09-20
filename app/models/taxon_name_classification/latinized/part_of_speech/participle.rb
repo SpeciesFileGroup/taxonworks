@@ -9,5 +9,13 @@ class TaxonNameClassification::Latinized::PartOfSpeech::Participle < TaxonNameCl
                                                  TaxonNameClassification::Latinized::PartOfSpeech::Adjective)
   end
 
+  def self.assignable
+    true
+  end
+
+  def set_cached 
+    set_gender_in_taxon_name
+    super
+  end
 
 end

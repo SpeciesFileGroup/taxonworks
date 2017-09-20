@@ -9,5 +9,9 @@ class TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase < Tax
                                                  TaxonNameClassification::Latinized::PartOfSpeech::Participle)
   end
 
+  def self.assignable
+    true
+  end
+
 
 end

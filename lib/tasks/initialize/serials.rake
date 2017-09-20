@@ -12,7 +12,7 @@ namespace :tw do
         end
       end
 
-      database = ActiveRecord::Base.connection.current_database
+      database = ApplicationRecord.connection.current_database
       path = File.join(@args[:data_directory], 'serial_table.dump')
 
       # serial data

@@ -1,4 +1,4 @@
-# Shared code for...
+# Shared code pinning objects (adding them to your pinboard). 
 #
 module Shared::IsData::Pinnable
   extend ActiveSupport::Concern
@@ -11,4 +11,9 @@ module Shared::IsData::Pinnable
   def pinned?(user)
     user.pinboard_items.for_object(self.metamorphosize).count > 0
   end
+
+  def pinboard_item_for(user)
+    user.pinboard_items.for_object(self.metamorphosize).first
+  end
+
 end

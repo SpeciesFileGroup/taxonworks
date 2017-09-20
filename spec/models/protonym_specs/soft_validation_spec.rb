@@ -306,7 +306,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(s.soft_validations.messages_on(:neuter_name).size).to eq(1)
       end
 
-      specify 'unproper noun names' do
+      specify 'unproper noun names (endings incorrect)' do
         s = FactoryGirl.create(:relationship_species, parent: @genus, masculine_name: 'vita', feminine_name: 'vitus', neuter_name: 'viter')
         c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
         s.soft_validate(:species_gender_agreement)
@@ -495,7 +495,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(s2.save).to be_truthy
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).size).to eq(1)
-        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClassification::Iczn::Unavailable, taxon_name: s1)
+        FactoryGirl.create(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Unavailable', taxon_name: s1)
         expect(s1.save).to be_truthy
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).empty?).to be_truthy
@@ -510,7 +510,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(s2.save).to be_truthy
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).size).to eq(1)
-        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClassification::Iczn::Unavailable, taxon_name: s1)
+        FactoryGirl.create(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Unavailable', taxon_name: s1)
         expect(s1.save).to be_truthy
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).empty?).to be_truthy
@@ -535,7 +535,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(s2.save).to be_truthy
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).size).to eq(1)
-        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClassification::Iczn::Unavailable, taxon_name: s1)
+        FactoryGirl.create(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Unavailable', taxon_name: s1)
         expect(s1.save).to be_truthy
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).empty?).to be_truthy

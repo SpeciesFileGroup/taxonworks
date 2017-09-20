@@ -1,15 +1,14 @@
 # Be sure to restart your server when you modify this file.
-
+#
 # !! All constants are now composed of Strings only.  They must not reference a class. !!
+#
+# Contains NOMEN classes of rank/hierarchy in various format.
+#
 
-# ICN class names ordered in an Array
-ICN = NomenclaturalRank::Icn.ordered_ranks.collect{|r| r.to_s}.freeze
-
-# ICZN class names  ordered in an Array
-ICZN = NomenclaturalRank::Iczn.ordered_ranks.collect{|r| r.to_s}.freeze
-
-# ICNB class names  ordered in an Array
-ICNB = NomenclaturalRank::Icnb.ordered_ranks.collect{|r| r.to_s}.freeze
+# ICN, ICZN, ICNB class names ordered in an Array
+ICN = NomenclaturalRank::Icn.ordered_ranks.map(&:to_s).freeze 
+ICZN = NomenclaturalRank::Iczn.ordered_ranks.map(&:to_s).freeze
+ICNB = NomenclaturalRank::Icnb.ordered_ranks.map(&:to_s).freeze
 
 # All assignable Rank Classes 
 RANKS = ( ['NomenclaturalRank'] + ICN + ICZN + ICNB).freeze
@@ -30,65 +29,92 @@ RANKS_LOOKUP = ICN_LOOKUP.invert.merge(ICZN_LOOKUP.invert.merge(ICNB_LOOKUP.inve
 
 # An Array of Arrays, used in options for select
 #   [["class (ICN)", "NomenclaturalRank::Icn::HigherClassificationGroup::ClassRank"] .. ]
-RANKS_SELECT_OPTIONS = RANKS_LOOKUP.collect{|k,v| ["#{v} " + ((k.to_s =~ /Iczn/) ? '(ICZN)' : ((k.to_s =~ /Icnb/) ? '(ICNB)' : '(ICN)') ), k, {class: ((k.to_s =~ /Iczn/) ? :iczn : ((k.to_s =~ /Icnb/) ? :icnb : :icn)) }] }.sort{|a, b| a[0] <=> b[0]}.freeze
+RANKS_SELECT_OPTIONS = RANKS_LOOKUP.collect{|k,v| 
+  ["#{v} " + ((k.to_s =~ /Iczn/) ? '(ICZN)' : ((k.to_s =~ /Icnb/) ? '(ICNB)' : '(ICN)') ), k, {class: ((k.to_s =~ /Iczn/) ? :iczn : ((k.to_s =~ /Icnb/) ? :icnb : :icn)) }] }.sort{|a, b| a[0] <=> b[0]}.freeze
 
-# All assignable ranks for family groups, for ICZN
-FAMILY_RANK_NAMES_ICZN = NomenclaturalRank::Iczn::FamilyGroup.descendants.collect{|i| i.to_s}.freeze
-
-# All assignable ranks for family groups, for ICN
-FAMILY_RANK_NAMES_ICN = NomenclaturalRank::Icn::FamilyGroup.descendants.collect{|i| i.to_s}.freeze
-
-# All assignable ranks for family groups, for ICNB
-FAMILY_RANK_NAMES_ICNB = NomenclaturalRank::Icnb::FamilyGroup.descendants.collect{|i| i.to_s}.freeze
+# All assignable ranks for family groups, for ICZN, ICN, ICNB
+FAMILY_RANK_NAMES_ICZN = NomenclaturalRank::Iczn::FamilyGroup.descendants.map(&:to_s).freeze
+FAMILY_RANK_NAMES_ICN = NomenclaturalRank::Icn::FamilyGroup.descendants.map(&:to_s).freeze
+FAMILY_RANK_NAMES_ICNB = NomenclaturalRank::Icnb::FamilyGroup.descendants.map(&:to_s).freeze
 
 # All assignable ranks for family group, for ICN, ICNB, and ICZN
 FAMILY_RANK_NAMES =  ( FAMILY_RANK_NAMES_ICZN + FAMILY_RANK_NAMES_ICN + FAMILY_RANK_NAMES_ICNB ).freeze
 
-# All assignable ranks for family group and above family names, for ICZN
-FAMILY_AND_ABOVE_RANK_NAMES_ICZN = FAMILY_RANK_NAMES_ICZN +
-  (NomenclaturalRank::Iczn::HigherClassificationGroup.descendants).collect{|i| i.to_s}.freeze
+# All assignable higher ranks for family group, for ICN, ICNB, and ICZN
+HIGHER_RANK_NAMES_ICZN = NomenclaturalRank::Iczn::HigherClassificationGroup.descendants.map(&:to_s).freeze
+HIGHER_RANK_NAMES_ICN = NomenclaturalRank::Icn::HigherClassificationGroup.descendants.map(&:to_s).freeze
+HIGHER_RANK_NAMES_ICNB = NomenclaturalRank::Icnb::HigherClassificationGroup.descendants.map(&:to_s).freeze
+
+# All assignable ranks for family group and above family names, for ICZN, ICN, ICNB
+FAMILY_AND_ABOVE_RANK_NAMES_ICZN = FAMILY_RANK_NAMES_ICZN + HIGHER_RANK_NAMES_ICZN
+FAMILY_AND_ABOVE_RANK_NAMES_ICN = FAMILY_RANK_NAMES_ICN + HIGHER_RANK_NAMES_ICN
+FAMILY_AND_ABOVE_RANK_NAMES_ICNB = FAMILY_RANK_NAMES_ICNB + HIGHER_RANK_NAMES_ICNB
 
 # All assignable ranks for family group and above family names, for ICN, ICNB, and ICZN
-FAMILY_AND_ABOVE_RANK_NAMES = FAMILY_AND_ABOVE_RANK_NAMES_ICZN +
-  (NomenclaturalRank::Icn::HigherClassificationGroup.descendants +
-   NomenclaturalRank::Icn::FamilyGroup.descendants).collect{|i| i.to_s} +
-   (NomenclaturalRank::Icnb::HigherClassificationGroup.descendants +
-   NomenclaturalRank::Icnb::FamilyGroup.descendants).collect{|i| i.to_s}.freeze
+FAMILY_AND_ABOVE_RANK_NAMES = 
+  FAMILY_AND_ABOVE_RANK_NAMES_ICZN +
+  FAMILY_AND_ABOVE_RANK_NAMES_ICN +
+  FAMILY_AND_ABOVE_RANK_NAMES_ICNB 
 
-# All assignable ranks for genus groups, for ICZN
-GENUS_RANK_NAMES_ICZN = NomenclaturalRank::Iczn::GenusGroup.descendants.collect{|i| i.to_s}.freeze
-
-# All assignable ranks for genus groups, for both ICN
-GENUS_RANK_NAMES_ICN = NomenclaturalRank::Icn::GenusGroup.descendants.collect{|i| i.to_s}.freeze
-
-# All assignable ranks for genus groups, for both ICNB
-GENUS_RANK_NAMES_ICNB = NomenclaturalRank::Icnb::GenusGroup.descendants.collect{|i| i.to_s}.freeze
-
-# All assignable ranks for species groups, for ICZN
-SPECIES_RANK_NAMES_ICZN = NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|i| i.to_s}.freeze
-
-# All assignable ranks for species groups, for both ICN
-SPECIES_RANK_NAMES_ICN = NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants.collect{|i| i.to_s}.freeze
-
-# All assignable ranks for species groups, for both ICNB
-SPECIES_RANK_NAMES_ICNB = NomenclaturalRank::Icnb::SpeciesGroup.descendants.collect{|i| i.to_s}.freeze
-
-# All assignable ranks for genus and species groups, for both ICZN
-GENUS_AND_SPECIES_RANK_NAMES_ICZN = ( GENUS_RANK_NAMES_ICZN + SPECIES_RANK_NAMES_ICZN ).freeze
-
-# All assignable ranks for genus and species groups, for both ICN
-GENUS_AND_SPECIES_RANK_NAMES_ICN = ( GENUS_RANK_NAMES_ICN + SPECIES_RANK_NAMES_ICN ).freeze
-
-# All assignable ranks for genus and species groups, for both ICNB
-GENUS_AND_SPECIES_RANK_NAMES_ICNB = ( GENUS_RANK_NAMES_ICNB + SPECIES_RANK_NAMES_ICNB ).freeze
+# Assignable ranks for genus groups
+GENUS_RANK_NAMES_ICZN = NomenclaturalRank::Iczn::GenusGroup.descendants.map(&:to_s).freeze
+GENUS_RANK_NAMES_ICN = NomenclaturalRank::Icn::GenusGroup.descendants.map(&:to_s).freeze
+GENUS_RANK_NAMES_ICNB = NomenclaturalRank::Icnb::GenusGroup.descendants.map(&:to_s).freeze
 
 # All assignable ranks for genus groups, for ICN, ICNB, and ICZN
 GENUS_RANK_NAMES = ( GENUS_RANK_NAMES_ICZN + GENUS_RANK_NAMES_ICN + GENUS_RANK_NAMES_ICNB ).freeze
 
+# Assignable ranks for species groups, for ICZN, ICN, ICNB
+SPECIES_RANK_NAMES_ICZN = NomenclaturalRank::Iczn::SpeciesGroup.descendants.map(&:to_s).freeze
+SPECIES_RANK_NAMES_ICN = NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants.map(&:to_s).freeze
+SPECIES_RANK_NAMES_ICNB = NomenclaturalRank::Icnb::SpeciesGroup.descendants.map(&:to_s).freeze
+
 # All assignable ranks for species groups, for ICN, ICNB, and ICZN
 SPECIES_RANK_NAMES = ( SPECIES_RANK_NAMES_ICZN + SPECIES_RANK_NAMES_ICN + SPECIES_RANK_NAMES_ICNB ).freeze
 
-# All assignable ranks for genus and species groups, for ICN, ICNB, and ICZN
+# Assignable ranks for genus and species groups
+GENUS_AND_SPECIES_RANK_NAMES_ICZN = ( GENUS_RANK_NAMES_ICZN + SPECIES_RANK_NAMES_ICZN ).freeze
+GENUS_AND_SPECIES_RANK_NAMES_ICN = ( GENUS_RANK_NAMES_ICN + SPECIES_RANK_NAMES_ICN ).freeze
+GENUS_AND_SPECIES_RANK_NAMES_ICNB = ( GENUS_RANK_NAMES_ICNB + SPECIES_RANK_NAMES_ICNB ).freeze
+
+# Assignable ranks for genus and species groups, for ICN, ICNB, and ICZN
 GENUS_AND_SPECIES_RANK_NAMES = ( GENUS_RANK_NAMES + SPECIES_RANK_NAMES ).freeze
 
+module RankHelper
+  def self.rank_attributes(rank)
+    rank.ordered_ranks.inject([]) {|ary, r| 
+      ary.push(
+        {
+          name: r.rank_name,
+          rank_class: r.to_s,
+          parent: r.parent_rank.rank_name,
+          typical_use: r.typical_use
+        }
+      )
+    }
 
+  end
+end
+
+RANKS_JSON = {
+  iczn: {
+    higher: RankHelper::rank_attributes(NomenclaturalRank::Iczn::HigherClassificationGroup) ,
+    family: RankHelper::rank_attributes(NomenclaturalRank::Iczn::FamilyGroup),
+    genus: RankHelper::rank_attributes(NomenclaturalRank::Iczn::GenusGroup),
+    species: RankHelper::rank_attributes(NomenclaturalRank::Iczn::SpeciesGroup)
+  },
+  icn:  {
+    higher: RankHelper::rank_attributes(NomenclaturalRank::Icn::HigherClassificationGroup) ,
+    family: RankHelper::rank_attributes(NomenclaturalRank::Icn::FamilyGroup),
+    genus: RankHelper::rank_attributes(NomenclaturalRank::Icn::GenusGroup),
+    species: RankHelper::rank_attributes(NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup)
+  },
+  icnb: { 
+    higher: RankHelper::rank_attributes(NomenclaturalRank::Icnb::HigherClassificationGroup) ,
+    family: RankHelper::rank_attributes(NomenclaturalRank::Icnb::FamilyGroup),
+    genus: RankHelper::rank_attributes(NomenclaturalRank::Icnb::GenusGroup),
+    species: RankHelper::rank_attributes(NomenclaturalRank::Icnb::SpeciesGroup)
+  }
+}
+
+# expected parent rank, check for validation purpose

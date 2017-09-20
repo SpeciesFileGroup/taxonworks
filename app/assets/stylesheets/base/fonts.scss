@@ -51,6 +51,10 @@ $font_title: 16px;
 	text-transform: uppercase;
 }
 
+.capitalize { 
+	text-transform: capitalize;
+}
+
 .word_break {
   word-break: break-all;
   white-space: -moz-pre-wrap;
