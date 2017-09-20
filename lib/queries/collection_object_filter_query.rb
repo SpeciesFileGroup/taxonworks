@@ -54,6 +54,10 @@ module Queries
       query_otu_descendants == 'on'
     end
 
+    def identifier_set?
+      query_range_start.present? || query_range_stop.present?
+    end
+
     # All scopes might end up in CollectionObject directly
 
     # @return [Scope]
@@ -97,6 +101,7 @@ module Queries
       scopes.push :geographic_area_scope if area_set?
       scopes.push :shape_scope if shape_set?
       scopes.push :date_scope if date_set?
+      scopes.push :identifier_scope if id
       scopes
     end
 
