@@ -48,7 +48,7 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
   end
 
   def set_id_range
-    raise
+    render json: {html: collection_objects.count.to_s}
   end
 
   protected
@@ -61,7 +61,9 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
   end
 
   def filter_params
-    params.permit(:drawn_area_shape, :search_start_date, :search_end_date, :partial_overlap, :otu_id, :descendants, :page, geographic_area_ids: [])
+    params.permit(:drawn_area_shape, :search_start_date, :search_end_date,
+                  :range_start, :range_stop, :id_namespace,
+                  :partial_overlap, :otu_id, :descendants, :page, geographic_area_ids: [])
   end
 
 end

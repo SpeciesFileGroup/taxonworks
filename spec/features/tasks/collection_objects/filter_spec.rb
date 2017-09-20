@@ -139,9 +139,11 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             @ns1 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)
             @ns2 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
             visit(collection_objects_filter_task_path)
+
             expect(page).to have_button('Set Identifier Range')
-            s = find(:select, 'id_namespace')
-            s.send_keys("P\t")
+            select('PSUC', from: 'id_namespace')
+            # s = find(:select, 'id_namespace')
+            # s.send_keys("P\t")
             expect(page).to have_text('PSUC_FEM')
           end
         end
@@ -166,11 +168,9 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
                                       identifier: identifier, creator: @user, updater: @user, project: @project)
             }
             visit(collection_objects_filter_task_path)
-            s1 = find(:select, 'range_start')
-            s2 = find(:select, 'range_stop')
 
-            s1.send_keys("3\t")
-            s2.send_keys("8\t")
+            select('3', from: 'range_start')
+            select('8', from: 'range_stop')
 
             click_button('Set Identifier Range')
             expect(find('#id_range_count')).to have_content('6')

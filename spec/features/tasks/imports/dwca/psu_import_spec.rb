@@ -27,8 +27,9 @@ describe 'tasks/import/dwca/psu_import', type: :feature, group: [:collection_obj
 
           it 'displays a page with which to interact' do
             expect(page).to have_button('import')
-            s = find(:select, 'dwca_namespace')
-            s.send_keys("PSUC\t")
+            select('PSUC', from: 'dwca_namespace')
+            # s = find(:select, 'dwca_namespace')
+            # s.send_keys("PSUC\t")
             expect(page).to have_text('PSUC_FEM')
             click_button('import')
             # find(:select)

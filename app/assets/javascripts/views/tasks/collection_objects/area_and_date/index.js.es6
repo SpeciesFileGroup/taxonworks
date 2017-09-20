@@ -59,7 +59,7 @@ Object.assign(TW.views.tasks.collection_objects, {
         }
       });
     }
-
+  
     $("#set_otu").click(function (event) {
         $("#otu_count").text('????');
         $("#select_otu").mx_spinner('show');
@@ -71,7 +71,19 @@ Object.assign(TW.views.tasks.collection_objects, {
         event.preventDefault();
       }
     );
-
+  
+    $("#set_id_range").click(function (event) {
+        $("#id_range_count").text('????');
+        $("#select_id_range").mx_spinner('show');
+        $.get('set_id_range', $("#set_id_range_form").serialize(), function (local_data) {
+          $("#id_range_count").text(local_data.html);
+          $("#select_id_range").mx_spinner('hide');
+          that.validateResult();
+        }, 'json');
+        event.preventDefault();
+      }
+    );
+  
     var today = new Date();
     var year = today.getFullYear();
     var format = 'yy/mm/dd';
@@ -269,11 +281,15 @@ Object.assign(TW.views.tasks.collection_objects, {
     if ($('#date_count').text() != '????') {
       params.push($("#set_date_form").serialize());
     }
-
+  
     if ( $('#otu_count').text() != '????' ) {
       params.push($("#set_otu_form").serialize());
     }
-
+  
+    if ($('#id_range_count').text() != '????') {
+      params.push($("#set_id_range_form").serialize());
+    }
+  
     return data = params.join("&");
   },
 
