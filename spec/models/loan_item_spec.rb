@@ -60,10 +60,7 @@ describe LoanItem, type: :model, group: :loans do
       specify '#returned? is true' do
         expect(loan_item.returned?).to be_truthy
       end
-
     end
-
-
   end
 
 
