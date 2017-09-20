@@ -120,6 +120,7 @@ namespace :tw do
                                  import_predicate: 'basis_of_record',
                                  value: basis_of_record_string,
                                  project_id: project_id}
+              puts "BasisOfRecord: '#{basis_of_record_string}'"
               data_attributes_attributes.push(basis_of_record)
             end
 
@@ -128,6 +129,7 @@ namespace :tw do
                                   import_predicate: 'preparation_type',
                                   value: row['PreparationType'],
                                   project_id: project_id}
+              puts "PreparationType: '#{row['PreparationType']}'"
               data_attributes_attributes.push(preparation_type)
             end
 
@@ -157,12 +159,13 @@ namespace :tw do
                                       import_predicate: 'specimen_dataflags',
                                       value: dataflag_text,
                                       project_id: project_id}
+                puts "Specimen dataflags text: '#{dataflag_text}'"
                 data_attributes_attributes.push(specimen_dataflags)
               end
             end
 
             specimen_status_id = row['SpecimenStatusID'].to_i
-            if specimen_status_id > 0 || specimen_status_id == 10 # 0 = presumed Ok, 10 = no data entered
+            if specimen_status_id > 0 && specimen_status_id != 10 # 0 = presumed Ok, 10 = no data entered
               case specimen_status_id
                 when 1
                   specimen_status_string = 'missing'
@@ -187,6 +190,7 @@ namespace :tw do
                                  import_predicate: 'specimen_status',
                                  value: specimen_status_string,
                                  project_id: project_id}
+              puts "specimen_status_string (SpecimenStatusID): '#{specimen_status_string}' ('#{specimen_status_id}')"
               data_attributes_attributes.push(specimen_status)
             end
 
@@ -194,15 +198,19 @@ namespace :tw do
             if row['SourceID'] != '0'
               sf_source_id = row['SourceID']
 
-              if get_sf_source_metadata[sf_source_id][row['RefID']] != '0' # SF.Source has RefID, create citation for collection object (assuming it will be created)
-                citations_attributes.push({source_id: sf_source_id, project_id: project_id})
+              if get_sf_source_metadata.has_key?(sf_source_id) && get_sf_source_metadata[sf_source_id]['ref_id'].to_i > 0 # SF.Source has RefID, create citation for collection object (assuming it will be created)
+                sf_source_ref_id = get_sf_source_metadata[sf_source_id]['ref_id'].to_i
+                puts "SF.SourceID, RefID: '#{sf_source_id}', '#{sf_source_ref_id}'"
+                citations_attributes.push({source_id: sf_source_ref_id, project_id: project_id})
               end
 
-              if get_sf_source_metadata[sf_source_id][row['Description']].present? # SF.Source has description, create an import_attribute
+              if get_sf_source_metadata[sf_source_id]['description'].present? # SF.Source has description, create an import_attribute
+                sf_source_description_text = get_sf_source_metadata[sf_source_id]['description']
                 sf_source_description = {type: 'ImportAttribute',
                                          import_predicate: 'sf_source_description',
-                                         value: row['Description'],
+                                         value: sf_source_description_text,
                                          project_id: project_id}
+                puts "Description: '#{sf_source_description_text}'"
                 data_attributes_attributes.push(sf_source_description)
               end
             end
@@ -210,8 +218,9 @@ namespace :tw do
             if sf_depo_id > '0'
               sf_depo_string = {type: 'ImportAttribute',
                                 import_predicate: 'sf_depo_string',
-                                value: get_sf_depo_string[sf_depo_string],
+                                value: get_sf_depo_string[sf_depo_id],
                                 project_id: project_id}
+              puts "get_sf_depo_string[sf_depo_id]: '#{get_sf_depo_string[sf_depo_id]}'"
               data_attributes_attributes.push(sf_depo_string)
             end
 
