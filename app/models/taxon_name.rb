@@ -1035,20 +1035,20 @@ class TaxonName < ApplicationRecord
   end
 
   def next_sibling
-    if siblings.any?
-      siblings = self_and_siblings.order(:cached).pluck(:id)
-      s = siblings.index(id)
-      TaxonName.find(siblings[ s + 1]) if s < siblings.length - 1
+    if siblings.where(project_id: project_id).any?
+      sibs = self_and_siblings.order(:cached).pluck(:id)
+      s = sibs.index(id)
+      TaxonName.find(sibs[ s + 1] ) if s < sibs.length - 1
     else
       nil
     end
   end
 
   def previous_sibling
-    if siblings.any?
-      siblings = self_and_siblings.order(:cached).pluck(:id)
-      s = siblings.index(id)
-      TaxonName.find(siblings[s - 1]) if s != 0
+    if siblings.where(project_id: project_id).any?
+      sibs = self_and_siblings.order(:cached).pluck(:id)
+      s = sibs.index(id)
+      TaxonName.find(sibs[s - 1]) if s != 0
     else
       nil
     end
