@@ -50,7 +50,7 @@ gem 'paperclip-meta', '~> 3.0'
 gem 'sprockets-rails', '~> 3.2.0'
 gem 'sprockets', '~> 3.7.1'
 gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
-gem 'webpacker', '~> 2.0'
+gem 'webpacker', '~> 3.0'
 gem 'uglifier', '~> 3.2'
 
 gem 'jquery-rails', '~> 4.3.1'

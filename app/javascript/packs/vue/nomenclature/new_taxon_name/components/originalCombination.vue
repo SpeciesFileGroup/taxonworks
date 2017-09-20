@@ -35,7 +35,7 @@
 	const GetterNames = require('../store/getters/getters').GetterNames;
 	const MutationNames = require('../store/mutations/mutations').MutationNames; 
 	const ActionNames = require('../store/actions/actions').ActionNames;  
-	const autocomplete = require('../../../components/autocomplete.vue');
+	const autocomplete = require('../../../components/autocomplete.vue').default;
 
 	export default {
 		components: {
@@ -256,7 +256,7 @@
 		}
 	}
 </script>
-<style>
+<style lang="scss">
  .original-combination {
  	.new-position {
  		color: red;

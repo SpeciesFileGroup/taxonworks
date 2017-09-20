@@ -22,12 +22,12 @@
 </template>
 
 <script>
-  var panelTop = require('./panels/top.vue');
-  var recentList = require('./panels/recentlist.vue');
-  var citationList = require('./editor/citationList.vue');
-  var contentEditor = require('./editor/content.vue');
-  var figuresPanel = require('./editor/figuresPanel.vue');
-  var topicSection = require('./panels/topicSection.vue')
+  var panelTop = require('./panels/top.vue').default;
+  var recentList = require('./panels/recentlist.vue').default;
+  var citationList = require('./editor/citationList.vue').default;
+  var contentEditor = require('./editor/content.vue').default;
+  var figuresPanel = require('./editor/figuresPanel.vue').default;
+  var topicSection = require('./panels/topicSection.vue').default;
 
 
     export default {

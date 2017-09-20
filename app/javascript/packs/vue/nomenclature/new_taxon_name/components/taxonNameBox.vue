@@ -24,7 +24,7 @@
 <script>
 
 const GetterNames = require('../store/getters/getters').GetterNames
-const modal = require('../../../components/modal.vue');
+const modal = require('../../../components/modal.vue').default;
 
 export default {
 	components: {
@@ -94,8 +94,8 @@ export default {
 	},
 }
 </script>
-<style type="text/css">
-#taxonNameBox {
+<style lang="scss">
+	#taxonNameBox {
 		.header {
 			padding: 1em;
 			border: 1px solid #f5f5f5;

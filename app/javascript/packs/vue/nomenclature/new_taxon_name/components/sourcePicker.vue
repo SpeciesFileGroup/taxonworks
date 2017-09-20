@@ -73,12 +73,12 @@
 	const MutationNames = require('../store/mutations/mutations').MutationNames;
 	const ActionNames = require('../store/actions/actions').ActionNames;
 
-	const verbatimAuthor = require('./verbatimAuthor.vue');
-	const verbatimYear = require('./verbatimYear.vue');
- 	const autocomplete = require('../../../components/autocomplete.vue');
-  	const rolePicker = require('../../../components/role_picker.vue');
-	const defaultElement = require('../../../components/getDefaultPin.vue');
-	const expand = require('./expand.vue');
+	const verbatimAuthor = require('./verbatimAuthor.vue').default;
+	const verbatimYear = require('./verbatimYear.vue').default;
+ 	const autocomplete = require('../../../components/autocomplete.vue').default;
+  	const rolePicker = require('../../../components/role_picker.vue').default;
+	const defaultElement = require('../../../components/getDefaultPin.vue').default;
+	const expand = require('./expand.vue').default;
 
 	export default {
 		components: {

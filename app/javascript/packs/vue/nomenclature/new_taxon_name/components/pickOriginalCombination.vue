@@ -74,8 +74,8 @@
 	const GetterNames = require('../store/getters/getters').GetterNames;
 	const ActionNames = require('../store/actions/actions').ActionNames;
   	const draggable = require('vuedraggable');
-	const listEntrys = require('./listEntrys.vue');
-  	const originalCombination = require('./originalCombination.vue');
+	const listEntrys = require('./listEntrys.vue').default;
+  	const originalCombination = require('./originalCombination.vue').default;
 
 
 	export default {
@@ -182,7 +182,7 @@
 		}
 	}
 </script>
-<style>
+<style lang="scss">
 .original-combination-picker {
 	.button-current {
 		width: 100px;

@@ -25,11 +25,11 @@
 </template>
 <script>
 
-const saveTaxonName = require('./saveTaxonName.vue');
-const createNewButton = require('./createNewButton.vue');
+const saveTaxonName = require('./saveTaxonName.vue').default;
+const createNewButton = require('./createNewButton.vue').default;
 const GetterNames = require('../store/getters/getters').GetterNames;
 
-const pinObject = require('../../../components/pin.vue');
+const pinObject = require('../../../components/pin.vue').default;
 
 export default {
 	props: {
@@ -71,7 +71,7 @@ export default {
 	}
 }
 </script>
-<style>
+<style lang="scss">
 	#taxonNavBar.navbar-fixed-top {
 		top:0px;
 		width: 1240px;

@@ -32,8 +32,8 @@
 	const GetterNames = require('../store/getters/getters').GetterNames;
 	const MutationNames = require('../store/mutations/mutations').MutationNames; 
 	const ActionNames = require('../store/actions/actions').ActionNames;  
-	const blockLayout = require('./blockLayout.vue');
-	const listEntrys = require('./listEntrys.vue');
+	const blockLayout = require('./blockLayout.vue').default;
+	const listEntrys = require('./listEntrys.vue').default;
 
 	const getRankGroup = require('../helpers/getRankGroup');
 

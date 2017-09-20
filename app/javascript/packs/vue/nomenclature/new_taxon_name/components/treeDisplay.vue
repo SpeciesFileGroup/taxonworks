@@ -13,10 +13,10 @@
   const ActionNames = require('../store/actions/actions').ActionNames;  
   const GetterNames = require('../store/getters/getters').GetterNames;
   const MutationNames = require('../store/mutations/mutations').MutationNames;  
-  const autocomplete = require('../../../components/autocomplete.vue');
-  const recursiveList = require('./recursiveList.vue');
-  const listEntrys = require('./listEntrys.vue');
-  const modal = require('../../../components/modal.vue');
+  const autocomplete = require('../../../components/autocomplete.vue').default;
+  const recursiveList = require('./recursiveList.vue').default;
+  const listEntrys = require('./listEntrys.vue').default;
+  const modal = require('../../../components/modal.vue').default;
 
 
   export default {

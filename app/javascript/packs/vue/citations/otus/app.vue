@@ -50,12 +50,12 @@
 	const GetterNames = require('./store/getters/getters').GetterNames;
 	const MutationNames = require('./store/mutations/mutations').MutationNames;
 
-	const removeCitation = require('./components/removeCitation.vue');
-	const otuPicker = require('./components/otuPicker.vue');
-	const otuCitations = require('./components/otuCitations.vue');
-	const topicsChecklist = require('./components/topicsChecklist.vue');
-	const sourceCitations = require('./components/sourceCitations.vue');
-	const sourcePicker = require('./components/sourcePicker.vue');
+	const removeCitation = require('./components/removeCitation.vue').default;
+	const otuPicker = require('./components/otuPicker.vue').default;
+	const otuCitations = require('./components/otuCitations.vue').default;
+	const topicsChecklist = require('./components/topicsChecklist.vue').default;
+	const sourceCitations = require('./components/sourceCitations.vue').default;
+	const sourcePicker = require('./components/sourcePicker.vue').default;
 
 	export default {
 		components: {

@@ -14,8 +14,8 @@
 
 	const GetterNames = require('../store/getters/getters').GetterNames
 	const MutationNames = require('../store/mutations/mutations').MutationNames
-    const markdownEditor = require('../../../components/markdown-editor.vue');
-	const expand = require('./expand.vue');
+    const markdownEditor = require('../../../components/markdown-editor.vue').default;
+	const expand = require('./expand.vue').default;
 
 	export default {
 		components: {

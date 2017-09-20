@@ -24,8 +24,8 @@
 <script>
   const GetterNames = require('../store/getters/getters').GetterNames;
   const MutationNames = require('../store/mutations/mutations').MutationNames;
-  const autocomplete = require('../../../components/autocomplete.vue');
-  const modal = require('../../../components/modal.vue');
+  const autocomplete = require('../../../components/autocomplete.vue').default;
+  const modal = require('../../../components/modal.vue').default;
 
   export default {
       data: function() {

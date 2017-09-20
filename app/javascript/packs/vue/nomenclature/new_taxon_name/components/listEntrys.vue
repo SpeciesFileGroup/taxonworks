@@ -36,8 +36,8 @@
 
 const ActionNames = require('../store/actions/actions').ActionNames;
 const GetterNames = require('../store/getters/getters').GetterNames;
-const autocomplete = require('../../../components/autocomplete.vue');
-const defaultElement = require('../../../components/getDefaultPin.vue');
+const autocomplete = require('../../../components/autocomplete.vue').default;
+const defaultElement = require('../../../components/getDefaultPin.vue').default;
 
 export default {
 	components: {
@@ -119,7 +119,7 @@ export default {
 }
 </script>
 
-<style type="text/css" scoped>
+<style lang="scss" scoped>
 .pages {
 	margin-left: 8px;
 	width: 70px;

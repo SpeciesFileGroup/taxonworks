@@ -37,13 +37,13 @@
   const GetterNames = require('../store/getters/getters').GetterNames;
   const MutationNames = require('../store/mutations/mutations').MutationNames;
 
-  var saveTaxonName = require('./saveTaxonName.vue');
-  var parentPicker = require('./parentPicker.vue');
-  var taxonName = require('./taxonName.vue');
-  var expand = require('./expand.vue');
-  var checkExist = require('./findExistTaxonName.vue');
-  var rankSelector = require('./rankSelector.vue');
-  var hardValidation = require('./hardValidation.vue');
+  var saveTaxonName = require('./saveTaxonName.vue').default;
+  var parentPicker = require('./parentPicker.vue').default;
+  var taxonName = require('./taxonName.vue').default;
+  var expand = require('./expand.vue').default;
+  var checkExist = require('./findExistTaxonName.vue').default;
+  var rankSelector = require('./rankSelector.vue').default;
+  var hardValidation = require('./hardValidation.vue').default;
 
 	export default {
 		components: {
@@ -96,7 +96,7 @@
 	}
 </script>
 
-<style type="text/css">
+<style lang="scss">
   .basic-information {
     transition: all 1s;
     .validation-warning {

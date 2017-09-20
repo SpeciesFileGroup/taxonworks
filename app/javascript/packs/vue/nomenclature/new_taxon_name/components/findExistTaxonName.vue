@@ -9,7 +9,7 @@
 
 <script>
 
-  const spinner = require('../../../components/spinner.vue');
+  const spinner = require('../../../components/spinner.vue').default;
 
   export default {
     components: {
@@ -122,7 +122,7 @@
 }
 </script>
 
-<style type="text/css" scoped>
+<style lang="scss" scoped>
   .find-taxonname-picker {
     min-height:100px;
   }

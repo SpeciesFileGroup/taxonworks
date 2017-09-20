@@ -13,7 +13,7 @@
 
 <script>
 
-  var autocomplete = require('../../../components/autocomplete.vue');
+  var autocomplete = require('../../../components/autocomplete.vue').default;
   const GetterNames = require('../store/getters/getters').GetterNames;
   const MutationNames = require('../store/mutations/mutations').MutationNames;
 

@@ -54,7 +54,7 @@
 
 <script>
 
-	const autocomplete = require('./autocomplete.vue');
+	const autocomplete = require('./autocomplete.vue').default;
   	const draggable = require('vuedraggable');
 
 	export default {

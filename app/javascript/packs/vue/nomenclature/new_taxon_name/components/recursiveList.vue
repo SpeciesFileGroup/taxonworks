@@ -10,7 +10,7 @@
 </template>
 
 <script>
-var recursiveList = require('./recursiveList.vue');
+var recursiveList = require('./recursiveList.vue').default;
 const MutationNames = require('../store/mutations/mutations').MutationNames;
 const GetterNames = require('../store/getters/getters').GetterNames;
 const ActionNames = require('../store/actions/actions').ActionNames;

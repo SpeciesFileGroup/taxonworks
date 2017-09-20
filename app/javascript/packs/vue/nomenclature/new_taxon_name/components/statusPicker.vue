@@ -49,11 +49,11 @@
   const ActionNames = require('../store/actions/actions').ActionNames;  
   const GetterNames = require('../store/getters/getters').GetterNames;
   const MutationNames = require('../store/mutations/mutations').MutationNames;
-  const treeDisplay = require('./treeDisplay.vue');
-  const listEntrys = require('./listEntrys.vue');
-  const listCommon = require('./commonList.vue');
-  const autocomplete = require('../../../components/autocomplete.vue');
-  const expand = require('./expand.vue');
+  const treeDisplay = require('./treeDisplay.vue').default;
+  const listEntrys = require('./listEntrys.vue').default;
+  const listCommon = require('./commonList.vue').default;
+  const autocomplete = require('../../../components/autocomplete.vue').default;
+  const expand = require('./expand.vue').default;
 
   export default {
     components: {

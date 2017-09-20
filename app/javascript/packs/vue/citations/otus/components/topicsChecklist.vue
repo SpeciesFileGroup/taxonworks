@@ -10,7 +10,7 @@
 <script>
 
   const GetterNames = require('../store/getters/getters').GetterNames;
-  const topicCheckbox = require('./topicCheckbox.vue');
+  const topicCheckbox = require('./topicCheckbox.vue').default;
 
   export default {
     computed: {

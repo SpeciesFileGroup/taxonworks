@@ -19,8 +19,8 @@
 </template>
 
 <script>
-  const expand = require('./expand.vue');
-  const spinner = require('../../../components/spinner.vue');
+  const expand = require('./expand.vue').default;
+  const spinner = require('../../../components/spinner.vue').default;
 
 export default {
   components: {

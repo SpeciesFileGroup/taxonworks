@@ -38,7 +38,7 @@ export default {
 	}
 }
 </script>
-<style type="text/css">
+<style lang="scss">
 	.soft-validation-box.validation-warning {
 		border-left: 4px solid #ff8c00;
 	}

@@ -27,7 +27,7 @@
 </template>
 
 <script>
-  const autocomplete = require('../../../components/autocomplete.vue');
+  const autocomplete = require('../../../components/autocomplete.vue').default;
   const GetterNames = require('../store/getters/getters').GetterNames;
   const MutationNames = require('../store/mutations/mutations').MutationNames;
   const ActionNames = require('../store/actions/actions').ActionNames;

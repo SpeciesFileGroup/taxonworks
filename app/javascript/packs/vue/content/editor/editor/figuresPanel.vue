@@ -11,8 +11,8 @@
 <script>
 
   const draggable = require('vuedraggable');
-  const dropzone = require('../../../components/dropzone.vue');
-  const figureItem = require('./figureItem.vue')
+  const dropzone = require('../../../components/dropzone.vue').default;
+  const figureItem = require('./figureItem.vue').default;
   const GetterNames = require('../store/getters/getters').GetterNames;
   const MutationNames = require('../store/mutations/mutations').MutationNames;
   var token = $('[name="csrf-token"]').attr('content');
@@ -35,7 +35,7 @@
         }        
       },
       components: {
-        draggable,
+        draggable: draggable,
         dropzone,
         figureItem
       },

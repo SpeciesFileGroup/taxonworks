@@ -25,7 +25,7 @@
 </template>
 <script>
 
-  const modal = require('../../../components/modal.vue');
+  const modal = require('../../../components/modal.vue').default;
   const childOfParent = require('../helpers/childOfParent')
   const GetterNames = require('../store/getters/getters').GetterNames;
   const MutationNames = require('../store/mutations/mutations').MutationNames;

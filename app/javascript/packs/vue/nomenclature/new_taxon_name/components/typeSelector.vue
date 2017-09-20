@@ -16,7 +16,7 @@
 </template>
 
 <script>
-  const autocomplete = require('../../../components/autocomplete.vue');
+  const autocomplete = require('../../../components/autocomplete.vue').default;
   export default {
     components: {
       autocomplete

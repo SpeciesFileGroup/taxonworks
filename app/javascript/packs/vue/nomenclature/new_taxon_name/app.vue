@@ -54,22 +54,22 @@
 </template>
 
 <script>
-  var sourcePicker = require('./components/sourcePicker.vue');
-  var relationshipPicker = require('./components/relationshipPicker.vue');
-  var statusPicker = require('./components/statusPicker.vue');
-  var navHeader = require('./components/navHeader.vue');
-  var taxonNameBox = require('./components/taxonNameBox.vue');
-  var etymology = require('./components/etymology.vue');
-  var genderBlock = require('./components/gender.vue');
-  var checkChanges = require('./components/checkChanges.vue');
-  var typeBlock = require('./components/type.vue');
-  var basicInformation = require('./components/basicInformation.vue');
-  var originalCombination = require('./components/originalCombination.vue');
-  var pickOriginalCombination = require('./components/pickOriginalCombination.vue');
+  var sourcePicker = require('./components/sourcePicker.vue').default;
+  var relationshipPicker = require('./components/relationshipPicker.vue').default;
+  var statusPicker = require('./components/statusPicker.vue').default;
+  var navHeader = require('./components/navHeader.vue').default;
+  var taxonNameBox = require('./components/taxonNameBox.vue').default;
+  var etymology = require('./components/etymology.vue').default;
+  var genderBlock = require('./components/gender.vue').default;
+  var checkChanges = require('./components/checkChanges.vue').default;
+  var typeBlock = require('./components/type.vue').default;
+  var basicInformation = require('./components/basicInformation.vue').default;
+  var originalCombination = require('./components/originalCombination.vue').default;
+  var pickOriginalCombination = require('./components/pickOriginalCombination.vue').default;
 
-  var softValidation = require('./components/softValidation.vue');
-  var spinner = require('../../components/spinner.vue');
-  var blockLayout = require('./components/blockLayout');
+  var softValidation = require('./components/softValidation.vue').default;
+  var spinner = require('../../components/spinner.vue').default;
+  var blockLayout = require('./components/blockLayout').default;
 
   const MutationNames = require('./store/mutations/mutations').MutationNames;  
   const GetterNames = require('./store/getters/getters').GetterNames; 
@@ -179,7 +179,7 @@
   }
 
 </script>
-<style type="text/css">
+<style lang="scss">
   #new_taxon_name_task {
     flex-direction: column-reverse;
     margin: 0 auto;

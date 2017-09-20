@@ -14,7 +14,7 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
 		Vue.use(require('vue-shortkey'))
 		
 		var store = require('./store/store.js').newStore();
-		var App = require('./app.vue');
+		var App = require('./app.vue').default;
 		var token = $('[name="csrf-token"]').attr('content');
 		Vue.http.headers.common['X-CSRF-Token'] = token;
 
