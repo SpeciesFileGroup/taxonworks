@@ -1705,8 +1705,9 @@ namespace :tw do
             date_closed = (row['Canceled'] == 'Canceled') ? Time.current : nil
             row['Signature'] = nil if row['Signature'].to_s.length == 1
             row['StudentSignature'] = nil if row['StudentSignature'].to_s.length == 1
-            country = parse_geographic_area_insects({'Country' => data.people_id[row['RecipientID']]['Country']})
-            country = country.nil? ? nil : country.id
+            #country = parse_geographic_area_insects({'Country' => data.people_id[row['RecipientID']]['Country']})
+            #country = country.nil? ? nil : country.id
+            country = data.people_id[row['RecipientID']]['Country']
             supervisor = data.people_index[data.people_id[row['RecipientID']]['SupervisorID']]
             supervisor_email = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Email']
             supervisor_phone = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Phone']
