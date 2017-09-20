@@ -18,9 +18,11 @@
 					</autocomplete>
 					<span class="handle" data-icon="scroll-v"></span>
 				</div>
-				<div class="horizontal-left-content middle item-draggable" v-else :key="item.id">
-					<div class="item vue-autocomplete-input normal-input middle combination">
-						<span v-html="GetOriginal(rankGroup[index].name).subject_object_tag"></span>
+				<div class="original-combination-item horizontal-left-content middle" v-else :key="item.id">
+					<div class="">
+						<span class="vue-autocomplete-input normal-input combination middle">
+							<span v-html="GetOriginal(rankGroup[index].name).subject_object_tag"></span>
+						</span>
 					</div>
 					<span class="handle" data-icon="scroll-v"></span>
 					<span class="circle-button btn-delete" @click="removeCombination(GetOriginal(rankGroup[index].name))"></span>
@@ -262,7 +264,11 @@
  		color: red;
  		font-weight: 900;
  	}
+ 	.original-combination-item {
+ 		min-height: 40px
+ 	}
  	.vue-autocomplete-input {
+ 		min-height: 28px;
  		min-width: 400px;
  		max-width: 500px;
  	}
