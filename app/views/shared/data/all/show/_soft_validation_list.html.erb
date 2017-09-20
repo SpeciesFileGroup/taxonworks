@@ -2,7 +2,7 @@
   <% object.soft_validate -%>
   <ul> 
     <% object.soft_validations.soft_validations.each do |a| -%>
-      <%= content_tag :li, a.message.html_safe, class: 'list' -%>
+      <%= content_tag :li, a.message.html_safe -%>
     <% end %>
   </ul>
 </div>
