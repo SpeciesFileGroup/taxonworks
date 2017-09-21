@@ -90,7 +90,8 @@ module Queries
     end
 
     def identifier_scope
-      ns = Namespace.where(short_name: @query_id_namespace).first
+      ns = nil
+      ns = Namespace.where(short_name: query_id_namespace).first if query_id_namespace.present?
       CollectionObject.with_identifier_type_and_namespace('Identifier::Local::CatalogNumber', ns, true)
           .where("CAST(identifiers.identifier AS integer) between ? and ?",
                  query_range_start.to_i, query_range_stop.to_i)
