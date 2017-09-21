@@ -32,8 +32,8 @@
             <span><%= object_tag(object) -%></span>
             <span data-view="development">&nbsp;[ id: <%= object.id -%> ]</span>
           </div>
-          <ul class="horizontal_navbar context-menu" >
-            <li data-icon="show"><a href="#" data-turbolinks="false" view-bottom>Development view</a></li>
+          <ul class="context-menu">
+            <li><a data-icon="show" href="#" data-turbolinks="false" view-bottom>Development view</a></li>
             <li><%= pin_item_to_pinboard_link(object, sessions_current_user) -%></li>
           </ul>
         </div> 

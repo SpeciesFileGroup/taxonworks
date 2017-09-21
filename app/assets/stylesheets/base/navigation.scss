@@ -145,38 +145,36 @@ a {
 
 }
 
-.context-menu {  
-    min-width: 200px;
-    li:after {
-      display: flex;
-      color: $navigation_border;
-      content: "|";
-      align-items: center;
-      padding-left:$standard_padding;
-      padding-right:$standard_padding;
-    }
+.context-menu { 
+    display:flex;
+    list-style: none;
+    align-items: center;
+    margin: 0px;
+    white-space: nowrap;
 
     li:last-child:after {
       content: none;
     }
 
+    li:first-child {
+      padding-left: 0px;
+    }  
+
     li:last-child {
-      a {
-        text-align: center;
-        padding-left:0px;
-        padding-right:0px;
-      }
+      border-right: none;
+      padding-right: 0px;
+      padding-left:$standard_padding;
     }  
 
     li {
-      display: flex;
       justify-content: center;
-      text-align: center;
+      //text-align: center;
+      padding-left: $standard_padding;
+      padding-right: $standard_padding;
+      border-right: 1px solid $navigation_border;
     }
 
     li a {
-        padding-left:0px;
-        padding-right:0px;
         font-size:$font_small;
         text-decoration:none;
     }
