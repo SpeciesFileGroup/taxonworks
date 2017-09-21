@@ -10,7 +10,7 @@ gem 'pg', '~> 0.21.0'
 gem 'activerecord-postgis-adapter', '~> 5.0'
 
 gem 'hiredis', '~> 0.6.1'
-gem 'redis', '~> 3.3.3'
+gem 'redis', '~> 4.0.0'
 
 # System
 gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
