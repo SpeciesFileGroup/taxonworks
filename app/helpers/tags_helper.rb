@@ -35,11 +35,14 @@ module TagsHelper
   end
 
   def add_tag_link(object: nil, attribute: nil) # tag_object is to be tagged
-    link_to('Add tag',
-            new_tag_path(tag_object_id: object.id, tag_object_type: object.class.name, tag_object_attribute: attribute),
-            id: "tag_splat_#{object.class}_#{object.id}"
-            # José - icon via class and or data-attribute here
-           )
+    if object.has_tags?
+      link_to('Add tag',
+              new_tag_path(tag_object_id: object.id, tag_object_type: object.class.name, tag_object_attribute: attribute),
+              id: "tag_splat_#{object.class}_#{object.id}"
+             )
+    else
+      nil
+    end
   end
 
   def destroy_tag_link(tag)
