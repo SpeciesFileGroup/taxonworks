@@ -150,30 +150,40 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
         describe 'select start and stop identifiers', js: true do
           it 'should find the start and stop selectors' do
+            @ns1 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)
+            @ns2 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
             3.times {FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)}
+            @ns3 = Namespace.third
             2.times {FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)}
             FactoryGirl.create(:identifier_local_import,
                                identifier_object: Specimen.first,
-                               namespace: Namespace.third,
+                               namespace: @ns3,
                                identifier: 'First specimen', creator: @user, updater: @user, project: @project)
             FactoryGirl.create(:identifier_local_import,
                                identifier_object: Specimen.second,
-                               namespace: Namespace.third,
+                               namespace: @ns3,
                                identifier: 'Second specimen', creator: @user, updater: @user, project: @project)
             (1..10).each {|identifier|
               sp = FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)
               id = FactoryGirl.create(:identifier_local_catalog_number,
                                       identifier_object: sp,
-                                      namespace: ((identifier % 2) == 0 ? Namespace.first : Namespace.second),
+                                      namespace: ((identifier % 2) == 0 ? @ns1 : @ns2),
                                       identifier: identifier, creator: @user, updater: @user, project: @project)
             }
+
+            expect(Specimen.with_identifier('PSUC_FEM 1').count).to eq(1)
+            expect(Specimen.with_namespaced_identifier('PSUC_FEM', 2).count).to eq(0)
+            expect(Specimen.with_namespaced_identifier('PSUC_FEM', 3).count).to eq(1)
             visit(collection_objects_filter_task_path)
 
+            page.execute_script "$('#set_id_range')[0].scrollIntoView()"
+            # select('PS', from: 'id_namespace')
             select('3', from: 'range_start')
             select('8', from: 'range_stop')
 
-            click_button('Set Identifier Range')
-            expect(find('#id_range_count')).to have_content('6')
+            click_button('Set Identifier Range', {id: 'set_id_range'})
+            wait_for_ajax
+            expect(find('#id_range_count')).to have_content('5')
           end
         end
 

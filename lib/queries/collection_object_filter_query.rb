@@ -6,6 +6,7 @@ module Queries
     attr_accessor :query_geographic_area_ids, :query_shape
     attr_accessor :query_date_partial_overlap, :query_start_date, :query_end_date
     attr_accessor :query_otu_id, :query_otu_descendants
+    attr_accessor :query_id_namespace, :query_range_start, :query_range_stop
 
     # Reolved/processed results
     attr_accessor :start_date, :end_date
@@ -101,7 +102,7 @@ module Queries
       scopes.push :geographic_area_scope if area_set?
       scopes.push :shape_scope if shape_set?
       scopes.push :date_scope if date_set?
-      scopes.push :identifier_scope if id
+      scopes.push :identifier_scope if identifier_set?
       scopes
     end
 
