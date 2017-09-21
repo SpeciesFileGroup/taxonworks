@@ -1,7 +1,3 @@
-@import 'base/palette';   
-@import 'base/whitespace'; 
-@import 'base/fonts';  
-
 #basic-images.dropzone, .vue-dropzone {
 	border: 2px dashed $color-secondary-2-4 !important;
 	padding: $standard_padding*4 !important;

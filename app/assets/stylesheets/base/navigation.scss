@@ -1,8 +1,3 @@
-@import 'base/whitespace';
-@import 'base/palette';
-@import 'base/fonts';
-@import 'views/shared_data/show';
-
 .favourite_link {
     background-image: image-url('empty_star.svg');
     background-size: 16px;
@@ -151,6 +146,7 @@ a {
 }
 
 .context-menu {  
+    min-width: 200px;
     li:after {
       display: flex;
       color: $navigation_border;

@@ -9,11 +9,12 @@
  * compiled file, but it's generally better to create a new file per style scope.
  *
  *= require_self
- *= require_tree .
+ *= require main
  *= require jquery-ui/autocomplete
  *= require dropzone/dropzone
  */
-
+@import "base/*"
+@import "views/**/*"
 .scrollable_div { height: 80px; overflow: auto;  }
 .hidden {visibility:hidden;}
 .collapsed {visibility: collapse;}     /* valid for tables only */
