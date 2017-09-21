@@ -31,10 +31,10 @@ module Queries
     def autocomplete
       queries = []
       queries.push CollectionObject.joins(:identifiers).where(with_identifier.to_sql).references(:identifiers).limit(2) if with_identifier
-      queries.push CollectionObject.joins(:identifiers).where(with_identifier_like.to_sql).references(:identifiers).order('identifiers.cached ASC').limit(20) if with_identifier_like
+      queries.push CollectionObject.joins(:identifiers).where(with_identifier_like.to_sql).references(:identifiers).order('identifiers.cached ASC').limit(10) if with_identifier_like
       queries.push CollectionObject.where(with_id.to_sql) if with_id
-      queries.push CollectionObject.joins(taxon_determinations: [:otu]).where(otu_determined_as.to_sql).references(:taxon_determinations, :otus).order('otus.name ASC').limit(50) if otu_determined_as
-      queries.push CollectionObject.joins(taxon_determinations: [otu: [:taxon_name]]).where(taxon_name_determined_as.to_sql).references(:taxon_determinations, :otus, :taxon_names).order('taxon_names.cached ASC').limit(50) if taxon_name_determined_as  
+      queries.push CollectionObject.joins(taxon_determinations: [:otu]).where(otu_determined_as.to_sql).references(:taxon_determinations, :otus).order('otus.name ASC').limit(10) if otu_determined_as
+      queries.push CollectionObject.joins(taxon_determinations: [otu: [:taxon_name]]).where(taxon_name_determined_as.to_sql).references(:taxon_determinations, :otus, :taxon_names).order('taxon_names.cached ASC').limit(10) if taxon_name_determined_as  
 
       if project_id
         queries.each_with_index do |q,i|  
@@ -42,7 +42,14 @@ module Queries
         end
       end    
 
-      queries.collect{|q| q.to_a}.flatten.uniq
+      result = []
+      queries.each do |q|
+        result += q.to_a
+        result.uniq!
+        break if result.count > 19
+      end
+
+      result[0..19]
     end
 
     def taxon_name_table
