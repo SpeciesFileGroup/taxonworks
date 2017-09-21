@@ -677,7 +677,6 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     specify 'with << and an existing object' do
       expect(bibtex.roles.count).to eq(0)
-      # this pattern appears to save off Person before it is added!
       bibtex.authors << Person.new(last_name: "Smith")
       expect(bibtex.save).to be_truthy
 
@@ -700,35 +699,6 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     context 'with a new object' do
       let(:s) { Source::Bibtex.new(title: 'Roles II', year: 1924, bibtex_type: 'book') }
-      # Deprecated for accepts_nested_attributes_for
-      # todo: Beth, write new tests.
-      # specify 'with new object, <<, and existing Person' do
-      #   expect(s.roles.count).to eq(0)
-      #   s.authors << Person.create(last_name: 'Jones')
-      #   expect(s.save).to be_truthy
-      #   expect(s.roles(true).size).to eq(1)
-      #   expect(s.roles.first.valid?).to be_truthy
-      #   expect(s.roles.first.creator.nil?).to be_falsey
-      #   expect(s.roles.first.updater.nil?).to be_falsey
-      #   expect(s.roles.first.project_id.nil?).to be_truthy
-      #
-      #   expect(s.authors.first.creator.nil?).to be_falsey
-      #   expect(s.authors.first.updater.nil?).to be_falsey
-      # end
-      #
-      # specify 'with new object, <<, and new Person' do
-      #   expect(s.roles.count).to eq(0)
-      #   s.authors << Person.new(last_name: 'Jones')
-      #   expect(s.save).to be_truthy
-      #   expect(s.roles.count).to eq(1)
-      #   expect(s.roles.first.creator.nil?).to be_falsey
-      #   expect(s.roles.first.updater.nil?).to be_falsey
-      #   expect(s.roles.first.project_id.nil?).to be_truthy
-      #
-      #   expect(s.authors.first.creator.nil?).to be_falsey
-      #   expect(s.authors.first.updater.nil?).to be_falsey
-      # end
-
       # A setter solution that approximates nested_attributes_for (which can't be used on polymorphic through)
       specify 'with new and authors_to_create pattern' do
         s.authors_to_create = [{last_name: "Yabbadabbadoo."}]
@@ -756,7 +726,6 @@ describe Source::Bibtex, type: :model, group: :sources do
     before(:each) {
       # this is a TW Source::Bibtex - type article, with just a title
       @source_bibtex = FactoryGirl.build(:valid_source_bibtex)
-      #@bibtex_book   = FactoryGirl.build(:valid_bibtex_source_book_title_only)
     }
     context 'with an existing instance of Source::Bibtex' do
 
@@ -822,35 +791,35 @@ describe Source::Bibtex, type: :model, group: :sources do
           end
 
           specify "#{a}s returns correctly ordered arrays" do
-            method       = "#{a}s"
+            method       = "#{a}s".to_sym
             method_roles = "#{a}_roles"
             @source_bibtex.send("#{a}=".to_sym, 'Thomas, D. and Fowler, Chad and Hunt, Andy')
             expect(@source_bibtex.save).to be_truthy
-            expect(@source_bibtex.send(method.to_sym).size).to eq(0)
+            expect(@source_bibtex.send(method).size).to eq(0)
             expect(@source_bibtex.create_related_people_and_roles).to be_truthy
             @source_bibtex.reload
             @source_bibtex.authors.reload
             @source_bibtex.editors.reload
-            expect(@source_bibtex.send(method.to_sym).to_a.count).to eq(3)
+            expect(@source_bibtex.send(method).to_a.count).to eq(3)
 
-            a_id       = @source_bibtex.send(method.to_sym).first.id
+            a_id       = @source_bibtex.send(method).first.id
             a_role_obj = @source_bibtex.send(method_roles.to_sym)[0]
-            expect(@source_bibtex.send(method.to_sym)[0].last_name).to eq('Thomas')
-            expect(@source_bibtex.send(method.to_sym)[0].first_name).to eq('D.')
+            expect(@source_bibtex.send(method)[0].last_name).to eq('Thomas')
+            expect(@source_bibtex.send(method)[0].first_name).to eq('D.')
             expect(a_role_obj.position).to eq(1)
             expect(a_role_obj.person_id).to eq(a_id)
 
-            a_id       = @source_bibtex.send(method.to_sym)[1].id
+            a_id       = @source_bibtex.send(method)[1].id
             a_role_obj = @source_bibtex.send(method_roles.to_sym)[1]
-            expect(@source_bibtex.send(method.to_sym)[1].last_name).to eq('Fowler')
-            expect(@source_bibtex.send(method.to_sym)[1].first_name).to eq('Chad')
+            expect(@source_bibtex.send(method)[1].last_name).to eq('Fowler')
+            expect(@source_bibtex.send(method)[1].first_name).to eq('Chad')
             expect(a_role_obj.position).to eq(2)
             expect(a_role_obj.person_id).to eq(a_id)
 
-            a_id       = @source_bibtex.send(method.to_sym).last.id
+            a_id       = @source_bibtex.send(method).last.id
             a_role_obj = @source_bibtex.send(method_roles.to_sym)[2]
-            expect(@source_bibtex.send(method.to_sym)[2].last_name).to eq('Hunt')
-            expect(@source_bibtex.send(method.to_sym)[2].first_name).to eq('Andy')
+            expect(@source_bibtex.send(method)[2].last_name).to eq('Hunt')
+            expect(@source_bibtex.send(method)[2].first_name).to eq('Andy')
             expect(a_role_obj.position).to eq(3)
             expect(a_role_obj.person_id).to eq(a_id)
           end
