@@ -56,18 +56,11 @@ class Tag < ApplicationRecord
   end
 
   def tag_object_global_entity
-    self.tag_object.to_global_id if self.tag_object.present?
+    tag_object.to_global_id if tag_object.present?
   end
 
   def tag_object_global_entity=(entity)
-    self.tag_object = GlobalID::Locator.locate entity
-  end
-
-  def self.find_for_autocomplete(params)
-    # TODO: @mjy below code is running but not giving results we want
-    terms = params[:term].split.collect { |t| "'#{t}%'" }.join(' or ')
-    joins(:keyword).where('controlled_vocabulary_terms.name like ?', terms).with_project_id(params[:project_id])
-    terms
+    tag_object = GlobalID::Locator.locate entity
   end
 
   # @return [TagObject]
@@ -98,6 +91,19 @@ class Tag < ApplicationRecord
     else
       return false
     end
+  end
+
+  def self.tag_objects(objects, keyword_id = nil)
+    return nil if keyword_id.nil? or objects.empty?
+    objects.each do |o|
+      o.tags << Tag.new(keyword_id: keyword_id)
+    end
+  end
+
+  def self.exists?(global_id, keyword_id, project_id)
+    o = GlobalID::Locator.locate(global_id)
+    return false unless o
+    Tag.where(project_id: project_id, tag_object: o, keyword_id: keyword_id).first
   end
 
   protected
