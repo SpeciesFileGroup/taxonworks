@@ -4,7 +4,7 @@
 			<div class="navbar panel basic-information">
 				<div class="content">
 					<div class="flex-separate">
-						<ul class="no_bullets horizontal_navbar middle">
+						<ul class="no_bullets context-menu">
 							<li class="navigation-item" v-for="link,key,index in menu" v-if="link">
 								<a data-turbolinks="false" :class="{ active : (activePosition == index)}" :href="'#' + key.toLowerCase().replace(' ','-')" @click="activePosition = index">{{key}}</a>
 							</li>

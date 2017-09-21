@@ -44,7 +44,7 @@ namespace :tw do
           next if i < start_row
 
           begin
-            ActiveRecord::Base.transaction do 
+            ApplicationRecord.transaction do 
               slice.each do |row|
                 id = row[0]
                 f = row[1]
@@ -158,7 +158,7 @@ namespace :tw do
           main_build_loop_lepindex
         else
 
-          ActiveRecord::Base.transaction do
+          ApplicationRecord.transaction do
             begin
               main_build_loop_lepindex
             rescue

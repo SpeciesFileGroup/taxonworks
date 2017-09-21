@@ -1,3 +1,3 @@
-<% if GENUS_AND_SPECIES_RANK_NAMES.include?(@taxon_name.rank_string) %>
-    <%= content_tag(:li, edit_original_combination_task_link(@taxon_name)) -%>    
+<% if @taxon_name.is_protonym? %>
+  <%= content_tag(:li, edit_taxon_name_link(@taxon_name, target: :edit_task) ) -%>
 <% end %>

@@ -123,7 +123,7 @@ namespace :tw do
 
                 raise
                 # Update the record to te
-                # ActiveRecord::Base.connection.execute(' ')
+                # ApplicationRecord.connection.execute(' ')
 
 
                 case filename

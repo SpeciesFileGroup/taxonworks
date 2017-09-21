@@ -18,13 +18,13 @@
 							event-send="sourceSelect"
 							@getItem="sendCitation($event.id,item)"
 							label="label_html"
-							placeholder="Type for search..."
+							placeholder="Type for search citation..."
 							:sendLabel="getCitation(item)"
 							display="label">
 						</autocomplete>
 						<default-element label="source" type="Source" section="Sources" @getId="sendCitation($event,item)"></default-element>
 					</div>
-					<input ref="inputPages" :disabled="!getCitation(item)" :value="getPages(item)" @input="autoSave(index, item)" placeholder="Pages" class="pages" type="text"/>					
+					<citation-pages @setPages="$emit('addCitation', $event)" :citation="item"></citation-pages>				
 					<span type="button" title="Remove citation" class="circle-button btn-undo" v-if="getCitation(item)" @click="removeCitation(item)"></span>
 		    		<span type="button" class="circle-button btn-delete" @click="$emit('delete',item)">Remove</span>
 		    	</div>
@@ -38,19 +38,16 @@ const ActionNames = require('../store/actions/actions').ActionNames;
 const GetterNames = require('../store/getters/getters').GetterNames;
 const autocomplete = require('../../../components/autocomplete.vue').default;
 const defaultElement = require('../../../components/getDefaultPin.vue').default;
+const citationPages = require('./citationPages.vue').default;
 
 export default {
 	components: {
 		autocomplete,
-		defaultElement
+		defaultElement,
+		citationPages
 	},
 	props: ['list', 'display'],
 	name: 'list-entrys',
-	data: function() {
-		return {
-			autosave: [],
-		}
-	},
 	methods: {
 		composeLink(item, show) {
 			return show.link + item[show.param]
@@ -76,20 +73,6 @@ export default {
 			}
 			this.$emit('addCitation', citation);
 		},
-		getPages(item) {
-			return (item.hasOwnProperty('origin_citation') ? item.origin_citation.pages : '')
-		},
-		setPages(value, item) {
-			let citation = {
-				id: item.id,
-				origin_citation_attributes: {
-					id: (item.hasOwnProperty('origin_citation') ? item.origin_citation.id : null),
-					source_id: (item.hasOwnProperty('origin_citation') ? item.origin_citation.source_id : null),
-					pages: value
-				}
-			}
-			this.$emit('addCitation', citation);
-		},
 		removeCitation(item) {
 			let citation = {
 				id: item.id,
@@ -98,23 +81,8 @@ export default {
 					_destroy: true
 				}
 			}
-			this.resetAutoSave(item.id);
 			this.$emit('addCitation', citation);		
 		},
-        resetAutoSave: function(index) {
-          clearTimeout(this.autosave[index]);
-          this.autosave[index] = null          
-        },  
-        autoSave: function(index, item) {
-          var that = this,
-          	  input = this.$refs.inputPages[index].value;
-          if(this.autosave[item.id]) {
-            this.resetAutoSave(item.id);
-          }   
-          this.autosave[item.id] = setTimeout(function() {    
-            that.setPages(input, item);  
-          }, 3000);
-        },
 	}
 }
 </script>

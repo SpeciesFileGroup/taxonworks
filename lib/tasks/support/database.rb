@@ -31,7 +31,7 @@ module Support
     def self.pg_database_exists?
       begin
        ApplicationRecord.connection
-       # ActiveRecord::Base.connection.disconnect!
+       # ApplicationRecord.connection.disconnect!
       rescue ActiveRecord::NoDatabaseError
         false
       else

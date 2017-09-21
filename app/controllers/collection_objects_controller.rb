@@ -124,7 +124,7 @@ class CollectionObjectsController < ApplicationController
        response_values: {
          params[:method] => t.id
        },
-       label_html:  ApplicationController.helpers.collection_object_tag(t) # render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: ApplicationController.helpers.collection_object_tag(t) 
       }
     end
     render :json => data

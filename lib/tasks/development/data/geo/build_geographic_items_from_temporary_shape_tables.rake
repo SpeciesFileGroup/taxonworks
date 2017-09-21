@@ -31,10 +31,10 @@ namespace :tw do
           i    = GeographicItem.create(multi_polygon: @dummy_multi_polygon)
           sql1 = "UPDATE geographic_areas_geographic_items SET geographic_item_id = '#{i.id}' where id = #{a.id};"
           sql2 = "UPDATE geographic_items SET point = null, multi_polygon = ( select ST_Force3D(geom) from #{a.data_origin} where gid = '#{a.origin_gid}') WHERE id = #{i.id};"
-          ActiveRecord::Base.connection.execute(sql1)
+          ApplicationRecord.connection.execute(sql1)
 
           b = Benchmark.measure {
-            ActiveRecord::Base.connection.execute(sql2)
+            ApplicationRecord.connection.execute(sql2)
           }
 
           print "\r#{a.id} : #{a.data_origin}            : #{b.to_s.strip}                      "
@@ -46,9 +46,9 @@ namespace :tw do
           invalid_records = 0
           ir = []
           print "\nRemoving invalid data:"
-          test_b = Benchmark.measure {ir = ActiveRecord::Base.connection.execute('select id from geographic_items where ST_IsValid(ST_AsBinary(multi_polygon)) = \'f\'')}
+          test_b = Benchmark.measure {ir = ApplicationRecord.connection.execute('select id from geographic_items where ST_IsValid(ST_AsBinary(multi_polygon)) = \'f\'')}
           print " #{test_b}"
-          # test_t = Benchmark.measure {ir = ActiveRecord::Base.connection.execute('select id from geographic_items where ST_IsValid(ST_AsText(multi_polygon)) = \'f\'')}
+          # test_t = Benchmark.measure {ir = ApplicationRecord.connection.execute('select id from geographic_items where ST_IsValid(ST_AsText(multi_polygon)) = \'f\'')}
           # print " <=> #{test_t}: "
 
           ir.each do |i|
@@ -70,7 +70,7 @@ namespace :tw do
                 a    = "SELECT St_AsBinary(geom)          FROM #{i.data_origin} WHERE gid = #{i.origin_gid}"
                 b    = "SELECT St_AsBinary(multi_polygon) FROM geographic_items WHERE id  = #{i.geographic_item_id}"
                 sql1 = "SELECT St_SymDifference((#{a}), (#{b}));"
-                r    = ActiveRecord::Base.connection.execute(sql1).first['St_SymDifference'].to_s
+                r    = ApplicationRecord.connection.execute(sql1).first['St_SymDifference'].to_s
                 if r == expected_diff
                   puts "#{i.data_origin} data matching"
                 else

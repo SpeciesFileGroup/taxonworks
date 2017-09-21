@@ -199,11 +199,11 @@ module Queries
       result = []
       updated_queries.each do |q|
         result += q.to_a
-        result.uniq
+        result.uniq!
         break if result.count > 19
       end
 
-      result[0..19].uniq
+      result[0..19]
     end
 
     def genus_species

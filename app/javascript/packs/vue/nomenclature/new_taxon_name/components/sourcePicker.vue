@@ -38,14 +38,16 @@
 							placeholder="Type for search..."
 							display="label">
 						</autocomplete>
-						<default-element v-if="!citation" label="source" type="Source" section="Sources" @getId="setDefaultSource"></default-element>
+						<default-element v-if="!citation" label="source" type="Source" section="Sources" @getId="setSource"></default-element>
 					</div>
 					<hr>
 					<div v-if="citation != undefined">
 						<div class="flex-separate middle">
 							<p>
 								<a :href="`/sources/${taxon.origin_citation.source_id}/edit`" target="_blank">{{ citation.source.object_tag }}</a>
-							</p><span class="circle-button btn-delete" @click="removeSource(taxon.origin_citation.id)"></span>
+							</p>
+							<citation-pages @setPages="addPages($event.origin_citation_attributes)" :citation="taxon"></citation-pages>
+							<span class="circle-button btn-delete" @click="removeSource(taxon.origin_citation.id)"></span>
 						</div>
 					</div>
 				</div>
@@ -75,6 +77,7 @@
 
 	const verbatimAuthor = require('./verbatimAuthor.vue').default;
 	const verbatimYear = require('./verbatimYear.vue').default;
+	const citationPages = require('./citationPages.vue').default;
  	const autocomplete = require('../../../components/autocomplete.vue').default;
   	const rolePicker = require('../../../components/role_picker.vue').default;
 	const defaultElement = require('../../../components/getDefaultPin.vue').default;
@@ -87,6 +90,7 @@
 			verbatimYear,
 			rolePicker,
 			defaultElement,
+			citationPages,
 			expand
 		},
 		computed: {
@@ -119,12 +123,23 @@
 		},
 		mounted: function() {
 			this.$on('sourceSelect', function(value) {
-				this.$store.dispatch(ActionNames.ChangeTaxonSource, value.id)
+				this.setSource(value);
 			});
 		},
 		methods: {
-			setDefaultSource: function(sourceId) {
-				this.$store.dispatch(ActionNames.ChangeTaxonSource, sourceId)
+			setSource: function(source) {
+			    let newSource = {
+				        id: (source.hasOwnProperty('id') ? source.id : source),
+				        pages: (source.hasOwnProperty('pages') ? source.pages : null)
+			    }			
+				this.$store.dispatch(ActionNames.ChangeTaxonSource, newSource);
+			},
+			addPages(citation) {
+			    let newSource = {
+				        id: citation.source_id,
+				        pages: (citation.hasOwnProperty('pages') ? citation.pages : null)
+			    }		
+				this.$store.dispatch(ActionNames.ChangeTaxonSource, newSource);
 			},
 			getVerbatimCount: function() {
 				var author = (taxon.year_of_publication && taxon.year_of_publication.length ? taxon.year_of_publication.length : 0)

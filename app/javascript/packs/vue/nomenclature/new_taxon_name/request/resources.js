@@ -151,17 +151,18 @@ const removeTaxonSource = function(taxonId, citationId) {
   });
 }
 
-const changeTaxonSource = function(taxonId, sourceId, citation) {
+const changeTaxonSource = function(taxonId, source, citation) {
   return new Promise(function (resolve, reject) {
+
     let data = { 
       taxon_name: {
         origin_citation_attributes: {
           id: (citation == undefined ? null : citation.id),
-          source_id: sourceId
+          source_id: source.id,
+          pages: (source == undefined ? null : source.pages),
         }
       }
     }
-
     Vue.http.patch(`/taxon_names/${taxonId}`, data).then( response => {
       return resolve(response.body);
     });

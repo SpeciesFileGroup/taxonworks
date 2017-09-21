@@ -6,7 +6,7 @@ start_id.gt(collecting_event_id)
             becomes
 start_id.gt(Arel::Nodes::Quoted.new(collecting_event_id))
 
-Arel performing automatic type casting is deprecated, and will be removed in Arel 8.0. If you are seeing this, it is because you are manually passing a value to an Arel predicate, and the `Arel::Table` object was constructed manually. The easiest way to remove this warning is to use an `Arel::Table` object returned from calling `arel_table` on an ActiveRecord::Base subclass.
+Arel performing automatic type casting is deprecated, and will be removed in Arel 8.0. If you are seeing this, it is because you are manually passing a value to an Arel predicate, and the `Arel::Table` object was constructed manually. The easiest way to remove this warning is to use an `Arel::Table` object returned from calling `arel_table` on an ApplicationRecord subclass.
 
 If you're certain the value is already of the right type, change `attribute.eq(value)` to `attribute.eq(Arel::Nodes::Quoted.new(value))` (you will be able to remove that in Arel 8.0, it is only required to silence this deprecation warning).
 

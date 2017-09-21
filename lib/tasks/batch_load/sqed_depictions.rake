@@ -63,7 +63,7 @@ namespace :tw do
 
         begin
           Dir.glob(@args[:data_directory] + "**/*.*").sort.in_groups_of(@args[:transaction_total], false) do |group| 
-            ActiveRecord::Base.transaction do 
+            ApplicationRecord.transaction do 
               group.each do |f|
                 print Rainbow(f).blue + ": "
 

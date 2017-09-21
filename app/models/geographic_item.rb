@@ -350,7 +350,7 @@ class GeographicItem < ApplicationRecord
         # [61666, 61661, 61659, 61654, 61639]
         r = GeographicItem.where(
           # GeographicItem.contained_by_wkt_shifted_sql(GeographicItem.find(id).geo_object.to_s)
-          GeographicItem.contained_by_wkt_shifted_sql(ActiveRecord::Base.connection.execute("SELECT ST_AsText((SELECT polygon FROM geographic_items WHERE id = #{id}))").first['st_astext'])
+          GeographicItem.contained_by_wkt_shifted_sql(ApplicationRecord.connection.execute("SELECT ST_AsText((SELECT polygon FROM geographic_items WHERE id = #{id}))").first['st_astext'])
         ).to_a
         results.push(r)
       end

@@ -1,7 +1,7 @@
 # Be sure to restart your server (or console) when you modify this file.
 #
 # Only initialize if the table exists (migrations are done)
-if ActiveRecord::Base.connection.table_exists? 'taxon_name_relationships'
+if ApplicationRecord.connection.table_exists? 'taxon_name_relationships'
 
     # All TaxonNameRelationship as Classes.
     # 

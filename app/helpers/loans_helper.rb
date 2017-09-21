@@ -32,21 +32,34 @@ module LoansHelper
   def on_loan_tag(object)
     if object.is_loanable? && object.on_loan?
       content_tag(:li) do
-        ('On ' + 
-          link_to('loan', object.loan) + '.' +
-          " Due back on #{object.loan_return_date}. #{overdue_tag(object.loan)}").html_safe
+        ['On ' +  link_to('loan', object.loan) + '.', 
+          loan_overdue_tag(object.loan), 
+          loan_due_back_tag(object.loan)
+        ].join(' ').html_safe
+           #{overdue_tag(object.loan)}").html_safe
       end
     else
       ''
     end
   end
 
-  def overdue_tag(loan)
-    if loan.overdue?
-      "#{loan.days_overdue} days overdue."
+  def loan_overdue_tag(loan)
+    if loan.date_return_expected.present?
+      if loan.overdue?
+        "#{loan.days_overdue} days overdue."
+      else
+        "#{loan.days_until_due} days until due."  
+      end
     else
-      "#{loan.days_until_due} days until due."  
+      content_tag(:span, 'Due date NOT PROVIDED.', data: {icon: :warning})
     end
+
   end
+
+  def loan_due_back_tag(loan)
+    'Due back on ' + 
+     ( loan.date_return_expected.present? ? object.loan_return_date : 'NOT PROVIDED' ) +
+     '.'
+  end 
 
 end
