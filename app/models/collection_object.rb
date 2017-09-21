@@ -88,7 +88,7 @@ class CollectionObject < ApplicationRecord
   #  When true, cached values are not built
   attr_accessor :no_cached
 
-  after_save :add_to_dwc_occurrence, unless: -> {self.no_cached}
+  after_save :add_to_dwc_occurrence, unless: -> { self.no_cached }
 
   # Otu delegations
   delegate :name, to: :current_otu, prefix: :otu, allow_nil: true # could be Otu#otu_name?
@@ -146,11 +146,11 @@ class CollectionObject < ApplicationRecord
   soft_validate(:sv_missing_accession_fields, set: :missing_accession_fields)
   soft_validate(:sv_missing_deaccession_fields, set: :missing_deaccession_fields)
 
-  scope :with_sequence_name, ->(name) {joins(sequence_join_hack_sql).where(sequences: {name: name})}
-  scope :via_descriptor, ->(descriptor) {joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences})}
-  scope :with_identifier_type, ->(id_type) {includes(:identifiers).where('identifiers.type = ?', id_type).references(:identifiers)}
-  scope :with_identifier_namespace, ->(id_namespace) {includes(:identifiers).where('identifiers.namespace_id = ?', id_namespace.id).references(:identifiers)}
-  scope :with_identifiers_sorted, -> {includes(:identifiers).order("CAST(coalesce(identifiers.identifier, '0') AS integer) DESC").references(:identifiers)}
+  scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
+  scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
+  scope :with_identifier_type, ->(id_type) { includes(:identifiers).where('identifiers.type = ?', id_type).references(:identifiers) }
+  scope :with_identifier_namespace, ->(id_namespace) { includes(:identifiers).where('identifiers.namespace_id = ?', id_namespace.id).references(:identifiers) }
+  scope :with_identifiers_sorted, -> { includes(:identifiers).order("CAST(coalesce(identifiers.identifier, '0') AS integer) DESC").references(:identifiers) }
 
   # This is a hack, maybe related to a Rails 5.1 bug.
   # It returns the SQL that works in 5.0/4.2 that
@@ -354,7 +354,7 @@ class CollectionObject < ApplicationRecord
   def self.in_geographic_item(geographic_item, limit, steps = false)
     geographic_item_id = geographic_item.id
     if steps
-      gi     = GeographicItem.find(geographic_item_id)
+      gi = GeographicItem.find(geographic_item_id)
       # find the geographic_items inside gi
       step_1 = GeographicItem.is_contained_by('any', gi) # .pluck(:id)
       # find the georeferences from the geographic_items
@@ -540,7 +540,7 @@ class CollectionObject < ApplicationRecord
   #   and collection objects (usually by inclusion in geographic areas/items)
   def self.from_collecting_events(collecting_event_ids, area_object_ids, area_set, project_id)
     collecting_events_clause = {collecting_event_id: collecting_event_ids, project: project_id}
-    area_objects_clause = {id: area_object_ids, project: project_id}
+    area_objects_clause      = {id: area_object_ids, project: project_id}
 
     if (collecting_event_ids.empty?)
       collecting_events_clause = {project: project_id}
@@ -554,8 +554,8 @@ class CollectionObject < ApplicationRecord
     end
 
     retval = CollectionObject.joins(:collecting_event)
-                 .where(collecting_events_clause)
-                 .where(area_objects_clause)
+               .where(collecting_events_clause)
+               .where(area_objects_clause)
     retval
   end
 
@@ -565,7 +565,7 @@ class CollectionObject < ApplicationRecord
   # @return [Scope] of selected collection objects through collecting events with georeferences, remember to scope to project!
   def self.in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
     allow_partial = (partial_overlap.downcase == 'off' ? false : true) # TODO: Just get the correct values from the form!
-    where_sql = CollectingEvent.date_sql_from_dates(search_start_date, search_end_date, allow_partial)
+    where_sql     = CollectingEvent.date_sql_from_dates(search_start_date, search_end_date, allow_partial)
     joins(:collecting_event).where(where_sql)
   end
 
@@ -622,7 +622,7 @@ class CollectionObject < ApplicationRecord
     get_dwc_occurrence
   end
 
-  handle_asynchronously :add_to_dwc_occurrence, run_at: Proc.new {20.seconds.from_now}
+  handle_asynchronously :add_to_dwc_occurrence, run_at: Proc.new { 20.seconds.from_now }
 
   def check_that_both_of_category_and_total_are_not_present
     errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if !ranged_lot_category_id.blank? && !total.blank?
