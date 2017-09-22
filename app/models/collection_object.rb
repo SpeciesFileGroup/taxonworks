@@ -150,7 +150,10 @@ class CollectionObject < ApplicationRecord
   scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
   scope :with_identifier_type, ->(id_type) { includes(:identifiers).where('identifiers.type = ?', id_type).references(:identifiers) }
   scope :with_identifier_namespace, ->(id_namespace) { includes(:identifiers).where('identifiers.namespace_id = ?', id_namespace.id).references(:identifiers) }
-  scope :with_identifiers_sorted, -> { includes(:identifiers).order("CAST(coalesce(identifiers.identifier, '0') AS integer) DESC").references(:identifiers) }
+  scope :with_identifiers_sorted, -> { includes(:identifiers)
+                                         .where("identifiers.identifier ~ '\^\\d\+\$'")
+                                         .order("CAST(identifiers.identifier AS integer)")
+                                         .references(:identifiers) }
 
   # This is a hack, maybe related to a Rails 5.1 bug.
   # It returns the SQL that works in 5.0/4.2 that
