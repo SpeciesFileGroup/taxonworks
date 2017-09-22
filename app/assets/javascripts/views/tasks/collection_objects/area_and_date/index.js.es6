@@ -172,16 +172,17 @@ Object.assign(TW.views.tasks.collection_objects, {
     }
     );
 
-    $("#toggle_slide_calendar").click(function () {
-      $("#tr_slider").toggle(250);
-      $("#tr_calendar").toggle(250);
-      if ($("#toggle_slide_calendar").val() == 'Use Calendar') {
-        $("#toggle_slide_calendar").val("Use Slider");
-      }
-      else {
-        $("#toggle_slide_calendar").val("Use Calendar");
-      }
-    });
+    // TODO: toggle_slide_calendar no longer exists in the HTML, should be removed from This module
+    // $("#toggle_slide_calendar").click(function () {
+    //   $("#tr_slider").toggle(250);
+    //   $("#tr_calendar").toggle(250);
+    //   if ($("#toggle_slide_calendar").val() == 'Use Calendar') {
+    //     $("#toggle_slide_calendar").val("Use Slider");
+    //   }
+    //   else {
+    //     $("#toggle_slide_calendar").val("Use Calendar");
+    //   }
+    // });
     $(".map_toggle").remove();
     $(".on_selector").remove();
   },
