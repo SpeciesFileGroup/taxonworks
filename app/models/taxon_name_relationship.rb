@@ -418,7 +418,7 @@ class TaxonNameRelationship < ApplicationRecord
     compare.each do |i|
       c = i.demodulize.underscore.humanize.downcase
       soft_validations.add(:type, "#{self.subject_status.capitalize} relationship is conflicting with the taxon status: '#{c}'")
-      soft_validations.add(:object_taxon_name_id, "{self.object_taxon_name.cached_html} has a conflicting status: '#{c}'")
+      soft_validations.add(:object_taxon_name_id, "#{self.object_taxon_name.cached_html} has a conflicting status: '#{c}'")
     end
   end
 
@@ -429,7 +429,7 @@ class TaxonNameRelationship < ApplicationRecord
     compare.each do |i|
       c = i.demodulize.underscore.humanize.downcase
       soft_validations.add(:type, "#{self.subject_status.capitalize} ronflicting with the status: '#{c}'")
-      soft_validations.add(:subject_taxon_name_id, "{self.subject_taxon_name.cached_html} has a conflicting status: '#{c}'")
+      soft_validations.add(:subject_taxon_name_id, "#{self.subject_taxon_name.cached_html} has a conflicting status: '#{c}'")
     end
   end
 
@@ -678,11 +678,11 @@ class TaxonNameRelationship < ApplicationRecord
           when :direct
             if date2 > date1 && invalid_statuses.empty?
               if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Homonym/
-                soft_validations.add(:type, "#{self.object_status.capitalize} #{self.object_taxon_name.cached_html_name_and_author_year} should not be older than #{self.subject_taxon_name.cached_html_name_and_author_year}")
+                soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be older than #{self.object_status} #{self.object_taxon_name.cached_html_name_and_author_year}")
               elsif self.type_name =~ /::Iczn::/ && TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).with_two_type_bases('TaxonNameRelationship::Iczn::Invalidating::Homonym', 'TaxonNameRelationship::Iczn::Validating').not_self(self).empty?
-                soft_validations.add(:type, "#{self.object_status.capitalize} #{self.object_taxon_name.cached_html_name_and_author_year} should not be older than #{self.subject_taxon_name.cached_html_name_and_author_year}, unless it is also a homonym or conserved name")
+              soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be older than #{self.object_status} #{self.object_taxon_name.cached_html_name_and_author_year}, unless it is also a homonym or conserved name")
               elsif self.type_name =~ /::Icn::/ && TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).with_two_type_bases('TaxonNameRelationship::Icn::Accepting::Conserved', 'TaxonNameRelationship::Icn::Accepting::Sanctioned').not_self(self).empty?
-                soft_validations.add(:type, "#{self.object_status.capitalize} #{self.object_taxon_name.cached_html_name_and_author_year} should not be older than #{self.subject_taxon_name.cached_html_name_and_author_year}, unless it is also conserved or sanctioned name")
+                soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be older than #{self.object_status} #{self.object_taxon_name.cached_html_name_and_author_year}, unless it is also conserved or sanctioned name")
               end
             end
           when :reverse

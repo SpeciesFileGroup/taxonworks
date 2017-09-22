@@ -2,9 +2,8 @@ $('[data-pin-button-item-id="<%= @pinboard_item.pinned_object_id -%>"]').replace
 $('body').mx_spinner('hide');
 TW.workbench.alert.create("Pinboard item was successfully created.")
 
-var injectItem = `<li class="slide-panel-category-item" data-pin-item="<%= @pinboard_item.id -%>" id="<%= "order_#{@pinboard_item.id}" -%>"> 
-                <div> 
-                  <span class="handle" data-icon="scroll-v"></span> 
+var injectItem = `<li class="slide-panel-category-item" data-pinboard-object-id="<%= @pinboard_item.pinned_object.id -%>" data-pinboard-item-id="<%= @pinboard_item.id -%>" data-pin-item="<%= @pinboard_item.id -%>" id="<%= "order_#{@pinboard_item.id}" -%>"> 
+                <div class="handle flex-separate middle ui-sortable-handle"> 
                   <%= object_link(@pinboard_item.pinned_object) -%> 
                 </div> 
                 <div class="itemOptions">
@@ -12,6 +11,7 @@ var injectItem = `<li class="slide-panel-category-item" data-pin-item="<%= @pinb
                         content_tag(:a, "PDF Viewer", class: :pdfviewerItem , data: { pdfviewer: @pinboard_item.pinned_object.document_file(:original, false) }) 
                       end 
                     %> 
+                  <a class="option-default" data-remote="true" rel="nofollow" data-method="put" href="/pinboard_items/<%= @pinboard_item.id -%>?pinboard_item%5Bis_inserted%5D=true">Make default</a>
                   <%= link_to('Remove', pinboard_item_path(@pinboard_item), class: :remove, method: :delete) -%> 
                 </div> 
               </li>`

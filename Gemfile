@@ -10,7 +10,7 @@ gem 'pg', '~> 0.21.0'
 gem 'activerecord-postgis-adapter', '~> 5.0'
 
 gem 'hiredis', '~> 0.6.1'
-gem 'redis', '~> 3.3.3'
+gem 'redis', '~> 4.0.0'
 
 # System
 gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
@@ -117,9 +117,9 @@ group :development do
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
-  gem 'parallel_tests', '~> 2.14.2'
+  gem 'parallel_tests', '~> 2.15.0'
   gem 'web-console', '~> 3.5.1'
-  gem 'rubocop', '~> 0.49.1'
+  gem 'rubocop', '~> 0.50.0'
 end
 
 group :doc do

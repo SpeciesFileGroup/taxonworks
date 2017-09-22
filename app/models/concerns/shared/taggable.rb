@@ -28,7 +28,11 @@ module Shared::Taggable
   end
 
   def tagged?
-    self.tags.any?
+    tags.any?
+  end
+
+  def tag_with(keyword_id)
+    tags << Tag.new(keyword_id: keyword_id)
   end
 
   module ClassMethods

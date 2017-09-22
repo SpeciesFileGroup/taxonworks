@@ -238,8 +238,6 @@ namespace :tw do
                         #   import_attribute if identification.IdentifierName
                         #   other fields in tblIdentifications?
 
-                        # create type specimen if tblIdentifications.TypeTaxonNameID maybe
-
 
             }
 
@@ -256,26 +254,26 @@ namespace :tw do
 
                   collection_object = CollectionObject::BiologicalCollectionObject.new(
                       metadata.merge(
-                      total: count,
-                      collecting_event_id: collecting_event_id,
-                      repository_id: repository_id,
+                          total: count,
+                          collecting_event_id: collecting_event_id,
+                          repository_id: repository_id,
 
-                      biocuration_classifications_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s], project_id: project_id}],
+                          biocuration_classifications_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s], project_id: project_id}],
 
-                      taxon_determinations_attributes: [{otu_id: get_otu_from_tw_taxon_id[get_tw_taxon_name_id[row['TaxonNameID']]], project_id: project_id}],
+                          taxon_determinations_attributes: [{otu_id: get_otu_from_tw_taxon_id[get_tw_taxon_name_id[row['TaxonNameID']]], project_id: project_id}],
 
-                      # metadata attributes:
+                          # metadata attributes:
 
-                      # citations_attributes: citations_attributes,
+                          # citations_attributes: citations_attributes,
 
 
-                      # housekeeping for collection_object
-                      project_id: project_id,
-                      created_at: row['CreatedOn'],
-                      updated_at: row['LastUpdate'],
-                      created_by_id: get_tw_user_id[row['CreatedBy']],
-                      updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                  ))
+                          # housekeeping for collection_object
+                          project_id: project_id,
+                          created_at: row['CreatedOn'],
+                          updated_at: row['LastUpdate'],
+                          created_by_id: get_tw_user_id[row['CreatedBy']],
+                          updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                      ))
 
                   collection_object.save!
 
@@ -319,8 +317,59 @@ namespace :tw do
                   end
                 end
 
-                # if type_type is present "holotype"
-                # tm = TypeMaterial.create!(biological_collection_object_id: current_objects.first.id, type_type: "holotype", taxon_name_id: getSomeTNID, project_id ... )
+                # exclude TypeKindID = undefined (0) and unknown (6)
+                if get_sf_identification_metadata.has_key?(specimen_id)
+                  type_kind_id = get_sf_identification_metadata[specimen_id]['type_kind_id']
+                  if [1, 2, 3, 4, 8, 10].include? type_kind_id
+                    type_text = case type_kind_id
+                                  when 1
+                                    'holotype'
+                                  when 2
+                                    if current_objects.first.total == 1
+                                      'syntype'
+                                    else
+                                      'syntypes'
+                                    end
+                                  when 3
+                                    'neotype'
+                                  when 4
+                                    'lectotype'
+                                  when 8
+                                    if current_objects.first.total == 1
+                                      'paratype'
+                                    else
+                                      'paratypes'
+                                    end
+                                  when 10
+                                    if current_objects.first.total == 1
+                                      'paralectotype'
+                                    else
+                                      'paralectotypes'
+                                    end
+                                end
+                    TypeMaterial.create!(protonym_id: get_tw_taxon_name_id[row['TaxonNameID']],
+                                         biological_object_id: current_objects.first.id,
+                                         type_type: type_text,
+                                         project_id: project_id)
+                    puts "type_material created for '#{type_text}'"
+
+                  elsif [5, 7, 9].include? type_kind_id
+                    # create a data_attribute
+                    type_kind = case type_kind_id
+                                  when 5
+                                    'unspecified primary type'
+                                  when 7
+                                    'allotype'
+                                  when 9
+                                    'topotype'
+                                end
+                    ImportAttribute.create!(import_predicate: 'SF.TypeKind',
+                                            value: type_kind,
+                                            project_id: project_id)
+                    puts "data_attribute for type_kind created for '#{type_kind}'"
+                  end
+                end
+
 
                 puts 'CollectionObject created'
                 get_tw_collection_object_id[specimen_id] = current_objects.collect {|a| a.id} # an array of collection object ids for this specimen_id

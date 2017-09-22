@@ -99,7 +99,9 @@
 #
 # @!attribute type
 #   @return [String]
-#     An exception to the 1:1 modelling.  We retain for Rails STI usage. Either Source::Verbatim or Source::Bibtex.  The former can only consist of a single field (the full citation as a string).  The latter is a Bibtex model.  See "bibtex_type" for the bibtex attribute "type".
+#     An exception to the 1:1 modelling.  We retain for Rails STI usage. Either Source::Verbatim or Source::Bibtex.  
+#     The former can only consist of a single field (the full citation as a string).  
+#     The latter is a Bibtex model.  See "bibtex_type" for the bibtex attribute "type".
 #
 # @!attribute bibtex_type
 #   @return [String]

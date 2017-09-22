@@ -471,7 +471,12 @@ TaxonWorks::Application.routes.draw do
       get :autocomplete
       post :tag_object_update
     end
+
   end
+
+  get 'tags/exists', to: 'tags#exists', defaults: {format: :json}
+
+
 
   resources :tagged_section_keywords, only: [:create, :update, :destroy]
 
@@ -495,6 +500,7 @@ TaxonWorks::Application.routes.draw do
 
     member do
       get :browse
+      get :original_combination, defaults: {format: :json}
     end
   end
 

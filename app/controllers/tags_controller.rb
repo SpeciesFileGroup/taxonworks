@@ -29,7 +29,6 @@ class TagsController < ApplicationController
   # POST /tags.json
   def create
     @tag = Tag.new(tag_params)
-    # redirect_url = (request.env['HTTP_REFERER'].include?(new_tag_path) ? @tag : :back)
     respond_to do |format|
       if @tag.save
         format.html { redirect_to @tag.tag_object.metamorphosize, notice: 'Tag was successfully created.' }
@@ -95,6 +94,14 @@ class TagsController < ApplicationController
     end
 
     render :json => data
+  end
+
+  def exists
+    if @tag = Tag.exists?(params.require(:global_id), params.require(:keyword_id), sessions_current_project_id)
+      render :show
+    else
+     render json: false
+    end
   end
 
   # GET /tags/download

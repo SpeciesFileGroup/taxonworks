@@ -4,6 +4,7 @@
 <% fields_for_object ||= nil -%>
 <% object_name ||= controller.humanize.downcase.singularize.html_safe.gsub(/\//, '') -%>
 <% send_select ||= false %>
+<% autofocus ||= nil %>
 
 <% url = url_for({
   controller: controller,
@@ -17,6 +18,7 @@
        placeholder="Select a <%= object_name -%>"
        class="mx-autocomplete <%= css_class -%>"
        id="<%= tag_id %>"
+       <%= ('autofocus="autofocus"').html_safe if !autofocus.nil? -%>
        data-send-select="<%= send_select %>"
        data-mx-autocomplete-url="<%= url %>"
        data-mx-method="<%= "#{object}[#{method}]" %>"
