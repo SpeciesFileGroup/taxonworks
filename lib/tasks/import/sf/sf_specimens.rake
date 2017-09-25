@@ -317,56 +317,64 @@ namespace :tw do
                   end
                 end
 
-                # exclude TypeKindID = undefined (0) and unknown (6)
-                if get_sf_identification_metadata.has_key?(specimen_id)
-                  type_kind_id = get_sf_identification_metadata[specimen_id]['type_kind_id']
-                  if [1, 2, 3, 4, 8, 10].include? type_kind_id
-                    type_text = case type_kind_id
-                                  when 1
-                                    'holotype'
-                                  when 2
-                                    if current_objects.first.total == 1
-                                      'syntype'
-                                    else
-                                      'syntypes'
-                                    end
-                                  when 3
-                                    'neotype'
-                                  when 4
-                                    'lectotype'
-                                  when 8
-                                    if current_objects.first.total == 1
-                                      'paratype'
-                                    else
-                                      'paratypes'
-                                    end
-                                  when 10
-                                    if current_objects.first.total == 1
-                                      'paralectotype'
-                                    else
-                                      'paralectotypes'
-                                    end
-                                end
-                    TypeMaterial.create!(protonym_id: get_tw_taxon_name_id[row['TaxonNameID']],
-                                         biological_object_id: current_objects.first.id,
-                                         type_type: type_text,
-                                         project_id: project_id)
-                    puts "type_material created for '#{type_text}'"
 
-                  elsif [5, 7, 9].include? type_kind_id
-                    # create a data_attribute
-                    type_kind = case type_kind_id
-                                  when 5
-                                    'unspecified primary type'
-                                  when 7
-                                    'allotype'
-                                  when 9
-                                    'topotype'
-                                end
-                    ImportAttribute.create!(import_predicate: 'SF.TypeKind',
-                                            value: type_kind,
-                                            project_id: project_id)
-                    puts "data_attribute for type_kind created for '#{type_kind}'"
+                if get_sf_identification_metadata.has_key?(specimen_id)
+                  get_sf_identification_metadata[specimen_id].each do |identification|
+                    current_objects.each do |o|
+
+                      # exclude TypeKindID = undefined (0) and unknown (6)
+
+                      type_kind_id = identification['type_kind_id']
+                      if [1, 2, 3, 4, 8, 10].include? type_kind_id
+                        type_text = case type_kind_id
+                                    when 1
+                                      'holotype'
+                                    when 2
+                                      if o.total == 1 
+                                        'syntype'
+                                      else
+                                        'syntypes'
+                                      end
+                                    when 3
+                                      'neotype'
+                                    when 4
+                                      'lectotype'
+                                    when 8
+                                      if o.total == 1
+                                        'paratype'
+                                      else
+                                        'paratypes'
+                                      end
+                                    when 10
+                                      if o.total == 1 
+                                        'paralectotype'
+                                      else
+                                        'paralectotypes'
+                                      end
+                                    end
+                        TypeMaterial.create!(protonym_id: get_tw_taxon_name_id[row['TaxonNameID']],
+                                             biological_object_id: o, 
+                                             type_type: type_text,
+                                             project_id: project_id)
+                        puts "type_material created for '#{type_text}'"
+
+                      elsif [5, 7, 9].include? type_kind_id
+                        # create a data_attribute
+                        type_kind = case type_kind_id
+                                    when 5
+                                      'unspecified primary type'
+                                    when 7
+                                      'allotype'
+                                    when 9
+                                      'topotype'
+                                    end
+                        ImportAttribute.create!(import_predicate: 'SF.TypeKind',
+                                                value: type_kind,
+                                                project_id: project_id,
+                                                attribute_subject: o)
+                        puts "data_attribute for type_kind created for '#{type_kind}'"
+                      end
+                    end
                   end
                 end
 
