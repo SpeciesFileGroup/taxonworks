@@ -19,7 +19,6 @@ describe ControlledVocabularyTermsHelper, :type => :helper do
     end
 
     specify "#controlled_vocabulary_term_search_form" do
-      expect(controlled_vocabulary_terms_search_form).to have_button('Show')
       expect(controlled_vocabulary_terms_search_form).to have_field('controlled_vocabulary_term_id_for_quick_search_form')
     end
 

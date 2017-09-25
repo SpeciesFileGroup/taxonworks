@@ -18,7 +18,6 @@ describe NamespacesHelper, :type => :helper do
     end
 
     specify "#namespace_search_form" do
-      expect(helper.namespaces_search_form).to have_button('Show')
       expect(helper.namespaces_search_form).to have_field('namespace_id_for_quick_search_form')
     end
 

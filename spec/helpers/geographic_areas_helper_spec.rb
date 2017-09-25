@@ -16,7 +16,6 @@ describe GeographicAreasHelper, :type => :helper do
     end
 
     specify "#geographic_area_search_form" do
-      expect(helper.geographic_areas_search_form).to have_button('Show')
       expect(helper.geographic_areas_search_form).to have_field('geographic_area_id_for_quick_search_form')
     end
 
