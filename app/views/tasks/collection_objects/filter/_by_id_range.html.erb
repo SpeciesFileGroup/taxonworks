@@ -3,7 +3,7 @@
     <%= namespace_select_tag(:id_namespace) -%><br>
     Range:<br>
     <% @id_pile = CollectionObject.id_group(nil) %>
-    Start: <%= id_range_select_tag(:range_start, @id_pile) -%>
-    Stop: <%= id_range_select_tag(:range_stop, @id_pile) -%><br>
+    Start: <%= id_range_select_tag(:id_range_start, @id_pile) -%>
+    Stop: <%= id_range_select_tag(:id_range_stop, @id_pile) -%><br>
     <%= submit_tag('Set Identifier Range', id: 'set_id_range') %>
 <% end %>
