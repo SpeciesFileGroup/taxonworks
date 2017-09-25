@@ -22,8 +22,8 @@ module Queries
       @query_otu_descendants = params[:descendants] # .downcase if params[:descendants] # TODO: remove downcase requirement
       @query_date_partial_overlap = params[:partial_overlap]
       @query_id_namespace = params[:id_namespace]
-      @query_range_start = params[:range_start]
-      @query_range_stop = params[:range_stop]
+      @query_range_start = params[:id_range_start]
+      @query_range_stop = params[:id_range_stop]
 
       set_and_order_dates
     end

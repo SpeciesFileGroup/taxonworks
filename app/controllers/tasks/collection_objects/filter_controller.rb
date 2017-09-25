@@ -66,7 +66,7 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
 
   def filter_params
     params.permit(:drawn_area_shape, :search_start_date, :search_end_date,
-                  :range_start, :range_stop, :id_namespace,
+                  :id_range_start, :id_range_stop, :id_namespace,
                   :partial_overlap, :otu_id, :descendants, :page, geographic_area_ids: [])
   end
 

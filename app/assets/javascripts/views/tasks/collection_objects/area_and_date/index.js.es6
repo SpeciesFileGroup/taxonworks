@@ -86,15 +86,15 @@ Object.assign(TW.views.tasks.collection_objects, {
     
     $("#id_namespace").change(function (event) {
         $("#select_id_range").mx_spinner('show');
+        $('#id_range_start')[0].length = 1;   // truncate the selects
+        $('#id_range_stop')[0].length = 1;
         $.get('get_id_range', $("#set_id_range_form").serialize(), function (local_data) {
-          $('#id_range_start')[0].length = 1;   // truncate the selects
-          $('#id_range_stop')[0].length = 1;
-          $("#select_id_range").mx_spinner('hide');
-          for (var i = 0; i < local_data.html.length; i++) {    // reconstruct the lists
+          for (let i = 0; i < local_data.html.length; i++) {    // reconstruct the lists
             $("#id_range_start").append('<option value=' + local_data.html[i] + '>' + local_data.html[i] + '</option>');
             $("#id_range_stop").append('<option value=' + local_data.html[i] + '>' + local_data.html[i] + '</option>');
           }
         }, 'json');
+        $("#select_id_range").mx_spinner('hide');
         event.preventDefault();
       }
     );
