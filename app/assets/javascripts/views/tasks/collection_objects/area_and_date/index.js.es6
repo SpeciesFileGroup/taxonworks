@@ -84,6 +84,20 @@ Object.assign(TW.views.tasks.collection_objects, {
       }
     );
     
+    $("#id_namespace").change(function (event) {
+        $("#select_id_range").mx_spinner('show');
+        $.get('get_id_range', $("#set_id_range_form").serialize(), function (local_data) {
+          $('#id_range_start');
+          $('#id_range_stop');
+          $("#select_id_range").mx_spinner('hide');
+          for (var i = 0; i < local_data.html.length; i++) {
+            $("#id_range_start").append('<option value=' + if_you_want_set_value + '>' + productArray[i] + '</option>');
+          }
+        }, 'json');
+        event.preventDefault();
+      }
+    );
+    
     var today = new Date();
     var year = today.getFullYear();
     var format = 'yy/mm/dd';

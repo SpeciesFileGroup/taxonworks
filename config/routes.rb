@@ -488,7 +488,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes, :shallow_annotation_routes ]
     resources :taxon_name_classifications, shallow: true, only: [:index], defaults: {format: :json}
     resources :taxon_name_relationships, shallow: true, only: [:index], defaults: {format: :json}, param: :subject_taxon_name_id
-    
+
     collection do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
@@ -623,6 +623,7 @@ TaxonWorks::Application.routes.draw do
         get 'set_date', as: 'set_date_for_collection_object_filter'
         get 'set_otu', as: 'set_otu_for_collection_object_filter'
         get 'set_id_range', as: 'set_id_range_for_collection_object_filter'
+        get 'get_id_range', as: 'get_id_range_for_collection_object_filter'
         get 'download', action: 'download', as: 'download_collection_object_filter_result'
       end
     end

@@ -35,8 +35,8 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
   def set_date
     chart = render_to_string(
       partial: 'stats',
-      locals: {count: collection_objects.count,
-               objects: collection_objects
+      locals:  {count:   collection_objects.count,
+                objects: collection_objects
       }
     )
     render json: {html: collection_objects.count.to_s, chart: chart}
@@ -49,6 +49,10 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
 
   def set_id_range
     render json: {html: collection_objects.count.to_s}
+  end
+
+  def get_id_range
+    render json: {html: CollectionObject.id_group(params['id_namespace'])}
   end
 
   protected

@@ -596,6 +596,14 @@ class CollectionObject < ApplicationRecord
     end
   end
 
+  def self.id_group(namespace, id_type = 'Identifier::Local::CatalogNumber')
+    namespace = Namespace.where(short_name: namespace).first unless namespace.nil?
+    CollectionObject.with_identifier_type_and_namespace(id_type, namespace)
+      .collect { |sp| sp.identifiers }
+      .flatten
+      .map(&:identifier).uniq
+  end
+
   def sv_missing_accession_fields
     soft_validations.add(:accessioned_at, 'Date is not selected') if self.accessioned_at.nil? && !self.accession_provider.nil?
     soft_validations.add(:base, 'Provider is not selected') if !self.accessioned_at.nil? && self.accession_provider.nil?
