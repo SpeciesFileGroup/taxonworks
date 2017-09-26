@@ -578,7 +578,7 @@ DEPENDENCIES
   rubyzip (~> 1.2.1)
   sass-rails (~> 5.0.6)
   sdoc (~> 0.4.2)
-  selenium-webdriver (~> 3.5)
+  selenium-webdriver (~> 3.6)
   spring-commands-rspec (~> 1.0.4)
   sprockets (~> 3.7.1)
   sprockets-es6 (~> 0.9.2)
