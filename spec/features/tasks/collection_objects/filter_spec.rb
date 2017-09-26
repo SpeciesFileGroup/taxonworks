@@ -178,31 +178,30 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
             page.execute_script "$('#set_id_range')[0].scrollIntoView()"
             # select('PS', from: 'id_namespace')
-            select('1', from: 'id_range_start')
-            select('10', from: 'id_range_stop')
+            fill_in('id_range_start', with: '1')
+            fill_in('id_range_stop', with: '10')
 
             click_button('Set Identifier Range', {id: 'set_id_range'})
             wait_for_ajax
             expect(find('#id_range_count')).to have_content('10')
 
-            select('3', from: 'id_range_start')
-            select('8', from: 'id_range_stop')
+            fill_in('id_range_start', with: '3')
+            fill_in('id_range_stop', with: '8')
 
             click_button('Set Identifier Range', {id: 'set_id_range'})
             wait_for_ajax
             expect(find('#id_range_count')).to have_content('6')
 
-            select('8', from: 'id_range_start')
-            select('3', from: 'id_range_stop')
+            fill_in('id_range_start', with: '8')
+            fill_in('id_range_stop', with: '3')
 
             click_button('Set Identifier Range', {id: 'set_id_range'})
             wait_for_ajax
             expect(find('#id_range_count')).to have_content('0')
 
             select('PS', from: 'id_namespace')
-            wait_for_ajax
-            select('3', from: 'id_range_start')
-            select('9', from: 'id_range_stop')
+            fill_in('id_range_start', with: '3')
+            fill_in('id_range_stop', with: '9')
 
             click_button('Set Identifier Range', {id: 'set_id_range'})
             wait_for_ajax
