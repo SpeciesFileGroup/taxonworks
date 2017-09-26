@@ -1,8 +1,6 @@
-var TW = TW || {};
-TW.views = TW.view || {};
-TW.views.pinboard = TW.views.pinboard || {};
+var pinboardRemoteUpdate = {};
 
-Object.assign(TW.views.pinboard, {
+Object.assign(pinboardRemoteUpdate, {
 
 	alreadyInserted: <%= @pinboard_item.is_inserted -%>,
 	pinboardItem: document.querySelector('[data-pinboard-object-id="<%= @pinboard_item.pinned_object.id -%>"]'),
@@ -51,5 +49,5 @@ Object.assign(TW.views.pinboard, {
 	}
 });
 
-TW.views.pinboard.init();
+pinboardRemoteUpdate.init();
 

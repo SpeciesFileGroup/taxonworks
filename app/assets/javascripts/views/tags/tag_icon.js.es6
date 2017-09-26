@@ -114,7 +114,6 @@ Object.assign(TW.views.tags.tag_icon, {
 
 			$.get(url, function(data) {
 				if(data) {
-					console.log(data);
 					that.setAsDelete(element,data.id);
 				}
 				else {
@@ -134,7 +133,6 @@ Object.assign(TW.views.tags.tag_icon, {
 
 $(document).on('turbolinks:load', function() {
   if ($(".default_tag_widget").length) {
-    var tags_icon = TW.views.tags.tag_icon;
-    tags_icon.init();
+    TW.views.tags.tag_icon.init();
   }
 });
