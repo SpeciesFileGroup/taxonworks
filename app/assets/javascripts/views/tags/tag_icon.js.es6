@@ -109,10 +109,11 @@ Object.assign(TW.views.tags.tag_icon, {
 		var defaultTag = this.getDefault();
 		var that = this;
 		if(defaultTag) {
-			var url = "http://localhost:3000/tags/exists?global_id=gid://taxon-works/Protonym/42673&keyword_id=" + defaultTag;
+			var url = "/tags/exists?global_id=" + globalId + "&keyword_id=" + defaultTag;
 
 			$.get(url, function(data) {
 				if(data) {
+					console.log(data);
 					that.setAsDelete(element,data.id);
 				}
 				else {
