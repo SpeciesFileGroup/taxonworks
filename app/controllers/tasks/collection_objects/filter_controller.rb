@@ -51,10 +51,6 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
     render json: {html: collection_objects.count.to_s}
   end
 
-  def get_id_range
-    render json: {html: CollectionObject.id_group(params['id_namespace'])}
-  end
-
   protected
 
   def collection_objects
