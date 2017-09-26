@@ -15,7 +15,6 @@ Object.assign(TW.views.tags.tag_icon, {
 		
 		this.findTagIcon();
 		$('.default_tag_widget').on('click', function() {
-			console.log("1234");
 			if(!$(this).hasClass('btn-disabled')) {
 				if($(this).hasClass('btn-tag-add')) {
 					that.createTag($(this).attr('data-tag-object-global-id'), that.getDefault()).then(response => {
