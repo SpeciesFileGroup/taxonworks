@@ -18,7 +18,6 @@ describe LoansHelper, :type => :helper do
     end
 
     specify ".loan_search_form" do
-      expect(loans_search_form).to have_button('Show')
       expect(loans_search_form).to have_field('loan_id_for_quick_search_form')
     end
   end

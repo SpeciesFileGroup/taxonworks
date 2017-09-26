@@ -317,14 +317,14 @@ namespace :tw do
                   end
                 end
 
-
+                # byebug
                 if get_sf_identification_metadata.has_key?(specimen_id)
                   get_sf_identification_metadata[specimen_id].each do |identification|
                     current_objects.each do |o|
 
                       # exclude TypeKindID = undefined (0) and unknown (6)
 
-                      type_kind_id = identification['type_kind_id']
+                      type_kind_id = identification['type_kind_id'].to_i
                       if [1, 2, 3, 4, 8, 10].include? type_kind_id
                         type_text = case type_kind_id
                                     when 1
@@ -353,7 +353,7 @@ namespace :tw do
                                       end
                                     end
                         TypeMaterial.create!(protonym_id: get_tw_taxon_name_id[row['TaxonNameID']],
-                                             biological_object_id: o, 
+                                             material: o,   # = collection_object/biological_collection_object
                                              type_type: type_text,
                                              project_id: project_id)
                         puts "type_material created for '#{type_text}'"

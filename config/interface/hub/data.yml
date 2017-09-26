@@ -15,8 +15,10 @@ Core: # a Section
     related_models:
       - TaxonName
       - TaxonDetermination
+    categories:
+      - matrix
   TaxonName:
-    status: :prototype
+    status: :stable
     categories:
       - nomenclature
     related_models:
@@ -29,33 +31,43 @@ Core: # a Section
     related_models:
       - Georeference
   CollectionObject: 
-    status: :prototype
+    status: :stable
     categories:
       - collection_object
+      - matrix
     related_models:
       - CollectingEvent
       - TaxonDetermination
       - Repository
-  ControlledVocabularyTerm :
+  Descriptor:
+    categories: 
+      - matrix
+      - dna
+    related_models: 
+      - ObservationMatrix
     status: :prototype
+  Observation:
+    categories: 
+      - matrix
+      - collection_object
+    related_models:
+      - Descriptor
+      - ObservationMatrix
+  ControlledVocabularyTerm :
+    status: :stable
     related_models:
       - Tag
       - DataAttribute
   Source:
-    status: :prototype
+    status: :stable
     shared: true
     categories:
       - source 
     related_models:
       - Serial
       - People
-  GeneAttribute:
-    status: :prototype
-    related_models:
-      - Sequence
-      - SequenceRelationship
   ProjectSource:
-    status: :prototype
+    status: :stable
     related_models:
       - Source
       - Person 
@@ -72,21 +84,7 @@ Core: # a Section
     related_model:
       - SequenceRelationship
     categories:
-      - Dna
-  Extract:
-    status: :prototype
-    related_models:
-      - BiologicalRelationship
-    categories: 
-      - biology
-  ObservationMatrix:
-    status: :prototype
-    categories:
-      - matrix
-  CharacterState:
-    status: protoype
-    categories:
-      - matrix
+      - dna
 Supporting:
   AssertedDistribution:
     status: :prototype
@@ -104,6 +102,10 @@ Supporting:
       - BiologicalAssociations
     categories:
       - biology
+  CharacterState:
+    status: protoype
+    categories:
+      - matrix
   CollectionProfile:
     status: :prototype
     categories: 
@@ -132,12 +134,10 @@ Supporting:
     status: :prototype
     categories:
       - nomenclature
-  Descriptor:
-    categories: 
-      - matrix
-    related_models: 
-      - Matrix
+  ObservationMatrix:
     status: :prototype
+    categories:
+      - matrix
   Document:
     status: :prototype
     related_models:
@@ -153,14 +153,27 @@ Supporting:
     categories:
       - collection_object
       - collecting_event
-  Descriptor:
+  Extract:
     status: :prototype
+    related_models:
+      - BiologicalRelationship
+    categories: 
+      - biology
+      - dna
+  GeneAttribute:
+    status: :prototype
+    related_models:
+      - Sequence
+      - SequenceRelationship
+    categories:
+      - dna
+      - matrix
   Georeference:
     status: :prototype
     categories:
       - collecting_event 
   GeographicArea:
-    status: :prototype
+    status: :stable
     shared: true
     application_defined: true
     related_models:
@@ -169,14 +182,14 @@ Supporting:
     categories:
       - collecting_event
   GeographicItem:
-    status: :prototype
+    status: :stable
     hide: true
     related_models:
       - GeographicArea
       - Georeference
       - CollectingEvent
   Image:
-    status: :prototype
+    status: :stable
     categories:
       - collection_object
   Loan:
@@ -202,6 +215,7 @@ Supporting:
       - ObservationMatrix
       - Descriptor
     status: :prototype
+    hide: true
   ObservationMatrixColumnItem: 
     categories: 
       - matrix
@@ -209,18 +223,33 @@ Supporting:
       - ObservationMatrix
       - Descriptor
     status: :prototype
-  Observation:
-    categories: 
+  ObservationMatrixRow:
+    status: :prototype
+    categories:
       - matrix
     related_models:
-      - Descriptor
       - ObservationMatrix
+    hide: true
+  ObservationMatrixRowItem:
+    status: :prototype
+    categories:
+      - matrix
+    related_models:
+      - ObservationMatrix   
+  OriginRelationship:
+    catgories:
+      - collection_object
+      - dna
+    related_models:
+      - CollectionObject
+      - Sequence
+      - Extract
   OtuPageLayout:
     status: :prototype
     related_models:
       - ControlledVocabularyTerm
   Person:
-    status: :prototype
+    status: :stable
     shared: true
     related_models:
       - Source
@@ -235,24 +264,9 @@ Supporting:
     status: :prototype
     related_models:
       - ProtocolRelationship
-  ObservationMatrixRow:
-    status: :prototype
-    categories:
-      - matrix
-    related_models:
-      - ObservationMatrix
-  ObservationMatrixRowItem:
-    status: :prototype
-    categories:
-      - matrix
-    related_models:
-      - ObservationMatrix   
   Namespace:
     status: :prototype
     shared: true
-  OriginRelationship:
-    catgories:
-      - collection_object
   RangedLotCategory:
     status: :prototype
     categories:
@@ -276,7 +290,7 @@ Supporting:
     related_model:
       - Sequence
     categories:
-      - Dna
+      - dna
   TaxonDetermination:
     status: :prototype
     categories:
@@ -285,14 +299,14 @@ Supporting:
       - Otu 
       - CollectionObject
   TaxonNameClassification:
-    status: :prototype
+    status: :stable
     categories:
       - nomenclature 
     related_models:
       - TaxonName
       - TaxonNameRelationship
   TaxonNameRelationship:
-    status: :prototype
+    status: :stable
     categories:
       - nomenclature 
     related_model:
@@ -310,8 +324,12 @@ Annotations:
     status: :prototype
     categories:
       - source 
+  Confidence:
+    status: prototype
   DataAttribute:
     status: :prototype
+    related_models:
+      - ControlledVocabularyTerm
   Identifier:
     status: :prototype
   Note:
@@ -324,4 +342,5 @@ Annotations:
     status: :prototype
     related_models:
       - ControlledVocabularyTerm
-  Confidence:
+
+

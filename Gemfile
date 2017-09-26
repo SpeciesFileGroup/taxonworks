@@ -106,7 +106,7 @@ group :test, :development do
   gem 'inch', '~> 0.7.1'
   gem 'byebug', '~> 9.1.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_girl_rails', '~> 4.8'
-  gem 'selenium-webdriver', '~> 3.5'
+  gem 'selenium-webdriver', '~> 3.6'
   gem 'geckodriver-helper', '~> 0.0.3'
 end
 
@@ -117,7 +117,7 @@ group :development do
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
-  gem 'parallel_tests', '~> 2.15.0'
+  gem 'parallel_tests', '~> 2.16.0'
   gem 'web-console', '~> 3.5.1'
   gem 'rubocop', '~> 0.50.0'
 end

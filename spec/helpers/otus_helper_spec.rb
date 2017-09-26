@@ -12,7 +12,6 @@ describe OtusHelper, :type => :helper do
   end
 
   specify "#otu_search_form" do
-    expect(helper.otus_search_form).to have_button('Show')
     expect(helper.otus_search_form).to have_field('otu_id_for_quick_search_form')
   end
 end

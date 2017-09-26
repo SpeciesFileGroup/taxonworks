@@ -60,7 +60,9 @@ class Tag < ApplicationRecord
   end
 
   def tag_object_global_entity=(entity)
-    tag_object = GlobalID::Locator.locate entity
+    o = GlobalID::Locator.locate(entity)
+    write_attribute(:tag_object_type, o.class.base_class)
+    write_attribute(:tag_object_id, o.id) 
   end
 
   # @return [TagObject]

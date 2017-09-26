@@ -116,7 +116,7 @@ class TagsController < ApplicationController
   end
 
   def tag_params
-    params.require(:tag).permit(:keyword_id, :tag_object_id, :tag_object_type, :tag_object_attribute)
+    params.require(:tag).permit(:keyword_id, :tag_object_id, :tag_object_type, :tag_object_attribute, :tag_object_global_entity)
   end
 
   def taggable_object_params
