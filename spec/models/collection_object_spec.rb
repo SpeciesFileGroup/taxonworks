@@ -492,24 +492,24 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
       specify 'find some which exist' do
         expect(CollectionObject.with_identifier_type(type_cat_no)
                  .with_identifier_namespace(ns2)
-                 .with_identifiers_sorted.map(&:id)).to eq([11, 9, 7, 5, 3])
+                 .with_identifiers_sorted.map(&:id)).to eq([3, 5, 7, 9, 11])
       end
     end
 
     describe 'with sorted identifiers' do
-      xspecify 'without restriction' do
-        expect(CollectionObject.with_identifiers_sorted.map(&:id)).to eq([1])
+      specify 'without restriction' do
+        expect(CollectionObject.with_identifiers_sorted.map(&:id)).to eq([3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
       end
     end
 
     describe 'using combo method' do
       describe 'sorted' do
         specify 'without namespace' do
-          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no).map(&:id)).to eq([12, 11, 10, 9, 8, 7, 6, 5, 4, 3])
+          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no).map(&:id)).to eq([3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
         end
 
         specify 'with namespace' do
-          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, ns1).map(&:id)).to eq([12, 10, 8, 6, 4])
+          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, ns1).map(&:id)).to eq([4, 6, 8, 10, 12])
         end
       end
 
