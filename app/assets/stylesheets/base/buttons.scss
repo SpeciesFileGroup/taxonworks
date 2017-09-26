@@ -111,13 +111,27 @@
 }
 
 .btn-add {
-    background-color: #AED581;
+    background-color: $color-action-button;
     background-image: image-url("bplus.svg");
 } 
 
 .btn-delete {
     background-color: #F44336;
     background-image: image-url("w_trash.svg");
+}
+
+.btn-tag-delete {
+    margin: 0px;
+    background-color: #F44336;
+    background-size: 12px;
+    background-image: image-url("label.svg");
+} 
+
+.btn-tag-add {
+    margin: 0px;
+    background-color: $color-action-button;
+    background-size: 12px;
+    background-image: image-url("label.svg");
 } 
 
 .btn-undo {
@@ -187,7 +201,7 @@
     background-color: $color-remove-button;
 }
 
-.disable-button {
+.disable-button, .btn-disabled {
     opacity: 0.5;
     background-color: $navigation_border;
 }
