@@ -6,6 +6,7 @@ TW.views.tags.tag_icon = TW.views.tags.tag_icon || {};
 Object.assign(TW.views.tags.tag_icon, {
 
 	init: function() {
+
 		var that = this;
 
 		$(document).on('pinboard:insert', function() {
@@ -13,7 +14,8 @@ Object.assign(TW.views.tags.tag_icon, {
 		});
 		
 		this.findTagIcon();
-		$(document).on('click', '.default_tag_widget', function() {
+		$('.default_tag_widget').on('click', function() {
+			console.log("1234");
 			if(!$(this).hasClass('btn-disabled')) {
 				if($(this).hasClass('btn-tag-add')) {
 					that.createTag($(this).attr('data-tag-object-global-id'), that.getDefault()).then(response => {
@@ -133,6 +135,7 @@ Object.assign(TW.views.tags.tag_icon, {
 
 $(document).on('turbolinks:load', function() {
   if ($(".default_tag_widget").length) {
-    TW.views.tags.tag_icon.init();
+    var tags_icon = TW.views.tags.tag_icon;
+    tags_icon.init();
   }
 });
