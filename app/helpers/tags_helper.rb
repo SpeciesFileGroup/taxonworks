@@ -25,6 +25,10 @@ module TagsHelper
     render '/tags/quick_search_form'
   end
 
+  def tag_default_icon(object)
+    content_tag(:span, 'Tag', 'data-tag-object-global-id' => object.to_global_id.to_s, class: [:default_tag_widget, 'circle-button', 'btn-disabled'])
+  end
+
   def tag_link(tag)
     return nil if tag.nil?
     link_to(tag_tag(tag), metamorphosize_if(tag.tag_object))
