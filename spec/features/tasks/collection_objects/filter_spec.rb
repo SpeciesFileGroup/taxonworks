@@ -2,8 +2,8 @@ require 'rails_helper'
 
 describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :collection_objects] do
   context 'with properly built collection of objects' do
-    let(:page_title) {'Collection objects by area and date'}
-    let(:index_path) {collection_objects_filter_task_path}
+    let(:page_title) { 'Collection objects by area and date' }
+    let(:index_path) { collection_objects_filter_task_path }
 
     it_behaves_like 'a_login_required_and_project_selected_controller'
 
@@ -20,8 +20,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
       context 'triggering the by_otu facet' do
         describe '#set_otu', js: true, resolution: true do
-          let(:otu_test) {Otu.create!(name: 'zzzzz', by: @user, project: @project)}
-          let(:specimen) {Specimen.create!(by: @user, project: @project)}
+          let(:otu_test) { Otu.create!(name: 'zzzzz', by: @user, project: @project) }
+          let(:specimen) { Specimen.create!(by: @user, project: @project) }
 
           before do
             TaxonDetermination.create!(otu: otu_test, biological_collection_object: specimen, by: @user, project: @project)
@@ -42,19 +42,19 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         describe '#set_identifier', js: true, resolution: true do
 
           before do
-            2.times {FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)}
+            2.times { FactoryGirl.create(:valid_namespace, creator: @user, updater: @user) }
             ns1 = Namespace.first
             ns2 = Namespace.second
-            2.times {FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)}
-            (1..10).each {|identifier|
+            2.times { FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project) }
+            (1..10).each { |identifier|
               sp = FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)
               id = FactoryGirl.create(:identifier_local_catalog_number,
-                                      updater: @user,
-                                      project: @project,
-                                      creator: @user,
+                                      updater:           @user,
+                                      project:           @project,
+                                      creator:           @user,
                                       identifier_object: sp,
-                                      namespace: ((identifier % 2) == 0 ? ns1 : ns2),
-                                      identifier: identifier)
+                                      namespace:         ((identifier % 2) == 0 ? ns1 : ns2),
+                                      identifier:        identifier)
             }
             visit(collection_objects_filter_task_path)
           end
@@ -72,11 +72,11 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
           generate_political_areas_with_collecting_events(@user.id, @project.id)
         }
 
-        let!(:gnlm) {GeographicArea.where(name: 'Great Northern Land Mass').first}
+        let!(:gnlm) { GeographicArea.where(name: 'Great Northern Land Mass').first }
 
-        let!(:otum1) {Otu.where(name: 'Find me').first}
+        let!(:otum1) { Otu.where(name: 'Find me').first }
 
-        let(:json_string) {'{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}}'}
+        let(:json_string) { '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}}' }
 
         describe '#set_area', js: true do #
           it 'renders count of collection objects in a specific names area' do
@@ -98,7 +98,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         end
 
         describe '#set_date', js: true do
-          before {visit(collection_objects_filter_task_path)}
+          before { visit(collection_objects_filter_task_path) }
           it 'renders count of collection objects based on the start and end dates' do
             execute_script("document.getElementById('search_end_date').value = '1980/12/31'")
             find('#search_start_date').set('1971/01/01')
@@ -149,26 +149,26 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         end
 
         describe 'select start and stop identifiers', js: true do
-          it 'should find the start and stop selectors' do
+          it 'should find the start and stop inputs' do
             @ns1 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)
             @ns2 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
-            3.times {FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)}
+            3.times { FactoryGirl.create(:valid_namespace, creator: @user, updater: @user) }
             @ns3 = Namespace.third
-            2.times {FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)}
+            2.times { FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project) }
             FactoryGirl.create(:identifier_local_import,
                                identifier_object: Specimen.first,
-                               namespace: @ns3,
-                               identifier: 'First specimen', creator: @user, updater: @user, project: @project)
+                               namespace:         @ns3,
+                               identifier:        'First specimen', creator: @user, updater: @user, project: @project)
             FactoryGirl.create(:identifier_local_import,
                                identifier_object: Specimen.second,
-                               namespace: @ns3,
-                               identifier: 'Second specimen', creator: @user, updater: @user, project: @project)
-            (1..10).each {|identifier|
+                               namespace:         @ns3,
+                               identifier:        'Second specimen', creator: @user, updater: @user, project: @project)
+            (1..10).each { |identifier|
               sp = FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)
               id = FactoryGirl.create(:identifier_local_catalog_number,
                                       identifier_object: sp,
-                                      namespace: ((identifier % 2) == 0 ? @ns1 : @ns2),
-                                      identifier: identifier, creator: @user, updater: @user, project: @project)
+                                      namespace:         ((identifier % 2) == 0 ? @ns1 : @ns2),
+                                      identifier:        identifier, creator: @user, updater: @user, project: @project)
             }
 
             expect(Specimen.with_identifier('PSUC_FEM 1').count).to eq(1)

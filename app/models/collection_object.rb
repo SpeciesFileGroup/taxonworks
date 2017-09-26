@@ -148,13 +148,7 @@ class CollectionObject < ApplicationRecord
 
   scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
   scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
-  scope :with_identifier_type, ->(id_type) { includes(:identifiers).where('identifiers.type = ?', id_type).references(:identifiers) }
-  scope :with_identifier_namespace, ->(id_namespace) { includes(:identifiers).where('identifiers.namespace_id = ?', id_namespace.id).references(:identifiers) }
-  scope :with_identifiers_sorted, -> { includes(:identifiers)
-                                         .where("identifiers.identifier ~ '\^\\d\+\$'")
-                                         .order("CAST(identifiers.identifier AS integer)")
-                                         .references(:identifiers) }
-
+  #
   # This is a hack, maybe related to a Rails 5.1 bug.
   # It returns the SQL that works in 5.0/4.2 that
   # links CollectionObject to Sequences:
@@ -570,30 +564,6 @@ class CollectionObject < ApplicationRecord
     allow_partial = (partial_overlap.downcase == 'off' ? false : true) # TODO: Just get the correct values from the form!
     where_sql     = CollectingEvent.date_sql_from_dates(search_start_date, search_end_date, allow_partial)
     joins(:collecting_event).where(where_sql)
-  end
-
-  def self.with_identifier_type_and_namespace(id_type, namespace = nil, sorted = true)
-    if namespace.present?
-      if sorted
-        with_project_id($project_id)
-          .with_identifier_type(id_type)
-          .with_identifier_namespace(namespace)
-          .with_identifiers_sorted
-      else
-        with_project_id($project_id)
-          .with_identifier_type(id_type)
-          .with_identifier_namespace(namespace)
-      end
-    else
-      if sorted
-        with_project_id($project_id)
-          .with_identifier_type(id_type)
-          .with_identifiers_sorted
-      else
-        with_project_id($project_id)
-          .with_identifier_type(id_type)
-      end
-    end
   end
 
   def self.id_group(namespace, id_type = 'Identifier::Local::CatalogNumber')
