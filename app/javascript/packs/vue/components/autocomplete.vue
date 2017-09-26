@@ -164,7 +164,6 @@ export default {
         },
 
         itemClicked: function(item) {
-          console.log("asdfsfas");
           if(this.display.length)
             this.type = (this.clearAfter ? '' : item[this.display]);
           else {
