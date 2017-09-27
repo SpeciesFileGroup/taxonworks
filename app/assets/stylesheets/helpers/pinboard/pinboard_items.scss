@@ -1,6 +1,7 @@
 #pinboard {
 	.slide-panel-category-item {
 		position: relative;
+		min-height: 28px;
 	}
 	img {
 		border-radius: 50%;
@@ -37,10 +38,43 @@
 		}
 	}
 	.itemOptions {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		height: 25px;
+	}
+
+	.pinboard-dropdown-content {
+		display: none;
+	}
+	.pinboard-dropdown {
+		margin-right: 6px;
+		margin-left: 6px;
+	}
+
+	.button-setdefault {
+		background-image: image-url('w_ok.svg');
+		background-size: 12px;
+	}
+
+	.pinboard-dropdown:hover {
+		background-color: white;
+	}
+
+	.pinboard-dropdown:hover .pinboard-dropdown-content {
+	    display: flex;
+	    position: absolute;
+	    z-index: 9999;
+	    right:0px;
+	    top:0px;
+	    height: 100%;
+	    align-items: center;
+	    padding-left: $standard_padding * 0.5;
+	    padding-right: $standard_padding * 0.5;
+	    background-color: #FFF;
+	}
+	.pinboard-menu-bar {
+	    width: 14px;
+	    height: 3px;
+	    background-color: #333;
+	    margin: 2px 0;
+	    transition: 0.4s;
 	}
 
 	.remove {

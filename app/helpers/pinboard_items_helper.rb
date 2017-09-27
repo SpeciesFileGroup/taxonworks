@@ -10,9 +10,9 @@ module PinboardItemsHelper
 
   def insert_pinboard_item_link(pinboard_item)
     if pinboard_item.is_inserted
-      link_to('Disable default', pinboard_item_path(pinboard_item, pinboard_item: {is_inserted: false}), class: ['option-default'], method: :put, remote: true ) 
+      link_to('Disable default', pinboard_item_path(pinboard_item, pinboard_item: {is_inserted: false}), class: ['circle-button', 'button-setdefault', 'button-delete', 'option-default'], method: :put, remote: true ) 
     else
-      link_to('Make default', pinboard_item_path(pinboard_item, pinboard_item: {is_inserted: true}), class: ['option-default'], method: :put, remote: true )
+      link_to('Make default', pinboard_item_path(pinboard_item, pinboard_item: {is_inserted: true}), class: ['circle-button', 'button-setdefault','button-submit', 'option-default'], method: :put, remote: true )
     end
   end
 
@@ -29,8 +29,13 @@ module PinboardItemsHelper
     ]
     options.push(source_document_viewer_option_tag(pinboard_item.pinned_object)) if pinboard_item.pinned_object.kind_of?(Source)
 
-    content_tag(:div, class: 'itemOptions') do
-      options.compact.join.html_safe
+    content_tag(:div, class: [ 'itemOptions', 'pinboard-dropdown']) do
+      content_tag(:div, "", class: ['pinboard-menu-bar']) + 
+      content_tag(:div, "", class: ['pinboard-menu-bar']) + 
+      content_tag(:div, "", class: ['pinboard-menu-bar']) +
+      content_tag(:div, class: [ 'itemOptions', 'pinboard-dropdown-content']) do
+        options.compact.join.html_safe
+      end
     end.html_safe
   end
 
