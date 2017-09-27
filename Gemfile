@@ -120,6 +120,7 @@ group :development do
   gem 'parallel_tests', '~> 2.16.0'
   gem 'web-console', '~> 3.5.1'
   gem 'rubocop', '~> 0.50.0'
+  gem 'seedbank', github: 'james2m/seedbank'
 end
 
 group :doc do
