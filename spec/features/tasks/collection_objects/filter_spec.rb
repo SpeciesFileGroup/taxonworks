@@ -208,6 +208,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             expect(find('#id_range_count')).to have_content('4')
 
             find('#find_area_and_date_commit').click
+            wait_for_ajax
             find('#area_count', visible: true, text: '4')
 
           end

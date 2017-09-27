@@ -2,7 +2,6 @@
     Namespace (optional):<br>
     <%= namespace_select_tag(:id_namespace) -%><br>
     Range:<br>
-    <% @id_pile = CollectionObject.id_group(nil) %>
     Start: <%= text_field_tag(:id_range_start) -%>
     Stop: <%= text_field_tag(:id_range_stop) -%><br>
     <%= submit_tag('Set Identifier Range', id: 'set_id_range') %>
