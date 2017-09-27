@@ -62,6 +62,8 @@ namespace :tw do
           get_sf_source_metadata = import.get('SFSourceMetadata')
           get_sf_identification_metadata = import.get('SFIdentificationMetadata')
           # get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
+          get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
+
 
           # to get associated OTU, get TW taxon id, then get OTU from TW taxon id
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
@@ -85,6 +87,7 @@ namespace :tw do
             next if get_specimen_category_counts[specimen_id].blank? # ignore no critter counts for now
 
             project_id = get_tw_project_id[row['FileID']]
+            place_in_collection_keyword = Keyword.find_or_create_by(name: 'PlaceInCollection', definition: 'possible SF source of identification', project_id: project_id)
 
             sf_depo_id = row['DepoID']
             repository_id = get_tw_repo_id.has_key?(sf_depo_id) ? get_tw_repo_id[sf_depo_id] : nil
@@ -236,7 +239,11 @@ namespace :tw do
 
                         # data_attributes to do:
                         #   import_attribute if identification.IdentifierName
-                        #   other fields in tblIdentifications?
+                        #   other fields in tblIdentifications: HigherTaxonName, NomenclatorID, TaxonIdentNote, TypeTaxonNameID, RefID, IdentifierName/Year,
+                        #     PlaceInCollection, IdentificationModeNote, VerbatimLabel
+
+                        # HigherTaxonName > 0 or NomenclatorID > 0 create new determination (should only be one or other)
+                        # To find OTU from NomenclatorID, match cached taxon name then get OTU
 
 
             }
@@ -261,6 +268,7 @@ namespace :tw do
                           biocuration_classifications_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s], project_id: project_id}],
 
                           taxon_determinations_attributes: [{otu_id: get_otu_from_tw_taxon_id[get_tw_taxon_name_id[row['TaxonNameID']]], project_id: project_id}],
+                          # taxon_determination notes here?
 
                           # metadata attributes:
 
@@ -295,7 +303,6 @@ namespace :tw do
                       identifier: "SF.DepoID #{sf_depo_id},  #{row['DepoCatNo']}",
                       namespace: depo_namespace,
                       project_id: project_id)
-                  # identifier = ImportAttribute.new(value: row['DepotCatNo'], import_predicate: 'DepotCatNo', project_id: project_id)
 
                   if current_objects.count == 1
                     # The "Identifier" is attached to the only collection object that is created
@@ -311,49 +318,78 @@ namespace :tw do
 
                     c.identifiers << identifier if identifier
 
-
                   else
                     puts "OOPS" # would this happen?
                   end
                 end
 
-                # byebug
+
                 if get_sf_identification_metadata.has_key?(specimen_id)
                   get_sf_identification_metadata[specimen_id].each do |identification|
                     current_objects.each do |o|
 
-                      # exclude TypeKindID = undefined (0) and unknown (6)
+                      # Add subsequent determinations
+                      target_nomenclator = nil
+                      otu = nil
 
-                      type_kind_id = identification['type_kind_id'].to_i
+                      if identification['nomenclator_id'].present?
+                        nomenclator_id = identification['nomenclator_id']
+                        target_nomenclator = get_nomenclator_string[nomenclator_id]
+                      elsif identification['higher_taxon_name'].present?
+                        target_nomenclator = identification['higher_taxon_name']
+                      end
+
+                      if taxon_name = TaxonName.where(cached: target_nomenclator, project_id: project_id).first
+                        otu = taxon_name.otus.first
+                      else
+                        otu = Otu.create!(name: target_nomenclator, taxon_name_id: get_tw_taxon_name_id[row['TaxonNameID']], project_id: project_id) # target_nomenclator nil?
+                      end
+
+                      t = TaxonDetermination.create!(otu: otu, material: o) # !! need to get Reference or other metadata
+                      t.move_to_bottom # might need .move_to_bottom!
+
+                      if identification['higher_taxon_name'].present? && identification['nomenclator_id'].absent?
+
+                      end
+
+
+                      if identification['place_in_collection'] == '1'
+                        # o.keywords << place_in_collection_keyword     # equivalent to line below
+                        # o.tags << Tag.new(keyword: place_in_collection_keyword, project_id: o.project_id)
+                        o.tags.new(keywork: place_in_collection_keyword, project_id: project_id)
+                      end
+
+
+                      type_kind_id = identification['type_kind_id'].to_i # exclude TypeKindID = undefined (0) and unknown (6)
                       if [1, 2, 3, 4, 8, 10].include? type_kind_id
                         type_text = case type_kind_id
-                                    when 1
-                                      'holotype'
-                                    when 2
-                                      if o.total == 1 
-                                        'syntype'
-                                      else
-                                        'syntypes'
-                                      end
-                                    when 3
-                                      'neotype'
-                                    when 4
-                                      'lectotype'
-                                    when 8
-                                      if o.total == 1
-                                        'paratype'
-                                      else
-                                        'paratypes'
-                                      end
-                                    when 10
-                                      if o.total == 1 
-                                        'paralectotype'
-                                      else
-                                        'paralectotypes'
-                                      end
+                                      when 1
+                                        'holotype'
+                                      when 2
+                                        if o.total == 1
+                                          'syntype'
+                                        else
+                                          'syntypes'
+                                        end
+                                      when 3
+                                        'neotype'
+                                      when 4
+                                        'lectotype'
+                                      when 8
+                                        if o.total == 1
+                                          'paratype'
+                                        else
+                                          'paratypes'
+                                        end
+                                      when 10
+                                        if o.total == 1
+                                          'paralectotype'
+                                        else
+                                          'paralectotypes'
+                                        end
                                     end
                         TypeMaterial.create!(protonym_id: get_tw_taxon_name_id[row['TaxonNameID']],
-                                             material: o,   # = collection_object/biological_collection_object
+                                             material: o, # = collection_object/biological_collection_object
                                              type_type: type_text,
                                              project_id: project_id)
                         puts "type_material created for '#{type_text}'"
@@ -361,12 +397,12 @@ namespace :tw do
                       elsif [5, 7, 9].include? type_kind_id
                         # create a data_attribute
                         type_kind = case type_kind_id
-                                    when 5
-                                      'unspecified primary type'
-                                    when 7
-                                      'allotype'
-                                    when 9
-                                      'topotype'
+                                      when 5
+                                        'unspecified primary type'
+                                      when 7
+                                        'allotype'
+                                      when 9
+                                        'topotype'
                                     end
                         ImportAttribute.create!(import_predicate: 'SF.TypeKind',
                                                 value: type_kind,
