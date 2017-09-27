@@ -6,8 +6,15 @@ class ObservationMatrixRowsController < ApplicationController
   # GET /matrices
   # GET /matrices.json
   def index
-    @recent_objects = ObservationMatrixRow.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = ObservationMatrixRow.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @observation_matrix_rows = ObservationMatrixRow.where(filter_params).with_project_id(sessions_current_project_id)
+      }
+    end
   end
 
   # GET /matrix_rows/1
@@ -23,6 +30,10 @@ class ObservationMatrixRowsController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_matrix_row
     @observation_matrix_row = ObservationMatrixRow.find(params[:id])
+  end
+
+  def filter_params
+    params.permit(:matrix_id)
   end
 
 end

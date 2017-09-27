@@ -316,6 +316,9 @@ TaxonWorks::Application.routes.draw do
     member do
       get 'row', {format: :json}
     end
+  
+    resources :observation_matrix_columns, shallow: true, only: [:index], defaults: {format: :json}
+    resources :observation_matrix_rows, shallow: true, only: [:index], defaults: {format: :json}
   end
 
   resources :observation_matrix_columns, only: [:index, :show] do
