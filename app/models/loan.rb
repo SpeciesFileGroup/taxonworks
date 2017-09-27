@@ -127,7 +127,7 @@ class Loan < ApplicationRecord
 
   # @return [Boolean, nil]
   def overdue?
-    if date_returned_expected.present?
+    if date_return_expected.present?
       Time.now.to_date > date_return_expected && !date_closed.present?
     else
       nil
@@ -136,7 +136,7 @@ class Loan < ApplicationRecord
 
   # @return [Integer, nil]
   def days_overdue
-    if date_return_expect.present?
+    if date_return_expected.present?
       (Time.now.to_date - date_return_expected).to_i
     else
       nil
@@ -145,7 +145,7 @@ class Loan < ApplicationRecord
 
   # @return [Integer, false]
   def days_until_due
-   date_return_expected && (date_return_expected - Time.now.to_date ).to_i
+    date_return_expected && (date_return_expected - Time.now.to_date ).to_i
   end
 
   # @return [Array] collection_object ids

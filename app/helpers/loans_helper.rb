@@ -58,7 +58,7 @@ module LoansHelper
 
   def loan_due_back_tag(loan)
     'Due back on ' + 
-     ( loan.date_return_expected.present? ? object.loan_return_date : 'NOT PROVIDED' ) +
+      ( loan.date_return_expected.present? ? loan.date_return_expected.to_s : 'NOT PROVIDED' ) +
      '.'
   end 
 
