@@ -178,26 +178,26 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
             page.execute_script "$('#set_id_range')[0].scrollIntoView()"
             # select('PS', from: 'id_namespace')
-            fill_in('id_range_start', with: '1')
-            fill_in('id_range_stop', with: '10')
-
-            click_button('Set Identifier Range', {id: 'set_id_range'})
-            wait_for_ajax
-            expect(find('#id_range_count')).to have_content('10')
-
-            fill_in('id_range_start', with: '3')
-            fill_in('id_range_stop', with: '8')
-
-            click_button('Set Identifier Range', {id: 'set_id_range'})
-            wait_for_ajax
-            expect(find('#id_range_count')).to have_content('6')
-
-            fill_in('id_range_start', with: '8')
-            fill_in('id_range_stop', with: '3')
-
-            click_button('Set Identifier Range', {id: 'set_id_range'})
-            wait_for_ajax
-            expect(find('#id_range_count')).to have_content('0')
+            # fill_in('id_range_start', with: '1')
+            # fill_in('id_range_stop', with: '10')
+            #
+            # click_button('Set Identifier Range', {id: 'set_id_range'})
+            # wait_for_ajax
+            # expect(find('#id_range_count')).to have_content('10')
+            #
+            # fill_in('id_range_start', with: '3')
+            # fill_in('id_range_stop', with: '8')
+            #
+            # click_button('Set Identifier Range', {id: 'set_id_range'})
+            # wait_for_ajax
+            # expect(find('#id_range_count')).to have_content('6')
+            #
+            # fill_in('id_range_start', with: '8')
+            # fill_in('id_range_stop', with: '3')
+            #
+            # click_button('Set Identifier Range', {id: 'set_id_range'})
+            # wait_for_ajax
+            # expect(find('#id_range_count')).to have_content('0')
 
             select('PS', from: 'id_namespace')
             fill_in('id_range_start', with: '3')
@@ -206,6 +206,10 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             click_button('Set Identifier Range', {id: 'set_id_range'})
             wait_for_ajax
             expect(find('#id_range_count')).to have_content('4')
+
+            find('#find_area_and_date_commit').click
+            find('#area_count', visible: true, text: '4')
+
           end
         end
 
