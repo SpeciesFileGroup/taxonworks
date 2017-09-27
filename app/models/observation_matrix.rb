@@ -15,6 +15,9 @@ class ObservationMatrix < ApplicationRecord
   has_many :observation_matrix_rows
   has_many :observation_matrix_columns
 
+  has_many :otus, through: :observation_matrix_rows
+  has_many :collection_objects, through: :observation_matrix_rows
+
   has_many :descriptors, through: :observation_matrix_columns
 
 end
