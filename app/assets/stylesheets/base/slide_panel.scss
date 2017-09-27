@@ -39,18 +39,12 @@ $default-padding: 2em;
 		background-color: $header-color;
 	}
 
-	.slide-panel-category-content {
-		border-left: 5px solid transparent;
-		padding-left: $default-padding;
-	}	
-
 	.slide-panel-category-item {
 		display: flex;
 		align-items: center;
 	}
 
 	.slide-panel-category-content {
-		border-left: 5px solid transparent;
 		padding-left: $default-padding;
 	}	
 
