@@ -14,6 +14,7 @@ Object.assign(pinboardRemoteUpdate, {
 
 		this.changeLink(this.pinboardItem, (this.alreadyInserted ? true : false));
 		this.eventPinboardInsert();
+		TW.workbench.pinboard.init();
 		$('body').mx_spinner('hide');
 	},
 
@@ -31,7 +32,7 @@ Object.assign(pinboardRemoteUpdate, {
 		newEl.setAttribute('data-remote', 'true');
 		newEl.setAttribute('rel', 'nofollow');
 		newEl.setAttribute('data-method','put');
-		newEl.className = 'option-default';
+		newEl.classList.add('circle-button', 'button-pinboard-default', (inserted ? 'button-submit' : 'button-delete'), 'option-default');
 
 		return newEl;
 	},

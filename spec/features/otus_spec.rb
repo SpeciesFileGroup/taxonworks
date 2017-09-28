@@ -28,7 +28,6 @@ describe 'Otus', type: :feature do
 
         specify 'that it has an AJAX autocomplete box', js: true do
           select_text = 'Select a otu'
-          expect(page).to have_button('Show')
           expect(page).to have_field(select_text) # TODO: inflect
           fill_in(select_text, with: 'a')
         end

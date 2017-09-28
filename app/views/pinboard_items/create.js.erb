@@ -2,18 +2,23 @@ $('[data-pin-button-item-id="<%= @pinboard_item.pinned_object_id -%>"]').replace
 $('body').mx_spinner('hide');
 TW.workbench.alert.create("Pinboard item was successfully created.", "notice");
 
-var injectItem = `<li class="slide-panel-category-item" data-pinboard-object-id="<%= @pinboard_item.pinned_object.id -%>" data-pinboard-item-id="<%= @pinboard_item.id -%>" data-pin-item="<%= @pinboard_item.id -%>" id="<%= "order_#{@pinboard_item.id}" -%>"> 
+var injectItem = `<li class="slide-panel-category-item" data-insert="false" data-pinboard-object-id="<%= @pinboard_item.pinned_object.id -%>" data-pinboard-item-id="<%= @pinboard_item.id -%>" data-pin-item="<%= @pinboard_item.id -%>" id="<%= "order_#{@pinboard_item.id}" -%>"> 
                 <div class="handle flex-separate middle ui-sortable-handle"> 
                   <%= object_link(@pinboard_item.pinned_object) -%> 
                 </div> 
-                <div class="itemOptions">
-                  <%= if @pinboard_item.pinned_object_type == 'Document' && @pinboard_item.pinned_object.document_file_content_type.eql?("application/pdf") 
-                        content_tag(:a, "PDF Viewer", class: :pdfviewerItem , data: { pdfviewer: @pinboard_item.pinned_object.document_file(:original, false) }) 
-                      end 
-                    %> 
-                  <a class="option-default" data-remote="true" rel="nofollow" data-method="put" href="/pinboard_items/<%= @pinboard_item.id -%>?pinboard_item%5Bis_inserted%5D=true">Make default</a>
-                  <%= link_to('Remove', pinboard_item_path(@pinboard_item), class: :remove, method: :delete) -%> 
-                </div> 
+                <div class="pinboard-dropdown">
+                  <div class="pinboard-menu-bar"></div>
+                  <div class="pinboard-menu-bar"></div>
+                  <div class="pinboard-menu-bar"></div>
+                  <div class="itemOptions pinboard-dropdown-content">
+                    <%= link_to('Remove', pinboard_item_path(@pinboard_item), class: ['remove', 'circle-button', 'button-delete'], method: :delete) -%>                   
+                    <%= if @pinboard_item.pinned_object_type == 'Document' && @pinboard_item.pinned_object.document_file_content_type.eql?("application/pdf") 
+                          content_tag(:a, "PDF Viewer", class: :pdfviewerItem , data: { pdfviewer: @pinboard_item.pinned_object.document_file(:original, false) }) 
+                        end 
+                      %> 
+                    <a class="circle-button button-pinboard-default button-submit option-default" data-remote="true" rel="nofollow" data-method="put" href="/pinboard_items/<%= @pinboard_item.id -%>?pinboard_item%5Bis_inserted%5D=true">Make default</a>                    
+                  </div> 
+                </div>
               </li>`
 
 if(!$('[data-pin-caterogy="<%= @pinboard_item.pinned_object_type -%>"]').length) {

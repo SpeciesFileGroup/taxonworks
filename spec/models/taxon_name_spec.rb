@@ -657,9 +657,10 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             ) 
           end
 
+          # result is not ordered
           specify 'can be chained' do
-            expect(TaxonName.ancestors_and_descendants_of(genus).where("name ILIKE 'E%'").all.map(&:name)).to eq(
-              %w{Erythroneurini Erythroneura Erythroneura}
+            expect(TaxonName.ancestors_and_descendants_of(genus).where("name ILIKE 'E%'").all.map(&:name)).to contain_exactly(
+              *%w{Erythroneurini Erythroneura Erythroneura}
             ) 
           end
         end
