@@ -345,18 +345,27 @@ namespace :tw do
                         otu = Otu.create!(name: target_nomenclator, taxon_name_id: get_tw_taxon_name_id[row['TaxonNameID']], project_id: project_id) # target_nomenclator nil?
                       end
 
-                      t = TaxonDetermination.create!(otu: otu, material: o) # !! need to get Reference or other metadata
+                      t = TaxonDetermination.create!(otu: otu, material: o) # !! need to get Reference or other metadata   # after material, source_id: get...[], notes_attributes: [{text: identnote}], confidences_attributes: [{confidence_level: ConfidenceLevel.find_or_create_by(name: <thing that has cf>, project_id: )}]
                       t.move_to_bottom # might need .move_to_bottom!
 
-                      if identification['higher_taxon_name'].present? && identification['nomenclator_id'].absent?
 
-                      end
+                      # nomenclator rank and rank qualifier text         CVT and confidences for each project    keyword is to tag as confidence level is to confidences
+                      #
+                      # unify: cf. ? aff. nr.
+                      #
+                      #                         c = cr; aff together
+                      #
+                      # attached to determination
+
+
+                      # VerbatimLabel	41		“2 mi NE Gold Butte, NV, Clark Co., VI-16-1988, R.C. Bechtel, J.L. Carpenter, .J.B. Knight Collectors, Black Light  Trap” “HOLOTYPE Arenivaga haringtoni Hopkins, 2012” [red label with black border]			CollectionObject#buffered_collecting_event
+                      # put as data_attribute (import_attribute) on determination
 
 
                       if identification['place_in_collection'] == '1'
                         # o.keywords << place_in_collection_keyword     # equivalent to line below
                         # o.tags << Tag.new(keyword: place_in_collection_keyword, project_id: o.project_id)
-                        o.tags.new(keywork: place_in_collection_keyword, project_id: project_id)
+                        o.tags.create!(keyword: place_in_collection_keyword, project_id: project_id)
                       end
 
 
@@ -429,6 +438,51 @@ namespace :tw do
           puts 'SFSpecimenIDToCollObjID'
           ap get_tw_collection_object_id
 
+        end
+
+
+        desc 'time rake tw:project_import:sf_import:specimens:get_ident_quality_from_nomenclator user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :get_ident_quality_from_nomenclator => [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Creating hash of NomenclatorID and IdentQuality...'
+          # need to test for has_key?
+
+          get_sf_ident_quality = {} # key = SF.SourceID, value = hash (SourceID, FileID, RefID, Description)
+
+          path = @args[:data_directory] + 'tblNomenclator.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each do |row|
+            logger.info "Working with SF.NomenclatorID = '#{row['NomenclatorID']}' \n"
+
+            next if row['IdentQuality'].blank?
+            nomenclator_id = row['NomenclatorID']
+            ident_quality = row['IdentQuality']
+
+             ident_quality_text = if ['?'].include? ident_quality
+                                   '?'
+                                 elsif ['aff'].include? ident_quality
+                                   'aff.'
+                                 elsif ['cf', 'f.'].include? ident_quality # will match cf and cf.
+                                   'c.f.'
+                                 elsif ['near', 'nr'].include? ident_quality
+                                   'nr.'
+                                 elsif ['ph.'].include? ident_quality
+                                    'ph.'
+                                 else
+                                   nil
+                                 end
+
+            next if indent_quality_text == nil
+            get_sf_ident_quality[nomenclator_id] = ident_quality_text
+
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFIdentQuality', get_sf_ident_quality)
+
+          puts 'SFIdentQuality'
+          ap get_sf_ident_quality
         end
 
 
