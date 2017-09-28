@@ -177,27 +177,27 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             visit(collection_objects_filter_task_path)
 
             page.execute_script "$('#set_id_range')[0].scrollIntoView()"
-            # select('PS', from: 'id_namespace')
-            # fill_in('id_range_start', with: '1')
-            # fill_in('id_range_stop', with: '10')
-            #
-            # click_button('Set Identifier Range', {id: 'set_id_range'})
-            # wait_for_ajax
-            # expect(find('#id_range_count')).to have_content('10')
-            #
-            # fill_in('id_range_start', with: '3')
-            # fill_in('id_range_stop', with: '8')
-            #
-            # click_button('Set Identifier Range', {id: 'set_id_range'})
-            # wait_for_ajax
-            # expect(find('#id_range_count')).to have_content('6')
-            #
-            # fill_in('id_range_start', with: '8')
-            # fill_in('id_range_stop', with: '3')
-            #
-            # click_button('Set Identifier Range', {id: 'set_id_range'})
-            # wait_for_ajax
-            # expect(find('#id_range_count')).to have_content('0')
+
+            fill_in('id_range_start', with: '1')
+            fill_in('id_range_stop', with: '10')
+
+            click_button('Set Identifier Range', {id: 'set_id_range'})
+            wait_for_ajax
+            expect(find('#id_range_count')).to have_content('10')
+
+            fill_in('id_range_start', with: '3')
+            fill_in('id_range_stop', with: '8')
+
+            click_button('Set Identifier Range', {id: 'set_id_range'})
+            wait_for_ajax
+            expect(find('#id_range_count')).to have_content('6')
+
+            fill_in('id_range_start', with: '8')
+            fill_in('id_range_stop', with: '3')
+
+            click_button('Set Identifier Range', {id: 'set_id_range'})
+            wait_for_ajax
+            expect(find('#id_range_count')).to have_content('0')
 
             select('PS', from: 'id_namespace')
             fill_in('id_range_start', with: '3')
@@ -209,19 +209,10 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
             find('#find_area_and_date_commit').click
             wait_for_ajax
-            find('#area_count', visible: true, text: '4')
+            expect(find('#paging_data')).to have_content('all 4')
 
           end
         end
-
-        describe '#set_id_range' do
-
-        end
-
-        describe 'get_id_range' do
-
-        end
-
       end
     end
   end
