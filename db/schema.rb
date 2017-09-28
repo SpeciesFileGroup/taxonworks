@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170915220406) do
+ActiveRecord::Schema.define(version: 20170926150004) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1500,6 +1500,9 @@ ActiveRecord::Schema.define(version: 20170915220406) do
     t.text "cached_author_string"
     t.date "cached_nomenclature_date"
     t.index ["bibtex_type"], name: "index_sources_on_bibtex_type"
+    t.index ["cached"], name: "index_sources_on_cached"
+    t.index ["cached_author_string"], name: "index_sources_on_cached_author_string"
+    t.index ["cached_nomenclature_date"], name: "index_sources_on_cached_nomenclature_date"
     t.index ["created_by_id"], name: "index_sources_on_created_by_id"
     t.index ["language_id"], name: "index_sources_on_language_id"
     t.index ["serial_id"], name: "index_sources_on_serial_id"
