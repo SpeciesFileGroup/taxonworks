@@ -88,7 +88,7 @@ class CollectionObject < ApplicationRecord
   #  When true, cached values are not built
   attr_accessor :no_cached
 
-  after_save :add_to_dwc_occurrence, unless: -> {self.no_cached}
+  after_save :add_to_dwc_occurrence, unless: -> { self.no_cached }
 
   # Otu delegations
   delegate :name, to: :current_otu, prefix: :otu, allow_nil: true # could be Otu#otu_name?
@@ -148,7 +148,7 @@ class CollectionObject < ApplicationRecord
 
   scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
   scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
-
+  #
   # This is a hack, maybe related to a Rails 5.1 bug.
   # It returns the SQL that works in 5.0/4.2 that
   # links CollectionObject to Sequences:
@@ -351,7 +351,7 @@ class CollectionObject < ApplicationRecord
   def self.in_geographic_item(geographic_item, limit, steps = false)
     geographic_item_id = geographic_item.id
     if steps
-      gi     = GeographicItem.find(geographic_item_id)
+      gi = GeographicItem.find(geographic_item_id)
       # find the geographic_items inside gi
       step_1 = GeographicItem.is_contained_by('any', gi) # .pluck(:id)
       # find the georeferences from the geographic_items
@@ -537,7 +537,7 @@ class CollectionObject < ApplicationRecord
   #   and collection objects (usually by inclusion in geographic areas/items)
   def self.from_collecting_events(collecting_event_ids, area_object_ids, area_set, project_id)
     collecting_events_clause = {collecting_event_id: collecting_event_ids, project: project_id}
-    area_objects_clause = {id: area_object_ids, project: project_id}
+    area_objects_clause      = {id: area_object_ids, project: project_id}
 
     if (collecting_event_ids.empty?)
       collecting_events_clause = {project: project_id}
@@ -551,8 +551,8 @@ class CollectionObject < ApplicationRecord
     end
 
     retval = CollectionObject.joins(:collecting_event)
-                 .where(collecting_events_clause)
-                 .where(area_objects_clause)
+               .where(collecting_events_clause)
+               .where(area_objects_clause)
     retval
   end
 
@@ -562,8 +562,16 @@ class CollectionObject < ApplicationRecord
   # @return [Scope] of selected collection objects through collecting events with georeferences, remember to scope to project!
   def self.in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
     allow_partial = (partial_overlap.downcase == 'off' ? false : true) # TODO: Just get the correct values from the form!
-    where_sql = CollectingEvent.date_sql_from_dates(search_start_date, search_end_date, allow_partial)
+    where_sql     = CollectingEvent.date_sql_from_dates(search_start_date, search_end_date, allow_partial)
     joins(:collecting_event).where(where_sql)
+  end
+
+  def self.id_group(namespace, id_type = 'Identifier::Local::CatalogNumber')
+    namespace = Namespace.where(short_name: namespace).first unless namespace.nil?
+    CollectionObject.with_identifier_type_and_namespace(id_type, namespace)
+      .collect { |sp| sp.identifiers }
+      .flatten
+      .map(&:identifier).uniq
   end
 
   def sv_missing_accession_fields
@@ -594,6 +602,7 @@ class CollectionObject < ApplicationRecord
   def add_to_dwc_occurrence
     get_dwc_occurrence
   end
+
   handle_asynchronously :add_to_dwc_occurrence, run_at: Proc.new { 20.seconds.from_now }
 
   def check_that_both_of_category_and_total_are_not_present

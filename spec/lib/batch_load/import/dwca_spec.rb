@@ -10,7 +10,7 @@ describe BatchLoad::Import::DWCA, type: :model do
   # `iconv -f iso-8859-15 -t UTF-8  spec/files/batch/dwca/PSUC3-Test.txt > spec/files/batch/dwca/PSUC3-Test.utf8.txt`
   # which is then used in the spec.
 
-  let(:file_name) {'spec/files/batch/dwca/PSUC3-Test.utf8.txt'}
+  let(:file_name) {'./spec/files/batch/dwca/PSUC3-Test.utf8.txt'}
 
   context 'building objects from valid tsv lines' do
 

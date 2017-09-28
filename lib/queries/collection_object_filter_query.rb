@@ -1,11 +1,12 @@
 module Queries
 
-  class CollectionObjectFilterQuery < Queries::Query 
+  class CollectionObjectFilterQuery < Queries::Query
 
     # Query variables
     attr_accessor :query_geographic_area_ids, :query_shape
     attr_accessor :query_date_partial_overlap, :query_start_date, :query_end_date
     attr_accessor :query_otu_id, :query_otu_descendants
+    attr_accessor :query_id_namespace, :query_range_start, :query_range_stop
 
     # Reolved/processed results
     attr_accessor :start_date, :end_date
@@ -20,6 +21,9 @@ module Queries
       @query_otu_id = params[:otu_id]
       @query_otu_descendants = params[:descendants] # .downcase if params[:descendants] # TODO: remove downcase requirement
       @query_date_partial_overlap = params[:partial_overlap]
+      @query_id_namespace = params[:id_namespace]
+      @query_range_start = params[:id_range_start]
+      @query_range_stop = params[:id_range_stop]
 
       set_and_order_dates
     end
@@ -36,7 +40,7 @@ module Queries
     end
 
     def date_set?
-      !start_date.nil? 
+      !start_date.nil?
     end
 
     def otu_set?
@@ -51,12 +55,16 @@ module Queries
       query_otu_descendants == 'on'
     end
 
+    def identifier_set?
+      query_range_start.present? || query_range_stop.present?
+    end
+
     # All scopes might end up in CollectionObject directly
 
     # @return [Scope]
-    def otu_scope 
+    def otu_scope
       # Challenge: Refactor to use a join pattern instead of SELECT IN
-      innerscope = with_descendants? ? Otu.self_and_descendants_of(query_otu_id) : Otu.where(id: query_otu_id) 
+      innerscope = with_descendants? ? Otu.self_and_descendants_of(query_otu_id) : Otu.where(id: query_otu_id)
       CollectionObject.joins(:otus).where(otus: {id: innerscope} )
     end
 
@@ -73,12 +81,20 @@ module Queries
     # @return [Scope]
     def shape_scope
       GeographicItem.gather_map_data(query_shape, 'CollectionObject')
-    end 
+    end
 
     # @return [Scope]
     def date_scope
-      CollectionObject.joins(:collecting_event).where(CollectingEvent.date_sql_from_dates(start_date, end_date, query_date_partial_overlap ))  
-  #date_sql_from_dates(start_date, end_date, query_date_partial_overlap ))  
+      CollectionObject.joins(:collecting_event).where(CollectingEvent.date_sql_from_dates(start_date, end_date, query_date_partial_overlap))
+      #date_sql_from_dates(start_date, end_date, query_date_partial_overlap ))
+    end
+
+    def identifier_scope
+      ns = nil
+      ns = Namespace.where(short_name: query_id_namespace).first if query_id_namespace.present?
+      CollectionObject.with_identifier_type_and_namespace('Identifier::Local::CatalogNumber', ns, true)
+          .where("CAST(identifiers.identifier AS integer) between ? and ?",
+                 query_range_start.to_i, query_range_stop.to_i)
     end
 
     # @return [Array]
@@ -88,7 +104,8 @@ module Queries
       scopes.push :otu_scope if otu_set?
       scopes.push :geographic_area_scope if area_set?
       scopes.push :shape_scope if shape_set?
-      scopes.push :date_scope if date_set? 
+      scopes.push :date_scope if date_set?
+      scopes.push :identifier_scope if identifier_set?
       scopes
     end
 
