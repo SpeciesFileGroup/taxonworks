@@ -92,14 +92,14 @@ class SourcesController < ApplicationController
   end
 
   def autocomplete
-    @sources = Queries::SourceFilterQuery.new(params[:term]).all
-    data     = @sources.collect do |t|
-      {id:              t.id,
-       label:           ApplicationController.helpers.source_tag(t),
+    @sources = Queries::SourceFilterQuery.new(params[:term]).autocomplete
+    data = @sources.collect do |t|
+      {id: t.id,
+       label: ApplicationController.helpers.source_tag(t),
        response_values: {
          params[:method] => t.id
        },
-       label_html:      ApplicationController.helpers.source_tag(t)
+       label_html: ApplicationController.helpers.source_tag(t)
       }
     end
     render :json => data
