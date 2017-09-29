@@ -9,7 +9,10 @@ module Housekeeping::Users
     belongs_to :creator, foreign_key: :created_by_id, class_name: 'User'
     belongs_to :updater, foreign_key: :updated_by_id, class_name: 'User'
 
-    unless_user = lambda {self.class.name == "User" && self.self_created}
+    scope :created_by_user, ->(user) { get_created_by(user) }
+    scope :updated_by_user, ->(user) { get_updated_by(user) }
+
+    unless_user = lambda { self.class.name == "User" && self.self_created }
     validates :creator, presence: true, unless: unless_user # lambda, proc, or block
     validates :updater, presence: true, unless: unless_user
 
@@ -31,6 +34,19 @@ module Housekeeping::Users
   end
 
   module ClassMethods
+
+    # @param [String, User, Integer] user
+    # @return [Scope]
+    def get_updated_by(user)
+     self.where(updated_by_id: get_user_id(user))
+    end
+
+    # @param [String, User, Integer] user
+    # @return [Scope]
+    def get_created_by(user)
+      self.where(created_by_id: get_user_id(user))
+    end
+
     # @return [Scope]
     #   for all uniq Users that created this class
     def all_creators
@@ -42,9 +58,29 @@ module Housekeeping::Users
     def all_updaters
       User.joins("updated_#{self.name.demodulize.underscore.pluralize}".to_sym).uniq
     end
+
+    protected
+
+    # @param [String, User, Integer] user
+    # @return [Integer] selected user id
+    def get_user_id(user)
+      user_id = $user_id
+      case user.class.name
+        when 'String'
+          # search by name or email
+          ut = User.arel_table
+          c1 = ut[:name].eq(user).or(ut[:email].eq(user)).to_sql
+          user_id = User.where(c1).first.id
+        when 'User'
+          user_id = user.id
+        when 'Integer'
+          user_id = user
+      end
+      user_id
+    end
   end
 
-  # A convienience.  When provided creator and updater are set.  If creator exists updater is set.  Overrides creator/updater if provided second.  See tests.
+  # A convenience.  When provided creator and updater are set.  If creator exists updater is set.  Overrides creator/updater if provided second.  See tests.
   #   Otu.new(name: 'Aus', by: @user)
   attr_accessor :by
 

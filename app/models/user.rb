@@ -156,6 +156,12 @@ class User < ApplicationRecord
     User.where( User.arel_table[:id].not_eq_all( ids ))
   end
 
+  # @param [Integer] project_id
+  # @return [Scope] of ids for users in the project
+  def self.in_project(project_id = $project_id)
+    ProjectMember.where(project_id: project_id).distinct.pluck(:user_id)
+  end
+
   def User.secure_random_token
     SecureRandom.urlsafe_base64
   end

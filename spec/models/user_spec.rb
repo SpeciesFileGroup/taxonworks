@@ -2,10 +2,10 @@ require 'rails_helper'
 
 describe User, :type => :model do
 
-  let(:user) { User.new(password: 'password',
+  let(:user) { User.new(password:              'password',
                         password_confirmation: 'password',
-                        email: 'user_model@example.com',
-                        name: 'Bob'
+                        email:                 'user_model@example.com',
+                        name:                  'Bob'
   ) }
   subject { user }
 
@@ -75,7 +75,7 @@ describe User, :type => :model do
       end
 
       specify '#administered_projects' do
-        expect(user.administered_projects).to contain_exactly(Project.find($project_id) )
+        expect(user.administered_projects).to contain_exactly(Project.find($project_id))
       end
 
       specify '#administers_projects?' do
@@ -222,7 +222,7 @@ describe User, :type => :model do
 
       specify 'with a route and no recent object' do
         user.add_recently_visited_to_footprint('/otus/')
-        expect(user.footprints).to eq('recently_visited' =>  [{'/otus/' => {}}])
+        expect(user.footprints).to eq('recently_visited' => [{'/otus/' => {}}])
       end
 
       specify 'with a route and a recent object' do
@@ -251,10 +251,15 @@ describe User, :type => :model do
 
   context 'scopes' do
     let(:p) { Project.create(name: 'Stubbed for project member test') }
-    let!(:u) { User.create(name: 'Jones', email: 'abc@example.com', self_created: true, password: 'acdadewsr1A') }
+    let(:u1) { User.first.id }
+    let!(:u2) { User.create(name: 'Jones', email: 'abc@example.com', self_created: true, password: 'acdadewsr1A') }
 
     specify '.not_in_project' do
-      expect(User.not_in_project(1).to_a).to include(u)
+      expect(User.not_in_project(1).to_a).to include(u2)
+    end
+
+    specify '.in_project' do
+      expect(User.in_project(1).to_a).to include(u1)
     end
 
   end
