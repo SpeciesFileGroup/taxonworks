@@ -13,7 +13,7 @@ namespace :tw do
         error_msg = [] # array for error messages
 
         begin
-          ActiveRecord::Base.transaction do
+          ApplicationRecord.transaction do
             set_serial_import_predicates
 
             CSV.foreach(file,
@@ -307,7 +307,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
         warn_msg  = [] # array for warnings
 
         begin
-          ActiveRecord::Base.transaction do
+          ApplicationRecord.transaction do
             set_serial_import_predicates
 
             CSV.foreach(file,
@@ -416,7 +416,7 @@ SFImportIDMap.txt
         warn_msg  = [] # array for warnings
 
         begin
-          ActiveRecord::Base.transaction do
+          ApplicationRecord.transaction do
             set_serial_import_predicates
 
             CSV.foreach(file,

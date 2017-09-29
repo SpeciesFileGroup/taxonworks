@@ -44,7 +44,7 @@ namespace :tw do
           #   SpecimenStatus
           #   DepoCatNo -- recorded in hash for now, will be identifier  <<< NO, add as import_attribute
           #   SourceID citation to collection object (refID) + description as import attribute
-          #   BasisOfRecord as data_attribute  type 5 will be asserted distribution, ignore 3, 4, and 6 (for all of 5 bor, what doesn't have refid in sourceid)
+          #   BasisOfRecord  type 5 will be asserted distribution, ignore 3, 4, and 6 (for all of 5 bor, what doesn't have refid in sourceid)
           #   VerbatimLabel NOT USED in SF, perhaps buffered collecting event
 
 
@@ -61,9 +61,15 @@ namespace :tw do
           get_specimen_category_counts = import.get('SFSpecimenIDCategoryIDCount')
           get_sf_source_metadata = import.get('SFSourceMetadata')
           get_sf_identification_metadata = import.get('SFIdentificationMetadata')
+          # get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
+          get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
+
+
+          # to get associated OTU, get TW taxon id, then get OTU from TW taxon id
+          get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
+          get_otu_from_tw_taxon_id = import.get('TWTaxonNameIDToOtuID')
 
           get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id
-          # get_depo_catalog_number = {} # key = SF.SpecimenID, value = depo catalog number
 
           depo_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'SpecimenDepository', short_name: 'Depo')
 
@@ -81,6 +87,7 @@ namespace :tw do
             next if get_specimen_category_counts[specimen_id].blank? # ignore no critter counts for now
 
             project_id = get_tw_project_id[row['FileID']]
+            place_in_collection_keyword = Keyword.find_or_create_by(name: 'PlaceInCollection', definition: 'possible SF source of identification', project_id: project_id)
 
             sf_depo_id = row['DepoID']
             repository_id = get_tw_repo_id.has_key?(sf_depo_id) ? get_tw_repo_id[sf_depo_id] : nil
@@ -93,9 +100,7 @@ namespace :tw do
             # get otu id from sf taxon name id, a taxon determination, called 'the primary otu id'   (what about otus without tw taxon names?)
 
             # list of import_attributes (aka data_attribute with type = 'ImportAttribute'):
-            data_attributes_bucket = {
-                data_attributes_attributes: [],
-            }
+            data_attributes_attributes = []
 
             # Note: collection_objects are made for all specimen records, regardless of basis of record (for now)
             #   -- except when there is no count
@@ -118,7 +123,8 @@ namespace :tw do
                                  import_predicate: 'basis_of_record',
                                  value: basis_of_record_string,
                                  project_id: project_id}
-              data_attributes_bucket[:data_attributes_attributes].push(basis_of_record)
+              puts "BasisOfRecord: '#{basis_of_record_string}'"
+              data_attributes_attributes.push(basis_of_record)
             end
 
             if row['PreparationType'].present?
@@ -126,7 +132,8 @@ namespace :tw do
                                   import_predicate: 'preparation_type',
                                   value: row['PreparationType'],
                                   project_id: project_id}
-              data_attributes_bucket[:data_attributes_attributes].push(preparation_type)
+              puts "PreparationType: '#{row['PreparationType']}'"
+              data_attributes_attributes.push(preparation_type)
             end
 
             dataflags = row['DataFlags'].to_i
@@ -155,12 +162,13 @@ namespace :tw do
                                       import_predicate: 'specimen_dataflags',
                                       value: dataflag_text,
                                       project_id: project_id}
-                data_attributes_bucket[:data_attributes_attributes].push(specimen_dataflags)
+                puts "Specimen dataflags text: '#{dataflag_text}'"
+                data_attributes_attributes.push(specimen_dataflags)
               end
             end
 
             specimen_status_id = row['SpecimenStatusID'].to_i
-            if specimen_status_id > 0 || specimen_status_id == 10 # 0 = presumed Ok, 10 = no data entered
+            if specimen_status_id > 0 && specimen_status_id != 10 # 0 = presumed Ok, 10 = no data entered
               case specimen_status_id
                 when 1
                   specimen_status_string = 'missing'
@@ -185,35 +193,40 @@ namespace :tw do
                                  import_predicate: 'specimen_status',
                                  value: specimen_status_string,
                                  project_id: project_id}
-              data_attributes_bucket[:data_attributes_attributes].push(specimen_status)
+              puts "specimen_status_string (SpecimenStatusID): '#{specimen_status_string}' ('#{specimen_status_id}')"
+              data_attributes_attributes.push(specimen_status)
             end
 
-            citations_attributes = nil # if nil will it get ignored in metadata?
+            citations_attributes = [] # if empty array will be ignored in metadata
             if row['SourceID'] != '0'
               sf_source_id = row['SourceID']
 
-              if get_sf_source_metadata[sf_source_id][row['RefID']] != '0' # SF.Source has RefID, create citation for collection object (assuming it will be created)
-                citations_attributes = {source_id: sf_source_id, project_id: project_id}
+              if get_sf_source_metadata.has_key?(sf_source_id) && get_sf_source_metadata[sf_source_id]['ref_id'].to_i > 0 # SF.Source has RefID, create citation for collection object (assuming it will be created)
+                sf_source_ref_id = get_sf_source_metadata[sf_source_id]['ref_id'].to_i
+                puts "SF.SourceID, RefID: '#{sf_source_id}', '#{sf_source_ref_id}'"
+                citations_attributes.push({source_id: sf_source_ref_id, project_id: project_id})
               end
-              if get_sf_source_metadata[sf_source_id][row['Description']].present? # SF.Source has description, create an import_attribute
+
+              if get_sf_source_metadata[sf_source_id]['description'].present? # SF.Source has description, create an import_attribute
+                sf_source_description_text = get_sf_source_metadata[sf_source_id]['description']
                 sf_source_description = {type: 'ImportAttribute',
                                          import_predicate: 'sf_source_description',
-                                         value: row['Description'],
+                                         value: sf_source_description_text,
                                          project_id: project_id}
-                data_attributes_bucket[:data_attributes_attributes].push(sf_source_description)
+                puts "Description: '#{sf_source_description_text}'"
+                data_attributes_attributes.push(sf_source_description)
               end
             end
 
             if sf_depo_id > '0'
               sf_depo_string = {type: 'ImportAttribute',
                                 import_predicate: 'sf_depo_string',
-                                value: get_sf_depo_string[sf_depo_string],
+                                value: get_sf_depo_string[sf_depo_id],
                                 project_id: project_id}
-              data_attributes_bucket[:data_attributes_attributes].push(sf_depo_string)
+              puts "get_sf_depo_string[sf_depo_id]: '#{get_sf_depo_string[sf_depo_id]}'"
+              data_attributes_attributes.push(sf_depo_string)
             end
 
-
-            import_attributes_attributes = []
             metadata = {notes_attributes: [{text: row['Note'],
                                             project_id: project_id,
                                             created_at: row['CreatedOn'],
@@ -221,14 +234,16 @@ namespace :tw do
                                             created_by_id: get_tw_user_id[row['CreatedBy']],
                                             updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
 
-                        data_attributes_attributes: data_attributes_bucket,
-                        citations_attributes: citations_attributes, # not sure how to initialize above
+                        data_attributes_attributes: data_attributes_attributes,
+                        citations_attributes: citations_attributes,
 
                         # data_attributes to do:
                         #   import_attribute if identification.IdentifierName
+                        #   other fields in tblIdentifications: HigherTaxonName, NomenclatorID, TaxonIdentNote, TypeTaxonNameID, RefID, IdentifierName/Year,
+                        #     PlaceInCollection, IdentificationModeNote, VerbatimLabel
 
-                        # create taxon determination for species this is attached to
-                        # create type specimen if tblIdentifications.TypeTaxonNameID maybe
+                        # HigherTaxonName > 0 or NomenclatorID > 0 create new determination (should only be one or other)
+                        # To find OTU from NomenclatorID, match cached taxon name then get OTU
 
 
             }
@@ -237,7 +252,7 @@ namespace :tw do
 
             begin
 
-              ActiveRecord::Base.transaction do
+              ApplicationRecord.transaction do
                 current_objects = [] # stores all objects created in the row below temporarily
 
                 # This outer loop loops through total, category pairs, we create
@@ -245,20 +260,28 @@ namespace :tw do
                 get_specimen_category_counts[specimen_id].each do |specimen_category_id, count|
 
                   collection_object = CollectionObject::BiologicalCollectionObject.new(
-                      # metadata.merge(
-                      total: count,
-                      collecting_event_id: collecting_event_id,
-                      repository_id: repository_id,
+                      metadata.merge(
+                          total: count,
+                          collecting_event_id: collecting_event_id,
+                          repository_id: repository_id,
 
-                      biocuration_classifications_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s], project_id: project_id}],
+                          biocuration_classifications_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s], project_id: project_id}],
 
-                      # housekeeping for collection_object
-                      project_id: project_id,
-                      created_at: row['CreatedOn'],
-                      updated_at: row['LastUpdate'],
-                      created_by_id: get_tw_user_id[row['CreatedBy']],
-                      updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                  ) #)
+                          taxon_determinations_attributes: [{otu_id: get_otu_from_tw_taxon_id[get_tw_taxon_name_id[row['TaxonNameID']]], project_id: project_id}],
+                          # taxon_determination notes here?
+
+                          # metadata attributes:
+
+                          # citations_attributes: citations_attributes,
+
+
+                          # housekeeping for collection_object
+                          project_id: project_id,
+                          created_at: row['CreatedOn'],
+                          updated_at: row['LastUpdate'],
+                          created_by_id: get_tw_user_id[row['CreatedBy']],
+                          updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                      ))
 
                   collection_object.save!
 
@@ -279,8 +302,7 @@ namespace :tw do
                   identifier = Identifier::Local::CatalogNumber.new(
                       identifier: "SF.DepoID #{sf_depo_id},  #{row['DepoCatNo']}",
                       namespace: depo_namespace,
-                       project_id: project_id)
-                  # identifier = ImportAttribute.new(value: row['DepotCatNo'], import_predicate: 'DepotCatNo', project_id: project_id)
+                      project_id: project_id)
 
                   if current_objects.count == 1
                     # The "Identifier" is attached to the only collection object that is created
@@ -296,32 +318,171 @@ namespace :tw do
 
                     c.identifiers << identifier if identifier
 
-
                   else
                     puts "OOPS" # would this happen?
                   end
                 end
 
+
+                if get_sf_identification_metadata.has_key?(specimen_id)
+                  get_sf_identification_metadata[specimen_id].each do |identification|
+                    current_objects.each do |o|
+
+                      # Add subsequent determinations
+                      target_nomenclator = nil
+                      otu = nil
+
+                      if identification['nomenclator_id'].present?
+                        nomenclator_id = identification['nomenclator_id']
+                        target_nomenclator = get_nomenclator_string[nomenclator_id]
+                      elsif identification['higher_taxon_name'].present?
+                        target_nomenclator = identification['higher_taxon_name']
+                      end
+
+                      if taxon_name = TaxonName.where(cached: target_nomenclator, project_id: project_id).first
+                        otu = taxon_name.otus.first
+                      else
+                        otu = Otu.create!(name: target_nomenclator, taxon_name_id: get_tw_taxon_name_id[row['TaxonNameID']], project_id: project_id) # target_nomenclator nil?
+                      end
+
+                      t = TaxonDetermination.create!(otu: otu, material: o) # !! need to get Reference or other metadata   # after material, source_id: get...[], notes_attributes: [{text: identnote}], confidences_attributes: [{confidence_level: ConfidenceLevel.find_or_create_by(name: <thing that has cf>, project_id: )}]
+                      t.move_to_bottom # might need .move_to_bottom!
+
+
+                      # nomenclator rank and rank qualifier text         CVT and confidences for each project    keyword is to tag as confidence level is to confidences
+                      #
+                      # unify: cf. ? aff. nr.
+                      #
+                      #                         c = cr; aff together
+                      #
+                      # attached to determination
+
+
+                      # VerbatimLabel	41		“2 mi NE Gold Butte, NV, Clark Co., VI-16-1988, R.C. Bechtel, J.L. Carpenter, .J.B. Knight Collectors, Black Light  Trap” “HOLOTYPE Arenivaga haringtoni Hopkins, 2012” [red label with black border]			CollectionObject#buffered_collecting_event
+                      # put as data_attribute (import_attribute) on determination
+
+
+                      if identification['place_in_collection'] == '1'
+                        # o.keywords << place_in_collection_keyword     # equivalent to line below
+                        # o.tags << Tag.new(keyword: place_in_collection_keyword, project_id: o.project_id)
+                        o.tags.create!(keyword: place_in_collection_keyword, project_id: project_id)
+                      end
+
+
+                      type_kind_id = identification['type_kind_id'].to_i # exclude TypeKindID = undefined (0) and unknown (6)
+                      if [1, 2, 3, 4, 8, 10].include? type_kind_id
+                        type_text = case type_kind_id
+                                      when 1
+                                        'holotype'
+                                      when 2
+                                        if o.total == 1
+                                          'syntype'
+                                        else
+                                          'syntypes'
+                                        end
+                                      when 3
+                                        'neotype'
+                                      when 4
+                                        'lectotype'
+                                      when 8
+                                        if o.total == 1
+                                          'paratype'
+                                        else
+                                          'paratypes'
+                                        end
+                                      when 10
+                                        if o.total == 1
+                                          'paralectotype'
+                                        else
+                                          'paralectotypes'
+                                        end
+                                    end
+                        TypeMaterial.create!(protonym_id: get_tw_taxon_name_id[row['TaxonNameID']],
+                                             material: o, # = collection_object/biological_collection_object
+                                             type_type: type_text,
+                                             project_id: project_id)
+                        puts "type_material created for '#{type_text}'"
+
+                      elsif [5, 7, 9].include? type_kind_id
+                        # create a data_attribute
+                        type_kind = case type_kind_id
+                                      when 5
+                                        'unspecified primary type'
+                                      when 7
+                                        'allotype'
+                                      when 9
+                                        'topotype'
+                                    end
+                        ImportAttribute.create!(import_predicate: 'SF.TypeKind',
+                                                value: type_kind,
+                                                project_id: project_id,
+                                                attribute_subject: o)
+                        puts "data_attribute for type_kind created for '#{type_kind}'"
+                      end
+                    end
+                  end
+                end
+
+
                 puts 'CollectionObject created'
-                get_tw_collection_object_id[specimen_id] = current_objects.collect {|a| a.id} # an arry of collection object ids for this specimen_id
+                get_tw_collection_object_id[specimen_id] = current_objects.collect {|a| a.id} # an array of collection object ids for this specimen_id
 
               end
 
             rescue ActiveRecord::RecordInvalid => e
-              # logger.error "CollectionObject ERROR SF.SpecimenID = #{specimen_id} (#{error_counter += 1}): " + collection_object.errors.full_messages.join(';')
-              logger.error "CollectionObject ERROR SF.SpecimenID = #{specimen_id} (#{error_counter += 1}): " + e.errors.full_messages.join(';')
+              logger.error "CollectionObject ERROR SF.SpecimenID = #{specimen_id} (#{error_counter += 1}): " + e.record.errors.full_messages.join(';')
             end
           end
 
           import.set('SFSpecimenIDToCollObjID', get_tw_collection_object_id)
-          import.set('SFSpecimenIDToCatalogNumber', get_depo_catalog_number)
-
           puts 'SFSpecimenIDToCollObjID'
           ap get_tw_collection_object_id
 
-          puts 'SFSpecimenIDToCatalogNumber'
-          ap get_depo_catalog_number
+        end
 
+
+        desc 'time rake tw:project_import:sf_import:specimens:get_ident_quality_from_nomenclator user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :get_ident_quality_from_nomenclator => [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Creating hash of NomenclatorID and IdentQuality...'
+          # need to test for has_key?
+
+          get_sf_ident_quality = {} # key = SF.SourceID, value = hash (SourceID, FileID, RefID, Description)
+
+          path = @args[:data_directory] + 'tblNomenclator.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each do |row|
+            logger.info "Working with SF.NomenclatorID = '#{row['NomenclatorID']}' \n"
+
+            next if row['IdentQuality'].blank?
+            nomenclator_id = row['NomenclatorID']
+            ident_quality = row['IdentQuality']
+
+             ident_quality_text = if ['?'].include? ident_quality
+                                   '?'
+                                 elsif ['aff'].include? ident_quality
+                                   'aff.'
+                                 elsif ['cf', 'f.'].include? ident_quality # will match cf and cf.
+                                   'c.f.'
+                                 elsif ['near', 'nr'].include? ident_quality
+                                   'nr.'
+                                 elsif ['ph.'].include? ident_quality
+                                    'ph.'
+                                 else
+                                   nil
+                                 end
+
+            next if indent_quality_text == nil
+            get_sf_ident_quality[nomenclator_id] = ident_quality_text
+
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFIdentQuality', get_sf_ident_quality)
+
+          puts 'SFIdentQuality'
+          ap get_sf_ident_quality
         end
 
 

@@ -19,7 +19,7 @@ namespace :tw do
 
       begin
         records.order(:id).limit(total).in_groups_of(20, false) do |group|
-          ActiveRecord::Base.transaction do
+          ApplicationRecord.transaction do
             print Rainbow("Writing\n").bold
             group.each do |o|
               z = o.get_dwc_occurrence

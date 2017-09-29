@@ -19,7 +19,6 @@ describe CollectingEventsHelper, :type => :helper do
     end
 
     specify '#collecting_event_search_form' do
-      expect(helper.collecting_events_search_form).to have_button('Show')
       expect(helper.collecting_events_search_form).to have_field('collecting_event_id_for_quick_search_form')
     end
   end

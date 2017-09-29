@@ -123,9 +123,7 @@ module Shared::Citable
 
   def reject_citations(attributed)
     return true if attributed['source_id'].blank? && attributed['source'].blank?
-    if !new_record?
-      return true if attributed['id'].blank?
-    end
+    false
   end
 
 end

@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rack-cors', '~> 1.0.1', require: 'rack/cors'
 
-ruby '2.4.1'
+ruby '2.4.2'
 
 gem 'rake', '~> 12.0'
 gem 'rails', '~> 5.1.3'
@@ -10,7 +10,7 @@ gem 'pg', '~> 0.21.0'
 gem 'activerecord-postgis-adapter', '~> 5.0'
 
 gem 'hiredis', '~> 0.6.1'
-gem 'redis', '~> 3.3.3'
+gem 'redis', '~> 4.0.0'
 
 # System
 gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
@@ -50,7 +50,7 @@ gem 'paperclip-meta', '~> 3.0'
 gem 'sprockets-rails', '~> 3.2.0'
 gem 'sprockets', '~> 3.7.1'
 gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
-gem 'webpacker', '~> 2.0'
+gem 'webpacker', '~> 3.0'
 gem 'uglifier', '~> 3.2'
 
 gem 'jquery-rails', '~> 4.3.1'
@@ -106,7 +106,7 @@ group :test, :development do
   gem 'inch', '~> 0.7.1'
   gem 'byebug', '~> 9.1.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_girl_rails', '~> 4.8'
-  gem 'selenium-webdriver', '~> 3.5'
+  gem 'selenium-webdriver', '~> 3.6'
   gem 'geckodriver-helper', '~> 0.0.3'
 end
 
@@ -117,9 +117,10 @@ group :development do
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
-  gem 'parallel_tests', '~> 2.14.2'
+  gem 'parallel_tests', '~> 2.16.0'
   gem 'web-console', '~> 3.5.1'
-  gem 'rubocop', '~> 0.49.1'
+  gem 'rubocop', '~> 0.50.0'
+  gem 'seedbank', github: 'james2m/seedbank'
 end
 
 group :doc do

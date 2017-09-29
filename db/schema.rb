@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170907164133) do
+ActiveRecord::Schema.define(version: 20170926150004) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -345,8 +345,8 @@ ActiveRecord::Schema.define(version: 20170907164133) do
   end
 
   create_table "confidences", id: :serial, force: :cascade do |t|
-    t.string "confidence_object_type", null: false
     t.integer "confidence_object_id", null: false
+    t.string "confidence_object_type", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -532,8 +532,8 @@ ActiveRecord::Schema.define(version: 20170907164133) do
   end
 
   create_table "documentation", id: :serial, force: :cascade do |t|
-    t.string "documentation_object_type", null: false
     t.integer "documentation_object_id", null: false
+    t.string "documentation_object_type", null: false
     t.integer "document_id", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -736,8 +736,8 @@ ActiveRecord::Schema.define(version: 20170907164133) do
     t.string "vernacularName"
     t.string "waterBody"
     t.string "year"
-    t.string "dwc_occurrence_object_type"
     t.integer "dwc_occurrence_object_id"
+    t.string "dwc_occurrence_object_type"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
@@ -962,8 +962,8 @@ ActiveRecord::Schema.define(version: 20170907164133) do
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "loan_item_object_type"
     t.integer "loan_item_object_id"
+    t.string "loan_item_object_type"
     t.integer "total"
     t.string "disposition"
     t.index ["created_by_id"], name: "index_loan_items_on_created_by_id"
@@ -992,7 +992,7 @@ ActiveRecord::Schema.define(version: 20170907164133) do
     t.datetime "updated_at", null: false
     t.string "recipient_honorarium"
     t.string "recipient_country"
-    t.text "lender_address", null: false
+    t.text "lender_address", default: "Lender's address not provided.", null: false
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
     t.index ["project_id"], name: "index_loans_on_project_id"
     t.index ["updated_by_id"], name: "index_loans_on_updated_by_id"
@@ -1151,10 +1151,10 @@ ActiveRecord::Schema.define(version: 20170907164133) do
   end
 
   create_table "origin_relationships", id: :serial, force: :cascade do |t|
-    t.string "old_object_type", null: false
     t.integer "old_object_id", null: false
-    t.string "new_object_type", null: false
+    t.string "old_object_type", null: false
     t.integer "new_object_id", null: false
+    t.string "new_object_type", null: false
     t.integer "position"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1231,8 +1231,8 @@ ActiveRecord::Schema.define(version: 20170907164133) do
   end
 
   create_table "pinboard_items", id: :serial, force: :cascade do |t|
-    t.string "pinned_object_type", null: false
     t.integer "pinned_object_id", null: false
+    t.string "pinned_object_type", null: false
     t.integer "user_id", null: false
     t.integer "project_id", null: false
     t.integer "position", null: false
@@ -1302,8 +1302,8 @@ ActiveRecord::Schema.define(version: 20170907164133) do
 
   create_table "protocol_relationships", id: :serial, force: :cascade do |t|
     t.integer "protocol_id", null: false
-    t.string "protocol_relationship_object_type", null: false
     t.integer "protocol_relationship_object_id", null: false
+    t.string "protocol_relationship_object_type", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1500,6 +1500,9 @@ ActiveRecord::Schema.define(version: 20170907164133) do
     t.text "cached_author_string"
     t.date "cached_nomenclature_date"
     t.index ["bibtex_type"], name: "index_sources_on_bibtex_type"
+    t.index ["cached"], name: "index_sources_on_cached"
+    t.index ["cached_author_string"], name: "index_sources_on_cached_author_string"
+    t.index ["cached_nomenclature_date"], name: "index_sources_on_cached_nomenclature_date"
     t.index ["created_by_id"], name: "index_sources_on_created_by_id"
     t.index ["language_id"], name: "index_sources_on_language_id"
     t.index ["serial_id"], name: "index_sources_on_serial_id"
@@ -1626,7 +1629,7 @@ ActiveRecord::Schema.define(version: 20170907164133) do
   create_table "taxon_names", id: :serial, force: :cascade do |t|
     t.string "name"
     t.integer "parent_id"
-    t.string "cached_html", null: false
+    t.string "cached_html"
     t.string "cached_author_year"
     t.string "cached_higher_classification"
     t.datetime "created_at", null: false

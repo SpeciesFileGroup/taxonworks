@@ -1,7 +1,7 @@
 <h1 class="task_header"> Browse nomenclature </h1>
 
 <div id="browse-view" class="">
-  <div class="panel content"> 
+  <div class="panel content">
     <div class="flex-separate middle">
       <%= render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
       <span class="right_float"><%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) -%></span>    
@@ -17,10 +17,10 @@
 
         <div class="navigation-controls">
           <%= link_to(content_tag(:span, 'Show', class: 'small-icon'), @taxon_name.metamorphosize, class: 'navigation-item') -%>
-          <%= edit_taxon_name_link(@taxon_name) -%>
+          <%= edit_taxon_name_link(@taxon_name, target: :edit_task) -%>
         </div>
 
-         <%= render('/taxon_names/classification_navigator', taxon_name: @taxon_name) -%>
+        <%= render('/taxon_names/classification_navigator', taxon_name: @taxon_name) -%>
 
         <div class="navigation-controls">
           <div class="navigation-item">
@@ -35,11 +35,7 @@
             <% end %>
           </div>
         </div>
-
-        <div class="content"> 
-          <%= render('/taxon_names/parent_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
-        </div>
-
+        <%= render('/taxon_names/parent_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
       </div>
     </div>
 
@@ -50,9 +46,9 @@
             <div class="content subtitle filter middle"> 
               <%= content_tag(:p, full_taxon_name_tag(@taxon_name), class: 'item center_text name') -%>
             </div>
-              <div class="horizontal-center-content filter">
-                <div id="filterBrowse_button" class="circle-button open"></div>
-              </div>            
+            <div class="horizontal-center-content filter">
+              <div id="filterBrowse_button" class="circle-button open"></div>
+            </div>
             <%= render "filter" %>
             <div class="content">
               <div class="attributes"> 
@@ -84,10 +80,8 @@
               </div>
             </div>
           </div>
-</div>
+        </div>
       </div>
-
     </div>
   </div>
-
 </div>

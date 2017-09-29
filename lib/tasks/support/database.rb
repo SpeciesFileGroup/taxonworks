@@ -30,8 +30,8 @@ module Support
     #   Try it, load a console, drop the database in another terminal, and call this method.
     def self.pg_database_exists?
       begin
-        ActiveRecord::Base.connection
-       # ActiveRecord::Base.connection.disconnect!
+       ApplicationRecord.connection
+       # ApplicationRecord.connection.disconnect!
       rescue ActiveRecord::NoDatabaseError
         false
       else

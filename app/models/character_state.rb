@@ -1,3 +1,13 @@
+# A qualitative state, as traditionally used in Phylogenetic characters and descriptive taxonomy.
+#
+#  @!attribute name 
+#   @return [String]
+#      the full name of the character state, like "blue" 
+#
+#  @!attribute label
+#   @return [String]
+#      the label presented in the matrix, like "0", or "1" 
+#
 class CharacterState < ApplicationRecord
 
   include Housekeeping

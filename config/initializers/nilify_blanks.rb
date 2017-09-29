@@ -1,5 +1,5 @@
 # In theory this should work if we used the nulify_blanks gem. It does't.
-#   ActiveRecord::Base.nilify_blanks
+#   ApplicationRecord.nilify_blanks
 #
 # via
 #
@@ -22,4 +22,4 @@ module NilifyBlanks
 
 end
 
-ActiveRecord::Base.send(:include, NilifyBlanks) 
+ApplicationRecord.send(:include, NilifyBlanks)

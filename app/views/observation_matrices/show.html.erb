@@ -1,3 +1,18 @@
+<%= content_for :associated do -%>
+  <h3> Rows </h3>
+  <ul>
+  <% @observation_matrix.observation_matrix_rows.each do |mri| -%>
+    <%= content_tag :li, object_link(mri) -%>
+  <% end %>
+  </ul>
+
+  <h3> Columns </h3>
+  <ul>
+    <% @observation_matrix.observation_matrix_columns.each do |mrc| -%>
+      <%= content_tag :li, object_link(mrc) -%>
+    <% end %>
+  </ul>
+<% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @observation_matrix}) -%>
 

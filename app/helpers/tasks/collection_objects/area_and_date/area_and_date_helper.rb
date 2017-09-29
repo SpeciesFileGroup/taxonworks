@@ -12,4 +12,9 @@ module Tasks::CollectionObjects::AreaAndDate::AreaAndDateHelper
       paginate(@collection_objects, :remote => true)
     end
   end
+
+  def id_range_select_tag(id_range_element, option_list)
+    select_tag(id_range_element, options_for_select(option_list), prompt: 'Select an identifier')
+  end
+
 end

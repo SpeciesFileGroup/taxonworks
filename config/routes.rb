@@ -68,8 +68,8 @@ TaxonWorks::Application.routes.draw do
       post :create_many
     end
   end
-  
-  resources :pinboard_items, only: [:create, :destroy] do
+
+  resources :pinboard_items, only: [:create, :destroy, :update] do
     collection do
       post 'update_position'
       post 'update_type_position'
@@ -143,6 +143,8 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_castor_batch_load
       post :create_castor_batch_load
+      get :preview_simple_batch_load # should be get
+      post :create_simple_batch_load
     end
   end
   match 'collection_objects/by_identifier/:identifier', to: 'collection_objects#by_identifier', via: :get
@@ -318,6 +320,9 @@ TaxonWorks::Application.routes.draw do
     member do
       get 'row', {format: :json}
     end
+  
+    resources :observation_matrix_columns, shallow: true, only: [:index], defaults: {format: :json}
+    resources :observation_matrix_rows, shallow: true, only: [:index], defaults: {format: :json}
   end
 
   resources :observation_matrix_columns, only: [:index, :show] do
@@ -378,6 +383,7 @@ TaxonWorks::Application.routes.draw do
 
   resources :otu_page_layout_sections, only: [:create, :update, :destroy]
 
+  match 'people/role_types', to: 'people#role_types', via: :get, method: :json
   resources :people do
     concerns [:data_routes]
     member do
@@ -472,7 +478,12 @@ TaxonWorks::Application.routes.draw do
       get :autocomplete
       post :tag_object_update
     end
+
   end
+
+  get 'tags/exists', to: 'tags#exists', defaults: {format: :json}
+
+
 
   resources :tagged_section_keywords, only: [:create, :update, :destroy]
 
@@ -482,24 +493,40 @@ TaxonWorks::Application.routes.draw do
 
   resources :taxon_names do
     concerns [:data_routes, :shallow_annotation_routes ]
+    resources :taxon_name_classifications, shallow: true, only: [:index], defaults: {format: :json}
+    resources :taxon_name_relationships, shallow: true, only: [:index], defaults: {format: :json}, param: :subject_taxon_name_id
+
     collection do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
+      get :ranks, {format: :json}
 
       post :preview_castor_batch_load
       post :create_castor_batch_load
     end
+
     member do
       get :browse
+      get :original_combination, defaults: {format: :json}
     end
   end
 
   resources :taxon_name_classifications, except: [:show] do
     concerns [:data_routes]
+    collection do
+      get :taxon_name_classification_types
+  end
+    member do
+      get :show, {format: :json}
+    end
   end
 
   resources :taxon_name_relationships do
     concerns [:data_routes]
+    collection do
+      get :type_relationships, {format: :json}
+      get :taxon_name_relationship_types, {format: :json}
+  end
   end
 
   resources :topics, only: [:create] do
@@ -602,6 +629,7 @@ TaxonWorks::Application.routes.draw do
         get 'set_area'  , as: 'set_area_for_collection_object_filter'
         get 'set_date', as: 'set_date_for_collection_object_filter'
         get 'set_otu', as: 'set_otu_for_collection_object_filter'
+        get 'set_id_range', as: 'set_id_range_for_collection_object_filter'
         get 'download', action: 'download', as: 'download_collection_object_filter_result'
       end
     end
@@ -752,9 +780,8 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :nomenclature do
-      scope :original_combination, controller: 'tasks/nomenclature/original_combination' do
-        get 'edit/:taxon_name_id', action: :edit, as: 'edit_protonym_original_combination_task'
-        patch 'update/:taxon_name_id', action: :update, as: 'update_protonym_original_combination_task'
+      scope :new_taxon_name, controller: 'tasks/nomenclature/new_taxon_name' do
+        get '(:id)', action: :index, as: 'new_taxon_name_task'
       end
 
       scope :catalog do
@@ -872,6 +899,9 @@ TaxonWorks::Application.routes.draw do
       get '/confidence_levels',
         to: 'confidence_levels#index'
 
+      get '/taxon_names/:id',
+        to: 'taxon_names#show'
+
       get '/observations/:observation_id/notes',
         to: 'notes#index'
 
@@ -911,6 +941,13 @@ TaxonWorks::Application.routes.draw do
         to: 'character_states#annotations'
 
 end
+  end
+
+  scope :api, :defaults => { :format => :html } do
+    scope  '/v1' do
+      get '/taxon_names/autocomplete',
+          to: 'taxon_names#autocomplete'
+    end
   end
 
 end

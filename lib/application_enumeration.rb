@@ -8,7 +8,7 @@
 module ApplicationEnumeration
 
   # TODO: This should be a require check likely, for lib/taxon_works.rb or some such
-  Rails.application.eager_load!
+  # Rails.application.eager_load!
 
   # return [Array]
   #   a list symbols that represent of populated, non "cached", non "_id", non reserved attributes
@@ -42,14 +42,22 @@ module ApplicationEnumeration
     file_name.split(/app\/models\//).last[0..-4].split(/\\/).collect{|b| b.camelize}.join("::").safe_constantize
   end
 
-  # return [Array of Classes]
+  # @return [Array of Classes]
   #   the classes in TaxonWorks that are project based/have a project_id
   def self.project_data_classes
-    ActiveRecord::Base.descendants.select{|a| a.superclass == ActiveRecord::Base &&  a.column_names.include?('project_id') }
+    ApplicationRecord.descendants.select{|a| a.superclass == ApplicationRecord &&  a.column_names.include?('project_id') }
   end
 
+  # @return [Array]
   def self.community_data_classes
-    ActiveRecord::Base.descendants.select{|a|  a.superclass == ActiveRecord::Base && (a < Shared::SharedAcrossProjects) }
+    ApplicationRecord.descendants.select{|a|  a.superclass == ApplicationRecord && (a < Shared::SharedAcrossProjects) }
   end 
+
+  # @return [Hash]
+  def self.nested_subclasses(parent=self)
+    parent.subclasses.inject({}) { | hsh, subclass |
+      hsh.merge!(subclass.name => nested_subclasses(subclass))
+    }
+  end
 
 end

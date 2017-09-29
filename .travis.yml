@@ -1,26 +1,26 @@
-language: ruby
+language: ruby 
 cache:
   bundler: true
-  yarn: true
   directories:
     - $TRAVIS_BUILD_DIR/node_modules
 dist: trusty
 sudo: required
 rvm:
-  - 2.4.1
+  - 2.4.2
 bundler_args: --without development
 branches:
   only:
     - master
     - R5.1
     - development
+    - taxon_name_task
 addons:
   postgresql: "9.5"
   firefox: "latest"
 before_install:
   - sudo apt-get install -y postgresql-9.5 postgresql-contrib-9.5 libgeos-dev libproj-dev postgresql-9.5-postgis-2.2 postgresql-9.5-postgis-2.2-scripts
   - nvm install node
-  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 0.24.6
+  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.0.2
   - export PATH=$HOME/.yarn/bin:$PATH
 install:
   - bundle install
@@ -34,11 +34,11 @@ before_script:
   - mkdir tmp/
   - mkdir tmp/downloads
   - psql -U postgres -c 'create role taxonworks_development login createdb superuser;'
+  - bundle exec rake db:create RAILS_ENV=test 
+  - bundle exec rake db:migrate RAILS_ENV=test
   - bundle exec rake assets:precompile RAILS_ENV=test
-  - bundle exec rake db:drop
-  - bundle exec rake db:create
-  - bundle exec rake db:migrate HPS_ENV=test
 notifications:
   email:
-    - diapriid@gmail.com
-  on_failure: change
+    recipients:
+      - diapriid@gmail.com
+    on_failure: change

@@ -1,0 +1,143 @@
+#new_taxon_name_task {
+
+.hardValidation {
+	color: red;
+	&::first-letter {
+    	text-transform: uppercase;
+	}
+}
+.table-entrys-list {
+	span::first-letter {
+		text-transform:uppercase;
+	}
+}
+.status-item {
+	span::first-letter {
+		text-transform:uppercase;
+	}
+}
+
+.switch-radio {
+	label {
+		width: 70px;
+		display:flex;
+		justify-content: space-around;
+	}
+}
+.gender {
+	span:first-letter {
+		text-transform: capitalize;
+	}
+}
+
+	.edit-content, .CodeMirror, .CodeMirror-scroll {
+		min-height: 150px;
+	}
+
+.original-combination {
+	display: flex;
+	flex-direction: row;
+	.rank-name-label {
+		width: 100px;
+		margin-right: 8px;
+		max-width: 100px;
+		min-width: 100px;
+		text-align: right;
+		vertical-align: middle;
+		line-height: 40px;
+	}
+	.row, .vue-autocomplete {
+		line-height: 40px;
+		height: 40px;
+	}
+	.current-name {
+		position: static;
+		background-color: rgb(255,255,0);
+	}
+	.handle {
+		width: 15px;
+		background-position: center;
+
+	}
+	.item-draggable {
+		display: flex;
+		min-height:40px;
+		flex-direction: row;
+	}
+}
+	.taxon-modal {
+			background-color: rgba(0,0,0,0.8) !important;
+	
+		.modal-header {
+			h3 {
+				margin: 2em;
+				margin-right: 0px;
+				margin-top: 0px;
+				padding: 6px;
+				padding-left:12px;
+				border-radius: 3px;
+				background-color: rgba(0, 0, 0, .3);
+				color: rgba(255, 255, 255, .5);
+			}
+		}
+		.modal-close {
+			right: 42px;
+			top:30px;
+			color: rgba(255, 255, 255, .5);
+			background-image: image-url('w_close.svg');
+		}
+		.modal-container {
+			width: 70%;
+			position: relative;
+			background-color: transparent !important;
+			box-shadow: none;
+
+			.modal-body {
+				overflow: auto;
+				margin-right: 1em;
+				max-height: 80vh;
+			&::-webkit-scrollbar {
+				position: absolute;
+				right:40px;
+			    -webkit-appearance: none;
+			}
+
+			&::-webkit-scrollbar:vertical {
+			    width: 6px;
+			}
+
+			&::-webkit-scrollbar:horizontal {
+			    height: 6px;
+			}
+
+			&::-webkit-scrollbar-thumb {
+			    border-radius: 8px;
+			    width: 11px;
+			    height: 5px;
+			    border: rgba(255, 255, 255, .5); /* should match background, can't be transparent */
+			    background-color: rgba(255, 255, 255, .5);
+			}
+
+			&::-webkit-scrollbar-track { 
+			    background-color: rgba(0, 0, 0, .3);
+			    border-radius: 8px; 
+			} 
+			}
+		}
+	}
+		
+		button:disabled {
+			background-color: transparent;
+			border-color: rgba(0,0,0,0.2);
+		}
+
+		.tree-status {
+			list-style: none;
+			li {
+				margin-top:6px;
+				button:first-letter {
+					text-transform: capitalize;
+				}
+			}
+		}
+}

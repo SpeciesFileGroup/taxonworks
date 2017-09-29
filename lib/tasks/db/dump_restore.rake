@@ -10,7 +10,7 @@ namespace :tw do
 
     desc 'Remove all connections but the current one' 
     task :drop_connections => [:environment] do
-      ActiveRecord::Base.connection.execute(
+      ApplicationRecord.connection.execute(
         "SELECT pg_terminate_backend(pg_stat_activity.pid)
         FROM pg_stat_activity
         WHERE pg_stat_activity.datname = 'TARGET_DB'
@@ -24,7 +24,7 @@ namespace :tw do
         puts Rainbow("Initializing dump for #{Rails.env} environment").yellow 
         puts Rainbow('You may be prompted for the production password, alternately set it in ~/.pgpass').yellow if Rails.env == 'production'
 
-        database = ActiveRecord::Base.connection.current_database
+        database = ApplicationRecord.connection.current_database
         path  = File.join(@args[:backup_directory], @args[:server_name] + '_' + Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
 
         puts Rainbow("Dumping #{database} to #{path}").yellow
@@ -58,7 +58,7 @@ namespace :tw do
     desc "Restores a database generated from dump 'rake tw:db:restore backup_directory=/your/path/ file=2017-07-10_154344UTC.dump'" 
     task :restore => ['environment', 'tw:backup_exists', 'tw:database_user', 'db:drop', 'db:create' ] do 
       puts Rainbow("Initializing restore for #{Rails.env} environment").yellow 
-      database = ActiveRecord::Base.connection.current_database
+      database = ApplicationRecord.connection.current_database
       puts Rainbow("Restoring #{database} from #{@args[:tw_backup_file]}").yellow
 
       args = postgres_arguments(
@@ -106,7 +106,7 @@ namespace :tw do
     # This should just be done by restarting the server and making a new connection!
     def reset_indecies
       puts 'Resetting AR indecies.' 
-      ActiveRecord::Base.connection.tables.each { |t| ActiveRecord::Base.connection.reset_pk_sequence!(t) }
+      ApplicationRecord.connection.tables.each { |t| ApplicationRecord.connection.reset_pk_sequence!(t) }
       puts 'Restore complete'
     end
   end

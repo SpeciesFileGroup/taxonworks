@@ -3,9 +3,6 @@
 # If you wish to capture verbatim determinations then they should be added to CollectionObject#buffered_determinations,
 # i.e. TaxonDeterminations are fully "normalized".
 #
-# Note: Following line not displayed in Yard (copied here so you can find it in context in the code):
-# @todo factor these out (see also TaxonDetermination, Source::Bibtex)
-#
 # @!attribute biological_collection_object_id
 #   @return [Integer]
 #   BiologicalCollectionObject, the object being determined
@@ -26,13 +23,11 @@
 #
 # @!attribute year_made
 #   @return [Integer]
-#   the year the determination was made, abbreviations like '02' are allowed
-#   @todo this column used to be a String; would '02' be a legitimate Integer value?
+#     the 4 digit year the determination was made
 #
 # @!attribute month_made
 #   @return [Integer]
-#   the month the determination was made. Literal values like Roman Numerals, abbreviations ('Jan.') etc. are allowed, but not all forms can be interpreted.
-#   @todo this column used to be a String; I don't think Roman numerals or abbreviations could be entered any longer
+#     the month the determination was made
 #
 # @!attribute day_made
 #   @return [Integer]
@@ -55,11 +50,11 @@ class TaxonDetermination < ApplicationRecord
   # validates :biological_collection_object, presence: true
   # validates :otu, presence: true # TODO - probably bad, and preventing nested determinations, should just use DB validation
 
-   accepts_nested_attributes_for :determiners 
-   accepts_nested_attributes_for :determiner_roles, allow_destroy: true
-     
-   #  accepts_nested_attributes_for :biological_collection_object
-   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: :reject_otu 
+  accepts_nested_attributes_for :determiners 
+  accepts_nested_attributes_for :determiner_roles, allow_destroy: true
+
+  # accepts_nested_attributes_for :biological_collection_object
+  accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: :reject_otu 
 
   validates :year_made, date_year: { min_year: 1757, max_year: Time.now.year }
   validates :month_made, date_month: true
@@ -71,7 +66,7 @@ class TaxonDetermination < ApplicationRecord
   def sort_to_top
     reload
     self.move_to_top
-   end
+  end
 
   def date
     [year_made, month_made, day_made].compact.join("-")

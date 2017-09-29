@@ -346,13 +346,17 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     before(:all) {
       generate_political_areas_with_collecting_events
     }
+
     after(:all) {
       clean_slate_geo
     }
+
+    let(:project_id) { CollectionObject.order(:id).first.project_id }
+
     describe 'all collecting events' do
       specify 'should find 19 collection objects' do
         collecting_event_ids = CollectingEvent.all.pluck(:id)
-        collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids, [], false, $project_id)
+        collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids, [], false, project_id)
         expect(CollectionObject.count).to eq(20)
         expect(collection_objects.count).to eq(19)
       end
@@ -367,7 +371,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
         collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
                                                                        area_object_ids,
                                                                        true,
-                                                                       $project_id)
+                                                                       project_id)
         expect(collecting_event_ids.count).to eq(9)
         expect(collection_objects.count).to eq(10)
       end
@@ -381,13 +385,10 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
         collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
                                                                        area_object_ids,
                                                                        false,
-                                                                       $project_id)
+                                                                       project_id)
         expect(collecting_event_ids.count).to eq(10)
         expect(collection_objects.count).to eq(1)
-        found_c_os = [@co_m3]
-        found_c_os.each_with_index { |c_o, index|
-          expect(collection_objects[index].metamorphosize).to eq(c_o)
-        }
+        expect(collection_objects).to contain_exactly(@co_m3)
       end
 
       specify 'should find 2 collecting objects' do
@@ -397,18 +398,10 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
         collection_objects = CollectionObject.from_collecting_events(collecting_event_ids,
                                                                      area_object_ids,
                                                                      false,
-                                                                     $project_id)
+                                                                     project_id)
         expect(collecting_event_ids.count).to eq(11)
         expect(collection_objects.count).to eq(2)
-        found_c_os = [@co_m3, @co_n3]
-        c_os       = []
-        collection_objects.each_with_index { |c_o, index|
-          # TODO: R5.0 ActiveRecord_Relation no longer accepts the setting of an indexed element? 07/11/17
-          # @mjy
-          # collection_objects[index] = collection_objects[index].metamorphosize
-          c_os[index] = collection_objects[index].metamorphosize
-        }
-        expect(c_os).to contain_exactly(*found_c_os)
+        expect(collection_objects).to contain_exactly(@co_m3, @co_n3)
       end
 
       specify 'should find 0 collecting objects' do
@@ -416,13 +409,122 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
         collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
                                                                        [],
                                                                        true,
-                                                                       $project_id)
+                                                                       project_id)
         expect(collecting_event_ids.count).to eq(6)
         expect(collection_objects.count).to eq(0)
       end
     end
 
     describe 'collection_objects by area' do
+    end
+  end
+
+  context 'identifier scopes' do
+    let(:ns1) {Namespace.first}
+    let(:ns2) {Namespace.second}
+    let(:type_cat_no) {'Identifier::Local::CatalogNumber'}
+
+    let(:id_attributes) {{namespace: nil,
+                          project_id: $project_id,
+                          type: nil,
+                          identifier: nil}}
+    before :all do
+      CollectionObject.delete_all
+      ActiveRecord::Base.connection.reset_pk_sequence!('collection_objects')
+
+      3.times {FactoryGirl.create(:valid_namespace)}
+      2.times {FactoryGirl.create(:valid_specimen)}
+      FactoryGirl.create(:identifier_local_import,
+                         identifier_object: Specimen.first,
+                         namespace: Namespace.third,
+                         identifier: 'First specimen')
+      FactoryGirl.create(:identifier_local_import,
+                         identifier_object: Specimen.second,
+                         namespace: Namespace.third,
+                         identifier: 'Second specimen')
+      (1..10).each {|identifier|
+        sp = FactoryGirl.create(:valid_specimen)
+        id = FactoryGirl.create(:identifier_local_catalog_number,
+                                identifier_object: sp,
+                                namespace: ((identifier % 2) == 0 ? Namespace.first : Namespace.second),
+                                identifier: identifier)
+      }
+    end
+
+    after :all do
+      CollectionObject.destroy_all
+      Namespace.destroy_all
+    end
+
+    describe 'with identifier of type' do
+      specify 'find some which exist' do
+        expect(CollectionObject.with_identifier_type(type_cat_no).count).to eq(10)
+      end
+      specify 'find none which do not exist' do
+        expect(CollectionObject.with_identifier_type('Identifier::Local:Aggravated::Battery').count).to eq(0)
+      end
+      specify 'find some of another identifier type' do
+        expect(CollectionObject.with_identifier_type('Identifier::Local::Import').count).to eq(2)
+      end
+    end
+
+    describe 'with namespace' do
+      specify 'find some which exist' do
+        expect(CollectionObject.with_identifier_namespace(ns1).count).to eq(5)
+      end
+    end
+
+    describe 'with type and namespace (ns1)' do
+      specify 'find some which exist' do
+        expect(CollectionObject.with_identifier_type(type_cat_no)
+                 .with_identifier_namespace(ns1).map(&:id)).to contain_exactly(4, 6, 8, 10, 12)
+      end
+    end
+
+    describe 'with type and namespace (ns2)' do
+      specify 'find some which exist' do
+        expect(CollectionObject.with_identifier_type(type_cat_no)
+                 .with_identifier_namespace(ns2).map(&:id)).to contain_exactly(3, 5, 7, 9, 11)
+      end
+    end
+
+    describe 'with type and namespace (ns2) and sorted' do
+      specify 'find some which exist' do
+        expect(CollectionObject.with_identifier_type(type_cat_no)
+                 .with_identifier_namespace(ns2)
+                 .with_identifiers_sorted.map(&:id)).to eq([3, 5, 7, 9, 11])
+      end
+    end
+
+    describe 'with sorted identifiers' do
+      specify 'without restriction' do
+        expect(CollectionObject.with_identifiers_sorted.map(&:id)).to eq([3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+      end
+    end
+
+    describe 'using combo method' do
+      describe 'sorted' do
+        specify 'without namespace' do
+          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no).map(&:id)).to eq([3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+        end
+
+        specify 'with namespace' do
+          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, ns1).map(&:id)).to eq([4, 6, 8, 10, 12])
+        end
+      end
+
+      describe 'unsorted' do
+        specify 'without namespace' do
+          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, nil, false).map(&:id)).to contain_exactly(3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+        end
+
+        specify 'with namespace' do
+          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, ns1, false).map(&:id)).to contain_exactly(4, 6, 8, 10, 12)
+        end
+      end
+    end
+
+    describe 'using combo method' do
     end
   end
 

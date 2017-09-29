@@ -2,9 +2,6 @@
 http://css-tricks.com/snippets/css/a-guide-to-flexbox/
 http://flexboxin5.com/
  */
- @import 'base/palette';
- @import 'base/whitespace';
-
  .horizontal-center-content {
  	display: flex;
  	align-items:center;
@@ -22,6 +19,16 @@ http://flexboxin5.com/
  .middle {
   display: flex;
   align-items: center;
+ }
+
+ .align-start {
+  display: flex;
+  align-items: flex-start;
+ }
+
+ .align-end {
+  display: flex;
+  align-items: flex-end;
  }
 
  .flex-separate {

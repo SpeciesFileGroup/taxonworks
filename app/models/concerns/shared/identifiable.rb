@@ -7,6 +7,14 @@ module Shared::Identifiable
     # Validation happens on the parent side!
     has_many :identifiers, as: :identifier_object, validate: true, dependent: :destroy
     accepts_nested_attributes_for :identifiers, reject_if: :reject_identifiers, allow_destroy: true
+    scope :with_identifier_type, ->(id_type) { includes(:identifiers).where('identifiers.type = ?', id_type).references(:identifiers) }
+    scope :with_identifier_namespace, ->(id_namespace) { includes(:identifiers).where('identifiers.namespace_id = ?', id_namespace.id).references(:identifiers) }
+    scope :with_identifiers_sorted, -> { includes(:identifiers)
+                                           .where("identifiers.identifier ~ '\^\\d\+\$'")
+                                           .order("CAST(identifiers.identifier AS integer)")
+                                           .references(:identifiers) }
+    scope :with_identifier_type_and_namespace, ->(id_type, id_namespace = nil, sorted = true) { with_identifier_type_and_namespace_method(id_type, id_namespace, sorted) }
+
   end
 
   module ClassMethods
@@ -41,9 +49,29 @@ module Shared::Identifiable
     # example Serial.with_identifier('MX serial ID 8740')
     def with_identifier(value)
       value = [value] if value.class == String
-      t = Identifier.arel_table
-      a = t[:cached].eq_any(value)
+      t     = Identifier.arel_table
+      a     = t[:cached].eq_any(value)
       self.joins(:identifiers).where(a.to_sql).references(:identifiers)
+    end
+
+    def with_identifier_type_and_namespace_method(id_type, namespace, sorted)
+      if namespace.present?
+        if sorted
+          with_identifier_type(id_type)
+            .with_identifier_namespace(namespace)
+            .with_identifiers_sorted
+        else
+          with_identifier_type(id_type)
+            .with_identifier_namespace(namespace)
+        end
+      else
+        if sorted
+          with_identifier_type(id_type)
+            .with_identifiers_sorted
+        else
+          with_identifier_type(id_type)
+        end
+      end
     end
   end
 
@@ -51,7 +79,7 @@ module Shared::Identifiable
     self.identifiers.any?
   end
 
-  protected 
+  protected
 
   def reject_identifiers(attributed)
     attributed['identifier'].blank? || attributed['type'].blank?

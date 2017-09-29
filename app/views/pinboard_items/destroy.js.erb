@@ -4,4 +4,4 @@ if(!$('[data-pin-caterogy="<%= @pinboard_item.pinned_object_type -%>"] li').leng
 	$('[data-pin-caterogy="<%= @pinboard_item.pinned_object_type -%>"]').parent().remove();
 }
 $('body').mx_spinner('hide');
-TW.workbench.alert.create("Pinboard item was successfully destroyed.");
+TW.workbench.alert.create("Pinboard item was successfully destroyed.", "notice");

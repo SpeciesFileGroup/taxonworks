@@ -58,6 +58,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         species.save
       end
 
+      specify '#original_combination_relationships maps object to related' do
+        expect(species.original_combination_relationships.reload.first.object_taxon_name).to eq(species) 
+      end
+
       specify 'rebuild method is called on destroy' do
         expect(species.original_genus_relationship).to receive(:set_cached_original_combination)
         species.original_genus_relationship.destroy

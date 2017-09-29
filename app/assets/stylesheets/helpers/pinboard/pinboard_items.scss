@@ -1,9 +1,11 @@
-@import 'base/palette';
-@import 'base/whitespace';
-
 #pinboard {
 	.slide-panel-category-item {
 		position: relative;
+		min-height: 28px;
+	}
+
+	.pinboard-default-item {
+		border-left:5px solid $color-action-button;
 	}
 	img {
 		border-radius: 50%;
@@ -40,10 +42,44 @@
 		}
 	}
 	.itemOptions {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		height: 25px;
+	}
+
+	.pinboard-dropdown-content {
+		display: none;
+	}
+	.pinboard-dropdown {
+		margin-right: 6px;
+		margin-left: 6px;
+	}
+
+	.button-pinboard-default {
+		background-image: image-url('w_ok.svg');
+		background-size: 12px;
+	}
+
+	.pinboard-dropdown:hover {
+		background-color: white;
+	}
+
+	.pinboard-dropdown:hover .pinboard-dropdown-content {
+	    display: flex;
+	    position: absolute;
+	    z-index: 9999;
+	    right:0px;
+	    top:0px;
+	    border-left: 1px solid $navigation_background;
+	    height: 100%;
+	    align-items: center;
+	    padding-left: $standard_padding * 0.5;
+	    padding-right: $standard_padding * 0.5;
+	    background-color: #FFF;
+	}
+	.pinboard-menu-bar {
+	    width: 14px;
+	    height: 3px;
+	    background-color: $color-secondary-2-4;
+	    margin: 2px 0;
+	    transition: 0.4s;
 	}
 
 	.remove {

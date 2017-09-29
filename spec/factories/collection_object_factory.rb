@@ -4,5 +4,7 @@ FactoryGirl.define do
       type 'Specimen'
       total 1
     end
+    
+    initialize_with { new(type: type) } 
   end
 end

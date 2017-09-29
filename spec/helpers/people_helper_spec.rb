@@ -13,7 +13,6 @@ describe PeopleHelper, :type => :helper do
     end
 
     specify ".people_search_form" do
-      expect(helper.people_search_form).to have_button('Show')
       expect(helper.people_search_form).to have_field('person_id_for_quick_search_form')
     end
 

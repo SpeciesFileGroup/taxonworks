@@ -32,7 +32,7 @@ namespace :tw do
 
         csv.each_slice(transaction_total) do |row_group|
           begin
-            ActiveRecord::Base.transaction do
+            ApplicationRecord.transaction do
               row_group.each do |row|
                 rows_processed += 1
                 identifier_text = row["identifier"]

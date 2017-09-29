@@ -1,7 +1,7 @@
 class TaxonNamesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse]
+  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination]
 
   # GET /taxon_names
   # GET /taxon_names.json
@@ -29,12 +29,11 @@ class TaxonNamesController < ApplicationController
   # POST /taxon_names.json
   def create
     @taxon_name = TaxonName.new(taxon_name_params)
-
     respond_to do |format|
       if @taxon_name.save
         format.html { redirect_to @taxon_name.metamorphosize,
                                   notice: "Taxon name '#{@taxon_name.name}' was successfully created." }
-        format.json { render action: 'show', status: :created, location: @taxon_name }
+        format.json { render :show, status: :created, location: @taxon_name.metamorphosize }
       else
         format.html { render action: 'new' }
         format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
@@ -47,8 +46,9 @@ class TaxonNamesController < ApplicationController
   def update
     respond_to do |format|
       if @taxon_name.update(taxon_name_params)
+        @taxon_name.reload
         format.html { redirect_to @taxon_name.metamorphosize, notice: 'Taxon name was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render :show, status: :ok, location: @taxon_name.metamorphosize }
       else
         format.html { render action: 'edit' }
         format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
@@ -79,7 +79,7 @@ class TaxonNamesController < ApplicationController
     @taxon_names = Queries::TaxonNameAutocompleteQuery.new(
       params[:term],
       autocomplete_params.to_h
-    ).all
+    ).autocomplete
 
     data = @taxon_names.collect do |t|
       str = render_to_string(partial: 'autocomplete_tag', locals: {taxon_name: t, term: params[:term] })
@@ -88,7 +88,7 @@ class TaxonNamesController < ApplicationController
        response_values: {
          params[:method] => t.id
        },
-       label_html:       str
+       label_html: str
       }
     end
 
@@ -111,6 +111,10 @@ class TaxonNamesController < ApplicationController
   end
 
   def batch_load
+  end
+
+  def ranks
+    render json: RANKS_JSON.to_json
   end
 
   def preview_simple_batch_load
@@ -190,7 +194,7 @@ class TaxonNamesController < ApplicationController
           :last_name, :first_name, :suffix, :prefix
         ]
       ],
-      origin_citation_attributes: [:id, :_destroy, :source_id]
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
     )
   end
 

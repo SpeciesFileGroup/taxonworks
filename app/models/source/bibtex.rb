@@ -340,8 +340,6 @@ class Source::Bibtex < Source
   before_validation :create_authors, if: -> {!authors_to_create.nil?}
   before_validation :check_has_field
  
-  # before_save :set_cached_nomenclature_date
-
   #region validations
   validates_inclusion_of :bibtex_type,
                          in:      ::VALID_BIBTEX_TYPES,
@@ -772,7 +770,7 @@ class Source::Bibtex < Source
   # @return [String]
   #   this source, rendered in the provided CSL style, as text
   def render_with_style(style = 'vancouver', format = 'text')
-    cp = CiteProc::Processor.new(style: style, format: format) # There is a problem with the zootaxa format and letters!
+    cp = CiteProc::Processor.new(style: style, format: format) 
     cp.import(bibtex_bibliography.to_citeproc)
     cp.render(:bibliography, id: cp.items.keys.first).first.strip
   end
@@ -780,6 +778,9 @@ class Source::Bibtex < Source
   # @return [String]
   #   a full representation, using bibtex
   # String must be length > 0
+  #
+  # There (was) a problem with the zootaxa format and letters!
+  #  https://github.com/citation-style-language/styles/pull/2305
   def cached_string(format = 'text')
     return nil unless (format == 'text') || (format == 'html')
     str = render_with_style('zootaxa', format) # the current TaxonWorks default ... make a constant
@@ -801,27 +802,19 @@ class Source::Bibtex < Source
     end
   end
 
-  def set_cached_nomenclature_date
-    update_column(:cached_nomenclature_date, nomenclature_date)
-  end
-
   # set cached values and copies active record relations into bibtex values
   def set_cached
     if errors.empty?
-      set_cached_nomenclature_date
-      
-      tmp         = cached_string('text')
-      update_column(:cached, tmp)
+      attributes_to_update = {
+        cached: cached_string('text'),
+        cached_nomenclature_date: nomenclature_date,
+        cached_author_string: authority_name
+      }
 
-      if author.blank? && authors.size > 0
-        update_column(:author, compute_bibtex_names('author')) 
-      end
+      attributes_to_update[:author] = compute_bibtex_names('author') if author.blank? && authors.size > 0
+      attributes_to_update[:editor] = compute_bibtex_names('editor') if editor.blank? && editors.size > 0
 
-      if editor.blank? && editors.size > 0
-        update_column(:editor, compute_bibtex_names('editor')) 
-      end
-
-      update_column(:cached_author_string, authority_name)
+      update_columns(attributes_to_update)
     end
   end
 

@@ -22,5 +22,9 @@ class TaxonNameClassification::Latinized::Gender::Neuter < TaxonNameClassificati
                                                  TaxonNameClassification::Latinized::Gender::Feminine)
   end
 
+  def self.assignable
+    true
+  end
+
 
 end

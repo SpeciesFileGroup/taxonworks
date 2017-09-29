@@ -74,38 +74,37 @@ module Protonym::SoftValidationExtensions
 
     def sv_species_gender_agreement
       if is_species_rank?
-        s = self.part_of_speech_name
-        unless self.part_of_speech_name.nil?
-          if s =~ /(adjective|participle)/
-
-            if self.feminine_name.blank?
-              soft_validations.add(:feminine_name, "The species name is marked as #{self.part_of_speech_name}, but the name spelling in feminine is not provided")
+        s = part_of_speech_name
+        unless part_of_speech_name.nil?
+          if %w{adjective participle}.include?(s)
+            if feminine_name.blank?
+              soft_validations.add(:feminine_name, "The species name is marked as #{part_of_speech_name}, but the name spelling in feminine is not provided")
             else
-              e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Feminine, self.feminine_name)
+              e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Feminine, feminine_name)
               unless e.nil?
                 soft_validations.add(:feminine_name, "Name has a non feminine ending: -#{e}")
               end
             end
 
-            if self.masculine_name.blank?
-              soft_validations.add(:masculine_name, "The species name is marked as #{self.part_of_speech_name}, but the name spelling in masculine is not provided")
+            if masculine_name.blank?
+              soft_validations.add(:masculine_name, "The species name is marked as #{part_of_speech_name}, but the name spelling in masculine is not provided")
             else
-              e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Masculine, self.masculine_name)
+              e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Masculine, masculine_name)
               unless e.nil?
                 soft_validations.add(:masculine_name, "Name has a non masculine ending: -#{e}")
               end
             end
 
-            if self.neuter_name.blank?
-              soft_validations.add(:neuter_name, "The species name is marked as #{self.part_of_speech_name}, but the name spelling in neuter is not provided")
+            if neuter_name.blank?
+              soft_validations.add(:neuter_name, "The species name is marked as #{part_of_speech_name}, but the name spelling in neuter is not provided")
             else
-              e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Neuter, self.neuter_name)
+              e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Neuter, neuter_name)
               unless e.nil?
                 soft_validations.add(:neuter_name, "Name has a non neuter ending: -#{e}")
               end
             end
 
-            if self.masculine_name.blank? && self.feminine_name.blank? && self.neuter_name.blank?
+            if masculine_name.blank? && feminine_name.blank? && neuter_name.blank?
               g = self.ancestor_at_rank('genus').gender_class
               unless g.nil?
                 e = species_questionable_ending(g, self.name)
@@ -117,9 +116,9 @@ module Protonym::SoftValidationExtensions
 
           else
 
-            soft_validations.add(:feminine_name, 'Alternative spelling is not required for the name which is not adjective or participle.') unless self.feminine_name.blank?
-            soft_validations.add(:masculine_name, 'Alternative spelling is not required for the name which is not adjective or participle.')  unless self.masculine_name.blank?
-            soft_validations.add(:neuter_name, 'Alternative spelling is not required for the name which is not adjective or participle.')  unless self.neuter_name.blank?
+            soft_validations.add(:feminine_name, 'Alternative spelling is not required for the name which is not adjective or participle.') unless feminine_name.blank?
+            soft_validations.add(:masculine_name, 'Alternative spelling is not required for the name which is not adjective or participle.')  unless masculine_name.blank?
+            soft_validations.add(:neuter_name, 'Alternative spelling is not required for the name which is not adjective or participle.')  unless neuter_name.blank?
 
           end
         end
@@ -345,7 +344,6 @@ module Protonym::SoftValidationExtensions
             return true
           end
         rescue ActiveRecord::RecordInvalid # naked rescue is very bad
-          byebug
           return false
         end
       end

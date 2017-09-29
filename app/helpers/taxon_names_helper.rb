@@ -120,9 +120,15 @@ module TaxonNamesHelper
     end
   end
 
-  def edit_taxon_name_link(taxon_name)
-    if taxon_name.type == 'Protonym'
-      link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', 'class' => 'small-icon'), edit_taxon_name_path(taxon_name.metamorphosize), 'class' => 'navigation-item')
+  def edit_taxon_name_link(taxon_name, target: nil)
+    case taxon_name.type
+    when 'Protonym'
+      case target
+      when :edit_task
+        link_to(content_tag(:span, 'Edit (task)', 'data-icon' => 'edit', 'class' => 'small-icon'), new_taxon_name_task_path(taxon_name.metamorphosize), 'class' => 'navigation-item')
+      else
+        link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', 'class' => 'small-icon'), edit_taxon_name_path(taxon_name.metamorphosize), 'class' => 'navigation-item')
+      end
     else
       link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', 'class' => 'small-icon'), edit_combination_path(taxon_name), 'class' => 'navigation-item')
     end

@@ -40,9 +40,11 @@ class PinboardItem < ApplicationRecord
   belongs_to :user
   belongs_to :pinned_object, polymorphic: true
 
-  before_validation :validate_is_inserted, :validate_is_cross_project
+  before_validation  :validate_is_cross_project
   validates_presence_of :user_id, :pinned_object_id, :pinned_object_type
   validates_uniqueness_of :user_id, scope: [ :pinned_object_id, :pinned_object_type ]
+
+  after_save :update_insertable
 
   scope :for_object, -> (object) {where(pinned_object_id: object.id, pinned_object_type: object.class.to_s) }
 
@@ -61,16 +63,17 @@ class PinboardItem < ApplicationRecord
   end
 
   def set_as_insertable
-    PinboardItem.where(project_id: project_id, pinned_object_type: pinned_object_type).find_each do |p|
-      p.update(is_inserted: false)
+    PinboardItem.where(project_id: project_id, pinned_object_type: pinned_object_type).where.not(id: id).find_each do |p|
+      p.update_column(:is_inserted, false)
     end
-    update(is_inserted: true)
   end
 
   protected
 
-  def validate_is_inserted
-    errors.add(:is_inserted, 'only one item per type can be inserted automatically') if is_inserted? && PinboardItem.where(is_inserted: true, pinned_object_type: pinned_object.class.to_s, project_id: $project_id).reload.count > 0
+  def update_insertable
+    if is_inserted?
+      set_as_insertable
+    end
   end
 
   def validate_is_cross_project

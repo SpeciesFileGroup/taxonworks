@@ -20,7 +20,7 @@
 
   const GetterNames = require('../store/getters/getters').GetterNames;
   const removeDuplicate = require('../helpers/removeDuplicate');
-  const modal = require('../../../components/modal.vue');
+  const modal = require('../../../components/modal.vue').default;
   
   export default {
 
