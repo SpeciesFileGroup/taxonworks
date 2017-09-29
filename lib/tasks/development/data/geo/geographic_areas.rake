@@ -42,7 +42,7 @@ namespace :tw do
         desc "Restore geographic area information from compressed form. Pass the path to gaz's /dump directory to data_directory.\n
           rake tw:initialization:restore_geo_data_from_pg_dump data_directory=/Users/matt/src/sf/tw/gaz/data/internal/dump/"
         task :restore_geo_data_from_pg_dump => [:environment, :data_directory] do |t|
-          database   = ActiveRecord::Base.connection.current_database
+          database   = ApplicationRecord.connection.current_database
           data_store = @args[:data_directory]
 
           geographic_areas_file                  = "#{data_store}geographic_areas.dump"
@@ -58,26 +58,26 @@ namespace :tw do
           puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_area_types_file}"
 
           a = Support::Database.pg_restore(database, 'geographic_area_types', data_store)
-          ActiveRecord::Base.connection.reset_pk_sequence!('geographic_area_types')
+          ApplicationRecord.connection.reset_pk_sequence!('geographic_area_types')
           puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_areas_file}"
 
           c = Support::Database.pg_restore(database, 'geographic_areas', data_store)
-          ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas')
+          ApplicationRecord.connection.reset_pk_sequence!('geographic_areas')
           puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_items_file}"
 
           b = Support::Database.pg_restore(database, 'geographic_items', data_store)
-          ActiveRecord::Base.connection.reset_pk_sequence!('geographic_items')
+          ApplicationRecord.connection.reset_pk_sequence!('geographic_items')
           puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_areas_geographic_items_file}"
 
           d = Support::Database.pg_restore(database, 'geographic_areas_geographic_items', data_store)
-          ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas_geographic_items')
+          ApplicationRecord.connection.reset_pk_sequence!('geographic_areas_geographic_items')
           puts "#{Time.now.strftime "%H:%M:%S"}."
         end
 
         desc "Restore geographic area information from compressed form. Pass the path to gaz's /dump directory to data_directory.\n
           rake tw:initialization:restore_geo_data_from_pg_dump data_directory=/Users/matt/src/sf/tw/gaz/data/internal/dump/"
         task :restore_ce_data_from_pg_dump => [:environment, :data_directory] do |t|
-          database   = ActiveRecord::Base.connection.current_database
+          database   = ApplicationRecord.connection.current_database
           data_store = @args[:data_directory]
 
           Rake::Task["tw:initialize:load_geo"].execute
@@ -90,11 +90,11 @@ namespace :tw do
 
           puts "#{Time.now.strftime "%H:%M:%S"}: From #{collecting_events_file}"
           e = Support::Database.pg_restore(database, 'collecting_events', data_store)
-          ActiveRecord::Base.connection.reset_pk_sequence!('collecting_events')
+          ApplicationRecord.connection.reset_pk_sequence!('collecting_events')
 
           puts "#{Time.now.strftime "%H:%M:%S"}: From #{georeferences_file}"
           f = Support::Database.pg_restore(database, 'georeferences', data_store)
-          ActiveRecord::Base.connection.reset_pk_sequence!('georeferences')
+          ApplicationRecord.connection.reset_pk_sequence!('georeferences')
 
           GeographicArea.rebuild!
           puts "#{Time.now.strftime "%H:%M:%S"}."
@@ -108,7 +108,7 @@ namespace :tw do
           raise 'There are existing geographic_area_types, doing nothing.' if GeographicAreaType.all.count > 0
           begin
             data = CSV.read(data_file, options = {headers: true, col_sep: "\t"})
-            ActiveRecord::Base.transaction do
+            ApplicationRecord.transaction do
               count = data.count
               puts
               data.each { |row|
@@ -138,7 +138,7 @@ namespace :tw do
             data    = CSV.read(:data_file, options = {headers: true, col_sep: "\t"})
             records = {}
 
-            ActiveRecord::Base.transaction do
+            ApplicationRecord.transaction do
               data.each { |row|
                 row_data      = row.to_h
                 #row_data.delete('rgt')
@@ -196,7 +196,7 @@ namespace :tw do
             puts "#{args[:data_file]}: #{count} records."
             puts "#{Time.now.strftime "%H:%M:%S"}."
 
-            #ActiveRecord::Base.transaction do
+            #ApplicationRecord.transaction do
             data.each { |row|
               row_data      = row.to_h
               #row_data.delete('rgt')

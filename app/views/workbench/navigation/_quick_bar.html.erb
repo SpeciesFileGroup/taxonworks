@@ -13,7 +13,7 @@
 
   </div>
   <% if @data_model -%>
-    <ul class="horizontal_navbar context-menu">
+    <ul class="context-menu">
       <% if Hub::Data::BY_NAME[@data_model.name] -%> 
         <%= content_tag(:li, link_to(Hub::Data::BY_NAME[@data_model.name].name, @data_model, 'class' => 'active-section')) -%>
         <% Hub::Data::BY_NAME[@data_model.name].related_models.each do |m| -%>

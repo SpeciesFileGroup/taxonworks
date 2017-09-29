@@ -7,6 +7,8 @@ class ObservationMatrixColumn < ApplicationRecord
   belongs_to :observation_matrix
   belongs_to :descriptor
 
+  has_many :observations, foreign_key: :descriptor_id
+
   after_initialize :set_reference_count
 
   def set_reference_count

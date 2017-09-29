@@ -31,7 +31,7 @@ namespace :tw do
       end
 
       task :dump_all => [:environment, :data_directory] do
-        database = ActiveRecord::Base.connection.current_database
+        database = ApplicationRecord.connection.current_database
         path = File.join(@args[:data_directory], 'serial_tables' + Time.now.utc.strftime("%Y-%m-%d_%H%M%S%Z") + '.dump')
 
         puts "Dumping data to #{path}" 
@@ -61,7 +61,7 @@ namespace :tw do
 
         begin
           set_serial_import_predicates
-          ActiveRecord::Base.transaction do # rm transaction
+          ApplicationRecord.transaction do # rm transaction
 
             CSV.foreach(file,
                         headers:        true,
@@ -258,7 +258,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
         print ('Starting transaction ...')
 
         begin
-          ActiveRecord::Base.transaction do
+          ApplicationRecord.transaction do
             set_serial_import_predicates
 
             CSV.foreach(file,
@@ -411,7 +411,7 @@ Column : SQL column name : data desc
         print ('Starting transaction ...')
 
         begin
-          ActiveRecord::Base.transaction do
+          ApplicationRecord.transaction do
             set_serial_import_predicates
 
             CSV.foreach(file,

@@ -255,6 +255,6 @@ module SoftValidation
 end
 
 # Original version was an AR extension, might revert to this at some point.
-# class ActiveRecord::Base
+# class ApplicationRecord  
 #   include SoftValidation
 # end

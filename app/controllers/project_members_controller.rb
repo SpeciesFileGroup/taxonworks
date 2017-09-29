@@ -34,7 +34,7 @@ class ProjectMembersController < ApplicationController
   # POST /project_members/create_many
   def create_many
     begin
-      ActiveRecord::Base.transaction do
+      ApplicationRecord.transaction do
         project_members_params.each do |user_id|
           @member_project.project_members.create!(project_member_params.merge(user_id: user_id)) 
         end 

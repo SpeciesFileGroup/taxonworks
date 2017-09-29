@@ -46,7 +46,7 @@ describe 'Sources', type: :feature, group: :sources do
         @src_bibtex = factory_girl_create_for_user(:soft_valid_bibtex_source_article, @user)
 
         fill_autocomplete('source_id_for_quick_search_form', with: @src_bibtex.title, select: @src_bibtex.id)
-        click_button('Show')
+      
         expect(page).to have_content('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
         expect(page).to have_link('Edit')
         click_link('Edit')
@@ -74,7 +74,6 @@ describe 'Sources', type: :feature, group: :sources do
 
         fill_autocomplete('source_id_for_quick_search_form', with: @src_verbatim.cached, select: @src_verbatim.id)
 
-        click_button('Show')
         expect(page).to have_content(@src_verbatim.cached)
         expect(page).to have_link('Edit')
         click_link('Edit')

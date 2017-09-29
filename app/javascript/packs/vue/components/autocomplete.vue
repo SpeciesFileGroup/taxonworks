@@ -8,6 +8,9 @@ Parameters:
         label: name of the propierty displayed on the list
    event-send: event name used to pass item selected
     autofocus: set autofocus
+      display: Sets the label of the item selected to be display on the input field
+      getInput: Get the input text
+   clearAfter: Clear the input field after an item is selected
 
    :add-param: Send custom parameters
   
@@ -19,11 +22,14 @@ Parameters:
 */
 <template>
   <div class="vue-autocomplete">
-    <input class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="checkTime" v-model="type" :autofocus="autofocus" v-bind:class="{'ui-autocomplete-loading' : spinner }"/>
-    <ul v-show="showList" v-if="type && json.length">
-      <li v-for="(item, index) in json" :class="activeClass(index)" @mouseover="itemActive(index)" @click.prevent="itemClicked(item[label]), sendItem(item)">
+    <input ref="autofocus" class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="checkTime(), sendType()" v-model="type" :autofocus="autofocus" :disabled="disabled" v-bind:class="{'ui-autocomplete-loading' : spinner, 'vue-autocomplete-input-search' : !spinner }"/>
+    <ul class="vue-autocomplete-list" v-show="showList" v-if="type && json.length">
+      <li v-for="(item, index) in limitList(json)" class="vue-autocomplete-item" :class="activeClass(index)" @mouseover="itemActive(index)" @click.prevent="itemClicked(item), sendItem(item)">
         <span v-html="item[label]"></span>
       </li>
+    </ul>
+    <ul v-if="type && searchEnd && !json.length">
+      <li>--None--</li>
     </ul>
   </div>
 </template>
@@ -34,11 +40,18 @@ export default {
       return {
         spinner: false,
         showList: false,
+        searchEnd: false,
         getRequest: 0,
-        type: "",
+        type: this.sendLabel,
         json: [],
         current: -1
       };
+    },
+
+    mounted: function() {
+      if(this.autofocus) {
+        this.$refs.autofocus.focus();
+      }
     },
 
     watch: {
@@ -46,26 +59,60 @@ export default {
         if(this.type.length < Number(this.min)) {
           this.json = [];
         }
+      },
+      sendLabel: function(val) {
+        if(val) {
+          this.type = val
+        }
       }
     },
 
     props: {
 
+      autofocus: {
+        type: Boolean,
+        default: false
+      },
+
+      disabled: {
+        type: Boolean,
+        default: false
+      },
+
       url: {
+        type: String
+      },
+
+      clearAfter: {
+        type: Boolean,
+        default: false
+      },
+
+      sendLabel: {
         type: String,
-        required: true
+        default: ''
       },
 
       autofocus: {
         type: Boolean,
         default: false
-      },      
+      },
 
       label: String,
+
+      display: {
+        type: String,
+        default: '',
+      },
 
       time: {
         type: String,
         default: "500"
+      },
+
+      arrayList: {
+        type: Array,
+        default: undefined
       },
 
       min: {
@@ -78,8 +125,8 @@ export default {
       },
 
       limit: {
-        type: String,
-        default: ''
+        type: Number,
+        default: 0
       },   
 
       placeholder: {
@@ -100,7 +147,16 @@ export default {
   
       methods: {
         sendItem: function(item) {
+          this.$emit('input', item);
           this.$parent.$emit(this.eventSend, item);
+          this.$emit('getItem', item);
+        },
+
+        limitList: function(list) {
+          if(this.limit == 0) 
+            return list
+
+          return list.slice(0, this.limit);
         },
 
         clearResults: function() {
@@ -108,7 +164,15 @@ export default {
         },
 
         itemClicked: function(item) {
-          this.type = item          
+          if(this.display.length)
+            this.type = (this.clearAfter ? '' : item[this.display]);
+          else {
+            this.type = (this.clearAfter ? '' : item[this.label]);
+          }
+
+          if(this.autofocus) {
+            this.$refs.autofocus.focus();
+          }
           this.showList = false;
         },
 
@@ -125,10 +189,15 @@ export default {
             })
           }   
           return tempUrl + params;           
-        },   
+        },
+
+        sendType: function() {
+          this.$emit('getInput', this.type)
+        },
 
         checkTime: function() {
           var that = this;
+          this.searchEnd = false;
           if(this.getRequest) {
             clearTimeout(this.getRequest);
           }   
@@ -141,22 +210,39 @@ export default {
           if(this.type.length < Number(this.min)) return;
           this.spinner = true;
           this.clearResults();   
-
-          this.$http.get(this.ajaxUrl(), {
-            before(request) {
-              if (this.previousRequest) {
-                this.previousRequest.abort();
+          if(this.arrayList) {
+            var finded = [];
+            var that = this;
+            
+            this.arrayList.forEach(function(item) {
+              if(item[that.label].includes(that.type)) {
+                finded.push(item);
               }
-              this.previousRequest = request;
-            }            
-          }).then(response => {
-            this.json = response.body;
+            });
+            
+            this.spinner = false;
+            this.json = finded;
+            this.searchEnd = true;
             this.showList = (this.json.length > 0)
-            this.spinner = false;
-          }, response => {
-            // error callback
-            this.spinner = false;
-          });
+          }
+          else {
+            this.$http.get(this.ajaxUrl(), {
+              before(request) {
+                if (this.previousRequest) {
+                  this.previousRequest.abort();
+                }
+                this.previousRequest = request;
+              }            
+            }).then(response => {
+              this.json = response.body;
+              this.showList = (this.json.length > 0)
+              this.spinner = false;
+              this.searchEnd = true;
+            }, response => {
+              // error callback
+              this.spinner = false;
+            });
+          }
         },
         activeClass: function activeClass(index) {
           return {

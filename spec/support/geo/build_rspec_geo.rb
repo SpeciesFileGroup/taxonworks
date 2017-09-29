@@ -13,31 +13,31 @@
 def clean_slate_geo # rubocop:disable Metrics/AbcSize
   # Order matters!
   TaxonDetermination.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('taxon_determinations')
+  ApplicationRecord.connection.reset_pk_sequence!('taxon_determinations')
 
   Otu.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('otus')
+  ApplicationRecord.connection.reset_pk_sequence!('otus')
 
   Georeference.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('georeferences')
+  ApplicationRecord.connection.reset_pk_sequence!('georeferences')
 
   CollectionObject.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('collection_objects')
+  ApplicationRecord.connection.reset_pk_sequence!('collection_objects')
 
   CollectingEvent.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('collecting_events')
+  ApplicationRecord.connection.reset_pk_sequence!('collecting_events')
 
   GeographicAreasGeographicItem.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas_geographic_items')
+  ApplicationRecord.connection.reset_pk_sequence!('geographic_areas_geographic_items')
 
   GeographicItem.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_items')
+  ApplicationRecord.connection.reset_pk_sequence!('geographic_items')
 
   GeographicArea.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas')
+  ApplicationRecord.connection.reset_pk_sequence!('geographic_areas')
 
   GeographicAreaType.delete_all
-  ActiveRecord::Base.connection.reset_pk_sequence!('geographic_area_types')
+  ApplicationRecord.connection.reset_pk_sequence!('geographic_area_types')
 
   GeographicAreaHierarchy.delete_all
 

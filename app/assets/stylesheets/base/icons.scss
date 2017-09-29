@@ -13,11 +13,21 @@
       min-height: 12px;
     }
 
+    .medium-icon {
+      background-size: 24px 24px;
+      padding-left: 24px;
+      min-height: 24px;
+    }  
+
     .big-icon {
       background-size: 30px 30px;
       padding-left: 30px;
       min-height: 30px;
-    }    
+    }
+
+    .icon-without-space {
+      padding-left: 14px;
+    }  
 
     .icon-right { 
       background-position: right, center;
@@ -206,4 +216,8 @@
 
     [data-icon="savedb"] {
       background-image: image-url("savedb.svg");
-    }        
+    }
+
+    [data-icon="warning"] {
+      background-image: image-url("attention.svg");
+    } 

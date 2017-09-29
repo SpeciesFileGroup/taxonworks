@@ -20,9 +20,12 @@ class ObservationMatrixRow < ApplicationRecord
   validates_uniqueness_of :otu_id, scope: [:observation_matrix_id], if: -> {!otu_id.nil?}
   validates_uniqueness_of :collection_object_id, scope: [:observation_matrix_id], if: -> {!collection_object_id.nil?}
 
-
   def set_reference_count
     self.reference_count ||= 0
+  end
+
+  def row_object
+    [otu, collection_object].compact.first
   end
 
   private

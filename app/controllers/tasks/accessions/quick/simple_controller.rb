@@ -139,7 +139,7 @@ class Tasks::Accessions::Quick::SimpleController < ApplicationController
   def otu_id_param
     id = params[:specimen].try(:[], :taxon_determinations_attributes).try(:[], "0").try(:[], "otu_id")
     if id.blank?
-      @specimen.try(:taxon_determinations, false).try(:first).try(:otu_id)
+      @specimen.try(:taxon_determinations).try(:first).try(:otu_id)
     else
       id
     end

@@ -19,7 +19,6 @@ describe ContentsHelper, type: :helper do
     end
 
     specify "#content_search_form" do
-      expect(helper.contents_search_form).to have_button('Show')
       expect(helper.contents_search_form).to have_field('content_id_for_quick_search_form')
     end
 

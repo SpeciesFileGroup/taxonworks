@@ -18,9 +18,10 @@
 #  c = Combination.new(genus: genus_protonym, species: species_protonym)
 #
 # Getters and setters for each of the APPLICABLE_RANKS are available:
-#   genus subgenus section subsection series subseries species subspecies variety subvariety form subform
-#   genus_id subgenus_id section_id subsection_id series_id subseries_id species_id subspecies_id variety_id subvariety_id form_id subform_id
-# You can things like (notice mix/match of _id or not): 
+#   `genus subgenus section subsection series subseries species subspecies variety subvariety form subform`
+#   `genus_id subgenus_id section_id subsection_id series_id subseries_id species_id subspecies_id variety_id subvariety_id form_id subform_id`
+#
+# You can do things like (notice mix/match of _id or not): 
 #   c = Combination.new(genus_id: @genus_protonym.id, subspecies: @some_species_group)
 #   c.species_id = Protonym.find(some_species_id).id
 # or
@@ -102,7 +103,6 @@ class Combination < TaxonName
       end
     end
   end
-
 
   APPLICABLE_RANKS.each do |rank|
     has_one "#{rank}_taxon_name_relationship".to_sym, -> {
@@ -223,15 +223,6 @@ class Combination < TaxonName
     }
   end
 
-  def set_cached_valid_taxon_name_id
-    begin
-      TaxonName.transaction do
-        self.update_column(:cached_valid_taxon_name_id, self.get_valid_taxon_name.id)
-      end
-    rescue
-    end
-  end
-
   def get_valid_taxon_name
     c = self.protonyms_by_rank
     return self if c.blank?
@@ -262,8 +253,7 @@ class Combination < TaxonName
     html = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub(' [sic]', ec + ' [sic]' + eo).gsub(ec + ' ' + eo, ' ').gsub(eo + ec, '').gsub(eo + ' ', ' ' + eo)
     html
   end
-
-
+  
   protected
 
   # @return [Array of TaxonNames, nil]
@@ -308,14 +298,6 @@ class Combination < TaxonName
     end
   end
 
-  def set_cached
-    write_attribute(:cached, get_full_name) unless self.no_cached
-  end
-
-  def set_cached_html
-    write_attribute(:cached_html, get_full_name_html) unless self.no_cached
-  end
-
   # validations
 
   # The parent of a Combination is the parent of the highest ranked protonym in that combination 
@@ -343,10 +325,9 @@ class Combination < TaxonName
       end
     end
   end
-
   
   def validate_rank_class_class
-    errors.add(:rank_class, 'Combination should not have rank. Delete the rank') if !!self.rank_class
+    errors.add(:rank_class, 'Combination should not have rank. Delete the rank') if rank_class.present?
   end
 
 end

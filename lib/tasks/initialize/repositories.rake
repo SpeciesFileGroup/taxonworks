@@ -15,7 +15,7 @@ namespace :tw do
       # TODO: check checksums of incoming files?
 
       begin
-        ActiveRecord::Base.transaction do
+        ApplicationRecord.transaction do
           f = CSV.open(file, :headers => true)
           f.each do |row|
             r = Repository.new(

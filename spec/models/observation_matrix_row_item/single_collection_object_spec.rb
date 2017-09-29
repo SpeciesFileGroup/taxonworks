@@ -46,7 +46,7 @@ RSpec.describe ObservationMatrixRowItem::SingleCollectionObject, type: :model, g
 
       context 'adding an item synchronizes observation_matrix rows' do
         specify 'saving a record adds collection_object observation_matrix_rows' do
-          expect(ObservationMatrixRow.first.collection_object.metamorphosize).to eq(collection_object)
+          expect(ObservationMatrixRow.first.collection_object).to eq(collection_object)
         end
 
         specify 'added observation_matrix_row has reference_count = 1' do

@@ -18,7 +18,6 @@ describe PreparationTypesHelper, :type => :helper do
     end
 
     specify "#preparation_type_search_form" do
-      expect(helper.preparation_types_search_form).to have_button('Show')
       expect(helper.preparation_types_search_form).to have_field('preparation_type_id_for_quick_search_form')
     end
 

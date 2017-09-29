@@ -1,25 +1,27 @@
-@import 'base/palette';
-@import 'base/fonts';
-@import 'base/whitespace';
-@import 'base/form_elements';
-
 .vue-autocomplete-input {
-
+	z-index: 2000;
 	font-size: $font_small;
 	padding:0px;
+	position: static;
 	padding-left:$standard_padding*0.9;
-	padding-right:$standard_padding*0.9;
 	border-radius:2px;
 	border:1px solid $navigation_border;
-	background-color:#FFF;
 	min-height: $normal-input-size;
+	background-color:#FFF;
 	box-sizing: border-box;
+	padding-right: 24px;
+	background-size: 18px;
+	background-position: right 4px center;
+	background-repeat: no-repeat;
+}
+
+.vue-autocomplete-input-search {
+	background-image: image-url("search.svg");
 }
 
 .vue-autocomplete {
-	z-index: 2000;
 	ul {
-		z-index: 2000;
+		z-index: 2001;
 		display: none;
 		background-color: #FFF;
 		margin:0px;

@@ -242,7 +242,7 @@ namespace :tw do
           main_build_loop_3i
         else
 
-          ActiveRecord::Base.transaction do
+          ApplicationRecord.transaction do
             begin
               main_build_loop_3i
             rescue

@@ -138,7 +138,7 @@ class AssertedDistributionsController < ApplicationController
   def asserted_distribution_params
     params.require(:asserted_distribution).permit(:otu_id, :geographic_area_id, :source_id, :is_absent,
                                                   otu_attributes: [:id, :_destroy, :name, :taxon_name_id],
-                                                  origin_citation_attributes: [:id, :_destroy, :source_id] 
+                                                  origin_citation_attributes: [:id, :_destroy, :source_id, :pages] 
                                                  )
   end
 

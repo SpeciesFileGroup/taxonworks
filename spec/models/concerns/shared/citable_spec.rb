@@ -45,6 +45,13 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
         expect(t.citations.first.is_original?).to be_truthy
       end
 
+      specify '#source can be set with nested attributed and previously saved object' do
+        t = TestCitable.create
+        expect(t.update( origin_citation_attributes: {source_id: source.to_param} )).to be_truthy
+        expect(t.citations.reload.count).to eq(1)
+        expect(t.citations.first.is_original?).to be_truthy
+      end
+
       context 'with a is_original citation' do
         before do
           citation.is_original = true

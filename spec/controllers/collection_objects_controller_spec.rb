@@ -67,16 +67,16 @@ describe CollectionObjectsController, :type => :controller do
       render_views
       let(:collection_object) do
         CollectionObject.create! valid_attributes.merge(
-            {
-                depictions_attributes: [
-                    {
-                        image_attributes: {
-                            image_file: fixture_file_upload((Rails.root + 'spec/files/images/tiny.png'),
-                                                            'image/png')
-                        }
-                    }
-                ]
-            }
+          {
+            depictions_attributes: [
+              {
+                image_attributes: {
+                  image_file: fixture_file_upload((Rails.root + 'spec/files/images/tiny.png'),
+                                                  'image/png')
+                }
+              }
+            ]
+          }
         )
       end
 
@@ -84,78 +84,81 @@ describe CollectionObjectsController, :type => :controller do
         before {get :show, params: {id: collection_object.to_param,
                                     include: ['images'],
                                     format: :json},
-                    session: valid_session}
+                                    session: valid_session}
         let (:data) { JSON.parse(response.body) }
 
         it "returns a successful JSON response" do
           expect(data["success"]).to be true
         end
 
-        describe "JSON data contents" do
+      # TODO: @tuckerjd this block doesn't belong in controller specs,
+      # these are model expectations
+      # describe "JSON data contents" do
 
-          it "has a result object" do
-            expect(data["result"]).to be_truthy
-          end
+      #   it "has a result object" do
+      #     expect(data["result"]).to be_truthy
+      #   end
 
-          describe "result attributes" do
-            let (:result) { data["result"] }
+      #   describe "result attributes" do
+      #     let (:result) { data["result"] }
 
-            it "has an id" do
-              expect(result["id"]).to eq(collection_object.id)
-            end
+      #     it "has an id" do
+      #       expect(result['id']).to eq(collection_object.id)
+      #     end
 
-            it "has a type" do
-              expect(result["type"]).to eq(collection_object.type)
-            end
+      #     it "has a type" do
+      #       expect(result['type']).to eq(collection_object.type)
+      #     end
 
-            context "when it has no images" do
-              before do
-                collection_object.images.delete_all
-              end
+      #     context "when it has no images" do
+      #       before do
+      #         collection_object.images.delete_all
+      #       end
 
-              it "has images as empty array" do
-                get :show, params: {id: collection_object.to_param,
-                                    include: ["images"],
-                                    format: :json},
-                    session: valid_session
-                expect(result["images"]).to eq([])
-              end
-            end
+      #       it "has images as empty array" do
+      #         get :show, params: {id: collection_object.to_param,
+      #                             include: ["images"],
+      #                             format: :json},
+      #                             session: valid_session
+      #         expect(result["images"]).to eq([])
+      #       end
+      #     end
 
-            context "when it has images" do
+      #     context "when it has images" do
 
-              context "when requested" do
+      #       context "when requested" do
 
-                it "has an array of images" do
-                  expect(result["images"].length).to eq(collection_object.images.size)
-                end
+      #         it "has an array of images" do
+      #           expect(result["images"].length).to eq(collection_object.images.size)
+      #         end
 
-                describe "array items attributes" do
-                  let(:item) { result["images"].first }
-                  let(:image) { collection_object.images.first }
+      #         describe "array items attributes" do
+      #           let(:item) { result["images"].first }
+      #           let(:image) { collection_object.images.first }
 
-                  it "has an id" do
-                    expect(item["id"]).to eq(image.id)
-                  end
+      #           it "has an id" do
+      #             expect(item["id"]).to eq(image.id)
+      #           end
 
-                  it "has an API endpoint URL" do
-                    expect(item["url"]).to eq(api_v1_image_url(image.to_param))
-                  end
-                end
-              end
+      #           it "has an API endpoint URL" do
+      #             expect(item["url"]).to eq(api_v1_image_url(image.to_param))
+      #           end
+      #         end
+      #       end
 
-              context 'when not requested' do
-
-                it 'does not have images attribute' do
-                  get :show, params: {id: collection_object.to_param,
-                                      format: :json},
-                      session: valid_session
-                  expect(JSON.parse(response.body)['result']['images']).to be nil
-                end
-              end
-            end
-          end
-        end
+      #       context 'when not requested' do
+      #         it 'does not have images attribute' do
+      #           get :show, params: {
+      #             id: collection_object.to_param,
+      #             format: :json},
+      #             session: valid_session
+      #             expect(JSON.parse(response.body)['result']['images']).to be nil
+      #         end
+      #       end
+      #     end
+      #   end
+      #  end
+      
       end
 
       context "invalid collection_object" do
@@ -181,7 +184,7 @@ describe CollectionObjectsController, :type => :controller do
     let(:namespace) { FactoryGirl.create(:valid_namespace, short_name: 'ABCD') }
     let!(:collection_object) do
       CollectionObject.create! valid_attributes.merge(
-          {identifiers_attributes: [{identifier: '123', type: 'Identifier::Local::CatalogNumber', namespace: namespace}]})
+        {identifiers_attributes: [{identifier: '123', type: 'Identifier::Local::CatalogNumber', namespace: namespace}]})
     end
 
     context "valid identifier" do

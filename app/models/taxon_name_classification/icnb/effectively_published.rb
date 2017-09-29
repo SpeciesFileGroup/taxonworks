@@ -7,4 +7,8 @@ class TaxonNameClassification::Icnb::EffectivelyPublished < TaxonNameClassificat
         TaxonNameClassification::Icnb::NotEffectivelyPublished)
   end
 
+  def self.assignable
+    true
+  end
+
 end

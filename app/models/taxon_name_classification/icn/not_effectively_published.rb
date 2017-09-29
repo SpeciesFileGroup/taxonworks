@@ -11,4 +11,8 @@ class TaxonNameClassification::Icn::NotEffectivelyPublished < TaxonNameClassific
     'invalidum'
   end
 
+  def self.assignable
+    true
+  end
+
 end

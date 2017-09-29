@@ -98,7 +98,11 @@ class PeopleController < ApplicationController
   end
 
   def roles
+  end
 
+  # GET /people/role_types.json
+  def role_types
+    render :json => ROLES 
   end
 
   def lookup_person

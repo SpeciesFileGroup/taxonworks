@@ -4,6 +4,8 @@ class NomenclaturalRank::Iczn::HigherClassificationGroup::Superorder < Nomenclat
     NomenclaturalRank::Iczn::HigherClassificationGroup::Magnorder
   end
 
-  #COMMON = false
+  def self.typical_use
+    false
+  end
 
 end

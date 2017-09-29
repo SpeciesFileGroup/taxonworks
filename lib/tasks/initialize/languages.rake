@@ -14,7 +14,7 @@ namespace :tw do
        
       # TODO: check checksums of incoming files?
       begin
-        ActiveRecord::Base.transaction do
+        ApplicationRecord.transaction do
           File.foreach(file) do |row| 
             v = row.split(/\|/) # Ugh CSV with pipes as delimiters is borked.
             r = Language.new(

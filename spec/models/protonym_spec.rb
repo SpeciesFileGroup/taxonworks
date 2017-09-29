@@ -91,28 +91,29 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     specify 'has at most one original description genus' do
       expect(@s.original_combination_relationships.count).to eq(0)
       # Example 1) recasting
-      temp_relation = FactoryGirl.build(:taxon_name_relationship,
+      temp_relation = FactoryGirl.create(:taxon_name_relationship,
                                                         subject_taxon_name: @o,
                                                         object_taxon_name: @s,
                                                         type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
-      temp_relation.save
+#      temp_relation.save
       # Recast as the subclass
-      first_original_genus_relation = temp_relation.becomes(temp_relation.type_class)
+  #    first_original_genus_relation = temp_relation.becomes(temp_relation.type_class)
       expect(@s.original_combination_relationships.count).to eq(1)
 
       # Example 2) just use the right subclass to start
-      first_original_subgenus_relation = FactoryGirl.build(:taxon_name_relationship_original_combination,
+      first_original_subgenus_relation = FactoryGirl.create(:taxon_name_relationship_original_combination,
                                                            subject_taxon_name: @g,
                                                            object_taxon_name: @s,
                                                            type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
-      first_original_subgenus_relation.save
+      # first_original_subgenus_relation.save
       expect(@s.original_combination_relationships.count).to eq(2)
+
       extra_original_genus_relation = FactoryGirl.build(:taxon_name_relationship,
                                               subject_taxon_name: @g,
                                               object_taxon_name: @s,
                                               type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       expect(extra_original_genus_relation.valid?).to be_falsey
-      extra_original_genus_relation.save
+     # extra_original_genus_relation.save
       expect(@s.original_combination_relationships.count).to eq(2)
     end
 

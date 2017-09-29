@@ -1,6 +1,4 @@
 module Queries
-
-
   class TaxonNameAutocompleteQuery < Queries::Query
 
     # @return [Array, nil]
@@ -27,7 +25,7 @@ module Queries
     #   &exact=<"true"|"false">
     #   if 'true' then only #name = query_string results are returned (no fuzzy matching)
     attr_accessor :exact
-    
+
     def initialize(string, project_id: nil, valid: nil, nomenclature_group: [], type: [], parent_id: [], exact: false)
       @nomenclature_group = nomenclature_group
       @valid = valid == 'true' ? true : (valid == 'false' ? false : nil) 
@@ -66,7 +64,7 @@ module Queries
       ].compact
 
       return nil if clauses.nil?
-      
+
       a = clauses.shift
       clauses.each do |b|
         a = a.and(b)
@@ -84,7 +82,7 @@ module Queries
         a
       end
     end
-    
+
     def where_sql
       with_project_id.and(or_and).to_sql
     end
@@ -121,7 +119,111 @@ module Queries
     end
 
     def all
-      TaxonName.select('taxon_names.*, length("cached")').includes(:ancestor_hierarchies).where(where_sql).references(:taxon_name_hierarchies).limit(dynamic_limit).order('length("cached"), "cached"').distinct.all
+      TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
+        includes(:ancestor_hierarchies).
+        where(where_sql).
+        references(:taxon_name_hierarchies).
+        limit(dynamic_limit).order("char_length(taxon_names.cached), taxon_names.cached").distinct.all
+    end
+
+    def autocomplete_top_name
+      a = table[:name].eq(query_string)
+      base_query.where(a.to_sql).order('cached ASC').limit(20)
+    end
+
+    def autocomplete_top_cached
+      a = table[:cached].matches("%(#{query_string})")
+      base_query.where(a.to_sql).limit(1)
+    end
+
+    def autocomplete_genus_species1(result)
+      return nil if result.nil?
+      a = table[:cached].matches(result)
+      base_query.where(a.to_sql).order('type DESC, cached ASC').limit(8)
+    end
+
+    def autocomplete_genus_species2(result)
+      return nil if result.nil?
+      a = table[:cached].matches(result + '%')
+      base_query.where(a.to_sql).order('type DESC, cached ASC').limit(8)
+    end
+
+    def autocomplete_cached_end_wildcard
+      a = table[:cached].matches("#{query_string}%")
+      base_query.where(a.to_sql).order('char_length(cached), cached ASC').limit(20)
+    end
+
+    def autocomplete_cached_wildcard_whitespace
+      a = table[:cached].matches("#{query_string.gsub(' ', '%')}")
+      base_query.where(a.to_sql).order('char_length(cached), cached ASC').limit(20)
+    end
+
+    def autocomplete_fragments
+      f = fragments 
+      if f.size == 2
+        a = table[:cached].matches(f[0]).and(table[:cached_author_year].matches(f[1]))
+        base_query.where(a.to_sql).order('char_length(cached), cached ASC').limit(20)
+      else
+        nil
+      end
+    end
+
+    def autocomplete_name_author_year
+      a = table[:cached_author_year].matches("#{query_string.gsub(/[,\s]/, '%')}")
+      base_query.where(a.to_sql).order('cached ASC').limit(20)
+    end
+
+    def autocomplete
+      z = genus_species
+      
+      queries = [
+        autocomplete_top_name,
+        autocomplete_top_cached,
+        autocomplete_genus_species1(z),
+        autocomplete_genus_species2(z),
+        autocomplete_cached_end_wildcard,
+        autocomplete_cached_wildcard_whitespace,
+        autocomplete_fragments,
+        autocomplete_name_author_year
+      ]
+
+      queries.compact!
+
+      updated_queries = []
+      queries.each_with_index do |q,i|  
+        a = q.where(project_id: project_id) if project_id
+        a = a.where(and_clauses.to_sql) if and_clauses
+        updated_queries[i] = a
+      end
+
+      result = []
+      updated_queries.each do |q|
+        result += q.to_a
+        result.uniq!
+        break if result.count > 19
+      end
+
+      result[0..19]
+    end
+
+    def genus_species
+      parser = ScientificNameParser.new
+      h = parser.parse(query_string)
+      n = h[:scientificName][:details]
+
+      if n && n.first && n.first[:genus] && n.first[:species]
+        a = n.first[:genus][:string]
+        b = n.first[:species][:string]
+
+        a + '%' + b 
+      else
+        nil
+      end
+    end
+
+    def base_query
+      TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
+        includes(:ancestor_hierarchies)
     end
 
     def table
@@ -142,6 +244,6 @@ module Queries
     #   return table[:id].eq('-1') if a.nil? || b.nil?
     #   table[:name].matches("#{a}%").and(parent[:name].matches("#{b}%"))
     # end
-   
+
   end
 end

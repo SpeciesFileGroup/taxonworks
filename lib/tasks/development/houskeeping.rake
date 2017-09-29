@@ -11,10 +11,10 @@ namespace :tw do
       # Ensure that we have all models loaded
       Rails.application.eager_load!
 
-      puts "# known subclasses of ActiveRecord::Base  #{ActiveRecord::Base.subclasses.collect{|a| a.name}.sort.join(", ")} \n"
+      puts "# known subclasses of ApplicationRecord  #{ApplicationRecord.subclasses.collect{|a| a.name}.sort.join(", ")} \n"
 
       migrated, not_migrated = [], []
-      ActiveRecord::Base.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
+      ApplicationRecord.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
         hit = false
         if d.ancestors.include?(Housekeeping::Users)
           hit = true
@@ -39,7 +39,7 @@ namespace :tw do
       Rails.application.eager_load!
 
       migrated, not_migrated = [], []
-      ActiveRecord::Base.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
+      ApplicationRecord.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
         puts "# #{d.name}" 
         d.columns.each do |c|
          # if c.name =~ /.+_id|.*_?type|position|type|name|created_at|updated_at/
@@ -57,7 +57,7 @@ namespace :tw do
       Rails.application.eager_load!
 
       migrated, not_migrated = [], []
-      ActiveRecord::Base.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
+      ApplicationRecord.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
         puts "# #{d.name}" 
         d.columns.each do |c|
           if c.name =~ /.+_id|.*_?type|position|type|lft|rgt|position/ # lft/rgt are not here any more
@@ -74,7 +74,7 @@ namespace :tw do
       Rails.application.eager_load!
 
       migrated, not_migrated = [], []
-      ActiveRecord::Base.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
+      ApplicationRecord.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
         puts "# #{d.name}" 
         d.columns.each do |c|
           if c.name =~ /.+_id/

@@ -18,7 +18,7 @@ class LoansController < ApplicationController
 
   # GET /loans/new
   def new
-    @loan = Loan.new
+    @loan = Loan.new(params.permit(:clone_from))
   end
 
   # GET /loans/1/edit
@@ -99,7 +99,7 @@ class LoansController < ApplicationController
 
   # GET /loans/download
   def download
-    send_data Loan.generate_download( Loan.where(project_id: sessions_current_project_id) ), type: 'text', filename: "loans_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Loan.where(project_id: sessions_current_project_id)), type: 'text', filename: "loans_#{DateTime.now.to_s}.csv"
   end
 
   private
@@ -115,6 +115,7 @@ class LoansController < ApplicationController
                                  :recipient_email, :recipient_phone, :recipient_country, :supervisor_person_id,
                                  :supervisor_email, :supervisor_phone, :date_closed, :recipient_honorarium, 
                                  :lender_address,
+                                 :clone_from,
                                  loan_items_attributes: [
                                    :_destroy, 
                                    :id, 

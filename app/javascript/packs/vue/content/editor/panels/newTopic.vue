@@ -21,7 +21,7 @@
 
 <script>
   const MutationNames = require('../store/mutations/mutations').MutationNames;
-  const modal = require('../../../components/modal.vue');
+  const modal = require('../../../components/modal.vue').default;
 
   export default {
       data: function() { return {

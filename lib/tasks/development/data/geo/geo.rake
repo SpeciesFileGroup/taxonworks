@@ -60,7 +60,7 @@ namespace :tw do
               puts "Table #{table_name} exists, skipping."
             end
             # cleanup TDWG - there is one duplicate record in level 4
-            # ActiveRecord::Base.connection.execute('delete from tdwg_l4 where gid = 193;')
+            # ApplicationRecord.connection.execute('delete from tdwg_l4 where gid = 193;')
           end
         end
 
@@ -70,7 +70,7 @@ namespace :tw do
           IMPORT_TABLES.each do |table_name, file_path|
             if table_exists(table_name) 
               puts "Dropping #{table_name}."
-              ActiveRecord::Base.connection.execute("drop table #{table_name};")
+              ApplicationRecord.connection.execute("drop table #{table_name};")
             end
           end
         end

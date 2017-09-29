@@ -36,7 +36,7 @@ namespace :tw do
       task :import_eucharitid => [:data_directory, :environment] do |t, args| 
         puts @args
 
-        ActiveRecord::Base.transaction do 
+        ApplicationRecord.transaction do 
           begin
             @project, @user = initiate_project_and_users('eucharitid', 'John Heraty')
             #           @namespace = Namespace.new(name: 'eucharitid', short_name: 'eucharitid')

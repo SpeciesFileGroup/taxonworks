@@ -12,7 +12,7 @@ Object.assign(TW.views.tasks.content.editor, {
 		Vue.use(vueResource);
 
 		var store = require('./store/store.js').newStore();
-		var App = require('./app.vue');
+		var App = require('./app.vue').default;
 		var token = $('[name="csrf-token"]').attr('content');
 		Vue.http.headers.common['X-CSRF-Token'] = token;
 

@@ -114,7 +114,7 @@ namespace :tw do
             puts 'Importing without a transaction (data will be left in the database).'
             main_build_loop_insects
           else
-            ActiveRecord::Base.transaction do 
+            ApplicationRecord.transaction do 
               main_build_loop_insects
               raise
             end
@@ -1705,8 +1705,9 @@ namespace :tw do
             date_closed = (row['Canceled'] == 'Canceled') ? Time.current : nil
             row['Signature'] = nil if row['Signature'].to_s.length == 1
             row['StudentSignature'] = nil if row['StudentSignature'].to_s.length == 1
-            country = parse_geographic_area_insects({'Country' => data.people_id[row['RecipientID']]['Country']})
-            country = country.nil? ? nil : country.id
+            #country = parse_geographic_area_insects({'Country' => data.people_id[row['RecipientID']]['Country']})
+            #country = country.nil? ? nil : country.id
+            country = data.people_id[row['RecipientID']]['Country']
             supervisor = data.people_index[data.people_id[row['RecipientID']]['SupervisorID']]
             supervisor_email = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Email']
             supervisor_phone = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Phone']
@@ -2143,7 +2144,7 @@ namespace :tw do
       def restore_from_pg_dump
         raise 'Database is not empty, it is not possible to restore from all.dump.' if Project.count > 0
         puts 'Restoring from all.dump (to avoid this use no_dump_load=true when calling the rake task).'
-        ActiveRecord::Base.connection.execute('delete from schema_migrations')
+        ApplicationRecord.connection.execute('delete from schema_migrations')
         Support::Database.pg_restore_all('taxonworks_development', dump_directory(@args[:data_directory]),  'all.dump')
       end
 
