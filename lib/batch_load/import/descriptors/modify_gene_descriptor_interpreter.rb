@@ -32,14 +32,13 @@ module BatchLoad
           ["forward_primers", "reverse_primers"].each do |primer_type|
             primers = row[primer_type]
             next if primers.blank?
+            sequence_relationship_type = "SequenceRelationship::" + primer_type.singularize.camelize
 
             primers.split(", ").each do |primer_name|
               primer_sequence = Sequence.with_any_value_for(:name, primer_name).take
               next if primer_sequence.blank?
               
-              primer_relationship_type = "SequenceRelationship::" + primer_type.singularize.camelize
-
-              gene_attribute = GeneAttribute.find_by(descriptor: gene_descriptor, sequence: primer_sequence, sequence_relationship_type: primer_relationship_type)
+              gene_attribute = GeneAttribute.find_by(descriptor: gene_descriptor, sequence: primer_sequence, sequence_relationship_type: sequence_relationship_type)
               next if gene_attribute.blank?
 
               primers_logic[primer_type.to_sym].push(gene_attribute.to_logic_literal)

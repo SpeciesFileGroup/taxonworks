@@ -40,14 +40,13 @@ module BatchLoad
           next if sequence.blank?
           created_sequence_relationship = false
           
-          ["ForwardPrimer", "ReversePrimer"].each do |primer_type|
-            sequence_relationship_type = "SequenceRelationship::" + primer_type
-            primer_type_key = primer_type.underscore + "s"
-            primers = row[primer_type_key]
+          ["forward_primers", "reverse_primers"].each do |primer_type|
+            primers = row[primer_type]
             next if primers.blank?
+            sequence_relationship_type = "SequenceRelationship::" + primer_type.singularize.camelize
 
-            primers.split(", ").each do |primer|
-              primer_sequence = Sequence.with_any_value_for(:name, primer).take
+            primers.split(", ").each do |primer_name|
+              primer_sequence = Sequence.with_any_value_for(:name, primer_name).take
               next if primer_sequence.blank?
               
               sequence_relationship = SequenceRelationship.new({

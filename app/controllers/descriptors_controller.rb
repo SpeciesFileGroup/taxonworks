@@ -123,7 +123,7 @@ class DescriptorsController < ApplicationController
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :modify_gene_descriptor_batch_load_descriptors_md5)
       @result = BatchLoad::Import::Descriptors::ModifyGeneDescriptorInterpreter.new(batch_params)
       if @result.create
-        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} TODO RECORD TYPES were created."
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} Gene Descriptors were modified."
         render 'descriptors/batch_load/modify_gene_descriptor/create' and return
       else
         flash[:alert] = 'Batch import failed.'
