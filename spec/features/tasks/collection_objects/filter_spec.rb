@@ -7,32 +7,67 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
     it_behaves_like 'a_login_required_and_project_selected_controller'
 
-    after(:all) { clean_slate_geo }
+    after(:all) {
+      clean_slate_geo
+      CollectionObject.destroy_all
+      Namespace.destroy_all
+    }
 
     context 'signed in as a user' do
       before(:each) {
         sign_in_user_and_select_project
       }
 
-      describe '#set_otu', js: true, resolution: true do
-        let(:otu_test) { Otu.create!(name: 'zzzzz', by: @user, project: @project) }
-        let(:specimen) { Specimen.create!(by: @user, project: @project) }
+      context 'triggering the by_otu facet' do
+        describe '#set_otu', js: true, resolution: true do
+          let(:otu_test) { Otu.create!(name: 'zzzzz', by: @user, project: @project) }
+          let(:specimen) { Specimen.create!(by: @user, project: @project) }
 
-        before do
-          TaxonDetermination.create!(otu: otu_test, biological_collection_object: specimen, by: @user, project: @project)
-          visit(collection_objects_filter_task_path)
-        end
+          before do
+            TaxonDetermination.create!(otu: otu_test, biological_collection_object: specimen, by: @user, project: @project)
+            visit(collection_objects_filter_task_path)
+          end
 
-        it 'renders count of collection objects based on a selected otu' do
-          fill_autocomplete('otu_id_for_by_otu', with: otu_test.name, select: otu_test.to_param)
-          wait_for_ajax
-          find('#set_otu').click
-          wait_for_ajax
-          expect(find('#otu_count')).to have_text('1', wait: 10)
+          it 'renders count of collection objects based on a selected otu' do
+            fill_autocomplete('otu_id_for_by_otu', with: otu_test.name, select: otu_test.to_param)
+            wait_for_ajax
+            find('#set_otu').click
+            wait_for_ajax
+            expect(find('#otu_count')).to have_text('1', wait: 10)
+          end
         end
       end
 
-      context 'signed in as user, with some records created' do
+      context 'triggering the by_identifier facet' do
+        describe '#set_identifier', js: true, resolution: true do
+
+          before do
+            2.times { FactoryGirl.create(:valid_namespace, creator: @user, updater: @user) }
+            ns1 = Namespace.first
+            ns2 = Namespace.second
+            2.times { FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project) }
+            (1..10).each { |identifier|
+              sp = FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)
+              id = FactoryGirl.create(:identifier_local_catalog_number,
+                                      updater:           @user,
+                                      project:           @project,
+                                      creator:           @user,
+                                      identifier_object: sp,
+                                      namespace:         ((identifier % 2) == 0 ? ns1 : ns2),
+                                      identifier:        identifier)
+            }
+            visit(collection_objects_filter_task_path)
+          end
+          it 'renders the count of collection objects based on a selected range of identifiers' do
+            expect(Specimen.count).to eq(12)
+            expect(Identifier.count).to eq(10)
+            expect(Namespace.count).to eq(2)
+            expect(true).to be_truthy
+          end
+        end
+      end
+
+      context 'with some records created' do
         before {
           generate_political_areas_with_collecting_events(@user.id, @project.id)
         }
@@ -95,6 +130,88 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             expect(find(:xpath, "//div['show_list']/table[@class='tablesorter']/thead")).to have_text('Catalog Number')
           end
 
+        end
+      end
+
+      context 'with records specific to identifiers' do
+        describe 'select a namespace' do
+          it 'should find the correct namespace' do
+            @ns1 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)
+            @ns2 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
+            visit(collection_objects_filter_task_path)
+
+            expect(page).to have_button('Set Identifier Range')
+            select('PSUC', from: 'id_namespace')
+            # s = find(:select, 'id_namespace')
+            # s.send_keys("P\t")
+            expect(page).to have_text('PSUC_FEM')
+          end
+        end
+
+        describe 'select start and stop identifiers', js: true do
+          it 'should find the start and stop inputs' do
+            @ns1 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)
+            @ns2 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
+            3.times { FactoryGirl.create(:valid_namespace, creator: @user, updater: @user) }
+            @ns3 = Namespace.third
+            2.times { FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project) }
+            FactoryGirl.create(:identifier_local_import,
+                               identifier_object: Specimen.first,
+                               namespace:         @ns3,
+                               identifier:        'First specimen', creator: @user, updater: @user, project: @project)
+            FactoryGirl.create(:identifier_local_import,
+                               identifier_object: Specimen.second,
+                               namespace:         @ns3,
+                               identifier:        'Second specimen', creator: @user, updater: @user, project: @project)
+            (1..10).each { |identifier|
+              sp = FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)
+              id = FactoryGirl.create(:identifier_local_catalog_number,
+                                      identifier_object: sp,
+                                      namespace:         ((identifier % 2) == 0 ? @ns1 : @ns2),
+                                      identifier:        identifier, creator: @user, updater: @user, project: @project)
+            }
+
+            expect(Specimen.with_identifier('PSUC_FEM 1').count).to eq(1)
+            expect(Specimen.with_namespaced_identifier('PSUC_FEM', 2).count).to eq(0)
+            expect(Specimen.with_namespaced_identifier('PSUC_FEM', 3).count).to eq(1)
+            visit(collection_objects_filter_task_path)
+
+            page.execute_script "$('#set_id_range')[0].scrollIntoView()"
+
+            fill_in('id_range_start', with: '1')
+            fill_in('id_range_stop', with: '10')
+
+            click_button('Set Identifier Range', {id: 'set_id_range'})
+            wait_for_ajax
+            expect(find('#id_range_count')).to have_content('10')
+
+            fill_in('id_range_start', with: '3')
+            fill_in('id_range_stop', with: '8')
+
+            click_button('Set Identifier Range', {id: 'set_id_range'})
+            wait_for_ajax
+            expect(find('#id_range_count')).to have_content('6')
+
+            fill_in('id_range_start', with: '8')
+            fill_in('id_range_stop', with: '3')
+
+            click_button('Set Identifier Range', {id: 'set_id_range'})
+            wait_for_ajax
+            expect(find('#id_range_count')).to have_content('0')
+
+            select('PS', from: 'id_namespace')
+            fill_in('id_range_start', with: '3')
+            fill_in('id_range_stop', with: '9')
+
+            click_button('Set Identifier Range', {id: 'set_id_range'})
+            wait_for_ajax
+            expect(find('#id_range_count')).to have_content('4')
+
+            find('#find_area_and_date_commit').click
+            wait_for_ajax
+            expect(find('#paging_data')).to have_content('all 4')
+
+          end
         end
       end
     end

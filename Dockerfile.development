@@ -23,7 +23,7 @@ RUN apt-get update && \
                        tesseract-ocr \
                        cmake \
                        nodejs yarn \
-                       ruby2.3 ruby2.3-dev && \
+                       ruby2.4 ruby2.4-dev && \
     apt clean && \
     rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
 
