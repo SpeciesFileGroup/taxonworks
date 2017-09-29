@@ -17,12 +17,4 @@ module Tasks::CollectionObjects::AreaAndDate::AreaAndDateHelper
     select_tag(id_range_element, options_for_select(option_list), prompt: 'Select an identifier')
   end
 
-  def id_group
-    CollectionObject.with_identifier_type_and_namespace('Identifier::Local::CatalogNumber',
-                                                        params['id_namespace'])
-      .collect { |sp| sp.identifiers }
-      .flatten
-      .map(&:identifier).uniq
-  end
-
 end
