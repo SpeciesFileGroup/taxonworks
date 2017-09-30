@@ -10,7 +10,7 @@ Object.assign(TW.views.tags.tag_icon, {
 		var that = this;
 
 		$(document).on('pinboard:insert', function() {
-			that.findTagIcon();
+			that.findTagIcon();			
 		});
 		
 		this.findTagIcon();
@@ -39,6 +39,17 @@ Object.assign(TW.views.tags.tag_icon, {
 		$('.default_tag_widget').each(function() {
 			that.checkExist(this);
 		});
+	},
+
+	createTooltip: function(element) {
+		tippy(element, {
+			position: 'bottom',
+			animation: 'scale',
+			inertia: true,
+			size: 'small',
+			arrowSize: 'small',
+			arrow: true
+		})		
 	},
 
 	makeAjaxCall: function(type, url, data) {
@@ -92,11 +103,13 @@ Object.assign(TW.views.tags.tag_icon, {
 	},
 
 	setAsCreate: function(element) {
+		$(element).attr('title', 'Add default tag: ' + this.getDefaultString());
 		$(element).removeClass('btn-disabled');
 		$(element).removeClass('btn-tag-delete');
 		$(element).removeAttr('data-tag-id');
 		$(element).addClass('circle-button');
 		$(element).addClass('btn-tag-add');
+		this.createTooltip(element);
 	},
 
 	setAsDisable: function(element) {
@@ -124,6 +137,9 @@ Object.assign(TW.views.tags.tag_icon, {
 		else {
 			this.setAsDisable(element);
 		}
+	},
+	getDefaultString: function() {
+		return $('[data-pinboard-section="ControlledVocabularyTerms"] [data-insert="true"] a')[0].textContent;
 	},
 
 	getDefault: function() {
