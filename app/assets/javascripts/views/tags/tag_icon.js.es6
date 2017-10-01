@@ -6,14 +6,14 @@ TW.views.tags.tag_icon = TW.views.tags.tag_icon || {};
 Object.assign(TW.views.tags.tag_icon, {
 
 	objectElement: undefined,
+	CTVCount: 0,
 	toolTip: undefined,
 
 	init: function(element) {
 
 		var that = this;
-		this.objectElement = element;		
+		this.objectElement = element;
 		this.checkExist(this.objectElement);
-
 		$(document).on('pinboard:insert', function() {
 			that.checkExist(that.objectElement);			
 		});
@@ -97,8 +97,12 @@ Object.assign(TW.views.tags.tag_icon, {
 
 	},
 
+	createCountLabel: function() {
+		return '<p>Used already on '+ this.CTVCount +'</p>';
+	},
+
 	setAsDelete: function(element, tagId) {
-		$(element).attr('title', 'Remove ' + this.getDefaultString() + ' tag');
+		$(element).attr('title', 'Remove ' + this.getDefaultString() + ' tag ' + this.createCountLabel());
 		$(element).removeClass('btn-disabled');
 		$(element).removeClass('btn-tag-add');
 		$(element).addClass('circle-button');
@@ -108,7 +112,7 @@ Object.assign(TW.views.tags.tag_icon, {
 	},
 
 	setAsCreate: function(element) {
-		$(element).attr('title', 'Add default tag: ' + this.getDefaultString());
+		$(element).attr('title', 'Create tag: ' + this.getDefaultString() + this.createCountLabel());
 		$(element).removeClass('btn-disabled');
 		$(element).removeClass('btn-tag-delete');
 		$(element).removeAttr('data-tag-id');
@@ -125,6 +129,13 @@ Object.assign(TW.views.tags.tag_icon, {
 		this.createTooltip(element);
 	},
 
+	getCVTCount: function(id) {
+		var that = this;
+		return this.makeAjaxCall('GET', '/controlled_vocabulary_terms/'+ id, '').then(response => {
+			return response.tag_count;
+		});
+	},
+
 	checkExist: function(element) {
 		var globalId = $(element).attr('data-tag-object-global-id');
 		var defaultTag = this.getDefault();
@@ -132,13 +143,16 @@ Object.assign(TW.views.tags.tag_icon, {
 		if(defaultTag) {
 			var url = "/tags/exists?global_id=" + globalId + "&keyword_id=" + defaultTag;
 
-			$.get(url, function(data) {
-				if(data) {
-					that.setAsDelete(element,data.id);
-				}
-				else {
-					that.setAsCreate(element);
-				}				
+			this.getCVTCount(defaultTag).then(response => {
+				that.CTVCount = response;
+				$.get(url, function(data) {
+					if(data) {
+						that.setAsDelete(element, data.id);
+					}
+					else {
+						that.setAsCreate(element);
+					}				
+				});
 			});
 		}
 		else {
