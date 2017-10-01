@@ -98,7 +98,7 @@ Object.assign(TW.views.tags.tag_icon, {
 	},
 
 	createCountLabel: function() {
-		return '<p>Used already on '+ this.CTVCount +'</p>';
+		return '<p>Used already on '+ this.CTVCount +' objects</p>';
 	},
 
 	setAsDelete: function(element, tagId) {
