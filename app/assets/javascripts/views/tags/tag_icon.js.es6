@@ -14,8 +14,11 @@ Object.assign(TW.views.tags.tag_icon, {
 		var that = this;
 		this.objectElement = element;
 		this.checkExist(this.objectElement);
-		$(document).on('pinboard:insert', function() {
-			that.checkExist(that.objectElement);			
+		$(document).off('pinboard:insert');
+		$(document).on('pinboard:insert', function(event) {
+			if(event.detail.type === "ControlledVocabularyTerm") {
+				that.checkExist(that.objectElement);
+			}
 		});
 
 		$(element).on('click', function() {

@@ -4,29 +4,37 @@ TW.workbench.storage = TW.workbench.storage || {};
 
 Object.assign(TW.workbench.storage, {
 
-	namespace: "TW",
+	namespace: null,
 
 	init: function() {
-		var path = location.pathname.split("/"),
-			concat = "";
+		
+  		this.namespace = this.splitNamespace(location.pathname);
+	},
 
+	splitNamespace: function(newNamespace) {
+		var path = newNamespace.split("/");
+		var concat = "";
 		if(!isNaN(path[path.length-1])) {
 			path.splice((path.length-1), 1);
 		}
 		path.forEach(function(item, index) {
 			if(item != '')
 				concat = concat + "::" + item;
-  		});
-  		this.namespace = concat;
+  		});		
+		return "TW" + concat;
 	},
 
 	changeNamespace: function(path) {
-		this.namespace = path;
+		this.namespace = this.splitNamespace(path);
+	},
+
+	getNamespace: function() {
+		return this.namespace;
 	},
 
 	setItem: function(key, value) {
 		var setKey = this.namespace + "::" + key;
-		localStorage.setItem(setKey, value);
+		localStorage.setItem(setKey, JSON.stringify(value));
 	},
 
 	removeItem: function(key) {
@@ -36,7 +44,7 @@ Object.assign(TW.workbench.storage, {
 
 	getItem: function(key, value) {
 		var setKey = this.namespace + "::" + key;
-		return localStorage.getItem(setKey);
+		return JSON.parse(localStorage.getItem(setKey));
 	},
 
 	newStorage: function() {

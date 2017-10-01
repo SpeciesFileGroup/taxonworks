@@ -9,6 +9,7 @@ Object.assign(TW.workbench.alert, {
 	},
 
 	init: function() {
+		$(document).off("click", ".alert-close");
 		$(document).on("click", ".alert-close", function() {
 			$(this).parent(".alert").animate({
 	    		bottom: "-="+ ($(this).height()*2),
