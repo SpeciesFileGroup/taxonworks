@@ -102,7 +102,7 @@ Object.assign(TW.views.tags.tag_icon, {
 	},
 
 	setAsDelete: function(element, tagId) {
-		$(element).attr('title', 'Remove ' + this.getDefaultString() + ' tag ' + this.createCountLabel());
+		$(element).attr('title', '<p>Remove ' + this.getDefaultString() + ' tag</p>' + this.createCountLabel());
 		$(element).removeClass('btn-disabled');
 		$(element).removeClass('btn-tag-add');
 		$(element).addClass('circle-button');
@@ -112,7 +112,7 @@ Object.assign(TW.views.tags.tag_icon, {
 	},
 
 	setAsCreate: function(element) {
-		$(element).attr('title', 'Create tag: ' + this.getDefaultString() + this.createCountLabel());
+		$(element).attr('title', '<p>Create tag: ' + this.getDefaultString() + '</p>'+ this.createCountLabel());
 		$(element).removeClass('btn-disabled');
 		$(element).removeClass('btn-tag-delete');
 		$(element).removeAttr('data-tag-id');
@@ -122,7 +122,7 @@ Object.assign(TW.views.tags.tag_icon, {
 	},
 
 	setAsDisable: function(element) {
-		$(element).attr('title', 'Select a default CVT first.');
+		$(element).attr('title', '<p>Select a default CVT first.</p>');
 		$(element).addClass('btn-tag-add');
 		$(element).addClass('btn-disabled');
 		$(element).removeAttr('data-tag-id');

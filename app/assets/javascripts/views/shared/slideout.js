@@ -6,6 +6,10 @@ TW.views.shared.slideout = TW.views.shared.slideout || {};
 Object.assign(TW.views.shared.slideout, {
 	init: function() {
 		var that = this;
+
+		$(document).off('click', '.slide-panel-category-header');
+		$(document).off('click', '.slide-panel-circle-icon');
+
 		$(document).on('click', '.slide-panel-circle-icon', function() {		
 			that.closeHideSlideoutPanel($(this).closest('.slide-panel'));
 		});
