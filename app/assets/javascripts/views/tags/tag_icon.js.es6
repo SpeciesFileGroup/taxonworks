@@ -5,16 +5,20 @@ TW.views.tags.tag_icon = TW.views.tags.tag_icon || {};
 
 Object.assign(TW.views.tags.tag_icon, {
 
-	init: function() {
+	objectElement: undefined,
+	toolTip: undefined,
+
+	init: function(element) {
 
 		var that = this;
+		this.objectElement = element;		
+		this.checkExist(this.objectElement);
 
 		$(document).on('pinboard:insert', function() {
-			that.findTagIcon();			
+			that.checkExist(that.objectElement);			
 		});
-		
-		this.findTagIcon();
-		$('.default_tag_widget').on('click', function() {
+
+		$(element).on('click', function() {
 			if(!$(this).hasClass('btn-disabled')) {
 				if($(this).hasClass('btn-tag-add')) {
 					that.createTag($(this).attr('data-tag-object-global-id'), that.getDefault()).then(response => {
@@ -34,22 +38,21 @@ Object.assign(TW.views.tags.tag_icon, {
 		});
 	},
 
-	findTagIcon: function() {
-		var that = this;
-		$('.default_tag_widget').each(function() {
-			that.checkExist(this);
-		});
-	},
-
 	createTooltip: function(element) {
-		tippy(element, {
-			position: 'bottom',
-			animation: 'scale',
-			inertia: true,
-			size: 'small',
-			arrowSize: 'small',
-			arrow: true
-		})		
+		if(this.toolTip && this.toolTip.getReferenceData(element || this.toolTip.getPopperElement(this.objectElement))) {
+			this.toolTip.update(this.toolTip.getPopperElement(this.objectElement))
+		}
+		else {
+			this.toolTip = tippy(element, {
+				position: 'bottom',
+				animation: 'scale',
+				inertia: true,
+				size: 'small',
+				arrowSize: 'small',
+				arrow: true
+			})
+		}
+
 	},
 
 	makeAjaxCall: function(type, url, data) {
@@ -95,11 +98,13 @@ Object.assign(TW.views.tags.tag_icon, {
 	},
 
 	setAsDelete: function(element, tagId) {
+		$(element).attr('title', 'Remove ' + this.getDefaultString() + ' tag');
 		$(element).removeClass('btn-disabled');
 		$(element).removeClass('btn-tag-add');
 		$(element).addClass('circle-button');
 		$(element).addClass('btn-tag-delete');
 		$(element).attr('data-tag-id', tagId);
+		this.createTooltip(element);
 	},
 
 	setAsCreate: function(element) {
@@ -113,9 +118,11 @@ Object.assign(TW.views.tags.tag_icon, {
 	},
 
 	setAsDisable: function(element) {
+		$(element).attr('title', 'Select a default CVT first.');
 		$(element).addClass('btn-tag-add');
 		$(element).addClass('btn-disabled');
 		$(element).removeAttr('data-tag-id');
+		this.createTooltip(element);
 	},
 
 	checkExist: function(element) {
@@ -131,7 +138,7 @@ Object.assign(TW.views.tags.tag_icon, {
 				}
 				else {
 					that.setAsCreate(element);
-				}
+				}				
 			});
 		}
 		else {
@@ -148,7 +155,7 @@ Object.assign(TW.views.tags.tag_icon, {
 });
 
 $(document).on('turbolinks:load', function() {
-  if ($(".default_tag_widget").length) {
-    TW.views.tags.tag_icon.init();
-  }
+  $(".default_tag_widget").each(function() {
+  	TW.views.tags.tag_icon.init(this);
+  })
 });
