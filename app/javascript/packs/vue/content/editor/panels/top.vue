@@ -6,7 +6,7 @@
       param="term"
       placeholder="Find OTU"
       event-send="otu_picker"
-      label="label">
+      label="label_html">
     </autocomplete>
   </div>
 </template>
