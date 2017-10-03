@@ -5,16 +5,23 @@ TW.views.tags.tag_icon = TW.views.tags.tag_icon || {};
 
 Object.assign(TW.views.tags.tag_icon, {
 
-	init: function() {
+	objectElement: undefined,
+	CTVCount: 0,
+	toolTip: undefined,
+
+	init: function(element) {
 
 		var that = this;
-
-		$(document).on('pinboard:insert', function() {
-			that.findTagIcon();			
+		this.objectElement = element;
+		this.checkExist(this.objectElement);
+		$(document).off('pinboard:insert');
+		$(document).on('pinboard:insert', function(event) {
+			if(event.detail.type === "ControlledVocabularyTerm") {
+				that.checkExist(that.objectElement);
+			}
 		});
-		
-		this.findTagIcon();
-		$('.default_tag_widget').on('click', function() {
+
+		$(element).on('click', function() {
 			if(!$(this).hasClass('btn-disabled')) {
 				if($(this).hasClass('btn-tag-add')) {
 					that.createTag($(this).attr('data-tag-object-global-id'), that.getDefault()).then(response => {
@@ -34,22 +41,21 @@ Object.assign(TW.views.tags.tag_icon, {
 		});
 	},
 
-	findTagIcon: function() {
-		var that = this;
-		$('.default_tag_widget').each(function() {
-			that.checkExist(this);
-		});
-	},
-
 	createTooltip: function(element) {
-		tippy(element, {
-			position: 'bottom',
-			animation: 'scale',
-			inertia: true,
-			size: 'small',
-			arrowSize: 'small',
-			arrow: true
-		})		
+		if(this.toolTip && this.toolTip.getReferenceData(element || this.toolTip.getPopperElement(this.objectElement))) {
+			this.toolTip.update(this.toolTip.getPopperElement(this.objectElement))
+		}
+		else {
+			this.toolTip = tippy(element, {
+				position: 'bottom',
+				animation: 'scale',
+				inertia: true,
+				size: 'small',
+				arrowSize: 'small',
+				arrow: true
+			})
+		}
+
 	},
 
 	makeAjaxCall: function(type, url, data) {
@@ -94,16 +100,22 @@ Object.assign(TW.views.tags.tag_icon, {
 
 	},
 
+	createCountLabel: function() {
+		return '<p>Used already on '+ this.CTVCount +' objects</p>';
+	},
+
 	setAsDelete: function(element, tagId) {
+		$(element).attr('title', '<p>Remove ' + this.getDefaultString() + ' tag</p>' + this.createCountLabel());
 		$(element).removeClass('btn-disabled');
 		$(element).removeClass('btn-tag-add');
 		$(element).addClass('circle-button');
 		$(element).addClass('btn-tag-delete');
 		$(element).attr('data-tag-id', tagId);
+		this.createTooltip(element);
 	},
 
 	setAsCreate: function(element) {
-		$(element).attr('title', 'Add default tag: ' + this.getDefaultString());
+		$(element).attr('title', '<p>Create tag: ' + this.getDefaultString() + '</p>'+ this.createCountLabel());
 		$(element).removeClass('btn-disabled');
 		$(element).removeClass('btn-tag-delete');
 		$(element).removeAttr('data-tag-id');
@@ -113,9 +125,18 @@ Object.assign(TW.views.tags.tag_icon, {
 	},
 
 	setAsDisable: function(element) {
+		$(element).attr('title', '<p>Select a default CVT first.</p>');
 		$(element).addClass('btn-tag-add');
 		$(element).addClass('btn-disabled');
 		$(element).removeAttr('data-tag-id');
+		this.createTooltip(element);
+	},
+
+	getCVTCount: function(id) {
+		var that = this;
+		return this.makeAjaxCall('GET', '/controlled_vocabulary_terms/'+ id, '').then(response => {
+			return response.tag_count;
+		});
 	},
 
 	checkExist: function(element) {
@@ -125,13 +146,16 @@ Object.assign(TW.views.tags.tag_icon, {
 		if(defaultTag) {
 			var url = "/tags/exists?global_id=" + globalId + "&keyword_id=" + defaultTag;
 
-			$.get(url, function(data) {
-				if(data) {
-					that.setAsDelete(element,data.id);
-				}
-				else {
-					that.setAsCreate(element);
-				}
+			this.getCVTCount(defaultTag).then(response => {
+				that.CTVCount = response;
+				$.get(url, function(data) {
+					if(data) {
+						that.setAsDelete(element, data.id);
+					}
+					else {
+						that.setAsCreate(element);
+					}				
+				});
 			});
 		}
 		else {
@@ -148,7 +172,7 @@ Object.assign(TW.views.tags.tag_icon, {
 });
 
 $(document).on('turbolinks:load', function() {
-  if ($(".default_tag_widget").length) {
-    TW.views.tags.tag_icon.init();
-  }
+  $(".default_tag_widget").each(function() {
+  	TW.views.tags.tag_icon.init(this);
+  })
 });

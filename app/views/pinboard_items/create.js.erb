@@ -11,7 +11,7 @@ var injectItem = `<li class="slide-panel-category-item" data-insert="false" data
                   <div class="pinboard-menu-bar"></div>
                   <div class="pinboard-menu-bar"></div>
                   <div class="itemOptions pinboard-dropdown-content">
-                    <%= link_to('Remove', pinboard_item_path(@pinboard_item), class: ['remove', 'circle-button', 'button-delete'], method: :delete) -%>                   
+                    <%= link_to('Remove', pinboard_item_path(@pinboard_item), class: ['remove', 'circle-button', 'button-delete'], method: :delete, remote: true) -%>                   
                     <%= if @pinboard_item.pinned_object_type == 'Document' && @pinboard_item.pinned_object.document_file_content_type.eql?("application/pdf") 
                           content_tag(:a, "PDF Viewer", class: :pdfviewerItem , data: { pdfviewer: @pinboard_item.pinned_object.document_file(:original, false) }) 
                         end 
@@ -21,11 +21,11 @@ var injectItem = `<li class="slide-panel-category-item" data-insert="false" data
                 </div>
               </li>`
 
-if(!$('[data-pin-caterogy="<%= @pinboard_item.pinned_object_type -%>"]').length) {
+if(!$('[data-pinboard-section="<%= @pinboard_item.pinned_object_type.pluralize -%>"]').length) {
 	var injectCategory = ` <div id="order_<%= @pinboard_item.pinned_object_type.pluralize -%>">
 						      <div class="slide-panel-category-header"><%= @pinboard_item.pinned_object_type.pluralize -%></div>
 						      	<ul class="slide-panel-category-content"
-									            data-pin-caterogy="<%= @pinboard_item.pinned_object_type -%>"
+									            data-pinboard-section="<%= @pinboard_item.pinned_object_type.pluralize -%>"
 									            data-sortable
 									            data-sortable-items="li"
 									            data-sortable-on-change-url="<%= update_position_pinboard_items_path -%>"
@@ -36,5 +36,5 @@ if(!$('[data-pin-caterogy="<%= @pinboard_item.pinned_object_type -%>"]').length)
 	$(injectCategory).appendTo('#pinboard');						
 }
 
-$(injectItem).appendTo('[data-pin-caterogy="<%= @pinboard_item.pinned_object_type -%>"]');
+$(injectItem).appendTo('[data-pinboard-section="<%= @pinboard_item.pinned_object_type.pluralize -%>"]');
 

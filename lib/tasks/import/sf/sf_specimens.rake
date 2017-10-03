@@ -67,7 +67,6 @@ namespace :tw do
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_sf_verbatim_ref = import.get('RefIDToVerbatimRef')
 
-
           # to get associated OTU, get TW taxon id, then get OTU from TW taxon id
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_otu_from_tw_taxon_id = import.get('TWTaxonNameIDToOtuID')
@@ -249,9 +248,13 @@ namespace :tw do
                         #   other fields in tblIdentifications: HigherTaxonName, NomenclatorID, TaxonIdentNote, TypeTaxonNameID, RefID, IdentifierName/Year,
                         #     PlaceInCollection, IdentificationModeNote, VerbatimLabel
 
-                        # HigherTaxonName > 0 or NomenclatorID > 0 create new determination (should only be one or other)
-                        # To find OTU from NomenclatorID, match cached taxon name then get OTU
-
+                        # Treat VerbatimLabel as buffered_collecting_event -- What's that??? Since it's in identification, could be more than one
+                        # if identification['verbatim_label'].present?
+                        #   verbatim_label = ImportAttribute.create!(import_predicate: 'VerbatimLabel',
+                        #                                            value: identification['verbatim_label'],
+                        #                                            project_id: project_id)
+                        #   data_attributes_attributes.push(verbatim_label)
+                        # end
 
             }
 
@@ -336,9 +339,10 @@ namespace :tw do
                     current_objects.each do |o|
 
                       # Add subsequent determinations
+                      nomenclator_id = nil
                       target_nomenclator = nil
-                      otu = nil
 
+                      # If nomenclator_id exists, use it; otherwise use higher_taxon_name if available
                       if identification['nomenclator_id'].present?
                         nomenclator_id = identification['nomenclator_id']
                         target_nomenclator = get_nomenclator_string[nomenclator_id]
@@ -356,46 +360,50 @@ namespace :tw do
                       data_attributes_attributes = []
 
                       source_id = nil
-                      verbatim_sf_ref = nil
                       if identification['ref_id'].to_i > 0
                         sf_ref_id = identification['ref_id']
                         if get_tw_source_id.has_key?(sf_ref_id)
                           source_id = get_tw_source_id[sf_ref_id]
                         else # no TW source equiv, use verbatim as data_attribute
-                          verbatim_sf_ref = {type: 'ImportAttribute',
-                                             import_predicate: "verbatim_sf_ref_id_#{sf_ref_id}",
-                                             value: get_sf_verbatim_ref[sf_ref_id],
-                                             project_id: project_id}
+                          verbatim_sf_ref = ImportAttribute.create!(import_predicate: "verbatim_sf_ref_id_#{sf_ref_id}",
+                                                                    value: get_sf_verbatim_ref[sf_ref_id],
+                                                                    project_id: project_id)
                           data_attributes_attributes.push(verbatim_sf_ref)
                         end
-
-
                       end
-                      # if RefID > 0.......  , notes_attributes, confidences_attributes
-                      # data attribute on VerbatimLabel
-                      # ident_qualifier_text: based on nomenclator_id and if get_sf_ident_qualifier.has_key? nomenclator_id
+
+
+                      if identification['identification_mode_note'].present?
+                        identification_mode_note = ImportAttribute.create!(import_predicate: 'IdentificationModeNote',
+                                                                           value: identification['identification_mode_note'],
+                                                                           project_id: project_id)
+                        data_attributes_attributes.push(identification_mode_note)
+                      end
+
+
+                      # following code not necessary if it can be done inline
+                      # confidences_attributes = nil
+                      # if get_sf_ident_qualifier.has_key?(nomenclator_id)
+                      #   confidences_attributes = ConfidenceLevel.find_or_create_by(
+                      #       name: get_sf_ident_qualifier[nomenclator_id],
+                      #       definition: get_sf_ident_qualifier[nomenclator_id],
+                      #       project_id: project_id)
+                      # end
 
 
                       t = TaxonDetermination.create!(
                           otu: otu,
                           material: o,
-                          # source_id: source_id,
-                          # notes_attributes:,
-                          # confidences_attributes: ConfidenceLevel.find_or_create_by(name: <thing that has cf>, project_id:)}],
-                          # project_id: project_id
-                      )
+                          source_id: source_id,
+
+                          data_attributes_attributes: data_attributes_attributes,
+                          notes_attributes: Notes.create!(text: identification['taxon_ident_note']),
+                          confidences_attributes: ConfidenceLevel.find_or_create_by(
+                              name: get_sf_ident_qualifier[nomenclator_id], definition: get_sf_ident_qualifier[nomenclator_id], project_id: project_id),
+                          project_id: project_id)
                       t.move_to_bottom # so it's not the first record
 
                       # need IdentifierName
-
-
-                      # nomenclator rank and rank qualifier text         CVT and confidences for each project    keyword is to tag as confidence level is to confidences
-                      #
-                      # unify: cf. ? aff. nr.
-                      #
-                      #                         c = cr; aff together
-                      #
-                      # attached to determination
 
 
                       # VerbatimLabel	41		“2 mi NE Gold Butte, NV, Clark Co., VI-16-1988, R.C. Bechtel, J.L. Carpenter, .J.B. Knight Collectors, Black Light  Trap” “HOLOTYPE Arenivaga haringtoni Hopkins, 2012” [red label with black border]			CollectionObject#buffered_collecting_event

@@ -26,6 +26,8 @@ Object.assign(TW.workbench.help, {
 			$('.help-button').addClass("help-button-present");
 		}
 
+		$(document).off('mouseenter, mouseleave', '.help-bubble-tip');
+
 		$(document).on({
 		    mouseenter: function (evt) {
 		    	if(TW.workbench.help.helpActive()) {
