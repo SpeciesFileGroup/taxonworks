@@ -47,6 +47,12 @@ describe 'Housekeeping::Timestamps' do
         expect(GeographicItem.updated_in_date_range('2001-1-1', '2001-12-31').count).to eq(0)
         expect(GeographicItem.updated_in_date_range('2017-10-3', '2017-10-3').count).to eq(1)
       end
+
+      specify 'created_before_date' do
+        expect(GeographicItem.created_before_date('2/1/16').count).to eq(0)
+        expect(GeographicItem.created_before_date('2/1/17').count).to eq(1)
+        expect(GeographicItem.created_before_date('2/1/18').count).to eq(2)
+      end
     end
   end
 end
