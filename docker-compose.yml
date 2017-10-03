@@ -26,7 +26,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile.development
-    command: bash -c "yarn &&  /app/bin/webpack-dev-server --host 0.0.0.0"
+    command: bash -c "yarn && /app/bin/webpack-dev-server --host 0.0.0.0"
     volumes: 
       - .:/app
     ports:
