@@ -16,7 +16,10 @@
       <div class="item flex-wrap-column middle menu-item menu-button" @click="update" :class="{ saving : autosave }"><span data-icon="savedb" class="big-icon"></span><span class="tiny_space">Save</span></div>
       <clone-content :class="{ disabled : !content }" class="item menu-item"></clone-content>
       <compare-content class="item menu-item"></compare-content>
-      <div class="item flex-wrap-column middle menu-item menu-button" @click="ChangeStateCitations()" :class="{ active : activeCitations, disabled : citations < 1 }"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation</span></div>
+      <div class="item flex-wrap-column middle menu-item menu-button" @click="ChangeStateCitations()" :class="{ active : activeCitations, disabled : citations < 1 }">
+        <span data-icon="citation" class="big-icon"></span>
+        <span class="tiny_space">Citation</span>
+      </div>
       <citation-otu class="item menu-item"></citation-otu>
       <div class="item flex-wrap-column middle menu-item menu-button" @click="ChangeStateFigures()" :class="{ active : activeFigures, disabled : !content }"><span data-icon="new" class="big-icon"></span><span class="tiny_space">Figure</span></div>
     </div>
@@ -115,7 +118,7 @@
           this.$store.commit(MutationNames.ChangeStateFigures);
         },
         ChangeStateCitations: function() {
-          $store.commit(MutationNames.ChangeStateCitations)
+          this.$store.commit(MutationNames.ChangeStateCitations)
         },        
         existCitation: function(citation) {
           var exist = false;
