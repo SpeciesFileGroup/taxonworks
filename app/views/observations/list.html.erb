@@ -34,7 +34,7 @@
           <td><%= descriptor_tag(observation.descriptor) %></td>
           <td><%= otu_tag(observation.otu) %></td>
           <td><%= collection_object_tag(observation.collection_object) %></td>
-          <td><%= observation.character_state if observation.respond_to?(:character_state) %></td>
+          <td><%= character_state_tag(observation.character_state) if observation.respond_to?(:character_state) %></td>
           <td><%= observation.frequency %></td>
           <td><%= observation.continuous_value %></td>
           <td><%= observation.continuous_unit %></td>
