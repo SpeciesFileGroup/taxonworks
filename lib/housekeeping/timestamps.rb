@@ -10,8 +10,8 @@ module Housekeeping::Timestamps
     # related_table_name = self.table_name
 
     scope :created_before_date, -> (date) { where('created_at < ?', "#{date}") }
-    scope :created_in_range, ->(start, stop) { where('created_at > ? and created_at < ?', start, stop) }
-    scope :updated_in_range, ->(start, stop) { where('updated_at > ? and updated_at < ?', start, stop) }
+    scope :created_in_date_range, ->(start, stop) { where('created_at >= ? and created_at <= ?', start, stop) }
+    scope :updated_in_date_range, ->(start, stop) { where('updated_at >= ? and updated_at <= ?', start, stop) }
   end
 
   module ClassMethods

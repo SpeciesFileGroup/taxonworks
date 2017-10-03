@@ -9,8 +9,8 @@ module Housekeeping::Users
     belongs_to :creator, foreign_key: :created_by_id, class_name: 'User'
     belongs_to :updater, foreign_key: :updated_by_id, class_name: 'User'
 
-    scope :created_by_user, ->(user) { get_created_by(user) }
-    scope :updated_by_user, ->(user) { get_updated_by(user) }
+    scope :created_by_user, ->(user) { where(created_by_id: get_user_id(user)) }
+    scope :updated_by_user, ->(user) { where(updated_by_id: get_user_id(user)) }
 
     unless_user = lambda { self.class.name == "User" && self.self_created }
     validates :creator, presence: true, unless: unless_user # lambda, proc, or block
@@ -34,18 +34,6 @@ module Housekeeping::Users
   end
 
   module ClassMethods
-
-    # @param [String, User, Integer] user
-    # @return [Scope]
-    def get_updated_by(user)
-     self.where(updated_by_id: get_user_id(user))
-    end
-
-    # @param [String, User, Integer] user
-    # @return [Scope]
-    def get_created_by(user)
-      self.where(created_by_id: get_user_id(user))
-    end
 
     # @return [Scope]
     #   for all uniq Users that created this class
