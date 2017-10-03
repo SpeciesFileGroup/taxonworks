@@ -28,11 +28,20 @@ if [ ! -f /app/config/secrets.yml ]; then
   cp /app/config/secrets.yml.example /app/config/secrets.yml
 fi
 
-if bundle exec rake db:migrate RAILS_ENV=development; then
+if echo "\c db; \dt" | psql | grep schema_migrations 2>&1 >/dev/null
+then
+  bundle exec rake db:migrate 
   echo "Done migration successfully"
 else
-  printf "\n\n  !!!!!!!!!! Build the taxonworks_development database first. !!!!!!!!!! \n\n "
+  printf "\n\n  !!!!!!!!!! Building a new taxonworks_development database !!!!!!!!!! \n\n "
+  bundle exec rake db:create 
 fi
+
+# if bundle exec rake db:migrate RAILS_ENV=development; then
+
+# else
+#   printf "\n\n  !!!!!!!!!! Build the taxonworks_development database first. !!!!!!!!!! \n\n "
+# fi
 
 bundle exec rails s -p 3000 -b '0.0.0.0'
 
