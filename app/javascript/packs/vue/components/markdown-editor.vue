@@ -24,6 +24,13 @@
         },
       },
     },
+    data: function() {
+      return {
+        clicks: 0,
+        timerClicks: undefined,
+        cursorPosition: 0
+      }
+    },
     ready() {
       this.initialize();
       this.syncValue();
@@ -45,6 +52,23 @@
       bindingEvents() {
         this.simplemde.codemirror.on('change', () => {
           this.$emit('input', this.simplemde.value());
+        });
+        this.simplemde.codemirror.on('mousedown', (cm, ev) => {
+          let that = this;
+
+          this.clicks++;
+
+          if(this.clicks == 1)
+            setTimeout(function() {
+              that.cursorPosition = that.simplemde.codemirror.doc.indexFromPos(that.simplemde.codemirror.doc.getCursor());
+            }, 100);
+
+          this.timerClicks = setTimeout(function(){
+            if (that.clicks > 1) {
+                that.$emit('dblclick', that.cursorPosition);
+            }
+            that.clicks = 0;
+          }, 300);
         });
       },
       addPreviewClass(className) {

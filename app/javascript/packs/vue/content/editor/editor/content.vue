@@ -4,7 +4,7 @@
       <div class="left">
         <div class="title"><span><span v-if="topic">{{ topic.name }}</span> - <span v-if="otu" v-html="otu.object_tag"></span></span> <select-topic-otu></select-topic-otu></div>
         <div v-if="disabled" class="CodeMirror cm-s-paper CodeMirror-wrap"></div>
-          <markdown-editor v-else class="edit-content" v-model="record.content.text" :configs="config" @input="handleInput" ref="contentText" v-on:dblclick.native="addCitation()"></markdown-editor>
+          <markdown-editor v-else class="edit-content" v-model="record.content.text" :configs="config" @input="handleInput" ref="contentText" @dblclick="addCitation"></markdown-editor>
       </div>
       <div v-if="compareContent && !preview" class="right">
         <div class="title"><span><span v-html="compareContent.topic.object_tag"></span> - <span v-html="compareContent.otu.object_tag"></span></span></div>
@@ -140,10 +140,13 @@
           }        
         },
 
-        addCitation: function() {
+        addCitation: function(cursorPosition) {
           var that = this;
 
-          that.record.content.text = that.$refs.contentText.value + TW.views.shared.slideout.pdf.textCopy;
+          that.record.content.text = [that.record.content.text.slice(0, cursorPosition), 
+                                        TW.views.shared.slideout.pdf.textCopy, 
+                                        that.record.content.text.slice(cursorPosition)].join('');
+
           if(that.newRecord) {
             var ajaxUrl = `/contents/${that.record.content.id}`;
             if(that.record.content.id == '') {
@@ -165,7 +168,6 @@
           var
             sourcePDF = document.getElementById("pdfViewerContainer").dataset.sourceid;          
           if(sourcePDF == undefined) return
-          
           this.currentSourceID = sourcePDF;          
 
           var citation = {
