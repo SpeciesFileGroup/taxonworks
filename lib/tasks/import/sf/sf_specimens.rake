@@ -203,14 +203,19 @@ namespace :tw do
             if row['SourceID'] != '0'
               sf_source_id = row['SourceID']
 
-              if get_sf_source_metadata.has_key?(sf_source_id) && get_sf_source_metadata[sf_source_id]['ref_id'].to_i > 0 # SF.Source has RefID, create citation for collection object (assuming it will be created)
-
-                # @todo: Why isn't get_tw_source_id used to get RefID, and if get_tw_source_id.has_key? RefID is false, should be attaching verbatim ref string????
-
-
+              if get_sf_source_metadata.has_key?(sf_source_id) && get_sf_source_metadata[sf_source_id]['ref_id'].to_i > 0 # SF.Source has RefID, create citation or use verbatim ref string for collection object (assuming it will be created)
                 sf_source_ref_id = get_sf_source_metadata[sf_source_id]['ref_id'].to_i
                 puts "SF.SourceID, RefID: '#{sf_source_id}', '#{sf_source_ref_id}'"
-                citations_attributes.push({source_id: sf_source_ref_id, project_id: project_id})
+
+                # Is there a TW source_id or must we use the verbatim ref string?
+                if get_tw_source_id.has_key?(sf_source_ref_id)
+                  citations_attributes.push({source_id: get_tw_source_id[sf_source_ref_id], project_id: project_id})
+                else # no TW source equiv, use verbatim as data_attribute
+                  verbatim_sf_ref = ImportAttribute.create!(import_predicate: "verbatim_sf_ref_id_#{sf_source_ref_id}",
+                                                            value: get_sf_verbatim_ref[sf_source_ref_id],
+                                                            project_id: project_id)
+                  data_attributes_attributes.push(verbatim_sf_ref)
+                end
               end
 
               if get_sf_source_metadata[sf_source_id]['description'].present? # SF.Source has description, create an import_attribute
