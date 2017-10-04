@@ -1,0 +1,11 @@
+<%= form_tag(set_id_range_for_collection_object_filter_url, id: 'set_id_range_form', remote: true) do %>
+    User:<br>
+    <%= user_select_tag(:user) -%><br>
+    <%= radio_button_tag(:date_type_select, 'created_at') -%> Created on<br>
+    Search on:<br>
+    <%= radio_button_tag(:date_type_select, 'updated_at') -%> Updated on<br>
+    Range:<br>
+    Start date: <%= text_field_tag(:id_range_start) -%>
+    End date: <%= text_field_tag(:id_range_stop) -%><br>
+    <%= submit_tag('Set User/Date Range', id: 'set_user_date_range') %>
+<% end %>
