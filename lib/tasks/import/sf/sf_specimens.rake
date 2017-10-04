@@ -63,7 +63,9 @@ namespace :tw do
           get_sf_identification_metadata = import.get('SFIdentificationMetadata')
           # get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
           get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
-
+          get_sf_ident_qualifier = import.get('SFIdentQualifier') # key = nomenclator_id, value = ?, aff., cf., nr. ph.
+          get_tw_source_id = import.get('SFRefIDToTWSourceID')
+          get_sf_verbatim_ref = import.get('RefIDToVerbatimRef')
 
           # to get associated OTU, get TW taxon id, then get OTU from TW taxon id
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
@@ -105,20 +107,20 @@ namespace :tw do
             # Note: collection_objects are made for all specimen records, regardless of basis of record (for now)
             #   -- except when there is no count
             if row['BasisOfRecord'].to_i > 0
-              case row['BasisOfRecord'].to_i
-                when 1
-                  basis_of_record_string = 'Preserved specimen'
-                when 2
-                  basis_of_record_string = 'Fossil specimen'
-                when 3
-                  basis_of_record_string = 'Image (still or video)'
-                when 4
-                  basis_of_record_string = 'Audio recording'
-                when 5
-                  basis_of_record_string = 'Checklist/Literature/Map'
-                when 6
-                  basis_of_record_string = 'Personal observation'
-              end
+              basis_of_record_string = case row['BasisOfRecord'].to_i
+                                         when 1
+                                           'Preserved specimen'
+                                         when 2
+                                           'Fossil specimen'
+                                         when 3
+                                           'Image (still or video)'
+                                         when 4
+                                           'Audio recording'
+                                         when 5
+                                           'Checklist/Literature/Map'
+                                         when 6
+                                           'Personal observation'
+                                       end
               basis_of_record = {type: 'ImportAttribute',
                                  import_predicate: 'basis_of_record',
                                  value: basis_of_record_string,
@@ -169,26 +171,26 @@ namespace :tw do
 
             specimen_status_id = row['SpecimenStatusID'].to_i
             if specimen_status_id > 0 && specimen_status_id != 10 # 0 = presumed Ok, 10 = no data entered
-              case specimen_status_id
-                when 1
-                  specimen_status_string = 'missing'
-                when 2
-                  specimen_status_string = 'destroyed'
-                when 3
-                  specimen_status_string = 'lost'
-                when 4
-                  specimen_status_string = 'unknown'
-                when 5
-                  specimen_status_string = 'missing?'
-                when 6
-                  specimen_status_string = 'destroyed?'
-                when 7
-                  specimen_status_string = 'lost?'
-                when 8
-                  specimen_status_string = 'damaged'
-                when 9
-                  specimen_status_string = 'damaged?'
-              end
+              specimen_status_string = case specimen_status_id
+                                         when 1
+                                           'missing'
+                                         when 2
+                                           'destroyed'
+                                         when 3
+                                           'lost'
+                                         when 4
+                                           'unknown'
+                                         when 5
+                                           'missing?'
+                                         when 6
+                                           'destroyed?'
+                                         when 7
+                                           'lost?'
+                                         when 8
+                                           'damaged'
+                                         when 9
+                                           'damaged?'
+                                       end
               specimen_status = {type: 'ImportAttribute',
                                  import_predicate: 'specimen_status',
                                  value: specimen_status_string,
@@ -202,6 +204,10 @@ namespace :tw do
               sf_source_id = row['SourceID']
 
               if get_sf_source_metadata.has_key?(sf_source_id) && get_sf_source_metadata[sf_source_id]['ref_id'].to_i > 0 # SF.Source has RefID, create citation for collection object (assuming it will be created)
+
+                # @todo: Why isn't get_tw_source_id used to get RefID, and if get_tw_source_id.has_key? RefID is false, should be attaching verbatim ref string????
+
+
                 sf_source_ref_id = get_sf_source_metadata[sf_source_id]['ref_id'].to_i
                 puts "SF.SourceID, RefID: '#{sf_source_id}', '#{sf_source_ref_id}'"
                 citations_attributes.push({source_id: sf_source_ref_id, project_id: project_id})
@@ -242,9 +248,13 @@ namespace :tw do
                         #   other fields in tblIdentifications: HigherTaxonName, NomenclatorID, TaxonIdentNote, TypeTaxonNameID, RefID, IdentifierName/Year,
                         #     PlaceInCollection, IdentificationModeNote, VerbatimLabel
 
-                        # HigherTaxonName > 0 or NomenclatorID > 0 create new determination (should only be one or other)
-                        # To find OTU from NomenclatorID, match cached taxon name then get OTU
-
+                        # Treat VerbatimLabel as buffered_collecting_event -- What's that??? Since it's in identification, could be more than one
+                        # if identification['verbatim_label'].present?
+                        #   verbatim_label = ImportAttribute.create!(import_predicate: 'VerbatimLabel',
+                        #                                            value: identification['verbatim_label'],
+                        #                                            project_id: project_id)
+                        #   data_attributes_attributes.push(verbatim_label)
+                        # end
 
             }
 
@@ -329,9 +339,10 @@ namespace :tw do
                     current_objects.each do |o|
 
                       # Add subsequent determinations
+                      nomenclator_id = nil
                       target_nomenclator = nil
-                      otu = nil
 
+                      # If nomenclator_id exists, use it; otherwise use higher_taxon_name if available
                       if identification['nomenclator_id'].present?
                         nomenclator_id = identification['nomenclator_id']
                         target_nomenclator = get_nomenclator_string[nomenclator_id]
@@ -345,17 +356,54 @@ namespace :tw do
                         otu = Otu.create!(name: target_nomenclator, taxon_name_id: get_tw_taxon_name_id[row['TaxonNameID']], project_id: project_id) # target_nomenclator nil?
                       end
 
-                      t = TaxonDetermination.create!(otu: otu, material: o) # !! need to get Reference or other metadata   # after material, source_id: get...[], notes_attributes: [{text: identnote}], confidences_attributes: [{confidence_level: ConfidenceLevel.find_or_create_by(name: <thing that has cf>, project_id: )}]
-                      t.move_to_bottom # might need .move_to_bottom!
+                      # create conditional attributes here
+                      data_attributes_attributes = []
+
+                      source_id = nil
+                      if identification['ref_id'].to_i > 0
+                        sf_ref_id = identification['ref_id']
+                        if get_tw_source_id.has_key?(sf_ref_id)
+                          source_id = get_tw_source_id[sf_ref_id]
+                        else # no TW source equiv, use verbatim as data_attribute
+                          verbatim_sf_ref = ImportAttribute.create!(import_predicate: "verbatim_sf_ref_id_#{sf_ref_id}",
+                                                                    value: get_sf_verbatim_ref[sf_ref_id],
+                                                                    project_id: project_id)
+                          data_attributes_attributes.push(verbatim_sf_ref)
+                        end
+                      end
 
 
-                      # nomenclator rank and rank qualifier text         CVT and confidences for each project    keyword is to tag as confidence level is to confidences
-                      #
-                      # unify: cf. ? aff. nr.
-                      #
-                      #                         c = cr; aff together
-                      #
-                      # attached to determination
+                      if identification['identification_mode_note'].present?
+                        identification_mode_note = ImportAttribute.create!(import_predicate: 'IdentificationModeNote',
+                                                                           value: identification['identification_mode_note'],
+                                                                           project_id: project_id)
+                        data_attributes_attributes.push(identification_mode_note)
+                      end
+
+
+                      # following code not necessary if it can be done inline
+                      # confidences_attributes = nil
+                      # if get_sf_ident_qualifier.has_key?(nomenclator_id)
+                      #   confidences_attributes = ConfidenceLevel.find_or_create_by(
+                      #       name: get_sf_ident_qualifier[nomenclator_id],
+                      #       definition: get_sf_ident_qualifier[nomenclator_id],
+                      #       project_id: project_id)
+                      # end
+
+
+                      t = TaxonDetermination.create!(
+                          otu: otu,
+                          material: o,
+                          source_id: source_id,
+
+                          data_attributes_attributes: data_attributes_attributes,
+                          notes_attributes: Notes.create!(text: identification['taxon_ident_note']),
+                          confidences_attributes: ConfidenceLevel.find_or_create_by(
+                              name: get_sf_ident_qualifier[nomenclator_id], definition: get_sf_ident_qualifier[nomenclator_id], project_id: project_id),
+                          project_id: project_id)
+                      t.move_to_bottom # so it's not the first record
+
+                      # need IdentifierName
 
 
                       # VerbatimLabel	41		“2 mi NE Gold Butte, NV, Clark Co., VI-16-1988, R.C. Bechtel, J.L. Carpenter, .J.B. Knight Collectors, Black Light  Trap” “HOLOTYPE Arenivaga haringtoni Hopkins, 2012” [red label with black border]			CollectionObject#buffered_collecting_event
@@ -441,48 +489,51 @@ namespace :tw do
         end
 
 
-        desc 'time rake tw:project_import:sf_import:specimens:get_ident_quality_from_nomenclator user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :get_ident_quality_from_nomenclator => [:data_directory, :environment, :user_id] do |logger|
+        desc 'time rake tw:project_import:sf_import:specimens:get_ident_qualifier_from_nomenclator user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :get_ident_qualifier_from_nomenclator => [:data_directory, :environment, :user_id] do |logger|
+          logger.info '!!!!! NOTE: Re-analyze table data for new abbreviations !!!!!'
 
-          logger.info 'Creating hash of NomenclatorID and IdentQuality...'
+          logger.info 'Creating hash of NomenclatorID and IdentQualifier...'
           # need to test for has_key?
 
-          get_sf_ident_quality = {} # key = SF.SourceID, value = hash (SourceID, FileID, RefID, Description)
+          get_sf_ident_qualifier = {} # key = SF.SourceID, value = hash (SourceID, FileID, RefID, Description)
 
           path = @args[:data_directory] + 'tblNomenclator.txt'
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each do |row|
-            logger.info "Working with SF.NomenclatorID = '#{row['NomenclatorID']}' \n"
 
-            next if row['IdentQuality'].blank?
+            next if row['IdentQualifier'].blank?
             nomenclator_id = row['NomenclatorID']
-            ident_quality = row['IdentQuality']
+            ident_qualifier = row['IdentQualifier']
 
-             ident_quality_text = if ['?'].include? ident_quality
-                                   '?'
-                                 elsif ['aff'].include? ident_quality
-                                   'aff.'
-                                 elsif ['cf', 'f.'].include? ident_quality # will match cf and cf.
-                                   'c.f.'
-                                 elsif ['near', 'nr'].include? ident_quality
-                                   'nr.'
-                                 elsif ['ph.'].include? ident_quality
-                                    'ph.'
-                                 else
-                                   nil
-                                 end
+            logger.info "Working with SF.NomenclatorID = '#{nomenclator_id}, IdentQualifier = '#{ident_qualifier}' \n"
 
-            next if indent_quality_text == nil
-            get_sf_ident_quality[nomenclator_id] = ident_quality_text
+            ident_qualifier_text = case ident_qualifier
+                                     when '?', '(?)'
+                                       '?'
+                                     when 'aff.', 'sp. aff.', 'sp affinis'
+                                       'aff.'
+                                     when 'cf', 'cf.', 'f.'
+                                       'cf.'
+                                     when 'near', 'nr.'
+                                       'nr.'
+                                     when 'ph.'
+                                       'ph.'
+                                     else
+                                       nil
+                                   end
+
+            next if ident_qualifier_text == nil
+            get_sf_ident_qualifier[nomenclator_id] = ident_qualifier_text
 
           end
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
-          import.set('SFIdentQuality', get_sf_ident_quality)
+          import.set('SFIdentQualifier', get_sf_ident_qualifier)
 
-          puts 'SFIdentQuality'
-          ap get_sf_ident_quality
+          puts 'SFIdentQualifier'
+          ap get_sf_ident_qualifier
         end
 
 

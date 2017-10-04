@@ -14,7 +14,7 @@ Object.assign(pinboardRemoteUpdate, {
 
 		this.changeLink(this.pinboardItem, (this.alreadyInserted ? true : false));
 		this.eventPinboardInsert();
-		TW.workbench.pinboard.init();
+		TW.workbench.pinboard.setDefaultClass();
 		$('body').mx_spinner('hide');
 	},
 
