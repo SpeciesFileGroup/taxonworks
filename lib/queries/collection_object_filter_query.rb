@@ -7,23 +7,30 @@ module Queries
     attr_accessor :query_date_partial_overlap, :query_start_date, :query_end_date
     attr_accessor :query_otu_id, :query_otu_descendants
     attr_accessor :query_id_namespace, :query_range_start, :query_range_stop
+    attr_accessor :query_user, :query_date_type_select,
+                  :query_user_date_range_end, :query_user_date_range_start
+
 
     # Reolved/processed results
-    attr_accessor :start_date, :end_date
+    attr_accessor :start_date, :end_date, :user_date_start, :user_date_end
 
     def initialize(params)
-      params.reject!{|k, v| v.blank?}
+      params.reject! { |k, v| v.blank? }
 
-      @query_geographic_area_ids = params[:geographic_area_ids]
-      @query_shape = params[:drawn_area_shape]
-      @query_start_date = params[:search_start_date] # TODO: sync key names
-      @query_end_date = params[:search_end_date]
-      @query_otu_id = params[:otu_id]
-      @query_otu_descendants = params[:descendants] # .downcase if params[:descendants] # TODO: remove downcase requirement
-      @query_date_partial_overlap = params[:partial_overlap]
-      @query_id_namespace = params[:id_namespace]
-      @query_range_start = params[:id_range_start]
-      @query_range_stop = params[:id_range_stop]
+      @query_geographic_area_ids   = params[:geographic_area_ids]
+      @query_shape                 = params[:drawn_area_shape]
+      @query_start_date            = params[:search_start_date] # TODO: sync key names
+      @query_end_date              = params[:search_end_date]
+      @query_otu_id                = params[:otu_id]
+      @query_otu_descendants       = params[:descendants] # .downcase if params[:descendants] # TODO: remove downcase requirement
+      @query_date_partial_overlap  = params[:partial_overlap]
+      @query_id_namespace          = params[:id_namespace]
+      @query_range_start           = params[:id_range_start]
+      @query_range_stop            = params[:id_range_stop]
+      @query_user                  = params[:user]
+      @query_date_type_select      = params[:date_type_select]
+      @query_user_date_range_start = params[:user_date_range_start]
+      @query_user_date_range_end   = params[:user_date_range_end]
 
       set_and_order_dates
     end
@@ -59,13 +66,19 @@ module Queries
       query_range_start.present? || query_range_stop.present?
     end
 
+    def user_date_set?
+      query_date_type_select.present? or
+        query_user.present? or
+        (query_user_date_range_start.present? or query_user_date_range_end.present?)
+    end
+
     # All scopes might end up in CollectionObject directly
 
     # @return [Scope]
     def otu_scope
       # Challenge: Refactor to use a join pattern instead of SELECT IN
       innerscope = with_descendants? ? Otu.self_and_descendants_of(query_otu_id) : Otu.where(id: query_otu_id)
-      CollectionObject.joins(:otus).where(otus: {id: innerscope} )
+      CollectionObject.joins(:otus).where(otus: {id: innerscope})
     end
 
     # @return [Scope]
@@ -93,8 +106,30 @@ module Queries
       ns = nil
       ns = Namespace.where(short_name: query_id_namespace).first if query_id_namespace.present?
       CollectionObject.with_identifier_type_and_namespace('Identifier::Local::CatalogNumber', ns, true)
-          .where("CAST(identifiers.identifier AS integer) between ? and ?",
-                 query_range_start.to_i, query_range_stop.to_i)
+        .where("CAST(identifiers.identifier AS integer) between ? and ?",
+               query_range_start.to_i, query_range_stop.to_i)
+    end
+
+    def user_date_scope
+      scope   = CollectionObject.none
+      user_id = User.find_user_id(query_user)
+
+      # if query_user_date_range_start || query_user_date_range_end
+      @user_date_start, @user_date_end = Utilities::Dates.normalize_and_order_dates(query_user_date_range_start,
+                                                                                    query_user_date_range_end)
+      # end
+
+      case query_date_type_select
+        when 'created_at', nil
+          scope = CollectionObject.created_in_date_range(@user_date_start, @user_date_end)
+                    .created_by_user(user_id)
+        when 'updated_at'
+          scope = CollectionObject.updated_in_date_range(@user_date_start, @user_date_end)
+                    .updated_by_user(user_id)
+        else
+          # What do we do? TODO:
+      end
+      scope
     end
 
     # @return [Array]
@@ -106,6 +141,7 @@ module Queries
       scopes.push :shape_scope if shape_set?
       scopes.push :date_scope if date_set?
       scopes.push :identifier_scope if identifier_set?
+      scopes.push :user_date_scope if user_date_set?
       scopes
     end
 

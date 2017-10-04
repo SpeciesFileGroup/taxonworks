@@ -149,6 +149,24 @@ class User < ApplicationRecord
     administered_projects.any?
   end
 
+  # @param [String, User, Integer] user
+  # @return [Integer] selected user id
+  def self.find_user_id(user)
+      user_id = $user_id
+      case user.class.name
+        when 'String'
+          # search by name or email
+          ut = User.arel_table
+          c1 = ut[:name].eq(user).or(ut[:email].eq(user)).to_sql
+          user_id = User.where(c1).first.id
+        when 'User'
+          user_id = user.id
+        when 'Integer'
+          user_id = user
+      end
+      user_id
+  end
+
   def self.not_in_project(project_id)
     ids = ProjectMember.where(project_id: project_id).pluck(:user_id)
     return where(false) if ids.empty?

@@ -48,21 +48,27 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
   end
 
   def set_id_range
-    render json: {html: collection_objects.count.to_s}
+    render json: {html: collection_objects.count}
+  end
+
+  def set_user_date_range
+    render json: {html: collection_objects.count}
   end
 
   protected
 
   def collection_objects
-    Queries::CollectionObjectFilterQuery.new(filter_params)
-      .result
-      .with_project_id(sessions_current_project_id)
-      .includes(:repository, {taxon_determinations: [{otu: :taxon_name}]}, :identifiers)
+    scope = Queries::CollectionObjectFilterQuery.new(filter_params)
+              .result
+              .with_project_id(sessions_current_project_id)
+              .includes(:repository, {taxon_determinations: [{otu: :taxon_name}]}, :identifiers)
+    scope
   end
 
   def filter_params
     params.permit(:drawn_area_shape, :search_start_date, :search_end_date,
                   :id_range_start, :id_range_stop, :id_namespace,
+                  :user, :date_type_select, :user_date_range_end, :user_date_range_start,
                   :partial_overlap, :otu_id, :descendants, :page, geographic_area_ids: [])
   end
 

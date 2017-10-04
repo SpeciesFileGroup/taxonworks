@@ -9,8 +9,8 @@ module Housekeeping::Users
     belongs_to :creator, foreign_key: :created_by_id, class_name: 'User'
     belongs_to :updater, foreign_key: :updated_by_id, class_name: 'User'
 
-    scope :created_by_user, ->(user) { where(created_by_id: get_user_id(user)) }
-    scope :updated_by_user, ->(user) { where(updated_by_id: get_user_id(user)) }
+    scope :created_by_user, ->(user) { where(created_by_id: User.find_user_id(user)) }
+    scope :updated_by_user, ->(user) { where(updated_by_id: User.find_user_id(user)) }
 
     unless_user = lambda { self.class.name == "User" && self.self_created }
     validates :creator, presence: true, unless: unless_user # lambda, proc, or block
@@ -48,24 +48,6 @@ module Housekeeping::Users
     end
 
     protected
-
-    # @param [String, User, Integer] user
-    # @return [Integer] selected user id
-    def get_user_id(user)
-      user_id = $user_id
-      case user.class.name
-        when 'String'
-          # search by name or email
-          ut = User.arel_table
-          c1 = ut[:name].eq(user).or(ut[:email].eq(user)).to_sql
-          user_id = User.where(c1).first.id
-        when 'User'
-          user_id = user.id
-        when 'Integer'
-          user_id = user
-      end
-      user_id
-    end
   end
 
   # A convenience.  When provided creator and updater are set.  If creator exists updater is set.  Overrides creator/updater if provided second.  See tests.

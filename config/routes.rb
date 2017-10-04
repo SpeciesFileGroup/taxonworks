@@ -316,7 +316,7 @@ TaxonWorks::Application.routes.draw do
     member do
       get 'row', {format: :json}
     end
-  
+
     resources :observation_matrix_columns, shallow: true, only: [:index], defaults: {format: :json}
     resources :observation_matrix_rows, shallow: true, only: [:index], defaults: {format: :json}
   end
@@ -626,6 +626,7 @@ TaxonWorks::Application.routes.draw do
         get 'set_date', as: 'set_date_for_collection_object_filter'
         get 'set_otu', as: 'set_otu_for_collection_object_filter'
         get 'set_id_range', as: 'set_id_range_for_collection_object_filter'
+        get 'set_user_date_range', as: 'set_user_date_range_for_collection_object_filter'
         get 'download', action: 'download', as: 'download_collection_object_filter_result'
       end
     end

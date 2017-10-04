@@ -71,7 +71,7 @@ Object.assign(TW.views.tasks.collection_objects, {
         event.preventDefault();
       }
     );
-    
+  
     $("#set_id_range").click(function (event) {
         $("#id_range_count").text('????');
         $("#select_id_range").mx_spinner('show');
@@ -83,7 +83,19 @@ Object.assign(TW.views.tasks.collection_objects, {
         event.preventDefault();
       }
     );
-    
+  
+    $("#set_user_date_range").click(function (event) {
+        $("#user_date_range_count").text('????');
+        $("#select_user_date_range").mx_spinner('show');
+        $.get('set_user_date_range', $("#set_user_date_range_form").serialize(), function (local_data) {
+          $("#user_date_range_count").text(local_data.html);
+          $("#select_user_date_range").mx_spinner('hide');
+          that.validateResult();
+        }, 'json');
+        event.preventDefault();
+      }
+    );
+  
     var today = new Date();
     var year = today.getFullYear();
     var format = 'yy/mm/dd';
@@ -250,7 +262,8 @@ Object.assign(TW.views.tasks.collection_objects, {
       ($("#date_count").text() > 0) ||
       ($("#area_count").text() > 0) ||
       ($("#otu_count").text() > 0) ||
-      ($("#id_range_count").text() > 0)
+      ($("#id_range_count").text() > 0) ||
+      ($("#user_date_range_count").text() > 0)
     ) {
       $("#find_area_and_date_commit").removeAttr("disabled");
     }
@@ -291,11 +304,15 @@ Object.assign(TW.views.tasks.collection_objects, {
     if ($('#otu_count').text() != '????') {
       params.push($("#set_otu_form").serialize());
     }
-    
+  
     if ($('#id_range_count').text() != '????') {
       params.push($("#set_id_range_form").serialize());
     }
-    
+  
+    if ($('#user_date_range_count').text() != '????') {
+      params.push($("#set_user_date_range_form").serialize());
+    }
+  
     return data = params.join("&");
   },
   
