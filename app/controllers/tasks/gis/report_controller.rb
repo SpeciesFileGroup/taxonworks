@@ -45,7 +45,9 @@ class Tasks::Gis::ReportController < ApplicationController
         @selected_column_names         = current_headers
         session['co_selected_headers'] = current_headers
         # get first 25 records
-        @list_collection_objects       = GeographicItem.gather_selected_data(geographic_area_id, shape_in, finding, true, params[:page])
+        @list_collection_objects       = GeographicItem.gather_selected_data(geographic_area_id,
+                                                                             shape_in,
+                                                                             finding)
       when 'download'
         # fixme: repair this: it aborts use of Redis, and forces load of all data
         test_redis_not = false
