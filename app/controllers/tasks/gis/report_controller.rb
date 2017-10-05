@@ -9,10 +9,10 @@ class Tasks::Gis::ReportController < ApplicationController
   end
 
   def location_report_list
-    geographic_area_id = params[:geographic_area_id]
-    current_headers    = params[:hd]
-    shape_in           = params['drawn_area_shape']
-    finding            = params['selection_object']
+    geographic_area_ids = params[:geographic_area_ids]
+    current_headers     = params[:hd]
+    shape_in            = params['drawn_area_shape']
+    finding             = params['selection_object']
 
     case params[:commit]
       when 'Show'
@@ -45,9 +45,9 @@ class Tasks::Gis::ReportController < ApplicationController
         @selected_column_names         = current_headers
         session['co_selected_headers'] = current_headers
         # get first 25 records
-        @list_collection_objects       = GeographicItem.gather_selected_data(geographic_area_id,
-                                                                             shape_in,
-                                                                             finding)
+        @list_collection_objects = GeographicItem.gather_selected_data(geographic_area_ids,
+                                                                       shape_in,
+                                                                       finding).page(params[:page])
       when 'download'
         # fixme: repair this: it aborts use of Redis, and forces load of all data
         test_redis_not = false
@@ -67,7 +67,9 @@ class Tasks::Gis::ReportController < ApplicationController
           table_data = nil
         end
 
-        @list_collection_objects = GeographicItem.gather_selected_data(geographic_area_id, shape_in, finding, false)
+        @list_collection_objects = GeographicItem.gather_selected_data(geographic_area_ids,
+                                                                       shape_in,
+                                                                       finding)
         report_file              = CollectionObject.generate_report_download(@list_collection_objects, current_headers, table_data)
         send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv")
       else
@@ -127,7 +129,7 @@ class Tasks::Gis::ReportController < ApplicationController
       #     else
       #   end
     else
-      feature   = RGeo::GeoJSON.decode(shape_in, :json_parser => :json)
+      feature = RGeo::GeoJSON.decode(shape_in, :json_parser => :json)
       # isolate the WKT
       geometry  = feature.geometry
       this_type = geometry.geometry_type.to_s.downcase

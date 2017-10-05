@@ -262,4 +262,18 @@ module Tasks::Gis::ReportHelper
     retval
   end
 
+  def report_paging_info
+    # <p><%= page_entries_info(@collection_objects) %></p> <%= paginate @collection_objects %>
+    if @list_collection_objects.any?
+      page_entries_info(@list_collection_objects)
+    end
+  end
+
+  def report_paging
+    if @list_collection_objects.any?
+      paginate(@list_collection_objects, :remote => true)
+    end
+  end
+
+
 end
