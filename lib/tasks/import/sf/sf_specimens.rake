@@ -385,15 +385,14 @@ namespace :tw do
                         data_attributes_attributes.push(identification_mode_note)
                       end
 
-
-                      # following code not necessary if it can be done inline
-                      # confidences_attributes = nil
-                      # if get_sf_ident_qualifier.has_key?(nomenclator_id)
-                      #   confidences_attributes = ConfidenceLevel.find_or_create_by(
-                      #       name: get_sf_ident_qualifier[nomenclator_id],
-                      #       definition: get_sf_ident_qualifier[nomenclator_id],
-                      #       project_id: project_id)
-                      # end
+                      # cannot do inline: need find_or_create
+                      confidences_attributes = nil
+                      if get_sf_ident_qualifier(nomenclator_id)
+                        confidences_attributes = [ConfidenceLevel.find_or_create_by(
+                            name: get_sf_ident_qualifier[nomenclator_id],
+                            definition: get_sf_ident_qualifier[nomenclator_id],
+                            project_id: project_id)]
+                      end
 
 
                       t = TaxonDetermination.create!(
@@ -402,9 +401,8 @@ namespace :tw do
                           source_id: source_id,
 
                           data_attributes_attributes: data_attributes_attributes,
-                          notes_attributes: Notes.create!(text: identification['taxon_ident_note']),
-                          confidences_attributes: ConfidenceLevel.find_or_create_by(
-                              name: get_sf_ident_qualifier[nomenclator_id], definition: get_sf_ident_qualifier[nomenclator_id], project_id: project_id),
+                          notes_attributes: [text: identification['taxon_ident_note']],
+                          confidences_attributes: confidences_attributes,
                           project_id: project_id)
                       t.move_to_bottom # so it's not the first record
 
