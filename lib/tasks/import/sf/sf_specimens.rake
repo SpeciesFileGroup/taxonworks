@@ -208,8 +208,8 @@ namespace :tw do
                 puts "SF.SourceID, RefID: '#{sf_source_id}', '#{sf_source_ref_id}'"
 
                 # Is there a TW source_id or must we use the verbatim ref string?
-                if get_tw_source_id.has_key?(sf_source_ref_id)
-                  citations_attributes.push({source_id: get_tw_source_id[sf_source_ref_id], project_id: project_id})
+                if get_tw_source_id[sf_source_ref_id]
+                  citations_attributes.push(source_id: get_tw_source_id[sf_source_ref_id], project_id: project_id)
                 else # no TW source equiv, use verbatim as data_attribute
                   verbatim_sf_ref = ImportAttribute.create!(import_predicate: "verbatim_sf_ref_id_#{sf_source_ref_id}",
                                                             value: get_sf_verbatim_ref[sf_source_ref_id],
@@ -247,19 +247,6 @@ namespace :tw do
 
                         data_attributes_attributes: data_attributes_attributes,
                         citations_attributes: citations_attributes,
-
-                        # data_attributes to do:
-                        #   import_attribute if identification.IdentifierName
-                        #   other fields in tblIdentifications: HigherTaxonName, NomenclatorID, TaxonIdentNote, TypeTaxonNameID, RefID, IdentifierName/Year,
-                        #     PlaceInCollection, IdentificationModeNote, VerbatimLabel
-
-                        # Treat VerbatimLabel as buffered_collecting_event -- What's that??? Since it's in identification, could be more than one
-                        # if identification['verbatim_label'].present?
-                        #   verbatim_label = ImportAttribute.create!(import_predicate: 'VerbatimLabel',
-                        #                                            value: identification['verbatim_label'],
-                        #                                            project_id: project_id)
-                        #   data_attributes_attributes.push(verbatim_label)
-                        # end
 
             }
 
@@ -338,6 +325,21 @@ namespace :tw do
                   end
                 end
 
+                # data_attributes to do:
+                #   import_attribute if identification.IdentifierName
+                #   other fields in tblIdentifications: HigherTaxonName, NomenclatorID, TaxonIdentNote, TypeTaxonNameID, RefID, IdentifierName/Year,
+                #     PlaceInCollection, IdentificationModeNote, VerbatimLabel
+
+
+                # Both SF Specimen and Identification tables have VerbatimLabel as field: Only used in Identification.
+                # Treat VerbatimLabel as buffered_collecting_event -- What's that??? Since it's in identification, could be more than one
+                # if identification['verbatim_label'].present?
+                #   verbatim_label = ImportAttribute.create!(import_predicate: 'VerbatimLabel',
+                #                                            value: identification['verbatim_label'],
+                #                                            project_id: project_id)
+                #   data_attributes_attributes.push(verbatim_label)
+                # end
+
 
                 if get_sf_identification_metadata.has_key?(specimen_id)
                   get_sf_identification_metadata[specimen_id].each do |identification|
@@ -364,11 +366,13 @@ namespace :tw do
                       # create conditional attributes here
                       data_attributes_attributes = []
 
-                      source_id = nil
+                      citations_attributes = []
                       if identification['ref_id'].to_i > 0
                         sf_ref_id = identification['ref_id']
-                        if get_tw_source_id.has_key?(sf_ref_id)
-                          source_id = get_tw_source_id[sf_ref_id]
+                        if get_tw_source_id[sf_ref_id]
+                          # source_id = get_tw_source_id[sf_ref_id]
+                          # citations_attributes = Citation.create!(source_id: get_tw_source_id[sf_ref_id], project_id: project_id)
+                          citations_attributes.push(source_id: get_tw_source_id[sf_ref_id], project_id: project_id)
                         else # no TW source equiv, use verbatim as data_attribute
                           verbatim_sf_ref = ImportAttribute.create!(import_predicate: "verbatim_sf_ref_id_#{sf_ref_id}",
                                                                     value: get_sf_verbatim_ref[sf_ref_id],
@@ -385,40 +389,58 @@ namespace :tw do
                         data_attributes_attributes.push(identification_mode_note)
                       end
 
+                      if identification['taxon_ident_note'].present?
+                        identification_mode_note = ImportAttribute.create!(import_predicate: 'TaxonIdentNote',
+                                                                           value: identification['taxon_ident_note'],
+                                                                           project_id: project_id)
+                        data_attributes_attributes.push(taxon_ident_note)
+                      end
+
+                      # need IdentifierName: normally a role associated with the taxon determination. Since text field would be difficult to parse into people, for now adding SF tblIdentification.IdentifierName as import attribute
+
+                      if identification['identifier_name'].present?
+                        identifier_name = ImportAttribute.create!(import_predicate: 'IdentifierName',
+                                                                  value: identification['identifier_name'],
+                                                                  project_id: project_id)
+                        data_attributes_attributes.push(identifier_name)
+                        if identification['year'].present?
+                          identifier_year = ImportAttribute.create!(import_predicate: 'IdentifierYear',
+                                                                    value: identification['year'],
+                                                                    project_id: project_id)
+                          data_attributes_attributes.push(identifier_year)
+                        end
+                      end
+
                       # cannot do inline: need find_or_create
                       confidences_attributes = nil
-                      if get_sf_ident_qualifier(nomenclator_id)
+                      if get_sf_ident_qualifier[nomenclator_id]
                         confidences_attributes = [ConfidenceLevel.find_or_create_by(
                             name: get_sf_ident_qualifier[nomenclator_id],
                             definition: get_sf_ident_qualifier[nomenclator_id],
                             project_id: project_id)]
                       end
 
-
                       t = TaxonDetermination.create!(
                           otu: otu,
-                          material: o,
-                          source_id: source_id,
+                          biological_collection_object: o,
 
+                          citations_attributes: citations_attributes,
                           data_attributes_attributes: data_attributes_attributes,
                           notes_attributes: [text: identification['taxon_ident_note']],
                           confidences_attributes: confidences_attributes,
                           project_id: project_id)
                       t.move_to_bottom # so it's not the first record
 
-                      # need IdentifierName
 
-
-                      # VerbatimLabel	41		“2 mi NE Gold Butte, NV, Clark Co., VI-16-1988, R.C. Bechtel, J.L. Carpenter, .J.B. Knight Collectors, Black Light  Trap” “HOLOTYPE Arenivaga haringtoni Hopkins, 2012” [red label with black border]			CollectionObject#buffered_collecting_event
-                      # put as data_attribute (import_attribute) on determination
-
+                      if identification['verbatim_label'].present?
+                        o.update_column(:buffered_collecting_event, identification['verbatim_label'])
+                      end
 
                       if identification['place_in_collection'] == '1'
                         # o.keywords << place_in_collection_keyword     # equivalent to line below
                         # o.tags << Tag.new(keyword: place_in_collection_keyword, project_id: o.project_id)
                         o.tags.create!(keyword: place_in_collection_keyword, project_id: project_id)
                       end
-
 
                       type_kind_id = identification['type_kind_id'].to_i # exclude TypeKindID = undefined (0) and unknown (6)
                       if [1, 2, 3, 4, 8, 10].include? type_kind_id
