@@ -3,18 +3,20 @@ class Tasks::Gis::ReportController < ApplicationController
 
   # before_action :disable_turbolinks, only: [:new, :generate_choices]
 
+  # GET report
   def new
     @list_collection_objects = [] # CollectionObject.where('false')
     session.delete('co_selected_headers')
   end
 
+  # POST location_report_list
   def location_report_list
     geographic_area_ids = params[:geographic_area_ids]
     current_headers     = params[:hd]
     shape_in            = params[:drawn_area_shape]
     finding             = params[:selection_object]
-    # current_action      = params[:action]
     current_page        = params[:page]
+    # current_action      = params[:action]
 
     # case current_action
     #   when 'location_report_list'
@@ -50,7 +52,7 @@ class Tasks::Gis::ReportController < ApplicationController
       else
         # what else is there to do?
     end
-    current_headers
+    # current_headers
   end
 
   def test_redis
@@ -133,6 +135,7 @@ class Tasks::Gis::ReportController < ApplicationController
     end
   end
 
+  # GET location_report_list
   def repaint
     session.delete('co_selected_headers')
     select_table_page(params[:geographic_area_ids],
