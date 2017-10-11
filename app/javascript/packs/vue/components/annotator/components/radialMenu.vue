@@ -47,7 +47,7 @@ menu structure:
 				default: function() {
 					return {
 						text: '#000000',
-						background: '#FFFFFF',
+						background: '#F5F5F5',
 						backgroundHover: '#CACACA'
 					}
 				}
@@ -71,8 +71,8 @@ menu structure:
 		methods: {
 			getPosition: function(e) {
 				return { 
-					x: e.pageX - e.currentTarget.offsetLeft,
-					y: e.pageY - e.currentTarget.offsetTop
+					x: e.offsetX,
+					y: e.offsetY
 				}
 
 			},
@@ -82,14 +82,15 @@ menu structure:
 			    	if(item.hasOwnProperty('icon')) {
 			    		let icon = {};
 			    			icon['image'] = new Image();
-			    			icon['image'].src = (require(`${item.icon.url}`));
+			    			
 			    			icon['loaded'] = false;
-			    			icon['image'].onload = function() {
+			    			icon['image'].addEventListener('load', function() {
 			    				icon['loaded'] = true;
 			    				icon['width'] = item.icon['width'] ? item.icon.width : icon['image'].width;
 			    				icon['height'] = item.icon['height'] ? item.icon.height : icon['image'].height;
 			    				that.update(false);
-			    			}
+							}, false);
+			    			icon['image'].src = item.icon.url;
 			    			that.icons.push(icon);
 			    	}
 			    	else {
@@ -159,7 +160,6 @@ menu structure:
 			sendEvent: function() {
 				if(this.optionSelected) {
 					this.$emit('selected', this.optionSelected.event);
-					console.log(this.optionSelected.event);
 				}
 			},
 			drawCircle: function() {
