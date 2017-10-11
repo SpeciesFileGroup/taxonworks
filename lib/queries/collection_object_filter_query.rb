@@ -67,8 +67,8 @@ module Queries
     end
 
     def user_date_set?
-      query_date_type_select.present? or
-        query_user.present? or
+      # query_date_type_select.present? or
+      query_user.present? or
         (query_user_date_range_start.present? or query_user_date_range_end.present?)
     end
 
@@ -111,23 +111,26 @@ module Queries
     end
 
     def user_date_scope
-      scope   = CollectionObject.none
-      user_id = User.find_user_id(query_user)
-
-      # if query_user_date_range_start || query_user_date_range_end
       @user_date_start, @user_date_end = Utilities::Dates.normalize_and_order_dates(query_user_date_range_start,
                                                                                     query_user_date_range_end)
-      # end
 
-      case query_date_type_select
-        when 'created_at', nil
-          scope = CollectionObject.created_in_date_range(@user_date_start, @user_date_end)
-                    .created_by_user(user_id)
-        when 'updated_at'
-          scope = CollectionObject.updated_in_date_range(@user_date_start, @user_date_end)
-                    .updated_by_user(user_id)
-        else
-          # What do we do? TODO:
+      scope = case query_date_type_select
+                when 'created_at', nil
+                  CollectionObject.created_in_date_range(@user_date_start, @user_date_end)
+                when 'updated_at'
+                  CollectionObject.updated_in_date_range(@user_date_start, @user_date_end)
+                else
+                  CollectionObject.all
+              end
+
+      if query_user != 'All users'
+        user_id = User.find_user_id(query_user)
+        scope   = case query_date_type_select
+                    when 'created_at'
+                      scope.created_by_user(user_id)
+                    when 'updated_at'
+                      scope.updated_by_user(user_id)
+                  end
       end
       scope
     end

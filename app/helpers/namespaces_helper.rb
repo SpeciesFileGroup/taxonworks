@@ -27,9 +27,4 @@ module NamespacesHelper
                options_for_select(Namespace.pluck(:short_name).uniq),
                prompt: 'Select a namespace')
   end
-
-  def user_select_tag(user_element)
-    select_tag(user_element,options_for_select(User.in_project(sessions_current_project_id).collect {|u| User.find(u).name}),
-               prompt: 'Select a user')
-  end
 end
