@@ -11,24 +11,22 @@ describe 'Documention', type: :model, group: :documentation do
   }
 
   context 'associations' do
-    specify 'has many documentation/#has_documentation?' do
-      # test that the method notations exists
+    specify '#documents' do
       expect(instance_with_documentation).to respond_to(:documents)
-      expect(instance_with_documentation.documentation.size == 0).to be_truthy
+    end
+
+    specify '#documentation' do 
+      expect(instance_with_documentation).to respond_to(:documentation)
     end
   end
 
-  context 'methods' do
-    specify '#has_documentation? (none)' do
-      expect(instance_with_documentation).to respond_to(:has_documentation?)
-      expect(instance_with_documentation.has_documentation?).to be_falsey
-    end
+  specify '#documented? (none)' do
+    expect(instance_with_documentation.documented?).to be_falsey 
+  end
 
-    specify '#has_documentation? (1)' do
-      expect(instance_with_documentation.documents << Document.new).to be_truthy
-      expect(instance_with_documentation.has_documentation?).to be_truthy
-      expect(instance_with_documentation.documentation.size == 1).to be_truthy
-    end
+  specify '#documented? (1)' do
+    instance_with_documentation.documents << Document.new
+    expect(instance_with_documentation.documented?).to be_truthy
   end
 
   context 'object with documentation' do
