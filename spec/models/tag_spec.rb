@@ -3,7 +3,7 @@ require 'rails_helper'
 describe Tag, type: :model, group: [:annotators, :tags] do
 
   let(:tag) { Tag.new }
-  let(:keyword) { Keyword.create(name: 'Keyword for model test', definition: 'Only used here') }
+  let(:keyword) { Keyword.create(name: 'Keyword for model test', definition: 'The minimum definition') }
   let(:otu) { FactoryGirl.create(:valid_otu) }
 
   context 'associations' do
@@ -119,7 +119,7 @@ describe Tag, type: :model, group: [:annotators, :tags] do
       tags_attributes: [ 
         { keyword_attributes: 
           {name: 'untouched keyword',  
-           definition: 'not bar'}} ]) 
+           definition: 'Must be twenty letters'}} ]) 
     }
 
     specify 'keyword can be created' do

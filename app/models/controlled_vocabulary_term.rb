@@ -38,7 +38,7 @@ class ControlledVocabularyTerm < ApplicationRecord
   ALTERNATE_VALUES_FOR = [:name, :definition]
 
   validates_presence_of :name, :definition, :type
-  validates_length_of :definition, minimum: 4
+  validates_length_of :definition, minimum: 20 
 
   validates_uniqueness_of :name, scope: [:type, :project_id]
   validates_uniqueness_of :definition, scope: [:project_id]

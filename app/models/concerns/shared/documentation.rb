@@ -14,8 +14,8 @@ module Shared::Documentation
     accepts_nested_attributes_for :documents, allow_destroy: true, reject_if: :reject_documents
   end
 
-  def has_documentation?
-    self.documentation.size > 0
+  def documented?
+    documentation.any?
   end
 
   def document_array=(documents)

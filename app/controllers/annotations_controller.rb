@@ -4,7 +4,11 @@ class AnnotationsController < ApplicationController
 
   # GET /annotations/global_id
   def show
+  end
 
+  # GET /annotations/:global_id/metadata
+  def metadata
+   @object = GlobalID::Locator.locate(params[:global_id])
   end
 
 end

@@ -45,6 +45,10 @@ TaxonWorks::Application.routes.draw do
     post 'update_tab_order'
   end
 
+  scope :annotations, controller: :annotations do 
+    get ':global_id/metadata', action: :metadata, defaults: {format: :json}
+  end
+
   resources :projects do
     concerns [:data_routes]
     member do
