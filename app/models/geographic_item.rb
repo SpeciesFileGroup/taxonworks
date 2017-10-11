@@ -113,22 +113,20 @@ class GeographicItem < ApplicationRecord
     end
 
     # TODO: * rename to reflect either/or and what is being returned
-    # @param [Integer] geographic_area_id
+    # @param [Integer] geographic_area_ids
     # @param [String] shape_in in JSON (TODO: what kind? / details on specification)
     # @param [String] search_object_class
-    # @param [Boolean] paging (default false)
-    # @param [Integer] page (default 1)
     # @return [Scope] of the requested search_object_type
-    def gather_selected_data(geographic_area_id, shape_in, search_object_class)
+    def gather_selected_data(geographic_area_ids, shape_in, search_object_class)
       if shape_in.blank?
         # get the shape from the geographic area, if possible
         finding                    = search_object_class.constantize
         target_geographic_item_ids = []
-        if geographic_area_id.blank?
+        if geographic_area_ids.blank?
           found = finding.none
         else
           # now use method from collection_object_filter_query
-          geographic_area_id.each do |gaid|
+          geographic_area_ids.each do |gaid|
             target_geographic_item_ids.push(GeographicArea.joins(:geographic_items)
                                               .find(gaid)
                                               .default_geographic_item.id)
@@ -1038,7 +1036,7 @@ class GeographicItem < ApplicationRecord
   # @param [geo_object]
   # @return [Boolean]
   def contains?(target_geo_object)
-    return nil if target_geo_object.nil? 
+    return nil if target_geo_object.nil?
     self.geo_object.contains?(target_geo_object)
   end
 

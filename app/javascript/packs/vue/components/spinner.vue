@@ -71,6 +71,9 @@
 				type: String,
 				default: 'Loading, please wait.'
 			},
+			resize: {
+				default: true,
+			},
 			legendStyle: {
 				type: Object,
 				default: function() {
@@ -113,6 +116,9 @@
 		},
 		mounted: function() {
 			this.init();
+			if(this.resize && !this.fullScreen) {
+				this.checkResize();
+			}
 		},
 		methods: {
 			outerWidth: function(el) {
@@ -131,24 +137,24 @@
 			},
 			init: function() {
 				let domElement = this.target != undefined ? this.loadElement(this.target) : this.$el.parentNode;
-
+				let copyCSS = Object.assign({}, this.cssPropierties);
 				if (this.fullScreen) {
-					this.cssPropierties.position = 'fixed';
-					this.cssPropierties.width = '100vw';
-					this.cssPropierties.height = '100vh';
-					this.cssPropierties.top = '0px';
-					this.cssPropierties.left = '0px';
+					copyCSS.position = 'fixed';
+					copyCSS.width = '100vw';
+					copyCSS.height = '100vh';
+					copyCSS.top = '0px';
+					copyCSS.left = '0px';
 				}
 				else {
-					this.cssPropierties.width = this.outerWidth(domElement) + 'px';
-					this.cssPropierties.height = this.outerHeight(domElement) + 'px';
-					this.cssPropierties.top = domElement.getBoundingClientRect().top;
-					this.cssPropierties.left = domElement.getBoundingClientRect().left;
+					copyCSS.width = this.outerWidth(domElement) + 'px';
+					copyCSS.height = this.outerHeight(domElement) + 'px';
+					copyCSS.top = domElement.getBoundingClientRect().top;
+					copyCSS.left = domElement.getBoundingClientRect().left;
 				}
 				if (!this.showSpinner) {
-					this.cssPropierties.zIndex = (domElement.style.zIndex == '' ? 2 : (domElement.style.zIndex+1));
+					copyCSS.zIndex = (domElement.style.zIndex == '' ? 2 : (domElement.style.zIndex+1));
 				}
-				this.$set(this.cssPropierties, this.cssPropierties);
+				this.cssPropierties = copyCSS;
 			},
 			loadElement: function(el) {
 				let domElement;
@@ -164,6 +170,12 @@
 						domElement = document.getElementsByTagName(el)[0];
 				}
 				return domElement;
+			},
+			checkResize: function() {
+				let that = this;
+				setInterval(function() {
+					that.init();
+				}, 500);
 			}
 		}
 	};
