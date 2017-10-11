@@ -29,11 +29,18 @@ describe Citation, type: :model, group: [:annotators, :citations] do
       expect(c2.errors.messages[:source_id][0]).to eq('has already been taken')
     end
 
-    specify 'validate uniqueness of pages with nil and empty string. Nullify before save.' do
-      expect(Citation.count).to eq(0) 
-      expect(Citation.create(citation_object: o, source: s, pages: '').id).to be_truthy
-      expect(Citation.create(citation_object: o, source: s, pages: nil).id).to be_falsey
-      expect(Citation.find_or_create_by(citation_object: o, source: s, pages: nil).id).to eq(Citation.first.id)
+    context 'uniqueness of citation takes into account pages' do
+      before { 
+        Citation.create!(citation_object: o, source: s, pages: '')
+      } 
+
+      specify 'empty quotes are converted to nil, therefor the same' do
+        expect(Citation.create(citation_object: o, source: s, pages: nil).id).to be_falsey
+      end
+
+      specify 'finding by nil will find records created with ""' do
+        expect(Citation.find_or_create_by(citation_object: o, source: s, pages: nil).id).to eq(Citation.first.id)
+      end
     end
 
     context 'database constraints' do
