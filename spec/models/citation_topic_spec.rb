@@ -62,7 +62,7 @@ describe CitationTopic, :type => :model do
     let(:o) { FactoryGirl.create(:valid_otu) }
 
     specify 'citation, citation topic, and topic can all be created together' do
-      o.citations << Citation.new(source: s, citation_topics_attributes: [ { topic_attributes: {name: 'ABC', definition: 'Easy as 123' }  } ] ) 
+      o.citations << Citation.new(source: s, citation_topics_attributes: [ { topic_attributes: {name: 'ABC', definition: 'Easy as 123, but with more characters' }  } ] ) 
 
       expect(Topic.all.count).to eq(1)
       expect(o.topics.first.name).to eq('ABC')
