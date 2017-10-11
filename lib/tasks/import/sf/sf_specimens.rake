@@ -81,12 +81,16 @@ namespace :tw do
 
           error_counter = 0
           saved_counter = 0
+          zero_counter = 0  # specimen_ids with no count
 
           file.each_with_index do |row, i|
             specimen_id = row['SpecimenID']
             next if specimen_id == '0'
 
-            next if get_specimen_category_counts[specimen_id].blank? # ignore no critter counts for now
+            if get_specimen_category_counts[specimen_id].blank? # ignore no critter counts for now
+              zero_counter += 1
+              next
+            end
 
             project_id = get_tw_project_id[row['FileID']]
             place_in_collection_keyword = Keyword.find_or_create_by(name: 'PlaceInCollection', definition: 'possible SF source of identification', project_id: project_id)
@@ -96,7 +100,7 @@ namespace :tw do
 
             collecting_event_id = get_tw_collecting_event_id[get_sf_unique_id[specimen_id]]
 
-            logger.info "working with SF.SpecimenID: #{specimen_id}, SF.FileID: #{row['FileID']} \n"
+            logger.info "working with SF.SpecimenID: #{specimen_id}, SF.FileID: #{row['FileID']} [ zero_counter = #{zero_counter} ] \n"
 
 
             # get otu id from sf taxon name id, a taxon determination, called 'the primary otu id'   (what about otus without tw taxon names?)
@@ -204,17 +208,13 @@ namespace :tw do
               sf_source_id = row['SourceID']
 
               if get_sf_source_metadata[sf_source_id] && get_sf_source_metadata[sf_source_id]['ref_id'].to_i > 0 # SF.Source has RefID, create citation or use verbatim ref string for collection object (assuming it will be created)
-                sf_source_ref_id = get_sf_source_metadata[sf_source_id]['ref_id'].to_i
+                sf_source_ref_id = get_sf_source_metadata[sf_source_id]['ref_id']
                 puts "SF.SourceID, RefID: '#{sf_source_id}', '#{sf_source_ref_id}'"
 
                 # Is there a TW source_id or must we use the verbatim ref string?
                 if get_tw_source_id[sf_source_ref_id]
                   citations_attributes.push(source_id: get_tw_source_id[sf_source_ref_id], project_id: project_id)
                 else # no TW source equiv, use verbatim as data_attribute
-
-                  # byebug # value is blank
-
-
                   verbatim_sf_ref = {type: 'ImportAttribute',
                                      import_predicate: "verbatim_sf_ref_id_#{sf_source_ref_id}",
                                      value: get_sf_verbatim_ref[sf_source_ref_id],
