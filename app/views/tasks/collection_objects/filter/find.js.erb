@@ -5,7 +5,7 @@ html = $('<%= j(render(partial: 'result_list',
                        locals:  {collection_objects: @collection_objects})) %>');
 $("#show_list").html(html);
 $("#find_item").mx_spinner('hide');
-
+$("body").mx_spinner('hide');
 var paging;
 paging = $('<%= j(render(partial: 'paging_data')) %>');
 $("#paging_span").html(paging);
