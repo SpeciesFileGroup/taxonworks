@@ -38,6 +38,9 @@ class TaxonDetermination < ApplicationRecord
 
   include Housekeeping
   include Shared::Citable
+  include Shared::DataAttributes
+  include Shared::Notable
+  include Shared::Confidence
   include Shared::HasRoles
   include Shared::IsData
 

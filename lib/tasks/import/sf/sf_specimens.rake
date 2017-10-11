@@ -203,7 +203,7 @@ namespace :tw do
             if row['SourceID'] != '0'
               sf_source_id = row['SourceID']
 
-              if get_sf_source_metadata.has_key?(sf_source_id) && get_sf_source_metadata[sf_source_id]['ref_id'].to_i > 0 # SF.Source has RefID, create citation or use verbatim ref string for collection object (assuming it will be created)
+              if get_sf_source_metadata[sf_source_id] && get_sf_source_metadata[sf_source_id]['ref_id'].to_i > 0 # SF.Source has RefID, create citation or use verbatim ref string for collection object (assuming it will be created)
                 sf_source_ref_id = get_sf_source_metadata[sf_source_id]['ref_id'].to_i
                 puts "SF.SourceID, RefID: '#{sf_source_id}', '#{sf_source_ref_id}'"
 
@@ -211,9 +211,14 @@ namespace :tw do
                 if get_tw_source_id[sf_source_ref_id]
                   citations_attributes.push(source_id: get_tw_source_id[sf_source_ref_id], project_id: project_id)
                 else # no TW source equiv, use verbatim as data_attribute
-                  verbatim_sf_ref = ImportAttribute.create!(import_predicate: "verbatim_sf_ref_id_#{sf_source_ref_id}",
-                                                            value: get_sf_verbatim_ref[sf_source_ref_id],
-                                                            project_id: project_id)
+
+                  # byebug # value is blank
+
+
+                  verbatim_sf_ref = {type: 'ImportAttribute',
+                                     import_predicate: "verbatim_sf_ref_id_#{sf_source_ref_id}",
+                                     value: get_sf_verbatim_ref[sf_source_ref_id],
+                                     project_id: project_id}
                   data_attributes_attributes.push(verbatim_sf_ref)
                 end
               end
@@ -341,7 +346,7 @@ namespace :tw do
                 # end
 
 
-                if get_sf_identification_metadata.has_key?(specimen_id)
+                if get_sf_identification_metadata[specimen_id]
                   get_sf_identification_metadata[specimen_id].each do |identification|
                     current_objects.each do |o|
 
@@ -374,59 +379,59 @@ namespace :tw do
                           # citations_attributes = Citation.create!(source_id: get_tw_source_id[sf_ref_id], project_id: project_id)
                           citations_attributes.push(source_id: get_tw_source_id[sf_ref_id], project_id: project_id)
                         else # no TW source equiv, use verbatim as data_attribute
-                          verbatim_sf_ref = ImportAttribute.create!(import_predicate: "verbatim_sf_ref_id_#{sf_ref_id}",
-                                                                    value: get_sf_verbatim_ref[sf_ref_id],
-                                                                    project_id: project_id)
+                          verbatim_sf_ref = {type: 'ImportAttribute',
+                                             import_predicate: "verbatim_sf_ref_id_#{sf_ref_id}",
+                                             value: get_sf_verbatim_ref[sf_ref_id],
+                                             project_id: project_id}
                           data_attributes_attributes.push(verbatim_sf_ref)
                         end
                       end
 
 
                       if identification['identification_mode_note'].present?
-                        identification_mode_note = ImportAttribute.create!(import_predicate: 'IdentificationModeNote',
-                                                                           value: identification['identification_mode_note'],
-                                                                           project_id: project_id)
+                        identification_mode_note = {type: 'ImportAttribute',
+                                                    import_predicate: 'IdentificationModeNote',
+                                                    value: identification['identification_mode_note'],
+                                                    project_id: project_id}
                         data_attributes_attributes.push(identification_mode_note)
-                      end
-
-                      if identification['taxon_ident_note'].present?
-                        identification_mode_note = ImportAttribute.create!(import_predicate: 'TaxonIdentNote',
-                                                                           value: identification['taxon_ident_note'],
-                                                                           project_id: project_id)
-                        data_attributes_attributes.push(taxon_ident_note)
                       end
 
                       # need IdentifierName: normally a role associated with the taxon determination. Since text field would be difficult to parse into people, for now adding SF tblIdentification.IdentifierName as import attribute
 
                       if identification['identifier_name'].present?
-                        identifier_name = ImportAttribute.create!(import_predicate: 'IdentifierName',
-                                                                  value: identification['identifier_name'],
-                                                                  project_id: project_id)
+                        identifier_name = {type: 'ImportAttribute',
+                                           import_predicate: 'IdentifierName',
+                                           value: identification['identifier_name'],
+                                           project_id: project_id}
                         data_attributes_attributes.push(identifier_name)
-                        if identification['year'].present?
-                          identifier_year = ImportAttribute.create!(import_predicate: 'IdentifierYear',
-                                                                    value: identification['year'],
-                                                                    project_id: project_id)
+                        if identification['year'].to_i > 0
+                          identifier_year = {type: 'ImportAttribute',
+                                             import_predicate: 'IdentifierYear',
+                                             value: identification['year'],
+                                             project_id: project_id}
                           data_attributes_attributes.push(identifier_year)
                         end
                       end
 
                       # cannot do inline: need find_or_create
-                      confidences_attributes = nil
+                      confidences_attributes = []
                       if get_sf_ident_qualifier[nomenclator_id]
-                        confidences_attributes = [ConfidenceLevel.find_or_create_by(
+                        confidences_attributes.push({confidence_level: ConfidenceLevel.find_or_create_by(
                             name: get_sf_ident_qualifier[nomenclator_id],
                             definition: get_sf_ident_qualifier[nomenclator_id],
-                            project_id: project_id)]
+                            project_id: project_id)})
                       end
 
+                      # byebug      # nil, expected array or hash
+
+
                       t = TaxonDetermination.create!(
-                          otu: otu,
+                          otu_id: otu.id,
                           biological_collection_object: o,
 
                           citations_attributes: citations_attributes,
                           data_attributes_attributes: data_attributes_attributes,
-                          notes_attributes: [text: identification['taxon_ident_note']],
+                          notes_attributes: [text: identification['taxon_ident_note'], project_id: project_id],
                           confidences_attributes: confidences_attributes,
                           project_id: project_id)
                       t.move_to_bottom # so it's not the first record
