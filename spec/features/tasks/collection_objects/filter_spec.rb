@@ -253,8 +253,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             (1..10).each { |specimen|
               sp = FactoryGirl.create(:valid_specimen,
                                       creator:    ((specimen % 2) == 0 ? joe : pat),
-                                      created_at: "20#{specimen}/01/#{specimen}",
-                                      updated_at: "20#{specimen}/06/#{specimen}",
+                                      created_at: "200#{specimen - 1}/01/#{specimen}",
+                                      updated_at: "200#{specimen - 1}/07/#{specimen}",
                                       updater:    ((specimen % 2) == 0 ? pat : joe),
                                       project:    @project)
             }
@@ -272,18 +272,18 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             wait_for_ajax
             expect(find('#user_date_range_count')).to have_content('5')
 
-            select('Pat Pro', from: 'user_date_namespace')
-            fill_in('user_date_range_start', with: Date.today)
-            fill_in('user_date_range_end', with: Date.today)
+            select('Pat Pro', from: 'user')
+            fill_in('user_date_range_start', with: Date.today.to_s.gsub('-', '/'))
+            fill_in('user_date_range_end', with: Date.today.to_s.gsub('-', '/'))
 
-            click_button('Set Identifier Range', {id: 'set_user_date_range'})
+            click_button('Set User/Date Range', {id: 'set_user_date_range'})
             wait_for_ajax
             expect(find('#user_date_range_count')).to have_content('2')
 
-            fill_in('user_date_range_start', with: Date.yesterday)
-            fill_in('user_date_range_end', with: Date.yesterday)
+            fill_in('user_date_range_start', with: Date.yesterday.to_s.gsub('-', '/'))
+            fill_in('user_date_range_end', with: Date.yesterday.to_s.gsub('-', '/'))
 
-            click_button('Set Identifier Range', {id: 'set_user_date_range'})
+            click_button('Set User/Date Range', {id: 'set_user_date_range'})
             wait_for_ajax
             expect(find('#user_date_range_count')).to have_content('0')
 
