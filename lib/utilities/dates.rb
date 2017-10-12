@@ -257,7 +257,7 @@ module Utilities::Dates
 
     start_date, end_date = order_dates(start_date, end_date)
 
-    return start_date, end_date
+    return start_date.gsub('-', '/'), end_date.gsub('-', '/')
   end
 
   def self.make_verbatim_date_piece(label, pieces)
