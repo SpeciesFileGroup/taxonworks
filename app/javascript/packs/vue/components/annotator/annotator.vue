@@ -11,7 +11,7 @@
 				<div class="radial-annotator-template">
 					<h3 class="capitalize">{{ currentAnnotator }}</h3>
 					<div class="radial-annotator-container">
-						<component v-bind:is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"></component>
+						<component :url="url" v-bind:is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"></component>
 					</div>
 				</div>
 			</div>
@@ -71,20 +71,21 @@ export default {
 		},
 		globalId: {
 			type: String,
-			default: 'gid%3A%2F%2Ftaxon-works%2FSpecimen%2F923633'
+			default: 'gid%3A%2F%2Ftaxon-works%2FProtonym%2F6'
 		}
 	},
 	mounted: function() {
 		var that = this;
 		this.getList(`/annotations/${this.globalId}/metadata`).then(response => {
 			that.menuOptions = that.createMenuOptions(response.body.annotation_types);
+			that.url = response.body.url;
 		});
 	},
 	data: function() {
 		return {
 			currentAnnotator: undefined,
 			display: false,
-			metadata: undefined,
+			url: undefined,
 			menuOptions: []
 		}
 	},

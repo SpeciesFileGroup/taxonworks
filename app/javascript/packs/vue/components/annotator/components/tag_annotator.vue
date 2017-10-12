@@ -27,9 +27,20 @@
 			displayList
 		},
 		props: {
-			globalId: {
+			id: {
 				type: String
+			},
+			url: {
+				type: String,
+				required: true
 			}
+		},
+		mounted: function() {
+			var that = this;
+			this.getList(this.url + '/tags.json').then(response => {
+				console.log(response);
+				that.list = response.body;
+			})
 		},
 		data: function() {
 			return {
