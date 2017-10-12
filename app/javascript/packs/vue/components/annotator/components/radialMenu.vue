@@ -4,7 +4,7 @@ menu structure:
 [
 	{
 		label: 'Citation',
-		count: 11,
+		total: 11,
 		event: 'citation',
 		icon: {
 			url: 'image.svg',
@@ -220,9 +220,9 @@ menu structure:
 
 			    for (var i = 0; i < slices; i++) {
 			        var angle = Math.radians(segmentWidth*i);
-			        if(this.menu[i]['count']) {
+			        if(this.menu[i]['total']) {
 						this.drawOption("green", angle, this.width/2-30, this.width/2-4);
-			        	this.drawText(this.findNewPoint(this.width/2,this.height/2, Math.degrees(angle) + ((this.segmentWidth)/2), this.width/2-14), this.menu[i].count, "#FFFFFF");
+			        	this.drawText(this.findNewPoint(this.width/2,this.height/2, Math.degrees(angle) + ((this.segmentWidth)/2), this.width/2-14), this.menu[i].total, "#FFFFFF");
 			    	}
 
 			        if (this.isInside(E,i)) {

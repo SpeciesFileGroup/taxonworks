@@ -2,8 +2,8 @@
 	<form class="citation_annotator">
 		<div>
 		    <autocomplete
-		      url="/taxon_names/autocomplete"
-		      label="label_html"
+		      url="/sources/autocomplete"
+		      label="label"
 		      min="2"
 		      v-model="citation.source"
 		      placeholder="Select a source"
@@ -19,8 +19,8 @@
 			</label>
 		</div>
 		<autocomplete
-		    url="/taxon_names/autocomplete"
-		    label="label_html"
+		    url="/topics/autocomplete"
+		    label="label"
 		    min="2"
 		    v-model="citation.topic"
 		    placeholder="Topic"
@@ -45,20 +45,7 @@
 		},
 		data: function() {
 			return {
-				list: [
-					{ 
-						id: 1, 
-						label: "Citation 2" 
-					}, 
-					{
-						id: 2,
-						label: "Citation 2"
-					},
-					{	
-						id:3,
-						label: "Citation 3"
-					}, 
-				],
+				list: [],
 				citation: {
 					source: null,
 					is_original: false,
