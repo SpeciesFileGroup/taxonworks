@@ -101,7 +101,7 @@ class ControlledVocabularyTermsController < ApplicationController
 
     data = @controlled_vocabulary_terms.collect do |t|
       {id: t.id,
-       label: ApplicationController.helpers.controlled_vocabulary_term_tag(t),
+       label: t.name,
        response_values: {
            params[:method] => t.id
        },
