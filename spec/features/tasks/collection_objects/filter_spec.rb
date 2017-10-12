@@ -214,6 +214,82 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
           end
         end
       end
+
+      context 'with records specific to users and dates' do
+        let!(:pat) { User.find(1) }
+        let!(:pat_admin) { User.where(name: 'Pat Project Administrator').first }
+        let!(:joe) { FactoryGirl.create(:valid_user) }
+        let!(:prepare) {
+          if $user.blank?
+            $user_id = pat.id
+            @project.users << joe
+          end
+        }
+        describe 'default user', js: true do
+          it 'should present the current user' do
+            prepare
+            visit(collection_objects_filter_task_path)
+            page.execute_script "$('#set_user_date_range')[0].scrollIntoView()"
+
+            expect(page).to have_button('Set User/Date Range')
+            expect(page).to have_text(@user.name)
+          end
+        end
+
+        describe 'selected user', js: true do
+          it 'should find specific user' do
+            prepare
+            visit(collection_objects_filter_task_path)
+            page.execute_script "$('#set_user_date_range')[0].scrollIntoView()"
+
+            select('Joe', from: 'user')
+            expect(find_field('user').value).to eq(joe.name)
+          end
+        end
+
+        describe 'selected objects', js: true do
+          it 'should find specific objects' do
+            2.times { FactoryGirl.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: @project) }
+            (1..10).each { |specimen|
+              sp = FactoryGirl.create(:valid_specimen,
+                                      creator:    ((specimen % 2) == 0 ? joe : pat),
+                                      created_at: "20#{specimen}/01/#{specimen}",
+                                      updated_at: "20#{specimen}/06/#{specimen}",
+                                      updater:    ((specimen % 2) == 0 ? pat : joe),
+                                      project:    @project)
+            }
+
+            expect(Specimen.created_by_user(pat_admin).count).to eq(2)
+            expect(Specimen.created_by_user(pat).count).to eq(5)
+            expect(Specimen.created_by_user(joe).count).to eq(5)
+
+            visit(collection_objects_filter_task_path)
+
+            page.execute_script "$('#set_user_date_range')[0].scrollIntoView()"
+
+            # default select is current user / all dates
+            click_button('Set User/Date Range', {id: 'set_user_date_range'})
+            wait_for_ajax
+            expect(find('#user_date_range_count')).to have_content('5')
+
+            select('Pat Pro', from: 'user_date_namespace')
+            fill_in('user_date_range_start', with: Date.today)
+            fill_in('user_date_range_end', with: Date.today)
+
+            click_button('Set Identifier Range', {id: 'set_user_date_range'})
+            wait_for_ajax
+            expect(find('#user_date_range_count')).to have_content('2')
+
+            fill_in('user_date_range_start', with: Date.yesterday)
+            fill_in('user_date_range_end', with: Date.yesterday)
+
+            click_button('Set Identifier Range', {id: 'set_user_date_range'})
+            wait_for_ajax
+            expect(find('#user_date_range_count')).to have_content('0')
+
+          end
+        end
+      end
     end
   end
 end
