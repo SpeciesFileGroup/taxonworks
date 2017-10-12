@@ -18,7 +18,8 @@ class TagsController < ApplicationController
                                                     :descriptor_id,
                                                     :collection_object_id,
                                                     :collecting_event_id,
-                                                    :character_id
+                                                    :character_id,
+                                                    :taxon_name_id
           ]
                                    )
         )
