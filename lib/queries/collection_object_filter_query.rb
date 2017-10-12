@@ -113,6 +113,8 @@ module Queries
     def user_date_scope
       @user_date_start, @user_date_end = Utilities::Dates.normalize_and_order_dates(query_user_date_range_start,
                                                                                     query_user_date_range_end)
+      @user_date_start += ' 00:00:00' # adjust dates to beginning
+      @user_date_end += ' 23:59:59' # and end of date days
 
       scope = case query_date_type_select
                 when 'created_at', nil
