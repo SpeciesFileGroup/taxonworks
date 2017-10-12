@@ -19,7 +19,7 @@ module DataControllerConfiguration::ProjectDataControllerConfiguration
       end
     end
 
-    model = h.keys.first.split('_').first.classify
+    model = h.keys.first.gsub(/_id$/, '').camelize
     return {"#{object_name}_type".to_sym => model,"#{object_name}_id".to_sym => h.values.first}
   end
 
