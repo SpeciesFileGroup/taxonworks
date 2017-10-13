@@ -1,3 +1,18 @@
+<%=
+  content_tag(:span,
+              CollectionObject.with_project_id(sessions_current_project_id)
+                  .first_created.created_at.to_date.to_s.gsub('-', '/'),
+              id:     :first_created,
+              hidden: true)
+-%>
+<%=
+  content_tag(:span,
+              CollectionObject.with_project_id(sessions_current_project_id)
+                  .last_created.created_at.to_date.to_s.gsub('-', '/'),
+              id:     :last_created,
+              hidden: true)
+-%>
+
 <%= form_tag(set_user_date_range_for_collection_object_filter_url, id: 'set_user_date_range_form', remote: true) do %>
     User:<br>
     <%= user_select_tag(:user, sessions_current_user.name) -%><br>

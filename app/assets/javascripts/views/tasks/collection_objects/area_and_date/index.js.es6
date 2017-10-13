@@ -102,9 +102,11 @@ Object.assign(TW.views.tasks.collection_objects, {
     var dateInput;
     
     this.validateResult();
-    
+  
     set_control($("#search_start_date"), $("#search_start_date"), format, year, $("#earliest_date").text());
     set_control($("#search_end_date"), $("#search_end_date"), format, year, $("#latest_date").text());
+    set_control($("#user_date_range_start"), $("#user_date_range_start"), format, year, $("#first_created").text());
+    set_control($("#user_date_range_end"), $("#user_date_range_end"), format, year, $("#last_created").text());
     
     function set_control(control, input, format, year, st_en_day) {
       if (control.length) {

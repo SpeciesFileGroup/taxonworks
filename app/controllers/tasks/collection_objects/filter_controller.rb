@@ -47,12 +47,31 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
     render json: {html: collection_objects.count}
   end
 
+  # GET
   def set_id_range
     render json: {html: collection_objects.count}
   end
 
+  # GET
   def set_user_date_range
     render json: {html: collection_objects.count}
+  end
+
+  # GET
+  def get_created_at
+    render json: {first_date: CollectionObject.in_project(sessions_current_project_id)
+                                .first_created.created_at.to_date.to_s.gsub('-', '/'),
+                  last_date:  CollectionObject.in_project(sessions_current_project_id)
+                                .last_created.created_at.to_date.to_s.gsub('-', '/')
+    }
+  end
+
+  def get_updated_at
+    render json: {first_date: CollectionObject.in_project(sessions_current_project_id)
+                                .first_updated.updated_at.to_date.to_s.gsub('-', '/'),
+                  last_date:  CollectionObject.in_project(sessions_current_project_id)
+                                .last_updated.updated_at.to_date.to_s.gsub('-', '/')
+    }
   end
 
   protected

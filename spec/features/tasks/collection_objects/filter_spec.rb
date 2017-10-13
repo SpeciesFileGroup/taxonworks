@@ -272,6 +272,18 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             wait_for_ajax
             expect(find('#user_date_range_count')).to have_content('5')
 
+            select('All users', from: 'user')
+            click_button('Set User/Date Range', {id: 'set_user_date_range'})
+            wait_for_ajax
+            expect(find('#user_date_range_count')).to have_content('12')
+
+            fill_in('user_date_range_start', with: '2005-01-01')
+            fill_in('user_date_range_end', with: Date.yesterday)
+
+            click_button('Set User/Date Range', {id: 'set_user_date_range'})
+            wait_for_ajax
+            expect(find('#user_date_range_count')).to have_content('5')
+
             select('Pat Pro', from: 'user')
             fill_in('user_date_range_start', with: Date.today)
             fill_in('user_date_range_end', with: Date.today)

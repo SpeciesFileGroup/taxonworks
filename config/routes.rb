@@ -627,6 +627,8 @@ TaxonWorks::Application.routes.draw do
         get 'set_otu', as: 'set_otu_for_collection_object_filter'
         get 'set_id_range', as: 'set_id_range_for_collection_object_filter'
         get 'set_user_date_range', as: 'set_user_date_range_for_collection_object_filter'
+        get 'get_created_at', as: 'get_created_at_for_collection_object_filter'
+        get 'get_updated_at', as: 'get_updated_at_for_collection_object_filter'
         get 'download', action: 'download', as: 'download_collection_object_filter_result'
       end
     end
