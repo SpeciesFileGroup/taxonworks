@@ -6,11 +6,8 @@ Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csr
 
 const create = function(url, data) {
 	return Vue.http.post(url, data).then(response => {
-		console.log(data);
 		return response;
 	}, response => {
-		console.log(data);
-		console.log(response);
 		return response;
 	})
 }

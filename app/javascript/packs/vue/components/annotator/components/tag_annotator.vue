@@ -10,8 +10,8 @@
 	      class="separate-bottom"
 	      param="term">
 	    </autocomplete>
-	    <textarea class="separate-bottom" placeholder="Definition..." v-model="tag.keyword_attributes.definition"></textarea>
-	    <button @click="createWithoutId()" class="button button-submit normal-input separate-bottom" type="button">Create</button>
+	    <textarea class="separate-bottom" placeholder="Definition... (minimum is 20 characters)" v-model="tag.keyword_attributes.definition"></textarea>
+	    <button @click="createWithoutId()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Create</button>
 	    <display-list label="object_tag" :list="list" @delete="removeItem" class="list"></display-list>
 	</div>
 </template>
@@ -31,13 +31,18 @@
 		mounted: function() {
 
 		},
+		computed: {
+			validateFields() {
+				return (this.tag.keyword_attributes.name.length > 1 &&
+						this.tag.keyword_attributes.definition.length > 20)
+			},
+		},
 		data: function() {
 			return {
-				list: [],
 				tag: {
                     keyword_attributes: {
                         name: '',
-                        definition: null,
+                        definition: '',
                     },
                     tag_object_global_entity: decodeURIComponent(this.globalId)
                 }
