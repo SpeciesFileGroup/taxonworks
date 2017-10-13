@@ -5,6 +5,8 @@ module Shared::Taggable
   extend ActiveSupport::Concern
 
   included do
+    Tag.related_foreign_keys.push self.name.foreign_key
+
     has_many :tags, as: :tag_object, dependent: :destroy
     has_many :keywords, through: :tags
 

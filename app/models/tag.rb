@@ -30,6 +30,10 @@ class Tag < ApplicationRecord
   include Shared::AttributeAnnotations
   include Shared::MatrixHooks
 
+  # @return [Array]
+  #   the foreign keys from taggable classes
+  @related_foreign_keys = [] 
+
   acts_as_list scope: [:tag_object_id, :tag_object_type]
 
   belongs_to :keyword, inverse_of: :tags, validate: true
@@ -45,6 +49,27 @@ class Tag < ApplicationRecord
   validates_uniqueness_of :keyword_id, scope: [:tag_object_id, :tag_object_type]
 
   accepts_nested_attributes_for :keyword, reject_if: :reject_keyword, allow_destroy: true
+
+  def self.tag_objects(objects, keyword_id = nil)
+    return nil if keyword_id.nil? or objects.empty?
+    objects.each do |o|
+      o.tags << Tag.new(keyword_id: keyword_id)
+    end
+  end
+
+  def self.exists?(global_id, keyword_id, project_id)
+    o = GlobalID::Locator.locate(global_id)
+    return false unless o
+    Tag.where(project_id: project_id, tag_object: o, keyword_id: keyword_id).first
+  end
+
+  def self.related_foreign_keys
+    @related_foreign_keys
+  end
+
+  def self.related_foreign_keys=(value)
+    @related_foreign_keys.push value
+  end
 
   # The column name containing the attribute name being annotated
   def self.annotated_attribute_column
@@ -93,19 +118,6 @@ class Tag < ApplicationRecord
     else
       return false
     end
-  end
-
-  def self.tag_objects(objects, keyword_id = nil)
-    return nil if keyword_id.nil? or objects.empty?
-    objects.each do |o|
-      o.tags << Tag.new(keyword_id: keyword_id)
-    end
-  end
-
-  def self.exists?(global_id, keyword_id, project_id)
-    o = GlobalID::Locator.locate(global_id)
-    return false unless o
-    Tag.where(project_id: project_id, tag_object: o, keyword_id: keyword_id).first
   end
 
   protected
