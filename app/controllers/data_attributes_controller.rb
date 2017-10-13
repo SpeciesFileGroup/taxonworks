@@ -6,8 +6,16 @@ class DataAttributesController < ApplicationController
   # GET /data_attributes
   # GET /data_attributes.json
   def index
-    @recent_objects = DataAttribute.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html {
+        @recent_objects = DataAttribute.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        DataAttributes.where(project_id: sessions_current_project_id).where(
+
+        )
+      }
   end
 
   # GET /data_attributes/new
