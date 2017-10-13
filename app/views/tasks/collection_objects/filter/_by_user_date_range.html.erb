@@ -15,7 +15,7 @@
 
 <%= form_tag(set_user_date_range_for_collection_object_filter_url, id: 'set_user_date_range_form', remote: true) do %>
     User:<br>
-    <%= user_select_tag(:user, sessions_current_user.name) -%><br>
+    <%= user_select_tag(:user, sessions_current_user_id) -%><br>
     <%= radio_button_tag(:date_type_select, 'created_at', true) -%> Created on<br>
     Search on:<br>
     <%= radio_button_tag(:date_type_select, 'updated_at', false) -%> Updated on<br>

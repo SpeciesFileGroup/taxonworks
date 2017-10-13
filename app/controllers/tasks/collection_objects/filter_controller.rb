@@ -54,10 +54,24 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
 
   # GET
   def set_user_date_range
+    params[:user] = params[:user].to_i
     render json: {html: collection_objects.count}
   end
 
   # GET
+  def get_dates_of_type
+    case params[:date_type_select]
+      when 'updated_at'
+        get_updated_at
+      when 'created_at'
+        get_created_at
+      # else
+        #
+    end
+  end
+
+  protected
+
   def get_created_at
     render json: {first_date: CollectionObject.in_project(sessions_current_project_id)
                                 .first_created.created_at.to_date.to_s.gsub('-', '/'),
@@ -74,7 +88,6 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
     }
   end
 
-  protected
 
   def collection_objects
     scope = Queries::CollectionObjectFilterQuery.new(filter_params)

@@ -38,7 +38,7 @@ Object.assign(TW.views.tasks.collection_objects, {
             var popcorn = local_data;
             $("#area_count").text(local_data.html);
             $("#select_area").mx_spinner('hide');
-            that.validateResult();
+            that.validateResultForFind();
           }, 'json');
           event.preventDefault();
         }
@@ -66,7 +66,7 @@ Object.assign(TW.views.tasks.collection_objects, {
         $.get('set_otu', $("#set_otu_form").serialize(), function (local_data) {
           $("#otu_count").text(local_data.html);
           $("#select_otu").mx_spinner('hide');
-          that.validateResult();
+          that.validateResultForFind();
         }, 'json');
         event.preventDefault();
       }
@@ -78,7 +78,7 @@ Object.assign(TW.views.tasks.collection_objects, {
         $.get('set_id_range', $("#set_id_range_form").serialize(), function (local_data) {
           $("#id_range_count").text(local_data.html);
           $("#select_id_range").mx_spinner('hide');
-          that.validateResult();
+          that.validateResultForFind();
         }, 'json');
         event.preventDefault();
       }
@@ -90,18 +90,29 @@ Object.assign(TW.views.tasks.collection_objects, {
         $.get('set_user_date_range', $("#set_user_date_range_form").serialize(), function (local_data) {
           $("#user_date_range_count").text(local_data.html);
           $("#select_user_date_range").mx_spinner('hide');
-          that.validateResult();
+          that.validateResultForFind();
         }, 'json');
         event.preventDefault();
       }
     );
+    
+    $("[name='date_type_select']").change(function (event) {
+      $.get('get_dates_of_type', $("#set_user_date_range_form").serialize(), function (local_data) {
+        set_control($("#user_date_range_start"), $("#user_date_range_start"), format, year, local_data.first_date);
+        set_control($("#user_date_range_end"), $("#user_date_range_end"), format, year, local_data.last_date);
+        // $("#user_date_range_start").text(local_data.first_date);
+        // $("#user_date_range_end").text(local_data.last_date);
+        that.validateResultForFind();
+      }, 'json');
+      event.preventDefault();
+    });
   
     var today = new Date();
     var year = today.getFullYear();
     var format = 'yy/mm/dd';
     var dateInput;
     
-    this.validateResult();
+    this.validateResultForFind();
   
     set_control($("#search_start_date"), $("#search_start_date"), format, year, $("#earliest_date").text());
     set_control($("#search_end_date"), $("#search_end_date"), format, year, $("#latest_date").text());
@@ -181,7 +192,7 @@ Object.assign(TW.views.tasks.collection_objects, {
         that.updateRangePicker(startDate, endDate);
         $("#graph_frame").empty();
         $("#date_count").text("????");
-        that.validateResult();
+        that.validateResultForFind();
         event.preventDefault();
       }
     );
@@ -234,7 +245,7 @@ Object.assign(TW.views.tasks.collection_objects, {
         $("#date_count").text(local_data.html);
         $("#graph_frame").html(local_data.chart);
         $("#select_date_range").mx_spinner('hide');
-        that.validateResult();
+        that.validateResultForFind();
       }, 'json');  // I expect a json response
     }
     event.preventDefault();
@@ -257,7 +268,7 @@ Object.assign(TW.views.tasks.collection_objects, {
     return false;
   },
   
-  validateResult: function () {
+  validateResultForFind: function () {
     // var i = 0;
     
     if (

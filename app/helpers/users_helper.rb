@@ -24,10 +24,17 @@ module UsersHelper
 # @param [String] default_name, if supplied, must be a user.name, user.email, or user.if
 # @return [HTML]
   def user_select_tag(user_element, default_name = nil)
-    options_list = ['All users']
+    # options_list = ['All users', 0]
 
-    options_list.push(User.in_project(sessions_current_project_id).collect { |u| User.find(u).name })
+    # options_list.push(User.in_project(sessions_current_project_id).collect { |u| User.find(u).name })
+    # options_list.push(User.in_project(sessions_current_project_id).collect { |u| User.find(u).name},{value: u})
 
-    select_tag(user_element, options_for_select(options_list.flatten, default_name))
+    # select_tag(user_element, options_for_select(options_list.flatten, default_name))
+    select_tag(user_element,
+               options_for_select(User.in_project(sessions_current_project_id)
+                                    .collect { |u| [User.find(u).name, User.find(u).id] }
+                                    .unshift(['All users', 'All users']),
+                                  default_name))
+
   end
 end

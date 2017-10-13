@@ -125,7 +125,7 @@ module Queries
                   CollectionObject.all
               end
 
-      if query_user != 'All users'
+      unless query_user == 0
         user_id = User.find_user_id(query_user)
         scope   = case query_date_type_select
                     when 'created_at'
