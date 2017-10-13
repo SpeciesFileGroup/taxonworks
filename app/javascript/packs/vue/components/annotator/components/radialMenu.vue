@@ -62,11 +62,18 @@ menu structure:
 			}
 		},
 		mounted: function() {
-			var that = this;
 			this.addFunctions();
 			this.ctx = this.createCanvasContext();
 			this.loadIcons();
-			that.update(false);
+			this.update(false);
+		},
+		watch: {
+			menu: {
+				handler: function() {
+					this.update(false);
+				},
+				deep: true
+			}
 		},
 		methods: {
 			getPosition: function(e) {

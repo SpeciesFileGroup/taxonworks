@@ -84,6 +84,7 @@ Object.assign(TW.views.tags.tag_icon, {
 				tag_object_global_entity: globalId
 			}
 		}
+		console.log(tag);
 		return this.makeAjaxCall('POST', url, tag);
 	},
 

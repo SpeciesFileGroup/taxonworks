@@ -1,56 +1,68 @@
 <template>
-	<form class="tag_annotator">
+	<div class="tag_annotator">
 	    <autocomplete
-	      url="/controlled_vocabulary_terms/autocomplete"
+	      url="/keywords/autocomplete"
 	      label="label"
 	      min="2"
-	      v-model="tag.keyword"
+	      @getInput="tag.keyword = $event"
 	      placeholder="Keyboard"
+	      @getItem="createWithId($event.id)"
 	      class="separate-bottom"
 	      param="term">
 	    </autocomplete>
 	    <textarea class="separate-bottom" placeholder="Definition..." v-model="tag.description"></textarea>
-	    <button class="button button-submit normal-input separate-bottom" type="button">Create</button>
-	    <display-list label="label" :list="list" class="list"></display-list>
-	</form>
+	    <button @click="createWithoutId()" class="button button-submit normal-input separate-bottom" type="button">Create</button>
+	    <display-list label="object_tag" :list="list" @delete="removeItem" class="list"></display-list>
+	</div>
 </template>
 <script>
 
 	import CRUD from '../request/crud.js';
+	import annotatorExtend from '../components/annotatorExtend.js';
 	import autocomplete from '../../autocomplete.vue';
 	import displayList from './displayList.vue';
 
 	export default {
-		mixins: [CRUD],
+		mixins: [CRUD, annotatorExtend],
 		components: {
 			autocomplete,
 			displayList
 		},
-		props: {
-			id: {
-				type: String
-			},
-			url: {
-				type: String,
-				required: true
-			}
-		},
 		mounted: function() {
-			var that = this;
-			this.getList(this.url + '/tags.json').then(response => {
-				console.log(response);
-				that.list = response.body;
-			})
+
 		},
 		data: function() {
 			return {
 				list: [],
 				tag: {
-					keyword: null,
-					description: null
-				}
+                    keyword_attributes: {
+                        type: 'Keyword',
+                        name: '',
+                        definition: null,
+                    },
+                    tag_object_type: 'Protonym',
+                    tag_object_global_entity: decodeURIComponent(this.globalId)
+                }
 			}
 		},
+		methods: {
+			createWithId(id) {
+				let tag = {
+					tag: {
+						keyword_id: id,
+						tag_object_global_entity: decodeURIComponent(this.globalId)
+					}
+				}
+				this.create('/tags', tag).then(response => {
+					this.list.push(response.body);
+				});
+			},
+			createWithoutId() {
+				this.create('/tags', { tag: this.tag }).then(response => {
+					this.list.push(response.body);
+				});
+			}
+		}
 	}
 </script>
 <style type="text/css" lang="scss">

@@ -5,13 +5,19 @@
 			<div slot="body" class="flex-separate">
 				<div class="radial-annotator-menu">
 					<div class="radial-annotator-template">
-						<radial-menu :menu="menuOptions" @selected="currentAnnotator = ($event)" width="400" height="400"></radial-menu>
+						<radial-menu :menu="menuOptions" @selected="currentAnnotator = $event" width="400" height="400"></radial-menu>
 					</div>
 				</div>
 				<div class="radial-annotator-template">
 					<h3 class="capitalize">{{ currentAnnotator }}</h3>
 					<div class="radial-annotator-container">
-						<component :url="url" v-bind:is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"></component>
+						<component
+							v-bind:is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
+							:type="currentAnnotator" 
+							:url="url" 
+							:globalId="globalId"
+							@updateCount="setTotal">	
+						</component>
 					</div>
 				</div>
 			</div>
@@ -24,7 +30,7 @@
 import radialMenu from './components/radialMenu.vue';
 import modal from '../modal.vue';
 
-import CRUD from './request/CRUD';
+import CRUD from './request/crud';
 import tagsAnnotator from './components/tag_annotator.vue';
 import notesAnnotator from './components/note_annotator.vue';
 import citationsAnnotator from './components/citation_annotator.vue';
@@ -109,6 +115,13 @@ export default {
 			}
 
 			return menu;
+		},
+		setTotal(total) {
+			var that = this;
+			let position = this.menuOptions.findIndex(function(element) {
+				return element.event == that.currentAnnotator
+			})
+			this.menuOptions[position].total = total;
 		}
 	}
 }

@@ -1,9 +1,7 @@
 <template>
 	<transition-group class="table-entrys-list" name="list-complete" tag="ul">
 	    	<li v-for="item in list" :key="item.id" class="list-complete-item flex-separate middle">
-			    <span class="list-item">
-			    	{{ item[label] }}
-			    </span>
+			    <span class="list-item" v-html="item[label]"></span>
 			    <div class="list-controls">		
 		    		<span type="button" class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
 		    	</div>
@@ -30,7 +28,6 @@
 	 	align-items:center;
 	 	flex-direction:row;
 	 	justify-content: flex-end;
-		width: 550px;
 	}
 
 	.list-item {

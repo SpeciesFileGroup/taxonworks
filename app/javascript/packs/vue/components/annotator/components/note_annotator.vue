@@ -15,11 +15,6 @@
 		components: {
 			displayList
 		},
-		props: {
-			globalId: {
-				type: String
-			}
-		},
 		data: function() {
 			return {
 				list: [],
