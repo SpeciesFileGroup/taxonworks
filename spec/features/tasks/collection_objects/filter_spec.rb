@@ -138,6 +138,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
           it 'should find the correct namespace' do
             @ns1 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)
             @ns2 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
+            2.times {FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)}
             visit(collection_objects_filter_task_path)
 
             expect(page).to have_button('Set Identifier Range')
