@@ -14,7 +14,7 @@ class NotesController < ApplicationController
       }
       format.json {
         @notes = Note.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params('note_object', [
+          polymorphic_filter_params('note_object', [ # TODO: this has to be made into a method
             :observation_id,
             :otu_id,
             :descriptor_id,
@@ -69,7 +69,8 @@ class NotesController < ApplicationController
   def destroy
     @note.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Note was successfully destroyed.')}
+      # TODO: probably needs to be changed
+      format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Note was successfully destroyed.')}
       format.json { head :no_content }
     end
   end

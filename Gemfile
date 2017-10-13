@@ -57,7 +57,6 @@ gem 'jquery-rails', '~> 4.3.1'
 gem 'jquery-ui-rails', '~> 6.0.1'
 gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
-# TODO: New version of turbolinks is major fail, Hold for further investigation
 gem 'turbolinks', '~> 5.0.1'
 gem 'jquery-turbolinks', '~> 2.1'
 

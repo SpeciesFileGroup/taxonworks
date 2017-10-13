@@ -21,7 +21,6 @@ services:
       - "0.0.0.0:15432:5432"
     volumes:
       - pg:/var/lib/postgresql/data
-      - ./volumes/webpack_build:/mnt/rails/public/webpack
   webpack:
     build: 
       context: .
@@ -29,6 +28,7 @@ services:
     command: bash -c "yarn && /app/bin/webpack-dev-server --host 0.0.0.0"
     volumes: 
       - .:/app
+      - ./volumes/webpack_build:/mnt/rails/public/webpack
     ports:
       - '3808:3808'
 volumes:

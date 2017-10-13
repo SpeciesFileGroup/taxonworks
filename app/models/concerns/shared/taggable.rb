@@ -21,7 +21,7 @@ module Shared::Taggable
       a = []
       tags.each do |t| 
         errors.add(:base, 'identical keyword attempt') if a.include?({:id => t.keyword.id, :name => t.keyword.name, :definition => t.keyword.definition})
-      # t.keyword.attributes cannot be used, because the updated_at is truncated after save. The date is returned in different format.
+        # t.keyword.attributes cannot be used, because the updated_at is truncated after save. The date is returned in different format.
         a.push ({:id => t.keyword.id, :name => t.keyword.name, :definition => t.keyword.definition})
       end
     end
