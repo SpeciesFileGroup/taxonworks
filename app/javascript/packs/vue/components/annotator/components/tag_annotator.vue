@@ -4,8 +4,9 @@
 	      url="/keywords/autocomplete"
 	      label="label"
 	      min="2"
+	      placeholder="Keyword"
+	      :clearAfter="true"
 	      @getInput="tag.keyword_attributes.name = $event"
-	      placeholder="Keyboard"
 	      @getItem="createWithId($event.id)"
 	      class="separate-bottom"
 	      param="term">
