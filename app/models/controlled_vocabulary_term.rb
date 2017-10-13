@@ -57,17 +57,6 @@ class ControlledVocabularyTerm < ApplicationRecord
         .where(project_id: params[:project_id])
   end
 
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
   protected
 
   def uri_relation_is_a_skos_relation
@@ -81,5 +70,5 @@ require_dependency 'biological_property'
 require_dependency 'keyword'
 require_dependency 'predicate'
 require_dependency 'topic'
-
+require_dependency 'confidence_level'
 

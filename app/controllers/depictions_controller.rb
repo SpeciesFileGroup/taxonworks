@@ -13,7 +13,7 @@ class DepictionsController < ApplicationController
       }
       format.json {
         @depictions = Depiction.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params('depiction_object', [:observation_id, :content_id, :descriptor_id]) 
+          polymorphic_filter_params('depiction_object', [:observation_id, :content_id, :descriptor_id, :otu_id, :collection_object_id]) 
         )
       }
     end

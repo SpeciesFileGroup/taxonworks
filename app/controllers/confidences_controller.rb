@@ -17,7 +17,8 @@ class ConfidencesController < ApplicationController
           polymorphic_filter_params('confidence_object', [
             :observation_id,
             :descriptor_id,
-            :otu_id
+            :otu_id,
+            :taxon_name_id,
           ])
         )
       }

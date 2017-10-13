@@ -3,6 +3,31 @@ class IdentifiersController < ApplicationController
 
   before_action :set_identifier, only: [:update, :destroy]
 
+  # GET /identifiers
+  # GET /identifiers.json
+  def index
+    respond_to do |format|
+      format.html {
+        @recent_objects = Identifier.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @identifiers = Identifier.where(project_id: sessions_current_project_id).where(
+          polymorphic_filter_params(
+            'identifier_object', [ # TODO: this has to be made into a method
+                                   :otu_id,
+                                   :descriptor_id,
+                                   :collection_object_id,
+                                   :collecting_event_id,
+                                   :character_id,
+                                   :taxon_name_id
+            ]
+          )
+        )
+      }
+    end
+  end
+
   def new
     @identifier = Identifier.new(identifier_params)
   end
@@ -12,13 +37,6 @@ class IdentifiersController < ApplicationController
     @identifier = Identifier.find_by_id(params[:id]).metamorphosize
   end
 
-  # GET /identifiers
-  # GET /identifiers.json
-  def index
-    @recent_objects = Identifier.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
-  end
-
   # POST /identifiers
   # POST /identifiers.json
   def create
@@ -26,7 +44,7 @@ class IdentifiersController < ApplicationController
     respond_to do |format|
       if @identifier.save
         format.html { redirect_to @identifier.identifier_object.metamorphosize, notice: 'Identifier was successfully created.' }
-        format.json { render json: @identifier, status: :created, location: @identifier.becomes(Identifier) }
+        format.json { render action: 'show', status: :created, location: @identifier.becomes(Identifier) }
       else
         format.html { render 'new', notice: 'Identifier was NOT successfully created.' }
         format.json { render json: @identifier.errors, status: :unprocessable_entity }
@@ -96,13 +114,14 @@ class IdentifiersController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
+  
   def set_identifier
     @identifier = Identifier.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def identifier_params
-    params.require(:identifier).permit(:id, :identifier_object_id, :identifier_object_type, :identifier, :type, :namespace_id)
+    params.require(:identifier).permit(
+      :id, :identifier_object_id, :identifier_object_type, :identifier, :type, :namespace_id, :_destroy
+    )
   end
 end

@@ -13,15 +13,17 @@ class TagsController < ApplicationController
       }
       format.json {
         @tags = Tag.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params('tag_object', [ # TODO: this has to be made into a method
-                                                    :otu_id,
-                                                    :descriptor_id,
-                                                    :collection_object_id,
-                                                    :collecting_event_id,
-                                                    :character_id,
-                                                    :taxon_name_id
-          ]
-                                   )
+          polymorphic_filter_params(
+            # TODO: this has to be made into a method
+            'tag_object', [ 
+              :otu_id,
+              :descriptor_id,
+              :collection_object_id,
+              :collecting_event_id,
+              :character_id,
+              :taxon_name_id
+            ]
+          )
         )
       }
     end

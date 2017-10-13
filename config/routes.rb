@@ -26,6 +26,9 @@ TaxonWorks::Application.routes.draw do
     resources :depictions, shallow: true, only: [:index]
     resources :tags, shallow: true, only: [:index]
     resources :notes, shallow: true, only: [:index]
+    resources :identifiers, shallow: true, only: [:index]
+    resources :confidences, shallow: true, only: [:index]
+    resources :data_attributes, shallow: true, only: [:index]
   end
 
   root 'dashboard#index'
