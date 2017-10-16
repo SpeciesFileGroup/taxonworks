@@ -81,16 +81,32 @@ namespace :tw do
 
           error_counter = 0
           saved_counter = 0
-          zero_counter = 0  # specimen_ids with no count
+          zero_counter = 0 # specimen_ids with no count
 
           file.each_with_index do |row, i|
             specimen_id = row['SpecimenID']
             next if specimen_id == '0'
 
-            if get_specimen_category_counts[specimen_id].blank? # ignore no critter counts for now
-              zero_counter += 1
+            if get_specimen_category_counts[specimen_id].blank? # these are no-count specimens which fall into two categories:
+              # if TypeKindID in (1 holotype, 2 syntypes, 3 neotype, 4 lectotype, 5 unspecified primary type), create coll obj
+              #     1,3,4,5 use total = 1; 2 uses ranged lot 2-100; rest of coll obj logic applies
+              # if Level1ID > 0, create asserted_distribution using fields: otu_id, geographic_area_id, project_id, AND source_id even though not a column of ass dist
+               type_kind_id = get_sf_identification_metadata[specimen_id][1]
+               # end
+
+
+
+              #     Rest of locality/collecting event/specimen/identification data append as import_attributes
+              #         [need to import tables localities and collecting events as hashes - not unique table because indexing is too complex]
+              #         [There are 18 identification records where SeqNum > 0 (highest = 1)]
+
+            else
+              logger.info "SpecimenID = '#{specimen_id}', FileID = '#{row['FileID']}', SourceID = '#{row['SourceID']}', zero_counter = '#{zero_counter += 1}'"
               next
             end
+
+            next
+
 
             project_id = get_tw_project_id[row['FileID']]
             place_in_collection_keyword = Keyword.find_or_create_by(name: 'PlaceInCollection', definition: 'possible SF source of identification', project_id: project_id)
@@ -515,6 +531,75 @@ namespace :tw do
           import.set('SFSpecimenIDToCollObjID', get_tw_collection_object_id)
           puts 'SFSpecimenIDToCollObjID'
           ap get_tw_collection_object_id
+
+        end
+
+
+        desc 'time rake tw:project_import:sf_import:specimens:create_sf_loc_col_events_metadata user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :create_sf_loc_col_events_metadata => [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Creating metadata from tblLocalities and tblCollectingEvents...'
+
+          get_sf_locality_metadata = {} # key = sf.LocalityID, value = hash {lat, long, precision code, etc.}
+          get_sf_collect_event_metadata = {} # key = sf.CollectEventID, value = hash {collector name, date, etc.}
+
+          path = @args[:data_directory] + 'tblLocalities.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each do |row|
+            locality_id = row['LocalityID']
+
+            logger.info "Working with SF.LocalityID = '#{locality_id}' \n"
+
+            get_sf_locality_metadata[locality_id] = {file_id: row['FileID'],
+                                                     level1_id: row['Level1ID'],
+                                                     level2_id: row['Level2ID'],
+                                                     level3_id: row['Level3ID'],
+                                                     level4_id: row['Level4ID'],
+                                                     latitude: row['Latitude'],
+                                                     longitude: row['Longitude'],
+                                                     precision_code: row['PrecisionCode'],
+                                                     elevation: row['Elevation'],
+                                                     max_elevation: row['MaxElevation'],
+                                                     time_period_id: row['TimePeriodID'],
+                                                     locality_detail: row['LocalityDetail'],
+                                                     time_detail: row['TimeDetail'],
+                                                     dataflags: row['DataFlags'],
+                                                     country: row['Country'],
+                                                     state: row['State'],
+                                                     county: row['County'],
+                                                     body_of_water: row['BodyOfWater'],
+                                                     precision_radius: row['PrecisionRadius'],
+                                                     lat_long_from: row['LatLongFrom']}
+          end
+
+
+          path = @args[:data_directory] + 'tblCollectEvents.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each do |row|
+            collect_event_id = row['CollectEventID']
+
+            logger.info "Working with SF.CollectEventID = '#{collect_event_id}' \n"
+
+            get_sf_collect_event_metadata[collect_event_id] = {file_id: row['FileID'],
+                                                               collector_name: row['CollectorName'],
+                                                               year: row['Year'],
+                                                               month: row['Month'],
+                                                               day: row['Day'],
+                                                               days_to_end: row['DaysToEnd']}
+          end
+
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFLocalityMetadata', get_sf_locality_metadata)
+          import.set('SFCollectEventMetadata', get_sf_collect_event_metadata)
+
+          puts 'SFLocalityMetadata'
+          ap get_sf_locality_metadata
+
+          puts 'SFCollectEventMetadata'
+          ap get_sf_collect_event_metadata
 
         end
 
