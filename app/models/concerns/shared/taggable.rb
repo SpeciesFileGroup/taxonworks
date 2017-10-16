@@ -1,4 +1,4 @@
-# Shared code for extending data-classes with Tags.
+# Shared code for extending data classes with Tags.
 #
 module Shared::Taggable
 
@@ -15,6 +15,7 @@ module Shared::Taggable
 
     accepts_nested_attributes_for :tags, reject_if: :reject_tags, allow_destroy: true
 
+    # TODO: This should be a Tag validation!?
     validate :identical_new_keywords_are_prevented
 
     protected 
@@ -29,6 +30,8 @@ module Shared::Taggable
     end
   end
 
+  # @return [Boolean]
+  #   true if the object has tags
   def tagged?
     tags.any?
   end

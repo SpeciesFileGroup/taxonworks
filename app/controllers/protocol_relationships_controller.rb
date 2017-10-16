@@ -88,6 +88,6 @@ class ProtocolRelationshipsController < ApplicationController
     end
 
     def protocol_relationship_params
-      params.require(:protocol_relationship).permit(:protocol_id, :protocol_relationship_object_id, :protocol_relationship_object_type, :position)
+      params.require(:protocol_relationship).permit(:protocol_id, :protocol_relationship_object_id, :protocol_relationship_object_type, :annotated_global_entity)
     end
 end

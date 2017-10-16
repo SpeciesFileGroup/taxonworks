@@ -99,7 +99,7 @@ describe Tag, type: :model, group: [:annotators, :tags] do
 
   context 'global ids/entity' do
     before {
-      tag.tag_object_global_entity = otu.to_global_id
+      tag.annotated_global_entity = otu.to_global_id
       tag.keyword = keyword
       tag.save!
     }
@@ -108,8 +108,8 @@ describe Tag, type: :model, group: [:annotators, :tags] do
       expect(tag.tag_object).to eq(otu)
     end
 
-    specify 'tag_object_global_entity can be returned' do
-      expect(tag.tag_object_global_entity).to eq(otu.to_global_id)
+    specify 'annotated_global_entity can be returned' do
+      expect(tag.annotated_global_entity).to eq(otu.to_global_id)
     end
   end
 

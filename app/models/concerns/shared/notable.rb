@@ -4,6 +4,8 @@ module Shared::Notable
   extend ActiveSupport::Concern
 
   included do
+    Note.related_foreign_keys.push self.name.foreign_key
+
     # Validation happens on the parent side!
     has_many :notes, as: :note_object, validate: true, dependent: :destroy
 

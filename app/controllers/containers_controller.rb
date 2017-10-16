@@ -77,8 +77,7 @@ class ContainersController < ApplicationController
   end
 
   def autocomplete
-    @containers = Container.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-
+    @containers = Queries::ContainerAutocompleteQuery.new(params.merge(project_id: sessions_current_project_id)).result
     data = @containers.collect do |t|
       {id: t.id,
        label: t.id, #  ApplicationController.helpers.container_tag(t),

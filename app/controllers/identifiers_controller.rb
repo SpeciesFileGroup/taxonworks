@@ -121,7 +121,7 @@ class IdentifiersController < ApplicationController
 
   def identifier_params
     params.require(:identifier).permit(
-      :id, :identifier_object_id, :identifier_object_type, :identifier, :type, :namespace_id, :_destroy
+      :id, :identifier_object_id, :identifier_object_type, :identifier, :type, :namespace_id, :annotated_global_entity
     )
   end
 end

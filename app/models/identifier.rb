@@ -45,11 +45,13 @@ class Identifier < ApplicationRecord
   include Housekeeping
   include Shared::IsData
   include Shared::DualAnnotator
+  include Shared::PolymorphicAnnotator
+ 
+  # must come before SHORT_NAMES for weird inheritance issue
+  polymorphic_annotates('identifier_object')
 
   after_save :set_cached
-
-  # must come before SHORT_NAMES for weird inheritance issue
-  belongs_to :identifier_object, polymorphic: :true
+  
   belongs_to :namespace # only applies to Identifier::Local, here for create purposes
 
   # @todo this likely has to be refactored/considered
@@ -85,12 +87,6 @@ class Identifier < ApplicationRecord
 
   def self.find_for_autocomplete(params)
     where('identifier LIKE ?', "#{params[:term]}%")
-  end
-
-  # @return [NoteObject]
-  #   alias to simplify reference across classes
-  def annotated_object
-    identifier_object
   end
 
   def self.class_name

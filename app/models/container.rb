@@ -126,10 +126,6 @@ class Container < ApplicationRecord
     end
   end
 
-  def self.find_for_autocomplete(params)
-    Queries::ContainerAutocompleteQuery.new(params[:term], project_id: params[:project_id]).result
-  end
-
   # @return [String]
   #   the "common name" of this class
   def self.class_name

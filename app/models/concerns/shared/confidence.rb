@@ -1,10 +1,12 @@
-# Shared code for apply user assertions of "Confidence" to data.
+# Shared code for apply user assertions of Confidence to data.
 #
 module Shared::Confidence
 
   extend ActiveSupport::Concern
 
   included do
+    ::Confidence.related_foreign_keys.push self.name.foreign_key
+
     has_many :confidences, as: :confidence_object, validate: true, dependent: :destroy
     has_many :confidence_levels, through: :confidences
 

@@ -23,6 +23,7 @@ class Depiction < ApplicationRecord
   include Housekeeping
   include Shared::Taggable
   include Shared::IsData
+  include Shared::PolymorphicAnnotator
 
   acts_as_list scope: [:depiction_object_type, :depiction_object_id]
 

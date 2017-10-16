@@ -30,8 +30,8 @@ class DataAttribute < ApplicationRecord
   include Housekeeping
   include Shared::IsData
   include Shared::DualAnnotator
-
-  belongs_to :attribute_subject, polymorphic: true
+  include Shared::PolymorphicAnnotator
+  polymorphic_annotates('attribute_subject')
 
   # Please DO NOT include the following:  (follows Identifier approach)
   #   validates_presence_of :attribute_subject_type, :attribute_subject_id
@@ -41,12 +41,6 @@ class DataAttribute < ApplicationRecord
   # Needs to extend to predicate/value searches
   def self.find_for_autocomplete(params)
     where('value LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
-  end
-
-  # @return [NoteObject]
-  #   alias to simplify reference across classes
-  def annotated_object
-    attribute_subject
   end
 
   # @return [Boolean]

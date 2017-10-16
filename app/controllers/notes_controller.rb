@@ -14,13 +14,7 @@ class NotesController < ApplicationController
       }
       format.json {
         @notes = Note.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params('note_object', [ # TODO: this has to be made into a method
-            :observation_id,
-            :otu_id,
-            :descriptor_id,
-            :collection_object_id,
-            :character_state_id
-          ])
+          polymorphic_filter_params('note_object', Note.related_foreign_keys)
         )
       }
     end
@@ -106,7 +100,7 @@ class NotesController < ApplicationController
 
   # GET /notes/download
   def download
-    send_data Note.generate_download(Note.where(project_id: sessions_current_project_id)), type: 'text', filename: "notes_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Note.where(project_id: sessions_current_project_id)), type: 'text', filename: "notes_#{DateTime.now.to_s}.csv"
   end
 
   private
@@ -116,6 +110,6 @@ class NotesController < ApplicationController
   end
   
   def note_params
-    params.require(:note).permit(:text, :note_object_id, :note_object_type, :note_object_attribute)
+    params.require(:note).permit(:text, :note_object_id, :note_object_type, :note_object_attribute, :annotated_global_entity)
   end
 end

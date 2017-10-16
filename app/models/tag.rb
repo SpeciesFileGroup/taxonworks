@@ -29,18 +29,12 @@ class Tag < ApplicationRecord
   include Shared::IsData
   include Shared::AttributeAnnotations
   include Shared::MatrixHooks
-
-  # @return [Array]
-  #   the foreign keys from taggable classes
-  @related_foreign_keys = [] 
-
+  include Shared::PolymorphicAnnotator
+  polymorphic_annotates(:tag_object)
   acts_as_list scope: [:tag_object_id, :tag_object_type]
 
   belongs_to :keyword, inverse_of: :tags, validate: true
-  belongs_to :tag_object, polymorphic: true
-
-  # Not all tagged subclasses are keyword based, use this object for display
-  belongs_to :controlled_vocabulary_term, foreign_key: :keyword_id, inverse_of: :tags
+  belongs_to :controlled_vocabulary_term, foreign_key: :keyword_id, inverse_of: :tags # Not all tagged subclasses are Keyword based, use this object for display
 
   validates :keyword, presence: true
   validate :keyword_is_allowed_on_object
@@ -63,37 +57,9 @@ class Tag < ApplicationRecord
     Tag.where(project_id: project_id, tag_object: o, keyword_id: keyword_id).first
   end
 
-  def self.related_foreign_keys
-    @related_foreign_keys
-  end
-
-  def self.related_foreign_keys=(value)
-    @related_foreign_keys.push value
-  end
-
   # The column name containing the attribute name being annotated
   def self.annotated_attribute_column
     :tag_object_attribute
-  end
-
-  def tag_object_class
-    tag_object.class
-  end
-
-  def tag_object_global_entity
-    tag_object.to_global_id if tag_object.present?
-  end
-
-  def tag_object_global_entity=(entity)
-    o = GlobalID::Locator.locate(entity)
-    write_attribute(:tag_object_type, o.class.base_class)
-    write_attribute(:tag_object_id, o.id) 
-  end
-
-  # @return [TagObject]
-  #   alias to simplify reference across classes
-  def annotated_object
-    tag_object
   end
 
   # @return [{"matrix_column_item": matrix_column_item, "descriptor": descriptor}, false]

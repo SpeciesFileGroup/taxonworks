@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'DataAttributes', :type => :model do
+describe 'DataAttributes', type: :model do
   let(:class_with_data_attributes) {TestDataAttribute.new}
 
   context 'associations' do
@@ -19,7 +19,6 @@ describe 'DataAttributes', :type => :model do
     before(:each) {
       class_with_data_attributes.data_attributes.delete_all
     }
-
 
     specify 'has any data attributes?' do
       expect(class_with_data_attributes.data_attributes.any?).to eq(false)

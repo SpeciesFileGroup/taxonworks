@@ -125,7 +125,7 @@ class TagsController < ApplicationController
 
   def tag_params
     params.require(:tag).permit(
-      :keyword_id, :tag_object_id, :tag_object_type, :tag_object_attribute, :tag_object_global_entity, :_destroy,
+      :keyword_id, :tag_object_id, :tag_object_type, :tag_object_attribute, :annotated_global_entity, :_destroy,
       keyword_attributes: [:name, :definition, :uri, :uri_relation, :css_color]
     )
   end

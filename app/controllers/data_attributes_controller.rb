@@ -11,20 +11,9 @@ class DataAttributesController < ApplicationController
         @recent_objects = DataAttribute.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       }
-      # TODO: this has to be made into a method
       format.json {
         @data_attributes = DataAttribute.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params(
-            'attribute_subject', 
-            [
-              :otu_id,
-              :descriptor_id,
-              :collection_object_id,
-              :collecting_event_id,
-              :character_id,
-              :taxon_name_id
-            ]
-          )
+          polymorphic_filter_params( 'attribute_subject', DataAttribute.related_foreign_keys )
         )
       }
     end
@@ -44,7 +33,6 @@ class DataAttributesController < ApplicationController
   # POST /data_attributes.json
   def create
     @data_attribute = DataAttribute.new(data_attribute_params)
-
     respond_to do |format|
       if @data_attribute.save
         format.html { redirect_to @data_attribute.attribute_subject.metamorphosize, notice: 'Data attribute was successfully created.' }
@@ -131,6 +119,8 @@ class DataAttributesController < ApplicationController
       :attribute_subject_type,
       :controlled_vocabulary_term_id,
       :import_predicate,
-      :value)
+      :value,
+      :annotated_global_entity 
+    )
   end
 end
