@@ -144,14 +144,23 @@ Object.assign(TW.views.tasks.collection_objects, {
     $("#search_end_date").change(function (event) {
       that.update_and_graph(event)
     });    // change of date
-    
+
     $("#st_fixedpicker").change(function (event) {
       that.update_and_graph(event)
     });   // listener for day
-    
+
     $("#en_fixedpicker").change(function (event) {
       that.update_and_graph(event)
     });   // click date change
+
+    $("#xst_fixedpicker").change(function (event) {
+      that.updateUserDateRange(event)
+    });   // listener for day
+
+    $("#xen_fixedpicker").change(function (event) {
+      that.updateUserDateRange(event)
+    });   // click date change
+
     $("#partial_toggle").change(function (event) {
       if ($("#date_count").text() != "????") {
         that.update_and_graph(event)
@@ -211,7 +220,19 @@ Object.assign(TW.views.tasks.collection_objects, {
     $(".map_toggle").remove();
     $(".on_selector").remove();
   },
-  
+
+  updateUserDateRange: function () {
+    // var newStartText = $(".label.select-label")[1].textContent;
+    // var newEndText = $(".label.select-label")[0].textContent;
+    // var newStartDate = (new Date(newStartText)) / range_factor;
+    // var newEndDate = range_factor * (new Date(newEndText));
+    // $("#search_start_date").val(newStartText);
+    // $("#search_end_date").val(newEndText);
+
+    $("#xst_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date('1700/01/01'), "yyyy/MM/dd")));
+    $("#xen_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date('2017/10/12'), "yyyy/MM/dd")));
+  },
+
   switchMap: function () {
     $("#paging_span").hide();
     $("#show_list").hide();         // hide the list view

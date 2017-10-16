@@ -138,6 +138,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
           it 'should find the correct namespace' do
             @ns1 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)
             @ns2 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
+            2.times {FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)}
             visit(collection_objects_filter_task_path)
 
             expect(page).to have_button('Set Identifier Range')
@@ -228,6 +229,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         describe 'default user', js: true do
           it 'should present the current user' do
             prepare
+            2.times {FactoryGirl.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: @project)}
             visit(collection_objects_filter_task_path)
             page.execute_script "$('#set_user_date_range')[0].scrollIntoView()"
 
@@ -239,6 +241,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         describe 'selected user', js: true do
           it 'should find specific user' do
             prepare
+            2.times {FactoryGirl.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: @project)}
             visit(collection_objects_filter_task_path)
             page.execute_script "$('#set_user_date_range')[0].scrollIntoView()"
 
