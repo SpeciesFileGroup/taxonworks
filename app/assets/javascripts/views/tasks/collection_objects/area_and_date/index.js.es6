@@ -153,11 +153,11 @@ Object.assign(TW.views.tasks.collection_objects, {
       that.update_and_graph(event)
     });   // click date change
 
-    $("#xst_fixedpicker").change(function (event) {
+    $("#ud_st_fixedpicker").change(function (event) {
       that.updateUserDateRange(event)
     });   // listener for day
 
-    $("#xen_fixedpicker").change(function (event) {
+    $("#ud_en_fixedpicker").change(function (event) {
       that.updateUserDateRange(event)
     });   // click date change
 
@@ -229,8 +229,8 @@ Object.assign(TW.views.tasks.collection_objects, {
     // $("#search_start_date").val(newStartText);
     // $("#search_end_date").val(newEndText);
 
-    $("#xst_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date('1700/01/01'), "yyyy/MM/dd")));
-    $("#xen_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date('2017/10/12'), "yyyy/MM/dd")));
+    $("#ud_st_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date('1700/01/01'), "yyyy/MM/dd")));
+    $("#ud_en_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date('2017/10/12'), "yyyy/MM/dd")));
   },
 
   switchMap: function () {

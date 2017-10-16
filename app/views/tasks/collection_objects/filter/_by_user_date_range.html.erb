@@ -1,16 +1,8 @@
 <%=
-  content_tag(:span,
-              CollectionObject.with_project_id(sessions_current_project_id)
-                  .first_created.created_at.to_date.to_s.gsub('-', '/'),
-              id:     :first_created,
-              hidden: true)
+  content_tag(:span, get_first_created_at, id: :first_created, hidden: true)
 -%>
 <%=
-  content_tag(:span,
-              CollectionObject.with_project_id(sessions_current_project_id)
-                  .last_created.created_at.to_date.to_s.gsub('-', '/'),
-              id:     :last_created,
-              hidden: true)
+  content_tag(:span, get_last_created_at, id: :last_created, hidden: true)
 -%>
 
 <%= form_tag(set_user_date_range_for_collection_object_filter_url, id: 'set_user_date_range_form', remote: true) do %>
@@ -33,8 +25,8 @@
       </div>
     </div>
     <div id="xtr_calendar" class="flex-separate">
-      <div id="xst_fixedpicker"></div>
-      <div id="xen_fixedpicker"></div>
+      <div id="ud_st_fixedpicker"></div>
+      <div id="ud_en_fixedpicker"></div>
     </div>
     <%= submit_tag('Set User/Date Range', id: 'set_user_date_range') %>
 <% end %>
