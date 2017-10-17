@@ -1,3 +1,5 @@
+require_dependency Rails.root + 'config/initializers/constants/skos.rb'
+
 # The information that can be use to differentiate concepts.
 # Note this definition is presently very narrow, and that an identifier
 # can in practice be used for a lot more than differentiation (i.e.
