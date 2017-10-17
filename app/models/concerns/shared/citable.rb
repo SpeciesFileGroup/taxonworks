@@ -10,6 +10,8 @@ module Shared::Citable
     related_class      = self.name
     related_table_name = self.table_name
 
+    Citation.related_foreign_keys.push self.name.foreign_key
+
     has_many :citations, as: :citation_object, validate: false, dependent: :destroy
     has_many :citation_topics, through: :citations
     has_many :topics, through: :citation_topics
