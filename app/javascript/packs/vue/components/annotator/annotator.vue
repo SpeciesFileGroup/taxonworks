@@ -31,8 +31,12 @@ import radialMenu from './components/radialMenu.vue';
 import modal from '../modal.vue';
 
 import CRUD from './request/crud';
+
+import confidencesAnnotator from './components/confidence_annotator.vue';
+import identifiersAnnotator from './components/identifier_annotator.vue';
 import tagsAnnotator from './components/tag_annotator.vue';
 import notesAnnotator from './components/note_annotator.vue';
+import data_attributesAnnotator from './components/data_attribute_annotator.vue';
 import citationsAnnotator from './components/citation_annotator.vue';
 
 import Icons from './images/icons.js';
@@ -44,6 +48,8 @@ export default {
 		modal,
 		notesAnnotator,
 		citationsAnnotator,
+		confidencesAnnotator,
+		data_attributesAnnotator,
 		tagsAnnotator
 	},
 	props: {

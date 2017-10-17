@@ -45,7 +45,7 @@
                         name: '',
                         definition: '',
                     },
-                    tag_object_global_entity: decodeURIComponent(this.globalId)
+                    annotated_global_entity: decodeURIComponent(this.globalId)
                 }
 			}
 		},
@@ -54,7 +54,7 @@
 				let tag = {
 					tag: {
 						keyword_id: id,
-						tag_object_global_entity: decodeURIComponent(this.globalId)
+						annotated_global_entity: decodeURIComponent(this.globalId)
 					}
 				}
 				this.create('/tags', tag).then(response => {
