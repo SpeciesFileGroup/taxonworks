@@ -24,11 +24,11 @@ class Depiction < ApplicationRecord
   include Shared::Taggable
   include Shared::IsData
   include Shared::PolymorphicAnnotator
+  polymorphic_annotates(:depiction_object)
 
   acts_as_list scope: [:depiction_object_type, :depiction_object_id]
 
   belongs_to :image, inverse_of: :depictions
-  belongs_to :depiction_object, polymorphic: true
 
   has_one :sqed_depiction, dependent: :destroy
 
@@ -36,11 +36,4 @@ class Depiction < ApplicationRecord
 
   accepts_nested_attributes_for :image
   accepts_nested_attributes_for :depiction_object
-
-  # @return [DepictionObject]
-  #   alias to simplify reference across classes
-  def annotated_object
-    depiction_object
-  end
-
 end
