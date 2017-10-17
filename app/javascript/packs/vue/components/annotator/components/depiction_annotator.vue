@@ -1,7 +1,7 @@
 <template>
 	<form class="notes_annotator">
 	    <dropzone class="dropzone-card" v-on:vdropzone-sending="sending" v-on:vdropzone-success="success" ref="figure" id="figure" url="/depictions" :useCustomDropzoneOptions="true" :dropzoneOptions="dropzone"></dropzone>
-	    <display-list label="label" :list="list" class="list"></display-list>
+	    <display-list label="object_tag" :list="list" @delete="removeItem" class="list"></display-list>
 	</form>
 </template>
 <script>
@@ -36,6 +36,8 @@
 		},
 		methods: {
 	        'success': function(file, response) {
+	        	console.log(response);
+	        	this.list.push(response);
 	         // this.$refs.figure.removeFile(file);
 	        },
 	        'sending': function(file, xhr, formData) {
