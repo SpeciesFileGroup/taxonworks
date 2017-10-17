@@ -11,7 +11,7 @@
 	    </autocomplete>
 	    <textarea class="separate-bottom" placeholder="Value" v-model="data_attribute.value"></textarea>
 	    <button @click="createNew()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Create</button>
-	    <display-list label="object_tag" :list="list" @delete="removeItem" class="list"></display-list>
+	    <display-list :label="['controlled_vocabulary_term', 'object_tag'] " :list="list" @delete="removeItem" class="list"></display-list>
 	</div>
 </template>
 <script>

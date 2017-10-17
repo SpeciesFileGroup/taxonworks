@@ -1,7 +1,7 @@
 <template>
 	<transition-group class="table-entrys-list" name="list-complete" tag="ul">
 	    	<li v-for="item in list" :key="item.id" class="list-complete-item flex-separate middle">
-			    <span class="list-item" v-html="item[label]"></span>
+			    <span class="list-item" v-html="displayName(item)"></span>
 			    <div class="list-controls">		
 		    		<span type="button" class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
 		    	</div>
@@ -15,8 +15,22 @@
 				default: []
 			},
 			label: {
-				type: String,
 				required: true,
+			}
+		},
+		methods: {
+			displayName(item) {
+				if(typeof this.label == 'string') {
+					return item[this.label];
+				}
+				else {
+					let tmp = item;
+					this.label.forEach(function(label) {
+						tmp = tmp[label]
+						console.log(tmp);
+					});
+					return tmp;
+				}
 			}
 		}
 	}
