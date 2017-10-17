@@ -38,7 +38,7 @@
 	        'success': function(file, response) {
 	        	console.log(response);
 	        	this.list.push(response);
-	         // this.$refs.figure.removeFile(file);
+	        	this.$refs.figure.removeFile(file);
 	        },
 	        'sending': function(file, xhr, formData) {
 	        	console.log(decodeURIComponent(this.globalId));
