@@ -14,15 +14,7 @@ class IdentifiersController < ApplicationController
       format.json {
         @identifiers = Identifier.where(project_id: sessions_current_project_id).where(
           polymorphic_filter_params(
-            'identifier_object', [ # TODO: this has to be made into a method
-                                   :otu_id,
-                                   :descriptor_id,
-                                   :collection_object_id,
-                                   :collecting_event_id,
-                                   :character_id,
-                                   :taxon_name_id
-            ]
-          )
+            'identifier_object', Identifier.related_foreign_keys  )
         )
       }
     end

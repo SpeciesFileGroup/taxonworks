@@ -4,6 +4,8 @@ module Shared::Identifiable
 
   extend ActiveSupport::Concern
   included do
+    Identifier.related_foreign_keys.push self.name.foreign_key
+
     # Validation happens on the parent side!
     has_many :identifiers, as: :identifier_object, validate: true, dependent: :destroy
     accepts_nested_attributes_for :identifiers, reject_if: :reject_identifiers, allow_destroy: true
