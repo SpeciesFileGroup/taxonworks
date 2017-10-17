@@ -27,9 +27,6 @@
 			autocomplete,
 			displayList
 		},
-		mounted: function() {
-
-		},
 		computed: {
 			validateFields() {
 				return (this.data_attribute.controlled_vocabulary_term_id &&
