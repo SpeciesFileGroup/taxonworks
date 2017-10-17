@@ -34,4 +34,6 @@ class Confidence < ApplicationRecord
 
   validates :confidence_level, presence: true
   validates_uniqueness_of :confidence_level_id, scope: [:confidence_object_id, :confidence_object_type]
+
+  accepts_nested_attributes_for :confidence_level, allow_destroy: true
 end
