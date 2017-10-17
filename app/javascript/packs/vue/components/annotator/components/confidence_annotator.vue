@@ -1,11 +1,11 @@
 <template>
-	<div class="data_attribute_annotator">
+	<div class="confidence_annotator">
 	    <autocomplete
 	      url="/predicates/autocomplete"
 	      label="label"
 	      min="2"
 	      placeholder="Confidence level"
-	      v-model="confidence.confidence_level_id"
+	      @getItem="confidence.confidences_attributes.confidence_level_id = $event.id"
 	      class="separate-bottom"
 	      param="term">
 	    </autocomplete>
@@ -28,20 +28,22 @@
 		},
 		computed: {
 			validateFields() {
-				return this.confidence.confidence_level_id
+				return this.confidence.confidences_attributes.confidence_level_id
 			},
 		},
 		data: function() {
 			return {
 				confidence: {
-                    confidence_level_id: undefined,
-                    confidence_object_global_entity: decodeURIComponent(this.globalId)
+					confidences_attributes: {
+                    	confidence_level_id: undefined
+                	},
+                    annotated_global_entity: decodeURIComponent(this.globalId)
                 }
 			}
 		},
 		methods: {
 			createNew() {
-				this.create('/confidences', { confidence: this.confidence }).then(response => {
+				this.create('/confidences', { confidence_object: this.confidence }).then(response => {
 					this.list.push(response.body);
 				});
 			}
@@ -50,7 +52,7 @@
 </script>
 <style type="text/css" lang="scss">
 .radial-annotator {
-	.data_attribute_annotator { 
+	.confidence_annotator { 
 		button {
 			min-width: 100px;
 		}

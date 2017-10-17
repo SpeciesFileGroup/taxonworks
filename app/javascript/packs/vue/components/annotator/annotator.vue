@@ -52,6 +52,7 @@ export default {
 		confidencesAnnotator,
 		depictionsAnnotator,
 		data_attributesAnnotator,
+		identifiersAnnotator,
 		tagsAnnotator
 	},
 	props: {
