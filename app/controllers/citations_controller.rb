@@ -12,11 +12,8 @@ class CitationsController < ApplicationController
       }
       format.json {
         @citations = Citation.where(project_id: sessions_current_project_id)
-          .where(polymorphic_filter_params(
-        'citation_object', [:content_id, :otu_id, :observation_id] 
-        ))
+          .where(polymorphic_filter_params( 'citation_object', Citation.related_foreign_keys))
       }
-
     end
   end
 
