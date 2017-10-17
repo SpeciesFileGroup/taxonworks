@@ -30,7 +30,7 @@
 			</autocomplete>
 			<input type="text" class="inline pages" v-model="citation.citation_topics_attributes.pages" placeholder="Pages"/>
 		</div>
-	    <button class="button button-submit normal-input separate-bottom" @click="createNew()" type="button">Create</button>
+	    <button class="button button-submit normal-input separate-bottom" :disabled="!validateFields" @click="createNew()" type="button">Create</button>
 	    <display-list label="object_tag" :list="list" @delete="removeItem" class="list"></display-list>
 	</form>
 </template>
@@ -55,7 +55,12 @@
 		data: function() {
 			return {
 				list: [],
-				citation: {
+				citation: this.newCitation()
+			}
+		},
+		methods: {
+			newCitation() {
+				return {
 					annotated_global_entity: decodeURIComponent(this.globalId),
 					source_id: undefined,
 					is_original: false,
@@ -65,12 +70,11 @@
 						pages: undefined
 					}
 				}
-			}
-		},
-		methods: {
+			},
 			createNew() {
 				this.create('/citations', { citation: this.citation }).then(response => {
 					this.list.push(response.body);
+					this.citation = this.newCitation();
 				});
 			}
 		}
