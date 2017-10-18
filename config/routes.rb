@@ -137,6 +137,7 @@ TaxonWorks::Application.routes.draw do
   resources :confidence_levels, only: [:index] do
     collection do
       get 'lookup'
+      get 'autocomplete'
     end
   end
 
