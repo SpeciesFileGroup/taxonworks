@@ -264,6 +264,72 @@ describe User, :type => :model do
 
   end
 
+  context 'finding user ids' do
+    let!(:u1) { User.first }
+    let!(:u2) { FactoryGirl.create(:valid_user, {name: 'Pat Two', email: 'Pat2@home.net'}) }
+    let!(:u3) { FactoryGirl.create(:valid_user, {name: 'Pat Three', email: 'Pat3@work.net'}) }
+    let!(:u4) { FactoryGirl.create(:valid_user, {name: 'Pat Four', email: 'Pat4@vacation.net'}) }
+
+    context 'find one user id' do
+
+      specify 'no user' do
+        expect(User.get_user_id('Pat2')).to eq(nil)
+      end
+
+      specify 'by full name' do
+        expect(User.get_user_id('Pat Two')).to eq(u2.id)
+      end
+
+      specify 'by email' do
+        expect(User.get_user_id('person1@example.com')).to eq(u1.id)
+      end
+
+      specify 'by id' do
+        expect(User.get_user_id(1)).to eq(u1.id)
+      end
+
+      specify 'by User' do
+        expect(User.get_user_id(u4)).to eq(u4.id)
+      end
+
+    end
+
+    context 'find multiple user ids' do
+
+      specify 'no user' do
+        expect(User.get_user_ids('Ted', 'Mary', 'Sid')).to eq([])
+      end
+
+      specify 'by partial name' do
+        expect(User.get_user_ids('Two')).to eq([u2.id])
+        expect(User.get_user_ids('Pat')).to contain_exactly(u2.id, u3.id, u4.id)
+      end
+
+      specify 'by partial email' do
+        expect(User.get_user_ids('.net')).to contain_exactly(u2.id, u3.id, u4.id)
+      end
+
+      specify 'by id' do
+        expect(User.get_user_ids(u4.id, u3.id, u1.id)).to contain_exactly(u1.id, u3.id, u4.id)
+      end
+
+      specify 'by User' do
+        expect(User.get_user_ids(u4, u2, u1)).to contain_exactly(u1.id, u2.id, u4.id)
+      end
+
+      specify 'by mixed input' do
+        expect(User.get_user_ids(u1.id, 'three', u2, 'vacation', 'at2@')).to contain_exactly(u1.id,
+                                                                                             u2.id,
+                                                                                             u3.id,
+                                                                                             u4.id)
+      end
+
+      specify 'by mixed input' do
+        expect(User.get_user_ids(u1.id, 'joe', u1, 'example', 'on1@')).to contain_exactly(u1.id)
+      end
+    end
+  end
+
   context 'concerns' do
     it_behaves_like 'data_attributes'
     it_behaves_like 'notable'

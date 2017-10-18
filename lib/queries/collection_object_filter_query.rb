@@ -126,7 +126,7 @@ module Queries
               end
 
       unless query_user == 0
-        user_id = User.find_user_id(query_user)
+        user_id = User.get_user_id(query_user)
         scope   = case query_date_type_select
                     when 'created_at'
                       scope.created_by_user(user_id)

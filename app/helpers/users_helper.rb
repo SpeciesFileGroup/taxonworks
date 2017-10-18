@@ -37,4 +37,11 @@ module UsersHelper
                                   default_name))
 
   end
+
+  def user_select_tag_2(user_element, *users)
+    a = users
+    select_tag(user_element, options_for_select(User
+                                                  .in_project(sessions_current_project_id)
+                                                  .collect { |u| [User.find(u).name, User.find(u).id] }))
+  end
 end
