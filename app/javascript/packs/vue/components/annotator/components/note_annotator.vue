@@ -1,8 +1,12 @@
 <template>
 	<form class="notes_annotator">
 	    <textarea class="separate-bottom" placeholder="Text..." v-model="note.text"></textarea>
-	    <button @click="createNew()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Create</button>
-	    <display-list label="text" :list="list" @delete="removeItem" class="list"></display-list>
+	    <div v-if="note['id']">
+		    <button type="button" class="button button-submit normal-input separate-bottom" @click="updateNote()" :disabled="!validateFields">Update</button>
+		    <button type="button" class="button button-default normal-input" @click="note = newNote()">New</button>
+		</div>
+	    <button v-else @click="createNew()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Create</button>
+	    <display-list label="text" :list="list" :edit="true" @edit="note = $event" @delete="removeItem" class="list"></display-list>
 	</form>
 </template>
 <script>
@@ -25,17 +29,27 @@
 		data: function() {
 			return {
 				list: [],
-				note: {
-					text: null,
-					annotated_global_entity: decodeURIComponent(this.globalId)
-				}
+				note: this.newNote()
 			}
 		},
 		methods: {
+			newNote() {
+				return {
+					text: null,
+					annotated_global_entity: decodeURIComponent(this.globalId)
+				}
+			},
 			createNew() {
 				this.create('/notes', { note: this.note }).then(response => {
 					this.list.push(response.body);
+					this.note = this.newNote();
 				});
+			},
+			updateNote() {
+				this.update(`/notes/${this.note.id}`, { note: this.note }).then(response => {
+					this.$set(this.list, this.list.findIndex(element => element.id == this.note.id), response.body);
+					this.note = this.newNote();
+				})
 			}
 		}
 	}

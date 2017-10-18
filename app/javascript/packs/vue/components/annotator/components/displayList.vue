@@ -2,8 +2,9 @@
 	<transition-group class="table-entrys-list" name="list-complete" tag="ul">
 	    	<li v-for="item in list" :key="item.id" class="list-complete-item flex-separate middle">
 			    <span class="list-item" v-html="displayName(item)"></span>
-			    <div class="list-controls">		
-		    		<span type="button" class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
+			    <div class="list-controls">
+			    	<span v-if="edit" class="circle-button btn-edit" @click="$emit('edit', Object.assign({}, item))">Edit</span>
+		    		<span class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
 		    	</div>
 	    	</li>
 	</transition-group>
@@ -16,6 +17,10 @@
 			},
 			label: {
 				required: true,
+			},
+			edit: {
+				type: Boolean,
+				default: false,
 			}
 		},
 		methods: {

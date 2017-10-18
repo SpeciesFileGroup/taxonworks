@@ -8,8 +8,8 @@
 						<radial-menu :menu="menuOptions" @selected="currentAnnotator = $event" width="400" height="400"></radial-menu>
 					</div>
 				</div>
-				<div class="radial-annotator-template">
-					<h3 class="capitalize">{{ currentAnnotator }}</h3>
+				<div class="radial-annotator-template" v-if="currentAnnotator">
+					<h3 class="capitalize">{{ currentAnnotator.replace("_"," ") }}</h3>
 					<div class="radial-annotator-container">
 						<component
 							v-bind:is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
@@ -111,7 +111,7 @@ export default {
 			for(var key in annotators) {
 				if(that[key]) {
 					menu.push({
-						label: key.charAt(0).toUpperCase() + key.slice(1),
+						label: (key.charAt(0).toUpperCase() + key.slice(1)).replace("_"," "),
 						total: annotators[key].total,
 						event: key,
 						icon: {
