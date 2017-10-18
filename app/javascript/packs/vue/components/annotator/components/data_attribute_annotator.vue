@@ -1,6 +1,7 @@
 <template>
 	<div class="data_attribute_annotator">
 	    <autocomplete
+	      v-if="!data_attribute.hasOwnProperty('id')"
 	      url="/predicates/autocomplete"
 	      label="label"
 	      min="2"
@@ -10,8 +11,14 @@
 	      param="term">
 	    </autocomplete>
 	    <textarea class="separate-bottom" placeholder="Value" v-model="data_attribute.value"></textarea>
-	    <button @click="createNew()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Create</button>
-	    <display-list :label="['controlled_vocabulary_term', 'object_tag'] " :list="list" @delete="removeItem" class="list"></display-list>
+	    <div v-if="!data_attribute.hasOwnProperty('id')">
+	    	<button @click="createNew()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Create</button>
+		</div>
+		<div v-else>
+	    	<button @click="updateData()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Update</button>
+	    	<button @click="data_attribute = newData()" :disabled="!validateFields" class="button button-default normal-input separate-bottom" type="button">New</button>
+		</div>
+	    <display-list :label="['controlled_vocabulary_term', 'object_tag']" :edit="true" @edit="data_attribute = $event" :list="list" @delete="removeItem" class="list"></display-list>
 	</div>
 </template>
 <script>
@@ -35,19 +42,29 @@
 		},
 		data: function() {
 			return {
-				data_attribute: {
+				data_attribute: this.newData()
+			}
+		},
+		methods: {
+			newData() {
+				return {
 					type: 'InternalAttribute',
                     controlled_vocabulary_term_id: undefined,
                     value: '',
                     annotated_global_entity: decodeURIComponent(this.globalId)
                 }
-			}
-		},
-		methods: {
+			},
 			createNew() {
 				this.create('/data_attributes', { data_attribute: this.data_attribute }).then(response => {
 					this.list.push(response.body);
+					this.newData();
 				});
+			},
+			updateData() {
+				this.update(`/data_attributes/${this.data_attribute.id}`, { data_attribute: this.data_attribute }).then(response => {
+					this.$set(this.list, this.list.findIndex(element => element.id == this.data_attribute.id), response.body);
+					this.newData();
+				});		
 			}
 		}
 	}
