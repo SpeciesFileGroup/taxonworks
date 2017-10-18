@@ -57,13 +57,13 @@
 			createNew() {
 				this.create('/data_attributes', { data_attribute: this.data_attribute }).then(response => {
 					this.list.push(response.body);
-					this.newData();
+					this.data_attribute = this.newData();
 				});
 			},
 			updateData() {
 				this.update(`/data_attributes/${this.data_attribute.id}`, { data_attribute: this.data_attribute }).then(response => {
 					this.$set(this.list, this.list.findIndex(element => element.id == this.data_attribute.id), response.body);
-					this.newData();
+					this.data_attribute = this.newData();
 				});		
 			}
 		}
