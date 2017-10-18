@@ -112,7 +112,7 @@ class ConfidencesController < ApplicationController
   end
 
   def confidences_params
-    params.require(:confidence_object).permit(
+    params.require(:confidence).permit(
       :annotated_global_entity,
       :confidence_level_id,
       confidence_level_attributes: [:_destroy, :id, :name, :definition, :uri, :uri_relation]
