@@ -1,7 +1,7 @@
 <template>
 	<div class="confidence_annotator">
 	    <autocomplete
-	      url="/predicates/autocomplete"
+	      url="/confidence_levels/autocomplete"
 	      label="label"
 	      min="2"
 	      placeholder="Confidence level"
