@@ -614,5 +614,11 @@ taxa:create_all_sf_taxa_pass1
 [ERROR]2017-03-27 19:29:35.467: TaxonName ERROR (count = 2) AFTER synonym test (SF.TaxonNameID = 1170406, parent_id = 71880): Parent The parent rank (subspecies) is not higher than subspecies
 
 
+=== Summary of warnings and errors for task tw:project_import:sf_import:specimens:collection_objects ===
+[ERROR]2017-10-11 16:46:34.481: CollectionObject ERROR SF.SpecimenID = 62636 (1): Protonym Type cannot be designated, name is not a species group name
+[ERROR]2017-10-11 16:52:36.984: CollectionObject ERROR SF.SpecimenID = 65899 (2): Protonym Type cannot be designated, name is not a species group name
+[ERROR]2017-10-11 17:08:13.677: CollectionObject ERROR SF.SpecimenID = 74553 (3): Value has already been taken
+[ERROR]2017-10-11 17:38:02.813: CollectionObject ERROR SF.SpecimenID = 92870 (4): Value has already been taken
+
 
 =end
