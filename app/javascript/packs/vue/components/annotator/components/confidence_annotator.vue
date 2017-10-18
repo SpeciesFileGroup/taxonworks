@@ -5,7 +5,7 @@
 	      label="label"
 	      min="2"
 	      placeholder="Confidence level"
-	      @getItem="confidence_object.confidence_level_id = $event.id"
+	      @getItem="confidence.confidence_level_id = $event.id"
 	      class="separate-bottom"
 	      param="term">
 	    </autocomplete>
@@ -28,12 +28,12 @@
 		},
 		computed: {
 			validateFields() {
-				return this.confidence_object.confidence_level_id
+				return this.confidence.confidence_level_id
 			},
 		},
 		data: function() {
 			return {
-				confidence_object: {
+				confidence: {
                    	confidence_level_id: undefined,
                     annotated_global_entity: decodeURIComponent(this.globalId)
                 }
@@ -41,7 +41,8 @@
 		},
 		methods: {
 			createNew() {
-				this.create('/confidences', { confidence_object: this.confidence_object }).then(response => {
+				console.log(this.confidence);
+				this.create('/confidences', { confidence: this.confidence }).then(response => {
 					this.list.push(response.body);
 				});
 			}
