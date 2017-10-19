@@ -1,5 +1,5 @@
 <template>
-	<div class="notes_annotator">
+	<div class="depiction_annotator">
 		<div class="field" v-if="depiction">
 			<div class="separate-bottom">
 				<img :src="depiction.image.result.alternatives.medium.url"/>
@@ -62,7 +62,7 @@
 
 <style type="text/css" lang="scss">
 .radial-annotator {
-	.citation_annotator { 
+	.depiction_annotator { 
 		button {
 			min-width: 100px;
 		}
@@ -71,12 +71,6 @@
 			padding-bottom: 14px;
 			width: 100%;
 			height: 100px;
-		}
-		.pages {
-			width: 10%;
-		}
-		.vue-autocomplete-input {
-			width: 87%;
 		}
 	}
 }
