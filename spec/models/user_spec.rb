@@ -265,7 +265,7 @@ describe User, :type => :model do
   end
 
   context 'finding user ids' do
-    let!(:u1) { User.first }
+    let!(:u1) { FactoryGirl.create(:valid_user, {name: 'Pat One', email: 'Pat1@work.com'}) }
     let!(:u2) { FactoryGirl.create(:valid_user, {name: 'Pat Two', email: 'Pat2@home.net'}) }
     let!(:u3) { FactoryGirl.create(:valid_user, {name: 'Pat Three', email: 'Pat3@work.net'}) }
     let!(:u4) { FactoryGirl.create(:valid_user, {name: 'Pat Four', email: 'Pat4@vacation.net'}) }
@@ -281,11 +281,11 @@ describe User, :type => :model do
       end
 
       specify 'by email' do
-        expect(User.get_user_id('person1@example.com')).to eq(u1.id)
+        expect(User.get_user_id('Pat1@work.com')).to eq(u1.id)
       end
 
       specify 'by id' do
-        expect(User.get_user_id(1)).to eq(u1.id)
+        expect(User.get_user_id(u1.id)).to eq(u1.id)
       end
 
       specify 'by User' do
@@ -302,7 +302,7 @@ describe User, :type => :model do
 
       specify 'by partial name' do
         expect(User.get_user_ids('Two')).to eq([u2.id])
-        expect(User.get_user_ids('Pat')).to contain_exactly(u2.id, u3.id, u4.id)
+        expect(User.get_user_ids('Pat')).to contain_exactly(u1.id, u2.id, u3.id, u4.id)
       end
 
       specify 'by partial email' do
@@ -325,7 +325,7 @@ describe User, :type => :model do
       end
 
       specify 'by mixed input' do
-        expect(User.get_user_ids(u1.id, 'joe', u1, 'example', 'on1@')).to contain_exactly(u1.id)
+        expect(User.get_user_ids(u1.id, 'pat one', u1, 'work.com', 'at1@')).to contain_exactly(u1.id)
       end
     end
   end
