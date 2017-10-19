@@ -31,5 +31,8 @@ module AnnotationsHelper
     "annotation_anchor_#{object.metamorphosize.class.name}_#{object.id}"
   end
 
+  def radial_annotator(object)
+    content_tag(:div, '', 'data-global-id' => object.to_global_id.to_s, 'data-radial-annotator' => 'true')
+  end
 
 end
