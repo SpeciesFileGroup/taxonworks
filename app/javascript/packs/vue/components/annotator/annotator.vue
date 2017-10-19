@@ -23,7 +23,7 @@
 				</div>
 			</div>
 		</modal>
-		<button v-else type="button" @click="displayAnnotator()">Radial annotator</button>
+		<span v-else type="button" class="circle-button btn-radial" @click="displayAnnotator()">Radial annotator</span>
 	</div>
 </template>
 <script>

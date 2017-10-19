@@ -125,6 +125,12 @@
     background-image: image-url("w_pencil.svg");
 }
 
+.btn-radial {
+    background-size: 16px;
+    background-color: $color-secondary-2-4;
+    background-image: image-url("w_radialmenu.svg");
+}
+
 .btn-tag-delete {
     margin: 0px;
     background-color: #F44336;
