@@ -32,7 +32,6 @@
 					let tmp = item;
 					this.label.forEach(function(label) {
 						tmp = tmp[label]
-						console.log(tmp);
 					});
 					return tmp;
 				}

@@ -57,6 +57,9 @@
 <style type="text/css" lang="scss">
 .radial-annotator {
 	.notes_annotator { 
+		button {
+			min-width: 100px;
+		}
 		textarea {
 			padding-top: 14px;
 			padding-bottom: 14px;

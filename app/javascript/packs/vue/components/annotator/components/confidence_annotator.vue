@@ -41,7 +41,6 @@
 		},
 		methods: {
 			createNew() {
-				console.log(this.confidence);
 				this.create('/confidences', { confidence: this.confidence }).then(response => {
 					this.list.push(response.body);
 				});

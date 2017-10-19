@@ -9,8 +9,8 @@
 						<radial-menu v-if="menuCreated" :menu="menuOptions" @selected="currentAnnotator = $event" width="400" height="400"></radial-menu>
 					</div>
 				</div>
-				<div class="radial-annotator-template" v-if="currentAnnotator">
-					<h3 class="capitalize">{{ currentAnnotator.replace("_"," ") }}</h3>
+				<div class="radial-annotator-template panel" v-if="currentAnnotator">
+					<h3 class="capitalize view-title">{{ currentAnnotator.replace("_"," ") }}</h3>
 					<div class="radial-annotator-container">
 						<component
 							v-bind:is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
@@ -23,7 +23,7 @@
 				</div>
 			</div>
 		</modal>
-		<span v-else type="button" class="circle-button btn-radial" @click="displayAnnotator()">Radial annotator</span>
+		<span type="button" class="circle-button btn-radial" @click="displayAnnotator()">Radial annotator</span>
 	</div>
 </template>
 <script>
@@ -46,6 +46,7 @@ import Icons from './images/icons.js';
 
 export default {
 	mixins: [CRUD],
+	name: 'radial-annotator',
 	components: {
 		radialMenu,
 		modal,
@@ -157,6 +158,10 @@ export default {
 <style type="text/css" lang="scss">
 
 	.radial-annotator {
+		.view-title {
+			font-size: 18px;
+			font-weight: 300;
+		}
 		.modal-close {
 			top:30px;
 			right:20px;

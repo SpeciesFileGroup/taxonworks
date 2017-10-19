@@ -2,7 +2,7 @@ import Vue from 'vue';
 import VueResource from 'vue-resource';
 
 Vue.use(VueResource);
-Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+Vue.http.headers.common['X-CSRF-Token'] = $('[name="csrf-token"]').attr('content');
 
 const create = function(url, data) {
 	return new Promise(function(resolve, reject) {
