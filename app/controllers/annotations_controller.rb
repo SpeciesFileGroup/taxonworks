@@ -10,8 +10,8 @@ class AnnotationsController < ApplicationController
   def metadata
     @object = GlobalID::Locator.locate(params[:global_id])
 
-    render(json: {false}, status: :not_found) if @object.nil?
-    render(json: { 'message' => 'Record not found' }, status: :unauthorized) if not @object.project_id == sessions_current_project_id
+    render status: :not_found if @object.nil?
+    render status: :unauthorized if not @object.project_id == sessions_current_project_id
   end
 
 end
