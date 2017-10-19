@@ -1,4 +1,5 @@
 <template>
+	<div>
 	<div class="radial-annotator">
 		<modal v-if="display" @close="display = false">
 			<h3 slot="header" v-html="title"></h3>
@@ -25,6 +26,7 @@
 		</modal>
 		<span type="button" class="circle-button btn-radial" @click="displayAnnotator()">Radial annotator</span>
 	</div>
+</div>
 </template>
 <script>
 

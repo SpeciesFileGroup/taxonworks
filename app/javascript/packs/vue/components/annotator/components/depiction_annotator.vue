@@ -2,12 +2,22 @@
 	<div class="depiction_annotator">
 		<div class="field" v-if="depiction">
 			<div class="separate-bottom">
-				<img :src="depiction.image.result.alternatives.medium.url"/>
+				<img 
+					:src="depiction.image.result.alternatives.medium.url" 
+					:style="{
+						width: `${depiction.image.result.alternatives.medium.width}px`,
+						height: `${depiction.image.result.alternatives.medium.height}px`
+					}"
+				/>
 			</div>
-			<input class="normal-input separate-bottom" type="text" v-model="depiction.figure_label" placeholder="Label"/>
+			<div class="field">
+				<input class="normal-input" type="text" v-model="depiction.figure_label" placeholder="Label"/>
+			</div>
 			<textarea class="normal-input separate-bottom" type="text" v-model="depiction.caption" placeholder="Caption"></textarea>
-			<button type="button" class="normal-input button button-submit" @click="updateFigure()">Update</button>
-			<button type="button" class="normal-input button button-default" @click="depiction = undefined">New</button>
+			<div>
+				<button type="button" class="normal-input button button-submit" @click="updateFigure()">Update</button>
+				<button type="button" class="normal-input button button-default" @click="depiction = undefined">New</button>
+			</div>
 		</div>
 		<div v-else>
 		    <dropzone class="dropzone-card separate-bottom" v-on:vdropzone-sending="sending" v-on:vdropzone-success="success" ref="figure" id="figure" url="/depictions" :useCustomDropzoneOptions="true" :dropzoneOptions="dropzone"></dropzone>

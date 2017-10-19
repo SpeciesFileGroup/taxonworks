@@ -66,18 +66,20 @@
 	    li {
 			margin: 0px;
 			padding: 6px;
+			border: 0px;
 			border-top: 1px solid #f5f5f5;
 	    }
 	}
 	.list-complete-item {
-	  transition: all 1s, opacity 0.2s;
+		justify-content: space-between;
+		transition: all 1s, opacity 0.2s;
 	}
 	.list-complete-enter, .list-complete-leave-to
 	{
-	  opacity: 0;
-	  font-size: 0px;
-	  border:none;
-	  transform: scale(0.0);
+		opacity: 0;
+		font-size: 0px;
+		border:none;
+		transform: scale(0.0);
 	}
 	.list-complete-leave-active {
 		width: 100%;

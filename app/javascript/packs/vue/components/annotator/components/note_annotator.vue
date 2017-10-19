@@ -1,13 +1,15 @@
 <template>
-	<form class="notes_annotator">
+	<div class="notes_annotator">
 	    <textarea class="separate-bottom" placeholder="Text..." v-model="note.text"></textarea>
-	    <div v-if="note['id']">
+	    <div v-if="note.hasOwnProperty('id')">
 		    <button type="button" class="button button-submit normal-input separate-bottom" @click="updateNote()" :disabled="!validateFields">Update</button>
 		    <button type="button" class="button button-default normal-input" @click="note = newNote()">New</button>
 		</div>
-	    <button v-else @click="createNew()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Create</button>
+		<div v-else>
+	    	<button @click="createNew()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Create</button>
+		</div>
 	    <display-list label="text" :list="list" :edit="true" @edit="note = $event" @delete="removeItem" class="list"></display-list>
-	</form>
+	</div>
 </template>
 <script>
 
