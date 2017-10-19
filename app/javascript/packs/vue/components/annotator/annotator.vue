@@ -3,9 +3,10 @@
 		<modal v-if="display" @close="display = false">
 			<h3 slot="header">{{ title }}</h3>
 			<div slot="body" class="flex-separate">
+				<spinner v-if="!menuCreated"></spinner>
 				<div class="radial-annotator-menu">
 					<div class="radial-annotator-template">
-						<radial-menu :menu="menuOptions" @selected="currentAnnotator = $event" width="400" height="400"></radial-menu>
+						<radial-menu v-if="menuCreated" :menu="menuOptions" @selected="currentAnnotator = $event" width="400" height="400"></radial-menu>
 					</div>
 				</div>
 				<div class="radial-annotator-template" v-if="currentAnnotator">
@@ -22,13 +23,14 @@
 				</div>
 			</div>
 		</modal>
-		<button v-else type="button" @click="display = true">Radial annotator</button>
+		<button v-else type="button" @click="displayAnnotator()">Radial annotator</button>
 	</div>
 </template>
 <script>
 
 import radialMenu from './components/radialMenu.vue';
 import modal from '../modal.vue';
+import spinner from '../spinner.vue';
 
 import CRUD from './request/crud';
 
@@ -47,6 +49,7 @@ export default {
 	components: {
 		radialMenu,
 		modal,
+		spinner,
 		notesAnnotator,
 		citationsAnnotator,
 		confidencesAnnotator,
@@ -84,18 +87,14 @@ export default {
 			type: Boolean,
 			default: true
 		},
+		reload: {
+			type: Boolean,
+			default: false
+		},
 		globalId: {
 			type: String,
 			default: 'gid%3A%2F%2Ftaxon-works%2FProtonym%2F6'
 		}
-	},
-	mounted: function() {
-		var that = this;
-		this.getList(`/annotations/${this.globalId}/metadata`).then(response => {
-			that.title = response.body.object_tag;
-			that.menuOptions = that.createMenuOptions(response.body.annotation_types);
-			that.url = response.body.url;
-		});
 	},
 	data: function() {
 		return {
@@ -106,7 +105,26 @@ export default {
 			menuOptions: []
 		}
 	},
+	computed: {
+		menuCreated() {
+			return this.menuOptions.length > 0
+		}
+	},
 	methods: {
+		displayAnnotator: function() {
+			this.display = true;
+			this.loadMetadata();
+		},
+		loadMetadata: function() {
+			if (this.menuCreated && !this.reload) return
+
+			var that = this;
+			this.getList(`/annotations/${this.globalId}/metadata`).then(response => {
+				that.title = response.body.object_tag;
+				that.menuOptions = that.createMenuOptions(response.body.annotation_types);
+				that.url = response.body.url;
+			});
+		},
 		createMenuOptions: function(annotators) {
 			var menu = [];
 			var that = this;
@@ -124,7 +142,6 @@ export default {
 					})
 				}
 			}
-
 			return menu;
 		},
 		setTotal(total) {
@@ -149,6 +166,7 @@ export default {
 		}
 		.radial-annotator-menu {
 			width:50%;
+			min-height: 400px;
 		}
 	}
 
