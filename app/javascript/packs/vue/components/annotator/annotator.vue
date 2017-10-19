@@ -1,7 +1,7 @@
 <template>
 	<div class="radial-annotator">
 		<modal v-if="display" @close="display = false">
-			<h3 slot="header">{{ title }}</h3>
+			<h3 slot="header" v-html="title"></h3>
 			<div slot="body" class="flex-separate">
 				<spinner v-if="!menuCreated"></spinner>
 				<div class="radial-annotator-menu">
@@ -93,7 +93,7 @@ export default {
 		},
 		globalId: {
 			type: String,
-			default: 'gid%3A%2F%2Ftaxon-works%2FProtonym%2F6'
+			required: true
 		}
 	},
 	data: function() {
@@ -119,7 +119,7 @@ export default {
 			if (this.menuCreated && !this.reload) return
 
 			var that = this;
-			this.getList(`/annotations/${this.globalId}/metadata`).then(response => {
+			this.getList(`/annotations/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
 				that.title = response.body.object_tag;
 				that.menuOptions = that.createMenuOptions(response.body.annotation_types);
 				that.url = response.body.url;

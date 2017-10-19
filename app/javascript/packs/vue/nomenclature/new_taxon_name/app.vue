@@ -2,7 +2,6 @@
   <div id="new_taxon_name_task">
     <h1>Edit taxon name</h1>
     <div>
-      <radial-annotator></radial-annotator>
     <nav-header :menu="menu"></nav-header>
       <div class="flexbox horizontal-center-content align-start">
         <div class="ccenter item separate-right">
@@ -72,8 +71,6 @@
   var spinner = require('../../components/spinner.vue').default;
   var blockLayout = require('./components/blockLayout').default;
 
-  var radialAnnotator = require('../../components/annotator/annotator.vue').default;
-
   const MutationNames = require('./store/mutations/mutations').MutationNames;  
   const GetterNames = require('./store/getters/getters').GetterNames; 
   const ActionNames = require('./store/actions/actions').ActionNames;  
@@ -81,7 +78,6 @@
 
   export default {
     components: {
-      radialAnnotator,
       etymology,
       sourcePicker,
       spinner,

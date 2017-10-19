@@ -14,6 +14,7 @@
 						<span v-html="taxon.cached_html"></span>
 						<span v-html="taxon.cached_author_year"></span>
 					</a>
+					<radial-annotator :globalId="taxon.global_id"></radial-annotator>
 					<span v-if="taxon.id" @click="showModal = true" class="circle-button btn-delete"></span>
 				</h3>
 				<h3 class="taxonname" v-else>New</h3>
@@ -23,12 +24,16 @@
 </template>
 <script>
 
+
+const radialAnnotator = require('../../../components/annotator/annotator.vue').default;
+
 const GetterNames = require('../store/getters/getters').GetterNames
 const modal = require('../../../components/modal.vue').default;
 
 export default {
 	components: {
-		modal
+		modal,
+		radialAnnotator
 	},
 	data: function() {
 		return {
