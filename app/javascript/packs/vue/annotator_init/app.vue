@@ -1,7 +1,5 @@
 <template>
-  <div :id="id">
-    <radial-annotator :globalId="globalId"></radial-annotator>
-  </div>
+  <radial-annotator :id="id" :globalId="globalId"></radial-annotator>
 </template>
 <script>
 
