@@ -1,16 +1,15 @@
 <template>
-	<form class="citation_annotator">
-		<div class="separate-bottom">
+	<div class="citation_annotator">
+		<div class="separate-bottom inline">
 		    <autocomplete
 		      url="/sources/autocomplete"
 		      label="label"
 		      min="2"
 		      @getItem="citation.source_id = $event.id"
 		      placeholder="Select a source"
-		      class="separate-bottom inline"
 		      param="term">
 		    </autocomplete>
-		    <input type="text" class="inline pages" v-model="citation.pages" placeholder="Pages"/>
+		    <input type="text" class="normal-input inline pages" v-model="citation.pages" placeholder="Pages"/>
 		</div>
 		<div class="horizontal-left-content separate-bottom">
 			<label class="inline middle">
@@ -18,21 +17,20 @@
 				Is original
 			</label>
 		</div>
-		<div class="separate-bottom">
+		<div class="separate-bottom inline">
 			<autocomplete
 			    url="/topics/autocomplete"
 			    label="label"
 			    min="2"
 			    @getItem="citation.citation_topics_attributes.topic_id = $event.id"
 			    placeholder="Topic"
-			    class="separate-bottom inline"
 			    param="term">
 			</autocomplete>
-			<input type="text" class="inline pages" v-model="citation.citation_topics_attributes.pages" placeholder="Pages"/>
+			<input type="text" class="normal-input inline pages" v-model="citation.citation_topics_attributes.pages" placeholder="Pages"/>
 		</div>
 	    <button class="button button-submit normal-input separate-bottom" :disabled="!validateFields" @click="createNew()" type="button">Create</button>
 	    <display-list label="object_tag" :list="list" @delete="removeItem" class="list"></display-list>
-	</form>
+	</div>
 </template>
 <script>
 
@@ -93,10 +91,11 @@
 			height: 100px;
 		}
 		.pages {
-			width: 17%;
+			margin-left:8px;
+			width: 86px;
 		}
-		.vue-autocomplete-input {
-			width: 80%;
+		.vue-autocomplete-input, .vue-autocomplete {
+			width: 400px;
 		}
 	}
 }

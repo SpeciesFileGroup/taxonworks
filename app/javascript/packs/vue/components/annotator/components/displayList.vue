@@ -47,6 +47,9 @@
 	 	align-items:center;
 	 	flex-direction:row;
 	 	justify-content: flex-end;
+	 	.circle-button {
+	 		margin-left: 4px !important;
+	 	}
 	}
 
 	.list-item {

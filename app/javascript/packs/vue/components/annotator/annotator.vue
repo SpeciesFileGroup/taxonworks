@@ -5,7 +5,7 @@
 			<div slot="body" class="flex-separate">
 				<spinner v-if="!menuCreated"></spinner>
 				<div class="radial-annotator-menu">
-					<div class="radial-annotator-template">
+					<div>
 						<radial-menu v-if="menuCreated" :menu="menuOptions" @selected="currentAnnotator = $event" width="400" height="400"></radial-menu>
 					</div>
 				</div>
@@ -157,11 +157,25 @@ export default {
 <style type="text/css" lang="scss">
 
 	.radial-annotator {
+		.modal-close {
+			top:30px;
+			right:20px;
+		}
+		.modal-mask {
+			background-color: rgba(0,0,0,0.7);
+		}
+		.modal-container {
+			box-shadow: none;
+			background-color: transparent;
+		}
 		.modal-container {
 			min-width: 1024px;
 			width:1024px;
 		}
 		.radial-annotator-template {
+			border-radius: 3px;
+			background: #FFFFFF;
+			padding: 1em;
 			width:50%;
 		}
 		.radial-annotator-menu {

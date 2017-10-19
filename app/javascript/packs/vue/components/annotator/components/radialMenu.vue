@@ -47,7 +47,7 @@ menu structure:
 				default: function() {
 					return {
 						text: '#000000',
-						background: '#F5F5F5',
+						background: '#FFFFFF',
 						backgroundHover: '#CACACA'
 					}
 				}
