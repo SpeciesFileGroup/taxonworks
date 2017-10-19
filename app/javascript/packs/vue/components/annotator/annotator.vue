@@ -1,7 +1,7 @@
 <template>
 	<div class="radial-annotator">
 		<modal v-if="display" @close="display = false">
-			<h3 slot="header">Radial annotator</h3>
+			<h3 slot="header">{{ title }}</h3>
 			<div slot="body" class="flex-separate">
 				<div class="radial-annotator-menu">
 					<div class="radial-annotator-template">
@@ -92,6 +92,7 @@ export default {
 	mounted: function() {
 		var that = this;
 		this.getList(`/annotations/${this.globalId}/metadata`).then(response => {
+			that.title = response.body.object_tag;
 			that.menuOptions = that.createMenuOptions(response.body.annotation_types);
 			that.url = response.body.url;
 		});
@@ -101,6 +102,7 @@ export default {
 			currentAnnotator: undefined,
 			display: false,
 			url: undefined,
+			title: "Radial annotator",
 			menuOptions: []
 		}
 	},
