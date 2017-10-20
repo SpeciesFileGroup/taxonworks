@@ -516,17 +516,17 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :taxon_name_classifications, except: [:show] do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes]
     collection do
       get :taxon_name_classification_types
-  end
+    end
     member do
       get :show, {format: :json}
     end
   end
 
   resources :taxon_name_relationships do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes]
     collection do
       get :type_relationships, {format: :json}
       get :taxon_name_relationship_types, {format: :json}
