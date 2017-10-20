@@ -24,9 +24,10 @@
 						</autocomplete>
 						<default-element label="source" type="Source" section="Sources" @getId="sendCitation($event,item)"></default-element>
 					</div>
-					<citation-pages @setPages="$emit('addCitation', $event)" :citation="item"></citation-pages>				
+					<citation-pages @setPages="$emit('addCitation', $event)" :citation="item"></citation-pages>	
+					<radial-annotator @close="update()" :globalId="item.global_id"></radial-annotator>		
 					<span type="button" title="Remove citation" class="circle-button btn-undo" v-if="getCitation(item)" @click="removeCitation(item)"></span>
-		    		<span type="button" class="circle-button btn-delete" @click="$emit('delete',item)">Remove</span>
+		    		<span type="button" class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
 		    	</div>
 	    	</li>
 	    	</transition-group>
@@ -39,12 +40,14 @@ const GetterNames = require('../store/getters/getters').GetterNames;
 const autocomplete = require('../../../components/autocomplete.vue').default;
 const defaultElement = require('../../../components/getDefaultPin.vue').default;
 const citationPages = require('./citationPages.vue').default;
+const radialAnnotator = require('../../../components/annotator/annotator.vue').default;
 
 export default {
 	components: {
 		autocomplete,
 		defaultElement,
-		citationPages
+		citationPages,
+		radialAnnotator
 	},
 	props: ['list', 'display'],
 	name: 'list-entrys',
@@ -59,6 +62,9 @@ export default {
 			else {
 				return true;
 			}
+		},
+		update() {
+			this.$emit('update');
 		},
 		getCitation: function(item) {
 			return (item.hasOwnProperty('origin_citation') ? item.origin_citation.source.object_tag : undefined)

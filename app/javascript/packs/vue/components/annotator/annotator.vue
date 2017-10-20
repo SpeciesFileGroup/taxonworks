@@ -1,7 +1,7 @@
 <template>
 	<div>
 	<div class="radial-annotator">
-		<modal v-if="display" @close="display = false">
+		<modal v-if="display" @close="closeModal()">
 			<h3 slot="header" v-html="title"></h3>
 			<div slot="body" class="flex-separate">
 				<spinner v-if="!menuCreated"></spinner>
@@ -114,6 +114,10 @@ export default {
 		}
 	},
 	methods: {
+		closeModal: function() {
+			this.display = false;
+			this.$emit('close');
+		},
 		displayAnnotator: function() {
 			this.display = true;
 			this.loadMetadata();

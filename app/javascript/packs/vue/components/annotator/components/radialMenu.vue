@@ -38,7 +38,7 @@ menu structure:
 				type: Number,
 				default: 360
 			},
-			padding: {
+			space: {
 				type: Number,
 				default: 4
 			},
@@ -55,6 +55,7 @@ menu structure:
 		},
 		data: function() {
 			return {
+				padding: (this.menu.length > 1 ? this.space : 0),
 				ctx: undefined,
 				segmentWidth: this.maxAngle/this.menu.length,
 				optionSelected: undefined,
@@ -70,6 +71,7 @@ menu structure:
 		watch: {
 			menu: {
 				handler: function() {
+					this.padding = (this.menu.length > 1 ? this.space : 0);
 					this.update(false);
 				},
 				deep: true

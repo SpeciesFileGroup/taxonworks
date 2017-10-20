@@ -40,7 +40,7 @@
         </autocomplete>    
         <list-common v-if="!showAdvance && taxon.id" :filter="true" :object-lists="objectLists.commonList" display="name" @addEntry="addEntry" :list-created="getStatusCreated"></list-common>
       </div>
-      <list-entrys @addCitation="setCitation" @delete="removeStatus" :list="getStatusCreated" :display="['object_tag']"></list-entrys>
+      <list-entrys @update="loadTaxonStatus" @addCitation="setCitation" @delete="removeStatus" :list="getStatusCreated" :display="['object_tag']"></list-entrys>
     </div>
   </form>
 </template>
@@ -111,6 +111,9 @@
           commonList: [],
           allList: [],
         }
+      },
+      loadTaxonStatus: function() {
+        this.$store.dispatch(ActionNames.LoadTaxonStatus, this.taxon.id)
       },
       setCitation: function(item) {
         this.$store.dispatch(ActionNames.UpdateClassification, item)
