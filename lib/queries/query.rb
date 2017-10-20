@@ -69,7 +69,12 @@ class Queries::Query
 
   def strings
     a = query_string.split(/\s+/).select{|t| !(t =~ /\d+/)} 
-    a.empty? ? [ query_string] : a
+    a.empty? ? [ ] : a
+  end
+
+  def alphabetic_strings
+    a = query_string.gsub(/[^a-zA-Z]/, ' ').split(/\s+/).select{|t| !(t =~ /\d+/)} 
+    a.empty? ? [  ] : a
   end
 
   def years
@@ -110,6 +115,10 @@ class Queries::Query
       limit = 100 
     end
     limit
+  end
+
+  def pieces
+    query_string.split(/\s+/)
   end
 
   # generic multi-use bits

@@ -20,67 +20,67 @@ describe Queries::TaxonNameAutocompleteQuery, type: :model do
 
   specify '#autocomplete_top_name 2' do
     query.terms = 'Erasmoneura' 
-    expect(query.autocomplete.first).to eq(genus) 
+    expect(query.autocomplete_top_name.first).to eq(genus) 
   end
 
   specify '#autocomplete_top_cached' do
     query.terms = name 
-    expect(query.autocomplete).to include(species) 
+    expect(query.autocomplete_top_cached.first).to eq(species)
   end
 
-  specify '#autocomplete_top_name 3' do
+  specify '#autocomplete_cached_end_wildcard 3' do
     query.terms = 'Erasmon'
-    expect(query.autocomplete.first).to eq(genus)
+    expect(query.autocomplete_cached_end_wildcard.to_a).to contain_exactly(genus, species)
   end
 
-  specify '#autocomplete_top_cached 4' do
+  specify '#autocomplete_wildcard_joined_strings 1' do
     query.terms = 'vuln'
-    expect(query.autocomplete).to include(species)
+    expect(query.autocomplete_wildcard_joined_strings).to include(species)
   end
 
-  specify '#autocomplete_top_name 5' do
+  specify '#autocomplete_wildcard_joined_strings 2' do
     query.terms = 'rasmon'
-    expect(query.autocomplete.first).to eq(genus)
+    expect(query.autocomplete_wildcard_joined_strings.first).to eq(genus)
   end
 
-  specify '#autocomplete_top_name 6' do
+  specify '#autocomplete_wildcard_joined_strings 3' do
     query.terms = 'ulner'
-    expect(query.autocomplete.first).to eq(species)
+    expect(query.autocomplete_wildcard_joined_strings.first).to eq(species)
   end
 
-  specify '#autocomplete_top_name 7' do
+  specify '#autocomplete_wildcard_joined_strings 4' do
     query.terms = 'neur nerat'
-    expect(query.autocomplete.first).to eq(species)
+    expect(query.autocomplete_wildcard_joined_strings).to include(species)
   end
 
-  specify '#autocomplete_top_name 8' do
+  specify '#autocomplete_wildcard_joined_strings 5' do
     query.terms = 'E vul'
-    expect(query.autocomplete.first).to eq(species)
+    expect(query.autocomplete_wildcard_joined_strings.first).to eq(species)
   end
 
-  specify '#autocomplete_top_name 9' do
+  specify '#autocomplete_wildcard_joined_strings 6' do
     query.terms = 'E. vul'
-    expect(query.autocomplete.first).to eq(species)
+    expect(query.autocomplete_wildcard_joined_strings.first).to eq(species)
   end
 
-  specify '#autocomplete_top_name 10' do
+  specify '#autocomplete_wildcard_author_year_joined_pieces 1' do
     query.terms = 'Fitch'
-    expect(query.autocomplete.first).to eq(species)
+    expect(query.autocomplete_wildcard_author_year_joined_pieces.first).to eq(species)
   end
 
-  specify '#autocomplete_top_name 11' do
+  specify '#autocomplete_wildcard_author_year_joined_pieces 2' do
     query.terms = 'Say'
-    expect(query.autocomplete.first).to eq(species)
+    expect(query.autocomplete_wildcard_author_year_joined_pieces.first).to eq(species)
   end
 
-  specify '#autocomplete_top_name 12' do
+  specify '#autocomplete_wildcard_author_year_joined_pieces 3' do
     query.terms = '1800'
-    expect(query.autocomplete.first).to eq(species)
+    expect(query.autocomplete_wildcard_author_year_joined_pieces.first).to eq(species)
   end
 
-  specify '#autocomplete_top_name 13' do
+  specify '#autocomplete_wildcard_author_year_joined_pieces 4' do
     query.terms = 'Fitch 1800'
-    expect(query.autocomplete.first).to eq(species)
+    expect(query.autocomplete_wildcard_author_year_joined_pieces.first).to eq(species)
   end
 
 
