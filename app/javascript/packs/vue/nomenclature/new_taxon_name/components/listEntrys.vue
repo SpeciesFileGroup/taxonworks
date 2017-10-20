@@ -10,7 +10,6 @@
 			    </span>
 			    <div class="list-controls">
 			    	<a :href="`/sources/${item.origin_citation.source_id}/edit`" target="_blank" v-if="getCitation(item)" v-html="getCitation(item)"></a>
-					<citation-pages @setPages="$emit('addCitation', $event)" :citation="item"></citation-pages>	
 					<radial-annotator @close="update()" :globalId="item.global_id"></radial-annotator>		
 					<span type="button" title="Remove citation" class="circle-button btn-undo" v-if="getCitation(item)" @click="removeCitation(item)"></span>
 		    		<span type="button" class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
