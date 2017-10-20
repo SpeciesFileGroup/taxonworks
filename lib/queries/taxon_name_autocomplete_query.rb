@@ -173,6 +173,7 @@ module Queries
       base_query.where(a.to_sql).order('cached ASC').limit(20)
     end
 
+    # @return [Array]
     def autocomplete
       z = genus_species
       
