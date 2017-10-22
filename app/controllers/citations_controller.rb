@@ -126,7 +126,8 @@ class CitationsController < ApplicationController
       citation_topics_attributes: [
         :id, :_destroy, :pages, :topic_id,
         topic_attributes: [:id, :_destroy, :name, :definition]
-      ]
+      ],
+      topics_attributes: [:name, :definition]
     )
   end
 end
