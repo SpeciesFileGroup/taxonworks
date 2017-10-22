@@ -1,6 +1,6 @@
 <template>
 	<div class="citation_annotator">
-		<div class="separate-bottom inline">
+		<div class="separate-bottom inline" v-if="!citation.hasOwnProperty('id')">
 		    <autocomplete
 		      url="/sources/autocomplete"
 		      label="label"
@@ -28,8 +28,15 @@
 			</autocomplete>
 			<input type="text" class="normal-input inline pages" v-model="citation.citation_topics_attributes.pages" placeholder="Pages"/>
 		</div>
-	    <button class="button button-submit normal-input separate-bottom" :disabled="!validateFields" @click="createNew()" type="button">Create</button>
-	    <display-list label="object_tag" :list="list" @delete="removeItem" class="list"></display-list>
+	    <div class="separate-bottom" v-if="citation.hasOwnProperty('id')">
+	    	<button class="button button-submit normal-input" :disabled="!validateFields" @click="updateCitation()" type="button">Update</button>
+	    	<button class="button button-submit normal-input" :disabled="!validateFields" @click="citation = newCitation()" type="button">New</button>
+	    	<display-list label="object_tag" :list="citation.citation_topics" @delete="deleteTopic" class="list"></display-list>
+		</div>
+		<div class="separate-bottom" v-if="!citation.hasOwnProperty('id')">
+	    	<button class="button button-submit normal-input" :disabled="!validateFields" @click="createNew()" type="button">Create</button>			
+	    	<display-list :edit="true" @edit="citation = loadCitation($event)" label="object_tag" :list="list" @delete="removeItem" class="list"></display-list>
+		</div>
 	</div>
 </template>
 <script>
@@ -63,11 +70,36 @@
 					source_id: undefined,
 					is_original: false,
 					pages: undefined,
-					citation_topics_attributes: {
+					citation_topics_attributes: [{
 						topic_id: undefined,
 						pages: undefined
-					}
+					}]
 				}
+			},
+			deleteTopic(topic) {
+				return {
+					id: this.citation.id,
+					citation_topics_attributes: [{
+						topic_id: topic.topic_id,
+						pages: topic.pages
+					}]
+				}
+			},
+			loadCitation(citation) {
+				return {
+					id: citation.id,
+					source_id: citation.source.id,
+					is_original: citation.is_original,
+					citation_topics_attributes: [{
+						topic_id: citation.citation_topics.topic_id,
+						pages: citation.citation_topics.pages
+					}]
+				}
+			},
+			updateCitation() {
+				this.update(`/citations/${citation.id}`, { citation: this.citation }).then(response => {
+					this.list[this.list.findIndex(element => element.id == citation.id)] = response.body;
+				})
 			},
 			createNew() {
 				this.create('/citations', { citation: this.citation }).then(response => {
