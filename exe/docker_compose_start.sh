@@ -12,16 +12,6 @@ function wait_for_db {
   done
 }
 
-function wait_for_webpack {
-  sleep 3
-  
-   while [[ $(pg_isready -h "db" \
-           -U "postgres") = "no response" ]]; do
-    echo "Waiting for postgresql to start..."
-    sleep 1
-  done
-}
-
 
 # Could do sanity check of environment here
 # * Raise a warning of the database.yml file looks like it is setup for docker-compose
