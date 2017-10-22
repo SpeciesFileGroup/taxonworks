@@ -12,6 +12,7 @@ function wait_for_db {
   done
 }
 
+
 # Could do sanity check of environment here
 # * Raise a warning of the database.yml file looks like it is setup for docker-compose
 
@@ -34,7 +35,10 @@ then
   echo "Done migration successfully"
 else
   printf "\n\n  !!!!!!!!!! Building a new taxonworks_development database !!!!!!!!!! \n\n "
-  bundle exec rake db:create 
+  bundle exec rake db:create
+  printf "\n\n  Starting migration process \n\n"
+  bundle exec rake db:migrate
+  echo "Done migration successfully"  
 fi
 
 # if bundle exec rake db:migrate RAILS_ENV=development; then
@@ -42,6 +46,9 @@ fi
 # else
 #   printf "\n\n  !!!!!!!!!! Build the taxonworks_development database first. !!!!!!!!!! \n\n "
 # fi
+if [ -f /app/tmp/pids/server.pid ]; then
+   rm /app/tmp/pids/server.pid
+fi
 
+sleep 60s;
 bundle exec rails s -p 3000 -b '0.0.0.0'
-
