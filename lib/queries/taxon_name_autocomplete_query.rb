@@ -132,6 +132,11 @@ module Queries
     end
 
     def autocomplete_top_cached
+      a = table[:cached].matches("#{query_string}")
+      base_query.where(a.to_sql).limit(1)
+    end
+
+    def autocomplete_top_cached_subgenus
       a = table[:cached].matches("%(#{query_string})")
       base_query.where(a.to_sql).limit(1)
     end
@@ -153,15 +158,20 @@ module Queries
       base_query.where(a.to_sql).order('char_length(cached), cached ASC').limit(20)
     end
 
+    def autocomplete_cached_name_end_wildcard
+      a = table[:name].matches("#{query_string}%")
+      base_query.where(a.to_sql).order('char_length(cached), cached ASC').limit(20)
+    end
+
     def autocomplete_cached_wildcard_whitespace
       a = table[:cached].matches("#{query_string.gsub(' ', '%')}")
       base_query.where(a.to_sql).order('char_length(cached), cached ASC').limit(20)
     end
 
-    def autocomplete_fragments
+    def autocomplete_name_author_year_fragment
       f = fragments 
       if f.size == 2
-        a = table[:cached].matches(f[0]).and(table[:cached_author_year].matches(f[1]))
+        a = table[:name].matches(f[0]).and(table[:cached_author_year].matches(f[1]))
         base_query.where(a.to_sql).order('char_length(cached), cached ASC').limit(20)
       else
         nil
@@ -173,18 +183,35 @@ module Queries
       base_query.where(a.to_sql).order('cached ASC').limit(20)
     end
 
+    def autocomplete_wildcard_author_year_joined_pieces
+      return nil if pieces.empty?
+      a = table[:cached_author_year].matches("%#{pieces.join('%')}%")
+      base_query.where(a.to_sql).order('cached ASC').limit(20)
+    end
+
+    def autocomplete_wildcard_joined_strings
+      return nil if alphabetic_strings.empty?
+      a = table[:cached].matches("%#{alphabetic_strings.join('%')}%")
+      base_query.where(a.to_sql).limit(1)
+    end
+
+    # @return [Array]
     def autocomplete
       z = genus_species
       
       queries = [
         autocomplete_top_name,
         autocomplete_top_cached,
-        autocomplete_genus_species1(z),
-        autocomplete_genus_species2(z),
+        autocomplete_top_cached_subgenus, # not tested
+        autocomplete_genus_species1(z), # note tested
+        autocomplete_genus_species2(z), # not tested
         autocomplete_cached_end_wildcard,
+        autocomplete_cached_name_end_wildcard,
         autocomplete_cached_wildcard_whitespace,
-        autocomplete_fragments,
-        autocomplete_name_author_year
+        autocomplete_name_author_year_fragment,
+        autocomplete_name_author_year,
+        autocomplete_wildcard_joined_strings,
+        autocomplete_wildcard_author_year_joined_pieces
       ]
 
       queries.compact!
@@ -207,6 +234,8 @@ module Queries
       result[0..19]
     end
 
+    # @return [String, nil]
+    #   parse and only return what is assumed to be genus/species, with a wildcard in front
     def genus_species
       parser = ScientificNameParser.new
       h = parser.parse(query_string)
