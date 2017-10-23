@@ -143,16 +143,6 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
     end
   end
 
-  context 'scopes' do
-    specify '#of_type(some_type_short_name) returns identifiers of that type' do
-      i2 = Identifier::Global::Uri.create(identifier_object: specimen1, identifier: 'http:://foo.com/123')
-      i1 = Identifier::Local::CatalogNumber.create(identifier_object: specimen1, namespace: namespace, identifier: 123)
-
-      expect(specimen1.identifiers.of_type(:uri).to_a).to eq([i2])
-      expect(specimen1.identifiers.of_type(:catalog_number).to_a).to eq([i1])
-    end
-  end
-
   context 'concerns' do
     it_behaves_like 'is_data'
   end

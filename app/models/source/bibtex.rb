@@ -412,7 +412,7 @@ class Source::Bibtex < Source
     b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable
     unless self.serial.nil?
       b[:journal] = self.serial.name
-      issns       = self.serial.identifiers.of_type(:issn)
+      issns       = self.serial.identifiers.where(type: 'Identifier::Global::Issn') # of_type(:issn)
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
       end
@@ -420,23 +420,23 @@ class Source::Bibtex < Source
 
     unless self.serial.nil?
       b[:journal] = self.serial.name
-      issns       = self.serial.identifiers.of_type(:issn)
+      issns       = self.serial.identifiers.where(type: 'Identifier::Global::Issn') # .of_type(:issn)
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
       end
     end
 
-    uris = self.identifiers.of_type(:uri)
+    uris = self.identifiers.where(type: 'Identifier::Global::Uri') # of_type(:uri)
     unless uris.empty?
       b[:url] = uris.first.identifier # TW only allows one URI per object
     end
 
-    isbns = self.identifiers.of_type(:isbn)
+    isbns = self.identifiers.where(type: 'Identifier::Global::Isbn') #.of_type(:isbn)
     unless isbns.empty?
       b[:isbn] = isbns.first.identifier # TW only allows one ISBN per object
     end
 
-    dois = self.identifiers.of_type(:doi)
+    dois = self.identifiers.where(type: 'Identifier::Global::Doi') #.of_type(:isbn)
     unless dois.empty?
       b[:doi] = dois.first.identifier # TW only allows one DOI per object
     end
@@ -444,7 +444,7 @@ class Source::Bibtex < Source
     b.author = self.compute_bibtex_names('author') unless (!self.authors.any? && self.author.blank?)
     b.editor = self.compute_bibtex_names('editor') unless (!self.editors.any? && self.editor.blank?)
 
-    b.key    = self.id unless self.new_record? # id.blank?
+    b.key = self.id unless self.new_record?
     b
   end
 
@@ -652,7 +652,7 @@ class Source::Bibtex < Source
   end
 
   def isbn
-    identifier_string_of_type(:isbn)
+    identifier_string_of_type('Identifier::Global::Isbn')
   end
 
   def doi=(value)
@@ -670,7 +670,7 @@ class Source::Bibtex < Source
   end
 
   def doi
-    identifier_string_of_type(:doi)
+    identifier_string_of_type('Identifier::Global::Doi')
   end
 
   # @todo Are ISSN only Serials now? Maybe - the raw bibtex source may come in with an ISSN in which case
@@ -687,7 +687,7 @@ class Source::Bibtex < Source
   end
 
   def issn
-    identifier_string_of_type(:issn)
+    identifier_string_of_type('Identifier::Global::Issn')
   end
 
   # turn bibtex URL field into a Ruby URI object
@@ -695,11 +695,11 @@ class Source::Bibtex < Source
     URI(self.url) unless self.url.blank?
   end
 
-  # @return [Identifier]
-  #   the identifier of this type, relies on Identifier to enforce has_one for Global identifiers,
+  # @return [String]
+  #   the identifier of this type, relies on Identifier to enforce has_one for Global identifiers
   #   !! behaviour for Identifier::Local types may be unexpected
-  def identifier_string_of_type(type)
-    identifiers.of_type(type).first.try(:identifier)
+  def identifier_string_of_type(type_value)
+    identifiers.where(type: type_value).first.try(:identifier)
   end
 
   # @todo if language is set => set language_id

@@ -272,8 +272,11 @@ TaxonWorks::Application.routes.draw do
     # verbatim_data
   end
 
-  resources :identifiers, except: [:show] do
+  resources :identifiers, except: [:show, :new] do
     concerns [:data_routes]
+    collection do
+      get :identifier_types, {format: :json}
+    end
   end
 
   resources :images do

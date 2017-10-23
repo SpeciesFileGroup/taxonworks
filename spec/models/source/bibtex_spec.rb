@@ -315,7 +315,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           src.soft_validate()
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
-          expect(bib.issn).to eq(serial1.identifiers.of_type(:issn).first.identifier)
+          expect(bib.issn).to eq(serial1.identifiers.where(type: 'Identifier::Global::Issn').first.identifier)
         end
       end
 
@@ -329,7 +329,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           src.soft_validate()
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
-          expect(bib[:url]).to eq(src.identifiers.of_type(:uri).first.identifier)
+          expect(bib[:url]).to eq(src.identifiers.where(type: 'Identifier::Global::Uri').first.identifier)
         end
 
         specify 'isbn gets converted properly' do
@@ -339,7 +339,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           src.soft_validate()
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
-          expect(bib[:isbn]).to eq(src.identifiers.of_type(:isbn).first.identifier)
+          expect(bib[:isbn]).to eq(src.identifiers.where(type: 'Identifier::Global::Isbn').first.identifier)
         end
 
         specify 'doi gets converted properly' do
@@ -349,7 +349,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           src.soft_validate()
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
-          expect(bib[:doi]).to eq(src.identifiers.of_type(:doi).first.identifier)
+          expect(bib[:doi]).to eq(src.identifiers.where(type: 'Identifier::Global::Doi').first.identifier)
         end
       end
 

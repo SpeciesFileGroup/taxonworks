@@ -14,7 +14,7 @@
 class Identifier::Global < Identifier
 
   validates :namespace_id, absence: true
-  validates :relation, inclusion: {in: SKOS_RELATIONS.keys}, allow_nil: true
+  validates :relation, inclusion: {in: ::SKOS_RELATIONS.keys}, allow_nil: true
   validate :permit_only_one_global_without_relation_supplied_per_type
 
   # Identifier can only be used once, i.e. mapped to a single TW concept
