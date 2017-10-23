@@ -192,6 +192,8 @@ module Workbench::NavigationHelper
     end
   end
 
+=begin
+DEPRECATED FOR RADIAL
   def annotate_links(object: nil)
     [content_tag(:li, add_alternate_value_link(object: object)),
      content_tag(:li, add_citation_link(object: object)),
@@ -203,6 +205,7 @@ module Workbench::NavigationHelper
      content_tag(:li, add_protocol_link(object: object))
     ].compact.join.html_safe
   end
+=end
 
   def safe_object_from_attributes(hsh)
     if hsh['object_type'] && hsh['object_type']

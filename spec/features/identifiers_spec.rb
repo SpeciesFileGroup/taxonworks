@@ -31,7 +31,7 @@ describe 'Identifiers', type: :feature do
 
       it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
-
+=begin
     context 'creating a new identifier' do
       before {
         specimen = factory_girl_create_for_user_and_project(:valid_specimen, @user, @project)
@@ -42,7 +42,7 @@ describe 'Identifiers', type: :feature do
         find('#show_annotate_dropdown').hover
         expect(page).to have_link("Add identifier")
         click_link('Add identifier') 
-       
+
         expect(page).to have_content("New identifier for:")
 
         expect(page.has_field?('identifier_identifier', :type => 'text')).to be_truthy
@@ -51,7 +51,7 @@ describe 'Identifiers', type: :feature do
 
         fill_in('identifier_identifier', with: '678876')
         select('Catalog number', from: 'identifier_type') 
-        
+
         expect(page.has_field?('identifier_type', :with => 'Identifier::Local::CatalogNumber')).to be_truthy
 
         fill_autocomplete('namespace_id_for_identifier', with: namespace.name, select: namespace.id)
@@ -76,6 +76,7 @@ describe 'Identifiers', type: :feature do
       end
 
     end
+=end
   end
 end
 
