@@ -71,9 +71,9 @@ class CollectionObject < ApplicationRecord
   include Shared::Depictions
   include Shared::OriginRelationship
   include Shared::Confidence
-  include Shared::IsData
   include Shared::Protocols
   include Shared::HasPapertrail
+  include Shared::IsData
   include SoftValidation
 
   include Shared::IsDwcOccurrence
