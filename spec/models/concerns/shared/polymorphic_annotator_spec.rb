@@ -6,7 +6,7 @@ describe 'Shared::PolymorphicAnnotator', type: :model do
 
 
   specify '.annotator_reflection' do
-    expect(TestPolymorphicAnnotator.new.annotator_reflection).to eq('sti')
+    expect(TestPolymorphicAnnotator.annotator_reflection).to eq('sti')
   end
 
   specify '.annotator_id' do
