@@ -81,12 +81,32 @@ namespace :tw do
 
           error_counter = 0
           saved_counter = 0
+          zero_counter = 0 # specimen_ids with no count
 
           file.each_with_index do |row, i|
             specimen_id = row['SpecimenID']
             next if specimen_id == '0'
 
-            next if get_specimen_category_counts[specimen_id].blank? # ignore no critter counts for now
+            if get_specimen_category_counts[specimen_id].blank? # these are no-count specimens which fall into two categories:
+              # if TypeKindID in (1 holotype, 2 syntypes, 3 neotype, 4 lectotype, 5 unspecified primary type), create coll obj
+              #     1,3,4,5 use total = 1; 2 uses ranged lot 2-100; rest of coll obj logic applies
+              # if Level1ID > 0, create asserted_distribution using fields: otu_id, geographic_area_id, project_id, AND source_id even though not a column of ass dist
+               type_kind_id = get_sf_identification_metadata[specimen_id][1]
+               # end
+
+
+
+              #     Rest of locality/collecting event/specimen/identification data append as import_attributes
+              #         [need to import tables localities and collecting events as hashes - not unique table because indexing is too complex]
+              #         [There are 18 identification records where SeqNum > 0 (highest = 1)]
+
+            else
+              logger.info "SpecimenID = '#{specimen_id}', FileID = '#{row['FileID']}', SourceID = '#{row['SourceID']}', zero_counter = '#{zero_counter += 1}'"
+              next
+            end
+
+            next
+
 
             project_id = get_tw_project_id[row['FileID']]
             place_in_collection_keyword = Keyword.find_or_create_by(name: 'PlaceInCollection', definition: 'possible SF source of identification', project_id: project_id)
@@ -96,7 +116,7 @@ namespace :tw do
 
             collecting_event_id = get_tw_collecting_event_id[get_sf_unique_id[specimen_id]]
 
-            logger.info "working with SF.SpecimenID: #{specimen_id}, SF.FileID: #{row['FileID']} \n"
+            logger.info "working with SF.SpecimenID: #{specimen_id}, SF.FileID: #{row['FileID']} [ zero_counter = #{zero_counter} ] \n"
 
 
             # get otu id from sf taxon name id, a taxon determination, called 'the primary otu id'   (what about otus without tw taxon names?)
@@ -203,17 +223,18 @@ namespace :tw do
             if row['SourceID'] != '0'
               sf_source_id = row['SourceID']
 
-              if get_sf_source_metadata.has_key?(sf_source_id) && get_sf_source_metadata[sf_source_id]['ref_id'].to_i > 0 # SF.Source has RefID, create citation or use verbatim ref string for collection object (assuming it will be created)
-                sf_source_ref_id = get_sf_source_metadata[sf_source_id]['ref_id'].to_i
+              if get_sf_source_metadata[sf_source_id] && get_sf_source_metadata[sf_source_id]['ref_id'].to_i > 0 # SF.Source has RefID, create citation or use verbatim ref string for collection object (assuming it will be created)
+                sf_source_ref_id = get_sf_source_metadata[sf_source_id]['ref_id']
                 puts "SF.SourceID, RefID: '#{sf_source_id}', '#{sf_source_ref_id}'"
 
                 # Is there a TW source_id or must we use the verbatim ref string?
-                if get_tw_source_id.has_key?(sf_source_ref_id)
-                  citations_attributes.push({source_id: get_tw_source_id[sf_source_ref_id], project_id: project_id})
+                if get_tw_source_id[sf_source_ref_id]
+                  citations_attributes.push(source_id: get_tw_source_id[sf_source_ref_id], project_id: project_id)
                 else # no TW source equiv, use verbatim as data_attribute
-                  verbatim_sf_ref = ImportAttribute.create!(import_predicate: "verbatim_sf_ref_id_#{sf_source_ref_id}",
-                                                            value: get_sf_verbatim_ref[sf_source_ref_id],
-                                                            project_id: project_id)
+                  verbatim_sf_ref = {type: 'ImportAttribute',
+                                     import_predicate: "verbatim_sf_ref_id_#{sf_source_ref_id}",
+                                     value: get_sf_verbatim_ref[sf_source_ref_id],
+                                     project_id: project_id}
                   data_attributes_attributes.push(verbatim_sf_ref)
                 end
               end
@@ -247,19 +268,6 @@ namespace :tw do
 
                         data_attributes_attributes: data_attributes_attributes,
                         citations_attributes: citations_attributes,
-
-                        # data_attributes to do:
-                        #   import_attribute if identification.IdentifierName
-                        #   other fields in tblIdentifications: HigherTaxonName, NomenclatorID, TaxonIdentNote, TypeTaxonNameID, RefID, IdentifierName/Year,
-                        #     PlaceInCollection, IdentificationModeNote, VerbatimLabel
-
-                        # Treat VerbatimLabel as buffered_collecting_event -- What's that??? Since it's in identification, could be more than one
-                        # if identification['verbatim_label'].present?
-                        #   verbatim_label = ImportAttribute.create!(import_predicate: 'VerbatimLabel',
-                        #                                            value: identification['verbatim_label'],
-                        #                                            project_id: project_id)
-                        #   data_attributes_attributes.push(verbatim_label)
-                        # end
 
             }
 
@@ -338,8 +346,23 @@ namespace :tw do
                   end
                 end
 
+                # data_attributes to do:
+                #   import_attribute if identification.IdentifierName
+                #   other fields in tblIdentifications: HigherTaxonName, NomenclatorID, TaxonIdentNote, TypeTaxonNameID, RefID, IdentifierName/Year,
+                #     PlaceInCollection, IdentificationModeNote, VerbatimLabel
 
-                if get_sf_identification_metadata.has_key?(specimen_id)
+
+                # Both SF Specimen and Identification tables have VerbatimLabel as field: Only used in Identification.
+                # Treat VerbatimLabel as buffered_collecting_event -- What's that??? Since it's in identification, could be more than one
+                # if identification['verbatim_label'].present?
+                #   verbatim_label = ImportAttribute.create!(import_predicate: 'VerbatimLabel',
+                #                                            value: identification['verbatim_label'],
+                #                                            project_id: project_id)
+                #   data_attributes_attributes.push(verbatim_label)
+                # end
+
+
+                if get_sf_identification_metadata[specimen_id]
                   get_sf_identification_metadata[specimen_id].each do |identification|
                     current_objects.each do |o|
 
@@ -364,61 +387,81 @@ namespace :tw do
                       # create conditional attributes here
                       data_attributes_attributes = []
 
-                      source_id = nil
+                      citations_attributes = []
                       if identification['ref_id'].to_i > 0
                         sf_ref_id = identification['ref_id']
-                        if get_tw_source_id.has_key?(sf_ref_id)
-                          source_id = get_tw_source_id[sf_ref_id]
+                        if get_tw_source_id[sf_ref_id]
+                          # source_id = get_tw_source_id[sf_ref_id]
+                          # citations_attributes = Citation.create!(source_id: get_tw_source_id[sf_ref_id], project_id: project_id)
+                          citations_attributes.push(source_id: get_tw_source_id[sf_ref_id], project_id: project_id)
                         else # no TW source equiv, use verbatim as data_attribute
-                          verbatim_sf_ref = ImportAttribute.create!(import_predicate: "verbatim_sf_ref_id_#{sf_ref_id}",
-                                                                    value: get_sf_verbatim_ref[sf_ref_id],
-                                                                    project_id: project_id)
+                          verbatim_sf_ref = {type: 'ImportAttribute',
+                                             import_predicate: "verbatim_sf_ref_id_#{sf_ref_id}",
+                                             value: get_sf_verbatim_ref[sf_ref_id],
+                                             project_id: project_id}
                           data_attributes_attributes.push(verbatim_sf_ref)
                         end
                       end
 
 
                       if identification['identification_mode_note'].present?
-                        identification_mode_note = ImportAttribute.create!(import_predicate: 'IdentificationModeNote',
-                                                                           value: identification['identification_mode_note'],
-                                                                           project_id: project_id)
+                        identification_mode_note = {type: 'ImportAttribute',
+                                                    import_predicate: 'IdentificationModeNote',
+                                                    value: identification['identification_mode_note'],
+                                                    project_id: project_id}
                         data_attributes_attributes.push(identification_mode_note)
                       end
 
+                      # need IdentifierName: normally a role associated with the taxon determination. Since text field would be difficult to parse into people, for now adding SF tblIdentification.IdentifierName as import attribute
+
+                      if identification['identifier_name'].present?
+                        identifier_name = {type: 'ImportAttribute',
+                                           import_predicate: 'IdentifierName',
+                                           value: identification['identifier_name'],
+                                           project_id: project_id}
+                        data_attributes_attributes.push(identifier_name)
+                        if identification['year'].to_i > 0
+                          identifier_year = {type: 'ImportAttribute',
+                                             import_predicate: 'IdentifierYear',
+                                             value: identification['year'],
+                                             project_id: project_id}
+                          data_attributes_attributes.push(identifier_year)
+                        end
+                      end
+
                       # cannot do inline: need find_or_create
-                      confidences_attributes = nil
-                      if get_sf_ident_qualifier(nomenclator_id)
-                        confidences_attributes = [ConfidenceLevel.find_or_create_by(
+                      confidences_attributes = []
+                      if get_sf_ident_qualifier[nomenclator_id]
+                        confidences_attributes.push({confidence_level: ConfidenceLevel.find_or_create_by(
                             name: get_sf_ident_qualifier[nomenclator_id],
                             definition: get_sf_ident_qualifier[nomenclator_id],
-                            project_id: project_id)]
+                            project_id: project_id)})
                       end
+
+                      # byebug      # nil, expected array or hash
 
 
                       t = TaxonDetermination.create!(
-                          otu: otu,
-                          material: o,
-                          source_id: source_id,
+                          otu_id: otu.id,
+                          biological_collection_object: o,
 
+                          citations_attributes: citations_attributes,
                           data_attributes_attributes: data_attributes_attributes,
-                          notes_attributes: [text: identification['taxon_ident_note']],
+                          notes_attributes: [text: identification['taxon_ident_note'], project_id: project_id],
                           confidences_attributes: confidences_attributes,
                           project_id: project_id)
                       t.move_to_bottom # so it's not the first record
 
-                      # need IdentifierName
 
-
-                      # VerbatimLabel	41		“2 mi NE Gold Butte, NV, Clark Co., VI-16-1988, R.C. Bechtel, J.L. Carpenter, .J.B. Knight Collectors, Black Light  Trap” “HOLOTYPE Arenivaga haringtoni Hopkins, 2012” [red label with black border]			CollectionObject#buffered_collecting_event
-                      # put as data_attribute (import_attribute) on determination
-
+                      if identification['verbatim_label'].present?
+                        o.update_column(:buffered_collecting_event, identification['verbatim_label'])
+                      end
 
                       if identification['place_in_collection'] == '1'
                         # o.keywords << place_in_collection_keyword     # equivalent to line below
                         # o.tags << Tag.new(keyword: place_in_collection_keyword, project_id: o.project_id)
                         o.tags.create!(keyword: place_in_collection_keyword, project_id: project_id)
                       end
-
 
                       type_kind_id = identification['type_kind_id'].to_i # exclude TypeKindID = undefined (0) and unknown (6)
                       if [1, 2, 3, 4, 8, 10].include? type_kind_id
@@ -488,6 +531,75 @@ namespace :tw do
           import.set('SFSpecimenIDToCollObjID', get_tw_collection_object_id)
           puts 'SFSpecimenIDToCollObjID'
           ap get_tw_collection_object_id
+
+        end
+
+
+        desc 'time rake tw:project_import:sf_import:specimens:create_sf_loc_col_events_metadata user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :create_sf_loc_col_events_metadata => [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Creating metadata from tblLocalities and tblCollectingEvents...'
+
+          get_sf_locality_metadata = {} # key = sf.LocalityID, value = hash {lat, long, precision code, etc.}
+          get_sf_collect_event_metadata = {} # key = sf.CollectEventID, value = hash {collector name, date, etc.}
+
+          path = @args[:data_directory] + 'tblLocalities.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each do |row|
+            locality_id = row['LocalityID']
+
+            logger.info "Working with SF.LocalityID = '#{locality_id}' \n"
+
+            get_sf_locality_metadata[locality_id] = {file_id: row['FileID'],
+                                                     level1_id: row['Level1ID'],
+                                                     level2_id: row['Level2ID'],
+                                                     level3_id: row['Level3ID'],
+                                                     level4_id: row['Level4ID'],
+                                                     latitude: row['Latitude'],
+                                                     longitude: row['Longitude'],
+                                                     precision_code: row['PrecisionCode'],
+                                                     elevation: row['Elevation'],
+                                                     max_elevation: row['MaxElevation'],
+                                                     time_period_id: row['TimePeriodID'],
+                                                     locality_detail: row['LocalityDetail'],
+                                                     time_detail: row['TimeDetail'],
+                                                     dataflags: row['DataFlags'],
+                                                     country: row['Country'],
+                                                     state: row['State'],
+                                                     county: row['County'],
+                                                     body_of_water: row['BodyOfWater'],
+                                                     precision_radius: row['PrecisionRadius'],
+                                                     lat_long_from: row['LatLongFrom']}
+          end
+
+
+          path = @args[:data_directory] + 'tblCollectEvents.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each do |row|
+            collect_event_id = row['CollectEventID']
+
+            logger.info "Working with SF.CollectEventID = '#{collect_event_id}' \n"
+
+            get_sf_collect_event_metadata[collect_event_id] = {file_id: row['FileID'],
+                                                               collector_name: row['CollectorName'],
+                                                               year: row['Year'],
+                                                               month: row['Month'],
+                                                               day: row['Day'],
+                                                               days_to_end: row['DaysToEnd']}
+          end
+
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFLocalityMetadata', get_sf_locality_metadata)
+          import.set('SFCollectEventMetadata', get_sf_collect_event_metadata)
+
+          puts 'SFLocalityMetadata'
+          ap get_sf_locality_metadata
+
+          puts 'SFCollectEventMetadata'
+          ap get_sf_collect_event_metadata
 
         end
 
