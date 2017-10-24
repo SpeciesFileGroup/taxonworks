@@ -188,10 +188,14 @@ export default {
 			background: #FFFFFF;
 			padding: 1em;
 			width:50%;
+			max-width: 50%;
+			min-height: 600px;
 		}
 		.radial-annotator-menu {
+			padding-top: 1em;
+			padding-bottom: 1em;
 			width:50%;
-			min-height: 400px;
+			min-height: 600px;
 		}
 	}
 
