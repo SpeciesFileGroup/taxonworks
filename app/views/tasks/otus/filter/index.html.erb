@@ -31,7 +31,7 @@
               </div>
 
               <div class="navigation-bar-right">
-                <%= form_tag(download_otu_filter_result_url, id: 'download_form', method: :get) do %>
+                <%= form_tag(download_otus_filter_result_url, id: 'download_form', method: :get) do %>
                     <%= submit_tag('Download', id: :download_button, disabled: :disabled) %>
                 <% end %>
               </div>
@@ -41,21 +41,21 @@
       </div>
     </div>
     <div id="show_list">
-      <%= render('result_list', collection_objects: @collection_objects) if @collection_objects.count > 0 %>
+      <%= render('result_list', otus: @otus) if @otus.count > 0 %>
     </div>
 
     <div id="show_map" hidden>
       <!--on first paint, these variables will be empty, so we get an empty map -->
-      <%= simple_map_component(report_georeferences(@collection_objects, nil), 'border="1"') -%>
+      <%= simple_map_component(report_georeferences(@otus, nil), 'border="1"') -%>
     </div>
     <span id="result_span"></span>
   </div>
 
-  <div id="filter-collection-objects" class="flex-wrap-row middle">
+  <div id="filter-otus" class="flex-wrap-row middle">
     <div id="set_area_and_date_form" class="slide-panel slide-left" data-panel-open="true">
 
       <div class="slide-panel-header">
-        <div class="title action-line">Filter - Collection objects by area and date range</div>
+        <div class="title action-line">Filter - Otus by area and date range</div>
       </div>
       <div class="slide-panel-content">
         <%= render "select_area_facet" %>
@@ -66,7 +66,7 @@
       </div>
       <div class="slide-panel-circle-icon filter-button"></div>
 
-      <%= form_tag(find_collection_objects_task_url, id: 'find_area_and_date_form', method: :get, remote: true) do %>
+      <%= form_tag(find_otus_task_url, id: 'find_area_and_date_form', method: :get, remote: true) do %>
           <%= submit_tag('FIND', id: 'find_area_and_date_commit', :class => "slide-panel-circle-icon button-default") %>
       <% end %>
     </div>

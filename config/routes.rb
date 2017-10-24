@@ -633,6 +633,17 @@ TaxonWorks::Application.routes.draw do
       end
     end
 
+    scope :otus do
+      scope :filter, controller: 'tasks/otus/filter' do
+        get 'index', as: 'otus_filter_task' #'index_area_and_date_task'
+        get 'find', as: 'find_otus_task' # 'find_area_and_date_task'
+        get 'set_area', as: 'set_area_for_otu_filter'
+        get 'set_date', as: 'set_date_for_otu_filter'
+        get 'set_otu', as: 'set_otu_for_otu_filter'
+        get 'download', action: 'download', as: 'download_otus_filter_result'
+      end
+    end
+
     # Scopes arranged alphabetically first level below :tasks
 
     scope :accessions do
