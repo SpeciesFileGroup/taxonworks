@@ -152,6 +152,7 @@ class User < ApplicationRecord
   # @param [String, User, Integer] user
   # @return [Integer] selected user id
   def self.get_user_id(user)
+    # no way to know who the current user is, so can't pre-set user_id
     case user.class.name
       when 'String'
         # search by name or email
