@@ -1,6 +1,6 @@
 <template>
   <form v-if="parent">
-    <modal class="taxon-modal" v-if="showModal" @close="activeModal(false)">
+    <modal class="transparent-modal" v-if="showModal" @close="activeModal(false)">
       <h3 slot="header">{{ nameModule }}</h3>
       <div slot="body" class="tree-list">
         <recursive-list :getter-list="getterList" :display="displayName" :modal-mutation-name="mutationNameModal" :action-mutation-name="mutationNameAdd" :objectList="objectLists.tree"></recursive-list>

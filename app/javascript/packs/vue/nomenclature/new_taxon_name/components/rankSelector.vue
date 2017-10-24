@@ -1,6 +1,6 @@
 <template>
 <div v-if="existRanks()">
-  <modal class="taxon-modal" v-if="showModal" @close="showModal = false">
+  <modal class="transparent-modal" v-if="showModal" @close="showModal = false">
     <h3 slot="header">Ranks</h3>
     <div slot="body">
       <ul class="tree-status" v-for="(group, key) in Object.keys(this.ranks)" v-if="!isMajor(rankGroup, group)">

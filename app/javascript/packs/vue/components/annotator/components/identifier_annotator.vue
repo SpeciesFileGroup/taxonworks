@@ -9,7 +9,7 @@
 					<label for="identifier-picker-advanced">Advanced</label>
 					<input name="identifier-picker-options" id="identifier-picker-pinboard" type="radio" class="normal-input" @click="display = 'pinboard'"/>
 					<label for="identifier-picker-pinboard">Pinboard</label>
-					<input name="identifier-picker-options" id="identifier-picker-showall" type="radio" class="normal-input"/>
+					<input name="identifier-picker-options" id="identifier-picker-showall" type="radio" class="normal-input" @click="showAll = true"/>
 					<label for="identifier-picker-showall">Show all</label>
 		        </div>
 
@@ -32,7 +32,20 @@
 						@getItem="identifier.type = $event.value"
 						param="term">
 					</autocomplete> 
-				</div>
+
+					<modal class="transparent-modal" v-if="showAll" @close="showAll = false">
+						<h3 slot="header">Types</h3>
+						<div slot="body">
+							<ul>
+								<li class="modal-list-item" v-for="item, key in typeList[namespace].all">
+									<button type="button" :value="key" @click="identifier.type = key, showAll = false" class="button button-default normal-input modal-button capitalize"> 
+									{{ item.label }} 
+									</button>
+								</li>
+							</ul>
+						</div>
+					</modal>					
+				</div>				
 
 				<div class="field">
 				    <autocomplete
@@ -69,13 +82,15 @@
 	import CRUD from '../request/crud.js';
 	import annotatorExtend from '../components/annotatorExtend.js';
 	import autocomplete from '../../autocomplete.vue';
+	import modal from '../../modal.vue';
 	import displayList from './displayList.vue';
 
 	export default {
 		mixins: [CRUD, annotatorExtend],
 		components: {
 			autocomplete,
-			displayList
+			displayList,
+			modal
 		},
 		computed: {
 			validateFields() {
@@ -85,6 +100,7 @@
 		},
 		data: function() {
 			return {
+				showAll: false,
 				display: 'common',
 				identifier: this.newIdentifier(),
 				namespace: undefined,
@@ -145,6 +161,13 @@
 		li {
 			border-right: 0px;
 			padding-left: 0px;
+		}
+		.modal-button {
+			min-width: auto;
+			//padding:1px 7px 2px;
+		}
+		.modal-list-item {
+			margin-top: 6px;
 		}
 	}
 }
