@@ -15,10 +15,10 @@
 
 		        <div class="separate-bottom separate-top">
 					<ul v-if="display == 'common'" class="no_bullets">
-						<li v-for="type, key in typeList[namespace].common">
+						<li v-for="item in typeList[namespace].common">
 							<label class="capitalize">
-								<input type="radio" v-model="identifier.type" v-bind:value="key">
-								{{ type.label }}
+								<input type="radio" v-model="identifier.type" v-bind:value="item">
+								{{ typeList[namespace].all[item].label }}
 							</label>
 						</li>
 					</ul>
@@ -164,7 +164,6 @@
 		}
 		.modal-button {
 			min-width: auto;
-			//padding:1px 7px 2px;
 		}
 		.modal-list-item {
 			margin-top: 6px;
