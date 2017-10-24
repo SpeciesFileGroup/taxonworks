@@ -54,7 +54,6 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
 
   # GET
   def set_user_date_range
-    params[:user] = params[:user].to_i
     render json: {html: collection_objects.count}
   end
 

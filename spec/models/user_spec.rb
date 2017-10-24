@@ -288,6 +288,10 @@ describe User, :type => :model do
         expect(User.get_user_id(u1.id)).to eq(u1.id)
       end
 
+      specify 'by id as string' do
+        expect(User.get_user_id(u1.id.to_s)).to eq(u1.id)
+      end
+
       specify 'by User' do
         expect(User.get_user_id(u4)).to eq(u4.id)
       end
