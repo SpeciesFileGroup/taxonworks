@@ -7,6 +7,8 @@ module Shared::Documentation
   included do
    # attr_accessor :image_array
 
+    ::Documentation.related_foreign_keys.push self.name.foreign_key
+
     has_many :documentation, validate: true, as: :documentation_object, dependent: :destroy, inverse_of: :documentation_object
     has_many :documents, validate: true, through: :documentation
 

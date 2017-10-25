@@ -21,13 +21,15 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  # TODO: this group is too big to spam everwhere, be more specific
   concern :shallow_annotation_routes do |options|
     resources :citations, shallow: true, only: [:index]
     resources :depictions, shallow: true, only: [:index]
+    resources :documentation, shallow: true, only: [:index] 
     resources :tags, shallow: true, only: [:index]
     resources :notes, shallow: true, only: [:index]
     resources :identifiers, shallow: true, only: [:index]
-    resources :confidences, shallow: true, only: [:index]
+    resources :confidences, shallow: true, only: [:indx]
     resources :data_attributes, shallow: true, only: [:index]
     resources :alternate_values, shallow: true, only: [:index]
   end
@@ -415,7 +417,6 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :project_sources, only: [:index, :create, :destroy] do
-
     collection do
       get 'download'
       get 'list'
@@ -474,7 +475,7 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :sources do
-    concerns [:data_routes]
+    concerns [:data_routes, :shallow_annotation_routes]
     collection do
       post :preview_bibtex_batch_load # should be get
       post :create_bibtex_batch_load
@@ -487,12 +488,8 @@ TaxonWorks::Application.routes.draw do
       get :autocomplete
       post :tag_object_update
     end
-
   end
-
   get 'tags/exists', to: 'tags#exists', defaults: {format: :json}
-
-
 
   resources :tagged_section_keywords, only: [:create, :update, :destroy]
 
