@@ -9,7 +9,10 @@ module Housekeeping::Users
     belongs_to :creator, foreign_key: :created_by_id, class_name: 'User'
     belongs_to :updater, foreign_key: :updated_by_id, class_name: 'User'
 
-    unless_user = lambda {self.class.name == "User" && self.self_created}
+    scope :created_by_user, ->(user) { where(created_by_id: User.get_user_id(user)) }
+    scope :updated_by_user, ->(user) { where(updated_by_id: User.get_user_id(user)) }
+
+    unless_user = lambda { self.class.name == "User" && self.self_created }
     validates :creator, presence: true, unless: unless_user # lambda, proc, or block
     validates :updater, presence: true, unless: unless_user
 
@@ -31,6 +34,7 @@ module Housekeeping::Users
   end
 
   module ClassMethods
+
     # @return [Scope]
     #   for all uniq Users that created this class
     def all_creators
@@ -42,9 +46,11 @@ module Housekeeping::Users
     def all_updaters
       User.joins("updated_#{self.name.demodulize.underscore.pluralize}".to_sym).uniq
     end
+
+    protected
   end
 
-  # A convienience.  When provided creator and updater are set.  If creator exists updater is set.  Overrides creator/updater if provided second.  See tests.
+  # A convenience.  When provided creator and updater are set.  If creator exists updater is set.  Overrides creator/updater if provided second.  See tests.
   #   Otu.new(name: 'Aus', by: @user)
   attr_accessor :by
 
