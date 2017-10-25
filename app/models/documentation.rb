@@ -27,7 +27,8 @@ class Documentation < ApplicationRecord
   include Shared::Taggable
   include Shared::IsData
   include SoftValidation
-
+  include Shared::PolymorphicAnnotator
+  polymorphic_annotates(:documentation_object)
 
   # These are all handled on the database side as not-null constraints
   # They can't be validated because we use accepts_nested_attributes
