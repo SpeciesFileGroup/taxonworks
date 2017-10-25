@@ -34,6 +34,11 @@
                 <%= form_tag(download_collection_object_filter_result_url, id: 'download_form', method: :get) do %>
                   <%= submit_tag('Download', id: :download_button, disabled: :disabled) %>
                 <% end %>
+
+                <%= form_tag(tag_all_collection_object_filter_result, id: 'tag_all_form') do %>
+                  <%= submit_tag('Tag all', id: :tag_all_button, disabled: :disabled) %>
+                <% end %>
+
               </div>
             </div>
           </div>
