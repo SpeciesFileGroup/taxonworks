@@ -48,8 +48,6 @@ namespace :tw do
           #   VerbatimLabel NOT USED in SF, perhaps buffered collecting event
 
 
-          # no count = 1?
-
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
@@ -71,6 +69,9 @@ namespace :tw do
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_otu_from_tw_taxon_id = import.get('TWTaxonNameIDToOtuID')
 
+          get_sf_locality_metadata = import.get('SFLocalityMetadata')
+          get_sf_collect_event_metadata = import.get('SFCollectEventMetadata')
+
           get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id
 
           depo_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'SpecimenDepository', short_name: 'Depo')
@@ -82,39 +83,62 @@ namespace :tw do
           error_counter = 0
           saved_counter = 0
           zero_counter = 0 # specimen_ids with no count
+          count_override = false # primary type zero_count specimens, count = 1 unless syntype << ranged_lot_category
 
           file.each_with_index do |row, i|
             specimen_id = row['SpecimenID']
             next if specimen_id == '0'
 
+            project_id = get_tw_project_id[row['FileID']]
+            collecting_event_id = get_tw_collecting_event_id[get_sf_unique_id[specimen_id]]
+
+            ranged_lot_category= []
+
             if get_specimen_category_counts[specimen_id].blank? # these are no-count specimens which fall into two categories:
-              # if TypeKindID in (1 holotype, 2 syntypes, 3 neotype, 4 lectotype, 5 unspecified primary type), create coll obj
-              #     1,3,4,5 use total = 1; 2 uses ranged lot 2-100; rest of coll obj logic applies
-              # if Level1ID > 0, create asserted_distribution using fields: otu_id, geographic_area_id, project_id, AND source_id even though not a column of ass dist
-               type_kind_id = get_sf_identification_metadata[specimen_id][1]
-               # end
 
+              type_kind_id = get_sf_identification_metadata[specimen_id][0]['type_kind_id'] # used in identification section as integer
 
+              if type_kind_id.to_i == (1..5) # primary type
+                # if TypeKindID in (1 holotype, 2 syntypes, 3 neotype, 4 lectotype, 5 unspecified primary type), create coll obj
+                #     1,3,4,5 use count = 1; 2 uses ranged lot 2-100; rest of coll obj logic applies except for 3 former syntypes now lectotypes
+                #     ( 3 specimen records with TypeKindID = 4 and SeqNum > 0: 578, 89580, 89622 )
+                #     Set boolean count_override to override zero count value in loop (type_type distinguishes 1 from ranged lot? )
 
-              #     Rest of locality/collecting event/specimen/identification data append as import_attributes
-              #         [need to import tables localities and collecting events as hashes - not unique table because indexing is too complex]
-              #         [There are 18 identification records where SeqNum > 0 (highest = 1)]
+                if type_kind_id == '2'
+                  type_kind_id = '4' if ['578', '89580', '89622'].include?(specimen_id) # was syntype, then lectotype
+                end
 
-            else
-              logger.info "SpecimenID = '#{specimen_id}', FileID = '#{row['FileID']}', SourceID = '#{row['SourceID']}', zero_counter = '#{zero_counter += 1}'"
-              next
+                if type_kind_id == '2'
+                  # create range_lot_category
+                  ranged_lot_category = RangedLotCategory.find_or_create_by(name: 'syntypes', minimum_value: 2, maximum_value: 100, project_id: project_id)
+                else
+                  count_override = (type_kind_id != '2')
+                end
+
+              elsif get_sf_locality_metadata[row['LocalityID']]['level1_id'] != '0'
+                # if Level1ID > 0, create asserted_distribution using fields: otu_id, geographic_area_id, project_id, AND source_id even though not a column of ass dist
+                # need geographic_area_id from collecting_event
+
+                otu_id = get_otu_from_tw_taxon_id[get_tw_taxon_name_id[row['TaxonNameID']]]
+
+                # AssertedDistribution.new(otu_id:,
+                #                          geographic_area_id: collecting_event_id,
+                #                          project_id: project_id)
+              else # no specimen or assert dist, record error and next
+                logger.info "SpecimenID = '#{specimen_id}', FileID = '#{row['FileID']}', SourceID = '#{row['SourceID']}', zero_counter = '#{zero_counter += 1}'"
+                next
+              end
             end
 
-            next
+            #     Rest of locality/collecting event/specimen/identification data append as import_attributes
+            #         [need to import tables localities and collecting events as hashes - not unique table because indexing is too complex]
+            #         [There are 18 identification records where SeqNum > 0 (highest = 1)]
 
-
-            project_id = get_tw_project_id[row['FileID']]
             place_in_collection_keyword = Keyword.find_or_create_by(name: 'PlaceInCollection', definition: 'possible SF source of identification', project_id: project_id)
 
             sf_depo_id = row['DepoID']
             repository_id = get_tw_repo_id.has_key?(sf_depo_id) ? get_tw_repo_id[sf_depo_id] : nil
 
-            collecting_event_id = get_tw_collecting_event_id[get_sf_unique_id[specimen_id]]
 
             logger.info "working with SF.SpecimenID: #{specimen_id}, SF.FileID: #{row['FileID']} [ zero_counter = #{zero_counter} ] \n"
 
@@ -282,9 +306,14 @@ namespace :tw do
                 # a new collection object for each pair
                 get_specimen_category_counts[specimen_id].each do |specimen_category_id, count|
 
+                  # check if this is a no-count specimen and the count is manually set
+                  count = 1 if count_override # is true
+
+
                   collection_object = CollectionObject::BiologicalCollectionObject.new(
                       metadata.merge(
                           total: count,
+                          ranged_lot_category_id: ranged_lot_category_id,
                           collecting_event_id: collecting_event_id,
                           repository_id: repository_id,
 
@@ -465,7 +494,7 @@ namespace :tw do
 
                       type_kind_id = identification['type_kind_id'].to_i # exclude TypeKindID = undefined (0) and unknown (6)
                       if [1, 2, 3, 4, 8, 10].include? type_kind_id
-                        type_text = case type_kind_id
+                        type_kind = case type_kind_id
                                       when 1
                                         'holotype'
                                       when 2
@@ -493,9 +522,9 @@ namespace :tw do
                                     end
                         TypeMaterial.create!(protonym_id: get_tw_taxon_name_id[row['TaxonNameID']],
                                              material: o, # = collection_object/biological_collection_object
-                                             type_type: type_text,
+                                             type_type: type_kind,
                                              project_id: project_id)
-                        puts "type_material created for '#{type_text}'"
+                        puts "type_material created for '#{type_kind}'"
 
                       elsif [5, 7, 9].include? type_kind_id
                         # create a data_attribute
@@ -1202,4 +1231,6 @@ namespace :tw do
     end
   end
 end
+
+
 
