@@ -3,7 +3,7 @@ class TaxonNameClassification::Latinized::Gender::Feminine < TaxonNameClassifica
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000047'
 
   def self.possible_genus_endings
-    %w(a)
+    %w(caris gaster lepis opsis cera lepas cnemis aspis scelis ina ella a)
   end
 
   def self.possible_species_endings

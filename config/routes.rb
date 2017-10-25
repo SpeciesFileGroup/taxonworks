@@ -631,6 +631,7 @@ TaxonWorks::Application.routes.draw do
         get 'set_otu', as: 'set_otu_for_collection_object_filter'
         get 'set_id_range', as: 'set_id_range_for_collection_object_filter'
         get 'download', action: 'download', as: 'download_collection_object_filter_result'
+        post 'tag_all', action: 'tag_all', as: 'tag_all_collection_object_filter_result',  defaults: {format: :json}
       end
     end
 
