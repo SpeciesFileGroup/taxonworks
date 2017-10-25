@@ -7,5 +7,16 @@ module Utilities::Files
     end
   end
 
+  # @return [Array [Boolean, String]]
+  def self.recognized_batch_file_type?(file)
+    mimetype = `file -b "#{file.path}"`.gsub(/\n/, '')
+    case mimetype
+    when /utf-8/i, /ascii/i
+      return [true, mimetype]
+    else
+      return [false, mimetype]
+    end
+  end
+
 
 end
