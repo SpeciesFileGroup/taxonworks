@@ -2,7 +2,7 @@
 var html;
 $("#find_item").mx_spinner('show');
 html = $('<%= j(render(partial: 'result_list',
-                       locals:  {collection_objects: @collection_objects})) %>');
+                       locals:  {otus: @otus})) %>');
 $("#show_list").html(html);
 $("#find_item").mx_spinner('hide');
 $("body").mx_spinner('hide');
@@ -11,17 +11,17 @@ var paging;
 paging = $('<%= j(render(partial: 'paging_data')) %>');
 $("#paging_span").html(paging);
 
-var message, collection_objects_count, feature_collection;
-message = $('<%= 'No collection objects found.' if @collection_objects.count == 0 %>').selector;
+var message, otus_count, feature_collection;
+message = $('<%= 'No otus found.' if @otus.count == 0 %>').selector;
 if (message.length == 0) {
-  collection_objects_count = $('<%= @collection_objects.total_count.to_s %>').selector;
-  $("#result_span").text(collection_objects_count);
+  otus_count = $('<%= @otus.total_count.to_s %>').selector;
+  $("#result_span").text(otus_count);
 }
 else {
   $("#result_span").text(message);
 }
 
-result_collection = <%= ::Gis::GeoJSON.feature_collection(Georeference.joins(:collection_objects).where(collection_objects: {id: @collection_objects.map(&:id)})).to_json.html_safe %>;
+result_collection = <%= ::Gis::GeoJSON.feature_collection(Georeference.joins(:otus).where(otus: {id: @otus.map(&:id)})).to_json.html_safe %>;
 if (result_collection) {
   if ($("#show_map").attr("hidden") != "hidden") {
     TW.vendor.lib.google.maps.loadGoogleMapsAPI().then(resolve = > {

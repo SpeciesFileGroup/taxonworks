@@ -3,7 +3,7 @@
     <%= javascript_include_tag "http://www.google.com/jsapi", "chartkick" %>
 <% end %>
 
-<div id="co_by_area_and_date">
+<div id="otu_by_area_and_nomen">
   <h1>Task - Otus by area and date range</h1>
 
   <div id="result_view">
@@ -52,20 +52,18 @@
   </div>
 
   <div id="filter-otus" class="flex-wrap-row middle">
-    <div id="set_area_and_date_form" class="slide-panel slide-left" data-panel-open="true">
+    <div id="set_area_and_nomen_form" class="slide-panel slide-left" data-panel-open="true">
 
       <div class="slide-panel-header">
-        <div class="title action-line">Filter - Otus by area and date range</div>
+        <div class="title action-line">Filter - Otus by area and nomen range</div>
       </div>
       <div class="slide-panel-content">
         <%= render "select_area_facet" %>
-        <%= render "select_date_range_facet" %>
-        <%= render "select_otu_facet" %>
       </div>
       <div class="slide-panel-circle-icon filter-button"></div>
 
-      <%= form_tag(find_otus_task_url, id: 'find_area_and_date_form', method: :get, remote: true) do %>
-          <%= submit_tag('FIND', id: 'find_area_and_date_commit', :class => "slide-panel-circle-icon button-default") %>
+      <%= form_tag(find_otus_task_url, id: 'find_area_and_nomen_form', method: :get, remote: true) do %>
+          <%= submit_tag('FIND', id: 'find_area_and_nomen_commit', :class => "slide-panel-circle-icon button-default") %>
       <% end %>
     </div>
 
