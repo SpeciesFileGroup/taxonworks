@@ -23,7 +23,6 @@
 		</div>
 
 		<div v-if="alternate_value.type == 'AlternateValue::Misspelling'">
-
 		</div>
 
 		<div class="separate-bottom" v-if="alternate_value.type == 'AlternateValue::AlternateSpelling'">

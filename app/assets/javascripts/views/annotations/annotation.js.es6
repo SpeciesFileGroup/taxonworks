@@ -5,20 +5,22 @@ TW.views.annotations = TW.views.annotations || {};
 
 Object.assign(TW.views.annotations, {
 
-	objectElement: undefined,
-	CTVCount: 0,
-	toolTip: undefined,
-
 	init: function() {
 		var annotations = [];
 		var that = this;
+		var metadata = undefined;
 
 		$(document).off('annotator:close');
 		$(document).on('annotator:close', function(event) {
-			annotations = that.getAnnotationOptions(event.detail.metadata.url, Object.keys(event.detail.metadata.annotation_types));
-			that.getLists(annotations).then(response => {
-				that.createAllLists(response);
-			});
+			var metadata = event.detail.metadata;
+			var annotationDOMElement = document.querySelector(`[data-annotator-list-object-id="${metadata.object_id}"]`);
+
+			if(annotationDOMElement) {
+				annotations = that.getAnnotationOptions(metadata.url, Object.keys(metadata.annotation_types));
+				that.getLists(annotations).then(response => {
+					that.createAllLists(response, annotationDOMElement);
+				});
+			}
 		});
 	},
 
@@ -54,10 +56,9 @@ Object.assign(TW.views.annotations, {
 		});
 	},
 
-	createAllLists: function(objectList) {
+	createAllLists: function(objectList, annotationDOMElement) {
 		var that = this;
 		var completeList = document.createElement('div');
-		var annotationDOMElement = document.querySelector('.annotations_summary_list')
 
 		objectList.forEach(function(element) {
 			if(element.list.length) {
