@@ -26,6 +26,16 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
     end
   end
 
+  # POST /tags/tag_all?keyword_id=123
+  def tag_all
+    if collection_objects.count < 2000
+      Tag.tag_objects( collection_objects, params.require(:keyword_id) )
+      render json: 'good'
+    else
+      render json: 'bad'
+    end
+  end
+
   # GET
   def set_area
     render json: {html: collection_objects.count.to_s}
