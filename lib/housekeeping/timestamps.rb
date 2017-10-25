@@ -12,13 +12,25 @@ module Housekeeping::Timestamps
     scope :created_before_date, ->(date) { where('created_at < ?', "#{date}") }
     scope :created_in_date_range, ->(start, c_end) { where('created_at >= ? and created_at <= ?', start, c_end) }
     scope :updated_in_date_range, ->(start, u_end) { where('updated_at >= ? and updated_at <= ?', start, u_end) }
-    scope :first_created, -> { all.order(created_at: :asc).first }
-    scope :last_created, -> { all.order(created_at: :desc).first }
-    scope :first_updated, -> { all.order(updated_at: :asc).first }
-    scope :last_updated, -> { all.order(updated_at: :desc).first }
   end
 
   module ClassMethods
+    def first_created
+      all.order(created_at: :asc).first
+    end
+
+    def last_created
+      all.order(created_at: :desc).first
+    end
+
+    def first_updated
+      all.order(updated_at: :asc).first
+    end
+
+    def last_updated
+      all.order(updated_at: :desc).first
+    end
+
     def created_this_week
       where(created_at: 1.weeks.ago..Time.now)
     end
