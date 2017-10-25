@@ -630,6 +630,7 @@ TaxonWorks::Application.routes.draw do
         get 'get_dates_of_type', as: 'get_dates_type_of_for_collection_object_filter'
         # get 'get_updated_at', as: 'get_updated_at_for_collection_object_filter'
         get 'download', action: 'download', as: 'download_collection_object_filter_result'
+        post 'tag_all', action: 'tag_all', as: 'tag_all_collection_object_filter_result',  defaults: {format: :json}
       end
     end
 

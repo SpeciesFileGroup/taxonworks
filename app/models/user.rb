@@ -152,16 +152,22 @@ class User < ApplicationRecord
   # @param [String, User, Integer] user
   # @return [Integer] selected user id
   def self.get_user_id(user)
-    user_id = $user_id
+    # no way to know who the current user is, so can't pre-set user_id
     case user.class.name
       when 'String'
         # search by name or email
         ut     = User.arel_table
-        c1     = ut[:name].eq(user).or(ut[:email].eq(user)).to_sql
+        c1     = ut[:name].eq(user).or(ut[:email].eq(user.downcase)).to_sql
         t_user = User.where(c1).first
         if t_user.present?
           user_id = t_user.id
-        else
+        else  # try to convert to a number, to see if it came directly from a web page
+          t_user = user.to_i
+          if t_user > 0
+            t_user = User.find(t_user).try(:id)
+          else
+            t_user = nil
+          end
           user_id = t_user
         end
       when 'User'

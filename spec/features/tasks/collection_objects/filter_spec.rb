@@ -218,16 +218,14 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
       context 'with records specific to users and dates' do
         let!(:pat) { User.find(1) }
         let!(:pat_admin) { User.where(name: 'Pat Project Administrator').first }
-        let!(:joe) { FactoryGirl.create(:valid_user) }
-        let!(:prepare) {
-          if $user.blank?
-            $user_id = pat.id
-            @project.users << joe
-          end
+        let!(:joe) {
+          peep = FactoryGirl.create(:valid_user, by: pat_admin)
+          ProjectMember.create(project_id: @project.id, user_id: peep.id, by: pat_admin)
+          peep
         }
+
         describe 'default user', js: true do
           it 'should present the current user' do
-            prepare
             visit(collection_objects_filter_task_path)
             page.execute_script "$('#set_user_date_range')[0].scrollIntoView()"
 
@@ -238,8 +236,6 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
         describe 'selected user', js: true do
           it 'should find specific user' do
-            prepare
-            # 2.times {FactoryGirl.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: @project)}
             visit(collection_objects_filter_task_path)
             page.execute_script "$('#set_user_date_range')[0].scrollIntoView()"
 

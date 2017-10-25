@@ -3,7 +3,7 @@ class TaxonNameClassification::Latinized::Gender::Neuter < TaxonNameClassificati
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000049'
 
   def self.possible_genus_endings
-    %w(um on u)
+    %w(ceras soma stigma stoma um on u)
   end
 
   def self.possible_species_endings

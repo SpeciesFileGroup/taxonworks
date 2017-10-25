@@ -20,18 +20,18 @@ module Tasks::CollectionObjects::AreaAndDate::AreaAndDateHelper
   def get_first_created_at
     colobj = CollectionObject.with_project_id(sessions_current_project_id).first_created
     if colobj.blank?
-      '1700/01/01'
+      Utilities::Dates::EARLIEST_DATE # 1700/01/01
     else
-      colobj.created_at.to_date.to_s.gsub('-', '/')
+      colobj.created_at.to_date.strftime('%Y/%m/%d')
     end
   end
 
   def get_last_created_at
     colobj = CollectionObject.with_project_id(sessions_current_project_id).last_created
     if colobj.blank?
-      Date.today.to_s.gsub('-', '/')
+      Date.today.strftime('%Y/%m/%d')
     else
-      colobj.created_at.to_date.to_s.gsub('-', '/')
+      colobj.created_at.to_date.strftime('%Y/%m/%d')
     end
   end
 
