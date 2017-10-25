@@ -62,34 +62,6 @@ export default {
 		tagsAnnotator
 	},
 	props: {
-		citations: {
-			type: Boolean,
-			default: true
-		},
-		tags: {
-			type: Boolean,
-			default: true
-		},
-		notes: {
-			type: Boolean,
-			default: true
-		},
-		identifiers: {
-			type: Boolean,
-			default: true
-		},
-		depictions: {
-			type: Boolean,
-			default: true
-		},
-		confidences: {
-			type: Boolean,
-			default: true
-		},
-		data_attributes: {
-			type: Boolean,
-			default: true
-		},
 		reload: {
 			type: Boolean,
 			default: false
@@ -104,6 +76,7 @@ export default {
 			currentAnnotator: undefined,
 			display: false,
 			url: undefined,
+			metadata: undefined,
 			title: "Radial annotator",
 			menuOptions: []
 		}
@@ -116,6 +89,7 @@ export default {
 	methods: {
 		closeModal: function() {
 			this.display = false;
+			this.eventClose();
 			this.$emit('close');
 		},
 		displayAnnotator: function() {
@@ -127,6 +101,8 @@ export default {
 
 			var that = this;
 			this.getList(`/annotations/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
+				console.log(response.body);
+				that.metadata = response.body;
 				that.title = response.body.object_tag;
 				that.menuOptions = that.createMenuOptions(response.body.annotation_types);
 				that.url = response.body.url;
@@ -136,18 +112,16 @@ export default {
 			var menu = [];
 			var that = this;
 			for(var key in annotators) {
-				if(that[key]) {
-					menu.push({
-						label: (key.charAt(0).toUpperCase() + key.slice(1)).replace("_"," "),
-						total: annotators[key].total,
-						event: key,
-						icon: {
-							url: Icons[key],
-							width: '20',
-							height: '20'
-						}
-					})
-				}
+				menu.push({
+					label: (key.charAt(0).toUpperCase() + key.slice(1)).replace("_"," "),
+					total: annotators[key].total,
+					event: key,
+					icon: {
+						url: Icons[key],
+						width: '20',
+						height: '20'
+					}
+				})
 			}
 			return menu;
 		},
@@ -157,6 +131,14 @@ export default {
 				return element.event == that.currentAnnotator
 			})
 			this.menuOptions[position].total = total;
+		},
+		eventClose: function() {
+			let event = new CustomEvent("annotator:close", {
+			  detail: {
+			  	metadata: this.metadata
+			  }
+			});
+			document.dispatchEvent(event);
 		}
 	}
 }

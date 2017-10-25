@@ -8,13 +8,14 @@ module AnnotationsHelper
       content_tag(:div, class: [:content]) do
         content_tag(:div, class: ['information-panel']) do
           content_tag(:h2, 'Annotations') +
+            content_tag(:div,
             [citation_list_tag(object),
              identifier_list_tag(object), 
              data_attribute_list_tag(object), 
              note_list_tag(object), 
              tag_list_tag(object),
              alternate_values_list_tag(object)
-          ].compact.join.html_safe
+          ].compact.join.html_safe, class: :annotations_summary_list)
 
         end
       end

@@ -179,7 +179,7 @@ menu structure:
 			    this.ctx.closePath();
 			},
 			drawOption: function(color, angle, startPosition, endPosition) {
-				var positionArcCount = this.findNewPoint(this.width/2,this.height/2,Math.degrees(angle) + ((this.segmentWidth)/2), this.padding);
+				var positionArcCount = this.findNewPoint(this.width/2,this.height/2,Math.degrees(angle) + ((this.segmentWidth+(this.padding/2))/2), this.padding);
 
 			        this.ctx.beginPath();
 			        this.ctx.annulus(positionArcCount.x, positionArcCount.y, startPosition, endPosition, angle, angle + Math.radians(this.segmentWidth), false);
@@ -192,7 +192,7 @@ menu structure:
 			        this.ctx.textAlign="center"; 
 			        this.ctx.textBaseline="middle"
 			        this.ctx.fillStyle = colorText;
-			        this.ctx.font="12px Arial";
+			        this.ctx.font="11px Arial";
 			        this.ctx.fillText(text,position.x,position.y);
 			        this.ctx.closePath();				
 			},
