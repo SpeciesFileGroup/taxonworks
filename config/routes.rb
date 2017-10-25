@@ -29,6 +29,7 @@ TaxonWorks::Application.routes.draw do
     resources :identifiers, shallow: true, only: [:index]
     resources :confidences, shallow: true, only: [:index]
     resources :data_attributes, shallow: true, only: [:index]
+    resources :alternate_values, shallow: true, only: [:index]
   end
 
   root 'dashboard#index'
@@ -85,7 +86,7 @@ TaxonWorks::Application.routes.draw do
 
   ### Below this point, please keep objects in alphabetical order ###
 
-  resources :alternate_values, except: [:show] do
+  resources :alternate_values, except: [:show, :new] do
     concerns [:data_routes]
   end
   match '/alternate_values/:global_id/metadata', to: 'alternate_values#metadata', via: :get, defaults: {format: :json} #  method: :json 
@@ -480,7 +481,7 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-  resources :tags, except: [:edit, :show] do
+  resources :tags, except: [:edit, :show, :new] do
     concerns [:data_routes]
     collection do
       get :autocomplete

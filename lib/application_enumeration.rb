@@ -11,7 +11,7 @@ module ApplicationEnumeration
   # Rails.application.eager_load!
 
   # return [Array]
-  #   a list symbols that represent of populated, non "cached", non "_id", non reserved attributes
+  #   a list symbols that represent populated, non "cached", non "_id", non reserved attributes
   def self.alternate_value_attributes(object)
     if object.class::ALTERNATE_VALUES_FOR.blank?
       raise("#{object.class} attempted to annotate a class without ALTERNATE_VALUES_FOR -  please inform the programmers")
