@@ -1,0 +1,31 @@
+<%= content_tag(:span, CollectionObject.earliest_date(sessions_current_project_id), id: :earliest_date, hidden: true) -%>
+<%= content_tag(:span, CollectionObject.latest_date(sessions_current_project_id), id: :latest_date, hidden: true) -%>
+
+<%= form_tag(set_date_for_collection_object_filter_path, id: 'set_date_form', remote: true) do %>
+    <span>Partial overlap search: <%= check_box nil, 'partial_overlap', {id: :partial_toggle}, 'on', 'off' %></span><br>
+    <br>
+    <div class="flex-separate">
+      <div>
+        <label for="search_start_date">Start date:</label><br>
+        <input type="text" id="search_start_date" name="search_start_date"/><br>
+        <span class="warning-date"></span>
+      </div>
+      <div>
+        <label for="search_end_date">End date:</label><br>
+        <input type="text" id="search_end_date" name="search_end_date"/><br>
+        <span class="warning-date"></span>
+      </div>
+    </div>
+    <br/>
+    <div id="tr_slider" class="flex-wrap-column">
+      <div id="double_date_range"></div>
+      <div class="horizontal-center-content">
+        <input id="reset_slider" type="button" value="Reset Slider"/>
+      </div>
+    </div>
+    <div id="tr_calendar" class="flex-separate">
+      <div id="st_fixedpicker"></div>
+      <div id="en_fixedpicker"></div>
+    </div>
+    <div class="horizontal-center-content" id="graph_frame"></div>
+<% end %>
