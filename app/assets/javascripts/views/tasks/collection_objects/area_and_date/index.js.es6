@@ -38,7 +38,7 @@ Object.assign(TW.views.tasks.collection_objects, {
             var popcorn = local_data;
             $("#area_count").text(local_data.html);
             $("#select_area").mx_spinner('hide');
-            that.validateResult();
+            that.validateResultForFind();
           }, 'json');
           event.preventDefault();
         }
@@ -66,33 +66,58 @@ Object.assign(TW.views.tasks.collection_objects, {
         $.get('set_otu', $("#set_otu_form").serialize(), function (local_data) {
           $("#otu_count").text(local_data.html);
           $("#select_otu").mx_spinner('hide');
-          that.validateResult();
+          that.validateResultForFind();
         }, 'json');
         event.preventDefault();
       }
     );
-    
+  
     $("#set_id_range").click(function (event) {
         $("#id_range_count").text('????');
         $("#select_id_range").mx_spinner('show');
         $.get('set_id_range', $("#set_id_range_form").serialize(), function (local_data) {
           $("#id_range_count").text(local_data.html);
           $("#select_id_range").mx_spinner('hide');
-          that.validateResult();
+          that.validateResultForFind();
+        }, 'json');
+        event.preventDefault();
+      }
+    );
+  
+    $("#set_user_date_range").click(function (event) {
+        $("#user_date_range_count").text('????');
+        $("#select_user_date_range").mx_spinner('show');
+        $.get('set_user_date_range', $("#set_user_date_range_form").serialize(), function (local_data) {
+          $("#user_date_range_count").text(local_data.html);
+          $("#select_user_date_range").mx_spinner('hide');
+          that.validateResultForFind();
         }, 'json');
         event.preventDefault();
       }
     );
     
+    $("[name='date_type_select']").change(function (event) {
+      $.get('get_dates_of_type', $("#set_user_date_range_form").serialize(), function (local_data) {
+        set_control($("#user_date_range_start"), $("#user_date_range_start"), format, year, local_data.first_date);
+        set_control($("#user_date_range_end"), $("#user_date_range_end"), format, year, local_data.last_date);
+        // $("#user_date_range_start").text(local_data.first_date);
+        // $("#user_date_range_end").text(local_data.last_date);
+        that.validateResultForFind();
+      }, 'json');
+      event.preventDefault();
+    });
+  
     var today = new Date();
     var year = today.getFullYear();
     var format = 'yy/mm/dd';
     var dateInput;
     
-    this.validateResult();
-    
+    this.validateResultForFind();
+  
     set_control($("#search_start_date"), $("#search_start_date"), format, year, $("#earliest_date").text());
     set_control($("#search_end_date"), $("#search_end_date"), format, year, $("#latest_date").text());
+    set_control($("#user_date_range_start"), $("#user_date_range_start"), format, year, $("#first_created").text());
+    set_control($("#user_date_range_end"), $("#user_date_range_end"), format, year, $("#last_created").text());
     
     function set_control(control, input, format, year, st_en_day) {
       if (control.length) {
@@ -119,14 +144,23 @@ Object.assign(TW.views.tasks.collection_objects, {
     $("#search_end_date").change(function (event) {
       that.update_and_graph(event)
     });    // change of date
-    
+
     $("#st_fixedpicker").change(function (event) {
       that.update_and_graph(event)
     });   // listener for day
-    
+
     $("#en_fixedpicker").change(function (event) {
       that.update_and_graph(event)
     });   // click date change
+
+    $("#ud_st_fixedpicker").change(function (event) {
+      that.updateUserDateRange(event)
+    });   // listener for day
+
+    $("#ud_en_fixedpicker").change(function (event) {
+      that.updateUserDateRange(event)
+    });   // click date change
+
     $("#partial_toggle").change(function (event) {
       if ($("#date_count").text() != "????") {
         that.update_and_graph(event)
@@ -167,7 +201,7 @@ Object.assign(TW.views.tasks.collection_objects, {
         that.updateRangePicker(startDate, endDate);
         $("#graph_frame").empty();
         $("#date_count").text("????");
-        that.validateResult();
+        that.validateResultForFind();
         event.preventDefault();
       }
     );
@@ -186,7 +220,19 @@ Object.assign(TW.views.tasks.collection_objects, {
     $(".map_toggle").remove();
     $(".on_selector").remove();
   },
-  
+
+  updateUserDateRange: function () {
+    // var newStartText = $(".label.select-label")[1].textContent;
+    // var newEndText = $(".label.select-label")[0].textContent;
+    // var newStartDate = (new Date(newStartText)) / range_factor;
+    // var newEndDate = range_factor * (new Date(newEndText));
+    // $("#search_start_date").val(newStartText);
+    // $("#search_end_date").val(newEndText);
+
+    $("#ud_st_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date('1700/01/01'), "yyyy/MM/dd")));
+    $("#ud_en_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date('2017/10/12'), "yyyy/MM/dd")));
+  },
+
   switchMap: function () {
     $("#paging_span").hide();
     $("#show_list").hide();         // hide the list view
@@ -220,7 +266,7 @@ Object.assign(TW.views.tasks.collection_objects, {
         $("#date_count").text(local_data.html);
         $("#graph_frame").html(local_data.chart);
         $("#select_date_range").mx_spinner('hide');
-        that.validateResult();
+        that.validateResultForFind();
       }, 'json');  // I expect a json response
     }
     event.preventDefault();
@@ -243,14 +289,15 @@ Object.assign(TW.views.tasks.collection_objects, {
     return false;
   },
   
-  validateResult: function () {
+  validateResultForFind: function () {
     // var i = 0;
     
     if (
       ($("#date_count").text() > 0) ||
       ($("#area_count").text() > 0) ||
       ($("#otu_count").text() > 0) ||
-      ($("#id_range_count").text() > 0)
+      ($("#id_range_count").text() > 0) ||
+      ($("#user_date_range_count").text() > 0)
     ) {
       $("#find_area_and_date_commit").removeAttr("disabled");
     }
@@ -291,11 +338,15 @@ Object.assign(TW.views.tasks.collection_objects, {
     if ($('#otu_count').text() != '????') {
       params.push($("#set_otu_form").serialize());
     }
-    
+  
     if ($('#id_range_count').text() != '????') {
       params.push($("#set_id_range_form").serialize());
     }
-    
+  
+    if ($('#user_date_range_count').text() != '????') {
+      params.push($("#set_user_date_range_form").serialize());
+    }
+  
     return data = params.join("&");
   },
   

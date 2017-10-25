@@ -47,22 +47,59 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
     render json: {html: collection_objects.count}
   end
 
+  # GET
   def set_id_range
-    render json: {html: collection_objects.count.to_s}
+    render json: {html: collection_objects.count}
+  end
+
+  # GET
+  def set_user_date_range
+    render json: {html: collection_objects.count}
+  end
+
+  # GET
+  def get_dates_of_type
+    case params[:date_type_select]
+      when 'updated_at'
+        get_updated_at
+      when 'created_at'
+        get_created_at
+      # else
+        #
+    end
   end
 
   protected
 
+  def get_created_at
+    render json: {first_date: CollectionObject.in_project(sessions_current_project_id)
+                                .first_created.created_at.to_date.to_s.gsub('-', '/'),
+                  last_date:  CollectionObject.in_project(sessions_current_project_id)
+                                .last_created.created_at.to_date.to_s.gsub('-', '/')
+    }
+  end
+
+  def get_updated_at
+    render json: {first_date: CollectionObject.in_project(sessions_current_project_id)
+                                .first_updated.updated_at.to_date.to_s.gsub('-', '/'),
+                  last_date:  CollectionObject.in_project(sessions_current_project_id)
+                                .last_updated.updated_at.to_date.to_s.gsub('-', '/')
+    }
+  end
+
+
   def collection_objects
-    Queries::CollectionObjectFilterQuery.new(filter_params)
-      .result
-      .with_project_id(sessions_current_project_id)
-      .includes(:repository, {taxon_determinations: [{otu: :taxon_name}]}, :identifiers)
+    scope = Queries::CollectionObjectFilterQuery.new(filter_params)
+              .result
+              .with_project_id(sessions_current_project_id)
+              .includes(:repository, {taxon_determinations: [{otu: :taxon_name}]}, :identifiers)
+    scope
   end
 
   def filter_params
     params.permit(:drawn_area_shape, :search_start_date, :search_end_date,
                   :id_range_start, :id_range_stop, :id_namespace,
+                  :user, :date_type_select, :user_date_range_end, :user_date_range_start,
                   :partial_overlap, :otu_id, :descendants, :page, geographic_area_ids: [])
   end
 

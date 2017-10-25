@@ -98,7 +98,9 @@ class CollectionObjectsController < ApplicationController
 
   # GET /collection_objects/list
   def list
-    @collection_objects = CollectionObject.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @collection_objects = CollectionObject.with_project_id(sessions_current_project_id)
+                            .order(:id)
+                            .page(params[:page]) #.per(10) #.per(3)
   end
 
   # GET /collection_object/search
@@ -111,9 +113,9 @@ class CollectionObjectsController < ApplicationController
   end
 
   def autocomplete
-    @collection_objects = 
+    @collection_objects =
       Queries::BiologicalCollectionObjectAutocompleteQuery.new(
-        params[:term], 
+        params[:term],
         project_id: sessions_current_project_id
     ).autocomplete
 
@@ -124,7 +126,7 @@ class CollectionObjectsController < ApplicationController
        response_values: {
          params[:method] => t.id
        },
-       label_html: ApplicationController.helpers.collection_object_tag(t) 
+       label_html: ApplicationController.helpers.collection_object_tag(t)
       }
     end
     render :json => data
@@ -170,14 +172,14 @@ class CollectionObjectsController < ApplicationController
     @container_item = ContainerItem.new(contained_object: @collection_object)
   end
 
-  def preview_castor_batch_load 
-    if params[:file] 
+  def preview_castor_batch_load
+    if params[:file]
       @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(batch_params)
       digest_cookie(params[:file].tempfile, :Castor_collection_objects_md5)
       render 'collection_objects/batch_load/castor/preview'
     else
       flash[:notice] = "No file provided!"
-      redirect_to action: :batch_load 
+      redirect_to action: :batch_load
     end
   end
 
