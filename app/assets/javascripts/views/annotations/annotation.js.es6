@@ -63,11 +63,11 @@ Object.assign(TW.views.annotations, {
 			if(element.list.length) {
 				var title = document.createElement('h3');
 			
-				title.classList.add('capitalize')
+				title.classList.add('capitalize');
 				title.innerHTML = element.label;
 
 				completeList.appendChild(title);
-				completeList.appendChild(that.createAnnotatorList(element))
+				completeList.appendChild(that.createAnnotatorList(element));
 			}
 		});
 

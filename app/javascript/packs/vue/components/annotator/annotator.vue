@@ -42,6 +42,7 @@ import identifiersAnnotator from './components/identifier_annotator.vue';
 import tagsAnnotator from './components/tag_annotator.vue';
 import notesAnnotator from './components/note_annotator.vue';
 import data_attributesAnnotator from './components/data_attribute_annotator.vue';
+import alternate_valuesAnnotator from './components/alternate_value_annotator.vue';
 import citationsAnnotator from './components/citation_annotator.vue';
 
 import Icons from './images/icons.js';
@@ -58,6 +59,7 @@ export default {
 		confidencesAnnotator,
 		depictionsAnnotator,
 		data_attributesAnnotator,
+		alternate_valuesAnnotator,
 		identifiersAnnotator,
 		tagsAnnotator
 	},
@@ -101,7 +103,6 @@ export default {
 
 			var that = this;
 			this.getList(`/annotations/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
-				console.log(response.body);
 				that.metadata = response.body;
 				that.title = response.body.object_tag;
 				that.menuOptions = that.createMenuOptions(response.body.annotation_types);
