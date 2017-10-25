@@ -88,6 +88,7 @@ TaxonWorks::Application.routes.draw do
   resources :alternate_values, except: [:show] do
     concerns [:data_routes]
   end
+  match '/alternate_values/:global_id/metadata', to: 'alternate_values#metadata', via: :get, defaults: {format: :json} #  method: :json 
 
   resources :asserted_distributions do
     concerns [:data_routes]
