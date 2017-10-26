@@ -29,10 +29,13 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
   # POST /tags/tag_all?keyword_id=123
   def tag_all
     if collection_objects.count < 2000
-      Tag.tag_objects( collection_objects, params.require(:keyword_id) )
-      render json: 'good'
+      if Tag.tag_objects( collection_objects, params.require(:keyword_id) )
+        render json: { result: 'good' }
+      else
+        render json: { result: 'bad, error tagging objects' }
+      end 
     else
-      render json: 'bad'
+      render json: { result: 'Limited to tagging 2000 objects, refine result.' }
     end
   end
 

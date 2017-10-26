@@ -14,7 +14,7 @@
 #
 # @!attribute project_id
 #   @return [Integer]
-#   the project ID
+#   the project ID for which the object is pinned
 #
 # @!attribute position
 #   @return [Integer]
@@ -46,7 +46,7 @@ class PinboardItem < ApplicationRecord
 
   after_save :update_insertable
 
-  scope :for_object, -> (object) {where(pinned_object_id: object.id, pinned_object_type: object.class.to_s) }
+  scope :for_object, -> (object) { where(pinned_object_id: object.id, pinned_object_type: object.class.to_s) }
 
   def self.reorder(pinboard_item_ids)
     pinboard_item_ids.each_with_index do |id, i|
@@ -62,17 +62,13 @@ class PinboardItem < ApplicationRecord
     !is_cross_project.blank?
   end
 
-  def set_as_insertable
-    PinboardItem.where(project_id: project_id, pinned_object_type: pinned_object_type).where.not(id: id).find_each do |p|
-      p.update_column(:is_inserted, false)
-    end
-  end
-
   protected
 
   def update_insertable
     if is_inserted?
-      set_as_insertable
+      PinboardItem.where(project_id: project_id, pinned_object_type: pinned_object_type).where.not(id: id).find_each do |p|
+        p.update_column(:is_inserted, false)
+      end
     end
   end
 
