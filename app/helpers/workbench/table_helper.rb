@@ -26,6 +26,7 @@ module Workbench::TableHelper
     m = metamorphosize_if(object)
       fancy_show_tag(m) +
       fancy_edit_tag(m) + 
+      fancy_pin_tag(m) +
       content_tag(:td, (link_to 'Destroy', m, method: :delete, data: {confirm: 'Are you sure?'}), class: 'table-options', data: {delete: true})
   end  
 
@@ -37,6 +38,10 @@ module Workbench::TableHelper
 
   def fancy_edit_tag(object)
     content_tag(:td, edit_object_link(object), class: 'table-options', data: {edit: true}) 
+  end
+
+  def fancy_pin_tag(object)
+    content_tag(:td, pin_item_to_pinboard_link(object, sessions_current_user), class: 'table-options', data: {pin: true}) 
   end
 
 end
