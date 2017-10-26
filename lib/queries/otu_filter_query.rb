@@ -90,7 +90,7 @@ module Queries
       end
       r4 = CollectionObject.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
       # get the Otus associated with r4
-      r5i = r4.map(&:otus).flatten.pluck(:id)
+      r5i = r4.map(&:otus).flatten.pluck(:id).uniq
       r5o = Otu.where(id: r5i)
       r5o
     end
@@ -99,7 +99,7 @@ module Queries
     def shape_scope
       r4 = GeographicItem.gather_map_data(query_shape, 'CollectionObject')
       # get the Otus associated with r4
-      r5i = r4.map(&:otus).flatten.pluck(:id)
+      r5i = r4.map(&:otus).flatten.pluck(:id).uniq
       r5o = Otu.where(id: r5i)
       r5o
     end

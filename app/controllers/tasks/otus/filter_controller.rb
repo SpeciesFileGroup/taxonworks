@@ -29,10 +29,10 @@ class Tasks::Otus::FilterController < ApplicationController
   # GET
 =begin
     1. find all geographic_items in area(s)/shape
-    2. georeferences which are associated with result #1
-    3. collecting_events which are associated with result #2
-    4. collection_objects which are associated with result #3
-    5. otus which are associated with result #4
+    2. find all georeferences which are associated with result #1
+    3. find all collecting_events which are associated with result #2
+    4. find all collection_objects which are associated with result #3
+    5. find all otus which are associated with result #4
 =end
   def set_area
     render json: {html: otus.count.to_s}
