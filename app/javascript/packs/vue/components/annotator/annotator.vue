@@ -12,15 +12,14 @@
 				</div>
 				<div class="radial-annotator-template panel" v-if="currentAnnotator">
 					<h3 class="capitalize view-title">{{ currentAnnotator.replace("_"," ") }}</h3>
-					<div class="radial-annotator-container">
-						<component
-							v-bind:is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
-							:type="currentAnnotator" 
-							:url="url" 
-							:globalId="globalId"
-							@updateCount="setTotal">	
-						</component>
-					</div>
+					<component
+						class="radial-annotator-container"
+						v-bind:is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
+						:type="currentAnnotator" 
+						:url="url" 
+						:globalId="globalId"
+						@updateCount="setTotal">	
+					</component>
 				</div>
 			</div>
 		</modal>
@@ -173,6 +172,14 @@ export default {
 			width:50%;
 			max-width: 50%;
 			min-height: 600px;
+		}
+		.radial-annotator-container {
+			display: flex;
+			height:600px;
+			flex-direction: column;
+			button {
+				min-width: 100px;
+			}
 		}
 		.radial-annotator-menu {
 			padding-top: 1em;

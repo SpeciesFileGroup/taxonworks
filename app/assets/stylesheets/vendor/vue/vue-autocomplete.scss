@@ -21,6 +21,8 @@
 
 .vue-autocomplete {
 	ul {
+		max-height: 500px;
+		overflow-y: scroll;
 		z-index: 2001;
 		display: none;
 		background-color: #FFF;
@@ -28,7 +30,8 @@
 		padding: 0px;
 		list-style: none;
 		position: absolute;
-		width: 300px;
+		min-width: 300px;
+		max-width: 500px;
 		border: 1px solid $navigation_border;
 		border-top: none;
 	}

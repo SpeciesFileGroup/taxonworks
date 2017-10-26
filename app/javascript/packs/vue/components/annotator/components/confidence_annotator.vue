@@ -9,7 +9,9 @@
 	      class="separate-bottom"
 	      param="term">
 	    </autocomplete>
+	    <div>
 	    <button @click="createNew()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Create</button>
+		</div>
 	    <display-list :label="['confidence_level', 'object_tag']" :list="list" @delete="removeItem" class="list"></display-list>
 	</div>
 </template>
@@ -51,9 +53,6 @@
 <style type="text/css" lang="scss">
 .radial-annotator {
 	.confidence_annotator { 
-		button {
-			min-width: 100px;
-		}
 		textarea {
 			padding-top: 14px;
 			padding-bottom: 14px;

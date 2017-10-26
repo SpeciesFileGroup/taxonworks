@@ -1,31 +1,21 @@
 <template>
 	<div class="alternate_values_annotator">
-		<div class="switch-radio">
-			<template v-for="item, key, index in typeList">
-			<input 
-				v-model="alternate_value.type"
-				:value="key"
-				:id="`alternate_values-picker-${index}`" 
-				name="alternate_values-picker-options"
-				type="radio"
-				class="normal-input button-active" 
-			/>
-			<label :for="`alternate_values-picker-${index}`" class="capitalize">{{ item }}</label>
-			</template>
+		<div>
+			<div class="switch-radio">
+				<template v-for="item, key, index in typeList">
+				<input 
+					v-model="alternate_value.type"
+					:value="key"
+					:id="`alternate_values-picker-${index}`" 
+					name="alternate_values-picker-options"
+					type="radio"
+					class="normal-input button-active" 
+				/>
+				<label :for="`alternate_values-picker-${index}`" class="capitalize">{{ item }}</label>
+				</template>
+			</div>
 		</div>
-
-		<div v-if="alternate_value.type == 'AlternateValue::Translation'">
-
-		</div>
-
-		<div v-if="alternate_value.type == 'AlternateValue::Abbreviation'">
-
-		</div>
-
-		<div v-if="alternate_value.type == 'AlternateValue::Misspelling'">
-		</div>
-
-		<div class="separate-bottom" v-if="alternate_value.type == 'AlternateValue::AlternateSpelling'">
+		<div v-if="alternate_value.type">
 			<ul class="no_bullets content">
 				<li v-for="item, key in values">
 					<label>
@@ -34,19 +24,33 @@
 					</label>
 				</li>
 			</ul>
-			<div class="field">
-				<input type="text" class="normal-input" v-model="alternate_value.value" placeholder="Value">
+
+			<autocomplete
+				class="field"
+				v-if="alternate_value.type == 'AlternateValue::Translation'"
+				url="/languages/autocomplete"
+				label="label"
+				min="2"
+				placeholder="Language"
+				@getItem="alternate_value.language_id = $event.id"
+				param="term">
+			</autocomplete>
+
+			<div class="separate-bottom" >
+				<div class="field">
+					<input type="text" class="normal-input" v-model="alternate_value.value" placeholder="Value">
+				</div>
+				<button 
+					type="button" 
+					class="normal-input button button-submit" 
+					:disabled="!validateFields"
+					@click="createNew()">
+					Create
+				</button>
 			</div>
-			<button 
-				type="button" 
-				class="normal-input button button-submit" 
-				:disabled="!validateFields"
-				@click="createNew()">
-				Create
-			</button>
 		</div>
 
-	    <display-list label="text" :list="list" :edit="true" @edit="note = $event" @delete="removeItem" class="list"></display-list>
+	    <display-list label="object_tag" :list="list" :edit="true" @edit="note = $event" @delete="removeItem" class="list"></display-list>
 	</div>
 </template>
 <script>
@@ -59,7 +63,8 @@
 	export default {
 		mixins: [CRUD, annotatorExtend],
 		components: {
-			displayList
+			displayList,
+			autocomplete
 		},
 		computed: {
 			validateFields() {
@@ -91,6 +96,7 @@
 				return {
 					type: undefined,
 					value: undefined,
+					language_id: undefined,
 					alternate_value_object_attribute: undefined,
 					annotated_global_entity: decodeURIComponent(this.globalId)
 				}
@@ -107,17 +113,17 @@
 <style type="text/css" lang="scss">
 .radial-annotator {
 	.alternate_values_annotator { 
+		.field input {
+			width: 100%;
+		}
 		.switch-radio {
 			label {
-				width:90px;
+				min-width: 95px;
 			}
 		}
 		li {
 			border-right: 0px;
 			padding-left: 0px;
-		}
-		button {
-			min-width: 100px;
 		}
 		textarea {
 			padding-top: 14px;
