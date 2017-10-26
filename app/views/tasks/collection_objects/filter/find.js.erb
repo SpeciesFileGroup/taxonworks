@@ -1,9 +1,12 @@
 // j is an alias for escape_javascript
 var html;
+var mark_area_and_date = true;
 $("#find_item").mx_spinner('show');
-html = $('<%= j(render(partial: 'result_list',
-                       locals:  {collection_objects: @collection_objects})) %>');
+html = $('<%=
+  j(render(partial: 'result_list', locals:  {collection_objects: @collection_objects}))
+%>');
 $("#show_list").html(html);
+//alert('Find me!');
 $("#find_item").mx_spinner('hide');
 $("body").mx_spinner('hide');
 
@@ -24,9 +27,10 @@ else {
 result_collection = <%= Gis::GeoJSON.feature_collection(Georeference.joins(:collection_objects).where(collection_objects: {id: @collection_objects.map(&:id)})).to_json.html_safe %>;
 if (result_collection) {
   if ($("#show_map").attr("hidden") != "hidden") {
-  	TW.vendor.lib.google.maps.loadGoogleMapsAPI().then( resolve => {
-    	result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
-	});
+    TW.vendor.lib.google.maps.loadGoogleMapsAPI().then(resolve => {
+      result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
+  })
+    ;
   }
 }
 
