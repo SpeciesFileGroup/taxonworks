@@ -75,7 +75,6 @@
 		mounted: function() {
 			var that = this;
 			this.getList(`/alternate_values/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
-				console.log(response.body);
 				that.values = response.body;
 			});
 		},

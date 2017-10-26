@@ -120,7 +120,6 @@
 						label: obj[key].label
 					};
 				});
-				console.log(result);
 				return result;
 			},
 			newIdentifier() {

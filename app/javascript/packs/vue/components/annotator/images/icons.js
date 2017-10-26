@@ -3,7 +3,7 @@ import citations from './citation';
 import confidences from './confidences';
 import data_attributes from './data_attribute';
 import depictions from './depiction';
-import documents from './document';
+import documentation from './documentation';
 import identifiers from './identifier';
 import notes from './book';
 import tags from './tag';
@@ -15,7 +15,7 @@ const Icons = {
 	confidences,
 	data_attributes,
 	depictions,
-	documents,
+	documentation,
 	identifiers,
 	notes,
 	tags
