@@ -27,6 +27,13 @@ class Tasks::Otus::FilterController < ApplicationController
   end
 
   # GET
+=begin
+    1. find all geographic_items in area(s)/shape
+    2. georeferences which are associated with result #1
+    3. collecting_events which are associated with result #2
+    4. collection_objects which are associated with result #3
+    5. otus which are associated with result #4
+=end
   def set_area
     render json: {html: otus.count.to_s}
   end
@@ -93,7 +100,7 @@ class Tasks::Otus::FilterController < ApplicationController
     scope = Queries::OtuFilterQuery.new(filter_params)
                 .result
                 .with_project_id(sessions_current_project_id)
-                .includes(:repository, {taxon_determinations: [{otu: :taxon_name}]}, :identifiers)
+                # .includes(:repository, {taxon_determinations: [{otu: :taxon_name}]}, :identifiers)
     scope
   end
 

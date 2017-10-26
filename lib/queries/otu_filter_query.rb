@@ -88,12 +88,20 @@ module Queries
       query_geographic_area_ids.each do |gaid|
         target_geographic_item_ids.push(GeographicArea.joins(:geographic_items).find(gaid).default_geographic_item.id)
       end
-      Otu.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
+      r4 = CollectionObject.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
+      # get the Otus associated with r4
+      r5i = r4.map(&:otus).flatten.pluck(:id)
+      r5o = Otu.where(id: r5i)
+      r5o
     end
 
     # @return [Scope]
     def shape_scope
-      GeographicItem.gather_map_data(query_shape, 'Otu')
+      r4 = GeographicItem.gather_map_data(query_shape, 'CollectionObject')
+      # get the Otus associated with r4
+      r5i = r4.map(&:otus).flatten.pluck(:id)
+      r5o = Otu.where(id: r5i)
+      r5o
     end
 
     # @return [Scope]

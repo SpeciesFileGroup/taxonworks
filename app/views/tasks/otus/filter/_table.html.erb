@@ -15,7 +15,7 @@
   <% otus.each do |o| -%>
     <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
       <td> <%= o.name %></td>
-       <td><%= o.updated_by -%></td>
+       <td><%= o.updated_by_id -%></td>
        <td><%= o.updated_at -%></td>
     <% end %>
 

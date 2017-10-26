@@ -21,7 +21,9 @@ else {
   $("#result_span").text(message);
 }
 
-result_collection = <%= ::Gis::GeoJSON.feature_collection(Georeference.joins(:otus).where(otus: {id: @otus.map(&:id)})).to_json.html_safe %>;
+result_collection = <%=
+  Gis::GeoJSON.feature_collection(Georeference.joins(:collection_objects).where(collection_objects: {id: @otus.map(&:collection_objects).flatten.pluck(:id).uniq})).to_json.html_safe
+%>;
 if (result_collection) {
   if ($("#show_map").attr("hidden") != "hidden") {
     TW.vendor.lib.google.maps.loadGoogleMapsAPI().then(resolve = > {
