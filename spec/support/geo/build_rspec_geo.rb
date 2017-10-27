@@ -1465,7 +1465,10 @@ def generate_collecting_events(user = nil)
 
   # this is an orphaned collection object, which can only be found by direct reference
   @td_00 = FactoryGirl.create(:valid_taxon_determination)
+  @td_00.otu.name = 'Don\'t find me!'
+  @td_00.otu.save
   @co_00 = @td_00.biological_collection_object
+  @co_00.save
 
   @ce_m1          = FactoryGirl.create(:collecting_event,
                                        start_date_year:   1971,
