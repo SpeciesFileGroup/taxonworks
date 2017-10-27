@@ -48,6 +48,10 @@ Object.assign(TW.views.tasks.collection_objects, {
         that.toggleFilter();
         that.ajaxRequest(event, "find");
       });
+
+      $("#tag_all_button").click(function (event) {
+        that.tagForm(event);
+      });
       
       $("#download_button").click(function (event) {
         if (that.validateMaxResults(1000)) {
@@ -251,6 +255,7 @@ Object.assign(TW.views.tasks.collection_objects, {
     else {
       $("#find_area_and_date_commit").attr("disabled", "disabled");
       $("#download_button").attr("disabled", "disabled");
+      $("#tag_all_button").attr("disabled", "disabled");
     }
     this.cleanResults();
   },
@@ -298,7 +303,7 @@ Object.assign(TW.views.tasks.collection_objects, {
   },
   
   downloadForm: function (event) {
-    event.preventDefault;
+    event.preventDefault();
     if (this.validateMaxResults(1000)) {
       $('#download_form').attr('action', "download?" + this.serializeFields()).submit();
     }
@@ -306,6 +311,29 @@ Object.assign(TW.views.tasks.collection_objects, {
       $("body").append('<div class="alert alert-error"><div class="message">To Download- refine result to less than 1000 records</div><div class="alert-close"></div></div>');
       return false;
     }
+  },
+
+  tagForm: function (event) {
+    $("#tag_all_form").mx_spinner("show");
+    event.preventDefault();
+        $.ajax({
+          url:'tag_all?' + this.serializeFields(),
+          type:'post',
+          data: $("#tag_all_form").serialize(),
+          dataType: 'json',
+          success:function() {
+            TW.workbench.alert.create('All tags was successfully created.', 'notice')
+            var eventTag = new CustomEvent('tag:update', {
+              detail: {
+                update: true
+              }
+            });
+            document.dispatchEvent(eventTag);
+          },
+          complete: function() {
+            $("#tag_all_form").mx_spinner("hide");
+          }
+      });
   },
   
   ajaxRequest: function (event, href) {
@@ -315,21 +343,12 @@ Object.assign(TW.views.tasks.collection_objects, {
         // $("#find_item").mx_spinner('hide');  # this has been relocated to .../find.js.erb
       });//, 'json'  // I expect a json response
       $("#download_button").removeAttr("disabled");
+      $("#tag_all_button").removeAttr("disabled");
     }
     else {
       $("body").append('<div class="alert alert-error"><div class="message">Incorrect dates</div><div class="alert-close"></div></div>');
     }
     event.preventDefault();
-  },
-  
-  validateDate: function (value) {
-    if (is_valid_date($(value).val())) {
-      $(value).val(dateFormat(new Date($(value).val()), 'yyyy-MM-dd')); // Update the value of input field to prevent bad date with zero
-      $(value).parent().find(".warning-date").text("");
-    }
-    else {
-      $(value).parent().find(".warning-date").text("Invalid date, please verify you're using the correct format: (yyyy/mm/dd)");
-    }
   },
   
   validateDates: function () {

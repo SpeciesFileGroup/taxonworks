@@ -37,6 +37,10 @@ Object.assign(TW.views.tags.tag_icon, {
 			}
 		});
 
+		$(document).on('tag:update', function(event) {
+			that.checkExist(that.objectElement);
+		});
+
 		$(document).on('tag:create', function(event) {
 			that.CTVCount = event.detail.keyword_count;
 			$(that.objectElement).attr('title', '<p>Remove ' + that.getDefaultString() + ' tag</p>' + that.createCountLabel());
@@ -217,7 +221,6 @@ $(document).on('turbolinks:load', function() {
 	if($(".default_tag_widget").length) {
 		var newTags = [];
 		$(".default_tag_widget").each(function() {
-			console.log($(this));
 	  		tag = Object.assign({}, TW.views.tags.tag_icon);
 	  		tag.init(this);
 	  		newTags.push(tag);
