@@ -122,8 +122,19 @@ Object.assign(TW.views.tasks.collection_objects, {
       that.toggleFilter();
     });
     
-    $("#set_date_form").on("submit", function() {
+    $("#search_start_date, #search_end_date").on("change", function(event) {
+      that.updateRangePicker(new Date($("#search_start_date").val()), new Date($("#search_end_date").val()));
+      event.preventDefault();
+    })
+
+    $("#set_date_form").on("submit", function(event) {
       that.update_and_graph()
+      return false;
+    })
+
+    $("#set_date_form").on("submit", function(event) {
+      that.update_and_graph()
+      return false;
     })
 
     $("#partial_toggle").change(function (event) {
