@@ -122,13 +122,9 @@ Object.assign(TW.views.tasks.collection_objects, {
       that.toggleFilter();
     });
     
-    $("#search_start_date").change(function (event) {
-      that.update_and_graph(event)
-    });    // listener for keyboard
-    
-    $("#search_end_date").change(function (event) {
-      that.update_and_graph(event)
-    });    // change of date
+    $("#set_date_form").on("submit", function() {
+      that.update_and_graph()
+    })
 
     $("#partial_toggle").change(function (event) {
       if ($("#date_count").text() != "????") {
@@ -197,10 +193,9 @@ Object.assign(TW.views.tasks.collection_objects, {
     $("#paging_span").show();
   },
   
-  update_and_graph: function (event) {
+  update_and_graph: function () {
     var that = this;
     
-    this.validateDate(event.target);
     if (this.validateDates()) {
       this.updateRangePicker(new Date($("#search_start_date").val()), new Date($("#search_end_date").val()));
       $("#select_date_range").mx_spinner('show');
@@ -211,7 +206,6 @@ Object.assign(TW.views.tasks.collection_objects, {
         that.validateResultForFind();
       }, 'json');  // I expect a json response
     }
-    event.preventDefault();
   },
   
   cleanResults: function () {
