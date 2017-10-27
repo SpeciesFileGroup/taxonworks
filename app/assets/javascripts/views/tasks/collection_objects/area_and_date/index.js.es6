@@ -98,40 +98,25 @@ Object.assign(TW.views.tasks.collection_objects, {
     
     $("[name='date_type_select']").change(function (event) {
       $.get('get_dates_of_type', $("#set_user_date_range_form").serialize(), function (local_data) {
-        set_control($("#user_date_range_start"), $("#user_date_range_start"), format, year, local_data.first_date);
-        set_control($("#user_date_range_end"), $("#user_date_range_end"), format, year, local_data.last_date);
-        // $("#user_date_range_start").text(local_data.first_date);
-        // $("#user_date_range_end").text(local_data.last_date);
         that.validateResultForFind();
       }, 'json');
       event.preventDefault();
     });
-  
-    var today = new Date();
-    var year = today.getFullYear();
-    var format = 'yy/mm/dd';
-    var dateInput;
     
     this.validateResultForFind();
+
+    var formatDate = 'yyyy-MM-dd';
+    var startDate = new Date($("#earliest_date").text());
+    var endDate = new Date($("#latest_date").text());
+    var offset = endDate - startDate;
   
-    set_control($("#search_start_date"), $("#search_start_date"), format, year, $("#earliest_date").text());
-    set_control($("#search_end_date"), $("#search_end_date"), format, year, $("#latest_date").text());
-    set_control($("#user_date_range_start"), $("#user_date_range_start"), format, year, $("#first_created").text());
-    set_control($("#user_date_range_end"), $("#user_date_range_end"), format, year, $("#last_created").text());
-    
-    function set_control(control, input, format, year, st_en_day) {
-      if (control.length) {
-        control.datepicker({
-          defaultDate: new Date(st_en_day),
-          altField: input,
-          dateFormat: format,
-          changeMonth: true,
-          changeYear: true,
-          yearRange: "1700:" + year
-        });
-        input.val(st_en_day);
-      }
-    }
+    $("#search_start_date").val(dateFormat((startDate), formatDate));
+    $("#search_end_date").val(dateFormat(new Date($("#latest_date").text()), formatDate));
+    this.setMinAndMaxDate($("#search_start_date"), dateFormat((startDate), formatDate), dateFormat((endDate), formatDate));
+    this.setMinAndMaxDate($("#search_end_date"), dateFormat((startDate), formatDate), dateFormat((endDate), formatDate));
+
+    $("#user_date_range_start").val(dateFormat(new Date($("#first_created").text()), formatDate));
+    $("#user_date_range_end").val(dateFormat(new Date($("#last_created").text()), formatDate));
     
     $(".filter-button").on("click", function () {
       that.toggleFilter();
@@ -145,32 +130,11 @@ Object.assign(TW.views.tasks.collection_objects, {
       that.update_and_graph(event)
     });    // change of date
 
-    $("#st_fixedpicker").change(function (event) {
-      that.update_and_graph(event)
-    });   // listener for day
-
-    $("#en_fixedpicker").change(function (event) {
-      that.update_and_graph(event)
-    });   // click date change
-
-    $("#ud_st_fixedpicker").change(function (event) {
-      that.updateUserDateRange(event)
-    });   // listener for day
-
-    $("#ud_en_fixedpicker").change(function (event) {
-      that.updateUserDateRange(event)
-    });   // click date change
-
     $("#partial_toggle").change(function (event) {
       if ($("#date_count").text() != "????") {
         that.update_and_graph(event)
       }
     });   // click date change
-    
-    
-    var startDate = new Date($("#earliest_date").text());
-    var endDate = new Date($("#latest_date").text());
-    var offset = endDate - startDate;
     
     this.updateRangePicker(startDate, endDate);
     
@@ -180,24 +144,20 @@ Object.assign(TW.views.tasks.collection_objects, {
       var newEndText = $(".label.select-label")[0].textContent;
       var newStartDate = (new Date(newStartText)) / range_factor;
       var newEndDate = range_factor * (new Date(newEndText));
-      $("#search_start_date").val(newStartText);
-      $("#search_end_date").val(newEndText);
+      $("#search_start_date").val(dateFormat(new Date(newStartText), formatDate));
+      $("#search_end_date").val(dateFormat(new Date(newEndText), formatDate));
       
       that.update_and_graph(event);
       $(".label.range-label")[0].textContent = $(".label.select-label")[1].textContent;
       $(".label.range-label")[1].textContent = $(".label.select-label")[0].textContent;
-      
-      //Synchronize datapicker with rangepicker
-      $("#st_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date(newStartText), "yyyy/MM/dd")));
-      $("#en_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date(newEndText), "yyyy/MM/dd")));
       
       that.updateRangePicker(newStartDate, newEndDate);
       
     });
     
     $("#reset_slider").click(function (event) {
-        $("#search_start_date").val($("#earliest_date").text());
-        $("#search_end_date").val($("#latest_date").text());
+        $("#search_start_date").val(dateFormat(new Date($("#earliest_date").text()), formatDate));
+        $("#search_end_date").val(dateFormat(new Date($("#latest_date").text()), formatDate));
         that.updateRangePicker(startDate, endDate);
         $("#graph_frame").empty();
         $("#date_count").text("????");
@@ -206,31 +166,13 @@ Object.assign(TW.views.tasks.collection_objects, {
       }
     );
     
-    // TODO: toggle_slide_calendar no longer exists in the HTML, should be removed from This module
-    // $("#toggle_slide_calendar").click(function () {
-    //   $("#tr_slider").toggle(250);
-    //   $("#tr_calendar").toggle(250);
-    //   if ($("#toggle_slide_calendar").val() == 'Use Calendar') {
-    //     $("#toggle_slide_calendar").val("Use Slider");
-    //   }
-    //   else {
-    //     $("#toggle_slide_calendar").val("Use Calendar");
-    //   }
-    // });
     $(".map_toggle").remove();
     $(".on_selector").remove();
   },
 
-  updateUserDateRange: function () {
-    // var newStartText = $(".label.select-label")[1].textContent;
-    // var newEndText = $(".label.select-label")[0].textContent;
-    // var newStartDate = (new Date(newStartText)) / range_factor;
-    // var newEndDate = range_factor * (new Date(newEndText));
-    // $("#search_start_date").val(newStartText);
-    // $("#search_end_date").val(newEndText);
-
-    $("#ud_st_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date('1700/01/01'), "yyyy/MM/dd")));
-    $("#ud_en_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date('2017/10/12'), "yyyy/MM/dd")));
+  setMinAndMaxDate: function(element, min, max) {
+    $(element).attr('min', min);
+    $(element).attr('max', max);
   },
 
   switchMap: function () {
@@ -377,7 +319,7 @@ Object.assign(TW.views.tasks.collection_objects, {
   
   validateDate: function (value) {
     if (is_valid_date($(value).val())) {
-      $(value).val(convert_date_to_string($(value).val())); // Update the value of input field to prevent bad date with zero
+      $(value).val(dateFormat(new Date($(value).val()), 'yyyy-MM-dd')); // Update the value of input field to prevent bad date with zero
       $(value).parent().find(".warning-date").text("");
     }
     else {
