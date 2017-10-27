@@ -106,7 +106,7 @@ module Queries
 
     # @return [Scope]
     def nomenclature_scope
-      Otu.joins(:collecting_event).where(CollectingEvent.date_sql_from_dates(start_date, end_date, query_date_partial_overlap))
+      Otu.where(taxon_name: taxon_name)
       #date_sql_from_dates(start_date, end_date, query_date_partial_overlap ))
     end
 
