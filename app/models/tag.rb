@@ -96,7 +96,8 @@ class Tag < ApplicationRecord
   end
 
   def self.tag_objects(objects, keyword_id = nil)
-    return nil if keyword_id.nil? or objects.empty?
+    return nil if keyword_id.nil? or !objects.any?
+    raise 'cross project tagging of objects detected' if objects.first.project_id != Keyword.find(keyword_id).project_id
     objects.each do |o|
       o.tags << Tag.new(keyword_id: keyword_id)
     end

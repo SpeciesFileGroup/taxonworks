@@ -34,6 +34,14 @@
                 <%= form_tag(download_collection_object_filter_result_url, id: 'download_form', method: :get) do %>
                   <%= submit_tag('Download', id: :download_button, disabled: :disabled) %>
                 <% end %>
+
+                <% if k = inserted_pinboard_item_object_for_klass('Keyword') -%>
+                  <%= form_tag(tag_all_collection_object_filter_result_path, id: 'tag_all_form', format: :json) do %>
+                    <%= hidden_field_tag :keyword_id, k.id %> 
+                    <%= submit_tag("Tag all with #{k.name}", id: :tag_all_button) %>
+                  <% end %>
+                <% end %>
+
               </div>
             </div>
           </div>

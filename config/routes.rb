@@ -117,7 +117,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       get 'filter', defaults: {format: :json}
-  end
+    end
   end
 
   resources :confidences do # , except: [:edit, :show]
@@ -195,7 +195,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes, :shallow_annotation_routes]
     collection do
       get :filter
-  end
+    end
   end
 
   resources :controlled_vocabulary_terms do
@@ -214,7 +214,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       patch :sort
-  end
+    end
   end
 
   resources :descriptors do
@@ -511,7 +511,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       get :taxon_name_classification_types
-  end
+    end
     member do
       get :show, {format: :json}
     end
@@ -522,7 +522,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       get :type_relationships, {format: :json}
       get :taxon_name_relationship_types, {format: :json}
-  end
+    end
   end
 
   resources :topics, only: [:create] do
@@ -588,7 +588,6 @@ TaxonWorks::Application.routes.draw do
         get 'find', as: 'find_sources_task'
       end
     end
-
 
     scope :collecting_events do
       scope :parse do
@@ -951,13 +950,13 @@ TaxonWorks::Application.routes.draw do
       get '/character_states/:id/annotations',
         to: 'character_states#annotations'
 
-end
+    end
   end
 
   scope :api, :defaults => { :format => :html } do
     scope  '/v1' do
       get '/taxon_names/autocomplete',
-          to: 'taxon_names#autocomplete'
+        to: 'taxon_names#autocomplete'
     end
   end
 

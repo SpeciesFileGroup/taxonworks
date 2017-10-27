@@ -26,7 +26,7 @@ module TagsHelper
   end
 
   def tag_default_icon(object)
-    content_tag(:span, 'Tag', 'data-tag-object-global-id' => object.to_global_id.to_s, class: [:default_tag_widget, 'circle-button', 'btn-disabled'])
+    content_tag(:span, 'Tag', data: {'tag-object-global-id' => object.to_global_id.to_s, 'is-default-tagged' => is_default_tagged?(object) }, class: [:default_tag_widget, 'circle-button', 'btn-disabled'])
   end
 
   def tag_link(tag)
@@ -57,6 +57,17 @@ module TagsHelper
   #   indicates a custom partial should be used, see list_helper.rb
   def tags_recent_objects_partial
     true
+  end
+
+  # Session related helpers
+
+  # @return [Boolean]
+  #   true if the object is tagged, and is tagged with thekeyword presently defaulted on the pinboard
+  def is_default_tagged?(object)
+    return false if object.blank?
+    keyword = inserted_pinboard_item_object_for_klass('Keyword')
+    return false if keyword.blank?
+    Tag.where(tag_object: object, keyword: keyword).any?
   end
 
 end
