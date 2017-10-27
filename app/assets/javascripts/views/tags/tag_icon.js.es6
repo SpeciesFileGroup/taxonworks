@@ -13,7 +13,16 @@ Object.assign(TW.views.tags.tag_icon, {
 
 		var that = this;
 		this.objectElement = element;
-		this.checkExist(this.objectElement);
+		this.CTVCount = $(element).attr('data-inserted-keyword-count');
+		if($(element).attr('data-default-tagged-id') == "false") {
+			that.setAsCreate(element);
+		}
+		else {
+			that.setAsDelete(element, $(this).attr('data-default-tagged-id'));
+		}
+
+		$(this).removeAttr('data-is-default-tagged');
+
 		$(document).off('pinboard:insert');
 		$(document).on('pinboard:insert', function(event) {
 			if(event.detail.type === "ControlledVocabularyTerm") {
@@ -30,8 +39,8 @@ Object.assign(TW.views.tags.tag_icon, {
 					});
 				}
 				else {
-					if($(this).attr('data-tag-id')) {
-						that.deleteTag($(this).attr('data-tag-object-global-id'), $(this).attr('data-tag-id')).then(response => {
+					if($(this).attr('data-default-tagged-id')) {
+						that.deleteTag($(this).attr('data-tag-object-global-id'), $(this).attr('data-default-tagged-id')).then(response => {
 							TW.workbench.alert.create('Tag was successfully removed.','notice')
 							that.setAsCreate(this);
 						});
@@ -110,7 +119,7 @@ Object.assign(TW.views.tags.tag_icon, {
 		$(element).removeClass('btn-tag-add');
 		$(element).addClass('circle-button');
 		$(element).addClass('btn-tag-delete');
-		$(element).attr('data-tag-id', tagId);
+		$(element).attr('data-default-tagged-id', tagId);
 		this.createTooltip(element);
 	},
 
@@ -118,7 +127,7 @@ Object.assign(TW.views.tags.tag_icon, {
 		$(element).attr('title', '<p>Create tag: ' + this.getDefaultString() + '</p>'+ this.createCountLabel());
 		$(element).removeClass('btn-disabled');
 		$(element).removeClass('btn-tag-delete');
-		$(element).removeAttr('data-tag-id');
+		$(element).removeAttr('data-default-tagged-id');
 		$(element).addClass('circle-button');
 		$(element).addClass('btn-tag-add');
 		this.createTooltip(element);
@@ -128,7 +137,7 @@ Object.assign(TW.views.tags.tag_icon, {
 		$(element).attr('title', '<p>Select a default CVT first.</p>');
 		$(element).addClass('btn-tag-add');
 		$(element).addClass('btn-disabled');
-		$(element).removeAttr('data-tag-id');
+		$(element).removeAttr('data-default-tagged-id');
 		this.createTooltip(element);
 	},
 
@@ -143,6 +152,7 @@ Object.assign(TW.views.tags.tag_icon, {
 		var globalId = $(element).attr('data-tag-object-global-id');
 		var defaultTag = this.getDefault();
 		var that = this;
+
 		if(defaultTag) {
 			var url = "/tags/exists?global_id=" + globalId + "&keyword_id=" + defaultTag;
 

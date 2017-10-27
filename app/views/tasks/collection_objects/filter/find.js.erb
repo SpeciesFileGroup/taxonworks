@@ -7,6 +7,10 @@ $("#show_list").html(html);
 $("#find_item").mx_spinner('hide');
 $("body").mx_spinner('hide');
 
+$(".default_tag_widget").each(function() {
+  	TW.views.tags.tag_icon.init(this);
+})
+
 var paging;
 paging = $('<%= j(render(partial: 'paging_data')) %>');
 $("#paging_span").html(paging);
