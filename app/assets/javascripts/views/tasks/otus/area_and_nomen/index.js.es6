@@ -32,7 +32,7 @@ Object.assign(TW.views.tasks.otus, {
       });
       
       $("#set_area").click(function (event) {      // register the click handler for the made-from-scratch-button
-          $("#area_count").text('????');
+          $("#area_count").text('----');
           $("#select_area").mx_spinner('show');
           $.get('set_area', $("#set_area_form").serialize(), function (local_data) {
             let popcorn = local_data;

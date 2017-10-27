@@ -52,12 +52,8 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
         describe '#find', js: true do
           before {
             visit(index_path)
-            # fill_area_picker_autocomplete('area_picker_autocomplete', with: 'Great Northern', select: gnlm.id)
-            find('#label_toggle_slide_area').click
-            wait_for_ajax
-            execute_script("document.getElementById('drawn_area_shape').type = 'text'")
-            this_xpath = find(:xpath, "//input[@id='drawn_area_shape']")
-            this_xpath.set json_string
+            find('#area_picker_autocomplete').set('Great')
+            fill_area_picker_autocomplete('area_picker_autocomplete', with: 'Great Northern', select: gnlm.id)
             click_button('Set area')
             wait_for_ajax
             find('#find_area_and_nomen_commit').click
@@ -65,7 +61,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           }
 
           it 'renders count of objects and table found using a drawn area and date range' do
-            find('#area_count', visible: true, text: '10')
+            find('#area_count', visible: true, text: '1')
             expect(find(:xpath, "//div['show_list']/table[@class='tablesorter']/thead")).to have_text('Catalog Number')
           end
         end
