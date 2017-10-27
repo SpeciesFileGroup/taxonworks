@@ -1,4 +1,4 @@
-#co_by_area_and_date {
+#co_by_area_and_date, #otu_by_area_and_nomen {
 	position: relative;
 
 	h1, h2 {		
@@ -23,7 +23,7 @@
 		background-image: image-url("filter.svg");
 	}
 
-	#find_area_and_date_commit {
+	#find_area_and_date_commit, #find_area_and_nomen_commit {
 		@extend .button-default;
 		top:15px;
 		right: 20px;
@@ -48,7 +48,7 @@
 		padding-left: $standard_padding;
 		list-style: none;
 	}
-	#filter-collection-objects {
+	#filter-collection-objects, #filter-otus {
 
 		.panel, .slide-panel {
 			box-sizing: border-box;
