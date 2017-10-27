@@ -68,8 +68,17 @@ module Features
     def fill_area_picker_autocomplete(field, options = {})
       css_selector = %Q{li.ui-menu-item a[data-geographic-area-id="#{options[:select]}"]}
       fill_in field, with: options[:with]
-      wait_for_ajax
-      expect(page).to have_css(css_selector)
+      # havecssselector = have_css(css_selector).matches?(css_selector)
+      counter = 100000
+      until counter < 0
+        counter -= 1
+        # wait_for_ajax
+        # havecssselector = have_css(css_selector).matches?(css_selector)
+        if have_css(css_selector).matches?(css_selector)
+          break
+        end
+      end
+      # expect(page).to have_css(css_selector)
       page.execute_script(%Q{ $('#{css_selector}').trigger('mouseenter').click(); })
     end
 

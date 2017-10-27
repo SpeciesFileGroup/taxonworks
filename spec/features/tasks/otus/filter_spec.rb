@@ -35,7 +35,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
             page.execute_script "$('#set_area')[0].scrollIntoView()"
             fill_area_picker_autocomplete('area_picker_autocomplete', with: 'Great Northern', select: gnlm.id)
             click_button('Set area')
-            expect(find('#area_count')).to have_text('16')
+            expect(find('#area_count')).to have_text('14')
           end
 
           it 'renders count of otus in a drawn area' do

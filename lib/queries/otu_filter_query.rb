@@ -105,6 +105,12 @@ module Queries
     end
 
     # @return [Scope]
+    def nomenclature_scope
+      Otu.joins(:collecting_event).where(CollectingEvent.date_sql_from_dates(start_date, end_date, query_date_partial_overlap))
+      #date_sql_from_dates(start_date, end_date, query_date_partial_overlap ))
+    end
+
+    # @return [Scope]
     def date_scope
       Otu.joins(:collecting_event).where(CollectingEvent.date_sql_from_dates(start_date, end_date, query_date_partial_overlap))
       #date_sql_from_dates(start_date, end_date, query_date_partial_overlap ))
