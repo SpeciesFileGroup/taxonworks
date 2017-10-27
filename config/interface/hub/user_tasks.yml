@@ -178,8 +178,8 @@ otus_filter_task:
   hub: true
   name: 'OTU lookup by geography, nomenclature, or author'
   related:
-  categries:
-    -- otu
+  categories:
+    - otu
   status: prototype
   description: 'Find OTUs nomenclaturally or geographically'
 
