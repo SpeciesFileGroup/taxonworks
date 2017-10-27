@@ -87,16 +87,27 @@ class LoanItemsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
+  end
+
+  # POST /loan_items/batch_create?keyword_id=123&klass=Otu
+  def batch_create
+    if r = LoanItem.batch_create(batch_params)
+      render json: {success: true}
+    else
+      render json: {success: false}
+    end 
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_loan_item
       @loan_item = LoanItem.with_project_id(sessions_current_project_id).find(params[:id])
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
+    def batch_params
+      params.permit(:batch_type, :loan_id, :keyword_id, :klass).symbolize_keys.merge(project_id: sessions_current_project_id, user_id: sessions_current_user_id)
+    end
+
     def loan_item_params
       params.require(:loan_item).permit(
         :loan_id, :collection_object_status, :date_returned, :loan_item_object_id, :loan_item_object_type,

@@ -62,4 +62,8 @@ module LoansHelper
      '.'
   end 
 
+  def keywords_on_loanable_items
+    Keyword.joins(:tags).where(project_id: sessions_current_project_id).where(tags: {tag_object_type: ['Container', 'Otu', 'CollectionObject']}).distinct.all
+  end 
+
 end

@@ -300,6 +300,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :loan_items do
     concerns [:data_routes]
+    collection do
+      post :batch_create
+    end
   end
 
   resources :namespaces do

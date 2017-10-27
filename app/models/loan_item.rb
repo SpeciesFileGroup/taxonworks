@@ -145,6 +145,59 @@ class LoanItem < ApplicationRecord
     true
   end
 
+  # TODO: param handling is currently all kinds of "meh"
+  def self.batch_create(params)
+    case params[:batch_type] 
+    when :tags
+      batch_create_from_tags(params[:keyword_id],params[:klass], params[:loan_id])
+    when :pinboard
+      batch_create_from_pinboard(params[:loan_id], params[:project_id], params[:user_id], params[:klass])
+    end
+  end
+
+  def self.batch_create_from_tags(keyword_id, klass, loan_id)
+    created = []
+    LoanItem.transaction do
+      begin
+        if klass
+          klass.constantize.joins(:tags).where(tags: {keyword_id: keyword_id}).each do |o|
+            created.push LoanItem.create(loan_item_object: o, loan_id: loan_id)
+          end
+        else
+          Tag.where(keyword_id: keyword_id).where(tag_object_type: ['Container', 'Otu', 'CollectionObject']).distinct.all.each do |o|
+            created.push LoanItem.create(loan_item_object: o, loan_id: loan_id)
+          end
+        end
+      rescue ActiveRecord::RecordInvalid
+        return false
+      end
+    end
+    return created
+  end
+
+
+  def self.batch_create_from_pinboard(loan_id, project_id, user_id, klass)
+    return false if loan_id.blank? || project_id.blank? || user_id.blank?
+    created = []
+    LoanItem.transaction do
+      begin
+        if klass
+          klass.constantize.joins(:pinboard_items).where(pinboard_items: {user_id: user_id, project_id: project_id, pinned_object_type: klass}).each do |o| 
+            created.push LoanItem.create(loan_item_object: o, loan_id: loan_id)
+          end
+        else
+          PinboardItem.where(project_id: project_id, user_id: user_id, pinned_object_type: ['Container', 'Otu', 'CollectionObject']).all.each do |o|
+            created.push LoanItem.create(loan_item_object: o.pinned_object, loan_id: loan_id)
+          end
+        end
+      rescue ActiveRecord::RecordInvalid
+        return false
+      end
+    end
+    return created
+  end
+
+
   protected
 
   def total_provided_only_when_otu
