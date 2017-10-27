@@ -8,26 +8,45 @@ Object.assign(TW.views.tags.tag_icon, {
 	objectElement: undefined,
 	CTVCount: 0,
 	toolTip: undefined,
+	isTagged: undefined,
 
 	init: function(element) {
 
 		var that = this;
 		this.objectElement = element;
-		this.CTVCount = $(element).attr('data-inserted-keyword-count');
-		if($(element).attr('data-default-tagged-id') == "false") {
-			that.setAsCreate(element);
+		if(this.getDefault()) {
+			this.CTVCount = $(element).attr('data-inserted-keyword-count');
+			if($(element).attr('data-default-tagged-id') == "false") {
+				this.isTagged = false;
+				that.setAsCreate(element);
+			}
+			else {
+				this.isTagged = true;
+				that.setAsDelete(element, $(this).attr('data-default-tagged-id'));
+			}
 		}
 		else {
-			that.setAsDelete(element, $(this).attr('data-default-tagged-id'));
+			this.setAsDisable(element);
 		}
 
 		$(this).removeAttr('data-is-default-tagged');
 
-		$(document).off('pinboard:insert');
 		$(document).on('pinboard:insert', function(event) {
 			if(event.detail.type === "ControlledVocabularyTerm") {
 				that.checkExist(that.objectElement);
 			}
+		});
+
+		$(document).on('tag:create', function(event) {
+			that.CTVCount = event.detail.keyword_count;
+			$(that.objectElement).attr('title', '<p>Remove ' + that.getDefaultString() + ' tag</p>' + that.createCountLabel());
+			that.createTooltip(that.objectElement);
+		});
+
+		$(document).on('tag:delete', function(event) {
+			that.CTVCount = event.detail.keyword_count;
+			$(that.objectElement).attr('title', '<p>Remove ' + that.getDefaultString() + ' tag</p>' + that.createCountLabel());
+			that.createTooltip(that.objectElement);
 		});
 
 		$(element).on('click', function() {
@@ -35,19 +54,32 @@ Object.assign(TW.views.tags.tag_icon, {
 				if($(this).hasClass('btn-tag-add')) {
 					that.createTag($(this).attr('data-tag-object-global-id'), that.getDefault()).then(response => {
 						TW.workbench.alert.create('Tag was successfully updated.', 'notice')
+						that.CTVCount++;
 						that.setAsDelete(this, response.id);
+						that.eventTag('tag:create', that.CTVCount);
 					});
 				}
 				else {
 					if($(this).attr('data-default-tagged-id')) {
 						that.deleteTag($(this).attr('data-tag-object-global-id'), $(this).attr('data-default-tagged-id')).then(response => {
 							TW.workbench.alert.create('Tag was successfully removed.','notice')
+							that.CTVCount--;
 							that.setAsCreate(this);
+							that.eventTag('tag:delete', that.CTVCount);
 						});
 					}
 				}
 			}
 		});
+	},
+
+	eventTag: function(event, count) {
+		var event = new CustomEvent(event, {
+		  detail: {
+		  	keyword_count: count
+		  }
+		});
+		document.dispatchEvent(event);
 	},
 
 	createTooltip: function(element) {
@@ -182,7 +214,13 @@ Object.assign(TW.views.tags.tag_icon, {
 });
 
 $(document).on('turbolinks:load', function() {
-  $(".default_tag_widget").each(function() {
-  	TW.views.tags.tag_icon.init(this);
-  })
+	if($(".default_tag_widget").length) {
+		var newTags = [];
+		$(".default_tag_widget").each(function() {
+			console.log($(this));
+	  		tag = Object.assign({}, TW.views.tags.tag_icon);
+	  		tag.init(this);
+	  		newTags.push(tag);
+		})
+	}
 });
