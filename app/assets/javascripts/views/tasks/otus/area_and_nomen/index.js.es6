@@ -43,7 +43,19 @@ Object.assign(TW.views.tasks.otus, {
           event.preventDefault();
         }
       );
-      
+
+      $("#set_otu").click(function (event) {
+          $("#otu_count").text('????');
+          $("#select_otu").mx_spinner('show');
+          $.get('set_otu', $("#set_otu_form").serialize(), function (local_data) {
+            $("#otu_count").text(local_data.html);
+            $("#select_otu").mx_spinner('hide');
+            that.validateResultForFind();
+          }, 'json');
+          event.preventDefault();
+        }
+      );
+
       $("#find_area_and_nomen_commit").click(function (event) {
         that.toggleFilter();
         that.ajaxRequest(event, "find");
@@ -145,6 +157,7 @@ Object.assign(TW.views.tasks.otus, {
     // let newEndDate = range_factor * (new Date(newEndText));
     // $("#search_start_date").val(newStartText);
     // $("#search_end_date").val(newEndText);
+    alert();
     
     $("#ud_st_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date('1700/01/01'), "yyyy/MM/dd")));
     $("#ud_en_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date('2017/10/12'), "yyyy/MM/dd")));

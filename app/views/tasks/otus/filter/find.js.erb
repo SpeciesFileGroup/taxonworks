@@ -1,12 +1,12 @@
 // j is an alias for escape_javascript
 var html;
 var mark_area_and_nomen = true;
-$("#find_item").mx_spinner('show');
+//$("#find_item").mx_spinner('show');
 html = $('<%=
   j(render(partial: 'result_list', locals:  {otus: @otus}))
 %>');
 $("#show_list").html(html);
-alert('Help me!');
+TW.views.tasks.otus.updateUserDateRange();
 $("#find_item").mx_spinner('hide');
 $("body").mx_spinner('hide');
 
