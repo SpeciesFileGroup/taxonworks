@@ -41,6 +41,9 @@ def clean_slate_geo # rubocop:disable Metrics/AbcSize
 
   GeographicAreaHierarchy.delete_all
 
+  TaxonName.delete_all
+  Otu.delete_all
+
   true
 end
 
