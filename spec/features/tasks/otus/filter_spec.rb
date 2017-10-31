@@ -52,7 +52,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
         describe '#find', js: true do
           before {
             visit(index_path)
-            find('#area_picker_autocomplete').set('Great')
+            # find('#area_picker_autocomplete').set('Great')
             fill_area_picker_autocomplete('area_picker_autocomplete', with: 'Great Northern', select: gnlm.id)
             click_button('Set area')
             wait_for_ajax
@@ -61,7 +61,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           }
 
           it 'renders count of objects and table found using a drawn area and date range' do
-            find('#area_count', visible: true, text: '1')
+            find('#area_count', visible: true, text: '14')
             expect(find(:xpath, "//div['show_list']/table[@class='tablesorter']/thead")).to have_text('Catalog Number')
           end
         end

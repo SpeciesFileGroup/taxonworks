@@ -696,7 +696,7 @@ def generate_geo_test_objects(user_id, project_id, run_in_console = false, user 
 
   if my_debug
     puts
-    @debug_names.collect {|k, v| ' ' * 4 + v.to_s + ': ' + k.to_s}
+    @debug_names.collect { |k, v| ' ' * 4 + v.to_s + ': ' + k.to_s }
     puts @debug_names.invert[@p1]
     all_file = File.new('./tmp/all_file.json', 'w')
     all_file.write(@all_items.to_geo_json_feature)
@@ -1464,8 +1464,8 @@ def generate_collecting_events(user = nil)
   raise 'no user provided or determinable for generate_collecting_events' if user.nil?
 
   # this is an orphaned collection object, which can only be found by direct reference
-  @td_00 = FactoryGirl.create(:valid_taxon_determination)
-  @td_00.otu.name = 'Don\'t find me!'
+  @td_00          = FactoryGirl.create(:valid_taxon_determination)
+  @td_00.otu.name = 'Don\'t find me, I have no collecting event!'
   @td_00.otu.save
   @co_00 = @td_00.biological_collection_object
   @co_00.save
@@ -1479,7 +1479,7 @@ def generate_collecting_events(user = nil)
                                        geographic_area:   @area_m1)
   @td_m1          = FactoryGirl.create(:valid_taxon_determination)
   @co_m1          = @td_m1.biological_collection_object
-  @td_m1.otu.name = 'Find me'
+  @td_m1.otu.name = 'Find me, I\'m in M1!'
   @td_m1.otu.save
   @co_m1.collecting_event = @ce_m1
   @co_m1.save
@@ -1497,7 +1497,7 @@ def generate_collecting_events(user = nil)
                                verbatim_label:    '@ce_m1a',
                                geographic_area:   @area_m1)
   @co_m1a = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_m1a})
-  @co_m1a.otus << FactoryGirl.create(:valid_otu_with_taxon_name)
+  @co_m1a.otus << FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M1A')
   @gr_m1a = FactoryGirl.create(:georeference_verbatim_data,
                                api_request:           'gr_m1a',
                                collecting_event:      @ce_m1a,
@@ -1511,7 +1511,7 @@ def generate_collecting_events(user = nil)
                               verbatim_label:   '@ce_n1',
                               geographic_area:  @area_n1)
   @co_n1 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_n1})
-  @co_n1.otus << FactoryGirl.create(:valid_otu_with_taxon_name)
+  @co_n1.otus << FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N1, No georeference')
   # @gr_n1 = FactoryGirl.create(:georeference_verbatim_data,
   #                             api_request: 'gr_n1',
   #                             collecting_event: @ce_n1,
@@ -1525,7 +1525,7 @@ def generate_collecting_events(user = nil)
                               verbatim_label:   '@ce_o1',
                               geographic_area:  @area_o1)
   @co_o1 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_o1})
-  @co_o1.otus << FactoryGirl.create(:valid_otu_with_taxon_name)
+  @co_o1.otus << FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O1')
   @gr_o1 = FactoryGirl.create(:georeference_verbatim_data,
                               api_request:           'gr_o1',
                               collecting_event:      @ce_o1,
@@ -1539,7 +1539,7 @@ def generate_collecting_events(user = nil)
                               verbatim_label:   '@ce_p1',
                               geographic_area:  @area_p1)
   @co_p1 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_p1})
-  @co_p1.otus << FactoryGirl.create(:valid_otu_with_taxon_name)
+  @co_p1.otus << FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P1')
   @gr_p1 = FactoryGirl.create(:georeference_verbatim_data,
                               api_request:           'gr_p1',
                               collecting_event:      @ce_p1,
@@ -1553,7 +1553,7 @@ def generate_collecting_events(user = nil)
                               verbatim_label:   '@ce_m2 in Big Boxia',
                               geographic_area:  @area_big_boxia)
   @co_m2 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_m2})
-  @co_m2.otus << FactoryGirl.create(:valid_otu_with_taxon_name)
+  @co_m2.otus << FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M2')
   @gr_m2 = FactoryGirl.create(:georeference_verbatim_data,
                               api_request:           'gr_m2 in Big Boxia',
                               collecting_event:      @ce_m2,
@@ -1568,9 +1568,9 @@ def generate_collecting_events(user = nil)
                                 verbatim_label:   '@ce_n2',
                                 geographic_area:  @area_n2)
   @co_n2_a = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_n2})
-  @co_n2_a.otus << FactoryGirl.create(:valid_otu_with_taxon_name)
+  @co_n2_a.otus << FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N2A')
   @co_n2_b = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_n2})
-  @co_n2_b.otus << FactoryGirl.create(:valid_otu_with_taxon_name)
+  @co_n2_b.otus << FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N2B')
   @gr_n2_a = FactoryGirl.create(:georeference_verbatim_data,
                                 api_request:           'gr_n2_a',
                                 collecting_event:      @ce_n2,
@@ -1594,7 +1594,7 @@ def generate_collecting_events(user = nil)
                               error_geographic_item: @item_o2,
                               geographic_item:       GeographicItem.new(point: @item_o2.st_centroid))
   @co_o2 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_o2})
-  @co_o2.otus << FactoryGirl.create(:valid_otu_with_taxon_name)
+  @co_o2.otus << FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O2')
 
   @ce_p2 = FactoryGirl.create(:collecting_event,
                               start_date_year:  1978,
@@ -1608,7 +1608,7 @@ def generate_collecting_events(user = nil)
   #                               error_geographic_item: @item_p2,
   #                               geographic_item: GeographicItem.new(point: @item_p2.st_centroid))
   @co_p2 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_p2})
-  @co_p2.otus << FactoryGirl.create(:valid_otu_with_taxon_name)
+  @co_p2.otus << FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P2, No georeference')
 
   @ce_m3 = FactoryGirl.create(:collecting_event,
                               start_date_year:  1981,
@@ -1622,7 +1622,7 @@ def generate_collecting_events(user = nil)
                               error_geographic_item: @item_m3,
                               geographic_item:       GeographicItem.new(point: @item_m3.st_centroid))
   @co_m3 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_m3})
-  @co_m3.otus << FactoryGirl.create(:valid_otu_with_taxon_name)
+  @co_m3.otus << FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M3')
 
   @ce_n3 = FactoryGirl.create(:collecting_event,
                               start_date_year:   1982,
@@ -1640,7 +1640,7 @@ def generate_collecting_events(user = nil)
                               error_geographic_item: @item_n3,
                               geographic_item:       GeographicItem.new(point: @item_n3.st_centroid))
   @co_n3 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_n3})
-  @co_n3.otus << FactoryGirl.create(:valid_otu_with_taxon_name)
+  @co_n3.otus << FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N3')
 
   # @ce_o3 has no georeference
   @ce_o3 = FactoryGirl.create(:collecting_event,
@@ -1650,7 +1650,7 @@ def generate_collecting_events(user = nil)
                               verbatim_label:   '@ce_o3',
                               geographic_area:  @area_o3)
   @co_o3 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_o3})
-  @co_o3.otus << FactoryGirl.create(:valid_otu_with_taxon_name)
+  @co_o3.otus << FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O3, No georeference')
 
   # @ce_p3 has no georeference
   @ce_p3 = FactoryGirl.create(:collecting_event,
@@ -1660,7 +1660,7 @@ def generate_collecting_events(user = nil)
                               verbatim_label:   '@ce_p3',
                               geographic_area:  @area_s)
   @co_p3 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_p3})
-  @co_p3.otus << FactoryGirl.create(:valid_otu_with_taxon_name)
+  @co_p3.otus << FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P3, No georeference')
 
   @ce_m4 = FactoryGirl.create(:collecting_event,
                               start_date_year:  1985,
@@ -1674,7 +1674,7 @@ def generate_collecting_events(user = nil)
                               error_geographic_item: @item_m4,
                               geographic_item:       GeographicItem.new(point: @item_m4.st_centroid))
   @co_m4 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_m4})
-  @co_m4.otus << FactoryGirl.create(:valid_otu_with_taxon_name)
+  @co_m4.otus << FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M4')
 
   @ce_n4 = FactoryGirl.create(:collecting_event,
                               start_date_year:  1986,
@@ -1688,7 +1688,7 @@ def generate_collecting_events(user = nil)
                               error_geographic_item: @item_n4,
                               geographic_item:       GeographicItem.new(point: @item_n4.st_centroid))
   @co_n4 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_n4})
-  @co_n4.otus << FactoryGirl.create(:valid_otu_with_taxon_name)
+  @co_n4.otus << FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N4')
 
   @ce_o4 = FactoryGirl.create(:collecting_event,
                               start_date_year:  1987,
@@ -1702,7 +1702,7 @@ def generate_collecting_events(user = nil)
                               error_geographic_item: @item_o4,
                               geographic_item:       GeographicItem.new(point: @item_o4.st_centroid))
   @co_o4 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_o4})
-  @co_o4.otus << FactoryGirl.create(:valid_otu_with_taxon_name)
+  @co_o4.otus << FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O4')
 
   # ce_p4 does not have a geographic_area
   @ce_p4 = FactoryGirl.create(:collecting_event,
@@ -1717,9 +1717,10 @@ def generate_collecting_events(user = nil)
                               error_geographic_item: @item_p4,
                               geographic_item:       GeographicItem.new(point: @item_p4.st_centroid))
   @co_p4 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_p4})
-  @co_p4.otus << FactoryGirl.create(:valid_otu_with_taxon_name)
+  @co_p4.otus << FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P4')
 
-  # this one is just a collecting event, no georeferences or geographic_area
+  # this one is just a collecting event, no georeferences or geographic_area, so, even though it has an otu, that otu
+  # can't be found
   @ce_v = FactoryGirl.create(:collecting_event,
                              start_date_year:  1991,
                              start_date_month: 1,
@@ -1727,7 +1728,7 @@ def generate_collecting_events(user = nil)
                              verbatim_label:   '@ce_v',
                              geographic_area:  nil)
   @co_v = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_v})
-  @co_v.otus << FactoryGirl.create(:valid_otu_with_taxon_name)
+  @co_v.otus << FactoryGirl.create(:valid_otu_with_taxon_name, name: 'I can\'t be found!')
 
   # collecting events in superseded country
   @ce_old_boxia_1 = FactoryGirl.create(:collecting_event,
@@ -1764,6 +1765,29 @@ def generate_collecting_events(user = nil)
                                        # error_geographic_item: @item_f_i,
                                        geographic_item: GeographicItem.new(point: @item_f_i.st_centroid))
 
+  @otu_names      = {
+    co_00_o:   @co_00.otus.collect {|o| o.name},
+    co_m1_o:   @co_m1.otus.collect {|o| o.name},
+    co_m1a_o:  @co_m1a.otus.collect {|o| o.name},
+    co_n1_o:   @co_n1.otus.collect {|o| o.name},
+    co_o1_o:   @co_o1.otus.collect {|o| o.name},
+    co_p1_o:   @co_p1.otus.collect {|o| o.name},
+    co_m2_o:   @co_m2.otus.collect {|o| o.name},
+    co_n2_a_o: @co_n2_a.otus.collect {|o| o.name},
+    co_n2_b_o: @co_n2_b.otus.collect {|o| o.name},
+    co_o2_o:   @co_o2.otus.collect {|o| o.name},
+    co_p2_o:   @co_p2.otus.collect {|o| o.name},
+    co_m3_o:   @co_m3.otus.collect {|o| o.name},
+    co_n3_o:   @co_n3.otus.collect {|o| o.name},
+    co_o3_o:   @co_o3.otus.collect {|o| o.name},
+    co_p3_o:   @co_p3.otus.collect {|o| o.name},
+    co_m4_o:   @co_m4.otus.collect {|o| o.name},
+    co_n4_o:   @co_n4.otus.collect {|o| o.name},
+    co_o4_o:   @co_o4.otus.collect {|o| o.name},
+    co_p4_o:   @co_p4.otus.collect {|o| o.name},
+    co_v_o:    @co_v.otus.collect {|o| o.name}
+  }
+
   my_debug = false
 
   if my_debug
@@ -1787,7 +1811,7 @@ def generate_collecting_events(user = nil)
     item_collection = []
 
     all_file = File.new('./tmp/political_file.json', 'w')
-    political_names.collect {|_key, value|
+    political_names.collect { |_key, value|
       item_collection.push(value.geographic_area.geographic_items.first)
       item_collection.push(value.georeferences.first.geographic_item)
     }
