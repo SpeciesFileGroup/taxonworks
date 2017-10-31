@@ -1,12 +1,9 @@
 // j is an alias for escape_javascript
 var html;
 var mark_area_and_nomen = true;
-//$("#find_item").mx_spinner('show');
-html = $('<%=
-  j(render(partial: 'result_list', locals:  {otus: @otus}))
-%>');
+$("#find_item").mx_spinner('show');
+html = $('<%=  j(render(partial: 'result_list', locals:  {otus: @otus})) %>');
 $("#show_list").html(html);
-TW.views.tasks.otus.updateUserDateRange();
 $("#find_item").mx_spinner('hide');
 $("body").mx_spinner('hide');
 
@@ -22,17 +19,5 @@ if (message.length == 0) {
 }
 else {
   $("#result_span").text(message);
-}
-
-if ($("#show_map").attr("hidden") != "hidden") {
-  result_collection = <%=
-  # Gis::GeoJSON.feature_collection(Georeference.joins(:collection_objects).where(collection_objects: {id: @otus.map(&:collection_objects).flatten.pluck(:id).uniq})).to_json.html_safe
-%>;
-  if (result_collection) {
-    TW.vendor.lib.google.maps.loadGoogleMapsAPI().then(resolve => {
-      result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
-  })
-    ;
-  }
 }
 
