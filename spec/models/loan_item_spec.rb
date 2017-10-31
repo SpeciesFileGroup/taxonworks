@@ -26,7 +26,7 @@ describe LoanItem, type: :model, group: :loans do
   end
 
   context 'as part of a loan' do
-    
+
     before { loan_item.loan = loan }
 
     specify 'a specimen can be added to loan item' do
@@ -63,6 +63,81 @@ describe LoanItem, type: :model, group: :loans do
     end
   end
 
+  context '.batch_create' do
+    let(:s1) { FactoryGirl.create(:valid_specimen) } 
+    let(:s2) { FactoryGirl.create(:valid_specimen) } 
+    let(:o1) { FactoryGirl.create(:valid_otu) } 
+    let(:o2) { FactoryGirl.create(:valid_otu) } 
+    let(:c1) { FactoryGirl.create(:valid_container) } 
+    let(:c2) { FactoryGirl.create(:valid_container) } 
+
+    context 'from tags' do
+      let(:keyword) { FactoryGirl.create(:valid_keyword) }
+      let!(:t1) { Tag.create(keyword: keyword, tag_object: s1) }  
+      let!(:t2) { Tag.create(keyword: keyword, tag_object: o2) }  
+      let!(:t3) { Tag.create(keyword: keyword, tag_object: c1) }  
+
+      context 'not supplying klass' do
+        let(:params) { { keyword_id: keyword.id, batch_type: :tags, loan_id: loan.id } }
+        before { LoanItem.batch_create(params) }
+        specify 'loan_items are created for all types' do
+          expect(LoanItem.count).to eq(3)
+        end
+      end
+
+      context 'supplying klass' do
+        let(:params) { { keyword_id: keyword.id, batch_type: :tags, loan_id: loan.id } }
+
+        specify 'Otu' do
+          LoanItem.batch_create(params.merge(klass: 'Otu'))
+          expect(LoanItem.count).to eq(1)
+        end
+        
+        specify 'Container' do
+          LoanItem.batch_create(params.merge(klass: 'Container'))
+          expect(LoanItem.count).to eq(1)
+        end
+
+        specify 'CollectionObject' do
+          LoanItem.batch_create(params.merge(klass: 'CollectionObject'))
+          expect(LoanItem.count).to eq(1)
+        end
+      end
+    end
+
+    context 'from pinboard' do
+      let!(:p1) { PinboardItem.create!(pinned_object: s1, user_id: user_id) }
+      let!(:p2) { PinboardItem.create!(pinned_object: o2, user_id: user_id) }
+      let!(:p3) { PinboardItem.create!(pinned_object: c1, user_id: user_id) }
+
+      let(:params) { { batch_type: :pinboard, loan_id: loan.id, user_id: user_id, project_id: project_id } }
+      
+      context 'not supplying klass' do
+        before { LoanItem.batch_create(params) }
+        specify 'loan_items are created for all types' do
+          expect(LoanItem.count).to eq(3)
+        end
+      end
+
+      context 'supplying klass' do
+
+        specify 'Otu' do
+          LoanItem.batch_create(params.merge(klass: 'Otu'))
+          expect(LoanItem.count).to eq(1)
+        end
+        
+        specify 'Container' do
+          LoanItem.batch_create(params.merge(klass: 'Container'))
+          expect(LoanItem.count).to eq(1)
+        end
+
+        specify 'CollectionObject' do
+          LoanItem.batch_create(params.merge(klass: 'CollectionObject'))
+          expect(LoanItem.count).to eq(1)
+        end
+      end
+    end
+  end
 
   context 'concerns' do
     it_behaves_like 'is_data'

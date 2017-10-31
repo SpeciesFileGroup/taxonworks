@@ -10,6 +10,15 @@ $("#show_list").html(html);
 $("#find_item").mx_spinner('hide');
 $("body").mx_spinner('hide');
 
+  if($(".default_tag_widget").length) {
+    var newTags = [];
+    $(".default_tag_widget").each(function() {
+        tag = Object.assign({}, TW.views.tags.tag_icon);
+        tag.init(this);
+        newTags.push(tag);
+    })
+  }
+
 var paging;
 paging = $('<%= j(render(partial: 'paging_data')) %>');
 $("#paging_span").html(paging);

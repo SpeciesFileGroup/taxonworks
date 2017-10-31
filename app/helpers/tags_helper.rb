@@ -26,7 +26,7 @@ module TagsHelper
   end
 
   def tag_default_icon(object)
-    content_tag(:span, 'Tag', data: {'tag-object-global-id' => object.to_global_id.to_s, 'is-default-tagged' => is_default_tagged?(object) }, class: [:default_tag_widget, 'circle-button', 'btn-disabled'])
+    content_tag(:span, 'Tag', data: {'tag-object-global-id' => object.to_global_id.to_s, 'default-tagged-id' => is_default_tagged?(object), 'inserted-keyword-count' => inserted_keyword_tag_count  }, class: [:default_tag_widget, 'circle-button', 'btn-disabled'])
   end
 
   def tag_link(tag)
@@ -61,13 +61,22 @@ module TagsHelper
 
   # Session related helpers
 
-  # @return [Boolean]
-  #   true if the object is tagged, and is tagged with thekeyword presently defaulted on the pinboard
+  def inserted_keyword
+    inserted_pinboard_item_object_for_klass('Keyword')
+  end
+
+  def inserted_keyword_tag_count
+    inserted_keyword.try(:tags).try(:count)
+  end
+
+  # @return [Integer, false]
+  #   true if the object is tagged, and is tagged with the keyword presently defaulted on the pinboard
   def is_default_tagged?(object)
     return false if object.blank?
-    keyword = inserted_pinboard_item_object_for_klass('Keyword')
+    keyword = inserted_keyword
     return false if keyword.blank?
-    Tag.where(tag_object: object, keyword: keyword).any?
+    t = Tag.where(tag_object: object, keyword: keyword).first.try(:id)
+    t ? t : false
   end
 
 end
