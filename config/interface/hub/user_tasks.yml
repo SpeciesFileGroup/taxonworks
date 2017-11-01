@@ -274,4 +274,4 @@ edit_loan_task:
   categories:
     - collection_object
   status: prototype
-  description: 'Create and edit loans.
+  description: 'Create and edit loans.'
