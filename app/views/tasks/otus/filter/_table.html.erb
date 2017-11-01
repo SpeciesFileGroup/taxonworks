@@ -6,6 +6,8 @@
 
 
     <th> Name </th>
+    <%=      fancy_th_tag(name: 'Taxon name')    -%>
+    <%=      fancy_th_tag(name: 'Taxon rank')    -%>
     <%=
       fancy_th_tag(name: 'Updated by', group: 'housekeeping')
     -%>
@@ -17,6 +19,8 @@
   <% otus.each do |o| -%>
     <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
       <td> <%= o.name %></td>
+       <td> <%= o.taxon_name.try(:name) %></td>
+       <td> <%= o.taxon_name.try(:rank) %></td>
        <td><%= o.updated_by_id -%></td>
        <td><%= o.updated_at -%></td>
     <% end %>

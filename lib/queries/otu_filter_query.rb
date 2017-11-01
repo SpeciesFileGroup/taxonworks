@@ -78,7 +78,7 @@ module Queries
     def otu_scope
       # Challenge: Refactor to use a join pattern instead of SELECT IN
       innerscope = with_descendants? ? Otu.self_and_descendants_of(query_otu_id) : Otu.where(id: query_otu_id)
-      Otu.joins(:otus).where(otus: {id: innerscope})
+        # Otu.where(id: innerscope)
       end
 =begin
       1. find all geographic_items in area(s)/shape
@@ -161,9 +161,9 @@ module Queries
     #   determine which scopes to apply based on parameters provided
     def applied_scopes
       scopes = []
-      # scopes.push :otu_scope if otu_set?
+      scopes.push :otu_scope if otu_set?
       scopes.push :geographic_area_scope if area_set?
-      # scopes.push :shape_scope if shape_set?
+      scopes.push :shape_scope if shape_set?
       # scopes.push :date_scope if date_set?
       # scopes.push :identifier_scope if identifier_set?
       # scopes.push :user_date_scope if user_date_set?

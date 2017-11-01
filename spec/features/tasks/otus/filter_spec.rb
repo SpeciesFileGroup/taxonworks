@@ -97,6 +97,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
         }
 
         let!(:gnlm) { GeographicArea.where(name: 'Great Northern Land Mass').first }
+        let!(:bbxa) {GeographicArea.where(name: 'Big Boxia').first}
 
         let!(:otum1) { Otu.where(name: 'Find me').first }
 
@@ -106,9 +107,9 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           it 'renders count of otus in a specific names area' do
             visit(index_path)
             page.execute_script "$('#set_area')[0].scrollIntoView()"
-            fill_area_picker_autocomplete('area_picker_autocomplete', with: 'Great Northern', select: gnlm.id)
+            fill_area_picker_autocomplete('area_picker_autocomplete', with: 'big', select: bbxa.id)
             click_button('Set area')
-            expect(find('#area_count')).to have_text('14')
+            expect(find('#area_count')).to have_text('8')
           end
 
           it 'renders count of otus in a drawn area' do
@@ -118,7 +119,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
             this_xpath = find(:xpath, "//input[@id='drawn_area_shape']")
             this_xpath.set json_string
             click_button('Set area')
-            expect(find('#area_count')).to have_text('10')
+            expect(find('#area_count')).to have_text('8')
           end
         end
 
@@ -135,7 +136,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
 
           it 'renders count of objects and table found using a drawn area and date range' do
             find('#area_count', visible: true, text: '14')
-            expect(find(:xpath, "//div['show_list']/table[@class='tablesorter']/thead")).to have_text('Name')
+            expect(find(:xpath, "//div['show_list']/table[@class='tablesorter']/thead")).to have_text('Taxon name')
           end
         end
       end

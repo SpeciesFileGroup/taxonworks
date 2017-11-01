@@ -50,7 +50,7 @@ Object.assign(TW.views.tasks.otus, {
           $.get('set_otu', $("#set_otu_form").serialize(), function (local_data) {
             $("#otu_count").text(local_data.html);
             $("#select_otu").mx_spinner('hide');
-            that.validateResultForFind();
+            that.validateResultForFindOtu();
           }, 'json');
           event.preventDefault();
         }
@@ -223,7 +223,7 @@ Object.assign(TW.views.tasks.otus, {
     // let i = 0;
     
     if (
-      ($("#area_count").text() > 0)
+      ($("#area_count").text() > 0) || ($("#otu_count").text() > 0)
     ) {
       $("#find_area_and_nomen_commit").removeAttr("disabled");
     }
@@ -257,20 +257,8 @@ Object.assign(TW.views.tasks.otus, {
       params.push($("#set_area_form").serialize());
     }
     
-    if ($('#date_count').text() != '????') {
-      params.push($("#set_date_form").serialize());
-    }
-    
     if ($('#otu_count').text() != '????') {
       params.push($("#set_otu_form").serialize());
-    }
-    
-    if ($('#id_range_count').text() != '????') {
-      params.push($("#set_id_range_form").serialize());
-    }
-    
-    if ($('#user_date_range_count').text() != '????') {
-      params.push($("#set_user_date_range_form").serialize());
     }
     
     return data = params.join("&");
