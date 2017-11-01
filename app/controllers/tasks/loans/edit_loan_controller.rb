@@ -5,4 +5,7 @@ class Tasks::Loans::EditLoanController < ApplicationController
   def index
   end
 
+  def loan_item_metadata
+  end
+
 end
