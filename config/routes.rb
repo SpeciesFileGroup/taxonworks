@@ -568,6 +568,7 @@ TaxonWorks::Application.routes.draw do
     scope :loans do
       scope :edit_loan, controller: 'tasks/loans/edit_loan' do
         get 'index', as: 'edit_loan_task'
+        get 'loan_item_metadata', as: 'loan_item_metdata', defaults: {format: :json}
       end
 
       scope :overdue, controller: 'tasks/loans/overdue' do
