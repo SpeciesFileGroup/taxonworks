@@ -35,7 +35,7 @@ class LoanItemsController < ApplicationController
     respond_to do |format|
       if @loan_item.save
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Loan item was successfully created.')}
-        format.json { render json: @loan_item, status: :created, location: @loan_item }
+        format.json { render :show, status: :created, location: @loan_item }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Loan item was NOT successfully created.')}
         format.json { render json: @loan_item.errors, status: :unprocessable_entity }
@@ -48,10 +48,10 @@ class LoanItemsController < ApplicationController
   def update
     respond_to do |format|
       if @loan_item.update(loan_item_params)
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Loan item was successfully updated.')}
+        format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Loan item was successfully updated.')}
         format.json { render :show, status: :ok, location: @loan_item }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Loan item was NOT successfully updated.' + @loan_item.errors.full_messages.join('; '))}
+        format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Loan item was NOT successfully updated.' + @loan_item.errors.full_messages.join('; '))}
         format.json { render json: @loan_item.errors, status: :unprocessable_entity }
       end
     end

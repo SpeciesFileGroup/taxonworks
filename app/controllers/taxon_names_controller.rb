@@ -32,7 +32,7 @@ class TaxonNamesController < ApplicationController
     respond_to do |format|
       if @taxon_name.save
         format.html { redirect_to @taxon_name.metamorphosize,
-                                  notice: "Taxon name '#{@taxon_name.name}' was successfully created." }
+                      notice: "Taxon name '#{@taxon_name.name}' was successfully created." }
         format.json { render :show, status: :created, location: @taxon_name.metamorphosize }
       else
         format.html { render action: 'new' }
