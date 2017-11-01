@@ -566,6 +566,10 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :loans do
+      scope :edit_loan, controller: 'tasks/loans/edit_loan' do
+        get 'index', as: 'edit_loan_task'
+      end
+
       scope :overdue, controller: 'tasks/loans/overdue' do
         get 'index', as: 'overdue_loans_task'
       end
