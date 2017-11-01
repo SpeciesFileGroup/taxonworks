@@ -23,24 +23,78 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           generate_political_areas_with_collecting_events(@user.id, @project.id)
         }
 
-        let!(:co_m1a_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M1A') }
-        let!(:co_n1_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N1, No georeference') }
-        let!(:co_o1_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O1') }
-        let!(:co_p1_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P1') }
-        let!(:co_m2_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M2') }
-        let!(:co_n2_a_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N2A') }
-        let!(:co_n2_b_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N2B') }
-        let!(:co_o2_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O2') }
-        let!(:co_p2_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P2, No georeference') }
-        let!(:co_m3_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M3') }
-        let!(:co_n3_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N3') }
-        let!(:co_o3_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O3, No georeference') }
-        let!(:co_p3_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P3, No georeference') }
-        let!(:co_m4_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M4') }
-        let!(:co_n4_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N4') }
-        let!(:co_o4_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O4') }
-        let!(:co_p4_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P4') }
-        let!(:co_v_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'I can\'t be found!') }
+        let!(:co_m1a_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M1A')
+          @co_m1a.otus << o
+        }
+        let!(:co_n1_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N1, No georeference')
+          @co_n1.otus << o
+        }
+        let!(:co_o1_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O1')
+          @co_o1.otus << o
+        }
+        let!(:co_p1_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P1')
+          @co_p1.otus << o
+        }
+        let!(:co_m2_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M2')
+          @co_m2.otus << o
+        }
+        let!(:co_n2_a_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N2A')
+          @co_n2_a.otus << o
+        }
+        let!(:co_n2_b_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N2B')
+          @co_n2_b.otus << o
+        }
+        let!(:co_o2_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O2')
+          @co_o2.otus << o
+        }
+        let!(:co_p2_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P2, No georeference')
+          @co_p2.otus << o
+        }
+        let!(:co_m3_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M3')
+          @co_m3.otus << o
+        }
+        let!(:co_n3_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N3')
+          @co_n3.otus << o
+        }
+        let!(:co_o3_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O3, No georeference')
+          @co_o3.otus << o
+        }
+        let!(:co_p3_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P3, No georeference')
+          @co_p3.otus << o
+        }
+        let!(:co_m4_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M4')
+          @co_m4.otus << o
+        }
+        let!(:co_n4_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N4')
+          @co_n4.otus << o
+        }
+        let!(:co_o4_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O4')
+          @co_o4.otus << o
+        }
+        let!(:co_p4_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P4')
+          @co_p4.otus << o
+        }
+        let!(:co_v_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'I can\'t be found!')
+          @co_v.otus << o
+        }
 
         let!(:gnlm) { GeographicArea.where(name: 'Great Northern Land Mass').first }
 
@@ -81,7 +135,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
 
           it 'renders count of objects and table found using a drawn area and date range' do
             find('#area_count', visible: true, text: '14')
-            expect(find(:xpath, "//div['show_list']/table[@class='tablesorter']/thead")).to have_text('Catalog Number')
+            expect(find(:xpath, "//div['show_list']/table[@class='tablesorter']/thead")).to have_text('Name')
           end
         end
       end
