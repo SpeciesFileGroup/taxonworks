@@ -79,8 +79,14 @@ module Queries
       # Challenge: Refactor to use a join pattern instead of SELECT IN
       innerscope = with_descendants? ? Otu.self_and_descendants_of(query_otu_id) : Otu.where(id: query_otu_id)
       Otu.joins(:otus).where(otus: {id: innerscope})
-    end
-
+      end
+=begin
+      1. find all geographic_items in area(s)/shape
+      2. find all georeferences which are associated with result #1
+      3. find all collecting_events which are associated with result #2
+      4. find all collection_objects which are associated with result #3
+      5. find all otus which are associated with result #4
+=end
     # @return [Scope]
     def geographic_area_scope
       # This could be simplified if the AJAX selector returned a geographic_item_id rather than a GeographicAreaId

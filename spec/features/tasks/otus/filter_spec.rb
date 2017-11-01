@@ -23,6 +23,25 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           generate_political_areas_with_collecting_events(@user.id, @project.id)
         }
 
+        let!(:co_m1a_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M1A') }
+        let!(:co_n1_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N1, No georeference') }
+        let!(:co_o1_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O1') }
+        let!(:co_p1_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P1') }
+        let!(:co_m2_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M2') }
+        let!(:co_n2_a_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N2A') }
+        let!(:co_n2_b_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N2B') }
+        let!(:co_o2_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O2') }
+        let!(:co_p2_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P2, No georeference') }
+        let!(:co_m3_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M3') }
+        let!(:co_n3_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N3') }
+        let!(:co_o3_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O3, No georeference') }
+        let!(:co_p3_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P3, No georeference') }
+        let!(:co_m4_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M4') }
+        let!(:co_n4_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N4') }
+        let!(:co_o4_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O4') }
+        let!(:co_p4_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P4') }
+        let!(:co_v_o) { FactoryGirl.create(:valid_otu_with_taxon_name, name: 'I can\'t be found!') }
+
         let!(:gnlm) { GeographicArea.where(name: 'Great Northern Land Mass').first }
 
         let!(:otum1) { Otu.where(name: 'Find me').first }
