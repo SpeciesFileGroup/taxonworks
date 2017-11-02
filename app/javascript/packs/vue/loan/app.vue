@@ -1,5 +1,6 @@
 <template>
   <div id="edit_loan_task">
+    <spinner :full-screen="true" legend="Loading..." :logo-size="{ width: '100px', height: '100px'}" v-if="loading"></spinner>
     <h1>Edit loan</h1>
     <loan-recipient class="separate-bottom"></loan-recipient>
     <loan-items class="separate-top"></loan-items>
@@ -9,11 +10,32 @@
 <script>
   import loanRecipient from './components/loanRecipient.vue';
   import loanItems from './components/loanItems.vue';
+  import spinner from '../components/spinner.vue';
+
+  import ActionNames from './store/actions/actionNames';
 
   export default {
     components: {
       loanRecipient,
-      loanItems
+      loanItems,
+      spinner
+    },
+    data: function() {
+      return {
+        loading: true,
+      }
+    },
+    mounted: function() {
+      var that = this;
+      let loanId = location.pathname.split('/')[4];
+      if(/^\d+$/.test(loanId)) {
+        that.$store.dispatch(ActionNames.LoadLoan, loanId).then( function() {
+          that.loading = false;
+        });
+      }
+      else {
+        that.loading = false;
+      }
     }
   }
 

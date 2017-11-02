@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-import getters from './getters/getters'
-import mutations from './mutations/mutations'
-import actions from './actions/actions'
+import { GetterFunctions } from './getters/getters'
+import { MutationFunctions } from './mutations/mutations'
+import { ActionFunctions } from './actions/actions'
 
 Vue.use(Vuex);
 
@@ -34,9 +34,9 @@ function makeInitialState() {
 function newStore() {
   return new Vuex.Store({
     state: makeInitialState(),
-    getters: getters.GetterFunctions,
-    mutations: mutations.MutationFunctions,
-    actions: actions.ActionFunctions
+    getters: GetterFunctions,
+    mutations: MutationFunctions,
+    actions: ActionFunctions
   });
 }
 
