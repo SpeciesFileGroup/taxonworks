@@ -6,8 +6,15 @@ class LoanItemsController < ApplicationController
   # GET /loan_items
   # GET /loan_items.json
   def index
-    @recent_objects = LoanItem.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html {
+        @recent_objects = LoanItem.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @loan_items = LoanItem.where(filter_params).with_project_id(sessions_current_project_id)
+      }
+    end
   end
 
   # GET /loan_items/1
@@ -81,7 +88,7 @@ class LoanItemsController < ApplicationController
       {id: t.id,
        label: ApplicationController.helpers.loan_item_tag(t),
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
        label_html: ApplicationController.helpers.loan_item_autocomplete_selected_tag(t)
       }
@@ -101,20 +108,25 @@ class LoanItemsController < ApplicationController
   end
 
   private
-    def set_loan_item
-      @loan_item = LoanItem.with_project_id(sessions_current_project_id).find(params[:id])
-    end
 
-    def batch_params
-      params.permit(:batch_type, :loan_id, :keyword_id, :klass).symbolize_keys.merge(project_id: sessions_current_project_id, user_id: sessions_current_user_id)
-    end
+  def filter_params
+    params.permit(:loan_id)
+  end 
 
-    def loan_item_params
-      params.require(:loan_item).permit(
-        :loan_id, :collection_object_status, :date_returned, :loan_item_object_id, :loan_item_object_type,
-        :date_returned_jquery, :disposition, :total,  
-        :global_entity,
-        :position
-      )
-    end
+  def set_loan_item
+    @loan_item = LoanItem.with_project_id(sessions_current_project_id).find(params[:id])
+  end
+
+  def batch_params
+    params.permit(:batch_type, :loan_id, :keyword_id, :klass).symbolize_keys.merge(project_id: sessions_current_project_id, user_id: sessions_current_user_id)
+  end
+
+  def loan_item_params
+    params.require(:loan_item).permit(
+      :loan_id, :collection_object_status, :date_returned, :loan_item_object_id, :loan_item_object_type,
+      :date_returned_jquery, :disposition, :total,  
+      :global_entity,
+      :position
+    )
+  end
 end
