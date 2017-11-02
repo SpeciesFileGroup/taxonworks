@@ -5,7 +5,8 @@ module Queries
     # Query variables
     attr_accessor :query_geographic_area_ids, :query_shape
     attr_accessor :query_date_partial_overlap, :query_start_date, :query_end_date
-    attr_accessor :query_otu_id, :query_otu_descendants
+    attr_accessor :query_otu_id, :query_descendants
+    attr_accessor :query_author_id
     attr_accessor :query_id_namespace, :query_range_start, :query_range_stop
     attr_accessor :query_user, :query_date_type_select,
                   :query_user_date_range_end, :query_user_date_range_start
@@ -19,10 +20,11 @@ module Queries
 
       @query_geographic_area_ids = params[:geographic_area_ids]
       @query_shape = params[:drawn_area_shape]
-      @query_start_date = params[:search_start_date] # TODO: sync key names
-      @query_end_date = params[:search_end_date]
+      @query_author_id = params[:author_id]
       @query_otu_id = params[:otu_id]
-      @query_otu_descendants = params[:descendants] # .downcase if params[:descendants] # TODO: remove downcase requirement
+      @query_descendants = params[:descendants]
+
+      @query_end_date = params[:search_end_date]
       @query_date_partial_overlap = params[:partial_overlap]
       @query_id_namespace = params[:id_namespace]
       @query_range_start = params[:id_range_start]
@@ -46,8 +48,8 @@ module Queries
       !query_geographic_area_ids.nil?
     end
 
-    def date_set?
-      !start_date.nil?
+    def author_set?
+      !query_author_id.nil?
     end
 
     def otu_set?
@@ -59,7 +61,7 @@ module Queries
     end
 
     def with_descendants?
-      query_otu_descendants == 'on'
+      query_descendants == 'on'
     end
 
     def identifier_set?
@@ -79,6 +81,7 @@ module Queries
       # Challenge: Refactor to use a join pattern instead of SELECT IN
       innerscope = with_descendants? ? Otu.self_and_descendants_of(query_otu_id) : Otu.where(id: query_otu_id)
         # Otu.where(id: innerscope)
+      innerscope
       end
 =begin
       1. find all geographic_items in area(s)/shape
@@ -116,8 +119,17 @@ module Queries
       #date_sql_from_dates(start_date, end_date, query_date_partial_overlap ))
     end
 
+=begin
+      1. find all people from params
+      2. find all people with role TaxonNameAuthor from result #1
+      3. find all taxon_names which are associated with result #2
+      4. find all otus which are associated with result #3
+=end
     # @return [Scope]
-    def date_scope
+    def author_scope
+      # Otu.joins(:collecting_event).where(CollectingEvent.date_sql_from_dates(start_date, end_date, query_date_partial_overlap))
+      # r1 = Person.collect(*query_author_ids)
+      r2 =
       Otu.joins(:collecting_event).where(CollectingEvent.date_sql_from_dates(start_date, end_date, query_date_partial_overlap))
       #date_sql_from_dates(start_date, end_date, query_date_partial_overlap ))
     end
@@ -164,7 +176,7 @@ module Queries
       scopes.push :otu_scope if otu_set?
       scopes.push :geographic_area_scope if area_set?
       scopes.push :shape_scope if shape_set?
-      # scopes.push :date_scope if date_set?
+      scopes.push :author_scope if author_set?
       # scopes.push :identifier_scope if identifier_set?
       # scopes.push :user_date_scope if user_date_set?
       scopes

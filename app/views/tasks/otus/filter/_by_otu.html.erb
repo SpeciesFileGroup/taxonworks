@@ -1,4 +1,4 @@
-<%= form_tag(set_otu_for_collection_object_filter_url, id: 'set_otu_form', remote: true) do %>
+<%= form_tag(set_otu_for_otu_filter_path, id: 'set_otu_form', remote: true) do %>
     Descendants (if available): <%= check_box(nil, 'descendants', {id: :descendant_toggle}, 'on', 'off') %><br>
     <%= render('/workbench/elements/forms/ajax_select',
                controller: '/otus',

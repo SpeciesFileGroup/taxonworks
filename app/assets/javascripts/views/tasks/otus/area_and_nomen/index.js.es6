@@ -56,6 +56,18 @@ Object.assign(TW.views.tasks.otus, {
         }
       );
 
+      $("#set_author").click(function (event) {
+          $("#author_count").text('????');
+          $("#select_author").mx_spinner('show');
+          $.get('set_author', $("#set_author_form").serialize(), function (local_data) {
+            $("#author_count").text(local_data.html);
+            $("#select_author").mx_spinner('hide');
+            that.validateResultForFindOtu();
+          }, 'json');
+          event.preventDefault();
+        }
+      );
+
       $("#find_area_and_nomen_commit").click(function (event) {
         that.toggleFilter();
         that.ajaxRequest(event, "find");
@@ -184,23 +196,23 @@ Object.assign(TW.views.tasks.otus, {
     $("#drawn_area_shape").attr('value', '');
     $("#paging_span").show();
   },
-  
-  update_and_graph: function (event) {
-    let that = this;
-    
-    this.validateDate(event.target);
-    if (this.validateDates()) {
-      this.updateRangePicker(new Date($("#search_start_date").val()), new Date($("#search_end_date").val()));
-      $("#select_date_range").mx_spinner('show');
-      $.get('set_date', $("#set_date_form").serialize(), function (local_data) {
-        $("#date_count").text(local_data.html);
-        $("#graph_frame").html(local_data.chart);
-        $("#select_date_range").mx_spinner('hide');
-        that.validateResultForFindOtu();
-      }, 'json');  // I expect a json response
-    }
-    event.preventDefault();
-  },
+
+  // update_and_graph: function (event) {
+  //   let that = this;
+  //
+  //   this.validateDate(event.target);
+  //   if (this.validateDates()) {
+  //     this.updateRangePicker(new Date($("#search_start_date").val()), new Date($("#search_end_date").val()));
+  //     $("#select_date_range").mx_spinner('show');
+  //     $.get('set_date', $("#set_date_form").serialize(), function (local_data) {
+  //       $("#date_count").text(local_data.html);
+  //       $("#graph_frame").html(local_data.chart);
+  //       $("#select_date_range").mx_spinner('hide');
+  //       that.validateResultForFindOtu();
+  //     }, 'json');  // I expect a json response
+  //   }
+  //   event.preventDefault();
+  // },
   
   cleanResults: function () {
     $("#show_list").empty();

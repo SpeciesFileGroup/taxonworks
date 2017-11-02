@@ -1,4 +1,4 @@
-<%= form_tag(set_area_for_collection_object_filter_path, id: 'set_area_form', remote: true) do %>
+<%= form_tag(set_area_for_otu_filter_path, id: 'set_area_form', remote: true) do %>
     <%= render(partial: 'shared/data/gis/area_selector',
                locals: {passed_in_tag_id: 'geographic_area_id_for_by_area',
                         drawing_modes: 'active: polygon, circle',

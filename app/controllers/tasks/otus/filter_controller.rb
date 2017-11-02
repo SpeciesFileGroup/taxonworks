@@ -32,14 +32,8 @@ class Tasks::Otus::FilterController < ApplicationController
   end
 
   # GET
-  def set_date
-    chart = render_to_string(
-        partial: 'stats',
-        locals: {count: otus.count,
-                 objects: otus
-        }
-    )
-    render json: {html: otus.count.to_s, chart: chart}
+  def set_author
+    render json: {html: otus.count}
   end
 
   # GET
