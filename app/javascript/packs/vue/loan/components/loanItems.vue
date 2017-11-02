@@ -23,22 +23,23 @@
           <p>Select loan item type</p>
           <div class="field">
             <label>
-              <input type="radio" v-model="objectType" name="autocomplete_type" value="otus" checked/>
+              <input type="radio" v-model="objectType" name="autocomplete_type" value="collection_objects" checked/>
               Collection object
             </label>
             <label>
-              <input type="radio" v-model="objectType" name="autocomplete_type" value="containers"/>
+              <input type="radio" v-model="objectType" name="autocomplete_type" value="otus"/>
               OTU
             </label>
             <label>
-              <input type="radio" v-model="objectType" name="autocomplete_type" value="collection_objects"/>
+              <input type="radio" v-model="objectType" name="autocomplete_type" value="containers"/>
               Container
             </label>
           </div>
           <div class="field">
             <autocomplete
               min="2"
-              placeholder="Select loan item" 
+              placeholder="Select loan item"
+              label="label"
               :url="autocomplete_type[objectType]"
               param="term">
             </autocomplete>
@@ -75,7 +76,6 @@
       var that = this;
 
       getTagMetadata().then(response => {
-        console.log(response);
         that.info = response;
         that.keywords = response.keywords;
         that.pinboard = response.pinboard;
