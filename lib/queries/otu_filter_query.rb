@@ -97,11 +97,17 @@ module Queries
       query_geographic_area_ids.each do |gaid|
         target_geographic_item_ids.push(GeographicArea.joins(:geographic_items).find(gaid).default_geographic_item.id)
       end
-      r4 = CollectionObject.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
+      # r4 = CollectionObject.joins(:geographic_items)
+      #        .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
+      r42i = CollectionObject.joins(:geographic_items)
+               .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
+               .pluck(:id)
       # get the Otus associated with r4
-      r5i = r4.map(&:otus).flatten.pluck(:id).uniq
-      r5o = Otu.where(id: r5i)
-      r5o
+      # r5i = r4.map(&:otus).flatten.pluck(:id).uniq
+      # r5o = Otu.where(id: r5i)
+      r5o2 = Otu.joins(:collection_objects).where('biological_collection_object_id in (?)', r42i)
+      # r5o
+      r5o2
     end
 
     # @return [Scope]
