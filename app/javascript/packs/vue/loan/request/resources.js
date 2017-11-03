@@ -14,6 +14,17 @@ const getTagMetadata = function() {
   });
 }
 
+const getLoan = function(id) {
+  return new Promise(function (resolve, reject) {
+    Vue.http.get(`/loans/${id}.json`).then( response => {
+      return resolve(response.body);
+    }, response => {
+      return reject(response.body);
+    });
+  });
+}
+
 export {
-  getTagMetadata
+  getTagMetadata,
+  getLoan
 }

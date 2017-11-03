@@ -88,11 +88,20 @@
 <script>
   import rolePicker from '../../components/role_picker.vue';
   import expand from './expand.vue';
+
+  import { GetterNames } from '../store/getters/getters';
   
   export default {
     components: {
       rolePicker,
       expand
+    },
+    computed: {
+      getLoan: {
+        get() {
+          return this.$store.getters[GetterNames.GetLoan]
+        }
+      }
     },
     data: function() {
       return {
@@ -116,6 +125,11 @@
           lender_address: undefined,
           clone_from: undefined
         }
+      }
+    },
+    watch: {
+      getLoan: function() {
+        this.loan = this.getLoan;
       }
     }
   }
