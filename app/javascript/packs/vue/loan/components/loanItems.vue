@@ -57,20 +57,30 @@
           </div>
         </div>
 
+        <display-list :list="loanItems" label="object_tag"></display-list>
       </div>
     </div>
 </template>
 
 <script>
+
+  import displayList from './displayList.vue';
   import autocomplete from '../../components/autocomplete.vue';
   import expand from './expand.vue';
 
   import { getTagMetadata } from '../request/resources';
+  import { GetterNames } from '../store/getters/getters';
   
   export default {
     components: {
       expand,
-      autocomplete
+      autocomplete,
+      displayList
+    },
+    computed: {
+      loanItems() {
+        return this.$store.getters[GetterNames.GetLoanItems]
+      }
     },
     mounted: function() {
       var that = this;

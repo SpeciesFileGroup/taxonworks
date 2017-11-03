@@ -86,6 +86,7 @@
 </template>
 
 <script>
+
   import rolePicker from '../../components/role_picker.vue';
   import expand from './expand.vue';
 
@@ -101,7 +102,7 @@
         get() {
           return this.$store.getters[GetterNames.GetLoan]
         }
-      }
+      },
     },
     data: function() {
       return {

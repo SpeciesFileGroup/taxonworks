@@ -27,7 +27,8 @@ function makeInitialState() {
       recipient_honorarium: undefined,
       lender_address: undefined,
       clone_from: undefined
-    }
+    },
+    loan_items: []
   }
 }
 

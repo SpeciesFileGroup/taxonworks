@@ -24,7 +24,18 @@ const getLoan = function(id) {
   });
 }
 
+const getLoanItems = function(id) {
+  return new Promise(function (resolve, reject) {
+    Vue.http.get(`/loan_items.json?loan_id=${id}`).then( response => {
+      return resolve(response.body);
+    }, response => {
+      return reject(response.body);
+    });
+  });
+}
+
 export {
   getTagMetadata,
-  getLoan
+  getLoan,
+  getLoanItems
 }
