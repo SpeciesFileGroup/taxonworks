@@ -110,6 +110,12 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
             fill_area_picker_autocomplete('area_picker_autocomplete', with: 'big', select: bbxa.id)
             click_button('Set area')
             expect(find('#area_count')).to have_text('8')
+            # fill_otu_widget_autocomplete('#otu_id_for_by_otu', with: "P4", select: @co_p4.otus.first.id)
+            finder = find('#otu_id_for_by_otu')
+            finder.send_keys('P4', :down, :tab)
+            wait_for_ajax
+            click_button('Set area')
+            expect(find('#area_count')).to have_text('9')
           end
 
           it 'renders count of otus in a drawn area' do
