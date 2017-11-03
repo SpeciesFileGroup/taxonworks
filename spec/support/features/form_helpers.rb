@@ -52,7 +52,7 @@ module Features
       page.execute_script(%Q{ $('#{css_selector}').trigger('mouseenter').click(); })
     end
 
-    # @param [field] selector provided to fill_in 
+    # @param [field] selector provided to fill_in
     # @param [with] text to fill in
     # @param [select_id] id of the object to select
     # @param [object_type] type of the object to select, object-case-id
@@ -69,7 +69,7 @@ module Features
       css_selector = %Q{li.ui-menu-item a[data-geographic-area-id="#{options[:select]}"]}
       fill_in field, with: options[:with]
       # havecssselector = have_css(css_selector).matches?(css_selector)
-      counter = 100000
+      counter = 10000
       until counter < 0
         counter -= 1
         # wait_for_ajax

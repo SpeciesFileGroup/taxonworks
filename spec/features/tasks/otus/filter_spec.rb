@@ -27,6 +27,10 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M1A')
           @co_m1a.otus << o
         }
+        let!(:co_m1_o) {
+          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M1')
+          @co_m1.otus << o
+        }
         let!(:co_n1_o) {
           o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N1, No georeference')
           @co_n1.otus << o
@@ -97,7 +101,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
         }
 
         let!(:gnlm) { GeographicArea.where(name: 'Great Northern Land Mass').first }
-        let!(:bbxa) {GeographicArea.where(name: 'Big Boxia').first}
+        let!(:bbxa) { GeographicArea.where(name: 'Big Boxia').first }
 
         let!(:otum1) { Otu.where(name: 'Find me').first }
 
@@ -107,12 +111,6 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           it 'renders count of otus in a specific names area' do
             visit(index_path)
             page.execute_script "$('#set_area')[0].scrollIntoView()"
-            finder = find('#otu_id_for_by_otu')
-            finder.send_keys('p4')
-            wait_for_ajax
-            finder.send_keys(:down, :tab)
-            click_button('Set area')
-            expect(find('#area_count')).to have_text('1')
             fill_area_picker_autocomplete('area_picker_autocomplete', with: 'big', select: bbxa.id)
             click_button('Set area')
             expect(find('#area_count')).to have_text('9')
@@ -126,23 +124,60 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
             this_xpath = find(:xpath, "//input[@id='drawn_area_shape']")
             this_xpath.set json_string
             click_button('Set area')
-            expect(find('#area_count')).to have_text('8')
+            expect(find('#area_count')).to have_text('9')
+          end
+        end
+
+        describe '#set_otu', js: true do
+          it 'renders count of otus from a specific name without descendants' do
+            visit(index_path)
+            page.execute_script "$('#set_otu')[0].scrollIntoView()"
+            finder = find('#otu_id_for_by_otu')
+            finder.send_keys('p4')
+            wait_for_ajax
+            finder.send_keys(:down)
+            finder.send_keys(:tab)
+            click_button('Set OTU')
+            expect(find('#otu_count')).to have_text('1')
+          end
+
+          it 'renders count of otus from a specific name with descendants' do
+            visit(index_path)
+            page.execute_script "$('#set_otu')[0].scrollIntoView()"
+            find('#descendant_toggle').click
+            finder = find('#otu_id_for_by_otu')
+            finder.send_keys('m1')
+            wait_for_ajax
+            finder.send_keys(:down)
+            finder.send_keys(:tab)
+            click_button('Set OTU')
+            expect(find('#otu_count')).to have_text('1')
           end
         end
 
         describe '#find', js: true do
           before {
             visit(index_path)
+            execute_script("document.getElementById('drawn_area_shape').type = 'text'")
             # find('#area_picker_autocomplete').set('Great')
             fill_area_picker_autocomplete('area_picker_autocomplete', with: 'Great Northern', select: gnlm.id)
             click_button('Set area')
             wait_for_ajax
+
+            page.execute_script "$('#set_otu')[0].scrollIntoView()"
+            finder = find('#otu_id_for_by_otu')
+            finder.send_keys('p4')
+            wait_for_ajax
+            finder.send_keys(:down)
+            finder.send_keys(:tab)
+            click_button('Set OTU')
+
             find('#find_area_and_nomen_commit').click
             wait_for_ajax
           }
 
           it 'renders count of objects and table found using a drawn area and date range' do
-            find('#area_count', visible: true, text: '14')
+            find('#area_count', visible: true, text: '15')
             expect(find(:xpath, "//div['show_list']/table[@class='tablesorter']/thead")).to have_text('Taxon name')
           end
         end
