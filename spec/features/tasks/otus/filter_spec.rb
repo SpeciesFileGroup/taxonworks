@@ -107,16 +107,16 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           it 'renders count of otus in a specific names area' do
             visit(index_path)
             page.execute_script "$('#set_area')[0].scrollIntoView()"
-            fill_area_picker_autocomplete('area_picker_autocomplete', with: 'big', select: bbxa.id)
-            click_button('Set area')
-            expect(find('#area_count')).to have_text('8')
-            # fill_otu_widget_autocomplete('#otu_id_for_by_otu', with: "P4", select: @co_p4.otus.first.id)
             finder = find('#otu_id_for_by_otu')
-            finder.send_keys('P4')
+            finder.send_keys('p4')
             wait_for_ajax
             finder.send_keys(:down, :tab)
             click_button('Set area')
+            expect(find('#area_count')).to have_text('1')
+            fill_area_picker_autocomplete('area_picker_autocomplete', with: 'big', select: bbxa.id)
+            click_button('Set area')
             expect(find('#area_count')).to have_text('9')
+            # fill_otu_widget_autocomplete('#otu_id_for_by_otu', with: "P4", select: @co_p4.otus.first.id)
           end
 
           it 'renders count of otus in a drawn area' do
