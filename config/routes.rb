@@ -169,10 +169,9 @@ TaxonWorks::Application.routes.draw do
       #   post :create_simple_batch_load
       # end
       
-      collection do
-        post :preview_castor_batch_load
-        post :create_castor_batch_load
-      end
+    collection do
+      post :preview_castor_batch_load
+      post :create_castor_batch_load
     end
   end
 
@@ -223,58 +222,21 @@ TaxonWorks::Application.routes.draw do
     member do
       get :annotations, defaults: {format: :json}
     end
-    
-    resources :containers do # , only: [:create, :update, :destroy] do
-      concerns [:data_routes]
+    collection do
+      post :preview_modify_gene_descriptor_batch_load
+      post :create_modify_gene_descriptor_batch_load
     end
+  end
     
-    resources :container_items, except: [:edit] do
-      concerns [:data_routes]
+  resources :documentation do
+    concerns [:data_routes]
+    collection do
+      patch :sort
     end
+  end
     
-    resources :contents do
-      concerns [:data_routes, :shallow_annotation_routes]
-      collection do
-        get :filter
-      end
-    end
-    
-    resources :controlled_vocabulary_terms do
-      concerns [:data_routes]
-      
-      member do
-        get 'tagged_objects'
-      end
-    end
-    
-    resources :data_attributes, except: [:show] do
-      concerns [:data_routes]
-    end
-    
-    resources :depictions do
-      concerns [:data_routes]
-      collection do
-        patch :sort
-      end
-    end
-    
-    resources :descriptors do
-      concerns [:data_routes, :shallow_annotation_routes]
-      member do
-        get :annotations, defaults: {format: :json}
-      end
-      collection do
-        post :preview_modify_gene_descriptor_batch_load
-        post :create_modify_gene_descriptor_batch_load
-      end
-    end
-    
-    resources :documents do
-      concerns [:data_routes]
-    end
-    
-    resources :documentation do
-      concerns [:data_routes]
+  resources :documents do
+    concerns [:data_routes]
   end
 
   resources :extracts do
