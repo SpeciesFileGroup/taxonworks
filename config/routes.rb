@@ -178,15 +178,6 @@ TaxonWorks::Application.routes.draw do
         post :create_castor_batch_load
       end
     end
-<<<<<<< HEAD
-    
-    resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
-      concerns [:data_routes]
-    end
-    
-    resources :common_names do
-      concerns [:data_routes]
-=======
   end
 
   resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
@@ -235,7 +226,6 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes, :shallow_annotation_routes]
     member do
       get :annotations, defaults: {format: :json}
->>>>>>> development
     end
     
     resources :containers do # , only: [:create, :update, :destroy] do
