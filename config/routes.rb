@@ -119,11 +119,7 @@ TaxonWorks::Application.routes.draw do
       get 'filter', defaults: {format: :json}
     end
   end
-<<<<<<< HEAD
-  
-=======
 
->>>>>>> development
   resources :confidences do # , except: [:edit, :show]
     concerns [:data_routes]
     collection do
