@@ -134,7 +134,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
       end
 
       context 'with records specific to identifiers' do
-        describe 'select a namespace' do
+        describe 'select a namespace', js: true do
           it 'should find the correct namespace' do
             @ns1 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)
             @ns2 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
@@ -210,6 +210,91 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             find('#find_area_and_date_commit').click
             wait_for_ajax
             expect(find('#paging_data')).to have_content('all 4')
+
+          end
+        end
+      end
+
+      context 'with records specific to users and dates' do
+        let!(:pat) { User.find(1) }
+        let!(:pat_admin) { User.where(name: 'Pat Project Administrator').first }
+        let!(:joe) {
+          peep = FactoryGirl.create(:valid_user, by: pat_admin)
+          ProjectMember.create(project_id: @project.id, user_id: peep.id, by: pat_admin)
+          peep
+        }
+
+        describe 'default user', js: true do
+          it 'should present the current user' do
+            visit(collection_objects_filter_task_path)
+            page.execute_script "$('#set_user_date_range')[0].scrollIntoView()"
+
+            expect(page).to have_button('Set User/Date Range')
+            expect(page).to have_text(@user.name)
+          end
+        end
+
+        describe 'selected user', js: true do
+          it 'should find specific user' do
+            visit(collection_objects_filter_task_path)
+            page.execute_script "$('#set_user_date_range')[0].scrollIntoView()"
+
+            select('Joe', from: 'user')
+            expect(find_field('user').value).to eq(joe.id.to_s)
+          end
+        end
+
+        describe 'selected objects', js: true do
+          it 'should find specific objects' do
+            2.times { FactoryGirl.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: @project) }
+            (1..10).each { |specimen|
+              sp = FactoryGirl.create(:valid_specimen,
+                                      creator:    ((specimen % 2) == 0 ? joe : pat),
+                                      created_at: "200#{specimen - 1}/01/#{specimen}",
+                                      updated_at: "200#{specimen - 1}/07/#{specimen}",
+                                      updater:    ((specimen % 2) == 0 ? pat : joe),
+                                      project:    @project)
+            }
+
+            expect(Specimen.created_by_user(pat_admin).count).to eq(2)
+            expect(Specimen.created_by_user(pat).count).to eq(5)
+            expect(Specimen.created_by_user(joe).count).to eq(5)
+
+            visit(collection_objects_filter_task_path)
+
+            page.execute_script "$('#set_user_date_range')[0].scrollIntoView()"
+
+            # default select is current user / all dates
+            click_button('Set User/Date Range', {id: 'set_user_date_range'})
+            wait_for_ajax
+            expect(find('#user_date_range_count')).to have_content('5')
+
+            select('All users', from: 'user')
+            click_button('Set User/Date Range', {id: 'set_user_date_range'})
+            wait_for_ajax
+            expect(find('#user_date_range_count')).to have_content('12')
+
+            fill_in('user_date_range_start', with: '2005-01-01')
+            fill_in('user_date_range_end', with: Date.yesterday)
+
+            click_button('Set User/Date Range', {id: 'set_user_date_range'})
+            wait_for_ajax
+            expect(find('#user_date_range_count')).to have_content('5')
+
+            select('Pat Pro', from: 'user')
+            fill_in('user_date_range_start', with: Date.today)
+            fill_in('user_date_range_end', with: Date.today)
+
+            click_button('Set User/Date Range', {id: 'set_user_date_range'})
+            wait_for_ajax
+            expect(find('#user_date_range_count')).to have_content('2')
+
+            fill_in('user_date_range_start', with: Date.yesterday)
+            fill_in('user_date_range_end', with: Date.yesterday)
+
+            click_button('Set User/Date Range', {id: 'set_user_date_range'})
+            wait_for_ajax
+            expect(find('#user_date_range_count')).to have_content('0')
 
           end
         end

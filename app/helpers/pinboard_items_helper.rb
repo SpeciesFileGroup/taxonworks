@@ -31,11 +31,11 @@ module PinboardItemsHelper
 
     content_tag(:div, class: ['pinboard-dropdown']) do
       content_tag(:div, "", class: ['pinboard-menu-bar']) + 
-      content_tag(:div, "", class: ['pinboard-menu-bar']) + 
-      content_tag(:div, "", class: ['pinboard-menu-bar']) +
-      content_tag(:div, class: [ 'itemOptions', 'pinboard-dropdown-content']) do
-        options.compact.join.html_safe
-      end
+        content_tag(:div, "", class: ['pinboard-menu-bar']) + 
+        content_tag(:div, "", class: ['pinboard-menu-bar']) +
+        content_tag(:div, class: [ 'itemOptions', 'pinboard-dropdown-content']) do
+          options.compact.join.html_safe
+        end
     end.html_safe
   end
 
@@ -45,6 +45,15 @@ module PinboardItemsHelper
         object_link(pinboard_item.pinned_object) +  pinboard_item_options(pinboard_item)
       end
     end 
+  end
+
+  # Session related helpers
+
+  # @return [Integer, false]
+  #   if there is an insertable pinboard for the item, that ID, otherwise false
+  def inserted_pinboard_item_object_for_klass(klass)
+    object = klass.constantize.joins(:pinboard_items).where(project_id: sessions_current_project_id, pinboard_items: {user_id: sessions_current_user_id, is_inserted: true}).first
+    object ? object : false
   end
 
 end

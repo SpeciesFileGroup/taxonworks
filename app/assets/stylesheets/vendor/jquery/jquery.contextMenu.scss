@@ -54,6 +54,10 @@
   background-image: image-url("show.svg");
 }
 
+.context-menu-icon-pin {
+  background-image: image-url("pin.svg");
+}
+
 .context-menu-icon.context-menu-hover:before {
   color: #fff;
 }

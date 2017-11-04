@@ -121,6 +121,9 @@ Object.assign(TW.views.shared.list, {
           case "edit":
             location.href = $(this).find("[data-edit] a").attr('href');
             break;
+          case "pin":
+            $(this).find("[data-pin] a").click();
+            break;
           case "delete":
             $(this).find("[data-delete] a").click();
             break;
@@ -130,6 +133,7 @@ Object.assign(TW.views.shared.list, {
         "show": {name: "Show", icon: "show"},
         "sep1": "---------",
         "edit": {name: "Edit", icon: "edit"},
+        "pin": {name: "Pin/Unpin", icon: "pin"},
         "delete": {name: "Delete", icon: "delete"}
       }
     });

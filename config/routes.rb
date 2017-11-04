@@ -119,7 +119,11 @@ TaxonWorks::Application.routes.draw do
       get 'filter', defaults: {format: :json}
     end
   end
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> development
   resources :confidences do # , except: [:edit, :show]
     concerns [:data_routes]
     collection do
@@ -174,6 +178,7 @@ TaxonWorks::Application.routes.draw do
         post :create_castor_batch_load
       end
     end
+<<<<<<< HEAD
     
     resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
       concerns [:data_routes]
@@ -181,6 +186,56 @@ TaxonWorks::Application.routes.draw do
     
     resources :common_names do
       concerns [:data_routes]
+=======
+  end
+
+  resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
+    concerns [:data_routes]
+  end
+
+  resources :common_names do
+    concerns [:data_routes]
+  end
+
+  resources :containers do # , only: [:create, :update, :destroy] do
+    concerns [:data_routes]
+  end
+
+  resources :container_items, except: [:edit] do
+    concerns [:data_routes]
+  end
+
+  resources :contents do
+    concerns [:data_routes, :shallow_annotation_routes]
+    collection do
+      get :filter
+    end
+  end
+
+  resources :controlled_vocabulary_terms do
+    concerns [:data_routes]
+
+    member do
+      get 'tagged_objects'
+    end
+  end
+
+  resources :data_attributes, except: [:show] do
+    concerns [:data_routes]
+  end
+
+  resources :depictions do
+    concerns [:data_routes]
+    collection do
+      patch :sort
+    end
+  end
+
+  resources :descriptors do
+    concerns [:data_routes, :shallow_annotation_routes]
+    member do
+      get :annotations, defaults: {format: :json}
+>>>>>>> development
     end
     
     resources :containers do # , only: [:create, :update, :destroy] do
@@ -304,6 +359,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :loan_items do
     concerns [:data_routes]
+    collection do
+      post :batch_create
+    end
   end
 
   resources :namespaces do
@@ -320,7 +378,7 @@ TaxonWorks::Application.routes.draw do
     member do
       get 'row', {format: :json}
     end
-  
+
     resources :observation_matrix_columns, shallow: true, only: [:index], defaults: {format: :json}
     resources :observation_matrix_rows, shallow: true, only: [:index], defaults: {format: :json}
   end
@@ -515,7 +573,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       get :taxon_name_classification_types
-  end
+    end
     member do
       get :show, {format: :json}
     end
@@ -526,7 +584,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       get :type_relationships, {format: :json}
       get :taxon_name_relationship_types, {format: :json}
-  end
+    end
   end
 
   resources :topics, only: [:create] do
@@ -593,7 +651,6 @@ TaxonWorks::Application.routes.draw do
       end
     end
 
-
     scope :collecting_events do
       scope :parse do
         scope :stepwise do
@@ -630,6 +687,9 @@ TaxonWorks::Application.routes.draw do
         get 'set_date', as: 'set_date_for_collection_object_filter'
         get 'set_otu', as: 'set_otu_for_collection_object_filter'
         get 'set_id_range', as: 'set_id_range_for_collection_object_filter'
+        get 'set_user_date_range', as: 'set_user_date_range_for_collection_object_filter'
+        get 'get_dates_of_type', as: 'get_dates_type_of_for_collection_object_filter'
+        # get 'get_updated_at', as: 'get_updated_at_for_collection_object_filter'
         get 'download', action: 'download', as: 'download_collection_object_filter_result'
         post 'tag_all', action: 'tag_all', as: 'tag_all_collection_object_filter_result',  defaults: {format: :json}
       end
@@ -941,13 +1001,13 @@ TaxonWorks::Application.routes.draw do
       get '/character_states/:id/annotations',
         to: 'character_states#annotations'
 
-end
+    end
   end
 
   scope :api, :defaults => { :format => :html } do
     scope  '/v1' do
       get '/taxon_names/autocomplete',
-          to: 'taxon_names#autocomplete'
+        to: 'taxon_names#autocomplete'
     end
   end
 

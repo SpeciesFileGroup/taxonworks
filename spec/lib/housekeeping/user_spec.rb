@@ -2,8 +2,8 @@ require 'rails_helper'
 
 describe 'Housekeeping::User' do
 
-  let!(:user) {FactoryGirl.create(:valid_user, id: 1)}
-  let!(:other_user) {FactoryGirl.create(:valid_user, id: 2)}
+  let!(:user) { FactoryGirl.create(:valid_user, id: 1, name: 'Ren') }
+  let!(:other_user) { FactoryGirl.create(:valid_user, id: 2, name: 'Stimpy') }
 
   context 'Users' do
 
@@ -67,7 +67,7 @@ describe 'Housekeeping::User' do
       let(:i) { HousekeepingTestClass::WithUser.new }
 
       context 'presence of the id itself' do
-        before(:each) {$user_id = nil}
+        before(:each) { $user_id = nil }
 
         specify 'created_by_id is required' do
           i.valid?
@@ -177,7 +177,6 @@ describe 'Housekeeping::User' do
         end
 
 
-
         context 'after save, subsequent updates' do
           before {
             $user_id = user.id
@@ -227,6 +226,29 @@ describe 'Housekeeping::User' do
 
       specify 'all updaters' do
         expect(HousekeepingTestClass::WithUser).to respond_to(:all_updaters)
+      end
+    end
+
+    context 'class scopes' do
+      let!(:sp1){ FactoryGirl.create(:valid_geographic_item, creator: user, updater: other_user) }
+      let!(:sp2){ FactoryGirl.create(:valid_geographic_item, creator: other_user, updater: user) }
+
+      specify 'created_by_user' do
+        expect(GeographicItem.created_by_user(user).pluck(:id)).to contain_exactly(sp1.id)
+        expect(GeographicItem.created_by_user(other_user).pluck(:id)).to contain_exactly(sp2.id)
+        expect(GeographicItem.created_by_user(user.id).pluck(:id)).to contain_exactly(sp1.id)
+        expect(GeographicItem.created_by_user(other_user.id).pluck(:id)).to contain_exactly(sp2.id)
+        expect(GeographicItem.created_by_user(user.name).pluck(:id)).to contain_exactly(sp1.id)
+        expect(GeographicItem.created_by_user(other_user.name).pluck(:id)).to contain_exactly(sp2.id)
+      end
+
+      specify 'updated_by_user' do
+        expect(GeographicItem.updated_by_user(user).pluck(:id)).to contain_exactly(sp2.id)
+        expect(GeographicItem.updated_by_user(other_user).pluck(:id)).to contain_exactly(sp1.id)
+        expect(GeographicItem.updated_by_user(user.id).pluck(:id)).to contain_exactly(sp2.id)
+        expect(GeographicItem.updated_by_user(other_user.id).pluck(:id)).to contain_exactly(sp1.id)
+        expect(GeographicItem.updated_by_user(user.name).pluck(:id)).to contain_exactly(sp2.id)
+        expect(GeographicItem.updated_by_user(other_user.name).pluck(:id)).to contain_exactly(sp1.id)
       end
     end
   end
