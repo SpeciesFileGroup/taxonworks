@@ -18,7 +18,7 @@
         <li>Assumes a namespace with name "GenBank" and shortname "GBK" exists</li>
         <li>Identifier Global::Uri will be attached with the value of the "guid" column if not blank to each collection object</li>
         <li>Identifier Global::MorphbankSpecimenNumber will be attached with the value of the "morphbank_specimen_id" column if not blank to each collection object</li>
-        <li>Identifier with namespace DRMLabVoucher will be attached with the value of the "voucher_number_prefix" + "voucher_number_string" column if not blank to each collection object</li>
+        <li>Identifier with namespace DRMLabVoucher will be attached with the value of the "voucher_number_prefix" + "voucher_number_string" column once if not blank to each collection object</li>
         <li>Identifier with namespace DRMDNAVoucher will be attached with the value of the "sample_code_prefix" and "sample_code" column if not blank to each collection object</li>
         <li>Identifier with namespace GenBank will be attached with the value of the "sample_code_prefix" and "sample_code" columns if not blank to each extract</li>
         <li>DataAttribute of predicate "SpecimenNumber" with value of "specimen_number" will be attached if not blank to each collection object.</li>
