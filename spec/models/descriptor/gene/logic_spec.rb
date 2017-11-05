@@ -94,6 +94,11 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dn
 
     specify '#compress_logic' do
       expect(descriptor.compress_logic).to eq('(a+b).(c+d)')
+
+      # Make sure the compress logic replaces whole words and not just partial words
+      # e.g A.10 matches only A.10 and NOT A.1
+      descriptor.gene_attribute_logic = '(A.1 OR B.2) AND (A.10 OR B.20)'
+      expect(descriptor.compress_logic).to eq('(a+b).(c+d)')
     end
 
     specify '#attributes_from_or_queries' do
