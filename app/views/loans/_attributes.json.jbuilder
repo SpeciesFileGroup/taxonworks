@@ -14,7 +14,7 @@ if loan.roles.any?
     end
   end
 
-  json.loan_recipient_roles do
+  json.loan_supervisor_roles do
     json.array! loan.loan_supervisor_roles.each do |role|
       json.extract! role, :id, :position
       json.person do
