@@ -2,3 +2,25 @@ json.extract! loan, :id, :date_requested, :request_method, :date_sent, :date_rec
 json.object_tag loan_tag(loan)
 json.url loan_url(loan, format: :json)
 json.global_id loan.to_global_id.to_s
+
+
+if loan.roles.any?
+  json.loan_recipient_roles do
+    json.array! loan.loan_recipient_roles.each do |role|
+      json.extract! role, :id, :position
+      json.person do
+        json.partial! '/people/attributes', person: role.person 
+      end
+    end
+  end
+
+  json.loan_recipient_roles do
+    json.array! loan.loan_supervisor_roles.each do |role|
+      json.extract! role, :id, :position
+      json.person do
+        json.partial! '/people/attributes', person: role.person 
+      end
+    end
+  end
+end 
+
