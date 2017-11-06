@@ -13,8 +13,7 @@
 	export default {
 		props: {
 			list: {
-				type: Array,
-				default: () => []
+				default: undefined
 			},
 			label: {
 				required: true,

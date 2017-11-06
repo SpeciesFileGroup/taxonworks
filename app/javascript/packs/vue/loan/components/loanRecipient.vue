@@ -36,14 +36,17 @@
             <label>Date closed</label>
             <input v-model="loan.date_closed" type="date" class="normal-input"/>
           </div>
-          <button type="button" class="button normal-input button-submit">Create Loan</button>
+          <div>
+            <button @click="update()" v-if="loan.hasOwnProperty('id')" type="button" class="button normal-input button-submit">Update Loan</button>
+            <button @click="create()" v-else type="button" class="button normal-input button-submit">Create Loan</button>
+          </div>
         </div>
 
         <div class="column-right">
           <span><b>Recipient</b></span>
           <hr>
           <label>People</label>
-          <role-picker></role-picker>
+          <role-picker v-model="roles" role-type="LoanRecipient"></role-picker>
           <div class="horizontal-left-content">
             <div class="separate-right">
             <div class="field">
@@ -91,6 +94,7 @@
   import expand from './expand.vue';
 
   import { GetterNames } from '../store/getters/getters';
+  import { updateLoan, createLoan } from '../request/resources';
   
   export default {
     components: {
@@ -103,11 +107,21 @@
           return this.$store.getters[GetterNames.GetLoan]
         }
       },
+      roles: {
+        get() {
+          return this.loan.person
+        },
+        set(value) {
+          this.loan.roles_attributes = value
+        }
+      }
     },
     data: function() {
       return {
         displayBody: true,
         loan: {
+          person: [],
+          roles_attributes: [],
           date_requested: undefined,
           request_method: undefined, 
           date_sent: undefined,
@@ -131,6 +145,19 @@
     watch: {
       getLoan: function() {
         this.loan = this.getLoan;
+      }
+    },
+    methods: {
+      update() {
+        updateLoan(this.loan).then(response => {
+          console.log(this.loan);
+          console.log(response);
+        }) 
+      },
+      create() {
+        createLoan(this.loan).then(response => {
+          console.log(response);
+        }) 
       }
     }
   }

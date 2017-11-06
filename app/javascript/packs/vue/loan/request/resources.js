@@ -24,6 +24,26 @@ const getLoan = function(id) {
   });
 }
 
+const updateLoan = function(loan) {
+  return new Promise(function (resolve, reject) {
+    Vue.http.patch(`/loans/${loan.id}.json`, { loan: loan }).then( response => {
+      return resolve(response.body);
+    }, response => {
+      return reject(response.body);
+    });
+  });
+}
+
+const createLoan = function(loan) {
+  return new Promise(function (resolve, reject) {
+    Vue.http.post(`/loans.json`, loan).then( response => {
+      return resolve(response.body);
+    }, response => {
+      return reject(response.body);
+    });
+  });
+}
+
 const getLoanItems = function(id) {
   return new Promise(function (resolve, reject) {
     Vue.http.get(`/loan_items.json?loan_id=${id}`).then( response => {
@@ -37,5 +57,7 @@ const getLoanItems = function(id) {
 export {
   getTagMetadata,
   getLoan,
-  getLoanItems
+  getLoanItems,
+  createLoan,
+  updateLoan
 }
