@@ -10,6 +10,8 @@ Vue.use(Vuex);
 function makeInitialState() {
   return {
     loan: {
+      person: [],
+      roles_attributes: [],
       date_requested: undefined,
       request_method: undefined, 
       date_sent: undefined,
