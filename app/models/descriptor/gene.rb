@@ -200,7 +200,11 @@ class Descriptor::Gene < Descriptor
     b = gene_attribute_term_index
 
     b.each do |k, v|
-      a.gsub!(/#{k}/, v)
+      # Match whole words, ABC should only match ABC NOT AB.
+      # Uses lookahead to acomplish this by checking if the
+      # next character is a space, closing parentheses, or
+      # is the end of the string
+      a.gsub!(/#{k}(?=[\s)]|$)/, v)
     end
     a.gsub!(/\s+OR\s+/, '+')
     a.gsub!(/\s+AND\s+/, '.')
