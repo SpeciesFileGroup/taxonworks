@@ -161,16 +161,10 @@
     methods: {
       update() {
         this.loan.roles_attributes = this.roles_recipient.concat(this.roles_supervisor);
-        
-        updateLoan(this.loan).then(response => {
-          console.log(this.loan);
-          console.log(response);
-        }) 
+        updateLoan(this.loan);
       },
       create() {
-        createLoan(this.loan).then(response => {
-          console.log(response);
-        }) 
+        createLoan(this.loan)
       }
     }
   }

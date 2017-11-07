@@ -70,11 +70,18 @@
             <p v-html="item.object.object_tag"></p>
             <ul>
               <li v-for="object, key in item.totals">
-
                 <span class="capitalize">{{ key }}: {{ object }} <button type="button" @click="batchLoad(key, item.object.id, 'tags')">Add</button></span>
               </li>
             </ul>
           </div>
+        </div>
+
+        <div v-if="displaySection == 2">
+          <ul>
+            <li v-for="object, key in pinboard.totals">
+              <span class="capitalize">{{ key }}: {{ object }} <button type="button" @click="batchLoad(key, undefined, 'pinboard')">Add</button></span>
+            </li>
+          </ul>
         </div>
 
         <display-list :list="loanItems" @delete="deleteItem" label="object_tag"></display-list>
@@ -162,20 +169,17 @@
 
         createLoanItem(this.loan_item).then(response => {
           that.$store.commit(MutationNames.AddLoanItem, response);
-          console.log(response);
         });
       },
       batchLoad(klass, keyword, type) {
-        var object = {
+        let object = {
           batch_type: type,
           loan_id: this.loan.id,
           keyword_id: keyword,
-          klass: (klass == 'Total' ? undefined : klass)
+          klass: (klass == 'total' ? undefined : klass)
         }
-        console.log(object);
-        createBatchLoad(object).then(response => {
-          console.log(response);
-        })
+
+        this.$store.dispatch(ActionNames.CreateBatchLoad, object);
       },
       deleteItem(item) {
         this.$store.dispatch(ActionNames.DeleteLoanItem, item.id)
