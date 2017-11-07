@@ -103,7 +103,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
         let!(:gnlm) { GeographicArea.where(name: 'Great Northern Land Mass').first }
         let!(:bbxa) { GeographicArea.where(name: 'Big Boxia').first }
 
-        let!(:otum1) { Otu.where(name: 'Find me').first }
+        let!(:otum1) { Otu.where(name: 'Find me, I\'m in M1!').first }
 
         let(:json_string) { '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}}' }
 
