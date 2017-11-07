@@ -169,11 +169,9 @@ class LoanItem < ApplicationRecord
           end
         end
       rescue ActiveRecord::RecordInvalid
-
         return false
       end
     end
-        byebug
     return created
   end
 
