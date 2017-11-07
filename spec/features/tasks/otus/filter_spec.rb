@@ -169,15 +169,18 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
             finder.send_keys('p4')
             wait_for_ajax
             finder.send_keys(:down)
+            wait_for_ajax
             finder.send_keys(:tab)
+            wait_for_ajax
             click_button('Set OTU')
 
+            wait_for_ajax
             find('#find_area_and_nomen_commit').click
             wait_for_ajax
           }
 
           it 'renders count of objects and table found using a drawn area and date range' do
-            find('#area_count', visible: true, text: '15')
+            find('#paging_data', visible: true, text: 'Displaying all 15 otus')
             expect(find(:xpath, "//div['show_list']/table[@class='tablesorter']/thead")).to have_text('Taxon name')
           end
         end
