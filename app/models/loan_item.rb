@@ -161,17 +161,19 @@ class LoanItem < ApplicationRecord
       begin
         if klass
           klass.constantize.joins(:tags).where(tags: {keyword_id: keyword_id}).each do |o|
-            created.push LoanItem.create(loan_item_object: o, loan_id: loan_id)
+            created.push LoanItem.create!(loan_item_object: o, loan_id: loan_id)
           end
         else
           Tag.where(keyword_id: keyword_id).where(tag_object_type: ['Container', 'Otu', 'CollectionObject']).distinct.all.each do |o|
-            created.push LoanItem.create(loan_item_object: o, loan_id: loan_id)
+            created.push LoanItem.create!(loan_item_object: o, loan_id: loan_id)
           end
         end
       rescue ActiveRecord::RecordInvalid
+
         return false
       end
     end
+        byebug
     return created
   end
 
@@ -183,11 +185,11 @@ class LoanItem < ApplicationRecord
       begin
         if klass
           klass.constantize.joins(:pinboard_items).where(pinboard_items: {user_id: user_id, project_id: project_id, pinned_object_type: klass}).each do |o| 
-            created.push LoanItem.create(loan_item_object: o, loan_id: loan_id)
+            created.push LoanItem.create!(loan_item_object: o, loan_id: loan_id)
           end
         else
           PinboardItem.where(project_id: project_id, user_id: user_id, pinned_object_type: ['Container', 'Otu', 'CollectionObject']).all.each do |o|
-            created.push LoanItem.create(loan_item_object: o.pinned_object, loan_id: loan_id)
+            created.push LoanItem.create!(loan_item_object: o.pinned_object, loan_id: loan_id)
           end
         end
       rescue ActiveRecord::RecordInvalid
@@ -196,7 +198,6 @@ class LoanItem < ApplicationRecord
     end
     return created
   end
-
 
   protected
 
