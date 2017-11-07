@@ -70,7 +70,8 @@
             <p v-html="item.object.object_tag"></p>
             <ul>
               <li v-for="object, key in item.totals">
-                <span class="capitalize">{{ key }}: {{ object }}</span>
+
+                <span class="capitalize">{{ key }}: {{ object }} <button type="button" @click="batchLoad(key, item.object.id, 'tags')">Add</button></span>
               </li>
             </ul>
           </div>
@@ -87,7 +88,7 @@
   import autocomplete from '../../components/autocomplete.vue';
   import expand from './expand.vue';
 
-  import { getTagMetadata, createLoanItem } from '../request/resources';
+  import { getTagMetadata, createLoanItem, createBatchLoad } from '../request/resources';
   import ActionNames from '../store/actions/actionNames';
   import { GetterNames } from '../store/getters/getters';
   import { MutationNames } from '../store/mutations/mutations';
@@ -163,6 +164,18 @@
           that.$store.commit(MutationNames.AddLoanItem, response);
           console.log(response);
         });
+      },
+      batchLoad(klass, keyword, type) {
+        var object = {
+          batch_type: type,
+          loan_id: this.loan.id,
+          keyword_id: keyword,
+          klass: (klass == 'Total' ? undefined : klass)
+        }
+        console.log(object);
+        createBatchLoad(object).then(response => {
+          console.log(response);
+        })
       },
       deleteItem(item) {
         this.$store.dispatch(ActionNames.DeleteLoanItem, item.id)
