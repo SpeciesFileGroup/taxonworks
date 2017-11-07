@@ -14,6 +14,16 @@ const getTagMetadata = function() {
   });
 }
 
+const createBatchLoad = function(params) {
+  return new Promise(function(resolve,reject) {
+    Vue.http.post('/loan_items/batch_create', params).then(response => {
+      return resolve(response.body);
+    }, response => {
+      return reject(response.body);
+    })
+  });
+}
+
 const getLoan = function(id) {
   return new Promise(function (resolve, reject) {
     Vue.http.get(`/loans/${id}.json`).then( response => {
@@ -76,6 +86,7 @@ const getLoanItems = function(id) {
 }
 
 export {
+  createBatchLoad,
   destroyLoanItem,
   getTagMetadata,
   getLoan,
