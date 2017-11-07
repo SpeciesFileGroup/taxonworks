@@ -1,6 +1,7 @@
 const ActionNames = {
     LoadLoan: 'loadLoan',
-    LoadLoanItems: 'loadLoanItems'
+    LoadLoanItems: 'loadLoanItems',
+    DeleteLoanItem: 'deleteLoanItem'
 };
 
 export default ActionNames;
