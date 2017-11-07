@@ -148,9 +148,9 @@ class LoanItem < ApplicationRecord
   # TODO: param handling is currently all kinds of "meh"
   def self.batch_create(params)
     case params[:batch_type] 
-    when :tags
+    when 'tags'
       batch_create_from_tags(params[:keyword_id], params[:klass], params[:loan_id])
-    when :pinboard
+    when 'pinboard'
       batch_create_from_pinboard(params[:loan_id], params[:project_id], params[:user_id], params[:klass])
     end
   end
