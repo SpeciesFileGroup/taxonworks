@@ -94,8 +94,9 @@
   import rolePicker from '../../components/role_picker.vue';
   import expand from './expand.vue';
 
+  import ActionNames from '../store/actions/actionNames';
   import { GetterNames } from '../store/getters/getters';
-  import { updateLoan, createLoan } from '../request/resources';
+  import { updateLoan } from '../request/resources';
   
   export default {
     components: {
@@ -164,7 +165,8 @@
         updateLoan(this.loan);
       },
       create() {
-        createLoan(this.loan)
+        this.loan.roles_attributes = this.roles_recipient.concat(this.roles_supervisor);
+        this.$store.dispatch(ActionNames.CreateLoan, this.loan);
       }
     }
   }
