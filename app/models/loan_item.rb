@@ -149,7 +149,7 @@ class LoanItem < ApplicationRecord
   def self.batch_create(params)
     case params[:batch_type] 
     when :tags
-      batch_create_from_tags(params[:keyword_id],params[:klass], params[:loan_id])
+      batch_create_from_tags(params[:keyword_id], params[:klass], params[:loan_id])
     when :pinboard
       batch_create_from_pinboard(params[:loan_id], params[:project_id], params[:user_id], params[:klass])
     end

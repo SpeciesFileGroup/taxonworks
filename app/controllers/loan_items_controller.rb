@@ -100,8 +100,8 @@ class LoanItemsController < ApplicationController
   # POST /loan_items/batch_create?batch_type=tags&loan_id=123&keyword_id=456&klass=Otu
   # POST /loan_items/batch_create?batch_type=pinboard&loan_id=123&klass=Otu
   def batch_create
-    if r = LoanItem.batch_create(batch_params)
-      render json: {success: true}
+    if @loan_items = LoanItem.batch_create(batch_params)
+      render :index
     else
       render json: {success: false}
     end 
