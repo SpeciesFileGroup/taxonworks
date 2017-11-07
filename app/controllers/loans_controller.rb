@@ -120,6 +120,8 @@ class LoansController < ApplicationController
                                    :_destroy, 
                                    :id, 
                                    :global_entity,
+                                   :loan_item_object_type,
+                                   :loan_item_object_id,
                                    :position,
                                    :total, 
                                    :disposition, 
