@@ -57,7 +57,6 @@
 		}
 	}
 	.table-entrys-list {
-		//max-height: 100%;
 		overflow-y: scroll;
 	  	padding: 0px;
 	  	position: relative;

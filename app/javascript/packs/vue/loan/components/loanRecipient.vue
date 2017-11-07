@@ -46,7 +46,7 @@
           <span><b>Recipient</b></span>
           <hr>
           <label>People</label>
-          <role-picker v-model="roles" role-type="LoanRecipient"></role-picker>
+          <role-picker v-model="rolesRecipient" role-type="LoanRecipient"></role-picker>
           <div class="horizontal-left-content">
             <div class="separate-right">
             <div class="field">
@@ -75,6 +75,7 @@
           </div>
           <p><b>Supervisor</b></p>
           <hr/>
+          <role-picker v-model="rolesSupervisor" role-type="LoanSupervisor"></role-picker>
           <div class="field">
             <label>Email</label>
             <input v-model="loan.supervisor_email" type="text" class="normal-input"/>
@@ -107,20 +108,30 @@
           return this.$store.getters[GetterNames.GetLoan]
         }
       },
-      roles: {
+      rolesRecipient: {
         get() {
-          return this.loan.person
+          return this.loan.loan_recipient_roles
         },
         set(value) {
-          this.loan.roles_attributes = value
+          this.roles_recipient = value
+        }
+      },
+      rolesSupervisor: {
+        get() {
+          return this.loan.loan_supervisor_roles
+        },
+        set(value) {
+          this.roles_supervisor = value
         }
       }
     },
     data: function() {
       return {
         displayBody: true,
+        roles_supervisor: [],
+        roles_recipient: [],
         loan: {
-          person: [],
+          loan_recipient_roles: [],
           roles_attributes: [],
           date_requested: undefined,
           request_method: undefined, 
@@ -149,6 +160,8 @@
     },
     methods: {
       update() {
+        this.loan.roles_attributes = this.roles_recipient.concat(this.roles_supervisor);
+        
         updateLoan(this.loan).then(response => {
           console.log(this.loan);
           console.log(response);

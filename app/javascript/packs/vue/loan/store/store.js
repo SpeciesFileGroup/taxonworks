@@ -9,8 +9,11 @@ Vue.use(Vuex);
 
 function makeInitialState() {
   return {
+    settings: {
+      loading: false,
+      saving: false
+    },
     loan: {
-      person: [],
       roles_attributes: [],
       date_requested: undefined,
       request_method: undefined, 
