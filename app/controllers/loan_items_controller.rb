@@ -118,7 +118,7 @@ class LoanItemsController < ApplicationController
   end
 
   def batch_params
-    params.permit(:batch_type, :loan_id, :keyword_id, :klass).symbolize_keys.merge(project_id: sessions_current_project_id, user_id: sessions_current_user_id)
+    params.permit(:batch_type, :loan_id, :keyword_id, :klass).to_h.symbolize_keys.merge(project_id: sessions_current_project_id, user_id: sessions_current_user_id)
   end
 
   def loan_item_params
