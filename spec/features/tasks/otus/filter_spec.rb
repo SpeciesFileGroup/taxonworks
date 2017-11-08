@@ -24,79 +24,79 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
         }
 
         let!(:co_m1a_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M1A')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M1A')
           @co_m1a.otus << o
         }
         let!(:co_m1_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M1')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M1')
           @co_m1.otus << o
         }
         let!(:co_n1_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N1, No georeference')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'N1, No georeference')
           @co_n1.otus << o
         }
         let!(:co_o1_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O1')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'O1')
           @co_o1.otus << o
         }
         let!(:co_p1_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P1')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'P1')
           @co_p1.otus << o
         }
         let!(:co_m2_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M2')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M2')
           @co_m2.otus << o
         }
         let!(:co_n2_a_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N2A')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'N2A')
           @co_n2_a.otus << o
         }
         let!(:co_n2_b_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N2B')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'N2B')
           @co_n2_b.otus << o
         }
         let!(:co_o2_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O2')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'O2')
           @co_o2.otus << o
         }
         let!(:co_p2_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P2, No georeference')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'P2, No georeference')
           @co_p2.otus << o
         }
         let!(:co_m3_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M3')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M3')
           @co_m3.otus << o
         }
         let!(:co_n3_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N3')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'N3')
           @co_n3.otus << o
         }
         let!(:co_o3_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O3, No georeference')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'O3, No georeference')
           @co_o3.otus << o
         }
         let!(:co_p3_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P3, No georeference')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'P3, No georeference')
           @co_p3.otus << o
         }
         let!(:co_m4_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M4')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M4')
           @co_m4.otus << o
         }
         let!(:co_n4_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N4')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'N4')
           @co_n4.otus << o
         }
         let!(:co_o4_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O4')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'O4')
           @co_o4.otus << o
         }
         let!(:co_p4_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P4')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'P4')
           @co_p4.otus << o
         }
         let!(:co_v_o) {
-          o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'I can\'t be found!')
+          o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'I can\'t be found!')
           @co_v.otus << o
         }
 

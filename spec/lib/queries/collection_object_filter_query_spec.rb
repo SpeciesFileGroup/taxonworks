@@ -8,79 +8,79 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
     }
 
     let!(:co_m1a_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M1A')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M1A')
       @co_m1a.otus << o
     }
     let!(:co_m1_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M1')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M1')
       @co_m1.otus << o
     }
     let!(:co_n1_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N1, No georeference')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'N1, No georeference')
       @co_n1.otus << o
     }
     let!(:co_o1_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O1')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'O1')
       @co_o1.otus << o
     }
     let!(:co_p1_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P1')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'P1')
       @co_p1.otus << o
     }
     let!(:co_m2_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M2')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M2')
       @co_m2.otus << o
     }
     let!(:co_n2_a_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N2A')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'N2A')
       @co_n2_a.otus << o
     }
     let!(:co_n2_b_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N2B')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'N2B')
       @co_n2_b.otus << o
     }
     let!(:co_o2_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O2')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'O2')
       @co_o2.otus << o
     }
     let!(:co_p2_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P2, No georeference')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'P2, No georeference')
       @co_p2.otus << o
     }
     let!(:co_m3_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M3')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M3')
       @co_m3.otus << o
     }
     let!(:co_n3_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N3')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'N3')
       @co_n3.otus << o
     }
     let!(:co_o3_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O3, No georeference')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'O3, No georeference')
       @co_o3.otus << o
     }
     let!(:co_p3_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P3, No georeference')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'P3, No georeference')
       @co_p3.otus << o
     }
     let!(:co_m4_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'M4')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M4')
       @co_m4.otus << o
     }
     let!(:co_n4_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'N4')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'N4')
       @co_n4.otus << o
     }
     let!(:co_o4_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'O4')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'O4')
       @co_o4.otus << o
     }
     let!(:co_p4_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'P4')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'P4')
       @co_p4.otus << o
     }
     let!(:co_v_o) {
-      o = FactoryGirl.create(:valid_otu_with_taxon_name, name: 'I can\'t be found!')
+      o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'I can\'t be found!')
       @co_v.otus << o
     }
 
@@ -150,18 +150,18 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
     end
 
     context 'otu search' do
-      let(:params_with) { {otu_id: otum1a.id, otu_descendants: 'on'} }
+      let(:params_with) { {otu_id: otum1.id, otu_descendants: 'on'} }
       let(:params_without) { {otu_id: otum1a.id, otu_descendants: 'off'} }
 
       specify 'with descendants' do
         result = Queries::CollectionObjectFilterQuery.new(params_with).result
-        expect(result).to eq(otum1a.collection_objects)
+        expect(result).to contain_exactly(otum1.collection_objects, otum1a.collection_objects.first)
       end
 
       # TODO: need to build a descendant
-      xspecify 'without descendants' do
+      specify 'without descendants' do
         result = Queries::CollectionObjectFilterQuery.new(params_without).result
-        expect(result).to include(otum1a.collection_objects.first)
+        expect(result).to contain_exactly(otum1a.collection_objects.first)
       end
 
     end
@@ -173,27 +173,34 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
     context 'identifier search' do
       let!(:user) { User.find(1) }
       let!(:project) { Project.find(1) }
-      let(:params) {{}}
+      let(:co_32) {Specimen.last}
+      let(:co_30) {Specimen.find(co_32.id - 2)}
+      let(:co_28) {Specimen.find(co_30.id - 2)}
+      let(:co_26) {Specimen.find(co_28.id - 2)}
+      let(:co_24) {Specimen.find(co_26.id - 2)}
       specify '' do
 
-        2.times { FactoryGirl.create(:valid_namespace, creator: user, updater: user) }
+        2.times { FactoryBot.create(:valid_namespace, creator: user, updater: user) }
         ns1 = Namespace.first
         ns2 = Namespace.second
-        2.times { FactoryGirl.create(:valid_specimen, creator: user, updater: user, project: project) }
+        2.times { FactoryBot.create(:valid_specimen, creator: user, updater: user, project: project) }
         (1..10).each { |identifier|
-          sp = FactoryGirl.create(:valid_specimen, creator: user, updater: user, project: project)
-          id = FactoryGirl.create(:identifier_local_catalog_number,
-                                  updater:           user,
-                                  project:           project,
-                                  creator:           user,
-                                  identifier_object: sp,
-                                  namespace:         ((identifier % 2) == 0 ? ns1 : ns2),
-                                  identifier:        identifier)
+          sp = FactoryBot.create(:valid_specimen, creator: user, updater: user, project: project)
+          id = FactoryBot.create(:identifier_local_catalog_number,
+                                 updater:           user,
+                                 project:           project,
+                                 creator:           user,
+                                 identifier_object: sp,
+                                 namespace:         ((identifier % 2) == 0 ? ns1 : ns2),
+                                 identifier:        identifier)
         }
 
 
+
+        params = {id_namespace: ns1.short_name, id_range_start: '0', id_range_stop: '11'}
+
         result = Queries::CollectionObjectFilterQuery.new(params).result
-        expect(result).to include(otum1, otum1a)
+        expect(result).to contain_exactly(co_32, co_30, co_28, co_26, co_24)
       end
     end
 

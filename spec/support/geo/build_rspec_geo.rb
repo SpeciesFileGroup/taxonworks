@@ -499,7 +499,7 @@ def prepare_test(user_id, project_id)
   if $user_id.nil?
     if user_id.nil?
       u        = User.order(:id).first
-      u        = FactoryGirl.create(:valid_user, id: 1) if u.nil?
+      u        = FactoryBot.create(:valid_user, id: 1) if u.nil?
       $user_id = u.id
     else
       $user_id = user_id
@@ -509,7 +509,7 @@ def prepare_test(user_id, project_id)
   if $project_id.nil?
     if project_id.nil?
       p           = Project.order(:id).first
-      p           = FactoryGirl.create(:valid_project, id: 1, without_root_taxon_name: true) if p.nil?
+      p           = FactoryBot.create(:valid_project, id: 1, without_root_taxon_name: true) if p.nil?
       $project_id = p.id
     else
       $project_id = project_id
@@ -527,72 +527,72 @@ end
 def generate_geo_test_objects(user_id, project_id, run_in_console = false, user = nil)
   prepare_test(user_id, project_id) if run_in_console
 
-  @p0  = FactoryGirl.build(:geographic_item_point, point: POINT0.as_binary) # 0
-  @p1  = FactoryGirl.build(:geographic_item_point, point: POINT1.as_binary) # 1
-  @p2  = FactoryGirl.build(:geographic_item_point, point: POINT2.as_binary) # 2
-  @p3  = FactoryGirl.build(:geographic_item_point, point: POINT3.as_binary) # 3
-  @p4  = FactoryGirl.build(:geographic_item_point, point: POINT4.as_binary) # 4
-  @p5  = FactoryGirl.build(:geographic_item_point, point: POINT5.as_binary) # 5
-  @p6  = FactoryGirl.build(:geographic_item_point, point: POINT6.as_binary) # 6
-  @p7  = FactoryGirl.build(:geographic_item_point, point: POINT7.as_binary) # 7
-  @p8  = FactoryGirl.build(:geographic_item_point, point: POINT8.as_binary) # 8
-  @p9  = FactoryGirl.build(:geographic_item_point, point: POINT9.as_binary) # 9
-  @p10 = FactoryGirl.build(:geographic_item_point, point: POINT10.as_binary) # 10
-  @p11 = FactoryGirl.build(:geographic_item_point, point: POINT11.as_binary) # 11
-  @p12 = FactoryGirl.build(:geographic_item_point, point: POINT12.as_binary) # 12
-  @p13 = FactoryGirl.build(:geographic_item_point, point: POINT13.as_binary) # 13
-  @p14 = FactoryGirl.build(:geographic_item_point, point: POINT14.as_binary) # 14
-  @p15 = FactoryGirl.build(:geographic_item_point, point: POINT15.as_binary) # 15
-  @p16 = FactoryGirl.build(:geographic_item_point, point: POINT16.as_binary) # 16
-  @p17 = FactoryGirl.build(:geographic_item_point, point: POINT17.as_binary) # 17
-  @p18 = FactoryGirl.build(:geographic_item_point, point: POINT18.as_binary) # 18
-  @p19 = FactoryGirl.build(:geographic_item_point, point: POINT19.as_binary) # 19
-  @p20 = FactoryGirl.build(:geographic_item_point, point: POINT20.as_binary) # 20
-  @p21 = FactoryGirl.build(:geographic_item_point, point: POINT21.as_binary) # 21
-  @p22 = FactoryGirl.build(:geographic_item_point, point: POINT22.as_binary) # 22
+  @p0  = FactoryBot.build(:geographic_item_point, point: POINT0.as_binary) # 0
+  @p1  = FactoryBot.build(:geographic_item_point, point: POINT1.as_binary) # 1
+  @p2  = FactoryBot.build(:geographic_item_point, point: POINT2.as_binary) # 2
+  @p3  = FactoryBot.build(:geographic_item_point, point: POINT3.as_binary) # 3
+  @p4  = FactoryBot.build(:geographic_item_point, point: POINT4.as_binary) # 4
+  @p5  = FactoryBot.build(:geographic_item_point, point: POINT5.as_binary) # 5
+  @p6  = FactoryBot.build(:geographic_item_point, point: POINT6.as_binary) # 6
+  @p7  = FactoryBot.build(:geographic_item_point, point: POINT7.as_binary) # 7
+  @p8  = FactoryBot.build(:geographic_item_point, point: POINT8.as_binary) # 8
+  @p9  = FactoryBot.build(:geographic_item_point, point: POINT9.as_binary) # 9
+  @p10 = FactoryBot.build(:geographic_item_point, point: POINT10.as_binary) # 10
+  @p11 = FactoryBot.build(:geographic_item_point, point: POINT11.as_binary) # 11
+  @p12 = FactoryBot.build(:geographic_item_point, point: POINT12.as_binary) # 12
+  @p13 = FactoryBot.build(:geographic_item_point, point: POINT13.as_binary) # 13
+  @p14 = FactoryBot.build(:geographic_item_point, point: POINT14.as_binary) # 14
+  @p15 = FactoryBot.build(:geographic_item_point, point: POINT15.as_binary) # 15
+  @p16 = FactoryBot.build(:geographic_item_point, point: POINT16.as_binary) # 16
+  @p17 = FactoryBot.build(:geographic_item_point, point: POINT17.as_binary) # 17
+  @p18 = FactoryBot.build(:geographic_item_point, point: POINT18.as_binary) # 18
+  @p19 = FactoryBot.build(:geographic_item_point, point: POINT19.as_binary) # 19
+  @p20 = FactoryBot.build(:geographic_item_point, point: POINT20.as_binary) # 20
+  @p21 = FactoryBot.build(:geographic_item_point, point: POINT21.as_binary) # 21
+  @p22 = FactoryBot.build(:geographic_item_point, point: POINT22.as_binary) # 22
 
-  # @p12c = FactoryGirl.build(:geographic_item_point, point: POINT12.as_binary) # 23
+  # @p12c = FactoryBot.build(:geographic_item_point, point: POINT12.as_binary) # 23
 
-  @a  = FactoryGirl.build(:geographic_item_line_string, line_string: SHAPE_A.as_binary) # 24
-  @b1 = FactoryGirl.build(:geographic_item_polygon, polygon: SHAPE_B_OUTER.as_binary) # 25
-  @b2 = FactoryGirl.build(:geographic_item_polygon, polygon: SHAPE_B_INNER.as_binary) # 26
-  @b  = FactoryGirl.build(:geographic_item_polygon, polygon: SHAPE_B.as_binary) # 27
-  @c1 = FactoryGirl.build(:geographic_item_line_string, line_string: SHAPE_C1) # 28
-  @c2 = FactoryGirl.build(:geographic_item_line_string, line_string: SHAPE_C2) # 28
-  @c3 = FactoryGirl.build(:geographic_item_line_string, line_string: SHAPE_C3) # 29
-  @c  = FactoryGirl.build(:geographic_item_multi_line_string, multi_line_string: SHAPE_C.as_binary) # 30
-  @d  = FactoryGirl.build(:geographic_item_line_string, line_string: SHAPE_D.as_binary) # 31
-  @e1 = FactoryGirl.build(:geographic_item_polygon, polygon: POLY_E1.as_binary) # 32
-  @e2 = FactoryGirl.build(:geographic_item_polygon, polygon: POLY_E2.as_binary) # 33
-  @e3 = FactoryGirl.build(:geographic_item_polygon, polygon: POLY_E3.as_binary) # 34
-  @e4 = FactoryGirl.build(:geographic_item_polygon, polygon: POLY_E4.as_binary) # 35
-  @e5 = FactoryGirl.build(:geographic_item_polygon, polygon: POLY_E5.as_binary) # 36
-  @e  = FactoryGirl.build(:geographic_item_geometry_collection, geometry_collection: SHAPE_E.as_binary) # 37
-  @f1 = FactoryGirl.build(:geographic_item_line_string, line_string: SHAPE_F1.as_binary) # 38
-  @f2 = FactoryGirl.build(:geographic_item_line_string, line_string: SHAPE_F2.as_binary) # 39
-  @f  = FactoryGirl.build(:geographic_item_multi_line_string, multi_line_string: SHAPE_F.as_binary) # 40
-  @g1 = FactoryGirl.build(:geographic_item_polygon, polygon: SHAPE_G1.as_binary) # 41
-  @g2 = FactoryGirl.build(:geographic_item_polygon, polygon: SHAPE_G2.as_binary) # 42
-  @g3 = FactoryGirl.build(:geographic_item_polygon, polygon: SHAPE_G3.as_binary) # 43
-  @g  = FactoryGirl.build(:geographic_item_multi_polygon, multi_polygon: SHAPE_G.as_binary) # 44
-  @h  = FactoryGirl.build(:geographic_item_multi_point, multi_point: SHAPE_H.as_binary) # 45
-  @i  = FactoryGirl.build(:geographic_item_line_string, line_string: SHAPE_I) # 46
-  @j  = FactoryGirl.build(:geographic_item_geometry_collection, geometry_collection: SHAPE_J) # 47
-  @k  = FactoryGirl.build(:geographic_item_polygon, polygon: SHAPE_K.as_binary) # 48
-  @l  = FactoryGirl.build(:geographic_item_line_string, line_string: SHAPE_L.as_binary) # 49
+  @a  = FactoryBot.build(:geographic_item_line_string, line_string: SHAPE_A.as_binary) # 24
+  @b1 = FactoryBot.build(:geographic_item_polygon, polygon: SHAPE_B_OUTER.as_binary) # 25
+  @b2 = FactoryBot.build(:geographic_item_polygon, polygon: SHAPE_B_INNER.as_binary) # 26
+  @b  = FactoryBot.build(:geographic_item_polygon, polygon: SHAPE_B.as_binary) # 27
+  @c1 = FactoryBot.build(:geographic_item_line_string, line_string: SHAPE_C1) # 28
+  @c2 = FactoryBot.build(:geographic_item_line_string, line_string: SHAPE_C2) # 28
+  @c3 = FactoryBot.build(:geographic_item_line_string, line_string: SHAPE_C3) # 29
+  @c  = FactoryBot.build(:geographic_item_multi_line_string, multi_line_string: SHAPE_C.as_binary) # 30
+  @d  = FactoryBot.build(:geographic_item_line_string, line_string: SHAPE_D.as_binary) # 31
+  @e1 = FactoryBot.build(:geographic_item_polygon, polygon: POLY_E1.as_binary) # 32
+  @e2 = FactoryBot.build(:geographic_item_polygon, polygon: POLY_E2.as_binary) # 33
+  @e3 = FactoryBot.build(:geographic_item_polygon, polygon: POLY_E3.as_binary) # 34
+  @e4 = FactoryBot.build(:geographic_item_polygon, polygon: POLY_E4.as_binary) # 35
+  @e5 = FactoryBot.build(:geographic_item_polygon, polygon: POLY_E5.as_binary) # 36
+  @e  = FactoryBot.build(:geographic_item_geometry_collection, geometry_collection: SHAPE_E.as_binary) # 37
+  @f1 = FactoryBot.build(:geographic_item_line_string, line_string: SHAPE_F1.as_binary) # 38
+  @f2 = FactoryBot.build(:geographic_item_line_string, line_string: SHAPE_F2.as_binary) # 39
+  @f  = FactoryBot.build(:geographic_item_multi_line_string, multi_line_string: SHAPE_F.as_binary) # 40
+  @g1 = FactoryBot.build(:geographic_item_polygon, polygon: SHAPE_G1.as_binary) # 41
+  @g2 = FactoryBot.build(:geographic_item_polygon, polygon: SHAPE_G2.as_binary) # 42
+  @g3 = FactoryBot.build(:geographic_item_polygon, polygon: SHAPE_G3.as_binary) # 43
+  @g  = FactoryBot.build(:geographic_item_multi_polygon, multi_polygon: SHAPE_G.as_binary) # 44
+  @h  = FactoryBot.build(:geographic_item_multi_point, multi_point: SHAPE_H.as_binary) # 45
+  @i  = FactoryBot.build(:geographic_item_line_string, line_string: SHAPE_I) # 46
+  @j  = FactoryBot.build(:geographic_item_geometry_collection, geometry_collection: SHAPE_J) # 47
+  @k  = FactoryBot.build(:geographic_item_polygon, polygon: SHAPE_K.as_binary) # 48
+  @l  = FactoryBot.build(:geographic_item_line_string, line_string: SHAPE_L.as_binary) # 49
 
-  @r2020 = FactoryGirl.build(:geographic_item_point, point: ROOM2020.as_binary) # 50
-  @r2022 = FactoryGirl.build(:geographic_item_point, point: ROOM2022.as_binary) # 51
-  @r2024 = FactoryGirl.build(:geographic_item_point, point: ROOM2024.as_binary) # 52
-  @rooms = FactoryGirl.build(:geographic_item_multi_point, multi_point: ROOMS20NN.as_binary) # 53
+  @r2020 = FactoryBot.build(:geographic_item_point, point: ROOM2020.as_binary) # 50
+  @r2022 = FactoryBot.build(:geographic_item_point, point: ROOM2022.as_binary) # 51
+  @r2024 = FactoryBot.build(:geographic_item_point, point: ROOM2024.as_binary) # 52
+  @rooms = FactoryBot.build(:geographic_item_multi_point, multi_point: ROOMS20NN.as_binary) # 53
 
-  @all_items    = FactoryGirl.build(:geographic_item_geometry_collection, geometry_collection: ALL_SHAPES.as_binary) # 54
-  @outer_limits = FactoryGirl.build(:geographic_item_line_string, line_string: CONVEX_HULL.exterior_ring.as_binary) # 55
+  @all_items    = FactoryBot.build(:geographic_item_geometry_collection, geometry_collection: ALL_SHAPES.as_binary) # 54
+  @outer_limits = FactoryBot.build(:geographic_item_line_string, line_string: CONVEX_HULL.exterior_ring.as_binary) # 55
 
-  @item_a = FactoryGirl.build(:geographic_item_polygon, polygon: BOX_1) # 57
-  @item_b = FactoryGirl.build(:geographic_item_polygon, polygon: BOX_2) # 58
-  @item_c = FactoryGirl.build(:geographic_item_polygon, polygon: BOX_3) # 59
-  @item_d = FactoryGirl.build(:geographic_item_polygon, polygon: BOX_4) # 60
+  @item_a = FactoryBot.build(:geographic_item_polygon, polygon: BOX_1) # 57
+  @item_b = FactoryBot.build(:geographic_item_polygon, polygon: BOX_2) # 58
+  @item_c = FactoryBot.build(:geographic_item_polygon, polygon: BOX_3) # 59
+  @item_d = FactoryBot.build(:geographic_item_polygon, polygon: BOX_4) # 60
 
   @all_gi = [@p0, @p1, @p2, @p3, @p4,
              @p5, @p6, @p7, @p8, @p9,
@@ -708,14 +708,14 @@ end
 def generate_ce_test_objects(user_id, project_id, run_in_console = false, user = nil)
   @debug_names = generate_geo_test_objects(user_id, project_id, run_in_console, user) if @p0.nil?
 
-  @ce_p0 = FactoryGirl.create(:collecting_event, verbatim_label: '@ce_p0')
+  @ce_p0 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p0')
 
-  @gr00 = FactoryGirl.create(:georeference_verbatim_data,
+  @gr00 = FactoryBot.create(:georeference_verbatim_data,
                              api_request:           'gr00',
                              collecting_event:      @ce_p0,
                              error_geographic_item: @item_d,
                              geographic_item:       @p0) #  1
-  @gr10 = FactoryGirl.create(:georeference_verbatim_data,
+  @gr10 = FactoryBot.create(:georeference_verbatim_data,
                              api_request:      'gr10',
                              collecting_event: @ce_p0,
                              geographic_item:  @p10) #  2
@@ -723,12 +723,12 @@ def generate_ce_test_objects(user_id, project_id, run_in_console = false, user =
   gat_land_mass = GeographicAreaType.find_or_create_by(name: 'Land Mass')
 
   # now, for the areas, top-down
-  FactoryGirl.create(:valid_geographic_area_stack)
+  FactoryBot.create(:valid_geographic_area_stack)
 
   # first, level 0 areas
   earth = GeographicArea.where(name: 'Earth').first
 
-  @ga_k = FactoryGirl.create(:geographic_area,
+  @ga_k = FactoryBot.create(:geographic_area,
                              name:                 'k',
                              level0:               earth,
                              parent:               earth,
@@ -736,121 +736,121 @@ def generate_ce_test_objects(user_id, project_id, run_in_console = false, user =
                              geographic_area_type: gat_land_mass)
   @ga_k.geographic_items << @k
 
-  @ce_p1 = FactoryGirl.create(:collecting_event, verbatim_label: '@ce_p1 collect_event test')
+  @ce_p1 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p1 collect_event test')
 
-  @gr01 = FactoryGirl.create(:georeference_verbatim_data,
+  @gr01 = FactoryBot.create(:georeference_verbatim_data,
                              api_request:           'gr01',
                              collecting_event:      @ce_p1,
                              error_geographic_item: @k,
                              geographic_item:       @p1) #  3
 
-  @gr11 = FactoryGirl.create(:georeference_verbatim_data,
+  @gr11 = FactoryBot.create(:georeference_verbatim_data,
                              api_request:           'gr11',
                              error_geographic_item: @e1,
                              collecting_event:      @ce_p1,
                              geographic_item:       @p11) #  4
 
-  @ce_p2 = FactoryGirl.create(:collecting_event, verbatim_label: '@ce_p2 collect_event test')
-  @gr02  = FactoryGirl.create(:georeference_verbatim_data,
+  @ce_p2 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p2 collect_event test')
+  @gr02  = FactoryBot.create(:georeference_verbatim_data,
                               api_request:           'gr02',
                               collecting_event:      @ce_p2,
                               error_geographic_item: @k,
                               geographic_item:       @p2)
-  @gr121 = FactoryGirl.create(:georeference_verbatim_data,
+  @gr121 = FactoryBot.create(:georeference_verbatim_data,
                               api_request:           'gr121',
                               collecting_event:      @ce_p2,
                               error_geographic_item: @e1,
                               geographic_item:       @p12)
 
-  # @gr122 = FactoryGirl.create(:georeference_verbatim_data,
+  # @gr122 = FactoryBot.create(:georeference_verbatim_data,
   #                             api_request: 'gr122',
   #                             collecting_event: @ce_p2,
   #                             error_geographic_item: @e2,
   #                             geographic_item: @p12c)
 
-  @ce_p3 = FactoryGirl.create(:collecting_event, verbatim_label: '@ce_p3 collect_event test')
-  @gr03  = FactoryGirl.create(:georeference_verbatim_data,
+  @ce_p3 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p3 collect_event test')
+  @gr03  = FactoryBot.create(:georeference_verbatim_data,
                               api_request:           'gr03',
                               collecting_event:      @ce_p3,
                               error_geographic_item: @k,
                               geographic_item:       @p3)
-  @gr13  = FactoryGirl.create(:georeference_verbatim_data,
+  @gr13  = FactoryBot.create(:georeference_verbatim_data,
                               api_request:           'gr13',
                               collecting_event:      @ce_p3,
                               error_geographic_item: @e2,
                               geographic_item:       @p13)
 
-  @ce_p4 = FactoryGirl.create(:collecting_event, verbatim_label: '@ce_p4 collect_event test')
-  @gr04  = FactoryGirl.create(:georeference_verbatim_data,
+  @ce_p4 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p4 collect_event test')
+  @gr04  = FactoryBot.create(:georeference_verbatim_data,
                               api_request:      'gr04',
                               collecting_event: @ce_p4,
                               geographic_item:  @p4)
-  @gr14  = FactoryGirl.create(:georeference_verbatim_data,
+  @gr14  = FactoryBot.create(:georeference_verbatim_data,
                               api_request:      'gr14',
                               collecting_event: @ce_p4,
                               geographic_item:  @p14)
 
-  @ce_p5 = FactoryGirl.create(:collecting_event, verbatim_label: '@ce_p5')
-  @gr05  = FactoryGirl.create(:georeference_verbatim_data,
+  @ce_p5 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p5')
+  @gr05  = FactoryBot.create(:georeference_verbatim_data,
                               api_request:      'gr05',
                               collecting_event: @ce_p5,
                               geographic_item:  @p5)
-  @gr15  = FactoryGirl.create(:georeference_verbatim_data,
+  @gr15  = FactoryBot.create(:georeference_verbatim_data,
                               api_request:      'gr15',
                               collecting_event: @ce_p5,
                               geographic_item:  @p15)
 
-  @ce_p6 = FactoryGirl.create(:collecting_event, verbatim_label: '@ce_p6')
-  @gr06  = FactoryGirl.create(:georeference_verbatim_data,
+  @ce_p6 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p6')
+  @gr06  = FactoryBot.create(:georeference_verbatim_data,
                               api_request:      'gr06',
                               collecting_event: @ce_p6,
                               geographic_item:  @p6)
-  @gr16  = FactoryGirl.create(:georeference_verbatim_data,
+  @gr16  = FactoryBot.create(:georeference_verbatim_data,
                               api_request:      'gr16',
                               collecting_event: @ce_p6,
                               geographic_item:  @p16)
 
-  @ce_p7 = FactoryGirl.create(:collecting_event, verbatim_label: '@ce_p7')
-  @gr07  = FactoryGirl.create(:georeference_verbatim_data,
+  @ce_p7 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p7')
+  @gr07  = FactoryBot.create(:georeference_verbatim_data,
                               api_request:      'gr07',
                               collecting_event: @ce_p7,
                               geographic_item:  @p7)
-  @gr17  = FactoryGirl.create(:georeference_verbatim_data,
+  @gr17  = FactoryBot.create(:georeference_verbatim_data,
                               api_request:      'gr17',
                               collecting_event: @ce_p7,
                               geographic_item:  @p17)
 
-  @ce_p8 = FactoryGirl.create(:collecting_event, verbatim_label: '@ce_p8')
-  @gr08  = FactoryGirl.create(:georeference_verbatim_data,
+  @ce_p8 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p8')
+  @gr08  = FactoryBot.create(:georeference_verbatim_data,
                               api_request:      'gr08',
                               collecting_event: @ce_p8,
                               geographic_item:  @p8)
-  @gr18  = FactoryGirl.create(:georeference_verbatim_data,
+  @gr18  = FactoryBot.create(:georeference_verbatim_data,
                               api_request:           'gr18',
                               collecting_event:      @ce_p8,
                               error_geographic_item: @b2,
                               geographic_item:       @p18)
 
-  @ce_p9 = FactoryGirl.create(:collecting_event, verbatim_label: '@ce_p9')
-  @gr09  = FactoryGirl.create(:georeference_verbatim_data,
+  @ce_p9 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p9')
+  @gr09  = FactoryBot.create(:georeference_verbatim_data,
                               api_request:      'gr09',
                               collecting_event: @ce_p9,
                               geographic_item:  @p9)
-  @gr19  = FactoryGirl.create(:georeference_verbatim_data,
+  @gr19  = FactoryBot.create(:georeference_verbatim_data,
                               api_request:           'gr19',
                               collecting_event:      @ce_p9,
                               error_geographic_item: @b,
                               geographic_item:       @p19)
 
-  @ce_area_d = FactoryGirl.create(:collecting_event, verbatim_label: '@ce_area_d')
-  @gr_area_d = FactoryGirl.create(:georeference_verbatim_data,
+  @ce_area_d = FactoryBot.create(:collecting_event, verbatim_label: '@ce_area_d')
+  @gr_area_d = FactoryBot.create(:georeference_verbatim_data,
                                   api_request:      'gr_area_d',
                                   collecting_event: @ce_area_d,
                                   geographic_item:  @item_d)
 
-  @ce_area_v = FactoryGirl.create(:collecting_event, verbatim_label: '@ce_area_v collecting event test')
+  @ce_area_v = FactoryBot.create(:collecting_event, verbatim_label: '@ce_area_v collecting event test')
 
-  # @gr_area_v = FactoryGirl.create(:georeference_verbatim_data,
+  # @gr_area_v = FactoryBot.create(:georeference_verbatim_data,
   #                                 api_request: 'gr_area_v',
   #                                 collecting_event: @ce_area_v,
   #                                 geographic_item: @item_v)
@@ -1030,60 +1030,60 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   shape_f_i       = RSPEC_GEO_FACTORY.multi_polygon([pre_shape_f_i])
 
   # first, the basic 16 shapes
-  @item_m1 = FactoryGirl.create(:geographic_item, multi_polygon: shape_m1)
-  @item_n1 = FactoryGirl.create(:geographic_item, multi_polygon: shape_n1)
-  @item_o1 = FactoryGirl.create(:geographic_item, multi_polygon: shape_o1)
-  @item_p1 = FactoryGirl.create(:geographic_item, multi_polygon: shape_p1)
+  @item_m1 = FactoryBot.create(:geographic_item, multi_polygon: shape_m1)
+  @item_n1 = FactoryBot.create(:geographic_item, multi_polygon: shape_n1)
+  @item_o1 = FactoryBot.create(:geographic_item, multi_polygon: shape_o1)
+  @item_p1 = FactoryBot.create(:geographic_item, multi_polygon: shape_p1)
 
-  @item_m2 = FactoryGirl.create(:geographic_item, multi_polygon: shape_m2)
-  @item_n2 = FactoryGirl.create(:geographic_item, multi_polygon: shape_n2)
-  @item_o2 = FactoryGirl.create(:geographic_item, multi_polygon: shape_o2)
-  @item_p2 = FactoryGirl.create(:geographic_item, multi_polygon: shape_p2)
+  @item_m2 = FactoryBot.create(:geographic_item, multi_polygon: shape_m2)
+  @item_n2 = FactoryBot.create(:geographic_item, multi_polygon: shape_n2)
+  @item_o2 = FactoryBot.create(:geographic_item, multi_polygon: shape_o2)
+  @item_p2 = FactoryBot.create(:geographic_item, multi_polygon: shape_p2)
 
-  @item_m3 = FactoryGirl.create(:geographic_item, multi_polygon: shape_m3)
-  @item_n3 = FactoryGirl.create(:geographic_item, multi_polygon: shape_n3)
-  @item_o3 = FactoryGirl.create(:geographic_item, multi_polygon: shape_o3)
-  @item_p3 = FactoryGirl.create(:geographic_item, multi_polygon: shape_p3)
+  @item_m3 = FactoryBot.create(:geographic_item, multi_polygon: shape_m3)
+  @item_n3 = FactoryBot.create(:geographic_item, multi_polygon: shape_n3)
+  @item_o3 = FactoryBot.create(:geographic_item, multi_polygon: shape_o3)
+  @item_p3 = FactoryBot.create(:geographic_item, multi_polygon: shape_p3)
 
-  @item_m4 = FactoryGirl.create(:geographic_item, multi_polygon: shape_m4)
-  @item_n4 = FactoryGirl.create(:geographic_item, multi_polygon: shape_n4)
-  @item_o4 = FactoryGirl.create(:geographic_item, multi_polygon: shape_o4)
-  @item_p4 = FactoryGirl.create(:geographic_item, multi_polygon: shape_p4)
+  @item_m4 = FactoryBot.create(:geographic_item, multi_polygon: shape_m4)
+  @item_n4 = FactoryBot.create(:geographic_item, multi_polygon: shape_n4)
+  @item_o4 = FactoryBot.create(:geographic_item, multi_polygon: shape_o4)
+  @item_p4 = FactoryBot.create(:geographic_item, multi_polygon: shape_p4)
 
   # next, the big shape, and two sub-shapes
-  @item_q   = FactoryGirl.create(:geographic_item, multi_polygon: shape_q)
-  @item_t_1 = FactoryGirl.create(:geographic_item, multi_polygon: shape_t_1)
-  @item_t_2 = FactoryGirl.create(:geographic_item, multi_polygon: shape_t_2)
-  @item_u   = FactoryGirl.create(:geographic_item, multi_polygon: shape_u)
+  @item_q   = FactoryBot.create(:geographic_item, multi_polygon: shape_q)
+  @item_t_1 = FactoryBot.create(:geographic_item, multi_polygon: shape_t_1)
+  @item_t_2 = FactoryBot.create(:geographic_item, multi_polygon: shape_t_2)
+  @item_u   = FactoryBot.create(:geographic_item, multi_polygon: shape_u)
 
   # then the medium shapes
-  @item_r = FactoryGirl.create(:geographic_item, multi_polygon: shape_r)
-  @item_s = FactoryGirl.create(:geographic_item, multi_polygon: shape_s)
+  @item_r = FactoryBot.create(:geographic_item, multi_polygon: shape_r)
+  @item_s = FactoryBot.create(:geographic_item, multi_polygon: shape_s)
 
   # secondary country shapes
   # same shape as Q, different object
-  @item_bb = FactoryGirl.create(:geographic_item, multi_polygon: shape_q)
+  @item_bb = FactoryBot.create(:geographic_item, multi_polygon: shape_q)
 
   # superseded country shapes
-  @item_ob   = FactoryGirl.create(:geographic_item, multi_polygon: shape_ob)
-  @item_eb_1 = FactoryGirl.create(:geographic_item, multi_polygon: shape_eb_1)
-  @item_eb_2 = FactoryGirl.create(:geographic_item, multi_polygon: shape_eb_2)
-  @item_wb   = FactoryGirl.create(:geographic_item, multi_polygon: shape_wb)
+  @item_ob   = FactoryBot.create(:geographic_item, multi_polygon: shape_ob)
+  @item_eb_1 = FactoryBot.create(:geographic_item, multi_polygon: shape_eb_1)
+  @item_eb_2 = FactoryBot.create(:geographic_item, multi_polygon: shape_eb_2)
+  @item_wb   = FactoryBot.create(:geographic_item, multi_polygon: shape_wb)
 
   # the entire land mass
-  @item_w = FactoryGirl.create(:geographic_item, multi_polygon: shape_w)
+  @item_w = FactoryBot.create(:geographic_item, multi_polygon: shape_w)
 
   # Far island land mass
-  @item_f_i = FactoryGirl.create(:geographic_item, multi_polygon: shape_f_i)
+  @item_f_i = FactoryBot.create(:geographic_item, multi_polygon: shape_f_i)
 
   # now, for the areas, top-down
-  @object = FactoryGirl.create(:valid_geographic_area_stack)
+  @object = FactoryBot.create(:valid_geographic_area_stack)
 
   # first, level 0 areas
   @earth = GeographicArea.where(name: 'Earth').first
 
   # mimic TDWG North America
-  @area_land_mass = FactoryGirl.create(:level0_geographic_area,
+  @area_land_mass = FactoryBot.create(:level0_geographic_area,
                                        name:                 'Great Northern Land Mass',
                                        geographic_area_type: gat_land_mass,
                                        iso_3166_a3:          nil,
@@ -1092,7 +1092,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   @area_land_mass.geographic_items << @item_w
   @area_land_mass.save
 
-  @area_old_boxia = FactoryGirl.create(:level0_geographic_area,
+  @area_old_boxia = FactoryBot.create(:level0_geographic_area,
                                        name:                 'Old Boxia',
                                        geographic_area_type: gat_country,
                                        iso_3166_a3:          'OB1',
@@ -1100,7 +1100,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                        parent:               @area_land_mass)
   @area_old_boxia.geographic_items << @item_ob
   @area_old_boxia.save
-  @area_big_boxia = FactoryGirl.create(:level0_geographic_area,
+  @area_big_boxia = FactoryBot.create(:level0_geographic_area,
                                        name:                 'Big Boxia',
                                        geographic_area_type: gat_country,
                                        iso_3166_a3:          nil,
@@ -1108,7 +1108,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                        parent:               @area_land_mass)
   @area_big_boxia.geographic_items << @item_bb
   @area_big_boxia.save
-  @area_q = FactoryGirl.create(:level0_geographic_area,
+  @area_q = FactoryBot.create(:level0_geographic_area,
                                name:                 'Q',
                                geographic_area_type: gat_country,
                                iso_3166_a3:          'QQQ',
@@ -1116,7 +1116,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                parent:               @area_land_mass)
   @area_q.geographic_items << @item_q
   @area_q.save
-  @area_east_boxia_1 = FactoryGirl.create(:level0_geographic_area,
+  @area_east_boxia_1 = FactoryBot.create(:level0_geographic_area,
                                           name:                 'East Boxia',
                                           geographic_area_type: gat_country,
                                           iso_3166_a3:          'EB1',
@@ -1124,7 +1124,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                           parent:               @area_land_mass)
   @area_east_boxia_1.geographic_items << @item_eb_1
   @area_east_boxia_1.save
-  @area_east_boxia_2 = FactoryGirl.create(:level0_geographic_area,
+  @area_east_boxia_2 = FactoryBot.create(:level0_geographic_area,
                                           name:                 'East Boxia',
                                           geographic_area_type: gat_country,
                                           iso_3166_a3:          'EB2',
@@ -1132,7 +1132,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                           parent:               @area_land_mass)
   @area_east_boxia_2.geographic_items << @item_eb_2
   @area_east_boxia_2.save
-  @area_east_boxia_3 = FactoryGirl.create(:level1_geographic_area,
+  @area_east_boxia_3 = FactoryBot.create(:level1_geographic_area,
                                           name:                 'East Boxia',
                                           geographic_area_type: gat_state,
                                           iso_3166_a3:          'EB3',
@@ -1140,7 +1140,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                           parent:               @area_old_boxia)
   @area_east_boxia_3.geographic_items << @item_eb_2
   @area_east_boxia_3.save
-  @area_west_boxia_1 = FactoryGirl.create(:level0_geographic_area,
+  @area_west_boxia_1 = FactoryBot.create(:level0_geographic_area,
                                           name:                 'West Boxia',
                                           geographic_area_type: gat_country,
                                           iso_3166_a3:          'WB1',
@@ -1148,7 +1148,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                           parent:               @area_land_mass)
   @area_west_boxia_1.geographic_items << @item_wb
   @area_west_boxia_1.save
-  @area_west_boxia_3 = FactoryGirl.create(:level1_geographic_area,
+  @area_west_boxia_3 = FactoryBot.create(:level1_geographic_area,
                                           name:                 'West Boxia',
                                           geographic_area_type: gat_state,
                                           iso_3166_a3:          'WB3',
@@ -1156,7 +1156,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                           parent:               @area_old_boxia)
   @area_west_boxia_3.geographic_items << @item_wb
   @area_west_boxia_3.save
-  @area_r = FactoryGirl.create(:level0_geographic_area,
+  @area_r = FactoryBot.create(:level0_geographic_area,
                                name:                 'R',
                                geographic_area_type: gat_country,
                                iso_3166_a3:          'RRR',
@@ -1164,7 +1164,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                parent:               @area_land_mass)
   @area_r.geographic_items << @item_r
   @area_r.save
-  @area_s = FactoryGirl.create(:level0_geographic_area,
+  @area_s = FactoryBot.create(:level0_geographic_area,
                                name:                 'S',
                                geographic_area_type: gat_country,
                                iso_3166_a3:          'SSS',
@@ -1174,21 +1174,21 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   @area_s.save
 
   # next, level 1 areas
-  @area_t_1 = FactoryGirl.create(:level1_geographic_area,
+  @area_t_1 = FactoryBot.create(:level1_geographic_area,
                                  name:                 'QT',
                                  tdwgID:               '10TTT',
                                  geographic_area_type: gat_state,
                                  parent:               @area_q)
   @area_t_1.geographic_items << @item_t_1
   @area_t_1.save
-  @area_t_2 = FactoryGirl.create(:level1_geographic_area,
+  @area_t_2 = FactoryBot.create(:level1_geographic_area,
                                  name:                 'QT',
                                  tdwgID:               '20TTT',
                                  geographic_area_type: gat_state,
                                  parent:               @area_q)
   @area_t_2.geographic_items << @item_t_2
   @area_t_2.save
-  @area_u = FactoryGirl.create(:level1_geographic_area,
+  @area_u = FactoryBot.create(:level1_geographic_area,
                                name:                 'QU',
                                tdwgID:               nil,
                                geographic_area_type: gat_state,
@@ -1196,56 +1196,56 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   @area_u.geographic_items << @item_u
   @area_u.save
 
-  @area_qtm1 = FactoryGirl.create(:level2_geographic_area,
+  @area_qtm1 = FactoryBot.create(:level2_geographic_area,
                                   name:                 'QTM1',
                                   geographic_area_type: gat_county,
                                   parent:               @area_t_1)
   @area_qtm1.geographic_items << @item_m1
   @area_qtm1.save
 
-  @area_qtm2 = FactoryGirl.create(:level2_geographic_area,
+  @area_qtm2 = FactoryBot.create(:level2_geographic_area,
                                   name:                 'QTM2',
                                   geographic_area_type: gat_county,
                                   parent:               @area_t_1)
   @area_qtm2.geographic_items << @item_m1
   @area_qtm2.save
 
-  @area_qtn1 = FactoryGirl.create(:level2_geographic_area,
+  @area_qtn1 = FactoryBot.create(:level2_geographic_area,
                                   name:                 'QTN1',
                                   geographic_area_type: gat_county,
                                   parent:               @area_t_1)
   @area_qtn1.geographic_items << @item_n1
   @area_qtn1.save
 
-  @area_qtn2_1 = FactoryGirl.create(:level2_geographic_area,
+  @area_qtn2_1 = FactoryBot.create(:level2_geographic_area,
                                     name:                 'QTN2',
                                     geographic_area_type: gat_county,
                                     parent:               @area_t_1)
   @area_qtn2_1.geographic_items << @item_n2
   @area_qtn2_1.save
 
-  @area_qtn2_2 = FactoryGirl.create(:level2_geographic_area,
+  @area_qtn2_2 = FactoryBot.create(:level2_geographic_area,
                                     name:                 'QTN2',
                                     geographic_area_type: gat_county,
                                     parent:               @area_t_2)
   @area_qtn2_2.geographic_items << @item_n2
   @area_qtn2_2.save
 
-  @area_quo1 = FactoryGirl.create(:level2_geographic_area,
+  @area_quo1 = FactoryBot.create(:level2_geographic_area,
                                   name:                 'QUO1',
                                   geographic_area_type: gat_parish,
                                   parent:               @area_u)
   # @area_quo1.geographic_items << @item_o1
   # @area_quo1.save
 
-  @area_quo2 = FactoryGirl.create(:level2_geographic_area,
+  @area_quo2 = FactoryBot.create(:level2_geographic_area,
                                   name:                 'QUO2',
                                   geographic_area_type: gat_parish,
                                   parent:               @area_u)
   @area_quo2.geographic_items << @item_o2
   @area_quo2.save
 
-  @area_qup1 = FactoryGirl.create(:level2_geographic_area,
+  @area_qup1 = FactoryBot.create(:level2_geographic_area,
                                   name:                 'QUP1',
                                   tdwgID:               nil,
                                   geographic_area_type: gat_parish,
@@ -1253,7 +1253,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   @area_qup1.geographic_items << @item_p1
   @area_qup1.save
 
-  @area_qup2 = FactoryGirl.create(:level2_geographic_area,
+  @area_qup2 = FactoryBot.create(:level2_geographic_area,
                                   name:                 'QUP2',
                                   tdwgID:               nil,
                                   geographic_area_type: gat_parish,
@@ -1261,7 +1261,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   @area_qup2.geographic_items << @item_p2
   @area_qup2.save
 
-  @area_rm3 = FactoryGirl.create(:level1_geographic_area,
+  @area_rm3 = FactoryBot.create(:level1_geographic_area,
                                  name:                 'RM3',
                                  tdwgID:               nil,
                                  geographic_area_type: gat_province,
@@ -1269,7 +1269,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   @area_rm3.geographic_items << @item_m3
   @area_rm3.save
 
-  @area_rm4 = FactoryGirl.create(:level1_geographic_area,
+  @area_rm4 = FactoryBot.create(:level1_geographic_area,
                                  name:                 'RM4',
                                  tdwgID:               nil,
                                  geographic_area_type: gat_province,
@@ -1277,7 +1277,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   @area_rm4.geographic_items << @item_m4
   @area_rm4.save
 
-  @area_rn3 = FactoryGirl.create(:level1_geographic_area,
+  @area_rn3 = FactoryBot.create(:level1_geographic_area,
                                  name:                 'RN3',
                                  tdwgID:               nil,
                                  geographic_area_type: gat_province,
@@ -1285,7 +1285,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   @area_rn3.geographic_items << @item_n3
   @area_rn3.save
 
-  @area_rn4 = FactoryGirl.create(:level1_geographic_area,
+  @area_rn4 = FactoryBot.create(:level1_geographic_area,
                                  name:                 'RN4',
                                  tdwgID:               nil,
                                  geographic_area_type: gat_province,
@@ -1293,7 +1293,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   @area_rn4.geographic_items << @item_n4
   @area_rn4.save
 
-  @area_so3 = FactoryGirl.create(:level1_geographic_area,
+  @area_so3 = FactoryBot.create(:level1_geographic_area,
                                  name:                 'SO3',
                                  tdwgID:               nil,
                                  geographic_area_type: gat_state,
@@ -1301,7 +1301,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   @area_so3.geographic_items << @item_o3
   @area_so3.save
 
-  @area_so4 = FactoryGirl.create(:level1_geographic_area,
+  @area_so4 = FactoryBot.create(:level1_geographic_area,
                                  name:                 'SO4',
                                  tdwgID:               nil,
                                  geographic_area_type: gat_state,
@@ -1309,7 +1309,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   # @area_so4.geographic_items << @item_o4
   # @area_so4.save
 
-  @area_sp3 = FactoryGirl.create(:level1_geographic_area,
+  @area_sp3 = FactoryBot.create(:level1_geographic_area,
                                  name:                 'SP3',
                                  tdwgID:               nil,
                                  geographic_area_type: gat_state,
@@ -1317,7 +1317,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   @area_sp3.geographic_items << @item_p3
   @area_sp3.save
 
-  @area_sp4 = FactoryGirl.create(:level1_geographic_area,
+  @area_sp4 = FactoryBot.create(:level1_geographic_area,
                                  name:                 'SP4',
                                  tdwgID:               nil,
                                  geographic_area_type: gat_state,
@@ -1325,28 +1325,28 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   @area_sp4.geographic_items << @item_p4
   @area_sp4.save
 
-  @area_m3 = FactoryGirl.create(:level1_geographic_area,
+  @area_m3 = FactoryBot.create(:level1_geographic_area,
                                 name:                 'M3',
                                 tdwgID:               nil,
                                 geographic_area_type: gat_province,
                                 parent:               @area_r)
   @area_m3.geographic_items << @item_m3
   @area_m3.save
-  @area_n3 = FactoryGirl.create(:level1_geographic_area,
+  @area_n3 = FactoryBot.create(:level1_geographic_area,
                                 name:                 'N3',
                                 tdwgID:               nil,
                                 geographic_area_type: gat_province,
                                 parent:               @area_r)
   @area_n3.geographic_items << @item_n3
   @area_n3.save
-  @area_m4 = FactoryGirl.create(:level1_geographic_area,
+  @area_m4 = FactoryBot.create(:level1_geographic_area,
                                 name:                 'M4',
                                 tdwgID:               nil,
                                 geographic_area_type: gat_province,
                                 parent:               @area_r)
   @area_m4.geographic_items << @item_m4
   @area_m4.save
-  @area_n4 = FactoryGirl.create(:level1_geographic_area,
+  @area_n4 = FactoryBot.create(:level1_geographic_area,
                                 name:                 'N4',
                                 tdwgID:               nil,
                                 geographic_area_type: gat_province,
@@ -1354,28 +1354,28 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   @area_n4.geographic_items << @item_n4
   @area_n4.save
 
-  @area_o3 = FactoryGirl.create(:level1_geographic_area,
+  @area_o3 = FactoryBot.create(:level1_geographic_area,
                                 name:                 'O3',
                                 tdwgID:               nil,
                                 geographic_area_type: gat_state,
                                 parent:               @area_s)
   @area_o3.geographic_items << @item_o3
   @area_o3.save
-  @area_p3 = FactoryGirl.create(:level1_geographic_area,
+  @area_p3 = FactoryBot.create(:level1_geographic_area,
                                 name:                 'P3',
                                 tdwgID:               nil,
                                 geographic_area_type: gat_state,
                                 parent:               @area_s)
   @area_p3.geographic_items << @item_p3
   @area_p3.save
-  @area_o4 = FactoryGirl.create(:level1_geographic_area,
+  @area_o4 = FactoryBot.create(:level1_geographic_area,
                                 name:                 'O4',
                                 tdwgID:               nil,
                                 geographic_area_type: gat_state,
                                 parent:               @area_s)
   @area_o4.geographic_items << @item_o4
   @area_o4.save
-  @area_p4 = FactoryGirl.create(:level1_geographic_area,
+  @area_p4 = FactoryBot.create(:level1_geographic_area,
                                 name:                 'P4',
                                 tdwgID:               nil,
                                 geographic_area_type: gat_state,
@@ -1384,28 +1384,28 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   @area_p4.save
 
   # last, for level2
-  @area_m1        = FactoryGirl.create(:level2_geographic_area,
+  @area_m1        = FactoryBot.create(:level2_geographic_area,
                                        name:                 'M1',
                                        geographic_area_type: gat_county,
                                        parent:               @area_t_1)
   @area_m1.level0 = @area_t_1
   @area_m1.geographic_items << @item_m1
   @area_m1.save
-  @area_n1        = FactoryGirl.create(:level2_geographic_area,
+  @area_n1        = FactoryBot.create(:level2_geographic_area,
                                        name:                 'N1',
                                        geographic_area_type: gat_county,
                                        parent:               @area_t_1)
   @area_n1.level0 = @area_t_1
   @area_n1.geographic_items << @item_n1
   @area_n1.save
-  @area_m2        = FactoryGirl.create(:level2_geographic_area,
+  @area_m2        = FactoryBot.create(:level2_geographic_area,
                                        name:                 'M2',
                                        geographic_area_type: gat_county,
                                        parent:               @area_t_1)
   @area_m2.level0 = @area_t_1
   @area_m2.geographic_items << @item_m2
   @area_m2.save
-  @area_n2        = FactoryGirl.create(:level2_geographic_area,
+  @area_n2        = FactoryBot.create(:level2_geographic_area,
                                        name:                 'N2',
                                        geographic_area_type: gat_county,
                                        parent:               @area_t_1)
@@ -1413,28 +1413,28 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   @area_n2.geographic_items << @item_n2
   @area_n2.save
 
-  @area_o1        = FactoryGirl.create(:level2_geographic_area,
+  @area_o1        = FactoryBot.create(:level2_geographic_area,
                                        name:                 'O1',
                                        geographic_area_type: gat_parish,
                                        parent:               @area_u)
   @area_o1.level0 = @area_u
   @area_o1.geographic_items << @item_o1
   @area_o1.save
-  @area_p1        = FactoryGirl.create(:level2_geographic_area,
+  @area_p1        = FactoryBot.create(:level2_geographic_area,
                                        name:                 'P1',
                                        geographic_area_type: gat_parish,
                                        parent:               @area_u)
   @area_p1.level0 = @area_u
   @area_p1.geographic_items << @item_p1
   @area_p1.save
-  @area_o2        = FactoryGirl.create(:level2_geographic_area,
+  @area_o2        = FactoryBot.create(:level2_geographic_area,
                                        name:                 'O2',
                                        geographic_area_type: gat_parish,
                                        parent:               @area_u)
   @area_o2.level0 = @area_u
   @area_o2.geographic_items << @item_o2
   @area_o2.save
-  @area_p2        = FactoryGirl.create(:level2_geographic_area,
+  @area_p2        = FactoryBot.create(:level2_geographic_area,
                                        name:                 'P2',
                                        geographic_area_type: gat_parish,
                                        parent:               @area_u)
@@ -1443,7 +1443,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
   @area_p2.save
 
   # build a far-away island
-  @area_far_island = FactoryGirl.create(:level0_geographic_area,
+  @area_far_island = FactoryBot.create(:level0_geographic_area,
                                         name:                 'Far Island',
                                         geographic_area_type: gat_land_mass,
                                         iso_3166_a3:          nil,
@@ -1464,157 +1464,157 @@ def generate_collecting_events(user = nil)
   raise 'no user provided or determinable for generate_collecting_events' if user.nil?
 
   # this is an orphaned collection object, which can only be found by direct reference
-  @td_00          = FactoryGirl.create(:valid_taxon_determination)
+  @td_00          = FactoryBot.create(:valid_taxon_determination)
   @td_00.otu.name = 'Don\'t find me, I have no collecting event!'
   @td_00.otu.save
   @co_00 = @td_00.biological_collection_object
   @co_00.save
 
-  @ce_m1          = FactoryGirl.create(:collecting_event,
+  @ce_m1          = FactoryBot.create(:collecting_event,
                                        start_date_year:   1971,
                                        start_date_month:  1,
                                        start_date_day:    1,
                                        verbatim_locality: 'Lesser Boxia Lake',
                                        verbatim_label:    '@ce_m1',
                                        geographic_area:   @area_m1)
-  @td_m1          = FactoryGirl.create(:valid_taxon_determination)
+  @td_m1          = FactoryBot.create(:valid_taxon_determination)
   @co_m1          = @td_m1.biological_collection_object
   @td_m1.otu.name = 'Find me, I\'m in M1!'
   @td_m1.otu.save
   @co_m1.collecting_event = @ce_m1
   @co_m1.save
-  @gr_m1 = FactoryGirl.create(:georeference_verbatim_data,
+  @gr_m1 = FactoryBot.create(:georeference_verbatim_data,
                               api_request:           'gr_m1',
                               collecting_event:      @ce_m1,
                               error_geographic_item: @item_m1,
                               geographic_item:       GeographicItem.new(point: @item_m1.st_centroid))
 
-  @ce_m1a = FactoryGirl.create(:collecting_event,
+  @ce_m1a = FactoryBot.create(:collecting_event,
                                start_date_year:   1971,
                                start_date_month:  6,
                                start_date_day:    6,
                                verbatim_locality: 'Lesser Boxia Lake',
                                verbatim_label:    '@ce_m1a',
                                geographic_area:   @area_m1)
-  @co_m1a = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_m1a})
-  @gr_m1a = FactoryGirl.create(:georeference_verbatim_data,
+  @co_m1a = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_m1a})
+  @gr_m1a = FactoryBot.create(:georeference_verbatim_data,
                                api_request:           'gr_m1a',
                                collecting_event:      @ce_m1a,
                                error_geographic_item: @item_m1,
                                geographic_item:       GeographicItem.new(point: @item_m1.st_centroid))
 
-  @ce_n1 = FactoryGirl.create(:collecting_event,
+  @ce_n1 = FactoryBot.create(:collecting_event,
                               start_date_year:  1972,
                               start_date_month: 2,
                               start_date_day:   2,
                               verbatim_label:   '@ce_n1',
                               geographic_area:  @area_n1)
-  @co_n1 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_n1})
-  # @gr_n1 = FactoryGirl.create(:georeference_verbatim_data,
+  @co_n1 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_n1})
+  # @gr_n1 = FactoryBot.create(:georeference_verbatim_data,
   #                             api_request: 'gr_n1',
   #                             collecting_event: @ce_n1,
   #                             error_geographic_item: @item_n1,
   #                             geographic_item: GeographicItem.new(point: @item_n1.st_centroid))
 
-  @ce_o1 = FactoryGirl.create(:collecting_event,
+  @ce_o1 = FactoryBot.create(:collecting_event,
                               start_date_year:  1973,
                               start_date_month: 3,
                               start_date_day:   3,
                               verbatim_label:   '@ce_o1',
                               geographic_area:  @area_o1)
-  @co_o1 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_o1})
-  @gr_o1 = FactoryGirl.create(:georeference_verbatim_data,
+  @co_o1 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_o1})
+  @gr_o1 = FactoryBot.create(:georeference_verbatim_data,
                               api_request:           'gr_o1',
                               collecting_event:      @ce_o1,
                               error_geographic_item: @item_o1,
                               geographic_item:       GeographicItem.new(point: @item_o1.st_centroid))
 
-  @ce_p1 = FactoryGirl.create(:collecting_event,
+  @ce_p1 = FactoryBot.create(:collecting_event,
                               start_date_year:  1974,
                               start_date_month: 4,
                               start_date_day:   4,
                               verbatim_label:   '@ce_p1',
                               geographic_area:  @area_p1)
-  @co_p1 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_p1})
-  @gr_p1 = FactoryGirl.create(:georeference_verbatim_data,
+  @co_p1 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_p1})
+  @gr_p1 = FactoryBot.create(:georeference_verbatim_data,
                               api_request:           'gr_p1',
                               collecting_event:      @ce_p1,
                               error_geographic_item: @item_p1,
                               geographic_item:       GeographicItem.new(point: @item_p1.st_centroid))
 
-  @ce_m2 = FactoryGirl.create(:collecting_event,
+  @ce_m2 = FactoryBot.create(:collecting_event,
                               start_date_year:  1975,
                               start_date_month: 5,
                               start_date_day:   5,
                               verbatim_label:   '@ce_m2 in Big Boxia',
                               geographic_area:  @area_big_boxia)
-  @co_m2 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_m2})
-  @gr_m2 = FactoryGirl.create(:georeference_verbatim_data,
+  @co_m2 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_m2})
+  @gr_m2 = FactoryBot.create(:georeference_verbatim_data,
                               api_request:           'gr_m2 in Big Boxia',
                               collecting_event:      @ce_m2,
                               error_geographic_item: @item_m2,
                               geographic_item:       GeographicItem.new(point: @item_m2.st_centroid))
 
   # @ce_n2 has two GRs
-  @ce_n2   = FactoryGirl.create(:collecting_event,
+  @ce_n2   = FactoryBot.create(:collecting_event,
                                 start_date_year:  1976,
                                 start_date_month: 6,
                                 start_date_day:   6,
                                 verbatim_label:   '@ce_n2',
                                 geographic_area:  @area_n2)
-  @co_n2_a = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_n2})
-  @co_n2_b = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_n2})
-  @gr_n2_a = FactoryGirl.create(:georeference_verbatim_data,
+  @co_n2_a = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_n2})
+  @co_n2_b = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_n2})
+  @gr_n2_a = FactoryBot.create(:georeference_verbatim_data,
                                 api_request:           'gr_n2_a',
                                 collecting_event:      @ce_n2,
                                 error_geographic_item: @item_n2,
                                 geographic_item:       GeographicItem.new(point: @item_n2.st_centroid))
-  @gr_n2_b = FactoryGirl.create(:georeference_verbatim_data,
+  @gr_n2_b = FactoryBot.create(:georeference_verbatim_data,
                                 api_request:           'gr_n2_b',
                                 collecting_event:      @ce_n2,
                                 error_geographic_item: @item_n2,
                                 geographic_item:       GeographicItem.new(point: @item_n2.st_centroid))
 
-  @ce_o2 = FactoryGirl.create(:collecting_event,
+  @ce_o2 = FactoryBot.create(:collecting_event,
                               start_date_year:  1977,
                               start_date_month: 7,
                               start_date_day:   7,
                               verbatim_label:   '@ce_o2',
                               geographic_area:  @area_o2)
-  @gr_o2 = FactoryGirl.create(:georeference_verbatim_data,
+  @gr_o2 = FactoryBot.create(:georeference_verbatim_data,
                               api_request:           'gr_o2',
                               collecting_event:      @ce_o2,
                               error_geographic_item: @item_o2,
                               geographic_item:       GeographicItem.new(point: @item_o2.st_centroid))
-  @co_o2 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_o2})
+  @co_o2 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_o2})
 
-  @ce_p2 = FactoryGirl.create(:collecting_event,
+  @ce_p2 = FactoryBot.create(:collecting_event,
                               start_date_year:  1978,
                               start_date_month: 8,
                               start_date_day:   8,
                               verbatim_label:   '@ce_p2',
                               geographic_area:  @area_p2)
-  # @gr_p2   = FactoryGirl.create(:georeference_verbatim_data,
+  # @gr_p2   = FactoryBot.create(:georeference_verbatim_data,
   #                               api_request: 'gr_p2',
   #                               collecting_event: @ce_p2,
   #                               error_geographic_item: @item_p2,
   #                               geographic_item: GeographicItem.new(point: @item_p2.st_centroid))
-  @co_p2 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_p2})
+  @co_p2 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_p2})
 
-  @ce_m3 = FactoryGirl.create(:collecting_event,
+  @ce_m3 = FactoryBot.create(:collecting_event,
                               start_date_year:  1981,
                               start_date_month: 1,
                               start_date_day:   1,
                               verbatim_label:   '@ce_m3',
                               geographic_area:  @area_m3)
-  @gr_m3 = FactoryGirl.create(:georeference_verbatim_data,
+  @gr_m3 = FactoryBot.create(:georeference_verbatim_data,
                               api_request:           'gr_m3',
                               collecting_event:      @ce_m3,
                               error_geographic_item: @item_m3,
                               geographic_item:       GeographicItem.new(point: @item_m3.st_centroid))
-  @co_m3 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_m3})
+  @co_m3 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_m3})
 
-  @ce_n3 = FactoryGirl.create(:collecting_event,
+  @ce_n3 = FactoryBot.create(:collecting_event,
                               start_date_year:   1982,
                               start_date_month:  2,
                               start_date_day:    2,
@@ -1624,124 +1624,124 @@ def generate_collecting_events(user = nil)
                               verbatim_locality: 'Greater Boxia Lake',
                               verbatim_label:    '@ce_n3',
                               geographic_area:   @area_n3)
-  @gr_n3 = FactoryGirl.create(:georeference_verbatim_data,
+  @gr_n3 = FactoryBot.create(:georeference_verbatim_data,
                               api_request:           'gr_n3',
                               collecting_event:      @ce_n3,
                               error_geographic_item: @item_n3,
                               geographic_item:       GeographicItem.new(point: @item_n3.st_centroid))
-  @co_n3 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_n3})
+  @co_n3 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_n3})
 
   # @ce_o3 has no georeference
-  @ce_o3 = FactoryGirl.create(:collecting_event,
+  @ce_o3 = FactoryBot.create(:collecting_event,
                               start_date_year:  1983,
                               start_date_month: 3,
                               start_date_day:   3,
                               verbatim_label:   '@ce_o3',
                               geographic_area:  @area_o3)
-  @co_o3 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_o3})
+  @co_o3 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_o3})
 
   # @ce_p3 has no georeference
-  @ce_p3 = FactoryGirl.create(:collecting_event,
+  @ce_p3 = FactoryBot.create(:collecting_event,
                               start_date_year:  1984,
                               start_date_month: 4,
                               start_date_day:   4,
                               verbatim_label:   '@ce_p3',
                               geographic_area:  @area_s)
-  @co_p3 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_p3})
+  @co_p3 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_p3})
 
-  @ce_m4 = FactoryGirl.create(:collecting_event,
+  @ce_m4 = FactoryBot.create(:collecting_event,
                               start_date_year:  1985,
                               start_date_month: 5,
                               start_date_day:   5,
                               verbatim_label:   '@ce_m4',
                               geographic_area:  @area_m4)
-  @gr_m4 = FactoryGirl.create(:georeference_verbatim_data,
+  @gr_m4 = FactoryBot.create(:georeference_verbatim_data,
                               api_request:           'gr_m4',
                               collecting_event:      @ce_m4,
                               error_geographic_item: @item_m4,
                               geographic_item:       GeographicItem.new(point: @item_m4.st_centroid))
-  @co_m4 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_m4})
+  @co_m4 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_m4})
 
-  @ce_n4 = FactoryGirl.create(:collecting_event,
+  @ce_n4 = FactoryBot.create(:collecting_event,
                               start_date_year:  1986,
                               start_date_month: 6,
                               start_date_day:   6,
                               verbatim_label:   '@ce_n4',
                               geographic_area:  @area_old_boxia)
-  @gr_n4 = FactoryGirl.create(:georeference_verbatim_data,
+  @gr_n4 = FactoryBot.create(:georeference_verbatim_data,
                               api_request:           'gr_n4',
                               collecting_event:      @ce_n4,
                               error_geographic_item: @item_n4,
                               geographic_item:       GeographicItem.new(point: @item_n4.st_centroid))
-  @co_n4 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_n4})
+  @co_n4 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_n4})
 
-  @ce_o4 = FactoryGirl.create(:collecting_event,
+  @ce_o4 = FactoryBot.create(:collecting_event,
                               start_date_year:  1987,
                               start_date_month: 7,
                               start_date_day:   7,
                               verbatim_label:   '@ce_o4',
                               geographic_area:  @area_o4)
-  @gr_o4 = FactoryGirl.create(:georeference_verbatim_data,
+  @gr_o4 = FactoryBot.create(:georeference_verbatim_data,
                               api_request:           'gr_o4',
                               collecting_event:      @ce_o4,
                               error_geographic_item: @item_o4,
                               geographic_item:       GeographicItem.new(point: @item_o4.st_centroid))
-  @co_o4 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_o4})
+  @co_o4 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_o4})
 
   # ce_p4 does not have a geographic_area
-  @ce_p4 = FactoryGirl.create(:collecting_event,
+  @ce_p4 = FactoryBot.create(:collecting_event,
                               start_date_year:  1988,
                               start_date_month: 8,
                               start_date_day:   8,
                               verbatim_label:   '@ce_p4',
                               geographic_area:  @area_p4)
-  @gr_p4 = FactoryGirl.create(:georeference_verbatim_data,
+  @gr_p4 = FactoryBot.create(:georeference_verbatim_data,
                               api_request:           'gr_p4',
                               collecting_event:      @ce_p4,
                               error_geographic_item: @item_p4,
                               geographic_item:       GeographicItem.new(point: @item_p4.st_centroid))
-  @co_p4 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_p4})
+  @co_p4 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_p4})
 
   # this one is just a collecting event, no georeferences or geographic_area, so, even though it has an otu, that otu
   # can't be found
-  @ce_v = FactoryGirl.create(:collecting_event,
+  @ce_v = FactoryBot.create(:collecting_event,
                              start_date_year:  1991,
                              start_date_month: 1,
                              start_date_day:   1,
                              verbatim_label:   '@ce_v',
                              geographic_area:  nil)
-  @co_v = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_v})
+  @co_v = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_v})
 
   # collecting events in superseded country
-  @ce_old_boxia_1 = FactoryGirl.create(:collecting_event,
+  @ce_old_boxia_1 = FactoryBot.create(:collecting_event,
                                        start_date_year:  1992,
                                        start_date_month: 2,
                                        start_date_day:   2,
                                        verbatim_label:   '@ce_old_boxia_1',
                                        geographic_area:  @area_old_boxia)
-  @gr_m2_ob       = FactoryGirl.create(:georeference_verbatim_data,
+  @gr_m2_ob       = FactoryBot.create(:georeference_verbatim_data,
                                        api_request:           'gr_m2_ob',
                                        collecting_event:      @ce_old_boxia_1,
                                        error_geographic_item: @item_ob,
                                        geographic_item:       GeographicItem.new(point: @item_m2.st_centroid))
-  @ce_old_boxia_2 = FactoryGirl.create(:collecting_event,
+  @ce_old_boxia_2 = FactoryBot.create(:collecting_event,
                                        start_date_year:  1993,
                                        start_date_month: 3,
                                        start_date_day:   3,
                                        verbatim_label:   '@ce_old_boxia_2',
                                        geographic_area:  @area_old_boxia)
-  @gr_n3_ob       = FactoryGirl.create(:georeference_verbatim_data,
+  @gr_n3_ob       = FactoryBot.create(:georeference_verbatim_data,
                                        api_request:           'gr_n3_ob',
                                        collecting_event:      @ce_old_boxia_2,
                                        error_geographic_item: @item_ob,
                                        geographic_item:       GeographicItem.new(point: @item_n3.st_centroid))
-  @ce_far_island  = FactoryGirl.create(:collecting_event,
+  @ce_far_island  = FactoryBot.create(:collecting_event,
                                        start_date_year:  1994,
                                        start_date_month: 4,
                                        start_date_day:   4,
                                        verbatim_label:   '@ce_far_island',
                                        geographic_area:  @area_far_island)
-  @gr_far_island  = FactoryGirl.create(:georeference_verbatim_data,
+  @gr_far_island  = FactoryBot.create(:georeference_verbatim_data,
                                        api_request:      'gr_far_island',
                                        collecting_event: @ce_far_island,
                                        # error_geographic_item: @item_f_i,
