@@ -169,12 +169,9 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
             finder.send_keys('p4')
             wait_for_ajax
             finder.send_keys(:down)
-            wait_for_ajax
             finder.send_keys(:tab)
-            wait_for_ajax
             click_button('Set OTU')
 
-            wait_for_ajax
             find('#find_area_and_nomen_commit').click
             wait_for_ajax
           }

@@ -69,17 +69,26 @@ module Features
       css_selector = %Q{li.ui-menu-item a[data-geographic-area-id="#{options[:select]}"]}
       fill_in field, with: options[:with]
       # havecssselector = have_css(css_selector).matches?(css_selector)
-      counter = 10000
-      until counter < 0
+      counter = 10
+      # until counter < 0
+      #   counter -= 1
+      #
+      while have_css(css_selector).does_not_match?(css_selector)
+        sleep(2)
         counter -= 1
-        # wait_for_ajax
-        # havecssselector = have_css(css_selector).matches?(css_selector)
-        if have_css(css_selector).matches?(css_selector)
+        if counter < 1
           break
+        end
+        Timeout.timeout(4) do
+          if finished_all_ajax_requests?
+            break
+          end
         end
       end
       # expect(page).to have_css(css_selector)
+      if finished_all_ajax_requests?
       page.execute_script(%Q{ $('#{css_selector}').trigger('mouseenter').click(); })
+      end
     end
 
 
