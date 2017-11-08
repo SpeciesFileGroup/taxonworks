@@ -69,7 +69,7 @@
           <div v-for="item, key in keywords">
             <p v-html="item.object.object_tag"></p>
             <ul>
-              <li v-for="object, key in item.totals">
+              <li v-for="object, key in item.totals" v-if="object">
                 <span class="capitalize">{{ key }}: {{ object }} <button type="button" @click="batchLoad(key, item.object.id, 'tags')">Add</button></span>
               </li>
             </ul>
@@ -78,7 +78,7 @@
 
         <div v-if="displaySection == 2">
           <ul>
-            <li v-for="object, key in pinboard.totals">
+            <li v-for="object, key in pinboard.totals" v-if="object">
               <span class="capitalize">{{ key }}: {{ object }} <button type="button" @click="batchLoad(key, undefined, 'pinboard')">Add</button></span>
             </li>
           </ul>
