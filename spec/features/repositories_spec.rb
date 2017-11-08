@@ -9,7 +9,7 @@ describe 'Repositories', :type => :feature do
   context 'signed in as user, with some records created' do
     before {
       sign_in_user
-      10.times { factory_girl_create_for_user(:valid_repository, @user) }
+      10.times { factory_bot_create_for_user(:valid_repository, @user) }
     }
 
     describe 'GET /repositories' do

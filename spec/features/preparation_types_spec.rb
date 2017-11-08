@@ -9,7 +9,7 @@ describe 'PreparationTypes', :type => :feature do
   context 'signed in as user, with some records created' do
     before do
       sign_in_user
-      5.times { factory_girl_create_for_user(:valid_preparation_type, @user) }
+      5.times { factory_bot_create_for_user(:valid_preparation_type, @user) }
     end
 
     describe 'GET /preparation_types' do

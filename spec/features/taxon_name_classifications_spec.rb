@@ -9,7 +9,7 @@ describe 'TaxonNameClassifications', :type => :feature do
   context 'signed in as a user, with some records created' do
     before {
       sign_in_user_and_select_project
-      root = factory_girl_create_for_user_and_project(:root_taxon_name, @user, @project)
+      root = factory_bot_create_for_user_and_project(:root_taxon_name, @user, @project)
       taxon_name = Protonym.create!(
           parent: root,
           name: 'Aus',

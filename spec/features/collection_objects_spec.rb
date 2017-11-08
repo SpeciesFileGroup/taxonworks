@@ -9,7 +9,7 @@ describe 'CollectionObjects', type: :feature do
   context 'signed in as a user, with some records created' do
     before {
       sign_in_user_and_select_project
-      10.times { factory_girl_create_for_user_and_project(:valid_specimen, @user, @project) }
+      10.times { factory_bot_create_for_user_and_project(:valid_specimen, @user, @project) }
     }
 
     describe 'GET /collection_objects' do

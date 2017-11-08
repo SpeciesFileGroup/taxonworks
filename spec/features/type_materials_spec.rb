@@ -14,12 +14,12 @@ RSpec.describe "TypeMaterials", :type => :feature do
       sign_in_user_and_select_project
     }
 
-    let!(:root) { factory_girl_create_for_user_and_project(:root_taxon_name, @user, @project) }
+    let!(:root) { factory_bot_create_for_user_and_project(:root_taxon_name, @user, @project) }
 
     context 'with some records created' do
 
       let!(:p) { Protonym.create!(name: 'aus', rank_class: Ranks.lookup(:iczn, 'species'), parent: root, by: @user, project: project) } 
-      let!(:s) { factory_girl_create_for_user_and_project(:valid_specimen, @user, @project) }
+      let!(:s) { factory_bot_create_for_user_and_project(:valid_specimen, @user, @project) }
       before do
         10.times {
           FactoryBot.create(:valid_type_material,

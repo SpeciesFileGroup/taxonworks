@@ -10,7 +10,7 @@ describe 'Namespaces', :type => :feature do
     before{sign_in_user}
     context 'with some records created' do
       before {
-        5.times { factory_girl_create_for_user(:valid_namespace, @user) }
+        5.times { factory_bot_create_for_user(:valid_namespace, @user) }
       }
 
       describe 'GET /Namespaces' do
