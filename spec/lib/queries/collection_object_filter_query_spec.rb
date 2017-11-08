@@ -150,6 +150,19 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
     end
 
     context 'otu search' do
+      let(:params_with) { {otu_id: otum1a.id, otu_descendants: 'on'} }
+      let(:params_without) { {otu_id: otum1a.id, otu_descendants: 'off'} }
+
+      specify 'with descendants' do
+        result = Queries::CollectionObjectFilterQuery.new(params_with).result
+        expect(result).to eq(otum1a.collection_objects)
+      end
+
+      # TODO: need to build a descendant
+      xspecify 'without descendants' do
+        result = Queries::CollectionObjectFilterQuery.new(params_without).result
+        expect(result).to include(otum1a.collection_objects.first)
+      end
 
     end
 
@@ -158,7 +171,30 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
     end
 
     context 'identifier search' do
+      let!(:user) { User.find(1) }
+      let!(:project) { Project.find(1) }
+      let(:params) {{}}
+      specify '' do
 
+        2.times { FactoryGirl.create(:valid_namespace, creator: user, updater: user) }
+        ns1 = Namespace.first
+        ns2 = Namespace.second
+        2.times { FactoryGirl.create(:valid_specimen, creator: user, updater: user, project: project) }
+        (1..10).each { |identifier|
+          sp = FactoryGirl.create(:valid_specimen, creator: user, updater: user, project: project)
+          id = FactoryGirl.create(:identifier_local_catalog_number,
+                                  updater:           user,
+                                  project:           project,
+                                  creator:           user,
+                                  identifier_object: sp,
+                                  namespace:         ((identifier % 2) == 0 ? ns1 : ns2),
+                                  identifier:        identifier)
+        }
+
+
+        result = Queries::CollectionObjectFilterQuery.new(params).result
+        expect(result).to include(otum1, otum1a)
+      end
     end
 
     context 'user/date search' do
