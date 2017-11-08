@@ -2,12 +2,12 @@ require 'rails_helper'
 
 describe Person, :type => :model do
 
-  let(:person) { FactoryGirl.build(:person) }
+  let(:person) { FactoryBot.build(:person) }
   let(:source_bibtex) {
-    FactoryGirl.create(:valid_source_bibtex)
+    FactoryBot.create(:valid_source_bibtex)
   }
   let(:human_source) {
-    FactoryGirl.create(:valid_source_human)
+    FactoryBot.create(:valid_source_human)
   }
   #let(:coll_event) { CollectingEvent.new }
 
@@ -36,15 +36,15 @@ describe Person, :type => :model do
 
   context 'instance methods' do
     specify '#bibtex_name formats correctly' do
-      p = FactoryGirl.build(:source_person_jones) #  Mike Jones
+      p = FactoryBot.build(:source_person_jones) #  Mike Jones
       expect(p.bibtex_name).to eq('Jones, Mike')
-      p = FactoryGirl.build(:source_person_prefix) #  John Von Adams
+      p = FactoryBot.build(:source_person_prefix) #  John Von Adams
       expect(p.bibtex_name).to eq('Von Adams, John')
-      p = FactoryGirl.build(:source_person_suffix) #  James Adams Jr.
+      p = FactoryBot.build(:source_person_suffix) #  James Adams Jr.
       expect(p.bibtex_name).to eq('Adams, Jr., James')
-      p = FactoryGirl.build(:source_person_both_ps) #  Janet Von Adams III
+      p = FactoryBot.build(:source_person_both_ps) #  Janet Von Adams III
       expect(p.bibtex_name).to eq('Von Adams, III, Janet')
-      p = FactoryGirl.build(:source_person_jones)
+      p = FactoryBot.build(:source_person_jones)
       p.first_name = ''             # Jones
       expect(p.bibtex_name).to eq('Jones')
       p.first_name = 'Sarah'
@@ -101,10 +101,10 @@ describe Person, :type => :model do
     end
 
     context 'usage and rendering' do
-      let(:person1){ FactoryGirl.build(:person, first_name: 'J.', last_name: 'Smith') } 
-      let(:person2){ FactoryGirl.build(:person, first_name: 'J.', last_name: 'McDonald') }
-      let(:person3){ FactoryGirl.build(:person, first_name: 'D. Keith McE.', last_name: 'Kevan') }
-      let(:person4){ FactoryGirl.build(:person, first_name: 'Ki-Su', last_name: 'Ahn') }
+      let(:person1){ FactoryBot.build(:person, first_name: 'J.', last_name: 'Smith') } 
+      let(:person2){ FactoryBot.build(:person, first_name: 'J.', last_name: 'McDonald') }
+      let(:person3){ FactoryBot.build(:person, first_name: 'D. Keith McE.', last_name: 'Kevan') }
+      let(:person4){ FactoryBot.build(:person, first_name: 'Ki-Su', last_name: 'Ahn') }
 
       context 'usage' do
         specify 'initials and last name only' do
@@ -134,7 +134,7 @@ describe Person, :type => :model do
     # TODO: Fix. 
     #  ... roles are not getting assigned creator/updater when << is used
     context 'roles' do
-      let(:vp) { FactoryGirl.create(:valid_person) }
+      let(:vp) { FactoryBot.create(:valid_person) }
 
       specify 'vp is valid person' do
         expect(vp.valid?).to be_truthy
@@ -167,7 +167,7 @@ describe Person, :type => :model do
       specify 'is_collector?' do
         expect(vp).to respond_to(:is_collector?)
         expect(vp.is_collector?).to be_falsey
-        coll_event = FactoryGirl.create(:valid_collecting_event) 
+        coll_event = FactoryBot.create(:valid_collecting_event) 
         coll_event.collectors << vp
         coll_event.save!
         vp.reload
@@ -176,7 +176,7 @@ describe Person, :type => :model do
       specify 'is_determiner?' do
         expect(vp).to respond_to(:is_determiner?)
         expect(vp.is_determiner?).to be_falsey
-        taxon_determination = FactoryGirl.create(:valid_taxon_determination)
+        taxon_determination = FactoryBot.create(:valid_taxon_determination)
         taxon_determination.determiners << vp
         vp.reload # vp is getting set to 1, not vp.id with this format
         expect(vp.is_determiner?).to be_truthy
@@ -184,7 +184,7 @@ describe Person, :type => :model do
       specify 'is_taxon_name_author?' do
         expect(vp).to respond_to(:is_taxon_name_author?)
         expect(vp.is_taxon_name_author?).to be_falsey
-        taxon_name = FactoryGirl.create(:valid_protonym)
+        taxon_name = FactoryBot.create(:valid_protonym)
         taxon_name.taxon_name_authors << vp
         taxon_name.save!
         vp.reload
@@ -193,7 +193,7 @@ describe Person, :type => :model do
       specify 'is_type_designator?' do
         expect(vp).to respond_to(:is_type_designator?)
         expect(vp.is_type_designator?).to be_falsey
-        type_material = FactoryGirl.create(:valid_type_material)
+        type_material = FactoryBot.create(:valid_type_material)
         type_material.type_designators << vp
         type_material.save!
         vp.reload
@@ -203,7 +203,7 @@ describe Person, :type => :model do
       specify 'is_georeferencer?' do
         expect(vp).to respond_to(:is_georeferencer?)
         expect(vp.is_georeferencer?).to be_falsey
-        georeference = FactoryGirl.create(:valid_georeference)
+        georeference = FactoryBot.create(:valid_georeference)
         georeference.georeferencers << vp
         georeference.save!
         vp.reload

@@ -16,7 +16,7 @@ describe 'API::v1::CollectionObjects', type: :feature do
       end
 
       let(:valid_attributes) {
-        FactoryGirl.build(:valid_collection_object).attributes.merge({creator: @user, updater: @user, project: @project})
+        FactoryBot.build(:valid_collection_object).attributes.merge({creator: @user, updater: @user, project: @project})
       }
 
       let!(:collecting_event) do
@@ -24,14 +24,14 @@ describe 'API::v1::CollectionObjects', type: :feature do
       end
       
       let!(:geographic_item) do
-        FactoryGirl.create(:geographic_item_with_polygon,
+        FactoryBot.create(:geographic_item_with_polygon,
                            polygon: SHAPE_K,
                            creator: @user,
                            updater: @user)
       end
      
       let!(:georeference) do
-        FactoryGirl.create(:valid_georeference,
+        FactoryBot.create(:valid_georeference,
                            creator:          @user,
                            updater:          @user,
                            project:          @project,
@@ -87,9 +87,9 @@ describe 'API::v1::CollectionObjects', type: :feature do
         @user.save!
       end
       let(:valid_attributes) {
-        FactoryGirl.build(:valid_collection_object).attributes.merge({creator: @user, updater: @user, project: @project})
+        FactoryBot.build(:valid_collection_object).attributes.merge({creator: @user, updater: @user, project: @project})
       }
-      let(:namespace) { FactoryGirl.create(:valid_namespace, short_name: 'ABCD', by: @user) }
+      let(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'ABCD', by: @user) }
       let(:collection_object) do
         CollectionObject.create! valid_attributes.merge(
           {identifiers_attributes: [{identifier: '123', type: 'Identifier::Local::CatalogNumber', namespace: namespace, by: @user, project: @project}]})

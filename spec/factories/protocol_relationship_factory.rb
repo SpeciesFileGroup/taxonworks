@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :protocol_relationship, traits: [:housekeeping] do
     factory :valid_protocol_relationship do
       association :protocol, factory: :valid_protocol

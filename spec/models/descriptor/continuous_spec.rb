@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe Descriptor::Continuous, type: :model, group: :matrix do
   let(:descriptor) { Descriptor::Continuous.new }
 
-  let(:otu) { FactoryGirl.create(:valid_otu) }
+  let(:otu) { FactoryBot.create(:valid_otu) }
 
   context 'returning observations' do
     before do

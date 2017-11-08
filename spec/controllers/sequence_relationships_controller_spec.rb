@@ -28,7 +28,7 @@ RSpec.describe SequenceRelationshipsController, type: :controller do
   # SequenceRelationship. As you add validations to SequenceRelationship, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_sequence_relationship).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_sequence_relationship).attributes)
   }
 
   let(:invalid_attributes) {
@@ -107,8 +107,8 @@ RSpec.describe SequenceRelationshipsController, type: :controller do
   describe "PUT #update" do
     context "with valid params" do
       let(:new_attributes) {
-        {subject_sequence_id: FactoryGirl.create(:valid_sequence).id,
-         object_sequence_id:  FactoryGirl.create(:valid_sequence).id,
+        {subject_sequence_id: FactoryBot.create(:valid_sequence).id,
+         object_sequence_id:  FactoryBot.create(:valid_sequence).id,
          type:                SequenceRelationship::ReversePrimer}
       }
 

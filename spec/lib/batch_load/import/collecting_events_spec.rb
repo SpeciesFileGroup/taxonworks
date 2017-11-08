@@ -10,7 +10,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
   #   csv1  = CSV.read(file_name, {headers: true, header_converters: :downcase, col_sep: "\t", encoding: "UTF-8"})
   #   csv1.each do |row1|
   #     @psuc.push(row1[1])
-  #     FactoryGirl.create(:valid_identifier, namespace: ns_1, identifier: row1[1])
+  #     FactoryBot.create(:valid_identifier, namespace: ns_1, identifier: row1[1])
   #   end
   # }
   # let(:csv_args) { {headers: true, col_sep: "\t", encoding: 'UTF-8'} }

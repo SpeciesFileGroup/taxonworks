@@ -3,8 +3,8 @@ require 'rails_helper'
 describe Georeference, type: :model, group: :geo do
   let(:georeference) {Georeference.new}
 
-  let(:earth) {FactoryGirl.create(:earth_geographic_area)}
-  let(:g_a_t) {FactoryGirl.create(:testbox_geographic_area_type)}
+  let(:earth) {FactoryBot.create(:earth_geographic_area)}
+  let(:g_a_t) {FactoryBot.create(:testbox_geographic_area_type)}
 
   let(:e_g_i) {GeographicItem.create(polygon: BOX_1)}
   let(:item_d) {GeographicItem.create(polygon: BOX_4)}
@@ -47,7 +47,7 @@ describe Georeference, type: :model, group: :geo do
   end
 
   context 'georeference role' do
-    let(:georeference) { FactoryGirl.create(:valid_georeference) }
+    let(:georeference) { FactoryBot.create(:valid_georeference) }
     specify 'with << and an existing object' do
       expect(georeference.roles.count).to eq(0)
       georeference.georeferencers << Person.new(last_name: "Smith")
@@ -94,7 +94,7 @@ describe Georeference, type: :model, group: :geo do
     context 'legal values' do
       context '#error_radius' do
         before {
-          georeference.geographic_item = FactoryGirl.create(:valid_geographic_item)
+          georeference.geographic_item = FactoryBot.create(:valid_geographic_item)
         }
 
         specify 'is < some Earth-based limit' do
@@ -334,12 +334,12 @@ describe Georeference, type: :model, group: :geo do
 
     # build some geo-references for testing using existing factories and geometries
     before(:each) {
-      @gr1 = FactoryGirl.create(:valid_georeference,
-                                collecting_event: FactoryGirl.create(:valid_collecting_event),
-                                geographic_item:  FactoryGirl.create(:geographic_item_with_polygon, polygon: SHAPE_K)) # swap out the polygon with another shape if needed
+      @gr1 = FactoryBot.create(:valid_georeference,
+                                collecting_event: FactoryBot.create(:valid_collecting_event),
+                                geographic_item:  FactoryBot.create(:geographic_item_with_polygon, polygon: SHAPE_K)) # swap out the polygon with another shape if needed
 
-      @gr_poly  = FactoryGirl.create(:valid_georeference_geo_locate)
-      @gr_point = FactoryGirl.create(:valid_georeference_verbatim_data)
+      @gr_poly  = FactoryBot.create(:valid_georeference_geo_locate)
+      @gr_point = FactoryBot.create(:valid_georeference_verbatim_data)
 
       # using linting to check validity of valid_ models! for things like
       # @gr1.save!
@@ -429,7 +429,7 @@ describe Georeference, type: :model, group: :geo do
 
       # Create an orphan collecting_event which uses g_a4, so that first phase of 'with_geographic_area' will
       # have two records to find
-      o_collecting_event = FactoryGirl.create(:valid_collecting_event, geographic_area: g_a4)
+      o_collecting_event = FactoryBot.create(:valid_collecting_event, geographic_area: g_a4)
       expect(o_collecting_event.valid?).to be_truthy
 
       # there are no georeferences which have collecting_events which have geographic_areas which refer to g_a1

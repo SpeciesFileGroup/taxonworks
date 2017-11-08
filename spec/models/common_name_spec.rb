@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe CommonName, type: :model do
 
   let(:common_name) { CommonName.new }
-  let(:otu) { FactoryGirl.create(:valid_otu) }
+  let(:otu) { FactoryBot.create(:valid_otu) }
 
   context 'associations' do
     context 'belongs_to' do

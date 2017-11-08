@@ -3,7 +3,7 @@ require 'rails_helper'
 describe Georeference::VerbatimData, type: :model, group: :geo do
   context 'VerbatimData uses self.collecting_event to internalize data' do
     specify 'without elevation' do
-      georeference = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
+      georeference = Georeference::VerbatimData.new(collecting_event: FactoryBot.build(:valid_collecting_event,
                                                                                         verbatim_latitude:  "n40º5'31.4412\"",
                                                                                         verbatim_longitude: 'w88∫11′43.3″'))
       expect(georeference.is_median_z).to be_falsey
@@ -13,7 +13,7 @@ describe Georeference::VerbatimData, type: :model, group: :geo do
     end
 
     specify 'with *only* minimum elevation' do
-      georeference = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
+      georeference = Georeference::VerbatimData.new(collecting_event: FactoryBot.build(:valid_collecting_event,
                                                                                         minimum_elevation:  759,
                                                                                         verbatim_elevation: nil,
                                                                                         verbatim_latitude:  '40.092067',
@@ -25,7 +25,7 @@ describe Georeference::VerbatimData, type: :model, group: :geo do
     end
 
     specify 'with minimum and maximim elevation' do
-      georeference = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
+      georeference = Georeference::VerbatimData.new(collecting_event: FactoryBot.build(:valid_collecting_event,
                                                                                         minimum_elevation:  759,
                                                                                         maximum_elevation:  859,
                                                                                         verbatim_elevation: nil,
@@ -38,7 +38,7 @@ describe Georeference::VerbatimData, type: :model, group: :geo do
     end
 
     specify 'two georeferences might use the same geographic_item' do
-      georeference1 = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
+      georeference1 = Georeference::VerbatimData.new(collecting_event: FactoryBot.build(:valid_collecting_event,
                                                                                          minimum_elevation:  759,
                                                                                          maximum_elevation:  859,
                                                                                          verbatim_elevation: nil,
@@ -46,7 +46,7 @@ describe Georeference::VerbatimData, type: :model, group: :geo do
                                                                                          verbatim_longitude: '-88.249519'))
       # save this record to propagate the geographic_item so that second georeference can find it.
       expect(georeference1.save).to be_truthy
-      georeference2 = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
+      georeference2 = Georeference::VerbatimData.new(collecting_event: FactoryBot.build(:valid_collecting_event,
                                                                                          minimum_elevation:  759,
                                                                                          maximum_elevation:  859,
                                                                                          verbatim_elevation: nil,

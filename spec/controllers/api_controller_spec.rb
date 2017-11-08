@@ -26,7 +26,7 @@ describe ApiController, type: :controller do
   end
 
   context 'when token is valid' do
-    let(:user) { FactoryGirl.create(:valid_user, :user_valid_token) }
+    let(:user) { FactoryBot.create(:valid_user, :user_valid_token) }
     let(:params) { {project_id: 1, format: :json} }
 
     context 'when provided in header' do
@@ -58,7 +58,7 @@ describe ApiController, type: :controller do
   end
 
   context 'when token is invalid' do
-    let(:user) { FactoryGirl.create(:valid_user, :user_valid_token) }
+    let(:user) { FactoryBot.create(:valid_user, :user_valid_token) }
     let(:params) { {format: :json} }
 
     context 'when provided in header' do

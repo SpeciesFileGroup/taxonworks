@@ -24,7 +24,7 @@ describe GeographicAreasGeographicItemsController, :type => :controller do
   }
 
   before(:all) {
-    # FactoryGirl.create(:earth_geographic_area)
+    # FactoryBot.create(:earth_geographic_area)
   }
 
   after(:all) {
@@ -35,7 +35,7 @@ describe GeographicAreasGeographicItemsController, :type => :controller do
   # GeographicAreasGeographicItem. As you add validations to GeographicAreasGeographicItem, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_geographic_areas_geographic_item).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_geographic_areas_geographic_item).attributes)
 }
 
   # This should return the minimal set of values that should be in the session

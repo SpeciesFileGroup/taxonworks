@@ -1,6 +1,6 @@
 # Read about factories at https://github.com/thoughtbot/factory_girl
 
-FactoryGirl.define do
+FactoryBot.define do
 
   trait :collection_profile_indices do
     # collection_type 'dry | wet | slide'

@@ -1,5 +1,5 @@
 # A ProjectRole is data within a project.
-# @todo Refactor after Housekeeping / FactoryGirl issues resolved (nested set!!)
+# @todo Refactor after Housekeeping / FactoryBot issues resolved (nested set!!)
 #
 class Role::ProjectRole < Role
 

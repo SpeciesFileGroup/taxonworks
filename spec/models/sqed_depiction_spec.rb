@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe SqedDepiction, type: :model do
 
   let(:sqed_depiction) {SqedDepiction.new}
-  let(:valid_sqed_depiction) { FactoryGirl.create(:valid_sqed_depiction) }
+  let(:valid_sqed_depiction) { FactoryBot.create(:valid_sqed_depiction) }
 
   context 'validation' do
     before{sqed_depiction.valid?}

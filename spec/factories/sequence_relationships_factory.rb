@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :sequence_relationship, traits: [:housekeeping] do
     factory :valid_sequence_relationship do
       association :subject_sequence, factory: :valid_sequence
@@ -8,12 +8,12 @@ FactoryGirl.define do
   end
 end
 
-# FactoryGirl.define do
+# FactoryBot.define do
 #   factory :sequence_relationship, traits: [:housekeeping] do
 #     factory :valid_sequence_relationship do
-#       subject_sequence_id {FactoryGirl.create(:valid_sequence).id}
+#       subject_sequence_id {FactoryBot.create(:valid_sequence).id}
 #       type "ReversePrimer"
-#       object_sequence_id {FactoryGirl.create(:valid_sequence).id}
+#       object_sequence_id {FactoryBot.create(:valid_sequence).id}
 #     end
 #   end
 # end

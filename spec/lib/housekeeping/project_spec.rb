@@ -7,7 +7,7 @@ describe 'Housekeeping::Project' do
       stub_model HousekeepingTestClass::WithProject, id: 10
     }
 
-    let!(:user) {FactoryGirl.create(:valid_user, id: 1)}
+    let!(:user) {FactoryBot.create(:valid_user, id: 1)}
 
     context 'associations' do
       specify 'belongs_to project' do
@@ -55,8 +55,8 @@ describe 'Housekeeping::Project' do
           end
 
           context 'belonging to a project' do
-            let(:project1) {FactoryGirl.create(:valid_project, id: 1) }
-            let(:project2) {FactoryGirl.create(:valid_project, id: 2) }
+            let(:project1) {FactoryBot.create(:valid_project, id: 1) }
+            let(:project2) {FactoryBot.create(:valid_project, id: 2) }
 
             specify 'scoped by a project' do
               @otu1 = Otu.create(project: project1, name: 'Fus')

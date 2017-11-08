@@ -26,7 +26,7 @@ RSpec.describe SequencesController, type: :controller do
   # Sequence. As you add validations to Sequence, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_sequence).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_sequence).attributes)
   }
 
   let(:invalid_attributes) {

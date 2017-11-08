@@ -74,7 +74,7 @@ describe TaxonNameClassification, type: :model do
 
     context 'validate nomenclature code' do
       before do
-        root = FactoryGirl.create(:root_taxon_name)
+        root = FactoryBot.create(:root_taxon_name)
       end
 
       let(:g) { Protonym.create!(parent: root, name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus)) }
@@ -90,11 +90,11 @@ describe TaxonNameClassification, type: :model do
 
     context "validate type" do
       specify "an invalid type" do
-        expect { FactoryGirl.build(:taxon_name_classification, type: 'aaa') }.to raise_error ActiveRecord::SubclassNotFound
+        expect { FactoryBot.build(:taxon_name_classification, type: 'aaa') }.to raise_error ActiveRecord::SubclassNotFound
       end
 
       specify "another invalid type" do
-        c = FactoryGirl.build(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
+        c = FactoryBot.build(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
         c.valid?
         expect(c.errors.include?(:type)).to be_falsey
       end
@@ -146,32 +146,32 @@ describe TaxonNameClassification, type: :model do
     before(:each) do
       TaxonName.delete_all
       TaxonNameClassification.delete_all
-      @species = FactoryGirl.create(:relationship_species)
+      @species = FactoryBot.create(:relationship_species)
       @genus = @species.ancestor_at_rank('genus')
       @family = @species.ancestor_at_rank('family')
     end
 
     specify "applicable type and year" do
-     c = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
+     c = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
      c.soft_validate(:proper_classification)
      expect(c.soft_validations.messages_on(:type).empty?).to be_truthy
    end
     specify "unapplicable type" do
-      c = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::NotFromGenusName')
+      c = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::NotFromGenusName')
       c.soft_validate(:proper_classification)
       expect(c.soft_validations.messages_on(:type).size).to eq(1)
     end
     specify "unapplicable year" do
-      c = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::ElectronicPublicationNotInPdfFormat')
+      c = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::ElectronicPublicationNotInPdfFormat')
       c.soft_validate(:proper_classification)
       expect(c.soft_validations.messages_on(:type).size).to eq(1)
     end
     specify 'disjoint classes' do
-      g = FactoryGirl.create(:iczn_genus, parent: @family)
-      s = FactoryGirl.create(:iczn_species, parent: g)
-      r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
-      c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable')
-      c2 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Available::OfficialListOfGenericNamesInZoology')
+      g = FactoryBot.create(:iczn_genus, parent: @family)
+      s = FactoryBot.create(:iczn_species, parent: g)
+      r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+      c1 = FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable')
+      c2 = FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Available::OfficialListOfGenericNamesInZoology')
       c1.soft_validate(:validate_disjoint_classes)
       c2.soft_validate(:validate_disjoint_classes)
       #conflicting with c2
@@ -180,8 +180,8 @@ describe TaxonNameClassification, type: :model do
       expect(c2.soft_validations.messages_on(:type).size).to eq(1)
     end
     specify 'not specific classes' do
-      c1 = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
-      c2 = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Iczn::Available::Invalid::Homonym')
+      c1 = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
+      c2 = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Iczn::Available::Invalid::Homonym')
       c1.soft_validate(:not_specific_classes)
       c2.soft_validate(:not_specific_classes)
       expect(c1.soft_validations.messages_on(:type).size).to eq(1)

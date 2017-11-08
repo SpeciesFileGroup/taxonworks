@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Identifier::Global::Lccn, type: :model, group: :identifiers do
   context 'LCCN' do
-    let(:id) { FactoryGirl.build(:identifier_global_lccn) }
+    let(:id) { FactoryBot.build(:identifier_global_lccn) }
 
     context '#identifier is validly formatted' do
 

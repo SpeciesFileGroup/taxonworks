@@ -27,7 +27,7 @@ describe GeoreferencesController, :type => :controller do
   # adjust the attributes here as well.
   let(:collecting_event) { CollectingEvent.create(verbatim_label: "Canada, somewhere cold.") }
   let(:valid_attributes) { 
-    strip_housekeeping_attributes( FactoryGirl.build(:valid_georeference).attributes )
+    strip_housekeeping_attributes( FactoryBot.build(:valid_georeference).attributes )
   }
 
   # This should return the minimal set of values that should be in the session

@@ -27,7 +27,7 @@ describe 'AlternateValues', type: :model do
 
       trans = AlternateValue::Translation.create(
         value:                            'gibberish',
-        language:                         FactoryGirl.create(:valid_language),
+        language:                         FactoryBot.create(:valid_language),
         alternate_value_object_attribute: 'string',
         alternate_value_object:           instance_with_alternate_values
       )

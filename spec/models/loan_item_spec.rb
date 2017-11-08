@@ -3,8 +3,8 @@ require 'rails_helper'
 describe LoanItem, type: :model, group: :loans do
 
   let(:loan_item) { LoanItem.new }
-  let(:valid_loan_item) { FactoryGirl.create(:valid_loan_item) }
-  let(:loan) { FactoryGirl.create(:valid_loan) }
+  let(:valid_loan_item) { FactoryBot.create(:valid_loan_item) }
+  let(:loan) { FactoryBot.create(:valid_loan) }
 
   context 'validation' do
     before{ loan_item.valid? }
@@ -30,17 +30,17 @@ describe LoanItem, type: :model, group: :loans do
     before { loan_item.loan = loan }
 
     specify 'a specimen can be added to loan item' do
-      loan_item.loan_item_object = FactoryGirl.create(:valid_specimen)
+      loan_item.loan_item_object = FactoryBot.create(:valid_specimen)
       expect(loan_item.valid?).to be_truthy
     end
 
     specify 'a container can be added to loan item' do
-      loan_item.loan_item_object = FactoryGirl.create(:valid_container)
+      loan_item.loan_item_object = FactoryBot.create(:valid_container)
       expect(loan_item.valid?).to be_truthy
     end
 
     specify 'an OTU alone can be added to loan item' do
-      loan_item.loan_item_object = FactoryGirl.create(:valid_otu)
+      loan_item.loan_item_object = FactoryBot.create(:valid_otu)
       expect(loan_item.valid?).to be_truthy
     end
   end
@@ -64,15 +64,15 @@ describe LoanItem, type: :model, group: :loans do
   end
 
   context '.batch_create' do
-    let(:s1) { FactoryGirl.create(:valid_specimen) } 
-    let(:s2) { FactoryGirl.create(:valid_specimen) } 
-    let(:o1) { FactoryGirl.create(:valid_otu) } 
-    let(:o2) { FactoryGirl.create(:valid_otu) } 
-    let(:c1) { FactoryGirl.create(:valid_container) } 
-    let(:c2) { FactoryGirl.create(:valid_container) } 
+    let(:s1) { FactoryBot.create(:valid_specimen) } 
+    let(:s2) { FactoryBot.create(:valid_specimen) } 
+    let(:o1) { FactoryBot.create(:valid_otu) } 
+    let(:o2) { FactoryBot.create(:valid_otu) } 
+    let(:c1) { FactoryBot.create(:valid_container) } 
+    let(:c2) { FactoryBot.create(:valid_container) } 
 
     context 'from tags' do
-      let(:keyword) { FactoryGirl.create(:valid_keyword) }
+      let(:keyword) { FactoryBot.create(:valid_keyword) }
       let!(:t1) { Tag.create(keyword: keyword, tag_object: s1) }  
       let!(:t2) { Tag.create(keyword: keyword, tag_object: o2) }  
       let!(:t3) { Tag.create(keyword: keyword, tag_object: c1) }  

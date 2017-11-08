@@ -27,7 +27,7 @@ RSpec.describe ObservationMatrixRowsController, type: :controller do
   # MatrixRow. As you add validations to MatrixRow, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_observation_matrix_row).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_observation_matrix_row).attributes)
   }
 
   let(:invalid_attributes) {

@@ -27,7 +27,7 @@ RSpec.describe ExtractsController, type: :controller, group: :extract do
   # Extract. As you add validations to Extract, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_extract).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_extract).attributes)
   }
 
   let(:invalid_attributes) {

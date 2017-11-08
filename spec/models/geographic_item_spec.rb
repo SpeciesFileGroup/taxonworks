@@ -17,13 +17,13 @@ describe GeographicItem, type: :model, group: :geo do
       generate_ce_test_objects(1, 1)
     }
 
-    let(:geographic_item) { FactoryGirl.build(:geographic_item) }
-    let(:geographic_item_with_point_a) { FactoryGirl.build(:geographic_item_with_point_a) }
-    let(:geographic_item_with_point_b) { FactoryGirl.build(:geographic_item_with_point_b) }
-    let(:geographic_item_with_point_c) { FactoryGirl.build(:geographic_item_with_point_c) }
-    let(:geographic_item_with_line_string) { FactoryGirl.build(:geographic_item_with_line_string) }
-    let(:geographic_item_with_polygon) { FactoryGirl.build(:geographic_item_with_polygon) }
-    let(:geographic_item_with_multi_polygon) { FactoryGirl.build(:geographic_item_with_multi_polygon) }
+    let(:geographic_item) { FactoryBot.build(:geographic_item) }
+    let(:geographic_item_with_point_a) { FactoryBot.build(:geographic_item_with_point_a) }
+    let(:geographic_item_with_point_b) { FactoryBot.build(:geographic_item_with_point_b) }
+    let(:geographic_item_with_point_c) { FactoryBot.build(:geographic_item_with_point_c) }
+    let(:geographic_item_with_line_string) { FactoryBot.build(:geographic_item_with_line_string) }
+    let(:geographic_item_with_polygon) { FactoryBot.build(:geographic_item_with_polygon) }
+    let(:geographic_item_with_multi_polygon) { FactoryBot.build(:geographic_item_with_multi_polygon) }
 
 =begin
   context 'database functions' do
@@ -558,7 +558,7 @@ describe GeographicItem, type: :model, group: :geo do
           end
 
           specify 'find the (overlapping) points in a polygon' do
-            overlapping_point = FactoryGirl.create(:geographic_item_point, :point => POINT12.as_binary)
+            overlapping_point = FactoryBot.create(:geographic_item_point, :point => POINT12.as_binary)
             expect(GeographicItem.contained_by(@e1.id).to_a).to contain_exactly(@p12, overlapping_point, @p11)
           end
         end

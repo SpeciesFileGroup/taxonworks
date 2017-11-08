@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe Documentation, type: :model, group: :documentation do
 
   let(:documentation) { Documentation.new }
-  let(:document) { FactoryGirl.create(:valid_document) }
+  let(:document) { FactoryBot.create(:valid_document) }
 
   context 'validation' do
     before { documentation.valid? } 

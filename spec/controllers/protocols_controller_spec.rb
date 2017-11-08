@@ -27,7 +27,7 @@ RSpec.describe ProtocolsController, type: :controller do
   # Protocol. As you add validations to Protocol, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_protocol).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_protocol).attributes)
   }
 
   let(:invalid_attributes) {

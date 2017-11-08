@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :source, traits: [:creator_and_updater]  do
 
     factory :valid_source do

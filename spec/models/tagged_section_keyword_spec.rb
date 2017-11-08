@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe TaggedSectionKeyword, :type => :model do
 
-  let(:tagged_section_keyword) {FactoryGirl.build(:tagged_section_keyword) }
+  let(:tagged_section_keyword) {FactoryBot.build(:tagged_section_keyword) }
 
   context 'validation' do
     context 'required' do
@@ -21,7 +21,7 @@ describe TaggedSectionKeyword, :type => :model do
 
   context 'use' do
     specify 'position is set on save' do
-      t = FactoryGirl.create(:valid_tagged_section_keyword)
+      t = FactoryBot.create(:valid_tagged_section_keyword)
       expect(t.position).to eq(1)
     end
   end

@@ -7,10 +7,10 @@ def strip_housekeeping_attributes(attributes = {})
 end
 
 def factory_girl_create_for_user(model, user)
-  FactoryGirl.create(model, creator: user, updater: user)
+  FactoryBot.create(model, creator: user, updater: user)
 end
 
 def factory_girl_create_for_user_and_project(model, user, project)
-  FactoryGirl.create(model, creator: user, updater: user, project: project)
+  FactoryBot.create(model, creator: user, updater: user, project: project)
 end
 

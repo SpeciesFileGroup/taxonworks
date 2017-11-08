@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
   let(:collecting_event) { CollectingEvent.new }
-  let(:county) { FactoryGirl.create(:valid_geographic_area_stack) }
+  let(:county) { FactoryBot.create(:valid_geographic_area_stack) }
   let(:state) { county.parent }
   let(:country) { state.parent }
 
@@ -205,8 +205,8 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
 
     specify 'md5_of_verbatim_collecting_event is unique within project' do
       label = "Label\nAnother line\nYet another line."
-      c1    = FactoryGirl.create(:valid_collecting_event, verbatim_label: label)
-      c2    = FactoryGirl.build(:valid_collecting_event, verbatim_label: label)
+      c1    = FactoryBot.create(:valid_collecting_event, verbatim_label: label)
+      c2    = FactoryBot.build(:valid_collecting_event, verbatim_label: label)
       expect(c2.valid?).to be_falsey
       expect(c2.errors[:md5_of_verbatim_label].count).to eq(1)
     end
@@ -315,11 +315,11 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
 
   context 'fuzzy matching' do
     before {
-      @c1 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a base string.')
-      @c2 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a base string.')
+      @c1 = FactoryBot.create(:valid_collecting_event, verbatim_locality: 'This is a base string.')
+      @c2 = FactoryBot.create(:valid_collecting_event, verbatim_locality: 'This is a base string.')
 
-      @c3 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a roof string.')
-      @c4 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a r00f string.')
+      @c3 = FactoryBot.create(:valid_collecting_event, verbatim_locality: 'This is a roof string.')
+      @c4 = FactoryBot.create(:valid_collecting_event, verbatim_locality: 'This is a r00f string.')
     }
 
     specify 'nearest_by_levenshtein(compared_string = nil, column = "verbatim_locality", limit = 10)' do

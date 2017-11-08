@@ -26,8 +26,8 @@ describe DataAttributesController, :type => :controller do
   # This should return the minimal set of attributes required to create a valid
   # DataAttribute. As you add validations to DataAttribute, be sure to
   # adjust the attributes here as well.
-  let(:o) {FactoryGirl.create(:valid_otu) }
-  let(:p) {FactoryGirl.create(:valid_controlled_vocabulary_term_predicate) }
+  let(:o) {FactoryBot.create(:valid_otu) }
+  let(:p) {FactoryBot.create(:valid_controlled_vocabulary_term_predicate) }
   let(:valid_attributes) { 
     { type: 'InternalAttribute',
       attribute_subject_id: o.id,

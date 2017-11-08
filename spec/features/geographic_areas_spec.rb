@@ -10,7 +10,7 @@ describe 'GeographicAreas', type: :feature do
     before {
       sign_in_user_and_select_project
       a = factory_girl_create_for_user(:valid_geographic_area_type, @user)
-      5.times { FactoryGirl.create(:valid_geographic_area, geographic_area_type: a, by: @user) }
+      5.times { FactoryBot.create(:valid_geographic_area, geographic_area_type: a, by: @user) }
     }
 
     describe 'GET /geographic_areas' do

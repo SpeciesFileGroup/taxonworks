@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe TaxonNamesHelper, :type => :helper do
   context 'a taxon_name needs some helpers' do
-    let(:taxon_name) {FactoryGirl.create(:valid_protonym) }
+    let(:taxon_name) {FactoryBot.create(:valid_protonym) }
 
     specify '#taxon_name_for_select' do
       expect(taxon_name_for_select(taxon_name)).to eq('Aaidae')

@@ -3,7 +3,7 @@ require 'rails_helper'
 describe Identifier::Global::OccurrenceId, type: :model, group: :identifiers do
 
   context 'OccurrenceId' do
-    let(:id) {FactoryGirl.build(:identifier_global_occurrence_id)}
+    let(:id) {FactoryBot.build(:identifier_global_occurrence_id)}
     let(:id_string) {'http://grbio.org/institution/frost-entomological-museum-penn-state-university/04f7b07d-a62b'}
 
     context '#identifier is validly formatted' do

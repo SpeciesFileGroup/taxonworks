@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :common_name, traits: [:housekeeping]  do
     factory :valid_common_name do
       name "Purple People Eater"

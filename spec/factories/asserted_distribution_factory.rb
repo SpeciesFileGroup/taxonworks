@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :asserted_distribution, traits: [:housekeeping] do
     factory :valid_asserted_distribution do
       association :otu, factory: :valid_otu

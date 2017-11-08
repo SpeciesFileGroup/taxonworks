@@ -18,9 +18,9 @@ describe Language, :type => :model do
   end
 
   context 'find values' do
-    let!(:eng) {FactoryGirl.create(:english) }
-    let!(:rus) {FactoryGirl.create(:russian) }
-    let!(:cre) {FactoryGirl.create(:creole_eng) }
+    let!(:eng) {FactoryBot.create(:english) }
+    let!(:rus) {FactoryBot.create(:russian) }
+    let!(:cre) {FactoryBot.create(:creole_eng) }
 
     specify '#with_english_name_containing scope should return a list of matching languages(like)' do
       lang_a = Language.with_english_name_containing('russ')

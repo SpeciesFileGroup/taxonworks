@@ -2,12 +2,12 @@ require 'rails_helper'
 
 describe ContainerItem, type: :model, group: :containers do
 
-  let(:container_item) { FactoryGirl.build(:container_item) } # Specimen
+  let(:container_item) { FactoryBot.build(:container_item) } # Specimen
 
-  let(:specimen) { FactoryGirl.create(:valid_specimen) }
+  let(:specimen) { FactoryBot.create(:valid_specimen) }
 
-  let(:container1) { FactoryGirl.create(:valid_container, name: 'Top') }
-  let(:container2) { FactoryGirl.create(:valid_container, name: 'Middle') }
+  let(:container1) { FactoryBot.create(:valid_container, name: 'Top') }
+  let(:container2) { FactoryBot.create(:valid_container, name: 'Middle') }
 
   context "validation" do
     context 'required' do
@@ -48,7 +48,7 @@ describe ContainerItem, type: :model, group: :containers do
 
         let!(:containing_container_item) { ContainerItem.create(contained_object: container1) }
         before {
-          container_item.contained_object = FactoryGirl.create(:valid_specimen)
+          container_item.contained_object = FactoryBot.create(:valid_specimen)
           container1.update(size_x: 10, size_y: 10, size_z: 10)
         }
 
@@ -72,7 +72,7 @@ describe ContainerItem, type: :model, group: :containers do
           container_item.disposition_x = 10
           container_item.disposition_y = 10
           container_item.save!
-          c = ContainerItem.new(parent: containing_container_item, contained_object: FactoryGirl.create(:valid_specimen), disposition_x: 10, disposition_y: 10)
+          c = ContainerItem.new(parent: containing_container_item, contained_object: FactoryBot.create(:valid_specimen), disposition_x: 10, disposition_y: 10)
           expect(c.valid?).to be_falsey
           expect(c.errors.include?(:base)).to be_truthy
         end

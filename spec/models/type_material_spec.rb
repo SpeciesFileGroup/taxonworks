@@ -51,11 +51,11 @@ describe TypeMaterial, :type => :model do
   context 'general' do
     context 'Protonym restrictions and linkages' do
       let(:iczn_type) { 
-        FactoryGirl.build(:type_material, protonym: FactoryGirl.build(:relationship_species, parent: nil))
+        FactoryBot.build(:type_material, protonym: FactoryGirl.build(:relationship_species, parent: nil))
       }
 
       let(:icn_type) {
-        FactoryGirl.build(:type_material, protonym: FactoryGirl.build(:icn_species, parent: nil))
+        FactoryBot.build(:type_material, protonym: FactoryGirl.build(:icn_species, parent: nil))
       }
 
       specify 'type_type is one of ICZN_TYPES.keys for ICZN name' do
@@ -79,10 +79,10 @@ describe TypeMaterial, :type => :model do
       end
 
       specify 'protonym not a species' do
-        t = FactoryGirl.build(:valid_type_material, protonym: FactoryGirl.build(:relationship_genus, parent: nil))
+        t = FactoryBot.build(:valid_type_material, protonym: FactoryGirl.build(:relationship_genus, parent: nil))
         t.valid?
         expect(t.errors.include?(:protonym_id)).to be_truthy
-        t.protonym = FactoryGirl.build(:relationship_species, parent: nil)
+        t.protonym = FactoryBot.build(:relationship_species, parent: nil)
         t.valid?
         expect(t.errors.include?(:protonym_id)).to be_falsey
       end
@@ -91,8 +91,8 @@ describe TypeMaterial, :type => :model do
     context 'Material restrictions' do
       # @proceps, nothing was done with @type_material, so I consolidated that nothing to a let here
       let(:type_material) {
-        a = FactoryGirl.build_stubbed(:type_material)
-        a.protonym = FactoryGirl.build_stubbed(:relationship_species, parent: nil)
+        a = FactoryBot.build_stubbed(:type_material)
+        a.protonym = FactoryBot.build_stubbed(:relationship_species, parent: nil)
         a
       }
  
@@ -106,14 +106,14 @@ describe TypeMaterial, :type => :model do
 
   context 'methods' do
     let(:iczn_type) {
-      FactoryGirl.build(:valid_type_material)
+      FactoryBot.build(:valid_type_material)
     }
 
     let(:icn_type) {
-      FactoryGirl.build(:valid_type_material, protonym: FactoryGirl.build(:icn_species))
+      FactoryBot.build(:valid_type_material, protonym: FactoryGirl.build(:icn_species))
     }
 
-    let(:t) {FactoryGirl.create(:valid_type_material, source: FactoryGirl.create(:valid_source_bibtex)) }
+    let(:t) {FactoryBot.create(:valid_type_material, source: FactoryGirl.create(:valid_source_bibtex)) }
 
     specify 'type_source from protonym' do
       expect(iczn_type.type_source).to eq(iczn_type.protonym.source)
@@ -127,9 +127,9 @@ describe TypeMaterial, :type => :model do
   end
 
   context 'soft validation' do
-    let!(:species) {FactoryGirl.create(:relationship_species) }
-    let!(:iczn_type) {FactoryGirl.create(:valid_type_material, protonym: species) }
-    let(:t) {FactoryGirl.create(:valid_type_material, protonym: species)  }
+    let!(:species) {FactoryBot.create(:relationship_species) }
+    let!(:iczn_type) {FactoryBot.create(:valid_type_material, protonym: species) }
+    let(:t) {FactoryBot.create(:valid_type_material, protonym: species)  }
 
     context 'only one primary type' do
       specify 'for neotype' do

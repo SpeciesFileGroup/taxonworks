@@ -27,7 +27,7 @@ describe NotesController, :type => :controller do
   # Note. As you add validations to Note be sure to
   # adjust the attributes here as well.
 
-  let(:o) {FactoryGirl.create(:valid_otu)}
+  let(:o) {FactoryBot.create(:valid_otu)}
   let(:valid_attributes) {
     {note_object_id: o.id, note_object_type: o.class.to_s, text: "Just the fax"}  }
 

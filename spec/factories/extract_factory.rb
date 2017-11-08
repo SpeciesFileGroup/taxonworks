@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :extract, traits: [:housekeeping] do
     factory :valid_extract do
       quantity_value "9.99"

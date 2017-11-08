@@ -9,7 +9,7 @@ describe GeographicItemsController, :type => :controller do
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes( FactoryGirl.build(:valid_geographic_item).attributes )
+    strip_housekeeping_attributes( FactoryBot.build(:valid_geographic_item).attributes )
   }
 
   # This should return the minimal set of values that should be in the session

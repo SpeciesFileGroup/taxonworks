@@ -14,7 +14,7 @@ describe 'Citations', :type => :feature do
       o = factory_girl_create_for_user_and_project(:valid_otu, @user, @project)
 
       5.times.each_with_index { |i|
-        FactoryGirl.create(:valid_citation, user_project_attributes(@user, @project).merge(citation_object: o, source: s[i]))
+        FactoryBot.create(:valid_citation, user_project_attributes(@user, @project).merge(citation_object: o, source: s[i]))
       }
     }
 

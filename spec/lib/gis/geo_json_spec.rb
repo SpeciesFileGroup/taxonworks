@@ -4,8 +4,8 @@ require 'rails_helper'
 # deprecated eventually.
 describe Gis::GeoJSON, group: :geo, type: :model do
 
-  let(:otu) { FactoryGirl.create(:valid_otu) }
-  let(:source) { FactoryGirl.create(:valid_source) }
+  let(:otu) { FactoryBot.create(:valid_otu) }
+  let(:source) { FactoryBot.create(:valid_source) }
 
   before(:all) {
     generate_political_areas_with_collecting_events

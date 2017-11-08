@@ -1,6 +1,6 @@
 # Read about factories at https://github.com/thoughtbot/factory_girl
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :geographic_areas_geographic_item do
     geographic_area nil
     geographic_item nil

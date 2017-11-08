@@ -1,6 +1,6 @@
 # Read about factories at https://github.com/thoughtbot/factory_girl
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :note, traits: [:housekeeping] do
     factory :valid_note do
       association :note_object, factory: :valid_otu

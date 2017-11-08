@@ -28,7 +28,7 @@ RSpec.describe ObservationMatrixRowItemsController, type: :controller do
   # MatrixRowItem. As you add validations to MatrixRowItem, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_observation_matrix_row_item).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_observation_matrix_row_item).attributes)
   }
 
   let(:invalid_attributes) {
@@ -107,7 +107,7 @@ RSpec.describe ObservationMatrixRowItemsController, type: :controller do
   describe 'PUT #update' do
     context 'with valid params' do
       let!(:new_attributes) {
-        { observation_matrix_id: FactoryGirl.create(:valid_observation_matrix).id }
+        { observation_matrix_id: FactoryBot.create(:valid_observation_matrix).id }
       }
 
       it 'updates the requested matrix_row_item' do

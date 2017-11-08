@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'IsDwcOccurrence', type: :model, group: :darwin_core do
   let(:class_with_dwc_occurrence) {TestIsDwcOccurrence.new}
-  let(:collection_object) { FactoryGirl.create(:valid_specimen) }
+  let(:collection_object) { FactoryBot.create(:valid_specimen) }
   let(:dwc_occurrence) {class_with_dwc_occurrence.dwc_occurrence}
 
   context 'associations' do

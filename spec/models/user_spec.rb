@@ -194,8 +194,8 @@ describe User, :type => :model do
   context 'user activity summaries' do
     before {
       user.save
-      4.times { (FactoryGirl.create(:valid_otu, creator: user, updater: user)) }
-      @last_otu = FactoryGirl.create(:valid_otu, creator: user, updater: user)
+      4.times { (FactoryBot.create(:valid_otu, creator: user, updater: user)) }
+      @last_otu = FactoryBot.create(:valid_otu, creator: user, updater: user)
     }
 
     # specify '.last Otu created by me' do
@@ -265,10 +265,10 @@ describe User, :type => :model do
   end
 
   context 'finding user ids' do
-    let!(:u1) { FactoryGirl.create(:valid_user, {name: 'Pat One', email: 'Pat1@work.com'}) }
-    let!(:u2) { FactoryGirl.create(:valid_user, {name: 'Pat Two', email: 'Pat2@home.net'}) }
-    let!(:u3) { FactoryGirl.create(:valid_user, {name: 'Pat Three', email: 'Pat3@work.net'}) }
-    let!(:u4) { FactoryGirl.create(:valid_user, {name: 'Pat Four', email: 'Pat4@vacation.net'}) }
+    let!(:u1) { FactoryBot.create(:valid_user, {name: 'Pat One', email: 'Pat1@work.com'}) }
+    let!(:u2) { FactoryBot.create(:valid_user, {name: 'Pat Two', email: 'Pat2@home.net'}) }
+    let!(:u3) { FactoryBot.create(:valid_user, {name: 'Pat Three', email: 'Pat3@work.net'}) }
+    let!(:u4) { FactoryBot.create(:valid_user, {name: 'Pat Four', email: 'Pat4@vacation.net'}) }
 
     context 'find one user id' do
 

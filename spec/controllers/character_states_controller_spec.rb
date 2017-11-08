@@ -27,7 +27,7 @@ RSpec.describe CharacterStatesController, type: :controller do
   # CharacterState. As you add validations to CharacterState, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_character_state).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_character_state).attributes)
   }
 
   let(:invalid_attributes) {

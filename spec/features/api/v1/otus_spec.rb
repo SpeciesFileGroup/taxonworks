@@ -12,7 +12,7 @@ describe 'API::v1::Otus', type: :feature do
     context 'with some records created' do
       before {
         3.times { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
-        FactoryGirl.create(:valid_otu, name: 'Find me', creator: @user, updater: @user, project: @project)
+        FactoryBot.create(:valid_otu, name: 'Find me', creator: @user, updater: @user, project: @project)
       }
 
    

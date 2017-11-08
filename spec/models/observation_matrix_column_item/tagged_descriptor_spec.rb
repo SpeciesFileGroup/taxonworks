@@ -2,8 +2,8 @@ require 'rails_helper'
 
 RSpec.describe ObservationMatrixColumnItem::TaggedDescriptor, type: :model, group: :observation_matrix  do
   let(:observation_matrix_column_item) { ObservationMatrixColumnItem::TaggedDescriptor.new }
-  let(:observation_matrix) { FactoryGirl.create(:valid_observation_matrix) }
-  let(:keyword) { FactoryGirl.create(:valid_keyword) }
+  let(:observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
+  let(:keyword) { FactoryBot.create(:valid_keyword) }
 
   context 'validation' do
     before {observation_matrix_column_item.valid?}
@@ -24,16 +24,16 @@ RSpec.describe ObservationMatrixColumnItem::TaggedDescriptor, type: :model, grou
 
     context 'other possible subclass attributes are nil' do
       specify 'descriptor_id' do
-        observation_matrix_column_item.descriptor_id =  FactoryGirl.create(:valid_descriptor).id 
+        observation_matrix_column_item.descriptor_id =  FactoryBot.create(:valid_descriptor).id 
         observation_matrix_column_item.valid?
         expect(observation_matrix_column_item.errors.include?(:descriptor_id)).to be_truthy 
       end
     end
 
     context 'with a observation_matrix_column_item saved' do
-      let!(:descriptor1) { FactoryGirl.create(:valid_descriptor) } 
-      let!(:descriptor2) { FactoryGirl.create(:valid_descriptor) } 
-      let!(:descriptor3) { FactoryGirl.create(:valid_descriptor) } 
+      let!(:descriptor1) { FactoryBot.create(:valid_descriptor) } 
+      let!(:descriptor2) { FactoryBot.create(:valid_descriptor) } 
+      let!(:descriptor3) { FactoryBot.create(:valid_descriptor) } 
 
       let!(:tag1) { Tag.create(keyword: keyword, tag_object: descriptor1) }
       let!(:tag2) { Tag.create(keyword: keyword, tag_object: descriptor2) }
@@ -66,7 +66,7 @@ RSpec.describe ObservationMatrixColumnItem::TaggedDescriptor, type: :model, grou
 
 
       context 'overlapping sets' do
-        let(:other_keyword) { FactoryGirl.create(:valid_keyword) }
+        let(:other_keyword) { FactoryBot.create(:valid_keyword) }
         let!(:tag4) { Tag.create(keyword: other_keyword, tag_object: descriptor3) }
 
         let!(:other_observation_matrix_column_item) { ObservationMatrixColumnItem::TaggedDescriptor.create!(observation_matrix: observation_matrix, controlled_vocabulary_term: other_keyword) }
@@ -92,7 +92,7 @@ RSpec.describe ObservationMatrixColumnItem::TaggedDescriptor, type: :model, grou
         end
 
         context 'adding another tag to an existing cvt' do
-          let(:descriptor4) { FactoryGirl.create(:valid_descriptor) }
+          let(:descriptor4) { FactoryBot.create(:valid_descriptor) }
           let!(:new_tag) { Tag.create(keyword: other_keyword, tag_object: descriptor4) }
 
           specify 'observation_matrix column is added' do

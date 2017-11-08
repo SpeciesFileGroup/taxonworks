@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
 
   factory :combination, traits: [:housekeeping] do
     type 'Combination'

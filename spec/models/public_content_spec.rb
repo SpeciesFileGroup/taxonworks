@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe PublicContent, :type => :model do
-  let(:public_content) {FactoryGirl.build(:public_content) }
+  let(:public_content) {FactoryBot.build(:public_content) }
 
   context 'validation' do
     before(:each) {

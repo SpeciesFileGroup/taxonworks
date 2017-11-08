@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe ObservationMatrixColumn, type: :model, group: :matrix do
 
   let(:observation_matrix_column) {ObservationMatrixColumn.new}
-  let(:observation_matrix) { FactoryGirl.create(:valid_observation_matrix) }
-  let(:descriptor) { FactoryGirl.create(:valid_descriptor) }
+  let(:observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
+  let(:descriptor) { FactoryBot.create(:valid_descriptor) }
 
   context 'validation' do
     before {observation_matrix_column.valid?}

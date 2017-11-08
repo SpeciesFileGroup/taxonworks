@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
 
   trait :creator_and_updater do
     created_by_id { $user_id }

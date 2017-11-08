@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :serial_chronology, traits: [:creator_and_updater] do
     factory :valid_serial_chronology do
       association :preceding_serial, factory: :valid_serial, name: "First"

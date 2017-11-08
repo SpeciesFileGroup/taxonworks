@@ -33,9 +33,9 @@ RSpec.describe PinboardItem do
 
   context 'inserted' do
 
-    let!(:a) { PinboardItem.create!(pinned_object: FactoryGirl.create(:valid_otu, name: 'smorf'), is_inserted: true, user_id: 1)  }
-    let!(:b) { PinboardItem.create!(pinned_object: FactoryGirl.create(:valid_otu, name: 'blorf'), is_inserted: false, user_id: 1) }
-    let!(:c) { PinboardItem.create!(pinned_object: FactoryGirl.create(:valid_specimen,), is_inserted: true, user_id: 1) }
+    let!(:a) { PinboardItem.create!(pinned_object: FactoryBot.create(:valid_otu, name: 'smorf'), is_inserted: true, user_id: 1)  }
+    let!(:b) { PinboardItem.create!(pinned_object: FactoryBot.create(:valid_otu, name: 'blorf'), is_inserted: false, user_id: 1) }
+    let!(:c) { PinboardItem.create!(pinned_object: FactoryBot.create(:valid_specimen,), is_inserted: true, user_id: 1) }
 
     specify '.reorder' do
       PinboardItem.reorder([b.id, a.id])
@@ -74,9 +74,9 @@ RSpec.describe PinboardItem do
     end
 
     specify '#is_cross_project' do
-      a = PinboardItem.new(pinned_object: FactoryGirl.create(:valid_serial), is_cross_project: true, user_id: 1)
+      a = PinboardItem.new(pinned_object: FactoryBot.create(:valid_serial), is_cross_project: true, user_id: 1)
       expect(a.save).to be_truthy
-      b = PinboardItem.new(pinned_object: FactoryGirl.create(:valid_otu), is_cross_project: true, user_id: 1)
+      b = PinboardItem.new(pinned_object: FactoryBot.create(:valid_otu), is_cross_project: true, user_id: 1)
       expect(b.save).to be_falsey
     end
   end

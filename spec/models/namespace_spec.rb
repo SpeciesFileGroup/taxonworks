@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe Namespace, :type => :model do
-  let(:namespace) { FactoryGirl.build(:namespace) }
+  let(:namespace) { FactoryBot.build(:namespace) }
 
   context 'validation' do
     context 'requires' do
@@ -19,8 +19,8 @@ describe Namespace, :type => :model do
 
     context 'uniqueness' do
       before(:each) {
-        n1 = FactoryGirl.create(:namespace, name: 'Final Frontier', short_name: 'Final')
-        @n2 = FactoryGirl.build(:valid_namespace, name: 'Final Frontier', short_name: 'Final')
+        n1 = FactoryBot.create(:namespace, name: 'Final Frontier', short_name: 'Final')
+        @n2 = FactoryBot.build(:valid_namespace, name: 'Final Frontier', short_name: 'Final')
         @n2.valid?
       }
       specify 'name is unique' do
