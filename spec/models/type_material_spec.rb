@@ -51,11 +51,11 @@ describe TypeMaterial, :type => :model do
   context 'general' do
     context 'Protonym restrictions and linkages' do
       let(:iczn_type) { 
-        FactoryBot.build(:type_material, protonym: FactoryGirl.build(:relationship_species, parent: nil))
+        FactoryBot.build(:type_material, protonym: FactoryBot.build(:relationship_species, parent: nil))
       }
 
       let(:icn_type) {
-        FactoryBot.build(:type_material, protonym: FactoryGirl.build(:icn_species, parent: nil))
+        FactoryBot.build(:type_material, protonym: FactoryBot.build(:icn_species, parent: nil))
       }
 
       specify 'type_type is one of ICZN_TYPES.keys for ICZN name' do
@@ -79,7 +79,7 @@ describe TypeMaterial, :type => :model do
       end
 
       specify 'protonym not a species' do
-        t = FactoryBot.build(:valid_type_material, protonym: FactoryGirl.build(:relationship_genus, parent: nil))
+        t = FactoryBot.build(:valid_type_material, protonym: FactoryBot.build(:relationship_genus, parent: nil))
         t.valid?
         expect(t.errors.include?(:protonym_id)).to be_truthy
         t.protonym = FactoryBot.build(:relationship_species, parent: nil)
@@ -110,10 +110,10 @@ describe TypeMaterial, :type => :model do
     }
 
     let(:icn_type) {
-      FactoryBot.build(:valid_type_material, protonym: FactoryGirl.build(:icn_species))
+      FactoryBot.build(:valid_type_material, protonym: FactoryBot.build(:icn_species))
     }
 
-    let(:t) {FactoryBot.create(:valid_type_material, source: FactoryGirl.create(:valid_source_bibtex)) }
+    let(:t) {FactoryBot.create(:valid_type_material, source: FactoryBot.create(:valid_source_bibtex)) }
 
     specify 'type_source from protonym' do
       expect(iczn_type.type_source).to eq(iczn_type.protonym.source)

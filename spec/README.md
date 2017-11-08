@@ -13,6 +13,6 @@ Everything else is support for tests.
 
 * **files** contain data files used for testing
 * **fixtures** at present only VCR files (wraps API calls out)
-* **factories** FactoryGirl factories.  Every AR model has a model and valid_model factory at minimum.
+* **factories** FactoryBot factories.  Every AR model has a model and valid_model factory at minimum.
 * **support** methods used in multiple tests, including wrappers for each of types 
 

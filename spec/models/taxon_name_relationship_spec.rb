@@ -142,7 +142,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       end
 
       specify 'different code' do
-        r = FactoryBot.build_stubbed(:type_species_relationship, object_taxon_name: FactoryGirl.build(:icn_genus))
+        r = FactoryBot.build_stubbed(:type_species_relationship, object_taxon_name: FactoryBot.build(:icn_genus))
         expect(r.valid?).to be_falsey
         expect(r.errors.include?(:object_taxon_name_id)).to be_truthy
       end
