@@ -1,5 +1,5 @@
 require_relative '../support/geo/build_rspec_geo'
-FactoryGirl.define do
+FactoryBot.define do
 
   minLat = -85
   maxLat = 85
@@ -7,7 +7,7 @@ FactoryGirl.define do
   maxLng = 180
   rng    = Random.new(Time.now.to_i)
 
-# FactoryGirl.build(:geographic_item, :random_point)
+# FactoryBot.build(:geographic_item, :random_point)
   trait :random_point do
     point { RSPEC_GEO_FACTORY.point(minLat + rng.rand * (maxLat - minLat), minLng + rng.rand * (maxLng - minLng)) }
   end

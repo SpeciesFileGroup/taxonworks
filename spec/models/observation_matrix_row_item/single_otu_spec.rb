@@ -22,21 +22,21 @@ RSpec.describe ObservationMatrixRowItem::SingleOtu, type: :model, group: :observ
 
     context 'other possible subclass attributes are nil' do
       specify 'collection_object_id' do
-        observation_matrix_row_item.collection_object_id = FactoryGirl.create(:valid_collection_object).id
+        observation_matrix_row_item.collection_object_id = FactoryBot.create(:valid_collection_object).id
         observation_matrix_row_item.valid?
         expect(observation_matrix_row_item.errors.include?(:collection_object_id)).to be_truthy
       end
 
       specify 'controlled_vocabulary_term_id' do
-        observation_matrix_row_item.controlled_vocabulary_term_id = FactoryGirl.create(:valid_keyword).id
+        observation_matrix_row_item.controlled_vocabulary_term_id = FactoryBot.create(:valid_keyword).id
         observation_matrix_row_item.valid?
         expect(observation_matrix_row_item.errors.include?(:controlled_vocabulary_term_id)).to be_truthy
       end
     end 
 
     context 'with a observation_matrix_row_item saved' do
-      let(:observation_matrix) { FactoryGirl.create(:valid_observation_matrix) }
-      let(:otu) { FactoryGirl.create(:valid_otu) }
+      let(:observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
+      let(:otu) { FactoryBot.create(:valid_otu) }
       
       before {
         observation_matrix_row_item.observation_matrix = observation_matrix

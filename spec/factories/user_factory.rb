@@ -1,6 +1,6 @@
 require_relative '../../spec/support/config/initialization_constants'
 
-FactoryGirl.define do
+FactoryBot.define do
   sequence :email do |n|
     "person#{n}@example.com"
   end

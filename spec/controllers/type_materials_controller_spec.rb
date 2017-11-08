@@ -27,11 +27,11 @@ describe TypeMaterialsController, :type => :controller do
   # TypeMaterial. As you add validations to TypeMaterial, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_type_material).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_type_material).attributes)
   }
 
   let(:invalid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:invalid_type_material).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:invalid_type_material).attributes)
   }
 
   # This should return the minimal set of values that should be in the session
@@ -121,7 +121,7 @@ describe TypeMaterialsController, :type => :controller do
   describe "PUT update" do
     describe "with valid params" do
       let(:new_attributes) {
-        strip_housekeeping_attributes(FactoryGirl.build(:new_valid_type_material).attributes)
+        strip_housekeeping_attributes(FactoryBot.build(:new_valid_type_material).attributes)
       }
 
       it "updates the requested type_material" do

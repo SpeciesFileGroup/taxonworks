@@ -29,7 +29,7 @@ module ModelHelper
     if t = TaxonName.where(parent_id: nil).first
       return t
     else
-      return FactoryGirl.create(:root_taxon_name)
+      return FactoryBot.create(:root_taxon_name)
     end
   end
 

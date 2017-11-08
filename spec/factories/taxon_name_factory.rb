@@ -1,5 +1,5 @@
 # !! Use protonym factories to for taxon names!
-FactoryGirl.define do
+FactoryBot.define do
   factory :taxon_name, traits: [:housekeeping] do
   
     initialize_with { new(type: type) } 

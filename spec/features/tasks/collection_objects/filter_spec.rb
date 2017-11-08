@@ -42,13 +42,13 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         describe '#set_identifier', js: true, resolution: true do
 
           before do
-            2.times { FactoryGirl.create(:valid_namespace, creator: @user, updater: @user) }
+            2.times { FactoryBot.create(:valid_namespace, creator: @user, updater: @user) }
             ns1 = Namespace.first
             ns2 = Namespace.second
-            2.times { FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project) }
+            2.times { FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project) }
             (1..10).each { |identifier|
-              sp = FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)
-              id = FactoryGirl.create(:identifier_local_catalog_number,
+              sp = FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project)
+              id = FactoryBot.create(:identifier_local_catalog_number,
                                       updater:           @user,
                                       project:           @project,
                                       creator:           @user,
@@ -136,8 +136,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
       context 'with records specific to identifiers' do
         describe 'select a namespace', js: true do
           it 'should find the correct namespace' do
-            @ns1 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)
-            @ns2 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
+            @ns1 = FactoryBot.create(:valid_namespace, creator: @user, updater: @user)
+            @ns2 = FactoryBot.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
             visit(collection_objects_filter_task_path)
 
             expect(page).to have_button('Set Identifier Range')
@@ -150,22 +150,22 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
         describe 'select start and stop identifiers', js: true do
           it 'should find the start and stop inputs' do
-            @ns1 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)
-            @ns2 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
-            3.times { FactoryGirl.create(:valid_namespace, creator: @user, updater: @user) }
+            @ns1 = FactoryBot.create(:valid_namespace, creator: @user, updater: @user)
+            @ns2 = FactoryBot.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
+            3.times { FactoryBot.create(:valid_namespace, creator: @user, updater: @user) }
             @ns3 = Namespace.third
-            2.times { FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project) }
-            FactoryGirl.create(:identifier_local_import,
+            2.times { FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project) }
+            FactoryBot.create(:identifier_local_import,
                                identifier_object: Specimen.first,
                                namespace:         @ns3,
                                identifier:        'First specimen', creator: @user, updater: @user, project: @project)
-            FactoryGirl.create(:identifier_local_import,
+            FactoryBot.create(:identifier_local_import,
                                identifier_object: Specimen.second,
                                namespace:         @ns3,
                                identifier:        'Second specimen', creator: @user, updater: @user, project: @project)
             (1..10).each { |identifier|
-              sp = FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)
-              id = FactoryGirl.create(:identifier_local_catalog_number,
+              sp = FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project)
+              id = FactoryBot.create(:identifier_local_catalog_number,
                                       identifier_object: sp,
                                       namespace:         ((identifier % 2) == 0 ? @ns1 : @ns2),
                                       identifier:        identifier, creator: @user, updater: @user, project: @project)
@@ -219,7 +219,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         let!(:pat) { User.find(1) }
         let!(:pat_admin) { User.where(name: 'Pat Project Administrator').first }
         let!(:joe) {
-          peep = FactoryGirl.create(:valid_user, by: pat_admin)
+          peep = FactoryBot.create(:valid_user, by: pat_admin)
           ProjectMember.create(project_id: @project.id, user_id: peep.id, by: pat_admin)
           peep
         }
@@ -246,9 +246,9 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
         describe 'selected objects', js: true do
           it 'should find specific objects' do
-            2.times { FactoryGirl.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: @project) }
+            2.times { FactoryBot.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: @project) }
             (1..10).each { |specimen|
-              sp = FactoryGirl.create(:valid_specimen,
+              sp = FactoryBot.create(:valid_specimen,
                                       creator:    ((specimen % 2) == 0 ? joe : pat),
                                       created_at: "200#{specimen - 1}/01/#{specimen}",
                                       updated_at: "200#{specimen - 1}/07/#{specimen}",

@@ -27,9 +27,9 @@ describe PublicContentsController, :type => :controller do
   # PublicContent. As you add validations to PublicContent, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) { 
-    t = FactoryGirl.create(:valid_topic)   
-    c = FactoryGirl.create(:valid_content, topic: t)
-    FactoryGirl.build(:valid_public_content, topic: t, content: c).attributes 
+    t = FactoryBot.create(:valid_topic)   
+    c = FactoryBot.create(:valid_content, topic: t)
+    FactoryBot.build(:valid_public_content, topic: t, content: c).attributes 
   }
 
   # This should return the minimal set of values that should be in the session

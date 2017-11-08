@@ -27,10 +27,10 @@ describe DataAttribute, type: :model, group: :annotators do
     end
 
     context 'uniqueness' do
-      let(:o) {FactoryGirl.create(:valid_otu) }
+      let(:o) {FactoryBot.create(:valid_otu) }
 
       context 'InternalAttribute' do
-        let(:p) { FactoryGirl.create(:valid_controlled_vocabulary_term_predicate) }
+        let(:p) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate) }
 
         let!(:d1) { InternalAttribute.create(attribute_subject: o, predicate: p, value: 'abc' ) }
         let(:d2) { InternalAttribute.new(attribute_subject: o, predicate: p, value: 'abc' ) }
@@ -56,10 +56,10 @@ describe DataAttribute, type: :model, group: :annotators do
   end
 
   context 'houskeeping on data attributes' do
-    let(:p) { FactoryGirl.create(:valid_controlled_vocabulary_term_predicate) }
+    let(:p) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate) }
 
     context 'attached to project data sets project_id' do
-      let(:o) { FactoryGirl.create(:valid_otu) }
+      let(:o) { FactoryBot.create(:valid_otu) }
 
       specify 'for an import attribute' do
         att = DataAttribute.new(import_predicate: 'foo', value: '6', type: 'ImportAttribute')
@@ -77,7 +77,7 @@ describe DataAttribute, type: :model, group: :annotators do
     end
 
     context 'attached to community data with is_community_annotation == true does not set project_id, ' do
-      let(:s) { FactoryGirl.create(:valid_serial) }
+      let(:s) { FactoryBot.create(:valid_serial) }
 
       context 'for an import attribute' do
         specify 'using <<' do

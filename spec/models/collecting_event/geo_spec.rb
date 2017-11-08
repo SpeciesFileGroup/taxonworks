@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
   let(:collecting_event) { CollectingEvent.new }
-  let(:county) { FactoryGirl.create(:valid_geographic_area_stack) }
+  let(:county) { FactoryBot.create(:valid_geographic_area_stack) }
   let(:state) { county.parent }
   let(:country) { state.parent }
 
@@ -19,7 +19,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         end
 
         context 'with a georeference set ' do
-          before{collecting_event.georeferences << FactoryGirl.create(:valid_georeference)}
+          before{collecting_event.georeferences << FactoryBot.create(:valid_georeference)}
 
           specify '#geographic_name_classification returns :preferred_georeference' do
             expect(collecting_event.geographic_name_classification_method).to eq(:preferred_georeference)
@@ -28,7 +28,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
         context 'with a geographic area that has a shape set ' do
           before do
-            country.geographic_items << FactoryGirl.create(:geographic_item_with_polygon)
+            country.geographic_items << FactoryBot.create(:geographic_item_with_polygon)
             collecting_event.update_column(:geographic_area_id, country.id)
           end
 
@@ -172,7 +172,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
               before {
                 collecting_event.save
 
-                FactoryGirl.create(:georeference_verbatim_data,
+                FactoryBot.create(:georeference_verbatim_data,
                                    collecting_event: collecting_event,
                                    geographic_item: GeographicItem.new(point: @item_m1.geo_object.centroid))
                 collecting_event.reload
@@ -357,7 +357,7 @@ end
 
 
 context 'creating a collecting event with no resolvable geographic_name_classification' do
-  let(:earth) { FactoryGirl.create(:earth_geographic_area) }
+  let(:earth) { FactoryBot.create(:earth_geographic_area) }
 
   specify 'suceeds without entering a nasty loop' do
     expect(CollectingEvent.create(geographic_area: earth) ).to be_truthy
@@ -400,7 +400,7 @@ context 'georeferences' do
     end
 
     context "using by cascades creator/updater to georeference and geographic_item" do
-      let(:other_user) { FactoryGirl.create(:valid_user, name: 'other', email: 'other@test.com') }
+      let(:other_user) { FactoryBot.create(:valid_user, name: 'other', email: 'other@test.com') }
       let(:c) { CollectingEvent.create(verbatim_latitude: '10.001', verbatim_longitude: '10', project: @project, with_verbatim_data_georeference: true, by: other_user) }
 
       specify 'sets collecting event updater' do

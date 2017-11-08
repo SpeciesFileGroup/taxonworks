@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe 'Pinnable', type: :model do
-  let(:user1) { FactoryGirl.create(:valid_user) }
+  let(:user1) { FactoryBot.create(:valid_user) }
   let(:instance_with_pin) { TestPinnable.create! }
 
   specify '#pinboard_items' do

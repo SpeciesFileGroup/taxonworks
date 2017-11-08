@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
 
   factory :taxon_name_relationship, traits: [:housekeeping] do
 

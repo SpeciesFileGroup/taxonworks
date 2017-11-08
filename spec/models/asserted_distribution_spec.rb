@@ -3,9 +3,9 @@ require 'rails_helper'
 describe AssertedDistribution, type: :model, group: :geo do
 
   let(:asserted_distribution) { AssertedDistribution.new }
-  let(:source) { FactoryGirl.create(:valid_source) }
-  let(:otu) { FactoryGirl.create(:valid_otu) }
-  let(:geographic_area) { FactoryGirl.create(:valid_geographic_area) }
+  let(:source) { FactoryBot.create(:valid_source) }
+  let(:otu) { FactoryBot.create(:valid_otu) }
+  let(:geographic_area) { FactoryBot.create(:valid_geographic_area) }
 
   context 'associations' do
     context 'belongs_to' do
@@ -98,8 +98,8 @@ describe AssertedDistribution, type: :model, group: :geo do
     end
 
     specify 'duplicate record' do
-      ad1 = FactoryGirl.create(:valid_asserted_distribution)
-      ad2 = FactoryGirl.build_stubbed(:valid_asserted_distribution, otu_id: ad1.otu_id, geographic_area_id: ad1.geographic_area_id)
+      ad1 = FactoryBot.create(:valid_asserted_distribution)
+      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, otu_id: ad1.otu_id, geographic_area_id: ad1.geographic_area_id)
       expect(ad1.valid?).to be_truthy
       expect(ad2.valid?).to be_falsey
       expect(ad2.errors.include?(:geographic_area_id)).to be_truthy
@@ -110,17 +110,17 @@ describe AssertedDistribution, type: :model, group: :geo do
   context 'soft validation' do
     # Can't miss source, it's required by definition
     specify 'is_absent - False' do
-      ga  = FactoryGirl.create(:level2_geographic_area)
-      ad1 = FactoryGirl.create(:valid_asserted_distribution, geographic_area: ga.parent, is_absent: 1)
-      ad2 = FactoryGirl.build_stubbed(:valid_asserted_distribution, geographic_area: ga)
+      ga  = FactoryBot.create(:level2_geographic_area)
+      ad1 = FactoryBot.create(:valid_asserted_distribution, geographic_area: ga.parent, is_absent: 1)
+      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, geographic_area: ga)
       ad2.soft_validate(:conflicting_geographic_area)
       expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
     end
 
     specify 'is_absent - True' do
-      ga  = FactoryGirl.create(:level2_geographic_area)
-      ad1 = FactoryGirl.create(:valid_asserted_distribution, geographic_area: ga)
-      ad2 = FactoryGirl.build_stubbed(:valid_asserted_distribution, geographic_area: ga, is_absent: 1)
+      ga  = FactoryBot.create(:level2_geographic_area)
+      ad1 = FactoryBot.create(:valid_asserted_distribution, geographic_area: ga)
+      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, geographic_area: ga, is_absent: 1)
       ad2.soft_validate(:conflicting_geographic_area)
       expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
     end
@@ -128,7 +128,7 @@ describe AssertedDistribution, type: :model, group: :geo do
 
   context 'stub_new' do
 
-    let(:otu) { FactoryGirl.create(:valid_otu) }
+    let(:otu) { FactoryBot.create(:valid_otu) }
 
 
     before(:all) do

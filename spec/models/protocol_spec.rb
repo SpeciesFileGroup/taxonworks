@@ -21,16 +21,16 @@ RSpec.describe Protocol, type: :model, group: :protocol do
 
       context 'unique name' do
         before(:each){
-          name_protocol = FactoryGirl.create(:valid_protocol, name: 'Name1')
+          name_protocol = FactoryBot.create(:valid_protocol, name: 'Name1')
         }
 
         specify 'same casing' do
-          new_protocol = FactoryGirl.build(:valid_protocol, name: 'Name1')
+          new_protocol = FactoryBot.build(:valid_protocol, name: 'Name1')
           expect(new_protocol.valid?).to be_falsey
         end
 
         specify 'different casing' do
-          new_protocol = FactoryGirl.build(:valid_protocol, name: 'name1')
+          new_protocol = FactoryBot.build(:valid_protocol, name: 'name1')
           expect(new_protocol.valid?).to be_falsey
         end
       end
@@ -38,7 +38,7 @@ RSpec.describe Protocol, type: :model, group: :protocol do
 
     context 'passes when given' do
       specify 'name and short_name and description' do
-        expect(FactoryGirl.build(:valid_protocol).valid?).to be true
+        expect(FactoryBot.build(:valid_protocol).valid?).to be true
       end
     end
   end

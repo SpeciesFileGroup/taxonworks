@@ -23,7 +23,7 @@ describe Serial, :type => :model do
 
   it 'should soft validate duplicate serials' do
     name = 'Fixed name'
-    s = FactoryGirl.build(:valid_serial, name: name)
+    s = FactoryBot.build(:valid_serial, name: name)
     s.soft_validate()
 
     expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
@@ -32,7 +32,7 @@ describe Serial, :type => :model do
     s.soft_validate()
     expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
 
-    j = FactoryGirl.build(:valid_serial, name: name)
+    j = FactoryBot.build(:valid_serial, name: name)
     expect(j.valid?).to be_truthy
 
     # soft validate new record
@@ -43,7 +43,7 @@ describe Serial, :type => :model do
     expect(j.save).to be_truthy
 
     # Soft validate edited record
-    k = FactoryGirl.build(:preceding_serial)
+    k = FactoryBot.build(:preceding_serial)
     expect(k.save).to be_truthy
     k.soft_validate()
     expect(k.soft_validations.messages_on(:name).empty?).to be_truthy
@@ -61,10 +61,10 @@ describe Serial, :type => :model do
 
   context 'should set the language based on valid languages' do
 
-    let!(:eng) {FactoryGirl.create(:english) }
-    let!(:rus) {FactoryGirl.create(:russian) }
-    let!(:cre) {FactoryGirl.create(:creole_eng) }
-    let(:s) {FactoryGirl.build(:valid_serial) } 
+    let!(:eng) {FactoryBot.create(:english) }
+    let!(:rus) {FactoryBot.create(:russian) }
+    let!(:cre) {FactoryBot.create(:creole_eng) }
+    let(:s) {FactoryBot.build(:valid_serial) } 
     
     specify 'should be able to get & set language by 3 letter abbreviation' do
       s.language = Language.where(alpha_3_bibliographic: 'eng').first

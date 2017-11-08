@@ -23,12 +23,12 @@ describe 'Material' do
    
       @two_objects_stub['identifier'] = {}
 
-      @attribute1 = FactoryGirl.create(:valid_biocuration_class, name: 'adult', definition: 'Big and scary.' )
-      @attribute2 = FactoryGirl.create(:valid_biocuration_class, name: 'larva', definition: 'Wormy')
-      @attribute3 = FactoryGirl.create(:valid_biocuration_class, name: 'uncategorized', definition: 'Can not figure it out.')
-      @attribute4 = FactoryGirl.create(:valid_biocuration_class, name: 'male', definition: 'Not female.')
+      @attribute1 = FactoryBot.create(:valid_biocuration_class, name: 'adult', definition: 'Big and scary.' )
+      @attribute2 = FactoryBot.create(:valid_biocuration_class, name: 'larva', definition: 'Wormy')
+      @attribute3 = FactoryBot.create(:valid_biocuration_class, name: 'uncategorized', definition: 'Can not figure it out.')
+      @attribute4 = FactoryBot.create(:valid_biocuration_class, name: 'male', definition: 'Not female.')
 
-      @namespace = FactoryGirl.create(:valid_namespace)
+      @namespace = FactoryBot.create(:valid_namespace)
     }
 
     specify 'returns a response instance of Material::QuickVerbatimResponse' do
@@ -96,7 +96,7 @@ describe 'Material' do
     end
 
     specify 'material can be assigned to a repository' do
-      repository = FactoryGirl.create(:valid_repository)
+      repository = FactoryBot.create(:valid_repository)
       @one_object_stub['collection_objects']['object1']['total'] = 1
       opts = @one_object_stub.merge('repository' => {'id' => repository.id}) 
       r = Material.create_quick_verbatim(opts)
@@ -181,8 +181,8 @@ describe Material::QuickVerbatimResponse do
   end
 
   context '#duplicate_with_locks' do
-    let(:namespace) { FactoryGirl.create(:valid_namespace) }
-    let(:repository) { FactoryGirl.create(:valid_repository, name: 'The vault.') }
+    let(:namespace) { FactoryBot.create(:valid_namespace) }
+    let(:repository) { FactoryBot.create(:valid_repository, name: 'The vault.') }
     before {
       form_params = {
         'note' => {'text' => 'Locked me.'},
@@ -241,22 +241,22 @@ describe Material::QuickVerbatimResponse do
         response.locks.lock('locks', 'increment') #  = '1' # coming off form_params()
       }
       specify '#next_identifier is +1 when #lock_increment' do
-        response.identifier = FactoryGirl.build(:valid_identifier, identifier: '1')
+        response.identifier = FactoryBot.build(:valid_identifier, identifier: '1')
         expect(response.next_identifier).to eq('2')
       end
 
       specify '#next_identifier is +1 when #lock_increment and pre-fixed alphanumeric' do
-        response.identifier = FactoryGirl.build(:valid_identifier, identifier: 'A1')
+        response.identifier = FactoryBot.build(:valid_identifier, identifier: 'A1')
         expect(response.next_identifier).to eq('A2')
       end
 
       specify '#next_identifier is +1 when #lock_increment and post-fixed alphanumeric' do
-        response.identifier = FactoryGirl.build(:valid_identifier, identifier: '1A')
+        response.identifier = FactoryBot.build(:valid_identifier, identifier: '1A')
         expect(response.next_identifier).to eq('2A')
       end
 
       specify '#next_identifier is +1 when #lock_increment and pre and post-fixed alphanumeric' do
-        response.identifier = FactoryGirl.build(:valid_identifier, identifier: 'AB1A')
+        response.identifier = FactoryBot.build(:valid_identifier, identifier: 'AB1A')
         expect(response.next_identifier).to eq('AB2A')
       end
     end
@@ -283,11 +283,11 @@ describe Material::QuickVerbatimResponse do
   end
 
   specify '#save' do
-    a = FactoryGirl.build(:valid_specimen)
-    i = FactoryGirl.build(:valid_identifier_local_catalog_number, identifier_object: nil)
+    a = FactoryBot.build(:valid_specimen)
+    i = FactoryBot.build(:valid_identifier_local_catalog_number, identifier_object: nil)
     n = Note.new(text: "fasdfasdf")
-    b = FactoryGirl.create(:valid_biocuration_class) 
-    c = FactoryGirl.build(:valid_container)
+    b = FactoryBot.create(:valid_biocuration_class) 
+    c = FactoryBot.build(:valid_container)
 
     a.contained_in = c
     a.identifiers << i 

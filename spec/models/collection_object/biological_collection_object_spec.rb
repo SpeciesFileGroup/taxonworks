@@ -1,7 +1,7 @@
 require 'rails_helper'
 describe CollectionObject::BiologicalCollectionObject, type: :model, group: :collection_objects do
 
-  let(:biological_collection_object) {FactoryGirl.build(:collection_object_biological_collection_object)}
+  let(:biological_collection_object) {FactoryBot.build(:collection_object_biological_collection_object)}
   let(:otu) {Otu.create(name: 'zzz')}
 
   specify '.valid_new_object_classes' do
@@ -158,11 +158,11 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
                           type:       nil,
                           identifier: nil}}
     before do
-      2.times {FactoryGirl.create(:valid_namespace)}
-      2.times {FactoryGirl.create(:valid_specimen)}
+      2.times {FactoryBot.create(:valid_namespace)}
+      2.times {FactoryBot.create(:valid_specimen)}
       (1..10).each {|identifier|
-        sp = FactoryGirl.create(:valid_specimen)
-        id = FactoryGirl.create(:identifier_local_catalog_number,
+        sp = FactoryBot.create(:valid_specimen)
+        id = FactoryBot.create(:identifier_local_catalog_number,
                                 identifier_object: sp,
                                 namespace:         ((identifier % 2) == 0 ? ns1 : ns2),
                                 identifier:        identifier)

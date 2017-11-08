@@ -29,7 +29,7 @@ describe ContainerItemsController, :type => :controller do
   # let(:valid_attributes) {
   #   skip("Add a hash of attributes valid for your model")
   # }
-  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_container_item).attributes) }
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryBot.build(:valid_container_item).attributes) }
 
   # let(:invalid_attributes) {
   #   skip("Add a hash of attributes invalid for your model")

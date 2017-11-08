@@ -16,7 +16,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     TaxonNameHierarchy.delete_all
   end
 
-  let(:root) { FactoryGirl.create(:root_taxon_name, project_id: 1) }
+  let(:root) { FactoryBot.create(:root_taxon_name, project_id: 1) }
 
   context 'with Roles attributes and purposefully invalid name (name is not capitalized for genus group rank' do
     # when models/role.rb has 

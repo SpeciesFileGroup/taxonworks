@@ -27,7 +27,7 @@ RSpec.describe GeneAttributesController, type: :controller do
   # GeneAttribute. As you add validations to GeneAttribute, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_gene_attribute).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_gene_attribute).attributes)
   }
 
   let(:invalid_attributes) {

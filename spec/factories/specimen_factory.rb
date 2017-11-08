@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
  factory :specimen, traits: [:housekeeping] do
    factory :valid_specimen do
      total 1

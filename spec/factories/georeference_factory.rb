@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
 
   factory :georeference, traits: [:housekeeping] do
     factory :valid_georeference, aliases: [:valid_georeference_with_point_a] do

@@ -26,7 +26,7 @@ RSpec.describe CollectionObjectObservationsController, type: :controller do
   # This should return the minimal set of attributes required to create a valid
   # CollectionObjectObservation. As you add validations to CollectionObjectObservation, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_collection_object_observation).attributes)
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryBot.build(:valid_collection_object_observation).attributes)
   }
 
   let(:invalid_attributes) {

@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :biological_relationship_type, traits: [:housekeeping] do
     factory :valid_biological_relationship_type do     # Base type is not valid alone
       type 'BiologicalRelationshipType::BiologicalRelationshipObjectType'

@@ -77,7 +77,7 @@ RSpec.describe Extract, type: :model, group: :extract do
 
     context 'fails when given invalid dates' do
       let(:valid_extract) {
-        FactoryGirl.build(:valid_extract)
+        FactoryBot.build(:valid_extract)
       }
 
       after(:each){
@@ -117,13 +117,13 @@ RSpec.describe Extract, type: :model, group: :extract do
 
     context 'passes when given' do
       specify 'quantity_value and quantity_unit and concentration_value and concentration_unit and verbatim_anatomical_origin and year_made and month_made and day_made' do
-        expect(FactoryGirl.build(:valid_extract).valid?).to be_truthy
+        expect(FactoryBot.build(:valid_extract).valid?).to be_truthy
       end
     end
 
     # Method comes from concerns/shared/origin_relationship.rb
     context '#derived_sequences' do
-      let(:e) { FactoryGirl.create(:valid_extract) }
+      let(:e) { FactoryBot.create(:valid_extract) }
       before do 
         e.derived_sequences.create!(sequence: 'ACGT', sequence_type: 'DNA')
       end 

@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe OriginRelationship, type: :model do
   let(:origin_relationship) { OriginRelationship.new() }
   
-  let(:old_specimen) { FactoryGirl.create(:valid_specimen) }
-  let(:new_specimen) { FactoryGirl.create(:valid_specimen) }
+  let(:old_specimen) { FactoryBot.create(:valid_specimen) }
+  let(:new_specimen) { FactoryBot.create(:valid_specimen) }
 
   context 'validation' do
     before { origin_relationship.valid? }

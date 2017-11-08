@@ -9,7 +9,7 @@ describe "Images", :type => :feature do
   context 'signed in as a user, with some records created' do
     before {
       sign_in_user_and_select_project
-      10.times { factory_girl_create_for_user_and_project(:valid_image, @user, @project) }
+      10.times { factory_bot_create_for_user_and_project(:valid_image, @user, @project) }
     }
 
     describe 'GET /images' do
@@ -38,7 +38,7 @@ describe "Images", :type => :feature do
     #     @user.generate_api_access_token
     #     @user.save!
     #   end
-    #   let(:image) { factory_girl_create_for_user_and_project(:valid_image, @user, @project) }
+    #   let(:image) { factory_bot_create_for_user_and_project(:valid_image, @user, @project) }
     #
     #   it 'Returns a downloadable link to the image' do
     #     visit "/api/v1/images/#{image.to_param}?project_id=#{@project.to_param}&token=#{@user.api_access_token}"

@@ -184,7 +184,7 @@ describe 'Project Handling', :type => :feature do
   context 'with some projects created' do
     before {
       sign_in_user
-      5.times { factory_girl_create_for_user(:valid_project, @user)   } 
+      5.times { factory_bot_create_for_user(:valid_project, @user)   } 
     } 
 
     describe 'GET /projects/list' do

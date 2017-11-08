@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe PeopleHelper, :type => :helper do
   context 'a person needs some helpers' do
-    let(:person) {FactoryGirl.create(:valid_person)}
+    let(:person) {FactoryBot.create(:valid_person)}
 
     specify '.person_tag' do
       expect(helper.person_tag(person)).to eq(person.name)

@@ -13,7 +13,7 @@ describe 'Loans', type: :feature do
     }
     context 'with some records created' do 
       before {
-        10.times { factory_girl_create_for_user_and_project(:valid_loan, @user, @project) }
+        10.times { factory_bot_create_for_user_and_project(:valid_loan, @user, @project) }
       }
 
       context 'GET /loans' do

@@ -2,15 +2,15 @@ require 'rails_helper'
 
 describe CitationTopic, :type => :model do
   let(:ct) { CitationTopic.new }
-  let(:s) { FactoryGirl.create(:valid_source) }
-  let(:oa) { FactoryGirl.create(:valid_otu) }
-  let(:ob) { FactoryGirl.create(:valid_otu) }
-  let(:ca) { FactoryGirl.create(:valid_citation, {citation_object: oa, source: s}) }
-  let(:cb) { FactoryGirl.create(:valid_citation, {citation_object: ob, source: s}) }
-  let(:ta) { FactoryGirl.create(:valid_topic) }
-  let(:tb) { FactoryGirl.create(:valid_topic) }
-  let(:cta) { FactoryGirl.create(:citation_topic, {topic: ta, citation: ca}) }
-  let(:ctb) { FactoryGirl.build(:citation_topic, {topic: ta, citation: ca}) }
+  let(:s) { FactoryBot.create(:valid_source) }
+  let(:oa) { FactoryBot.create(:valid_otu) }
+  let(:ob) { FactoryBot.create(:valid_otu) }
+  let(:ca) { FactoryBot.create(:valid_citation, {citation_object: oa, source: s}) }
+  let(:cb) { FactoryBot.create(:valid_citation, {citation_object: ob, source: s}) }
+  let(:ta) { FactoryBot.create(:valid_topic) }
+  let(:tb) { FactoryBot.create(:valid_topic) }
+  let(:cta) { FactoryBot.create(:citation_topic, {topic: ta, citation: ca}) }
+  let(:ctb) { FactoryBot.build(:citation_topic, {topic: ta, citation: ca}) }
 
   context 'citation_topic' do
     context 'validation' do
@@ -59,7 +59,7 @@ describe CitationTopic, :type => :model do
   end
 
   context 'nested_attributes_for :topics' do
-    let(:o) { FactoryGirl.create(:valid_otu) }
+    let(:o) { FactoryBot.create(:valid_otu) }
 
     specify 'citation, citation topic, and topic can all be created together' do
       o.citations << Citation.new(source: s, citation_topics_attributes: [ { topic_attributes: {name: 'ABC', definition: 'Easy as 123' }  } ] ) 

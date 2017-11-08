@@ -9,8 +9,8 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dn
   let(:sequence1) { Sequence.create!(sequence: 'ACT', sequence_type: 'DNA') }
   let(:sequence2) { Sequence.create!(sequence: 'GGG', sequence_type: 'DNA') }
 
-  let(:forward_primer) { FactoryGirl.create(:valid_sequence) }
-  let(:reverse_primer) { FactoryGirl.create(:valid_sequence) }
+  let(:forward_primer) { FactoryBot.create(:valid_sequence) }
+  let(:reverse_primer) { FactoryBot.create(:valid_sequence) }
 
   let(:attribute1) { GeneAttribute.new(descriptor: descriptor, sequence: forward_primer, sequence_relationship_type: SequenceRelationship::ForwardPrimer) } 
   let(:attribute2) { GeneAttribute.new(descriptor: descriptor, sequence: reverse_primer, sequence_relationship_type: SequenceRelationship::ReversePrimer) }
@@ -62,7 +62,7 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dn
 
 
   context 'given some sequences' do
-    let(:specimen) { FactoryGirl.create(:valid_specimen) }
+    let(:specimen) { FactoryBot.create(:valid_specimen) }
     let(:extract) { specimen.derived_extracts.create!(quantity_value: 42, quantity_unit: 'kg', year_made: 2012, day_made: 2, month_made: 3) } 
     let!(:target_sequence1) { extract.derived_sequences.create!(
       sequence: 'ACGT', 

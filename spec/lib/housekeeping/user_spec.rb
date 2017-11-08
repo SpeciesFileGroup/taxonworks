@@ -2,8 +2,8 @@ require 'rails_helper'
 
 describe 'Housekeeping::User' do
 
-  let!(:user) { FactoryGirl.create(:valid_user, id: 1, name: 'Ren') }
-  let!(:other_user) { FactoryGirl.create(:valid_user, id: 2, name: 'Stimpy') }
+  let!(:user) { FactoryBot.create(:valid_user, id: 1, name: 'Ren') }
+  let!(:other_user) { FactoryBot.create(:valid_user, id: 2, name: 'Stimpy') }
 
   context 'Users' do
 
@@ -230,8 +230,8 @@ describe 'Housekeeping::User' do
     end
 
     context 'class scopes' do
-      let!(:sp1){ FactoryGirl.create(:valid_geographic_item, creator: user, updater: other_user) }
-      let!(:sp2){ FactoryGirl.create(:valid_geographic_item, creator: other_user, updater: user) }
+      let!(:sp1){ FactoryBot.create(:valid_geographic_item, creator: user, updater: other_user) }
+      let!(:sp2){ FactoryBot.create(:valid_geographic_item, creator: other_user, updater: user) }
 
       specify 'created_by_user' do
         expect(GeographicItem.created_by_user(user).pluck(:id)).to contain_exactly(sp1.id)

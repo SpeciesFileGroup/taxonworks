@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Queries::TaxonNameAutocompleteQuery, type: :model do
 
-  let(:root) { FactoryGirl.create(:root_taxon_name)}
+  let(:root) { FactoryBot.create(:root_taxon_name)}
   let(:genus) { Protonym.create(name: 'Erasmoneura', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
   let!(:species) { Protonym.create(name: 'vulnerata', rank_class: Ranks.lookup(:iczn, 'species'), parent: genus, verbatim_author: 'Fitch & Say', year_of_publication: 1800) }
 

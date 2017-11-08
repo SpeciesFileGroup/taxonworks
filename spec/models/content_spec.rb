@@ -2,9 +2,9 @@ require 'rails_helper'
 
 describe Content, :type => :model do
   let(:content) { Content.new() }
-  let(:topic) { FactoryGirl.create(:valid_topic)  }
-  let(:otu) { FactoryGirl.create(:valid_otu) }
-  let(:not_topic) {FactoryGirl.create(:valid_keyword)}
+  let(:topic) { FactoryBot.create(:valid_topic)  }
+  let(:otu) { FactoryBot.create(:valid_otu) }
+  let(:not_topic) {FactoryBot.create(:valid_keyword)}
 
   context 'validation' do
     before { content.valid?}
@@ -37,7 +37,7 @@ describe Content, :type => :model do
   end
 
   context 'publishing' do
-    let(:content_to_publish) { FactoryGirl.create(:valid_content) }
+    let(:content_to_publish) { FactoryBot.create(:valid_content) }
 
     specify 'when you #publish there is PublicContent' do
       expect(content_to_publish.publish).to be_truthy
@@ -71,7 +71,7 @@ describe Content, :type => :model do
     end
 
     context 'some Papertrail methods' do
-      let(:c) { FactoryGirl.create(:valid_content) }
+      let(:c) { FactoryBot.create(:valid_content) }
 
       specify 'versions not created on create' do
         expect(c.versions.count).to eq(0)

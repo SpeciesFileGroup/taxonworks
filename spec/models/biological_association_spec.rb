@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe BiologicalAssociation, :type => :model do
 
-  let(:biological_association) { FactoryGirl.build(:biological_association) }
+  let(:biological_association) { FactoryBot.build(:biological_association) }
 
   context 'validation' do
     context 'requires' do

@@ -25,8 +25,8 @@ describe TaxonDeterminationsController, :type => :controller do
 
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
-  let(:otu) { FactoryGirl.create(:valid_otu) }
-  let(:specimen) { FactoryGirl.create(:valid_specimen) }
+  let(:otu) { FactoryBot.create(:valid_otu) }
+  let(:specimen) { FactoryBot.create(:valid_specimen) }
   let(:valid_attributes) {
     strip_housekeeping_attributes( {otu_id: otu.to_param, biological_collection_object_id: specimen.to_param} )
   }

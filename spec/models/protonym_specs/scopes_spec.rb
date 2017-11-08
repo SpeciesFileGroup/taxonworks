@@ -23,7 +23,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     before(:all) {
       TaxonNameRelationship.delete_all
       TaxonName.delete_all 
-      @species = FactoryGirl.create(:iczn_species)
+      @species = FactoryBot.create(:iczn_species)
       @s = Protonym.where(name: 'vitis').first
       @g = Protonym.where(name: 'Erythroneura', rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus').first
     }
@@ -34,8 +34,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     }
 
     context 'validity of Protonyms' do
-      let(:s1) {FactoryGirl.create(:relationship_species, name: 'bus', parent: @g) }
-      let(:s2) {FactoryGirl.create(:relationship_species, name: 'cus', parent: @g) }
+      let(:s1) {FactoryBot.create(:relationship_species, name: 'bus', parent: @g) }
+      let(:s2) {FactoryBot.create(:relationship_species, name: 'cus', parent: @g) }
 
       context 'before invalidating relationship' do
         specify 'two names are valid' do
@@ -163,8 +163,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     context 'classifications' do
       before(:all) do
-        FactoryGirl.create(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Available', taxon_name: @s)
-        FactoryGirl.create(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Available::Valid', taxon_name: @g )
+        FactoryBot.create(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Available', taxon_name: @s)
+        FactoryBot.create(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Available::Valid', taxon_name: @g )
       end
 
       after(:all) do

@@ -4,14 +4,14 @@ describe Tasks::CollectingEvents::Parse::Stepwise::LatLongController, type: :con
   before(:each) { sign_in }
 
   let(:ce_find) {
-    FactoryGirl.create(:valid_collecting_event,
+    FactoryBot.create(:valid_collecting_event,
                        verbatim_label: 'Strange verbatim_label #1. Matched by DD7 [40.092067, -88.249519]',
                        verbatim_latitude:  nil,
                        verbatim_longitude: nil,
                        verbatim_elevation: nil)
   }
   let(:ce_dont_find) {
-    FactoryGirl.create(:valid_collecting_event,
+    FactoryBot.create(:valid_collecting_event,
                        verbatim_label:     'Don\'t find me!',
                        verbatim_latitude:  "n40º5'31.4412\"",
                        verbatim_longitude: 'w88∫11′43.3″',

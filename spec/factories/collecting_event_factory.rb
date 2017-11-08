@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
 
   trait :random_verbatim_label do
     verbatim_label { Utilities::Strings.random_string(8) }

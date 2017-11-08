@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :taxon_determination, traits: [:housekeeping] do
     factory :valid_taxon_determination do
        association :otu, factory: :valid_otu

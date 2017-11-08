@@ -1,8 +1,8 @@
 require 'rails_helper'
 
 describe GeographicAreasGeographicItem, type: :model, group: :geo do
-  let(:geographic_areas_geographic_item) {FactoryGirl.build(:geographic_areas_geographic_item)}
-  let(:valid_geographic_areas_geographic_item) {FactoryGirl.build(:valid_geographic_areas_geographic_item)}
+  let(:geographic_areas_geographic_item) {FactoryBot.build(:geographic_areas_geographic_item)}
+  let(:valid_geographic_areas_geographic_item) {FactoryBot.build(:valid_geographic_areas_geographic_item)}
 
   context 'validation' do
     before(:each) {

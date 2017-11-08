@@ -22,25 +22,25 @@ RSpec.describe ObservationMatrixRowItem::TaggedRowItem, type: :model, group: :ob
 
     context 'other possible subclass attributes are nil' do
       specify 'collection_object_id' do
-        observation_matrix_row_item.collection_object_id = FactoryGirl.create(:valid_collection_object).id
+        observation_matrix_row_item.collection_object_id = FactoryBot.create(:valid_collection_object).id
         observation_matrix_row_item.valid?
         expect(observation_matrix_row_item.errors.include?(:collection_object_id)).to be_truthy
       end
 
       specify 'otu_id' do
-        observation_matrix_row_item.otu_id = FactoryGirl.create(:valid_otu).id
+        observation_matrix_row_item.otu_id = FactoryBot.create(:valid_otu).id
         observation_matrix_row_item.valid?
         expect(observation_matrix_row_item.errors.include?(:otu_id)).to be_truthy
       end
     end
 
     context 'with a observation_matrix_row_item saved' do
-      let(:observation_matrix) { FactoryGirl.create(:valid_observation_matrix) }
-      let(:keyword) { FactoryGirl.create(:valid_keyword) }
+      let(:observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
+      let(:keyword) { FactoryBot.create(:valid_keyword) }
 
-      let!(:otu1) { FactoryGirl.create(:valid_otu) }
-      let!(:otu2) { FactoryGirl.create(:valid_otu) }
-      let!(:co1) { FactoryGirl.create(:valid_collection_object) }
+      let!(:otu1) { FactoryBot.create(:valid_otu) }
+      let!(:otu2) { FactoryBot.create(:valid_otu) }
+      let!(:co1) { FactoryBot.create(:valid_collection_object) }
 
       let!(:tag1) { Tag.create(keyword: keyword, tag_object: otu1) }
       let!(:tag2) { Tag.create(keyword: keyword, tag_object: otu2) }
@@ -80,7 +80,7 @@ RSpec.describe ObservationMatrixRowItem::TaggedRowItem, type: :model, group: :ob
       end
 
       context 'overlapping sets' do
-        let(:other_keyword) { FactoryGirl.create(:valid_keyword) }
+        let(:other_keyword) { FactoryBot.create(:valid_keyword) }
         let!(:tag4) { Tag.create(keyword: other_keyword, tag_object: co1) }
 
         let!(:other_observation_matrix_row_item) { ObservationMatrixRowItem::TaggedRowItem.create!(observation_matrix: observation_matrix, controlled_vocabulary_term: other_keyword) }
@@ -110,8 +110,8 @@ RSpec.describe ObservationMatrixRowItem::TaggedRowItem, type: :model, group: :ob
         end
 
         context 'adding another tag to an existing controlled vocabulary term' do
-          let(:otu3) { FactoryGirl.create(:valid_otu) }
-          let(:co2) { FactoryGirl.create(:valid_collection_object) }
+          let(:otu3) { FactoryBot.create(:valid_otu) }
+          let(:co2) { FactoryBot.create(:valid_collection_object) }
           let!(:new_tag1) { Tag.create(keyword: other_keyword, tag_object: otu3) }
           let!(:new_tag2) { Tag.create(keyword: other_keyword, tag_object: co2) }
 

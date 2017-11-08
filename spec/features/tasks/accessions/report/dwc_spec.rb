@@ -13,7 +13,7 @@ describe 'tasks/accessions/report/dwc', type: :feature, group: [:collection_obje
       context 'signed in as user, with some records created' do
         before do 
           3.times do
-            a = factory_girl_create_for_user_and_project(:valid_specimen, @user, @project)
+            a = factory_bot_create_for_user_and_project(:valid_specimen, @user, @project)
             a.get_dwc_occurrence
           end
         end 

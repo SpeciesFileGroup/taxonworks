@@ -24,7 +24,7 @@ RSpec.describe ObservationMatrixColumnItemsController, type: :controller do
   # ObservationMatrixColumnItemsController. As you add validations to ObservationMatrixColumnItemsController, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_observation_matrix_column_item).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_observation_matrix_column_item).attributes)
   }
 
   let(:invalid_attributes) {
@@ -108,7 +108,7 @@ RSpec.describe ObservationMatrixColumnItemsController, type: :controller do
 
       it "updates the requested observation_matrix_column_item" do
         observation_matrix_column_item = ObservationMatrixColumnItem.create! valid_attributes
-        m = FactoryGirl.create(:valid_observation_matrix)
+        m = FactoryBot.create(:valid_observation_matrix)
         put :update, params: {id: observation_matrix_column_item.to_param, observation_matrix_column_item: {observation_matrix_id: m.id}}, session: valid_session
         observation_matrix_column_item.reload
         expect(observation_matrix_column_item.observation_matrix_id).to eq(m.id)

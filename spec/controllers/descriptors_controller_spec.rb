@@ -27,7 +27,7 @@ RSpec.describe DescriptorsController, type: :controller do
   # Descriptor. As you add validations to Descriptor, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_descriptor).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_descriptor).attributes)
   }
 
   let(:invalid_attributes) {

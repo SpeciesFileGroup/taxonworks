@@ -27,7 +27,7 @@ RSpec.describe OriginRelationshipsController, type: :controller do
   # OriginRelationship. As you add validations to OriginRelationship, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_origin_relationship).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_origin_relationship).attributes)
   }
 
   let(:invalid_attributes) {
@@ -105,7 +105,7 @@ RSpec.describe OriginRelationshipsController, type: :controller do
 
   describe "PUT #update" do
     context "with valid params" do
-      let(:other_collection_object) { FactoryGirl.create(:valid_collection_object) }
+      let(:other_collection_object) { FactoryBot.create(:valid_collection_object) }
       let(:new_attributes) {
         { old_object_id: other_collection_object.id  } 
       }

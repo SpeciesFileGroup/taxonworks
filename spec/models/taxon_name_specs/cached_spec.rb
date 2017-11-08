@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe TaxonName, type: :model, group: [:nomenclature] do
 
-  let(:root) { FactoryGirl.create(:root_taxon_name) }
+  let(:root) { FactoryBot.create(:root_taxon_name) }
 
   after(:all) do
     TaxonNameRelationship.delete_all
@@ -42,14 +42,14 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
       end
 
-      let(:family) { FactoryGirl.create(:relationship_family) }
-      let(:genus1) { FactoryGirl.create(:relationship_genus, name: 'Aus', parent: family) }
-      let(:genus2) { FactoryGirl.create(:relationship_genus, name: 'Bus', parent: family) }
-      let(:species) { FactoryGirl.create(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758) }
+      let(:family) { FactoryBot.create(:relationship_family) }
+      let(:genus1) { FactoryBot.create(:relationship_genus, name: 'Aus', parent: family) }
+      let(:genus2) { FactoryBot.create(:relationship_genus, name: 'Bus', parent: family) }
+      let(:species) { FactoryBot.create(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758) }
       let(:t) {species.created_at}
 
       context 'basic use' do
-        let!(:sp) { FactoryGirl.create(:relationship_species) }
+        let!(:sp) { FactoryBot.create(:relationship_species) }
 
         specify 'sets cached_html' do
           expect(sp.cached_html).to eq('<i>Erythroneura vitis</i>')
@@ -157,11 +157,11 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
 
         context 'with gender' do
-          let(:genus3) { FactoryGirl.create(:relationship_genus, name: 'Ba', parent: family) }
+          let(:genus3) { FactoryBot.create(:relationship_genus, name: 'Ba', parent: family) }
 
           context 'species names, genus with gender change' do
             let(:species) {
-              FactoryGirl.create(:relationship_species, 
+              FactoryBot.create(:relationship_species, 
                                  name: 'aus', 
                                  parent: genus1, 
                                  verbatim_author: 'Linnaeus', 
@@ -172,8 +172,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             }
 
             before do 
-              c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: genus1, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
-              c2 = FactoryGirl.create(:taxon_name_classification, taxon_name: genus3, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
+              c1 = FactoryBot.create(:taxon_name_classification, taxon_name: genus1, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
+              c2 = FactoryBot.create(:taxon_name_classification, taxon_name: genus3, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
             end 
 
             specify 'case1 #cached_html' do
@@ -202,8 +202,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
 
           context 'species names vs. gender of genus change' do
-            let!(:c1) { FactoryGirl.create(:taxon_name_classification, taxon_name: genus1, type: 'TaxonNameClassification::Latinized::Gender::Masculine')}
-            let!(:species) { FactoryGirl.create(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758, masculine_name: 'aus', feminine_name: 'aa', neuter_name: 'aum')} 
+            let!(:c1) { FactoryBot.create(:taxon_name_classification, taxon_name: genus1, type: 'TaxonNameClassification::Latinized::Gender::Masculine')}
+            let!(:species) { FactoryBot.create(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758, masculine_name: 'aus', feminine_name: 'aa', neuter_name: 'aum')} 
 
             context 'masculine' do
               specify '#cached_html' do

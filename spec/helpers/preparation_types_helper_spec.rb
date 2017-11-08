@@ -3,7 +3,7 @@ require 'rails_helper'
 describe PreparationTypesHelper, :type => :helper do
   context 'a preparation type needs some helpers' do
     let(:name) {'dangerzone'}
-    let(:preparation_type) {FactoryGirl.create(:valid_preparation_type, name:name)}
+    let(:preparation_type) {FactoryBot.create(:valid_preparation_type, name:name)}
 
     specify '::preparation_type_tag' do
       expect(helper.preparation_type_tag(preparation_type)).to eq(name)

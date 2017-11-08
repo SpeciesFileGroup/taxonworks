@@ -3,7 +3,7 @@ require 'rails_helper'
 describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
   let(:protonym) { Protonym.new }
-  let(:root) { FactoryGirl.create(:root_taxon_name, project_id: 1) }
+  let(:root) { FactoryBot.create(:root_taxon_name, project_id: 1) }
 
   context 'possible homonyms' do
     before {protonym.type = 'Protonym'}

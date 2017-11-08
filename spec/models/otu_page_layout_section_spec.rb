@@ -4,7 +4,7 @@ require 'rails_helper'
 Dir[Rails.root.to_s + '/app/models/otu_page_layout_section/**/*.rb'].sort.each {|file| require file }
 
 describe OtuPageLayoutSection, :type => :model do
-  let(:otu_page_layout_section) {FactoryGirl.build(:otu_page_layout_section)} 
+  let(:otu_page_layout_section) {FactoryBot.build(:otu_page_layout_section)} 
   context 'validation' do
     specify '"foo" is a legal type' do
       expect{OtuPageLayoutSection.new(type: "foo")}.to raise_error ActiveRecord::SubclassNotFound

@@ -186,7 +186,7 @@ module BatchLoad
 
       csv1.each do |row|
         # the following invocation also creates a valid specimen as a collection_object
-        # FactoryGirl.create(:valid_identifier, namespace: ns_1, identifier: ident)
+        # FactoryBot.create(:valid_identifier, namespace: ns_1, identifier: ident)
         co = CollectionObject.new(type: 'Specimen', total: 1, preparation_type_id: 5)
         id = Identifier.new(namespace:  ns_1,
                             type:       'Identifier::Local::CatalogNumber',

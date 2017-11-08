@@ -31,7 +31,7 @@ describe ImagesController, :type => :controller do
   }
 
   let(:invalid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:weird_image).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:weird_image).attributes)
   }
 
   # This should return the minimal set of values that should be in the session

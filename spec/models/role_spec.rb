@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Role, :type => :model do
   let(:role) {Role.new}
-  let(:person) {FactoryGirl.create(:valid_person)}
+  let(:person) {FactoryBot.create(:valid_person)}
 
   context 'validation' do
     before do
@@ -25,7 +25,7 @@ describe Role, :type => :model do
 
     context 'indices' do
       specify 'one person can not have two identical roles' do
-        role_object = FactoryGirl.create(:valid_source_bibtex)
+        role_object = FactoryBot.create(:valid_source_bibtex)
         role1       = Role.new(person: person, role_object: role_object, type: 'SourceAuthor')
         expect(role1.valid?).to be_truthy
         role1.save
@@ -37,14 +37,14 @@ describe Role, :type => :model do
 
     context 'after save' do
       specify 'position is specified by acts_as_list' do
-        @author_role = FactoryGirl.build(:valid_source_author)
+        @author_role = FactoryBot.build(:valid_source_author)
         @author_role.save
         expect(@author_role.position).to eq(1)
       end
 
       context 'auto-vetting people' do
-        let(:collecting_event) {FactoryGirl.create(:valid_collecting_event)}
-        let(:other_collecting_event) {FactoryGirl.create(:valid_collecting_event)}
+        let(:collecting_event) {FactoryBot.create(:valid_collecting_event)}
+        let(:other_collecting_event) {FactoryBot.create(:valid_collecting_event)}
 
         before {
           collecting_event.collectors << person

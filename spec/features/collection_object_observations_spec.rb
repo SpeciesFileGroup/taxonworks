@@ -12,7 +12,7 @@ RSpec.describe "CollectionObjectObservations", type: :feature do
     context 'with some records created' do
       
       before {
-        10.times { factory_girl_create_for_user_and_project(:valid_collection_object_observation, @user, @project) }
+        10.times { factory_bot_create_for_user_and_project(:valid_collection_object_observation, @user, @project) }
       }
 
       context 'GET /collection_object_observations' do

@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe Citation, type: :model, group: [:annotators, :citations] do
-  let(:citation) { FactoryGirl.build(:citation) }
+  let(:citation) { FactoryBot.build(:citation) }
 
   context 'associations' do
     context 'belongs_to' do
@@ -17,11 +17,11 @@ describe Citation, type: :model, group: [:annotators, :citations] do
   end
 
   context 'validation' do
-    let(:o) { FactoryGirl.create(:valid_otu) }
-    let(:s) { FactoryGirl.create(:valid_source) }
-    let(:c1) { FactoryGirl.create(:valid_citation, {citation_object: o, source: s}) }
-    let(:c2) { FactoryGirl.build(:valid_citation, citation_object: o, source: s) }
-    let(:c3) { FactoryGirl.build(:citation) }
+    let(:o) { FactoryBot.create(:valid_otu) }
+    let(:s) { FactoryBot.create(:valid_source) }
+    let(:c1) { FactoryBot.create(:valid_citation, {citation_object: o, source: s}) }
+    let(:c2) { FactoryBot.build(:valid_citation, citation_object: o, source: s) }
+    let(:c3) { FactoryBot.build(:citation) }
 
     specify 'uniqueness' do
       expect(c1.valid?).to be_truthy
@@ -58,13 +58,13 @@ describe Citation, type: :model, group: [:annotators, :citations] do
   end
 
   context 'with a Topic created' do
-    let(:ct) { FactoryGirl.create(:valid_citation_topic) }
-    let(:o) { FactoryGirl.create(:valid_otu) }
-    let(:s) { FactoryGirl.create(:valid_source_bibtex) }
-    let(:c1) { FactoryGirl.create(:valid_citation, {citation_object: o,
+    let(:ct) { FactoryBot.create(:valid_citation_topic) }
+    let(:o) { FactoryBot.create(:valid_otu) }
+    let(:s) { FactoryBot.create(:valid_source_bibtex) }
+    let(:c1) { FactoryBot.create(:valid_citation, {citation_object: o,
                                                     source:          s,
                                                     citation_topics: [ct]}) }
-    let(:t) { FactoryGirl.create(:valid_topic) }
+    let(:t) { FactoryBot.create(:valid_topic) }
 
 
     context 'nested attribute passed during create' do

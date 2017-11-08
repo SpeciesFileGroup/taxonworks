@@ -19,7 +19,7 @@ describe BatchLoad::Import::TaxonifiToTaxonworks, type: :model do
 
   let(:user) { User.find(1) }
   let(:project) { Project.find(1) }
-  let(:parent_taxon_name) { FactoryGirl.create(:root_taxon_name) }
+  let(:parent_taxon_name) { FactoryBot.create(:root_taxon_name) }
   let(:iczn_family) { Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, 'family'), parent: parent_taxon_name) }
 
   # TODO: rebuild these

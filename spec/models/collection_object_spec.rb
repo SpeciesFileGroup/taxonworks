@@ -3,7 +3,7 @@ require 'rails_helper'
 describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 
   let(:collection_object) { CollectionObject.new() }
-  let(:ranged_lot_category) { FactoryGirl.create(:valid_ranged_lot_category) }
+  let(:ranged_lot_category) { FactoryBot.create(:valid_ranged_lot_category) }
 
   context 'validation' do
     specify '.valid_new_object_classes' do
@@ -28,7 +28,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     end
 
     specify 'type is set to RangedLot when type not provided but ranged_lot_id is' do
-      collection_object.ranged_lot_category = FactoryGirl.create(:valid_ranged_lot_category)
+      collection_object.ranged_lot_category = FactoryBot.create(:valid_ranged_lot_category)
       collection_object.valid?
       expect(collection_object.type).to eq('RangedLot')
     end
@@ -151,19 +151,19 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
   context 'associations' do
     context 'belongs_to' do
       specify 'preparation_type' do
-        expect(collection_object.preparation_type = FactoryGirl.create(:valid_preparation_type)).to be_truthy
+        expect(collection_object.preparation_type = FactoryBot.create(:valid_preparation_type)).to be_truthy
       end
 
       specify 'repository' do
-        expect(collection_object.repository = FactoryGirl.create(:valid_repository)).to be_truthy
+        expect(collection_object.repository = FactoryBot.create(:valid_repository)).to be_truthy
       end
 
       specify 'collecting_event' do
-        expect(collection_object.collecting_event = FactoryGirl.create(:valid_collecting_event)).to be_truthy
+        expect(collection_object.collecting_event = FactoryBot.create(:valid_collecting_event)).to be_truthy
       end
 
       specify 'ranged_lot_category' do
-        expect(collection_object.ranged_lot_category = FactoryGirl.create(:valid_ranged_lot_category)).to be_truthy
+        expect(collection_object.ranged_lot_category = FactoryBot.create(:valid_ranged_lot_category)).to be_truthy
       end
     end
 
@@ -171,14 +171,14 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
       before {collection_object.total = 1}
       # technically not supposed to have these, they are to be biological only
       specify 'taxon_determinations' do
-        collection_object.taxon_determinations << FactoryGirl.create(:valid_taxon_determination)
+        collection_object.taxon_determinations << FactoryBot.create(:valid_taxon_determination)
         expect(collection_object.save).to be_truthy
         collection_object.reload
         expect(collection_object.taxon_determinations.first).to be_truthy
       end
 
       specify 'type_designations' do
-        expect(collection_object.type_designations << FactoryGirl.create(:valid_type_material)).to be_truthy
+        expect(collection_object.type_designations << FactoryBot.create(:valid_type_material)).to be_truthy
         expect(collection_object.save).to be_truthy
         expect(collection_object.type_designations.count).to eq(1)
       end
@@ -204,11 +204,11 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     # xspecify "condition (damaged/level)"
 
     specify '#accession_provider' do
-      expect(collection_object.accession_provider = FactoryGirl.build(:valid_person)).to be_truthy
+      expect(collection_object.accession_provider = FactoryBot.build(:valid_person)).to be_truthy
     end
 
     specify '#deaccession_recipient' do
-      expect(collection_object.deaccession_recipient = FactoryGirl.build(:valid_person)).to be_truthy
+      expect(collection_object.deaccession_recipient = FactoryBot.build(:valid_person)).to be_truthy
     end
   end
 
@@ -432,19 +432,19 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
       CollectionObject.delete_all
       ActiveRecord::Base.connection.reset_pk_sequence!('collection_objects')
 
-      3.times {FactoryGirl.create(:valid_namespace)}
-      2.times {FactoryGirl.create(:valid_specimen)}
-      FactoryGirl.create(:identifier_local_import,
+      3.times {FactoryBot.create(:valid_namespace)}
+      2.times {FactoryBot.create(:valid_specimen)}
+      FactoryBot.create(:identifier_local_import,
                          identifier_object: Specimen.first,
                          namespace: Namespace.third,
                          identifier: 'First specimen')
-      FactoryGirl.create(:identifier_local_import,
+      FactoryBot.create(:identifier_local_import,
                          identifier_object: Specimen.second,
                          namespace: Namespace.third,
                          identifier: 'Second specimen')
       (1..10).each {|identifier|
-        sp = FactoryGirl.create(:valid_specimen)
-        id = FactoryGirl.create(:identifier_local_catalog_number,
+        sp = FactoryBot.create(:valid_specimen)
+        id = FactoryBot.create(:identifier_local_catalog_number,
                                 identifier_object: sp,
                                 namespace: ((identifier % 2) == 0 ? Namespace.first : Namespace.second),
                                 identifier: identifier)

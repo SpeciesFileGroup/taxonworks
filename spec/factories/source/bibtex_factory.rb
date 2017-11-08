@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
 
   factory :source_bibtex, class: Source::Bibtex, traits: [:creator_and_updater] do
     factory :valid_source_bibtex do

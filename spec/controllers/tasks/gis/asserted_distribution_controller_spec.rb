@@ -5,8 +5,8 @@ describe Tasks::Gis::AssertedDistributionController, :type => :controller do
     sign_in
   }
 
-  let(:valid_otu) { FactoryGirl.create(:valid_otu) }
-  let(:valid_source) { FactoryGirl.create(:valid_source) }
+  let(:valid_otu) { FactoryBot.create(:valid_otu) }
+  let(:valid_source) { FactoryBot.create(:valid_source) }
 
   describe "GET new" do
     it "returns http success" do

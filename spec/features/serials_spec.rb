@@ -9,7 +9,7 @@ describe 'Serials', :type => :feature do
   context 'signed in as user, with some records created' do
     before do
       sign_in_user
-      5.times { factory_girl_create_for_user(:valid_serial, @user) }
+      5.times { factory_bot_create_for_user(:valid_serial, @user) }
     end
 
     describe 'GET /serials' do

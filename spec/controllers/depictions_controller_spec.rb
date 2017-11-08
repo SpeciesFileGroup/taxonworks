@@ -24,7 +24,7 @@ RSpec.describe DepictionsController, type: :controller do
     sign_in
   }
   
-  let(:specimen) { FactoryGirl.create(:valid_specimen) }
+  let(:specimen) { FactoryBot.create(:valid_specimen) }
 
   # This should return the minimal set of attributes required to create a valid
   # Depiction. As you add validations to Depiction, be sure to
@@ -116,7 +116,7 @@ RSpec.describe DepictionsController, type: :controller do
 
   describe "PUT #update" do
     context "with valid params" do
-      let(:specimen2) { FactoryGirl.create(:valid_specimen) }
+      let(:specimen2) { FactoryBot.create(:valid_specimen) }
 
       let(:new_attributes) {
         { depiction_object_id: specimen2.id }

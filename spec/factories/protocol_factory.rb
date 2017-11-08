@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :protocol, traits: [:housekeeping] do
     factory :valid_protocol do
       name "Name1"

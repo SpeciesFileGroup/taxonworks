@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
 
   trait :mostly_empty_protonym do
     cached_html nil
@@ -14,14 +14,14 @@ FactoryGirl.define do
         if t.any?
           protonym.parent = t.first
         else
-          protonym.parent = FactoryGirl.create(:root_taxon_name)
+          protonym.parent = FactoryBot.create(:root_taxon_name)
         end
       end 
    #  parent {
    #    p =  Protonym.where(parent_id: nil, project_id: $project_id) 
    #    if p.blank?
    #      # !! Note the strategy, build, not create, and provide a dummy ID so that validation passes when TaxonName#parent.id is checked.
-   #      name = FactoryGirl.build(:root_taxon_name) #  #  #  #  # , id: Faker::Number.number(5)  
+   #      name = FactoryBot.build(:root_taxon_name) #  #  #  #  # , id: Faker::Number.number(5)  
    #    else
    #      name = p.first
    #    end

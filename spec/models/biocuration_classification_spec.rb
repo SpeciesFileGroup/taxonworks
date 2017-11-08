@@ -27,21 +27,21 @@ describe BiocurationClassification, :type => :model do
 
     context 'with a biocuration class' do
       before(:each) {
-        biocuration_classification.biocuration_class = FactoryGirl.create(:valid_biocuration_class)
+        biocuration_classification.biocuration_class = FactoryBot.create(:valid_biocuration_class)
       }
 
       specify 'a specimen can be biocuration classified' do
-        biocuration_classification.biological_collection_object = FactoryGirl.create(:valid_specimen)
+        biocuration_classification.biological_collection_object = FactoryBot.create(:valid_specimen)
         expect(biocuration_classification.save).to be_truthy
       end
 
       specify 'a lot can be biocuration classified' do
-        biocuration_classification.biological_collection_object = FactoryGirl.create(:valid_lot)
+        biocuration_classification.biological_collection_object = FactoryBot.create(:valid_lot)
         expect(biocuration_classification.save).to be_truthy
       end
 
       specify 'a ranged_lot can be biocuration classified' do
-        biocuration_classification.biological_collection_object = FactoryGirl.create(:valid_ranged_lot)
+        biocuration_classification.biological_collection_object = FactoryBot.create(:valid_ranged_lot)
         expect(biocuration_classification.save).to be_truthy
       end
     end

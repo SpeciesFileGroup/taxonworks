@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Document, type: :model, group: :documentation do
 
-  let(:document) { FactoryGirl.create(:valid_document) } # a samll pdf
+  let(:document) { FactoryBot.create(:valid_document) } # a samll pdf
 
   after(:each) {
     document.destroy

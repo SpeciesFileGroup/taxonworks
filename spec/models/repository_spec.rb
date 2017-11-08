@@ -2,7 +2,7 @@ require 'rails_helper'
 
 
 describe Repository, :type => :model do
-  let(:repository) {FactoryGirl.build(:repository)}
+  let(:repository) {FactoryBot.build(:repository)}
 
   context 'validation' do
     before(:each) {repository.valid?}

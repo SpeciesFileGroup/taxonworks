@@ -1,11 +1,11 @@
-FactoryGirl.define do
+FactoryBot.define do
 
   trait :parent_earth do
     parent {
       if o = GeographicArea.where(name: 'Earth').first
         o
       else
-        FactoryGirl.build(:earth_geographic_area)
+        FactoryBot.build(:earth_geographic_area)
       end
     }
   end
@@ -15,7 +15,7 @@ FactoryGirl.define do
       if o = GeographicArea.where(name: 'United States of America').first
         o
       else
-        FactoryGirl.build(:level0_geographic_area)
+        FactoryBot.build(:level0_geographic_area)
       end
     }
     level0 { parent }
@@ -26,7 +26,7 @@ FactoryGirl.define do
       if o = GeographicArea.where(name: 'Illinois').first
         o
       else
-        FactoryGirl.build(:level1_geographic_area)
+        FactoryBot.build(:level1_geographic_area)
       end
     }
     level1 { parent }
@@ -53,7 +53,7 @@ FactoryGirl.define do
         after(:build) { |o|
           o.level2 = o
           o.level1 = o.parent
-          # o.level0 = FactoryGirl.build(:level0_geographic_area)
+          # o.level0 = FactoryBot.build(:level0_geographic_area)
           o.level0 = o.parent.parent
         }
       end

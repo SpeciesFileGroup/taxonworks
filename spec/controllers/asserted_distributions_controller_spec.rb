@@ -27,8 +27,8 @@ describe AssertedDistributionsController, :type => :controller do
 #   # AssertedDistribution. As you add validations to AssertedDistribution, be sure to
 #   # adjust the attributes here as well.
   let(:valid_attributes) {
-    h = strip_housekeeping_attributes( FactoryGirl.build(:valid_asserted_distribution).attributes)
-    h.merge(origin_citation_attributes: {source_id: FactoryGirl.create(:valid_source).id} )
+    h = strip_housekeeping_attributes( FactoryBot.build(:valid_asserted_distribution).attributes)
+    h.merge(origin_citation_attributes: {source_id: FactoryBot.create(:valid_source).id} )
   }
 
   # This should return the minimal set of values that should be in the session

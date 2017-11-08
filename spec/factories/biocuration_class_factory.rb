@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   # sequence :name_a do |n|
   #   "pinned-#{n}"
   # end

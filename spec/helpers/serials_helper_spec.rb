@@ -3,7 +3,7 @@ require 'rails_helper'
 describe SerialsHelper, :type => :helper do
   context 'a serial needs some helpers' do
     let(:name) {'dangerzone'}
-    let(:serial) {FactoryGirl.create(:valid_serial, name:name)}
+    let(:serial) {FactoryBot.create(:valid_serial, name:name)}
 
     specify '::serial_tag' do
       expect(helper.serial_tag(serial)).to eq(name)

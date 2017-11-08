@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe CollectionObjectsHelper, type: :helper do
     
-    let(:collection_object) { FactoryGirl.create(:valid_specimen) }
+    let(:collection_object) { FactoryBot.create(:valid_specimen) }
 
     specify '#collection_object_tag' do
       assign(:collection_object, collection_object)

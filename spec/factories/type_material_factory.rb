@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :type_material, traits: [:housekeeping] do
 
     factory :valid_type_material do

@@ -4,7 +4,7 @@ describe "api/v1/taxon_names/all.rabl", :type => :view do
 
   before(:all) { ProjectsAndUsers.spin_up_projects_users_and_housekeeping }
   after(:all) { ProjectsAndUsers.clean_slate }
-  let(:object) { FactoryGirl.create(:iczn_species) }
+  let(:object) { FactoryBot.create(:iczn_species) }
 
   let(:valid_json) {
     {
