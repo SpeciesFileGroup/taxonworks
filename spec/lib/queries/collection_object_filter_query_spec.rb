@@ -293,43 +293,41 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
       }
 
       specify 'selected object' do
-        # Specimen creation/update dates
-        2.times { FactoryBot.create(:valid_specimen, creator: pat, updater: pat_admin, project: project) }
-        (1..10).each { |specimen|
-          sp = FactoryBot.create(:valid_specimen,
-                                 creator:    ((specimen % 2) == 0 ? joe : pat),
-                                 created_at: "200#{specimen - 1}/01/#{specimen}",
-                                 updated_at: "200#{specimen - 1}/07/#{specimen}",
-                                 updater:    ((specimen % 2) == 0 ? pat : joe),
-                                 project:    project)
-        }
+        c_objs   = [@co_m1, @co_n1, @co_o1, @co_p1, @co_m2, @co_n2_a, @co_o2, @co_p2, @co_m3, @co_n3]
 
-        # Identifier/namespace
+# Specimen creation/update dates and Identifier/namespace
         2.times { FactoryBot.create(:valid_namespace, creator: user, updater: user) }
         ns1 = Namespace.first
         ns2 = Namespace.second
-        2.times { FactoryBot.create(:valid_specimen, creator: user, updater: user, project: project) }
-        (1..10).each { |identifier|
-          sp = FactoryBot.create(:valid_specimen, creator: user, updater: user, project: project)
-          id = FactoryBot.create(:identifier_local_catalog_number,
-                                 updater:           user,
-                                 project:           project,
-                                 creator:           user,
-                                 identifier_object: sp,
-                                 namespace:         ((identifier % 2) == 0 ? ns1 : ns2),
-                                 identifier:        identifier)
+        2.times { FactoryBot.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: project) }
+        c_objs.each_with_index { |sp, index|
+          sp.update_column(:created_by_id, ((index % 2) == 0 ? joe.id : pat.id))
+          sp.update_column(:created_at, "200#{index}/01/#{index + 1}")
+          sp.update_column(:updated_at, "200#{index}/07/#{index + 1}")
+          sp.update_column(:updated_by_id, ((index % 2) == 0 ? pat.id : joe.id))
+          sp.update_column(:project_id, project.id)
+          sp.save!
+          FactoryBot.create(:identifier_local_catalog_number,
+                            updater:           user,
+                            project:           project,
+                            creator:           user,
+                            identifier_object: sp,
+                            namespace:         ((index % 2) == 0 ? ns1 : ns2),
+                            identifier:        (index + 1).to_s)
         }
 
+#
         params = {}
-        params.merge!({user: joe,
-                       date_type_select: 'created_at',
-                       user_date_range_start: '2005-01-01',
-                       user_date_range_end: Date.yesterday.to_s
+        params.merge!({user:                  joe,
+                       date_type_select:      'created_at',
+                       user_date_range_start: '2000-01-01',
+                       user_date_range_end:   Date.yesterday.to_s
                       })
-        params.merge!({id_namespace: ns1.short_name,
-                       id_range_start: '2',
-                       id_range_stop: '9'
+        params.merge!({id_namespace:   ns1.short_name,
+                       id_range_start: '1',
+                       id_range_stop:  '10'
                       })
+        params.merge!({geographic_area_ids: [bbxa.id]})
 
         result = Queries::CollectionObjectFilterQuery.new(params).result
         expect(result.count).to eq(4)

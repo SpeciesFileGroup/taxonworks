@@ -10,11 +10,11 @@ module Housekeeping::Timestamps
     # related_table_name = self.table_name
 
     scope :created_before_date, ->(date) { where('created_at < ?', "#{date}") }
-    scope :created_in_date_range, ->(start, c_end) { where('created_at >= ? and created_at <= ?', start, c_end)
-                                                       # .references(self.class.name.tableize)
+    scope :created_in_date_range, ->(start, c_end) {
+      where(where_dated_string(self.name.tableize, 'cre'), start, c_end)
     }
-    scope :updated_in_date_range, ->(start, u_end) { where('updated_at >= ? and updated_at <= ?', start, u_end)
-                                                       # .references(self.class.name.tableize)
+    scope :updated_in_date_range, ->(start, u_end) {
+      where(where_dated_string(self.name.tableize, 'upd'), start, u_end)
     }
   end
 
@@ -69,6 +69,10 @@ module Housekeeping::Timestamps
       limit(number).order(updated_at: :DESC)
     end
 
+    def where_dated_string(table, type)
+      "#{table}.#{type}ated_at >= ? and #{table}.#{type}ated_at <= ?"
+    end
+
   end
 
   def data_breakdown_for_chartkick_recent
@@ -94,5 +98,6 @@ module Housekeeping::Timestamps
     data
   end
 
+  protected
 end
 
