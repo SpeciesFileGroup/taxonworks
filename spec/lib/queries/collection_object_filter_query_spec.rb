@@ -7,6 +7,8 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
       generate_political_areas_with_collecting_events(1, 1)
     }
 
+    let!(:user) { User.find(1) }
+    let!(:project) { Project.find(1) }
     let!(:co_m1a_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M1A')
       @co_m1a.otus << o
@@ -153,12 +155,12 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
       let(:params_with) { {otu_id: otum1.id, otu_descendants: 'on'} }
       let(:params_without) { {otu_id: otum1a.id, otu_descendants: 'off'} }
 
+      # TODO: need to build a descendant
       specify 'with descendants' do
         result = Queries::CollectionObjectFilterQuery.new(params_with).result
         expect(result).to contain_exactly(otum1.collection_objects, otum1a.collection_objects.first)
       end
 
-      # TODO: need to build a descendant
       specify 'without descendants' do
         result = Queries::CollectionObjectFilterQuery.new(params_without).result
         expect(result).to contain_exactly(otum1a.collection_objects.first)
@@ -166,19 +168,22 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
 
     end
 
-    context 'date search' do
-
+    context 'collecting event date search' do
+      let(:params) { {search_start_date: '1971-01-01', search_end_date: '1980-12-31'} }
+      specify 'start and end dates' do
+        result = Queries::CollectionObjectFilterQuery.new(params).result
+        expect(result.count).to eq(10)
+      end
     end
 
     context 'identifier search' do
-      let!(:user) { User.find(1) }
-      let!(:project) { Project.find(1) }
-      let(:co_32) {Specimen.last}
-      let(:co_30) {Specimen.find(co_32.id - 2)}
-      let(:co_28) {Specimen.find(co_30.id - 2)}
-      let(:co_26) {Specimen.find(co_28.id - 2)}
-      let(:co_24) {Specimen.find(co_26.id - 2)}
-      specify '' do
+      let(:co_32) { Specimen.last }
+      let(:co_30) { Specimen.find(co_32.id - 2) }
+      let(:co_28) { Specimen.find(co_30.id - 2) }
+      let(:co_26) { Specimen.find(co_28.id - 2) }
+      let(:co_24) { Specimen.find(co_26.id - 2) }
+
+      specify 'numbers' do
 
         2.times { FactoryBot.create(:valid_namespace, creator: user, updater: user) }
         ns1 = Namespace.first
@@ -196,20 +201,139 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
         }
 
 
-
-        params = {id_namespace: ns1.short_name, id_range_start: '0', id_range_stop: '11'}
+        params = {id_namespace: ns1.short_name, id_range_start: '2', id_range_stop: '9'}
 
         result = Queries::CollectionObjectFilterQuery.new(params).result
-        expect(result).to contain_exactly(co_32, co_30, co_28, co_26, co_24)
+        expect(result).to contain_exactly(co_30, co_28, co_26, co_24)
       end
     end
 
     context 'user/date search' do
+      let!(:pat_admin) {
+        peep = FactoryBot.create(:valid_user, name: 'Pat Project Administrator', by: joe)
+        ProjectMember.create(project: project, user: peep, by: joe)
+        peep
+      }
+      let!(:pat) {
+        peep = FactoryBot.create(:valid_user, name: 'Pat The Other', by: joe)
+        ProjectMember.create(project: project, user: peep, by: joe)
+        peep
+      }
+      let!(:joe) { User.find(1) }
+      let!(:joe2) {
+        peep = FactoryBot.create(:valid_user, name: 'Joe Number Two', by: joe)
+        ProjectMember.create(project: project, user: peep, by: joe)
+        peep
+      }
 
+      specify 'selected object' do
+        2.times { FactoryBot.create(:valid_specimen, creator: pat, updater: pat_admin, project: project) }
+        (1..10).each { |specimen|
+          sp = FactoryBot.create(:valid_specimen,
+                                 creator:    ((specimen % 2) == 0 ? joe : pat),
+                                 created_at: "200#{specimen - 1}/01/#{specimen}",
+                                 updated_at: "200#{specimen - 1}/07/#{specimen}",
+                                 updater:    ((specimen % 2) == 0 ? pat : joe),
+                                 project:    project)
+        }
+
+        params = {user: 'All users', date_type_select: 'created_at'}
+
+        result = Queries::CollectionObjectFilterQuery.new(params).result
+        expect(result.count).to eq(32)
+
+        params = {user:                  'All users', date_type_select: 'created_at',
+                  user_date_range_start: '2005-01-01', user_date_range_end: Date.yesterday.to_s}
+
+        result = Queries::CollectionObjectFilterQuery.new(params).result
+        expect(result.count).to eq(5)
+
+        params = {user:                  joe, date_type_select: 'created_at',
+                  user_date_range_start: Date.today.to_s, user_date_range_end: Date.today.to_s}
+
+        result = Queries::CollectionObjectFilterQuery.new(params).result
+        expect(result.count).to eq(20)
+
+        params = {user:                  joe, date_type_select: 'updated_at',
+                  user_date_range_start: nil, user_date_range_end: Date.yesterday.to_s}
+
+        result = Queries::CollectionObjectFilterQuery.new(params).result
+        expect(result.count).to eq(0)
+
+        params = {user:                  joe.id, date_type_select: 'created_at',
+                  user_date_range_start: '2000-01-01', user_date_range_end: Date.yesterday.to_s}
+
+        result = Queries::CollectionObjectFilterQuery.new(params).result
+        expect(result.count).to eq(5)
+
+        params = {user:                  pat_admin, date_type_select: 'created_at',
+                  user_date_range_start: Date.yesterday.to_s, user_date_range_end: Date.yesterday.to_s}
+
+        result = Queries::CollectionObjectFilterQuery.new(params).result
+        expect(result.count).to eq(0)
+      end
     end
 
     context 'combined search' do
+      let!(:pat_admin) {
+        peep = FactoryBot.create(:valid_user, name: 'Pat Project Administrator', by: joe)
+        ProjectMember.create(project: project, user: peep, by: joe)
+        peep
+      }
+      let!(:pat) {
+        peep = FactoryBot.create(:valid_user, name: 'Pat The Other', by: joe)
+        ProjectMember.create(project: project, user: peep, by: joe)
+        peep
+      }
+      let!(:joe) { User.find(1) }
+      let!(:joe2) {
+        peep = FactoryBot.create(:valid_user, name: 'Joe Number Two', by: joe)
+        ProjectMember.create(project: project, user: peep, by: joe)
+        peep
+      }
 
+      specify 'selected object' do
+        # Specimen creation/update dates
+        2.times { FactoryBot.create(:valid_specimen, creator: pat, updater: pat_admin, project: project) }
+        (1..10).each { |specimen|
+          sp = FactoryBot.create(:valid_specimen,
+                                 creator:    ((specimen % 2) == 0 ? joe : pat),
+                                 created_at: "200#{specimen - 1}/01/#{specimen}",
+                                 updated_at: "200#{specimen - 1}/07/#{specimen}",
+                                 updater:    ((specimen % 2) == 0 ? pat : joe),
+                                 project:    project)
+        }
+
+        # Identifier/namespace
+        2.times { FactoryBot.create(:valid_namespace, creator: user, updater: user) }
+        ns1 = Namespace.first
+        ns2 = Namespace.second
+        2.times { FactoryBot.create(:valid_specimen, creator: user, updater: user, project: project) }
+        (1..10).each { |identifier|
+          sp = FactoryBot.create(:valid_specimen, creator: user, updater: user, project: project)
+          id = FactoryBot.create(:identifier_local_catalog_number,
+                                 updater:           user,
+                                 project:           project,
+                                 creator:           user,
+                                 identifier_object: sp,
+                                 namespace:         ((identifier % 2) == 0 ? ns1 : ns2),
+                                 identifier:        identifier)
+        }
+
+        params = {}
+        params.merge!({user: joe,
+                       date_type_select: 'created_at',
+                       user_date_range_start: '2005-01-01',
+                       user_date_range_end: Date.yesterday.to_s
+                      })
+        params.merge!({id_namespace: ns1.short_name,
+                       id_range_start: '2',
+                       id_range_stop: '9'
+                      })
+
+        result = Queries::CollectionObjectFilterQuery.new(params).result
+        expect(result.count).to eq(4)
+      end
     end
   end
 end
