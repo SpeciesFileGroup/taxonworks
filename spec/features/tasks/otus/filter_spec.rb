@@ -132,11 +132,12 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           it 'renders count of otus from a specific name without descendants' do
             visit(index_path)
             page.execute_script "$('#set_otu')[0].scrollIntoView()"
-            finder = find('#otu_id_for_by_otu')
-            finder.send_keys('p4')
-            wait_for_ajax
-            finder.send_keys(:down)
-            finder.send_keys(:tab)
+            # finder = find('#otu_id_for_by_otu')
+            # finder.send_keys('p4')
+            # wait_for_ajax
+            # finder.send_keys(:down)
+            # finder.send_keys(:tab)
+            fill_autocomplete('otu_id_for_by_otu', with: 'p4', select: @co_p4.otus.first.id)
             click_button('Set OTU')
             expect(find('#otu_count')).to have_text('1')
           end
@@ -145,11 +146,12 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
             visit(index_path)
             page.execute_script "$('#set_otu')[0].scrollIntoView()"
             find('#descendant_toggle').click
-            finder = find('#otu_id_for_by_otu')
-            finder.send_keys('m1')
-            wait_for_ajax
-            finder.send_keys(:down)
-            finder.send_keys(:tab)
+            # finder = find('#otu_id_for_by_otu')
+            # finder.send_keys('m1')
+            # wait_for_ajax
+            # finder.send_keys(:down)
+            # finder.send_keys(:tab)
+            fill_autocomplete('otu_id_for_by_otu', with: 'p4', select: @co_p4.otus.first.id)
             click_button('Set OTU')
             expect(find('#otu_count')).to have_text('1')
           end
