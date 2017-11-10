@@ -31,6 +31,7 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
     }
     let!(:co_m2_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M2')
+      o.taxon_name.update_column(:name, 'antivitis')
       @co_m2.otus << o
     }
     let!(:co_n2_a_o) {
@@ -293,7 +294,7 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
       }
 
       specify 'selected object' do
-        c_objs   = [@co_m1, @co_n1, @co_o1, @co_p1, @co_m2, @co_n2_a, @co_o2, @co_p2, @co_m3, @co_n3]
+        c_objs = [@co_m1, @co_n1, @co_o1, @co_p1, @co_m2, @co_n2_a, @co_o2, @co_p2, @co_m3, @co_n3]
 
 # Specimen creation/update dates and Identifier/namespace
         2.times { FactoryBot.create(:valid_namespace, creator: user, updater: user) }
@@ -316,21 +317,31 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
                             identifier:        (index + 1).to_s)
         }
 
-#
-        params = {}
+# We are expecting to get only one collection_object, the one from QTM2
+# when this test is run along with all the rest, there are otus which have been deleted, but are still attached
+# to collection objects. As a result, we select the *last* one (the one *most recently* created),
+# rather than the first.
+        ot        = @co_m2.otus.last
+        tn        = ot.taxon_name
+        test_name = tn.name
+        params    = {}
+        params.merge!({otu_id: ot.id})
         params.merge!({user:                  joe,
                        date_type_select:      'created_at',
-                       user_date_range_start: '2000-01-01',
-                       user_date_range_end:   Date.yesterday.to_s
+                       user_date_range_start: '2004-01-01',
+                       user_date_range_end:   '2004-02-01'
                       })
         params.merge!({id_namespace:   ns1.short_name,
-                       id_range_start: '1',
-                       id_range_stop:  '10'
+                       id_range_start: '5',
+                       id_range_stop:  '8'
                       })
         params.merge!({geographic_area_ids: [bbxa.id]})
+        params.merge!({search_start_date: '1974-01-01', search_end_date: '1976-12-31'})
 
         result = Queries::CollectionObjectFilterQuery.new(params).result
-        expect(result.count).to eq(4)
+        expect(result).to contain_exactly(@co_m2)
+        expect(result.first.otus.count).to eq(1)
+        expect(result.first.otus.last.taxon_name.name).to eq(test_name)
       end
     end
   end
