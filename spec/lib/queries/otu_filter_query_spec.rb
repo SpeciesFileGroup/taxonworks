@@ -7,6 +7,8 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       generate_political_areas_with_collecting_events(1, 1)
     }
 
+    let!(:user) { User.find(1) }
+    let!(:project) { Project.find(1) }
     let!(:co_m1a_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M1A')
       @co_m1a.otus << o
@@ -29,6 +31,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     }
     let!(:co_m2_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M2')
+      o.taxon_name.update_column(:name, 'antivitis')
       @co_m2.otus << o
     }
     let!(:co_n2_a_o) {
@@ -150,6 +153,19 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     end
 
     context 'otu search' do
+      let(:params_with) { {otu_id: otum1.id, otu_descendants: 'on'} }
+      let(:params_without) { {otu_id: otum1a.id, otu_descendants: 'off'} }
+
+      # TODO: need to build a descendant
+      specify 'with descendants' do
+        result = Queries::OtuFilterQuery.new(params_with).result
+        expect(result).to contain_exactly(otum1, otum1a)
+      end
+
+      specify 'without descendants' do
+        result = Queries::OtuFilterQuery.new(params_without).result
+        expect(result).to contain_exactly(otum1a)
+      end
 
     end
 
@@ -158,7 +174,15 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     end
 
     context 'combined search' do
+      ot        = @co_m2.otus.last
+      tn        = ot.taxon_name
+      test_name = tn.name
+      params    = {}
+      params.merge!({geographic_area_ids: [bbxa.id]})
+      params.merge!({otu_id: ot.id})
 
+      result = Queries::OtuFilterQuery.new(params).result
+      expect(result.count).to eq(10)
     end
   end
 end
