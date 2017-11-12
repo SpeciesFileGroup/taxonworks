@@ -1,7 +1,14 @@
 <template>
 	<transition-group class="table-entrys-list" name="list-complete" tag="ul">
 	    	<li v-for="item in list" :key="item.id" class="list-complete-item flex-separate middle">
-			    <span class="list-item" v-html="displayName(item)"></span>
+			    <label class="list-item">
+			    	<input 
+			    		@click="addSelectedItem(item.id)" 
+			    		type="checkbox" 
+			    		:checked="selectedItems.find(value => { return value == item.id })"
+			    		/>
+			    	<span v-html="displayName(item)"></span>
+			    </label>
 			    <div class="list-controls">
 			    	<span v-if="edit" class="circle-button btn-edit" @click="$emit('edit', Object.assign({}, item))">Edit</span>
 		    		<span class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
@@ -9,6 +16,7 @@
 	    	</li>
 	</transition-group>
 </template>
+
 <script>
 	export default {
 		props: {
@@ -23,6 +31,11 @@
 				default: false,
 			}
 		},
+		data: function() {
+			return {
+				selectedItems: []
+			}
+		},
 		methods: {
 			displayName(item) {
 				if(typeof this.label == 'string') {
@@ -35,11 +48,24 @@
 					});
 					return tmp;
 				}
+			},
+			addSelectedItem(id) {
+				let index = this.selectedItems.findIndex(item => { return (id == item) });
+				
+				if(index < 0) {
+					this.selectedItems.push(id);
+				}
+				else {
+					this.selectedItems.splice(index, 1);
+				}
+
+				this.$emit('selectedItems', this.selectedItems)
 			}
 		}
 	}
 </script>
 <style lang="scss" scoped>
+
 	.list-controls {
 	 	display: flex;
 	 	align-items:center;

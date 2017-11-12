@@ -67,24 +67,25 @@
 
         <div v-if="displaySection == 1">
           <div v-for="item, key in keywords">
-            <p v-html="item.object.object_tag"></p>
-            <ul>
-              <li v-for="object, key in item.totals" v-if="object">
-                <span class="capitalize">{{ key }}: {{ object }} <button type="button" @click="batchLoad(key, item.object.id, 'tags')">Add</button></span>
-              </li>
-            </ul>
+            <hr>
+            <b><p v-html="item.object.object_tag"></p></b>
+            <div class="tag_list" v-for="object, key in item.totals" v-if="object">
+                <div class="capitalize tag_label">{{ key }}</div>
+                <div class="tag_total">{{ object }}</div>
+                <button class="button normal-input button-submit" type="button" @click="batchLoad(key, item.object.id, 'tags', object)">Create</button>
+            </div>
           </div>
         </div>
 
         <div v-if="displaySection == 2">
-          <ul>
-            <li v-for="object, key in pinboard.totals" v-if="object">
-              <span class="capitalize">{{ key }}: {{ object }} <button type="button" @click="batchLoad(key, undefined, 'pinboard')">Add</button></span>
-            </li>
-          </ul>
+          <div class="tag_list" v-for="object, key in pinboard.totals" v-if="object">
+              <div class="capitalize tag_label">{{ key }}</div>
+              <div class="tag_total"> {{ object }}</div> 
+              <button class="button normal-input button-submit" type="button" @click="batchLoad(key, undefined, 'pinboard', object)">Create</button>
+          </div>
         </div>
-
-        <display-list :list="loanItems" @delete="deleteItem" label="object_tag"></display-list>
+        <edit-item-bar :statusList="statusList" :list="selectedItems" v-if="selectedItems.length"></edit-item-bar>
+        <display-list :list="loanItems" @delete="deleteItem" @selectedItems="selectedItems = $event" label="object_tag"></display-list>
       </div>
     </div>
 </template>
@@ -99,12 +100,14 @@
   import ActionNames from '../store/actions/actionNames';
   import { GetterNames } from '../store/getters/getters';
   import { MutationNames } from '../store/mutations/mutations';
+  import editItemBar from './editItemBar.vue';
   
   export default {
     components: {
       expand,
       autocomplete,
-      displayList
+      displayList,
+      editItemBar
     },
     computed: {
       loanItems() {
@@ -125,6 +128,7 @@
     },
     data: function() {
       return {
+        maxItemsWarning: 100,
         typeList: [
           'By object',
           'By tag',
@@ -138,6 +142,7 @@
           'Retained',
           'Returned'
         ],
+        selectedItems: [],
         keywords: undefined,
         pinboard: undefined,
         info: undefined,
@@ -171,15 +176,21 @@
           that.$store.commit(MutationNames.AddLoanItem, response);
         });
       },
-      batchLoad(klass, keyword, type) {
+      batchLoad(klass, keyword, type, total) {
         let object = {
           batch_type: type,
           loan_id: this.loan.id,
           keyword_id: keyword,
           klass: (klass == 'total' ? undefined : klass)
         }
-
-        this.$store.dispatch(ActionNames.CreateBatchLoad, object);
+        if(total > this.maxItemsWarning) {
+          if(window.confirm(`You're trying to create ${total} items. Are you sure want to proceed?`)) {
+            this.$store.dispatch(ActionNames.CreateBatchLoad, object);
+          }
+        }
+        else {
+          this.$store.dispatch(ActionNames.CreateBatchLoad, object);
+        }
       },
       deleteItem(item) {
         this.$store.dispatch(ActionNames.DeleteLoanItem, item.id)
@@ -192,6 +203,22 @@
     .switch-radio {
       label {
         width: 100px;
+      }
+    }
+    .tag_list {
+      margin-top:0.5em;
+      align-items: center;
+      text-align: right;
+      display:flex;
+      .tag_label {
+        width: 130px;
+        min-width: 130px;
+      }
+      .tag_total {
+        margin-left: 1em;
+        margin-right: 1em;
+        text-align: left;
+        min-width: 50px;
       }
     }
   }

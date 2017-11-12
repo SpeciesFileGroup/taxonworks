@@ -56,6 +56,16 @@ const updateLoan = function(loan) {
   });
 }
 
+const updateLoanItem = function(loan_item) {
+  return new Promise(function (resolve, reject) {
+    Vue.http.patch(`/loan_items/${loan_item.id}.json`, { loan_item: loan_item }).then( response => {
+      return resolve(response.body);
+    }, response => {
+      return reject(response.body);
+    });
+  });
+}
+
 const createLoan = function(loan) {
   return new Promise(function (resolve, reject) {
     console.log(loan);
@@ -97,5 +107,6 @@ export {
   getLoanItems,
   createLoanItem,
   createLoan,
-  updateLoan
+  updateLoan,
+  updateLoanItem
 }

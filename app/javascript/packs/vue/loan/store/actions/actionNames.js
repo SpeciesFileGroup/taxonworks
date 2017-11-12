@@ -3,7 +3,8 @@ const ActionNames = {
     LoadLoanItems: 'loadLoanItems',
     CreateBatchLoad: 'createBatchLoad',
     CreateLoan: 'createLoan',
-    DeleteLoanItem: 'deleteLoanItem'
+    DeleteLoanItem: 'deleteLoanItem',
+    UpdateLoanItem: 'updateLoanItem'
 };
 
 export default ActionNames;

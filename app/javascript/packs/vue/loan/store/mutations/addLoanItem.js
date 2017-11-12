@@ -1,3 +1,5 @@
+import Vue from 'vue';
+
 export default function(state, loan_item) {
 	var position = state.loan_items.findIndex( item => {
 		if(item.id == loan_item.id) {
