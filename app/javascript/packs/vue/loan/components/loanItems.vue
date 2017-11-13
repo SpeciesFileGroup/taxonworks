@@ -1,5 +1,6 @@
 <template>
     <div class="panel loan-box">
+      <spinner :show-spinner="false" :resize="false" :show-legend="false" v-if="!loan.id"></spinner>
       <div class="header flex-separate middle">
         <h3 class="">Loan items</h3>
         <expand v-model="displayBody"></expand>
@@ -94,6 +95,7 @@
 
   import displayList from './displayList.vue';
   import autocomplete from '../../components/autocomplete.vue';
+  import spinner from '../../components/spinner.vue';
   import expand from './expand.vue';
 
   import { getTagMetadata, createLoanItem, createBatchLoad } from '../request/resources';
@@ -105,6 +107,7 @@
   export default {
     components: {
       expand,
+      spinner,
       autocomplete,
       displayList,
       editItemBar

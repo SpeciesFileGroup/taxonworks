@@ -4,6 +4,13 @@
         <h3 class="">Loan information</h3>
         <expand v-model="displayBody"></expand>
       </div>
+      <modal v-if="showModal" @close="showModal = false">
+        <h3 slot="header">Confirm delete</h3>
+        <div slot="body">Are you sure you want to delete <span v-html="loan.object_tag"></span>?</div>
+        <div slot="footer">
+          <button @click="deleteLoan()" type="button" class="normal-input button button-delete align-end">Delete</button>
+        </div>
+      </modal>
       <div class="body horizontal-left-content align-start" v-if="displayBody">
         <div class="column-left">
           <span><b>Lender</b></span>
@@ -37,7 +44,10 @@
             <input v-model="loan.date_closed" type="date" class="normal-input"/>
           </div>
           <div>
-            <button @click="update()" v-if="loan.hasOwnProperty('id')" type="button" class="button normal-input button-submit">Update Loan</button>
+            <template v-if="loan.hasOwnProperty('id')">
+              <button @click="update()" type="button" class="button normal-input button-submit">Update Loan</button>
+              <button @click="showModal = true" type="button" class="button normal-input button-delete">Delete loan</button>
+            </template>
             <button @click="create()" v-else type="button" class="button normal-input button-submit">Create Loan</button>
           </div>
         </div>
@@ -92,16 +102,17 @@
 <script>
 
   import rolePicker from '../../components/role_picker.vue';
+  import modal from '../../components/modal.vue';
   import expand from './expand.vue';
-
   import ActionNames from '../store/actions/actionNames';
   import { GetterNames } from '../store/getters/getters';
-  import { updateLoan } from '../request/resources';
+  import { updateLoan, destroyLoan } from '../request/resources';
   
   export default {
     components: {
       rolePicker,
-      expand
+      expand,
+      modal
     },
     computed: {
       getLoan: {
@@ -128,6 +139,7 @@
     },
     data: function() {
       return {
+        showModal: false,
         displayBody: true,
         roles_supervisor: [],
         roles_recipient: [],
@@ -167,7 +179,12 @@
       create() {
         this.loan.roles_attributes = this.roles_recipient.concat(this.roles_supervisor);
         this.$store.dispatch(ActionNames.CreateLoan, this.loan);
-      }
+      },
+      deleteLoan() {
+        destroyLoan(this.loan.id).then(response => {
+          window.location.href = '/tasks/loans/edit_loan/'
+        });
+      },
     }
   }
 </script>

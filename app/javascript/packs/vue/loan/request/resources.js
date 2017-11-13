@@ -34,6 +34,16 @@ const getLoan = function(id) {
   });
 }
 
+const destroyLoan = function(id) {
+  return new Promise(function (resolve, reject) {
+    Vue.http.delete(`/loans/${id}.json`).then( response => {
+      return resolve(response.body);
+    }, response => {
+      return reject(response.body);
+    });
+  });
+}
+
 const destroyLoanItem = function(id) {
   return new Promise(function (resolve, reject) {
     Vue.http.delete(`/loan_items/${id}.json`).then( response => {
@@ -101,6 +111,7 @@ const getLoanItems = function(id) {
 
 export {
   createBatchLoad,
+  destroyLoan,
   destroyLoanItem,
   getTagMetadata,
   getLoan,

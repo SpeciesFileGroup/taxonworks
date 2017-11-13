@@ -35,7 +35,10 @@
       var that = this;
       let loanId = location.pathname.split('/')[4];
       if(/^\d+$/.test(loanId)) {
-        that.$store.dispatch(ActionNames.LoadLoan, loanId)
+        that.$store.dispatch(ActionNames.LoadLoan, loanId).then(response => {
+        }, rejected => { 
+          window.location.href = '/tasks/loans/edit_loan/' 
+        })
       }
     }
   }

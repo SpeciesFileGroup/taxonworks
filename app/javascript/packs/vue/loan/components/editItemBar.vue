@@ -1,5 +1,5 @@
 <template>
-	<div class="loan-items-bar">
+	<div>
 		<hr>
 		<div class="edit-loan-container">
 			<h3>Update selected items</h3>
@@ -70,16 +70,3 @@
 		}
 	}
 </script>
-
-<style lang="scss">
-
-	#edit_loan_task {
-		.loan-items-bar {
-			background-color: #FFFFFF;
-			.edit-loan-container {
-				//padding: 2em;
-			}
-		}
-	}
-
-</style>
