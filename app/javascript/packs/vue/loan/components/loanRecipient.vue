@@ -46,7 +46,7 @@
           <div>
             <template v-if="loan.hasOwnProperty('id')">
               <button @click="update()" type="button" class="button normal-input button-submit">Update Loan</button>
-              <button @click="showModal = true" type="button" class="button normal-input button-delete">Delete loan</button>
+              <button @click="showModal = true" :disabled="loanItems.length > 0" type="button" class="button normal-input button-delete">Delete loan</button>
             </template>
             <button @click="create()" v-else type="button" class="button normal-input button-submit">Create Loan</button>
           </div>
@@ -115,6 +115,9 @@
       modal
     },
     computed: {
+      loanItems() {
+        return this.$store.getters[GetterNames.GetLoanItems]
+      },
       getLoan: {
         get() {
           return this.$store.getters[GetterNames.GetLoan]
