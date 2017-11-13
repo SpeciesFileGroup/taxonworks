@@ -184,7 +184,19 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
         params.merge!({otu_id: ot.id})
 
         result = Queries::OtuFilterQuery.new(params).result
-        expect(result.count).to eq(2)
+        expect(result.count).to eq(1)
+      end
+
+      specify 'returning none' do
+        ot        = @co_p4.otus.last
+        # tn        = ot.taxon_name
+        # test_name = tn.name
+        params    = {}
+        params.merge!({geographic_area_ids: [bbxa.id]})
+        params.merge!({otu_id: ot.id})
+
+        result = Queries::OtuFilterQuery.new(params).result
+        expect(result.count).to eq(0)
       end
     end
   end
