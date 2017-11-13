@@ -13,4 +13,4 @@ require('./vue/nomenclature/new_taxon_name/main.js');
 require('./vue/matrix_row_coder/main.js');
 
 
-require('./application.scss');
+require('./style/application.scss');
