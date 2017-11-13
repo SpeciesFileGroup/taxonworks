@@ -5,6 +5,7 @@
     "node": ">= 0.10"
   },
   "dependencies": {
+    "@ibm/type": "^0.4.3",
     "@rails/webpacker": "^3.0.2",
     "autoprefixer": "^7.1.5",
     "babel-core": "^6.26.0",
