@@ -45,6 +45,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
         }
         let!(:co_m2_o) {
           o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M2')
+          o.taxon_name.update_column(:name, 'antivitis')
           @co_m2.otus << o
         }
         let!(:co_n2_a_o) {
@@ -167,11 +168,12 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
             wait_for_ajax
 
             page.execute_script "$('#set_otu')[0].scrollIntoView()"
-            finder = find('#otu_id_for_by_otu')
-            finder.send_keys('p4')
-            wait_for_ajax
-            finder.send_keys(:down)
-            finder.send_keys(:tab)
+            # finder = find('#otu_id_for_by_otu')
+            # finder.send_keys('p4')
+            # wait_for_ajax
+            # finder.send_keys(:down)
+            # finder.send_keys(:tab)
+            fill_autocomplete('otu_id_for_by_otu', with: 'p4', select: @co_p4.otus.first.id)
             click_button('Set OTU')
 
             find('#find_area_and_nomen_commit').click
@@ -179,7 +181,35 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           }
 
           it 'renders count of objects and table found using a drawn area and date range' do
-            find('#paging_data', visible: true, text: 'Displaying all 15 otus')
+            find('#paging_data', visible: true, text: 'Displaying 1 otu')
+            expect(find(:xpath, "//div['show_list']/table[@class='tablesorter']/thead")).to have_text('Taxon name')
+          end
+        end
+
+        describe '#find none', js: true do
+          before {
+            visit(index_path)
+            execute_script("document.getElementById('drawn_area_shape').type = 'text'")
+            # find('#area_picker_autocomplete').set('Great')
+            fill_area_picker_autocomplete('area_picker_autocomplete', with: 'big', select: bbxa.id)
+            click_button('Set area')
+            wait_for_ajax
+
+            page.execute_script "$('#set_otu')[0].scrollIntoView()"
+            # finder = find('#otu_id_for_by_otu')
+            # finder.send_keys('p4')
+            # wait_for_ajax
+            # finder.send_keys(:down)
+            # finder.send_keys(:tab)
+            fill_autocomplete('otu_id_for_by_otu', with: 'p4', select: @co_p4.otus.first.id)
+            click_button('Set OTU')
+
+            find('#find_area_and_nomen_commit').click
+            wait_for_ajax
+          }
+
+          it 'renders count of objects and table found using a drawn area and date range' do
+            find('#paging_data', visible: true, text: 'Displaying no otus')
             expect(find(:xpath, "//div['show_list']/table[@class='tablesorter']/thead")).to have_text('Taxon name')
           end
         end

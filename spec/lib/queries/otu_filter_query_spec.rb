@@ -174,6 +174,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     end
 
     context 'combined search' do
+      let(:p4) {GeographicArea.where(name: "SP4").first}
       specify 'geo_area, otu (taxon name)' do
         ot        = @co_m2.otus.last
         tn        = ot.taxon_name
@@ -183,7 +184,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
         params.merge!({otu_id: ot.id})
 
         result = Queries::OtuFilterQuery.new(params).result
-        expect(result.count).to eq(10)
+        expect(result.count).to eq(2)
       end
     end
   end
