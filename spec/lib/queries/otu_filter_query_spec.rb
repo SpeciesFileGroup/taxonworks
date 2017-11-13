@@ -1,11 +1,18 @@
 require 'rails_helper'
 
 describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_objects, :otus] do
-  context 'with properly built collection of objects' do
 
-    before(:all) {
-      generate_political_areas_with_collecting_events(1, 1)
-    }
+  before(:all) {
+    generate_political_areas_with_collecting_events(1, 1)
+  }
+
+  after(:all) {
+    clean_slate_geo
+    CollectionObject.destroy_all
+    Namespace.destroy_all
+  }
+
+  context 'with properly built collection of objects' do
 
     let!(:user) { User.find(1) }
     let!(:project) { Project.find(1) }
@@ -97,13 +104,6 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     let(:big_boxia_string) { '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}}' }
     let(:m1_string) { '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [34, 28, 0], [34, 27, 0], [33, 27, 0], [33, 28, 0]]]}}' }
 
-
-    after(:all) {
-      clean_slate_geo
-      CollectionObject.destroy_all
-      Namespace.destroy_all
-    }
-
     context 'area search' do
       context 'named area' do
         let(:params) { {geographic_area_ids: [gnlm.id]} }
@@ -174,15 +174,17 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     end
 
     context 'combined search' do
-      ot        = @co_m2.otus.last
-      tn        = ot.taxon_name
-      test_name = tn.name
-      params    = {}
-      params.merge!({geographic_area_ids: [bbxa.id]})
-      params.merge!({otu_id: ot.id})
+      specify 'geo_area, otu (taxon name)' do
+        ot        = @co_m2.otus.last
+        tn        = ot.taxon_name
+        test_name = tn.name
+        params    = {}
+        params.merge!({geographic_area_ids: [bbxa.id]})
+        params.merge!({otu_id: ot.id})
 
-      result = Queries::OtuFilterQuery.new(params).result
-      expect(result.count).to eq(10)
+        result = Queries::OtuFilterQuery.new(params).result
+        expect(result.count).to eq(10)
+      end
     end
   end
 end
