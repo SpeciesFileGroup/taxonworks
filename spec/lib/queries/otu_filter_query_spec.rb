@@ -38,7 +38,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     }
     let!(:co_m2_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M2')
-      o.taxon_name.update_column(:name, 'antivitis')
+      o.taxon_name.update_column(:name, 'M2 antivitis')
       @co_m2.otus << o
     }
     let!(:co_n2_a_o) {
@@ -87,6 +87,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     }
     let!(:co_p4_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'P4')
+      o.taxon_name.update_column(:name, 'P4 antivitis')
       @co_p4.otus << o
     }
     let!(:co_v_o) {
@@ -100,6 +101,8 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 
     let!(:otum1) { Otu.where(name: 'Find me, I\'m in M1!').first }
     let!(:otum1a) { Otu.where(name: 'M1A').first }
+    let!(:otum2) { Otu.where(name: 'M2').first }
+    let!(:otup4) { Otu.where(name: 'P4').first }
 
     let(:big_boxia_string) { '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}}' }
     let(:m1_string) { '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [34, 28, 0], [34, 27, 0], [33, 27, 0], [33, 28, 0]]]}}' }
@@ -108,12 +111,12 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       context 'named area' do
         let(:params) { {geographic_area_ids: [gnlm.id]} }
 
-        specify 'otus count' do
+        specify 'nomen count' do
           result = Queries::OtuFilterQuery.new(params).result
           expect(result.count).to eq(15)
         end
 
-        specify 'specific otus' do
+        specify 'specific nomen' do
           result = Queries::OtuFilterQuery.new(params).result
           expect(result).to include(otum1)
         end
@@ -125,12 +128,12 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
         context 'area shape big boxia' do
           let(:params) { {drawn_area_shape: big_boxia_string} }
 
-          specify 'otus count' do
+          specify 'nomen count' do
             result = Queries::OtuFilterQuery.new(params).result
             expect(result.count).to eq(9)
           end
 
-          specify 'specific otus' do
+          specify 'specific nomen' do
             result = Queries::OtuFilterQuery.new(params).result
             expect(result).to include(otum1)
           end
@@ -139,12 +142,12 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
         context 'area shape m1' do
           let(:params) { {drawn_area_shape: m1_string} }
 
-          specify 'otus count' do
+          specify 'nomen count' do
             result = Queries::OtuFilterQuery.new(params).result
             expect(result.count).to eq(3)
           end
 
-          specify 'specific otus' do
+          specify 'specific nomen' do
             result = Queries::OtuFilterQuery.new(params).result
             expect(result).to include(otum1a)
           end
@@ -152,19 +155,19 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       end
     end
 
-    context 'otu search' do
-      let(:params_with) { {otu_id: otum1.id, otu_descendants: 'on'} }
-      let(:params_without) { {otu_id: otum1a.id, otu_descendants: 'off'} }
+    context 'nomen search' do
 
       # TODO: need to build a descendant
       specify 'with descendants' do
-        result = Queries::OtuFilterQuery.new(params_with).result
-        expect(result).to contain_exactly(otum1, otum1a)
+        params_with = {nomen_id: otup4.taxon_name_id, descendants: 'on'}
+        result      = Queries::OtuFilterQuery.new(params_with).result
+        expect(result).to contain_exactly(otup4, otum2)
       end
 
       specify 'without descendants' do
-        result = Queries::OtuFilterQuery.new(params_without).result
-        expect(result).to contain_exactly(otum1a)
+        params_without = {nomen_id: otum2.taxon_name_id, descendants: 'off'}
+        result         = Queries::OtuFilterQuery.new(params_without).result
+        expect(result).to contain_exactly(otum2)
       end
 
     end
@@ -174,26 +177,26 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     end
 
     context 'combined search' do
-      let(:p4) {GeographicArea.where(name: "SP4").first}
-      specify 'geo_area, otu (taxon name)' do
-        ot        = @co_m2.otus.last
-        tn        = ot.taxon_name
-        test_name = tn.name
-        params    = {}
+      let(:p4) { GeographicArea.where(name: "SP4").first }
+      specify 'geo_area, nomen (taxon name)' do
+        ot = @co_m2.taxon_names.last
+        # tn        = ot.taxon_name
+        # test_name = tn.name
+        params = {}
         params.merge!({geographic_area_ids: [bbxa.id]})
-        params.merge!({otu_id: ot.id})
+        params.merge!({nomen_id: ot.id})
 
         result = Queries::OtuFilterQuery.new(params).result
         expect(result.count).to eq(1)
       end
 
       specify 'returning none' do
-        ot        = @co_p4.otus.last
+        ot = @co_p4.taxon_names.last
         # tn        = ot.taxon_name
         # test_name = tn.name
-        params    = {}
+        params = {}
         params.merge!({geographic_area_ids: [bbxa.id]})
-        params.merge!({otu_id: ot.id})
+        params.merge!({nomen_id: ot.id})
 
         result = Queries::OtuFilterQuery.new(params).result
         expect(result.count).to eq(0)

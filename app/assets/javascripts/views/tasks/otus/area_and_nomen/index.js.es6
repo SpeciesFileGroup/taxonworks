@@ -44,12 +44,12 @@ Object.assign(TW.views.tasks.otus, {
         }
       );
 
-      $("#set_otu").click(function (event) {
-          $("#otu_count").text('????');
-          $("#select_otu").mx_spinner('show');
-          $.get('set_otu', $("#set_otu_form").serialize(), function (local_data) {
-            $("#otu_count").text(local_data.html);
-            $("#select_otu").mx_spinner('hide');
+      $("#set_nomen").click(function (event) {
+          $("#nomen_count").text('????');
+          $("#select_nomen").mx_spinner('show');
+          $.get('set_nomen', $("#set_nomen_form").serialize(), function (local_data) {
+            $("#nomen_count").text(local_data.html);
+            $("#select_nomen").mx_spinner('hide');
             that.validateResultForFindOtu();
           }, 'json');
           event.preventDefault();
@@ -235,7 +235,7 @@ Object.assign(TW.views.tasks.otus, {
     // let i = 0;
     
     if (
-      ($("#area_count").text() > 0) || ($("#otu_count").text() > 0)
+      ($("#area_count").text() > 0) || ($("#nomen_count").text() > 0)
     ) {
       $("#find_area_and_nomen_commit").removeAttr("disabled");
     }
@@ -269,8 +269,8 @@ Object.assign(TW.views.tasks.otus, {
       params.push($("#set_area_form").serialize());
     }
     
-    if ($('#otu_count').text() != '????') {
-      params.push($("#set_otu_form").serialize());
+    if ($('#nomen_count').text() != '????') {
+      params.push($("#set_nomen_form").serialize());
     }
     
     return data = params.join("&");

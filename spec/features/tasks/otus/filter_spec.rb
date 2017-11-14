@@ -45,7 +45,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
         }
         let!(:co_m2_o) {
           o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M2')
-          o.taxon_name.update_column(:name, 'antivitis')
+          o.taxon_name.update_column(:name, 'M2 antivitis')
           @co_m2.otus << o
         }
         let!(:co_n2_a_o) {
@@ -94,6 +94,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
         }
         let!(:co_p4_o) {
           o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'P4')
+          o.taxon_name.update_column(:name, 'P4 antivitis')
           @co_p4.otus << o
         }
         let!(:co_v_o) {
@@ -115,7 +116,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
             fill_area_picker_autocomplete('area_picker_autocomplete', with: 'big', select: bbxa.id)
             click_button('Set area')
             expect(find('#area_count')).to have_text('9')
-            # fill_otu_widget_autocomplete('#otu_id_for_by_otu', with: "P4", select: @co_p4.otus.first.id)
+            # fill_otu_widget_autocomplete('#nomen_id_for_by_nomen', with: "P4", select: @co_p4.Taxon_names.first.id)
           end
 
           it 'renders count of otus in a drawn area' do
@@ -129,32 +130,32 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           end
         end
 
-        describe '#set_otu', js: true do
+        describe '#set_nomen', js: true do
           it 'renders count of otus from a specific name without descendants' do
             visit(index_path)
-            page.execute_script "$('#set_otu')[0].scrollIntoView()"
-            # finder = find('#otu_id_for_by_otu')
+            page.execute_script "$('#set_nomen')[0].scrollIntoView()"
+            # finder = find('#nomen_id_for_by_nomen')
             # finder.send_keys('p4')
             # wait_for_ajax
             # finder.send_keys(:down)
             # finder.send_keys(:tab)
-            fill_autocomplete('otu_id_for_by_otu', with: 'p4', select: @co_p4.otus.first.id)
-            click_button('Set OTU')
-            expect(find('#otu_count')).to have_text('1')
+            fill_autocomplete('nomen_id_for_by_nomen', with: 'p4', select: @co_p4.taxon_names.last.id)
+            click_button('Set Nomenclature')
+            expect(find('#nomen_count')).to have_text('1')
           end
 
           it 'renders count of otus from a specific name with descendants' do
             visit(index_path)
-            page.execute_script "$('#set_otu')[0].scrollIntoView()"
+            page.execute_script "$('#set_nomen')[0].scrollIntoView()"
             find('#descendant_toggle').click
-            # finder = find('#otu_id_for_by_otu')
+            # finder = find('#nomen_id_for_by_nomen')
             # finder.send_keys('m1')
             # wait_for_ajax
             # finder.send_keys(:down)
             # finder.send_keys(:tab)
-            fill_autocomplete('otu_id_for_by_otu', with: 'p4', select: @co_p4.otus.first.id)
-            click_button('Set OTU')
-            expect(find('#otu_count')).to have_text('1')
+            fill_autocomplete('nomen_id_for_by_nomen', with: 'p4', select:@co_p4.taxon_names.last.id)
+            click_button('Set Nomenclature')
+            expect(find('#nomen_count')).to have_text('2')
           end
         end
 
@@ -167,14 +168,14 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
             click_button('Set area')
             wait_for_ajax
 
-            page.execute_script "$('#set_otu')[0].scrollIntoView()"
-            # finder = find('#otu_id_for_by_otu')
+            page.execute_script "$('#set_nomen')[0].scrollIntoView()"
+            # finder = find('#nomen_id_for_by_nomen')
             # finder.send_keys('p4')
             # wait_for_ajax
             # finder.send_keys(:down)
             # finder.send_keys(:tab)
-            fill_autocomplete('otu_id_for_by_otu', with: 'p4', select: @co_p4.otus.first.id)
-            click_button('Set OTU')
+            fill_autocomplete('nomen_id_for_by_nomen', with: 'p4', select: @co_p4.taxon_names.first.id)
+            click_button('Set Nomenclature')
 
             find('#find_area_and_nomen_commit').click
             wait_for_ajax
@@ -195,14 +196,14 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
             click_button('Set area')
             wait_for_ajax
 
-            page.execute_script "$('#set_otu')[0].scrollIntoView()"
-            # finder = find('#otu_id_for_by_otu')
+            page.execute_script "$('#set_nomen')[0].scrollIntoView()"
+            # finder = find('#nomen_id_for_by_nomen')
             # finder.send_keys('p4')
             # wait_for_ajax
             # finder.send_keys(:down)
             # finder.send_keys(:tab)
-            fill_autocomplete('otu_id_for_by_otu', with: 'p4', select: @co_p4.otus.first.id)
-            click_button('Set OTU')
+            fill_autocomplete('nomen_id_for_by_nomen', with: 'p4', select: @co_p4.taxon_names.first.id)
+            click_button('Set Nomenclature')
 
             find('#find_area_and_nomen_commit').click
             wait_for_ajax

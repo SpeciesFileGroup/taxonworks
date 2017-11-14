@@ -13,9 +13,9 @@ class Tasks::Otus::FilterController < ApplicationController
 
   def download
     scope = DwcOccurrence.otus_join
-                .where(dwc_occurrence_object_id: otus.pluck(:id)) # !! see if we can get rid of pluck, shouldn't need it, but maybe complex join is not collapsabele to collection object id
-                .where(project_id: sessions_current_project_id)
-                .order('dwc_occurrences.id')
+              .where(dwc_occurrence_object_id: otus.pluck(:id)) # !! see if we can get rid of pluck, shouldn't need it, but maybe complex join is not collapsabele to collection object id
+              .where(project_id: sessions_current_project_id)
+              .order('dwc_occurrences.id')
 
     # If failing remove begin/ensure/end to report Raised errors
     begin
@@ -37,65 +37,22 @@ class Tasks::Otus::FilterController < ApplicationController
   end
 
   # GET
-  def set_otu
+  def set_nomen
     render json: {html: otus.count}
-  end
-
-  # GET
-  def set_id_range
-    render json: {html: otus.count}
-  end
-
-  # GET
-  def set_user_date_range
-    params[:user] = params[:user].to_i
-    render json: {html: otus.count}
-  end
-
-  # GET
-  def get_dates_of_type
-    case params[:date_type_select]
-      when 'updated_at'
-        get_updated_at
-      when 'created_at'
-        get_created_at
-      # else
-      #
-    end
   end
 
   protected
 
-  def get_created_at
-    render json: {first_date: Otu.in_project(sessions_current_project_id)
-                                  .first_created.created_at.to_date.to_s.gsub('-', '/'),
-                  last_date: Otu.in_project(sessions_current_project_id)
-                                 .last_created.created_at.to_date.to_s.gsub('-', '/')
-    }
-  end
-
-  def get_updated_at
-    render json: {first_date: Otu.in_project(sessions_current_project_id)
-                                  .first_updated.updated_at.to_date.to_s.gsub('-', '/'),
-                  last_date: Otu.in_project(sessions_current_project_id)
-                                 .last_updated.updated_at.to_date.to_s.gsub('-', '/')
-    }
-  end
-
-
   def otus
     scope = Queries::OtuFilterQuery.new(filter_params)
-                .result
-                .with_project_id(sessions_current_project_id)
-                # .includes(:repository, {taxon_determinations: [{otu: :taxon_name}]}, :identifiers)
+              .result
+              .with_project_id(sessions_current_project_id)
+    # .includes(:repository, {taxon_determinations: [{otu: :taxon_name}]}, :identifiers)
     scope
   end
 
   def filter_params
-    params.permit(:drawn_area_shape, :search_start_date, :search_end_date,
-                  :id_range_start, :id_range_stop, :id_namespace,
-                  :user, :date_type_select, :user_date_range_end, :user_date_range_start,
-                  :partial_overlap, :otu_id, :descendants, :page, geographic_area_ids: [])
+    params.permit(:drawn_area_shape, :nomen_id, :author_id, :descendants, :page, geographic_area_ids: [])
   end
 
 end

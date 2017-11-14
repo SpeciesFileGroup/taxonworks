@@ -4,16 +4,8 @@ module Queries
 
     # Query variables
     attr_accessor :query_geographic_area_ids, :query_shape
-    attr_accessor :query_date_partial_overlap, :query_start_date, :query_end_date
-    attr_accessor :query_otu_id, :query_descendants
+    attr_accessor :query_nomen_id, :query_descendants
     attr_accessor :query_author_id
-    attr_accessor :query_id_namespace, :query_range_start, :query_range_stop
-    attr_accessor :query_user, :query_date_type_select,
-                  :query_user_date_range_end, :query_user_date_range_start
-
-
-    # Reolved/processed results
-    attr_accessor :start_date, :end_date, :user_date_start, :user_date_end
 
     def initialize(params)
       params.reject! { |k, v| v.blank? }
@@ -21,27 +13,9 @@ module Queries
       @query_geographic_area_ids = params[:geographic_area_ids]
       @query_shape               = params[:drawn_area_shape]
       @query_author_id           = params[:author_id]
-      @query_otu_id              = params[:otu_id]
+      @query_nomen_id            = params[:nomen_id]
       @query_descendants         = params[:descendants]
 
-      @query_end_date              = params[:search_end_date]
-      @query_date_partial_overlap  = params[:partial_overlap]
-      @query_id_namespace          = params[:id_namespace]
-      @query_range_start           = params[:id_range_start]
-      @query_range_stop            = params[:id_range_stop]
-      @query_user                  = params[:user]
-      @query_date_type_select      = params[:date_type_select]
-      @query_user_date_range_start = params[:user_date_range_start]
-      @query_user_date_range_end   = params[:user_date_range_end]
-
-      set_and_order_dates
-    end
-
-    # Only set (and therefor ultimately use) dates if they were provided!
-    def set_and_order_dates
-      if query_start_date || query_end_date
-        @start_date, @end_date = Utilities::Dates.normalize_and_order_dates(query_start_date, query_end_date)
-      end
     end
 
     def area_set?
@@ -52,8 +26,8 @@ module Queries
       !query_author_id.nil?
     end
 
-    def otu_set?
-      !query_otu_id.nil?
+    def nomen_set?
+      !query_nomen_id.nil?
     end
 
     def shape_set?
@@ -64,25 +38,15 @@ module Queries
       query_descendants == 'on'
     end
 
-    def identifier_set?
-      query_range_start.present? || query_range_stop.present?
-    end
-
-    def user_date_set?
-      # query_date_type_select.present? or
-      query_user.present? or
-        (query_user_date_range_start.present? or query_user_date_range_end.present?)
-    end
-
     # All scopes might end up in Otu directly
 
     # @return [Scope]
-    def otu_scope
-      # Challenge: Refactor to use a join pattern instead of SELECT IN
-      innerscope = with_descendants? ? Otu.self_and_descendants_of(query_otu_id) : Otu.where(id: query_otu_id)
-      # Otu.where(id: innerscope)
-      innerscope
-    end
+    # def otu_scope
+    #   # Challenge: Refactor to use a join pattern instead of SELECT IN
+    #   innerscope = with_descendants? ? Otu.self_and_descendants_of(query_nomen_id) : Otu.where(id: query_nomen_id)
+    #   # Otu.where(id: innerscope)
+    #   innerscope
+    # end
 
 =begin
       1. find all geographic_items in area(s)/shape
@@ -127,8 +91,8 @@ module Queries
     end
 
     # @return [Scope]
-    def nomenclature_scope
-      Otu.where(taxon_name: taxon_name)
+    def nomen_scope
+      Otu.where(taxon_name_id: query_nomen_id)
       #date_sql_from_dates(start_date, end_date, query_date_partial_overlap ))
     end
 
@@ -153,7 +117,7 @@ module Queries
       scopes = []
       scopes.push :geographic_area_scope if area_set?
       scopes.push :shape_scope if shape_set?
-      scopes.push :otu_scope if otu_set?
+      scopes.push :nomen_scope if nomen_set?
       scopes.push :author_scope if author_set?
       # scopes.push :identifier_scope if identifier_set?
       # scopes.push :user_date_scope if user_date_set?
