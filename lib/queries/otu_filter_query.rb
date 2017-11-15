@@ -5,14 +5,15 @@ module Queries
     # Query variables
     attr_accessor :query_geographic_area_ids, :query_shape
     attr_accessor :query_nomen_id, :query_descendants
-    attr_accessor :query_author_id
+    attr_accessor :query_author_ids, :query_authors_select
 
     def initialize(params)
       params.reject! { |k, v| v.blank? }
 
       @query_geographic_area_ids = params[:geographic_area_ids]
       @query_shape               = params[:drawn_area_shape]
-      @query_author_id           = params[:author_id]
+      @query_author_ids          = params[:author_id]
+      @query_authors_select      = 'or'
       @query_nomen_id            = params[:nomen_id]
       @query_descendants         = params[:descendants]
 
@@ -23,7 +24,7 @@ module Queries
     end
 
     def author_set?
-      !query_author_id.nil?
+      !query_author_ids.nil?
     end
 
     def nomen_set?
@@ -97,18 +98,17 @@ module Queries
     end
 
 =begin
-      1. find all people from params
-      2. find all people with role TaxonNameAuthor from result #1
-      3. find all taxon_names which are associated with result #2
-      4. find all otus which are associated with result #3
+      1. find all selected taxon name authors
+      2. find all taxon_names which are associated with result #1
+      3. find all otus which are associated with result #2
 =end
     # @return [Scope]
     def author_scope
       # Otu.joins(:collecting_event).where(CollectingEvent.date_sql_from_dates(start_date, end_date, query_date_partial_overlap))
       # r1 = Person.collect(*query_author_ids)
-      r2 =
-        Otu.joins(:collecting_event).where(CollectingEvent.date_sql_from_dates(start_date, end_date, query_date_partial_overlap))
-      #date_sql_from_dates(start_date, end_date, query_date_partial_overlap ))
+      r2 = Person.find([query_author_ids]).map(&:taxon_name_authors).flatten.map(&:otus).flatten.map(&:id)
+      r3 = Otu.where(id: r2)
+      r3
     end
 
     # @return [Array]
