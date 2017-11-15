@@ -1,9 +1,9 @@
 <%= form_tag(set_author_for_otu_filter_path, id: 'set_author_form', remote: true) do %>
     <%= render('/workbench/elements/forms/ajax_select',
-               controller: '/people',
+               controller: '/tasks/otus/filter',
                object: '',
-               method: 'person_id',
-               tag_id: 'person_id_for_by_otu',
+               method: 'author_id',
+               tag_id: 'author_id_for_by_author',
                size: 20,
                display: '')
     %><br>

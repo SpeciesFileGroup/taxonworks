@@ -12,7 +12,7 @@ class Tasks::Otus::FilterController < ApplicationController
   end
 
   def download
-    scope = DwcOccurrence.otus_join
+    scope = DwcOccurrence.collection_objects_join
               .where(dwc_occurrence_object_id: otus.pluck(:id)) # !! see if we can get rid of pluck, shouldn't need it, but maybe complex join is not collapsabele to collection object id
               .where(project_id: sessions_current_project_id)
               .order('dwc_occurrences.id')
@@ -39,6 +39,21 @@ class Tasks::Otus::FilterController < ApplicationController
   # GET
   def set_nomen
     render json: {html: otus.count}
+  end
+
+  def autocomplete # originally copied from people_controller#autocomplete
+    @authors = Person.find_for_autocomplete(params).limit(50)
+    data     = @authors.collect do |a|
+      {id:              a.id,
+       label:           a.name,
+       response_values: {
+         params[:method] => a.id
+       },
+       label_html:      a.name
+      }
+    end
+
+    render :json => data
   end
 
   protected
