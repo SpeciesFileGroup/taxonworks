@@ -12,7 +12,7 @@ module Queries
 
       @query_geographic_area_ids = params[:geographic_area_ids]
       @query_shape               = params[:drawn_area_shape]
-      @query_author_ids          = params[:author_id]
+      @query_author_ids = [params[:author_ids]] #TODO remove array container when form returns array of IDs
       @query_authors_select      = 'or'
       @query_nomen_id            = params[:nomen_id]
       @query_descendants         = params[:descendants]
@@ -106,8 +106,15 @@ module Queries
     def author_scope
       # Otu.joins(:collecting_event).where(CollectingEvent.date_sql_from_dates(start_date, end_date, query_date_partial_overlap))
       # r1 = Person.collect(*query_author_ids)
-      r2 = Person.find([query_author_ids]).map(&:taxon_name_authors).flatten.map(&:otus).flatten.map(&:id)
-      r3 = Otu.where(id: r2)
+      # rx = Otu.joins(:taxon_name).where('taxon_names.id IN (?)', Person.find(1687).taxon_name_authors.pluck(:id))
+      # ry = Otu.joins(:taxon_name).where('taxon_names.id IN (SELECT "taxon_names"."id" FROM "taxon_names" INNER JOIN "roles" ON
+      # "taxon_names"."id" = "roles"."role_object_id" WHERE "roles"."type" IN (\'TaxonNameAuthor\') AND
+      # "roles"."person_id" = 1687 AND "roles"."role_object_type" = \'TaxonName\' )')
+      rz = Otu.joins(:taxon_name).where('taxon_names.id IN (SELECT "taxon_names"."id" FROM "taxon_names" INNER JOIN "roles" ON
+      "taxon_names"."id" = "roles"."role_object_id" WHERE "roles"."type" IN (\'TaxonNameAuthor\') AND
+      "roles"."person_id" IN (?) AND "roles"."role_object_type" = \'TaxonName\' )', query_author_ids)
+      # r2 = Person.find([query_author_ids]).map(&:taxon_name_authors).flatten.map(&:otus).flatten.map(&:id)
+      r3 = Otu.where(id: rz)
       r3
     end
 

@@ -67,7 +67,7 @@ class Tasks::Otus::FilterController < ApplicationController
   end
 
   def filter_params
-    params.permit(:drawn_area_shape, :nomen_id, :author_id, :descendants, :page, geographic_area_ids: [])
+    params.permit(:drawn_area_shape, :nomen_id, :descendants, :page, :author_ids, geographic_area_ids: [])
   end
 
 end
