@@ -23,6 +23,10 @@ Object.assign(TW.workbench.pinboard, {
           that.storage.setItem(section, true)
         }
       });
+      $(document).off('click', '[data-delete-all-pinboard]');
+      $(document).on('click', '[data-delete-all-pinboard]', function() {
+        that.cleanPinboardItems($(this).attr('data-delete-all-pinboard'));
+      })
     },
 
     checkExpanded: function(section) {
@@ -32,6 +36,15 @@ Object.assign(TW.workbench.pinboard, {
       else {
         return false;
       }
+    },
+
+    cleanPinboardItems: function(klass) {
+      var section = document.querySelector('[data-pinboard-section="' + klass + '"]');
+      var elements = section.querySelectorAll('[data-method="delete"]');
+
+      Array.prototype.forEach.call(elements, function(element) {
+        element.click();
+      });
     },
 
     setDefaultClass: function() {
