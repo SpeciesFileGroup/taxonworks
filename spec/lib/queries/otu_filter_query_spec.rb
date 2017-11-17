@@ -16,6 +16,19 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 
     let!(:user) { User.find(1) }
     let!(:project) { Project.find(1) }
+    # need some people
+    let(:ted) { FactoryBot.create(:valid_person, last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC') }
+    let(:bill) { Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson') }
+
+    #need an apex
+    let(:top_dog) { o = FactoryBot.create(:valid_otu, name: 'Top Dog')
+    o.taxon_name      = FactoryBot.create(:valid_taxon_name,
+                                          rank_class: Ranks.lookup(:iczn, 'Family'),
+                                          name:       'Topdogidae')
+    o
+    }
+
+    # need some otus
     let!(:co_m1a_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M1A')
       @co_m1a.otus << o
@@ -40,7 +53,31 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M2')
       o.taxon_name.update_column(:name, 'M2 antivitis')
       @co_m2.otus << o
-    }
+      o = top_dog
+      o.taxon_name.taxon_name_authors << ted
+      @co_m2.otus << o
+      o            = FactoryBot.create(:valid_otu, name: 'Abra')
+      o.taxon_name = Protonym.find_or_create_by(name:       'Abra',
+                                                rank_class: Ranks.lookup(:iczn, 'Genus'),
+                                                parent:     top_dog.taxon_name)
+      parent = o.taxon_name
+      o.taxon_name.taxon_name_authors << ted
+      @co_m2.otus << o
+      o            = FactoryBot.create(:valid_otu, name: 'Abra cadabra')
+      o.taxon_name = Protonym.find_or_create_by(name:       'cadabra',
+                                                rank_class: Ranks.lookup(:iczn, 'Species'),
+                                                parent:     parent)
+      parent = o.taxon_name
+      o.taxon_name.taxon_name_authors << ted
+      @co_m2.otus << o
+      o = FactoryBot.create(:valid_otu, name: 'Abra cadabra alacazam')
+      @co_m2.collecting_event.collectors << bill
+      o.taxon_name = Protonym.find_or_create_by(name:       'alacazam',
+                                                rank_class: Ranks.lookup(:iczn, 'Subspecies'),
+                                                parent:     parent)
+      o.taxon_name.taxon_name_authors << ted
+      @co_m2.otus << o
+      o.taxon_name }
     let!(:co_n2_a_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'N2A')
       @co_n2_a.otus << o
@@ -173,18 +210,27 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     end
 
     context 'author search' do
+      # need some taxon names and otus
+      specify 'otus by author' do
+        params = {author_ids: ted.id}
 
+        expect(Role.where(type: 'TaxonNameAuthor').count).to eq(4)
+        expect(Person.with_role('TaxonNameAuthor').count).to eq(1)
+        expect(Protonym.named('Topdogidae').count).to eq(1)
+
+        result = Queries::OtuFilterQuery.new(params).result
+        expect(result.count).to eq(4)
+      end
     end
 
     context 'combined search' do
       let(:p4) { GeographicArea.where(name: "SP4").first }
       specify 'geo_area, nomen (taxon name)' do
-        ot = @co_m2.taxon_names.last
-        # tn        = ot.taxon_name
-        # test_name = tn.name
+        tn = @co_m2.taxon_names.select {|t| t if t.name == 'alacazam'}.first
         params = {}
+        params.merge!({author_ids: ted.id})
         params.merge!({geographic_area_ids: [bbxa.id]})
-        params.merge!({nomen_id: ot.id})
+        params.merge!({nomen_id: tn.id})
 
         result = Queries::OtuFilterQuery.new(params).result
         expect(result.count).to eq(1)
