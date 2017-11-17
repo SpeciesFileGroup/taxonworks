@@ -14,6 +14,8 @@ module BatchLoad
       namespace_drm_lab_voucher = Namespace.find_by(name: 'DRMLabVoucher')
       namespace_drm_dna_voucher = Namespace.find_by(name: 'DRMDNAVoucher')
 
+      drm_lab_voucher_texts = {}
+
       @total_data_lines = 0
       i = 0
 
@@ -64,6 +66,16 @@ module BatchLoad
           co_identifier_morphbank_text = row['morphbank_specimen_id']
           co_identifier_drm_lab_voucher_text = "#{row['voucher_number_prefix']}#{row['voucher_number_string']}"
 
+          # If the drm lab voucher identifier text has already been used, don't attach it
+          # by setting it blank
+          if drm_lab_voucher_texts.has_key?(co_identifier_drm_lab_voucher_text)
+            co_identifier_drm_lab_voucher_text = ""
+
+          # Create a new entry with the lab voucher text as the key
+          else
+            drm_lab_voucher_texts[co_identifier_drm_lab_voucher_text] = true
+          end
+          
           # Collection object identifiers
           co_identifier_castor = {
             type: 'Identifier::Global::Uri',

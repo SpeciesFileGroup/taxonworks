@@ -1,8 +1,8 @@
 class DescriptorsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-
+  
   before_action :set_descriptor, only: [:show, :edit, :update, :destroy, :annotations]
-
+  
   # GET /descriptors
   # GET /descriptors.json
   def index
@@ -16,30 +16,30 @@ class DescriptorsController < ApplicationController
       }
     end 
   end
-
+  
   # GET /descriptors/1
   # GET /descriptors/1.json
   def show
   end
-
+  
   def list
     @descriptor = Descriptor.with_project_id(sessions_current_project_id).page(params[:page])
   end
-
+  
   # GET /descriptors/new
   def new
     @descriptor = Descriptor.new
   end
-
+  
   # GET /descriptors/1/edit
   def edit
   end
-
+  
   # POST /descriptors
   # POST /descriptors.json
   def create
     @descriptor = Descriptor.new(descriptor_params)
-
+    
     respond_to do |format|
       if @descriptor.save
         format.html { redirect_to @descriptor.metamorphosize, notice: 'Descriptor was successfully created.' }
@@ -50,7 +50,7 @@ class DescriptorsController < ApplicationController
       end
     end
   end
-
+  
   # PATCH/PUT /descriptors/1
   # PATCH/PUT /descriptors/1.json
   def update
@@ -64,7 +64,7 @@ class DescriptorsController < ApplicationController
       end
     end
   end
-
+  
   # DELETE /descriptors/1
   # DELETE /descriptors/1.json
   def destroy
@@ -74,21 +74,21 @@ class DescriptorsController < ApplicationController
       format.json { head :no_content }
     end
   end
-
+  
   def autocomplete
     t = "#{params[:term]}%"
     @descriptors = Descriptor.where(project_id: sessions_current_project_id).where('name like ? or short_name like ?', t, t)
     data = @descriptors.collect do |t|
       {id:              t.id,
-       label:           t.name, 
-       gid: t.to_global_id.to_s,
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html:      t.name 
-      }
-    end
-    render :json => data
+      label:           t.name, 
+      gid: t.to_global_id.to_s,
+      response_values: {
+        params[:method] => t.id
+      },
+      label_html:      t.name 
+    }
+  end
+  render :json => data
   end
 
   def search
@@ -105,15 +105,46 @@ class DescriptorsController < ApplicationController
     render '/shared/data/all/annotations'
   end
 
+  def batch_load
+  end
 
+  def preview_modify_gene_descriptor_batch_load 
+    if params[:file] 
+      @result = BatchLoad::Import::Descriptors::ModifyGeneDescriptorInterpreter.new(batch_params)
+      digest_cookie(params[:file].tempfile, :modify_gene_descriptor_batch_load_descriptors_md5)
+      render 'descriptors/batch_load/modify_gene_descriptor/preview'
+    else
+      flash[:notice] = "No file provided!"
+      redirect_to action: :batch_load 
+    end
+  end
 
-  private
-  
+  def create_modify_gene_descriptor_batch_load
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :modify_gene_descriptor_batch_load_descriptors_md5)
+      @result = BatchLoad::Import::Descriptors::ModifyGeneDescriptorInterpreter.new(batch_params)
+      if @result.create
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} Gene Descriptors were modified."
+        render 'descriptors/batch_load/modify_gene_descriptor/create' and return
+      else
+        flash[:alert] = 'Batch import failed.'
+      end
+    else
+      flash[:alert] = 'File to batch upload must be supplied.'
+    end
+    render :batch_load
+  end
+
+private
+
   def set_descriptor
     @descriptor = Descriptor.find(params[:id])
   end
 
   def descriptor_params
     params.require(:descriptor).permit(:name, :short_name, :type)
+  end
+
+  def batch_params
+    params.permit(:file).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 end
