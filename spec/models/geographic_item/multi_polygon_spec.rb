@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe GeographicItem::MultiPolygon, type: :model, group: :geo do
   context 'that this item' do
-    let(:g) { FactoryGirl.build(:geographic_item_multi_polygon, :multi_polygon => SHAPE_G.as_binary) }
+    let(:g) { FactoryBot.build(:geographic_item_multi_polygon, :multi_polygon => SHAPE_G.as_binary) }
     specify 'represents a multi_polygon' do
       expect(g.type).to eq('GeographicItem::MultiPolygon')
       expect(g.valid?).to be_truthy

@@ -27,9 +27,9 @@ describe IdentifiersController, :type => :controller do
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
   # let(:valid_attributes) {
-  #   strip_housekeeping_attributes( FactoryGirl.build(:valid_identifier).attributes )
+  #   strip_housekeeping_attributes( FactoryBot.build(:valid_identifier).attributes )
   # }
-  let(:o) { FactoryGirl.create(:valid_otu) }
+  let(:o) { FactoryBot.create(:valid_otu) }
   let(:valid_attributes) {
     {type: 'Identifier::Global::Uri',
      identifier_object_id: o.id,

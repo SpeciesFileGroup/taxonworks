@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe OtusHelper, :type => :helper do
-  let(:otu) { FactoryGirl.create(:valid_otu, name: 'voluptas') }
+  let(:otu) { FactoryBot.create(:valid_otu, name: 'voluptas') }
 
   specify '#otu_tag' do
     expect(helper.otu_tag(otu)).to eq('<span class="otu_tag"><span class="otu_tag_otu_name">voluptas</span></span>')

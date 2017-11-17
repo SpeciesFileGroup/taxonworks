@@ -11,7 +11,7 @@ describe 'TaxonNames', type: :feature do
       sign_in_user_and_select_project
     }
 
-    let(:root) { FactoryGirl.create(:root_taxon_name, user_project_attributes(@user, @project).merge(source: nil)) }
+    let(:root) { FactoryBot.create(:root_taxon_name, user_project_attributes(@user, @project).merge(source: nil)) }
 
     context 'with some records created' do
       before(:each) {

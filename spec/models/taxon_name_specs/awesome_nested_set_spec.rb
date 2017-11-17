@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe TaxonName, type: :model, group: [:nomenclature] do
 
-  let(:root) { FactoryGirl.create(:root_taxon_name, project_id: 1) }
+  let(:root) { FactoryBot.create(:root_taxon_name, project_id: 1) }
   after(:all) do
     TaxonName.delete_all 
     TaxonNameHierarchy.delete_all

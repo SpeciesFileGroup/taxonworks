@@ -9,7 +9,7 @@ describe Specimen, type: :model, group: :collection_objects do
     end
 
     specify 'valid_specimen is valid' do
-      s = FactoryGirl.build(:valid_specimen)
+      s = FactoryBot.build(:valid_specimen)
       expect(s.valid?).to be_truthy
     end
 

@@ -2,8 +2,8 @@ require 'rails_helper'
 
 describe InternalAttribute, :type => :model do
   let(:internal_attribute) { InternalAttribute.new } 
-  let(:otu) { FactoryGirl.build(:valid_otu) } 
-  let(:predicate) { FactoryGirl.create(:valid_controlled_vocabulary_term_predicate) }
+  let(:otu) { FactoryBot.build(:valid_otu) } 
+  let(:predicate) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate) }
 
   context 'validation' do
     before(:each) {

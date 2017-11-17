@@ -3,7 +3,7 @@ require 'rails_helper'
 describe Identifier::Global::Uri, type: :model, group: :identifiers do
 
   context 'URI' do
-    let(:id) { FactoryGirl.build(:identifier_global_uri) }
+    let(:id) { FactoryBot.build(:identifier_global_uri) }
 
     context '#identifier is validly formatted' do
 

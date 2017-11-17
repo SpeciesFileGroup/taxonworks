@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :alternate_value, traits: [:creator_and_updater] do
     # technically there is no valid_alternate_value (parent class is abstract), the following
     # are required for all subclasses

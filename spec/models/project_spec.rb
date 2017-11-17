@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Project, type: :model do
 
-  let(:project) { FactoryGirl.build(:project) }
+  let(:project) { FactoryBot.build(:project) }
 
   before(:all) {
     Rails.application.eager_load!
@@ -15,7 +15,7 @@ describe Project, type: :model do
     end
 
     specify 'a valid_ factory exists for each has_many association' do
-      existing_factories = FactoryGirl.factories.map(&:name)
+      existing_factories = FactoryBot.factories.map(&:name)
       missing_factories = []
       Project.reflect_on_all_associations(:has_many).each do |r|
         next if r.klass.table_name == 'test_classes'
@@ -159,9 +159,9 @@ describe Project, type: :model do
       project.save!
 
       project.asserted_distributions << AssertedDistribution.new(
-        otu:             FactoryGirl.create(:valid_otu),
-        geographic_area: FactoryGirl.create(:valid_geographic_area),
-        source:          FactoryGirl.create(:valid_source)
+        otu:             FactoryBot.create(:valid_otu),
+        geographic_area: FactoryBot.create(:valid_geographic_area),
+        source:          FactoryBot.create(:valid_source)
       )
       project.save!
     }
@@ -176,7 +176,7 @@ describe Project, type: :model do
   end
 
   context 'destroying (nuking) a project' do
-    let(:u) {FactoryGirl.create(:valid_user, email: 'tester@example.com', name: 'Dr. Strangeglove')}
+    let(:u) {FactoryBot.create(:valid_user, email: 'tester@example.com', name: 'Dr. Strangeglove')}
     let(:p) { Project.create!(name: 'a little bit of everything', created_by_id: u.to_param, updated_by_id: u.to_param) }
 
     after(:all) {
@@ -197,16 +197,16 @@ describe Project, type: :model do
 
       exceptions = [:valid_project, :valid_user, :valid_taxon_name]
 
-      FactoryGirl.factories.each { |factory|
+      FactoryBot.factories.each { |factory|
         f_name = factory.to_s
         next if exceptions.include?(f_name)
 
         if f_name =~ /^valid_/
           begin
             if factory.build_class.columns.include?(:project)
-              test_factory = FactoryGirl.build(f_name, project: p)
+              test_factory = FactoryBot.build(f_name, project: p)
             else
-              test_factory = FactoryGirl.build(f_name)
+              test_factory = FactoryBot.build(f_name)
             end
           rescue => detail
             @failed_factories[f_name] = detail
@@ -258,7 +258,7 @@ describe Project, type: :model do
         #    expect(class_that_was_built.all.reload.count).to eq(0)
         orphans                 = {}
         project_destroy_err_msg = "Project id should be #{p.id}"
-        FactoryGirl.factories.each { |factory|
+        FactoryBot.factories.each { |factory|
           f_name = factory.name
           if f_name =~ /^valid/
             this_class = factory.build_class
@@ -281,7 +281,7 @@ describe Project, type: :model do
         # loop through shared models (e.g. Serial, Person, Source), ensure that any data that was created remains
         # We may need a constant that stores a *string* representative of the shared classes to loop through,
         #   but for now just enumerate a number of them
-        FactoryGirl.factories.each { |factory|
+        FactoryBot.factories.each { |factory|
           f_name = factory.to_s
           if f_name =~ /^valid_/
             this_class = factory.build_class

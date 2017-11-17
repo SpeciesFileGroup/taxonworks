@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe GeographicAreaType, type: :model, group: :geo do
-  let(:geographic_area_type) {FactoryGirl.build(:geographic_area_type)}
+  let(:geographic_area_type) {FactoryBot.build(:geographic_area_type)}
 
   context 'associations' do
     context 'has_many' do

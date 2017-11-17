@@ -26,8 +26,8 @@ describe TagsController, :type => :controller do
   # This should return the minimal set of attributes required to create a valid
   # Tag. As you add validations to Tag, be sure to
   # adjust the attributes here as well.
-  let(:o) { FactoryGirl.create(:valid_otu) }
-  let(:k) { FactoryGirl.create(:valid_keyword) }
+  let(:o) { FactoryBot.create(:valid_otu) }
+  let(:k) { FactoryBot.create(:valid_keyword) }
   let(:valid_attributes) {
     {tag_object_id: o.id, tag_object_type: o.class.to_s, keyword_id: k.to_param} }
 

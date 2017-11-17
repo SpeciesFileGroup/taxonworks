@@ -2,14 +2,14 @@ require 'rails_helper'
 
 describe 'Taggable', type: :model, group: :tags do
   let(:class_with_tags) { TestTaggable.new } 
-  let(:keyword) { FactoryGirl.create(:valid_keyword) }
+  let(:keyword) { FactoryBot.create(:valid_keyword) }
 
   context 'associations' do
     specify 'has many tags' do
       expect(class_with_tags).to respond_to(:tags) 
       expect(class_with_tags.tags.to_a).to eq([]) # there are no tags yet.
 
-      expect(class_with_tags.tags << FactoryGirl.build(:valid_tag)).to be_truthy
+      expect(class_with_tags.tags << FactoryBot.build(:valid_tag)).to be_truthy
       expect(class_with_tags.tags.size).to eq(1)
       expect(class_with_tags.save).to be_truthy
       class_with_tags.reload
@@ -49,13 +49,13 @@ describe 'Taggable', type: :model, group: :tags do
     end
 
     specify '#tagged? with a tag' do
-      class_with_tags.tags << Tag.new(keyword: FactoryGirl.create(:valid_keyword))
+      class_with_tags.tags << Tag.new(keyword: FactoryBot.create(:valid_keyword))
       expect(class_with_tags.tagged?).to eq(true)
     end
     context 'object with notes on destroy' do
       specify 'attached notes are destroyed' do
         expect(Tag.count).to eq(0)
-        class_with_tags.tags << Tag.new(keyword: FactoryGirl.create(:valid_keyword))
+        class_with_tags.tags << Tag.new(keyword: FactoryBot.create(:valid_keyword))
         class_with_tags.save
         expect(Tag.count).to eq(1)
         expect(class_with_tags.destroy).to be_truthy

@@ -27,14 +27,14 @@ RSpec.describe ConfidencesController, type: :controller do
   # Confidence. As you add validations to Confidence, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_confidence).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_confidence).attributes)
   }
 
   let(:invalid_attributes) {
     valid_attributes.merge(confidence_level_id: nil)
   }
 
-  let!(:specimen) { FactoryGirl.create(:valid_specimen) }
+  let!(:specimen) { FactoryBot.create(:valid_specimen) }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -113,7 +113,7 @@ RSpec.describe ConfidencesController, type: :controller do
 
   describe "PUT #update" do
     context "with valid params" do
-      let(:new_confidence_level) { FactoryGirl.create(:valid_confidence_level) }
+      let(:new_confidence_level) { FactoryBot.create(:valid_confidence_level) }
       let(:new_attributes) {
         { confidence_level_id: new_confidence_level.to_param  }
       }

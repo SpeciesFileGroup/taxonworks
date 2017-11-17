@@ -4,7 +4,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
 
   let!(:never_found) { CollectingEvent.create!(verbatim_label: 'Nope') }
-  let(:county) { FactoryGirl.create(:valid_geographic_area_stack) }
+  let(:county) { FactoryBot.create(:valid_geographic_area_stack) }
   let(:state) { county.parent }
   let(:country) { state.parent }
 

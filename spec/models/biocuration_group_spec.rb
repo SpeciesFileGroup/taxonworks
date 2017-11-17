@@ -2,17 +2,17 @@ require 'rails_helper'
 
 describe BiocurationGroup, :type => :model do
 
-  let(:biocuration_group) {FactoryGirl.build(:biocuration_group)}
+  let(:biocuration_group) {FactoryBot.build(:biocuration_group)}
 
   context 'has many' do
     before(:each) {
-      @biocuration_group = FactoryGirl.create(:valid_biocuration_group, name: 'Stages.', definition: 'Life stages.')
+      @biocuration_group = FactoryBot.create(:valid_biocuration_group, name: 'Stages.', definition: 'Life stages.')
       @bc1 = BiocurationClass.create(name: 'Adult', definition: 'A mature indivdiual.') 
       @bc2 = BiocurationClass.create(name: 'Larva', definition: 'Not a mature indivdiual.') 
     }
 
     specify 'tags (through Keywords)' do
-      expect(biocuration_group.tags << Tag.new(keyword: FactoryGirl.build(:valid_keyword))).to be_truthy
+      expect(biocuration_group.tags << Tag.new(keyword: FactoryBot.build(:valid_keyword))).to be_truthy
     end
 
     specify 'biocuration_classes' do

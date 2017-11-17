@@ -27,7 +27,7 @@ describe SerialsController, :type => :controller do
   # This should return the minimal set of attributes required to create a valid
   # Serial. As you add validations to Serial, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { FactoryGirl.build(:valid_serial).attributes }
+  let(:valid_attributes) { FactoryBot.build(:valid_serial).attributes }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in

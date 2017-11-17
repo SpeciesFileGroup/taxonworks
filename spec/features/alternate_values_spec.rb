@@ -35,7 +35,7 @@ describe "AlternateValues", type: :feature, group: [:annotators] do
       end
 
       context 'create an alternate value for a community object (Source::Bibtex)' do
-        let(:src_bibtex) {factory_girl_create_for_user(:soft_valid_bibtex_source_article, @user)}
+        let(:src_bibtex) {factory_bot_create_for_user(:soft_valid_bibtex_source_article, @user)}
         #  with a Source::BibTeX created (containing at least title)
 
         specify 'created source has no alternate values' do

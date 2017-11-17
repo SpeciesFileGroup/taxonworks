@@ -19,7 +19,7 @@ describe 'Notable', type: :model do
 
   specify 'adding a object note works' do
     expect(class_with_note.save).to be_truthy
-    expect(class_with_note.notes << FactoryGirl.build(:note, text: 'foo')).to be_truthy
+    expect(class_with_note.notes << FactoryBot.build(:note, text: 'foo')).to be_truthy
     expect(class_with_note.save).to be_truthy
     expect(class_with_note.notes.count == 1).to be_truthy
     expect(class_with_note.notes[0].text).to eq('foo')

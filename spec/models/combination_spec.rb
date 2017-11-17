@@ -2,12 +2,12 @@ require 'rails_helper'
 describe Combination, type: :model, group: :nomenclature do
 
   let(:combination) { Combination.new }
-  let(:source_older_than_combination) { FactoryGirl.build(:valid_source_bibtex, year: 1940, author: 'Dmitriev') }
-  let(:family) { FactoryGirl.create(:relationship_family, name: 'Aidae', year_of_publication: 2000) }
-  let(:genus ) {FactoryGirl.create(:relationship_genus, parent: family, year_of_publication: 1950)}
-  let(:subgenus ) {FactoryGirl.create(:iczn_subgenus, parent: genus, year_of_publication: 1950)}
-  let(:species) { FactoryGirl.create(:relationship_species, parent: genus, year_of_publication: 1951)  }
-  let(:species2) { FactoryGirl.create(:relationship_species, name: 'comes', parent: genus, year_of_publication: 1952) }
+  let(:source_older_than_combination) { FactoryBot.build(:valid_source_bibtex, year: 1940, author: 'Dmitriev') }
+  let(:family) { FactoryBot.create(:relationship_family, name: 'Aidae', year_of_publication: 2000) }
+  let(:genus ) {FactoryBot.create(:relationship_genus, parent: family, year_of_publication: 1950)}
+  let(:subgenus ) {FactoryBot.create(:iczn_subgenus, parent: genus, year_of_publication: 1950)}
+  let(:species) { FactoryBot.create(:relationship_species, parent: genus, year_of_publication: 1951)  }
+  let(:species2) { FactoryBot.create(:relationship_species, name: 'comes', parent: genus, year_of_publication: 1952) }
 
   let(:basic_combination) {Combination.new(genus: genus, species: species) }
 
@@ -259,9 +259,9 @@ describe Combination, type: :model, group: :nomenclature do
   end
 
   context 'usage' do
-    let(:genus) {FactoryGirl.create(:iczn_genus, name: 'Aus', parent: family)}
-    let(:subgenus) {FactoryGirl.create(:iczn_subgenus, name: 'Bus', parent: genus) }
-    let(:species) {FactoryGirl.create(:iczn_species, name: 'bus', parent: subgenus) }
+    let(:genus) {FactoryBot.create(:iczn_genus, name: 'Aus', parent: family)}
+    let(:subgenus) {FactoryBot.create(:iczn_subgenus, name: 'Bus', parent: genus) }
+    let(:species) {FactoryBot.create(:iczn_species, name: 'bus', parent: subgenus) }
 
     specify 'parent is assigned as parent of highest ranking taxon' do
       combination.genus = genus

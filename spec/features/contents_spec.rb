@@ -15,12 +15,12 @@ describe 'Contents', type: :feature do
     }
 
     context 'with some records created' do
-      let!(:o) { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
+      let!(:o) { factory_bot_create_for_user_and_project(:valid_otu, @user, @project) }
       before do
         3.times {
-          FactoryGirl.create(:valid_content,
+          FactoryBot.create(:valid_content,
                              otu:     o,
-                             topic:   factory_girl_create_for_user_and_project(:valid_topic, @user, @project) ,
+                             topic:   factory_bot_create_for_user_and_project(:valid_topic, @user, @project) ,
                              project: @project,
                              creator: @user,
                              updater: @user

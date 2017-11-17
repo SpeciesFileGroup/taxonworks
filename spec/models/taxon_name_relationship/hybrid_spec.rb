@@ -2,10 +2,10 @@ require 'rails_helper'
 
 describe TaxonNameRelationship::Hybrid, type: :model, group: [:nomenclature] do
   # must be executed first so that it is the root name used in the valid_hybrid
-  let!(:root) { FactoryGirl.create(:root_taxon_name) }
+  let!(:root) { FactoryBot.create(:root_taxon_name) }
 
   let(:hybrid_relationship) { TaxonNameRelationship::Hybrid.new }
-  let(:valid_hybrid) { FactoryGirl.create(:valid_hybrid) }
+  let(:valid_hybrid) { FactoryBot.create(:valid_hybrid) }
   let(:g) { Protonym.create(name: 'Aus', parent: root, rank_class: Ranks.lookup(:icn, :genus)) }
   let(:s1) { Protonym.create(name: 'aus', parent: g, rank_class: Ranks.lookup(:icn, :species)) }
 

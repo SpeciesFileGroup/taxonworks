@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :content, traits: [:housekeeping] do
     factory :valid_content do
       association :otu, factory: :valid_otu

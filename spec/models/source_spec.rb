@@ -55,8 +55,8 @@ describe Source, type: :model, group: :sources do
   end
 
   context 'cited objects' do
-    let(:o) { FactoryGirl.create(:valid_otu) }
-    let(:a) { FactoryGirl.create(:valid_source_bibtex) }
+    let(:o) { FactoryBot.create(:valid_otu) }
+    let(:a) { FactoryBot.create(:valid_source_bibtex) }
 
     specify 'returns a scope' do
       expect(source.cited_objects).to eq([])
@@ -71,10 +71,10 @@ describe Source, type: :model, group: :sources do
 
   context 'fuzzy matching' do
 
-    let!(:s1) { FactoryGirl.create(:valid_source_verbatim, verbatim: 'This is a base string.') }
-    let!(:s3) { FactoryGirl.create(:valid_source_verbatim, verbatim: 'This is a roof string.') }
-    let!(:s2) { FactoryGirl.create(:valid_source_verbatim, verbatim: 'This is a base string.') }
-    let!(:s4) { FactoryGirl.create(:valid_source_verbatim, verbatim: 'This is a r00f string.') }
+    let!(:s1) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a base string.') }
+    let!(:s3) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a roof string.') }
+    let!(:s2) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a base string.') }
+    let!(:s4) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a r00f string.') }
 
     specify '#nearest_by_levenshtein(compared_string, column, limit) 1' do
       expect(s1.nearest_by_levenshtein(s1.verbatim, :cached).first).to eq(s2)

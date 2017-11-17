@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :tagged_section_keyword, traits: [:housekeeping] do
     factory :valid_tagged_section_keyword do
       association :keyword, factory: :valid_keyword

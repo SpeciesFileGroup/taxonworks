@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'Housekeeping::Timestamps' do
 
-  let!(:user) { FactoryGirl.create(:valid_user, id: 1, name: 'Ren') }
+  let!(:user) { FactoryBot.create(:valid_user, id: 1, name: 'Ren') }
 
   context 'Timestamps' do
 
@@ -21,12 +21,12 @@ describe 'Housekeeping::Timestamps' do
     end
 
     context 'class scopes' do
-      let!(:sp1) { FactoryGirl.create(:valid_geographic_item,
+      let!(:sp1) { FactoryBot.create(:valid_geographic_item,
                                       creator:    user,
                                       updater:    user,
                                       created_at: '2017-1-1',
                                       updated_at: '2017-2-2') }
-      let!(:sp2) { FactoryGirl.create(:valid_geographic_item,
+      let!(:sp2) { FactoryBot.create(:valid_geographic_item,
                                       creator:    user,
                                       updater:    user,
                                       created_at: '2017-10-3',

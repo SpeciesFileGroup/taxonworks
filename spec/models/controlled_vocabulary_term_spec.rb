@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe ControlledVocabularyTerm, :type => :model do
-  let(:controlled_vocabulary_term) { FactoryGirl.build(:controlled_vocabulary_term) }
+  let(:controlled_vocabulary_term) { FactoryBot.build(:controlled_vocabulary_term) }
 
   context 'validation' do
     before(:each) { controlled_vocabulary_term.valid? }
@@ -60,30 +60,30 @@ describe ControlledVocabularyTerm, :type => :model do
     let(:uri) { 'http://purl.org/net/foo/1' }
 
     specify 'name is unique within projects per type' do
-      a = FactoryGirl.create(:valid_controlled_vocabulary_term)
-      b = FactoryGirl.build(:controlled_vocabulary_term, a.attributes.merge(definition: 'Something else.', uri: uri, uri_relation: 'skos:closeMatch' ))
+      a = FactoryBot.create(:valid_controlled_vocabulary_term)
+      b = FactoryBot.build(:controlled_vocabulary_term, a.attributes.merge(definition: 'Something else.', uri: uri, uri_relation: 'skos:closeMatch' ))
       expect(b.valid?).to be_falsey
       b.name = 'Something Completely Different'
       expect(b.valid?).to be_truthy
     end
 
     specify 'definition is unique within projects' do
-      a = FactoryGirl.create(:valid_controlled_vocabulary_term, definition: 'Something crazy!', uri: uri, uri_relation: 'skos:closeMatch')
-      b = FactoryGirl.build(:valid_controlled_vocabulary_term, name: 'Something else.', definition: 'Something crazy!', uri: uri, uri_relation: 'skos:closeMatch')
+      a = FactoryBot.create(:valid_controlled_vocabulary_term, definition: 'Something crazy!', uri: uri, uri_relation: 'skos:closeMatch')
+      b = FactoryBot.build(:valid_controlled_vocabulary_term, name: 'Something else.', definition: 'Something crazy!', uri: uri, uri_relation: 'skos:closeMatch')
       expect(b.valid?).to be_falsey
       expect(b.errors.include?(:definition)).to be_truthy
     end
 
     specify 'uri is unique within projects' do
-      a = FactoryGirl.create(:valid_controlled_vocabulary_term, uri: uri,  uri_relation: 'skos:closeMatch')
-      b = FactoryGirl.build(:valid_controlled_vocabulary_term, uri: uri, uri_relation: 'skos:closeMatch' )
+      a = FactoryBot.create(:valid_controlled_vocabulary_term, uri: uri,  uri_relation: 'skos:closeMatch')
+      b = FactoryBot.build(:valid_controlled_vocabulary_term, uri: uri, uri_relation: 'skos:closeMatch' )
       expect(b.valid?).to be_falsey
       expect(b.errors.include?(:uri)).to be_truthy
     end
 
     specify 'is case sensitive, i.e. bat and Bat are different' do
-      a = FactoryGirl.create(:valid_controlled_vocabulary_term, name: 'blue')
-      b = FactoryGirl.build(:valid_controlled_vocabulary_term, definition: 'Something else.', name: 'Blue', uri: uri, uri_relation: 'skos:closeMatch')
+      a = FactoryBot.create(:valid_controlled_vocabulary_term, name: 'blue')
+      b = FactoryBot.build(:valid_controlled_vocabulary_term, definition: 'Something else.', name: 'Blue', uri: uri, uri_relation: 'skos:closeMatch')
       expect(b.valid?).to be_truthy
     end
 

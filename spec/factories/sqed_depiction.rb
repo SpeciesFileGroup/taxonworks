@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :sqed_depiction, traits: [:housekeeping] do
     factory :valid_sqed_depiction do
       association :depiction, factory: :valid_depiction

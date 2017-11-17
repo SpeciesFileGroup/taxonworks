@@ -2,8 +2,8 @@ require 'rails_helper'
 
 RSpec.describe Sequence, type: :model, group: [:dna] do
   let(:sequence) {Sequence.new}
-  let(:primer) { FactoryGirl.create(:valid_sequence) }
-  let(:primer2) { FactoryGirl.create(:valid_sequence) }
+  let(:primer) { FactoryBot.create(:valid_sequence) }
+  let(:primer2) { FactoryBot.create(:valid_sequence) }
 
   context 'attributes' do
     specify '#name' do
@@ -51,7 +51,7 @@ RSpec.describe Sequence, type: :model, group: [:dna] do
       end
 
       specify 'valid sequence_type' do
-        sequence = FactoryGirl.create(:valid_sequence)
+        sequence = FactoryBot.create(:valid_sequence)
         sequence.sequence_type = "INVALID TYPE"
         expect(sequence.valid?).to be_falsey
       end
@@ -59,7 +59,7 @@ RSpec.describe Sequence, type: :model, group: [:dna] do
 
     context 'passes when given' do
       specify 'sequence and valid sequence_type' do
-        sequence = FactoryGirl.create(:valid_sequence)
+        sequence = FactoryBot.create(:valid_sequence)
         expect(sequence.valid?).to be_truthy
       end
     end

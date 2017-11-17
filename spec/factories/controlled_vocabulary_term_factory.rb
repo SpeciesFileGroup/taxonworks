@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
 
   trait :random_name do
     # Could be Faker.characters(10)

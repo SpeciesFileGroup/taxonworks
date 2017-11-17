@@ -10,7 +10,7 @@ describe 'RangedLotCategories', :type => :feature do
     before {
       sign_in_user_and_select_project
       %w{small medium large jumbo ginormous}.each do |w|
-        FactoryGirl.create(:valid_ranged_lot_category,  user_project_attributes(@user, @project).merge(name: w))
+        FactoryBot.create(:valid_ranged_lot_category,  user_project_attributes(@user, @project).merge(name: w))
       end 
     }
 

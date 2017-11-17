@@ -35,7 +35,7 @@ describe 'Documention', type: :model, group: :documentation do
     context 'on destroy' do
       specify 'attached documentation is destroyed' do
         expect(Documentation.count).to eq(0)
-        instance_with_documentation.documentation << FactoryGirl.build(:valid_documentation)
+        instance_with_documentation.documentation << FactoryBot.build(:valid_documentation)
         instance_with_documentation.save
         expect(Documentation.count).to eq(1)
         expect(instance_with_documentation.destroy).to be_truthy

@@ -26,7 +26,7 @@ describe OtuPageLayoutsController, :type => :controller do
   # This should return the minimal set of attributes required to create a valid
   # OtuPageLayout. As you add validations to OtuPageLayout, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_otu_page_layout).attributes) }
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryBot.build(:valid_otu_page_layout).attributes) }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in

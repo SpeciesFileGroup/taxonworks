@@ -4,7 +4,7 @@ describe Tasks::Gis::OtuDistributionDataController, type: :controller do
   before(:each) {
     sign_in
   }
-  let(:otu) { FactoryGirl.create(:valid_otu) }
+  let(:otu) { FactoryBot.create(:valid_otu) }
 
   describe "GET #show" do
     it "returns http success" do

@@ -28,7 +28,7 @@ describe SourcesController, :type => :controller do
   # Source. As you add validations to Source, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_source).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_source).attributes)
   }
 
   # This should return the minimal set of values that should be in the session

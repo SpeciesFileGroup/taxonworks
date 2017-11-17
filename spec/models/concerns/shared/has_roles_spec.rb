@@ -15,7 +15,7 @@ describe 'Has_roles', :type => :model do
     context 'object with roles on destroy' do
       specify 'attached roles are destroyed' do
         expect(Role.count).to eq(0)
-        class_with_roles.roles << FactoryGirl.build(:valid_role)
+        class_with_roles.roles << FactoryBot.build(:valid_role)
         class_with_roles.save
         expect(Role.count).to eq(1)
         expect(class_with_roles.destroy).to be_truthy

@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :observation_matrix_row, traits: [:housekeeping] do
     # TODO: Make this an actual valid observation_matrix row
     factory :valid_observation_matrix_row do

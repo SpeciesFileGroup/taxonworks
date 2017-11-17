@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe BiologicalAssociationsGraph, :type => :model do
 
-  let(:biological_associations_graph) { FactoryGirl.build(:biological_associations_graph) }
+  let(:biological_associations_graph) { FactoryBot.build(:biological_associations_graph) }
 
   # There are no hard validations.  Name is optional (re virtual graphs that have to be cited).
 

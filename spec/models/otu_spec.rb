@@ -45,8 +45,8 @@ describe Otu, :type => :model do
       expect(otu.soft_validations.messages_on(:taxon_name_id).count).to eq(1)
     end
     specify 'duplicate OTU' do
-      o1 = FactoryGirl.create(:otu, name: 'Aus')
-      o2 = FactoryGirl.build_stubbed(:otu, name: 'Aus')
+      o1 = FactoryBot.create(:otu, name: 'Aus')
+      o2 = FactoryBot.build_stubbed(:otu, name: 'Aus')
       o1.soft_validate(:duplicate_otu)
       expect(o1.soft_validations.messages_on(:taxon_name_id).empty?).to be_truthy
       o2.soft_validate(:duplicate_otu)
@@ -59,7 +59,7 @@ describe Otu, :type => :model do
       specify 'its otu_name should be the taxon name cached_html' do
         expect(otu.otu_name).to eq(nil)
 
-        t = FactoryGirl.create(:relationship_species)
+        t = FactoryBot.create(:relationship_species)
         t.reload
         expect(t.valid?).to be_truthy
 
@@ -149,22 +149,22 @@ describe Otu, :type => :model do
 
   context 'complex interactions' do
     context 'distribution' do
-      let(:a_d1) { FactoryGirl.create(:valid_asserted_distribution) }
-      let(:a_d2) { FactoryGirl.create(:valid_asserted_distribution) }
-      let(:a_d3) { FactoryGirl.create(:valid_asserted_distribution) }
+      let(:a_d1) { FactoryBot.create(:valid_asserted_distribution) }
+      let(:a_d2) { FactoryBot.create(:valid_asserted_distribution) }
+      let(:a_d3) { FactoryBot.create(:valid_asserted_distribution) }
       let(:otu1) { a_d1.otu }
       let(:otu2) { a_d2.otu }
-      let(:c_e1) { FactoryGirl.create(:valid_collecting_event) }
-      let(:c_e2) { FactoryGirl.create(:valid_collecting_event) }
-      let(:c_e3) { FactoryGirl.create(:valid_collecting_event) }
-      let(:c_o1) { FactoryGirl.create(:valid_collection_object, {collecting_event: c_e1}) }
-      let(:c_o2) { FactoryGirl.create(:valid_collection_object, {collecting_event: c_e2}) }
-      let(:c_o3) { FactoryGirl.create(:valid_collection_object, {collecting_event: c_e3}) }
+      let(:c_e1) { FactoryBot.create(:valid_collecting_event) }
+      let(:c_e2) { FactoryBot.create(:valid_collecting_event) }
+      let(:c_e3) { FactoryBot.create(:valid_collecting_event) }
+      let(:c_o1) { FactoryBot.create(:valid_collection_object, {collecting_event: c_e1}) }
+      let(:c_o2) { FactoryBot.create(:valid_collection_object, {collecting_event: c_e2}) }
+      let(:c_o3) { FactoryBot.create(:valid_collection_object, {collecting_event: c_e3}) }
 
-      let(:t_d1) { FactoryGirl.create(:valid_taxon_determination, {otu: otu1, biological_collection_object: c_o1}) }
+      let(:t_d1) { FactoryBot.create(:valid_taxon_determination, {otu: otu1, biological_collection_object: c_o1}) }
 
-      let(:t_d2) { FactoryGirl.create(:valid_taxon_determination, {otu: otu2, biological_collection_object: c_o2}) }
-      let(:t_d3) { FactoryGirl.create(:valid_taxon_determination, {otu: otu1, biological_collection_object: c_o3}) }
+      let(:t_d2) { FactoryBot.create(:valid_taxon_determination, {otu: otu2, biological_collection_object: c_o2}) }
+      let(:t_d3) { FactoryBot.create(:valid_taxon_determination, {otu: otu1, biological_collection_object: c_o3}) }
 
       before(:each) {
         a_d3.otu = otu1
@@ -207,7 +207,7 @@ describe Otu, :type => :model do
   end
 
   context 'scopes' do
-    let!(:t) { FactoryGirl.create(:relationship_species) } 
+    let!(:t) { FactoryBot.create(:relationship_species) } 
     let!(:o) { Otu.create(taxon_name: t) }
 
     specify '.for_taxon_name(taxon_name) handles integers' do

@@ -18,7 +18,7 @@ RSpec.describe GeneAttribute, type: :model do
     
     context 'passes when provided a' do
       specify 'descriptor_id and sequence_id' do
-        gene_attribute = FactoryGirl.create(:valid_gene_attribute)
+        gene_attribute = FactoryBot.create(:valid_gene_attribute)
         expect(gene_attribute.valid?).to be_truthy
       end
     end
@@ -27,8 +27,8 @@ RSpec.describe GeneAttribute, type: :model do
   context '#to_logic_literal' do
     before do
       gene_attribute.sequence_relationship_type = 'SequenceRelationship::ForwardPrimer'
-      gene_attribute.sequence = FactoryGirl.create(:valid_sequence)
-      gene_attribute.descriptor = FactoryGirl.create(:valid_descriptor_gene)
+      gene_attribute.sequence = FactoryBot.create(:valid_sequence)
+      gene_attribute.descriptor = FactoryBot.create(:valid_descriptor_gene)
       gene_attribute.save!
     end
 

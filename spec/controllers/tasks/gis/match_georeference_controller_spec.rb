@@ -76,7 +76,7 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
     end
 
     context 'GET tagged_collecting_events and GET tagged_georeferences' do
-      let(:cvt0) { FactoryGirl.create(:controlled_vocabulary_term, {type:       'Keyword',
+      let(:cvt0) { FactoryBot.create(:controlled_vocabulary_term, {type:       'Keyword',
                                                                     name:       'first collecting event',
                                                                     definition: 'tag for first ce'}) }
       let(:tag0) { Tag.new(keyword_id: cvt0.id) }

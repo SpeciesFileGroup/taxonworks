@@ -6,7 +6,7 @@ xdescribe ApiController, :type => :controller do
 #   sign_in
 # }
 
-#  let(:user) { FactoryGirl.build(:user_valid_token) }
+#  let(:user) { FactoryBot.build(:user_valid_token) }
 
   context 'sessions_current_user is set' do
     # specify 'with a token in header' do

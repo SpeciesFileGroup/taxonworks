@@ -10,7 +10,7 @@ namespace :tw do
 
             u = User.order(:id).first
             if u.nil?
-              # FactoryGirl is not allowed in rake tasks
+              # FactoryBot is not allowed in rake tasks
               u = User.create!(id: 1, email: 'test@example.com', name: 'Rake user', password: '12345678', self_created: true)
             end
             $user_id = u.id

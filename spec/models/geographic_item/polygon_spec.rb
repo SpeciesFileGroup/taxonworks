@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe GeographicItem::Polygon, type: :model, group: :geo do
   context 'that this item' do
-    let(:k) { FactoryGirl.build(:geographic_item_polygon, :polygon => SHAPE_K.as_binary) }
+    let(:k) { FactoryBot.build(:geographic_item_polygon, :polygon => SHAPE_K.as_binary) }
     specify 'represents a polygon' do
       expect(k.type).to eq('GeographicItem::Polygon')
       expect(k.valid?).to be_truthy

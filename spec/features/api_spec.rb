@@ -3,7 +3,7 @@ require 'rails_helper'
 describe ApiController, type: :feature do 
 
   context 'GET /api using browser address bar', js: true do
-    let(:user) { FactoryGirl.create(:valid_user, :user_valid_token) }
+    let(:user) { FactoryBot.create(:valid_user, :user_valid_token) }
 
     context 'with a valid token' do
       it 'shows a JSON success response' do

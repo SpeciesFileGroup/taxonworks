@@ -3,7 +3,7 @@ def root
   t ? t : nil
 end
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :hybrid, traits: [:housekeeping] do
     name nil
     factory :valid_hybrid, traits: [:parent_is_root] do

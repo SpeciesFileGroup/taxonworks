@@ -4,15 +4,15 @@ describe Tag, type: :model, group: [:annotators, :tags] do
 
   let(:tag) { Tag.new }
   let(:keyword) { Keyword.create(name: 'Keyword for model test', definition: 'Only used here') }
-  let(:otu) { FactoryGirl.create(:valid_otu) }
+  let(:otu) { FactoryBot.create(:valid_otu) }
 
   context 'associations' do
     specify 'tag_object' do 
-      expect(tag.tag_object = FactoryGirl.create(:valid_biocuration_class)).to be_truthy
+      expect(tag.tag_object = FactoryBot.create(:valid_biocuration_class)).to be_truthy
     end
 
     specify 'keyword' do
-      expect(tag.keyword = FactoryGirl.create(:valid_keyword, name: 'tag association keyword')).to be_truthy
+      expect(tag.keyword = FactoryBot.create(:valid_keyword, name: 'tag association keyword')).to be_truthy
     end
   end
 
@@ -31,7 +31,7 @@ describe Tag, type: :model, group: [:annotators, :tags] do
     end
 
     context 'keyword uniqueness per object' do
-      let(:k) { FactoryGirl.create(:valid_keyword, name: 'some unique keyword') }
+      let(:k) { FactoryBot.create(:valid_keyword, name: 'some unique keyword') }
 
       specify 'a tagged object is only tagged once per keyword' do
         tag.tag_object = otu
@@ -40,7 +40,7 @@ describe Tag, type: :model, group: [:annotators, :tags] do
         expect(tag.errors.include?(:keyword)).to be_falsey
         expect(tag.errors.include?(:tag_object)).to be_falsey
         tag.save!
-        dupe_tag = FactoryGirl.build(:tag, keyword: k, tag_object: otu)
+        dupe_tag = FactoryBot.build(:tag, keyword: k, tag_object: otu)
         dupe_tag.valid?
         expect(dupe_tag.errors.include?(:keyword_id)).to be_truthy
       end
@@ -51,16 +51,16 @@ describe Tag, type: :model, group: [:annotators, :tags] do
     end
 
     specify 'keywords scope can be limited with Keyword#can_tag' do
-      a = FactoryGirl.create(:valid_biocuration_group)
-      b = FactoryGirl.create(:valid_specimen)
+      a = FactoryBot.create(:valid_biocuration_group)
+      b = FactoryBot.create(:valid_specimen)
       t = Tag.new(tag_object: b, keyword: a)
       expect(t.valid?).to be_falsey
       expect(t.errors.include?(:keyword)).to be_truthy
     end
 
     specify 'tag_object class can be limited with TagObject#taggable_with' do
-      a = FactoryGirl.create(:valid_keyword, name: 'some limited keyword')
-      b = FactoryGirl.create(:valid_biocuration_class)
+      a = FactoryBot.create(:valid_keyword, name: 'some limited keyword')
+      b = FactoryBot.create(:valid_biocuration_class)
       t = Tag.new(tag_object: b, keyword: a)
       expect(t.valid?).to be_falsey
       expect(t.errors.include?(:tag_object)).to be_truthy
@@ -69,8 +69,8 @@ describe Tag, type: :model, group: [:annotators, :tags] do
 
   context 'STI based tag behaviour' do
     before(:each) {
-      tag.keyword = FactoryGirl.create(:valid_keyword, name: 'some sti keyword') 
-      tag.tag_object = FactoryGirl.create(:valid_specimen)
+      tag.keyword = FactoryBot.create(:valid_keyword, name: 'some sti keyword') 
+      tag.tag_object = FactoryBot.create(:valid_specimen)
     }
 
     specify 'tagging an subclass of an STI model instance *stores* the tag_type as the superclass' do
@@ -79,7 +79,7 @@ describe Tag, type: :model, group: [:annotators, :tags] do
     end
 
     specify 'tagging an subclass of an STI model instance, with subclass namespace, *stores* the tag_type as the superclass' do
-      tag.tag_object = FactoryGirl.create(:valid_container_box)
+      tag.tag_object = FactoryBot.create(:valid_container_box)
       expect(tag.save).to be_truthy
       expect(tag.tag_object_type).to eq('Container')
     end
@@ -92,7 +92,7 @@ describe Tag, type: :model, group: [:annotators, :tags] do
 
   context 'acts_as_list' do
     specify 'position is set' do
-      t1 = FactoryGirl.create(:valid_tag)
+      t1 = FactoryBot.create(:valid_tag)
       expect(t1.position).to eq(1)
     end
   end

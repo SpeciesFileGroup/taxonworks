@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :gene_attribute, traits: [:housekeeping] do
     factory :valid_gene_attribute do
       association :descriptor, factory: :valid_descriptor_gene

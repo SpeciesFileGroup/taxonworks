@@ -2,13 +2,13 @@ require 'rails_helper'
 
 describe Identifier::Local, type: :model, group: :identifiers do
   let(:local_identifier) {Identifier::Local.new}
-  let(:otu) {FactoryGirl.create(:valid_otu)}
+  let(:otu) {FactoryBot.create(:valid_otu)}
   let(:namespace_name) {'foo'}
   let(:namespace_name2) {'bar'}
-  let(:namespace) {FactoryGirl.create(:valid_namespace, name: namespace_name )}
-  let(:namespace2) {FactoryGirl.create(:valid_namespace, name: namespace_name2 )}
-  let(:specimen1) {FactoryGirl.create(:valid_specimen)}
-  let(:specimen2) {FactoryGirl.create(:valid_specimen)}
+  let(:namespace) {FactoryBot.create(:valid_namespace, name: namespace_name )}
+  let(:namespace2) {FactoryBot.create(:valid_namespace, name: namespace_name2 )}
+  let(:specimen1) {FactoryBot.create(:valid_specimen)}
+  let(:specimen2) {FactoryBot.create(:valid_specimen)}
 
   context 'validation' do
     before(:each) {

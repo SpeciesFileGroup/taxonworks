@@ -2,8 +2,8 @@ require 'rails_helper'
 
 RSpec.describe ObservationMatrixColumnItem::SingleDescriptor, type: :model, group: :matrix  do
   let(:observation_matrix_column_item) { ObservationMatrixColumnItem::SingleDescriptor.new }
-  let(:observation_matrix) { FactoryGirl.create(:valid_observation_matrix) }
-  let(:descriptor) { FactoryGirl.create(:valid_descriptor) }
+  let(:observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
+  let(:descriptor) { FactoryBot.create(:valid_descriptor) }
 
   context 'validation' do
     before {observation_matrix_column_item.valid?}
@@ -24,7 +24,7 @@ RSpec.describe ObservationMatrixColumnItem::SingleDescriptor, type: :model, grou
 
     context 'other possible subclass attributes are nil' do
       specify 'keyword_id' do
-        observation_matrix_column_item.controlled_vocabulary_term_id =  FactoryGirl.create(:valid_keyword).id 
+        observation_matrix_column_item.controlled_vocabulary_term_id =  FactoryBot.create(:valid_keyword).id 
         observation_matrix_column_item.valid?
         expect(observation_matrix_column_item.errors.include?(:controlled_vocabulary_term_id)).to be_truthy 
       end

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
   let(:protocol_relationship) {ProtocolRelationship.new}
-  let(:protocol) { FactoryGirl.create(:valid_protocol) }
+  let(:protocol) { FactoryBot.create(:valid_protocol) }
 
   context 'validations' do
 
@@ -17,7 +17,7 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
     end
     context 'raises for polymorphic fields' do
 
-      before{protocol_relationship.protocol = FactoryGirl.create(:valid_protocol)}
+      before{protocol_relationship.protocol = FactoryBot.create(:valid_protocol)}
 
       specify '#protocol_relationship_object_type' do
         protocol_relationship.protocol_relationship_object_id = 1  
@@ -32,7 +32,7 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
 
     context 'passes when given' do
       specify 'protocol_id and protocol_relationship_object_id and protocol_relationship_object_type' do
-        expect(FactoryGirl.build(:valid_protocol_relationship).valid?).to be_truthy
+        expect(FactoryBot.build(:valid_protocol_relationship).valid?).to be_truthy
       end
     end
   end
