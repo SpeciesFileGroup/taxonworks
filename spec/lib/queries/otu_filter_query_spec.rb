@@ -201,6 +201,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       specify 'with descendants' do
         params_with = {nomen_id: top_dog.taxon_name_id, descendants: 'on'}
         result      = Queries::OtuFilterQuery.new(params_with).result
+        expect(result.count).to eq(4)
         expect(result).to contain_exactly(top_dog, abra, cadabra, alakazam)
       end
 

@@ -53,14 +53,14 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
       o.taxon_name = Protonym.find_or_create_by(name:       'Abra',
                                                 rank_class: Ranks.lookup(:iczn, 'Genus'),
                                                 parent:     top_dog.taxon_name)
-      parent = o.taxon_name
+      parent       = o.taxon_name
       o.taxon_name.taxon_name_authors << ted
       @co_m2.otus << o
       o            = FactoryBot.create(:valid_otu, name: 'Abra cadabra')
       o.taxon_name = Protonym.find_or_create_by(name:       'cadabra',
                                                 rank_class: Ranks.lookup(:iczn, 'Species'),
                                                 parent:     parent)
-      parent = o.taxon_name
+      parent       = o.taxon_name
       o.taxon_name.taxon_name_authors << ted
       @co_m2.otus << o
       o = FactoryBot.create(:valid_otu, name: 'Abra cadabra alacazam')
@@ -194,14 +194,15 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
 
       # TODO: need to build a descendant
       specify 'with descendants' do
-        params_with =  {otu_id: otum1.id, otu_descendants: 'on'}
-        result = Queries::CollectionObjectFilterQuery.new(params_with).result
-        expect(result).to contain_exactly(otum1.collection_objects, otum1a.collection_objects.first)
+        params_with = {otu_id: top_dog.id, otu_descendants: 'on'}
+        result      = Queries::CollectionObjectFilterQuery.new(params_with).result
+        expect(result.first.otus.count).to eq(5)
+        expect(result).to contain_exactly(@co_m2)
       end
 
       specify 'without descendants' do
         params_without = {otu_id: otum1a.id, otu_descendants: 'off'}
-        result = Queries::CollectionObjectFilterQuery.new(params_without).result
+        result         = Queries::CollectionObjectFilterQuery.new(params_without).result
         expect(result).to contain_exactly(otum1a.collection_objects.first)
       end
 
