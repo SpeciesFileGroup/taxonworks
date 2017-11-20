@@ -49,22 +49,35 @@ namespace :tw do
           get_sf_ident_qualifier = import.get('SFIdentQualifier') # key = nomenclator_id, value = ?, aff., cf., nr. ph.
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_sf_verbatim_ref = import.get('RefIDToVerbatimRef')
+          get_sf_locality_metadata = import.get('SFLocalityMetadata')
 
           # to get associated OTU, get TW taxon id, then get OTU from TW taxon id
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_otu_from_tw_taxon_id = import.get('TWTaxonNameIDToOtuID')
 
-          get_sf_locality_metadata = import.get('SFLocalityMetadata')
-          get_sf_collect_event_metadata = import.get('SFCollectEventMetadata')
+          #   Following hash currently not used (was going to provide metadata for zero-count specimens not otherwise handled)
+          # get_sf_collect_event_metadata = import.get('SFCollectEventMetadata')
 
           get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id
 
           depo_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'SpecimenDepository', short_name: 'Depo')
 
-          ranged_lot_category = {} # use ranged_lot_category for syntypes without individual counts
+          syntypes_range = {} # use ranged_lot_category for syntypes, paratypes and paralectotypes without individual counts
+          paratypes_range = {}
+          paralectotypes_range = {}
           get_tw_project_id.values.each do |project_id|
-            ranged_lot_category[project_id] = RangedLotCategory.find_or_create_by(
+            syntypes_range[project_id] = RangedLotCategory.find_or_create_by(
                 name: 'syntypes',
+                minimum_value: 2,
+                maximum_value: 100,
+                project_id: project_id).id
+            paratypes_range[project_id] = RangedLotCategory.find_or_create_by(
+                name: 'paratypes',
+                minimum_value: 2,
+                maximum_value: 100,
+                project_id: project_id).id
+            paralectotypes_range[project_id] = RangedLotCategory.find_or_create_by(
+                name: 'paralectotypes',
                 minimum_value: 2,
                 maximum_value: 100,
                 project_id: project_id).id
@@ -76,7 +89,6 @@ namespace :tw do
           error_counter = 0
           saved_counter = 0
           zero_counter = 0 # specimen_ids with no count
-          count_override = false # boolean, primary type zero_count specimens, count = 1 unless syntype (use ranged_lot_category)
 
           file.each_with_index do |row, i|
             specimen_id = row['SpecimenID']
@@ -87,14 +99,16 @@ namespace :tw do
             collecting_event_id = get_tw_collecting_event_id[get_sf_unique_id[specimen_id]]
 
             ranged_lot_category_id = nil
+            count_override = false # boolean, primary type zero_count specimens, count = 1 unless syntype (use ranged_lot_category)
 
             if get_specimen_category_counts[specimen_id].blank? # these are no-count specimens which fall into two categories:
 
               type_kind_id = get_sf_identification_metadata[specimen_id][0]['type_kind_id'] # used in identification section as integer
 
-              if type_kind_id.to_i == (1..5) # primary type
-                # if TypeKindID in (1 holotype, 2 syntypes, 3 neotype, 4 lectotype, 5 unspecified primary type), create coll obj
-                #     1,3,4,5 use count = 1; 2 uses ranged lot 2-100; rest of coll obj logic applies except for 3 former syntypes now lectotypes
+              if [1..5, 7..11].include?(type_kind_id.to_i)
+                # if TypeKindID in (1 holotype, 2 syntypes, 3 neotype, 4 lectotype, 5 unspecified primary type, [not 6 unknown],
+                #   7 allotype, 8 paratype, 9 lectoallotype, 10 paralectotype, 11 neoallotype), create coll obj
+                #     1,3,4,5,7,9,11 use count = 1; 2,8,10 use ranged lot 2-100; rest of coll obj logic applies except for 3 former syntypes now lectotypes
                 #     ( 3 specimen records with TypeKindID = 4 and SeqNum > 0: 578, 89580, 89622 )
                 #     Set boolean count_override to override zero count value in loop (type_type distinguishes 1 from ranged lot? )
 
@@ -103,9 +117,13 @@ namespace :tw do
                 end
 
                 if type_kind_id == '2'
-                  ranged_lot_category_id = ranged_lot_category[project_id]
+                  ranged_lot_category_id = syntypes_range[project_id]
+                elsif type_kind_id == '8'
+                  ranged_lot_category_id = paratypes_range[project_id]
+                elsif type_kind_id == '10'
+                  ranged_lot_category_id = paralectotypes_range[project_id]
                 else
-                  count_override = (type_kind_id != '2')
+                  count_override = true # ![2, 8, 10].include?(type_kind_id.to_i) # was (type_kind_id != '2')
                 end
 
               elsif get_sf_locality_metadata[row['LocalityID']]['level1_id'] != '0'
@@ -121,7 +139,7 @@ namespace :tw do
                 next
 
               else # no specimen or assert dist, record error and next
-                logger.info "SpecimenID = '#{specimen_id}', FileID = '#{row['FileID']}', SourceID = '#{row['SourceID']}', zero_counter = '#{zero_counter += 1}'"
+                logger.error "OMITTED: No specimen or asserted distribution: SpecimenID = '#{specimen_id}', FileID = '#{row['FileID']}', DepoID = '#{row['DepoID']}', SourceID = '#{row['SourceID']}', zero_counter = '#{zero_counter += 1}'"
                 next
               end
             end
