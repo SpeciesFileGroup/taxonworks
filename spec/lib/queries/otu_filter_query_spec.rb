@@ -28,6 +28,9 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     o
     }
 
+    let(:abra) {Otu.where(name: 'Abra').first}
+    let(:cadabra) {Otu.where(name: 'Abra cadabra').first}
+    let(:alakazam) {Otu.where(name: 'Abra cadabra alakazam').first}
     # need some otus
     let!(:co_m1a_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M1A')
@@ -70,9 +73,9 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       parent = o.taxon_name
       o.taxon_name.taxon_name_authors << ted
       @co_m2.otus << o
-      o = FactoryBot.create(:valid_otu, name: 'Abra cadabra alacazam')
+      o = FactoryBot.create(:valid_otu, name: 'Abra cadabra alakazam')
       @co_m2.collecting_event.collectors << bill
-      o.taxon_name = Protonym.find_or_create_by(name:       'alacazam',
+      o.taxon_name = Protonym.find_or_create_by(name: 'alakazam',
                                                 rank_class: Ranks.lookup(:iczn, 'Subspecies'),
                                                 parent:     parent)
       o.taxon_name.taxon_name_authors << ted
@@ -150,7 +153,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 
         specify 'nomen count' do
           result = Queries::OtuFilterQuery.new(params).result
-          expect(result.count).to eq(15)
+          expect(result.count).to eq(19)
         end
 
         specify 'specific nomen' do
@@ -167,7 +170,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 
           specify 'nomen count' do
             result = Queries::OtuFilterQuery.new(params).result
-            expect(result.count).to eq(9)
+            expect(result.count).to eq(13)
           end
 
           specify 'specific nomen' do
@@ -196,15 +199,15 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 
       # TODO: need to build a descendant
       specify 'with descendants' do
-        params_with = {nomen_id: otup4.taxon_name_id, descendants: 'on'}
+        params_with = {nomen_id: top_dog.taxon_name_id, descendants: 'on'}
         result      = Queries::OtuFilterQuery.new(params_with).result
-        expect(result).to contain_exactly(otup4, otum2)
+        expect(result).to contain_exactly(top_dog, abra, cadabra, alakazam)
       end
 
       specify 'without descendants' do
-        params_without = {nomen_id: otum2.taxon_name_id, descendants: 'off'}
+        params_without = {nomen_id: top_dog.taxon_name_id, descendants: 'off'}
         result         = Queries::OtuFilterQuery.new(params_without).result
-        expect(result).to contain_exactly(otum2)
+        expect(result).to contain_exactly(top_dog)
       end
 
     end
@@ -226,11 +229,11 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     context 'combined search' do
       let(:p4) { GeographicArea.where(name: "SP4").first }
       specify 'geo_area, nomen (taxon name)' do
-        tn = @co_m2.taxon_names.select {|t| t if t.name == 'alacazam'}.first
+        tn = @co_m2.taxon_names.select {|t| t if t.name == 'alakazam'}.first
         params = {}
         params.merge!({author_ids: ted.id})
         params.merge!({geographic_area_ids: [bbxa.id]})
-        params.merge!({nomen_id: tn.id})
+        params.merge!({nomen_id: tn.id, descendants: 'off'})
 
         result = Queries::OtuFilterQuery.new(params).result
         expect(result.count).to eq(1)

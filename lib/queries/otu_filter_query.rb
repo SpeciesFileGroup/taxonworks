@@ -12,7 +12,7 @@ module Queries
 
       @query_geographic_area_ids = params[:geographic_area_ids]
       @query_shape               = params[:drawn_area_shape]
-      @query_author_ids = [params[:author_ids]] #TODO remove array container when form returns array of IDs
+      @query_author_ids = params[:author_ids] #TODO remove array container when form returns array of IDs
       @query_authors_select      = 'or'
       @query_nomen_id            = params[:nomen_id]
       @query_descendants         = params[:descendants]
@@ -91,10 +91,11 @@ module Queries
       r5o2
     end
 
-    # @return [Scope]
+    # @return [Scope]     #TODO accomodate multiple OTUs pre taxon name
     def nomen_scope
-      Otu.where(taxon_name_id: query_nomen_id)
-      #date_sql_from_dates(start_date, end_date, query_date_partial_overlap ))
+      otuid = Protonym.find(query_nomen_id).otus.first.id
+      innerscope = with_descendants? ? Otu.self_and_descendants_of(otuid) : Otu.where(id: otuid)
+      Otu.where(id: innerscope)
     end
 
 =begin
