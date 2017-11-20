@@ -9,6 +9,19 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
 
     let!(:user) { User.find(1) }
     let!(:project) { Project.find(1) }
+    # need some people
+    let(:ted) { FactoryBot.create(:valid_person, last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC') }
+    let(:bill) { Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson') }
+
+    #need an apex
+    let(:top_dog) { o = FactoryBot.create(:valid_otu, name: 'Top Dog')
+    o.taxon_name      = FactoryBot.create(:valid_taxon_name,
+                                          rank_class: Ranks.lookup(:iczn, 'Family'),
+                                          name:       'Topdogidae')
+    o
+    }
+
+    # need some otus
     let!(:co_m1a_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M1A')
       @co_m1a.otus << o
@@ -31,9 +44,33 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
     }
     let!(:co_m2_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M2')
-      o.taxon_name.update_column(:name, 'antivitis')
+      o.taxon_name.update_column(:name, 'M2 antivitis')
       @co_m2.otus << o
-    }
+      o = top_dog
+      o.taxon_name.taxon_name_authors << ted
+      @co_m2.otus << o
+      o            = FactoryBot.create(:valid_otu, name: 'Abra')
+      o.taxon_name = Protonym.find_or_create_by(name:       'Abra',
+                                                rank_class: Ranks.lookup(:iczn, 'Genus'),
+                                                parent:     top_dog.taxon_name)
+      parent = o.taxon_name
+      o.taxon_name.taxon_name_authors << ted
+      @co_m2.otus << o
+      o            = FactoryBot.create(:valid_otu, name: 'Abra cadabra')
+      o.taxon_name = Protonym.find_or_create_by(name:       'cadabra',
+                                                rank_class: Ranks.lookup(:iczn, 'Species'),
+                                                parent:     parent)
+      parent = o.taxon_name
+      o.taxon_name.taxon_name_authors << ted
+      @co_m2.otus << o
+      o = FactoryBot.create(:valid_otu, name: 'Abra cadabra alacazam')
+      @co_m2.collecting_event.collectors << bill
+      o.taxon_name = Protonym.find_or_create_by(name:       'alacazam',
+                                                rank_class: Ranks.lookup(:iczn, 'Subspecies'),
+                                                parent:     parent)
+      o.taxon_name.taxon_name_authors << ted
+      @co_m2.otus << o
+      o.taxon_name }
     let!(:co_n2_a_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'N2A')
       @co_n2_a.otus << o
@@ -80,6 +117,7 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
     }
     let!(:co_p4_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'P4')
+      o.taxon_name.update_column(:name, 'P4 antivitis')
       @co_p4.otus << o
     }
     let!(:co_v_o) {
@@ -153,16 +191,16 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
     end
 
     context 'otu search' do
-      let(:params_with) { {otu_id: otum1.id, otu_descendants: 'on'} }
-      let(:params_without) { {otu_id: otum1a.id, otu_descendants: 'off'} }
 
       # TODO: need to build a descendant
       specify 'with descendants' do
+        params_with =  {otu_id: otum1.id, otu_descendants: 'on'}
         result = Queries::CollectionObjectFilterQuery.new(params_with).result
         expect(result).to contain_exactly(otum1.collection_objects, otum1a.collection_objects.first)
       end
 
       specify 'without descendants' do
+        params_without = {otu_id: otum1a.id, otu_descendants: 'off'}
         result = Queries::CollectionObjectFilterQuery.new(params_without).result
         expect(result).to contain_exactly(otum1a.collection_objects.first)
       end
