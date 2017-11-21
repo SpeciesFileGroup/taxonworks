@@ -47,16 +47,6 @@
 					</modal>					
 				</div>				
 
-				<div class="field">
-				    <autocomplete
-				      url="/namespaces/autocomplete"
-				      label="label"
-				      min="2"
-				      placeholder="Confidence level"
-				      @getItem="identifier.namespace_id = $event.id"
-				      param="term">
-				    </autocomplete>
-				</div>
 			    <div class="field">
 			    	<input class="normal-input identifier" placeholder="Identifier" type="text" v-model="identifier.identifier"/>
 				</div>
@@ -94,8 +84,7 @@
 		},
 		computed: {
 			validateFields() {
-				return (this.identifier.namespace_id &&
-						this.identifier.identifier)
+				return this.identifier.identifier
 			},
 		},
 		data: function() {
@@ -124,7 +113,6 @@
 			},
 			newIdentifier() {
 				return {
-                    namespace_id: undefined,
                     type: 'Identifier::Unknown',
                     identifier: undefined,
                     annotated_global_entity: decodeURIComponent(this.globalId)
