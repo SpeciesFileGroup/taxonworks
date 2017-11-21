@@ -23,6 +23,22 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           generate_political_areas_with_collecting_events(@user.id, @project.id)
         }
 
+        # need some people
+        let(:ted) { FactoryBot.create(:valid_person, last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC') }
+        let(:bill) { Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson') }
+
+        #need an apex
+        let(:top_dog) { o = FactoryBot.create(:valid_otu, name: 'Top Dog')
+        o.taxon_name      = FactoryBot.create(:valid_taxon_name,
+                                              rank_class: Ranks.lookup(:iczn, 'Family'),
+                                              name:       'Topdogidae')
+        o
+        }
+
+        let(:abra) {Otu.where(name: 'Abra').first}
+        let(:cadabra) {Otu.where(name: 'Abra cadabra').first}
+        let(:alakazam) {Otu.where(name: 'Abra cadabra alakazam').first}
+        # need some otus
         let!(:co_m1a_o) {
           o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M1A')
           @co_m1a.otus << o
@@ -47,7 +63,31 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M2')
           o.taxon_name.update_column(:name, 'M2 antivitis')
           @co_m2.otus << o
-        }
+          o = top_dog
+          o.taxon_name.taxon_name_authors << ted
+          @co_m2.otus << o
+          o            = FactoryBot.create(:valid_otu, name: 'Abra')
+          o.taxon_name = Protonym.find_or_create_by(name:       'Abra',
+                                                    rank_class: Ranks.lookup(:iczn, 'Genus'),
+                                                    parent:     top_dog.taxon_name)
+          parent = o.taxon_name
+          o.taxon_name.taxon_name_authors << ted
+          @co_m2.otus << o
+          o            = FactoryBot.create(:valid_otu, name: 'Abra cadabra')
+          o.taxon_name = Protonym.find_or_create_by(name:       'cadabra',
+                                                    rank_class: Ranks.lookup(:iczn, 'Species'),
+                                                    parent:     parent)
+          parent = o.taxon_name
+          o.taxon_name.taxon_name_authors << ted
+          @co_m2.otus << o
+          o = FactoryBot.create(:valid_otu, name: 'Abra cadabra alakazam')
+          @co_m2.collecting_event.collectors << bill
+          o.taxon_name = Protonym.find_or_create_by(name: 'alakazam',
+                                                    rank_class: Ranks.lookup(:iczn, 'Subspecies'),
+                                                    parent:     parent)
+          o.taxon_name.taxon_name_authors << ted
+          @co_m2.otus << o
+          o.taxon_name }
         let!(:co_n2_a_o) {
           o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'N2A')
           @co_n2_a.otus << o
@@ -115,7 +155,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
             page.execute_script "$('#set_area')[0].scrollIntoView()"
             fill_area_picker_autocomplete('area_picker_autocomplete', with: 'big', select: bbxa.id)
             click_button('Set area')
-            expect(find('#area_count')).to have_text('9')
+            expect(find('#area_count')).to have_text('13')
             # fill_otu_widget_autocomplete('#nomen_id_for_by_nomen', with: "P4", select: @co_p4.Taxon_names.first.id)
           end
 
@@ -126,7 +166,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
             this_xpath = find(:xpath, "//input[@id='drawn_area_shape']")
             this_xpath.set json_string
             click_button('Set area')
-            expect(find('#area_count')).to have_text('9')
+            expect(find('#area_count')).to have_text('13')
           end
         end
 
@@ -149,13 +189,13 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
             page.execute_script "$('#set_nomen')[0].scrollIntoView()"
             find('#descendant_toggle').click
             # finder = find('#nomen_id_for_by_nomen')
-            # finder.send_keys('m1')
+            # finder.send_keys('Topdog')
             # wait_for_ajax
             # finder.send_keys(:down)
             # finder.send_keys(:tab)
-            fill_autocomplete('nomen_id_for_by_nomen', with: 'p4', select:@co_p4.taxon_names.last.id)
+            fill_autocomplete('nomen_id_for_by_nomen', with: 'Topdog', select: top_dog.taxon_name.id)
             click_button('Set Nomenclature')
-            expect(find('#nomen_count')).to have_text('2')
+            expect(find('#nomen_count')).to have_text('4')
           end
         end
 
