@@ -223,7 +223,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
         expect(Protonym.named('Topdogidae').count).to eq(1)
 
         result = Queries::OtuFilterQuery.new(params).result
-        expect(result.count).to eq(4)
+        expect(result.count).to eq(3)
       end
     end
 
