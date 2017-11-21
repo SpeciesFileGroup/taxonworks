@@ -127,8 +127,6 @@ module Queries
       scopes.push :shape_scope if shape_set?
       scopes.push :nomen_scope if nomen_set?
       scopes.push :author_scope if author_set?
-      # scopes.push :identifier_scope if identifier_set?
-      # scopes.push :user_date_scope if user_date_set?
       scopes
     end
 

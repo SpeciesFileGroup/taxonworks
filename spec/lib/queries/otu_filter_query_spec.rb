@@ -71,7 +71,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
                                                 rank_class: Ranks.lookup(:iczn, 'Species'),
                                                 parent:     parent)
       parent = o.taxon_name
-      o.taxon_name.taxon_name_authors << ted
+      o.taxon_name.taxon_name_authors << bill
       @co_m2.otus << o
       o = FactoryBot.create(:valid_otu, name: 'Abra cadabra alakazam')
       @co_m2.collecting_event.collectors << bill
@@ -219,7 +219,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
         params = {author_ids: ted.id}
 
         expect(Role.where(type: 'TaxonNameAuthor').count).to eq(4)
-        expect(Person.with_role('TaxonNameAuthor').count).to eq(1)
+        expect(Person.with_role('TaxonNameAuthor').count).to eq(2)  # Bill and Ted
         expect(Protonym.named('Topdogidae').count).to eq(1)
 
         result = Queries::OtuFilterQuery.new(params).result
@@ -228,9 +228,8 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     end
 
     context 'combined search' do
-      let(:p4) { GeographicArea.where(name: "SP4").first }
-      specify 'geo_area, nomen (taxon name)' do
-        tn = @co_m2.taxon_names.select {|t| t if t.name == 'alakazam'}.first
+      specify 'geo_area, nomen (taxon name), author' do
+        tn = @co_m2.taxon_names.select {|t| t if t.name == 'cadabra'}.first
         params = {}
         params.merge!({author_ids: ted.id})
         params.merge!({geographic_area_ids: [bbxa.id]})
