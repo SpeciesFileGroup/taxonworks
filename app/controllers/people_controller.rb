@@ -92,6 +92,21 @@ class PeopleController < ApplicationController
     render :json => data
   end
 
+  def t_n_author_autocomplete # originally copied from people_controller#autocomplete
+    @authors = Person.with_role('TaxonNameAuthor').find_for_autocomplete(params).limit(50)
+    data = @authors.collect do |a|
+      {id: a.id,
+       label: a.name,
+       response_values: {
+           params[:method] => a.id
+       },
+       label_html: "#{a.name} (#{a.cached})"
+      }
+    end
+
+    render :json => data
+  end
+
   # GET /people/download
   def download
     send_data Person.generate_download( Person.all ), type: 'text', filename: "people_#{DateTime.now.to_s}.csv"

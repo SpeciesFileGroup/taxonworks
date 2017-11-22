@@ -398,6 +398,7 @@ TaxonWorks::Application.routes.draw do
     end
     collection do
       get :lookup_person
+      get 't_n_author_autocomplete'
     end
   end
 
@@ -650,7 +651,6 @@ TaxonWorks::Application.routes.draw do
         get 'set_area', as: 'set_area_for_otu_filter'
         get 'set_author', as: 'set_author_for_otu_filter'
         get 'set_nomen', as: 'set_nomen_for_otu_filter'
-        get 'autocomplete'
         get 'download', action: 'download', as: 'download_otus_filter_result'
       end
     end

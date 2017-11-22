@@ -235,7 +235,7 @@ Object.assign(TW.views.tasks.otus, {
     // let i = 0;
     
     if (
-      ($("#area_count").text() > 0) || ($("#nomen_count").text() > 0)
+      ($("#area_count").text() > 0) || ($("#nomen_count").text() > 0) || ($("#author_count").text() > 0 )
     ) {
       $("#find_area_and_nomen_commit").removeAttr("disabled");
     }
@@ -268,11 +268,15 @@ Object.assign(TW.views.tasks.otus, {
     if ($('#area_count').text() != '????') {
       params.push($("#set_area_form").serialize());
     }
-    
+
     if ($('#nomen_count').text() != '????') {
       params.push($("#set_nomen_form").serialize());
     }
-    
+
+    if ($('#author_count').text() != '????') {
+      params.push($("#set_author_form").serialize());
+    }
+
     return data = params.join("&");
   },
   

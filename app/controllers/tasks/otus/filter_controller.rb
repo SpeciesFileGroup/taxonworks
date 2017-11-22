@@ -41,21 +41,6 @@ class Tasks::Otus::FilterController < ApplicationController
     render json: {html: otus.count}
   end
 
-  def autocomplete # originally copied from people_controller#autocomplete
-    @authors = Person.with_role('TaxonNameAuthor').find_for_autocomplete(params).limit(50)
-    data     = @authors.collect do |a|
-      {id:              a.id,
-       label:           a.name,
-       response_values: {
-         params[:method] => a.id
-       },
-       label_html:      "#{a.name} (#{a.cached})"
-      }
-    end
-
-    render :json => data
-  end
-
   protected
 
   def otus
@@ -67,7 +52,7 @@ class Tasks::Otus::FilterController < ApplicationController
   end
 
   def filter_params
-    params.permit(:drawn_area_shape, :nomen_id, :descendants, :page, :author_ids, geographic_area_ids: [])
+    params.permit(:drawn_area_shape, :nomen_id, :descendants, :page, author_ids: [], geographic_area_ids: [])
   end
 
 end

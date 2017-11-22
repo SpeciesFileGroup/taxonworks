@@ -1,0 +1,32 @@
+<div class="author_picker">
+
+  <div class="author_picker_alert" hidden></div>
+
+  <div class="author_selection">
+    <ul class="author_list"></ul>
+    <div>
+      <%= text_field_tag "author_picker_autocomplete", nil,
+                         class: 'author_picker_autocomplete',
+                         placeholder: "type to search for taxon name author",
+                         data: {'param-name' => :author_ids}
+      %>
+
+    </div>
+  </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
