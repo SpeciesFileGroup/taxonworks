@@ -5,46 +5,43 @@ Vue.use(VueResource);
 
 Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-
-
-const create = function(url, data) {
+const ajaxCall = function(type, url, data) {
 	return new Promise(function(resolve, reject) {
-		Vue.http.post(url, data).then(response => {
+		Vue.http[type](url, data).then(response => {
 			return resolve(response);
 		}, response => {
+			handleError(response.body);
 			return reject(response);
 		})
 	});
+}
+
+const handleError = function(json) {
+	if (typeof json != 'object') return
+	let errors = Object.keys(json);
+	let errorMessage = '';
+
+	errors.forEach(function(item) {
+		errorMessage += json[item].join('<br>')
+	});
+
+	TW.workbench.alert.create(errorMessage, 'error');
+}
+
+const create = function(url, data) {
+	return ajaxCall('post', url, data)
 }
 
 const update = function(url, data) {
-	return new Promise(function(resolve, reject) {	
-		Vue.http.patch(url, data).then(response => {
-			return resolve(response);
-		}, response => {
-			return reject(response);
-		})
-	});
+	return ajaxCall('patch', url, data)
 }
 
 const destroy = function(url, data) {
-	return new Promise(function(resolve, reject) {	
-		Vue.http.delete(url, data).then(response => {
-			return resolve(response);
-		}, response => {
-			return reject(response);
-		})
-	});	
+	return ajaxCall('delete', url, data)
 }
 
 const getList = function(url) {
-	return new Promise(function(resolve, reject) {	
-		Vue.http.get(url).then(response => {
-			return resolve(response);
-		}, response => {
-			return reject(response);
-		})	
-	});	
+	return ajaxCall('get', url, null)
 }
 
 const vueCrud = {
