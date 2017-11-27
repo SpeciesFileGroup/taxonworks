@@ -93,9 +93,11 @@ module Queries
 
     # @return [Scope]     #TODO accomodate multiple OTUs pre taxon name
     def nomen_scope
-      otuid = Protonym.find(query_nomen_id).otus.first.id
-      innerscope = with_descendants? ? Otu.self_and_descendants_of(otuid) : Otu.where(id: otuid)
-      Otu.where(id: innerscope)
+      # otuid = Protonym.find(query_nomen_id).otus.first.id
+      a = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
+      # innerscope = with_descendants? ? Otu.self_and_descendants_of(a) : Otu.where(id: a)
+      with_descendants? ? Otu.self_and_descendants_of(a.first.id) :  a
+      # Otu.where(id: innerscope)
     end
 
 =begin
@@ -111,12 +113,11 @@ module Queries
       # ry = Otu.joins(:taxon_name).where('taxon_names.id IN (SELECT "taxon_names"."id" FROM "taxon_names" INNER JOIN "roles" ON
       # "taxon_names"."id" = "roles"."role_object_id" WHERE "roles"."type" IN (\'TaxonNameAuthor\') AND
       # "roles"."person_id" = 1687 AND "roles"."role_object_type" = \'TaxonName\' )')
-      rz = Otu.joins(:taxon_name).where('taxon_names.id IN (SELECT "taxon_names"."id" FROM "taxon_names" INNER JOIN "roles" ON
-      "taxon_names"."id" = "roles"."role_object_id" WHERE "roles"."type" IN (\'TaxonNameAuthor\') AND
-      "roles"."person_id" IN (?) AND "roles"."role_object_type" = \'TaxonName\' )', query_author_ids)
+      rz = Otu.joins(:taxon_name).where('taxon_names.id IN (SELECT "taxon_names"."id" FROM "taxon_names" INNER JOIN "roles" ON "taxon_names"."id" = "roles"."role_object_id" WHERE "roles"."type" IN (\'TaxonNameAuthor\') AND "roles"."person_id" IN (?) AND "roles"."role_object_type" = \'TaxonName\' )', query_author_ids) # .pluck(:id)
       # r2 = Person.find([query_author_ids]).map(&:taxon_name_authors).flatten.map(&:otus).flatten.map(&:id)
       r3 = Otu.where(id: rz)
       r3
+      rz
     end
 
     # @return [Array]

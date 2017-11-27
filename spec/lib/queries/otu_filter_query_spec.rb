@@ -229,9 +229,9 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 
     context 'combined search' do
       specify 'geo_area, nomen (taxon name), author' do
-        tn = @co_m2.taxon_names.select {|t| t if t.name == 'cadabra'}.first
+        tn = @co_m2.taxon_names.select {|t| t if t.name == 'alakazam'}.first
         params = {}
-        params.merge!({author_ids: ted.id})
+        params.merge!({author_ids: [bill.id, ted.id]})
         params.merge!({geographic_area_ids: [bbxa.id]})
         params.merge!({nomen_id: tn.id, descendants: 'off'})
 
