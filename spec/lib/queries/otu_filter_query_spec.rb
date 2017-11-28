@@ -17,9 +17,9 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     let!(:user) { User.find(1) }
     let!(:project) { Project.find(1) }
     # need some people
-    let(:daryl) {Person.find_or_create_by(first_name: 'Daryl', last_name: 'Penfold', prefix: 'Non-author')}
-    let(:ted) { FactoryBot.create(:valid_person, last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC') }
-    let(:bill) { Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson') }
+    let!(:daryl) {Person.find_or_create_by(first_name: 'Daryl', last_name: 'Penfold', prefix: 'Non-author')}
+    let!(:ted) { FactoryBot.create(:valid_person, last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC') }
+    let!(:bill) { Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson') }
 
     #need an apex
     let(:top_dog) { o = FactoryBot.create(:valid_otu, name: 'Top Dog')
