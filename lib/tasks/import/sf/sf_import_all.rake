@@ -36,7 +36,15 @@ namespace :tw do
           
           'specimens:import_two_specimen_lists',
           'specimens:create_sf_geo_level4_hash',
-          'specimens:collecting_events'
+          'specimens:collecting_events',
+          'specimens:import_sf_depos',
+          'specimens:create_biocuration_classes',
+          'specimens:create_specimen_category_counts',
+          'specimens:create_sf_source_metadata',
+          'specimens:create_sf_identification_metadata',
+          'specimens:get_ident_qualifier_from_nomenclator',
+          'specimens:create_sf_loc_col_events_metadata',
+          'specimens:collection_objects'
       ] do
         puts 'Ran all import tasks!'
       end
