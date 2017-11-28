@@ -115,8 +115,8 @@ module Queries
       # "roles"."person_id" = 1687 AND "roles"."role_object_type" = \'TaxonName\' )')
       rz = Otu.joins(:taxon_name).where('taxon_names.id IN (SELECT "taxon_names"."id" FROM "taxon_names" INNER JOIN "roles" ON "taxon_names"."id" = "roles"."role_object_id" WHERE "roles"."type" IN (\'TaxonNameAuthor\') AND "roles"."person_id" IN (?) AND "roles"."role_object_type" = \'TaxonName\' )', query_author_ids) # .pluck(:id)
       # r2 = Person.find([query_author_ids]).map(&:taxon_name_authors).flatten.map(&:otus).flatten.map(&:id)
-      r3 = Otu.where(id: rz)
-      r3
+      # r3 = Otu.where(id: rz)
+      # r3
       rz
     end
 
