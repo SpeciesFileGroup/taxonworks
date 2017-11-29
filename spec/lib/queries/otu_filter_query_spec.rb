@@ -168,7 +168,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 
         specify 'nomen count' do
           result = Queries::OtuFilterQuery.new(params).result
-          expect(result.count).to eq(19)
+          expect(result.count).to eq(20)
         end
 
         specify 'specific nomen' do
@@ -185,7 +185,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 
           specify 'nomen count' do
             result = Queries::OtuFilterQuery.new(params).result
-            expect(result.count).to eq(13)
+            expect(result.count).to eq(14)
           end
 
           specify 'specific nomen' do
@@ -223,7 +223,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       specify 'without descendants' do
         params_without = {nomen_id: top_dog.taxon_name_id, descendants: 'off'}
         result         = Queries::OtuFilterQuery.new(params_without).result
-        expect(result).to contain_exactly(top_dog)
+        expect(result).to contain_exactly(top_dog, by_bill)
       end
 
     end
@@ -238,7 +238,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
         expect(Protonym.named('Topdogidae').count).to eq(1)
 
         result = Queries::OtuFilterQuery.new(params).result
-        expect(result.count).to eq(3)
+        expect(result.count).to eq(4)
       end
     end
 

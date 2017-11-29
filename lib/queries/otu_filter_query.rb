@@ -113,7 +113,7 @@ module Queries
 =end
     # @return [Scope]
     def author_scope
-      Otu.joins(:taxon_name).where('taxon_names.id IN (SELECT "taxon_names"."id" FROM "taxon_names" INNER JOIN "roles" ON "taxon_names"."id" = "roles"."role_object_id" WHERE "roles"."type" IN (\'TaxonNameAuthor\') AND "roles"."person_id" IN (?) AND "roles"."role_object_type" = \'TaxonName\' )', query_author_ids)
+      Otu.joins(:taxon_name).where("taxon_names.id IN (SELECT taxon_names.id FROM taxon_names INNER JOIN roles ON taxon_names.id = roles.role_object_id WHERE roles.type IN ('TaxonNameAuthor') AND roles.person_id IN (?) AND roles.role_object_type = 'TaxonName' )", query_author_ids)
     end
 
     # @return [Array]
