@@ -18,11 +18,7 @@ module Shared::IsData::Annotation
     :identifiers
   ]
 
-  #  included do
-  #  end
-
   module ClassMethods
-
     # @return [Boolean]
     # true if model is an "annotator" (e.g. identifiers, tags, notes, data attributes, alternate values, citations), i.e. data that references another data element through STI
     def annotates?
@@ -64,7 +60,7 @@ module Shared::IsData::Annotation
     self.class < Shared::Depictions ? true : false
   end
 
-  def is_loanable? 
+  def has_loans?
     self.class < Shared::Loanable ? true : false
   end
 

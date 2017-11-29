@@ -16,7 +16,7 @@ module LoansHelper
 
 
   def loan_status_tag(object)
-    if object.is_loanable? && object.has_been_loaned?
+    if object.has_loans? && object.has_been_loaned?
       content_tag(:h3, 'Loan status') + 
         content_tag(:ul) do
         (on_loan_tag(object) +
@@ -30,7 +30,7 @@ module LoansHelper
   end
 
   def on_loan_tag(object)
-    if object.is_loanable? && object.on_loan?
+    if object.has_loans? && object.on_loan?
       content_tag(:li) do
         ['On ' +  link_to('loan', object.loan) + '.', 
           loan_overdue_tag(object.loan), 

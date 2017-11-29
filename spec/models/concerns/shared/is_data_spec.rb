@@ -17,8 +17,8 @@ describe 'Shared::IsData', type: :model do
       expect(is_data_instance.is_community?).to eq(false)
     end
 
-    specify '#is_loanable?' do
-      expect(is_data_instance.is_loanable?).to eq(false)
+    specify '#has_loans?' do
+      expect(is_data_instance.has_loans?).to eq(false)
     end
 
     specify '#metamorphosize' do
