@@ -94,17 +94,11 @@ _init_dropzone_for_task_simple_specimen = function init_dropzone_for_task_simple
   }
 };
 
-$(document).on('page:change', function(event) {
-  _init_dropzone_for_task_simple_specimen();
-  _init_dropzone_for_images();
-  _init_dropzone_for_depictions();
-});
-
-$(document).on('ready page:load', function(event) {
+$(document).on('turbolinks:load', function(event) {
   _init_dropzone_for_task_simple_specimen();
   _init_dropzone_for_images();
   _init_dropzone_for_depictions();
 });
 
 Dropzone.autoDiscover = false; // disable the built-in autodiscovery
-$(document).on("ready page:load", Dropzone.discover);
+$(document).on("turbolinks:load", Dropzone.discover);
