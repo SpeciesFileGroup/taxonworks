@@ -91,7 +91,7 @@ module Queries
       r5o2
     end
 
-    # @return [Scope]     #TODO accomodate multiple OTUs pre taxon name
+    # @return [Scope]
     def nomen_scope
       a = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
       if with_descendants?
