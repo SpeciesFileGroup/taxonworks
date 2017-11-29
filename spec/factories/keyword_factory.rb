@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   
   factory :keyword, traits: [:housekeeping] do
     factory :valid_keyword do

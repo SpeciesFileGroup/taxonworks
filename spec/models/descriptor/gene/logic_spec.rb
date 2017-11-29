@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dna] do
   let(:descriptor) { Descriptor::Gene.new(name: '28s') }
 
-  let(:forward_primer) { FactoryGirl.create(:valid_sequence) }
-  let(:reverse_primer) { FactoryGirl.create(:valid_sequence) }
+  let(:forward_primer) { FactoryBot.create(:valid_sequence) }
+  let(:reverse_primer) { FactoryBot.create(:valid_sequence) }
 
   let(:attribute1) { GeneAttribute.new(descriptor: descriptor, sequence: forward_primer, sequence_relationship_type: SequenceRelationship::ForwardPrimer) } 
   let(:attribute2) { GeneAttribute.new(descriptor: descriptor, sequence: reverse_primer, sequence_relationship_type: SequenceRelationship::ReversePrimer) }
@@ -93,6 +93,11 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dn
     end
 
     specify '#compress_logic' do
+      expect(descriptor.compress_logic).to eq('(a+b).(c+d)')
+
+      # Make sure the compress logic replaces whole words and not just partial words
+      # e.g A.10 matches only A.10 and NOT A.1
+      descriptor.gene_attribute_logic = '(A.1 OR B.2) AND (A.10 OR B.20)'
       expect(descriptor.compress_logic).to eq('(a+b).(c+d)')
     end
 

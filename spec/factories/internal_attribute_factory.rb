@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :data_attribute_internal_attribute, class: InternalAttribute, traits: [:housekeeping] do
     factory :valid_data_attribute_internal_attribute do
       value {Faker::Lorem.word}

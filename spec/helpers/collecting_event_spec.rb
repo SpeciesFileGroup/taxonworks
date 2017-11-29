@@ -3,7 +3,7 @@ require 'rails_helper'
 describe CollectingEventsHelper, :type => :helper do
   context 'a collecting event needs some helpers' do
     let(:verbatim_label) { "USA: IL: Champaign Co.\nUrbana ii.2.14 YPT\nYoder" }
-    let(:collecting_event) {FactoryGirl.create(:valid_collecting_event, verbatim_label: verbatim_label ) }
+    let(:collecting_event) {FactoryBot.create(:valid_collecting_event, verbatim_label: verbatim_label ) }
   
 
     specify '.collecting_event_tag' do

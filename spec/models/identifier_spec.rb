@@ -1,11 +1,11 @@
 require 'rails_helper'
 
 describe Identifier, type: :model, group: [:annotators, :identifiers] do
-  let(:identifier) { FactoryGirl.build(:identifier) }
-  let(:namespace) { FactoryGirl.create(:valid_namespace) }
-  let(:specimen1) { FactoryGirl.create(:valid_specimen) }
-  let(:specimen2) { FactoryGirl.create(:valid_specimen) }
-  let(:serial) { FactoryGirl.create(:valid_serial) }
+  let(:identifier) { FactoryBot.build(:identifier) }
+  let(:namespace) { FactoryBot.create(:valid_namespace) }
+  let(:specimen1) { FactoryBot.create(:valid_specimen) }
+  let(:specimen2) { FactoryBot.create(:valid_specimen) }
+  let(:serial) { FactoryBot.create(:valid_serial) }
 
   context 'validation' do
 
@@ -18,7 +18,7 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
       specify 'identifier_object' do
         # this eliminate all model based validation requirements
         identifier.type         = 'Identifier::Local::CatalogNumber'
-        identifier.namespace_id = FactoryGirl.create(:valid_namespace).id
+        identifier.namespace_id = FactoryBot.create(:valid_namespace).id
         identifier.identifier   = '123'
 
         expect { identifier.save }.to raise_error ActiveRecord::StatementInvalid
@@ -64,7 +64,7 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
         end
 
         specify 'with new and <<' do
-          s = FactoryGirl.build(:valid_specimen)
+          s = FactoryBot.build(:valid_specimen)
           s.identifiers << Identifier::Local::CatalogNumber.new(namespace: namespace, identifier: 456)
           expect(s.save).to be_truthy
           expect(s.identifiers.count).to eq(1)
@@ -75,7 +75,7 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
         end
 
         specify 'with new and build' do
-          s = FactoryGirl.build(:valid_specimen)
+          s = FactoryBot.build(:valid_specimen)
           s.identifiers.build(type: 'Identifier::Local::CatalogNumber', namespace: namespace, identifier: 456)
           expect(s.save).to be_truthy
           expect(s.identifiers.count).to eq(1)
@@ -105,7 +105,7 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
         end
 
         specify 'with new and <<' do
-          s = FactoryGirl.build(:valid_serial)
+          s = FactoryBot.build(:valid_serial)
           s.identifiers << Identifier::Global::Issn.new(identifier: 'ISSN 0375-0825', is_community_annotation: true)
           expect(s.save).to be_truthy
           expect(s.identifiers.count).to eq(1)
@@ -115,7 +115,7 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
         end
 
         specify 'with new and build' do
-          s = FactoryGirl.build(:valid_serial)
+          s = FactoryBot.build(:valid_serial)
           s.identifiers.build(type:       'Identifier::Global::Issn',
                               identifier: 'ISSN 0375-0825',
                               is_community_annotation: true)

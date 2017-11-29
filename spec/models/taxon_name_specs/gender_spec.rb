@@ -10,7 +10,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
   context 'using before :all' do
     before(:all) do
-      @subspecies = FactoryGirl.create(:iczn_subspecies)
+      @subspecies = FactoryBot.create(:iczn_subspecies)
      #  @species    = @subspecies.ancestor_at_rank('species')
      #  @subgenus   = @subspecies.ancestor_at_rank('subgenus')
       @genus      = @subspecies.ancestor_at_rank('genus')
@@ -47,9 +47,9 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     end
 
     context 'modifying gender' do
-      let(:s) { FactoryGirl.create(:iczn_species, parent: @genus) }
+      let(:s) { FactoryBot.create(:iczn_species, parent: @genus) }
 
-      let!(:gender) { FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine') }
+      let!(:gender) { FactoryBot.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine') }
 
       specify 'with no attributes' do
         expect(s.get_full_name_html).to eq('<i>Erythroneura vitis</i>')

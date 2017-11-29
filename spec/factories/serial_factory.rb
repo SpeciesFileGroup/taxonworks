@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :serial, traits: [:creator_and_updater]  do
     factory :valid_serial do
       name { 'Serial 1 ' + Faker::Lorem.sentence }

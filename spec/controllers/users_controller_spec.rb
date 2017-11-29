@@ -215,7 +215,7 @@ describe UsersController, :type => :controller do
     end
     
     context "when valid e-mail" do
-      let(:user) { FactoryGirl.create(:valid_user) }
+      let(:user) { FactoryBot.create(:valid_user) }
       
       describe "response to browser" do
         before {post :send_password_reset, params: {email: user.email}, session: valid_session}

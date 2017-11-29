@@ -26,7 +26,7 @@ class Otu < ApplicationRecord
   include Housekeeping
   include SoftValidation
   #include Shared::AlternateValues  # 1/26/15 with MJY - not going to allow alternate values in Burlap
-  include Shared::Citable               # TODO: have to think hard about this vs. using Nico's framework
+  include Shared::Citable           # TODO: have to think hard about this vs. using Nico's framework
   include Shared::DataAttributes
   include Shared::Identifiable
   include Shared::Notable

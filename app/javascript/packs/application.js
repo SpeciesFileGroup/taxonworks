@@ -12,3 +12,4 @@ require('./vue/content/editor/main.js');
 require('./vue/nomenclature/new_taxon_name/main.js');
 require('./vue/matrix_row_coder/main.js');
 require('./vue/annotator_init/main.js');
+require('./style/application.scss');

@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :data_attribute, traits: [:creator_and_updater] do
     factory :valid_data_attribute do
       type 'ImportAttribute'

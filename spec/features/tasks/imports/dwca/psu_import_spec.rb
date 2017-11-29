@@ -17,8 +17,8 @@ describe 'tasks/import/dwca/psu_import', type: :feature, group: [:collection_obj
       describe 'triggering the import process', js: true, resolution: true do
 
         before do
-          @ns1 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)
-          @ns2 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
+          @ns1 = FactoryBot.create(:valid_namespace, creator: @user, updater: @user)
+          @ns2 = FactoryBot.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
           visit(index_path)
         end
 

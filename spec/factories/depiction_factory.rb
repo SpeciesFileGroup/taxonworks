@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :depiction, traits: [:creator_and_updater] do
     factory :valid_depiction do
       association :image, factory: :valid_image

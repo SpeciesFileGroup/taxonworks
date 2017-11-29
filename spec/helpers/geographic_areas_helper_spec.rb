@@ -5,7 +5,7 @@ describe GeographicAreasHelper, :type => :helper do
   context 'a geographic_area needs some helpers' do
 
     let(:name) {"Neverland"}
-    let(:geographic_area) {FactoryGirl.create(:valid_geographic_area, name:name)}
+    let(:geographic_area) {FactoryBot.create(:valid_geographic_area, name:name)}
 
     specify '#geographic_area_tag' do
       expect(helper.geographic_area_tag(geographic_area)).to eq(name)

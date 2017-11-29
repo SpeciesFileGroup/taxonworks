@@ -3,7 +3,7 @@ require 'rails_helper'
 # TODO:   Where/how to generate the real GeoJSON (RGeo::GeoJSON.encode(object) does not seem to work properly)
 
 describe GeographicArea, type: :model, group: :geo do
-  let(:geographic_area) { FactoryGirl.build(:geographic_area_stack) }
+  let(:geographic_area) { FactoryBot.build(:geographic_area_stack) }
 
   context 'validation' do
     before(:each) {
@@ -52,7 +52,7 @@ describe GeographicArea, type: :model, group: :geo do
     end
 
     context 'classifying' do
-      let!(:county) { FactoryGirl.create(:valid_geographic_area_stack) }
+      let!(:county) { FactoryBot.create(:valid_geographic_area_stack) }
       let!(:state) { county.parent }
       let!(:country) { state.parent }
 
@@ -121,7 +121,7 @@ describe GeographicArea, type: :model, group: :geo do
     context 'nesting' do
       context 'parents' do
         before(:each) {
-          @champaign = FactoryGirl.create(:level2_geographic_area)
+          @champaign = FactoryBot.create(:level2_geographic_area)
         }
 
         specify 'parent string' do
@@ -148,9 +148,9 @@ describe GeographicArea, type: :model, group: :geo do
 
   context 'search functions' do
     before(:each) {
-      @champaign = FactoryGirl.create(:level2_geographic_area)
+      @champaign = FactoryBot.create(:level2_geographic_area)
       @illinois  = @champaign.parent
-      @ford      = FactoryGirl.create(:level2_geographic_area, name: 'Ford')
+      @ford      = FactoryBot.create(:level2_geographic_area, name: 'Ford')
       @illinois  = @ford.parent
       @usa       = @illinois.parent
       @earth     = @usa.parent
@@ -262,7 +262,7 @@ describe GeographicArea, type: :model, group: :geo do
     #   GeographicArea.destroy_all
     # }
     before(:each) {
-      @geographic_area = FactoryGirl.create(:level2_geographic_area)
+      @geographic_area = FactoryBot.create(:level2_geographic_area)
       @gi              = GeographicItem.create!(polygon: RSPEC_GEO_FACTORY.polygon(LIST_K))
       @geographic_area.geographic_areas_geographic_items << GeographicAreasGeographicItem.new(geographic_item: @gi, data_origin: 'SFG')
       @geographic_area.save
@@ -276,7 +276,7 @@ describe GeographicArea, type: :model, group: :geo do
 
   context 'geolocate responses from geographic_area' do
     before(:all) {
-      @geographic_area    = FactoryGirl.create(:valid_geographic_area_stack)
+      @geographic_area    = FactoryBot.create(:valid_geographic_area_stack)
       @ford_county        = GeographicArea.new(name:                 'Ford',
                                                geographic_area_type: @geographic_area.geographic_area_type,
                                                level1:               @geographic_area.parent,

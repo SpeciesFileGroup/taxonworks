@@ -33,23 +33,6 @@ namespace :tw do
           #   @return [Integer]
           #   The enumerated number of things, as asserted by the person managing the record.  Different totals will default to different subclasses.  How you enumerate your collection objects is up to you.  If you want to call one chunk of coral 50 things, that's fine (total = 50), if you want to call one coral one thing (total = 1) that's fine too.  If not nil then ranged_lot_category_id must be nil.  When =1 the subclass is Specimen, when > 1 the subclass is Lot.
 
-          # cat # = identifier on collecting event, controlled vocab term - create sf.specimen_id to catalog number hash (can do here)
-          # where does the biocuration_class_id come from?
-          # requires collection_object_id (biological_collection_object_id)
-          # basis of record = confidence on collection object
-          # preparation type = controlled vocabulary term for collection object
-          # specimen count and description = BiocurationClass, object tied to collection_object (??)
-
-          # Columns in tblSpecimens not accounted for:
-          #   SpecimenStatus
-          #   DepoCatNo -- recorded in hash for now, will be identifier  <<< NO, add as import_attribute
-          #   SourceID citation to collection object (refID) + description as import attribute
-          #   BasisOfRecord  type 5 will be asserted distribution, ignore 3, 4, and 6 (for all of 5 bor, what doesn't have refid in sourceid)
-          #   VerbatimLabel NOT USED in SF, perhaps buffered collecting event
-
-
-          # no count = 1?
-
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
@@ -61,20 +44,44 @@ namespace :tw do
           get_specimen_category_counts = import.get('SFSpecimenIDCategoryIDCount')
           get_sf_source_metadata = import.get('SFSourceMetadata')
           get_sf_identification_metadata = import.get('SFIdentificationMetadata')
-          # get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
+          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
           get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
           get_sf_ident_qualifier = import.get('SFIdentQualifier') # key = nomenclator_id, value = ?, aff., cf., nr. ph.
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_sf_verbatim_ref = import.get('RefIDToVerbatimRef')
+          get_sf_locality_metadata = import.get('SFLocalityMetadata')
 
           # to get associated OTU, get TW taxon id, then get OTU from TW taxon id
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_otu_from_tw_taxon_id = import.get('TWTaxonNameIDToOtuID')
 
+          #   Following hash currently not used (was going to provide metadata for zero-count specimens not otherwise handled)
+          # get_sf_collect_event_metadata = import.get('SFCollectEventMetadata')
+
           get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id
 
           depo_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'SpecimenDepository', short_name: 'Depo')
 
+          syntypes_range = {} # use ranged_lot_category for syntypes, paratypes and paralectotypes without individual counts
+          paratypes_range = {}
+          paralectotypes_range = {}
+          get_tw_project_id.values.each do |project_id|
+            syntypes_range[project_id] = RangedLotCategory.find_or_create_by(
+                name: 'syntypes',
+                minimum_value: 2,
+                maximum_value: 100,
+                project_id: project_id).id
+            paratypes_range[project_id] = RangedLotCategory.find_or_create_by(
+                name: 'paratypes',
+                minimum_value: 2,
+                maximum_value: 100,
+                project_id: project_id).id
+            paralectotypes_range[project_id] = RangedLotCategory.find_or_create_by(
+                name: 'paralectotypes',
+                minimum_value: 2,
+                maximum_value: 100,
+                project_id: project_id).id
+          end
 
           path = @args[:data_directory] + 'tblSpecimens.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -87,37 +94,66 @@ namespace :tw do
             specimen_id = row['SpecimenID']
             next if specimen_id == '0'
 
+            project_id = get_tw_project_id[row['FileID']]
+            sf_taxon_name_id = row['TaxonNameID']
+            collecting_event_id = get_tw_collecting_event_id[get_sf_unique_id[specimen_id]]
+
+            ranged_lot_category_id = nil
+            count_override = false # boolean, primary type zero_count specimens, count = 1 unless syntype (use ranged_lot_category)
+
             if get_specimen_category_counts[specimen_id].blank? # these are no-count specimens which fall into two categories:
-              # if TypeKindID in (1 holotype, 2 syntypes, 3 neotype, 4 lectotype, 5 unspecified primary type), create coll obj
-              #     1,3,4,5 use total = 1; 2 uses ranged lot 2-100; rest of coll obj logic applies
-              # if Level1ID > 0, create asserted_distribution using fields: otu_id, geographic_area_id, project_id, AND source_id even though not a column of ass dist
-               type_kind_id = get_sf_identification_metadata[specimen_id][1]
-               # end
 
+              type_kind_id = get_sf_identification_metadata[specimen_id][0]['type_kind_id'] # used in identification section as integer
 
+              if [1..5, 7..11].include?(type_kind_id.to_i)
+                # if TypeKindID in (1 holotype, 2 syntypes, 3 neotype, 4 lectotype, 5 unspecified primary type, [not 6 unknown],
+                #   7 allotype, 8 paratype, 9 lectoallotype, 10 paralectotype, 11 neoallotype), create coll obj
+                #     1,3,4,5,7,9,11 use count = 1; 2,8,10 use ranged lot 2-100; rest of coll obj logic applies except for 3 former syntypes now lectotypes
+                #     ( 3 specimen records with TypeKindID = 4 and SeqNum > 0: 578, 89580, 89622 )
+                #     Set boolean count_override to override zero count value in loop (type_type distinguishes 1 from ranged lot? )
 
-              #     Rest of locality/collecting event/specimen/identification data append as import_attributes
-              #         [need to import tables localities and collecting events as hashes - not unique table because indexing is too complex]
-              #         [There are 18 identification records where SeqNum > 0 (highest = 1)]
+                if type_kind_id == '2'
+                  type_kind_id = '4' if ['578', '89580', '89622'].include?(specimen_id) # was syntype, then lectotype
+                end
 
-            else
-              logger.info "SpecimenID = '#{specimen_id}', FileID = '#{row['FileID']}', SourceID = '#{row['SourceID']}', zero_counter = '#{zero_counter += 1}'"
-              next
+                if type_kind_id == '2'
+                  ranged_lot_category_id = syntypes_range[project_id]
+                elsif type_kind_id == '8'
+                  ranged_lot_category_id = paratypes_range[project_id]
+                elsif type_kind_id == '10'
+                  ranged_lot_category_id = paralectotypes_range[project_id]
+                else
+                  count_override = true # ![2, 8, 10].include?(type_kind_id.to_i) # was (type_kind_id != '2')
+                end
+
+              elsif get_sf_locality_metadata[row['LocalityID']]['level1_id'] != '0'
+                # if Level1ID > 0, add asserted_distribution
+                otu_id = get_otu_from_tw_taxon_id[get_tw_taxon_name_id[sf_taxon_name_id]]
+                otu_id = get_tw_otu_id[sf_taxon_name_id] if otu_id == nil
+
+                AssertedDistribution.new(otu_id: otu_id,
+                                         geographic_area_id: CollectingEvent.find(collecting_event_id).geographic_area_id,
+                                         project_id: project_id)
+
+                logger.info "AssertedDistribution created for SpecimenID = '#{specimen_id}', FileID = '#{row['FileID']}', otu_id = '#{otu_id}' \n"
+                next
+
+              else # no specimen or assert dist, record error and next
+                logger.error "OMITTED: No specimen or asserted distribution: SpecimenID = '#{specimen_id}', FileID = '#{row['FileID']}', DepoID = '#{row['DepoID']}', SourceID = '#{row['SourceID']}', zero_counter = '#{zero_counter += 1}'"
+                next
+              end
             end
 
-            next
+            #     Rest of locality/collecting event/specimen/identification data append as import_attributes
+            #         [need to import tables localities and collecting events as hashes - not unique table because indexing is too complex]
+            #         [There are 18 identification records where SeqNum > 0 (highest = 1)]
 
-
-            project_id = get_tw_project_id[row['FileID']]
             place_in_collection_keyword = Keyword.find_or_create_by(name: 'PlaceInCollection', definition: 'possible SF source of identification', project_id: project_id)
 
             sf_depo_id = row['DepoID']
             repository_id = get_tw_repo_id.has_key?(sf_depo_id) ? get_tw_repo_id[sf_depo_id] : nil
 
-            collecting_event_id = get_tw_collecting_event_id[get_sf_unique_id[specimen_id]]
-
             logger.info "working with SF.SpecimenID: #{specimen_id}, SF.FileID: #{row['FileID']} [ zero_counter = #{zero_counter} ] \n"
-
 
             # get otu id from sf taxon name id, a taxon determination, called 'the primary otu id'   (what about otus without tw taxon names?)
 
@@ -267,8 +303,7 @@ namespace :tw do
                                             updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
 
                         data_attributes_attributes: data_attributes_attributes,
-                        citations_attributes: citations_attributes,
-
+                        citations_attributes: citations_attributes
             }
 
             # At this point all the related metadata except specimen category and count must be set
@@ -282,20 +317,19 @@ namespace :tw do
                 # a new collection object for each pair
                 get_specimen_category_counts[specimen_id].each do |specimen_category_id, count|
 
+                  count = 1 if count_override # is true (applies only to zero-count specimens with primary types except syntypes [=ranged_lot])
+
                   collection_object = CollectionObject::BiologicalCollectionObject.new(
                       metadata.merge(
                           total: count,
+                          ranged_lot_category_id: ranged_lot_category_id,
                           collecting_event_id: collecting_event_id,
                           repository_id: repository_id,
 
                           biocuration_classifications_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s], project_id: project_id}],
 
-                          taxon_determinations_attributes: [{otu_id: get_otu_from_tw_taxon_id[get_tw_taxon_name_id[row['TaxonNameID']]], project_id: project_id}],
+                          taxon_determinations_attributes: [{otu_id: get_otu_from_tw_taxon_id[get_tw_taxon_name_id[sf_taxon_name_id]], project_id: project_id}],
                           # taxon_determination notes here?
-
-                          # metadata attributes:
-
-                          # citations_attributes: citations_attributes,
 
 
                           # housekeeping for collection_object
@@ -316,9 +350,7 @@ namespace :tw do
 
                 # At this point the collection objects have been saved successfully
 
-
-                # 1) if there were two collection objects with the same SF specimen ID, then put them
-                # in a virtual container
+                # 1) If there are two collection objects with the same SF specimen ID, then put them in a virtual container
                 # 2) If there is an "identifier", associate it with a single collection object or the container (if applicable)
                 identifier = nil
                 if row['DepoCatNo'].present?
@@ -381,7 +413,7 @@ namespace :tw do
                       if taxon_name = TaxonName.where(cached: target_nomenclator, project_id: project_id).first
                         otu = taxon_name.otus.first
                       else
-                        otu = Otu.create!(name: target_nomenclator, taxon_name_id: get_tw_taxon_name_id[row['TaxonNameID']], project_id: project_id) # target_nomenclator nil?
+                        otu = Otu.create!(name: target_nomenclator, taxon_name_id: get_tw_taxon_name_id[sf_taxon_name_id], project_id: project_id) # target_nomenclator nil?
                       end
 
                       # create conditional attributes here
@@ -465,7 +497,7 @@ namespace :tw do
 
                       type_kind_id = identification['type_kind_id'].to_i # exclude TypeKindID = undefined (0) and unknown (6)
                       if [1, 2, 3, 4, 8, 10].include? type_kind_id
-                        type_text = case type_kind_id
+                        type_kind = case type_kind_id
                                       when 1
                                         'holotype'
                                       when 2
@@ -491,11 +523,11 @@ namespace :tw do
                                           'paralectotypes'
                                         end
                                     end
-                        TypeMaterial.create!(protonym_id: get_tw_taxon_name_id[row['TaxonNameID']],
+                        TypeMaterial.create!(protonym_id: get_tw_taxon_name_id[sf_taxon_name_id],
                                              material: o, # = collection_object/biological_collection_object
-                                             type_type: type_text,
+                                             type_type: type_kind,
                                              project_id: project_id)
-                        puts "type_material created for '#{type_text}'"
+                        puts "type_material created for '#{type_kind}'"
 
                       elsif [5, 7, 9].include? type_kind_id
                         # create a data_attribute
@@ -1202,4 +1234,6 @@ namespace :tw do
     end
   end
 end
+
+
 

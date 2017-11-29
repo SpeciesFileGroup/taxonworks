@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :biocuration_group, traits: [:housekeeping] do
     factory :valid_biocuration_group do
       name 'life stage'

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'Loanable', type: :model, group: :loans do
   let(:class_with_loan) {TestLoanable.new}
-  let(:loan) { FactoryGirl.create(:valid_loan, date_return_expected: '2016/2/14') }
+  let(:loan) { FactoryBot.create(:valid_loan, date_return_expected: '2016/2/14') }
 
   context 'associations' do
     specify 'has one loan_item' do

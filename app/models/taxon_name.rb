@@ -1,7 +1,5 @@
 # A taxonomic name (nomenclature only). See also NOMEN.
 #
-# There are 3 subclasses, Protonym, Combination, and Hybrid.
-#
 # @!attribute name
 #   @return [String, nil]
 #   the fully latinized string (monomimial) of a code governed taxonomic biological name
@@ -123,11 +121,11 @@ class TaxonName < ApplicationRecord
   include Shared::Notable
   include Shared::Depictions
   include Shared::Citable
-  include Shared::IsData
   include Shared::Confidence
   include SoftValidation
   include Shared::AlternateValues
   include Shared::HasPapertrail
+  include Shared::IsData
 
   # Allows users to provide arbitrary annotations that "over-ride" rank string
   ALTERNATE_VALUES_FOR = [:rank_class].freeze # don't even think about putting this on #name

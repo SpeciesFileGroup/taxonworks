@@ -3,8 +3,8 @@
 body {
   background-color: $body_background;
   color: $default_text;
-  font-family: Helvetica,Arial,Verdana,Tahoma; 
-  font-size: 13px;
+  font-family: ibm-plex-sans, Helvetica,Arial,Verdana,Tahoma; 
+  font-size: 13px !important;
   margin-top:0;
   margin:0;
   text-shadow: 1px 1px 1px rgba(0,0,0,.004);

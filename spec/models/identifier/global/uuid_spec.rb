@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Identifier::Global::Uuid, type: :model, group: :identifiers do
   context 'UUID' do
-    let(:id) { FactoryGirl.build(:identifier_global_uuid) }
+    let(:id) { FactoryBot.build(:identifier_global_uuid) }
 
     context '#identifier is validly formatted' do
 

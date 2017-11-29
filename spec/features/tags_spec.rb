@@ -25,7 +25,7 @@ describe 'Tags', type: :feature, group: :tags do
     let(:keywords) do
       keywords = []
       ['slow', 'medium', 'fast'].each do |n|
-        keywords.push FactoryGirl.create(:valid_keyword, name: n, by: @user, project: @project)
+        keywords.push FactoryBot.create(:valid_keyword, name: n, by: @user, project: @project)
       end
       keywords
     end

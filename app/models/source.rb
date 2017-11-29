@@ -265,21 +265,21 @@ class Source < ApplicationRecord
     false
   end
 
-  def self.batch_preview(file: nil, ** args)
+  def self.batch_preview(file)
     bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'))
-    @sources     = []
+    sources = []
     bibliography.each do |record|
       a = Source::Bibtex.new_from_bibtex(record)
       # v = a.valid?
       a.soft_validate()
-      @sources.push(a)
+      sources.push(a)
     end
-    @sources
+    sources
   end
 
-  def self.batch_create(file: nil, ** args)
-    @sources = []
-    @valid   = 0
+  def self.batch_create(file)
+    sources = []
+    valid  = 0
     begin
       error_msg = []
       Source.transaction do
@@ -288,31 +288,19 @@ class Source < ApplicationRecord
           a = Source::Bibtex.new_from_bibtex(record)
           if a.valid?
             if a.save
-              @valid += 1
+              valid += 1
             end
             a.soft_validate()
           else
             error_msg = a.errors.messages.to_s
           end
-          @sources.push(a)
+          sources.push(a)
         end
       end
     rescue
       return false
     end
-    {records: @sources, count: @valid}
-  end
-
-  # TODO: remove
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
+    return {records: sources, count: valid}
   end
 
   def is_bibtex?

@@ -27,7 +27,7 @@ describe CollectionObjectsController, :type => :controller do
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_collection_object).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_collection_object).attributes)
   }
 
   # This should return the minimal set of values that should be in the session
@@ -181,7 +181,7 @@ describe CollectionObjectsController, :type => :controller do
 
   describe "GET by_identifier" do
     render_views
-    let(:namespace) { FactoryGirl.create(:valid_namespace, short_name: 'ABCD') }
+    let(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'ABCD') }
     let!(:collection_object) do
       CollectionObject.create! valid_attributes.merge(
         {identifiers_attributes: [{identifier: '123', type: 'Identifier::Local::CatalogNumber', namespace: namespace}]})

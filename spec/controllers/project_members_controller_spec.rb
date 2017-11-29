@@ -21,7 +21,7 @@ require 'rails_helper'
 RSpec.describe ProjectMembersController, :type => :controller do
   before {
     sign_in_administrator 
-    @unplaced_user = FactoryGirl.create(:valid_user)
+    @unplaced_user = FactoryBot.create(:valid_user)
   }
 
   # This should return the minimal set of attributes required to create a valid

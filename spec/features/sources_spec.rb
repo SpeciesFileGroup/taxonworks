@@ -10,7 +10,7 @@ describe 'Sources', type: :feature, group: :sources do
   context 'signed in as user, with some records created' do
     before do
       sign_in_user_and_select_project
-      5.times { factory_girl_create_for_user(:valid_source, @user) }
+      5.times { factory_bot_create_for_user(:valid_source, @user) }
     end
 
     describe 'GET /sources' do
@@ -43,7 +43,7 @@ describe 'Sources', type: :feature, group: :sources do
       }
 
       specify 'I can find my bibtex source and it has an edit link & I can edit the source', js: true do
-        @src_bibtex = factory_girl_create_for_user(:soft_valid_bibtex_source_article, @user)
+        @src_bibtex = factory_bot_create_for_user(:soft_valid_bibtex_source_article, @user)
 
         fill_autocomplete('source_id_for_quick_search_form', with: @src_bibtex.title, select: @src_bibtex.id)
       
@@ -69,7 +69,7 @@ describe 'Sources', type: :feature, group: :sources do
       end
 
       specify 'I can find my verbatim source and it has an edit link & I can edit the source', js: true do
-        @src_verbatim = factory_girl_create_for_user(:valid_source_verbatim, @user)
+        @src_verbatim = factory_bot_create_for_user(:valid_source_verbatim, @user)
         tmp           = @src_verbatim.verbatim
 
         fill_autocomplete('source_id_for_quick_search_form', with: @src_verbatim.cached, select: @src_verbatim.id)

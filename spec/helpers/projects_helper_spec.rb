@@ -3,7 +3,7 @@ require 'rails_helper'
 describe ProjectsHelper do
   context 'a project needs some helpers' do
     let(:name) {'Wonderland'}
-    let(:project) {FactoryGirl.build_stubbed(:valid_project, id: 1, name:name) }
+    let(:project) {FactoryBot.build_stubbed(:valid_project, id: 1, name:name) }
 
     specify '::project_tag' do
       expect(helper.project_tag(project)).to eq(name)

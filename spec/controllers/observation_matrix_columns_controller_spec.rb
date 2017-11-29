@@ -27,7 +27,7 @@ RSpec.describe ObservationMatrixColumnsController, type: :controller do
   # MatrixColumn. As you add validations to MatrixColumn, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_observation_matrix_column).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_observation_matrix_column).attributes)
   }
 
   # This should return the minimal set of values that should be in the session

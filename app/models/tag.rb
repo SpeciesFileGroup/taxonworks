@@ -106,4 +106,38 @@ class Tag < ApplicationRecord
     attributed['name'].blank? || attributed['definition'].blank?
   end
 
+  def self.tag_objects(objects, keyword_id = nil)
+    return nil if keyword_id.nil? or !objects.any?
+    raise 'cross project tagging of objects detected' if objects.first.project_id != Keyword.find(keyword_id).project_id
+    objects.each do |o|
+      o.tags << Tag.new(keyword_id: keyword_id)
+    end
+  end
+
+  def self.exists?(global_id, keyword_id, project_id)
+    o = GlobalID::Locator.locate(global_id)
+    return false unless o
+    Tag.where(project_id: project_id, tag_object: o, keyword_id: keyword_id).first
+  end
+
+  protected
+
+  def keyword_is_allowed_on_object
+    return true if keyword.nil? || tag_object.nil? || !keyword.respond_to?(:can_tag)
+    if !keyword.can_tag.include?(tag_object.class.name)
+      errors.add(:keyword, "this keyword class (#{tag_object.class}) can not be attached to a #{tag_object_type}")
+    end
+  end
+
+  def object_can_be_tagged_with_keyword
+    return true if keyword.nil? || tag_object.nil? || !tag_object.respond_to?(:taggable_with)
+    if !tag_object.taggable_with.include?(keyword.class.name)
+      errors.add(:tag_object, "this tag_object_type (#{tag_object.class}) can not be tagged with this keyword class (#{keyword.class})")
+    end
+  end
+
+  def reject_keyword(attributed)
+    attributed['name'].blank? || attributed['definition'].blank?
+  end
+
 end

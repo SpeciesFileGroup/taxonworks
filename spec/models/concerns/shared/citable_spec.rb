@@ -2,9 +2,9 @@ require 'rails_helper'
 
 describe 'Citable', type: :model, group: [:nomenclature, :citations] do
   let(:class_with_citations) {TestCitable.new}
-  let(:citation) { FactoryGirl.build(:citation, source: source) }
+  let(:citation) { FactoryBot.build(:citation, source: source) }
 
-  let!(:source) { FactoryGirl.create(:valid_source_bibtex, year: 1905) }
+  let!(:source) { FactoryBot.create(:valid_source_bibtex, year: 1905) }
 
   context 'creation' do
     specify 'with #new, base must be saved' do
@@ -94,13 +94,13 @@ describe 'Citable', type: :model, group: [:nomenclature, :citations] do
     let!(:b) {TestCitable.create}
     let!(:c) {TestCitable.create}
 
-    let(:youngest_source) { FactoryGirl.create(:valid_source_bibtex, year: Time.now.year) }
-    let(:young_source) { FactoryGirl.create(:valid_source_bibtex, year: 2010) }
-    let(:old_source) { FactoryGirl.create(:valid_source_bibtex, year: 1998) }
-    let(:oldest_source) { FactoryGirl.create(:valid_source_bibtex, year: 1758) }
-    let(:first_source_ever) { FactoryGirl.create(:valid_source_bibtex, year: 1700) }
+    let(:youngest_source) { FactoryBot.create(:valid_source_bibtex, year: Time.now.year) }
+    let(:young_source) { FactoryBot.create(:valid_source_bibtex, year: 2010) }
+    let(:old_source) { FactoryBot.create(:valid_source_bibtex, year: 1998) }
+    let(:oldest_source) { FactoryBot.create(:valid_source_bibtex, year: 1758) }
+    let(:first_source_ever) { FactoryBot.create(:valid_source_bibtex, year: 1700) }
 
-    let(:nil_source) { FactoryGirl.create(:valid_source_bibtex, year: nil) }
+    let(:nil_source) { FactoryBot.create(:valid_source_bibtex, year: nil) }
 
     before do
       Citation.create(citation_object: a, source: oldest_source)

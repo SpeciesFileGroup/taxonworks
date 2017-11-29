@@ -27,7 +27,7 @@ RSpec.describe ObservationsController, type: :controller do
   # Observation. As you add validations to Observation, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_observation).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_observation).attributes)
   }
 
   let(:invalid_attributes) {

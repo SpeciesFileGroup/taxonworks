@@ -28,7 +28,7 @@ RSpec.describe CommonNamesController, type: :controller do
   # CommonName. As you add validations to CommonName, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_common_name).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_common_name).attributes)
   }
 
   let(:invalid_attributes) {

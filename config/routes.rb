@@ -1,7 +1,7 @@
 TaxonWorks::Application.routes.draw do
 
   get :ping, controller: 'ping',  defaults: { format: :json }
-
+  
   # All models that use data controllers should include this concern.
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
   # TODO: This will have to be broken down to core_data_routes, and supporting_data_routes
@@ -15,12 +15,12 @@ TaxonWorks::Application.routes.draw do
       get 'autocomplete'
       get 'search'
     end
-
+    
     member do
       get 'related'
     end
   end
-
+  
   # TODO: this group is too big to spam everwhere, be more specific
   concern :shallow_annotation_routes do |options|
     resources :citations, shallow: true, only: [:index]
@@ -33,24 +33,24 @@ TaxonWorks::Application.routes.draw do
     resources :data_attributes, shallow: true, only: [:index]
     resources :alternate_values, shallow: true, only: [:index]
   end
-
+  
   root 'dashboard#index'
-
+  
   match '/dashboard', to: 'dashboard#index', via: :get
-
+  
   match '/signin', to: 'sessions#new', via: :get
   match '/signout', to: 'sessions#destroy', via: :delete
   resources :sessions, only: :create
-
+  
   get 'soft_validations/validate' => 'soft_validations#validate', defaults: {format: :json}
-
+  
   # Note singular 'resource'
   resource :hub, controller: 'hub', only: [:index] do
     get '/', action: :index
     get 'order_tabs' # should be POST
     post 'update_tab_order'
   end
-
+  
   scope :annotations, controller: :annotations do 
     get ':global_id/metadata', action: :metadata, defaults: {format: :json}
   end
@@ -65,13 +65,13 @@ TaxonWorks::Application.routes.draw do
       get 'per_relationship_recent_stats/:relationship', action: :per_relationship_recent_stats, as: :per_relationship_recent_stats
     end
   end
-
+  
   scope :administration, controller: :administration do
     match '/', action: :index, as: 'administration', via: :get
     get 'user_activity'
     get 'data_overview'
   end
-
+  
   resources :project_members, except: [:index, :show] do
     collection do
       get :many_new
@@ -85,14 +85,14 @@ TaxonWorks::Application.routes.draw do
       post 'update_type_position'
     end
   end
-
+  
   ### Below this point, please keep objects in alphabetical order ###
-
+  
   resources :alternate_values, except: [:show, :new] do
     concerns [:data_routes]
   end
   match '/alternate_values/:global_id/metadata', to: 'alternate_values#metadata', via: :get, defaults: {format: :json} #  method: :json 
-
+  
   resources :asserted_distributions do
     concerns [:data_routes]
     collection do
@@ -100,35 +100,35 @@ TaxonWorks::Application.routes.draw do
       post :create_simple_batch_load
     end
   end
-
+  
   resources :biocuration_classifications, only: [:create, :update, :destroy]
-
+  
   resources :biological_associations do
     concerns [:data_routes]
   end
-
+  
   resources :biological_associations_graphs do
     concerns [:data_routes]
   end
-
+  
   resources :biological_relationships do
     concerns [:data_routes]
   end
-
+  
   resources :character_states do
     concerns [:data_routes]
     member do
       get :annotations, defaults: {format: :json}
     end
   end
-
+  
   resources :citation_topics, only: [:create, :update, :destroy]
-
+  
   resources :citations do # except: [:show]
     concerns [:data_routes]
     collection do
       get 'filter', defaults: {format: :json}
-  end
+    end
   end
 
   resources :confidences do # , except: [:edit, :show]
@@ -137,15 +137,15 @@ TaxonWorks::Application.routes.draw do
       post :confidence_object_update
     end
   end
-
+  
   resources :confidence_levels, only: [:index] do
     collection do
       get 'lookup'
       get 'autocomplete'
     end
   end
-
-
+  
+  
   resources :collection_objects do
     concerns [:data_routes, :shallow_annotation_routes]
     member do
@@ -160,16 +160,16 @@ TaxonWorks::Application.routes.draw do
     end
   end
   match 'collection_objects/by_identifier/:identifier', to: 'collection_objects#by_identifier', via: :get
-
+  
   resources :collection_object_observations do
     concerns [:data_routes]
   end
-
+  
   resources :collection_profiles do
     concerns [:data_routes]
   end
   match 'collection_profiles/swap_form_attribute_types/:collection_type', to: 'collection_profiles#swap_form_attribute_types', via: :get, method: :js
-
+  
   resources :collecting_events do
     concerns [:data_routes, :shallow_annotation_routes ]
     get :autocomplete_collecting_event_verbatim_locality, on: :collection
@@ -177,10 +177,10 @@ TaxonWorks::Application.routes.draw do
       get :card
     end
     # collection do
-    #   post :preview_simple_batch_load # should be get
-    #   post :create_simple_batch_load
-    # end
-
+      #   post :preview_simple_batch_load # should be get
+      #   post :create_simple_batch_load
+      # end
+      
     collection do
       post :preview_castor_batch_load
       post :create_castor_batch_load
@@ -207,7 +207,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes, :shallow_annotation_routes]
     collection do
       get :filter
-  end
+    end
   end
 
   resources :controlled_vocabulary_terms do
@@ -226,7 +226,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       patch :sort
-  end
+    end
   end
 
   resources :descriptors do
@@ -234,13 +234,20 @@ TaxonWorks::Application.routes.draw do
     member do
       get :annotations, defaults: {format: :json}
     end
+    collection do
+      post :preview_modify_gene_descriptor_batch_load
+      post :create_modify_gene_descriptor_batch_load
+    end
   end
-
-  resources :documents do
-    concerns [:data_routes]
-  end
-
+    
   resources :documentation do
+    concerns [:data_routes]
+    collection do
+      patch :sort
+    end
+  end
+    
+  resources :documents do
     concerns [:data_routes]
   end
 
@@ -276,11 +283,11 @@ TaxonWorks::Application.routes.draw do
     # verbatim_data
   end
 
-  resources :identifiers, except: [:show, :new] do
+  resources :identifiers, except: [:show] do
     concerns [:data_routes]
     collection do
       get :identifier_types, {format: :json}
-    end
+  end
   end
 
   resources :images do
@@ -315,6 +322,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :loan_items do
     concerns [:data_routes]
+    collection do
+      post :batch_create
+    end
   end
 
   resources :namespaces do
@@ -331,7 +341,7 @@ TaxonWorks::Application.routes.draw do
     member do
       get 'row', {format: :json}
     end
-  
+
     resources :observation_matrix_columns, shallow: true, only: [:index], defaults: {format: :json}
     resources :observation_matrix_rows, shallow: true, only: [:index], defaults: {format: :json}
   end
@@ -532,7 +542,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       get :type_relationships, {format: :json}
       get :taxon_name_relationship_types, {format: :json}
-  end
+    end
   end
 
   resources :topics, only: [:create] do
@@ -599,7 +609,6 @@ TaxonWorks::Application.routes.draw do
       end
     end
 
-
     scope :collecting_events do
       scope :parse do
         scope :stepwise do
@@ -636,7 +645,11 @@ TaxonWorks::Application.routes.draw do
         get 'set_date', as: 'set_date_for_collection_object_filter'
         get 'set_otu', as: 'set_otu_for_collection_object_filter'
         get 'set_id_range', as: 'set_id_range_for_collection_object_filter'
+        get 'set_user_date_range', as: 'set_user_date_range_for_collection_object_filter'
+        get 'get_dates_of_type', as: 'get_dates_type_of_for_collection_object_filter'
+        # get 'get_updated_at', as: 'get_updated_at_for_collection_object_filter'
         get 'download', action: 'download', as: 'download_collection_object_filter_result'
+        post 'tag_all', action: 'tag_all', as: 'tag_all_collection_object_filter_result',  defaults: {format: :json}
       end
     end
 
@@ -946,13 +959,13 @@ TaxonWorks::Application.routes.draw do
       get '/character_states/:id/annotations',
         to: 'character_states#annotations'
 
-end
+    end
   end
 
   scope :api, :defaults => { :format => :html } do
     scope  '/v1' do
       get '/taxon_names/autocomplete',
-          to: 'taxon_names#autocomplete'
+        to: 'taxon_names#autocomplete'
     end
   end
 

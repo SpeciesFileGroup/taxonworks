@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :identifier_local, :class => 'Identifier::Local', traits: [:housekeeping] do
   end
 end

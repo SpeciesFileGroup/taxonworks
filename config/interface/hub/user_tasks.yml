@@ -168,12 +168,12 @@ report_dwc_task:
     - collecting_event
 collection_objects_filter_task:
   hub: true
-  name: 'Collection objects by area, date and OTU.'
+  name: 'Collection objects filter by area, date, OTU, identifier and user/creation date.'
   related:
   categories:
     - collection_object
   status: prototype
-  description: 'Find collection objects using an area, date range, or taxon determination (OTU).'
+  description: 'Find collection objects using an area, date range, taxon determination (OTU), applied identifier, or user/created date range.'
 geographic_area_lookup_task:
   hub: true
   name: 'Geographic area lookup'

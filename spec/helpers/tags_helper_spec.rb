@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe TagsHelper, type:  :helper do
   context 'a tag needs some helpers' do
-    let(:tag) {FactoryGirl.create(:valid_tag)}
+    let(:tag) {FactoryBot.create(:valid_tag)}
 
     let(:tag_string) { tag.keyword.name }
 

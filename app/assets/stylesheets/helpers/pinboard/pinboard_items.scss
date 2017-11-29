@@ -4,6 +4,9 @@
 		min-height: 28px;
 	}
 
+	.pinboard-default-item {
+		border-left:5px solid $color-action-button;
+	}
 	img {
 		border-radius: 50%;
 		width: 60px;
@@ -87,7 +90,12 @@
 		background-repeat: no-repeat;
 	}
 
-	.slide-panel-category-item {
+	.remove-all-pinned {
+		margin-right: 1em;
+		background-size: 8px;
+	}
+
+	li {
 		position: relative;
 		border-bottom: 1px solid #FAFAFA;
 		border-left:5px solid transparent;
@@ -97,14 +105,11 @@
 		padding: $standard_padding*0.5;
 		padding-left: $standard_padding*2;
 	}
-	.slide-panel-category-item:hover {
+	li:hover {
 		opacity: 1;
 		background-color: $navigation_background;
 		.remove {
 			display: inline-block;
 		}
 	}
-	.pinboard-default-item {
-		border-left:5px solid $color-action-button;
-	}
-}
+}}

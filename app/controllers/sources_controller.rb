@@ -43,7 +43,6 @@ class SourcesController < ApplicationController
           else # type human
             format.html {redirect_to @source.metamorphosize, notice: "Source '#{@source.cached_author_string}' was successfully created."}
         end
-
         format.json {render action: 'show', status: :created, location: @source}
       else
         if @source.type == 'Source::Bibtex' && source_params['roles_attributes'].try(:count).to_i > 0
@@ -118,57 +117,43 @@ class SourcesController < ApplicationController
   end
 
   def preview_bibtex_batch_load
-    file = params[:file]
-    if file.blank?
-      redirect_to batch_load_sources_path, notice: 'No file has been selected.'
+    file = params.require(:file)
+    redirect_to batch_load_sources_path, notice: 'No file has been selected.' and return if file.blank?
+    file_ok, mimetype = Utilities::Files.recognized_batch_file_type?(file.tempfile)
+    if !file_ok 
+      redirect_to batch_load_sources_path, notice: "File '#{file.original_filename}' is of type '#{mimetype}', and not processable as BibTex."
     else
-      begin # file type testing: Permit UTF-8, ASCII
-        failed   = false
-        mimetype = `file -b "#{file.tempfile.path}"`.gsub(/\n/, '')
-        case mimetype
-          when /utf-8/i, /ascii/i
-            failed = false # redundant, but good for debugging
-          else
-            failed = true
-        end
-        if failed
-          redirect_to batch_load_sources_path, notice: "File '#{file.original_filename}' is of type '#{mimetype}', and not processable as BibTex."
-        else
-          @sources                    = Source.batch_preview(file: file.tempfile)
-          sha256                      = Digest::SHA256.file(file.tempfile)
-          cookies[:batch_sources_md5] = sha256.hexdigest
-          render 'sources/batch_load/bibtex_batch_preview'
-        end
-      end
+      @sources = Source.batch_preview(file.tempfile)
+      sha256 = Digest::SHA256.file(file.tempfile)
+      cookies[:batch_sources_md5] = sha256.hexdigest
+      render 'sources/batch_load/bibtex_batch_preview'
     end
   end
 
   def create_bibtex_batch_load
-    if params[:file].nil?
-      redirect_to batch_load_sources_path, notice: 'no file has been selected'
-    else
-      sha256 = Digest::SHA256.file(params[:file].tempfile)
-      if cookies[:batch_sources_md5] == sha256.hexdigest
-        if result_hash = Source.batch_create(params.symbolize_keys.to_h)
-          @count         = result_hash[:count]
-          @sources       = result_hash[:records]
-          flash[:notice] = "Successfully batch created #{@count} sources."
-          render 'sources/batch_load/bibtex_batch_create' # and return
-        else
-          flash[:notice] = 'Failed to create the sources.'
-          redirect_to batch_load_sources_path
-        end
+    file = params.require(:file) 
+    redirect_to batch_load_sources_path, notice: 'no file has been selected' and return if file.blank? 
+    sha256 = Digest::SHA256.file(file.tempfile)
+    if cookies[:batch_sources_md5] == sha256.hexdigest
+      if result_hash = Source.batch_create(file.tempfile)
+        # error in results?  
+        @count = result_hash[:count]
+        @sources = result_hash[:records]
+        flash[:notice] = "Successfully batch created #{@count} sources."
+        render 'sources/batch_load/bibtex_batch_create' 
       else
-        flash[:notice] = 'Batch upload must be previewed before it can be created.'
+        flash[:notice] = 'Failed to create sources.'
         redirect_to batch_load_sources_path
       end
-#      redirect_to sources_path
+    else
+      flash[:notice] = 'Batch upload must be previewed before it can be created.'
+      redirect_to batch_load_sources_path
     end
   end
 
   # GET /sources/download
   def download
-    send_data Source.generate_download(Source.all), type: 'text', filename: "sources_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Source.all), type: 'text', filename: "sources_#{DateTime.now.to_s}.csv"
   end
 
   private
@@ -176,6 +161,9 @@ class SourcesController < ApplicationController
   def set_source
     @source        = Source.find(params[:id])
     @recent_object = @source
+  end
+
+  def batch_params
   end
 
   def source_params

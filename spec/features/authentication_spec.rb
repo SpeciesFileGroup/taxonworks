@@ -8,7 +8,7 @@ describe 'Authentication', type: :feature do
 
     context 'when credentials match existing user' do
 
-      let(:valid_user) { FactoryGirl.create(:valid_user, id: 1) }
+      let(:valid_user) { FactoryBot.create(:valid_user, id: 1) }
 
       it 'should sign user in' do
         sign_in_with(valid_user.email, TEST_USER_PASSWORD)

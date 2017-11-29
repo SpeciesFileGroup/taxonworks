@@ -27,7 +27,7 @@ describe TaxonNameRelationshipsController, :type => :controller do
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes( FactoryGirl.build(:valid_taxon_name_relationship).attributes )
+    strip_housekeeping_attributes( FactoryBot.build(:valid_taxon_name_relationship).attributes )
   }
 
   # This should return the minimal set of values that should be in the session

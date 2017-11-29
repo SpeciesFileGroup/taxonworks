@@ -1,6 +1,6 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
+# Read about factories at https://github.com/thoughtbot/factory_bot
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :otu_page_layout_section, traits: [:housekeeping] do
     factory :valid_otu_page_layout_section do
       association :otu_page_layout, factory: :valid_otu_page_layout

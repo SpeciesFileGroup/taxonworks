@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Note, type: :model, group: :annotator do
 
-  let(:note) {FactoryGirl.build(:note)} 
+  let(:note) {FactoryBot.build(:note)} 
 
   context 'associations' do
     context 'belongs_to' do
@@ -14,7 +14,7 @@ describe Note, type: :model, group: :annotator do
 
   # sanity check for Housekeeping, which is also tested elsewhere 
     context 'sets housekeeping' do
-      let(:specimen1) {FactoryGirl.create(:valid_specimen)}
+      let(:specimen1) {FactoryBot.create(:valid_specimen)}
 
       before {note.valid?}
       specify 'creator' do
@@ -44,7 +44,7 @@ describe Note, type: :model, group: :annotator do
       end
 
       specify 'with new objects and <<' do
-        s = FactoryGirl.build(:valid_specimen)
+        s = FactoryBot.build(:valid_specimen)
         s.notes << Note.new(text: "Whooopee!") 
         expect(s.save).to be_truthy
         expect(s.notes.count).to eq(1)
@@ -54,7 +54,7 @@ describe Note, type: :model, group: :annotator do
       end
 
       specify 'with new objects and build' do
-        s = FactoryGirl.build(:valid_specimen)
+        s = FactoryBot.build(:valid_specimen)
         s.notes.build(text: "Yabbadabbadoo.")
         expect(s.save).to be_truthy
         expect(s.notes.count).to eq(1)
@@ -64,7 +64,7 @@ describe Note, type: :model, group: :annotator do
       end
 
       specify 'as nested_attributes' do
-        s = FactoryGirl.build(:valid_specimen)
+        s = FactoryBot.build(:valid_specimen)
         s.notes_attributes = [{text: "foo"}, {text: "bar"}]
         expect(s.save).to be_truthy
       end

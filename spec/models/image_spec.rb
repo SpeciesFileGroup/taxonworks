@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Image, type: :model do
 
-  let(:i) { FactoryGirl.build(:valid_image) }
+  let(:i) { FactoryBot.build(:valid_image) }
 
   after(:each) {
     # step through all existing records first and delete all the duplicate images.
@@ -47,7 +47,7 @@ describe Image, type: :model do
   end
 
   context 'with mulitiple images' do
-    let!(:k) {FactoryGirl.create(:valid_image)}
+    let!(:k) {FactoryBot.create(:valid_image)}
 
     before {
       i.save!
@@ -77,7 +77,7 @@ describe Image, type: :model do
   end
 
   specify 'TW attributes should be set before save' do
-    weird = FactoryGirl.build(:weird_image)
+    weird = FactoryBot.build(:weird_image)
     expect(i.save).to be_truthy
     expect(weird.save).to be_truthy
 

@@ -26,8 +26,8 @@ describe SerialChronologiesController, :type => :controller do
   # This should return the minimal set of attributes required to create a valid
   # SerialChronology. As you add validations to SerialChronology, be sure to
   # adjust the attributes here as well
-  let(:serial1) { FactoryGirl.create(:valid_serial, name: 'A') }
-  let(:serial2) { FactoryGirl.create(:valid_serial, name: 'B') }
+  let(:serial1) { FactoryBot.create(:valid_serial, name: 'A') }
+  let(:serial2) { FactoryBot.create(:valid_serial, name: 'B') }
   let(:valid_attributes) { { type: 'SerialChronology::SerialSequence', preceding_serial_id: serial1.to_param, succeeding_serial_id: serial2.to_param } }
 
   # This should return the minimal set of values that should be in the session
@@ -42,7 +42,7 @@ describe SerialChronologiesController, :type => :controller do
   describe 'POST create' do
     describe 'with valid params' do
       it 'creates a new SerialChronology' do
-        s = FactoryGirl.create(:valid_source_bibtex)
+        s = FactoryBot.create(:valid_source_bibtex)
         expect {
           post :create, params: {serial_chronology: valid_attributes}, session: valid_session
         }.to change(SerialChronology, :count).by(1)

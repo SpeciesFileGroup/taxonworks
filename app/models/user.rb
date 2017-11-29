@@ -125,21 +125,21 @@ class User < ApplicationRecord
   before_create { self.hub_tab_order = DEFAULT_HUB_TAB_ORDER }
 
   validates :email, presence: true,
-            format: {with: VALID_EMAIL_REGEX},
-            uniqueness: true
+            format:           {with: VALID_EMAIL_REGEX},
+            uniqueness:       true
 
   validates :password,
-            length: {minimum: 8, :if => :validate_password?},
+            length:       {minimum: 8, :if => :validate_password?},
             :confirmation => {:if => :validate_password?}
 
   validates :name, presence: true
-  validates :name, length: {minimum: 2}, unless: -> {self.name.blank?}
+  validates :name, length: {minimum: 2}, unless: -> { self.name.blank? }
 
   has_many :project_members, dependent: :destroy
   has_many :projects, through: :project_members
   has_many :pinboard_items, dependent: :destroy
 
-  scope :is_administrator, -> {where(is_administrator: true)}
+  scope :is_administrator, -> { where(is_administrator: true) }
 
   def administered_projects
     projects.where(id: project_members.where(is_project_administrator: true).pluck(:project_id))
@@ -149,11 +149,71 @@ class User < ApplicationRecord
     administered_projects.any?
   end
 
+  # @param [String, User, Integer] user
+  # @return [Integer] selected user id
+  def self.get_user_id(user)
+    # no way to know who the current user is, so can't pre-set user_id
+    case user.class.name
+      when 'String'
+        # search by name or email
+        ut     = User.arel_table
+        c1     = ut[:name].eq(user).or(ut[:email].eq(user.downcase)).to_sql
+        t_user = User.where(c1).first
+        if t_user.present?
+          user_id = t_user.id
+        else  # try to convert to a number, to see if it came directly from a web page
+          t_user = user.to_i
+          if t_user > 0
+            t_user = User.find(t_user).try(:id)
+          else
+            t_user = nil
+          end
+          user_id = t_user
+        end
+      when 'User'
+        user_id = user.id
+      when 'Integer'
+        user_id = user
+    end
+    user_id
+  end
+
+  # @param [String, User, Integer, Array] users
+  # @return [Array of Integers] selected user ids
+  def self.get_user_ids(*users)
+    user_ids = []
+    users.flatten.each { |user|
+      case user.class.name
+        when 'String'
+          # search by name or email
+          ut = User.arel_table
+          c1 = ut[:name].eq(user)
+                 .or(ut[:name].matches("%#{user}"))
+                 .or(ut[:name].matches("%#{user}%"))
+                 .or(ut[:email].eq(user))
+                 .or(ut[:email].matches("%#{user}"))
+                 .or(ut[:email].matches("%#{user}%")).to_sql
+          user_ids.push(User.where(c1).pluck(:id))
+        when 'User'
+          user_ids.push(user.id)
+        when 'Integer'
+          user_ids.push(user)
+      end
+    }
+    user_ids.flatten.uniq
+  end
+
   def self.not_in_project(project_id)
     ids = ProjectMember.where(project_id: project_id).pluck(:user_id)
     return where(false) if ids.empty?
 
-    User.where( User.arel_table[:id].not_eq_all( ids ))
+    User.where(User.arel_table[:id].not_eq_all(ids))
+  end
+
+  # @param [Integer] project_id
+  # @return [Scope] of ids for users in the project
+  def self.in_project(project_id = $project_id)
+    ProjectMember.where(project_id: project_id).distinct.pluck(:user_id)
   end
 
   def User.secure_random_token
@@ -196,27 +256,27 @@ class User < ApplicationRecord
 
   def add_page_to_favorites(options = {}) # name: nil, kind: nil, project_id: nil
     validate_favorite_options(options)
-    n = options[:name]
-    p = options[:project_id].to_s
-    k = options[:kind]
-    u = hub_favorites.clone
+    n       = options[:name]
+    p       = options[:project_id].to_s
+    k       = options[:kind]
+    u       = hub_favorites.clone
 
-    u[p] = { 'data' => [], 'tasks' => []} if !u[p]
+    u[p]    = {'data' => [], 'tasks' => []} if !u[p]
     u[p][k] = u[p][k].push(n).uniq[0..19].sort
 
     update_column(:hub_favorites, u)
     true
   end
 
-  def remove_page_from_favorites(options = {} ) # name: nil, kind: nil, project_id: nil
+  def remove_page_from_favorites(options = {}) # name: nil, kind: nil, project_id: nil
     validate_favorite_options(options)
     new_routes = hub_favorites.clone
     new_routes[options['project_id'].to_s][options['kind']].delete(options['name'])
-    update_column(:hub_favorites, new_routes )
+    update_column(:hub_favorites, new_routes)
   end
 
   def validate_favorite_options(options)
-    return false if !options.select{|k, v| k.nil? || v.nil?}.empty?
+    return false if !options.select { |k, v| k.nil? || v.nil? }.empty?
     return false if !member_of?(options['project_id'])
     true
   end
@@ -236,24 +296,24 @@ class User < ApplicationRecord
 
   def add_recently_visited_to_footprint(recent_route, recent_object = nil)
     case recent_route
-    when /\A\/\Z/ # the root path '/'
-    when /\A\/hub/ # any path which starts with '/hub'
-    when /\/autocomplete\?/ # any path used for AJAX autocomplete
-    else
+      when /\A\/\Z/ # the root path '/'
+      when /\A\/hub/ # any path which starts with '/hub'
+      when /\/autocomplete\?/ # any path used for AJAX autocomplete
+      else
 
-      fp                     = footprints.dup
-      fp['recently_visited'] ||= []
+        fp                     = footprints.dup
+        fp['recently_visited'] ||= []
 
-      attrs = { recent_route => {}  }
-      if !recent_object.nil?
-        attrs[recent_route].merge!(object_type: recent_object.class.to_s, object_id: recent_object.id)
-      end
+        attrs = {recent_route => {}}
+        if !recent_object.nil?
+          attrs[recent_route].merge!(object_type: recent_object.class.to_s, object_id: recent_object.id)
+        end
 
-      fp['recently_visited'].unshift(attrs)
-      fp['recently_visited'] = fp['recently_visited'].uniq {|a| a.keys}[0..19]
+        fp['recently_visited'].unshift(attrs)
+        fp['recently_visited'] = fp['recently_visited'].uniq { |a| a.keys }[0..19]
 
-      self.footprints_will_change!  # if this isn't thrown weird caching happens !
-      self.update_column(:footprints, fp)
+        self.footprints_will_change! # if this isn't thrown weird caching happens !
+        self.update_column(:footprints, fp)
     end
 
     true
@@ -293,7 +353,7 @@ class User < ApplicationRecord
       end
 
       if key
-        n = r.klass.name.underscore.humanize.pluralize
+        n     = r.klass.name.underscore.humanize.pluralize
         count = self.send(r.name).count
 
         if data[n]
@@ -304,11 +364,11 @@ class User < ApplicationRecord
 
         if count == 0
           data[n][:first_created] = 'n/a'
-          data[n][:last_updated] = 'n/a'
+          data[n][:last_updated]  = 'n/a'
         else
           data[n][:first_created] = self.send(r.name).limit(1).order(created_at: :asc).first.created_at
-          data[n][:last_updated] = self.send(r.name).limit(1).order(updated_at: :desc).first.updated_at
-       end
+          data[n][:last_updated]  = self.send(r.name).limit(1).order(updated_at: :desc).first.updated_at
+        end
       end
     end
     data

@@ -2,14 +2,14 @@ require 'rails_helper'
 
 describe 'Confidence', type: :model, group: :confidence do
   let(:class_with_confidences) { TestConfidence.new }
-  let(:confidence_level) {FactoryGirl.create(:valid_confidence_level)}
+  let(:confidence_level) {FactoryBot.create(:valid_confidence_level)}
 
   context 'associations' do
     specify 'has many confidences' do
       expect(class_with_confidences).to respond_to(:confidences)
       expect(class_with_confidences.confidences.to_a).to eq([]) # there are no confidences yet.
 
-      expect(class_with_confidences.confidences << FactoryGirl.build(:valid_confidence)).to be_truthy
+      expect(class_with_confidences.confidences << FactoryBot.build(:valid_confidence)).to be_truthy
       expect(class_with_confidences.confidences.size).to eq(1)
       expect(class_with_confidences.save).to be_truthy
       class_with_confidences.reload
@@ -21,7 +21,7 @@ describe 'Confidence', type: :model, group: :confidence do
   context 'scopes' do
     context '.with_confidences' do
       before {
-        FactoryGirl.create(:valid_confidence_level)
+        FactoryBot.create(:valid_confidence_level)
         Confidence.create(confidence_object: class_with_confidences, confidence_level: confidence_level)
       }
 
@@ -50,7 +50,7 @@ describe 'Confidence', type: :model, group: :confidence do
     context 'object with notes on destroy' do
       specify 'attached notes are destroyed' do
         expect(Confidence.count).to eq(0)
-        class_with_confidences.confidences << Confidence.new(confidence_level: FactoryGirl.create(:valid_confidence_level))
+        class_with_confidences.confidences << Confidence.new(confidence_level: FactoryBot.create(:valid_confidence_level))
         class_with_confidences.save
         expect(Confidence.count).to eq(1)
         expect(class_with_confidences.destroy).to be_truthy

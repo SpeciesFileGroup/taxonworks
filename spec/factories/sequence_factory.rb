@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :sequence, traits: [:housekeeping] do
     factory :valid_sequence do
       sequence "sequence"

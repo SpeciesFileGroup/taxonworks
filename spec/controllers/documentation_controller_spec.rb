@@ -26,13 +26,13 @@ RSpec.describe DocumentationController, type: :controller do
   # This should return the minimal set of attributes required to create a valid
   # Documentation. As you add validations to Documentation, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) {strip_housekeeping_attributes(FactoryGirl.build(:valid_documentation).attributes)}
+  let(:valid_attributes) {strip_housekeeping_attributes(FactoryBot.build(:valid_documentation).attributes)}
 
-  let(:documentation_target) {FactoryGirl.create(:valid_collecting_event)}
-  let(:document) {FactoryGirl.create(:valid_document)}
+  let(:documentation_target) {FactoryBot.create(:valid_collecting_event)}
+  let(:document) {FactoryBot.create(:valid_document)}
 
   let(:creatable_documentation) {
-    FactoryGirl.create(:valid_documentation, params: {type: Documentation::CollectingEventDocumentation,
+    FactoryBot.create(:valid_documentation, params: {type: Documentation::CollectingEventDocumentation,
                                                       document_id: document.id,
                                                       documentation_object_id: documentation_target.id,
                                                       documentation_object_type: documentation_target.class})}

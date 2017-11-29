@@ -27,7 +27,7 @@ RSpec.describe ProtocolRelationshipsController, type: :controller do
   # ProtocolRelationship. As you add validations to ProtocolRelationship, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_protocol_relationship).attributes)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_protocol_relationship).attributes)
   }
 
   let(:invalid_attributes) {
@@ -105,7 +105,7 @@ RSpec.describe ProtocolRelationshipsController, type: :controller do
 
   describe "PUT #update" do
     context "with valid params" do
-      let(:other_object) { FactoryGirl.create(:valid_collection_object) }
+      let(:other_object) { FactoryBot.create(:valid_collection_object) }
       let(:new_attributes) {
         { protocol_relationship_object_id: other_object.id, protocol_relationship_object_type: 'CollectionObject'}  
       }

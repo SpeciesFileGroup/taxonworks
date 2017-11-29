@@ -36,6 +36,10 @@ module Shared::Taggable
     tags.any?
   end
 
+  def tagged_with?(keyword_id)
+    tags.where(keyword_id: keyword_id).any? 
+  end
+
   def tag_with(keyword_id)
     tags << Tag.new(keyword_id: keyword_id)
   end

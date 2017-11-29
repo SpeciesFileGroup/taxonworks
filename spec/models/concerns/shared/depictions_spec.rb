@@ -35,7 +35,7 @@ describe 'Depictions', type: :model do
     context 'on destroy' do
       specify 'attached depictions are destroyed' do
         expect(Depiction.count).to eq(0)
-        instance_with_depiction.depictions << FactoryGirl.build(:valid_depiction)
+        instance_with_depiction.depictions << FactoryBot.build(:valid_depiction)
         instance_with_depiction.save
         expect(Depiction.count).to eq(1)
         expect(instance_with_depiction.destroy).to be_truthy

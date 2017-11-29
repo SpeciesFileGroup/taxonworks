@@ -85,12 +85,12 @@ describe Georeference::GeoLocate, type: :model, group: :geo do
     end
 
     specify 'with a collecting event #build produces a valid instance' do
-      @a.collecting_event = FactoryGirl.build(:valid_collecting_event)
+      @a.collecting_event = FactoryBot.build(:valid_collecting_event)
       expect(@a.valid?).to be_truthy
     end
 
     specify 'a built, valid, instance is geometrically(?) correct' do
-      @a.collecting_event = FactoryGirl.build(:valid_collecting_event)
+      @a.collecting_event = FactoryBot.build(:valid_collecting_event)
       expect(@a.save).to be_truthy
       expect(@a.error_geographic_item.geo_object.contains?(@a.geographic_item.geo_object)).to be_truthy
     end

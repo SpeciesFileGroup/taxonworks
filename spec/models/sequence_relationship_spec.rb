@@ -25,7 +25,7 @@ RSpec.describe SequenceRelationship, type: :model, group: [:dna]  do
 
     context 'passes when given' do
       specify 'subject_sequence_id and object_sequence_id and type' do
-        sequence_relationship = FactoryGirl.create(:valid_sequence_relationship)
+        sequence_relationship = FactoryBot.create(:valid_sequence_relationship)
         expect(sequence_relationship.valid?).to be_truthy
       end
     end

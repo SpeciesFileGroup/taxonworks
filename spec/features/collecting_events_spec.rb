@@ -10,7 +10,7 @@ describe 'CollectingEvents', :type => :feature do
   context 'signed in as a user, with some records created' do
     before do 
       sign_in_user_and_select_project
-      10.times { factory_girl_create_for_user_and_project(:valid_collecting_event, @user, @project) }
+      10.times { factory_bot_create_for_user_and_project(:valid_collecting_event, @user, @project) }
     end 
 
     describe 'GET /collecting_events' do

@@ -42,13 +42,13 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         describe '#set_identifier', js: true, resolution: true do
 
           before do
-            2.times { FactoryGirl.create(:valid_namespace, creator: @user, updater: @user) }
+            2.times { FactoryBot.create(:valid_namespace, creator: @user, updater: @user) }
             ns1 = Namespace.first
             ns2 = Namespace.second
-            2.times { FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project) }
+            2.times { FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project) }
             (1..10).each { |identifier|
-              sp = FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)
-              id = FactoryGirl.create(:identifier_local_catalog_number,
+              sp = FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project)
+              id = FactoryBot.create(:identifier_local_catalog_number,
                                       updater:           @user,
                                       project:           @project,
                                       creator:           @user,
@@ -100,9 +100,9 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         describe '#set_date', js: true do
           before { visit(collection_objects_filter_task_path) }
           it 'renders count of collection objects based on the start and end dates' do
-            execute_script("document.getElementById('search_end_date').value = '1980/12/31'")
-            find('#search_start_date').set('1971/01/01')
-            find('#search_end_date').click
+            execute_script("document.getElementById('search_end_date').value = '1980-12-31'")
+            find('#search_start_date').set('1971-01-01')
+            find('#set_date').click
             expect(find('#date_count')).to have_content('10')
           end
         end
@@ -110,8 +110,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         describe '#find', js: true do
           before {
             visit(collection_objects_filter_task_path)
-            execute_script("document.getElementById('search_start_date').value = '1971/01/01'")
-            execute_script("document.getElementById('search_end_date').value = '1980/12/31'")
+            execute_script("document.getElementById('search_start_date').value = '1971-01-01'")
+            execute_script("document.getElementById('search_end_date').value = '1980-12-31'")
             #  find('#search_start_date').set '1971/01/01'
             #  find('#search_end_date').set '1980/12/31'
             find('#label_toggle_slide_area').click
@@ -134,10 +134,10 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
       end
 
       context 'with records specific to identifiers' do
-        describe 'select a namespace' do
+        describe 'select a namespace', js: true do
           it 'should find the correct namespace' do
-            @ns1 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)
-            @ns2 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
+            @ns1 = FactoryBot.create(:valid_namespace, creator: @user, updater: @user)
+            @ns2 = FactoryBot.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
             visit(collection_objects_filter_task_path)
 
             expect(page).to have_button('Set Identifier Range')
@@ -150,22 +150,22 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
         describe 'select start and stop identifiers', js: true do
           it 'should find the start and stop inputs' do
-            @ns1 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user)
-            @ns2 = FactoryGirl.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
-            3.times { FactoryGirl.create(:valid_namespace, creator: @user, updater: @user) }
+            @ns1 = FactoryBot.create(:valid_namespace, creator: @user, updater: @user)
+            @ns2 = FactoryBot.create(:valid_namespace, creator: @user, updater: @user, short_name: 'PSUC_FEM')
+            3.times { FactoryBot.create(:valid_namespace, creator: @user, updater: @user) }
             @ns3 = Namespace.third
-            2.times { FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project) }
-            FactoryGirl.create(:identifier_local_import,
+            2.times { FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project) }
+            FactoryBot.create(:identifier_local_import,
                                identifier_object: Specimen.first,
                                namespace:         @ns3,
                                identifier:        'First specimen', creator: @user, updater: @user, project: @project)
-            FactoryGirl.create(:identifier_local_import,
+            FactoryBot.create(:identifier_local_import,
                                identifier_object: Specimen.second,
                                namespace:         @ns3,
                                identifier:        'Second specimen', creator: @user, updater: @user, project: @project)
             (1..10).each { |identifier|
-              sp = FactoryGirl.create(:valid_specimen, creator: @user, updater: @user, project: @project)
-              id = FactoryGirl.create(:identifier_local_catalog_number,
+              sp = FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project)
+              id = FactoryBot.create(:identifier_local_catalog_number,
                                       identifier_object: sp,
                                       namespace:         ((identifier % 2) == 0 ? @ns1 : @ns2),
                                       identifier:        identifier, creator: @user, updater: @user, project: @project)
@@ -210,6 +210,91 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             find('#find_area_and_date_commit').click
             wait_for_ajax
             expect(find('#paging_data')).to have_content('all 4')
+
+          end
+        end
+      end
+
+      context 'with records specific to users and dates' do
+        let!(:pat) { User.find(1) }
+        let!(:pat_admin) { User.where(name: 'Pat Project Administrator').first }
+        let!(:joe) {
+          peep = FactoryBot.create(:valid_user, by: pat_admin)
+          ProjectMember.create(project_id: @project.id, user_id: peep.id, by: pat_admin)
+          peep
+        }
+
+        describe 'default user', js: true do
+          it 'should present the current user' do
+            visit(collection_objects_filter_task_path)
+            page.execute_script "$('#set_user_date_range')[0].scrollIntoView()"
+
+            expect(page).to have_button('Set User/Date Range')
+            expect(page).to have_text(@user.name)
+          end
+        end
+
+        describe 'selected user', js: true do
+          it 'should find specific user' do
+            visit(collection_objects_filter_task_path)
+            page.execute_script "$('#set_user_date_range')[0].scrollIntoView()"
+
+            select('Joe', from: 'user')
+            expect(find_field('user').value).to eq(joe.id.to_s)
+          end
+        end
+
+        describe 'selected objects', js: true do
+          it 'should find specific objects' do
+            2.times { FactoryBot.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: @project) }
+            (1..10).each { |specimen|
+              sp = FactoryBot.create(:valid_specimen,
+                                      creator:    ((specimen % 2) == 0 ? joe : pat),
+                                      created_at: "200#{specimen - 1}/01/#{specimen}",
+                                      updated_at: "200#{specimen - 1}/07/#{specimen}",
+                                      updater:    ((specimen % 2) == 0 ? pat : joe),
+                                      project:    @project)
+            }
+
+            expect(Specimen.created_by_user(pat_admin).count).to eq(2)
+            expect(Specimen.created_by_user(pat).count).to eq(5)
+            expect(Specimen.created_by_user(joe).count).to eq(5)
+
+            visit(collection_objects_filter_task_path)
+
+            page.execute_script "$('#set_user_date_range')[0].scrollIntoView()"
+
+            # default select is current user / all dates
+            click_button('Set User/Date Range', {id: 'set_user_date_range'})
+            wait_for_ajax
+            expect(find('#user_date_range_count')).to have_content('5')
+
+            select('All users', from: 'user')
+            click_button('Set User/Date Range', {id: 'set_user_date_range'})
+            wait_for_ajax
+            expect(find('#user_date_range_count')).to have_content('12')
+
+            fill_in('user_date_range_start', with: '2005-01-01')
+            fill_in('user_date_range_end', with: Date.yesterday)
+
+            click_button('Set User/Date Range', {id: 'set_user_date_range'})
+            wait_for_ajax
+            expect(find('#user_date_range_count')).to have_content('5')
+
+            select('Pat Pro', from: 'user')
+            fill_in('user_date_range_start', with: Date.today)
+            fill_in('user_date_range_end', with: Date.today)
+
+            click_button('Set User/Date Range', {id: 'set_user_date_range'})
+            wait_for_ajax
+            expect(find('#user_date_range_count')).to have_content('2')
+
+            fill_in('user_date_range_start', with: Date.yesterday)
+            fill_in('user_date_range_end', with: Date.yesterday)
+
+            click_button('Set User/Date Range', {id: 'set_user_date_range'})
+            wait_for_ajax
+            expect(find('#user_date_range_count')).to have_content('0')
 
           end
         end

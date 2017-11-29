@@ -1,6 +1,6 @@
 require 'rails_helper'
 describe Lot, :type => :model do
-  let(:lot) { FactoryGirl.build(:lot) }
+  let(:lot) { FactoryBot.build(:lot) }
 
   context "validation" do
     before(:each) {

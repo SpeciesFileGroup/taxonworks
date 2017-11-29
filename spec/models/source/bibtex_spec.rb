@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Source::Bibtex, type: :model, group: :sources do
 
-  let(:bibtex) { FactoryGirl.build(:source_bibtex) }
+  let(:bibtex) { FactoryBot.build(:source_bibtex) }
 
   let(:gem_bibtex_entry1) {
     BibTeX::Entry.new(bibtex_type: 'book', title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
@@ -287,8 +287,8 @@ describe Source::Bibtex, type: :model, group: :sources do
       #     expect(b[:note].to_s).to eq(out_note3 + '|' + out_note2 + '|' + out_note1) # should be 3 notes or'ed together.
       #   end
       context 'TW serial conversion' do
-        let(:src) { FactoryGirl.build(:soft_valid_bibtex_source_article) }
-        let(:serial1) { FactoryGirl.create(:valid_serial) }  # create so serial1 has an ID
+        let(:src) { FactoryBot.build(:soft_valid_bibtex_source_article) }
+        let(:serial1) { FactoryBot.create(:valid_serial) }  # create so serial1 has an ID
 
         specify 'serial gets converted properly to bibtex journal' do
           expect(src.valid?).to be_truthy
@@ -307,7 +307,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         end
 
         specify 'issn gets converted properly' do
-          issn = FactoryGirl.build(:issn_identifier)
+          issn = FactoryBot.build(:issn_identifier)
           serial1.identifiers <<  issn
           expect(serial1.save).to be_truthy
           src.serial = serial1
@@ -320,10 +320,10 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
 
       context 'identifiers to bibtex' do
-        let(:src) { FactoryGirl.build(:soft_valid_bibtex_source_article) }
+        let(:src) { FactoryBot.build(:soft_valid_bibtex_source_article) }
 
         specify 'url gets converted properly' do
-          url = FactoryGirl.build(:uri_identifier)
+          url = FactoryBot.build(:uri_identifier)
           src.identifiers << url
           expect(src.save).to be_truthy
           src.soft_validate()
@@ -333,7 +333,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         end
 
         specify 'isbn gets converted properly' do
-          isbn = FactoryGirl.build(:isbn_identifier)
+          isbn = FactoryBot.build(:isbn_identifier)
           src.identifiers << isbn
           expect(src.save).to be_truthy
           src.soft_validate()
@@ -343,7 +343,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         end
 
         specify 'doi gets converted properly' do
-          doi = FactoryGirl.build(:doi_identifier)
+          doi = FactoryBot.build(:doi_identifier)
           src.identifiers << doi
           expect(src.save).to be_truthy
           src.soft_validate()
@@ -425,7 +425,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
   context 'validation' do
     specify 'must have a valid bibtex_type' do
-      local_src = FactoryGirl.build(:valid_source_bibtex)
+      local_src = FactoryBot.build(:valid_source_bibtex)
       expect(local_src.valid?).to be_truthy
       local_src.bibtex_type = 'test'
       expect(local_src.valid?).to be_falsey
@@ -447,7 +447,7 @@ describe Source::Bibtex, type: :model, group: :sources do
     end
 
     context 'test date related fields' do
-      let(:source_bibtex) { FactoryGirl.build(:valid_source_bibtex) }
+      let(:source_bibtex) { FactoryBot.build(:valid_source_bibtex) }
 
       specify 'if present year, must be an integer an greater than 999 and no more than 2 years in the future' do
         error_msg          = 'must be an integer greater than 999 and no more than 2 years in the future'
@@ -564,7 +564,7 @@ describe Source::Bibtex, type: :model, group: :sources do
     end
 
     context 'on save set cached values - single author' do
-      let(:l_src) { FactoryGirl.create(:soft_valid_bibtex_source_article) }
+      let(:l_src) { FactoryBot.create(:soft_valid_bibtex_source_article) }
 
       specify 'save src' do
         expect(l_src.save).to be_truthy
@@ -594,7 +594,7 @@ describe Source::Bibtex, type: :model, group: :sources do
     end
 
     context 'before save set cached values - multiple authors' do
-      let(:l_src) { FactoryGirl.build(:src_mult_authors) }
+      let(:l_src) { FactoryBot.build(:src_mult_authors) }
 
       specify 'src should save' do
         expect(l_src.save).to be_truthy
@@ -610,7 +610,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         end
 
         context 'correctly creates authority_name & cached_author_string' do
-          let(:source_bibtex) { FactoryGirl.build(:valid_source_bibtex) }
+          let(:source_bibtex) { FactoryBot.build(:valid_source_bibtex) }
 
           context 'with author, but without authors' do
             specify 'single author' do
@@ -653,7 +653,7 @@ describe Source::Bibtex, type: :model, group: :sources do
     end
 
     specify 'the url must be valid' do
-      src = FactoryGirl.build(:valid_source_bibtex)
+      src = FactoryBot.build(:valid_source_bibtex)
       err = '] is not a valid URL'
       expect(src.valid?).to be_truthy # nil url is valid
       src.url = 'bad url'
@@ -725,7 +725,7 @@ describe Source::Bibtex, type: :model, group: :sources do
   context 'instance methods - ' do
     before(:each) {
       # this is a TW Source::Bibtex - type article, with just a title
-      @source_bibtex = FactoryGirl.build(:valid_source_bibtex)
+      @source_bibtex = FactoryBot.build(:valid_source_bibtex)
     }
     context 'with an existing instance of Source::Bibtex' do
 
@@ -749,7 +749,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
         %w{author editor}.each do |a|
           context "creates people for #{a}s" do
-            let(:source_bibtex) { FactoryGirl.build(:valid_source_bibtex) }
+            let(:source_bibtex) { FactoryBot.build(:valid_source_bibtex) }
             specify "single #{a}" do
               method = "#{a}s"
               source_bibtex.send("#{a}=".to_sym, 'Smith, Bill')
@@ -943,9 +943,9 @@ describe Source::Bibtex, type: :model, group: :sources do
         Source.destroy_all
         @source_bibtex.year = 2002 # @source_bibtex has no date, title: 'article 1 just title'
         expect(@source_bibtex.save).to be_truthy
-        FactoryGirl.create(:valid_bibtex_source_book_title_only) # 'valid book with just a title' : no date
-        FactoryGirl.create(:valid_thesis) # 'Bugs by Beth': june 1982
-        FactoryGirl.create(:valid_misc) # 'misc source': july 4 2010
+        FactoryBot.create(:valid_bibtex_source_book_title_only) # 'valid book with just a title' : no date
+        FactoryBot.create(:valid_thesis) # 'Bugs by Beth': june 1982
+        FactoryBot.create(:valid_misc) # 'misc source': july 4 2010
         @sources = Source::Bibtex.order(id: :asc)
         expect(@sources.count).to eq(4)
 
@@ -970,7 +970,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(src.year_with_suffix).to eq('1921b')
         end
         specify 'correctly converts year suffix to BibTeX entry' do
-          src               = FactoryGirl.create(:valid_source_bibtex)
+          src               = FactoryBot.create(:valid_source_bibtex)
           src[:year]        = '1922'
           src[:year_suffix] = 'c'
           expect(src.year_with_suffix).to eq('1922c')
@@ -1017,8 +1017,8 @@ describe Source::Bibtex, type: :model, group: :sources do
     context 'associations' do
       context 'roles' do
 
-        let(:vp1) { FactoryGirl.create(:valid_person) } # Smith
-        let(:vp2) { FactoryGirl.create(:source_person_prefix) } # Von Adams, John
+        let(:vp1) { FactoryBot.create(:valid_person) } # Smith
+        let(:vp2) { FactoryBot.create(:source_person_prefix) } # Von Adams, John
 
         specify 'after create/saved populate author/editor roles' do
           # bs1 was saved in the "before", since the authors already exist in the db,
@@ -1035,7 +1035,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
         context 'check cached strings after update' do
           specify 'authors' do
-            src1 = FactoryGirl.create(:soft_valid_bibtex_source_article)
+            src1 = FactoryBot.create(:soft_valid_bibtex_source_article)
             src1.save
             expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
             expect(src1.cached_author_string).to eq('Person')
@@ -1052,7 +1052,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           end
 
           specify 'editors' do
-            src1 = FactoryGirl.create(:src_editor)
+            src1 = FactoryBot.create(:src_editor)
             src1.save
             expect(src1.cached).to eq('Person, T. ed. (1700) I am a soft valid article. Journal of Test Articles.')
 
@@ -1174,7 +1174,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 =end
 
   context 'soft validations' do
-    let(:source_bibtex) { FactoryGirl.build(:soft_valid_bibtex_source_article) }
+    let(:source_bibtex) { FactoryBot.build(:soft_valid_bibtex_source_article) }
 
     specify 'missing authors' do
       source_bibtex.soft_validate(:recommended_fields)

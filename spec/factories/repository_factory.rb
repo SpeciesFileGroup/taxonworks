@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :repository, traits: [:creator_and_updater] do
     factory :valid_repository do
       name "Fort Knocks"

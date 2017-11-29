@@ -14,7 +14,7 @@ describe '/tasks/collecting_events/parse/stepwise/lat_long', type: :feature, gro
 
       context 'with some records created' do
         let(:ce_find) {
-          FactoryGirl.create(:valid_collecting_event,
+          FactoryBot.create(:valid_collecting_event,
                              verbatim_label: 'Strange verbatim_label #1. Matched by DD7 [40.092067, -88.249519]',
                              verbatim_latitude:  nil,
                              verbatim_longitude: nil,
@@ -24,7 +24,7 @@ describe '/tasks/collecting_events/parse/stepwise/lat_long', type: :feature, gro
                              project:            @project)
         }
         let(:ce_dont_find) {
-          FactoryGirl.create(:valid_collecting_event,
+          FactoryBot.create(:valid_collecting_event,
                              verbatim_label:     "Don't find me! n40º5'31.4412\" w88∫11′43.3″",
                              verbatim_latitude:  "n40º5'31.4412\"",
                              verbatim_longitude: 'w88∫11′43.3″',

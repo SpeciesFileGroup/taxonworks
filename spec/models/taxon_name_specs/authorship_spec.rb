@@ -2,8 +2,8 @@ require 'rails_helper'
 
 describe TaxonName, type: :model, group: [:nomenclature] do
 
-  let(:root) { FactoryGirl.create(:root_taxon_name) }
-  let(:source) { FactoryGirl.create(:valid_source, year: 1927) }
+  let(:root) { FactoryBot.create(:root_taxon_name) }
+  let(:source) { FactoryBot.create(:valid_source, year: 1927) }
   let(:person) { Person.create(last_name: 'Smith') }
 
   context 'assigning year to authorship string' do

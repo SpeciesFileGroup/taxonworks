@@ -1,6 +1,6 @@
 require 'rails_helper'
 describe Topic, :type => :model do
-  let(:topic) { FactoryGirl.build(:topic) }
+  let(:topic) { FactoryBot.build(:topic) }
 
   # validation is handlded in superclass or associated classes
 

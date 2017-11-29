@@ -5,7 +5,7 @@ describe Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper, type: :helper,
     let(:no_next_text) { 'No collecting event available.' }
     let(:ce_find_label) { 'Strange verbatim_label #1. Matched by DD7 [40.092067, -88.249519]' }
     let(:ce_find) {
-      FactoryGirl.create(:valid_collecting_event,
+      FactoryBot.create(:valid_collecting_event,
                          verbatim_label: ce_find_label,
                          verbatim_latitude:  nil,
                          verbatim_longitude: nil,

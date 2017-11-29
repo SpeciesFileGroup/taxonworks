@@ -26,7 +26,7 @@ describe CollectionProfilesController, :type => :controller do
   # This should return the minimal set of attributes required to create a valid
   # CollectionProfile. As you add validations to CollectionProfile, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_collection_profile).attributes) }
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryBot.build(:valid_collection_profile).attributes) }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -105,7 +105,7 @@ describe CollectionProfilesController, :type => :controller do
 
 
     describe 'with valid params' do
-      let(:otu) {FactoryGirl.create(:valid_otu)}
+      let(:otu) {FactoryBot.create(:valid_otu)}
       let(:update_params) {ActionController::Parameters.new({otu_id: otu.id.to_s}).permit(:otu_id)}
       it 'updates the requested collection_profile' do
         collection_profile = CollectionProfile.create! valid_attributes

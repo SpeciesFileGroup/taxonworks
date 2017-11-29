@@ -34,7 +34,7 @@ describe 'Identifiers', type: :feature do
 =begin
     context 'creating a new identifier' do
       before {
-        specimen = factory_girl_create_for_user_and_project(:valid_specimen, @user, @project)
+        specimen = factory_bot_create_for_user_and_project(:valid_specimen, @user, @project)
         visit collection_object_path(specimen)
       }
 

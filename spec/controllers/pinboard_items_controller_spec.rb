@@ -27,8 +27,8 @@ RSpec.describe PinboardItemsController, :type => :controller do
   # PinboardItem. As you add validations to PinboardItem, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    o = FactoryGirl.create(:valid_otu)
-    strip_housekeeping_attributes(FactoryGirl.build(:valid_pinboard_item).attributes.merge(pinned_object_id: o.id, pinned_object_type: o.class.name, user_id: 1))
+    o = FactoryBot.create(:valid_otu)
+    strip_housekeeping_attributes(FactoryBot.build(:valid_pinboard_item).attributes.merge(pinned_object_id: o.id, pinned_object_type: o.class.name, user_id: 1))
   }
 
   let(:invalid_attributes) {

@@ -22,14 +22,14 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   let(:species) { Protonym.create!(name: 'aus', parent: genus, rank_class: Ranks.lookup(:iczn, :species ) )  } 
 
   let(:species_type_of_genus) { 
-    FactoryGirl.create(:taxon_name_relationship,
+    FactoryBot.create(:taxon_name_relationship,
                        subject_taxon_name: species,
                        object_taxon_name: genus,
                        type: 'TaxonNameRelationship::Typification::Genus::Monotypy::Original')
   }
 
   let(:genus_type_of_family) { 
-    FactoryGirl.create(:taxon_name_relationship,
+    FactoryBot.create(:taxon_name_relationship,
                        subject_taxon_name: genus,
                        object_taxon_name: family,
                        type: 'TaxonNameRelationship::Typification::Family')

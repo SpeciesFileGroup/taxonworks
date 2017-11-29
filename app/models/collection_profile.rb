@@ -63,11 +63,11 @@
 #
 class CollectionProfile < ApplicationRecord
   include Housekeeping
-  include Shared::IsData
   include SoftValidation
   include Shared::Identifiable
   include Shared::Notable
   include Shared::Taggable
+  include Shared::IsData
 
   belongs_to :container
   belongs_to :otu

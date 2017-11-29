@@ -3,7 +3,7 @@ require 'rails_helper'
 describe Identifier::Global::Doi, type: :model, group: :identifiers do
 
   context 'DOI.Org' do
-    let(:id) { FactoryGirl.build(:identifier_global_doi) }
+    let(:id) { FactoryBot.build(:identifier_global_doi) }
 
     context '#identifier is validly formatted' do
       specify 'empty' do
