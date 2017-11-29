@@ -7,31 +7,37 @@
 <h3> Has many </h3>
 
 <% @object.class.reflect_on_all_associations(:has_many).sort { |a, b| a.name <=> b.name }.each do |r| -%>
-  <% next if r.name =~ /_hierarchies/ -%>
+  <% next if r.name =~ /_hierarchies/ %>
+
   <% if @object.respond_to?(r.name) -%>
-    <% if @object.send(r.name.to_s).count > 0-%>
-      <%= content_tag(:h3, r.name.to_s.humanize + ' (' + @object.send(r.name.to_s).count.to_s + ')' ) -%> 
+    <% t = @object.send(r.name.to_s).count %>
+    <% if t > 0 %>
+      <%= content_tag(:h4, r.name.to_s.humanize + ' (' + t.to_s + ')' ) -%> 
       <ul> 
         <% @object.send(r.name.to_s).all.each do |o| -%>
           <%= content_tag(:li, object_link(o)) -%>
         <% end %>
-      <% end %>
-    </ul>
+      </ul>
+    <% end %>
   <% else %>
-    <mark> requires method rename! </mark>
+    <mark class="notice"> Requires method rename! </mark>
   <% end %>
 <% end %>
 
 <h3> Has one </h3>
-<% @object.class.reflect_on_all_associations(:has_one).sort { |a, b| a.name <=> b.name }.each do |r| -%>
-  <%= r.name.to_s.humanize -%>:
-  <%= object_link(@object.send(r.name.to_s)) -%>
-  <br>
-<% end %>
+<ul>
+  <% @object.class.reflect_on_all_associations(:has_one).sort { |a, b| a.name <=> b.name }.each do |r| -%>
+    <% if t = @object.send(r.name.to_s) -%>
+      <%= content_tag(:li, (r.name.to_s.humanize  + ': ' +  object_link(t)).html_safe ) -%>
+    <% end %>
+  <% end %>
+</ul>
 
 <h3> Belongs to </h3>
-<% @object.class.reflect_on_all_associations(:belongs_to).sort { |a, b| a.name <=> b.name }.each do |r| -%>
-  <%= r.name.to_s.humanize -%>:
-  <%= object_link(@object.send(r.name.to_s)) -%>
-  <br>
-<% end %>
+<ul>
+  <% @object.class.reflect_on_all_associations(:belongs_to).sort { |a, b| a.name <=> b.name }.each do |r| -%>
+    <% if t = @object.send(r.name.to_s) -%>
+      <%= content_tag(:li, (r.name.to_s.humanize  + ': ' +  object_link(t)).html_safe ) -%>
+    <% end %>
+  <% end %>
+</ul>
