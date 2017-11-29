@@ -29,7 +29,7 @@ TaxonWorks::Application.routes.draw do
     resources :tags, shallow: true, only: [:index]
     resources :notes, shallow: true, only: [:index]
     resources :identifiers, shallow: true, only: [:index]
-    resources :confidences, shallow: true, only: [:indx]
+    resources :confidences, shallow: true, only: [:index]
     resources :data_attributes, shallow: true, only: [:index]
     resources :alternate_values, shallow: true, only: [:index]
   end
