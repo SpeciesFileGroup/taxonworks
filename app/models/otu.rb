@@ -26,16 +26,16 @@ class Otu < ApplicationRecord
 
   include Housekeeping
   #include Shared::AlternateValues  # 1/26/15 with MJY - not going to allow alternate values in Burlap
-  include Shared::Citable               # TODO: have to think hard about this vs. using Nico's framework
+  include Shared::Citable           # TODO: have to think hard about this vs. using Nico's framework
   include Shared::DataAttributes
   include Shared::Identifiable
   include Shared::Notable
-  include Shared::Taggable
-  include Shared::IsData
   include Shared::Depictions
   include Shared::Loanable
   include Shared::Confidence
   include Shared::HasPapertrail
+  include Shared::Taggable
+  include Shared::IsData
   include SoftValidation
 
   belongs_to :taxon_name, inverse_of: :otus
