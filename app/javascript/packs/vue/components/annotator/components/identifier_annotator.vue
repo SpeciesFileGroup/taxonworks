@@ -2,6 +2,12 @@
 	<div class="identifier_annotator">
 		<div>
 			<div v-if="namespace">
+
+				<div class="separate-bottom">
+					<span class="capitalize">{{ namespace }}</span>
+					<button type="button" @click="reset()">Change</button>
+				</div>
+
 		        <div class="switch-radio">
 					<input name="identifier-picker-options" id="identifier-picker-common" checked type="radio" class="normal-input button-active" @click="display = 'common'"/>
 					<label for="identifier-picker-common">Common</label>
@@ -14,6 +20,7 @@
 		        </div>
 
 		        <div class="separate-bottom separate-top">
+
 					<ul v-if="display == 'common'" class="no_bullets">
 						<li v-for="item in typeList[namespace].common">
 							<label class="capitalize">
@@ -123,6 +130,11 @@
 					this.list.push(response.body);
 					this.identifier = this.newIdentifier();
 				});
+			},
+			reset() {
+				this.newIdentifier();
+				this.namespace = undefined;
+				this.display = 'common';
 			}
 		}
 	}
