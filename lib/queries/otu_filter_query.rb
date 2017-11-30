@@ -5,15 +5,16 @@ module Queries
     # Query variables
     attr_accessor :query_geographic_area_ids, :query_shape
     attr_accessor :query_nomen_id, :query_descendants
-    attr_accessor :query_author_ids, :query_authors_select
+    attr_accessor :query_author_ids, :query_and_or_select
 
     def initialize(params)
       params.reject! { |k, v| v.blank? }
+      @query_params = params
 
       @query_geographic_area_ids = params[:geographic_area_ids]
       @query_shape               = params[:drawn_area_shape]
-      @query_author_ids          = params[:author_ids] #TODO remove array container when form returns array of IDs
-      @query_authors_select      = 'or'
+      @query_author_ids          = params[:author_ids]
+      @query_and_or_select      = params[:and_or_select]
       @query_nomen_id            = params[:nomen_id]
       @query_descendants         = params[:descendants]
 
@@ -112,7 +113,7 @@ module Queries
       3. find all otus which are associated with result #2
 =end
     # @return [Scope]
-    def author_scope
+    def author_scope # TODO deal with and/or select (query_and_or_select)
       Otu.joins(:taxon_name).where("taxon_names.id IN (SELECT taxon_names.id FROM taxon_names INNER JOIN roles ON taxon_names.id = roles.role_object_id WHERE roles.type IN ('TaxonNameAuthor') AND roles.person_id IN (?) AND roles.role_object_type = 'TaxonName' )", query_author_ids)
     end
 
