@@ -132,6 +132,6 @@ class TaxonNameRelationshipsController < ApplicationController
   def filter_sql
     h = params.permit(:taxon_name_id, :as_object, :as_subject, of_type: []).to_h.symbolize_keys
     Queries::TaxonNameRelationshipsFilterQuery.new(h).where_sql
-end
+  end
 
 end

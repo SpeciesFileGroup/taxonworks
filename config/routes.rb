@@ -1,5 +1,7 @@
 TaxonWorks::Application.routes.draw do
 
+
+
   get :ping, controller: 'ping',  defaults: { format: :json }
   
   # All models that use data controllers should include this concern.
@@ -20,20 +22,7 @@ TaxonWorks::Application.routes.draw do
       get 'related'
     end
   end
-  
-  # TODO: this group is too big to spam everwhere, be more specific
-  concern :shallow_annotation_routes do |options|
-    resources :citations, shallow: true, only: [:index]
-    resources :depictions, shallow: true, only: [:index]
-    resources :documentation, shallow: true, only: [:index] 
-    resources :tags, shallow: true, only: [:index]
-    resources :notes, shallow: true, only: [:index]
-    resources :identifiers, shallow: true, only: [:index]
-    resources :confidences, shallow: true, only: [:index]
-    resources :data_attributes, shallow: true, only: [:index]
-    resources :alternate_values, shallow: true, only: [:index]
-  end
-  
+
   root 'dashboard#index'
   
   match '/dashboard', to: 'dashboard#index', via: :get
@@ -145,9 +134,8 @@ TaxonWorks::Application.routes.draw do
     end
   end
   
-  
   resources :collection_objects do
-    concerns [:data_routes, :shallow_annotation_routes]
+    concerns [:data_routes]
     member do
       get 'depictions'
       get 'containerize'
@@ -171,7 +159,7 @@ TaxonWorks::Application.routes.draw do
   match 'collection_profiles/swap_form_attribute_types/:collection_type', to: 'collection_profiles#swap_form_attribute_types', via: :get, method: :js
   
   resources :collecting_events do
-    concerns [:data_routes, :shallow_annotation_routes ]
+    concerns [:data_routes ]
     get :autocomplete_collecting_event_verbatim_locality, on: :collection
     member do
       get :card
@@ -204,7 +192,7 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :contents do
-    concerns [:data_routes, :shallow_annotation_routes]
+    concerns [:data_routes]
     collection do
       get :filter
     end
@@ -230,7 +218,7 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :descriptors do
-    concerns [:data_routes, :shallow_annotation_routes]
+    concerns [:data_routes]
     member do
       get :annotations, defaults: {format: :json}
     end
@@ -367,14 +355,14 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :observations do
-    concerns [:data_routes, :shallow_annotation_routes]
+    concerns [:data_routes]
     member do
       get :annotations, defaults: {format: :json}
     end
   end
 
   resources :otus do
-    concerns [:data_routes, :shallow_annotation_routes ]
+    concerns [:data_routes ]
     resources :contents, only: [:index]
     collection do
       post :preview_simple_batch_load # should be get
@@ -485,7 +473,7 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :sources do
-    concerns [:data_routes, :shallow_annotation_routes]
+    concerns [:data_routes]
     collection do
       post :preview_bibtex_batch_load # should be get
       post :create_bibtex_batch_load
@@ -508,9 +496,10 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :taxon_names do
-    concerns [:data_routes, :shallow_annotation_routes ]
+    concerns [:data_routes]
     resources :taxon_name_classifications, shallow: true, only: [:index], defaults: {format: :json}
-    resources :taxon_name_relationships, shallow: true, only: [:index], defaults: {format: :json}, param: :subject_taxon_name_id
+
+  #  resources :taxon_name_relationships, shallow: true, only: [:index], defaults: {format: :json}, param: :subject_taxon_name_id
 
     collection do
       post :preview_simple_batch_load # should be get
@@ -528,7 +517,7 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :taxon_name_classifications, except: [:show] do
-    concerns [:data_routes, :shallow_annotation_routes]
+    concerns [:data_routes]
     collection do
       get :taxon_name_classification_types
     end
@@ -538,7 +527,7 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :taxon_name_relationships do
-    concerns [:data_routes, :shallow_annotation_routes]
+    concerns [:data_routes]
     collection do
       get :type_relationships, {format: :json}
       get :taxon_name_relationship_types, {format: :json}
@@ -559,13 +548,20 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  match '/favorite_page/:kind/:name', to: 'user_preferences#favorite_page', as: :favorite_page, via: :post
-  match '/unfavorite_page/:kind/:name', to: 'user_preferences#unfavorite_page', as: :unfavorite_page, via: :post
+  # Generate shallow routes for annotations based on model properties, like
+  # otu_citations GET    /otus/:otu_id/citations(.:format)    citations#index
+  ApplicationEnumeration.data_models.each do |m|
+    Shared::IsData::Annotation::ANNOTATION_TYPES.each do |t|
+      if m.send("has_#{t.to_s}?")
+        n = m.model_name
+        match "/#{n.route_key}/:#{n.param_key}_id/#{t}", to: "#{t}#index", as: "#{n.singular}_#{t}", via: :get, defaults: {format: :json}
+      end
+    end 
+  end
 
-  ### End of resources except user related located below scopes ###
+  ### End of data resources ###
 
   scope :tasks do
-
     scope :observation_matrices do
       scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do
         get 'index', as: 'index_row_coder_task'
@@ -831,9 +827,7 @@ TaxonWorks::Application.routes.draw do
     scope :usage, controller: 'tasks/usage/user_activity' do
       get ':id', action: 'report', as: 'user_activity_report_task'
     end
-
   end
-
 
   ### End of task scopes, user related below ###
 
@@ -855,57 +849,13 @@ TaxonWorks::Application.routes.draw do
   match '/papertrail/:id', to: 'papertrail#show', as: 'paper_trail_version', via: :get
   match '/papertrail/update/', to: 'papertrail#update', as: 'papertrail_update', via: :put
 
+  match '/favorite_page/:kind/:name', to: 'user_preferences#favorite_page', as: :favorite_page, via: :post
+  match '/unfavorite_page/:kind/:name', to: 'user_preferences#unfavorite_page', as: :unfavorite_page, via: :post
 
   # TODO: Remove or rewrite endpoint implementation
   # get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
 
   get '/crash_test/' => 'crash_test#index' unless Rails.env.production?
-
-  # Example of regular route:
-  #   get 'products/:id' => 'catalog#view'
-
-  # Example of named route that can be invoked with purchase_url(id: product.id)
-  #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
-
-  # Example resource route (maps HTTP verbs to controller actions automatically):
-  #   resources :products
-
-  # Example resource route with options:
-  #   resources :products do
-  #     member do
-  #       get 'short'
-  #       post 'toggle'
-  #     end
-  #
-  #     collection do
-  #       get 'sold'
-  #     end
-  #   end
-
-  # Example resource route with sub-resources:
-  #   resources :products do
-  #     resources :comments, :sales
-  #     resource :seller
-  #   end
-
-  # Example resource route with more complex sub-resources:
-  #   resources :products do
-  #     resources :comments
-  #     resources :sales do
-  #       get 'recent', on: :collection
-  #     end  resources :gene_attributes
-  #     end
-
-  # Example resource route within a namespace:
-  #   namespace :admin do
-  #     # Directs /admin/products/* to Admin::ProductsController
-  #     # (app/controllers/admin/products_controller.rb)
-  #     resources :products
-  #   end
-  #
-  #
-  #
-  #
 
   # Future consideration - move this to an engine, or include multiple draw files and include (you apparenlty
   # lose the autoloading update from the include in this case however)

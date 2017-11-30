@@ -5,40 +5,22 @@ describe 'Annotation', type: :model do
   let(:test_is_data_annotation_instance) { TestIsDataAnnotation.new }
   let(:test_is_data_annotation_subclass_instance) { TestIsDataAnnotationSubclass.new }
 
-  specify '#has_alternate_values?' do
-    expect(test_is_data_annotation_instance.has_alternate_values?).to eq(false)
+  Shared::IsData::Annotation::ANNOTATION_TYPES.each do |t|
+    specify "#has_#{t}?" do
+      expect(test_is_data_annotation_instance.send("has_#{t}?")).to eq(false)
+    end
+  
+    specify ".has_#{t}?" do
+      expect(TestIsDataAnnotation.send("has_#{t}?")).to eq(false)
+    end
   end
 
-  specify '#has_citations?' do
-    expect(test_is_data_annotation_instance.has_citations?).to eq(false)
+  specify "#has_<tags>?" do
+    expect(TestIsDataAnnotationSubclass.new.has_tags?).to eq(true)
   end
 
-  specify '#has_data_attributes?' do
-    expect(test_is_data_annotation_instance.has_data_attributes?).to eq(false)
-  end
-
-  specify '#has_identifiers?' do
-    expect(test_is_data_annotation_instance.has_identifiers?).to eq(false)
-  end
-
-  specify '#has_notes?' do
-    expect(test_is_data_annotation_instance.has_notes?).to eq(false)
-  end
-
-  specify '#has_tags?' do
-    expect(test_is_data_annotation_instance.has_tags?).to eq(false)
-  end
-
-  specify '#has_confidences?' do
-    expect(test_is_data_annotation_instance.has_confidences?).to eq(false)
-  end
-
-  specify '#has_documentation?' do
-    expect(test_is_data_annotation_instance.has_documentation?).to eq(false)
-  end
-
-  specify '#has_protocols?' do
-    expect(test_is_data_annotation_instance.has_protocols?).to eq(false)
+  specify ".has_<tags>?" do
+    expect(TestIsDataAnnotationSubclass.has_tags?).to eq(true)
   end
 
   specify '#available_annotations_types 1' do
