@@ -19,7 +19,7 @@
 class CollectionObjectObservation < ApplicationRecord
   include Housekeeping
   include Shared::IsData
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::Notes
   include Shared::Depictions
 

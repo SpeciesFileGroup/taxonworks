@@ -30,7 +30,7 @@ class AssertedDistribution < ApplicationRecord
   include Shared::Notes
   include SoftValidation
   include Shared::IsData
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::DataAttributes
   include Shared::Citations
   include Shared::Confidences

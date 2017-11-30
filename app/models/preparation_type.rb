@@ -13,7 +13,7 @@ class PreparationType < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::IsData
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::SharedAcrossProjects
   include Shared::HasPapertrail
 

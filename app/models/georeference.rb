@@ -64,7 +64,7 @@
 class Georeference < ApplicationRecord
   include Housekeeping
   include Shared::Notes
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::IsData
   include Shared::Citations
   include Shared::HasRoles

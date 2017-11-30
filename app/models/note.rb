@@ -24,7 +24,7 @@ class Note < ApplicationRecord
   include Housekeeping
   include Shared::IsData
   include Shared::AttributeAnnotations
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:note_object)
   

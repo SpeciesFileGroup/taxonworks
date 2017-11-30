@@ -25,7 +25,7 @@ class Citation < ApplicationRecord
   include Shared::Notes
   include Shared::Confidences
   include Shared::DataAttributes
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::IsData
   include Shared::PolymorphicAnnotator
   polymorphic_annotates('citation_object')

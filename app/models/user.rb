@@ -101,7 +101,7 @@ class User < ApplicationRecord
   include Housekeeping::AssociationHelpers
   include Shared::DataAttributes
   include Shared::Notes
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::Identifiers
   include Shared::RandomTokenFields[:password_reset]
   has_secure_password

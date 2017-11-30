@@ -18,7 +18,7 @@
 #
 class BiologicalRelationship < ApplicationRecord
   include Housekeeping
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::Notes
   include Shared::Citations
   include Shared::DataAttributes

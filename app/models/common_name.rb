@@ -5,7 +5,7 @@ class CommonName < ApplicationRecord
   include Shared::DataAttributes
   include Shared::Identifiers
   include Shared::Notes
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::IsData
 
   ALTERNATE_VALUES_FOR = [:name]

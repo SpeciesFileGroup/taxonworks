@@ -15,7 +15,7 @@ class CharacterState < ApplicationRecord
   include Shared::IsData
   include Shared::Notes
   include Shared::Identifiers
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::Confidences
   include Shared::Documentation
   include Shared::Citations

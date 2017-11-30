@@ -28,7 +28,7 @@ class TypeMaterial < ApplicationRecord
   include Shared::Identifiers
   include Shared::IsData
   include Shared::Notes
-  include Shared::Taggable
+  include Shared::Tags
   include SoftValidation
 
   # Keys are valid values for type_type, values are

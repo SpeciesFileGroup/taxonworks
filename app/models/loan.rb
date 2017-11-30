@@ -60,7 +60,7 @@ class Loan < ApplicationRecord
   include Shared::DataAttributes
   include Shared::Identifiers
   include Shared::Notes
-  include Shared::Taggable
+  include Shared::Tags
   include SoftValidation
   include Shared::Depictions
   include Shared::HasRoles

@@ -30,7 +30,7 @@ class Otu < ApplicationRecord
   include Shared::DataAttributes
   include Shared::Identifiers
   include Shared::Notes
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::Depictions
   include Shared::Loanable
   include Shared::Confidences

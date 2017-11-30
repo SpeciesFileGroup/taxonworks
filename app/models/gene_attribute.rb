@@ -28,7 +28,7 @@ class GeneAttribute < ApplicationRecord
   include Shared::Identifiers
   include Shared::IsData
   include Shared::Notes
-  include Shared::Taggable
+  include Shared::Tags
   
   acts_as_list scope: [:descriptor_id]
 

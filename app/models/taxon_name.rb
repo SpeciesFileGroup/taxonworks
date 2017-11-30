@@ -116,7 +116,7 @@ class TaxonName < ApplicationRecord
   include Housekeeping
   include Shared::DataAttributes
   include Shared::HasRoles
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::Identifiers
   include Shared::Notes
   include Shared::Depictions

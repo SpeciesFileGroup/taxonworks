@@ -183,7 +183,7 @@ class CollectingEvent < ApplicationRecord
   include Shared::HasRoles
   include Shared::Identifiers
   include Shared::Notes
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::Depictions
   include Shared::IsData
   include Shared::Confidences

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Taggable', type: :model, group: :tags do
+describe 'Tags', type: :model, group: :tags do
   let(:class_with_tags) { TestTaggable.new } 
   let(:keyword) { FactoryBot.create(:valid_keyword) }
 
@@ -86,7 +86,7 @@ end
 
 class TestTaggable < ApplicationRecord
   include FakeTable
-  include Shared::Taggable
+  include Shared::Tags
 end
 
 

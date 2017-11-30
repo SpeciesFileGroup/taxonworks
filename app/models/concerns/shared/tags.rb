@@ -1,6 +1,6 @@
 # Shared code for extending data classes with Tags.
 #
-module Shared::Taggable
+module Shared::Tags
 
   extend ActiveSupport::Concern
 

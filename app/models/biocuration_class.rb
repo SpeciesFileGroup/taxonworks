@@ -7,7 +7,7 @@
 # I find this in the collection."
 #
 class BiocurationClass < ControlledVocabularyTerm
-  include Shared::Taggable
+  include Shared::Tags
 
   has_many :biocuration_classifications, inverse_of: :biocuration_class
   has_many :biological_collection_objects, through: :biocuration_classifications, class_name: 'CollectionObject::BiologicalCollectionObject', inverse_of: :biocuration_classes

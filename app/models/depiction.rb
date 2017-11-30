@@ -21,7 +21,7 @@ class Depiction < ApplicationRecord
   # TODO: add position scoping
 
   include Housekeeping
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::IsData
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:depiction_object)

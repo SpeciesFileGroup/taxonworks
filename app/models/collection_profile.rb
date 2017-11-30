@@ -66,7 +66,7 @@ class CollectionProfile < ApplicationRecord
   include SoftValidation
   include Shared::Identifiers
   include Shared::Notes
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::IsData
 
   belongs_to :container

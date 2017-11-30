@@ -36,7 +36,7 @@ class Serial < ApplicationRecord
   include Shared::DataAttributes  # equivalent of a note for a global class i.e. cross project note
   include Shared::Notes # project note
   include Shared::Identifiers
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::IsData
   include SoftValidation
   include Shared::SharedAcrossProjects

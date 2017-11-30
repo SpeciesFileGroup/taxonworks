@@ -69,6 +69,6 @@ class TestIsDataAnnotation < ApplicationRecord
 end
 
 class TestIsDataAnnotationSubclass < TestIsDataAnnotation
-  include Shared::Taggable
+  include Shared::Tags
 end
 

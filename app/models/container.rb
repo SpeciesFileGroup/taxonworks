@@ -25,7 +25,7 @@ class Container < ApplicationRecord
 
   include Shared::Containable
 
-  include Shared::Taggable
+  include Shared::Tags
   include SoftValidation
   include Shared::Loanable
 

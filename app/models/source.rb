@@ -191,7 +191,7 @@ class Source < ApplicationRecord
   include Shared::Identifiers
   include Shared::Notes
   include Shared::SharedAcrossProjects
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::Documentation 
   include Shared::HasRoles
   include Shared::IsData

@@ -3,7 +3,7 @@ class ObservationMatrix < ApplicationRecord
   include Shared::Citations
   include Shared::Identifiers
   include Shared::IsData
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::Notes
   include Shared::DataAttributes
 

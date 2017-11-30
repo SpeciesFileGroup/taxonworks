@@ -67,7 +67,7 @@ class CollectionObject < ApplicationRecord
   include Shared::HasRoles
   include Shared::Identifiers
   include Shared::Notes
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::Depictions
   include Shared::OriginRelationship
   include Shared::Confidences
