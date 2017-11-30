@@ -18,14 +18,14 @@ module Shared::Tags
     # TODO: This should be a Tag validation!?
     validate :identical_new_keywords_are_prevented
 
-    protected 
-    
+    protected
+
     def identical_new_keywords_are_prevented
       a = []
-      tags.each do |t| 
-        errors.add(:base, 'identical keyword attempt') if a.include?({:id => t.keyword.id, :name => t.keyword.name, :definition => t.keyword.definition})
+      tags.each do |t|
+        errors.add(:base, 'identical keyword attempt') if a.include?(id: t.keyword.id, name: t.keyword.name, definition: t.keyword.definition)
         # t.keyword.attributes cannot be used, because the updated_at is truncated after save. The date is returned in different format.
-        a.push ({:id => t.keyword.id, :name => t.keyword.name, :definition => t.keyword.definition})
+        a.push(id: t.keyword.id, name: t.keyword.name, definition: t.keyword.definition)
       end
     end
   end
@@ -37,7 +37,7 @@ module Shared::Tags
   end
 
   def tagged_with?(keyword_id)
-    tags.where(keyword_id: keyword_id).any? 
+    tags.where(keyword_id: keyword_id).any?
   end
 
   def tag_with(keyword_id)
@@ -54,12 +54,12 @@ module Shared::Tags
     end
   end
 
-  protected 
+  private
 
   def reject_tags(attributed)
-    (attributed['keyword'].blank? && attributed['keyword_id'].blank?) && 
-      attributed['position'].blank? && 
-      attributed['keyword_attributes'].blank?   
+    (attributed['keyword'].blank? && attributed['keyword_id'].blank?) &&
+      attributed['position'].blank? &&
+      attributed['keyword_attributes'].blank?
   end
 
 end
