@@ -20,14 +20,12 @@
 class Container < ApplicationRecord
 
   include Housekeeping
-  include Shared::IsData
   include Shared::Identifiers
-
   include Shared::Containable
-
   include Shared::Tags
   include SoftValidation
   include Shared::Loanable
+  include Shared::IsData
 
   has_many :collection_profiles
 

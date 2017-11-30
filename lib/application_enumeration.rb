@@ -7,7 +7,7 @@
 module ApplicationEnumeration
 
   # TODO: This should be a require check likely, for lib/taxon_works.rb or some such
-  # Rails.application.eager_load!
+  Rails.application.eager_load!
 
   # return [Array]
   #   a list symbols that represent populated, non "cached", non "_id", non reserved attributes

@@ -122,9 +122,9 @@ class TaxonName < ApplicationRecord
   include Shared::Depictions
   include Shared::Citations
   include Shared::Confidences
-  include SoftValidation
   include Shared::AlternateValues
   include Shared::HasPapertrail
+  include SoftValidation
   include Shared::IsData
 
   # Allows users to provide arbitrary annotations that "over-ride" rank string
