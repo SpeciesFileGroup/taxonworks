@@ -360,7 +360,7 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
 # when this test is run along with all the rest, there are otus which have been deleted, but are still attached
 # to collection objects. As a result, we select the *last* one (the one *most recently* created),
 # rather than the first.
-        ot        = @co_m2.otus.last
+        ot        = @co_m2.otus.order(:id).last
         tn        = ot.taxon_name
         test_name = tn.name
         params    = {}
@@ -379,8 +379,8 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
 
         result = Queries::CollectionObjectFilterQuery.new(params).result
         expect(result).to contain_exactly(@co_m2)
-        expect(result.first.otus.count).to eq(1)
-        expect(result.first.otus.last.taxon_name.name).to eq(test_name)
+        expect(result.first.otus.count).to eq(5)
+        expect(result.first.otus.order(:id).last.taxon_name.name).to eq(test_name)
       end
     end
   end
