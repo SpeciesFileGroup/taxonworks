@@ -60,7 +60,7 @@ class CollectionObject < ApplicationRecord
 
   include GlobalID::Identification
   include Housekeeping
-  include Shared::Citable
+  include Shared::Citations
   include Shared::Containable
   include Shared::DataAttributes
   include Shared::Loanable

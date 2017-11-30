@@ -152,7 +152,7 @@ describe AssertedDistribution, type: :model, group: :geo do
 
   context 'concerns' do
     it_behaves_like 'notable'
-    it_behaves_like 'citable'
+    it_behaves_like 'citations'
   end
 
 end

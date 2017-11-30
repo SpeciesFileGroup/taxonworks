@@ -37,7 +37,7 @@ class TaxonDetermination < ApplicationRecord
   acts_as_list scope: [:biological_collection_object_id]
 
   include Housekeeping
-  include Shared::Citable
+  include Shared::Citations
   include Shared::DataAttributes
   include Shared::Notable
   include Shared::Confidence

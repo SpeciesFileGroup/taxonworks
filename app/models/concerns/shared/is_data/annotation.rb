@@ -24,53 +24,71 @@ module Shared::IsData::Annotation
     def annotates?
       respond_to?(:annotated_object)
     end
+
+
+    ANNOTATION_TYPES.each do |t|
+      define_method("has_#{t}?") do
+        k = "Shared::#{t.to_s.classify}s".safe_constantize
+
+        self.class < k ? true : false
+      end
+    end
+
+  end
+
+  ANNOTATION_TYPES.each do |t|
+    define_method("has_#{t}?") do
+      k = "Shared::#{t.to_s.classify}s".safe_constantize
+        byebug
+      self.class < k ? true : false
+    end
   end
 
   # Determines whether the instance can be annotated
   # in one of the following ways
-  def has_alternate_values?
-    self.class < Shared::AlternateValues ? true : false
-  end
+# def has_alternate_values?
+#   self.class < Shared::AlternateValues ? true : false
+# end
 
-  def has_citations?
-    self.class < Shared::Citable ? true : false
-  end
+# def has_citations?
+#   self.class < Shared::Citable ? true : false
+# end
 
-  def has_data_attributes?
-    self.class < Shared::DataAttributes ? true : false
-  end
+# def has_data_attributes?
+#   self.class < Shared::DataAttributes ? true : false
+# end
 
-  def has_identifiers?
-    self.class < Shared::Identifiable ? true : false
-  end
+# def has_identifiers?
+#   self.class < Shared::Identifiable ? true : false
+# end
 
-  def has_notes?
-    self.class < Shared::Notable ? true : false
-  end
+# def has_notes?
+#   self.class < Shared::Notable ? true : false
+# end
 
-  def has_tags?
-    self.class < Shared::Taggable ? true : false
-  end
+# def has_tags?
+#   self.class < Shared::Taggable ? true : false
+# end
 
-  def has_confidences?
-    self.class < Shared::Confidence ? true : false
-  end
+# def has_confidences?
+#   self.class < Shared::Confidence ? true : false
+# end
 
-  def has_depictions?
-    self.class < Shared::Depictions ? true : false
-  end
+# def has_depictions?
+#   self.class < Shared::Depictions ? true : false
+# end
 
-  def has_loans?
-    self.class < Shared::Loanable ? true : false
-  end
+# def has_loans?
+#   self.class < Shared::Loanable ? true : false
+# end
 
-  def has_protocols?
-    self.class < Shared::Protocols ? true : false
-  end
+# def has_protocols?
+#   self.class < Shared::Protocols ? true : false
+# end
 
-  def has_documentation?
-    self.class < Shared::Documentation ? true : false
-  end
+# def has_documentation?
+#   self.class < Shared::Documentation ? true : false
+# end
 
   # @return [#annotations_hash]
   # an accessor for the annotations_hash, overwritten by some inheriting classes

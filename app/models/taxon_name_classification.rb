@@ -14,7 +14,7 @@
 #
 class TaxonNameClassification < ApplicationRecord
   include Housekeeping
-  include Shared::Citable
+  include Shared::Citations
   include Shared::Notable
   include Shared::IsData
   include SoftValidation

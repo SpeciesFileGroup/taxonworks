@@ -120,7 +120,7 @@ class TaxonName < ApplicationRecord
   include Shared::Identifiable
   include Shared::Notable
   include Shared::Depictions
-  include Shared::Citable
+  include Shared::Citations
   include Shared::Confidence
   include SoftValidation
   include Shared::AlternateValues

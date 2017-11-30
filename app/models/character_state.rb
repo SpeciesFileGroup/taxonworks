@@ -18,7 +18,7 @@ class CharacterState < ApplicationRecord
   include Shared::Taggable
   include Shared::Confidence
   include Shared::Documentation
-  include Shared::Citable
+  include Shared::Citations
   include Shared::DataAttributes
   include Shared::AlternateValues
   include SoftValidation

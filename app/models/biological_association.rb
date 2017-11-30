@@ -26,7 +26,7 @@
 #
 class BiologicalAssociation < ApplicationRecord
   include Housekeeping
-  include Shared::Citable
+  include Shared::Citations
   include SoftValidation
   include Shared::DataAttributes
   include Shared::Notable

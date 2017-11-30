@@ -26,7 +26,7 @@ class Content < ApplicationRecord
   include Housekeeping
   include Shared::Depictions
   include Shared::Confidence
-  include Shared::Citable
+  include Shared::Citations
   include Shared::IsData
   include Shared::HasPapertrail
 

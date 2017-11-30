@@ -22,7 +22,7 @@
 #
 class TypeMaterial < ApplicationRecord
   include Housekeeping
-  include Shared::Citable
+  include Shared::Citations
   include Shared::DataAttributes
   include Shared::HasRoles
   include Shared::Identifiable

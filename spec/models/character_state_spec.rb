@@ -67,7 +67,7 @@ RSpec.describe CharacterState, type: :model, group: :matrix do
   end
 
   context 'concerns' do
-    it_behaves_like 'citable'
+    it_behaves_like 'citations'
     it_behaves_like 'identifiable'
     it_behaves_like 'notable'
     it_behaves_like 'taggable'
