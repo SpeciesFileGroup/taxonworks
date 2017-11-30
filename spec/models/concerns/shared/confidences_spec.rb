@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Confidence', type: :model, group: :confidence do
+describe 'Confidences', type: :model, group: :confidence do
   let(:class_with_confidences) { TestConfidence.new }
   let(:confidence_level) {FactoryBot.create(:valid_confidence_level)}
 
