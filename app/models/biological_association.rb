@@ -30,7 +30,7 @@ class BiologicalAssociation < ApplicationRecord
   include SoftValidation
   include Shared::DataAttributes
   include Shared::Notable
-  include Shared::Confidence
+  include Shared::Confidences
   include Shared::IsData
 
 

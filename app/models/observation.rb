@@ -7,7 +7,7 @@ class Observation < ApplicationRecord
   include Shared::Taggable
   include Shared::IsData
   include Shared::Depictions
-  include Shared::Confidence
+  include Shared::Confidences
 
   belongs_to :descriptor, inverse_of: :observations
   belongs_to :otu, inverse_of: :observations

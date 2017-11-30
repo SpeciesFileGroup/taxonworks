@@ -62,7 +62,7 @@ end
 
 class TestConfidence < ApplicationRecord
   include FakeTable
-  include Shared::Confidence
+  include Shared::Confidences
 end
 
 

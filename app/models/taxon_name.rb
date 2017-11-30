@@ -121,7 +121,7 @@ class TaxonName < ApplicationRecord
   include Shared::Notable
   include Shared::Depictions
   include Shared::Citations
-  include Shared::Confidence
+  include Shared::Confidences
   include SoftValidation
   include Shared::AlternateValues
   include Shared::HasPapertrail

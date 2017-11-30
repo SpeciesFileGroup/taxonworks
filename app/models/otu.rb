@@ -33,7 +33,7 @@ class Otu < ApplicationRecord
   include Shared::Taggable
   include Shared::Depictions
   include Shared::Loanable
-  include Shared::Confidence
+  include Shared::Confidences
   include Shared::HasPapertrail
   include Shared::IsData
 

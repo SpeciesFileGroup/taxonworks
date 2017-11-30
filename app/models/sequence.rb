@@ -25,7 +25,7 @@ class Sequence < ApplicationRecord
 
   include Shared::AlternateValues
   include Shared::DataAttributes
-  include Shared::Confidence
+  include Shared::Confidences
   include Shared::Documentation
   include Shared::Identifiable
   include Shared::IsData

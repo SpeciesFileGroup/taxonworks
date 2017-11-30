@@ -16,7 +16,7 @@ class Descriptor < ApplicationRecord
   include Shared::Notable
   include Shared::DataAttributes
   include Shared::AlternateValues
-  include Shared::Confidence
+  include Shared::Confidences
   include Shared::Documentation
   include SoftValidation
 

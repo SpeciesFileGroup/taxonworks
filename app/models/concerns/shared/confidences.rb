@@ -1,6 +1,6 @@
 # Shared code for apply user assertions of Confidence to data.
 #
-module Shared::Confidence
+module Shared::Confidences
 
   extend ActiveSupport::Concern
 
@@ -35,7 +35,7 @@ module Shared::Confidence
     end
   end
 
-  protected 
+  protected
 
   def reject_confidences(attributed)
     attributed['confidence_level_id'].blank?

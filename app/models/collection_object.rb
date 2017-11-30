@@ -70,7 +70,7 @@ class CollectionObject < ApplicationRecord
   include Shared::Taggable
   include Shared::Depictions
   include Shared::OriginRelationship
-  include Shared::Confidence
+  include Shared::Confidences
   include Shared::Protocols
   include Shared::HasPapertrail
   include Shared::IsData

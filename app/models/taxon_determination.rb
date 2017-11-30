@@ -40,7 +40,7 @@ class TaxonDetermination < ApplicationRecord
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Notable
-  include Shared::Confidence
+  include Shared::Confidences
   include Shared::HasRoles
   include Shared::IsData
 

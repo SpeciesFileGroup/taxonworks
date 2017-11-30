@@ -33,7 +33,7 @@ class AssertedDistribution < ApplicationRecord
   include Shared::Taggable
   include Shared::DataAttributes
   include Shared::Citations
-  include Shared::Confidence
+  include Shared::Confidences
 
   include Shared::IsDwcOccurrence
   include AssertedDistribution::DwcExtensions

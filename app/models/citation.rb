@@ -23,7 +23,7 @@
 class Citation < ApplicationRecord
   include Housekeeping
   include Shared::Notable
-  include Shared::Confidence
+  include Shared::Confidences
   include Shared::DataAttributes
   include Shared::Taggable
   include Shared::IsData
