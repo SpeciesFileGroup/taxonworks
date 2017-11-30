@@ -18,7 +18,10 @@
 	    	<button @click="updateData()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Update</button>
 	    	<button @click="data_attribute = newData()" :disabled="!validateFields" class="button button-default normal-input separate-bottom" type="button">New</button>
 		</div>
+		<table-list :list="list" :attributes="['value', ['controlled_vocabulary_term', 'object_tag']]"></table-list>
+		<!--
 	    <display-list :label="['controlled_vocabulary_term', 'object_tag']" :edit="true" @edit="data_attribute = $event" :list="list" @delete="removeItem" class="list"></display-list>
+		-->
 	</div>
 </template>
 <script>
@@ -26,12 +29,14 @@
 	import CRUD from '../request/crud.js';
 	import annotatorExtend from '../components/annotatorExtend.js';
 	import autocomplete from '../../autocomplete.vue';
+	import tableList from '../../table_list.vue';
 	import displayList from './displayList.vue';
 
 	export default {
 		mixins: [CRUD, annotatorExtend],
 		components: {
 			autocomplete,
+			tableList,
 			displayList
 		},
 		computed: {
