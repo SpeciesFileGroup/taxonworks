@@ -21,7 +21,7 @@ class Container < ApplicationRecord
 
   include Housekeeping
   include Shared::IsData
-  include Shared::Identifiable
+  include Shared::Identifiers
 
   include Shared::Containable
 

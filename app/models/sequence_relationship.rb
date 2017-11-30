@@ -20,9 +20,9 @@ class SequenceRelationship < ApplicationRecord
   # include Shared::Protocol
   # include Shared::Confidence
   # include Shared::Documentation
-  include Shared::Identifiable
+  include Shared::Identifiers
   include Shared::IsData
-  include Shared::Notable
+  include Shared::Notes
   include Shared::Taggable
 
   belongs_to :subject_sequence, class_name: 'Sequence', inverse_of: :sequence_relationships

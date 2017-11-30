@@ -28,8 +28,8 @@ class Otu < ApplicationRecord
   #include Shared::AlternateValues  # 1/26/15 with MJY - not going to allow alternate values in Burlap
   include Shared::Citations           # TODO: have to think hard about this vs. using Nico's framework
   include Shared::DataAttributes
-  include Shared::Identifiable
-  include Shared::Notable
+  include Shared::Identifiers
+  include Shared::Notes
   include Shared::Taggable
   include Shared::Depictions
   include Shared::Loanable

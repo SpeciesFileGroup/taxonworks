@@ -42,7 +42,7 @@ class LoanItem < ApplicationRecord
   include Housekeeping
   include Shared::IsData
   include Shared::DataAttributes
-  include Shared::Notable
+  include Shared::Notes
   include Shared::Taggable
 
   attr_accessor :date_returned_jquery

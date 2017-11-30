@@ -4,10 +4,10 @@
 class ObservationMatrixRowItem < ApplicationRecord
   include Housekeeping
   include Shared::Citations
-  include Shared::Identifiable
+  include Shared::Identifiers
   include Shared::IsData
   include Shared::Taggable
-  include Shared::Notable
+  include Shared::Notes
 
   acts_as_list
 

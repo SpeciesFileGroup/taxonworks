@@ -35,8 +35,8 @@
 #
 class Document < ApplicationRecord
   include Housekeeping
-  include Shared::Identifiable
-  include Shared::Notable
+  include Shared::Identifiers
+  include Shared::Notes
   include Shared::Taggable
   include Shared::IsData
   include SoftValidation

@@ -36,7 +36,7 @@
 class Extract < ApplicationRecord
   include Housekeeping
   include Shared::IsData
-  include Shared::Identifiable
+  include Shared::Identifiers
   include Shared::OriginRelationship
 
   is_origin_for 'Sequence', 'Extract'

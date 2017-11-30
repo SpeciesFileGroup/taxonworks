@@ -27,7 +27,7 @@
 #
 class AssertedDistribution < ApplicationRecord
   include Housekeeping
-  include Shared::Notable
+  include Shared::Notes
   include SoftValidation
   include Shared::IsData
   include Shared::Taggable

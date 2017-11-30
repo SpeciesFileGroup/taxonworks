@@ -25,9 +25,9 @@ class TypeMaterial < ApplicationRecord
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::HasRoles
-  include Shared::Identifiable
+  include Shared::Identifiers
   include Shared::IsData
-  include Shared::Notable
+  include Shared::Notes
   include Shared::Taggable
   include SoftValidation
 

@@ -188,8 +188,8 @@ class Source < ApplicationRecord
   include Housekeeping::Timestamps
   include Shared::AlternateValues
   include Shared::DataAttributes
-  include Shared::Identifiable
-  include Shared::Notable
+  include Shared::Identifiers
+  include Shared::Notes
   include Shared::SharedAcrossProjects
   include Shared::Taggable
   include Shared::Documentation 

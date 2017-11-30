@@ -25,9 +25,9 @@
 #
 class GeneAttribute < ApplicationRecord
   include Housekeeping
-  include Shared::Identifiable
+  include Shared::Identifiers
   include Shared::IsData
-  include Shared::Notable
+  include Shared::Notes
   include Shared::Taggable
   
   acts_as_list scope: [:descriptor_id]

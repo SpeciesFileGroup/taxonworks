@@ -1,10 +1,10 @@
 class ObservationMatrix < ApplicationRecord
   include Housekeeping
   include Shared::Citations
-  include Shared::Identifiable
+  include Shared::Identifiers
   include Shared::IsData
   include Shared::Taggable
-  include Shared::Notable
+  include Shared::Notes
   include Shared::DataAttributes
 
   validates_presence_of :name

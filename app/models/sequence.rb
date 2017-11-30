@@ -27,9 +27,9 @@ class Sequence < ApplicationRecord
   include Shared::DataAttributes
   include Shared::Confidences
   include Shared::Documentation
-  include Shared::Identifiable
+  include Shared::Identifiers
   include Shared::IsData
-  include Shared::Notable
+  include Shared::Notes
   include Shared::OriginRelationship
   include Shared::Protocols
   include Shared::Taggable

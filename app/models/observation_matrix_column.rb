@@ -2,7 +2,7 @@ class ObservationMatrixColumn < ApplicationRecord
   include Housekeeping
   include Shared::IsData
   include Shared::Taggable
-  include Shared::Notable
+  include Shared::Notes
 
   belongs_to :observation_matrix
   belongs_to :descriptor

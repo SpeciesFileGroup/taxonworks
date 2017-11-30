@@ -1,6 +1,6 @@
 # Shared code for objects that have Identifiers.
 #
-module Shared::Identifiable
+module Shared::Identifiers
 
   extend ActiveSupport::Concern
   included do

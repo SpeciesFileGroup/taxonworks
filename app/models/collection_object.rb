@@ -65,8 +65,8 @@ class CollectionObject < ApplicationRecord
   include Shared::DataAttributes
   include Shared::Loanable
   include Shared::HasRoles
-  include Shared::Identifiable
-  include Shared::Notable
+  include Shared::Identifiers
+  include Shared::Notes
   include Shared::Taggable
   include Shared::Depictions
   include Shared::OriginRelationship

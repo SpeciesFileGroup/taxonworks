@@ -29,7 +29,7 @@ class BiologicalAssociation < ApplicationRecord
   include Shared::Citations
   include SoftValidation
   include Shared::DataAttributes
-  include Shared::Notable
+  include Shared::Notes
   include Shared::Confidences
   include Shared::IsData
 

@@ -1,6 +1,6 @@
 # Shared code for extending data classes with Notes.
 #
-module Shared::Notable
+module Shared::Notes
   extend ActiveSupport::Concern
 
   included do
@@ -14,13 +14,13 @@ module Shared::Notable
 
   def concatenated_notes_string
     s = notes.order(updated_at: :desc).collect { |n| n.note_string }.join('||')
-    s == "" ? nil : s
+    s == '' ? nil : s
   end
 
   protected
 
   def reject_notes(attributed)
-    attributed['text'].blank? 
+    attributed['text'].blank?
   end
 
 end

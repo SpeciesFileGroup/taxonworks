@@ -10,10 +10,10 @@
 class Descriptor < ApplicationRecord
   include Housekeeping
   include Shared::Citations
-  include Shared::Identifiable
+  include Shared::Identifiers
   include Shared::IsData
   include Shared::Taggable
-  include Shared::Notable
+  include Shared::Notes
   include Shared::DataAttributes
   include Shared::AlternateValues
   include Shared::Confidences

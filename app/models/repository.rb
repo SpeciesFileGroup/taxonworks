@@ -29,7 +29,7 @@
 class Repository < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
-  include Shared::Notable
+  include Shared::Notes
   include Shared::IsData
   include Shared::IsApplicationData
 

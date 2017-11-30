@@ -117,8 +117,8 @@ class TaxonName < ApplicationRecord
   include Shared::DataAttributes
   include Shared::HasRoles
   include Shared::Taggable
-  include Shared::Identifiable
-  include Shared::Notable
+  include Shared::Identifiers
+  include Shared::Notes
   include Shared::Depictions
   include Shared::Citations
   include Shared::Confidences

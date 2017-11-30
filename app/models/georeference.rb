@@ -63,7 +63,7 @@
 #
 class Georeference < ApplicationRecord
   include Housekeeping
-  include Shared::Notable
+  include Shared::Notes
   include Shared::Taggable
   include Shared::IsData
   include Shared::Citations

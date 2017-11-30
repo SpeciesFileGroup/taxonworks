@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Notable', type: :model do
+describe 'Notes', type: :model do
   let(:class_with_note) {TestNotable.new}
 
   context 'associations' do
@@ -44,6 +44,6 @@ end
 
 class TestNotable < ApplicationRecord
   include FakeTable
-  include Shared::Notable
+  include Shared::Notes
 end
 
