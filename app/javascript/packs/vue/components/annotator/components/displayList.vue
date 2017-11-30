@@ -74,7 +74,7 @@
 	}
 	.list-complete-item {
 		justify-content: space-between;
-		transition: all 1s, opacity 0.2s;
+		transition: all 0.5s, opacity 0.2s;
 	}
 	.list-complete-enter, .list-complete-leave-to
 	{

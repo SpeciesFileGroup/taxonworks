@@ -18,10 +18,7 @@
 	    	<button @click="updateData()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Update</button>
 	    	<button @click="data_attribute = newData()" :disabled="!validateFields" class="button button-default normal-input separate-bottom" type="button">New</button>
 		</div>
-		<table-list :list="list" :attributes="['predicate_name', 'value', 'type']"></table-list>
-		<!--
-	    <display-list :label="['controlled_vocabulary_term', 'object_tag']" :edit="true" @edit="data_attribute = $event" :list="list" @delete="removeItem" class="list"></display-list>
-		-->
+		<table-list :list="list" :header="['Predicate name', 'Value', 'Type', 'Options']" :attributes="['predicate_name', 'value', 'type']" :edit="true"  @edit="data_attribute = $event" @delete="removeItem"></table-list>
 	</div>
 </template>
 <script>

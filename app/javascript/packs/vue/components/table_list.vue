@@ -1,14 +1,19 @@
 <template>
 	<table class="vue-table">
 		<thead>
-		</thead>
-		<tbody>
-			<tr v-for="item in list">
-				<td v-for="attr in attributes" v-html="getValue(item, attr)"></td>
-				<td v-if="edit"></td>
-				<td v-if="destroy"></td>
+			<tr>
+				<th v-for="item in header" v-html="item"></th>
 			</tr>
-		</tbody>
+		</thead>
+		<transition-group name="list-complete" tag="tbody">
+			<tr v-for="item in list" :key="item.id" class="list-complete-item">
+				<td v-for="attr in attributes" v-html="getValue(item, attr)"></td>
+				<td class="vue-table-options">
+					<span v-if="edit" class="circle-button btn-edit" @click="$emit('edit', Object.assign({}, item))"></span>
+					<span v-if="destroy" class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
+				</td>
+			</tr>
+		</transition-group>
 	</table>
 </template>
 <script>
@@ -24,9 +29,15 @@
 				type: Array,
 				required: true
 			},
+			header: {
+				type: Array,
+				default: () => {
+					return []
+				}
+			},
 			destroy: {
 				type: Boolean,
-				default: false
+				default: true
 			},
 			edit: {
 				type: Boolean,
@@ -51,5 +62,25 @@
 <style lang="scss" scoped>
 	.vue-table {
 		width: 100%;
+		.vue-table-options {
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-end;
+		}
+	}
+	.list-complete-item {
+		justify-content: space-between;
+		transition: all 0.5s, opacity 0.2s;
+	}
+	.list-complete-enter, .list-complete-leave-to
+	{
+		opacity: 0;
+		font-size: 0px;
+		border:none;
+		transform: scale(0.0);
+	}
+	.list-complete-leave-active {
+		width: 100%;
+		position: absolute;
 	}
 </style>
