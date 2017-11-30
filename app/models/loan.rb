@@ -57,7 +57,6 @@
 #
 class Loan < ApplicationRecord
   include Housekeeping
-  include Shared::IsData
   include Shared::DataAttributes
   include Shared::Identifiable
   include Shared::Notable
@@ -67,6 +66,7 @@ class Loan < ApplicationRecord
   include Shared::HasRoles
   include Shared::Documentation
   include Shared::HasPapertrail
+  include Shared::IsData
 
   CLONED_ATTRIBUTES = [
     :lender_address,
