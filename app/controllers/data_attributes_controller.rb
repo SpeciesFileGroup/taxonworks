@@ -51,9 +51,9 @@ class DataAttributesController < ApplicationController
     respond_to do |format|
       if @data_attribute.update(data_attribute_params)
         format.html { redirect_to @data_attribute.attribute_subject.metamorphosize, notice: 'Data attribute was successfully updated.' }
-        format.json { render :show, status: :ok, location: @data_attribute }
+        format.json { render :show, status: :ok, location: @data_attribute.metamorphosize }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Data attribute was NOT successfully updated.')}
+        format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Data attribute was NOT successfully updated.')}
         format.json { render json: @data_attribute.errors, status: :unprocessable_entity }
       end
     end
