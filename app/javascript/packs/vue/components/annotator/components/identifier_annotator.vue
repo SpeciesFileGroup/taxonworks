@@ -11,10 +11,6 @@
 		        <div class="switch-radio">
 					<input name="identifier-picker-options" id="identifier-picker-common" checked type="radio" class="normal-input button-active" @click="display = 'common'"/>
 					<label for="identifier-picker-common">Common</label>
-					<input name="identifier-picker-options" id="identifier-picker-advanced" type="radio" class="normal-input" @click="display = 'advanced'"/>
-					<label for="identifier-picker-advanced">Advanced</label>
-					<input name="identifier-picker-options" id="identifier-picker-pinboard" type="radio" class="normal-input" @click="display = 'pinboard'"/>
-					<label for="identifier-picker-pinboard">Pinboard</label>
 					<input name="identifier-picker-options" id="identifier-picker-showall" type="radio" class="normal-input" @click="showAll = true"/>
 					<label for="identifier-picker-showall">Show all</label>
 		        </div>
@@ -30,16 +26,6 @@
 						</li>
 					</ul>
 
-					<autocomplete v-if="display == 'advanced'"
-						:arrayList="createArrayList(typeList[namespace].all)"
-						label="label"
-						min="1"
-						time="0"
-						placeholder="Search"
-						@getItem="identifier.type = $event.value"
-						param="term">
-					</autocomplete> 
-
 					<modal class="transparent-modal" v-if="showAll" @close="showAll = false">
 						<h3 slot="header">Types</h3>
 						<div slot="body">
@@ -54,12 +40,14 @@
 					</modal>					
 				</div>				
 
+				<p v-if="identifier.type">Type: {{ identifier.type }}</p>
+
 				<div class="field" v-if="namespace == 'local'">
 				    <autocomplete
 				      url="/namespaces/autocomplete"
 				      label="label"
 				      min="2"
-				      placeholder="Confidence level"
+				      placeholder="Namespaces"
 				      @getItem="identifier.namespace_id = $event.id"
 				      param="term">
 				    </autocomplete>
