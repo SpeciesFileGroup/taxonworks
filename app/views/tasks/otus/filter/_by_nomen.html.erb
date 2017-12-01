@@ -1,5 +1,5 @@
 <%= form_tag(set_nomen_for_otu_filter_path, id: 'set_nomen_form', remote: true) do %>
-    Descendants (if available): <%= check_box(nil, 'descendants', {id: :descendant_toggle}, 'on', 'off') %><br>
+    Descendants (if available): <%= check_box(nil, 'descendants', {id: :descendant_toggle}, '_on_', '_off_') %><br>
     <%= render('/workbench/elements/forms/ajax_select',
                controller: '/taxon_names',
                object: '',

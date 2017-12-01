@@ -14,7 +14,7 @@ module Queries
       @query_geographic_area_ids = params[:geographic_area_ids]
       @query_shape               = params[:drawn_area_shape]
       @query_author_ids          = params[:author_ids]
-      @query_and_or_select      = params[:and_or_select]
+      @query_and_or_select       = params[:and_or_select]
       @query_nomen_id            = params[:nomen_id]
       @query_descendants         = params[:descendants]
 
@@ -37,7 +37,7 @@ module Queries
     end
 
     def with_descendants?
-      query_descendants == 'on'
+      query_descendants == '_on_'
     end
 
     # All scopes might end up in Otu directly
@@ -113,8 +113,17 @@ module Queries
       3. find all otus which are associated with result #2
 =end
     # @return [Scope]
-    def author_scope # TODO deal with and/or select (query_and_or_select)
-      Otu.joins(:taxon_name).where("taxon_names.id IN (SELECT taxon_names.id FROM taxon_names INNER JOIN roles ON taxon_names.id = roles.role_object_id WHERE roles.type IN ('TaxonNameAuthor') AND roles.person_id IN (?) AND roles.role_object_type = 'TaxonName' )", query_author_ids)
+    def author_scope
+      a_scope = case query_and_or_select
+                  when '_or_', nil
+                    Otu.joins(:taxon_name).where("taxon_names.id IN (SELECT taxon_names.id FROM taxon_names INNER JOIN roles ON taxon_names.id = roles.role_object_id WHERE roles.type IN ('TaxonNameAuthor') AND roles.person_id IN (?) AND roles.role_object_type = 'TaxonName' )", query_author_ids)
+                  when '_and_'
+                    # TODO Needing to fix this...
+                    Otu.joins(:taxon_name).where("taxon_names.id IN (SELECT taxon_names.id FROM taxon_names INNER JOIN roles ON taxon_names.id = roles.role_object_id WHERE roles.type IN ('TaxonNameAuthor') AND roles.person_id IN (?) AND roles.role_object_type = 'TaxonName' )", query_author_ids)
+                  else
+                    Otu.none
+                end
+      a_scope
     end
 
     # @return [Array]

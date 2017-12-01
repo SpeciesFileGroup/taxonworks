@@ -17,16 +17,18 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     let!(:user) { User.find(1) }
     let!(:project) { Project.find(1) }
     # need some people
-    let!(:daryl) { Person.find_or_create_by(first_name: 'Daryl', last_name: 'Penfold', prefix: 'Non-author') }
+    let!(:sargon) { Person.find_or_create_by(first_name: 'of Akkad', last_name: 'Sargon') }
+    let!(:andy) { Person.find_or_create_by(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author') }
+    let!(:daryl) { Person.find_or_create_by(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon') }
     let!(:ted) { FactoryBot.create(:valid_person, last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC') }
     let!(:bill) { Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson') }
 
     #need an apex
     let!(:top_dog) {
-      o1                 = FactoryBot.create(:valid_otu, name: 'Top Dog')
-      o1.taxon_name      = FactoryBot.create(:valid_taxon_name,
-                                             rank_class: Ranks.lookup(:iczn, 'Family'),
-                                             name:       'Topdogidae')
+      o1            = FactoryBot.create(:valid_otu, name: 'Top Dog')
+      o1.taxon_name = FactoryBot.create(:valid_taxon_name,
+                                        rank_class: Ranks.lookup(:iczn, 'Family'),
+                                        name:       'Topdogidae')
       o1.save
       o1
     }
@@ -40,6 +42,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     let(:abra) { Otu.where(name: 'Abra').first }
     let(:cadabra) { Otu.where(name: 'Abra cadabra').first }
     let(:alakazam) { Otu.where(name: 'Abra cadabra alakazam').first }
+    let(:spooler) { Otu.where('name like \'%spooler%\'').first }
     # need some otus
     let!(:co_m1a_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M1A')
@@ -142,7 +145,16 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     }
     let!(:co_p4_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'P4')
+      @co_p4.collecting_event.collectors << sargon
+      @co_p4.collecting_event.collectors << daryl
       o.taxon_name.update_column(:name, 'P4 antivitis')
+      @co_p4.otus << o
+      o = FactoryBot.create(:valid_otu, name: 'Sargon\'s spooler')
+      o.taxon_name = Protonym.find_or_create_by(name:       'spooler',
+                                                rank_class: Ranks.lookup(:iczn, 'Species'),
+                                                parent:     abra.taxon_name)
+      o.taxon_name.taxon_name_authors << sargon
+      o.taxon_name.taxon_name_authors << daryl
       @co_p4.otus << o
     }
     let!(:co_v_o) {
@@ -168,7 +180,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 
         specify 'nomen count' do
           result = Queries::OtuFilterQuery.new(params).result
-          expect(result.count).to eq(20)
+          expect(result.count).to eq(21)
         end
 
         specify 'specific nomen' do
@@ -214,14 +226,14 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 
       # TODO: need to build multiple otus with the same taxon_name
       specify 'with descendants' do
-        params_with = {nomen_id: top_dog.taxon_name_id, descendants: 'on'}
+        params_with = {nomen_id: top_dog.taxon_name_id, descendants: '_on_'}
         result      = Queries::OtuFilterQuery.new(params_with).result
-        expect(result.count).to eq(5)
-        expect(result).to contain_exactly(top_dog, abra, by_bill, cadabra, alakazam)
+        expect(result.count).to eq(6)
+        expect(result).to contain_exactly(spooler, top_dog, abra, by_bill, cadabra, alakazam)
       end
 
       specify 'without descendants' do
-        params_without = {nomen_id: top_dog.taxon_name_id, descendants: 'off'}
+        params_without = {nomen_id: top_dog.taxon_name_id, descendants: '_off_'}
         result         = Queries::OtuFilterQuery.new(params_without).result
         expect(result).to contain_exactly(top_dog, by_bill)
       end
@@ -229,26 +241,50 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     end
 
     context 'author search' do
-      # need some taxon names and otus
-      specify 'otus by author' do
-        params = {author_ids: ted.id}
 
-        expect(Role.where(type: 'TaxonNameAuthor').count).to eq(4)
-        expect(Person.with_role('TaxonNameAuthor').count).to eq(2) # Bill and Ted
+      specify 'constructs' do
+        expect(Role.where(type: 'TaxonNameAuthor').count).to eq(6)
+        expect(Person.with_role('TaxonNameAuthor').count).to eq(4) # Bill, Ted, Daryl, and Sargon
         expect(Protonym.named('Topdogidae').count).to eq(1)
+      end
 
-        result = Queries::OtuFilterQuery.new(params).result
-        expect(result.count).to eq(4)
+      context 'and' do
+
+        specify 'otus by bill, ted, and daryl' do
+          params = {author_ids: [bill.id, ted.id, andy.id], and_or_select: '_and_'}
+
+          result = Queries::OtuFilterQuery.new(params).result
+          expect(result.count).to eq(0)
+        end
+
+        specify 'otus by daryl and sargon' do
+          params = {author_ids: [sargon.id, daryl.id], and_or_select: '_and_'}
+
+          result = Queries::OtuFilterQuery.new(params).result
+          expect(result.count).to eq(1)
+        end
+      end
+
+      context 'or' do
+
+        specify 'otus by authors' do
+          params = {author_ids: [bill.id, sargon.id, daryl.id], and_or_select: '_or_'}
+
+          result = Queries::OtuFilterQuery.new(params).result
+          expect(result.count).to eq(2)
+          expect(result).to contain_exactly(spooler, cadabra)
+        end
       end
     end
 
     context 'combined search' do
+
       specify 'geo_area, nomen (taxon name), author' do
         tn     = @co_m2.taxon_names.select { |t| t if t.name == 'cadabra' }.first
         params = {}
         params.merge!({author_ids: [bill.id, daryl.id]})
         params.merge!({geographic_area_ids: [bbxa.id]})
-        params.merge!({nomen_id: top_dog.taxon_name_id, descendants: 'on'})
+        params.merge!({nomen_id: top_dog.taxon_name_id, descendants: '_on_'})
         # params.merge!({nomen_id: tn.id, descendants: 'off'})
 
         result = Queries::OtuFilterQuery.new(params).result
