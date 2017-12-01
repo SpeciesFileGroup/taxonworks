@@ -4,6 +4,7 @@ import confidences from './confidences';
 import data_attributes from './data_attribute';
 import depictions from './depiction';
 import documentation from './documentation';
+import protocol_relationships from './protocol';
 import identifiers from './identifier';
 import notes from './book';
 import tags from './tag';
@@ -18,7 +19,8 @@ const Icons = {
 	documentation,
 	identifiers,
 	notes,
-	tags
+	tags,
+	protocol_relationships
 }
 
 export default Icons

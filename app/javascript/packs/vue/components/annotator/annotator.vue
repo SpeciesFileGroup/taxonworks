@@ -44,6 +44,7 @@ import notesAnnotator from './components/note_annotator.vue';
 import data_attributesAnnotator from './components/data_attribute_annotator.vue';
 import alternate_valuesAnnotator from './components/alternate_value_annotator.vue';
 import citationsAnnotator from './components/citation_annotator.vue';
+import protocol_relationshipsAnnotator from './components/protocol_annotator.vue';
 
 import Icons from './images/icons.js';
 
@@ -62,7 +63,8 @@ export default {
 		documentationAnnotator,
 		alternate_valuesAnnotator,
 		identifiersAnnotator,
-		tagsAnnotator
+		tagsAnnotator,
+		protocol_relationshipsAnnotator
 	},
 	props: {
 		reload: {
