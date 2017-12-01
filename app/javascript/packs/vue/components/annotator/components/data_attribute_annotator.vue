@@ -18,7 +18,7 @@
 	    	<button @click="updateData()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Update</button>
 	    	<button @click="data_attribute = newData()" :disabled="!validateFields" class="button button-default normal-input separate-bottom" type="button">New</button>
 		</div>
-		<table-list :list="list" :header="['Name', 'Value', 'Options']" :attributes="['predicate_name', 'value']" :edit="true"  @edit="data_attribute = $event" @delete="removeItem"></table-list>
+		<table-list :list="list" :header="['Name', 'Value', '']" :attributes="['predicate_name', 'value']" :edit="true"  @edit="data_attribute = $event" @delete="removeItem"></table-list>
 	</div>
 </template>
 <script>
