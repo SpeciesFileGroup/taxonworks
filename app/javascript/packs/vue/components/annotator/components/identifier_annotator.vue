@@ -77,7 +77,7 @@
 				</ul>
 			</div>
 		</div>
-	    <display-list label="object_tag" :list="list" @delete="removeItem" class="list"></display-list>
+		<table-list :list="list" :header="['object_tag', '']" :attributes="['object_tag']" @edit="data_attribute = $event" @delete="removeItem"></table-list>
 	</div>
 </template>
 <script>
@@ -86,13 +86,13 @@
 	import annotatorExtend from '../components/annotatorExtend.js';
 	import autocomplete from '../../autocomplete.vue';
 	import modal from '../../modal.vue';
-	import displayList from './displayList.vue';
+	import tableList from '../../table_list.vue';
 
 	export default {
 		mixins: [CRUD, annotatorExtend],
 		components: {
 			autocomplete,
-			displayList,
+			tableList,
 			modal
 		},
 		computed: {
@@ -145,6 +145,7 @@
 			createNew() {
 				this.create('/identifiers', { identifier: this.identifier }).then(response => {
 					this.list.push(response.body);
+					this.namespace = undefined;
 					this.identifier = this.newIdentifier();
 				});
 			},
