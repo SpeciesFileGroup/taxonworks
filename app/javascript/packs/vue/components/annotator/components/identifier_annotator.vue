@@ -8,12 +8,19 @@
 					<button type="button" @click="reset()">Change</button>
 				</div>
 
-		        <div class="switch-radio">
-					<input name="identifier-picker-options" id="identifier-picker-common" checked type="radio" class="normal-input button-active" @click="display = 'common'"/>
-					<label for="identifier-picker-common">Common</label>
-					<input name="identifier-picker-options" id="identifier-picker-showall" type="radio" class="normal-input" @click="showAll = true"/>
-					<label for="identifier-picker-showall">Show all</label>
-		        </div>
+				<div class="switch-radio">
+					<template v-for="item, index in barList">
+						<input 
+							v-model="display"
+							:value="item"
+							:id="`alternate_values-picker-${index}`" 
+							name="alternate_values-picker-options"
+							type="radio"
+							class="normal-input button-active" 
+						/>
+						<label :for="`alternate_values-picker-${index}`" class="capitalize">{{ item }}</label>
+					</template>
+				</div>
 
 		        <div class="separate-bottom separate-top">
 
@@ -26,12 +33,12 @@
 						</li>
 					</ul>
 
-					<modal class="transparent-modal" v-if="showAll" @close="showAll = false">
+					<modal class="transparent-modal" v-if="display == 'show all'" @close="display = 'common'">
 						<h3 slot="header">Types</h3>
 						<div slot="body">
 							<ul>
 								<li class="modal-list-item" v-for="item, key in typeList[namespace].all">
-									<button type="button" :value="key" @click="identifier.type = key, showAll = false" class="button button-default normal-input modal-button capitalize"> 
+									<button type="button" :value="key" @click="identifier.type = key, display = 'common'" class="button button-default normal-input modal-button capitalize"> 
 									{{ item.label }} 
 									</button>
 								</li>
@@ -99,6 +106,7 @@
 			return {
 				showAll: false,
 				display: 'common',
+				barList: ['common', 'show all'],
 				identifier: this.newIdentifier(),
 				namespace: undefined,
 				typeList: []

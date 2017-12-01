@@ -67,6 +67,9 @@
 			flex-direction: row;
 			justify-content: flex-end;
 		}
+		tr {
+			cursor: default;
+		}
 	}
 	.list-complete-item {
 		justify-content: space-between;
