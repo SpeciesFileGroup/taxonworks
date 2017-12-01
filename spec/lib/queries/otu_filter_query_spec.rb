@@ -251,7 +251,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       context 'and' do
 
         specify 'otus by bill, ted, and daryl' do
-          params = {author_ids: [bill.id, ted.id, andy.id], and_or_select: '_and_'}
+          params = {author_ids: [bill.id, ted.id, daryl.id], and_or_select: '_and_'}
 
           result = Queries::OtuFilterQuery.new(params).result
           expect(result.count).to eq(0)

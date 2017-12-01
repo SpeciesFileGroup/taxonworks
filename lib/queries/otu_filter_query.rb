@@ -119,7 +119,12 @@ module Queries
                     Otu.joins(:taxon_name).where("taxon_names.id IN (SELECT taxon_names.id FROM taxon_names INNER JOIN roles ON taxon_names.id = roles.role_object_id WHERE roles.type IN ('TaxonNameAuthor') AND roles.person_id IN (?) AND roles.role_object_type = 'TaxonName' )", query_author_ids)
                   when '_and_'
                     # TODO Needing to fix this...
-                    Otu.joins(:taxon_name).where("taxon_names.id IN (SELECT taxon_names.id FROM taxon_names INNER JOIN roles ON taxon_names.id = roles.role_object_id WHERE roles.type IN ('TaxonNameAuthor') AND roles.person_id IN (?) AND roles.role_object_type = 'TaxonName' )", query_author_ids)
+                    query_string = "taxon_names.id IN (SELECT taxon_names.id FROM taxon_names"
+                    query_string += " INNER JOIN roles ON taxon_names.id = roles.role_object_id"
+                    query_string += " WHERE roles.type IN ('TaxonNameAuthor') AND roles.role_object_type = 'TaxonName' "
+                    query_string += " AND roles.person_id = ALL (SELECT roles.person_id WHERE roles.person_id IN (?)) )"
+                    # Otu.joins(:taxon_name).where("taxon_names.id IN (SELECT taxon_names.id FROM taxon_names INNER JOIN roles ON taxon_names.id = roles.role_object_id WHERE roles.type IN ('TaxonNameAuthor') AND roles.person_id IN (?) AND roles.role_object_type = 'TaxonName' )", query_author_ids)
+                    Otu.joins(:taxon_name).where(query_string, query_author_ids)
                   else
                     Otu.none
                 end
