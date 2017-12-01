@@ -1,20 +1,22 @@
 <template>
-	<table class="vue-table">
-		<thead>
-			<tr>
-				<th v-for="item in header" v-html="item"></th>
-			</tr>
-		</thead>
-		<transition-group name="list-complete" tag="tbody">
-			<tr v-for="item in list" :key="item.id" class="list-complete-item">
-				<td v-for="attr in attributes" v-html="getValue(item, attr)"></td>
-				<td class="vue-table-options">
-					<span v-if="edit" class="circle-button btn-edit" @click="$emit('edit', Object.assign({}, item))"></span>
-					<span v-if="destroy" class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
-				</td>
-			</tr>
-		</transition-group>
-	</table>
+	<div class="vue-table-container">
+		<table class="vue-table">
+			<thead>
+				<tr>
+					<th v-for="item in header" v-html="item"></th>
+				</tr>
+			</thead>
+			<transition-group name="list-complete" tag="tbody">
+				<tr v-for="item in list" :key="item.id" class="list-complete-item">
+					<td v-for="attr in attributes" v-html="getValue(item, attr)"></td>
+					<td class="vue-table-options">
+						<span v-if="edit" class="circle-button btn-edit" @click="$emit('edit', Object.assign({}, item))"></span>
+						<span v-if="destroy" class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
+					</td>
+				</tr>
+			</transition-group>
+		</table>
+	</div>
 </template>
 <script>
 	export default {
@@ -60,6 +62,11 @@
 	}
 </script>
 <style lang="scss" scoped>
+	.vue-table-container {
+		overflow-y: scroll;
+	  	padding: 0px;
+	  	position: relative;
+	}
 	.vue-table {
 		width: 100%;
 		.vue-table-options {
