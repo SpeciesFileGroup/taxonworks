@@ -5,8 +5,8 @@
 #
 class Protocol < ApplicationRecord
   include Housekeeping
+  include Shared::Documentation 
   include Shared::IsData
-#  include Shared::Documentable
 
   has_many :protocol_relationships, inverse_of: :protocol
 

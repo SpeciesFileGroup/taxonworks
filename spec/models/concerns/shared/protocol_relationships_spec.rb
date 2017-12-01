@@ -20,20 +20,20 @@ describe 'Protocols', type: :model, group: :protocol do
   end
 
   context 'methods' do
-    specify '#has_protocols? with no protocols' do
-      expect(class_with_protocol.has_protocols?).to eq(false)
+    specify '#protocolled? with no protocols' do
+      expect(class_with_protocol.protocolled?).to eq(false)
     end
 
-    specify 'has_protocols? with a protocol' do
+    specify 'protocolled? with a protocol' do
       class_with_protocol.protocols << FactoryBot.create(:valid_protocol) 
-      expect(class_with_protocol.has_protocols?).to eq(true)
+      expect(class_with_protocol.protocolled?).to eq(true)
     end
   end
 end
 
 class TestProtocol < ApplicationRecord
   include FakeTable
-  include Shared::Protocols
+  include Shared::ProtocolRelationships
 end
 
 

@@ -43,7 +43,7 @@ class Image < ApplicationRecord
   include Shared::Identifiers
   include Shared::Notes
   include Shared::Tags
-  include Shared::Protocols
+  include Shared::ProtocolRelationships
   include Shared::IsData
   include SoftValidation
 

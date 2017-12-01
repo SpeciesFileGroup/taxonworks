@@ -6,8 +6,19 @@ class ProtocolRelationshipsController < ApplicationController
   # GET /protocol_relationships
   # GET /protocol_relationships.json
   def index
-    @recent_objects = ProtocolRelationship.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html {
+        @recent_objects = ProtocolRelationship.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+
+      format.json {
+        @protocol_relationships = ProtocolRelationship.where(project_id: sessions_current_project_id).where(
+          polymorphic_filter_params(
+            'protocol_relationship_object', ProtocolRelationship.related_foreign_keys  )
+        )
+      }
+    end
   end
 
   # GET /protocol_relationships/1
@@ -83,11 +94,12 @@ class ProtocolRelationshipsController < ApplicationController
   end
 
   private
-    def set_protocol_relationship
-      @protocol_relationship = ProtocolRelationship.find(params[:id])
-    end
+  
+  def set_protocol_relationship
+    @protocol_relationship = ProtocolRelationship.find(params[:id])
+  end
 
-    def protocol_relationship_params
-      params.require(:protocol_relationship).permit(:protocol_id, :protocol_relationship_object_id, :protocol_relationship_object_type, :annotated_global_entity)
-    end
+  def protocol_relationship_params
+    params.require(:protocol_relationship).permit(:protocol_id, :protocol_relationship_object_id, :protocol_relationship_object_type, :annotated_global_entity)
+  end
 end

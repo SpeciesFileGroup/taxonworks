@@ -31,7 +31,7 @@ class Sequence < ApplicationRecord
   include Shared::IsData
   include Shared::Notes
   include Shared::OriginRelationship
-  include Shared::Protocols
+  include Shared::ProtocolRelationships
   include Shared::Tags
   include Shared::HasPapertrail
 
