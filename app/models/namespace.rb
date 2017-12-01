@@ -50,22 +50,12 @@ class Namespace < ApplicationRecord
 
   has_many :identifiers, autosave: true, dependent: :restrict_with_error
 
+  scope :used_on_klass, -> (klass) { joins(:identifiers).where(identifiers: {identifier_object_type: klass} ) }
+  scope :used_recently, -> { joins(:identifiers).where(identifiers: { created_at: 1.weeks.ago..Time.now } ) }
+
   def self.find_for_autocomplete(params)
     match = "#{params[:term]}%"
     where('name ILIKE ? OR short_name ILIKE ? OR verbatim_short_name ILIKE ?', match, match, match)
   end
-
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
-  protected
 
 end

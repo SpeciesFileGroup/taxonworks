@@ -57,6 +57,25 @@ class ControlledVocabularyTerm < ApplicationRecord
         .where(project_id: params[:project_id])
   end
 
+# def self.to_select(params)
+
+#   data = {
+#     quick: []
+#     recent: []
+#     pinboard: []
+#   }
+
+#   data[:recent] = ControlledVocabularyTerm.where(
+#     type: params[:type],
+#     project_id: params[:project_id],
+#     user_id: params[:user_id]
+#   ).order(updated_at: :desc).limit(10)
+#     .recently_
+
+#   user_id
+
+# end
+
   protected
 
   def uri_relation_is_a_skos_relation

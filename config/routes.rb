@@ -206,6 +206,7 @@ TaxonWorks::Application.routes.draw do
 
     member do
       get 'tagged_objects'
+      get 'select', defaults: {format: :json}
     end
   end
 
@@ -295,6 +296,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       get :autocomplete
       get :lookup_keyword
+      get :select_options, defaults: {format: :json}
     end
   end
 
@@ -410,6 +412,7 @@ TaxonWorks::Application.routes.draw do
   resources :predicates, only: [] do
     collection do
       get 'autocomplete'
+      get :select_options, defaults: {format: :json}
     end
   end
 

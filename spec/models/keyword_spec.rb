@@ -1,26 +1,47 @@
 require 'rails_helper'
 
 describe Keyword, type: :model, group: :tags do
-  let(:keyword) { FactoryBot.build(:keyword) }
+  
+  let(:keyword) { Keyword.new } 
+  let(:otu) { FactoryBot.create(:valid_otu) }
+
+  specify '#tags' do
+    expect(keyword.tags << Tag.new(tag_object: otu) ).to be_truthy
+  end
 
   context "validation" do
-    before(:each) {  @k = FactoryBot.create(:valid_keyword) }
+    let!(:k) { FactoryBot.create(:valid_keyword) }
 
     specify "can be used for tags" do
-      t = Tag.new(keyword: @k, tag_object: FactoryBot.build(:valid_otu))
+      t = Tag.new(keyword: k, tag_object: FactoryBot.build(:valid_otu))
       expect(t.save).to be_truthy
     end
 
     specify "can not be used for other things" do
-      expect {c = CitationTopic.new(topic: @k)}.to raise_error(ActiveRecord::AssociationTypeMismatch)
+      expect {c = CitationTopic.new(topic: k)}.to raise_error(ActiveRecord::AssociationTypeMismatch)
     end
   end
+  
+  context 'scopes' do
+    let(:k) { FactoryBot.create(:valid_keyword) }
+    let(:k2) { FactoryBot.create(:valid_keyword) }
+    let!(:tag) { Tag.create(keyword: k, tag_object: otu) } 
+    let!(:old_tag) { Tag.create(keyword: k2, tag_object: otu, created_at: 4.years.ago) } 
 
-  context 'associations' do
-    context 'has_many' do
-      specify 'tags' do
-        expect(keyword.tags << FactoryBot.build(:valid_tag)).to be_truthy
-      end
+    specify '#used_on_klass 1' do
+      expect(Keyword.used_on_klass('Otu')).to contain_exactly(k, k2)
+    end
+
+    specify '#used_on_klass 2' do
+      expect(Keyword.used_on_klass('CollectionObject')).to contain_exactly()
+    end
+
+    specify '#used_recently' do
+      expect(Keyword.used_recently).to contain_exactly(k)
+    end
+
+    specify '#used_on_klass.used_recently' do
+      expect(Keyword.used_on_klass('Otu').used_recently).to contain_exactly(k)
     end
   end
 
