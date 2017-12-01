@@ -4,17 +4,20 @@ module Shared::IsData::Annotation
 
   extend ActiveSupport::Concern
 
+  # This is indirectly responsible for
+  # visual position placement in radial annotator
+  # middle is left, top/bottom right
   ANNOTATION_TYPES = [
-    :alternate_values,
-    :citations,
-    :data_attributes,
-    :notes,
-    :documentation,
     :tags,
-    :confidences,
+    :citations,  
+    :alternate_values,
     :depictions,
+    :confidences,
     :protocol_relationships,
-    :identifiers
+    :documentation,
+    :identifiers,
+    :data_attributes,
+    :notes
   ]
 
   module ClassMethods
@@ -77,7 +80,6 @@ module Shared::IsData::Annotation
     result['identifiers'] = identifiers if has_identifiers? && identifiers.any?
     result['notes'] = notes if has_notes? && notes.any?
     result['tags'] = tags if has_tags? && tags.any?
-
     result['depictions'] = depictions.order('depictions.position') if has_depictions? && depictions.any?
     result['confidences'] = confidences if has_confidences? && confidences.any?
     result['protocol_relationships'] = protocols if has_protocols? && protocolled?
