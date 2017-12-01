@@ -77,7 +77,7 @@
 				</ul>
 			</div>
 		</div>
-		<table-list :list="list" :header="['Cached', 'Type name', '']" :attributes="['cached', 'type_name']" @edit="data_attribute = $event" @delete="removeItem"></table-list>
+		<table-list :list="list" :header="['Identifier', 'Type', '']" :attributes="['cached', 'type_name']" @edit="data_attribute = $event" @delete="removeItem"></table-list>
 	</div>
 </template>
 <script>
