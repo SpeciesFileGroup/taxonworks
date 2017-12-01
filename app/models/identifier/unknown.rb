@@ -7,6 +7,8 @@
 #   The *verbatim* value of this identifier.
 class Identifier::Unknown < Identifier
 
+  validates_uniqueness_of :identifier
+
   protected
 
   def set_cached

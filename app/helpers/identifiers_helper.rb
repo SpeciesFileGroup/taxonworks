@@ -78,6 +78,4 @@ module IdentifiersHelper
     a
   end
 
-
-
 end

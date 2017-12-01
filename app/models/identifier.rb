@@ -70,6 +70,10 @@ class Identifier < ApplicationRecord
     identifiers.empty? ? '12345678' : identifiers.last.identifier
   end
 
+  def type_name
+    self.class.name.demodulize.downcase
+  end
+
   protected
 
   def set_cached
