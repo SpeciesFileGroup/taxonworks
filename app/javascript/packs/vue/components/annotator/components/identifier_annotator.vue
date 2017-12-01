@@ -8,7 +8,7 @@
 					<button type="button" @click="reset()">Change</button>
 				</div>
 
-				<div class="switch-radio">
+				<div v-if="namespace != 'unknown'" class="switch-radio">
 					<template v-for="item, index in barList">
 						<input 
 							v-model="display"
@@ -24,7 +24,7 @@
 
 		        <div class="separate-bottom separate-top">
 
-					<ul v-if="display == 'common'" class="no_bullets">
+					<ul v-show="namespace != 'unknown'" class="no_bullets">
 						<li v-for="item in typeList[namespace].common">
 							<label class="capitalize">
 								<input type="radio" v-model="identifier.type" v-bind:value="item">
@@ -47,7 +47,7 @@
 					</modal>					
 				</div>				
 
-				<p v-if="identifier.type">Type: {{ identifier.type }}</p>
+				<p v-if="identifier.type" class="capitalize">Type: {{ typeList[namespace].all[identifier.type].label }}</p>
 
 				<div class="field" v-if="namespace == 'local'">
 				    <autocomplete
@@ -98,7 +98,7 @@
 		computed: {
 			validateFields() {
 				return this.identifier.identifier && 
-						this.identifier.type &&
+						(this.identifier.type) &&
 						((this.namespace == 'local' && this.identifier.namespace_id) || (this.namespace != 'local'))
 			},
 		},
@@ -110,6 +110,13 @@
 				identifier: this.newIdentifier(),
 				namespace: undefined,
 				typeList: []
+			}
+		},
+		watch: {
+			'namespace': function(newVal) {
+				if(newVal == 'unknown') {
+					this.identifier.type = this.typeList[newVal].common[0];
+				}
 			}
 		},
 		mounted: function() {
@@ -142,7 +149,7 @@
 				});
 			},
 			reset() {
-				this.newIdentifier();
+				this.identifier = this.newIdentifier();
 				this.namespace = undefined;
 				this.display = 'common';
 			}
