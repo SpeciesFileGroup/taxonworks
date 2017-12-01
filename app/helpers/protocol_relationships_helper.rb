@@ -1,7 +1,7 @@
 module ProtocolRelationshipsHelper
   def protocol_relationship_tag(protocol_relationship)
     return nil if protocol_relationship.nil?
-    "Protocol relationship #{protocol_relationship.id}"
+    protocol_tag(protocol_relationship.protocol) + ': ' + object_tag(protocol_relationship.protocol_relationship_object)
   end
 
   def protocol_relationship_link(protocol_relationship)
