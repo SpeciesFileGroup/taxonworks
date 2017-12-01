@@ -4,7 +4,7 @@
 	      url="/protocols/autocomplete"
 	      label="label"
 	      min="2"
-	      placeholder="Confidence level"
+	      placeholder="Select a protocol"
 	      @getItem="createNew($event.id)"
 	      class="separate-bottom"
 	      param="term">
@@ -51,15 +51,9 @@
 </script>
 <style type="text/css" lang="scss">
 .radial-annotator {
-	.notes_annotator { 
-		button {
-			min-width: 100px;
-		}
-		textarea {
-			padding-top: 14px;
-			padding-bottom: 14px;
+	.protocols_annotator { 
+		.vue-autocomplete-input {
 			width: 100%;
-			height: 100px;
 		}
 	}
 }
