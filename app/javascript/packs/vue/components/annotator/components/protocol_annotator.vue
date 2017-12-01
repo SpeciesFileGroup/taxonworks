@@ -9,7 +9,7 @@
 	      class="separate-bottom"
 	      param="term">
 	    </autocomplete>
-	    <display-list label="text" :list="list" @delete="removeItem" class="list"></display-list>
+	    <display-list label="object_tag" :list="list" @delete="removeItem" class="list"></display-list>
 	</div>
 </template>
 <script>
