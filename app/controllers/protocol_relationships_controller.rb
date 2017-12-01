@@ -42,7 +42,7 @@ class ProtocolRelationshipsController < ApplicationController
   end
 
   def list
-    @otus = Otu.with_project_id(sessions_current_project_id).page(params[:page])
+    @protocol_relationships = ProtocolRelationship.with_project_id(sessions_current_project_id).page(params[:page])
   end
 
   # POST /protocol_relationships
