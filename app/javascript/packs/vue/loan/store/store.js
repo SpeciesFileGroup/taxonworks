@@ -33,7 +33,8 @@ function makeInitialState() {
       lender_address: undefined,
       clone_from: undefined
     },
-    loan_items: []
+    loan_items: [],
+    edit_loan_items: [],
   }
 }
 

@@ -2,7 +2,7 @@
     <div class="panel loan-box">
       <spinner :show-spinner="false" :resize="false" :show-legend="false" v-if="!loan.id"></spinner>
       <div class="header flex-separate middle">
-        <h3 class="">Loan items</h3>
+        <h3 class="">Add loan items</h3>
         <expand v-model="displayBody"></expand>
       </div>
       <div class="body" v-if="displayBody">
@@ -85,8 +85,6 @@
               <button class="button normal-input button-submit" type="button" @click="batchLoad(key, undefined, 'pinboard', object)">Create</button>
           </div>
         </div>
-        <edit-item-bar :statusList="statusList" :list="selectedItems" v-if="selectedItems.length"></edit-item-bar>
-        <display-list :list="loanItems" @delete="deleteItem" @selectedItems="selectedItems = $event" label="object_tag"></display-list>
       </div>
     </div>
 </template>
@@ -98,11 +96,12 @@
   import spinner from '../../components/spinner.vue';
   import expand from './expand.vue';
 
+  import statusList from '../helpers/status.js';
+
   import { getTagMetadata, createLoanItem, createBatchLoad } from '../request/resources';
   import ActionNames from '../store/actions/actionNames';
   import { GetterNames } from '../store/getters/getters';
   import { MutationNames } from '../store/mutations/mutations';
-  import editItemBar from './editItemBar.vue';
   
   export default {
     components: {
@@ -110,12 +109,8 @@
       spinner,
       autocomplete,
       displayList,
-      editItemBar
     },
     computed: {
-      loanItems() {
-        return this.$store.getters[GetterNames.GetLoanItems]
-      },
       loan() {
         return this.$store.getters[GetterNames.GetLoan]
       }
@@ -137,14 +132,7 @@
           'By tag',
           'By pinboard',
         ],
-        statusList: [
-          'Destroyed',
-          'Donated',
-          'Loaned on',
-          'Lost',
-          'Retained',
-          'Returned'
-        ],
+        statusList: statusList,
         selectedItems: [],
         keywords: undefined,
         pinboard: undefined,
@@ -170,6 +158,9 @@
           total: undefined,
           position: undefined          
         }
+      },
+      addSelectedItem(id) {
+        this.$store.commit(MutationNames.AddEditLoanItem, id);
       },
       createItem() {
         var that = this;

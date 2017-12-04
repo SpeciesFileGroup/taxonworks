@@ -1,23 +1,28 @@
 <template>
-	<div>
-		<hr>
-		<div class="edit-loan-container">
-			<h3>Update selected items</h3>
-			<div class="horizontal-left-content separate-top">
-				<div class="separate-right">
-					<div class="field">
-						<label>Status</label>
-						<select v-model="status" class="normal-input">
-							<option v-for="item in statusList" :value="item">{{ item }}</option>
-						</select>
-						<button :disabled="!status" @click="updateStatus()" class="button button-submit normal-input">Update</button>
+	<div class="panel loan-box">
+		<spinner :show-spinner="false" :resize="false" :show-legend="false" v-if="!loan.id"></spinner>
+		<div class="header flex-separate middle">
+			<h3 class="">Update selected items</h3>
+			<expand v-model="displayBody"></expand>
+		</div>
+		<div class="body" v-if="displayBody">
+			<div class="edit-loan-container">
+				<div class="horizontal-left-content separate-top">
+					<div class="separate-right">
+						<div class="field">
+							<label>Status</label>
+							<select v-model="status" class="normal-input">
+								<option v-for="item in statusList" :value="item">{{ item }}</option>
+							</select>
+							<button :disabled="!status || !list.length" @click="updateStatus()" class="button button-submit normal-input">Update</button>
+						</div>
 					</div>
-				</div>
-				<div class="separate-left">
-					<div class="field">
-						<label>Date</label>
-						<input v-model="date" type="date" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" />
-						<button :disabled="!date" @click="updateDate()" class="button button-submit normal-input">Update</button>
+					<div class="separate-left">
+						<div class="field">
+							<label>Date</label>
+							<input v-model="date" type="date" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" />
+							<button :disabled="!date || !list.length" @click="updateDate()" class="button button-submit normal-input">Update</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -28,22 +33,30 @@
 <script>
 
 	import ActionNames from '../store/actions/actionNames';
+	import { GetterNames } from '../store/getters/getters';
+	import statusList from '../helpers/status.js';
+	import expand from './expand.vue';
+	import spinner from '../../components/spinner.vue';
 
 	export default {
-		props: {
-			list: {
-				type: Array,
-				default: () => { return [] }
+		components: {
+			expand,
+			spinner
+		},
+		computed: {
+			list() {
+				return this.$store.getters[GetterNames.GetEditLoanItems]
 			},
-			statusList: {
-				type: Array,
-				required: true
+			loan() {
+				return this.$store.getters[GetterNames.GetLoan]
 			}
 		},
 		data: function() {
 			return {
 				date: undefined,
-				status: undefined
+				status: undefined,
+				statusList: statusList,
+				displayBody: true
 			}
 		},
 		methods: {

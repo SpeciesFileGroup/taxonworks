@@ -3,13 +3,17 @@
     <spinner :full-screen="true" legend="Loading..." :logo-size="{ width: '100px', height: '100px'}" v-if="settings.loading"></spinner>
     <h1>Edit loan</h1>
     <loan-recipient class="separate-bottom"></loan-recipient>
-    <loan-items class="separate-top"></loan-items>
+    <loan-items class="separate-top separate-bottom"></loan-items>
+    <edit-loan-items class="separate-top separate-bottom"></edit-loan-items>
+    <display-list class="separate-top" label="object_tag"></display-list>
   </div>
 </template>
 
 <script>
   import loanRecipient from './components/loanRecipient.vue';
   import loanItems from './components/loanItems.vue';
+  import editLoanItems from './components/editItemBar.vue';
+  import displayList from './components/displayList.vue';
   import spinner from '../components/spinner.vue';
 
   import ActionNames from './store/actions/actionNames';
@@ -19,6 +23,8 @@
     components: {
       loanRecipient,
       loanItems,
+      displayList,
+      editLoanItems,
       spinner
     },
     computed: {

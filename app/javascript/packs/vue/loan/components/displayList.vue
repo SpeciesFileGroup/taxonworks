@@ -1,28 +1,46 @@
 <template>
-	<transition-group class="table-entrys-list" name="list-complete" tag="ul">
-	    	<li v-for="item in list" :key="item.id" class="list-complete-item flex-separate middle">
-			    <label class="list-item">
-			    	<input 
-			    		@click="addSelectedItem(item.id)" 
-			    		type="checkbox" 
-			    		:checked="selectedItems.find(value => { return value == item.id })"
-			    		/>
-			    	<span v-html="displayName(item)"></span>
-			    </label>
-			    <div class="list-controls">
-			    	<span v-if="edit" class="circle-button btn-edit" @click="$emit('edit', Object.assign({}, item))">Edit</span>
-		    		<span class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
-		    	</div>
-	    	</li>
-	</transition-group>
+	<div class="panel loan-box">
+		<spinner :show-spinner="false" :resize="false" :show-legend="false" v-if="!loan.id"></spinner>
+		<div class="header flex-separate middle">
+			<h3 class="">Loan items</h3>
+			<expand v-model="displayBody"></expand>
+		</div>
+		<div class="body" v-if="displayBody">
+			<transition-group class="table-entrys-list" name="list-complete" tag="ul">
+			    	<li v-for="item in list" :key="item.id" class="list-complete-item flex-separate middle">
+					    <label class="list-item">
+					    	<input 
+					    		@click="addSelectedItem(item.id)" 
+					    		type="checkbox" 
+					    		:checked="editLoanItems.find(value => { return value == item.id })"
+					    		/>
+					    	<span v-html="displayName(item)"></span>
+					    </label>
+					    <div class="list-controls">
+					    	<span v-if="edit" class="circle-button btn-edit" @click="$emit('edit', Object.assign({}, item))">Edit</span>
+				    		<span class="circle-button btn-delete" @click="deleteItem(item)">Remove</span>
+				    	</div>
+			    	</li>
+			</transition-group>
+		</div>
+	</div>
 </template>
 
 <script>
+
+	import { GetterNames } from '../store/getters/getters';
+	import { MutationNames } from '../store/mutations/mutations';
+	import ActionNames from '../store/actions/actionNames';
+
+	import spinner from '../../components/spinner.vue';
+	import expand from './expand.vue';
+
 	export default {
+		components: {
+			spinner,
+			expand
+		},
 		props: {
-			list: {
-				default: undefined
-			},
 			label: {
 				required: true,
 			},
@@ -31,9 +49,21 @@
 				default: false,
 			}
 		},
+		computed: {
+			list() {
+				return this.$store.getters[GetterNames.GetLoanItems]
+			},
+			loan() {
+				return this.$store.getters[GetterNames.GetLoan]
+			},
+			editLoanItems() {
+				return this.$store.getters[GetterNames.GetEditLoanItems]
+			}
+		},
 		data: function() {
 			return {
-				selectedItems: []
+				selectedItems: [],
+				displayBody: true,
 			}
 		},
 		methods: {
@@ -49,17 +79,11 @@
 					return tmp;
 				}
 			},
+			deleteItem(item) {
+				this.$store.dispatch(ActionNames.DeleteLoanItem, item.id)
+			},
 			addSelectedItem(id) {
-				let index = this.selectedItems.findIndex(item => { return (id == item) });
-				
-				if(index < 0) {
-					this.selectedItems.push(id);
-				}
-				else {
-					this.selectedItems.splice(index, 1);
-				}
-
-				this.$emit('selectedItems', this.selectedItems)
+				this.$store.commit(MutationNames.AddEditLoanItem, id);
 			}
 		}
 	}
