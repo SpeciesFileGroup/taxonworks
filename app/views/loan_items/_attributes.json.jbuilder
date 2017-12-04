@@ -3,10 +3,10 @@ json.object_tag loan_item_tag(loan_item)
 json.url loan_item_url(loan_item, format: :json)
 json.global_id loan_item.to_global_id.to_s
 
-json.loan_item_object_tag object_tag(loan_item_object.loan_item)
+json.loan_item_object_tag object_tag(loan_item.loan_item_object)
 
 if loan_item.loan_item_object_type == 'CollectionObject' && loan_item.loan_item_object.taxon_determinations.any?
-  json.partial! '/taxon_determinations/attributes', taxon_determination: json.loan_item.loan_item_object.taxon_determinations.first
+  json.partial! '/taxon_determinations/attributes', taxon_determination: loan_item.loan_item_object.taxon_determinations.first
 end
 
 
