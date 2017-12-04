@@ -159,9 +159,6 @@
           position: undefined          
         }
       },
-      addSelectedItem(id) {
-        this.$store.commit(MutationNames.AddEditLoanItem, id);
-      },
       createItem() {
         var that = this;
         this.loan_item.loan_id = this.loan.id;

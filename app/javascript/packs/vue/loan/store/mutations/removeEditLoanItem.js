@@ -4,7 +4,7 @@ export default function(state, loan_item_id) {
 			return true;
 		}
 	});
-	if (position < 0) {
-		state.edit_loan_items.push(loan_item_id);
+	if (position >= 0) {
+		state.edit_loan_items.splice(position, 1);
 	}
 };

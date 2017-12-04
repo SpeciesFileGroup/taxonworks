@@ -19,7 +19,7 @@
 					</div>
 					<div class="separate-left">
 						<div class="field">
-							<label>Date</label>
+							<label>Returned on date</label>
 							<input v-model="date" type="date" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" />
 							<button :disabled="!date || !list.length" @click="updateDate()" class="button button-submit normal-input">Update</button>
 						</div>

@@ -3,14 +3,20 @@
 		<spinner :show-spinner="false" :resize="false" :show-legend="false" v-if="!loan.id"></spinner>
 		<div class="header flex-separate middle">
 			<h3 class="">Loan items</h3>
-			<expand v-model="displayBody"></expand>
+			<div class="horizontal-left-content">
+				<template>
+					<button class="button normal-input separate-right" v-if="editLoanItems.length" type="button" @click="unselectAll()">Unselect all</button>
+					<button class="button normal-input separate-right" v-else type="button" @click="selectAll()">Select all</button>
+				</template>
+				<expand class="separate-left" v-model="displayBody"></expand>
+			</div>
 		</div>
 		<div class="body" v-if="displayBody">
 			<transition-group class="table-entrys-list" name="list-complete" tag="ul">
-			    	<li v-for="item in list" :key="item.id" class="list-complete-item flex-separate middle">
+			    	<li v-for="item, index in list" :key="item.id" class="list-complete-item flex-separate middle">
 					    <label class="list-item">
 					    	<input 
-					    		@click="addSelectedItem(item.id)" 
+					    		@click="switchOption(item.id)" 
 					    		type="checkbox" 
 					    		:checked="editLoanItems.find(value => { return value == item.id })"
 					    		/>
@@ -79,11 +85,32 @@
 					return tmp;
 				}
 			},
+			selectAll() {
+				this.$store.getters[GetterNames.GetLoanItems].forEach(item => {
+					this.$store.commit(MutationNames.AddEditLoanItem, item.id);
+				})
+			},
+			unselectAll() {
+				this.$store.getters[GetterNames.GetEditLoanItems].forEach(item => {
+					this.$store.commit(MutationNames.CleanEditLoanItems);
+				})
+			},
 			deleteItem(item) {
 				this.$store.dispatch(ActionNames.DeleteLoanItem, item.id)
 			},
+			switchOption(id) {
+				if(this.editLoanItems.find(item => { return item == id})) {
+					this.removeSelectedItem(id);
+				}
+				else {
+					this.addSelectedItem(id);
+				}
+			},
 			addSelectedItem(id) {
 				this.$store.commit(MutationNames.AddEditLoanItem, id);
+			},
+			removeSelectedItem(id) {
+				this.$store.commit(MutationNames.RemoveEditLoanItem, id);
 			}
 		}
 	}
