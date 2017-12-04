@@ -36,7 +36,15 @@ namespace :tw do
           
           'specimens:import_two_specimen_lists',
           'specimens:create_sf_geo_level4_hash',
-          'specimens:collecting_events'
+          'specimens:collecting_events',
+          'specimens:import_sf_depos',
+          'specimens:create_biocuration_classes',
+          'specimens:create_specimen_category_counts',
+          'specimens:create_sf_source_metadata',
+          'specimens:create_sf_identification_metadata',
+          'specimens:get_ident_qualifier_from_nomenclator',
+          'specimens:create_sf_loc_col_events_metadata',
+          'specimens:collection_objects'
       ] do
         puts 'Ran all import tasks!'
       end
@@ -614,11 +622,12 @@ taxa:create_all_sf_taxa_pass1
 [ERROR]2017-03-27 19:29:35.467: TaxonName ERROR (count = 2) AFTER synonym test (SF.TaxonNameID = 1170406, parent_id = 71880): Parent The parent rank (subspecies) is not higher than subspecies
 
 
+[INFO]2017-10-26 18:56:24.140: Logged task tw:project_import:sf_import:specimens:collection_objects completed!
+[INFO]2017-10-26 18:56:24.141: All tasks completed. Dumping summary for each task...
 === Summary of warnings and errors for task tw:project_import:sf_import:specimens:collection_objects ===
-[ERROR]2017-10-11 16:46:34.481: CollectionObject ERROR SF.SpecimenID = 62636 (1): Protonym Type cannot be designated, name is not a species group name
-[ERROR]2017-10-11 16:52:36.984: CollectionObject ERROR SF.SpecimenID = 65899 (2): Protonym Type cannot be designated, name is not a species group name
-[ERROR]2017-10-11 17:08:13.677: CollectionObject ERROR SF.SpecimenID = 74553 (3): Value has already been taken
-[ERROR]2017-10-11 17:38:02.813: CollectionObject ERROR SF.SpecimenID = 92870 (4): Value has already been taken
-
+[ERROR]2017-10-26 17:20:52.693: CollectionObject ERROR SF.SpecimenID = 62636 (1): Protonym Type cannot be designated, name is not a species group name
+[ERROR]2017-10-26 17:26:55.388: CollectionObject ERROR SF.SpecimenID = 65899 (2): Protonym Type cannot be designated, name is not a species group name
+[ERROR]2017-10-26 17:42:25.879: CollectionObject ERROR SF.SpecimenID = 74553 (3): Value has already been taken
+[ERROR]2017-10-26 18:12:03.070: CollectionObject ERROR SF.SpecimenID = 92870 (4): Value has already been taken
 
 =end

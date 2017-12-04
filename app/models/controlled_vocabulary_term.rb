@@ -28,8 +28,8 @@ class ControlledVocabularyTerm < ApplicationRecord
 
   include Housekeeping
   include Shared::AlternateValues
-  include Shared::IsData
   include Shared::HasPapertrail
+  include Shared::IsData
   # include Shared::Taggable <- NO!!
 
   acts_as_list scope: [:project_id, :type]

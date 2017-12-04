@@ -121,11 +121,11 @@ class TaxonName < ApplicationRecord
   include Shared::Notable
   include Shared::Depictions
   include Shared::Citable
-  include Shared::IsData
   include Shared::Confidence
   include SoftValidation
   include Shared::AlternateValues
   include Shared::HasPapertrail
+  include Shared::IsData
 
   # Allows users to provide arbitrary annotations that "over-ride" rank string
   ALTERNATE_VALUES_FOR = [:rank_class].freeze # don't even think about putting this on #name

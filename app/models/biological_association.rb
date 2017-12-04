@@ -27,11 +27,11 @@
 class BiologicalAssociation < ApplicationRecord
   include Housekeeping
   include Shared::Citable
-  include Shared::IsData
   include SoftValidation
   include Shared::DataAttributes
   include Shared::Notable
   include Shared::Confidence
+  include Shared::IsData
 
 
   belongs_to :biological_relationship, inverse_of: :biological_associations
