@@ -4,112 +4,76 @@ import VueResource from 'vue-resource';
 Vue.use(VueResource);
 Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-const getTagMetadata = function() {
-  return new Promise(function (resolve, reject) {
-    Vue.http.get('/tasks/loans/edit_loan/loan_item_metadata').then( response => {
+const ajaxCall = function(type, url, data = null) {
+  return new Promise(function(resolve, reject) {
+    Vue.http[type](url, data).then(response => {
       return resolve(response.body);
     }, response => {
-      return reject(response.body);
-    });
-  });
-}
-
-const createBatchLoad = function(params) {
-  return new Promise(function(resolve,reject) {
-    Vue.http.post('/loan_items/batch_create', params).then(response => {
-      return resolve(response.body);
-    }, response => {
-      return reject(response.body);
+      handleError(response.body);
+      return reject(response);
     })
   });
 }
 
-const getLoan = function(id) {
-  return new Promise(function (resolve, reject) {
-    Vue.http.get(`/loans/${id}.json`).then( response => {
-      return resolve(response.body);
-    }, response => {
-      return reject(response.body);
-    });
+const handleError = function(json) {
+  if (typeof json != 'object') return
+  let errors = Object.keys(json);
+  let errorMessage = '';
+
+  errors.forEach(function(item) {
+    errorMessage += json[item].join('<br>')
   });
+
+  TW.workbench.alert.create(errorMessage, 'error');
 }
 
-const destroyLoan = function(id) {
-  return new Promise(function (resolve, reject) {
-    Vue.http.delete(`/loans/${id}.json`).then( response => {
-      return resolve(response.body);
-    }, response => {
-      return reject(response.body);
-    });
-  });
+const createTaxonDetermination = function(data) {
+  return ajaxCall('post', '/taxon_determinations', data)
 }
 
-const destroyLoanItem = function(id) {
-  return new Promise(function (resolve, reject) {
-    Vue.http.delete(`/loan_items/${id}.json`).then( response => {
-      TW.workbench.alert.create("Loan item was successfully deleted.", "notice");
-      return resolve(response.body);
-    }, response => {
-      return reject(response.body);
-    });
-  });
-}
-
-const updateLoan = function(loan) {
-  return new Promise(function (resolve, reject) {
-    Vue.http.patch(`/loans/${loan.id}.json`, { loan: loan }).then( response => {
-      TW.workbench.alert.create("Loan item was successfully updated.", "notice");
-      return resolve(response.body);
-    }, response => {
-      return reject(response.body);
-    });
-  });
-}
-
-const updateLoanItem = function(loan_item) {
-  return new Promise(function (resolve, reject) {
-    Vue.http.patch(`/loan_items/${loan_item.id}.json`, { loan_item: loan_item }).then( response => {
-      return resolve(response.body);
-    }, response => {
-      return reject(response.body);
-    });
-  });
+const createBatchLoad = function(params) {
+  return ajaxCall('post', '/loan_items/batch_create', params)
 }
 
 const createLoan = function(loan) {
-  return new Promise(function (resolve, reject) {
-    console.log(loan);
-    Vue.http.post(`/loans.json`, { loan: loan }).then( response => {
-      TW.workbench.alert.create("Loan was successfully created.", "notice");
-      return resolve(response.body);
-    }, response => {
-      return reject(response.body);
-    });
-  });
+  return ajaxCall('post', `/loans.json`, loan)
 }
 
 const createLoanItem = function(loan_item) {
-  return new Promise(function (resolve, reject) {
-    Vue.http.post(`/loan_items.json`, { loan_item: loan_item }).then( response => {
-      TW.workbench.alert.create("Loan item was successfully created.", "notice");
-      return resolve(response.body);
-    }, response => {
-      return reject(response.body);
-    });
-  });
+  return ajaxCall('post', `/loan_items.json`, loan_item)
+}
+
+const getLoan = function(id) {
+  return ajaxCall('get', `/loans/${id}.json`)
 }
 
 const getLoanItems = function(id) {
-  return new Promise(function (resolve, reject) {
-    Vue.http.get(`/loan_items.json?loan_id=${id}`).then( response => {
-      return resolve(response.body);
-    }, response => {
-      return reject(response.body);
-    });
-  });
+  return ajaxCall('get', `/loan_items.json?loan_id=${id}`)
 }
 
+const getTagMetadata = function(id) {
+  return ajaxCall('get', `/tasks/loans/edit_loan/loan_item_metadata`)
+}
+
+const destroyLoan = function(id) {
+  return ajaxCall('delete', `/loans/${id}.json`)
+}
+
+const destroyLoanItem = function(id) {
+  return ajaxCall('delete', `/loan_items/${id}.json`)
+}
+
+const updateLoan = function(loan) {
+  return ajaxCall('patch', `/loans/${loan.loan.id}.json`, loan)
+}
+
+const updateLoanItem = function(loan_item) {
+  return ajaxCall('patch', `/loan_items/${loan_item.loan_item.id}.json`, loan_item)
+}
+
+
 export {
+  createTaxonDetermination,
   createBatchLoad,
   destroyLoan,
   destroyLoanItem,

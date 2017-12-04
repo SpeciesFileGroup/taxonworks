@@ -2,7 +2,7 @@
     <div class="panel loan-box">
       <spinner :show-spinner="false" :resize="false" :show-legend="false" v-if="!loan.id"></spinner>
       <div class="header flex-separate middle">
-        <h3 class="">Add loan items</h3>
+        <h3>Add loan items</h3>
         <expand v-model="displayBody"></expand>
       </div>
       <div class="body" v-if="displayBody">
@@ -58,7 +58,7 @@
               <label>Date returned</label>
               <input v-model="loan_item.date_returned" type="date"/>
             </div>
-            <div class="field">
+            <div class="field" v-if="loan_item.total < 100000">
               <label>Total</label>
               <input v-model="loan_item.total" class="normal-input" type="text"/>
             </div>
@@ -163,8 +163,9 @@
         var that = this;
         this.loan_item.loan_id = this.loan.id;
 
-        createLoanItem(this.loan_item).then(response => {
+        createLoanItem({ loan_item: this.loan_item }).then(response => {
           that.$store.commit(MutationNames.AddLoanItem, response);
+          TW.workbench.alert.create("Loan item was successfully created.", "notice");
         });
       },
       batchLoad(klass, keyword, type, total) {
