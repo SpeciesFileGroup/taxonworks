@@ -177,7 +177,9 @@
     methods: {
       update() {
         this.loan.roles_attributes = this.roles_recipient.concat(this.roles_supervisor);
-        updateLoan(this.loan);
+        updateLoan({ loan: this.loan }).then(response => {
+          TW.workbench.alert.create("Loan was successfully updated.", "notice");
+        });
       },
       create() {
         this.loan.roles_attributes = this.roles_recipient.concat(this.roles_supervisor);

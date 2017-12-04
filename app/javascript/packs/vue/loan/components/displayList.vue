@@ -2,7 +2,7 @@
 	<div class="panel loan-box">
 		<spinner :show-spinner="false" :resize="false" :show-legend="false" v-if="!loan.id"></spinner>
 		<div class="header flex-separate middle">
-			<h3 class="">Loan items</h3>
+			<h3>Loan items</h3>
 			<div class="horizontal-left-content">
 				<template>
 					<button class="button normal-input separate-right" v-if="editLoanItems.length" type="button" @click="unselectAll()">Unselect all</button>
@@ -12,22 +12,30 @@
 			</div>
 		</div>
 		<div class="body" v-if="displayBody">
-			<transition-group class="table-entrys-list" name="list-complete" tag="ul">
-			    	<li v-for="item, index in list" :key="item.id" class="list-complete-item flex-separate middle">
-					    <label class="list-item">
-					    	<input 
-					    		@click="switchOption(item.id)" 
-					    		type="checkbox" 
-					    		:checked="editLoanItems.find(value => { return value == item.id })"
-					    		/>
-					    	<span v-html="displayName(item)"></span>
-					    </label>
-					    <div class="list-controls">
-					    	<span v-if="edit" class="circle-button btn-edit" @click="$emit('edit', Object.assign({}, item))">Edit</span>
-				    		<span class="circle-button btn-delete" @click="deleteItem(item)">Remove</span>
-				    	</div>
-			    	</li>
-			</transition-group>
+			<table class="vue-table">
+				<thead>
+					<tr>
+						<th>Object tag</th>
+					</tr>
+				</thead>
+				<transition-group class="table-entrys-list" name="list-complete" tag="tbody">
+			    	<tr v-for="item, index in list" :key="item.id" class="list-complete-item flex-separate middle">
+			    		<td>
+						    <label class="list-item">
+						    	<input 
+						    		@click="switchOption(item)" 
+						    		type="checkbox" 
+						    		:checked="editLoanItems.find(value => { return value.id == item.id })"
+						    		/>
+						    	<span v-html="displayName(item)"></span>
+						    </label>
+						</td>
+						<td>
+					    	<span class="circle-button btn-delete" @click="deleteItem(item)">Remove</span>
+				    	</td>
+			    	</tr>
+				</transition-group>
+			</table>
 		</div>
 	</div>
 </template>
@@ -50,10 +58,6 @@
 			label: {
 				required: true,
 			},
-			edit: {
-				type: Boolean,
-				default: false,
-			}
 		},
 		computed: {
 			list() {
@@ -87,7 +91,7 @@
 			},
 			selectAll() {
 				this.$store.getters[GetterNames.GetLoanItems].forEach(item => {
-					this.$store.commit(MutationNames.AddEditLoanItem, item.id);
+					this.$store.commit(MutationNames.AddEditLoanItem, item);
 				})
 			},
 			unselectAll() {
@@ -98,55 +102,43 @@
 			deleteItem(item) {
 				this.$store.dispatch(ActionNames.DeleteLoanItem, item.id)
 			},
-			switchOption(id) {
-				if(this.editLoanItems.find(item => { return item == id})) {
-					this.removeSelectedItem(id);
+			switchOption(item) {
+				if(this.editLoanItems.find(value => { return value.id == item.id})) {
+					this.removeSelectedItem(item);
 				}
 				else {
-					this.addSelectedItem(id);
+					this.addSelectedItem(item);
 				}
 			},
-			addSelectedItem(id) {
-				this.$store.commit(MutationNames.AddEditLoanItem, id);
+			addSelectedItem(item) {
+				this.$store.commit(MutationNames.AddEditLoanItem, item);
 			},
-			removeSelectedItem(id) {
-				this.$store.commit(MutationNames.RemoveEditLoanItem, id);
+			removeSelectedItem(item) {
+				this.$store.commit(MutationNames.RemoveEditLoanItem, item);
 			}
 		}
 	}
 </script>
 <style lang="scss" scoped>
-
-	.list-controls {
-	 	display: flex;
-	 	align-items:center;
-	 	flex-direction:row;
-	 	justify-content: flex-end;
-	 	.circle-button {
-	 		margin-left: 4px !important;
-	 	}
-	}
-	.list-item {
-		white-space: normal;
-		a {
-			padding-left: 4px;
-			padding-right: 4px;
-		}
-	}
-	.table-entrys-list {
+	.vue-table-container {
 		overflow-y: scroll;
 	  	padding: 0px;
 	  	position: relative;
-	    li {
-			margin: 0px;
-			padding: 6px;
-			border: 0px;
-			border-top: 1px solid #f5f5f5;
-	    }
+	}
+	.vue-table {
+		width: 100%;
+		.vue-table-options {
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-end;
+		}
+		tr {
+			cursor: default;
+		}
 	}
 	.list-complete-item {
 		justify-content: space-between;
-		transition: all 1s, opacity 0.2s;
+		transition: all 0.5s, opacity 0.2s;
 	}
 	.list-complete-enter, .list-complete-leave-to
 	{
