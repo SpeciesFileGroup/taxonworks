@@ -5,7 +5,7 @@
     <loan-recipient class="separate-bottom"></loan-recipient>
     <loan-items class="separate-top separate-bottom"></loan-items>
     <edit-loan-items class="separate-top separate-bottom"></edit-loan-items>
-    <display-list class="separate-top" label="object_tag"></display-list>
+    <display-list class="separate-top"></display-list>
   </div>
 </template>
 

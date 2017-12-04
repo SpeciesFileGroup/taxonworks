@@ -16,10 +16,14 @@
 				<thead>
 					<tr>
 						<th>Object tag</th>
+						<th>Date returned</th>
+						<th>Collection object status</th>
+						<th>Total</th>
+						<th></th>
 					</tr>
 				</thead>
 				<transition-group class="table-entrys-list" name="list-complete" tag="tbody">
-			    	<tr v-for="item, index in list" :key="item.id" class="list-complete-item flex-separate middle">
+			    	<tr v-for="item, index in list" :key="item.id" class="list-complete-item">
 			    		<td>
 						    <label class="list-item">
 						    	<input 
@@ -27,9 +31,12 @@
 						    		type="checkbox" 
 						    		:checked="editLoanItems.find(value => { return value.id == item.id })"
 						    		/>
-						    	<span v-html="displayName(item)"></span>
+						    	<span v-html="item.loan_item_object_tag"></span>
 						    </label>
 						</td>
+						<td v-html="item.date_returned"></td>
+						<td v-html="item.disposition"></td>
+						<td v-html="item.total"></td>
 						<td>
 					    	<span class="circle-button btn-delete" @click="deleteItem(item)">Remove</span>
 				    	</td>
@@ -54,11 +61,6 @@
 			spinner,
 			expand
 		},
-		props: {
-			label: {
-				required: true,
-			},
-		},
 		computed: {
 			list() {
 				return this.$store.getters[GetterNames.GetLoanItems]
@@ -77,18 +79,6 @@
 			}
 		},
 		methods: {
-			displayName(item) {
-				if(typeof this.label == 'string') {
-					return item[this.label];
-				}
-				else {
-					let tmp = item;
-					this.label.forEach(function(label) {
-						tmp = tmp[label]
-					});
-					return tmp;
-				}
-			},
 			selectAll() {
 				this.$store.getters[GetterNames.GetLoanItems].forEach(item => {
 					this.$store.commit(MutationNames.AddEditLoanItem, item);
@@ -133,8 +123,10 @@
 			justify-content: flex-end;
 		}
 		tr {
+			border: 1px solid #F5F5F5;
 			cursor: default;
 		}
+
 	}
 	.list-complete-item {
 		justify-content: space-between;
