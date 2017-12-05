@@ -1,8 +1,14 @@
 <template>
     <div class="panel loan-box">
       <div class="header flex-separate middle">
-        <h3 class="">Loan information</h3>
-        <expand v-model="displayBody"></expand>
+        <h3>Loan information</h3>
+        <div class="horizontal-left-content">
+          <template v-if="loan.hasOwnProperty('id')">
+            <a :href="`/loans/${loan.id}`" target="_blank" class="taxonname separate-right">Show</a>
+            <button @click="showModal = true" :disabled="loanItems.length > 0" type="button" class="button normal-input button-delete separate-left separate-right">Delete loan</button>
+          </template>
+          <expand class="separate-left" v-model="displayBody"></expand>
+        </div>
       </div>
       <modal v-if="showModal" @close="showModal = false">
         <h3 slot="header">Confirm delete</h3>
@@ -46,7 +52,6 @@
           <div>
             <template v-if="loan.hasOwnProperty('id')">
               <button @click="update()" type="button" class="button normal-input button-submit">Update Loan</button>
-              <button @click="showModal = true" :disabled="loanItems.length > 0" type="button" class="button normal-input button-delete">Delete loan</button>
             </template>
             <button @click="create()" v-else type="button" class="button normal-input button-submit">Create Loan</button>
           </div>
