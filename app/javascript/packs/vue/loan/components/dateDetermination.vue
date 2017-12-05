@@ -18,15 +18,15 @@
 		</div>
 		<div class="field">
 			<label>Year made</label>
-			<input type="number" v-model="determination.year_made">
+			<input type="number" v-model="determination.year_made" min="1735">
 		</div>
 		<div class="field">
 			<label>Month made</label>
-			<input type="number" v-model="determination.month_made">
+			<input type="number" v-model="determination.month_made" min="1" max="12">
 		</div>
 		<div class="field">
 			<label>Day made</label>
-			<input type="number" v-model="determination.day_made">
+			<input type="number" v-model="determination.day_made" min="1" max="31">
 		</div>
 		<button @click="setDeterminations()" class="button button-submit normal-input" :disabled="!validateFields" type="button">Set determination</button>
 	</div>

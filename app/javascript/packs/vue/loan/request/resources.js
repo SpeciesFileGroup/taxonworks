@@ -31,6 +31,10 @@ const createTaxonDetermination = function(data) {
   return ajaxCall('post', '/taxon_determinations', data)
 }
 
+const batchRemoveKeyword = function(id, type) {
+  return ajaxCall('post', `/tags/batch_remove?keyword_id=${id}&klass=${type}`)
+}
+
 const createBatchLoad = function(params) {
   return ajaxCall('post', '/loan_items/batch_create', params)
 }
@@ -73,6 +77,7 @@ const updateLoanItem = function(loan_item) {
 
 
 export {
+  batchRemoveKeyword,
   createTaxonDetermination,
   createBatchLoad,
   destroyLoan,

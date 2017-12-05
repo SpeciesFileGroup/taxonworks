@@ -48,7 +48,7 @@
             </autocomplete>
           </div>
           <div>
-            <div class="field">
+            <div class="field" v-if="loan_item.loan_item_object_type == 'Otu'">
               <label>Total</label>
               <input v-model="loan_item.total" class="normal-input" type="text"/>
             </div>
@@ -64,6 +64,7 @@
                 <div class="capitalize tag_label">{{ key }}</div>
                 <div class="tag_total">{{ object }}</div>
                 <button class="button normal-input button-submit" type="button" @click="batchLoad(key, item.object.id, 'tags', object)">Create</button>
+                <button v-if="key != 'total'" class="separate-left button normal-input button-delete" type="button" @click="removeKeyword(item.object.id, key)">Remove</button>
             </div>
           </div>
         </div>
@@ -88,7 +89,7 @@
 
   import statusList from '../helpers/status.js';
 
-  import { getTagMetadata, createLoanItem, createBatchLoad } from '../request/resources';
+  import { getTagMetadata, createLoanItem, createBatchLoad, batchRemoveKeyword } from '../request/resources';
   import ActionNames from '../store/actions/actionNames';
   import { GetterNames } from '../store/getters/getters';
   import { MutationNames } from '../store/mutations/mutations';
@@ -106,13 +107,7 @@
       }
     },
     mounted: function() {
-      var that = this;
-
-      getTagMetadata().then(response => {
-        that.info = response;
-        that.keywords = response.keywords;
-        that.pinboard = response.pinboard;
-      })
+      this.getMeta();
     },
     data: function() {
       return {
@@ -146,6 +141,25 @@
           total: undefined,
           position: undefined          
         }
+      },
+      getMeta() {
+        let that = this;
+
+        return getTagMetadata().then(response => {
+          that.info = response;
+          that.keywords = response.keywords;
+          that.pinboard = response.pinboard;
+        })
+      },
+      removeKeyword(id, type) {
+        let that = this;
+        this.$store.commit(MutationNames.SetSaving, true);
+        batchRemoveKeyword(id, type).then(response => {
+          that.getMeta().then(response => {
+            this.$store.commit(MutationNames.SetSaving, false);
+          });
+          
+        })
       },
       createItem() {
         var that = this;
