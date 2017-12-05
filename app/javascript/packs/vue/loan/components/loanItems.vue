@@ -49,16 +49,6 @@
           </div>
           <div>
             <div class="field">
-              <label>Status</label>
-              <select v-model="loan_item.disposition" class="normal-input">
-                <option  v-for="item in statusList" :value="item">{{ item }}</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>Date returned</label>
-              <input v-model="loan_item.date_returned" type="date"/>
-            </div>
-            <div class="field" v-if="loan_item.total < 100000">
               <label>Total</label>
               <input v-model="loan_item.total" class="normal-input" type="text"/>
             </div>
@@ -151,10 +141,8 @@
       newLoanItem() {
         return {
           loan_id: undefined, 
-          date_returned: undefined, 
           loan_item_object_id: undefined, 
           loan_item_object_type: undefined,
-          disposition: undefined, 
           total: undefined,
           position: undefined          
         }
