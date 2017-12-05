@@ -18,6 +18,7 @@
 						:type="currentAnnotator" 
 						:url="url" 
 						:globalId="globalId"
+						:objectType="metadata.object_type"
 						@updateCount="setTotal">	
 					</component>
 				</div>

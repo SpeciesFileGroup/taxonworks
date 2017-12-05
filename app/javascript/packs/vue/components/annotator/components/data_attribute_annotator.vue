@@ -1,7 +1,39 @@
 <template>
 	<div class="data_attribute_annotator">
+		<div class="switch-radio separate-bottom" v-if="preferences">
+			<template v-for="item, key, index in preferences">
+				<input 
+					v-model="view"
+					:value="key"
+					:id="`switch-picker-${index}`" 
+					name="switch-picker-options"
+					type="radio"
+					class="normal-input button-active" 
+				/>
+				<label :for="`switch-picker-${index}`" class="capitalize">{{ key }}</label>
+			</template>
+			<input 
+				v-model="view"
+				value="new"
+				id="switch-picker-new" 
+				name="switch-picker-options"
+				type="radio"
+				class="normal-input button-active" 
+			/>
+			<label :for="`switch-picker-new`" class="capitalize">New</label>
+		</div>
+
+		<template v-if="view && view != 'new'">
+			<div class="field separate-bottom">
+				<button v-for="predicate in preferences[view]" 
+					@click="data_attribute.controlled_vocabulary_term_id = predicate.id" 
+					type="button" :class="{ 'button-default': (data_attribute.controlled_vocabulary_term_id == predicate.id)}" class="normal-input">{{ predicate.name }}
+				</button>
+			</div>
+		</template>
+
 	    <autocomplete
-	      v-if="!data_attribute.hasOwnProperty('id')"
+	      v-if="!data_attribute.hasOwnProperty('id') && view && view == 'new'"
 	      url="/predicates/autocomplete"
 	      label="label"
 	      min="2"
@@ -44,8 +76,16 @@
 		},
 		data: function() {
 			return {
+				view: 'new',
+				preferences: undefined,
 				data_attribute: this.newData()
 			}
+		},
+		mounted: function() {
+			var that = this;
+			this.getList(`/predicates/select_options?klass=${this.objectType}`).then(response => {
+				this.preferences = response.body;
+			})
 		},
 		methods: {
 			newData() {

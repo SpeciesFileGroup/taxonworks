@@ -4,6 +4,10 @@ const vueAnnotator = {
 			type: String,
 			required: true
 		},
+		objectType: {
+			type: String,
+			required: true
+		},
 		url: {
 			type: String,
 			required: true
