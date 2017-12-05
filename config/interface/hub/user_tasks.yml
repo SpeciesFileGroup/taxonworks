@@ -276,4 +276,11 @@ index_row_coder_task:
     - matrix
   status: prototype
   description: 'Code a matrix row.'
-
+edit_loan_task:
+  hub: true
+  name: 'Edit loans'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Create and edit loans.'

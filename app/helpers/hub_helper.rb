@@ -2,6 +2,7 @@ module HubHelper
 
   # TODO FIX ON Turbolinks 5.0
   def task_card(task)
+    return nil if task.nil?
     content_tag(:div, '', class: 'task_card') { 
       link_to(content_tag(:div,
         content_tag(:div,'' , class: "task_header status #{task.status}") {
