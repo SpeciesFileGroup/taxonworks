@@ -25,7 +25,13 @@ module Queries
     end
 
     def author_set?
-      query_author_ids.count > 0
+      retval = case query_author_ids
+                 when nil
+                   false
+                 else
+                   query_author_ids.count > 0
+               end
+      retval
     end
 
     def nomen_set?
@@ -116,7 +122,7 @@ module Queries
     def author_scope
       a_scope = case query_and_or_select
                   when '_or_', nil
-                    Otu.joins(:taxon_name).where("taxon_names.id IN (SELECT taxon_names.id FROM taxon_names INNER JOIN roles ON taxon_names.id = roles.role_object_id WHERE roles.type IN ('TaxonNameAuthor') AND roles.person_id IN (?) AND roles.role_object_type = 'TaxonName' )", query_author_ids)
+                    # Otu.joins(:taxon_name).where("taxon_names.id IN (SELECT taxon_names.id FROM taxon_names INNER JOIN roles ON taxon_names.id = roles.role_object_id WHERE roles.type IN ('TaxonNameAuthor') AND roles.person_id IN (?) AND roles.role_object_type = 'TaxonName' )", query_author_ids)
                     query_string = "taxon_names.id IN (SELECT taxon_names.id FROM taxon_names"
                     query_string += " INNER JOIN roles ON taxon_names.id = roles.role_object_id"
                     query_string += " WHERE roles.type IN ('TaxonNameAuthor') AND roles.role_object_type = 'TaxonName' "
