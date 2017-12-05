@@ -263,6 +263,13 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
           result = Queries::OtuFilterQuery.new(params).result
           expect(result.count).to eq(1)
         end
+
+        specify 'otus by sargon (single author)' do
+          params = {author_ids: [sargon.id], and_or_select: '_and_'}
+
+          result = Queries::OtuFilterQuery.new(params).result
+          expect(result.count).to eq(1)
+        end
       end
 
       context 'or' do
@@ -282,7 +289,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       specify 'geo_area, nomen (taxon name), author' do
         tn     = @co_m2.taxon_names.select { |t| t if t.name == 'cadabra' }.first
         params = {}
-        params.merge!({author_ids: [bill.id, daryl.id]})
+        params.merge!({author_ids: [bill.id, daryl.id], and_or_select: '_or_'})
         params.merge!({geographic_area_ids: [bbxa.id]})
         params.merge!({nomen_id: top_dog.taxon_name_id, descendants: '_on_'})
         # params.merge!({nomen_id: tn.id, descendants: 'off'})
