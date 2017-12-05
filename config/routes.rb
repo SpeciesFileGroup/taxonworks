@@ -782,17 +782,6 @@ TaxonWorks::Application.routes.draw do
       get 'taxon_name_distribution_data/:id', action: 'show_for_taxon_name', as: 'taxon_name_distribution_data_task'
     end
 
-    scope :loans, controller: 'tasks/loans' do
-      get 'complete/:id', action: :complete, as: 'loan_complete_task'
-
-      get 'complete2/:id', action: :complete2, as: 'loan_complete2_task'
-
-      # all technically Loan Routes
-      post 'add_determination/:id', as: 'loan_add_determination', action: :add_determination
-      post 'return_items/:id', as: 'loan_return_items', action: :return_items
-      post 'update_status/:id', as: 'loan_update_status', action: :update_status
-    end
-
     scope :nomenclature do
       scope :new_taxon_name, controller: 'tasks/nomenclature/new_taxon_name' do
         get '(:id)', action: :index, as: 'new_taxon_name_task'
