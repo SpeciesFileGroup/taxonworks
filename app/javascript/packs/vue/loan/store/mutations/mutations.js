@@ -7,6 +7,7 @@ import setSaving from './setSaving';
 import removeLoanItem from './removeLoanItem';
 import removeEditLoanItem from './removeEditLoanItem';
 import cleanEditLoanItems from './cleanEditLoanItems';
+import setAllEditLoanItems from './setAllEditLoanItems';
 
 
 const MutationNames = {
@@ -17,6 +18,7 @@ const MutationNames = {
 	SetLoanItems: 'setLoanItems',
 	SetLoading: 'setLoading',
 	SetSaving: 'setSaving',
+	SetAllEditLoanItems: 'setAllEditLoanItems',
 	RemoveLoanItem: 'removeLoanItem',
 	RemoveEditLoanItem: 'removeEditLoanItem'
 };
@@ -29,6 +31,7 @@ const MutationFunctions = {
 	[MutationNames.SetLoanItems]: setLoanItems,
 	[MutationNames.SetLoading]: setLoading,
 	[MutationNames.SetSaving]: setSaving,
+	[MutationNames.SetAllEditLoanItems]: setAllEditLoanItems,
 	[MutationNames.RemoveLoanItem]: removeLoanItem,
 	[MutationNames.RemoveEditLoanItem]: removeEditLoanItem
 };

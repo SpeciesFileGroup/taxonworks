@@ -29,7 +29,7 @@
 						    	<input 
 						    		@click="switchOption(item)" 
 						    		type="checkbox" 
-						    		:checked="editLoanItems.find(value => { return value.id == item.id })"
+									:checked="editLoanItems.find(value => { return value.id == item.id })"
 						    		/>
 						    	<span v-html="item.loan_item_object_tag"></span>
 						    </label>
@@ -80,14 +80,10 @@
 		},
 		methods: {
 			selectAll() {
-				this.$store.getters[GetterNames.GetLoanItems].forEach(item => {
-					this.$store.commit(MutationNames.AddEditLoanItem, item);
-				})
+				this.$store.commit(MutationNames.SetAllEditLoanItems);
 			},
 			unselectAll() {
-				this.$store.getters[GetterNames.GetEditLoanItems].forEach(item => {
-					this.$store.commit(MutationNames.CleanEditLoanItems);
-				})
+				this.$store.commit(MutationNames.CleanEditLoanItems); 
 			},
 			deleteItem(item) {
 				this.$store.dispatch(ActionNames.DeleteLoanItem, item.id)

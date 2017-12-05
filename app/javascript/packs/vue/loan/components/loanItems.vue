@@ -158,7 +158,6 @@
           that.getMeta().then(response => {
             this.$store.commit(MutationNames.SetSaving, false);
           });
-          
         })
       },
       createItem() {
