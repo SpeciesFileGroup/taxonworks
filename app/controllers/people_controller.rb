@@ -92,15 +92,15 @@ class PeopleController < ApplicationController
     render :json => data
   end
 
-  def t_n_author_autocomplete # originally copied from people_controller#autocomplete
-    @authors = Person.with_role('TaxonNameAuthor').find_for_autocomplete(params).limit(50)
+  def t_n_author_autocomplete 
+    @authors = Person.joins(:roles).where(roles: {type: 'TaxonNameAuthor', project_id: sessions_current_project_id}).find_for_autocomplete(params.permit(:term)).distinct.order('people.cached').limit(50)
     data = @authors.collect do |a|
       {id: a.id,
        label: a.name,
        response_values: {
            params[:method] => a.id
        },
-       label_html: "#{a.name} (#{a.cached})"
+       label_html: a.cached
       }
     end
 

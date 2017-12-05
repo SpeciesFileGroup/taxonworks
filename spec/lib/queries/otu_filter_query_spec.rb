@@ -6,16 +6,13 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     generate_political_areas_with_collecting_events(1, 1)
   }
 
-  after(:all) {
+  after(:all) do 
     clean_slate_geo
     CollectionObject.destroy_all
     Namespace.destroy_all
-  }
+  end 
 
   context 'with properly built collection of objects' do
-
-    let!(:user) { User.find(1) }
-    let!(:project) { Project.find(1) }
     # need some people
     let!(:sargon) { Person.find_or_create_by(first_name: 'of Akkad', last_name: 'Sargon') }
     let!(:andy) { Person.find_or_create_by(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author') }
@@ -25,45 +22,48 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 
     #need an apex
     let!(:top_dog) {
-      o1            = FactoryBot.create(:valid_otu, name: 'Top Dog')
-      o1.taxon_name = FactoryBot.create(:valid_taxon_name,
-                                        rank_class: Ranks.lookup(:iczn, 'Family'),
-                                        name:       'Topdogidae')
-      o1.save
-      o1
+      FactoryBot.create(:valid_otu, name: 'Top Dog', taxon_name: 
+                        FactoryBot.create(:valid_taxon_name,
+                                          rank_class: Ranks.lookup(:iczn, 'Family'),
+                                          name: 'Topdogidae')
+                       )
     }
+
     let!(:by_bill) {
-      o            = FactoryBot.create(:valid_otu, name: 'Top Dog (by Bill)')
-      o.taxon_name = top_dog.taxon_name
-      o.save
-      o
+      FactoryBot.create(:valid_otu, name: 'Top Dog (by Bill)', taxon_name: top_dog.taxon_name)
     }
 
     let(:abra) { Otu.where(name: 'Abra').first }
     let(:cadabra) { Otu.where(name: 'Abra cadabra').first }
     let(:alakazam) { Otu.where(name: 'Abra cadabra alakazam').first }
     let(:spooler) { Otu.where('name like \'%spooler%\'').first }
+   
     # need some otus
     let!(:co_m1a_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M1A')
       @co_m1a.otus << o
     }
+
     let!(:co_m1_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M1')
       @co_m1.otus << o
     }
+    
     let!(:co_n1_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'N1, No georeference')
       @co_n1.otus << o
     }
+
     let!(:co_o1_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'O1')
       @co_o1.otus << o
     }
+  
     let!(:co_p1_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'P1')
       @co_p1.otus << o
     }
+ 
     let!(:co_m2_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'M2')
       o.taxon_name.update_column(:name, 'M2 antivitis')
@@ -228,7 +228,6 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       specify 'with descendants' do
         params_with = {nomen_id: top_dog.taxon_name_id, descendants: '_on_'}
         result      = Queries::OtuFilterQuery.new(params_with).result
-        expect(result.count).to eq(6)
         expect(result).to contain_exactly(spooler, top_dog, abra, by_bill, cadabra, alakazam)
       end
 
@@ -249,7 +248,6 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       end
 
       context 'and' do
-
         specify 'otus by bill, ted, and daryl' do
           params = {author_ids: [bill.id, ted.id, daryl.id], and_or_select: '_and_'}
 
@@ -273,12 +271,10 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       end
 
       context 'or' do
-
         specify 'otus by authors' do
           params = {author_ids: [bill.id, sargon.id, daryl.id], and_or_select: '_or_'}
-
+          
           result = Queries::OtuFilterQuery.new(params).result
-          expect(result.count).to eq(2)
           expect(result).to contain_exactly(spooler, cadabra)
         end
       end
@@ -295,7 +291,6 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
         # params.merge!({nomen_id: tn.id, descendants: 'off'})
 
         result = Queries::OtuFilterQuery.new(params).result
-        expect(result.count).to eq(1)
         expect(result.first).to eq(tn.otus.first)
       end
 

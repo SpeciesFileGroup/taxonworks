@@ -20,6 +20,7 @@ module Queries
 
     end
 
+
     def area_set?
       !query_geographic_area_ids.nil?
     end
@@ -120,33 +121,50 @@ module Queries
 =end
     # @return [Scope]
     def author_scope
-      if query_author_ids.count == 1
-        a_scope = Otu.joins(:taxon_name).where("taxon_names.id IN (SELECT taxon_names.id FROM taxon_names INNER JOIN roles ON taxon_names.id = roles.role_object_id WHERE roles.type IN ('TaxonNameAuthor') AND roles.person_id IN (?) AND roles.role_object_type = 'TaxonName' )", query_author_ids)
-      else
-        a_scope = case query_and_or_select
-                    when '_or_', nil
-                      # Otu.joins(:taxon_name).where("taxon_names.id IN (SELECT taxon_names.id FROM taxon_names INNER JOIN roles ON taxon_names.id = roles.role_object_id WHERE roles.type IN ('TaxonNameAuthor') AND roles.person_id IN (?) AND roles.role_object_type = 'TaxonName' )", query_author_ids)
-                      query_string = "taxon_names.id IN (SELECT taxon_names.id FROM taxon_names"
-                      query_string += " INNER JOIN roles ON taxon_names.id = roles.role_object_id"
-                      query_string += " WHERE roles.type IN ('TaxonNameAuthor') AND roles.role_object_type = 'TaxonName' "
-                      query_string += " AND roles.person_id  IN (?) )"
-                      Otu.joins(:taxon_name).where(query_string, query_author_ids)
-                    # Otu.joins(:taxon_name).where("taxon_names.id IN (SELECT taxon_names.id FROM taxon_names INNER JOIN roles ON taxon_names.id = roles.role_object_id WHERE roles.type IN ('TaxonNameAuthor') AND roles.person_id IN (?) AND roles.role_object_type = 'TaxonName' )", query_author_ids)
-                    when '_and_'
-                      # TODO Needing to fix this...
-                      query_string = "taxon_names.id IN (SELECT taxon_names.id FROM taxon_names"
-                      query_string += " INNER JOIN roles ON taxon_names.id = roles.role_object_id"
-                      query_string += " WHERE roles.type IN ('TaxonNameAuthor') AND roles.role_object_type = 'TaxonName' "
-                      # query_string += " AND roles.person_id = ANY (ARRAY[?]::int[]) )"
-                      # query_string += " AND (SELECT array_agg(id) FROM (SELECT people.id FROM people INNER JOIN roles ON people.id = roles.person_id WHERE roles.type IN ('TaxonNameAuthor') AND roles.role_object_id = taxon_names.id ) AS tab) @> ALL (ARRAY[?]::int[]) )"
-                      query_string += " AND (ARRAY[1601, 1687] = /*ALL*/ (ARRAY[?]::int[])) )"
-                      # Otu.joins(:taxon_name).where("taxon_names.id IN (SELECT taxon_names.id FROM taxon_names INNER JOIN roles ON taxon_names.id = roles.role_object_id WHERE roles.type IN ('TaxonNameAuthor') AND roles.person_id IN (?) AND roles.role_object_type = 'TaxonName' )", query_author_ids)
-                      Otu.joins(:taxon_name).where(query_string, query_author_ids)
-                    else
-                      Otu.none
-                  end
+      case query_and_or_select
+      when '_or_', nil
+
+        p = Person.arel_table
+
+        c = p[:id].eq(query_author_ids.shift)
+        query_author_ids.each do |i|
+          c = c.or(p[:id].eq(i))
+        end
+
+        Otu.joins(taxon_name: [roles: [:person]]).where(roles: {type: 'TaxonNameAuthor'}).where( c.to_sql ).distinct
+
+      when '_and_'
+        table_alias = 'foo'
+
+        o = Otu.arel_table
+        t = TaxonName.arel_table
+        r = Role.arel_table
+
+        a = o.alias("a_#{table_alias}")
+
+        b = o.project(a[Arel.star]).from(a)
+          .join(t)
+          .on(t['id'].eq(a['taxon_name_id']))
+          .join(r).on(
+            r['role_object_id'].eq(t['id']).and(
+              r['type'].eq('TaxonNameAuthor') 
+            )
+        )
+
+        query_author_ids.each_with_index do |person_id, i|
+          x = r.alias("#{table_alias}_#{i}")
+          b = b.join(x).on(
+            x['role_object_id'].eq(t['id']),
+            x['type'].eq('TaxonNameAuthor'),
+            x['person_id'].eq(person_id)
+          )
+        end
+
+        b = b.group(a['id']).having(r['person_id'].count.gteq(query_author_ids.count))
+        b = b.as("z_#{table_alias}")
+
+        Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
-      a_scope
     end
 
     # @return [Array]
@@ -165,7 +183,7 @@ module Queries
       return Otu.none if applied_scopes.empty?
       a = Otu.all
       applied_scopes.each do |scope|
-        a = a.merge(self.send(scope))
+        a = a.merge(self.send(scope)) 
       end
       a
     end
