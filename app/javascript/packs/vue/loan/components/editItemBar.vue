@@ -7,17 +7,19 @@
 		</div>
 		<div class="body horizontal-left-content align-start" v-if="displayBody">
 			<div class="edit-loan-container column-left">
+				<span><b>Loan item information</b></span>
+				<hr>
 				<div class="separate-top">
 					<div class="field">
 						<label>Status</label>
-						<select v-model="status" class="normal-input">
+						<select v-model="status" class="normal-input information-input">
 							<option v-for="item in statusList" :value="item">{{ item }}</option>
 						</select>
 						<button :disabled="!status || !list.length" @click="updateStatus()" class="button button-submit normal-input">Update</button>
 					</div>
 					<div class="field">
 						<label>Returned on date</label>
-						<input v-model="date" type="date" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" />
+						<input v-model="date" type="date" class="information-input" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" />
 						<button :disabled="!date || !list.length" @click="updateDate()" class="button button-submit normal-input">Update</button>
 					</div>
 				</div>
@@ -82,8 +84,11 @@
 		}
 	}
 </script>
-<style>
+<style scoped>
 	.column-left {
 		width: 40%;
+	}
+	.information-input {
+		width: 130px;
 	}
 </style>

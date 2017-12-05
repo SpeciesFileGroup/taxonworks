@@ -23,15 +23,15 @@
         <div v-if="displaySection == 0">
           <p>Select loan item type</p>
           <div class="field">
-            <label>
+            <label class="label-flex">
               <input type="radio" v-model="loan_item.loan_item_object_type" name="autocomplete_type" value="CollectionObject" checked/>
               Collection object
             </label>
-            <label>
+            <label class="label-flex">
               <input type="radio" v-model="loan_item.loan_item_object_type" name="autocomplete_type" value="Otu"/>
               OTU
             </label>
-            <label>
+            <label class="label-flex">
               <input type="radio" v-model="loan_item.loan_item_object_type" name="autocomplete_type" value="Container"/>
               Container
             </label>
@@ -191,8 +191,12 @@
     }
   }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
   #edit_loan_task {
+    .label-flex {
+      display: flex;
+      align-items: center;
+    }
     .switch-radio {
       label {
         width: 100px;

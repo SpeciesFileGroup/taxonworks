@@ -1,6 +1,7 @@
 <template>
 	<div>
-		<h3>Update determinations</h3>
+		<span><b>Update determinations</b></span>
+		<hr>
 		<div class="field">
 			<label>Determiner</label>
 			<role-picker v-model="roles" role-type="TaxonDeterminer"></role-picker>
@@ -89,6 +90,6 @@
 </script>
 <style scoped>
 	.date-input {
-		width: 90px;
+		width: 95px;
 	}
 </style>
