@@ -412,7 +412,6 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :project_sources, only: [:index, :create, :destroy] do
-
     collection do
       get 'download'
       get 'list'
@@ -483,6 +482,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       get :autocomplete
       post :tag_object_update
+      post :batch_remove, defaults: {format: :json}
     end
 
   end
