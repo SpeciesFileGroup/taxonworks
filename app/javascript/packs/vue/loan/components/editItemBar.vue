@@ -5,8 +5,8 @@
 			<h3 class="">Update selected items</h3>
 			<expand v-model="displayBody"></expand>
 		</div>
-		<div class="body" v-if="displayBody">
-			<div class="edit-loan-container">
+		<div class="body horizontal-left-content align-start" v-if="displayBody">
+			<div class="edit-loan-container column-left">
 				<div class="separate-top">
 					<div class="field">
 						<label>Status</label>
@@ -82,3 +82,8 @@
 		}
 	}
 </script>
+<style>
+	.column-left {
+		width: 40%;
+	}
+</style>

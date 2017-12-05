@@ -15,7 +15,7 @@
 			<table class="vue-table">
 				<thead>
 					<tr>
-						<th>Object tag</th>
+						<th>Loan item</th>
 						<th>Date returned</th>
 						<th>Collection object status</th>
 						<th>Total</th>

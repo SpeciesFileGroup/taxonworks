@@ -17,16 +17,10 @@
 			</autocomplete>
 		</div>
 		<div class="field">
-			<label>Year made</label>
-			<input type="number" v-model="determination.year_made" min="1735">
-		</div>
-		<div class="field">
-			<label>Month made</label>
-			<input type="number" v-model="determination.month_made" min="1" max="12">
-		</div>
-		<div class="field">
-			<label>Day made</label>
-			<input type="number" v-model="determination.day_made" min="1" max="31">
+			<label>Date made</label>
+			<input class="date-input" type="number" placeholder="YYYY" v-model="determination.year_made" min="1735" max="3000">
+			<input class="date-input" type="number" placeholder="MM" v-model="determination.month_made" min="1" max="12">
+			<input class="date-input" type="number" placeholder="DD" v-model="determination.day_made" min="1" max="31">
 		</div>
 		<button @click="setDeterminations()" class="button button-submit normal-input" :disabled="!validateFields" type="button">Set determination</button>
 	</div>
@@ -93,3 +87,8 @@
 		}
 	}
 </script>
+<style scoped>
+	.date-input {
+		width: 90px;
+	}
+</style>
