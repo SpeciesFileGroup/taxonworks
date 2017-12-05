@@ -25,7 +25,7 @@ module Queries
     end
 
     def author_set?
-      !query_author_ids.nil?
+      query_author_ids.count > 0
     end
 
     def nomen_set?
