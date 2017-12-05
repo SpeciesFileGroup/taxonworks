@@ -1,26 +1,17 @@
 <template>
 	<div class="tag_annotator">
 		<div class="switch-radio separate-bottom" v-if="preferences">
-			<template v-for="item, key, index in preferences">
+			<template v-for="item, index in tabOptions">
 				<input 
 					v-model="view"
-					:value="key"
+					:value="item"
 					:id="`switch-picker-${index}`" 
 					name="switch-picker-options"
 					type="radio"
 					class="normal-input button-active" 
 				/>
-				<label :for="`switch-picker-${index}`" class="capitalize">{{ key }}</label>
+				<label :for="`switch-picker-${index}`" class="capitalize">{{ item }}</label>
 			</template>
-			<input 
-				v-model="view"
-				value="new"
-				id="switch-picker-new" 
-				name="switch-picker-options"
-				type="radio"
-				class="normal-input button-active" 
-			/>
-			<label :for="`switch-picker-new`" class="capitalize">New</label>
 		</div>
 		
 		<template v-if="view && view != 'new'">
@@ -78,7 +69,8 @@
 		data: function() {
 			return {
 				preferences: undefined,
-				view: 'new',
+				view: 'quick',
+				tabOptions: ['quick', 'recent', 'pinboard', 'new'],
 				tag: {
                     keyword_attributes: {
                         name: '',
