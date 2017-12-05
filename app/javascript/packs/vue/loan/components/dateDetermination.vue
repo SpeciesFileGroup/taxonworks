@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<h3>Update date determinations</h3>
+		<h3>Update determinations</h3>
 		<div class="field">
 			<label>Determiner</label>
 			<role-picker v-model="roles" role-type="TaxonDeterminer"></role-picker>
