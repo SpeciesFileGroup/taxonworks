@@ -6,8 +6,15 @@ class ControlledVocabularyTermsController < ApplicationController
   # GET /controlled_vocabulary_terms
   # GET /controlled_vocabulary_terms.json
   def index
-    @recent_objects = ControlledVocabularyTerm.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = ControlledVocabularyTerm.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @controlled_vocabulary_terms = ControlledVocabularyTerm.where(filter_sql).with_project_id(sessions_current_project_id).order(:name)
+      }
+    end
   end
 
   # GET /controlled_vocabulary_terms/1
@@ -103,7 +110,7 @@ class ControlledVocabularyTermsController < ApplicationController
       {id: t.id,
        label: t.name,
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
        label_html: ApplicationController.helpers.controlled_vocabulary_term_tag(t)
       }
@@ -123,14 +130,19 @@ class ControlledVocabularyTermsController < ApplicationController
   end 
 
   private
-  # Use callbacks to share common setup or constraints between actions.
+
   def set_controlled_vocabulary_term
     @controlled_vocabulary_term = ControlledVocabularyTerm.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @controlled_vocabulary_term
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def controlled_vocabulary_term_params
     params.require(:controlled_vocabulary_term).permit(:type, :name, :definition, :uri, :uri_relation, :css_color)
   end
+
+  def filter_sql
+    h = params.permit(of_type: []).to_h.symbolize_keys
+    return { type: h[:of_type], project_id: sessions_current_project_id }
+  end
+
 end

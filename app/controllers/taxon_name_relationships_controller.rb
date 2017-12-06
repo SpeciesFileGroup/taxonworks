@@ -9,8 +9,8 @@ class TaxonNameRelationshipsController < ApplicationController
     respond_to do |format|
       format.html do
         @recent_objects = TaxonNameRelationship.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
-  end
+        render '/shared/data/all/index'
+      end
       format.json {
         @taxon_name_relationships = TaxonNameRelationship.where(filter_sql).with_project_id(sessions_current_project_id)
       }
