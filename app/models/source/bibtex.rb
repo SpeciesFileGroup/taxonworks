@@ -521,7 +521,7 @@ class Source::Bibtex < Source
 
       v = value.to_s.strip
       if s.respond_to?(key.to_sym) && key != :type
-        s.write_attribute(key, v)
+        s.send("#{key}=", v)
       else
         import_attributes.push({import_predicate: key, value: v, type: 'ImportAttribute'})
       end
