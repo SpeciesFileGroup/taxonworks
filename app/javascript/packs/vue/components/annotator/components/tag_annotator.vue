@@ -20,7 +20,7 @@
 			<h3 slot="header">Keywords</h3>
 			<div slot="body">
 				<template v-for="keyword in preferences[view]">
-					<button v-if="!tagAlreadyCreated(keyword)" @click="createWithId(keyword.id)" type="button" class="normal-input button-submit tag_button"> {{ keyword.name }} </button>
+					<button :style="{ borderRightColor: keyword.css_color, borderRightWidth: '4px', borderRightStyle: 'solid' }" v-if="!tagAlreadyCreated(keyword)" @click="createWithId(keyword.id)" type="button" class="normal-input button-submit tag_button"> {{ keyword.name }} </button>
 				</template>
 			</div>
 		</modal>

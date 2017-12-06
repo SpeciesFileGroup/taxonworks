@@ -39,10 +39,12 @@
 				label="label"
 				min="2"
 				placeholder="Confidence level"
-				@getItem="confidence.confidence_level_id = $event.id"
+		      	@getInput="confidence.confidence_level_attributes.name = $event"
+				@getItem="createNewWithId($event.id)"
 				class="separate-bottom"
 				param="term">
 		    </autocomplete>
+		    <textarea class="separate-bottom" placeholder="Definition... (minimum is 20 characters)" v-model="confidence.confidence_level_attributes.definition"></textarea>
 		    <div>
 		    <button @click="createNew()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Create</button>
 			</div>
@@ -67,7 +69,8 @@
 		},
 		computed: {
 			validateFields() {
-				return this.confidence.confidence_level_id
+				return this.confidence.confidence_level_attributes.name &&
+						this.confidence.confidence_level_attributes.definition
 			},
 		},
 		data: function() {
@@ -75,16 +78,22 @@
 				preferences: undefined,
 				view: 'quick',
 				tabOptions: ['quick', 'recent', 'pinboard', 'all', 'new'],
-				confidence: {
-                   	confidence_level_id: undefined,
-                    annotated_global_entity: decodeURIComponent(this.globalId)
-                }
+				confidence: this.newConfidence()
 			}
 		},
 		mounted: function() {
 			this.loadTabList('ConfidenceLevel');
 		},
 		methods: {
+			newConfidence() {
+				return {
+					confidence_level_attributes: {
+						name: '',
+						definition: ''
+					},
+                    annotated_global_entity: decodeURIComponent(this.globalId)
+                }
+			},
 			loadTabList(type) {
 				let tabList = undefined;
 				let allList = undefined;
@@ -105,6 +114,7 @@
 			},
 			createNew() {
 				this.create('/confidences', { confidence: this.confidence }).then(response => {
+					this.confidence = this.newConfidence();
 					this.list.push(response.body);
 				});
 			},
@@ -115,6 +125,7 @@
 	                    annotated_global_entity: decodeURIComponent(this.globalId)
                 	}
                 }).then(response => {
+                	this.confidence = this.newConfidence();
 					this.list.push(response.body);
 				});
 			},
