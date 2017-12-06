@@ -5,12 +5,14 @@ gem 'rack-cors', '~> 1.0.1', require: 'rack/cors'
 ruby '2.4.2'
 
 gem 'rake', '~> 12.0'
-gem 'rails', '~> 5.1.3'
+gem 'rails', '~> 5.1.4'
 gem 'pg', '~> 0.21.0'
-gem 'activerecord-postgis-adapter', '~> 5.0'
+gem 'activerecord-postgis-adapter', '~> 5.1'
 
 gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 4.0.0'
+
+# gem 'json', '>= 2.1.0'
 
 # System
 gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
@@ -22,8 +24,10 @@ gem 'rmagick', '~> 2.16'
 
 # Geo
 gem 'ffi-geos', '~> 1.2.0'
-gem 'rgeo-shapefile', '~> 0.4.2'
-gem 'rgeo-geojson', '~> 0.4.3'
+# gem 'rgeo-shapefile', '~> 0.4.2'  # deprecated? not compatible- perhaps only used in 
+gem 'rgeo', '~> 1.0.0'
+gem 'rgeo-geojson', '~> 1.0.0'
+gem "rgeo-proj4"
 gem 'postgresql_cursor', '~> 0.6.1'
 
 # API/controllers
@@ -57,7 +61,6 @@ gem 'jquery-rails', '~> 4.3.1'
 gem 'jquery-ui-rails', '~> 6.0.1'
 gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
-# TODO: New version of turbolinks is major fail, Hold for further investigation
 gem 'turbolinks', '~> 5.0.1'
 gem 'jquery-turbolinks', '~> 2.1'
 
@@ -67,7 +70,7 @@ gem 'bibtex-ruby', '~> 4.4.4'
 gem 'citeproc-ruby', '~> 1.1.7'
 gem 'csl-styles', '~> 1.0.1.8'
 gem 'ref2bibtex', '~> 0.2.1'
-gem 'latex-decode', '~> 0.2.2'
+# gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.0'
 
 # UI/UX
@@ -106,7 +109,7 @@ group :test, :development do
   gem 'inch', '~> 0.7.1'
   gem 'byebug', '~> 9.1.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 4.8.2'
-  gem 'selenium-webdriver', '~> 3.6'
+  gem 'selenium-webdriver', '~> 3.8'
   gem 'geckodriver-helper', '~> 0.0.3'
 end
 
@@ -120,11 +123,12 @@ group :development do
   gem 'parallel_tests', '~> 2.16.0'
   gem 'web-console', '~> 3.5.1'
   gem 'rubocop', '~> 0.50.0'
-  gem 'seedbank', github: 'james2m/seedbank'
+  gem 'seedbank', git: 'https://github.com/james2m/seedbank'
 end
 
 group :doc do
-  gem 'sdoc', '~> 0.4.2', require: false
+  gem 'sdoc',  :git => 'https://github.com/zzak/sdoc.git', :tag => 'v1.0.0.rc3', require: false
+#  gem 'sdoc', tag: '1.0.0.rc3', source: 'https://github.com/zzak/sdoc.git' require: false
 end
 
 group :test do
