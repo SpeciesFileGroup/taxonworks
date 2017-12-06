@@ -1102,16 +1102,11 @@ describe Source::Bibtex, type: :model, group: :sources do
 
         # pending 'test TW identifiers'
       end
-
     end
   end
 
 
   context 'class methods' do
-    # create_with_roles(bibtex_entry, opts = {})
-    #    opts = {
-    #      use_vetted_people: false
-    #    }.merge!(opts)
 
     context '#new_from_bibtex' do
       let(:citation_string) { %q(@book{international_commission_on_zoological_nomenclature_international_1999,
@@ -1122,20 +1117,22 @@ describe Source::Bibtex, type: :model, group: :sources do
                                     urldate = {2010-12-06},
                                     publisher = {International Trust for Zoological Nomenclature},
                                     author = {International Commission on Zoological Nomenclature},
+                                    type = {Journal Article},
                                     year = {1999}})
       }
-      let(:bibtex_entry) { BibTeX.parse(citation_string).first }
 
-      specify 'handles non-recognized keys as ImportAttributes' do
-        expect(a = Source::Bibtex.new_from_bibtex(bibtex_entry)).to be_truthy
-        expect(a.save).to be_truthy
-        a.reload
-        expect(a.data_attributes.count).to eq(1)
-        expect(a.data_attributes.first.type).to eq('ImportAttribute')
-        expect(a.data_attributes.first.import_predicate).to eq('urldate')
-        expect(a.data_attributes.first.value).to eq('2010-12-06')
+      let(:bibtex_entry) { BibTeX.parse(citation_string).first }
+      let(:a) { Source::Bibtex.new_from_bibtex(bibtex_entry) }
+
+      before { a.save }
+        
+      specify 'import keys for non-recognized attributes' do
+        expect(a.import_attributes.map(&:import_predicate)).to contain_exactly('urldate', 'type') #  eq('urldate')
       end
 
+      specify 'values for import predicates' do
+        expect(a.import_attributes.map(&:value)).to contain_exactly('2010-12-06', 'Journal Article') #  eq('urldate')
+      end
     end
 
     context 'create_with_roles(BibTeX::Entry instance)' do
