@@ -9,9 +9,9 @@ module Housekeeping::Timestamps
     # related_class = self.name
     # related_table_name = self.table_name
 
-    scope :created_before_date, ->(date) { where('created_at < ?', "#{date}") }
-    scope :created_in_date_range, ->(start, c_end) { where('created_at >= ? and created_at <= ?', start, c_end) }
-    scope :updated_in_date_range, ->(start, u_end) { where('updated_at >= ? and updated_at <= ?', start, u_end) }
+    scope :created_before_date, -> (date) { where('created_at < ?', "#{date}") }
+    scope :created_in_date_range, -> (start, c_end) { where('created_at >= ? and created_at <= ?', start, c_end) }
+    scope :updated_in_date_range, -> (start, u_end) { where('updated_at >= ? and updated_at <= ?', start, u_end) }
   end
 
   module ClassMethods
@@ -74,17 +74,17 @@ module Housekeeping::Timestamps
 
       today      = self.send(name).created_today.count # in_project(self).count
       this_week  = self.send(name).created_this_week.count # in_project(self).count
-      this_month =self.send(name).created_in_last(4.weeks).count # in_project(self).count
+      this_month = self.send(name).created_in_last(4.weeks).count # in_project(self).count
 
       if this_month > 0
         data.push({
-                    name: name.to_s.humanize,
-                    data: {
-                      'this week'  => this_week,
-                      today:       today,
-                      'this month' => this_month
-                    }
-                  })
+          name: name.to_s.humanize,
+          data: {
+            'this week' => this_week,
+            today: today,
+            'this month' => this_month
+          }
+        })
       end
     end
     data
