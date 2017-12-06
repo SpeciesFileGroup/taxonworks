@@ -70,7 +70,8 @@ fieldset {
   background-color:#FFF;  
 }
 
-form input, select, textarea, .normal-input[type="text"] {
+input, textarea {
+  position: relative;
   font-size: $font_small;
 	padding:0px;
 	padding-left:$standard_padding*0.9;
@@ -95,6 +96,18 @@ input[type="submit"][disabled] {
   color: #000;
   opacity: 0.5;
   background-color: $navigation_border;
+}
+
+
+
+select {
+  padding:$standard_padding*0.5;
+  padding-left:$standard_padding;
+  padding-right:$standard_padding;
+  border-radius:2px;
+  border:1px solid $muted_blue;
+  background-color:#FFF;
+  font-size: $font_tiny;
 }
 
 .ui-autocomplete {

@@ -117,6 +117,15 @@ class TagsController < ApplicationController
     send_data Download.generate_csv(Tag.where(project_id: sessions_current_project_id)), type: 'text', filename: "tags_#{DateTime.now.to_s}.csv"
   end
 
+  # POST /tags/batch_remove?keyword_id=123&klass=456
+  def batch_remove
+    if Tag.batch_remove(params.require(:keyword_id), params.require(:klass))
+      render json: { success: true }
+    else
+      render json: { success: false}
+    end
+  end
+
   private
 
   def set_tag

@@ -6,8 +6,15 @@ class LoanItemsController < ApplicationController
   # GET /loan_items
   # GET /loan_items.json
   def index
-    @recent_objects = LoanItem.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html {
+        @recent_objects = LoanItem.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @loan_items = LoanItem.where(filter_params).with_project_id(sessions_current_project_id)
+      }
+    end
   end
 
   # GET /loan_items/1
@@ -35,7 +42,7 @@ class LoanItemsController < ApplicationController
     respond_to do |format|
       if @loan_item.save
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Loan item was successfully created.')}
-        format.json { render json: @loan_item, status: :created, location: @loan_item }
+        format.json { render :show, status: :created, location: @loan_item }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Loan item was NOT successfully created.')}
         format.json { render json: @loan_item.errors, status: :unprocessable_entity }
@@ -48,10 +55,10 @@ class LoanItemsController < ApplicationController
   def update
     respond_to do |format|
       if @loan_item.update(loan_item_params)
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Loan item was successfully updated.')}
+        format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Loan item was successfully updated.')}
         format.json { render :show, status: :ok, location: @loan_item }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Loan item was NOT successfully updated.' + @loan_item.errors.full_messages.join('; '))}
+        format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Loan item was NOT successfully updated.' + @loan_item.errors.full_messages.join('; '))}
         format.json { render json: @loan_item.errors, status: :unprocessable_entity }
       end
     end
@@ -81,7 +88,7 @@ class LoanItemsController < ApplicationController
       {id: t.id,
        label: ApplicationController.helpers.loan_item_tag(t),
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
        label_html: ApplicationController.helpers.loan_item_autocomplete_selected_tag(t)
       }
@@ -90,30 +97,36 @@ class LoanItemsController < ApplicationController
     render json: data
   end
 
-  # POST /loan_items/batch_create?keyword_id=123&klass=Otu
+  # POST /loan_items/batch_create?batch_type=tags&loan_id=123&keyword_id=456&klass=Otu
+  # POST /loan_items/batch_create?batch_type=pinboard&loan_id=123&klass=Otu
   def batch_create
-    if r = LoanItem.batch_create(batch_params)
-      render json: {success: true}
+    if @loan_items = LoanItem.batch_create(batch_params)
+      render :index
     else
       render json: {success: false}
     end 
   end
 
   private
-    def set_loan_item
-      @loan_item = LoanItem.with_project_id(sessions_current_project_id).find(params[:id])
-    end
 
-    def batch_params
-      params.permit(:batch_type, :loan_id, :keyword_id, :klass).symbolize_keys.merge(project_id: sessions_current_project_id, user_id: sessions_current_user_id)
-    end
+  def filter_params
+    params.permit(:loan_id)
+  end 
 
-    def loan_item_params
-      params.require(:loan_item).permit(
-        :loan_id, :collection_object_status, :date_returned, :loan_item_object_id, :loan_item_object_type,
-        :date_returned_jquery, :disposition, :total,  
-        :global_entity,
-        :position
-      )
-    end
+  def set_loan_item
+    @loan_item = LoanItem.with_project_id(sessions_current_project_id).find(params[:id])
+  end
+
+  def batch_params
+    params.permit(:batch_type, :loan_id, :keyword_id, :klass).to_h.symbolize_keys.merge(project_id: sessions_current_project_id, user_id: sessions_current_user_id)
+  end
+
+  def loan_item_params
+    params.require(:loan_item).permit(
+      :loan_id, :collection_object_status, :date_returned, :loan_item_object_id, :loan_item_object_type,
+      :date_returned_jquery, :disposition, :total,  
+      :global_entity,
+      :position
+    )
+  end
 end

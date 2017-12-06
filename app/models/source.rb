@@ -209,6 +209,7 @@ class Source < ApplicationRecord
   after_save :set_cached
 
   validates_presence_of :type
+  validates :type, inclusion: { in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim'] }
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
 
@@ -265,6 +266,7 @@ class Source < ApplicationRecord
     false
   end
 
+  # Redirect type here
   def self.batch_preview(file)
     bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'))
     sources = []

@@ -182,8 +182,23 @@ describe Tag, type: :model, group: [:annotators, :tags] do
           expect(otu.valid?).to be_falsey
         end
       end
-    
     end
+  end
+
+  context '.batch_remove' do
+    let(:k1) { FactoryBot.create(:valid_keyword) }
+    let!(:t1) { Tag.create!(keyword: k1, tag_object: FactoryBot.create(:valid_specimen))}
+    let!(:t2) { Tag.create!(keyword: k1, tag_object: FactoryBot.create(:valid_otu))}
+
+    specify 'removes all when klass not provided' do
+      Tag.batch_remove(k1.id)
+      expect(Tag.count).to eq(0) 
+    end
+
+    specify 'removes klass only when provided' do
+      Tag.batch_remove(k1.id, 'Otu')
+      expect(Tag.all.to_a).to contain_exactly(t1)
+    end 
   end
 
   context 'concerns' do

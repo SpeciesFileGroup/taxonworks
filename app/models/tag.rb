@@ -120,6 +120,18 @@ class Tag < ApplicationRecord
     Tag.where(project_id: project_id, tag_object: o, keyword_id: keyword_id).first
   end
 
+  # @return [Boolean]
+  #   destroy all tags with the keyword_id provided, true if success, false if failure
+  def self.batch_remove(keyword_id, klass = nil)
+    return false if keyword_id.blank?
+    if klass.blank?
+      return true if Tag.where(keyword_id: keyword_id).destroy_all
+    else
+      return true if Tag.where(keyword_id: keyword_id, tag_object_type: klass).destroy_all
+    end
+    false
+  end
+
   protected
 
   def keyword_is_allowed_on_object

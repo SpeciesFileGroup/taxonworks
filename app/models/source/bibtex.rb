@@ -508,16 +508,20 @@ class Source::Bibtex < Source
   def self.new_from_bibtex(bibtex_entry = nil)
 
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
-    s                 = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
+   
+    s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
+     
     import_attributes = []
+
     bibtex_entry.fields.each do |key, value|
       if key == :keywords
         s.verbatim_keywords = value
         next
       end
+
       v = value.to_s.strip
-      if s.respond_to?(key.to_sym)
-        s.send("#{key}=", v)
+      if s.respond_to?(key.to_sym) && key != :type
+        s.write_attribute(key, v)
       else
         import_attributes.push({import_predicate: key, value: v, type: 'ImportAttribute'})
       end
@@ -908,7 +912,7 @@ class Source::Bibtex < Source
     if self.chapter.blank? && self.pages.blank?
       soft_validations.add(:bibtex_type, 'Valid BibTeX requires either a chapter or pages with sources of type inbook.')
 
-      #  soft_validations.add(:chapter, 'Valid BibTeX requires either a chapter or pages with sources of type inbook.')
+      # soft_validations.add(:chapter, 'Valid BibTeX requires either a chapter or pages with sources of type inbook.')
       # soft_validations.add(:pages, 'Valid BibTeX requires either a chapter or pages with sources of type inbook.')
     end
   end
