@@ -122,48 +122,48 @@ module Queries
     # @return [Scope]
     def author_scope
       case query_and_or_select
-      when '_or_', nil
+        when '_or_', nil
 
-        p = Person.arel_table
+          p = Person.arel_table
 
-        c = p[:id].eq(query_author_ids.shift)
-        query_author_ids.each do |i|
-          c = c.or(p[:id].eq(i))
-        end
+          c = p[:id].eq(query_author_ids.shift)
+          query_author_ids.each do |i|
+            c = c.or(p[:id].eq(i))
+          end
 
-        Otu.joins(taxon_name: [roles: [:person]]).where(roles: {type: 'TaxonNameAuthor'}).where( c.to_sql ).distinct
+          Otu.joins(taxon_name: [roles: [:person]]).where(roles: {type: 'TaxonNameAuthor'}).where(c.to_sql).distinct
 
-      when '_and_'
-        table_alias = 'foo'
+        when '_and_'
+          table_alias = 'foo'
 
-        o = Otu.arel_table
-        t = TaxonName.arel_table
-        r = Role.arel_table
+          o = Otu.arel_table
+          t = TaxonName.arel_table
+          r = Role.arel_table
 
-        a = o.alias("a_#{table_alias}")
+          a = o.alias("a_#{table_alias}")
 
-        b = o.project(a[Arel.star]).from(a)
-          .join(t)
-          .on(t['id'].eq(a['taxon_name_id']))
-          .join(r).on(
+          b = o.project(a[Arel.star]).from(a)
+                .join(t)
+                .on(t['id'].eq(a['taxon_name_id']))
+                .join(r).on(
             r['role_object_id'].eq(t['id']).and(
-              r['type'].eq('TaxonNameAuthor') 
+              r['type'].eq('TaxonNameAuthor')
             )
-        )
-
-        query_author_ids.each_with_index do |person_id, i|
-          x = r.alias("#{table_alias}_#{i}")
-          b = b.join(x).on(
-            x['role_object_id'].eq(t['id']),
-            x['type'].eq('TaxonNameAuthor'),
-            x['person_id'].eq(person_id)
           )
-        end
 
-        b = b.group(a['id']).having(r['person_id'].count.gteq(query_author_ids.count))
-        b = b.as("z_#{table_alias}")
+          query_author_ids.each_with_index do |person_id, i|
+            x = r.alias("#{table_alias}_#{i}")
+            b = b.join(x).on(
+              x['role_object_id'].eq(t['id']),
+              x['type'].eq('TaxonNameAuthor'),
+              x['person_id'].eq(person_id)
+            )
+          end
 
-        Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+          b = b.group(a['id']).having(r['person_id'].count.gteq(query_author_ids.count))
+          b = b.as("z_#{table_alias}")
+
+          Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
     end
 
@@ -183,7 +183,7 @@ module Queries
       return Otu.none if applied_scopes.empty?
       a = Otu.all
       applied_scopes.each do |scope|
-        a = a.merge(self.send(scope)) 
+        a = a.merge(self.send(scope))
       end
       a
     end
