@@ -134,17 +134,17 @@ module Queries
           Otu.joins(taxon_name: [roles: [:person]]).where(roles: {type: 'TaxonNameAuthor'}).where(c.to_sql).distinct
 
         when '_and_'
-          table_alias = 'foo'
+          table_alias = 'tna' # alias for 'TaxonNameAuthor'
 
           o = Otu.arel_table
           t = TaxonName.arel_table
           r = Role.arel_table
 
-          a = o.alias("a_#{table_alias}")
+          # a = o.alias("a_#{table_alias}")
 
-          b = o.project(a[Arel.star]).from(a)
+          b = o.project(o[Arel.star]).from(o)
                 .join(t)
-                .on(t['id'].eq(a['taxon_name_id']))
+                .on(t['id'].eq(o['taxon_name_id']))
                 .join(r).on(
             r['role_object_id'].eq(t['id']).and(
               r['type'].eq('TaxonNameAuthor')
@@ -160,7 +160,7 @@ module Queries
             )
           end
 
-          b = b.group(a['id']).having(r['person_id'].count.gteq(query_author_ids.count))
+          b = b.group(o['id']).having(r['person_id'].count.gteq(query_author_ids.count))
           b = b.as("z_#{table_alias}")
 
           Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))

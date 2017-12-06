@@ -193,7 +193,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 
         specify 'nomen count' do
           result = Queries::OtuFilterQuery.new(params).result
-          expect(result.count).to eq(21)
+          expect(result.count).to eq(22)
         end
 
         specify 'specific nomen' do
@@ -255,7 +255,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     context 'author search' do
 
       specify 'constructs' do
-        expect(Role.where(type: 'TaxonNameAuthor').count).to eq(6)
+        expect(Role.where(type: 'TaxonNameAuthor').count).to eq(9)
         expect(Person.with_role('TaxonNameAuthor').count).to eq(4) # Bill, Ted, Daryl, and Sargon
         expect(Protonym.named('Topdogidae').count).to eq(1)
       end
@@ -279,7 +279,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
           params = {author_ids: [sargon.id], and_or_select: '_and_'}
 
           result = Queries::OtuFilterQuery.new(params).result
-          expect(result.count).to eq(1)
+          expect(result.count).to eq(2)
         end
 
         specify 'otus two out of three authors)' do
@@ -295,7 +295,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
           params = {author_ids: [bill.id, sargon.id, daryl.id], and_or_select: '_or_'}
 
           result = Queries::OtuFilterQuery.new(params).result
-          expect(result).to contain_exactly(spooler, cadabra)
+          expect(result).to contain_exactly(spooler, cadabra, nuther_dog)
         end
       end
     end
