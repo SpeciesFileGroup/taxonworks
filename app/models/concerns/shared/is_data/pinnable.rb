@@ -7,7 +7,8 @@ module Shared::IsData::Pinnable
     has_many :pinboard_items, as: :pinned_object, dependent: :destroy
   
     scope :pinned_by, -> (user_id) { joins(:pinboard_items).where(pinboard_items: {user_id: user_id}) } 
-    scope :pinboard_inserted, -> { joins(:pinboard_items).where(pinboard_items: {is_inserted: true}) } 
+    scope :pinboard_inserted, -> { joins(:pinboard_items).where(pinboard_items: {is_inserted: true}) }
+    scope :pinned_in_project, -> (project_id) { joins(:pinboard_items).where(pinboard_items: {project_id: project_id})} 
   end
 
   # @return [Boolean]
