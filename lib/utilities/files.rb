@@ -11,7 +11,7 @@ module Utilities::Files
   def self.recognized_batch_file_type?(file)
     mimetype = `file -b "#{file.path}"`.gsub(/\n/, '')
     case mimetype
-    when /utf-8/i, /ascii/i
+    when /utf-8/i, /ascii/i, /bibtex/i
       return [true, mimetype]
     else
       return [false, mimetype]

@@ -78,7 +78,7 @@ describe LoanItem, type: :model, group: :loans do
       let!(:t3) { Tag.create(keyword: keyword, tag_object: c1) }  
 
       context 'not supplying klass' do
-        let(:params) { { keyword_id: keyword.id, batch_type: :tags, loan_id: loan.id } }
+        let(:params) { { keyword_id: keyword.id, batch_type: 'tags', loan_id: loan.id } }
         before { LoanItem.batch_create(params) }
         specify 'loan_items are created for all types' do
           expect(LoanItem.count).to eq(3)
@@ -86,7 +86,7 @@ describe LoanItem, type: :model, group: :loans do
       end
 
       context 'supplying klass' do
-        let(:params) { { keyword_id: keyword.id, batch_type: :tags, loan_id: loan.id } }
+        let(:params) { { keyword_id: keyword.id, batch_type: 'tags', loan_id: loan.id } }
 
         specify 'Otu' do
           LoanItem.batch_create(params.merge(klass: 'Otu'))
@@ -110,7 +110,7 @@ describe LoanItem, type: :model, group: :loans do
       let!(:p2) { PinboardItem.create!(pinned_object: o2, user_id: user_id) }
       let!(:p3) { PinboardItem.create!(pinned_object: c1, user_id: user_id) }
 
-      let(:params) { { batch_type: :pinboard, loan_id: loan.id, user_id: user_id, project_id: project_id } }
+      let(:params) { { batch_type: 'pinboard', loan_id: loan.id, user_id: user_id, project_id: project_id } }
       
       context 'not supplying klass' do
         before { LoanItem.batch_create(params) }
