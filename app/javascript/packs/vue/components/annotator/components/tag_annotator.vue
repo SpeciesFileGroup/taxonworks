@@ -2,21 +2,34 @@
 	<div class="tag_annotator">
 		<div class="switch-radio separate-bottom" v-if="preferences">
 			<template v-for="item, index in tabOptions">
-				<input 
-					v-model="view"
-					:value="item"
-					:id="`switch-picker-${index}`" 
-					name="switch-picker-options"
-					type="radio"
-					class="normal-input button-active" 
-				/>
-				<label :for="`switch-picker-${index}`" class="capitalize">{{ item }}</label>
+				<template v-if="item == 'new' || preferences[item].length && preferences[item].find(keyword => { return !tagAlreadyCreated(keyword) })">
+					<input 
+						v-model="view"
+						:value="item"
+						:id="`switch-picker-${index}`" 
+						name="switch-picker-options"
+						type="radio"
+						class="normal-input button-active" 
+					/>
+					<label :for="`switch-picker-${index}`" class="capitalize">{{ item }}</label>
+				</template>
 			</template>
 		</div>
+
+		<modal class="transparent-modal" v-if="view == 'all'" @close="view = 'new'">
+			<h3 slot="header">Keywords</h3>
+			<div slot="body">
+				<template v-for="keyword in preferences[view]">
+					<button v-if="!tagAlreadyCreated(keyword)" @click="createWithId(keyword.id)" type="button" class="normal-input button-submit tag_button"> {{ keyword.name }} </button>
+				</template>
+			</div>
+		</modal>
 		
-		<template v-if="view && view != 'new'">
+		<template v-if="preferences && view != 'new' && view != 'all'">
 			<div class="field separate-bottom">
-				<button @click="createWithId(keyword.id)" v-for="keyword in preferences[view]" type="button" class="normal-input button-submit"> {{ keyword.name }} </button>
+				<template v-for="keyword in preferences[view]">
+					<button v-if="!tagAlreadyCreated(keyword)" @click="createWithId(keyword.id)" type="button" class="normal-input button-submit tag_button"> {{ keyword.name }} </button>
+				</template>
 			</div>
 		</template>
 
@@ -46,19 +59,18 @@
 	import CRUD from '../request/crud.js';
 	import annotatorExtend from '../components/annotatorExtend.js';
 	import autocomplete from '../../autocomplete.vue';
+	import modal from '../../modal.vue';
 	import displayList from './displayList.vue';
 
 	export default {
 		mixins: [CRUD, annotatorExtend],
 		components: {
 			autocomplete,
+			modal,
 			displayList
 		},
 		mounted: function() {
-			var that = this;
-			this.getList(`/keywords/select_options?klass=${this.objectType}`).then(response => {
-				this.preferences = response.body;
-			})
+			this.loadTabList('Keyword');
 		},
 		computed: {
 			validateFields() {
@@ -70,7 +82,7 @@
 			return {
 				preferences: undefined,
 				view: 'quick',
-				tabOptions: ['quick', 'recent', 'pinboard', 'new'],
+				tabOptions: ['quick', 'recent', 'pinboard', 'all', 'new'],
 				tag: {
                     keyword_attributes: {
                         name: '',
@@ -96,11 +108,32 @@
 				this.create('/tags', { tag: this.tag }).then(response => {
 					this.list.push(response.body);
 				});
-			}
+			},
+			tagAlreadyCreated(keyword) {
+				return this.list.find(item => { return keyword.id == item.keyword_id })
+			},
+			loadTabList(type) {
+				let tabList = undefined;
+				let allList = undefined;
+				let promises = [];
+				let that = this;
+
+				promises.push(this.getList(`/keywords/select_options?klass=${this.objectType}`).then(response => {
+					tabList = response.body;
+				}));
+				promises.push(this.getList(`/controlled_vocabulary_terms.json?of_type[]=${type}`).then(response => {
+					allList = response.body;
+				}));
+
+				Promise.all(promises).then(() => {
+					tabList['all'] = allList;
+					that.preferences = tabList;
+				})
+			},
 		}
 	}
 </script>
-<style type="text/css" lang="scss">
+<style lang="scss">
 .radial-annotator {
 	.tag_annotator { 
 		button {

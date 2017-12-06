@@ -49,7 +49,31 @@
 
 				<p v-if="identifier.type" class="capitalize">Type: {{ typeList[namespace].all[identifier.type].label }}</p>
 
-				<div class="field" v-if="namespace == 'local'">
+				<div class="switch-radio separate-bottom" v-if="namespace == 'local' && preferences">
+					<template v-for="item, index in tabOptions">
+						<template v-if="item == 'new' || preferences[item].length && preferences[item].find(namespace => { return !namespaceAlreadyCreated(namespace) })">
+							<input 
+								v-model="view"
+								:value="item"
+								:id="`switch-picker-${index}`" 
+								name="switch-picker-options"
+								type="radio"
+								class="normal-input button-active" 
+							/>
+							<label :for="`switch-picker-${index}`" class="capitalize">{{ item }}</label>
+						</template>
+					</template>
+				</div>
+
+				<template v-if="preferences && view != 'new'">
+					<div class="field separate-bottom">
+						<template v-for="namespace in preferences[view]">
+							<button v-if="!namespaceAlreadyCreated(namespace)" @click="identifier.namespace_id = namespace.id" type="button" class="normal-input button-default"> {{ namespace.name }} </button>
+						</template>
+					</div>
+				</template>
+
+				<div class="field" v-if="namespace == 'local' && view == 'new'">
 				    <autocomplete
 				      url="/namespaces/autocomplete"
 				      label="label"
@@ -107,6 +131,9 @@
 				showAll: false,
 				display: 'common',
 				barList: ['common', 'show all'],
+				view: 'quick',
+				tabOptions: ['quick', 'recent', 'pinboard', 'new'],
+				preferences: undefined,
 				identifier: this.newIdentifier(),
 				namespace: undefined,
 				typeList: []
@@ -122,6 +149,7 @@
 		mounted: function() {
 			this.getList('/identifiers/identifier_types').then(response => {
 				this.typeList = response.body;
+				this.loadTabList();
 			});
 		},
 		methods: {
@@ -153,7 +181,17 @@
 				this.identifier = this.newIdentifier();
 				this.namespace = undefined;
 				this.display = 'common';
-			}
+			},
+			loadTabList() {
+				let that = this;
+
+				this.getList(`/namespaces/select_options?klass=${this.objectType}`).then(response => {
+					that.preferences = response.body;
+				});
+			},
+			namespaceAlreadyCreated(namespace) {
+				return this.list.find(item => { return namespace.id == item.namespace_id })
+			},
 		}
 	}
 </script>

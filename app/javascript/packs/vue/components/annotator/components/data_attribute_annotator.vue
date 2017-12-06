@@ -2,24 +2,27 @@
 	<div class="data_attribute_annotator">
 		<div class="switch-radio separate-bottom" v-if="preferences">
 			<template v-for="item, index in tabOptions">
-				<input 
-					v-model="view"
-					:value="item"
-					:id="`switch-picker-${index}`" 
-					name="switch-picker-options"
-					type="radio"
-					class="normal-input button-active" 
-				/>
-				<label :for="`switch-picker-${index}`" class="capitalize">{{ item }}</label>
+				<template v-if="item == 'new' || preferences[item].length && preferences[item].find(predicate => { return !predicateAlreadyCreated(predicate) })">
+					<input 
+						v-model="view"
+						:value="item"
+						:id="`switch-picker-${index}`" 
+						name="switch-picker-options"
+						type="radio"
+						class="normal-input button-active" 
+					/>
+					<label :for="`switch-picker-${index}`" class="capitalize">{{ item }}</label>
+				</template>
 			</template>
 		</div>
 
-		<template v-if="view && view != 'new'">
-			<div class="field separate-bottom">
-				<button v-for="predicate in preferences[view]" 
+		<template v-if="preferences && view != 'new'">
+			<div class="field separate-bottom annotator-buttons-list">
+				<template v-for="predicate in preferences[view]">
+					<button v-if="!predicateAlreadyCreated(predicate)" 
 					@click="data_attribute.controlled_vocabulary_term_id = predicate.id" 
-					type="button" :class="{ 'button-default': (data_attribute.controlled_vocabulary_term_id == predicate.id)}" class="normal-input">{{ predicate.name }}
-				</button>
+					type="button" :class="{ 'button-default': (data_attribute.controlled_vocabulary_term_id == predicate.id)}" class="normal-input">{{ predicate.name }}</button>
+				</template>
 			</div>
 		</template>
 
@@ -68,16 +71,14 @@
 		data: function() {
 			return {
 				view: 'quick',
-				tabOptions: ['quick', 'recent', 'pinboard', 'new'],
+				tabOptions: ['quick', 'recent', 'pinboard', 'all', 'new'],
 				preferences: undefined,
 				data_attribute: this.newData()
 			}
 		},
 		mounted: function() {
 			var that = this;
-			this.getList(`/predicates/select_options?klass=${this.objectType}`).then(response => {
-				this.preferences = response.body;
-			})
+			this.loadTabList('Predicate');
 		},
 		methods: {
 			newData() {
@@ -99,7 +100,28 @@
 					this.$set(this.list, this.list.findIndex(element => element.id == this.data_attribute.id), response.body);
 					this.data_attribute = this.newData();
 				});		
-			}
+			},
+			predicateAlreadyCreated(predicate) {
+				return this.list.find(item => { return predicate.id == item.controlled_vocabulary_term_id })
+			},
+			loadTabList(type) {
+				let tabList = undefined;
+				let allList = undefined;
+				let promises = [];
+				let that = this;
+
+				promises.push(this.getList(`/predicates/select_options?klass=${this.objectType}`).then(response => {
+					tabList = response.body;
+				}));
+				promises.push(this.getList(`/controlled_vocabulary_terms.json?of_type[]=${type}`).then(response => {
+					allList = response.body;
+				}));
+
+				Promise.all(promises).then(() => {
+					tabList['all'] = allList;
+					that.preferences = tabList;
+				})
+			},
 		}
 	}
 </script>

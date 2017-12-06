@@ -61,7 +61,7 @@
 	          	formData.append("depiction[annotated_global_entity]", decodeURIComponent(this.globalId));
 	        },
 	        updateFigure() {
-	        	this.update(`/depictions/${this.depiction.id}`, this.depiction).then(response => {
+	        	this.update(`/depictions/${this.depiction.id}`, { depiction: this.depiction }).then(response => {
 	        		this.$set(this.list, this.list.findIndex(element => this.depiction.id == element.id), response.body);
 	        		this.depiction = undefined;
 	        	});

@@ -192,6 +192,20 @@ export default {
 			width:50%;
 			min-height: 600px;
 		}
+		.annotator-buttons-list {
+			overflow-y: scroll;
+		}
+		.tag_button {
+			padding-left:12px;
+			padding-right: 8px;
+			width: auto !important;
+			min-width: auto !important;
+			cursor: pointer;
+			margin: 2px;
+			border: none;
+			border-top-left-radius: 15px;
+			border-bottom-left-radius: 15px;
+		}
 	}
 
 </style> 
