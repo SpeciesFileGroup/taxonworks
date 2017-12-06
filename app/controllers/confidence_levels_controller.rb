@@ -33,22 +33,26 @@ class ConfidenceLevelsController < ApplicationController
   end
 
 
+  def lookup
+    @confidence_levels = Queries::ControlledVocabularyTermAutocompleteQuery.new(term_param, project_id: sessions_current_project_id, object_type: 'ConfidenceLevel').all
+    render(:json => @confidence_levels.collect { |t|
+      {
+        label: t.name,
+        object_id: t.id,
+        definition: t.definition
+      }
+    })
+  end
 
-def lookup
-  @confidence_levels = Queries::ControlledVocabularyTermAutocompleteQuery.new(term_param, project_id: sessions_current_project_id, object_type: 'ConfidenceLevel').all
-  render(:json => @confidence_levels.collect { |t|
-    {
-      label: t.name,
-      object_id: t.id,
-      definition: t.definition
-    }
-  })
-end
+  def select_options
+    @confidence_levels = ConfidenceLevel.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:klass))
+  end
 
-protected
 
-def term_param
-  params.require(:term)
-end
+  protected
+
+  def term_param
+    params.require(:term)
+  end
 
 end

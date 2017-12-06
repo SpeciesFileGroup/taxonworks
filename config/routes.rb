@@ -124,7 +124,7 @@ TaxonWorks::Application.routes.draw do
   resources :confidences do # , except: [:edit, :show]
     concerns [:data_routes]
     collection do
-      post :confidence_object_update
+      post :confidence_object_update 
     end
   end
   
@@ -132,6 +132,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       get 'lookup'
       get 'autocomplete'
+      get :select_options, defaults: {format: :json}
     end
   end
   
