@@ -381,9 +381,9 @@ describe Source::Bibtex, type: :model, group: :sources do
     #  end
 
     specify 'with an isbn in a BibTeX::Entry, convert it to an Identifier' do
-      identifier                 = '1-84356-028-3'
+      identifier  = '1-84356-028-3'
       valid_gem_bibtex_book.isbn = identifier
-      s                          = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+      s  = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
       expect(s.identifiers.to_a.count).to eq(1)
       expect(s.identifiers.first.identifier).to eq(identifier)
       expect(s.save).to be_truthy
@@ -394,9 +394,9 @@ describe Source::Bibtex, type: :model, group: :sources do
     context 'with an issn in a BibTeX::Entry, convert it to an Identifier' do
       %w{2049-3630 1050-124x 1050-124X}.each do |n|
         specify "ISSN #{n}" do
-          identifier                 = "ISSN #{n}"
+          identifier = "ISSN #{n}"
           valid_gem_bibtex_book.issn = identifier
-          s                          = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+          s = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
           expect(s.identifiers.to_a.count).to eq(1)
           expect(s.identifiers.first.identifier).to eq(identifier)
           expect(s.save).to be_truthy
