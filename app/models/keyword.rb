@@ -3,7 +3,11 @@ class Keyword < ControlledVocabularyTerm
   has_many :tags, foreign_key: :keyword_id, dependent: :destroy, inverse_of: :keyword, validate: true
 
   scope :used_on_klass, -> (klass) { joins(:tags).where(tags: {tag_object_type: klass} ) } # remember to .distinct 
-  scope :used_recently, -> { select("controlled_vocabulary_terms.*, tags.created_at").joins(:tags).where(tags: { created_at: 1.weeks.ago..Time.now}).order('tags.created_at DESC') }
+  scope :used_recently, -> { select("controlled_vocabulary_terms.*, tags.created_at as time_order").
+                             joins(:tags).
+                             where(tags: { created_at: 1.weeks.ago..Time.now}).
+                             order('tags.created_at DESC').
+                             group('controlled_vocabulary_terms.id') }
 
   def tagged_objects
     tags.collect{|t| t.tag_object}

@@ -32,7 +32,6 @@ class ConfidenceLevelsController < ApplicationController
     render :json => data
   end
 
-
   def lookup
     @confidence_levels = Queries::ControlledVocabularyTermAutocompleteQuery.new(term_param, project_id: sessions_current_project_id, object_type: 'ConfidenceLevel').all
     render(:json => @confidence_levels.collect { |t|
@@ -47,7 +46,6 @@ class ConfidenceLevelsController < ApplicationController
   def select_options
     @confidence_levels = ConfidenceLevel.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:klass))
   end
-
 
   protected
 
