@@ -28,7 +28,7 @@ describe 'Shared::PolymorphicAnnotator', type: :model do
   end
 
   context '#annotated_global_entity' do
-    let(:o) {FactoryGirl.create(:valid_otu)}
+    let(:o) {FactoryBot.create(:valid_otu)}
     let(:global_id) { o.to_global_id }
 
     before do

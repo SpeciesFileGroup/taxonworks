@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe Confidence, type: :model, group: :confidence do
 
   let(:confidence) { Confidence.new }
-  let(:confidence_level) { FactoryGirl.create(:valid_confidence_level) }
-  let(:specimen) { FactoryGirl.create(:valid_specimen) }
+  let(:confidence_level) { FactoryBot.create(:valid_confidence_level) }
+  let(:specimen) { FactoryBot.create(:valid_specimen) }
 
   context 'validation' do
     before { confidence.save }
