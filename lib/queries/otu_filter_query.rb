@@ -14,6 +14,7 @@ module Queries
       @query_geographic_area_ids = params[:geographic_area_ids]
       @query_shape               = params[:drawn_area_shape]
       @query_author_ids          = params[:author_ids]
+      @query_verbatim_string = params[:verbatim_string]
       @query_and_or_select       = params[:and_or_select]
       @query_nomen_id            = params[:nomen_id]
       @query_descendants         = params[:descendants]
@@ -37,6 +38,10 @@ module Queries
 
     def nomen_set?
       !query_nomen_id.nil?
+    end
+
+    def verbatim_set?
+      !query_verbatim_id.nil?
     end
 
     def shape_set?
@@ -114,6 +119,30 @@ module Queries
       end
     end
 
+    # @return [Scope]
+    def verbatim_scope
+      query_string = "taxon_names.id IN (SELECT taxon_names.id FROM taxon_names"
+      query_string += " INNER JOIN roles ON taxon_names.id = roles.role_object_id"
+      query_string += " WHERE roles.type IN ('TaxonNameAuthor') AND roles.role_object_type = 'TaxonName' "
+      query_string += " AND roles.person_id  IN (?) )"
+
+      query_string = "taxon_names.id IN (SELECT taxon_names.id FROM taxon_names"
+      query_string += " WHERE cached_author_year LIKE '%'?%' )"
+
+      Otu.joins(:taxon_name).where(query_string, query_author_ids)
+      a = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
+      if with_descendants?
+        b = Otu.self_and_descendants_of(a.first.id)
+        # b = Otu.none
+        # a.each { |o|
+        #   b += Otu.self_and_descendants_of(o.id)
+        # }
+        b
+      else
+        a
+      end
+    end
+
 =begin
       1. find all selected taxon name authors
       2. find all taxon_names which are associated with result #1
@@ -175,6 +204,7 @@ module Queries
       scopes.push :shape_scope if shape_set?
       scopes.push :nomen_scope if nomen_set?
       scopes.push :author_scope if author_set?
+      scopes.push :verbatim_scope if verbatim_set?
       scopes
     end
 
