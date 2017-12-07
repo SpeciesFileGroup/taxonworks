@@ -51,7 +51,7 @@
 			</div>
 		</div>
 
-	    <display-list label="object_tag" :list="list" @delete="removeItem" class="list"></display-list>
+	    <display-list :label="['keyword', 'name']" :list="list" @delete="removeItem" class="list"></display-list>
 	</div>
 </template>
 <script>
