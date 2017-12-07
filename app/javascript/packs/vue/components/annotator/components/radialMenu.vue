@@ -48,7 +48,8 @@ menu structure:
 					return {
 						text: '#000000',
 						background: '#FFFFFF',
-						backgroundHover: '#CACACA'
+						backgroundHover: '#CACACA',
+						backgroundSelected: '#A0A0A0'
 					}
 				}
 			}
@@ -59,6 +60,7 @@ menu structure:
 				ctx: undefined,
 				segmentWidth: this.maxAngle/this.menu.length,
 				optionSelected: undefined,
+				optionMouseOver: undefined,
 				icons: [],
 			}
 		},
@@ -167,8 +169,10 @@ menu structure:
 			    return result;
 			},
 			sendEvent: function() {
+				this.optionSelected = this.optionMouseOver;
 				if(this.optionSelected) {
 					this.$emit('selected', this.optionSelected.event);
+					this.update(false);
 				}
 			},
 			drawCircle: function() {
@@ -220,7 +224,7 @@ menu structure:
 			        segmentWidth = this.segmentWidth;
 
 			    if(E == false) {
-			    	this.optionSelected = undefined
+			    	this.optionMouseOver = undefined
 			    }
 
 				this.$el.style.cursor = "initial";
@@ -234,14 +238,17 @@ menu structure:
 			        	this.drawText(this.findNewPoint(this.width/2,this.height/2, Math.degrees(angle) + ((this.segmentWidth)/2), this.width/2-14), this.menu[i].total, "#FFFFFF");
 			    	}
 
-			        if (this.isInside(E,i)) {
+			        if (this.optionSelected == this.menu[i]) {
+			        	this.drawOption(this.color.backgroundSelected, angle, 40, this.width/2-40);
+			        } else if (this.isInside(E,i)) {
 			            this.drawOption(this.color.backgroundHover, angle, 40, this.width/2-40);
-			            this.optionSelected = this.menu[i];
+			            this.optionMouseOver = this.menu[i];
 			            this.$el.style.cursor = "pointer";
-			        } 
+			        }
 			        else {
 			            this.drawOption(this.color.background, angle, 40, this.width/2-40);
 			        }
+
 			        let position = this.findNewPoint(this.width/2,this.height/2, Math.degrees(angle) + ((this.segmentWidth)/2), this.width/3.5);
 			        if(this.icons[i] && this.icons[i].loaded) {
 			        	let icon = this.icons[i];
