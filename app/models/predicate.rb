@@ -3,8 +3,25 @@ class Predicate < ControlledVocabularyTerm
   has_many :internal_attributes, inverse_of: :predicate, foreign_key: :controlled_vocabulary_term_id
 
   scope :used_on_klass, -> (klass) { joins(:internal_attributes).where(data_attributes: {attribute_subject_type: klass}) } 
-  scope :used_recently, -> {  joins(:internal_attributes).where(data_attributes: { created_at: 1.weeks.ago..Time.now } ) }
 
+  # @return [Scope]
+  #    the max 10 most recently used predicates 
+  def self.used_recently
+    i = InternalAttribute.arel_table
+    p = Predicate.arel_table
+
+    # i is a select manager
+    i = i.project(i['controlled_vocabulary_term_id'], i['created_at']).from(i)
+      .where(i['created_at'].gt( 1.weeks.ago ))
+      .order(i['created_at'])
+     
+    # z is a table alias 
+    z = i.as('recent_t')
+
+    Predicate.joins(
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['controlled_vocabulary_term_id'].eq(p['id'])))
+    ).distinct.limit(10)
+  end
 
   def self.select_optimized(user_id, project_id, klass)
     h = {
