@@ -466,7 +466,7 @@ namespace :tw do
                       if get_sf_ident_qualifier[nomenclator_id]
                         confidences_attributes.push({confidence_level: ConfidenceLevel.find_or_create_by(
                             name: get_sf_ident_qualifier[nomenclator_id],
-                            definition: get_sf_ident_qualifier[nomenclator_id],
+                            definition: "tblIdentifications: #{'get_sf_ident_qualifier[nomenclator_id]'}",
                             project_id: project_id)})
                       end
 
@@ -815,7 +815,7 @@ namespace :tw do
 
             logger.info "Working with SF.SpmnCategoryID '#{spmn_category_id}', SF.FileID '#{row['FileID']}', project.id = '#{project_id}' \n"
 
-            biocuration_class = BiocurationClass.create!(name: row['SingularName'], definition: row['PluralName'], project_id: project_id)
+            biocuration_class = BiocurationClass.create!(name: row['SingularName'], definition: "tblSpecimenCategories: #{row['PluralName']}", project_id: project_id)
             get_biocuration_class_id[spmn_category_id] = biocuration_class.id.to_s
           end
 
