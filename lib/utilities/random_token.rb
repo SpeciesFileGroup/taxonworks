@@ -1,4 +1,4 @@
-module RandomToken
+module Utilities::RandomToken
   def self.generate
     SecureRandom.urlsafe_base64
   end

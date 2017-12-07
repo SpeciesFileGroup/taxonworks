@@ -375,7 +375,7 @@ class User < ApplicationRecord
   end
 
   def generate_api_access_token
-    self.api_access_token = RandomToken.generate
+    self.api_access_token = Utilities::RandomToken.generate
   end
 
   def require_password_presence

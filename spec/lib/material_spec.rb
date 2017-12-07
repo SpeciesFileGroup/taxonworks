@@ -23,10 +23,10 @@ describe 'Material' do
    
       @two_objects_stub['identifier'] = {}
 
-      @attribute1 = FactoryBot.create(:valid_biocuration_class, name: 'adult', definition: 'Big and scary.' )
-      @attribute2 = FactoryBot.create(:valid_biocuration_class, name: 'larva', definition: 'Wormy')
+      @attribute1 = FactoryBot.create(:valid_biocuration_class, name: 'adult', definition: 'Big and scary, and longer than this.' )
+      @attribute2 = FactoryBot.create(:valid_biocuration_class, name: 'larva', definition: 'Wormy, not nice and juicy.')
       @attribute3 = FactoryBot.create(:valid_biocuration_class, name: 'uncategorized', definition: 'Can not figure it out.')
-      @attribute4 = FactoryBot.create(:valid_biocuration_class, name: 'male', definition: 'Not female.')
+      @attribute4 = FactoryBot.create(:valid_biocuration_class, name: 'male', definition: 'Not female, probably with some Y chromosome.')
 
       @namespace = FactoryBot.create(:valid_namespace)
     }

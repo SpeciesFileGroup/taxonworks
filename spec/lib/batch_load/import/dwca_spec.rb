@@ -65,10 +65,10 @@ describe BatchLoad::Import::DWCA, type: :model do
         expect(CollectingEvent.count).to eq(24) # some of the collecting events are used more than once
         expect(TaxonDetermination.count).to eq(27) # one for each new OTU
         expect(Identifier.count).to eq(41) # 25 identifiers, the last one fails
-        expect(Identifier.of_type(:catalog_number).count).to eq(27)
-        expect(Identifier.of_type(:occurrence_id).count).to eq(14)
-        expect(Identifier.of_type(:catalog_number).first.identifier).to eq('107450')
-        expect(Identifier.of_type(:catalog_number).last.identifier).to eq('107599')
+        expect(Identifier::Local::CatalogNumber.count).to eq(27)
+        expect(Identifier::Global::OccurrenceId.count).to eq(14)
+        expect(Identifier::Local::CatalogNumber.first.identifier).to eq('107450')
+        expect(Identifier::Local::CatalogNumber.last.identifier).to eq('107599')
         expect(Georeference.count).to eq(20)
         expect(Georeference::VerbatimData.count).to eq(2) # 'verbatim' in georeferencedBy
         expect(Georeference::GeoLocate.count).to eq(18)

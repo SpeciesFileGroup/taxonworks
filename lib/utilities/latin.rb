@@ -1,4 +1,4 @@
-module Latin
+module Utilities::Latin
 
   ENDINGS = {
     'er' => %w{ra era rum},

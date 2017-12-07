@@ -178,9 +178,9 @@ describe User, :type => :model do
     end
 
     describe '#generate_api_access_token' do
-      it 'returns a secure random string generated from RandomToken.generate' do
-        value = RandomToken.generate
-        allow(RandomToken).to receive(:generate).and_return(value)
+      it 'returns a secure random string generated from Utilities::RandomToken.generate' do
+        value = Utilities::RandomToken.generate
+        allow(Utilities::RandomToken).to receive(:generate).and_return(value)
         expect(user.generate_api_access_token).to eq(value)
       end
 

@@ -28,17 +28,17 @@ shared_examples 'random_token_methods' do
       end
     end
 
-    it 'generates a token from RandomToken.generate' do
-      value = RandomToken.generate
-      allow(RandomToken).to receive(:generate).and_return(value)      
+    it 'generates a token from Utilities::RandomToken.generate' do
+      value = Utilities::RandomToken.generate
+      allow(Utilities::RandomToken).to receive(:generate).and_return(value)      
       expect(generate_test_token).to eq(value)
     end
 
-    it 'records the token digest computed like RandomToken.digest' do
-      value = RandomToken.generate
-      allow(RandomToken).to receive(:generate).and_return(value)
+    it 'records the token digest computed like Utilities::RandomToken.digest' do
+      value = Utilities::RandomToken.generate
+      allow(Utilities::RandomToken).to receive(:generate).and_return(value)
       generate_test_token
-      expect(test_token).to eq(RandomToken.digest(value))     
+      expect(test_token).to eq(Utilities::RandomToken.digest(value))     
     end
 
   end
