@@ -134,8 +134,7 @@ module Queries
 
     # @return [Scope]
     def verbatim_scope
-      Otu.joins(:taxon_name).
-        where('taxon_names.cached_author_year ILIKE ?', "%#{query_verbatim_author_string}%")
+      Otu.joins(:taxon_name).where('taxon_names.cached_author_year ILIKE ?', "%#{query_verbatim_author_string}%")
     end
 
 =begin
