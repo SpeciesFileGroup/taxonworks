@@ -507,8 +507,9 @@ TaxonWorks::Application.routes.draw do
   resources :taxon_names do
     concerns [:data_routes]
     resources :taxon_name_classifications, shallow: true, only: [:index], defaults: {format: :json}
-
-    #  resources :taxon_name_relationships, shallow: true, only: [:index], defaults: {format: :json}, param: :subject_taxon_name_id
+    
+    # TODO, check 
+    resources :taxon_name_relationships, shallow: true, only: [:index], defaults: {format: :json}, param: :subject_taxon_name_id
 
     collection do
       post :preview_simple_batch_load # should be get
