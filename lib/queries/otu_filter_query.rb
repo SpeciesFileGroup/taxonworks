@@ -6,21 +6,28 @@ module Queries
     attr_accessor :query_geographic_area_ids, :query_shape
     attr_accessor :query_nomen_id, :query_descendants
     attr_accessor :query_author_ids, :query_and_or_select
+    attr_accessor :query_verbatim_author_string
+
+    def a=(value)
+      @a = value
+    end
+
+    def a
+      @a
+    end
 
     def initialize(params)
       params.reject! { |k, v| v.blank? }
-      @query_params = params
 
+      @query_params = params
       @query_geographic_area_ids = params[:geographic_area_ids]
       @query_shape               = params[:drawn_area_shape]
       @query_author_ids          = params[:author_ids]
-      @query_verbatim_string = params[:verbatim_string]
+      @query_verbatim_author_string = params[:verbatim_author_string]
       @query_and_or_select       = params[:and_or_select]
       @query_nomen_id            = params[:nomen_id]
       @query_descendants         = params[:descendants]
-
     end
-
 
     def area_set?
       !query_geographic_area_ids.nil?
@@ -28,10 +35,10 @@ module Queries
 
     def author_set?
       retval = case query_author_ids
-                 when nil
-                   false
-                 else
-                   query_author_ids.count > 0
+               when nil
+                 false
+               else
+                 query_author_ids.count > 0
                end
       retval
     end
@@ -41,7 +48,7 @@ module Queries
     end
 
     def verbatim_set?
-      !query_verbatim_id.nil?
+      !query_verbatim_author_string.blank?
     end
 
     def shape_set?
@@ -73,15 +80,21 @@ module Queries
     def geographic_area_scope
       # This could be simplified if the AJAX selector returned a geographic_item_id rather than a GeographicAreaId
       target_geographic_item_ids = []
+
       query_geographic_area_ids.each do |gaid|
-        target_geographic_item_ids.push(GeographicArea.joins(:geographic_items).find(gaid).default_geographic_item.id)
+        target_geographic_item_ids.push(
+          GeographicArea.
+          joins(:geographic_items).
+          find(gaid).
+          default_geographic_item.id
+        )
       end
       # r4 = CollectionObject.joins(:geographic_items)
       #        .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
       r42i = CollectionObject.joins(:geographic_items)
                .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
                .distinct
-               .pluck(:id)
+               .pluck(:id) # < - bad
       # get the Otus associated with r4
       # r5i = r4.map(&:otus).flatten.pluck(:id).uniq
       # r5o = Otu.where(id: r5i)
@@ -121,17 +134,8 @@ module Queries
 
     # @return [Scope]
     def verbatim_scope
-      query_string = "taxon_names.id IN (SELECT taxon_names.id FROM taxon_names"
-      query_string += " INNER JOIN roles ON taxon_names.id = roles.role_object_id"
-      query_string += " WHERE roles.type IN ('TaxonNameAuthor') AND roles.role_object_type = 'TaxonName' "
-      query_string += " AND roles.person_id  IN (?) )"
-
-      query_string = "taxon_names.id IN (SELECT taxon_names.id FROM taxon_names"
-      query_string += " WHERE cached_author_year LIKE '%'?%' )"
-
-      Otu.joins(:taxon_name).where(query_string, query_author_ids)
-      a = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
-      a
+      Otu.joins(:taxon_name).
+        where('taxon_names.cached_author_year ILIKE ?', "%#{query_verbatim_author_string}%")
     end
 
 =begin
