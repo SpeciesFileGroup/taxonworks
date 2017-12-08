@@ -131,16 +131,7 @@ module Queries
 
       Otu.joins(:taxon_name).where(query_string, query_author_ids)
       a = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
-      if with_descendants?
-        b = Otu.self_and_descendants_of(a.first.id)
-        # b = Otu.none
-        # a.each { |o|
-        #   b += Otu.self_and_descendants_of(o.id)
-        # }
-        b
-      else
-        a
-      end
+      a
     end
 
 =begin

@@ -68,6 +68,18 @@ Object.assign(TW.views.tasks.otus, {
         }
       );
 
+      $("#set_verbatim").click(function (event) {
+          $("#verbatim_count").text('????');
+          $("#select_verbatim").mx_spinner('show');
+          $.get('set_verbatim', $("#set_verbatim_form").serialize(), function (local_data) {
+            $("#verbatim_count").text(local_data.html);
+            $("#select_verbatim").mx_spinner('hide');
+            that.validateResultForFindOtu();
+          }, 'json');
+          event.preventDefault();
+        }
+      );
+
       $("#find_area_and_nomen_commit").click(function (event) {
         that.toggleFilter();
         that.ajaxRequest(event, "find");
