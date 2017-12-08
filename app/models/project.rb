@@ -26,8 +26,8 @@ class Project < ApplicationRecord
 
   has_many :project_members, dependent: :restrict_with_error
   has_many :users, through: :project_members
-  has_many :sources, through: :project_sources
   has_many :project_sources, dependent: :restrict_with_error
+  has_many :sources, through: :project_sources
 
   after_initialize :set_default_workbench_settings
   after_create :create_root_taxon_name, unless: -> {self.without_root_taxon_name == true}
