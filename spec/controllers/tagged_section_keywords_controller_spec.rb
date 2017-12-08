@@ -27,7 +27,7 @@ describe TaggedSectionKeywordsController, :type => :controller do
   # TaggedSectionKeyword. As you add validations to TaggedSectionKeyword, be sure to
   # adjust the attributes here as well.
   #
-  let(:other_keyword) { FactoryBot.create(:valid_keyword, name: 'Other keyword', definition: 'Not that one.') }
+  let(:other_keyword) { FactoryBot.create(:valid_keyword, name: 'Other keyword', definition: 'Not that one, the longer one.') }
   let(:valid_attributes) { strip_housekeeping_attributes(FactoryBot.build(:valid_tagged_section_keyword).attributes) }
 
   # This should return the minimal set of values that should be in the session

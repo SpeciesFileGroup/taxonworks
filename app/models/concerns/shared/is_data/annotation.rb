@@ -82,7 +82,7 @@ module Shared::IsData::Annotation
     result['tags'] = tags if has_tags? && tags.any?
     result['depictions'] = depictions.order('depictions.position') if has_depictions? && depictions.any?
     result['confidences'] = confidences if has_confidences? && confidences.any?
-    result['protocol_relationships'] = protocols if has_protocols? && protocolled?
+    result['protocol_relationships'] = protocols if has_protocol_relationships? && protocolled?
     result['alternate values'] = alternate_values if has_alternate_values? && alternate_values.any?
     result
   end
