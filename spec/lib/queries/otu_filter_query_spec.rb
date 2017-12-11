@@ -25,7 +25,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       FactoryBot.create(:valid_otu, name: 'Top Dog', taxon_name:
                                           FactoryBot.create(:valid_taxon_name,
                                                             rank_class: Ranks.lookup(:iczn, 'Family'),
-                                                            name: 'Topdogidae')
+                                                            name:       'Topdogidae')
       )
     }
 
@@ -33,7 +33,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       FactoryBot.create(:valid_otu, name: 'Another Dog', taxon_name:
                                           FactoryBot.create(:valid_taxon_name,
                                                             rank_class: Ranks.lookup(:iczn, 'Family'),
-                                                            name: 'Nutherdogidae')
+                                                            name:       'Nutherdogidae')
       )
     }
 
@@ -93,9 +93,11 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       o.taxon_name.taxon_name_authors << ted
       @co_m2.otus << o
       o            = FactoryBot.create(:valid_otu, name: 'Abra cadabra')
-      o.taxon_name = Protonym.find_or_create_by(name:       'cadabra',
-                                                rank_class: Ranks.lookup(:iczn, 'Species'),
-                                                parent:     parent)
+      o.taxon_name = Protonym.find_or_create_by(name:                'cadabra',
+                                                year_of_publication: 2017,
+                                                verbatim_author:     'Bill Ardson',
+                                                rank_class:          Ranks.lookup(:iczn, 'Species'),
+                                                parent:              parent)
       parent       = o.taxon_name
       o.taxon_name.taxon_name_authors << bill
       @co_m2.otus << o
@@ -157,7 +159,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       @co_p4.collecting_event.collectors << daryl
       o.taxon_name.update_column(:name, 'P4 antivitis')
       @co_p4.otus << o
-      o = FactoryBot.create(:valid_otu, name: 'Sargon\'s spooler')
+      o            = FactoryBot.create(:valid_otu, name: 'Sargon\'s spooler')
       o.taxon_name = Protonym.find_or_create_by(name:       'spooler',
                                                 rank_class: Ranks.lookup(:iczn, 'Species'),
                                                 parent:     abra.taxon_name)
@@ -283,7 +285,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
         end
 
         specify 'otus two out of three authors)' do
-          params = {author_ids: [sargon.id, ted.id ], and_or_select: '_and_'}
+          params = {author_ids: [sargon.id, ted.id], and_or_select: '_and_'}
 
           result = Queries::OtuFilterQuery.new(params).result
           expect(result.count).to eq(1)
@@ -300,12 +302,23 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       end
     end
 
+    context 'author string search' do
+      specify 'otus by author string' do
+        tn     = @co_m2.taxon_names.select { |t| t if t.name == 'cadabra' }.first
+        params = ({verbatim_author_string: 'Ardson'})
+
+        result = Queries::OtuFilterQuery.new(params).result
+        expect(result.first).to eq(tn.otus.first)
+      end
+    end
+
     context 'combined search' do
 
-      specify 'geo_area, nomen (taxon name), author' do
+      specify 'geo_area, nomen (taxon name), author, verbatim author string' do
         tn     = @co_m2.taxon_names.select { |t| t if t.name == 'cadabra' }.first
         params = {}
         params.merge!({author_ids: [bill.id, daryl.id], and_or_select: '_or_'})
+        params.merge!({verbatim_author_string: 'Ardson'})
         params.merge!({geographic_area_ids: [bbxa.id]})
         params.merge!({nomen_id: top_dog.taxon_name_id, descendants: '_on_'})
         # params.merge!({nomen_id: tn.id, descendants: 'off'})

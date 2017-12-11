@@ -43,7 +43,7 @@ Object.assign(TW.views.tasks.otus, {
           event.preventDefault();
         }
       );
-
+      
       $("#set_nomen").click(function (event) {
           $("#nomen_count").text('????');
           $("#select_nomen").mx_spinner('show');
@@ -55,7 +55,7 @@ Object.assign(TW.views.tasks.otus, {
           event.preventDefault();
         }
       );
-
+      
       $("#set_author").click(function (event) {
           $("#author_count").text('????');
           $("#select_author").mx_spinner('show');
@@ -67,7 +67,7 @@ Object.assign(TW.views.tasks.otus, {
           event.preventDefault();
         }
       );
-
+      
       $("#set_verbatim").click(function (event) {
           $("#verbatim_count").text('????');
           $("#select_verbatim").mx_spinner('show');
@@ -79,7 +79,7 @@ Object.assign(TW.views.tasks.otus, {
           event.preventDefault();
         }
       );
-
+      
       $("#find_area_and_nomen_commit").click(function (event) {
         that.toggleFilter();
         that.ajaxRequest(event, "find");
@@ -95,96 +95,6 @@ Object.assign(TW.views.tasks.otus, {
         }
       });
     }
-
-    // let today = new Date();
-    // let year = today.getFullYear();
-    // let format = 'yy/mm/dd';
-    // let dateInput;
-    //
-    // this.validateResultForFindOtu();
-    //
-    // function set_control(control, input, format, year, st_en_day) {
-    //   if (control.length) {
-    //     control.datepicker({
-    //       defaultDate: new Date(st_en_day),
-    //       altField: input,
-    //       dateFormat: format,
-    //       changeMonth: true,
-    //       changeYear: true,
-    //       yearRange: "1700:" + year
-    //     });
-    //     input.val(st_en_day);
-    //   }
-    // }
-    //
-    // $(".filter-button").on("click", function () {
-    //   that.toggleFilter();
-    // });
-    //
-    // let startDate = new Date($("#earliest_date").text());
-    // let endDate = new Date($("#latest_date").text());
-    // let offset = endDate - startDate;
-    //
-    // this.updateRangePicker(startDate, endDate);
-    //
-    // $("#double_date_range").mouseup(function (event) {
-    //   let range_factor = 1.0;
-    //   let newStartText = $(".label.select-label")[1].textContent;
-    //   let newEndText = $(".label.select-label")[0].textContent;
-    //   let newStartDate = (new Date(newStartText)) / range_factor;
-    //   let newEndDate = range_factor * (new Date(newEndText));
-    //   $("#search_start_date").val(newStartText);
-    //   $("#search_end_date").val(newEndText);
-    //
-    //   that.update_and_graph(event);
-    //   $(".label.range-label")[0].textContent = $(".label.select-label")[1].textContent;
-    //   $(".label.range-label")[1].textContent = $(".label.select-label")[0].textContent;
-    //
-    //   //Synchronize datapicker with rangepicker
-    //   $("#st_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date(newStartText), "yyyy/MM/dd")));
-    //   $("#en_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date(newEndText), "yyyy/MM/dd")));
-    //
-    //   that.updateRangePicker(newStartDate, newEndDate);
-    //
-    // });
-    //
-    //   $("#reset_slider").click(function (event) {
-    //       $("#search_start_date").val($("#earliest_date").text());
-    //       $("#search_end_date").val($("#latest_date").text());
-    //       that.updateRangePicker(startDate, endDate);
-    //       $("#graph_frame").empty();
-    //       $("#date_count").text("????");
-    //       that.validateResultForFindOtu();
-    //       event.preventDefault();
-    //     }
-    //   );
-    //
-    //   // TODO: toggle_slide_calendar no longer exists in the HTML, should be removed from This module
-    //   // $("#toggle_slide_calendar").click(function () {
-    //   //   $("#tr_slider").toggle(250);
-    //   //   $("#tr_calendar").toggle(250);
-    //   //   if ($("#toggle_slide_calendar").val() == 'Use Calendar') {
-    //   //     $("#toggle_slide_calendar").val("Use Slider");
-    //   //   }
-    //   //   else {
-    //   //     $("#toggle_slide_calendar").val("Use Calendar");
-    //   //   }
-    //   // });
-    //   $(".map_toggle").remove();
-    //   $(".on_selector").remove();
-    // },
-    //
-    // updateUserDateRange: function () {
-    //   // let newStartText = $(".label.select-label")[1].textContent;
-    //   // let newEndText = $(".label.select-label")[0].textContent;
-    //   // let newStartDate = (new Date(newStartText)) / range_factor;
-    //   // let newEndDate = range_factor * (new Date(newEndText));
-    //   // $("#search_start_date").val(newStartText);
-    //   // $("#search_end_date").val(newEndText);
-    //   alert();
-    //
-    //   $("#ud_st_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date('1700/01/01'), "yyyy/MM/dd")));
-    //   $("#ud_en_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date('2017/10/12'), "yyyy/MM/dd")));
   },
   
   switchMap: function () {
@@ -208,23 +118,6 @@ Object.assign(TW.views.tasks.otus, {
     $("#drawn_area_shape").attr('value', '');
     $("#paging_span").show();
   },
-
-  // update_and_graph: function (event) {
-  //   let that = this;
-  //
-  //   this.validateDate(event.target);
-  //   if (this.validateDates()) {
-  //     this.updateRangePicker(new Date($("#search_start_date").val()), new Date($("#search_end_date").val()));
-  //     $("#select_date_range").mx_spinner('show');
-  //     $.get('set_date', $("#set_date_form").serialize(), function (local_data) {
-  //       $("#date_count").text(local_data.html);
-  //       $("#graph_frame").html(local_data.chart);
-  //       $("#select_date_range").mx_spinner('hide');
-  //       that.validateResultForFindOtu();
-  //     }, 'json');  // I expect a json response
-  //   }
-  //   event.preventDefault();
-  // },
   
   cleanResults: function () {
     $("#show_list").empty();
@@ -244,8 +137,7 @@ Object.assign(TW.views.tasks.otus, {
   },
   
   validateResultForFindOtu: function () {
-    // let i = 0;
-
+    
     if (($("#area_count").text() > 0) || ($("#nomen_count").text() > 0) || ($("#author_count").text() > 0) || ($("#verbatim_author_count").text() > 0)) {
       $("#find_area_and_nomen_commit").removeAttr("disabled");
     }
@@ -264,7 +156,7 @@ Object.assign(TW.views.tasks.otus, {
       startValue: newStartDate,
       endValue: newEndDate,
       translateSelectLabel: function (currentPosition, totalPosition) {
-        let timeOffset = offset * ( currentPosition / totalPosition);
+        let timeOffset = offset * (currentPosition / totalPosition);
         let date = new Date(+newStartDate + parseInt(timeOffset));
         return dateFormat(date, "yyyy/MM/dd");
       }
@@ -278,19 +170,19 @@ Object.assign(TW.views.tasks.otus, {
     if ($('#area_count').text() != '????') {
       params.push($("#set_area_form").serialize());
     }
-
+    
     if ($('#nomen_count').text() != '????') {
       params.push($("#set_nomen_form").serialize());
     }
-
+    
     if ($('#author_count').text() != '????') {
       params.push($("#set_author_form").serialize());
     }
-
+    
     if ($('#verbatim_count').text() != '????') {
       params.push($("#set_verbatim_form").serialize());
     }
-
+    
     return data = params.join("&");
   },
   

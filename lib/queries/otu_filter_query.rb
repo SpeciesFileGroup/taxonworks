@@ -19,14 +19,14 @@ module Queries
     def initialize(params)
       params.reject! { |k, v| v.blank? }
 
-      @query_params = params
-      @query_geographic_area_ids = params[:geographic_area_ids]
-      @query_shape               = params[:drawn_area_shape]
-      @query_author_ids          = params[:author_ids]
+      @query_params                 = params
+      @query_geographic_area_ids    = params[:geographic_area_ids]
+      @query_shape                  = params[:drawn_area_shape]
+      @query_author_ids             = params[:author_ids]
       @query_verbatim_author_string = params[:verbatim_author_string]
-      @query_and_or_select       = params[:and_or_select]
-      @query_nomen_id            = params[:nomen_id]
-      @query_descendants         = params[:descendants]
+      @query_and_or_select          = params[:and_or_select]
+      @query_nomen_id               = params[:nomen_id]
+      @query_descendants            = params[:descendants]
     end
 
     def area_set?
@@ -35,10 +35,10 @@ module Queries
 
     def author_set?
       retval = case query_author_ids
-               when nil
-                 false
-               else
-                 query_author_ids.count > 0
+                 when nil
+                   false
+                 else
+                   query_author_ids.count > 0
                end
       retval
     end
@@ -84,9 +84,9 @@ module Queries
       query_geographic_area_ids.each do |gaid|
         target_geographic_item_ids.push(
           GeographicArea.
-          joins(:geographic_items).
-          find(gaid).
-          default_geographic_item.id
+            joins(:geographic_items).
+            find(gaid).
+            default_geographic_item.id
         )
       end
       # r4 = CollectionObject.joins(:geographic_items)
