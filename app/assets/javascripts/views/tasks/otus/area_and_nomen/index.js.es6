@@ -43,7 +43,7 @@ Object.assign(TW.views.tasks.otus, {
           event.preventDefault();
         }
       );
-      
+
       $("#set_nomen").click(function (event) {
           $("#nomen_count").text('????');
           $("#select_nomen").mx_spinner('show');
@@ -55,7 +55,7 @@ Object.assign(TW.views.tasks.otus, {
           event.preventDefault();
         }
       );
-      
+
       $("#set_author").click(function (event) {
           $("#author_count").text('????');
           $("#select_author").mx_spinner('show');
@@ -67,7 +67,7 @@ Object.assign(TW.views.tasks.otus, {
           event.preventDefault();
         }
       );
-      
+
       $("#set_verbatim").click(function (event) {
           $("#verbatim_count").text('????');
           $("#select_verbatim").mx_spinner('show');
@@ -79,7 +79,7 @@ Object.assign(TW.views.tasks.otus, {
           event.preventDefault();
         }
       );
-      
+
       $("#find_area_and_nomen_commit").click(function (event) {
         that.toggleFilter();
         that.ajaxRequest(event, "find");
@@ -118,7 +118,7 @@ Object.assign(TW.views.tasks.otus, {
     $("#drawn_area_shape").attr('value', '');
     $("#paging_span").show();
   },
-  
+
   cleanResults: function () {
     $("#show_list").empty();
     $("#result_span").empty();
@@ -137,7 +137,8 @@ Object.assign(TW.views.tasks.otus, {
   },
   
   validateResultForFindOtu: function () {
-    
+    // let i = 0;
+
     if (($("#area_count").text() > 0) || ($("#nomen_count").text() > 0) || ($("#author_count").text() > 0) || ($("#verbatim_author_count").text() > 0)) {
       $("#find_area_and_nomen_commit").removeAttr("disabled");
     }
@@ -148,21 +149,6 @@ Object.assign(TW.views.tasks.otus, {
     this.cleanResults();
   },
   
-  updateRangePicker: function (newStartDate, newEndDate) {
-    let offset = newEndDate - newStartDate;
-    
-    $("#double_date_range").rangepicker({
-      type: "double",
-      startValue: newStartDate,
-      endValue: newEndDate,
-      translateSelectLabel: function (currentPosition, totalPosition) {
-        let timeOffset = offset * (currentPosition / totalPosition);
-        let date = new Date(+newStartDate + parseInt(timeOffset));
-        return dateFormat(date, "yyyy/MM/dd");
-      }
-    });
-  },
-  
   serializeFields: function () {
     let data = '';
     let params = [];
@@ -170,19 +156,19 @@ Object.assign(TW.views.tasks.otus, {
     if ($('#area_count').text() != '????') {
       params.push($("#set_area_form").serialize());
     }
-    
+
     if ($('#nomen_count').text() != '????') {
       params.push($("#set_nomen_form").serialize());
     }
-    
+
     if ($('#author_count').text() != '????') {
       params.push($("#set_author_form").serialize());
     }
-    
+
     if ($('#verbatim_count').text() != '????') {
       params.push($("#set_verbatim_form").serialize());
     }
-    
+
     return data = params.join("&");
   },
   
@@ -204,29 +190,8 @@ Object.assign(TW.views.tasks.otus, {
       // $("#find_item").mx_spinner('hide');  # this has been relocated to .../find.js.erb
     });//, 'json'  // I expect a json response
     $("#download_button").removeAttr("disabled");
-    // }
-    // else {
-    //   $("body").append('<div class="alert alert-error"><div class="message">Incorrect dates</div><div class="alert-close"></div></div>');
-    // }
+
     event.preventDefault();
-  },
-  
-  validateDate: function (value) {
-    if (is_valid_date($(value).val())) {
-      $(value).val(convert_date_to_string($(value).val())); // Update the value of input field to prevent bad date with zero
-      $(value).parent().find(".warning-date").text("");
-    }
-    else {
-      $(value).parent().find(".warning-date").text("Invalid date, please verify you're using the correct format: (yyyy/mm/dd)");
-    }
-  },
-  
-  validateDates: function () {
-    return (is_valid_date($("#search_start_date").val())) && is_valid_date($("#search_end_date").val());
-  },
-  
-  validateDateRange: function () {
-    return (new Date($("#search_start_date").val())) < (new Date($("#search_end_date").val()));
   }
 });
 
