@@ -323,6 +323,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
         params.merge!({nomen_id: top_dog.taxon_name_id, descendants: '_on_'})
         # params.merge!({nomen_id: tn.id, descendants: 'off'})
 
+
         result = Queries::OtuFilterQuery.new(params).result
         expect(result.first).to eq(tn.otus.first)
       end
