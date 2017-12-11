@@ -27,13 +27,13 @@
 #
 class AssertedDistribution < ApplicationRecord
   include Housekeeping
-  include Shared::Notable
+  include Shared::Notes
   include SoftValidation
   include Shared::IsData
-  include Shared::Taggable
+  include Shared::Tags
   include Shared::DataAttributes
-  include Shared::Citable
-  include Shared::Confidence
+  include Shared::Citations
+  include Shared::Confidences
 
   include Shared::IsDwcOccurrence
   include AssertedDistribution::DwcExtensions

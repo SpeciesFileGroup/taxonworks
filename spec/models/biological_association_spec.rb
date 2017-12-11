@@ -26,7 +26,7 @@ describe BiologicalAssociation, :type => :model do
   end
 
   context 'concerns' do
-    it_behaves_like 'citable'
+    it_behaves_like 'citations'
     it_behaves_like 'is_data'
   end
 

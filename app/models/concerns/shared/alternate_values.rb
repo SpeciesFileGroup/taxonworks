@@ -4,6 +4,8 @@ module Shared::AlternateValues
   extend ActiveSupport::Concern
 
   included do
+    AlternateValue.related_foreign_keys.push self.name.foreign_key
+
     has_many :alternate_values, as: :alternate_value_object, validate: true, dependent: :destroy
     accepts_nested_attributes_for :alternate_values
   end

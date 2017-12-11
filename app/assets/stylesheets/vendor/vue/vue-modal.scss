@@ -69,3 +69,64 @@
   -webkit-transform: scale(1.1);
   transform: scale(1.1);
 }
+
+  .transparent-modal {
+      background-color: rgba(0,0,0,0.8) !important;
+  
+    .modal-header {
+      h3 {
+        margin: 2em;
+        margin-right: 0px;
+        margin-top: 0px;
+        padding: 6px;
+        padding-left:12px;
+        border-radius: 3px;
+        background-color: rgba(0, 0, 0, .3);
+        color: rgba(255, 255, 255, .5);
+      }
+    }
+    .modal-close {
+      right: 42px;
+      top:30px;
+      color: rgba(255, 255, 255, .5);
+      background-image: image-url('w_close.svg');
+    }
+    .modal-container {
+      width: 70%;
+      position: relative;
+      background-color: transparent !important;
+      box-shadow: none;
+
+      .modal-body {
+        overflow: auto;
+        margin-right: 1em;
+        max-height: 80vh;
+        &::-webkit-scrollbar {
+          position: absolute;
+          right:40px;
+            -webkit-appearance: none;
+        }
+
+        &::-webkit-scrollbar:vertical {
+            width: 6px;
+        }
+
+        &::-webkit-scrollbar:horizontal {
+            height: 6px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            border-radius: 8px;
+            width: 11px;
+            height: 5px;
+            border: rgba(255, 255, 255, .5);
+            background-color: rgba(255, 255, 255, .5);
+        }
+
+        &::-webkit-scrollbar-track { 
+            background-color: rgba(0, 0, 0, .3);
+            border-radius: 8px; 
+        } 
+      }
+    }
+  }

@@ -7,7 +7,14 @@ class ProtocolsController < ApplicationController
   # GET /protocols.json
   def index
     @recent_objects = Protocol.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html {
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @protocols = @recent_objects
+      }
+    end
   end
 
   # GET /protocols/1

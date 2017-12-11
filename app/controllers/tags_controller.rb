@@ -3,6 +3,22 @@ class TagsController < ApplicationController
 
   before_action :set_tag, only: [:update, :destroy]
 
+  # GET /tags
+  # GET /tags.json
+  def index
+    respond_to do |format|
+      format.html {
+        @recent_objects = Tag.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @tags = Tag.where(project_id: sessions_current_project_id).where(
+          polymorphic_filter_params('tag_object', Tag.related_foreign_keys )
+        )
+      }
+    end
+  end
+
   def new
     if !Keyword.with_project_id(sessions_current_project_id).any? # if there are none
       @return_path = "/tags/new?tag[tag_object_attribute]=&tag[tag_object_id]=#{params[:tag_object_id]}&tag[tag_object_type]=#{params[:tag_object_type]}"
@@ -12,16 +28,8 @@ class TagsController < ApplicationController
     @taggable_object = taggable_object
   end
 
-  # GET /tags
-  # GET /tags.json
-  def index
-    @recent_objects = Tag.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
-  end
-
   def tag_object_update 
     taggable_object.update(taggable_object_params)
-    # redirect_to :back
     redirect_back(fallback_location: (request.referer || root_path))
   end
 
@@ -32,7 +40,7 @@ class TagsController < ApplicationController
     respond_to do |format|
       if @tag.save
         format.html { redirect_to @tag.tag_object.metamorphosize, notice: 'Tag was successfully created.' }
-        format.json { render json: @tag, status: :created, location: @tag }
+        format.json { render action: 'show', status: :created, location: @tag }
       else
         format.html {
           redirect_back(fallback_location: (request.referer || root_path), notice: 'Tag was NOT successfully created.')
@@ -47,11 +55,10 @@ class TagsController < ApplicationController
   def update
     respond_to do |format|
       if @tag.update(tag_params)
-        format.html {redirect_to @tag.tag_object.metamorphosize, notice: 'Tag was successfully updated.'}
-        format.json { render json: @tag, status: :created, location: @tag }
+        format.html { redirect_to @tag.tag_object.metamorphosize, notice: 'Tag was successfully updated.' }
+        format.json { render :show, status: :ok, location: @tag }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Tag was NOT successfully updated.')
-        }
+        format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Tag was NOT successfully updated.') }
         format.json { render json: @tag.errors, status: :unprocessable_entity }
       end
     end
@@ -62,6 +69,7 @@ class TagsController < ApplicationController
   def destroy
     @tag.destroy
     respond_to do |format|
+      # TODO: probably needs to be changed with new annotator
       format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Tag was successfully destroyed.')}
       format.json { head :no_content }
     end
@@ -125,7 +133,10 @@ class TagsController < ApplicationController
   end
 
   def tag_params
-    params.require(:tag).permit(:keyword_id, :tag_object_id, :tag_object_type, :tag_object_attribute, :tag_object_global_entity)
+    params.require(:tag).permit(
+      :keyword_id, :tag_object_id, :tag_object_type, :tag_object_attribute, :annotated_global_entity, :_destroy,
+      keyword_attributes: [:name, :definition, :uri, :uri_relation, :css_color]
+    )
   end
 
   def taggable_object_params

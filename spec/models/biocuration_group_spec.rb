@@ -6,7 +6,7 @@ describe BiocurationGroup, :type => :model do
 
   context 'has many' do
     before(:each) {
-      @biocuration_group = FactoryBot.create(:valid_biocuration_group, name: 'Stages.', definition: 'Life stages.')
+      @biocuration_group = FactoryBot.create(:valid_biocuration_group, name: 'Stages.', definition: 'Life stages of an individual.')
       @bc1 = BiocurationClass.create(name: 'Adult', definition: 'A mature indivdiual.') 
       @bc2 = BiocurationClass.create(name: 'Larva', definition: 'Not a mature indivdiual.') 
     }

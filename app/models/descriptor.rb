@@ -9,14 +9,14 @@
 #
 class Descriptor < ApplicationRecord
   include Housekeeping
-  include Shared::Citable
-  include Shared::Identifiable
+  include Shared::Citations
+  include Shared::Identifiers
   include Shared::IsData
-  include Shared::Taggable
-  include Shared::Notable
+  include Shared::Tags
+  include Shared::Notes
   include Shared::DataAttributes
   include Shared::AlternateValues
-  include Shared::Confidence
+  include Shared::Confidences
   include Shared::Documentation
   include SoftValidation
 

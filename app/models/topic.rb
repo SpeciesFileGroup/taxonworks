@@ -1,6 +1,6 @@
 class Topic < ControlledVocabularyTerm
 
-  include Shared::Taggable
+  include Shared::Tags
 
   has_many :citation_topics, inverse_of: :topic, dependent: :destroy
   has_many :contents, inverse_of: :topic, dependent: :destroy

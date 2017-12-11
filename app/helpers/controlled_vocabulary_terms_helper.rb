@@ -22,10 +22,5 @@ module ControlledVocabularyTermsHelper
     render('/controlled_vocabulary_terms/quick_search_form')
   end
 
-  # TODO: make the color an attribute and apply it after, give a border
-  def color_tag(css_color = nil, value)
-    return value if css_color.nil?
-    content_tag(:span, value, style: "background-color: #{css_color};")
-  end
 
 end

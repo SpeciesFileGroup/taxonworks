@@ -529,7 +529,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
   end
 
   context 'concerns' do
-    it_behaves_like 'citable'
+    it_behaves_like 'citations'
     it_behaves_like 'containable'
     it_behaves_like 'data_attributes'
     it_behaves_like 'has_roles'

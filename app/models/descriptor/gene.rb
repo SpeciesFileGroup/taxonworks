@@ -61,12 +61,12 @@ class Descriptor::Gene < Descriptor
     i = 0
     target_attributes.each do |sequence_type, id|
       sr_a = sr.alias("#{table_alias}_#{i}")
-      b    = b.join(sr_a).on(
+      b = b.join(sr_a).on(
         sr_a['object_sequence_id'].eq(a['id']),
         sr_a['type'].eq(sequence_type),
         sr_a['subject_sequence_id'].eq(id)
       )
-      i    += 1
+      i += 1
     end
 
     b = b.group(a['id']).having(sr['object_sequence_id'].count.gteq(target_attributes.count))
@@ -110,7 +110,7 @@ class Descriptor::Gene < Descriptor
     # Build an aliased join for each set of attributes
     data.each do |id, type|
       sr_a = sr.alias("b#{id}")
-      b    = b.join(sr_a).on(
+      b = b.join(sr_a).on(
         sr_a['object_sequence_id'].eq(j['id']),
         sr_a['type'].eq(type),
         sr_a['subject_sequence_id'].eq(id)
@@ -168,7 +168,7 @@ class Descriptor::Gene < Descriptor
   # @return [Array]
   def attributes_from_or_queries(queries)
     translate = gene_attribute_term_index.invert
-    a         = []
+    a = []
     queries.each do |v|
       b = []
       v.split(//).each do |axiom|
@@ -185,7 +185,7 @@ class Descriptor::Gene < Descriptor
   def gene_attribute_term_index
     symbols = ("a".."z").to_a + ("A".."Z").to_a
     matches = gene_attribute_logic.scan(/([A-Za-z:]+\.[\d]+)/).flatten
-    h       = {}
+    h = {}
     matches.each_with_index do |m, i|
       h[m] = symbols[i]
     end

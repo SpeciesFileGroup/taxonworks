@@ -112,6 +112,7 @@
 					zIndex: undefined,
 					left: undefined
 				},
+				resizeInterval: undefined
 			}
 		},
 		mounted: function() {
@@ -119,6 +120,9 @@
 			if(this.resize && !this.fullScreen) {
 				this.checkResize();
 			}
+		},
+		destroyed: function() {
+			clearInterval(this.resizeInterval);
 		},
 		methods: {
 			outerWidth: function(el) {
@@ -173,7 +177,7 @@
 			},
 			checkResize: function() {
 				let that = this;
-				setInterval(function() {
+				this.resizeInterval = setInterval(function() {
 					that.init();
 				}, 500);
 			}

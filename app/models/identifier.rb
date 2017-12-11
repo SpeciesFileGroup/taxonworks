@@ -1,4 +1,5 @@
 # The information that can be use to differentiate concepts.
+#
 # Note this definition is presently very narrow, and that an identifier
 # can in practice be used for a lot more than differentiation (i.e.
 # it can often be resolved etc.).
@@ -45,76 +46,32 @@ class Identifier < ApplicationRecord
   include Housekeeping
   include Shared::IsData
   include Shared::DualAnnotator
+  include Shared::PolymorphicAnnotator
+  polymorphic_annotates('identifier_object')
 
   after_save :set_cached
-
-  # must come before SHORT_NAMES for weird inheritance issue
-  belongs_to :identifier_object, polymorphic: :true
+  
   belongs_to :namespace # only applies to Identifier::Local, here for create purposes
-
-  # @todo this likely has to be refactored/considered
-  # !! If there are inheritance issues with validation the position
-  # !! of this constant is likely the problem
-  SHORT_NAMES = {
-    doi:                       Identifier::Global::Doi,
-    isbn:                      Identifier::Global::Isbn,
-    issn:                      Identifier::Global::Issn,
-    lccn:                      Identifier::Global::Lccn,
-    occurrence_id:             Identifier::Global::OccurrenceId,
-    orcid:                     Identifier::Global::Orcid,
-    uri:                       Identifier::Global::Uri,
-    uuid:                      Identifier::Global::Uuid,
-    gen_bank_accession_code:   Identifier::Global::GenBankAccessionCode,
-    morphbank_specimen_number: Identifier::Global::MorphbankSpecimenNumber,
-    catalog_number:            Identifier::Local::CatalogNumber,
-    trip_code:                 Identifier::Local::TripCode,
-    import:                    Identifier::Local::Import,
-    otu_utility:               Identifier::Local::OtuUtility,
-    accession_code:            Identifier::Local::AccessionCode,
-    unknown:                   Identifier::Unknown
-  }
 
   # Please DO NOT include the following:
   #   validates :identifier_object, presence: true
   #   validates_presence_of :identifier_object_type, :identifier_object_id
   validates_presence_of :type, :identifier
 
-  # @todo test  - pendings are in the identifier_spec
-  scope :of_type, -> (type) {where(type: Identifier::SHORT_NAMES[type].to_s)}
+  # TODO: DRY to IsData? Test. 
   scope :with_type_string, -> (base_string) {where('type LIKE ?', "#{base_string}")}
 
   def self.find_for_autocomplete(params)
     where('identifier LIKE ?', "#{params[:term]}%")
   end
 
-  # @return [NoteObject]
-  #   alias to simplify reference across classes
-  def annotated_object
-    identifier_object
-  end
-
-  def self.class_name
-    self.name.demodulize.underscore.humanize.downcase
-  end
-
-  def klass_name
-    self.class.class_name
-  end
-
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect {|i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
   def self.prototype_identifier(project_id, created_by_id)
     identifiers = Identifier.where(project_id: project_id, created_by_id: created_by_id).limit(1)
     identifiers.empty? ? '12345678' : identifiers.last.identifier
+  end
+
+  def type_name
+    self.class.name.demodulize.downcase
   end
 
   protected

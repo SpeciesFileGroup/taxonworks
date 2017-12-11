@@ -13,7 +13,7 @@ class DepictionsController < ApplicationController
       }
       format.json {
         @depictions = Depiction.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params('depiction_object', [:observation_id, :content_id, :descriptor_id]) 
+          polymorphic_filter_params('depiction_object', Depiction.related_foreign_keys) 
         )
       }
     end
@@ -100,7 +100,7 @@ class DepictionsController < ApplicationController
   end
 
   def depiction_params
-    params.require(:depiction).permit(:depiction_object_id, :depiction_object_type, :caption, :figure_label, image_attributes: [:image_file])
+    params.require(:depiction).permit(:depiction_object_id, :depiction_object_type, :annotated_global_entity, :caption, :figure_label, image_attributes: [:image_file])
   end
 
 end

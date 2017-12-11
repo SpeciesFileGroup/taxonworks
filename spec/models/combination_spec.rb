@@ -319,6 +319,6 @@ describe Combination, type: :model, group: :nomenclature do
   end
 
   context 'concerns' do
-    it_behaves_like 'citable'
+    it_behaves_like 'citations'
   end
 end

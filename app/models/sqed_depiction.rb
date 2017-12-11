@@ -35,8 +35,8 @@
 #
 class SqedDepiction < ApplicationRecord
   include Housekeeping
-  include Shared::Taggable
-  include Shared::Notable
+  include Shared::Tags
+  include Shared::Notes
 
   belongs_to :depiction
   #  has_one :depiction_object, through: :depiction

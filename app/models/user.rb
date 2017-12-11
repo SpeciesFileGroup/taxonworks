@@ -100,9 +100,9 @@ class User < ApplicationRecord
   include Housekeeping::Timestamps
   include Housekeeping::AssociationHelpers
   include Shared::DataAttributes
-  include Shared::Notable
-  include Shared::Taggable
-  include Shared::Identifiable
+  include Shared::Notes
+  include Shared::Tags
+  include Shared::Identifiers
   include Shared::RandomTokenFields[:password_reset]
   has_secure_password
 
@@ -375,7 +375,7 @@ class User < ApplicationRecord
   end
 
   def generate_api_access_token
-    self.api_access_token = RandomToken.generate
+    self.api_access_token = Utilities::RandomToken.generate
   end
 
   def require_password_presence

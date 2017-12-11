@@ -16,7 +16,7 @@ describe 'DataAttributes', :type => :feature do
 
       predicates = []
       ['slow', 'medium', 'fast'].each do |n|
-        predicates.push Predicate.create!(name: n, definition: "#{n}'s definition'", by: @user, project: @project)
+        predicates.push Predicate.create!(name: n, definition: "#{n}'s definition of something tremendous'", by: @user, project: @project)
       end
 
       (0..2).each do |i|
@@ -31,12 +31,14 @@ describe 'DataAttributes', :type => :feature do
       it_behaves_like 'a_data_model_with_annotations_index'
     end
 
-      describe 'GET /data_attributes/list' do
-        before { visit list_data_attributes_path }
+    describe 'GET /data_attributes/list' do
+      before { visit list_data_attributes_path }
 
-        it_behaves_like 'a_data_model_with_standard_list_and_records_created'
-      end
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
+    end
 
+=begin
+TODO: test radial
     specify 'add a data attribute', js: true do
 
 =begin
@@ -51,7 +53,6 @@ with a Predicate created
                  then I get the message "Data attribute was successfully created."
                  and I can see the predicate rendered under annotations/data attributes
 
-=end
       # signed in above
       otu = Otu.new(name: 'a', by: @user, project: @project)
       otu.save!  # create otu
@@ -76,5 +77,6 @@ with a Predicate created
       expect(page).to have_selector('h3', text: 'Data attributes')
       expect(page).to have_content('testPredicate: 42')
     end
+=end
   end
 end

@@ -22,12 +22,13 @@
 #
 class Documentation < ApplicationRecord
   include Housekeeping
-  include Shared::Identifiable
-  include Shared::Notable
-  include Shared::Taggable
+  include Shared::Identifiers
+  include Shared::Notes
+  include Shared::Tags
   include Shared::IsData
   include SoftValidation
-
+  include Shared::PolymorphicAnnotator
+  polymorphic_annotates(:documentation_object)
 
   # These are all handled on the database side as not-null constraints
   # They can't be validated because we use accepts_nested_attributes

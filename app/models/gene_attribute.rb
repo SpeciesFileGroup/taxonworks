@@ -25,10 +25,10 @@
 #
 class GeneAttribute < ApplicationRecord
   include Housekeeping
-  include Shared::Identifiable
+  include Shared::Identifiers
   include Shared::IsData
-  include Shared::Notable
-  include Shared::Taggable
+  include Shared::Notes
+  include Shared::Tags
   
   acts_as_list scope: [:descriptor_id]
 

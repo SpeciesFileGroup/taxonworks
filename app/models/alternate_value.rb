@@ -34,17 +34,16 @@ class AlternateValue < ApplicationRecord
   include Shared::IsData
   include Shared::DualAnnotator
   include Shared::AttributeAnnotations
+  include Shared::PolymorphicAnnotator
+  polymorphic_annotates(:alternate_value_object)
 
-  belongs_to :alternate_value_object, polymorphic: true
   belongs_to :language
-
-  validates :language, presence: true, allow_blank: true
 
   # Please DO NOT include the following:
   # validates :alternate_value_object, presence: true
 
+  validates :language, presence: true, allow_blank: true
   validates_presence_of :type, :value, :alternate_value_object_attribute
-
   validates_uniqueness_of :value, scope: [:alternate_value_object, :type, :alternate_value_object_attribute, :project_id] # !! think about project/community on same object
 
   def type_name
@@ -65,19 +64,13 @@ class AlternateValue < ApplicationRecord
     self.name.demodulize.underscore.humanize.downcase
   end
 
-  def self.find_for_autocomplete(params)
-    where('value ILIKE ? AND ((project_id IS NULL) OR (project_id = ?))',
-          "%#{params[:term]}%", params[:project_id])
-  end
-
   def klass_name
     self.class.class_name
   end
 
-  # @return [NoteObject]
-  #   alias to simplify reference across classes
-  def annotated_object
-    alternate_value_object
+  def self.find_for_autocomplete(params)
+    where('value ILIKE ? AND ((project_id IS NULL) OR (project_id = ?))',
+          "%#{params[:term]}%", params[:project_id])
   end
 
   # @return [Symbol]
@@ -89,18 +82,6 @@ class AlternateValue < ApplicationRecord
   def self.annotation_value_column
     :value
   end
-
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
 end
 
 require_dependency 'alternate_value/misspelling'

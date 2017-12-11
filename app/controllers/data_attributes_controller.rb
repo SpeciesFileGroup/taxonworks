@@ -6,8 +6,17 @@ class DataAttributesController < ApplicationController
   # GET /data_attributes
   # GET /data_attributes.json
   def index
-    @recent_objects = DataAttribute.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html {
+        @recent_objects = DataAttribute.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @data_attributes = DataAttribute.where(project_id: sessions_current_project_id).where(
+          polymorphic_filter_params( 'attribute_subject', DataAttribute.related_foreign_keys )
+        )
+      }
+    end
   end
 
   # GET /data_attributes/new
@@ -24,11 +33,10 @@ class DataAttributesController < ApplicationController
   # POST /data_attributes.json
   def create
     @data_attribute = DataAttribute.new(data_attribute_params)
-
     respond_to do |format|
       if @data_attribute.save
         format.html { redirect_to @data_attribute.attribute_subject.metamorphosize, notice: 'Data attribute was successfully created.' }
-        format.json { render json: @data_attribute, status: :created, location: @data_attribute }
+        format.json { render action: 'show', status: :created, location: @data_attribute.metamorphosize }
       else
 
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Data attribute was NOT successfully created.')}
@@ -43,9 +51,9 @@ class DataAttributesController < ApplicationController
     respond_to do |format|
       if @data_attribute.update(data_attribute_params)
         format.html { redirect_to @data_attribute.attribute_subject.metamorphosize, notice: 'Data attribute was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render :show, status: :ok, location: @data_attribute.metamorphosize }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Data attribute was NOT successfully updated.')}
+        format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Data attribute was NOT successfully updated.')}
         format.json { render json: @data_attribute.errors, status: :unprocessable_entity }
       end
     end
@@ -92,12 +100,11 @@ class DataAttributesController < ApplicationController
 
   # GET /data_attributes/download
   def download
-    send_data DataAttribute.generate_download( DataAttribute.where(project_id: sessions_current_project_id) ), type: 'text', filename: "data_attributes_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(DataAttribute.where(project_id: sessions_current_project_id)), type: 'text', filename: "data_attributes_#{DateTime.now.to_s}.csv"
   end
 
   private
   
-  # Use callbacks to share common setup or constraints between actions.
   def set_data_attribute
     @data_attribute = DataAttribute.find(params[:id])
     if !@data_attribute.project_id.blank? && (sessions_current_project_id != @data_attribute.project_id)
@@ -105,14 +112,15 @@ class DataAttributesController < ApplicationController
     end
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def data_attribute_params
     params.require(:data_attribute).permit(
-        :type,
-        :attribute_subject_id,
-        :attribute_subject_type,
-        :controlled_vocabulary_term_id,
-        :import_predicate,
-        :value)
+      :type,
+      :attribute_subject_id,
+      :attribute_subject_type,
+      :controlled_vocabulary_term_id,
+      :import_predicate,
+      :value,
+      :annotated_global_entity 
+    )
   end
 end

@@ -29,14 +29,12 @@ class Tag < ApplicationRecord
   include Shared::IsData
   include Shared::AttributeAnnotations
   include Shared::MatrixHooks
-
-  acts_as_list scope: [:tag_object_id, :tag_object_type]
+  include Shared::PolymorphicAnnotator
+  polymorphic_annotates(:tag_object)
+  acts_as_list scope: [:tag_object_id, :tag_object_type, :keyword_id]
 
   belongs_to :keyword, inverse_of: :tags, validate: true
-  belongs_to :tag_object, polymorphic: true
-
-  # Not all tagged subclasses are keyword based, use this object for display
-  belongs_to :controlled_vocabulary_term, foreign_key: :keyword_id, inverse_of: :tags
+  belongs_to :controlled_vocabulary_term, foreign_key: :keyword_id, inverse_of: :tags # Not all tagged subclasses are Keyword based, use this object for display
 
   validates :keyword, presence: true
   validate :keyword_is_allowed_on_object
@@ -46,29 +44,22 @@ class Tag < ApplicationRecord
 
   accepts_nested_attributes_for :keyword, reject_if: :reject_keyword, allow_destroy: true
 
+  def self.tag_objects(objects, keyword_id = nil)
+    return nil if keyword_id.nil? or objects.empty?
+    objects.each do |o|
+      o.tags << Tag.new(keyword_id: keyword_id)
+    end
+  end
+
+  def self.exists?(global_id, keyword_id, project_id)
+    o = GlobalID::Locator.locate(global_id)
+    return false unless o
+    Tag.where(project_id: project_id, tag_object: o, keyword_id: keyword_id).first
+  end
+
   # The column name containing the attribute name being annotated
   def self.annotated_attribute_column
     :tag_object_attribute
-  end
-
-  def tag_object_class
-    tag_object.class
-  end
-
-  def tag_object_global_entity
-    tag_object.to_global_id if tag_object.present?
-  end
-
-  def tag_object_global_entity=(entity)
-    o = GlobalID::Locator.locate(entity)
-    write_attribute(:tag_object_type, o.class.base_class)
-    write_attribute(:tag_object_id, o.id) 
-  end
-
-  # @return [TagObject]
-  #   alias to simplify reference across classes
-  def annotated_object
-    tag_object
   end
 
   # @return [{"matrix_column_item": matrix_column_item, "descriptor": descriptor}, false]
@@ -93,6 +84,26 @@ class Tag < ApplicationRecord
     else
       return false
     end
+  end
+
+  protected
+
+  def keyword_is_allowed_on_object
+    return true if keyword.nil? || tag_object.nil? || !keyword.respond_to?(:can_tag)
+    if !keyword.can_tag.include?(tag_object.class.name)
+      errors.add(:keyword, "this keyword class (#{tag_object.class}) can not be attached to a #{tag_object_type}")
+    end
+  end
+
+  def object_can_be_tagged_with_keyword
+    return true if keyword.nil? || tag_object.nil? || !tag_object.respond_to?(:taggable_with)
+    if !tag_object.taggable_with.include?(keyword.class.name)
+      errors.add(:tag_object, "this tag_object_type (#{tag_object.class}) can not be tagged with this keyword class (#{keyword.class})")
+    end
+  end
+
+  def reject_keyword(attributed)
+    attributed['name'].blank? || attributed['definition'].blank?
   end
 
   def self.tag_objects(objects, keyword_id = nil)

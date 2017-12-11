@@ -13,12 +13,12 @@ class CharacterState < ApplicationRecord
   include Housekeeping
   include Shared::Depictions
   include Shared::IsData
-  include Shared::Notable
-  include Shared::Identifiable
-  include Shared::Taggable
-  include Shared::Confidence
+  include Shared::Notes
+  include Shared::Identifiers
+  include Shared::Tags
+  include Shared::Confidences
   include Shared::Documentation
-  include Shared::Citable
+  include Shared::Citations
   include Shared::DataAttributes
   include Shared::AlternateValues
   include SoftValidation

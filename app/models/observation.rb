@@ -1,13 +1,13 @@
 class Observation < ApplicationRecord
   include Housekeeping
-  include Shared::Citable
+  include Shared::Citations
   include Shared::DataAttributes
-  include Shared::Identifiable
-  include Shared::Notable
-  include Shared::Taggable
+  include Shared::Identifiers
+  include Shared::Notes
+  include Shared::Tags
   include Shared::IsData
   include Shared::Depictions
-  include Shared::Confidence
+  include Shared::Confidences
 
   belongs_to :descriptor, inverse_of: :observations
   belongs_to :otu, inverse_of: :observations

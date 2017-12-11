@@ -25,14 +25,14 @@ class Sequence < ApplicationRecord
 
   include Shared::AlternateValues
   include Shared::DataAttributes
-  include Shared::Confidence
+  include Shared::Confidences
   include Shared::Documentation
-  include Shared::Identifiable
+  include Shared::Identifiers
   include Shared::IsData
-  include Shared::Notable
+  include Shared::Notes
   include Shared::OriginRelationship
-  include Shared::Protocols
-  include Shared::Taggable
+  include Shared::ProtocolRelationships
+  include Shared::Tags
   include Shared::HasPapertrail
 
   is_origin_for 'Sequence'

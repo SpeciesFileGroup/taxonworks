@@ -6,8 +6,17 @@ class DocumentationController < ApplicationController
   # GET /documentation
   # GET /documentation.json
   def index
-    @recent_objects = Documentation.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html {
+        @recent_objects = Documentation.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @documenation = Documentation.where(project_id: sessions_current_project_id).where(
+          polymorphic_filter_params('documentation_object', Documentation.related_foreign_keys )
+        )
+      }
+    end
   end
 
   # GET /documentation/1
@@ -70,7 +79,6 @@ class DocumentationController < ApplicationController
 
   def search
     if params[:id].blank?
-      # @todo @mjy In other controllers, following redirect uses plural path
       redirect_to documentation_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to documentation_path(params[:id])
@@ -83,7 +91,7 @@ class DocumentationController < ApplicationController
       {id: t.id,
        label: ApplicationController.helpers.documentation_tag(t),
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
        label_html: ApplicationController.helpers.documentation_autocomplete_selected_tag(t)
       }
@@ -93,13 +101,14 @@ class DocumentationController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_documentation
-      @documentation = Documentation.find(params[:id])
-    end
+  def set_documentation
+    @documentation = Documentation.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def documentation_params
-      params.require(:documentation).permit(:documentation_object_id, :documentation_object_type, :document_id)
-    end
+  def documentation_params
+    params.require(:documentation).permit(
+      :documentation_object_id, :documentation_object_type, :document_id, :annotated_global_entity,
+      document_attributes: [:document_file] 
+    )
+  end
 end

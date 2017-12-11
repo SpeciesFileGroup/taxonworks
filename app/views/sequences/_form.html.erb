@@ -5,14 +5,20 @@
       <div class="field">
         <%= f.label :sequence %>
         <br>
-        <%= f.text_field :sequence %>
+        <%= f.text_area :sequence, cols: 60, rows: 5 %>
       </div>
 
       <div class="field">
-        <%= f.label :sequence_type %>
-        <br>
-        <%= f.text_field :sequence_type %>
+        <%= f.radio_button(:sequence_type, "aa") %>
+        <%= f.label(:sequence_type, "AA") %><br>
+
+        <%= f.radio_button(:sequence_type, "dna") %>
+        <%= f.label(:sequence_type, "DNA") %><br>
+
+        <%= f.radio_button(:sequence_type, "dna") %>
+        <%= f.label(:sequence_type, "RNA") %> 
       </div>
+
     </div>
 
     <div class="optional">

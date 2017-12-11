@@ -20,14 +20,12 @@
 class Container < ApplicationRecord
 
   include Housekeeping
-  include Shared::IsData
-  include Shared::Identifiable
-
+  include Shared::Identifiers
   include Shared::Containable
-
-  include Shared::Taggable
+  include Shared::Tags
   include SoftValidation
   include Shared::Loanable
+  include Shared::IsData
 
   has_many :collection_profiles
 
@@ -124,10 +122,6 @@ class Container < ApplicationRecord
         size_x
       end
     end
-  end
-
-  def self.find_for_autocomplete(params)
-    Queries::ContainerAutocompleteQuery.new(params[:term], project_id: params[:project_id]).result
   end
 
   # @return [String]

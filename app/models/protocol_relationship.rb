@@ -1,11 +1,12 @@
 class ProtocolRelationship < ApplicationRecord
   include Housekeeping
   include Shared::IsData
+  include Shared::PolymorphicAnnotator
+  polymorphic_annotates(:protocol_relationship_object)
 
   acts_as_list scope: [:protocol_id]
 
   belongs_to :protocol, inverse_of: :protocol_relationships
-  belongs_to :protocol_relationship_object, polymorphic: true
 
   # Do not include these validations, they will prevent nested_attributes_for from passing (see
   # incompatibility with polymorphic objects)

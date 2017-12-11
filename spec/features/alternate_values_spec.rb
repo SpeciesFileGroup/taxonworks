@@ -13,7 +13,7 @@ describe "AlternateValues", type: :feature, group: [:annotators] do
 
     context 'with some record created' do
       before {
-        k = Keyword.create!(name: 'Dictionary', definition: "Book with words", by: @user, project: @project)
+        k = Keyword.create!(name: 'Dictionary', definition: "Book with words, lots of words, more than 20.", by: @user, project: @project)
 
         ['D.', 'Dict.', 'Di.'].each do |n|
           AlternateValue::Abbreviation.create!(alternate_value_object:           k,
@@ -34,6 +34,7 @@ describe "AlternateValues", type: :feature, group: [:annotators] do
         it_behaves_like 'a_data_model_with_standard_list_and_records_created'
       end
 
+=begin
       context 'create an alternate value for a community object (Source::Bibtex)' do
         let(:src_bibtex) {factory_bot_create_for_user(:soft_valid_bibtex_source_article, @user)}
         #  with a Source::BibTeX created (containing at least title)
@@ -89,6 +90,7 @@ describe "AlternateValues", type: :feature, group: [:annotators] do
           end
         end
       end
+=end
 
       # pending 'create an alternate value for a project object (controlled vocabulary)' do
       #   k2 = Keyword.create!(name: 'testkey', definition: 'testing keyword', by: @user, project: @project)

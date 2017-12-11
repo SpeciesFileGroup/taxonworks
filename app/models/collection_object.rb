@@ -60,20 +60,20 @@ class CollectionObject < ApplicationRecord
 
   include GlobalID::Identification
   include Housekeeping
-  include Shared::Citable
+  include Shared::Citations
   include Shared::Containable
   include Shared::DataAttributes
   include Shared::Loanable
   include Shared::HasRoles
-  include Shared::Identifiable
-  include Shared::Notable
-  include Shared::Taggable
+  include Shared::Identifiers
+  include Shared::Notes
+  include Shared::Tags
   include Shared::Depictions
   include Shared::OriginRelationship
-  include Shared::Confidence
-  include Shared::IsData
-  include Shared::Protocols
+  include Shared::Confidences
+  include Shared::ProtocolRelationships
   include Shared::HasPapertrail
+  include Shared::IsData
   include SoftValidation
 
   include Shared::IsDwcOccurrence

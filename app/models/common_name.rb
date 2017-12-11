@@ -1,11 +1,11 @@
 class CommonName < ApplicationRecord
   include Housekeeping
   include Shared::AlternateValues
-  include Shared::Citable
+  include Shared::Citations
   include Shared::DataAttributes
-  include Shared::Identifiable
-  include Shared::Notable
-  include Shared::Taggable
+  include Shared::Identifiers
+  include Shared::Notes
+  include Shared::Tags
   include Shared::IsData
 
   ALTERNATE_VALUES_FOR = [:name]

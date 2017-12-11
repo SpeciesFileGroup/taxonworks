@@ -14,11 +14,7 @@ class ConfidencesController < ApplicationController
       }
       format.json {
         @confidences = Confidence.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params('confidence_object', [
-            :observation_id,
-            :descriptor_id,
-            :otu_id
-          ])
+          polymorphic_filter_params('confidence_object', Confidence.related_foreign_keys)
         )
       }
     end
@@ -108,7 +104,11 @@ class ConfidencesController < ApplicationController
   end
 
   def confidence_params
-    params.require(:confidence).permit(:confidence_level_id, :confidence_object_id, :confidence_object_type)
+    params.require(:confidence).permit(
+      :annotated_global_entity,
+      :confidence_level_id, :confidence_object_id, :confidence_object_type,
+      confidence_level_attributes: [:_destroy, :id, :name, :definition, :uri, :uri_relation]
+    )
   end
 
   def confidence_object
@@ -117,7 +117,9 @@ class ConfidencesController < ApplicationController
 
   def confidences_params
     params.require(:confidence_object).permit(
-      confidences_attributes: [:_destroy, :id, :confidence_level_id]
+      :annotated_global_entity,
+      :confidence_level_id,
+      confidence_level_attributes: [:_destroy, :id, :name, :definition, :uri, :uri_relation]
     )
   end
 

@@ -19,8 +19,8 @@
 class CollectionObjectObservation < ApplicationRecord
   include Housekeeping
   include Shared::IsData
-  include Shared::Taggable
-  include Shared::Notable
+  include Shared::Tags
+  include Shared::Notes
   include Shared::Depictions
 
   has_many :derived_collection_objects, inverse_of: :collection_object_observations

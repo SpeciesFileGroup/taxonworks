@@ -10,23 +10,9 @@
 			    </span>
 			    <div class="list-controls">
 			    	<a :href="`/sources/${item.origin_citation.source_id}/edit`" target="_blank" v-if="getCitation(item)" v-html="getCitation(item)"></a>
-			    	<div class="list-controls" v-else>
-						<autocomplete 
-							url="/sources/autocomplete"
-							min="3"
-							param="term"
-							event-send="sourceSelect"
-							@getItem="sendCitation($event.id,item)"
-							label="label_html"
-							placeholder="Type for search citation..."
-							:sendLabel="getCitation(item)"
-							display="label">
-						</autocomplete>
-						<default-element label="source" type="Source" section="Sources" @getId="sendCitation($event,item)"></default-element>
-					</div>
-					<citation-pages @setPages="$emit('addCitation', $event)" :citation="item"></citation-pages>				
+					<radial-annotator @close="update()" :globalId="item.global_id"></radial-annotator>		
 					<span type="button" title="Remove citation" class="circle-button btn-undo" v-if="getCitation(item)" @click="removeCitation(item)"></span>
-		    		<span type="button" class="circle-button btn-delete" @click="$emit('delete',item)">Remove</span>
+		    		<span type="button" class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
 		    	</div>
 	    	</li>
 	    	</transition-group>
@@ -39,12 +25,14 @@ const GetterNames = require('../store/getters/getters').GetterNames;
 const autocomplete = require('../../../components/autocomplete.vue').default;
 const defaultElement = require('../../../components/getDefaultPin.vue').default;
 const citationPages = require('./citationPages.vue').default;
+const radialAnnotator = require('../../../components/annotator/annotator.vue').default;
 
 export default {
 	components: {
 		autocomplete,
 		defaultElement,
-		citationPages
+		citationPages,
+		radialAnnotator
 	},
 	props: ['list', 'display'],
 	name: 'list-entrys',
@@ -60,8 +48,11 @@ export default {
 				return true;
 			}
 		},
+		update() {
+			this.$emit('update');
+		},
 		getCitation: function(item) {
-			return (item.hasOwnProperty('origin_citation') ? item.origin_citation.source.object_tag : undefined)
+			return (item.hasOwnProperty('origin_citation') ? item.origin_citation.citation_source_body : undefined)
 		},
 		sendCitation(sourceId,item) {
 			let citation = {

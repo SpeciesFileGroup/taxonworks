@@ -70,7 +70,7 @@ class TestLoanable < ApplicationRecord
   include Shared::Loanable
 
   # Stubbed here, see Shared::IsData for actual method.
-  def is_loanable?
+  def has_loans?
     true
   end
 end

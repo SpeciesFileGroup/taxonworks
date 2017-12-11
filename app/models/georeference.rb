@@ -63,10 +63,10 @@
 #
 class Georeference < ApplicationRecord
   include Housekeeping
-  include Shared::Notable
-  include Shared::Taggable
+  include Shared::Notes
+  include Shared::Tags
   include Shared::IsData
-  include Shared::Citable
+  include Shared::Citations
   include Shared::HasRoles
 
   attr_accessor :iframe_response # used to pass the geolocate from Tulane through

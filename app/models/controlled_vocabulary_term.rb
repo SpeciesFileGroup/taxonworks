@@ -38,7 +38,7 @@ class ControlledVocabularyTerm < ApplicationRecord
   ALTERNATE_VALUES_FOR = [:name, :definition]
 
   validates_presence_of :name, :definition, :type
-  validates_length_of :definition, minimum: 4
+  validates_length_of :definition, minimum: 20 
 
   validates_uniqueness_of :name, scope: [:type, :project_id]
   validates_uniqueness_of :definition, scope: [:project_id]
@@ -57,16 +57,24 @@ class ControlledVocabularyTerm < ApplicationRecord
         .where(project_id: params[:project_id])
   end
 
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
+# def self.to_select(params)
+
+#   data = {
+#     quick: []
+#     recent: []
+#     pinboard: []
+#   }
+
+#   data[:recent] = ControlledVocabularyTerm.where(
+#     type: params[:type],
+#     project_id: params[:project_id],
+#     user_id: params[:user_id]
+#   ).order(updated_at: :desc).limit(10)
+#     .recently_
+
+#   user_id
+
+# end
 
   protected
 
@@ -81,5 +89,5 @@ require_dependency 'biological_property'
 require_dependency 'keyword'
 require_dependency 'predicate'
 require_dependency 'topic'
-
+require_dependency 'confidence_level'
 

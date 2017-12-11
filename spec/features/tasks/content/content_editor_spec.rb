@@ -6,11 +6,12 @@ describe 'Content editor' do
 
   context 'Test new topic' do
     before {
-      echo                           = Capybara.default_max_wait_time
+      echo = Capybara.default_max_wait_time
       Capybara.default_max_wait_time = 15
       sign_in_user_and_select_project     
       Capybara.default_max_wait_time = echo
     }
+
     after {
       click_link('Sign out')
     }
@@ -24,7 +25,7 @@ describe 'Content editor' do
 	      click_button('New')
 	      expect(page).to have_content("New topic")
 	      fill_in 'Name', with: "Testing topic"
-	      fill_in 'Definition', with: "Testing"
+	      fill_in 'Definition', with: "Testing, making sure this is long enough"
 	      click_button('Create')
 	      find('.modal-close').click
 	      expect(page).to have_content("Testing topic was successfully created.")

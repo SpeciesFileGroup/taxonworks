@@ -58,9 +58,9 @@
 class Loan < ApplicationRecord
   include Housekeeping
   include Shared::DataAttributes
-  include Shared::Identifiable
-  include Shared::Notable
-  include Shared::Taggable
+  include Shared::Identifiers
+  include Shared::Notes
+  include Shared::Tags
   include SoftValidation
   include Shared::Depictions
   include Shared::HasRoles

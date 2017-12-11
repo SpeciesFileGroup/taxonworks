@@ -64,9 +64,9 @@
 class CollectionProfile < ApplicationRecord
   include Housekeeping
   include SoftValidation
-  include Shared::Identifiable
-  include Shared::Notable
-  include Shared::Taggable
+  include Shared::Identifiers
+  include Shared::Notes
+  include Shared::Tags
   include Shared::IsData
 
   belongs_to :container

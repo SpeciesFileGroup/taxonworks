@@ -116,15 +116,15 @@ class TaxonName < ApplicationRecord
   include Housekeeping
   include Shared::DataAttributes
   include Shared::HasRoles
-  include Shared::Taggable
-  include Shared::Identifiable
-  include Shared::Notable
+  include Shared::Tags
+  include Shared::Identifiers
+  include Shared::Notes
   include Shared::Depictions
-  include Shared::Citable
-  include Shared::Confidence
-  include SoftValidation
+  include Shared::Citations
+  include Shared::Confidences
   include Shared::AlternateValues
   include Shared::HasPapertrail
+  include SoftValidation
   include Shared::IsData
 
   # Allows users to provide arbitrary annotations that "over-ride" rank string

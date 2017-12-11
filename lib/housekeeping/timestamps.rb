@@ -82,7 +82,7 @@ module Housekeeping::Timestamps
 
       today      = self.send(name).created_today.count # in_project(self).count
       this_week  = self.send(name).created_this_week.count # in_project(self).count
-      this_month =self.send(name).created_in_last(4.weeks).count # in_project(self).count
+      this_month = self.send(name).created_in_last(4.weeks).count # in_project(self).count
 
       if this_month > 0
         data.push({
@@ -98,6 +98,5 @@ module Housekeeping::Timestamps
     data
   end
 
-  protected
 end
 

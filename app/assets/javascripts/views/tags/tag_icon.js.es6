@@ -126,7 +126,7 @@ Object.assign(TW.views.tags.tag_icon, {
 		var tag = {
 			tag: {
 				keyword_id: keyId,
-				tag_object_global_entity: globalId
+				annotated_global_entity: globalId
 			}
 		}
 		return this.makeAjaxCall('POST', url, tag);
@@ -137,7 +137,7 @@ Object.assign(TW.views.tags.tag_icon, {
 		var url = '/tags/' + tagId;
 		var tag = {
 			tag: {
-				tag_object_global_entity: globalId,
+				annotated_global_entity: globalId,
 				_destroy: true
 			}
 		}

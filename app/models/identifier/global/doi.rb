@@ -38,7 +38,7 @@ class Identifier::Global::Doi < Identifier::Global
   protected
 
   def handle_prefixes
-     identifier.gsub!(/^(doi:|http:\/\/dx.doi.org\/)/, '') if identifier
+    identifier.gsub!(/^(doi:|http:\/\/dx.doi.org\/)/, '') if identifier
   end
 
 end

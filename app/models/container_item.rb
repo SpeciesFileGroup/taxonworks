@@ -86,11 +86,6 @@ class ContainerItem < ApplicationRecord
     contained_object = GlobalID::Locator.locate entity
   end
 
-  def self.find_for_autocomplete(params)
-    Queries::ContainerItemAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
-  end
-
-
   protected
 
   def object_fits_in_container
@@ -133,8 +128,5 @@ class ContainerItem < ApplicationRecord
       errors.add(:contained_object, 'is already in a container_item')
     end
   end
-
-
-
 
 end

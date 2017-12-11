@@ -178,15 +178,15 @@
 #
 class CollectingEvent < ApplicationRecord
   include Housekeeping
-  include Shared::Citable
+  include Shared::Citations
   include Shared::DataAttributes
   include Shared::HasRoles
-  include Shared::Identifiable
-  include Shared::Notable
-  include Shared::Taggable
+  include Shared::Identifiers
+  include Shared::Notes
+  include Shared::Tags
   include Shared::Depictions
   include Shared::IsData
-  include Shared::Confidence
+  include Shared::Confidences
   include Shared::Documentation
   include Shared::HasPapertrail
   include SoftValidation

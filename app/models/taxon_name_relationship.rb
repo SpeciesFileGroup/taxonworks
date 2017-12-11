@@ -41,7 +41,8 @@
 #
 class TaxonNameRelationship < ApplicationRecord
   include Housekeeping
-  include Shared::Citable
+  include Shared::Citations
+  include Shared::Notes
   include Shared::IsData
   include SoftValidation
 

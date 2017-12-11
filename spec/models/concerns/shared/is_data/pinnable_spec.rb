@@ -40,6 +40,18 @@ describe 'Pinnable', type: :model do
       expect(instance_with_pin.inserted?(user1)).to be_truthy
     end
 
+    specify '.pinned_by' do
+      expect(TestPinnable.pinned_by(user1.id)).to contain_exactly(instance_with_pin)
+    end
+
+    specify '.pinboard_inserted 1' do
+      expect(TestPinnable.pinboard_inserted).to contain_exactly()
+    end
+
+    specify '.pinboard_inserted 2' do
+      pinboard_item1.update_column(:is_inserted, true)
+      expect(TestPinnable.pinboard_inserted).to contain_exactly(instance_with_pin)
+    end
   end
 
   context 'object with pinboard_items' do

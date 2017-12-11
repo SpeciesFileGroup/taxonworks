@@ -12,11 +12,8 @@ class CitationsController < ApplicationController
       }
       format.json {
         @citations = Citation.where(project_id: sessions_current_project_id)
-          .where(polymorphic_filter_params(
-        'citation_object', [:content_id, :otu_id, :observation_id] 
-        ))
+          .where(polymorphic_filter_params( 'citation_object', Citation.related_foreign_keys))
       }
-
     end
   end
 
@@ -109,7 +106,7 @@ class CitationsController < ApplicationController
 
   # GET /citations/download
   def download
-    send_data Citation.generate_download( Citation.where(project_id: sessions_current_project_id) ), type: 'text', filename: "citations_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Citation.where(project_id: sessions_current_project_id)), type: 'text', filename: "citations_#{DateTime.now.to_s}.csv"
   end
 
   private
@@ -125,10 +122,12 @@ class CitationsController < ApplicationController
   def citation_params
     params.require(:citation).permit(
       :citation_object_type, :citation_object_id, :source_id, :pages, :is_original,
+      :annotated_global_entity,
       citation_topics_attributes: [
         :id, :_destroy, :pages, :topic_id,
         topic_attributes: [:id, :_destroy, :name, :definition]
-      ]
+      ],
+      topics_attributes: [:name, :definition]
     )
   end
 end

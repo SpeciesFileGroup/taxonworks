@@ -14,13 +14,7 @@ class NotesController < ApplicationController
       }
       format.json {
         @notes = Note.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params('note_object', [
-            :observation_id,
-            :otu_id,
-            :descriptor_id,
-            :collection_object_id,
-            :character_state_id
-          ])
+          polymorphic_filter_params('note_object', Note.related_foreign_keys)
         )
       }
     end
@@ -44,7 +38,7 @@ class NotesController < ApplicationController
         format.html { redirect_to @note.note_object.metamorphosize, notice: 'Note was successfully created.' }
         format.json { render json: @note, status: :created, location: @note }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Note was NOT successfully created.')}
+        format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Note was NOT successfully created.')}
         format.json { render json: @note.errors, status: :unprocessable_entity }
       end
     end
@@ -56,9 +50,9 @@ class NotesController < ApplicationController
     respond_to do |format|
       if @note.update(note_params)
         format.html { redirect_to @note.note_object.metamorphosize, notice: 'Note was successfully created.' }
-        format.json { render json: @note, status: :created, location: @note }
+        format.json { render action: 'show', status: :created, location: @note }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Note was NOT successfully updated.')}
+        format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Note was NOT successfully updated.')}
         format.json { render json: @note.errors, status: :unprocessable_entity }
       end
     end
@@ -69,7 +63,8 @@ class NotesController < ApplicationController
   def destroy
     @note.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Note was successfully destroyed.')}
+      # TODO: probably needs to be changed
+      format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Note was successfully destroyed.')}
       format.json { head :no_content }
     end
   end
@@ -105,7 +100,7 @@ class NotesController < ApplicationController
 
   # GET /notes/download
   def download
-    send_data Note.generate_download(Note.where(project_id: sessions_current_project_id)), type: 'text', filename: "notes_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Note.where(project_id: sessions_current_project_id)), type: 'text', filename: "notes_#{DateTime.now.to_s}.csv"
   end
 
   private
@@ -115,6 +110,6 @@ class NotesController < ApplicationController
   end
   
   def note_params
-    params.require(:note).permit(:text, :note_object_id, :note_object_type, :note_object_attribute)
+    params.require(:note).permit(:text, :note_object_id, :note_object_type, :note_object_attribute, :annotated_global_entity)
   end
 end

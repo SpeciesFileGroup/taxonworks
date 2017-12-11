@@ -188,13 +188,13 @@ class Source < ApplicationRecord
   include Housekeeping::Timestamps
   include Shared::AlternateValues
   include Shared::DataAttributes
-  include Shared::HasRoles
-  include Shared::Identifiable
-  include Shared::Notable
+  include Shared::Identifiers
+  include Shared::Notes
   include Shared::SharedAcrossProjects
-  include Shared::Taggable
+  include Shared::Tags
+  include Shared::Documentation 
+  include Shared::HasRoles
   include Shared::IsData
-  include Shared::Documentation
   include Shared::HasPapertrail
   include SoftValidation
 

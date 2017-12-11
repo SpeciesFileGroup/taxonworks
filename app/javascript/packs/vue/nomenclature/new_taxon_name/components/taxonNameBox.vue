@@ -14,7 +14,10 @@
 						<span v-html="taxon.cached_html"></span>
 						<span v-html="taxon.cached_author_year"></span>
 					</a>
-					<span v-if="taxon.id" @click="showModal = true" class="circle-button btn-delete"></span>
+					<div class="taxon-options">
+						<radial-annotator :globalId="taxon.global_id"></radial-annotator>
+						<span v-if="taxon.id" @click="showModal = true" class="circle-button btn-delete"></span>
+					</div>
 				</h3>
 				<h3 class="taxonname" v-else>New</h3>
 			</div>
@@ -23,12 +26,16 @@
 </template>
 <script>
 
+
+const radialAnnotator = require('../../../components/annotator/annotator.vue').default;
+
 const GetterNames = require('../store/getters/getters').GetterNames
 const modal = require('../../../components/modal.vue').default;
 
 export default {
 	components: {
-		modal
+		modal,
+		radialAnnotator
 	},
 	data: function() {
 		return {
@@ -96,6 +103,15 @@ export default {
 </script>
 <style lang="scss">
 	#taxonNameBox {
+		.taxon-options {
+			display: flex;
+			justify-content: space-between;
+			width: 70px;
+		}
+		.radial-annotator {
+			width:30px;
+			margin-left: 14px;
+		}
 		.header {
 			padding: 1em;
 			border: 1px solid #f5f5f5;

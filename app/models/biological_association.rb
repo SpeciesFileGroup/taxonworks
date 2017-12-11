@@ -26,11 +26,11 @@
 #
 class BiologicalAssociation < ApplicationRecord
   include Housekeeping
-  include Shared::Citable
+  include Shared::Citations
   include SoftValidation
   include Shared::DataAttributes
-  include Shared::Notable
-  include Shared::Confidence
+  include Shared::Notes
+  include Shared::Confidences
   include Shared::IsData
 
 

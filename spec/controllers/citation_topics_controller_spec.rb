@@ -77,7 +77,7 @@ describe CitationTopicsController, :type => :controller do
   describe "PUT update" do
     describe "with valid params" do
 
-      let(:t) {Topic.create!(name: 'Space Ghosts', definition: 'Coast to coast.')}
+      let(:t) {Topic.create!(name: 'Space Ghosts', definition: 'Coast to coast, and back again.')}
       let(:update_params) {ActionController::Parameters.new({topic_id: t.id.to_s}).permit(:topic_id)}
 
       it "updates the requested citation_topic" do

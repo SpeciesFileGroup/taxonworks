@@ -34,9 +34,9 @@ class Serial < ApplicationRecord
   include Housekeeping::Timestamps  # needed for the views
   include Shared::AlternateValues # abbreviations, alternate titles, language translations
   include Shared::DataAttributes  # equivalent of a note for a global class i.e. cross project note
-  include Shared::Notable # project note
-  include Shared::Identifiable
-  include Shared::Taggable
+  include Shared::Notes # project note
+  include Shared::Identifiers
+  include Shared::Tags
   include Shared::IsData
   include SoftValidation
   include Shared::SharedAcrossProjects

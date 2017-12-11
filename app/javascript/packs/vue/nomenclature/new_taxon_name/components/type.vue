@@ -46,7 +46,7 @@
           <list-common :object-lists="objectLists.common" :filter="true" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"></list-common>
         </div>
       </div>
-      <list-entrys @addCitation="setType" :list="GetRelationshipsCreated" @delete="removeType" :display="['object_status_tag', { link: '/tasks/nomenclature/browse/', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"></list-entrys>
+      <list-entrys @update="loadTaxonRelationships" @addCitation="setType" :list="GetRelationshipsCreated" @delete="removeType" :display="['object_status_tag', { link: '/tasks/nomenclature/browse/', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"></list-entrys>
     </div>
   </form>
 </template>
@@ -135,6 +135,9 @@
       }
     },
     methods: {
+      loadTaxonRelationships: function() {
+        this.$store.dispatch(ActionNames.LoadTaxonRelationships, this.taxon.id)
+      },
       setType(item) {
         this.$store.dispatch(ActionNames.UpdateTaxonRelationship, item);
       },

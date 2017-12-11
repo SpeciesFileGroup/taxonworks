@@ -23,7 +23,7 @@ describe ControlledVocabularyTerm, :type => :model do
 
   context 'name and definition ' do
     let(:name) { 'Name should be unique' }
-    let(:definition) { 'Never before seen!' }
+    let(:definition) { 'Never before seen, is not 20 characters!' }
     
     before { Keyword.create!(name: name, definition: definition) } 
 
@@ -61,15 +61,16 @@ describe ControlledVocabularyTerm, :type => :model do
 
     specify 'name is unique within projects per type' do
       a = FactoryBot.create(:valid_controlled_vocabulary_term)
-      b = FactoryBot.build(:controlled_vocabulary_term, a.attributes.merge(definition: 'Something else.', uri: uri, uri_relation: 'skos:closeMatch' ))
+      b = FactoryBot.build(:controlled_vocabulary_term, a.attributes.merge(definition: 'Something else, but longer, and more specific.', uri: uri, uri_relation: 'skos:closeMatch' ))
       expect(b.valid?).to be_falsey
       b.name = 'Something Completely Different'
       expect(b.valid?).to be_truthy
     end
 
     specify 'definition is unique within projects' do
-      a = FactoryBot.create(:valid_controlled_vocabulary_term, definition: 'Something crazy!', uri: uri, uri_relation: 'skos:closeMatch')
-      b = FactoryBot.build(:valid_controlled_vocabulary_term, name: 'Something else.', definition: 'Something crazy!', uri: uri, uri_relation: 'skos:closeMatch')
+      d = 'Something crazy, but detailed!'
+      a = FactoryBot.create(:valid_controlled_vocabulary_term, definition: d, uri: uri, uri_relation: 'skos:closeMatch')
+      b = FactoryBot.build(:valid_controlled_vocabulary_term, name: 'Something else.', definition: d, uri: uri, uri_relation: 'skos:closeMatch')
       expect(b.valid?).to be_falsey
       expect(b.errors.include?(:definition)).to be_truthy
     end
@@ -83,7 +84,7 @@ describe ControlledVocabularyTerm, :type => :model do
 
     specify 'is case sensitive, i.e. bat and Bat are different' do
       a = FactoryBot.create(:valid_controlled_vocabulary_term, name: 'blue')
-      b = FactoryBot.build(:valid_controlled_vocabulary_term, definition: 'Something else.', name: 'Blue', uri: uri, uri_relation: 'skos:closeMatch')
+      b = FactoryBot.build(:valid_controlled_vocabulary_term, definition: 'Something else, but with details.', name: 'Blue', uri: uri, uri_relation: 'skos:closeMatch')
       expect(b.valid?).to be_truthy
     end
 

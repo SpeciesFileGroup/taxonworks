@@ -68,7 +68,10 @@ class ContainerItemsController < ApplicationController
   end
 
   def autocomplete
-    @container_items = ContainerItem.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).includes(:taxon_name)
+    Queries::ContainerItemAutocompleteQuery.new(
+      params.merge(project_id: sessions_current_project_id)
+    ).all.where(project_id: params[:project_id]).includes(:taxon_name)
+    
     data = @container_items.collect do |t|
       {id: t.id,
        label: ApplicationController.helpers.container_item_tag(t),
