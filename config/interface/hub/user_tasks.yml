@@ -275,3 +275,11 @@ edit_loan_task:
     - collection_object
   status: prototype
   description: 'Create and edit loans.'
+
+edit_type_material_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'

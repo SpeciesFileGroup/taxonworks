@@ -574,6 +574,12 @@ TaxonWorks::Application.routes.draw do
   ### End of data resources ###
 
   scope :tasks do
+    scope :type_material do
+      scope :edit_type_material, controller: 'tasks/type_material/edit_type_material' do
+        get 'index', as: 'edit_type_material_task'
+      end
+    end
+
     scope :observation_matrices do
       scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do
         get 'index', as: 'index_row_coder_task'
