@@ -99,6 +99,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
                                                 rank_class:          Ranks.lookup(:iczn, 'Species'),
                                                 parent:              parent)
       o.taxon_name = t_n
+      o.save!
       parent       = o.taxon_name
       o.taxon_name.taxon_name_authors << bill
       @co_m2.otus << o
@@ -331,7 +332,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
         tn     = @co_m2.taxon_names.select { |t| t if t.name == 'cadabra' }.first
         params = {}
         params.merge!({author_ids: [bill.id, daryl.id], and_or_select: '_or_'})
-        params.merge!({verbatim_author_string: 'Bill A'})
+        # params.merge!({verbatim_author_string: 'Bill A'})
         params.merge!({geographic_area_ids: [bbxa.id]})
         params.merge!({nomen_id: top_dog.taxon_name_id, descendants: '_on_'})
 
