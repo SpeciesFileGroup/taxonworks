@@ -93,11 +93,12 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       o.taxon_name.taxon_name_authors << ted
       @co_m2.otus << o
       o            = FactoryBot.create(:valid_otu, name: 'Abra cadabra')
-      o.taxon_name = Protonym.find_or_create_by(name:                'cadabra',
+      t_n          = Protonym.find_or_create_by(name:                'cadabra',
                                                 year_of_publication: 2017,
                                                 verbatim_author:     'Bill Ardson',
                                                 rank_class:          Ranks.lookup(:iczn, 'Species'),
                                                 parent:              parent)
+      o.taxon_name = t_n
       parent       = o.taxon_name
       o.taxon_name.taxon_name_authors << bill
       @co_m2.otus << o
@@ -314,20 +315,6 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 
     context 'combined search' do
 
-      specify 'geo_area, nomen (taxon name), author, verbatim author string' do
-        tn     = @co_m2.taxon_names.select { |t| t if t.name == 'cadabra' }.first
-        params = {}
-        params.merge!({author_ids: [bill.id, daryl.id], and_or_select: '_or_'})
-        params.merge!({verbatim_author_string: 'Ardson'})
-        params.merge!({geographic_area_ids: [bbxa.id]})
-        params.merge!({nomen_id: top_dog.taxon_name_id, descendants: '_on_'})
-        # params.merge!({nomen_id: tn.id, descendants: 'off'})
-
-
-        result = Queries::OtuFilterQuery.new(params).result
-        expect(result.first).to eq(tn.otus.first)
-      end
-
       specify 'returning none' do
         ot = @co_p4.taxon_names.last
         # tn        = ot.taxon_name
@@ -339,7 +326,26 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
         result = Queries::OtuFilterQuery.new(params).result
         expect(result.count).to eq(0)
       end
+
+      specify 'geo_area, nomen (taxon name), author, verbatim author string' do
+        tn     = @co_m2.taxon_names.select { |t| t if t.name == 'cadabra' }.first
+        params = {}
+        params.merge!({author_ids: [bill.id, daryl.id], and_or_select: '_or_'})
+        params.merge!({verbatim_author_string: 'Bill A'})
+        params.merge!({geographic_area_ids: [bbxa.id]})
+        params.merge!({nomen_id: top_dog.taxon_name_id, descendants: '_on_'})
+
+
+        result = Queries::OtuFilterQuery.new(params).result
+        expect(result).to contain_exactly(tn.otus.first)
+      end
     end
+  end
+
+  def simple_world
+    gat_parish    = GeographicAreaType.find_or_create_by(name: 'Parish')
+    gat_land_mass = GeographicAreaType.find_or_create_by(name: 'Land Mass')
+
   end
 end
 
