@@ -17,8 +17,7 @@ describe Project, type: :model do
                          name:                  'Bob'
       )
       project1 = Project.create(name: 'TEST')
-      project2 = Project.create(name: 'TEST')
-      expect(project2.id.nil?).to be_falsey
+      expect(project1.id.nil?).to be_falsey
     end
 
   end
