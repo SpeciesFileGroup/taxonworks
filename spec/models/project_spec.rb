@@ -8,6 +8,21 @@ describe Project, type: :model do
     Rails.application.eager_load!
   }
 
+
+  context 'new project' do
+    specify 'create' do
+      user = User.create(password:              'password',
+                         password_confirmation: 'password',
+                         email:                 'user_model@example.com',
+                         name:                  'Bob'
+      )
+      project1 = Project.create(name: 'TEST')
+      project2 = Project.create(name: 'TEST')
+      expect(project2.id.nil?).to be_falsey
+    end
+
+  end
+
   context 'test setup audit' do
     specify 'one project with id 1 exists from model setup' do
       expect(Project.count).to eq(1)
