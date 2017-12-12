@@ -443,6 +443,8 @@ namespace :tw do
                 name: "#{website_name}_species_file(#{Time.now})",
             )
 
+            byebug
+            
             if project.save
 
               get_tw_project_id[file_id] = project.id.to_s
