@@ -428,6 +428,7 @@ namespace :tw do
 
           # create mb as project member for each project -- comment out for Sandbox
           user = User.find_by_email('mbeckman@illinois.edu')
+          $user_id = user.id
 
           path = @args[:data_directory] + 'tblFiles.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -442,6 +443,8 @@ namespace :tw do
                 name: "#{website_name}_species_file(#{Time.now})",
             )
 
+            byebug
+            
             if project.save
 
               get_tw_project_id[file_id] = project.id.to_s

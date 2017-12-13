@@ -9,7 +9,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpellin
   end
 
   def object_status
-    'justified emendation'
+    'correct spelling'
   end
 
   def subject_status
