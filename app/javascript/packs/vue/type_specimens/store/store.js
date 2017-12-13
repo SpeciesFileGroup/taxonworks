@@ -14,6 +14,7 @@ function makeInitialState() {
       saving: false
     },
     type_material: {
+      id: undefined,
       protonym_id: undefined,
       biological_object_id: undefined,
       type_type: undefined,

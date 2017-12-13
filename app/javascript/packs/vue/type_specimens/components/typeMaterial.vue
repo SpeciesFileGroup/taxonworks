@@ -46,6 +46,9 @@
 
 <script>
 
+  import { GetterNames } from '../store/getters/getters';
+  import { MutationNames } from '../store/mutations/mutations';
+
   import rolePicker from '../../components/role_picker.vue';
   import autocomplete from '../../components/autocomplete.vue';
   import expand from './expand.vue';
@@ -62,7 +65,7 @@
           return [];
         },
         set(value) {
-          this.roles_attribute = value;
+          this.$store.commit(MutationNames.SetRoles, value);
         }
       }
     },
