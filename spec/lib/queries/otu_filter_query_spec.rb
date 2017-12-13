@@ -12,28 +12,28 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     Namespace.destroy_all
   end
 
-  context 'with properly built collection of objects' do
+  xcontext 'with properly built collection of objects' do
     # need some people
-    let!(:sargon) {Person.find_or_create_by(first_name: 'of Akkad', last_name: 'Sargon')}
-    let!(:andy) {Person.find_or_create_by(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author')}
-    let!(:daryl) {Person.find_or_create_by(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon')}
-    let!(:ted) {FactoryBot.create(:valid_person, last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC')}
-    let!(:bill) {Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson')}
+    let!(:sargon) { Person.find_or_create_by(first_name: 'of Akkad', last_name: 'Sargon') }
+    let!(:andy) { Person.find_or_create_by(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author') }
+    let!(:daryl) { Person.find_or_create_by(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon') }
+    let!(:ted) { FactoryBot.create(:valid_person, last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC') }
+    let!(:bill) { Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson') }
 
     #need an apex
     let!(:top_dog) {
       FactoryBot.create(:valid_otu, name: 'Top Dog', taxon_name:
-          FactoryBot.create(:valid_taxon_name,
-                            rank_class: Ranks.lookup(:iczn, 'Family'),
-                            name: 'Topdogidae')
+                                          FactoryBot.create(:valid_taxon_name,
+                                                            rank_class: Ranks.lookup(:iczn, 'Family'),
+                                                            name:       'Topdogidae')
       )
     }
 
     let!(:nuther_dog) {
       FactoryBot.create(:valid_otu, name: 'Another Dog', taxon_name:
-          FactoryBot.create(:valid_taxon_name,
-                            rank_class: Ranks.lookup(:iczn, 'Family'),
-                            name: 'Nutherdogidae')
+                                          FactoryBot.create(:valid_taxon_name,
+                                                            rank_class: Ranks.lookup(:iczn, 'Family'),
+                                                            name:       'Nutherdogidae')
       )
     }
 
@@ -41,10 +41,10 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       FactoryBot.create(:valid_otu, name: 'Top Dog (by Bill)', taxon_name: top_dog.taxon_name)
     }
 
-    let(:abra) {Otu.where(name: 'Abra').first}
-    let(:cadabra) {Otu.where(name: 'Abra cadabra').first}
-    let(:alakazam) {Otu.where(name: 'Abra cadabra alakazam').first}
-    let(:spooler) {Otu.where('name like \'%spooler%\'').first}
+    let(:abra) { Otu.where(name: 'Abra').first }
+    let(:cadabra) { Otu.where(name: 'Abra cadabra').first }
+    let(:alakazam) { Otu.where(name: 'Abra cadabra alakazam').first }
+    let(:spooler) { Otu.where('name like \'%spooler%\'').first }
 
     # need some otus
     let!(:co_m1a_o) {
@@ -81,23 +81,23 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       o.taxon_name.taxon_name_authors << ted
       @co_m2.otus << o
 
-      o = Otu.where('name like \'%(by Bill)%\'').first # this is o2
+      o            = Otu.where('name like \'%(by Bill)%\'').first # this is o2
       o.taxon_name = top_dog.taxon_name
       @co_m2.otus << o
 
-      o = FactoryBot.create(:valid_otu, name: 'Abra')
-      o.taxon_name = Protonym.find_or_create_by(name: 'Abra',
+      o            = FactoryBot.create(:valid_otu, name: 'Abra')
+      o.taxon_name = Protonym.find_or_create_by(name:       'Abra',
                                                 rank_class: Ranks.lookup(:iczn, 'Genus'),
-                                                parent: top_dog.taxon_name)
-      parent = o.taxon_name
+                                                parent:     top_dog.taxon_name)
+      parent       = o.taxon_name
       o.taxon_name.taxon_name_authors << ted
       @co_m2.otus << o
-      o = FactoryBot.create(:valid_otu, name: 'Abra cadabra')
-      t_n = Protonym.find_or_create_by(name: 'cadabra',
-                                       year_of_publication: 2017,
-                                       verbatim_author: 'Bill Ardson',
-                                       rank_class: Ranks.lookup(:iczn, 'Species'),
-                                       parent: parent)
+      o            = FactoryBot.create(:valid_otu, name: 'Abra cadabra')
+      t_n          = Protonym.find_or_create_by(name:                'cadabra',
+                                                year_of_publication: 2017,
+                                                verbatim_author:     'Bill Ardson',
+                                                rank_class:          Ranks.lookup(:iczn, 'Species'),
+                                                parent:              parent)
       o.taxon_name = t_n
       o.save!
       parent = o.taxon_name
@@ -105,12 +105,12 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       @co_m2.otus << o
       o = FactoryBot.create(:valid_otu, name: 'Abra cadabra alakazam')
       @co_m2.collecting_event.collectors << bill
-      o.taxon_name = Protonym.find_or_create_by(name: 'alakazam',
+      o.taxon_name = Protonym.find_or_create_by(name:       'alakazam',
                                                 rank_class: Ranks.lookup(:iczn, 'Subspecies'),
-                                                parent: parent)
+                                                parent:     parent)
       o.taxon_name.taxon_name_authors << ted
       @co_m2.otus << o
-      o.taxon_name}
+      o.taxon_name }
     let!(:co_n2_a_o) {
       o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'N2A')
       @co_n2_a.otus << o
@@ -161,10 +161,10 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       @co_p4.collecting_event.collectors << daryl
       o.taxon_name.update_column(:name, 'P4 antivitis')
       @co_p4.otus << o
-      o = FactoryBot.create(:valid_otu, name: 'Sargon\'s spooler')
-      o.taxon_name = Protonym.find_or_create_by(name: 'spooler',
+      o            = FactoryBot.create(:valid_otu, name: 'Sargon\'s spooler')
+      o.taxon_name = Protonym.find_or_create_by(name:       'spooler',
                                                 rank_class: Ranks.lookup(:iczn, 'Species'),
-                                                parent: abra.taxon_name)
+                                                parent:     abra.taxon_name)
       o.taxon_name.taxon_name_authors << sargon
       o.taxon_name.taxon_name_authors << daryl
       @co_p4.otus << o
@@ -179,21 +179,21 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       @co_v.otus << o
     }
 
-    let!(:gnlm) {GeographicArea.where(name: 'Great Northern Land Mass').first}
-    let!(:bbxa) {GeographicArea.where(name: 'Big Boxia').first}
-    let!(:m1) {GeographicArea.where(name: 'M1').first}
+    let!(:gnlm) { GeographicArea.where(name: 'Great Northern Land Mass').first }
+    let!(:bbxa) { GeographicArea.where(name: 'Big Boxia').first }
+    let!(:m1) { GeographicArea.where(name: 'M1').first }
 
-    let!(:otum1) {Otu.where(name: 'Find me, I\'m in M1!').first}
-    let!(:otum1a) {Otu.where(name: 'M1A').first}
-    let!(:otum2) {Otu.where(name: 'M2').first}
-    let!(:otup4) {Otu.where(name: 'P4').first}
+    let!(:otum1) { Otu.where(name: 'Find me, I\'m in M1!').first }
+    let!(:otum1a) { Otu.where(name: 'M1A').first }
+    let!(:otum2) { Otu.where(name: 'M2').first }
+    let!(:otup4) { Otu.where(name: 'P4').first }
 
-    let(:big_boxia_string) {'{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}}'}
-    let(:m1_string) {'{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [34, 28, 0], [34, 27, 0], [33, 27, 0], [33, 28, 0]]]}}'}
+    let(:big_boxia_string) { '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}}' }
+    let(:m1_string) { '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [34, 28, 0], [34, 27, 0], [33, 27, 0], [33, 28, 0]]]}}' }
 
     context 'area search' do
       context 'named area' do
-        let(:params) {{geographic_area_ids: [gnlm.id]}}
+        let(:params) { {geographic_area_ids: [gnlm.id]} }
 
         specify 'nomen count' do
           result = Queries::OtuFilterQuery.new(params).result
@@ -210,7 +210,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       context 'area shapes' do
 
         context 'area shape big boxia' do
-          let(:params) {{drawn_area_shape: big_boxia_string}}
+          let(:params) { {drawn_area_shape: big_boxia_string} }
 
           specify 'nomen count' do
             result = Queries::OtuFilterQuery.new(params).result
@@ -224,7 +224,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
         end
 
         context 'area shape m1' do
-          let(:params) {{drawn_area_shape: m1_string}}
+          let(:params) { {drawn_area_shape: m1_string} }
 
           specify 'nomen count' do
             result = Queries::OtuFilterQuery.new(params).result
@@ -244,13 +244,13 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       # TODO: need to build multiple otus with the same taxon_name
       specify 'with descendants' do
         params_with = {nomen_id: top_dog.taxon_name_id, descendants: '_on_'}
-        result = Queries::OtuFilterQuery.new(params_with).result
+        result      = Queries::OtuFilterQuery.new(params_with).result
         expect(result).to contain_exactly(spooler, top_dog, abra, by_bill, cadabra, alakazam)
       end
 
       specify 'without descendants' do
         params_without = {nomen_id: top_dog.taxon_name_id, descendants: '_off_'}
-        result = Queries::OtuFilterQuery.new(params_without).result
+        result         = Queries::OtuFilterQuery.new(params_without).result
         expect(result).to contain_exactly(top_dog, by_bill)
       end
 
@@ -306,7 +306,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 
     context 'author string search' do
       specify 'otus by author string' do
-        tn = @co_m2.taxon_names.select {|t| t if t.name == 'cadabra'}.first
+        tn     = @co_m2.taxon_names.select { |t| t if t.name == 'cadabra' }.first
         params = ({verbatim_author_string: 'Ardson'})
 
         result = Queries::OtuFilterQuery.new(params).result
@@ -329,7 +329,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       end
 
       specify 'geo_area, nomen (taxon name), author, verbatim author string' do
-        tn = @co_m2.taxon_names.select {|t| t if t.name == 'cadabra'}.first
+        tn     = @co_m2.taxon_names.select { |t| t if t.name == 'cadabra' }.first
         params = {}
         params.merge!({author_ids: [bill.id, daryl.id], and_or_select: '_or_'})
         # params.merge!({verbatim_author_string: 'Bill A'})
@@ -347,7 +347,10 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     specify 'combined test' do
       simple_world
 
-      tn = @co_b.taxon_names.select {|t| t if t.name == 'cadabra'}.first
+      daryl  = Person.find_or_create_by(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon')
+      bill   = Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson')
+
+      tn     = @co_a.taxon_names.select { |t| t if t.name == 'cadabra' }.first
       params = {}
       params.merge!({author_ids: [bill.id, daryl.id], and_or_select: '_or_'})
       params.merge!({verbatim_author_string: 'Bill A'})
@@ -361,13 +364,13 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
   end
 
   def simple_world
-    gat_parish = GeographicAreaType.find_or_create_by(name: 'Parish')
+    gat_parish    = GeographicAreaType.find_or_create_by(name: 'Parish')
     gat_land_mass = GeographicAreaType.find_or_create_by(name: 'Land Mass')
-    list_shape_a = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
-                                                  RSPEC_GEO_FACTORY.point(0, 10, 0.0),
-                                                  RSPEC_GEO_FACTORY.point(10, 10, 0.0),
-                                                  RSPEC_GEO_FACTORY.point(10, 0, 0.0),
-                                                  RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
+    list_shape_a  = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
+                                                   RSPEC_GEO_FACTORY.point(0, 10, 0.0),
+                                                   RSPEC_GEO_FACTORY.point(10, 10, 0.0),
+                                                   RSPEC_GEO_FACTORY.point(10, 0, 0.0),
+                                                   RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
 
     list_shape_b = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
                                                   RSPEC_GEO_FACTORY.point(0, -10, 0.0),
@@ -385,113 +388,135 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     shape_b = RSPEC_GEO_FACTORY.polygon(list_shape_b)
     shape_e = RSPEC_GEO_FACTORY.polygon(list_shape_e)
 
-    item_a = FactoryBot.create(:geographic_item, multi_polygon: [shape_a])
-    item_b = FactoryBot.create(:geographic_item, multi_polygon: [shape_b])
-    item_e = FactoryBot.create(:geographic_item, multi_polygon: [shape_e])
+    item_a = FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_a]))
+    item_b = FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_b]))
+    item_e = FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_e]))
 
     earth = FactoryBot.create(:earth_geographic_area)
 
     area_e = FactoryBot.create(:level0_geographic_area,
-                               name: 'E',
+                               name:                 'E',
                                geographic_area_type: gat_land_mass,
-                               iso_3166_a3: nil,
-                               iso_3166_a2: nil,
-                               parent: earth)
+                               iso_3166_a3:          nil,
+                               iso_3166_a2:          nil,
+                               parent:               earth)
     area_e.geographic_items << item_e
     area_e.save
 
     @area_a = FactoryBot.create(:level1_geographic_area,
-                                name: 'A',
+                                name:                 'A',
                                 geographic_area_type: gat_parish,
-                                iso_3166_a3: nil,
-                                iso_3166_a2: nil,
-                                parent: area_e)
+                                iso_3166_a3:          nil,
+                                iso_3166_a2:          nil,
+                                parent:               area_e)
     @area_a.geographic_items << item_a
     @area_a.save
 
     area_b = FactoryBot.create(:level1_geographic_area,
-                               name: 'B',
+                               name:                 'B',
                                geographic_area_type: gat_parish,
-                               iso_3166_a3: nil,
-                               iso_3166_a2: nil,
-                               parent: area_e)
+                               iso_3166_a3:          nil,
+                               iso_3166_a2:          nil,
+                               parent:               area_e)
     area_b.geographic_items << item_b
     area_b.save
 
     ce_a = FactoryBot.create(:collecting_event,
-                             start_date_year: 1971,
-                             start_date_month: 1,
-                             start_date_day: 1,
+                             start_date_year:   1971,
+                             start_date_month:  1,
+                             start_date_day:    1,
                              verbatim_locality: 'environs of A',
-                             verbatim_label: 'Eh?',
-                             geographic_area: area_a)
-    co_a = FactoryBot.create(:valid_collection_object, {collecting_event: ce_a})
+                             verbatim_label:    'Eh?',
+                             geographic_area:   @area_a)
+    @co_a = FactoryBot.create(:valid_collection_object, {collecting_event: ce_a})
 
-    ce_b = FactoryBot.create(:collecting_event,
-                             start_date_year: 1971,
-                             start_date_month: 1,
-                             start_date_day: 1,
-                             verbatim_locality: 'environs of B',
-                             verbatim_label: 'Bah',
-                             geographic_area: area_b)
+    @gr_a = FactoryBot.create(:georeference_verbatim_data,
+                               api_request:           'area_a',
+                               collecting_event:      ce_a,
+                               error_geographic_item: item_a,
+                               geographic_item:       GeographicItem.new(point: item_a.st_centroid))
+
+    ce_b  = FactoryBot.create(:collecting_event,
+                              start_date_year:   1971,
+                              start_date_month:  1,
+                              start_date_day:    1,
+                              verbatim_locality: 'environs of B',
+                              verbatim_label:    'Bah',
+                              geographic_area:   area_b)
     @co_b = FactoryBot.create(:valid_collection_object, {collecting_event: ce_b})
 
+    @gr_b = FactoryBot.create(:georeference_verbatim_data,
+                              api_request:           'area_b',
+                              collecting_event:      ce_b,
+                              error_geographic_item: item_b,
+                              geographic_item:       GeographicItem.new(point: item_b.st_centroid))
+
     sargon = Person.find_or_create_by(first_name: 'of Akkad', last_name: 'Sargon')
-    andy = Person.find_or_create_by(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author')
-    daryl = Person.find_or_create_by(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon')
-    ted = FactoryBot.create(:valid_person, last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC')
-    bill = Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson')
+    andy   = Person.find_or_create_by(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author')
+    daryl  = Person.find_or_create_by(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon')
+    ted    = FactoryBot.create(:valid_person, last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC')
+    bill   = Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson')
 
     @top_dog = FactoryBot.create(:valid_otu, name: 'Top Dog', taxon_name:
-        FactoryBot.create(:valid_taxon_name,
-                          rank_class: Ranks.lookup(:iczn, 'Family'),
-                          name: 'Topdogidae')
+                                                   FactoryBot.create(:valid_taxon_name,
+                                                                     rank_class: Ranks.lookup(:iczn, 'Family'),
+                                                                     name:       'Topdogidae')
     )
 
     nuther_dog = FactoryBot.create(:valid_otu, name: 'Another Dog', taxon_name:
-        FactoryBot.create(:valid_taxon_name,
-                          rank_class: Ranks.lookup(:iczn, 'Family'),
-                          name: 'Nutherdogidae')
+                                                     FactoryBot.create(:valid_taxon_name,
+                                                                       rank_class: Ranks.lookup(:iczn, 'Family'),
+                                                                       name:       'Nutherdogidae')
     )
+
+    tn_abra = Protonym.find_or_create_by(name:       'Abra',
+                                         rank_class: Ranks.lookup(:iczn, 'Genus'),
+                                         parent:     @top_dog.taxon_name)
+
+    tn_spooler = Protonym.find_or_create_by(name:       'spooler',
+                                            rank_class: Ranks.lookup(:iczn, 'Species'),
+                                            parent:     tn_abra)
+
+    tn_cadabra  = Protonym.find_or_create_by(name:                'cadabra',
+                                             year_of_publication: 2017,
+                                             verbatim_author:     'Bill Ardson',
+                                             rank_class:          Ranks.lookup(:iczn, 'Species'),
+                                             parent:              tn_abra)
+    tn_alakazam = Protonym.find_or_create_by(name:       'alakazam',
+                                             rank_class: Ranks.lookup(:iczn, 'Subspecies'),
+                                             parent:     tn_cadabra)
+
+    by_bill = FactoryBot.create(:valid_otu, name: 'Top Dog (by Bill)', taxon_name: @top_dog.taxon_name)
 
     o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'Otu_A')
     o.taxon_name.update_column(:name, 'antivitis')
-    co_a.otus << o
+    @co_a.otus << o
 
     o = @top_dog # this is o1
     o.taxon_name.taxon_name_authors << ted
-    co_a.otus << o
+    @co_a.otus << o
 
-    o = Otu.where('name like \'%(by Bill)%\'').first # this is o2
+    o            = by_bill
     o.taxon_name = @top_dog.taxon_name
-    co_a.otus << o
+    @co_a.otus << o
 
-    abra = Protonym.find_or_create_by(name: 'Abra',
-                                      rank_class: Ranks.lookup(:iczn, 'Genus'),
-                                      parent: @top_dog.taxon_name)
-    o = FactoryBot.create(:valid_otu, name: 'Abra')
-    o.taxon_name = abra
-    parent = o.taxon_name
+    o            = FactoryBot.create(:valid_otu, name: 'Abra')
+    o.taxon_name = tn_abra
     o.taxon_name.taxon_name_authors << ted
-    co_a.otus << o
-    o = FactoryBot.create(:valid_otu, name: 'Abra cadabra')
-    t_n = Protonym.find_or_create_by(name: 'cadabra',
-                                     year_of_publication: 2017,
-                                     verbatim_author: 'Bill Ardson',
-                                     rank_class: Ranks.lookup(:iczn, 'Species'),
-                                     parent: parent)
+    @co_a.otus << o
+    o   = FactoryBot.create(:valid_otu, name: 'Abra cadabra')
+    t_n = tn_cadabra
+
     o.taxon_name = t_n
     o.save!
-    parent = o.taxon_name
     o.taxon_name.taxon_name_authors << bill
-    co_a.otus << o
+    @co_a.otus << o
     o = FactoryBot.create(:valid_otu, name: 'Abra cadabra alakazam')
-    co_a.collecting_event.collectors << bill
-    o.taxon_name = Protonym.find_or_create_by(name: 'alakazam',
-                                              rank_class: Ranks.lookup(:iczn, 'Subspecies'),
-                                              parent: parent)
+    @co_a.collecting_event.collectors << bill
+    o.taxon_name = tn_alakazam
+
     o.taxon_name.taxon_name_authors << ted
-    co_a.otus << o
+    @co_a.otus << o
     o.taxon_name
 
     o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'P4')
@@ -499,10 +524,8 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     @co_b.collecting_event.collectors << daryl
     o.taxon_name.update_column(:name, 'beevitis')
     @co_b.otus << o
-    o = FactoryBot.create(:valid_otu, name: 'Sargon\'s spooler')
-    o.taxon_name = Protonym.find_or_create_by(name: 'spooler',
-                                              rank_class: Ranks.lookup(:iczn, 'Species'),
-                                              parent: abra.taxon_name)
+    o            = FactoryBot.create(:valid_otu, name: 'Sargon\'s spooler')
+    o.taxon_name = tn_spooler
     o.taxon_name.taxon_name_authors << sargon
     o.taxon_name.taxon_name_authors << daryl
     @co_b.otus << o
@@ -511,6 +534,11 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     o.taxon_name.taxon_name_authors << ted
     o.taxon_name.taxon_name_authors << sargon
     @co_b.otus << o
+
+    # abra     = Otu.where(name: 'Abra').first
+    # cadabra  = Otu.where(name: 'Abra cadabra').first
+    # alakazam = Otu.where(name: 'Abra cadabra alakazam').first
+    # spooler  = Otu.where('name like \'%spooler%\'').first
 
 
   end
