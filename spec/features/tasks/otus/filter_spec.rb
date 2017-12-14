@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'make_simple_world'
 
 describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
-  context 'with properly built collection of objects' do
+  xcontext 'with properly built collection of objects' do
     let(:page_title) {'Otus by area'}
     let(:index_path) {otus_filter_task_path}
 
@@ -258,7 +258,8 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
       end
     end
   end
-  xcontext 'using simple_world' do
+
+  context 'using simple_world' do
     let(:page_title) {'Otus by area'}
     let(:index_path) {otus_filter_task_path}
 
@@ -302,10 +303,9 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
         it 'renders count of otus in a specific names area' do
           visit(index_path)
           page.execute_script "$('#set_area')[0].scrollIntoView()"
-          fill_area_picker_autocomplete('area_picker_autocomplete', with: 'big', select: bbxa.id)
+          fill_area_picker_autocomplete('area_picker_autocomplete', with: 'A', select: area_a.id)
           click_button('Set area')
-          expect(find('#area_count')).to have_text('13')
-          # fill_otu_widget_autocomplete('#nomen_id_for_by_nomen', with: "P4", select: @co_p4.Taxon_names.first.id)
+          expect(find('#area_count')).to have_text('6')
         end
 
         it 'renders count of otus in a drawn area' do
@@ -313,7 +313,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           find('#label_toggle_slide_area').click
           execute_script("document.getElementById('drawn_area_shape').type = 'text'")
           this_xpath = find(:xpath, "//input[@id='drawn_area_shape']")
-          this_xpath.set json_string
+          this_xpath.set area_b.to_simple_json_feature
           click_button('Set area')
           expect(find('#area_count')).to have_text('13')
         end
