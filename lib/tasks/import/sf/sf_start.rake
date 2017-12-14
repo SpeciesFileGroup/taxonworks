@@ -428,7 +428,7 @@ namespace :tw do
 
           # create mb as project member for each project -- comment out for Sandbox
           user = User.find_by_email('mbeckman@illinois.edu')
-          $user_id = user.id
+          $user_id = user.id  # not sure if this is really needed?
 
           path = @args[:data_directory] + 'tblFiles.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -440,10 +440,10 @@ namespace :tw do
             website_name = row['WebsiteName'].downcase # want to be lower case
 
             project = Project.new(
-                name: "#{website_name}_species_file(#{Time.now})",
+                name: "#{website_name}_species_file(#{Time.now})"
             )
 
-            byebug
+            # byebug
             
             if project.save
 
