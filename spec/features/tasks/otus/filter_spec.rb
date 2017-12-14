@@ -1,9 +1,10 @@
 require 'rails_helper'
+require 'make_simple_world'
 
 describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
   context 'with properly built collection of objects' do
-    let(:page_title) { 'Otus by area' }
-    let(:index_path) { otus_filter_task_path }
+    let(:page_title) {'Otus by area'}
+    let(:index_path) {otus_filter_task_path}
 
     it_behaves_like 'a_login_required_and_project_selected_controller'
 
@@ -24,14 +25,14 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
         }
 
         # need some people
-        let(:ted) { FactoryBot.create(:valid_person, last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC') }
-        let(:bill) { Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson') }
+        let(:ted) {FactoryBot.create(:valid_person, last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC')}
+        let(:bill) {Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson')}
 
         #need an apex
-        let(:top_dog) { o = FactoryBot.create(:valid_otu, name: 'Top Dog')
-        o.taxon_name      = FactoryBot.create(:valid_taxon_name,
-                                              rank_class: Ranks.lookup(:iczn, 'Family'),
-                                              name:       'Topdogidae')
+        let(:top_dog) {o = FactoryBot.create(:valid_otu, name: 'Top Dog')
+        o.taxon_name = FactoryBot.create(:valid_taxon_name,
+                                         rank_class: Ranks.lookup(:iczn, 'Family'),
+                                         name: 'Topdogidae')
         o
         }
 
@@ -66,17 +67,17 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           o = top_dog
           o.taxon_name.taxon_name_authors << ted
           @co_m2.otus << o
-          o            = FactoryBot.create(:valid_otu, name: 'Abra')
-          o.taxon_name = Protonym.find_or_create_by(name:       'Abra',
+          o = FactoryBot.create(:valid_otu, name: 'Abra')
+          o.taxon_name = Protonym.find_or_create_by(name: 'Abra',
                                                     rank_class: Ranks.lookup(:iczn, 'Genus'),
-                                                    parent:     top_dog.taxon_name)
+                                                    parent: top_dog.taxon_name)
           parent = o.taxon_name
           o.taxon_name.taxon_name_authors << ted
           @co_m2.otus << o
-          o            = FactoryBot.create(:valid_otu, name: 'Abra cadabra')
-          o.taxon_name = Protonym.find_or_create_by(name:       'cadabra',
+          o = FactoryBot.create(:valid_otu, name: 'Abra cadabra')
+          o.taxon_name = Protonym.find_or_create_by(name: 'cadabra',
                                                     rank_class: Ranks.lookup(:iczn, 'Species'),
-                                                    parent:     parent)
+                                                    parent: parent)
           parent = o.taxon_name
           o.taxon_name.taxon_name_authors << ted
           @co_m2.otus << o
@@ -84,10 +85,10 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           @co_m2.collecting_event.collectors << bill
           o.taxon_name = Protonym.find_or_create_by(name: 'alakazam',
                                                     rank_class: Ranks.lookup(:iczn, 'Subspecies'),
-                                                    parent:     parent)
+                                                    parent: parent)
           o.taxon_name.taxon_name_authors << ted
           @co_m2.otus << o
-          o.taxon_name }
+          o.taxon_name}
         let!(:co_n2_a_o) {
           o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'N2A')
           @co_n2_a.otus << o
@@ -142,12 +143,12 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           @co_v.otus << o
         }
 
-        let!(:gnlm) { GeographicArea.where(name: 'Great Northern Land Mass').first }
-        let!(:bbxa) { GeographicArea.where(name: 'Big Boxia').first }
+        let!(:gnlm) {GeographicArea.where(name: 'Great Northern Land Mass').first}
+        let!(:bbxa) {GeographicArea.where(name: 'Big Boxia').first}
 
-        let!(:otum1) { Otu.where(name: 'Find me, I\'m in M1!').first }
+        let!(:otum1) {Otu.where(name: 'Find me, I\'m in M1!').first}
 
-        let(:json_string) { '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}}' }
+        let(:json_string) {'{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}}'}
 
         describe '#set_area', js: true do #
           it 'renders count of otus in a specific names area' do
@@ -253,6 +254,68 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
             find('#paging_data', visible: true, text: 'Displaying no otus')
             expect(find(:xpath, "//div['show_list']/table[@class='tablesorter']/thead")).to have_text('Taxon name')
           end
+        end
+      end
+    end
+  end
+  xcontext 'using simple_world' do
+    let(:page_title) {'Otus by area'}
+    let(:index_path) {otus_filter_task_path}
+
+    it_behaves_like 'a_login_required_and_project_selected_controller'
+
+    context 'signed in as a user' do
+      before {
+        sign_in_user_and_select_project
+        simple_world(@user.id, @project.id)
+      }
+
+      # need some people
+      let(:sargon) {Person.find_or_create_by(first_name: 'of Akkad', last_name: 'Sargon')}
+      let(:andy) {Person.find_or_create_by(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author')}
+      let(:daryl) {Person.find_or_create_by(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon')}
+      let(:ted) {Person.find_or_create_by(last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC')}
+      let(:bill) {Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson')}
+
+      # need some otus
+      let(:top_dog) {Otu.where(name: 'Top Dog').first}
+      let(:nuther_dog) {Otu.where(name: 'Another Dog').first}
+      let(:spooler) {Otu.where('name like ?', '%spooler%').first}
+      let(:p4) {Otu.where(name: 'P4').first}
+      let(:by_bill) {Otu.where('name like ?', '%by Bill%').first}
+      let(:otu_a) {Otu.where(name: 'Otu_A').first}
+      let(:abra) {Otu.where(name: 'Abra').first}
+      let(:cadabra) {Otu.where('name like ?', '%cadabra%').first}
+      let(:alakazam) {Otu.where('name like ?', '%alakazam%').first}
+
+      # need some areas
+      let(:area_a) {GeographicArea.where(name: 'A').first}
+      let(:area_b) {GeographicArea.where(name: 'B').first}
+
+      # need some collection objects
+      let(:co_a) {
+        object = CollectingEvent.where(verbatim_label: 'Eh?').first
+        object.collection_objects.first
+      }
+
+      describe '#set_area', js: true do #
+        it 'renders count of otus in a specific names area' do
+          visit(index_path)
+          page.execute_script "$('#set_area')[0].scrollIntoView()"
+          fill_area_picker_autocomplete('area_picker_autocomplete', with: 'big', select: bbxa.id)
+          click_button('Set area')
+          expect(find('#area_count')).to have_text('13')
+          # fill_otu_widget_autocomplete('#nomen_id_for_by_nomen', with: "P4", select: @co_p4.Taxon_names.first.id)
+        end
+
+        it 'renders count of otus in a drawn area' do
+          visit(index_path)
+          find('#label_toggle_slide_area').click
+          execute_script("document.getElementById('drawn_area_shape').type = 'text'")
+          this_xpath = find(:xpath, "//input[@id='drawn_area_shape']")
+          this_xpath.set json_string
+          click_button('Set area')
+          expect(find('#area_count')).to have_text('13')
         end
       end
     end

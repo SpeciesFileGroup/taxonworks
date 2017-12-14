@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'make_simple_world'
 
 describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_objects, :otus] do
 
@@ -142,8 +143,9 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       end
     end
   end
+end
 
-  def simple_world
+def simple_world_x
     gat_parish    = GeographicAreaType.find_or_create_by(name: 'Parish')
     gat_land_mass = GeographicAreaType.find_or_create_by(name: 'Land Mass')
     list_shape_a  = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
@@ -316,4 +318,4 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     @co_b.otus << o
 
   end
-end
+
