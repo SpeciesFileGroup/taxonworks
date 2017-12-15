@@ -9,7 +9,7 @@
             placeholder="Enter Gene name"
             @getItem="loadGene">
         </autocomplete>
-        <paged-table-header :maxItems="list.length" :perPage="itemsPerPage" @newPage="newPage"></paged-table-header>
+        <paged-table-header title="Displaying sequences" :maxItems="list.length" :perPage="itemsPerPage" @newPage="newPage"></paged-table-header>
         <table-list :list="slicedList" :header="header" :attributes="attributes" :edit="true" :destroy="false" @edit="editSequence">
         </table-list> 
     </div>
