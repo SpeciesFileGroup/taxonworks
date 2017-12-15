@@ -292,6 +292,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
       # need some areas
       let(:area_a) {GeographicArea.where(name: 'A').first}
       let(:area_b) {GeographicArea.where(name: 'B').first}
+      let(:area_e) {GeographicArea.where(name: 'E').first}
 
       # need some collection objects
       let(:co_a) {
@@ -308,12 +309,28 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           expect(find('#area_count')).to have_text('6')
         end
 
+        it 'renders count of otus in a specific names area' do
+          visit(index_path)
+          page.execute_script "$('#set_area')[0].scrollIntoView()"
+          fill_area_picker_autocomplete('area_picker_autocomplete', with: 'B', select: area_b.id)
+          click_button('Set area')
+          expect(find('#area_count')).to have_text('3')
+        end
+
+        it 'renders count of otus in a specific names area' do
+          visit(index_path)
+          page.execute_script "$('#set_area')[0].scrollIntoView()"
+          fill_area_picker_autocomplete('area_picker_autocomplete', with: 'E', select: area_e.id)
+          click_button('Set area')
+          expect(find('#area_count')).to have_text('9')
+        end
+
         it 'renders count of otus in a drawn area' do
           visit(index_path)
           find('#label_toggle_slide_area').click
           execute_script("document.getElementById('drawn_area_shape').type = 'text'")
           this_xpath = find(:xpath, "//input[@id='drawn_area_shape']")
-          this_xpath.set area_b.to_simple_json_feature
+          this_xpath.set area_e.to_simple_json_feature
           click_button('Set area')
           expect(find('#area_count')).to have_text('13')
         end
