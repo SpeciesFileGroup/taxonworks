@@ -17,7 +17,7 @@ function makeInitialState() {
       id: undefined,
       protonym_id: undefined,
       biological_object_id: undefined,
-      type_type: undefined,
+      type_type: 'holotype',
       roles_attributes: [],
       origin_citation_attributes: undefined,
     },
