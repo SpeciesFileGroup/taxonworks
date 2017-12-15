@@ -1,10 +1,12 @@
-<<template>
+<template>
     <div id="browse_sequences">
-        <autocomplete 
+        <autocomplete
+            id="gene_autocomplete"
             url="/descriptors/autocomplete" 
             param="term" 
             min="1" 
             label="label"
+            placeholder="Enter Gene name"
             @getItem="loadGene">
         </autocomplete>
         <paged-table-header :maxItems="list.length" :perPage="itemsPerPage" @newPage="newPage"></paged-table-header>
@@ -13,7 +15,7 @@
     </div>
 </template>
 
-<<script>
+<script>
     import tableList from "../../components/table_list.vue";
     import autocomplete from "../../components/autocomplete.vue";
     import pagedTableHeader from "./components/pagedTableHeader.vue";
@@ -59,3 +61,9 @@
         }
     }
 </script>
+
+<style scoped>
+    #gene_autocomplete {
+        margin-bottom: 5px;
+    }
+</style>
