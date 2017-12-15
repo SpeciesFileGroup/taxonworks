@@ -9,27 +9,29 @@
             placeholder="Enter Gene name"
             @getItem="loadGene">
         </autocomplete>
-        <paged-table-header title="Displaying sequences" :maxItems="list.length" :perPage="itemsPerPage" @newPage="newPage"></paged-table-header>
-        <table-list :list="slicedList" :header="header" :attributes="attributes" :edit="true" :destroy="false" @edit="editSequence">
-        </table-list> 
+        <paged-table
+            title="Displaying sequences"
+            :list="list"
+            :header="header"
+            :attributes="attributes"
+            :edit="true"
+            :destroy="false"
+            @edit="editSequence">
+        </paged-table>
     </div>
 </template>
 
 <script>
-    import tableList from "../../components/table_list.vue";
     import autocomplete from "../../components/autocomplete.vue";
-    import pagedTableHeader from "./components/pagedTableHeader.vue";
+    import pagedTable from "./components/pagedTable.vue";
 
     export default {
         components: {
-            tableList,
             autocomplete,
-            pagedTableHeader
+            pagedTable
         },
         data: function() {
             return {
-                itemsPerPage: 25,
-                currentPage: 1,
                 list: [],
                 header: [
                     "Name"
@@ -47,16 +49,6 @@
             },
             editSequence: (sequence) => {
                 window.location.href = "/sequences/" + sequence.id;
-            },
-            newPage: function(newPage) {
-                this.currentPage = newPage;
-            }
-        },
-        computed: {
-            slicedList: function() {
-                const begIndex = this.itemsPerPage * (this.currentPage - 1);
-
-                return this.list.slice(begIndex, begIndex + this.itemsPerPage);
             }
         }
     }

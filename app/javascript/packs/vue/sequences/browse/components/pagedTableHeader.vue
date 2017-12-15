@@ -1,48 +1,46 @@
 <template>
-	<div>
-        <div class="panel column-big separate-right" data-help="Use the left and right buttoms to hide or show columns groups">
-            <div class="title nav-line ">
-                <span>{{ title }}<b> {{ getBegItemCount() }}&nbsp;-&nbsp;{{ getEndItemCount() }}</b> of <b>{{ this.maxItems }}</b></span>
-            </div>      
-            <div class="navigation-controls"> 
-                <div class="navigation-bar-left">
-                    <div class="page-navigator">
-                        <span>
-                            <a v-if="currentPage > 1" href="#" @click.prevent="prevPage">
-                                ‹ Back
-                            </a>
-                            <template v-else>
-                                ‹ Back
-                            </template>
-                        </span>
-                        <span>
-                            <a v-if="currentPage < totalPages" href="#" @click.prevent="nextPage">
-                                Next ›
-                            </a>
-                            <template v-else>
-                                Next ›
-                            </template>
-                        </span> 
-                    </div>
-                    <nav class="pagination" role="navigation" aria-label="pager">
-                        <span v-if="begPage > 1" class="page gap">...</span>
-                        <span v-for="i in range(begPage, endPage + 1)" :key="i" class="page" :class="{ current: i === currentPage }">
-                            <template v-if="i === currentPage">
-                                {{ i }}
-                            </template>
-                            <a v-else href="#" @click.prevent="selectPage(i)">{{ i }}</a>
-                        </span>
-                        <span v-if="endPage < totalPages" class="page gap">...</span>
-                        <span v-if="currentPage > 1" class="first">
-                            <a href="#" @click.prevent="selectPage(1)">« First</a>
-                        </span>
-                        <span v-if="currentPage < totalPages" class="last">
-                            <a href="#" @click.prevent="selectPage(totalPages)">Last »</a>
-                        </span>
-                    </nav>
+    <div class="panel column-big separate-right" data-help="Use the left and right buttoms to hide or show columns groups">
+        <div class="title nav-line ">
+            <span>{{ title }}<b> {{ getBegItemCount() }}&nbsp;-&nbsp;{{ getEndItemCount() }}</b> of <b>{{ this.maxItems }}</b></span>
+        </div>      
+        <div class="navigation-controls"> 
+            <div class="navigation-bar-left">
+                <div class="page-navigator">
+                    <span>
+                        <a v-if="currentPage > 1" href="#" @click.prevent="prevPage">
+                            ‹ Back
+                        </a>
+                        <template v-else>
+                            ‹ Back
+                        </template>
+                    </span>
+                    <span>
+                        <a v-if="currentPage < totalPages" href="#" @click.prevent="nextPage">
+                            Next ›
+                        </a>
+                        <template v-else>
+                            Next ›
+                        </template>
+                    </span> 
                 </div>
-            </div>       
-        </div>
+                <nav class="pagination" role="navigation" aria-label="pager">
+                    <span v-if="begPage > 1" class="page gap">...</span>
+                    <span v-for="i in range(begPage, endPage + 1)" :key="i" class="page" :class="{ current: i === currentPage }">
+                        <template v-if="i === currentPage">
+                            {{ i }}
+                        </template>
+                        <a v-else href="#" @click.prevent="selectPage(i)">{{ i }}</a>
+                    </span>
+                    <span v-if="endPage < totalPages" class="page gap">...</span>
+                    <span v-if="currentPage > 1" class="first">
+                        <a href="#" @click.prevent="selectPage(1)">« First</a>
+                    </span>
+                    <span v-if="currentPage < totalPages" class="last">
+                        <a href="#" @click.prevent="selectPage(totalPages)">Last »</a>
+                    </span>
+                </nav>
+            </div>
+        </div>       
     </div>
 </template>
 
@@ -59,7 +57,7 @@
             },
             perPage: {
                 type: Number,
-                default: 1
+                default: 25
             },
             pagesDisplayed: {
                 type: Number,

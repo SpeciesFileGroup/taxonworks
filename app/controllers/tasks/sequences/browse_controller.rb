@@ -7,15 +7,11 @@ class Tasks::Sequences::BrowseController < ApplicationController
 
   # POST
   def sequences
-    sequences = []
     gene_id = params[:gene_id]
     gene = Descriptor.find_by(id: gene_id)
-
-    if gene
-      sequences = gene.sequences
-      puts gene
-    end
-
+    sequences = []
+    sequences = gene.sequences if gene
+    
     render :json => sequences
   end
 end
