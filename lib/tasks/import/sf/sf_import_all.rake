@@ -33,7 +33,7 @@ namespace :tw do
           # 'taxa:create_status_flag_relationships',
 
           # cites section took
-          # 'cites:import_nomenclator_strings',
+          'cites:import_nomenclator_strings',
           'cites:create_cvts_for_citations',
           'cites:create_sf_taxon_name_authors',
           'cites:create_citations',
@@ -52,7 +52,7 @@ namespace :tw do
           # 'specimens:create_sf_loc_col_events_metadata',
           # 'specimens:collection_objects'
       ] do
-        puts 'Ran start tasks!'
+        puts 'Ran cites tasks!'
       end
     end
   end
