@@ -25,6 +25,7 @@
 						</span>
 					</div>
 					<span class="handle" data-icon="scroll-v"></span>
+					<radialAnnotator :globalId="GetOriginal(rankGroup[index].name).global_id"></radialAnnotator>
 					<span class="circle-button btn-delete" @click="removeCombination(GetOriginal(rankGroup[index].name))"></span>
 				</div>
 			</draggable>
@@ -38,9 +39,11 @@
 	const MutationNames = require('../store/mutations/mutations').MutationNames; 
 	const ActionNames = require('../store/actions/actions').ActionNames;  
 	const autocomplete = require('../../../components/autocomplete.vue').default;
+	const radialAnnotator = require('../../../components/annotator/annotator.vue').default;
 
 	export default {
 		components: {
+			radialAnnotator,
 			autocomplete,
 			draggable,
 		},

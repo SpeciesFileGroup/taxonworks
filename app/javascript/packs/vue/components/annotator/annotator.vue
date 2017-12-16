@@ -2,7 +2,7 @@
 	<div>
 	<div class="radial-annotator">
 		<modal v-if="display" @close="closeModal()">
-			<h3 slot="header" v-html="title"></h3>
+			<h3 slot="header"><span v-html="title"></span></h3>
 			<div slot="body" class="flex-separate">
 				<spinner v-if="!menuCreated"></spinner>
 				<div class="radial-annotator-menu">
