@@ -6,7 +6,8 @@
             :perPage="perPage"
             :pagesDisplayed="pagesDisplayed"
             :title="title"
-            @newPage="newPage">
+            @newPage="newPage"
+            @showAll="showAll">
         </paged-table-header>
         <table-list
             :list="pagedList"
@@ -27,7 +28,8 @@
     export default {
         data: function() {
             return {
-                currentPage: this.initialPage
+                currentPage: this.initialPage,
+                paginating: true
             }
         },
         props: {
@@ -79,6 +81,10 @@
         methods: {
             newPage: function(newPage) {
                 this.currentPage = newPage;
+                this.paginating = true;
+            },
+            showAll: function() {
+                this.paginating = false;
             },
             deleteCallback: function(item) {
                 this.$emit("delete", item);
@@ -89,8 +95,13 @@
         },
         computed: {
             pagedList: function() {
-                const begIndex = this.perPage * (this.currentPage - 1);
-                return this.list.slice(begIndex, begIndex + this.perPage);
+                if(this.paginating) {
+                    const begIndex = this.perPage * (this.currentPage - 1);
+                    return this.list.slice(begIndex, begIndex + this.perPage);
+                }
+
+                else
+                    return this.list;
             }
         }
     }
