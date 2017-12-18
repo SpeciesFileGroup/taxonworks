@@ -82,15 +82,10 @@
 		justify-content: space-between;
 		transition: all 0.5s, opacity 0.2s;
 	}
-	.list-complete-enter, .list-complete-leave-to
+	.list-complete-enter-active, .list-complete-leave-active
 	{
 		opacity: 0;
 		font-size: 0px;
 		border:none;
-		transform: scale(0.0);
-	}
-	.list-complete-leave-active {
-		width: 100%;
-		position: absolute;
 	}
 </style>
