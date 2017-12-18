@@ -293,6 +293,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
       let(:area_a) {GeographicArea.where(name: 'A').first}
       let(:area_b) {GeographicArea.where(name: 'B').first}
       let(:area_e) {GeographicArea.where(name: 'E').first}
+      let(:json_string) {'{"type":"Feature", "properties":{}, "geometry":{"type":"MultiPolygon", "coordinates":[[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}'}
 
       # need some collection objects
       let(:co_a) {
@@ -330,12 +331,14 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           find('#label_toggle_slide_area').click
           execute_script("document.getElementById('drawn_area_shape').type = 'text'")
           this_xpath = find(:xpath, "//input[@id='drawn_area_shape']")
-          this_xpath.set area_e.to_simple_json_feature
+          this_xpath.set json_string
           click_button('Set area')
-          expect(find('#area_count')).to have_text('13')
+          expect(find('#area_count')).to have_text('9')
         end
       end
     end
   end
 end
 
+{"type": "Feature", "geometry": {"type": "MultiPolygon", "coordinates": [[[[-6.328125, 9.587748624723625], [-8.4375, -9.3103191368792], [8.4375, -10.003476342072352], [14.0625, 11.660842102542187], [-6.328125, 9.587748624723625]]]]}, "properties": {}}
+{"type": "Feature", "properties": {}, "geometry": {"type": "MultiPolygon", "coordinates": [[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}

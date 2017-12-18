@@ -59,16 +59,6 @@ module Queries
       query_descendants == '_on_'
     end
 
-    # All scopes might end up in Otu directly
-
-    # @return [Scope]
-    # def otu_scope
-    #   # Challenge: Refactor to use a join pattern instead of SELECT IN
-    #   innerscope = with_descendants? ? Otu.self_and_descendants_of(query_nomen_id) : Otu.where(id: query_nomen_id)
-    #   # Otu.where(id: innerscope)
-    #   innerscope
-    # end
-
 =begin
       1. find all geographic_items in area(s)/shape
       2. find all georeferences which are associated with result #1
@@ -89,44 +79,24 @@ module Queries
             default_geographic_item.id
         )
       end
-      # r4 = CollectionObject.joins(:geographic_items)
-      #        .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
       r42i = CollectionObject.joins(:geographic_items)
                .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
                .distinct
-               .pluck(:id) # < - bad
-      # get the Otus associated with r4
-      # r5i = r4.map(&:otus).flatten.pluck(:id).uniq
-      # r5o = Otu.where(id: r5i)
-      r5o2 = Otu.joins(:collection_objects).where('biological_collection_object_id in (?)', r42i)
-      # r5o
-      r5o2
+      Otu.joins(:collection_objects).where(collection_objects: {id: r42i})
     end
 
     # @return [Scope]
     def shape_scope
-      # r4   = GeographicItem.gather_map_data(query_shape, 'CollectionObject')
       r42i = GeographicItem.gather_map_data(query_shape, 'CollectionObject')
                .distinct
-               .pluck(:id)
-      # get the Otus associated with r4
-      # r5i = r4.map(&:otus).flatten.pluck(:id).uniq
-      # r5o = Otu.where(id: r5i)
-      r5o2 = Otu.joins(:collection_objects).where('biological_collection_object_id in (?)', r42i)
-      # r5o
-      r5o2
+      Otu.joins(:collection_objects).where(collection_objects: {id: r42i})
     end
 
     # @return [Scope]
     def nomen_scope
       a = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
       if with_descendants?
-        b = Otu.self_and_descendants_of(a.first.id)
-        # b = Otu.none
-        # a.each { |o|
-        #   b += Otu.self_and_descendants_of(o.id)
-        # }
-        b
+        Otu.self_and_descendants_of(a.first.id)
       else
         a
       end
