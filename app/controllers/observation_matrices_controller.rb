@@ -97,6 +97,10 @@ class ObservationMatricesController < ApplicationController
     @otu = Otu.find(params[:otu_id])
   end
 
+  def matrix
+    @observation_matrix = ObservationMatrix.find(params[:id])
+  end
+
   private
 
   def set_matrix

@@ -9,7 +9,7 @@ class ObservationMatrixRowItem < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
 
-  acts_as_list
+  acts_as_list scope: [:observation_matrix_id]
 
   ALL_STI_ATTRIBUTES = [:otu_id, :collection_object_id, :controlled_vocabulary_term_id]
 
