@@ -28,7 +28,7 @@ class Tasks::Otus::FilterController < ApplicationController
 
   # GET
   def set_area
-    render json: {html: otus.count.to_s}
+    render json: {html: otus.count}
   end
 
   # GET
@@ -49,16 +49,14 @@ class Tasks::Otus::FilterController < ApplicationController
   protected
 
   def otus
-    scope = Queries::OtuFilterQuery.new(filter_params)
-              .result
-              .with_project_id(sessions_current_project_id)
-    # .includes(:repository, {taxon_determinations: [{otu: :taxon_name}]}, :identifiers)
-    scope
+    Queries::OtuFilterQuery.new(filter_params)
+      .result
+      .with_project_id(sessions_current_project_id)
   end
 
   def filter_params
     params.permit(
-      :drawn_area_shape, :nomen_id, :descendants, 
+      :drawn_area_shape, :nomen_id, :descendants,
       :and_or_select, :page,
       :verbatim_author_string, author_ids: [], geographic_area_ids: [])
   end
