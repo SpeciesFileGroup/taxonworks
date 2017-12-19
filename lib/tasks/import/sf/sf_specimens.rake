@@ -868,7 +868,7 @@ namespace :tw do
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFDepoIDToSFDepoString', get_sf_depo_string)
-          import.set('SFSpecimenIDToCatalogNumber', get_depo_catalog_number)
+          import.set('SFDepoIDToTWRepoID', get_tw_repo_id)
 
           puts 'SFDepoIDToSFDepoString'
           ap get_sf_depo_string
