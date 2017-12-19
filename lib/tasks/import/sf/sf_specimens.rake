@@ -1184,7 +1184,7 @@ namespace :tw do
           import.set('SFGeoLevel4', get_sf_geo_level4)
 
           puts 'SFGeoLevel4'
-          ap SFGeoLevel4
+          ap get_sf_geo_level4
         end
 
 
