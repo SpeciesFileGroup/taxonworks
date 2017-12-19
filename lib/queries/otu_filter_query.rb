@@ -59,8 +59,8 @@ module Queries
       5. find all otus which are associated with result #4
 =end
     # @return [Scope]
+    # This could be simplified if the AJAX selector returned a geographic_item_id rather than a GeographicAreaId
     def geographic_area_scope
-      # This could be simplified if the AJAX selector returned a geographic_item_id rather than a GeographicAreaId
       target_geographic_item_ids = []
 
       query_geographic_area_ids.each do |gaid|
@@ -76,18 +76,16 @@ module Queries
 
     # @return [Scope]
     def shape_scope
-      r42i = GeographicItem.gather_map_data(query_shape, 'CollectionObject')
-               .distinct
+      r42i = GeographicItem.gather_map_data(query_shape, 'CollectionObject').distinct
       Otu.joins(:collection_objects).where(collection_objects: {id: r42i})
     end
 
     # @return [Scope]
     def nomen_scope
-      a = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
       if with_descendants?
         Otu.self_and_descendants_of(a.first.id)
       else
-        a
+        Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
       end
     end
 
