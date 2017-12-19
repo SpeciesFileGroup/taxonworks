@@ -115,6 +115,20 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
         end
       end
 
+      describe '#set_author', js: true do
+        it 'selects a taxon name author list' do
+          visit(index_path)
+          page.execute_script "$('#set_author')[0].scrollIntoView()"
+          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Sa', select_id: sargon.id, object_type: 'author')
+          wait_for_ajax
+          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Pe', select_id: daryl.id, object_type: 'author')
+          wait_for_ajax
+          click_button('Set Author')
+          wait_for_ajax
+          expect(find('#author_count')).to have_text('1') # Sargon's spooler
+        end
+      end
+
       describe '#find', js: true do
         before {
           t_n_id = Protonym.where(name: 'beevitis').first.id
