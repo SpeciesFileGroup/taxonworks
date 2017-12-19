@@ -12,7 +12,6 @@ Object.assign(TW.views.tasks.otus, {
     
     if ($("#set_area_form").length) {
       let result_map;  // intended for use to display on a map objects which know how to GeoJSON themselves
-      //let area_selector = $("#geographic_area_id_for_by_area");
       
       $(".result_map_toggle").click(function (event) {           // switch to the map view
         that.switchMap();
@@ -43,7 +42,7 @@ Object.assign(TW.views.tasks.otus, {
           event.preventDefault();
         }
       );
-
+      
       $("#set_nomen").click(function (event) {
           $("#nomen_count").text('????');
           $("#select_nomen").mx_spinner('show');
@@ -55,7 +54,7 @@ Object.assign(TW.views.tasks.otus, {
           event.preventDefault();
         }
       );
-
+      
       $("#set_author").click(function (event) {
           $("#author_count").text('????');
           $("#select_author").mx_spinner('show');
@@ -67,7 +66,7 @@ Object.assign(TW.views.tasks.otus, {
           event.preventDefault();
         }
       );
-
+      
       $("#set_verbatim").click(function (event) {
           $("#verbatim_count").text('????');
           $("#select_verbatim").mx_spinner('show');
@@ -79,7 +78,7 @@ Object.assign(TW.views.tasks.otus, {
           event.preventDefault();
         }
       );
-
+      
       $("#find_area_and_nomen_commit").click(function (event) {
         that.toggleFilter();
         that.ajaxRequest(event, "find");
@@ -118,7 +117,7 @@ Object.assign(TW.views.tasks.otus, {
     $("#drawn_area_shape").attr('value', '');
     $("#paging_span").show();
   },
-
+  
   cleanResults: function () {
     $("#show_list").empty();
     $("#result_span").empty();
@@ -137,8 +136,7 @@ Object.assign(TW.views.tasks.otus, {
   },
   
   validateResultForFindOtu: function () {
-    // let i = 0;
-
+    
     if (($("#area_count").text() > 0) || ($("#nomen_count").text() > 0) || ($("#author_count").text() > 0) || ($("#verbatim_author_count").text() > 0)) {
       $("#find_area_and_nomen_commit").removeAttr("disabled");
     }
@@ -156,19 +154,19 @@ Object.assign(TW.views.tasks.otus, {
     if ($('#area_count').text() != '????') {
       params.push($("#set_area_form").serialize());
     }
-
+    
     if ($('#nomen_count').text() != '????') {
       params.push($("#set_nomen_form").serialize());
     }
-
+    
     if ($('#author_count').text() != '????') {
       params.push($("#set_author_form").serialize());
     }
-
+    
     if ($('#verbatim_count').text() != '????') {
       params.push($("#set_verbatim_form").serialize());
     }
-
+    
     return data = params.join("&");
   },
   
@@ -184,17 +182,14 @@ Object.assign(TW.views.tasks.otus, {
   },
   
   ajaxRequest: function (event, href) {
-    // if (this.validateDates() && this.validateDateRange()) {
     $("#find_item").mx_spinner('show');
     $.get(href, this.serializeFields(), function (local_data) {
-      // $("#find_item").mx_spinner('hide');  # this has been relocated to .../find.js.erb
-    });//, 'json'  // I expect a json response
+    });
     $("#download_button").removeAttr("disabled");
-
+    
     event.preventDefault();
   }
 });
-
 
 $(document).on("turbolinks:load", function () {
   if ($("#otu_by_area_and_nomen").length) {
