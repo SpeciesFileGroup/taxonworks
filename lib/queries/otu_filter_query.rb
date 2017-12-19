@@ -8,6 +8,14 @@ module Queries
     attr_accessor :query_author_ids, :query_and_or_select
     attr_accessor :query_verbatim_author_string
 
+    # def a=(value)
+    #   @a = value
+    # end
+    #
+    # def a
+    #   @a
+    # end
+    #
     def initialize(params)
       params.reject! { |k, v| v.blank? }
 
@@ -82,10 +90,11 @@ module Queries
 
     # @return [Scope]
     def nomen_scope
+      scope = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
       if with_descendants?
-        Otu.self_and_descendants_of(a.first.id)
+        Otu.self_and_descendants_of(scope.first.id)
       else
-        Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
+        scope
       end
     end
 
