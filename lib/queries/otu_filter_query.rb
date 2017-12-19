@@ -8,14 +8,6 @@ module Queries
     attr_accessor :query_author_ids, :query_and_or_select
     attr_accessor :query_verbatim_author_string
 
-    def a=(value)
-      @a = value
-    end
-
-    def a
-      @a
-    end
-
     def initialize(params)
       params.reject! { |k, v| v.blank? }
 
@@ -73,10 +65,7 @@ module Queries
 
       query_geographic_area_ids.each do |gaid|
         target_geographic_item_ids.push(
-          GeographicArea.
-            joins(:geographic_items).
-            find(gaid).
-            default_geographic_item.id
+          GeographicArea.joins(:geographic_items).find(gaid).default_geographic_item.id
         )
       end
       r42i = CollectionObject.joins(:geographic_items)
@@ -132,8 +121,6 @@ module Queries
           o = Otu.arel_table
           t = TaxonName.arel_table
           r = Role.arel_table
-
-          # a = o.alias("a_#{table_alias}")
 
           b = o.project(o[Arel.star]).from(o)
                 .join(t)
