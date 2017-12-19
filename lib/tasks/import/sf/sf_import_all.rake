@@ -6,7 +6,7 @@ namespace :tw do
 
       desc 'time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
       #  time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=/Users/sfg/src/onedb2tw/working/
-          task :run_all_import_tasks => [
+      task :run_all_import_tasks => [
 
           # start section took 419m54.488s
           # 'start:create_users',
@@ -32,27 +32,27 @@ namespace :tw do
           # 'taxa:create_some_related_taxa',
           # 'taxa:create_status_flag_relationships',
 
-          # cites section took
-          'cites:import_nomenclator_strings',
-          'cites:create_cvts_for_citations',
-          'cites:create_sf_taxon_name_authors',
-          'cites:create_citations',
-          'cites:create_otu_cites',
+          # cites section took 423m23.501s
+          # 'cites:import_nomenclator_strings',
+          # 'cites:create_cvts_for_citations',
+          # 'cites:create_sf_taxon_name_authors',
+          # 'cites:create_citations',
+          # 'cites:create_otu_cites',
 
           # specimens section took
-          # 'specimens:import_two_specimen_lists',
-          # 'specimens:create_sf_geo_level4_hash',
-          # 'specimens:collecting_events',
-          # 'specimens:import_sf_depos',
-          # 'specimens:create_biocuration_classes',
-          # 'specimens:create_specimen_category_counts',
-          # 'specimens:create_sf_source_metadata',
-          # 'specimens:create_sf_identification_metadata',
-          # 'specimens:get_ident_qualifier_from_nomenclator',
-          # 'specimens:create_sf_loc_col_events_metadata',
-          # 'specimens:collection_objects'
+          'specimens:import_two_specimen_lists',
+          'specimens:create_sf_geo_level4_hash',
+          'specimens:collecting_events',
+          'specimens:import_sf_depos',
+          'specimens:create_biocuration_classes',
+          'specimens:create_specimen_category_counts',
+          'specimens:create_sf_source_metadata',
+          'specimens:create_sf_identification_metadata',
+          'specimens:get_ident_qualifier_from_nomenclator',
+          'specimens:create_sf_loc_col_events_metadata',
+          'specimens:collection_objects'
       ] do
-        puts 'Ran cites tasks!'
+        puts 'Ran specimens tasks!'
       end
     end
   end
