@@ -22,7 +22,7 @@ Object.assign(TW.views.filter.author_picker, {
     var param_name = autocomplete_input.data('paramName');
 
     autocomplete_input.autocomplete({
-      source: '/people/t_n_author_autocomplete',
+      source: '/people/taxon_name_author_autocomplete',
       appendTo: autocomplete_input.parent(),
       open: function (event, ui) {
         TW.views.filter.author_picker.bind_hover(form);

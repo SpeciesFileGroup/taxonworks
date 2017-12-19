@@ -85,14 +85,14 @@ class PeopleController < ApplicationController
        response_values: {
            params[:method] => t.id
        },
-       label_html:     t.name 
+       label_html:     t.name
       }
     end
 
     render :json => data
   end
 
-  def t_n_author_autocomplete 
+  def taxon_name_author_autocomplete
     @authors = Person.joins(:roles).where(roles: {type: 'TaxonNameAuthor', project_id: sessions_current_project_id}).find_for_autocomplete(params.permit(:term)).distinct.order('people.cached').limit(50)
     data = @authors.collect do |a|
       {id: a.id,
@@ -117,7 +117,7 @@ class PeopleController < ApplicationController
 
   # GET /people/role_types.json
   def role_types
-    render :json => ROLES 
+    render :json => ROLES
   end
 
   def lookup_person
@@ -130,9 +130,9 @@ class PeopleController < ApplicationController
   end
 
   # GET /person/:id/details
-  def details 
+  def details
     @person = Person.includes(:roles).find(params[:id])
-    render partial: '/people/picker_details', locals: {person:  @person} 
+    render partial: '/people/picker_details', locals: {person:  @person}
   end
 
   private
