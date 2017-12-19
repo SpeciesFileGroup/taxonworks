@@ -40,7 +40,7 @@ namespace :tw do
           # 'cites:create_otu_cites',
 
           # specimens section took
-          'specimens:import_two_specimen_lists',
+          'specimens:create_specimen_unique_id',
           'specimens:create_sf_geo_level4_hash',
           'specimens:collecting_events',
           'specimens:import_sf_depos',
