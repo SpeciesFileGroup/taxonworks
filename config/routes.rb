@@ -574,6 +574,13 @@ TaxonWorks::Application.routes.draw do
   ### End of data resources ###
 
   scope :tasks do
+    scope :sequence do
+      scope :browse, controller: 'tasks/sequences/browse' do
+        get 'index', as: 'browse_sequences_task'
+        get 'sequences'
+      end
+    end
+
     scope :observation_matrices do
       scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do
         get 'index', as: 'index_row_coder_task'

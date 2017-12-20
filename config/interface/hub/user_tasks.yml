@@ -275,3 +275,10 @@ edit_loan_task:
     - collection_object
   status: prototype
   description: 'Create and edit loans.'
+browse_sequences_task:
+  hub: true
+  name: 'Browse sequences'
+  related:
+  categories:
+  status: prototype
+  description: 'Report everything known about a sequence'
