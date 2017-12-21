@@ -1,50 +1,47 @@
 <template>
   <div class="panel type-specimen-box">
+    <spinner :show-spinner="false" :show-legend="false" v-if="!protonymId"></spinner>
     <div class="header flex-separate middle">
-        <h3>Specimen/Collection Object</h3>
+        <h3>Material</h3>
         <expand v-model="displayBody"></expand>
     </div>
     <div class="body" v-if="displayBody">
-      <div class="field">
-        <label>Type designator</label>
-        <role-picker v-model="roles">    
-        </role-picker>
+
+      <div class="switch-radio field">
+        <template v-for="item, index in tabOptions">
+          <input 
+            v-model="view"
+            :value="item"
+            :id="`switch-picker-${index}`" 
+            name="switch-picker-options"
+            type="radio"
+            class="normal-input button-active" 
+          />
+          <label :for="`switch-picker-${index}`" class="capitalize">{{ item }}</label>
+        </template>
       </div>
-      <div class="field">
-        <label>Protonym</label>
-        <autocomplete
-          url="/taxon_names/autocomplete"
-          param="term"
-          label="label_html"
-          display="label"
-          @getItem="biologicalId = $event.id"
-          min="2"
-          :add-params="{
-            'type[]': 'Protonym',
-            valid: true
-          }">
-        </autocomplete>
-      </div>
-      <div class="field">
-        <label>Material</label>
-        <autocomplete
-          url="/collection_objects/autocomplete"
-          param="term"
-          label="label_html"
-          @getItem="protonymId = $event.id"
-          display="label"
-          min="2">
-        </autocomplete>
-      </div>
-      <div class="field">
-        <label>Type</label>
-        <select v-model="type" class="normal-input">
-          <option class="capitalize" :value="item" v-for="item in types">{{ item }}</option>
-        </select>
-      </div>
-      <div class="field">
-        <button type="button" class="normal-input button button-submit">Create</button>
-      </div>
+
+      <collection-object v-if="view == 'new'"></collection-object>
+
+      <template v-if="view == 'material'">
+
+        <div class="field">
+          <label>Material</label>
+          <autocomplete
+            url="/collection_objects/autocomplete"
+            param="term"
+            label="label_html"
+            @getItem="protonymId = $event.id"
+            display="label"
+            min="2">
+          </autocomplete>
+        </div>
+
+        <div class="field">
+          <button type="button" class="normal-input button button-submit">Create</button>
+        </div>
+      </template>
+
     </div>
   </div>
 </template>
@@ -54,39 +51,25 @@
   import { GetterNames } from '../store/getters/getters';
   import { MutationNames } from '../store/mutations/mutations';
 
-  import rolePicker from '../../components/role_picker.vue';
   import autocomplete from '../../components/autocomplete.vue';
+  import spinner from '../../components/spinner.vue';
   import expand from './expand.vue';
+  import collectionObject from './collectionObject.vue';
   
   export default {
     components: {
+      collectionObject,
       autocomplete,
-      rolePicker,
       expand,
+      spinner
     },
     computed: {
-      roles: {
-        get() {
-          return [];
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetRoles, value);
-        }
-      },
       protonymId: {
         get() {
-          return this.$store.getters[GetterNames.GetPronotym];
+          return this.$store.getters[GetterNames.GetProtonymId];
         },
         set(value) {
-          this.$store.commit(MutationNames.SetProtonym, value);
-        }
-      },
-      biologicalId: {
-        get() {
-          return this.$store.getters[GetterNames.GetBiologicalId];
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetBiologicalId, value);
+          this.$store.commit(MutationNames.SetProtonymId, value);
         }
       },
       type: {
@@ -96,26 +79,17 @@
         set(value) {
           this.$store.commit(MutationNames.SetType, value);
         }
+      },
+      getTypeMaterial() {
+        return this.$store.getters[GetterNames.GetTypeMaterial]
       }
     },
     data: function() {
       return {
+        view: 'new',
+        tabOptions: ['material', 'new'],
         displayBody: true,
         roles_attribute: [],
-        types: ['epitype',
-                'holotype', 
-                'isosyntype', 
-                'isosyntypes', 
-                'isotype', 
-                'isotypes', 
-                'lectotype', 
-                'neotype', 
-                'paralectotype', 
-                'paralectotypes', 
-                'paratype', 
-                'paratypes', 
-                'syntype', 
-                'syntypes']
       }
     }
   }

@@ -1,6 +1,6 @@
 <template>
   <div class="panel type-specimen-box">
-    <spinner :show-spinner="false" :show-legend="false" v-if="getTypeMaterial.id"></spinner>
+    <spinner :show-spinner="false" :show-legend="false" v-if="!getTypeMaterial.id"></spinner>
     <div class="header flex-separate middle">
         <h3>Depictions</h3>
         <expand v-model="displayBody"></expand>
@@ -27,6 +27,7 @@
     components: {
       dropzone,
       expand,
+      spinner
     },
     computed: {
       getTypeMaterial() {

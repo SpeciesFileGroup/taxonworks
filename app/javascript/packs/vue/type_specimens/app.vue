@@ -4,6 +4,7 @@
     <h1>New type specimen</h1>
     <name-section class="separate-bottom"></name-section>
     <type-material-section class="separate-top separate-bottom"></type-material-section>
+    <metadata-section class="separate-top separate-bottom"></metadata-section>
     <depictions-section class="separate-top separate-bottom"></depictions-section>
   </div>
 </template>
@@ -13,6 +14,7 @@
   import nameSection from './components/nameSection.vue';
   import typeMaterialSection from './components/typeMaterial.vue';
   import depictionsSection from './components/depictionsSection.vue';
+  import metadataSection from './components/metadataSection.vue';
   import spinner from '../components/spinner.vue';
 
   export default {
@@ -20,6 +22,7 @@
       nameSection,
       typeMaterialSection,
       depictionsSection,
+      metadataSection,
       spinner
     },
     data: function() {
