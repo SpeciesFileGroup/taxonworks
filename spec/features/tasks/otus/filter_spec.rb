@@ -4,8 +4,8 @@ require 'make_simple_world'
 describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
 
   context 'using simple_world' do
-    let(:page_title) {'Otus by area'}
-    let(:index_path) {otus_filter_task_path}
+    let(:page_title) { 'Otus by area' }
+    let(:index_path) { otus_filter_task_path }
 
     it_behaves_like 'a_login_required_and_project_selected_controller'
 
@@ -16,28 +16,28 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
       }
 
       # need some people
-      let(:sargon) {Person.find_or_create_by(first_name: 'of Akkad', last_name: 'Sargon')}
-      let(:andy) {Person.find_or_create_by(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author')}
-      let(:daryl) {Person.find_or_create_by(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon')}
-      let(:ted) {Person.find_or_create_by(last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC')}
-      let(:bill) {Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson')}
+      let(:sargon) { Person.where(first_name: 'of Akkad', last_name: 'Sargon').first }
+      let(:andy) { Person.where(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author').first }
+      let(:daryl) { Person.where(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon').first }
+      let(:ted) { Person.where(last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC').first }
+      let(:bill) { Person.where(first_name: 'Bill', last_name: 'Ardson').first }
 
       # need some otus
-      let(:top_dog) {Otu.where(name: 'Top Dog').first}
-      let(:nuther_dog) {Otu.where(name: 'Another Dog').first}
-      let(:spooler) {Otu.where('name like ?', '%spooler%').first}
-      let(:p4) {Otu.where(name: 'P4').first}
-      let(:by_bill) {Otu.where('name like ?', '%by Bill%').first}
-      let(:otu_a) {Otu.where(name: 'Otu_A').first}
-      let(:abra) {Otu.where(name: 'Abra').first}
-      let(:cadabra) {Otu.where('name like ?', '%cadabra%').first}
-      let(:alakazam) {Otu.where('name like ?', '%alakazam%').first}
+      let(:top_dog) { Otu.where(name: 'Top Dog').first }
+      let(:nuther_dog) { Otu.where(name: 'Another Dog').first }
+      let(:spooler) { Otu.where('name like ?', '%spooler%').first }
+      let(:p4) { Otu.where(name: 'P4').first }
+      let(:by_bill) { Otu.where('name like ?', '%by Bill%').first }
+      let(:otu_a) { Otu.where(name: 'Otu_A').first }
+      let(:abra) { Otu.where(name: 'Abra').first }
+      let(:cadabra) { Otu.where('name like ?', '%cadabra%').first }
+      let(:alakazam) { Otu.where('name like ?', '%alakazam%').first }
 
       # need some areas
-      let(:area_a) {GeographicArea.where(name: 'A').first}
-      let(:area_b) {GeographicArea.where(name: 'B').first}
-      let(:area_e) {GeographicArea.where(name: 'E').first}
-      let(:json_string) {'{"type":"Feature", "properties":{}, "geometry":{"type":"MultiPolygon", "coordinates":[[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}'}
+      let(:area_a) { GeographicArea.where(name: 'A').first }
+      let(:area_b) { GeographicArea.where(name: 'B').first }
+      let(:area_e) { GeographicArea.where(name: 'E').first }
+      let(:json_string) { '{"type":"Feature", "properties":{}, "geometry":{"type":"MultiPolygon", "coordinates":[[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}' }
 
       # need some collection objects
       let(:co_a) {
@@ -116,9 +116,11 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
       end
 
       describe '#set_author', js: true do
-        it 'selects a taxon name author list' do
+
+        it 'selects a taxon name author list (and)' do
           visit(index_path)
           page.execute_script "$('#set_author')[0].scrollIntoView()"
+          find('#and_or_select__and_').click
           fill_autocomplete_and_select('author_picker_autocomplete', with: 'Sa', select_id: sargon.id, object_type: 'author')
           wait_for_ajax
           fill_autocomplete_and_select('author_picker_autocomplete', with: 'Pe', select_id: daryl.id, object_type: 'author')
@@ -126,6 +128,21 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
           click_button('Set Author')
           wait_for_ajax
           expect(find('#author_count')).to have_text('1') # Sargon's spooler
+        end
+
+        it 'selects a taxon name author list (or)' do
+          visit(index_path)
+          page.execute_script "$('#set_author')[0].scrollIntoView()"
+          find('#and_or_select__or_').click
+          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Sa', select_id: sargon.id, object_type: 'author')
+          wait_for_ajax
+          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Bi', select_id: bill.id, object_type: 'author')
+          wait_for_ajax
+          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Te', select_id: ted.id, object_type: 'author')
+          wait_for_ajax
+          click_button('Set Author')
+          wait_for_ajax
+          expect(find('#author_count')).to have_text('7') # Sargon's spooler
         end
       end
 
