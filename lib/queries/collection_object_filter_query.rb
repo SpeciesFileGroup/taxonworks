@@ -22,7 +22,7 @@ module Queries
       @query_start_date            = params[:search_start_date] # TODO: sync key names
       @query_end_date              = params[:search_end_date]
       @query_otu_id                = params[:otu_id]
-      @query_otu_descendants       = params[:descendants] # .downcase if params[:descendants] # TODO: remove downcase requirement
+      @query_otu_descendants       = params[:descendants]
       @query_date_partial_overlap  = params[:partial_overlap]
       @query_id_namespace          = params[:id_namespace]
       @query_range_start           = params[:id_range_start]
@@ -67,9 +67,7 @@ module Queries
     end
 
     def user_date_set?
-      # query_date_type_select.present? or
-      query_user.present? or
-        (query_user_date_range_start.present? or query_user_date_range_end.present?)
+      query_user.present? or (query_user_date_range_start.present? or query_user_date_range_end.present?)
     end
 
     # All scopes might end up in CollectionObject directly
@@ -98,8 +96,8 @@ module Queries
 
     # @return [Scope]
     def date_scope
-      CollectionObject.joins(:collecting_event).where(CollectingEvent.date_sql_from_dates(start_date, end_date, query_date_partial_overlap))
-      #date_sql_from_dates(start_date, end_date, query_date_partial_overlap ))
+      CollectionObject.joins(:collecting_event)
+        .where(CollectingEvent.date_sql_from_dates(start_date, end_date, query_date_partial_overlap))
     end
 
     def identifier_scope
@@ -113,8 +111,8 @@ module Queries
     def user_date_scope
       @user_date_start, @user_date_end = Utilities::Dates.normalize_and_order_dates(query_user_date_range_start,
                                                                                     query_user_date_range_end)
-      @user_date_start += ' 00:00:00' # adjust dates to beginning
-      @user_date_end += ' 23:59:59' # and end of date days
+      @user_date_start                 += ' 00:00:00' # adjust dates to beginning
+      @user_date_end                   += ' 23:59:59' # and end of date days
 
       scope = case query_date_type_select
                 when 'created_at', nil

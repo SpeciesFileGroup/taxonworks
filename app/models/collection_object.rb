@@ -304,7 +304,7 @@ class CollectionObject < ApplicationRecord
     a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).minimum(:start_date_year)
     b = CollectingEvent.joins(:collection_objects).where(project_id: project_id).minimum(:end_date_year)
 
-    return Utilities::Dates::EARLIEST_DATE if a.nil? && b.nil?  # 1700/01/01
+    return EARLIEST_DATE if a.nil? && b.nil?  # 1700-01-01
 
     d = nil
 
