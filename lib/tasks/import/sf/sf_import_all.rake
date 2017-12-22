@@ -6,53 +6,53 @@ namespace :tw do
 
       desc 'time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
       #  time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=/Users/sfg/src/onedb2tw/working/
-          task :run_all_import_tasks => [
+      task :run_all_import_tasks => [
 
           # start section took 419m54.488s
-          # 'start:create_users',
-          # 'start:create_people',
-          # 'start:map_serials',
-          # 'start:map_ref_links',
-          # 'start:list_verbatim_refs',
-          # 'start:create_projects',
-          # 'start:create_sf_book_hash',
-          # 'start:map_pub_type',
-          # 'start:create_sources',
-          # 'start:create_source_editor_array',
-          # 'start:create_source_roles',
+          'start:create_users',
+          'start:create_people',
+          'start:map_serials',
+          'start:map_ref_links',
+          'start:list_verbatim_refs',
+          'start:create_projects',
+          'start:create_sf_book_hash',
+          'start:map_pub_type',
+          'start:create_sources',
+          'start:create_source_editor_array',
+          'start:create_source_roles',
 
           # taxa section took 3929m23.113s
-          # 'taxa:create_rank_hash',
-          # 'taxa:create_animalia_below_root',
-          # 'taxa:create_sf_synonym_id_to_new_parent_id_hash',
-          # 'taxa:create_otus_for_ill_formed_names_hash',
-          # 'taxa:create_all_sf_taxa_pass1',
-          # 'taxa:create_type_species',
-          # 'taxa:create_type_genera',
-          # 'taxa:create_some_related_taxa',
-          # 'taxa:create_status_flag_relationships',
+          'taxa:create_rank_hash',
+          'taxa:create_animalia_below_root',
+          'taxa:create_sf_synonym_id_to_new_parent_id_hash',
+          'taxa:create_otus_for_ill_formed_names_hash',
+          'taxa:create_all_sf_taxa_pass1',
+          'taxa:create_type_species',
+          'taxa:create_type_genera',
+          'taxa:create_some_related_taxa',
+          'taxa:create_status_flag_relationships',
 
-          # cites section took
+          # cites section took 423m23.501s
           'cites:import_nomenclator_strings',
           'cites:create_cvts_for_citations',
           'cites:create_sf_taxon_name_authors',
           'cites:create_citations',
           'cites:create_otu_cites',
 
-          # specimens section took
-          # 'specimens:import_two_specimen_lists',
-          # 'specimens:create_sf_geo_level4_hash',
-          # 'specimens:collecting_events',
-          # 'specimens:import_sf_depos',
-          # 'specimens:create_biocuration_classes',
-          # 'specimens:create_specimen_category_counts',
-          # 'specimens:create_sf_source_metadata',
-          # 'specimens:create_sf_identification_metadata',
-          # 'specimens:get_ident_qualifier_from_nomenclator',
-          # 'specimens:create_sf_loc_col_events_metadata',
-          # 'specimens:collection_objects'
+          # specimens section took 195m28.611s
+          'specimens:create_specimen_unique_id',
+          'specimens:create_sf_geo_level4_hash',
+          'specimens:collecting_events',
+          'specimens:import_sf_depos',
+          'specimens:create_biocuration_classes',
+          'specimens:create_specimen_category_counts',
+          'specimens:create_sf_source_metadata',
+          'specimens:create_sf_identification_metadata',
+          'specimens:get_ident_qualifier_from_nomenclator',
+          'specimens:create_sf_loc_col_events_metadata',
+          'specimens:collection_objects'
       ] do
-        puts 'Ran cites tasks!'
+        puts 'Ran all tasks!'
       end
     end
   end
