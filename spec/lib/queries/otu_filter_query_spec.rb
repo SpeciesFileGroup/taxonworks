@@ -8,11 +8,11 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       simple_world
     }
     # need some people
-    let(:sargon) { Person.find_or_create_by(first_name: 'of Akkad', last_name: 'Sargon') }
-    let(:andy) { Person.find_or_create_by(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author') }
-    let(:daryl) { Person.find_or_create_by(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon') }
-    let(:ted) { Person.find_or_create_by(last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC') }
-    let(:bill) { Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson') }
+    let(:sargon) { Person.where(first_name: 'of Akkad', last_name: 'Sargon').first }
+    let(:andy) { Person.where(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author').first }
+    let(:daryl) { Person.where(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon').first }
+    let(:ted) { Person.where(last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC').first }
+    let(:bill) { Person.where(first_name: 'Bill', last_name: 'Ardson').first }
 
     # need some otus
     let(:top_dog) { Otu.where(name: 'Top Dog').first }

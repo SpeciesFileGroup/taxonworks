@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'make_simple_world'
 
-describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus] do
+describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors] do
 
   context 'using simple_world' do
     let(:page_title) { 'Otus by area' }
