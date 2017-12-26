@@ -1,22 +1,55 @@
 require 'rails_helper'
+require 'make_simple_world'
 
 describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :collection_objects] do
+
   context 'with properly built collection of objects' do
     let(:page_title) { 'Collection objects by area and date' }
     let(:index_path) { collection_objects_filter_task_path }
 
     it_behaves_like 'a_login_required_and_project_selected_controller'
 
-    after(:all) {
-      clean_slate_geo
-      CollectionObject.destroy_all
-      Namespace.destroy_all
-    }
-
     context 'signed in as a user' do
-      before(:each) {
+      before {
         sign_in_user_and_select_project
+        simple_world(@user.id, @project.id)
       }
+      # need some people
+      let(:sargon) { Person.where(first_name: 'of Akkad', last_name: 'Sargon').first }
+      let(:andy) { Person.where(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author').first }
+      let(:daryl) { Person.where(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon').first }
+      let(:ted) { Person.where(last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC').first }
+      let(:bill) { Person.where(first_name: 'Bill', last_name: 'Ardson').first }
+
+      # need some otus
+      let(:top_dog) { Otu.where(name: 'Top Dog').first }
+      let(:nuther_dog) { Otu.where(name: 'Another Dog').first }
+      let(:spooler) { Otu.where('name like ?', '%spooler%').first }
+      let(:p4) { Otu.where(name: 'P4').first }
+      let(:by_bill) { Otu.where('name like ?', '%by Bill%').first }
+      let(:otu_a) { Otu.where(name: 'Otu_A').first }
+      let(:abra) { Otu.where(name: 'Abra').first }
+      let(:cadabra) { Otu.where('name like ?', '%cadabra%').first }
+      let(:alakazam) { Otu.where('name like ?', '%alakazam%').first }
+
+      # need some areas
+      let(:area_a) { GeographicArea.where(name: 'A').first }
+      let(:area_b) { GeographicArea.where(name: 'B').first }
+      let(:area_e) { GeographicArea.where(name: 'E').first }
+      let(:json_string) { '{"type":"Feature", "properties":{}, "geometry":{"type":"MultiPolygon", "coordinates":[[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}' }
+
+      # need some collection objects
+      let(:co_a) {
+        object = CollectingEvent.where(verbatim_label: 'Eh?').first
+        object.collection_objects.first
+      }
+
+      let(:co_b) {
+        object = CollectingEvent.where(verbatim_label: 'Bah').first
+        object.collection_objects.first
+      }
+
+
 
       context 'triggering the by_otu facet' do
         describe '#set_otu', js: true, resolution: true do
@@ -24,6 +57,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
           let(:specimen) { Specimen.create!(by: @user, project: @project) }
 
           before do
+            # can't use `a = specimen.otus << otu_test` because $user_id and $project_id don't exist.
             TaxonDetermination.create!(otu: otu_test, biological_collection_object: specimen, by: @user, project: @project)
             visit(collection_objects_filter_task_path)
           end
@@ -58,32 +92,24 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             }
             visit(collection_objects_filter_task_path)
           end
+
           it 'renders the count of collection objects based on a selected range of identifiers' do
-            expect(Specimen.count).to eq(12)
+            expect(Specimen.count).to eq(14)
             expect(Identifier.count).to eq(10)
             expect(Namespace.count).to eq(2)
-            expect(true).to be_truthy
+            # expect(true).to be_truthy
           end
         end
       end
 
       context 'with some records created' do
-        before {
-          generate_political_areas_with_collecting_events(@user.id, @project.id)
-        }
-
-        let!(:gnlm) { GeographicArea.where(name: 'Great Northern Land Mass').first }
-
-        let!(:otum1) { Otu.where(name: 'Find me').first }
-
-        let(:json_string) { '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}}' }
 
         describe '#set_area', js: true do #
           it 'renders count of collection objects in a specific names area' do
             visit(collection_objects_filter_task_path)
-            fill_area_picker_autocomplete('area_picker_autocomplete', with: 'Great Northern', select: gnlm.id)
+            fill_area_picker_autocomplete('area_picker_autocomplete', with: 'E', select: area_e.id)
             click_button('Set area')
-            expect(find('#area_count')).to have_text('16')
+            expect(find('#area_count')).to have_text('2')
           end
 
           it 'renders count of collection objects in a drawn area' do
@@ -93,7 +119,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             this_xpath = find(:xpath, "//input[@id='drawn_area_shape']")
             this_xpath.set json_string
             click_button('Set area')
-            expect(find('#area_count')).to have_text('10')
+            expect(find('#area_count')).to have_text('2')
           end
         end
 
@@ -103,7 +129,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             execute_script("document.getElementById('search_end_date').value = '1980-12-31'")
             find('#search_start_date').set('1971-01-01')
             find('#set_date').click
-            expect(find('#date_count')).to have_content('10')
+            expect(find('#date_count')).to have_content('1')
           end
         end
 
@@ -123,7 +149,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             wait_for_ajax
             find('#find_area_and_date_commit').click
             # find('#result_span', visible: false, text: '10')
-            find('#area_count', visible: true, text: '10')
+            find('#area_count', visible: true, text: '2')
+            # expect(true).to be_truthy
           }
 
           it 'renders count of objects and table found using a drawn area and date range' do
@@ -216,8 +243,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
       end
 
       context 'with records specific to users and dates' do
-        let!(:pat) { User.find(1) }
-        let!(:pat_admin) { User.where(name: 'Pat Project Administrator').first }
+        let(:pat) { User.find(1) }
+        let(:pat_admin) { User.where(name: 'Pat Project Administrator').first }
         let!(:joe) {
           peep = FactoryBot.create(:valid_user, by: pat_admin)
           ProjectMember.create(project_id: @project.id, user_id: peep.id, by: pat_admin)
@@ -257,7 +284,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             }
 
             expect(Specimen.created_by_user(pat_admin).count).to eq(2)
-            expect(Specimen.created_by_user(pat).count).to eq(5)
+            expect(Specimen.created_by_user(pat).count).to eq(7)
             expect(Specimen.created_by_user(joe).count).to eq(5)
 
             visit(collection_objects_filter_task_path)
@@ -267,12 +294,12 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             # default select is current user / all dates
             click_button('Set User/Date Range', {id: 'set_user_date_range'})
             wait_for_ajax
-            expect(find('#user_date_range_count')).to have_content('5')
+            expect(find('#user_date_range_count')).to have_content('7')
 
             select('All users', from: 'user')
             click_button('Set User/Date Range', {id: 'set_user_date_range'})
             wait_for_ajax
-            expect(find('#user_date_range_count')).to have_content('12')
+            expect(find('#user_date_range_count')).to have_content('14')
 
             fill_in('user_date_range_start', with: '2005-01-01')
             fill_in('user_date_range_end', with: Date.yesterday)

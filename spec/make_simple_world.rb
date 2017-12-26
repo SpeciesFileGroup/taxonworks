@@ -8,9 +8,9 @@ def simple_world(user_id = 1, project_id = 1)
   user          = User.find($user_id)
   project       = Project.find($project_id)
 
-  planet_gat    = GeographicAreaType.find_or_create_by(name: 'Planet')
-  gat_parish    = GeographicAreaType.find_or_create_by(name: 'Parish')
-  gat_land_mass = GeographicAreaType.find_or_create_by(name: 'Land Mass')
+  planet_gat    = GeographicAreaType.create(name: 'Planet')
+  gat_parish    = GeographicAreaType.create(name: 'Parish')
+  gat_land_mass = GeographicAreaType.create(name: 'Land Mass')
   list_shape_a  = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
                                                  RSPEC_GEO_FACTORY.point(0, 10, 0.0),
                                                  RSPEC_GEO_FACTORY.point(10, 10, 0.0),
@@ -84,9 +84,9 @@ def simple_world(user_id = 1, project_id = 1)
                             geographic_item:       GeographicItem.new(point: item_a.st_centroid))
 
   ce_b = FactoryBot.create(:collecting_event,
-                           start_date_year:   1971,
-                           start_date_month:  1,
-                           start_date_day:    1,
+                           start_date_year:   1982,
+                           start_date_month:  2,
+                           start_date_day:    2,
                            verbatim_locality: 'environs of B',
                            verbatim_label:    'Bah',
                            geographic_area:   area_b,
@@ -102,11 +102,11 @@ def simple_world(user_id = 1, project_id = 1)
                             error_geographic_item: item_b,
                             geographic_item:       GeographicItem.new(point: item_b.st_centroid))
 
-  sargon = Person.find_or_create_by(first_name: 'of Akkad', last_name: 'Sargon')
-  andy   = Person.find_or_create_by(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author')
-  daryl  = Person.find_or_create_by(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon')
+  sargon = Person.create(first_name: 'of Akkad', last_name: 'Sargon')
+  andy   = Person.create(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author')
+  daryl  = Person.create(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon')
   ted    = FactoryBot.create(:valid_person, last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC')
-  bill   = Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson')
+  bill   = Person.create(first_name: 'Bill', last_name: 'Ardson')
 
   top_dog = FactoryBot.create(:valid_otu, name: 'Top Dog', taxon_name:
                                                  FactoryBot.create(:valid_taxon_name,
@@ -120,20 +120,20 @@ def simple_world(user_id = 1, project_id = 1)
                                                                      name:       'Nutherdogidae')
   )
 
-  tn_abra = Protonym.find_or_create_by(name:       'Abra',
+  tn_abra = Protonym.create(name:       'Abra',
                                        rank_class: Ranks.lookup(:iczn, 'Genus'),
                                        parent: top_dog.taxon_name)
 
-  tn_spooler = Protonym.find_or_create_by(name:       'spooler',
+  tn_spooler = Protonym.create(name:       'spooler',
                                           rank_class: Ranks.lookup(:iczn, 'Species'),
                                           parent:     tn_abra)
 
-  tn_cadabra  = Protonym.find_or_create_by(name:                'cadabra',
+  tn_cadabra  = Protonym.create(name:                'cadabra',
                                            year_of_publication: 2017,
                                            verbatim_author:     'Bill Ardson',
                                            rank_class:          Ranks.lookup(:iczn, 'Species'),
                                            parent:              tn_abra)
-  tn_alakazam = Protonym.find_or_create_by(name:       'alakazam',
+  tn_alakazam = Protonym.create(name:       'alakazam',
                                            rank_class: Ranks.lookup(:iczn, 'Subspecies'),
                                            parent:     tn_cadabra)
 
