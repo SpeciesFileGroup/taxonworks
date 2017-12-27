@@ -44,7 +44,7 @@ gem 'bcrypt', '~> 3.1.11'
 gem 'closure_tree', '~> 6.6'
 gem 'delayed_job_active_record', '~> 4.1.2'
 gem 'validates_timeliness', '~> 4.0.2'
-gem 'paper_trail', '~> 8.1.0'
+gem 'paper_trail', '~> 8.1.2'
 gem 'acts_as_list', '~> 0.9.7'
 gem 'modularity', '~> 2.0.1' # Used!?
 gem 'paperclip', '~> 5.1'
