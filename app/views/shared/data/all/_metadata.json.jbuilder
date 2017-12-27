@@ -8,7 +8,7 @@ json.type klass
 if object.has_citations?
   if object.source 
     json.source do 
-      json.partial! '/sources/attributes', source: type_material.source
+      json.partial! '/sources/attributes', source: object.source
     end
   end
 end
