@@ -528,7 +528,7 @@ DEPENDENCIES
   exception_notification (~> 4.2.1)
   execjs (~> 2.7.0)
   factory_bot_rails (~> 4.8.2)
-  faker (~> 1.8)
+  faker (~> 1.8.7)
   ffi-geos (~> 1.2.0)
   geckodriver-helper (~> 0.0.3)
   groupdate (~> 3.2)
