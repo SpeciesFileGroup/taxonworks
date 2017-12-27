@@ -65,7 +65,7 @@ gem 'turbolinks', '~> 5.0.1'
 gem 'jquery-turbolinks', '~> 2.1'
 
 # BibTeX handling
-gem 'csl', '~> 1.4.5'
+gem 'csl', '~> 1.5.0'
 gem 'bibtex-ruby', '~> 4.4.4'
 gem 'citeproc-ruby', '~> 1.1.7'
 gem 'csl-styles', '~> 1.0.1.8'
