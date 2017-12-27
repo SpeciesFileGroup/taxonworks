@@ -17,7 +17,7 @@ gem 'redis', '~> 4.0.0'
 # System
 gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
 gem 'rubyzip', '~> 1.2.1'
-gem 'daemons', '~> 1.2.4'
+gem 'daemons', '~> 1.2.6'
 gem 'tzinfo-data', '~> 1.2017.2'
 gem 'psych', '~> 2.2.4'
 gem 'rmagick', '~> 2.16'

@@ -521,7 +521,7 @@ DEPENDENCIES
   coveralls (~> 0.8.21)
   csl (~> 1.5.0)
   csl-styles (~> 1.0.1.8)
-  daemons (~> 1.2.4)
+  daemons (~> 1.2.6)
   database_cleaner (~> 1.6.1)
   delayed_job_active_record (~> 4.1.2)
   dropzonejs-rails (~> 0.8.1)
