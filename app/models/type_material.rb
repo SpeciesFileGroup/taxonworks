@@ -65,6 +65,8 @@ class TypeMaterial < ApplicationRecord
   has_many :type_designators, through: :type_designator_roles, source: :person
 
   accepts_nested_attributes_for :type_designators, :type_designator_roles, allow_destroy: true
+  accepts_nested_attributes_for :material, allow_destroy: true
+
 
   scope :where_protonym, -> (taxon_name) {where(protonym_id: taxon_name)}
   scope :with_type_string, -> (base_string) {where('type_type LIKE ?', "#{base_string}" ) }

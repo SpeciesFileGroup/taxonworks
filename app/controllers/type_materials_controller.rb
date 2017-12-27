@@ -116,7 +116,8 @@ class TypeMaterialsController < ApplicationController
     params.require(:type_material).permit(
         :protonym_id, :biological_object_id, :type_type,
         roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
-        origin_citation_attributes: [:id, :_destroy, :source_id, :pages] 
+        origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
+        material_attributes: [:id, :buffered_collecting_event, :buffered_other_labels, :buffered_determinations, :total]
     ) 
   end
 end

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TypeMaterial, :type => :model do
+describe TypeMaterial, type: :model, group: :nomenclature do
 
   after(:all) {
     TypeMaterial.delete_all
@@ -8,6 +8,7 @@ describe TypeMaterial, :type => :model do
   }
 
   let(:type_material) {TypeMaterial.new}
+  let(:protonym) { FactoryBot.create(:relationship_species) }
 
   context 'associations' do
     context 'belongs to' do
@@ -87,21 +88,6 @@ describe TypeMaterial, :type => :model do
         expect(t.errors.include?(:protonym_id)).to be_falsey
       end
     end
-
-    context 'Material restrictions' do
-      # @proceps, nothing was done with @type_material, so I consolidated that nothing to a let here
-      let(:type_material) {
-        a = FactoryBot.build_stubbed(:type_material)
-        a.protonym = FactoryBot.build_stubbed(:relationship_species, parent: nil)
-        a
-      }
- 
-      # xspecify 'type_type restricts the BiologicalObject subclass to an _TYPES.value' do
-      # end
-
-      # xspecify 'collection_object is a BiologicalCollectionObject' do
-      # end
-    end
   end
 
   context 'methods' do
@@ -124,6 +110,13 @@ describe TypeMaterial, :type => :model do
     end
 
     # skip 'TypeDesignator role(s) should be possible when a specific person needs to be identified as the person who designated the type'
+  end
+
+  context 'nested attributes' do
+    let!(:a) { TypeMaterial.create!(protonym: protonym, material_attributes: {total: 1, buffered_collecting_event: 'Not far from the moon.'} , type_type: 'holotype') }
+    specify 'creates collection object' do
+      expect(a.material.id).to be_truthy
+    end
   end
 
   context 'soft validation' do
