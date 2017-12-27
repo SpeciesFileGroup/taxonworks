@@ -109,17 +109,15 @@ module Protonym::SoftValidationExtensions
               unless g.nil?
                 e = species_questionable_ending(g, self.name)
                 unless e.nil?
-                  soft_validations.add(:name, "Name has non #{g.class_name} ending: -#{e}")
+                  soft_validations.add(:name, "Name has non #{g.class.name} ending: -#{e}")
                 end
               end
             end
 
           else
-
             soft_validations.add(:feminine_name, 'Alternative spelling is not required for the name which is not adjective or participle.') unless feminine_name.blank?
             soft_validations.add(:masculine_name, 'Alternative spelling is not required for the name which is not adjective or participle.')  unless masculine_name.blank?
             soft_validations.add(:neuter_name, 'Alternative spelling is not required for the name which is not adjective or participle.')  unless neuter_name.blank?
-
           end
         end
       end

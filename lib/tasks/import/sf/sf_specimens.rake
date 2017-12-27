@@ -868,7 +868,7 @@ namespace :tw do
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFDepoIDToSFDepoString', get_sf_depo_string)
-          import.set('SFSpecimenIDToCatalogNumber', get_depo_catalog_number)
+          import.set('SFDepoIDToTWRepoID', get_tw_repo_id)
 
           puts 'SFDepoIDToSFDepoString'
           ap get_sf_depo_string
@@ -1060,11 +1060,13 @@ namespace :tw do
 
 
             lat, long = row['Latitude'], row['Longitude']
+            min_elev, max_elev = row['Elevation'], row['MaxElevation']  # SF doesn't have MinElevation
             c = CollectingEvent.new(
                 {
-                    verbatim_latitude: (lat.length > 0) ? lat : nil,
-                    verbatim_longitude: (long.length > 0) ? long : nil,
-                    maximum_elevation: row['MaxElevation'].to_i,
+                    verbatim_latitude: (lat != 'NULL') ? lat : nil,
+                    verbatim_longitude: (long != 'NULL') ? long : nil,
+                    minimum_elevation: (min_elev != 'NULL') ? min_elev.to_i : nil,
+                    maximum_elevation: (max_elev != 'NULL') ? max_elev.to_i : nil,
                     verbatim_locality: row['LocalityDetail'],
                     verbatim_collectors: row['CollectorName'],
                     start_date_day: start_date_day,
@@ -1182,7 +1184,7 @@ namespace :tw do
           import.set('SFGeoLevel4', get_sf_geo_level4)
 
           puts 'SFGeoLevel4'
-          ap SFGeoLevel4
+          ap get_sf_geo_level4
         end
 
 

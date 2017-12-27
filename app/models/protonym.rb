@@ -677,22 +677,31 @@ class Protonym < TaxonName
 
   #endregion
 
-  # Update cached values when a related taxon changes (e.g. new genus, or new original genus)
-  # Combination caching is handled in Combination
+  # Validate whether cached names need to be rebuilt.
+  #
+  # TODO: this is kind of pointless, we generate
+  # all the alues need for cached, names, at that point
+  # the cached values should just be persisted
+  # The logic here also duplicates the tracking 
+  # needed for building cached names.  
+  #
+  # Refactor this to single methods, one each to validate
+  # cached name?
+  # 
   def sv_cached_names
-    # if updated, update also set_cached_names
     is_cached = true
     is_cached = false if cached_author_year != get_author_and_year
 
-    if is_cached # don't run the tests if it's already false # self.class == Protonym
-      if  cached_html != get_full_name_html ||
-          cached_misspelling != get_cached_misspelling ||
-          cached_original_combination != get_original_combination ||
-          cached_primary_homonym != get_genus_species(:original, :self) ||
-          cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
-          rank_string =~ /Species/ && (cached_secondary_homonym != get_genus_species(:current, :self) || cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative))
+    if is_cached && cached_html != get_full_name_html ||
+        cached_misspelling != get_cached_misspelling ||
+        cached_original_combination != get_original_combination ||
+        cached_primary_homonym != get_genus_species(:original, :self) ||
+        cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
+        rank_string =~ /Species/ && (
+          cached_secondary_homonym != get_genus_species(:current, :self) || 
+          cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative)
+        )
         is_cached = false
-      end
     end
 
     soft_validations.add(

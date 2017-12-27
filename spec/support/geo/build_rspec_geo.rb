@@ -696,7 +696,7 @@ def generate_geo_test_objects(user_id, project_id, run_in_console = false, user 
 
   if my_debug
     puts
-    @debug_names.collect {|k, v| ' ' * 4 + v.to_s + ': ' + k.to_s}
+    @debug_names.collect { |k, v| ' ' * 4 + v.to_s + ': ' + k.to_s }
     puts @debug_names.invert[@p1]
     all_file = File.new('./tmp/all_file.json', 'w')
     all_file.write(@all_items.to_geo_json_feature)
@@ -1464,8 +1464,11 @@ def generate_collecting_events(user = nil)
   raise 'no user provided or determinable for generate_collecting_events' if user.nil?
 
   # this is an orphaned collection object, which can only be found by direct reference
-  @td_00 = FactoryBot.create(:valid_taxon_determination)
+  @td_00          = FactoryBot.create(:valid_taxon_determination)
+  @td_00.otu.name = 'Don\'t find me, I have no collecting event!'
+  @td_00.otu.save
   @co_00 = @td_00.biological_collection_object
+  @co_00.save
 
   @ce_m1          = FactoryBot.create(:collecting_event,
                                        start_date_year:   1971,
@@ -1476,7 +1479,7 @@ def generate_collecting_events(user = nil)
                                        geographic_area:   @area_m1)
   @td_m1          = FactoryBot.create(:valid_taxon_determination)
   @co_m1          = @td_m1.biological_collection_object
-  @td_m1.otu.name = 'Find me'
+  @td_m1.otu.name = 'Find me, I\'m in M1!'
   @td_m1.otu.save
   @co_m1.collecting_event = @ce_m1
   @co_m1.save
@@ -1699,7 +1702,8 @@ def generate_collecting_events(user = nil)
                               geographic_item:       GeographicItem.new(point: @item_p4.st_centroid))
   @co_p4 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_p4})
 
-  # this one is just a collecting event, no georeferences or geographic_area
+  # this one is just a collecting event, no georeferences or geographic_area, so, even though it has an otu, that otu
+  # can't be found
   @ce_v = FactoryBot.create(:collecting_event,
                              start_date_year:  1991,
                              start_date_month: 1,
@@ -1743,6 +1747,29 @@ def generate_collecting_events(user = nil)
                                        # error_geographic_item: @item_f_i,
                                        geographic_item: GeographicItem.new(point: @item_f_i.st_centroid))
 
+  @otu_names      = {
+    co_00_o:   @co_00.otus.collect {|o| o.name},
+    co_m1_o:   @co_m1.otus.collect {|o| o.name},
+    co_m1a_o:  @co_m1a.otus.collect {|o| o.name},
+    co_n1_o:   @co_n1.otus.collect {|o| o.name},
+    co_o1_o:   @co_o1.otus.collect {|o| o.name},
+    co_p1_o:   @co_p1.otus.collect {|o| o.name},
+    co_m2_o:   @co_m2.otus.collect {|o| o.name},
+    co_n2_a_o: @co_n2_a.otus.collect {|o| o.name},
+    co_n2_b_o: @co_n2_b.otus.collect {|o| o.name},
+    co_o2_o:   @co_o2.otus.collect {|o| o.name},
+    co_p2_o:   @co_p2.otus.collect {|o| o.name},
+    co_m3_o:   @co_m3.otus.collect {|o| o.name},
+    co_n3_o:   @co_n3.otus.collect {|o| o.name},
+    co_o3_o:   @co_o3.otus.collect {|o| o.name},
+    co_p3_o:   @co_p3.otus.collect {|o| o.name},
+    co_m4_o:   @co_m4.otus.collect {|o| o.name},
+    co_n4_o:   @co_n4.otus.collect {|o| o.name},
+    co_o4_o:   @co_o4.otus.collect {|o| o.name},
+    co_p4_o:   @co_p4.otus.collect {|o| o.name},
+    co_v_o:    @co_v.otus.collect {|o| o.name}
+  }
+
   my_debug = false
 
   if my_debug
@@ -1766,7 +1793,7 @@ def generate_collecting_events(user = nil)
     item_collection = []
 
     all_file = File.new('./tmp/political_file.json', 'w')
-    political_names.collect {|_key, value|
+    political_names.collect { |_key, value|
       item_collection.push(value.geographic_area.geographic_items.first)
       item_collection.push(value.georeferences.first.geographic_item)
     }

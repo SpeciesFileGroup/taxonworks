@@ -52,8 +52,6 @@ module Utilities::Dates
         end
       end
 
-  EARLIEST_DATE = '1700/01/10'
-
   # @param [String]
   # @param [Integer]
   # @param [Symbol]
@@ -246,7 +244,7 @@ module Utilities::Dates
   # @return [String, String] start_date, end_date in proper order
   def self.normalize_and_order_dates(start_date, end_date)
     if start_date.blank? and end_date.blank? # set entire range
-      start_date = Utilities::Dates::EARLIEST_DATE  # 1700/01/01
+      start_date =EARLIEST_DATE  # 1700-01-01
       end_date = Date.today.strftime('%Y/%m/%d')
     else
       if end_date.blank? # set a one-day range

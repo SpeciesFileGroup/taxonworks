@@ -5,7 +5,10 @@ namespace :tw do
       # rake tw:db:restore backup_directory=../db_backup file=../db_backup/0_pristine_tw_init_all/2016-04-26_192513UTC.dump
 
       desc 'time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+      #  time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=/Users/sfg/src/onedb2tw/working/
       task :run_all_import_tasks => [
+
+          # start section took 419m54.488s
           'start:create_users',
           'start:create_people',
           'start:map_serials',
@@ -18,6 +21,7 @@ namespace :tw do
           'start:create_source_editor_array',
           'start:create_source_roles',
 
+          # taxa section took 3929m23.113s
           'taxa:create_rank_hash',
           'taxa:create_animalia_below_root',
           'taxa:create_sf_synonym_id_to_new_parent_id_hash',
@@ -28,13 +32,15 @@ namespace :tw do
           'taxa:create_some_related_taxa',
           'taxa:create_status_flag_relationships',
 
+          # cites section took 423m23.501s
           'cites:import_nomenclator_strings',
           'cites:create_cvts_for_citations',
           'cites:create_sf_taxon_name_authors',
           'cites:create_citations',
           'cites:create_otu_cites',
-          
-          'specimens:import_two_specimen_lists',
+
+          # specimens section took 195m28.611s
+          'specimens:create_specimen_unique_id',
           'specimens:create_sf_geo_level4_hash',
           'specimens:collecting_events',
           'specimens:import_sf_depos',
@@ -46,7 +52,7 @@ namespace :tw do
           'specimens:create_sf_loc_col_events_metadata',
           'specimens:collection_objects'
       ] do
-        puts 'Ran all import tasks!'
+        puts 'Ran all tasks!'
       end
     end
   end
