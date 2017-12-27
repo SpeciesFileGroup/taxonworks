@@ -6,8 +6,15 @@ class TypeMaterialsController < ApplicationController
   # GET /type_materials
   # GET /type_materials.json
   def index
-    @recent_objects = TypeMaterial.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = TypeMaterial.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @type_materials = TypeMaterial.where(filter_params).with_project_id(sessions_current_project_id)
+      }
+    end
   end
 
   # GET /type_materials/1
@@ -95,13 +102,16 @@ class TypeMaterialsController < ApplicationController
 
 
   private
-  # Use callbacks to share common setup or constraints between actions.
+  
+  def filter_params
+    params.permit(:protonym_id, :biological_collection_object_id, :type_type)
+  end
+  
   def set_type_material
     @type_material = TypeMaterial.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @type_material
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def type_material_params
     params.require(:type_material).permit(
         :protonym_id, :biological_object_id, :type_type,
