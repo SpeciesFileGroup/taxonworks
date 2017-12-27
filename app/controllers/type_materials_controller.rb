@@ -104,7 +104,7 @@ class TypeMaterialsController < ApplicationController
   private
   
   def filter_params
-    params.permit(:protonym_id, :biological_collection_object_id, :type_type)
+    params.permit(:protonym_id, :biological_object_id, :type_type)
   end
   
   def set_type_material
