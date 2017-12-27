@@ -296,6 +296,13 @@ class TaxonName < ApplicationRecord
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
   scope :with_cached_html, -> (html) { where(cached_html: html) }
 
+
+  # @return [Array of TaxonName]
+  #   ordered by rank, a scope-like hack
+  def self.sort_by_rank(taxon_names)
+    taxon_names.sort!{|a, b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string)}
+  end
+
   # @return [Scope] Protonym(s) the **broad sense** synonyms of this name
   def synonyms
     TaxonName.with_cached_valid_taxon_name_id(self.id)
@@ -596,10 +603,10 @@ class TaxonName < ApplicationRecord
   def gbif_status_array
     return nil if self.class.nil?
     return ['combination'] if self.class == 'Combination'
-    s1 = self.taxon_name_classifications.collect{|c| c.class.gbif_status}.compact
+    s1 = taxon_name_classifications.collect{|c| c.class.gbif_status}.compact
     return s1 unless s1.empty?
-    s2 = self.taxon_name_relationships.collect{|r| r.class.gbif_status_of_subject}
-    s3 = self.related_taxon_name_relationships.collect{|r| r.class.gbif_status_of_object}
+    s2 = taxon_name_relationships.collect{|r| r.class.gbif_status_of_subject}
+    s3 = related_taxon_name_relationships.collect{|r| r.class.gbif_status_of_object}
 
     s = s2 + s3
     s.compact!
@@ -633,8 +640,8 @@ class TaxonName < ApplicationRecord
 
 
   def create_new_combination_if_absent
-    return true unless self.type == 'Protonym'
-    if !TaxonName.with_cached_html(self.cached_html).count == 0
+    return true unless type == 'Protonym'
+    if !TaxonName.with_cached_html(cached_html).count == 0
       begin
         TaxonName.transaction do
           c = Combination.new
@@ -816,16 +823,16 @@ class TaxonName < ApplicationRecord
   # @return [String]
   #  a monomial if names is above genus, or a full epithet if below, includes html
   def get_full_name_html
-    return verbatim_name if self.type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) && !self.verbatim_name.nil?
-    return name if self.type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
+    return verbatim_name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
+    return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     eo = '<i>'
     ec = '</i>'
-    return "#{eo}#{verbatim_name}#{ec}".gsub(' f. ', ec + ' f. ' + eo).gsub(' var. ', ec + ' var. ' + eo) if !self.verbatim_name.nil? && self.type == 'Combination'
-    return "#{eo}#{name}#{ec}" if self.rank_string == 'NomenclaturalRank::Iczn::GenusGroup::Supergenus' || self.rank_string == 'NomenclaturalRank::Icnb::GenusGroup::Supergenus'
+    return "#{eo}#{verbatim_name}#{ec}".gsub(' f. ', ec + ' f. ' + eo).gsub(' var. ', ec + ' var. ' + eo) if !verbatim_name.nil? && type == 'Combination'
+    return "#{eo}#{name}#{ec}" if rank_string == 'NomenclaturalRank::Iczn::GenusGroup::Supergenus' || rank_string == 'NomenclaturalRank::Icnb::GenusGroup::Supergenus'
     d = full_name_hash
 
     elements = []
-    d['genus'] = [nil, self.original_genus.name] if d['genus'].blank? && self.original_genus
+    d['genus'] = [nil, original_genus.name] if d['genus'].blank? && original_genus
     d['genus'] = [nil, '[GENUS UNKNOWN]'] if d['genus'].blank?
 
     elements.push("#{eo}#{d['genus'][1]}#{ec}") if d['genus']
@@ -837,11 +844,11 @@ class TaxonName < ApplicationRecord
     end
 
     html = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub(' [sic]', ec + ' [sic]' + eo).gsub(ec + ' ' + eo, ' ').gsub(eo + ec, '').gsub(eo + ' ', ' ' + eo)
-    html = self.fossil? ? '&#8224; ' + html : html
+    html = fossil? ? '&#8224; ' + html : html
 
     # Proceps: Why would this be hit here?  It's not type Hybrid
     #
-    html = self.hybrid? ? '&#215; ' + html : html
+    html = hybrid? ? '&#215; ' + html : html
     html
   end
 
@@ -1019,17 +1026,10 @@ class TaxonName < ApplicationRecord
     nil
   end
 
-  # A proxy for a scope
-  # @return [Array of TaxonName]
-  #   ordered by rank
-  def self.sort_by_rank(taxon_names)
-    taxon_names.sort! {|a, b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string)}
-  end
-
   #endregion
 
   def parent_is_set?
-    !self.parent_id.nil? || (self.parent && self.parent.persisted?)
+    !parent_id.nil? || (parent && parent.persisted?)
   end
 
   def next_sibling
@@ -1053,7 +1053,7 @@ class TaxonName < ApplicationRecord
   end
 
   def create_otu
-    Otu.create(by: self.creator, project: self.project, taxon_name_id: self.id)
+    Otu.create(by: creator, project: project, taxon_name_id: id)
   end
 
   protected
@@ -1071,18 +1071,18 @@ class TaxonName < ApplicationRecord
   #region Validation
 
   def validate_parent_is_set
-    if !(self.rank_class == NomenclaturalRank) && !(self.type == 'Combination')
-      errors.add(:parent_id, 'is not selected') if !parent_is_set?  # self.parent_id.blank? && (self.parent.blank? || !self.parent.persisted?)
+    if !(rank_class == NomenclaturalRank) && !(type == 'Combination')
+      errors.add(:parent_id, 'is not selected') if !parent_is_set?  # parent_id.blank? && (parent.blank? || !parent.persisted?)
     end
   end
 
   def validate_parent_rank_is_higher
-    if self.parent && !self.rank_class.blank? && self.rank_string != 'NomenclaturalRank'
-      if RANKS.index(self.rank_string) <= RANKS.index(self.parent.rank_string)
-        errors.add(:parent_id, "The parent rank (#{self.parent.rank_class.rank_name}) is not higher than the rank (#{rank_name}) of this taxon")
+    if parent && !rank_class.blank? && rank_string != 'NomenclaturalRank'
+      if RANKS.index(rank_string) <= RANKS.index(parent.rank_string)
+        errors.add(:parent_id, "The parent rank (#{parent.rank_class.rank_name}) is not higher than the rank (#{rank_name}) of this taxon")
       end
 
-      if (self.rank_class != self.rank_class_was) && self.children && !self.children.empty? && RANKS.index(self.rank_string) >= self.children.collect { |r| RANKS.index(r.rank_string) }.max
+      if (rank_class != rank_class_was) && children && !children.empty? && RANKS.index(rank_string) >= children.collect { |r| RANKS.index(r.rank_string) }.max
         errors.add(:rank_class, "The rank of this taxon (#{rank_name}) should be higher than the ranks of children")
       end
     end
@@ -1090,7 +1090,7 @@ class TaxonName < ApplicationRecord
 
   def validate_one_root_per_project
     if new_record? || project_id_changed?
-      if !parent_is_set? && TaxonName.where(parent_id: nil, project_id: self.project_id).count > 0
+      if !parent_is_set? && TaxonName.where(parent_id: nil, project_id: project_id).count > 0
         errors.add(:parent_id, 'The parent should not be empty (only one root is allowed per project)')
       end
     end
@@ -1098,9 +1098,9 @@ class TaxonName < ApplicationRecord
 
   # TODO: move to Protonym
   def check_new_parent_class
-    if is_protonym? && self.parent_id != self.parent_id_was && !self.parent_id_was.nil? && nomenclatural_code == :iczn
-      if old_parent = TaxonName.find_by(id: self.parent_id_was)
-        if (rank_name == 'subgenus' || rank_name == 'subspecies') && old_parent.name == self.name
+    if is_protonym? && parent_id != parent_id_was && !parent_id_was.nil? && nomenclatural_code == :iczn
+      if old_parent = TaxonName.find_by(id: parent_id_was)
+        if (rank_name == 'subgenus' || rank_name == 'subspecies') && old_parent.name == name
           errors.add(:parent_id, "The nominotypical #{rank_name} #{name} can not be moved out of the nominal #{old_parent.rank_name}")
         end
       end
@@ -1115,22 +1115,22 @@ class TaxonName < ApplicationRecord
   def check_new_rank_class
     # rank_class_was is a AR macro
 
-    if (self.rank_class != self.rank_class_was) && !self.rank_class_was.nil?
+    if (rank_class != rank_class_was) && !rank_class_was.nil?
 
-      if self.rank_class_was == 'NomenclaturalRank'
+      if rank_class_was == 'NomenclaturalRank'
         errors.add(:rank_class, "Root can not have a new rank")
         return
       end
 
-      old_rank_group = self.rank_class_was.safe_constantize.parent
-      if self.rank_class.parent != old_rank_group
+      old_rank_group = rank_class_was.safe_constantize.parent
+      if rank_class.parent != old_rank_group
         errors.add(:rank_class, "A new taxon rank (#{rank_name}) should be in the #{old_rank_group.rank_name} rank group")
       end
     end
   end
 
   def validate_source_type
-    errors.add(:base, 'Source must be a Bibtex') if self.source && self.source.type != 'Source::Bibtex'
+    errors.add(:base, 'Source must be a Bibtex') if source && source.type != 'Source::Bibtex'
   end
 
   #TODO: validate that all the ranks in the table could be linked to ranks in classes (if those had changed)
@@ -1142,14 +1142,14 @@ class TaxonName < ApplicationRecord
   def sv_validate_name
     correct_name_format = false
 
-    if self.rank_class
+    if rank_class
       # TODO: name these Regexp somewhere
-      if (self.name =~ /^[a-zA-Z]*$/) || # !! should reference NOT_LATIN
-          (nomenclatural_code == :iczn && self.name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
-          (nomenclatural_code == :icnb && self.name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
-          (nomenclatural_code == :icn && self.name =~  /^[a-zA-Z]*-[a-zA-Z]*$/) ||
-          (nomenclatural_code == :icn && self.name =~ /^[a-zA-Z]*\s×\s[a-zA-Z]*$/) ||
-          (nomenclatural_code == :icn && self.name =~ /^×\s[a-zA-Z]*$/)
+      if (name =~ /^[a-zA-Z]*$/) || # !! should reference NOT_LATIN
+          (nomenclatural_code == :iczn && name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
+          (nomenclatural_code == :icnb && name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
+          (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*-[a-zA-Z]*$/) ||
+          (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*\s×\s[a-zA-Z]*$/) ||
+          (nomenclatural_code == :icn && name =~  /^×\s[a-zA-Z]*$/)
         correct_name_format = true
       end
 
