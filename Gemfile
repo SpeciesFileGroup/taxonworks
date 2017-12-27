@@ -92,7 +92,7 @@ gem 'ruby-units', '~> 2.2.0', require: 'ruby_units/namespaced'
 # Minor Utils/helpers
 gem 'awesome_print', '~> 1.8'
 gem 'indefinite_article', '~> 0.2.4'
-gem 'rainbow', '~> 2.2.2'
+gem 'rainbow', '~> 3.0.0'
 gem 'term-ansicolor', '~> 1.6' # DEPRECATED
 gem 'chronic', '~> 0.10.2'
 gem 'logical_query_parser'
@@ -121,7 +121,7 @@ group :development do
   gem 'guard-rspec', '~> 4.7.3', require: false
   gem 'parallel_tests', '~> 2.16.0'
   gem 'web-console', '~> 3.5.1'
-  gem 'rubocop', '~> 0.50.0'
+  gem 'rubocop', '~> 0.52.0'
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
 end
 
