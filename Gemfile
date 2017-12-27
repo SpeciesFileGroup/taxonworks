@@ -133,7 +133,7 @@ end
 group :test do
   gem 'rspec', '~> 3.6'
   gem 'coveralls', '~> 0.8.21', require: false
-  gem 'capybara', '~> 2.15.1'
+  gem 'capybara', '~> 2.16.1'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.0.1'
   gem 'vcr', '~> 3.0.3'
