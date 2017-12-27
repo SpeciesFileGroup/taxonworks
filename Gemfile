@@ -7,7 +7,7 @@ ruby '2.4.2'
 gem 'rake', '~> 12.0'
 gem 'rails', '~> 5.1.4'
 gem 'pg', '~> 0.21.0'
-gem 'activerecord-postgis-adapter', '~> 5.1'
+gem 'activerecord-postgis-adapter', '~> 5.2'
 
 gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 4.0.0'
