@@ -24,7 +24,6 @@ application_settings.yml
 .yardoc/
 /doc
 /log
-/node_modules
 /tags
 /tmp
 /coverage
@@ -42,12 +41,12 @@ index.html
 /bin/delayed_job
 
 /public/system
-/public/packs-test
 /public/images/tmp
 /public/assets/
-/public/packs
 /spec/fixtures/vcr_cassettes
 /spec/test_files/
 
 REVISION
+/public/packs
+/public/packs-test
 /node_modules
