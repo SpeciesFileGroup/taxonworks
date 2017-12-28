@@ -105,8 +105,8 @@ end
   end
 
   def autocomplete
-    @namespaces = Namespace.find_for_autocomplete(params)
-
+    @namespaces = Queries::NamespaceAutocompleteQuery.new(params.require(:term)).all
+    
     data = @namespaces.collect do |t|
       {id: t.id,
        label: ApplicationController.helpers.namespace_tag(t),
