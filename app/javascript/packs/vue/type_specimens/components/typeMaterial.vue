@@ -31,14 +31,14 @@
             url="/collection_objects/autocomplete"
             param="term"
             label="label_html"
-            @getItem="protonymId = $event.id"
+            @getItem="biologicalId = $event.id"
             display="label"
             min="2">
           </autocomplete>
         </div>
 
         <div class="field">
-          <button type="button" class="normal-input button button-submit">Create</button>
+          <button @click="createTypeMaterial()" type="button" class="normal-input button button-submit">Create</button>
         </div>
       </template>
 
@@ -50,6 +50,7 @@
 
   import { GetterNames } from '../store/getters/getters';
   import { MutationNames } from '../store/mutations/mutations';
+  import ActionNames from '../store/actions/actionNames';
 
   import autocomplete from '../../components/autocomplete.vue';
   import spinner from '../../components/spinner.vue';
@@ -80,8 +81,13 @@
           this.$store.commit(MutationNames.SetType, value);
         }
       },
-      getTypeMaterial() {
-        return this.$store.getters[GetterNames.GetTypeMaterial]
+      biologicalId: {
+        get() {
+          return this.$store.getters[GetterNames.GetBiologicalId]
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetBiologicalId, value)
+        }
       }
     },
     data: function() {
@@ -90,6 +96,12 @@
         tabOptions: ['material', 'new'],
         displayBody: true,
         roles_attribute: [],
+      }
+    },
+    methods: {
+      createTypeMaterial() {
+        let type_material = this.$store.getters[GetterNames.GetTypeMaterial];
+        this.$store.dispatch(ActionNames.CreateTypeMaterial, { type_material: type_material });
       }
     }
   }

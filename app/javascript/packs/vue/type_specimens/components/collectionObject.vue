@@ -2,21 +2,22 @@
   <div>
     <div class="field">
       <label>Total</label>
-      <input type="number"/>
+      <input type="number" v-model="total"/>
     </div>
     <div class="field">
-      <select>
+      <select v-model="preparationId">
         <option v-for="item, index in types" :value="(index+1)">{{ item }}</option>
       </select>
     </div>
     <div class="field">
       <label>Repository</label>
       <autocomplete
+        class="types_field"
         url="/repositories/autocomplete"
         param="term"
         label="label_html"
         placeholder="Select a repository"
-        @getItem="protonymId = $event.id"
+        @getItem="repositoryId = $event.id"
         display="label"
         min="2">
       </autocomplete>
@@ -24,41 +25,30 @@
     <div class="field">
       <label>Collection event</label>
       <autocomplete
-        url="/collection_events/autocomplete"
+        class="types_field"
+        url="/collecting_events/autocomplete"
         param="term"
         label="label_html"
         placeholder="Select a collection event"
-        @getItem="protonymId = $event.id"
+        @getItem="eventId = $event.id"
         display="label"
         min="2">
       </autocomplete>
     </div>
-    <div class="field">
-      <label>Accessioned at</label>
-      <input type="date"/>
-    </div>
-    <div class="field">
-      <label>Deaccessioned at</label>
-      <input type="date"/>
-    </div>
-    <div class="field">
-      <label>Deaccession reason</label>
-      <input type="text" />
-    </div>
-    <div class="field">
+    <div class="field types_field">
       <label>Buffered collecting event</label>
-      <textarea></textarea>
+      <textarea v-model="bufferedEvent"></textarea>
     </div>
-    <div class="field">
+    <div class="field types_field">
       <label>Buffered determinations</label>
-      <textarea></textarea>
+      <textarea v-model="bufferedDeterminations"></textarea>
     </div>
-    <div class="field">
+    <div class="field types_field">
       <label>Buffered other labels</label>
-      <textarea></textarea>
+      <textarea v-model="bufferedLabels"></textarea>
     </div>
     <div class="field">
-      <button type="button" class="button normal-input button-submit">Create Collection object</button>
+      <button @click="createTypeMaterial" type="button" class="button normal-input button-submit">Create</button>
     </div>
   </div>
 </template>
@@ -66,10 +56,71 @@
 <script>
   
   import autocomplete from '../../components/autocomplete.vue';
+  import { GetterNames } from '../store/getters/getters';
+  import { MutationNames } from '../store/mutations/mutations';
+  import ActionNames from '../store/actions/actionNames';
 
   export default {
     components: {
       autocomplete
+    },
+    computed: {
+      repositoryId: {
+        get() {
+          return this.$store.getters[GetterNames.GetCollectionObjectRepositoryId]
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetCollectionObjectRepositoryId, value);
+        }
+      },
+      bufferedDeterminations: {
+        get() {
+          return this.$store.getters[GetterNames.GetCollectionObjectBufferedDeterminations]
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetCollectionObjectBufferedDeterminations, value);
+        }
+      },
+      bufferedEvent: {
+        get() {
+          return this.$store.getters[GetterNames.GetCollectionObjectBufferedEvent]
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetCollectionObjectBufferedEvent, value);
+        }
+      },
+      bufferedLabels: {
+        get() {
+          return this.$store.getters[GetterNames.GetCollectionObjectBufferedLabels]
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetCollectionObjectBufferedLabels, value);
+        }
+      },
+      eventId: {
+        get() {
+          return this.$store.getters[GetterNames.GetCollectionObjectEventId]
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetCollectionObjectEventId, value);
+        }
+      },
+      preparationId: {
+        get() {
+          return this.$store.getters[GetterNames.GetCollectionObjectPreparationId]
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetCollectionObjectPreparationId, value);
+        }
+      },
+      total: {
+        get() {
+          return this.$store.getters[GetterNames.GetCollectionObjectTotal]
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetCollectionObjectTotal, value);
+        }
+      }
     },
     data: function() {
       return {
@@ -81,6 +132,15 @@
                 'Slide', 
                 'Vial']
 
+      }
+    },
+    methods: {
+      createTypeMaterial() {
+        let type_material = this.$store.getters[GetterNames.GetTypeMaterial];
+        type_material.biological_object_id = undefined;
+        type_material.material_attributes = this.$store.getters[GetterNames.GetCollectionObject];
+        
+        this.$store.dispatch(ActionNames.CreateTypeMaterial, { type_material: type_material });
       }
     }
   }

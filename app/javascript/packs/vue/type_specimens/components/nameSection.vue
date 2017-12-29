@@ -8,11 +8,12 @@
       <div class="field">
         <label>Protonym</label>
         <autocomplete
+          class="types_field"
           url="/taxon_names/autocomplete"
           param="term"
           label="label_html"
           display="label"
-          @getItem="protonymId = $event.id"
+          @getItem="setTypeSpecimen($event.id)"
           min="2"
           :add-params="{
             'type[]': 'Protonym',
@@ -20,6 +21,7 @@
           }">
         </autocomplete>
       </div>
+      <display-list :list="typesMaterial" :annotator="true" @delete="removeTypeSpecimen" label="object_tag"></display-list>
     </div>
   </div>
 </template>
@@ -28,27 +30,35 @@
 
   import expand from './expand.vue';
   import autocomplete from '../../components/autocomplete.vue';
+  import displayList from '../../components/displayList.vue';
+
+  import { DestroyTypeMaterial } from '../request/resources';
   import { GetterNames } from '../store/getters/getters';
   import { MutationNames } from '../store/mutations/mutations';
+  import ActionNames from '../store/actions/actionNames';
   
   export default {
     components: {
+      displayList,
       autocomplete,
       expand
     },
     computed: {
-      protonymId: {
-        get() {
-          return this.$store.getters[GetterNames.GetProtonymId];
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetProtonymId, value);
-        }
+      typesMaterial() {
+        return this.$store.getters[GetterNames.GetTypeMaterials];
       }
     },
     data: function() {
       return {
         displayBody: true
+      }
+    },
+    methods: {
+      setTypeSpecimen(id) {
+        this.$store.dispatch(ActionNames.LoadTypeMaterials, id)
+      },
+      removeTypeSpecimen(item) {
+        this.$store.dispatch(ActionNames.RemoveTypeSpecimen, item.id);
       }
     }
   }

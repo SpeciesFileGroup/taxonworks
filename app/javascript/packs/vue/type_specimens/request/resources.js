@@ -27,6 +27,20 @@ const handleError = function(json) {
   TW.workbench.alert.create(errorMessage, 'error');
 }
 
-export {
+const GetTypeMaterial = function(protonymId) {
+  return ajaxCall('get', `/type_materials.json?protonym_id=${protonymId}`);
+}
 
+const CreateTypeMaterial = function(data) {
+  return ajaxCall('post', `/type_materials.json`, data);
+}
+
+const DestroyTypeMaterial = function(id) {
+  return ajaxCall('delete', `/type_materials/${id}.json`);
+}
+
+export {
+  CreateTypeMaterial,
+  GetTypeMaterial,
+  DestroyTypeMaterial
 }

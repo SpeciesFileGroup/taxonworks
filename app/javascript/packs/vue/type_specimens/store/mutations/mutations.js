@@ -4,6 +4,20 @@ import setCitation from './setCitation';
 import setRoles from './setRoles';
 import setProtonymId from './setProtonymId';
 import setSaving from './setSaving';
+import setLoading from './setLoading';
+import setTypeMaterial from './setTypeMaterial';
+import setTypeMaterials from './setTypeMaterials';
+import removeTypeMaterial from './removeTypeMaterial';
+import addTypeMaterial from './addTypeMaterial';
+
+import setCollectionObjectBufferedDeterminations from './setCollectionObjectBufferedDeterminations';
+import setCollectionObjectBufferedEvent from './setCollectionObjectBufferedEvent';
+import setCollectionObjectBufferedLabels from './setCollectionObjectBufferedLabels';
+import setCollectionObjectEventId from './setCollectionObjectEventId';
+import setCollectionObjectId from './setCollectionObjectId';
+import setCollectionObjectPreparationId from './setCollectionObjectPreparationId';
+import setCollectionObjectRepositoryId from './setCollectionObjectRepositoryId';
+import setCollectionObjectTotal from './setCollectionObjectTotal';
 
 const MutationNames = {
 	SetType: 'setType',
@@ -11,7 +25,20 @@ const MutationNames = {
 	SetCitation: 'setCitation',
 	SetRoles: 'setRoles',
 	SetProtonymId: 'setProtonymId',
-	SetSaving: 'setSaving'
+	SetSaving: 'setSaving',
+	SetLoading: 'setLoading',
+	SetTypeMaterial: 'setTypeMaterial',
+	SetTypeMaterials: 'setTypeMaterials',
+	RemoveTypeMaterial: 'removeTypeMaterial',
+	AddTypeMaterial: 'addTypeMaterial',
+	SetCollectionObjectBufferedDeterminations: 'setCollectionObjectBufferedDeterminations',
+	SetCollectionObjectBufferedEvent: 'setCollectionObjectBufferedEvent',
+	SetCollectionObjectBufferedLabels: 'setCollectionObjectBufferedLabels',
+	SetCollectionObjectEventId: 'setCollectionObjectEventId',
+	SetCollectionObjectId: 'setCollectionObjectId',
+	SetCollectionObjectPreparationId: 'setCollectionObjectPreparationId',
+	SetCollectionObjectRepositoryId: 'setCollectionObjectRepositoryId',
+	SetCollectionObjectTotal: 'setCollectionObjectTotal',
 };
 
 const MutationFunctions = {
@@ -20,7 +47,20 @@ const MutationFunctions = {
 	[MutationNames.SetCitation]: setCitation,
 	[MutationNames.SetRoles]: setRoles,
 	[MutationNames.SetProtonymId]: setProtonymId,
-	[MutationNames.SetSaving]: setSaving
+	[MutationNames.SetSaving]: setSaving,
+	[MutationNames.SetLoading]: setLoading,
+	[MutationNames.SetTypeMaterial]: setTypeMaterial,
+	[MutationNames.SetTypeMaterials]: setTypeMaterials,
+	[MutationNames.RemoveTypeMaterial]: removeTypeMaterial,
+	[MutationNames.AddTypeMaterial]: addTypeMaterial,
+	[MutationNames.SetCollectionObjectBufferedDeterminations]: setCollectionObjectBufferedDeterminations,
+	[MutationNames.SetCollectionObjectBufferedEvent]: setCollectionObjectBufferedEvent,
+	[MutationNames.SetCollectionObjectBufferedLabels]: setCollectionObjectBufferedLabels,
+	[MutationNames.SetCollectionObjectEventId]: setCollectionObjectEventId,
+	[MutationNames.SetCollectionObjectRepositoryId]: setCollectionObjectRepositoryId,
+	[MutationNames.SetCollectionObjectId]: setCollectionObjectId,
+	[MutationNames.SetCollectionObjectPreparationId]: setCollectionObjectPreparationId,
+	[MutationNames.SetCollectionObjectTotal]: setCollectionObjectTotal,
 };
 
 export {

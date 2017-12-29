@@ -39,9 +39,13 @@
     margin: 0 auto;
     margin-top: 1em;
     max-width: 1240px;
-
-    input[type="text"], textarea {
-      width: 300px;
+    .types_field {
+      input[type="text"], textarea {
+        width: 300px;
+      }
+      .vue-autocomplete-input {
+          width: 300px;
+      }
     }
     hr {
         height: 1px;
@@ -76,9 +80,6 @@
         padding: 2em;
         padding-top: 1em;
         padding-bottom: 1em;
-      }
-      .vue-autocomplete-input {
-        width: 300px;
       }
       .taxonName-input,#error_explanation {
         width: 300px;

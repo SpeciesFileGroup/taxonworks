@@ -8,7 +8,7 @@
     <div class="body" v-if="displayBody">
         <div class="field">
           <label>Type designator</label>
-          <role-picker v-model="roles">    
+          <role-picker v-model="roles" class="types_field">    
           </role-picker>
         </div>
         <div class="field">
