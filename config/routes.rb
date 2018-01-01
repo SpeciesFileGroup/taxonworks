@@ -577,7 +577,7 @@ TaxonWorks::Application.routes.draw do
   scope :tasks do
     scope :type_material do
       scope :edit_type_material, controller: 'tasks/type_material/edit_type_material' do
-        get 'index', as: 'edit_type_material_task'
+        get '/', as: 'edit_type_material_task', action: :index
       end
     end
 
