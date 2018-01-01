@@ -13,6 +13,7 @@ function makeInitialState() {
       loading: false,
       saving: false
     },
+    taxon_name: undefined,
     type_material: {
       id: undefined,
       protonym_id: undefined,

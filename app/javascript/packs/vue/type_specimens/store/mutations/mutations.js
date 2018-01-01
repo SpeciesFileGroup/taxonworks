@@ -1,3 +1,4 @@
+import setTaxon from './setTaxon';
 import setType from './setType';
 import setBiologicalId from './setBiologicalId';
 import setCitation from './setCitation';
@@ -20,6 +21,7 @@ import setCollectionObjectRepositoryId from './setCollectionObjectRepositoryId';
 import setCollectionObjectTotal from './setCollectionObjectTotal';
 
 const MutationNames = {
+	SetTaxon: 'setTaxon',
 	SetType: 'setType',
 	SetBiologicalId: 'setBiologicalId',
 	SetCitation: 'setCitation',
@@ -42,6 +44,7 @@ const MutationNames = {
 };
 
 const MutationFunctions = {
+	[MutationNames.SetTaxon]: setTaxon,
 	[MutationNames.SetType]: setType,
 	[MutationNames.SetBiologicalId]: setBiologicalId,
 	[MutationNames.SetCitation]: setCitation,

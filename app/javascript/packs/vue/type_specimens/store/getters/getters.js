@@ -1,6 +1,7 @@
 import getBiologicalId from './getBiologicalId';
 import getCitation from './getCitation';
 import getRoles from './getRoles';
+import getTaxon from './getTaxon';
 import getType from './getType';
 import getTypeMaterial from './getTypeMaterial';
 import getProtonymId from './getProtonymId';
@@ -20,6 +21,7 @@ const GetterNames = {
     GetBiologicalId: 'getBiologicalId',
     GetCitation: 'getCitation',
     GetRoles: 'getRoles',
+    GetTaxon: 'getTaxon',
     GetType: 'getType',
     GetTypeMaterial: 'getTypeMaterial',
     GetProtonymId: 'getProtonymId',
@@ -38,6 +40,7 @@ const GetterFunctions = {
     [GetterNames.GetBiologicalId]: getBiologicalId,
     [GetterNames.GetCitation]: getCitation,
     [GetterNames.GetRoles]: getRoles,
+    [GetterNames.GetTaxon]: getTaxon,
     [GetterNames.GetType]: getType,
     [GetterNames.GetTypeMaterial]: getTypeMaterial,
     [GetterNames.GetProtonymId]: getProtonymId,

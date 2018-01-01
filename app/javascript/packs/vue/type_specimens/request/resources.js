@@ -35,6 +35,10 @@ const GetPreparationTypes = function() {
   return ajaxCall('get', `/preparation_types.json`);
 }
 
+const GetTaxonName = function(id) {
+  return ajaxCall('get', `/taxon_names/${id}.json`);
+}
+
 const CreateTypeMaterial = function(data) {
   return ajaxCall('post', `/type_materials.json`, data);
 }
@@ -50,6 +54,7 @@ const DestroyTypeMaterial = function(id) {
 export {
   CreateTypeMaterial,
   GetTypeMaterial,
+  GetTaxonName,
   GetPreparationTypes,
   UpdateTypeMaterial,
   DestroyTypeMaterial
