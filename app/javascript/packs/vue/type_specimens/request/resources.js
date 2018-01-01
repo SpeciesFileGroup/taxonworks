@@ -31,8 +31,16 @@ const GetTypeMaterial = function(protonymId) {
   return ajaxCall('get', `/type_materials.json?protonym_id=${protonymId}`);
 }
 
+const GetPreparationTypes = function() {
+  return ajaxCall('get', `/preparation_types.json`);
+}
+
 const CreateTypeMaterial = function(data) {
   return ajaxCall('post', `/type_materials.json`, data);
+}
+
+const UpdateTypeMaterial = function(id, data) {
+  return ajaxCall('patch', `/type_materials/${id}.json`, data);
 }
 
 const DestroyTypeMaterial = function(id) {
@@ -42,5 +50,7 @@ const DestroyTypeMaterial = function(id) {
 export {
   CreateTypeMaterial,
   GetTypeMaterial,
+  GetPreparationTypes,
+  UpdateTypeMaterial,
   DestroyTypeMaterial
 }

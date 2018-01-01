@@ -5,8 +5,9 @@
       <input type="number" v-model="total"/>
     </div>
     <div class="field">
+      <label>Preparation type</label>
       <select v-model="preparationId">
-        <option v-for="item, index in types" :value="(index+1)">{{ item }}</option>
+        <option v-for="item in types" :value="item.id">{{ item.name }}</option>
       </select>
     </div>
     <div class="field">
@@ -37,15 +38,15 @@
     </div>
     <div class="field types_field">
       <label>Buffered collecting event</label>
-      <textarea v-model="bufferedEvent"></textarea>
+      <textarea rows="5" v-model="bufferedEvent"></textarea>
     </div>
     <div class="field types_field">
       <label>Buffered determinations</label>
-      <textarea v-model="bufferedDeterminations"></textarea>
+      <textarea rows="5" v-model="bufferedDeterminations"></textarea>
     </div>
     <div class="field types_field">
       <label>Buffered other labels</label>
-      <textarea v-model="bufferedLabels"></textarea>
+      <textarea rows="5" v-model="bufferedLabels"></textarea>
     </div>
     <div class="field">
       <button @click="createTypeMaterial" type="button" class="button normal-input button-submit">Create</button>
@@ -58,6 +59,7 @@
   import autocomplete from '../../components/autocomplete.vue';
   import { GetterNames } from '../store/getters/getters';
   import { MutationNames } from '../store/mutations/mutations';
+  import { GetPreparationTypes } from '../request/resources';
   import ActionNames from '../store/actions/actionNames';
 
   export default {
@@ -124,15 +126,14 @@
     },
     data: function() {
       return {
-        types: ['Bulk dry',
-                'Envelope', 
-                'Pill box', 
-                'Jar', 
-                'Pin', 
-                'Slide', 
-                'Vial']
-
+        types: []
       }
+    },
+    mounted: function() {
+      var that = this;
+      GetPreparationTypes().then(response => {
+        that.types = response;
+      })
     },
     methods: {
       createTypeMaterial() {
