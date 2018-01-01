@@ -385,9 +385,8 @@ class TaxonName < ApplicationRecord
     try(:source).try(:year)
   end
 
-  # Used to determine nomenclatural priorities
   # @return [Time]
-  #   effective date of publication.
+  #   effective date of publication, used to determine nomenclatural priority
   def nomenclature_date
     return nil if self.id.nil?
      family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first

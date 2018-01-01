@@ -125,7 +125,8 @@ module TaxonNamesHelper
     when 'Protonym'
       case target
       when :edit_task
-        link_to(content_tag(:span, 'Edit (task)', 'data-icon' => 'edit', 'class' => 'small-icon'), new_taxon_name_task_path(taxon_name.metamorphosize), 'class' => 'navigation-item')
+        link_to(content_tag(:span, 'Edit (task)', 'data-icon' => 'edit', 'class' => 'small-icon'),
+                new_taxon_name_task_path(taxon_name.metamorphosize), 'class' => 'navigation-item')
       else
         link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', 'class' => 'small-icon'), edit_taxon_name_path(taxon_name.metamorphosize), 'class' => 'navigation-item')
       end

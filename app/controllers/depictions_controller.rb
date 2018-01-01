@@ -100,7 +100,11 @@ class DepictionsController < ApplicationController
   end
 
   def depiction_params
-    params.require(:depiction).permit(:depiction_object_id, :depiction_object_type, :annotated_global_entity, :caption, :figure_label, image_attributes: [:image_file])
+    params.require(:depiction).permit(
+      :depiction_object_id, :depiction_object_type,
+      :annotated_global_entity, :caption,
+      :figure_label, image_attributes: [:image_file]
+    )
   end
 
 end
