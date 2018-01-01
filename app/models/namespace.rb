@@ -54,11 +54,6 @@ class Namespace < ApplicationRecord
   scope :used_recently, -> { joins(:identifiers).where(identifiers: { created_at: 1.weeks.ago..Time.now } ) }
   scope :used_in_project, -> (project_id) { joins(:identifiers).where( identifiers: { project_id: project_id } ) }
 
-  def self.find_for_autocomplete(params)
-    match = "#{params[:term]}%"
-    where('name ILIKE ? OR short_name ILIKE ? OR verbatim_short_name ILIKE ?', match, match, match)
-  end
-
   def self.select_optimized(user_id, project_id, klass)
     h = {
       recent: Namespace.used_on_klass(klass).used_in_project(project_id).used_recently.limit(10).distinct.to_a,

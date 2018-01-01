@@ -76,8 +76,8 @@ class DescriptorsController < ApplicationController
   end
   
   def autocomplete
-    t = "#{params[:term]}%"
-    @descriptors = Descriptor.where(project_id: sessions_current_project_id).where('name like ? or short_name like ?', t, t)
+    @descriptors = Queries::DescriptorAutocompleteQuery.new(params.require(:term), project_id: sessions_current_project_id).all
+
     data = @descriptors.collect do |t|
       {id:              t.id,
       label:           t.name, 
