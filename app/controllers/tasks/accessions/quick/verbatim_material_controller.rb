@@ -32,11 +32,9 @@ class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationControll
     @recent = CollectionObject.created_last(5).where(created_by_id: sessions_current_user_id, project_id: sessions_current_project_id)
   end
 
-
-
   def set_fixed_variables
-    @repositories       = Repository.order(:name).all
-    @namespaces         = Namespace.order(:name).all
+    # @repositories       = Repository.order(:name).all
+    # @namespaces         = Namespace.order(:name).all
     @biocuration_groups = BiocurationGroup.with_project_id(sessions_current_project_id)
   end
 
@@ -47,6 +45,7 @@ class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationControll
     @identifier = material.identifier
     @namespace = material.namespace
     @repository = material.repository
+    @preparation_type = material.preparation_type
     @note = material.note
   end
 

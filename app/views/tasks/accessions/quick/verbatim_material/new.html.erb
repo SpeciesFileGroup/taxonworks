@@ -2,6 +2,32 @@
 <%= form_tag create_verbatim_material_task_path, class: [:panel, "no-shadow"], id: :quick_task do %>
     <div class="flexbox">
     <div class="item item1">
+
+      <h3 data-help="These data are part of the collection object." class="title-section">Verbatim data</h3>
+      <div class="fields-container">
+        <div class="field">
+          <%= label_tag :collecting_event %>
+          <%= text_area :collection_object, :buffered_collecting_event, rows: 6, cols: 50 %>
+          <%= lock_tag(@locks, :locks, :collecting_event ) %>
+        </div>
+        <div class="field">
+          <%= label_tag :determinations %>
+          <%= text_area :collection_object, :buffered_determinations  %>
+          <%= lock_tag(@locks, :locks, :determinations ) %>
+        </div>
+        <div class="field">
+          <%= label_tag :other_labels %>
+          <%= text_area :collection_object, :buffered_other_labels  %>
+          <%= lock_tag(@locks, :locks, :other_labels ) %>
+        </div>
+        <div class="field">
+          <%= label_tag :note, "Notes", data: {help: 'This note is copied to each collection object.'} %>
+          <%= text_area :note, :text %>
+          <%= lock_tag(@locks, :locks, :note) %>
+        </div>
+      </div>
+
+
       <div id="identifier" class="fields-container side_by_side_fields">
         <div class="field field-align-center">
           <%= label_tag 'Catalog number' %>
@@ -43,30 +69,18 @@
         </div>
       </div>
 
-      <h3 data-help="These data are part of the collection object." class="title-section">Verbatim data</h3>
       <div class="fields-container">
-        <div class="field">
-          <%= label_tag :collecting_event %>
-          <%= text_area :collection_object, :buffered_collecting_event, rows: 6, cols: 50 %>
-          <%= lock_tag(@locks, :locks, :collecting_event ) %>
-        </div>
-        <div class="field">
-          <%= label_tag :determinations %>
-          <%= text_area :collection_object, :buffered_determinations  %>
-          <%= lock_tag(@locks, :locks, :determinations ) %>
-        </div>
-        <div class="field">
-          <%= label_tag :other_labels %>
-          <%= text_area :collection_object, :buffered_other_labels  %>
-          <%= lock_tag(@locks, :locks, :other_labels ) %>
-        </div>
-        <div class="field">
-          <%= label_tag :note, "Notes", data: {help: 'This note is copied to each collection object.'} %>
-          <%= text_area :note, :text %>
-          <%= lock_tag(@locks, :locks, :note) %>
+        <div class="field field-align-center">
+          <%= label_tag 'Preparation type' %>
+
+          <%= preparation_types_select(selected: @preparation_type) -%>     
+
+        <%= lock_tag(@locks, :locks, :preparation_type ) %>
         </div>
       </div>
+
     </div>
+
     <div class="item item2">
       <h3 class="title-section" data-help="Each total provided creates a new collection object record, each with all of the data provided on the left. If more than one total is provided the objects are linked in a 'virtual' container, and if an identifier is provided it will attach to that container, rather than to the collection object.  Each collection object can have individual bio curation attributes." >Totals</h3>
       <%= render 'attribute_form' %>

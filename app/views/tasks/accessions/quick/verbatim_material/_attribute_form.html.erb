@@ -1,5 +1,4 @@
 <div class="totals">
-
   <% @biocuration_groups.each_with_index do |bg, i| %>
     <div id="biocuration_group_<%= i -%>" class="biocuration_group_totals horizontal-left-content flexbox" >
       <div class="total_rows item item1">
@@ -16,7 +15,6 @@
       </div>
     </div>
   <% end %>
-
 </div>
 
 <% if @biocuration_groups.count == 0 -%>
