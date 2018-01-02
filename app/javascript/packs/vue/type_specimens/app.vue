@@ -1,14 +1,14 @@
 <template>
   <div id="vue_type_specimens">
     <spinner :full-screen="true" legend="Loading..." :logo-size="{ width: '100px', height: '100px'}" v-if="settings.loading"></spinner>
-    <h1>New type specimen</h1>
+    <h1>{{ isNew }} type specimen</h1>
     <div>
       <div class="flexbox horizontal-center-content align-start">
         <div class="ccenter item separate-right">
-          <name-section class="separate-bottom"></name-section>
-          <type-material-section class="separate-top separate-bottom"></type-material-section>
-          <metadata-section class="separate-top separate-bottom"></metadata-section>
-          <depictions-section class="separate-top separate-bottom"></depictions-section>
+          <name-section class="separate-bottom" v-if="!taxon"></name-section>
+          <type-material-section class="separate-bottom"></type-material-section>
+          <metadata-section class="separate-bottom"></metadata-section>
+          <depictions-section class="separate-bottom"></depictions-section>
         </div>
         <div v-if="taxon" class="cright item separate-left">
           <div id="cright-panel">
@@ -42,19 +42,47 @@
       spinner
     },
     computed: {
+      taxonMaterial() {
+        return this.$store.getters[GetterNames.GetTaxon]
+      },
       taxon() {
         return this.$store.getters[GetterNames.GetTaxon]
       },
       settings() {
         return this.$store.getters[GetterNames.GetSettings]
+      },
+      isNew() {
+        return this.$store.getters[GetterNames.GetTypeMaterial].id ? 'Edit' : 'New'
       }
     },
     mounted: function() {
-      let urlParams = new URLSearchParams(window.location.search);
-      let protonym_id = urlParams.get('protonym_id');
+      this.loadTaxonTypes();
+    },
+    watch: {
+      taxon(newVal) {
+        if(newVal != undefined) {
+          this.setProtonymParam(newVal.id);
+        }
+      }
+    },
+    methods: {
+      loadTaxonTypes() {
+        let urlParams = new URLSearchParams(window.location.search);
+        let protonym_id = urlParams.get('protonym_id');
 
-      if(/^\d+$/.test(protonym_id)) {
-        this.$store.dispatch(ActionNames.LoadTypeMaterials, protonym_id)
+        if(/^\d+$/.test(protonym_id)) {
+          this.$store.dispatch(ActionNames.LoadTypeMaterials, protonym_id)
+        }
+      },
+      setProtonymParam(id) {
+        let urlParams = new URLSearchParams(window.location.search);
+        if(id) {
+          urlParams.set('protonym_id', id);
+        }
+        else {
+          urlParams.delete('protonym_id');
+        }
+        history.pushState(null, null, `/tasks/type_material/edit_type_material?${urlParams.toString()}`);
       }
     }
   }

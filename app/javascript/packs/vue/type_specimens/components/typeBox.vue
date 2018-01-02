@@ -1,6 +1,6 @@
 <template>
 	<div id="typeBox">
-		<div class="panel basic-information">
+		<div class="panel separate-bottom">
 			<div class="content header">
 				<h3 v-if="taxon.id" class="flex-separate middle">
 					<a :href="`/tasks/nomenclature/browse/${taxon.id}`" target="_blank" class="taxonname"> 
@@ -11,31 +11,45 @@
 						<radial-annotator :globalId="taxon.global_id"></radial-annotator>
 					</div>
 				</h3>
-				<h3 class="taxonname" v-else>New</h3>
 			</div>
+		</div>
+		<div class="panel content" v-if="typesMaterial.length">
+			<display-list :list="typesMaterial" :annotator="true" :edit="true" @edit="setTypeMaterial" @delete="removeTypeSpecimen" label="object_tag"></display-list>
 		</div>
 	</div>
 </template>
 <script>
 
-import radialAnnotator from '../../components/annotator/annotator.vue';
-import { GetterNames } from '../store/getters/getters';
+	import displayList from '../../components/displayList.vue';
+	import radialAnnotator from '../../components/annotator/annotator.vue';
+	import { GetterNames } from '../store/getters/getters';
+	import ActionNames from '../store/actions/actionNames';
 
-export default {
-	components: {
-		radialAnnotator
-	},
-	computed: {
-		taxon() {
-			return this.$store.getters[GetterNames.GetTaxon]
+	export default {
+		components: {
+			radialAnnotator,
+			displayList
 		},
-	},
-	methods: {
-		reloadPage: function() {
-			window.location.href = '/tasks/type_material/edit_type_material'
+		computed: {
+			typesMaterial() {
+				return this.$store.getters[GetterNames.GetTypeMaterials];
+			},
+			taxon() {
+				return this.$store.getters[GetterNames.GetTaxon]
+			},
 		},
-	},
-}
+		methods: {
+			reloadPage() {
+				window.location.href = '/tasks/type_material/edit_type_material'
+			},
+			removeTypeSpecimen(item) {
+				this.$store.dispatch(ActionNames.RemoveTypeSpecimen, item.id);
+			},
+			setTypeMaterial(material) {
+				this.$store.dispatch(ActionNames.LoadTypeMaterial, material)
+			}
+		},
+	}
 </script>
 <style lang="scss" scoped>
 	.taxon-options {

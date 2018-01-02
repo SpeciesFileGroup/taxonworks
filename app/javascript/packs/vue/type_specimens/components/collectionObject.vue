@@ -49,7 +49,8 @@
       <textarea rows="5" v-model="bufferedLabels"></textarea>
     </div>
     <div class="field">
-      <button @click="createTypeMaterial" type="button" class="button normal-input button-submit">Create</button>
+      <button @click="updateTypeMaterial" v-if="typeMaterial.id" type="button" class="button normal-input button-submit">Update</button>
+      <button @click="createTypeMaterial" v-else :disabled="total < 1" type="button" class="button normal-input button-submit">Create</button>
     </div>
   </div>
 </template>
@@ -67,6 +68,9 @@
       autocomplete
     },
     computed: {
+      typeMaterial() {
+        return this.$store.getters[GetterNames.GetTypeMaterial]
+      },
       repositoryId: {
         get() {
           return this.$store.getters[GetterNames.GetCollectionObjectRepositoryId]
@@ -136,12 +140,19 @@
       })
     },
     methods: {
-      createTypeMaterial() {
+      getTypeWithCollectionObject() {
         let type_material = this.$store.getters[GetterNames.GetTypeMaterial];
+
         type_material.biological_object_id = undefined;
         type_material.material_attributes = this.$store.getters[GetterNames.GetCollectionObject];
-        
-        this.$store.dispatch(ActionNames.CreateTypeMaterial, { type_material: type_material });
+
+        return type_material
+      },
+      createTypeMaterial() {
+        this.$store.dispatch(ActionNames.CreateTypeMaterial, { type_material: this.getTypeWithCollectionObject() });
+      },
+      updateTypeMaterial() {
+        this.$store.dispatch(ActionNames.UpdateTypeSpecimen, { type_material: this.getTypeWithCollectionObject() });
       }
     }
   }

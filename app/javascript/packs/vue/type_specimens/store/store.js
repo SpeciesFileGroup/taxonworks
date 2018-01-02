@@ -20,6 +20,7 @@ function makeInitialState() {
       biological_object_id: undefined,
       type_type: 'holotype',
       roles_attributes: [],
+      collection_object: undefined,
       origin_citation_attributes: undefined,
     },
     collection_object: {

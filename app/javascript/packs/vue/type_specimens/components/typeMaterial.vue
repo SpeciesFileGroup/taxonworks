@@ -28,17 +28,19 @@
         <div class="field">
           <label>Material</label>
           <autocomplete
+            class="types_field"
             url="/collection_objects/autocomplete"
             param="term"
             label="label_html"
+            :sendLabel="getOwnPropertyNested(typeMaterial, 'collection_object', 'result', 'object_tag')"
             @getItem="biologicalId = $event.id"
             display="label"
             min="2">
           </autocomplete>
         </div>
-
         <div class="field">
-          <button @click="createTypeMaterial()" type="button" class="normal-input button button-submit">Create</button>
+          <button v-if="typeMaterial.id" @click="updateTypeMaterial" type="button" class="normal-input button button-submit">Update</button>
+          <button v-else @click="createTypeMaterial" :disabled="!biologicalId" type="button" class="normal-input button button-submit">Create</button>
         </div>
       </template>
 
@@ -65,6 +67,9 @@
       spinner
     },
     computed: {
+      typeMaterial() {
+        return this.$store.getters[GetterNames.GetTypeMaterial]
+      },
       protonymId: {
         get() {
           return this.$store.getters[GetterNames.GetProtonymId];
@@ -98,10 +103,32 @@
         roles_attribute: [],
       }
     },
+    watch: {
+      typeMaterial(newVal) {
+        if(newVal.id) {
+          this.view = 'material';
+        }
+      }
+    },
     methods: {
       createTypeMaterial() {
         let type_material = this.$store.getters[GetterNames.GetTypeMaterial];
         this.$store.dispatch(ActionNames.CreateTypeMaterial, { type_material: type_material });
+      },
+      updateTypeMaterial() {
+        let type_material = this.$store.getters[GetterNames.GetTypeMaterial];
+        this.$store.dispatch(ActionNames.UpdateTypeSpecimen, { type_material: type_material });
+      },
+      getOwnPropertyNested(obj) {
+        var args = Array.prototype.slice.call(arguments, 1);
+
+        for (var i = 0; i < args.length; i++) {
+          if (!obj || !obj.hasOwnProperty(args[i])) {
+            return undefined;
+          }
+          obj = obj[args[i]];
+        }
+        return obj;
       }
     }
   }

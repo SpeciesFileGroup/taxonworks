@@ -2,7 +2,8 @@ const ActionNames = {
 	LoadTypeMaterial: 'loadTypeMaterial',
 	LoadTypeMaterials: 'loadTypeMaterials',
 	CreateTypeMaterial: 'createTypeMaterial',
-	RemoveTypeSpecimen: 'RemoveTypeSpecimen'
+	RemoveTypeSpecimen: 'RemoveTypeSpecimen',
+	UpdateTypeSpecimen: 'UpdateTypeSpecimen'
 };
 
 export default ActionNames;
