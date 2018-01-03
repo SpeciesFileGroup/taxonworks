@@ -7,6 +7,6 @@
                tag_id: 'nomen_id_for_by_nomen',
                size: 20,
                display: '')
-    %><br>
+    %><%= otu_taxon_name_rank_select_tag(taxon_name: TaxonName.new, code: nil, options: :disabled) %><br>
     <%= submit_tag('Set Nomenclature', id: 'set_nomen') %>
 <% end %>
