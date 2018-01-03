@@ -6,7 +6,7 @@
 				<img @click="viewMode = true" :src="medium.url" :height="medium.height" :width="medium.width"/>
 			</div>
 		</modal>
-		<img @click="viewMode = true" :src="thumb.url" :height="thumb.height" :width="thumb.width"/>
+		<img class="img-thumb" @click="viewMode = true" :src="thumb.url" :height="thumb.height" :width="thumb.width"/>
 	</div>
 </template>
 <script>
@@ -40,8 +40,11 @@
 		}
 	}
 </script>
-<style>
+<style lang="scss">
 	.depiction-thumb-container {
 		margin: 4px;
+	    .img-thumb {
+	      cursor: pointer;
+	    }
 	}
 </style>
