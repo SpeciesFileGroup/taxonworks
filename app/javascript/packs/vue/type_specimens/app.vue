@@ -6,8 +6,8 @@
       <div class="flexbox horizontal-center-content align-start">
         <div class="ccenter item separate-right">
           <name-section class="separate-bottom" v-if="!taxon"></name-section>
-          <type-material-section class="separate-bottom"></type-material-section>
           <metadata-section class="separate-bottom"></metadata-section>
+          <type-material-section class="separate-bottom"></type-material-section>
           <depictions-section class="separate-bottom"></depictions-section>
         </div>
         <div v-if="taxon" class="cright item separate-left">

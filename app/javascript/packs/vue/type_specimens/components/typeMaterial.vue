@@ -32,7 +32,7 @@
             url="/collection_objects/autocomplete"
             param="term"
             label="label_html"
-            :sendLabel="getOwnPropertyNested(typeMaterial, 'collection_object', 'result', 'object_tag')"
+            :sendLabel="getOwnPropertyNested(typeMaterial, 'collection_object', 'object_tag')"
             @getItem="biologicalId = $event.id"
             display="label"
             min="2">

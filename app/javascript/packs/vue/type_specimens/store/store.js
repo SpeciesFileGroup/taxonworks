@@ -18,10 +18,11 @@ function makeInitialState() {
       id: undefined,
       protonym_id: undefined,
       biological_object_id: undefined,
-      type_type: 'holotype',
+      type_type: undefined,
       roles_attributes: [],
       collection_object: undefined,
       origin_citation_attributes: undefined,
+      type_designator_roles: []
     },
     collection_object: {
       id: undefined,
