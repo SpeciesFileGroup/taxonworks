@@ -1,12 +1,24 @@
 <template>
   <div>
+    <div class="field types_field">
+      <label>Buffered collecting event</label>
+      <textarea rows="5" v-model="bufferedEvent"></textarea>
+    </div>
+    <div class="field types_field">
+      <label>Buffered determinations</label>
+      <textarea rows="5" v-model="bufferedDeterminations"></textarea>
+    </div>
+    <div class="field types_field">
+      <label>Buffered other labels</label>
+      <textarea rows="5" v-model="bufferedLabels"></textarea>
+    </div>
     <div class="field">
       <label>Total</label>
       <input type="number" v-model="total"/>
     </div>
     <div class="field">
       <label>Preparation type</label>
-      <select v-model="preparationId">
+      <select v-model="preparationId" class="normal-input">
         <option v-for="item in types" :value="item.id">{{ item.name }}</option>
       </select>
     </div>
@@ -36,18 +48,7 @@
         min="2">
       </autocomplete>
     </div>
-    <div class="field types_field">
-      <label>Buffered collecting event</label>
-      <textarea rows="5" v-model="bufferedEvent"></textarea>
-    </div>
-    <div class="field types_field">
-      <label>Buffered determinations</label>
-      <textarea rows="5" v-model="bufferedDeterminations"></textarea>
-    </div>
-    <div class="field types_field">
-      <label>Buffered other labels</label>
-      <textarea rows="5" v-model="bufferedLabels"></textarea>
-    </div>
+
     <div class="field">
       <button @click="updateTypeMaterial" v-if="typeMaterial.id" type="button" class="button normal-input button-submit">Update</button>
       <button @click="createTypeMaterial" v-else :disabled="total < 1" type="button" class="button normal-input button-submit">Create</button>

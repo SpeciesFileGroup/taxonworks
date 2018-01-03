@@ -6,7 +6,6 @@
         <expand v-model="displayBody"></expand>
     </div>
     <div class="body" v-if="displayBody">
-
       <div class="switch-radio field">
         <template v-for="item, index in tabOptions">
           <input 
@@ -20,30 +19,36 @@
           <label :for="`switch-picker-${index}`" class="capitalize">{{ item }}</label>
         </template>
       </div>
+      <div class="flex-separate">
+        <div>
+          <collection-object v-if="view == 'new'"></collection-object>
 
-      <collection-object v-if="view == 'new'"></collection-object>
+          <template v-if="view == 'material'">
 
-      <template v-if="view == 'material'">
-
-        <div class="field">
-          <label>Material</label>
-          <autocomplete
-            class="types_field"
-            url="/collection_objects/autocomplete"
-            param="term"
-            label="label_html"
-            :sendLabel="getOwnPropertyNested(typeMaterial, 'collection_object', 'object_tag')"
-            @getItem="biologicalId = $event.id"
-            display="label"
-            min="2">
-          </autocomplete>
+            <div class="field">
+              <label>Material</label>
+              <autocomplete
+                class="types_field"
+                url="/collection_objects/autocomplete"
+                param="term"
+                label="label_html"
+                :sendLabel="getOwnPropertyNested(typeMaterial, 'collection_object', 'object_tag')"
+                @getItem="biologicalId = $event.id"
+                display="label"
+                min="2">
+              </autocomplete>
+            </div>
+            <div class="field">
+              <button v-if="typeMaterial.id" @click="updateTypeMaterial" type="button" class="normal-input button button-submit">Update</button>
+              <button v-else @click="createTypeMaterial" :disabled="!biologicalId" type="button" class="normal-input button button-submit">Create</button>
+            </div>
+          </template>
         </div>
         <div class="field">
-          <button v-if="typeMaterial.id" @click="updateTypeMaterial" type="button" class="normal-input button button-submit">Update</button>
-          <button v-else @click="createTypeMaterial" :disabled="!biologicalId" type="button" class="normal-input button button-submit">Create</button>
+          <label>Depiction</label>
+          <depictions-section></depictions-section>
         </div>
-      </template>
-
+      </div>
     </div>
   </div>
 </template>
@@ -58,9 +63,11 @@
   import spinner from '../../components/spinner.vue';
   import expand from './expand.vue';
   import collectionObject from './collectionObject.vue';
+  import depictionsSection from './depictions.vue';
   
   export default {
     components: {
+      depictionsSection,
       collectionObject,
       autocomplete,
       expand,

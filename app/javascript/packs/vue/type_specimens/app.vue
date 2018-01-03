@@ -8,7 +8,6 @@
           <name-section class="separate-bottom" v-if="!taxon"></name-section>
           <metadata-section class="separate-bottom"></metadata-section>
           <type-material-section class="separate-bottom"></type-material-section>
-          <depictions-section class="separate-bottom"></depictions-section>
         </div>
         <div v-if="taxon" class="cright item separate-left">
           <div id="cright-panel">
@@ -24,7 +23,6 @@
 
   import nameSection from './components/nameSection.vue';
   import typeMaterialSection from './components/typeMaterial.vue';
-  import depictionsSection from './components/depictionsSection.vue';
   import metadataSection from './components/metadataSection.vue';
   import typeBox from './components/typeBox.vue';
   import spinner from '../components/spinner.vue';
@@ -37,7 +35,6 @@
       nameSection,
       typeBox,
       typeMaterialSection,
-      depictionsSection,
       metadataSection,
       spinner
     },

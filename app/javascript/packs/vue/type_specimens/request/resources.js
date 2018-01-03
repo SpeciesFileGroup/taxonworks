@@ -39,6 +39,10 @@ const GetTypes = function() {
   return ajaxCall('get', `/type_materials/type_types.json`);
 }
 
+const GetDepictions = function(id) {
+  return ajaxCall('get', `/collection_objects/${id}/depictions.json`);
+}
+
 const GetTaxonName = function(id) {
   return ajaxCall('get', `/taxon_names/${id}.json`);
 }
@@ -60,6 +64,7 @@ export {
   GetTypeMaterial,
   GetTaxonName,
   GetTypes,
+  GetDepictions,
   GetPreparationTypes,
   UpdateTypeMaterial,
   DestroyTypeMaterial
