@@ -557,6 +557,10 @@ TaxonWorks::Application.routes.draw do
 
   resources :type_materials do
     concerns [:data_routes]
+    collection do
+      get :type_types, {format: :json}
+    end
+    
   end
 
 

@@ -92,7 +92,7 @@ class TypeMaterialsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # GET /type_materials/download
@@ -100,6 +100,12 @@ class TypeMaterialsController < ApplicationController
     send_data TypeMaterial.generate_download(TypeMaterial.where(project_id: sessions_current_project_id)), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now.to_s}.csv"
   end
 
+  def type_types
+    render json: {
+      icn: TypeMaterial::ICN_TYPES.inject({}){|hsh, k| hsh.merge!(k[0] =>  k[1].name)}, 
+      iczn: TypeMaterial::ICZN_TYPES.inject({}){|hsh, k| hsh.merge!(k[0] => k[1].name)}
+    }
+  end
 
   private
   
