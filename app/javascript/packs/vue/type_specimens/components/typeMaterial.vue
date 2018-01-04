@@ -44,7 +44,7 @@
             </div>
           </template>
         </div>
-        <div class="field">
+        <div class="field" v-if="protonymId">
           <label>Depiction</label>
           <depictions-section></depictions-section>
         </div>
