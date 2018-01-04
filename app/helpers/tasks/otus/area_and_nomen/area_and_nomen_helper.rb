@@ -15,7 +15,7 @@ module Tasks::Otus::AreaAndNomen::AreaAndNomenHelper
     end
   end
 
-  def otu_taxon_name_rank_select_tag(taxon_name: TaxonName.new, options: {})
+  def rank_for_otu_select_tag(taxon_name: TaxonName.new, options: {})
     select_tag(:rank_class, options_for_select(RANKS_SELECT_OPTIONS, selected: taxon_name.rank_string, options: options))
   end
 
