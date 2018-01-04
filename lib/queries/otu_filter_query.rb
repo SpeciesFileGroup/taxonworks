@@ -100,15 +100,16 @@ module Queries
 
     # @return [Scope]
     def nomen_scope
-      scope = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
-      if with_descendants?
+      if with_class? # includes with_descendants? == true
+        scope = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id) # .where('taxon_names.rank_class = ?', query_rank_class)
         scope = Otu.self_and_descendants_of(scope.first.id)
-        if with_class?
-          scope # TODO: but with taxon_name of specific rank
-        end
       else
-        scope
+        scope = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
+        if with_descendants? # but rank_class == 'unspecified'
+          scope = Otu.self_and_descendants_of(scope.first.id)
+        end
       end
+      scope
     end
 
     # @return [Scope]
