@@ -55,8 +55,16 @@ const UpdateTypeMaterial = function(id, data) {
   return ajaxCall('patch', `/type_materials/${id}.json`, data);
 }
 
+const UpdateDepiction = function(id, data) {
+  return ajaxCall('patch', `/depictions/${id}.json`, data);
+}
+
 const DestroyTypeMaterial = function(id) {
   return ajaxCall('delete', `/type_materials/${id}.json`);
+}
+
+const DestroyDepiction = function(id) {
+  return ajaxCall('delete', `/depictions/${id}.json`);
 }
 
 export {
@@ -67,5 +75,7 @@ export {
   GetDepictions,
   GetPreparationTypes,
   UpdateTypeMaterial,
-  DestroyTypeMaterial
+  UpdateDepiction,
+  DestroyTypeMaterial,
+  DestroyDepiction
 }

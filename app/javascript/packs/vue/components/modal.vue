@@ -2,7 +2,7 @@
   <transition name="modal">
     <div class="modal-mask" @click="$emit('close')" @key.esc="$emit('close')">
       <div class="modal-wrapper">
-        <div class="modal-container" @click.stop>
+        <div class="modal-container" :class="containerClass" :style="containerStyle" @click.stop>
           <div class="modal-header">
             <div class="modal-close" @click="$emit('close')"></div>
             <slot name="header">
@@ -26,6 +26,14 @@
 
 <script>
 export default {
+  props: {
+    containerClass: {
+      type: Object
+    },
+    containerStyle: {
+      type: Object
+    }
+  },
   mounted: function() {
     document.addEventListener("keydown", (e) => {
       if(e.keyCode == 27) {

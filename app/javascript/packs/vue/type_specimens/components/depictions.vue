@@ -4,8 +4,9 @@
     <dropzone class="dropzone-card separate-bottom" v-on:vdropzone-sending="sending" v-on:vdropzone-success="success" ref="figure" id="figure" url="/depictions" :useCustomDropzoneOptions="true" :dropzoneOptions="dropzone"></dropzone>
     <div class="flex-wrap-row" v-if="figuresList.length">
       <depictionImage v-for="item in figuresList" 
-        :thumb="item.image.result.alternatives.thumb"
-        :medium="item.image.result.alternatives.medium">
+        @delete="removeDepiction"
+        :key="item.id"
+        :depiction="item">
       </depictionImage>
     </div>
   </div>
@@ -16,7 +17,7 @@
 
   import { GetterNames } from '../store/getters/getters';
   import { MutationNames } from '../store/mutations/mutations';
-  import { GetDepictions } from '../request/resources';
+  import { GetDepictions, DestroyDepiction } from '../request/resources';
 
   import dropzone from '../../components/dropzone.vue';
   import expand from './expand.vue';
@@ -57,7 +58,6 @@
       getTypeMaterial(newVal, oldVal) {
         if(newVal.id && (newVal.id != oldVal.id)) {
           GetDepictions(newVal.collection_object.id).then(response => {
-            console.log(response);
             this.figuresList = response;
           })
         }
@@ -72,6 +72,14 @@
         formData.append("depiction[depiction_object_id]", this.getTypeMaterial.collection_object.id);
         formData.append("depiction[depiction_object_type]", 'CollectionObject');
       },
+      removeDepiction(depiction) {
+        if(window.confirm(`Are you sure want to proceed?`)) {
+          DestroyDepiction(depiction.id).then(response => {
+            TW.workbench.alert.create('Depiction was successfully deleted.', 'notice');
+            this.figuresList.splice(this.figuresList.findIndex((figure) => { return figure.id == depiction.id }), 1);
+          });
+        }        
+      }
     }
   }
 </script>
