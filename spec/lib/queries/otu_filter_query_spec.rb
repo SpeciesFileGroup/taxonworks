@@ -88,7 +88,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       specify 'without descendants' do
         params_without = {nomen_id:    top_dog.taxon_name_id,
                           descendants: '_off_',
-                          rank_class:  'species'}
+                          rank_class:  'NomenclaturalRank::Iczn::SpeciesGroup::Species'}
         result         = Queries::OtuFilterQuery.new(params_without).result
         expect(result).to contain_exactly(top_dog, by_bill)
       end
@@ -150,7 +150,9 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
         params.merge!({author_ids: [bill.id, daryl.id], and_or_select: '_or_'})
         params.merge!({verbatim_author_string: 'Bill A'})
         params.merge!({geographic_area_ids: [area_a.id]})
-        params.merge!({nomen_id: top_dog.taxon_name_id, descendants: '_on_'})
+        params.merge!({nomen_id:    top_dog.taxon_name_id,
+                       descendants: '_on_',
+                       rank_class:  'NomenclaturalRank::Iczn::SpeciesGroup::Species'})
 
         result = Queries::OtuFilterQuery.new(params).result
         expect(result).to contain_exactly(tn.otus.first)

@@ -63,7 +63,7 @@ module Queries
     def with_class?
       if with_descendants?
         # TODO: what is the real signal of 'no rank distinction'?
-        query_rank_class != 'any'
+        query_rank_class != 'unspecified'
       else
         false
       end
