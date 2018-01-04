@@ -17,6 +17,7 @@
           min="2"
           :add-params="{
             'type[]': 'Protonym',
+            'nomenclature_group[]': 'SpeciesGroup',
             valid: true
           }">
         </autocomplete>
