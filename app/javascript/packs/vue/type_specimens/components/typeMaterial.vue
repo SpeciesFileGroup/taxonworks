@@ -100,11 +100,18 @@
         set(value) {
           this.$store.commit(MutationNames.SetBiologicalId, value)
         }
+      },
+      view: {
+        get() {
+          return this.$store.getters[GetterNames.GetSettings].materialTab
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetMaterialTab, value)
+        }
       }
     },
     data: function() {
       return {
-        view: 'new',
         tabOptions: ['material', 'new'],
         displayBody: true,
         roles_attribute: [],
@@ -119,8 +126,7 @@
     },
     methods: {
       createTypeMaterial() {
-        let type_material = this.$store.getters[GetterNames.GetTypeMaterial];
-        this.$store.dispatch(ActionNames.CreateTypeMaterial, { type_material: type_material });
+        this.$store.dispatch(ActionNames.CreateTypeMaterial);
       },
       updateTypeMaterial() {
         let type_material = this.$store.getters[GetterNames.GetTypeMaterial];

@@ -1,7 +1,7 @@
 <template>
   <div class="depiction-container">
-    <spinner v-if="!getTypeMaterial.id" :show-spinner="false" legend="Create a type specimen to upload images"></spinner>
-    <dropzone class="dropzone-card separate-bottom" v-on:vdropzone-sending="sending" v-on:vdropzone-success="success" ref="figure" id="figure" url="/depictions" :useCustomDropzoneOptions="true" :dropzoneOptions="dropzone"></dropzone>
+    <spinner v-if="false" :show-spinner="false" legend="Create a type specimen to upload images"></spinner>
+    <dropzone class="dropzone-card separate-bottom" v-on:vdropzone-sending="sending" v-on:vdropzone-file-added="addedfile" v-on:vdropzone-success="success" ref="depiction" id="depiction" url="/depictions" :useCustomDropzoneOptions="true" :dropzoneOptions="dropzone"></dropzone>
     <div class="flex-wrap-row" v-if="figuresList.length">
       <depictionImage v-for="item in figuresList" 
         @delete="removeDepiction"
@@ -15,6 +15,7 @@
 
 <script>
 
+  import ActionNames from '../store/actions/actionNames';
   import { GetterNames } from '../store/getters/getters';
   import { MutationNames } from '../store/mutations/mutations';
   import { GetDepictions, DestroyDepiction } from '../request/resources';
@@ -41,11 +42,13 @@
     },
     data: function() {
       return {
+        creatingType: false,
         displayBody: true,
         figuresList: [],
         dropzone: {
           paramName: "depiction[image_attributes][image_file]",
           url: "/depictions",
+          autoProcessQueue: false,
           headers: {
             'X-CSRF-Token' : document.querySelector('meta[name="csrf-token"]').getAttribute('content')
           },
@@ -57,20 +60,36 @@
     watch: {
       getTypeMaterial(newVal, oldVal) {
         if(newVal.id && (newVal.id != oldVal.id)) {
+          this.$refs.depiction.setOption('autoProcessQueue', true)
           GetDepictions(newVal.collection_object.id).then(response => {
             this.figuresList = response;
           })
+        }
+        else {
+          this.$refs.depiction.setOption('autoProcessQueue', false)
         }
       }
     },
     methods: {
       'success': function(file, response) {
         this.figuresList.push(response);
-        this.$refs.figure.removeFile(file);
+        this.$refs.depiction.removeFile(file);
       },
       'sending': function(file, xhr, formData) {
         formData.append("depiction[depiction_object_id]", this.getTypeMaterial.collection_object.id);
         formData.append("depiction[depiction_object_type]", 'CollectionObject');
+      },
+      'addedfile': function() {
+        if(!this.getTypeMaterial.id && !this.creatingType) {
+          this.creatingType = true;
+          this.$store.dispatch(ActionNames.CreateTypeMaterial).then(() => {
+            this.$refs.depiction.setOption('autoProcessQueue', true);
+            this.$refs.depiction.processQueue();
+            this.creatingType = false;
+          }, () => {
+            this.creatingType = false;
+          })
+        }
       },
       removeDepiction(depiction) {
         if(window.confirm(`Are you sure want to proceed?`)) {

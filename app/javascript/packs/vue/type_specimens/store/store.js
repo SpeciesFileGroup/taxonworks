@@ -11,7 +11,8 @@ function makeInitialState() {
   return {
     settings: {
       loading: false,
-      saving: false
+      saving: false,
+      materialTab: 'new',
     },
     taxon_name: undefined,
     type_material: {
@@ -26,7 +27,7 @@ function makeInitialState() {
     },
     collection_object: {
       id: undefined,
-      total: undefined,
+      total: 1,
       preparation_type_id: undefined,
       repository_id: undefined,
       collecting_event_id: undefined,

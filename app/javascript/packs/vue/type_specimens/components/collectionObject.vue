@@ -150,7 +150,7 @@
         return type_material
       },
       createTypeMaterial() {
-        this.$store.dispatch(ActionNames.CreateTypeMaterial, { type_material: this.getTypeWithCollectionObject() });
+        this.$store.dispatch(ActionNames.CreateTypeMaterial);
       },
       updateTypeMaterial() {
         this.$store.dispatch(ActionNames.UpdateTypeSpecimen, { type_material: this.getTypeWithCollectionObject() });
