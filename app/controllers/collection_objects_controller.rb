@@ -78,10 +78,10 @@ class CollectionObjectsController < ApplicationController
       if @collection_object.update(collection_object_params)
         @collection_object = @collection_object.metamorphosize
         format.html { redirect_to @collection_object, notice: 'Collection object was successfully updated.' }
-        format.json { respond_with_bip(@collection_object) }
+        format.json { render :show, status: :ok, location: @collection_object }
       else
         format.html { render action: 'edit' }
-        format.json { respond_with_bip(@collection_object) }
+        format.json { render json: @collection_object.errors, status: :unprocessable_entity }
       end
     end
   end
