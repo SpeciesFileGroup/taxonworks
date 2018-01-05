@@ -20,6 +20,7 @@ import setCollectionObjectId from './setCollectionObjectId';
 import setCollectionObjectPreparationId from './setCollectionObjectPreparationId';
 import setCollectionObjectRepositoryId from './setCollectionObjectRepositoryId';
 import setCollectionObjectTotal from './setCollectionObjectTotal';
+import setCollectionObject from './setCollectionObject';
 
 const MutationNames = {
 	SetTaxon: 'setTaxon',
@@ -43,6 +44,7 @@ const MutationNames = {
 	SetCollectionObjectPreparationId: 'setCollectionObjectPreparationId',
 	SetCollectionObjectRepositoryId: 'setCollectionObjectRepositoryId',
 	SetCollectionObjectTotal: 'setCollectionObjectTotal',
+	SetCollectionObject: 'setCollectionObject',
 };
 
 const MutationFunctions = {
@@ -67,6 +69,7 @@ const MutationFunctions = {
 	[MutationNames.SetCollectionObjectId]: setCollectionObjectId,
 	[MutationNames.SetCollectionObjectPreparationId]: setCollectionObjectPreparationId,
 	[MutationNames.SetCollectionObjectTotal]: setCollectionObjectTotal,
+	[MutationNames.SetCollectionObject]: setCollectionObject,
 };
 
 export {

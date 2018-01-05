@@ -7,5 +7,5 @@ export default function(state) {
     collection_object: undefined,
     origin_citation_attributes: undefined,
     type_designator_roles: []
-  },
+  }
 }

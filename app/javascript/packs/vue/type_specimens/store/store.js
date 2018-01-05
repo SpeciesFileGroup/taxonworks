@@ -21,19 +21,18 @@ function makeInitialState() {
       biological_object_id: undefined,
       type_type: undefined,
       roles_attributes: [],
-      collection_object: undefined,
+      collection_object: {
+        id: undefined,
+        total: 1,
+        preparation_type_id: undefined,
+        repository_id: undefined,
+        collecting_event_id: undefined,
+        buffered_collecting_event: undefined,
+        buffered_determinations: undefined,
+        buffered_other_labels: undefined,
+      },
       origin_citation_attributes: undefined,
       type_designator_roles: []
-    },
-    collection_object: {
-      id: undefined,
-      total: 1,
-      preparation_type_id: undefined,
-      repository_id: undefined,
-      collecting_event_id: undefined,
-      buffered_collecting_event: undefined,
-      buffered_deteriminations: undefined,
-      buffered_other_labels: undefined,
     },
     type_materials: []
   }

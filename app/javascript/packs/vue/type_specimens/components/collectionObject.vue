@@ -29,8 +29,9 @@
         url="/repositories/autocomplete"
         param="term"
         label="label_html"
+        :sendLabel="labelRepository"
         placeholder="Select a repository"
-        @getItem="repositoryId = $event.id"
+        @getItem="repositoryId = $event.id; labelRepository = $event.label"
         display="label"
         min="2">
       </autocomplete>
@@ -42,16 +43,16 @@
         url="/collecting_events/autocomplete"
         param="term"
         label="label_html"
+        :sendLabel="labelEvent"
         placeholder="Select a collection event"
-        @getItem="eventId = $event.id"
+        @getItem="eventId = $event.id; labelEvent = $event.label"
         display="label"
         min="2">
       </autocomplete>
     </div>
 
     <div class="field">
-      <button @click="updateTypeMaterial" v-if="typeMaterial.id" type="button" class="button normal-input button-submit">Update</button>
-      <button @click="createTypeMaterial" v-else :disabled="total < 1" type="button" class="button normal-input button-submit">Create</button>
+      <button @click="sendEvent" :disabled="total < 1" type="button" class="button normal-input button-submit">{{ (typeMaterial.id ? 'Update' : 'Create') }}</button>
     </div>
   </div>
 </template>
@@ -63,6 +64,7 @@
   import { MutationNames } from '../store/mutations/mutations';
   import { GetPreparationTypes } from '../request/resources';
   import ActionNames from '../store/actions/actionNames';
+  import { UpdateCollectionObject, GetCollectionEvent, GetRepository } from '../request/resources';
 
   export default {
     components: {
@@ -74,7 +76,7 @@
       },
       repositoryId: {
         get() {
-          return this.$store.getters[GetterNames.GetCollectionObjectRepositoryId]
+          return this.$store.getters[GetterNames.GetCollectionObject].repository_id
         },
         set(value) {
           this.$store.commit(MutationNames.SetCollectionObjectRepositoryId, value);
@@ -106,7 +108,7 @@
       },
       eventId: {
         get() {
-          return this.$store.getters[GetterNames.GetCollectionObjectEventId]
+          return this.$store.getters[GetterNames.GetCollectionObjectCollectionEventId]
         },
         set(value) {
           this.$store.commit(MutationNames.SetCollectionObjectEventId, value);
@@ -131,7 +133,18 @@
     },
     data: function() {
       return {
-        types: []
+        types: [],
+        labelRepository: undefined,
+        labelEvent: undefined,
+      }
+    },
+    watch: {
+      typeMaterial(newVal, oldVal) {
+        if(newVal.id != oldVal.id) {
+          this.labelRepository = this.labelEvent = undefined;
+          this.setEventLabel(this.eventId);
+          this.setRepositoryLabel(this.repositoryId);
+        }
       }
     },
     mounted: function() {
@@ -141,19 +154,22 @@
       })
     },
     methods: {
-      getTypeWithCollectionObject() {
-        let type_material = this.$store.getters[GetterNames.GetTypeMaterial];
-
-        type_material.biological_object_id = undefined;
-        type_material.material_attributes = this.$store.getters[GetterNames.GetCollectionObject];
-
-        return type_material
+      sendEvent() {
+        this.$emit('send');
       },
-      createTypeMaterial() {
-        this.$store.dispatch(ActionNames.CreateTypeMaterial);
+      setEventLabel(id) {
+        if(id) {
+          GetCollectionEvent(id).then(response => {
+            this.labelEvent = response.verbatim_label
+          })
+        }
       },
-      updateTypeMaterial() {
-        this.$store.dispatch(ActionNames.UpdateTypeSpecimen, { type_material: this.getTypeWithCollectionObject() });
+      setRepositoryLabel(id) {
+        if(id) {
+          GetRepository(id).then(response => {
+            this.labelRepository = response.name
+          })
+        }
       }
     }
   }

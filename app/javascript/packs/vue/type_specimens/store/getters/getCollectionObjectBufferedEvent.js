@@ -1,3 +1,3 @@
 export default function(state) {
-	return state.collection_object.buffered_collecting_event
+	return state.type_material.collection_object.buffered_collecting_event
 }

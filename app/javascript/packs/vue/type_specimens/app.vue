@@ -1,6 +1,11 @@
 <template>
   <div id="vue_type_specimens">
-    <spinner :full-screen="true" legend="Loading..." :logo-size="{ width: '100px', height: '100px'}" v-if="settings.loading"></spinner>
+    <spinner 
+      v-if="settings.loading || settings.saving"
+      :full-screen="true" 
+      :legend="(settings.loading ? 'Loading...' : 'Saving...')" 
+      :logo-size="{ width: '100px', height: '100px'}">
+    </spinner>
     <h1>{{ isNew }} type specimen</h1>
     <div>
       <div class="flexbox horizontal-center-content align-start">

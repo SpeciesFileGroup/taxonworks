@@ -21,7 +21,16 @@
       </div>
       <div class="flex-separate">
         <div>
-          <collection-object v-if="view == 'new'"></collection-object>
+
+          <collection-object 
+            v-if="view == 'new'" 
+            @send="createTypeMaterial">
+          </collection-object>
+
+          <collection-object 
+            v-if="view == 'edit'" 
+            @send="updateCollectionObject">
+          </collection-object>
 
           <template v-if="view == 'material'">
 
@@ -120,7 +129,10 @@
     watch: {
       typeMaterial(newVal) {
         if(newVal.id) {
-          this.view = 'material';
+          this.view = 'edit';
+          if(!this.tabOptions.includes('edit')) {
+            this.tabOptions.push('edit');
+          }
         }
       }
     },
@@ -131,6 +143,10 @@
       updateTypeMaterial() {
         let type_material = this.$store.getters[GetterNames.GetTypeMaterial];
         this.$store.dispatch(ActionNames.UpdateTypeSpecimen, { type_material: type_material });
+      },
+      updateCollectionObject() {
+        let type_material = this.$store.getters[GetterNames.GetTypeMaterial];
+        this.$store.dispatch(ActionNames.UpdateCollectionObject, { type_material: type_material })
       },
       getOwnPropertyNested(obj) {
         var args = Array.prototype.slice.call(arguments, 1);
