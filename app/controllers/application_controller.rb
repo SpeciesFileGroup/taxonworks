@@ -11,6 +11,11 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
+  rescue_from ActionController::ParameterMissing do |exception| 
+    raise unless request.format == :json 
+    render json: { error: exception }, :status => 400 
+  end
+
   attr_writer :is_data_controller, :is_task_controller
 
   # Potentially used

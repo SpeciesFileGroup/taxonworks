@@ -48,33 +48,7 @@ class ControlledVocabularyTerm < ApplicationRecord
 
   validate :uri_relation_is_a_skos_relation, unless: -> {uri_relation.blank?}
 
-  scope :of_type, -> (type) { where(type: type.to_s.capitalize) }
-
-  def self.find_for_autocomplete(params)
-    term = "#{params[:term]}%"
-    # where('name LIKE ? OR definition ILIKE ? OR name ILIKE ? OR name = ?', term, "#{term}%", "%term", term )
-    where("name LIKE '#{term}' OR name ILIKE '%#{term}' OR name = '#{term}' OR definition ILIKE '%#{term}'")
-        .where(project_id: params[:project_id])
-  end
-
-# def self.to_select(params)
-
-#   data = {
-#     quick: []
-#     recent: []
-#     pinboard: []
-#   }
-
-#   data[:recent] = ControlledVocabularyTerm.where(
-#     type: params[:type],
-#     project_id: params[:project_id],
-#     user_id: params[:user_id]
-#   ).order(updated_at: :desc).limit(10)
-#     .recently_
-
-#   user_id
-
-# end
+  scope :of_type, -> (type) { where(type: type.to_s.capitalize) } # TODO, capitalize is not the right method for things like `:foo_bar`
 
   protected
 
