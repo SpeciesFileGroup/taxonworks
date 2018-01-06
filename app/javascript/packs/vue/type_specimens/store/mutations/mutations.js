@@ -8,6 +8,7 @@ import setSaving from './setSaving';
 import setLoading from './setLoading';
 import setTypeMaterial from './setTypeMaterial';
 import setTypeMaterials from './setTypeMaterials';
+import setMaterialTab from './setMaterialTab';
 import removeTypeMaterial from './removeTypeMaterial';
 import addTypeMaterial from './addTypeMaterial';
 
@@ -19,6 +20,7 @@ import setCollectionObjectId from './setCollectionObjectId';
 import setCollectionObjectPreparationId from './setCollectionObjectPreparationId';
 import setCollectionObjectRepositoryId from './setCollectionObjectRepositoryId';
 import setCollectionObjectTotal from './setCollectionObjectTotal';
+import setCollectionObject from './setCollectionObject';
 
 const MutationNames = {
 	SetTaxon: 'setTaxon',
@@ -31,6 +33,7 @@ const MutationNames = {
 	SetLoading: 'setLoading',
 	SetTypeMaterial: 'setTypeMaterial',
 	SetTypeMaterials: 'setTypeMaterials',
+	SetMaterialTab: 'setMaterialTab',
 	RemoveTypeMaterial: 'removeTypeMaterial',
 	AddTypeMaterial: 'addTypeMaterial',
 	SetCollectionObjectBufferedDeterminations: 'setCollectionObjectBufferedDeterminations',
@@ -41,6 +44,7 @@ const MutationNames = {
 	SetCollectionObjectPreparationId: 'setCollectionObjectPreparationId',
 	SetCollectionObjectRepositoryId: 'setCollectionObjectRepositoryId',
 	SetCollectionObjectTotal: 'setCollectionObjectTotal',
+	SetCollectionObject: 'setCollectionObject',
 };
 
 const MutationFunctions = {
@@ -54,6 +58,7 @@ const MutationFunctions = {
 	[MutationNames.SetLoading]: setLoading,
 	[MutationNames.SetTypeMaterial]: setTypeMaterial,
 	[MutationNames.SetTypeMaterials]: setTypeMaterials,
+	[MutationNames.SetMaterialTab]: setMaterialTab,
 	[MutationNames.RemoveTypeMaterial]: removeTypeMaterial,
 	[MutationNames.AddTypeMaterial]: addTypeMaterial,
 	[MutationNames.SetCollectionObjectBufferedDeterminations]: setCollectionObjectBufferedDeterminations,
@@ -64,6 +69,7 @@ const MutationFunctions = {
 	[MutationNames.SetCollectionObjectId]: setCollectionObjectId,
 	[MutationNames.SetCollectionObjectPreparationId]: setCollectionObjectPreparationId,
 	[MutationNames.SetCollectionObjectTotal]: setCollectionObjectTotal,
+	[MutationNames.SetCollectionObject]: setCollectionObject,
 };
 
 export {

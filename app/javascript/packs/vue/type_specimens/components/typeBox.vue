@@ -11,6 +11,7 @@
 						<radial-annotator :globalId="taxon.global_id"></radial-annotator>
 					</div>
 				</h3>
+				<span v-if="typeMaterial.id" v-html="typeMaterial.object_tag"></span>
 			</div>
 		</div>
 		<div class="panel content" v-if="typesMaterial.length">
@@ -31,6 +32,9 @@
 			displayList
 		},
 		computed: {
+			typeMaterial() {
+				return this.$store.getters[GetterNames.GetTypeMaterial];
+			},
 			typesMaterial() {
 				return this.$store.getters[GetterNames.GetTypeMaterials];
 			},
@@ -55,7 +59,6 @@
 	.taxon-options {
 		display: flex;
 		justify-content: space-between;
-		//width: 70px;
 	}
 	.radial-annotator {
 		width:30px;

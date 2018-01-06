@@ -21,7 +21,16 @@
       </div>
       <div class="flex-separate">
         <div>
-          <collection-object v-if="view == 'new'"></collection-object>
+
+          <collection-object 
+            v-if="view == 'new'" 
+            @send="createTypeMaterial">
+          </collection-object>
+
+          <collection-object 
+            v-if="view == 'edit'" 
+            @send="updateCollectionObject">
+          </collection-object>
 
           <template v-if="view == 'material'">
 
@@ -100,11 +109,18 @@
         set(value) {
           this.$store.commit(MutationNames.SetBiologicalId, value)
         }
+      },
+      view: {
+        get() {
+          return this.$store.getters[GetterNames.GetSettings].materialTab
+        },
+        set(value) {
+          this.$store.commit(MutationNames.SetMaterialTab, value)
+        }
       }
     },
     data: function() {
       return {
-        view: 'new',
         tabOptions: ['material', 'new'],
         displayBody: true,
         roles_attribute: [],
@@ -113,18 +129,24 @@
     watch: {
       typeMaterial(newVal) {
         if(newVal.id) {
-          this.view = 'material';
+          this.view = 'edit';
+          if(!this.tabOptions.includes('edit')) {
+            this.tabOptions.push('edit');
+          }
         }
       }
     },
     methods: {
       createTypeMaterial() {
-        let type_material = this.$store.getters[GetterNames.GetTypeMaterial];
-        this.$store.dispatch(ActionNames.CreateTypeMaterial, { type_material: type_material });
+        this.$store.dispatch(ActionNames.CreateTypeMaterial);
       },
       updateTypeMaterial() {
         let type_material = this.$store.getters[GetterNames.GetTypeMaterial];
         this.$store.dispatch(ActionNames.UpdateTypeSpecimen, { type_material: type_material });
+      },
+      updateCollectionObject() {
+        let type_material = this.$store.getters[GetterNames.GetTypeMaterial];
+        this.$store.dispatch(ActionNames.UpdateCollectionObject, { type_material: type_material })
       },
       getOwnPropertyNested(obj) {
         var args = Array.prototype.slice.call(arguments, 1);

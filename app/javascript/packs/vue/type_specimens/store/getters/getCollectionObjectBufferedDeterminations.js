@@ -1,3 +1,3 @@
 export default function(state) {
-	return state.collection_object.buffered_deteriminations
+	return state.type_material.collection_object.buffered_determinations
 }

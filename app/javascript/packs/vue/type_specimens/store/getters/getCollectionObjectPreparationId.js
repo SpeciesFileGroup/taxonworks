@@ -1,3 +1,3 @@
 export default function(state) {
-	return state.collection_object.preparation_type_id
+	return state.type_material.collection_object.preparation_type_id
 }

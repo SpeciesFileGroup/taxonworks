@@ -1,3 +1,3 @@
 export default function(state, value) {
-	state.collection_object.id = value
+	state.type_material.collection_object.id = value
 }

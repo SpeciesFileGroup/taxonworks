@@ -47,6 +47,14 @@ const GetTaxonName = function(id) {
   return ajaxCall('get', `/taxon_names/${id}.json`);
 }
 
+const GetCollectionEvent = function(id) {
+  return ajaxCall('get', `/collecting_events/${id}.json`);
+}
+
+const GetRepository = function(id) {
+  return ajaxCall('get', `/repositories/${id}.json`);
+}
+
 const CreateTypeMaterial = function(data) {
   return ajaxCall('post', `/type_materials.json`, data);
 }
@@ -57,6 +65,10 @@ const UpdateTypeMaterial = function(id, data) {
 
 const UpdateDepiction = function(id, data) {
   return ajaxCall('patch', `/depictions/${id}.json`, data);
+}
+
+const UpdateCollectionObject = function(id, data) {
+  return ajaxCall('patch', `/collection_objects/${id}.json`, { collection_object: data } );
 }
 
 const DestroyTypeMaterial = function(id) {
@@ -74,8 +86,11 @@ export {
   GetTypes,
   GetDepictions,
   GetPreparationTypes,
+  GetRepository,
+  GetCollectionEvent,
   UpdateTypeMaterial,
   UpdateDepiction,
   DestroyTypeMaterial,
+  UpdateCollectionObject,
   DestroyDepiction
 }
