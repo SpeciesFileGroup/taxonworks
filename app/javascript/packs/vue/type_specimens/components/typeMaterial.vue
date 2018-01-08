@@ -1,6 +1,6 @@
 <template>
   <div class="panel type-specimen-box">
-    <spinner :show-spinner="false" :show-legend="false" v-if="!protonymId"></spinner>
+    <spinner :show-spinner="false" :show-legend="false" v-if="!(protonymId && type)"></spinner>
     <div class="header flex-separate middle">
         <h3>Collection object</h3>
         <expand v-model="displayBody"></expand>
