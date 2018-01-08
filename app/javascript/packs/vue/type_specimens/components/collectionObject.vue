@@ -50,7 +50,9 @@
         min="2">
       </autocomplete>
     </div>
-
+    <div class="field">
+      <toggle-switch :biologicalId="biologicalId"></toggle-switch>
+    </div>
     <div class="field">
       <button @click="sendEvent" :disabled="total < 1" type="button" class="button normal-input button-submit">{{ (typeMaterial.id ? 'Update' : 'Create') }}</button>
     </div>
@@ -60,6 +62,7 @@
 <script>
   
   import autocomplete from '../../components/autocomplete.vue';
+  import toggleSwitch from './toggleSwitch.vue';
   import { GetterNames } from '../store/getters/getters';
   import { MutationNames } from '../store/mutations/mutations';
   import { GetPreparationTypes } from '../request/resources';
@@ -68,11 +71,15 @@
 
   export default {
     components: {
-      autocomplete
+      autocomplete,
+      toggleSwitch
     },
     computed: {
       typeMaterial() {
         return this.$store.getters[GetterNames.GetTypeMaterial]
+      },
+      biologicalId() {
+          return this.$store.getters[GetterNames.GetBiologicalId]
       },
       repositoryId: {
         get() {

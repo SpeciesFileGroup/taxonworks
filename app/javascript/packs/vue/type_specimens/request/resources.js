@@ -31,6 +31,18 @@ const GetTypeMaterial = function(protonymId) {
   return ajaxCall('get', `/type_materials.json?protonym_id=${protonymId}`);
 }
 
+const GetBiocurationsTypes = function(protonymId) {
+  return ajaxCall('get', `/controlled_vocabulary_terms.json?of_type[]=BiocurationClass`);
+}
+
+const GetBiocurationsCreated = function(biologicalId) {
+  return ajaxCall('get', `/biocuration_classifications.json?biological_collection_object_id=${biologicalId}`);
+}
+
+const GetBiocuration = function(biologicalId, biocurationClassId) {
+  return ajaxCall('get', `/biocuration_classifications.json?biocuration_class_id=${biocurationClassId}&biological_collection_object_id=${biologicalId}`);
+}
+
 const GetPreparationTypes = function() {
   return ajaxCall('get', `/preparation_types.json`);
 }
@@ -59,6 +71,10 @@ const CreateTypeMaterial = function(data) {
   return ajaxCall('post', `/type_materials.json`, data);
 }
 
+const CreateBiocurationClassification = function(data) {
+  return ajaxCall('post', `/biocuration_classifications.json`, data);
+}
+
 const UpdateTypeMaterial = function(id, data) {
   return ajaxCall('patch', `/type_materials/${id}.json`, data);
 }
@@ -75,22 +91,30 @@ const DestroyTypeMaterial = function(id) {
   return ajaxCall('delete', `/type_materials/${id}.json`);
 }
 
+const DestroyBiocuration = function(id) {
+  return ajaxCall('delete', `/biocuration_classifications/${id}.json`)
+}
+
 const DestroyDepiction = function(id) {
   return ajaxCall('delete', `/depictions/${id}.json`);
 }
 
 export {
   CreateTypeMaterial,
+  CreateBiocurationClassification,
+  GetBiocurationsCreated,
   GetTypeMaterial,
   GetTaxonName,
   GetTypes,
   GetDepictions,
   GetPreparationTypes,
   GetRepository,
+  GetBiocurationsTypes,
   GetCollectionEvent,
   UpdateTypeMaterial,
   UpdateDepiction,
   DestroyTypeMaterial,
+  DestroyBiocuration,
   UpdateCollectionObject,
   DestroyDepiction
 }

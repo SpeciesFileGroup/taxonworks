@@ -2,7 +2,7 @@
   <div class="panel type-specimen-box">
     <spinner :show-spinner="false" :show-legend="false" v-if="!protonymId"></spinner>
     <div class="header flex-separate middle">
-        <h3>Material</h3>
+        <h3>Collection object</h3>
         <expand v-model="displayBody"></expand>
     </div>
     <div class="body" v-if="displayBody">
@@ -32,7 +32,7 @@
             @send="updateCollectionObject">
           </collection-object>
 
-          <template v-if="view == 'material'">
+          <template v-if="view == 'collection object'">
 
             <div class="field">
               <label>Material</label>
@@ -47,6 +47,11 @@
                 min="2">
               </autocomplete>
             </div>
+
+            <div class="field">
+              <toggle-switch :biologicalId="biologicalId"></toggle-switch>
+            </div>
+            
             <div class="field">
               <button v-if="typeMaterial.id" @click="updateTypeMaterial" type="button" class="normal-input button button-submit">Update</button>
               <button v-else @click="createTypeMaterial" :disabled="!biologicalId" type="button" class="normal-input button button-submit">Create</button>
@@ -72,6 +77,7 @@
   import spinner from '../../components/spinner.vue';
   import expand from './expand.vue';
   import collectionObject from './collectionObject.vue';
+  import toggleSwitch from './toggleSwitch.vue';
   import depictionsSection from './depictions.vue';
   
   export default {
@@ -80,6 +86,7 @@
       collectionObject,
       autocomplete,
       expand,
+      toggleSwitch,
       spinner
     },
     computed: {
@@ -121,7 +128,7 @@
     },
     data: function() {
       return {
-        tabOptions: ['material', 'new'],
+        tabOptions: ['collection object', 'new'],
         displayBody: true,
         roles_attribute: [],
       }
@@ -130,9 +137,10 @@
       typeMaterial(newVal) {
         if(newVal.id) {
           this.view = 'edit';
-          if(!this.tabOptions.includes('edit')) {
-            this.tabOptions.push('edit');
-          }
+          this.tabOptions = ['collection object', 'edit']
+        }
+        else {
+          this.tabOptions = ['collection object', 'new']
         }
       }
     },
@@ -162,3 +170,8 @@
     }
   }
 </script>
+<style scoped>
+  .switch-radio label {
+      width: 100px;
+  }
+</style>

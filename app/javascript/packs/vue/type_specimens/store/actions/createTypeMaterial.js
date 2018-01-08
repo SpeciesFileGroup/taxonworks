@@ -5,7 +5,7 @@ export default function({ commit, state }) {
 	let type_material = state.type_material;
 
 	commit(MutationNames.SetSaving, true);
-	if(state.settings.materialTab != 'material') {
+	if(state.settings.materialTab != 'collection object') {
 		type_material.biological_object_id = undefined;
 		type_material.material_attributes = state.type_material.collection_object;
 	}
