@@ -27,5 +27,5 @@ class BiocurationClassification < ApplicationRecord
   belongs_to :biological_collection_object, class_name: 'CollectionObject::BiologicalCollectionObject', inverse_of: :biocuration_classifications
 
   validates_presence_of :biocuration_class, :biological_collection_object
-
+  validates_uniqueness_of :biocuration_class, scope: [:biological_collection_object]
 end

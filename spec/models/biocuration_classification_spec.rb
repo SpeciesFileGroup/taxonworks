@@ -55,6 +55,17 @@ describe BiocurationClassification, :type => :model do
         expect(biocuration_classification.save).to be_truthy
       end
     end
+
+    context 'class per object' do
+      before do
+        BiocurationClassification.create!(biocuration_class: biocuration_class, biological_collection_object: specimen)
+      end
+
+      specify 'can not be duplicated' do
+        expect(BiocurationClassification.create(biocuration_class: biocuration_class, biological_collection_object: specimen).id).to eq(nil)
+      end
+    end
+
   end
 
   context 'concerns' do
