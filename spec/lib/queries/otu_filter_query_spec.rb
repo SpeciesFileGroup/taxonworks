@@ -79,7 +79,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
         specify 'without rank' do
           params_with = {nomen_id:    top_dog.taxon_name_id,
                          descendants: '1',
-                         rank_class:  'unspecified'}
+                         rank_class: nil}
           result      = Queries::OtuFilterQuery.new(params_with).result
           expect(result).to contain_exactly(spooler, top_dog, abra, by_bill, cadabra, alakazam)
         end

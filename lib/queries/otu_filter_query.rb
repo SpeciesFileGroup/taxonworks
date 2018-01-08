@@ -63,7 +63,7 @@ module Queries
     def with_class?
       if with_descendants?
         # TODO: what is the real signal of 'no rank distinction'?
-        query_rank_class != 'unspecified'
+        query_rank_class != nil
       else
         false
       end
@@ -101,7 +101,7 @@ module Queries
     # @return [Scope]
     def nomen_scope
       if with_class? # includes with_descendants? == true
-        scope = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id) #.where('taxon_names.rank_class = ?', query_rank_class)
+        scope = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
         scope = Otu.ranked_descendants_of(scope.first.id, query_rank_class)
       else
         scope = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
