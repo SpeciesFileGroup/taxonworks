@@ -91,7 +91,11 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-  resources :biocuration_classifications, only: [:create, :update, :destroy]
+  resources :biocuration_classifications, only: [:create, :update, :destroy] do
+    collection do
+      get :index, defaults: {format: :json}
+    end
+  end
 
   resources :biological_associations do
     concerns [:data_routes]
