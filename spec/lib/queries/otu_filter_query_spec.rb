@@ -70,7 +70,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
       context 'with descendants' do
         specify 'with rank' do
           params_with = {nomen_id:    top_dog.taxon_name_id,
-                         descendants: '_on_',
+                         descendants: '1',
                          rank_class:  'NomenclaturalRank::Iczn::SpeciesGroup::Species'}
           result      = Queries::OtuFilterQuery.new(params_with).result
           expect(result).to contain_exactly(spooler, cadabra)
@@ -78,7 +78,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 
         specify 'without rank' do
           params_with = {nomen_id:    top_dog.taxon_name_id,
-                         descendants: '_on_',
+                         descendants: '1',
                          rank_class:  'unspecified'}
           result      = Queries::OtuFilterQuery.new(params_with).result
           expect(result).to contain_exactly(spooler, top_dog, abra, by_bill, cadabra, alakazam)
@@ -87,7 +87,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 
       specify 'without descendants' do
         params_without = {nomen_id:    top_dog.taxon_name_id,
-                          descendants: '_off_',
+                          # descendants: nil,
                           rank_class:  'NomenclaturalRank::Iczn::SpeciesGroup::Species'}
         result         = Queries::OtuFilterQuery.new(params_without).result
         expect(result).to contain_exactly(top_dog, by_bill)
@@ -151,7 +151,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
         params.merge!({verbatim_author_string: 'Bill A'})
         params.merge!({geographic_area_ids: [area_a.id]})
         params.merge!({nomen_id:    top_dog.taxon_name_id,
-                       descendants: '_on_',
+                       descendants: '1',
                        rank_class:  'NomenclaturalRank::Iczn::SpeciesGroup::Species'})
 
         result = Queries::OtuFilterQuery.new(params).result

@@ -79,12 +79,14 @@ class Otu < ApplicationRecord
   def self.ranked_descendants_of(otu_id, rank_class)
     o = Otu.includes(:taxon_name).find(otu_id)
     if o && o.taxon_name
-      # with_taxon_name_id(Otu.find(otu_id).taxon_name.self_and_descendants).where('"taxon_names"."rank_class" = ?', rank_class)
+      # with_taxon_name_id(Otu.find(otu_id).taxon_name.self_and_descendants) #.where('"taxon_names"."rank_class" = ?', rank_class)
+
       where_clause = 'otus.taxon_name_id IN (SELECT taxon_names.id FROM taxon_names ' +
           'INNER JOIN taxon_name_hierarchies ON taxon_names.id = taxon_name_hierarchies.descendant_id ' +
-          'WHERE taxon_name_hierarchies.ancestor_id = ? AND taxon_names.rank_class = ? ' +
+          'WHERE (taxon_name_hierarchies.descendant_id = ? OR taxon_name_hierarchies.ancestor_id = ?) ' +
+          'AND taxon_names.rank_class = ? ' +
           'ORDER BY taxon_name_hierarchies.generations asc)'
-      Otu.where(where_clause, o.taxon_name_id, rank_class)
+      Otu.where(where_clause, o.taxon_name_id, o.taxon_name_id, rank_class)
     else
       Otu.where(id: otu_id)
     end

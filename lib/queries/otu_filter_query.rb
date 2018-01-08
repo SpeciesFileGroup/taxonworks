@@ -57,7 +57,7 @@ module Queries
     end
 
     def with_descendants?
-      query_descendants == '_on_'
+      !query_descendants.nil?
     end
 
     def with_class?
