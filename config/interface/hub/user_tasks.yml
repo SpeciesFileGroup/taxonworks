@@ -181,7 +181,6 @@ otus_filter_task:
     - otu
   status: prototype
   description: 'Find OTUs nomenclaturally or geographically'
-
 geographic_area_lookup_task:
   hub: true
   name: 'Geographic area lookup'
@@ -287,7 +286,8 @@ edit_type_material_task:
   hub: true
   name: 'New type specimen'
   related:
-    categories:
-      - nomenclature
+  categories:
+    - nomenclature
+    - collection_object
   status: prototype
   description: 'Add type material records for species group names.'
