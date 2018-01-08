@@ -6,7 +6,7 @@
     </div>
     <div class="body" v-if="displayBody">
       <div class="field">
-        <label>Protonym</label>
+        <label>Species name</label>
         <autocomplete
           class="types_field"
           url="/taxon_names/autocomplete"

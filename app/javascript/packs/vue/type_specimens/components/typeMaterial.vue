@@ -35,7 +35,7 @@
           <template v-if="view == 'collection object'">
 
             <div class="field">
-              <label>Material</label>
+              <label>Existing</label>
               <autocomplete
                 class="types_field"
                 url="/collection_objects/autocomplete"
@@ -51,7 +51,7 @@
             <div class="field">
               <toggle-switch :biologicalId="biologicalId"></toggle-switch>
             </div>
-            
+
             <div class="field">
               <button v-if="typeMaterial.id" @click="updateTypeMaterial" type="button" class="normal-input button button-submit">Update</button>
               <button v-else @click="createTypeMaterial" :disabled="!biologicalId" type="button" class="normal-input button button-submit">Create</button>
