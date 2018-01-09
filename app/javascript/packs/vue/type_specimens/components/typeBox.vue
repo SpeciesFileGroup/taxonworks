@@ -15,6 +15,7 @@
 			</div>
 		</div>
 		<div class="panel content" v-if="typesMaterial.length">
+			<button type="button" @click="newType" class="button normal-input button-default">New type</button>
 			<display-list :list="typesMaterial" :annotator="true" :edit="true" @edit="setTypeMaterial" @delete="removeTypeSpecimen" label="object_tag"></display-list>
 		</div>
 	</div>
@@ -23,7 +24,6 @@
 
 	import displayList from '../../components/displayList.vue';
 	import radialAnnotator from '../../components/annotator/annotator.vue';
-	import setParamsId from '../helpers/setParamsId';
 	import { GetterNames } from '../store/getters/getters';
 	import ActionNames from '../store/actions/actionNames';
 
@@ -52,7 +52,9 @@
 			},
 			setTypeMaterial(material) {
 				this.$store.dispatch(ActionNames.LoadTypeMaterial, material)
-				setParamsId('type_material_id', material.id)
+			},
+			newType() {
+				this.$store.dispatch(ActionNames.SetNewTypeMaterial);
 			}
 		},
 	}

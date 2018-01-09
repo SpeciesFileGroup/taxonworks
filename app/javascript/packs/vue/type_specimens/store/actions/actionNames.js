@@ -5,6 +5,7 @@ const ActionNames = {
 	CreateTypeMaterial: 'createTypeMaterial',
 	RemoveTypeSpecimen: 'RemoveTypeSpecimen',
 	UpdateTypeSpecimen: 'UpdateTypeSpecimen',
+	SetNewTypeMaterial: 'SetNewTypeMaterial',
 	UpdateCollectionObject: 'UpdateCollectionObject'
 };
 

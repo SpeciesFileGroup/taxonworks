@@ -66,6 +66,7 @@
           })
         }
         else {
+          this.figuresList = [];
           this.$refs.depiction.setOption('autoProcessQueue', false)
         }
       }
@@ -89,7 +90,7 @@
               console.log(response);
               that.$refs.depiction.processQueue();
               that.creatingType = false;
-            },5000)
+            },500)
           }, () => {
             this.creatingType = false;
           })

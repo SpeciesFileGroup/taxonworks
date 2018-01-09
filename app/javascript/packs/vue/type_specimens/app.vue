@@ -6,7 +6,10 @@
       :legend="(settings.loading ? 'Loading...' : 'Saving...')" 
       :logo-size="{ width: '100px', height: '100px'}">
     </spinner>
-    <h1>{{ isNew }} type specimen</h1>
+    <div class="flex-separate middle">
+      <h1>{{ isNew }} type specimen</h1>
+      <span @click="reloadApp" data-icon="reset" class="middle reload-app">Reset</span>
+    </div>
     <div>
       <div class="flexbox horizontal-center-content align-start">
         <div class="ccenter item separate-right">
@@ -70,6 +73,9 @@
       }
     },
     methods: {
+      reloadApp: function() {
+        window.location.href = '/tasks/type_material/edit_type_material'
+      },
       loadTaxonTypes() {
         let urlParams = new URLSearchParams(window.location.search);
         let protonym_id = urlParams.get('protonym_id');
@@ -143,6 +149,12 @@
         font-size: 0;
         margin: 15px;
         border: 0;
+    }
+    .reload-app {
+      cursor: pointer;
+      &:hover {
+        opacity: 0.8;
+      }
     }
     .type-specimen-box {
 

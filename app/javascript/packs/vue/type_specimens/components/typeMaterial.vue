@@ -35,27 +35,19 @@
           <template v-if="view == 'existing'">
 
             <div class="field">
-              <label>Existing</label>
+              <label>Collection object</label>
               <autocomplete
                 class="types_field"
                 url="/collection_objects/autocomplete"
                 param="term"
                 label="label_html"
                 :sendLabel="getOwnPropertyNested(typeMaterial, 'collection_object', 'object_tag')"
-                @getItem="biologicalId = $event.id"
+                @getItem="biologicalId = $event.id; (typeMaterial.id ? updateTypeMaterial() : createTypeMaterial())"
                 display="label"
                 min="2">
               </autocomplete>
             </div>
 
-            <div class="field">
-              <toggle-switch :biologicalId="biologicalId"></toggle-switch>
-            </div>
-
-            <div class="field">
-              <button v-if="typeMaterial.id" @click="updateTypeMaterial" type="button" class="normal-input button button-submit">Update</button>
-              <button v-else @click="createTypeMaterial" :disabled="!biologicalId" type="button" class="normal-input button button-submit">Create</button>
-            </div>
           </template>
         </div>
         <div class="field" v-if="protonymId">
@@ -128,7 +120,7 @@
     },
     data: function() {
       return {
-        tabOptions: ['existing', 'new'],
+        tabOptions: ['new', 'existing'],
         displayBody: true,
         roles_attribute: [],
       }
@@ -137,10 +129,10 @@
       typeMaterial(newVal) {
         if(newVal.id) {
           this.view = 'edit';
-          this.tabOptions = ['existing', 'edit']
+          this.tabOptions = ['edit', 'existing']
         }
         else {
-          this.tabOptions = ['existing', 'new']
+          this.tabOptions = ['new', 'existing']
         }
       }
     },
