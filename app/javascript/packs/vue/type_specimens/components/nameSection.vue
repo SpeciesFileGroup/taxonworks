@@ -56,7 +56,9 @@
     },
     methods: {
       setTypeSpecimen(id) {
-        this.$store.dispatch(ActionNames.LoadTypeMaterials, id)
+        this.$store.dispatch(ActionNames.LoadTaxonName, id).then(() => {
+          this.$store.dispatch(ActionNames.LoadTypeMaterials, id)
+        })
       },
       removeTypeSpecimen(item) {
         this.$store.dispatch(ActionNames.RemoveTypeSpecimen, item.id);

@@ -35,6 +35,8 @@
   import ActionNames from './store/actions/actionNames';
   import { GetterNames } from './store/getters/getters';
 
+  import setParamsId from './helpers/setParamsId';
+
   export default {
     components: {
       nameSection,
@@ -63,7 +65,7 @@
     watch: {
       taxon(newVal) {
         if(newVal != undefined) {
-          this.setProtonymParam(newVal.id);
+          setParamsId('protonym_id', newVal.id);
         }
       }
     },
@@ -71,32 +73,25 @@
       loadTaxonTypes() {
         let urlParams = new URLSearchParams(window.location.search);
         let protonym_id = urlParams.get('protonym_id');
-        let type_id = urlParams.get('type_id');
+        let type_id = urlParams.get('type_material_id');
 
         if(/^\d+$/.test(protonym_id)) {
           this.$store.dispatch(ActionNames.LoadTaxonName, protonym_id).then((response) => {
             this.$store.dispatch(ActionNames.LoadTypeMaterials, protonym_id).then(response => {
-              let types = response
-              console.log(types);
-              let findType = types.find((type) => {
-                return type.id == type_id
-              })
-              if(findType) {
-                this.$store.dispatch(ActionNames.LoadTypeMaterial, findType)
+              if(/^\d+$/.test(protonym_id)) {
+                this.loadType(response, type_id)
               }
             })
           })
         }
       },
-      setProtonymParam(id) {
-        let urlParams = new URLSearchParams(window.location.search);
-        if(id) {
-          urlParams.set('protonym_id', id);
+      loadType(list, type_id) {
+        let findType = list.find((type) => {
+          return type.id == type_id
+        })
+        if(findType) {
+          this.$store.dispatch(ActionNames.LoadTypeMaterial, findType)
         }
-        else {
-          urlParams.delete('protonym_id');
-        }
-        history.pushState(null, null, `/tasks/type_material/edit_type_material?${urlParams.toString()}`);
       }
     }
   }

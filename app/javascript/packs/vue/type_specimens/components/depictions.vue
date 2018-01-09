@@ -82,10 +82,14 @@
       'addedfile': function() {
         if(!this.getTypeMaterial.id && !this.creatingType) {
           this.creatingType = true;
-          this.$store.dispatch(ActionNames.CreateTypeMaterial).then(() => {
-            this.$refs.depiction.setOption('autoProcessQueue', true);
-            this.$refs.depiction.processQueue();
-            this.creatingType = false;
+          this.$store.dispatch(ActionNames.CreateTypeMaterial).then((response) => {
+            var that = this;
+            setTimeout(function() {
+            that.$refs.depiction.setOption('autoProcessQueue', true);
+            console.log(response);
+            that.$refs.depiction.processQueue();
+            that.creatingType = false;
+          },500)
           }, () => {
             this.creatingType = false;
           })
