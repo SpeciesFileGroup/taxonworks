@@ -67,7 +67,6 @@ class TypeMaterial < ApplicationRecord
   accepts_nested_attributes_for :type_designators, :type_designator_roles, allow_destroy: true
   accepts_nested_attributes_for :material, allow_destroy: true
 
-
   scope :where_protonym, -> (taxon_name) {where(protonym_id: taxon_name)}
   scope :with_type_string, -> (base_string) {where('type_type LIKE ?', "#{base_string}" ) }
   scope :with_type_array, -> (base_array) {where('type_type IN (?)', base_array ) }
@@ -90,27 +89,16 @@ class TypeMaterial < ApplicationRecord
   # TODO: really should be validating uniqueness at this point, it's type material, not garbage records
 
   def type_source
-    if !!self.source
-      self.source
-    elsif !!self.protonym
-      if !!self.protonym.source
-        self.protonym.source
+    if !!source
+      source
+    elsif !!protonym
+      if !!protonym.source
+        protonym.source
       else
         nil
       end
     else
       nil
-    end
-  end
-
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
     end
   end
 

@@ -176,7 +176,7 @@ class TaxonNamesController < ApplicationController
   private
 
   def set_taxon_name
-    @taxon_name    = TaxonName.with_project_id(sessions_current_project_id).includes(:creator, :updater).find(params[:id])
+    @taxon_name = TaxonName.with_project_id(sessions_current_project_id).includes(:creator, :updater).find(params[:id])
     @recent_object = @taxon_name
   end
 
@@ -188,9 +188,9 @@ class TaxonNamesController < ApplicationController
       :etymology,
       :verbatim_author, :rank_class, :type, :masculine_name,
       :feminine_name, :neuter_name, :also_create_otu,
-      roles_attributes:           [
-                                    :id, :_destroy, :type, :person_id, :position,
-                                    person_attributes: [
+      roles_attributes: [
+        :id, :_destroy, :type, :person_id, :position,
+        person_attributes: [
           :last_name, :first_name, :suffix, :prefix
         ]
       ],

@@ -18,5 +18,4 @@ class UserMailer < ActionMailer::Base
     mail(bcc: User.pluck(:email), subject: subject) 
   end
 
-
 end

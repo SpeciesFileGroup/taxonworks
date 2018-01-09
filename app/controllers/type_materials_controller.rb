@@ -97,7 +97,7 @@ class TypeMaterialsController < ApplicationController
 
   # GET /type_materials/download
   def download
-    send_data TypeMaterial.generate_download(TypeMaterial.where(project_id: sessions_current_project_id)), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(TypeMaterial.where(project_id: sessions_current_project_id)), type: 'text', filename: "type_materials_#{DateTime.now.to_s}.csv"
   end
 
   def type_types
