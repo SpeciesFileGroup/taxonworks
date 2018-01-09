@@ -67,14 +67,28 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 
     context 'nomen search' do
 
-      specify 'with descendants' do
-        params_with = {nomen_id: top_dog.taxon_name_id, descendants: '_on_'}
-        result      = Queries::OtuFilterQuery.new(params_with).result
-        expect(result).to contain_exactly(spooler, top_dog, abra, by_bill, cadabra, alakazam)
+      context 'with descendants' do
+        specify 'with rank' do
+          params_with = {nomen_id:    top_dog.taxon_name_id,
+                         descendants: '1',
+                         rank_class:  'NomenclaturalRank::Iczn::SpeciesGroup::Species'}
+          result      = Queries::OtuFilterQuery.new(params_with).result
+          expect(result).to contain_exactly(spooler, cadabra)
+        end
+
+        specify 'without rank' do
+          params_with = {nomen_id:    top_dog.taxon_name_id,
+                         descendants: '1',
+                         rank_class: nil}
+          result      = Queries::OtuFilterQuery.new(params_with).result
+          expect(result).to contain_exactly(spooler, top_dog, abra, by_bill, cadabra, alakazam)
+        end
       end
 
       specify 'without descendants' do
-        params_without = {nomen_id: top_dog.taxon_name_id, descendants: '_off_'}
+        params_without = {nomen_id:    top_dog.taxon_name_id,
+                          # descendants: nil,
+                          rank_class:  'NomenclaturalRank::Iczn::SpeciesGroup::Species'}
         result         = Queries::OtuFilterQuery.new(params_without).result
         expect(result).to contain_exactly(top_dog, by_bill)
       end
@@ -136,7 +150,9 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
         params.merge!({author_ids: [bill.id, daryl.id], and_or_select: '_or_'})
         params.merge!({verbatim_author_string: 'Bill A'})
         params.merge!({geographic_area_ids: [area_a.id]})
-        params.merge!({nomen_id: top_dog.taxon_name_id, descendants: '_on_'})
+        params.merge!({nomen_id:    top_dog.taxon_name_id,
+                       descendants: '1',
+                       rank_class:  'NomenclaturalRank::Iczn::SpeciesGroup::Species'})
 
         result = Queries::OtuFilterQuery.new(params).result
         expect(result).to contain_exactly(tn.otus.first)
@@ -146,176 +162,176 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 end
 
 def simple_world_x
-    gat_parish    = GeographicAreaType.find_or_create_by(name: 'Parish')
-    gat_land_mass = GeographicAreaType.find_or_create_by(name: 'Land Mass')
-    list_shape_a  = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
-                                                   RSPEC_GEO_FACTORY.point(0, 10, 0.0),
-                                                   RSPEC_GEO_FACTORY.point(10, 10, 0.0),
-                                                   RSPEC_GEO_FACTORY.point(10, 0, 0.0),
-                                                   RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
+  gat_parish    = GeographicAreaType.find_or_create_by(name: 'Parish')
+  gat_land_mass = GeographicAreaType.find_or_create_by(name: 'Land Mass')
+  list_shape_a  = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
+                                                 RSPEC_GEO_FACTORY.point(0, 10, 0.0),
+                                                 RSPEC_GEO_FACTORY.point(10, 10, 0.0),
+                                                 RSPEC_GEO_FACTORY.point(10, 0, 0.0),
+                                                 RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
 
-    list_shape_b = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
-                                                  RSPEC_GEO_FACTORY.point(0, -10, 0.0),
-                                                  RSPEC_GEO_FACTORY.point(10, -10, 0.0),
-                                                  RSPEC_GEO_FACTORY.point(10, 0, 0.0),
-                                                  RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
+  list_shape_b = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
+                                                RSPEC_GEO_FACTORY.point(0, -10, 0.0),
+                                                RSPEC_GEO_FACTORY.point(10, -10, 0.0),
+                                                RSPEC_GEO_FACTORY.point(10, 0, 0.0),
+                                                RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
 
-    list_shape_e = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 10, 0.0),
-                                                  RSPEC_GEO_FACTORY.point(10, 10, 0.0),
-                                                  RSPEC_GEO_FACTORY.point(10, -10, 0.0),
-                                                  RSPEC_GEO_FACTORY.point(0, -10, 0.0),
-                                                  RSPEC_GEO_FACTORY.point(0, 10, 0.0)])
+  list_shape_e = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 10, 0.0),
+                                                RSPEC_GEO_FACTORY.point(10, 10, 0.0),
+                                                RSPEC_GEO_FACTORY.point(10, -10, 0.0),
+                                                RSPEC_GEO_FACTORY.point(0, -10, 0.0),
+                                                RSPEC_GEO_FACTORY.point(0, 10, 0.0)])
 
-    shape_a = RSPEC_GEO_FACTORY.polygon(list_shape_a)
-    shape_b = RSPEC_GEO_FACTORY.polygon(list_shape_b)
-    shape_e = RSPEC_GEO_FACTORY.polygon(list_shape_e)
+  shape_a = RSPEC_GEO_FACTORY.polygon(list_shape_a)
+  shape_b = RSPEC_GEO_FACTORY.polygon(list_shape_b)
+  shape_e = RSPEC_GEO_FACTORY.polygon(list_shape_e)
 
-    item_a = FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_a]))
-    item_b = FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_b]))
-    item_e = FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_e]))
+  item_a = FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_a]))
+  item_b = FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_b]))
+  item_e = FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_e]))
 
-    earth = FactoryBot.create(:earth_geographic_area)
+  earth = FactoryBot.create(:earth_geographic_area)
 
-    area_e = FactoryBot.create(:level0_geographic_area,
-                               name:                 'E',
-                               geographic_area_type: gat_land_mass,
-                               iso_3166_a3:          nil,
-                               iso_3166_a2:          nil,
-                               parent:               earth)
-    area_e.geographic_items << item_e
-    area_e.save
+  area_e = FactoryBot.create(:level0_geographic_area,
+                             name:                 'E',
+                             geographic_area_type: gat_land_mass,
+                             iso_3166_a3:          nil,
+                             iso_3166_a2:          nil,
+                             parent:               earth)
+  area_e.geographic_items << item_e
+  area_e.save
 
-    @area_a = FactoryBot.create(:level1_geographic_area,
-                                name:                 'A',
-                                geographic_area_type: gat_parish,
-                                iso_3166_a3:          nil,
-                                iso_3166_a2:          nil,
-                                parent:               area_e)
-    @area_a.geographic_items << item_a
-    @area_a.save
+  @area_a = FactoryBot.create(:level1_geographic_area,
+                              name:                 'A',
+                              geographic_area_type: gat_parish,
+                              iso_3166_a3:          nil,
+                              iso_3166_a2:          nil,
+                              parent:               area_e)
+  @area_a.geographic_items << item_a
+  @area_a.save
 
-    area_b = FactoryBot.create(:level1_geographic_area,
-                               name:                 'B',
-                               geographic_area_type: gat_parish,
-                               iso_3166_a3:          nil,
-                               iso_3166_a2:          nil,
-                               parent:               area_e)
-    area_b.geographic_items << item_b
-    area_b.save
+  area_b = FactoryBot.create(:level1_geographic_area,
+                             name:                 'B',
+                             geographic_area_type: gat_parish,
+                             iso_3166_a3:          nil,
+                             iso_3166_a2:          nil,
+                             parent:               area_e)
+  area_b.geographic_items << item_b
+  area_b.save
 
-    ce_a  = FactoryBot.create(:collecting_event,
-                              start_date_year:   1971,
-                              start_date_month:  1,
-                              start_date_day:    1,
-                              verbatim_locality: 'environs of A',
-                              verbatim_label:    'Eh?',
-                              geographic_area:   @area_a)
-    @co_a = FactoryBot.create(:valid_collection_object, {collecting_event: ce_a})
+  ce_a  = FactoryBot.create(:collecting_event,
+                            start_date_year:   1971,
+                            start_date_month:  1,
+                            start_date_day:    1,
+                            verbatim_locality: 'environs of A',
+                            verbatim_label:    'Eh?',
+                            geographic_area:   @area_a)
+  @co_a = FactoryBot.create(:valid_collection_object, {collecting_event: ce_a})
 
-    @gr_a = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'area_a',
-                              collecting_event:      ce_a,
-                              error_geographic_item: item_a,
-                              geographic_item:       GeographicItem.new(point: item_a.st_centroid))
+  @gr_a = FactoryBot.create(:georeference_verbatim_data,
+                            api_request:           'area_a',
+                            collecting_event:      ce_a,
+                            error_geographic_item: item_a,
+                            geographic_item:       GeographicItem.new(point: item_a.st_centroid))
 
-    ce_b  = FactoryBot.create(:collecting_event,
-                              start_date_year:   1971,
-                              start_date_month:  1,
-                              start_date_day:    1,
-                              verbatim_locality: 'environs of B',
-                              verbatim_label:    'Bah',
-                              geographic_area:   area_b)
-    @co_b = FactoryBot.create(:valid_collection_object, {collecting_event: ce_b})
+  ce_b  = FactoryBot.create(:collecting_event,
+                            start_date_year:   1971,
+                            start_date_month:  1,
+                            start_date_day:    1,
+                            verbatim_locality: 'environs of B',
+                            verbatim_label:    'Bah',
+                            geographic_area:   area_b)
+  @co_b = FactoryBot.create(:valid_collection_object, {collecting_event: ce_b})
 
-    @gr_b = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'area_b',
-                              collecting_event:      ce_b,
-                              error_geographic_item: item_b,
-                              geographic_item:       GeographicItem.new(point: item_b.st_centroid))
+  @gr_b = FactoryBot.create(:georeference_verbatim_data,
+                            api_request:           'area_b',
+                            collecting_event:      ce_b,
+                            error_geographic_item: item_b,
+                            geographic_item:       GeographicItem.new(point: item_b.st_centroid))
 
-    sargon = Person.find_or_create_by(first_name: 'of Akkad', last_name: 'Sargon')
-    andy   = Person.find_or_create_by(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author')
-    daryl  = Person.find_or_create_by(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon')
-    ted    = FactoryBot.create(:valid_person, last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC')
-    bill   = Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson')
+  sargon = Person.find_or_create_by(first_name: 'of Akkad', last_name: 'Sargon')
+  andy   = Person.find_or_create_by(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author')
+  daryl  = Person.find_or_create_by(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon')
+  ted    = FactoryBot.create(:valid_person, last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC')
+  bill   = Person.find_or_create_by(first_name: 'Bill', last_name: 'Ardson')
 
-    @top_dog = FactoryBot.create(:valid_otu, name: 'Top Dog', taxon_name:
+  @top_dog = FactoryBot.create(:valid_otu, name: 'Top Dog', taxon_name:
+                                                 FactoryBot.create(:valid_taxon_name,
+                                                                   rank_class: Ranks.lookup(:iczn, 'Family'),
+                                                                   name:       'Topdogidae')
+  )
+
+  nuther_dog = FactoryBot.create(:valid_otu, name: 'Another Dog', taxon_name:
                                                    FactoryBot.create(:valid_taxon_name,
                                                                      rank_class: Ranks.lookup(:iczn, 'Family'),
-                                                                     name:       'Topdogidae')
-    )
+                                                                     name:       'Nutherdogidae')
+  )
 
-    nuther_dog = FactoryBot.create(:valid_otu, name: 'Another Dog', taxon_name:
-                                                     FactoryBot.create(:valid_taxon_name,
-                                                                       rank_class: Ranks.lookup(:iczn, 'Family'),
-                                                                       name:       'Nutherdogidae')
-    )
+  tn_abra = Protonym.find_or_create_by(name:       'Abra',
+                                       rank_class: Ranks.lookup(:iczn, 'Genus'),
+                                       parent:     @top_dog.taxon_name)
 
-    tn_abra = Protonym.find_or_create_by(name:       'Abra',
-                                         rank_class: Ranks.lookup(:iczn, 'Genus'),
-                                         parent:     @top_dog.taxon_name)
+  tn_spooler = Protonym.find_or_create_by(name:       'spooler',
+                                          rank_class: Ranks.lookup(:iczn, 'Species'),
+                                          parent:     tn_abra)
 
-    tn_spooler = Protonym.find_or_create_by(name:       'spooler',
-                                            rank_class: Ranks.lookup(:iczn, 'Species'),
-                                            parent:     tn_abra)
+  tn_cadabra  = Protonym.find_or_create_by(name:                'cadabra',
+                                           year_of_publication: 2017,
+                                           verbatim_author:     'Bill Ardson',
+                                           rank_class:          Ranks.lookup(:iczn, 'Species'),
+                                           parent:              tn_abra)
+  tn_alakazam = Protonym.find_or_create_by(name:       'alakazam',
+                                           rank_class: Ranks.lookup(:iczn, 'Subspecies'),
+                                           parent:     tn_cadabra)
 
-    tn_cadabra  = Protonym.find_or_create_by(name:                'cadabra',
-                                             year_of_publication: 2017,
-                                             verbatim_author:     'Bill Ardson',
-                                             rank_class:          Ranks.lookup(:iczn, 'Species'),
-                                             parent:              tn_abra)
-    tn_alakazam = Protonym.find_or_create_by(name:       'alakazam',
-                                             rank_class: Ranks.lookup(:iczn, 'Subspecies'),
-                                             parent:     tn_cadabra)
+  by_bill = FactoryBot.create(:valid_otu, name: 'Top Dog (by Bill)', taxon_name: @top_dog.taxon_name)
 
-    by_bill = FactoryBot.create(:valid_otu, name: 'Top Dog (by Bill)', taxon_name: @top_dog.taxon_name)
+  o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'Otu_A')
+  o.taxon_name.update_column(:name, 'antivitis')
+  @co_a.otus << o
 
-    o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'Otu_A')
-    o.taxon_name.update_column(:name, 'antivitis')
-    @co_a.otus << o
+  o = @top_dog # this is o1
+  o.taxon_name.taxon_name_authors << ted
+  @co_a.otus << o
 
-    o = @top_dog # this is o1
-    o.taxon_name.taxon_name_authors << ted
-    @co_a.otus << o
+  o            = by_bill
+  o.taxon_name = @top_dog.taxon_name
+  @co_a.otus << o
 
-    o            = by_bill
-    o.taxon_name = @top_dog.taxon_name
-    @co_a.otus << o
+  o            = FactoryBot.create(:valid_otu, name: 'Abra')
+  o.taxon_name = tn_abra
+  o.taxon_name.taxon_name_authors << ted
+  @co_a.otus << o
+  o   = FactoryBot.create(:valid_otu, name: 'Abra cadabra')
+  t_n = tn_cadabra
 
-    o            = FactoryBot.create(:valid_otu, name: 'Abra')
-    o.taxon_name = tn_abra
-    o.taxon_name.taxon_name_authors << ted
-    @co_a.otus << o
-    o   = FactoryBot.create(:valid_otu, name: 'Abra cadabra')
-    t_n = tn_cadabra
+  o.taxon_name = t_n
+  o.save!
+  o.taxon_name.taxon_name_authors << bill
+  @co_a.otus << o
+  o = FactoryBot.create(:valid_otu, name: 'Abra cadabra alakazam')
+  @co_a.collecting_event.collectors << bill
+  o.taxon_name = tn_alakazam
 
-    o.taxon_name = t_n
-    o.save!
-    o.taxon_name.taxon_name_authors << bill
-    @co_a.otus << o
-    o = FactoryBot.create(:valid_otu, name: 'Abra cadabra alakazam')
-    @co_a.collecting_event.collectors << bill
-    o.taxon_name = tn_alakazam
+  o.taxon_name.taxon_name_authors << ted
+  @co_a.otus << o
+  o.taxon_name
 
-    o.taxon_name.taxon_name_authors << ted
-    @co_a.otus << o
-    o.taxon_name
+  o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'P4')
+  @co_b.collecting_event.collectors << sargon
+  @co_b.collecting_event.collectors << daryl
+  o.taxon_name.update_column(:name, 'beevitis')
+  @co_b.otus << o
+  o            = FactoryBot.create(:valid_otu, name: 'Sargon\'s spooler')
+  o.taxon_name = tn_spooler
+  o.taxon_name.taxon_name_authors << sargon
+  o.taxon_name.taxon_name_authors << daryl
+  @co_b.otus << o
+  o = nuther_dog
+  o.taxon_name.taxon_name_authors << bill
+  o.taxon_name.taxon_name_authors << ted
+  o.taxon_name.taxon_name_authors << sargon
+  @co_b.otus << o
 
-    o = FactoryBot.create(:valid_otu_with_taxon_name, name: 'P4')
-    @co_b.collecting_event.collectors << sargon
-    @co_b.collecting_event.collectors << daryl
-    o.taxon_name.update_column(:name, 'beevitis')
-    @co_b.otus << o
-    o            = FactoryBot.create(:valid_otu, name: 'Sargon\'s spooler')
-    o.taxon_name = tn_spooler
-    o.taxon_name.taxon_name_authors << sargon
-    o.taxon_name.taxon_name_authors << daryl
-    @co_b.otus << o
-    o = nuther_dog
-    o.taxon_name.taxon_name_authors << bill
-    o.taxon_name.taxon_name_authors << ted
-    o.taxon_name.taxon_name_authors << sargon
-    @co_b.otus << o
-
-  end
+end
 

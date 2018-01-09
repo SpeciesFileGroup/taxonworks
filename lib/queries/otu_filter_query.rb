@@ -4,7 +4,7 @@ module Queries
 
     # Query variables
     attr_accessor :query_geographic_area_ids, :query_shape
-    attr_accessor :query_nomen_id, :query_descendants
+    attr_accessor :query_nomen_id, :query_descendants, :query_rank_class
     attr_accessor :query_author_ids, :query_and_or_select
     attr_accessor :query_verbatim_author_string
 
@@ -26,6 +26,7 @@ module Queries
       @query_verbatim_author_string = params[:verbatim_author_string]
       @query_and_or_select          = params[:and_or_select]
       @query_nomen_id               = params[:nomen_id]
+      @query_rank_class             = params[:rank_class]
       @query_descendants            = params[:descendants]
     end
 
@@ -56,7 +57,16 @@ module Queries
     end
 
     def with_descendants?
-      query_descendants == '_on_'
+      !query_descendants.nil?
+    end
+
+    def with_class?
+      if with_descendants?
+        # TODO: what is the real signal of 'no rank distinction'?
+        query_rank_class != nil
+      else
+        false
+      end
     end
 
 =begin
@@ -90,12 +100,16 @@ module Queries
 
     # @return [Scope]
     def nomen_scope
-      scope = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
-      if with_descendants?
-        Otu.self_and_descendants_of(scope.first.id)
+      if with_class? # includes with_descendants? == true
+        scope = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
+        scope = Otu.ranked_descendants_of(scope.first.id, query_rank_class)
       else
-        scope
+        scope = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
+        if with_descendants? # but rank_class == 'unspecified'
+          scope = Otu.self_and_descendants_of(scope.first.id)
+        end
       end
+      scope
     end
 
     # @return [Scope]

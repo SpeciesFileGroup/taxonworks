@@ -1,6 +1,6 @@
 module Tasks::Otus::AreaAndNomen::AreaAndNomenHelper
 
- # <p><%= page_entries_info(@otus) %></p> <%= paginate @otus %>
+  # <p><%= page_entries_info(@otus) %></p> <%= paginate @otus %>
   def otu_paging_info
     if @otus.any?
       page_entries_info(@otus)
@@ -13,6 +13,10 @@ module Tasks::Otus::AreaAndNomen::AreaAndNomenHelper
     if @otus.any?
       paginate(@otus, :remote => true)
     end
+  end
+
+  def rank_for_otu_select_tag(taxon_name: TaxonName.new, options: {})
+    select_tag(:rank_class, options_for_select(RANKS_SELECT_OPTIONS, selected: taxon_name.rank_string, options: options), include_blank: 'unspecified')
   end
 
 end
