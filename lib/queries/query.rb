@@ -58,7 +58,10 @@ class Queries::Query
     @terms ||= build_terms
   end
 
+  # @return [Array]
+  #   of strings representing integers
   def integers
+    return [] if query_string.blank?
     query_string.split(/\s+/).select{|t| Utilities::Strings.is_i?(t)}
   end
 
@@ -99,7 +102,7 @@ class Queries::Query
 
   # Replace with a full text indexing approach
   def build_terms
-    @terms = [end_wildcard, start_and_end_wildcard]  # query_string.split(/\s+/).compact.collect{|t| [t, "#{t}%", "%#{t}%"]}.flatten
+    @terms = @query_string.blank? ? [] : [end_wildcard, start_and_end_wildcard]  # query_string.split(/\s+/).compact.collect{|t| [t, "#{t}%", "%#{t}%"]}.flatten
   end
 
   def no_digits 
@@ -122,6 +125,7 @@ class Queries::Query
   end
 
   # generic multi-use bits
+  #   table is defined in each query, it is the class of instances being returned
 
   def parent_child_join
     table.join(parent).on(table[:parent_id].eq(parent[:id])).join_sources # !! join_sources ftw

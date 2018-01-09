@@ -12,7 +12,7 @@ class ControlledVocabularyTermsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @controlled_vocabulary_terms = ControlledVocabularyTerm.where(filter_sql).with_project_id(sessions_current_project_id).order(:name)
+        @controlled_vocabulary_terms = ControlledVocabularyTerm.where(filter_params).with_project_id(sessions_current_project_id).order(:name)
       }
     end
   end
@@ -104,24 +104,18 @@ class ControlledVocabularyTermsController < ApplicationController
   end
 
   def autocomplete
-    @controlled_vocabulary_terms = ControlledVocabularyTerm.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-
-    data = @controlled_vocabulary_terms.collect do |t|
-      {id: t.id,
-       label: t.name,
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html: ApplicationController.helpers.controlled_vocabulary_term_tag(t)
-      }
-    end
-
-    render :json => data
+    @controlled_vocabulary_terms = Queries::ControlledVocabularyTermAutocompleteQuery.new(
+      params.require(:term), 
+      of_type: filter_params[:type], 
+      project_id: sessions_current_project_id
+    ).all
   end
 
   # GET /controlled_vocabulary_terms/download
   def download
-    send_data ControlledVocabularyTerm.generate_download(ControlledVocabularyTerm.where(project_id: sessions_current_project_id)), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now.to_s}.csv"
+    send_data ControlledVocabularyTerm.generate_download(
+      ControlledVocabularyTerm.where(project_id: sessions_current_project_id)
+    ), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now.to_s}.csv"
   end
 
   # GET /controlled_vocabulary_terms/1/tagged_objects
@@ -140,7 +134,7 @@ class ControlledVocabularyTermsController < ApplicationController
     params.require(:controlled_vocabulary_term).permit(:type, :name, :definition, :uri, :uri_relation, :css_color)
   end
 
-  def filter_sql
+  def filter_params
     h = params.permit(of_type: []).to_h.symbolize_keys
     return { type: h[:of_type], project_id: sessions_current_project_id }
   end
