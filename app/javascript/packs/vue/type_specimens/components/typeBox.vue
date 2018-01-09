@@ -51,6 +51,17 @@
 			},
 			setTypeMaterial(material) {
 				this.$store.dispatch(ActionNames.LoadTypeMaterial, material)
+				this.setTypeParam(material.id)
+			},
+			setTypeParam(id) {
+				let urlParams = new URLSearchParams(window.location.search);
+				if(id) {
+					urlParams.set('type_id', id);
+				}
+				else {
+					urlParams.delete('type_id');
+				}
+				history.pushState(null, null, `/tasks/type_material/edit_type_material?${urlParams.toString()}`);
 			}
 		},
 	}

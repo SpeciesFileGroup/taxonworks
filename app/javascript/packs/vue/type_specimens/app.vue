@@ -71,9 +71,21 @@
       loadTaxonTypes() {
         let urlParams = new URLSearchParams(window.location.search);
         let protonym_id = urlParams.get('protonym_id');
+        let type_id = urlParams.get('type_id');
 
         if(/^\d+$/.test(protonym_id)) {
-          this.$store.dispatch(ActionNames.LoadTypeMaterials, protonym_id)
+          this.$store.dispatch(ActionNames.LoadTaxonName, protonym_id).then((response) => {
+            this.$store.dispatch(ActionNames.LoadTypeMaterials, protonym_id).then(response => {
+              let types = response
+              console.log(types);
+              let findType = types.find((type) => {
+                return type.id == type_id
+              })
+              if(findType) {
+                this.$store.dispatch(ActionNames.LoadTypeMaterial, findType)
+              }
+            })
+          })
         }
       },
       setProtonymParam(id) {
