@@ -108,10 +108,20 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors] 
         it 'renders count of otus from a specific name with descendants' do
           visit(index_path)
           page.execute_script "$('#set_nomen')[0].scrollIntoView()"
-          find('#descendant_toggle').click
+          find('#descendants').click
           fill_autocomplete('nomen_id_for_by_nomen', with: 'Topdog', select: top_dog.taxon_name.id)
           click_button('Set Nomenclature')
           expect(find('#nomen_count')).to have_text('6') # Top Dog, Top dog by Bill, Abra, Abra cadabra, Abra cadabra alakazam, Sargon's spooler
+        end
+
+        it 'renders count of otus from a specific name with descendants with specific rank' do
+          visit(index_path)
+          page.execute_script "$('#set_nomen')[0].scrollIntoView()"
+          find('#descendants').click
+          fill_autocomplete('nomen_id_for_by_nomen', with: 'Topdog', select: top_dog.taxon_name.id)
+          find('#rank_class').select('species (ICZN)')
+          click_button('Set Nomenclature')
+          expect(find('#nomen_count')).to have_text('2') # Abra cadabra, Sargon's spooler
         end
       end
 
