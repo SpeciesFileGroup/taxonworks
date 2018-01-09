@@ -46,8 +46,15 @@ module CollectionObjectsHelper
     end
   end
 
+  def collection_object_identifier_tag(collection_object)
+    [ 
+      identifier_tag(collection_object.identifiers.first), 
+      content_tag(:span, 'no identifier assigned', class: [:notice]) 
+    ].compact.first
+  end
+
   def dwc_occurrence_table_header_tag
-    content_tag(:tr, CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:th, k)}.join.html_safe, class: [:header]) 
+    content_tag(:tr, CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:th, k)}.join.html_safe, class: [:error]) 
   end
 
   def dwc_occurrence_table_body_tag(collection_objects)
