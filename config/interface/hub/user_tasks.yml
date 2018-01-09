@@ -291,3 +291,11 @@ edit_type_material_task:
     - collection_object
   status: prototype
   description: 'Add type material records for species group names.'
+new_combination_task_task:
+  hub: true
+  name: 'New combination'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Create a new or subsequent nomenclatural combination.'
