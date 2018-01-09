@@ -175,6 +175,11 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors] 
         it 'renders count of objects and table found using a drawn area and date range' do
           find('#paging_data', visible: true, text: 'Displaying 1 otu')
           expect(find(:xpath, "//div['show_list']/table[@class='tablesorter']/thead")).to have_text('Taxon name')
+          find('.filter-button').click()
+          find('#find_area_and_nomen_commit').click
+          wait_for_ajax
+          find('#paging_data', visible: true, text: 'Displaying 1 otu')
+          expect(find(:xpath, "//div['show_list']/table[@class='tablesorter']/thead")).to have_text('Taxon name')
         end
       end
 

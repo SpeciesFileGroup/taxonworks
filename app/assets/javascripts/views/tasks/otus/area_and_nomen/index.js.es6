@@ -93,9 +93,13 @@ Object.assign(TW.views.tasks.otus, {
           return false;
         }
       });
+
+      $(".filter-button").on("click", function () {
+        that.toggleFilter();
+      });
     }
   },
-  
+
   switchMap: function () {
     $("#paging_span").hide();
     $("#show_list").hide();         // hide the list view
