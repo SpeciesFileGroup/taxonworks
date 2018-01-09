@@ -119,18 +119,16 @@ class TypeMaterial < ApplicationRecord
     errors.add(:protonym_id, 'Type cannot be designated, name is not a species group name') if protonym && !protonym.is_species_rank?
   end
 
-  #region Soft Validation
-
   def sv_single_primary_type
 
     primary_types = TypeMaterial.with_type_array(['holotype', 'neotype', 'lectotype']).where_protonym(protonym).not_self(self)
     syntypes = TypeMaterial.with_type_array(['syntype', 'syntypes']).where_protonym(protonym)
-    
-    if type_type == 'syntype' || type_type == 'syntypes'
+
+    if type_type =~ /syntype/
       soft_validations.add(:type_type, 'Other primary types selected for the taxon are conflicting with the syntypes') unless primary_types.empty?
     end
 
-    if type_type == 'holotype' || type_type == 'neotype' || type_type == 'lectotype'
+    if ['holotype', 'neotype', 'lectotype'].include?(type_type) 
       soft_validations.add(:type_type, 'More than one primary type associated with the taxon') if !primary_types.empty? || !syntypes.empty?
     end
   end
@@ -139,5 +137,4 @@ class TypeMaterial < ApplicationRecord
     soft_validations.add(:base, 'Source is not selected neither for type nor for taxon') unless type_source
   end
 
-  #endregion
 end
