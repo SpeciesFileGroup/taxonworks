@@ -1,7 +1,12 @@
 <template>
 	<transition-group class="table-entrys-list" name="list-complete" tag="ul">
-	    	<li v-for="item in list" :key="item.id" class="list-complete-item flex-separate middle" :class="{ 'highlight': checkHighlight(item) }">
+	    	<li v-for="item in list" :key="item.id" class="list-complete-item flex-separate middle">
+	    		<div>
 			    <span class="list-item" v-html="displayName(item)"></span>
+			    <span class="list-item"> | Collection object 
+			    	<radial-annotator v-if="annotator" :globalId="item.collection_object.global_id"></radial-annotator>
+			    </span>
+			</div>
 			    <div class="list-controls">
 			    	<radial-annotator v-if="annotator" :globalId="item.global_id"></radial-annotator>	
 			    	<span v-if="edit" class="circle-button btn-edit" @click="$emit('edit', Object.assign({}, item))">Edit</span>
@@ -12,7 +17,7 @@
 </template>
 <script>
 
-	import radialAnnotator from './annotator/annotator.vue';
+	import radialAnnotator from '../../components/annotator/annotator.vue';
 
 	export default {
 		components: {
@@ -32,10 +37,6 @@
 			},
 			annotator: {
 				type: Boolean
-			},
-			highlight: {
-				type: Object,
-				default: undefined
 			}
 		},
 		methods: {
@@ -50,17 +51,6 @@
 					});
 					return tmp;
 				}
-			},
-			checkHighlight(item) {
-				if(this.highlight) {
-					if(this.highlight.key) {
-						return item[this.highlight.key] == this.highlight.value
-					}
-					else {
-						return item == this.highlight.value
-					}
-				}
-				return false
 			}
 		}
 	}
@@ -75,10 +65,6 @@
 	 	.circle-button {
 	 		margin-left: 4px !important;
 	 	}
-	}
-
-	.highlight {
-		background-color: #E3E8E3;
 	}
 
 	.list-item {

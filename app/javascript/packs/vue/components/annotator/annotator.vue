@@ -82,6 +82,7 @@ export default {
 			currentAnnotator: undefined,
 			display: false,
 			url: undefined,
+			globalIdSaved: undefined,
 			metadata: undefined,
 			title: "Radial annotator",
 			menuOptions: []
@@ -103,7 +104,8 @@ export default {
 			this.loadMetadata();
 		},
 		loadMetadata: function() {
-			if (this.menuCreated && !this.reload) return
+			if (this.globalId == this.globalIdSaved && this.menuCreated && !this.reload) return
+			this.globalIdSaved = this.globalId;
 
 			var that = this;
 			this.getList(`/annotations/${encodeURIComponent(this.globalId)}/metadata`).then(response => {

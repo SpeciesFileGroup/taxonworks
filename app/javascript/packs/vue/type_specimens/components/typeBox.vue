@@ -16,7 +16,7 @@
 		</div>
 		<div class="panel content" v-if="typesMaterial.length">
 			<button type="button" @click="newType" class="button normal-input button-default">New type</button>
-			<display-list :list="typesMaterial" :annotator="true" :edit="true" @edit="setTypeMaterial" @delete="removeTypeSpecimen" label="object_tag"></display-list>
+			<display-list :highlight="{ value: typeMaterial.id, key: 'id' }" :list="typesMaterial" :annotator="true" :edit="true" @edit="setTypeMaterial" @delete="removeTypeSpecimen" label="type_type"></display-list>
 		</div>
 	</div>
 </template>

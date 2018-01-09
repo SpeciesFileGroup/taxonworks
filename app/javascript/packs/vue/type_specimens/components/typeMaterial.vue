@@ -3,7 +3,10 @@
     <spinner :show-spinner="false" :show-legend="false" v-if="!(protonymId && type)"></spinner>
     <div class="header flex-separate middle">
         <h3>Collection object</h3>
-        <expand v-model="displayBody"></expand>
+        <div class="flexbox middle">
+          <radial-annotator v-if="typeMaterial.id" :globalId="getCollectionObject.global_id"></radial-annotator>
+          <expand v-model="displayBody"></expand>
+        </div>
     </div>
     <div class="body" v-if="displayBody">
       <div class="switch-radio field">
@@ -66,6 +69,7 @@
   import ActionNames from '../store/actions/actionNames';
 
   import autocomplete from '../../components/autocomplete.vue';
+  import radialAnnotator from '../../components/annotator/annotator.vue';
   import spinner from '../../components/spinner.vue';
   import expand from './expand.vue';
   import collectionObject from './collectionObject.vue';
@@ -79,11 +83,15 @@
       autocomplete,
       expand,
       toggleSwitch,
+      radialAnnotator,
       spinner
     },
     computed: {
       typeMaterial() {
         return this.$store.getters[GetterNames.GetTypeMaterial]
+      },
+      getCollectionObject() {
+        return this.$store.getters[GetterNames.GetCollectionObject]
       },
       protonymId: {
         get() {
