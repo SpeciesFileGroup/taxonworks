@@ -1,4 +1,5 @@
-# TypeMaterial is a definition of goverened type
+# TypeMaterial links CollectionObjects to Protonyms.  It is the single direct relationship between nomenclature and collection objects in TaxonWorks (all other name/collection object relationships coming through OTUs).
+# TypeMaterial is based on specific rules of nomenclature, it only includes those types (e.g. "holotype") that are specifically goverened (e.g. "topotype" is not allowed).
 #
 # @!attribute protonym_id
 #   @return [Integer]
@@ -6,11 +7,11 @@
 #
 # @!attribute biological_object_id
 #   @return [Integer]
-#     the specimen record
+#     the CollectionObject 
 #
 # @!attribute type_type
 #   @return [String]
-#     the type of Type relationship (e.g. holotyp)
+#     the type of Type relationship (e.g. holotype)
 #
 # @!attribute project_id
 #   @return [Integer
@@ -67,14 +68,15 @@ class TypeMaterial < ApplicationRecord
   accepts_nested_attributes_for :type_designators, :type_designator_roles, allow_destroy: true
   accepts_nested_attributes_for :material, allow_destroy: true
 
-  scope :where_protonym, -> (taxon_name) {where(protonym_id: taxon_name)}
-  scope :with_type_string, -> (base_string) {where('type_type LIKE ?', "#{base_string}" ) }
-  scope :with_type_array, -> (base_array) {where('type_type IN (?)', base_array ) }
+  scope :where_protonym, -> (taxon_name) { where(protonym_id: taxon_name) }
+  scope :with_type_string, -> (base_string) { where('type_type LIKE ?', "#{base_string}" ) }
+  scope :with_type_array, -> (base_array) { where('type_type IN (?)', base_array ) }
 
   scope :primary, -> {where(type_type: %w{neotype lectotype holotype}).order('biological_object_id')}
   scope :syntypes, -> {where(type_type: %w{syntype syntypes}).order('biological_object_id')}
 
   #  scope :primary_with_protonym_array, -> (base_array) {select('type_type, source_id, biological_object_id').group('type_type, source_id, biological_object_id').where("type_materials.type_type IN ('neotype', 'lectotype', 'holotype', 'syntype', 'syntypes') AND type_materials.protonym_id IN (?)", base_array ) }
+  
   scope :primary_with_protonym_array, -> (base_array) {select('type_type, biological_object_id').group('type_type, biological_object_id').where("type_materials.type_type IN ('neotype', 'lectotype', 'holotype', 'syntype', 'syntypes') AND type_materials.protonym_id IN (?)", base_array ) }
 
   soft_validate(:sv_single_primary_type, set: :single_primary_type)
@@ -85,50 +87,50 @@ class TypeMaterial < ApplicationRecord
   validates_presence_of :type_type
 
   validate :check_type_type
+  validate :check_protonym_rank
 
   # TODO: really should be validating uniqueness at this point, it's type material, not garbage records
 
   def type_source
-    if !!source
-      source
-    elsif !!protonym
-      if !!protonym.source
-        protonym.source
-      else
-        nil
-      end
+    [source, protonym.try(:source), nil].compact.first
+  end
+
+  def legal_type_type(code, type_type)
+    case code
+    when :iczn
+      ICZN_TYPES.keys.include?(type_type)
+    when :icn
+      ICZN_TYPES.keys.include?(type_type)
     else
-      nil
+      false
     end
   end
 
   protected
 
-  #region Validation
-
   def check_type_type
-    if self.protonym
-      code = self.protonym.rank_class.nomenclatural_code
-      if (code == :iczn && !ICZN_TYPES.keys.include?(self.type_type)) || (code == :icn && !ICN_TYPES.keys.include?(self.type_type))
-        errors.add(:type_type, 'Not a legal type for the nomenclatural code provided')
-      end
-      unless self.protonym.rank_class.parent.to_s =~ /Species/
-        errors.add(:protonym_id, 'Type cannot be designated, name is not a species group name')
-      end
+    if protonym
+      code = protonym.rank_class.nomenclatural_code
+      errors.add(:type_type, 'Not a legal type for the nomenclatural code provided') if !legal_type_type(code, type_type) 
     end
   end
 
-  #endregion
+  def check_protonym_rank
+    errors.add(:protonym_id, 'Type cannot be designated, name is not a species group name') if protonym && !protonym.is_species_rank?
+  end
 
   #region Soft Validation
 
   def sv_single_primary_type
-    primary_types = TypeMaterial.with_type_array(['holotype', 'neotype', 'lectotype']).where_protonym(self.protonym).not_self(self)
-    syntypes = TypeMaterial.with_type_array(['syntype', 'syntypes']).where_protonym(self.protonym)
-    if self.type_type == 'syntype' || self.type_type == 'syntypes'
+
+    primary_types = TypeMaterial.with_type_array(['holotype', 'neotype', 'lectotype']).where_protonym(protonym).not_self(self)
+    syntypes = TypeMaterial.with_type_array(['syntype', 'syntypes']).where_protonym(protonym)
+    
+    if type_type == 'syntype' || type_type == 'syntypes'
       soft_validations.add(:type_type, 'Other primary types selected for the taxon are conflicting with the syntypes') unless primary_types.empty?
     end
-    if self.type_type == 'holotype' || self.type_type == 'neotype' || self.type_type == 'lectotype'
+
+    if type_type == 'holotype' || type_type == 'neotype' || type_type == 'lectotype'
       soft_validations.add(:type_type, 'More than one primary type associated with the taxon') if !primary_types.empty? || !syntypes.empty?
     end
   end
