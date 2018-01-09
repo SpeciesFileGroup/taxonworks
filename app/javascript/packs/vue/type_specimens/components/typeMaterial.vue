@@ -32,7 +32,7 @@
             @send="updateCollectionObject">
           </collection-object>
 
-          <template v-if="view == 'collection object'">
+          <template v-if="view == 'existing'">
 
             <div class="field">
               <label>Existing</label>
@@ -128,7 +128,7 @@
     },
     data: function() {
       return {
-        tabOptions: ['collection object', 'new'],
+        tabOptions: ['existing', 'new'],
         displayBody: true,
         roles_attribute: [],
       }
@@ -137,10 +137,10 @@
       typeMaterial(newVal) {
         if(newVal.id) {
           this.view = 'edit';
-          this.tabOptions = ['collection object', 'edit']
+          this.tabOptions = ['existing', 'edit']
         }
         else {
-          this.tabOptions = ['collection object', 'new']
+          this.tabOptions = ['existing', 'new']
         }
       }
     },

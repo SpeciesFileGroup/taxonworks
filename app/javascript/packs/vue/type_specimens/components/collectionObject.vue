@@ -146,21 +146,26 @@
       }
     },
     watch: {
-      typeMaterial(newVal, oldVal) {
-        if(newVal.id != oldVal.id) {
-          this.labelRepository = this.labelEvent = undefined;
-          this.setEventLabel(this.eventId);
-          this.setRepositoryLabel(this.repositoryId);
+      biologicalId: {
+        handler(newVal) {
+          if(newVal) {
+            this.updateLabels();
+          }
         }
       }
     },
     mounted: function() {
-      var that = this;
+      this.updateLabels();
       GetPreparationTypes().then(response => {
-        that.types = response;
+        this.types = response;
       })
     },
     methods: {
+      updateLabels() {
+        this.labelRepository = this.labelEvent = undefined;
+        this.setEventLabel(this.eventId);
+        this.setRepositoryLabel(this.repositoryId);
+      },
       sendEvent() {
         this.$emit('send');
       },
