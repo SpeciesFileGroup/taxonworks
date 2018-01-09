@@ -85,11 +85,11 @@
           this.$store.dispatch(ActionNames.CreateTypeMaterial).then((response) => {
             var that = this;
             setTimeout(function() {
-            that.$refs.depiction.setOption('autoProcessQueue', true);
-            console.log(response);
-            that.$refs.depiction.processQueue();
-            that.creatingType = false;
-          },500)
+              that.$refs.depiction.setOption('autoProcessQueue', true);
+              console.log(response);
+              that.$refs.depiction.processQueue();
+              that.creatingType = false;
+            },5000)
           }, () => {
             this.creatingType = false;
           })
