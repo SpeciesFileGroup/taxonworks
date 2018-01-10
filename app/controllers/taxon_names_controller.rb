@@ -173,6 +173,13 @@ class TaxonNamesController < ApplicationController
     @data = NomenclatureCatalog.data_for(@taxon_name)
   end
 
+  def parse
+    @result = TaxonWorks::Vendor::Biodiversity::Result.new(
+      query_string: params.require(:query_string),
+      project_id: sessions_current_project_id
+    ).result
+  end
+
   private
 
   def set_taxon_name

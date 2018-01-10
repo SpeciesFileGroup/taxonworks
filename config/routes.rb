@@ -523,6 +523,8 @@ TaxonWorks::Application.routes.draw do
 
       post :preview_castor_batch_load
       post :create_castor_batch_load
+
+      get :parse, defaults: {format: :json}
     end
 
     member do
