@@ -45,6 +45,7 @@ describe UsersController, :type => :controller do
   end
 
   describe "GET show" do
+    before { sign_in_administrator } 
     it "assigns the requested user as @user" do
       user = User.create!(valid_attributes)
       get :show, params: {id: user.to_param}, session: valid_session
@@ -61,7 +62,7 @@ describe UsersController, :type => :controller do
   end
 
   describe "GET edit" do
-    before { sign_in_user } 
+    before { sign_in_administrator } 
     it "assigns the requested user as @user" do
       user = User.create! valid_attributes
       get :edit, params: {id: user.to_param}, session: valid_session

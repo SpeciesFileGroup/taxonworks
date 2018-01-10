@@ -6,7 +6,6 @@ class UsersController < ApplicationController
   before_action :require_superuser_sign_in, only: [:new, :create]
   
   before_action :set_user, only: [:show, :edit, :update, :destroy, :recently_created_stats, :recently_created_data]
-  before_action :validate_user_id_belongs_to_user_or_require_a_superuser, only: [:show, :edit, :update] 
 
   # GET /users
   def index
@@ -20,12 +19,10 @@ class UsersController < ApplicationController
 
   # GET /users/:id
   def show
-    @user = User.find(params[:id])
   end
 
   # GET /users/:id/edit
   def edit
-    @user = User.find(params[:id])
   end
 
   # POST /users
@@ -44,7 +41,6 @@ class UsersController < ApplicationController
 
   # PATCH or PUT /users/:id
   def update
-    @user = User.find(params[:id])
     if @user.update_attributes(user_params)
       flash[:success] = 'Changes to your account information have been saved.'
       redirect_to @user
@@ -131,12 +127,10 @@ class UsersController < ApplicationController
     end
 
     def set_user
-      @user = User.find(params[:id])
-      @recent_object = @user 
-    end
+      own_id = (params[:id].to_i == sessions_current_user_id)
 
-    def validate_user_id_belongs_to_user_or_require_a_superuser
-      (@user.id == sessions_current_user_id) || is_superuser?
+      @user = User.find((is_superuser? || own_id) ? params[:id] : nil)
+      @recent_object = @user 
     end
 
 end

@@ -61,7 +61,8 @@ module ControllerSpecHelper
   def sign_in_user
     remember_token = User.secure_random_token
     cookies.permanent[:remember_token] = remember_token
-    User.find(1).update_attribute(:remember_token, User.encrypt(remember_token)) 
+    User.find(1).update_attribute(:remember_token, User.encrypt(remember_token))
+    set_user_project(1, nil)
   end
 
 end
