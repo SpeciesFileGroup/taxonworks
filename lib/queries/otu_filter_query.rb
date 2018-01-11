@@ -60,7 +60,8 @@ module Queries
       !query_descendants.nil?
     end
 
-    def with_class?
+    # TODO: Drop after testing replacment
+    def with_class_x?
       if with_descendants?
         # TODO: what is the real signal of 'no rank distinction'?
         query_rank_class != nil
@@ -98,12 +99,13 @@ module Queries
       Otu.joins(:collection_objects).where(collection_objects: {id: r42i})
     end
 
+    # TODO: Drop after testing replacment
     # @return [Scope]
-    def nomen_scope
+    def nomen_scope_x
       if with_class? # includes with_descendants? == true
         scope1 = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
         if scope1.count > 0 # OTU found?
-        scope = Otu.ranked_descendants_of(scope1.first.id, query_rank_class)
+          scope = Otu.ranked_descendants_of(scope1.first.id, query_rank_class)
         else # no OTU found
           scope = scope1
         end
@@ -111,13 +113,23 @@ module Queries
         scope1 = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
         if scope1.count > 0 # OTU found?
           if with_descendants? # but rank_class == 'unspecified'
-          scope = Otu.self_and_descendants_of(scope1.first.id)
+            scope = Otu.ranked_descendants_of(scope1.first.id, query_rank_class)
           else
-          scope = scope1
+            scope = scope1
           end
         else # no OTU found
           scope = scope1
         end
+      end
+      scope
+    end
+
+    # @return [Scope]
+    def nomen_scope
+      scope1 = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
+      scope = scope1
+      if scope1.any?
+        scope = Otu.ranked_descendants_of(scope1.first.id, query_rank_class) if with_descendants?
       end
       scope
     end

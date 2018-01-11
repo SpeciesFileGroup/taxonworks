@@ -26,7 +26,7 @@ class Otu < ApplicationRecord
   include Housekeeping
   include SoftValidation
   #include Shared::AlternateValues  # 1/26/15 with MJY - not going to allow alternate values in Burlap
-  include Shared::Citations           # TODO: have to think hard about this vs. using Nico's framework
+  include Shared::Citations # TODO: have to think hard about this vs. using Nico's framework
   include Shared::DataAttributes
   include Shared::Identifiers
   include Shared::Notes
@@ -48,7 +48,7 @@ class Otu < ApplicationRecord
 
   has_many :sequences, through: :extracts, source: :derived_sequences
 
-  has_many :collecting_events, -> {distinct}, through: :collection_objects
+  has_many :collecting_events, -> { distinct }, through: :collection_objects
 
   has_many :common_names, dependent: :destroy
   has_many :collection_profiles # @proceps dependent: what?
@@ -65,8 +65,9 @@ class Otu < ApplicationRecord
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
   scope :with_name, -> (name) { where(name: name) }
 
+  # TODO: Drop after testing replacment
   # @return scope
-  def self.self_and_descendants_of(otu_id)
+  def self.self_and_descendants_of_x(otu_id)
     o = Otu.includes(:taxon_name).find(otu_id)
     if o && o.taxon_name
       with_taxon_name_id(Otu.find(otu_id).taxon_name.self_and_descendants)
@@ -75,18 +76,37 @@ class Otu < ApplicationRecord
     end
   end
 
+  # TODO: Drop after testing replacment
   # @return scope
-  def self.ranked_descendants_of(otu_id, rank_class)
+  def self.ranked_descendants_of_x(otu_id, rank_class)
     o = Otu.includes(:taxon_name).find(otu_id)
     if o && o.taxon_name
       # with_taxon_name_id(Otu.find(otu_id).taxon_name.self_and_descendants) #.where('"taxon_names"."rank_class" = ?', rank_class)
 
-      where_clause = 'otus.taxon_name_id IN (SELECT taxon_names.id FROM taxon_names ' +
-          'INNER JOIN taxon_name_hierarchies ON taxon_names.id = taxon_name_hierarchies.descendant_id ' +
-          'WHERE (taxon_name_hierarchies.descendant_id = ? OR taxon_name_hierarchies.ancestor_id = ?) ' +
-          'AND taxon_names.rank_class = ? ' +
-          'ORDER BY taxon_name_hierarchies.generations asc)'
-      Otu.where(where_clause, o.taxon_name_id, o.taxon_name_id, rank_class)
+      # where_clause = 'otus.taxon_name_id IN (SELECT taxon_names.id FROM taxon_names ' +
+      #     'INNER JOIN taxon_name_hierarchies ON taxon_names.id = taxon_name_hierarchies.descendant_id ' +
+      #     'WHERE (taxon_name_hierarchies.descendant_id = ? OR taxon_name_hierarchies.ancestor_id = ?) ' +
+      #     'AND taxon_names.rank_class = ? ' +
+      #     'ORDER BY taxon_name_hierarchies.generations asc)'
+      # Otu.where(where_clause, o.taxon_name_id, o.taxon_name_id, rank_class)
+      with_taxon_name_id(o.taxon_name.self_and_descendants.where(rank_class: rank_class))
+    else
+      Otu.where(id: otu_id)
+    end
+  end
+
+  # @param [Integer] otu_id
+  # @param [String] rank_class
+  # @return [Scope]
+  def self.ranked_descendants_of(otu_id, rank_class = nil)
+    o = Otu.includes(:taxon_name).find(otu_id)
+    if o && o.taxon_name
+      with_taxon_name_id(o.taxon_name.self_and_descendants)
+      if rank_class.nil?
+        with_taxon_name_id(o.taxon_name.self_and_descendants)
+      else
+        with_taxon_name_id(o.taxon_name.self_and_descendants.where(rank_class: rank_class))
+      end
     else
       Otu.where(id: otu_id)
     end
@@ -108,7 +128,7 @@ class Otu < ApplicationRecord
     else
       tn = taxon_name
     end
-    Otu.joins(taxon_name: [:ancestor_hierarchies]).where(taxon_name_hierarchies: {ancestor_id: tn.id} )
+    Otu.joins(taxon_name: [:ancestor_hierarchies]).where(taxon_name_hierarchies: {ancestor_id: tn.id})
   end
 
   # TODO: This need to be renamed to reflect "simple" association
