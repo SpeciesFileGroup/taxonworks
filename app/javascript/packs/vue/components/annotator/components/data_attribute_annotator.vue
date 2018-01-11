@@ -70,7 +70,7 @@
 		},
 		data: function() {
 			return {
-				view: 'quick',
+				view: 'new',
 				tabOptions: ['quick', 'recent', 'pinboard', 'all', 'new'],
 				preferences: undefined,
 				data_attribute: this.newData()
