@@ -60,16 +60,6 @@ module Queries
       !query_descendants.nil?
     end
 
-    # TODO: Drop after testing replacment
-    def with_class_x?
-      if with_descendants?
-        # TODO: what is the real signal of 'no rank distinction'?
-        query_rank_class != nil
-      else
-        false
-      end
-    end
-
 =begin
       1. find all geographic_items in area(s)/shape
       2. find all georeferences which are associated with result #1
@@ -97,31 +87,6 @@ module Queries
     def shape_scope
       r42i = GeographicItem.gather_map_data(query_shape, 'CollectionObject').distinct
       Otu.joins(:collection_objects).where(collection_objects: {id: r42i})
-    end
-
-    # TODO: Drop after testing replacment
-    # @return [Scope]
-    def nomen_scope_x
-      if with_class? # includes with_descendants? == true
-        scope1 = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
-        if scope1.count > 0 # OTU found?
-          scope = Otu.ranked_descendants_of(scope1.first.id, query_rank_class)
-        else # no OTU found
-          scope = scope1
-        end
-      else
-        scope1 = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
-        if scope1.count > 0 # OTU found?
-          if with_descendants? # but rank_class == 'unspecified'
-            scope = Otu.ranked_descendants_of(scope1.first.id, query_rank_class)
-          else
-            scope = scope1
-          end
-        else # no OTU found
-          scope = scope1
-        end
-      end
-      scope
     end
 
     # @return [Scope]
