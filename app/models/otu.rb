@@ -68,7 +68,7 @@ class Otu < ApplicationRecord
   # @param [Integer] otu_id
   # @param [String] rank_class
   # @return [Scope]
-  def self.ranked_descendants_of(otu_id, rank_class = nil)
+  def self.self_and_descendants_of(otu_id, rank_class = nil)
     o = Otu.includes(:taxon_name).find(otu_id)
     if o && o.taxon_name
       with_taxon_name_id(o.taxon_name.self_and_descendants)
