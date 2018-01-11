@@ -14,6 +14,7 @@ require('./vue/loan/main.js');
 require('./vue/matrix_row_coder/main.js');
 require('./vue/annotator_init/main.js');
 require('./vue/type_specimens/main.js');
+require('./vue/new_combination/main.js');
 
 
 //Styles
