@@ -102,10 +102,22 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors] 
           page.execute_script "$('#set_nomen')[0].scrollIntoView()"
           fill_autocomplete('nomen_id_for_by_nomen', with: 'bee', select: co_b.taxon_names.last.id)
           click_button('Set Nomenclature')
-          expect(find('#nomen_count')).to have_text('1')
+          expect(find('#nomen_count')).to have_text('1') # 'beevitis'
         end
 
-        it 'renders count of otus from a specific name with descendants' do
+        it 'renders count of otus from a taxon name of its own rank with descendants' do
+          visit(index_path)
+          page.execute_script "$('#set_nomen')[0].scrollIntoView()"
+          find('#descendants').click
+          fill_autocomplete('nomen_id_for_by_nomen', with: 'topdog', select: top_dog.taxon_name.id)
+          wait_for_ajax
+          find('#rank_class').select('family (ICZN)')
+          wait_for_ajax
+          click_button('Set Nomenclature')
+          expect(find('#nomen_count')).to have_text('2') # Top Dog, Top dog by Bill
+        end
+
+        it 'renders count of otus from a specific name with descendants without rank specified' do
           visit(index_path)
           page.execute_script "$('#set_nomen')[0].scrollIntoView()"
           find('#descendants').click
