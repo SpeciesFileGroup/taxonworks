@@ -94,7 +94,7 @@ module Queries
       scope1 = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
       scope = scope1
       if scope1.any?
-        scope = Otu.ranked_descendants_of(scope1.first.id, query_rank_class) if with_descendants?
+        scope = Otu.self_and_descendants_of(scope1.first.id, query_rank_class) if with_descendants?
       end
       scope
     end
