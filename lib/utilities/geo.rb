@@ -347,7 +347,7 @@ To add a new (discovered) symbol:
           digit = 5
         when 6..10
           decade *= 10
-          digit  = 1 # rubocop:disable Style/SpaceAroundOperators
+          digit = 1 
       end
 
       params['digit1'] = digit.to_s
@@ -375,7 +375,6 @@ To add a new (discovered) symbol:
 
     # make a diamond 2 * radius tall and 2 * radius wide, with the reference point as center
     # NOT TESTED/USED
-    # rubocop:disable Style/FirstParameterIndentation:
     def diamond_error_box
       p0      = geo_object
       delta_x = (error_radius / ONE_WEST) / Math.cos(p0.y * Math::PI / 180)

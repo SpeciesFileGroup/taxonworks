@@ -59,7 +59,7 @@ def make_box(base, offset_x, offset_y, size_x, size_y) # rubocop:disable Metrics
   RSPEC_GEO_FACTORY.multi_polygon([box])
 end
 
-SIMPLE_SHAPES = {# rubocop:disable Style/SpaceAroundOperators
+SIMPLE_SHAPES = {
                  point:               'POINT(10 10 0)',
                  line_string:         'LINESTRING(0.0 0.0 0.0, 10.0 0.0 0.0)',
                  polygon:             'POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0))',

@@ -11,45 +11,50 @@ AllCops:
 Rails:
   Enabled: true
 
-Style/EmptyLineBetweenDefs:
+Naming/FileName:
+  Enabled: false
+
+Layout/EmptyLineBetweenDefs:
   # If true, this parameter means that single line method definitions don't
   # need an empty line between them.
-  AllowAdjacentOneLineDefs: true
+  AllowAdjacentOneLineDefs: false 
 
-Style/EmptyLinesAroundClassBody:
+Layout/EmptyLinesAroundClassBody:
   EnforcedStyle: empty_lines
 
 Style/ClassAndModuleChildren:
   EnforcedStyle: compact 
 
-Style/CaseIndentation:
+Layout/AlignParameters:
   Enabled: false
 
-Style/SpaceInsideHashLiteralBraces:
+Layout/CaseIndentation:
   Enabled: false
 
-Style/MultilineMethodCallIndentation:
+Layout/SpaceInsideHashLiteralBraces:
+  Enabled: false
+
+Layout/MultilineMethodCallIndentation:
   Enabled: false
 
 Style/BlockDelimiters:
   Enabled: false
 
-Style/ExtraSpacing:
+Layout/ExtraSpacing:
   Enabled: false
   AllowForAlignment: false
   ForceEqualSignAlignment: true
 
-Style/SpaceAroundOperators:
+Layout/SpaceAroundOperators:
   Enabled: true
   AllowForAlignment: true
 
 Metrics/LineLength:
   Max: 250
-# Use empty lines between defs.
 
 Metrics/MethodLength:
   CountComments: false  # count full line comments?
-  Max: 20
+  Max: 25
 
 Metrics/ClassLength:
   CountComments: false  # count full line comments?
@@ -57,10 +62,10 @@ Metrics/ClassLength:
 
 Metrics/ModuleLength:
   CountComments: false  # count full line comments?
-  Max: 1000
+  Max: 1500
 
 Metrics/ParameterLists:
-  Max: 5
+  Max: 10
   CountKeywordArgs: false
 
 Rails/FindBy:

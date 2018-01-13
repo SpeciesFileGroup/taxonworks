@@ -1,5 +1,4 @@
 require 'rails_helper'
-# rubocop:disable Style/AsciiComments, Style/EmptyLinesAroundBlockBody
 
 # TODO: Extract all this to a gem
 describe 'Geo', group: :geo do

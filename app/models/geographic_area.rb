@@ -161,7 +161,7 @@ class GeographicArea < ApplicationRecord
 
   # @param [GeographicArea]
   # @return [Scope] of geographic_areas
-  def self.is_contained_by(geographic_area) # rubocop:disable Style/PredicateName
+  def self.is_contained_by(geographic_area) 
     pieces = nil
     if geographic_area.geographic_items.any?
       pieces = GeographicItem.is_contained_by('any_poly', geographic_area.geo_object)
@@ -201,7 +201,7 @@ class GeographicArea < ApplicationRecord
   end
 
   # @return [Scope] of areas which have at least one shape
-  def self.have_shape? # rubocop:disable Style/PredicateName
+  def self.have_shape? 
     joins(:geographic_areas_geographic_items).select('distinct(geographic_areas.id)')
   end
 
@@ -268,7 +268,7 @@ class GeographicArea < ApplicationRecord
     data_origin[-1]
   end
 
-  def has_shape? # rubocop:disable Style/PredicateName
+  def has_shape? 
     geographic_items.any?
   end
 

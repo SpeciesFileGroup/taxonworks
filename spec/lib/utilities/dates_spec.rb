@@ -1,5 +1,4 @@
 require 'rails_helper'
-# rubocop:disable Style/AsciiComments, Style/EmptyLinesAroundBlockBody
 
 describe 'Dates', group: [:collecting_events, :dates] do
 
