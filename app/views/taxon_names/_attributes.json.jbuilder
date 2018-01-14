@@ -48,3 +48,6 @@ json.type_taxon_name_relationship do
   end
 end
 
+json.original_combination full_original_taxon_name_tag(taxon_name)
+
+

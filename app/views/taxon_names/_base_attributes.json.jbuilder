@@ -2,4 +2,3 @@ json.extract! taxon_name, :id, :name, :parent_id, :cached_html, :feminine_name, 
 
 json.partial! '/shared/data/all/metadata', object: taxon_name, klass: 'TaxonName'
 
-json.original_combination full_original_taxon_name_tag(taxon_name)

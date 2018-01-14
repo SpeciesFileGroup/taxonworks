@@ -145,8 +145,8 @@ class TaxonName < ApplicationRecord
 
   NOT_LATIN = Regexp.new(/[^a-zA-Z|\-]/).freeze # Dash is allowed?
 
-  delegate :nomenclatural_code, to: :rank_class
-  delegate :rank_name, to: :rank_class
+  delegate :nomenclatural_code, to: :rank_class, allow_nil: true
+  delegate :rank_name, to: :rank_class, allow_nil: true
 
   # @return [Boolean]
   #   When true, also creates an OTU that is tied to this taxon name

@@ -1,3 +1,5 @@
+json.partial! '/taxon_names/base_attributes', taxon_name: @combination
+
 @combination.protonyms.each do |p|
   json.set! p.rank_class.rank_name do
     json.partial! '/taxon_names/attributes', taxon_name: p 

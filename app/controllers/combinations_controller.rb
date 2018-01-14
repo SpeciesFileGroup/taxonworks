@@ -2,7 +2,7 @@ class CombinationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :require_sign_in_and_project_selection
-  before_action :set_content, only: [:update, :edit, :update, :destroy, :show]
+  before_action :set_combination, only: [:update, :edit, :update, :destroy, :show]
 
   # GET /combinations/123.json
   def show
@@ -63,16 +63,16 @@ class CombinationsController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
-  def set_content
-    @combination = Combination.with_project_id(sessions_current_project_id).find(params[:id])
+  def set_combination
+    @combination = Combination.with_project_id(sessions_current_project_id).find(params.require(:id))
     @recent_object = @combination 
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def combination_params
-    params.require(:combination).permit(:verbatim_name, :source_id, *Combination::APPLICABLE_RANKS.collect{|r| "#{r}_id".to_sym},
-                                        origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
-                                       ) 
+    params.require(:combination).permit(
+      :verbatim_name, :source_id, 
+      *Combination::APPLICABLE_RANKS.collect{|r| "#{r}_id".to_sym},
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
+    ) 
   end
 end
