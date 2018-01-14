@@ -1,5 +1,6 @@
 json.partial! '/taxon_names/base_attributes', taxon_name: taxon_name
 
+# TODO: move to shared
 if taxon_name.roles.any?
   json.taxon_name_author_roles do
     json.array! taxon_name.taxon_name_author_roles.each do |role|
@@ -27,12 +28,14 @@ if taxon_name.parent
   end
 end
 
+# TODO: move to shared
 if taxon_name.pinned?(sessions_current_user)
   json.pinboard_item do
     json.id taxon_name.pinboard_item_for(sessions_current_user).id
   end
 end
 
+# TODO: move to shared
 if taxon_name.origin_citation
   json.origin_citation do
     json.partial! '/citations/attributes', citation: taxon_name.origin_citation

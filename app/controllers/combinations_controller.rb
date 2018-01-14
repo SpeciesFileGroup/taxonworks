@@ -2,9 +2,14 @@ class CombinationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :require_sign_in_and_project_selection
-  before_action :set_content, only: [:update, :edit, :update, :destroy]
+  before_action :set_content, only: [:update, :edit, :update, :destroy, :show]
+
+  # GET /combinations/123.json
+  def show
+  end
 
   # GET /combinations/new
+  # TODO: redirect to task
   def new
     if params[:taxon_name_id]
       @protonym = Protonym.find(params[:taxon_name_id])
@@ -21,7 +26,6 @@ class CombinationsController < ApplicationController
 
   # POST /combinations.json
   def create
-
     @combination = Combination.new(combination_params)
     respond_to do |format|
       if @combination.save

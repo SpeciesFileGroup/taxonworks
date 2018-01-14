@@ -35,7 +35,7 @@ class TaxonNamesController < ApplicationController
                       notice: "Taxon name '#{@taxon_name.name}' was successfully created." }
         format.json { render :show, status: :created, location: @taxon_name.metamorphosize }
       else
-        format.html { render action: 'new' }
+        format.html { render action: :new }
         format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
       end
     end
@@ -50,7 +50,7 @@ class TaxonNamesController < ApplicationController
         format.html { redirect_to @taxon_name.metamorphosize, notice: 'Taxon name was successfully updated.' }
         format.json { render :show, status: :ok, location: @taxon_name.metamorphosize }
       else
-        format.html { render action: 'edit' }
+        format.html { render action: :edit }
         format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
       end
     end

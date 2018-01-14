@@ -185,6 +185,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
     concerns [:data_routes]
+    member do
+      get :show, defaults: {format: :json}
+    end
   end
 
   resources :common_names do
