@@ -1,3 +1,5 @@
+inherit_from: .rubocop_todo.yml
+
 # Documentation: http://www.rubydoc.info/gems/rubocop
 AllCops:
   Include:
@@ -7,95 +9,14 @@ AllCops:
     - 'db/**/*'
     - 'script/**/*'
     - 'tmp/**/*'
+    - 'node_modules/**/*'
+    - '.yardoc/**/*'
+    - '.idea/**/*'
+    - '.bundle/**/*'
+    - 'coverage/**/*'
+    - 'volumes/**/*'
 
 Rails:
   Enabled: true
 
-Naming/FileName:
-  Enabled: false
 
-Layout/EmptyLineBetweenDefs:
-  # If true, this parameter means that single line method definitions don't
-  # need an empty line between them.
-  AllowAdjacentOneLineDefs: false 
-
-Layout/EmptyLinesAroundClassBody:
-  EnforcedStyle: empty_lines
-
-Style/ClassAndModuleChildren:
-  EnforcedStyle: compact 
-
-Layout/AlignParameters:
-  Enabled: false
-
-Layout/CaseIndentation:
-  Enabled: false
-
-Layout/SpaceInsideHashLiteralBraces:
-  Enabled: false
-
-Layout/MultilineMethodCallIndentation:
-  Enabled: false
-
-Style/BlockDelimiters:
-  Enabled: false
-
-Layout/ExtraSpacing:
-  Enabled: false
-  AllowForAlignment: false
-  ForceEqualSignAlignment: true
-
-Layout/SpaceAroundOperators:
-  Enabled: true
-  AllowForAlignment: true
-
-Metrics/LineLength:
-  Max: 250
-
-Metrics/MethodLength:
-  CountComments: false  # count full line comments?
-  Max: 25
-
-Metrics/ClassLength:
-  CountComments: false  # count full line comments?
-  Max: 600
-
-Metrics/ModuleLength:
-  CountComments: false  # count full line comments?
-  Max: 1500
-
-Metrics/ParameterLists:
-  Max: 10
-  CountKeywordArgs: false
-
-Rails/FindBy:
-  Include:
-    - app/models/**/*.rb
-    - lib/**/*.rb
-
-Rails/FindEach:
-  Include:
-    - app/models/**/*.rb
-    - lib/**/*.rb
-
-Rails/Output:
-  Include:
-    - app/**/*.rb
-    - config/**/*.rb
-    - db/**/*.rb
-    - lib/**/*.rb
-
-Rails/ReadWriteAttribute:
-  Include:
-    - app/models/**/*.rb
-    - lib/**/*.rb
-
-Rails/ScopeArgs:
-  Include:
-    - app/models/**/*.rb
-    - lib/**/*.rb
-
-Rails/Validation:
-  Include:
-    - app/models/**/*.rb
-    - lib/**/*.rb
