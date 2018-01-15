@@ -1,148 +1,80 @@
 <template>
 	<div class="find-taxonname-picker">
-    <ul v-for="list, key in json"class="no_bullets find-taxonname-list">
-      <span>{{ key }}</span>
-     <li v-for="item, index in list"><span v-html="item[label]"></span></li>
-   </ul>
-    <spinner legend="Checking for taxon names" :legend-style="{ fontSize: '14px', color: '#444', textAlign: 'center', paddingTop: '20px'}" v-if="spinner"></spinner>
+    <h2 v-if="rankLists.hasOwnProperty('genus') && !rankLists['genus'].length">Genus is not exist</h2>
+    <list-group v-for="list, key in rankLists" :key="key" @onTaxonSelect="newCombination[key] = $event" :selected="newCombination[key]" :rank-name="key" :list="list" v-if="rankLists[key].length"></list-group>
+    <button :disabled="!validateCreate()" class="button normal-input button-submit" @click="postCombination">Create</button>
  </div>
 </template>
 
 <script>
 
-  import spinner from '../../components/spinner.vue';
+  import { GetParse, CreateCombination } from '../request/resources';
+  import listGroup from './listGroup';
 
   export default {
     components: {
-      spinner
+      listGroup
     },
-    props: { 
-      url: {
-        type: String,
-        required: true
-      }, 
-      search: {
+    props: {
+      taxonName: {
         required: true
       },
-      label: {
-        type: String
-      },
-      time: {
-        type: String,
-        default: "500"
-      },
-      maxResults: {
-        type: Number,
-        default: 10,
-      },
-      addParams: {
+      combination: {
         type: Object
-      },
-      param: {
-        type: String,
-        default: "value"
-      },
-      taxon: {
-        type: Object,
-        default: undefined
       }
     },
     data: function() {
       return {
-        json: [],
-        spinner: false,
-        getRequest: 0
+        rankLists: {},
+        newCombination: this.createNewCombination()
       }
     },
     watch: {
-      search: function(newVal, oldVal) {
-        this.checkTime();
-      },
-      taxon: function(val) {
-        this.json = [];
-      }
-   },
-   methods: {
-    ajaxUrl: function() {
-      var tempUrl = this.url + '?' + this.param + '=' + this.search; 
-      var params = '';
-      if(this.addParams) {
-        Object.keys(this.addParams).forEach((key) => {
-          params += `&${key}=${this.addParams[key]}`
+      taxonName(newVal) {
+        this.$emit('onSearchStart', true);
+        GetParse(newVal).then(response => {
+          this.$emit('onSearchEnd', true);
+          this.rankLists = response;
+          this.fillWithUnique(response);
         })
-      }   
-      return tempUrl + params;           
+      }
     },
-    sendItem: function(item) {
-      this.$emit('getItem', item);
-    },
-    clearResults: function() {
-      this.json = [];
-    },
-    checkTime: function() {
-      var that = this;
-      if(this.getRequest) {
-        clearTimeout(this.getRequest);
-      }   
-      this.getRequest = setTimeout( function() {    
-        that.update();  
-      }, that.time);           
-    },
-    update: function() {
-      if(this.search.length < Number(this.min)) return;
-      this.spinner = true;
-      this.clearResults();   
-      this.$http.get(this.ajaxUrl(), {
-        before(request) {
-          if (this.previousRequest) {
-            this.previousRequest.abort();
+    methods: {
+      createNewCombination() {
+        return {
+          genus: undefined,
+          subgenus: undefined,
+          species: undefined,
+          subspecies: undefined
+        }
+      },
+      postCombination() {
+        let keys = Object.keys(this.newCombination);
+        let combination = {}
+
+        keys.forEach((rank) => {
+          if(this.newCombination[rank]) {
+            combination[`${rank}_id`] = this.newCombination[rank].id
           }
-          this.previousRequest = request;
-        }            
-      }).then(response => {
-        this.json = response.body;
-        this.spinner = false;
-        this.$emit('existing', this.json);
-      }, response => {
-      });
-    },
-    activeClass: function activeClass(index) {
-      return {
-        active: this.current === index
-      };
-    },   
-    activeSpinner: function() {
-      return 'ui-autocomplete-loading'
-    },  
+        })
+        CreateCombination({ combination: combination }).then(response => { 
+          console.log(response);
+          TW.workbench.alert.create('New combination was successfully created.', 'notice');
+        });
+      },
+      validateCreate() {
+        return (this.newCombination.genus && this.newCombination.species)
+      },
+      fillWithUnique(list) {
+        let keys = Object.keys(list);
+        let that = this;
+
+        keys.forEach((key) => {
+          if(list[key].length == 1) {
+            that.newCombination[key] = list[key][0]
+          }
+        })
+      }
+    }
   }
-}
 </script>
-
-<style lang="scss" scoped>
-  .find-taxonname-picker {
-    min-height:100px;
-  }
-  .find-taxonname-list {
-    margin-top: 1.2em;
-    box-sizing: border-box;
-    min-width: 250px;
-    border: 1px solid #f5f5f5;
-    padding: 12px;
-    border-radius: 3px;
-    .header {
-      border-bottom: 1px solid #f5f5f5;
-    }
-    .body {
-      padding: 12px;
-    }
-
-    li a {
-      transition: padding 0.3s ease;
-      cursor: pointer;
-    }
-    li a:hover {
-      padding-left: 12px;
-      transition: padding 0.3s ease;
-    }
-  }
-</style>

@@ -26,3 +26,17 @@ const handleError = function(json) {
 
   TW.workbench.alert.create(errorMessage, 'error');
 }
+
+
+const GetParse = function(taxon_name) {
+  return ajaxCall('get', `/taxon_names/parse?query_string=${taxon_name}`);
+}
+
+const CreateCombination = function(combination) {
+  return ajaxCall('post', `/combinations`, combination);
+}
+
+export {
+  GetParse,
+  CreateCombination
+}

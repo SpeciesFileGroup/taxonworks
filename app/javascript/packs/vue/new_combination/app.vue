@@ -1,39 +1,38 @@
 <template>
 	<div id="vue_new_combination">
-	    <autocomplete
-	      url="/taxon_names/autocomplete"
-	      label="label_html"
-	      min="2"
-	      eventSend="parentSelected"
-	      display="label"
-	      @getItem="find = $event.label"
-	      :add-params="{
-	        'type[]': 'Protonym',
-	        valid: true
-	      }"
-	      param="term">
-	    </autocomplete>
+		<spinner legend="Checking for taxon names" :legend-style="{ fontSize: '14px', color: '#444', textAlign: 'center', paddingTop: '20px'}" v-if="searching"></spinner>
+	    <input-search @onTaxonName="setTaxon"></input-search>
 		<find-taxon
 			url="/taxon_names/parse"
 			param="query_string"
 			label="object_tag"
-			:search="find">
+			@onSearchStart="searching = true"
+			@onSearchEnd="searching = false"
+			:taxon-name="taxon">
 		</find-taxon>
 	</div>
 </template>
 <script>
 
+	import spinner from '../components/spinner.vue';
 	import findTaxon from './components/findTaxon.vue'
-	import autocomplete from '../components/autocomplete.vue';
+	import inputSearch from './components/inputSearch.vue'
 
 	export default {
 		components: {
 			findTaxon,
-			autocomplete
+			spinner,
+			inputSearch
 		},
 		data: function() {
 			return {
-				find: undefined
+				searching: false,
+				taxon: null
+			}
+		},
+		methods: {
+			setTaxon(event) {
+				this.taxon = event;
 			}
 		}
 	}
