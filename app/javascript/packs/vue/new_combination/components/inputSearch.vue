@@ -4,22 +4,24 @@
 			class="normal-input" 
 			@input="capitalize(type)" 
 			type="text" 
+			placeholder="Type combination" 
 			v-model="type"/>
-		<button 
-			class="button normal-input button-default" 
-			:disabled="!checkString()" 
-			type="button" 
-			@click="sendTaxonName">Search
-		</button>
 	</div>
 </template>
 
 <script>
 
 	export default {
+		props: {
+			timeBeforeSend: {
+				type: Number,
+				default: 1000
+			}
+		},
 		data: function() {
 			return {
-				type: ''
+				type: '',
+				timeOut: undefined
 			}
 		},
 		methods: {
@@ -27,13 +29,30 @@
 				str = str.replace(/^\s+|\s{2,}$|\./g, "");
 				str = str.replace(/\s{2,}/g,' ');
 				this.type = str.charAt(0).toUpperCase() + str.substring(1);
+				if(this.GenusAndSpecies()) {
+					this.addTimer();
+				}
 			},
-			checkString() {
+			GenusAndSpecies() {
 				return (this.type.split(' ').length > 1 && this.type.split(' ')[1].length > 2)
 			},
 			sendTaxonName() {
 				this.$emit('onTaxonName', this.type)
+			},
+			addTimer() {
+				var that = this;
+
+				clearTimeout(this.timeOut);
+				this.timeOut = setTimeout(function() {
+					that.sendTaxonName();
+				}, this.timeBeforeSend)
 			}
 		}
 	}
 </script>
+
+<style scoped>
+	input {
+		min-width: 400px;
+	}
+</style>

@@ -1,5 +1,6 @@
 <template>
 	<div class="find-taxonname-picker">
+    <spinner legend="Searching taxon names..." :legend-style="{ fontSize: '14px', color: '#444', textAlign: 'center', paddingTop: '20px'}" v-if="searching"></spinner>
     <h2 v-if="rankLists.hasOwnProperty('genus') && !rankLists['genus'].length">Genus is not exist</h2>
     <list-group v-for="list, key in rankLists" :key="key" @onTaxonSelect="newCombination[key] = $event" :selected="newCombination[key]" :rank-name="key" :list="list" v-if="rankLists[key].length"></list-group>
     <button :disabled="!validateCreate()" class="button normal-input button-submit" @click="postCombination">Create</button>
@@ -10,10 +11,12 @@
 
   import { GetParse, CreateCombination } from '../request/resources';
   import listGroup from './listGroup';
+  import spinner from '../../components/spinner.vue';
 
   export default {
     components: {
-      listGroup
+      listGroup,
+      spinner
     },
     props: {
       taxonName: {
@@ -26,16 +29,19 @@
     data: function() {
       return {
         rankLists: {},
+        searching: false,
         newCombination: this.createNewCombination()
       }
     },
     watch: {
       taxonName(newVal) {
         this.$emit('onSearchStart', true);
+        this.searching = true;
         GetParse(newVal).then(response => {
           this.$emit('onSearchEnd', true);
           this.rankLists = response;
           this.fillWithUnique(response);
+          this.searching = false;
         })
       }
     },
@@ -58,7 +64,6 @@
           }
         })
         CreateCombination({ combination: combination }).then(response => { 
-          console.log(response);
           TW.workbench.alert.create('New combination was successfully created.', 'notice');
         });
       },

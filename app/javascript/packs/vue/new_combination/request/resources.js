@@ -29,7 +29,20 @@ const handleError = function(json) {
 
 
 const GetParse = function(taxon_name) {
-  return ajaxCall('get', `/taxon_names/parse?query_string=${taxon_name}`);
+  return new Promise(function(resolve, reject) {
+    Vue.http.get(`/taxon_names/parse?query_string=${taxon_name}`, {
+      before(request) {
+        if (Vue.previousRequest) {
+          Vue.previousRequest.abort();
+        }
+        Vue.previousRequest = request;
+      }
+
+    }).then(response => {
+      return resolve(response.body)
+    })
+  })
+  //return ajaxCall('get', `/taxon_names/parse?query_string=${taxon_name}`);
 }
 
 const CreateCombination = function(combination) {
