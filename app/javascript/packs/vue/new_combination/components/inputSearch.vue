@@ -2,7 +2,7 @@
 	<div class="field">
 		<input 
 			class="normal-input" 
-			@input="capitalize(type)" 
+			@input="processString(type)" 
 			type="text" 
 			placeholder="Type combination" 
 			v-model="type"/>
@@ -25,13 +25,20 @@
 			}
 		},
 		methods: {
-			capitalize(str) {
-				str = str.replace(/^\s+|\s{2,}$|\./g, "");
-				str = str.replace(/\s{2,}/g,' ');
-				this.type = str.charAt(0).toUpperCase() + str.substring(1);
+			processString(str) {
+				str = this.removeSpaces(str);
+				this.capitalize(str);
 				if(this.GenusAndSpecies()) {
 					this.addTimer();
 				}
+			},
+			removeSpaces(str) {
+				str = str.replace(/^\s+|\s{2,}$|\./g, "");
+				str = str.replace(/\s{2,}/g,' ');
+				return str
+			},
+			capitalize(str) {
+				this.type = str.charAt(0).toUpperCase() + str.substring(1);
 			},
 			GenusAndSpecies() {
 				return (this.type.split(' ').length > 1 && this.type.split(' ')[1].length > 2)

@@ -5,7 +5,7 @@
 			<li class="no_bullets" v-for="taxon in list">
 				<label class="middle">
 					<input type="radio" v-model="rankChoose" :value="taxon"/>
-					<span v-html="taxon.object_tag"></span>
+					<span v-html="taxon.original_combination"></span>
 				</label>
 			</li>
 		</ul>
