@@ -2,7 +2,10 @@
 	<div id="vue_new_combination">
 		<h1>New combination</h1>
 		<div class="panel content new-combination-box separate-bottom">
-		    <input-search @onTaxonName="setTaxon"></input-search>
+		    <input-search 
+		    	placeholder="Type a new combination (names should already exist)."
+		    	@onTaxonName="setTaxon">
+		    </input-search>
 		</div>
 		<find-taxon 
 			class="separate-top"

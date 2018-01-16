@@ -1,10 +1,17 @@
 <template>
-	<input 
-		class="normal-input" 
-		@input="processString(type)" 
-		type="text" 
-		placeholder="Type combination" 
-		v-model="type"/>
+	<div class="horizontal-left-content">
+		<input 
+			class="big-input" 
+			@input="processString(type)" 
+			type="text" 
+			:placeholder="placeholder" 
+			v-model="type"/>
+		<button 
+			class="big-input separate-left button button-default"
+			@click="reset()"
+		>New
+		</button>
+	</div>
 </template>
 
 <script>
@@ -14,6 +21,10 @@
 			timeBeforeSend: {
 				type: Number,
 				default: 1000
+			},
+			placeholder: {
+				type: String,
+				default: undefined,
 			}
 		},
 		data: function() {
@@ -23,6 +34,10 @@
 			}
 		},
 		methods: {
+			reset() {
+				this.type = '',
+				this.sendTaxonName();
+			},
 			processString(str) {
 				str = this.removeSpaces(str);
 				this.capitalize(str);
@@ -58,6 +73,10 @@
 
 <style scoped>
 	input {
+		width: 100%;
 		min-width: 400px;
+	}
+	button {
+		width: 100px;
 	}
 </style>

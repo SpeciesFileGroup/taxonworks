@@ -1,10 +1,12 @@
 <template>
 	<div class="find-taxonname-picker">
+    <spinner legend="Saving new combination..." :full-screen="true" :logo-size="{ width: '100px', height: '100px'}" v-if="saving"></spinner>
+
     <div class="flexbox">
       <div class="panel item new-combination-box separate-right">
         <spinner legend="Searching taxon names..." :legend-style="{ fontSize: '14px', color: '#444', textAlign: 'center', paddingTop: '20px'}" v-if="searching"></spinner>
-        <template v-if="rankLists.hasOwnProperty('genus')">
 
+        <template v-if="rankLists.hasOwnProperty('genus')">
           <div class="header flex-separate middle" :class="{ 'header-warning': !rankLists['genus'].length }">
             <h3>Combination</h3>
           </div>
@@ -19,16 +21,14 @@
               <button :disabled="!validateCreate()" class="button normal-input button-submit create-new-combination" @click="postCombination">Create</button>
             </div>
           </div>
-
         </template>
-        <div v-else class="horizontal-center-content content">
-          <h3>Write something to start the new combination</h3>
-        </div>
+
       </div>
       <div v-if="!isCombinationEmpty()" class="preview panel item new-combination-box cright separate-left">
         <preview-view :combination="newCombination"></preview-view>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -57,20 +57,26 @@
       return {
         rankLists: {},
         searching: false,
+        saving: false,
         newCombination: this.createNewCombination()
       }
     },
     watch: {
       taxonName(newVal) {
-        this.$emit('onSearchStart', true);
-        this.searching = true;
         this.newCombination = this.createNewCombination();
-        GetParse(newVal).then(response => {
-          this.$emit('onSearchEnd', true);
-          this.rankLists = response;
-          this.fillWithUnique(response);
-          this.searching = false;
-        })
+        if(newVal) {
+          this.$emit('onSearchStart', true);
+          this.searching = true;
+          GetParse(newVal).then(response => {
+            this.$emit('onSearchEnd', true);
+            this.rankLists = response;
+            this.fillWithUnique(response);
+            this.searching = false;
+          })
+        }
+        else {
+          this.rankLists = {};
+        }
       }
     },
     methods: {
@@ -87,7 +93,6 @@
 
         for (var rank in this.newCombination) {
           if(this.newCombination[rank]) {
-            console.log(this.newCombination[rank]);
             return false
           }
         }
@@ -102,7 +107,10 @@
             combination[`${rank}_id`] = this.newCombination[rank].id
           }
         })
+
+        this.saving = true;
         CreateCombination({ combination: combination }).then(response => { 
+          this.saving = false;
           TW.workbench.alert.create('New combination was successfully created.', 'notice');
         });
       },
