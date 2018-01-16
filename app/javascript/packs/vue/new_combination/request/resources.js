@@ -45,11 +45,16 @@ const GetParse = function(taxon_name) {
   //return ajaxCall('get', `/taxon_names/parse?query_string=${taxon_name}`);
 }
 
+const GetLastCombinations = function() {
+  return ajaxCall('get', `/combinations.json`)
+}
+
 const CreateCombination = function(combination) {
   return ajaxCall('post', `/combinations`, combination);
 }
 
 export {
   GetParse,
+  GetLastCombinations,
   CreateCombination
 }

@@ -1,7 +1,17 @@
 <template>
-	<div>
-		<h4 class="capitalize">{{ rankName }}</h4>
-		<ul>
+	<div class="new-combination-rank-list">
+		<div class="header">
+			<h3 class="flex-separate">
+				<ul class="breadcrumb_list">
+					<li class="capitalize">{{ rankName }} </li>
+					<li class="breadcrumb_item" v-if="selected">
+						<b><span v-html="selected.original_combination"></span></b>
+					</li>
+				</ul>
+				<expand v-if="list.length > 1" v-model="expanded"></expand>
+			</h3>
+		</div>
+		<ul v-if="expanded">
 			<li class="no_bullets" v-for="taxon in list">
 				<label class="middle">
 					<input type="radio" v-model="rankChoose" :value="taxon"/>
@@ -13,7 +23,12 @@
 </template>
 <script>
 
+	import expand from '../../components/expand.vue';
+
 	export default {
+		components: {
+			expand
+		},
 		props: {
 			list: { 
 				type: Array,
@@ -36,6 +51,24 @@
 				}
 			}
 		},
+		data: function() {
+			return {
+				expanded: true,
+			}
+		},
+		watch: {
+			selected: {
+				handler(newVal) {
+					if(newVal) {
+						this.expanded = false
+					}
+					else {
+						this.expanded = true
+					}
+				},
+				immediate: true
+			}
+		},
 		methods: {
 			selectTaxon(taxon) {
 				this.$emit('onTaxonSelect', taxon)
@@ -49,3 +82,16 @@
 		}
 	}
 </script>
+<style lang="scss">
+	.new-combination-rank-list {
+		.header {
+			padding: 1em;
+			padding-left: 1.5em;
+			border-bottom: 1px solid #f5f5f5;
+			border-top: 1px solid #f5f5f5;
+			h3 {
+				font-weight: 300;
+			}
+		}
+	}
+</style>

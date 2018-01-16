@@ -1,12 +1,10 @@
 <template>
-	<div class="field">
-		<input 
-			class="normal-input" 
-			@input="processString(type)" 
-			type="text" 
-			placeholder="Type combination" 
-			v-model="type"/>
-	</div>
+	<input 
+		class="normal-input" 
+		@input="processString(type)" 
+		type="text" 
+		placeholder="Type combination" 
+		v-model="type"/>
 </template>
 
 <script>
