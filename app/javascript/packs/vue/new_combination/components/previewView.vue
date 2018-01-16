@@ -5,15 +5,15 @@
 		</div>
 		<div class="content" v-if="combination">
 			<h4 class="horizontal-center-content middle">
-				<i class="">
-					<span>
+				<span>
+					<i>
 						<span 
 							v-for="rank in combination" 
 							v-if="rank"> {{ rank.name }}
 						</span>
-						<span v-html="showAuthorCitation(searchLastExistingRank(combination))"></span>
-					</span>
-				</i>
+					</i>
+					<span v-html="showAuthorCitation(searchLastExistingRank(combination))"></span>
+				</span>				
 			</h4>
 		</div>
 	</div>
