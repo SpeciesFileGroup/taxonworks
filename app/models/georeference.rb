@@ -500,8 +500,10 @@ class Georeference < ApplicationRecord
     end
   end
 
-  # @param [Double, Double, Double, Double] two latitude/longitude pairs in decimal degrees
-  #   find the heading between them.
+  # @param [Double] from_lat_
+  # @param [Double] from_lon_
+  # @param [Double] to_lat_
+  # @param [Double] to_lon_
   # @return [Double] Heading is returned as an angle in degrees clockwise from North.
   def heading(from_lat_, from_lon_, to_lat_, to_lon_)
     from_lat_rad_  = RADIANS_PER_DEGREE * from_lat_

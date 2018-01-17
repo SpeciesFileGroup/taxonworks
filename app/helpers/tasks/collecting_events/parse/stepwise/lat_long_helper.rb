@@ -16,7 +16,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
   end
 
 
-  # @param [Array] must be array of symbols from Utilities::Geo::REGEXP_COORD
+  # @param [Array] filters must be array of symbols from Utilities::Geo::REGEXP_COORD
   def make_selected_method_boxes(filters = Utilities::Geo::REGEXP_COORD.keys)
     list    = Utilities::Geo::REGEXP_COORD
     box_row = ""

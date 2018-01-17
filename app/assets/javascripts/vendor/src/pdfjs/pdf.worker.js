@@ -5216,7 +5216,7 @@ var CFFParser = (function CFFParserClosure() {
             break;
         }
         var dataEnd = pos;
-        if (format & 0x80) {
+        if (format && 0x80) {
           // The font sanitizer does not support CFF encoding with a
           // supplement, since the encoding is not really used to map
           // between gid to glyph, let's overwrite what is declared in

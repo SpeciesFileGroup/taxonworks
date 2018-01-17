@@ -315,7 +315,7 @@ module BatchLoad
     private
 
 # package up the results of the process into a hash
-# @param [Integer] current line_counter/rows key
+# @param [Integer] line_counter current line_counter/rows key
 # @return [Integer] new line_counter/rows key
     def loop_end(line_counter)
       @rows[line_counter][:row_objects] = @row_objects
@@ -740,8 +740,8 @@ module BatchLoad
           => [:foo, :bar]
           2.3.3 :061 >
 =end
-# @param [Array] of Strings which represent the TSV file headers
-# @param [Hash] of the method names (as keys) for the tasks, with lists of required headers (as values)
+# @param [Array] headers array of Strings which represent the TSV file headers
+# @param [Hash] tasks hash of the method names (as keys) for the tasks, with lists of required headers (as values)
 # @return [Array] of named tasks to perform, based on the presents of task's word list in the header list
 # intersection of the word list from the tasks hash (per key) and the list of headers
     def triage(headers, tasks)

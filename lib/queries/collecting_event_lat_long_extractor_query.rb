@@ -25,7 +25,6 @@ DEPRECATION WARNING: Passing a column to `quote` has been deprecated. It is only
 
     # @param [Integer] collecting_event_id
     # @param [Integer] project_id
-    # @param [Array] of symbolized filter names
     # @param [Object] filters
     def initialize(collecting_event_id: nil, project_id: nil, filters: [])
 
@@ -83,7 +82,7 @@ DEPRECATION WARNING: Passing a column to `quote` has been deprecated. It is only
       start_id.gt(Arel::Nodes::Quoted.new(collecting_event_id))
     end
 
-    # @param [String] key to FILTERS regex string
+    # @param [String] filter key to FILTERS regex string
     # @return [Scope]
     def regex_function(filter)
       regex = Utilities::Geo::REGEXP_COORD[filter][:reg].to_s.gsub('(?i-mx:', '').chomp(')')

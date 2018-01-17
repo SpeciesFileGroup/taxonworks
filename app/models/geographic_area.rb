@@ -161,7 +161,7 @@ class GeographicArea < ApplicationRecord
 
   # @param [GeographicArea]
   # @return [Scope] of geographic_areas
-  def self.is_contained_by(geographic_area) 
+  def self.is_contained_by(geographic_area)
     pieces = nil
     if geographic_area.geographic_items.any?
       pieces = GeographicItem.is_contained_by('any_poly', geographic_area.geo_object)
@@ -201,7 +201,7 @@ class GeographicArea < ApplicationRecord
   end
 
   # @return [Scope] of areas which have at least one shape
-  def self.have_shape? 
+  def self.have_shape?
     joins(:geographic_areas_geographic_items).select('distinct(geographic_areas.id)')
   end
 
@@ -238,14 +238,14 @@ class GeographicArea < ApplicationRecord
     GeographicArea.descendants_of(self).where('level2_id IS NOT NULL')
   end
 
-  # @param [String] name of geographic_area_type (e.g., 'Country', 'State', 'City')
+  # @param [String] geographic_area_type name of geographic_area_type (e.g., 'Country', 'State', 'City')
   # @return [Scope] descendants of this instance which have specific types, such as counties of a state.
   def descendants_of_geographic_area_type(geographic_area_type)
     GeographicArea.descendants_of(self).includes([:geographic_area_type])
       .where(geographic_area_types: {name: geographic_area_type})
   end
 
-  # @param [Array] geographic_area_type names
+  # @param [Array] geographic_area_type_names names
   # @return [Scope] descendants of this instance which have specific types, such as cities and counties of a province.
   def descendants_of_geographic_area_types(geographic_area_type_names)
     GeographicArea.descendants_of(self).includes([:geographic_area_type])
@@ -268,7 +268,7 @@ class GeographicArea < ApplicationRecord
     data_origin[-1]
   end
 
-  def has_shape? 
+  def has_shape?
     geographic_items.any?
   end
 
