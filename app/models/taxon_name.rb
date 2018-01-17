@@ -110,6 +110,11 @@
 #   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed.  
 #   This string should NOT include the author year (see verbatim_author and year_of_publication for those data).
 #
+# TODO: @mjy etymology column in taxon_names is not covered here. Is tis correct below?
+# @!attribute etymology
+#   @return [String]
+#   the derivation and history of the name
+#
 class TaxonName < ApplicationRecord
 
   has_closure_tree
