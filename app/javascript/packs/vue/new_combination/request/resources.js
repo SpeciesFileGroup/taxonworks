@@ -19,9 +19,14 @@ const handleError = function(json) {
   if (typeof json != 'object') return
   let errors = Object.keys(json);
   let errorMessage = '';
-
+  console.log(json);
   errors.forEach(function(item) {
-    errorMessage += json[item].join('<br>')
+    if(Array.isArray(json[item])) {
+      errorMessage += json[item].join('<br>')
+    }
+    else {
+      errorMessage += json[item]
+    }
   });
 
   TW.workbench.alert.create(errorMessage, 'error');
@@ -42,7 +47,6 @@ const GetParse = function(taxon_name) {
       return resolve(response.body)
     })
   })
-  //return ajaxCall('get', `/taxon_names/parse?query_string=${taxon_name}`);
 }
 
 const GetLastCombinations = function() {
@@ -53,8 +57,13 @@ const CreateCombination = function(combination) {
   return ajaxCall('post', `/combinations`, combination);
 }
 
+const UpdateCombination = function(id, combination) {
+  return ajaxCall('patch', `/combinations/${id}.json`, combination);
+}
+
 export {
   GetParse,
   GetLastCombinations,
+  UpdateCombination,
   CreateCombination
 }

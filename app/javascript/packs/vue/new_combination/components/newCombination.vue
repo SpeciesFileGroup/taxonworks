@@ -3,7 +3,7 @@
     <spinner legend="Saving new combination..." :full-screen="true" :logo-size="{ width: '100px', height: '100px'}" v-if="saving"></spinner>
 
     <div class="flexbox">
-      <div class="panel item new-combination-box separate-right">
+      <div class="panel item new-combination-box">
         <spinner legend="Searching taxon names..." :legend-style="{ fontSize: '14px', color: '#444', textAlign: 'center', paddingTop: '20px'}" v-if="searching"></spinner>
 
         <template v-if="rankLists.hasOwnProperty('genus')">
@@ -11,24 +11,40 @@
             <h3>Combination</h3>
           </div>
 
-          <div class="horizontal-center-content content" v-if="!rankLists['genus'].length">
+          <div v-if="!rankLists['genus'].length" class="horizontal-center-content content">
             <h3>Genus not found</h3>
           </div>
 
           <div v-else>
 
             <div v-if="!isCombinationEmpty()">
-              <preview-view :combination="newCombination"></preview-view>
+              <preview-view 
+                @edit="expandAll()" 
+                :combination="newCombination"></preview-view>
             </div>
           
             <div class="flexbox">
-              <list-group class="item" v-for="list, key in rankLists" :key="key" @onTaxonSelect="newCombination[key] = $event" :selected="newCombination[key]" :rank-name="key" :list="list" v-if="rankLists[key].length"></list-group>
+              <list-group 
+                class="item"                
+                v-for="list, key in rankLists" 
+                :key="key"
+                ref="listGroup"
+                @onTaxonSelect="newCombination[key] = $event" 
+                :selected="newCombination[key]" 
+                :rank-name="key" 
+                :list="list"
+                v-if="list.length">
+              </list-group>
             </div>
-
 
             <div class="content">
-              <button :disabled="!validateCreate()" class="button normal-input button-submit create-new-combination" @click="postCombination">Create</button>
+              <save-combination 
+                @processing="saving = $event" 
+                @save="newCombination = $event" 
+                :new-combination="newCombination">
+              </save-combination>
             </div>
+
           </div>
         </template>
 
@@ -40,14 +56,16 @@
 
 <script>
 
-  import { GetParse, CreateCombination } from '../request/resources';
+  import { GetParse } from '../request/resources';
   import listGroup from './listGroup.vue';
+  import saveCombination from './saveCombination.vue';
   import previewView from './previewView.vue';
   import spinner from '../../components/spinner.vue';
 
   export default {
     components: {
       listGroup,
+      saveCombination,
       previewView,
       spinner
     },
@@ -76,7 +94,6 @@
           GetParse(newVal).then(response => {
             this.$emit('onSearchEnd', true);
             this.rankLists = response;
-            this.fillWithUnique(response);
             this.searching = false;
           })
         }
@@ -86,6 +103,11 @@
       }
     },
     methods: {
+      expandAll() {
+        this.$refs.listGroup.forEach(component => {
+          component.expandList();
+        })
+      },
       createNewCombination() {
         return {
           genus: undefined,
@@ -103,35 +125,6 @@
           }
         }
         return true
-      },
-      postCombination() {
-        let keys = Object.keys(this.newCombination);
-        let combination = {}
-
-        keys.forEach((rank) => {
-          if(this.newCombination[rank]) {
-            combination[`${rank}_id`] = this.newCombination[rank].id
-          }
-        })
-
-        this.saving = true;
-        CreateCombination({ combination: combination }).then(response => { 
-          this.saving = false;
-          TW.workbench.alert.create('New combination was successfully created.', 'notice');
-        });
-      },
-      validateCreate() {
-        return (this.newCombination.genus && this.newCombination.species)
-      },
-      fillWithUnique(list) {
-        let keys = Object.keys(list);
-        let that = this;
-
-        keys.forEach((key) => {
-          if(list[key].length == 1) {
-            that.newCombination[key] = list[key][0]
-          }
-        })
       }
     }
   }

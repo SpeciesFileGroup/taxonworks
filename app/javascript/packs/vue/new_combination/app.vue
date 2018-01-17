@@ -7,22 +7,22 @@
 		    	@onTaxonName="setTaxon">
 		    </input-search>
 		</div>
-		<find-taxon 
+		<new-combination 
 			class="separate-top"
 			@onSearchStart="searching = true"
 			@onSearchEnd="searching = false"
 			:taxon-name="taxon">
-		</find-taxon>
+		</new-combination>
 	</div>
 </template>
 <script>
 
-	import findTaxon from './components/findTaxon.vue'
+	import newCombination from './components/newCombination.vue'
 	import inputSearch from './components/inputSearch.vue'
 
 	export default {
 		components: {
-			findTaxon,
+			newCombination,
 			inputSearch
 		},
 		data: function() {

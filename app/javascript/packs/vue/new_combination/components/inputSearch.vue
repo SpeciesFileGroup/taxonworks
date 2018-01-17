@@ -4,9 +4,11 @@
 			class="big-input" 
 			@input="processString(type)" 
 			type="text" 
+			ref="search" 
 			:placeholder="placeholder" 
 			v-model="type"/>
 		<button 
+			tabindex="-1" 
 			class="big-input separate-left button button-default"
 			@click="reset()"
 		>New
@@ -32,6 +34,9 @@
 				type: '',
 				timeOut: undefined
 			}
+		},
+		mounted(){
+			this.$refs.search.focus();
 		},
 		methods: {
 			reset() {
