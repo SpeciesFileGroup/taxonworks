@@ -2,12 +2,7 @@
 	<div class="new-combination-rank-list">
 		<div class="header">
 			<h3 class="flex-separate">
-				<ul class="breadcrumb_list">
-					<li class="capitalize">{{ rankName }} </li>
-					<li class="breadcrumb_item" v-if="selected">
-						<b><span v-html="selected.original_combination"></span></b>
-					</li>
-				</ul>
+				{{ rankName }} 
 				<expand v-if="list.length > 1" v-model="expanded"></expand>
 			</h3>
 		</div>
@@ -19,6 +14,11 @@
 				</label>
 			</li>
 		</ul>
+		<div class="content middle" v-else>
+			<h3>
+				<b><span v-html="selected.original_combination"></span></b>
+			</h3>
+		</div>
 	</div>
 </template>
 <script>

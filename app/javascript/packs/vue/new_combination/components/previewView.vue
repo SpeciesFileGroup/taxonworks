@@ -1,10 +1,10 @@
 <template>
-	<div class="new-combination-preview">
-		<div class="header horizontal-center-content">
+	<div class="new-combination-preview horizontal-left-content">
+		<div class="header horizontal-left-content">
 			<h3>Preview</h3>
 		</div>
-		<div class="content" v-if="combination">
-			<h4 class="horizontal-center-content middle">
+		<div class="content middle horizontal-center-content" v-if="combination">
+			<h3 class="horizontal-center-content middle">
 				<span>
 					<i>
 						<span 
@@ -14,7 +14,7 @@
 					</i>
 					<span v-html="showAuthorCitation(searchLastExistingRank(combination))"></span>
 				</span>				
-			</h4>
+			</h3>
 		</div>
 	</div>
 </template>

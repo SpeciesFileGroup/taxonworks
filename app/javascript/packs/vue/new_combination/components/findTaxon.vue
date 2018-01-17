@@ -16,16 +16,22 @@
           </div>
 
           <div v-else>
-            <list-group v-for="list, key in rankLists" :key="key" @onTaxonSelect="newCombination[key] = $event" :selected="newCombination[key]" :rank-name="key" :list="list" v-if="rankLists[key].length"></list-group>
+
+            <div v-if="!isCombinationEmpty()">
+              <preview-view :combination="newCombination"></preview-view>
+            </div>
+          
+            <div class="flexbox">
+              <list-group class="item" v-for="list, key in rankLists" :key="key" @onTaxonSelect="newCombination[key] = $event" :selected="newCombination[key]" :rank-name="key" :list="list" v-if="rankLists[key].length"></list-group>
+            </div>
+
+
             <div class="content">
               <button :disabled="!validateCreate()" class="button normal-input button-submit create-new-combination" @click="postCombination">Create</button>
             </div>
           </div>
         </template>
 
-      </div>
-      <div v-if="!isCombinationEmpty()" class="preview panel item new-combination-box cright separate-left">
-        <preview-view :combination="newCombination"></preview-view>
       </div>
     </div>
 
