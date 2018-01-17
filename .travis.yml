@@ -3,6 +3,7 @@ cache:
   bundler: true
   directories:
     - $TRAVIS_BUILD_DIR/node_modules
+    - $TRAVIS_BUILD_DIR/spec/fixtures/vcr_cassettes
 dist: trusty
 sudo: required
 rvm:
