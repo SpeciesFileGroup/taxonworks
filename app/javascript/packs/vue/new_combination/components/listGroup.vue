@@ -12,7 +12,7 @@
 			</h3>
 		</div>
 		<ul v-if="expanded">
-			<li class="no_bullets" v-for="taxon in list">
+			<li class="no_bullets" v-for="taxon in inOrder(list)">
 				<label class="middle">
 					<input type="radio" v-model="rankChoose" :value="taxon"/>
 					<span v-html="taxon.original_combination"></span>
@@ -70,6 +70,17 @@
 			}
 		},
 		methods: {
+			inOrder(list) {
+				let newOrder = list.slice(0);
+					newOrder.sort((a,b) => {
+						if (a.original_combination < b.original_combination)
+							return -1;
+						if (a.original_combination > b.original_combination)
+							return 1;
+						return 0;						
+					});
+				return newOrder;
+			},
 			selectTaxon(taxon) {
 				this.$emit('onTaxonSelect', taxon)
 			},
