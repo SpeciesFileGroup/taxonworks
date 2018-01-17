@@ -531,7 +531,6 @@ class GeographicItem < ApplicationRecord
       end
     end
 
-    # @param [String] column_name
     # @param [GeographicItem#id] geographic_item_id
     # @param [Float] distance in meters
     # @return [ActiveRecord::Relation]
@@ -559,7 +558,7 @@ class GeographicItem < ApplicationRecord
     end
 
     # @param [String] column_name to search
-    # @param [GeographicItem] geographic_item_id or array of geographic_item_ids to be tested.
+    # @param [GeographicItem] geographic_item_ids or array of geographic_item_ids to be tested.
     # @return [Scope] of GeographicItems
     #
     # If this scope is given an Array of GeographicItems as a second parameter,

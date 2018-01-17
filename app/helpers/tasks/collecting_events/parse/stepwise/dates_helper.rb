@@ -16,7 +16,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
   end
 
 
-  # @param [Array] must be array of symbols from Utilities::Dates::REGEXP_DATES.keys (optional)
+  # @param [Array] filters must be array of symbols from Utilities::Dates::REGEXP_DATES.keys (optional)
   def make_dates_selected_method_boxes(filters = Utilities::Dates::REGEXP_DATES.keys)
     list = Utilities::Dates::REGEXP_DATES
     box_row = ""

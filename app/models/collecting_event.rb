@@ -312,8 +312,8 @@ class CollectingEvent < ApplicationRecord
     #
 
     # engineered for search_start_date/search_end_date (yyyy/mm/dd)
-    # @param [String] start_date (yyyy/mm/dd)
-    # @param [String] end_date (yyyy/mm/dd)
+    # @param [String] search_start_date (yyyy/mm/dd)
+    # @param [String] search_end_date (yyyy/mm/dd)
     # @param [Boolean] allow_partial default = true,
     #                                  true; found range is only required to start inside supplied range
     #                                  false; found range must be completely inside supplied range
@@ -403,7 +403,7 @@ class CollectingEvent < ApplicationRecord
       where(sql_string).distinct # TODO: uniq should likely not be here
     end
 
-    # @param [Hash] of parameters in the style of 'params'
+    # @param [Hash] params in the style Rails of 'params'
     # @return [Scope] of selected collecting_events
     # TODO: ARELIZE, likely in lib/queries
     def filter(params)
