@@ -1,5 +1,8 @@
 inherit_from: .rubocop_todo.yml
 
+# TODO: Method length of 25
+# TODO: Class length of 1000
+
 # Documentation: http://www.rubydoc.info/gems/rubocop
 AllCops:
   DisabledByDefault: true
@@ -27,6 +30,17 @@ Style/StringLiterals:
 
 Style/StringHashKeys:
   Enabled: true
+
+Metrics/MethodLength:
+  Enabled: true
+  CountComments: true
+  Max: 25
+
+Metrics/ClassLength:
+  Enabled: true
+  CountComments: true
+  Max: 1000
+
 
 
 

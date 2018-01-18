@@ -1,6 +1,6 @@
 module Queries
 
-  # noinspection ALL
+  # noinspection RubyTooManyInstanceVariablesInspection,RubyResolve
   class CollectionObjectFilterQuery < Queries::Query
 
     # Query variables
