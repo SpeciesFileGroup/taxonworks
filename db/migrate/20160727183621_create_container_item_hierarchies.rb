@@ -8,9 +8,9 @@ class CreateContainerItemHierarchies < ActiveRecord::Migration[4.2]
 
     add_index :container_item_hierarchies, [:ancestor_id, :descendant_id, :generations],
       unique: true,
-      name: "container_item_anc_desc_idx"
+      name:   'container_item_anc_desc_idx'
 
     add_index :container_item_hierarchies, [:descendant_id],
-      name: "container_item_desc_idx"
+      name: 'container_item_desc_idx'
   end
 end
