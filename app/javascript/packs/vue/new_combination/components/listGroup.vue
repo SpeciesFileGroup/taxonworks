@@ -13,7 +13,7 @@
 						:name="`new-combination-rank-list-${rankName}`" 
 						@keyup.enter="rankChoose = taxon"
 						class="new-combination-rank-list-input" type="radio" 
-						:checked="taxon == rankChoose" :value="taxon">
+						:checked="checkRankSelected(taxon)" :value="taxon">
 					<span 
 						class="new-combination-rank-list-taxon-name" 
 						v-html="taxon.original_combination">
@@ -80,6 +80,12 @@
 			}
 		},
 		methods: {
+			checkRankSelected(taxon) {
+				if(this.rankChoose && taxon.id == this.rankChoose.id) {
+					return true
+				}
+				return false
+			},
 			expandList: function() {
 				if(this.list.length > 1)
 					this.expanded = true;

@@ -19,7 +19,7 @@ const handleError = function(json) {
   if (typeof json != 'object') return
   let errors = Object.keys(json);
   let errorMessage = '';
-  console.log(json);
+
   errors.forEach(function(item) {
     if(Array.isArray(json[item])) {
       errorMessage += json[item].join('<br>')

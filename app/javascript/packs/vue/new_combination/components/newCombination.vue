@@ -40,7 +40,7 @@
             <div class="content">
               <save-combination 
                 @processing="saving = $event" 
-                @save="newCombination = $event" 
+                @save="setNewCombination($event)" 
                 :new-combination="newCombination">
               </save-combination>
             </div>
@@ -107,6 +107,9 @@
         this.$refs.listGroup.forEach(component => {
           component.expandList();
         })
+      },
+      setNewCombination(combination) {
+        this.newCombination = combination;
       },
       createNewCombination() {
         return {
