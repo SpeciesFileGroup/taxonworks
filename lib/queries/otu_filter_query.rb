@@ -17,7 +17,7 @@ module Queries
     # end
     #
     def initialize(params)
-      params.reject! { |k, v| v.blank? }
+      params.reject! { |_k, v| v.blank? }
 
       @query_params                 = params
       @query_geographic_area_ids    = params[:geographic_area_ids]
@@ -35,13 +35,12 @@ module Queries
     end
 
     def author_set?
-      retval = case query_author_ids
-                 when nil
-                   false
-                 else
-                   query_author_ids.count > 0
-               end
-      retval
+      case query_author_ids
+        when nil
+          false
+        else
+          query_author_ids.count > 0
+      end
     end
 
     def nomen_set?
@@ -72,9 +71,9 @@ module Queries
     def geographic_area_scope
       target_geographic_item_ids = []
 
-      query_geographic_area_ids.each do |gaid|
+      query_geographic_area_ids.each do |ga_id|
         target_geographic_item_ids.push(
-          GeographicArea.joins(:geographic_items).find(gaid).default_geographic_item.id
+          GeographicArea.joins(:geographic_items).find(ga_id).default_geographic_item.id
         )
       end
       r42i = CollectionObject.joins(:geographic_items)
@@ -92,7 +91,7 @@ module Queries
     # @return [Scope]
     def nomen_scope
       scope1 = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
-      scope = scope1
+      scope  = scope1
       if scope1.any?
         scope = Otu.self_and_descendants_of(scope1.first.id, query_rank_class) if with_descendants?
       end
@@ -151,6 +150,7 @@ module Queries
           b = b.group(o['id']).having(r['person_id'].count.gteq(query_author_ids.count))
           b = b.as("z_#{table_alias}")
 
+          # noinspection RubyResolve
           Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
     end
