@@ -8,9 +8,9 @@ class CreateTaxonNameHierarchies < ActiveRecord::Migration[4.2]
 
     add_index :taxon_name_hierarchies, [:ancestor_id, :descendant_id, :generations],
       unique: true,
-      name: "taxon_name_anc_desc_idx"
+      name:   'taxon_name_anc_desc_idx'
 
     add_index :taxon_name_hierarchies, [:descendant_id],
-      name: "taxon_name_desc_idx"
+      name: 'taxon_name_desc_idx'
   end
 end

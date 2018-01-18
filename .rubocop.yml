@@ -2,6 +2,7 @@ inherit_from: .rubocop_todo.yml
 
 # Documentation: http://www.rubydoc.info/gems/rubocop
 AllCops:
+  DisabledByDefault: true
   Include:
     - '**/Rakefile'
     - '**/config.ru'
@@ -19,6 +20,9 @@ AllCops:
     - 'public/packs-test/**/*'
 
 Rails:
+  Enabled: true
+
+Style/StringLiterals:
   Enabled: true
 
 

@@ -1,4 +1,4 @@
-<%= render "/hub/hub_category_filter" %>
+<%= render '/hub/hub_category_filter' %>
 <div id="favorite-page" class="flex-wrap-column horizontal-center-content"><% if has_hub_favorites? -%>
 <div class="flexbox">
 	<div id="data_cards" class="no-shadow">
@@ -6,8 +6,8 @@
 			<div class="cards-section">
 				<% sessions_current_user.hub_favorites[sessions_current_project_id.to_s]['data'].each do |d| -%>
 				<div class="card-container">
-					<%= data_card(Hub::Data::BY_NAME[d]) -%> 
-				</div>		      
+					<%= data_card(Hub::Data::BY_NAME[d]) -%>
+				</div>
 				<% end %>
 			</div>
 			<div class="data_section_label">
@@ -16,7 +16,7 @@
 					<a class="cards-down" href="#"><%= image_tag('arrow-down.svg') %></a>
 				</div>
 				<h2>
-					Data 
+					Data
 				</h2>
 			</div>
 			<div data-attribute="empty" class="subtle center_text">
@@ -30,17 +30,17 @@
 				<div id="task_carrousel">
 					<div class="task-section">
 						<% sessions_current_user.hub_favorites[sessions_current_project_id.to_s]['tasks'].each do |t| -%>
-						<%= task_card(UserTasks::INDEXED_TASKS[t]) -%> 
+						<%= task_card(UserTasks::INDEXED_TASKS[t]) -%>
 						<% end %>
 						<div class="subtle center_text no-tasks">
 							<h1>No tasks found</h1>
 						</div>
 					</div>
-				</div>			    
+				</div>
 			</div>
 			<div class="data_section_label">
 				<h2>
-					Tasks 
+					Tasks
 				</h2>
 			</div>
 		</div>
@@ -55,6 +55,6 @@
 
 
 <p>
-	Welcome, <%= sessions_current_user.name -%>! Spend a little time navigating through the workbench.  As you become familiar with tasks or pages you find most useful, favorite them, they'll appear here.  
+	Welcome, <%= sessions_current_user.name -%>! Spend a little time navigating through the workbench.  As you become familiar with tasks or pages you find most useful, favorite them, they'll appear here.
 </p>
 <% end %>

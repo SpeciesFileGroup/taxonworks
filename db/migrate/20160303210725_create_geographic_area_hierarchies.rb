@@ -8,9 +8,9 @@ class CreateGeographicAreaHierarchies < ActiveRecord::Migration[4.2]
 
     add_index :geographic_area_hierarchies, [:ancestor_id, :descendant_id, :generations],
       unique: true,
-      name: "geographic_area_anc_desc_idx"
+      name:   'geographic_area_anc_desc_idx'
 
     add_index :geographic_area_hierarchies, [:descendant_id],
-      name: "geographic_area_desc_idx"
+      name: 'geographic_area_desc_idx'
   end
 end

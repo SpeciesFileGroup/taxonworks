@@ -24,10 +24,10 @@ gem 'rmagick', '~> 2.16'
 
 # Geo
 gem 'ffi-geos', '~> 1.2.0'
-# gem 'rgeo-shapefile', '~> 0.4.2'  # deprecated? not compatible- perhaps only used in 
+# gem 'rgeo-shapefile', '~> 0.4.2'  # deprecated? not compatible- perhaps only used in
 gem 'rgeo', '~> 1.0.0'
 gem 'rgeo-geojson', '~> 1.0.0'
-gem "rgeo-proj4"
+gem 'rgeo-proj4'
 gem 'postgresql_cursor', '~> 0.6.1'
 
 # API/controllers
