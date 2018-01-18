@@ -105,9 +105,10 @@
 # @!attribute verbatim_name
 #   @return [String]
 #   a representation of what the combination (fully spelled out) or protonym (monomial)
-#   *looked like* in its originating publication
+#   *looked like* in its originating publication.
 #   The sole purpose of this string is to represent visual differences from what is recorded in the
-#   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed
+#   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed.  
+#   This string should NOT include the author year (see verbatim_author and year_of_publication for those data).
 #
 class TaxonName < ApplicationRecord
 
@@ -373,7 +374,7 @@ class TaxonName < ApplicationRecord
   # Important, string format priority is 1) as provided verbatim, 2) as generated from people, and 3) as taken from the source.
   def author_string
     return verbatim_author if !verbatim_author.nil?
-    return taxon_name_authors.pluck(:last_name).to_sentence if taxon_name_authors.any?
+    return Utilities::Strings.authorship_sentence( taxon_name_authors.pluck(:last_name) ) if taxon_name_authors.any?
     return source.authority_name if !source.nil?
     nil
   end

@@ -212,7 +212,7 @@ class TaxonNamesController < ApplicationController
       :nomenclature_code,
       :also_create_otu,
       :import_level).merge(
-      user_id:    sessions_current_user_id,
+      user_id: sessions_current_user_id,
       project_id: sessions_current_project_id
       ).to_h.symbolize_keys
   end

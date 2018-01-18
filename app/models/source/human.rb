@@ -10,8 +10,9 @@ class Source::Human < Source
   validate :at_least_one_person_is_provided
 
   def authority_name
-    last_names = people.collect{|p| p.last_name}
-    last_names.to_sentence(last_word_connector: ' & ', two_words_connector: ' & ')
+    Utilities::Strings.authorship_sentence(
+      people.collect{|p| p.last_name} 
+    )
   end
 
   protected

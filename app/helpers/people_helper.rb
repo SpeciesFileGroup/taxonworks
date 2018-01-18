@@ -18,10 +18,11 @@ module PeopleHelper
     link_to(person_tag(person), person.metamorphosize)
   end
 
-  # @return [String]
-  #   a formatted list of people
+  # @return [String, nil]
+  #   A formatted list of people's last names
+  #   TODO: deprecate for native call
   def people_names(people)
-    people.collect{ |a| a.full_last_name }.to_sentence(last_word_connector: ' & ')
+    Utilities::Strings.authorship_sentence( people.collect{ |a| a.full_last_name } ) 
   end
 
   def author_annotation_tag(author)
