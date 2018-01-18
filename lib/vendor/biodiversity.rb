@@ -14,7 +14,7 @@ module TaxonWorks
 
       class Result
 
-        # the query string
+        # query string
         attr_accessor :name
 
         # how to match
@@ -37,7 +37,7 @@ module TaxonWorks
         # Hash of rank => [Protonyms] like { genus: [<#>, <#>] }
         attr_reader :result
 
-        # String, the post ' in ' bit
+        # String, the bit after ' in '
         attr_reader :citation
 
         # query_string: 
@@ -58,7 +58,6 @@ module TaxonWorks
         #   a Biodiversity name parser result 
         def parse
           n, @citation = preparse
-
           @parse_result ||= ScientificNameParser.new.parse(n)
         end
 
@@ -109,9 +108,15 @@ module TaxonWorks
           end  
         end
 
+        def finest_rank
+          RANK_MAP.keys.reverse.each do |k|
+            return k if send(k)
+          end
+        end
+
         # @return [Hash, nil]
         def authorship
-          if d = detail[:species]
+          if d = detail[finest_rank]
             d[:basionymAuthorTeam]
           end
         end
@@ -120,7 +125,13 @@ module TaxonWorks
         def author
           if a = authorship
             Utilities::Strings.authorship_sentence(a[:author])
+          else
+            nil
           end
+        end
+
+        def author_year
+          [author, year].compact.join(', ')
         end
 
         # @return [String, nil]
@@ -132,13 +143,23 @@ module TaxonWorks
         end
 
         # @return [Boolean]
+        #   true if there for each parsed piece of there name there is 1 and only 1 result
         def is_unambiguous?
           RANK_MAP.keys.each do |r|
-            return false if send(r) && !unambiguous_at?(r)
+            if !send(r).nil?
+              return false unless unambiguous_at?(r)
+            end
           end
           true
-        end 
+        end
 
+        # @return [Boolean]
+        def is_authored?
+          author_year.size > 0
+        end
+
+        # @return [Boolean] 
+        #   true if there is a single matching result
         def unambiguous_at?(rank)
           protonym_result[rank].size == 1
         end
@@ -170,11 +191,6 @@ module TaxonWorks
           end 
         end
 
-
-        def sources
-          Source.where( )
-        end
-
         # @return [Scope]
         #    Protonyms at a given rank
         def ranked_protonyms(rank)
@@ -184,14 +200,24 @@ module TaxonWorks
         # @return [Scope]
         #   Protonyms grouped by nomenclatural group, for a rank
         def grouped_protonyms(rank)
-          case rank
+          s = case rank
           when :genus, :subgenus
-            basic_scope(rank).is_genus_group
+             basic_scope(rank).is_genus_group
           when :species, :subspecies
-            basic_scope(rank).is_species_group
+             basic_scope(rank).is_species_group
           else
-            Protonym.none
+             Protonym.none
           end
+
+           (is_authored? && finest_rank == rank) ? scope_to_author_year(s) : s
+        end
+
+        # @return [Scope]
+        #  if there is an exact author year match scope it to that match, otherwise
+        #     ignore the author year
+        def scope_to_author_year(scope)
+          t = scope.where('(cached_author_year = ? OR cached_author_year = ?)', author_year, author_year.gsub(' & ', ' and '))
+          t.count > 0 ? t : scope
         end
 
         # @return [Hash]
@@ -221,6 +247,7 @@ module TaxonWorks
           @result ||= build_result
         end
 
+        # @return [Hash]
         def build_result
           @result = {}
           @result[:protonyms] = protonym_result
@@ -243,3 +270,4 @@ module TaxonWorks
     end
   end
 end
+
