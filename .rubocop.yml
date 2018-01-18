@@ -25,4 +25,9 @@ Rails:
 Style/StringLiterals:
   Enabled: true
 
+Style/StringHashKeys:
+  Enabled: true
+
+
+
 
