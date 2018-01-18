@@ -58,11 +58,11 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
         end
 
         specify '#is_unambiguous?' do
-          expect(result.is_unambiguous?).to eq(true)
+          expect(result.is_unambiguous?).to eq(false)
         end 
 
         specify 'result[:unambiguous]' do
-          expect(result.result[:unambiguous]).to eq(true)
+          expect(result.result[:unambiguous]).to eq(false)
         end
 
         specify '#genus' do

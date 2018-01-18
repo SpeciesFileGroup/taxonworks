@@ -37,6 +37,9 @@ module TaxonWorks
         # Hash of rank => [Protonyms] like { genus: [<#>, <#>] }
         attr_reader :result
 
+        # String, the post ' in ' bit
+        attr_reader :citation
+
         # query_string: 
         #
         # mode:
@@ -54,7 +57,13 @@ module TaxonWorks
         # @return [@parse_result]
         #   a Biodiversity name parser result 
         def parse
-          @parse_result ||= ScientificNameParser.new.parse(name)
+          n, @citation = preparse
+
+          @parse_result ||= ScientificNameParser.new.parse(n)
+        end
+
+        def preparse
+          name.split(' in ') 
         end
 
         # @return [Hash]
@@ -125,7 +134,7 @@ module TaxonWorks
         # @return [Boolean]
         def is_unambiguous?
           RANK_MAP.keys.each do |r|
-            return false unless unambiguous_at?(r)
+            return false if send(r) && !unambiguous_at?(r)
           end
           true
         end 
@@ -159,6 +168,11 @@ module TaxonWorks
           else
             Protonym.none
           end 
+        end
+
+
+        def sources
+          Source.where( )
         end
 
         # @return [Scope]
