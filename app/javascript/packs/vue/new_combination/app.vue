@@ -13,23 +13,39 @@
 			@onSearchEnd="searching = false"
 			:taxon-name="taxon">
 		</new-combination>
+		<display-list
+			:list="combinations"
+			:edit="true"
+			:annotator="true"
+			label="object_tag">
+		</display-list>
 	</div>
 </template>
 <script>
 
-	import newCombination from './components/newCombination.vue'
-	import inputSearch from './components/inputSearch.vue'
+	import newCombination from './components/newCombination.vue';
+	import inputSearch from './components/inputSearch.vue';
+	import displayList from '../components/displayList.vue';
+
+	import { GetLastCombinations } from './request/resources';
 
 	export default {
 		components: {
+			displayList,
 			newCombination,
 			inputSearch
 		},
 		data: function() {
 			return {
 				searching: false,
-				taxon: null
+				taxon: null,
+				combinations: [],
 			}
+		},
+		mounted: function() {
+			GetLastCombinations().then(response => {
+				this.combinations = response;
+			})
 		},
 		methods: {
 			setTaxon(event) {

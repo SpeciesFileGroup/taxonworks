@@ -39,6 +39,7 @@
 				CreateCombination({ combination: this.createRecordCombination() }).then(response => { 
 					this.$emit('save', response);
 					this.$emit('processing', false);
+					this.$emit('success', true);
 					TW.workbench.alert.create('New combination was successfully created.', 'notice');
 				});
 			},
@@ -47,6 +48,7 @@
 				UpdateCombination(id, { combination: this.createRecordCombination() }).then((response) => {
 					this.$emit('save', response);
 					this.$emit('processing', false);
+					this.$emit('success', true);
 					TW.workbench.alert.create('New combination was successfully updated.', 'notice');
 				});
 			}

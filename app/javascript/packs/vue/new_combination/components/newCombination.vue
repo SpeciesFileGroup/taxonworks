@@ -39,6 +39,7 @@
 
             <div class="content">
               <save-combination 
+                @success="reset()"
                 @processing="saving = $event" 
                 @save="setNewCombination($event)" 
                 :new-combination="newCombination">
@@ -103,6 +104,10 @@
       }
     },
     methods: {
+      reset() {
+        this.newCombination = this.createNewCombination();
+        this.rankLists = {};
+      },
       expandAll() {
         this.$refs.listGroup.forEach(component => {
           component.expandList();

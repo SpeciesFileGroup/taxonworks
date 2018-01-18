@@ -10,6 +10,7 @@
 				<label class="middle new-combination-rank-list-label"
 					@mousedown="rankChoose = taxon" >
 					<input 
+						ref="rankRadio"
 						:name="`new-combination-rank-list-${rankName}`" 
 						@keyup.enter="rankChoose = taxon"
 						class="new-combination-rank-list-input" type="radio" 
@@ -49,6 +50,7 @@
 					return this.selected
 				},
 				set(taxon) {
+					this.$emit('rankPicked', this.rankName);
 					this.selectTaxon(taxon)
 				}
 			}
@@ -103,6 +105,21 @@
 			},
 			selectTaxon(taxon) {
 				this.$emit('onTaxonSelect', taxon)
+			},
+			setFocus() {
+				if(this.rankRadio.length > 1) {
+					if(this.selected) {
+						this.$refs.rankRadio[this.list.findIndex((taxon) => {
+							return taxon == this.selected
+						})].$el.focus();
+					}
+					else {
+						this.$refs.rankRadio[0].$el.focus();
+					}
+				}
+				else {
+					this.$refs.rankRadio.$el.focus();
+				}
 			},
 			isSelected(taxon) {
 				if(this.selected) {
