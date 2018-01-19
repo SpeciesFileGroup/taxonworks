@@ -1,9 +1,9 @@
 json.partial! '/taxon_names/base_attributes', taxon_name: combination
 
 json.protonyms do
-  combination.protonyms.each do |p|
-    json.set! p.rank_class.rank_name do
-      json.partial! '/taxon_names/attributes', taxon_name: p 
+  combination.combination_relationships.each do |r|
+    json.set! r.rank_name do
+      json.partial! '/taxon_names/attributes', taxon_name: r.subject_taxon_name 
     end
   end
 end

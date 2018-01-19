@@ -56,4 +56,8 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
     ' with'
   end
 
+  def rank_name
+    self.class.name.demodulize.downcase
+  end
+
 end
