@@ -26,7 +26,7 @@ RSpec.describe DateDayValidator, type: :validator, group: :validator do
         test_model.day = 31
         expect(test_model.valid?).to be_truthy
       end
-    end 
+    end
 
     context 'parameters given for validator' do
       context 'min_day' do
@@ -83,7 +83,7 @@ RSpec.describe DateDayValidator, type: :validator, group: :validator do
           test_model.month = 45
           test_model.day = 3
           expect(test_model.valid?).to be_falsey
-          expect(test_model.errors.messages[:month].include?("45 is not a valid month")).to be true
+          expect(test_model.errors.messages[:month].include?('45 is not a valid month')).to be true
         end
 
         specify 'invalid day adds error message' do
@@ -91,7 +91,7 @@ RSpec.describe DateDayValidator, type: :validator, group: :validator do
           test_model.month = 12
           test_model.day = 45
           expect(test_model.valid?).to be_falsey
-          expect(test_model.errors.messages[:day].include?("45 is not a valid day for the month provided")).to be true
+          expect(test_model.errors.messages[:day].include?('45 is not a valid day for the month provided')).to be true
         end
 
         specify 'calculates correct max_day' do

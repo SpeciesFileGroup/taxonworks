@@ -3,10 +3,10 @@ require 'rails_helper'
 
 # These are meta-tests. To run lint => true tests set
 # the environment variable TAXONWORKS_TEST_LINTING=true, for example
-#    TAXONWORKS_TEST_LINTING=true spring rspecspec/factory_linting_spec.rb  
-# 
+#    TAXONWORKS_TEST_LINTING=true spring rspecspec/factory_linting_spec.rb
+#
 describe 'TaxonWorksFactories' do
-  context 'FactoryBot linting', :lint => true do
+  context 'FactoryBot linting', lint: true do
 
     before {
       ProjectsAndUsers.spin_up_projects_users_and_housekeeping

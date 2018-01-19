@@ -20,7 +20,7 @@ RSpec.describe DateTimeValidator, type: :validator, group: :validator do
         }
 
         after(:each) {
-          expect(test_model.errors.messages[:attribute].include?("must be an integer between 1 and 100")).to be true
+          expect(test_model.errors.messages[:attribute].include?('must be an integer between 1 and 100')).to be true
         }
 
         specify "can't be blank and default error message" do
@@ -29,15 +29,15 @@ RSpec.describe DateTimeValidator, type: :validator, group: :validator do
         end
 
         specify 'is not an integer and default error message' do
-          test_model.attribute = "4"
+          test_model.attribute = '4'
           test_model.valid?
-          expect(test_model.errors.messages[:attribute].include?("is not an integer")).to be true
+          expect(test_model.errors.messages[:attribute].include?('is not an integer')).to be true
         end
 
         specify 'not in range and default error message' do
           test_model.attribute = 101
           test_model.valid?
-          expect(test_model.errors.messages[:attribute].include?("not in range")).to be true
+          expect(test_model.errors.messages[:attribute].include?('not in range')).to be true
         end
       end
     end
@@ -78,7 +78,7 @@ RSpec.describe DateTimeValidator, type: :validator, group: :validator do
 
     context 'message' do
       specify 'custom message occurs' do
-        custom_message = "this is a custom message"
+        custom_message = 'this is a custom message'
         test_model = date_time_base_validator_class({ allow_blank: false, message: custom_message}).new
         test_model.valid?
         expect(test_model.errors.messages[:attribute].include?(custom_message)).to be true

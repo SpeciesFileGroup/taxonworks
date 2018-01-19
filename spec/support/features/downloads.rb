@@ -1,15 +1,15 @@
 
 # Ripped from http://collectiveidea.com/blog/archives/2012/01/27/testing-file-downloads-with-capybara-and-chromedriver/
 module Features
-  module Downloads 
+  module Downloads
 
     TIMEOUT = 20
-    PATH    = Rails.root.join("tmp/downloads")
+    PATH    = Rails.root.join('tmp/downloads')
 
     extend self
 
     def downloads
-      Dir[PATH.join("*")]
+      Dir[PATH.join('*')]
     end
 
     def download

@@ -7,11 +7,11 @@ require 'capybara/rspec'
 # Set in config/application_settings:
 #
 # test:
-#   selenium:                                          # defaults to firefox, without 
+#   selenium:                                          # defaults to firefox, without
 #     browser: 'firefox'                               # or chrome
 #     marionette: true                                 # only possible when test_browser is 'firefox', and https://github.com/mozilla/geckodriver/releases
 #     firefox_binary_path: ''                          #  '/Applications/FirefoxDeveloperEdition.app/Contents/MacOS/firefox'
-#     chromedriver_path: '/usr/local/bin/chromedriver' # only possible when test_browser is 'chrome'   
+#     chromedriver_path: '/usr/local/bin/chromedriver' # only possible when test_browser is 'chrome'
 
 
 # Settings are taken from config/application_settings.yml
@@ -23,26 +23,26 @@ Capybara.register_driver :selenium do |app|
 
   case Settings.selenium_settings[:browser]
 
-    
+
   when 'chrome'
-   
+
    # !! Untested !!
-   
+
     # caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {"binary" => <path to chrome (example: chrome portable)>})
     # Capybara::Selenium::Driver.new(app, :browser => :chrome, :driver_path => <path to chrome driver>, :desired_capabilities => caps)
 
     # https://github.com/seleniumhq/selenium-google-code-issue-archive/issues/5929
     prefs = {
       'download' => {
-        'prompt_for_download' => false, 
-        'directory_upgrade' => true, 
+        'prompt_for_download' => false,
+        'directory_upgrade' => true,
         'default_directory' => ::Features::Downloads::PATH.to_s
       }
     }
 
     Capybara::Selenium::Driver.new(
-      app, 
-      browser: :chrome, 
+      app,
+      browser: :chrome,
       prefs: prefs,
     )
 
@@ -50,26 +50,26 @@ Capybara.register_driver :selenium do |app|
 
   when 'firefox'
     # https://github.com/SeleniumHQ/selenium/wiki/Ruby-Bindings#Tweaking_Firefox_preferences.md
-    # 
+    #
     # update config/application_settings test should look _LIKE_ (YRMV):
     #
-    #  test: 
-    #    selenium:                             
+    #  test:
+    #    selenium:
     #      browser: 'firefox'
-    #      firefox_binary_path: '/usr/local/bin/firefox/Firefox.app/Contents/MacOS/firefox'    
+    #      firefox_binary_path: '/usr/local/bin/firefox/Firefox.app/Contents/MacOS/firefox'
 
     geckodriver = which('geckodriver')
     raise Rainbow('Please install geckodriver to run browser tests.').purple if geckodriver.blank?
 
     p = Settings.selenium_settings[:firefox_binary_path]
-    if p 
+    if p
       Selenium::WebDriver::Firefox::Binary.path = p
-    end 
+    end
 
     profile = Selenium::WebDriver::Firefox::Profile.new
 
     #  https://forum.shakacode.com/t/how-to-test-file-downloads-with-capybara/347
-    profile["browser.download.dir"] = ::Features::Downloads::PATH.to_s
+    profile['browser.download.dir'] = ::Features::Downloads::PATH.to_s
     profile['browser.download.folderList'] = 2
     profile['browser.helperApps.alwaysAsk.force'] = false
     profile['browser.download.manager.showWhenStarting'] = false
@@ -79,8 +79,8 @@ Capybara.register_driver :selenium do |app|
     options.profile = profile
 
     Capybara::Selenium::Driver.new(
-      app, 
-      browser: :firefox, 
+      app,
+      browser: :firefox,
       options: options,
       driver_path: geckodriver
     )
