@@ -42,7 +42,7 @@
               <save-combination 
                 @success="reset()"
                 @processing="saving = $event" 
-                @save="setNewCombination($event)" 
+                @save="setSavedCombination($event)" 
                 ref="saveButton"
                 :new-combination="newCombination">
               </save-combination>
@@ -121,7 +121,8 @@
           component.expandList();
         })
       },
-      setNewCombination(combination) {
+      setSavedCombination(combination) {
+        this.$emit('save', combination);
         this.newCombination = combination;
       },
       createNewCombination() {

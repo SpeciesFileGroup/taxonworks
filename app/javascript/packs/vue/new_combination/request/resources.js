@@ -61,9 +61,14 @@ const UpdateCombination = function(id, combination) {
   return ajaxCall('patch', `/combinations/${id}.json`, combination);
 }
 
+const DestroyCombination = function(id) {
+  return ajaxCall('delete', `/combinations/${id}.json`);
+}
+
 export {
   GetParse,
   GetLastCombinations,
   UpdateCombination,
-  CreateCombination
+  CreateCombination,
+  DestroyCombination
 }

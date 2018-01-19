@@ -3,12 +3,14 @@
 		<h1>New combination</h1>
 		<div class="panel content new-combination-box separate-bottom">
 		    <input-search 
+		    	ref="inputSearch"
 		    	placeholder="Type a new combination (names should already exist)."
 		    	@onTaxonName="setTaxon">
 		    </input-search>
 		</div>
 		<new-combination 
 			class="separate-top"
+			@save="resetInput()"
 			@onSearchStart="searching = true"
 			@onSearchEnd="searching = false"
 			:taxon-name="taxon">
@@ -18,6 +20,7 @@
 			:list="combinations"
 			:edit="true"
 			:annotator="true"
+			@delete="deleteCombination"
 			label="object_tag">
 		</display-list>
 	</div>
@@ -28,7 +31,7 @@
 	import inputSearch from './components/inputSearch.vue';
 	import displayList from '../components/displayList.vue';
 
-	import { GetLastCombinations } from './request/resources';
+	import { GetLastCombinations, DestroyCombination } from './request/resources';
 
 	export default {
 		components: {
@@ -51,6 +54,17 @@
 		methods: {
 			setTaxon(event) {
 				this.taxon = event;
+			},
+			resetInput() {
+				this.$refs.inputSearch.reset()
+			},
+			deleteCombination(combination) {
+				DestroyCombination(combination.id).then(() => {
+					this.combinations.splice(this.combinations.findIndex((item) => {
+						return item.id == combination.id
+					}), 1);
+					TW.workbench.alert.create('Combination was successfully deleted.', 'notice');
+				})
 			}
 		}
 	}
