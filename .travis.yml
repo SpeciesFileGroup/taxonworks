@@ -20,7 +20,7 @@ branches:
     - development
     - taxon_name_task
 addons:
-  postgresql: "9.5"
+#  postgresql: "9.5"
   firefox: "latest"
 before_install:
   - sudo locale-gen $LOCALE && sudo update-locale LC_NUMERIC=$LOCALE && sudo update-locale LC_TIME=$LOCALE && source /etc/default/locale 
