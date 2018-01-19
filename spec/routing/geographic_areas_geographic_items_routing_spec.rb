@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe GeographicAreasGeographicItemsController, :type => :routing do
+describe GeographicAreasGeographicItemsController, type: :routing do
   describe 'routing' do
 
     it 'routes to #new' do
@@ -8,7 +8,7 @@ describe GeographicAreasGeographicItemsController, :type => :routing do
     end
 
     it 'routes to #edit' do
-      expect(get('/geographic_areas_geographic_items/1/edit')).to route_to('geographic_areas_geographic_items#edit', :id => '1')
+      expect(get('/geographic_areas_geographic_items/1/edit')).to route_to('geographic_areas_geographic_items#edit', id: '1')
     end
 
     it 'routes to #create' do
@@ -16,11 +16,11 @@ describe GeographicAreasGeographicItemsController, :type => :routing do
     end
 
     it 'routes to #update' do
-      expect(put('/geographic_areas_geographic_items/1')).to route_to('geographic_areas_geographic_items#update', :id => '1')
+      expect(put('/geographic_areas_geographic_items/1')).to route_to('geographic_areas_geographic_items#update', id: '1')
     end
 
     it 'routes to #destroy' do
-      expect(delete('/geographic_areas_geographic_items/1')).to route_to('geographic_areas_geographic_items#destroy', :id => '1')
+      expect(delete('/geographic_areas_geographic_items/1')).to route_to('geographic_areas_geographic_items#destroy', id: '1')
     end
 
   end
