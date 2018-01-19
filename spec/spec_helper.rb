@@ -17,7 +17,7 @@
 RSpec.configure do |config|
 
   # The settings below are suggested to provide a good initial experience
-# with RSpec, but feel free to customize to your heart's content.
+  # with RSpec, but feel free to customize to your heart's content.
 =begin
   # These two settings work together to allow you to limit a spec run
   # to individual examples or groups you care about by tagging them with
@@ -63,8 +63,8 @@ RSpec.configure do |config|
 =end
 
   config.infer_spec_type_from_file_location!
-  config.use_transactional_fixtures = false
-  config.infer_base_class_for_anonymous_controllers = false 
+  config.use_transactional_fixtures                 = false
+  config.infer_base_class_for_anonymous_controllers = false
 
   if config.files_to_run.one?
     # Use the documentation formatter for detailed output,
@@ -76,21 +76,21 @@ RSpec.configure do |config|
   # TaxonWorks tests suites
   #
   # Tests that check/test the testing framework itself
-  # are to be disabled by default.  
+  # are to be disabled by default.
 
   test_excludes = {}
 
-  # Tests that check validitify of factories 
+  # Tests that check validitify of factories
   unless ENV['TAXONWORKS_TEST_LINTING']
-    test_excludes.merge!(lint: true)  
+    test_excludes.merge!(lint: true)
   end
 
   # Tests that require a specific screen resolution to work no .travis
   # unless ENV['TAXONWORKS_TEST_RESOLUTION']
-  #   test_excludes.merge!(resolution: true)  
+  #   test_excludes.merge!(resolution: true)
   # end
 
-  config.filter_run_excluding test_excludes 
+  config.filter_run_excluding test_excludes
 
   # Print the 10 slowest examples and example groups at the
   # end of the spec run, to help surface which specs are running
@@ -99,9 +99,9 @@ RSpec.configure do |config|
 
   config.before(:suite) do
     DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys))
-        
-    ApplicationRecord.connection.select_all("SELECT PostGIS_version() v").first['v'] =~ /(\d+.\d+)/
-    PSQL_VERSION = $1.to_f 
+
+    ApplicationRecord.connection.select_all('SELECT PostGIS_version() v').first['v'] =~ /(\d+.\d+)/
+    PSQL_VERSION = $1.to_f
   end
 
   config.after(:suite) do
@@ -113,10 +113,10 @@ RSpec.configure do |config|
     DatabaseCleaner.strategy = :transaction
   end
 
-  # Capybara requires truncation strategy!! 
+  # Capybara requires truncation strategy!!
   config.before(:each, js: true) do
-    Capybara.current_driver = Capybara.javascript_driver
-    DatabaseCleaner.strategy = :truncation, { except: %w(spatial_ref_sys) }
+    Capybara.current_driver  = Capybara.javascript_driver
+    DatabaseCleaner.strategy = :truncation, {except: %w(spatial_ref_sys)}
     Features::Downloads.clear_downloads
   end
 
@@ -131,7 +131,7 @@ RSpec.configure do |config|
 
   config.after(:each) do
     DatabaseCleaner.clean
-  end 
+  end
 
 
 end
