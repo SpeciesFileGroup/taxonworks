@@ -1,8 +1,8 @@
 require 'rails_helper'
-      
+
 Dir[Rails.root.to_s + '/app/models/taxon_name_classification/**/*.rb'].each {
-  |file| require_dependency(file) 
-} 
+  |file| require_dependency(file)
+}
 
 describe TaxonNameClassification, type: :model do
 
@@ -38,15 +38,15 @@ describe TaxonNameClassification, type: :model do
     end
   end
 
-  context "validation" do
-    context "requires" do
-      before { taxon_name_classification.valid? } 
+  context 'validation' do
+    context 'requires' do
+      before { taxon_name_classification.valid? }
 
-      specify "taxon_name" do
+      specify 'taxon_name' do
         expect(taxon_name_classification.errors.include?(:taxon_name)).to be_truthy
       end
 
-      specify "type" do
+      specify 'type' do
         expect(taxon_name_classification.errors.include?(:type)).to be_truthy
       end
 
@@ -83,17 +83,17 @@ describe TaxonNameClassification, type: :model do
         taxon_name_classification.taxon_name = g
         taxon_name_classification.type_class = 'TaxonNameClassification::Icn::Fossil'
         expect(taxon_name_classification.valid?).to be_falsey
-        msg = "Taxon name <i>Aus</i> belongs to iczn nomenclatural code, but the status used from icn nomenclature code"
+        msg = 'Taxon name <i>Aus</i> belongs to iczn nomenclatural code, but the status used from icn nomenclature code'
         expect(taxon_name_classification.errors.full_messages.include?(msg)).to be_truthy
       end
     end
 
-    context "validate type" do
-      specify "an invalid type" do
+    context 'validate type' do
+      specify 'an invalid type' do
         expect { FactoryBot.build(:taxon_name_classification, type: 'aaa') }.to raise_error ActiveRecord::SubclassNotFound
       end
 
-      specify "another invalid type" do
+      specify 'another invalid type' do
         c = FactoryBot.build(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
         c.valid?
         expect(c.errors.include?(:type)).to be_falsey
@@ -142,7 +142,7 @@ describe TaxonNameClassification, type: :model do
     end
   end
 
- context "soft_validation" do
+ context 'soft_validation' do
     before(:each) do
       TaxonName.delete_all
       TaxonNameClassification.delete_all
@@ -151,17 +151,17 @@ describe TaxonNameClassification, type: :model do
       @family = @species.ancestor_at_rank('family')
     end
 
-    specify "applicable type and year" do
+    specify 'applicable type and year' do
      c = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
      c.soft_validate(:proper_classification)
      expect(c.soft_validations.messages_on(:type).empty?).to be_truthy
    end
-    specify "unapplicable type" do
+    specify 'unapplicable type' do
       c = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::NotFromGenusName')
       c.soft_validate(:proper_classification)
       expect(c.soft_validations.messages_on(:type).size).to eq(1)
     end
-    specify "unapplicable year" do
+    specify 'unapplicable year' do
       c = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::ElectronicPublicationNotInPdfFormat')
       c.soft_validate(:proper_classification)
       expect(c.soft_validations.messages_on(:type).size).to eq(1)
@@ -169,7 +169,7 @@ describe TaxonNameClassification, type: :model do
     specify 'disjoint classes' do
       g = FactoryBot.create(:iczn_genus, parent: @family)
       s = FactoryBot.create(:iczn_species, parent: g)
-      r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+      _r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       c1 = FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable')
       c2 = FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Available::OfficialListOfGenericNamesInZoology')
       c1.soft_validate(:validate_disjoint_classes)
@@ -194,5 +194,5 @@ describe TaxonNameClassification, type: :model do
   end
 
 end
- 
+
 

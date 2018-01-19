@@ -44,13 +44,13 @@ describe TaxonWorks do
     let(:m) { TaxonWorksModels::GenericModel.new }
 
     specify 'strings are converted to nil' do
-        m.string = ""
+        m.string = ''
         m.save
         expect(m.string).to eq(nil)
     end
 
     specify 'text is converted to nil' do
-      m.text = ""
+      m.text = ''
       m.save
       expect(m.text).to eq(nil)
     end

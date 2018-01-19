@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "api/v1/taxon_names/all.rabl", :type => :view do
+describe 'api/v1/taxon_names/all.rabl', type: :view do
 
   before(:all) { ProjectsAndUsers.spin_up_projects_users_and_housekeeping }
   after(:all) { ProjectsAndUsers.clean_slate }
@@ -8,11 +8,11 @@ describe "api/v1/taxon_names/all.rabl", :type => :view do
 
   let(:valid_json) {
     {
-      :id => object.id,
-      :parent_id => object.parent_id,
-      # TODO: Discuss with the group about specification strategies 
-      :rank => "species", # object.name
-      :name => "vitis" # object.rank
+      id: object.id,
+      parent_id: object.parent_id,
+      # TODO: Discuss with the group about specification strategies
+      rank: 'species', # object.name
+      name: 'vitis' # object.rank
     }.to_json
   }
 
