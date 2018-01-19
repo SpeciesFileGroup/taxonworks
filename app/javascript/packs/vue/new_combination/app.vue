@@ -10,6 +10,7 @@
 		</div>
 		<new-combination 
 			class="separate-top"
+			ref="combination"
 			@save="resetInput()"
 			@onSearchStart="searching = true"
 			@onSearchEnd="searching = false"
@@ -20,6 +21,7 @@
 			:list="combinations"
 			:edit="true"
 			:annotator="true"
+			@edit="editCombination"
 			@delete="deleteCombination"
 			label="object_tag">
 		</display-list>
@@ -29,7 +31,7 @@
 
 	import newCombination from './components/newCombination.vue';
 	import inputSearch from './components/inputSearch.vue';
-	import displayList from '../components/displayList.vue';
+	import displayList from './components/displayList.vue';
 
 	import { GetLastCombinations, DestroyCombination } from './request/resources';
 
@@ -57,6 +59,10 @@
 			},
 			resetInput() {
 				this.$refs.inputSearch.reset()
+			},
+			editCombination(combination) {
+				this.taxon = combination.name_string;
+				this.$refs.combination.setNewCombination(combination);
 			},
 			deleteCombination(combination) {
 				DestroyCombination(combination.id).then(() => {

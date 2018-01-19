@@ -91,7 +91,7 @@
     },
     watch: {
       taxonName(newVal) {
-        this.newCombination = this.createNewCombination();
+        //this.newCombination = this.createNewCombination();
         if(newVal) {
           this.$emit('onSearchStart', true);
           this.searching = true;
@@ -123,7 +123,11 @@
       },
       setSavedCombination(combination) {
         this.$emit('save', combination);
-        this.newCombination = combination;
+        this.setNewCombination(combination);
+      },
+      setNewCombination(combination) {
+        let newCombination = Object.assign({}, { id: combination.id }, combination.protonyms)
+        this.newCombination = newCombination;
       },
       createNewCombination() {
         return {
