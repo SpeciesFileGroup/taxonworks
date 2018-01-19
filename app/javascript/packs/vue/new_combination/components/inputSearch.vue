@@ -36,12 +36,15 @@
 			}
 		},
 		mounted(){
-			this.$refs.search.focus();
+			this.focusInput()
 		},
 		methods: {
 			reset() {
 				this.type = '',
 				this.sendTaxonName();
+			},
+			focusInput() {
+				this.$refs.search.focus();
 			},
 			processString(str) {
 				str = this.removeSpaces(str);

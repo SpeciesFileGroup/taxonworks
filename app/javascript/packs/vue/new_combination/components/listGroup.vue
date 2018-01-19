@@ -24,7 +24,7 @@
 				</li>
 			</ul>
 			<div class="maxheight content middle item" v-else>
-				<h3>
+				<h3 v-if="selected">
 					<b><span v-html="selected.original_combination"></span></b>
 				</h3>
 			</div>
@@ -71,21 +71,11 @@
 			}
 		},
 		watch: {
-			selected: {
-				handler(newVal) {
-					if(newVal) {
-						this.expanded = false
-					}
-					else {
-						this.expanded = true
-					}
-				},
-				immediate: true
-			},
 			list: {
 				handler(newVal) {
 					if(newVal.length == 1) {
 						this.rankChoose = newVal[0]
+						this.expanded = false
 					}
 				},
 				immediate: true
@@ -114,6 +104,7 @@
 				return newOrder;
 			},
 			selectTaxon(taxon) {
+				this.expanded = false;
 				this.$emit('onTaxonSelect', taxon)
 			},
 			setFocus() {

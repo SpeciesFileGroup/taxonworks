@@ -58,7 +58,8 @@
 				this.taxon = event;
 			},
 			resetInput() {
-				this.$refs.inputSearch.reset()
+				this.$refs.inputSearch.reset();
+				this.$refs.inputSearch.focusInput();
 			},
 			editCombination(combination) {
 				let that = this;
