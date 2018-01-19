@@ -5,6 +5,7 @@
 			@input="processString(type)" 
 			type="text" 
 			ref="search" 
+			:disabled="disabled" 
 			:placeholder="placeholder" 
 			v-model="type"/>
 		<button 
@@ -32,6 +33,7 @@
 		data: function() {
 			return {
 				type: '',
+				disabled: false,
 				timeOut: undefined
 			}
 		},
@@ -42,9 +44,13 @@
 			reset() {
 				this.type = '',
 				this.sendTaxonName();
+				this.disabledButton(false);
 			},
 			focusInput() {
 				this.$refs.search.focus();
+			},
+			disabledButton(status) {
+				this.disabled = status
 			},
 			processString(str) {
 				str = this.removeSpaces(str);

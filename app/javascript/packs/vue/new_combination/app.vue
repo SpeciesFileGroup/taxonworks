@@ -65,6 +65,7 @@
 				let that = this;
 
 				this.taxon = combination.name_string;
+				that.$refs.inputSearch.disabledButton(true);
 				setTimeout(() => {
 					that.$refs.combination.setNewCombination(combination);
 				}, 500)
