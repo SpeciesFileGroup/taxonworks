@@ -6,13 +6,13 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
     let!(:root) { Protonym.create!(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil) }
 
-    let(:family) { Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent_id: root.id) } 
+    let(:family) { Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent_id: root.id) }
 
     let(:params) {
       {
-        "name" => "Test",
-        "parent_id" => family.id,
-        "rank_class" => "NomenclaturalRank::Iczn::GenusGroup::Genus"
+        'name' => 'Test',
+        'parent_id' => family.id,
+        'rank_class' => 'NomenclaturalRank::Iczn::GenusGroup::Genus'
       }
     }
 
