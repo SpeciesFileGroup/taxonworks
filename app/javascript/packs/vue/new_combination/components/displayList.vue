@@ -1,6 +1,6 @@
 <template>
 	<transition-group class="table-entrys-list" name="list-complete" tag="ul">
-	    	<li v-for="item in list" :key="item.id" class="list-complete-item flex-separate middle" :class="{ 'highlight': checkHighlight(item) }">
+	    	<li v-for="item in list" :key="item.id" class="list-complete-item flex-separate middle">
 			    <a :href="`/tasks/nomenclature/browse/${item.id}`" target="_blank" class="list-item" v-html="displayName(item)"></a>
 			    <div class="list-controls">
 			    	<radial-annotator v-if="annotator" :globalId="item.global_id"></radial-annotator>	
@@ -33,10 +33,6 @@
 			annotator: {
 				type: Boolean
 			},
-			highlight: {
-				type: Object,
-				default: undefined
-			}
 		},
 		methods: {
 			displayName(item) {
@@ -51,17 +47,6 @@
 					return tmp;
 				}
 			},
-			checkHighlight(item) {
-				if(this.highlight) {
-					if(this.highlight.key) {
-						return item[this.highlight.key] == this.highlight.value
-					}
-					else {
-						return item == this.highlight.value
-					}
-				}
-				return false
-			}
 		}
 	}
 </script>
@@ -77,16 +62,10 @@
 	 	}
 	}
 
-	.highlight {
-		background-color: #E3E8E3;
-	}
-
 	.list-item {
-		white-space: normal;
-		a {
-			padding-left: 4px;
-			padding-right: 4px;
-		}
+		text-decoration: none;
+		padding-left: 4px;
+		padding-right: 4px;		
 	}
 	.table-entrys-list {
 		overflow-y: scroll;
