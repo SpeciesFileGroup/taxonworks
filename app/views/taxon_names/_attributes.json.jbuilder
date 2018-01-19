@@ -51,5 +51,3 @@ unless taxon_name.is_a?(Combination)
 end
 
 json.original_combination full_original_taxon_name_tag(taxon_name)
-
-
