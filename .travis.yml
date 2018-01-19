@@ -9,8 +9,8 @@ sudo: required
 rvm:
   - 2.4.3
 env:
-  - LOCALE=en_AR.UTF-8 # Middle-endian date format
-  - LOCALE=es_US.UTF-8 # Little-endian date format
+  - LOCALE=es_AR.UTF-8 # Middle-endian date format
+  - LOCALE=en_US.UTF-8 # Little-endian date format
   - LOCALE=zh_TW.UTF-8 # Big-endian date format
 bundler_args: --without development
 branches:
@@ -23,7 +23,7 @@ addons:
   postgresql: "9.5"
   firefox: "latest"
 before_install:
-  - locale-gen $LOCALE && update-locale LC_NUMERIC=$LOCALE && update-locale LC_TIME=$LOCALE && source /etc/default/locale 
+  - sudo locale-gen $LOCALE && sudo update-locale LC_NUMERIC=$LOCALE && sudo update-locale LC_TIME=$LOCALE && source /etc/default/locale 
   - sudo apt-get install -y postgresql-9.5 postgresql-contrib-9.5 libgeos-dev libproj-dev postgresql-9.5-postgis-2.2 postgresql-9.5-postgis-2.2-scripts
   - nvm install node
   - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.0.2
