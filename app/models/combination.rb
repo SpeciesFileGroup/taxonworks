@@ -1,7 +1,7 @@
-# A {Combination} has no name, it exists to group related Protonyms into an epithet.
-#
 # A nomenclator name, composed of existing {Protonym}s. Each record reflects the subsequent use of two or more protonyms.  
-# Only the first use of a combination is stored here, subsequence uses of this combination are referenced in citations. 
+# Only the first use of a combination is stored here, subsequence uses of this combination are referenced in Citations. 
+#
+# A {Combination} has no name, it exists to group related Protonyms into an epithet.
 #
 # They are applicable to genus group names and finer epithets.
 #
@@ -26,6 +26,9 @@
 #   c.species_id = Protonym.find(some_species_id).id
 # or
 #   c.species = Protonym.find(some_species_id)
+#
+# Combinations are composed of TaxonNameRelationships.  In those relationship the Combination#id is always the `object_taxon_name_id`, the
+# individual Protonyms are stored in `subject_taxon_name_id`.
 #
 # @!attribute combination_verbatim_name 
 #   Use with caution, and sparingly! If the combination of values from Protonyms can not reflect the formulation of the combination as provided by the original author that string can be provided here.
@@ -56,15 +59,17 @@ class Combination < TaxonName
 
   before_validation :set_parent
 
+  # Overwritten here 
+  has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', 
+    foreign_key: :object_taxon_name_id, 
+    inverse_of: :object_taxon_name, 
+    dependent: :destroy
+
   has_many :combination_relationships, -> {
     joins(:taxon_name_relationships)
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Combination::%'")
-  }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
-
-  has_many :combination_relationships_as_subject, -> {
-    joins(:taxon_name_relationships)
-    where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Combination::%'")
-  }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
+  }, class_name: 'TaxonNameRelationship', 
+  foreign_key: :object_taxon_name_id
 
   has_many :combination_taxon_names, through: :combination_relationships, source: :subject_taxon_name
 
@@ -148,10 +153,10 @@ class Combination < TaxonName
   # @return [Array of TaxonName]
   #   pre-ordered by rank 
   def protonyms 
-    if self.new_record?
+    if new_record?
       protonyms_by_association
     else
-      self.combination_taxon_names.sort{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string)}  # .ordered_by_rank
+      combination_taxon_names.sort{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string)}  # .ordered_by_rank
     end
   end
 

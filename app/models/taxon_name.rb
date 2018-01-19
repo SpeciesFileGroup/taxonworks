@@ -180,6 +180,8 @@ class TaxonName < ApplicationRecord
 
   validates_presence_of :type, message: 'is not specified'
 
+  # TODO: move some of these down to Protonym when they don't apply to Combination
+  
   # TODO: think of a different name, and test
   has_many :historical_taxon_names, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
 

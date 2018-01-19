@@ -139,13 +139,6 @@ describe Combination, type: :model, group: :nomenclature do
       end
     end
 
-#    specify '#source_classified_as' do
-#      basic_combination.source_classified_as = family
-#      expect(basic_combination.save).to be_truthy
-#      expect(basic_combination.all_taxon_name_relationships.count).to be > 0
-#      expect(basic_combination.reload.cached_classified_as).to eq(' (as Aidae)')
-#    end
-
     specify '#earliest_protonym_year' do
       basic_combination.subspecies = species2 # 1952 ( with genus 1950, species 1951)
       expect(basic_combination.earliest_protonym_year).to eq(1950)
@@ -203,7 +196,16 @@ describe Combination, type: :model, group: :nomenclature do
       expect(species.cached_valid_taxon_name_id).to eq(species.id)
       expect(combination.cached_valid_taxon_name_id).to eq(species.id)
     end
+  end
 
+  context '#destroy' do
+    before do
+      basic_combination.save
+    end
+
+    specify 'works' do
+      expect(basic_combination.destroy).to be_truthy
+    end
 
   end
 
@@ -214,10 +216,7 @@ describe Combination, type: :model, group: :nomenclature do
 
     specify 'missing source and year' do
       combination.soft_validate(:missing_fields)
-
-      # expect(combination.soft_validations.messages_on(:source_id).empty?).to be_falsey
       expect(combination.soft_validations.messages_on(:base).empty?).to be_falsey
-      
       expect(combination.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
     end
 
