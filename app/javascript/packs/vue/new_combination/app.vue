@@ -61,8 +61,12 @@
 				this.$refs.inputSearch.reset()
 			},
 			editCombination(combination) {
+				let that = this;
+
 				this.taxon = combination.name_string;
-				this.$refs.combination.setNewCombination(combination);
+				setTimeout(() => {
+					that.$refs.combination.setNewCombination(combination);
+				}, 500)
 			},
 			deleteCombination(combination) {
 				DestroyCombination(combination.id).then(() => {

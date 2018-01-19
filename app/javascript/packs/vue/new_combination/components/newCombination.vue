@@ -91,7 +91,7 @@
     },
     watch: {
       taxonName(newVal) {
-        //this.newCombination = this.createNewCombination();
+        this.newCombination = this.createNewCombination();
         if(newVal) {
           this.$emit('onSearchStart', true);
           this.searching = true;
