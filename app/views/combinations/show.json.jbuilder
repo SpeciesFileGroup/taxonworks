@@ -1,2 +1,2 @@
-json.partial! '/combinations/attributes', taxon_name: @combination
+json.partial! '/combinations/attributes', combination: @combination
 
