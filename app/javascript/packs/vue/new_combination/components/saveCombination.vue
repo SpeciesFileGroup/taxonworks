@@ -1,6 +1,7 @@
 <template>
 	<button 
 		type="button" 
+		ref="saveButton"
 		:disabled="!validateCreate()" 
 		class="button normal-input button-submit create-new-combination" 
 		@click="(newCombination.hasOwnProperty('id') ? update(newCombination.id) : create())">
@@ -21,6 +22,9 @@
 		methods: {
 			validateCreate() {
 				return (this.newCombination.genus && this.newCombination.species)
+			},
+			setFocus: function() {
+				this.$refs.saveButton.focus();
 			},
 			createRecordCombination() {
 				let keys = Object.keys(this.newCombination);

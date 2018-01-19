@@ -13,6 +13,7 @@
 			@onSearchEnd="searching = false"
 			:taxon-name="taxon">
 		</new-combination>
+		<h3>Recent</h3>
 		<display-list
 			:list="combinations"
 			:edit="true"

@@ -32,8 +32,9 @@
                 @onTaxonSelect="newCombination[key] = $event" 
                 :selected="newCombination[key]" 
                 :rank-name="key" 
+                :parseString="parseRanks[key]"
                 :list="list"
-                v-if="list.length">
+                v-if="parseRanks[key]">
               </list-group>
             </div>
 
@@ -42,6 +43,7 @@
                 @success="reset()"
                 @processing="saving = $event" 
                 @save="setNewCombination($event)" 
+                ref="saveButton"
                 :new-combination="newCombination">
               </save-combination>
             </div>
@@ -81,6 +83,7 @@
     data: function() {
       return {
         rankLists: {},
+        parseRanks: {},
         searching: false,
         saving: false,
         newCombination: this.createNewCombination()
@@ -94,8 +97,12 @@
           this.searching = true;
           GetParse(newVal).then(response => {
             this.$emit('onSearchEnd', true);
-            this.rankLists = response;
+            this.rankLists = response.data.protonyms;
+            this.parseRanks = response.data.parse;
             this.searching = false;
+            if(response.data.unambiguous) {
+              this.$refs.saveButton.setFocus();
+            }
           })
         }
         else {
@@ -107,6 +114,7 @@
       reset() {
         this.newCombination = this.createNewCombination();
         this.rankLists = {};
+        this.parseRanks = {};
       },
       expandAll() {
         this.$refs.listGroup.forEach(component => {

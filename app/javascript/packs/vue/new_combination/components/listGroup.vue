@@ -5,28 +5,35 @@
 				<span class="capitalize">{{ rankName }}</span>
 			</h3>
 		</div>
-		<ul v-if="expanded">
-			<li class="no_bullets" v-for="taxon in inOrder(list)">
-				<label class="middle new-combination-rank-list-label"
-					@mousedown="rankChoose = taxon" >
-					<input 
-						ref="rankRadio"
-						:name="`new-combination-rank-list-${rankName}`" 
-						@keyup.enter="rankChoose = taxon"
-						class="new-combination-rank-list-input" type="radio" 
-						:checked="checkRankSelected(taxon)" :value="taxon">
-					<span 
-						class="new-combination-rank-list-taxon-name" 
-						v-html="taxon.original_combination">
-					</span>
-				</label>
-			</li>
-		</ul>
-		<div class="maxheight content middle item" v-else>
-			<h3>
-				<b><span v-html="selected.original_combination"></span></b>
-			</h3>
-		</div>
+		<template v-if="list.length">
+			<ul v-if="expanded">
+				<li class="no_bullets" v-for="taxon in inOrder(list)">
+					<label class="middle new-combination-rank-list-label"
+						@mousedown="rankChoose = taxon" >
+						<input 
+							ref="rankRadio"
+							:name="`new-combination-rank-list-${rankName}`" 
+							@keyup.enter="rankChoose = taxon"
+							class="new-combination-rank-list-input" type="radio" 
+							:checked="checkRankSelected(taxon)" :value="taxon">
+						<span 
+							class="new-combination-rank-list-taxon-name" 
+							v-html="taxon.original_combination">
+						</span>
+					</label>
+				</li>
+			</ul>
+			<div class="maxheight content middle item" v-else>
+				<h3>
+					<b><span v-html="selected.original_combination"></span></b>
+				</h3>
+			</div>
+		</template>
+		<template v-else>
+			<div class="maxheight content middle item">
+				<h3>{{ parseString }} not found</h3>
+			</div>
+		</template>
 	</div>
 </template>
 <script>
@@ -38,6 +45,9 @@
 				required: true
 			},
 			rankName: {
+				type: String
+			},
+			parseString: {
 				type: String
 			},
 			selected: {
