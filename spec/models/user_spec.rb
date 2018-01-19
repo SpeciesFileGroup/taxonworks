@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe User, :type => :model do
+describe User, type: :model do
 
   let(:user) { User.new(password:              'password',
                         password_confirmation: 'password',
@@ -12,11 +12,11 @@ describe User, :type => :model do
   context 'associations' do
     context 'has_many' do
       specify 'projects' do
-        expect(user.projects << Project.new()).to be_truthy
+        expect(user.projects << Project.new).to be_truthy
       end
 
       specify 'pinboard_items' do
-        expect(user.pinboard_items << PinboardItem.new()).to be_truthy
+        expect(user.pinboard_items << PinboardItem.new).to be_truthy
       end
     end
   end
@@ -167,7 +167,7 @@ describe User, :type => :model do
       expect(user.password_reset_token).to be_nil
     end
 
-    include_examples "random_token_methods" do
+    include_examples 'random_token_methods' do
       let(:token_name) { :password_reset }
     end
   end
