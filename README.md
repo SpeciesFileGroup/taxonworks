@@ -9,15 +9,15 @@
 
 ## Overview
 
-To get a general overview on the project, its vision, and scope see [taxonworks.org](http://taxonworks.org).  
+To get a general overview on the project, its vision, and scope see [taxonworks.org][9].  Documentation for TaxonWorks exists in companion repositories [taxonworks_doc][13], [taxonworks_api][12], [install_taxonworks][11] and websites ([code documentation][10]).
+
+## Learn more, collaborate
+
+To learn more about using and collaborating with the TaxonWorks community see [taxonworks_doc][13].
 
 ## Installation
 
 Instructions for installing TaxonWorks for development and production use, and notes on development tools are available in at [install_taxonworks][11]. 
-
-## Learn more, collaborate
-
-To learn more about using and collaborating with the TaxonWorks community see [taxonworks_doc](https://github.com/SpeciesFileGroup/taxonworks_doc).
 
 ## License
 
@@ -36,7 +36,8 @@ The foundation of TaxonWorks is funded by an endowment of the Species File Group
 [9]: http://taxonworks.org
 [10]: http://rdoc.taxonworks.org/frames
 [11]: https://github.com/SpeciesFileGroup/install_taxonworks
-[12]: http://rdoc.info/gems/yard/file/docs/Tags.md
+[12]: https://github.com/SpeciesFileGroup/taxonworks_api
+[13]: https://github.com/SpeciesFileGroup/taxonworks_doc
 [16]: https://opensource.org/licenses/NCSA
 [18]: https://en.wikipedia.org/wiki/University_of_Illinois/NCSA_Open_Source_License
 [19]: https://gitter.im/SpeciesFileGroup/taxonworks?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
