@@ -49,6 +49,7 @@
 			}
 		},
 		mounted: function() {
+			TW.workbench.keyboard.createLegend(((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + 's'), 'Save new combination', 'New combination');
 			GetLastCombinations().then(response => {
 				this.combinations = response;
 			})

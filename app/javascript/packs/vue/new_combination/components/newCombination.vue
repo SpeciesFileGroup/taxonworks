@@ -58,7 +58,7 @@
               @click="expandAll()" 
               :disabled="enableEdit"
               tabindex="-1" 
-              type="button"><span data-icon="reset">Edit</span>
+              type="button"><span data-icon="reset">Undo</span>
             </button>
           </div>
         </div>
