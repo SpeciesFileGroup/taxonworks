@@ -10,7 +10,6 @@
 				</i>
 				<span v-html="showAuthorCitation(searchLastExistingRank(combination))"></span>
 			</span>
-			<button class="new-combination-preview-edit normal-input" tabindex="-1" @click="setEdit" type="button">Edit</button>
 		</h3>
 	</div>
 </template>
@@ -30,9 +29,6 @@
 			},
 			showAuthorCitation(taxon) {
 				return (taxon.hasOwnProperty('origin_citation') && taxon.origin_citation.hasOwnProperty('citation_source_body') ? taxon.origin_citation.citation_source_body : undefined)
-			},
-			setEdit() {
-				this.$emit('edit', this.combination);
 			},
 			reverse(value) {
 				return Object.keys(value).splice(0).reverse()

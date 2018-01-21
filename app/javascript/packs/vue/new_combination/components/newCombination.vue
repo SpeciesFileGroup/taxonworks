@@ -20,7 +20,6 @@
         <div>
           <div v-if="!isCombinationEmpty()">
             <preview-view 
-              @edit="expandAll()" 
               :combination="newCombination.protonyms"></preview-view>
           </div>
           
@@ -54,6 +53,13 @@
               ref="saveButton"
               :new-combination="newCombination">
             </save-combination>
+            <button 
+              class="normal-input button button-default" 
+              @click="expandAll()" 
+              :disabled="enableEdit"
+              tabindex="-1" 
+              type="button"><span data-icon="reset">Edit</span>
+            </button>
           </div>
         </div>
 
@@ -84,6 +90,13 @@
       },
       combination: {
         type: Object
+      }
+    },
+    computed: {
+      enableEdit() {
+        return (Object.keys(this.rankLists).find((rank) => {
+          return this.rankLists[rank] && this.rankLists[rank].length > 1 
+        }) == undefined ? true : false)
       }
     },
     data: function() {
