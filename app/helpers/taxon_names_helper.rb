@@ -5,7 +5,7 @@ module TaxonNamesHelper
   def taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
     return taxon_name.name if taxon_name.new_record?
-    taxon_name.cached_html.html_safe || taxon_name.name
+    taxon_name.cached_html.try(:html_safe) || taxon_name.name
   end
 
   # @return [String]
