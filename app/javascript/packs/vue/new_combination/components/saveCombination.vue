@@ -21,18 +21,22 @@
 		},
 		methods: {
 			validateCreate() {
-				return (this.newCombination.genus && this.newCombination.species)
+				return (this.newCombination.protonyms.genus && this.newCombination.protonyms.species)
 			},
 			setFocus: function() {
 				this.$refs.saveButton.focus();
 			},
 			createRecordCombination() {
-				let keys = Object.keys(this.newCombination);
+				let keys = Object.keys(this.newCombination.protonyms);
 				let combination = {}
 
+				if(this.newCombination.hasOwnProperty('origin_citation_attributes')) {
+					combination['origin_citation_attributes'] = this.newCombination.origin_citation_attributes
+				}
+
 				keys.forEach((rank) => {
-					if(this.newCombination[rank]) {
-						combination[`${rank}_id`] = this.newCombination[rank].id
+					if(this.newCombination.protonyms[rank]) {
+						combination[`${rank}_id`] = this.newCombination.protonyms[rank].id
 					}
 				})
 

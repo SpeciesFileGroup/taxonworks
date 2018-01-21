@@ -138,7 +138,6 @@
 		flex-direction: column;
 		.header {
 			padding: 1em;
-			padding-left: 1.5em;
 			border-bottom: 1px solid #f5f5f5;
 			h3 {
 				font-weight: 300;

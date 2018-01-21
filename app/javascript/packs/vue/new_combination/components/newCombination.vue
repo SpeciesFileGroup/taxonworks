@@ -1,59 +1,71 @@
 <template>
 	<div class="find-taxonname-picker">
-    <spinner legend="Saving new combination..." :full-screen="true" :logo-size="{ width: '100px', height: '100px'}" v-if="saving"></spinner>
+    <spinner 
+      legend="Saving new combination..." 
+      :full-screen="true" 
+      :logo-size="{ width: '100px', height: '100px'}" 
+      v-if="saving">
+    </spinner>
+    <spinner 
+      legend="Searching taxon names..." 
+      :legend-style="{ fontSize: '14px', color: '#444', textAlign: 'center', paddingTop: '20px'}" 
+      v-if="searching">
+    </spinner>
+    <div class="panel new-combination-box">
 
-    <div class="flexbox">
-      <div class="panel item new-combination-box">
-        <spinner legend="Searching taxon names..." :legend-style="{ fontSize: '14px', color: '#444', textAlign: 'center', paddingTop: '20px'}" v-if="searching"></spinner>
+      <template v-if="rankLists.hasOwnProperty('genus')">
+        <div class="header flex-separate middle" :class="{ 'header-warning': !rankLists['genus'].length }">
+          <h3>Combination</h3>
+        </div>
 
-        <template v-if="rankLists.hasOwnProperty('genus')">
-          <div class="header flex-separate middle" :class="{ 'header-warning': !rankLists['genus'].length }">
-            <h3>Combination</h3>
+        <div v-if="!rankLists['genus'].length" class="horizontal-center-content content">
+          <h3>Genus not found</h3>
+        </div>
+
+        <div v-else>
+
+          <div v-if="!isCombinationEmpty()">
+            <preview-view 
+              @edit="expandAll()" 
+              :combination="newCombination.protonyms"></preview-view>
           </div>
-
-          <div v-if="!rankLists['genus'].length" class="horizontal-center-content content">
-            <h3>Genus not found</h3>
-          </div>
-
-          <div v-else>
-
-            <div v-if="!isCombinationEmpty()">
-              <preview-view 
-                @edit="expandAll()" 
-                :combination="newCombination"></preview-view>
-            </div>
           
-            <div class="flexbox">
-              <list-group 
-                class="item"                
-                v-for="list, key in rankLists" 
-                :key="key"
-                ref="listGroup"
-                @onTaxonSelect="newCombination[key] = $event" 
-                :selected="newCombination[key]" 
-                :rank-name="key" 
-                :parseString="parseRanks[key]"
-                :list="list"
-                v-if="parseRanks[key]">
-              </list-group>
-            </div>
-
-            <div class="content">
-              <save-combination 
-                @success="reset()"
-                @processing="saving = $event" 
-                @save="setSavedCombination($event)" 
-                ref="saveButton"
-                :new-combination="newCombination">
-              </save-combination>
-            </div>
-
+          <div class="flexbox">
+            <list-group 
+              class="item"                
+              v-for="list, key in rankLists" 
+              :key="key"
+              ref="listGroup"
+              @onTaxonSelect="newCombination.protonyms[key] = $event" 
+              :selected="newCombination.protonyms[key]" 
+              :rank-name="key" 
+              :parseString="parseRanks[key]"
+              :list="list"
+              v-if="parseRanks[key]">
+            </list-group>
           </div>
-        </template>
+          <hr/>
+          <div class="content">
+            <source-picker
+              :citation="newCombination['origin_citation']"
+              @select="setSource">
+            </source-picker>
+          </div>
 
-      </div>
+          <div class="content">
+            <save-combination 
+              @success="reset()"
+              @processing="saving = $event" 
+              @save="setSavedCombination($event)" 
+              ref="saveButton"
+              :new-combination="newCombination">
+            </save-combination>
+          </div>
+
+        </div>
+      </template>
+
     </div>
-
   </div>
 </template>
 
@@ -63,11 +75,13 @@
   import listGroup from './listGroup.vue';
   import saveCombination from './saveCombination.vue';
   import previewView from './previewView.vue';
+  import sourcePicker from './sourcePicker.vue';
   import spinner from '../../components/spinner.vue';
 
   export default {
     components: {
       listGroup,
+      sourcePicker,
       saveCombination,
       previewView,
       spinner
@@ -126,22 +140,27 @@
         this.setNewCombination(combination);
       },
       setNewCombination(combination) {
-        let newCombination = Object.assign({}, { id: combination.id }, combination.protonyms)
+        let newCombination = Object.assign({}, { id: combination.id }, { origin_citation: (combination['origin_citation'] ? combination.origin_citation : undefined)}, { protonyms: combination.protonyms })
         this.newCombination = newCombination;
       },
       createNewCombination() {
         return {
-          genus: undefined,
-          subgenus: undefined,
-          species: undefined,
-          subspecies: undefined
+          protonyms: {
+            genus: undefined,
+            subgenus: undefined,
+            species: undefined,
+            subspecies: undefined
+          }
         }
+      },
+      setSource(citation) {
+        this.newCombination = Object.assign(this.newCombination, citation)
       },
       isCombinationEmpty() {
         let found = false;
 
-        for (var rank in this.newCombination) {
-          if(this.newCombination[rank]) {
+        for (var rank in this.newCombination.protonyms) {
+          if(this.newCombination.protonyms[rank]) {
             return false
           }
         }
@@ -165,5 +184,13 @@
   }
   .header-warning {
     border-left: 4px solid #ff8c00 !important;
+  }
+  hr {
+    height: 1px;
+    color: #f5f5f5;
+    background: #f5f5f5;
+    font-size: 0;
+    margin: 15px;
+    border: 0;
   }
 </style>

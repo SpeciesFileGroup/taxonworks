@@ -11,7 +11,7 @@
 		<new-combination 
 			class="separate-top"
 			ref="combination"
-			@save="resetInput()"
+			@save="resetInput(); addToList($event)"
 			@onSearchStart="searching = true"
 			@onSearchEnd="searching = false"
 			:taxon-name="taxon">
@@ -69,6 +69,17 @@
 				setTimeout(() => {
 					that.$refs.combination.setNewCombination(combination);
 				}, 500)
+			},
+			addToList(combination) {
+				let position = this.combinations.findIndex((item) => { return combination.id == item.id; });
+
+				console.log(position);
+				if(position > -1) {
+					this.$set(this.combinations, position, combination)
+				}
+				else {
+					this.combinations.push(combination);
+				}
 			},
 			deleteCombination(combination) {
 				DestroyCombination(combination.id).then(() => {
