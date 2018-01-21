@@ -10,7 +10,7 @@
 				</i>
 				<span v-html="showAuthorCitation(searchLastExistingRank(combination))"></span>
 			</span>
-			<button class="new-combination-preview-edit normal-input" @click="setEdit" type="button">Edit</button>
+			<button class="new-combination-preview-edit normal-input" tabindex="-1" @click="setEdit" type="button">Edit</button>
 		</h3>
 	</div>
 </template>

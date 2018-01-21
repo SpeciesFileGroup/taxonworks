@@ -10,12 +10,12 @@ Object.assign(TW.views.tasks.new_combination, {
 	init: function() {
 		
 		Vue.use(vueResource);
+		Vue.use(require('vue-shortkey'))
+		
 		var App = require('./app.vue').default;
-		//var store = require('./store/store.js').newStore();
 		Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
 		new Vue({
-			//store,
 		  	el: '#vue_new_combination',
 		  	render: function (createElement) {
 		  		return createElement(App);

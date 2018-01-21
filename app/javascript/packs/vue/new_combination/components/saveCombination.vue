@@ -2,9 +2,10 @@
 	<button 
 		type="button" 
 		ref="saveButton"
-		:disabled="!validateCreate()" 
+		:disabled="!validateCreate()"
+		v-shortkey="[getMacKey(), 's']" @shortkey="save()"
 		class="button normal-input button-submit create-new-combination" 
-		@click="(newCombination.hasOwnProperty('id') ? update(newCombination.id) : create())">
+		@click="save()">
 		{{ (newCombination.hasOwnProperty('id') ? 'Update' : 'Create') }}
 	</button>
 </template>
@@ -23,9 +24,17 @@
 			validateCreate() {
 				return (this.newCombination.protonyms.genus && this.newCombination.protonyms.species)
 			},
+			getMacKey: function() {
+				return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt');
+			},
 			setFocus: function() {
 				if(this.validateCreate()) {
 					this.$refs.saveButton.focus();
+				}
+			},
+			save() {
+				if(this.validateCreate()) {
+					(this.newCombination.hasOwnProperty('id') ? this.update(this.newCombination.id) : this.create())
 				}
 			},
 			createRecordCombination() {
