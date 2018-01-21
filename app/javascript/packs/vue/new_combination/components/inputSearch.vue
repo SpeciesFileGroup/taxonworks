@@ -37,7 +37,7 @@
 				timeOut: undefined
 			}
 		},
-		mounted(){
+		mounted() {
 			this.focusInput()
 		},
 		methods: {

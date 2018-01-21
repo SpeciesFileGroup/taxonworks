@@ -4,8 +4,8 @@
 			<span>
 				<i>
 					<span 
-						v-for="rank in combination" 
-						v-if="rank"> {{ rank.name }}
+						v-for="rank in reverse(combination)" 
+						v-if="combination[rank]"> {{ combination[rank].name }}
 					</span>
 				</i>
 				<span v-html="showAuthorCitation(searchLastExistingRank(combination))"></span>
@@ -24,7 +24,7 @@
 		},
 		methods: {
 			searchLastExistingRank(combination) {
-				return combination[Object.keys(combination).reverse().find((key) => {
+				return combination[Object.keys(combination).find((key) => {
 					return combination[key]
 				})]
 			},
@@ -33,6 +33,9 @@
 			},
 			setEdit() {
 				this.$emit('edit', this.combination);
+			},
+			reverse(value) {
+				return Object.keys(value).splice(0).reverse()
 			}
 		}
 	}

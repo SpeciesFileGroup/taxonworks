@@ -11,19 +11,13 @@
       :legend-style="{ fontSize: '14px', color: '#444', textAlign: 'center', paddingTop: '20px'}" 
       v-if="searching">
     </spinner>
-    <div class="panel new-combination-box">
+    <div class="panel new-combination-box" v-if="Object.keys(rankLists).length">
 
-      <template v-if="rankLists.hasOwnProperty('genus')">
-        <div class="header flex-separate middle" :class="{ 'header-warning': !rankLists['genus'].length }">
+        <div class="header flex-separate middle" :class="{ 'header-warning': !(rankLists['genus'] && rankLists['genus'].length) }">
           <h3>Combination</h3>
         </div>
 
-        <div v-if="!rankLists['genus'].length" class="horizontal-center-content content">
-          <h3>Genus not found</h3>
-        </div>
-
-        <div v-else>
-
+        <div>
           <div v-if="!isCombinationEmpty()">
             <preview-view 
               @edit="expandAll()" 
@@ -61,9 +55,7 @@
               :new-combination="newCombination">
             </save-combination>
           </div>
-
         </div>
-      </template>
 
     </div>
   </div>
@@ -107,17 +99,7 @@
       taxonName(newVal) {
         this.newCombination = this.createNewCombination();
         if(newVal) {
-          this.$emit('onSearchStart', true);
-          this.searching = true;
-          GetParse(newVal).then(response => {
-            this.$emit('onSearchEnd', true);
-            this.rankLists = response.data.protonyms;
-            this.parseRanks = response.data.parse;
-            this.searching = false;
-            if(response.data.unambiguous) {
-              this.$refs.saveButton.setFocus();
-            }
-          })
+          this.setRankList(newVal);
         }
         else {
           this.rankLists = {};
@@ -129,6 +111,25 @@
         this.newCombination = this.createNewCombination();
         this.rankLists = {};
         this.parseRanks = {};
+      },
+      setRankList(literalString) {
+        this.$emit('onSearchStart', true);
+        this.searching = true;
+        GetParse(literalString).then(response => {
+          this.$emit('onSearchEnd', true);
+          this.rankLists = response.data.protonyms;
+          this.parseRanks = response.data.parse;
+          this.searching = false;
+          this.$nextTick(() => {
+            if(response.data.unambiguous) {
+              this.$refs.saveButton.setFocus();
+            }
+          })
+        })
+      },
+      editCombination(literalString, combination) {
+        this.newCombination = combination;
+        this.setRankList(literalString);
       },
       expandAll() {
         this.$refs.listGroup.forEach(component => {
@@ -146,10 +147,10 @@
       createNewCombination() {
         return {
           protonyms: {
-            genus: undefined,
-            subgenus: undefined,
+            subspecies: undefined,
             species: undefined,
-            subspecies: undefined
+            subgenus: undefined,
+            genus: undefined
           }
         }
       },

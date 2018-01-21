@@ -62,13 +62,8 @@
 				this.$refs.inputSearch.focusInput();
 			},
 			editCombination(combination) {
-				let that = this;
-
-				this.taxon = combination.name_string;
-				that.$refs.inputSearch.disabledButton(true);
-				setTimeout(() => {
-					that.$refs.combination.setNewCombination(combination);
-				}, 500)
+				this.$refs.combination.editCombination(combination.name_string, combination);
+				this.$refs.inputSearch.disabledButton(true);
 			},
 			addToList(combination) {
 				let position = this.combinations.findIndex((item) => { return combination.id == item.id; });

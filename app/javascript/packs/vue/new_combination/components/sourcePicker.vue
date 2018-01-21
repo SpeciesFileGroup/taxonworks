@@ -60,6 +60,7 @@
 						this.pages = this.origin_citation.pages;
 						this.id = this.origin_citation.id
 						this.title = this.origin_citation.source.object_tag
+						this.sourceId = this.origin_citation.source_id
 					}
 				},
 				immediate: true

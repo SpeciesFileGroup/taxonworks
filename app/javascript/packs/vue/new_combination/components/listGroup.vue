@@ -77,6 +77,9 @@
 						this.rankChoose = newVal[0]
 						this.expanded = false
 					}
+					else {
+						this.expanded = true;
+					}
 				},
 				immediate: true
 			}
@@ -108,7 +111,7 @@
 				this.$emit('onTaxonSelect', taxon)
 			},
 			setFocus() {
-				if(this.rankRadio.length > 1) {
+				if(this.$refs.rankRadio.length > 1) {
 					if(this.selected) {
 						this.$refs.rankRadio[this.list.findIndex((taxon) => {
 							return taxon == this.selected

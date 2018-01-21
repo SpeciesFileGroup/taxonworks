@@ -24,7 +24,9 @@
 				return (this.newCombination.protonyms.genus && this.newCombination.protonyms.species)
 			},
 			setFocus: function() {
-				this.$refs.saveButton.focus();
+				if(this.validateCreate()) {
+					this.$refs.saveButton.focus();
+				}
 			},
 			createRecordCombination() {
 				let keys = Object.keys(this.newCombination.protonyms);
