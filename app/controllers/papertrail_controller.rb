@@ -34,11 +34,11 @@ class PapertrailController < ApplicationController
       end
 
       if !@object.changed?
-        flash[:notice] = "No changes made!"
+        flash[:notice] = 'No changes made!'
       elsif @object.save
-        flash[:notice] = "Successfully restored!"
+        flash[:notice] = 'Successfully restored!'
       else
-        flash[:alert] = "Unsuccessfully restored!"
+        flash[:alert] = 'Unsuccessfully restored!'
       end
 
       json_resp = { "url": papertrail_path(object_type: @object.class, object_id: @object.id) }
@@ -47,7 +47,7 @@ class PapertrailController < ApplicationController
       # type member variable since the class member variable doesn't reflect the new class
       # yet and the type is the correct one thus the link thats generated will be correct
       if ControlledVocabularyTerm > @object.class
-        json_resp["url"] = papertrail_path(object_type: @object.type, object_id: @object.id)
+        json_resp['url'] = papertrail_path(object_type: @object.type, object_id: @object.id)
       end
 
       respond_to do |format|
@@ -106,7 +106,7 @@ class PapertrailController < ApplicationController
       # If the index for version_a and version_b match it means
       # we're comparing the current version against an older one
       if(version_index_a == version_index_b)
-        @user_new = User.find(@object["created_by_id"]).name
+        @user_new = User.find(@object['created_by_id']).name
         @attributes_new = @object.attributes;
         @comparing_current = true
       end

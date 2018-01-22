@@ -56,10 +56,10 @@ module SourcesHelper
       form_for(ProjectSource.new(source_id: source.to_param, project_id: sessions_current_project_id), remote: true) do |f|
         f.hidden_field(:source_id) +
           f.hidden_field(:project_id) +
-          f.submit('Add to project', data: { 'source-to-project': source.id.to_s }, class: "button-submit") 
+          f.submit('Add to project', data: { 'source-to-project': source.id.to_s }, class: 'button-submit') 
       end
     else
-      button_to('Remove from project', project_source_path(project_source_for_source(source)), method: :delete, remote: true,  data: { 'source-to-project': source.id.to_s }, class: "button-delete") 
+      button_to('Remove from project', project_source_path(project_source_for_source(source)), method: :delete, remote: true,  data: { 'source-to-project': source.id.to_s }, class: 'button-delete') 
     end
   end
 

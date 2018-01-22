@@ -31,9 +31,9 @@ module PinboardItemsHelper
     options.push(source_document_viewer_option_tag(pinboard_item.pinned_object)) if pinboard_item.pinned_object.kind_of?(Source)
 
     content_tag(:div, class: ['pinboard-dropdown']) do
-      content_tag(:div, "", class: ['pinboard-menu-bar']) + 
-        content_tag(:div, "", class: ['pinboard-menu-bar']) + 
-        content_tag(:div, "", class: ['pinboard-menu-bar']) +
+      content_tag(:div, '', class: ['pinboard-menu-bar']) + 
+        content_tag(:div, '', class: ['pinboard-menu-bar']) + 
+        content_tag(:div, '', class: ['pinboard-menu-bar']) +
         content_tag(:div, class: [ 'itemOptions', 'pinboard-dropdown-content']) do
           options.compact.join.html_safe
         end

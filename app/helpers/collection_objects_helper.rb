@@ -7,8 +7,8 @@ module CollectionObjectsHelper
     str = [
       identifier_tag(collection_object.identifiers.first),
       taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
-    ].compact.join(" ").html_safe
-    str = collection_object.type if str == ""
+    ].compact.join(' ').html_safe
+    str = collection_object.type if str == ''
     str
   end
 

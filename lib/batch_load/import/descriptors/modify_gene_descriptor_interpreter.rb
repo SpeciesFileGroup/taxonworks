@@ -21,7 +21,7 @@ module BatchLoad
 
         begin # processing
           # Find gene descriptor
-          gene_name = row["gene_name"]
+          gene_name = row['gene_name']
           gene_descriptor = Descriptor::Gene.find_by(name: gene_name)
           next if gene_descriptor.blank?
 
@@ -29,12 +29,12 @@ module BatchLoad
           primers_logic = { "forward_primers": [], "reverse_primers": [] }
 
           # Find each forward/reverse primers and store their gene attribute logic
-          ["forward_primers", "reverse_primers"].each do |primer_type|
+          ['forward_primers', 'reverse_primers'].each do |primer_type|
             primers = row[primer_type]
             next if primers.blank?
-            sequence_relationship_type = "SequenceRelationship::" + primer_type.singularize.camelize
+            sequence_relationship_type = 'SequenceRelationship::' + primer_type.singularize.camelize
 
-            primers.split(", ").each do |primer_name|
+            primers.split(', ').each do |primer_name|
               primer_sequence = Sequence.with_any_value_for(:name, primer_name).take
               next if primer_sequence.blank?
               
@@ -45,10 +45,10 @@ module BatchLoad
             end
           end
 
-          gene_descriptor_logic = ""
-          gene_descriptor_logic += "(" + primers_logic[:forward_primers].join(" OR ") + ")"
-          gene_descriptor_logic += " AND "
-          gene_descriptor_logic += "(" + primers_logic[:reverse_primers].join(" OR ") + ")"
+          gene_descriptor_logic = ''
+          gene_descriptor_logic += '(' + primers_logic[:forward_primers].join(' OR ') + ')'
+          gene_descriptor_logic += ' AND '
+          gene_descriptor_logic += '(' + primers_logic[:reverse_primers].join(' OR ') + ')'
           gene_descriptor.gene_attribute_logic = gene_descriptor_logic
           parse_result.objects[:descriptor].push(gene_descriptor)
           @total_data_lines += 1
