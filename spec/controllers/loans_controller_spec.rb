@@ -57,7 +57,7 @@ describe LoansController, type: :controller do
   describe 'GET show' do
     it 'assigns the requested loan as @loan' do
       loan = Loan.create! valid_attributes
-      get :show, params: {:id => loan.to_param}, session: valid_session
+      get :show, params: {id: loan.to_param}, session: valid_session
       expect(assigns(:loan)).to eq(loan)
     end
   end

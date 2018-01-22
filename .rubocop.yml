@@ -2,6 +2,7 @@ inherit_from: .rubocop_todo.yml
 
 # Documentation: http://www.rubydoc.info/gems/rubocop
 AllCops:
+  TargetRubyVersion: 2.4
   DisabledByDefault: true
   Include:
     - '**/Rakefile'
@@ -31,7 +32,7 @@ Style/StringLiterals:
 Style/HashSyntax:
   Enabled: true
   EnforcedStyle: ruby19
-  AutoCorrect: false
+#  AutoCorrect: false
 
 Metrics/MethodLength:
   Enabled: true

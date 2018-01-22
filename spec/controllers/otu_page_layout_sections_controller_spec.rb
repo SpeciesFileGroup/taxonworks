@@ -61,14 +61,14 @@ describe OtuPageLayoutSectionsController, type: :controller do
       it 'assigns a newly created but unsaved otu_page_layout_section as @otu_page_layout_section' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(OtuPageLayoutSection).to receive(:save).and_return(false)
-        post :create, params: {otu_page_layout_section: {:invalid => 'parms'}}, session: valid_session
+        post :create, params: {otu_page_layout_section: {invalid: 'parms'}}, session: valid_session
         expect(assigns(:otu_page_layout_section)).to be_a_new(OtuPageLayoutSection)
       end
 
       it 're-renders the :back template' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(OtuPageLayoutSection).to receive(:save).and_return(false)
-        post :create, params: {otu_page_layout_section: {:invalid => 'parms'}}, session: valid_session
+        post :create, params: {otu_page_layout_section: {invalid: 'parms'}}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
@@ -107,7 +107,7 @@ describe OtuPageLayoutSectionsController, type: :controller do
         otu_page_layout_section = OtuPageLayoutSection.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(OtuPageLayoutSection).to receive(:save).and_return(false)
-        put :update, params: {id: otu_page_layout_section.to_param, otu_page_layout_section: {:invalid => 'parms'}}, session: valid_session
+        put :update, params: {id: otu_page_layout_section.to_param, otu_page_layout_section: {invalid: 'parms'}}, session: valid_session
         expect(assigns(:otu_page_layout_section)).to eq(otu_page_layout_section)
       end
 
@@ -115,7 +115,7 @@ describe OtuPageLayoutSectionsController, type: :controller do
         otu_page_layout_section = OtuPageLayoutSection.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(OtuPageLayoutSection).to receive(:save).and_return(false)
-        put :update, params: {id: otu_page_layout_section.to_param, otu_page_layout_section: {:invalid => 'parms'}}, session: valid_session
+        put :update, params: {id: otu_page_layout_section.to_param, otu_page_layout_section: {invalid: 'parms'}}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end

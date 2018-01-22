@@ -88,14 +88,14 @@ describe OtuPageLayoutsController, type: :controller do
       it 'assigns a newly created but unsaved otu_page_layout as @otu_page_layout' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(OtuPageLayout).to receive(:save).and_return(false)
-        post :create, params: {otu_page_layout: {:invalid => 'parms'}}, session: valid_session
+        post :create, params: {otu_page_layout: {invalid: 'parms'}}, session: valid_session
         expect(assigns(:otu_page_layout)).to be_a_new(OtuPageLayout)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(OtuPageLayout).to receive(:save).and_return(false)
-        post :create, params: {otu_page_layout: {:invalid => 'parms'}}, session: valid_session
+        post :create, params: {otu_page_layout: {invalid: 'parms'}}, session: valid_session
         expect(response).to render_template('new')
       end
     end
@@ -132,7 +132,7 @@ describe OtuPageLayoutsController, type: :controller do
         otu_page_layout = OtuPageLayout.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(OtuPageLayout).to receive(:save).and_return(false)
-        put :update, params: {id: otu_page_layout.to_param, otu_page_layout: {:invalid => 'parms'}}, session: valid_session
+        put :update, params: {id: otu_page_layout.to_param, otu_page_layout: {invalid: 'parms'}}, session: valid_session
         expect(assigns(:otu_page_layout)).to eq(otu_page_layout)
       end
 
@@ -140,7 +140,7 @@ describe OtuPageLayoutsController, type: :controller do
         otu_page_layout = OtuPageLayout.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(OtuPageLayout).to receive(:save).and_return(false)
-        put :update, params: {id: otu_page_layout.to_param, otu_page_layout: {:invalid => 'parms'}}, session: valid_session
+        put :update, params: {id: otu_page_layout.to_param, otu_page_layout: {invalid: 'parms'}}, session: valid_session
         expect(response).to render_template('edit')
       end
     end

@@ -69,18 +69,18 @@ describe SerialsController, type: :controller do
     describe 'with valid params' do
       it 'creates a new Serial' do
         expect {
-          post :create, params: {:serial => valid_attributes}, session: valid_session
+          post :create, params: {serial: valid_attributes}, session: valid_session
         }.to change(Serial, :count).by(1)
       end
 
       it 'assigns a newly created serial as @serial' do
-        post :create, params: {:serial => valid_attributes}, session: valid_session
+        post :create, params: {serial: valid_attributes}, session: valid_session
         expect(assigns(:serial)).to be_a(Serial)
         expect(assigns(:serial)).to be_persisted
       end
 
       it 'redirects to the created serial' do
-        post :create, params: {:serial => valid_attributes}, session: valid_session
+        post :create, params: {serial: valid_attributes}, session: valid_session
         expect(response).to redirect_to(Serial.last)
       end
     end
@@ -89,14 +89,14 @@ describe SerialsController, type: :controller do
       it 'assigns a newly created but unsaved serial as @serial' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Serial).to receive(:save).and_return(false)
-        post :create, params: {:serial => {'name' => 'invalid value'}}, session: valid_session
+        post :create, params: {serial: {'name' => 'invalid value'}}, session: valid_session
         expect(assigns(:serial)).to be_a_new(Serial)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Serial).to receive(:save).and_return(false)
-        post :create, params: {:serial => {'name' => 'invalid value'}}, session: valid_session
+        post :create, params: {serial: {'name' => 'invalid value'}}, session: valid_session
         expect(response).to render_template('new')
       end
     end
@@ -112,18 +112,18 @@ describe SerialsController, type: :controller do
         # submitted in the request.
         update_params = ActionController::Parameters.new({'name' => 'MyString'}).permit(:name)
         expect_any_instance_of(Serial).to receive(:update).with(update_params)
-        put :update, params: {id: serial.to_param, :serial => {'name' => 'MyString'}}, session: valid_session
+        put :update, params: {id: serial.to_param, serial: {'name' => 'MyString'}}, session: valid_session
       end
 
       it 'assigns the requested serial as @serial' do
         serial = Serial.create! valid_attributes
-        put :update, params: {id: serial.to_param, :serial => valid_attributes}, session: valid_session
+        put :update, params: {id: serial.to_param, serial: valid_attributes}, session: valid_session
         expect(assigns(:serial)).to eq(serial)
       end
 
       it 'redirects to the serial' do
         serial = Serial.create! valid_attributes
-        put :update, params: {id: serial.to_param, :serial => valid_attributes}, session: valid_session
+        put :update, params: {id: serial.to_param, serial: valid_attributes}, session: valid_session
         expect(response).to redirect_to(serial)
       end
     end
@@ -133,7 +133,7 @@ describe SerialsController, type: :controller do
         serial = Serial.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Serial).to receive(:save).and_return(false)
-        put :update, params: {id: serial.to_param, :serial => {'name' => 'invalid value'}}, session: valid_session
+        put :update, params: {id: serial.to_param, serial: {'name' => 'invalid value'}}, session: valid_session
         expect(assigns(:serial)).to eq(serial)
       end
 
@@ -141,7 +141,7 @@ describe SerialsController, type: :controller do
         serial = Serial.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Serial).to receive(:save).and_return(false)
-        put :update, params: {id: serial.to_param, :serial => {'name' => 'invalid value'}}, session: valid_session
+        put :update, params: {id: serial.to_param, serial: {'name' => 'invalid value'}}, session: valid_session
         expect(response).to render_template('edit')
       end
     end

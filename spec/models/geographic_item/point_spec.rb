@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe GeographicItem::Point, type: :model, group: :geo do
   context 'that this item' do
-    let(:r2024) { FactoryBot.build(:geographic_item_point, :point => ROOM2024.as_binary) }
+    let(:r2024) { FactoryBot.build(:geographic_item_point, point: ROOM2024.as_binary) }
 
     specify 'represents a point' do
       expect(r2024.type).to eq('GeographicItem::Point')

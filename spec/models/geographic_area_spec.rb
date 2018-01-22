@@ -157,11 +157,11 @@ describe GeographicArea, type: :model, group: :geo do
     }
 
     specify 'should be able to find a country by ISO_A2' do
-      expect(GeographicArea.where(:iso_3166_a2 => 'US').first.name).to eq('United States of America')
+      expect(GeographicArea.where(iso_3166_a2: 'US').first.name).to eq('United States of America')
     end
 
     specify 'should be able to find a country by ISO_A3' do
-      expect(GeographicArea.where(:iso_3166_a3 => 'USA').first.name).to eq('United States of America')
+      expect(GeographicArea.where(iso_3166_a3: 'USA').first.name).to eq('United States of America')
     end
 
     context 'scopes/AREL' do

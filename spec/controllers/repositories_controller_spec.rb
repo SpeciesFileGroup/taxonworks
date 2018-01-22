@@ -70,18 +70,18 @@ describe RepositoriesController, type: :controller do
     describe 'with valid params' do
       it 'creates a new Repository' do
         expect {
-          post :create, params: {:repository => valid_attributes}, session: valid_session
+          post :create, params: {repository: valid_attributes}, session: valid_session
         }.to change(Repository, :count).by(1)
       end
 
       it 'assigns a newly created repository as @repository' do
-        post :create, params: {:repository => valid_attributes}, session: valid_session
+        post :create, params: {repository: valid_attributes}, session: valid_session
         expect(assigns(:repository)).to be_a(Repository)
         expect(assigns(:repository)).to be_persisted
       end
 
       it 'redirects to the created repository' do
-        post :create, params: {:repository => valid_attributes}, session: valid_session
+        post :create, params: {repository: valid_attributes}, session: valid_session
         expect(response).to redirect_to(Repository.last)
       end
     end
@@ -90,14 +90,14 @@ describe RepositoriesController, type: :controller do
       it 'assigns a newly created but unsaved repository as @repository' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Repository).to receive(:save).and_return(false)
-        post :create, params: {:repository => {'name' => 'invalid value'}}, session: valid_session
+        post :create, params: {repository: {'name' => 'invalid value'}}, session: valid_session
         expect(assigns(:repository)).to be_a_new(Repository)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Repository).to receive(:save).and_return(false)
-        post :create, params: {:repository => {'name' => 'invalid value'}}, session: valid_session
+        post :create, params: {repository: {'name' => 'invalid value'}}, session: valid_session
         expect(response).to render_template('new')
       end
     end
@@ -113,18 +113,18 @@ describe RepositoriesController, type: :controller do
         # submitted in the request.
         update_params = ActionController::Parameters.new({'name' => 'MyString'}).permit(:name)
         expect_any_instance_of(Repository).to receive(:update).with(update_params)
-        put :update, params: {id: repository.to_param, :repository => {'name' => 'MyString'}}, session: valid_session
+        put :update, params: {id: repository.to_param, repository: {'name' => 'MyString'}}, session: valid_session
       end
 
       it 'assigns the requested repository as @repository' do
         repository = Repository.create! valid_attributes
-        put :update, params: {id: repository.to_param, :repository => valid_attributes}, session: valid_session
+        put :update, params: {id: repository.to_param, repository: valid_attributes}, session: valid_session
         expect(assigns(:repository)).to eq(repository)
       end
 
       it 'redirects to the repository' do
         repository = Repository.create! valid_attributes
-        put :update, params: {id: repository.to_param, :repository => valid_attributes}, session: valid_session
+        put :update, params: {id: repository.to_param, repository: valid_attributes}, session: valid_session
         expect(response).to redirect_to(repository)
       end
     end
@@ -134,7 +134,7 @@ describe RepositoriesController, type: :controller do
         repository = Repository.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Repository).to receive(:save).and_return(false)
-        put :update, params: {id: repository.to_param, :repository => {'name' => 'invalid value'}}, session: valid_session
+        put :update, params: {id: repository.to_param, repository: {'name' => 'invalid value'}}, session: valid_session
         expect(assigns(:repository)).to eq(repository)
       end
 
@@ -142,7 +142,7 @@ describe RepositoriesController, type: :controller do
         repository = Repository.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Repository).to receive(:save).and_return(false)
-        put :update, params: {id: repository.to_param, :repository => {'name' => 'invalid value'}}, session: valid_session
+        put :update, params: {id: repository.to_param, repository: {'name' => 'invalid value'}}, session: valid_session
         expect(response).to render_template('edit')
       end
     end

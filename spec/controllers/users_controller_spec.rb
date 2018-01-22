@@ -101,13 +101,13 @@ describe UsersController, type: :controller do
     describe 'with invalid params' do
       it 'assigns a newly created but unsaved user as @user' do
         # Trigger the behavior that occurs when invalid params are submitted
-        post :create, params: {:user => invalid_attributes}, session: valid_session
+        post :create, params: {user: invalid_attributes}, session: valid_session
         expect(assigns(:user)).to be_a_new(User)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
-        post :create, params: {:user => invalid_attributes}, session: valid_session
+        post :create, params: {user: invalid_attributes}, session: valid_session
         expect(response).to render_template('new')
       end
     end

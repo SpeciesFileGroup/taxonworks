@@ -73,7 +73,7 @@ describe ImagesController, type: :controller do
       render_views
 
       context 'valid image' do
-        before {get :show, params: {id: image.to_param, :format => :json}, session: valid_session}
+        before {get :show, params: {id: image.to_param, format: :json}, session: valid_session}
         let (:data) { JSON.parse(response.body) }
 
         it 'returns a successful JSON response' do
@@ -175,7 +175,7 @@ describe ImagesController, type: :controller do
       end
 
       context 'invalid image' do
-        before {get :show, params: {id: -1, :format => :json}, session: valid_session}
+        before {get :show, params: {id: -1, format: :json}, session: valid_session}
 
         it 'returns an unsuccessful JSON response' do
           expect(JSON.parse(response.body)).to eq({ 'success' => false })
@@ -241,7 +241,7 @@ describe ImagesController, type: :controller do
 
       it 'updates the requested image' do
         image = Image.create! valid_attributes
-        put :update, params: {id: image.to_param, image: {:image_file => fixture_file_upload((Rails.root + 'spec/files/images/Samsung_Phone.jpg'), 'image/jpg')}}, session: valid_session
+        put :update, params: {id: image.to_param, image: {image_file: fixture_file_upload((Rails.root + 'spec/files/images/Samsung_Phone.jpg'), 'image/jpg')}}, session: valid_session
         image.reload
         expect(image.user_file_name).to eq('Samsung_Phone.jpg')
       end

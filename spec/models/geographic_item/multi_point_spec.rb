@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe GeographicItem::MultiPoint, type: :model, group: :geo do
   context 'that this item' do
-    let(:rooms) { FactoryBot.build(:geographic_item_multi_point, :multi_point => ROOMS20NN.as_binary) }
+    let(:rooms) { FactoryBot.build(:geographic_item_multi_point, multi_point: ROOMS20NN.as_binary) }
     specify 'represents a multi_point' do
       expect(rooms.type).to eq('GeographicItem::MultiPoint')
       expect(rooms.valid?).to be_truthy

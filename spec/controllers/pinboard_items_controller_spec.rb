@@ -48,30 +48,30 @@ RSpec.describe PinboardItemsController, type: :controller do
     describe 'with valid params' do
       it 'creates a new PinboardItem' do
         expect {
-          post :create, params: {:pinboard_item => valid_attributes}, session: valid_session
+          post :create, params: {pinboard_item: valid_attributes}, session: valid_session
         }.to change(PinboardItem, :count).by(1)
       end
 
       it 'assigns a newly created pinboard_item as @pinboard_item' do
-        post :create, params: {:pinboard_item => valid_attributes}, session: valid_session
+        post :create, params: {pinboard_item: valid_attributes}, session: valid_session
         expect(assigns(:pinboard_item)).to be_a(PinboardItem)
         expect(assigns(:pinboard_item)).to be_persisted
       end
 
       it 'redirects to the previous page' do
-        post :create, params: {:pinboard_item => valid_attributes}, session: valid_session
+        post :create, params: {pinboard_item: valid_attributes}, session: valid_session
         expect(response).to redirect_to(otus_path)
       end
     end
 
     describe 'with invalid params' do
       it 'assigns a newly created but unsaved pinboard_item as @pinboard_item' do
-        post :create, params: {:pinboard_item => invalid_attributes}, session: valid_session
+        post :create, params: {pinboard_item: invalid_attributes}, session: valid_session
         expect(assigns(:pinboard_item)).to be_a_new(PinboardItem)
       end
 
       it 'redirects to the previous page' do
-        post :create, params: {:pinboard_item => invalid_attributes}, session: valid_session
+        post :create, params: {pinboard_item: invalid_attributes}, session: valid_session
         expect(response).to redirect_to(otus_path)
       end
     end

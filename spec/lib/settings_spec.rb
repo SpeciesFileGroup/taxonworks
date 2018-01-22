@@ -171,7 +171,7 @@ describe Settings do
         let(:host) { { action_mailer_url_host: 'example.com' } }
 
         it 'sets up ActionMailer default URL host with the supplied config' do
-          expect(rails_config.action_mailer).to receive('default_url_options=').with({ :host => 'example.com' })
+          expect(rails_config.action_mailer).to receive('default_url_options=').with({ host: 'example.com' })
           Settings.load_from_hash(rails_config, host)
         end
       end

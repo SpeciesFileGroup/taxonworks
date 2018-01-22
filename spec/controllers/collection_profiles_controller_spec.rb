@@ -88,14 +88,14 @@ describe CollectionProfilesController, type: :controller do
       it 'assigns a newly created but unsaved collection_profile as @collection_profile' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(CollectionProfile).to receive(:save).and_return(false)
-        post :create, params: {collection_profile: {:invalid => 'parms'}}, session: valid_session
+        post :create, params: {collection_profile: {invalid: 'parms'}}, session: valid_session
         expect(assigns(:collection_profile)).to be_a_new(CollectionProfile)
       end
 
       it 're-renders the \'new\' template' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(CollectionProfile).to receive(:save).and_return(false)
-        post :create, params: {collection_profile: {:invalid => 'parms'}}, session: valid_session
+        post :create, params: {collection_profile: {invalid: 'parms'}}, session: valid_session
         expect(response).to render_template('new')
       end
     end
@@ -135,7 +135,7 @@ describe CollectionProfilesController, type: :controller do
         collection_profile = CollectionProfile.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(CollectionProfile).to receive(:save).and_return(false)
-        put :update, params: {id: collection_profile.to_param, collection_profile: {:invalid => 'parms'}}, session: valid_session
+        put :update, params: {id: collection_profile.to_param, collection_profile: {invalid: 'parms'}}, session: valid_session
         expect(assigns(:collection_profile)).to eq(collection_profile)
       end
 
@@ -143,7 +143,7 @@ describe CollectionProfilesController, type: :controller do
         collection_profile = CollectionProfile.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(CollectionProfile).to receive(:save).and_return(false)
-        put :update, params: {id: collection_profile.to_param, collection_profile: {:invalid => 'parms'}}, session: valid_session
+        put :update, params: {id: collection_profile.to_param, collection_profile: {invalid: 'parms'}}, session: valid_session
         expect(response).to render_template('edit')
       end
     end

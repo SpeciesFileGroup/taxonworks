@@ -558,7 +558,7 @@ describe GeographicItem, type: :model, group: :geo do
           end
 
           specify 'find the (overlapping) points in a polygon' do
-            overlapping_point = FactoryBot.create(:geographic_item_point, :point => POINT12.as_binary)
+            overlapping_point = FactoryBot.create(:geographic_item_point, point: POINT12.as_binary)
             expect(GeographicItem.contained_by(@e1.id).to_a).to contain_exactly(@p12, overlapping_point, @p11)
           end
         end

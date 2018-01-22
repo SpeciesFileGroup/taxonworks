@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :geographic_item_point, :class => 'GeographicItem::Point' do
+  factory :geographic_item_point, class: 'GeographicItem::Point' do
     
   end
 

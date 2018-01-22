@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe GeographicItem::LineString, type:  :model, group: :geo do
   context 'that this item' do
-    let(:a) { FactoryBot.create(:geographic_item_line_string, :line_string => SHAPE_A.as_binary) }
+    let(:a) { FactoryBot.create(:geographic_item_line_string, line_string: SHAPE_A.as_binary) }
     specify 'represents a line_string' do
       expect(a.type).to eq('GeographicItem::LineString')
       expect(a.valid?).to be_truthy

@@ -86,7 +86,7 @@ describe TaggedSectionKeywordsController, type: :controller do
         # submitted in the request.
         update_params = ActionController::Parameters.new({keyword_id: other_keyword.to_param}).permit(:keyword_id)
         expect_any_instance_of(TaggedSectionKeyword).to receive(:update).with(update_params)
-        put :update, params: {:id => tagged_section_keyword.to_param, tagged_section_keyword: {keyword_id: other_keyword.to_param}}, session: valid_session
+        put :update, params: {id: tagged_section_keyword.to_param, tagged_section_keyword: {keyword_id: other_keyword.to_param}}, session: valid_session
       end
 
       it 'assigns the requested tagged_section_keyword as @tagged_section_keyword' do

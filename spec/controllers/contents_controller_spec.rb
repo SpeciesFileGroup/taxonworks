@@ -81,18 +81,18 @@ describe ContentsController, type: :controller do
     describe 'with valid params' do
       it 'creates a new Content' do
         expect {
-          post :create, params: {:content => valid_attributes}, session: valid_session
+          post :create, params: {content: valid_attributes}, session: valid_session
         }.to change(Content, :count).by(1)
       end
 
       it 'assigns a newly created content as @content' do
-        post :create, params: {:content => valid_attributes}, session: valid_session
+        post :create, params: {content: valid_attributes}, session: valid_session
         expect(assigns(:content)).to be_a(Content)
         expect(assigns(:content)).to be_persisted
       end
 
       it 'redirects to the created content' do
-        post :create, params: {:content => valid_attributes}, session: valid_session
+        post :create, params: {content: valid_attributes}, session: valid_session
         expect(response).to redirect_to(Content.last)
       end
     end
@@ -101,14 +101,14 @@ describe ContentsController, type: :controller do
       it 'assigns a newly created but unsaved content as @content' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Content).to receive(:save).and_return(false)
-        post :create, params: {:content => {:invalid => 'parms'}}, session: valid_session
+        post :create, params: {content: {invalid: 'parms'}}, session: valid_session
         expect(assigns(:content)).to be_a_new(Content)
       end
 
       it 're-renders the \'new\' template' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Content).to receive(:save).and_return(false)
-        post :create, params: {:content => {:invalid => 'parms'}}, session: valid_session
+        post :create, params: {content: {invalid: 'parms'}}, session: valid_session
         expect(response).to render_template('new')
       end
     end
@@ -124,18 +124,18 @@ describe ContentsController, type: :controller do
         # submitted in the request.
         update_params = ActionController::Parameters.new({'text' => 'params'}).permit(:text)
         expect_any_instance_of(Content).to receive(:update).with(update_params)
-        put :update, params: {id: content.to_param, :content => {:text => 'params'}}, session: valid_session
+        put :update, params: {id: content.to_param, content: {text: 'params'}}, session: valid_session
       end
 
       it 'assigns the requested content as @content' do
         content = Content.create! valid_attributes
-        put :update, params: {id: content.to_param, :content => valid_attributes}, session: valid_session
+        put :update, params: {id: content.to_param, content: valid_attributes}, session: valid_session
         expect(assigns(:content)).to eq(content)
       end
 
       it 'redirects to the content' do
         content = Content.create! valid_attributes
-        put :update, params: {id: content.to_param, :content => valid_attributes}, session: valid_session
+        put :update, params: {id: content.to_param, content: valid_attributes}, session: valid_session
         expect(response).to redirect_to(content)
       end
     end
@@ -145,7 +145,7 @@ describe ContentsController, type: :controller do
         content = Content.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Content).to receive(:save).and_return(false)
-        put :update, params: {id: content.to_param, :content => {:invalid => 'parms'}}, session: valid_session
+        put :update, params: {id: content.to_param, content: {invalid: 'parms'}}, session: valid_session
         expect(assigns(:content)).to eq(content)
       end
 
@@ -153,7 +153,7 @@ describe ContentsController, type: :controller do
         content = Content.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(Content).to receive(:save).and_return(false)
-        put :update, params: {id: content.to_param, :content => {:invalid => 'parms'}}, session: valid_session
+        put :update, params: {id: content.to_param, content: {invalid: 'parms'}}, session: valid_session
         expect(response).to render_template('edit')
       end
     end

@@ -64,7 +64,7 @@ describe SerialChronologiesController, type: :controller do
       it 'assigns a newly created but unsaved serial_chronology as @serial_chronology' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(SerialChronology).to receive(:save).and_return(false)
-        post :create, params: {:serial_chronology => {'preceding_serial_id' => 'invalid value'}}, session: valid_session
+        post :create, params: {serial_chronology: {'preceding_serial_id' => 'invalid value'}}, session: valid_session
         # assigns(:serial_chronology).should be_a_new(SerialChronology)
         expect(assigns(:serial_chronology)).to be_a_new(SerialChronology)
       end
@@ -72,7 +72,7 @@ describe SerialChronologiesController, type: :controller do
       it 're-renders the :back template' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(SerialChronology).to receive(:save).and_return(false)
-        post :create, params: {:serial_chronology => {'preceding_serial_id' => 'invalid value'}}, session: valid_session
+        post :create, params: {serial_chronology: {'preceding_serial_id' => 'invalid value'}}, session: valid_session
         expect(response).to redirect_to(serial_path(serial1))
       end
     end
@@ -88,18 +88,18 @@ describe SerialChronologiesController, type: :controller do
         # submitted in the request.
         update_params = ActionController::Parameters.new({'preceding_serial_id' => '1'}).permit(:preceding_serial_id)
         expect_any_instance_of(SerialChronology).to receive(:update).with(update_params)
-        put :update, params: {id: serial_chronology.to_param, :serial_chronology => {'preceding_serial_id' => '1'}}, session: valid_session
+        put :update, params: {id: serial_chronology.to_param, serial_chronology: {'preceding_serial_id' => '1'}}, session: valid_session
       end
 
       it 'assigns the requested serial_chronology as @serial_chronology' do
         serial_chronology = SerialChronology.create! valid_attributes
-        put :update, params: {id: serial_chronology.to_param, :serial_chronology => valid_attributes}, session: valid_session
+        put :update, params: {id: serial_chronology.to_param, serial_chronology: valid_attributes}, session: valid_session
         expect(assigns(:serial_chronology)).to eq(serial_chronology)
       end
 
       it 'redirects to :back' do
         serial_chronology = SerialChronology.create! valid_attributes
-        put :update, params: {id: serial_chronology.to_param, :serial_chronology => valid_attributes}, session: valid_session
+        put :update, params: {id: serial_chronology.to_param, serial_chronology: valid_attributes}, session: valid_session
         expect(response).to redirect_to(serial_path(serial1))
       end
     end
@@ -109,7 +109,7 @@ describe SerialChronologiesController, type: :controller do
         serial_chronology = SerialChronology.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(SerialChronology).to receive(:save).and_return(false)
-        put :update, params: {id: serial_chronology.to_param, :serial_chronology => {'preceding_serial_id' => 'invalid value'}}, session: valid_session
+        put :update, params: {id: serial_chronology.to_param, serial_chronology: {'preceding_serial_id' => 'invalid value'}}, session: valid_session
         expect(assigns(:serial_chronology)).to eq(serial_chronology)
       end
 
@@ -117,7 +117,7 @@ describe SerialChronologiesController, type: :controller do
         serial_chronology = SerialChronology.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(SerialChronology).to receive(:save).and_return(false)
-        put :update, params: {id: serial_chronology.to_param, :serial_chronology => {'preceding_serial_id' => 'invalid value'}}, session: valid_session
+        put :update, params: {id: serial_chronology.to_param, serial_chronology: {'preceding_serial_id' => 'invalid value'}}, session: valid_session
         expect(response).to redirect_to(serial_path(serial1)  )
       end
     end
