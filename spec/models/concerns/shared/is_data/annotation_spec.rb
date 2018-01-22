@@ -15,11 +15,11 @@ describe 'Annotation', type: :model do
     end
   end
 
-  specify "#has_<tags>?" do
+  specify '#has_<tags>?' do
     expect(TestIsDataAnnotationSubclass.new.has_tags?).to eq(true)
   end
 
-  specify ".has_<tags>?" do
+  specify '.has_<tags>?' do
     expect(TestIsDataAnnotationSubclass.has_tags?).to eq(true)
   end
 

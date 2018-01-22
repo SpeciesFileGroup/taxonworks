@@ -33,13 +33,13 @@ namespace :tw do
         EXTRA = 'Extra'
 
         IMPORT_TABLES = {
-          gadm:           "data/external/shapefiles/gadm/gadm_v2_shp/gadm2",
-          ne_countries:   "data/external/shapefiles/NaturalEarth/10m_cultural/ne_10m_admin_0_countries",
-          ne_states:      "data/external/shapefiles/NaturalEarth/10m_cultural/ne_10m_admin_1_states_provinces_shp",
-          tdwg_l1:        "data/external/shapefiles/tdwg/level1/level1",
-          tdwg_l2:        "data/external/shapefiles/tdwg/level2/level2",
-          tdwg_l3:        "data/external/shapefiles/tdwg/level3/level3",
-          tdwg_l4:        "data/external/shapefiles/tdwg/level4/level4"
+          gadm:           'data/external/shapefiles/gadm/gadm_v2_shp/gadm2',
+          ne_countries:   'data/external/shapefiles/NaturalEarth/10m_cultural/ne_10m_admin_0_countries',
+          ne_states:      'data/external/shapefiles/NaturalEarth/10m_cultural/ne_10m_admin_1_states_provinces_shp',
+          tdwg_l1:        'data/external/shapefiles/tdwg/level1/level1',
+          tdwg_l2:        'data/external/shapefiles/tdwg/level2/level2',
+          tdwg_l3:        'data/external/shapefiles/tdwg/level3/level3',
+          tdwg_l4:        'data/external/shapefiles/tdwg/level4/level4'
         }
 
         task :geo_dev_init do
@@ -49,7 +49,7 @@ namespace :tw do
         desc "Load the supporting data in SFGs /gaz repo\n
          rake tw:development:data:geo:build_temporary_shapefile_tables data_directory=/Users/you/src/gaz/ database_role=you"
         task :build_temporary_shapefile_tables => [:environment, :database_role, :data_directory, :geo_dev_init] do
-          puts "Adding temporary shape files."
+          puts 'Adding temporary shape files.'
           IMPORT_TABLES.each do |table_name, file_path|
             if !table_exists(table_name) 
               file = "#{@args[:data_directory]}#{file_path}.shp"
@@ -66,7 +66,7 @@ namespace :tw do
 
         desc 'Remove tables added through build_temporary_shapefile_tables'
         task :delete_temporary_shapefile_tables => [:environment, :geo_dev_init] do
-          puts "Deleting temporary shape files."
+          puts 'Deleting temporary shape files.'
           IMPORT_TABLES.each do |table_name, file_path|
             if table_exists(table_name) 
               puts "Dropping #{table_name}."

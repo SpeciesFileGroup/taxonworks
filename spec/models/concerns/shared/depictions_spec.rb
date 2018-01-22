@@ -62,7 +62,7 @@ describe 'Depictions', type: :model do
 
   context 'create with #image_array' do
     let(:data) {
-      { "0" => image1, "1" => image2 }
+      { '0' => image1, '1' => image2 }
     }
 
     specify '#image_array' do

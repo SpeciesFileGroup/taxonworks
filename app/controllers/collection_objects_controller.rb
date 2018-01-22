@@ -178,7 +178,7 @@ class CollectionObjectsController < ApplicationController
       digest_cookie(params[:file].tempfile, :Castor_collection_objects_md5)
       render 'collection_objects/batch_load/castor/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end

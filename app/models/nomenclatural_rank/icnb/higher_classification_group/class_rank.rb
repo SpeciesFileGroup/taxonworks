@@ -10,7 +10,7 @@ class NomenclaturalRank::Icnb::HigherClassificationGroup::ClassRank < Nomenclatu
   end
 
   def rank_name
-    "class"
+    'class'
   end
 
 end

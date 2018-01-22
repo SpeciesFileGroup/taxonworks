@@ -7,7 +7,7 @@ describe OtuPageLayoutSection, :type => :model do
   let(:otu_page_layout_section) {FactoryBot.build(:otu_page_layout_section)} 
   context 'validation' do
     specify '"foo" is a legal type' do
-      expect{OtuPageLayoutSection.new(type: "foo")}.to raise_error ActiveRecord::SubclassNotFound
+      expect{OtuPageLayoutSection.new(type: 'foo')}.to raise_error ActiveRecord::SubclassNotFound
     end
 
     OtuPageLayoutSection.descendants.each do |d|

@@ -18,7 +18,7 @@ describe ContentsHelper, type: :helper do
       expect(helper.content_link(content)).to match(name)
     end
 
-    specify "#content_search_form" do
+    specify '#content_search_form' do
       expect(helper.contents_search_form).to have_field('content_id_for_quick_search_form')
     end
 

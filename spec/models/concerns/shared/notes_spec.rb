@@ -11,7 +11,7 @@ describe 'Notes', type: :model do
   end
 
   specify 'accepts_nested_attributes_for' do
-    notes = {notes_attributes: [{text: "a"}, {text: "b"}]}
+    notes = {notes_attributes: [{text: 'a'}, {text: 'b'}]}
     class_with_note.attributes = notes
     expect(class_with_note.save).to be_truthy
     expect(class_with_note.notes.count).to eq(2)
@@ -28,7 +28,7 @@ describe 'Notes', type: :model do
   context 'object with notes when destroyed' do
     specify 'attached notes are destroyed' do
       expect(Note.count).to eq(0)
-      notes = {notes_attributes: [{text: "a"}, {text: "b"}]}
+      notes = {notes_attributes: [{text: 'a'}, {text: 'b'}]}
       class_with_note.attributes = notes
       expect(class_with_note.save).to be_truthy
       expect(Note.count).to eq(2)

@@ -7,7 +7,7 @@ RSpec.describe Descriptor::Continuous, type: :model, group: :matrix do
 
   context 'returning observations' do
     before do
-      descriptor.name = "Head presence"
+      descriptor.name = 'Head presence'
       descriptor.save!
     end
 

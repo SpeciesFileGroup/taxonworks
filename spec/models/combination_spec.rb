@@ -123,11 +123,11 @@ describe Combination, type: :model, group: :nomenclature do
     context '#full_name_hash (overrides @taxon_name.full_name_hash)' do
       specify 'with genus' do
         combination.genus = genus
-        expect(combination.full_name_hash).to eq({"genus"=>[nil, "Erythroneura"]})
+        expect(combination.full_name_hash).to eq({'genus'=>[nil, 'Erythroneura']})
       end
 
       specify 'with genus and species' do
-        expect(basic_combination.full_name_hash).to eq({"genus"=>[nil, "Erythroneura"], "species"=>[nil, "vitis"]})
+        expect(basic_combination.full_name_hash).to eq({'genus'=>[nil, 'Erythroneura'], 'species'=>[nil, 'vitis']})
       end
 
       specify 'with quadrinomial' do
@@ -135,7 +135,7 @@ describe Combination, type: :model, group: :nomenclature do
         combination.subgenus = genus
         combination.species = species
         combination.subspecies = species2 
-        expect(combination.full_name_hash).to eq({"genus"=>[nil, "Erythroneura"], "subgenus"=>[nil, "Erythroneura"],  "species"=>[nil, "vitis"], "subspecies"=>[nil, "comes"]})
+        expect(combination.full_name_hash).to eq({'genus'=>[nil, 'Erythroneura'], 'subgenus'=>[nil, 'Erythroneura'],  'species'=>[nil, 'vitis'], 'subspecies'=>[nil, 'comes']})
       end
     end
 
@@ -302,7 +302,7 @@ describe Combination, type: :model, group: :nomenclature do
         combination.save
 
         expect(combination.combination_class_relationships(genus.rank_string).collect{|i| i.to_s}.sort).to eq(['TaxonNameRelationship::Combination::Genus', 'TaxonNameRelationship::Combination::Subgenus'])
-        expect(combination.combination_class_relationships(species.rank_string).collect{|i| i.to_s}.sort).to eq(["TaxonNameRelationship::Combination::Form", "TaxonNameRelationship::Combination::Genus", "TaxonNameRelationship::Combination::Species", "TaxonNameRelationship::Combination::Subgenus", "TaxonNameRelationship::Combination::Subspecies", "TaxonNameRelationship::Combination::Variety"])
+        expect(combination.combination_class_relationships(species.rank_string).collect{|i| i.to_s}.sort).to eq(['TaxonNameRelationship::Combination::Form', 'TaxonNameRelationship::Combination::Genus', 'TaxonNameRelationship::Combination::Species', 'TaxonNameRelationship::Combination::Subgenus', 'TaxonNameRelationship::Combination::Subspecies', 'TaxonNameRelationship::Combination::Variety'])
 
         stubs = combination.combination_relationships_and_stubs(species.rank_string)
 

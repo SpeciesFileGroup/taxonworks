@@ -15,6 +15,6 @@ class NomenclaturalRank::Icnb::FamilyGroup::Subtribe < NomenclaturalRank::Icnb::
   end
 
   def self.abbreviation
-    "subtr."
+    'subtr.'
   end
 end

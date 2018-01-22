@@ -102,32 +102,32 @@ module Workbench::SessionsHelper
   end
 
   def require_sign_in
-    redirect_to root_url, notice: "Please sign in." unless sessions_signed_in?
+    redirect_to root_url, notice: 'Please sign in.' unless sessions_signed_in?
   end
 
   def require_project_selection
-    redirect_to root_url, notice: "Please select a project." unless sessions_current_project
+    redirect_to root_url, notice: 'Please select a project.' unless sessions_current_project
   end
 
   def require_sign_in_and_project_selection
-    redirect_to root_url, notice: "Whoa there, sign in and select a project first." unless sessions_signed_in? && sessions_project_selected?
+    redirect_to root_url, notice: 'Whoa there, sign in and select a project first.' unless sessions_signed_in? && sessions_project_selected?
   end
 
   def require_administrator_sign_in
-    redirect_to root_url, notice: "Please sign in as an administrator." unless is_administrator? 
+    redirect_to root_url, notice: 'Please sign in as an administrator.' unless is_administrator? 
   end
 
   def require_project_administrator_sign_in
-    redirect_to root_url, notice: "Please sign in as a project administrator." unless is_project_administrator? 
+    redirect_to root_url, notice: 'Please sign in as a project administrator.' unless is_project_administrator? 
   end
 
   def require_superuser_sign_in
-    redirect_to root_url, notice: "Please sign in as a project administrator or administrator." unless is_superuser?
+    redirect_to root_url, notice: 'Please sign in as a project administrator or administrator.' unless is_superuser?
   end
 
   # User is some project_administrator or administrator
   def can_administer_projects?
-    redirect_to root_url, notice: "Please sign in as a project administrator or administrator." unless administers_projects?
+    redirect_to root_url, notice: 'Please sign in as a project administrator or administrator.' unless administers_projects?
   end
  
   # TODO: make this a non-controller method

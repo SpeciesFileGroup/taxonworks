@@ -41,7 +41,7 @@ describe Citation, type: :model, group: [:annotators, :citations] do
     end
 
     specify 'finding by pages: "" will always create a new record' do
-      expect(Citation.find_or_create_by(citation_object: otu, source: source, pages: "").new_record?).to be_truthy 
+      expect(Citation.find_or_create_by(citation_object: otu, source: source, pages: '').new_record?).to be_truthy 
     end
 
     specify '#citation_object_id is required by database' do

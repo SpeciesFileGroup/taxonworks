@@ -72,7 +72,7 @@ class TaxonDetermination < ApplicationRecord
   end
 
   def date
-    [year_made, month_made, day_made].compact.join("-")
+    [year_made, month_made, day_made].compact.join('-')
   end
 
   def sort_date

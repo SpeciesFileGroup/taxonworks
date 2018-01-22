@@ -1,7 +1,7 @@
 module SequenceRelationshipsHelper
     def sequence_relationship_tag(sequence_relationship)
         return nil if sequence_relationship.nil?
-        [sequence_relationship.subject_sequence_id, sequence_relationship.object_sequence_id].join(" : ")
+        [sequence_relationship.subject_sequence_id, sequence_relationship.object_sequence_id].join(' : ')
     end
 
     def sequence_relationship_link(sequence_relationship)

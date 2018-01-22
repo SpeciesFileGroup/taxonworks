@@ -135,7 +135,7 @@ module Settings
 
     settings[:exception_recipients] =  settings[:exception_recipients].split(',') unless settings[:exception_recipients].class == Array || settings[:exception_recipients].blank?
 
-    raise Error, ":exception_recipients must be an Array" unless settings[:exception_recipients].class == Array
+    raise Error, ':exception_recipients must be an Array' unless settings[:exception_recipients].class == Array
 
     settings
   end
@@ -184,11 +184,11 @@ module Settings
   def self.load_test_defaults(config)
     load_from_hash(config, { 
       exception_notification: {
-        email_prefix: "[TW-Error] ",
+        email_prefix: '[TW-Error] ',
         sender_address: %{"notifier" <notifier@example.com>},
         exception_recipients: %w{exceptions@example.com},
       },
-      mail_domain: "example.com",
+      mail_domain: 'example.com',
       selenium: {
         browser: 'firefox',
         marionette: false,

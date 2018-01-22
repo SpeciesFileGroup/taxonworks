@@ -17,7 +17,7 @@ describe PreparationTypesHelper, :type => :helper do
       expect(helper.preparation_type_link(preparation_type)).to have_link(name)
     end
 
-    specify "#preparation_type_search_form" do
+    specify '#preparation_type_search_form' do
       expect(helper.preparation_types_search_form).to have_field('preparation_type_id_for_quick_search_form')
     end
 

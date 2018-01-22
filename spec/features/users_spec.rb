@@ -214,7 +214,7 @@ describe 'Users' do
         }
    
         it 'should let user edit their account information' do
-          txt = "Editing user"
+          txt = 'Editing user'
           expect(page).to have_selector('h1', text: txt)
           fill_in 'Email', with: 'edit_user_modified@example.com'
           fill_in 'Password', with: '1234ZZZ!'

@@ -283,7 +283,7 @@ module Utilities::Dates
   # @return [String, nil]
   #   a sentence spelling out the date range
   def self.date_range_sentence_tag(date_range)
-    format = "%d-%b-%Y"
+    format = '%d-%b-%Y'
     date_range.compact!
     date_range.pop if date_range[0] == date_range[1]
     if date_range.empty?
@@ -557,7 +557,7 @@ module Utilities::Dates
                                hdr: 'dmodmoy2'},
 
       dd_mm_dd_mm_yyyy: {reg: /(\d\d?)[\s\.,\/]\s?(\d\d?)\s?[-\u2013\/]\s?(\d\d?)[\s\.,\/]\s?(\d\d?)[\s\.,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
-                         hlp: "14.6-17.6.1994",
+                         hlp: '14.6-17.6.1994',
                          hdr: 'dmdmy2'},
 
       mm_dd_mm_dd_yyyy: {reg: /(\d\d?)[\s\.,\/]\s?(\d\d?)\s?[-\u2013\/]\s?(\d\d?)[\s\.,\/]\s?(\d\d?)[\s\.,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,
@@ -602,7 +602,7 @@ module Utilities::Dates
                  hdr: 'dmy'},
 
       yyyy_mm_dd: {reg: /(\d{4})[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)/i,
-                   hlp: "1994, 4.16 | 1902-04-24",
+                   hlp: '1994, 4.16 | 1902-04-24',
                    hdr: 'yyymd'},
 
       yyy_mm_dd: {reg: /(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)/i,
@@ -610,15 +610,15 @@ module Utilities::Dates
                    hdr: 'ymd'},
 
       yyyy_month_dd: {reg: /(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})[-\s\u2013_\.,\/]?\s*(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[-\s\u2013_\.,\/]?\s*(\d\d?)/i,
-                      hlp: "1994 JULY 17 | 2003 June 15 -  2004 July 04 | 2002-IV-27 - 2008-JUL-04",
+                      hlp: '1994 JULY 17 | 2003 June 15 -  2004 July 04 | 2002-IV-27 - 2008-JUL-04',
                       hdr: 'ymod'},
 
       yyyy_mm_dd_mm_dd: {reg: /(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)[-\s\u2013_\.,\/]\s?(\d\d?)/i,
-                         hlp: "1994, 6.14-6.17",
+                         hlp: '1994, 6.14-6.17',
                          hdr: 'ymdmd'},
 
       yyyy_month_dd_month_dd: {reg: /(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})[-\s\u2013_\.,\/]?\s*(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[-\s\u2013_\.,\/]?\s*(\d\d?)\s?[-\s\u2013_\.,\/]?\s*(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[-\s\u2013_\.,\/]?\s*(\d\d?)/i,
-                               hlp: "1994 june 14 -JULY 17 | 2002-IV-27 - JUL-04",
+                               hlp: '1994 june 14 -JULY 17 | 2002-IV-27 - JUL-04',
                                hdr: 'ymodmod'}
   }
 

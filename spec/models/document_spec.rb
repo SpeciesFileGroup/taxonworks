@@ -46,7 +46,7 @@ RSpec.describe Document, type: :model, group: :documentation do
       end
 
       specify 'updates page_map' do
-        expect(document.page_map).to eq({"1" => "5"})
+        expect(document.page_map).to eq({'1' => '5'})
       end
     end
 
@@ -65,7 +65,7 @@ RSpec.describe Document, type: :model, group: :documentation do
         context 'one to one' do
           before { document.set_pages_by_start(33) }
           specify '#page_map is updated' do
-            expect(document.page_map).to eq({"1" => "33"})
+            expect(document.page_map).to eq({'1' => '33'})
           end
         end
       end
@@ -82,14 +82,14 @@ RSpec.describe Document, type: :model, group: :documentation do
         context 'one to one' do
           before { document.set_page_map_page(1, 99) }
           specify 'updates page_map' do
-            expect(document.page_map).to eq({"1" => "99"})
+            expect(document.page_map).to eq({'1' => '99'})
           end 
         end
 
         context 'one to many' do
           before { document.set_page_map_page(1, [99, 'xi']) }
           specify 'updates page_map' do
-            expect(document.page_map).to eq({"1" => ["99", 'xi']})
+            expect(document.page_map).to eq({'1' => ['99', 'xi']})
           end 
         end
       
@@ -100,7 +100,7 @@ RSpec.describe Document, type: :model, group: :documentation do
           end 
 
           specify 'updates page_map' do
-            expect(document.page_map).to eq({"1" => "1", "2" => "1", "3" => "1"})
+            expect(document.page_map).to eq({'1' => '1', '2' => '1', '3' => '1'})
           end 
         end
       end
@@ -110,7 +110,7 @@ RSpec.describe Document, type: :model, group: :documentation do
           document.update_attribute(:page_total, 10)  # !! fake page total
           document.set_page_map_page([1,2,3], 1)
           document.set_page_map_page(4, '2')
-          document.set_page_map_page("5", 3)
+          document.set_page_map_page('5', 3)
           document.set_page_map_page(7, ['xi', 'xii'])
         end 
 

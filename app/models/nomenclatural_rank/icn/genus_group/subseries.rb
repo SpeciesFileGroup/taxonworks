@@ -9,6 +9,6 @@ class NomenclaturalRank::Icn::GenusGroup::Subseries < NomenclaturalRank::Icn::Ge
   end
 
   def self.abbreviation
-    "subser."
+    'subser.'
   end
 end

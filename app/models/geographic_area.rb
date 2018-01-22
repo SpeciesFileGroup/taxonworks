@@ -399,7 +399,7 @@ class GeographicArea < ApplicationRecord
 
   def check_for_children
     unless leaf?
-      errors[:base] << "has attached names, delete these first"
+      errors[:base] << 'has attached names, delete these first'
       return false
     end
   end

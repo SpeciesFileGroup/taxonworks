@@ -18,11 +18,11 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
     if @sqed_depiction.depiction.depiction_object.update(collection_object_params)
       flash[:notice] = 'Successfully updated'
     else
-      flash[:alert] = 'Failed to update! ' + @sqed_depiction.depiction.depiction_object.errors.full_messages.join("; ").html_safe
+      flash[:alert] = 'Failed to update! ' + @sqed_depiction.depiction.depiction_object.errors.full_messages.join('; ').html_safe
     end
 
     next_sqed_depiction = (params[:commit] == 'Save and next [n]' ? @sqed_depiction.next_without_data : @sqed_depiction )
-    namespace_id = (params[:lock_namespace] ? params[:collection_object][:identifiers_attributes]["0"][:namespace_id] : nil)
+    namespace_id = (params[:lock_namespace] ? params[:collection_object][:identifiers_attributes]['0'][:namespace_id] : nil)
 
     redirect_to sqed_depiction_breakdown_task_path(next_sqed_depiction, namespace_id)
   end

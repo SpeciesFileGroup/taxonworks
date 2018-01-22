@@ -31,7 +31,7 @@ module BatchLoad
         @processed_rows[i] = parse_result
 
         # Only accept records from DRM to keep things simple for now
-        next if row['locality_database'] != "DRM"
+        next if row['locality_database'] != 'DRM'
         
         begin # processing
           # Text for sample code identifiers for both extract and specimen
@@ -69,7 +69,7 @@ module BatchLoad
           # If the drm lab voucher identifier text has already been used, don't attach it
           # by setting it blank
           if drm_lab_voucher_texts.has_key?(co_identifier_drm_lab_voucher_text)
-            co_identifier_drm_lab_voucher_text = ""
+            co_identifier_drm_lab_voucher_text = ''
 
           # Create a new entry with the lab voucher text as the key
           else
@@ -112,11 +112,11 @@ module BatchLoad
           # Data attributes
           co_data_attributes = []
           
-          if row["specimen_number"].present?
+          if row['specimen_number'].present?
             co_data_attributes.push({
-              type: "ImportAttribute",
-              import_predicate: "SpecimenNumber",
-              value: row["specimen_number"] 
+              type: 'ImportAttribute',
+              import_predicate: 'SpecimenNumber',
+              value: row['specimen_number'] 
             })
           end
 
@@ -137,7 +137,7 @@ module BatchLoad
           @total_data_lines += 1 if co.present?
 
           # Taxon determination between this object and otus this object belongs to
-          otus = Otu.with_identifier(row["taxon_guid"])
+          otus = Otu.with_identifier(row['taxon_guid'])
 
           otus.each do |otu|
             taxon_determination = TaxonDetermination.new(otu: otu, biological_collection_object: co)

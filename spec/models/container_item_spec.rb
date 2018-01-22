@@ -9,13 +9,13 @@ describe ContainerItem, type: :model, group: :containers do
   let(:container1) { FactoryBot.create(:valid_container, name: 'Top') }
   let(:container2) { FactoryBot.create(:valid_container, name: 'Middle') }
 
-  context "validation" do
+  context 'validation' do
     context 'required' do
       before(:each) {
         container_item.valid?
       }
 
-      specify "contained_object" do
+      specify 'contained_object' do
         expect(container_item.errors.include?(:contained_object)).to be_truthy
       end
     end

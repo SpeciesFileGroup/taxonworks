@@ -26,7 +26,7 @@ module OtusHelper
   end
 
   def otus_link_list_tag(otus)
-    otus.collect { |o| link_to(o.name, o) }.join(",")
+    otus.collect { |o| link_to(o.name, o) }.join(',')
   end
 
 end

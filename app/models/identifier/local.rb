@@ -39,7 +39,7 @@ class Identifier::Local < Identifier
   protected
 
   def set_cached
-    update_column(:cached, namespace.short_name + " " + identifier.to_s)
+    update_column(:cached, namespace.short_name + ' ' + identifier.to_s)
   end
 
 end

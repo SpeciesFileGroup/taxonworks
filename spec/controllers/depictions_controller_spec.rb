@@ -50,100 +50,100 @@ RSpec.describe DepictionsController, type: :controller do
   # DepictionsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET #index" do
-    it "assigns all depictions as @recent_objects" do
+  describe 'GET #index' do
+    it 'assigns all depictions as @recent_objects' do
       depiction = Depiction.create! valid_attributes
       get :index, params: {}, session: valid_session
       expect(assigns(:recent_objects)).to eq([depiction])
     end
   end
 
-  describe "GET #show" do
-    it "assigns the requested depiction as @depiction" do
+  describe 'GET #show' do
+    it 'assigns the requested depiction as @depiction' do
       depiction = Depiction.create! valid_attributes
       get :show, params: {id: depiction.to_param}, session: valid_session
       expect(assigns(:depiction)).to eq(depiction)
     end
   end
 
-  describe "GET #new" do
-    it "assigns a new depiction as @depiction" do
+  describe 'GET #new' do
+    it 'assigns a new depiction as @depiction' do
       get :new, params: {}, session: valid_session
       expect(assigns(:depiction)).to be_a_new(Depiction)
     end
   end
 
-  describe "GET #edit" do
-    it "assigns the requested depiction as @depiction" do
+  describe 'GET #edit' do
+    it 'assigns the requested depiction as @depiction' do
       depiction = Depiction.create! valid_attributes
       get :edit, params: {id: depiction.to_param}, session: valid_session
       expect(assigns(:depiction)).to eq(depiction)
     end
   end
 
-  describe "POST #create" do
-    context "with valid params" do
-      it "creates a new Depiction" do
+  describe 'POST #create' do
+    context 'with valid params' do
+      it 'creates a new Depiction' do
         expect {
           post :create, params: {depiction: valid_attributes}, session: valid_session
         }.to change(Depiction, :count).by(1)
       end
 
-      it "assigns a newly created depiction as @depiction" do
+      it 'assigns a newly created depiction as @depiction' do
         post :create, params: {depiction: valid_attributes}, session: valid_session
         expect(assigns(:depiction)).to be_a(Depiction)
         expect(assigns(:depiction)).to be_persisted
       end
 
-      it "redirects to the created depiction" do
+      it 'redirects to the created depiction' do
         post :create, params: {depiction: valid_attributes}, session: valid_session
         expect(response).to redirect_to(Depiction.last)
       end
     end
 
-    context "with invalid params" do
-      it "assigns a newly created but unsaved depiction as @depiction" do
+    context 'with invalid params' do
+      it 'assigns a newly created but unsaved depiction as @depiction' do
         post :create, params: {depiction: invalid_attributes}, session: valid_session
         expect(assigns(:depiction)).to be_a_new(Depiction)
       end
 
       it "re-renders the 'new' template" do
         post :create, params: {depiction: invalid_attributes}, session: valid_session
-        expect(response).to render_template("new")
+        expect(response).to render_template('new')
       end
     end
   end
 
-  describe "PUT #update" do
-    context "with valid params" do
+  describe 'PUT #update' do
+    context 'with valid params' do
       let(:specimen2) { FactoryBot.create(:valid_specimen) }
 
       let(:new_attributes) {
         { depiction_object_id: specimen2.id }
       }
 
-      it "updates the requested depiction" do
+      it 'updates the requested depiction' do
         depiction = Depiction.create! valid_attributes
         put :update, params: {id: depiction.to_param, depiction: new_attributes}, session: valid_session
         depiction.reload
         expect(depiction.depiction_object_id).to eq(specimen2.id) 
       end
 
-      it "assigns the requested depiction as @depiction" do
+      it 'assigns the requested depiction as @depiction' do
         depiction = Depiction.create! valid_attributes
         put :update, params: {id: depiction.to_param, depiction: valid_attributes}, session: valid_session
         expect(assigns(:depiction)).to eq(depiction)
       end
 
-      it "redirects to the depiction" do
+      it 'redirects to the depiction' do
         depiction = Depiction.create! valid_attributes
         put :update, params: {id: depiction.to_param, depiction: valid_attributes}, session: valid_session
         expect(response).to redirect_to(depiction)
       end
     end
 
-    context "with invalid params" do
-      it "assigns the depiction as @depiction" do
+    context 'with invalid params' do
+      it 'assigns the depiction as @depiction' do
         depiction = Depiction.create! valid_attributes
         put :update, params: {id: depiction.to_param, depiction: invalid_attributes}, session: valid_session
         expect(assigns(:depiction)).to eq(depiction)
@@ -152,20 +152,20 @@ RSpec.describe DepictionsController, type: :controller do
       it "re-renders the 'edit' template" do
         depiction = Depiction.create! valid_attributes
         put :update, params: {id: depiction.to_param, depiction: invalid_attributes}, session: valid_session
-        expect(response).to render_template("edit")
+        expect(response).to render_template('edit')
       end
     end
   end
 
-  describe "DELETE #destroy" do
-    it "destroys the requested depiction" do
+  describe 'DELETE #destroy' do
+    it 'destroys the requested depiction' do
       depiction = Depiction.create! valid_attributes
       expect {
         delete :destroy, params: {id: depiction.to_param}, session: valid_session
       }.to change(Depiction, :count).by(-1)
     end
 
-    it "redirects to the depictions list" do
+    it 'redirects to the depictions list' do
       depiction = Depiction.create! valid_attributes
       delete :destroy, params: {id: depiction.to_param}, session: valid_session
       expect(response).to redirect_to(depictions_url)

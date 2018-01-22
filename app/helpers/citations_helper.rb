@@ -3,7 +3,7 @@ module CitationsHelper
   def citation_tag(citation)
     return nil if citation.nil?
     citation_string = citation_author_year(citation)
-    [citation.citation_object.class.name, ": ", object_tag(citation.citation_object.metamorphosize), " in ", citation_source_body(citation)].compact.join.html_safe
+    [citation.citation_object.class.name, ': ', object_tag(citation.citation_object.metamorphosize), ' in ', citation_source_body(citation)].compact.join.html_safe
   end
 
   def citation_source_body(citation)

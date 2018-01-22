@@ -20,7 +20,7 @@ class Identifier::Global::GenBankAccessionCode < Identifier::Global
       end
 
       if !matched
-        errors.add(:identifier, "invalid format")
+        errors.add(:identifier, 'invalid format')
       end
     end
   end

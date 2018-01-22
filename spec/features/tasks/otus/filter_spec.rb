@@ -80,7 +80,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors] 
           find('#label_toggle_slide_area').click
           execute_script("document.getElementById('drawn_area_shape').type = 'text'")
           this_xpath = find(:xpath, "//input[@id='drawn_area_shape']")
-          this_xpath.set area_b.to_simple_json_feature.to_s.gsub('=>', ":")
+          this_xpath.set area_b.to_simple_json_feature.to_s.gsub('=>', ':')
           click_button('Set area')
           expect(find('#area_count')).to have_text('3')
         end

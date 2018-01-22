@@ -435,7 +435,7 @@ namespace :tw do
 
           file.each_with_index do |row, i|
             file_id = row['FileID']
-            next if file_id == "0"
+            next if file_id == '0'
 
             website_name = row['WebsiteName'].downcase # want to be lower case
 

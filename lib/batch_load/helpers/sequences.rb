@@ -6,7 +6,7 @@ module BatchLoad
 
       # Sequence attributes
       sequence_attributes = {
-        name: get_taxon_name(filename) + "_" + get_voucher_number(filename) + "_" + get_gene_fragement(filename),
+        name: get_taxon_name(filename) + '_' + get_voucher_number(filename) + '_' + get_gene_fragement(filename),
         sequence_type: get_sequence_type(filename),
         sequence: get_sequence(file_content),
         identifiers_attributes: []
@@ -50,12 +50,12 @@ module BatchLoad
 
     def get_genbank_text(filename)
       # _&aKJ624355_&
-      return get_between_strings(filename, "_&a", "_&")
+      return get_between_strings(filename, '_&a', '_&')
     end
 
     def get_sequence_id_text(filename)
       # &iSEQID00000349_&
-      return get_between_strings(filename, "&i", "_&")
+      return get_between_strings(filename, '&i', '_&')
     end
 
     def get_sequence(file_content)
@@ -65,18 +65,18 @@ module BatchLoad
     end
 
     def get_sequence_type(filename)
-      "DNA"
+      'DNA'
     end
 
     def get_voucher_number(filename)
       # &vDRMDNA2303_&
-      return get_between_strings(filename, "&vDRM", "_&")
+      return get_between_strings(filename, '&vDRM', '_&')
     end
 
     def get_gene_fragement(filename)
       # _&fCOIBC_& or _&gCOIBC_&
-      f_fragement = get_between_strings(filename, "_&f", "_&")
-      return f_fragement.blank? ? get_between_strings(filename, "_&g", "_&") : f_fragement
+      f_fragement = get_between_strings(filename, '_&f', '_&')
+      return f_fragement.blank? ? get_between_strings(filename, '_&g', '_&') : f_fragement
     end
 
     def get_taxon_name(filename)
@@ -84,7 +84,7 @@ module BatchLoad
       voucher_number = get_voucher_number(filename)
       identifier_text = voucher_number
 
-      collection_object = CollectionObject.with_namespaced_identifier("DRMDNA", identifier_text).take
+      collection_object = CollectionObject.with_namespaced_identifier('DRMDNA', identifier_text).take
 
       # Taxon determination associated with collection object
       if collection_object
@@ -97,7 +97,7 @@ module BatchLoad
         end
       end
 
-      ""
+      ''
     end
 
     def get_between_strings(str, beg_marker, end_marker)
@@ -109,7 +109,7 @@ module BatchLoad
         return str[beg_marker_index...end_marker_index] if end_marker_index
       end
 
-      ""
+      ''
     end
   end
 end

@@ -9,6 +9,6 @@ class NomenclaturalRank::Icnb::SpeciesGroup::Subspecies < NomenclaturalRank::Icn
   end
 
   def self.abbreviation
-    "subsp."
+    'subsp.'
   end
 end

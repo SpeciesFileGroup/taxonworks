@@ -16,7 +16,7 @@ describe 'Source from Citation', type: :feature, group: :sources do
         end
 
         specify 'new bibtex source from citation' do
-          VCR.use_cassette("CrossRefFromCitation") do
+          VCR.use_cassette('CrossRefFromCitation') do
             fill_in 'citation', with: 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.'
             click_button 'Preview' # click the 'preview'
           end
@@ -29,7 +29,7 @@ describe 'Source from Citation', type: :feature, group: :sources do
         end
 
         specify 'new verbatim source from citation' do
-          VCR.use_cassette("CrossRefFromCitation") do
+          VCR.use_cassette('CrossRefFromCitation') do
             fill_in 'citation', with: 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.'
             click_button 'Preview'
           end
@@ -43,7 +43,7 @@ describe 'Source from Citation', type: :feature, group: :sources do
 
         specify 'new source from unresolvable citation' do
 
-          VCR.use_cassette("CrossRefFromCitation2") do
+          VCR.use_cassette('CrossRefFromCitation2') do
             fill_in 'citation', with: '111111' # they learn, and match! 'Eades & Deem. 2008. Case 3429. CHARILAIDAE Dirsh, 1953 (Insecta, Orthoptera)'
             click_button 'Preview'
           end

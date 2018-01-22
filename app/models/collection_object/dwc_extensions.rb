@@ -35,12 +35,12 @@ module CollectionObject::DwcExtensions
 
   # http://rs.tdwg.org/dwc/terms/genus
   def dwc_genus
-    taxonomy['genus'] && taxonomy['genus'].compact.join(" ")
+    taxonomy['genus'] && taxonomy['genus'].compact.join(' ')
   end
 
   # http://rs.tdwg.org/dwc/terms/species
   def dwc_specific_epithet
-    taxonomy['species'] && taxonomy['species'].compact.join(" ")
+    taxonomy['species'] && taxonomy['species'].compact.join(' ')
   end
 
   def dwc_scientific_name

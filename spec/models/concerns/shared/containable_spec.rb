@@ -12,8 +12,8 @@ describe 'Containables', type: :model, group: :containers do
   let(:slide) {Container::Slide.create(container: slide_box, name: 'my slide box')}
   let(:unit_tray) {Container::UnitTray.create(disposition: 'col 1 row 2') }
 
-  context "associations" do
-    specify "container" do
+  context 'associations' do
+    specify 'container' do
       expect(containable_class).to respond_to(:container)
     end
 
@@ -21,28 +21,28 @@ describe 'Containables', type: :model, group: :containers do
       expect {containable_class.container = Container.new}.to raise_error ActiveRecord::HasOneThroughNestedAssociationsAreReadonly
     end
 
-    specify "container_item" do
+    specify 'container_item' do
       expect(containable_class.container_item = ContainerItem.new).to be_truthy
     end
   end
 
-  specify "#containable?" do
+  specify '#containable?' do
     expect(containable_class.containable?).to eq(true)
   end
 
-  specify "#contained?" do
+  specify '#contained?' do
     expect(containable_class.contained?).to eq(false)
   end
 
-  specify "#enclosing_containers" do
+  specify '#enclosing_containers' do
     expect(containable_class.enclosing_containers).to eq([])
   end
 
-  specify "#containable?" do
+  specify '#containable?' do
     expect(containable_class.containable?).to eq(true)
   end
 
-  context "putting in a container" do
+  context 'putting in a container' do
     specify 'with contained_in' do
       containable_class.contained_in = building
       expect(containable_class.save).to be_truthy

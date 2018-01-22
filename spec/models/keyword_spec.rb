@@ -9,15 +9,15 @@ describe Keyword, type: :model, group: :tags do
     expect(keyword.tags << Tag.new(tag_object: otu) ).to be_truthy
   end
 
-  context "validation" do
+  context 'validation' do
     let!(:k) { FactoryBot.create(:valid_keyword) }
 
-    specify "can be used for tags" do
+    specify 'can be used for tags' do
       t = Tag.new(keyword: k, tag_object: FactoryBot.build(:valid_otu))
       expect(t.save).to be_truthy
     end
 
-    specify "can not be used for other things" do
+    specify 'can not be used for other things' do
       expect {c = CitationTopic.new(topic: k)}.to raise_error(ActiveRecord::AssociationTypeMismatch)
     end
   end

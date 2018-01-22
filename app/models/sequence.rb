@@ -67,7 +67,7 @@ class Sequence < ApplicationRecord
   end
 
   validates_presence_of :sequence
-  validates_inclusion_of :sequence_type, in: ["DNA", "RNA", "AA"]
+  validates_inclusion_of :sequence_type, in: ['DNA', 'RNA', 'AA']
 
   protected
 

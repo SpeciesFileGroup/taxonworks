@@ -10,8 +10,8 @@ describe 'Identifiable', :type => :model do
     end
   end
 
-   context "methods" do
-    specify ".identified?" do
+   context 'methods' do
+    specify '.identified?' do
       expect(identifiable_instance.identified?).to eq(false)
     end
 
@@ -33,11 +33,11 @@ describe 'Identifiable', :type => :model do
       let!(:identifier2) { FactoryBot.create(:valid_identifier, identifier_object: identifiable_instance, identifier: '456', namespace: n2) }
       let!(:identifier3) { FactoryBot.create(:valid_identifier, identifier_object: identifiable_instance, identifier: '789', namespace: n3) }
 
-      specify ".identified?" do
+      specify '.identified?' do
         expect(identifiable_instance.identified?).to eq(true)
       end
 
-      specify "#with_namespaced_identifier(namespace_name, identifier)" do
+      specify '#with_namespaced_identifier(namespace_name, identifier)' do
         expect(identifiable_class.with_namespaced_identifier('foo', '123').count).to eq(0)
         expect(identifiable_class.with_namespaced_identifier(namespace_name1, '123').all.count).to eq(1)
       end

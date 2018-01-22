@@ -1066,7 +1066,7 @@ class TaxonName < ApplicationRecord
     if leaf?
       true
     else
-      errors.add(:base, "This taxon has children names attached, delete those first.")
+      errors.add(:base, 'This taxon has children names attached, delete those first.')
       # false
       throw :abort
     end
@@ -1122,7 +1122,7 @@ class TaxonName < ApplicationRecord
     if (rank_class != rank_class_was) && !rank_class_was.nil?
 
       if rank_class_was == 'NomenclaturalRank'
-        errors.add(:rank_class, "Root can not have a new rank")
+        errors.add(:rank_class, 'Root can not have a new rank')
         return
       end
 
@@ -1288,7 +1288,7 @@ class TaxonName < ApplicationRecord
     r = taxon_name_relationships.includes(:source).order_by_oldest_source_first.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM)
     if r.to_a.count > 1
       if r.first.nomenclature_date.to_date == r.second.nomenclature_date.to_date
-        soft_validations.add(:base, "Taxon has two alternative invalidating relationships with identical dates. To resolve ambiguity, add original sources to the relationships with different priority dates.")
+        soft_validations.add(:base, 'Taxon has two alternative invalidating relationships with identical dates. To resolve ambiguity, add original sources to the relationships with different priority dates.')
       end
     end
   end

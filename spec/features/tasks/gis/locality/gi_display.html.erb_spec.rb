@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "tasks/gis/locality/gi_display.html.erb", type: :feature, group: :geo do
+describe 'tasks/gis/locality/gi_display.html.erb', type: :feature, group: :geo do
 
   before {
       sign_in_user_and_select_project

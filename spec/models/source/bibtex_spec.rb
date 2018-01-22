@@ -128,7 +128,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
     end
 
-    context "Should handle BibTeX formatting" do
+    context 'Should handle BibTeX formatting' do
       # BibTeX.parse doesn't handle math version so no sub or sup (e.g. 20<sup>th</sup>)
       specify 'Strings are output properly' do
         citation_string = %q(@Article{py03,
@@ -178,7 +178,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         a               = BibTeX.parse(citation_string).convert(:latex)
         entry           = a.first
         src             = Source::Bibtex.new_from_bibtex(entry)
-        expect(src.cached_string('html')).to eq("Grubbs, S., Baumann, R., DeWalt, R. &amp; Tweddale, T. (2014) A review of the Nearctic genus Prostoia (Ricker) (Plecoptera, Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff &amp; Kirchner. <i>ZooKeys</i> 401, 11–30.")
+        expect(src.cached_string('html')).to eq('Grubbs, S., Baumann, R., DeWalt, R. &amp; Tweddale, T. (2014) A review of the Nearctic genus Prostoia (Ricker) (Plecoptera, Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff &amp; Kirchner. <i>ZooKeys</i> 401, 11–30.')
       end
     end
 
@@ -677,7 +677,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     specify 'with << and an existing object' do
       expect(bibtex.roles.count).to eq(0)
-      bibtex.authors << Person.new(last_name: "Smith")
+      bibtex.authors << Person.new(last_name: 'Smith')
       expect(bibtex.save).to be_truthy
 
       expect(bibtex.authors.first.creator.nil?).to be_falsey
@@ -701,7 +701,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       let(:s) { Source::Bibtex.new(title: 'Roles II', year: 1924, bibtex_type: 'book') }
       # A setter solution that approximates nested_attributes_for (which can't be used on polymorphic through)
       specify 'with new and authors_to_create pattern' do
-        s.authors_to_create = [{last_name: "Yabbadabbadoo."}]
+        s.authors_to_create = [{last_name: 'Yabbadabbadoo.'}]
         expect(s.save).to be_truthy
         expect(s.roles.count).to eq(1)
         expect(s.roles.first.creator.nil?).to be_falsey
@@ -876,7 +876,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         context ".has_#{a}s? should evaluate both the #{a} attribute & roles" do
           let(:has_method) { "has_#{a}s?" }
 
-          specify "returns false if neither exist" do
+          specify 'returns false if neither exist' do
             expect(@source_bibtex.send(has_method)).to be_falsey
           end
 
@@ -1209,10 +1209,10 @@ describe Source::Bibtex, type: :model, group: :sources do
 
   context 'nested attributes' do
     #let(:b){Source::Bibtex.new}
-    let(:person1) { Person::Unvetted.create!(last_name: "un") }
-    let(:person2) { Person::Unvetted.create!(last_name: "deux") }
-    let(:person3) { Person::Unvetted.create!(last_name: "trois") }
-    let(:required_params) { {bibtex_type: 'article', title: "Three Frenchmen"} }
+    let(:person1) { Person::Unvetted.create!(last_name: 'un') }
+    let(:person2) { Person::Unvetted.create!(last_name: 'deux') }
+    let(:person3) { Person::Unvetted.create!(last_name: 'trois') }
+    let(:required_params) { {bibtex_type: 'article', title: 'Three Frenchmen'} }
 
     context 'with new source' do
       context 'creates new author role with existing person' do

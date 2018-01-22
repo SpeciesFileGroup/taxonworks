@@ -12,7 +12,7 @@ describe PeopleHelper, :type => :helper do
       expect(helper.person_link(person)).to have_link(person.name)
     end
 
-    specify ".people_search_form" do
+    specify '.people_search_form' do
       expect(helper.people_search_form).to have_field('person_id_for_quick_search_form')
     end
 

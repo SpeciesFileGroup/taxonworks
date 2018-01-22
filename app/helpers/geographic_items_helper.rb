@@ -23,7 +23,7 @@ module GeographicItemsHelper
 
   def geographic_item_links(geographic_items)
     return content_tag(:em, 'none') if geographic_items.count == 0
-    geographic_items.collect { |a| geographic_item_link(a) }.join(", ").html_safe
+    geographic_items.collect { |a| geographic_item_link(a) }.join(', ').html_safe
   end
 
   def geographic_item_parent_nav_links(geographic_item)

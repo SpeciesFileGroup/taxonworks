@@ -4,7 +4,7 @@ namespace :tw do
     desc 'call like "rake tw:intialize:load_repositories", required data_directory'
     task :load_repositories => [:data_directory, :environment, :user_id] do |t|
 
-      print "Loading repositories..."
+      print 'Loading repositories...'
       if Repository.all.count > 0 
         puts 'There are existing repositories, doing nothing.'.red.on_white 
         raise 

@@ -23,12 +23,12 @@ describe 'Content editor' do
 	    specify 'can create new topic' do
 	      click_button('Topic')
 	      click_button('New')
-	      expect(page).to have_content("New topic")
-	      fill_in 'Name', with: "Testing topic"
-	      fill_in 'Definition', with: "Testing, making sure this is long enough"
+	      expect(page).to have_content('New topic')
+	      fill_in 'Name', with: 'Testing topic'
+	      fill_in 'Definition', with: 'Testing, making sure this is long enough'
 	      click_button('Create')
 	      find('.modal-close').click
-	      expect(page).to have_content("Testing topic was successfully created.")
+	      expect(page).to have_content('Testing topic was successfully created.')
 	    end
 	end
   end

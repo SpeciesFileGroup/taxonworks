@@ -49,7 +49,7 @@ RSpec.describe PinboardItem do
     end
 
     specify '#is_inserted: "true"' do
-      b.update_attribute(:is_inserted, "true")
+      b.update_attribute(:is_inserted, 'true')
       b.reload
       expect(b.is_inserted?).to be(true) 
     end

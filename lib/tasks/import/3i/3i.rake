@@ -394,11 +394,11 @@ namespace :tw do
         )
 
         @data.biocuration_classes.merge!(
-            "Specimens" => BiocurationClass.find_or_create_by(name: "Adult", definition: 'Adult specimen', project_id: $project_id),
-            "Males" => BiocurationClass.find_or_create_by(name: "Male", definition: 'Male specimen', project_id: $project_id),
-            "Females" => BiocurationClass.find_or_create_by(name: "Female", definition: 'Female specimen', project_id: $project_id),
-            "Nymphs" => BiocurationClass.find_or_create_by(name: "Immature", definition: 'Immature specimen', project_id: $project_id),
-            "Exuvia" => BiocurationClass.find_or_create_by(name: "Exuvia", definition: 'Exuvia specimen', project_id: $project_id)
+            'Specimens' => BiocurationClass.find_or_create_by(name: 'Adult', definition: 'Adult specimen', project_id: $project_id),
+            'Males' => BiocurationClass.find_or_create_by(name: 'Male', definition: 'Male specimen', project_id: $project_id),
+            'Females' => BiocurationClass.find_or_create_by(name: 'Female', definition: 'Female specimen', project_id: $project_id),
+            'Nymphs' => BiocurationClass.find_or_create_by(name: 'Immature', definition: 'Immature specimen', project_id: $project_id),
+            'Exuvia' => BiocurationClass.find_or_create_by(name: 'Exuvia', definition: 'Exuvia specimen', project_id: $project_id)
         )
 
         @data.topics.merge!(
@@ -1703,7 +1703,7 @@ namespace :tw do
             if !row['Type'].blank?
               type = @type_type_3i[row['Type'].downcase]
               unless type.nil?
-                type = type + 's' if o.type == "Lot"
+                type = type + 's' if o.type == 'Lot'
                 tm = TypeMaterial.create(protonym_id: otu.taxon_name_id, material: o, type_type: type )
                 o.tags.find_or_create_by!(keyword: @data.keywords['Allotype']) if row['Type'] == 'Allotype'
                 if tm.id.nil?
@@ -1720,14 +1720,14 @@ namespace :tw do
         nlt = ce['LatNS'].blank? ? nil : ce['LatNS'].capitalize
         ltd = ce['LatDeg'].blank? ? nil : "#{ce['LatDeg']}º".gsub('.00º', 'º')
         ltm = ce['LatMin'].blank? ? nil : "#{ce['LatMin']}'".gsub(".00'", "'")
-        lts = ce['LatSec'].blank? ? nil : "#{ce['LatSec']}\"".gsub(".00\"", "\"")
+        lts = ce['LatSec'].blank? ? nil : "#{ce['LatSec']}\"".gsub('.00"', '"')
         latitude = [nlt,ltd,ltm,lts].compact.join
         latitude = nil if latitude == '-'
 
         nll = ce['LongEW'].blank? ? nil : ce['LongEW'].capitalize
         lld = ce['LongDeg'].blank? ? nil : "#{ce['LongDeg']}º".gsub('.00º', 'º')
         llm = ce['LongMin'].blank? ? nil : "#{ce['LongMin']}'".gsub(".00'", "'")
-        lls = ce['LongSec'].blank? ? nil : "#{ce['LongSec']}\"".gsub(".00\"", "\"")
+        lls = ce['LongSec'].blank? ? nil : "#{ce['LongSec']}\"".gsub('.00"', '"')
 
         longitude = [nll,lld,llm,lls].compact.join
         longitude = nil if longitude == '-'
@@ -1740,8 +1740,8 @@ namespace :tw do
         # DateTo
 
         sdm, sdd, sdy, edm, edd, edy = nil, nil, nil, nil, nil, nil
-        ( sdm, sdd, sdy = ce['Date'].split("/") ) if !ce['Date'].blank?
-        ( edm, edd, edy = ce['DateTo'].split("/") ) if !ce['DateTo'].blank?
+        ( sdm, sdd, sdy = ce['Date'].split('/') ) if !ce['Date'].blank?
+        ( edm, edd, edy = ce['DateTo'].split('/') ) if !ce['DateTo'].blank?
         sdy = sdy.to_i unless sdy.blank?
         edy = edy.to_i unless edy.blank?
         sdd = sdd.to_i unless sdd.blank?

@@ -376,7 +376,7 @@ describe GeographicItem, type: :model, group: :geo do
       end
 
       specify '#center_coords' do
-        expect(@item_d.center_coords).to eq(["-0.000000", "-0.000000"])
+        expect(@item_d.center_coords).to eq(['-0.000000', '-0.000000'])
       end
 
       context '#shape on new' do

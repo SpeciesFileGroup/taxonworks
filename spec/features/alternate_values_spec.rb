@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "AlternateValues", type: :feature, group: [:annotators] do
+describe 'AlternateValues', type: :feature, group: [:annotators] do
   let(:index_path) {alternate_values_path}
   let(:page_title) {'Alternate values'}
 
@@ -13,7 +13,7 @@ describe "AlternateValues", type: :feature, group: [:annotators] do
 
     context 'with some record created' do
       before {
-        k = Keyword.create!(name: 'Dictionary', definition: "Book with words, lots of words, more than 20.", by: @user, project: @project)
+        k = Keyword.create!(name: 'Dictionary', definition: 'Book with words, lots of words, more than 20.', by: @user, project: @project)
 
         ['D.', 'Dict.', 'Di.'].each do |n|
           AlternateValue::Abbreviation.create!(alternate_value_object:           k,

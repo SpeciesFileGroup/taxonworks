@@ -15,7 +15,7 @@ class Tasks::Import::Dwca::PsuImportController < ApplicationController
       digest_cookie(params[:file].tempfile, :psu_import_md5)
       render 'do_psu_import'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :index
     end
   end

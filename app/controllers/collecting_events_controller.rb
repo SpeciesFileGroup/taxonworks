@@ -105,7 +105,7 @@ class CollectingEventsController < ApplicationController
   # see rails-jquery-autocomplete
   def autocomplete_collecting_event_verbatim_locality
     term = params[:term]
-    values = CollectingEvent.where(project_id: sessions_current_project_id).where("verbatim_locality ILIKE ?", term + '%').select(:verbatim_locality, 'length(verbatim_locality)').distinct.limit(20).order('length(verbatim_locality)').order('verbatim_locality ASC').all
+    values = CollectingEvent.where(project_id: sessions_current_project_id).where('verbatim_locality ILIKE ?', term + '%').select(:verbatim_locality, 'length(verbatim_locality)').distinct.limit(20).order('length(verbatim_locality)').order('verbatim_locality ASC').all
     render :json => values.map { |v| { :label => v.verbatim_locality, :value => v.verbatim_locality} }
   end
 
@@ -124,7 +124,7 @@ class CollectingEventsController < ApplicationController
       digest_cookie(params[:file].tempfile, :batch_collecting_events_md5)
       render 'collecting_events/batch_load/simple/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end
@@ -150,7 +150,7 @@ class CollectingEventsController < ApplicationController
       digest_cookie(params[:file].tempfile, :Castor_collecting_events_md5)
       render 'collecting_events/batch_load/castor/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load 
     end
   end

@@ -108,7 +108,7 @@ class Georeference::GeoLocate < Georeference
   # @return [Array]
   # parsing the four possible bits of a response into an array
   def self.parse_iframe_result(response_string)
-    lat, long, error_radius, uncertainty_polygon = response_string.split("|")
+    lat, long, error_radius, uncertainty_polygon = response_string.split('|')
     uncertainty_points                           = nil
     unless uncertainty_polygon.nil?
       if uncertainty_polygon =~ /unavailable/i # todo: there are many more possible error conditions

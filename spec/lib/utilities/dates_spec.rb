@@ -40,7 +40,7 @@ describe 'Dates', group: [:collecting_events, :dates] do
                       {:dd_dd_month_yyyy => {},
                        :dd_mm_dd_mm_yyyy => {},
                        :dd_month_dd_month_yyyy => {},
-                       :dd_month_yyy => {:method => :dd_month_yyy, :piece => {0 => "5 V 2003"}, :start_date_year => "2003", :start_date_month => "5", :start_date_day => "5", :end_date_year => "", :end_date_month => "", :end_date_day => "", :start_date => "2003 5 5", :end_date => ""},
+                       :dd_month_yyy => {:method => :dd_month_yyy, :piece => {0 => '5 V 2003'}, :start_date_year => '2003', :start_date_month => '5', :start_date_day => '5', :end_date_year => '', :end_date_month => '', :end_date_day => '', :start_date => '2003 5 5', :end_date => ''},
                        :dd_month_yyyy_2 => {},
                        :mm_dd_dd_yyyy => {},
                        :mm_dd_mm_dd_yyyy => {},
@@ -75,7 +75,7 @@ describe 'Dates', group: [:collecting_events, :dates] do
                       {:dd_dd_month_yyyy => {},
                        :dd_mm_dd_mm_yyyy => {},
                        :dd_month_dd_month_yyyy => {},
-                       :dd_month_yyy => {:method => :dd_month_yyy, :piece => {0 => "4 JUL '03"}, :start_date_year => "2003", :start_date_month => "7", :start_date_day => "4", :end_date_year => "", :end_date_month => "", :end_date_day => "", :start_date => "2003 7 4", :end_date => ""},
+                       :dd_month_yyy => {:method => :dd_month_yyy, :piece => {0 => "4 JUL '03"}, :start_date_year => '2003', :start_date_month => '7', :start_date_day => '4', :end_date_year => '', :end_date_month => '', :end_date_day => '', :start_date => '2003 7 4', :end_date => ''},
                        :dd_month_yyyy_2 => {},
                        :mm_dd_dd_yyyy => {},
                        :mm_dd_mm_dd_yyyy => {},
@@ -129,7 +129,7 @@ describe 'Dates', group: [:collecting_events, :dates] do
               {:dd_dd_month_yyyy => {},
                :dd_mm_dd_mm_yyyy => {},
                :dd_month_dd_month_yyyy => {},
-               :dd_month_yyy => {:method => :dd_month_yyy, :piece => {0 => "4 jan, '17"}, :start_date_year => "2017", :start_date_month => "1", :start_date_day => "4", :end_date_year => "", :end_date_month => "", :end_date_day => "", :start_date => "2017 1 4", :end_date => ""},
+               :dd_month_yyy => {:method => :dd_month_yyy, :piece => {0 => "4 jan, '17"}, :start_date_year => '2017', :start_date_month => '1', :start_date_day => '4', :end_date_year => '', :end_date_month => '', :end_date_day => '', :start_date => '2017 1 4', :end_date => ''},
                :dd_month_yyyy_2 => {},
                :mm_dd_dd_yyyy => {},
                :mm_dd_mm_dd_yyyy => {},
@@ -148,10 +148,10 @@ describe 'Dates', group: [:collecting_events, :dates] do
                :yyyy_month_dd_month_dd => {}
               },
           'Here is some extra text:,;   22-23 V 2003; More stuff at the end' =>
-              {:dd_dd_month_yyyy => {:method => :dd_dd_month_yyyy, :piece => {0 => "22-23 V 2003"}, :start_date_year => "2003", :start_date_month => "5", :start_date_day => "22", :end_date_year => "2003", :end_date_month => "5", :end_date_day => "23", :start_date => "2003 5 22", :end_date => "2003 5 23"},
+              {:dd_dd_month_yyyy => {:method => :dd_dd_month_yyyy, :piece => {0 => '22-23 V 2003'}, :start_date_year => '2003', :start_date_month => '5', :start_date_day => '22', :end_date_year => '2003', :end_date_month => '5', :end_date_day => '23', :start_date => '2003 5 22', :end_date => '2003 5 23'},
                :dd_mm_dd_mm_yyyy => {},
                :dd_month_dd_month_yyyy => {},
-               :dd_month_yyy => {:method => :dd_month_yyy, :piece => {0 => "23 V 2003"}, :start_date_year => "2003", :start_date_month => "5", :start_date_day => "23", :end_date_year => "", :end_date_month => "", :end_date_day => "", :start_date => "2003 5 23", :end_date => ""},
+               :dd_month_yyy => {:method => :dd_month_yyy, :piece => {0 => '23 V 2003'}, :start_date_year => '2003', :start_date_month => '5', :start_date_day => '23', :end_date_year => '', :end_date_month => '', :end_date_day => '', :start_date => '2003 5 23', :end_date => ''},
                :dd_month_yyyy_2 => {},
                :mm_dd_dd_yyyy => {},
                :mm_dd_mm_dd_yyyy => {},
@@ -165,7 +165,7 @@ describe 'Dates', group: [:collecting_events, :dates] do
                :month_dd_yyyy_2 => {},
                :yyyy_mm_dd => {},
                :yyy_mm_dd => {},
-               :yyyy_month_dd => {:method => :yyyy_month_dd, :piece => {0 => "23 V 20"}, :start_date_year => "1923", :start_date_month => "5", :start_date_day => "20", :end_date_year => "", :end_date_month => "", :end_date_day => "", :start_date => "1923 5 20", :end_date => ""},
+               :yyyy_month_dd => {:method => :yyyy_month_dd, :piece => {0 => '23 V 20'}, :start_date_year => '1923', :start_date_month => '5', :start_date_day => '20', :end_date_year => '', :end_date_month => '', :end_date_day => '', :start_date => '1923 5 20', :end_date => ''},
                :yyyy_mm_dd_mm_dd => {},
                :yyyy_month_dd_month_dd => {}
               }

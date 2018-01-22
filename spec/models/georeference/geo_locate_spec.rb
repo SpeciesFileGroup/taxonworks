@@ -39,7 +39,7 @@ describe Georeference::GeoLocate, type: :model, group: :geo do
 
     specify 'is valid for a drawn point with no further metadata' do
       geo_locate.iframe_response = iframe_example_values[:drawn_point]
-      expect(geo_locate.valid?).to be_truthy, geo_locate.errors.full_messages.join(" ")
+      expect(geo_locate.valid?).to be_truthy, geo_locate.errors.full_messages.join(' ')
     end
 
     specify 'is valid for a drawn point with uncertainty' do
@@ -49,7 +49,7 @@ describe Georeference::GeoLocate, type: :model, group: :geo do
 
     specify 'is valid for a drawn point, polygon and uncertainty' do
       geo_locate.iframe_response = iframe_example_values[:drawn_point_with_polygon_and_uncertainty]
-      expect(geo_locate.valid?).to be_truthy, geo_locate.errors.full_messages.join(" ")
+      expect(geo_locate.valid?).to be_truthy, geo_locate.errors.full_messages.join(' ')
     end
 
     specify 'is valid for a georeference point with no polygon' do
@@ -134,17 +134,17 @@ describe Georeference::GeoLocate, type: :model, group: :geo do
     end
 
     specify '.request_hash' do
-      expect(georeference_from_build.request_hash).to eq({"country"      => "USA",
-                                                          "state"        => "IL",
-                                                          "county"       => "",
-                                                          "locality"     => "Urbana",
-                                                          "enableH2O"    => "false",
-                                                          "hwyX"         => "false",
-                                                          "doUncert"     => "true",
-                                                          "doPoly"       => "true",
-                                                          "displacePoly" => "false",
-                                                          "languageKey"  => "0",
-                                                          "fmt"          => "json"})
+      expect(georeference_from_build.request_hash).to eq({'country'      => 'USA',
+                                                          'state'        => 'IL',
+                                                          'county'       => '',
+                                                          'locality'     => 'Urbana',
+                                                          'enableH2O'    => 'false',
+                                                          'hwyX'         => 'false',
+                                                          'doUncert'     => 'true',
+                                                          'doPoly'       => 'true',
+                                                          'displacePoly' => 'false',
+                                                          'languageKey'  => '0',
+                                                          'fmt'          => 'json'})
     end
   end
 

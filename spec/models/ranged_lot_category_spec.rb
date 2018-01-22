@@ -35,7 +35,7 @@ describe RangedLotCategory, :type => :model do
         ranged_lot_category.maximum_value = 3
         ranged_lot_category.name = 'a'
         ranged_lot_category.save!
-        r = RangedLotCategory.new(minimum_value: 4, maximum_value: 5, name: "a")
+        r = RangedLotCategory.new(minimum_value: 4, maximum_value: 5, name: 'a')
         r.valid?
         expect(r.errors.include?(:name)).to be_truthy
       end

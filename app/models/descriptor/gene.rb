@@ -183,7 +183,7 @@ class Descriptor::Gene < Descriptor
   #   a lookup linking key/value terms to their single letter representation
   #   note that
   def gene_attribute_term_index
-    symbols = ("a".."z").to_a + ("A".."Z").to_a
+    symbols = ('a'..'z').to_a + ('A'..'Z').to_a
     matches = gene_attribute_logic.scan(/([A-Za-z:]+\.[\d]+)/).flatten
     h = {}
     matches.each_with_index do |m, i|
@@ -225,7 +225,7 @@ class Descriptor::Gene < Descriptor
 
   def gene_attribute_logic_compresses
     if compress_logic.match?(/[^a-zA-Z\(\)\.\+]/)
-      errors.add(:gene_attribute_logic, "is invalidly formed (likely a bad sequence_relationship_type)")
+      errors.add(:gene_attribute_logic, 'is invalidly formed (likely a bad sequence_relationship_type)')
     end
   end
 

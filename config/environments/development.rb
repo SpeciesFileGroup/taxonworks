@@ -28,7 +28,7 @@ TaxonWorks::Application.configure do
   # number of complex assets.
   config.assets.debug = false # true if you are stuck
 
-  config.action_mailer.default_url_options = { :host => "localhost:3000" }
+  config.action_mailer.default_url_options = { :host => 'localhost:3000' }
 
   # Load local settings
   # Settings.load_from_file(config, 'config/application_settings.yml', :development) if File.exist?('config/application_settings.yml')

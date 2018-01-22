@@ -11,6 +11,6 @@ class NomenclaturalRank::Icnb::FamilyGroup::Family < NomenclaturalRank::Icnb::Fa
   end
 
   def self.abbreviation
-    "fam."
+    'fam.'
   end
 end

@@ -108,7 +108,7 @@ class AssertedDistributionsController < ApplicationController
       digest_cookie(params[:file].tempfile, :batch_asserted_distributions_md5)
       render 'asserted_distributions/batch_load/simple/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load 
     end
   end

@@ -95,10 +95,10 @@ module Plugins::PapertrailHelper
     end
 
     return {
-      "added_strings" => added_strings,
-      "added_strings_indices" => added_strings_indices, 
-      "deleted_strings" => deleted_strings,
-      "deleted_strings_indices" => deleted_strings_indices
+      'added_strings' => added_strings,
+      'added_strings_indices' => added_strings_indices, 
+      'deleted_strings' => deleted_strings,
+      'deleted_strings_indices' => deleted_strings_indices
     }
   end
 
@@ -131,10 +131,10 @@ module Plugins::PapertrailHelper
     end
 
     return {
-      "added_strings" => added_strings,
-      "added_strings_indices" => added_strings_indices, 
-      "deleted_strings" => deleted_strings,
-      "deleted_strings_indices" => deleted_strings_indices
+      'added_strings' => added_strings,
+      'added_strings_indices' => added_strings_indices, 
+      'deleted_strings' => deleted_strings,
+      'deleted_strings_indices' => deleted_strings_indices
     }
   end
 
@@ -143,7 +143,7 @@ module Plugins::PapertrailHelper
   def get_highlighted_words words, highlighted_words, highlighted_words_indices, style_class
     start_index = 0
     end_index = 0
-    html_string = ""
+    html_string = ''
 
     for highlighted_index in 0...highlighted_words_indices.length
       while end_index < highlighted_words_indices[highlighted_index]
@@ -151,9 +151,9 @@ module Plugins::PapertrailHelper
       end
       
       if start_index != end_index
-        html_string += "<span>"
+        html_string += '<span>'
         html_string += words[start_index...end_index]
-        html_string += "</span>"
+        html_string += '</span>'
       end    
 
       start_index = end_index
@@ -161,15 +161,15 @@ module Plugins::PapertrailHelper
 
       html_string += "<span class=\"#{style_class}\">"
       html_string += words[start_index...end_index]
-      html_string += "</span>"
+      html_string += '</span>'
 
       start_index = end_index
     end
 
     if end_index < words.length
-      html_string += "<span>"
+      html_string += '<span>'
       html_string += words[end_index...words.length]
-      html_string += "</span>"
+      html_string += '</span>'
     end
 
     return html_string.html_safe
@@ -202,11 +202,11 @@ module Plugins::PapertrailHelper
   # "updated_by_id"
   # "project_id"
   def filter_out_attributes attributes
-    attributes_filter = ["id", "created_at", "created_by_id", "updated_by_id", "project_id"]
+    attributes_filter = ['id', 'created_at', 'created_by_id', 'updated_by_id', 'project_id']
     filtered_attributes = {}
 
     # Make the "updated_at" attribute the first hash for formatting purposes
-    filtered_attributes["updated_at"] = 0
+    filtered_attributes['updated_at'] = 0
 
     attributes.each do |key, value|
       if !attributes_filter.include?(key)

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe "Pinboards", type: :feature do
+RSpec.describe 'Pinboards', type: :feature do
 
   context 'signed in with a project selected' do
     before {sign_in_user_and_select_project}

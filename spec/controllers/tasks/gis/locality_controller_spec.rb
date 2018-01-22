@@ -12,8 +12,8 @@ describe Tasks::Gis::LocalityController, type: :controller do
   after(:all) {
     clean_slate_geo
   }
-  describe "GET nearby" do
-    it "returns http success" do
+  describe 'GET nearby' do
+    it 'returns http success' do
       # pending 'proper specification of the route'
       get :nearby, params: {id: @ce_p1.to_param}
       expect(response).to have_http_status(:success)

@@ -21,7 +21,7 @@ describe 'Housekeeping::Project' do
         $user_id = 1
       }
 
-      let(:project) { Project.new(name: "Foo", without_root_taxon_name: true) }
+      let(:project) { Project.new(name: 'Foo', without_root_taxon_name: true) }
 
       specify 'has_many :related_instances' do
         expect(project).to respond_to(:with_projects)

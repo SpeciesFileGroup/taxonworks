@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "Images", :type => :feature do
+describe 'Images', :type => :feature do
   let(:index_path) { images_path }
   let(:page_title) { 'Images' }
 

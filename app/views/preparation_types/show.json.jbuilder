@@ -1,1 +1,1 @@
-render "attributes", preparation_type: :preparation_type
+render 'attributes', preparation_type: :preparation_type

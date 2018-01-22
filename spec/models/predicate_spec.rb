@@ -39,7 +39,7 @@ describe Predicate, type: :model do
 
   end
 
-  context "validation" do
+  context 'validation' do
     # specify "can be used for attributes only"
   end
 end

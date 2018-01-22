@@ -16,7 +16,7 @@ describe CitationsHelper, :type => :helper do
       expect(helper.citation_link(citation)).to match(link_text)
     end
 
-    specify "#citation_search_form" do
+    specify '#citation_search_form' do
       expect(helper.citations_search_form).to_not have_button('Edit')
       expect(helper.citations_search_form).to have_field('citation_id_for_quick_search_form')
     end

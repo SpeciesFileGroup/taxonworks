@@ -5,7 +5,7 @@ module Tasks::Otus::AreaAndNomen::AreaAndNomenHelper
     if @otus.any?
       page_entries_info(@otus)
     else
-      "Displaying no otus"
+      'Displaying no otus'
     end
   end
 

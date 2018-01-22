@@ -12,13 +12,13 @@ describe ConfidenceLevel, type: :model, group: :confidences do
     expect(confidence_level.confidences << Confidence.new(confidence_object: otu) ).to be_truthy
   end
 
-  context "validation" do
-    specify "can be used for confidences" do
+  context 'validation' do
+    specify 'can be used for confidences' do
       t = Confidence.new(confidence_level: k1, confidence_object: FactoryBot.build(:valid_otu))
       expect(t.save).to be_truthy
     end
 
-    specify "can not be used for other things" do
+    specify 'can not be used for other things' do
       expect {c = CitationTopic.new(topic: k1)}.to raise_error(ActiveRecord::AssociationTypeMismatch)
     end
   end

@@ -43,54 +43,54 @@ describe GeographicAreasGeographicItemsController, :type => :controller do
   # GeographicAreasGeographicItemsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET new" do
-    it "assigns a new geographic_areas_geographic_item as @geographic_areas_geographic_item" do
+  describe 'GET new' do
+    it 'assigns a new geographic_areas_geographic_item as @geographic_areas_geographic_item' do
       get :new, params: {}, session: valid_session
       expect(assigns(:geographic_areas_geographic_item)).to be_a_new(GeographicAreasGeographicItem)
     end
   end
 
-  describe "GET edit" do
-    it "assigns the requested geographic_areas_geographic_item as @geographic_areas_geographic_item" do
+  describe 'GET edit' do
+    it 'assigns the requested geographic_areas_geographic_item as @geographic_areas_geographic_item' do
       geographic_areas_geographic_item = GeographicAreasGeographicItem.create! valid_attributes
       get :edit, params: {id: geographic_areas_geographic_item.to_param}, session: valid_session
       expect(assigns(:geographic_areas_geographic_item)).to eq(geographic_areas_geographic_item)
     end
   end
 
-  describe "POST create" do
-    describe "with valid params" do
-      it "creates a new GeographicAreasGeographicItem" do
+  describe 'POST create' do
+    describe 'with valid params' do
+      it 'creates a new GeographicAreasGeographicItem' do
         expect {
           post :create, params: {geographic_areas_geographic_item: valid_attributes}, session: valid_session
         }.to change(GeographicAreasGeographicItem, :count).by(1)
       end
 
-      it "assigns a newly created geographic_areas_geographic_item as @geographic_areas_geographic_item" do
+      it 'assigns a newly created geographic_areas_geographic_item as @geographic_areas_geographic_item' do
         post :create, params: {geographic_areas_geographic_item: valid_attributes}, session: valid_session
         expect(assigns(:geographic_areas_geographic_item)).to be_a(GeographicAreasGeographicItem)
         expect(assigns(:geographic_areas_geographic_item)).to be_persisted
       end
 
-      it "redirects to the created geographic_areas_geographic_item" do
+      it 'redirects to the created geographic_areas_geographic_item' do
         post :create, params: {geographic_areas_geographic_item: valid_attributes}, session: valid_session
         expect(response).to redirect_to(GeographicAreasGeographicItem.last)
       end
     end
 
-    describe "with invalid params" do
-      it "assigns a newly created but unsaved geographic_areas_geographic_item as @geographic_areas_geographic_item" do
+    describe 'with invalid params' do
+      it 'assigns a newly created but unsaved geographic_areas_geographic_item as @geographic_areas_geographic_item' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(GeographicAreasGeographicItem).to receive(:save).and_return(false)
-        post :create, params: {geographic_areas_geographic_item: {geographic_area_id: "invalid value"}}, session: valid_session
+        post :create, params: {geographic_areas_geographic_item: {geographic_area_id: 'invalid value'}}, session: valid_session
         expect(assigns(:geographic_areas_geographic_item)).to be_a_new(GeographicAreasGeographicItem)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(GeographicAreasGeographicItem).to receive(:save).and_return(false)
-        post :create, params: {geographic_areas_geographic_item: {geographic_area_id: "invalid value"}}, session: valid_session
-        expect(response).to render_template("new")
+        post :create, params: {geographic_areas_geographic_item: {geographic_area_id: 'invalid value'}}, session: valid_session
+        expect(response).to render_template('new')
       end
     end
   end
@@ -121,12 +121,12 @@ describe GeographicAreasGeographicItemsController, :type => :controller do
       end
     end
 
-    describe "with invalid params" do
-      it "assigns the geographic_areas_geographic_item as @geographic_areas_geographic_item" do
+    describe 'with invalid params' do
+      it 'assigns the geographic_areas_geographic_item as @geographic_areas_geographic_item' do
         geographic_areas_geographic_item = GeographicAreasGeographicItem.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(GeographicAreasGeographicItem).to receive(:save).and_return(false)
-        put :update, params: {id: geographic_areas_geographic_item.to_param, geographic_areas_geographic_item: {geographic_area_id: "invalid value"}}, session: valid_session
+        put :update, params: {id: geographic_areas_geographic_item.to_param, geographic_areas_geographic_item: {geographic_area_id: 'invalid value'}}, session: valid_session
         expect(assigns(:geographic_areas_geographic_item)).to eq(geographic_areas_geographic_item)
       end
 
@@ -134,21 +134,21 @@ describe GeographicAreasGeographicItemsController, :type => :controller do
         geographic_areas_geographic_item = GeographicAreasGeographicItem.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(GeographicAreasGeographicItem).to receive(:save).and_return(false)
-        put :update, params: {id: geographic_areas_geographic_item.to_param, geographic_areas_geographic_item: {geographic_area_id: "invalid value"}}, session: valid_session
-        expect(response).to render_template("edit")
+        put :update, params: {id: geographic_areas_geographic_item.to_param, geographic_areas_geographic_item: {geographic_area_id: 'invalid value'}}, session: valid_session
+        expect(response).to render_template('edit')
       end
     end
   end
 
-  describe "DELETE destroy" do
-    it "destroys the requested geographic_areas_geographic_item" do
+  describe 'DELETE destroy' do
+    it 'destroys the requested geographic_areas_geographic_item' do
       geographic_areas_geographic_item = GeographicAreasGeographicItem.create! valid_attributes
       expect {
         delete :destroy, params: {id: geographic_areas_geographic_item.to_param}, session: valid_session
       }.to change(GeographicAreasGeographicItem, :count).by(-1)
     end
 
-    it "redirects to the geographic_areas_geographic_items list" do
+    it 'redirects to the geographic_areas_geographic_items list' do
       geographic_areas_geographic_item = GeographicAreasGeographicItem.create! valid_attributes
       delete :destroy, params: {id: geographic_areas_geographic_item.to_param}, session: valid_session
       expect(response).to redirect_to(geographic_areas_geographic_items_url)

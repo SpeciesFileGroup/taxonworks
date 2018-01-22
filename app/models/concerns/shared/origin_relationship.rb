@@ -37,7 +37,7 @@ module Shared::OriginRelationship
   module ClassMethods
     def is_origin_for(*args)
       if args.length == 0
-        raise ArgumentError.new("is_origin_for must have an array full of valid target tables supplied!")
+        raise ArgumentError.new('is_origin_for must have an array full of valid target tables supplied!')
       end
 
       # @return [Array of Strings]

@@ -9,7 +9,7 @@ def preview_simple_batch_load
     digest_cookie(params[:file].tempfile, :Simple_namespaces_md5)
     render 'namespaces/batch_load/simple/preview'
   else
-    flash[:notice] = "No file provided!"
+    flash[:notice] = 'No file provided!'
     redirect_to action: :batch_load 
   end
 end

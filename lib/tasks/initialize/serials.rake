@@ -3,7 +3,7 @@ namespace :tw do
 
     desc 'call like "rake tw:initialize:load_serials", required data_directory'
     task :load_serials => [:data_directory, :environment] do |t|
-      print "Loading serials and related metadata..."
+      print 'Loading serials and related metadata...'
 
       [Serial, SerialChronology, Identifier, DataAttribute, AlternateValue].each do |klass|
         if klass.count > 0 
@@ -24,7 +24,7 @@ namespace :tw do
       `pg_restore -Fc -c -d #{database} #{path}` 
       raise "pg_restore failed with exit code #{$?.to_i}" unless $? == 0
       
-      puts "Completed serial data load from .dumps".yellow
+      puts 'Completed serial data load from .dumps'.yellow
     end
   end
 end

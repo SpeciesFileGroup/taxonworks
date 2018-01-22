@@ -37,28 +37,28 @@ before(:each) {
     request.env['HTTP_REFERER'] = list_otus_path # logical example
   }
 
-  describe "POST create" do
-    describe "with valid params" do
-      it "creates a new Container" do
+  describe 'POST create' do
+    describe 'with valid params' do
+      it 'creates a new Container' do
         expect {
           post :create, params: {container: valid_attributes}, session: valid_session
         }.to change(Container, :count).by(1)
       end
 
-      it "assigns a newly created container as @container" do
+      it 'assigns a newly created container as @container' do
         post :create, params: {container: valid_attributes}, session: valid_session
         expect(assigns(:container)).to be_a(Container)
         expect(assigns(:container)).to be_persisted
       end
 
-      it "redirects to :back" do
+      it 'redirects to :back' do
         post :create, params: {container: valid_attributes}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
 
-    describe "with invalid params" do
-      it "assigns a newly created but unsaved container as @container" do
+    describe 'with invalid params' do
+      it 'assigns a newly created but unsaved container as @container' do
         # Trigger the behavior that occurs when invalid params are submitted
         # Container.any_instance.stub(:save).and_return(false)
         # post :create, params: {container: { "name": "invalid value" }}, session: valid_session
@@ -68,7 +68,7 @@ before(:each) {
         expect(assigns(:container)).to be_a_new(Container)
       end
 
-      it "re-renders the :back template" do
+      it 're-renders the :back template' do
         # Trigger the behavior that occurs when invalid params are submitted
         # Container.any_instance.stub(:save).and_return(false)
         # post :create, params: {container: { "name": "invalid value" }}, session: valid_session
@@ -80,10 +80,10 @@ before(:each) {
     end
   end
 
-  describe "PUT update" do
-    describe "with valid params" do
+  describe 'PUT update' do
+    describe 'with valid params' do
       let(:update_params) {ActionController::Parameters.new({name: 'smorf'}).permit(:name)}
-      it "updates the requested container" do
+      it 'updates the requested container' do
         container = Container.create! valid_attributes
         # Assuming there are no other containers in the database, this
         # specifies that the Container created on the previous line
@@ -96,14 +96,14 @@ before(:each) {
         put :update, params: {id: container.to_param, container: update_params}, session: valid_session
       end
 
-      it "assigns the requested container as @container" do
+      it 'assigns the requested container as @container' do
         container = Container.create! valid_attributes
         put :update, params: {id: container.to_param, container: valid_attributes}, session: valid_session
         # assigns(:container).should eq(container)
         expect(assigns(:container)).to eq(container)
       end
 
-      it "redirects to :back" do
+      it 'redirects to :back' do
         container = Container.create! valid_attributes
         put :update, params: {id: container.to_param, container: valid_attributes}, session: valid_session
         # response.should redirect_to(list_otus_path)
@@ -111,8 +111,8 @@ before(:each) {
       end
     end
 
-    describe "with invalid params" do
-      it "assigns the container as @container" do
+    describe 'with invalid params' do
+      it 'assigns the container as @container' do
         container = Container.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         # Container.any_instance.stub(:save).and_return(false)
@@ -123,7 +123,7 @@ before(:each) {
         expect(assigns(:container)).to eq(container)
       end
 
-      it "re-renders the :back template" do
+      it 're-renders the :back template' do
         container = Container.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         # Container.any_instance.stub(:save).and_return(false)
@@ -136,15 +136,15 @@ before(:each) {
     end
   end
 
-  describe "DELETE destroy" do
-    it "destroys the requested container" do
+  describe 'DELETE destroy' do
+    it 'destroys the requested container' do
       container = Container.create! valid_attributes
       expect {
         delete :destroy, params: {id: container.to_param}, session: valid_session
       }.to change(Container, :count).by(-1)
     end
 
-    it "redirects to :back" do
+    it 'redirects to :back' do
       container = Container.create! valid_attributes
       delete :destroy, params: {id: container.to_param}, session: valid_session
       expect(response).to redirect_to(list_otus_path)

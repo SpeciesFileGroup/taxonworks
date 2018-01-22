@@ -37,7 +37,7 @@ describe 'Ranks' do
     end
 
     context 'class methods' do
-      specify "top_rank returns top assignable rank" do
+      specify 'top_rank returns top assignable rank' do
         # The top two levels 
         
         expect(NomenclaturalRank::Iczn.top_rank).to eq(NomenclaturalRank::Iczn::HigherClassificationGroup::Superkingdom)
@@ -52,7 +52,7 @@ describe 'Ranks' do
         expect(NomenclaturalRank::Iczn::FamilyGroup.top_rank).to eq(NomenclaturalRank::Iczn::FamilyGroup::Superfamily)
       end
 
-      specify "Class#ordered_ranks returns descendant classes" do
+      specify 'Class#ordered_ranks returns descendant classes' do
         expect(NomenclaturalRank::Icn::FamilyGroup.ordered_ranks).to eq(
           [NomenclaturalRank::Icn::FamilyGroup::Family,
            NomenclaturalRank::Icn::FamilyGroup::Subfamily,
@@ -61,16 +61,16 @@ describe 'Ranks' do
         )
       end
 
-      specify "rank.lookup return false" do
+      specify 'rank.lookup return false' do
         expect(Ranks.lookup(:iczn, 'false')).to be_falsey
       end
 
-      specify "rank.lookup return proper class for ICZN rank" do
-        expect(Ranks.lookup(:iczn, 'Family').to_s).to eq("NomenclaturalRank::Iczn::FamilyGroup::Family")
+      specify 'rank.lookup return proper class for ICZN rank' do
+        expect(Ranks.lookup(:iczn, 'Family').to_s).to eq('NomenclaturalRank::Iczn::FamilyGroup::Family')
       end
 
-      specify "rank.lookup return proper class for ICN rank" do
-        expect(Ranks.lookup(:icn, 'Family').to_s).to eq("NomenclaturalRank::Icn::FamilyGroup::Family")
+      specify 'rank.lookup return proper class for ICN rank' do
+        expect(Ranks.lookup(:icn, 'Family').to_s).to eq('NomenclaturalRank::Icn::FamilyGroup::Family')
       end
     end
 

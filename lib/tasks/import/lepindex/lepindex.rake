@@ -69,7 +69,7 @@ namespace :tw do
                   puts Rainbow("Error: Can not find image #{f}, for id: #{id}, skipping!").red
                 end
               end
-              puts Rainbow("group handled").yellow
+              puts Rainbow('group handled').yellow
               i += transaction_size 
             end
 
@@ -585,8 +585,8 @@ namespace :tw do
                       protonym.data_attributes.create!(import_predicate: k, value: @data.images_index[row['TaxonNo']][k], type: 'ImportAttribute') unless @data.images_index[row['TaxonNo']][k].blank?
                     end
 
-                    file1 = @data.images_index[row['TaxonNo']]['Front_image'].blank? ? nil : @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/').to_s + @data.images_index[row['TaxonNo']]['Front_image'].to_s
-                    file2 = @data.images_index[row['TaxonNo']]['Back_image'].blank? ? nil : @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/').to_s + @data.images_index[row['TaxonNo']]['Back_image'].to_s
+                    file1 = @data.images_index[row['TaxonNo']]['Front_image'].blank? ? nil : @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub('Q:\\', '').gsub('\\', '/').to_s + @data.images_index[row['TaxonNo']]['Front_image'].to_s
+                    file2 = @data.images_index[row['TaxonNo']]['Back_image'].blank? ? nil : @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub('Q:\\', '').gsub('\\', '/').to_s + @data.images_index[row['TaxonNo']]['Back_image'].to_s
 
                     @image_index.puts [protonym.id, "\t", file1, "\n"].join if file1
                     @image_index.puts [protonym.id, "\t", file2, "\n"].join if file2

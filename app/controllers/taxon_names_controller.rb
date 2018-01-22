@@ -123,7 +123,7 @@ class TaxonNamesController < ApplicationController
       digest_cookie(params[:file].tempfile, :simple_taxon_names_md5)
       render 'taxon_names/batch_load/simple/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end
@@ -149,7 +149,7 @@ class TaxonNamesController < ApplicationController
       digest_cookie(params[:file].tempfile, :Castor_taxon_names_md5)
       render 'taxon_names/batch_load/castor/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end

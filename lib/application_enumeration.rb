@@ -62,7 +62,7 @@ module ApplicationEnumeration
   #   represented by a path included filename from /app/models.
   # e.g. given 'app/models/specimen.rb' the Specimen class is returned
   def self.model_from_file_name(file_name)
-    file_name.split(/app\/models\//).last[0..-4].split(/\\/).collect{|b| b.camelize}.join("::").safe_constantize
+    file_name.split(/app\/models\//).last[0..-4].split(/\\/).collect{|b| b.camelize}.join('::').safe_constantize
   end
 
   # @return [Hash]

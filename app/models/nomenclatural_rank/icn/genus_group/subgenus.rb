@@ -9,6 +9,6 @@ class NomenclaturalRank::Icn::GenusGroup::Subgenus < NomenclaturalRank::Icn::Gen
   end
 
   def self.abbreviation
-    "sgen."
+    'sgen.'
   end
 end

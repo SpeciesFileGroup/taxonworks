@@ -85,7 +85,7 @@ class Image < ApplicationRecord
       tmp     = `identify -format "%[EXIF:*]" #{self.image_file.url}` # returns a string (exif:tag=value\n)
       # following removes the exif, spits and recombines string as a hash
       ret_val = tmp.split("\n").collect { |b|
-                                          b.gsub("exif:", "").split("=")
+                                          b.gsub('exif:', '').split('=')
                                         }.inject({}) { |hsh, c|
                                                         hsh.merge(c[0] => c[1])
                                                     }

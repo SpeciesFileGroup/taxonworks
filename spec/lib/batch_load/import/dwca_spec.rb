@@ -76,9 +76,9 @@ describe BatchLoad::Import::DWCA, type: :model do
         expect(TaxonName.count).to eq(46)
         expect(Person.count).to eq(4)
         expect(Person.last.georeferences.count).to eq(15)
-        expect(Note.all.map(&:note_object_type).uniq).to include("Georeference",
-                                                                 "CollectingEvent",
-                                                                 "CollectionObject")
+        expect(Note.all.map(&:note_object_type).uniq).to include('Georeference',
+                                                                 'CollectingEvent',
+                                                                 'CollectionObject')
         # expect(result.processed_rows[61].objects[:ce].first.verbatim_locality).to eq('Collecting Event No. 59353')
       end
     end

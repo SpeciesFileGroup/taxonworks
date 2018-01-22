@@ -85,7 +85,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     context 'missing_fields' do
-      specify "source author, year are missing" do
+      specify 'source author, year are missing' do
         @species.soft_validate(:missing_fields)
         expect(@species.soft_validations.messages_on(:base).empty?).to be_truthy
         expect(@species.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
@@ -446,7 +446,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     context 'missing synonym relationship' do
 
       specify 'same type species' do
-        msg = "Missing relationship: genus <i>Aus</i> should be a synonym of <i>Bus</i> Say, 1850 since they share the same type"
+        msg = 'Missing relationship: genus <i>Aus</i> should be a synonym of <i>Bus</i> Say, 1850 since they share the same type'
         g1 = FactoryBot.create(:relationship_genus, name: 'Aus', parent: @family)
         g2 = FactoryBot.create(:relationship_genus, name: 'Bus', parent: @family)
         s1 = FactoryBot.create(:relationship_species, name: 'cus', parent: g1)

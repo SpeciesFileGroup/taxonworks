@@ -99,7 +99,7 @@ module Dwca::Packer
         ) {
           xml.dataset {
             xml.alternate_identifier identifier
-            xml.title("xml:lang" => 'eng').text "STUB - YOUR TITLE HERE"
+            xml.title('xml:lang' => 'eng').text 'STUB - YOUR TITLE HERE'
             xml.creator {
               xml.individualName {
                 xml.givenName 'STUB'

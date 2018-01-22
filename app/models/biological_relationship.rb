@@ -31,9 +31,9 @@ class BiologicalRelationship < ApplicationRecord
 
   def self.find_for_autocomplete(params)
     t = params[:term]
-    t2 = t + "%"
-    t3 = "%" + t2
-    BiologicalRelationship.where("(name ILIKE ?) OR (name ILIKE ?) OR (name ILIKE ?)", t,t2,t3).where(project_id: params[:project_id])
+    t2 = t + '%'
+    t3 = '%' + t2
+    BiologicalRelationship.where('(name ILIKE ?) OR (name ILIKE ?) OR (name ILIKE ?)', t,t2,t3).where(project_id: params[:project_id])
   end
 
 end

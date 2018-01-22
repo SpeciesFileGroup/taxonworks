@@ -36,74 +36,74 @@ describe AssertedDistributionsController, :type => :controller do
   # AssertedDistributionsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET list" do
-    it "with no other parameters, assigns 20/page asserted_distributions as @controlled_vocabulary_terms" do
+  describe 'GET list' do
+    it 'with no other parameters, assigns 20/page asserted_distributions as @controlled_vocabulary_terms' do
       asserted_distribution = AssertedDistribution.create! valid_attributes
       get :list, params: {}, session: valid_session
       expect(assigns(:asserted_distributions)).to include(asserted_distribution)
     end
 
-    it "renders the list template" do
+    it 'renders the list template' do
       get :list, params: {}, session: valid_session
-      expect(response).to render_template("list")
+      expect(response).to render_template('list')
     end
   end
 
-  describe "GET index" do
-    it "assigns all asserted_distributions as @asserted_distributions" do
+  describe 'GET index' do
+    it 'assigns all asserted_distributions as @asserted_distributions' do
       asserted_distribution = AssertedDistribution.create! valid_attributes
       get :index, params: {}, session: valid_session
       expect(assigns(:recent_objects)).to include(asserted_distribution)
     end
   end
 
-  describe "GET show" do
-    it "assigns the requested asserted_distribution as @asserted_distribution" do
+  describe 'GET show' do
+    it 'assigns the requested asserted_distribution as @asserted_distribution' do
       asserted_distribution = AssertedDistribution.create! valid_attributes
       get :show, params: {id: asserted_distribution.to_param}, session: valid_session
       expect(assigns(:asserted_distribution)).to eq(asserted_distribution)
     end
   end
 
-  describe "GET new" do
-    it "assigns a new asserted_distribution as @asserted_distribution" do
+  describe 'GET new' do
+    it 'assigns a new asserted_distribution as @asserted_distribution' do
       # get :new, {}, session: valid_session
       get :new, params: {}, session: valid_session
       expect(assigns(:asserted_distribution)).to be_a_new(AssertedDistribution)
     end
   end
 
-  describe "GET edit" do
-    it "assigns the requested asserted_distribution as @asserted_distribution" do
+  describe 'GET edit' do
+    it 'assigns the requested asserted_distribution as @asserted_distribution' do
       asserted_distribution = AssertedDistribution.create! valid_attributes
       get :edit, params: {id: asserted_distribution.to_param}, session: valid_session
       expect(assigns(:asserted_distribution)).to eq(asserted_distribution)
     end
   end
 
-  describe "POST create" do
-    describe "with valid params" do
-      it "creates a new AssertedDistribution" do
+  describe 'POST create' do
+    describe 'with valid params' do
+      it 'creates a new AssertedDistribution' do
         expect {
           # post :create, {:asserted_distribution => valid_attributes}, session: valid_session
           post :create, params: {asserted_distribution: valid_attributes}, session: valid_session
         }.to change(AssertedDistribution, :count).by(1)
       end
 
-      it "assigns a newly created asserted_distribution as @asserted_distribution" do
+      it 'assigns a newly created asserted_distribution as @asserted_distribution' do
         post :create, params: {asserted_distribution: valid_attributes}, session: valid_session
         expect(assigns(:asserted_distribution)).to be_a(AssertedDistribution)
         expect(assigns(:asserted_distribution)).to be_persisted
       end
 
-      it "redirects to the created asserted_distribution" do
+      it 'redirects to the created asserted_distribution' do
         post :create, params: {asserted_distribution: valid_attributes}, session: valid_session
         expect(response).to redirect_to(AssertedDistribution.last)
       end
     end
 
-    describe "with invalid params" do
-      it "assigns a newly created but unsaved asserted_distribution as @asserted_distribution" do
+    describe 'with invalid params' do
+      it 'assigns a newly created but unsaved asserted_distribution as @asserted_distribution' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AssertedDistribution).to receive(:save).and_return(false)
         post :create, params: {asserted_distribution: {verbatim_label: 'invalid value'}}, session: valid_session
@@ -114,13 +114,13 @@ describe AssertedDistributionsController, :type => :controller do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AssertedDistribution).to receive(:save).and_return(false)
         post :create, params: {asserted_distribution: {verbatim_label: 'invalid value'}}, session: valid_session
-        expect(response).to render_template("new")
+        expect(response).to render_template('new')
       end
     end
   end
 
-  describe "PUT update" do
-    describe "with valid params" do
+  describe 'PUT update' do
+    describe 'with valid params' do
 
       it 'updates the requested asserted_distribution' do
         asserted_distribution = AssertedDistribution.create! valid_attributes
@@ -133,21 +133,21 @@ describe AssertedDistributionsController, :type => :controller do
         put :update, params: {id: asserted_distribution.to_param, asserted_distribution: {is_absent: 'true'}}, session: valid_session
       end
 
-      it "assigns the requested asserted_distribution as @asserted_distribution" do
+      it 'assigns the requested asserted_distribution as @asserted_distribution' do
         asserted_distribution = AssertedDistribution.create! valid_attributes
         put :update, params: {id: asserted_distribution.to_param, asserted_distribution: {is_absent: 'true'}}, session: valid_session
         expect(assigns(:asserted_distribution)).to eq(asserted_distribution)
       end
 
-      it "redirects to the asserted_distribution" do
+      it 'redirects to the asserted_distribution' do
         asserted_distribution = AssertedDistribution.create! valid_attributes
         put :update, params: {id: asserted_distribution.to_param, asserted_distribution: {is_absent: 'true'}}, session: valid_session
         expect(response).to redirect_to(asserted_distribution)
       end
     end
 
-    describe "with invalid params" do
-      it "assigns the asserted_distribution as @asserted_distribution" do
+    describe 'with invalid params' do
+      it 'assigns the asserted_distribution as @asserted_distribution' do
         asserted_distribution = AssertedDistribution.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AssertedDistribution).to receive(:save).and_return(false)
@@ -160,20 +160,20 @@ describe AssertedDistributionsController, :type => :controller do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(AssertedDistribution).to receive(:save).and_return(false)
         put :update, params: {id: asserted_distribution.to_param, asserted_distribution: {verbatim_label: 'invalid value'}}, session: valid_session
-        expect(response).to render_template("edit")
+        expect(response).to render_template('edit')
       end
     end
   end
 
-  describe "DELETE destroy" do
-    it "destroys the requested asserted_distribution" do
+  describe 'DELETE destroy' do
+    it 'destroys the requested asserted_distribution' do
       asserted_distribution = AssertedDistribution.create! valid_attributes
       expect {
         delete :destroy, params: {id: asserted_distribution.to_param}, session: valid_session
       }.to change(AssertedDistribution, :count).by(-1)
     end
 
-    it "redirects to the asserted_distributions list" do
+    it 'redirects to the asserted_distributions list' do
       asserted_distribution = AssertedDistribution.create! valid_attributes
       delete :destroy, params: {id: asserted_distribution.to_param}, session: valid_session
       expect(response).to redirect_to(asserted_distributions_url)

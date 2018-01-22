@@ -8,7 +8,7 @@ class Identifier::Global::MorphbankSpecimenNumber < Identifier::Global
     if identifier.present?
       # If non-number characters are in the string, invalid format
       if /\D/.match(identifier)
-        errors.add(:identifier, "invalid format, only numbers allowed")
+        errors.add(:identifier, 'invalid format, only numbers allowed')
       end
     end
   end

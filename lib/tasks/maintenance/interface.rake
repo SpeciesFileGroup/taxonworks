@@ -7,7 +7,7 @@ namespace :tw do
       task  :reset_hub_tabs =>  [:environment] do |t|
         ApplicationRecord.transaction do
           User.update_all(hub_tab_order: DEFAULT_HUB_TAB_ORDER)
-          print yellow { bold { "User hub tab order reset." } }, "\n" 
+          print yellow { bold { 'User hub tab order reset.' } }, "\n" 
          end
       end
     end

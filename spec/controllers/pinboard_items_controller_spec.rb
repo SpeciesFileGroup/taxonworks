@@ -32,7 +32,7 @@ RSpec.describe PinboardItemsController, :type => :controller do
   }
 
   let(:invalid_attributes) {
-    {pinned_object_type: "Smurf"}
+    {pinned_object_type: 'Smurf'}
   }
 
   # This should return the minimal set of values that should be in the session
@@ -40,56 +40,56 @@ RSpec.describe PinboardItemsController, :type => :controller do
   # PinboardItemsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "POST create" do
+  describe 'POST create' do
     before { 
-      request.env["HTTP_REFERER"] = otus_path
+      request.env['HTTP_REFERER'] = otus_path
     }
 
-    describe "with valid params" do
-      it "creates a new PinboardItem" do
+    describe 'with valid params' do
+      it 'creates a new PinboardItem' do
         expect {
           post :create, params: {:pinboard_item => valid_attributes}, session: valid_session
         }.to change(PinboardItem, :count).by(1)
       end
 
-      it "assigns a newly created pinboard_item as @pinboard_item" do
+      it 'assigns a newly created pinboard_item as @pinboard_item' do
         post :create, params: {:pinboard_item => valid_attributes}, session: valid_session
         expect(assigns(:pinboard_item)).to be_a(PinboardItem)
         expect(assigns(:pinboard_item)).to be_persisted
       end
 
-      it "redirects to the previous page" do
+      it 'redirects to the previous page' do
         post :create, params: {:pinboard_item => valid_attributes}, session: valid_session
         expect(response).to redirect_to(otus_path)
       end
     end
 
-    describe "with invalid params" do
-      it "assigns a newly created but unsaved pinboard_item as @pinboard_item" do
+    describe 'with invalid params' do
+      it 'assigns a newly created but unsaved pinboard_item as @pinboard_item' do
         post :create, params: {:pinboard_item => invalid_attributes}, session: valid_session
         expect(assigns(:pinboard_item)).to be_a_new(PinboardItem)
       end
 
-      it "redirects to the previous page" do
+      it 'redirects to the previous page' do
         post :create, params: {:pinboard_item => invalid_attributes}, session: valid_session
         expect(response).to redirect_to(otus_path)
       end
     end
   end
 
-  describe "DELETE destroy" do
+  describe 'DELETE destroy' do
     before { 
-      request.env["HTTP_REFERER"] = dashboard_path 
+      request.env['HTTP_REFERER'] = dashboard_path 
     }
 
-    it "destroys the requested pinboard_item" do
+    it 'destroys the requested pinboard_item' do
       pinboard_item = PinboardItem.create! valid_attributes
       expect {
         delete :destroy, params: {id: pinboard_item.to_param}, session: valid_session
       }.to change(PinboardItem, :count).by(-1)
     end
 
-    it "redirects to the pinboard_items list" do
+    it 'redirects to the pinboard_items list' do
       pinboard_item = PinboardItem.create! valid_attributes
       delete :destroy, params: {id: pinboard_item.to_param}, session: valid_session
       expect(response).to redirect_to(dashboard_path)

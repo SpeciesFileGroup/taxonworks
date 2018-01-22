@@ -64,7 +64,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
           specify 'country, state, county are cached on creation of georeference' do
             # expect(collecting_event.cached_geographic_name_classification).to eq( {:country=>"West Boxia", :state=>"QT", :county=>"M1"} )
-            expect(collecting_event.cached_geographic_name_classification).to eq( {:country=>"West Boxia", :state=>"West Boxia", :county=>"QTM2"} )
+            expect(collecting_event.cached_geographic_name_classification).to eq( {:country=>'West Boxia', :state=>'West Boxia', :county=>'QTM2'} )
 
           end
         end
@@ -399,7 +399,7 @@ context 'georeferences' do
       expect(c.verbatim_data_georeference.geographic_item.geo_object.to_s).to eq('POINT (10.0 10.001 0.0)')
     end
 
-    context "using by cascades creator/updater to georeference and geographic_item" do
+    context 'using by cascades creator/updater to georeference and geographic_item' do
       let(:other_user) { FactoryBot.create(:valid_user, name: 'other', email: 'other@test.com') }
       let(:c) { CollectingEvent.create(verbatim_latitude: '10.001', verbatim_longitude: '10', project: @project, with_verbatim_data_georeference: true, by: other_user) }
 

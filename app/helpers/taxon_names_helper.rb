@@ -27,7 +27,7 @@ module TaxonNamesHelper
   #  the current name/combination with author year, and HTML
   def full_taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
-    [taxon_name_tag(taxon_name), taxon_name.cached_author_year].compact.join(" ").html_safe
+    [taxon_name_tag(taxon_name), taxon_name.cached_author_year].compact.join(' ').html_safe
   end
 
   # @return [String
@@ -37,7 +37,7 @@ module TaxonNamesHelper
     [
       original_taxon_name_tag(taxon_name), 
       history_author_year_tag(taxon_name)
-    ].compact.join(" ").html_safe
+    ].compact.join(' ').html_safe
   end
 
   def original_author_year(taxon_name)
@@ -195,7 +195,7 @@ module TaxonNamesHelper
     if taxon_name.otus.any?
       "The following Otus are linked to this name: #{taxon_name.otus.collect{|o| otu_link(o)}.to_sentence}.".html_safe 
     else
-      content_tag(:em, "There are no Otus linked to this name.")
+      content_tag(:em, 'There are no Otus linked to this name.')
     end
   end
 

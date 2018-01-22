@@ -55,7 +55,7 @@ module BatchFileLoad
         end
       else
         @errors << "Import level #{@import_level} has prevented creation." unless import_level_ok?
-        @errors << "One of project_id, user_id or files has not been provided." unless valid?
+        @errors << 'One of project_id, user_id or files has not been provided.' unless valid?
       end
     end
 

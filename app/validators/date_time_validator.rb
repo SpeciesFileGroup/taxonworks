@@ -46,9 +46,9 @@ class DateTimeValidator < ActiveModel::EachValidator
       record.errors.add(attribute, "can't be blank")
     elsif !value.blank?
       if !value.is_a? Integer 
-        record.errors.add(attribute, "is not an integer")
+        record.errors.add(attribute, 'is not an integer')
       elsif value < @min_value || value > @max_value
-        record.errors.add(attribute, "not in range")
+        record.errors.add(attribute, 'not in range')
       end
     end
 

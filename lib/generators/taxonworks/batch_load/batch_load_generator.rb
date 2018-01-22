@@ -2,7 +2,7 @@
 class Taxonworks::BatchLoadGenerator < Rails::Generators::Base
   desc 'Stub files for a new batch_load for a particular class.'
 
-  source_root File.expand_path("../templates", __FILE__)
+  source_root File.expand_path('../templates', __FILE__)
 
   argument :model_name, type: 'string', required: true, banner: '<ModelName>'
   argument :batch_loader_name, type: 'string', required: true, banner: '<batch_loader_name>'

@@ -11,7 +11,7 @@ describe OtusHelper, :type => :helper do
     expect(helper.otu_link(otu)).to have_link('voluptas')
   end
 
-  specify "#otu_search_form" do
+  specify '#otu_search_form' do
     expect(helper.otus_search_form).to have_field('otu_id_for_quick_search_form')
   end
 end

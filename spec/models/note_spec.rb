@@ -27,7 +27,7 @@ describe Note, type: :model, group: :annotator do
 
       specify 'with <<' do
         expect(specimen1.notes.count).to eq(0)
-        specimen1.notes << Note.new(text: "Yay!")
+        specimen1.notes << Note.new(text: 'Yay!')
         expect(specimen1.save).to be_truthy 
         expect(specimen1.notes.first.creator.nil?).to be_falsey
         expect(specimen1.notes.first.updater.nil?).to be_falsey
@@ -36,7 +36,7 @@ describe Note, type: :model, group: :annotator do
 
       specify 'with .build' do
         expect(specimen1.notes.count).to eq(0)
-        specimen1.notes.build(text: "Nay!")
+        specimen1.notes.build(text: 'Nay!')
         expect(specimen1.save).to be_truthy 
         expect(specimen1.notes.first.creator.nil?).to be_falsey
         expect(specimen1.notes.first.updater.nil?).to be_falsey
@@ -45,7 +45,7 @@ describe Note, type: :model, group: :annotator do
 
       specify 'with new objects and <<' do
         s = FactoryBot.build(:valid_specimen)
-        s.notes << Note.new(text: "Whooopee!") 
+        s.notes << Note.new(text: 'Whooopee!') 
         expect(s.save).to be_truthy
         expect(s.notes.count).to eq(1)
         expect(s.notes.first.creator.nil?).to be_falsey
@@ -55,7 +55,7 @@ describe Note, type: :model, group: :annotator do
 
       specify 'with new objects and build' do
         s = FactoryBot.build(:valid_specimen)
-        s.notes.build(text: "Yabbadabbadoo.")
+        s.notes.build(text: 'Yabbadabbadoo.')
         expect(s.save).to be_truthy
         expect(s.notes.count).to eq(1)
         expect(s.notes.first.creator.nil?).to be_falsey
@@ -65,7 +65,7 @@ describe Note, type: :model, group: :annotator do
 
       specify 'as nested_attributes' do
         s = FactoryBot.build(:valid_specimen)
-        s.notes_attributes = [{text: "foo"}, {text: "bar"}]
+        s.notes_attributes = [{text: 'foo'}, {text: 'bar'}]
         expect(s.save).to be_truthy
       end
     end 
@@ -78,7 +78,7 @@ describe Note, type: :model, group: :annotator do
     context 'required' do
       # !! This test fails not because of a validation, but because of a NOT NULL constraint. 
       specify 'note_object (the thing that has the note)' do 
-        note.text = "Foo" # this eliminate all model based validation requirements
+        note.text = 'Foo' # this eliminate all model based validation requirements
         expect{note.save}.to raise_error ActiveRecord::StatementInvalid
       end
 

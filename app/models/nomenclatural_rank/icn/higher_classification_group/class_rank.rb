@@ -11,7 +11,7 @@ class NomenclaturalRank::Icn::HigherClassificationGroup::ClassRank < Nomenclatur
   end
 
   def rank_name
-    "class"
+    'class'
   end
 
 end

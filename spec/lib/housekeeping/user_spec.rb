@@ -196,7 +196,7 @@ describe 'Housekeeping::User' do
           context 'on updated and updater is not provided' do
             before {
               $user_id = other_user.id
-              i.string = "Foo"
+              i.string = 'Foo'
               i.valid?
             }
 
@@ -208,7 +208,7 @@ describe 'Housekeeping::User' do
           context 'on update when not changed and $user_id = nil' do
             before {
               $user_id = nil
-              i.string = "Bar"
+              i.string = 'Bar'
             }
 
             specify 'updater is updated to nil, and record is no longer valid' do

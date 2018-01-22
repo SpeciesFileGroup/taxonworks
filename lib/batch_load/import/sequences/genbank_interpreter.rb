@@ -25,10 +25,10 @@ module BatchLoad
           # use a BatchLoad::ColumnResolver or other method to match row data to TW 
           #  ...
 
-          sequence = create_sequence(row["filename"], row["file_content"])
+          sequence = create_sequence(row['filename'], row['file_content'])
           parse_result.objects[:sequence].push(sequence)
 
-          origin_relationship = create_origin_relationship(row["filename"], sequence)
+          origin_relationship = create_origin_relationship(row['filename'], sequence)
           parse_result.objects[:origin_relationship].push(origin_relationship) if origin_relationship
           @total_data_lines += 1 if sequence.present?
         #rescue

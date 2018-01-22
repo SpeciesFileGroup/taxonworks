@@ -13,11 +13,11 @@ describe Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper, type: :helper,
     }
 
     specify 'without any records to fix' do
-      expect(helper.show_ce_vl(nil)).to eq("<pre class=\"large_type word_break\">" + no_next_text + "</pre>")
+      expect(helper.show_ce_vl(nil)).to eq('<pre class="large_type word_break">' + no_next_text + '</pre>')
     end
 
     specify 'with a record to show' do
-      expect(helper.show_ce_vl(ce_find)).to eq("<pre class=\"large_type word_break\">" + ce_find_label + "</pre>")
+      expect(helper.show_ce_vl(ce_find)).to eq('<pre class="large_type word_break">' + ce_find_label + '</pre>')
     end
   end
 end

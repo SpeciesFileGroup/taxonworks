@@ -17,8 +17,8 @@ describe GeographicItemsController, :type => :controller do
   # GeographicItemsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET show" do
-    it "assigns the requested geographic_item as @geographic_item" do
+  describe 'GET show' do
+    it 'assigns the requested geographic_item as @geographic_item' do
       geographic_item = GeographicItem.create!(valid_attributes)
 
       get :show, params: {id: geographic_item.to_param}, session: valid_session
@@ -26,8 +26,8 @@ describe GeographicItemsController, :type => :controller do
     end
   end
 
-  describe "GET edit" do
-    it "assigns the requested geographic_item as @geographic_item" do
+  describe 'GET edit' do
+    it 'assigns the requested geographic_item as @geographic_item' do
       geographic_item = GeographicItem.create!(valid_attributes)
       get :edit, params: {id: geographic_item.to_param}, session: valid_session
       expect(assigns(:geographic_item)).to eq(geographic_item.becomes(GeographicItem::Point))

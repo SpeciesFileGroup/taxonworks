@@ -4,7 +4,7 @@ module RepositoriesHelper
     return nil if repository.nil?
     [repository.name,
      (repository.acronym ? "(#{repository.acronym})" : nil)
-    ].join(" ").html_safe
+    ].join(' ').html_safe
   end
 
   def repository_link(repository)

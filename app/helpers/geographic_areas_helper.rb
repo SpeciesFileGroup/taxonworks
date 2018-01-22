@@ -12,7 +12,7 @@ module GeographicAreasHelper
 
     show_this += " [#{geographic_area.geographic_area_type.name}]" unless geographic_area.geographic_area_type.nil?
 
-    show_this += " " + (geographic_area.has_shape? ? content_tag(:span, "has shape", class: "subtle passed") : content_tag(:span, "without shape", class: "subtle warning") )
+    show_this += ' ' + (geographic_area.has_shape? ? content_tag(:span, 'has shape', class: 'subtle passed') : content_tag(:span, 'without shape', class: 'subtle warning') )
     
     show_this.html_safe
   end
@@ -29,7 +29,7 @@ module GeographicAreasHelper
   end
 
   def geographic_areas_link_list_tag(geographic_areas)
-    geographic_areas.collect { |ga| link_to(ga.name, ga) }.join(",")
+    geographic_areas.collect { |ga| link_to(ga.name, ga) }.join(',')
   end
 
   def geographic_area_link_list(geographic_areas)

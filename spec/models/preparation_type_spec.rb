@@ -12,7 +12,7 @@ describe PreparationType, :type => :model do
     end
   end
 
-  context "validation" do
+  context 'validation' do
     before do
       preparation_type.valid?
       specify 'name is required' do

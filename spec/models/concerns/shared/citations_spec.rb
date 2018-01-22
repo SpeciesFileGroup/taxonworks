@@ -118,19 +118,19 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
       end
     end
 
-    specify "sanity test, 3 citations exist" do
+    specify 'sanity test, 3 citations exist' do
       expect(Citation.count).to eq(3)
     end
 
-    specify ".order_by_oldest_source_first" do
+    specify '.order_by_oldest_source_first' do
       expect(TestCitable.order_by_oldest_source_first.to_a).to eq([a, c, b])
     end
 
-    specify ".oldest_by_citation" do
+    specify '.oldest_by_citation' do
       expect(TestCitable.oldest_by_citation).to eq(a)
     end
 
-    specify ".order_by_oldest_source_first.first" do
+    specify '.order_by_oldest_source_first.first' do
       expect(TestCitable.order_by_oldest_source_first.to_a.first).to eq(a)
     end
 
@@ -138,7 +138,7 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
       expect(TestCitable.order_by_youngest_source_first.to_a).to eq([b, c, a])
     end
 
-    specify ".youngest_by_citation" do
+    specify '.youngest_by_citation' do
       expect(TestCitable.youngest_by_citation).to eq(b)
     end
 
@@ -149,7 +149,7 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
       #   expect{TestCitable.order_by_youngest_source_first.last}.to_not raise_error # not_raise # (TestCitable.oldest_by_citation).to eq(b)
       # end
 
-      specify ".order_by_oldest_source_first.last" do
+      specify '.order_by_oldest_source_first.last' do
         expect{TestCitable.order_by_oldest_source_first.last}.to_not raise_error # not_raise # (TestCitable.oldest_by_citation).to eq(b)
       end
     end
@@ -160,15 +160,15 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
           Citation.create(citation_object: c, source: nil_source)
         end
 
-        specify ".order_by_oldest_source_first.to_a" do
+        specify '.order_by_oldest_source_first.to_a' do
           expect(TestCitable.order_by_oldest_source_first.to_a).to eq([a, c, b])
         end
 
-        specify ".oldest_by_citation" do
+        specify '.oldest_by_citation' do
           expect(TestCitable.oldest_by_citation).to eq(a)
         end
 
-        specify ".order_by_oldest_source_first.to_a.first" do
+        specify '.order_by_oldest_source_first.to_a.first' do
           expect(TestCitable.order_by_oldest_source_first.to_a.first).to eq(a)
         end
 
@@ -176,7 +176,7 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
           expect(TestCitable.order_by_youngest_source_first.to_a).to eq([b, c, a])
         end
 
-        specify ".youngest_by_citation" do
+        specify '.youngest_by_citation' do
           expect(TestCitable.youngest_by_citation).to eq(b)
         end
       end
@@ -186,15 +186,15 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
           Citation.create(citation_object: c, source: first_source_ever)
         end
 
-        specify ".order_by_oldest_source_first.to_a" do
+        specify '.order_by_oldest_source_first.to_a' do
           expect(TestCitable.order_by_oldest_source_first.to_a).to eq([c, a, b])
         end
 
-        specify ".oldest_by_citation" do
+        specify '.oldest_by_citation' do
           expect(TestCitable.oldest_by_citation).to eq(c)
         end
 
-        specify ".order_by_oldest_source_first.to_a.first" do
+        specify '.order_by_oldest_source_first.to_a.first' do
           expect(TestCitable.order_by_oldest_source_first.to_a.first).to eq(c)
         end
       end
@@ -208,7 +208,7 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
           expect(TestCitable.order_by_youngest_source_first.to_a).to eq([c, b, a])
         end
 
-        specify ".youngest_by_citation" do
+        specify '.youngest_by_citation' do
           expect(TestCitable.youngest_by_citation).to eq(c)
         end
       end
@@ -234,7 +234,7 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
         expect(TestCitable.oldest_by_citation).to eq(a)
       end
 
-      specify "with nils" do
+      specify 'with nils' do
         Citation.create(citation_object: d, source: nil_source)
         expect(TestCitable.order_by_oldest_source_first.to_a).to eq([a,c,b,d])
       end

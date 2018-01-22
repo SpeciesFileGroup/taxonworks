@@ -91,13 +91,13 @@ class SqedDepiction < ApplicationRecord
   end
 
   def nearby_sqed_depictions(before = 5, after = 5)
-    a = SqedDepiction.where(project_id: project_id).where("id > ?", id).order(:id).limit(after)
-    b = SqedDepiction.where(project_id: project_id).where("id < ?", id).order('id DESC').limit(before)
+    a = SqedDepiction.where(project_id: project_id).where('id > ?', id).order(:id).limit(after)
+    b = SqedDepiction.where(project_id: project_id).where('id < ?', id).order('id DESC').limit(before)
     return { before: b, after: a}
   end
 
   def next_sqed_depiction
-    sd = SqedDepiction.where(project_id: project_id).where("id > ?", id).order(:id).limit(1)
+    sd = SqedDepiction.where(project_id: project_id).where('id > ?', id).order(:id).limit(1)
     sd.any? ? sd.first : SqedDepiction.where(project_id: project_id).first
   end
 

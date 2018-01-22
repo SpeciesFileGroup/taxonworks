@@ -22,10 +22,10 @@ module BatchLoad
 
         begin
           namespace_attributes = {
-            institution: row["institution"],
-            name: row["name"],
-            short_name: row["short_name"],
-            verbatim_short_name: row["verbatim_short_name"]
+            institution: row['institution'],
+            name: row['name'],
+            short_name: row['short_name'],
+            verbatim_short_name: row['verbatim_short_name']
           };
 
           namespace = Namespace.new(namespace_attributes)

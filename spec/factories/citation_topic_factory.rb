@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :citation_topic, traits: [:housekeeping] do
     topic nil
     citation nil
-    pages "MyString"
+    pages 'MyString'
 
     factory :valid_citation_topic do
       association :topic, factory: :valid_topic

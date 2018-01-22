@@ -172,7 +172,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       species = FactoryBot.create(:relationship_species, parent: subgenus)
       subspecies = FactoryBot.create(:iczn_subspecies, parent: species)
 
-      expect(subspecies.original_combination_class_relationships.collect{|i| i.to_s}.sort).to eq(["TaxonNameRelationship::OriginalCombination::OriginalForm", "TaxonNameRelationship::OriginalCombination::OriginalGenus", "TaxonNameRelationship::OriginalCombination::OriginalSpecies", "TaxonNameRelationship::OriginalCombination::OriginalSubgenus", "TaxonNameRelationship::OriginalCombination::OriginalSubspecies", "TaxonNameRelationship::OriginalCombination::OriginalVariety"])
+      expect(subspecies.original_combination_class_relationships.collect{|i| i.to_s}.sort).to eq(['TaxonNameRelationship::OriginalCombination::OriginalForm', 'TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::OriginalCombination::OriginalSpecies', 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus', 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies', 'TaxonNameRelationship::OriginalCombination::OriginalVariety'])
 
       r1 = TaxonNameRelationship.create(subject_taxon_name: genus, object_taxon_name: subspecies, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       r2 = TaxonNameRelationship.create(subject_taxon_name: subgenus, object_taxon_name: subspecies, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')

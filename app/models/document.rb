@@ -109,7 +109,7 @@ class Document < ApplicationRecord
 
   def set_pdf_metadata
     begin
-      File.open(document_file.staged_path, "rb") do |io|
+      File.open(document_file.staged_path, 'rb') do |io|
         reader = PDF::Reader.new(io)
         write_attribute(:page_total, reader.page_count)
       end

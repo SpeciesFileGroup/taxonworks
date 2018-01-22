@@ -15,7 +15,7 @@ namespace :tw do
     end      
 
     def column_values(fixed_line)
-      CSV.parse(fixed_line, col_sep: "\t", encoding: "UTF-8").first
+      CSV.parse(fixed_line, col_sep: "\t", encoding: 'UTF-8').first
     end
 
     def fix_line(line)
@@ -25,9 +25,9 @@ namespace :tw do
     def time_from_field(time)
       return nil if time.nil?
       if time =~ /\d+\/\d+\/\d+ \d+:\d+:\d+/
-        Time.strptime("#{time} GMT", "%m/%d/%Y %H:%M:%S %Z")
+        Time.strptime("#{time} GMT", '%m/%d/%Y %H:%M:%S %Z')
       elsif time =~ /\d+\/\d+\/\d+/
-        Time.strptime("#{time} 0:00:00 GMT", "%m/%d/%Y %H:%M:%S %Z")
+        Time.strptime("#{time} 0:00:00 GMT", '%m/%d/%Y %H:%M:%S %Z')
       end
     end
 

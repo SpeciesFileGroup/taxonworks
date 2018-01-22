@@ -114,7 +114,7 @@ class DescriptorsController < ApplicationController
       digest_cookie(params[:file].tempfile, :modify_gene_descriptor_batch_load_descriptors_md5)
       render 'descriptors/batch_load/modify_gene_descriptor/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load 
     end
   end

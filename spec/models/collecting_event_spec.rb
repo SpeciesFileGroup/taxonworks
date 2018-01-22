@@ -110,15 +110,15 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
     end
 
     specify 'start_date_day is invalid when not an integer' do
-      collecting_event.start_date_day = "a"
+      collecting_event.start_date_day = 'a'
       collecting_event.valid?
       expect(collecting_event.errors.include?(:start_date_day)).to be_falsey
     end
 
     specify 'start_date_day is value bound by month' do
-      collecting_event.start_date_year  = "1945" # requires year for leaps
-      collecting_event.start_date_month = "2"
-      collecting_event.start_date_day   = "30"
+      collecting_event.start_date_year  = '1945' # requires year for leaps
+      collecting_event.start_date_month = '2'
+      collecting_event.start_date_day   = '30'
       collecting_event.valid?
       expect(collecting_event.errors.include?(:start_date_day)).to be_truthy
     end
@@ -138,15 +138,15 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
     end
 
     specify 'end_date_day is invalid when not an integer' do
-      collecting_event.end_date_day = "a"
+      collecting_event.end_date_day = 'a'
       collecting_event.valid?
       expect(collecting_event.errors.include?(:end_date_day)).to be_falsey
     end
 
     specify 'end_date_day is value bound by month' do
-      collecting_event.end_date_year  = "1945" # requires year for leaps
-      collecting_event.end_date_month = "2"
-      collecting_event.end_date_day   = "30"
+      collecting_event.end_date_year  = '1945' # requires year for leaps
+      collecting_event.end_date_month = '2'
+      collecting_event.end_date_day   = '30'
       collecting_event.valid?
       expect(collecting_event.errors.include?(:end_date_day)).to be_truthy
     end
@@ -173,13 +173,13 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
 
     specify 'end date is > start date when both are provided' do
       message                           = 'End date is earlier than start date.'
-      collecting_event.start_date_day   = "26"
-      collecting_event.start_date_month = "6"
-      collecting_event.start_date_year  = "1970"
+      collecting_event.start_date_day   = '26'
+      collecting_event.start_date_month = '6'
+      collecting_event.start_date_year  = '1970'
 
-      collecting_event.end_date_day = "24"
-      collecting_event.end_date_month = "7"
-      collecting_event.end_date_year  = "1970"
+      collecting_event.end_date_day = '24'
+      collecting_event.end_date_month = '7'
+      collecting_event.end_date_year  = '1970'
 
       expect(collecting_event.valid?).to be_truthy
       expect(collecting_event.errors[:base].include?(message)).to be_falsey

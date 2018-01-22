@@ -124,8 +124,8 @@ describe Person, :type => :model do
         end
 
         context 'rendering' do
-          specify "initials, last name only" do
-            expect(person1.name).to eq("J. Smith")
+          specify 'initials, last name only' do
+            expect(person1.name).to eq('J. Smith')
           end
         end
       end

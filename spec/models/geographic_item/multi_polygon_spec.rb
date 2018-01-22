@@ -20,7 +20,7 @@ describe GeographicItem::MultiPolygon, type: :model, group: :geo do
     end
 
     specify '#st_start_point returns the first POINT of the GeoObject' do
-      expect(g.st_start_point.to_s).to eq("POINT (28.0 2.3 0.0)")
+      expect(g.st_start_point.to_s).to eq('POINT (28.0 2.3 0.0)')
     end
 
   end

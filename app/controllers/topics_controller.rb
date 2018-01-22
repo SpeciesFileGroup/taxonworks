@@ -12,7 +12,7 @@ class TopicsController < ApplicationController
     topics = Topic.order(:name).where(project_id: sessions_current_project_id).all
 
     data = topics.collect do |t|
-      str = t.name + ": " + t.definition
+      str = t.name + ': ' + t.definition
       { id: t.id,
         name: t.name,
         definition: t.definition, 
@@ -66,7 +66,7 @@ class TopicsController < ApplicationController
     topics = Topic.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
 
     data = topics.collect do |t|
-      str = t.name + ": " + t.definition
+      str = t.name + ': ' + t.definition
       {id:              t.id,
        label:           str,
        response_values: {

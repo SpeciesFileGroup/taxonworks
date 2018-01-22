@@ -52,7 +52,7 @@ describe 'TaxonDeterminations', :type => :feature do
         # need person (role determiner), OTU, and specimen (CollectionObject::BiologicalCollectionObject)
 
         click_link('New')
-        expect(page).to have_content("New taxon determination")
+        expect(page).to have_content('New taxon determination')
 
         expect(page.has_field?('determiner_autocomplete', :type => 'text')).to be_truthy
         expect(page.has_field?('biological_collection_object_id_for_taxon_determination', :type => 'text')).to be_truthy
@@ -71,7 +71,7 @@ describe 'TaxonDeterminations', :type => :feature do
 
         click_button('Create Taxon determination')
 
-        expect(page).to have_content("Taxon determination was successfully created.")
+        expect(page).to have_content('Taxon determination was successfully created.')
         #  expect(page).to have_content("determined as motu by Barrymore on 2016-1-20)")  # uncomment when line 62 is fixed
       end
     end

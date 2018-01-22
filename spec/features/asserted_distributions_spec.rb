@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe "AssertedDistributions", :type => :feature do
+describe 'AssertedDistributions', :type => :feature do
   let(:page_title) { 'Asserted distributions' }
   let(:index_path) { asserted_distributions_path }
   let(:a) { FactoryBot.create(:valid_geographic_area_type, by: @user) }

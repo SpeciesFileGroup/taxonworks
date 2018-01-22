@@ -25,15 +25,15 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     let(:p) {
       Protonym.new({
         parent: root,
-        verbatim_name: "complanulus",
-        name: "complanulus",
-        year_of_publication: "1853",
-        rank_class: Ranks.lookup("iczn".to_sym, "infragenus"),
-        verbatim_author: "Mannerheim",
+        verbatim_name: 'complanulus',
+        name: 'complanulus',
+        year_of_publication: '1853',
+        rank_class: Ranks.lookup('iczn'.to_sym, 'infragenus'),
+        verbatim_author: 'Mannerheim',
         taxon_name_authors_attributes: [{
-          last_name: "Mannerheim",
-          first_name: "",
-          suffix: "suffix"
+          last_name: 'Mannerheim',
+          first_name: '',
+          suffix: 'suffix'
         }]
       })
     }
@@ -43,7 +43,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     specify 'name saves after NotLatin' do
-      p.taxon_name_classifications.build(type: "TaxonNameClassification::Iczn::Unavailable::NotLatin")
+      p.taxon_name_classifications.build(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin')
       expect(p.save!).to be_truthy
     end
   end

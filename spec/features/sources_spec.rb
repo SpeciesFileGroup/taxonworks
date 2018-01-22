@@ -64,7 +64,7 @@ describe 'Sources', type: :feature, group: :sources do
         fill_in('Author', with: 'Wombat, H.P.') 
         fill_in('Year', with: '1920') 
         click_button('Update Bibtex')
-        expect(page).to have_content("Source was successfully updated.")
+        expect(page).to have_content('Source was successfully updated.')
         expect(page).to have_content('Wombat, H.P. (1920) I am a soft valid article. Journal of Test Articles.')
       end
 
@@ -116,7 +116,7 @@ describe 'Sources', type: :feature, group: :sources do
 
   end
 
-  context "as a user create a record" do
+  context 'as a user create a record' do
     before {
       sign_in_user_and_select_project
       Source::Bibtex.create!(by: @user,

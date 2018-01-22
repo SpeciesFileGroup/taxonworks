@@ -175,7 +175,7 @@ namespace :tw do
 
         build_localities_index_insects(@data1)
 
-        puts "Indexing collecting events."
+        puts 'Indexing collecting events.'
         # should be run to clear redis database. if specimen from diffrent tables run one buy one, data could be left in Redis and reused
 
         @redis.flushall
@@ -201,17 +201,17 @@ namespace :tw do
         handle_locality_images(@data1)
         handle_loan_images(@data1)
 
-        puts "\n!! Unmatched localities: (#{@data1.unmatched_localities.keys.count}): " + @data1.unmatched_localities.keys.sort.join(", ")
-        puts "\n!! Unmatched taxa: (#{@data1.unmatched_taxa.keys.count}): " + @data1.unmatched_taxa.keys.sort.join(", ")
-        puts "\n!! Invalid_specimens: (#{@data1.invalid_specimens.keys.count}): " + @data1.invalid_specimens.sort.join(", ")
-        puts "\n!! Duplicate_specimen_IDs: (#{@data1.duplicate_specimen_ids.keys.count}): " + @data1.duplicate_specimen_ids.sort.join(", ")
+        puts "\n!! Unmatched localities: (#{@data1.unmatched_localities.keys.count}): " + @data1.unmatched_localities.keys.sort.join(', ')
+        puts "\n!! Unmatched taxa: (#{@data1.unmatched_taxa.keys.count}): " + @data1.unmatched_taxa.keys.sort.join(', ')
+        puts "\n!! Invalid_specimens: (#{@data1.invalid_specimens.keys.count}): " + @data1.invalid_specimens.sort.join(', ')
+        puts "\n!! Duplicate_specimen_IDs: (#{@data1.duplicate_specimen_ids.keys.count}): " + @data1.duplicate_specimen_ids.sort.join(', ')
 
         @import.save!
         puts "\n\n !! Success \n\n"
       end
 
       def handle_projects_and_users_insects(data, import)
-        print "Handling projects and users "
+        print 'Handling projects and users '
         email = 'inhs_admin@replace.me'
         project_name = 'INHS Insect Collection'
         user_name = 'INHS Insect Collection Import'
@@ -345,7 +345,7 @@ namespace :tw do
       end
 
       def handle_namespaces_insects(data, import)
-        print "Handling namespaces  "
+        print 'Handling namespaces  '
 
         catalogue_namespaces = [
             'Acari',
@@ -582,7 +582,7 @@ namespace :tw do
 
       # Builds all the controlled vocabulary terms (tags/keywords)
       def handle_controlled_vocabulary_insects(data, import)
-        print "Handling CV "
+        print 'Handling CV '
         if import.metadata['controlled_vocabulary']
           print "from database.\n"
           Predicate.all.each do |cv|
@@ -945,7 +945,7 @@ namespace :tw do
 
         print 'Handling people '
         if import.metadata['people']
-          print "from database.  Indexing People by PeopleID..."
+          print 'from database.  Indexing People by PeopleID...'
           f.each do |row|
             data.people_id[row['PeopleID']] = row
           end
@@ -1007,9 +1007,9 @@ namespace :tw do
       # -- is on the OTU
       #   TaxonCode      New Namespace Identifier 
       def handle_taxa_insects(data, import)
-        print "Handling taxa "
+        print 'Handling taxa '
         if import.metadata['taxa']
-          print "from database.  Indexing OTUs by TaxonCode..."
+          print 'from database.  Indexing OTUs by TaxonCode...'
 #          Identifier.where(namespace_id: @taxon_namespace.id).each do |i|
 #            data.otus.merge!(i.identifier => i.identifier_object)
 #          end
@@ -1144,7 +1144,7 @@ namespace :tw do
         raise 'file not found' if not File.exists?(path)
         lo = CSV.open(path, col_sep: "\t", :headers => true)
 
-        print "Indexing partially resolved specimens..."
+        print 'Indexing partially resolved specimens...'
 
         ## localities = {}
         lo.each do |row|
@@ -1169,7 +1169,7 @@ namespace :tw do
       def index_specimen_records_from_specimens_insects(data, import)
         start = @redis.keys.count
         collecting_event = nil
-        puts " specimen records from specimens.txt"
+        puts ' specimen records from specimens.txt'
         path = @args[:data_directory] + 'TXT/specimens.txt'
         raise 'file not found' if not File.exists?(path)
 
@@ -1265,7 +1265,7 @@ namespace :tw do
       def index_host_plants_insects(data)
         # Host
         # TaxonCode
-        puts " host plants from hostplants.txt"
+        puts ' host plants from hostplants.txt'
         path = @args[:data_directory] + 'TXT/hostplants.txt'
         raise 'file not found' if not File.exists?(path)
 
@@ -1406,7 +1406,7 @@ namespace :tw do
 
       def index_specimen_records_from_neon(data, import)
         start = @redis.keys.count
-        puts " specimen records from neon.txt"
+        puts ' specimen records from neon.txt'
         path = @args[:data_directory] + 'TXT/neon.txt'
         raise 'file not found' if not File.exists?(path)
 
@@ -1529,7 +1529,7 @@ namespace :tw do
             if !row['Type'].blank?
               type = TYPE_TYPE[row['Type'].downcase]
               unless type.nil?
-                type = type + 's' if o.type == "Lot"
+                type = type + 's' if o.type == 'Lot'
                 tm = TypeMaterial.create(protonym_id: otu.taxon_name_id, material: o, type_type: type )
                 if !tm.id.blank? # tm.valid?
                   tm.data_attributes.create(type: 'InternalAttribute', controlled_vocabulary_term_id: data.keywords['TypeName'], value: row['TypeName']) unless row['TypeName'].blank?
@@ -1689,7 +1689,7 @@ namespace :tw do
         #fields = %w{ InvoiceID ExpectedDateOfReturn DateReceived DateProcessed DateRequested MethodOfRequest Processor RecipientID Signature StudentSignature Comments TotalRecordsOnLoan TotalRecordsReturned TotalRecordsRemaining TotalSpecimensOnLoan TotalSpeciemsnReturned TotalSpeciemsnRemaining Canceled CreatedBy }
         print "\nHandling Loans "
         if import.metadata['loans']
-          print "from database.  Indexing Loans by InvoiceID..."
+          print 'from database.  Indexing Loans by InvoiceID...'
           Identifier.where(namespace_id: data.namespaces['Invoice']).find_each do |l|
             data.loans[l.identifier] = l.identifier_object
           end
@@ -1712,7 +1712,7 @@ namespace :tw do
             supervisor_email = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Email']
             supervisor_phone = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Phone']
             recipient_email = data.people_id[row['RecipientID']]['Email']
-            recipient_email = nil if recipient_email.to_s.include?(' ') || recipient_email.to_s.include?("\r") || recipient_email.to_s.include?(",") || recipient_email.to_s.include?("’")
+            recipient_email = nil if recipient_email.to_s.include?(' ') || recipient_email.to_s.include?("\r") || recipient_email.to_s.include?(',') || recipient_email.to_s.include?('’')
 
             row['DateReceived'] = '' if time_from_field(row['DateReceived']) < time_from_field(row['DateProcessed'])
 
@@ -1755,7 +1755,7 @@ namespace :tw do
       def handle_loans_insects_without_specimens(data)
         start = @redis.keys.count
         collecting_event = nil
-        puts "Loan specimen records from specimens.txt"
+        puts 'Loan specimen records from specimens.txt'
         path = @args[:data_directory] + 'TXT/specimens.txt'
         raise 'file not found' if not File.exists?(path)
 
@@ -2106,8 +2106,8 @@ namespace :tw do
 
       def parse_dates_insects(ce)
         sdm, sdd, sdy, edm, edd, edy = nil, nil, nil, nil, nil, nil
-        ( sdm, sdd, sdy = ce['DateCollectedBeginning'].split("/") ) if !ce['DateCollectedBeginning'].blank?
-        ( edm, edd, edy = ce['DateCollectedEnding'].split("/")    ) if !ce['DateCollectedEnding'].blank?
+        ( sdm, sdd, sdy = ce['DateCollectedBeginning'].split('/') ) if !ce['DateCollectedBeginning'].blank?
+        ( edm, edd, edy = ce['DateCollectedEnding'].split('/')    ) if !ce['DateCollectedEnding'].blank?
 
         sdy = sdy.to_i unless sdy.blank?
         edy = edy.to_i unless edy.blank?

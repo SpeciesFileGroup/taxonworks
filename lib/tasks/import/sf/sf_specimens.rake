@@ -374,7 +374,7 @@ namespace :tw do
                     c.identifiers << identifier if identifier
 
                   else
-                    puts "OOPS" # would this happen?
+                    puts 'OOPS' # would this happen?
                   end
                 end
 
@@ -860,7 +860,7 @@ namespace :tw do
             tw_repo_id = row['TWDepoID']
             logger.info "Working with TWD/RepoID '#{tw_repo_id}', SFDepoIDarray '#{sf_depo_id_array}' \n"
 
-            sf_depo_id_array = sf_depo_id_array.split(", ").map(&:to_i)
+            sf_depo_id_array = sf_depo_id_array.split(', ').map(&:to_i)
             sf_depo_id_array.each do |each_id|
               get_tw_repo_id[each_id] = tw_repo_id
             end
@@ -970,9 +970,9 @@ namespace :tw do
             #   this_month, this_day = '3', '1'
             # end
 
-            d = this_day != "0"
-            m = this_month != "0"
-            y = !((this_year == "1000") || (this_year == "0"))
+            d = this_day != '0'
+            m = this_month != '0'
+            y = !((this_year == '1000') || (this_year == '0'))
             dte = row['DaysToEnd'].to_i.abs != 0
 
             start_date_year, start_date_month, start_date_day,

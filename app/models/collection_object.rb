@@ -324,7 +324,7 @@ class CollectionObject < ApplicationRecord
     a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:start_date_year)
     b = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:end_date_year)
 
-    c = Time.now.strftime("%Y/%m/%d")
+    c = Time.now.strftime('%Y/%m/%d')
 
     return c if a.nil? && b.nil?
 

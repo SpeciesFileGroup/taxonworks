@@ -18,19 +18,19 @@ namespace :tw do
         # Stage 1, the backup 
         # Backup the database (always, regardless of whether there are migrations)
         # Aborts the whole process if data can not be dumped 
-        Rake::Task["tw:db:dump"].invoke
+        Rake::Task['tw:db:dump'].invoke
 
         begin
           # Stage 2, the migrations
-          Rake::Task["db:migrate"].invoke
+          Rake::Task['db:migrate'].invoke
         rescue
           # Stage 3, migration failed, restore from last.
-          Rake::Task["db:restore_last"].invoke
+          Rake::Task['db:restore_last'].invoke
           raise TaxonWorks::Error, "Unable to migrate, restored from #{ENV['file']}."
         end
       
         # Stage 4, success
-        puts Rainbow("Successfully updated database").green
+        puts Rainbow('Successfully updated database').green
         true 
       end
 

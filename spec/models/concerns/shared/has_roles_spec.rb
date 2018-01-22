@@ -2,14 +2,14 @@ require 'rails_helper'
 describe 'Has_roles', :type => :model do
   let(:class_with_roles) {TestHasRole.new}
 
-  context "associations" do
-    specify "has many roles" do
+  context 'associations' do
+    specify 'has many roles' do
       expect(class_with_roles).to respond_to(:roles)
     end
   end
 
-  context "methods" do
-    specify "has_roles?" do
+  context 'methods' do
+    specify 'has_roles?' do
       expect(class_with_roles.has_roles?).to eq(false)
     end
     context 'object with roles on destroy' do

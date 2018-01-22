@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe "TypeMaterials", :type => :feature do
+RSpec.describe 'TypeMaterials', :type => :feature do
   # Capybara.default_wait_time = 15
 
 

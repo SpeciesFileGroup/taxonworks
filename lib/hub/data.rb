@@ -75,7 +75,7 @@ module Hub::Data
     end
 
     def combined_css
-      [shared_css, application_css].compact.join(" ")
+      [shared_css, application_css].compact.join(' ')
     end
 
   end

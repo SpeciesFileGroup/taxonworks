@@ -11,12 +11,12 @@ describe 'Identifiers', type: :feature do
       sign_in_user_and_select_project
 
       (1..3).each do |n|
-        o = Otu.create(name: "O", by: @user, project: @project)
+        o = Otu.create(name: 'O', by: @user, project: @project)
         Identifier::Local::CatalogNumber.create!(namespace: namespace, identifier_object: o, identifier: n, by: @user, project: @project)
       end
     }
 
-    let(:namespace) { Namespace.create!(name: 'Matt Ids', short_name: "MID", by: @user) }
+    let(:namespace) { Namespace.create!(name: 'Matt Ids', short_name: 'MID', by: @user) }
 
     describe 'GET /identifiers' do
       before {

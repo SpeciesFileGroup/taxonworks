@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe "CollectionObjectObservations", type: :feature do
+RSpec.describe 'CollectionObjectObservations', type: :feature do
   let(:index_path) { collection_object_observations_path }
   let(:page_title) { 'Collection object observation' }
 

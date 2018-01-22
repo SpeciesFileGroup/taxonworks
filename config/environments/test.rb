@@ -36,7 +36,7 @@ TaxonWorks::Application.configure do
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
 
-  config.action_mailer.default_url_options = {:host => "www.example.com"}
+  config.action_mailer.default_url_options = {:host => 'www.example.com'}
 
   Paperclip::Attachment.default_options[:path] = "#{Rails.root}/spec/test_files/:class/:id_partition/:style.:extension"
 

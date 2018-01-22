@@ -328,7 +328,7 @@ class Source::Bibtex < Source
   ] # either year or stated_year is acceptable
 
   belongs_to :serial, inverse_of: :sources
-  belongs_to :source_language, class_name: "Language", foreign_key: :language_id, inverse_of: :sources
+  belongs_to :source_language, class_name: 'Language', foreign_key: :language_id, inverse_of: :sources
   # above to handle clash with bibtex language field.
 
   has_many :author_roles, -> {order('roles.position ASC')}, class_name: 'SourceAuthor', as: :role_object, validate: true
@@ -350,7 +350,7 @@ class Source::Bibtex < Source
                         message: 'is required when month or stated_year is provided'
 
   # @todo refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
-  validates :year, date_year: {min_year: 1000, max_year: Time.now.year + 2, message: "must be an integer greater than 999 and no more than 2 years in the future"}
+  validates :year, date_year: {min_year: 1000, max_year: Time.now.year + 2, message: 'must be an integer greater than 999 and no more than 2 years in the future'}
 
   validates_presence_of :month,
                         unless:  -> {day.nil?},
@@ -365,7 +365,7 @@ class Source::Bibtex < Source
             unless:         -> {year.nil? || month.nil?}
 
   validates :url, :format => {:with    => URI::regexp(%w(http https ftp)),
-                              message: "[%{value}] is not a valid URL"}, allow_blank: true
+                              message: '[%{value}] is not a valid URL'}, allow_blank: true
 
   #endregion validations
 
@@ -539,7 +539,7 @@ class Source::Bibtex < Source
   # @return [String] A string that represents the authors last_names and year (no suffix)
   def author_year
     return 'not yet calculated' if self.new_record?
-    [cached_author_string, year].compact.join(", ")
+    [cached_author_string, year].compact.join(', ')
   end
 
   # Modified from build, the issues with polymorphic has_many and build

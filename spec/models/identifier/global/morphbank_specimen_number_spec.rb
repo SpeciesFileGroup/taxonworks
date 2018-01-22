@@ -1,31 +1,31 @@
-require "rails_helper"
+require 'rails_helper'
 
 describe Identifier::Global::MorphbankSpecimenNumber, type: :model, group: :identifiers do
-  context "MorphbankSpecimenNumber" do
+  context 'MorphbankSpecimenNumber' do
     let(:id) { FactoryBot.build(:identifier_global_morphbank_specimen_number) }
 
-    context "#identifier is invalid format" do
-      specify "empty" do
+    context '#identifier is invalid format' do
+      specify 'empty' do
         expect(id.valid?).to be_falsey
         expect(id.errors.messages[:identifier][0]).to eq("can't be blank")
       end
 
-      specify "non-numbers" do
-        id.identifier = "asdfSJFoi-ASD_sfs"
+      specify 'non-numbers' do
+        id.identifier = 'asdfSJFoi-ASD_sfs'
         expect(id.valid?).to be_falsey
-        expect(id.errors.messages[:identifier][0]).to eq("invalid format, only numbers allowed")
+        expect(id.errors.messages[:identifier][0]).to eq('invalid format, only numbers allowed')
       end
 
-      specify "mixed" do
-        id.identifier = "2asdfS234JFoi-ASD_sfs333"
+      specify 'mixed' do
+        id.identifier = '2asdfS234JFoi-ASD_sfs333'
         expect(id.valid?).to be_falsey
-        expect(id.errors.messages[:identifier][0]).to eq("invalid format, only numbers allowed")
+        expect(id.errors.messages[:identifier][0]).to eq('invalid format, only numbers allowed')
       end
     end
 
-    context "#identifier is valid format" do
-      specify "numbers" do
-        id.identifier = "123456"
+    context '#identifier is valid format' do
+      specify 'numbers' do
+        id.identifier = '123456'
         expect(id.valid?).to be_truthy
       end
     end

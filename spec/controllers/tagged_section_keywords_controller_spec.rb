@@ -39,35 +39,35 @@ describe TaggedSectionKeywordsController, :type => :controller do
     request.env['HTTP_REFERER'] = list_otus_path # logical example
   }
 
-  describe "POST create" do
-    describe "with valid params" do
-      it "creates a new TaggedSectionKeyword" do
+  describe 'POST create' do
+    describe 'with valid params' do
+      it 'creates a new TaggedSectionKeyword' do
         expect {
           post :create, params: {tagged_section_keyword: valid_attributes}, session: valid_session
         }.to change(TaggedSectionKeyword, :count).by(1)
       end
 
-      it "assigns a newly created tagged_section_keyword as @tagged_section_keyword" do
+      it 'assigns a newly created tagged_section_keyword as @tagged_section_keyword' do
         post :create, params: {tagged_section_keyword: valid_attributes}, session: valid_session
         expect(assigns(:tagged_section_keyword)).to be_a(TaggedSectionKeyword)
         expect(assigns(:tagged_section_keyword)).to be_persisted
       end
 
-      it "redirects to :back" do
+      it 'redirects to :back' do
         post :create, params: {tagged_section_keyword: valid_attributes}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
 
-    describe "with invalid params" do
-      it "assigns a newly created but unsaved tagged_section_keyword as @tagged_section_keyword" do
+    describe 'with invalid params' do
+      it 'assigns a newly created but unsaved tagged_section_keyword as @tagged_section_keyword' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaggedSectionKeyword).to receive(:save).and_return(false)
         post :create, params: {tagged_section_keyword: {invalid: 'parms'}}, session: valid_session
         expect(assigns(:tagged_section_keyword)).to be_a_new(TaggedSectionKeyword)
       end
 
-      it "re-renders the :back template" do
+      it 're-renders the :back template' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaggedSectionKeyword).to receive(:save).and_return(false)
         post :create, params: {tagged_section_keyword: {invalid: 'parms'}}, session: valid_session
@@ -89,21 +89,21 @@ describe TaggedSectionKeywordsController, :type => :controller do
         put :update, params: {:id => tagged_section_keyword.to_param, tagged_section_keyword: {keyword_id: other_keyword.to_param}}, session: valid_session
       end
 
-      it "assigns the requested tagged_section_keyword as @tagged_section_keyword" do
+      it 'assigns the requested tagged_section_keyword as @tagged_section_keyword' do
         tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
         put :update, params: {id: tagged_section_keyword.to_param, tagged_section_keyword: valid_attributes}, session: valid_session
         expect(assigns(:tagged_section_keyword)).to eq(tagged_section_keyword)
       end
 
-      it "redirects to :back" do
+      it 'redirects to :back' do
         tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
         put :update, params: {id: tagged_section_keyword.to_param, tagged_section_keyword: valid_attributes}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
 
-    describe "with invalid params" do
-      it "assigns the tagged_section_keyword as @tagged_section_keyword" do
+    describe 'with invalid params' do
+      it 'assigns the tagged_section_keyword as @tagged_section_keyword' do
         tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaggedSectionKeyword).to receive(:save).and_return(false)
@@ -111,7 +111,7 @@ describe TaggedSectionKeywordsController, :type => :controller do
         expect(assigns(:tagged_section_keyword)).to eq(tagged_section_keyword)
       end
 
-      it "re-renders the :back template" do
+      it 're-renders the :back template' do
         tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaggedSectionKeyword).to receive(:save).and_return(false)
@@ -121,15 +121,15 @@ describe TaggedSectionKeywordsController, :type => :controller do
     end
   end
 
-  describe "DELETE destroy" do
-    it "destroys the requested tagged_section_keyword" do
+  describe 'DELETE destroy' do
+    it 'destroys the requested tagged_section_keyword' do
       tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
       expect {
         delete :destroy, params: {id: tagged_section_keyword.to_param}, session: valid_session
       }.to change(TaggedSectionKeyword, :count).by(-1)
     end
 
-    it "redirects to :back" do
+    it 'redirects to :back' do
       tagged_section_keyword = TaggedSectionKeyword.create! valid_attributes
       delete :destroy, params: {id: tagged_section_keyword.to_param}, session: valid_session
       expect(response).to redirect_to(list_otus_path)

@@ -26,7 +26,7 @@ module Workbench::ObjectHelper
 
   # Given the object (non metamorphosized), return the helper instance
   def helper_module(object)
-    (object.class.name + "Helper").constantize
+    (object.class.name + 'Helper').constantize
   end
 
 

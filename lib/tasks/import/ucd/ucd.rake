@@ -333,7 +333,7 @@ namespace :tw do
         # ValDate
         # CitDate
         path = @args[:data_directory] + 'MASTER.txt'
-        print "Handling MASTER -- Families "
+        print 'Handling MASTER -- Families '
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         i = 0
@@ -827,7 +827,7 @@ namespace :tw do
         handle = 'handle_language_ucd' 
         print "\nHandling LANGUAGE "
         if !@data.done?(handle)
-          puts "as new"
+          puts 'as new'
           lng_transl = {'al' => 'sq',
                         'ge' => 'ka',
                         'gr' => 'el',
@@ -867,7 +867,7 @@ namespace :tw do
         print "\nHandling COUNTRY (COUNTRY_MOD)"
 
         if !@data.done?(handle)
-          puts "as new"
+          puts 'as new'
           path = @args[:data_directory] + 'COUNTRY_MOD.txt'
 
           raise "file #{path} not found" if not File.exists?(path)
@@ -1041,9 +1041,9 @@ namespace :tw do
           stated_year = nil if stated_year.to_i < 1500 || stated_year.to_i > 2018
 
           # Need to translate | | to \textit{ } I think (bibtex format)
-          title = [row['Title'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_title].blank? ? fext_data[row['RefCode']][:ext_title] : nil)].compact.join(" ")
-          journal = [row['JourBook'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_journal].blank? ? fext_data[row['RefCode']][:ext_journal] : nil)].compact.join(" ")
-          author = [row['Author'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_author].blank? ? fext_data[row['RefCode']][:ext_author] : nil)].compact.join(" ")
+          title = [row['Title'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_title].blank? ? fext_data[row['RefCode']][:ext_title] : nil)].compact.join(' ')
+          journal = [row['JourBook'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_journal].blank? ? fext_data[row['RefCode']][:ext_journal] : nil)].compact.join(' ')
+          author = [row['Author'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_author].blank? ? fext_data[row['RefCode']][:ext_author] : nil)].compact.join(' ')
           if row['LanguageA'].blank? || @data.languages[row['LanguageA'].downcase].nil?
             language, language_id = nil, nil
           else

@@ -14,7 +14,7 @@ describe CollectionObjectsHelper, type: :helper do
       expect(helper.collection_object_link(collection_object)).to have_link(collection_object.type)
     end
 
-    specify "#collection_object_search_form" do
+    specify '#collection_object_search_form' do
       expect(helper.collection_objects_search_form).to have_field('collection_object_id_for_quick_search_form')
     end
 

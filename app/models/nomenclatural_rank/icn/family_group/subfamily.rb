@@ -15,6 +15,6 @@ class NomenclaturalRank::Icn::FamilyGroup::Subfamily < NomenclaturalRank::Icn::F
   end
 
   def self.abbreviation
-    "subfam."
+    'subfam.'
   end
 end

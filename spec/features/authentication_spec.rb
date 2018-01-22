@@ -16,16 +16,16 @@ describe 'Authentication', type: :feature do
         expect(subject).to have_link('Account') # TODO, add href
         expect(subject).not_to have_link('Sign out', href: signin_path)
 
-        expect(subject).to have_content "Dashboard" 
-        expect(subject).to have_content "Projects" 
+        expect(subject).to have_content 'Dashboard' 
+        expect(subject).to have_content 'Projects' 
       end
     end
 
     context 'when credentials do not match existing user' do
       it 'should not sign user in' do
         visit signin_path
-        fill_in 'Email',    with: "" 
-        fill_in 'Password', with: "" 
+        fill_in 'Email',    with: '' 
+        fill_in 'Password', with: '' 
         click_button 'Sign in'
         expect(subject).to have_title('Sign in | TaxonWorks')
         expect(subject).to have_button('Sign in')

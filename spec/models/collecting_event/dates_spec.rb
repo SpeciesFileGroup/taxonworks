@@ -16,7 +16,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
   let(:b) { '1900/12/31' }
   let(:c) { '2004/2/29' }
   let(:d) { '2010/12/1' }
-  let(:e) { Date.today.strftime("%Y/%m/%d") }
+  let(:e) { Date.today.strftime('%Y/%m/%d') }
 
   let(:s1) { '2000//' }
   let(:s2) { '2000/2/' }

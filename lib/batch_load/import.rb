@@ -97,7 +97,7 @@ module BatchLoad
                                                 lambda { |h| h.strip },
                                                 lambda { |h| user_map(h) }],
                             col_sep:           "\t",
-                            encoding:          "UTF-8"})
+                            encoding:          'UTF-8'})
 
 
           #  rescue Encoding::UndefinedConversionError => e

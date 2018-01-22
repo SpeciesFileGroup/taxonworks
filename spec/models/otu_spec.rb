@@ -76,10 +76,10 @@ describe Otu, :type => :model do
     let(:file) {
       f   = File.new('/tmp/temp', 'w+')
       str = CSV.generate do |csv|
-        csv << ["Aus"]
-        csv << ["Bus"]
+        csv << ['Aus']
+        csv << ['Bus']
         csv << [nil]
-        csv << ["Cus"]
+        csv << ['Cus']
       end
       f.write str
       f.rewind

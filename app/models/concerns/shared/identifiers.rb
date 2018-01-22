@@ -13,7 +13,7 @@ module Shared::Identifiers
     scope :with_identifier_namespace, ->(id_namespace) { includes(:identifiers).where('identifiers.namespace_id = ?', id_namespace.id).references(:identifiers) }
     scope :with_identifiers_sorted, -> { includes(:identifiers)
                                            .where("identifiers.identifier ~ '\^\\d\+\$'")
-                                           .order("CAST(identifiers.identifier AS integer)")
+                                           .order('CAST(identifiers.identifier AS integer)')
                                            .references(:identifiers) }
     scope :with_identifier_type_and_namespace, ->(id_type, id_namespace = nil, sorted = true) { with_identifier_type_and_namespace_method(id_type, id_namespace, sorted) }
 

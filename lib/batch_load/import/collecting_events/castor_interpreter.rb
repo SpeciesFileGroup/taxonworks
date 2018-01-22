@@ -23,12 +23,12 @@ module BatchLoad
 
         @processed_rows[i] = parse_result
 
-        next if row['locality_code_prefix'] == "NABemb"
+        next if row['locality_code_prefix'] == 'NABemb'
 
         begin # processing
           # Text for identifiers
           ce_identifier_castor_text = row['guid']
-          ce_identifier_drm_field_numbers_text = "#{row['locality_code_prefix']}#{row['locality_code_string']}" if row["locality_code_prefix"] != "NONE"
+          ce_identifier_drm_field_numbers_text = "#{row['locality_code_prefix']}#{row['locality_code_string']}" if row['locality_code_prefix'] != 'NONE'
       
           # Identifiers
           ce_identifier_castor = {
@@ -71,11 +71,11 @@ module BatchLoad
           ce = CollectingEvent.new(ce_attributes)
 
           # Assign geographic area to collecting event
-          county = row["county"]
-          state_province = row["state_province"]
-          country = row["country"]
+          county = row['county']
+          state_province = row['state_province']
+          country = row['country']
 
-          country = "United States" if country == "USA"
+          country = 'United States' if country == 'USA'
 
           geographic_area_params = []
 

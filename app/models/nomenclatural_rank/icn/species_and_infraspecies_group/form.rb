@@ -13,6 +13,6 @@ class NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Form < NomenclaturalR
 
 
   def self.abbreviation
-    "f."
+    'f.'
   end
 end

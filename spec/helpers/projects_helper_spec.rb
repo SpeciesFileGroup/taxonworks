@@ -18,7 +18,7 @@ describe ProjectsHelper do
       expect(helper.project_link(project)).to have_link(name)
     end
 
-    specify "#project_search_form" do
+    specify '#project_search_form' do
       expect(projects_search_form).to have_field('project_id_for_quick_search_form')
     end
 

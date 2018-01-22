@@ -15,7 +15,7 @@ describe CollectingEventsHelper, :type => :helper do
     end
 
     specify '#collecting_event_link' do
-      expect(helper.collecting_event_link(collecting_event)).to have_link("Urbana ii") # matches anywhere in link
+      expect(helper.collecting_event_link(collecting_event)).to have_link('Urbana ii') # matches anywhere in link
     end
 
     specify '#collecting_event_search_form' do

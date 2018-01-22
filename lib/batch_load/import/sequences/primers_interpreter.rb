@@ -30,10 +30,10 @@ module BatchLoad
           # ? in actual sequence become ‘N’
           # Ignore ‘;’ at the end of actual sequence
 
-          name = row["name"]
-          gene_name = row["gene_name"]
-          type = row["type"]
-          sequence = row["sequence"] || ""
+          name = row['name']
+          gene_name = row['gene_name']
+          type = row['type']
+          sequence = row['sequence'] || ''
 
           # Replace '?' with 'N' and remove ';' from sequence
           sequence.gsub!(/\?/, 'N')
@@ -67,7 +67,7 @@ module BatchLoad
         # Sequence attributes
         sequence_attributes = {
           name: sequence_obj[:official_name],
-          sequence_type: "DNA",
+          sequence_type: 'DNA',
           sequence: sequence_obj[:sequence],
           alternate_values_attributes: [],
           data_attributes_attributes: []
@@ -76,22 +76,22 @@ module BatchLoad
         # AlternateValues attributes
         sequence_obj[:alternate_names].each do |alternate_name|
           sequence_attributes[:alternate_values_attributes].push({
-            type: "AlternateValue::AlternateSpelling",
-            alternate_value_object_attribute: "name",
+            type: 'AlternateValue::AlternateSpelling',
+            alternate_value_object_attribute: 'name',
             value: alternate_name
           })
         end
 
         # DataAttributes attributes
         sequence_attributes[:data_attributes_attributes].push({
-          type: "ImportAttribute",
-          import_predicate: "GeneName",
+          type: 'ImportAttribute',
+          import_predicate: 'GeneName',
           value: sequence_obj[:gene_name]
         })
 
         sequence_attributes[:data_attributes_attributes].push({
-          type: "ImportAttribute",
-          import_predicate: "Type",
+          type: 'ImportAttribute',
+          import_predicate: 'Type',
           value: sequence_obj[:type]
         })
 

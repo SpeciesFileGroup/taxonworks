@@ -15,6 +15,6 @@ class NomenclaturalRank::Icnb::FamilyGroup::Tribe < NomenclaturalRank::Icnb::Fam
   end
 
   def self.abbreviation
-    "tr."
+    'tr.'
   end
 end

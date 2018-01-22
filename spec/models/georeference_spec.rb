@@ -50,7 +50,7 @@ describe Georeference, type: :model, group: :geo do
     let(:georeference) { FactoryBot.create(:valid_georeference) }
     specify 'with << and an existing object' do
       expect(georeference.roles.count).to eq(0)
-      georeference.georeferencers << Person.new(last_name: "Smith")
+      georeference.georeferencers << Person.new(last_name: 'Smith')
       expect(georeference.save).to be_truthy
 
       expect(georeference.georeferencers.first.creator.nil?).to be_falsey
@@ -79,7 +79,7 @@ describe Georeference, type: :model, group: :geo do
       expect(georeference.errors.include?(:type)).to be_truthy
     end
 
-    specify "#error_geographic_item is not required" do
+    specify '#error_geographic_item is not required' do
       expect(georeference.errors.include?(:error_geographic_item)).to be_falsey
     end
 

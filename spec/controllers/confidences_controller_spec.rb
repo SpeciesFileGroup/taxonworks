@@ -41,8 +41,8 @@ RSpec.describe ConfidencesController, type: :controller do
   # ConfidencesController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET #index" do
-    it "assigns all confidences as @recent_objects" do
+  describe 'GET #index' do
+    it 'assigns all confidences as @recent_objects' do
       confidence = Confidence.create! valid_attributes
       get :index, params: {}, session: valid_session
       expect(assigns(:recent_objects)).to eq([confidence])
@@ -76,34 +76,34 @@ RSpec.describe ConfidencesController, type: :controller do
     request.env['HTTP_REFERER'] = list_collection_objects_path
   }
 
-  describe "POST #create" do
-    context "with valid params" do
-      it "creates a new Confidence" do
+  describe 'POST #create' do
+    context 'with valid params' do
+      it 'creates a new Confidence' do
         expect {
           post :create, params: {confidence: valid_attributes}, session: valid_session
         }.to change(Confidence, :count).by(1)
       end
 
-      it "assigns a newly created confidence as @confidence" do
+      it 'assigns a newly created confidence as @confidence' do
         post :create, params: {confidence: valid_attributes}, session: valid_session
         expect(assigns(:confidence)).to be_a(Confidence)
         expect(assigns(:confidence)).to be_persisted
       end
 
-      it "redirects to the created confidence" do
+      it 'redirects to the created confidence' do
         post :create, params: {confidence: valid_attributes}, session: valid_session
         expect(response).to redirect_to(collection_object_path(Specimen.last))
       end
     end
 
-    context "with invalid params" do
-      it "assigns a newly created but unsaved confidence as @confidence" do
+    context 'with invalid params' do
+      it 'assigns a newly created but unsaved confidence as @confidence' do
         allow_any_instance_of(Confidence).to receive(:save).and_return(false)
         post :create, params: {confidence: invalid_attributes}, session: valid_session
         expect(assigns(:confidence)).to be_a_new(Confidence)
       end
 
-      it "re-renders the :back template" do
+      it 're-renders the :back template' do
         allow_any_instance_of(Confidence).to receive(:save).and_return(false)
         post :create, params: {confidence: invalid_attributes}, session: valid_session
         expect(response).to redirect_to(list_collection_objects_path)
@@ -111,35 +111,35 @@ RSpec.describe ConfidencesController, type: :controller do
     end
   end
 
-  describe "PUT #update" do
-    context "with valid params" do
+  describe 'PUT #update' do
+    context 'with valid params' do
       let(:new_confidence_level) { FactoryBot.create(:valid_confidence_level) }
       let(:new_attributes) {
         { confidence_level_id: new_confidence_level.to_param  }
       }
 
-      it "updates the requested confidence" do
+      it 'updates the requested confidence' do
         confidence = Confidence.create! valid_attributes
         put :update, params: {id: confidence.to_param, confidence: new_attributes}, session: valid_session
         confidence.reload
         expect(confidence.confidence_level).to eq(new_confidence_level)
       end
 
-      it "assigns the requested confidence as @confidence" do
+      it 'assigns the requested confidence as @confidence' do
         confidence = Confidence.create! valid_attributes
         put :update, params: {id: confidence.to_param, confidence: valid_attributes}, session: valid_session
         expect(assigns(:confidence)).to eq(confidence)
       end
 
-      it "redirects to the confidence" do
+      it 'redirects to the confidence' do
         confidence = Confidence.create! valid_attributes
         put :update, params: {id: confidence.to_param, confidence: valid_attributes}, session: valid_session
         expect(response).to redirect_to(confidence)
       end
     end
 
-    context "with invalid params" do
-      it "assigns the confidence as @confidence" do
+    context 'with invalid params' do
+      it 'assigns the confidence as @confidence' do
         confidence = Confidence.create! valid_attributes
         allow_any_instance_of(Confidence).to receive(:save).and_return(false)
         put :update, params: {id: confidence.to_param, confidence: invalid_attributes}, session: valid_session
@@ -150,25 +150,25 @@ RSpec.describe ConfidencesController, type: :controller do
         confidence = Confidence.create! valid_attributes
         allow_any_instance_of(Confidence).to receive(:save).and_return(false)
         put :update, params: {id: confidence.to_param, confidence: invalid_attributes}, session: valid_session
-        expect(response).to render_template("edit")
+        expect(response).to render_template('edit')
       end
     end
   end
 
-  describe "DELETE #destroy" do
+  describe 'DELETE #destroy' do
 
     before {
       @confidence = Confidence.create! valid_attributes
-      request.env["HTTP_REFERER"] = list_collection_objects_path
+      request.env['HTTP_REFERER'] = list_collection_objects_path
     }
 
-    it "destroys the requested confidence" do
+    it 'destroys the requested confidence' do
       expect {
         delete :destroy, params: {id: @confidence.to_param}, session: valid_session
       }.to change(Confidence, :count).by(-1)
     end
 
-    it "redirects to the confidences list" do
+    it 'redirects to the confidences list' do
       delete :destroy, params: {id: @confidence.to_param}, session: valid_session
       expect(response).to redirect_to(confidences_url)
     end

@@ -52,7 +52,7 @@ RSpec.describe Sequence, type: :model, group: [:dna] do
 
       specify 'valid sequence_type' do
         sequence = FactoryBot.create(:valid_sequence)
-        sequence.sequence_type = "INVALID TYPE"
+        sequence.sequence_type = 'INVALID TYPE'
         expect(sequence.valid?).to be_falsey
       end
     end
@@ -79,7 +79,7 @@ RSpec.describe Sequence, type: :model, group: [:dna] do
             expect(sequence.send("#{sequences}=", [Sequence.new])).to be_truthy
           end
 
-          specify "nested_attributes" do
+          specify 'nested_attributes' do
             expect(sequence.send("#{sequences}_attributes=", [{sequence: Sequence.new}])).to be_truthy
           end
         end

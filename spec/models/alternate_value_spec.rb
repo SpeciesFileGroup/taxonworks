@@ -52,7 +52,7 @@ describe AlternateValue, group: :annotators do
     specify 'legal column name is legal' do
       alternate_value.alternate_value_object = FactoryBot.build(:valid_serial)
       alternate_value.alternate_value_object_attribute = 'name'
-      alternate_value.value = "10"
+      alternate_value.value = '10'
       alternate_value.valid?
       expect(alternate_value.errors.include?(:alternate_value_object_attribute)).to be_falsey
     end

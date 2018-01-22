@@ -30,7 +30,7 @@ class CollectionObjectObservation < ApplicationRecord
 
   def self.find_for_autocomplete(params)
     term = "#{params[:term]}%"
-    where('data LIKE ? OR data ILIKE ? OR data = ?', term, "#{term}%", "%term").where(project_id: params[:project_id])
+    where('data LIKE ? OR data ILIKE ? OR data = ?', term, "#{term}%", '%term').where(project_id: params[:project_id])
   end
 
   def self.generate_download(scope)

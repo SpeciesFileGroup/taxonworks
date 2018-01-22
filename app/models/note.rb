@@ -51,7 +51,7 @@ class Note < ApplicationRecord
   # TODO: make a helper
   # Format a note
   def note_string
-    "#{updated_at}: #{updater.name}: #{text}" + (note_object_attribute.blank? ? "" : "[on: #{note_object_attribute}]")
+    "#{updated_at}: #{updater.name}: #{text}" + (note_object_attribute.blank? ? '' : "[on: #{note_object_attribute}]")
   end
 
 end

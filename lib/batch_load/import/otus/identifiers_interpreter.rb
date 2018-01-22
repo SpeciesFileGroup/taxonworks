@@ -19,9 +19,9 @@ module BatchLoad
         @processed_rows[i] = parse_result
 
         begin # processing
-          otu_identifier_uri_text = row["uri"]
+          otu_identifier_uri_text = row['uri']
           otu_identifier_uri = {
-            type: "Identifier::Global::Uri",
+            type: 'Identifier::Global::Uri',
             identifier: otu_identifier_uri_text
           }
 
@@ -29,7 +29,7 @@ module BatchLoad
           otu_identifiers.push(otu_identifier_uri) if otu_identifier_uri_text.present?
 
           otu_attributes = {
-            name: row["name"],
+            name: row['name'],
             identifiers_attributes: otu_identifiers
           }
 

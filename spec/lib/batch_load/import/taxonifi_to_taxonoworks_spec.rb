@@ -2,15 +2,15 @@ require 'rails_helper'
 
 describe BatchLoad::Import::TaxonifiToTaxonworks, type: :model do
 
-  let(:basic_headers) {  ["family", "genus", "species", "author", "year"] }
+  let(:basic_headers) {  ['family', 'genus', 'species', 'author', 'year'] }
   let(:basic_csv) { 
     CSV.generate() do |csv|
       csv <<  basic_headers
-      csv << ["Diapriidae", "Aus", "bus", "Smith", "1854"]
-      csv << ["Scelionidae", "Bus", "cus", "Jones", "1854"]
-      csv << ["Scelionidae", "Cus", nil, "Chapman", "1854"]
-      csv << ["Scelionidae", "Bus", "dus", "Elroy", "1854"]
-      csv << ["Playtgastridae", "Eus", "eus", nil, nil]
+      csv << ['Diapriidae', 'Aus', 'bus', 'Smith', '1854']
+      csv << ['Scelionidae', 'Bus', 'cus', 'Jones', '1854']
+      csv << ['Scelionidae', 'Cus', nil, 'Chapman', '1854']
+      csv << ['Scelionidae', 'Bus', 'dus', 'Elroy', '1854']
+      csv << ['Playtgastridae', 'Eus', 'eus', nil, nil]
       csv
     end
   }

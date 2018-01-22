@@ -49,11 +49,11 @@ module BatchLoad
         @processed_rows[i] = parse_result
 
         begin
-          next if row['rank'] == "complex"
-          next if row['rank'] == "species group"
-          next if row['rank'] == "series"
-          next if row['rank'] == "variety"
-          next if row['taxon_name'] == "unidentified"
+          next if row['rank'] == 'complex'
+          next if row['rank'] == 'species group'
+          next if row['rank'] == 'series'
+          next if row['rank'] == 'variety'
+          next if row['taxon_name'] == 'unidentified'
 
           protonym_attributes = {
             name: row['taxon_name'],
@@ -129,18 +129,18 @@ module BatchLoad
           name_nomen_classification = row['name_nomen_classification']
           p.taxon_name_classifications.new(type: name_nomen_classification) if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(name_nomen_classification)
 
-          taxon_concept_identifier_castor_text = row["guid"]
+          taxon_concept_identifier_castor_text = row['guid']
 
           if taxon_concept_identifier_castor_text.present?
             taxon_concept_identifier_castor = {
-              type: "Identifier::Global::Uri",
+              type: 'Identifier::Global::Uri',
               identifier: taxon_concept_identifier_castor_text
             }
 
             taxon_concept_identifiers = []
             taxon_concept_identifiers.push(taxon_concept_identifier_castor)
 
-            otu = Otu.new(name: row["taxon_concept_name"], taxon_name: p, identifiers_attributes: taxon_concept_identifiers)
+            otu = Otu.new(name: row['taxon_concept_name'], taxon_name: p, identifiers_attributes: taxon_concept_identifiers)
             parse_result.objects[:otu].push(otu)
           end
 
@@ -162,36 +162,36 @@ module BatchLoad
     private
 
     def year_of_publication(author_year)
-      split_author_year = author_year.split(" ")
+      split_author_year = author_year.split(' ')
       year = split_author_year[split_author_year.length - 1]
-      year =~ /\A\d+\z/ ? year : ""
+      year =~ /\A\d+\z/ ? year : ''
     end
 
     def verbatim_author(author_year)
-      author_end_index = author_year.rindex(" ") 
+      author_end_index = author_year.rindex(' ') 
       author_end_index ||= author_year.length
       author_year[0...author_end_index]
     end
 
     def taxon_name_authors_attributes(author_info)
-      multiple_author_query = "and"
+      multiple_author_query = 'and'
       multiple_author_index = author_info.index(multiple_author_query)
       split_author_info = multiple_author_index.nil? ? [author_info] : author_info.split(multiple_author_query)
       author_infos = []
 
       split_author_info.each do |author_str|
-        author_infos.push(author_info(author_str)) if author_str != "NA" && author_str != "unpublished"
+        author_infos.push(author_info(author_str)) if author_str != 'NA' && author_str != 'unpublished'
       end
 
       author_infos
     end
 
     def author_info(author_string)
-      seperator_query = " "
+      seperator_query = ' '
       separator_index = author_string.index(seperator_query)
 
       last_name = author_string
-      first_name = ""
+      first_name = ''
 
       if !separator_index.nil?
         separator_index += seperator_query.length
@@ -200,7 +200,7 @@ module BatchLoad
         first_name = split_author_info[1] 
       end
 
-      { last_name: last_name, first_name: first_name, suffix: "suffix" }
+      { last_name: last_name, first_name: first_name, suffix: 'suffix' }
     end
   end
 end

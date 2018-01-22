@@ -150,7 +150,7 @@ namespace :tw do
           end
 
           def save_all
-            puts "Saving.."
+            puts 'Saving..'
             save_geographic_areas
             raise if names_not_saved.count > 0
             create_geographic_areas_geographic_items
@@ -374,7 +374,7 @@ namespace :tw do
         end
 
         def build_areas_from_tdwg_l1
-          puts "tdwg level 1"
+          puts 'tdwg level 1'
           source_table = 'tdwg_l1'
           all_records(source_table).each do |r|
             @data_index.add_item(
@@ -389,7 +389,7 @@ namespace :tw do
         end
 
         def build_areas_from_tdwg_l2
-          puts "tdwg level 2"
+          puts 'tdwg level 2'
           source_table = 'tdwg_l2'
           all_records(source_table).each do |r|
             @data_index.add_item(
@@ -404,7 +404,7 @@ namespace :tw do
         end
 
         def build_areas_from_tdwg_l3
-          puts "tdwg level 3"
+          puts 'tdwg level 3'
           source_table = 'tdwg_l3'
           all_records(source_table).each do |r|
             @data_index.add_item(
@@ -419,7 +419,7 @@ namespace :tw do
         end
 
         def build_areas_from_tdwg_l4
-          puts "tdwg level 4"
+          puts 'tdwg level 4'
           source_table = 'tdwg_l4'
           all_records(source_table).each do |r|
             @data_index.add_item(
@@ -446,7 +446,7 @@ namespace :tw do
         end
 
         def build_areas_from_ne_countries
-          puts "indexing ne_countries"
+          puts 'indexing ne_countries'
           source_table = 'ne_countries'
 
           all_records(source_table).each do |r|
@@ -463,7 +463,7 @@ namespace :tw do
         end
 
         def build_areas_from_ne_states
-          puts "indexing ne_states"
+          puts 'indexing ne_states'
           source_table = 'ne_states'
           all_records(source_table).each do |r|
             @data_index.add_item(

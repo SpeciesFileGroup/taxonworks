@@ -44,7 +44,7 @@ class ProjectMembersController < ApplicationController
       redirect_to project_path(@member_project), notice: "Project members were #{project_members_params.empty? ? 'not selected.' : 'added to project.'}"
 
     rescue ActiveRecord::RecordInvalid
-      redirect_to many_new_project_members_path, notice: "There was a problem adding project members, none were added." 
+      redirect_to many_new_project_members_path, notice: 'There was a problem adding project members, none were added.' 
     end
   end
 

@@ -40,98 +40,98 @@ RSpec.describe CommonNamesController, type: :controller do
   # CommonNamesController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET #index" do
-    it "assigns all common_names as @common_names" do
+  describe 'GET #index' do
+    it 'assigns all common_names as @common_names' do
       common_name = CommonName.create! valid_attributes
       get :index, params: {}, session: valid_session
       expect(assigns(:recent_objects)).to eq([common_name])
     end
   end
 
-  describe "GET #show" do
-    it "assigns the requested common_name as @common_name" do
+  describe 'GET #show' do
+    it 'assigns the requested common_name as @common_name' do
       common_name = CommonName.create! valid_attributes
       get :show, params: {id: common_name.to_param}, session: valid_session
       expect(assigns(:common_name)).to eq(common_name)
     end
   end
 
-  describe "GET #new" do
-    it "assigns a new common_name as @common_name" do
+  describe 'GET #new' do
+    it 'assigns a new common_name as @common_name' do
       get :new, params: {}, session: valid_session
       expect(assigns(:common_name)).to be_a_new(CommonName)
     end
   end
 
-  describe "GET #edit" do
-    it "assigns the requested common_name as @common_name" do
+  describe 'GET #edit' do
+    it 'assigns the requested common_name as @common_name' do
       common_name = CommonName.create! valid_attributes
       get :edit, params: {id: common_name.to_param}, session: valid_session
       expect(assigns(:common_name)).to eq(common_name)
     end
   end
 
-  describe "POST #create" do
-    context "with valid params" do
-      it "creates a new CommonName" do
+  describe 'POST #create' do
+    context 'with valid params' do
+      it 'creates a new CommonName' do
         expect {
           post :create, params: {common_name: valid_attributes}, session: valid_session
         }.to change(CommonName, :count).by(1)
       end
 
-      it "assigns a newly created common_name as @common_name" do
+      it 'assigns a newly created common_name as @common_name' do
         post :create, params: {common_name: valid_attributes}, session: valid_session
         expect(assigns(:common_name)).to be_a(CommonName)
         expect(assigns(:common_name)).to be_persisted
       end
 
-      it "redirects to the created common_name" do
+      it 'redirects to the created common_name' do
         post :create, params: {common_name: valid_attributes}, session: valid_session
         expect(response).to redirect_to(CommonName.last)
       end
     end
 
-    context "with invalid params" do
-      it "assigns a newly created but unsaved common_name as @common_name" do
+    context 'with invalid params' do
+      it 'assigns a newly created but unsaved common_name as @common_name' do
         post :create, params: {common_name: invalid_attributes}, session: valid_session
         expect(assigns(:common_name)).to be_a_new(CommonName)
       end
 
       it "re-renders the 'new' template" do
         post :create, params: {common_name: invalid_attributes}, session: valid_session
-        expect(response).to render_template("new")
+        expect(response).to render_template('new')
       end
     end
   end
 
-  describe "PUT #update" do
-    context "with valid params" do
+  describe 'PUT #update' do
+    context 'with valid params' do
       let(:new_attributes) {
         { name: 'blue bird' }
       }
 
-      it "updates the requested common_name" do
+      it 'updates the requested common_name' do
         common_name = CommonName.create! valid_attributes
         put :update, params: {id: common_name.to_param, common_name: new_attributes}, session: valid_session
         common_name.reload
         expect(common_name.name).to eq('blue bird')
       end
 
-      it "assigns the requested common_name as @common_name" do
+      it 'assigns the requested common_name as @common_name' do
         common_name = CommonName.create! valid_attributes
         put :update, params: {id: common_name.to_param, common_name: valid_attributes}, session: valid_session
         expect(assigns(:common_name)).to eq(common_name)
       end
 
-      it "redirects to the common_name" do
+      it 'redirects to the common_name' do
         common_name = CommonName.create! valid_attributes
         put :update, params: {id: common_name.to_param, common_name: valid_attributes}, session: valid_session
         expect(response).to redirect_to(common_name)
       end
     end
 
-    context "with invalid params" do
-      it "assigns the common_name as @common_name" do
+    context 'with invalid params' do
+      it 'assigns the common_name as @common_name' do
         common_name = CommonName.create! valid_attributes
         put :update, params: {id: common_name.to_param, common_name: invalid_attributes}, session: valid_session
         expect(assigns(:common_name)).to eq(common_name)
@@ -140,20 +140,20 @@ RSpec.describe CommonNamesController, type: :controller do
       it "re-renders the 'edit' template" do
         common_name = CommonName.create! valid_attributes
         put :update, params: {id: common_name.to_param, common_name: invalid_attributes}, session: valid_session
-        expect(response).to render_template("edit")
+        expect(response).to render_template('edit')
       end
     end
   end
 
-  describe "DELETE #destroy" do
-    it "destroys the requested common_name" do
+  describe 'DELETE #destroy' do
+    it 'destroys the requested common_name' do
       common_name = CommonName.create! valid_attributes
       expect {
         delete :destroy, params: {id: common_name.to_param}, session: valid_session
       }.to change(CommonName, :count).by(-1)
     end
 
-    it "redirects to the common_names list" do
+    it 'redirects to the common_names list' do
       common_name = CommonName.create! valid_attributes
       delete :destroy, params: {id: common_name.to_param}, session: valid_session
       expect(response).to redirect_to(common_names_url)

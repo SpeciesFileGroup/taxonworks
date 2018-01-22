@@ -40,16 +40,16 @@ RSpec.describe ObservationMatrixRowsController, type: :controller do
   # MatrixRowsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET #index" do
-    it "assigns all matrix_rows as @recent_objects" do
+  describe 'GET #index' do
+    it 'assigns all matrix_rows as @recent_objects' do
       observation_matrix_row = ObservationMatrixRow.create! valid_attributes
       get :index, params: {}, session: valid_session
       expect(assigns(:recent_objects)).to eq([observation_matrix_row])
     end
   end
 
-  describe "GET #show" do
-    it "assigns the requested matrix_row as @observation_matrix_row" do
+  describe 'GET #show' do
+    it 'assigns the requested matrix_row as @observation_matrix_row' do
       observation_matrix_row = ObservationMatrixRow.create! valid_attributes
       get :show, params: {id: observation_matrix_row.to_param}, session: valid_session
       expect(assigns(:observation_matrix_row)).to eq(observation_matrix_row)

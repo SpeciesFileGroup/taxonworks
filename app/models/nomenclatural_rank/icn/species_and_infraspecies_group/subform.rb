@@ -9,6 +9,6 @@ class NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Subform < Nomenclatur
   end
 
   def self.abbreviation
-    "subf."
+    'subf.'
   end
 end

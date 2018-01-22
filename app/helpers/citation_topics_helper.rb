@@ -11,7 +11,7 @@ module CitationTopicsHelper
       content_tag(:span, 'author, year not yet provided for source', class: :subtle) 
     )
 
-    str = [citation_topic.topic.name, ": ", object_tag(citation.citation_object.metamorphosize).html_safe, " in ", citation_string].join
+    str = [citation_topic.topic.name, ': ', object_tag(citation.citation_object.metamorphosize).html_safe, ' in ', citation_string].join
     str = str + ": #{citation.pages}." if !citation.pages.blank?
     str.html_safe
 

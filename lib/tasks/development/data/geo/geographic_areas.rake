@@ -80,7 +80,7 @@ namespace :tw do
           database   = ApplicationRecord.connection.current_database
           data_store = @args[:data_directory]
 
-          Rake::Task["tw:initialize:load_geo"].execute
+          Rake::Task['tw:initialize:load_geo'].execute
 
           collecting_events_file = "#{data_store}collecting_events.dump"
           georeferences_file     = "#{data_store}georeferences.dump"
@@ -173,7 +173,7 @@ namespace :tw do
                 r.save!
                 print "\rSave:   record #{r.id} of #{count}"
                 #print ": #{Time.at(elapsed).getgm.strftime "%S:%L"}"
-                print "."
+                print '.'
               end
               puts "\n\n#{Time.now.strftime "%H:%M:%S"}."
             end

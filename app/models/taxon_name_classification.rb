@@ -291,7 +291,7 @@ class TaxonNameClassification < ApplicationRecord
   end
 
   def validate_taxon_name_classification
-    errors.add(:type, "Status not found") if !self.type.nil? and !TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type.to_s)
+    errors.add(:type, 'Status not found') if !self.type.nil? and !TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type.to_s)
   end
 
 

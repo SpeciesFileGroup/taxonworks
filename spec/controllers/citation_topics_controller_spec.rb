@@ -37,35 +37,35 @@ describe CitationTopicsController, :type => :controller do
     request.env['HTTP_REFERER'] = list_otus_path # logical example
   }
 
-  describe "POST create" do
-    describe "with valid params" do
-      it "creates a new CitationTopic" do
+  describe 'POST create' do
+    describe 'with valid params' do
+      it 'creates a new CitationTopic' do
         expect {
           post :create, params: {citation_topic: valid_attributes}, session: valid_session
         }.to change(CitationTopic, :count).by(1)
       end
 
-      it "assigns a newly created citation_topic as @citation_topic" do
+      it 'assigns a newly created citation_topic as @citation_topic' do
         post :create, params: {citation_topic: valid_attributes}, session: valid_session
         expect(assigns(:citation_topic)).to be_a(CitationTopic)
         expect(assigns(:citation_topic)).to be_persisted
       end
 
-      it "redirects to :back" do
+      it 'redirects to :back' do
         post :create, params: {citation_topic: valid_attributes}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
 
-    describe "with invalid params" do
-      it "assigns a newly created but unsaved citation_topic as @citation_topic" do
+    describe 'with invalid params' do
+      it 'assigns a newly created but unsaved citation_topic as @citation_topic' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(CitationTopic).to receive(:save).and_return(false)
         post :create, params: {citation_topic: {topic: {bar: 'Foo'}}}, session: valid_session
         expect(assigns(:citation_topic)).to be_a_new(CitationTopic)
       end
 
-      it "re-renders the :back template" do
+      it 're-renders the :back template' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(CitationTopic).to receive(:save).and_return(false)
         post :create, params: {citation_topic: {topic: {bar: 'Foo'}}}, session: valid_session
@@ -74,13 +74,13 @@ describe CitationTopicsController, :type => :controller do
     end
   end
 
-  describe "PUT update" do
-    describe "with valid params" do
+  describe 'PUT update' do
+    describe 'with valid params' do
 
       let(:t) {Topic.create!(name: 'Space Ghosts', definition: 'Coast to coast, and back again.')}
       let(:update_params) {ActionController::Parameters.new({topic_id: t.id.to_s}).permit(:topic_id)}
 
-      it "updates the requested citation_topic" do
+      it 'updates the requested citation_topic' do
         citation_topic = CitationTopic.create! valid_attributes
         # Assuming there are no other citation_topics in the database, this
         # specifies that the CitationTopic created on the previous line
@@ -90,21 +90,21 @@ describe CitationTopicsController, :type => :controller do
         put :update, params: {id: citation_topic.to_param, citation_topic: {topic_id: t.id}}, session: valid_session
       end
 
-      it "assigns the requested citation_topic as @citation_topic" do
+      it 'assigns the requested citation_topic as @citation_topic' do
         citation_topic = CitationTopic.create! valid_attributes
         put :update, params: {id: citation_topic.to_param, citation_topic: valid_attributes}, session: valid_session
         expect(assigns(:citation_topic)).to eq(citation_topic)
       end
 
-      it "redirects to :back" do
+      it 'redirects to :back' do
         citation_topic = CitationTopic.create! valid_attributes
         put :update, params: {id: citation_topic.to_param, citation_topic: valid_attributes}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
 
-    describe "with invalid params" do
-      it "assigns the citation_topic as @citation_topic" do
+    describe 'with invalid params' do
+      it 'assigns the citation_topic as @citation_topic' do
         citation_topic = CitationTopic.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(CitationTopic).to receive(:save).and_return(false)
@@ -112,7 +112,7 @@ describe CitationTopicsController, :type => :controller do
         expect(assigns(:citation_topic)).to eq(citation_topic)
       end
 
-      it "re-renders the :back template" do
+      it 're-renders the :back template' do
         citation_topic = CitationTopic.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(CitationTopic).to receive(:save).and_return(false)
@@ -122,15 +122,15 @@ describe CitationTopicsController, :type => :controller do
     end
   end
 
-  describe "DELETE destroy" do
-    it "destroys the requested citation_topic" do
+  describe 'DELETE destroy' do
+    it 'destroys the requested citation_topic' do
       citation_topic = CitationTopic.create! valid_attributes
       expect {
         delete :destroy, params: {id: citation_topic.to_param}, session: valid_session
       }.to change(CitationTopic, :count).by(-1)
     end
 
-    it "redirects to :back" do
+    it 'redirects to :back' do
       citation_topic = CitationTopic.create! valid_attributes
       delete :destroy, params: {id: citation_topic.to_param}, session: valid_session
       expect(response).to redirect_to(list_otus_path)

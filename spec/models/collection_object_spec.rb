@@ -268,7 +268,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
       }
 
       describe 'spanning a single day' do
-        specify "should find 1 record" do
+        specify 'should find 1 record' do
           collection_objects = CollectionObject.in_date_range({search_start_date: '1981/01/01', search_end_date: '1981/1/1'})
           expect(collection_objects.count).to eq(1)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m3')
@@ -276,7 +276,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
       end
 
       describe 'spanning a single month' do
-        specify "should find 1 record" do
+        specify 'should find 1 record' do
           collection_objects = CollectionObject.in_date_range({search_start_date: '1974/04/01', search_end_date: '1974/4/30'})
           expect(collection_objects.count).to eq(1)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_p1')
@@ -284,7 +284,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
       end
 
       describe 'spanning a single year' do
-        specify "should find 2 records" do
+        specify 'should find 2 records' do
           collection_objects = CollectionObject.in_date_range({search_start_date: '1971/01/01', search_end_date: '1971/12/31'})
           expect(collection_objects.count).to eq(2)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m1', '@ce_m1a')
@@ -292,7 +292,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
       end
 
       describe 'spanning four months of a year' do
-        specify "should find 1 record" do
+        specify 'should find 1 record' do
           collection_objects = CollectionObject.in_date_range({search_start_date: '1971/05/01', search_end_date: '1971/8/31'})
           expect(collection_objects.count).to eq(1)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m1a')
@@ -300,7 +300,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
       end
 
       describe 'spanning a partial year' do
-        specify "should find 2 records" do
+        specify 'should find 2 records' do
           collection_objects = CollectionObject.in_date_range({search_start_date: '1971/01/01', search_end_date: '1971/08/31'})
           expect(collection_objects.count).to eq(2)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m1', '@ce_m1a')
@@ -308,7 +308,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
       end
 
       describe 'spanning parts of two years' do
-        specify "should find 2 records" do
+        specify 'should find 2 records' do
           collection_objects = CollectionObject.in_date_range({search_start_date: '1974/03/01', search_end_date: '1975/06/30'})
           expect(collection_objects.count).to eq(2)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m2 in Big Boxia', '@ce_p1')
@@ -316,7 +316,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
       end
 
       describe 'spanning parts of several years' do
-        specify "should find 4 records" do
+        specify 'should find 4 records' do
           collection_objects = CollectionObject.in_date_range({search_start_date: '1974/03/01', search_end_date: '1976/08/31'})
           expect(collection_objects.count).to eq(4)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m2 in Big Boxia', '@ce_p1', '@ce_n2', '@ce_n2')

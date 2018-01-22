@@ -85,7 +85,7 @@ class SequenceRelationshipsController < ApplicationController
       digest_cookie(params[:file].tempfile, :Primers_sequences_md5)
       render 'sequence_relationships/batch_load/primers/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load 
     end
   end

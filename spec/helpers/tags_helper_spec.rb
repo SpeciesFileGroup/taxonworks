@@ -14,7 +14,7 @@ describe TagsHelper, type:  :helper do
       expect(helper.tag_link(tag)).to match(tag_string)
     end
 
-    specify "#tag_search_form" do
+    specify '#tag_search_form' do
       expect(helper.tags_search_form).to have_field('tag_id_for_quick_search_form')
     end
 

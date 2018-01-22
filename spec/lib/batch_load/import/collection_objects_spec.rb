@@ -8,7 +8,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
     let(:file_name) { 'spec/files/batch/collection_object/CollectionObjectTestErr.tsv' }
     let(:setup) {
       ns_2
-      csv1 = CSV.read(file_name, {headers: true, header_converters: :downcase, col_sep: "\t", encoding: "UTF-8"})
+      csv1 = CSV.read(file_name, {headers: true, header_converters: :downcase, col_sep: "\t", encoding: 'UTF-8'})
       csv1.each do |row|
         ident = row[1]
         # the following invocation also creates a valid specimen as a collection_object
@@ -121,7 +121,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
     let(:file_name) { 'spec/files/batch/collection_object/CollectionObjectTest.tsv' }
     let(:setup) {
       ns_2
-      csv1 = CSV.read(file_name, {headers: true, header_converters: :downcase, col_sep: "\t", encoding: "UTF-8"})
+      csv1 = CSV.read(file_name, {headers: true, header_converters: :downcase, col_sep: "\t", encoding: 'UTF-8'})
       csv1.each do |row|
         ident = row[1]
         case ident

@@ -8,7 +8,7 @@ module Workbench::DisplayHelper
     method = object_tag_method(object)
 
     # meh, exceptions  
-    return send("taxon_works_content_tag", object).html_safe if method == 'content_tag' 
+    return send('taxon_works_content_tag', object).html_safe if method == 'content_tag' 
     return image_tag(object.image_file.url(:thumb)) if method == 'image_tag' 
 
     if self.respond_to?(method)

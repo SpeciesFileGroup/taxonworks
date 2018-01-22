@@ -256,7 +256,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       post 'display_coordinates'
-      get 'display_coordinates', as: "getdisplaycoordinates"
+      get 'display_coordinates', as: 'getdisplaycoordinates'
     end
   end
 

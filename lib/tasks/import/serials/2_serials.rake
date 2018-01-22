@@ -129,13 +129,13 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                   case nsa.count # how many serials were found for this value?
                     when 0
                       puts ["\nskipping - unable to find MX serial ", fname, 'importID', importID, 'MX_T_ImportID',
-                            mx_import_id].join(" : ")
+                            mx_import_id].join(' : ')
                       next
                     when 1 # found 1 and only 1 serial - we're good!
                       ns = nsa.first
                     else
                       puts ["\nskipping - match > 1 MX serials ", fname, 'importID', importID, 'MX_T_ImportID',
-                            mx_import_id].join(" : ")
+                            mx_import_id].join(' : ')
                       next
                   end
                 end

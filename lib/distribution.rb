@@ -114,9 +114,9 @@ class Distribution
         'features' => []
       }
       colors             = [
-        ["black", 0x000000], ["blue", 0x000088], ["orange", 0xDD6600], ["green", 0x008800], ["red", 0x880000],
-        ["purple", 0x880088], ["yellow", 0xAAAA55], ["brown", 0x664400], ["gray", 0x666666],
-        ["white", 0xFFFFFF], ["shadow", 0x888888]]
+        ['black', 0x000000], ['blue', 0x000088], ['orange', 0xDD6600], ['green', 0x008800], ['red', 0x880000],
+        ['purple', 0x880088], ['yellow', 0xAAAA55], ['brown', 0x664400], ['gray', 0x666666],
+        ['white', 0xFFFFFF], ['shadow', 0x888888]]
       opacities          = {'asserted_distribution' => 0.66, 'collecting_event_georeference' => 0.44, 'collecting_event_geographic_area' => 0.22}
       map_source_objects[otu_id].each do |source, data, type|
         source_class = source.class.name

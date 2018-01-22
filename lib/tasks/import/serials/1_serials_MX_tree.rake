@@ -27,22 +27,22 @@ namespace :tw do
         :serials_5_add_SF_IDs,
         :serials_6_add_SF_altnames
       ] do 
-        puts "Success!".bold.yellow 
+        puts 'Success!'.bold.yellow 
       end
 
       task :dump_all => [:environment, :data_directory] do
         database = ApplicationRecord.connection.current_database
-        path = File.join(@args[:data_directory], 'serial_tables' + Time.now.utc.strftime("%Y-%m-%d_%H%M%S%Z") + '.dump')
+        path = File.join(@args[:data_directory], 'serial_tables' + Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
 
         puts "Dumping data to #{path}" 
 
         # non-circular data FK data
-        path = File.join(@args[:data_directory], 'serial_metadata_tables' + Time.now.utc.strftime("%Y-%m-%d_%H%M%S%Z") + '.dump')
+        path = File.join(@args[:data_directory], 'serial_metadata_tables' + Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
         tables =  %w{serial_chronologies identifiers data_attributes alternate_values}.collect{|t| "-t #{t}"}.join(' ')
         puts(Benchmark.measure { `pg_dump --data-only -Fc #{database} -f #{path} #{tables}` }) 
 
         # circular fk data 
-        path = File.join(@args[:data_directory], 'serial_table' + Time.now.utc.strftime("%Y-%m-%d_%H%M%S%Z") + '.dump')
+        path = File.join(@args[:data_directory], 'serial_table' + Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
         puts(Benchmark.measure { `pg_dump --data-only -Fc #{database} -f #{path} -t serials` }) 
       
       end
@@ -440,7 +440,7 @@ Column : SQL column name : data desc
                                                           {value: prefID, import_predicate: @mx_t_serial_importID_name})
               case sr.count # how many serials were found for this value?
                 when 0
-                  puts ['[', 'skipping - unable to find 1st base serial ', @mx_t_serial_importID_name, prefID, ']'].join(" : ")
+                  puts ['[', 'skipping - unable to find 1st base serial ', @mx_t_serial_importID_name, prefID, ']'].join(' : ')
                   next
                 when 1 # found 1 and only 1 serial - we're good!
                   s1 = sr.first
@@ -448,7 +448,7 @@ Column : SQL column name : data desc
                 #   puts "#{s1.name} (Serial ID #{s1.id}) != #{treeID} (tmpid #{prefID})"
                 # end
                 else
-                  puts ['skipping - match > 1 base serial (1st) ', @mx_t_serial_importID_name, prefID].join(" : ")
+                  puts ['skipping - match > 1 base serial (1st) ', @mx_t_serial_importID_name, prefID].join(' : ')
                   next
               end
 
@@ -458,7 +458,7 @@ Column : SQL column name : data desc
                                                           {value: secID, import_predicate: @mx_t_serial_importID_name})
               case sr.count # how many serials were found for this value?
                 when 0
-                  puts ['skipping - unable to find 2nd base serial ', @mx_t_serial_importID_name, secID].join(" : ")
+                  puts ['skipping - unable to find 2nd base serial ', @mx_t_serial_importID_name, secID].join(' : ')
                   next
                 when 1 # found 1 and only 1 serial - we're good!
                   s2 = sr.first
@@ -466,7 +466,7 @@ Column : SQL column name : data desc
                 #   puts "#{s2.name} (Serial ID #{s2.id}) != #{row[3]} (tmpid #{secfID})"
                 # end
                 else
-                  puts ['skipping - match > 1 base serial (2nd) ', @mx_t_serial_importID_name, secID].join(" : ")
+                  puts ['skipping - match > 1 base serial (2nd) ', @mx_t_serial_importID_name, secID].join(' : ')
                   next
               end
 

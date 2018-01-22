@@ -4,7 +4,7 @@ require 'rails_helper'
 describe GeographicAreasHelper, :type => :helper do
   context 'a geographic_area needs some helpers' do
 
-    let(:name) {"Neverland"}
+    let(:name) {'Neverland'}
     let(:geographic_area) {FactoryBot.create(:valid_geographic_area, name:name)}
 
     specify '#geographic_area_tag' do
@@ -15,7 +15,7 @@ describe GeographicAreasHelper, :type => :helper do
       expect(helper.geographic_area_link(geographic_area)).to have_link(name)
     end
 
-    specify "#geographic_area_search_form" do
+    specify '#geographic_area_search_form' do
       expect(helper.geographic_areas_search_form).to have_field('geographic_area_id_for_quick_search_form')
     end
 

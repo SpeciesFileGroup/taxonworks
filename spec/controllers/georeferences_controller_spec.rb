@@ -25,7 +25,7 @@ describe GeoreferencesController, :type => :controller do
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
-  let(:collecting_event) { CollectingEvent.create(verbatim_label: "Canada, somewhere cold.") }
+  let(:collecting_event) { CollectingEvent.create(verbatim_label: 'Canada, somewhere cold.') }
   let(:valid_attributes) { 
     strip_housekeeping_attributes( FactoryBot.build(:valid_georeference).attributes )
   }
@@ -35,7 +35,7 @@ describe GeoreferencesController, :type => :controller do
   # GeoreferencesController. Be sure to keep this updated too.
   let(:valid_session) {  }
 
-  describe "GET index" do
+  describe 'GET index' do
    
     it "assigns projects's recent georeferences as @recent_objects" do
       georeference = Georeference.create! valid_attributes
@@ -44,8 +44,8 @@ describe GeoreferencesController, :type => :controller do
     end
   end
 
-  describe "GET show" do
-    it "assigns the requested georeference as @georeference" do
+  describe 'GET show' do
+    it 'assigns the requested georeference as @georeference' do
       georeference = Georeference.create! valid_attributes
 
       get :show, params: {id: georeference.to_param}, session: valid_session
@@ -61,8 +61,8 @@ describe GeoreferencesController, :type => :controller do
   #   end
   # end
 
- describe "GET edit" do
-   it "assigns the requested georeference as @georeference" do
+ describe 'GET edit' do
+   it 'assigns the requested georeference as @georeference' do
      georeference = Georeference.create! valid_attributes
      get :edit, params: {id: georeference.to_param}, session: valid_session
      expect(assigns(:georeference)).to eq(georeference)
@@ -180,15 +180,15 @@ describe GeoreferencesController, :type => :controller do
   #   end
   # end
 
-  describe "DELETE destroy" do
-    it "destroys the requested georeference" do
+  describe 'DELETE destroy' do
+    it 'destroys the requested georeference' do
       georeference = Georeference.create! valid_attributes
       expect {
         delete :destroy, params: {id: georeference.to_param}, session: valid_session
       }.to change(Georeference, :count).by(-1)
     end
 
-    it "redirects to the georeferences list" do
+    it 'redirects to the georeferences list' do
       georeference = Georeference.create! valid_attributes
       delete :destroy, params: {id: georeference.to_param}, session: valid_session
       expect(response).to redirect_to(georeferences_url)

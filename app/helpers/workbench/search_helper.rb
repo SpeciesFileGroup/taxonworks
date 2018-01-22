@@ -5,7 +5,7 @@ module Workbench::SearchHelper
     if self.respond_to?(search_partial)
       self.send(search_partial)
     else
-      content_tag(:em, "Search form not yet available.")
+      content_tag(:em, 'Search form not yet available.')
     end
   end
 

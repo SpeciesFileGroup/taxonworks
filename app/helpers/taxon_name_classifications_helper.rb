@@ -43,7 +43,7 @@ module TaxonNameClassificationsHelper
 
       content_tag(:span, "Is an  #{values.to_sentence} name.", class: [:brief_status], data: [ 'icon-alert' ])  
     else
-      content_tag(:span, "Is a valid name.", class: [:brief_status, :passed])  
+      content_tag(:span, 'Is a valid name.', class: [:brief_status, :passed])  
     end 
   end 
 

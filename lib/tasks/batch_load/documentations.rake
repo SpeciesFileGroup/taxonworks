@@ -14,18 +14,18 @@ namespace :tw do
         and identifer column via documentations 
       '
       task :import => [:environment, :project_id, :user_id] do
-        data_directory_path = ENV["data_directory"]
-        meta_data_file_path = ENV["meta_data_file"]
-        transaction_total = ENV["transaction_total"] || 20
+        data_directory_path = ENV['data_directory']
+        meta_data_file_path = ENV['meta_data_file']
+        transaction_total = ENV['transaction_total'] || 20
 
-        raise "Path to data directory not provided".red if data_directory_path.nil?
+        raise 'Path to data directory not provided'.red if data_directory_path.nil?
         raise "Data directory does not exist at #{data_directory_path}".red unless File.directory?(data_directory_path)
-        raise "Path to meta data file not provided".red if meta_data_file_path.nil?
+        raise 'Path to meta data file not provided'.red if meta_data_file_path.nil?
         raise "Meta data file does not exist at #{meta_data_file_path}".red unless File.exists?(meta_data_file_path)
 
         csv = CSV.parse(File.read(meta_data_file_path), { headers: true, col_sep: "\t" })
 
-        puts Rainbow("Processing files").yellow
+        puts Rainbow('Processing files').yellow
         documents_created = 0
         documentations_created = 0
         rows_processed = 0
@@ -35,8 +35,8 @@ namespace :tw do
             ApplicationRecord.transaction do
               row_group.each do |row|
                 rows_processed += 1
-                identifier_text = row["identifier"]
-                filenames = row["filenames"].split(", ")
+                identifier_text = row['identifier']
+                filenames = row['filenames'].split(', ')
                 identifier = Identifier.find_by(cached: identifier_text)
 
                 if identifier.nil?
@@ -96,7 +96,7 @@ namespace :tw do
           end
         end
 
-        puts Rainbow("Finished processing files").yellow
+        puts Rainbow('Finished processing files').yellow
         puts Rainbow("Created #{documentations_created} documentations and #{documents_created} documents").green
       end
     end

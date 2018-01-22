@@ -123,7 +123,7 @@ module Queries
         includes(:ancestor_hierarchies).
         where(where_sql).
         references(:taxon_name_hierarchies).
-        limit(dynamic_limit).order("char_length(taxon_names.cached), taxon_names.cached").distinct.all
+        limit(dynamic_limit).order('char_length(taxon_names.cached), taxon_names.cached').distinct.all
     end
 
     def autocomplete_top_name

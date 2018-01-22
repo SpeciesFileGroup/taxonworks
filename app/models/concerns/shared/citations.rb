@@ -57,7 +57,7 @@ module Shared::Citations
     #    order(func.desc)
     # end
 
-    define_singleton_method "order_by_oldest_source_first" do
+    define_singleton_method 'order_by_oldest_source_first' do
       d  = Arel::Attribute.new(Arel::Table.new(:sources), :cached_nomenclature_date)
       r  = Arel::Attribute.new(Arel::Table.new(related_table_name), :id)
       f1 = Arel::Nodes::NamedFunction.new('Now', [])

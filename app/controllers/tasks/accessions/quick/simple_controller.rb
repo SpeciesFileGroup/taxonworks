@@ -13,7 +13,7 @@ class Tasks::Accessions::Quick::SimpleController < ApplicationController
   def create
     @specimen = Specimen.new(specimen_params)
     if @specimen.save
-      flash[:notice] = "Specimen was successfully created."
+      flash[:notice] = 'Specimen was successfully created.'
       @locked_params = locked_params(locks: @locks)
       respond_to do |format|
         format.html {
@@ -123,11 +123,11 @@ class Tasks::Accessions::Quick::SimpleController < ApplicationController
   end
 
   def namespace_id_param
-    params[:specimen].try(:[], :identifiers_attributes).try(:[], "0").try(:[], :namespace_id)
+    params[:specimen].try(:[], :identifiers_attributes).try(:[], '0').try(:[], :namespace_id)
   end
 
   def identifier_param
-    params[:specimen].try(:[], :identifiers_attributes).try(:[], "0").try(:[], :identifier)
+    params[:specimen].try(:[], :identifiers_attributes).try(:[], '0').try(:[], :identifier)
   end
 
   #
@@ -137,7 +137,7 @@ class Tasks::Accessions::Quick::SimpleController < ApplicationController
 
   # @return [Id, nil]
   def otu_id_param
-    id = params[:specimen].try(:[], :taxon_determinations_attributes).try(:[], "0").try(:[], "otu_id")
+    id = params[:specimen].try(:[], :taxon_determinations_attributes).try(:[], '0').try(:[], 'otu_id')
     if id.blank?
       @specimen.try(:taxon_determinations).try(:first).try(:otu_id)
     else

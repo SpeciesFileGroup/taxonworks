@@ -1,8 +1,8 @@
 # Methods that use or facilitate logic 
 
-require "logic_tools/logictree.rb"
-require "logic_tools/logicparse.rb"
-require "logic_tools/logicsimplify_es.rb"
+require 'logic_tools/logictree.rb'
+require 'logic_tools/logicparse.rb'
+require 'logic_tools/logicsimplify_es.rb'
 include LogicTools
 
 module Utilities::Logic

@@ -39,35 +39,35 @@ describe LoanItemsController, type: :controller do
     request.env['HTTP_REFERER'] = list_otus_path # logical example
   }
 
-  describe "POST create" do
-    describe "with valid params" do
-      it "creates a new LoanItem" do
+  describe 'POST create' do
+    describe 'with valid params' do
+      it 'creates a new LoanItem' do
         expect {
           post :create, params: {loan_item: valid_attributes}, session: valid_session
         }.to change(LoanItem, :count).by(1)
       end
 
-      it "assigns a newly created loan_item as @loan_item" do
+      it 'assigns a newly created loan_item as @loan_item' do
         post :create, params: {loan_item: valid_attributes}, session: valid_session
         expect(assigns(:loan_item)).to be_a(LoanItem)
         expect(assigns(:loan_item)).to be_persisted
       end
 
-      it "redirects to :back" do
+      it 'redirects to :back' do
         post :create, params: {loan_item: valid_attributes}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
 
-    describe "with invalid params" do
-      it "assigns a newly created but unsaved loan_item as @loan_item" do
+    describe 'with invalid params' do
+      it 'assigns a newly created but unsaved loan_item as @loan_item' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(LoanItem).to receive(:save).and_return(false)
         post :create, params: {loan_item: {invalid: 'parms'}}, session: valid_session
         expect(assigns(:loan_item)).to be_a_new(LoanItem)
       end
 
-      it "re-renders the :back template" do
+      it 're-renders the :back template' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(LoanItem).to receive(:save).and_return(false)
         post :create, params: {loan_item: {invalid: 'parms'}}, session: valid_session
@@ -89,21 +89,21 @@ describe LoanItemsController, type: :controller do
         put :update, params: {id: loan_item.to_param, loan_item: {collection_object_status: 'confused'}}, session: valid_session
       end
 
-      it "assigns the requested loan_item as @loan_item" do
+      it 'assigns the requested loan_item as @loan_item' do
         loan_item = LoanItem.create! valid_attributes
         put :update, params: {id: loan_item.to_param, loan_item: valid_attributes}, session: valid_session
         expect(assigns(:loan_item)).to eq(loan_item)
       end
 
-      it "redirects to :back" do
+      it 'redirects to :back' do
         loan_item = LoanItem.create! valid_attributes
         put :update, params: {id: loan_item.to_param, loan_item: valid_attributes}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
 
-    describe "with invalid params" do
-      it "assigns the loan_item as @loan_item" do
+    describe 'with invalid params' do
+      it 'assigns the loan_item as @loan_item' do
         loan_item = LoanItem.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(LoanItem).to receive(:save).and_return(false)
@@ -111,7 +111,7 @@ describe LoanItemsController, type: :controller do
         expect(assigns(:loan_item)).to eq(loan_item)
       end
 
-      it "re-renders the :back template" do
+      it 're-renders the :back template' do
         loan_item = LoanItem.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(LoanItem).to receive(:save).and_return(false)
@@ -121,15 +121,15 @@ describe LoanItemsController, type: :controller do
     end
   end
 
-  describe "DELETE destroy" do
-    it "destroys the requested loan_item" do
+  describe 'DELETE destroy' do
+    it 'destroys the requested loan_item' do
       loan_item = LoanItem.create! valid_attributes
       expect {
         delete :destroy, params: {id: loan_item.to_param}, session: valid_session
       }.to change(LoanItem, :count).by(-1)
     end
 
-    it "redirects to :back" do
+    it 'redirects to :back' do
       loan_item = LoanItem.create! valid_attributes
       delete :destroy, params: {id: loan_item.to_param}, session: valid_session
       expect(response).to redirect_to(list_otus_path)

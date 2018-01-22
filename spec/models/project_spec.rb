@@ -118,7 +118,7 @@ describe Project, type: :model do
 
     specify 'updating an attribute is a little tricky, use _will_change!' do
       expect(project.workbench_starting_path).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
-      expect(project.workbench_settings).to eq({"workbench_starting_path" => "/hub"}) # was changed from nil
+      expect(project.workbench_settings).to eq({'workbench_starting_path' => '/hub'}) # was changed from nil
       # expect(project.workbench_settings_will_change!).to eq({"workbench_starting_path" => "/hub"}) # was changed from nil
       expect(project.workbench_settings['workbench_starting_path'] = '/dashboard').to be_truthy
       expect(project.save!).to be_truthy
@@ -142,7 +142,7 @@ describe Project, type: :model do
 
       specify 'on save by default a root taxon name *is* created when without root taxon name is ""' do
         expect(project.taxon_names.count).to eq(0)
-        project.without_root_taxon_name = ""
+        project.without_root_taxon_name = ''
         project.save!
         expect(project.taxon_names.size).to eq(1)
       end
@@ -155,12 +155,12 @@ describe Project, type: :model do
     end
 
     specify 'on save by default a root taxon name is not created when without root taxon name is true, on .new()' do
-      p = Project.create!(name: "testing root taxon name", without_root_taxon_name: true)
+      p = Project.create!(name: 'testing root taxon name', without_root_taxon_name: true)
       expect(p.taxon_names.count).to eq(0)
     end
 
     context '#root_taxon_name ' do
-      let!(:p) { Project.create!(name: "testing root taxon name", without_root_taxon_name: true) }
+      let!(:p) { Project.create!(name: 'testing root taxon name', without_root_taxon_name: true) }
       specify 'returns the Root taxon name' do
         expect(p.root_taxon_name).to eq(TaxonName.first)
       end
