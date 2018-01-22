@@ -2,19 +2,19 @@ require 'rails_helper'
 
 RSpec.describe SqedDepiction, type: :model do
 
-  let(:sqed_depiction) {SqedDepiction.new}
+  let(:sqed_depiction) { SqedDepiction.new }
   let(:valid_sqed_depiction) { FactoryBot.create(:valid_sqed_depiction) }
 
   context 'validation' do
-    before{sqed_depiction.valid?}
-    
+    before { sqed_depiction.valid? }
+
     specify 'depiction is required' do
-      expect(sqed_depiction.errors.include?(:depiction)).to be_truthy 
+      expect(sqed_depiction.errors.include?(:depiction)).to be_truthy
     end
 
     specify 'Foo is not a valid layout' do
       sqed_depiction.layout = 'Foo'
-      expect(sqed_depiction.errors.include?(:layout)).to be_truthy      
+      expect(sqed_depiction.errors.include?(:layout)).to be_truthy
     end
 
     specify 'SqedConfig::LAYOUTS.first is a valid layout' do
@@ -27,19 +27,19 @@ RSpec.describe SqedDepiction, type: :model do
 
   context 'hstore fields' do
 
-    let(:metadata_map) {  {0 => :curator_metadata, 1 => :identifier, 2 => :image_registration, 3 => :annotated_specimen }  }
+    let(:metadata_map) { {0 => :curator_metadata, 1 => :identifier, 2 => :image_registration, 3 => :annotated_specimen} }
 
     specify 'metadata_map serializes a hash' do
       valid_sqed_depiction.metadata_map = metadata_map
       valid_sqed_depiction.save!
       valid_sqed_depiction.reload
-      expect(valid_sqed_depiction.metadata_map.class).to eq(Hash) 
+      expect(valid_sqed_depiction.metadata_map.class).to eq(Hash)
     end
   end
 
-  context "#extraction_metadata" do
+  context '#extraction_metadata' do
     specify ':boundary_finder' do
-      expect(valid_sqed_depiction.extraction_metadata[:boundary_finder]).to eq("Sqed::BoundaryFinder::ColorLineFinder")
+      expect(valid_sqed_depiction.extraction_metadata[:boundary_finder]).to eq('Sqed::BoundaryFinder::ColorLineFinder')
     end
 
     specify ':layout' do
@@ -47,7 +47,7 @@ RSpec.describe SqedDepiction, type: :model do
     end
 
     specify ':metadata_map' do
-      expect(valid_sqed_depiction.extraction_metadata[:target_metadata_map]).to eq({0 => :curator_metadata, 1 => :identifier, 2 => :image_registration, 3 => :annotated_specimen })
+      expect(valid_sqed_depiction.extraction_metadata[:target_metadata_map]).to eq({0 => :curator_metadata, 1 => :identifier, 2 => :image_registration, 3 => :annotated_specimen})
     end
 
     specify ':has_border' do

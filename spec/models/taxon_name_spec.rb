@@ -58,7 +58,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         expect(variety.cached_author_year).to eq('(Linnaeus) McAtee (1900)')
       end
     end
- 
+
     specify '#descendants_of' do
       expect(TaxonName.descendants_of(@genus).to_a).to contain_exactly(@subgenus, @species, @subspecies)
     end
@@ -66,8 +66,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     context '#ancestors_and_descendants_of' do
       specify 'returns an unordered list' do
         expect(TaxonName.ancestors_and_descendants_of(@genus).to_a.map(&:name)).to contain_exactly(
-          "Animalia", "Arthropoda", "Cicadellidae", "Erythroneura", "Erythroneura", "Erythroneurina", 
-          "Erythroneurini", "Hemiptera", "Insecta", "Root", "Typhlocybinae", "vitata", "vitis"
+          'Animalia', 'Arthropoda', 'Cicadellidae', 'Erythroneura', 'Erythroneura', 'Erythroneurina',
+          'Erythroneurini', 'Hemiptera', 'Insecta', 'Root', 'Typhlocybinae', 'vitata', 'vitis'
         )
       end
     end
@@ -99,7 +99,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
       specify 'type is required, do not instantiate TaxonName' do
         expect(taxon_name.errors.include?(:type)).to be_truthy
-      end 
+      end
 
       context 'proper taxon rank' do
         specify 'parent rank is higher' do
@@ -303,7 +303,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(@subspecies.get_author_and_year).to eq ('(McAtee, 1900)')
           end
 
-          # What code is this supposed to catch? 
+          # What code is this supposed to catch?
           specify 'moving nominotypical taxon' do
             sp           = FactoryBot.create(:iczn_species, name: 'aaa', parent: @genus)
             subsp        = FactoryBot.create(:iczn_subspecies, name: 'aaa', parent: sp)
@@ -384,11 +384,11 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           context 'valid_taxon_name' do
             context 'validity with/out classifications' do
-              let!(:valid_genus) { Protonym.create(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: @family) } 
-              let!(:other_genus) { Protonym.create(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: @family) } 
+              let!(:valid_genus) { Protonym.create(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: @family) }
+              let!(:other_genus) { Protonym.create(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: @family) }
 
-              before { 
-                TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: valid_genus, object_taxon_name: other_genus) 
+              before {
+                TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: valid_genus, object_taxon_name: other_genus)
               }
 
               context 'without valid classification' do
@@ -427,7 +427,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
               context 'with valid classification' do
                 before {
-                  TaxonNameClassification::Iczn::Available::Valid.create!(taxon_name: valid_genus) 
+                  TaxonNameClassification::Iczn::Available::Valid.create!(taxon_name: valid_genus)
                 }
 
                 specify '#relationship_invalid?' do
@@ -461,10 +461,10 @@ describe TaxonName, type: :model, group: [:nomenclature] do
                   end
 
                   # specify '#is_valid? after save' do
-                  #   a = FactoryBot.create(:valid_protonym, name: 'Qus', rank_class: Ranks.lookup(:iczn, :genus), parent: @family)  
-                  #   b = FactoryBot.create(:valid_protonym, name: 'Rus', rank_class: Ranks.lookup(:iczn, :genus), parent: @family)  
-                  #   TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b) 
-                  #   TaxonNameClassification::Iczn::Available::Valid.create!(taxon_name: a) 
+                  #   a = FactoryBot.create(:valid_protonym, name: 'Qus', rank_class: Ranks.lookup(:iczn, :genus), parent: @family)
+                  #   b = FactoryBot.create(:valid_protonym, name: 'Rus', rank_class: Ranks.lookup(:iczn, :genus), parent: @family)
+                  #   TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b)
+                  #   TaxonNameClassification::Iczn::Available::Valid.create!(taxon_name: a)
                   #   a.reload
                   #   b.reload
 
@@ -633,17 +633,17 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
     # A Hierarchy
     let(:root1) { FactoryBot.create(:root_taxon_name) }
-    let(:klass) { Protonym.create!(name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class), parent: root1) } 
-    let(:order) { Protonym.create!(name: 'Hemiptera', rank_class: Ranks.lookup(:iczn, :order), parent: klass) } 
-    let(:family) { Protonym.create!(name: 'Cicadellidae', rank_class: Ranks.lookup(:iczn, :family), parent: order) } 
-    let(:subfamily) { Protonym.create!(name: 'Typhlocybinae', rank_class: Ranks.lookup(:iczn, :subfamily), parent: family) } 
-    let(:tribe) { Protonym.create!(name: 'Erythroneurini', rank_class: Ranks.lookup(:iczn, :tribe), parent: subfamily) } 
-    let(:genus) { Protonym.create!(name: 'Erythroneura', rank_class: Ranks.lookup(:iczn, :genus), parent: tribe) } 
-    let(:subgenus) { Protonym.create!(name: 'Erythroneura', rank_class: Ranks.lookup(:iczn, :subgenus), parent: genus) } 
+    let(:klass) { Protonym.create!(name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class), parent: root1) }
+    let(:order) { Protonym.create!(name: 'Hemiptera', rank_class: Ranks.lookup(:iczn, :order), parent: klass) }
+    let(:family) { Protonym.create!(name: 'Cicadellidae', rank_class: Ranks.lookup(:iczn, :family), parent: order) }
+    let(:subfamily) { Protonym.create!(name: 'Typhlocybinae', rank_class: Ranks.lookup(:iczn, :subfamily), parent: family) }
+    let(:tribe) { Protonym.create!(name: 'Erythroneurini', rank_class: Ranks.lookup(:iczn, :tribe), parent: subfamily) }
+    let(:genus) { Protonym.create!(name: 'Erythroneura', rank_class: Ranks.lookup(:iczn, :genus), parent: tribe) }
+    let(:subgenus) { Protonym.create!(name: 'Erythroneura', rank_class: Ranks.lookup(:iczn, :subgenus), parent: genus) }
     let(:species) { Protonym.create!(name: 'vitis', rank_class: Ranks.lookup(:iczn, :species), parent: subgenus) }
 
     # "Free" names, linked only to root
-    let(:other_species) { Protonym.create!(name: 'afafa', rank_class: Ranks.lookup(:iczn, :species), parent: root1) } 
+    let(:other_species) { Protonym.create!(name: 'afafa', rank_class: Ranks.lookup(:iczn, :species), parent: root1) }
 
     context 'with a heirarchy created' do
       before {species} # create the full hierarchy
@@ -654,14 +654,14 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           specify 'includes leaves to root, and target node' do
             expect(TaxonName.ancestors_and_descendants_of(genus).all.map(&:name)).to contain_exactly(
               *%w{Root Insecta Hemiptera Cicadellidae Typhlocybinae Erythroneurini Erythroneura Erythroneura vitis}
-            ) 
+            )
           end
 
           # result is not ordered
           specify 'can be chained' do
             expect(TaxonName.ancestors_and_descendants_of(genus).where("name ILIKE 'E%'").all.map(&:name)).to contain_exactly(
               *%w{Erythroneurini Erythroneura Erythroneura}
-            ) 
+            )
           end
         end
 
@@ -669,9 +669,9 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           specify 'does not return target' do
             expect(TaxonName.ancestors_of(subfamily).pluck(:name)).to eq(
               %w{Root Insecta Hemiptera Cicadellidae}
-            ) 
+            )
           end
-        end 
+        end
       end
     end
 
@@ -713,9 +713,9 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         let(:c2) { FactoryBot.build(:combination, parent: root1) }
 
         before do
-          c1.genus = genus 
-          c2.genus = genus 
-          c2.subgenus = subgenus 
+          c1.genus = genus
+          c2.genus = genus
+          c2.subgenus = subgenus
           c1.save
           c2.save
         end
@@ -781,15 +781,15 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
     context 'associations' do
       specify '#source (original)' do
-        expect(taxon_name.source = Source.new).to be_truthy 
+        expect(taxon_name.source = Source.new).to be_truthy
       end
 
       specify '#valid_taxon_name' do
         expect(other_species.valid_taxon_name = Protonym.new).to be_truthy
-      end 
+      end
 
       specify '#taxon_name_relationships' do
-        expect(taxon_name.taxon_name_relationships << TaxonNameRelationship.new()).to be_truthy
+        expect(taxon_name.taxon_name_relationships << TaxonNameRelationship.new).to be_truthy
       end
 
       context 'instance tests' do
@@ -816,8 +816,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         context '#unavilable_or_invalid' do
           let!(:relationship) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: original_genus, object_taxon_name: type_of_genus) }
 
-          specify 'subject is invalid' do 
-            expect(original_genus.unavailable_or_invalid?).to be_truthy 
+          specify 'subject is invalid' do
+            expect(original_genus.unavailable_or_invalid?).to be_truthy
           end
 
           specify 'object is valid' do
@@ -843,7 +843,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         let!(:child) { Protonym.create!(name: 'Destroyidae', parent: root1, rank_class: Ranks.lookup(:iczn, :family)) }
 
         before {
-          root1.reload # child has been created in let!() 
+          root1.reload # child has been created in let!()
           root1.destroy
         }
 
@@ -864,7 +864,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     context '#gbif_status_array' do
       let(:t1) { FactoryBot.create(:iczn_species, name: 'aus', parent: root1) }
       let(:t2) { FactoryBot.create(:iczn_species, name: 'bus', parent: root1) }
-      let!(:r2) { FactoryBot.create(:taxon_name_relationship, subject_taxon_name: t2, object_taxon_name: t1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective') } 
+      let!(:r2) { FactoryBot.create(:taxon_name_relationship, subject_taxon_name: t2, object_taxon_name: t1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective') }
 
       specify 'valid species' do
         expect(t1.gbif_status_array).to eq(['valid'])
@@ -882,7 +882,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     end
 
     context 'status string arrays' do
-      let(:family) { Protonym.create!(name: 'Statusidae', rank_class: Ranks.lookup(:iczn, :family), parent: root1) } 
+      let(:family) { Protonym.create!(name: 'Statusidae', rank_class: Ranks.lookup(:iczn, :family), parent: root1) }
 
       let!(:a)  { FactoryBot.create(:relationship_genus, name: 'Aus', parent: family) }
       let!(:b)  { FactoryBot.create(:relationship_genus, name: 'Bus', parent: family) }
@@ -904,7 +904,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
     context 'methods from awesome_nested_set' do
       context 'root names' do
-        
+
         let(:p) { Project.create(name: 'Taxon-name root test.', without_root_taxon_name: true) }
         let(:root2) { FactoryBot.build(:root_taxon_name) }
 
@@ -989,13 +989,13 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
       end
     end
-  
+
     context 'soft validation' do
       specify 'run all soft validations without error' do
         expect(taxon_name.soft_validate).to be_truthy
       end
     end
-  
+
   end
 
   context 'concerns' do

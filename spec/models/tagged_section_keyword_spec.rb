@@ -1,8 +1,8 @@
 require 'rails_helper'
 
-describe TaggedSectionKeyword, :type => :model do
+describe TaggedSectionKeyword, type: :model do
 
-  let(:tagged_section_keyword) {FactoryBot.build(:tagged_section_keyword) }
+  let(:tagged_section_keyword) { FactoryBot.build(:tagged_section_keyword) }
 
   context 'validation' do
     context 'required' do
