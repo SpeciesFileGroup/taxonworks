@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/MethodLength
 def simple_world(user_id = 1, project_id = 1)
   temp_user    = $user_id
   temp_project = $project_id
