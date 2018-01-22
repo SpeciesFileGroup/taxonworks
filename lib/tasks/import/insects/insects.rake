@@ -100,7 +100,7 @@ namespace :tw do
       alternately, add: \n
         restore_from_dump=true   (attempt to load the data from the dump) \n
         no_transaction=true      (don't wrap import in a transaction, this will also force a dump of the data)\n"
-      task :import_insects => [:environment, :data_directory] do |t, args|
+      task import_insects: [:environment, :data_directory] do |t, args|
         puts @args
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/TXT/**/*.txt"])
 
@@ -941,7 +941,7 @@ namespace :tw do
       def handle_people_insects(data, import)
         path = @args[:data_directory] + 'TXT/people.txt'
         raise 'file not found' if not File.exists?(path)
-        f = CSV.open(path, col_sep: "\t", :headers => true)
+        f = CSV.open(path, col_sep: "\t", headers: true)
 
         print 'Handling people '
         if import.metadata['people']
@@ -1022,7 +1022,7 @@ namespace :tw do
           raise 'file not found' if not File.exists?(path)
 
           parent_index = {}
-          f = CSV.open(path, col_sep: "\t", :headers => true)
+          f = CSV.open(path, col_sep: "\t", headers: true)
 
           code = :iczn
           i = 0
@@ -1115,7 +1115,7 @@ namespace :tw do
 
         path = @args[:data_directory] + 'TXT/localities.txt'
         raise 'file not found' if not File.exists?(path)
-        lo = CSV.open(path, col_sep: "\t", :headers => true)
+        lo = CSV.open(path, col_sep: "\t", headers: true)
 
         print "\nIndexing localities..."
 
@@ -1142,7 +1142,7 @@ namespace :tw do
 
         path = @args[:data_directory] + 'TXT/specimens_new_partially_resolved.txt'
         raise 'file not found' if not File.exists?(path)
-        lo = CSV.open(path, col_sep: "\t", :headers => true)
+        lo = CSV.open(path, col_sep: "\t", headers: true)
 
         print 'Indexing partially resolved specimens...'
 
@@ -1173,7 +1173,7 @@ namespace :tw do
         path = @args[:data_directory] + 'TXT/specimens.txt'
         raise 'file not found' if not File.exists?(path)
 
-        sp = CSV.open(path, col_sep: "\t", :headers => true)
+        sp = CSV.open(path, col_sep: "\t", headers: true)
 
         specimen_fields = %w{ Prefix CatalogNumber PreparationType TaxonCode LocalityCode AccessionSource DeaccessionRecipient DeaccessionCause DeaccessionDate DateCollectedBeginning DateCollectedEnding Collector LocalityLabel AccessionNumberLabel DeterminationLabel OtherLabel SpecialCollection IdentifiedBy YearIdentified CollectionMethod Habitat Type TypeName Remarks AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens Checked OldLocalityCode OldCollector OldIdentifiedBy CreatedBy CreatedOn ModifiedOn ModifiedBy }.freeze
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }.freeze
@@ -1269,7 +1269,7 @@ namespace :tw do
         path = @args[:data_directory] + 'TXT/hostplants.txt'
         raise 'file not found' if not File.exists?(path)
 
-        sp = CSV.open(path, col_sep: "\t", :headers => true)
+        sp = CSV.open(path, col_sep: "\t", headers: true)
 
         sp.each_with_index do |row, i|
           print "\r#{i}      "
@@ -1286,7 +1286,7 @@ namespace :tw do
         path = @args[:data_directory] + 'TXT/specimens_new.txt'
         raise 'file not found' if not File.exists?(path)
 
-        sp = CSV.open(path, col_sep: "\t", :headers => true)
+        sp = CSV.open(path, col_sep: "\t", headers: true)
 
         specimen_fields = %w{ Prefix CatalogNumber PreparationType TaxonCode LocalityCode DateCollectedBeginning DateCollectedEnding Collector LocalityLabel AccessionNumberLabel DeterminationLabel OtherLabel SpecialCollection IdentifiedBy YearIdentified CollectionMethod Habitat Type TypeName Remarks AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens Checked OldLocalityCode OldCollector OldIdentifiedBy CreatedBy CreatedOn ModifiedOn ModifiedBy }.freeze
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }.freeze
@@ -1410,7 +1410,7 @@ namespace :tw do
         path = @args[:data_directory] + 'TXT/neon.txt'
         raise 'file not found' if not File.exists?(path)
 
-        sp = CSV.open(path, col_sep: "\t", :headers => true)
+        sp = CSV.open(path, col_sep: "\t", headers: true)
 
         specimen_fields = %w{ SampleID MuseumID TaxonCode IdentifiedBy IdentifierEmail IdentifierInstitution IdentificationMethod TaxonomyNotes ExtraInfo Remarks VoucherStatus TissueDescriptor AssociatedTaxa AssociatedSpecimens ExternalURLs Collector DateCollectedBeginning DateCollectedEnding CollectionMethod LocalityCode GPSSource CoordinateAccuracy EventTime CollectionDateAccuracy SamplingProtocol CollectionNotes SiteCode AdultMale AdultFemale AdultUnsexed }
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
@@ -1548,7 +1548,7 @@ namespace :tw do
         path = @args[:data_directory] + 'TXT/accessions_new.txt' # self contained
         raise 'file not found' if not File.exists?(path)
 
-        ac = CSV.open(path, col_sep: "\t", :headers => true)
+        ac = CSV.open(path, col_sep: "\t", headers: true)
 
         fields = %w{LocalityLabel Habitat Host AccessionNumber Country State County Locality Park DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Elev_m Elev_ft NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Comments PrecisionCode Datum ModifiedBy ModifiedOn}
 
@@ -1577,7 +1577,7 @@ namespace :tw do
 
         path = @args[:data_directory] + 'TXT/ledgers.txt'
         raise 'file not found' if not File.exists?(path)
-        le = CSV.open(path, col_sep: "\t", :headers => true)
+        le = CSV.open(path, col_sep: "\t", headers: true)
 
         fields = %w{Collection AccessionNumber LedgerBook LedgersCountry LedgersState LedgersCounty LedgersLocality DateCollectedBeginning DateCollectedEnding Collector Order Family Genus Species HostGenus HostSpecies Sex LedgersComments Description Remarks LocalityCode OldLocalityCode CreatedBy CreatedOn}
 
@@ -1623,7 +1623,7 @@ namespace :tw do
       def handle_associations_insects(data, import)
         path = @args[:data_directory] + 'TXT/associations.txt'
         raise 'file not found' if not File.exists?(path)
-        as = CSV.open(path, col_sep: "\t", :headers => true)
+        as = CSV.open(path, col_sep: "\t", headers: true)
         #fields = %w{ Prefix CatalogNumber AssociatedPrefix AssociatedCatalogNumber AssociatedTaxonCode Type }
         puts "\n  Handle associations \n"
 
@@ -1685,7 +1685,7 @@ namespace :tw do
       def handle_loans_insects(data, import)
         path = @args[:data_directory] + 'TXT/loans.txt'
         raise 'file not found' if not File.exists?(path)
-        lo = CSV.open(path, col_sep: "\t", :headers => true)
+        lo = CSV.open(path, col_sep: "\t", headers: true)
         #fields = %w{ InvoiceID ExpectedDateOfReturn DateReceived DateProcessed DateRequested MethodOfRequest Processor RecipientID Signature StudentSignature Comments TotalRecordsOnLoan TotalRecordsReturned TotalRecordsRemaining TotalSpecimensOnLoan TotalSpeciemsnReturned TotalSpeciemsnRemaining Canceled CreatedBy }
         print "\nHandling Loans "
         if import.metadata['loans']
@@ -1759,7 +1759,7 @@ namespace :tw do
         path = @args[:data_directory] + 'TXT/specimens.txt'
         raise 'file not found' if not File.exists?(path)
 
-        sp = CSV.open(path, col_sep: "\t", :headers => true)
+        sp = CSV.open(path, col_sep: "\t", headers: true)
 
         specimen_fields = %w{ Prefix CatalogNumber TaxonCode AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
@@ -1786,7 +1786,7 @@ namespace :tw do
 
         path = @args[:data_directory] + 'TXT/loan_specimen.txt'
         raise 'file not found' if not File.exists?(path)
-        ls = CSV.open(path, col_sep: "\t", :headers => true)
+        ls = CSV.open(path, col_sep: "\t", headers: true)
         #fields = %w{ Prefix CatalogNumber InvoiceID Status DateReturned }
         print "Handling loan_specimens\n"
 
@@ -1849,7 +1849,7 @@ namespace :tw do
       def handle_letters_insects(data)
         path = @args[:data_directory] + 'TXT/letters.txt'
         raise 'file not found' if not File.exists?(path)
-        ls = CSV.open(path, col_sep: "\t", :headers => true)
+        ls = CSV.open(path, col_sep: "\t", headers: true)
         #fields = %w{ InvoiceID RecipientID Salutation Body Creator CreatedOn }
         print "\nHandling letters\n"
 
@@ -1872,7 +1872,7 @@ namespace :tw do
       def handle_collection_profile_insects(data)
         path = @args[:data_directory] + 'TXT/collection_profile.txt'
         raise 'file not found' if not File.exists?(path)
-        ls = CSV.open(path, col_sep: "\t", :headers => true)
+        ls = CSV.open(path, col_sep: "\t", headers: true)
         #fields = %w{ ID Room Label1_1 Label1_2 Label1_3 Label1_4 Label2_1 Label2_2 Label2_3 Label2_4 TaxonCode Remarks CollectionType ConservationStatus ProcessingState ContainerCondition ConditionOfLabels IdentificationLevel ArangementLevel DataQuality ComputerizationLevel NumberOfSpecimens NumberOfVialsSlides Print1 Print2 CreatedBy CreatedOn ModifiedBy ModifiedOn }
         print "\nHandling collection profile\n"
 

@@ -6,7 +6,7 @@ namespace :tw do
       namespace :cites do
 
         desc 'time rake tw:project_import:sf_import:cites:create_otu_cites user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_otu_cites => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_otu_cites: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating citations for OTUs...'
 
@@ -188,7 +188,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
         end
 
         desc 'time rake tw:project_import:sf_import:cites:create_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_citations => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_citations: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating citations...'
 
@@ -453,7 +453,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
         # end
 
         desc 'time rake tw:project_import:sf_import:cites:create_sf_taxon_name_authors user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_sf_taxon_name_authors => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_sf_taxon_name_authors: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_sf_taxon_name_authors...'
 
@@ -488,7 +488,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
         desc 'time rake tw:project_import:sf_import:cites:create_cvts_for_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # @todo Do I really need a data_directory if I'm using a Postgres table? Not that it hurts...
-        LoggedTask.define :create_cvts_for_citations => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_cvts_for_citations: [:data_directory, :environment, :user_id] do |logger|
 
           # Create controlled vocabulary terms (CVTS) for NewNameStatus, TypeInfo, and CiteInfoFlags; CITES_CVTS below in all caps denotes constant
 
@@ -585,7 +585,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
         end
 
         desc 'time rake tw:project_import:sf_import:cites:import_nomenclator_strings user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :import_nomenclator_strings => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define import_nomenclator_strings: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
           logger.info 'Running import_nomenclator_strings...'

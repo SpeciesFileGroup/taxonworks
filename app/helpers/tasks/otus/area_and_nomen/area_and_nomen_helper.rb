@@ -11,7 +11,7 @@ module Tasks::Otus::AreaAndNomen::AreaAndNomenHelper
 
   def otu_paging
     if @otus.any?
-      paginate(@otus, :remote => true)
+      paginate(@otus, remote: true)
     end
   end
 

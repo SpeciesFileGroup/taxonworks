@@ -84,7 +84,7 @@ class OtuPageLayoutsController < ApplicationController
        label_html: ApplicationController.helpers.otu_page_layout_tag(t)
       }
 
-      render :json => data
+      render json: data
     end
   end
 

@@ -2,7 +2,7 @@ namespace :tw do
   namespace :initialize do
 
     desc 'call "rake tw:initialize:load_language", requires data_directory'
-    task :load_languages => [:data_directory, :environment, :user_id] do |t|
+    task load_languages: [:data_directory, :environment, :user_id] do |t|
   
       print 'Loading languages...' 
       if Language.all.count > 0 

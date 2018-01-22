@@ -80,7 +80,7 @@ class ObservationMatricesController < ApplicationController
        label_html:      t.name 
       }
     end
-    render :json => data
+    render json: data
   end
 
   def search

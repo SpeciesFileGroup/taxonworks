@@ -98,7 +98,7 @@ class CollectingEventsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
  # GET /collecting_events/autocomplete_collecting_event_verbatim_locality?term=asdf
@@ -106,7 +106,7 @@ class CollectingEventsController < ApplicationController
   def autocomplete_collecting_event_verbatim_locality
     term = params[:term]
     values = CollectingEvent.where(project_id: sessions_current_project_id).where('verbatim_locality ILIKE ?', term + '%').select(:verbatim_locality, 'length(verbatim_locality)').distinct.limit(20).order('length(verbatim_locality)').order('verbatim_locality ASC').all
-    render :json => values.map { |v| { :label => v.verbatim_locality, :value => v.verbatim_locality} }
+    render json: values.map { |v| { label: v.verbatim_locality, value: v.verbatim_locality} }
   end
 
   # GET /collecting_events/download

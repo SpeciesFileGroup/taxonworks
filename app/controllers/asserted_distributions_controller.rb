@@ -82,7 +82,7 @@ class AssertedDistributionsController < ApplicationController
        label_html:      AssertedDistributionsHelper.asserted_distribution_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
-    render :json => data
+    render json: data
   end
 
   def search

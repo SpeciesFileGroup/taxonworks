@@ -9,7 +9,7 @@ module Tasks::CollectionObjects::AreaAndDate::AreaAndDateHelper
 
   def paging
     if @collection_objects.any?
-      paginate(@collection_objects, :remote => true)
+      paginate(@collection_objects, remote: true)
     end
   end
 

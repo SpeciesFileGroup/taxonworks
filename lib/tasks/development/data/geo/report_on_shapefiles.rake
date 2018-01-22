@@ -5,7 +5,7 @@ namespace :tw do
 
         desc "Report on the shapefiles.\n
            rake tw:development:data:geo:report_on_shapefiles data_directory=/Users/matt/src/sf/tw/gaz/ ?index=[something]"
-        task :report_on_shapefiles => [:environment, :geo_dev_init, :data_directory] do
+        task report_on_shapefiles: [:environment, :geo_dev_init, :data_directory] do
           BaseDir  = @args[:data_directory] 
           Dir.glob(BaseDir + '**/*.shp').each { |filename|
             # @mjy is unsure of use of index at this point

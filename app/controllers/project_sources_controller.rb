@@ -41,7 +41,7 @@ class ProjectSourcesController < ApplicationController
        label_html:      ApplicationController.helpers.source_tag(t)
       }
     end
-    render :json => data
+    render json: data
   end
 
   protected

@@ -89,7 +89,7 @@ class PeopleController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   def taxon_name_author_autocomplete
@@ -104,7 +104,7 @@ class PeopleController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # GET /people/download
@@ -117,12 +117,12 @@ class PeopleController < ApplicationController
 
   # GET /people/role_types.json
   def role_types
-    render :json => ROLES
+    render json: ROLES
   end
 
   def lookup_person
     @people = Person.find_for_autocomplete(params)
-    render :json => @people.collect{|p|
+    render json: @people.collect{|p|
       {
         label: p.bibtex_name,
         object_id: p.id}

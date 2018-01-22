@@ -82,7 +82,7 @@ class CollectionObjectObservationsController < ApplicationController
        label_html: t.data 
       }
     end
-    render :json => data
+    render json: data
   end
 
   def search

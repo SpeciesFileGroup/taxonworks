@@ -129,8 +129,8 @@ class User < ApplicationRecord
             uniqueness:       true
 
   validates :password,
-            length:       {minimum: 8, :if => :validate_password?},
-            :confirmation => {:if => :validate_password?}
+            length:       {minimum: 8, if: :validate_password?},
+            confirmation: {if: :validate_password?}
 
   validates :name, presence: true
   validates :name, length: {minimum: 2}, unless: -> { self.name.blank? }

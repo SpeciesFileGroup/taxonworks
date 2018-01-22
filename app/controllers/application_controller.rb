@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
 
   rescue_from ActionController::ParameterMissing do |exception| 
     raise unless request.format == :json 
-    render json: { error: exception }, :status => 400 
+    render json: { error: exception }, status: 400 
   end
 
   attr_writer :is_data_controller, :is_task_controller

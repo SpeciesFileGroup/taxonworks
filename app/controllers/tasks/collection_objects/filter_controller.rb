@@ -20,7 +20,7 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
     # If failing remove begin/ensure/end to report Raised errors
     begin
       data = Dwca::Packer::Data.new(scope)
-      send_data(data.getzip, :type => 'application/zip', filename: data.filename)
+      send_data(data.getzip, type: 'application/zip', filename: data.filename)
     ensure
       data.cleanup
     end

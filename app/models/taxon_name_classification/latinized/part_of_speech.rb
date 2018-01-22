@@ -34,9 +34,9 @@ class TaxonNameClassification::Latinized::PartOfSpeech < TaxonNameClassification
       end
 
       t.update_columns(
-        :masculine_name => m_name,
-        :feminine_name => f_name,
-        :neuter_name => n_name
+        masculine_name: m_name,
+        feminine_name: f_name,
+        neuter_name: n_name
       )
     end
   end

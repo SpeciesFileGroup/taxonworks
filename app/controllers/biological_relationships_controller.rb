@@ -88,7 +88,7 @@ class BiologicalRelationshipsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   

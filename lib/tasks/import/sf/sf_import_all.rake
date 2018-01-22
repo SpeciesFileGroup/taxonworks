@@ -6,7 +6,7 @@ namespace :tw do
 
       desc 'time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
       #  time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=/Users/sfg/src/onedb2tw/working/
-      task :run_all_import_tasks => [
+      task run_all_import_tasks: [
 
           # start section took 419m54.488s
           'start:create_users',

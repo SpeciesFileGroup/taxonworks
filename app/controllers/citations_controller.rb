@@ -101,7 +101,7 @@ class CitationsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # GET /citations/download

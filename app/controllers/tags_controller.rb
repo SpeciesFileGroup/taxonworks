@@ -101,7 +101,7 @@ class TagsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   def exists

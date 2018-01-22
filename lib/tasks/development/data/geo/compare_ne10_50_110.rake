@@ -6,7 +6,7 @@ namespace :tw do
       namespace :geo do
 
         desc 'Compare the NaturalEarth country name data at 10m, 50m, 110m.'
-        task :compare_ne10_50_110 => [:environment, :geo_dev_init] do
+        task compare_ne10_50_110: [:environment, :geo_dev_init] do
 
           matched   = 0
           unmatched = 0

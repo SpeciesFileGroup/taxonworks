@@ -3,7 +3,7 @@ namespace :tw do
     namespace :serial do
 
       desc 'call like "rake tw:import:serial:serials_4_build_SF_serials data_directory=/Users/eef/src/data/serialdata/working_data/SFSerialExport.txt user_id=1" '
-      task :serials_4_build_SF_serials => [:environment, :data_directory, :user_id] do |t|
+      task serials_4_build_SF_serials: [:environment, :data_directory, :user_id] do |t|
         file = @args[:data_directory] +  'SF_serial_Final.txt' # was SerialExport.txt' 
         # must be run after MX/treehopper serial import
 
@@ -404,7 +404,7 @@ SFImportIDMap.txt
       end #end task
 
       desc 'call like "rake tw:import:serial:serials_6_add_SF_altnames data_directory=/Users/eef/src/data/serialdata/working_data/ user_id=1 " '
-      task :serials_6_add_SF_altnames => [:environment, :user_id, :data_directory ] do |t|
+      task serials_6_add_SF_altnames: [:environment, :user_id, :data_directory ] do |t|
         file = @args[:data_directory] + 'SF_Altnames.txt' # was 'SFaltnames.txt'
 
         raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0

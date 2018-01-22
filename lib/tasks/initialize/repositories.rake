@@ -2,7 +2,7 @@ namespace :tw do
   namespace :initialize do
 
     desc 'call like "rake tw:intialize:load_repositories", required data_directory'
-    task :load_repositories => [:data_directory, :environment, :user_id] do |t|
+    task load_repositories: [:data_directory, :environment, :user_id] do |t|
 
       print 'Loading repositories...'
       if Repository.all.count > 0 
@@ -16,7 +16,7 @@ namespace :tw do
 
       begin
         ApplicationRecord.transaction do
-          f = CSV.open(file, :headers => true)
+          f = CSV.open(file, headers: true)
           f.each do |row|
             r = Repository.new(
               url: row['URL'],

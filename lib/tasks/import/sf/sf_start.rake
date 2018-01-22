@@ -9,7 +9,7 @@ namespace :tw do
         # check out default user_id if SF.FileUserID < 1 ??
 
         desc 'time rake tw:project_import:sf_import:start:create_source_roles user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_source_roles => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_source_roles: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_source_roles...'
 
@@ -143,7 +143,7 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:start:create_source_editor_array user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # via tblRefs
-        LoggedTask.define :create_source_editor_array => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_source_editor_array: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
           logger.info 'Running create_source_editor_array...'
@@ -174,7 +174,7 @@ namespace :tw do
         end
 
         desc 'time rake tw:project_import:sf_import:start:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_sources => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_sources: [:data_directory, :environment, :user_id] do |logger|
           # @todo: See :create_sf_book_hash and :update_sources_with_book_info above. Should be incorporated here.
 
           logger.info 'Running create_sources...'
@@ -358,7 +358,7 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:start:map_pub_type user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # map SF.PubID by SF.PubType
-        LoggedTask.define :map_pub_type => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define map_pub_type: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
           logger.info 'Running map_pub_types...'
@@ -394,7 +394,7 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:start:create_sf_book_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # consists of book_title:, publisher:, and place_published: (address)'
-        LoggedTask.define :create_sf_book_hash => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_sf_book_hash: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
           logger.info 'Running create_sf_book_hash...'
@@ -420,7 +420,7 @@ namespace :tw do
         end
 
         desc 'time rake tw:project_import:sf_import:start:create_projects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_projects => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_projects: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_projects...'
 
@@ -467,7 +467,7 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:start:list_verbatim_refs user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # list SF.RefID to VerbatimRefString
-        LoggedTask.define :list_verbatim_refs => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define list_verbatim_refs: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
           logger.info 'Running list_verbatim_refs...'
@@ -495,7 +495,7 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:start:map_ref_links user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # map SF.RefID to Link URL
-        LoggedTask.define :map_ref_links => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define map_ref_links: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
           logger.info 'Running map_ref_links...'
@@ -544,7 +544,7 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:start:map_serials user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # map SF.PubID to TW.serial_id
-        LoggedTask.define :map_serials => [:environment, :user_id] do |logger|
+        LoggedTask.define map_serials: [:environment, :user_id] do |logger|
           # Can be run independently at any time: Why can't the value be cast as string??
 
           logger.info 'Running map_serials...'
@@ -560,7 +560,7 @@ namespace :tw do
         end
 
         desc 'time rake tw:project_import:sf_import:start:create_people user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_people => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_people: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_people...'
 
@@ -688,7 +688,7 @@ namespace :tw do
         end
 
         desc 'time rake tw:project_import:sf_import:start:create_users user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_users => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_users: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_users...'
 

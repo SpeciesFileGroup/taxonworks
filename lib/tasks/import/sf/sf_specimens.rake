@@ -6,7 +6,7 @@ namespace :tw do
       namespace :specimens do
 
         desc 'time rake tw:project_import:sf_import:specimens:collection_objects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :collection_objects => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define collection_objects: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Importing specimen records as collection objects...'
 
@@ -568,7 +568,7 @@ namespace :tw do
 
 
         desc 'time rake tw:project_import:sf_import:specimens:create_sf_loc_col_events_metadata user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_sf_loc_col_events_metadata => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_sf_loc_col_events_metadata: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating metadata from tblLocalities and tblCollectingEvents...'
 
@@ -637,7 +637,7 @@ namespace :tw do
 
 
         desc 'time rake tw:project_import:sf_import:specimens:get_ident_qualifier_from_nomenclator user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :get_ident_qualifier_from_nomenclator => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define get_ident_qualifier_from_nomenclator: [:data_directory, :environment, :user_id] do |logger|
           logger.info '!!!!! NOTE: Re-analyze table data for new abbreviations !!!!!'
 
           logger.info 'Creating hash of NomenclatorID and IdentQualifier...'
@@ -685,7 +685,7 @@ namespace :tw do
 
 
         desc 'time rake tw:project_import:sf_import:specimens:create_sf_identification_metadata user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_sf_identification_metadata => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_sf_identification_metadata: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating SF tblIdentifications metadata...'
 
@@ -701,19 +701,19 @@ namespace :tw do
             logger.info "Working with SF.SpecimenID = '#{specimen_id}', SeqNum = '#{seqnum}' \n"
 
             this_ident = {
-                :seqnum => seqnum,
-                :higher_taxon_name => row['HigherTaxonName'],
-                :nomenclator_id => row['NomenclatorID'],
-                :taxon_ident_note => row['TaxonIdentNote'],
-                :type_kind_id => row['TypeKindID'],
-                :topotype => row['Topotype'],
-                :type_taxon_name_id => row['TypeTaxonNameID'],
-                :ref_id => row['RefID'],
-                :identifier_name => row['IdentifierName'],
-                :year => row['Year'],
-                :place_in_collection => row['PlaceInCollection'],
-                :identification_mode_note => row['IdentificationModeNote'],
-                :verbatim_label => row['VerbatimLabel']
+                seqnum: seqnum,
+                higher_taxon_name: row['HigherTaxonName'],
+                nomenclator_id: row['NomenclatorID'],
+                taxon_ident_note: row['TaxonIdentNote'],
+                type_kind_id: row['TypeKindID'],
+                topotype: row['Topotype'],
+                type_taxon_name_id: row['TypeTaxonNameID'],
+                ref_id: row['RefID'],
+                identifier_name: row['IdentifierName'],
+                year: row['Year'],
+                place_in_collection: row['PlaceInCollection'],
+                identification_mode_note: row['IdentificationModeNote'],
+                verbatim_label: row['VerbatimLabel']
             }
 
             if get_sf_identification_metadata[specimen_id] # this is the same SpecimenID as last row with another seqnum, add another identification record
@@ -734,7 +734,7 @@ namespace :tw do
 
 
         desc 'time rake tw:project_import:sf_import:specimens:create_sf_source_metadata user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_sf_source_metadata => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_sf_source_metadata: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating SF tblSources metadata...'
 
@@ -761,7 +761,7 @@ namespace :tw do
 
 
         desc 'time rake tw:project_import:sf_import:specimens:create_specimen_category_counts user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_specimen_category_counts => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_specimen_category_counts: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating specimen category counts...'
 
@@ -796,7 +796,7 @@ namespace :tw do
 
 
         desc 'time rake tw:project_import:sf_import:specimens:create_biocuration_classes user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_biocuration_classes => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_biocuration_classes: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating biocuration classes...'
 
@@ -827,7 +827,7 @@ namespace :tw do
 
 
         desc 'time rake tw:project_import:sf_import:specimens:import_sf_depos user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :import_sf_depos => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define import_sf_depos: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Importing SF depo_strings and SF to TW depo/repo mappings...'
 
@@ -880,7 +880,7 @@ namespace :tw do
 
 
         desc 'time rake tw:project_import:sf_import:specimens:collecting_events user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :collecting_events => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define collecting_events: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Building new collecting events...'
 
@@ -1161,7 +1161,7 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:specimens:create_sf_geo_level4_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # consists of unique_key: (level3_id, level4_id, name, country_code)
-        LoggedTask.define :create_sf_geo_level4_hash => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_sf_geo_level4_hash: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
           logger.info 'Running create_sf_geo_level4_hash...'
@@ -1189,7 +1189,7 @@ namespace :tw do
 
 
         desc 'time rake tw:project_import:sf_import:specimens:create_specimen_unique_id user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_specimen_unique_id => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_specimen_unique_id: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
           logger.info 'Running new specimen lists (hash, array)...'

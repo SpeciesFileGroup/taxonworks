@@ -95,7 +95,7 @@ class DataAttributesController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # GET /data_attributes/download

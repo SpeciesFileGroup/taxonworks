@@ -48,7 +48,7 @@ namespace :tw do
 
         desc "Load the supporting data in SFGs /gaz repo\n
          rake tw:development:data:geo:build_temporary_shapefile_tables data_directory=/Users/you/src/gaz/ database_role=you"
-        task :build_temporary_shapefile_tables => [:environment, :database_role, :data_directory, :geo_dev_init] do
+        task build_temporary_shapefile_tables: [:environment, :database_role, :data_directory, :geo_dev_init] do
           puts 'Adding temporary shape files.'
           IMPORT_TABLES.each do |table_name, file_path|
             if !table_exists(table_name) 
@@ -65,7 +65,7 @@ namespace :tw do
         end
 
         desc 'Remove tables added through build_temporary_shapefile_tables'
-        task :delete_temporary_shapefile_tables => [:environment, :geo_dev_init] do
+        task delete_temporary_shapefile_tables: [:environment, :geo_dev_init] do
           puts 'Deleting temporary shape files.'
           IMPORT_TABLES.each do |table_name, file_path|
             if table_exists(table_name) 

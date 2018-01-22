@@ -15,8 +15,7 @@ namespace :tw do
 
 
       desc 'run all serial processing tasks'
-      task :all =>
-      [
+      task all:       [
         :environment, 
         :data_directory,
         :user_id,
@@ -30,7 +29,7 @@ namespace :tw do
         puts 'Success!'.bold.yellow 
       end
 
-      task :dump_all => [:environment, :data_directory] do
+      task dump_all: [:environment, :data_directory] do
         database = ApplicationRecord.connection.current_database
         path = File.join(@args[:data_directory], 'serial_tables' + Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
 
@@ -48,7 +47,7 @@ namespace :tw do
       end
 
       desc 'call like "rake tw:import:serial:serials_1_build_MX data_directory=/Users/eef/src/data/serialdata/working_data/ user_id=1" '
-      task :serials_1_build_MX => [:environment, :data_directory, :user_id] do |t|
+      task serials_1_build_MX: [:environment, :data_directory, :user_id] do |t|
         raise 'There are existing serials, doing nothing.' if Serial.all.count > 0
 
         raise 'Langauges have not yet been loaded.' if !Language.any?
@@ -248,7 +247,7 @@ Note on ISSNs - only one ISSN is allowed per Serial, if there is a different ISS
 
 
       desc 'call like "rake tw:import:serial:serials_2_add_MX_duplicates data_directory=/Users/eef/src/etc user_id=1" '
-      task :serials_2_add_MX_duplicates => [:environment, :data_directory, :user_id] do |t|
+      task serials_2_add_MX_duplicates: [:environment, :data_directory, :user_id] do |t|
         file = @args[:data_directory] + 'treeMXduplicates.txt'
 
         raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0
@@ -400,7 +399,7 @@ Column : SQL column name : data desc
 
 
       desc 'call like "rake tw:import:serial:serials_3_add_MX_chronologies data_directory=/Users/eef/src/data/serialdata/working_data/ user_id=1" '
-      task :serials_3_add_MX_chronologies => [:environment, :data_directory, :user_id] do |t| # , :project_id
+      task serials_3_add_MX_chronologies: [:environment, :data_directory, :user_id] do |t| # , :project_id
 
         raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0
 

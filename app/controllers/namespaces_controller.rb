@@ -117,7 +117,7 @@ end
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # GET /namespaces/download

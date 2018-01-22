@@ -2,7 +2,7 @@ TaxonWorks::Application.routes.draw do
 
   # Future consideration - move this to an engine, or include multiple draw files and include (you apparenlty
   # lose the autoloading update from the include in this case however)
-  scope :api, :defaults => { :format => :json }, :constraints => { id: /\d+/ } do
+  scope :api, defaults: { format: :json }, constraints: { id: /\d+/ } do
     get '/', controller: :api, action: :index, as: 'api'
     scope  '/v1' do
       get '/',

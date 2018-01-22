@@ -32,7 +32,7 @@ Style/StringLiterals:
 Style/HashSyntax:
   Enabled: true
   EnforcedStyle: ruby19
-  AutoCorrect: false
+#  AutoCorrect: false
 
 Metrics/MethodLength:
   Enabled: true

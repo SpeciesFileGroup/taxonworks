@@ -90,7 +90,7 @@ class OriginRelationshipsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   private

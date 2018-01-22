@@ -117,7 +117,7 @@ class ProjectsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   def recently_created_stats

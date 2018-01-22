@@ -6,7 +6,7 @@ require 'fileutils'
 namespace :tw do
   namespace :development do
     desc 'generate housekeeping migration for all models with housekeeping concern'
-    task  :generate_housekeeping_migration =>  [:environment] do |t|
+    task  generate_housekeeping_migration: [:environment] do |t|
 
       # Ensure that we have all models loaded
       Rails.application.eager_load!
@@ -34,7 +34,7 @@ namespace :tw do
 
 
     desc 'generate not null template migration'
-    task  :generate_not_null_migration =>  [:environment] do |t|
+    task  generate_not_null_migration: [:environment] do |t|
       # Ensure that we have all models loaded
       Rails.application.eager_load!
 
@@ -52,7 +52,7 @@ namespace :tw do
 
 
     desc 'generate index template migration'
-    task  :generate_index_migration =>  [:environment] do |t|
+    task  generate_index_migration: [:environment] do |t|
       # Ensure that we have all models loaded
       Rails.application.eager_load!
 
@@ -69,7 +69,7 @@ namespace :tw do
     end
 
     desc 'generate fk template migration'
-    task  :generate_fk_migration =>  [:environment] do |t|
+    task  generate_fk_migration: [:environment] do |t|
       # Ensure that we have all models loaded
       Rails.application.eager_load!
 

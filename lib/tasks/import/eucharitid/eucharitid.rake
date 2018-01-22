@@ -33,7 +33,7 @@ namespace :tw do
 
       desc 'the full import for eucharitids' 
       # rake tw:project_import:eucharitid:import_eucharitid data_directory=/Users/matt/src/sf/import/eucharitid/data/original/eucharitid/ 
-      task :import_eucharitid => [:data_directory, :environment] do |t, args| 
+      task import_eucharitid: [:data_directory, :environment] do |t, args| 
         puts @args
 
         ApplicationRecord.transaction do 
@@ -62,7 +62,7 @@ namespace :tw do
       end
 
       desc 'inspecting original data'
-      task :inspect_original_files => [:data_directory, :environment] do |t, args| 
+      task inspect_original_files: [:data_directory, :environment] do |t, args| 
         files = %w{
           BA_ASSO
           BA_CITS
@@ -80,7 +80,7 @@ namespace :tw do
           path = @args[:data_directory] + file  + '.txt'
           raise "file #{path} not found" if not File.exists?(path)
 
-          f = CSV.open(path,  :encoding => 'utf-16', col_sep: "\t", headers: true ) # was le
+          f = CSV.open(path,  encoding: 'utf-16', col_sep: "\t", headers: true ) # was le
 
           if f.count > 1
             puts (file + ': ' + f.headers.join(', ') + "\n") 
@@ -93,7 +93,7 @@ namespace :tw do
         end
       end
 
-      task :build_sources => [:data_directory, :environment] do |t, args| 
+      task build_sources: [:data_directory, :environment] do |t, args| 
         index = {
         }
 
@@ -125,7 +125,7 @@ namespace :tw do
         # RFYRPUBL
         # RFYRPRINT
 
-        f = CSV.open(path, :encoding => 'utf-16', col_sep: "\t", headers: true ) # was le
+        f = CSV.open(path, encoding: 'utf-16', col_sep: "\t", headers: true ) # was le
         invalid = []
         all = []
         volp = []
@@ -207,7 +207,7 @@ namespace :tw do
         f.close
       end
 
-      task :build_higher_classification => [:data_directory, :environment] do |t, args|
+      task build_higher_classification: [:data_directory, :environment] do |t, args|
         path = @args[:data_directory] + 'BA_GEN.txt'
         raise "file #{path} not found" if not File.exists?(path)
         root = TaxonName.create(name: 'Root', parent_id: nil, rank_class: 'NomenclaturalRank')
@@ -215,7 +215,7 @@ namespace :tw do
 
         eurytomidae = TaxonName.create(name: 'Eurytomidae', parent: root, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family')
 
-        f = CSV.open(path,  :encoding => 'utf-16', col_sep: "\t", headers: true ) 
+        f = CSV.open(path,  encoding: 'utf-16', col_sep: "\t", headers: true ) 
         higher = []
         subfams = []
         tribes = []
@@ -240,7 +240,7 @@ namespace :tw do
         ap tribes.uniq
       end
 
-      task :handle_genera => [:data_directory, :environment] do |t, args|
+      task handle_genera: [:data_directory, :environment] do |t, args|
         path = @args[:data_directory] + 'BA_GEN.txt'
         raise "file #{path} not found" if not File.exists?(path)
 
@@ -248,7 +248,7 @@ namespace :tw do
 
         aa_records = []
 
-        f = CSV.open(path,  :encoding => 'utf-16', col_sep: "\t", headers: true ) 
+        f = CSV.open(path,  encoding: 'utf-16', col_sep: "\t", headers: true ) 
 
         invalid = []
 

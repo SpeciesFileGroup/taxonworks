@@ -9,7 +9,7 @@ namespace :tw do
     end
 
     desc 'Remove all connections but the current one' 
-    task :drop_connections => [:environment] do
+    task drop_connections: [:environment] do
       ApplicationRecord.connection.execute(
         "SELECT pg_terminate_backend(pg_stat_activity.pid)
         FROM pg_stat_activity
@@ -19,7 +19,7 @@ namespace :tw do
     end
 
     desc 'Dump the data to a PostgreSQL custom-format dump file does NOT include structure'
-    task :dump => [:environment, :backup_directory, :server_name, :database_host, :database_user] do
+    task dump: [:environment, :backup_directory, :server_name, :database_host, :database_user] do
       if Support::Database.pg_database_exists?
         puts Rainbow("Initializing dump for #{Rails.env} environment").yellow 
         puts Rainbow('You may be prompted for the production password, alternately set it in ~/.pgpass').yellow if Rails.env == 'production'
@@ -56,7 +56,7 @@ namespace :tw do
     #    Remedy: Ensure your database is not used by other processes. Check to see how many connections to the database exist.
     #    Do not modify this task to make that check, nest this in checks if needed
     desc "Restores a database generated from dump 'rake tw:db:restore backup_directory=/your/path/ file=2017-07-10_154344UTC.dump'" 
-    task :restore => ['environment', 'tw:backup_exists', 'tw:database_user', 'db:drop', 'db:create' ] do 
+    task restore: ['environment', 'tw:backup_exists', 'tw:database_user', 'db:drop', 'db:create' ] do 
       puts Rainbow("Initializing restore for #{Rails.env} environment").yellow 
       database = ApplicationRecord.connection.current_database
       puts Rainbow("Restoring #{database} from #{@args[:tw_backup_file]}").yellow
@@ -82,20 +82,20 @@ namespace :tw do
     end
 
     desc 'First dump then restore the database. Not intended for Production uses.'
-    task :safe_restore => [:dump, :restore]
+    task safe_restore: [:dump, :restore]
 
     desc 'Restore from youngest dump file. Handy!'
-    task :restore_last => [:set_restore_to_last_file, :restore] do
+    task restore_last: [:set_restore_to_last_file, :restore] do
       puts Rainbow("Restoring from #{@args[:file]}").yellow
       reset_indecies
     end
 
-    task :set_restore_to_last_file => [:find_last] do
+    task set_restore_to_last_file: [:find_last] do
       # Set the file by finding it, rather than through the ENV
       Rake.application['tw:backup_exists'].prerequisites.delete('file')
     end
 
-    task :find_last => [:environment, :backup_directory] do
+    task find_last: [:environment, :backup_directory] do
       file = Dir[File.join(@args[:backup_directory], '*.dump')].sort.last
       raise TaxonWorks::Error, Rainbow("No dump has been found in #{@args[:backup_directory]}").red unless file
       @args[:file] = File.basename(file)

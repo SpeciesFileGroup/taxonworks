@@ -93,7 +93,7 @@ class CollectionProfilesController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   def list

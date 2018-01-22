@@ -82,7 +82,7 @@ class ContainerItemsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   private

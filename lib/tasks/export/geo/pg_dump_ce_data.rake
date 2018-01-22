@@ -5,7 +5,7 @@ namespace :tw do
     desc 'Save collected hand-built for collecting events in native pg_dump compressed form.'
     task :pg_dump_ce_data, [:dump_to_path] => [:environment] do |t, args|
       database = ApplicationRecord.connection.current_database
-      args.with_defaults(:dump_to_path => '/tmp/' )
+      args.with_defaults(dump_to_path: '/tmp/' )
       data_store = args[:dump_to_path]
       begin
         puts "#{Time.now.strftime "%H:%M:%S"}: To #{data_store}geographic_area_types.dump"

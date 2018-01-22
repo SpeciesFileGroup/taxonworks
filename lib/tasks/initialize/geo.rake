@@ -2,7 +2,7 @@ namespace :tw do
   namespace :initialize do
 
     desc 'load all geo related data, requires a data_directory'
-    task :load_geo => [:environment, :data_directory] do |t|
+    task load_geo: [:environment, :data_directory] do |t|
 
       puts 'Loading geo data...'
       [GeographicArea, GeographicAreaType, GeographicItem, GeographicAreasGeographicItem].each do |klass|

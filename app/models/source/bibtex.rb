@@ -364,7 +364,7 @@ class Source::Bibtex < Source
   validates :day, date_day: {year_sym: :year, month_sym: :month},
             unless:         -> {year.nil? || month.nil?}
 
-  validates :url, :format => {:with    => URI::regexp(%w(http https ftp)),
+  validates :url, format: {with: URI::regexp(%w(http https ftp)),
                               message: '[%{value}] is not a valid URL'}, allow_blank: true
 
   #endregion validations
@@ -394,7 +394,7 @@ class Source::Bibtex < Source
   # @return [BibTeX::Entry]
   #   entry equivalent to self
   def to_bibtex
-    b = BibTeX::Entry.new(:bibtex_type => self[:bibtex_type])
+    b = BibTeX::Entry.new(bibtex_type: self[:bibtex_type])
     ::BIBTEX_FIELDS.each do |f|
       if (!self.send(f).blank?) && !(f == :bibtex_type)
         b[f] = self.send(f)

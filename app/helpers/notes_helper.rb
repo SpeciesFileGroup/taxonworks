@@ -29,8 +29,8 @@ module NotesHelper
     new_object = f.object.class.reflect_on_association(:notes).klass.new({note_object_type: f.object.class.base_class.name,
                                                                           note_object_id: f.object.id,
                                                                           note_object_attribute: 'name'})
-    fields = f.fields_for(:notes, new_object, :child_index => 'new_notes') do |builder|
-      render('notes/note_fields', :avf => builder)
+    fields = f.fields_for(:notes, new_object, child_index: 'new_notes') do |builder|
+      render('notes/note_fields', avf: builder)
     end
     link_to(link_text, '', class: 'note-add', association: 'notes', content: "#{fields}")
   end

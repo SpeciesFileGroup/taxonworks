@@ -111,7 +111,7 @@ namespace :tw do
       end
 
       desc 'import UCD data, data_directory=/foo/ no_transaction=true reset=true'
-      task :import_ucd => [:data_directory, :environment] do |t|
+      task import_ucd: [:data_directory, :environment] do |t|
 
         if ENV['reset'] == 'true'
           Import.where(name: 'UCD IMPORT').destroy_all

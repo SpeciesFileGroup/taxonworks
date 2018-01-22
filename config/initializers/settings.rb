@@ -173,7 +173,7 @@ module Settings
   
   def self.load_action_mailer_url_host(config, url_host)
     if url_host
-      config.action_mailer.default_url_options = { :host => url_host }
+      config.action_mailer.default_url_options = { host: url_host }
     end
   end
   

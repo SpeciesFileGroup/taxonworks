@@ -129,7 +129,7 @@ class CollectionObjectsController < ApplicationController
        label_html: ApplicationController.helpers.collection_object_tag(t)
       }
     end
-    render :json => data
+    render json: data
   end
 
   # GET /collection_objects/download

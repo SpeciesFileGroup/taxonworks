@@ -4,7 +4,7 @@ namespace :tw do
       namespace :geo do
 
         desc 'Rebuilds the closure_tree indexing on GeographicAreas.'
-        task :rebuild_geographic_areas_nesting => [:environment, :geo_dev_init] do
+        task rebuild_geographic_areas_nesting: [:environment, :geo_dev_init] do
           puts "\n\n#{Time.now.strftime "%H:%M:%S"}."
           if $user_id.nil?
 
@@ -25,7 +25,7 @@ namespace :tw do
         #  
         desc "Builds GeographicAreas, simultaneously builds GeographicAreaTypes if needed and stubs GeographicAreasGeographicItems.\n
                 rake tw:development:data:geo:build_geographic_areas data_directory=/Users/matt/src/sf/tw/gaz/ user_id=1 database_role=matt NO_GEO_NESTING=1 NO_GEO_VALID=1"
-        task :build_geographic_areas => [:environment, :geo_dev_init, :data_directory, :user_id, :build_temporary_shapefile_tables] do
+        task build_geographic_areas: [:environment, :geo_dev_init, :data_directory, :user_id, :build_temporary_shapefile_tables] do
           @connection = ApplicationRecord.connection
           @earth      = build_earth # make sure the earth record exists and is available
           @data_index = GeoAreasIndex.new(@earth)

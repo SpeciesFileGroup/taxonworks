@@ -53,7 +53,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     if value.blank?
       @collecting_events = CollectingEvent.where('false')
     else
-      feature = RGeo::GeoJSON.decode(value, :json_parser => :json)
+      feature = RGeo::GeoJSON.decode(value, json_parser: :json)
       # isolate the WKT
       geometry = feature.geometry
       this_type = geometry.geometry_type.to_s.downcase
@@ -116,7 +116,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     if value.blank?
       @georeferences = Georeference.where('false')
     else
-      feature = RGeo::GeoJSON.decode(value, :json_parser => :json)
+      feature = RGeo::GeoJSON.decode(value, json_parser: :json)
       # isolate the WKT
       geometry = feature.geometry
       this_type = geometry.geometry_type.to_s.downcase

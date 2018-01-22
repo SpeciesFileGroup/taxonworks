@@ -89,7 +89,7 @@ class TaxonDeterminationsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # GET /taxon_determinations/download

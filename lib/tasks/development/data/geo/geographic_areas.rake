@@ -41,7 +41,7 @@ namespace :tw do
         # TODO: still requires testing: tuckerjd@uiuc.edu
         desc "Restore geographic area information from compressed form. Pass the path to gaz's /dump directory to data_directory.\n
           rake tw:initialization:restore_geo_data_from_pg_dump data_directory=/Users/matt/src/sf/tw/gaz/data/internal/dump/"
-        task :restore_geo_data_from_pg_dump => [:environment, :data_directory] do |t|
+        task restore_geo_data_from_pg_dump: [:environment, :data_directory] do |t|
           database   = ApplicationRecord.connection.current_database
           data_store = @args[:data_directory]
 
@@ -76,7 +76,7 @@ namespace :tw do
 
         desc "Restore geographic area information from compressed form. Pass the path to gaz's /dump directory to data_directory.\n
           rake tw:initialization:restore_geo_data_from_pg_dump data_directory=/Users/matt/src/sf/tw/gaz/data/internal/dump/"
-        task :restore_ce_data_from_pg_dump => [:environment, :data_directory] do |t|
+        task restore_ce_data_from_pg_dump: [:environment, :data_directory] do |t|
           database   = ApplicationRecord.connection.current_database
           data_store = @args[:data_directory]
 
@@ -103,7 +103,7 @@ namespace :tw do
         # Assumes input is from rake tw:export:table table_name=geographic_area_types
         desc "Load the geographic area types in /gaz via ActiveRecord.\n
             'rake tw:initialization:load_geographic_area_types data_directory=/Users/matt/src/sf/tw/gaz/'"
-        task :load_geographic_area_types => [:environment, :data_directory] do
+        task load_geographic_area_types: [:environment, :data_directory] do
           data_file = @args[:data_directory] + 'data/internal/csv/geographic_area_types.csv' # args.with_defaults(:data_file => '../gaz/data/internal/csv/geographic_area_types.csv')
           raise 'There are existing geographic_area_types, doing nothing.' if GeographicAreaType.all.count > 0
           begin
@@ -185,7 +185,7 @@ namespace :tw do
         # Assumes input is from rake tw:export:table table_name=geographic_items
         desc "Load the geographic items in /gaz via ActiveRecord.\n
           'rake tw:initialization:load_geographic_areas data_directory=/Users/matt/src/sf/tw/gaz/ NO_GEO_NESTING=1'"
-        task :load_geographic_items => [:environment, :data_directory] do
+        task load_geographic_items: [:environment, :data_directory] do
           data_file = @args[:data_directory] + 'data/internal/csv/geographic_items.csv'
           raise 'There are existing geographic_items, doing nothing.' if GeographicItem.all.count > 0
           begin

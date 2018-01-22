@@ -13,7 +13,7 @@ namespace :tw do
         them to the first object identified by the namespace_short_name 
         and identifer column via documentations 
       '
-      task :import => [:environment, :project_id, :user_id] do
+      task import: [:environment, :project_id, :user_id] do
         data_directory_path = ENV['data_directory']
         meta_data_file_path = ENV['meta_data_file']
         transaction_total = ENV['transaction_total'] || 20

@@ -82,7 +82,7 @@ namespace :tw do
         end
       end
 
-      task :import_all => [:data_directory, :environment] do |t|
+      task import_all: [:data_directory, :environment] do |t|
 
         @ranks = {
             0 => '',
@@ -1077,7 +1077,7 @@ namespace :tw do
         path = @args[:data_directory] + 'accessions_new.txt' # self contained
         raise 'file not found' if not File.exists?(path)
 
-        ac = CSV.open(path, col_sep: "\t", :headers => true)
+        ac = CSV.open(path, col_sep: "\t", headers: true)
 
         fields = %w{LocalityLabel Habitat Host AccessionNumber Country State County Locality Park DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Elev_m Elev_ft NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Comments PrecisionCode Datum ModifiedBy ModifiedOn}
 

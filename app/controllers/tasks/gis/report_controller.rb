@@ -107,7 +107,7 @@ class Tasks::Gis::ReportController < ApplicationController
       #     else
       #   end
     else
-      feature = RGeo::GeoJSON.decode(shape_in, :json_parser => :json)
+      feature = RGeo::GeoJSON.decode(shape_in, json_parser: :json)
       # isolate the WKT
       geometry  = feature.geometry
       this_type = geometry.geometry_type.to_s.downcase

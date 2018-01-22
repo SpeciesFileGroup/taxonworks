@@ -892,7 +892,7 @@ TaxonWorks::Application.routes.draw do
 
   # Future consideration - move this to an engine, or include multiple draw files and include (you apparenlty
   # lose the autoloading update from the include in this case however)
-  scope :api, :defaults => { :format => :json }, :constraints => { id: /\d+/ } do
+  scope :api, defaults: { format: :json }, constraints: { id: /\d+/ } do
     scope  '/v1' do
 
       get '/observation_matrices/:id/row',
@@ -945,7 +945,7 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-  scope :api, :defaults => { :format => :html } do
+  scope :api, defaults: { format: :html } do
     scope  '/v1' do
       get '/taxon_names/autocomplete',
         to: 'taxon_names#autocomplete'

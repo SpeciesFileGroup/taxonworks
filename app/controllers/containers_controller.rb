@@ -88,7 +88,7 @@ class ContainersController < ApplicationController
        label_html: t.id #  ApplicationController.helpers.container_tag(t)  
       }
     end
-    render :json => data
+    render json: data
   end
 
   private

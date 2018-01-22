@@ -14,7 +14,7 @@ class LanguagesController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
 end

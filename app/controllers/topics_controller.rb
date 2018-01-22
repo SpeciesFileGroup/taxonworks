@@ -22,7 +22,7 @@ class TopicsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # POST /controlled_vocabulary_terms
@@ -75,12 +75,12 @@ class TopicsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   def lookup_topic
     @topics = Topic.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-    render(:json => @topics.collect { |t|
+    render(json: @topics.collect { |t|
       {
         label:     t.name,
         object_id: t.id,
@@ -91,7 +91,7 @@ class TopicsController < ApplicationController
 
   def get_definition
     @topic = Topic.find(params[:id])
-    render(:json => {definition: @topic.definition})
+    render(json: {definition: @topic.definition})
   end
 
 end

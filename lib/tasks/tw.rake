@@ -9,7 +9,7 @@ namespace :tw do
     true
   end
 
-  task :server_name => [:environment] do
+  task server_name: [:environment] do
     @args ||= {}
     n = @args[:server_name] 
     n ||= 'localhost' 
@@ -21,7 +21,7 @@ namespace :tw do
   end
 
   # TODO: update "database_user" to something more specific and reflective of what we see in Kubernetes by default?
-  task :database_user => [:environment] do
+  task database_user: [:environment] do
     @args ||= {}
     @args[:database_user] = ENV['database_user'] 
     @args[:database_user] ||= Rails.configuration.database_configuration[Rails.env]['username'] 
@@ -34,14 +34,14 @@ namespace :tw do
   end
 
   desc 'Sets $user_id via "user_id=1" option. checks to see it exists.'
-  task :user_id => [:environment] do
+  task user_id: [:environment] do
     raise "You must specify a user_id like 'user_id=2'" unless ENV['user_id']
     raise "User #{ENV['user_id']} doesn't exist." if !User.find(ENV['user_id'])
     $user_id = ENV['user_id'].to_i
   end
 
   desc 'Sets $project_id via "project_id=1" option. checks to see it exists.'
-  task :project_id => [:environment] do
+  task project_id: [:environment] do
     raise "You must specify a project_id like 'project_id=1" unless ENV['project_id']
     raise "Project #{ENV['project_id']} doesn't exist." if !Project.find(ENV['project_id'])
     $project_id = ENV['project_id'].to_i
@@ -54,12 +54,12 @@ namespace :tw do
   end
 
   desc 'Require both user_id and project_id.'
-  task :with_user_and_project => [:environment, :user_id, :project_id] do
+  task with_user_and_project: [:environment, :user_id, :project_id] do
     raise 'User is not a member of project.' if !ProjectMember.where(project_id: $project_id, user_id: $user_id)
   end
 
   desc 'a default method to add a data_directory_argument, include trailing slash'
-  task  :data_directory => [:environment] do 
+  task  data_directory: [:environment] do 
     default = Settings.default_data_directory
     @args ||= {} 
     if ENV['data_directory'].blank?
@@ -75,7 +75,7 @@ namespace :tw do
   end
 
   desc 'a default task to add a backup_directory_argument, include trailing slash'
-  task  :backup_directory => [:environment] do 
+  task  backup_directory: [:environment] do 
     default = Settings.backup_directory
     @args ||= {} 
     if ENV['backup_directory'].blank?
@@ -101,11 +101,11 @@ namespace :tw do
   end
 
   desc 'provide file=/foo/something.bar and ensure file exists with provided value'
-  task :existing_file => [:file] do
+  task existing_file: [:file] do
     raise TaxonWorks::Error, "Provided file (#{@args[:file]}) does not exist." unless File.exists?(@args[:file])
   end
 
-  task :backup_exists => [:file, :backup_directory] do
+  task backup_exists: [:file, :backup_directory] do
     path = File.join(@args[:backup_directory], @args[:file])
     raise TaxonWorks::Error, "Provided file (#{path}) does not exist." unless File.exists?(path)
     @args[:tw_backup_file] = path

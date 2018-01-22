@@ -30,7 +30,7 @@ namespace :tw do
         end
       end
 
-      task :import_images => [:environment, :data_directory, :user_id, :project_id] do |t|
+      task import_images: [:environment, :data_directory, :user_id, :project_id] do |t|
         path = @args[:data_directory] + 'image_index.tab' #  @data.image_index_filename 
 
         start_row = ENV['start_row'] 
@@ -80,7 +80,7 @@ namespace :tw do
         end
       end
 
-      task :import_all_lep_index => [:data_directory, :environment] do |t|
+      task import_all_lep_index: [:data_directory, :environment] do |t|
 
         @list_of_relationships = []
 

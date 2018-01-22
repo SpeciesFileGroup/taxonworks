@@ -101,7 +101,7 @@ class TaxonNameClassificationsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # GET /taxon_name_classifications/download

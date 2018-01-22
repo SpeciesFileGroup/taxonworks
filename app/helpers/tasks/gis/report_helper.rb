@@ -271,7 +271,7 @@ module Tasks::Gis::ReportHelper
 
   def report_paging
     if @list_collection_objects.any?
-      paginate(@list_collection_objects, :remote => true)
+      paginate(@list_collection_objects, remote: true)
     end
   end
 

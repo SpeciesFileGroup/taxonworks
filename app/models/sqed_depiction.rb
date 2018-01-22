@@ -47,7 +47,7 @@ class SqedDepiction < ApplicationRecord
   validates_presence_of  :metadata_map, :boundary_color
   validates_inclusion_of :layout, in: SqedConfig::LAYOUTS.keys.map(&:to_s)
   validates_inclusion_of :boundary_finder, in: %w{Sqed::BoundaryFinder::ColorLineFinder Sqed::BoundaryFinder::Cross}
-  validates_inclusion_of :has_border, :in => [true, false]
+  validates_inclusion_of :has_border, in: [true, false]
 
   accepts_nested_attributes_for :depiction
 
