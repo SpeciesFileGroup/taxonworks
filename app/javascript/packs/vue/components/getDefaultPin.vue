@@ -28,7 +28,8 @@
 		},
 		data: function() {
 			return {
-				getDefault: undefined
+				getDefault: undefined,
+				getLabel: undefined
 			}
 		},
 		methods: {
@@ -36,10 +37,14 @@
 				if(this.getDefault) {
 					this.$emit('getId', this.getDefault)
 				}
+				if(this.getLabel) {
+					this.$emit('getLabel', this.getLabel)
+				}
 			},
 			checkForDefault: function() {
 				let defaultElement = document.querySelector(`[data-pinboard-section="${this.section}"] [data-insert="true"]`);
 				this.getDefault = (defaultElement ? defaultElement.dataset.pinboardObjectId : undefined);
+				this.getLabel = (defaultElement ? defaultElement.querySelector('a').textContent : undefined);
 			}
 		}
 	}

@@ -21,11 +21,20 @@
 					param="term"
 					event-send="sourceSelect"
 					label="label_html"
+					:sendLabel="autocompleteLabel"
 					@getItem="setSource($event); sendCitation()"
 					placeholder="Type for search..."
 					display="label">
 				</autocomplete>
 				<input type="text" @input="sendCitation" v-model="pages" placeholder="Pages" />
+				<default-element 
+					class="separate-left"
+					label="source" 
+					type="Source" 
+					@getLabel="autocompleteLabel = $event"
+					@getId="sourceId = $event; sendCitation()"
+					section="Sources">
+				</default-element>
 			</template>
 		</div>
 	</div>
@@ -33,10 +42,12 @@
 <script>
 
 	import autocomplete from '../../components/autocomplete.vue';
+	import defaultElement from '../../components/getDefaultPin.vue';
 
 	export default {
 		components: {
-			autocomplete
+			autocomplete,
+			defaultElement
 		},
 		props: {
 			citation: {
@@ -46,6 +57,7 @@
 		data: function() {
 			return {
 				origin_citation: {},
+				autocompleteLabel: undefined,
 				title: undefined,
 				pages: undefined,
 				sourceId: undefined
