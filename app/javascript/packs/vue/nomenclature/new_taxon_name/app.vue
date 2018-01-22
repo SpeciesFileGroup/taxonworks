@@ -1,6 +1,6 @@
 <template>
   <div id="new_taxon_name_task">
-    <h1>Edit taxon name</h1>
+    <h1>{{ (getTaxon.id ? 'Edit' : 'New') }} taxon name</h1>
     <div>
     <nav-header :menu="menu"></nav-header>
       <div class="flexbox horizontal-center-content align-start">

@@ -23,7 +23,7 @@
           
         </div>
         <div class="column-right item">
-          <check-exist :taxon="taxon" class="separate-left" url="/taxon_names/autocomplete" label="label_html" :search="taxon.name" param="term" :add-params="{ exact: true }"></check-exist>
+          <check-exist :taxon="taxon" class="separate-left" url="/taxon_names/autocomplete" label="label_html" :search="taxon.name" param="term" :add-params="{ exact: true, 'type[]': 'Protonym' }"></check-exist>
         </div>
       </div>
       <div class="body" v-if="!taxon.id">
