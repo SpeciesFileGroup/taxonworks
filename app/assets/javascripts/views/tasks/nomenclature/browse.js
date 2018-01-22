@@ -34,7 +34,9 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 			}
 		}
 
-
+		TW.workbench.keyboard.createShortcut((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + "+t","Edit taxon name", "Browse nomenclature", function() {
+			window.location.replace($('[data-task="new_taxon_name"]').attr('href'));
+		});
 
 		$('.filter .open').on('click', function() {
 			$(this).css('transform', 'rotate(' + ($(this).rotationInfo().deg + 180) + 'deg)');
