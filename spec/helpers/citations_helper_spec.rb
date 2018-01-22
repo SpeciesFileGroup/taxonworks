@@ -1,7 +1,7 @@
 require 'rails_helper'
 # require 'workbench/navigation_helper'
 
-describe CitationsHelper, :type => :helper do
+describe CitationsHelper, type: :helper do
   context 'a citation needs some helpers' do
     let(:otu) {FactoryBot.create(:valid_otu, name: 'Tigerbearcat') } 
     let(:source) {FactoryBot.create(:valid_source_bibtex, author: 'Smith, J.', year: '1929') } 

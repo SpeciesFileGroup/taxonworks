@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'TaxonNameRelationships', :type => :feature do
+describe 'TaxonNameRelationships', type: :feature do
   let(:page_title) { 'Taxon name relationships' }
   let(:index_path) { taxon_name_relationships_path }
 

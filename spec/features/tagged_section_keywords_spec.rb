@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'TaggedSectionKeywords', :type => :feature do
+describe 'TaggedSectionKeywords', type: :feature do
 
    context 'resource routes' do
    #  before { 

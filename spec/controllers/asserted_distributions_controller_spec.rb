@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe AssertedDistributionsController, :type => :controller do
+describe AssertedDistributionsController, type: :controller do
   before(:each) {
     sign_in
   }
@@ -179,7 +179,7 @@ describe AssertedDistributionsController, :type => :controller do
       expect(response).to redirect_to(asserted_distributions_url)
     end
   end
-  
+
 end
 
 

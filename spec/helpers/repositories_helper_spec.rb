@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe RepositoriesHelper, :type => :helper do
+describe RepositoriesHelper, type: :helper do
   context 'a repository needs some helpers' do
     let(:repository) {FactoryBot.create(:valid_repository)}
     let(:tag) {"#{repository.name} (#{repository.acronym})"}

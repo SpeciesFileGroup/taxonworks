@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'ControlledVocabularyTerms', :type => :feature do
+describe 'ControlledVocabularyTerms', type: :feature do
   let(:page_title) { 'Controlled vocabulary terms' }
   let(:index_path) { controlled_vocabulary_terms_path }
 

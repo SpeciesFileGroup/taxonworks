@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'RangedLotCategories', :type => :feature do
+describe 'RangedLotCategories', type: :feature do
   let(:page_title) { 'Ranged lot categories' }
   let(:index_path) { ranged_lot_categories_path }
 

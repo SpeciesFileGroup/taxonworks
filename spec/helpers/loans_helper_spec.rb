@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe LoansHelper, :type => :helper do
+describe LoansHelper, type: :helper do
   context 'a loan needs some helpers' do
     let(:loan) { FactoryBot.create(:valid_loan)  }
     let(:tag_string) { "#{loan.to_param}" }

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'TaxonNameClassifications', :type => :feature do
+describe 'TaxonNameClassifications', type: :feature do
   let(:index_path) { taxon_name_classifications_path }
   let(:page_title) { 'Taxon name classifications' }
 

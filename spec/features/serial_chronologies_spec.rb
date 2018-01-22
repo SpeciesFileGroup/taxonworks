@@ -2,7 +2,7 @@ require 'rails_helper'
 
 # TODO: this is a join
 
-describe 'SerialChronologies', :type => :feature do
+describe 'SerialChronologies', type: :feature do
   context 'resource routes' do
    #  before { 
    #    sign_in_user_and_select_project

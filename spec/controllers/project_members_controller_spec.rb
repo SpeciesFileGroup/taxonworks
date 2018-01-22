@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-RSpec.describe ProjectMembersController, :type => :controller do
+RSpec.describe ProjectMembersController, type: :controller do
   before {
     sign_in_administrator 
     @unplaced_user = FactoryBot.create(:valid_user)

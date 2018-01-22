@@ -1,5 +1,5 @@
 require 'rails_helper'
-describe Lot, :type => :model do
+describe Lot, type: :model do
   let(:lot) { FactoryBot.build(:lot) }
 
   context 'validation' do

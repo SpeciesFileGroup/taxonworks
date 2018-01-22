@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Otu, :type => :model do
+describe Otu, type: :model do
 
   let(:otu) { Otu.new }
   before(:all) do

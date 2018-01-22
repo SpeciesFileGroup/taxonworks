@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe SerialsHelper, :type => :helper do
+describe SerialsHelper, type: :helper do
   context 'a serial needs some helpers' do
     let(:name) {'dangerzone'}
     let(:serial) {FactoryBot.create(:valid_serial, name:name)}

@@ -1,13 +1,13 @@
 require 'rails_helper'
 
-describe Language, :type => :model do
+describe Language, type: :model do
 
   let(:language) {Language.new}
 
   context 'validation' do
     before(:each) {
      language.valid?
-    } 
+    }
     specify 'require english_name' do
       expect(language.errors.include?(:english_name)).to be_truthy
     end

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'TaxonDeterminations', :type => :feature do
+describe 'TaxonDeterminations', type: :feature do
   let(:page_title) { 'Taxon determinations' }
   let(:index_path) { taxon_determinations_path }
 
@@ -54,10 +54,10 @@ describe 'TaxonDeterminations', :type => :feature do
         click_link('New')
         expect(page).to have_content('New taxon determination')
 
-        expect(page.has_field?('determiner_autocomplete', :type => 'text')).to be_truthy
-        expect(page.has_field?('biological_collection_object_id_for_taxon_determination', :type => 'text')).to be_truthy
-        expect(page.has_field?('taxon_determination[otu_id]', :type => 'text')).to be_truthy
-        expect(page.has_field?('taxon_determination_year_made', :type => 'text')).to be_truthy
+        expect(page.has_field?('determiner_autocomplete', type: 'text')).to be_truthy
+        expect(page.has_field?('biological_collection_object_id_for_taxon_determination', type: 'text')).to be_truthy
+        expect(page.has_field?('taxon_determination[otu_id]', type: 'text')).to be_truthy
+        expect(page.has_field?('taxon_determination_year_made', type: 'text')).to be_truthy
 
         # fill_role_picker_autocomplete('determiner_autocomplete', with: 'Barry Barrymore', select: s.id)
         # @todo @mjy Could not get the name selected; error message below:

@@ -12,7 +12,7 @@ describe 'Source from Citation', type: :feature, group: :sources do
         before { visit new_verbatim_reference_task_path} # when I visit the new_verbatim_reference_task_path }
 
         specify 'there is a citation field' do
-          expect(page.has_field?('citation', :type => 'textarea')).to be_truthy
+          expect(page.has_field?('citation', type: 'textarea')).to be_truthy
         end
 
         specify 'new bibtex source from citation' do

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe PreparationTypesHelper, :type => :helper do
+describe PreparationTypesHelper, type: :helper do
   context 'a preparation type needs some helpers' do
     let(:name) {'dangerzone'}
     let(:preparation_type) {FactoryBot.create(:valid_preparation_type, name:name)}

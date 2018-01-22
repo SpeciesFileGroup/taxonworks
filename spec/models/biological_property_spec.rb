@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe BiologicalProperty, :type => :model do
+describe BiologicalProperty, type: :model do
   let(:biological_property) { FactoryBot.build(:biological_property) }
 
   context 'validation' do 

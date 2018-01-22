@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe GeographicAreasGeographicItemsController, :type => :controller do
+describe GeographicAreasGeographicItemsController, type: :controller do
   before(:each) {
     sign_in
   }

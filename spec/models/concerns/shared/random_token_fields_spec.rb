@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Shared::RandomTokenFields, :type => :model do
+describe Shared::RandomTokenFields, type: :model do
   let(:test_class) do
     Class.new do
       attr_accessor :foo_token, :foo_token_date, :test_token, :test_token_date

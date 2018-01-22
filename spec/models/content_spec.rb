@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Content, :type => :model do
+describe Content, type: :model do
   let(:content) { Content.new() }
   let(:topic) { FactoryBot.create(:valid_topic)  }
   let(:otu) { FactoryBot.create(:valid_otu) }

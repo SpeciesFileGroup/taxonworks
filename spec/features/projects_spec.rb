@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Project Handling', :type => :feature do
+describe 'Project Handling', type: :feature do
 
   subject { page }
 

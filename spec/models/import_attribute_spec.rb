@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe ImportAttribute, :type => :model do
+describe ImportAttribute, type: :model do
   let (:attribute) {ImportAttribute.new}
 
   context 'validation' do

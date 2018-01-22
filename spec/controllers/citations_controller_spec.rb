@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe CitationsController, :type => :controller do
+describe CitationsController, type: :controller do
   before(:each) {
     sign_in
   }

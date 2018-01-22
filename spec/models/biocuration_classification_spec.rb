@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe BiocurationClassification, :type => :model do
+describe BiocurationClassification, type: :model do
   let(:biocuration_classification) {BiocurationClassification.new}
   let(:biocuration_class) { FactoryBot.create(:valid_biocuration_class) } 
   let(:specimen) { FactoryBot.create(:valid_specimen) } 

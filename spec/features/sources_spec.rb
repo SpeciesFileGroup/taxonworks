@@ -39,14 +39,14 @@ describe 'Sources', type: :feature, group: :sources do
 
     context 'editing an existing source' do
       before {
-        visit sources_path 
+        visit sources_path
       }
 
       specify 'I can find my bibtex source and it has an edit link & I can edit the source', js: true do
         @src_bibtex = factory_bot_create_for_user(:soft_valid_bibtex_source_article, @user)
 
         fill_autocomplete('source_id_for_quick_search_form', with: @src_bibtex.title, select: @src_bibtex.id)
-      
+
         expect(page).to have_content('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
         expect(page).to have_link('Edit')
         click_link('Edit')
@@ -61,8 +61,8 @@ describe 'Sources', type: :feature, group: :sources do
 
         expect(page).to have_selector('#source_verbatim', visible: false)
 
-        fill_in('Author', with: 'Wombat, H.P.') 
-        fill_in('Year', with: '1920') 
+        fill_in('Author', with: 'Wombat, H.P.')
+        fill_in('Year', with: '1920')
         click_button('Update Bibtex')
         expect(page).to have_content('Source was successfully updated.')
         expect(page).to have_content('Wombat, H.P. (1920) I am a soft valid article. Journal of Test Articles.')
@@ -170,9 +170,9 @@ describe 'Sources', type: :feature, group: :sources do
       expect(page.has_checked_field?('source_type_sourcebibtex')).to be_truthy
 
       # many fields are present including 'Verbatim contents', but not the 'Verbatim' textbox
-      expect(page.has_field?('source_title', :type => 'textarea')).to be_truthy
-      expect(page.has_field?('source_verbatim_contents', :type => 'textarea')).to be_truthy
-      expect(page.has_no_field?('source_verbatim', :type => 'textarea')).to be_truthy
+      expect(page.has_field?('source_title', type: 'textarea')).to be_truthy
+      expect(page.has_field?('source_verbatim_contents', type: 'textarea')).to be_truthy
+      expect(page.has_no_field?('source_verbatim', type: 'textarea')).to be_truthy
 
       select('article', from: 'source_bibtex_type')
 
@@ -189,7 +189,7 @@ describe 'Sources', type: :feature, group: :sources do
       click_link('New')
       choose('source_type_sourceverbatim') # select the Verbatim radio button
       expect(page.has_checked_field?('source_type_sourceverbatim')).to be_truthy
-      expect(page.has_field?('source_verbatim', :type => 'textarea')).to be_truthy
+      expect(page.has_field?('source_verbatim', type: 'textarea')).to be_truthy
       # TODO when Capybara works better so field('field').visible? is accurate add visibility tests.
       #      expect(page.has_no_field?('source_title', :type => 'textarea')).to be_truthy
       # The 'Verbatim' textbox is the only field available.

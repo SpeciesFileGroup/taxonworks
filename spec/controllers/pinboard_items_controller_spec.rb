@@ -18,11 +18,11 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-RSpec.describe PinboardItemsController, :type => :controller do
+RSpec.describe PinboardItemsController, type: :controller do
   before(:each) {
     sign_in
   }
- 
+
   # This should return the minimal set of attributes required to create a valid
   # PinboardItem. As you add validations to PinboardItem, be sure to
   # adjust the attributes here as well.
@@ -41,7 +41,7 @@ RSpec.describe PinboardItemsController, :type => :controller do
   let(:valid_session) { {} }
 
   describe 'POST create' do
-    before { 
+    before {
       request.env['HTTP_REFERER'] = otus_path
     }
 
@@ -78,8 +78,8 @@ RSpec.describe PinboardItemsController, :type => :controller do
   end
 
   describe 'DELETE destroy' do
-    before { 
-      request.env['HTTP_REFERER'] = dashboard_path 
+    before {
+      request.env['HTTP_REFERER'] = dashboard_path
     }
 
     it 'destroys the requested pinboard_item' do

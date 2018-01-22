@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'CollectingEvents', :type => :feature do
+describe 'CollectingEvents', type: :feature do
   let(:page_title) { 'Collecting events' }
   let(:index_path) { collecting_events_path }
 

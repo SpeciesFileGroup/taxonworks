@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Serials', :type => :feature do
+describe 'Serials', type: :feature do
   let(:page_title) { 'Serials' }
   let(:index_path) { serials_path }
 

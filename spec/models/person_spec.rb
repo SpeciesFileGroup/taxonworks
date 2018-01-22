@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Person, :type => :model do
+describe Person, type: :model do
 
   let(:person) { FactoryBot.build(:person) }
   let(:source_bibtex) {

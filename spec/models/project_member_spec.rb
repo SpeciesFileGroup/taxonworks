@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe ProjectMember, :type => :model do
+describe ProjectMember, type: :model do
 
   let(:project_member) {FactoryBot.build(:project_member) }
 

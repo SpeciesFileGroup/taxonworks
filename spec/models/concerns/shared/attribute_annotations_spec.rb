@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'AttributeAnnotations', :type => :model do
+describe 'AttributeAnnotations', type: :model do
   let(:instance) {TestAttributeAnnotations.new}
   let(:klass) {TestAttributeAnnotations}
   let(:otu) { Otu.create(name: 'Aus') }

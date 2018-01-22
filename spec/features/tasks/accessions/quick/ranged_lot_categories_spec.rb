@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'photo based data capture', :type => :feature do
+describe 'photo based data capture', type: :feature do
 
 
   context 'GET /quick_accession_from_image' do

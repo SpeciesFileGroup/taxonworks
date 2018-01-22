@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Role, :type => :model do
+describe Role, type: :model do
   let(:role) {Role.new}
   let(:person) {FactoryBot.create(:valid_person)}
 

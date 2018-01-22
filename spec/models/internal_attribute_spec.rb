@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe InternalAttribute, :type => :model do
+describe InternalAttribute, type: :model do
   let(:internal_attribute) { InternalAttribute.new } 
   let(:otu) { FactoryBot.build(:valid_otu) } 
   let(:predicate) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate) }

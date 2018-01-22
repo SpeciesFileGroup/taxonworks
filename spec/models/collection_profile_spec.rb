@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe CollectionProfile, :type => :model do
+describe CollectionProfile, type: :model do
   let(:collection_profile) { FactoryBot.build(:collection_profile) }
 
   context 'associations' do

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe ControlledVocabularyTermsHelper, :type => :helper do
+describe ControlledVocabularyTermsHelper, type: :helper do
   context 'A controlled_vocabulary_term needs some helpers' do
     let(:controlled_vocabulary_term) { FactoryBot.create(:valid_controlled_vocabulary_term, name: name, definition: definition)}
     let(:name) {'helper term'}

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'People', :type => :feature do
+describe 'People', type: :feature do
   let(:page_title) { 'People' }
   let(:index_path) { people_path }
 

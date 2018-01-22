@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'CitationTopics', :type => :feature do
+describe 'CitationTopics', type: :feature do
 
    # !! See related patterns in AlternateValues and BiocurationClassifcations
   

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TaxonNamesHelper, :type => :helper do
+describe TaxonNamesHelper, type: :helper do
   context 'a taxon_name needs some helpers' do
     let(:taxon_name) {FactoryBot.create(:valid_protonym) }
 

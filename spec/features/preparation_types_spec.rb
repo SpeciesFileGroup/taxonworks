@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'PreparationTypes', :type => :feature do
+describe 'PreparationTypes', type: :feature do
   let(:page_title) { 'Preparation types' }
   it_behaves_like 'a_login_required_controller' do
     let(:index_path) { preparation_types_path }

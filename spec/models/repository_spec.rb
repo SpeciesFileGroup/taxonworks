@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 
-describe Repository, :type => :model do
+describe Repository, type: :model do
   let(:repository) {FactoryBot.build(:repository)}
 
   context 'validation' do

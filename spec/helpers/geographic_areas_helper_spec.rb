@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 
-describe GeographicAreasHelper, :type => :helper do
+describe GeographicAreasHelper, type: :helper do
   context 'a geographic_area needs some helpers' do
 
     let(:name) {'Neverland'}

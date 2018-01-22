@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 # TODO: Rewrite or remove this API.
-xdescribe Api::V1::TaxonNamesController, :type => :controller do
+xdescribe Api::V1::TaxonNamesController, type: :controller do
 
   describe 'Taxon names API' do
 

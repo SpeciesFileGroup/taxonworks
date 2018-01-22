@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'LoanItems', :type => :feature do
+describe 'LoanItems', type: :feature do
 
  context 'resource routes' do
    #  before { 

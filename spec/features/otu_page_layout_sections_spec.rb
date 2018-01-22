@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'OtuPageLayoutSections', :type => :feature do
+describe 'OtuPageLayoutSections', type: :feature do
 
  context 'resource routes' do
    #  before { 

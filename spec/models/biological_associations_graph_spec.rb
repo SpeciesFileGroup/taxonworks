@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe BiologicalAssociationsGraph, :type => :model do
+describe BiologicalAssociationsGraph, type: :model do
 
   let(:biological_associations_graph) { FactoryBot.build(:biological_associations_graph) }
 

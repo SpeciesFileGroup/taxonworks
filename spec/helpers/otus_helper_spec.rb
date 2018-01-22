@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe OtusHelper, :type => :helper do
+describe OtusHelper, type: :helper do
   let(:otu) { FactoryBot.create(:valid_otu, name: 'voluptas') }
 
   specify '#otu_tag' do

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Repositories', :type => :feature do
+describe 'Repositories', type: :feature do
   let(:index_path) { repositories_path }
   let(:page_title) { 'Repositories' }
 

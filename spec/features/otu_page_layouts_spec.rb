@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'OtuPageLayouts', :type => :feature do
+describe 'OtuPageLayouts', type: :feature do
   let(:page_title) { 'Otu page layouts' }
   
   it_behaves_like 'a_login_required_and_project_selected_controller' do 

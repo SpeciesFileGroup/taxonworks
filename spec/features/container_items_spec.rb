@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'ContainerItems', :type => :request do
+RSpec.describe 'ContainerItems', type: :request do
   context 'resource routes' do
    #  before { 
    #    sign_in_user_and_select_project

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Serial, :type => :model do
+describe Serial, type: :model do
 
   let(:serial) { Serial.new }
 

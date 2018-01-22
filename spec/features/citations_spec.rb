@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Citations', :type => :feature do
+describe 'Citations', type: :feature do
   let(:index_path) { citations_path }
   let(:page_title) { 'Citations' }
 

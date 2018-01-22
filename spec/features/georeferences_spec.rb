@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Georeferences', :type => :feature do
+describe 'Georeferences', type: :feature do
   let(:index_path) { georeferences_path }
   let(:page_title) { 'Georeferences' }
 

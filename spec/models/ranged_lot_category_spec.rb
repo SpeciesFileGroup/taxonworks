@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe RangedLotCategory, :type => :model do
+describe RangedLotCategory, type: :model do
 
   let(:ranged_lot_category) {RangedLotCategory.new}
 

@@ -1,5 +1,5 @@
 require 'rails_helper'
-describe 'Has_roles', :type => :model do
+describe 'Has_roles', type: :model do
   let(:class_with_roles) {TestHasRole.new}
 
   context 'associations' do

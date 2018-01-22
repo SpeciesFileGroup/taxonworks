@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe AlternateValuesController, :type => :controller do
+describe AlternateValuesController, type: :controller do
   before(:each) {
     sign_in
   }

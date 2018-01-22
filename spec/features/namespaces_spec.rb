@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Namespaces', :type => :feature do
+describe 'Namespaces', type: :feature do
   let(:page_title) { 'Namespaces' }
   let(:index_path) { namespaces_path }
 

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'BiocurationClassifications', :type => :feature do
+describe 'BiocurationClassifications', type: :feature do
 
   # !! This should act more or less the same as AlternateValue features, 
 

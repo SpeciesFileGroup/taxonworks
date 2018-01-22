@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe GeographicItemsController, :type => :controller do
+describe GeographicItemsController, type: :controller do
   before(:each) {
     sign_in
   }

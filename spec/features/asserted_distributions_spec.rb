@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'AssertedDistributions', :type => :feature do
+describe 'AssertedDistributions', type: :feature do
   let(:page_title) { 'Asserted distributions' }
   let(:index_path) { asserted_distributions_path }
   let(:a) { FactoryBot.create(:valid_geographic_area_type, by: @user) }
@@ -64,7 +64,7 @@ describe 'AssertedDistributions', :type => :feature do
         s = Source.first
 
         click_link('New')
-        expect(page.has_field?('asserted_distribution[otu_id]', :type => 'text')).to be_truthy
+        expect(page.has_field?('asserted_distribution[otu_id]', type: 'text')).to be_truthy
 
         expect(page.has_field?('geographic_area_id_for_asserted_distribution', type: 'text')).to be_truthy
         expect(page.has_field?('source_id_for_original_citation_asserted_distribution', type: 'text')).to be_truthy

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Tasks::Gis::AssertedDistributionController, :type => :controller do
+describe Tasks::Gis::AssertedDistributionController, type: :controller do
   before(:each) {
     sign_in
   }

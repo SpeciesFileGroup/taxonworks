@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe ProjectsController, :type => :controller do
+describe ProjectsController, type: :controller do
   before(:each) {
     sign_in_administrator # TODO: !! this needs to be sign_in_administrator !!
   }
