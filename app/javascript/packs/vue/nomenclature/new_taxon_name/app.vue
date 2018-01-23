@@ -21,9 +21,9 @@
             <relationship-picker class="separate-top separate-bottom"></relationship-picker>
           </div>
           <div class="new-taxon-name-block">
-            <type-block v-if="getTaxon.id && showForThisGroup(['FamilyGroup','GenusGroup'])" class="separate-top separate-bottom"></type-block>
+            <type-block v-if="getTaxon.id && showForThisGroup(['FamilyGroup','GenusGroup', 'SpeciesGroup'], getTaxon)" class="separate-top separate-bottom"></type-block>
           </div>
-          <div class="new-taxon-name-block" v-if="showForThisGroup(['SpeciesGroup','GenusGroup'])">
+          <div class="new-taxon-name-block" v-if="showForThisGroup(['SpeciesGroup','GenusGroup'], getTaxon)">
             <spinner :show-spinner="false" :show-legend="false" v-if="!getTaxon.id"></spinner>
             <block-layout anchor="original-combination">
               <h3 slot="header">Original Combination</h3>
@@ -32,11 +32,11 @@
               </div>
             </block-layout>
           </div>
-          <div class="new-taxon-name-block" v-if="showForThisGroup(['SpeciesGroup','GenusGroup'])">
+          <div class="new-taxon-name-block" v-if="showForThisGroup(['SpeciesGroup','GenusGroup'], getTaxon)">
             <spinner :show-spinner="false" :show-legend="false" v-if="!getTaxon.id"></spinner>
             <gender-block class="separate-top separate-bottom"></gender-block>
           </div>
-          <div class="new-taxon-name-block" v-if="getTaxon.id && showForThisGroup(['SpeciesGroup','GenusGroup'])">
+          <div class="new-taxon-name-block" v-if="getTaxon.id && showForThisGroup(['SpeciesGroup','GenusGroup'], getTaxon)">
             <spinner :show-spinner="false" :show-legend="false" v-if="!getTaxon.id"></spinner>
             <etymology class="separate-top separate-bottom"></etymology>
           </div>
@@ -54,6 +54,7 @@
 </template>
 
 <script>
+  import showForThisGroup from './helpers/showForThisGroup';
   var sourcePicker = require('./components/sourcePicker.vue').default;
   var relationshipPicker = require('./components/relationshipPicker.vue').default;
   var statusPicker = require('./components/statusPicker.vue').default;
@@ -107,10 +108,10 @@
           'Author': true,
           'Status': true,
           'Relationship': true,
-          'Type': this.showForThisGroup(['SpeciesGroup','GenusGroup']),
-          'Original combination': this.showForThisGroup(['SpeciesGroup','GenusGroup']),
-          'Etymology': this.showForThisGroup(['SpeciesGroup','GenusGroup']),
-          'Gender': this.showForThisGroup(['SpeciesGroup','GenusGroup']),
+          'Type': showForThisGroup(['SpeciesGroup','GenusGroup', 'FamilyGroup'], this.getTaxon),
+          'Original combination': showForThisGroup(['SpeciesGroup','GenusGroup'], this.getTaxon),
+          'Etymology': showForThisGroup(['SpeciesGroup','GenusGroup'], this.getTaxon),
+          'Gender': showForThisGroup(['SpeciesGroup','GenusGroup'], this.getTaxon),
         }
       }
     },
@@ -160,9 +161,7 @@
           return true;
         }
       },
-      showForThisGroup: function(findInGroups){
-        return (this.getTaxon.rank_string ? (findInGroups.indexOf(this.getTaxon.rank_string.split('::')[2]) > -1) : false);
-      },
+      showForThisGroup: showForThisGroup,
       initLoad: function() {
         let actions = [
               this.$store.dispatch(ActionNames.LoadRanks),

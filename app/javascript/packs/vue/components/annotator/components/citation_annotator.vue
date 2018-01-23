@@ -12,7 +12,6 @@
 					param="term">
 				</autocomplete>
 				<input type="text" class="normal-input inline pages" v-model="citation.pages" placeholder="Pages"/>
-
 			</div>
 			<div class="flex-separate separate-bottom">
 				<label class="inline middle">
