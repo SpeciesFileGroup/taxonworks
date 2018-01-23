@@ -76,6 +76,11 @@ Object.assign(TW.workbench.keyboard, {
   		Mousetrap.bind(key, func);
 		$('body').append('<span style="display;hidden" data-shortcut-key="'+ key +'" data-shortcut-description="'+ description +'" data-shortcut-section="'+ section +'"></span>');
 	},
+
+	createLegend: function(key, description, section) {
+		$('body').append('<span style="display;hidden" data-shortcut-key="'+ key +'" data-shortcut-description="'+ description +'" data-shortcut-section="'+ section +'"></span>');
+		this.addNewShortcut('[data-shortcut-key="'+ key +'"]')
+	},
 		
 
 	createTable: function() {

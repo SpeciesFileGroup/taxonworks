@@ -2,21 +2,30 @@
 	<div class="citation_annotator">
 		<div v-if="!citation.hasOwnProperty('id')">
 			<div class="separate-bottom inline">
-			    <autocomplete
-			      url="/sources/autocomplete"
-			      label="label"
-			      min="2"
-			      @getItem="citation.source_id = $event.id"
-			      placeholder="Select a source"
-			      param="term">
-			    </autocomplete>
-			    <input type="text" class="normal-input inline pages" v-model="citation.pages" placeholder="Pages"/>
+				<autocomplete
+					url="/sources/autocomplete"
+					label="label"
+					min="2"
+					:sendLabel="autocompleteLabel"
+					@getItem="citation.source_id = $event.id"
+					placeholder="Select a source"
+					param="term">
+				</autocomplete>
+				<input type="text" class="normal-input inline pages" v-model="citation.pages" placeholder="Pages"/>
 			</div>
-			<div class="horizontal-left-content separate-bottom">
+			<div class="flex-separate separate-bottom">
 				<label class="inline middle">
 					<input v-model="citation.is_original" type="checkbox"/>
 					Is original
 				</label>
+				<default-element
+					class="separate-left"
+					label="source"
+					type="Source" 
+					@getLabel="autocompleteLabel = $event"
+					@getId="citation.source_id = $event"
+					section="Sources"
+			    ></default-element>
 			</div>
 			<div class="separate-bottom inline">
 				<autocomplete
@@ -67,10 +76,12 @@
 	import annotatorExtend from '../components/annotatorExtend.js';
 	import autocomplete from '../../autocomplete.vue';
 	import displayList from './displayList.vue';
+	import defaultElement from '../../getDefaultPin.vue';
 
 	export default {
 		mixins: [CRUD, annotatorExtend],
 		components: {
+			defaultElement,
 			autocomplete,
 			displayList
 		},
@@ -83,7 +94,8 @@
 			return {
 				list: [],
 				citation: this.newCitation(),
-				topic: this.newTopic()
+				topic: this.newTopic(),
+				autocompleteLabel: undefined,
 			}
 		},
 		methods: {

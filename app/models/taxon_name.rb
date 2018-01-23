@@ -105,9 +105,15 @@
 # @!attribute verbatim_name
 #   @return [String]
 #   a representation of what the combination (fully spelled out) or protonym (monomial)
-#   *looked like* in its originating publication
+#   *looked like* in its originating publication.
 #   The sole purpose of this string is to represent visual differences from what is recorded in the
-#   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed
+#   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed.  
+#   This string should NOT include the author year (see verbatim_author and year_of_publication for those data).
+#
+# TODO: @mjy etymology column in taxon_names is not covered here. Is tis correct below?
+# @!attribute etymology
+#   @return [String]
+#   the derivation and history of the name
 #
 # TODO: @mjy etymology column in taxon_names is not covered here. Is tis correct below?
 # @!attribute etymology
@@ -150,8 +156,8 @@ class TaxonName < ApplicationRecord
 
   NOT_LATIN = Regexp.new(/[^a-zA-Z|\-]/).freeze # Dash is allowed?
 
-  delegate :nomenclatural_code, to: :rank_class
-  delegate :rank_name, to: :rank_class
+  delegate :nomenclatural_code, to: :rank_class, allow_nil: true
+  delegate :rank_name, to: :rank_class, allow_nil: true
 
   # @return [Boolean]
   #   When true, also creates an OTU that is tied to this taxon name
@@ -184,6 +190,8 @@ class TaxonName < ApplicationRecord
 
   validates_presence_of :type, message: 'is not specified'
 
+  # TODO: move some of these down to Protonym when they don't apply to Combination
+  
   # TODO: think of a different name, and test
   has_many :historical_taxon_names, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
 
@@ -378,7 +386,7 @@ class TaxonName < ApplicationRecord
   # Important, string format priority is 1) as provided verbatim, 2) as generated from people, and 3) as taken from the source.
   def author_string
     return verbatim_author if !verbatim_author.nil?
-    return taxon_name_authors.pluck(:last_name).to_sentence if taxon_name_authors.any?
+    return Utilities::Strings.authorship_sentence( taxon_name_authors.pluck(:last_name) ) if taxon_name_authors.any?
     return source.authority_name if !source.nil?
     nil
   end

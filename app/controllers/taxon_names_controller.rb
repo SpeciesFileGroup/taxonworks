@@ -35,7 +35,7 @@ class TaxonNamesController < ApplicationController
                       notice: "Taxon name '#{@taxon_name.name}' was successfully created." }
         format.json { render :show, status: :created, location: @taxon_name.metamorphosize }
       else
-        format.html { render action: 'new' }
+        format.html { render action: :new }
         format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
       end
     end
@@ -50,7 +50,7 @@ class TaxonNamesController < ApplicationController
         format.html { redirect_to @taxon_name.metamorphosize, notice: 'Taxon name was successfully updated.' }
         format.json { render :show, status: :ok, location: @taxon_name.metamorphosize }
       else
-        format.html { render action: 'edit' }
+        format.html { render action: :edit }
         format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
       end
     end
@@ -173,6 +173,13 @@ class TaxonNamesController < ApplicationController
     @data = NomenclatureCatalog.data_for(@taxon_name)
   end
 
+  def parse
+    @result = TaxonWorks::Vendor::Biodiversity::Result.new(
+      query_string: params.require(:query_string),
+      project_id: sessions_current_project_id
+    ).result
+  end
+
   private
 
   def set_taxon_name
@@ -205,7 +212,7 @@ class TaxonNamesController < ApplicationController
       :nomenclature_code,
       :also_create_otu,
       :import_level).merge(
-      user_id:    sessions_current_user_id,
+      user_id: sessions_current_user_id,
       project_id: sessions_current_project_id
       ).to_h.symbolize_keys
   end

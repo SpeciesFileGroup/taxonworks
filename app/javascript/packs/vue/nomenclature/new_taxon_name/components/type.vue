@@ -7,8 +7,9 @@
     </div>
     <div class="body" v-if="expanded">
       <div v-if="!taxonRelation">
-        <hard-validation field="type" v-if="!(GetRelationshipsCreated.length)">
-          <autocomplete slot="body"
+        <hard-validation field="type" v-if="!showForThisGroup(['SpeciesGroup'], taxon) && !(GetRelationshipsCreated.length)">
+          <autocomplete 
+              slot="body"
               url="/taxon_names/autocomplete"
               label="label_html"
               display="label"
@@ -20,6 +21,11 @@
               param="term">
           </autocomplete>
         </hard-validation>
+        <a 
+          v-if="showForThisGroup(['SpeciesGroup'], taxon)" 
+          :href="`/tasks/type_material/edit_type_material?protonym_id=${taxon.id}`" 
+          target="_blank">Add type specimens
+        </a>
       </div>
       <div v-else>
         <tree-display 
@@ -63,6 +69,8 @@
   const hardValidation = require('./hardValidation.vue').default;
   const getRankGroup = require('../helpers/getRankGroup');
   const childOfParent = require('../helpers/childOfParent');
+
+  import showForThisGroup from '../helpers/showForThisGroup';
 
   export default {
     components: {
@@ -183,7 +191,8 @@
           Object.defineProperty(list[key], 'type', { value: key });
         }
         return list;
-      }
+      },
+      showForThisGroup: showForThisGroup
     }
   }
 </script>

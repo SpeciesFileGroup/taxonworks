@@ -70,7 +70,12 @@ module Utilities::Strings
     [pre, content, post].compact.join.html_safe
   end
 
-
+  # @return [String, nil]
+  # TODO: DEPRECATE
+  def self.authorship_sentence(last_names = [])
+    return nil if last_names.empty?
+    last_names.to_sentence(two_words_connector: ' & ', last_word_connector: ' & ')
+  end
 
 end
 

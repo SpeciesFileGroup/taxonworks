@@ -224,7 +224,7 @@ cite_otus_task_task:
   description: 'Add citations to OTUs.  Optionally add topics to citations.  For example assertions like "Smith, 1920 referenced Biology of Aus bus" are possible.'
 new_taxon_name_task:
   hub: true
-  name: 'Edit taxon name'
+  name: 'New taxon name'
   related:
   categories:
     - nomenclature
@@ -291,3 +291,11 @@ edit_type_material_task:
     - collection_object
   status: prototype
   description: 'Add type material records for species group names.'
+new_combination_task_task:
+  hub: true
+  name: 'New combination'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Create a new or subsequent nomenclatural combination.'

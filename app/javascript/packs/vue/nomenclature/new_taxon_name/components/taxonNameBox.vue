@@ -10,7 +10,7 @@
 		<div class="panel basic-information">
 			<div class="content header">
 				<h3 v-if="taxon.id" class="flex-separate middle">
-					<a :href="`/tasks/nomenclature/browse/${taxon.id}`" target="_blank" class="taxonname"> 
+					<a v-shortkey="[getMacKey(), 't']" @shortkey="switchBrowse()" :href="`/tasks/nomenclature/browse/${taxon.id}`" target="_blank" class="taxonname"> 
 						<span v-html="taxon.cached_html"></span>
 						<span v-html="taxon.cached_author_year"></span>
 					</a>
@@ -81,6 +81,9 @@ export default {
 
 		}
 	},
+	mounted: function() {
+		TW.workbench.keyboard.createLegend(((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + '+' +'t'), 'Go to browse nomenclature', 'New taxon name');
+	},
 	methods: {
 		deleteTaxon: function() {
 			this.$http.delete(`/taxon_names/${this.taxon.id}`).then(response => {
@@ -97,6 +100,12 @@ export default {
 			else {
 				return (this.taxon.verbatim_author ? (this.taxon.verbatim_author + (this.taxon.year_of_publication ? (', ' + this.taxon.year_of_publication) : '')) : (this.citation ? this.citation.source.author_year : ''))
 			}
+		},
+		switchBrowse: function() {
+			window.location.replace(`/tasks/nomenclature/browse/${this.taxon.id}`);
+		},
+		getMacKey: function() {
+			return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt');
 		}
 	},
 }

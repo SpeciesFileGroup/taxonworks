@@ -2,9 +2,19 @@ class CombinationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :require_sign_in_and_project_selection
-  before_action :set_content, only: [:update, :edit, :update, :destroy]
+  before_action :set_combination, only: [:update, :edit, :update, :destroy, :show]
+
+  # GET /taxon_names.json
+  def index
+    @recent_objects = Combination.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(5)
+  end
+
+  # GET /combinations/123.json
+  def show
+  end
 
   # GET /combinations/new
+  # TODO: redirect to task
   def new
     if params[:taxon_name_id]
       @protonym = Protonym.find(params[:taxon_name_id])
@@ -21,7 +31,6 @@ class CombinationsController < ApplicationController
 
   # POST /combinations.json
   def create
-
     @combination = Combination.new(combination_params)
     respond_to do |format|
       if @combination.save
@@ -59,16 +68,16 @@ class CombinationsController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
-  def set_content
-    @combination = Combination.with_project_id(sessions_current_project_id).find(params[:id])
+  def set_combination
+    @combination = Combination.with_project_id(sessions_current_project_id).find(params.require(:id))
     @recent_object = @combination 
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def combination_params
-    params.require(:combination).permit(:verbatim_name, :source_id, *Combination::APPLICABLE_RANKS.collect{|r| "#{r}_id".to_sym},
-                                        origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
-                                       ) 
+    params.require(:combination).permit(
+      :verbatim_name, :source_id, 
+      *Combination::APPLICABLE_RANKS.collect{|r| "#{r}_id".to_sym},
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
+    ) 
   end
 end

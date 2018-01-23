@@ -5,46 +5,51 @@ module TaxonNamesHelper
   def taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
     return taxon_name.name if taxon_name.new_record?
-    # TODO: fix generation of empty string cached author year
-    taxon_name.cached_html.html_safe || taxon_name.name.html_safe
-  end
-
-  # @return [String]
-  #   no HTML inside <input>
-  def taxon_name_autocomplete_selected_tag(taxon_name)
-    return nil if taxon_name.nil?
-    [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ') 
+    taxon_name.cached_html.try(:html_safe) || taxon_name.name
   end
 
   # @return [String]
   #   the taxon name in original combination, without author year, with HTML
   def original_taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
-    taxon_name.cached_original_combination.nil? ? taxon_name.cached_html.html_safe || taxon_name.name : taxon_name.cached_original_combination.html_safe
+    if taxon_name.cached_original_combination.nil?
+      taxon_name_tag(taxon_name)
+    else 
+      taxon_name.cached_original_combination.html_safe
+    end
   end
 
   # @return [String]
-  #  the current name/combination with author year, and HTML
+  #  the current name/combination with author year, with HTML
   def full_taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
     [taxon_name_tag(taxon_name), taxon_name.cached_author_year].compact.join(' ').html_safe
   end
 
-  # @return [String
-  #  the name in original combiantion, with author year, and HTML
+  # @return [String]
+  #  the name in original combination, with author year, with HTML
   def full_original_taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
-    [
-      original_taxon_name_tag(taxon_name), 
+    [ original_taxon_name_tag(taxon_name), 
       history_author_year_tag(taxon_name)
     ].compact.join(' ').html_safe
   end
 
+  # @return [String]
+  #   the current name/combination with author year, without HTML
+  def taxon_name_name_string(taxon_name)
+    return nil if taxon_name.nil?
+    [ taxon_name.cached, taxon_name.cached_author_year].compact.join(' ')
+  end
+
+  # @return [String]
+  # removes parens
   def original_author_year(taxon_name)
     return nil if taxon_name.nil? || taxon_name.cached_author_year.nil?
     taxon_name.cached_author_year.gsub(/^\(|\)$/, '')
   end
 
+  # @return [String]
   def current_author_year(taxon_name)
     return nil if taxon_name.nil? || taxon_name.cached_author_year.nil?
     taxon_name.cached_author_year
@@ -87,8 +92,11 @@ module TaxonNamesHelper
     link_to(original_taxon_name_tag(taxon_name).html_safe, browse_nomenclature_task_path(taxon_name))
   end
 
-  def taxon_names_search_form
-    render '/taxon_names/quick_search_form'
+  # @return [String]
+  #   no HTML inside <input>
+  def taxon_name_autocomplete_selected_tag(taxon_name)
+    return nil if taxon_name.nil?
+    [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ') 
   end
 
   def taxon_name_for_select(taxon_name)
@@ -103,6 +111,13 @@ module TaxonNamesHelper
   # TODO: Scope to code
   def taxon_name_rank_select_tag(taxon_name: TaxonName.new, code:  nil)
     select(:taxon_name, :rank_class, options_for_select(RANKS_SELECT_OPTIONS, selected: taxon_name.rank_string) ) 
+  end
+
+
+
+
+  def taxon_names_search_form
+    render '/taxon_names/quick_search_form'
   end
 
   def edit_original_combination_task_link(taxon_name)
@@ -126,7 +141,7 @@ module TaxonNamesHelper
       case target
       when :edit_task
         link_to(content_tag(:span, 'Edit (task)', 'data-icon' => 'edit', 'class' => 'small-icon'),
-                new_taxon_name_task_path(taxon_name.metamorphosize), 'class' => 'navigation-item')
+                new_taxon_name_task_path(taxon_name.metamorphosize), 'class' => 'navigation-item', 'data-task' => 'new_taxon_name')
       else
         link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', 'class' => 'small-icon'), edit_taxon_name_path(taxon_name.metamorphosize), 'class' => 'navigation-item')
       end

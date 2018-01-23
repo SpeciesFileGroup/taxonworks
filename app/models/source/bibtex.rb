@@ -470,6 +470,7 @@ class Source::Bibtex < Source
   # @return[String]
   #   A human readable version of the person list
   #   'firstname lastname, firstname lastname, & firstname lastname'
+  #  TODO: DEPRECATE
   def compute_human_names(type)
     method  = type
     methods = type + 's'
@@ -634,10 +635,10 @@ class Source::Bibtex < Source
       else
         b = to_bibtex
         b.parse_names
-        return b.author.tokens.collect {|t| t.last}.to_sentence(last_word_connector: ' & ', two_words_connector: ' & ')
+        return Utilities::Strings.authorship_sentence( b.author.tokens.collect {|t| t.last} )
       end
     else # use normalized records
-      return authors.collect {|a| a.full_last_name}.to_sentence(last_word_connector: ' & ', two_words_connector: ' & ')
+      return Utilities::Strings.authorship_sentence( authors.collect {|a| a.full_last_name} ) 
     end
   end
 

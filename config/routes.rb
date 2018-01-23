@@ -185,6 +185,12 @@ TaxonWorks::Application.routes.draw do
 
   resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
     concerns [:data_routes]
+    collection do
+      get :index, defaults: {format: :json}
+    end
+    member do
+      get :show, defaults: {format: :json}
+    end
   end
 
   resources :common_names do
@@ -523,6 +529,8 @@ TaxonWorks::Application.routes.draw do
 
       post :preview_castor_batch_load
       post :create_castor_batch_load
+
+      get :parse, defaults: {format: :json}
     end
 
     member do
@@ -828,6 +836,10 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :nomenclature do
+      scope :new_combination, controller: 'tasks/nomenclature/new_combination' do
+        get 'index', as: 'new_combination_task_task'
+      end
+
       scope :new_taxon_name, controller: 'tasks/nomenclature/new_taxon_name' do
         get '(:id)', action: :index, as: 'new_taxon_name_task'
       end

@@ -32,7 +32,6 @@ class Protonym < TaxonName
 
   after_create :create_otu, if: -> {self.also_create_otu}
 
-
   has_one :type_taxon_name_relationship, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
@@ -131,6 +130,9 @@ class Protonym < TaxonName
     joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
     where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type ILIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type ILIKE 'TaxonNameRelationship::Icn::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Icnb::Unaccepting%')")
   }
+
+  scope :is_species_group, -> { where("rank_class ILIKE '%speciesgroup%'") }
+  scope :is_genus_group, -> { where("rank_class ILIKE '%genusgroup%'") }
 
   # @return [Array of Strings]
   #   genera where the species was placed
