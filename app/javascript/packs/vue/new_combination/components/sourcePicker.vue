@@ -28,7 +28,7 @@
 				</autocomplete>
 				<input type="text" @input="sendCitation" v-model="pages" placeholder="Pages" />
 				<default-element 
-					class="separate-left"
+					class="separate-left default-source"
 					label="source" 
 					type="Source" 
 					@getLabel="autocompleteLabel = $event"
@@ -116,6 +116,9 @@
 </script>
 <style lang="scss">
 	.new-combination-citation {
+		.default-source {
+			min-width: 150px;
+		}
 		.vue-autocomplete {
 			width: 100% !important;
 			.vue-autocomplete-input {
