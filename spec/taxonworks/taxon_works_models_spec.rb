@@ -44,7 +44,7 @@ describe TaxonWorks do
     let(:m) { TaxonWorksModels::GenericModel.new }
 
     specify 'strings are converted to nil' do
-        m.string = ''
+      m.string = ''
         m.save
         expect(m.string).to eq(nil)
     end

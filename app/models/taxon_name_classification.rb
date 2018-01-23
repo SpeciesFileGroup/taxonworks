@@ -161,7 +161,7 @@ class TaxonNameClassification < ApplicationRecord
     begin
       TaxonName.transaction do
         t = taxon_name
-        
+
         if type_name =~ /Fossil|Hybrid/
           t.update_columns(
             cached: t.get_full_name,
@@ -262,8 +262,8 @@ class TaxonNameClassification < ApplicationRecord
         soft_validations.add(:type, 'Please specify if the name is Legitimate or Illegitimate')
       when 'TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate'
         soft_validations.add(:type, 'Please specify the reasons for the name being Legitimate')
-      when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Illegitimate')
+      # when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate'
+      #   soft_validations.add(:type, 'Please specify the reasons for the name being Illegitimate')
       when 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective' || 'TaxonNameClassification::Latinized::PartOfSpeech::Participle'
         t = taxon_name.name
         if !t.end_with?('us') && !t.end_with?('a') && !t.end_with?('um') && !t.end_with?('is') && !t.end_with?('e') && !t.end_with?('or') && !t.end_with?('er')

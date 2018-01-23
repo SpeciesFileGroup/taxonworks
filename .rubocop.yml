@@ -32,12 +32,12 @@ Style/StringHashKeys:
   Enabled: false
 
 Style/HashSyntax:
-  Enabled: true
+  Enabled: false
   EnforcedStyle: ruby19
 #  AutoCorrect: false
 
 Metrics/MethodLength:
-  Enabled: true
+  Enabled: false
   CountComments: false
   Max: 25
 
@@ -47,7 +47,7 @@ Metrics/ClassLength:
   Max: 1000
 
 Layout/IndentationWidth:
-  Enabled: true
+  Enabled: false
   Width: 2
 
 # TODO: select possible additions by setting `Enabled: true`
@@ -57,3 +57,6 @@ Layout/EmptyLines:
 
 Layout/EmptyLinesAroundAccessModifier:
   Enabled: false
+
+Lint/DuplicateCaseCondition:
+  Enabled: true

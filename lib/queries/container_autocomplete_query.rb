@@ -3,10 +3,10 @@ module Queries
 
 
     def where_sql
-      with_project_id.or(with_identifier_like))
+      with_project_id.or(with_identifier_like)
     end
 
-    def result 
+    def result
       Container.includes(:identifiers).where(where_sql).references(:identifiers)
     end
 
