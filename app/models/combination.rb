@@ -154,10 +154,10 @@ class Combination < TaxonName
   soft_validate(:sv_source_not_older_than_protonyms, set: :dates)
 
   # @return [Boolean]
-  #   true if the finest level (typically species) is currently placed in the same highest level
+  #   true if the finest level (typically species) is currently has the same parent
   def is_current_placement?
-    protonyms.last.parent_id == protonyms.first.id
-  end 
+    protonyms.last.parent_id == protonyms.second_to_last.id
+  end
 
   # @return [Array of TaxonName]
   #   pre-ordered by rank 
