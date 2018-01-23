@@ -37,7 +37,7 @@ Style/HashSyntax:
 #  AutoCorrect: false
 
 Metrics/MethodLength:
-  Enabled: false
+  Enabled: true
   CountComments: false
   Max: 25
 
