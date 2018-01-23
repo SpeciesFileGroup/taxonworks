@@ -41,7 +41,7 @@
         </div>
         <p class="inline">
           <span v-html="taxonRelation.label_html"></span>
-          <span type="button" title="Remove" class="circle-button btn-undo" @click="taxonRelation = undefined"></span>
+          <span type="button" title="Undo" class="circle-button button-default btn-undo" @click="taxonRelation = undefined"></span>
         </p>
         <div class="separate-top">
           <autocomplete v-if="showAdvance"

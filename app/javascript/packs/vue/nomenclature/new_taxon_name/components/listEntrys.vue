@@ -11,7 +11,7 @@
 			    <div class="list-controls">
 			    	<a :href="`/sources/${item.origin_citation.source_id}/edit`" target="_blank" v-if="getCitation(item)" v-html="getCitation(item)"></a>
 					<radial-annotator @close="update()" :globalId="item.global_id"></radial-annotator>		
-					<span type="button" title="Remove citation" class="circle-button btn-undo" v-if="getCitation(item)" @click="removeCitation(item)"></span>
+					<span type="button" title="Remove citation" class="circle-button button-delete btn-undo" v-if="getCitation(item)" @click="removeCitation(item)"></span>
 		    		<span type="button" class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
 		    	</div>
 	    	</li>
