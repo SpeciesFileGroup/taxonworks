@@ -1,6 +1,4 @@
-<% if @taxon_name.is_protonym? %>
-  <%= content_tag(:li, edit_taxon_name_link(@taxon_name, target: :edit_task) ) -%>
-<% end %>
+<%= content_tag(:li, edit_taxon_name_link(@taxon_name, target: :edit_task) ) -%>
 
 <% if @taxon_name.is_protonym? && @taxon_name.is_species_rank? %>
   <%= content_tag(:li, 

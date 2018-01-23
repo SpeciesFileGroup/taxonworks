@@ -14,19 +14,13 @@ class CombinationsController < ApplicationController
   end
 
   # GET /combinations/new
-  # TODO: redirect to task
   def new
-    if params[:taxon_name_id]
-      @protonym = Protonym.find(params[:taxon_name_id])
-      @combination = Combination.new(@protonym.rank => @protonym, source: Source.new)
-    else
-      @combination = Combination.new
-    end
+    redirect_to new_combination_task_path(params.permit(:id))
   end
 
   # GET /combinations/1/edit
   def edit
-    @combination.source = Source.new if !@combination.source
+    redirect_to new_combination_task_path(params.require(:id))
   end
 
   # POST /combinations.json

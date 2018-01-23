@@ -172,6 +172,7 @@ TaxonWorks::Application.routes.draw do
     member do
       get :card
     end
+
     # collection do
       #   post :preview_simple_batch_load # should be get
       #   post :create_simple_batch_load
@@ -837,7 +838,7 @@ TaxonWorks::Application.routes.draw do
 
     scope :nomenclature do
       scope :new_combination, controller: 'tasks/nomenclature/new_combination' do
-        get 'index', as: 'new_combination_task_task'
+        get 'index', as: 'new_combination_task'
       end
 
       scope :new_taxon_name, controller: 'tasks/nomenclature/new_taxon_name' do
@@ -857,7 +858,6 @@ TaxonWorks::Application.routes.draw do
       scope :by_source, controller: 'tasks/nomenclature/by_source' do
         get '(:id)', action: :index, as: 'nomenclature_by_source_task'
       end
-
     end
 
     scope :people, controller: 'tasks/people/author' do

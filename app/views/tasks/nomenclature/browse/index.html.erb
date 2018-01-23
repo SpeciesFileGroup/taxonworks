@@ -5,11 +5,11 @@
     <div class="flex-separate middle">
       <%= render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
       <span class="right_float">
-          <ul class="context-menu">
-            <li><%= radial_annotator(@taxon_name) %></li>
-            <li><%= tag_default_icon(@taxon_name) %></li>
-            <li><%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) %></li>
-          </ul>
+        <ul class="context-menu">
+          <li><%= radial_annotator(@taxon_name) %></li>
+          <li><%= tag_default_icon(@taxon_name) %></li>
+          <li><%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) %></li>
+        </ul>
       </span>    
     </div>
   </div>

@@ -136,19 +136,26 @@ module TaxonNamesHelper
   end
 
   def edit_taxon_name_link(taxon_name, target: nil)
-    case taxon_name.type
-    when 'Protonym'
-      case target
-      when :edit_task
-        link_to(content_tag(:span, 'Edit (task)', 'data-icon' => 'edit', 'class' => 'small-icon'),
-                new_taxon_name_task_path(taxon_name.metamorphosize), 'class' => 'navigation-item', 'data-task' => 'new_taxon_name')
-      else
-        link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', 'class' => 'small-icon'), edit_taxon_name_path(taxon_name.metamorphosize), 'class' => 'navigation-item')
-      end
+    i = {'Combination': :combination, 'Protonym': :taxon_name}[taxon_name.type.to_sym]
+    t = taxon_name.metamorphosize
+    case target
+    when :edit_task
+      path = case i
+             when :taxon_name
+               new_taxon_name_task_path(t)
+             when :combination
+               new_combination_task_path(id: t.id, literal: URI.escape(t.cached))
+             end
+      link_to(
+        content_tag(:span, 'Edit (task)',
+                    'data-icon' => 'edit',
+                    class: 'small-icon'
+                   ),
+                   path, class: 'navigation-item', 'data-task' => 'new_taxon_name')
     else
-      link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', 'class' => 'small-icon'), edit_combination_path(taxon_name), 'class' => 'navigation-item')
+      link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', 'class' => 'small-icon'), send("edit_#{i}_path}", taxon_name.metamorphosize), 'class' => 'navigation-item')
     end
-  end 
+  end
 
   def rank_tag(taxon_name)
     case taxon_name.type
