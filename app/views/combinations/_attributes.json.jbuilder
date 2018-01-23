@@ -8,6 +8,8 @@ json.protonyms do
   end
 end
 
+json.is_current_placement combination.is_current_placement?
+
 # TODO: move to shared
 if combination.origin_citation
   json.origin_citation do

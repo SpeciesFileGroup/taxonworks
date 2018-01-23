@@ -140,7 +140,10 @@ class Combination < TaxonName
     } 
   end
 
-  scope :with_protonym_at_rank, -> (rank, protonym) { includes(:combination_relationships).where('taxon_name_relationships.type = ? and taxon_name_relationships.subject_taxon_name_id = ?', rank, protonym).references(:combination_relationships)}
+  scope :with_protonym_at_rank, -> (rank, protonym) { 
+    includes(:combination_relationships).
+    where('taxon_name_relationships.type = ? and taxon_name_relationships.subject_taxon_name_id = ?', rank, protonym).
+    references(:combination_relationships)}
 
   validate :at_least_two_protonyms_are_included,
     :parent_is_properly_set
@@ -149,6 +152,12 @@ class Combination < TaxonName
   soft_validate(:sv_year_of_publication_matches_source, set: :dates)
   soft_validate(:sv_year_of_publication_not_older_than_protonyms, set: :dates)
   soft_validate(:sv_source_not_older_than_protonyms, set: :dates)
+
+  # @return [Boolean]
+  #   true if the finest level (typically species) is currently placed in the same highest level
+  def is_current_placement?
+    protonyms.last.parent_id == protonyms.first.id
+  end 
 
   # @return [Array of TaxonName]
   #   pre-ordered by rank 

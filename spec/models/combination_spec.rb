@@ -33,7 +33,7 @@ describe Combination, type: :model, group: :nomenclature do
   end
 
   context 'validation' do
-    before{combination.valid?}
+    before {combination.valid?}
     specify 'is invalid without at least two protonyms' do
       expect(combination.errors.include?(:base)).to be_truthy
     end
@@ -65,13 +65,11 @@ describe Combination, type: :model, group: :nomenclature do
       expect(c.errors.include?(:base)).to be_falsey
     end
 
-
     specify 'name must be nil' do
       expect(combination.errors.include?(:name)).to be_falsey
     end
 
-    #TODO: Double check?!
-    specify 'rank_class is optional' do
+    specify 'rank_class is not allowed' do
       expect(combination.errors.include?(:rank_class)).to be_falsey
     end
 
@@ -94,6 +92,10 @@ describe Combination, type: :model, group: :nomenclature do
   end
 
   context 'instance methods' do
+    specify '#is_current_placement?' do
+      expect(basic_combination.is_current_placement?).to eq(true)
+    end 
+    
     context '#protonyms' do
       specify 'are returned for unsaved Combinations' do
         expect(basic_combination.protonyms).to eq([genus, species])
