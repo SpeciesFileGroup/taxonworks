@@ -146,10 +146,15 @@
 				font-weight: 300;
 			}
 		}
+		ul {
+			list-style: none;
+    		padding-left: 0px;
+		}
 		.maxheight {
 			flex:1
 		}
 		.new-combination-rank-list-label {
+			display: flex !important;
 			cursor: pointer;
 			transition: all 0.5 ease;
 		}
