@@ -146,10 +146,6 @@
 				font-weight: 300;
 			}
 		}
-		ul {
-			list-style: none;
-    		padding-left: 0px;
-		}
 		.maxheight {
 			flex:1
 		}
