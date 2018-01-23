@@ -4,6 +4,7 @@ inherit_from: .rubocop_todo.yml
 AllCops:
   TargetRubyVersion: 2.4
   DisabledByDefault: true
+  MaxFilesInCache: 8000 # Limit growth of cache
   Include:
     - '**/Rakefile'
     - '**/config.ru'
@@ -25,9 +26,10 @@ Rails:
 
 Style/StringLiterals:
   Enabled: true
+#  AutoCorrect: false
 
-#Style/StringHashKeys:
-#  Enabled: true
+Style/StringHashKeys:
+  Enabled: false
 
 Style/HashSyntax:
   Enabled: true
@@ -36,10 +38,22 @@ Style/HashSyntax:
 
 Metrics/MethodLength:
   Enabled: true
-  CountComments: true
+  CountComments: false
   Max: 25
 
 Metrics/ClassLength:
   Enabled: true
-  CountComments: true
+  CountComments: false
   Max: 1000
+
+Layout/IndentationWidth:
+  Enabled: true
+  Width: 2
+
+# TODO: select possible additions by setting `Enabled: true`
+
+Layout/EmptyLines:
+  Enabled: false
+
+Layout/EmptyLinesAroundAccessModifier:
+  Enabled: false
