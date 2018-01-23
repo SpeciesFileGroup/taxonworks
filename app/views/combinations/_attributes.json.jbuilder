@@ -8,6 +8,8 @@ json.protonyms do
   end
 end
 
+# Metadata on the placement of the finest component of the Combination.
+# Used to update placement of names to a current placement.
 json.placement do
   json.same combination.is_current_placement?
   json.target combination.protonyms.last.id
