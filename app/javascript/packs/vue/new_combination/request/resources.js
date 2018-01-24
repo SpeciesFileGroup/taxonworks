@@ -53,6 +53,10 @@ const GetLastCombinations = function() {
   return ajaxCall('get', `/combinations.json`)
 }
 
+const GetCombination = function(id) {
+  return ajaxCall('get', `/combinations/${id}.json`)
+}
+
 const CreateCombination = function(combination) {
   return ajaxCall('post', `/combinations`, combination);
 }
@@ -67,6 +71,7 @@ const DestroyCombination = function(id) {
 
 export {
   GetParse,
+  GetCombination,
   GetLastCombinations,
   UpdateCombination,
   CreateCombination,

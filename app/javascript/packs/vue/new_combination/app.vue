@@ -33,7 +33,7 @@
 	import inputSearch from './components/inputSearch.vue';
 	import displayList from './components/displayList.vue';
 
-	import { GetLastCombinations, DestroyCombination } from './request/resources';
+	import { GetLastCombinations, DestroyCombination, GetCombination } from './request/resources';
 
 	export default {
 		components: {
@@ -49,6 +49,7 @@
 			}
 		},
 		mounted: function() {
+			this.loadCombination();
 			TW.workbench.keyboard.createLegend(((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + '+' +'s'), 'Save new combination', 'New combination');
 			GetLastCombinations().then(response => {
 				this.combinations = response;
@@ -84,7 +85,17 @@
 					}), 1);
 					TW.workbench.alert.create('Combination was successfully deleted.', 'notice');
 				})
-			}
+			},
+			loadCombination() {
+				let urlParams = new URLSearchParams(window.location.search);
+				let combinationId = urlParams.get('id');
+
+				if(/^\d+$/.test(combinationId)) {
+					GetCombination(combinationId).then(response => {
+						this.editCombination(response)
+					})
+				}
+			},
 		}
 	}
 </script>
