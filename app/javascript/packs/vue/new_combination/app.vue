@@ -23,6 +23,7 @@
 			:annotator="true"
 			@edit="editCombination"
 			@delete="deleteCombination"
+			@placement="updatePlacement"
 			label="object_tag">
 		</display-list>
 	</div>
@@ -77,6 +78,11 @@
 				else {
 					this.combinations.push(combination);
 				}
+			},
+			updatePlacement(combination) {
+				this.combinations[this.combinations.findIndex((item) => {
+						return item.id == combination.id
+					})].placement.same = true;
 			},
 			deleteCombination(combination) {
 				DestroyCombination(combination.id).then(() => {
