@@ -288,7 +288,7 @@ class CollectionObject < ApplicationRecord
 
         end
       else
-        table_data.each { |_key, value|
+        table_data.each_value { |value|
           csv << value.collect { |item|
             item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
           }
@@ -406,8 +406,8 @@ class CollectionObject < ApplicationRecord
       all_import_das   = collection_object.collecting_event.import_attributes
       group            = collection[:ce]
       unless group.nil?
-        group.keys.each { |type_key|
-          group[type_key.to_sym].keys.each { |header|
+        group.each_key { |type_key|
+          group[type_key.to_sym].each_key { |header|
             this_val = nil
             case type_key.to_sym
               when :in
@@ -468,7 +468,7 @@ class CollectionObject < ApplicationRecord
       unless group.nil?
         unless group.empty?
           unless group[:in].empty?
-            group[:in].keys.each { |header|
+            group[:in].each_key { |header|
               this_val = nil
               all_internal_das.each { |da|
                 if da.predicate.name == header
@@ -481,7 +481,7 @@ class CollectionObject < ApplicationRecord
         end
         unless group.empty?
           unless group[:im].empty?
-            group[:im].keys.each { |header|
+            group[:im].each_key { |header|
               this_val = nil
               all_import_das.each { |da|
                 if da.import_predicate == header
@@ -520,7 +520,7 @@ class CollectionObject < ApplicationRecord
       unless group.nil?
         unless group.empty?
           unless group[:in].empty?
-            group[:in].keys.each { |header|
+            group[:in].each_key { |header|
               this_val = collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0'
               retval.push(this_val) # push one value (nil or not) for each selected header
             }

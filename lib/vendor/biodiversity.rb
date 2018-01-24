@@ -2,7 +2,7 @@ module TaxonWorks
   module Vendor
 
     # Wraps the biodiversity gem (https://github.com/GlobalNamesArchitecture/biodiversity)
-    # Links parsed string results to Protonyms/Combinations in TaxonWorks 
+    # Links parsed string results to Protonyms/Combinations in TaxonWorks
     module Biodiversity
 
       RANK_MAP = {
@@ -26,12 +26,12 @@ module TaxonWorks
         # one of :iczn, :icn, :icnb
         attr_accessor :nomenclature_code
 
-        # the result of a ScientificNameParser parse 
+        # the result of a ScientificNameParser parse
         attr_accessor :parse_result
 
         # a summarized result, used to render JSON
         #   {
-        #     protonyms: { genus: [ @protonym1, ...], ... } 
+        #     protonyms: { genus: [ @protonym1, ...], ... }
         #     parse: { genus:  'Aus', species: 'bus', ...}
         #   }
         # Hash of rank => [Protonyms] like { genus: [<#>, <#>] }
@@ -40,7 +40,7 @@ module TaxonWorks
         # String, the bit after ' in '
         attr_reader :citation
 
-        # query_string: 
+        # query_string:
         #
         # mode:
         #   ranked: return names at that queried rank only (e.g. only match a subgenus to rank subgenus
@@ -55,18 +55,18 @@ module TaxonWorks
         end
 
         # @return [@parse_result]
-        #   a Biodiversity name parser result 
+        #   a Biodiversity name parser result
         def parse
           n, @citation = preparse
           @parse_result ||= ScientificNameParser.new.parse(n)
         end
 
         def preparse
-          name.split(' in ') 
+          name.split(' in ')
         end
 
         # @return [Hash]
-        def detail 
+        def detail
           if a = parse_result[:scientificName]
             if a[:details]
               return a[:details].first
@@ -95,8 +95,8 @@ module TaxonWorks
           if m = detail[:infraspecies]
             m.each do |n|
               return n[:string] if n[:rank] == 'n/a'
-            end 
-          end  
+            end
+          end
         end
 
         # @return [String, false]
@@ -104,8 +104,8 @@ module TaxonWorks
           if m = detail[:infraspecies]
             m.each do |n|
               return n[:string] if n[:rank] == 'var.'
-            end 
-          end  
+            end
+          end
         end
 
         def finest_rank
@@ -145,7 +145,7 @@ module TaxonWorks
         # @return [Boolean]
         #   true if there for each parsed piece of there name there is 1 and only 1 result
         def is_unambiguous?
-          RANK_MAP.keys.each do |r|
+          RANK_MAP.each_key do |r|
             if !send(r).nil?
               return false unless unambiguous_at?(r)
             end
@@ -158,7 +158,7 @@ module TaxonWorks
           author_year.size > 0
         end
 
-        # @return [Boolean] 
+        # @return [Boolean]
         #   true if there is a single matching result
         def unambiguous_at?(rank)
           protonym_result[rank].size == 1
@@ -174,7 +174,7 @@ module TaxonWorks
         # @return [Scope]
         def basic_scope(rank)
           Protonym.where(
-            project_id: project_id, 
+            project_id: project_id,
             name: string(rank)
           )
         end
@@ -183,12 +183,12 @@ module TaxonWorks
         def protonyms(rank)
           case mode
           when :ranked
-            ranked_protonyms(rank) 
+            ranked_protonyms(rank)
           when :groups
             grouped_protonyms(rank)
           else
             Protonym.none
-          end 
+          end
         end
 
         # @return [Scope]
@@ -224,7 +224,7 @@ module TaxonWorks
         #   we inspect this internally, so it has to be decoupled
         def protonym_result
           h = {}
-          RANK_MAP.keys.each do |r|
+          RANK_MAP.each_key do |r|
             h[r] = protonyms(r).to_a
           end
           h
@@ -233,7 +233,7 @@ module TaxonWorks
         # @return [Hash]
         def parse_values
           h = {}
-          RANK_MAP.keys.each do |r|
+          RANK_MAP.each_key do |r|
             h[r] = send(r)
           end
           h[:author] = author
@@ -243,7 +243,7 @@ module TaxonWorks
 
         # @return [Hash]
         #   summary for rendering purposes
-        def result 
+        def result
           @result ||= build_result
         end
 
@@ -260,8 +260,8 @@ module TaxonWorks
         #   ranks that are unambigous have their protonyms set
         def combination
           c = Combination.new
-          RANK_MAP.keys.each do |r|
-            c.send("#{r}_id=", protonym_result[r].first.try(:id)) if unambiguous_at?(r) 
+          RANK_MAP.each_key do |r|
+            c.send("#{r}_id=", protonym_result[r].first.try(:id)) if unambiguous_at?(r)
           end
           c
         end

@@ -151,7 +151,7 @@ namespace :tw do
               count = records.count
               puts
 
-              records.each do |k, v|
+              records.each_value do |v|
                 #snap      = Time.now
                 #elapsed   = snap - time_then
                 #time_then = snap
@@ -165,7 +165,7 @@ namespace :tw do
               end
               puts
 
-              records.values.each do |r|
+              records.each_value do |r|
                 #snap      = Time.now
                 #elapsed   = snap - time_then
                 #time_then = snap
@@ -208,7 +208,7 @@ namespace :tw do
 
             puts "Write start: #{Time.now.strftime "%H:%M:%S"}."
 
-            records.values.each do |r|
+            records.each_value do |r|
               r.save!
               print "\rSave:   record #{r.id} of #{count}"
             end

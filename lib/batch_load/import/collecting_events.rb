@@ -20,7 +20,7 @@ module BatchLoad
 
     # process each row for information:
     def build_collecting_events
-      i       = 1 # accounting for headers
+      i = 1 # accounting for headers
       # identifier namespace
       header0 = csv.headers[0] # should be 'collection_object_identifier_namespace_short_name'
       header1 = csv.headers[1] # should be 'collection_object_identifier_identifier'
@@ -41,29 +41,29 @@ module BatchLoad
         error        = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
         ce_namespace = row[header5]
         co           = CollectionObject.joins(:identifiers).where(identifiers: {cached: "#{co_namespace} #{co_id}"}).first
-        otu          = Otu.find_or_create_by(name: row['otu'])
-        td           = TaxonDetermination.find_or_create_by(otu:                          otu,
-                                                            biological_collection_object: co)
-        ce           = CollectingEvent.find_or_create_by(verbatim_locality:                row['verbatim_location'],
-                                                         verbatim_geolocation_uncertainty: error,
-                                                         verbatim_date:                    row['verbatim_date'],
-                                                         start_date_day:                   row['start_date_day'],
-                                                         start_date_month:                 row['start_date_month'],
-                                                         start_date_year:                  row['start_date_year'],
-                                                         end_date_day:                     row['end_date_day'],
-                                                         end_date_month:                   row['end_date_month'],
-                                                         end_date_year:                    row['end_date_year'],
-                                                         verbatim_longitude:               long,
-                                                         verbatim_latitude:                lat,
-                                                         verbatim_method:                  method)
+        otu          = Otu.find_or_create_by!(name: row['otu'])
+        td           = TaxonDetermination.find_or_create_by!(otu:                          otu,
+                                                             biological_collection_object: co)
+        ce           = CollectingEvent.find_or_create_by!(verbatim_locality:                row['verbatim_location'],
+                                                          verbatim_geolocation_uncertainty: error,
+                                                          verbatim_date:                    row['verbatim_date'],
+                                                          start_date_day:                   row['start_date_day'],
+                                                          start_date_month:                 row['start_date_month'],
+                                                          start_date_year:                  row['start_date_year'],
+                                                          end_date_day:                     row['end_date_day'],
+                                                          end_date_month:                   row['end_date_month'],
+                                                          end_date_year:                    row['end_date_year'],
+                                                          verbatim_longitude:               long,
+                                                          verbatim_latitude:                lat,
+                                                          verbatim_method:                  method)
         ce.save!
         case method.downcase
           when 'geolocate'
             # faking a Georeference::GeoLocate:
             #   1) create the Georeference, using the newly created collecting_event
-            gr                 = Georeference::GeoLocate.create(collecting_event: ce)
+            gr = Georeference::GeoLocate.create!(collecting_event: ce)
             #   2) build a fake iframe response in the form '52.65|-106.333333|3036|Unavailable'
-            text               = "#{lat}|#{long}|#{Utilities::Geo.distance_in_meters(error)}|Unavailable"
+            text = "#{lat}|#{long}|#{Utilities::Geo.distance_in_meters(error)}|Unavailable"
             #   3) use that fake to stimulate the parser to create the object
             gr.iframe_response = text
             gr.save

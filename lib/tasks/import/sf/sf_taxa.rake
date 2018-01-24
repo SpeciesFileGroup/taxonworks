@@ -734,7 +734,7 @@ namespace :tw do
           no_parent_counter = 0
 
           invalid_name_keywords = {}
-          get_tw_project_id.values.each do |project_id|
+          get_tw_project_id.each_value do |project_id|
             k = Keyword.find_or_create_by(
                 name: 'Taxon name validation failed',
                 definition: 'Taxon name validation failed',
@@ -1010,7 +1010,7 @@ namespace :tw do
 
           get_animalia_id = {} # key = TW.project_id, value = TW.taxon_name_id = 'Animalia'
 
-          get_tw_project_id.values.each do |project_id|
+          get_tw_project_id.each_value do |project_id|
 
             this_project = Project.find(project_id)
             logger.info "working with project.id: #{project_id}, root_name: #{this_project.root_taxon_name.name}, root_name_id: #{this_project.root_taxon_name.id}"

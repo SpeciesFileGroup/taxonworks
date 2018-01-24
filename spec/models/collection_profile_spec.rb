@@ -15,7 +15,7 @@ describe CollectionProfile, type: :model do
   end
 
   context 'attributes include' do
-    COLLECTION_PROFILE_INDICES[:Favret][:wet].keys.each do |k|
+    COLLECTION_PROFILE_INDICES[:Favret][:wet].each_key do |k|
       specify "#{k}" do
         expect(collection_profile).to respond_to(k)
       end
@@ -48,7 +48,7 @@ describe CollectionProfile, type: :model do
       context 'Favret - nothing matches 5' do
         before { p.valid? }
         
-        COLLECTION_PROFILE_INDICES[:Favret][:dry].keys.each do |k|
+        COLLECTION_PROFILE_INDICES[:Favret][:dry].each_key do |k|
           specify "#{k}" do
             expect(p.errors.include?(k.to_sym)).to be_truthy 
           end

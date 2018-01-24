@@ -245,7 +245,7 @@ module Utilities::Dates
   def self.normalize_and_order_dates(start_date, end_date)
     if start_date.blank? and end_date.blank? # set entire range
       start_date =EARLIEST_DATE  # 1700-01-01
-      end_date = Date.today.strftime('%Y/%m/%d')
+      end_date = Time.zone.today.strftime('%Y/%m/%d')
     else
       if end_date.blank? # set a one-day range
         end_date = start_date

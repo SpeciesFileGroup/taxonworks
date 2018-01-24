@@ -16,7 +16,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
   let(:b) { '1900/12/31' }
   let(:c) { '2004/2/29' }
   let(:d) { '2010/12/1' }
-  let(:e) { Date.today.strftime('%Y/%m/%d') }
+  let(:e) { Time.zone.today.strftime('%Y/%m/%d') }
 
   let(:s1) { '2000//' }
   let(:s2) { '2000/2/' }
@@ -76,10 +76,10 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
 
   context 'combined' do
-    #       a     b  
+    #       a     b
     # ------*-----*------
     #       a     b            yes
-    #                 c     d   no 
+    #                 c     d   no
     #
 
     let!(:ce1) { CollectingEvent.create!(parse_stubs(a, b).merge(verbatim_label: "#{a} -- #{b}")) }
@@ -96,14 +96,14 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     specify 'returns one (lenient)' do
       expect(CollectingEvent.in_date_range(params.merge(partial_overlap: 'on'))).to contain_exactly(ce1)
     end
-    
+
   end
 
   context 'combined (strict)' do
-    #       a     c  
+    #       a     c
     # ------*-----*------
     #       a     c      yes
-    #          b     d   no 
+    #          b     d   no
     #
 
     let!(:ce1) { CollectingEvent.create!(parse_stubs(a, c).merge(verbatim_label: "#{a} -- #{c}")) }
@@ -120,10 +120,10 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
 
   context 'combined (lenient)' do
-    #       a     c  
+    #       a     c
     # ------*-----*------
     #       a     c      yes
-    #          b     d   no 
+    #          b     d   no
     #
 
     let!(:ce1) { CollectingEvent.create!(parse_stubs(a, c).merge(verbatim_label: "#{a} -- #{c}")) }

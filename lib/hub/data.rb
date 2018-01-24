@@ -2,9 +2,9 @@ module Hub::Data
 
   # A convenience wrapper for handling user task related metadata.
   class Data
-    
+
     # @return [String, nil]
-    #   the class/model name 
+    #   the class/model name
     attr_accessor :name
 
     # @return [String]
@@ -24,7 +24,7 @@ module Hub::Data
     attr_accessor :section
 
     # @return [String]
-    #   the help description describing this class # TODO- reconcile vs. model descriptions/documentation elsewhere 
+    #   the help description describing this class # TODO- reconcile vs. model descriptions/documentation elsewhere
     attr_accessor :description
 
     # @return [Array]
@@ -43,9 +43,9 @@ module Hub::Data
       attributes ||= {}
       raise "Improperly defined user task #{data} in user_tasks.yml." if klass.nil?
       @klass = klass.constantize
-      @name = klass.tableize.humanize 
+      @name = klass.tableize.humanize
       @description = attributes['description']
-      @hide = (attributes['hide'] ? true : false) 
+      @hide = (attributes['hide'] ? true : false)
       @status = attributes['status']
       @categories = attributes['categories']
       @section = attributes['section']
@@ -81,16 +81,16 @@ module Hub::Data
   end
 
   # The raw YAML (Hash)
-  CONFIG_DATA = YAML.load_file(Rails.root + 'config/interface/hub/data.yml') 
-  
+  CONFIG_DATA = YAML.load_file(Rails.root + 'config/interface/hub/data.yml')
+
   SECTIONS = CONFIG_DATA.keys
 
   data = {}
   by_name = {}
 
-  SECTIONS.each do |s| 
-    data[s] = [] 
-    CONFIG_DATA[s].keys.each do |d|
+  SECTIONS.each do |s|
+    data[s] = []
+    CONFIG_DATA[s].each_key do |d|
       a = CONFIG_DATA[s][d] || {}
       n = Data.new(d, a.merge('section' => s))
       data[s].push(n)
@@ -98,9 +98,9 @@ module Hub::Data
     end
   end
 
-  # A Hash of prefix => UserTasks::UserTask 
+  # A Hash of prefix => UserTasks::UserTask
   INDEX = data
-  BY_NAME = by_name 
+  BY_NAME = by_name
 
   def self.items_for(section)
     INDEX[section]
@@ -117,7 +117,7 @@ module Hub::Data
       t.name
     else
       prefix
-    end 
+    end
   end
 
   def self.related_routes(prefix)

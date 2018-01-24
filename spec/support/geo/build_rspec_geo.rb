@@ -717,7 +717,7 @@ def generate_ce_test_objects(user_id, project_id, run_in_console = false, user =
                              collecting_event: @ce_p0,
                              geographic_item:  @p10) #  2
 
-  gat_land_mass = GeographicAreaType.find_or_create_by(name: 'Land Mass')
+  gat_land_mass = GeographicAreaType.find_or_create_by!(name: 'Land Mass')
 
   # now, for the areas, top-down
   FactoryBot.create(:valid_geographic_area_stack)
@@ -973,12 +973,12 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
 
   prepare_test(user_id, project_id) unless run_in_console
 
-  gat_country   = GeographicAreaType.find_or_create_by(name: 'Country')
-  gat_state     = GeographicAreaType.find_or_create_by(name: 'State')
-  gat_county    = GeographicAreaType.find_or_create_by(name: 'County')
-  gat_province  = GeographicAreaType.find_or_create_by(name: 'Province')
-  gat_parish    = GeographicAreaType.find_or_create_by(name: 'Parish')
-  gat_land_mass = GeographicAreaType.find_or_create_by(name: 'Land Mass')
+  gat_country   = GeographicAreaType.find_or_create_by!(name: 'Country')
+  gat_state     = GeographicAreaType.find_or_create_by!(name: 'State')
+  gat_county    = GeographicAreaType.find_or_create_by!(name: 'County')
+  gat_province  = GeographicAreaType.find_or_create_by!(name: 'Province')
+  gat_parish    = GeographicAreaType.find_or_create_by!(name: 'Parish')
+  gat_land_mass = GeographicAreaType.find_or_create_by!(name: 'Land Mass')
 
   shape_m1 = make_box(POINT_M1_P0, 0, 0, 1, 1)
   shape_n1 = make_box(POINT_M1_P0, 1, 0, 1, 1)
@@ -1087,7 +1087,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                        iso_3166_a2:          nil,
                                        parent:               @earth)
   @area_land_mass.geographic_items << @item_w
-  @area_land_mass.save
+  @area_land_mass.save!
 
   @area_old_boxia = FactoryBot.create(:level0_geographic_area,
                                        name:                 'Old Boxia',
@@ -1096,7 +1096,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                        iso_3166_a2:          nil,
                                        parent:               @area_land_mass)
   @area_old_boxia.geographic_items << @item_ob
-  @area_old_boxia.save
+  @area_old_boxia.save!
   @area_big_boxia = FactoryBot.create(:level0_geographic_area,
                                        name:                 'Big Boxia',
                                        geographic_area_type: gat_country,
@@ -1104,7 +1104,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                        iso_3166_a2:          nil,
                                        parent:               @area_land_mass)
   @area_big_boxia.geographic_items << @item_bb
-  @area_big_boxia.save
+  @area_big_boxia.save!
   @area_q = FactoryBot.create(:level0_geographic_area,
                                name:                 'Q',
                                geographic_area_type: gat_country,
@@ -1112,7 +1112,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                iso_3166_a2:          'QQ',
                                parent:               @area_land_mass)
   @area_q.geographic_items << @item_q
-  @area_q.save
+  @area_q.save!
   @area_east_boxia_1 = FactoryBot.create(:level0_geographic_area,
                                           name:                 'East Boxia',
                                           geographic_area_type: gat_country,
@@ -1120,7 +1120,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                           iso_3166_a2:          nil,
                                           parent:               @area_land_mass)
   @area_east_boxia_1.geographic_items << @item_eb_1
-  @area_east_boxia_1.save
+  @area_east_boxia_1.save!
   @area_east_boxia_2 = FactoryBot.create(:level0_geographic_area,
                                           name:                 'East Boxia',
                                           geographic_area_type: gat_country,
@@ -1128,7 +1128,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                           iso_3166_a2:          nil,
                                           parent:               @area_land_mass)
   @area_east_boxia_2.geographic_items << @item_eb_2
-  @area_east_boxia_2.save
+  @area_east_boxia_2.save!
   @area_east_boxia_3 = FactoryBot.create(:level1_geographic_area,
                                           name:                 'East Boxia',
                                           geographic_area_type: gat_state,
@@ -1136,7 +1136,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                           iso_3166_a2:          nil,
                                           parent:               @area_old_boxia)
   @area_east_boxia_3.geographic_items << @item_eb_2
-  @area_east_boxia_3.save
+  @area_east_boxia_3.save!
   @area_west_boxia_1 = FactoryBot.create(:level0_geographic_area,
                                           name:                 'West Boxia',
                                           geographic_area_type: gat_country,
@@ -1144,7 +1144,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                           iso_3166_a2:          nil,
                                           parent:               @area_land_mass)
   @area_west_boxia_1.geographic_items << @item_wb
-  @area_west_boxia_1.save
+  @area_west_boxia_1.save!
   @area_west_boxia_3 = FactoryBot.create(:level1_geographic_area,
                                           name:                 'West Boxia',
                                           geographic_area_type: gat_state,
@@ -1152,7 +1152,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                           iso_3166_a2:          nil,
                                           parent:               @area_old_boxia)
   @area_west_boxia_3.geographic_items << @item_wb
-  @area_west_boxia_3.save
+  @area_west_boxia_3.save!
   @area_r = FactoryBot.create(:level0_geographic_area,
                                name:                 'R',
                                geographic_area_type: gat_country,
@@ -1160,7 +1160,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                iso_3166_a2:          'RR',
                                parent:               @area_land_mass)
   @area_r.geographic_items << @item_r
-  @area_r.save
+  @area_r.save!
   @area_s = FactoryBot.create(:level0_geographic_area,
                                name:                 'S',
                                geographic_area_type: gat_country,
@@ -1168,7 +1168,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                iso_3166_a2:          'SS',
                                parent:               @area_land_mass)
   @area_s.geographic_items << @item_s
-  @area_s.save
+  @area_s.save!
 
   # next, level 1 areas
   @area_t_1 = FactoryBot.create(:level1_geographic_area,
@@ -1177,56 +1177,56 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                  geographic_area_type: gat_state,
                                  parent:               @area_q)
   @area_t_1.geographic_items << @item_t_1
-  @area_t_1.save
+  @area_t_1.save!
   @area_t_2 = FactoryBot.create(:level1_geographic_area,
                                  name:                 'QT',
                                  tdwgID:               '20TTT',
                                  geographic_area_type: gat_state,
                                  parent:               @area_q)
   @area_t_2.geographic_items << @item_t_2
-  @area_t_2.save
+  @area_t_2.save!
   @area_u = FactoryBot.create(:level1_geographic_area,
                                name:                 'QU',
                                tdwgID:               nil,
                                geographic_area_type: gat_state,
                                parent:               @area_q)
   @area_u.geographic_items << @item_u
-  @area_u.save
+  @area_u.save!
 
   @area_qtm1 = FactoryBot.create(:level2_geographic_area,
                                   name:                 'QTM1',
                                   geographic_area_type: gat_county,
                                   parent:               @area_t_1)
   @area_qtm1.geographic_items << @item_m1
-  @area_qtm1.save
+  @area_qtm1.save!
 
   @area_qtm2 = FactoryBot.create(:level2_geographic_area,
                                   name:                 'QTM2',
                                   geographic_area_type: gat_county,
                                   parent:               @area_t_1)
   @area_qtm2.geographic_items << @item_m1
-  @area_qtm2.save
+  @area_qtm2.save!
 
   @area_qtn1 = FactoryBot.create(:level2_geographic_area,
                                   name:                 'QTN1',
                                   geographic_area_type: gat_county,
                                   parent:               @area_t_1)
   @area_qtn1.geographic_items << @item_n1
-  @area_qtn1.save
+  @area_qtn1.save!
 
   @area_qtn2_1 = FactoryBot.create(:level2_geographic_area,
                                     name:                 'QTN2',
                                     geographic_area_type: gat_county,
                                     parent:               @area_t_1)
   @area_qtn2_1.geographic_items << @item_n2
-  @area_qtn2_1.save
+  @area_qtn2_1.save!
 
   @area_qtn2_2 = FactoryBot.create(:level2_geographic_area,
                                     name:                 'QTN2',
                                     geographic_area_type: gat_county,
                                     parent:               @area_t_2)
   @area_qtn2_2.geographic_items << @item_n2
-  @area_qtn2_2.save
+  @area_qtn2_2.save!
 
   @area_quo1 = FactoryBot.create(:level2_geographic_area,
                                   name:                 'QUO1',
@@ -1240,7 +1240,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                   geographic_area_type: gat_parish,
                                   parent:               @area_u)
   @area_quo2.geographic_items << @item_o2
-  @area_quo2.save
+  @area_quo2.save!
 
   @area_qup1 = FactoryBot.create(:level2_geographic_area,
                                   name:                 'QUP1',
@@ -1248,7 +1248,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                   geographic_area_type: gat_parish,
                                   parent:               @area_u)
   @area_qup1.geographic_items << @item_p1
-  @area_qup1.save
+  @area_qup1.save!
 
   @area_qup2 = FactoryBot.create(:level2_geographic_area,
                                   name:                 'QUP2',
@@ -1256,7 +1256,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                   geographic_area_type: gat_parish,
                                   parent:               @area_u)
   @area_qup2.geographic_items << @item_p2
-  @area_qup2.save
+  @area_qup2.save!
 
   @area_rm3 = FactoryBot.create(:level1_geographic_area,
                                  name:                 'RM3',
@@ -1264,7 +1264,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                  geographic_area_type: gat_province,
                                  parent:               @area_r)
   @area_rm3.geographic_items << @item_m3
-  @area_rm3.save
+  @area_rm3.save!
 
   @area_rm4 = FactoryBot.create(:level1_geographic_area,
                                  name:                 'RM4',
@@ -1272,7 +1272,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                  geographic_area_type: gat_province,
                                  parent:               @area_r)
   @area_rm4.geographic_items << @item_m4
-  @area_rm4.save
+  @area_rm4.save!
 
   @area_rn3 = FactoryBot.create(:level1_geographic_area,
                                  name:                 'RN3',
@@ -1280,7 +1280,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                  geographic_area_type: gat_province,
                                  parent:               @area_r)
   @area_rn3.geographic_items << @item_n3
-  @area_rn3.save
+  @area_rn3.save!
 
   @area_rn4 = FactoryBot.create(:level1_geographic_area,
                                  name:                 'RN4',
@@ -1288,7 +1288,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                  geographic_area_type: gat_province,
                                  parent:               @area_r)
   @area_rn4.geographic_items << @item_n4
-  @area_rn4.save
+  @area_rn4.save!
 
   @area_so3 = FactoryBot.create(:level1_geographic_area,
                                  name:                 'SO3',
@@ -1296,7 +1296,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                  geographic_area_type: gat_state,
                                  parent:               @area_s)
   @area_so3.geographic_items << @item_o3
-  @area_so3.save
+  @area_so3.save!
 
   @area_so4 = FactoryBot.create(:level1_geographic_area,
                                  name:                 'SO4',
@@ -1312,7 +1312,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                  geographic_area_type: gat_state,
                                  parent:               @area_s)
   @area_sp3.geographic_items << @item_p3
-  @area_sp3.save
+  @area_sp3.save!
 
   @area_sp4 = FactoryBot.create(:level1_geographic_area,
                                  name:                 'SP4',
@@ -1320,7 +1320,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                  geographic_area_type: gat_state,
                                  parent:               @area_s)
   @area_sp4.geographic_items << @item_p4
-  @area_sp4.save
+  @area_sp4.save!
 
   @area_m3 = FactoryBot.create(:level1_geographic_area,
                                 name:                 'M3',
@@ -1328,28 +1328,28 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                 geographic_area_type: gat_province,
                                 parent:               @area_r)
   @area_m3.geographic_items << @item_m3
-  @area_m3.save
+  @area_m3.save!
   @area_n3 = FactoryBot.create(:level1_geographic_area,
                                 name:                 'N3',
                                 tdwgID:               nil,
                                 geographic_area_type: gat_province,
                                 parent:               @area_r)
   @area_n3.geographic_items << @item_n3
-  @area_n3.save
+  @area_n3.save!
   @area_m4 = FactoryBot.create(:level1_geographic_area,
                                 name:                 'M4',
                                 tdwgID:               nil,
                                 geographic_area_type: gat_province,
                                 parent:               @area_r)
   @area_m4.geographic_items << @item_m4
-  @area_m4.save
+  @area_m4.save!
   @area_n4 = FactoryBot.create(:level1_geographic_area,
                                 name:                 'N4',
                                 tdwgID:               nil,
                                 geographic_area_type: gat_province,
                                 parent:               @area_r)
   @area_n4.geographic_items << @item_n4
-  @area_n4.save
+  @area_n4.save!
 
   @area_o3 = FactoryBot.create(:level1_geographic_area,
                                 name:                 'O3',
@@ -1357,28 +1357,28 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                 geographic_area_type: gat_state,
                                 parent:               @area_s)
   @area_o3.geographic_items << @item_o3
-  @area_o3.save
+  @area_o3.save!
   @area_p3 = FactoryBot.create(:level1_geographic_area,
                                 name:                 'P3',
                                 tdwgID:               nil,
                                 geographic_area_type: gat_state,
                                 parent:               @area_s)
   @area_p3.geographic_items << @item_p3
-  @area_p3.save
+  @area_p3.save!
   @area_o4 = FactoryBot.create(:level1_geographic_area,
                                 name:                 'O4',
                                 tdwgID:               nil,
                                 geographic_area_type: gat_state,
                                 parent:               @area_s)
   @area_o4.geographic_items << @item_o4
-  @area_o4.save
+  @area_o4.save!
   @area_p4 = FactoryBot.create(:level1_geographic_area,
                                 name:                 'P4',
                                 tdwgID:               nil,
                                 geographic_area_type: gat_state,
                                 parent:               @area_s)
   @area_p4.geographic_items << @item_p4
-  @area_p4.save
+  @area_p4.save!
 
   # last, for level2
   @area_m1        = FactoryBot.create(:level2_geographic_area,
@@ -1387,28 +1387,28 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                        parent:               @area_t_1)
   @area_m1.level0 = @area_t_1
   @area_m1.geographic_items << @item_m1
-  @area_m1.save
+  @area_m1.save!
   @area_n1        = FactoryBot.create(:level2_geographic_area,
                                        name:                 'N1',
                                        geographic_area_type: gat_county,
                                        parent:               @area_t_1)
   @area_n1.level0 = @area_t_1
   @area_n1.geographic_items << @item_n1
-  @area_n1.save
+  @area_n1.save!
   @area_m2        = FactoryBot.create(:level2_geographic_area,
                                        name:                 'M2',
                                        geographic_area_type: gat_county,
                                        parent:               @area_t_1)
   @area_m2.level0 = @area_t_1
   @area_m2.geographic_items << @item_m2
-  @area_m2.save
+  @area_m2.save!
   @area_n2        = FactoryBot.create(:level2_geographic_area,
                                        name:                 'N2',
                                        geographic_area_type: gat_county,
                                        parent:               @area_t_1)
   @area_n2.level0 = @area_t_1
   @area_n2.geographic_items << @item_n2
-  @area_n2.save
+  @area_n2.save!
 
   @area_o1        = FactoryBot.create(:level2_geographic_area,
                                        name:                 'O1',
@@ -1416,28 +1416,28 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                        parent:               @area_u)
   @area_o1.level0 = @area_u
   @area_o1.geographic_items << @item_o1
-  @area_o1.save
+  @area_o1.save!
   @area_p1        = FactoryBot.create(:level2_geographic_area,
                                        name:                 'P1',
                                        geographic_area_type: gat_parish,
                                        parent:               @area_u)
   @area_p1.level0 = @area_u
   @area_p1.geographic_items << @item_p1
-  @area_p1.save
+  @area_p1.save!
   @area_o2        = FactoryBot.create(:level2_geographic_area,
                                        name:                 'O2',
                                        geographic_area_type: gat_parish,
                                        parent:               @area_u)
   @area_o2.level0 = @area_u
   @area_o2.geographic_items << @item_o2
-  @area_o2.save
+  @area_o2.save!
   @area_p2        = FactoryBot.create(:level2_geographic_area,
                                        name:                 'P2',
                                        geographic_area_type: gat_parish,
                                        parent:               @area_u)
   @area_p2.level0 = @area_u
   @area_p2.geographic_items << @item_p2
-  @area_p2.save
+  @area_p2.save!
 
   # build a far-away island
   @area_far_island = FactoryBot.create(:level0_geographic_area,
@@ -1447,7 +1447,7 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
                                         iso_3166_a2:          nil,
                                         parent:               @earth)
   # @area_far_island.geographic_items << @item_f_i
-  @area_far_island.save
+  @area_far_island.save!
 
   generate_collecting_events
   true
@@ -1463,9 +1463,9 @@ def generate_collecting_events(user = nil)
   # this is an orphaned collection object, which can only be found by direct reference
   @td_00          = FactoryBot.create(:valid_taxon_determination)
   @td_00.otu.name = 'Don\'t find me, I have no collecting event!'
-  @td_00.otu.save
+  @td_00.otu.save!
   @co_00 = @td_00.biological_collection_object
-  @co_00.save
+  @co_00.save!
 
   @ce_m1          = FactoryBot.create(:collecting_event,
                                        start_date_year:   1971,
@@ -1477,9 +1477,9 @@ def generate_collecting_events(user = nil)
   @td_m1          = FactoryBot.create(:valid_taxon_determination)
   @co_m1          = @td_m1.biological_collection_object
   @td_m1.otu.name = 'Find me, I\'m in M1!'
-  @td_m1.otu.save
+  @td_m1.otu.save!
   @co_m1.collecting_event = @ce_m1
-  @co_m1.save
+  @co_m1.save!
   @gr_m1 = FactoryBot.create(:georeference_verbatim_data,
                               api_request:           'gr_m1',
                               collecting_event:      @ce_m1,

@@ -559,7 +559,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           get_cvt_id = {} # key = project_id, value = {tag/topic uri, cvt.id.to_s}
 
           # Project.all.each do |project|
-          get_tw_project_id.values.each do |project_id|
+          get_tw_project_id.each_value do |project_id|
             # next unless project.name.end_with?('species_file')
 
             # project_id = project.id.to_s
@@ -568,7 +568,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             get_cvt_id[project_id] = {} # initialized for outer loop with project_id
 
-            CITES_CVTS.keys.each do |column| # tblCites.ColumnName
+            CITES_CVTS.each_key do |column| # tblCites.ColumnName
               CITES_CVTS[column].each do |params|
                 cvt = ControlledVocabularyTerm.create!(params.merge(project_id: project_id)) # want this to be integer
                 get_cvt_id[project_id][cvt.uri] = cvt.id.to_s

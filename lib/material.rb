@@ -17,7 +17,7 @@ module Material
     response = QuickVerbatimResponse.new(opts)
 
     objects = {}
-    opts['collection_objects'].keys.each do |k|
+    opts['collection_objects'].each_key do |k|
       objects.merge!(k => opts['collection_objects'][k]) if !opts['collection_objects'][k]['total'].blank?
     end
 
@@ -39,12 +39,12 @@ module Material
     repository = Repository.find(opts['repository']['id']) if opts['repository'] && !opts['repository']['id'].blank?
     preparation_type = PreparationType.find(opts['preparation_type']['id']) if opts['preparation_type'] && !opts['preparation_type']['id'].blank?
 
-    objects.keys.each do |o|
+    objects.each_key do |o|
       object = stub_object_attributes.dup
       object.total = objects[o]['total']
 
       if objects[o]['biocuration_classes'] 
-        objects[o]['biocuration_classes'].keys.each do |k|
+        objects[o]['biocuration_classes'].each_key do |k|
           object.biocuration_classifications.build(biocuration_class: BiocurationClass.find(k)) 
         end
       end

@@ -309,8 +309,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             expect(find('#user_date_range_count')).to have_content('5')
 
             select('Pat Pro', from: 'user')
-            fill_in('user_date_range_start', with: Date.today)
-            fill_in('user_date_range_end', with: Date.today)
+            fill_in('user_date_range_start', with: Time.zone.today)
+            fill_in('user_date_range_end', with: Time.zone.today)
 
             click_button('Set User/Date Range', {id: 'set_user_date_range'})
             wait_for_ajax

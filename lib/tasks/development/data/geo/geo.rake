@@ -51,11 +51,11 @@ namespace :tw do
         task build_temporary_shapefile_tables: [:environment, :database_role, :data_directory, :geo_dev_init] do
           puts 'Adding temporary shape files.'
           IMPORT_TABLES.each do |table_name, file_path|
-            if !table_exists(table_name) 
+            if !table_exists(table_name)
               file = "#{@args[:data_directory]}#{file_path}.shp"
               puts `shp2pgsql -W LATIN1 #{file} #{table_name} > /tmp/foo.sql`
-              puts `psql #{@args[:database_role]} -d taxonworks_development -f /tmp/foo.sql` 
-              puts `rm /tmp/foo.sql` 
+              puts `psql #{@args[:database_role]} -d taxonworks_development -f /tmp/foo.sql`
+              puts `rm /tmp/foo.sql`
             else
               puts "Table #{table_name} exists, skipping."
             end
@@ -67,8 +67,8 @@ namespace :tw do
         desc 'Remove tables added through build_temporary_shapefile_tables'
         task delete_temporary_shapefile_tables: [:environment, :geo_dev_init] do
           puts 'Deleting temporary shape files.'
-          IMPORT_TABLES.each do |table_name, file_path|
-            if table_exists(table_name) 
+          IMPORT_TABLES.each_key do |table_name|
+            if table_exists(table_name)
               puts "Dropping #{table_name}."
               ApplicationRecord.connection.execute("drop table #{table_name};")
             end

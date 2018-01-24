@@ -153,11 +153,11 @@ class Tasks::Gis::ReportController < ApplicationController
     # remove all the headers which are NOT checked
     %w(ce co bc).each { |column|
       group = current_headers[column.to_sym]
-      group.keys.each { |type|
+      group.each_key { |type|
         headers = group[type.to_sym]
         entry   = current_headers[column.to_sym][type.to_sym]
         unless headers.empty?
-          headers.keys.each { |header|
+          headers.each_key { |header|
             if headers[header].empty?
               # we must be in 'get' processing
             else

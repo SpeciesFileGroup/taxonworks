@@ -8,7 +8,7 @@ module Queries
   #  And this:
   #    http://blog.arkency.com/2013/12/rails4-preloading/
   #    User.includes(:addresses).where("addresses.country = ?", "Poland").references(:addresses)
-  #    
+  #
 
   # Lots of optimization possible, at minimum this is nice for nested OR
   class OtuAutocompleteQuery < Queries::Query
@@ -30,11 +30,11 @@ module Queries
         a = a.or(b)
       end
       a
-    end 
-    
+    end
+
     # @return [Scope]
-    def all 
-      # For references, this is equivalent: Otu.eager_load(:taxon_name).where(where_sql) 
+    def all
+      # For references, this is equivalent: Otu.eager_load(:taxon_name).where(where_sql)
       Otu.includes(:taxon_name).where(where_sql).references(:taxon_names).order(name: :asc).limit(50).order('taxon_names.cached ASC')
     end
 
@@ -58,14 +58,14 @@ module Queries
 
     def authorship
       parser = ScientificNameParser.new
-      a = parser.parse(query_string)
-      b = a[:scientificName]
+      a      = parser.parse(query_string)
+      b      = a[:scientificName]
       return nil if b.nil? or b[:details].nil?
 
       b[:details].each do |detail|
-        detail.each do |k,v|
+        detail.each_value do |v|
           if v[:authorship]
-            return v[:authorship] 
+            return v[:authorship]
           end
         end
       end

@@ -107,7 +107,7 @@
 #   a representation of what the combination (fully spelled out) or protonym (monomial)
 #   *looked like* in its originating publication.
 #   The sole purpose of this string is to represent visual differences from what is recorded in the
-#   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed.  
+#   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed.
 #   This string should NOT include the author year (see verbatim_author and year_of_publication for those data).
 #
 # TODO: @mjy etymology column in taxon_names is not covered here. Is tis correct below?
@@ -170,11 +170,11 @@ class TaxonName < ApplicationRecord
   # Deprecated
   # before_validation :set_type_if_empty
 
-  after_save :create_new_combination_if_absent 
+  after_save :create_new_combination_if_absent
 
   after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
   after_save :set_cached_warnings, if: Proc.new {|n| n.no_cached }
- 
+
   after_create :create_otu, if: :also_create_otu
 
   before_destroy :check_for_children, prepend: true
@@ -191,7 +191,7 @@ class TaxonName < ApplicationRecord
   validates_presence_of :type, message: 'is not specified'
 
   # TODO: move some of these down to Protonym when they don't apply to Combination
-  
+
   # TODO: think of a different name, and test
   has_many :historical_taxon_names, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
 
@@ -687,25 +687,25 @@ class TaxonName < ApplicationRecord
   end
 
   # Debugging/optimizing caching
-  # attr_accessor :times_cached 
+  # attr_accessor :times_cached
   # after_save :reset_times_called
-  
+
   # def reset_times_called
   #   @times_cached = 0
   # end
-  
-  # def times_called 
+
+  # def times_called
   #   @times_cached ||= 0
   #   @times_cached += 1
   #   if @times_cached > 1
   #     print Rainbow(@times_cached).blue.bold
-  #   end 
+  #   end
   # end
 
   def set_cached
     update_column(:cached, get_full_name)
     set_cached_html
-    set_cached_author_year 
+    set_cached_author_year
     set_cached_classified_as
     set_cached_valid_taxon_name_id
   end
@@ -715,7 +715,7 @@ class TaxonName < ApplicationRecord
     update_column(:cached_valid_taxon_name_id, get_valid_taxon_name.id)
   end
 
-  # Only Protonym, but 
+  # Only Protonym, but
   # relationships fire it for Combinations
   def get_original_combination
     nil
@@ -744,7 +744,7 @@ class TaxonName < ApplicationRecord
   end
 
   def is_combination?
-    type == 'Combination' 
+    type == 'Combination'
   end
 
   # Returns an Array of ancestors
@@ -1294,7 +1294,7 @@ class TaxonName < ApplicationRecord
 
   def sv_two_unresolved_alternative_synonyms
     r = taxon_name_relationships.includes(:source).order_by_oldest_source_first.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM)
-    if r.to_a.count > 1
+    if r.to_a.size > 1
       if r.first.nomenclature_date.to_date == r.second.nomenclature_date.to_date
         soft_validations.add(:base, 'Taxon has two alternative invalidating relationships with identical dates. To resolve ambiguity, add original sources to the relationships with different priority dates.')
       end

@@ -141,7 +141,7 @@ class Serial < ApplicationRecord
     if self.new_record?
       ret_val = Serial.exists?(name: self.name)
     else
-      ret_val = Serial.where("name = '#{Utilities::Strings.escape_single_quote(self.name)}' AND NOT (id = #{self.id})").to_a.count > 0
+      ret_val = Serial.where("name = '#{Utilities::Strings.escape_single_quote(self.name)}' AND NOT (id = #{self.id})").to_a.size > 0
     end
 
     if ret_val == false

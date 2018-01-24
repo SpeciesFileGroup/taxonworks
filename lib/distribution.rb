@@ -108,7 +108,7 @@ class Distribution
 
     i = 1
     j = 0
-    map_source_objects.keys.each do |otu_id|
+    map_source_objects.each_key do |otu_id|
       feature_collection = {
         'type'     => 'FeatureCollection',
         'features' => []

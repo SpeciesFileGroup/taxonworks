@@ -8,7 +8,7 @@
 </p>
 
 <ol>
-  <% @result.keys.each do |kee| -%>
+  <% @result.each_key do |kee| -%>
       <%= text_row(@result[kee]) -%>
   <% end %>
 </ol>

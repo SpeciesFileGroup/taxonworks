@@ -51,7 +51,7 @@ module Tasks::Gis::ReportHelper
     retval = []
     %w(ce co bc).each { |column|
       group = @selected_column_names[column.to_sym]
-      group.keys.each { |type|
+      group.each_key { |type|
         retval.push(group[type].keys)
       } unless group.nil?
     } unless @selected_column_names.nil?

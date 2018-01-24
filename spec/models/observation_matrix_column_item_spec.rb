@@ -16,7 +16,7 @@ RSpec.describe ObservationMatrixColumnItem, type: :model, group: :matrix do
   end
 
   context 'subclass STI' do
-    MATRIX_COLUMN_ITEM_TYPES.keys.each do |k|
+    MATRIX_COLUMN_ITEM_TYPES.each_key do |k|
       context k do
         let(:klass) { k.constantize }
 
@@ -24,20 +24,20 @@ RSpec.describe ObservationMatrixColumnItem, type: :model, group: :matrix do
           expect(klass.respond_to?(:subclass_attributes)).to be_truthy
         end
 
-        specify '.subclass_attributes is populated' do 
+        specify '.subclass_attributes is populated' do
           expect(klass.subclass_attributes.size).to be > 0
         end
 
         specify '.subclass_attributes are present in ALL_STI_ATTRIBUTES' do
           expect((klass.subclass_attributes - ObservationMatrixColumnItem::ALL_STI_ATTRIBUTES).size).to be 0
-        end  
+        end
 
-        context '.descriptors' do 
+        context '.descriptors' do
           let(:i) { klass.new }
 
           specify 'method is present' do
             expect(i.respond_to?(:descriptors)).to be_truthy
-          end  
+          end
 
           specify 'returns array' do
             expect(i.descriptors.class.name).to eq 'Array'
@@ -45,7 +45,7 @@ RSpec.describe ObservationMatrixColumnItem, type: :model, group: :matrix do
         end
       end
     end
-  end 
+  end
 
 
   context 'concerns' do

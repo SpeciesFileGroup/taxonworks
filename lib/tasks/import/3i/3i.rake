@@ -1114,7 +1114,7 @@ namespace :tw do
           fields.each do |c|
             tmp_ce[c] = row[c] unless row[c].blank?
           end
-          field_translate.keys.each do |c|
+          field_translate.each_key do |c|
             tmp_ce[field_translate[c]] = tmp_ce[c]
           end
           tmp_ce['County'] = geo_translate_3i(tmp_ce['County']) unless tmp_ce['County'].blank?
@@ -1666,7 +1666,7 @@ namespace :tw do
         return nil if row['ID'].blank?
         ns = 'INHS'
         i = row['ID']
-        @data.namespaces.keys.each do |p|
+        @data.namespaces.each_key do |p|
           if i.include?(p)
             ns = p
             i = i.gsub(p, '')

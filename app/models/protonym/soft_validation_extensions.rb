@@ -25,7 +25,7 @@ module Protonym::SoftValidationExtensions
       sv_extant_children: { set: :extant_children}
     }
 
-    VALIDATIONS.keys.each do |k|
+    VALIDATIONS.each_key do |k|
       Protonym.soft_validate(k, VALIDATIONS[k])
     end
   end

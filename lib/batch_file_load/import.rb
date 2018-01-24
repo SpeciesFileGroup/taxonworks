@@ -30,7 +30,7 @@ module BatchFileLoad
         @filenames.push(file.original_filename)
 
         # WARNING: Once you call ".tempfile.read.force_encoding('utf-8')" on a tempfile as shown below,
-        # the next time you call ".tempfile.read.force_encoding('utf-8')" on the same tempfile 
+        # the next time you call ".tempfile.read.force_encoding('utf-8')" on the same tempfile
         # an empty string will be returned!
         @file_contents.push(file.tempfile.read.force_encoding('utf-8'))
       end
@@ -122,11 +122,11 @@ module BatchFileLoad
       case @import_level.to_sym
         when :warn
           warn_level_ok?
-        when :file_strict 
+        when :file_strict
           file_strict_level_ok?
-        when :object_strict 
+        when :object_strict
           object_strict_level_ok?
-        when :file_object_strict 
+        when :file_object_strict
           file_object_strict_level_ok?
         else
           false
@@ -138,13 +138,13 @@ module BatchFileLoad
       all_objects = []
 
       @processed_files[:objects].each do |hash|
-        hash.each do |type, objects|
+        hash.each_value do |objects|
           objects.each do |object|
             all_objects.push(object)
           end
         end
       end
-      
+
       all_objects
     end
   end

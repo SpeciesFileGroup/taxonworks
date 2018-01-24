@@ -117,7 +117,7 @@ class Otu < ApplicationRecord
     new_otus = []
     begin
       Otu.transaction do
-        otus.keys.each do |k|
+        otus.each_key do |k|
           o = Otu.new(otus[k])
           o.save!
           new_otus.push(o)

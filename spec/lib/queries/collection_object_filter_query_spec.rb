@@ -289,7 +289,7 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
         expect(result.count).to eq(5)
 
         params = {user:                  joe, date_type_select: 'created_at',
-                  user_date_range_start: Date.today.to_s, user_date_range_end: Date.today.to_s}
+                  user_date_range_start: Time.zone.today.to_s, user_date_range_end: Time.zone.today.to_s}
 
         result = Queries::CollectionObjectFilterQuery.new(params).result
         expect(result.count).to eq(20)

@@ -8,7 +8,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
   def make_dates_method_headers
     list = Utilities::Dates::REGEXP_DATES
     selector_row = ''
-    list.keys.each_with_index {|kee, dex|
+    list.each_key_with_index {|kee, dex|
       selector_row += content_tag(:th, Utilities::Dates::REGEXP_DATES[kee][:hdr],
                                   data: {help: Utilities::Dates::REGEXP_DATES[kee][:hlp]})
     }
@@ -20,7 +20,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
   def make_dates_selected_method_boxes(filters = Utilities::Dates::REGEXP_DATES.keys)
     list = Utilities::Dates::REGEXP_DATES
     box_row = ''
-    list.keys.each { |kee|
+    list.each_key { |kee|
       checked = filters.include?(kee)
       box_row += content_tag(:td, check_box_tag('filters[]', kee.to_s, checked), align: 'center')
     }

@@ -384,7 +384,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       identifier  = '1-84356-028-3'
       valid_gem_bibtex_book.isbn = identifier
       s  = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
-      expect(s.identifiers.to_a.count).to eq(1)
+      expect(s.identifiers.to_a.size).to eq(1)
       expect(s.identifiers.first.identifier).to eq(identifier)
       expect(s.save).to be_truthy
       expect(s.identifiers.first.id.nil?).to be_falsey
@@ -397,7 +397,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           identifier = "ISSN #{n}"
           valid_gem_bibtex_book.issn = identifier
           s = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
-          expect(s.identifiers.to_a.count).to eq(1)
+          expect(s.identifiers.to_a.size).to eq(1)
           expect(s.identifiers.first.identifier).to eq(identifier)
           expect(s.save).to be_truthy
           expect(s.identifiers.first.id.nil?).to be_falsey
@@ -415,7 +415,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       identifier                = '10.2345/S1384107697000225'
       valid_gem_bibtex_book.doi = identifier
       s                         = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
-      expect(s.identifiers.to_a.count).to eq(1)
+      expect(s.identifiers.to_a.size).to eq(1)
       expect(s.identifiers.first.identifier).to eq(identifier)
       expect(s.save).to be_truthy
       expect(s.identifiers.first.id.nil?).to be_falsey
@@ -759,7 +759,7 @@ describe Source::Bibtex, type: :model, group: :sources do
               source_bibtex.reload
               expect(source_bibtex.send(method.to_sym).size).to eq(1)
               #@source_bibtex.reload
-              expect(source_bibtex.send(method.to_sym).to_a.count).to eq(1)
+              expect(source_bibtex.send(method.to_sym).to_a.size).to eq(1)
               expect((source_bibtex.send(method.to_sym)).first.last_name).to eq('Smith')
               expect((source_bibtex.send(method.to_sym)).first.first_name).to eq('Bill')
             end
@@ -777,7 +777,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
               source_bibtex.reload
 
-              expect(source_bibtex.send(method.to_sym).to_a.count).to eq(3)
+              expect(source_bibtex.send(method.to_sym).to_a.size).to eq(3)
               expect(source_bibtex.send(method.to_sym).first.last_name).to eq('Thomas')
               expect(source_bibtex.send(method.to_sym).first.first_name).to eq('D.')
               author1_id = source_bibtex.send(method.to_sym).first.id
@@ -800,7 +800,7 @@ describe Source::Bibtex, type: :model, group: :sources do
             @source_bibtex.reload
             @source_bibtex.authors.reload
             @source_bibtex.editors.reload
-            expect(@source_bibtex.send(method).to_a.count).to eq(3)
+            expect(@source_bibtex.send(method).to_a.size).to eq(3)
 
             a_id       = @source_bibtex.send(method).first.id
             a_role_obj = @source_bibtex.send(method_roles.to_sym)[0]
@@ -834,7 +834,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(@source_bibtex.create_related_people_and_roles).to be_truthy
           @source_bibtex.reload
 
-          expect(@source_bibtex.authors.to_a.count).to eq(3)
+          expect(@source_bibtex.authors.to_a.size).to eq(3)
           expect(@source_bibtex.authors.first.last_name).to eq('Thomas')
           expect(@source_bibtex.authors.first.first_name).to eq('D.')
           author1_id = @source_bibtex.authors.first.id
@@ -845,7 +845,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(@source_bibtex.authors.last.last_name).to eq('Hunt')
           expect(@source_bibtex.authors.last.first_name).to eq('Andy')
 
-          expect(@source_bibtex.editors.to_a.count).to eq(1)
+          expect(@source_bibtex.editors.to_a.size).to eq(1)
           expect(@source_bibtex.editors.first.last_name).to eq('Smith')
           expect(@source_bibtex.editors.first.first_name).to eq('Bill')
         end
@@ -1125,7 +1125,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       let(:a) { Source::Bibtex.new_from_bibtex(bibtex_entry) }
 
       before { a.save }
-        
+
       specify 'import keys for non-recognized attributes' do
         expect(a.import_attributes.map(&:import_predicate)).to contain_exactly('urldate', 'type') #  eq('urldate')
       end

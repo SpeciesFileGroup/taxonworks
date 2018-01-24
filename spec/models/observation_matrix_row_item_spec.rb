@@ -16,7 +16,7 @@ RSpec.describe ObservationMatrixRowItem, type: :model, group: :matrix do
   end
 
   context 'subclass STI' do
-    MATRIX_ROW_ITEM_TYPES.keys.each do |k|
+    MATRIX_ROW_ITEM_TYPES.each_key do |k|
       context k do
         let(:klass) { k.constantize }
 

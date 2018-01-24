@@ -9,20 +9,20 @@ describe UserTasks do
   end
 
   context 'prefixes in user_tasks.yml are found as named routes in routes.rb including' do
-    UserTasks::TASK_DATA.keys.each do |n|
+    UserTasks::TASK_DATA.each_key do |n|
       specify "#{n}" do
         expect(prefixes.include?(n.to_sym)).to be_truthy, "prefix [#{n}] is not defined in routes.rb"
-      end 
+      end
     end
   end
 
   context 'related prefixes in user_task.yml are found as named routes in routes.rb including' do
-    UserTasks::TASK_DATA.each do |key, attributes|
-      if attributes['related'] 
+    UserTasks::TASK_DATA.each_value do |attributes|
+      if attributes['related']
         attributes['related'].each do |n|
           specify "#{n}" do
             expect(prefixes.include?(n.to_sym)).to be_truthy, "related prefix [#{n}] is not defined in routes.rb"
-          end 
+          end
         end
       end
     end
@@ -32,7 +32,7 @@ describe UserTasks do
     UserTasks.hub_tasks.each do |task|
       specify "#{task.prefix} is parameters free" do
         expect(task.requires_params?).to eq(false), "#{task.prefix} requires parameters, it is not allowed on the hub list"
-      end 
+      end
     end
   end
 
@@ -55,15 +55,15 @@ describe UserTasks do
 
   describe UserTasks::UserTask do
     let (:user_task) { UserTasks::UserTask.new(
-      ['foo_name_task', 
+      ['foo_name_task',
        {
-        'name' => 'do_foo', 
-        'description' => 'A description.', 
+        'name' => 'do_foo',
+        'description' => 'A description.',
         'related' => ['foo', 'bar'],
         'hub' => true
       }])}
 
-    context 'has attributes' do 
+    context 'has attributes' do
       specify '#name' do
         expect(user_task.name).to eq('do_foo')
       end
@@ -81,7 +81,7 @@ describe UserTasks do
       end
 
       specify '#hub' do
-        expect(user_task.hub).to eq(true) 
+        expect(user_task.hub).to eq(true)
       end
 
 

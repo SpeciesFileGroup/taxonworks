@@ -63,7 +63,7 @@ module BatchLoad
 
       @total_lines = i
 
-      sequences.each do |key, sequence_obj|
+      sequences.each_value do |sequence_obj|
         # Sequence attributes
         sequence_attributes = {
           name: sequence_obj[:official_name],

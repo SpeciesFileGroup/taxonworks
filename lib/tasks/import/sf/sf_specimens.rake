@@ -65,7 +65,7 @@ namespace :tw do
           syntypes_range = {} # use ranged_lot_category for syntypes, paratypes and paralectotypes without individual counts
           paratypes_range = {}
           paralectotypes_range = {}
-          get_tw_project_id.values.each do |project_id|
+          get_tw_project_id.each_value do |project_id|
             syntypes_range[project_id] = RangedLotCategory.find_or_create_by(
                 name: 'syntypes',
                 minimum_value: 2,

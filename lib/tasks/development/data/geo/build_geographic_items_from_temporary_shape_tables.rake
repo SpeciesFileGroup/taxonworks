@@ -64,7 +64,7 @@ namespace :tw do
         def quick_validate
           puts "\nDoing some validation"
           expected_diff = '010700000000000000' # ?
-          IMPORT_TABLES.keys.each do |t|
+          IMPORT_TABLES.each_key do |t|
             GeographicAreasGeographicItem.where(data_origin: t.to_s).limit(9).each do |i|
               if i.geographic_item.valid_geometry?
                 a    = "SELECT St_AsBinary(geom)          FROM #{i.data_origin} WHERE gid = #{i.origin_gid}"

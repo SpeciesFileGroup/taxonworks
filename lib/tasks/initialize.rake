@@ -19,7 +19,7 @@ namespace :tw do
       password_confirmation = STDIN.noecho(&:gets).strip
       puts
 
-      u = User.create(name:                  name,
+      u = User.create!(name:                  name,
                       email:                 email,
                       password:              password,
                       password_confirmation: password_confirmation,

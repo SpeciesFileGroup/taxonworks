@@ -149,7 +149,7 @@ class CollectionProfile < ApplicationRecord
     unless self.collection_type.blank?
       ct = self.collection_type.to_sym
 
-      COLLECTION_PROFILE_INDICES[:Favret][ct].keys.each do |a|
+      COLLECTION_PROFILE_INDICES[:Favret][ct].each_key do |a|
         v = self.send(a)
         unless v.nil?
           errors.add(a.to_sym, 'Invalid entry') if COLLECTION_PROFILE_INDICES[:Favret][ct][a.to_sym][v].nil?
