@@ -703,9 +703,8 @@ namespace :tw do
           # [INFO]2017-03-15 15:43:39.366: Logged task tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 completed!
           # [INFO]2017-03-15 15:43:39.367: All tasks completed. Dumping summary for each task...
           # === Summary of warnings and errors for task tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 ===
-          #     [ERROR]2017-03-15 13:11:40.264: TaxonName ERROR (1) AFTER synonym test (SF.TaxonNameID = 1225991, parent_id = 68332): Parent The parent rank (subspecies) is not higher than subspecies
+          # [ERROR]2017-03-15 13:11:40.264: TaxonName ERROR (1) AFTER synonym test (SF.TaxonNameID = 1225991, parent_id = 68332): Parent The parent rank (subspecies) is not higher than subspecies
           # [ERROR]2017-03-15 13:20:22.621: TaxonName ERROR (2) AFTER synonym test (SF.TaxonNameID = 1170406, parent_id = 71920): Parent The parent rank (subspecies) is not higher than subspecies
-
 
           logger.info 'Creating all SF taxa (pass 1)...'
 
@@ -766,7 +765,7 @@ namespace :tw do
               else
                 parent_id = get_tw_taxon_name_id[get_sf_parent_id[taxon_name_id]] # assumes tw_taxon_name_id exists
               end
-            elsif get_otu_sf_above_id.has_key?(taxon_name_id) # ill-formed sf taxon name, will make OTU
+            elsif get_otu_sf_above_id[taxon_name_id] # ill-formed sf taxon name, will make OTU
               parent_id = get_tw_taxon_name_id[get_otu_sf_above_id[taxon_name_id]]
               # problem with two instances of parent not properly selected when nominotypical species, seems to default to nominotypical subspecies:
               # TaxonNameID 1225991 (Plec, tadzhikistanicum, nomen dubium, parent should be 1166943)
@@ -787,8 +786,7 @@ namespace :tw do
             name_status = row['NameStatus']
             status_flags = row['StatusFlags']
 
-            # if name_status == '2' or get_otu_sf_above_id.has_key?(taxon_name_id) # temporary, create OTU, not TaxonName
-            if get_otu_sf_above_id.has_key?(taxon_name_id) # temporary, create OTU, not TaxonName
+            if get_otu_sf_above_id[taxon_name_id] # temporary, create OTU, not TaxonName
               otu = Otu.new(
                   name: row['Name'],
                   taxon_name_id: parent_id,
@@ -820,15 +818,12 @@ namespace :tw do
                   parent_id: parent_id,
                   rank_class: get_tw_rank_string[row['RankID']],
 
-
-
-                  # ADD TaxonNameID as a identifier local import, create a namespace for each project, see GitHub https://github.com/SpeciesFileGroup/taxonworks/issues/166
-                  #  or add as separate rake task
-
-
-
-
-
+                  data_attributes_attributes: [
+                      {type: 'ImportAttribute',
+                       import_predicate: 'SF.TaxonNameID',
+                       value: taxon_name_id,
+                       project_id: project_id
+                      }],
 
                   # housekeeping attributed to SF last_editor, etc.
                   origin_citation_attributes: {source_id: get_tw_source_id[row['RefID']],
@@ -880,13 +875,8 @@ namespace :tw do
 
               begin
                 taxon_name.save!
-                  # logger.info "taxon_name.id = #{taxon_name.id}"
-                  #  get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s
-                  #  get_sf_name_status[row['TaxonNameID']] = name_status
-                  #  get_sf_status_flags[row['TaxonNameID']] = status_flags
-                  #  get_taxon_name_otu_id[taxon_name.id.to_s] = taxon_name.otus.last.id.to_s
 
-                  # if one of anticipated import errors, add classification, then try to save again...
+              # if one of anticipated import errors, add classification, then try to save again...
               rescue ActiveRecord::RecordInvalid
                 taxon_name.taxon_name_classifications.new(
                     type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin',
@@ -909,9 +899,7 @@ namespace :tw do
                   taxon_name.save!
                 end
 
-                # taxon_name.save! # taxon won't be saved if something wrong with classifications_attributes, read about !
-                # @todo: Make sure get_tw_taxon_name_id.value is string
-                get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s # original import made this an integer
+                get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s # force to string
                 get_sf_name_status[row['TaxonNameID']] = name_status
                 get_sf_status_flags[row['TaxonNameID']] = status_flags
                 get_taxon_name_otu_id[taxon_name.id.to_s] = taxon_name.otus.last.id.to_s
