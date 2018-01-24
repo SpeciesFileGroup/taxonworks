@@ -5,10 +5,10 @@ namespace :tw do
 
     def postgres_arguments(hsh = {})
       hsh.select!{|k,v| !v.nil?}
-      hsh.collect{|k,v| "#{k}=#{v}"}.join(' ') 
+      hsh.collect{|k,v| "#{k}=#{v}"}.join(' ')
     end
 
-    desc 'Remove all connections but the current one' 
+    desc 'Remove all connections but the current one'
     task drop_connections: [:environment] do
       ApplicationRecord.connection.execute(
         "SELECT pg_terminate_backend(pg_stat_activity.pid)
@@ -21,8 +21,10 @@ namespace :tw do
     desc 'Dump the data to a PostgreSQL custom-format dump file does NOT include structure'
     task dump: [:environment, :backup_directory, :server_name, :database_host, :database_user] do
       if Support::Database.pg_database_exists?
-        puts Rainbow("Initializing dump for #{Rails.env} environment").yellow 
-        puts Rainbow('You may be prompted for the production password, alternately set it in ~/.pgpass').yellow if Rails.env == 'production'
+        puts Rainbow("Initializing dump for #{Rails.env} environment").yellow
+        if Rails.env == 'production'
+          puts Rainbow('You may be prompted for the production password, alternately set it in ~/.pgpass').yellow
+        end
 
         database = ApplicationRecord.connection.current_database
         path  = File.join(@args[:backup_directory], @args[:server_name] + '_' + Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
@@ -55,9 +57,9 @@ namespace :tw do
     # 1) Drop fails because database is in use by other processes.
     #    Remedy: Ensure your database is not used by other processes. Check to see how many connections to the database exist.
     #    Do not modify this task to make that check, nest this in checks if needed
-    desc "Restores a database generated from dump 'rake tw:db:restore backup_directory=/your/path/ file=2017-07-10_154344UTC.dump'" 
-    task restore: ['environment', 'tw:backup_exists', 'tw:database_user', 'db:drop', 'db:create' ] do 
-      puts Rainbow("Initializing restore for #{Rails.env} environment").yellow 
+    desc "Restores a database generated from dump 'rake tw:db:restore backup_directory=/your/path/ file=2017-07-10_154344UTC.dump'"
+    task restore: ['environment', 'tw:backup_exists', 'tw:database_user', 'db:drop', 'db:create' ] do
+      puts Rainbow("Initializing restore for #{Rails.env} environment").yellow
       database = ApplicationRecord.connection.current_database
       puts Rainbow("Restoring #{database} from #{@args[:tw_backup_file]}").yellow
 
@@ -70,7 +72,7 @@ namespace :tw do
         }
       )
 
-      args += " --no-acl --disable-triggers #{@args[:tw_backup_file]}" 
+      args += " --no-acl --disable-triggers #{@args[:tw_backup_file]}"
 
       puts Rainbow("with arguments: #{args}").yellow
 
@@ -101,11 +103,11 @@ namespace :tw do
       @args[:file] = File.basename(file)
     end
 
-    private 
+    private
 
     # This should just be done by restarting the server and making a new connection!
     def reset_indecies
-      puts 'Resetting AR indecies.' 
+      puts 'Resetting AR indecies.'
       ApplicationRecord.connection.tables.each { |t| ApplicationRecord.connection.reset_pk_sequence!(t) }
       puts 'Restore complete'
     end

@@ -19,7 +19,12 @@ namespace :tw do
       password_confirmation = STDIN.noecho(&:gets).strip
       puts
 
-      u = User.create(name: name, email: email, password: password, password_confirmation: password_confirmation, is_administrator: true, self_created: true)
+      u = User.create(name:                  name,
+                      email:                 email,
+                      password:              password,
+                      password_confirmation: password_confirmation,
+                      is_administrator:      true,
+                      self_created:          true)
 
       if u.valid?
         ENV['user_id'] = u.to_param
@@ -160,18 +165,18 @@ namespace :tw do
 
     desc 'Fully initialize a production server'
     task all: [
-      :environment,
-      :check_for_clean_database,
-      :check_for_initialization_data,
-      :validate_users,
-      :create_administrator,
-      :load_users,
-      :load_repositories,
-      :load_languages,
-      :load_geo,
-      :load_serials,
-      :validate_initialization
-    ] do
+                :environment,
+                :check_for_clean_database,
+                :check_for_initialization_data,
+                :validate_users,
+                :create_administrator,
+                :load_users,
+                :load_repositories,
+                :load_languages,
+                :load_geo,
+                :load_serials,
+                :validate_initialization
+              ] do
       puts 'Success! Welcome to TaxonWorks.'.yellow
     end
 

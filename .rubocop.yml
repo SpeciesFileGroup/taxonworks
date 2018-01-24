@@ -36,6 +36,14 @@ Style/HashSyntax:
   EnforcedStyle: ruby19
 #  AutoCorrect: false
 
+Metrics/LineLength:
+  Enabled: false
+  Max: 120
+  AllowHeredoc: true
+  AllowURI: true
+  URISchemes: [http, https]
+  IgnoreCopDirectives: false
+
 Metrics/MethodLength:
   Enabled: false
   CountComments: false
@@ -85,5 +93,5 @@ Lint/InterpolationCheck:
 Lint/RegexpAsCondition:
   Enabled: false
 
-Lint/UselessAccessModifier:
-  Enabled: true
+Performance/Casecmp:
+  Enabled: false

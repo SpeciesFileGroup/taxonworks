@@ -10,9 +10,9 @@ namespace :tw do
   end
 
   task server_name: [:environment] do
-    @args ||= {}
-    n = @args[:server_name] 
-    n ||= 'localhost' 
+    @args               ||= {}
+    n                   = @args[:server_name]
+    n                   ||= 'localhost'
     @args[:server_name] = n
   end
 
@@ -22,14 +22,14 @@ namespace :tw do
 
   # TODO: update "database_user" to something more specific and reflective of what we see in Kubernetes by default?
   task database_user: [:environment] do
-    @args ||= {}
-    @args[:database_user] = ENV['database_user'] 
-    @args[:database_user] ||= Rails.configuration.database_configuration[Rails.env]['username'] 
+    @args                 ||= {}
+    @args[:database_user] = ENV['database_user']
+    @args[:database_user] ||= Rails.configuration.database_configuration[Rails.env]['username']
   end
 
   desc 'set the database_host to ENV of database_host or use "0.0.0.0"'
-  task  :database_host do |t| 
-    @args ||= {}
+  task :database_host do |t|
+    @args                 ||= {}
     @args[:database_host] = (ENV['database_host'] || '0.0.0.0')
   end
 
@@ -59,44 +59,47 @@ namespace :tw do
   end
 
   desc 'a default method to add a data_directory_argument, include trailing slash'
-  task  data_directory: [:environment] do 
+  task data_directory: [:environment] do
     default = Settings.default_data_directory
-    @args ||= {} 
+    @args   ||= {}
     if ENV['data_directory'].blank?
       if default
         puts "no data_directory passed, using default (#{default})"
       else
-        raise 'no data_directory passed (like data_directory=/tmp/foo) and default_data_directory setting is not present (see application_settings.yml in /config)'
+        raise 'no data_directory passed (like data_directory=/tmp/foo) and default_data_directory setting is not \
+present (see application_settings.yml in /config)'
       end
     end
-    @args.merge!(data_directory: (ENV['data_directory'] || default ))
-    raise "path (#{default}) not found" if !File.exists?(@args[:data_directory]) # TODO: Use Dir.exists? and fix tasks that are treating data_directory as a file parameter
+    @args.merge!(data_directory: (ENV['data_directory'] || default))
+    # TODO: Use Dir.exists? and fix tasks that are treating data_directory as a file parameter
+    raise "path (#{default}) not found" if !File.exists?(@args[:data_directory])
     @args
   end
 
   desc 'a default task to add a backup_directory_argument, include trailing slash'
-  task  backup_directory: [:environment] do 
+  task backup_directory: [:environment] do
     default = Settings.backup_directory
-    @args ||= {} 
+    @args   ||= {}
     if ENV['backup_directory'].blank?
       if default
         puts "No backup_directory passed, using default (#{default})"
       else
-        raise 'No backup_directory passed (like backup_directory=/tmp/foo) and backup_directory setting is not present (see application_settings.yml in /config)'
+        raise 'No backup_directory passed (like backup_directory=/tmp/foo) and backup_directory setting is not \
+present (see application_settings.yml in /config)'
       end
     end
-   
-    @args[:backup_directory] = (ENV['backup_directory'] || default )
 
-    raise "path (#{@args[:backup_directory]}) not found" if !Dir.exists?(@args[:backup_directory]) 
+    @args[:backup_directory] = (ENV['backup_directory'] || default)
+
+    raise "path (#{@args[:backup_directory]}) not found" if !Dir.exists?(@args[:backup_directory])
     @args
   end
 
-  desc 'a general purpose task to supply a file @args, file=file.txt' 
+  desc 'a general purpose task to supply a file @args, file=file.txt'
   task :file do
     file = ENV['file']
     raise TaxonWorks::Error, Rainbow('Specify a file, like file=myfile.dump').yellow if not ENV['file']
-    @args ||= {}
+    @args        ||= {}
     @args[:file] = file
   end
 
@@ -112,7 +115,7 @@ namespace :tw do
   end
 
   desc 'set the database_role ENV value if provided, or use "postgres"'
-  task  :database_role do |t| 
+  task :database_role do |t|
     @args ||= {}
     @args.merge!(database_role: (ENV['database_role'] || 'postgres'))
   end
@@ -121,7 +124,8 @@ namespace :tw do
 
   # True if the table exists in the present environment's database
   def table_exists(table_name)
-    ApplicationRecord.connection.execute("SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name = '#{table_name}');").first['exists'] == 't'
+    ApplicationRecord.connection.execute("SELECT EXISTS(SELECT * FROM information_schema.tables \
+WHERE table_name = '#{table_name}');").first['exists'] == 't'
   end
 
 end
