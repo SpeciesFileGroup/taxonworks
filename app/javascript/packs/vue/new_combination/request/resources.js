@@ -69,9 +69,14 @@ const DestroyCombination = function(id) {
   return ajaxCall('delete', `/combinations/${id}.json`);
 }
 
+const CreatePlacement = function(id, taxon_name) {
+  return ajaxCall('patch', `/taxon_names/${id}.json`, taxon_name);
+}
+
 export {
   GetParse,
   GetCombination,
+  CreatePlacement,
   GetLastCombinations,
   UpdateCombination,
   CreateCombination,

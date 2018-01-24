@@ -1,22 +1,25 @@
 <template>
 	<transition-group class="table-entrys-list" name="list-complete" tag="ul">
-	    	<li v-for="item in list" :key="item.id" class="list-complete-item flex-separate middle">
-			    <a :href="`/tasks/nomenclature/browse/${item.id}`" target="_blank" class="list-item" v-html="displayName(item)"></a>
-			    <div class="list-controls">
-			    	<radial-annotator v-if="annotator" :globalId="item.global_id"></radial-annotator>	
-			    	<span v-if="edit" class="circle-button btn-edit" @click="$emit('edit', Object.assign({}, item))">Edit</span>
-		    		<span class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
-		    	</div>
-	    	</li>
+		<li v-for="item in list" :key="item.id" class="list-complete-item flex-separate middle">
+			<a :href="`/tasks/nomenclature/browse/${item.id}`" target="_blank" class="list-item" v-html="displayName(item)"></a>
+			<div class="list-controls">
+				<placement-component @created="$emit('placement', item)" :combination="item"></placement-component>
+				<radial-annotator v-if="annotator" :globalId="item.global_id"></radial-annotator>	
+				<span v-if="edit" class="circle-button btn-edit" @click="$emit('edit', Object.assign({}, item))">Edit</span>
+				<span class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
+			</div>
+		</li>
 	</transition-group>
 </template>
 <script>
 
 	import radialAnnotator from '../../components/annotator/annotator.vue';
+	import placementComponent from './placement.vue';
 
 	export default {
 		components: {
-			radialAnnotator
+			radialAnnotator,
+			placementComponent
 		},
 		props: {
 			list: {
