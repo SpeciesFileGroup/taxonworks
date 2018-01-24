@@ -109,7 +109,7 @@ class PeopleController < ApplicationController
 
   # GET /people/download
   def download
-    send_data Person.generate_download( Person.all ), type: 'text', filename: "people_#{DateTime.now.to_s}.csv"
+    send_data Person.generate_download( Person.all ), type: 'text', filename: "people_#{DateTime.now}.csv"
   end
 
   def roles

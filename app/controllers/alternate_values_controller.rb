@@ -99,7 +99,7 @@ class AlternateValuesController < ApplicationController
 
   # GET /alternate_values/download
   def download
-    send_data Download.generate_csv(AlternateValue.where(project_id: sessions_current_project_id)), type: 'text', filename: "alternate_values_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(AlternateValue.where(project_id: sessions_current_project_id)), type: 'text', filename: "alternate_values_#{DateTime.now}.csv"
   end
 
   # GET /alternate_values/:global_id/metadata
@@ -116,8 +116,8 @@ class AlternateValuesController < ApplicationController
 
   def alternate_value_params
     params.require(:alternate_value).permit(
-      :value, :type, :language_id, 
-      :alternate_value_object_type, :alternate_value_object_id, 
+      :value, :type, :language_id,
+      :alternate_value_object_type, :alternate_value_object_id,
       :alternate_value_object_attribute, :is_community_annotation, :annotated_global_entity
     )
   end

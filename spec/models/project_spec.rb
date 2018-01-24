@@ -279,7 +279,7 @@ describe Project, type: :model do
             if this_class.column_names.include?('project_id')
               count = this_class.where(project_id: p.id).all.reload.count
               if count > 0
-                project_destroy_err_msg += "\nFactory '#{f_name}': #{this_class.to_s}: #{count} orphan #{'record'.pluralize(count)}, remaining project_ids: #{this_class.all.pluck(:project_id).uniq.join(',')}."
+                project_destroy_err_msg += "\nFactory '#{f_name}': #{this_class}: #{count} orphan #{'record'.pluralize(count)}, remaining project_ids: #{this_class.all.pluck(:project_id).uniq.join(',')}."
                 orphans[this_class]          = count
               end
             end

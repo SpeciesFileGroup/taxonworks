@@ -87,7 +87,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                             unless ava[0].alternate_value_object.data_attributes.where(import_predicate:
                                                                                          @mx_t_serial_importID_name).any?
                               tmp1 =
-                                "attributes: #{ava[0].alternate_value_object.data_attributes.to_s}"
+                                "attributes: #{ava[0].alternate_value_object.data_attributes}"
                             else
                               tmp1 =
                                 "MX_T_importID #{ava[0].alternate_value_object.data_attributes.where(
@@ -95,7 +95,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                             end
                             if ava[1].alternate_value_object.data_attributes.where(import_predicate:
                                                                                      @mx_t_serial_importID_name).first.nil?
-                              tmp2 = "attributes: #{ava[1].alternate_value_object.data_attributes.to_s}"
+                              tmp2 = "attributes: #{ava[1].alternate_value_object.data_attributes}"
                             else
                               tmp2 =
                                 "\n MX_T_importID #{ava[1].alternate_value_object.data_attributes.where(
@@ -359,7 +359,7 @@ SFImportIDMap.txt
                       s.data_attributes << ImportAttribute.new(import_predicate: @sf_pubID_name,
                                                               value:            sfID)
                     when 1 # found it  -> skip it
-                      msg = "found an existing identifier #{(i.first).to_s}"
+                      msg = "found an existing identifier #{(i.first)}"
                       warn_msg << msg
                     else # found more than 1 -> error
                       msg = "skipping - found multiple existing identifiers #{i.count} importID #{importID}"
@@ -376,7 +376,7 @@ SFImportIDMap.txt
                       s.data_attributes << ImportAttribute.new(import_predicate: @sf_pub_regID_name,
                                                               value:            sfregID)
                     when 1 # found it  -> skip it
-                      msg = "found an existing identifier #{(i.first).to_s}"
+                      msg = "found an existing identifier #{(i.first)}"
                       warn_msg << msg
                     else # found more than 1 -> error
                       msg = "skipping - found multiple existing identifiers #{i.count} importID #{importID}"
@@ -480,7 +480,7 @@ Column : SQL column name :  data desc
                       s.data_attributes << ImportAttribute.new(import_predicate: @sf_pubID_name,
                                                                 value:            sfID)
                     when 1 # found it  -> skip it
-                      msg = "found an existing identifier #{(i.first).to_s}"
+                      msg = "found an existing identifier #{(i.first)}"
                       warn_msg << msg
                     else # found more than 1 -> error
                       msg = "skipping - found multiple existing identifiers #{i.count} importID #{importID}"
@@ -499,7 +499,7 @@ Column : SQL column name :  data desc
                       s.data_attributes << ImportAttribute.new(import_predicate: @sf_pub_regID_name,
                                                               value:            sfregID)
                     when 1 # found it  -> skip it
-                      msg = "found an existing identifier #{(i.first).to_s}"
+                      msg = "found an existing identifier #{(i.first)}"
                       warn_msg << msg
                     else # found more than 1 -> error
                       msg = "skipping - found multiple existing identifiers #{i.count} importID #{importID}"

@@ -64,7 +64,7 @@ class CollectingEventsController < ApplicationController
   end
 
   def card
-   @target = params[:target] 
+   @target = params[:target]
   end
 
   def test
@@ -111,7 +111,7 @@ class CollectingEventsController < ApplicationController
 
   # GET /collecting_events/download
   def download
-    send_data CollectingEvent.generate_download(CollectingEvent.where(project_id: sessions_current_project_id)), type: 'text', filename: "collecting_events_#{DateTime.now.to_s}.csv"
+    send_data CollectingEvent.generate_download(CollectingEvent.where(project_id: sessions_current_project_id)), type: 'text', filename: "collecting_events_#{DateTime.now}.csv"
   end
 
    # GET collecting_events/batch_load
@@ -144,14 +144,14 @@ class CollectingEventsController < ApplicationController
     render :batch_load
   end
 
-  def preview_castor_batch_load 
-    if params[:file] 
+  def preview_castor_batch_load
+    if params[:file]
       @result = BatchLoad::Import::CollectingEvents::CastorInterpreter.new(batch_params)
       digest_cookie(params[:file].tempfile, :Castor_collecting_events_md5)
       render 'collecting_events/batch_load/castor/preview'
     else
       flash[:notice] = 'No file provided!'
-      redirect_to action: :batch_load 
+      redirect_to action: :batch_load
     end
   end
 
@@ -169,7 +169,7 @@ class CollectingEventsController < ApplicationController
     end
     render :batch_load
   end
-  
+
   private
 
   # Use callbacks to share common setup or constraints between actions.

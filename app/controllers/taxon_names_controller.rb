@@ -107,7 +107,7 @@ class TaxonNamesController < ApplicationController
   def download
     send_data Download.generate_csv(
       TaxonName.where(project_id: sessions_current_project_id)
-    ), type: 'text', filename: "taxon_names_#{DateTime.now.to_s}.csv"
+    ), type: 'text', filename: "taxon_names_#{DateTime.now}.csv"
   end
 
   def batch_load

@@ -95,7 +95,7 @@ class AssertedDistributionsController < ApplicationController
 
   # GET /asserted_distributions/download
   def download
-    send_data AssertedDistribution.generate_download(AssertedDistribution.where(project_id: sessions_current_project_id)), type: 'text', filename: "asserted_distributions_#{DateTime.now.to_s}.csv"
+    send_data AssertedDistribution.generate_download(AssertedDistribution.where(project_id: sessions_current_project_id)), type: 'text', filename: "asserted_distributions_#{DateTime.now}.csv"
   end
 
   # GET /asserted_distributions/batch_load

@@ -581,7 +581,7 @@ TaxonWorks::Application.routes.draw do
   # otu_citations GET    /otus/:otu_id/citations(.:format)    citations#index
   ApplicationEnumeration.data_models.each do |m|
     Shared::IsData::Annotation::ANNOTATION_TYPES.each do |t|
-      if m.send("has_#{t.to_s}?")
+      if m.send("has_#{t}?")
         n = m.model_name
         match "/#{n.route_key}/:#{n.param_key}_id/#{t}", to: "#{t}#index", as: "#{n.singular}_#{t}", via: :get, constraints: {format: :json}, defaults: {format: :json}
       end

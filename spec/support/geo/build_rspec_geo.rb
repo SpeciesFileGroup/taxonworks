@@ -3,9 +3,6 @@
 # require 'indiana'
 # require 'iowa'
 
-# rubocop:disable Style/GlobalVars, Style/BlockComments
-# rubocop:disable Metrics/AbcSize, MethodLength, CyclomaticComplexity
-
 # http://en.wikiversity.org/wiki/Geographic_coordinate_conversion
 
 # @return [True]

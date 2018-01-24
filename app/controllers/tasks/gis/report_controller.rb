@@ -48,7 +48,7 @@ class Tasks::Gis::ReportController < ApplicationController
                                                                        shape_in,
                                                                        finding)
         report_file              = CollectionObject.generate_report_download(@list_collection_objects, current_headers, table_data)
-        send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv")
+        send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now}.csv")
       else
         # what else is there to do?
     end

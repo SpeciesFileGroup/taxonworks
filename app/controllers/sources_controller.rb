@@ -153,7 +153,7 @@ class SourcesController < ApplicationController
 
   # GET /sources/download
   def download
-    send_data Download.generate_csv(Source.all), type: 'text', filename: "sources_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Source.all), type: 'text', filename: "sources_#{DateTime.now}.csv"
   end
 
   private

@@ -71,7 +71,7 @@ class Protonym < TaxonName
       if d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification)/ # |SourceClassifiedAs
         relationships = "#{d.assignment_method}_relationships".to_sym
         has_many relationships, -> {
-          where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
+          where("taxon_name_relationships.type LIKE '#{d.name}%'")
         }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
         has_many d.assignment_method.to_s.pluralize.to_sym, through: relationships, source: :object_taxon_name
       end
@@ -81,7 +81,7 @@ class Protonym < TaxonName
       if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icnb|SourceClassifiedAs)/
         relationships = "#{d.inverse_assignment_method}_relationships".to_sym
         has_many relationships, -> {
-          where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
+          where("taxon_name_relationships.type LIKE '#{d.name}%'")
         }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
         has_many d.inverse_assignment_method.to_s.pluralize.to_sym, through: relationships, source: :subject_taxon_name
       end
@@ -201,7 +201,7 @@ class Protonym < TaxonName
   # @return [String, nil]
   #   a string, without parenthesis, that includes author and year
   def get_author_and_year
-    # times_called 
+    # times_called
     case rank_class.try(:nomenclatural_code)
       when :iczn
         ay = iczn_author_and_year
@@ -444,7 +444,7 @@ class Protonym < TaxonName
   end
 
   def species_questionable_ending(taxon_name_classification_class, tested_name)
-    return nil unless is_species_rank? 
+    return nil unless is_species_rank?
     taxon_name_classification_class.questionable_species_endings.each do |e|
       return e if tested_name =~ /^[a-z]*#{e}$/
     end
@@ -562,7 +562,7 @@ class Protonym < TaxonName
   end
 
   # TODO: @proceps - confirm this is only applicable to Protonym, NOT Combination
-  # Should this be in Protonym 
+  # Should this be in Protonym
   def set_cached_names_for_dependants
     dependants = []
     related_through_original_combination_relationships = []
@@ -570,7 +570,7 @@ class Protonym < TaxonName
 
     TaxonName.transaction do
       if is_genus_or_species_rank?
-        dependants = Protonym.descendants_of(self).to_a 
+        dependants = Protonym.descendants_of(self).to_a
         related_through_original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
         combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
       end
@@ -580,20 +580,20 @@ class Protonym < TaxonName
       # Combination can hit here
       classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
 
-      # TODO: not used!? 
+      # TODO: not used!?
       # hybrid_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('Hybrid')
 
       dependants.each do |i|
         columns_to_update = {
           cached: i.get_full_name,
           cached_html: i.get_full_name_html
-        } 
+        }
 
         if i.is_species_rank?
           columns_to_update[:cached_secondary_homonym] = i.get_genus_species(:current, :self)
           columns_to_update[:cached_secondary_homonym_alternative_spelling] = i.get_genus_species(:current, :alternative)
-        end 
-        
+        end
+
         i.update_columns(columns_to_update)
       end
 
@@ -652,7 +652,7 @@ class Protonym < TaxonName
   end
 
   def set_cached
-    super 
+    super
     set_cached_names_for_dependants # !!! do we run set cached names 2 x !?!
     set_cached_original_combination
     set_cached_homonymy
@@ -684,12 +684,12 @@ class Protonym < TaxonName
   # TODO: this is kind of pointless, we generate
   # all the alues need for cached, names, at that point
   # the cached values should just be persisted
-  # The logic here also duplicates the tracking 
-  # needed for building cached names.  
+  # The logic here also duplicates the tracking
+  # needed for building cached names.
   #
   # Refactor this to single methods, one each to validate
   # cached name?
-  # 
+  #
   def sv_cached_names
     is_cached = true
     is_cached = false if cached_author_year != get_author_and_year
@@ -700,7 +700,7 @@ class Protonym < TaxonName
         cached_primary_homonym != get_genus_species(:original, :self) ||
         cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
         rank_string =~ /Species/ && (
-          cached_secondary_homonym != get_genus_species(:current, :self) || 
+          cached_secondary_homonym != get_genus_species(:current, :self) ||
           cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative)
         )
         is_cached = false

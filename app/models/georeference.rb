@@ -1,4 +1,3 @@
-# rubocop:disable Metrics/AbcSize, MethodLength, CyclomaticComplexity
 # A georeference is an assertion that some shape, as derived from some method, describes the location of some collecting event.
 #
 # A georeference contains three components:

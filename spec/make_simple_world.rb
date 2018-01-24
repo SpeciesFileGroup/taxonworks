@@ -191,4 +191,5 @@ def simple_world(user_id = 1, project_id = 1)
   $project_id = temp_project
 
 end
+# rubocop:enable Metrics/MethodLength
 

@@ -115,7 +115,7 @@ class ControlledVocabularyTermsController < ApplicationController
   def download
     send_data ControlledVocabularyTerm.generate_download(
       ControlledVocabularyTerm.where(project_id: sessions_current_project_id)
-    ), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now.to_s}.csv"
+    ), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now}.csv"
   end
 
   # GET /controlled_vocabulary_terms/1/tagged_objects

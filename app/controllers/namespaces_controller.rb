@@ -122,7 +122,7 @@ end
 
   # GET /namespaces/download
   def download
-    send_data Download.generate_csv(Namespace.all), type: 'text', filename: "namespaces_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Namespace.all), type: 'text', filename: "namespaces_#{DateTime.now}.csv"
   end
 
   def select_options

@@ -211,7 +211,7 @@ class TaxonNameClassification < ApplicationRecord
     y = self.taxon_name.year_of_publication
     if not y.nil?
       if y > self.type_class.code_applicability_end_year || y < self.type_class.code_applicability_start_year
-        soft_validations.add(:type, "The status '#{self.type_class.label}' is unapplicable to the taxon #{self.taxon_name.cached_html} published in the year #{y.to_s}")
+        soft_validations.add(:type, "The status '#{self.type_class.label}' is unapplicable to the taxon #{self.taxon_name.cached_html} published in the year #{y}")
       end
     end
   end

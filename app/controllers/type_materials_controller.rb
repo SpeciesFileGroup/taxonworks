@@ -97,22 +97,22 @@ class TypeMaterialsController < ApplicationController
 
   # GET /type_materials/download
   def download
-    send_data Download.generate_csv(TypeMaterial.where(project_id: sessions_current_project_id)), type: 'text', filename: "type_materials_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(TypeMaterial.where(project_id: sessions_current_project_id)), type: 'text', filename: "type_materials_#{DateTime.now}.csv"
   end
 
   def type_types
     render json: {
-      icn: TypeMaterial::ICN_TYPES.inject({}){|hsh, k| hsh.merge!(k[0] =>  k[1].name)}, 
+      icn: TypeMaterial::ICN_TYPES.inject({}){|hsh, k| hsh.merge!(k[0] =>  k[1].name)},
       iczn: TypeMaterial::ICZN_TYPES.inject({}){|hsh, k| hsh.merge!(k[0] => k[1].name)}
     }
   end
 
   private
-  
+
   def filter_params
     params.permit(:protonym_id, :biological_object_id, :type_type)
   end
-  
+
   def set_type_material
     @type_material = TypeMaterial.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @type_material
@@ -124,8 +124,8 @@ class TypeMaterialsController < ApplicationController
         roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
         origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
         material_attributes: [
-          :id, :buffered_collecting_event, :buffered_other_labels, :buffered_determinations, 
+          :id, :buffered_collecting_event, :buffered_other_labels, :buffered_determinations,
           :total, :collecting_event_id, :preparation_type_id, :repository_id]
-    ) 
+    )
   end
 end

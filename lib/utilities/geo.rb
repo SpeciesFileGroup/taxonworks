@@ -1,6 +1,4 @@
 # General purpose Geo related methods
-# rubocop:disable Style/AsciiComments, Style/BlockComments
-# rubocop:disable Metrics/AbcSize, MethodLength, CyclomaticComplexity
 module Utilities
   # Special general routines for Geo-specific itams
   module Geo
@@ -347,7 +345,7 @@ To add a new (discovered) symbol:
           digit = 5
         when 6..10
           decade *= 10
-          digit = 1 
+          digit = 1
       end
 
       params['digit1'] = digit.to_s

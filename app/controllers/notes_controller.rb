@@ -100,7 +100,7 @@ class NotesController < ApplicationController
 
   # GET /notes/download
   def download
-    send_data Download.generate_csv(Note.where(project_id: sessions_current_project_id)), type: 'text', filename: "notes_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Note.where(project_id: sessions_current_project_id)), type: 'text', filename: "notes_#{DateTime.now}.csv"
   end
 
   private
@@ -108,7 +108,7 @@ class NotesController < ApplicationController
   def set_note
     @note = Note.with_project_id(sessions_current_project_id).find(params[:id])
   end
-  
+
   def note_params
     params.require(:note).permit(:text, :note_object_id, :note_object_type, :note_object_attribute, :annotated_global_entity)
   end

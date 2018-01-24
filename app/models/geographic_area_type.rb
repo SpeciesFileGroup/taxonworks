@@ -15,6 +15,7 @@ class GeographicAreaType < ApplicationRecord
   STATE_LEVEL_TYPES   = ['State', 'Province', 'District', 'Prefecture', 'Region',
                          'Territory', 'Republic', 'Area', 'Oblast', 'Krai'].freeze
   COUNTY_LEVEL_TYPES  = ['County', 'Parish', 'Borough', 'Canton', 'Department', 'Raion'].freeze
+  # rubocop:enable Style/WordArray
 
   has_many :geographic_areas, inverse_of: :geographic_area_type
 

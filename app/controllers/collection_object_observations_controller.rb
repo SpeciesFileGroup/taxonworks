@@ -1,13 +1,13 @@
 class CollectionObjectObservationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  
+
   before_action :set_collection_object_observation, only: [:show, :edit, :update, :destroy]
 
   # GET /collection_object_observations
   # GET /collection_object_observations.json
   def index
     @recent_objects = CollectionObjectObservation.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index' 
+    render '/shared/data/all/index'
   end
 
   # GET /collection_object_observations/1
@@ -67,7 +67,7 @@ class CollectionObjectObservationsController < ApplicationController
   end
 
   def list
-    @collection_object_observations = CollectionObjectObservation.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) 
+    @collection_object_observations = CollectionObjectObservation.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10)
   end
 
   def autocomplete
@@ -79,7 +79,7 @@ class CollectionObjectObservationsController < ApplicationController
        response_values: {
          params[:method] => t.id
        },
-       label_html: t.data 
+       label_html: t.data
       }
     end
     render json: data
@@ -95,7 +95,7 @@ class CollectionObjectObservationsController < ApplicationController
 
   # GET /collection_object_observations/download
   def download
-    send_data CollectionObjectObservation.generate_download( CollectionObjectObservation.where(project_id: sessions_current_project_id) ), type: 'text', filename: "collection_object_observations_#{DateTime.now.to_s}.csv"
+    send_data CollectionObjectObservation.generate_download( CollectionObjectObservation.where(project_id: sessions_current_project_id) ), type: 'text', filename: "collection_object_observations_#{DateTime.now}.csv"
   end
 
   private

@@ -104,7 +104,7 @@ class TaxonNameRelationshipsController < ApplicationController
 
   # GET /taxon_name_relationships/download
   def download
-    send_data Download.generate_csv(TaxonNameRelationship.where(project_id: sessions_current_project_id)), type: 'text', filename: "taxon_name_relationships_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(TaxonNameRelationship.where(project_id: sessions_current_project_id)), type: 'text', filename: "taxon_name_relationships_#{DateTime.now}.csv"
   end
 
   # GET /taxon_name_relationships/type_relationships
@@ -125,8 +125,8 @@ class TaxonNameRelationshipsController < ApplicationController
   def taxon_name_relationship_params
     params.require(:taxon_name_relationship).permit(
       :subject_taxon_name_id, :object_taxon_name_id, :type,
-      origin_citation_attributes: [:id, :_destroy, :source_id, :pages] 
-    ) 
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
+    )
   end
 
   def filter_sql

@@ -102,16 +102,16 @@ class IdentifiersController < ApplicationController
 
   # GET /identifiers/download
   def download
-    send_data Download.generate_csv(Identifier.where(project_id: sessions_current_project_id)), type: 'text', filename: "identifiers_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Identifier.where(project_id: sessions_current_project_id)), type: 'text', filename: "identifiers_#{DateTime.now}.csv"
   end
 
   # GET /taxon_name_relationships/taxon_name_relationship_types
   def identifier_types
-    render json: IDENTIFIERS_JSON 
+    render json: IDENTIFIERS_JSON
   end
 
   private
-  
+
   def set_identifier
     @identifier = Identifier.with_project_id(sessions_current_project_id).find(params[:id])
   end

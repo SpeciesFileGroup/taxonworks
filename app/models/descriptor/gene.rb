@@ -233,7 +233,7 @@ class Descriptor::Gene < Descriptor
     begin
       Utilities::Logic.parse_logic(compress_logic).to_s.split('+')
     rescue Parslet::ParseFailed => e
-      errors.add(:gene_attribute_logic, "is invalidly formed: #{e.to_s}")
+      errors.add(:gene_attribute_logic, "is invalidly formed: #{e}")
     end
   end
 

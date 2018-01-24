@@ -29,10 +29,10 @@ Style/StringLiterals:
 #  AutoCorrect: false
 
 Style/StringHashKeys:
-  Enabled: false
+  Enabled: true
 
 Style/HashSyntax:
-  Enabled: false
+  Enabled: true
   EnforcedStyle: ruby19
 #  AutoCorrect: false
 
@@ -47,8 +47,20 @@ Metrics/ClassLength:
   Max: 1000
 
 Layout/IndentationWidth:
-  Enabled: false
+  Enabled: true
   Width: 2
+
+Lint/MissingCopEnableDirective:
+  Enabled: true
+
+Metrics/BlockNesting:
+  Enabled: true
+
+Lint/ReturnInVoidContext:
+  Enabled: true
+
+Lint/StringConversionInInterpolation:
+  Enabled: true
 
 # TODO: select possible additions by setting `Enabled: true`
 
@@ -59,4 +71,10 @@ Layout/EmptyLinesAroundAccessModifier:
   Enabled: false
 
 Lint/DuplicateCaseCondition:
-  Enabled: true
+  Enabled: false
+
+Lint/InterpolationCheck:
+  Enabled: false
+
+Lint/RegexpAsCondition:
+  Enabled: false

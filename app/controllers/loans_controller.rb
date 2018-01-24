@@ -99,7 +99,7 @@ class LoansController < ApplicationController
 
   # GET /loans/download
   def download
-    send_data Download.generate_csv(Loan.where(project_id: sessions_current_project_id)), type: 'text', filename: "loans_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Loan.where(project_id: sessions_current_project_id)), type: 'text', filename: "loans_#{DateTime.now}.csv"
   end
 
   private
