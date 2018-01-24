@@ -1,7 +1,7 @@
-# A {NomenclaturalRank} is used to assert the (organizational) position of a 
-# taxon name within a nomenclatural hierarchy, according to the governed (or not) levels 
+# A {NomenclaturalRank} is used to assert the (organizational) position of a
+# taxon name within a nomenclatural hierarchy, according to the governed (or not) levels
 # described in a corresponding nomenclatural code.
-# 
+#
 # See /lib/ranks.rb for related constants and hooks.
 #
 class NomenclaturalRank
@@ -10,16 +10,16 @@ class NomenclaturalRank
   # self.subclasses gets immediate descendants
 
   # @return [ordered Array of NomenclaturalRank]
-  #   for all direct descendants of this Class. 
-  # Used to build constants in config/initializers/constants/ranks.rb.  
+  #   for all direct descendants of this Class.
+  # Used to build constants in config/initializers/constants/ranks.rb.
   #
-  # !! Further code should reference those constants rather than call this method. 
+  # !! Further code should reference those constants rather than call this method.
   #
-  def self.ordered_ranks 
+  def self.ordered_ranks
     return false if self.name == 'NomenclaturalRank' # || (rank.class.name =~ /NomenclaturalRank/)
     ordered = []
-    bottom = bottom_rank 
-    top = top_rank 
+    bottom = bottom_rank
+    top = top_rank
     ordered.push(bottom)
     ordered << ordered.last.parent_rank while ordered.last != top
     ordered.reverse!
@@ -28,14 +28,14 @@ class NomenclaturalRank
 
   # @return [NomenclaturalRank]
   #   the "top" rank for the nomenclatural group (e.g. ICZN species, genus, family) that this rank belongs to.
-  def self.top_rank 
+  def self.top_rank
     all = self.descendants
     all.select!{|r| !r.parent_rank.nil?}
     all.detect{|r| !all.include?(r.parent_rank)} # returns the first value found
   end
 
-  # @return [NomenclaturalRank] 
-  #   the lowest assignable rank within the nomenclatural group (e.g. ICZN species, genus, family) that this class is part of 
+  # @return [NomenclaturalRank]
+  #   the lowest assignable rank within the nomenclatural group (e.g. ICZN species, genus, family) that this class is part of
   def self.bottom_rank
     all = self.descendants
     all.select!{|r| !r.parent_rank.nil?}
@@ -65,7 +65,7 @@ class NomenclaturalRank
   end
 
   # @return [NomenclaturalRank, nil]
-  #   the parent class ({NomenclaturalRank::Iczn} or {NomenclaturalRank::Icn}) that this rank descends from 
+  #   the parent class ({NomenclaturalRank::Iczn} or {NomenclaturalRank::Icn}) that this rank descends from
   def self.nomenclatural_code_class
     case self.nomenclatural_code
     when :iczn
@@ -81,7 +81,7 @@ class NomenclaturalRank
 
   # The following attributes are stubbed here and over-ridden in subclasses.
 
-  # @return [Boolean] 
+  # @return [Boolean]
   #   should the rank be displayed in "typical" use?
   def self.typical_use
     true
@@ -90,7 +90,7 @@ class NomenclaturalRank
   # @return [NomenclaturalRank, nil]
   #   the immediate parent {NomenclaturalRank} of this class, nil if a "root" level (e.g. {NomenclaturalRank::Iczn}, {NomenclaturalRank::Icn})
   #
-  # All subclasses must override this method. 
+  # All subclasses must override this method.
   # nil returning classes can not be assigned as a {NomenclaturalRank} to a {TaxonName}!
   def self.parent_rank
     nil
@@ -103,7 +103,7 @@ class NomenclaturalRank
   end
 
   # @return [Array of NomenclaturalRank]
-  #   the TaxonName assignable {NomenclaturalRank}s that this rank descend from 
+  #   the TaxonName assignable {NomenclaturalRank}s that this rank descend from
   def self.valid_parents
     []
   end
@@ -111,9 +111,6 @@ class NomenclaturalRank
   def valid_name_ending
     ''
   end
-
-
-  private
 
   # TODO: move this to string method
   def self.collect_to_s(*args)
@@ -127,7 +124,7 @@ class NomenclaturalRank
     classes.each do |klass|
       ans += klass.descendants.collect{|k| k.to_s}
     end
-    ans    
+    ans
   end
 
 end

@@ -18,17 +18,4 @@ module Shared::ProtocolRelationships
   def protocolled?
     protocols.any?
   end
-
-  protected
-  # Not tested!
-  # def reject_protocol_relationships(attributed)
-  #   attributed['protocol_relationships_attributes'].blank? ||  attributed['image_protocol_relationships']['protocol_id'].blank?
-  # end
-
-
-  # # Not tested!
-  # def reject_protocols(attributed)
-  #   attributed['protocol_id'].blank? 
-  # end
-
 end

@@ -25,41 +25,47 @@ Rails:
   Enabled: true
 
 Style/StringLiterals:
-  Enabled: true
+  Enabled: false
 #  AutoCorrect: false
 
 Style/StringHashKeys:
-  Enabled: true
+  Enabled: false
 
 Style/HashSyntax:
-  Enabled: true
+  Enabled: false
   EnforcedStyle: ruby19
 #  AutoCorrect: false
 
 Metrics/MethodLength:
-  Enabled: true
+  Enabled: false
   CountComments: false
   Max: 25
 
 Metrics/ClassLength:
-  Enabled: true
+  Enabled: false
   CountComments: false
   Max: 1000
 
 Layout/IndentationWidth:
-  Enabled: true
+  Enabled: false
   Width: 2
 
 Lint/MissingCopEnableDirective:
-  Enabled: true
+  Enabled: false
 
 Metrics/BlockNesting:
-  Enabled: true
+  Enabled: false
 
 Lint/ReturnInVoidContext:
-  Enabled: true
+  Enabled: false
 
 Lint/StringConversionInInterpolation:
+  Enabled: false
+
+Lint/UnneededCopDisableDirective:
+  Enabled: false
+
+Lint/UselessAccessModifier:
   Enabled: true
 
 # TODO: select possible additions by setting `Enabled: true`
@@ -78,3 +84,6 @@ Lint/InterpolationCheck:
 
 Lint/RegexpAsCondition:
   Enabled: false
+
+Lint/UselessAccessModifier:
+  Enabled: true

@@ -2,6 +2,6 @@ json.extract! citation_topic, :id, :citation_id, :topic_id, :created_by_id, :upd
 json.url citation_topic_url(citation_topic, format: :json)
 
 json.topic do |t|
- t.partial! '/controlled_vocabulary_terms/attributes', controlled_vocabulary_term: citation_topic.topic 
+  t.partial! '/controlled_vocabulary_terms/attributes', controlled_vocabulary_term: citation_topic.topic
 end
 

@@ -33,7 +33,7 @@ module Shared::MatrixHooks
     end
   end
 
-  def cleanup_matrix 
+  def cleanup_matrix
     if matrix_column_item
       mci = matrix_column_item[:matrix_column_item]
       descriptor = matrix_column_item[:descriptor]
@@ -48,7 +48,4 @@ module Shared::MatrixHooks
       mri.cleanup_single_matrix_row(object)
     end
   end
-
-  protected 
-
 end

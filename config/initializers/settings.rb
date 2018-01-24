@@ -6,7 +6,7 @@ module Settings
   EXCEPTION_NOTIFICATION_SETTINGS = [
     :email_prefix,
     :sender_address,
-    :exception_recipients 
+    :exception_recipients
   ]
 
   VALID_SECTIONS = [
@@ -18,7 +18,7 @@ module Settings
     :mail_domain,
     :capistrano,
     :interface,
-    :selenium 
+    :selenium
   ]
 
   @@backup_directory = nil
@@ -30,8 +30,8 @@ module Settings
   @@sandbox_commit_sha = nil
   @@sandbox_commit_date = nil
 
-  @@selenium_settings = {} 
-   
+  @@selenium_settings = {}
+
   def self.load_from_hash(config, hash)
     invalid_sections = hash.keys - VALID_SECTIONS
     raise Error, "#{invalid_sections} are not valid sections" unless invalid_sections.empty?
@@ -55,14 +55,14 @@ module Settings
 
   def self.load_from_file(config, path, set_name)
     hash = YAML.load_file(path)
-    if hash.keys.include?(set_name.to_s) 
+    if hash.keys.include?(set_name.to_s)
       self.load_from_hash(config, Utilities::Hashes.symbolize_keys(hash[set_name.to_s] || { }))
     else
       # require settings for production, but technically not test/development
-      raise Error, "#{set_name} settings set not found" unless %w{production test development}.include?(set_name.to_s) 
+      raise Error, "#{set_name} settings set not found" unless %w{production test development}.include?(set_name.to_s)
     end
   end
-  
+
   def self.default_data_directory
     @@default_data_directory
   end
@@ -88,10 +88,8 @@ module Settings
   end
 
   def self.selenium_settings
-    @@selenium_settings 
+    @@selenium_settings
   end
-
-  private
 
   def self.setup_directory(path)
     if !Dir.exists?(path)
@@ -119,11 +117,11 @@ module Settings
       @@backup_directory = full_path
     end
   end
-  
+
   def self.load_exception_notification(config, settings)
-    if settings      
+    if settings
       config.middleware.use ExceptionNotification::Rack, email: process_exception_notification(settings)
-    end    
+    end
   end
 
   def self.process_exception_notification(settings)
@@ -141,14 +139,14 @@ module Settings
   end
 
   def self.load_interface(settings)
-    if settings      
+    if settings
       invalid = settings.keys - [:sandbox_mode]
       raise Error, "#{invalid} are not valid settings for interface" unless invalid.empty?
       if settings[:sandbox_mode]
-        @@sandbox_mode = true 
+        @@sandbox_mode = true
         @@sandbox_commit_sha = TaxonworksNet.commit_sha
-        @@sandbox_commit_date = TaxonworksNet.commit_date     
-      end    
+        @@sandbox_commit_date = TaxonworksNet.commit_date
+      end
     end
   end
 
@@ -156,8 +154,8 @@ module Settings
     invalid = settings.keys - [:browser, :marionette, :firefox_binary_path, :chromedriver_path]
 
     raise Error, "#{invalid} are not valid settings for test:selenium." unless invalid.empty?
-    raise Error, "Can not find Firefox browser binary #{settings[:firefox_binary_path]}." if settings[:browser] == :firefox && !settings[:firefox_binary_path].blank? && !File.exists?(settings[:firefox_binary_path])  
-    raise Error, "Can not find chromedriver #{ settings[:chromedriver_path] }." if settings[:browser] == :chrome && !settings[:chromedriver_path].blank? && !File.exists?(settings[:chromedriver_path])  
+    raise Error, "Can not find Firefox browser binary #{settings[:firefox_binary_path]}." if settings[:browser] == :firefox && !settings[:firefox_binary_path].blank? && !File.exists?(settings[:firefox_binary_path])
+    raise Error, "Can not find chromedriver #{ settings[:chromedriver_path] }." if settings[:browser] == :chrome && !settings[:chromedriver_path].blank? && !File.exists?(settings[:chromedriver_path])
 
     settings.each do |k,v|
       @@selenium_settings[k] = v if !v.blank?
@@ -170,19 +168,19 @@ module Settings
       config.action_mailer.smtp_settings = settings
     end
   end
-  
+
   def self.load_action_mailer_url_host(config, url_host)
     if url_host
       config.action_mailer.default_url_options = { host: url_host }
     end
   end
-  
+
   def self.load_mail_domain(config, mail_domain)
     @@mail_domain = mail_domain
   end
 
   def self.load_test_defaults(config)
-    load_from_hash(config, { 
+    load_from_hash(config, {
       exception_notification: {
         email_prefix: '[TW-Error] ',
         sender_address: %{"notifier" <notifier@example.com>},

@@ -14,7 +14,7 @@
 #
 #    bus valid_name OF aus
 #
-# Note that we can not say that all names that are subjects are valid, this is determined on a case by case basis. 
+# Note that we can not say that all names that are subjects are valid, this is determined on a case by case basis.
 #
 # TaxonNameRelationships have a domain (attributes on the subject) and range (attributes on the object).  So if you use
 # a relationship you may be asserting a TaxonNameClassification also exists for the subject or object.
@@ -364,7 +364,7 @@ class TaxonNameRelationship < ApplicationRecord
             cached: t.get_full_name,
             cached_html: t.get_full_name_html
           )
-        elsif type_name =~/SourceClassifiedAs/ 
+        elsif type_name =~/SourceClassifiedAs/
           t = subject_taxon_name
           t.update_column(:cached_classified_as, t.get_cached_classified_as)
         elsif TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(type_name)
@@ -792,8 +792,6 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   #endregion
-
-  private
 
   def self.collect_to_s(*args)
     args.collect{|arg| arg.to_s}

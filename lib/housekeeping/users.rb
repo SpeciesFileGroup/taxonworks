@@ -46,8 +46,6 @@ module Housekeeping::Users
     def all_updaters
       User.joins("updated_#{self.name.demodulize.underscore.pluralize}".to_sym).uniq
     end
-
-    protected
   end
 
   # A convenience.  When provided creator and updater are set.  If creator exists updater is set.  Overrides creator/updater if provided second.  See tests.

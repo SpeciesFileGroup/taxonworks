@@ -132,8 +132,6 @@ class Tag < ApplicationRecord
     false
   end
 
-  protected
-
   def keyword_is_allowed_on_object
     return true if keyword.nil? || tag_object.nil? || !keyword.respond_to?(:can_tag)
     if !keyword.can_tag.include?(tag_object.class.name)

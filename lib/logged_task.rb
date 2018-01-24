@@ -35,8 +35,6 @@ module LoggedTask
     Rake::Task.define_task(task_sym) { @@root_task_number = task_number unless @@root_task_number }
   end
 
-  private
-
   class TaskLogger
 
     def initialize(task_full_name)
