@@ -202,7 +202,7 @@ namespace :tw do
           # These should be empty Arrays
 
           def names_not_indexed
-            names.select { |n| !@index[n.index] }
+            names.reject { |n| @index[n.index] }
           end
 
           def names_without_parent_arrays

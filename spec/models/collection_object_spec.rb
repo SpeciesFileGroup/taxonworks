@@ -446,7 +446,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
         sp = FactoryBot.create(:valid_specimen)
         id = FactoryBot.create(:identifier_local_catalog_number,
                                 identifier_object: sp,
-                                namespace: ((identifier % 2) == 0 ? Namespace.first : Namespace.second),
+                                namespace: (identifier.even? ? Namespace.first : Namespace.second),
                                 identifier: identifier)
       }
     end

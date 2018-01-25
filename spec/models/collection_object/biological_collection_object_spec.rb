@@ -164,7 +164,7 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
         sp = FactoryBot.create(:valid_specimen)
         id = FactoryBot.create(:identifier_local_catalog_number,
                                 identifier_object: sp,
-                                namespace:         ((identifier % 2) == 0 ? ns1 : ns2),
+                                namespace:         (identifier.even? ? ns1 : ns2),
                                 identifier:        identifier)
       }
     end

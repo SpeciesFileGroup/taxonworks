@@ -25,19 +25,19 @@ Rails:
   Enabled: true
 
 Style/StringLiterals:
-  Enabled: true
+  Enabled: false
 #  AutoCorrect: false
 
 Style/StringHashKeys:
-  Enabled: true
+  Enabled: false
 
 Style/HashSyntax:
-  Enabled: true
+  Enabled: false
   EnforcedStyle: ruby19
 #  AutoCorrect: false
 
 Metrics/LineLength:
-  Enabled: true
+  Enabled: false
   Max: 120
   AllowHeredoc: true
   AllowURI: true
@@ -45,45 +45,45 @@ Metrics/LineLength:
   IgnoreCopDirectives: false
 
 Metrics/MethodLength:
-  Enabled: true
+  Enabled: false
   CountComments: false
   Max: 25
 
 Metrics/ClassLength:
-  Enabled: true
+  Enabled: false
   CountComments: false
   Max: 1000
 
 Layout/IndentationWidth:
-  Enabled: true
+  Enabled: false
   Width: 2
 
 Lint/MissingCopEnableDirective:
-  Enabled: true
+  Enabled: false
 
 Metrics/BlockNesting:
-  Enabled: true
+  Enabled: false
 
 Lint/ReturnInVoidContext:
-  Enabled: true
+  Enabled: false
 
 Lint/StringConversionInInterpolation:
-  Enabled: true
+  Enabled: false
 
 Performance/HashEachMethods:
-  Enabled: true
+  Enabled: false
 
 #Lint/UnneededCopDisableDirective:
 #  Enabled: false
 
 Lint/UselessAccessModifier:
-  Enabled: true
+  Enabled: false
 
 Performance/Size:
-  Enabled: true
+  Enabled: false
 
 Rails/Date:
-  Enabled: true
+  Enabled: false
 
 Rails/SaveBang:
   Enabled: false
@@ -104,3 +104,6 @@ Lint/InterpolationCheck:
 
 Lint/RegexpAsCondition:
   Enabled: false
+
+Style/InverseMethods:
+  Enabled: true

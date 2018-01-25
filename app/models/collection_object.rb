@@ -170,7 +170,7 @@ class CollectionObject < ApplicationRecord
 
   # TODO: move to a helper
   def self.breakdown_status(collection_objects)
-    collection_objects = [collection_objects] if !(collection_objects.class == Array)
+    collection_objects = [collection_objects] if collection_objects.class != Array
 
     breakdown = {
       total_objects:     collection_objects.length,
@@ -193,7 +193,7 @@ class CollectionObject < ApplicationRecord
   # @return [Hash]
   #   a unque list of buffered_ values observed in the collection objects passed
   def self.breakdown_buffered(collection_objects)
-    collection_objects = [collection_objects] if !(collection_objects.class == Array)
+    collection_objects = [collection_objects] if collection_objects.class != Array
     breakdown          = {}
     categories         = BUFFERED_ATTRIBUTES
 
