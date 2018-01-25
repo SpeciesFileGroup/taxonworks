@@ -8,7 +8,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
   def make_dates_method_headers
     list = Utilities::Dates::REGEXP_DATES
     selector_row = ''
-    list.each {|kee, v|
+    list.each_key {|kee|
       selector_row += content_tag(:th, Utilities::Dates::REGEXP_DATES[kee][:hdr],
                                   data: {help: Utilities::Dates::REGEXP_DATES[kee][:hlp]})
     }
@@ -56,7 +56,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
   # @param [String] pieces is either piece, or lat, long
   # @param [Scope] collection is a scope of CollectingEvent
   # "identical matches" result table
-  def make_dates_matching_table(*pieces, collection)
+  def make_dates_matching_table(*pieces, collection)  # rubocop:disable Metrics/MethodLength
     columns = ['CEID', 'Match', 'Start Date', 'End Date', 'Verbatim Date', 'Select']
 
     thead = content_tag(:thead) do
