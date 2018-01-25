@@ -43,7 +43,7 @@ class Serial < ApplicationRecord
   include Shared::HasPapertrail
 
   # Class constants
-  ALTERNATE_VALUES_FOR = [:name, :publisher, :place_published]
+  ALTERNATE_VALUES_FOR = [:name, :publisher, :place_published].freeze
   # Class variables
   # Callbacks
   # Associations, in order: belongs_to, has_one,has_many

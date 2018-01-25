@@ -1,8 +1,8 @@
 module Utilities::Dates
 
-  LONG_MONTHS = %w{january february march april may june july august september october november december}
-  SHORT_MONTHS = %w{jan feb mar apr may jun jul aug sep oct nov dec}
-  ROMAN_MONTHS = %i{i ii iii iv v vi vii viii ix x xi xii}
+  LONG_MONTHS = %w{january february march april may june july august september october november december}.freeze
+  SHORT_MONTHS = %w{jan feb mar apr may jun jul aug sep oct nov dec}.freeze
+  ROMAN_MONTHS = %i{i ii iii iv v vi vii viii ix x xi xii}.freeze
 
   MONTHS_FOR_SELECT = LONG_MONTHS.collect {|m| [m.capitalize, LONG_MONTHS.index(m) + 1]}
 
@@ -620,6 +620,6 @@ module Utilities::Dates
       yyyy_month_dd_month_dd: {reg: /(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})[-\s\u2013_\.,\/]?\s*(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[-\s\u2013_\.,\/]?\s*(\d\d?)\s?[-\s\u2013_\.,\/]?\s*(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[-\s\u2013_\.,\/]?\s*(\d\d?)/i,
                                hlp: '1994 june 14 -JULY 17 | 2002-IV-27 - JUL-04',
                                hdr: 'ymodmod'}
-  }
+  }.freeze
 
 end

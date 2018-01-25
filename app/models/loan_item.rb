@@ -47,7 +47,7 @@ class LoanItem < ApplicationRecord
 
   attr_accessor :date_returned_jquery
 
-  STATUS = ['Destroyed', 'Donated', 'Loaned on', 'Lost', 'Retained', 'Returned']
+  STATUS = ['Destroyed', 'Donated', 'Loaned on', 'Lost', 'Retained', 'Returned'].freeze
 
   belongs_to :loan
   belongs_to :loan_item_object, polymorphic: true
@@ -147,7 +147,7 @@ class LoanItem < ApplicationRecord
 
   # TODO: param handling is currently all kinds of "meh"
   def self.batch_create(params)
-    case params[:batch_type] 
+    case params[:batch_type]
     when 'tags'
       batch_create_from_tags(params[:keyword_id], params[:klass], params[:loan_id])
     when 'pinboard'
@@ -182,7 +182,7 @@ class LoanItem < ApplicationRecord
     LoanItem.transaction do
       begin
         if klass
-          klass.constantize.joins(:pinboard_items).where(pinboard_items: {user_id: user_id, project_id: project_id, pinned_object_type: klass}).each do |o| 
+          klass.constantize.joins(:pinboard_items).where(pinboard_items: {user_id: user_id, project_id: project_id, pinned_object_type: klass}).each do |o|
             created.push LoanItem.create!(loan_item_object: o, loan_id: loan_id)
           end
         else

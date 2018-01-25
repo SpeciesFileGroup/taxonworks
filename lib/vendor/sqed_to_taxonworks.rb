@@ -17,7 +17,7 @@ module SqedToTaxonworks
       nothing: nil,
       specimen: nil,
       stage: :buffered_collecting_event,
-    }
+    }.freeze
 
     attr_accessor :depiction
 

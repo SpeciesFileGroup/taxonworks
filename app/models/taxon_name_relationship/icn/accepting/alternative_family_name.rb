@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Icn::Accepting::AlternativeFamilyName < TaxonNameRelationship::Icn::Accepting
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000371'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000371'.freeze
 
   #left_side
   def self.valid_subject_ranks

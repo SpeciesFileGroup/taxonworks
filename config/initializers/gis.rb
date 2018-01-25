@@ -4,7 +4,7 @@ require 'rgeo'
 
 module Gis
 
-  SPHEROID = 'SPHEROID["WGS-84", 6378137, 298.257223563]'
+  SPHEROID = 'SPHEROID["WGS-84", 6378137, 298.257223563]'.freeze
 
   FACTORY = RGeo::Geographic.projected_factory(srid:                    4326,
                                                projection_srid:         4326,

@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship::Iczn::Invalidating
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000289'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000289'.freeze
 
   soft_validate(:sv_validate_homonym_relationships, set: :validate_homonym_relationships)
 

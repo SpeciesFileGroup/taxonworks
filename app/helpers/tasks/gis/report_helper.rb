@@ -1,6 +1,6 @@
 module Tasks::Gis::ReportHelper
 
-  ALLHEADERS = ['Collecting Event', 'Collection Object', 'Bio classification']
+  ALLHEADERS = ['Collecting Event', 'Collection Object', 'Bio classification'].freeze
 
   # @return [String] for download button and hidden field for geographic area id
   def helper_download_button

@@ -18,7 +18,7 @@ module Shared::IsData::Annotation
     :identifiers,
     :data_attributes,
     :notes
-  ]
+  ].freeze
 
   module ClassMethods
 

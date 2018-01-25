@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName < TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000279'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000279'.freeze
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +

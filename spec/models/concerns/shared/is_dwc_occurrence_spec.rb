@@ -84,7 +84,7 @@ class TestIsDwcOccurrence < ApplicationRecord
   DWC_OCCURRENCE_MAP = {
     island: :treasure,
     disposition: :grumpy
-  }
+  }.freeze
 
   def treasure
     'Gold'

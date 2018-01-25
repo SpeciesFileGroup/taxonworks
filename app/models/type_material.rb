@@ -7,7 +7,7 @@
 #
 # @!attribute biological_object_id
 #   @return [Integer]
-#     the CollectionObject 
+#     the CollectionObject
 #
 # @!attribute type_type
 #   @return [String]
@@ -44,7 +44,7 @@ class TypeMaterial < ApplicationRecord
     'paratypes' => Lot,
     'syntypes' => Lot,
     'paralectotypes' => Lot
-  }
+  }.freeze
 
   ICN_TYPES = {
       'holotype' => Specimen,
@@ -58,7 +58,7 @@ class TypeMaterial < ApplicationRecord
       'syntypes' => Lot,
       'isotypes' => Lot,
       'isosyntypes' => Lot
-  }
+  }.freeze
 
   belongs_to :material, foreign_key: :biological_object_id, class_name: 'CollectionObject', inverse_of: :type_designations
   belongs_to :protonym
@@ -76,7 +76,7 @@ class TypeMaterial < ApplicationRecord
   scope :syntypes, -> {where(type_type: %w{syntype syntypes}).order('biological_object_id')}
 
   #  scope :primary_with_protonym_array, -> (base_array) {select('type_type, source_id, biological_object_id').group('type_type, source_id, biological_object_id').where("type_materials.type_type IN ('neotype', 'lectotype', 'holotype', 'syntype', 'syntypes') AND type_materials.protonym_id IN (?)", base_array ) }
-  
+
   scope :primary_with_protonym_array, -> (base_array) {select('type_type, biological_object_id').group('type_type, biological_object_id').where("type_materials.type_type IN ('neotype', 'lectotype', 'holotype', 'syntype', 'syntypes') AND type_materials.protonym_id IN (?)", base_array ) }
 
   soft_validate(:sv_single_primary_type, set: :single_primary_type)
@@ -111,7 +111,7 @@ class TypeMaterial < ApplicationRecord
   def check_type_type
     if protonym
       code = protonym.rank_class.nomenclatural_code
-      errors.add(:type_type, 'Not a legal type for the nomenclatural code provided') if !legal_type_type(code, type_type) 
+      errors.add(:type_type, 'Not a legal type for the nomenclatural code provided') if !legal_type_type(code, type_type)
     end
   end
 
@@ -128,7 +128,7 @@ class TypeMaterial < ApplicationRecord
       soft_validations.add(:type_type, 'Other primary types selected for the taxon are conflicting with the syntypes') unless primary_types.empty?
     end
 
-    if ['holotype', 'neotype', 'lectotype'].include?(type_type) 
+    if ['holotype', 'neotype', 'lectotype'].include?(type_type)
       soft_validations.add(:type_type, 'More than one primary type associated with the taxon') if !primary_types.empty? || !syntypes.empty?
     end
   end

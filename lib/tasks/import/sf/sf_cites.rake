@@ -552,7 +552,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   {name: 'complete data', definition: 'InfoFlagStatus: complete data', uri: 'http://speciesfile.org/legacy/info_flag_status/2', uri_relation: 'skos:closeMatch', type: 'ConfidenceLevel'},
               ]
 
-          }
+          }.freeze
 
           logger.info 'Running create_cvts_for_citations...'
 

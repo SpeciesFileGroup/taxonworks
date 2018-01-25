@@ -1,6 +1,6 @@
 class TaxonNameClassification::Iczn::Available::OfficialListOfFamilyGroupNamesInZoology < TaxonNameClassification::Iczn::Available
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000229'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000229'.freeze
 
   def self.applicable_ranks
     FAMILY_RANK_NAMES_ICZN

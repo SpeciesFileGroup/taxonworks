@@ -15,7 +15,7 @@ class Protonym < TaxonName
 
   alias_method :original_combination_source, :source
 
-  FAMILY_GROUP_ENDINGS = %w{ini ina inae idae oidae odd ad oidea}
+  FAMILY_GROUP_ENDINGS = %w{ini ina inae idae oidae odd ad oidea}.freeze
 
   validates_presence_of :name
   validates_presence_of :rank_class, message: 'is a required field'

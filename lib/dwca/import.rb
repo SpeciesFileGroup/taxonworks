@@ -97,7 +97,7 @@ module Dwca::Import
     'http://rs.tdwg.org/dwc/terms/datasetID'      => nil, # An identifier for the set of data. May be a global unique identifier or an identifier specific to a collection or institution.
     'http://rs.tdwg.org/dwc/terms/datasetName'    => nil, # default='Illinois Natural History Survey'  The name identifying the data set from which the record was derived.
     'http://rs.tdwg.org/dwc/terms/basisOfRecord'  => nil, # default='Preserved Specimen'               The specific nature of the data record - a subtype of the dcterms:type. Recommended best practice is to use a controlled vocabulary such as the Darwin Core Type Vocabulary (http://rs.tdwg.org/dwc/terms/type-vocabulary/index.htm).
-  }
+  }.freeze
 
   DWC2TW = {
     otu: {
@@ -166,7 +166,7 @@ module Dwca::Import
     type_specimen: {
       'http://rs.tdwg.org/dwc/terms/typeStatus' => {in: :type_type, out: :type_type}
     },
-  }
+  }.freeze
 
 class TwObjects < Struct.new( *Dwca::Import::DWC2TW.keys.collect{|k| "#{k}s".to_sym }, :rows);
 end

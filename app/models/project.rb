@@ -19,10 +19,10 @@ class Project < ApplicationRecord
 
   attr_accessor :without_root_taxon_name
 
-  DEFAULT_WORKBENCH_STARTING_PATH = '/hub'
+  DEFAULT_WORKBENCH_STARTING_PATH = '/hub'.freeze
   DEFAULT_WORKBENCH_SETTINGS = {
       'workbench_starting_path' => DEFAULT_WORKBENCH_STARTING_PATH
-  }
+  }.freeze
 
   has_many :project_members, dependent: :restrict_with_error
   has_many :users, through: :project_members

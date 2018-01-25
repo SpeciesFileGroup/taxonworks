@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Iczn::PotentiallyValidating::ReinstatedName < TaxonNameRelationship::Iczn::PotentiallyValidating
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000269'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000269'.freeze
 
   def object_status
     'reinstated name'

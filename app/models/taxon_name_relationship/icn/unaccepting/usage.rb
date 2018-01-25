@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Icn::Unaccepting::Usage < TaxonNameRelationship::Icn::Unaccepting
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000374'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000374'.freeze
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +

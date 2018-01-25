@@ -7,7 +7,7 @@ module Settings
     :email_prefix,
     :sender_address,
     :exception_recipients
-  ]
+  ].freeze
 
   VALID_SECTIONS = [
     :backup_directory,
@@ -19,7 +19,7 @@ module Settings
     :capistrano,
     :interface,
     :selenium
-  ]
+  ].freeze
 
   @@backup_directory = nil
   @@default_data_directory = nil
