@@ -106,4 +106,4 @@ Lint/RegexpAsCondition:
   Enabled: false
 
 Style/InverseMethods:
-  Enabled: true
+  Enabled: false
