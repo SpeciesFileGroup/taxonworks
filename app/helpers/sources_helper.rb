@@ -22,15 +22,15 @@ module SourcesHelper
   end
 
   def source_attributes_for(source)
-    w = content_tag(:em, 'ERROR, unkown class of Source, contact developers', class: :warning)  
+    w = content_tag(:em, 'ERROR, unkown class of Source, contact developers', class: :warning)
     content_for :attributes do
-      case source.class.name 
-      when 'Source::Bibtex' 
+      case source.class.name
+      when 'Source::Bibtex'
         render '/sources/bibtex/attributes'
       when 'Source::Verbatim'
         render '/sources/verbatim/attributes'
       when 'Source::Source'
-        w 
+        w
       else
         w
       end
@@ -39,15 +39,15 @@ module SourcesHelper
 
   def source_related_attributes(source)
     content_for :related_attributes do
-       if source.class.name == 'Source::Bibtex'
-          content_tag(:h3, 'Authors') do
-            content_tag(:ul) do
-              source.authors.collect{|a| content_tag(:li, a.last_name)} 
-            end
+      if source.class.name == 'Source::Bibtex'
+        content_tag(:h3, 'Authors') do
+          content_tag(:ul) do
+            source.authors.collect{|a| content_tag(:li, a.last_name)}
           end
-       else
+        end
+      else
 
-       end
+      end
     end
   end
 
@@ -56,10 +56,10 @@ module SourcesHelper
       form_for(ProjectSource.new(source_id: source.to_param, project_id: sessions_current_project_id), remote: true) do |f|
         f.hidden_field(:source_id) +
           f.hidden_field(:project_id) +
-          f.submit('Add to project', data: { 'source-to-project': source.id.to_s }, class: 'button-submit') 
+          f.submit('Add to project', data: { 'source-to-project': source.id.to_s }, class: 'button-submit')
       end
     else
-      button_to('Remove from project', project_source_path(project_source_for_source(source)), method: :delete, remote: true,  data: { 'source-to-project': source.id.to_s }, class: 'button-delete') 
+      button_to('Remove from project', project_source_path(project_source_for_source(source)), method: :delete, remote: true,  data: { 'source-to-project': source.id.to_s }, class: 'button-delete')
     end
   end
 

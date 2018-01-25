@@ -291,7 +291,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       get :identifier_types, {format: :json}
-  end
+    end
   end
 
   resources :images do
@@ -573,7 +573,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       get :type_types, {format: :json}
     end
-    
+
   end
 
 

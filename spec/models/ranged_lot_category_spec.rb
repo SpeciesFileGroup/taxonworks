@@ -4,10 +4,10 @@ describe RangedLotCategory, type: :model do
 
   let(:ranged_lot_category) {RangedLotCategory.new}
 
-  context 'associations' do 
+  context 'associations' do
     context 'has_many' do
       specify 'ranged_lots' do
-          expect(ranged_lot_category).to respond_to (:ranged_lots)
+        expect(ranged_lot_category).to respond_to (:ranged_lots)
       end
     end
   end

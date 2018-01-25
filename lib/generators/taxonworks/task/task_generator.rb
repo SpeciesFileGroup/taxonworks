@@ -32,14 +32,14 @@ class Taxonworks::TaskGenerator < Rails::Generators::Base
     @route_names = Array.new
 
     methods_actions_names.each do |str|
-        split_str = str.split(':')
-        method = split_str[0]
-        action = split_str[1]
-        name = split_str[2] || "#{method}_#{controller_base_name}"
+      split_str = str.split(':')
+      method    = split_str[0]
+      action    = split_str[1]
+      name      = split_str[2] || "#{method}_#{controller_base_name}"
 
-        @route_methods.push(method)
-        @route_actions.push(action)
-        @route_names.push(name + '_task')
+      @route_methods.push(method)
+      @route_actions.push(action)
+      @route_names.push(name + '_task')
     end
   end
 
@@ -72,14 +72,14 @@ class Taxonworks::TaskGenerator < Rails::Generators::Base
 
     scopes.each_with_index do |scope, index|
       if index >= scope_index
-        route_str += "#{indent_str}#{scope} do\n" 
+        route_str += "#{indent_str}#{scope} do\n"
       end
 
       indent_str += '  '
     end
 
     route_str += "#{indent_str}#{innermost_scope_str} do\n"
-    
+
     @route_actions.each_with_index do |action, index|
       route_str += "#{indent_str}  #{action} '#{@route_methods[index]}', as: '#{@route_names[index]}'\n"
     end
@@ -100,7 +100,7 @@ class Taxonworks::TaskGenerator < Rails::Generators::Base
 
     @route_names.each_with_index do |name, index|
       next if @route_actions[index] != 'get'
-      
+
       user_tasks_str += "#{name}:\n"
       user_tasks_str += "  hub: true\n"
       user_tasks_str += "  name: 'TODO: Task name'\n"
@@ -144,7 +144,7 @@ class Taxonworks::TaskGenerator < Rails::Generators::Base
   end
 
   private
-  
+
   def controller_class_name
     controller_base_name.titleize.tr(' ', '')
   end
@@ -152,11 +152,11 @@ class Taxonworks::TaskGenerator < Rails::Generators::Base
   def full_controller_class_name
     controller_name = 'Tasks::'
     controller_name += @paths.inject('') do |str, elem|
-      str += "#{elem.titleize.tr(' ', '')}::" 
+      str += "#{elem.titleize.tr(' ', '')}::"
     end
 
     controller_name += controller_class_name
     "#{controller_name.chomp("::")}Controller"
   end
 
-end 
+end

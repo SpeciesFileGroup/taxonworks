@@ -18,7 +18,7 @@ module HubHelper
         }
       ),send(task.path), data: { turbolinks: false }) +
       content_tag(:div, '', class: 'fav-link') {
-            favorite_page_link('tasks', task.prefix) 
+        favorite_page_link('tasks', task.prefix) 
       }       
     }
   end

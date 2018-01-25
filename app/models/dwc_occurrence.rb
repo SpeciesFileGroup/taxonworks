@@ -77,7 +77,7 @@ class DwcOccurrence < ApplicationRecord
   end
 
   def stale?
-     dwc_occurrence_object.updated_at > updated_at
+    dwc_occurrence_object.updated_at > updated_at
   end
 
   protected

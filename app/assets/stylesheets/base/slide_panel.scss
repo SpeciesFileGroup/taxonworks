@@ -2,166 +2,163 @@ $header-color: #00796B;
 $category-header-color: #004D40;
 $default-padding: 2em;
 
-
 .slide-panel {
-	z-index: 1000;
-	right: -400px;
-	top: 0px;
-	position: fixed;
-	width: 400px;
-	height: 100vh;
-	background-color: #FFF;
-	box-shadow: 0px 1px 2px 0px #888;
-	font-weight: 300;
-	a {
-		text-decoration: none;
-	}
+  z-index: 1000;
+  right: -400px;
+  top: 0px;
+  position: fixed;
+  width: 400px;
+  height: 100vh;
+  background-color: #FFF;
+  box-shadow: 0px 1px 2px 0px #888;
+  font-weight: 300;
+  a {
+    text-decoration: none;
+  }
 
+  .slide-panel-content {
+    position: relative;
+    display: block;
+    overflow-y: auto;
+    overflow-x: auto;
+    width: 100%;
+    height: calc(100% - 60px);
+  }
 
+  .slide-panel-header {
+    width: auto;
+    height: 60px;
+    display: flex;
+    font-size: $font_title;
+    color: #FFF;
+    align-items: center;
+    padding-left: $default-padding;
+    background-color: $header-color;
+  }
 
-	.slide-panel-content {
-		position: relative;
-		display: block;
-		overflow-y:auto;
-		overflow-x: auto;
-		width: 100%;
-		height: calc(100% - 60px);
-	}	
+  .slide-panel-category-item {
+    display: flex;
+    align-items: center;
+  }
 
-	.slide-panel-header {
-		width: auto;
-		height: 60px;
-		display: flex;
-		font-size: $font_title;
-		color: #FFF;
-		align-items: center;
-		padding-left: $default-padding;
-		background-color: $header-color;
-	}
+  .slide-panel-category-content {
+    padding-left: $default-padding;
+  }
 
-	.slide-panel-category-item {
-		display: flex;
-		align-items: center;
-	}
+  .slide-panel-category-header {
+    padding: 0.8em;
+    color: #828282;
+    cursor: pointer;
+    background-color: #F9F9F9;
+    padding-left: $default-padding;
+    border-left: 5px solid $category-header-color;
+    background-image: image-url('arrow-down.svg');
+    background-position: right 1em center;
+    background-repeat: no-repeat;
+  }
 
-	.slide-panel-category-content {
-		padding-left: $default-padding;
-	}	
+  .slide-panel-circle-icon {
+    opacity: 0.4;
+    width: 55px;
+    height: 55px;
+    position: absolute;
+    cursor: pointer;
+    left: -27px;
+    top: 50vh;
+    border-radius: 50%;
+    background-color: $category-header-color;
+    background-image: image-url('b_pin.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 25px;
+    box-shadow: 0px 1px 2px 0px #444;
+    transition: background-size 0.5s ease, opacity 0.3s ease;
+  }
 
-	.slide-panel-category-header {
-		padding: 0.8em;
-		color: #828282;
-		cursor: pointer;
-		background-color: #F9F9F9;
-		padding-left: $default-padding;
-		border-left: 5px solid $category-header-color;
-		background-image: image-url('arrow-down.svg');
-		background-position: right 1em center;
-		background-repeat: no-repeat;
-	}
-
-	.slide-panel-circle-icon {
-		opacity: 0.4;
-		width: 55px;
-		height: 55px;
-		position: absolute;
-		cursor: pointer;
-		left: -27px;
-		top: 50vh;
-		border-radius: 50%;
-		background-color: $category-header-color;
-		background-image: image-url('b_pin.svg');
-		background-repeat: no-repeat;
-		background-position: center;
-		background-size: 25px;
-		box-shadow: 0px 1px 2px 0px #444;
-		transition: background-size 0.5s ease, opacity 0.3s ease;
-	}
-	
-	.slide-panel-circle-icon:hover {
-		opacity: 1;
-		background-size: 30px;
-		transition: background-size 0.3s ease, opacity 0.3s ease;
-	}
-	.slide-panel-description {
-		@include arrow-box-right(50%);
-		display: none;
-		font-weight: 300;
-		position: absolute;
-		font-size: $font_small;
-		white-space: nowrap;
-		padding: $standard_padding*0.5;
-		background-color: $color-help-description;
-		color: $color-help-text;
-		box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
-		right:70px;
-		top:13px;
-		padding-left: $standard_padding;
-		padding-right: $standard_padding;
-		border-radius: 3px;
-	}
+  .slide-panel-circle-icon:hover {
+    opacity: 1;
+    background-size: 30px;
+    transition: background-size 0.3s ease, opacity 0.3s ease;
+  }
+  .slide-panel-description {
+    @include arrow-box-right(50%);
+    display: none;
+    font-weight: 300;
+    position: absolute;
+    font-size: $font_small;
+    white-space: nowrap;
+    padding: $standard_padding*0.5;
+    background-color: $color-help-description;
+    color: $color-help-text;
+    box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
+    right: 70px;
+    top: 13px;
+    padding-left: $standard_padding;
+    padding-right: $standard_padding;
+    border-radius: 3px;
+  }
 
 }
 
-	[data-panel-open="true"] .slide-panel-circle-icon {
-		opacity: 1;
-	}
+[data-panel-open="true"] .slide-panel-circle-icon {
+  opacity: 1;
+}
 
-	[data-panel-open="false"] .slide-panel-circle-icon:hover {
-		opacity: 1;
-		.slide-panel-description {
-			display: block;
-		}
-	}	
+[data-panel-open="false"] .slide-panel-circle-icon:hover {
+  opacity: 1;
+  .slide-panel-description {
+    display: block;
+  }
+}
 
 .slide-document {
-	.slide-panel-header {
-		background-color: #770000;
-	}
-	.slide-panel-circle-icon {
-		top:calc(50vh - 65px);
-		background-color: #770000;
-		background-image: image-url('b_book.svg');
-	}
+  .slide-panel-header {
+    background-color: #770000;
+  }
+  .slide-panel-circle-icon {
+    top: calc(50vh - 65px);
+    background-color: #770000;
+    background-image: image-url('b_book.svg');
+  }
 }
 
 .slide-recent {
-	.slide-panel-header {
-		background-color: #0097A7;
-	}
-	.slide-panel-circle-icon {
-		top:calc(50vh - 130px);
-		background-color: #00838F;
-		background-image: image-url('recent_slide.svg');
-	}
+  .slide-panel-header {
+    background-color: #0097A7;
+  }
+  .slide-panel-circle-icon {
+    top: calc(50vh - 130px);
+    background-color: #00838F;
+    background-image: image-url('recent_slide.svg');
+  }
 }
 
 .slide-recent {
-	.slide-panel-category-content {
-		padding: 0px;
-		margin:0px;
-	}
-	.slide-panel-category-item {
-		position: relative;
-		border-bottom: 1px solid #FAFAFA;
-		border-left:5px solid transparent;
-		display: flex;
-		align-items: center;
-		justify-content:space-between;
-		padding: $standard_padding*0.5;
-		padding-left: $standard_padding*2;		
-	}
-	.slide-panel-category-item:hover {
-		opacity: 1;
-		background-color: $navigation_background;
-	}	
+  .slide-panel-category-content {
+    padding: 0px;
+    margin: 0px;
+  }
+  .slide-panel-category-item {
+    position: relative;
+    border-bottom: 1px solid #FAFAFA;
+    border-left: 5px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $standard_padding*0.5;
+    padding-left: $standard_padding*2;
+  }
+  .slide-panel-category-item:hover {
+    opacity: 1;
+    background-color: $navigation_background;
+  }
 }
 
 .slide-left {
-	left: 0px;
-	right: 0px;
-	.slide-panel-circle-icon {
-		left: auto;
-		right: -27px;
-	}
+  left: 0px;
+  right: 0px;
+  .slide-panel-circle-icon {
+    left: auto;
+    right: -27px;
+  }
 }

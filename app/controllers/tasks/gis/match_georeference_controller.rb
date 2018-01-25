@@ -126,7 +126,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
         when 'point'
           @georeferences = Georeference.joins(:geographic_item).where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
         when 'polygon'
-            @georeferences = Georeference.joins(:geographic_item).where(GeographicItem.contained_by_wkt_sql(geometry))
+          @georeferences = Georeference.joins(:geographic_item).where(GeographicItem.contained_by_wkt_sql(geometry))
         else
       end
     if @georeferences.length == 0

@@ -39,7 +39,7 @@ module CitationsHelper
     content_tag(:h3, 'Citations') +
       content_tag(:ul, class: 'annotations__citation_list') do
       object.citations.collect{|t| 
-       content_tag(:li, citation_annotation_tag(t)) 
+        content_tag(:li, citation_annotation_tag(t)) 
       }.join.html_safe
     end
   end

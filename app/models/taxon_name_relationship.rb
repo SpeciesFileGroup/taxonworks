@@ -674,7 +674,7 @@ class TaxonNameRelationship < ApplicationRecord
       date1 = self.subject_taxon_name.nomenclature_date
       date2 = self.object_taxon_name.nomenclature_date
      if !!date1 and !!date2
-        invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & self.subject_taxon_name.taxon_name_classifications.collect{|c| c.type_class.to_s}
+       invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & self.subject_taxon_name.taxon_name_classifications.collect{|c| c.type_class.to_s}
         case self.type_class.nomenclatural_priority
           when :direct
             if date2 > date1 && invalid_statuses.empty?

@@ -2,12 +2,12 @@ require 'rails_helper'
 
 describe 'OtuPageLayoutSections', type: :feature do
 
- context 'resource routes' do
-   #  before { 
-   #    sign_in_user_and_select_project
-   #  }
+  context 'resource routes' do
+    #  before {
+    #    sign_in_user_and_select_project
+    #  }
 
-    # The scenario for creating OtuPageLayoutSections has not been developed. 
+    # The scenario for creating OtuPageLayoutSections has not been developed.
     # It must handle these three calls for logged in/not logged in users.
     # It may be that these features are ultimately tested in a task.
     describe 'POST /create' do

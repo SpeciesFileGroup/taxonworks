@@ -22,21 +22,21 @@ describe 'API::v1::CollectionObjects', type: :feature do
       let!(:collecting_event) do
         CollectingEvent.create!(by: @user, project: @project)
       end
-      
+
       let!(:geographic_item) do
         FactoryBot.create(:geographic_item_with_polygon,
-                           polygon: SHAPE_K,
-                           creator: @user,
-                           updater: @user)
+                          polygon: SHAPE_K,
+                          creator: @user,
+                          updater: @user)
       end
-     
+
       let!(:georeference) do
         FactoryBot.create(:valid_georeference,
-                           creator:          @user,
-                           updater:          @user,
-                           project:          @project,
-                           collecting_event: collecting_event,
-                           geographic_item:  geographic_item)
+                          creator:          @user,
+                          updater:          @user,
+                          project:          @project,
+                          collecting_event: collecting_event,
+                          geographic_item:  geographic_item)
       end
 
       let(:collection_object) do
@@ -104,4 +104,4 @@ describe 'API::v1::CollectionObjects', type: :feature do
 
   end
 
- end
+end

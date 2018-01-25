@@ -19,14 +19,14 @@ require 'rails_helper'
 
 describe GeoreferencesController, type: :controller do
   before(:each) {
-   sign_in 
+    sign_in
   }
 
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
   let(:collecting_event) { CollectingEvent.create(verbatim_label: 'Canada, somewhere cold.') }
-  let(:valid_attributes) { 
+  let(:valid_attributes) {
     strip_housekeeping_attributes( FactoryBot.build(:valid_georeference).attributes )
   }
 
@@ -36,7 +36,7 @@ describe GeoreferencesController, type: :controller do
   let(:valid_session) {  }
 
   describe 'GET index' do
-   
+
     it "assigns projects's recent georeferences as @recent_objects" do
       georeference = Georeference.create! valid_attributes
       get :index, params: {}, session: valid_session
@@ -122,22 +122,22 @@ describe GeoreferencesController, type: :controller do
   #       expect_any_instance_of(Georeference).to receive(:update).with({ "geographic_item_id" => "1" })
   #       put :update, params: {id: georeference.to_param, :georeference => { "geographic_item_id" => "1" }}, session: valid_session
   #     end
-  # 
+  #
   #     it "assigns the requested georeference as @georeference" do
   #       georeference = Georeference.create! valid_attributes
   #       put :update, params: {id: georeference.to_param, :georeference => valid_attributes}, session: valid_session
   #       expect(assigns(:georeference)).to eq(georeference)
   #     end
-  # 
+  #
   #     it "redirects to the georeference" do
   #       georeference = Georeference.create! valid_attributes
   #       put :update, params: {id: georeference.to_param, :georeference => valid_attributes}, session: valid_session
   #       expect(response).to redirect_to(georeference.becomes(Georeference))
   #     end
   #   end
-  # 
+  #
   #   describe "with invalid params" do
-  # 
+  #
   #     it "assigns the georeference as @georeference" do
   #       georeference = Georeference.create! valid_attributes
   #       # Trigger the behavior that occurs when invalid params are submitted
@@ -145,9 +145,9 @@ describe GeoreferencesController, type: :controller do
   #       put :update, params: {id: georeference.to_param, :georeference => { "geographic_item_id" => "invalid value" }}, session: valid_session
   #       expect(assigns(:georeference)).to eq(georeference)
   #     end
-  # 
+  #
   #     describe "for a verbatim georeference" do
-  #       describe "without a collecting event" do  
+  #       describe "without a collecting event" do
   #         it "re-renders the 'edit' template" do
   #           georeference = Georeference.new valid_attributes.merge(collecting_event: nil)
   #           # Trigger the behavior that occurs when invalid params are submitted
@@ -156,8 +156,8 @@ describe GeoreferencesController, type: :controller do
   #           expect(response).to render_template("/georeferences/verbatim_data/edit")
   #         end
   #       end
-  # 
-  #       describe "with a collecting event" do  
+  #
+  #       describe "with a collecting event" do
   #         it "re-renders the 'edit' template" do
   #           georeference = Georeference.create! valid_attributes.merge(collecting_event: collecting_event)
   #           # Trigger the behavior that occurs when invalid params are submitted
@@ -167,7 +167,7 @@ describe GeoreferencesController, type: :controller do
   #         end
   #       end
   #     end
-  # 
+  #
   #     describe "for a google maps georeference" do
   #       it "re-renders the 'edit' template" do
   #         georeference = Georeference.create! valid_attributes

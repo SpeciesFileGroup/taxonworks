@@ -23,7 +23,7 @@ class GeoreferencesController < ApplicationController
   # GET /georeferences/1
   # GET /georeferences/1.json
   def new
-   redirect_to new_georeferences_geo_locate_path
+    redirect_to new_georeferences_geo_locate_path
   end
 
   # GET /georeferences/1/edit
@@ -74,9 +74,9 @@ class GeoreferencesController < ApplicationController
               render "/georeferences/#{@georeference.method_name}/new"
             else
               if @georeference.collecting_event
-                 redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference not created, check verbatim values of collecting event'
+                redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference not created, check verbatim values of collecting event'
               else
-                 redirect_to georeferences_path, notice: 'Georeference not created.  Contact administrator with details if you recieved this message.'
+                redirect_to georeferences_path, notice: 'Georeference not created.  Contact administrator with details if you recieved this message.'
               end 
             end
           }

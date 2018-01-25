@@ -27,7 +27,7 @@ class Tasks::Accessions::Breakdown::BufferedDataController < ApplicationControll
       elsif params[:commit] == 'Save and next'
         if @collection_object.valid?
           format.html { redirect_to collection_object_buffered_data_breakdown_task_path(@result.sqed_depiction.next_collection_object)  }
-       else
+        else
           format.html { redirect_to collection_object_buffered_data_breakdown_task_path(@collection_object) }
         end
       end

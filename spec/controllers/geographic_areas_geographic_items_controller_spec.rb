@@ -36,7 +36,7 @@ describe GeographicAreasGeographicItemsController, type: :controller do
   # adjust the attributes here as well.
   let(:valid_attributes) {
     strip_housekeeping_attributes(FactoryBot.build(:valid_geographic_areas_geographic_item).attributes)
-}
+  }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in

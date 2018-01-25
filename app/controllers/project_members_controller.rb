@@ -1,11 +1,11 @@
 class ProjectMembersController < ApplicationController
-  before_action :require_superuser_sign_in 
-  
+  before_action :require_superuser_sign_in
+
   before_action :set_project_member, only: [:edit, :update, :destroy]
   before_action :set_member_project, only: [:many_new, :new, :create_many]
   before_action :set_available_users, only: [:many_new, :new]
   before_action :set_form_variables, only: [:many_new]
-  
+
   # GET /project_members/new
   def new
     @project_member = ProjectMember.new(project_member_params)
@@ -36,15 +36,15 @@ class ProjectMembersController < ApplicationController
     begin
       ApplicationRecord.transaction do
         project_members_params.each do |user_id|
-          @member_project.project_members.create!(project_member_params.merge(user_id: user_id)) 
-        end 
+          @member_project.project_members.create!(project_member_params.merge(user_id: user_id))
+        end
       end
 
       @project_member = ProjectMember.new(project_member_params)
       redirect_to project_path(@member_project), notice: "Project members were #{project_members_params.empty? ? 'not selected.' : 'added to project.'}"
 
     rescue ActiveRecord::RecordInvalid
-      redirect_to many_new_project_members_path, notice: 'There was a problem adding project members, none were added.' 
+      redirect_to many_new_project_members_path, notice: 'There was a problem adding project members, none were added.'
     end
   end
 
@@ -92,7 +92,7 @@ class ProjectMembersController < ApplicationController
   end
 
  def set_member_project
-    @member_project = Project.find(project_id_param)
+   @member_project = Project.find(project_id_param)
   end
 
   def project_member_params
@@ -107,4 +107,4 @@ class ProjectMembersController < ApplicationController
     params.require(:project_member).permit(:project_id)[:project_id]
   end
 
-end 
+end

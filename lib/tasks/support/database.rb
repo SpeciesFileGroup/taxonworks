@@ -26,16 +26,16 @@ module Support
       $?.to_i
     end
 
-    # This doesn't actually say if the database exists or not!  
+    # This doesn't actually say if the database exists or not!
     #   Try it, load a console, drop the database in another terminal, and call this method.
     def self.pg_database_exists?
       begin
-       ApplicationRecord.connection
-       # ApplicationRecord.connection.disconnect!
-      rescue ActiveRecord::NoDatabaseError
-        false
-      else
-        true
+        ApplicationRecord.connection
+        # ApplicationRecord.connection.disconnect!
+       rescue ActiveRecord::NoDatabaseError
+         false
+       else
+         true
       end
     end
 

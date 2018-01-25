@@ -2,12 +2,12 @@ require 'rails_helper'
 
 describe 'LoanItems', type: :feature do
 
- context 'resource routes' do
-   #  before { 
-   #    sign_in_user_and_select_project
-   #  }
+  context 'resource routes' do
+    #  before {
+    #    sign_in_user_and_select_project
+    #  }
 
-    # The scenario for creating loan items has not been developed. 
+    # The scenario for creating loan items has not been developed.
     # It must handle these  calls for logged in/not logged in users.
     # It may be that these features are ultimately tested in a task.
 
@@ -25,7 +25,7 @@ describe 'LoanItems', type: :feature do
 
     describe 'the partial form rendered in context of NEW/EDIT on some other page' do
     end
-    
+
 
   end
 

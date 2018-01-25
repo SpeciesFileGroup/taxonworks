@@ -1,17 +1,17 @@
 namespace :tw do
   namespace :batch_load do
     namespace :documentations do
-      
+
       # Format
       #   rake tw:batch_load:documentations data_directory="/chromatograms/" meta_data_file="/chromatograms.csv project_id=1 user_id=2"
-      # 
+      #
       # The expected format for the meta data file is to be tab delimitted with 2 columns of "identifier" and "filenames"
       # identifier contains the namespace short name and text of the identifier e.g. "DRM 12345"
       # filenames contains the filenames of the files to be attached, multiple files can be in this field if separated by a ", "
       desc '
-        Imports files in the filenames column as documents and attaches 
-        them to the first object identified by the namespace_short_name 
-        and identifer column via documentations 
+        Imports files in the filenames column as documents and attaches
+        them to the first object identified by the namespace_short_name
+        and identifer column via documentations
       '
       task import: [:environment, :project_id, :user_id] do
         data_directory_path = ENV['data_directory']
@@ -50,7 +50,7 @@ namespace :tw do
                     if File.exists?(file_path)
                       # Check if the document already exists
                       document = Document.find_by(document_file_fingerprint: Digest::MD5.file(file_path).hexdigest)
-                      
+
                       # If document doesn't exist, create it
                       if document.nil?
                         document = Document.new(document_file: File.open(file_path))
@@ -62,7 +62,7 @@ namespace :tw do
                           puts Rainbow("Document invalid on row #{rows_processed} - #{document.errors.full_messages.join("; ")}").red
                         end
                       else
-                          puts Rainbow("Document already exists on row #{rows_processed}").yellow                        
+                        puts Rainbow("Document already exists on row #{rows_processed}").yellow
                       end
 
                       # If document exists and has been saved, create documentation with it

@@ -12,8 +12,8 @@ describe ApiController, type: :routing do
     end
 
     it 'routes /api/v1/images/{id} to images#show with JSON format' do
-			expect(get('/api/v1/images/1')).to route_to('images#show', id: '1', format: :json)
-		end
+      expect(get('/api/v1/images/1')).to route_to('images#show', id: '1', format: :json)
+    end
 
     it 'does not route /api/v1/images/foo to images#show' do
       expect(get('/api/v1/images/foo')).not_to route_to('images#show', id: 'foo', format: :json)
