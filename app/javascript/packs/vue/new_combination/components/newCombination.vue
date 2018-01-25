@@ -112,7 +112,13 @@
       taxonName(newVal) {
         this.newCombination = this.createNewCombination();
         if(newVal) {
-          this.setRankList(newVal);
+          this.setRankList(newVal).then(response => {
+            if(response.data.existing_combination_id) {
+              GetCombination(response.data.existing_combination_id).then(response => {
+                this.newCombination = response;
+              })
+            }
+          });
         }
         else {
           this.rankLists = {};
@@ -126,22 +132,20 @@
         this.parseRanks = {};
       },
       setRankList(literalString) {
-        this.$emit('onSearchStart', true);
-        this.searching = true;
-        GetParse(literalString).then(response => {
-          this.$emit('onSearchEnd', true);
-          this.rankLists = response.data.protonyms;
-          this.parseRanks = response.data.parse;
-          this.searching = false;
-          this.$nextTick(() => {
-            if(response.data.unambiguous) {
-              this.$refs.saveButton.setFocus();
-            }
-            if(response.data.existing_combination_id) {
-              GetCombination(response.data.existing_combination_id).then(response => {
-                this.newCombination = response;
-              })
-            }
+        return new Promise((resolve,reject) => {
+          this.$emit('onSearchStart', true);
+          this.searching = true;
+          GetParse(literalString).then(response => {
+            this.$emit('onSearchEnd', true);
+            this.rankLists = response.data.protonyms;
+            this.parseRanks = response.data.parse;
+            this.searching = false;
+            this.$nextTick(() => {
+              if(response.data.unambiguous) {
+                this.$refs.saveButton.setFocus();
+              }
+            })
+            return resolve(response);
           })
         })
       },
