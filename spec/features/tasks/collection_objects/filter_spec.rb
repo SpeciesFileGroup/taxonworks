@@ -1,5 +1,6 @@
 require 'rails_helper'
-require 'make_simple_world'
+require_relative '../../support/shared_contexts/make_simple_world'
+
 
 describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :collection_objects] do
 

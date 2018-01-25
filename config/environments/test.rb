@@ -38,8 +38,6 @@ TaxonWorks::Application.configure do
 
   config.action_mailer.default_url_options = {host: 'www.example.com'}
 
-  Paperclip::Attachment.default_options[:path] = "#{Rails.root}/spec/test_files/:class/:id_partition/:style.:extension"
-
   # http://stackoverflow.com/questions/20183877/assets-are-not-loaded-during-capybara-rspec-spec
   # unless ENV['TAXONWORKS_TEST_WITH_PRECOMPILE']
   #   config.assets.prefix = '/assets_test'
@@ -47,4 +45,10 @@ TaxonWorks::Application.configure do
 
   require 'taxonworks'
   require 'taxonworks_autoload'
+
+  # See http://guides.rubyonrails.org/v5.1/configuring.html#custom-configuration
+  config.x.test_user_password = 'taxonworks'.freeze
+  config.x.test_tmp_file_dir = Dir["#{Rails.root}/spec/test_files/"].freeze
+
+  Paperclip::Attachment.default_options[:path] = "#{config.x.test_tmp_file_dir}:class/:id_partition/:style.:extension"
 end

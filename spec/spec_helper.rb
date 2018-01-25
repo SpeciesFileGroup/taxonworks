@@ -105,8 +105,8 @@ RSpec.configure do |config|
   end
 
   config.after(:suite) do
-    FileUtils.rm_rf(Dir["#{Rails.root}/spec/test_files/"])
-    Features::Downloads.clear_downloads
+    FileUtils.rm_rf( Rails.configuration.x.test_tmp_file_dir )
+    Features::Downloads.clear_downloads # TODO if global than doesn't belong in Features 
   end
 
   config.before(:each) do

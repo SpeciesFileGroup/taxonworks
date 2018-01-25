@@ -1,5 +1,3 @@
-require_relative 'config/initialization_constants' 
-
 # Helpers for controller specs (typically those automatically generated).
 # 
 # These methods should be used within a before(:each) block.

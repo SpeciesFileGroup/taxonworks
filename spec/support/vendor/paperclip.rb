@@ -14,6 +14,7 @@ end
 # manually.
 # 
 # !! The sub folder is automatically rebuilt during subsequent tests. 
+# TODO: this is more than image now ... or maybe
 def nuke_image_folder
-  FileUtils.rm_rf(Dir["#{Rails.root}/spec/test_files/"])
+  FileUtils.rm_rf(TEST_TMP_FILE_DIR)
 end

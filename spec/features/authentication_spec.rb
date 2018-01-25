@@ -11,7 +11,7 @@ describe 'Authentication', type: :feature do
       let(:valid_user) { FactoryBot.create(:valid_user, id: 1) }
 
       it 'should sign user in' do
-        sign_in_with(valid_user.email, TEST_USER_PASSWORD)
+        sign_in_with(valid_user.email, Rails.configuration.x.test_user_password )
 
         expect(subject).to have_link('Account') # TODO, add href
         expect(subject).not_to have_link('Sign out', href: signin_path)

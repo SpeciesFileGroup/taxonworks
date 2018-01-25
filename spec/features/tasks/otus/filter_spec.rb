@@ -1,5 +1,6 @@
 require 'rails_helper'
-require 'make_simple_world'
+require_relative '../../support/shared_contexts/make_simple_world'
+
 
 describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors] do
 

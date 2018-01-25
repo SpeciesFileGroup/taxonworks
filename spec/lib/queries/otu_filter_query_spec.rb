@@ -1,5 +1,5 @@
 require 'rails_helper'
-require 'make_simple_world'
+require_relative '../../support/shared_contexts/make_simple_world'
 
 describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_objects, :otus] do
 
