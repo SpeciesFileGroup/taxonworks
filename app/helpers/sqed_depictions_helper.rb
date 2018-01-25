@@ -22,7 +22,7 @@ module SqedDepictionsHelper
 
      return image_tag(result.image_path_for_large_image(section), id: 'little1', class: 'little_image clickable') 
     rescue
-     return content_tag(:div, link_to('Error parsing.', depiction_path(sqed_depiction.depiction)), class: :warning) 
+      return content_tag(:div, link_to('Error parsing.', depiction_path(sqed_depiction.depiction)), class: :warning) 
     end
   end
 

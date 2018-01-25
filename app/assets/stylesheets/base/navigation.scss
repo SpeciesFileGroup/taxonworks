@@ -1,28 +1,29 @@
 .favourite_link {
-    background-image: image-url('empty_star.svg');
-    background-size: 16px;
-    background-position: left, center;
-    padding: 16px;
-    padding-right: 0px;
-    font-size: 0px;
-    background-repeat: no-repeat;
-    text-decoration: none;
-  }
- .unfavorite_link {
-    font-size: 0px;
-    padding: 16px;
-    padding-right: 0px;
-    background-image: image-url('star.svg');
-    background-size: 16px;
-    background-position: left, center;
-    background-repeat: no-repeat;    
-    text-decoration: none;   
+  background-image: image-url('empty_star.svg');
+  background-size: 16px;
+  background-position: left, center;
+  padding: 16px;
+  padding-right: 0px;
+  font-size: 0px;
+  background-repeat: no-repeat;
+  text-decoration: none;
 }
- 
+
+.unfavorite_link {
+  font-size: 0px;
+  padding: 16px;
+  padding-right: 0px;
+  background-image: image-url('star.svg');
+  background-size: 16px;
+  background-position: left, center;
+  background-repeat: no-repeat;
+  text-decoration: none;
+}
+
 // see navigation_emphasis in palette
 a {
   transition: background-color 0.4s ease,
-              color 0.4s ease;
+  color 0.4s ease;
   color: $color-secondary-2-4;
   &:visited {
     color: $color-secondary-2-4;
@@ -41,8 +42,8 @@ a {
   justify-content: space-between;
   font-weight: 300;
   position: relative;
-  box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.2);
-  background-color:#FFF;
+  box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.2);
+  background-color: #FFF;
   height: 45px;
   padding-right: $standard_margin;
   .hub-project {
@@ -52,9 +53,9 @@ a {
 
   ul {
     margin: 0px;
-    padding:0px;
+    padding: 0px;
     display: flex;
-    margin-left:$standard_margin;
+    margin-left: $standard_margin;
   }
 
   li a:first-letter {
@@ -62,9 +63,9 @@ a {
   }
 
   .on_hub {
-      background-color: $color-secondary-2-4 !important;
-      background-image: image-url('taxonworks-white-circle.svg') !important;
-      background-size:38px !important;
+    background-color: $color-secondary-2-4 !important;
+    background-image: image-url('taxonworks-white-circle.svg') !important;
+    background-size: 38px !important;
   }
 
   .hub_link_background {
@@ -80,9 +81,9 @@ a {
     opacity: 1;
     position: absolute;
     margin-left: 1em;
-    background-size:24px;
-    background-repeat:no-repeat;
-    background-position: center; 
+    background-size: 24px;
+    background-repeat: no-repeat;
+    background-position: center;
     z-index: 1100;
     font-size: 0px;
     top: 50%;
@@ -91,7 +92,7 @@ a {
     height: 54px;
     justify-content: center;
     align-items: center;
-    border-radius: 100%; 
+    border-radius: 100%;
   }
 
   .hub_link {
@@ -99,9 +100,9 @@ a {
     position: absolute;
     margin-left: 1em;
     background-image: image-url('taxonworks-black-circle.svg');
-    background-size:30px;
-    background-repeat:no-repeat;
-    background-position: center; 
+    background-size: 30px;
+    background-repeat: no-repeat;
+    background-position: center;
     z-index: 1100;
     font-size: 0px;
     background-color: $panel_background;
@@ -111,12 +112,12 @@ a {
     height: 54px;
     justify-content: center;
     align-items: center;
-    border-radius: 100%; 
-    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.2);
- 
+    border-radius: 100%;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+
     transition: background-size 0.3s ease,
-                  background-color 0.3s ease,
-                  opacity 0.5s ease,        
+    background-color 0.3s ease,
+    opacity 0.5s ease,
   }
 
   .hub_project_name {
@@ -124,15 +125,15 @@ a {
     padding: 5px;
     font-size: $font_title;
     font-weight: 300;
-  }  
+  }
 
   .hub-project:hover {
-     .hub_link {
+    .hub_link {
       opacity: 1;
       transition: background-size 0.3s ease,
-                  background-color 0.3s ease,
-                  opacity 0.5s ease;
-      background-size:40px;
+      background-color 0.3s ease,
+      opacity 0.5s ease;
+      background-size: 40px;
       color: $default_text;
     }
   }
@@ -142,61 +143,60 @@ a {
 
   }
 
-
 }
 
-.context-menu { 
-    display:flex;
-    list-style: none;
-    align-items: center;
-    margin: 0px;
+.context-menu {
+  display: flex;
+  list-style: none;
+  align-items: center;
+  margin: 0px;
 
-    li:last-child:after {
-      content: none;
-    }
-
-    li:first-child {
-      padding-left: 0px;
-    }  
-
-    li:last-child {
-      border-right: none;
-      padding-right: 0px;
-      padding-left:$standard_padding;
-    }  
-
-    li {
-      justify-content: center;
-      //text-align: center;
-      padding-left: $standard_padding;
-      padding-right: $standard_padding;
-      border-right: 1px solid $navigation_border;
-    }
-
-    li a {
-        font-size:$font_small;
-        text-decoration:none;
-    }
+  li:last-child:after {
+    content: none;
   }
+
+  li:first-child {
+    padding-left: 0px;
+  }
+
+  li:last-child {
+    border-right: none;
+    padding-right: 0px;
+    padding-left: $standard_padding;
+  }
+
+  li {
+    justify-content: center;
+    //text-align: center;
+    padding-left: $standard_padding;
+    padding-right: $standard_padding;
+    border-right: 1px solid $navigation_border;
+  }
+
+  li a {
+    font-size: $font_small;
+    text-decoration: none;
+  }
+}
 
 /* see http://css-tricks.com/snippets/css/a-guide-to-flexbox/, seems nice */
 .horizontal_navbar {
   list-style: none;
-  margin: 0; 
-  
+  margin: 0;
+
   display: -webkit-box;
   display: -moz-box;
   display: -ms-flexbox;
   display: -webkit-flex;
   display: flex;
-  
+
   align-items: center;
   -webkit-flex-flow: row wrap;
 
   a {
     text-decoration: none;
     display: block;
-    padding:0 1em; // was 1
+    padding: 0 1em; // was 1
   }
 }
 
@@ -212,42 +212,42 @@ a {
     flex-flow: column wrap;
     padding: 0;
   }
-  
-  .horizontal_navbar a { 
-    text-align: center; 
+
+  .horizontal_navbar a {
+    text-align: center;
     padding: 10px;
-    border-top: 1px solid rgba(255,255,255,0.3); 
-    border-bottom: 1px solid rgba(0,0,0,0.1); 
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   }
-  
+
   .horizontal_navbar li:last-of-type a {
     border-bottom: none;
   }
 }
 
 .horizontal_navbar a:first-letter {
-	text-transform:uppercase;
+  text-transform: uppercase;
 }
 
 .centered_navbar {
   @extend .horizontal_navbar;
-  justify-content: center;  
+  justify-content: center;
 }
 
 .centered_navbar {
-	margin:0px;
-	padding:0px;
+  margin: 0px;
+  padding: 0px;
 }
 
 .left_justified_navbar {
   @extend .horizontal_navbar;
   margin: 0px;
   padding: 0px;
-  justify-content: flex-start;  
+  justify-content: flex-start;
 }
 
 #taxonworks_link {
- text-decoration: none;
+  text-decoration: none;
 }
 
 .task_bar {
@@ -255,13 +255,13 @@ a {
   flex-direction: row;
   flex-flow: wrap;
   list-style: none;
-  padding-left:0px;
+  padding-left: 0px;
   margin-top: 0px;
   font-weight: 300;
-  
+
   li {
     display: flex;
-    padding:5px;
+    padding: 5px;
     margin-right: 5px;
     background-repeat: no-repeat;
     background-size: 8px;

@@ -14,7 +14,7 @@ describe OtuPageLayout, type: :model do
       end
     end
 
- end
+  end
 
   context 'associations' do
     specify 'otu_page_layout_sections' do

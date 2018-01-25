@@ -731,7 +731,7 @@ class TaxonName < ApplicationRecord
   end
 
   def set_cached_classified_as
-   update_column(:cached_classified_as, get_cached_classified_as)
+    update_column(:cached_classified_as, get_cached_classified_as)
   end
 
   def get_cached_misspelling

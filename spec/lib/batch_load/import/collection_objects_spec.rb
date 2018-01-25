@@ -168,17 +168,17 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
 
     let(:upload_file) { fixture_file_upload(file_name) }
     let(:import) {
-     BatchLoad::Import::CollectionObjects::new(project_id: project.id,
-                                               user_id:    user.id,
-                                               file:       upload_file,
-                                               user_header_map:
-                                                           {'otu'         => 'otu_name',
-                                                            'start_day'   => 'start_date_day',
-                                                            'start_month' => 'start_date_month',
-                                                            'start_year'  => 'start_date_year',
-                                                            'end_day'     => 'end_date_day',
-                                                            'end_month'   => 'end_date_month',
-                                                            'end_year'    => 'end_date_year'}
+      BatchLoad::Import::CollectionObjects::new(project_id: project.id,
+                                                user_id:    user.id,
+                                                file:       upload_file,
+                                                user_header_map:
+                                                            {'otu'         => 'otu_name',
+                                                             'start_day'   => 'start_date_day',
+                                                             'start_month' => 'start_date_month',
+                                                             'start_year'  => 'start_date_year',
+                                                             'end_day'     => 'end_date_day',
+                                                             'end_month'   => 'end_date_month',
+                                                             'end_year'    => 'end_date_year'}
       )
     }
 

@@ -1,8 +1,8 @@
 class DescriptorsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  
+
   before_action :set_descriptor, only: [:show, :edit, :update, :destroy, :annotations]
-  
+
   # GET /descriptors
   # GET /descriptors.json
   def index
@@ -14,32 +14,32 @@ class DescriptorsController < ApplicationController
       format.json {
         @descriptors = Descriptor.all.limit(20)
       }
-    end 
+    end
   end
-  
+
   # GET /descriptors/1
   # GET /descriptors/1.json
   def show
   end
-  
+
   def list
     @descriptor = Descriptor.with_project_id(sessions_current_project_id).page(params[:page])
   end
-  
+
   # GET /descriptors/new
   def new
     @descriptor = Descriptor.new
   end
-  
+
   # GET /descriptors/1/edit
   def edit
   end
-  
+
   # POST /descriptors
   # POST /descriptors.json
   def create
     @descriptor = Descriptor.new(descriptor_params)
-    
+
     respond_to do |format|
       if @descriptor.save
         format.html { redirect_to @descriptor.metamorphosize, notice: 'Descriptor was successfully created.' }
@@ -50,7 +50,7 @@ class DescriptorsController < ApplicationController
       end
     end
   end
-  
+
   # PATCH/PUT /descriptors/1
   # PATCH/PUT /descriptors/1.json
   def update
@@ -64,7 +64,7 @@ class DescriptorsController < ApplicationController
       end
     end
   end
-  
+
   # DELETE /descriptors/1
   # DELETE /descriptors/1.json
   def destroy
@@ -74,21 +74,21 @@ class DescriptorsController < ApplicationController
       format.json { head :no_content }
     end
   end
-  
+
   def autocomplete
     @descriptors = Queries::DescriptorAutocompleteQuery.new(params.require(:term), project_id: sessions_current_project_id).all
 
     data = @descriptors.collect do |t|
       {id:              t.id,
-      label:           t.name, 
-      gid: t.to_global_id.to_s,
-      response_values: {
-        params[:method] => t.id
-      },
-      label_html:      t.name 
-    }
-  end
-  render json: data
+       label:           t.name,
+       gid:             t.to_global_id.to_s,
+       response_values: {
+         params[:method] => t.id
+       },
+       label_html:      t.name
+      }
+    end
+    render json: data
   end
 
   def search
@@ -108,14 +108,14 @@ class DescriptorsController < ApplicationController
   def batch_load
   end
 
-  def preview_modify_gene_descriptor_batch_load 
-    if params[:file] 
+  def preview_modify_gene_descriptor_batch_load
+    if params[:file]
       @result = BatchLoad::Import::Descriptors::ModifyGeneDescriptorInterpreter.new(batch_params)
       digest_cookie(params[:file].tempfile, :modify_gene_descriptor_batch_load_descriptors_md5)
       render 'descriptors/batch_load/modify_gene_descriptor/preview'
     else
       flash[:notice] = 'No file provided!'
-      redirect_to action: :batch_load 
+      redirect_to action: :batch_load
     end
   end
 

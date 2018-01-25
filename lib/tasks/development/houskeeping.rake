@@ -43,7 +43,7 @@ namespace :tw do
         puts "# #{d.name}" 
         d.columns.each do |c|
          # if c.name =~ /.+_id|.*_?type|position|type|name|created_at|updated_at/
-            puts "# #{d.name}.connection.execute('alter table #{d.table_name} alter #{c.name} set not null;')" 
+          puts "# #{d.name}.connection.execute('alter table #{d.table_name} alter #{c.name} set not null;')" 
          # end
         end
         puts "\n"

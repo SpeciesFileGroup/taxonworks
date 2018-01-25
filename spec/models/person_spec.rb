@@ -68,7 +68,7 @@ describe Person, type: :model do
       end
 
       specify 'authored_sources' do
-         expect(person).to respond_to(:authored_sources)
+        expect(person).to respond_to(:authored_sources)
       end
 
       specify 'edited_sources' do
@@ -101,7 +101,7 @@ describe Person, type: :model do
     end
 
     context 'usage and rendering' do
-      let(:person1){ FactoryBot.build(:person, first_name: 'J.', last_name: 'Smith') } 
+      let(:person1){ FactoryBot.build(:person, first_name: 'J.', last_name: 'Smith') }
       let(:person2){ FactoryBot.build(:person, first_name: 'J.', last_name: 'McDonald') }
       let(:person3){ FactoryBot.build(:person, first_name: 'D. Keith McE.', last_name: 'Kevan') }
       let(:person4){ FactoryBot.build(:person, first_name: 'Ki-Su', last_name: 'Ahn') }
@@ -131,7 +131,7 @@ describe Person, type: :model do
       end
     end
 
-    # TODO: Fix. 
+    # TODO: Fix.
     #  ... roles are not getting assigned creator/updater when << is used
     context 'roles' do
       let(:vp) { FactoryBot.create(:valid_person) }
@@ -167,7 +167,7 @@ describe Person, type: :model do
       specify 'is_collector?' do
         expect(vp).to respond_to(:is_collector?)
         expect(vp.is_collector?).to be_falsey
-        coll_event = FactoryBot.create(:valid_collecting_event) 
+        coll_event = FactoryBot.create(:valid_collecting_event)
         coll_event.collectors << vp
         coll_event.save!
         vp.reload

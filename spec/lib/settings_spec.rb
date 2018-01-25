@@ -64,7 +64,7 @@ describe Settings do
 
     describe 'default_data_directory' do
       context 'when valid directory' do
-        let(:valid_directory) { { default_data_directory: valid_full_config[:default_data_directory] } }
+        let(:valid_directory) { {default_data_directory: valid_full_config[:default_data_directory]} }
 
         it 'sets ::default_data_directory to the absolute path of the supplied directory' do
           Settings.load_from_hash(rails_config, valid_directory)
@@ -75,23 +75,23 @@ describe Settings do
 
       context 'when uncreated directory' do
         let(:path) { File.absolute_path('DATA_INVALID_DIRECTORY') }
-        let(:invalid_directory) { { default_data_directory: path } }
+        let(:invalid_directory) { {default_data_directory: path} }
 
-        after(:all) { FileUtils.rm_rf( File.absolute_path('DATA_INVALID_DIRECTORY') ) }
+        after(:all) { FileUtils.rm_rf(File.absolute_path('DATA_INVALID_DIRECTORY')) }
 
         it 'creates the directory when it does not exist' do
           expect(Settings.load_from_hash(rails_config, invalid_directory)).to be_truthy
-          expect( Dir.exists?(path) ).to be_truthy
+          expect(Dir.exists?(path)).to be_truthy
         end
       end
 
       context 'when not present' do
         it 'sets ::default_data_directory to nil' do
-          Settings.load_from_hash(rails_config, { })
+          Settings.load_from_hash(rails_config, {})
           expect(Settings.default_data_directory).to eq(nil)
         end
       end
-        end
+    end
 
     describe 'exception_recipients' do
       let(:valid_exception_notification) {

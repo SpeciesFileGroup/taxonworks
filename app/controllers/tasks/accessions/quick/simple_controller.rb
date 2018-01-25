@@ -148,7 +148,7 @@ class Tasks::Accessions::Quick::SimpleController < ApplicationController
   def collecting_event_id_param
     id = params[:specimen].try(:collecting_event_id)
     if id.blank?
-       @specimen.collecting_event_id if @specimen
+      @specimen.collecting_event_id if @specimen
     else
       id
     end

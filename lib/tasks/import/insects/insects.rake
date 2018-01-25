@@ -691,40 +691,40 @@ namespace :tw do
 
       def find_or_create_collection_user_insects(id, data)
 #      DataAttribute.where(attribute_subject_type: "User", import_predicate: "PeopleID", project_id: $project_id).first.attribute_subject
-       if id.blank?
+        if id.blank?
           $user_id
-        elsif data.user_index[id]
-          data.user_index[id].id
-        elsif data.people_id[id]
-          p = data.people_id[id]
-          email = p['Email'].nil? ? nil : p['Email'].downcase
-          email = 'user_' + id + '@unavailable.email.net' if email.blank?
+         elsif data.user_index[id]
+           data.user_index[id].id
+         elsif data.people_id[id]
+           p = data.people_id[id]
+           email = p['Email'].nil? ? nil : p['Email'].downcase
+           email = 'user_' + id + '@unavailable.email.net' if email.blank?
 
-          user_name = ([p['LastName']] + [p['FirstName']]).compact.join(', ')
+           user_name = ([p['LastName']] + [p['FirstName']]).compact.join(', ')
 
-          existing_user = User.where(email: email.downcase)
+           existing_user = User.where(email: email.downcase)
 
-          if existing_user.empty?
-            pwd = rand(36**10).to_s(36)
-            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, is_flagged_for_password_reset: true,
-                   #data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: 'PeopleID', type: 'ImportAttribute'} ],
-                   tags_attributes:   [ { keyword: data.keywords['INHS_imported'] } ]
-            )
-            user.identifiers.create(identifier: p['PeopleID'], namespace: @user_namespace, type: 'Identifier::Local::Import')
+           if existing_user.empty?
+             pwd = rand(36**10).to_s(36)
+             user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, is_flagged_for_password_reset: true,
+                    #data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: 'PeopleID', type: 'ImportAttribute'} ],
+                    tags_attributes:   [ { keyword: data.keywords['INHS_imported'] } ]
+             )
+             user.identifiers.create(identifier: p['PeopleID'], namespace: @user_namespace, type: 'Identifier::Local::Import')
 
-          else
-            user = existing_user.first
-          end
+           else
+             user = existing_user.first
+           end
 
-          unless p['SupervisorID'].blank?
-            s = data.people_id[p['SupervisorID']]
-            user.notes.create(text: 'Student of ' + s['FirstName'] + ' ' + s['LastName']) unless s.blank?
-          end
-          data.user_index[id] = user
-          user.id
-        else
-          $user_id
-        end
+           unless p['SupervisorID'].blank?
+             s = data.people_id[p['SupervisorID']]
+             user.notes.create(text: 'Student of ' + s['FirstName'] + ' ' + s['LastName']) unless s.blank?
+           end
+           data.user_index[id] = user
+           user.id
+         else
+           $user_id
+         end
       end
 
       $found_geographic_areas = {}
@@ -776,7 +776,7 @@ namespace :tw do
         unless ce['AccessionNumber'].blank?
           cached_identifier = nil
           if !ce['Collection'].blank?
-           cached_identifier =  'Accession Code ' + ce['Collection'] + ' ' + ce['AccessionNumber']
+            cached_identifier =  'Accession Code ' + ce['Collection'] + ' ' + ce['AccessionNumber']
           else
             cached_identifier = 'Accession Code ' + ce['AccessionNumber']
           end
@@ -1500,7 +1500,7 @@ namespace :tw do
       end
 
       def add_bioculation_class_insects(o, bcc, data)
-          BiocurationClassification.create(biocuration_class: data.biocuration_classes['Adult'], biological_collection_object: o) if bcc == 'AdultMale' || bcc =='AdultFemale' || bcc == 'AdultUnsexed'
+        BiocurationClassification.create(biocuration_class: data.biocuration_classes['Adult'], biological_collection_object: o) if bcc == 'AdultMale' || bcc =='AdultFemale' || bcc == 'AdultUnsexed'
           BiocurationClassification.create(biocuration_class: data.biocuration_classes['Male'], biological_collection_object: o) if bcc == 'AdultMale'
           BiocurationClassification.create(biocuration_class: data.biocuration_classes['Female'], biological_collection_object: o) if bcc == 'AdultFemale'
           BiocurationClassification.create(biocuration_class: data.biocuration_classes['Immature'], biological_collection_object: o) if bcc == 'Immature'

@@ -64,7 +64,7 @@ class CollectingEventsController < ApplicationController
   end
 
   def card
-   @target = params[:target]
+    @target = params[:target]
   end
 
   def test

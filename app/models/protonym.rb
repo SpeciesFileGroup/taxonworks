@@ -336,9 +336,9 @@ class Protonym < TaxonName
     # !((type == 'Protonym') && (taxon_name_classifications.collect{|t| t.type} & EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?)
 
     # Is faster than above?
-      taxon_name_classifications.each do |tc| # ! find_each
-        return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
-      end
+    taxon_name_classifications.each do |tc| # ! find_each
+      return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
+    end
     false
   end
 
@@ -695,15 +695,15 @@ class Protonym < TaxonName
     is_cached = false if cached_author_year != get_author_and_year
 
     if is_cached && cached_html != get_full_name_html ||
-        cached_misspelling != get_cached_misspelling ||
-        cached_original_combination != get_original_combination ||
-        cached_primary_homonym != get_genus_species(:original, :self) ||
-        cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
-        rank_string =~ /Species/ && (
-          cached_secondary_homonym != get_genus_species(:current, :self) ||
-          cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative)
-        )
-        is_cached = false
+      cached_misspelling != get_cached_misspelling ||
+      cached_original_combination != get_original_combination ||
+      cached_primary_homonym != get_genus_species(:original, :self) ||
+      cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
+      rank_string =~ /Species/ &&
+        (cached_secondary_homonym != get_genus_species(:current, :self) ||
+          cached_secondary_homonym_alternative_spelling != get_genus_species(:current,
+                                                                             :alternative))
+      is_cached = false
     end
 
     soft_validations.add(

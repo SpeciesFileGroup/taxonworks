@@ -19,9 +19,9 @@ class Tasks::Content::EditorController < ApplicationController
 
   def range_limit(param = default,min = 1,max = 30,default = 5)
     if (param.to_i.between? min, max)
-       return param
+      return param
     else
-       param = default
+      param = default
     end     
   end
 

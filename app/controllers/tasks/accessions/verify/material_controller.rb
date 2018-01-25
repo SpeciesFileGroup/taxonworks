@@ -33,7 +33,7 @@ class Tasks::Accessions::Verify::MaterialController < ApplicationController
       @identifier = Identifier.find(params[:id])
       o = @identifier.identifier_object
       if o.class == Container
-       @container = o
+        @container = o
       elsif o.class == CollectionObject
         @collection_objects = [o]
       else

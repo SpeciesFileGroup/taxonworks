@@ -72,7 +72,7 @@ class Image < ApplicationRecord
   end
 
   def duplicate_images
-   Image.where(image_file_fingerprint: self.image_file_fingerprint).not_self(self).to_a
+    Image.where(image_file_fingerprint: self.image_file_fingerprint).not_self(self).to_a
   end
 
   def exif
@@ -84,11 +84,8 @@ class Image < ApplicationRecord
     unless self.new_record? # only process if record exists
       tmp     = `identify -format "%[EXIF:*]" #{self.image_file.url}` # returns a string (exif:tag=value\n)
       # following removes the exif, spits and recombines string as a hash
-      ret_val = tmp.split("\n").collect { |b|
-                                          b.gsub('exif:', '').split('=')
-                                        }.inject({}) { |hsh, c|
-                                                        hsh.merge(c[0] => c[1])
-                                                    }
+      ret_val = tmp.split("\n").collect { |b| b.gsub('exif:', '').split('=') }
+                  .inject({}) { |hsh, c| hsh.merge(c[0] => c[1]) }
       # might be able to tmp.split("\n").collect { |b|
       # b.gsub("exif:", "").split("=")
       # }.inject(ret_val) { |hsh, c|

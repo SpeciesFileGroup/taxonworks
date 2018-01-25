@@ -3,7 +3,7 @@ class TaxonNameClassification::Iczn < TaxonNameClassification
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000107'.freeze
 
   def self.applicable_ranks
-   ICZN 
+    ICZN
   end
 
   def self.code_applicability_start_year

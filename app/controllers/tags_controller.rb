@@ -108,7 +108,7 @@ class TagsController < ApplicationController
     if @tag = Tag.exists?(params.require(:global_id), params.require(:keyword_id), sessions_current_project_id)
       render :show
     else
-     render json: false
+      render json: false
     end
   end
 

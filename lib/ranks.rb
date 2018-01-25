@@ -3,9 +3,9 @@
 # Contains methods used in /config/initializers/constants/ranks.rb to generate Rank Classes
 module Ranks
 
-  # Returns true if rank.to_s is the name of a NomenclaturalRank. 
+  # Returns true if rank.to_s is the name of a NomenclaturalRank.
   def self.valid?(rank)
-     ::RANKS.include?(rank.to_s) 
+    ::RANKS.include?(rank.to_s)
   end
 
   # Returns a String representing the name of the NomenclaturalRank class

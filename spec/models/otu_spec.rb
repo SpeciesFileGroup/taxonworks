@@ -207,7 +207,7 @@ describe Otu, type: :model do
   end
 
   context 'scopes' do
-    let!(:t) { FactoryBot.create(:relationship_species) } 
+    let!(:t) { FactoryBot.create(:relationship_species) }
     let!(:o) { Otu.create(taxon_name: t) }
 
     specify '.for_taxon_name(taxon_name) handles integers' do
@@ -218,12 +218,12 @@ describe Otu, type: :model do
       expect(Otu.for_taxon_name(t)).to contain_exactly(o)
     end
 
-   specify '.for_taxon_name(taxon_name) handles nestedness' do
-     expect(Otu.for_taxon_name(t.parent)).to contain_exactly(o)
+    specify '.for_taxon_name(taxon_name) handles nestedness' do
+      expect(Otu.for_taxon_name(t.parent)).to contain_exactly(o)
     end
   end
 
-                    
+
 
 
   context 'concerns' do

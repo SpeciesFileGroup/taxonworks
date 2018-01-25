@@ -6,10 +6,10 @@ class HubController < ApplicationController
   def index
     handle_bad_tab_order
     respond_to do |format|
-       format.html {}
-       format.js {
-         render partial: 'navigation_index' # layout: nil
-       }
+      format.html {}
+      format.js {
+        render partial: 'navigation_index' # layout: nil
+      }
     end 
   end
 

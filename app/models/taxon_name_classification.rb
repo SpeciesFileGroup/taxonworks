@@ -59,8 +59,8 @@ class TaxonNameClassification < ApplicationRecord
   # @return [String]
   #   the class name, "validated" against the known list of names
   def type_name
-   r = self.type.to_s
-   TAXON_NAME_CLASSIFICATION_NAMES.include?(r) ? r : nil
+    r = self.type.to_s
+    TAXON_NAME_CLASSIFICATION_NAMES.include?(r) ? r : nil
   end
 
   def type_class=(value)
@@ -264,10 +264,18 @@ class TaxonNameClassification < ApplicationRecord
         soft_validations.add(:type, 'Please specify the reasons for the name being Legitimate')
       # when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate'
       #   soft_validations.add(:type, 'Please specify the reasons for the name being Illegitimate')
-      when 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective' || 'TaxonNameClassification::Latinized::PartOfSpeech::Participle'
+      when 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective' ||
+           'TaxonNameClassification::Latinized::PartOfSpeech::Participle'
         t = taxon_name.name
-        if !t.end_with?('us') && !t.end_with?('a') && !t.end_with?('um') && !t.end_with?('is') && !t.end_with?('e') && !t.end_with?('or') && !t.end_with?('er')
-            soft_validations.add(:type, 'Adjective or participle name should end with one of the following endings: -us, -a, -um, -is, -e, -er, -or')
+        if !t.end_with?('us') &&
+          !t.end_with?('a') &&
+          !t.end_with?('um') &&
+          !t.end_with?('is') &&
+          !t.end_with?('e') &&
+          !t.end_with?('or') &&
+          !t.end_with?('er')
+          soft_validations.add(:type, 'Adjective or participle name should end with one of the ' \
+                                              'following endings: -us, -a, -um, -is, -e, -er, -or')
         end
     end
   end
