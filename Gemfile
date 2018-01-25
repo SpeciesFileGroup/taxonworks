@@ -110,6 +110,7 @@ group :test, :development do
   gem 'factory_bot_rails', '~> 4.8.2'
   gem 'selenium-webdriver', '~> 3.8'
   gem 'geckodriver-helper', '~> 0.0.3'
+  gem 'prawn', '~> 2.2.2'
 end
 
 group :development do
