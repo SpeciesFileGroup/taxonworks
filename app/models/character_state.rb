@@ -1,12 +1,12 @@
 # A qualitative state, as traditionally used in Phylogenetic characters and descriptive taxonomy.
 #
-#  @!attribute name 
+#  @!attribute name
 #   @return [String]
-#      the full name of the character state, like "blue" 
+#      the full name of the character state, like "blue"
 #
 #  @!attribute label
 #   @return [String]
-#      the label presented in the matrix, like "0", or "1" 
+#      the label presented in the matrix, like "0", or "1"
 #
 class CharacterState < ApplicationRecord
 
@@ -25,7 +25,7 @@ class CharacterState < ApplicationRecord
 
   acts_as_list scope: [:descriptor_id]
 
-  ALTERNATE_VALUES_FOR = [:name, :label]
+  ALTERNATE_VALUES_FOR = [:name, :label].freeze
 
   belongs_to :descriptor
 

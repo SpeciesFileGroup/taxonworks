@@ -1,6 +1,6 @@
 class TaxonNameClassification::Latinized::Gender::Feminine < TaxonNameClassification::Latinized::Gender
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000047'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000047'.freeze
 
   def self.possible_genus_endings
     %w(caris gaster lepis opsis cera lepas cnemis aspis scelis ina ella a)

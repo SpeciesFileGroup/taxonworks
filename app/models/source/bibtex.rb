@@ -325,7 +325,7 @@ class Source::Bibtex < Source
     :journal,
     :year,
     :stated_year
-  ] # either year or stated_year is acceptable
+  ].freeze # either year or stated_year is acceptable
 
   belongs_to :serial, inverse_of: :sources
   belongs_to :source_language, class_name: 'Language', foreign_key: :language_id, inverse_of: :sources
@@ -339,7 +339,7 @@ class Source::Bibtex < Source
 
   before_validation :create_authors, if: -> {!authors_to_create.nil?}
   before_validation :check_has_field
- 
+
   #region validations
   validates_inclusion_of :bibtex_type,
                          in:      ::VALID_BIBTEX_TYPES,
@@ -509,9 +509,9 @@ class Source::Bibtex < Source
   def self.new_from_bibtex(bibtex_entry = nil)
 
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
-   
+
     s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
-     
+
     import_attributes = []
 
     bibtex_entry.fields.each do |key, value|
@@ -638,7 +638,7 @@ class Source::Bibtex < Source
         return Utilities::Strings.authorship_sentence( b.author.tokens.collect {|t| t.last} )
       end
     else # use normalized records
-      return Utilities::Strings.authorship_sentence( authors.collect {|a| a.full_last_name} ) 
+      return Utilities::Strings.authorship_sentence( authors.collect {|a| a.full_last_name} )
     end
   end
 
@@ -742,18 +742,18 @@ class Source::Bibtex < Source
   # @return [Integer]
   #  The effective year of publication as per nomenclatural rules
   def nomenclature_year
-    cached_nomenclature_date.year 
+    cached_nomenclature_date.year
   end
 
   #  Month handling allows values from bibtex like 'may' to be handled
   def nomenclature_date
-    Utilities::Dates.nomenclature_date( day,  Utilities::Dates.month_index(month), year) 
+    Utilities::Dates.nomenclature_date( day,  Utilities::Dates.month_index(month), year)
   end
 
   # @return [Date]
   #  An memoizer, getter for cached_nomenclature_date, computes if not .persisted?
   def cached_nomenclature_date
-    if !persisted? 
+    if !persisted?
       nomenclature_date
     else
       read_attribute(:cached_nomenclature_date)
@@ -775,7 +775,7 @@ class Source::Bibtex < Source
   # @return [String]
   #   this source, rendered in the provided CSL style, as text
   def render_with_style(style = 'vancouver', format = 'text')
-    cp = CiteProc::Processor.new(style: style, format: format) 
+    cp = CiteProc::Processor.new(style: style, format: format)
     cp.import(bibtex_bibliography.to_citeproc)
     cp.render(:bibliography, id: cp.items.keys.first).first.strip
   end

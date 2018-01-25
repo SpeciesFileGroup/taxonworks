@@ -127,5 +127,5 @@ Rails.application.config.before_initialize do
         TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Illegitimate::Homonym
       ])
     }
-  }
+  }.freeze
 end

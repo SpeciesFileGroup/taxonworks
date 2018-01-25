@@ -10,7 +10,7 @@ module TaxonWorks
         subgenus: :infragenus,
         species: :species,
         subspecies: :infraspecies
-      }
+      }.freeze
 
       class Result
         # query string

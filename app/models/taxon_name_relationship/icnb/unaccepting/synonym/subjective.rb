@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Icnb::Unaccepting::Synonym::Subjective < TaxonNameRelationship::Icnb::Unaccepting::Synonym
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000102'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000102'.freeze
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +

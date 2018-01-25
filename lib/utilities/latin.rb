@@ -8,7 +8,7 @@ module Utilities::Latin
     'major' => %w{majus},
     's' => %w{es is us},
     'm' => %w{um}
-  }
+  }.freeze
 
   def self.same_root_name?(name1, name2)
     return false if (name1.length - name2.length).abs > 1

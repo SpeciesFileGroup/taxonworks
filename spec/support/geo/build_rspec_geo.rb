@@ -483,7 +483,7 @@ ALL_WKT_NAMES = [[CONVEX_HULL.exterior_ring, 'Outer Limits'],
                  [BOX_2, 'Box_2'],
                  [BOX_3, 'Box_3'],
                  [BOX_4, 'Box_4']
-]
+].freeze
 
 E1_AND_E2 = RSPEC_GEO_FACTORY.parse_wkt('POLYGON ((-9.0 6.0 0.0, -9.0 2.0 0.0, -14.0 2.0 0.0, -14.0 6.0 0.0, ' \
 '-9.0 6.0 0.0))')

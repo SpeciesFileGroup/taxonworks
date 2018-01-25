@@ -1,6 +1,6 @@
 class TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished < TaxonNameClassification::Icnb::EffectivelyPublished
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000084'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000084'.freeze
 
   def self.disjoint_taxon_name_classes
     self.parent.disjoint_taxon_name_classes +

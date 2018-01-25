@@ -1,6 +1,6 @@
 class TaxonNameClassification::Iczn::Available::OfficialListOfGenericNamesInZoology < TaxonNameClassification::Iczn::Available
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000228'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000228'.freeze
 
   def self.applicable_ranks
     GENUS_RANK_NAMES_ICZN

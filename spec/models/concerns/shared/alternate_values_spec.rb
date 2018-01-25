@@ -82,7 +82,7 @@ class TestAlternateValue < ApplicationRecord
   include FakeTable
   include Shared::AlternateValues
 
-  ALTERNATE_VALUES_FOR = [:string]
+  ALTERNATE_VALUES_FOR = [:string].freeze
 end
 
 

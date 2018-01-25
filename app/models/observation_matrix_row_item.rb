@@ -11,7 +11,7 @@ class ObservationMatrixRowItem < ApplicationRecord
 
   acts_as_list
 
-  ALL_STI_ATTRIBUTES = [:otu_id, :collection_object_id, :controlled_vocabulary_term_id]
+  ALL_STI_ATTRIBUTES = [:otu_id, :collection_object_id, :controlled_vocabulary_term_id].freeze
 
   belongs_to :observation_matrix
 

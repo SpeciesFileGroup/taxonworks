@@ -43,7 +43,7 @@ class Person < ApplicationRecord
   include Shared::IsData
 
   # Class constants
-  ALTERNATE_VALUES_FOR = [:last_name, :first_name]
+  ALTERNATE_VALUES_FOR = [:last_name, :first_name].freeze
 
   validates_presence_of :last_name, :type
   before_validation :set_type_if_blank

@@ -1,6 +1,6 @@
 class TaxonNameClassification::Iczn < TaxonNameClassification
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000107'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000107'.freeze
 
   def self.applicable_ranks
    ICZN 

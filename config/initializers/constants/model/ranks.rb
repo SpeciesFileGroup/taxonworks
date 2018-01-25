@@ -115,6 +115,6 @@ RANKS_JSON = {
     genus: RankHelper::rank_attributes(NomenclaturalRank::Icnb::GenusGroup),
     species: RankHelper::rank_attributes(NomenclaturalRank::Icnb::SpeciesGroup)
   }
-}
+}.freeze
 
 # expected parent rank, check for validation purpose

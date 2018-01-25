@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary < TaxonNameRelationship::Iczn::Invalidating::Homonym
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000290'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000290'.freeze
 
   # left_side
   def self.valid_subject_ranks

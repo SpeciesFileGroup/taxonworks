@@ -48,7 +48,7 @@ class Image < ApplicationRecord
   include SoftValidation
 
   #constants
-  MISSING_IMAGE_PATH = '/public/images/missing.jpg'
+  MISSING_IMAGE_PATH = '/public/images/missing.jpg'.freeze
 
   has_many :depictions, inverse_of: :image, dependent: :restrict_with_error
 

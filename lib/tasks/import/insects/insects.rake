@@ -22,7 +22,7 @@ namespace :tw do
   namespace :project_import do
     namespace :insects do
 
-      IMPORT_NAME = 'insects'
+      IMPORT_NAME = 'insects'.freeze
 
       # A utility class to index data.
       class ImportedData1
@@ -80,17 +80,17 @@ namespace :tw do
         'U.S.A' => 'United States',
         'MEXICO' => 'Mexico',
         'U. S. A. ' => 'United States'
-      }
+      }.freeze
 
       def geo_translate(name)
         GEO_NAME_TRANSLATOR[name] ? GEO_NAME_TRANSLATOR[name] : name
       end
 
       # Attributes to use from specimens.txt
-      SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
+      SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}.freeze
 
       # Attributes to strip on CollectingEvent creation
-      STRIP_LIST = %w{ModifiedBy ModifiedOn CreatedBy CreatedOn Latitude Longitude Elevation} # the last three are calculated
+      STRIP_LIST = %w{ModifiedBy ModifiedOn CreatedBy CreatedOn Latitude Longitude Elevation}.freeze # the last three are calculated
 
 #      TAXA = {}
 #      PEOPLE = {}

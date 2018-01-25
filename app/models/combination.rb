@@ -1,5 +1,5 @@
-# A nomenclator name, composed of existing {Protonym}s. Each record reflects the subsequent use of two or more protonyms.  
-# Only the first use of a combination is stored here, subsequence uses of this combination are referenced in Citations. 
+# A nomenclator name, composed of existing {Protonym}s. Each record reflects the subsequent use of two or more protonyms.
+# Only the first use of a combination is stored here, subsequence uses of this combination are referenced in Citations.
 #
 # A {Combination} has no name, it exists to group related Protonyms into an epithet.
 #
@@ -8,7 +8,7 @@
 # All elements of the combination must be defined, nothing is assumed based on the relationhip to the parent.
 #
 #  c = Combination.new
-#  c.genus = a_protonym_genus  
+#  c.genus = a_protonym_genus
 #  c.species = a_protonym_species
 #  c.save # => true
 #  c.genus_taxon_name_relationship  # => A instance of TaxonNameRelationship::Combination::Genus
@@ -21,7 +21,7 @@
 #   `genus subgenus section subsection series subseries species subspecies variety subvariety form subform`
 #   `genus_id subgenus_id section_id subsection_id series_id subseries_id species_id subspecies_id variety_id subvariety_id form_id subform_id`
 #
-# You can do things like (notice mix/match of _id or not): 
+# You can do things like (notice mix/match of _id or not):
 #   c = Combination.new(genus_id: @genus_protonym.id, subspecies: @some_species_group)
 #   c.species_id = Protonym.find(some_species_id).id
 # or
@@ -30,32 +30,33 @@
 # Combinations are composed of TaxonNameRelationships.  In those relationship the Combination#id is always the `object_taxon_name_id`, the
 # individual Protonyms are stored in `subject_taxon_name_id`.
 #
-# @!attribute combination_verbatim_name 
+# @!attribute combination_verbatim_name
 #   Use with caution, and sparingly! If the combination of values from Protonyms can not reflect the formulation of the combination as provided by the original author that string can be provided here.
 #   The verbatim value is not further parsed. It is only provided to clarify what the combination looked like when first published.
 #   The following recommendations are made:
-#     1) The provided string should visually reflect as close as possible what was seen in the publication itself, including 
-#     capitalization, accented characters etc. 
+#     1) The provided string should visually reflect as close as possible what was seen in the publication itself, including
+#     capitalization, accented characters etc.
 #     2) The full epithet (combination) should be provided, not just the differing component part (see 3 below).
 #     3) Misspellings can be more acurately reflected by creating new Protonyms.
 #   Example uses:
-#     1) Jones 1915 publishes Aus aus. Smith 1920 uses, literally "Aus (Bus) Janes 1915". 
+#     1) Jones 1915 publishes Aus aus. Smith 1920 uses, literally "Aus (Bus) Janes 1915".
 #        It is clear "Janes" is "Jones", therefor "Aus (Bus) Janes 1915" is provided as combination_verbatim_name.
 #     2) Smith 1800 publishes Aus Jonesi (i.e. Aus jonesi). The combination_combination_verbatim name is used to
-#        provide the fact that Jonesi was capitalized.  
+#        provide the fact that Jonesi was capitalized.
 #     3) "Aus brocen" is used for "Aus broken".  If the curators decide not to create a new protonym, perhaps because
 #        they feel "brocen" was a printing press error that left off the straight bit of the "k" then they should minimally
 #        include "Aus brocen" in this field, rather than just "brocen". An alternative is to create a new Protonym "brocen".
 #   @return [String]
 #
-# @!attribute parent_id 
-#   the parent is the parent of the highest ranked component protonym, it is automatically set i.e. it should never be assigned directly 
+# @!attribute parent_id
+#   the parent is the parent of the highest ranked component protonym, it is automatically set i.e. it should never be assigned directly
 #   @return [Integer]
-#   
+#
 class Combination < TaxonName
 
   # The ranks that can be used to build combinations.
-  APPLICABLE_RANKS = %w{family subfamily tribe subtribe genus subgenus section subsection series subseries species subspecies variety subvariety form subform}
+  APPLICABLE_RANKS = %w{family subfamily tribe subtribe genus subgenus section subsection
+                        series subseries species subspecies variety subvariety form subform}.freeze
 
   before_validation :set_parent
   validate :is_unique
@@ -65,15 +66,15 @@ class Combination < TaxonName
   end
 
   # Overwritten here from TaxonName to allow for destroy
-  has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', 
-    foreign_key: :object_taxon_name_id, 
-    inverse_of: :object_taxon_name, 
+  has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship',
+    foreign_key: :object_taxon_name_id,
+    inverse_of: :object_taxon_name,
     dependent: :destroy
 
   has_many :combination_relationships, -> {
     joins(:taxon_name_relationships)
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Combination::%'")
-  }, class_name: 'TaxonNameRelationship', 
+  }, class_name: 'TaxonNameRelationship',
   foreign_key: :object_taxon_name_id
 
   has_many :combination_taxon_names, through: :combination_relationships, source: :subject_taxon_name
@@ -124,28 +125,28 @@ class Combination < TaxonName
     }, through: "#{rank}_taxon_name_relationship".to_sym, source: :subject_taxon_name
 
     accepts_nested_attributes_for rank.to_sym
-  
+
     attr_accessor "#{rank}_id".to_sym
     method = "#{rank}_id"
 
-    define_method(method) { 
+    define_method(method) {
       if self.send(rank)
         self.send(rank).id
       else
         nil
-      end 
+      end
     }
 
     define_method("#{method}=") {|value|
       if !value.blank?
         if n = Protonym.find(value)
-          self.send("#{rank}=", n) 
+          self.send("#{rank}=", n)
         end
       end
-    } 
+    }
   end
 
-  scope :with_protonym_at_rank, -> (rank, protonym) { 
+  scope :with_protonym_at_rank, -> (rank, protonym) {
     includes(:combination_relationships).
     where('taxon_name_relationships.type = ? and taxon_name_relationships.subject_taxon_name_id = ?', rank, protonym).
     references(:combination_relationships)}
@@ -165,8 +166,8 @@ class Combination < TaxonName
   end
 
   # @return [Array of TaxonName]
-  #   pre-ordered by rank 
-  def protonyms 
+  #   pre-ordered by rank
+  def protonyms
     if new_record?
       protonyms_by_association
     else
@@ -174,7 +175,7 @@ class Combination < TaxonName
     end
   end
 
-  # Overrides {TaxonName#full_name_hash}  
+  # Overrides {TaxonName#full_name_hash}
   # @return [Hash]
   def full_name_hash
     gender = nil
@@ -201,12 +202,12 @@ class Combination < TaxonName
 
   # @return [Array of Integer]
   #   the collective years the protonyms were (nomenclaturaly) published on (ordered from genus to below)
-  def publication_years 
+  def publication_years
     description_years = protonyms.collect{|a| a.nomenclature_date ? a.nomenclature_date.year : nil}.compact
   end
 
   # @return [Integer, nil]
-  #   the earliest year (nomenclature) that a component Protonym was published on 
+  #   the earliest year (nomenclature) that a component Protonym was published on
   def earliest_protonym_year
     publication_years.sort.first
   end
@@ -322,7 +323,7 @@ class Combination < TaxonName
     APPLICABLE_RANKS.collect{|r| self.send(r)}.compact
   end
 
-  # TODO: this is a TaxonName level validation, it doesn't belong here 
+  # TODO: this is a TaxonName level validation, it doesn't belong here
   def sv_year_of_publication_matches_source
     source_year = self.source.nomenclature_year if self.source
     if self.year_of_publication && source_year
@@ -352,7 +353,7 @@ class Combination < TaxonName
   end
 
   def set_parent
-    names = self.protonyms 
+    names = self.protonyms
     if names.count > 0
       self.parent = names.first.parent if names.first.parent
     end
@@ -360,11 +361,11 @@ class Combination < TaxonName
 
   # validations
 
-  # The parent of a Combination is the parent of the highest ranked protonym in that combination 
+  # The parent of a Combination is the parent of the highest ranked protonym in that combination
   def parent_is_properly_set
     check = protonyms.first
     if self.parent && check && check.parent
-      errors.add(:base, 'Parent is not highest ranked member') if  self.parent != check.parent  
+      errors.add(:base, 'Parent is not highest ranked member') if  self.parent != check.parent
     end
   end
 
@@ -385,7 +386,7 @@ class Combination < TaxonName
       end
     end
   end
-  
+
   def validate_rank_class_class
     errors.add(:rank_class, 'Combination should not have rank. Delete the rank') if rank_class.present?
   end

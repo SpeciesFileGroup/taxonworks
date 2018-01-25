@@ -21,7 +21,7 @@ class DwcOccurrence < ApplicationRecord
 
   include Housekeeping
 
-  DC_NAMESPACE = 'http://rs.tdwg.org/dwc/terms/'
+  DC_NAMESPACE = 'http://rs.tdwg.org/dwc/terms/'.freeze
 
   # Not yet implemented, but likely needed
   # ? :id
@@ -33,7 +33,7 @@ class DwcOccurrence < ApplicationRecord
     :updated_by_id,
     :dwc_occurrence_object_type,
     :dwc_occurence_object_id
-  ]
+  ].freeze
 
   HEADER_CONVERTERS = {
     'dwcClass' => 'class',

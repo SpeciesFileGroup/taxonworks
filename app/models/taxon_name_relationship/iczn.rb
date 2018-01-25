@@ -1,8 +1,8 @@
 class TaxonNameRelationship::Iczn < TaxonNameRelationship
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000233'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000233'.freeze
 
-  validates_uniqueness_of :subject_taxon_name_id, scope: [:type, :object_taxon_name_id] 
+  validates_uniqueness_of :subject_taxon_name_id, scope: [:type, :object_taxon_name_id]
 
   # left_side
   def self.valid_subject_ranks

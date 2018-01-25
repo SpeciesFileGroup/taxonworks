@@ -39,7 +39,7 @@ class TypeMaterialsController < ApplicationController
 
     respond_to do |format|
       if @type_material.save
-        msg = "Type material (#{@type_material.type_type}) " +
+        msg = "Type material (#{@type_material.type_type}) " \
             "for #{@type_material.protonym.cached} was successfully created."
         format.html { redirect_to @type_material,
                                   notice: msg }

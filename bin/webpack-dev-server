@@ -29,7 +29,7 @@ begin
   HOSTNAME          = args('--host') || dev_server['host']
   PORT              = args('--port') || dev_server['port']
   HTTPS             = ARGV.include?('--https') || dev_server['https']
-  DEV_SERVER_ADDR   = "http#{"s" if HTTPS}://#{HOSTNAME}:#{PORT}"
+  DEV_SERVER_ADDR   = "http#{"s" if HTTPS}://#{HOSTNAME}:#{PORT}".freeze
   LISTEN_HOST_ADDR  = args('--listen-host') || DEFAULT_LISTEN_HOST_ADDR
 
 rescue Errno::ENOENT, NoMethodError

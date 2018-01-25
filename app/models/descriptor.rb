@@ -5,7 +5,7 @@
 #  Working - raw notes or images, "primal" observations, not yet refined to states or measurements
 #  Qualitative - Represents character/character_state expressions as traditionally understood.
 #  Quantitative - Single measurements.
-#  Sample - Summaries of multiple observations recorded in a statistical manner. Only valid for Otus. For example "length 42-77mm (n=5, min: 42, max:Only valid for Otus." 
+#  Sample - Summaries of multiple observations recorded in a statistical manner. Only valid for Otus. For example "length 42-77mm (n=5, min: 42, max:Only valid for Otus."
 #
 class Descriptor < ApplicationRecord
   include Housekeeping
@@ -22,7 +22,7 @@ class Descriptor < ApplicationRecord
 
   acts_as_list scope: [:project_id]
 
-  ALTERNATE_VALUES_FOR = [:name, :short_name]
+  ALTERNATE_VALUES_FOR = [:name, :short_name].freeze
 
   validates_presence_of :name, :type
   validate :type_is_subclassed

@@ -91,7 +91,7 @@ if ApplicationRecord.connection.table_exists? 'taxon_name_relationships'
   TAXON_NAME_RELATIONSHIPS_TYPE_JSON = {
     family:  TAXON_NAME_RELATIONSHIPS_OBJECT_SELECT.select{|a,b| b =~ /.*::Typification::Family/},
     genus: TAXON_NAME_RELATIONSHIPS_OBJECT_SELECT.select{|a,b| b =~ /.*::Typification::Genus/}
-  }
+  }.freeze
 
   # { genus: 'TaxonNameRelationship::Combination::Genus, ... }
   TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES = TaxonNameRelationship::Combination.descendants.inject({}){|hsh, a| hsh.merge!( a.rank_name.to_sym => a.name)}.freeze
@@ -140,5 +140,5 @@ if ApplicationRecord.connection.table_exists? 'taxon_name_relationships'
       ]),
       tree: []
     }
-  }
+  }.freeze
 end

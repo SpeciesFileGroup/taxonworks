@@ -68,7 +68,7 @@ module Material
 
   # A Container to store results of create_quick_verbatim
   class QuickVerbatimResponse
-    LOCKS = %w{namespace repository preparation_type increment collecting_event determinations other_labels note}
+    LOCKS = %w{namespace repository preparation_type increment collecting_event determinations other_labels note}.freeze
 
     attr_accessor :quick_verbatim_object
     attr_accessor :locks

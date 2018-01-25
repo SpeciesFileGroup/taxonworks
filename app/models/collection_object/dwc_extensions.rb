@@ -4,9 +4,9 @@ module CollectionObject::DwcExtensions
     catalogNumber: :dwc_catalog_number,
     family: :dwc_family,
     genus: :dwc_genus,
-    specificEpithet: :dwc_specific_epithet, 
+    specificEpithet: :dwc_specific_epithet,
     scientificName: :dwc_scientific_name,
-    scientificNameAuthorship: :dwc_taxon_name_authorship, 
+    scientificNameAuthorship: :dwc_taxon_name_authorship,
     country: :dwc_country,
     stateProvince: :dwc_state_province,
     county: :dwc_county,
@@ -20,7 +20,7 @@ module CollectionObject::DwcExtensions
     preparations: :dwc_preparations,
     institutionCode: :dwc_institution_code,
     institutionID: :dwc_institution_id
-  } 
+  }.freeze
 
   attr_accessor :taxonomy
 
@@ -94,18 +94,18 @@ module CollectionObject::DwcExtensions
 
   def dwc_event_time
     a = collecting_event.try(:time_range)
-    a ? a.join('-') : nil 
+    a ? a.join('-') : nil
   end
 
   def dwc_event_date
     a = collecting_event.try(:time_date_range)
-    a ? a.join('-') : nil 
+    a ? a.join('-') : nil
   end
 
   def dwc_preparations
     preparation_type_name
   end
- 
+
   # we assert custody, NOT ownership
   def dwc_institution_code
     repository_acronym
@@ -122,7 +122,7 @@ module CollectionObject::DwcExtensions
       preferred_georeference.type.tableize.humanize # Can expand with Georeference#description possibly
     when :verbatim
       'Verbatim'
-    when :geographic_area  
+    when :geographic_area
       'Geographic area shape centroid.'  # TODO: standardize
     else
       nil

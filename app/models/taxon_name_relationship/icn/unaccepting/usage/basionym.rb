@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym < TaxonNameRelationship::Icn::Unaccepting::Usage
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000004'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000004'.freeze
 
   validates_uniqueness_of :subject_taxon_name_id, scope: :type
 

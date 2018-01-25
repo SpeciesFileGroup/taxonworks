@@ -26,6 +26,6 @@ if ApplicationRecord.connection.table_exists? 'identifiers'
       all: {'Identifier::Unknown' => {label: 'unknown'}},
       common: ['Identifier::Unknown']
     } 
-  }
+  }.freeze
 
 end

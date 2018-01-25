@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961 <  TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000292'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000292'.freeze
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
