@@ -1182,7 +1182,7 @@ class CollectingEvent < ApplicationRecord
       name       = cached_geographic_name_classification.values.join(': ')
       date       = [start_date_string, end_date_string].compact.join('-')
       place_date = [verbatim_locality, date].compact.join(', ')
-      string     = [name, place_date, verbatim_collectors, verbatim_method].select {|a| !a.blank?}.join("\n")
+      string     = [name, place_date, verbatim_collectors, verbatim_method].reject {|a| a.blank?}.join("\n")
     end
 
     string = "[#{self.to_param}]" if string.blank?

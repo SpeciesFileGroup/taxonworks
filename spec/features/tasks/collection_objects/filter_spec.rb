@@ -87,7 +87,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
                                       project:           @project,
                                       creator:           @user,
                                       identifier_object: sp,
-                                      namespace:         ((identifier % 2) == 0 ? ns1 : ns2),
+                                      namespace:         (identifier.even? ? ns1 : ns2),
                                       identifier:        identifier)
             }
             visit(collection_objects_filter_task_path)
@@ -194,7 +194,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
               sp = FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project)
               id = FactoryBot.create(:identifier_local_catalog_number,
                                       identifier_object: sp,
-                                      namespace:         ((identifier % 2) == 0 ? @ns1 : @ns2),
+                                      namespace:         (identifier.even? ? @ns1 : @ns2),
                                       identifier:        identifier, creator: @user, updater: @user, project: @project)
             }
 
@@ -276,10 +276,10 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             2.times { FactoryBot.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: @project) }
             (1..10).each { |specimen|
               sp = FactoryBot.create(:valid_specimen,
-                                      creator:    ((specimen % 2) == 0 ? joe : pat),
+                                      creator:    (specimen.even? ? joe : pat),
                                       created_at: "200#{specimen - 1}/01/#{specimen}",
                                       updated_at: "200#{specimen - 1}/07/#{specimen}",
-                                      updater:    ((specimen % 2) == 0 ? pat : joe),
+                                      updater:    (specimen.even? ? pat : joe),
                                       project:    @project)
             }
 

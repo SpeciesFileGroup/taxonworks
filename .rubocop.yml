@@ -74,7 +74,7 @@ Performance/HashEachMethods:
   Enabled: true
 
 #Lint/UnneededCopDisableDirective:
-#  Enabled: false
+#  Enabled: true
 
 Lint/UselessAccessModifier:
   Enabled: true
@@ -86,7 +86,7 @@ Rails/Date:
   Enabled: true
 
 Rails/SaveBang:
-  Enabled: false
+  Enabled: true
 
 # TODO: select possible additions by setting `Enabled: true`
 
@@ -103,4 +103,7 @@ Lint/InterpolationCheck:
   Enabled: false
 
 Lint/RegexpAsCondition:
+  Enabled: false
+
+Style/HashSyntax:
   Enabled: false
