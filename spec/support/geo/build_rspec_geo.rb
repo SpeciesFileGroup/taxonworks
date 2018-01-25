@@ -62,14 +62,17 @@ SIMPLE_SHAPES = {
                  polygon:             'POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0))',
                  multi_point:         'MULTIPOINT((10.0 10.0 0.0), (20.0 20.0 0.0))',
                  multi_line_string:   'MULTILINESTRING((0.0 0.0 0.0, 10.0 0.0 0.0), (20.0 0.0 0.0, 30.0 0.0 0.0))',
-                 multi_polygon:       'MULTIPOLYGON(((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0)),((10.0 10.0 0.0, 20.0 10.0 0.0, 20.0 20.0 0.0, 10.0 20.0 0.0, 10.0 10.0 0.0)))',
-                 geometry_collection: 'GEOMETRYCOLLECTION( POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0)), POINT(10 10 0)) '
+                 multi_polygon:       'MULTIPOLYGON(((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, ' \
+'0.0 0.0 0.0)),((10.0 10.0 0.0, 20.0 10.0 0.0, 20.0 20.0 0.0, 10.0 20.0 0.0, 10.0 10.0 0.0)))',
+                 geometry_collection: 'GEOMETRYCOLLECTION( POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, ' \
+'0.0 10.0 0.0, 0.0 0.0 0.0)), POINT(10 10 0)) '
 }.freeze
 
 # TODO: this comment block meaningless now?
 # this is the factory for use *only* by rspec
 # for normal build- and run-time, use Gis::FACTORY
-# FFI_FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326, has_m_coordinate: false, has_z_coordinate: true)
+# FFI_FACTORY = ::RGeo::Geos.factory(native_interface: :ffi, srid: 4326,
+# has_m_coordinate: false, has_z_coordinate: true)
 
 RSPEC_GEO_FACTORY = Gis::FACTORY
 
@@ -327,7 +330,9 @@ LIST_G3 = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(16, 2.3, 0.0),
                                          RSPEC_GEO_FACTORY.point(18, -2.8, 0.0),
                                          RSPEC_GEO_FACTORY.point(16, 2.3, 0.0)])
 
-SHAPE_G  = RSPEC_GEO_FACTORY.multi_polygon([RSPEC_GEO_FACTORY.polygon(LIST_G1), RSPEC_GEO_FACTORY.polygon(LIST_G2), RSPEC_GEO_FACTORY.polygon(LIST_G3)])
+SHAPE_G  = RSPEC_GEO_FACTORY.multi_polygon([RSPEC_GEO_FACTORY.polygon(LIST_G1),
+                                            RSPEC_GEO_FACTORY.polygon(LIST_G2),
+                                            RSPEC_GEO_FACTORY.polygon(LIST_G3)])
 SHAPE_G1 = SHAPE_G.geometry_n(0)
 SHAPE_G2 = SHAPE_G.geometry_n(1)
 SHAPE_G3 = SHAPE_G.geometry_n(2)
@@ -480,10 +485,13 @@ ALL_WKT_NAMES = [[CONVEX_HULL.exterior_ring, 'Outer Limits'],
                  [BOX_4, 'Box_4']
 ]
 
-E1_AND_E2 = RSPEC_GEO_FACTORY.parse_wkt('POLYGON ((-9.0 6.0 0.0, -9.0 2.0 0.0, -14.0 2.0 0.0, -14.0 6.0 0.0, -9.0 6.0 0.0))')
-E1_OR_E2  = RSPEC_GEO_FACTORY.parse_wkt('POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))')
+E1_AND_E2 = RSPEC_GEO_FACTORY.parse_wkt('POLYGON ((-9.0 6.0 0.0, -9.0 2.0 0.0, -14.0 2.0 0.0, -14.0 6.0 0.0, ' \
+'-9.0 6.0 0.0))')
+E1_OR_E2  = RSPEC_GEO_FACTORY.parse_wkt('POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 6.0 0.0, 5.0 6.0 0.0, ' \
+'5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))')
 E1_AND_E4 = RSPEC_GEO_FACTORY.parse_wkt('GEOMETRYCOLLECTION EMPTY')
-E1_OR_E5  = RSPEC_GEO_FACTORY.parse_wkt('MULTIPOLYGON (((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, -19.0 2.0 0.0,' \
+E1_OR_E5  = RSPEC_GEO_FACTORY.parse_wkt('MULTIPOLYGON (((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 2.0 0.0, ' \
+'-19.0 2.0 0.0,' \
 ' -19.0 9.0 0.0)), ((-7.0 -9.0 0.0, -7.0 -5.0 0.0, -11.0 -5.0 0.0, -11.0 -9.0 0.0, -7.0 -9.0 0.0)))')
 
 P16_ON_A = RSPEC_GEO_FACTORY.parse_wkt('POINT (-23.0 18.0 0.0)')
@@ -521,8 +529,10 @@ end
 # @param [Boolean] run_in_console
 # @param [User] user
 # @return [Hash] of debug names and ids
+# rubocop:disable Metrics/MethodLength
 def generate_geo_test_objects(user_id, project_id, run_in_console = false, user = nil)
-  prepare_test(user_id, project_id) if run_in_console
+
+prepare_test(user_id, project_id) if run_in_console
 
   @p0  = FactoryBot.build(:geographic_item_point, point: POINT0.as_binary) # 0
   @p1  = FactoryBot.build(:geographic_item_point, point: POINT1.as_binary) # 1
@@ -1800,7 +1810,8 @@ def generate_collecting_events(user = nil)
 end
 
 def gen_wkt_files_1
-  # using the prebuilt RGeo test objects, write out three QGIS-acceptable WKT files, one each for points, linestrings, and polygons.
+  # using the prebuilt RGeo test objects, write out three QGIS-acceptable WKT files,
+  # one each for points, linestrings, and polygons.
   f_point = File.new('./tmp/RGeoPoints.wkt', 'w+')
   f_line  = File.new('./tmp/RGeoLines.wkt', 'w+')
   f_poly  = File.new('./tmp/RGeoPolygons.wkt', 'w+')
@@ -1851,7 +1862,8 @@ def gen_wkt_files_1
 end
 
 def gen_wkt_files
-  # using the prebuilt RGeo test objects, write out three QGIS-acceptable WKT files, one each for points, linestrings, and polygons.
+  # using the prebuilt RGeo test objects, write out three QGIS-acceptable WKT files,
+  # one each for points, linestrings, and polygons.
   f_point = File.new('./tmp/RGeoPoints.wkt', 'w+')
   f_line  = File.new('./tmp/RGeoLines.wkt', 'w+')
   f_poly  = File.new('./tmp/RGeoPolygons.wkt', 'w+')
@@ -1900,3 +1912,4 @@ def gen_wkt_files
   f_line.close
   f_poly.close
 end
+# rubocop:enable Metrics/MethodLength
