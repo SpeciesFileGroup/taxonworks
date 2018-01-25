@@ -18,8 +18,13 @@ module TaxonWorks
     # -- all .rb files in that directory are automatically loaded.
 
     # Pre-load all libraries in /lib
+    # config.autoload_paths += %W(#{config.root}/lib) # #{config.root}/extras
 
-    config.autoload_paths += %W(#{config.root}/lib) # #{config.root}/extras
+    # TODO: clean module/class names so that this works:
+    # config.autoload_paths += Dir[ Rails.root.join('lib', '**/') ]
+
+    config.autoload_paths << "#{Rails.root}/lib"
+    config.autoload_paths << "#{Rails.root}/lib/vendor"
 
     # Breaks rake/loading becahse of existing Rails.application.eager_load! statements
     # config.eager_load_paths += %W(#{config.root}/lib) # #{config.root}/extras
