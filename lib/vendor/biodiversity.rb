@@ -13,7 +13,6 @@ module TaxonWorks
       }
 
       class Result
-
         # query string
         attr_accessor :name
 
@@ -201,15 +200,15 @@ module TaxonWorks
         #   Protonyms grouped by nomenclatural group, for a rank
         def grouped_protonyms(rank)
           s = case rank
-          when :genus, :subgenus
-             basic_scope(rank).is_genus_group
-          when :species, :subspecies
-             basic_scope(rank).is_species_group
-          else
-             Protonym.none
-          end
+              when :genus, :subgenus
+                basic_scope(rank).is_genus_group
+              when :species, :subspecies
+                basic_scope(rank).is_species_group
+              else
+                Protonym.none
+              end
 
-           (is_authored? && finest_rank == rank) ? scope_to_author_year(s) : s
+          (is_authored? && finest_rank == rank) ? scope_to_author_year(s) : s
         end
 
         # @return [Scope]
@@ -253,6 +252,7 @@ module TaxonWorks
           @result[:protonyms] = protonym_result
           @result[:parse] = parse_values
           @result[:unambiguous] = is_unambiguous?
+          @result[:existing_combination_id] = combination_exists?.try(:id)
           @result
         end
 
@@ -264,6 +264,14 @@ module TaxonWorks
             c.send("#{r}_id=", protonym_result[r].first.try(:id)) if unambiguous_at?(r)
           end
           c
+        end
+
+        # @return [Combination, false]
+        #    the combination, if it exists
+        def combination_exists?
+          if is_unambiguous?
+            Combination.match_exists?(combination.protonym_ids_params)
+          end
         end
 
       end

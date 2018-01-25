@@ -38,11 +38,17 @@ describe Combination, type: :model, group: :nomenclature do
       expect(combination.errors.include?(:base)).to be_truthy
     end
 
-    specify 'species combination is valid with two protonyms' do
+    specify 'combinations must be unique' do
+      basic_combination.save
       c = Combination.new(genus: genus, species: species)
-      c.valid?
-      expect(c.protonyms.last.rank_string).to eq('NomenclaturalRank::Iczn::SpeciesGroup::Species')
-      expect(c.errors.include?(:base)).to be_falsey
+      expect(c.valid?).to be_falsey
+      expect(c.errors.messages[:base].include?('Combination exists.')).to be_truthy
+    end
+
+    specify 'species combination is valid with two protonyms' do
+      basic_combination.valid?
+      expect(basic_combination.protonyms.last.rank_string).to eq('NomenclaturalRank::Iczn::SpeciesGroup::Species')
+      expect(basic_combination.errors.include?(:base)).to be_falsey
     end
 
     specify 'species combination is invalid with one protonym' do
@@ -74,16 +80,14 @@ describe Combination, type: :model, group: :nomenclature do
     end
 
     specify 'scope with_cached_original_combination' do
-      c = Combination.new(genus: genus, species: species)
-      c.save
-      expect(Combination.with_cached_html('<i>' + genus.name + ' ' + species.name + '</i>').first).to eq(c)
+      basic_combination.save
+      expect(Combination.with_cached_html('<i>' + genus.name + ' ' + species.name + '</i>').first).to eq(basic_combination)
     end
 
     specify 'scope with_protonym_at_rank' do
-      c = Combination.new(genus: genus, species: species)
-      c.save
-      expect(Combination.with_protonym_at_rank('TaxonNameRelationship::Combination::Genus', genus).first).to eq(c)
-      expect(Combination.with_protonym_at_rank('TaxonNameRelationship::Combination::Species', species).first).to eq(c)
+      basic_combination.save
+      expect(Combination.with_protonym_at_rank('TaxonNameRelationship::Combination::Genus', genus).first).to eq(basic_combination)
+      expect(Combination.with_protonym_at_rank('TaxonNameRelationship::Combination::Species', species).first).to eq(basic_combination)
     end
   end
 
@@ -91,7 +95,35 @@ describe Combination, type: :model, group: :nomenclature do
     expect(combination.type).to eq('Combination')
   end
 
+  context 'class methods' do
+    before { basic_combination.save }
+
+    specify '.find_by_protonym_ids' do
+      expect(Combination.find_by_protonym_ids(genus: genus.id, species: species.id).all).to contain_exactly(basic_combination)
+    end
+
+    specify '.match_exists? 1' do
+      expect(Combination.match_exists?(genus: genus.id, species: species.id)).to eq(basic_combination)
+    end
+
+    specify '.match_exists? 2' do
+      expect(Combination.match_exists?(genus: genus.id, species: species2.id)).to eq(false)
+    end
+
+    specify '.match_exists? 3' do
+      expect(Combination.match_exists?(genus: genus.id)).to eq(false)
+    end
+
+    specify '.match_exists? 4' do
+      expect(Combination.match_exists?(genus: genus.id, species: species.id, subspecies: species.id)).to eq(false)
+    end
+  end
+
   context 'instance methods' do
+    specify '#protonym_ids_params?' do
+      expect(basic_combination.protonym_ids_params).to eq({genus: genus.id, species: species.id})
+    end
+
     specify '#is_current_placement?' do
       expect(basic_combination.is_current_placement?).to eq(true)
     end 
@@ -102,7 +134,7 @@ describe Combination, type: :model, group: :nomenclature do
       end
 
       specify 'are returned for saved Combinations' do
-        expect(basic_combination.save).to be_truthy
+        basic_combination.save
         expect(basic_combination.protonyms).to eq([genus, species])
       end
     end
@@ -201,14 +233,11 @@ describe Combination, type: :model, group: :nomenclature do
   end
 
   context '#destroy' do
-    before do
-      basic_combination.save
-    end
-
+    before { basic_combination.save }
+    
     specify 'works' do
       expect(basic_combination.destroy).to be_truthy
     end
-
   end
 
   context 'soft validation' do
@@ -243,19 +272,6 @@ describe Combination, type: :model, group: :nomenclature do
       expect(basic_combination.save).to be_truthy
       basic_combination.soft_validate(:dates)
       expect(basic_combination.soft_validations.messages_on(:year_of_publication).count).to eq(1)
-    end
-
-    specify 'duplicate combinations are detected' do
-      c1 = Combination.new
-      c1.genus = genus
-      c1.species = species
-      expect(c1.save).to be_truthy
-      c2 = Combination.new
-      c2.genus = genus
-      c2.species = species
-      expect(c2.save).to be_truthy
-      c1.soft_validate(:combination_duplicates)
-      expect(c1.soft_validations.messages_on(:base).count).to eq(1)
     end
   end
 

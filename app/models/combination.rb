@@ -58,8 +58,13 @@ class Combination < TaxonName
   APPLICABLE_RANKS = %w{family subfamily tribe subtribe genus subgenus section subsection series subseries species subspecies variety subvariety form subform}
 
   before_validation :set_parent
+  validate :is_unique
 
-  # Overwritten here 
+  def protonym_ids_params
+    protonyms.inject({}) {|hsh, p| hsh.merge!( p.rank.to_sym => p.id )}
+  end
+
+  # Overwritten here from TaxonName to allow for destroy
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', 
     foreign_key: :object_taxon_name_id, 
     inverse_of: :object_taxon_name, 
@@ -216,6 +221,7 @@ class Combination < TaxonName
     relations
   end
 
+  # TODO: DEPRECATE this is likely not required in our new interfaces
   def combination_relationships_and_stubs(rank_string)
     display_order = [
         :combination_genus, :combination_subgenus, :combination_species, :combination_subspecies, :combination_variety, :combination_form
@@ -264,7 +270,50 @@ class Combination < TaxonName
     html = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub(' [sic]', ec + ' [sic]' + eo).gsub(ec + ' ' + eo, ' ').gsub(eo + ec, '').gsub(eo + ' ', ' ' + eo)
     html
   end
-  
+
+  # @return [Scope]
+  # @params keyword_args [Hash] like `{genus: 123, :species: 456}` (note no `_id` suffix)
+  def self.find_by_protonym_ids(**keyword_args)
+    return Combination.none if keyword_args.empty?
+
+    c = Combination.arel_table
+    r = TaxonNameRelationship.arel_table
+
+    a = c.alias("a_foo")
+
+    b = c.project(a[Arel.star]).from(a)
+          .join(r)
+          .on(r['object_taxon_name_id'].eq(a['id']))
+
+    s = []
+
+    i = 0
+    keyword_args.each do |rank, id|
+      r_a = r.alias("foo_#{i}")
+
+      b = b.join(r_a).on(
+        r_a['object_taxon_name_id'].eq(a['id']),
+        r_a['type'].eq(TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES[rank]),
+        r_a['subject_taxon_name_id'].eq(id)
+      )
+
+      i += 1
+    end
+
+    b = b.group(a['id']).having(r['object_taxon_name_id'].count.eq(keyword_args.keys.count))
+    b = b.as("z_bar")
+
+    Combination.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(c['id']))))
+  end
+
+  # @return [Combination]
+  # @params keyword_args [Hash] like `{genus: 123, :species: 456}` (note no `_id` suffix)
+  #    the matching Combination if it exists, otherwise false
+  def self.match_exists?(**keyword_args)
+    a = find_by_protonym_ids(keyword_args).first
+    a ? a : false
+  end
+
   protected
 
   # @return [Array of TaxonNames, nil]
@@ -339,6 +388,12 @@ class Combination < TaxonName
   
   def validate_rank_class_class
     errors.add(:rank_class, 'Combination should not have rank. Delete the rank') if rank_class.present?
+  end
+
+  def is_unique
+    if a = Combination.match_exists?(protonym_ids_params)
+      errors.add(:base, 'Combination exists.') if a.id != id
+    end
   end
 
 end

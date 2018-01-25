@@ -26,6 +26,23 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
         result.project_id = 1
       end
 
+      context 'existing matches' do
+        before do
+          result.name = 'Aus bus Smith and Jones, 1920'
+          result.parse
+          result.build_result
+        end
+        
+        specify '#combination_exists? 1' do
+          expect(result.combination_exists?).to eq(false)
+        end
+
+        specify '#combination_exists? 1' do
+          c = Combination.create!(genus: genus1, species: species1)
+          expect(result.combination_exists?).to eq(c)
+        end
+      end
+
       context 'unambiguous' do
         before do
           result.name = 'Aus bus Smith and Jones, 1920'
@@ -37,6 +54,10 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
 
         specify 'genus' do
           expect(result.genus).to eq('Aus') 
+        end
+
+        specify '#protonym_result' do
+          expect(result.protonym_result[:genus]).to include(genus1)
         end
 
         specify '#preparse' do
@@ -85,9 +106,7 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
           specify '#grouped_protonyms1' do
             expect(result.grouped_protonyms(:species)).to contain_exactly(species3)
           end
-
         end 
-
       end
 
       context 'species with ambiguity' do

@@ -1,6 +1,6 @@
 # The class relationships used to create Combinations.
 class TaxonNameRelationship::Combination < TaxonNameRelationship
-  
+
   validates_uniqueness_of :object_taxon_name_id, scope: :type
   validate :subject_is_protonym
 
@@ -10,10 +10,7 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
     foreign_key: :object_taxon_name_id, 
     inverse_of: :object_taxon_name
 
-  def subject_is_protonym
-    errors.add(:subject_taxon_name, 'Must be a protonym') if subject_taxon_name.type == 'Combination'
-  end
-
+  # @return [Integer, nil]
   def self.order_index
     RANKS.index(::ICN_LOOKUP[self.name.demodulize.underscore.humanize.downcase])
   end
@@ -34,16 +31,26 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
     :reverse
   end
 
+  # @return [String]
+  #   the human readable rank this relationship pertains to
+  def self.rank_name
+    name.demodulize.humanize.downcase
+  end
+
+  def rank_name
+    type_name.demodulize.humanize.downcase
+  end
+
   # @return String
   #    the status inferred by the relationship to the object name 
   def object_status
-    self.type_name.demodulize.underscore.humanize.downcase + ' in combination'
+    rank_name + ' in combination'
   end
 
   # @return String
   #    the status inferred by the relationship to the subject name 
   def subject_status
-    ' as ' +  type_name.demodulize.underscore.humanize.downcase + ' in combination'
+    ' as ' +  rank_name + ' in combination'
   end
 
   # @return String
@@ -56,8 +63,10 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
     ' with'
   end
 
-  def rank_name
-    self.class.name.demodulize.downcase
+  protected
+
+  def subject_is_protonym
+    errors.add(:subject_taxon_name, 'Must be a protonym') if subject_taxon_name.type == 'Combination'
   end
 
 end

@@ -8,12 +8,7 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
 
   validates_uniqueness_of :object_taxon_name_id, scope: :type
 
-  # after_save :set_cached_original_combination
   after_destroy :set_cached_original_combination
-
-  def set_cached_original_combination
-    self.object_taxon_name.update_cached_original_combinations
-  end
 
   def self.nomenclatural_priority
     :reverse
@@ -26,7 +21,6 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
   def object_status_connector_to_subject
     ' with'
   end
-
 
   # @return String
   #    the status inferred by the relationship to the subject name 
@@ -44,12 +38,14 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
    'in original combination with ' +  self.type_name.demodulize.underscore.humanize.downcase 
   end
 
-
-
   def object_status_connector_to_subject
     ''
   end
 
+  protected
 
+  def set_cached_original_combination
+    self.object_taxon_name.update_cached_original_combinations
+  end
 
 end

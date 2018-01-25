@@ -11,6 +11,7 @@ json.data do
 
   json.set! :parse, @result[:parse]
   json.unambiguous @result[:unambiguous]
+  json.existing_combination_id @result[:existing_combination_id]
 end
 
 
