@@ -18,6 +18,9 @@ require 'awesome_print'
 require 'rspec/rails'
 require 'spec_helper'
 
+# TODO: this is all kinds of fragile and terrible. Potential fix:
+# * [ ] Use FactoryBot not FactoryBotRails
+# * [ ] Work backwards with dependencies for a more explicit/logical approach
 Dir[Rails.root.join('spec/support/**/*.rb')].sort.reverse.each { |f| require f }
 
 ApplicationRecord.connection.tables.each { |t| ApplicationRecord.connection.reset_pk_sequence!(t) }

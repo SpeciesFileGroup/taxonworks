@@ -48,7 +48,7 @@ TaxonWorks::Application.configure do
 
   # See http://guides.rubyonrails.org/v5.1/configuring.html#custom-configuration
   config.x.test_user_password = 'taxonworks'.freeze
-  config.x.test_tmp_file_dir = Dir["#{Rails.root}/spec/test_files/"].first.freeze
+  config.x.test_tmp_file_dir = "#{Rails.root}/spec/test_files/"
 
   Paperclip::Attachment.default_options[:path] = "#{config.x.test_tmp_file_dir}:class/:id_partition/:style.:extension"
 end

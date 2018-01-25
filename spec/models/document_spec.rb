@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Document, type: :model, group: :documentation do
 
-  let(:document) { FactoryBot.create(:valid_document) } # a samll pdf
+  let(:document) { FactoryBot.create(:valid_document) } # a 1 page pdf
 
   after(:each) {
     document.destroy
@@ -38,7 +38,6 @@ RSpec.describe Document, type: :model, group: :documentation do
   end
 
   context 'pages' do
-  
     context 'setting pages on create' do
       before do
         document.initialize_start_page = 5
