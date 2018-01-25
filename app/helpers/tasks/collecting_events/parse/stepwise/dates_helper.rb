@@ -8,13 +8,12 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
   def make_dates_method_headers
     list = Utilities::Dates::REGEXP_DATES
     selector_row = ''
-    list.each_key_with_index {|kee, dex|
+    list.each {|kee, v|
       selector_row += content_tag(:th, Utilities::Dates::REGEXP_DATES[kee][:hdr],
                                   data: {help: Utilities::Dates::REGEXP_DATES[kee][:hlp]})
     }
     selector_row.html_safe
   end
-
 
   # @param [Array] filters must be array of symbols from Utilities::Dates::REGEXP_DATES.keys (optional)
   def make_dates_selected_method_boxes(filters = Utilities::Dates::REGEXP_DATES.keys)
@@ -31,7 +30,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
   def make_dates_rows(label, filters)
     return nil if label.nil?
     tests = Utilities::Dates.hunt_dates(label, filters)
-    tests.keys.collect.with_index do |kee, dex|
+    tests.keys.each_with_index do |kee, dex|
       trial = tests[kee]
       method = trial.delete(:method) # extract the method from the trial and save it
       next if trial.blank? # if this leaves the trial empty, skip
