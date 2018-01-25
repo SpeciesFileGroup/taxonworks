@@ -25,19 +25,19 @@ Rails:
   Enabled: true
 
 Style/StringLiterals:
-  Enabled: false
+  Enabled: true
 #  AutoCorrect: false
 
 Style/StringHashKeys:
-  Enabled: false
+  Enabled: true
 
 Style/HashSyntax:
-  Enabled: false
+  Enabled: true
   EnforcedStyle: ruby19
 #  AutoCorrect: false
 
 Metrics/LineLength:
-  Enabled: false
+  Enabled: true
   Max: 120
   AllowHeredoc: true
   AllowURI: true
@@ -45,48 +45,48 @@ Metrics/LineLength:
   IgnoreCopDirectives: false
 
 Metrics/MethodLength:
-  Enabled: false
+  Enabled: true
   CountComments: false
   Max: 25
 
 Metrics/ClassLength:
-  Enabled: false
+  Enabled: true
   CountComments: false
   Max: 1000
 
 Layout/IndentationWidth:
-  Enabled: false
+  Enabled: true
   Width: 2
 
 Lint/MissingCopEnableDirective:
-  Enabled: false
+  Enabled: true
 
 Metrics/BlockNesting:
-  Enabled: false
+  Enabled: true
 
 Lint/ReturnInVoidContext:
-  Enabled: false
+  Enabled: true
 
 Lint/StringConversionInInterpolation:
-  Enabled: false
+  Enabled: true
 
 Performance/HashEachMethods:
-  Enabled: false
+  Enabled: true
 
 #Lint/UnneededCopDisableDirective:
-#  Enabled: false
+#  Enabled: true
 
 Lint/UselessAccessModifier:
-  Enabled: false
+  Enabled: true
 
 Performance/Size:
-  Enabled: false
+  Enabled: true
 
 Rails/Date:
-  Enabled: false
+  Enabled: true
 
 Rails/SaveBang:
-  Enabled: false
+  Enabled: true
 
 # TODO: select possible additions by setting `Enabled: true`
 
@@ -105,5 +105,5 @@ Lint/InterpolationCheck:
 Lint/RegexpAsCondition:
   Enabled: false
 
-Style/InverseMethods:
+Style/HashSyntax:
   Enabled: false
