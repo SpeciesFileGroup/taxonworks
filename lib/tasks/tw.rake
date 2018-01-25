@@ -66,8 +66,8 @@ namespace :tw do
       if default
         puts "no data_directory passed, using default (#{default})"
       else
-        raise 'no data_directory passed (like data_directory=/tmp/foo) and default_data_directory setting is not \
-present (see application_settings.yml in /config)'
+        raise 'no data_directory passed (like data_directory=/tmp/foo) and default_data_directory setting is not ' \
+              'present (see application_settings.yml in /config)'
       end
     end
     @args.merge!(data_directory: (ENV['data_directory'] || default))
@@ -84,8 +84,8 @@ present (see application_settings.yml in /config)'
       if default
         puts "No backup_directory passed, using default (#{default})"
       else
-        raise 'No backup_directory passed (like backup_directory=/tmp/foo) and backup_directory setting is not \
-present (see application_settings.yml in /config)'
+        raise 'No backup_directory passed (like backup_directory=/tmp/foo) and backup_directory setting is not ' \
+              'present (see application_settings.yml in /config)'
       end
     end
 
@@ -124,8 +124,9 @@ present (see application_settings.yml in /config)'
 
   # True if the table exists in the present environment's database
   def table_exists(table_name)
-    ApplicationRecord.connection.execute("SELECT EXISTS(SELECT * FROM information_schema.tables \
-WHERE table_name = '#{table_name}');").first['exists'] == 't'
+    ApplicationRecord.connection
+      .execute("SELECT EXISTS(SELECT * FROM information_schema.tables " \
+        "WHERE table_name = '#{table_name}');").first['exists'] == 't'
   end
 
 end
