@@ -69,7 +69,7 @@
 
 <script>
 
-  import { GetParse } from '../request/resources';
+  import { GetParse, GetCombination } from '../request/resources';
   import listGroup from './listGroup.vue';
   import saveCombination from './saveCombination.vue';
   import previewView from './previewView.vue';
@@ -136,6 +136,11 @@
           this.$nextTick(() => {
             if(response.data.unambiguous) {
               this.$refs.saveButton.setFocus();
+            }
+            if(response.data.existing_combination_id) {
+              GetCombination(response.data.existing_combination_id).then(response => {
+                this.newCombination = response;
+              })
             }
           })
         })

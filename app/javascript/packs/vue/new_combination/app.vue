@@ -71,7 +71,6 @@
 			addToList(combination) {
 				let position = this.combinations.findIndex((item) => { return combination.id == item.id; });
 
-				console.log(position);
 				if(position > -1) {
 					this.$set(this.combinations, position, combination)
 				}
