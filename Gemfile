@@ -136,7 +136,7 @@ group :test do
   gem 'coveralls', '~> 0.8.21', require: false
   gem 'capybara', '~> 2.17.0'
   gem 'timecop', '~> 0.9.1'
-  gem 'webmock', '~> 3.1.1'
+  gem 'webmock', '~> 3.3.0'
   gem 'vcr', '~> 4.0.0'
   gem 'database_cleaner', '~> 1.6.1'
   gem 'rails-controller-testing', '~> 1.0.2'
