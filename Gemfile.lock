@@ -366,7 +366,7 @@ GEM
     rgeo-activerecord (6.0.0)
       activerecord (~> 5.0)
       rgeo (~> 1.0)
-    rgeo-geojson (1.0.0)
+    rgeo-geojson (2.0.0)
       rgeo (~> 1.0)
     rgeo-proj4 (1.0.0)
       rgeo (~> 1.0)
@@ -571,7 +571,7 @@ DEPENDENCIES
   ref2bibtex (~> 0.2.1)
   responders (~> 2.4)
   rgeo (~> 1.0.0)
-  rgeo-geojson (~> 1.0.0)
+  rgeo-geojson (~> 2.0.0)
   rgeo-proj4
   rmagick (~> 2.16)
   rspec (~> 3.6)
