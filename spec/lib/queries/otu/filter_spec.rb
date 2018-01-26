@@ -1,11 +1,11 @@
 require 'rails_helper'
-require_relative '../../../support/shared_contexts/make_simple_world'
+require_relative '../../support/shared_contexts/geo/build_rspec_geo'
 
 describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, :otus] do
 
   context 'with properly built collection of objects' do
     before {
-      simple_world
+      GeoBuild.simple_world
     }
     # need some people
     let(:sargon) { Person.where(first_name: 'of Akkad', last_name: 'Sargon').first }

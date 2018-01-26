@@ -1,10 +1,9 @@
 require 'rails_helper'
-require_relative '../../../support/shared_contexts/make_simple_world'
-
+require_relative '../../../support/shared_contexts/geo/build_rspec_geo'
 
 describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors] do
 
-  context 'using simple_world' do
+  context 'using GeoBuild.simple_world' do
     let(:page_title) { 'Otus by area' }
     let(:index_path) { otus_filter_task_path }
 
@@ -13,7 +12,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors] 
     context 'signed in as a user' do
       before {
         sign_in_user_and_select_project
-        simple_world(@user.id, @project.id)
+        GeoBuild.simple_world(@user.id, @project.id)
       }
 
       # need some people
