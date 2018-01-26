@@ -115,7 +115,7 @@ end
 
 group :development do
 # gem 'tunemygc'
-  gem 'ruby-prof', '~> 0.16.2'
+  gem 'ruby-prof', '~> 0.17.0'
   gem 'better_errors', '~> 2.3'
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
