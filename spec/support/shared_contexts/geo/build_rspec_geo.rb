@@ -1,9 +1,7 @@
-# require 'geo_locate_string'
-# require 'illinois'
-# require 'indiana'
-# require 'iowa'
-
+# frozen_string_literal: true
+#
 # http://en.wikiversity.org/wiki/Geographic_coordinate_conversion
+#
 
 # @return [True]
 #   nukes geo related tables, only to be used in after(:all)
@@ -57,14 +55,14 @@ def make_box(base, offset_x, offset_y, size_x, size_y) # rubocop:disable Metrics
 end
 
 SIMPLE_SHAPES = {
-                 point:               'POINT(10 10 0)',
-                 line_string:         'LINESTRING(0.0 0.0 0.0, 10.0 0.0 0.0)',
-                 polygon:             'POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0))',
-                 multi_point:         'MULTIPOINT((10.0 10.0 0.0), (20.0 20.0 0.0))',
-                 multi_line_string:   'MULTILINESTRING((0.0 0.0 0.0, 10.0 0.0 0.0), (20.0 0.0 0.0, 30.0 0.0 0.0))',
-                 multi_polygon:       'MULTIPOLYGON(((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, ' \
+  point:               'POINT(10 10 0)',
+  line_string:         'LINESTRING(0.0 0.0 0.0, 10.0 0.0 0.0)',
+  polygon:             'POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0))',
+  multi_point:         'MULTIPOINT((10.0 10.0 0.0), (20.0 20.0 0.0))',
+  multi_line_string:   'MULTILINESTRING((0.0 0.0 0.0, 10.0 0.0 0.0), (20.0 0.0 0.0, 30.0 0.0 0.0))',
+  multi_polygon:       'MULTIPOLYGON(((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, 0.0 10.0 0.0, ' \
 '0.0 0.0 0.0)),((10.0 10.0 0.0, 20.0 10.0 0.0, 20.0 20.0 0.0, 10.0 20.0 0.0, 10.0 10.0 0.0)))',
-                 geometry_collection: 'GEOMETRYCOLLECTION( POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, ' \
+  geometry_collection: 'GEOMETRYCOLLECTION( POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, 10.0 10.0 0.0, ' \
 '0.0 10.0 0.0, 0.0 0.0 0.0)), POINT(10 10 0)) '
 }.freeze
 
@@ -532,7 +530,7 @@ end
 # rubocop:disable Metrics/MethodLength
 def generate_geo_test_objects(user_id, project_id, run_in_console = false, user = nil)
 
-prepare_test(user_id, project_id) if run_in_console
+  prepare_test(user_id, project_id) if run_in_console
 
   @p0  = FactoryBot.build(:geographic_item_point, point: POINT0.as_binary) # 0
   @p1  = FactoryBot.build(:geographic_item_point, point: POINT1.as_binary) # 1
@@ -718,14 +716,14 @@ def generate_ce_test_objects(user_id, project_id, run_in_console = false, user =
   @ce_p0 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p0')
 
   @gr00 = FactoryBot.create(:georeference_verbatim_data,
-                             api_request:           'gr00',
-                             collecting_event:      @ce_p0,
-                             error_geographic_item: @item_d,
-                             geographic_item:       @p0) #  1
+                            api_request:           'gr00',
+                            collecting_event:      @ce_p0,
+                            error_geographic_item: @item_d,
+                            geographic_item:       @p0) #  1
   @gr10 = FactoryBot.create(:georeference_verbatim_data,
-                             api_request:      'gr10',
-                             collecting_event: @ce_p0,
-                             geographic_item:  @p10) #  2
+                            api_request:      'gr10',
+                            collecting_event: @ce_p0,
+                            geographic_item:  @p10) #  2
 
   gat_land_mass = GeographicAreaType.find_or_create_by!(name: 'Land Mass')
 
@@ -736,38 +734,38 @@ def generate_ce_test_objects(user_id, project_id, run_in_console = false, user =
   earth = GeographicArea.where(name: 'Earth').first
 
   @ga_k = FactoryBot.create(:geographic_area,
-                             name:                 'k',
-                             level0:               earth,
-                             parent:               earth,
-                             data_origin:          'ce_test_objects',
-                             geographic_area_type: gat_land_mass)
+                            name:                 'k',
+                            level0:               earth,
+                            parent:               earth,
+                            data_origin:          'ce_test_objects',
+                            geographic_area_type: gat_land_mass)
   @ga_k.geographic_items << @k
 
   @ce_p1 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p1 collect_event test')
 
   @gr01 = FactoryBot.create(:georeference_verbatim_data,
-                             api_request:           'gr01',
-                             collecting_event:      @ce_p1,
-                             error_geographic_item: @k,
-                             geographic_item:       @p1) #  3
+                            api_request:           'gr01',
+                            collecting_event:      @ce_p1,
+                            error_geographic_item: @k,
+                            geographic_item:       @p1) #  3
 
   @gr11 = FactoryBot.create(:georeference_verbatim_data,
-                             api_request:           'gr11',
-                             error_geographic_item: @e1,
-                             collecting_event:      @ce_p1,
-                             geographic_item:       @p11) #  4
+                            api_request:           'gr11',
+                            error_geographic_item: @e1,
+                            collecting_event:      @ce_p1,
+                            geographic_item:       @p11) #  4
 
   @ce_p2 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p2 collect_event test')
   @gr02  = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'gr02',
-                              collecting_event:      @ce_p2,
-                              error_geographic_item: @k,
-                              geographic_item:       @p2)
+                             api_request:           'gr02',
+                             collecting_event:      @ce_p2,
+                             error_geographic_item: @k,
+                             geographic_item:       @p2)
   @gr121 = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'gr121',
-                              collecting_event:      @ce_p2,
-                              error_geographic_item: @e1,
-                              geographic_item:       @p12)
+                             api_request:           'gr121',
+                             collecting_event:      @ce_p2,
+                             error_geographic_item: @e1,
+                             geographic_item:       @p12)
 
   # @gr122 = FactoryBot.create(:georeference_verbatim_data,
   #                             api_request: 'gr122',
@@ -777,83 +775,83 @@ def generate_ce_test_objects(user_id, project_id, run_in_console = false, user =
 
   @ce_p3 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p3 collect_event test')
   @gr03  = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'gr03',
-                              collecting_event:      @ce_p3,
-                              error_geographic_item: @k,
-                              geographic_item:       @p3)
+                             api_request:           'gr03',
+                             collecting_event:      @ce_p3,
+                             error_geographic_item: @k,
+                             geographic_item:       @p3)
   @gr13  = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'gr13',
-                              collecting_event:      @ce_p3,
-                              error_geographic_item: @e2,
-                              geographic_item:       @p13)
+                             api_request:           'gr13',
+                             collecting_event:      @ce_p3,
+                             error_geographic_item: @e2,
+                             geographic_item:       @p13)
 
   @ce_p4 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p4 collect_event test')
   @gr04  = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:      'gr04',
-                              collecting_event: @ce_p4,
-                              geographic_item:  @p4)
+                             api_request:      'gr04',
+                             collecting_event: @ce_p4,
+                             geographic_item:  @p4)
   @gr14  = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:      'gr14',
-                              collecting_event: @ce_p4,
-                              geographic_item:  @p14)
+                             api_request:      'gr14',
+                             collecting_event: @ce_p4,
+                             geographic_item:  @p14)
 
   @ce_p5 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p5')
   @gr05  = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:      'gr05',
-                              collecting_event: @ce_p5,
-                              geographic_item:  @p5)
+                             api_request:      'gr05',
+                             collecting_event: @ce_p5,
+                             geographic_item:  @p5)
   @gr15  = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:      'gr15',
-                              collecting_event: @ce_p5,
-                              geographic_item:  @p15)
+                             api_request:      'gr15',
+                             collecting_event: @ce_p5,
+                             geographic_item:  @p15)
 
   @ce_p6 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p6')
   @gr06  = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:      'gr06',
-                              collecting_event: @ce_p6,
-                              geographic_item:  @p6)
+                             api_request:      'gr06',
+                             collecting_event: @ce_p6,
+                             geographic_item:  @p6)
   @gr16  = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:      'gr16',
-                              collecting_event: @ce_p6,
-                              geographic_item:  @p16)
+                             api_request:      'gr16',
+                             collecting_event: @ce_p6,
+                             geographic_item:  @p16)
 
   @ce_p7 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p7')
   @gr07  = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:      'gr07',
-                              collecting_event: @ce_p7,
-                              geographic_item:  @p7)
+                             api_request:      'gr07',
+                             collecting_event: @ce_p7,
+                             geographic_item:  @p7)
   @gr17  = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:      'gr17',
-                              collecting_event: @ce_p7,
-                              geographic_item:  @p17)
+                             api_request:      'gr17',
+                             collecting_event: @ce_p7,
+                             geographic_item:  @p17)
 
   @ce_p8 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p8')
   @gr08  = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:      'gr08',
-                              collecting_event: @ce_p8,
-                              geographic_item:  @p8)
+                             api_request:      'gr08',
+                             collecting_event: @ce_p8,
+                             geographic_item:  @p8)
   @gr18  = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'gr18',
-                              collecting_event:      @ce_p8,
-                              error_geographic_item: @b2,
-                              geographic_item:       @p18)
+                             api_request:           'gr18',
+                             collecting_event:      @ce_p8,
+                             error_geographic_item: @b2,
+                             geographic_item:       @p18)
 
   @ce_p9 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p9')
   @gr09  = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:      'gr09',
-                              collecting_event: @ce_p9,
-                              geographic_item:  @p9)
+                             api_request:      'gr09',
+                             collecting_event: @ce_p9,
+                             geographic_item:  @p9)
   @gr19  = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'gr19',
-                              collecting_event:      @ce_p9,
-                              error_geographic_item: @b,
-                              geographic_item:       @p19)
+                             api_request:           'gr19',
+                             collecting_event:      @ce_p9,
+                             error_geographic_item: @b,
+                             geographic_item:       @p19)
 
   @ce_area_d = FactoryBot.create(:collecting_event, verbatim_label: '@ce_area_d')
   @gr_area_d = FactoryBot.create(:georeference_verbatim_data,
-                                  api_request:      'gr_area_d',
-                                  collecting_event: @ce_area_d,
-                                  geographic_item:  @item_d)
+                                 api_request:      'gr_area_d',
+                                 collecting_event: @ce_area_d,
+                                 geographic_item:  @item_d)
 
   @ce_area_v = FactoryBot.create(:collecting_event, verbatim_label: '@ce_area_v collecting event test')
 
@@ -1091,371 +1089,371 @@ def generate_political_areas_with_collecting_events(user_id = nil, project_id = 
 
   # mimic TDWG North America
   @area_land_mass = FactoryBot.create(:level0_geographic_area,
-                                       name:                 'Great Northern Land Mass',
-                                       geographic_area_type: gat_land_mass,
-                                       iso_3166_a3:          nil,
-                                       iso_3166_a2:          nil,
-                                       parent:               @earth)
+                                      name:                 'Great Northern Land Mass',
+                                      geographic_area_type: gat_land_mass,
+                                      iso_3166_a3:          nil,
+                                      iso_3166_a2:          nil,
+                                      parent:               @earth)
   @area_land_mass.geographic_items << @item_w
   @area_land_mass.save!
 
   @area_old_boxia = FactoryBot.create(:level0_geographic_area,
-                                       name:                 'Old Boxia',
-                                       geographic_area_type: gat_country,
-                                       iso_3166_a3:          'OB1',
-                                       iso_3166_a2:          nil,
-                                       parent:               @area_land_mass)
+                                      name:                 'Old Boxia',
+                                      geographic_area_type: gat_country,
+                                      iso_3166_a3:          'OB1',
+                                      iso_3166_a2:          nil,
+                                      parent:               @area_land_mass)
   @area_old_boxia.geographic_items << @item_ob
   @area_old_boxia.save!
   @area_big_boxia = FactoryBot.create(:level0_geographic_area,
-                                       name:                 'Big Boxia',
-                                       geographic_area_type: gat_country,
-                                       iso_3166_a3:          nil,
-                                       iso_3166_a2:          nil,
-                                       parent:               @area_land_mass)
+                                      name:                 'Big Boxia',
+                                      geographic_area_type: gat_country,
+                                      iso_3166_a3:          nil,
+                                      iso_3166_a2:          nil,
+                                      parent:               @area_land_mass)
   @area_big_boxia.geographic_items << @item_bb
   @area_big_boxia.save!
   @area_q = FactoryBot.create(:level0_geographic_area,
-                               name:                 'Q',
-                               geographic_area_type: gat_country,
-                               iso_3166_a3:          'QQQ',
-                               iso_3166_a2:          'QQ',
-                               parent:               @area_land_mass)
+                              name:                 'Q',
+                              geographic_area_type: gat_country,
+                              iso_3166_a3:          'QQQ',
+                              iso_3166_a2:          'QQ',
+                              parent:               @area_land_mass)
   @area_q.geographic_items << @item_q
   @area_q.save!
   @area_east_boxia_1 = FactoryBot.create(:level0_geographic_area,
-                                          name:                 'East Boxia',
-                                          geographic_area_type: gat_country,
-                                          iso_3166_a3:          'EB1',
-                                          iso_3166_a2:          nil,
-                                          parent:               @area_land_mass)
+                                         name:                 'East Boxia',
+                                         geographic_area_type: gat_country,
+                                         iso_3166_a3:          'EB1',
+                                         iso_3166_a2:          nil,
+                                         parent:               @area_land_mass)
   @area_east_boxia_1.geographic_items << @item_eb_1
   @area_east_boxia_1.save!
   @area_east_boxia_2 = FactoryBot.create(:level0_geographic_area,
-                                          name:                 'East Boxia',
-                                          geographic_area_type: gat_country,
-                                          iso_3166_a3:          'EB2',
-                                          iso_3166_a2:          nil,
-                                          parent:               @area_land_mass)
+                                         name:                 'East Boxia',
+                                         geographic_area_type: gat_country,
+                                         iso_3166_a3:          'EB2',
+                                         iso_3166_a2:          nil,
+                                         parent:               @area_land_mass)
   @area_east_boxia_2.geographic_items << @item_eb_2
   @area_east_boxia_2.save!
   @area_east_boxia_3 = FactoryBot.create(:level1_geographic_area,
-                                          name:                 'East Boxia',
-                                          geographic_area_type: gat_state,
-                                          iso_3166_a3:          'EB3',
-                                          iso_3166_a2:          nil,
-                                          parent:               @area_old_boxia)
+                                         name:                 'East Boxia',
+                                         geographic_area_type: gat_state,
+                                         iso_3166_a3:          'EB3',
+                                         iso_3166_a2:          nil,
+                                         parent:               @area_old_boxia)
   @area_east_boxia_3.geographic_items << @item_eb_2
   @area_east_boxia_3.save!
   @area_west_boxia_1 = FactoryBot.create(:level0_geographic_area,
-                                          name:                 'West Boxia',
-                                          geographic_area_type: gat_country,
-                                          iso_3166_a3:          'WB1',
-                                          iso_3166_a2:          nil,
-                                          parent:               @area_land_mass)
+                                         name:                 'West Boxia',
+                                         geographic_area_type: gat_country,
+                                         iso_3166_a3:          'WB1',
+                                         iso_3166_a2:          nil,
+                                         parent:               @area_land_mass)
   @area_west_boxia_1.geographic_items << @item_wb
   @area_west_boxia_1.save!
   @area_west_boxia_3 = FactoryBot.create(:level1_geographic_area,
-                                          name:                 'West Boxia',
-                                          geographic_area_type: gat_state,
-                                          iso_3166_a3:          'WB3',
-                                          iso_3166_a2:          nil,
-                                          parent:               @area_old_boxia)
+                                         name:                 'West Boxia',
+                                         geographic_area_type: gat_state,
+                                         iso_3166_a3:          'WB3',
+                                         iso_3166_a2:          nil,
+                                         parent:               @area_old_boxia)
   @area_west_boxia_3.geographic_items << @item_wb
   @area_west_boxia_3.save!
   @area_r = FactoryBot.create(:level0_geographic_area,
-                               name:                 'R',
-                               geographic_area_type: gat_country,
-                               iso_3166_a3:          'RRR',
-                               iso_3166_a2:          'RR',
-                               parent:               @area_land_mass)
+                              name:                 'R',
+                              geographic_area_type: gat_country,
+                              iso_3166_a3:          'RRR',
+                              iso_3166_a2:          'RR',
+                              parent:               @area_land_mass)
   @area_r.geographic_items << @item_r
   @area_r.save!
   @area_s = FactoryBot.create(:level0_geographic_area,
-                               name:                 'S',
-                               geographic_area_type: gat_country,
-                               iso_3166_a3:          'SSS',
-                               iso_3166_a2:          'SS',
-                               parent:               @area_land_mass)
+                              name:                 'S',
+                              geographic_area_type: gat_country,
+                              iso_3166_a3:          'SSS',
+                              iso_3166_a2:          'SS',
+                              parent:               @area_land_mass)
   @area_s.geographic_items << @item_s
   @area_s.save!
 
   # next, level 1 areas
   @area_t_1 = FactoryBot.create(:level1_geographic_area,
-                                 name:                 'QT',
-                                 tdwgID:               '10TTT',
-                                 geographic_area_type: gat_state,
-                                 parent:               @area_q)
+                                name:                 'QT',
+                                tdwgID:               '10TTT',
+                                geographic_area_type: gat_state,
+                                parent:               @area_q)
   @area_t_1.geographic_items << @item_t_1
   @area_t_1.save!
   @area_t_2 = FactoryBot.create(:level1_geographic_area,
-                                 name:                 'QT',
-                                 tdwgID:               '20TTT',
-                                 geographic_area_type: gat_state,
-                                 parent:               @area_q)
+                                name:                 'QT',
+                                tdwgID:               '20TTT',
+                                geographic_area_type: gat_state,
+                                parent:               @area_q)
   @area_t_2.geographic_items << @item_t_2
   @area_t_2.save!
   @area_u = FactoryBot.create(:level1_geographic_area,
-                               name:                 'QU',
-                               tdwgID:               nil,
-                               geographic_area_type: gat_state,
-                               parent:               @area_q)
+                              name:                 'QU',
+                              tdwgID:               nil,
+                              geographic_area_type: gat_state,
+                              parent:               @area_q)
   @area_u.geographic_items << @item_u
   @area_u.save!
 
   @area_qtm1 = FactoryBot.create(:level2_geographic_area,
-                                  name:                 'QTM1',
-                                  geographic_area_type: gat_county,
-                                  parent:               @area_t_1)
+                                 name:                 'QTM1',
+                                 geographic_area_type: gat_county,
+                                 parent:               @area_t_1)
   @area_qtm1.geographic_items << @item_m1
   @area_qtm1.save!
 
   @area_qtm2 = FactoryBot.create(:level2_geographic_area,
-                                  name:                 'QTM2',
-                                  geographic_area_type: gat_county,
-                                  parent:               @area_t_1)
+                                 name:                 'QTM2',
+                                 geographic_area_type: gat_county,
+                                 parent:               @area_t_1)
   @area_qtm2.geographic_items << @item_m1
   @area_qtm2.save!
 
   @area_qtn1 = FactoryBot.create(:level2_geographic_area,
-                                  name:                 'QTN1',
-                                  geographic_area_type: gat_county,
-                                  parent:               @area_t_1)
+                                 name:                 'QTN1',
+                                 geographic_area_type: gat_county,
+                                 parent:               @area_t_1)
   @area_qtn1.geographic_items << @item_n1
   @area_qtn1.save!
 
   @area_qtn2_1 = FactoryBot.create(:level2_geographic_area,
-                                    name:                 'QTN2',
-                                    geographic_area_type: gat_county,
-                                    parent:               @area_t_1)
+                                   name:                 'QTN2',
+                                   geographic_area_type: gat_county,
+                                   parent:               @area_t_1)
   @area_qtn2_1.geographic_items << @item_n2
   @area_qtn2_1.save!
 
   @area_qtn2_2 = FactoryBot.create(:level2_geographic_area,
-                                    name:                 'QTN2',
-                                    geographic_area_type: gat_county,
-                                    parent:               @area_t_2)
+                                   name:                 'QTN2',
+                                   geographic_area_type: gat_county,
+                                   parent:               @area_t_2)
   @area_qtn2_2.geographic_items << @item_n2
   @area_qtn2_2.save!
 
   @area_quo1 = FactoryBot.create(:level2_geographic_area,
-                                  name:                 'QUO1',
-                                  geographic_area_type: gat_parish,
-                                  parent:               @area_u)
+                                 name:                 'QUO1',
+                                 geographic_area_type: gat_parish,
+                                 parent:               @area_u)
   # @area_quo1.geographic_items << @item_o1
   # @area_quo1.save
 
   @area_quo2 = FactoryBot.create(:level2_geographic_area,
-                                  name:                 'QUO2',
-                                  geographic_area_type: gat_parish,
-                                  parent:               @area_u)
+                                 name:                 'QUO2',
+                                 geographic_area_type: gat_parish,
+                                 parent:               @area_u)
   @area_quo2.geographic_items << @item_o2
   @area_quo2.save!
 
   @area_qup1 = FactoryBot.create(:level2_geographic_area,
-                                  name:                 'QUP1',
-                                  tdwgID:               nil,
-                                  geographic_area_type: gat_parish,
-                                  parent:               @area_u)
+                                 name:                 'QUP1',
+                                 tdwgID:               nil,
+                                 geographic_area_type: gat_parish,
+                                 parent:               @area_u)
   @area_qup1.geographic_items << @item_p1
   @area_qup1.save!
 
   @area_qup2 = FactoryBot.create(:level2_geographic_area,
-                                  name:                 'QUP2',
-                                  tdwgID:               nil,
-                                  geographic_area_type: gat_parish,
-                                  parent:               @area_u)
+                                 name:                 'QUP2',
+                                 tdwgID:               nil,
+                                 geographic_area_type: gat_parish,
+                                 parent:               @area_u)
   @area_qup2.geographic_items << @item_p2
   @area_qup2.save!
 
   @area_rm3 = FactoryBot.create(:level1_geographic_area,
-                                 name:                 'RM3',
-                                 tdwgID:               nil,
-                                 geographic_area_type: gat_province,
-                                 parent:               @area_r)
+                                name:                 'RM3',
+                                tdwgID:               nil,
+                                geographic_area_type: gat_province,
+                                parent:               @area_r)
   @area_rm3.geographic_items << @item_m3
   @area_rm3.save!
 
   @area_rm4 = FactoryBot.create(:level1_geographic_area,
-                                 name:                 'RM4',
-                                 tdwgID:               nil,
-                                 geographic_area_type: gat_province,
-                                 parent:               @area_r)
+                                name:                 'RM4',
+                                tdwgID:               nil,
+                                geographic_area_type: gat_province,
+                                parent:               @area_r)
   @area_rm4.geographic_items << @item_m4
   @area_rm4.save!
 
   @area_rn3 = FactoryBot.create(:level1_geographic_area,
-                                 name:                 'RN3',
-                                 tdwgID:               nil,
-                                 geographic_area_type: gat_province,
-                                 parent:               @area_r)
+                                name:                 'RN3',
+                                tdwgID:               nil,
+                                geographic_area_type: gat_province,
+                                parent:               @area_r)
   @area_rn3.geographic_items << @item_n3
   @area_rn3.save!
 
   @area_rn4 = FactoryBot.create(:level1_geographic_area,
-                                 name:                 'RN4',
-                                 tdwgID:               nil,
-                                 geographic_area_type: gat_province,
-                                 parent:               @area_r)
+                                name:                 'RN4',
+                                tdwgID:               nil,
+                                geographic_area_type: gat_province,
+                                parent:               @area_r)
   @area_rn4.geographic_items << @item_n4
   @area_rn4.save!
 
   @area_so3 = FactoryBot.create(:level1_geographic_area,
-                                 name:                 'SO3',
-                                 tdwgID:               nil,
-                                 geographic_area_type: gat_state,
-                                 parent:               @area_s)
+                                name:                 'SO3',
+                                tdwgID:               nil,
+                                geographic_area_type: gat_state,
+                                parent:               @area_s)
   @area_so3.geographic_items << @item_o3
   @area_so3.save!
 
   @area_so4 = FactoryBot.create(:level1_geographic_area,
-                                 name:                 'SO4',
-                                 tdwgID:               nil,
-                                 geographic_area_type: gat_state,
-                                 parent:               @area_s)
+                                name:                 'SO4',
+                                tdwgID:               nil,
+                                geographic_area_type: gat_state,
+                                parent:               @area_s)
   # @area_so4.geographic_items << @item_o4
   # @area_so4.save
 
   @area_sp3 = FactoryBot.create(:level1_geographic_area,
-                                 name:                 'SP3',
-                                 tdwgID:               nil,
-                                 geographic_area_type: gat_state,
-                                 parent:               @area_s)
+                                name:                 'SP3',
+                                tdwgID:               nil,
+                                geographic_area_type: gat_state,
+                                parent:               @area_s)
   @area_sp3.geographic_items << @item_p3
   @area_sp3.save!
 
   @area_sp4 = FactoryBot.create(:level1_geographic_area,
-                                 name:                 'SP4',
-                                 tdwgID:               nil,
-                                 geographic_area_type: gat_state,
-                                 parent:               @area_s)
+                                name:                 'SP4',
+                                tdwgID:               nil,
+                                geographic_area_type: gat_state,
+                                parent:               @area_s)
   @area_sp4.geographic_items << @item_p4
   @area_sp4.save!
 
   @area_m3 = FactoryBot.create(:level1_geographic_area,
-                                name:                 'M3',
-                                tdwgID:               nil,
-                                geographic_area_type: gat_province,
-                                parent:               @area_r)
+                               name:                 'M3',
+                               tdwgID:               nil,
+                               geographic_area_type: gat_province,
+                               parent:               @area_r)
   @area_m3.geographic_items << @item_m3
   @area_m3.save!
   @area_n3 = FactoryBot.create(:level1_geographic_area,
-                                name:                 'N3',
-                                tdwgID:               nil,
-                                geographic_area_type: gat_province,
-                                parent:               @area_r)
+                               name:                 'N3',
+                               tdwgID:               nil,
+                               geographic_area_type: gat_province,
+                               parent:               @area_r)
   @area_n3.geographic_items << @item_n3
   @area_n3.save!
   @area_m4 = FactoryBot.create(:level1_geographic_area,
-                                name:                 'M4',
-                                tdwgID:               nil,
-                                geographic_area_type: gat_province,
-                                parent:               @area_r)
+                               name:                 'M4',
+                               tdwgID:               nil,
+                               geographic_area_type: gat_province,
+                               parent:               @area_r)
   @area_m4.geographic_items << @item_m4
   @area_m4.save!
   @area_n4 = FactoryBot.create(:level1_geographic_area,
-                                name:                 'N4',
-                                tdwgID:               nil,
-                                geographic_area_type: gat_province,
-                                parent:               @area_r)
+                               name:                 'N4',
+                               tdwgID:               nil,
+                               geographic_area_type: gat_province,
+                               parent:               @area_r)
   @area_n4.geographic_items << @item_n4
   @area_n4.save!
 
   @area_o3 = FactoryBot.create(:level1_geographic_area,
-                                name:                 'O3',
-                                tdwgID:               nil,
-                                geographic_area_type: gat_state,
-                                parent:               @area_s)
+                               name:                 'O3',
+                               tdwgID:               nil,
+                               geographic_area_type: gat_state,
+                               parent:               @area_s)
   @area_o3.geographic_items << @item_o3
   @area_o3.save!
   @area_p3 = FactoryBot.create(:level1_geographic_area,
-                                name:                 'P3',
-                                tdwgID:               nil,
-                                geographic_area_type: gat_state,
-                                parent:               @area_s)
+                               name:                 'P3',
+                               tdwgID:               nil,
+                               geographic_area_type: gat_state,
+                               parent:               @area_s)
   @area_p3.geographic_items << @item_p3
   @area_p3.save!
   @area_o4 = FactoryBot.create(:level1_geographic_area,
-                                name:                 'O4',
-                                tdwgID:               nil,
-                                geographic_area_type: gat_state,
-                                parent:               @area_s)
+                               name:                 'O4',
+                               tdwgID:               nil,
+                               geographic_area_type: gat_state,
+                               parent:               @area_s)
   @area_o4.geographic_items << @item_o4
   @area_o4.save!
   @area_p4 = FactoryBot.create(:level1_geographic_area,
-                                name:                 'P4',
-                                tdwgID:               nil,
-                                geographic_area_type: gat_state,
-                                parent:               @area_s)
+                               name:                 'P4',
+                               tdwgID:               nil,
+                               geographic_area_type: gat_state,
+                               parent:               @area_s)
   @area_p4.geographic_items << @item_p4
   @area_p4.save!
 
   # last, for level2
   @area_m1        = FactoryBot.create(:level2_geographic_area,
-                                       name:                 'M1',
-                                       geographic_area_type: gat_county,
-                                       parent:               @area_t_1)
+                                      name:                 'M1',
+                                      geographic_area_type: gat_county,
+                                      parent:               @area_t_1)
   @area_m1.level0 = @area_t_1
   @area_m1.geographic_items << @item_m1
   @area_m1.save!
   @area_n1        = FactoryBot.create(:level2_geographic_area,
-                                       name:                 'N1',
-                                       geographic_area_type: gat_county,
-                                       parent:               @area_t_1)
+                                      name:                 'N1',
+                                      geographic_area_type: gat_county,
+                                      parent:               @area_t_1)
   @area_n1.level0 = @area_t_1
   @area_n1.geographic_items << @item_n1
   @area_n1.save!
   @area_m2        = FactoryBot.create(:level2_geographic_area,
-                                       name:                 'M2',
-                                       geographic_area_type: gat_county,
-                                       parent:               @area_t_1)
+                                      name:                 'M2',
+                                      geographic_area_type: gat_county,
+                                      parent:               @area_t_1)
   @area_m2.level0 = @area_t_1
   @area_m2.geographic_items << @item_m2
   @area_m2.save!
   @area_n2        = FactoryBot.create(:level2_geographic_area,
-                                       name:                 'N2',
-                                       geographic_area_type: gat_county,
-                                       parent:               @area_t_1)
+                                      name:                 'N2',
+                                      geographic_area_type: gat_county,
+                                      parent:               @area_t_1)
   @area_n2.level0 = @area_t_1
   @area_n2.geographic_items << @item_n2
   @area_n2.save!
 
   @area_o1        = FactoryBot.create(:level2_geographic_area,
-                                       name:                 'O1',
-                                       geographic_area_type: gat_parish,
-                                       parent:               @area_u)
+                                      name:                 'O1',
+                                      geographic_area_type: gat_parish,
+                                      parent:               @area_u)
   @area_o1.level0 = @area_u
   @area_o1.geographic_items << @item_o1
   @area_o1.save!
   @area_p1        = FactoryBot.create(:level2_geographic_area,
-                                       name:                 'P1',
-                                       geographic_area_type: gat_parish,
-                                       parent:               @area_u)
+                                      name:                 'P1',
+                                      geographic_area_type: gat_parish,
+                                      parent:               @area_u)
   @area_p1.level0 = @area_u
   @area_p1.geographic_items << @item_p1
   @area_p1.save!
   @area_o2        = FactoryBot.create(:level2_geographic_area,
-                                       name:                 'O2',
-                                       geographic_area_type: gat_parish,
-                                       parent:               @area_u)
+                                      name:                 'O2',
+                                      geographic_area_type: gat_parish,
+                                      parent:               @area_u)
   @area_o2.level0 = @area_u
   @area_o2.geographic_items << @item_o2
   @area_o2.save!
   @area_p2        = FactoryBot.create(:level2_geographic_area,
-                                       name:                 'P2',
-                                       geographic_area_type: gat_parish,
-                                       parent:               @area_u)
+                                      name:                 'P2',
+                                      geographic_area_type: gat_parish,
+                                      parent:               @area_u)
   @area_p2.level0 = @area_u
   @area_p2.geographic_items << @item_p2
   @area_p2.save!
 
   # build a far-away island
   @area_far_island = FactoryBot.create(:level0_geographic_area,
-                                        name:                 'Far Island',
-                                        geographic_area_type: gat_land_mass,
-                                        iso_3166_a3:          nil,
-                                        iso_3166_a2:          nil,
-                                        parent:               @earth)
+                                       name:                 'Far Island',
+                                       geographic_area_type: gat_land_mass,
+                                       iso_3166_a3:          nil,
+                                       iso_3166_a2:          nil,
+                                       parent:               @earth)
   # @area_far_island.geographic_items << @item_f_i
   @area_far_island.save!
 
@@ -1478,12 +1476,12 @@ def generate_collecting_events(user = nil)
   @co_00.save!
 
   @ce_m1          = FactoryBot.create(:collecting_event,
-                                       start_date_year:   1971,
-                                       start_date_month:  1,
-                                       start_date_day:    1,
-                                       verbatim_locality: 'Lesser Boxia Lake',
-                                       verbatim_label:    '@ce_m1',
-                                       geographic_area:   @area_m1)
+                                      start_date_year:   1971,
+                                      start_date_month:  1,
+                                      start_date_day:    1,
+                                      verbatim_locality: 'Lesser Boxia Lake',
+                                      verbatim_label:    '@ce_m1',
+                                      geographic_area:   @area_m1)
   @td_m1          = FactoryBot.create(:valid_taxon_determination)
   @co_m1          = @td_m1.biological_collection_object
   @td_m1.otu.name = 'Find me, I\'m in M1!'
@@ -1491,31 +1489,31 @@ def generate_collecting_events(user = nil)
   @co_m1.collecting_event = @ce_m1
   @co_m1.save!
   @gr_m1 = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'gr_m1',
-                              collecting_event:      @ce_m1,
+                             api_request:           'gr_m1',
+                             collecting_event:      @ce_m1,
+                             error_geographic_item: @item_m1,
+                             geographic_item:       GeographicItem.new(point: @item_m1.st_centroid))
+
+  @ce_m1a = FactoryBot.create(:collecting_event,
+                              start_date_year:   1971,
+                              start_date_month:  6,
+                              start_date_day:    6,
+                              verbatim_locality: 'Lesser Boxia Lake',
+                              verbatim_label:    '@ce_m1a',
+                              geographic_area:   @area_m1)
+  @co_m1a = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_m1a})
+  @gr_m1a = FactoryBot.create(:georeference_verbatim_data,
+                              api_request:           'gr_m1a',
+                              collecting_event:      @ce_m1a,
                               error_geographic_item: @item_m1,
                               geographic_item:       GeographicItem.new(point: @item_m1.st_centroid))
 
-  @ce_m1a = FactoryBot.create(:collecting_event,
-                               start_date_year:   1971,
-                               start_date_month:  6,
-                               start_date_day:    6,
-                               verbatim_locality: 'Lesser Boxia Lake',
-                               verbatim_label:    '@ce_m1a',
-                               geographic_area:   @area_m1)
-  @co_m1a = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_m1a})
-  @gr_m1a = FactoryBot.create(:georeference_verbatim_data,
-                               api_request:           'gr_m1a',
-                               collecting_event:      @ce_m1a,
-                               error_geographic_item: @item_m1,
-                               geographic_item:       GeographicItem.new(point: @item_m1.st_centroid))
-
   @ce_n1 = FactoryBot.create(:collecting_event,
-                              start_date_year:  1972,
-                              start_date_month: 2,
-                              start_date_day:   2,
-                              verbatim_label:   '@ce_n1',
-                              geographic_area:  @area_n1)
+                             start_date_year:  1972,
+                             start_date_month: 2,
+                             start_date_day:   2,
+                             verbatim_label:   '@ce_n1',
+                             geographic_area:  @area_n1)
   @co_n1 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_n1})
   # @gr_n1 = FactoryBot.create(:georeference_verbatim_data,
   #                             api_request: 'gr_n1',
@@ -1524,83 +1522,83 @@ def generate_collecting_events(user = nil)
   #                             geographic_item: GeographicItem.new(point: @item_n1.st_centroid))
 
   @ce_o1 = FactoryBot.create(:collecting_event,
-                              start_date_year:  1973,
-                              start_date_month: 3,
-                              start_date_day:   3,
-                              verbatim_label:   '@ce_o1',
-                              geographic_area:  @area_o1)
+                             start_date_year:  1973,
+                             start_date_month: 3,
+                             start_date_day:   3,
+                             verbatim_label:   '@ce_o1',
+                             geographic_area:  @area_o1)
   @co_o1 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_o1})
   @gr_o1 = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'gr_o1',
-                              collecting_event:      @ce_o1,
-                              error_geographic_item: @item_o1,
-                              geographic_item:       GeographicItem.new(point: @item_o1.st_centroid))
+                             api_request:           'gr_o1',
+                             collecting_event:      @ce_o1,
+                             error_geographic_item: @item_o1,
+                             geographic_item:       GeographicItem.new(point: @item_o1.st_centroid))
 
   @ce_p1 = FactoryBot.create(:collecting_event,
-                              start_date_year:  1974,
-                              start_date_month: 4,
-                              start_date_day:   4,
-                              verbatim_label:   '@ce_p1',
-                              geographic_area:  @area_p1)
+                             start_date_year:  1974,
+                             start_date_month: 4,
+                             start_date_day:   4,
+                             verbatim_label:   '@ce_p1',
+                             geographic_area:  @area_p1)
   @co_p1 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_p1})
   @gr_p1 = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'gr_p1',
-                              collecting_event:      @ce_p1,
-                              error_geographic_item: @item_p1,
-                              geographic_item:       GeographicItem.new(point: @item_p1.st_centroid))
+                             api_request:           'gr_p1',
+                             collecting_event:      @ce_p1,
+                             error_geographic_item: @item_p1,
+                             geographic_item:       GeographicItem.new(point: @item_p1.st_centroid))
 
   @ce_m2 = FactoryBot.create(:collecting_event,
-                              start_date_year:  1975,
-                              start_date_month: 5,
-                              start_date_day:   5,
-                              verbatim_label:   '@ce_m2 in Big Boxia',
-                              geographic_area:  @area_big_boxia)
+                             start_date_year:  1975,
+                             start_date_month: 5,
+                             start_date_day:   5,
+                             verbatim_label:   '@ce_m2 in Big Boxia',
+                             geographic_area:  @area_big_boxia)
   @co_m2 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_m2})
   @gr_m2 = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'gr_m2 in Big Boxia',
-                              collecting_event:      @ce_m2,
-                              error_geographic_item: @item_m2,
-                              geographic_item:       GeographicItem.new(point: @item_m2.st_centroid))
+                             api_request:           'gr_m2 in Big Boxia',
+                             collecting_event:      @ce_m2,
+                             error_geographic_item: @item_m2,
+                             geographic_item:       GeographicItem.new(point: @item_m2.st_centroid))
 
   # @ce_n2 has two GRs
   @ce_n2   = FactoryBot.create(:collecting_event,
-                                start_date_year:  1976,
-                                start_date_month: 6,
-                                start_date_day:   6,
-                                verbatim_label:   '@ce_n2',
-                                geographic_area:  @area_n2)
+                               start_date_year:  1976,
+                               start_date_month: 6,
+                               start_date_day:   6,
+                               verbatim_label:   '@ce_n2',
+                               geographic_area:  @area_n2)
   @co_n2_a = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_n2})
   @co_n2_b = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_n2})
   @gr_n2_a = FactoryBot.create(:georeference_verbatim_data,
-                                api_request:           'gr_n2_a',
-                                collecting_event:      @ce_n2,
-                                error_geographic_item: @item_n2,
-                                geographic_item:       GeographicItem.new(point: @item_n2.st_centroid))
+                               api_request:           'gr_n2_a',
+                               collecting_event:      @ce_n2,
+                               error_geographic_item: @item_n2,
+                               geographic_item:       GeographicItem.new(point: @item_n2.st_centroid))
   @gr_n2_b = FactoryBot.create(:georeference_verbatim_data,
-                                api_request:           'gr_n2_b',
-                                collecting_event:      @ce_n2,
-                                error_geographic_item: @item_n2,
-                                geographic_item:       GeographicItem.new(point: @item_n2.st_centroid))
+                               api_request:           'gr_n2_b',
+                               collecting_event:      @ce_n2,
+                               error_geographic_item: @item_n2,
+                               geographic_item:       GeographicItem.new(point: @item_n2.st_centroid))
 
   @ce_o2 = FactoryBot.create(:collecting_event,
-                              start_date_year:  1977,
-                              start_date_month: 7,
-                              start_date_day:   7,
-                              verbatim_label:   '@ce_o2',
-                              geographic_area:  @area_o2)
+                             start_date_year:  1977,
+                             start_date_month: 7,
+                             start_date_day:   7,
+                             verbatim_label:   '@ce_o2',
+                             geographic_area:  @area_o2)
   @gr_o2 = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'gr_o2',
-                              collecting_event:      @ce_o2,
-                              error_geographic_item: @item_o2,
-                              geographic_item:       GeographicItem.new(point: @item_o2.st_centroid))
+                             api_request:           'gr_o2',
+                             collecting_event:      @ce_o2,
+                             error_geographic_item: @item_o2,
+                             geographic_item:       GeographicItem.new(point: @item_o2.st_centroid))
   @co_o2 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_o2})
 
   @ce_p2 = FactoryBot.create(:collecting_event,
-                              start_date_year:  1978,
-                              start_date_month: 8,
-                              start_date_day:   8,
-                              verbatim_label:   '@ce_p2',
-                              geographic_area:  @area_p2)
+                             start_date_year:  1978,
+                             start_date_month: 8,
+                             start_date_day:   8,
+                             verbatim_label:   '@ce_p2',
+                             geographic_area:  @area_p2)
   # @gr_p2   = FactoryBot.create(:georeference_verbatim_data,
   #                               api_request: 'gr_p2',
   #                               collecting_event: @ce_p2,
@@ -1609,172 +1607,172 @@ def generate_collecting_events(user = nil)
   @co_p2 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_p2})
 
   @ce_m3 = FactoryBot.create(:collecting_event,
-                              start_date_year:  1981,
-                              start_date_month: 1,
-                              start_date_day:   1,
-                              verbatim_label:   '@ce_m3',
-                              geographic_area:  @area_m3)
+                             start_date_year:  1981,
+                             start_date_month: 1,
+                             start_date_day:   1,
+                             verbatim_label:   '@ce_m3',
+                             geographic_area:  @area_m3)
   @gr_m3 = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'gr_m3',
-                              collecting_event:      @ce_m3,
-                              error_geographic_item: @item_m3,
-                              geographic_item:       GeographicItem.new(point: @item_m3.st_centroid))
+                             api_request:           'gr_m3',
+                             collecting_event:      @ce_m3,
+                             error_geographic_item: @item_m3,
+                             geographic_item:       GeographicItem.new(point: @item_m3.st_centroid))
   @co_m3 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_m3})
 
   @ce_n3 = FactoryBot.create(:collecting_event,
-                              start_date_year:   1982,
-                              start_date_month:  2,
-                              start_date_day:    2,
-                              end_date_year:     1984,
-                              end_date_month:    9,
-                              end_date_day:      15,
-                              verbatim_locality: 'Greater Boxia Lake',
-                              verbatim_label:    '@ce_n3',
-                              geographic_area:   @area_n3)
+                             start_date_year:   1982,
+                             start_date_month:  2,
+                             start_date_day:    2,
+                             end_date_year:     1984,
+                             end_date_month:    9,
+                             end_date_day:      15,
+                             verbatim_locality: 'Greater Boxia Lake',
+                             verbatim_label:    '@ce_n3',
+                             geographic_area:   @area_n3)
   @gr_n3 = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'gr_n3',
-                              collecting_event:      @ce_n3,
-                              error_geographic_item: @item_n3,
-                              geographic_item:       GeographicItem.new(point: @item_n3.st_centroid))
+                             api_request:           'gr_n3',
+                             collecting_event:      @ce_n3,
+                             error_geographic_item: @item_n3,
+                             geographic_item:       GeographicItem.new(point: @item_n3.st_centroid))
   @co_n3 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_n3})
 
   # @ce_o3 has no georeference
   @ce_o3 = FactoryBot.create(:collecting_event,
-                              start_date_year:  1983,
-                              start_date_month: 3,
-                              start_date_day:   3,
-                              verbatim_label:   '@ce_o3',
-                              geographic_area:  @area_o3)
+                             start_date_year:  1983,
+                             start_date_month: 3,
+                             start_date_day:   3,
+                             verbatim_label:   '@ce_o3',
+                             geographic_area:  @area_o3)
   @co_o3 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_o3})
 
   # @ce_p3 has no georeference
   @ce_p3 = FactoryBot.create(:collecting_event,
-                              start_date_year:  1984,
-                              start_date_month: 4,
-                              start_date_day:   4,
-                              verbatim_label:   '@ce_p3',
-                              geographic_area:  @area_s)
+                             start_date_year:  1984,
+                             start_date_month: 4,
+                             start_date_day:   4,
+                             verbatim_label:   '@ce_p3',
+                             geographic_area:  @area_s)
   @co_p3 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_p3})
 
   @ce_m4 = FactoryBot.create(:collecting_event,
-                              start_date_year:  1985,
-                              start_date_month: 5,
-                              start_date_day:   5,
-                              verbatim_label:   '@ce_m4',
-                              geographic_area:  @area_m4)
+                             start_date_year:  1985,
+                             start_date_month: 5,
+                             start_date_day:   5,
+                             verbatim_label:   '@ce_m4',
+                             geographic_area:  @area_m4)
   @gr_m4 = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'gr_m4',
-                              collecting_event:      @ce_m4,
-                              error_geographic_item: @item_m4,
-                              geographic_item:       GeographicItem.new(point: @item_m4.st_centroid))
+                             api_request:           'gr_m4',
+                             collecting_event:      @ce_m4,
+                             error_geographic_item: @item_m4,
+                             geographic_item:       GeographicItem.new(point: @item_m4.st_centroid))
   @co_m4 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_m4})
 
   @ce_n4 = FactoryBot.create(:collecting_event,
-                              start_date_year:  1986,
-                              start_date_month: 6,
-                              start_date_day:   6,
-                              verbatim_label:   '@ce_n4',
-                              geographic_area:  @area_old_boxia)
+                             start_date_year:  1986,
+                             start_date_month: 6,
+                             start_date_day:   6,
+                             verbatim_label:   '@ce_n4',
+                             geographic_area:  @area_old_boxia)
   @gr_n4 = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'gr_n4',
-                              collecting_event:      @ce_n4,
-                              error_geographic_item: @item_n4,
-                              geographic_item:       GeographicItem.new(point: @item_n4.st_centroid))
+                             api_request:           'gr_n4',
+                             collecting_event:      @ce_n4,
+                             error_geographic_item: @item_n4,
+                             geographic_item:       GeographicItem.new(point: @item_n4.st_centroid))
   @co_n4 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_n4})
 
   @ce_o4 = FactoryBot.create(:collecting_event,
-                              start_date_year:  1987,
-                              start_date_month: 7,
-                              start_date_day:   7,
-                              verbatim_label:   '@ce_o4',
-                              geographic_area:  @area_o4)
+                             start_date_year:  1987,
+                             start_date_month: 7,
+                             start_date_day:   7,
+                             verbatim_label:   '@ce_o4',
+                             geographic_area:  @area_o4)
   @gr_o4 = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'gr_o4',
-                              collecting_event:      @ce_o4,
-                              error_geographic_item: @item_o4,
-                              geographic_item:       GeographicItem.new(point: @item_o4.st_centroid))
+                             api_request:           'gr_o4',
+                             collecting_event:      @ce_o4,
+                             error_geographic_item: @item_o4,
+                             geographic_item:       GeographicItem.new(point: @item_o4.st_centroid))
   @co_o4 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_o4})
 
   # ce_p4 does not have a geographic_area
   @ce_p4 = FactoryBot.create(:collecting_event,
-                              start_date_year:  1988,
-                              start_date_month: 8,
-                              start_date_day:   8,
-                              verbatim_label:   '@ce_p4',
-                              geographic_area:  @area_p4)
+                             start_date_year:  1988,
+                             start_date_month: 8,
+                             start_date_day:   8,
+                             verbatim_label:   '@ce_p4',
+                             geographic_area:  @area_p4)
   @gr_p4 = FactoryBot.create(:georeference_verbatim_data,
-                              api_request:           'gr_p4',
-                              collecting_event:      @ce_p4,
-                              error_geographic_item: @item_p4,
-                              geographic_item:       GeographicItem.new(point: @item_p4.st_centroid))
+                             api_request:           'gr_p4',
+                             collecting_event:      @ce_p4,
+                             error_geographic_item: @item_p4,
+                             geographic_item:       GeographicItem.new(point: @item_p4.st_centroid))
   @co_p4 = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_p4})
 
   # this one is just a collecting event, no georeferences or geographic_area, so, even though it has an otu, that otu
   # can't be found
   @ce_v = FactoryBot.create(:collecting_event,
-                             start_date_year:  1991,
-                             start_date_month: 1,
-                             start_date_day:   1,
-                             verbatim_label:   '@ce_v',
-                             geographic_area:  nil)
+                            start_date_year:  1991,
+                            start_date_month: 1,
+                            start_date_day:   1,
+                            verbatim_label:   '@ce_v',
+                            geographic_area:  nil)
   @co_v = FactoryBot.create(:valid_collection_object, {collecting_event: @ce_v})
 
   # collecting events in superseded country
   @ce_old_boxia_1 = FactoryBot.create(:collecting_event,
-                                       start_date_year:  1992,
-                                       start_date_month: 2,
-                                       start_date_day:   2,
-                                       verbatim_label:   '@ce_old_boxia_1',
-                                       geographic_area:  @area_old_boxia)
+                                      start_date_year:  1992,
+                                      start_date_month: 2,
+                                      start_date_day:   2,
+                                      verbatim_label:   '@ce_old_boxia_1',
+                                      geographic_area:  @area_old_boxia)
   @gr_m2_ob       = FactoryBot.create(:georeference_verbatim_data,
-                                       api_request:           'gr_m2_ob',
-                                       collecting_event:      @ce_old_boxia_1,
-                                       error_geographic_item: @item_ob,
-                                       geographic_item:       GeographicItem.new(point: @item_m2.st_centroid))
+                                      api_request:           'gr_m2_ob',
+                                      collecting_event:      @ce_old_boxia_1,
+                                      error_geographic_item: @item_ob,
+                                      geographic_item:       GeographicItem.new(point: @item_m2.st_centroid))
   @ce_old_boxia_2 = FactoryBot.create(:collecting_event,
-                                       start_date_year:  1993,
-                                       start_date_month: 3,
-                                       start_date_day:   3,
-                                       verbatim_label:   '@ce_old_boxia_2',
-                                       geographic_area:  @area_old_boxia)
+                                      start_date_year:  1993,
+                                      start_date_month: 3,
+                                      start_date_day:   3,
+                                      verbatim_label:   '@ce_old_boxia_2',
+                                      geographic_area:  @area_old_boxia)
   @gr_n3_ob       = FactoryBot.create(:georeference_verbatim_data,
-                                       api_request:           'gr_n3_ob',
-                                       collecting_event:      @ce_old_boxia_2,
-                                       error_geographic_item: @item_ob,
-                                       geographic_item:       GeographicItem.new(point: @item_n3.st_centroid))
+                                      api_request:           'gr_n3_ob',
+                                      collecting_event:      @ce_old_boxia_2,
+                                      error_geographic_item: @item_ob,
+                                      geographic_item:       GeographicItem.new(point: @item_n3.st_centroid))
   @ce_far_island  = FactoryBot.create(:collecting_event,
-                                       start_date_year:  1994,
-                                       start_date_month: 4,
-                                       start_date_day:   4,
-                                       verbatim_label:   '@ce_far_island',
-                                       geographic_area:  @area_far_island)
+                                      start_date_year:  1994,
+                                      start_date_month: 4,
+                                      start_date_day:   4,
+                                      verbatim_label:   '@ce_far_island',
+                                      geographic_area:  @area_far_island)
   @gr_far_island  = FactoryBot.create(:georeference_verbatim_data,
-                                       api_request:      'gr_far_island',
-                                       collecting_event: @ce_far_island,
-                                       # error_geographic_item: @item_f_i,
-                                       geographic_item: GeographicItem.new(point: @item_f_i.st_centroid))
+                                      api_request:      'gr_far_island',
+                                      collecting_event: @ce_far_island,
+                                      # error_geographic_item: @item_f_i,
+                                      geographic_item: GeographicItem.new(point: @item_f_i.st_centroid))
 
-  @otu_names      = {
-    co_00_o:   @co_00.otus.collect {|o| o.name},
-    co_m1_o:   @co_m1.otus.collect {|o| o.name},
-    co_m1a_o:  @co_m1a.otus.collect {|o| o.name},
-    co_n1_o:   @co_n1.otus.collect {|o| o.name},
-    co_o1_o:   @co_o1.otus.collect {|o| o.name},
-    co_p1_o:   @co_p1.otus.collect {|o| o.name},
-    co_m2_o:   @co_m2.otus.collect {|o| o.name},
-    co_n2_a_o: @co_n2_a.otus.collect {|o| o.name},
-    co_n2_b_o: @co_n2_b.otus.collect {|o| o.name},
-    co_o2_o:   @co_o2.otus.collect {|o| o.name},
-    co_p2_o:   @co_p2.otus.collect {|o| o.name},
-    co_m3_o:   @co_m3.otus.collect {|o| o.name},
-    co_n3_o:   @co_n3.otus.collect {|o| o.name},
-    co_o3_o:   @co_o3.otus.collect {|o| o.name},
-    co_p3_o:   @co_p3.otus.collect {|o| o.name},
-    co_m4_o:   @co_m4.otus.collect {|o| o.name},
-    co_n4_o:   @co_n4.otus.collect {|o| o.name},
-    co_o4_o:   @co_o4.otus.collect {|o| o.name},
-    co_p4_o:   @co_p4.otus.collect {|o| o.name},
-    co_v_o:    @co_v.otus.collect {|o| o.name}
+  @otu_names = {
+    co_00_o:   @co_00.otus.collect { |o| o.name },
+    co_m1_o:   @co_m1.otus.collect { |o| o.name },
+    co_m1a_o:  @co_m1a.otus.collect { |o| o.name },
+    co_n1_o:   @co_n1.otus.collect { |o| o.name },
+    co_o1_o:   @co_o1.otus.collect { |o| o.name },
+    co_p1_o:   @co_p1.otus.collect { |o| o.name },
+    co_m2_o:   @co_m2.otus.collect { |o| o.name },
+    co_n2_a_o: @co_n2_a.otus.collect { |o| o.name },
+    co_n2_b_o: @co_n2_b.otus.collect { |o| o.name },
+    co_o2_o:   @co_o2.otus.collect { |o| o.name },
+    co_p2_o:   @co_p2.otus.collect { |o| o.name },
+    co_m3_o:   @co_m3.otus.collect { |o| o.name },
+    co_n3_o:   @co_n3.otus.collect { |o| o.name },
+    co_o3_o:   @co_o3.otus.collect { |o| o.name },
+    co_p3_o:   @co_p3.otus.collect { |o| o.name },
+    co_m4_o:   @co_m4.otus.collect { |o| o.name },
+    co_n4_o:   @co_n4.otus.collect { |o| o.name },
+    co_o4_o:   @co_o4.otus.collect { |o| o.name },
+    co_p4_o:   @co_p4.otus.collect { |o| o.name },
+    co_v_o:    @co_v.otus.collect { |o| o.name }
   }
 
   my_debug = false

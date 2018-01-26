@@ -36,7 +36,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
       let(:area_a) { GeographicArea.where(name: 'A').first }
       let(:area_b) { GeographicArea.where(name: 'B').first }
       let(:area_e) { GeographicArea.where(name: 'E').first }
-      let(:json_string) { '{"type":"Feature", "properties":{}, "geometry":{"type":"MultiPolygon", "coordinates":[[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}' }
+      let(:json_string) { '{"type":"Feature", "properties":{}, "geometry":{"type":"MultiPolygon", ' \
+                              '"coordinates":[[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}' }
 
       # need some collection objects
       let(:co_a) {
@@ -58,7 +59,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
           before do
             # can't use `a = specimen.otus << otu_test` because $user_id and $project_id don't exist.
-            TaxonDetermination.create!(otu: otu_test, biological_collection_object: specimen, by: @user, project: @project)
+            TaxonDetermination.create!(otu: otu_test, biological_collection_object: specimen,
+                                       by: @user, project: @project)
             visit(collection_objects_filter_task_path)
           end
 
@@ -247,7 +249,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
         let(:pat_admin) { User.where(name: 'Pat Project Administrator').first }
         let!(:joe) {
           peep = FactoryBot.create(:valid_user, by: pat_admin)
-          ProjectMember.create(project_id: @project.id, user_id: peep.id, by: pat_admin)
+          ProjectMember.create!(project_id: @project.id, user_id: peep.id, by: pat_admin)
           peep
         }
 
