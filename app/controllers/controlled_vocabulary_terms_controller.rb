@@ -38,7 +38,7 @@ class ControlledVocabularyTermsController < ApplicationController
     @controlled_vocabulary_term = ControlledVocabularyTerm.new(controlled_vocabulary_term_params)
     respond_to do |format|
       if @controlled_vocabulary_term.save
-        format.html { redirect_to @controlled_vocabulary_term.metamorphosize, notice: "#{@controlled_vocabulary_term.type} '#{@controlled_vocabulary_term.name}' was successfully created."}
+        format.html { redirect_to url_for(@controlled_vocabulary_term.metamorphosize), notice: "#{@controlled_vocabulary_term.type} '#{@controlled_vocabulary_term.name}' was successfully created."}
         format.json { 
           render action: 'show', status: :created, location: @controlled_vocabulary_term.metamorphosize 
         }
@@ -59,7 +59,7 @@ class ControlledVocabularyTermsController < ApplicationController
   def update
     respond_to do |format|
       if @controlled_vocabulary_term.update(controlled_vocabulary_term_params)
-        format.html { redirect_to @controlled_vocabulary_term.metamorphosize, notice: 'Controlled vocabulary term was successfully updated.' }
+        format.html { redirect_to url_for(@controlled_vocabulary_term.metamorphosize), notice: 'Controlled vocabulary term was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }

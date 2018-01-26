@@ -39,7 +39,7 @@ class ConfidencesController < ApplicationController
     @confidence = Confidence.new(confidence_params)
     respond_to do |format|
       if @confidence.save
-        format.html { redirect_to @confidence.confidence_object.metamorphosize, notice: 'Confidence was successfully created.' }
+        format.html { redirect_to url_for(@confidence.confidence_object.metamorphosize), notice: 'Confidence was successfully created.' }
         format.json { render :show, status: :created, location: @confidence }
       else
         format.html {

@@ -34,7 +34,7 @@ class AlternateValuesController < ApplicationController
       @alternate_value.project_id = sessions_current_project_id if params[:project_members_only] == 'checked'
 
       if @alternate_value.save
-        format.html { redirect_to @alternate_value.alternate_value_object.metamorphosize, notice: 'Alternate value was successfully created.' }
+        format.html { redirect_to url_for(@alternate_value.alternate_value_object.metamorphosize), notice: 'Alternate value was successfully created.' }
         format.json { render action: :show, status: :created, location: @alternate_value.metamorphosize }
       else
         format.html { render 'new', notice: 'Alternate value was NOT successfully created.' }
@@ -49,7 +49,7 @@ class AlternateValuesController < ApplicationController
     respond_to do |format|
       @alternate_value.project_id = sessions_current_project_id if params[:project_members_only] == 'checked'
       if @alternate_value.update(alternate_value_params)
-        format.html { redirect_to @alternate_value.alternate_value_object.metamorphosize, notice: 'Alternate value was successfully updated.' }
+        format.html { redirect_to url_for(@alternate_value.alternate_value_object.metamorphosize), notice: 'Alternate value was successfully updated.' }
         format.json { render json: @alternate_value, status: :ok, location: @alternate_value.metamorphosize }
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Alternate value was NOT successfully updated.')}
@@ -78,7 +78,7 @@ class AlternateValuesController < ApplicationController
       redirect_to alternate_values_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       altval = AlternateValue.find_by_id(params[:id]).metamorphosize
-      redirect_to altval.alternate_value_object.metamorphosize
+      redirect_to url_for(altval.alternate_value_object.metamorphosize)
     end
   end
 

@@ -42,7 +42,7 @@ class CombinationsController < ApplicationController
   def update
     respond_to do |format|
       if @combination.update(combination_params)
-        format.html { redirect_to @combination.metamorphosize, notice: 'Combination was successfully updated.' }
+        format.html { redirect_to url_for(@combination.metamorphosize), notice: 'Combination was successfully updated.' }
         format.json { render :show, status: :ok, location: @combination.metamorphosize }
       else
         format.html { render :edit }
