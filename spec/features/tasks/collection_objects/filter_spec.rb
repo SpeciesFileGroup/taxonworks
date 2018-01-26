@@ -1,5 +1,5 @@
 require 'rails_helper'
-require_relative '../../../support/shared_contexts/make_simple_world'
+require_relative '../../../support/shared_contexts/geo/build_rspec_geo'
 
 describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :collection_objects] do
 
@@ -12,7 +12,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
     context 'signed in as a user' do
       before {
         sign_in_user_and_select_project
-        simple_world(@user.id, @project.id)
+        GeoBuild.GeoBuild.simple_world(@user.id, @project.id)
       }
       # need some people
       let(:sargon) { Person.where(first_name: 'of Akkad', last_name: 'Sargon').first }
