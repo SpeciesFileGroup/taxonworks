@@ -54,6 +54,17 @@
   "devDependencies": {
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-runtime": "^6.26.0",
+    "eslint": "^4.16.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "eslint-plugin-vue": "^4.2.0",
     "webpack-dev-server": "^2.11.1"
+  },
+  "scripts": {
+    "eslint-webpack": "node_modules/.bin/eslint app/javascript/packs/** --ext .vue, .js; exit 0",
+    "eslint-webpack-fix": "node_modules/.bin/eslint app/javascript/packs/** --ext .vue, .js --fix; exit 0"
   }
 }
