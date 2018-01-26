@@ -120,7 +120,7 @@ group :development do
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
-  gem 'parallel_tests', '~> 2.19.0'
+  gem 'parallel_tests', '~> 2.21.0'
   gem 'web-console', '~> 3.5.1'
   gem 'rubocop', '~> 0.52.0'
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
@@ -134,7 +134,7 @@ end
 group :test do
   gem 'rspec', '~> 3.6'
   gem 'coveralls', '~> 0.8.21', require: false
-  gem 'capybara', '~> 2.16.1'
+  gem 'capybara', '~> 2.17.0'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.1.1'
   gem 'vcr', '~> 4.0.0'
