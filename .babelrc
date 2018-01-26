@@ -11,7 +11,7 @@
   ],
 
   "plugins": [
-  	"transform-es2015-modules-commonjs",
+    "transform-es2015-modules-commonjs",
     "syntax-dynamic-import",
     "transform-object-rest-spread",
     ["transform-class-properties", { "spec": true }]

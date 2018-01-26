@@ -1,56 +1,56 @@
 #quick_task {
 
-	.item {
-		flex-grow:0;
-	}
+  .item {
+    flex-grow: 0;
+  }
 
-	.flexbox {
-		justify-content: flex-start;
-	}
+  .flexbox {
+    justify-content: flex-start;
+  }
 
-	.field {
-		label {
-			vertical-align: top;
-			width: 120px;
-			text-align: right;
-			display: inline-block;
-		}
-		textarea {
-			border:1px solid $navigation_border;
-			width: 300px;
-			min-height: 50px;
-			resize: none;
-		}
-		input[type=checkbox] {
-			vertical-align: top;
-		}
-	}
+  .field {
+    label {
+      vertical-align: top;
+      width: 120px;
+      text-align: right;
+      display: inline-block;
+    }
+    textarea {
+      border: 1px solid $navigation_border;
+      width: 300px;
+      min-height: 50px;
+      resize: none;
+    }
+    input[type=checkbox] {
+      vertical-align: top;
+    }
+  }
 
-	.field-align-center {
-		label {
-			display: inline-block;
-			vertical-align: middle;
-			align-items: center;
-		}
-	}
+  .field-align-center {
+    label {
+      display: inline-block;
+      vertical-align: middle;
+      align-items: center;
+    }
+  }
 
-	#identifier_identifier {
-		width: 95px;
-	}
+  #identifier_identifier {
+    width: 95px;
+  }
 
-	.one_tenth_width {
-		width: 90px;
-	}
-	.one_second_width {
-		width: 410px;
-	}	
+  .one_tenth_width {
+    width: 90px;
+  }
+  .one_second_width {
+    width: 410px;
+  }
 
-	.biocuration_option {
-		display: inline-block;
-		background-color: #FFF9C4;
-		border-radius: 3px;
-		margin: 2px;
-		padding: 5px;
-	}
+  .biocuration_option {
+    display: inline-block;
+    background-color: #FFF9C4;
+    border-radius: 3px;
+    margin: 2px;
+    padding: 5px;
+  }
 
 }

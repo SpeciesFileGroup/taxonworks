@@ -1,134 +1,134 @@
 .help-button {
-	cursor: pointer;
-	position: fixed;
-	z-index: 999;
-	top:calc(50vh + 65px); 
-	right:-27px;
-	width: 55px;
-	height: 55px;
-	opacity: 0.4;
-	border-radius: 50%;
-	background-color: #FF8F00;
-	background-image: image-url("help.svg");
-	background-repeat: no-repeat;
-	background-position: center;
-	background-size: 35px;
-	box-shadow: 0px 1px 2px 0px #444;
-	transition: background-size 0.5s ease, opacity 0.3s ease;
-	transition: right 0.5s ease, left 0.5s ease, 
-				background-position 0.5s ease, 
-				background-size 0.5s ease, 
-				width 0.5s ease, 
-				height 0.5s ease, 
-				opacity 0.5s ease;
+  cursor: pointer;
+  position: fixed;
+  z-index: 999;
+  top: calc(50vh + 65px);
+  right: -27px;
+  width: 55px;
+  height: 55px;
+  opacity: 0.4;
+  border-radius: 50%;
+  background-color: #FF8F00;
+  background-image: image-url("help.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 35px;
+  box-shadow: 0px 1px 2px 0px #444;
+  transition: background-size 0.5s ease, opacity 0.3s ease;
+  transition: right 0.5s ease, left 0.5s ease,
+  background-position 0.5s ease,
+  background-size 0.5s ease,
+  width 0.5s ease,
+  height 0.5s ease,
+  opacity 0.5s ease;
 }
 
 .help-button:hover {
-	opacity: 1;
-	background-size: 40px;
-	transition: background-size 0.3s ease, opacity 0.3s ease, right 0.5s ease;
+  opacity: 1;
+  background-size: 40px;
+  transition: background-size 0.3s ease, opacity 0.3s ease, right 0.5s ease;
 
-	.help-button-description {
-		display: block;
-	}	
+  .help-button-description {
+    display: block;
+  }
 }
 
 .help-button-present {
-	animation:shining 0.5s infinite alternate;
-}		
+  animation: shining 0.5s infinite alternate;
+}
 
 .help-button-active {
-	opacity: 1;
-	right: -10px;
-	background-size: 35px;
-	background-position: center;
-	transition: opacity 0.5s ease, 
-				right 0.5s ease,
-				background-size 0.5s ease;	
+  opacity: 1;
+  right: -10px;
+  background-size: 35px;
+  background-position: center;
+  transition: opacity 0.5s ease,
+  right 0.5s ease,
+  background-size 0.5s ease;
 }
 
 .help-button-active:hover {
-	background-size: 40px;
-	background-position: center;
-	transition: opacity 0.5s ease,bottom 0.5s ease, right 0.5s ease, background-position 0.5s ease, background-size 0.5s ease;
+  background-size: 40px;
+  background-position: center;
+  transition: opacity 0.5s ease, bottom 0.5s ease, right 0.5s ease, background-position 0.5s ease, background-size 0.5s ease;
 
-	.help-button-description {
-		display: none;
-	}		
+  .help-button-description {
+    display: none;
+  }
 }
 
 .help-background-active {
-	display: none;
-	background: #444; 
-	opacity:0.7; 
-	width:100%; 
-	height:100%; 
-	position:fixed; 
-	top:0px; 
-	left:0px; 
-	z-index:800;
+  display: none;
+  background: #444;
+  opacity: 0.7;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  z-index: 800;
 }
 
 .help-tip {
-	z-index:1000;
-	position: relative;
+  z-index: 1000;
+  position: relative;
 }
 
 .help-legend {
-	@include arrow-box-top(15px);
-	border-radius: 2px;
-	padding: $standard_padding*0.5;
-	padding-left: $standard_padding;
-	padding-right: $standard_padding;
-	box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
-	position: absolute;
-	background-color: $color-help-description;
-	color: $color-help-text;
-	z-index:9000;
-	display: none;
-	font-weight: 300;
-	font-size: $font_small;
+  @include arrow-box-top(15px);
+  border-radius: 2px;
+  padding: $standard_padding*0.5;
+  padding-left: $standard_padding;
+  padding-right: $standard_padding;
+  box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  background-color: $color-help-description;
+  color: $color-help-text;
+  z-index: 9000;
+  display: none;
+  font-weight: 300;
+  font-size: $font_small;
 }
 
 .help-button-description {
-	@include arrow-box-right(50%);
-	display: none;
-	font-weight: 300;
-	position: absolute;
-	white-space: nowrap;
-	padding: $standard_padding*0.5;
-	background-color: $color-help-description;
-	color: $color-help-text;
-	box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
-	right:70px;
-	top:13px;
-	padding-left: $standard_padding;
-	padding-right: $standard_padding;
-	border-radius: 3px;
+  @include arrow-box-right(50%);
+  display: none;
+  font-weight: 300;
+  position: absolute;
+  white-space: nowrap;
+  padding: $standard_padding*0.5;
+  background-color: $color-help-description;
+  color: $color-help-text;
+  box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
+  right: 70px;
+  top: 13px;
+  padding-left: $standard_padding;
+  padding-right: $standard_padding;
+  border-radius: 3px;
 }
 
 .help-bubble-tip {
-	display: flex;
-	cursor: pointer;
-	justify-content: center;
-	align-items: center;
-	width: 30px;
-	height: 30px;
-	position: absolute;
-	left: -15px;
-	bottom: -15px;
-	border-radius: 50%;
-	background-color: $color-help-bubbles;
-	color: #FFF;
-	font-weight: 300;
-	box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
-	opacity: 0.8;
-	transition: transform 0.1s ease;
-	z-index:9999;
+  display: flex;
+  cursor: pointer;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  left: -15px;
+  bottom: -15px;
+  border-radius: 50%;
+  background-color: $color-help-bubbles;
+  color: #FFF;
+  font-weight: 300;
+  box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
+  opacity: 0.8;
+  transition: transform 0.1s ease;
+  z-index: 9999;
 }
 
 .help-bubble-tip:hover {
-	transform: scale(1.2);
-	opacity: 1;
-	transition: transform 0.1s ease;
+  transform: scale(1.2);
+  opacity: 1;
+  transition: transform 0.1s ease;
 }

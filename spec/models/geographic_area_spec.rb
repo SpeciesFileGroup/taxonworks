@@ -72,20 +72,20 @@ describe GeographicArea, type: :model, group: :geo do
 
       context '#geographic_name_classification' do
         specify 'for a country' do
-          expect(country.geographic_name_classification).to eq( country: country.name)
+          expect(country.geographic_name_classification).to eq(country: country.name)
         end
 
         specify 'for a state' do
-          expect(state.geographic_name_classification).to eq( country: country.name, state: state.name)
+          expect(state.geographic_name_classification).to eq(country: country.name, state: state.name)
         end
 
         specify 'for a county' do
-          expect(county.geographic_name_classification).to eq( country: country.name, state: state.name, county: county.name)
+          expect(county.geographic_name_classification).to eq(country: country.name,
+                                                              state:   state.name,
+                                                              county:  county.name)
         end
       end
     end
-
-
   end
 
   context 'associations' do
@@ -235,9 +235,11 @@ describe GeographicArea, type: :model, group: :geo do
 
       specify '::with_name_and_parent_names' do
         # multiple parent name
-        expect(GeographicArea.with_name_and_parent_names(%w(Champaign Illinois United\ States\ of\ America)).to_a).to eq([@champaign])
+        expect(GeographicArea.with_name_and_parent_names(%w(Champaign Illinois United\ States\ of\ America)).to_a)
+          .to eq([@champaign])
         # multiple parent name not in list
-        expect(GeographicArea.with_name_and_parent_names(%w(Champaign Ohio United\ States\ of\ America)).to_a).to eq([])
+        expect(GeographicArea.with_name_and_parent_names(%w(Champaign Ohio United\ States\ of\ America)).to_a)
+          .to eq([])
       end
 
       specify '::find_by_self_and_parents' do
@@ -246,11 +248,13 @@ describe GeographicArea, type: :model, group: :geo do
         # two names
         expect(GeographicArea.find_by_self_and_parents(%w(Champaign Illinois)).to_a).to eq([@champaign])
         # three names
-        expect(GeographicArea.find_by_self_and_parents(%w(Champaign Illinois United\ States\ of\ America)).to_a).to eq([@champaign])
+        expect(GeographicArea.find_by_self_and_parents(%w(Champaign Illinois United\ States\ of\ America)).to_a)
+          .to eq([@champaign])
         # two names not in list
         expect(GeographicArea.find_by_self_and_parents(%w(Champaign Ohio)).to_a).to eq([])
         # three names not in list
-        expect(GeographicArea.find_by_self_and_parents(%w(Champaign Ohio United\ States\ of\ America)).to_a).to eq([])
+        expect(GeographicArea.find_by_self_and_parents(%w(Champaign Ohio United\ States\ of\ America)).to_a)
+          .to eq([])
 
       end
     end
@@ -264,8 +268,9 @@ describe GeographicArea, type: :model, group: :geo do
     before(:each) {
       @geographic_area = FactoryBot.create(:level2_geographic_area)
       @gi              = GeographicItem.create!(polygon: RSPEC_GEO_FACTORY.polygon(LIST_K))
-      @geographic_area.geographic_areas_geographic_items << GeographicAreasGeographicItem.new(geographic_item: @gi, data_origin: 'SFG')
-      @geographic_area.save
+      @geographic_area.geographic_areas_geographic_items << GeographicAreasGeographicItem.new(geographic_item: @gi,
+                                                                                              data_origin:     'SFG')
+      @geographic_area.save!
       @gi
     }
 
@@ -284,7 +289,7 @@ describe GeographicArea, type: :model, group: :geo do
                                                parent:               @geographic_area.parent,
                                                data_origin:          'Test')
       @ford_county.level2 = @ford_county
-      @ford_county.save
+      @ford_county.save!
       @champaign_county = CHAMPAIGN_CO
       @geographic_area.geographic_items << GeographicItem.new(multi_polygon: @champaign_county)
       @illinois_state = ILLINOIS
@@ -402,7 +407,10 @@ describe GeographicArea, type: :model, group: :geo do
 
       specify 'retrieving geolocate UI parameters as a string' do
         # pending 'completion of a method for geolocate_ui_params_string'
-        expect(@geographic_area.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=United States of America&state=Illinois&county=Champaign&locality=&points=40.1397523583313|-88.199600849246||0|3&georef=run|false|false|true|true|false|false|false|0&gc=Tester')
+        expect(@geographic_area.geolocate_ui_params_string).to eq('http://www.museum.tulane' \
+                          '.edu/geolocate/web/webgeoreflight.aspx?country=United States of ' \
+                          'America&state=Illinois&county=Champaign&locality=&points=40.1397523583313|-88' \
+                          '.199600849246||0|3&georef=run|false|false|true|true|false|false|false|0&gc=Tester')
       end
     end
 
@@ -454,7 +462,11 @@ describe GeographicArea, type: :model, group: :geo do
 
     specify('find_by_lat_long') do
       point = @gr_n3_ob.geographic_item.geo_object
-      expect(GeographicArea.find_by_lat_long(point.y, point.x)).to include(@area_r, @area_rn3, @area_old_boxia, @area_n3, @area_land_mass)
+      expect(GeographicArea.find_by_lat_long(point.y, point.x)).to include(@area_r,
+                                                                           @area_rn3,
+                                                                           @area_old_boxia,
+                                                                           @area_n3,
+                                                                           @area_land_mass)
     end
   end
 

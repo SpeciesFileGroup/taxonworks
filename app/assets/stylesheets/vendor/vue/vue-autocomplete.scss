@@ -1,54 +1,55 @@
 .vue-autocomplete-input {
-	z-index: 2000;
-	font-size: $font_small;
-	padding:0px;
-	position: static;
-	padding-left:$standard_padding*0.9;
-	border-radius:2px;
-	border:1px solid $input-border-color;
-	min-height: $normal-input-size;
-	background-color:#FFF;
-	box-sizing: border-box;
-	padding-right: 24px;
-	background-size: 18px;
-	background-position: right 4px center;
-	background-repeat: no-repeat;
+  z-index: 2000;
+  font-size: $font_small;
+  padding: 0px;
+  position: static;
+  padding-left: $standard_padding*0.9;
+  border-radius: 2px;
+  border: 1px solid $input-border-color;
+  min-height: $normal-input-size;
+  background-color: #FFF;
+  box-sizing: border-box;
+  padding-right: 24px;
+  background-size: 18px;
+  background-position: right 4px center;
+  background-repeat: no-repeat;
 }
 
 .vue-autocomplete-input-search {
-	background-image: image-url("search.svg");
+  background-image: image-url("search.svg");
 }
 
 .vue-autocomplete {
-	ul {
-		max-height: 500px;
-		overflow-y: scroll;
-		z-index: 2001;
-		display: none;
-		background-color: #FFF;
-		margin:0px;
-		padding: 0px;
-		list-style: none;
-		position: absolute;
-		min-width: 300px;
-		max-width: 500px;
-		border: 1px solid $navigation_border;
-		border-top: none;
-	}
-	li {
-		cursor: pointer;
-		padding: $standard_padding * 0.25;
-		border-top:1px solid $navigation_border;
-	}
-	.active {
-		background-color: $navigation_border;
-	}
+  ul {
+    max-height: 500px;
+    overflow-y: scroll;
+    z-index: 2001;
+    display: none;
+    background-color: #FFF;
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+    position: absolute;
+    min-width: 300px;
+    max-width: 500px;
+    border: 1px solid $navigation_border;
+    border-top: none;
+  }
+  li {
+    cursor: pointer;
+    padding: $standard_padding * 0.25;
+    border-top: 1px solid $navigation_border;
+  }
+  .active {
+    background-color: $navigation_border;
+  }
 
 }
 
 .vue-autocomplete input:focus ~ ul {
-	display: block;
+  display: block;
 }
+
 .vue-autocomplete ul:hover {
-	display: block;
+  display: block;
 }

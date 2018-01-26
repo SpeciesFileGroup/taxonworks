@@ -1,115 +1,115 @@
 #pinboard {
-	.slide-panel-category-item {
-		position: relative;
-		min-height: 28px;
-	}
+  .slide-panel-category-item {
+    position: relative;
+    min-height: 28px;
+  }
 
-	.pinboard-default-item {
-		border-left:5px solid $color-action-button;
-	}
-	img {
-		border-radius: 50%;
-		width: 60px;
-		height: 60px;
-		transition: border-radius 0.3s ease,
-					height 0.3s ease,
-					width 0.3s ease;		
-	}
-	img:hover {
+  .pinboard-default-item {
+    border-left: 5px solid $color-action-button;
+  }
+  img {
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    transition: border-radius 0.3s ease,
+    height 0.3s ease,
+    width 0.3s ease;
+  }
+  img:hover {
 
-		transition: border-radius 0.3s ease,
-					height 0.3s ease,
-					width 0.3s ease;
-	}
+    transition: border-radius 0.3s ease,
+    height 0.3s ease,
+    width 0.3s ease;
+  }
 
-	ul {
-		padding: 0px;
-		margin:0px;
-	}
+  ul {
+    padding: 0px;
+    margin: 0px;
+  }
 
-	.handle {
-		width: 100%;
-		cursor: move;
-	}
+  .handle {
+    width: 100%;
+    cursor: move;
+  }
 
-	.pdfviewerItem {
-		a {
-			cursor: pointer;
-			display: inline-block;		
-			background-image: image-url('pdf.svg');
-			font-size: 0px;
-			background-color: #E2574C;
-		}
-	}
-	.itemOptions {
-	}
+  .pdfviewerItem {
+    a {
+      cursor: pointer;
+      display: inline-block;
+      background-image: image-url('pdf.svg');
+      font-size: 0px;
+      background-color: #E2574C;
+    }
+  }
+  .itemOptions {
+  }
 
-	.pinboard-dropdown-content {
-		display: none;
-	}
-	.pinboard-dropdown {
-		margin-right: 6px;
-		margin-left: 6px;
-	}
+  .pinboard-dropdown-content {
+    display: none;
+  }
+  .pinboard-dropdown {
+    margin-right: 6px;
+    margin-left: 6px;
+  }
 
-	.button-pinboard-default {
-		background-image: image-url('w_ok.svg');
-		background-size: 12px;
-	}
+  .button-pinboard-default {
+    background-image: image-url('w_ok.svg');
+    background-size: 12px;
+  }
 
-	.pinboard-dropdown:hover {
-		background-color: white;
-	}
+  .pinboard-dropdown:hover {
+    background-color: white;
+  }
 
-	.pinboard-dropdown:hover .pinboard-dropdown-content {
-	    display: flex;
-	    position: absolute;
-	    z-index: 9999;
-	    right:0px;
-	    top:0px;
-	    border-left: 1px solid $navigation_background;
-	    height: 100%;
-	    align-items: center;
-	    padding-left: $standard_padding * 0.5;
-	    padding-right: $standard_padding * 0.5;
-	    background-color: #FFF;
-	}
-	.pinboard-menu-bar {
-	    width: 14px;
-	    height: 3px;
-	    background-color: $color-secondary-2-4;
-	    margin: 2px 0;
-	    transition: 0.4s;
-	}
+  .pinboard-dropdown:hover .pinboard-dropdown-content {
+    display: flex;
+    position: absolute;
+    z-index: 9999;
+    right: 0px;
+    top: 0px;
+    border-left: 1px solid $navigation_background;
+    height: 100%;
+    align-items: center;
+    padding-left: $standard_padding * 0.5;
+    padding-right: $standard_padding * 0.5;
+    background-color: #FFF;
+  }
+  .pinboard-menu-bar {
+    width: 14px;
+    height: 3px;
+    background-color: $color-secondary-2-4;
+    margin: 2px 0;
+    transition: 0.4s;
+  }
 
-	.remove {
-		display: none;
-		font-size: 0px;
-		background-image: image-url('w_trash.svg');
-		background-position: left, center, top 8px;
-		background-repeat: no-repeat;
-	}
+  .remove {
+    display: none;
+    font-size: 0px;
+    background-image: image-url('w_trash.svg');
+    background-position: left, center, top 8px;
+    background-repeat: no-repeat;
+  }
 
-	.remove-all-pinned {
-		margin-right: 1em;
-		background-size: 8px;
-	}
+  .remove-all-pinned {
+    margin-right: 1em;
+    background-size: 8px;
+  }
 
-	li {
-		position: relative;
-		border-bottom: 1px solid #FAFAFA;
-		border-left:5px solid transparent;
-		display: flex;
-		align-items: center;
-		justify-content:space-between;
-		padding: $standard_padding*0.5;
-		padding-left: $standard_padding*2;
-	}
-	li:hover {
-		opacity: 1;
-		background-color: $navigation_background;
-		.remove {
-			display: inline-block;
-		}
-	}
+  li {
+    position: relative;
+    border-bottom: 1px solid #FAFAFA;
+    border-left: 5px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $standard_padding*0.5;
+    padding-left: $standard_padding*2;
+  }
+  li:hover {
+    opacity: 1;
+    background-color: $navigation_background;
+    .remove {
+      display: inline-block;
+    }
+  }
 }

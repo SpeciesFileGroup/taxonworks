@@ -1,50 +1,50 @@
 /* Login Screen */
 
 #login-container {
-	position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translateY(-125%) translateX(-50%);
-    width: 400px;
-    height: 200px;
-    text-align:center;
-    .logo-text {
-    	background-image: image-url('taxonworks-black.svg');
-    	height: 30px;
-    	background-repeat: no-repeat;
-    	background-position: center;
-    	background-size: contain;
-    	margin-bottom: $standard_margin*4;
-    }
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateY(-125%) translateX(-50%);
+  width: 400px;
+  height: 200px;
+  text-align: center;
+  .logo-text {
+    background-image: image-url('taxonworks-black.svg');
+    height: 30px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    margin-bottom: $standard_margin*4;
+  }
 
-    h3 {
-    	text-align:center;
-    	padding: $standard_margin;
-    }
-	
-	.box-login {
-		background-color: #FFF;
-		padding:$standard_padding *2;
-		padding-top: $standard_padding*0.5;		
-		box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
-	}
-	.item {
-		display:flex;
-		justify-content: space-between;
-	}
-	.item a {
-		padding-top:$standard_padding;
-		text-decoration:none;
-	}
+  h3 {
+    text-align: center;
+    padding: $standard_margin;
+  }
 
-	input {
-		border-radius: 0px;
-		width:100%;
-		font-size: $font_normal;
-	}
-	
-	input[type="submit"] {
-		margin-top: 20px;
-		border-radius: 3px;
-	}
+  .box-login {
+    background-color: #FFF;
+    padding: $standard_padding *2;
+    padding-top: $standard_padding*0.5;
+    box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
+  }
+  .item {
+    display: flex;
+    justify-content: space-between;
+  }
+  .item a {
+    padding-top: $standard_padding;
+    text-decoration: none;
+  }
+
+  input {
+    border-radius: 0px;
+    width: 100%;
+    font-size: $font_normal;
+  }
+
+  input[type="submit"] {
+    margin-top: 20px;
+    border-radius: 3px;
+  }
 }

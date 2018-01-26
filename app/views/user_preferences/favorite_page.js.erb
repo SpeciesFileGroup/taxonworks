@@ -1,4 +1,4 @@
-$(document).bind('ajax:complete', function(){
-	$('#favorite_link_<%= params[:kind] %>-<%= params[:name] %>').replaceWith("<%= escape_javascript(favorite_page_link(params[:kind], params[:name])) %>");
+$(document).bind('ajax:complete', function () {
+  $('#favorite_link_<%= params[:kind] %>-<%= params[:name] %>').replaceWith("<%= escape_javascript(favorite_page_link(params[:kind], params[:name])) %>");
 });
 

@@ -1,12 +1,23 @@
 
-br.clear_both{ clear: both; }
+br.clear_both {
+  clear: both;
+}
 
-.left_float { float: left;}
-.right_float { float: right;}
+.left_float {
+  float: left;
+}
 
-.center_text { text-align: center;}
+.right_float {
+  float: right;
+}
 
-.inline { display: inline; }
+.center_text {
+  text-align: center;
+}
+
+.inline {
+  display: inline;
+}
 
 .middle_align {
   vertical-align: middle
@@ -16,7 +27,7 @@ br.clear_both{ clear: both; }
 @mixin vertical-align {
   position: relative;
   top: 50%;
-  	-webkit-transform: translateY(-50%);
-  	-ms-transform: translateY(-50%);
-  	transform: translateY(-50%);
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
 }

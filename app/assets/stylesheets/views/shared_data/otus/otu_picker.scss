@@ -1,85 +1,86 @@
 .otu_picker_autocomplete {
-	position: relative;
+  position: relative;
 }
+
 .otu_picker {
-	position: relative;
-	.new_plus {
-		display: none;
-	}
+  position: relative;
+  .new_plus {
+    display: none;
+  }
 }
 
 .inline_otu_picker {
-	display: flex;
-	position: relative;
-	align-items: center;
-	flex-direction: row;
-	width: 344px;
-	input {
-		width: 344px;
-	}	
-	.new_plus {
-		position: absolute;
-		z-index: 5;
-		border:1px solid transparent;
-		margin: 0px;
-		top: 0px;
-		border-bottom-right-radius: 3px;
-		border-top-right-radius: 3px;
-		right: 0px;
-		height: 26px;
-		width: 26px;
-	}
+  display: flex;
+  position: relative;
+  align-items: center;
+  flex-direction: row;
+  width: 344px;
+  input {
+    width: 344px;
+  }
+  .new_plus {
+    position: absolute;
+    z-index: 5;
+    border: 1px solid transparent;
+    margin: 0px;
+    top: 0px;
+    border-bottom-right-radius: 3px;
+    border-top-right-radius: 3px;
+    right: 0px;
+    height: 26px;
+    width: 26px;
+  }
 }
 
 .injected_new_header {
-	margin: 0px;
-	border-bottom:1px solid $navigation_border;
-	background-color: $soft_background;
-	padding: $standard_padding;
+  margin: 0px;
+  border-bottom: 1px solid $navigation_border;
+  background-color: $soft_background;
+  padding: $standard_padding;
 }
 
 .inline_fields {
-	padding: $standard_padding;
+  padding: $standard_padding;
 }
 
 #new_otu {
-	background-color: #FFF;
-	width: 300px;
-	border-radius: 2px;
-	box-shadow: 0px 1px 2px 0px $navigation_border;
-	border: 1px solid $navigation_border;
-	margin-bottom: $standard_margin;
-	position: absolute;
-	z-index: 400;
-	flex-direction: row;
-	.fields {
-		padding-left: $standard_padding;
-		display: flex;
-		flex-direction: column;
-		align-items: left;
-		justify-content: center;
-	}
-	.field {
-		position: relative;
-		display: flex;
-		flex-direction: column;
-		label {
-			text-align: left;
-		}
-	}
-	#new_otu:active {
-		transition: block 0.3s ease;
-	}
-	.link {
-		align-items: center;
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-	}
+  background-color: #FFF;
+  width: 300px;
+  border-radius: 2px;
+  box-shadow: 0px 1px 2px 0px $navigation_border;
+  border: 1px solid $navigation_border;
+  margin-bottom: $standard_margin;
+  position: absolute;
+  z-index: 400;
+  flex-direction: row;
+  .fields {
+    padding-left: $standard_padding;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    justify-content: center;
+  }
+  .field {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    label {
+      text-align: left;
+    }
+  }
+  #new_otu:active {
+    transition: block 0.3s ease;
+  }
+  .link {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
 
-	#otu_picker_new_undo {
-		position: absolute;
-		top:0px;
-		right: 10px;
-	}
+  #otu_picker_new_undo {
+    position: absolute;
+    top: 0px;
+    right: 10px;
+  }
 }

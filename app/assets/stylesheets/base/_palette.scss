@@ -1,5 +1,5 @@
-/* 
-  all colors expecting black/white should be defined here, and referenced as variables 
+/*
+  all colors expecting black/white should be defined here, and referenced as variables
   See also https://github.com/sass/sass/blob/stable/lib/sass/script/value/color.rb#L28-L181
 */
 
@@ -8,21 +8,21 @@
 /* Palette URL: http://paletton.com/#uid=7000B0k2DzD00+90NMH5tsI9rot */
 
 // red
-$color-primary-0: #FFEAEA;	/* Main Primary color */
+$color-primary-0: #FFEAEA; /* Main Primary color */
 $color-primary-1: #FFFFFF;
 $color-primary-2: #FFF9F9;
 $color-primary-3: #E5BEBE;
 $color-primary-4: #C38A8A;
 
 // yellow/brown (see)
-$color-secondary-1-0: #FFF5EA;	/* Main Secondary color (1) */
+$color-secondary-1-0: #FFF5EA; /* Main Secondary color (1) */
 $color-secondary-1-1: #FFFFFF;
 $color-secondary-1-2: #FFFCF9;
 $color-secondary-1-3: #E5D2BE;
 $color-secondary-1-4: #C3A78A;
 
 // blue-gray (go)
-$color-secondary-2-0: #9DA7AB;	/* Main Secondary color (2) */
+$color-secondary-2-0: #9DA7AB; /* Main Secondary color (2) */
 $color-secondary-2-1: #FCFCFC;
 $color-secondary-2-2: #D0D3D5;
 $color-secondary-2-3: #788990;
@@ -35,7 +35,7 @@ $color-complement-2: #E3E8E3;
 $color-complement-3: #98B798;
 $color-complement-4: #6E9C6E;
 
-// help 
+// help
 
 $color-help-bubbles: #FFA000;
 $color-help-button: #FF8F00;
@@ -43,7 +43,6 @@ $color-help-description: #444;
 $color-help-text: #F5F5F5;
 
 // buttons
-
 
 $color-button-default: #F5F5F5;
 
@@ -57,7 +56,7 @@ $color-button-disabled: #e5e5e5;
 $color-remove-button: #F44336;
 
 // aliases
-$muted_blue:  $color-secondary-2-0;
+$muted_blue: $color-secondary-2-0;
 $muted_red: $color-secondary-1-3;
 $background_gray: $color-secondary-2-1;
 $title_gray: $color-secondary-2-4;
@@ -107,5 +106,13 @@ $color-header: #78909C;
   }
 }
 
-.list_line_even { background: #ffffff;}     /* valid for tables only */
-.list_line_odd { background: #f8f8f8;}     /* valid for tables only */
+.list_line_even {
+  background: #ffffff;
+}
+
+/* valid for tables only */
+.list_line_odd {
+  background: #f8f8f8;
+}
+
+/* valid for tables only */
