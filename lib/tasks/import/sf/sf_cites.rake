@@ -314,6 +314,10 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
               end
 
             else # create new citation
+
+                 # combination check
+                 # synonym or taxon_name_relationship check
+
               citation = Citation.new(
                   metadata.merge(
                       source_id: source_id,
