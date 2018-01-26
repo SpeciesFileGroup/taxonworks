@@ -3,7 +3,7 @@ require 'rails_helper'
 describe 'Documention', type: :model, group: :documentation do
   let(:instance_with_documentation) { TestDocumentable.new }
 
-  let(:document1) { fixture_file_upload(Rails.root + 'spec/files/documents/tiny.pdf', 'application/pdf') }
+  let(:document1) { fixture_file_upload(Spec::Support::Utilities::Files.generate_pdf, 'application/pdf') }
   let(:document2) { fixture_file_upload(Rails.root + 'spec/files/documents/tiny.txt', 'text/plain') }
 
   let(:document_attributes) {
