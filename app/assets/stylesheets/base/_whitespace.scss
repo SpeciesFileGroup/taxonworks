@@ -5,21 +5,21 @@ $pane_border: 1px solid silver;
 $pane_margin: .2em;
 
 .full_viewport_whitespace {
-	.item {
-		padding: $standard_padding;
-	}
+  .item {
+    padding: $standard_padding;
+  }
 }
 
 .break_words {
-	word-break: break-all;
+  word-break: break-all;
 }
 
 .tiny_space {
-	padding: 4px 
+  padding: 4px
 }
 
 .small_space {
-	padding: 8px;
+  padding: 8px;
 }
 
 .base_space {
@@ -34,22 +34,22 @@ $pane_margin: .2em;
 }
 
 .no-margin {
-	margin: 0px !important;
+  margin: 0px !important;
 }
 
 .no-padding {
-	padding: 0px !important;
+  padding: 0px !important;
 }
 
 .separate-left {
-	margin-left: $standard_margin*0.5;
+  margin-left: $standard_margin*0.5;
 }
 
 .separate-right {
-	margin-right: $standard_margin*0.5;
+  margin-right: $standard_margin*0.5;
 }
 
 .separate-panel-top {
-	margin-top: $standard_margin;
+  margin-top: $standard_margin;
 }
 

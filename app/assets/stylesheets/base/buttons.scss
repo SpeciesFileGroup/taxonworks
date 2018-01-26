@@ -1,49 +1,50 @@
 /* Button forms */
 
 .button {
-    position: relative;
-    cursor: pointer;
-    color: #444;
-    border:1px solid rgba(0,0,0,0.1);
-    background-color: $navigation-background;
-    border-radius: 3px;
-    &:disabled {
-      color: #999;
-      background-color: $color-button-disabled; 
-    }
-    &:hover {
-        opacity: 0.8;
-    }
+  position: relative;
+  cursor: pointer;
+  color: #444;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: $navigation-background;
+  border-radius: 3px;
+  &:disabled {
+    color: #999;
+    background-color: $color-button-disabled;
+  }
+  &:hover {
+    opacity: 0.8;
+  }
 }
+
 .button-normal {
-    border:1px solid $navigation_border;
-    color: #444;
-    background-color: #FFF;  
+  border: 1px solid $navigation_border;
+  color: #444;
+  background-color: #FFF;
 }
 
 .button-default {
-    color: #FFF;
-    background-color: $color-secondary-2-4; 
+  color: #FFF;
+  background-color: $color-secondary-2-4;
 }
 
 .button-submit {
-    color: #FFF;
-    background-color: $color-action-button;  
+  color: #FFF;
+  background-color: $color-action-button;
 }
 
-.button-delete, .button-close { 
-    color: #FFF;
-    background-color: $color-remove-button;
- }
+.button-delete, .button-close {
+  color: #FFF;
+  background-color: $color-remove-button;
+}
 
 .button-request {
+  color: #FFF;
+  background-color: $color-request-button;
+  &:hover {
     color: #FFF;
-    background-color: $color-request-button;  
-    &:hover { 
-        color: #FFF;
-        background-color: $color-request-button; 
-        opacity: 0.9;
-    }
+    background-color: $color-request-button;
+    opacity: 0.9;
+  }
 }
 
 .actions {
@@ -52,184 +53,185 @@
     @extend .button-submit;
   }
 }
+
 /* -------- */
 
 .button-collapse-header {
-	cursor:pointer;
-    opacity: 0.6;
-    position: absolute;
-    display: none;
-    margin-left: 1em;
-    background-image: image-url('hub.svg');
-    background-size:25px;
-    background-repeat:no-repeat;
-    background-position: center; 
-    padding:9px;
-    padding-left: 25px;
-    z-index: 300;
-    background-color: $panel_background;
-    width: 20px;
-    top: -36px;
-    left:0px;
-    height: 36px;
-    border-radius: 100%; 
-    border:1px solid $color-secondary-2-4;
-    box-shadow: 0 1px 3px 0 $color-secondary-2-4;
- 
-    transition: background-size 0.3s ease,
-                background-color 0.3s ease,
-                top 0.5s ease,
-                opacity 0.5s ease,
-                padding-left 0.5s ease;  
+  cursor: pointer;
+  opacity: 0.6;
+  position: absolute;
+  display: none;
+  margin-left: 1em;
+  background-image: image-url('hub.svg');
+  background-size: 25px;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 9px;
+  padding-left: 25px;
+  z-index: 300;
+  background-color: $panel_background;
+  width: 20px;
+  top: -36px;
+  left: 0px;
+  height: 36px;
+  border-radius: 100%;
+  border: 1px solid $color-secondary-2-4;
+  box-shadow: 0 1px 3px 0 $color-secondary-2-4;
+
+  transition: background-size 0.3s ease,
+  background-color 0.3s ease,
+  top 0.5s ease,
+  opacity 0.5s ease,
+  padding-left 0.5s ease;
 
 }
 
 .button-collapse-header:hover {
-    opacity: 1;
-   	top:-25px;
-    transition: background-size 0.3s ease,
-                background-color 0.3s ease,
-                top 0.5s ease,
-                opacity 0.5s ease,
-                padding-left 0.5s ease;
-  	background-size:35px;
+  opacity: 1;
+  top: -25px;
+  transition: background-size 0.3s ease,
+  background-color 0.3s ease,
+  top 0.5s ease,
+  opacity 0.5s ease,
+  padding-left 0.5s ease;
+  background-size: 35px;
 }
 
 .circle-button {
-	border-radius: 50%;
-	display: block;
-	width: 24px;
-	height: 24px;
-    min-width: 24px;
-    min-height: 24px;
-	font-size: 0px;
-	background-position: center;
-	background-repeat: no-repeat;
-	box-shadow: 0px 1px 2px 0px $navigation_border;
-	margin: 5px;
-    cursor: pointer;
+  border-radius: 50%;
+  display: block;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  font-size: 0px;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0px 1px 2px 0px $navigation_border;
+  margin: 5px;
+  cursor: pointer;
 }
 
 .btn-add {
-    background-color: $color-action-button;
-    background-image: image-url("bplus.svg");
-} 
+  background-color: $color-action-button;
+  background-image: image-url("bplus.svg");
+}
 
 .btn-delete {
-    background-color: #F44336;
-    background-image: image-url("w_trash.svg");
+  background-color: #F44336;
+  background-image: image-url("w_trash.svg");
 }
 
 .btn-edit {
-    background-color: $color-action-button;
-    background-image: image-url("w_pencil.svg");
+  background-color: $color-action-button;
+  background-image: image-url("w_pencil.svg");
 }
 
 .btn-radial {
-    background-size: 16px;
-    background-color: $color-secondary-2-4;
-    background-image: image-url("w_radialmenu.svg");
+  background-size: 16px;
+  background-color: $color-secondary-2-4;
+  background-image: image-url("w_radialmenu.svg");
 }
 
 .btn-tag-delete {
-    margin: 0px;
-    background-color: #F44336;
-    background-size: 12px;
-    background-image: image-url("label.svg");
-} 
+  margin: 0px;
+  background-color: #F44336;
+  background-size: 12px;
+  background-image: image-url("label.svg");
+}
 
 .btn-tag-add {
-    margin: 0px;
-    background-color: $color-action-button;
-    background-size: 12px;
-    background-image: image-url("label.svg");
-} 
+  margin: 0px;
+  background-color: $color-action-button;
+  background-size: 12px;
+  background-image: image-url("label.svg");
+}
 
 .btn-undo {
-    background-image: image-url("undo.svg");
+  background-image: image-url("undo.svg");
 }
 
 .circle-button-big {
-    width: 30px;
-    height: 30px;
+  width: 30px;
+  height: 30px;
 }
 
 .box-button {
-    cursor: pointer;
-    width: 24px;
-    height:24px;
-    background-size: 14px;
-    background-position: center;
-    background-repeat: no-repeat;
-    border-radius: 2px;
-    transition: background-color 0.5s ease;
-    border: 1px solid $navigation_border;
-    background-color: $color-secondary-2-1;
-    box-shadow: 0 0px 1px 0 $navigation_border;    
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  background-size: 14px;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 2px;
+  transition: background-color 0.5s ease;
+  border: 1px solid $navigation_border;
+  background-color: $color-secondary-2-1;
+  box-shadow: 0 0px 1px 0 $navigation_border;
 }
 
 #otu_picker_add_ok {
-	@extend .circle-button;
-    @extend .circle-button-big;
-	background-color: #AED581;
-    background-size: 16px;
-	background-image: image-url("w_ok.svg");
+  @extend .circle-button;
+  @extend .circle-button-big;
+  background-color: #AED581;
+  background-size: 16px;
+  background-image: image-url("w_ok.svg");
 }
 
 #otu_picker_new_undo {
-	@extend .circle-button;
-    @extend .circle-button-big;
-	background-color: #F44336;
-	background-image: image-url("undo.svg");
+  @extend .circle-button;
+  @extend .circle-button-big;
+  background-color: #F44336;
+  background-image: image-url("undo.svg");
 }
 
 .new_plus, .add_total_row {
-	@extend .circle-button;
-    @extend .circle-button-big;
-	background-color: #AED581;
-	background-image: image-url("bplus.svg");
+  @extend .circle-button;
+  @extend .circle-button-big;
+  background-color: #AED581;
+  background-image: image-url("bplus.svg");
 }
 
-.delete-circle, .remove_row  {
-	@extend .circle-button;
-    @extend .circle-button-big;
-	background-color: #F44336;
-	background-image: image-url("trash.svg");
+.delete-circle, .remove_row {
+  @extend .circle-button;
+  @extend .circle-button-big;
+  background-color: #F44336;
+  background-image: image-url("trash.svg");
 }
 
 .pin-button {
-    @extend .circle-button;
-    background-color: $color-action-button;
-    margin:0px;
-    background-size: 14px;
-    background-image: image-url("b_pin.svg");
+  @extend .circle-button;
+  background-color: $color-action-button;
+  margin: 0px;
+  background-size: 14px;
+  background-image: image-url("b_pin.svg");
 }
 
 .unpin-button {
-    @extend .pin-button;
-    font-size: 0px;
-    background-color: $color-remove-button;
+  @extend .pin-button;
+  font-size: 0px;
+  background-color: $color-remove-button;
 }
 
 .disable-button, .btn-disabled {
-    opacity: 0.5;
-    background-color: $navigation_border;
+  opacity: 0.5;
+  background-color: $navigation_border;
 }
 
 .button-undo {
-	display: none;
-	@extend .circle-button;
-    width: 30px;
-	background-color: #F44336;
-	background-image: image-url("undo.svg");
+  display: none;
+  @extend .circle-button;
+  width: 30px;
+  background-color: #F44336;
+  background-image: image-url("undo.svg");
 }
 
-.expand {    
-    @extend .box-button;
-    background-image: image-url("expand.svg");
+.expand {
+  @extend .box-button;
+  background-image: image-url("expand.svg");
 }
 
 .contract {
-    @extend .box-button;   
-    background-image: image-url("contract.svg");
+  @extend .box-button;
+  background-image: image-url("contract.svg");
 }

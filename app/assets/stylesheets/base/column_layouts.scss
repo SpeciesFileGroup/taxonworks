@@ -2,47 +2,47 @@
 http://css-tricks.com/snippets/css/a-guide-to-flexbox/
 http://flexboxin5.com/
  */
- .horizontal-center-content {
- 	display: flex;
- 	align-items:center;
- 	flex-direction:row;
- 	justify-content: center;
- }
-
-  .horizontal-left-content {
- 	display: flex;
- 	align-items:center;
- 	flex-direction:row;
- 	justify-content: flex-start;
- }
-
- .middle {
+.horizontal-center-content {
   display: flex;
   align-items: center;
- }
+  flex-direction: row;
+  justify-content: center;
+}
 
- .align-start {
+.horizontal-left-content {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.middle {
+  display: flex;
+  align-items: center;
+}
+
+.align-start {
   display: flex;
   align-items: flex-start;
- }
+}
 
- .align-end {
+.align-end {
   display: flex;
   align-items: flex-end;
- }
+}
 
- .flex-separate {
- 	display: flex;
- 	justify-content: space-between;
- }
+.flex-separate {
+  display: flex;
+  justify-content: space-between;
+}
 
- .separate-top {
- 	margin-top: $standard_padding*0.5;
- }
+.separate-top {
+  margin-top: $standard_padding*0.5;
+}
 
-  .separate-bottom {
- 	margin-bottom: $standard_padding;
- }
+.separate-bottom {
+  margin-bottom: $standard_padding;
+}
 
 .flexbox {
   display: -webkit-box;
@@ -51,13 +51,13 @@ http://flexboxin5.com/
   display: -webkit-flex;
   -webkit-flex-flow: row wrap;
   display: flex;
-  flex-direction: row; 
+  flex-direction: row;
   flex-wrap: nowrap;
   justify-content: center;
 
-	  .item img {
-		display: block;
-	}
+  .item img {
+    display: block;
+  }
 }
 
 .flexbox > * {
@@ -65,40 +65,61 @@ http://flexboxin5.com/
 }
 
 .flex-wrap-row {
-	width: auto;
-	display: flex;
-	justify-content: flex-start;
-	flex-wrap: wrap !important;
-	flex-direction: row !important;
+  width: auto;
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap !important;
+  flex-direction: row !important;
 }
 
 .flex-wrap-column {
-	display: flex;
-	justify-content: flex-start;
-	width: auto;
-	flex-wrap: wrap !important;
-	flex-direction: column !important;
+  display: flex;
+  justify-content: flex-start;
+  width: auto;
+  flex-wrap: wrap !important;
+  flex-direction: column !important;
 }
-
 
 .item {
-	word-wrap: break-word;
-	flex: 1 auto;
+  word-wrap: break-word;
+  flex: 1 auto;
 }
-  
+
 @media all and (min-width: 400px) {
-  .item { flex: 1 auto; }
-  .column-big { flex: 3 auto; }
-  .column-medium { flex: 2 auto; }
-  .column-small { flex: 1 auto; }
-  .column-tiny { flex: 0.5 auto; } 
+  .item {
+    flex: 1 auto;
+  }
+  .column-big {
+    flex: 3 auto;
+  }
+  .column-medium {
+    flex: 2 auto;
+  }
+  .column-small {
+    flex: 1 auto;
+  }
+  .column-tiny {
+    flex: 0.5 auto;
+  }
 }
 
 @media all and (min-width: 800px) {
-  .item1 { order: 1; }
-  .item2 { order: 2; }
-  .item3 { order: 3; }
-  .item4 { order: 4; }
-  .item5 { order: 5; }
-  .item6 { order: 6; }
-}  
+  .item1 {
+    order: 1;
+  }
+  .item2 {
+    order: 2;
+  }
+  .item3 {
+    order: 3;
+  }
+  .item4 {
+    order: 4;
+  }
+  .item5 {
+    order: 5;
+  }
+  .item6 {
+    order: 6;
+  }
+}

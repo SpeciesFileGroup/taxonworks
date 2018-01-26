@@ -6,12 +6,12 @@
           <span class="filter-title">FILTER</span>
           <div class="small-icon reset" data-filter-category="reset" data-icon="reset" data-help="Remove filters, show everything.">
             Reset
-          </div>  
-        </div> 
-        
+          </div>
+        </div>
+
         <form class="content" data-help="Choose only those options that contain the provided text in the title or description.">
-            <input type="text" placeholder="Filter by text..." class="item" id="search-filter" autofocus="true" >
-        </form>        
+          <input type="text" placeholder="Filter by text..." class="item" id="search-filter" autofocus="true">
+        </form>
         <span class="content filter-title">STATUS</span>
 
         <div class="filter-status" data-help="Show only those features whose interfaces and functionality are at a certain level of completion. Red: expect major change; Yellow: functionality is more or less stable, form may change; Green: form and functionality are stable.">
@@ -19,21 +19,21 @@
             <input type="checkbox" data-switch="false">
             <div class="slider"></div>
             <div class="status-name">Status</div>
-          </label>                 
+          </label>
           <div class="filter-category">
             <div class="status unknown" data-filter-category="unknown"></div>
             <div class="status prototype" data-filter-category="prototype"></div>
             <div class="status stable" data-filter-category="stable"></div>
             <div class="status complete" data-filter-category="complete"></div>
           </div>
-        </div>        
+        </div>
         <span class="content filter-title">CATEGORIES</span>
         <div class="navigation-controls separate-bottom">
-        	<% UserTasks::CATEGORIES.each do |c| -%>
-         <%= content_tag(:div, c.humanize, 'data-filter-category' => c, 'data-favorite' => true, 'class' => 'navigation-item') -%>
-         <% end %>                                 
-       </div>        
-     </div>  
-   </div>
- </div>
+          <% UserTasks::CATEGORIES.each do |c| -%>
+            <%= content_tag(:div, c.humanize, 'data-filter-category' => c, 'data-favorite' => true, 'class' => 'navigation-item') -%>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
