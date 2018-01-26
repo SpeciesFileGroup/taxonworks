@@ -34,7 +34,12 @@ class CitationsController < ApplicationController
 
   # Presently only used in autocomplete
   def show
-    redirect_to url_for(@citation.annotated_object.metamorphosize)
+    respond_to do |format|
+      format.html {
+        redirect_to url_for(@citation.annotated_object.metamorphosize)
+      }
+      format.json {}
+    end
   end
 
   # POST /citations
