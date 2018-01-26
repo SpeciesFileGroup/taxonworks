@@ -47,7 +47,7 @@ gem 'validates_timeliness', '~> 4.0.2'
 gem 'paper_trail', '~> 8.1.2'
 gem 'acts_as_list', '~> 0.9.7'
 gem 'modularity', '~> 2.0.1' # Used!?
-gem 'paperclip', '~> 5.1'
+gem 'paperclip', '~> 5.2'
 gem 'paperclip-meta', '~> 3.0'
 
 # javascript

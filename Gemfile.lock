@@ -16,7 +16,7 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    Ascii85 (1.0.2)
+    Ascii85 (1.0.3)
     actioncable (5.1.4)
       actionpack (= 5.1.4)
       nio4r (~> 2.0)
@@ -253,7 +253,7 @@ GEM
     minitar-cli (0.6.1)
       minitar (~> 0.6.0)
       powerbar (~> 1.0)
-    minitest (5.11.1)
+    minitest (5.11.2)
     modularity (2.0.1)
     multi_json (1.13.1)
     namae (1.0.1)
@@ -270,7 +270,7 @@ GEM
     paper_trail (8.1.2)
       activerecord (>= 4.2, < 5.2)
       request_store (~> 1.1)
-    paperclip (5.2.0)
+    paperclip (5.2.1)
       activemodel (>= 4.2.0)
       activesupport (>= 4.2.0)
       cocaine (~> 0.5.5)
@@ -550,7 +550,7 @@ DEPENDENCIES
   mail (~> 2.7.0.rc1)
   modularity (~> 2.0.1)
   paper_trail (~> 8.1.2)
-  paperclip (~> 5.1)
+  paperclip (~> 5.2)
   paperclip-meta (~> 3.0)
   parallel_tests (~> 2.19.0)
   passenger (~> 5.1.7)
