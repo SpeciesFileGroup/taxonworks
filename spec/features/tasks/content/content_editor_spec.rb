@@ -12,10 +12,6 @@ describe 'Content editor' do
       Capybara.default_max_wait_time = echo
     }
 
-    after {
-      click_link('Sign out')
-    }
-
     context 'create new topic', js: true do
       before {
         visit index_editor_task_path
