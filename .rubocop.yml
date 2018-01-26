@@ -1,6 +1,7 @@
 inherit_from: .rubocop_todo.yml
 
 # Documentation: http://www.rubydoc.info/gems/rubocop
+
 AllCops:
   TargetRubyVersion: 2.4
   DisabledByDefault: true
@@ -20,6 +21,7 @@ AllCops:
     - 'volumes/**/*'
     - 'public/packs/**/*'
     - 'public/packs-test/**/*'
+    - 'bin/**/*'
 
 Rails:
   Enabled: true
@@ -72,11 +74,8 @@ Lint/StringConversionInInterpolation:
 
 Performance/HashEachMethods:
   Enabled: true
-
-#Lint/UnneededCopDisableDirective:
-#  Enabled: false
-
-Lint/UselessAccessModifier:
+  
+  Lint/UselessAccessModifier:
   Enabled: true
 
 Performance/Size:
@@ -94,19 +93,22 @@ Style/LineEndConcatenation:
 Style/MutableConstant:
   Enabled: true
 
+Lint/DuplicateCaseCondition:
+  Enabled: true
+
 # TODO: select possible additions by setting `Enabled: true`
 
-Layout/EmptyLines:
-  Enabled: false
+#Lint/UnneededCopDisableDirective:
+#  Enabled: false
 
-Layout/EmptyLinesAroundAccessModifier:
-  Enabled: false
+# Layout/EmptyLines:
+#   Enabled: false
 
-Lint/DuplicateCaseCondition:
-  Enabled: false
+# Layout/EmptyLinesAroundAccessModifier:
+#   Enabled: false
+#  
+# Lint/InterpolationCheck:
+#   Enabled: false
 
-Lint/InterpolationCheck:
-  Enabled: false
-
-Lint/RegexpAsCondition:
-  Enabled: false
+# Lint/RegexpAsCondition:
+#   Enabled: false
