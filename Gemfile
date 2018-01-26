@@ -55,7 +55,7 @@ gem 'sprockets-rails', '~> 3.2.0'
 gem 'sprockets', '~> 3.7.1'
 gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
 gem 'webpacker', '~> 3.0'
-gem 'uglifier', '~> 4.0.1'
+gem 'uglifier', '~> 4.1.4'
 
 gem 'jquery-rails', '~> 4.3.1'
 gem 'jquery-ui-rails', '~> 6.0.1'
