@@ -61,7 +61,7 @@ gem 'jquery-rails', '~> 4.3.1'
 gem 'jquery-ui-rails', '~> 6.0.1'
 gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
-gem 'turbolinks', '~> 5.0.1'
+gem 'turbolinks', '~> 5.1.0'
 gem 'jquery-turbolinks', '~> 2.1'
 
 # BibTeX handling
