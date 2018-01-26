@@ -23,8 +23,10 @@ RSpec.describe DocumentsController, type: :controller do
     sign_in
   }
 
+  let(:pdf) { Spec::Support::Utilities::Files.generate_pdf }
+
   let(:valid_attributes) {
-    {document_file:  fixture_file_upload((Rails.root + 'spec/files/documents/tiny.pdf'), 'application/pdf') }
+    {document_file:  fixture_file_upload(pdf, 'application/pdf') }
   }
 
   let(:invalid_attributes) {
