@@ -1,3 +1,3 @@
-module.exports = function(state, list) {
-	state.recent.topics = list;
+module.exports = function (state, list) {
+  state.recent.topics = list
 }

@@ -1,3 +1,3 @@
-export default function(state) {
-    return state.settings;
+export default function (state) {
+  return state.settings
 };

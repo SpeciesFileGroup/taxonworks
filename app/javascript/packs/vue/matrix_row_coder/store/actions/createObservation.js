@@ -1,76 +1,71 @@
-import getObservationFromArgs from '../helpers/getObservationFromArgs';
-import ObservationTypes from '../helpers/ObservationTypes';
-import { MutationNames } from '../mutations/mutations';
+import getObservationFromArgs from '../helpers/getObservationFromArgs'
+import ObservationTypes from '../helpers/ObservationTypes'
+import { MutationNames } from '../mutations/mutations'
 
-export default function({ commit, state }, args) {
-    const observation = getObservationFromArgs(state, args);
+export default function ({ commit, state }, args) {
+  const observation = getObservationFromArgs(state, args)
 
-    if (observation.id)
-        return Promise.resolve();
+  if (observation.id) { return Promise.resolve() }
 
-    commit(MutationNames.SetDescriptorSaving, {
+  commit(MutationNames.SetDescriptorSaving, {
+    descriptorId: args.descriptorId,
+    isSaving: true
+  })
+
+  const payload = makeBasePayload()
+
+  if (observation.type === ObservationTypes.Qualitative) { setupQualitativePayload(payload) }
+
+  if (observation.type === ObservationTypes.Presence) { setupPresencePayload(payload) }
+
+  if (observation.type === ObservationTypes.Sample) { setupSamplePayload(payload) }
+
+  return state.request.createObservation(payload)
+    .then(responseData => {
+      commit(MutationNames.SetDescriptorSaving, {
         descriptorId: args.descriptorId,
-        isSaving: true
-    });
+        isSaving: false
+      })
 
-    const payload = makeBasePayload();
+      commit(MutationNames.SetDescriptorSavedOnce, args.descriptorId)
 
-    if (observation.type === ObservationTypes.Qualitative)
-        setupQualitativePayload(payload);
+      if (isValidResponseData(responseData)) { commit(MutationNames.SetObservationId, makeObservationIdArgs(responseData.id)) }
+    })
 
-    if (observation.type === ObservationTypes.Presence)
-        setupPresencePayload(payload);
+  function isValidResponseData (data) {
+    return data && data.id
+  }
 
-    if (observation.type === ObservationTypes.Sample)
-        setupSamplePayload(payload);
+  function makeObservationIdArgs (observationId) {
+    return Object.assign({}, args, { observationId })
+  }
 
-    return state.request.createObservation(payload)
-        .then(responseData => {
-            commit(MutationNames.SetDescriptorSaving, {
-                descriptorId: args.descriptorId,
-                isSaving: false
-            });
+  function setupQualitativePayload (payload) {
+    return Object.assign(payload, { character_state_id: args.characterStateId })
+  }
 
-            commit(MutationNames.SetDescriptorSavedOnce, args.descriptorId);
+  function setupPresencePayload (payload) {
+    return Object.assign(payload, { presence: observation.isChecked })
+  }
 
-            if (isValidResponseData(responseData))
-                commit(MutationNames.SetObservationId, makeObservationIdArgs(responseData.id));
-        });
+  function setupSamplePayload (payload) {
+    return Object.assign(payload, {
+      sample_n: observation.n,
+      sample_min: observation.min,
+      sample_max: observation.max,
+      sample_median: null,
+      sample_mean: null,
+      sample_units: observation.units,
+      sample_standard_deviation: null,
+      sample_standard_error: null
+    })
+  }
 
-    function isValidResponseData(data) {
-        return data && data.id;
+  function makeBasePayload () {
+    return {
+      descriptor_id: args.descriptorId,
+      otu_id: state.taxonId,
+      type: observation.type
     }
-
-    function makeObservationIdArgs(observationId) {
-        return Object.assign({}, args, { observationId });
-    }
-
-    function setupQualitativePayload(payload) {
-        return Object.assign(payload, { character_state_id: args.characterStateId });
-    }
-
-    function setupPresencePayload(payload) {
-        return Object.assign(payload, { presence: observation.isChecked });
-    }
-
-    function setupSamplePayload(payload) {
-        return Object.assign(payload, {
-            sample_n: observation.n,
-            sample_min: observation.min,
-            sample_max: observation.max,
-            sample_median: null,
-            sample_mean: null,
-            sample_units: observation.units,
-            sample_standard_deviation: null,
-            sample_standard_error: null,
-        });
-    }
-
-    function makeBasePayload() {
-        return {
-            descriptor_id: args.descriptorId,
-            otu_id: state.taxonId,
-            type: observation.type
-        }
-    }
+  }
 };

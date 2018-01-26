@@ -1,20 +1,19 @@
-export default function(state, args) {
-    const {
-        descriptorId,
-        isZoomed
-    } = args;
+export default function (state, args) {
+  const {
+    descriptorId,
+    isZoomed
+  } = args
 
-    const descriptor = state.descriptors.find(d => d.id === descriptorId);
-    descriptor.isZoomed = isZoomed;
+  const descriptor = state.descriptors.find(d => d.id === descriptorId)
+  descriptor.isZoomed = isZoomed
 
-    attemptUnzoomOtherDescriptors();
+  attemptUnzoomOtherDescriptors()
 
-    function attemptUnzoomOtherDescriptors() {
-        if (isZoomed) {
-            state.descriptors.forEach(descriptor => {
-                if (descriptor.id !== descriptorId)
-                    descriptor.isZoomed = false;
-            });
-        }
+  function attemptUnzoomOtherDescriptors () {
+    if (isZoomed) {
+      state.descriptors.forEach(descriptor => {
+        if (descriptor.id !== descriptorId) { descriptor.isZoomed = false }
+      })
     }
+  }
 };

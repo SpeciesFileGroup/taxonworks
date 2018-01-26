@@ -1,3 +1,3 @@
-module.exports = function(state) {
-	return state.original_combination;
-};
+module.exports = function (state) {
+  return state.original_combination
+}

@@ -4,7 +4,7 @@
       <div class="modal-wrapper">
         <div class="modal-container" :class="containerClass" :style="containerStyle" @click.stop>
           <div class="modal-header">
-            <div class="modal-close" @click="$emit('close')"></div>
+            <div class="modal-close" @click="$emit('close')"/>
             <slot name="header">
               default header
             </slot>
@@ -15,8 +15,7 @@
             </slot>
           </div>
           <div class="modal-footer">
-            <slot name="footer">
-            </slot>
+            <slot name="footer"/>
           </div>
         </div>
       </div>
@@ -34,13 +33,12 @@ export default {
       type: Object
     }
   },
-  mounted: function() {
-    document.addEventListener("keydown", (e) => {
-      if(e.keyCode == 27) {
-        this.$emit('close');
+  mounted: function () {
+    document.addEventListener('keydown', (e) => {
+      if (e.keyCode == 27) {
+        this.$emit('close')
       }
     })
   }
 }
 </script>
-

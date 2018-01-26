@@ -1,3 +1,3 @@
-module.exports = function(state) {
-	return state.nomenclatural_code;
-};
+module.exports = function (state) {
+  return state.nomenclatural_code
+}

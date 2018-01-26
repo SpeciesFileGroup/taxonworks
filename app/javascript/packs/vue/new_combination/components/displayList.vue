@@ -1,57 +1,56 @@
 <template>
-	<transition-group class="table-entrys-list" name="list-complete" tag="ul">
-		<li v-for="item in list" :key="item.id" class="list-complete-item flex-separate middle">
-			<a :href="`/tasks/nomenclature/browse/${item.id}`" target="_blank" class="list-item" v-html="displayName(item)"></a>
-			<div class="list-controls">
-				<placement-component @created="$emit('placement', item)" :combination="item"></placement-component>
-				<radial-annotator v-if="annotator" :globalId="item.global_id"></radial-annotator>	
-				<span v-if="edit" class="circle-button btn-edit" @click="$emit('edit', Object.assign({}, item))">Edit</span>
-				<span class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
-			</div>
-		</li>
-	</transition-group>
+  <transition-group class="table-entrys-list" name="list-complete" tag="ul">
+    <li v-for="item in list" :key="item.id" class="list-complete-item flex-separate middle">
+      <a :href="`/tasks/nomenclature/browse/${item.id}`" target="_blank" class="list-item" v-html="displayName(item)"/>
+      <div class="list-controls">
+        <placement-component @created="$emit('placement', item)" :combination="item"/>
+        <radial-annotator v-if="annotator" :global-id="item.global_id"/>
+        <span v-if="edit" class="circle-button btn-edit" @click="$emit('edit', Object.assign({}, item))">Edit</span>
+        <span class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
+      </div>
+    </li>
+  </transition-group>
 </template>
 <script>
 
-	import radialAnnotator from '../../components/annotator/annotator.vue';
-	import placementComponent from './placement.vue';
+import radialAnnotator from '../../components/annotator/annotator.vue'
+import placementComponent from './placement.vue'
 
-	export default {
-		components: {
-			radialAnnotator,
-			placementComponent
-		},
-		props: {
-			list: {
-				type: Array,
-				default: () => []
-			},
-			label: {
-				required: true,
-			},
-			edit: {
-				type: Boolean,
-				default: false,
-			},
-			annotator: {
-				type: Boolean
-			},
-		},
-		methods: {
-			displayName(item) {
-				if(typeof this.label == 'string') {
-					return item[this.label];
-				}
-				else {
-					let tmp = item;
-					this.label.forEach(function(label) {
-						tmp = tmp[label]
-					});
-					return tmp;
-				}
-			},
-		}
-	}
+export default {
+  components: {
+    radialAnnotator,
+    placementComponent
+  },
+  props: {
+    list: {
+      type: Array,
+      default: () => []
+    },
+    label: {
+      required: true
+    },
+    edit: {
+      type: Boolean,
+      default: false
+    },
+    annotator: {
+      type: Boolean
+    }
+  },
+  methods: {
+    displayName (item) {
+      if (typeof this.label === 'string') {
+        return item[this.label]
+      } else {
+        let tmp = item
+        this.label.forEach(function (label) {
+          tmp = tmp[label]
+        })
+        return tmp
+      }
+    }
+  }
+}
 </script>
 <style lang="scss" scoped>
 
@@ -68,7 +67,7 @@
 	.list-item {
 		text-decoration: none;
 		padding-left: 4px;
-		padding-right: 4px;		
+		padding-right: 4px;
 	}
 	.table-entrys-list {
 		overflow-y: scroll;

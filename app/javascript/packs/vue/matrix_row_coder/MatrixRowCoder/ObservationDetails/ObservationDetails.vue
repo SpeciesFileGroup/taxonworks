@@ -1,39 +1,35 @@
 <template>
-    <div class="observation-details">
-        <confidence-levels
-            v-bind:confidences="observation.confidences">
-        </confidence-levels>
+  <div class="observation-details">
+    <confidence-levels
+    :confidences="observation.confidences"/>
 
-        <notes
-            v-bind:notes="observation.notes">
-        </notes>
+    <notes
+    :notes="observation.notes"/>
 
-        <depictions
-            v-bind:depictions="observation.depictions">
-        </depictions>
+    <depictions
+    :depictions="observation.depictions"/>
 
-        <citations
-            v-bind:citations="observation.citations">
-        </citations>
-    </div>
+    <citations
+    :citations="observation.citations"/>
+  </div>
 </template>
 
 <style src="./ObservationDetails.styl" lang="stylus"></style>
 
 <script>
-    import confidenceLevels from '../ConfidenceLevels/ConfidenceLevels.vue';
-    import notes from '../Notes/Notes.vue';
-    import depictions from '../Depictions/Depictions.vue';
-    import citations from '../Citations/Citations.vue';
+import confidenceLevels from '../ConfidenceLevels/ConfidenceLevels.vue'
+import notes from '../Notes/Notes.vue'
+import depictions from '../Depictions/Depictions.vue'
+import citations from '../Citations/Citations.vue'
 
-    export default {
-        name: "observation-details",
-        props: ['observation'],
-        components: {
-            confidenceLevels,
-            notes,
-            depictions,
-            citations
-        }
-    };
+export default {
+  name: 'ObservationDetails',
+  props: ['observation'],
+  components: {
+    confidenceLevels,
+    notes,
+    depictions,
+    citations
+  }
+}
 </script>

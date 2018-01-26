@@ -1,3 +1,3 @@
-module.exports = function(state) {
-	return state.panels.figures;
-};
+module.exports = function (state) {
+  return state.panels.figures
+}

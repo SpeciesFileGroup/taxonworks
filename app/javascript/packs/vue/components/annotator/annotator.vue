@@ -1,153 +1,152 @@
 <template>
-	<div>
-	<div class="radial-annotator">
-		<modal v-if="display" @close="closeModal()">
-			<h3 slot="header"><span v-html="title"></span></h3>
-			<div slot="body" class="flex-separate">
-				<spinner v-if="!menuCreated"></spinner>
-				<div class="radial-annotator-menu">
-					<div>
-						<radial-menu v-if="menuCreated" :menu="menuOptions" @selected="currentAnnotator = $event" width="400" height="400"></radial-menu>
-					</div>
-				</div>
-				<div class="radial-annotator-template panel" v-if="currentAnnotator">
-					<h3 class="capitalize view-title">{{ currentAnnotator.replace("_"," ") }}</h3>
-					<component
-						class="radial-annotator-container"
-						v-bind:is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
-						:type="currentAnnotator" 
-						:url="url" 
-						:globalId="globalId"
-						:objectType="metadata.object_type"
-						@updateCount="setTotal">	
-					</component>
-				</div>
-			</div>
-		</modal>
-		<span type="button" class="circle-button btn-radial" @click="displayAnnotator()">Radial annotator</span>
-	</div>
-</div>
+  <div>
+    <div class="radial-annotator">
+      <modal v-if="display" @close="closeModal()">
+        <h3 slot="header"><span v-html="title"/></h3>
+        <div slot="body" class="flex-separate">
+          <spinner v-if="!menuCreated"/>
+          <div class="radial-annotator-menu">
+            <div>
+              <radial-menu v-if="menuCreated" :menu="menuOptions" @selected="currentAnnotator = $event" width="400" height="400"/>
+            </div>
+          </div>
+          <div class="radial-annotator-template panel" v-if="currentAnnotator">
+            <h3 class="capitalize view-title">{{ currentAnnotator.replace("_"," ") }}</h3>
+            <component
+              class="radial-annotator-container"
+              :is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
+              :type="currentAnnotator"
+              :url="url"
+              :global-id="globalId"
+              :object-type="metadata.object_type"
+              @updateCount="setTotal"/>
+          </div>
+        </div>
+      </modal>
+      <span type="button" class="circle-button btn-radial" @click="displayAnnotator()">Radial annotator</span>
+    </div>
+  </div>
 </template>
 <script>
 
-import radialMenu from './components/radialMenu.vue';
-import modal from '../modal.vue';
-import spinner from '../spinner.vue';
+import radialMenu from './components/radialMenu.vue'
+import modal from '../modal.vue'
+import spinner from '../spinner.vue'
 
-import CRUD from './request/crud';
+import CRUD from './request/crud'
 
-import confidencesAnnotator from './components/confidence_annotator.vue';
-import depictionsAnnotator from './components/depiction_annotator.vue';
-import documentationAnnotator from './components/documentation_annotator.vue';
-import identifiersAnnotator from './components/identifier_annotator.vue';
-import tagsAnnotator from './components/tag_annotator.vue';
-import notesAnnotator from './components/note_annotator.vue';
-import data_attributesAnnotator from './components/data_attribute_annotator.vue';
-import alternate_valuesAnnotator from './components/alternate_value_annotator.vue';
-import citationsAnnotator from './components/citation_annotator.vue';
-import protocol_relationshipsAnnotator from './components/protocol_annotator.vue';
+import confidencesAnnotator from './components/confidence_annotator.vue'
+import depictionsAnnotator from './components/depiction_annotator.vue'
+import documentationAnnotator from './components/documentation_annotator.vue'
+import identifiersAnnotator from './components/identifier_annotator.vue'
+import tagsAnnotator from './components/tag_annotator.vue'
+import notesAnnotator from './components/note_annotator.vue'
+import data_attributesAnnotator from './components/data_attribute_annotator.vue'
+import alternate_valuesAnnotator from './components/alternate_value_annotator.vue'
+import citationsAnnotator from './components/citation_annotator.vue'
+import protocol_relationshipsAnnotator from './components/protocol_annotator.vue'
 
-import Icons from './images/icons.js';
+import Icons from './images/icons.js'
 
 export default {
-	mixins: [CRUD],
-	name: 'radial-annotator',
-	components: {
-		radialMenu,
-		modal,
-		spinner,
-		notesAnnotator,
-		citationsAnnotator,
-		confidencesAnnotator,
-		depictionsAnnotator,
-		data_attributesAnnotator,
-		documentationAnnotator,
-		alternate_valuesAnnotator,
-		identifiersAnnotator,
-		tagsAnnotator,
-		protocol_relationshipsAnnotator
-	},
-	props: {
-		reload: {
-			type: Boolean,
-			default: false
-		},
-		globalId: {
-			type: String,
-			required: true
-		}
-	},
-	data: function() {
-		return {
-			currentAnnotator: undefined,
-			display: false,
-			url: undefined,
-			globalIdSaved: undefined,
-			metadata: undefined,
-			title: "Radial annotator",
-			menuOptions: []
-		}
-	},
-	computed: {
-		menuCreated() {
-			return this.menuOptions.length > 0
-		}
-	},
-	methods: {
-		closeModal: function() {
-			this.display = false;
-			this.eventClose();
-			this.$emit('close');
-		},
-		displayAnnotator: function() {
-			this.display = true;
-			this.loadMetadata();
-		},
-		loadMetadata: function() {
-			if (this.globalId == this.globalIdSaved && this.menuCreated && !this.reload) return
-			this.globalIdSaved = this.globalId;
+  mixins: [CRUD],
+  name: 'RadialAnnotator',
+  components: {
+    radialMenu,
+    modal,
+    spinner,
+    notesAnnotator,
+    citationsAnnotator,
+    confidencesAnnotator,
+    depictionsAnnotator,
+    data_attributesAnnotator,
+    documentationAnnotator,
+    alternate_valuesAnnotator,
+    identifiersAnnotator,
+    tagsAnnotator,
+    protocol_relationshipsAnnotator
+  },
+  props: {
+    reload: {
+      type: Boolean,
+      default: false
+    },
+    globalId: {
+      type: String,
+      required: true
+    }
+  },
+  data: function () {
+    return {
+      currentAnnotator: undefined,
+      display: false,
+      url: undefined,
+      globalIdSaved: undefined,
+      metadata: undefined,
+      title: 'Radial annotator',
+      menuOptions: []
+    }
+  },
+  computed: {
+    menuCreated () {
+      return this.menuOptions.length > 0
+    }
+  },
+  methods: {
+    closeModal: function () {
+      this.display = false
+      this.eventClose()
+      this.$emit('close')
+    },
+    displayAnnotator: function () {
+      this.display = true
+      this.loadMetadata()
+    },
+    loadMetadata: function () {
+      if (this.globalId == this.globalIdSaved && this.menuCreated && !this.reload) return
+      this.globalIdSaved = this.globalId
 
-			var that = this;
-			this.getList(`/annotations/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
-				that.metadata = response.body;
-				that.title = response.body.object_tag;
-				that.menuOptions = that.createMenuOptions(response.body.annotation_types);
-				that.url = response.body.url;
-			});
-		},
-		createMenuOptions: function(annotators) {
-			var menu = [];
-			var that = this;
-			for(var key in annotators) {
-				menu.push({
-					label: (key.charAt(0).toUpperCase() + key.slice(1)).replace("_"," "),
-					total: annotators[key].total,
-					event: key,
-					icon: {
-						url: Icons[key],
-						width: '20',
-						height: '20'
-					}
-				})
-			}
-			return menu;
-		},
-		setTotal(total) {
-			var that = this;
-			let position = this.menuOptions.findIndex(function(element) {
-				return element.event == that.currentAnnotator
-			})
-			this.menuOptions[position].total = total;
-		},
-		eventClose: function() {
-			let event = new CustomEvent("annotator:close", {
+      var that = this
+      this.getList(`/annotations/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
+        that.metadata = response.body
+        that.title = response.body.object_tag
+        that.menuOptions = that.createMenuOptions(response.body.annotation_types)
+        that.url = response.body.url
+      })
+    },
+    createMenuOptions: function (annotators) {
+      var menu = []
+      var that = this
+      for (var key in annotators) {
+        menu.push({
+          label: (key.charAt(0).toUpperCase() + key.slice(1)).replace('_', ' '),
+          total: annotators[key].total,
+          event: key,
+          icon: {
+            url: Icons[key],
+            width: '20',
+            height: '20'
+          }
+        })
+      }
+      return menu
+    },
+    setTotal (total) {
+      var that = this
+      let position = this.menuOptions.findIndex(function (element) {
+        return element.event == that.currentAnnotator
+      })
+      this.menuOptions[position].total = total
+    },
+    eventClose: function () {
+      let event = new CustomEvent('annotator:close', {
 			  detail: {
 			  	metadata: this.metadata
 			  }
-			});
-			document.dispatchEvent(event);
-		}
-	}
+      })
+      document.dispatchEvent(event)
+    }
+  }
 }
 </script>
 <style type="text/css" lang="scss">
@@ -210,4 +209,4 @@ export default {
 		}
 	}
 
-</style> 
+</style>

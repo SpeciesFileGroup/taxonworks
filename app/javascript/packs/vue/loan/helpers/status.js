@@ -1,8 +1,8 @@
 export default [
-          'Destroyed',
-          'Donated',
-          'Loaned on',
-          'Lost',
-          'Retained',
-          'Returned'
-        ]
+  'Destroyed',
+  'Donated',
+  'Loaned on',
+  'Lost',
+  'Retained',
+  'Returned'
+]

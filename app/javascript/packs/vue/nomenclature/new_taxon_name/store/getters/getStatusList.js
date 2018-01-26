@@ -1,3 +1,3 @@
-module.exports = function(state) {
-	return state.status;
-};
+module.exports = function (state) {
+  return state.status
+}

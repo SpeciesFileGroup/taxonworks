@@ -1,3 +1,3 @@
-module.exports = function(state, value) {
-	state.panels.otu = value;
-};
+module.exports = function (state, value) {
+  state.panels.otu = value
+}

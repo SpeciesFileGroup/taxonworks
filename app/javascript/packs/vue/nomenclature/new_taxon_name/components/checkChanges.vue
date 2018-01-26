@@ -1,28 +1,28 @@
 <template>
-	<transition name="fade">
-		<div id="check-unsaved" class="panel content soft-validation-box" v-if="unsavedChanges">
-			<span data-icon="warning">You have unsaved changes.</span>
-		</div>
-	</transition>
+  <transition name="fade">
+    <div id="check-unsaved" class="panel content soft-validation-box" v-if="unsavedChanges">
+      <span data-icon="warning">You have unsaved changes.</span>
+    </div>
+  </transition>
 </template>
 
 <script>
 
-  	const GetterNames = require('../store/getters/getters').GetterNames;
+  	const GetterNames = require('../store/getters/getters').GetterNames
 
-	export default {
-		computed: {
-			unsavedChanges() {
-				return (this.$store.getters[GetterNames.GetLastChange] > this.$store.getters[GetterNames.GetLastSave])
-			},
-			taxon() {
-				return this.$store.getters[GetterNames.GetTaxon]
-			}
-		},
-		data: function() {
-			return {
-			copyVal: undefined,
-			filterCompare: 
+export default {
+  computed: {
+    unsavedChanges () {
+      return (this.$store.getters[GetterNames.GetLastChange] > this.$store.getters[GetterNames.GetLastSave])
+    },
+    taxon () {
+      return this.$store.getters[GetterNames.GetTaxon]
+    }
+  },
+  data: function () {
+    return {
+      copyVal: undefined,
+      filterCompare:
 				['name',
 				 'parent',
 				 'verbatim_author',
@@ -33,9 +33,9 @@
 				 'neuter_name',
 				 'etymology'
 				]
-			}
-		},
-	}
+    }
+  }
+}
 </script>
 
 <style type="text/css">

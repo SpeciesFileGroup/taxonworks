@@ -1,3 +1,3 @@
-module.exports = function(state, value) {
-	state.settings.modalType = value;
-};
+module.exports = function (state, value) {
+  state.settings.modalType = value
+}

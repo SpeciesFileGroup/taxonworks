@@ -1,11 +1,10 @@
 <template>
   <div id="vue_type_specimens">
-    <spinner 
+    <spinner
       v-if="settings.loading || settings.saving"
-      :full-screen="true" 
-      :legend="(settings.loading ? 'Loading...' : 'Saving...')" 
-      :logo-size="{ width: '100px', height: '100px'}">
-    </spinner>
+      :full-screen="true"
+      :legend="(settings.loading ? 'Loading...' : 'Saving...')"
+      :logo-size="{ width: '100px', height: '100px'}"/>
     <div class="flex-separate middle">
       <h1>{{ isNew }} type specimen</h1>
       <span @click="reloadApp" data-icon="reset" class="middle reload-app">Reset</span>
@@ -13,13 +12,13 @@
     <div>
       <div class="flexbox horizontal-center-content align-start">
         <div class="ccenter item separate-right">
-          <name-section class="separate-bottom" v-if="!taxon"></name-section>
-          <metadata-section class="separate-bottom"></metadata-section>
-          <type-material-section class="separate-bottom"></type-material-section>
+          <name-section class="separate-bottom" v-if="!taxon"/>
+          <metadata-section class="separate-bottom"/>
+          <type-material-section class="separate-bottom"/>
         </div>
         <div v-if="taxon" class="cright item separate-left">
           <div id="cright-panel">
-            <type-box class="separate-bottom"></type-box>
+            <type-box class="separate-bottom"/>
           </div>
         </div>
       </div>
@@ -29,78 +28,78 @@
 
 <script>
 
-  import nameSection from './components/nameSection.vue';
-  import typeMaterialSection from './components/typeMaterial.vue';
-  import metadataSection from './components/metadataSection.vue';
-  import typeBox from './components/typeBox.vue';
-  import spinner from '../components/spinner.vue';
+import nameSection from './components/nameSection.vue'
+import typeMaterialSection from './components/typeMaterial.vue'
+import metadataSection from './components/metadataSection.vue'
+import typeBox from './components/typeBox.vue'
+import spinner from '../components/spinner.vue'
 
-  import ActionNames from './store/actions/actionNames';
-  import { GetterNames } from './store/getters/getters';
+import ActionNames from './store/actions/actionNames'
+import { GetterNames } from './store/getters/getters'
 
-  import setParamsId from './helpers/setParamsId';
+import setParamsId from './helpers/setParamsId'
 
-  export default {
-    components: {
-      nameSection,
-      typeBox,
-      typeMaterialSection,
-      metadataSection,
-      spinner
+export default {
+  components: {
+    nameSection,
+    typeBox,
+    typeMaterialSection,
+    metadataSection,
+    spinner
+  },
+  computed: {
+    taxonMaterial () {
+      return this.$store.getters[GetterNames.GetTaxon]
     },
-    computed: {
-      taxonMaterial() {
-        return this.$store.getters[GetterNames.GetTaxon]
-      },
-      taxon() {
-        return this.$store.getters[GetterNames.GetTaxon]
-      },
-      settings() {
-        return this.$store.getters[GetterNames.GetSettings]
-      },
-      isNew() {
-        return this.$store.getters[GetterNames.GetTypeMaterial].id ? 'Edit' : 'New'
+    taxon () {
+      return this.$store.getters[GetterNames.GetTaxon]
+    },
+    settings () {
+      return this.$store.getters[GetterNames.GetSettings]
+    },
+    isNew () {
+      return this.$store.getters[GetterNames.GetTypeMaterial].id ? 'Edit' : 'New'
+    }
+  },
+  mounted: function () {
+    this.loadTaxonTypes()
+  },
+  watch: {
+    taxon (newVal) {
+      if (newVal != undefined) {
+        setParamsId('protonym_id', newVal.id)
       }
+    }
+  },
+  methods: {
+    reloadApp: function () {
+      window.location.href = '/tasks/type_material/edit_type_material'
     },
-    mounted: function() {
-      this.loadTaxonTypes();
-    },
-    watch: {
-      taxon(newVal) {
-        if(newVal != undefined) {
-          setParamsId('protonym_id', newVal.id);
-        }
-      }
-    },
-    methods: {
-      reloadApp: function() {
-        window.location.href = '/tasks/type_material/edit_type_material'
-      },
-      loadTaxonTypes() {
-        let urlParams = new URLSearchParams(window.location.search);
-        let protonym_id = urlParams.get('protonym_id');
-        let type_id = urlParams.get('type_material_id');
+    loadTaxonTypes () {
+      let urlParams = new URLSearchParams(window.location.search)
+      let protonym_id = urlParams.get('protonym_id')
+      let type_id = urlParams.get('type_material_id')
 
-        if(/^\d+$/.test(protonym_id)) {
-          this.$store.dispatch(ActionNames.LoadTaxonName, protonym_id).then((response) => {
-            this.$store.dispatch(ActionNames.LoadTypeMaterials, protonym_id).then(response => {
-              if(/^\d+$/.test(protonym_id)) {
-                this.loadType(response, type_id)
-              }
-            })
+      if (/^\d+$/.test(protonym_id)) {
+        this.$store.dispatch(ActionNames.LoadTaxonName, protonym_id).then((response) => {
+          this.$store.dispatch(ActionNames.LoadTypeMaterials, protonym_id).then(response => {
+            if (/^\d+$/.test(protonym_id)) {
+              this.loadType(response, type_id)
+            }
           })
-        }
-      },
-      loadType(list, type_id) {
-        let findType = list.find((type) => {
-          return type.id == type_id
         })
-        if(findType) {
-          this.$store.dispatch(ActionNames.LoadTypeMaterial, findType)
-        }
+      }
+    },
+    loadType (list, type_id) {
+      let findType = list.find((type) => {
+        return type.id == type_id
+      })
+      if (findType) {
+        this.$store.dispatch(ActionNames.LoadTypeMaterial, findType)
       }
     }
   }
+}
 
 </script>
 <style lang="scss">
@@ -132,7 +131,6 @@
        margin-top:-65px;
        visibility:hidden;
     }
-
 
     .types_field {
       input[type="text"], textarea {

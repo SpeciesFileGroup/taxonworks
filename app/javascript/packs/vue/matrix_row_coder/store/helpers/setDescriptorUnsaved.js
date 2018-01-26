@@ -1,4 +1,4 @@
-export default function setDescriptorUnsaved(descriptor) {
-    descriptor.isUnsaved = true;
-    descriptor.needsCountdown = true;
+export default function setDescriptorUnsaved (descriptor) {
+  descriptor.isUnsaved = true
+  descriptor.needsCountdown = true
 }

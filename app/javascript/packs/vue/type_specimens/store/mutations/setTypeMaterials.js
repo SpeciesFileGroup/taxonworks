@@ -1,3 +1,3 @@
-export default function(state, value) {
-	return state.type_materials = value
+export default function (state, value) {
+  return state.type_materials = value
 }

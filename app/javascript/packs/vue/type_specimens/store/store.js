@@ -1,18 +1,18 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
+import Vue from 'vue'
+import Vuex from 'vuex'
 
 import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
 
-Vue.use(Vuex);
+Vue.use(Vuex)
 
-function makeInitialState() {
+function makeInitialState () {
   return {
     settings: {
       loading: false,
       saving: false,
-      materialTab: 'new',
+      materialTab: 'new'
     },
     taxon_name: undefined,
     type_material: {
@@ -29,7 +29,7 @@ function makeInitialState() {
         collecting_event_id: undefined,
         buffered_collecting_event: undefined,
         buffered_determinations: undefined,
-        buffered_other_labels: undefined,
+        buffered_other_labels: undefined
       },
       origin_citation_attributes: undefined,
       type_designator_roles: []
@@ -38,15 +38,15 @@ function makeInitialState() {
   }
 }
 
-function newStore() {
+function newStore () {
   return new Vuex.Store({
     state: makeInitialState(),
     getters: GetterFunctions,
     mutations: MutationFunctions,
     actions: ActionFunctions
-  });
+  })
 }
 
 export {
   newStore
-};
+}

@@ -1,3 +1,3 @@
-module.exports = function(state) {
-	return state.settings.lastChange;
-};
+module.exports = function (state) {
+  return state.settings.lastChange
+}

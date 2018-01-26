@@ -1,3 +1,3 @@
-export default function(state, value) {
-	state.settings.materialTab = value;
+export default function (state, value) {
+  state.settings.materialTab = value
 }

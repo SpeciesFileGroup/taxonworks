@@ -1,4 +1,4 @@
-export default function(state) {    
+export default function (state) {
   state.type_material = {
     id: undefined,
     biological_object_id: undefined,

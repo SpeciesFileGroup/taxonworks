@@ -1,12 +1,12 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
+import Vue from 'vue'
+import Vuex from 'vuex'
 
-const getters = require('./getters/getters');
-const mutations = require('./mutations/mutations');
+const getters = require('./getters/getters')
+const mutations = require('./mutations/mutations')
 
-Vue.use(Vuex);
+Vue.use(Vuex)
 
-function makeInitialState() {
+function makeInitialState () {
   return {
     selected: {
       otu: undefined,
@@ -18,17 +18,17 @@ function makeInitialState() {
     citations: [],
     source_citations: [],
     otu_citations: []
-  };
+  }
 }
 
-function newStore() {
+function newStore () {
   return new Vuex.Store({
     state: makeInitialState(),
     getters: getters.GetterFunctions,
     mutations: mutations.MutationFunctions
-  });
+  })
 }
 
 module.exports = {
   newStore
-};
+}

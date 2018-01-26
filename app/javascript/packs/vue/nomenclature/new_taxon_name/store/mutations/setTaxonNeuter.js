@@ -1,3 +1,3 @@
-module.exports = function(state, name) {
-	state.taxon_name.neuter_name = name;
-};
+module.exports = function (state, name) {
+  state.taxon_name.neuter_name = name
+}

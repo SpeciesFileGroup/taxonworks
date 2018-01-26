@@ -1,3 +1,3 @@
-module.exports = function(state, topic) {
-	state.selected.topics.push(topic);
-};
+module.exports = function (state, topic) {
+  state.selected.topics.push(topic)
+}

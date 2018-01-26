@@ -1,3 +1,3 @@
-module.exports = function(state, value) {
-	state.taxonType = value;
-};
+module.exports = function (state, value) {
+  state.taxonType = value
+}

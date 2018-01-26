@@ -1,41 +1,41 @@
 <template>
 
-	<div v-if="checkSoftValidation()" :class="{ 'validation-warning' : errors }" class="panel content soft-validation-box">
-		<div class="header flex-separate">
-			<h3>Soft Validation</h3> 
-		</div>
-		<div class="body">
-			<div v-for="key in Object.keys(errors)" v-if="errors[key].list.length">
-				<hr>
-				<h3>{{ errors[key].title }}</h3>
-				<hr>
-				<ul class="no_bullets">
-					<li v-for="error in errors[key].list"> 
-						<span data-icon="warning"></span><span v-html="error.message"></span>
-					</li>
-				</ul>
-			</div>
-		</div>
-	</div>
+  <div v-if="checkSoftValidation()" :class="{ 'validation-warning' : errors }" class="panel content soft-validation-box">
+    <div class="header flex-separate">
+      <h3>Soft Validation</h3>
+    </div>
+    <div class="body">
+      <div v-for="key in Object.keys(errors)" v-if="errors[key].list.length">
+        <hr>
+        <h3>{{ errors[key].title }}</h3>
+        <hr>
+        <ul class="no_bullets">
+          <li v-for="error in errors[key].list">
+            <span data-icon="warning"/><span v-html="error.message"/>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
 </template>
 
 <script>
 
-const GetterNames = require('../store/getters/getters').GetterNames;
-const MutationNames = require('../store/mutations/mutations').MutationNames;
+const GetterNames = require('../store/getters/getters').GetterNames
+const MutationNames = require('../store/mutations/mutations').MutationNames
 
 export default {
-	computed: {
-		errors() {
-			return this.$store.getters[GetterNames.GetSoftValidation]
-		},
-	},
-	methods: {
-		checkSoftValidation: function() {
-			return (this.errors.taxon_name.list.length || this.errors.taxonStatusList.list.length || this.errors.taxonRelationshipList.list.length)
-		}
-	}
+  computed: {
+    errors () {
+      return this.$store.getters[GetterNames.GetSoftValidation]
+    }
+  },
+  methods: {
+    checkSoftValidation: function () {
+      return (this.errors.taxon_name.list.length || this.errors.taxonStatusList.list.length || this.errors.taxonRelationshipList.list.length)
+    }
+  }
 }
 </script>
 <style lang="scss">
@@ -43,7 +43,7 @@ export default {
 		border-left: 4px solid #ff8c00;
 	}
 	.soft-validation-box {
-		background-color: #FFF9F9;		
+		background-color: #FFF9F9;
 		.body {
 			padding: 12px;
 		}

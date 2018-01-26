@@ -1,3 +1,3 @@
-module.exports = function(state) {
-	return state.rankGroup;
-};
+module.exports = function (state) {
+  return state.rankGroup
+}
