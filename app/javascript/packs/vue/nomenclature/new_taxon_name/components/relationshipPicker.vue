@@ -1,22 +1,31 @@
 <template>
   <form class="panel basic-information">
-    <a name="relationship" class="anchor"/>
-    <div class="header flex-separate middle" :class="{ 'validation-warning' : softValidation.taxonRelationshipList.list.length }">
-      <h3 class="">Relationship</h3>
-      <expand @changed="expanded = !expanded" :expanded="expanded"/>
+    <a
+      name="relationship"
+      class="anchor"/>
+    <div
+      class="header flex-separate middle"
+      :class="{ 'validation-warning' : softValidation.taxonRelationshipList.list.length }">
+      <h3>Relationship</h3>
+      <expand
+        @changed="expanded = !expanded"
+        :expanded="expanded"/>
     </div>
-    <div class="body" v-if="expanded">
+    <div
+      class="body"
+      v-if="expanded">
       <div v-if="!taxonRelation">
         <hard-validation field="object_taxon_name_id">
-          <autocomplete slot="body"
-                        url="/taxon_names/autocomplete"
-                        label="label_html"
-                        min="3"
-                        v-model="taxonRelation"
-                        event-send="autocompleteTaxonRelationshipSelected"
-                        placeholder="Search taxon name for the new relationship..."
-                        :add-params="{ type: 'Protonym', 'nomenclature_group[]': getRankGroup }"
-                        param="term"/>
+          <autocomplete
+            slot="body"
+            url="/taxon_names/autocomplete"
+            label="label_html"
+            min="3"
+            v-model="taxonRelation"
+            event-send="autocompleteTaxonRelationshipSelected"
+            placeholder="Search taxon name for the new relationship..."
+            :add-params="{ type: 'Protonym', 'nomenclature_group[]': getRankGroup }"
+            param="term"/>
         </hard-validation>
       </div>
       <div v-else>
@@ -30,31 +39,62 @@
           name-module="Relationship"
           display-name="subject_status_tag"/>
         <div class="switch-radio">
-          <input name="relationship-picker-options" id="relationship-picker-common" checked type="radio" class="normal-input button-active" @click="showAdvance = false">
+          <input
+            name="relationship-picker-options"
+            id="relationship-picker-common"
+            checked
+            type="radio"
+            class="normal-input button-active"
+            @click="showAdvance = false">
           <label for="relationship-picker-common">Common</label>
-          <input name="relationship-picker-options" id="relationship-picker-advanced" type="radio" class="normal-input" @click="showAdvance = true">
+          <input
+            name="relationship-picker-options"
+            id="relationship-picker-advanced"
+            type="radio"
+            class="normal-input"
+            @click="showAdvance = true">
           <label for="relationship-picker-advanced">Advanced</label>
-          <input name="relationship-picker-options" id="relationship-picker-showall" type="radio" class="normal-input" @click="activeModal(true)">
+          <input
+            name="relationship-picker-options"
+            id="relationship-picker-showall"
+            type="radio"
+            class="normal-input"
+            @click="activeModal(true)">
           <label for="relationship-picker-showall">Show all</label>
         </div>
         <p class="inline">
           <span v-html="taxonRelation.label_html"/>
-          <span type="button" title="Undo" class="circle-button button-default btn-undo" @click="taxonRelation = undefined"/>
+          <span
+            type="button"
+            title="Undo"
+            class="circle-button button-default btn-undo"
+            @click="taxonRelation = undefined"/>
         </p>
         <div class="separate-top">
-          <autocomplete v-if="showAdvance"
-                        :array-list="objectLists.allList"
-                        label="subject_status_tag"
-                        min="3"
-                        time="0"
-                        placeholder="Search"
-                        event-send="autocompleteRelationshipSelected"
-                        @getItem="addEntry"
-                        param="term"/>
-          <list-common v-if="!showAdvance" :object-lists="objectLists.commonList" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"/>
+          <autocomplete
+            v-if="showAdvance"
+            :array-list="objectLists.allList"
+            label="subject_status_tag"
+            min="3"
+            time="0"
+            placeholder="Search"
+            event-send="autocompleteRelationshipSelected"
+            @getItem="addEntry"
+            param="term"/>
+          <list-common
+            v-if="!showAdvance"
+            :object-lists="objectLists.commonList"
+            @addEntry="addEntry"
+            display="subject_status_tag"
+            :list-created="GetRelationshipsCreated"/>
         </div>
       </div>
-      <list-entrys @update="loadTaxonRelationships" @addCitation="setRelationship" @delete="removeRelationship" :list="GetRelationshipsCreated" :display="['subject_status_tag', { link: '/tasks/nomenclature/browse/', label: 'object_object_tag', param: 'object_taxon_name_id'}]"/>
+      <list-entrys
+        @update="loadTaxonRelationships"
+        @addCitation="setRelationship"
+        @delete="removeRelationship"
+        :list="GetRelationshipsCreated"
+        :display="['subject_status_tag', { link: '/tasks/nomenclature/browse/', label: 'object_object_tag', param: 'object_taxon_name_id'}]"/>
     </div>
   </form>
 </template>

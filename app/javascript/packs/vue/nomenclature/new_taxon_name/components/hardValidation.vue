@@ -4,7 +4,10 @@
       <slot name="body"/>
     </div>
     <ul class="hardValidation no_bullets">
-      <li class="hardValidation" v-for="error in displayError(field)" v-html="error"/>
+      <li
+        class="hardValidation"
+        v-for="error in displayError(field)"
+        v-html="error"/>
     </ul>
   </div>
 </template>
@@ -24,7 +27,7 @@ export default {
       return this.$store.getters[GetterNames.GetHardValidation]
     }
   },
-	    methods: {
+  methods: {
     existError: function (type) {
       return (this.errors && this.errors.hasOwnProperty(type))
     },
@@ -35,6 +38,6 @@ export default {
         return undefined
       }
     }
-	    }
+  }
 }
 </script>

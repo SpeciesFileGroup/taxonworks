@@ -1,6 +1,9 @@
 <template>
   <transition name="fade">
-    <div id="check-unsaved" class="panel content soft-validation-box" v-if="unsavedChanges">
+    <div
+      id="check-unsaved"
+      class="panel content soft-validation-box"
+      v-if="unsavedChanges">
       <span data-icon="warning">You have unsaved changes.</span>
     </div>
   </transition>
@@ -8,7 +11,7 @@
 
 <script>
 
-  	const GetterNames = require('../store/getters/getters').GetterNames
+const GetterNames = require('../store/getters/getters').GetterNames
 
 export default {
   computed: {
@@ -23,31 +26,31 @@ export default {
     return {
       copyVal: undefined,
       filterCompare:
-				['name',
-				 'parent',
-				 'verbatim_author',
-				 'rank_string',
-				 'year_of_publication',
-				 'feminine_name',
-				 'masculine_name',
-				 'neuter_name',
-				 'etymology'
-				]
+        ['name',
+          'parent',
+          'verbatim_author',
+          'rank_string',
+          'year_of_publication',
+          'feminine_name',
+          'masculine_name',
+          'neuter_name',
+          'etymology'
+        ]
     }
   }
 }
 </script>
 
 <style type="text/css">
-	.fade-enter-active, .fade-leave-active {
-	  transition: opacity .5s
-	}
-	.fade-enter, .fade-leave-to {
-	  opacity: 0
-	}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0
+}
 
-	#check-unsaved {
-		bottom: 20px;
-		right: 0px;
-	}
+#check-unsaved {
+  bottom: 20px;
+  right: 0px;
+}
 </style>

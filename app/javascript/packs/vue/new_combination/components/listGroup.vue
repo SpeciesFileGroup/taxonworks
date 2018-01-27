@@ -7,22 +7,29 @@
     </div>
     <template v-if="list.length">
       <ul v-if="expanded">
-        <li class="no_bullets" v-for="taxon in inOrder(list)">
-          <label class="middle new-combination-rank-list-label"
-                 @mousedown="rankChoose = taxon" >
+        <li
+          class="no_bullets"
+          v-for="taxon in inOrder(list)">
+          <label
+            class="middle new-combination-rank-list-label"
+            @mousedown="rankChoose = taxon" >
             <input
               ref="rankRadio"
               :name="`new-combination-rank-list-${rankName}`"
               @keyup.enter="rankChoose = taxon"
-              class="new-combination-rank-list-input" type="radio"
-              :checked="checkRankSelected(taxon)" :value="taxon">
+              class="new-combination-rank-list-input"
+              type="radio"
+              :checked="checkRankSelected(taxon)"
+              :value="taxon">
             <span
               class="new-combination-rank-list-taxon-name"
               v-html="taxon.original_combination"/>
           </label>
         </li>
       </ul>
-      <div class="maxheight content middle item" v-else>
+      <div
+        class="maxheight content middle item"
+        v-else>
         <h3 v-if="selected">
           <b><span v-html="selected.original_combination"/></b>
         </h3>
@@ -128,30 +135,30 @@ export default {
 }
 </script>
 <style lang="scss">
-	.new-combination-rank-list {
-		transition: all 0.5 ease;
-		display: flex;
-		flex-direction: column;
-		.header {
-			padding: 1em;
-			border-bottom: 1px solid #f5f5f5;
-			h3 {
-				font-weight: 300;
-			}
-		}
-		.maxheight {
-			flex:1
-		}
-		.new-combination-rank-list-label {
-			display: flex !important;
-			cursor: pointer;
-			transition: all 0.5 ease;
-		}
-		.new-combination-rank-list-label:hover .new-combination-rank-list-taxon-name {
-			font-weight: bold;
-		}
-		.new-combination-rank-list-input:focus + .new-combination-rank-list-taxon-name {
-			font-weight: bold;
-		}
-	}
+  .new-combination-rank-list {
+    transition: all 0.5 ease;
+    display: flex;
+    flex-direction: column;
+    .header {
+      padding: 1em;
+      border-bottom: 1px solid #f5f5f5;
+      h3 {
+        font-weight: 300;
+      }
+    }
+    .maxheight {
+      flex:1
+    }
+    .new-combination-rank-list-label {
+      display: flex !important;
+      cursor: pointer;
+      transition: all 0.5 ease;
+    }
+    .new-combination-rank-list-label:hover .new-combination-rank-list-taxon-name {
+      font-weight: bold;
+    }
+    .new-combination-rank-list-input:focus + .new-combination-rank-list-taxon-name {
+      font-weight: bold;
+    }
+  }
 </style>

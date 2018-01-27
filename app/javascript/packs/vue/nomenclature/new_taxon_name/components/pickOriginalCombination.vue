@@ -2,67 +2,91 @@
   <div class="original-combination-picker">
     <form class="horizontal-left-content">
       <div class="button-current separate-right">
-        <button v-if="!existOriginalCombination" type="button" @click="addOriginalCombination()" class="normal-input button button-submit">Set as current</button>
+        <button
+          v-if="!existOriginalCombination"
+          type="button"
+          @click="addOriginalCombination()"
+          class="normal-input button button-submit">Set as current
+        </button>
       </div>
       <div>
-        <draggable class="flex-wrap-column" v-model="taxonOriginal" v-if="!existOriginalCombination"
-                   :options="{
-                     animation: 150,
-                     group: {
-                       name: 'combination',
-                       put: isGenus,
-                       pull: true
-                     },
-                     filter: '.item-filter'
+        <draggable
+          class="flex-wrap-column"
+          v-model="taxonOriginal"
+          v-if="!existOriginalCombination"
+          :options="{
+            animation: 150,
+            group: {
+              name: 'combination',
+              put: isGenus,
+              pull: true
+            },
+            filter: '.item-filter'
         }">
-          <div v-for="item in taxonOriginal" class="horizontal-left-content middle item-draggable">
-            <input type="text" class="normal-input current-taxon" :value="item.name" disabled>
-            <span class="handle" data-icon="scroll-v"/>
+          <div
+            v-for="item in taxonOriginal"
+            class="horizontal-left-content middle item-draggable">
+            <input
+              type="text"
+              class="normal-input current-taxon"
+              :value="item.name"
+              disabled>
+            <span
+              class="handle"
+              data-icon="scroll-v"/>
           </div>
         </draggable>
       </div>
     </form>
     <hr>
-    <original-combination class="separate-top separate-bottom"
-                          nomenclature-group="Genus"
-                          @processed="saveTaxonName"
-                          @delete="saveTaxonName"
-                          @create="saveTaxonName"
-                          :disabled="!existOriginalCombination"
-                          :options="{
-                            animation: 150,
-                            group: {
-                              name: 'combination',
-                              put: isGenus,
-                              pull: false
-                            },
-                            filter: '.item-filter'
-                          }"
-                          :relationships="genusGroup"/>
-    <original-combination class="separate-top separate-bottom"
-                          v-if="!isGenus"
-                          nomenclature-group="Species"
-                          @processed="saveTaxonName"
-                          @delete="saveTaxonName"
-                          @create="saveTaxonName"
-                          :disabled="!existOriginalCombination"
-                          :options="{
-                            animation: 150,
-                            group: {
-                              name: 'combination',
-                              put: !isGenus,
-                              pull: false
-                            },
-                            filter: '.item-filter'
-                          }"
-                          :relationships="speciesGroup"/>
+    <original-combination
+      class="separate-top separate-bottom"
+      nomenclature-group="Genus"
+      @processed="saveTaxonName"
+      @delete="saveTaxonName"
+      @create="saveTaxonName"
+      :disabled="!existOriginalCombination"
+      :options="{
+        animation: 150,
+        group: {
+          name: 'combination',
+          put: isGenus,
+          pull: false
+        },
+        filter: '.item-filter'
+      }"
+      :relationships="genusGroup"/>
+    <original-combination
+      class="separate-top separate-bottom"
+      v-if="!isGenus"
+      nomenclature-group="Species"
+      @processed="saveTaxonName"
+      @delete="saveTaxonName"
+      @create="saveTaxonName"
+      :disabled="!existOriginalCombination"
+      :options="{
+        animation: 150,
+        group: {
+          name: 'combination',
+          put: !isGenus,
+          pull: false
+        },
+        filter: '.item-filter'
+      }"
+      :relationships="speciesGroup"/>
     <div class="original-combination separate-top separate-bottom">
       <div class="flex-wrap-column rank-name-label">
         <label class="row capitalize"/>
       </div>
-      <div v-if="existOriginalCombination" class="flex-separate middle">
-        <span class="original-combination-name" v-html="taxon.original_combination"/>
-        <span class="circle-button btn-delete" @click="removeAllCombinations()"/>
+      <div
+        v-if="existOriginalCombination"
+        class="flex-separate middle">
+        <span
+          class="original-combination-name"
+          v-html="taxon.original_combination"/>
+        <span
+          class="circle-button btn-delete"
+          @click="removeAllCombinations()"/>
       </div>
     </div>
   </div>
@@ -71,9 +95,9 @@
 
 const GetterNames = require('../store/getters/getters').GetterNames
 const ActionNames = require('../store/actions/actions').ActionNames
-  	const draggable = require('vuedraggable')
+const draggable = require('vuedraggable')
 const listEntrys = require('./listEntrys.vue').default
-  	const originalCombination = require('./originalCombination.vue').default
+const originalCombination = require('./originalCombination.vue').default
 
 export default {
   components: {
@@ -127,9 +151,6 @@ export default {
   },
   methods: {
     saveTaxonName: function () {
-      var taxon_name = {
-        taxon_name: this.taxon
-      }
       this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
     },
     createTaxonOriginal: function () {
@@ -180,21 +201,19 @@ export default {
 </script>
 <style lang="scss">
 .original-combination-picker {
-	.button-current {
-		width: 100px;
-	}
-	.current-taxon {
-		width: 400px;
-	}
-	.original-combination-name {
-		margin-right:35px;
-		width: 400px;
-	}
-	.handle {
-		width: 15px;
-		background-position: center;
-
-	}
+  .button-current {
+    width: 100px;
+  }
+  .current-taxon {
+    width: 400px;
+  }
+  .original-combination-name {
+    margin-right:35px;
+    width: 400px;
+  }
+  .handle {
+    width: 15px;
+    background-position: center;
+  }
 }
-
 </style>

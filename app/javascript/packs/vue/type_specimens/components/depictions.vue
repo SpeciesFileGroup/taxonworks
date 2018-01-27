@@ -1,12 +1,27 @@
 <template>
   <div class="depiction-container">
-    <spinner v-if="false" :show-spinner="false" legend="Create a type specimen to upload images"/>
-    <dropzone class="dropzone-card separate-bottom" @vdropzone-sending="sending" @vdropzone-file-added="addedfile" @vdropzone-success="success" ref="depiction" id="depiction" url="/depictions" :use-custom-dropzone-options="true" :dropzone-options="dropzone"/>
-    <div class="flex-wrap-row" v-if="figuresList.length">
-      <depictionImage v-for="item in figuresList"
-                      @delete="removeDepiction"
-                      :key="item.id"
-                      :depiction="item"/>
+    <spinner
+      v-if="false"
+      :show-spinner="false"
+      legend="Create a type specimen to upload images"/>
+    <dropzone
+      class="dropzone-card separate-bottom"
+      @vdropzone-sending="sending"
+      @vdropzone-file-added="addedfile"
+      @vdropzone-success="success"
+      ref="depiction"
+      id="depiction"
+      url="/depictions"
+      :use-custom-dropzone-options="true"
+      :dropzone-options="dropzone"/>
+    <div
+      class="flex-wrap-row"
+      v-if="figuresList.length">
+      <depictionImage
+        v-for="item in figuresList"
+        @delete="removeDepiction"
+        :key="item.id"
+        :depiction="item"/>
     </div>
   </div>
 
@@ -16,7 +31,6 @@
 
 import ActionNames from '../store/actions/actionNames'
 import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
 import { GetDepictions, DestroyDepiction } from '../request/resources'
 
 import dropzone from '../../components/dropzone.vue'

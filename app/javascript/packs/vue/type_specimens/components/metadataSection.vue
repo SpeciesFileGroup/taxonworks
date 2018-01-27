@@ -1,22 +1,36 @@
 <template>
   <div class="panel type-specimen-box">
-    <spinner :show-spinner="false" :show-legend="false" v-if="!protonymId"/>
+    <spinner
+      :show-spinner="false"
+      :show-legend="false"
+      v-if="!protonymId"/>
     <div class="header flex-separate middle">
       <h3>Metadata</h3>
       <expand v-model="displayBody"/>
     </div>
-    <div class="body" v-if="displayBody">
+    <div
+      class="body"
+      v-if="displayBody">
       <div class="field">
         <label>Type</label>
-        <select v-model="type" class="normal-input">
+        <select
+          v-model="type"
+          class="normal-input">
           <template v-if="checkForTypeList">
-            <option class="capitalize" :value="key" v-for="item, key in types[taxon.nomenclatural_code]">{{ key }}</option>
+            <option
+              class="capitalize"
+              :value="key"
+              v-for="(item, key) in types[taxon.nomenclatural_code]">{{ key }}
+            </option>
           </template>
         </select>
       </div>
       <div class="field">
         <label>Type designator</label>
-        <role-picker v-model="roles" role-type="TypeDesignator" class="types_field"/>
+        <role-picker
+          v-model="roles"
+          role-type="TypeDesignator"
+          class="types_field"/>
       </div>
     </div>
   </div>

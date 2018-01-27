@@ -1,25 +1,42 @@
 <template>
   <div id="taxonNameBox">
-    <modal v-if="showModal" @close="showModal = false">
+    <modal
+      v-if="showModal"
+      @close="showModal = false">
       <h3 slot="header">Confirm delete</h3>
       <div slot="body">Are you sure you want to delete <span v-html="parent.object_tag"/> {{ taxon.name }} ?</div>
       <div slot="footer">
-        <button @click="deleteTaxon()" type="button" class="normal-input button button-delete align-end">Delete</button>
+        <button
+          @click="deleteTaxon()"
+          type="button"
+          class="normal-input button button-delete align-end">Delete</button>
       </div>
     </modal>
     <div class="panel basic-information">
       <div class="content header">
-        <h3 v-if="taxon.id" class="flex-separate middle">
-          <a v-shortkey="[getMacKey(), 't']" @shortkey="switchBrowse()" :href="`/tasks/nomenclature/browse/${taxon.id}`" target="_blank" class="taxonname">
+        <h3
+          v-if="taxon.id"
+          class="flex-separate middle">
+          <a
+            v-shortkey="[getMacKey(), 't']"
+            @shortkey="switchBrowse()"
+            :href="`/tasks/nomenclature/browse/${taxon.id}`"
+            target="_blank"
+            class="taxonname">
             <span v-html="taxon.cached_html"/>
             <span v-html="taxon.cached_author_year"/>
           </a>
           <div class="taxon-options">
             <radial-annotator :global-id="taxon.global_id"/>
-            <span v-if="taxon.id" @click="showModal = true" class="circle-button btn-delete"/>
+            <span
+              v-if="taxon.id"
+              @click="showModal = true"
+              class="circle-button btn-delete"/>
           </div>
         </h3>
-        <h3 class="taxonname" v-else>New</h3>
+        <h3
+          class="taxonname"
+          v-else>New</h3>
       </div>
     </div>
   </div>
@@ -105,25 +122,25 @@ export default {
 }
 </script>
 <style lang="scss">
-	#taxonNameBox {
-		.taxon-options {
-			display: flex;
-			justify-content: space-between;
-			width: 70px;
-		}
-		.radial-annotator {
-			width:30px;
-			margin-left: 14px;
-		}
-		.header {
-			padding: 1em;
-			border: 1px solid #f5f5f5;
-			.circle-button {
-				margin: 0px;
-			}
-		}
-		.taxonname {
-			font-size: 14px;
-		}
-	}
+#taxonNameBox {
+  .taxon-options {
+    display: flex;
+    justify-content: space-between;
+    width: 70px;
+  }
+  .radial-annotator {
+    width:30px;
+    margin-left: 14px;
+  }
+  .header {
+    padding: 1em;
+    border: 1px solid #f5f5f5;
+    .circle-button {
+      margin: 0px;
+    }
+  }
+  .taxonname {
+    font-size: 14px;
+  }
+}
 </style>

@@ -1,11 +1,28 @@
 <template>
   <div class="original-combination">
     <div class="flex-wrap-column rank-name-label">
-      <label v-for="item, index in rankGroup" :class="{ 'new-position' : index == newPosition }" class="row capitalize"> {{ item.name }} </label>
+      <label
+        v-for="(item, index) in rankGroup"
+        :class="{ 'new-position' : index == newPosition }"
+        class="row capitalize">
+        {{ item.name }}
+      </label>
     </div>
     <div>
-      <draggable class="flex-wrap-column" v-model="rankGroup" :options="options" @end="onEnd" @add="onAdd" @autocomplete="searchForChanges(rankGroup,copyRankGroup)" @update="onUpdate" :move="onMove">
-        <div v-for="item, index in rankGroup" class="horizontal-left-content middle" v-if="(GetOriginal(rankGroup[index].name).length == 0)" :key="item.id">
+      <draggable
+        class="flex-wrap-column"
+        v-model="rankGroup"
+        :options="options"
+        @end="onEnd"
+        @add="onAdd"
+        @autocomplete="searchForChanges(rankGroup,copyRankGroup)"
+        @update="onUpdate"
+        :move="onMove">
+        <div
+          v-for="(item, index) in rankGroup"
+          class="horizontal-left-content middle"
+          v-if="(GetOriginal(rankGroup[index].name).length == 0)"
+          :key="item.id">
           <autocomplete
             url="/taxon_names/autocomplete"
             label="label"
@@ -15,17 +32,26 @@
             event-send="autocomplete"
             :add-params="{ type: 'Protonym', 'nomenclature_group[]': nomenclatureGroup }"
             param="term"/>
-          <span class="handle" data-icon="scroll-v"/>
+          <span
+            class="handle"
+            data-icon="scroll-v"/>
         </div>
-        <div class="original-combination-item horizontal-left-content middle" v-else :key="item.id">
-          <div class="">
+        <div
+          class="original-combination-item horizontal-left-content middle"
+          v-else
+          :key="item.id">
+          <div>
             <span class="vue-autocomplete-input normal-input combination middle">
               <span v-html="GetOriginal(rankGroup[index].name).subject_object_tag"/>
             </span>
           </div>
-          <span class="handle" data-icon="scroll-v"/>
+          <span
+            class="handle"
+            data-icon="scroll-v"/>
           <radialAnnotator :global-id="GetOriginal(rankGroup[index].name).global_id"/>
-          <span class="circle-button btn-delete" @click="removeCombination(GetOriginal(rankGroup[index].name))"/>
+          <span
+            class="circle-button btn-delete"
+            @click="removeCombination(GetOriginal(rankGroup[index].name))"/>
         </div>
       </draggable>
     </div>
@@ -33,7 +59,7 @@
 </template>
 <script>
 
-  	const draggable = require('vuedraggable')
+const draggable = require('vuedraggable')
 const GetterNames = require('../store/getters/getters').GetterNames
 const MutationNames = require('../store/mutations/mutations').MutationNames
 const ActionNames = require('../store/actions/actions').ActionNames
@@ -208,10 +234,10 @@ export default {
         that.$emit('delete', response)
       })
     },
-		    onMove: function (evt) {
-		    	this.newPosition = evt.draggedContext.futureIndex
-		        return !evt.related.classList.contains('item-filter')
-		    },
+    onMove: function (evt) {
+      this.newPosition = evt.draggedContext.futureIndex
+      return !evt.related.classList.contains('item-filter')
+    },
     onAdd: function (evt) {
       let that = this
       let index = evt.newIndex
@@ -228,10 +254,10 @@ export default {
     onEnd: function (evt) {
       this.newPosition = -1
     },
-		    onUpdate: function (evt) {
-		    	let newVal = this.rankGroup
-		    	let copyOld = this.copyRankGroup
-		    	let positions = []
+    onUpdate: function (evt) {
+      let newVal = this.rankGroup
+      let copyOld = this.copyRankGroup
+      let positions = []
       newVal.forEach(function (element, index) {
         if (JSON.stringify(newVal[index]) != JSON.stringify(copyOld[index])) {
           if (JSON.stringify(newVal[index].id) != JSON.stringify(copyOld[index].id)) {
@@ -245,13 +271,13 @@ export default {
         this.updateNames()
         this.processChange(positions)
       }
-		    },
-		    updateNames: function (group) {
-		    	var that = this
-		    	this.rankGroup.forEach(function (element, index) {
-		    		that.rankGroup[index].name = that.orderRank[index]
-		    	})
-		    },
+    },
+    updateNames: function (group) {
+      var that = this
+      this.rankGroup.forEach(function (element, index) {
+        that.rankGroup[index].name = that.orderRank[index]
+      })
+    },
     loadCombinations: function (id) {
       this.$http.get(`/taxon_names/${id}/original_combination.json`).then(response => {
         this.$store.commit(MutationNames.SetOriginalCombination, response.body)
@@ -261,22 +287,22 @@ export default {
 }
 </script>
 <style lang="scss">
- .original-combination {
- 	.new-position {
- 		color: red;
- 		font-weight: 900;
- 	}
- 	.original-combination-item {
- 		min-height: 40px
- 	}
- 	.vue-autocomplete-input {
- 		min-height: 28px;
- 		min-width: 400px;
- 		max-width: 500px;
- 	}
- 	.combination {
- 		z-index:1;
- 		background-color: #F5F5F5;
- 	}
- }
+  .original-combination {
+    .new-position {
+      color: red;
+      font-weight: 900;
+    }
+    .original-combination-item {
+      min-height: 40px
+    }
+    .vue-autocomplete-input {
+      min-height: 28px;
+      min-width: 400px;
+      max-width: 500px;
+    }
+    .combination {
+      z-index:1;
+      background-color: #F5F5F5;
+    }
+  }
 </style>

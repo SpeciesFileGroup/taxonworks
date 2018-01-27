@@ -1,13 +1,23 @@
 <template>
   <form class="panel basic-information">
-    <a name="type" class="anchor"/>
-    <div class="header flex-separate middle" :class="{ 'validation-warning' : softValidation.taxonRelationshipList.list.length }">
-      <h3 class="">Type</h3>
-      <expand @changed="expanded = !expanded" :expanded="expanded"/>
+    <a
+      name="type"
+      class="anchor"/>
+    <div
+      class="header flex-separate middle"
+      :class="{ 'validation-warning' : softValidation.taxonRelationshipList.list.length }">
+      <h3>Type</h3>
+      <expand
+        @changed="expanded = !expanded"
+        :expanded="expanded"/>
     </div>
-    <div class="body" v-if="expanded">
+    <div
+      class="body"
+      v-if="expanded">
       <div v-if="!taxonRelation">
-        <hard-validation field="type" v-if="!showForThisGroup(['SpeciesGroup'], taxon) && !(GetRelationshipsCreated.length)">
+        <hard-validation
+          field="type"
+          v-if="!showForThisGroup(['SpeciesGroup'], taxon) && !(GetRelationshipsCreated.length)">
           <autocomplete
             slot="body"
             url="/taxon_names/autocomplete"
@@ -37,24 +47,51 @@
           name-module="Types"
           display-name="subject_status_tag"/>
         <div class="switch-radio">
-          <input name="type-picker-options" id="type-picker-common" checked type="radio" class="normal-input button-active" @click="showAdvance = false">
+          <input
+            name="type-picker-options"
+            id="type-picker-common"
+            checked
+            type="radio"
+            class="normal-input button-active"
+            @click="showAdvance = false">
           <label for="type-picker-common">Common</label>
-          <input name="type-picker-options" id="type-picker-showall" type="radio" class="normal-input" @click="activeModal(true)">
+          <input
+            name="type-picker-options"
+            id="type-picker-showall"
+            type="radio"
+            class="normal-input"
+            @click="activeModal(true)">
           <label for="type-picker-showall">Show all</label>
         </div>
         <p class="inline">
           <span v-html="taxonRelation.label_html"/>
-          <span type="button" title="Undo" class="circle-button button-default btn-undo" @click="taxonRelation = undefined"/>
+          <span
+            type="button"
+            title="Undo"
+            class="circle-button button-default btn-undo"
+            @click="taxonRelation = undefined"/>
         </p>
         <div class="separate-top">
-          <list-common :object-lists="objectLists.common" :filter="true" @addEntry="addEntry" display="subject_status_tag" :list-created="GetRelationshipsCreated"/>
+          <list-common
+            :object-lists="objectLists.common"
+            :filter="true"
+            @addEntry="addEntry"
+            display="subject_status_tag"
+            :list-created="GetRelationshipsCreated"/>
         </div>
       </div>
-      <list-entrys @update="loadTaxonRelationships" @addCitation="setType" :list="GetRelationshipsCreated" @delete="removeType" :display="['object_status_tag', { link: '/tasks/nomenclature/browse/', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"/>
+      <list-entrys
+        @update="loadTaxonRelationships"
+        @addCitation="setType"
+        :list="GetRelationshipsCreated"
+        @delete="removeType"
+        :display="['object_status_tag', { link: '/tasks/nomenclature/browse/', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"/>
     </div>
   </form>
 </template>
 <script>
+
+import showForThisGroup from '../helpers/showForThisGroup'
 
 const ActionNames = require('../store/actions/actions').ActionNames
 const GetterNames = require('../store/getters/getters').GetterNames
@@ -67,8 +104,6 @@ const autocomplete = require('../../../components/autocomplete.vue').default
 const hardValidation = require('./hardValidation.vue').default
 const getRankGroup = require('../helpers/getRankGroup')
 const childOfParent = require('../helpers/childOfParent')
-
-import showForThisGroup from '../helpers/showForThisGroup'
 
 export default {
   components: {
@@ -148,11 +183,11 @@ export default {
       this.$store.dispatch(ActionNames.UpdateTaxonRelationship, item)
     },
     removeType: function (item) {
-      let taxon_name = Object.assign({}, this.$store.getters[GetterNames.GetTaxon])
+      let taxonName = Object.assign({}, this.$store.getters[GetterNames.GetTaxon])
 
-      taxon_name['type_taxon_name_relationship'] = undefined
+      taxonName['type_taxon_name_relationship'] = undefined
       this.$store.dispatch(ActionNames.RemoveTaxonRelationship, item)
-      this.$store.commit(MutationNames.SetTaxon, taxon_name)
+      this.$store.commit(MutationNames.SetTaxon, taxonName)
     },
     refresh: function () {
       this.objectLists.tree = this.filterList(this.addType(Object.assign({}, this.treeList.typification.all)), this.getRankGroup)
@@ -168,19 +203,19 @@ export default {
       }
     },
     addTaxonType: function (taxon) {
-      	this.taxonRelation = taxon
-      	if (this.getRankGroup == 'Family') { this.addEntry(this.objectLists.tree[Object.keys(this.objectLists.tree)[0]]) }
+      this.taxonRelation = taxon
+      if (this.getRankGroup == 'Family') { this.addEntry(this.objectLists.tree[Object.keys(this.objectLists.tree)[0]]) }
     },
     addEntry: function (item) {
       this.$store.dispatch(ActionNames.AddTaxonType, item)
     },
     filterList: function (list, filter) {
-      	let tmp = {}
+      let tmp = {}
 
-      	for (var key in list) {
-      		if (key.split('::')[2] == filter) { tmp[key] = list[key] }
-      	}
-      	return tmp
+      for (var key in list) {
+        if (key.split('::')[2] == filter) { tmp[key] = list[key] }
+      }
+      return tmp
     },
     addType (list) {
       for (var key in list) {

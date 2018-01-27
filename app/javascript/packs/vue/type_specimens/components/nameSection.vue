@@ -4,7 +4,9 @@
       <h3>Taxon name</h3>
       <expand v-model="displayBody"/>
     </div>
-    <div class="body" v-if="displayBody">
+    <div
+      class="body"
+      v-if="displayBody">
       <div class="field">
         <label>Species name</label>
         <autocomplete
@@ -21,7 +23,11 @@
             valid: true
         }"/>
       </div>
-      <display-list :list="typesMaterial" :annotator="true" @delete="removeTypeSpecimen" label="object_tag"/>
+      <display-list
+        :list="typesMaterial"
+        :annotator="true"
+        @delete="removeTypeSpecimen"
+        label="object_tag"/>
     </div>
   </div>
 </template>
@@ -32,9 +38,7 @@ import expand from './expand.vue'
 import autocomplete from '../../components/autocomplete.vue'
 import displayList from '../../components/displayList.vue'
 
-import { DestroyTypeMaterial } from '../request/resources'
 import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
 import ActionNames from '../store/actions/actionNames'
 
 export default {

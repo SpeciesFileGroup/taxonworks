@@ -1,11 +1,17 @@
 <template>
-  <button type="button" v-shortkey="[getMacKey(), 's']" @shortkey="saveTaxon()" :disabled="!validateInfo()" @click="saveTaxon()">{{ taxon.id == undefined ? 'Create': 'Save' }}</button>
+  <button
+    type="button"
+    v-shortkey="[getMacKey(), 's']"
+    @shortkey="saveTaxon()"
+    :disabled="!validateInfo()"
+    @click="saveTaxon()">
+    {{ taxon.id == undefined ? 'Create': 'Save' }}
+  </button>
 </template>
 
 <script>
 
 const GetterNames = require('../store/getters/getters').GetterNames
-const MutationNames = require('../store/mutations/mutations').MutationNames
 const ActionNames = require('../store/actions/actions').ActionNames
 
 export default {
@@ -33,11 +39,11 @@ export default {
     getMacKey: function () {
       return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
     },
-	    createTaxonName: function () {
-	        this.$store.dispatch(ActionNames.CreateTaxonName, this.taxon)
-	    },
-	    updateTaxonName: function () {
-	        this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+    createTaxonName: function () {
+      this.$store.dispatch(ActionNames.CreateTaxonName, this.taxon)
+    },
+    updateTaxonName: function () {
+      this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
     }
   }
 }

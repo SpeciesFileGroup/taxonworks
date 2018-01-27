@@ -12,12 +12,19 @@
       }"
       :send-label="parent.name"
       param="term"/>
-    <div class="field" v-if="!taxon.id && parent && parent.parent_id == null">
+    <div
+      class="field"
+      v-if="!taxon.id && parent && parent.parent_id == null">
       <h4>Nomenclature code</h4>
       <ul class="no_bullets">
         <li v-for="code in getCodes">
           <label class="middle uppercase">
-            <input type="radio" name="rankSelected" v-model="nomenclatureCode" :value="code"> {{ code }}
+            <input
+              type="radio"
+              name="rankSelected"
+              v-model="nomenclatureCode"
+              :value="code">
+            {{ code }}
           </label>
         </li>
       </ul>
@@ -30,9 +37,6 @@ const autocomplete = require('../../../components/autocomplete.vue').default
 const GetterNames = require('../store/getters/getters').GetterNames
 const MutationNames = require('../store/mutations/mutations').MutationNames
 const ActionNames = require('../store/actions/actions').ActionNames
-
-var foundRankGroup = require('../helpers/foundRankGroup')
-var truncateAtRank = require('../helpers/truncateAtRank')
 
 export default {
   components: {
@@ -56,10 +60,10 @@ export default {
     },
     nomenclatureCode: {
       get () {
-        this.$store.getters[GetterNames.GetNomenclatureCode]
+        return this.$store.getters[GetterNames.GetNomenclatureCode]
       },
       set (value) {
-        this.$store.commit(MutationNames.SetNomenclaturalCode, value),
+        this.$store.commit(MutationNames.SetNomenclaturalCode, value)
         this.setParentRank(this.parent)
       }
     }
@@ -70,7 +74,6 @@ export default {
     }
   },
   mounted: function () {
-    var that = this
     this.$on('parentSelected', function (item) {
       this.$store.commit(MutationNames.SetParentId, item.id)
       this.$http.get(`/taxon_names/${item.id}`).then(response => {

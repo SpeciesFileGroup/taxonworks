@@ -1,5 +1,7 @@
 <template>
-  <input v-model="year_of_publication" type="number" >
+  <input
+    v-model="year_of_publication"
+    type="number">
 </template>
 
 <script>

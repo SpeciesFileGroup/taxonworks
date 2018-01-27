@@ -5,26 +5,45 @@
       <nav-header :menu="menu"/>
       <div class="flexbox horizontal-center-content align-start">
         <div class="ccenter item separate-right">
-          <spinner :full-screen="true" legend="Loading..." :logo-size="{ width: '100px', height: '100px'}" v-if="loading"/>
-          <spinner :full-screen="true" legend="Saving changes..." :logo-size="{ width: '100px', height: '100px'}" v-if="getSaving"/>
+          <spinner
+            :full-screen="true"
+            :legend="(loading ? 'Loading...' : 'Saving changes...')"
+            :logo-size="{ width: '100px', height: '100px'}"
+            v-if="loading || getSaving"/>
           <basic-information class="separate-bottom"/>
           <div class="new-taxon-name-block">
-            <spinner :show-spinner="false" :show-legend="false" v-if="!getTaxon.id"/>
+            <spinner
+              :show-spinner="false"
+              :show-legend="false"
+              v-if="!getTaxon.id"/>
             <source-picker class="separate-top separate-bottom"/>
           </div>
           <div class="new-taxon-name-block">
-            <spinner :show-spinner="false" :show-legend="false" v-if="!getTaxon.id"/>
+            <spinner
+              :show-spinner="false"
+              :show-legend="false"
+              v-if="!getTaxon.id"/>
             <status-picker class="separate-top separate-bottom"/>
           </div>
           <div class="new-taxon-name-block">
-            <spinner :show-spinner="false" :show-legend="false" v-if="!getTaxon.id"/>
+            <spinner
+              :show-spinner="false"
+              :show-legend="false"
+              v-if="!getTaxon.id"/>
             <relationship-picker class="separate-top separate-bottom"/>
           </div>
           <div class="new-taxon-name-block">
-            <type-block v-if="getTaxon.id && showForThisGroup(['FamilyGroup','GenusGroup', 'SpeciesGroup'], getTaxon)" class="separate-top separate-bottom"/>
+            <type-block
+              v-if="getTaxon.id && showForThisGroup(['FamilyGroup','GenusGroup', 'SpeciesGroup'], getTaxon)"
+              class="separate-top separate-bottom"/>
           </div>
-          <div class="new-taxon-name-block" v-if="showForThisGroup(['SpeciesGroup','GenusGroup'], getTaxon)">
-            <spinner :show-spinner="false" :show-legend="false" v-if="!getTaxon.id"/>
+          <div
+            class="new-taxon-name-block"
+            v-if="showForThisGroup(['SpeciesGroup','GenusGroup'], getTaxon)">
+            <spinner
+              :show-spinner="false"
+              :show-legend="false"
+              v-if="!getTaxon.id"/>
             <block-layout anchor="original-combination">
               <h3 slot="header">Original Combination</h3>
               <div slot="body">
@@ -32,16 +51,28 @@
               </div>
             </block-layout>
           </div>
-          <div class="new-taxon-name-block" v-if="showForThisGroup(['SpeciesGroup','GenusGroup'], getTaxon)">
-            <spinner :show-spinner="false" :show-legend="false" v-if="!getTaxon.id"/>
+          <div
+            class="new-taxon-name-block"
+            v-if="showForThisGroup(['SpeciesGroup','GenusGroup'], getTaxon)">
+            <spinner
+              :show-spinner="false"
+              :show-legend="false"
+              v-if="!getTaxon.id"/>
             <gender-block class="separate-top separate-bottom"/>
           </div>
-          <div class="new-taxon-name-block" v-if="getTaxon.id && showForThisGroup(['SpeciesGroup','GenusGroup'], getTaxon)">
-            <spinner :show-spinner="false" :show-legend="false" v-if="!getTaxon.id"/>
+          <div
+            class="new-taxon-name-block"
+            v-if="getTaxon.id && showForThisGroup(['SpeciesGroup','GenusGroup'], getTaxon)">
+            <spinner
+              :show-spinner="false"
+              :show-legend="false"
+              v-if="!getTaxon.id"/>
             <etymology class="separate-top separate-bottom"/>
           </div>
         </div>
-        <div v-if="getTaxon.id" class="cright item separate-left">
+        <div
+          v-if="getTaxon.id"
+          class="cright item separate-left">
           <div id="cright-panel">
             <check-changes/>
             <taxon-name-box class="separate-bottom"/>
@@ -72,7 +103,6 @@ var softValidation = require('./components/softValidation.vue').default
 var spinner = require('../../components/spinner.vue').default
 var blockLayout = require('./components/blockLayout').default
 
-const MutationNames = require('./store/mutations/mutations').MutationNames
 const GetterNames = require('./store/getters/getters').GetterNames
 const ActionNames = require('./store/actions/actions').ActionNames
 

@@ -7,16 +7,23 @@
       :logo-size="{ width: '100px', height: '100px'}"/>
     <div class="flex-separate middle">
       <h1>{{ isNew }} type specimen</h1>
-      <span @click="reloadApp" data-icon="reset" class="middle reload-app">Reset</span>
+      <span
+        @click="reloadApp"
+        data-icon="reset"
+        class="middle reload-app">Reset</span>
     </div>
     <div>
       <div class="flexbox horizontal-center-content align-start">
         <div class="ccenter item separate-right">
-          <name-section class="separate-bottom" v-if="!taxon"/>
+          <name-section
+            class="separate-bottom"
+            v-if="!taxon"/>
           <metadata-section class="separate-bottom"/>
           <type-material-section class="separate-bottom"/>
         </div>
-        <div v-if="taxon" class="cright item separate-left">
+        <div
+          v-if="taxon"
+          class="cright item separate-left">
           <div id="cright-panel">
             <type-box class="separate-bottom"/>
           </div>
@@ -77,22 +84,22 @@ export default {
     },
     loadTaxonTypes () {
       let urlParams = new URLSearchParams(window.location.search)
-      let protonym_id = urlParams.get('protonym_id')
-      let type_id = urlParams.get('type_material_id')
+      let protonymId = urlParams.get('protonym_id')
+      let typeId = urlParams.get('type_material_id')
 
-      if (/^\d+$/.test(protonym_id)) {
-        this.$store.dispatch(ActionNames.LoadTaxonName, protonym_id).then((response) => {
-          this.$store.dispatch(ActionNames.LoadTypeMaterials, protonym_id).then(response => {
-            if (/^\d+$/.test(protonym_id)) {
-              this.loadType(response, type_id)
+      if (/^\d+$/.test(protonymId)) {
+        this.$store.dispatch(ActionNames.LoadTaxonName, protonymId).then((response) => {
+          this.$store.dispatch(ActionNames.LoadTypeMaterials, protonymId).then(response => {
+            if (/^\d+$/.test(protonymId)) {
+              this.loadType(response, typeId)
             }
           })
         })
       }
     },
-    loadType (list, type_id) {
+    loadType (list, typeId) {
       let findType = list.find((type) => {
-        return type.id == type_id
+        return type.id == typeId
       })
       if (findType) {
         this.$store.dispatch(ActionNames.LoadTypeMaterial, findType)

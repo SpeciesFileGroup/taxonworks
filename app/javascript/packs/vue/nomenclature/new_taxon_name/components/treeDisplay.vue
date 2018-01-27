@@ -1,16 +1,25 @@
 <template>
   <form v-if="parent">
-    <modal class="transparent-modal" v-if="showModal" @close="activeModal(false)">
+    <modal
+      class="transparent-modal"
+      v-if="showModal"
+      @close="activeModal(false)">
       <h3 slot="header">{{ nameModule }}</h3>
-      <div slot="body" class="tree-list">
-        <recursive-list :getter-list="getterList" :display="displayName" :modal-mutation-name="mutationNameModal" :action-mutation-name="mutationNameAdd" :object-list="objectLists.tree"/>
+      <div
+        slot="body"
+        class="tree-list">
+        <recursive-list
+          :getter-list="getterList"
+          :display="displayName"
+          :modal-mutation-name="mutationNameModal"
+          :action-mutation-name="mutationNameAdd"
+          :object-list="objectLists.tree"/>
       </div>
     </modal>
   </form>
 </template>
 <script>
 
-const ActionNames = require('../store/actions/actions').ActionNames
 const GetterNames = require('../store/getters/getters').GetterNames
 const MutationNames = require('../store/mutations/mutations').MutationNames
 const autocomplete = require('../../../components/autocomplete.vue').default

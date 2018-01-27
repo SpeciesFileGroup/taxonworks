@@ -1,5 +1,7 @@
 <template>
-  <input v-model="author" type="text" >
+  <input
+    v-model="author"
+    type="text">
 </template>
 
 <script>

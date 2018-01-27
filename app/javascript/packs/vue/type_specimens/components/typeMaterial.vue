@@ -1,16 +1,23 @@
 <template>
   <div class="panel type-specimen-box">
-    <spinner :show-spinner="false" :show-legend="false" v-if="!(protonymId && type)"/>
+    <spinner
+      :show-spinner="false"
+      :show-legend="false"
+      v-if="!(protonymId && type)"/>
     <div class="header flex-separate middle">
       <h3>Collection object</h3>
       <div class="flexbox middle">
-        <radial-annotator v-if="typeMaterial.id" :global-id="getCollectionObject.global_id"/>
+        <radial-annotator
+          v-if="typeMaterial.id"
+          :global-id="getCollectionObject.global_id"/>
         <expand v-model="displayBody"/>
       </div>
     </div>
-    <div class="body" v-if="displayBody">
+    <div
+      class="body"
+      v-if="displayBody">
       <div class="switch-radio field">
-        <template v-for="item, index in tabOptions">
+        <template v-for="(item, index) in tabOptions">
           <input
             v-model="view"
             :value="item"
@@ -19,7 +26,9 @@
             type="radio"
             class="normal-input button-active"
           >
-          <label :for="`switch-picker-${index}`" class="capitalize">{{ item }}</label>
+          <label
+            :for="`switch-picker-${index}`"
+            class="capitalize">{{ item }}</label>
         </template>
       </div>
       <div class="flex-separate">
@@ -33,7 +42,8 @@
             v-if="view == 'edit'"
             @send="updateCollectionObject"/>
 
-          <template v-if="view == 'existing'">
+          <template
+          v-if="view == 'existing'">
 
             <div class="field">
               <label>Collection object</label>
@@ -50,7 +60,9 @@
 
           </template>
         </div>
-        <div class="field" v-if="protonymId">
+        <div
+          class="field"
+          v-if="protonymId">
           <label>Depiction</label>
           <depictions-section/>
         </div>
@@ -61,8 +73,8 @@
 
 <script>
 
-import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
+import {GetterNames} from '../store/getters/getters'
+import {MutationNames} from '../store/mutations/mutations'
 import ActionNames from '../store/actions/actionNames'
 
 import autocomplete from '../../components/autocomplete.vue'
@@ -145,17 +157,17 @@ export default {
       this.$store.dispatch(ActionNames.CreateTypeMaterial)
     },
     updateTypeMaterial () {
-      let type_material = this.$store.getters[GetterNames.GetTypeMaterial]
-      this.$store.dispatch(ActionNames.UpdateTypeSpecimen, { type_material: type_material })
+      let typeMaterial = this.$store.getters[GetterNames.GetTypeMaterial]
+      this.$store.dispatch(ActionNames.UpdateTypeSpecimen, {type_material: typeMaterial})
     },
     updateCollectionObject () {
-      let type_material = this.$store.getters[GetterNames.GetTypeMaterial]
-      this.$store.dispatch(ActionNames.UpdateCollectionObject, { type_material: type_material })
+      let typeMaterial = this.$store.getters[GetterNames.GetTypeMaterial]
+      this.$store.dispatch(ActionNames.UpdateCollectionObject, {type_material: typeMaterial})
     },
     getOwnPropertyNested (obj) {
-      var args = Array.prototype.slice.call(arguments, 1)
+      let args = Array.prototype.slice.call(arguments, 1)
 
-      for (var i = 0; i < args.length; i++) {
+      for (let i = 0; i < args.length; i++) {
         if (!obj || !obj.hasOwnProperty(args[i])) {
           return undefined
         }
@@ -167,7 +179,7 @@ export default {
 }
 </script>
 <style scoped>
-  .switch-radio label {
-      width: 100px;
-  }
+    .switch-radio label {
+        width: 100px;
+    }
 </style>

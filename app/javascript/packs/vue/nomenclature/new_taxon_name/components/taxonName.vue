@@ -1,6 +1,9 @@
 <template>
   <div>
-    <input class="taxonName-input" type="text" v-model="taxonName">
+    <input
+      class="taxonName-input"
+      type="text"
+      v-model="taxonName">
   </div>
 </template>
 

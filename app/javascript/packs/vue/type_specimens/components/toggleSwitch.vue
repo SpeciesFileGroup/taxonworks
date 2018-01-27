@@ -1,6 +1,8 @@
 <template>
   <div>
-    <template v-if="biologicalId" v-for="item in biocutarionsType">
+    <template
+      v-if="biologicalId"
+      v-for="item in biocutarionsType">
       <button
         type="button"
         class="bottom button-submit normal-input biocuration-toggle-button"
@@ -15,7 +17,9 @@
       </button>
     </template>
 
-    <template v-if="!biologicalId" v-for="item in biocutarionsType">
+    <template
+      v-if="!biologicalId"
+      v-for="item in biocutarionsType">
       <button
         type="button"
         class="bottom button-submit normal-input biocuration-toggle-button"
@@ -141,12 +145,12 @@ export default {
 </script>
 
 <style>
-	.biocuration-toggle-button {
-		min-width: 60px;
-		border: 0px;
-		margin-right: 6px;
-		margin-bottom: 6px;
-		border-top-left-radius: 14px;
-		border-bottom-left-radius: 14px;
-	}
+  .biocuration-toggle-button {
+    min-width: 60px;
+    border: 0px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    border-top-left-radius: 14px;
+    border-bottom-left-radius: 14px;
+  }
 </style>

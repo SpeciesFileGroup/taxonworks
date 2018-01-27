@@ -1,12 +1,22 @@
 <template>
   <div class="basic-information panel">
-    <a name="etymology" class="anchor"/>
+    <a
+      name="etymology"
+      class="anchor"/>
     <div class="header flex-separate middle">
       <h3>Etymology</h3>
-      <expand @changed="expanded = !expanded" :expanded="expanded"/>
+      <expand
+        @changed="expanded = !expanded"
+        :expanded="expanded"/>
     </div>
-    <div class="body" v-show="expanded">
-      <markdown-editor class="edit-content" v-model="etymology" :configs="config" ref="etymologyText"/>
+    <div
+      class="body"
+      v-show="expanded">
+      <markdown-editor
+        class="edit-content"
+        v-model="etymology"
+        :configs="config"
+        ref="etymologyText"/>
     </div>
   </div>
 </template>
@@ -38,8 +48,8 @@ export default {
       expanded: true,
       config: {
         status: false,
-		            toolbar: ['bold', 'italic', 'code', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'link', 'table', 'preview'],
-		            spellChecker: false
+        toolbar: ['bold', 'italic', 'code', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'link', 'table', 'preview'],
+        spellChecker: false
       }
     }
   }

@@ -9,9 +9,13 @@
       legend="Searching taxon names..."
       :legend-style="{ fontSize: '14px', color: '#444', textAlign: 'center', paddingTop: '20px'}"
       v-if="searching"/>
-    <div class="panel new-combination-box" v-if="Object.keys(rankLists).length">
+    <div
+      class="panel new-combination-box"
+      v-if="Object.keys(rankLists).length">
 
-      <div class="header flex-separate middle" :class="{ 'header-warning': !(rankLists['genus'] && rankLists['genus'].length) }">
+      <div
+        class="header flex-separate middle"
+        :class="{ 'header-warning': !(rankLists['genus'] && rankLists['genus'].length) }">
         <h3>Combination</h3>
       </div>
 
@@ -24,7 +28,7 @@
         <div class="flexbox">
           <list-group
             class="item"
-            v-for="list, key in rankLists"
+            v-for="(list, key) in rankLists"
             :key="key"
             ref="listGroup"
             @onTaxonSelect="newCombination.protonyms[key] = $event"
@@ -174,8 +178,6 @@ export default {
       this.newCombination = Object.assign(this.newCombination, citation)
     },
     isCombinationEmpty () {
-      let found = false
-
       for (var rank in this.newCombination.protonyms) {
         if (this.newCombination.protonyms[rank]) {
           return false

@@ -101,42 +101,42 @@ export default {
 }
 </script>
 <style lang="scss">
-	#vue_new_combination {
-	    flex-direction: column-reverse;
-	    margin: 0 auto;
-	    margin-top: 1em;
-	    max-width: 1240px;
+#vue_new_combination {
+  flex-direction: column-reverse;
+  margin: 0 auto;
+  margin-top: 1em;
+  max-width: 1240px;
 
-		.cleft, .cright {
-			min-width: 450px;
-			max-width: 450px;
-			width: 400px;
-		}
-		#cright-panel {
-			width: 350px;
-			max-width: 350px;
-		}
+  .cleft, .cright {
+    min-width: 450px;
+    max-width: 450px;
+    width: 400px;
+  }
+  #cright-panel {
+    width: 350px;
+    max-width: 350px;
+  }
 
-		.new-combination-box {
+  .new-combination-box {
 
-			transition: all 1s;
+    transition: all 1s;
 
-			label {
-				display: block;
-			}
+    label {
+      display: block;
+    }
 
-			height: 100%;
-			box-sizing: border-box;
-			display: flex;
-			flex-direction: column;
-			.body {
-				padding: 2em;
-				padding-top: 1em;
-				padding-bottom: 1em;
-			}
-			.taxonName-input,#error_explanation {
-				width: 300px;
-			}
-	    }
-	}
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    .body {
+      padding: 2em;
+      padding-top: 1em;
+      padding-bottom: 1em;
+    }
+    .taxonName-input,#error_explanation {
+      width: 300px;
+    }
+  }
+}
 </style>

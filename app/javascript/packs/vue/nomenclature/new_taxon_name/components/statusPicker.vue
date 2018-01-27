@@ -1,11 +1,19 @@
 <template>
   <form class="panel basic-information">
-    <a class="anchor" name="status"/>
-    <div class="header flex-separate middle" :class="{ 'validation-warning' : softValidation.taxonStatusList.list.length }">
+    <a
+      class="anchor"
+      name="status"/>
+    <div
+      class="header flex-separate middle"
+      :class="{ 'validation-warning' : softValidation.taxonStatusList.list.length }">
       <h3>Status</h3>
-      <expand @changed="expanded = !expanded" :expanded="expanded"/>
+      <expand
+        @changed="expanded = !expanded"
+        :expanded="expanded"/>
     </div>
-    <div class="body" v-if="expanded">
+    <div
+      class="body"
+      v-if="expanded">
       <tree-display
         v-if="taxon.id"
         :tree-list="treeList"
@@ -19,26 +27,54 @@
         name-module="Status"
         display-name="name"/>
       <div class="switch-radio">
-        <input name="status-picker-options" id="status-picker-common" checked type="radio" class="normal-input button-active" @click="showAdvance = false">
+        <input
+          name="status-picker-options"
+          id="status-picker-common"
+          checked
+          type="radio"
+          class="normal-input button-active"
+          @click="showAdvance = false">
         <label for="status-picker-common">Common</label>
-        <input name="status-picker-options" id="status-picker-advanced" type="radio" class="normal-input" @click="showAdvance = true">
+        <input
+          name="status-picker-options"
+          id="status-picker-advanced"
+          type="radio"
+          class="normal-input"
+          @click="showAdvance = true">
         <label for="status-picker-advanced">Advanced</label>
-        <input name="status-picker-options" id="status-picker-showall" type="radio" class="normal-input" @click="activeModal(true)">
+        <input
+          name="status-picker-options"
+          id="status-picker-showall"
+          type="radio"
+          class="normal-input"
+          @click="activeModal(true)">
         <label for="status-picker-showall">Show all</label>
       </div>
       <div class="separate-top">
-        <autocomplete v-if="showAdvance"
-                      :array-list="objectLists.allList"
-                      label="name"
-                      min="3"
-                      time="0"
-                      placeholder="Search"
-                      event-send="autocompleteStatusSelected"
-                      @getItem="addEntry"
-                      param="term"/>
-        <list-common v-if="!showAdvance && taxon.id" :filter="true" :object-lists="objectLists.commonList" display="name" @addEntry="addEntry" :list-created="getStatusCreated"/>
+        <autocomplete
+          v-if="showAdvance"
+          :array-list="objectLists.allList"
+          label="name"
+          min="3"
+          time="0"
+          placeholder="Search"
+          event-send="autocompleteStatusSelected"
+          @getItem="addEntry"
+          param="term"/>
+        <list-common
+          v-if="!showAdvance && taxon.id"
+          :filter="true"
+          :object-lists="objectLists.commonList"
+          display="name"
+          @addEntry="addEntry"
+          :list-created="getStatusCreated"/>
       </div>
-      <list-entrys @update="loadTaxonStatus" @addCitation="setCitation" @delete="removeStatus" :list="getStatusCreated" :display="['object_tag']"/>
+      <list-entrys
+        @update="loadTaxonStatus"
+        @addCitation="setCitation"
+        @delete="removeStatus"
+        :list="getStatusCreated"
+        :display="['object_tag']"/>
     </div>
   </form>
 </template>

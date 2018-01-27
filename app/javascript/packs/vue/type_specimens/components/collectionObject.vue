@@ -2,24 +2,36 @@
   <div>
     <div class="field types_field">
       <label>Buffered collecting event</label>
-      <textarea rows="5" v-model="bufferedEvent"/>
+      <textarea
+        rows="5"
+        v-model="bufferedEvent"/>
     </div>
     <div class="field types_field">
       <label>Buffered determinations</label>
-      <textarea rows="5" v-model="bufferedDeterminations"/>
+      <textarea
+        rows="5"
+        v-model="bufferedDeterminations"/>
     </div>
     <div class="field types_field">
       <label>Buffered other labels</label>
-      <textarea rows="5" v-model="bufferedLabels"/>
+      <textarea
+        rows="5"
+        v-model="bufferedLabels"/>
     </div>
     <div class="field">
       <label>Total</label>
-      <input type="number" v-model="total">
+      <input
+        type="number"
+        v-model="total">
     </div>
     <div class="field">
       <label>Preparation type</label>
-      <select v-model="preparationId" class="normal-input">
-        <option v-for="item in types" :value="item.id">{{ item.name }}</option>
+      <select
+        v-model="preparationId"
+        class="normal-input">
+        <option
+          v-for="item in types"
+          :value="item.id">{{ item.name }}</option>
       </select>
     </div>
     <div class="field">
@@ -53,7 +65,11 @@
     </div>
     <hr>
     <div class="field">
-      <button @click="sendEvent" :disabled="total < 1" type="button" class="button normal-input button-submit">{{ (typeMaterial.id ? 'Update' : 'Create') }}</button>
+      <button
+        @click="sendEvent"
+        :disabled="total < 1"
+        type="button"
+        class="button normal-input button-submit">{{ (typeMaterial.id ? 'Update' : 'Create') }}</button>
     </div>
   </div>
 </template>
@@ -64,9 +80,7 @@ import autocomplete from '../../components/autocomplete.vue'
 import toggleSwitch from './toggleSwitch.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { GetPreparationTypes } from '../request/resources'
-import ActionNames from '../store/actions/actionNames'
-import { UpdateCollectionObject, GetCollectionEvent, GetRepository } from '../request/resources'
+import { GetCollectionEvent, GetRepository, GetPreparationTypes } from '../request/resources'
 
 export default {
   components: {

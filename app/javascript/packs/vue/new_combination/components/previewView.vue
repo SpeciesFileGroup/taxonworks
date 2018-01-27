@@ -1,6 +1,8 @@
 <template>
   <div class="new-combination-preview header">
-    <h3 class="horizontal-center-content" v-if="combination">
+    <h3
+      class="horizontal-center-content"
+      v-if="combination">
       <span>
         <i>
           <span
@@ -37,22 +39,22 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-	.new-combination-preview {
-		position: relative;
-		.new-combination-preview-edit {
-			position: absolute;
-			right: 12px;
-		}
-	}
-	.header {
-		align-items: center;
-		h3 {
-			font-weight: 300;
-		}
-		padding: 1em;
-		padding-left: 1.5em;
-		border-left: none;
+.new-combination-preview {
+  position: relative;
+  .new-combination-preview-edit {
+   position: absolute;
+   right: 12px;
+ }
+}
+.header {
+  align-items: center;
+  h3 {
+   font-weight: 300;
+ }
+ padding: 1em;
+ padding-left: 1.5em;
+ border-left: none;
 
-		border-bottom: 1px solid #f5f5f5;
-	}
+ border-bottom: 1px solid #f5f5f5;
+}
 </style>

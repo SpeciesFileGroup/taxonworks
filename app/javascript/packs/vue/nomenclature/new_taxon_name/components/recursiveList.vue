@@ -1,10 +1,22 @@
 <template>
   <ul class="tree-status">
-    <li v-for="item, key in objectList" v-if="item.hasOwnProperty(display)">
-      <button type="button" :value="item.type" @click="addStatus(item)" :disabled="(item.disabled || (findExist(item) != undefined))" class="button button-default normal-input">
+    <li
+      v-for="(item, key) in objectList"
+      v-if="item.hasOwnProperty(display)">
+      <button
+        type="button"
+        :value="item.type"
+        @click="addStatus(item)"
+        :disabled="(item.disabled || (findExist(item) != undefined))"
+        class="button button-default normal-input">
         {{ item[display] }}
       </button>
-      <recursive-list :getter-list="getterList" :display="display" :modal-mutation-name="modalMutationName" :action-mutation-name="actionMutationName" :object-list="item"/>
+      <recursive-list
+        :getter-list="getterList"
+        :display="display"
+        :modal-mutation-name="modalMutationName"
+        :action-mutation-name="actionMutationName"
+        :object-list="item"/>
     </li>
   </ul>
 </template>

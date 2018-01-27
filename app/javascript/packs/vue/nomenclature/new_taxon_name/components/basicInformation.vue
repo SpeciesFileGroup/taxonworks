@@ -1,16 +1,26 @@
 <template>
   <form class="panel basic-information">
-    <a name="basic-information" class="anchor"/>
+    <a
+      name="basic-information"
+      class="anchor"/>
     <div class="header flex-separate middle">
-      <h3 class="">Basic information</h3>
-      <expand @changed="expanded = !expanded" :expanded="expanded"/>
+      <h3>Basic information</h3>
+      <expand
+        @changed="expanded = !expanded"
+        :expanded="expanded"/>
     </div>
-    <div class="body horizontal-left-content align-start" v-show="expanded">
+    <div
+      class="body horizontal-left-content align-start"
+      v-show="expanded">
       <div class="column-left">
         <div class="field separate-right">
           <label>Name</label><br>
           <hard-validation field="name">
-            <input slot="body" class="taxonName-input" type="text" v-model="taxonName">
+            <input
+              slot="body"
+              class="taxonName-input"
+              type="text"
+              v-model="taxonName">
           </hard-validation>
         </div>
         <div class="field separate-top">
@@ -22,10 +32,19 @@
 
       </div>
       <div class="column-right item">
-        <check-exist :taxon="taxon" class="separate-left" url="/taxon_names/autocomplete" label="label_html" :search="taxon.name" param="term" :add-params="{ exact: true, 'type[]': 'Protonym' }"/>
+        <check-exist
+          :taxon="taxon"
+          class="separate-left"
+          url="/taxon_names/autocomplete"
+          label="label_html"
+          :search="taxon.name"
+          param="term"
+          :add-params="{ exact: true, 'type[]': 'Protonym' }"/>
       </div>
     </div>
-    <div class="body" v-if="!taxon.id">
+    <div
+      class="body"
+      v-if="!taxon.id">
       <save-taxon-name class="normal-input button button-submit create-button"/>
     </div>
   </form>

@@ -1,18 +1,45 @@
 <template>
   <div v-show="list.length">
-    <transition-group class="table-entrys-list" name="list-complete" tag="ul">
-      <li v-for="item, index in list" :key="item.id" class="list-complete-item flex-separate middle">
+    <transition-group
+      class="table-entrys-list"
+      name="list-complete"
+      tag="ul">
+      <li
+        v-for="(item) in list"
+        :key="item.id"
+        class="list-complete-item flex-separate middle">
         <span class="list-item">
           <template v-for="show in display">
-            <a v-if="isLink(show)" target="_blank" :href="composeLink(item, show)" v-html="item[show.label]"/>
-            <span v-else v-html="item[show]"/>
+            <a
+              v-if="isLink(show)"
+              target="_blank"
+              :href="composeLink(item, show)"
+              v-html="item[show.label]"/>
+            <span
+              v-else
+              v-html="item[show]"/>
           </template>
         </span>
         <div class="list-controls">
-          <a :href="`/sources/${item.origin_citation.source_id}/edit`" target="_blank" v-if="getCitation(item)" v-html="getCitation(item)"/>
-          <radial-annotator @close="update()" :global-id="item.global_id"/>
-          <span type="button" title="Remove citation" class="circle-button button-delete btn-undo" v-if="getCitation(item)" @click="removeCitation(item)"/>
-          <span type="button" class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
+          <a
+            :href="`/sources/${item.origin_citation.source_id}/edit`"
+            target="_blank"
+            v-if="getCitation(item)"
+            v-html="getCitation(item)"/>
+          <radial-annotator
+            @close="update()"
+            :global-id="item.global_id"/>
+          <span
+            type="button"
+            title="Remove citation"
+            class="circle-button button-delete btn-undo"
+            v-if="getCitation(item)"
+            @click="removeCitation(item)"/>
+          <span
+            type="button"
+            class="circle-button btn-delete"
+            @click="$emit('delete', item)">Remove
+          </span>
         </div>
       </li>
     </transition-group>
@@ -20,8 +47,6 @@
 </template>
 <script>
 
-const ActionNames = require('../store/actions/actions').ActionNames
-const GetterNames = require('../store/getters/getters').GetterNames
 const autocomplete = require('../../../components/autocomplete.vue').default
 const defaultElement = require('../../../components/getDefaultPin.vue').default
 const citationPages = require('./citationPages.vue').default
@@ -79,34 +104,34 @@ export default {
 
 <style lang="scss" scoped>
 .pages {
-	margin-left: 8px;
-	width: 70px;
+  margin-left: 8px;
+  width: 70px;
 }
 .list-controls {
- 	display: flex;
- 	align-items:center;
- 	flex-direction:row;
- 	justify-content: flex-end;
-	width: 550px;
+  display: flex;
+  align-items:center;
+  flex-direction:row;
+  justify-content: flex-end;
+  width: 550px;
 }
 .pages:disabled {
-	background-color: #F5F5F5;
+  background-color: #F5F5F5;
 }
 .list-item {
-	a {
-		padding-left: 4px;
-		padding-right: 4px;
-	}
+  a {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
 }
 .table-entrys-list {
-  	padding: 0px;
-  	position: relative;
+  padding: 0px;
+  position: relative;
 
-    li {
-		margin: 0px;
-		padding: 6px;
-		border-top: 1px solid #f5f5f5;
-    }
+  li {
+    margin: 0px;
+    padding: 6px;
+    border-top: 1px solid #f5f5f5;
+  }
 }
 .list-complete-item {
   transition: all 1s, opacity 0.2s;
@@ -120,7 +145,7 @@ export default {
   transform: scale(0.0);
 }
 .list-complete-leave-active {
-	width: 100%;
-	position: absolute;
+  width: 100%;
+  position: absolute;
 }
 </style>

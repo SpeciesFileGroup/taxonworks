@@ -3,7 +3,8 @@
     type="button"
     ref="saveButton"
     :disabled="!validateCreate()"
-    v-shortkey="[getMacKey(), 's']" @shortkey="save()"
+    v-shortkey="[getMacKey(), 's']"
+    @shortkey="save()"
     class="button normal-input button-submit create-new-combination"
     @click="save()">
     {{ (newCombination.hasOwnProperty('id') ? 'Update' : 'Create') }}

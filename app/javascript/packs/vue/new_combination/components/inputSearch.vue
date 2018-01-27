@@ -42,7 +42,7 @@ export default {
   },
   methods: {
     reset () {
-      this.type = '',
+      this.type = ''
       this.sendTaxonName()
       this.disabledButton(false)
     },
@@ -86,11 +86,11 @@ export default {
 </script>
 
 <style scoped>
-	input {
-		width: 100%;
-		min-width: 400px;
-	}
-	button {
-		width: 100px;
-	}
+input {
+  width: 100%;
+  min-width: 400px;
+}
+button {
+  width: 100px;
+}
 </style>

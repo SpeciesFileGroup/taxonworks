@@ -1,5 +1,11 @@
 <template>
-  <input type="text" :disabled="!getCitation(citation)" class="pages" @input="autoSave(citation)" :value="getPages(citation)" placeholder="Pages">
+  <input
+    type="text"
+    :disabled="!getCitation(citation)"
+    class="pages"
+    @input="autoSave(citation)"
+    :value="getPages(citation)"
+    placeholder="Pages">
 </template>
 
 <script>
@@ -11,7 +17,7 @@ export default {
     }
   },
   methods: {
-	        autoSave (item) {
+    autoSave (item) {
       var that = this
 
       if (this.autosave) {
@@ -48,11 +54,11 @@ export default {
 </script>
 
 <style scoped>
-	.pages {
-		margin-left: 8px;
-		width: 70px;
-	}
-	.pages:disabled {
-		background-color: #F5F5F5;
-	}
+.pages {
+  margin-left: 8px;
+  width: 70px;
+}
+.pages:disabled {
+  background-color: #F5F5F5;
+}
 </style>

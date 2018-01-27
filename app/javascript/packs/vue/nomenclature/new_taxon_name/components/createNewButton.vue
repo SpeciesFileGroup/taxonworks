@@ -1,13 +1,23 @@
 <template>
   <div>
-    <modal v-if="showModal" @close="showModal = false">
+    <modal
+      v-if="showModal"
+      @close="showModal = false">
       <h3 slot="header">Confirm</h3>
       <div slot="body">Are you sure you want to create a new taxon name? All unsaved changes will be lost.</div>
       <div slot="footer">
-        <button @click="reloadPage()" type="button" class="normal-input button button-default">New</button>
+        <button
+          @click="reloadPage()"
+          type="button"
+          class="normal-input button button-default">New
+        </button>
       </div>
     </modal>
-    <button type="button" class="normal-input button button-default" @click="createNew()">New</button>
+    <button
+      type="button"
+      class="normal-input button button-default"
+      @click="createNew()">New
+    </button>
   </div>
 </template>
 <script>

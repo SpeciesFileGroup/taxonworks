@@ -1,9 +1,16 @@
 <template>
-  <div v-else class="flex-wrap-row">
+  <div class="flex-wrap-row">
     <ul class="flex-wrap-column no_bullets">
-      <li class="status-item" v-for="item in objectLists" v-if="!filter || filterAlreadyPicked(listCreated, item.type) == undefined">
+      <li
+        class="status-item"
+        v-for="item in objectLists"
+        v-if="!filter || filterAlreadyPicked(listCreated, item.type) == undefined">
         <label class="middle">
-          <input type="radio" name="status-item" @click="$emit('addEntry', item)" :value="item.type">
+          <input
+            type="radio"
+            name="status-item"
+            @click="$emit('addEntry', item)"
+            :value="item.type">
           <span>{{ item[display] }}</span>
         </label>
       </li>
@@ -30,7 +37,7 @@ export default {
     }
   },
   methods: {
-	      	filterAlreadyPicked: function (list, type) {
+    filterAlreadyPicked: function (list, type) {
       return list.find(function (item) {
         return (item.type == type)
       })

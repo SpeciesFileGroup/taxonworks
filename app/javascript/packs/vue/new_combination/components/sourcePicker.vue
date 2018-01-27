@@ -7,8 +7,14 @@
           :href="`/sources/${origin_citation.source.id}/edit`"
           v-html="origin_citation.source.object_tag"/>
         <div class="horizontal-left-content">
-          <input type="text" @input="sendCitation" v-model="pages" placeholder="Pages" >
-          <span class="circle-button btn-delete" @click="remove()"/>
+          <input
+            type="text"
+            @input="sendCitation"
+            v-model="pages"
+            placeholder="Pages" >
+          <span
+            class="circle-button btn-delete"
+            @click="remove()"/>
         </div>
       </template>
 
@@ -24,7 +30,11 @@
           @getItem="setSource($event); sendCitation()"
           placeholder="Type for search..."
           display="label"/>
-        <input type="text" @input="sendCitation" v-model="pages" placeholder="Pages" >
+        <input
+          type="text"
+          @input="sendCitation"
+          v-model="pages"
+          placeholder="Pages" >
         <default-element
           class="separate-left default-source"
           label="source"
@@ -77,8 +87,8 @@ export default {
   },
   methods: {
     reset () {
-      this.title = undefined,
-      this.pages = undefined,
+      this.title = undefined
+      this.pages = undefined
       this.sourceId = undefined
     },
     sendCitation () {
@@ -100,11 +110,6 @@ export default {
       this.title = undefined
     },
     setSource (source) {
-      let newSource = {
-        source: {
-          object_tag: source.label_html
-        }
-      }
       this.sourceId = source.id
     }
   }
@@ -112,18 +117,18 @@ export default {
 
 </script>
 <style lang="scss">
-	.new-combination-citation {
-		.default-source {
-			min-width: 150px;
-		}
-		.vue-autocomplete {
-			width: 100% !important;
-			.vue-autocomplete-input {
-				width: 100% !important;
-			}
-		}
-		h3 {
-			font-weight: 300
-		}
-	}
+.new-combination-citation {
+  .default-source {
+    min-width: 150px;
+  }
+  .vue-autocomplete {
+    width: 100% !important;
+    .vue-autocomplete-input {
+      width: 100% !important;
+    }
+  }
+  h3 {
+    font-weight: 300
+  }
+}
 </style>

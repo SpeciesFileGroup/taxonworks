@@ -1,29 +1,51 @@
 <template>
   <form class="gender">
-    <block-layout anchor="gender" :spinner="saving">
+    <block-layout
+      anchor="gender"
+      :spinner="saving">
       <h3 slot="header">Gender and form</h3>
-      <div slot="body" v-if="taxon.id">
+      <div
+        slot="body"
+        v-if="taxon.id">
         <div class="separate-bottom">
-          <label class="middle" v-for="item in list">
-            <input class="separate-right" type="radio" name="gender" @click="addEntry(item)" :checked="checkExist(item.type)" :value="item.type">
+          <label
+            class="middle"
+            v-for="item in list">
+            <input
+              class="separate-right"
+              type="radio"
+              name="gender"
+              @click="addEntry(item)"
+              :checked="checkExist(item.type)"
+              :value="item.type">
             <span>{{ item.name }}</span>
           </label>
         </div>
         <div v-if="inGroup('Species') && adjectiveOrParticiple">
           <div class="field">
             <label>Feminine </label><br>
-            <input v-model="feminine" type="text">
+            <input
+              v-model="feminine"
+              type="text">
           </div>
           <div class="field">
             <label>Masculine</label><br>
-            <input v-model="masculine" type="text">
+            <input
+              v-model="masculine"
+              type="text">
           </div>
           <div class="field">
             <label>Neuter</label><br>
-            <input v-model="neuter" type="text">
+            <input
+              v-model="neuter"
+              type="text">
           </div>
         </div>
-        <list-entrys @delete="removeGender" @addCitation="setCitation" :list="getStatusGender" :display="['object_tag']"/>
+        <list-entrys
+          @delete="removeGender"
+          @addCitation="setCitation"
+          :list="getStatusGender"
+          :display="['object_tag']"/>
       </div>
     </block-layout>
   </form>
@@ -65,7 +87,7 @@ export default {
     adjectiveOrParticiple () {
       let find = this.$store.getters[GetterNames.GetTaxonStatusList].filter(function (item) {
         return (item.type == 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective' ||
-							item.type == 'TaxonNameClassification::Latinized::PartOfSpeech::Participle')
+          item.type == 'TaxonNameClassification::Latinized::PartOfSpeech::Participle')
       })
       return (!!find.length)
     },
@@ -121,7 +143,6 @@ export default {
       return ((this.getStatusCreated.map(function (item) { return item.type })).indexOf(type) > -1)
     },
     searchExisting: function (type) {
-      let alreadyStored = this.getStatusCreated.map(function (item) { return item.type })
       let list = this.list.map(function (item) { return item.type })
 
       return this.getStatusCreated.find(function (item) {
@@ -131,13 +152,9 @@ export default {
       })
     },
     addEntry: function (item) {
-      let that = this,
-        alreadyStored = this.searchExisting(),
-        taxon_name = {
-          verbatim_author: this.taxon.verbatim_author,
-          feminine_name: this.taxon.feminine_name,
-          masculine_name: this.taxon.masculine_name
-        }
+      let that = this
+      let alreadyStored = this.searchExisting()
+
       this.saving = true
       this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon).then(function () {
         if (alreadyStored) {
@@ -154,7 +171,7 @@ export default {
               that.$store.dispatch(ActionNames.LoadTaxonName, that.taxon.id).then(function () {
                 that.saving = false
               })
-          					}, 1000)
+            }, 1000)
           })
         }
       })

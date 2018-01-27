@@ -1,25 +1,52 @@
 <template>
   <div v-if="existRanks()">
-    <modal class="transparent-modal" v-if="showModal" @close="showModal = false">
+    <modal
+      class="transparent-modal"
+      v-if="showModal"
+      @close="showModal = false">
       <h3 slot="header">Ranks</h3>
       <div slot="body">
-        <ul class="tree-status" v-for="(group, key) in Object.keys(this.ranks)" v-if="!isMajor(rankGroup, group)">
-          <li v-for="(child, index) in (ranks[group])">
-            <button type="button" class="normal-input button button-default" name="rankSelected" @click="rankClass = child.rank_class, showModal = false" :value="child.rank_class"> {{ child.name }} </button>
+        <ul
+          class="tree-status"
+          v-for="(group) in Object.keys(this.ranks)"
+          v-if="!isMajor(rankGroup, group)">
+          <li v-for="(child) in (ranks[group])">
+            <button
+              type="button"
+              class="normal-input button button-default"
+              name="rankSelected"
+              @click="rankClass = child.rank_class, showModal = false"
+              :value="child.rank_class">
+              {{ child.name }}
+            </button>
           </li>
         </ul>
       </div>
     </modal>
     <div class="field ranks-list">
       <h4>Rank</h4>
-      <ul class="no_bullet" v-for="(group, key) in Object.keys(this.ranks)" v-if="!isMajor(rankGroup, group)">
-        <li v-for="(child, index) in (ranks[group])" v-if="checkDisplay(child)">
+      <ul
+        class="no_bullet"
+        v-for="(group) in Object.keys(this.ranks)"
+        v-if="!isMajor(rankGroup, group)">
+        <li
+          v-for="(child) in (ranks[group])"
+          v-if="checkDisplay(child)">
           <label class="middle capitalize">
-            <input type="radio" name="rankSelected" v-model="rankClass" :checked="child.rank_class == rankClass" :value="child.rank_class"> {{ child.name }}
+            <input
+              type="radio"
+              name="rankSelected"
+              v-model="rankClass"
+              :checked="child.rank_class == rankClass"
+              :value="child.rank_class">
+            {{ child.name }}
           </label>
         </li>
       </ul>
-      <button type="button" @click="showModal = true">Show all</button>
+      <button
+        type="button"
+        @click="showModal = true">Show all
+      </button>
     </div>
   </div>
 </template>
