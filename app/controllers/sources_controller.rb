@@ -100,8 +100,10 @@ class SourcesController < ApplicationController
        },
        label_html: ApplicationController.helpers.source_tag(t)
       }
-    end
-    render json: data
+  end
+
+  def autocomplete_params
+    params.permit(:scope).merge(project_id: sessions_current_project_id)
   end
 
   def search
