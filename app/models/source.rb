@@ -201,8 +201,8 @@ class Source < ApplicationRecord
   ALTERNATE_VALUES_FOR = [:address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
                           :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
 
-  has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
   has_many :citations, inverse_of: :source, dependent: :restrict_with_error
+  has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
   has_many :project_sources, dependent: :destroy
   has_many :projects, through: :project_sources
 
