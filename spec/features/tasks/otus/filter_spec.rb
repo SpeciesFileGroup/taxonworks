@@ -1,10 +1,7 @@
 require 'rails_helper'
-# require_relative '../../../support/shared_contexts/geo/build_rspec_geo'
 require 'support/shared_contexts/shared_geo'
 
-describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors] do
-  include_context 'stuff for complex geo tests'
-
+describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, :shared_geo] do
   context 'using simple_world' do
     let(:page_title) { 'Otus by area' }
     let(:index_path) { otus_filter_task_path }
@@ -14,43 +11,9 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors] 
     context 'signed in as a user' do
       before {
         sign_in_user_and_select_project
-        # GeoBuild.simple_world(@user.id, @project.id)
       }
-
-      # # need some people
-      # let(:sargon) { Person.where(first_name: 'of Akkad', last_name: 'Sargon').first }
-      # let(:andy) { Person.where(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author').first }
-      # let(:daryl) { Person.where(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon').first }
-      # let(:ted) { Person.where(last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC').first }
-      # let(:bill) { Person.where(first_name: 'Bill', last_name: 'Ardson').first }
-      #
-      # # need some otus
-      # let(:top_dog) { Otu.where(name: 'Top Dog').first }
-      # let(:nuther_dog) { Otu.where(name: 'Another Dog').first }
-      # let(:spooler) { Otu.where('name like ?', '%spooler%').first }
-      # let(:p4) { Otu.where(name: 'P4').first }
-      # let(:by_bill) { Otu.where('name like ?', '%by Bill%').first }
-      # let(:otu_a) { Otu.where(name: 'Otu_A').first }
-      # let(:abra) { Otu.where(name: 'Abra').first }
-      # let(:cadabra) { Otu.where('name like ?', '%cadabra%').first }
-      # let(:alakazam) { Otu.where('name like ?', '%alakazam%').first }
-      #
-      # # need some areas
-      # let(:area_a) { GeographicArea.where(name: 'A').first }
-      # let(:area_b) { GeographicArea.where(name: 'B').first }
-      # let(:area_e) { GeographicArea.where(name: 'E').first }
-      # let(:json_string) { '{"type":"Feature", "properties":{}, "geometry":{"type":"MultiPolygon", "coordinates":[[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}' }
-      #
-      # # need some collection objects
-      # let(:co_a) {
-      #   object = CollectingEvent.where(verbatim_label: 'Eh?').first
-      #   object.collection_objects.first
-      # }
-      #
-      # let(:co_b) {
-      #   object = CollectingEvent.where(verbatim_label: 'Bah').first
-      #   object.collection_objects.first
-      # }
+      # NOTE: The following *has* to be *after* the sign_in_and_select_project !
+      include_context 'stuff for complex geo tests'
 
       describe '#set_area', js: true do #
         it 'renders count of otus in a specific names area' do
