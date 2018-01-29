@@ -279,7 +279,7 @@ namespace :tw do
         biocuration_classes.each do |bc|
           b = BiocurationClass.where(name: bc, project_id: $project_id)
           if b.empty?
-            b = BiocurationClass.create(name: bc, definition: bc + ' specimen')
+            b = BiocurationClass.create(name: bc, definition: bc + ' specimen..........')
           else
             b = b.first
           end
@@ -507,10 +507,10 @@ namespace :tw do
             'Bulk dry' => 'Unsorted dry specimens',
             'Envelope' => 'Dry specimen(s) in envelope',
             'Pill box' => 'Specimens in pill box',
-            'Jar' => 'Specimen(s) in jar',
-            'Pin' => 'Specimen(s) on pin',
-            'Slide' => 'Specimen(s) on slide',
-            'Vial' => 'Specimen(s) in vial'
+            'Jar' => 'Specimen(s) in jar...',
+            'Pin' => 'Specimen(s) on pin...',
+            'Slide' => 'Specimen(s) on slide.',
+            'Vial' => 'Specimen(s) in vial..'
         }.freeze
 
         preparation_types.each do |pt|
@@ -602,7 +602,7 @@ namespace :tw do
           data.keywords.merge!('INHS_imported' => Keyword.create(name: 'INHS_imported', definition: 'Imported from INHS Insect collection database.'))
           data.keywords.merge!('INHS_letters' => Keyword.create(name: 'INHS_letters', definition: 'Loan correspondance imported from INHS Insect collection database.'))
           data.keywords.merge!('body part (not genitalia)' => Keyword.create(name: 'body part (not genitalia)', definition: 'Dissected body part (not genitalia).'))
-          data.keywords.merge!('genitalia' => Keyword.create(name: 'genitalia', definition: 'Dissected genitalia.'))
+          data.keywords.merge!('genitalia' => Keyword.create(name: 'genitalia', definition: 'Dissected genitalia...'))
 
           # from collecting_events
           PREDICATES.each do |p|
@@ -671,7 +671,7 @@ namespace :tw do
                                     'Genitalia' => 'Dissected genitalia (often mounted on a slide)',
                                     'Host' => 'An animal or plant on or in which a parasite or commensal organism lives',
                                     'Herbivor' => 'An animal that feeds on plants',
-                                    'Mate' => 'breeding partner',
+                                    'Mate' => 'breeding partner.........',
                                     'Parasitoid' => 'An organism that lives in or on another organism',
                                     'Pollinator' => 'An insect pollinating a plant',
                                     'Pollinated plant' => 'A plant visited by insects',
