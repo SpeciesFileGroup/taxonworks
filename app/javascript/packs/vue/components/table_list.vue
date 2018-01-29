@@ -1,65 +1,65 @@
 <template>
-	<div class="vue-table-container">
-		<table class="vue-table">
-			<thead>
-				<tr>
-					<th v-for="item in header" v-html="item"></th>
-				</tr>
-			</thead>
-			<transition-group name="list-complete" tag="tbody">
-				<tr v-for="item in list" :key="item.id" class="list-complete-item">
-					<td v-for="attr in attributes" v-html="getValue(item, attr)"></td>
-					<td class="vue-table-options">
-						<span v-if="edit" class="circle-button btn-edit" @click="$emit('edit', Object.assign({}, item))"></span>
-						<span v-if="destroy" class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
-					</td>
-				</tr>
-			</transition-group>
-		</table>
-	</div>
+  <div class="vue-table-container">
+    <table class="vue-table">
+      <thead>
+        <tr>
+          <th v-for="item in header" v-html="item"/>
+        </tr>
+      </thead>
+      <transition-group name="list-complete" tag="tbody">
+        <tr v-for="item in list" :key="item.id" class="list-complete-item">
+          <td v-for="attr in attributes" v-html="getValue(item, attr)"/>
+          <td class="vue-table-options">
+            <span v-if="edit" class="circle-button btn-edit" @click="$emit('edit', Object.assign({}, item))"/>
+            <span v-if="destroy" class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
+          </td>
+        </tr>
+      </transition-group>
+    </table>
+  </div>
 </template>
 <script>
-	export default {
-		props: {
-			list: {
-				type: Array,
-				default: () => { 
-					return []
-				}
-			},
-			attributes: {
-				type: Array,
-				required: true
-			},
-			header: {
-				type: Array,
-				default: () => {
-					return []
-				}
-			},
-			destroy: {
-				type: Boolean,
-				default: true
-			},
-			edit: {
-				type: Boolean,
-				default: false
-			}
-		},
-		methods: {
-			getValue(object, attributes) {
-				if(Array.isArray(attributes)) {
-					let obj = object;
+export default {
+  props: {
+    list: {
+      type: Array,
+      default: () => {
+        return []
+      }
+    },
+    attributes: {
+      type: Array,
+      required: true
+    },
+    header: {
+      type: Array,
+      default: () => {
+        return []
+      }
+    },
+    destroy: {
+      type: Boolean,
+      default: true
+    },
+    edit: {
+      type: Boolean,
+      default: false
+    }
+  },
+  methods: {
+    getValue (object, attributes) {
+      if (Array.isArray(attributes)) {
+        let obj = object
 
-					attributes.forEach(function(property) {
-						obj = obj[property]
-					})
-					return obj
-				}
-				return object[attributes];
-			}
-		}
-	}
+        attributes.forEach(function (property) {
+          obj = obj[property]
+        })
+        return obj
+      }
+      return object[attributes]
+    }
+  }
+}
 </script>
 <style lang="scss" scoped>
 	.vue-table-container {

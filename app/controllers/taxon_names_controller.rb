@@ -31,7 +31,7 @@ class TaxonNamesController < ApplicationController
     @taxon_name = TaxonName.new(taxon_name_params)
     respond_to do |format|
       if @taxon_name.save
-        format.html { redirect_to @taxon_name.metamorphosize,
+        format.html { redirect_to url_for(@taxon_name.metamorphosize),
                       notice: "Taxon name '#{@taxon_name.name}' was successfully created." }
         format.json { render :show, status: :created, location: @taxon_name.metamorphosize }
       else
@@ -47,7 +47,7 @@ class TaxonNamesController < ApplicationController
     respond_to do |format|
       if @taxon_name.update(taxon_name_params)
         @taxon_name.reload
-        format.html { redirect_to @taxon_name.metamorphosize, notice: 'Taxon name was successfully updated.' }
+        format.html { redirect_to url_for(@taxon_name.metamorphosize), notice: 'Taxon name was successfully updated.' }
         format.json { render :show, status: :ok, location: @taxon_name.metamorphosize }
       else
         format.html { render action: :edit }

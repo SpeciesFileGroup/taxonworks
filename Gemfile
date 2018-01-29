@@ -6,7 +6,7 @@ ruby '2.4.3'
 
 gem 'rake', '~> 12.0'
 gem 'rails', '~> 5.1.4'
-gem 'pg', '~> 0.21.0'
+gem 'pg', '~> 0.21.0' # 1.0 not compatible with 5.1.4
 gem 'activerecord-postgis-adapter', '~> 5.2'
 
 gem 'hiredis', '~> 0.6.1'
@@ -19,14 +19,14 @@ gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
 gem 'rubyzip', '~> 1.2.1'
 gem 'daemons', '~> 1.2.6'
 gem 'tzinfo-data', '~> 1.2017.2'
-gem 'psych', '~> 2.2.4'
+gem 'psych', '~> 3.0.2' # '2.2.4'
 gem 'rmagick', '~> 2.16'
 
 # Geo
 gem 'ffi-geos', '~> 1.2.0'
 # gem 'rgeo-shapefile', '~> 0.4.2'  # deprecated? not compatible- perhaps only used in
 gem 'rgeo', '~> 1.0.0'
-gem 'rgeo-geojson', '~> 1.0.0'
+gem 'rgeo-geojson', '~> 2.0.0'
 gem 'rgeo-proj4'
 gem 'postgresql_cursor', '~> 0.6.1'
 
@@ -47,7 +47,7 @@ gem 'validates_timeliness', '~> 4.0.2'
 gem 'paper_trail', '~> 8.1.2'
 gem 'acts_as_list', '~> 0.9.7'
 gem 'modularity', '~> 2.0.1' # Used!?
-gem 'paperclip', '~> 5.1'
+gem 'paperclip', '~> 5.2'
 gem 'paperclip-meta', '~> 3.0'
 
 # javascript
@@ -55,13 +55,13 @@ gem 'sprockets-rails', '~> 3.2.0'
 gem 'sprockets', '~> 3.7.1'
 gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
 gem 'webpacker', '~> 3.0'
-gem 'uglifier', '~> 4.0.1'
+gem 'uglifier', '~> 4.1.4'
 
 gem 'jquery-rails', '~> 4.3.1'
 gem 'jquery-ui-rails', '~> 6.0.1'
 gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
-gem 'turbolinks', '~> 5.0.1'
+gem 'turbolinks', '~> 5.1.0'
 gem 'jquery-turbolinks', '~> 2.1'
 
 # BibTeX handling
@@ -115,12 +115,12 @@ end
 
 group :development do
 # gem 'tunemygc'
-  gem 'ruby-prof', '~> 0.16.2'
+  gem 'ruby-prof', '~> 0.17.0'
   gem 'better_errors', '~> 2.3'
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
-  gem 'parallel_tests', '~> 2.19.0'
+  gem 'parallel_tests', '~> 2.21.0'
   gem 'web-console', '~> 3.5.1'
   gem 'rubocop', '~> 0.52.0'
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
@@ -134,9 +134,9 @@ end
 group :test do
   gem 'rspec', '~> 3.6'
   gem 'coveralls', '~> 0.8.21', require: false
-  gem 'capybara', '~> 2.16.1'
+  gem 'capybara', '~> 2.17.0'
   gem 'timecop', '~> 0.9.1'
-  gem 'webmock', '~> 3.1.1'
+  gem 'webmock', '~> 3.3.0'
   gem 'vcr', '~> 4.0.0'
   gem 'database_cleaner', '~> 1.6.1'
   gem 'rails-controller-testing', '~> 1.0.2'

@@ -1,3 +1,3 @@
-module.exports = function(state) {
-	return state.settings.lastSave;
-};
+module.exports = function (state) {
+  return state.settings.lastSave
+}

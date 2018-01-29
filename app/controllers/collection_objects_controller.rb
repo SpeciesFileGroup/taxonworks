@@ -62,7 +62,7 @@ class CollectionObjectsController < ApplicationController
 
     respond_to do |format|
       if @collection_object.save
-        format.html { redirect_to @collection_object.metamorphosize, notice: 'Collection object was successfully created.' }
+        format.html { redirect_to url_for(@collection_object.metamorphosize), notice: 'Collection object was successfully created.' }
         format.json { render action: 'show', status: :created, location: @collection_object.metamorphosize }
       else
         format.html { render action: 'new' }
@@ -77,7 +77,7 @@ class CollectionObjectsController < ApplicationController
     respond_to do |format|
       if @collection_object.update(collection_object_params)
         @collection_object = @collection_object.metamorphosize
-        format.html { redirect_to @collection_object, notice: 'Collection object was successfully updated.' }
+        format.html { redirect_to url_for(@collection_object), notice: 'Collection object was successfully updated.' }
         format.json { render :show, status: :ok, location: @collection_object }
       else
         format.html { render action: 'edit' }

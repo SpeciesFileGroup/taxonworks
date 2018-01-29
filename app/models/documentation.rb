@@ -20,7 +20,14 @@
 #   @return [Hash]
 #     maps page numbers, key is Document page, value is Recorded page (e.g. first page of the pdf => published page 10)
 #
+# @!attribute position 
+#   @return [Integer]
+#     for acts as list, scopes to document
+#
 class Documentation < ApplicationRecord
+
+  acts_as_list scope: [:project_id, :documentation_object_id, :documentation_object_type]
+
   include Housekeeping
   include Shared::Identifiers
   include Shared::Notes

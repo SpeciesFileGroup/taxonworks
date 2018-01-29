@@ -1,8 +1,8 @@
 const ComponentNames = {
-    Qualitative: `qualitative-descriptor`,
-    Presence: `presence-descriptor`,
-    Continuous: `continuous-descriptor`,
-    Sample: `sample-descriptor`
-};
+  Qualitative: `qualitative-descriptor`,
+  Presence: `presence-descriptor`,
+  Continuous: `continuous-descriptor`,
+  Sample: `sample-descriptor`
+}
 
-export default ComponentNames;
+export default ComponentNames

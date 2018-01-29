@@ -6,6 +6,53 @@ describe Citation, type: :model, group: [:annotators, :citations] do
   let(:source) { FactoryBot.create(:valid_source) }
   let(:topic) { FactoryBot.create(:valid_topic) }
 
+  let(:pdf) { fixture_file_upload( Spec::Support::Utilities::Files.generate_pdf(pages: 10) ) } 
+
+  context 'page links' do
+    let!(:document) { Document.create!( document_file: fixture_file_upload( fixture_file_upload( pdf, 'application/pdf')),
+                                       initialize_start_page: 10
+                                      ) } 
+
+    let!(:documentation) { Documentation.create!(documentation_object: source, document: document) }
+
+    before do
+      citation.citation_object = otu
+      citation.source = source
+      citation.pages = '99'
+      citation.save
+    end
+
+    specify '#first_page 1' do
+      citation.pages = '99'
+      expect(citation.first_page).to eq('99')
+    end
+
+    specify '#first_page 2' do
+      citation.pages = '22, 99'
+      expect(citation.first_page).to eq('22')
+    end
+
+    specify '#first_page 3' do
+      citation.pages = '2-44, ix'
+      expect(citation.first_page).to eq('2')
+    end
+
+    specify '#target_document' do
+      expect(citation.target_document).to eq(document)
+    end
+
+    specify '#target_document_page 1' do
+      citation.pages = '15'
+      expect(citation.target_document_page).to eq('6')
+    end
+
+    specify '#target_document_page 2' do
+      citation.pages = '99'
+      expect(citation.target_document_page).to eq(nil)
+    end
+
+  end
+
   context 'associations' do
     context 'belongs_to' do
       specify '#citation_object' do

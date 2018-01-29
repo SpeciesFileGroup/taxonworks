@@ -253,7 +253,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
 
       specify 'for cached_classified_as' do
         r2 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: @family, type: 'TaxonNameRelationship::SourceClassifiedAs')
-        r2.save
+        r2.save!
         expect(s1.cached_classified_as).to eq(' (as Erythroneuridae)')
       end
 
@@ -271,7 +271,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         s1.original_genus = g2
         s1.save!
         r2 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: @family, type: 'TaxonNameRelationship::SourceClassifiedAs')
-        r2.save
+        r2.save!
         expect(s1.cached_classified_as).to eq(' (as Erythroneuridae)')
       end
 
@@ -280,7 +280,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         r3.soft_validate(:synonym_linked_to_valid_name)
         expect(r3.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
         r3.fix_soft_validations
-        r3.save
+        r3.save!
         expect(s1.cached_misspelling).to be_truthy
         expect(s1.cached).to eq('Bus aus [sic]')
         expect(s1.cached_html).to eq('<i>Bus aus</i> [sic]')
@@ -295,11 +295,10 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       r2 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
       r3 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies')
 
-      r1.save
-      r2.save
-      r3.save
-      #  s1.reload # <- not needed with relationships(true) that forces reload on cached building
-      s1.save
+      r1.save!
+      r2.save!
+      r3.save!
+      s1.save!
       expect(s1.cached_original_combination).to eq('<i>Aus</i> (<i>Aus</i>) <i>aus</i>')
       r2.destroy
       expect(s1.cached_original_combination).to eq('<i>Aus aus</i>')

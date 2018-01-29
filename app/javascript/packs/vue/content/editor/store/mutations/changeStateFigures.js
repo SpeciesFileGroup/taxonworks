@@ -1,3 +1,3 @@
-module.exports = function(state) {
-	state.panels.figures = !state.panels.figures
-};
+module.exports = function (state) {
+  state.panels.figures = !state.panels.figures
+}

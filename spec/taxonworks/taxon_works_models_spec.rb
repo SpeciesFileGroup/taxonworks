@@ -45,33 +45,28 @@ describe TaxonWorks do
 
     specify 'strings are converted to nil' do
       m.string = ''
-        m.save
-        expect(m.string).to eq(nil)
+      m.save!
+      expect(m.string).to eq(nil)
     end
 
     specify 'text is converted to nil' do
       m.text = ''
-      m.save
+      m.save!
       expect(m.text).to eq(nil)
     end
 
     specify 'boolean is untouched when false' do
       m.boolean = false
-      m.save
+      m.save!
       expect(m.boolean).to eq(false)
     end
 
     specify 'integer 0 is untouched' do
       m.integer = 0
-      m.save
+      m.save!
       expect(m.integer).to eq(0)
     end
-
-
-
-
   end
-
 end
 
 module TaxonWorksModels

@@ -1,6 +1,6 @@
 module.exports = {
-	higher: 'family',
-	family: 'genus',
-	genus: 'species',
-	species: 'species'
+  higher: 'family',
+  family: 'genus',
+  genus: 'species',
+  species: 'species'
 }

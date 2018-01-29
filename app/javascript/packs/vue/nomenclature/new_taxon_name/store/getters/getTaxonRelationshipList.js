@@ -1,3 +1,3 @@
-module.exports = function(state) {
-	return state.taxonRelationshipList;
-};
+module.exports = function (state) {
+  return state.taxonRelationshipList
+}

@@ -1,16 +1,16 @@
-import mergeIntoObservation from '../helpers/mergeIntoObservation';
-import setDescriptorUnsaved from '../helpers/setDescriptorUnsaved';
+import mergeIntoObservation from '../helpers/mergeIntoObservation'
+import setDescriptorUnsaved from '../helpers/setDescriptorUnsaved'
 
-export default function(state, args) {
-    const {
-        descriptorId,
-        characterStateId,
-        isChecked
-    } = args;
+export default function (state, args) {
+  const {
+    descriptorId,
+    characterStateId,
+    isChecked
+  } = args
 
-    const observation = state.observations
-        .find(o => o.descriptorId === descriptorId && o.characterStateId === characterStateId);
+  const observation = state.observations
+    .find(o => o.descriptorId === descriptorId && o.characterStateId === characterStateId)
 
-    mergeIntoObservation(observation, { isChecked });
-    setDescriptorUnsaved(state.descriptors.find(d => d.id === descriptorId));
+  mergeIntoObservation(observation, { isChecked })
+  setDescriptorUnsaved(state.descriptors.find(d => d.id === descriptorId))
 };

@@ -1,13 +1,13 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
+import Vue from 'vue'
+import Vuex from 'vuex'
 
-const getters = require('./getters/getters');
-const mutations = require('./mutations/mutations');
-const actions = require('./actions/actions');
+const getters = require('./getters/getters')
+const mutations = require('./mutations/mutations')
+const actions = require('./actions/actions')
 
-Vue.use(Vuex);
+Vue.use(Vuex)
 
-function makeInitialState() {
+function makeInitialState () {
   return {
     taxon_name: {
       id: undefined,
@@ -42,16 +42,16 @@ function makeInitialState() {
     softValidation: {
       taxon_name: {
         title: 'Taxon name',
-        list: [],
+        list: []
       },
       taxonRelationshipList: {
         title: 'Relationships',
-        list: [],
+        list: []
       },
       taxonStatusList: {
         title: 'Status',
-        list: [],
-      },
+        list: []
+      }
     },
     hardValidation: undefined,
     nomenclatural_code: undefined,
@@ -62,18 +62,18 @@ function makeInitialState() {
     relationships: [],
     allRanks: [],
     original_combination: []
-  };
+  }
 }
 
-function newStore() {
+function newStore () {
   return new Vuex.Store({
     state: makeInitialState(),
     getters: getters.GetterFunctions,
     mutations: mutations.MutationFunctions,
     actions: actions.ActionFunctions
-  });
+  })
 }
 
 module.exports = {
   newStore
-};
+}

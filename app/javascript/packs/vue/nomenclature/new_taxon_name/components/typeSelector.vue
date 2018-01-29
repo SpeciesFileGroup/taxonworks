@@ -7,19 +7,18 @@
         url="/taxon_names/autocomplete"
         label="label_html"
         min="3"
-        eventSend="parentSelected"
+        event-send="parentSelected"
         display="label"
-        param="term">
-      </autocomplete>
+        param="term"/>
     </div>
   </form>
 </template>
 
 <script>
-  const autocomplete = require('../../../components/autocomplete.vue').default;
-  export default {
-    components: {
-      autocomplete
-    }
+const autocomplete = require('../../../components/autocomplete.vue').default
+export default {
+  components: {
+    autocomplete
   }
+}
 </script>

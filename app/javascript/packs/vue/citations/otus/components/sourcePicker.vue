@@ -14,41 +14,40 @@
           placeholder="Find source"
           event-send="sourcepicker"
           label="label"
-          :autofocus="true">
-        </autocomplete>
+          :autofocus="true"/>
       </div>
     </modal>
   </div>
 </template>
 
 <script>
-  const GetterNames = require('../store/getters/getters').GetterNames;
-  const MutationNames = require('../store/mutations/mutations').MutationNames;
-  const autocomplete = require('../../../components/autocomplete.vue').default;
-  const modal = require('../../../components/modal.vue').default;
+const GetterNames = require('../store/getters/getters').GetterNames
+const MutationNames = require('../store/mutations/mutations').MutationNames
+const autocomplete = require('../../../components/autocomplete.vue').default
+const modal = require('../../../components/modal.vue').default
 
-  export default {
-      data: function() {
-        return {
-          showModal: false
-        }
-      },
-      components: {
-        autocomplete,
-        modal
-      },
-      computed: {
-        source() {
-          return this.$store.getters[GetterNames.GetSourceSelected]
-        }
-      },
-      methods: {
-        loadSource: function(item) {
-          this.$http.get("/sources/" + item.id).then( response => {
-            this.$store.commit(MutationNames.SetSourceSelected, response.body); 
-            this.showModal = false;
-          }); 
-        }                 
-      },
-    };
+export default {
+  data: function () {
+    return {
+      showModal: false
+    }
+  },
+  components: {
+    autocomplete,
+    modal
+  },
+  computed: {
+    source () {
+      return this.$store.getters[GetterNames.GetSourceSelected]
+    }
+  },
+  methods: {
+    loadSource: function (item) {
+      this.$http.get('/sources/' + item.id).then(response => {
+        this.$store.commit(MutationNames.SetSourceSelected, response.body)
+        this.showModal = false
+      })
+    }
+  }
+}
 </script>

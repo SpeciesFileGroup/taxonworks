@@ -1,92 +1,91 @@
-import { MutationNames } from '../mutations/mutations';
-import DescriptorTypes from '../helpers/DescriptorTypes';
-import ComponentNames from '../helpers/ComponentNames';
-import makeEmptyObservationsFor from '../helpers/makeEmptyObservationsFor';
+import { MutationNames } from '../mutations/mutations'
+import DescriptorTypes from '../helpers/DescriptorTypes'
+import ComponentNames from '../helpers/ComponentNames'
+import makeEmptyObservationsFor from '../helpers/makeEmptyObservationsFor'
 
-export default function({commit, state}, args) {
-    const {
-        matrixId,
-        otuId
-    } = args;
+export default function ({commit, state}, args) {
+  const {
+    matrixId,
+    otuId
+  } = args
 
-    return state.request.getMatrixRow(matrixId, otuId)
-        .then(response => {
-            const descriptors = response.descriptors.map(transformDescriptorForViewmodel);
-            commit(MutationNames.SetDescriptors, descriptors);
+  return state.request.getMatrixRow(matrixId, otuId)
+    .then(response => {
+      const descriptors = response.descriptors.map(transformDescriptorForViewmodel)
+      commit(MutationNames.SetDescriptors, descriptors)
 
-            const emptyObservations = makeEmptyObservationsForDescriptors(descriptors);
-            emptyObservations.forEach(o => commit(MutationNames.SetObservation, o));
+      const emptyObservations = makeEmptyObservationsForDescriptors(descriptors)
+      emptyObservations.forEach(o => commit(MutationNames.SetObservation, o))
 
-            addOtuToState();
+      addOtuToState()
 
-            function addOtuToState() {
-                const {
-                    id,
-                    object_tag
-                } = response.otu;
-                commit(MutationNames.SetTaxonId, id);
-                commit(MutationNames.SetTaxonTitle, object_tag);
-            }
-        });
+      function addOtuToState () {
+        const {
+          id,
+          object_tag
+        } = response.otu
+        commit(MutationNames.SetTaxonId, id)
+        commit(MutationNames.SetTaxonTitle, object_tag)
+      }
+    })
 };
 
-function transformDescriptorForViewmodel(descriptorData) {
-    const descriptor = makeBaseDescriptor(descriptorData);
-    attemptToAddCharacterStates(descriptorData, descriptor);
-    return descriptor;
+function transformDescriptorForViewmodel (descriptorData) {
+  const descriptor = makeBaseDescriptor(descriptorData)
+  attemptToAddCharacterStates(descriptorData, descriptor)
+  return descriptor
 }
 
-function makeBaseDescriptor(descriptorData) {
-    return {
-        id: descriptorData.id,
-        componentName: getComponentNameForDescriptorType(descriptorData),
-        title: descriptorData.object_tag,
-        description: getDescription(descriptorData),
-        isZoomed: false,
-        isUnsaved: false,
-        needsCountdown: false,
-        isSaving: false,
-        hasSavedAtLeastOnce: false,
-        notes: null,
-        depictions: null
-    };
+function makeBaseDescriptor (descriptorData) {
+  return {
+    id: descriptorData.id,
+    componentName: getComponentNameForDescriptorType(descriptorData),
+    title: descriptorData.object_tag,
+    description: getDescription(descriptorData),
+    isZoomed: false,
+    isUnsaved: false,
+    needsCountdown: false,
+    isSaving: false,
+    hasSavedAtLeastOnce: false,
+    notes: null,
+    depictions: null
+  }
 }
 
 const DescriptorTypesToComponentNames = {
-    [DescriptorTypes.Qualitative]: ComponentNames.Qualitative,
-    [DescriptorTypes.Continuous]: ComponentNames.Continuous,
-    [DescriptorTypes.Sample]: ComponentNames.Sample,
-    [DescriptorTypes.Presence]: ComponentNames.Presence
-};
-
-function getComponentNameForDescriptorType(descriptorData) {
-    return DescriptorTypesToComponentNames[descriptorData.type];
+  [DescriptorTypes.Qualitative]: ComponentNames.Qualitative,
+  [DescriptorTypes.Continuous]: ComponentNames.Continuous,
+  [DescriptorTypes.Sample]: ComponentNames.Sample,
+  [DescriptorTypes.Presence]: ComponentNames.Presence
 }
 
-function getDescription(descriptorData) {
-    return descriptorData.description || null;
+function getComponentNameForDescriptorType (descriptorData) {
+  return DescriptorTypesToComponentNames[descriptorData.type]
 }
 
-function attemptToAddCharacterStates(descriptorData, descriptor) {
-    if (descriptor.componentName === ComponentNames.Qualitative)
-        descriptor.characterStates = descriptorData.character_states.map(transformCharacterStateForViewmodel);
+function getDescription (descriptorData) {
+  return descriptorData.description || null
 }
 
-function transformCharacterStateForViewmodel(characterStateData) {
-    return {
-        id: characterStateData.id,
-        name: characterStateData.name,
-        label: characterStateData.label,
-        description: characterStateData.description || null
-    };
+function attemptToAddCharacterStates (descriptorData, descriptor) {
+  if (descriptor.componentName === ComponentNames.Qualitative) { descriptor.characterStates = descriptorData.character_states.map(transformCharacterStateForViewmodel) }
 }
 
-function makeEmptyObservationsForDescriptors(descriptors) {
-    let observations = [];
+function transformCharacterStateForViewmodel (characterStateData) {
+  return {
+    id: characterStateData.id,
+    name: characterStateData.name,
+    label: characterStateData.label,
+    description: characterStateData.description || null
+  }
+}
 
-    descriptors.forEach(descriptor => {
-        observations = [...observations, ...makeEmptyObservationsFor(descriptor)];
-    });
+function makeEmptyObservationsForDescriptors (descriptors) {
+  let observations = []
 
-    return observations;
+  descriptors.forEach(descriptor => {
+    observations = [...observations, ...makeEmptyObservationsFor(descriptor)]
+  })
+
+  return observations
 }

@@ -1,69 +1,67 @@
 <template>
-	<transition-group class="table-entrys-list" name="list-complete" tag="ul">
-	    	<li v-for="item in list" :key="item.id" class="list-complete-item flex-separate middle" :class="{ 'highlight': checkHighlight(item) }">
-			    <span class="list-item" v-html="displayName(item)"></span>
-			    <div class="list-controls">
-			    	<radial-annotator v-if="annotator" :globalId="item.global_id"></radial-annotator>	
-			    	<span v-if="edit" class="circle-button btn-edit" @click="$emit('edit', Object.assign({}, item))">Edit</span>
-		    		<span class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
-		    	</div>
-	    	</li>
-	</transition-group>
+  <transition-group class="table-entrys-list" name="list-complete" tag="ul">
+    <li v-for="item in list" :key="item.id" class="list-complete-item flex-separate middle" :class="{ 'highlight': checkHighlight(item) }">
+      <span class="list-item" v-html="displayName(item)"/>
+      <div class="list-controls">
+        <radial-annotator v-if="annotator" :global-id="item.global_id"/>
+        <span v-if="edit" class="circle-button btn-edit" @click="$emit('edit', Object.assign({}, item))">Edit</span>
+        <span class="circle-button btn-delete" @click="$emit('delete', item)">Remove</span>
+      </div>
+    </li>
+  </transition-group>
 </template>
 <script>
 
-	import radialAnnotator from './annotator/annotator.vue';
+import radialAnnotator from './annotator/annotator.vue'
 
-	export default {
-		components: {
-			radialAnnotator
-		},
-		props: {
-			list: {
-				type: Array,
-				default: () => []
-			},
-			label: {
-				required: true,
-			},
-			edit: {
-				type: Boolean,
-				default: false,
-			},
-			annotator: {
-				type: Boolean
-			},
-			highlight: {
-				type: Object,
-				default: undefined
-			}
-		},
-		methods: {
-			displayName(item) {
-				if(typeof this.label == 'string') {
-					return item[this.label];
-				}
-				else {
-					let tmp = item;
-					this.label.forEach(function(label) {
-						tmp = tmp[label]
-					});
-					return tmp;
-				}
-			},
-			checkHighlight(item) {
-				if(this.highlight) {
-					if(this.highlight.key) {
-						return item[this.highlight.key] == this.highlight.value
-					}
-					else {
-						return item == this.highlight.value
-					}
-				}
-				return false
-			}
-		}
-	}
+export default {
+  components: {
+    radialAnnotator
+  },
+  props: {
+    list: {
+      type: Array,
+      default: () => []
+    },
+    label: {
+      required: true
+    },
+    edit: {
+      type: Boolean,
+      default: false
+    },
+    annotator: {
+      type: Boolean
+    },
+    highlight: {
+      type: Object,
+      default: undefined
+    }
+  },
+  methods: {
+    displayName (item) {
+      if (typeof this.label === 'string') {
+        return item[this.label]
+      } else {
+        let tmp = item
+        this.label.forEach(function (label) {
+          tmp = tmp[label]
+        })
+        return tmp
+      }
+    },
+    checkHighlight (item) {
+      if (this.highlight) {
+        if (this.highlight.key) {
+          return item[this.highlight.key] == this.highlight.value
+        } else {
+          return item == this.highlight.value
+        }
+      }
+      return false
+    }
+  }
+}
 </script>
 <style lang="scss" scoped>
 

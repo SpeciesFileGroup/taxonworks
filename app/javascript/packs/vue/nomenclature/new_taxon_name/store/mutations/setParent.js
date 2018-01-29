@@ -1,3 +1,3 @@
-module.exports = function(state, parent) {
-	state.parent = parent;
-};
+module.exports = function (state, parent) {
+  state.parent = parent
+}

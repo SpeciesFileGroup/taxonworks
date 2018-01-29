@@ -12,7 +12,7 @@
 #
 # @!attribute document_file_file_size
 #   @return [Integer]
-#     size fo the document in K
+#     size of the document in K
 #
 # @!attribute document_file_updated_at
 #   @return [Timestamp]
@@ -62,7 +62,7 @@ class Document < ApplicationRecord
   }
 
   def set_pages_by_start(sp = 1)
-    update_attribute(:page_map, get_page_map(sp))
+    write_attribute(:page_map, get_page_map(sp))
   end
 
   def get_page_map(sp = 1)
@@ -103,6 +103,7 @@ class Document < ApplicationRecord
 
   def initialize_start_page=(value)
     write_attribute(:page_map, get_page_map(value))
+    @initialize_start_page = value 
   end
 
   protected

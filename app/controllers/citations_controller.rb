@@ -34,7 +34,12 @@ class CitationsController < ApplicationController
 
   # Presently only used in autocomplete
   def show
-    redirect_to @citation.annotated_object.metamorphosize
+    respond_to do |format|
+      format.html {
+        redirect_to url_for(@citation.annotated_object.metamorphosize)
+      }
+      format.json {}
+    end
   end
 
   # POST /citations
@@ -43,7 +48,7 @@ class CitationsController < ApplicationController
     @citation = Citation.new(citation_params)
     respond_to do |format|
       if @citation.save
-        format.html { redirect_to @citation.citation_object.metamorphosize, notice: 'Citation was successfully created.' }
+        format.html { redirect_to url_for(@citation.citation_object.metamorphosize), notice: 'Citation was successfully created.' }
         format.json { render :show, status: :created, location: @citation }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was NOT successfully created.')}
@@ -57,7 +62,7 @@ class CitationsController < ApplicationController
   def update
     respond_to do |format|
       if @citation.update(citation_params)
-        format.html { redirect_to @citation.citation_object.metamorphosize, notice: 'Citation was successfully updated.' }
+        format.html { redirect_to url_for(@citation.citation_object.metamorphosize), notice: 'Citation was successfully updated.' }
         format.json { render :show, location: @citation }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was NOT successfully updated.')}

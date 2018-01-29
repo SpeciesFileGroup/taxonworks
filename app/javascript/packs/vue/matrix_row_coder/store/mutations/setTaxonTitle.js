@@ -1,3 +1,3 @@
-export default function(state, title) {
-    state.taxonTitle = title;
+export default function (state, title) {
+  state.taxonTitle = title
 };

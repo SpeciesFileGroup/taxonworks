@@ -1,46 +1,44 @@
-import Vue from 'vue'; 
-import VueResource from 'vue-resource';
+import Vue from 'vue'
+import VueResource from 'vue-resource'
 
-Vue.use(VueResource);
-Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+Vue.use(VueResource)
+Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
 
-const ajaxCall = function(type, url, data = null) {
-  return new Promise(function(resolve, reject) {
+const ajaxCall = function (type, url, data = null) {
+  return new Promise(function (resolve, reject) {
     Vue.http[type](url, data).then(response => {
-      return resolve(response.body);
+      return resolve(response.body)
     }, response => {
-      handleError(response.body);
-      return reject(response);
+      handleError(response.body)
+      return reject(response)
     })
-  });
+  })
 }
 
-const handleError = function(json) {
-  if (typeof json != 'object') return
-  let errors = Object.keys(json);
-  let errorMessage = '';
+const handleError = function (json) {
+  if (typeof json !== 'object') return
+  let errors = Object.keys(json)
+  let errorMessage = ''
 
-  errors.forEach(function(item) {
-    if(Array.isArray(json[item])) {
+  errors.forEach(function (item) {
+    if (Array.isArray(json[item])) {
       errorMessage += json[item].join('<br>')
-    }
-    else {
+    } else {
       errorMessage += json[item]
     }
-  });
+  })
 
-  TW.workbench.alert.create(errorMessage, 'error');
+  TW.workbench.alert.create(errorMessage, 'error')
 }
 
-
-const GetParse = function(taxon_name) {
-  return new Promise(function(resolve, reject) {
+const GetParse = function (taxon_name) {
+  return new Promise(function (resolve, reject) {
     Vue.http.get(`/taxon_names/parse?query_string=${taxon_name}`, {
-      before(request) {
+      before (request) {
         if (Vue.previousRequest) {
-          Vue.previousRequest.abort();
+          Vue.previousRequest.abort()
         }
-        Vue.previousRequest = request;
+        Vue.previousRequest = request
       }
 
     }).then(response => {
@@ -49,28 +47,28 @@ const GetParse = function(taxon_name) {
   })
 }
 
-const GetLastCombinations = function() {
+const GetLastCombinations = function () {
   return ajaxCall('get', `/combinations.json`)
 }
 
-const GetCombination = function(id) {
+const GetCombination = function (id) {
   return ajaxCall('get', `/combinations/${id}.json`)
 }
 
-const CreateCombination = function(combination) {
-  return ajaxCall('post', `/combinations`, combination);
+const CreateCombination = function (combination) {
+  return ajaxCall('post', `/combinations`, combination)
 }
 
-const UpdateCombination = function(id, combination) {
-  return ajaxCall('patch', `/combinations/${id}.json`, combination);
+const UpdateCombination = function (id, combination) {
+  return ajaxCall('patch', `/combinations/${id}.json`, combination)
 }
 
-const DestroyCombination = function(id) {
-  return ajaxCall('delete', `/combinations/${id}.json`);
+const DestroyCombination = function (id) {
+  return ajaxCall('delete', `/combinations/${id}.json`)
 }
 
-const CreatePlacement = function(id, taxon_name) {
-  return ajaxCall('patch', `/taxon_names/${id}.json`, taxon_name);
+const CreatePlacement = function (id, taxon_name) {
+  return ajaxCall('patch', `/taxon_names/${id}.json`, taxon_name)
 }
 
 export {

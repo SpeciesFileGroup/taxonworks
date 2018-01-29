@@ -1,3 +1,3 @@
-module.exports = function(state) {
-	return state.parent;
-};
+module.exports = function (state) {
+  return state.parent
+}

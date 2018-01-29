@@ -1,3 +1,3 @@
-module.exports = function(state, newOtu) {
-	state.selected.otu = newOtu;
-};
+module.exports = function (state, newOtu) {
+  state.selected.otu = newOtu
+}

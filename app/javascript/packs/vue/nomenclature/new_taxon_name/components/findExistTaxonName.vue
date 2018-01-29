@@ -1,123 +1,135 @@
 <template>
-	<div class="find-taxonname-picker">
-    <ul class="no_bullets find-taxonname-list" v-if="json.length > 0">
-     <li v-for="item, index in json" v-if="index < maxResults"><a target="_blank" :href="makeUrl(item.id)" v-html="item[label]"></a></li>
-   </ul>
-    <spinner legend="Checking for identical spellings" :legend-style="{ fontSize: '14px', color: '#444', textAlign: 'center', paddingTop: '20px'}" v-if="spinner"></spinner>
- </div>
+  <div class="find-taxonname-picker">
+    <ul
+      class="no_bullets find-taxonname-list"
+      v-if="json.length > 0">
+      <li
+        v-for="(item, index) in json"
+        v-if="index < maxResults">
+        <a
+          target="_blank"
+          :href="makeUrl(item.id)"
+          v-html="item[label]"/>
+      </li>
+    </ul>
+    <spinner
+      legend="Checking for identical spellings"
+      :legend-style="{ fontSize: '14px', color: '#444', textAlign: 'center', paddingTop: '20px'}"
+      v-if="spinner"/>
+  </div>
 </template>
 
 <script>
 
-  const spinner = require('../../../components/spinner.vue').default;
+const spinner = require('../../../components/spinner.vue').default
 
-  export default {
-    components: {
-      spinner
+export default {
+  components: {
+    spinner
+  },
+  props: {
+    url: {
+      type: String,
+      required: true
     },
-    props: { 
-      url: {
-        type: String,
-        required: true
-      }, 
-      search: {
-        required: true
-      },
-      label: {
-        type: String
-      },
-      time: {
-        type: String,
-        default: "500"
-      },
-      maxResults: {
-        type: Number,
-        default: 10,
-      },
-      addParams: {
-        type: Object
-      },
-      param: {
-        type: String,
-        default: "value"
-      },
-      taxon: {
-        type: Object,
-        default: undefined
+    search: {
+      required: true
+    },
+    label: {
+      type: String
+    },
+    time: {
+      type: String,
+      default: '500'
+    },
+    maxResults: {
+      type: Number,
+      default: 10
+    },
+    addParams: {
+      type: Object
+    },
+    param: {
+      type: String,
+      default: 'value'
+    },
+    taxon: {
+      type: Object,
+      default: undefined
+    }
+  },
+  data: function () {
+    return {
+      json: [],
+      spinner: false,
+      getRequest: 0
+    }
+  },
+  watch: {
+    search: function (newVal, oldVal) {
+      if (oldVal != undefined) {
+        this.checkTime()
       }
     },
-    data: function() {
-      return {
-        json: [],
-        spinner: false,
-        getRequest: 0
-      }
-    },
-    watch: {
-      search: function(newVal, oldVal) {
-        if(oldVal != undefined) {
-         this.checkTime();
-        }
-      },
-      taxon: function(val) {
-        this.json = [];
-      }
-   },
-   methods: {
-    ajaxUrl: function() {
-      var tempUrl = this.url + '?' + this.param + '=' + this.search; 
-      var params = '';
-      if(this.addParams) {
+    taxon: function (val) {
+      this.json = []
+    }
+  },
+  methods: {
+    ajaxUrl: function () {
+      var tempUrl = this.url + '?' + this.param + '=' + this.search
+      var params = ''
+      if (this.addParams) {
         Object.keys(this.addParams).forEach((key) => {
           params += `&${key}=${this.addParams[key]}`
         })
-      }   
-      return tempUrl + params;           
+      }
+      return tempUrl + params
     },
-    makeUrl: function(id) {
-      return "/tasks/nomenclature/new_taxon_name/" + id;
+    makeUrl: function (id) {
+      return '/tasks/nomenclature/new_taxon_name/' + id
     },
-    sendItem: function(item) {
-      this.$emit('getItem', item);
+    sendItem: function (item) {
+      this.$emit('getItem', item)
     },
-    clearResults: function() {
-      this.json = [];
+    clearResults: function () {
+      this.json = []
     },
-    checkTime: function() {
-      var that = this;
-      if(this.getRequest) {
-        clearTimeout(this.getRequest);
-      }   
-      this.getRequest = setTimeout( function() {    
-        that.update();  
-      }, that.time);           
+    checkTime: function () {
+      var that = this
+      if (this.getRequest) {
+        clearTimeout(this.getRequest)
+      }
+      this.getRequest = setTimeout(function () {
+        that.update()
+      }, that.time)
     },
-    update: function() {
-      if(this.search.length < Number(this.min)) return;
-      this.spinner = true;
-      this.clearResults();   
+    update: function () {
+      if (this.search.length < Number(this.min)) return
+      this.spinner = true
+      this.clearResults()
       this.$http.get(this.ajaxUrl(), {
-        before(request) {
+        before (request) {
           if (this.previousRequest) {
-            this.previousRequest.abort();
+            this.previousRequest.abort()
           }
-          this.previousRequest = request;
-        }            
+          this.previousRequest = request
+        }
       }).then(response => {
-        this.json = response.body;
-        this.spinner = false;
-        this.$emit('existing', this.json);
+        this.json = response.body
+        this.spinner = false
+        this.$emit('existing', this.json)
       }, response => {
-      });
+      })
     },
-    activeClass: function activeClass(index) {
+    activeClass: function activeClass (index) {
       return {
         active: this.current === index
-      };
-    },   
-    activeSpinner: function() {
+      }
+    },
+    activeSpinner: function () {
       return 'ui-autocomplete-loading'
-    },  
+    }
   }
 }
 </script>

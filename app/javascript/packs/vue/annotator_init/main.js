@@ -1,22 +1,20 @@
-var TW = TW || {};
-TW.vue = TW.vue || {};
-TW.vue.annotator = TW.vue.annotator || {};
+var TW = TW || {}
+TW.vue = TW.vue || {}
+TW.vue.annotator = TW.vue.annotator || {}
 
 import Vue from 'vue'
 
 Object.assign(TW.vue.annotator, {
-	init: function(element) {
-		
-		var App = require('./app.vue').default;
+  init: function (element) {
+    var App = require('./app.vue').default
 
-		let id = `radial-annotator-${(Math.random().toString(36).substr(2, 5))}`;
-		let globalId = $(element).attr('data-global-id');
+    let id = `radial-annotator-${(Math.random().toString(36).substr(2, 5))}`
+    let globalId = $(element).attr('data-global-id')
 
-		if(globalId) {
-		
-			$(element).attr("id", id);
+    if (globalId) {
+      $(element).attr('id', id)
 
-			new Vue({
+      new Vue({
 			  	el: `#${id}`,
 			  	render: function (createElement) {
 			  		return createElement(App, {
@@ -24,17 +22,17 @@ Object.assign(TW.vue.annotator, {
 			  				id: id,
 			  				globalId: globalId
 			  			}
-			  		});
+			  		})
 			  	}
-			})
-		}
-	}
-});
+      })
+    }
+  }
+})
 
-$(document).on('turbolinks:load', function() {
+$(document).on('turbolinks:load', function () {
   if ($('[data-radial-annotator="true"]').length) {
-  	$('[data-radial-annotator="true"]').each(function() {
-  		TW.vue.annotator.init(this);
+  	$('[data-radial-annotator="true"]').each(function () {
+  		TW.vue.annotator.init(this)
   	})
   }
-});
+})
