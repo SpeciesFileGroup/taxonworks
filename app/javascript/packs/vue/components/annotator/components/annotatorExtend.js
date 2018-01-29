@@ -23,7 +23,7 @@ const vueAnnotator = {
     }
   },
   mounted: function () {
-    var that = this
+    let that = this
     this.getList(`${this.url}/${this.type}.json`).then(response => {
       that.list = response.body
     })

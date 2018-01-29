@@ -1,6 +1,12 @@
 <template>
-  <div v-if="!pin" class="pin-button" @click="createPin()"/>
-  <div v-else class="unpin-button" @click="deletePin()"/>
+  <div
+    v-if="!pin"
+    class="pin-button"
+    @click="createPin()"/>
+  <div
+    v-else
+    class="unpin-button"
+    @click="deletePin()"/>
 </template>
 
 <script>
@@ -11,7 +17,8 @@ export default {
       default: undefined
     },
     objectId: {
-      required: true
+      type: [String, Number],
+      required: true,
     },
     type: {
       type: String,

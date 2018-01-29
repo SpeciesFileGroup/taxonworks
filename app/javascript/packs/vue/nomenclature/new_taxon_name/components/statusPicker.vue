@@ -187,7 +187,7 @@ export default {
               return true
             }
           })
-        };
+        }
         resolve(newList)
       })
     },

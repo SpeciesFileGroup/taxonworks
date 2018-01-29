@@ -1,12 +1,25 @@
 <template>
   <div>
     <div class="flex-wrap-row middle">
-      <button class="button button-default normal-input" @click="showModal = true" v-if="source">Change source</button>
-      <button class="button button-default normal-input" @click="showModal = true" v-else>Select source</button>
+      <button
+        class="button button-default normal-input"
+        @click="showModal = true"
+        v-if="source">Change source
+      </button>
+      <button
+        class="button button-default normal-input"
+        @click="showModal = true"
+        v-else>Select source
+      </button>
     </div>
-    <modal @close="showModal = false" v-if="showModal" @sourcepicker="loadSource">
+    <modal
+      @close="showModal = false"
+      v-if="showModal"
+      @sourcepicker="loadSource">
       <h3 slot="header">Select source</h3>
-      <div slot="body" id="source_panel">
+      <div
+        slot="body"
+        id="source_panel">
         <autocomplete
           url="/sources/autocomplete"
           min="2"

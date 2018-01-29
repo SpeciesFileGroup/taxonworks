@@ -1,17 +1,35 @@
 <template>
   <div class="panel loan-box">
-    <spinner :show-spinner="false" :resize="false" :show-legend="false" v-if="!loan.id"/>
+    <spinner
+      :show-spinner="false"
+      :resize="false"
+      :show-legend="false"
+      v-if="!loan.id"/>
     <div class="header flex-separate middle">
       <h3>Loan items</h3>
       <div class="horizontal-left-content">
         <template>
-          <button class="button normal-input separate-right" v-if="editLoanItems.length" type="button" @click="unselectAll()">Unselect all</button>
-          <button class="button normal-input separate-right" v-else type="button" @click="selectAll()">Select all</button>
+          <button
+            class="button normal-input separate-right"
+            v-if="editLoanItems.length"
+            type="button"
+            @click="unselectAll()">Unselect all
+          </button>
+          <button
+            class="button normal-input separate-right"
+            v-else
+            type="button"
+            @click="selectAll()">Select all
+          </button>
         </template>
-        <expand class="separate-left" v-model="displayBody"/>
+        <expand
+          class="separate-left"
+          v-model="displayBody"/>
       </div>
     </div>
-    <div class="body" v-if="displayBody">
+    <div
+      class="body"
+      v-if="displayBody">
       <table class="vue-table">
         <thead>
           <tr>
@@ -22,8 +40,14 @@
             <th/>
           </tr>
         </thead>
-        <transition-group class="table-entrys-list" name="list-complete" tag="tbody">
-          <tr v-for="item, index in list" :key="item.id" class="list-complete-item">
+        <transition-group
+          class="table-entrys-list"
+          name="list-complete"
+          tag="tbody">
+          <tr
+            v-for="item in list"
+            :key="item.id"
+            class="list-complete-item">
             <td>
               <label class="list-item">
                 <input
@@ -38,7 +62,10 @@
             <td v-html="item.disposition"/>
             <td v-html="item.total"/>
             <td>
-              <span class="circle-button btn-delete" @click="deleteItem(item)">Remove</span>
+              <span
+                class="circle-button btn-delete"
+                @click="deleteItem(item)">Remove
+              </span>
             </td>
           </tr>
         </transition-group>
@@ -49,93 +76,98 @@
 
 <script>
 
-import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
-import ActionNames from '../store/actions/actionNames'
+  import {GetterNames} from '../store/getters/getters'
+  import {MutationNames} from '../store/mutations/mutations'
+  import ActionNames from '../store/actions/actionNames'
 
-import spinner from '../../components/spinner.vue'
-import expand from './expand.vue'
+  import spinner from '../../components/spinner.vue'
+  import expand from './expand.vue'
 
-export default {
-  components: {
-    spinner,
-    expand
-  },
-  computed: {
-    list () {
-      return this.$store.getters[GetterNames.GetLoanItems]
+  export default {
+    components: {
+      spinner,
+      expand
     },
-    loan () {
-      return this.$store.getters[GetterNames.GetLoan]
-    },
-    editLoanItems () {
-      return this.$store.getters[GetterNames.GetEditLoanItems]
-    }
-  },
-  data: function () {
-    return {
-      selectedItems: [],
-      displayBody: true
-    }
-  },
-  methods: {
-    selectAll () {
-      this.$store.commit(MutationNames.SetAllEditLoanItems)
-    },
-    unselectAll () {
-      this.$store.commit(MutationNames.CleanEditLoanItems)
-    },
-    deleteItem (item) {
-      this.$store.dispatch(ActionNames.DeleteLoanItem, item.id)
-    },
-    switchOption (item) {
-      if (this.editLoanItems.find(value => { return value.id == item.id })) {
-        this.removeSelectedItem(item)
-      } else {
-        this.addSelectedItem(item)
+    computed: {
+      list() {
+        return this.$store.getters[GetterNames.GetLoanItems]
+      },
+      loan() {
+        return this.$store.getters[GetterNames.GetLoan]
+      },
+      editLoanItems() {
+        return this.$store.getters[GetterNames.GetEditLoanItems]
       }
     },
-    addSelectedItem (item) {
-      this.$store.commit(MutationNames.AddEditLoanItem, item)
+    data: function () {
+      return {
+        selectedItems: [],
+        displayBody: true
+      }
     },
-    removeSelectedItem (item) {
-      this.$store.commit(MutationNames.RemoveEditLoanItem, item)
+    methods: {
+      selectAll() {
+        this.$store.commit(MutationNames.SetAllEditLoanItems)
+      },
+      unselectAll() {
+        this.$store.commit(MutationNames.CleanEditLoanItems)
+      },
+      deleteItem(item) {
+        this.$store.dispatch(ActionNames.DeleteLoanItem, item.id)
+      },
+      switchOption(item) {
+        if (this.editLoanItems.find(value => {
+            return value.id == item.id
+          })) {
+          this.removeSelectedItem(item)
+        } else {
+          this.addSelectedItem(item)
+        }
+      },
+      addSelectedItem(item) {
+        this.$store.commit(MutationNames.AddEditLoanItem, item)
+      },
+      removeSelectedItem(item) {
+        this.$store.commit(MutationNames.RemoveEditLoanItem, item)
+      }
     }
   }
-}
 </script>
 <style lang="scss" scoped>
-	.vue-table-container {
-		overflow-y: scroll;
-	  	padding: 0px;
-	  	position: relative;
-	}
-	.vue-table {
-		width: 100%;
-		.vue-table-options {
-			display: flex;
-			flex-direction: row;
-			justify-content: flex-end;
-		}
-		tr {
-			border: 1px solid #F5F5F5;
-			cursor: default;
-		}
+  .vue-table-container {
+    overflow-y: scroll;
+    padding: 0px;
+    position: relative;
+  }
 
-	}
-	.list-complete-item {
-		justify-content: space-between;
-		transition: all 0.5s, opacity 0.2s;
-	}
-	.list-complete-enter, .list-complete-leave-to
-	{
-		opacity: 0;
-		font-size: 0px;
-		border:none;
-		transform: scale(0.0);
-	}
-	.list-complete-leave-active {
-		width: 100%;
-		position: absolute;
-	}
+  .vue-table {
+    width: 100%;
+    .vue-table-options {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+    }
+    tr {
+      border: 1px solid #F5F5F5;
+      cursor: default;
+    }
+
+  }
+
+  .list-complete-item {
+    justify-content: space-between;
+    transition: all 0.5s, opacity 0.2s;
+  }
+
+  .list-complete-enter, .list-complete-leave-to {
+    opacity: 0;
+    font-size: 0px;
+    border: none;
+    transform: scale(0.0);
+  }
+
+  .list-complete-leave-active {
+    width: 100%;
+    position: absolute;
+  }
 </style>

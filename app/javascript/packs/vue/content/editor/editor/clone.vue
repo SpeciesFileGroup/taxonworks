@@ -1,14 +1,27 @@
 <template>
   <div :class="{ disabled : contents.length == 0 }">
-    <div @click="showModal = true && contents.length > 0" class="item flex-wrap-column middle menu-button">
-      <span data-icon="clone" class="big-icon"/><span class="tiny_space">Clone</span>
+    <div
+      @click="showModal = true && contents.length > 0"
+      class="item flex-wrap-column middle menu-button">
+      <span
+        data-icon="clone"
+        class="big-icon"/>
+      <span class="tiny_space">Clone</span>
     </div>
-    <modal v-if="showModal" id="clone-modal" @close="showModal = false">
+    <modal
+      v-if="showModal"
+      id="clone-modal"
+      @close="showModal = false">
       <h3 slot="header">Clone</h3>
       <div slot="body">
         <ul class="no_bullets">
-          <li v-for="item in contents" @click="cloneCitation(item.text)">
-            <span data-icon="show"><div class="clone-content-text">{{ item.text }}</div></span><span v-html="item.object_tag"/>
+          <li
+            v-for="item in contents"
+            @click="cloneCitation(item.text)">
+            <span data-icon="show">
+              <div class="clone-content-text">{{ item.text }}</div>
+            </span>
+            <span v-html="item.object_tag"/>
           </li>
         </ul>
       </div>
