@@ -1,10 +1,10 @@
 shared_context 'stuff for complex geo tests' do
   before {
-    temp_user    = $user_id
-    temp_project = $project_id
-
-    $user_id    = user_id
-    $project_id = project_id
+    # temp_user    = $user_id
+    # temp_project = $project_id
+    #
+    # $user_id    = user_id
+    # $project_id = project_id
 
     user    = User.find($user_id)
     project = Project.find($project_id)
@@ -417,8 +417,8 @@ shared_context 'stuff for complex geo tests' do
     o.taxon_name.taxon_name_authors << sargon
     co_b.otus << o
 
-    $user_id    = temp_user
-    $project_id = temp_project
+    # $user_id    = temp_user
+    # $project_id = temp_project
 
   end
 
