@@ -12,7 +12,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
     context 'signed in as a user' do
       before {
         sign_in_user_and_select_project
-        GeoBuild.GeoBuild.simple_world(@user.id, @project.id)
+        GeoBuild.simple_world(@user.id, @project.id)
       }
       # need some people
       let(:sargon) { Person.where(first_name: 'of Akkad', last_name: 'Sargon').first }

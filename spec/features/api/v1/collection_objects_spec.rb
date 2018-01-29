@@ -1,4 +1,5 @@
 require 'rails_helper'
+# require_relative '../../../support/shared_contexts/geo/build_rspec_geo'
 
 describe 'API::v1::CollectionObjects', type: :feature do
 
@@ -25,7 +26,7 @@ describe 'API::v1::CollectionObjects', type: :feature do
 
       let!(:geographic_item) do
         FactoryBot.create(:geographic_item_with_polygon,
-                          polygon: SHAPE_K,
+                          polygon: GeoBuild::SHAPE_K,
                           creator: @user,
                           updater: @user)
       end
