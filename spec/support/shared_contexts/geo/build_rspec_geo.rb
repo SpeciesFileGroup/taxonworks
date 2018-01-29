@@ -235,7 +235,7 @@ module GeoBuild
   end
 
 # @return [Multipolygon]
-  def make_box(base, offset_x, offset_y, size_x, size_y) # rubocop:disable Metrics/AbcSize
+  def self.make_box(base, offset_x, offset_y, size_x, size_y) # rubocop:disable Metrics/AbcSize
     box = RSPEC_GEO_FACTORY.polygon(
       RSPEC_GEO_FACTORY.line_string(
         [
@@ -693,7 +693,7 @@ module GeoBuild
 # @param [Integer] user_id to use to build objects
 # @param [Integer] project_id to use to build objects
 # @return [$user_id]
-  def prepare_test(user_id, project_id)
+  def self.prepare_test(user_id, project_id)
     if $user_id.nil?
       if user_id.nil?
         u        = User.order(:id).first
@@ -1173,7 +1173,7 @@ Two different shapes with the same name, 'East Boxia', and
 |------|------|------|------| |------|------|------|------|
 
 =end
-  def generate_political_areas_with_collecting_events(user_id = nil, project_id = nil,
+  def self.generate_political_areas_with_collecting_events(user_id = nil, project_id = nil,
                                                       run_in_console = false, user = nil)
 
     prepare_test(user_id, project_id) unless run_in_console
@@ -1658,7 +1658,7 @@ Two different shapes with the same name, 'East Boxia', and
     true
   end
 
-  def generate_collecting_events(user = nil)
+  def self.generate_collecting_events(user = nil)
     # now to build the CollectingEvents
     # 16 collecting events, one for each of the smallest boxes
 

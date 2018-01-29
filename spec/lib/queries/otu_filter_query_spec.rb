@@ -1,39 +1,13 @@
 require 'rails_helper'
-require_relative '../../support/shared_contexts/geo/build_rspec_geo'
+require 'support/shared_contexts/shared_geo'
 
-describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_objects, :otus] do
+describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_objects, :otus, :shared_geo] do
 
   context 'with properly built collection of objects' do
     before {
-      GeoBuild.simple_world
+      # GeoBuild.simple_world
     }
-    # need some people
-    let(:sargon) { Person.where(first_name: 'of Akkad', last_name: 'Sargon').first }
-    let(:andy) { Person.where(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author').first }
-    let(:daryl) { Person.where(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon').first }
-    let(:ted) { Person.where(last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC').first }
-    let(:bill) { Person.where(first_name: 'Bill', last_name: 'Ardson').first }
-
-    # need some otus
-    let(:top_dog) { Otu.where(name: 'Top Dog').first }
-    let(:nuther_dog) { Otu.where(name: 'Another Dog').first }
-    let(:spooler) { Otu.where('name like ?', '%spooler%').first }
-    let(:p4) { Otu.where(name: 'P4').first }
-    let(:by_bill) { Otu.where('name like ?', '%by Bill%').first }
-    let(:otu_a) { Otu.where(name: 'Otu_A').first }
-    let(:abra) { Otu.where(name: 'Abra').first }
-    let(:cadabra) { Otu.where('name like ?', '%cadabra%').first }
-    let(:alakazam) { Otu.where('name like ?', '%alakazam%').first }
-
-    # need some areas
-    let(:area_a) { GeographicArea.where(name: 'A').first }
-    let(:area_b) { GeographicArea.where(name: 'B').first }
-
-    # need some collection objects
-    let(:co_a) {
-      object = CollectingEvent.where(verbatim_label: 'Eh?').first
-      object.collection_objects.first
-    }
+    include_context 'stuff for complex geo tests'
 
     context 'area search' do
       context 'named area' do
