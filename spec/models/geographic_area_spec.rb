@@ -297,7 +297,7 @@ describe GeographicArea, type: :model, group: :geo do
     }
 
     after(:all) {
-      clean_slate_geo
+      GeoBuild.clean_slate_geo
     }
 
     context 'geolocate_ui_param' do
@@ -419,11 +419,11 @@ describe GeographicArea, type: :model, group: :geo do
   context 'find_others... responses from geographic_areas' do
 
     before(:all) do
-      generate_political_areas_with_collecting_events
+      GeoBuild.generate_political_areas_with_collecting_events
     end
 
     after(:all) do
-      clean_slate_geo
+      GeoBuild.clean_slate_geo
     end
 
     specify('is_contained_by') do

@@ -132,11 +132,11 @@ describe AssertedDistribution, type: :model, group: :geo do
 
 
     before(:all) do
-      generate_political_areas_with_collecting_events
+      GeoBuild.generate_political_areas_with_collecting_events
     end
 
     after(:all) {
-      clean_slate_geo
+      GeoBuild.clean_slate_geo
     }
 
     specify 'creates some number of ADs' do

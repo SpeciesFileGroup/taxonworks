@@ -1,12 +1,16 @@
 RSPEC_GEO_FACTORY = Gis::FACTORY
 shared_context 'stuff for complex geo tests' do
   before {
+    # @user exists as a result of `sign_in_and _select_project` (i.e., a feature test), othewise nil
     if @user
-      simple_world(@user.id, @project.id)
+      @ret_val = simple_world(@user.id, @project.id)
     else
-      simple_world
+      @ret_val = simple_world
     end
   }
+  # need user and project
+  let(:user) { User.find(1) }
+  let(:project) { Project.find(1) }
 
   # need some people
   let(:sargon) { Person.where(first_name: 'of Akkad', last_name: 'Sargon').first }
@@ -34,18 +38,21 @@ shared_context 'stuff for complex geo tests' do
                               '"coordinates":[[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}' }
 
   # need some collection objects
+  let(:ce_a) { CollectingEvent.where(verbatim_label: 'Eh?').first }
   let(:co_a) {
-    object = CollectingEvent.where(verbatim_label: 'Eh?').first
+    object = ce_a
     object.collection_objects.first
   }
 
+  let(:ce_b) { CollectingEvent.where(verbatim_label: 'Bah').first }
   let(:co_b) {
-    object = CollectingEvent.where(verbatim_label: 'Bah').first
+    object = ce_b
     object.collection_objects.first
   }
 
   # rubocop:disable Metrics/MethodLength
   def simple_world(user_id = 1, project_id = 1)
+    ret_val      = {}
     temp_user    = $user_id
     temp_project = $project_id
 
@@ -53,16 +60,18 @@ shared_context 'stuff for complex geo tests' do
     $project_id = project_id
 
     user    = User.find($user_id)
+    joe     = user
     project = Project.find($project_id)
 
-    planet_gat    = GeographicAreaType.create!(name: 'Planet')
-    gat_parish    = GeographicAreaType.create!(name: 'Parish')
-    gat_land_mass = GeographicAreaType.create!(name: 'Land Mass')
-    list_shape_a  = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
-                                                   RSPEC_GEO_FACTORY.point(0, 10, 0.0),
-                                                   RSPEC_GEO_FACTORY.point(10, 10, 0.0),
-                                                   RSPEC_GEO_FACTORY.point(10, 0, 0.0),
-                                                   RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
+    planet_gat             = GeographicAreaType.create!(name: 'Planet')
+    gat_parish             = GeographicAreaType.create!(name: 'Parish')
+    gat_land_mass          = GeographicAreaType.create!(name: 'Land Mass')
+    list_shape_a           = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
+                                                            RSPEC_GEO_FACTORY.point(0, 10, 0.0),
+                                                            RSPEC_GEO_FACTORY.point(10, 10, 0.0),
+                                                            RSPEC_GEO_FACTORY.point(10, 0, 0.0),
+                                                            RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
+    ret_val[:list_shape_a] = list_shape_a
 
     list_shape_b = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
                                                   RSPEC_GEO_FACTORY.point(0, -10, 0.0),
@@ -76,9 +85,10 @@ shared_context 'stuff for complex geo tests' do
                                                   RSPEC_GEO_FACTORY.point(0, -10, 0.0),
                                                   RSPEC_GEO_FACTORY.point(0, 10, 0.0)])
 
-    shape_a = RSPEC_GEO_FACTORY.polygon(list_shape_a)
-    shape_b = RSPEC_GEO_FACTORY.polygon(list_shape_b)
-    shape_e = RSPEC_GEO_FACTORY.polygon(list_shape_e)
+    shape_a           = RSPEC_GEO_FACTORY.polygon(list_shape_a)
+    ret_val[:shape_a] = shape_a
+    shape_b           = RSPEC_GEO_FACTORY.polygon(list_shape_b)
+    shape_e           = RSPEC_GEO_FACTORY.polygon(list_shape_e)
 
     item_a = FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_a]))
     item_b = FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_b]))
@@ -103,6 +113,13 @@ shared_context 'stuff for complex geo tests' do
                                iso_3166_a2:          nil,
                                parent:               area_e)
     area_a.geographic_items << item_a
+    shape_a       = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
+                                                   RSPEC_GEO_FACTORY.point(0, 10, 0.0),
+                                                   RSPEC_GEO_FACTORY.point(10, 10, 0.0),
+                                                   RSPEC_GEO_FACTORY.point(10, 0, 0.0),
+                                                   RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
+    line_string_a = FactoryBot.build(:geographic_item_line_string, line_string: shape_a.as_binary)
+    area_a.geographic_items << line_string_a
     area_a.save!
 
     area_b = FactoryBot.create(:level1_geographic_area,
@@ -112,6 +129,14 @@ shared_context 'stuff for complex geo tests' do
                                iso_3166_a2:          nil,
                                parent:               area_e)
     area_b.geographic_items << item_b
+    list_b2    = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(2.5, -2.5, 0.0),
+                                                RSPEC_GEO_FACTORY.point(7.5, -2.5, 0.0),
+                                                RSPEC_GEO_FACTORY.point(7.5, -7.5, 0.0),
+                                                RSPEC_GEO_FACTORY.point(7.5, -7.5, 0.0),
+                                                RSPEC_GEO_FACTORY.point(2.5, -2.5, 0.0)])
+    poly_b     = RSPEC_GEO_FACTORY.polygon(list_shape_b, [list_b2])
+    are_poly_b = FactoryBot.build(:geographic_item_polygon, polygon: shape_b.as_binary)
+    area_b.geographic_items << are_poly_b
     area_b.save!
 
     ce_a = FactoryBot.create(:collecting_event,
@@ -122,7 +147,10 @@ shared_context 'stuff for complex geo tests' do
                              verbatim_label:    'Eh?',
                              geographic_area:   area_a)
 
-    co_a = FactoryBot.create(:valid_collection_object, collecting_event: ce_a)
+    co_a = FactoryBot.create(:valid_collection_object,
+                             created_at:       '2000/01/01',
+                             updated_at:       '2000/07/01',
+                             collecting_event: ce_a)
 
     gr_a = FactoryBot.create(:georeference_verbatim_data,
                              api_request:           'area_a',
@@ -137,11 +165,14 @@ shared_context 'stuff for complex geo tests' do
                              verbatim_locality: 'environs of B',
                              verbatim_label:    'Bah',
                              geographic_area:   area_b,
-                             creator:           user,
+                             creator:           joe,
                              updater:           user,
                              project:           project)
 
-    co_b = FactoryBot.create(:valid_collection_object, collecting_event: ce_b)
+    co_b = FactoryBot.create(:valid_collection_object,
+                             created_at:       '2001/01/01',
+                             updated_at:       '2001/07/01',
+                             collecting_event: ce_b)
 
     gr_b = FactoryBot.create(:georeference_verbatim_data,
                              api_request:           'area_b',
@@ -233,10 +264,10 @@ shared_context 'stuff for complex geo tests' do
     o.taxon_name.taxon_name_authors << sargon
     co_b.otus << o
 
-    # $user_id    = temp_user
-    # $project_id = temp_project
+    $user_id    = temp_user
+    $project_id = temp_project
 
+    ret_val
   end
-
-
+  # rubocop:enable Metrics/MethodLength
 end

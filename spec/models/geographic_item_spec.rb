@@ -9,7 +9,7 @@ describe GeographicItem, type: :model, group: :geo do
   let(:geographic_item) { GeographicItem.new }
 
   after(:all) {
-    clean_slate_geo
+    GeoBuild.clean_slate_geo
   }
 
   context 'using ce_test_objects' do

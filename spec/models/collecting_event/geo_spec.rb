@@ -7,7 +7,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
   let(:country) { state.parent }
 
   context 'with political areas and collecting events generated' do
-    before(:all) { generate_political_areas_with_collecting_events }
+    before(:all) { GeoBuild.generate_political_areas_with_collecting_events }
     after(:all) { clean_slate_geo }
 
     context 'geographic names' do
@@ -279,7 +279,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
       context 'geolocate responses from collecting_event' do
         before(:all) {
-          generate_political_areas_with_collecting_events
+          GeoBuild.generate_political_areas_with_collecting_events
         }
 
         after(:all) {
@@ -435,7 +435,7 @@ context 'geopolitical labels' do
   # this context is here 2x, see if we can simlify it
   before(:all) {
     # create some bogus countries, states, provinces, counties, and a parish
-    generate_political_areas_with_collecting_events
+    GeoBuild.generate_political_areas_with_collecting_events
     #
     # The idea:
     #    - geopolitical names all come from GeographicArea, as classified by GeographicAreaType
