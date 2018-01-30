@@ -94,6 +94,7 @@
               <citation-pages
                 @setPages="addPages($event.origin_citation_attributes)"
                 :citation="taxon"/>
+              <pdf-button :pdf="citation.target_document"/>
               <span
                 class="circle-button btn-delete"
                 @click="removeSource(taxon.origin_citation.id)"/>
@@ -126,20 +127,22 @@
 
 <script>
 
-const GetterNames = require('../store/getters/getters').GetterNames
-const MutationNames = require('../store/mutations/mutations').MutationNames
-const ActionNames = require('../store/actions/actions').ActionNames
+import pdfButton from '../../../components/pdfButton'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import { ActionNames } from '../store/actions/actions'
 
-const verbatimAuthor = require('./verbatimAuthor.vue').default
-const verbatimYear = require('./verbatimYear.vue').default
-const citationPages = require('./citationPages.vue').default
-const autocomplete = require('../../../components/autocomplete.vue').default
-const rolePicker = require('../../../components/role_picker.vue').default
-const defaultElement = require('../../../components/getDefaultPin.vue').default
-const expand = require('./expand.vue').default
+import verbatimAuthor from './verbatimAuthor.vue'
+import verbatimYear from './verbatimYear.vue'
+import citationPages from './citationPages.vue'
+import autocomplete from '../../../components/autocomplete.vue'
+import rolePicker from '../../../components/role_picker.vue'
+import defaultElement from '../../../components/getDefaultPin.vue'
+import expand from './expand.vue'
 
 export default {
   components: {
+    pdfButton,
     autocomplete,
     verbatimAuthor,
     verbatimYear,

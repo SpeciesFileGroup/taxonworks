@@ -226,6 +226,10 @@
   background-image: image-url("undo.svg");
 }
 
+.pdf-button {
+  background-image: image-url('pdf.svg');
+}
+
 .expand {
   @extend .box-button;
   background-image: image-url("expand.svg");
