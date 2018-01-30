@@ -7,7 +7,7 @@ describe 'tasks/import/dwca/psu_import', type: :feature, group: [:collection_obj
 
     it_behaves_like 'a_login_required_and_project_selected_controller'
 
-    after(:all) {clean_slate_geo}
+    after(:all) {GeoBuild.clean_slate_geo}
 
     context 'signed in as a user' do
       before(:each) {

@@ -261,10 +261,10 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
       # let (:collecting_event_ids) {CollectingEvent.in_date_range({search_start_date: '1981/01/01', search_end_date: '1981/1/1'}).pluck(:id)}
       # let (:area_object_ids) {CollectionObject.all.pluck(:id)} # because all of the relevant collection objects created are in this area})
       before(:all) {
-        generate_political_areas_with_collecting_events
+        GeoBuild.generate_political_areas_with_collecting_events
       }
       after(:all) {
-        clean_slate_geo
+        GeoBuild.clean_slate_geo
       }
 
       describe 'spanning a single day' do
@@ -344,11 +344,11 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 
   context ':from_collecting_events' do
     before(:all) {
-      generate_political_areas_with_collecting_events
+      GeoBuild.generate_political_areas_with_collecting_events
     }
 
     after(:all) {
-      clean_slate_geo
+      GeoBuild.clean_slate_geo
     }
 
     let(:project_id) { CollectionObject.order(:id).first.project_id }

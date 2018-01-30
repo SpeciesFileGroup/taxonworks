@@ -325,11 +325,11 @@ describe Georeference, type: :model, group: :geo do
 
   context 'scopes' do
     before(:all) {
-      generate_geo_test_objects($user_id, $project_id)
+      GeoBuild.generate_geo_test_objects($user_id, $project_id)
     }
 
     after(:all) {
-      clean_slate_geo
+      GeoBuild.clean_slate_geo
     }
 
     # build some geo-references for testing using existing factories and geometries

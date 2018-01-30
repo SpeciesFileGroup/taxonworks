@@ -1,77 +1,80 @@
 require 'rails_helper'
+require 'support/shared_contexts/shared_geo'
 
 # Uses type: model to set $user_id and $project_id, this should be
 # deprecated eventually.
 describe Gis::GeoJSON, group: :geo, type: :model do
+  include_context 'stuff for complex geo tests'
 
   let(:otu) { FactoryBot.create(:valid_otu) }
   let(:source) { FactoryBot.create(:valid_source) }
 
-  before(:all) {
-    generate_political_areas_with_collecting_events
-    generate_geo_test_objects($user_id, $project_id)
-  }
+  # before(:all) {
+  # GeoBuild.generate_political_areas_with_collecting_events
+  # GeoBuild.generate_geo_test_objects($user_id, $project_id)
+  # }
 
-  after(:all) {
-    clean_slate_geo
-  }
+  # after(:all) {
+  # GeoBuild.clean_slate_geo
+  # }
 
   context "outputting GeoJSON 'Feature's" do
     let(:feature_index) { '1' }
     context 'geographic_item' do
       specify 'that a geographic_item can produce a properly formed feature' do
         # pending
-        object = @ce_p1.georeferences.first.geographic_item
+        object = ce_a.georeferences.first.geographic_item
         json   = Gis::GeoJSON.feature_collection([object])
         expect(json).to eq({'type'     => 'FeatureCollection',
                             'features' => [{'type'       => 'Feature',
                                             'geometry'   => {'type'        => 'Point',
-                                                             'coordinates' => [36.5, 27.5, 0]},
+                                                             'coordinates' => [5, 5, 0]},
                                             'properties' => {'geographic_item' => {'id' => object.id}},
                                             'id'         => feature_index.to_i}]})
       end
 
       specify 'that multiple features can be produced by geographic_items' do
-        object_1 = @ce_p1.georeferences.first.geographic_item
-        object_2 = @ce_old_boxia_2.georeferences.first.geographic_item
+        object_1 = ce_a.georeferences.first.geographic_item
+        object_2 = ce_b.georeferences.first.geographic_item
         json     = Gis::GeoJSON.feature_collection([object_1, object_2])
         expect(json).to eq({'type'     => 'FeatureCollection',
                             'features' => [{'type'       => 'Feature',
                                             'geometry'   => {'type'        => 'Point',
-                                                             'coordinates' => [36.5, 27.5, 0]},
+                                                             'coordinates' => [5, 5, 0]},
                                             'properties' => {'geographic_item' => {'id' => object_1.id}},
                                             'id'         => feature_index.to_i},
                                            {'type'       => 'Feature',
                                             'geometry'   => {'type'        => 'Point',
-                                                             'coordinates' => [34.5, 25.5, 0]},
+                                                             'coordinates' => [5, -5, 0]},
                                             'properties' => {'geographic_item' => {'id' => object_2.id}},
                                             'id'         => (feature_index.to_i + 1)}]})
       end
 
       specify "that the geographic_item type 'point' produce GeoJSON" do
-        object = @ce_p1.georeferences.first.geographic_item
+        object = ce_b.georeferences.first.geographic_item
         json   = Gis::GeoJSON.feature_collection([object])
         expect(json).to eq({'type'     => 'FeatureCollection',
                             'features' => [{'type'       => 'Feature',
                                             'geometry'   => {'type'        => 'Point',
-                                                             'coordinates' => [36.5, 27.5, 0]},
+                                                             'coordinates' => [5, -5, 0]},
                                             'properties' => {'geographic_item' => {'id' => object.id}},
                                             'id'         => feature_index.to_i}]})
       end
 
       specify "that the geographic_item type 'line_string' produce GeoJSON" do
-        object = @a
+        object = area_a.geographic_items.second
         json   = Gis::GeoJSON.feature_collection([object])
         expect(json).to eq({'type'     => 'FeatureCollection',
                             'features' => [{'type'       => 'Feature',
                                             'geometry'   => {'type'        => 'LineString',
-                                                             'coordinates' => [[-32, 21, 0], [-25, 21, 0], [-25, 16, 0], [-21, 20, 0]]},
+                                                             'coordinates' => [[0, 0, 0], [0, 10, 0],
+                                                                               [10, 10, 0], [10, 0, 0], [0, 0, 0]]},
                                             'properties' => {'geographic_item' => {'id' => object.id}},
                                             'id'         => feature_index.to_i}]})
       end
 
       specify "that the geographic_item type 'polygon' produce GeoJSON" do
-        object = @b
+        object = area_b.geographic_items.second
         json   = Gis::GeoJSON.feature_collection([object])
         expect(json).to eq({'type'     => 'FeatureCollection',
                             'features' => [{'type'       => 'Feature',
@@ -177,9 +180,9 @@ describe Gis::GeoJSON, group: :geo, type: :model do
         geographic_areas = GeographicArea.find_by_lat_long(point.y, point.x).order('geographic_areas.name ASC')
         # puts geographic_areas.map(&:name)
         # To fix: provide a geographic area array for below
-        objects          = AssertedDistribution.stub_new({'otu_id'           => otu.id,
-                                                          'source_id'        => source.id,
-                                                          'geographic_areas' => geographic_areas})
+        objects = AssertedDistribution.stub_new({'otu_id'           => otu.id,
+                                                 'source_id'        => source.id,
+                                                 'geographic_areas' => geographic_areas})
         objects.map(&:save!)
         json = Gis::GeoJSON.feature_collection(objects)
         expect(json).to eq({'type'     => 'FeatureCollection',

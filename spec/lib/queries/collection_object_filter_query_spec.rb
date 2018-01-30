@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
-describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :collection_objects] do
+describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :collection_objects, :shared_geo] do
   context 'with properly built collection of objects' do
     include_context 'stuff for complex geo tests'
 
@@ -141,7 +141,7 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
     #
     #
     # after(:all) {
-    #   clean_slate_geo
+    #   GeoBuild.clean_slate_geo
     #   CollectionObject.destroy_all
     #   Namespace.destroy_all
     # }
@@ -267,18 +267,18 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
     context 'user/date search' do
       let!(:pat_admin) {
         peep = FactoryBot.create(:valid_user, name: 'Pat Project Administrator', by: joe)
-        ProjectMember.create(project: project, user: peep, by: joe)
+        ProjectMember.create!(project: project, user: peep, by: joe)
         peep
       }
       let!(:pat) {
         peep = FactoryBot.create(:valid_user, name: 'Pat The Other', by: joe)
-        ProjectMember.create(project: project, user: peep, by: joe)
+        ProjectMember.create!(project: project, user: peep, by: joe)
         peep
       }
       let!(:joe) { User.find(1) }
       let!(:joe2) {
         peep = FactoryBot.create(:valid_user, name: 'Joe Number Two', by: joe)
-        ProjectMember.create(project: project, user: peep, by: joe)
+        ProjectMember.create!(project: project, user: peep, by: joe)
         peep
       }
 
@@ -296,7 +296,8 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
         params = {user: 'All users', date_type_select: 'created_at'}
 
         result = Queries::CollectionObjectFilterQuery.new(params).result
-        expect(result.count).to eq(32)
+        # 2 from previous (simple_world), and (2 + 10) generated above
+        expect(result.count).to eq(14)
 
         params = {user:                  'All users', date_type_select: 'created_at',
                   user_date_range_start: '2005-01-01', user_date_range_end: Date.yesterday.to_s}
@@ -305,10 +306,11 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
         expect(result.count).to eq(5)
 
         params = {user:                  joe, date_type_select: 'created_at',
-                  user_date_range_start: Time.zone.today.to_s, user_date_range_end: Time.zone.today.to_s}
+                  user_date_range_start: '2000/01/01', user_date_range_end: '2001/07/01'}
 
         result = Queries::CollectionObjectFilterQuery.new(params).result
-        expect(result.count).to eq(20)
+        # 2 from previous (simple_world), and 1 generated above
+        expect(result.count).to eq(3)
 
         params = {user:                  joe, date_type_select: 'updated_at',
                   user_date_range_start: nil, user_date_range_end: Date.yesterday.to_s}
@@ -320,7 +322,8 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
                   user_date_range_start: '2000-01-01', user_date_range_end: Date.yesterday.to_s}
 
         result = Queries::CollectionObjectFilterQuery.new(params).result
-        expect(result.count).to eq(5)
+        # 2 from previous (simple_world), and 5 generated above
+        expect(result.count).to eq(7)
 
         params = {user:                  pat_admin, date_type_select: 'created_at',
                   user_date_range_start: Date.yesterday.to_s, user_date_range_end: Date.yesterday.to_s}
@@ -333,23 +336,23 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
     context 'combined search' do
       let!(:pat_admin) {
         peep = FactoryBot.create(:valid_user, name: 'Pat Project Administrator', by: joe)
-        ProjectMember.create(project: project, user: peep, by: joe)
+        ProjectMember.create!(project: project, user: peep, by: joe)
         peep
       }
       let!(:pat) {
         peep = FactoryBot.create(:valid_user, name: 'Pat The Other', by: joe)
-        ProjectMember.create(project: project, user: peep, by: joe)
+        ProjectMember.create!(project: project, user: peep, by: joe)
         peep
       }
       let!(:joe) { User.find(1) }
       let!(:joe2) {
-        peep = FactoryBot.create(:valid_user, name: 'Joe Number Two', by: joe)
-        ProjectMember.create(project: project, user: peep, by: joe)
+        peep = FactoryBot.create!(:valid_user, name: 'Joe Number Two', by: joe)
+        ProjectMember.create!(project: project, user: peep, by: joe)
         peep
       }
 
       specify 'selected object' do
-        c_objs = [@co_m1, @co_n1, @co_o1, @co_p1, @co_m2, @co_n2_a, @co_o2, @co_p2, @co_m3, @co_n3]
+        c_objs = [co_a, co_b]
 
 # Specimen creation/update dates and Identifier/namespace
         2.times { FactoryBot.create(:valid_namespace, creator: user, updater: user) }
@@ -357,10 +360,10 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
         ns2 = Namespace.second
         2.times { FactoryBot.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: project) }
         c_objs.each_with_index { |sp, index|
-          sp.update_column(:created_by_id, (index.even? ? joe.id : pat.id))
+          sp.update_column(:created_by_id, (index.odd? ? joe.id : pat.id))
           sp.update_column(:created_at, "200#{index}/01/#{index + 1}")
           sp.update_column(:updated_at, "200#{index}/07/#{index + 1}")
-          sp.update_column(:updated_by_id, (index.even? ? pat.id : joe.id))
+          sp.update_column(:updated_by_id, (index.odd? ? pat.id : joe.id))
           sp.update_column(:project_id, project.id)
           sp.save!
           FactoryBot.create(:identifier_local_catalog_number,
@@ -376,26 +379,26 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
 # when this test is run along with all the rest, there are otus which have been deleted, but are still attached
 # to collection objects. As a result, we select the *last* one (the one *most recently* created),
 # rather than the first.
-        ot        = @co_m2.otus.order(:id).last
+        ot        = co_b.otus.order(:id).last
         tn        = ot.taxon_name
         test_name = tn.name
         params    = {}
         params.merge!({otu_id: ot.id})
         params.merge!({user:                  joe,
                        date_type_select:      'created_at',
-                       user_date_range_start: '2004-01-01',
+                       user_date_range_start: '2001-01-01',
                        user_date_range_end:   '2004-02-01'
                       })
-        params.merge!({id_namespace:   ns1.short_name,
-                       id_range_start: '5',
+        params.merge!({id_namespace:   ns2.short_name,
+                       id_range_start: '2',
                        id_range_stop:  '8'
                       })
-        params.merge!({geographic_area_ids: [bbxa.id]})
-        params.merge!({search_start_date: '1974-01-01', search_end_date: '1976-12-31'})
+        params.merge!({geographic_area_ids: [area_b.id]})
+        params.merge!({search_start_date: '1970-01-01', search_end_date: '1986-12-31'})
 
         result = Queries::CollectionObjectFilterQuery.new(params).result
-        expect(result).to contain_exactly(@co_m2)
-        expect(result.first.otus.count).to eq(5)
+        expect(result).to contain_exactly(co_b)
+        expect(result.first.otus.count).to eq(3)
         expect(result.first.otus.order(:id).last.taxon_name.name).to eq(test_name)
       end
     end
