@@ -273,6 +273,15 @@ describe Combination, type: :model, group: :nomenclature do
       basic_combination.soft_validate(:dates)
       expect(basic_combination.soft_validations.messages_on(:year_of_publication).count).to eq(1)
     end
+
+    specify 'incomplete combination' do
+      combination.subgenus = genus
+      combination.subspecies = species
+      combination.save
+      combination.soft_validate(:incomplete_combination)
+      expect(combination.cached).to eq ("[GENUS NOT SPECIFIED] (Erythroneura) [SPECIES NOT SPECIFIED] vitis")
+      expect(combination.soft_validations.messages_on(:base).count).to eq(2)
+    end
   end
 
   context 'usage' do
