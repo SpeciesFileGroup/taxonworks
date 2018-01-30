@@ -22,9 +22,26 @@ Parameters:
 */
 <template>
   <div class="vue-autocomplete">
-    <input ref="autofocus" class="vue-autocomplete-input normal-input" type="text" :placeholder="placeholder" @input="checkTime(), sendType()" v-model="type" :autofocus="autofocus" :disabled="disabled" :class="{'ui-autocomplete-loading' : spinner, 'vue-autocomplete-input-search' : !spinner }">
-    <ul class="vue-autocomplete-list" v-show="showList" v-if="type && json.length">
-      <li v-for="(item, index) in limitList(json)" class="vue-autocomplete-item" :class="activeClass(index)" @mouseover="itemActive(index)" @click.prevent="itemClicked(item), sendItem(item)">
+    <input
+      ref="autofocus"
+      class="vue-autocomplete-input normal-input"
+      type="text"
+      :placeholder="placeholder"
+      @input="checkTime(), sendType()"
+      v-model="type"
+      :autofocus="autofocus"
+      :disabled="disabled"
+      :class="{'ui-autocomplete-loading' : spinner, 'vue-autocomplete-input-search' : !spinner }">
+    <ul 
+      class="vue-autocomplete-list"
+      v-show="showList"
+      v-if="type && json.length">
+      <li
+        v-for="(item, index) in limitList(json)"
+        class="vue-autocomplete-item"
+        :class="activeClass(index)"
+        @mouseover="itemActive(index)"
+        @click.prevent="itemClicked(item), sendItem(item)">
         <span v-html="item[label]"/>
       </li>
     </ul>
@@ -78,7 +95,8 @@ export default {
     },
 
     url: {
-      type: String
+      type: String,
+      required: true
     },
 
     clearAfter: {
@@ -89,11 +107,6 @@ export default {
     sendLabel: {
       type: String,
       default: ''
-    },
-
-    autofocus: {
-      type: Boolean,
-      default: false
     },
 
     label: String,
@@ -119,7 +132,10 @@ export default {
     },
 
     addParams: {
-      type: Object
+      type: Object,
+      default: () => {
+        return {}
+      }
     },
 
     limit: {
@@ -178,7 +194,7 @@ export default {
     ajaxUrl: function () {
       var tempUrl = this.url + '?' + this.param + '=' + this.type
       var params = ''
-      if (this.addParams) {
+      if (Object.keys(this.addParams).length) {
         Object.keys(this.addParams).forEach((key) => {
           params += `&${key}=${this.addParams[key]}`
         })

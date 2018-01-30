@@ -1,257 +1,310 @@
 <template>
-  <div class="panel" id="panel-editor">
+  <div
+    class="panel"
+    id="panel-editor">
     <div class="flexbox">
       <div class="left">
-        <div class="title"><span><span v-if="topic">{{ topic.name }}</span> - <span v-if="otu" v-html="otu.object_tag"/></span> <select-topic-otu/></div>
-        <div v-if="disabled" class="CodeMirror cm-s-paper CodeMirror-wrap"/>
-        <markdown-editor v-else class="edit-content" v-model="record.content.text" :configs="config" @input="handleInput" ref="contentText" @dblclick="addCitation"/>
+        <div class="title">
+          <span>
+            <span v-if="topic">{{ topic.name }}</span> -
+            <span v-if="otu" v-html="otu.object_tag"/>
+          </span>
+          <select-topic-otu/>
+        </div>
+        <div
+          v-if="disabled"
+          class="CodeMirror cm-s-paper CodeMirror-wrap"/>
+        <markdown-editor
+          v-else
+          class="edit-content"
+          v-model="record.content.text"
+          :configs="config"
+          @input="handleInput"
+          ref="contentText"
+          @dblclick="addCitation"/>
       </div>
-      <div v-if="compareContent && !preview" class="right">
-        <div class="title"><span><span v-html="compareContent.topic.object_tag"/> - <span v-html="compareContent.otu.object_tag"/></span></div>
-        <div class="compare-toolbar middle"><button class="button button-close" @click="compareContent = undefined">Close compare</button></div>
-        <div class="compare" @mouseup="copyCompareContent">{{ compareContent.text }}</div>
+      <div
+        v-if="compareContent && !preview"
+        class="right">
+        <div class="title">
+          <span>
+            <span v-html="compareContent.topic.object_tag"/> -
+            <span v-html="compareContent.otu.object_tag"/>
+          </span>
+        </div>
+        <div class="compare-toolbar middle">
+          <button
+            class="button button-close"
+            @click="compareContent = undefined">Close compare
+          </button>
+        </div>
+        <div
+          class="compare"
+          @mouseup="copyCompareContent">{{ compareContent.text }}
+        </div>
       </div>
     </div>
     <div class="flex-separate menu-content-editor">
-      <div class="item flex-wrap-column middle menu-item menu-button" @click="update" :class="{ saving : autosave }"><span data-icon="savedb" class="big-icon"/><span class="tiny_space">Save</span></div>
-      <clone-content :class="{ disabled : !content }" class="item menu-item"/>
+      <div
+        class="item flex-wrap-column middle menu-item menu-button"
+        @click="update"
+        :class="{ saving : autosave }">
+        <span
+          data-icon="savedb"
+          class="big-icon"/>
+        <span class="tiny_space">Save</span>
+      </div>
+      <clone-content
+        :class="{ disabled : !content }"
+        class="item menu-item"/>
       <compare-content class="item menu-item"/>
-      <div class="item flex-wrap-column middle menu-item menu-button" @click="ChangeStateCitations()" :class="{ active : activeCitations, disabled : citations < 1 }">
-        <span data-icon="citation" class="big-icon"/>
+      <div
+        class="item flex-wrap-column middle menu-item menu-button"
+        @click="ChangeStateCitations()"
+        :class="{ active : activeCitations, disabled : citations < 1 }">
+        <span
+          data-icon="citation"
+          class="big-icon"/>
         <span class="tiny_space">Citation</span>
       </div>
       <citation-otu class="item menu-item"/>
-      <div class="item flex-wrap-column middle menu-item menu-button" @click="ChangeStateFigures()" :class="{ active : activeFigures, disabled : !content }"><span data-icon="new" class="big-icon"/><span class="tiny_space">Figure</span></div>
+      <div
+        class="item flex-wrap-column middle menu-item menu-button"
+        @click="ChangeStateFigures()"
+        :class="{ active : activeFigures, disabled : !content }">
+        <span
+          data-icon="new"
+          class="big-icon"/>
+        <span class="tiny_space">Figure</span>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-const cloneContent = require('./clone.vue').default
-const compareContent = require('./compare.vue').default
-const citationOtu = require('./compare.vue').default
-const selectTopicOtu = require('./selectTopicOtu.vue').default
-const markdownEditor = require('../../../components/markdown-editor.vue').default
-const GetterNames = require('../store/getters/getters').GetterNames
-const MutationNames = require('../store/mutations/mutations').MutationNames
+  const cloneContent = require('./clone.vue').default
+  const compareContent = require('./compare.vue').default
+  const citationOtu = require('./compare.vue').default
+  const selectTopicOtu = require('./selectTopicOtu.vue').default
+  const markdownEditor = require('../../../components/markdown-editor.vue').default
+  const GetterNames = require('../store/getters/getters').GetterNames
+  const MutationNames = require('../store/mutations/mutations').MutationNames
 
-export default {
-  data: function () {
-    return {
-      autosave: 0,
-      firstInput: true,
-      currentSourceID: '',
-      newRecord: true,
-      preview: false,
-      compareContent: undefined,
-      record: {
-        content: {
-          otu_id: '',
-          topic_id: '',
-          text: ''
+  export default {
+    data: function () {
+      return {
+        autosave: 0,
+        firstInput: true,
+        currentSourceID: '',
+        newRecord: true,
+        preview: false,
+        compareContent: undefined,
+        record: {
+          content: {
+            otu_id: '',
+            topic_id: '',
+            text: ''
+          }
+        },
+        config: {
+          status: false,
+          toolbar: ['bold', 'italic', 'code', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'link', 'table', 'preview'],
+          spellChecker: false
+        }
+
+      }
+    },
+    components: {
+      cloneContent,
+      compareContent,
+      citationOtu,
+      markdownEditor,
+      selectTopicOtu
+    },
+    computed: {
+      topic() {
+        return this.$store.getters[GetterNames.GetTopicSelected]
+      },
+      otu() {
+        return this.$store.getters[GetterNames.GetOtuSelected]
+      },
+      content() {
+        return this.$store.getters[GetterNames.GetContentSelected]
+      },
+      disabled() {
+        return (this.topic == undefined || this.otu == undefined)
+      },
+      citations() {
+        return this.$store.getters[GetterNames.GetCitationsList]
+      },
+      activeCitations() {
+        return this.$store.getters[GetterNames.PanelCitations]
+      },
+      activeFigures() {
+        return this.$store.getters[GetterNames.PanelFigures]
+      }
+    },
+
+    created: function () {
+      var that = this
+      this.$on('addCloneCitation', function (itemText) {
+        this.record.content.text += itemText
+        this.autoSave()
+      })
+      this.$on('showCompareContent', function (content) {
+        this.compareContent = content
+        this.preview = false
+      })
+    },
+    watch: {
+      otu: function (val, oldVal) {
+        if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
+          this.loadContent()
         }
       },
-      config: {
-        status: false,
-        toolbar: ['bold', 'italic', 'code', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'link', 'table', 'preview'],
-        spellChecker: false
-      }
-
-    }
-  },
-  components: {
-    cloneContent,
-    compareContent,
-    citationOtu,
-    markdownEditor,
-    selectTopicOtu
-  },
-  computed: {
-    topic () {
-      return this.$store.getters[GetterNames.GetTopicSelected]
-    },
-    otu () {
-      return this.$store.getters[GetterNames.GetOtuSelected]
-    },
-    content () {
-      return this.$store.getters[GetterNames.GetContentSelected]
-    },
-    disabled () {
-      return (this.topic == undefined || this.otu == undefined)
-    },
-    citations () {
-      return this.$store.getters[GetterNames.GetCitationsList]
-    },
-    activeCitations () {
-      return this.$store.getters[GetterNames.PanelCitations]
-    },
-    activeFigures () {
-      return this.$store.getters[GetterNames.PanelFigures]
-    }
-  },
-
-  created: function () {
-    var that = this
-    this.$on('addCloneCitation', function (itemText) {
-      this.record.content.text += itemText
-      this.autoSave()
-    })
-    this.$on('showCompareContent', function (content) {
-      this.compareContent = content
-      this.preview = false
-    })
-  },
-  watch: {
-    otu: function (val, oldVal) {
-      if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
-        this.loadContent()
-      }
-    },
-    topic: function (val, oldVal) {
-      if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
-        this.loadContent()
-      }
-    }
-  },
-  methods: {
-    ChangeStateFigures: function () {
-      this.$store.commit(MutationNames.ChangeStateFigures)
-    },
-    ChangeStateCitations: function () {
-      this.$store.commit(MutationNames.ChangeStateCitations)
-    },
-    existCitation: function (citation) {
-      var exist = false
-      this.$store.getters[GetterNames.GetCitationsList].forEach(function (item, index) {
-        if (item['source_id'] == citation.source_id) {
-          exist = true
+      topic: function (val, oldVal) {
+        if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
+          this.loadContent()
         }
-      })
-      return exist
+      }
     },
+    methods: {
+      ChangeStateFigures: function () {
+        this.$store.commit(MutationNames.ChangeStateFigures)
+      },
+      ChangeStateCitations: function () {
+        this.$store.commit(MutationNames.ChangeStateCitations)
+      },
+      existCitation: function (citation) {
+        var exist = false
+        this.$store.getters[GetterNames.GetCitationsList].forEach(function (item, index) {
+          if (item['source_id'] == citation.source_id) {
+            exist = true
+          }
+        })
+        return exist
+      },
 
-    copyCompareContent: function () {
-      if (window.getSelection) {
-        if (window.getSelection().toString().length > 0) {
-          this.record.content.text += window.getSelection().toString()
+      copyCompareContent: function () {
+        if (window.getSelection) {
+          if (window.getSelection().toString().length > 0) {
+            this.record.content.text += window.getSelection().toString()
+            this.autoSave()
+          }
+        }
+      },
+
+      addCitation: function (cursorPosition) {
+        let that = this
+
+        that.record.content.text = [that.record.content.text.slice(0, cursorPosition),
+          TW.views.shared.slideout.pdf.textCopy,
+          that.record.content.text.slice(cursorPosition)].join('')
+
+        if (that.newRecord) {
+          let ajaxUrl = `/contents/${that.record.content.id}`
+          if (that.record.content.id == '') {
+            that.$http.post(ajaxUrl, that.record).then(response => {
+              this.$store.commit(MutationNames.AddToRecentContents, response.body)
+              that.record.content.id = response.body.id
+              that.newRecord = false
+              that.createCitation()
+            })
+          }
+        } else {
+          that.update()
+          that.createCitation()
+        }
+      },
+
+      createCitation: function () {
+        let
+          sourcePDF = document.getElementById('pdfViewerContainer').dataset.sourceid
+        if (sourcePDF == undefined) return
+        this.currentSourceID = sourcePDF
+
+        let citation = {
+          pages: '',
+          citation_object_type: 'Content',
+          citation_object_id: this.record.content.id,
+          source_id: this.currentSourceID
+        }
+        if (this.existCitation(citation)) return
+
+        this.$http.post('/citations', citation).then(response => {
+          this.$store.commit(MutationNames.AddCitationToList, response.body)
+        }, response => {
+
+        })
+      },
+
+      handleInput: function () {
+        if (this.firstInput) {
+          this.firstInput = false
+        } else {
           this.autoSave()
         }
-      }
-    },
+      },
+      resetAutoSave: function () {
+        clearTimeout(this.autosave)
+        this.autosave = null
+      },
 
-    addCitation: function (cursorPosition) {
-      var that = this
+      autoSave: function () {
+        let that = this
+        if (this.autosave) {
+          this.resetAutoSave()
+        }
+        this.autosave = setTimeout(function () {
+          that.update()
+        }, 3000)
+      },
 
-      that.record.content.text = [that.record.content.text.slice(0, cursorPosition),
-        TW.views.shared.slideout.pdf.textCopy,
-        that.record.content.text.slice(cursorPosition)].join('')
+      update: function () {
+        this.resetAutoSave()
 
-      if (that.newRecord) {
-        var ajaxUrl = `/contents/${that.record.content.id}`
-        if (that.record.content.id == '') {
-          that.$http.post(ajaxUrl, that.record).then(response => {
+        if ((this.disabled) || (this.record.content.text == '')) return
+        let ajaxUrl = `/contents/${this.record.content.id}`
+
+        if (this.record.content.id == '') {
+          this.$http.post(ajaxUrl, this.record).then(response => {
+            this.record.content.id = response.body.id
             this.$store.commit(MutationNames.AddToRecentContents, response.body)
-            that.record.content.id = response.body.id
-            that.newRecord = false
-            that.createCitation()
+            this.$store.commit(MutationNames.SetContentSelected, response.body)
+          })
+        } else {
+          this.$http.patch(ajaxUrl, this.record).then(response => {
+            this.$store.commit(MutationNames.AddToRecentContents, response.body)
           })
         }
-      } else {
-        that.update()
-        that.createCitation()
-      }
-    },
+      },
 
-    createCitation: function () {
-      var
-        sourcePDF = document.getElementById('pdfViewerContainer').dataset.sourceid
-      if (sourcePDF == undefined) return
-      this.currentSourceID = sourcePDF
+      loadContent: function () {
+        if (this.disabled) return
 
-      var citation = {
-        pages: '',
-        citation_object_type: 'Content',
-        citation_object_id: this.record.content.id,
-        source_id: this.currentSourceID
-      }
-      if (this.existCitation(citation)) return
+        let
+          ajaxUrl = `/contents/filter.json?otu_id=${this.otu.id}&topic_id=${this.topic.id}`
 
-      this.$http.post('/citations', citation).then(response => {
-        this.$store.commit(MutationNames.AddCitationToList, response.body)
-      }, response => {
-
-      })
-    },
-
-    handleInput: function () {
-      if (this.firstInput) {
-        this.firstInput = false
-      } else {
-        this.autoSave()
-      }
-    },
-    resetAutoSave: function () {
-      clearTimeout(this.autosave)
-      this.autosave = null
-    },
-
-    autoSave: function () {
-      var that = this
-      if (this.autosave) {
+        this.firstInput = true
         this.resetAutoSave()
-      }
-      this.autosave = setTimeout(function () {
-        that.update()
-      }, 3000)
-    },
-
-    update: function () {
-      this.resetAutoSave()
-
-      if ((this.disabled) || (this.record.content.text == '')) return
-      var ajaxUrl = `/contents/${this.record.content.id}`
-
-      if (this.record.content.id == '') {
-        this.$http.post(ajaxUrl, this.record).then(response => {
-          this.record.content.id = response.body.id
-          this.$store.commit(MutationNames.AddToRecentContents, response.body)
-          this.$store.commit(MutationNames.SetContentSelected, response.body)
-        })
-      } else {
-        this.$http.patch(ajaxUrl, this.record).then(response => {
-          this.$store.commit(MutationNames.AddToRecentContents, response.body)
+        this.$http.get(ajaxUrl).then(response => {
+          if (response.body.length > 0) {
+            this.record.content.id = response.body[0].id
+            this.record.content.text = response.body[0].text
+            this.record.content.topic_id = response.body[0].topic_id
+            this.record.content.otu_id = response.body[0].otu_id
+            this.newRecord = false
+            this.$store.commit(MutationNames.SetContentSelected, response.body[0])
+          } else {
+            this.record.content.text = ''
+            this.record.content.id = ''
+            this.record.content.topic_id = this.topic.id
+            this.record.content.otu_id = this.otu.id
+            this.$store.commit(MutationNames.SetContent, undefined)
+            this.newRecord = true
+          }
         })
       }
-    },
-
-    loadContent: function () {
-      if (this.disabled) return
-
-      var
-        ajaxUrl = `/contents/filter.json?otu_id=${this.otu.id}&topic_id=${this.topic.id}`
-
-      this.firstInput = true
-      this.resetAutoSave()
-      this.$http.get(ajaxUrl).then(response => {
-        if (response.body.length > 0) {
-          this.record.content.id = response.body[0].id
-          this.record.content.text = response.body[0].text
-          this.record.content.topic_id = response.body[0].topic_id
-          this.record.content.otu_id = response.body[0].otu_id
-          this.newRecord = false
-          this.$store.commit(MutationNames.SetContentSelected, response.body[0])
-        } else {
-          this.record.content.text = ''
-          this.record.content.id = ''
-          this.record.content.topic_id = this.topic.id
-          this.record.content.otu_id = this.otu.id
-          this.$store.commit(MutationNames.SetContent, undefined)
-          this.newRecord = true
-        }
-      }, response => {
-        // error callback
-      })
     }
   }
-}
 </script>

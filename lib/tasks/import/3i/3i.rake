@@ -342,20 +342,20 @@ namespace :tw do
         @data.keywords.merge!(
             #'AuthorDrMetcalf' => Predicate.find_or_create_by(name: 'AuthorDrMetcalf', definition: 'Author name from DrMetcalf bibliography database.', project_id: $project_id),
             '3i_imported' => Keyword.find_or_create_by(name: '3i_imported', definition: 'Imported from 3i database.', project_id: $project_id),
-            'introduced' => Keyword.find_or_create_by(name: 'Introduced', definition: 'Introduced species.', project_id: $project_id),
+            'introduced' => Keyword.find_or_create_by(name: 'Introduced', definition: 'Introduced species.........', project_id: $project_id),
             'ZeroTotal' => Keyword.find_or_create_by(name: 'ZeroTotal', definition: 'On import there were 0 total specimens recorded in INHS FileMaker database.', project_id: $project_id),
-            'Allotype' => Keyword.find_or_create_by(name: 'Allotype', definition: 'Allotype.', project_id: $project_id),
+            'Allotype' => Keyword.find_or_create_by(name: 'Allotype', definition: 'Allotype.......................', project_id: $project_id),
             'CallNumberDrMetcalf' => Predicate.find_or_create_by(name: 'call_number_dr_metcalf', definition: 'Call Number from DrMetcalf bibliography database.', project_id: $project_id),
             #'AuthorReference' => Predicate.find_or_create_by(name: 'author_reference', definition: 'Author string as it appears in the nomenclatural reference.', project_id: $project_id),
             #'YearReference' => Predicate.find_or_create_by(name: 'year_reference', definition: 'Year string as it appears in the nomenclatural reference.', project_id: $project_id),
             #'Ethymology' => Predicate.find_or_create_by(name: 'ethymology', definition: 'Ethymology.', project_id: $project_id),
-            'TypeDepository' => Predicate.find_or_create_by(name: 'type_depository', definition: 'Type depository.', project_id: $project_id),
-            'HostPlant' => Predicate.find_or_create_by(name: 'host_plant', definition: 'Host plant.', project_id: $project_id),
-            'YearRem' => Predicate.find_or_create_by(name: 'nomenclatural_string', definition: 'Nomenclatural remarks.', project_id: $project_id),
-            'Typification' => Predicate.find_or_create_by(name: 'type_designated_by', definition: 'Type designated by', project_id: $project_id),
-            'FirstRevisor' => Predicate.find_or_create_by(name: 'first_revisor_action', definition: 'First revisor action', project_id: $project_id),
-            'PageAuthor' => Predicate.find_or_create_by(name: 'page_author', definition: 'Page author.', project_id: $project_id),
-            'SimilarSpecies' => Predicate.find_or_create_by(name: 'similar_species', definition: 'Similar species.', project_id: $project_id),
+            'TypeDepository' => Predicate.find_or_create_by(name: 'type_depository', definition: 'Type depository...............', project_id: $project_id),
+            'HostPlant' => Predicate.find_or_create_by(name: 'host_plant', definition: 'Host plant...................', project_id: $project_id),
+            'YearRem' => Predicate.find_or_create_by(name: 'nomenclatural_string', definition: 'Nomenclatural remarks............', project_id: $project_id),
+            'Typification' => Predicate.find_or_create_by(name: 'type_designated_by', definition: 'Type designated by............', project_id: $project_id),
+            'FirstRevisor' => Predicate.find_or_create_by(name: 'first_revisor_action', definition: 'First revisor action................', project_id: $project_id),
+            'PageAuthor' => Predicate.find_or_create_by(name: 'page_author', definition: 'Page author..............', project_id: $project_id),
+            'SimilarSpecies' => Predicate.find_or_create_by(name: 'similar_species', definition: 'Similar species................', project_id: $project_id),
             'IDDrMetcalf' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: 'DrMetcalf_Source_ID', short_name: 'DrMetcalf_ID'),
             'KeyN' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: '3i_KeyN_ID', short_name: '3i_KeyN_ID'),
             'Key3' => Namespace.find_or_create_by(institution: '3i Auchenorrhyncha', name: '3i_Source_ID', short_name: '3i_Source_ID'),
@@ -374,7 +374,7 @@ namespace :tw do
             'Parasitoid' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition: 'An organism that lives in or on another organism.', project_id: $project_id),
             'Attendant' => BiologicalProperty.find_or_create_by(name: 'Attendant', definition: 'An insect attending another insect.', project_id: $project_id),
             'Symbiont' => BiologicalProperty.find_or_create_by(name: 'Symbiont', definition: 'An insect leaving togeather with another insect.', project_id: $project_id),
-            'Pin' => PreparationType.find_or_create_by(name: 'Pin', definition: 'Specimen(s) on pin')
+            'Pin' => PreparationType.find_or_create_by(name: 'Pin', definition: 'Specimen(s) on pin.........')
         )
 
         @data.namespaces.merge!(
@@ -394,11 +394,11 @@ namespace :tw do
         )
 
         @data.biocuration_classes.merge!(
-            'Specimens' => BiocurationClass.find_or_create_by(name: 'Adult', definition: 'Adult specimen', project_id: $project_id),
-            'Males' => BiocurationClass.find_or_create_by(name: 'Male', definition: 'Male specimen', project_id: $project_id),
-            'Females' => BiocurationClass.find_or_create_by(name: 'Female', definition: 'Female specimen', project_id: $project_id),
-            'Nymphs' => BiocurationClass.find_or_create_by(name: 'Immature', definition: 'Immature specimen', project_id: $project_id),
-            'Exuvia' => BiocurationClass.find_or_create_by(name: 'Exuvia', definition: 'Exuvia specimen', project_id: $project_id)
+            'Specimens' => BiocurationClass.find_or_create_by(name: 'Adult', definition: 'Adult specimen..........', project_id: $project_id),
+            'Males' => BiocurationClass.find_or_create_by(name: 'Male', definition: 'Male specimen..............', project_id: $project_id),
+            'Females' => BiocurationClass.find_or_create_by(name: 'Female', definition: 'Female specimen............', project_id: $project_id),
+            'Nymphs' => BiocurationClass.find_or_create_by(name: 'Immature', definition: 'Immature specimen...........', project_id: $project_id),
+            'Exuvia' => BiocurationClass.find_or_create_by(name: 'Exuvia', definition: 'Exuvia specimen..............', project_id: $project_id)
         )
 
         @data.topics.merge!(

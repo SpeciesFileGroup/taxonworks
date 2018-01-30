@@ -1,7 +1,13 @@
 <template>
   <div v-if="activeCitations && content && citations.length > 0">
     <ul>
-      <li class="flex-separate middle" v-for="item, index in citations">{{ item.source.author_year }} <div @click="removeItem(index, item)" class="circle-button btn-delete">Remove</div>
+      <li
+        class="flex-separate middle"
+        v-for="(item, index) in citations">{{ item.source.author_year }}
+        <div
+          @click="removeItem(index, item)"
+          class="circle-button btn-delete">Remove
+        </div>
       </li>
     </ul>
   </div>
@@ -37,12 +43,12 @@ export default {
   },
   methods: {
     removeItem: function (index, item) {
-      this.$http.delete('/citations/' + item.id).then(response => {
+      this.$http.delete('/citations/' + item.id).then(() => {
         this.$store.commit(MutationNames.RemoveCitation, index)
       })
     },
     loadContent: function () {
-      var ajaxUrl
+      let ajaxUrl
 
       ajaxUrl = `/contents/${this.content.id}/citations`
       this.$http.get(ajaxUrl, this.content).then(response => {

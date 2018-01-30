@@ -1,8 +1,25 @@
 <template>
-  <div class="flex-wrap-column" v-if="panelFigures && content">
-    <draggable v-model="depictions" :options="{ filter:'.dropzone-card', handle: '.card-handle' }" @start="drag=true" @end="drag=false, updatePosition()" class="item item1 column-medium flex-wrap-row">
-      <figure-item v-for="item in depictions" :figure="item" :key="item.id"/>
-      <dropzone class="dropzone-card" @vdropzone-sending="sending" @vdropzone-success="success" ref="figure" id="figure" url="/depictions" :use-custom-dropzone-options="true" :dropzone-options="dropzone"/>
+  <div
+    class="flex-wrap-column"
+    v-if="panelFigures && content">
+    <draggable
+      v-model="depictions" :options="{ filter:'.dropzone-card', handle: '.card-handle' }"
+      @start="drag=true"
+      @end="drag=false, updatePosition()"
+      class="item item1 column-medium flex-wrap-row">
+      <figure-item
+        v-for="item in depictions"
+        :figure="item"
+        :key="item.id"/>
+      <dropzone
+        class="dropzone-card"
+        @vdropzone-sending="sending"
+        @vdropzone-success="success"
+        ref="figure"
+        id="figure"
+        url="/depictions"
+        :use-custom-dropzone-options="true"
+        :dropzone-options="dropzone"/>
     </draggable>
     <div class="item item2 column-tiny no-margin"/>
   </div>
@@ -73,13 +90,13 @@ export default {
       formData.append('depiction[depiction_object_type]', 'Content')
     },
     loadContent: function () {
-      var ajaxUrl = `/contents/${this.content.id}/depictions.json`
+      let ajaxUrl = `/contents/${this.content.id}/depictions.json`
       this.$http.get(ajaxUrl).then(response => {
         this.$store.commit(MutationNames.SetDepictionsList, response.body)
       })
     },
     updatePosition: function () {
-      var ajaxUrl = `/depictions/sort`,
+      let ajaxUrl = `/depictions/sort`,
         array = {
           depiction_ids: []
         }

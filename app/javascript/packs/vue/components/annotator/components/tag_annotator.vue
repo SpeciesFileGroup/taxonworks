@@ -1,7 +1,10 @@
 <template>
   <div class="tag_annotator">
-    <div class="switch-radio separate-bottom" v-if="preferences">
-      <template v-for="item, index in tabOptions">
+    <div
+      class="switch-radio separate-bottom"
+      v-if="preferences">
+      <template
+      v-for="(item, index) in tabOptions">
         <template v-if="item == 'new' || preferences[item].length && preferences[item].find(keyword => { return !tagAlreadyCreated(keyword) })">
           <input
             v-model="view"

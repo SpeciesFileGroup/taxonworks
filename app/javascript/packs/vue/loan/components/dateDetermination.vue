@@ -4,7 +4,9 @@
     <hr>
     <div class="field">
       <label>Determiner</label>
-      <role-picker v-model="roles" role-type="TaxonDeterminer"/>
+      <role-picker
+        v-model="roles"
+        role-type="TaxonDeterminer"/>
     </div>
     <div class="field">
       <label>OTU</label>
@@ -18,11 +20,34 @@
     </div>
     <div class="field">
       <label>Date made</label>
-      <input class="date-input" type="number" placeholder="YYYY" v-model="determination.year_made" min="1735" max="3000">
-      <input class="date-input" type="number" placeholder="MM" v-model="determination.month_made" min="1" max="12">
-      <input class="date-input" type="number" placeholder="DD" v-model="determination.day_made" min="1" max="31">
+      <input
+        class="date-input"
+        type="number"
+        placeholder="YYYY"
+        v-model="determination.year_made"
+        min="1735"
+        max="3000">
+      <input
+        class="date-input"
+        type="number"
+        placeholder="MM"
+        v-model="determination.month_made"
+        min="1"
+        max="12">
+      <input
+        class="date-input"
+        type="number"
+        placeholder="DD"
+        v-model="determination.day_made"
+        min="1"
+        max="31">
     </div>
-    <button @click="setDeterminations()" class="button button-submit normal-input" :disabled="!validateFields" type="button">Set determination</button>
+    <button
+      @click="setDeterminations()"
+      class="button button-submit normal-input"
+      :disabled="!validateFields"
+      type="button">Set determination
+    </button>
   </div>
 </template>
 <script>
@@ -39,7 +64,10 @@ export default {
   },
   props: {
     list: {
-      type: Array
+      type: Array,
+      default: () => {
+        return []
+      }
     }
   },
   computed: {

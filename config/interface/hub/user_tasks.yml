@@ -11,7 +11,6 @@
 #
 #   name* - a friendly human readable name describing the task
 #   description - a sentence or two further defining what the task will do for the user
-#   related_prefixes - an array members must be route prefixes and may include user tasks or data prefixes
 #   hub - true if this tasks should appear at the hub, these tasks MAY NOT require parameters
 #   categories - an array of one ore more of [collecting_events, geographic_areas, source, nomenclature, matrix, dna]
 #   status - one of [complete, stable, prototype,  unknown (default) ]

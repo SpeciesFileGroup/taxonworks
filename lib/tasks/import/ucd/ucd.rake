@@ -287,9 +287,9 @@ namespace :tw do
         if !@data.done?(handle)
           puts 'as new'
 
-          tags = {'1' => Keyword.find_or_create_by(name: '1', definition: 'Taxonomic', project_id: $project_id),
-                  '2' => Keyword.find_or_create_by(name: '2', definition: 'Biological', project_id: $project_id),
-                  '3' => Keyword.find_or_create_by(name: '3', definition: 'Economic', project_id: $project_id),
+          tags = {'1' => Keyword.find_or_create_by(name: '1', definition: 'Taxonomic...............', project_id: $project_id),
+                  '2' => Keyword.find_or_create_by(name: '2', definition: 'Biological...............', project_id: $project_id),
+                  '3' => Keyword.find_or_create_by(name: '3', definition: 'Economic...............', project_id: $project_id),
           }.freeze
           
           path = @args[:data_directory] + 'KEYWORDS.txt'
@@ -302,7 +302,8 @@ namespace :tw do
            
             definition = row['Meaning'].to_s.length < 4 ? row['Meaning'] + '.' : row['Meaning']
             definition = definition + '(' + row['KeyWords'] + ')'
-          
+            definition = row['Meaning'].to_s.length < 21 ? row['Meaning'] + '.................' : row['Meaning']
+
             topic = Topic.find_or_create_by!(name: definition, definition: definition, project_id: $project_id)
 
             topic.tags.create(keyword: tags[row['Category']]) unless row['Category'].blank?
@@ -549,7 +550,10 @@ namespace :tw do
             taxon.parent_id = parent if taxon.parent_id.nil? && parent
 #            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil? && row['CitSpecies'].blank?
 #            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil? && row['CitSpecies'].blank?
-            taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus' if taxon.rank_class.nil? && row['CitSpecies'].blank?
+            if taxon.rank_class.nil? && row['CitSpecies'].blank?
+              taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
+              taxon.parent_id = taxon.parent.parent_id
+            end
             taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: $project_id)
             origgen = @data.all_genera_index[row['CitGenus']]
 
@@ -1079,14 +1083,14 @@ namespace :tw do
             b.project_sources.create
             b.identifiers.create(type: 'Identifier::Local::Import', namespace: namespace, identifier: row['RefCode'] + row['Letter'].to_s)
 
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Location'], value: row['Location'])   if !row['Location'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Source'], value: row['Source'])       if !row['Source'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Check'], value: row['Check'])         if !row['Check'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:ChalcFam'], value: row['ChalcFam'])   if !row['ChalcFam'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageA'], value: row['LanguageA']) if !row['LanguageA'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row['LanguageB']) if !row['LanguageB'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageC'], value: row['LanguageC']) if !row['LanguageC'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:M_Y'], value: row['M_Y'])             if !row['M_Y'].blank?
+            b.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Refs:Location'], value: row['Location'])   if !row['Location'].blank?
+            b.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Refs:Source'], value: row['Source'])       if !row['Source'].blank?
+            b.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Refs:Check'], value: row['Check'])         if !row['Check'].blank?
+            b.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Refs:ChalcFam'], value: row['ChalcFam'])   if !row['ChalcFam'].blank?
+            b.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Refs:LanguageA'], value: row['LanguageA']) if !row['LanguageA'].blank?
+            b.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row['LanguageB']) if !row['LanguageB'].blank?
+            b.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Refs:LanguageC'], value: row['LanguageC']) if !row['LanguageC'].blank?
+            b.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Refs:M_Y'], value: row['M_Y'])             if !row['M_Y'].blank?
 
             if fext_data[row['RefCode']]
               b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['RefsExt:Translate'], value: fext_data[row['RefCode']][:translate]) unless fext_data[row['RefCode']][:translate].blank?
