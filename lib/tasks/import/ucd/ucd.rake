@@ -550,7 +550,10 @@ namespace :tw do
             taxon.parent_id = parent if taxon.parent_id.nil? && parent
 #            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil? && row['CitSpecies'].blank?
 #            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil? && row['CitSpecies'].blank?
-            taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus' if taxon.rank_class.nil? && row['CitSpecies'].blank?
+            if taxon.rank_class.nil? && row['CitSpecies'].blank?
+              taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
+              taxon.parent_id = taxon.parent.parent_id
+            end
             taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: $project_id)
             origgen = @data.all_genera_index[row['CitGenus']]
 
