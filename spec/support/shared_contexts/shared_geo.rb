@@ -3,9 +3,9 @@ shared_context 'stuff for complex geo tests' do
   before {
     # @user exists as a result of `sign_in_and _select_project` (i.e., a feature test), othewise nil
     if @user
-      @ret_val = simple_world(@user.id, @project.id)
+      simple_world(@user.id, @project.id)
     else
-      @ret_val = simple_world
+      simple_world
     end
   }
   # need user and project
@@ -31,6 +31,11 @@ shared_context 'stuff for complex geo tests' do
   let(:alakazam) { Otu.where('name like ?', '%alakazam%').first }
 
   # need some areas
+  let(:area_linestring) { GeographicArea.where(name: 'linestring').first }
+  let(:area_polygon) { GeographicArea.where(name: 'polygon').first }
+  let(:area_multipoint) { GeographicArea.where(name: 'multipoint').first }
+  let(:area_multilinestring) { GeographicArea.where(name: 'multilinestring').first }
+  let(:area_multipolygon) { GeographicArea.where(name: 'multipolygon').first }
   let(:area_a) { GeographicArea.where(name: 'A').first }
   let(:area_b) { GeographicArea.where(name: 'B').first }
   let(:area_e) { GeographicArea.where(name: 'E').first }
@@ -52,7 +57,6 @@ shared_context 'stuff for complex geo tests' do
 
   # rubocop:disable Metrics/MethodLength
   def simple_world(user_id = 1, project_id = 1)
-    ret_val      = {}
     temp_user    = $user_id
     temp_project = $project_id
 
@@ -63,20 +67,19 @@ shared_context 'stuff for complex geo tests' do
     joe     = user
     project = Project.find($project_id)
 
-    planet_gat             = GeographicAreaType.create!(name: 'Planet')
-    gat_parish             = GeographicAreaType.create!(name: 'Parish')
-    gat_land_mass          = GeographicAreaType.create!(name: 'Land Mass')
-    list_shape_a           = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
-                                                            RSPEC_GEO_FACTORY.point(0, 10, 0.0),
-                                                            RSPEC_GEO_FACTORY.point(10, 10, 0.0),
-                                                            RSPEC_GEO_FACTORY.point(10, 0, 0.0),
-                                                            RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
-    ret_val[:list_shape_a] = list_shape_a
+    planet_gat    = GeographicAreaType.create!(name: 'Planet')
+    gat_parish    = GeographicAreaType.create!(name: 'Parish')
+    gat_land_mass = GeographicAreaType.create!(name: 'Land Mass')
+    list_shape_a  = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
+                                                   RSPEC_GEO_FACTORY.point(0, 10, 0.0),
+                                                   RSPEC_GEO_FACTORY.point(10, 10, 0.0),
+                                                   RSPEC_GEO_FACTORY.point(10, 0, 0.0),
+                                                   RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
 
     list_shape_b = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
-                                                  RSPEC_GEO_FACTORY.point(0, -10, 0.0),
-                                                  RSPEC_GEO_FACTORY.point(10, -10, 0.0),
                                                   RSPEC_GEO_FACTORY.point(10, 0, 0.0),
+                                                  RSPEC_GEO_FACTORY.point(10, -10, 0.0),
+                                                  RSPEC_GEO_FACTORY.point(0, -10, 0.0),
                                                   RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
 
     list_shape_e = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 10, 0.0),
@@ -85,10 +88,9 @@ shared_context 'stuff for complex geo tests' do
                                                   RSPEC_GEO_FACTORY.point(0, -10, 0.0),
                                                   RSPEC_GEO_FACTORY.point(0, 10, 0.0)])
 
-    shape_a           = RSPEC_GEO_FACTORY.polygon(list_shape_a)
-    ret_val[:shape_a] = shape_a
-    shape_b           = RSPEC_GEO_FACTORY.polygon(list_shape_b)
-    shape_e           = RSPEC_GEO_FACTORY.polygon(list_shape_e)
+    shape_a = RSPEC_GEO_FACTORY.polygon(list_shape_a)
+    shape_b = RSPEC_GEO_FACTORY.polygon(list_shape_b)
+    shape_e = RSPEC_GEO_FACTORY.polygon(list_shape_e)
 
     item_a = FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_a]))
     item_b = FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_b]))
@@ -96,6 +98,96 @@ shared_context 'stuff for complex geo tests' do
 
     earth = FactoryBot.create(:earth_geographic_area,
                               geographic_area_type: planet_gat)
+
+    begin
+      linestring    = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(0, 10, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(10, 10, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(10, 0, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
+      line_string_a = FactoryBot.build(:geographic_item_line_string, line_string: linestring.as_binary)
+
+      area_linestring = FactoryBot.create(:level0_geographic_area,
+                                          name:                 'linestring',
+                                          geographic_area_type: gat_land_mass,
+                                          iso_3166_a3:          nil,
+                                          iso_3166_a2:          nil,
+                                          parent:               earth)
+      area_linestring.geographic_items << line_string_a
+      area_linestring.save!
+    end
+
+    begin
+      polygon_outer = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(1, -1, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(9, -1, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(9, -9, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(9, -1, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(1, -1, 0.0)])
+
+      polygon_inner = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(2.5, -2.5, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(7.5, -2.5, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(7.5, -7.5, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(2.5, -7.5, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(2.5, -2.5, 0.0)])
+      polygon       = RSPEC_GEO_FACTORY.polygon(polygon_outer, [polygon_inner])
+      polygon_b     = FactoryBot.build(:geographic_item_polygon, polygon: polygon.as_binary)
+
+      area_polygon = FactoryBot.create(:level0_geographic_area,
+                                       name:                 'polygon',
+                                       geographic_area_type: gat_land_mass,
+                                       iso_3166_a3:          nil,
+                                       iso_3166_a2:          nil,
+                                       parent:               earth)
+      area_polygon.geographic_items << polygon_b
+      area_polygon.save!
+    end
+
+    begin
+      multipoint   = RSPEC_GEO_FACTORY.multi_point([polygon_inner.points[0],
+                                                    polygon_inner.points[1],
+                                                    polygon_inner.points[2],
+                                                    polygon_inner.points[3]])
+      multipoint_b = FactoryBot.build(:geographic_item_multi_point, multi_point: multipoint.as_binary)
+
+      area_multipoint = FactoryBot.create(:level0_geographic_area,
+                                          name:                 'multipoint',
+                                          geographic_area_type: gat_land_mass,
+                                          iso_3166_a3:          nil,
+                                          iso_3166_a2:          nil,
+                                          parent:               earth)
+      area_multipoint.geographic_items << multipoint_b
+      area_multipoint.save!
+    end
+
+    begin
+      multilinestring   = RSPEC_GEO_FACTORY.multi_line_string([list_shape_a, list_shape_b])
+      multilinestring_b = FactoryBot.build(:geographic_item_multi_line_string,
+                                           multi_line_string: multilinestring.as_binary)
+
+      area_multilinestring = FactoryBot.create(:level0_geographic_area,
+                                               name:                 'multilinestring',
+                                               geographic_area_type: gat_land_mass,
+                                               iso_3166_a3:          nil,
+                                               iso_3166_a2:          nil,
+                                               parent:               earth)
+      area_multilinestring.geographic_items << multilinestring_b
+      area_multilinestring.save!
+    end
+
+    begin
+      multipolygon   = RSPEC_GEO_FACTORY.multi_polygon([RSPEC_GEO_FACTORY.polygon(polygon_outer),
+                                                       RSPEC_GEO_FACTORY.polygon(polygon_inner)])
+      multipolygon_b = FactoryBot.create(:geographic_item_multi_polygon, multi_polygon: multipolygon.as_binary)
+
+      area_multipolygon = FactoryBot.create(:level0_geographic_area,
+                                            name:                 'multipolygon',
+                                            geographic_area_type: gat_land_mass,
+                                            iso_3166_a3:          nil,
+                                            iso_3166_a2:          nil,
+                                            parent:               earth)
+      area_multipolygon.geographic_items << multipolygon_b
+      area_multipolygon.save!
+    end
 
     area_e = FactoryBot.create(:level0_geographic_area,
                                name:                 'E',
@@ -113,13 +205,6 @@ shared_context 'stuff for complex geo tests' do
                                iso_3166_a2:          nil,
                                parent:               area_e)
     area_a.geographic_items << item_a
-    shape_a       = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
-                                                   RSPEC_GEO_FACTORY.point(0, 10, 0.0),
-                                                   RSPEC_GEO_FACTORY.point(10, 10, 0.0),
-                                                   RSPEC_GEO_FACTORY.point(10, 0, 0.0),
-                                                   RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
-    line_string_a = FactoryBot.build(:geographic_item_line_string, line_string: shape_a.as_binary)
-    area_a.geographic_items << line_string_a
     area_a.save!
 
     area_b = FactoryBot.create(:level1_geographic_area,
@@ -129,14 +214,6 @@ shared_context 'stuff for complex geo tests' do
                                iso_3166_a2:          nil,
                                parent:               area_e)
     area_b.geographic_items << item_b
-    list_b2    = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(2.5, -2.5, 0.0),
-                                                RSPEC_GEO_FACTORY.point(7.5, -2.5, 0.0),
-                                                RSPEC_GEO_FACTORY.point(7.5, -7.5, 0.0),
-                                                RSPEC_GEO_FACTORY.point(7.5, -7.5, 0.0),
-                                                RSPEC_GEO_FACTORY.point(2.5, -2.5, 0.0)])
-    poly_b     = RSPEC_GEO_FACTORY.polygon(list_shape_b, [list_b2])
-    are_poly_b = FactoryBot.build(:geographic_item_polygon, polygon: shape_b.as_binary)
-    area_b.geographic_items << are_poly_b
     area_b.save!
 
     ce_a = FactoryBot.create(:collecting_event,
@@ -266,8 +343,6 @@ shared_context 'stuff for complex geo tests' do
 
     $user_id    = temp_user
     $project_id = temp_project
-
-    ret_val
   end
   # rubocop:enable Metrics/MethodLength
 end
