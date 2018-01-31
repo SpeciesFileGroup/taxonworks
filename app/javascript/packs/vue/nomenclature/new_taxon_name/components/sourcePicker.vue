@@ -94,7 +94,9 @@
               <citation-pages
                 @setPages="addPages($event.origin_citation_attributes)"
                 :citation="taxon"/>
-              <pdf-button :pdf="citation.target_document"/>
+              <pdf-button
+                v-if="citation.hasOwnProperty('target_document')"
+                :pdf="citation.target_document"/>
               <span
                 class="circle-button btn-delete"
                 @click="removeSource(taxon.origin_citation.id)"/>
