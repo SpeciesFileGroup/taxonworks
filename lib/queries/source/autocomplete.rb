@@ -20,7 +20,6 @@ module Queries
           fragment_year_matches   # keyword style ANDs years
         ].compact
 
-
         a = clauses.shift
         clauses.each do |b|
           a = a.or(b)
@@ -45,15 +44,27 @@ module Queries
         end 
       end
 
+      def base_query
+        ::Source.select('sources.*').includes(author_roles: [:person], editor_roles: [:person])
+      end
+
       # @return [ActiveRecord::Relation]
       def all
         Source.where(where_sql).limit(500).distinct.order(:cached)
       end
 
       # @return [ActiveRecord::Relation]
+      #   if and only iff author string matches
       def autocomplete_exact_author
-        a = table[:author].matches(query_string)
-        a 
+        a = table[:cached_author_string].matches(query_string)
+        base_query.where(a.to_sql).limit(20) 
+      end 
+
+      # @return [ActiveRecord::Relation]
+      #   author matches any
+      def autocomplete_any_author
+        a = table[:cached_author_string].matches("%#{query_string}%")
+        base_query.where(a.to_sql).limit(20) 
       end 
 
       # @return [Array]
