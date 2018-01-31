@@ -32,9 +32,9 @@
 
 <script>
 
-  const GetterNames = require('../store/getters/getters').GetterNames
-  const removeDuplicate = require('../helpers/removeDuplicate')
-  const modal = require('../../../components/modal.vue').default
+  import { GetterNames } from '../store/getters/getters'
+  import removeDuplicate from '../helpers/removeDuplicate'
+  import modal from '../../../components/modal.vue'
 
   export default {
     data: function () {

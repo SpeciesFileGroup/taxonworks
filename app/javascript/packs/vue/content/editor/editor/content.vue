@@ -7,7 +7,9 @@
         <div class="title">
           <span>
             <span v-if="topic">{{ topic.name }}</span> -
-            <span v-if="otu" v-html="otu.object_tag"/>
+            <span
+              v-if="otu"
+              v-html="otu.object_tag"/>
           </span>
           <select-topic-otu/>
         </div>
