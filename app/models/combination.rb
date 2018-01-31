@@ -185,6 +185,18 @@ class Combination < TaxonName
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
       data[rank] = send(method, name, gender) if self.respond_to?(method)
     end
+    if data['genus'].nil?
+      data['genus'] = [nil, "[GENUS NOT SPECIFIED]"]
+    end
+    if data['species'].nil? && (!data['subspecies'].nil? || !data['variety'].nil? || !data['subvariety'].nil? || !data['form'].nil? || !data['subform'].nil?)
+      data['species'] = [nil, "[SPECIES NOT SPECIFIED]"]
+    end
+    if data['variety'].nil? && !data['subvariety'].nil?
+      data['variety'] = [nil, "[VARIETY NOT SPECIFIED]"]
+    end
+    if data['form'].nil? && !data['subform'].nil?
+      data['form'] = [nil, "[FORM NOT SPECIFIED]"]
+    end
     data
   end
 

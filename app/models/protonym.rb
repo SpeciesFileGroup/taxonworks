@@ -471,6 +471,8 @@ class Protonym < TaxonName
       superspecies  = ''
       species       = ''
       gender        = nil
+      g1 = nil
+      s1 = nil
 
       relationships.each do |i|
         if i.object_taxon_name_id == i.subject_taxon_name_id && !i.object_taxon_name.verbatim_name.blank?
@@ -478,10 +480,12 @@ class Protonym < TaxonName
             when /OriginalGenus/ #'original genus'
               genus  = '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
               gender = i.subject_taxon_name.gender_name
+              g1 = true
             when /OriginalSubgenus/ # 'original subgenus'
               subgenus += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
             when /OriginalSpecies/ #  'original species'
               species += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+              s1 = true
             when /OriginalSubspecies/ # 'original subspecies'
               species += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
             when /OriginalVariety/ #  'original variety'
@@ -498,6 +502,7 @@ class Protonym < TaxonName
             when /OriginalGenus/ #'original genus'
               genus  = '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
               gender = i.subject_taxon_name.gender_name
+              g1 = true
             when /OriginalSubgenus/ # 'original subgenus'
               subgenus += '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
   #          when /OriginalSection/ # 'original section'
@@ -510,6 +515,7 @@ class Protonym < TaxonName
   #            subgenus += 'subser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
             when /OriginalSpecies/ #  'original species'
               species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+              s1 = true
             when /OriginalSubspecies/ # 'original subspecies'
               species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
             when /OriginalVariety/ #  'original variety'
@@ -529,16 +535,20 @@ class Protonym < TaxonName
         if self.rank_string =~ /Genus/
           if genus.blank?
             genus += '<i>' + original_name + '</i> '
+            g1 = true
           else
             subgenus += '<i>' + original_name + '</i> '
           end
         elsif self.rank_string =~ /Species/
           species += '<i>' + original_name + '</i> '
-          genus = '<i>' + self.ancestor_at_rank('genus').name_with_misspelling(nil) + '</i> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
+          s1 = true
+          # genus = '<i>' + self.ancestor_at_rank('genus').name_with_misspelling(nil) + '</i> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
         end
       end
 
       subgenus = '(' + subgenus.squish + ') ' unless subgenus.empty?
+      genus = '[GENUS NOT SPECIFIED]' + genus.to_s if g1.nil?
+      species = '[SPECIES NOT SPECIFIED]' + species.to_s if s1.nil? && !species.empty?
       str = (genus + subgenus + superspecies + species).gsub(' [sic]', '</i> [sic]<i>').gsub('</i> <i>', ' ').gsub('<i></i>', '').gsub('<i> ', ' <i>').squish
     end
     str.blank? ? nil : str

@@ -327,6 +327,7 @@ class TaxonName < ApplicationRecord
   soft_validate(:sv_cached_names, set: :cached_names)
   soft_validate(:sv_not_synonym_of_self, set: :not_synonym_of_self)
   soft_validate(:sv_two_unresolved_alternative_synonyms, set: :two_unresolved_alternative_synonyms)
+  soft_validate(:sv_incomplete_combination, set: :incomplete_combination)
 
   # @return [Array]
   #   all TaxonNameRelationships where this taxon is an object or subject.
@@ -811,6 +812,18 @@ class TaxonName < ApplicationRecord
         data[rank] = i.name
       end
       # data[rank] = send(method, i, gender) if self.respond_to?(method)
+    end
+    if data['genus'].nil?
+      data['genus'] = [nil, "[GENUS NOT SPECIFIED]"]
+    end
+    if data['species'].nil? && (!data['subspecies'].nil? || !data['variety'].nil? || !data['subvariety'].nil? || !data['form'].nil? || !data['subform'].nil?)
+      data['species'] = [nil, "[SPECIES NOT SPECIFIED]"]
+    end
+    if data['variety'].nil? && !data['subvariety'].nil?
+      data['variety'] = [nil, "[VARIETY NOT SPECIFIED]"]
+    end
+    if data['form'].nil? && !data['subform'].nil?
+      data['form'] = [nil, "[FORM NOT SPECIFIED]"]
     end
     data
   end
@@ -1299,6 +1312,15 @@ class TaxonName < ApplicationRecord
         soft_validations.add(:base, 'Taxon has two alternative invalidating relationships with identical dates. To resolve ambiguity, add original sources to the relationships with different priority dates.')
       end
     end
+  end
+
+  def sv_incomplete_combination
+    soft_validations.add(:base, 'The genus in the combination is not specified') if !cached.nil? && cached.include?('GENUS NOT SPECIFIED')
+    soft_validations.add(:base, 'The species in the combination is not specified') if !cached.nil? && cached.include?('SPECIES NOT SPECIFIED')
+    soft_validations.add(:base, 'The variety in the combination is not specified') if !cached.nil? && cached.include?('VARIETY NOT SPECIFIED')
+    soft_validations.add(:base, 'The form in the combination is not specified') if !cached.nil? && cached.include?('FORM NOT SPECIFIED')
+    soft_validations.add(:base, 'The genus in the original combination is not specified') if !cached_original_combination.nil? && cached_original_combination.include?('GENUS NOT SPECIFIED')
+    soft_validations.add(:base, 'The species in the original combination is not specified') if !cached_original_combination.nil? && cached_original_combination.include?('SPECIES NOT SPECIFIED')
   end
 
   def sv_cached_names
