@@ -10,41 +10,41 @@ describe Queries::Source::Autocomplete, type: :model do
   let(:j1) { FactoryBot.create(:valid_serial, name: 'Journal of Stuff and Things') }
   let!(:a1) { AlternateValue::Abbreviation.create!(value: 'J. S. and T.', alternate_value_object: j1, alternate_value_object_attribute: :name) }
 
- # Verbatim
-  let!(:s1) { FactoryBot.create(:valid_source_verbatim, verbatim: "aslkfjalskfjaslkf") } 
+  let!(:s1) { Source::Verbatim.create!(
+    verbatim: 'Grumwald, 1981. Things I Mumble. J. Unintelligible Speach. 22: 1-19') 
+  } 
   
-  # BibTeX with person
-  let!(:s2) { FactoryBot.create(:valid_source_bibtex, 
-                                 authors: [p1], 
-                                 year: 1920, 
-                                 title: 'Bad cops, good cops, rubocops.'
-                                )}
+  let!(:s2) { Source::Bibtex.create!(
+    bibtex_type: :article,
+    authors: [p1], 
+    year: 1920, 
+    title: 'Bad cops, good cops, rubocops.'
+  )}
 
-  # BibTeX with author
-  let!(:s3) { FactoryBot.create(:valid_source_bibtex, 
-                                author: 'Smith', 
-                                year: 1921,
-                                year_suffix: 'a',
-                                title: 'Bad cops, good cops, rubocops.'
-                                )}
+  let!(:s3) { Source::Bibtex.create!(
+    bibtex_type: :article,
+    author: 'Smith', 
+    year: 1921,
+    year_suffix: 'a',
+    title: 'Bad cops, good caps, rubycoats.'
+  )}
 
-  # BibTeX with people
-  let!(:s4) { FactoryBot.create(:valid_source_bibtex, 
-                                 authors: [p2, p1, p3], 
-                                 year: 1924, 
-                                 title: 'We all got together and wrote about Things!'
-                                )}
+  let!(:s4) { Source::Bibtex.create!(
+    bibtex_type: :article,
+    authors: [p2, p3, p1], 
+    year: 1924, 
+    title: 'We all got together and wrote about Things!'
+  )}
 
-  # BibTeX with people
-  let!(:s4) { FactoryBot.create(:valid_source_bibtex, 
-                                 author: 'von Brandt & Bartholemew', 
-                                 year: 1940, 
-                                 title: 'Creatures from the Black Lagoon.'
-                                )}
+  let!(:s5) { Source::Bibtex.create!(
+    bibtex_type: :article,
+    author: 'von Brandt & Bartholemew', 
+    year: 1940, 
+    title: 'Creatures from the Black Lagoon.',
+    serial: j1
+  )}
 
-  # BibTeX with Journal
-
-  let!(:s1) { Source::Verbatim.create!(verbatim: 'foo' )  }
+  let!(:s6) { Source::Verbatim.create!(verbatim: 'foo' )  }
 
   # Sources in project 
   # Sources not in project
@@ -53,7 +53,12 @@ describe Queries::Source::Autocomplete, type: :model do
 
   specify '#autocomplete_exact_author 1' do
     query.terms = 'Smith' 
-    expect(query.autocomplete_exact_author).to contain_exactly(s1, s3)
+    expect(query.autocomplete_exact_author.map(&:id)).to contain_exactly(s2.id, s3.id)
+  end
+
+  specify '#autocomplete_any_author 1' do
+    query.terms = 'Smith' 
+    expect(query.autocomplete_exact_author.map(&:id)).to contain_exactly(s2.id, s3.id, s4.id)
   end
 
 # specify '#autocomplete_top_name 2' do

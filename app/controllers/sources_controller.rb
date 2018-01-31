@@ -36,12 +36,12 @@ class SourcesController < ApplicationController
     respond_to do |format|
       if @source.save
         case @source.type
-          when 'Source::Bibtex'
-            format.html {redirect_to @source.metamorphosize, notice: "Source by '#{@source.author}' was successfully created."}
-          when 'Source::Verbatim'
-            format.html {redirect_to @source.metamorphosize, notice: "Source '#{@source.cached}' was successfully created."}
-          else # type human
-            format.html {redirect_to @source.metamorphosize, notice: "Source '#{@source.cached_author_string}' was successfully created."}
+        when 'Source::Bibtex'
+          format.html {redirect_to @source.metamorphosize, notice: "Source by '#{@source.author}' was successfully created."}
+        when 'Source::Verbatim'
+          format.html {redirect_to @source.metamorphosize, notice: "Source '#{@source.cached}' was successfully created."}
+        else # type human
+          format.html {redirect_to @source.metamorphosize, notice: "Source '#{@source.cached_author_string}' was successfully created."}
         end
         format.json {render action: 'show', status: :created, location: @source}
       else
@@ -91,15 +91,7 @@ class SourcesController < ApplicationController
   end
 
   def autocomplete
-    @sources = Queries::SourceFilterQuery.new(params[:term]).autocomplete
-    data = @sources.collect do |t|
-      {id: t.id,
-       label: ApplicationController.helpers.source_tag(t),
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html: ApplicationController.helpers.source_tag(t)
-      }
+    @sources = Queries::Source::Autocomplete.new(autocomplete_params)
   end
 
   def autocomplete_params
@@ -170,22 +162,23 @@ class SourcesController < ApplicationController
 
   def source_params
     params['source'][:project_sources_attributes] = [{project_id: sessions_current_project_id.to_s}]
-    params.require(:source).permit(:serial_id, :address, :annote, :author, :booktitle, :chapter,
-                                   :crossref, :edition, :editor, :howpublished, :institution,
-                                   :journal, :key, :month, :note, :number, :organization, :pages,
-                                   :publisher, :school, :series, :title, :type, :volume, :doi,
-                                   :abstract, :copyright, :language, :stated_year, :verbatim,
-                                   :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
-                                   :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type,
-                                   roles_attributes:           [:id,
-                                                                :_destroy,
-                                                                :type,
-                                                                :person_id,
-                                                                :position,
-                                                                person_attributes:
-                                                                  [:last_name, :first_name, :suffix, :prefix]
-                                                               ],
-                                   project_sources_attributes: [:project_id]
+    params.require(:source).permit(
+      :serial_id, :address, :annote, :author, :booktitle, :chapter,
+      :crossref, :edition, :editor, :howpublished, :institution,
+      :journal, :key, :month, :note, :number, :organization, :pages,
+      :publisher, :school, :series, :title, :type, :volume, :doi,
+      :abstract, :copyright, :language, :stated_year, :verbatim,
+      :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
+      :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type,
+      roles_attributes:[:id,
+                        :_destroy,
+                        :type,
+                        :person_id,
+                        :position,
+                        person_attributes:
+                        [:last_name, :first_name, :suffix, :prefix]
+    ],
+    project_sources_attributes: [:project_id]
     )
   end
 end
