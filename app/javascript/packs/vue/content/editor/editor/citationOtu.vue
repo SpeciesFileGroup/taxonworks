@@ -13,7 +13,6 @@
 <script>
 
 const GetterNames = require('../store/getters/getters').GetterNames
-const MutationNames = require('../store/mutations/mutations').MutationNames
 const modal = require('../../../components/modal.vue').default
 
 export default {
@@ -51,17 +50,17 @@ export default {
         pinned_object_type: 'Source'
       }
 
-      this.$http.post('/pinboard_items.json', pinboard_item).then(response => {
+      this.$http.post('/pinboard_items.json', pinboard_item).then(() => {
         TW.workbench.alert.create('Pinboard item was successfully created.', 'notice')
-      }, response => {
+      }, () => {
         TW.workbench.alert.create(item.source.object_tag + ' already pinned.', 'alert')
       })
     },
     loadContent: function () {
       if (this.disabled) return
 
-      var that = this
-      ajaxUrl = `/otus/${this.otu.id}/citations.json?topic_id=${this.topic.id}`
+      let that = this
+      let ajaxUrl = `/otus/${this.otu.id}/citations.json?topic_id=${this.topic.id}`
 
       this.$http.get(ajaxUrl).then(response => {
         that.citations = response.body
