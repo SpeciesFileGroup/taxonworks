@@ -535,12 +535,14 @@ class Protonym < TaxonName
         if self.rank_string =~ /Genus/
           if genus.blank?
             genus += '<i>' + original_name + '</i> '
+            g1 = true
           else
             subgenus += '<i>' + original_name + '</i> '
           end
         elsif self.rank_string =~ /Species/
           species += '<i>' + original_name + '</i> '
-          genus = '<i>' + self.ancestor_at_rank('genus').name_with_misspelling(nil) + '</i> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
+          s1 = true
+          # genus = '<i>' + self.ancestor_at_rank('genus').name_with_misspelling(nil) + '</i> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
         end
       end
 

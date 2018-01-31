@@ -72,6 +72,19 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(species.cached_original_combination).to eq('<i>Bus aus</i>')
       end
 
+      specify 'incomplete relationship: missing original species' do
+        species.original_subspecies = species
+        species.save
+        expect(species.cached_original_combination).to eq("<i>Bus</i> [SPECIES NOT SPECIFIED]<i>aus</i>")
+      end
+
+      specify 'incomplete relationship: missing original species' do
+        species.original_genus = nil
+        species.original_subgenus = genus
+        species.save
+        expect(species.cached_original_combination).to eq("[GENUS NOT SPECIFIED](<i>Aus</i>) <i>aus</i>")
+      end
+
       specify 'genus relationship is destroyed' do
         species.save
         species.original_genus_relationship.destroy!
