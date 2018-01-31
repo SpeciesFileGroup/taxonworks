@@ -10,15 +10,6 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
   let(:otu) { FactoryBot.create(:valid_otu) }
   let(:source) { FactoryBot.create(:valid_source) }
 
-  # before(:all) {
-  # GeoBuild.generate_political_areas_with_collecting_events
-  # GeoBuild.generate_geo_test_objects($user_id, $project_id)
-  # }
-
-  # after(:all) {
-  # GeoBuild.clean_slate_geo
-  # }
-
   context "outputting GeoJSON 'Feature's" do
     let(:feature_index) { '1' }
     context 'geographic_item' do
