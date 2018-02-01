@@ -1,13 +1,35 @@
+require 'support/shared_contexts/geo/area_a'
+
 RSPEC_GEO_FACTORY = Gis::FACTORY
 shared_context 'stuff for complex geo tests' do
-  before {
-    # @user exists as a result of `sign_in_and _select_project` (i.e., a feature test), othewise nil
-    if @user
-      simple_world(@user.id, @project.id)
-    else
-      simple_world
-    end
-  }
+  let(:gat_parish) { GeographicAreaType.create!(name: 'Parish') }
+  include_context 'stuff for area_a'
+  # let(:list_shape_a) { RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
+  #                                                     RSPEC_GEO_FACTORY.point(0, 10, 0.0),
+  #                                                     RSPEC_GEO_FACTORY.point(10, 10, 0.0),
+  #                                                     RSPEC_GEO_FACTORY.point(10, 0, 0.0),
+  #                                                     RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
+  # }
+  # let(:shape_a) { RSPEC_GEO_FACTORY.polygon(list_shape_a) }
+  # let(:item_a) { FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_a])) }
+  # let(:area_a) { FactoryBot.create(:level1_geographic_area,
+  #                                  name:                 'A',
+  #                                  geographic_area_type: gat_parish,
+  #                                  iso_3166_a3:          nil,
+  #                                  iso_3166_a2:          nil,
+  #                                  parent:               area_e)
+  # area_a.geographic_items << item_a
+  # area_a.save!
+  # }
+
+  # before {
+  #   # @user exists as a result of `sign_in_and _select_project` (i.e., a feature test), othewise nil
+  #   if @user
+  #     simple_world(@user.id, @project.id)
+  #   else
+  #     simple_world
+  #   end
+  # }
   # need user and project
   let(:user) { User.find(1) }
   let(:project) { Project.find(1) }
@@ -36,7 +58,7 @@ shared_context 'stuff for complex geo tests' do
   let(:area_multipoint) { GeographicArea.where(name: 'multipoint').first }
   let(:area_multilinestring) { GeographicArea.where(name: 'multilinestring').first }
   let(:area_multipolygon) { GeographicArea.where(name: 'multipolygon').first }
-  let(:area_a) { GeographicArea.where(name: 'A').first }
+  # let(:area_a) { GeographicArea.where(name: 'A').first }
   let(:area_b) { GeographicArea.where(name: 'B').first }
   let(:area_e) { GeographicArea.where(name: 'E').first }
   let(:json_string) { '{"type":"Feature", "properties":{}, "geometry":{"type":"MultiPolygon", ' \
@@ -68,13 +90,13 @@ shared_context 'stuff for complex geo tests' do
     project = Project.find($project_id)
 
     planet_gat    = GeographicAreaType.create!(name: 'Planet')
-    gat_parish    = GeographicAreaType.create!(name: 'Parish')
+    # gat_parish    = GeographicAreaType.create!(name: 'Parish')
     gat_land_mass = GeographicAreaType.create!(name: 'Land Mass')
-    list_shape_a  = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
-                                                   RSPEC_GEO_FACTORY.point(0, 10, 0.0),
-                                                   RSPEC_GEO_FACTORY.point(10, 10, 0.0),
-                                                   RSPEC_GEO_FACTORY.point(10, 0, 0.0),
-                                                   RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
+    # list_shape_a  = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
+    #                                                RSPEC_GEO_FACTORY.point(0, 10, 0.0),
+    #                                                RSPEC_GEO_FACTORY.point(10, 10, 0.0),
+    #                                                RSPEC_GEO_FACTORY.point(10, 0, 0.0),
+    #                                                RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
 
     list_shape_b = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
                                                   RSPEC_GEO_FACTORY.point(10, 0, 0.0),
@@ -88,11 +110,11 @@ shared_context 'stuff for complex geo tests' do
                                                   RSPEC_GEO_FACTORY.point(0, -10, 0.0),
                                                   RSPEC_GEO_FACTORY.point(0, 10, 0.0)])
 
-    shape_a = RSPEC_GEO_FACTORY.polygon(list_shape_a)
+    # shape_a = RSPEC_GEO_FACTORY.polygon(list_shape_a)
     shape_b = RSPEC_GEO_FACTORY.polygon(list_shape_b)
     shape_e = RSPEC_GEO_FACTORY.polygon(list_shape_e)
 
-    item_a = FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_a]))
+    # item_a = FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_a]))
     item_b = FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_b]))
     item_e = FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_e]))
 
@@ -176,7 +198,7 @@ shared_context 'stuff for complex geo tests' do
 
     begin
       multipolygon   = RSPEC_GEO_FACTORY.multi_polygon([RSPEC_GEO_FACTORY.polygon(polygon_outer),
-                                                       RSPEC_GEO_FACTORY.polygon(polygon_inner)])
+                                                        RSPEC_GEO_FACTORY.polygon(polygon_inner)])
       multipolygon_b = FactoryBot.create(:geographic_item_multi_polygon, multi_polygon: multipolygon.as_binary)
 
       area_multipolygon = FactoryBot.create(:level0_geographic_area,
