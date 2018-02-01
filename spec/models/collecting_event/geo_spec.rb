@@ -3,17 +3,22 @@ require 'support/shared_contexts/shared_geo'
 
 describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
   include_context 'stuff for complex geo tests'
+
   let(:collecting_event) { CollectingEvent.new }
   let(:county) { FactoryBot.create(:valid_geographic_area_stack) }
   let(:state) { county.parent }
   let(:country) { state.parent }
 
   context 'with political areas and collecting events generated' do
-    before(:all) { GeoBuild.generate_political_areas_with_collecting_events }
-    after(:all) { clean_slate_geo }
+    before(:all) {
+      # GeoBuild.generate_political_areas_with_collecting_events
+    }
+    after(:all) {
+      # clean_slate_geo
+    }
 
     context 'geographic names' do
-      before{collecting_event.save!}
+      before { collecting_event.save! }
 
       context '#geographic_name_classification' do
         specify 'with no data #geographic_name_classification returns nil' do
@@ -21,7 +26,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         end
 
         context 'with a georeference set ' do
-          before{collecting_event.georeferences << FactoryBot.create(:valid_georeference)}
+          before { collecting_event.georeferences << FactoryBot.create(:valid_georeference) }
 
           specify '#geographic_name_classification returns :preferred_georeference' do
             expect(collecting_event.geographic_name_classification_method).to eq(:preferred_georeference)
@@ -40,7 +45,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         end
 
         context 'with #geographic_area (no shape) set' do
-          before{collecting_event.update_column(:geographic_area_id, state.id)}
+          before { collecting_event.update_column(:geographic_area_id, state.id) }
 
           specify '#geographic_name_classification returns :geographic_area' do
             expect(collecting_event.geographic_name_classification_method).to eq(:geographic_area)
@@ -57,16 +62,19 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
         context 'with a verbatim georeference' do
           before do
-            collecting_event.update_attributes(
-              verbatim_latitude: '27.5',
-              verbatim_longitude: '33.5'
+            collecting_event.update_attributes!(
+              verbatim_latitude:  '5.0',
+              verbatim_longitude: '5.0'
             )
             Georeference::VerbatimData.create!(collecting_event: collecting_event)
           end
 
           specify 'country, state, county are cached on creation of georeference' do
-            # expect(collecting_event.cached_geographic_name_classification).to eq( {:country=>"West Boxia", :state=>"QT", :county=>"M1"} )
-            expect(collecting_event.cached_geographic_name_classification).to eq( {country: 'West Boxia', state: 'West Boxia', county: 'QTM2'} )
+            # expect(collecting_event.cached_geographic_name_classification).to eq( {:country=>"West Boxia",
+            # :state=>"QT", :county=>"M1"} )
+            expect(collecting_event.cached_geographic_name_classification).to eq({country: 'West Boxia',
+                                                                                  state:   'West Boxia',
+                                                                                  county:  'QTM2'})
 
           end
         end
@@ -79,7 +87,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
             end
 
             specify '#cached_geographic_name_classification returns { country: country_name }' do
-              expect(collecting_event.cached_geographic_name_classification).to eq( {country: country.name} )
+              expect(collecting_event.cached_geographic_name_classification).to eq({country: country.name})
             end
           end
 
@@ -90,7 +98,8 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
             end
 
             specify '#cached_geographic_name_classification returns { country: country_name, state: state_name }' do
-              expect(collecting_event.cached_geographic_name_classification).to eq({country: country.name, state: state.name })
+              expect(collecting_event.cached_geographic_name_classification).to eq({country: country.name,
+                                                                                    state:   state.name})
             end
           end
 
@@ -100,8 +109,11 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
               collecting_event.geographic_name_classification
             end
 
-            specify '#cached_geographic_name_classification returns { country: country_name, state: state_name, county: county_name }' do
-              expect(collecting_event.cached_geographic_name_classification).to eq({country: country.name, state: state.name, county: county.name})
+            specify '#cached_geographic_name_classification returns { country: country_name, ' \
+                      'state: state_name, county: county_name }' do
+              expect(collecting_event.cached_geographic_name_classification).to eq({country: country.name,
+                                                                                    state:   state.name,
+                                                                                    county:  county.name})
             end
           end
 
@@ -113,7 +125,8 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
             end
 
             specify '#cached_geographic_name_classification returns { country: country_name, state: state_name }' do
-              expect(collecting_event.cached_geographic_name_classification).to eq({country: country.name, state: state.name })
+              expect(collecting_event.cached_geographic_name_classification).to eq({country: country.name,
+                                                                                    state:   state.name})
             end
           end
 
@@ -124,7 +137,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
             end
 
             specify '#cached_geographic_name_classification returns {  }' do
-              expect(collecting_event.cached_geographic_name_classification).to eq({ })
+              expect(collecting_event.cached_geographic_name_classification).to eq({})
             end
           end
         end
@@ -145,7 +158,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
         context 'geographic_area_provided' do
           before {
-            collecting_event.geographic_area = @area_m1
+            collecting_event.geographic_area = area_a
           }
 
           specify '#map_center_method' do
@@ -153,12 +166,13 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
           end
 
           specify 'return geographic area centroid' do
-            expect(collecting_event.map_center).to eq(@area_m1.default_geographic_item.geo_object.centroid) # check to see if geo_object has native centroid method
+            # check to see if geo_object has native centroid method
+            expect(collecting_event.map_center).to eq(area_a.default_geographic_item.geo_object.centroid)
           end
 
           context 'verbatim_map_center provided' do
             before {
-              collecting_event.verbatim_latitude = '1.0'
+              collecting_event.verbatim_latitude  = '1.0'
               collecting_event.verbatim_longitude = '2.0'
             }
 
@@ -167,16 +181,19 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
             end
 
             specify 'return verbatim_map_center' do
-              expect(collecting_event.map_center).to eq(collecting_event.verbatim_map_center) # Gis::FACTORY.point('2.0', '1.0')
+              # Gis::FACTORY.point('2.0', '1.0')
+              expect(collecting_event.map_center).to eq(collecting_event.verbatim_map_center)
             end
 
             context 'georeference provided' do
               before {
-                collecting_event.save
+                collecting_event.save!
 
                 FactoryBot.create(:georeference_verbatim_data,
-                                   collecting_event: collecting_event,
-                                   geographic_item: GeographicItem.new(point: @item_m1.geo_object.centroid))
+                                  collecting_event: collecting_event,
+                                  geographic_item:  GeographicItem.new(point: area_a.default_geographic_item
+                                                                                .geo_object
+                                                                                .centroid))
                 collecting_event.reload
               }
 
@@ -185,12 +202,11 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
               end
 
               specify 'return georeference#geographic_item centroid' do
-                expect(collecting_event.map_center).to eq(@item_m1.geo_object.centroid   )
+                expect(collecting_event.map_center).to eq(area_a.default_geographic_item.geo_object.centroid)
               end
             end
           end
         end
-
       end
     end
   end
@@ -201,9 +217,9 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     end
 
     specify 'when verbatim_latitude and verbatim_longitude provided, returns a Rgeo object' do
-      collecting_event.verbatim_latitude = '1.0'
+      collecting_event.verbatim_latitude  = '1.0'
       collecting_event.verbatim_longitude = '2.0'
-      expect(collecting_event.verbatim_map_center).to eq( Gis::FACTORY.point('2.0', '1.0') )
+      expect(collecting_event.verbatim_map_center).to eq(Gis::FACTORY.point('2.0', '1.0'))
     end
   end
 
@@ -280,12 +296,13 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
 
       context 'geolocate responses from collecting_event' do
+        # rubocop:disable Style/StringHashKeys
         before(:all) {
-          GeoBuild.generate_political_areas_with_collecting_events
+          # GeoBuild.generate_political_areas_with_collecting_events
         }
 
         after(:all) {
-          clean_slate_geo
+          # clean_slate_geo
         }
 
         context 'geolocate_ui_params' do
@@ -309,13 +326,13 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
                                                       'BG'            => 'false',
                                                       'LanguageIndex' => '0',
                                                       'gc'            => 'Tester'
-            })
+                                                     })
           end
 
           specify 'geolocate_ui_params from lat/long' do
             # @ce_m1.georeference was built from verbatim data; no locality
             expect(@ce_m1.geolocate_ui_params).to eq({'country'       => 'Big Boxia',
-                                                      'state'        => 'QT',
+                                                      'state'         => 'QT',
                                                       'county'        => 'M1',
                                                       'locality'      => 'Lesser Boxia Lake',
                                                       'Latitude'      => 27.5,
@@ -332,7 +349,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
                                                       'BG'            => 'false',
                                                       'LanguageIndex' => '0',
                                                       'gc'            => 'Tester'
-            })
+                                                     })
           end
         end
 
@@ -340,21 +357,22 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
           specify 'geolocate_ui_params_string from locality' do
             #pending 'creation of a method for geolocate_ui_params_string'
-            expect(@ce_n3.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=Old Boxia&state=N3&county=&locality=Greater Boxia Lake&points=25.5|34.5|Greater Boxia Lake|0|3&georef=run|false|false|true|true|false|false|false|0&gc=Tester')
+            expect(@ce_n3.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/' \
+                                                  'webgeoreflight.aspx?country=Old Boxia&state=N3&county=&' \
+                                                  'locality=Greater Boxia Lake&points=25.5|34.5|Greater Boxia ' \
+                                                  'Lake|0|3&georef=run|false|false|true|true|false|false' \
+                                                  '|false|0&gc=Tester')
           end
 
           specify 'geolocate_ui_params_string from lat/long' do
             #pending 'creation of a method for geolocate_ui_params_string'
-            expect(@ce_m1.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=Big Boxia&state=QT&county=M1&locality=Lesser Boxia Lake&points=27.5|33.5|Lesser Boxia Lake|0|3&georef=run|false|false|true|true|false|false|false|0&gc=Tester')
+            expect(@ce_m1.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/' \
+                                                          'webgeoreflight.aspx?country=Big Boxia&state=QT&county=M1&locality=Lesser Boxia Lake&points=27.5|33.5|Lesser Boxia Lake|0|3&georef=run|false|false|true|true|false|false|false|0&gc=Tester')
           end
         end
       end
-
     end
-
   end
-
-
 end
 
 
@@ -362,7 +380,7 @@ context 'creating a collecting event with no resolvable geographic_name_classifi
   let(:earth) { FactoryBot.create(:earth_geographic_area) }
 
   specify 'suceeds without entering a nasty loop' do
-    expect(CollectingEvent.create(geographic_area: earth) ).to be_truthy
+    expect(CollectingEvent.create(geographic_area: earth)).to be_truthy
     expect(CollectingEvent.last.geographic_name_classification).to eq({})
   end
 end
@@ -637,6 +655,7 @@ context 'geopolitical labels' do
         end
       end
     end
+    # rubocop:enable Style/StringHashKeys
 
     context '#county_name' do
       context 'derivation priority' do
