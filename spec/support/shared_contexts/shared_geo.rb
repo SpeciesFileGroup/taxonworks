@@ -4,32 +4,36 @@ RSPEC_GEO_FACTORY = Gis::FACTORY
 shared_context 'stuff for complex geo tests' do
   let(:gat_parish) { GeographicAreaType.create!(name: 'Parish') }
   include_context 'stuff for area_a'
-  # let(:list_shape_a) { RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
-  #                                                     RSPEC_GEO_FACTORY.point(0, 10, 0.0),
-  #                                                     RSPEC_GEO_FACTORY.point(10, 10, 0.0),
-  #                                                     RSPEC_GEO_FACTORY.point(10, 0, 0.0),
-  #                                                     RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
+  # let(:list_shape_a) {
+  #   RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
+  #                                  RSPEC_GEO_FACTORY.point(0, 10, 0.0),
+  #                                  RSPEC_GEO_FACTORY.point(10, 10, 0.0),
+  #                                  RSPEC_GEO_FACTORY.point(10, 0, 0.0),
+  #                                  RSPEC_GEO_FACTORY.point(0, 0, 0.0)])
   # }
   # let(:shape_a) { RSPEC_GEO_FACTORY.polygon(list_shape_a) }
   # let(:item_a) { FactoryBot.create(:geographic_item, multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_a])) }
-  # let(:area_a) { FactoryBot.create(:level1_geographic_area,
-  #                                  name:                 'A',
-  #                                  geographic_area_type: gat_parish,
-  #                                  iso_3166_a3:          nil,
-  #                                  iso_3166_a2:          nil,
-  #                                  parent:               area_e)
-  # area_a.geographic_items << item_a
-  # area_a.save!
+  # let(:area_a) {
+  #   area = FactoryBot.create(:level1_geographic_area,
+  #                             name:                 'A',
+  #                             geographic_area_type: gat_parish,
+  #                             iso_3166_a3:          nil,
+  #                             iso_3166_a2:          nil,
+  #                             parent:               area_e)
+  #   area.geographic_items << item_a
+  #   area.save!
+  #   area
   # }
 
-  # before {
-  #   # @user exists as a result of `sign_in_and _select_project` (i.e., a feature test), othewise nil
-  #   if @user
-  #     simple_world(@user.id, @project.id)
-  #   else
-  #     simple_world
-  #   end
-  # }
+  before {
+    # @user exists as a result of `sign_in_and _select_project` (i.e., a feature test), othewise nil
+    if @user
+      simple_world(@user.id, @project.id)
+    else
+      simple_world
+    end
+  }
+
   # need user and project
   let(:user) { User.find(1) }
   let(:project) { Project.find(1) }
@@ -89,7 +93,7 @@ shared_context 'stuff for complex geo tests' do
     joe     = user
     project = Project.find($project_id)
 
-    planet_gat    = GeographicAreaType.create!(name: 'Planet')
+    planet_gat = GeographicAreaType.create!(name: 'Planet')
     # gat_parish    = GeographicAreaType.create!(name: 'Parish')
     gat_land_mass = GeographicAreaType.create!(name: 'Land Mass')
     # list_shape_a  = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(0, 0, 0.0),
@@ -220,14 +224,14 @@ shared_context 'stuff for complex geo tests' do
     area_e.geographic_items << item_e
     area_e.save!
 
-    area_a = FactoryBot.create(:level1_geographic_area,
-                               name:                 'A',
-                               geographic_area_type: gat_parish,
-                               iso_3166_a3:          nil,
-                               iso_3166_a2:          nil,
-                               parent:               area_e)
-    area_a.geographic_items << item_a
-    area_a.save!
+    # area_a = FactoryBot.create(:level1_geographic_area,
+    #                            name:                 'A',
+    #                            geographic_area_type: gat_parish,
+    #                            iso_3166_a3:          nil,
+    #                            iso_3166_a2:          nil,
+    #                            parent:               area_e)
+    # area_a.geographic_items << item_a
+    # area_a.save!
 
     area_b = FactoryBot.create(:level1_geographic_area,
                                name:                 'B',
