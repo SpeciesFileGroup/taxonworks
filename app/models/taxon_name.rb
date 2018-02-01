@@ -408,11 +408,11 @@ class TaxonName < ApplicationRecord
     # family_before_1961 = taxon_name_relationships.with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
     if family_before_1961.nil?
       year = self.year_of_publication ? Time.utc(self.year_of_publication, 12, 31) : nil
-      self.source ? (self.source.cached_nomenclature_date ? self.source.cached_nomenclature_date.to_time : year) : year
+      self.source ? (self.source.cached_nomenclature_date ? self.source.nomenclature_date : year) : year
     else
       obj  = family_before_1961.object_taxon_name
       year = obj.year_of_publication ? Time.utc(obj.year_of_publication, 12, 31) : nil
-      obj.source ? (self.source.cached_nomenclature_date ? obj.source.cached_nomenclature_date.to_time : year) : year
+      obj.source ? (self.source.cached_nomenclature_date ? obj.source.nomenclature_date : year) : year
     end
   end
 
