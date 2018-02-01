@@ -731,7 +731,8 @@ namespace :tw do
           file.each_with_index do |row, i|
             au_id = row['AuthUserID']
             fu_id = row['FileUserID']
-            next if [0, 8].freeze.include?(row['Access'].to_i)
+            # next if [0, 8].freeze.include?(row['Access'].to_i)
+            next if [8].freeze.include?(row['Access'].to_i) # in some cases, user access has been rescinded after user edited something; keep this user, if no name, use NoName_1, 2, 3, etc.
 
             logger.info "WARNING - NON UNIQUE FileUserID: #{fu_id}" if sf_file_user_id_to_sf_auth_user_id[fu_id]
 
@@ -752,17 +753,23 @@ namespace :tw do
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           error_counter = 0
+          no_name_counter = 0
 
           file.each_with_index do |row, i|
             au_id = row['AuthUserID']
 
             logger.info "working with AuthUser: #{au_id}"
 
+            user_name = row['Name']
+            if user_name.blank?
+              user_name = "NoName_#{no_name_counter += 1}"
+            end
+
             if unique_auth_users[au_id]
-              logger.info "is a unique user, creating:  #{i}: #{row['Name']}"
+              logger.info "is a unique user, creating:  #{i}: #{user_name}"
 
               user = User.new(
-                  name: row['Name'],
+                  name: user_name,
                   password: '12345678',
                   email: 'auth_user_id' + au_id.to_s + '_random' + rand(1000).to_s + '@' + project_url
               )
@@ -799,7 +806,7 @@ namespace :tw do
 
           # display user mappings
           puts 'unique authorized users with edit+ access'
-          ap unique_auth_users # list of unique authorized users (who have edit+ access via FileUserIDs)
+          ap unique_auth_users # list of unique authorized users (who may or may not currently have edit+ access via FileUserIDs)
           puts 'multiple FileUserIDs mapped to single AuthUserID'
           ap sf_file_user_id_to_sf_auth_user_id # map multiple FileUserIDs onto single AuthUserID
           puts 'SFFileUserIDToTWUserID'

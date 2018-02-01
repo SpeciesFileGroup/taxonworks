@@ -43,6 +43,9 @@ TaxonWorks::Application.configure do
   #   config.assets.prefix = '/assets_test'
   # end
 
+  Settings.load_test_defaults(config)
+  Settings.load_from_settings_file(config, :test)
+
   require 'taxonworks'
   require 'taxonworks_autoload'
 

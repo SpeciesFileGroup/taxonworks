@@ -63,6 +63,10 @@ module Settings
     end
   end
 
+  def self.load_from_settings_file(config, set_name)
+    self.load_from_file(config, 'config/application_settings.yml', set_name) if File.exist?('config/application_settings.yml')
+  end
+
   def self.default_data_directory
     @@default_data_directory
   end
@@ -196,9 +200,4 @@ module Settings
     })
   end
 
-end
-
-TaxonWorks::Application.configure do
-  Settings.load_test_defaults(config) if Rails.env.to_s == 'test'
-  Settings.load_from_file(config, 'config/application_settings.yml', Rails.env.to_sym) if File.exist?('config/application_settings.yml')
 end

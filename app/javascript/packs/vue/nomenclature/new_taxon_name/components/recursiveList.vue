@@ -22,14 +22,14 @@
 </template>
 
 <script>
-var recursiveList = require('./recursiveList.vue').default
-const MutationNames = require('../store/mutations/mutations').MutationNames
-const GetterNames = require('../store/getters/getters').GetterNames
-const ActionNames = require('../store/actions/actions').ActionNames
+import RecursiveList from './recursiveList.vue'
+import { MutationNames } from '../store/mutations/mutations'
+import { GetterNames } from '../store/getters/getters'
+import { ActionNames } from '../store/actions/actions'
 
 export default {
   components: {
-    recursiveList
+    RecursiveList
   },
   computed: {
     savedList () {

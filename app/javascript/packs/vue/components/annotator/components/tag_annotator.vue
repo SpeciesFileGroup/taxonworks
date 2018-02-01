@@ -14,16 +14,27 @@
             type="radio"
             class="normal-input button-active"
           >
-          <label :for="`switch-picker-${index}`" class="capitalize">{{ item }}</label>
+          <label
+            :for="`switch-picker-${index}`"
+            class="capitalize">{{ item }}
+          </label>
         </template>
       </template>
     </div>
 
-    <modal class="transparent-modal" v-if="view == 'all'" @close="view = 'new'">
+    <modal
+      class="transparent-modal"
+      v-if="view == 'all'"
+      @close="view = 'new'">
       <h3 slot="header">Keywords</h3>
       <div slot="body">
         <template v-for="keyword in preferences[view]">
-          <button :style="{ borderRightColor: keyword.css_color, borderRightWidth: '4px', borderRightStyle: 'solid' }" v-if="!tagAlreadyCreated(keyword)" @click="createWithId(keyword.id)" type="button" class="normal-input button-submit tag_button"> {{ keyword.name }} </button>
+          <button
+            :style="{ borderRightColor: keyword.css_color, borderRightWidth: '4px', borderRightStyle: 'solid' }"
+            v-if="!tagAlreadyCreated(keyword)"
+            @click="createWithId(keyword.id)"
+            type="button"
+            class="normal-input button-submit tag_button"> {{ keyword.name }} </button>
         </template>
       </div>
     </modal>
@@ -31,29 +42,46 @@
     <template v-if="preferences && view != 'new' && view != 'all'">
       <div class="field separate-bottom">
         <template v-for="keyword in preferences[view]">
-          <button v-if="!tagAlreadyCreated(keyword)" @click="createWithId(keyword.id)" type="button" class="normal-input button-submit tag_button"> {{ keyword.name }} </button>
+          <button
+            v-if="!tagAlreadyCreated(keyword)"
+            @click="createWithId(keyword.id)"
+            type="button"
+            class="normal-input button-submit tag_button"> {{ keyword.name }} </button>
         </template>
       </div>
     </template>
 
     <div class="separate-bottom" v-if="view == 'new'">
       <autocomplete
-        url="/keywords/autocomplete"
+        url="/controlled_vocabulary_terms/autocomplete"
         label="label"
         min="2"
         placeholder="Keyword"
         :clear-after="true"
+        :add-param="{'of_type[]' : 'Keyword'}"
         @getInput="tag.keyword_attributes.name = $event"
         @getItem="createWithId($event.id)"
         class="separate-bottom"
         param="term"/>
-      <textarea class="separate-bottom" placeholder="Definition... (minimum is 20 characters)" v-model="tag.keyword_attributes.definition"/>
+      <textarea
+        class="separate-bottom"
+        placeholder="Definition... (minimum is 20 characters)"
+        v-model="tag.keyword_attributes.definition"/>
       <div>
-        <button @click="createWithoutId()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Create</button>
+        <button
+          @click="createWithoutId()"
+          :disabled="!validateFields"
+          class="button button-submit normal-input separate-bottom"
+          type="button">Create
+        </button>
       </div>
     </div>
 
-    <display-list :label="['keyword', 'name']" :list="list" @delete="removeItem" class="list"/>
+    <display-list
+      :label="['keyword', 'name']"
+      :list="list"
+      @delete="removeItem"
+      class="list"/>
   </div>
 </template>
 <script>

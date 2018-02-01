@@ -269,4 +269,21 @@ describe Settings do
     end
   end
 
+  describe '::load_from_settings_file' do
+
+    it 'calls ::load_from_file using config/application_settings.yml if exists' do
+      allow(File).to receive(:exist?).with('config/application_settings.yml').and_return(true)
+
+      expect(Settings).to receive(:load_from_file).with(rails_config, 'config/application_settings.yml', :test)
+      Settings.load_from_settings_file(rails_config, :test)
+    end
+
+    it 'does not call ::load_from_file if config/application_settings.yml does not exist' do
+      allow(File).to receive(:exist?).with('config/application_settings.yml').and_return(false)
+
+      expect(Settings).not_to receive(:load_from_file)
+      Settings.load_from_settings_file(rails_config, :test)
+    end
+  end
+
 end

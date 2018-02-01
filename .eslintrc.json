@@ -1,7 +1,5 @@
 {
   "extends": [
-    // add more generic rulesets here, such as:
-    // 'eslint:recommended',
     "standard",
     "eslint:recommended",
     "plugin:vue/strongly-recommended"
@@ -10,10 +8,6 @@
     "vue",
     "import"
   ],
-  "rules": {
-    // override/add rules settings here, such as:
-    // 'vue/no-unused-vars': 'error'
-  },
   "env": {
     "browser": "true",
     "es6": "true",

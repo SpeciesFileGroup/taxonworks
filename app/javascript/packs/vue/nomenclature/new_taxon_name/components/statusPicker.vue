@@ -80,14 +80,14 @@
 </template>
 
 <script>
-const ActionNames = require('../store/actions/actions').ActionNames
-const GetterNames = require('../store/getters/getters').GetterNames
-const MutationNames = require('../store/mutations/mutations').MutationNames
-const treeDisplay = require('./treeDisplay.vue').default
-const listEntrys = require('./listEntrys.vue').default
-const listCommon = require('./commonList.vue').default
-const autocomplete = require('../../../components/autocomplete.vue').default
-const expand = require('./expand.vue').default
+import { ActionNames } from '../store/actions/actions'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import treeDisplay from './treeDisplay.vue'
+import listEntrys from './listEntrys.vue'
+import listCommon from './commonList.vue'
+import autocomplete from '../../../components/autocomplete.vue'
+import expand from './expand.vue'
 
 export default {
   components: {

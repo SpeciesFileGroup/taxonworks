@@ -18,5 +18,6 @@ export default function ({ commit, state }) {
       buffered_other_labels: undefined
     }
   }
+  commit(MutationNames.SetMaterialTab, 'new')
   commit(MutationNames.SetTypeMaterial, type_material)
 }
