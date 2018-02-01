@@ -9,7 +9,8 @@ FactoryBot.define do
 
 # FactoryBot.build(:geographic_item, :random_point)
   trait :random_point do
-    point { RSPEC_GEO_FACTORY.point(minLat + rng.rand * (maxLat - minLat), minLng + rng.rand * (maxLng - minLng)) }
+    point { GeoBuild::RSPEC_GEO_FACTORY.point(minLat + rng.rand * (maxLat - minLat),
+                                              minLng + rng.rand * (maxLng - minLng)) }
   end
 
   factory :geographic_item, traits: [:creator_and_updater] do
@@ -22,23 +23,23 @@ FactoryBot.define do
     end
 
     factory :geographic_item_with_point_m do
-      point { GI_POINT_M }
+      point { GeoBuild::GI_POINT_M }
     end
 
     factory :geographic_item_with_point_u do
-      point { GI_POINT_U }
+      point { GeoBuild::GI_POINT_U }
     end
 
     factory :geographic_item_with_point_c do
-      point { GI_POINT_C }
+      point { GeoBuild::GI_POINT_C }
     end
 
     factory :geographic_item_with_line_string do
-      line_string { GI_LS01 }
+      line_string { GeoBuild::GI_LS01 }
     end
 
     factory :geographic_item_with_polygon do
-      polygon { GI_POLYGON }
+      polygon { GeoBuild::GI_POLYGON }
     end
 
     factory :geographic_item_with_multi_polygon do

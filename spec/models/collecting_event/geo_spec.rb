@@ -1,6 +1,8 @@
 require 'rails_helper'
+require 'support/shared_contexts/shared_geo'
 
 describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
+  include_context 'stuff for complex geo tests'
   let(:collecting_event) { CollectingEvent.new }
   let(:county) { FactoryBot.create(:valid_geographic_area_stack) }
   let(:state) { county.parent }

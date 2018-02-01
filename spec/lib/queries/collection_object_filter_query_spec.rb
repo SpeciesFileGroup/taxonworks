@@ -346,7 +346,7 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
       }
       let!(:joe) { User.find(1) }
       let!(:joe2) {
-        peep = FactoryBot.create!(:valid_user, name: 'Joe Number Two', by: joe)
+        peep = FactoryBot.create(:valid_user, name: 'Joe Number Two', by: joe)
         ProjectMember.create!(project: project, user: peep, by: joe)
         peep
       }
