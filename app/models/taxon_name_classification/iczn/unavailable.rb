@@ -168,7 +168,7 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     extend InnerClassFamilyGroupUnavailableBefore2000
   end
 
-  class UnavailableUnderIcn < TaxonNameClassification::Iczn::Unavailable
+  class UnavailableUnderIczn < TaxonNameClassification::Iczn::Unavailable
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000200'.freeze
 
