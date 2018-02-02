@@ -60,7 +60,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
           end
 
           it 'renders the count of collection objects based on a selected range of identifiers' do
-            expect(Specimen.count).to eq(14)
+            expect(Specimen.count).to eq(12)
             expect(Identifier.count).to eq(10)
             expect(Namespace.count).to eq(2)
             # expect(true).to be_truthy
@@ -72,6 +72,8 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
         describe '#set_area', js: true do #
           it 'renders count of collection objects in a specific names area' do
+            co_a
+            co_b
             visit(collection_objects_filter_task_path)
             fill_area_picker_autocomplete('area_picker_autocomplete', with: 'E', select: area_e.id)
             click_button('Set area')

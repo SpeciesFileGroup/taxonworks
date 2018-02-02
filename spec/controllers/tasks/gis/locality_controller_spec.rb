@@ -16,7 +16,6 @@ describe Tasks::Gis::LocalityController, type: :controller, group: [:geo, :share
   # }
 
   describe 'GET nearby' do
-    let(:ce_a) { CollectingEvent.where(verbatim_label: 'Eh?').first }
     it 'returns http success' do
       # pending 'proper specification of the route'
       get :nearby, params: {id: ce_a.id, nearby_distance: '8'}
