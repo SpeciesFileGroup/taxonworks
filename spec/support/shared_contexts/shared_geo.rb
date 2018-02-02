@@ -227,20 +227,25 @@ shared_context 'stuff for complex geo tests' do
                            project:           geo_project,
                            updater:           geo_user,
                            creator:           geo_user)
-    ce.save!
+    # TODO: (let fail) WHY is this `reload` *REQUIRED* to use `ce_a` in the construction of `co_a` (below)?
+    ce.reload
     ce
   }
 
-  let(:ce_b) { FactoryBot.create(:collecting_event,
-                                 start_date_year:   1982,
-                                 start_date_month:  2,
-                                 start_date_day:    2,
-                                 verbatim_locality: 'environs of B',
-                                 verbatim_label:    'Bah',
-                                 geographic_area:   area_b,
-                                 project:           geo_project,
-                                 creator:           joe,
-                                 updater:           geo_user)
+  let(:ce_b) {
+    ce = FactoryBot.create(:collecting_event,
+                           start_date_year:   1982,
+                           start_date_month:  2,
+                           start_date_day:    2,
+                           verbatim_locality: 'environs of B',
+                           verbatim_label:    'Bah',
+                           geographic_area:   area_b,
+                           project:           geo_project,
+                           updater:           geo_user,
+                           creator:           joe)
+    # ce.save!
+    ce.reload
+    ce
   }
 
 # need some collection objects
@@ -252,10 +257,13 @@ shared_context 'stuff for complex geo tests' do
                            project:          geo_project,
                            creator:          geo_user,
                            updater:          geo_user)
-    o  = FactoryBot.create(:valid_otu_with_taxon_name, name: 'Otu_A',
-                           project:                          geo_project,
-                           creator:                          geo_user,
-                           updater:                          geo_user)
+    # co.reload
+    # TODO: (let fail) WHY does this create fail?
+    o = FactoryBot.create(:valid_otu_with_taxon_name,
+                          name:    'Otu_A',
+                          project: geo_project,
+                          creator: geo_user,
+                          updater: geo_user)
     o.taxon_name.update_column(:name, 'antivitis')
     co.otus << o
 
