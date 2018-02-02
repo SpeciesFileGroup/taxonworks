@@ -92,6 +92,8 @@ class PeopleController < ApplicationController
     render json: data
   end
 
+  # TODO: Deprecate for autocomplete, and fix, there should not be an inner join here likely, it's restricting values to only those who are 
+  # already authors
   def taxon_name_author_autocomplete
     @authors = Person.joins(:roles).where(roles: {type: 'TaxonNameAuthor', project_id: sessions_current_project_id}).find_for_autocomplete(params.permit(:term)).distinct.order('people.cached').limit(50)
     data = @authors.collect do |a|
@@ -120,6 +122,7 @@ class PeopleController < ApplicationController
     render json: ROLES
   end
 
+  # TODO: deprecate for autocompelte
   def lookup_person
     @people = Person.find_for_autocomplete(params)
     render json: @people.collect{|p|
