@@ -95,7 +95,7 @@ class TopicsController < ApplicationController
   end
 
   def select_options
-    @topics = Topic.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:klass))
+    @topics = Topic.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:klass), params.permit(:target)[:target])
   end
 
 end

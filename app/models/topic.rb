@@ -51,6 +51,7 @@ class Topic < ControlledVocabularyTerm
   # @return [Hash] topics optimized for user selection
   def self.select_optimized(user_id, project_id, klass, target = 'Citation')
     h = {
+      quick: [],
       pinboard: Topic.pinned_by(user_id).where(project_id: project_id).to_a
     }
 
@@ -61,7 +62,7 @@ class Topic < ControlledVocabularyTerm
       h[:recent] = Topic.joins(:contents).where(project_id: project_id).used_recently('Content').limit(10).distinct.to_a
     end
 
-    h[:quick] = (Topic.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq
+    h[:quick] = (Topic.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq 
     h
   end
 
