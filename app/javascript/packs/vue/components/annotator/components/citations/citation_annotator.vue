@@ -9,7 +9,7 @@
         :pdf="true"
         label="object_tag"
         :list="list"
-        @edit="citation = loadCitation($event)"
+        @edit="citation = $event"
         @delete="removeItem"
         class="list"/>
     </div>
@@ -17,6 +17,7 @@
       <citation-edit
         :global-id="globalId"
         :citation="citation"
+        @update="updateCitation"
         @new="citation = newCitation()"/>
       <citation-topic
         :object-type="objectType"
@@ -94,20 +95,9 @@
             this.citation.citation_topics.findIndex(element => element.id == topic.id), 1)
         })
       },
-      loadCitation(citation) {
-        return {
-          id: citation.id,
-          source_id: citation.source.id,
-          is_original: citation.is_original,
-          citation_topics: citation.citation_topics,
-          object_tag: citation.object_tag,
-
-          citation_topics_attributes: []
-        }
-      },
       updateCitation(editCitation) {
         this.update(`/citations/${editCitation.id}`, { citation: editCitation }).then(response => {
-          this.citation = this.loadCitation(response.body)
+          this.citation = response.body
           this.list[this.list.findIndex(element => element.id == editCitation.id)] = response.body
           TW.workbench.alert.create('Citation was successfully updated.', 'notice')
         })

@@ -17,7 +17,7 @@
     <button
       class="button button-submit normal-input separate-bottom"
       :disabled="!validateFields"
-      @click="updateCitation()"
+      @click="sendCitation()"
       type="button">Update
     </button>
     <button
@@ -57,7 +57,7 @@
     },
     methods: {
       sendCitation() {
-
+        this.$emit('update', this.editCitation)
       },
       newCitation() {
         this.$emit('new', true)
