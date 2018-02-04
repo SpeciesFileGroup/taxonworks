@@ -39,7 +39,7 @@ class Citation < ApplicationRecord
   belongs_to :source, inverse_of: :citations
 
   has_many :citation_topics, inverse_of: :citation, dependent: :destroy
-  has_many :topics, through: :citation_topics
+  has_many :topics, through: :citation_topics, inverse_of: :citations
   has_many :documents, through: :source
 
   validates_presence_of  :source_id
