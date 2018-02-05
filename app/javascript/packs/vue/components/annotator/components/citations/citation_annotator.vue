@@ -125,7 +125,6 @@
         height: 100px;
       }
       .pages {
-        //margin-left: 8px;
         width: 86px;
       }
       .vue-autocomplete-input, .vue-autocomplete {

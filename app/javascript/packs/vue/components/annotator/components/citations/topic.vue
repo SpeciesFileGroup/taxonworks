@@ -106,7 +106,7 @@
           pages: undefined
         }
       },
-      topicAlreadyCreated (topic) {
+      topicAlreadyCreated(topic) {
         return this.citation.citation_topics.find(item => { return topic.id == item.topic_id })
       },
       sendTopic() {
@@ -118,6 +118,17 @@
           }]
         })
         this.topic = this.newTopic();
+      },
+      setViewWithTopics(listView) {
+        let keys = Object.keys(listView);
+        let that = this;
+
+        keys.some(function(key) {
+          if(listView[key].find(item => { return !that.topicAlreadyCreated(item) })) {
+            that.view = key
+            return true
+          }
+        })
       },
       loadTabList (type) {
         let tabList
@@ -135,6 +146,7 @@
         Promise.all(promises).then(() => {
           tabList['all'] = allList
           that.preferences = tabList
+          that.setViewWithTopics(tabList);
         })
       }
     }
