@@ -11,6 +11,9 @@
         class="list-item"
         v-html="displayName(item)"/>
       <div class="list-controls">
+        <pdf-button
+          v-if="pdf && item.hasOwnProperty('target_document')"
+          :pdf="item.target_document"/>
         <span
           v-if="edit"
           class="circle-button btn-edit"
@@ -25,7 +28,12 @@
   </transition-group>
 </template>
 <script>
+
+  import PdfButton from '../../pdfButton.vue'
   export default {
+    components: {
+      PdfButton
+    },
     props: {
       list: {
         type: Array,
@@ -36,6 +44,10 @@
         required: true
       },
       edit: {
+        type: Boolean,
+        default: false
+      },
+      pdf: {
         type: Boolean,
         default: false
       }

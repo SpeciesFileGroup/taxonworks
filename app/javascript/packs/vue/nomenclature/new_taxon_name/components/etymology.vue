@@ -1,5 +1,7 @@
 <template>
-  <div class="basic-information panel">
+  <div
+    class="basic-information panel"
+    v-help.section.etymology.container>
     <a
       name="etymology"
       class="anchor"/>

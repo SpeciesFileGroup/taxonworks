@@ -561,9 +561,10 @@ TaxonWorks::Application.routes.draw do
   resources :topics, only: [:create] do
     collection do
       get :index, defaults: { format: :json }
-      get :lookup_topic
+      get :select_options, defaults: {format: :json}
       get 'get_definition/:id', action: 'get_definition'
       get :autocomplete
+      get :lookup_topic
       get :list
     end
   end

@@ -1,5 +1,5 @@
 <template>
-  <button
+  <span
     type="button"
     @click="loadPDF"
     class="circle-button pdf-button"/>

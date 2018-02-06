@@ -1,7 +1,8 @@
 <template>
   <form>
     <div
-    class="basic-information panel">
+      class="basic-information panel"
+      v-help.section.author.container>
       <a
         name="author"
         class="anchor"/>

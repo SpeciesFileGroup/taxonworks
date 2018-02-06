@@ -816,6 +816,41 @@ namespace :tw do
 
         end
 
+        desc 'time rake tw:project_import:sf_import:start:list_skipped_file_ids user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define list_skipped_file_ids: [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Running list_skipped_file_ids...'
+
+          skipped_file_ids = [
+              9,  # Lepidoptera
+              24, # Collembola
+              48, # Rhyparochromidae
+              54, # Heteroptera
+              56, # Membracoidea
+              66, # Odonata
+              70, # Tortricidae
+              77, # Erebidae
+              78, # Melanoplus
+              80, # Pyrgomorphidae
+              81, # Ommexechidae
+              82, # Carabidae
+              83, # Cicadoidea
+              84, # Psychodidae
+              85, # Megaloptera
+              86, # Scutelleridae
+              88, # Praxibulini
+              89, # Prostoia
+              92  # Dysoniini
+          ]
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SkippedFileIDs', skipped_file_ids)
+
+          puts 'SkippedFileIDs'
+          ap skipped_file_ids
+
+        end
+
       end
     end
   end
