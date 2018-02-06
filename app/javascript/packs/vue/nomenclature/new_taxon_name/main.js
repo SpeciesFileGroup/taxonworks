@@ -6,10 +6,17 @@ TW.views.tasks.nomenclature.new_taxon_name = TW.views.tasks.nomenclature.new_tax
 
 import Vue from 'vue'
 import vueResource from 'vue-resource'
+import HelpSystem from '../../plugins/help/help'
+import en from './lang/help/en'
 
 Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
   init: function () {
     Vue.use(vueResource)
+    Vue.use(HelpSystem, { 
+      languages: {
+        en: en
+      }
+    })
     Vue.use(require('vue-shortkey'))
 
     var store = require('./store/store.js').newStore()
@@ -19,10 +26,10 @@ Object.assign(TW.views.tasks.nomenclature.new_taxon_name, {
 
     new Vue({
       store,
-		  	el: '#new_taxon_name_task',
-		  	render: function (createElement) {
-		  		return createElement(App)
-		  	}
+      el: '#new_taxon_name_task',
+      render: function (createElement) {
+        return createElement(App)
+      }
     })
   }
 })

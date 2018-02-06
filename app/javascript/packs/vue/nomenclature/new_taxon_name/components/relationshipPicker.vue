@@ -1,5 +1,7 @@
 <template>
-  <form class="panel basic-information">
+  <form
+    class="panel basic-information"
+    v-help.section.relationship.container>
     <a
       name="relationship"
       class="anchor"/>

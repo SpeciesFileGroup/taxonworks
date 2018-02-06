@@ -1,5 +1,7 @@
 <template>
-  <form class="panel basic-information">
+  <form
+    class="panel basic-information"
+    v-help.section.basic.container>
     <a
       name="basic-information"
       class="anchor"/>
@@ -14,7 +16,7 @@
       v-show="expanded">
       <div class="column-left">
         <div class="field separate-right">
-          <label>Name</label><br>
+          <label v-help.section.basic.name>Name</label><br>
           <hard-validation field="name">
             <input
               slot="body"
@@ -122,9 +124,7 @@ export default {
     .create-button {
       min-width: 100px;
     }
-    .soft-success {
 
-    }
     height: 100%;
     box-sizing: border-box;
     display: flex;
