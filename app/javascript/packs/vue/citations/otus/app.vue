@@ -160,7 +160,7 @@
               source_id: that.$store.getters[GetterNames.GetSourceSelected].id
             }
 
-            this.$http.post('/citations', citation).then(response => {
+            this.$http.post('/citations',{ citation: citation }).then(response => {
               that.$store.commit(MutationNames.SetCurrentCitation, response.body)
               that.$store.commit(MutationNames.AddCitation, response.body)
               that.$store.commit(MutationNames.AddToSourceList, response.body)
