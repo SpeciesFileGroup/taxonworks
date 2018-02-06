@@ -62,7 +62,7 @@
         that.checked = checked
       },
       setOrRemoveTopic: function () {
-        if (this.checked) {
+        if (!this.checked) {
           this.createCitation()
         } else {
           this.removeCitationTopic()
@@ -74,7 +74,7 @@
           citation_id: this.$store.getters[GetterNames.GetCitationSelected].id
         }
 
-        this.$http.post('/citation_topics.json', citation_topic).then(response => {
+        this.$http.post('/citation_topics.json', { citation_topic: citation_topic }).then(response => {
           this.$store.commit(MutationNames.AddTopicSelected, response.body)
         })
       },
