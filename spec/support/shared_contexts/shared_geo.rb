@@ -259,12 +259,15 @@ shared_context 'stuff for complex geo tests' do
                            updater:          geo_user)
     # co.reload
     # TODO: (let fail) WHY does this create fail?
-    o = FactoryBot.create(:valid_otu_with_taxon_name,
-                          name:    'Otu_A',
-                          project: geo_project,
-                          creator: geo_user,
-                          updater: geo_user)
-    o.taxon_name.update_column(:name, 'antivitis')
+    # o = FactoryBot.create(:valid_otu_with_taxon_name,
+    #                       name:    'Otu_A',
+    #                       project: geo_project,
+    #                       creator: geo_user,
+    #                       updater: geo_user)
+    # o.taxon_name.update_column(:name, 'antivitis')
+    o            = Otu.create!(name: 'Otu_A', creator: geo_user, updater: geo_user, project: geo_project)
+    tn           = Protonym.create!(name: 'antivitis', creator: geo_user, updater: geo_user, project: geo_project)
+    o.taxon_name = tn
     co.otus << o
 
     o = top_dog # this is o1
