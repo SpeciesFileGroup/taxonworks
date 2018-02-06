@@ -3,8 +3,18 @@
 RSPEC_GEO_FACTORY = Gis::FACTORY
 shared_context 'stuff for complex geo tests' do
 
-  let(:geo_user) { @user.nil? ? User.find(1) : @user }
-  let(:geo_project) { @project.nil? ? Project.find(1) : @project }
+  let(:geo_user) {
+    u        = @user.nil? ? User.find(1) : @user
+    $user    = u
+    $user_id = u.id
+    u
+  }
+  let(:geo_project) {
+    p           = @project.nil? ? Project.find(1) : @project
+    $project    = p
+    $project_id = p.id
+    p
+  }
   let(:joe) { geo_user }
 
   let(:gat_parish) { GeographicAreaType.create!(name: 'Parish', creator: geo_user, updater: geo_user) }
@@ -215,6 +225,9 @@ shared_context 'stuff for complex geo tests' do
     area
   }
 
+  let(:json_string) { '{"type":"Feature", "properties":{}, "geometry":{"type":"MultiPolygon", ' \
+                            '"coordinates":[[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}' }
+
 # need some collecting events
   let(:ce_a) {
     ce = FactoryBot.create(:collecting_event,
@@ -227,8 +240,7 @@ shared_context 'stuff for complex geo tests' do
                            project:           geo_project,
                            updater:           geo_user,
                            creator:           geo_user)
-    # TODO: (let fail) WHY is this `reload` *REQUIRED* to use `ce_a` in the construction of `co_a` (below)?
-    ce.reload
+    # ce.reload
     ce
   }
 
@@ -258,16 +270,15 @@ shared_context 'stuff for complex geo tests' do
                            creator:          geo_user,
                            updater:          geo_user)
     # co.reload
-    # TODO: (let fail) WHY does this create fail?
-    # o = FactoryBot.create(:valid_otu_with_taxon_name,
-    #                       name:    'Otu_A',
-    #                       project: geo_project,
-    #                       creator: geo_user,
-    #                       updater: geo_user)
-    # o.taxon_name.update_column(:name, 'antivitis')
-    o            = Otu.create!(name: 'Otu_A', creator: geo_user, updater: geo_user, project: geo_project)
-    tn           = Protonym.create!(name: 'antivitis', creator: geo_user, updater: geo_user, project: geo_project)
-    o.taxon_name = tn
+    o = FactoryBot.create(:valid_otu_with_taxon_name,
+                          name:    'Otu_A',
+                          project: geo_project,
+                          creator: geo_user,
+                          updater: geo_user)
+    o.taxon_name.update_column(:name, 'antivitis')
+    # o            = Otu.create!(name: 'Otu_A', creator: geo_user, updater: geo_user, project: geo_project)
+    # tn           = Protonym.create!(name: 'antivitis', creator: geo_user, updater: geo_user, project: geo_project)
+    # o.taxon_name = tn
     co.otus << o
 
     o = top_dog # this is o1

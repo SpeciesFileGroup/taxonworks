@@ -72,8 +72,6 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
 
         describe '#set_area', js: true do #
           it 'renders count of collection objects in a specific names area' do
-            # TODO: (let fail) WHY does this create fail?
-            # TODO: (let fail) Run this commandline `rspec ./spec/features/tasks/collection_objects/filter_spec.rb -e 'collection objects in a specific names area'`
             co_a
             co_b
             visit(collection_objects_filter_task_path)
