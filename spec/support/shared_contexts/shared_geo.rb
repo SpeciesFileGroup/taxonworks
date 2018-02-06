@@ -5,14 +5,14 @@ shared_context 'stuff for complex geo tests' do
 
   let(:geo_user) {
     u        = @user.nil? ? User.find(1) : @user
-    $user    = u
-    $user_id = u.id
+    # $user    = u
+    # $user_id = u.id
     u
   }
   let(:geo_project) {
     p           = @project.nil? ? Project.find(1) : @project
-    $project    = p
-    $project_id = p.id
+    # $project    = p
+    # $project_id = p.id
     p
   }
   let(:joe) { geo_user }
@@ -240,7 +240,7 @@ shared_context 'stuff for complex geo tests' do
                            project:           geo_project,
                            updater:           geo_user,
                            creator:           geo_user)
-    # ce.reload
+    ce.reload
     ce
   }
 
