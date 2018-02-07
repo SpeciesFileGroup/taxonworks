@@ -231,34 +231,37 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     # you could just pick one column, and we can abstract out the problem later.
     context 'when the CE has a GR' do
       before(:all) {
-        generate_ce_test_objects(1, 1)
+        # generate_ce_test_objects(1, 1)
+      }
+
+      before {
+        gr_a
+        gr_b
       }
 
       context 'and that GR has some combination of GIs, and EGIs' do
         specify 'that the count of which can be found' do
           # pending 'fixing the bug in all_geographic_items' # todo: @mjy
-          # @ce_p5 has two GRs, each of which has a GI.
-          results = @ce_p5.all_geographic_items
+          # ce_a
+          results = ce_a.all_geographic_items
           expect(results.count).to eq(2)
-          expect(results).to include(@p15, @p5)
-          # @ce_p8 has two GRs, one of which has only a GI, and the other of which
-          # has a GI, and an EGI.
-          results = @ce_p8.all_geographic_items
-          expect(results.count).to eq(3)
-          expect(results.to_a).to include(@p18, @p8, @b2)
-          # #ce_area_v has no GR.
-          results = @ce_area_v.all_geographic_items
+          expect(results.map(&:id)).to include(p_a.id, item_a.id)
+          # ce_b
+          results = ce_b.all_geographic_items
+          expect(results.count).to eq(2)
+          expect(results.map(&:id)).to include(err_b.id, p_b.id)
+          # ce_area_v has no GR or GA.
+          results = ce_area_v.all_geographic_items
           expect(results.count).to eq(0)
         end
       end
 
       context 'and that GR has a GI but no EGI' do
         specify 'find other CEs that have GRs whose GI or EGI is within some radius of the source GI' do
-          pieces = @ce_p7.collecting_events_within_radius_of(2000000)
-          expect(pieces.count).to eq(6)
-          expect(pieces).to include(@ce_p0, # @ce_p2, @ce_p3,
-                                    @ce_p5, @ce_p6, @ce_p8, @ce_p9)
-          expect(pieces).not_to include(@ce_p1, @ce_p4, @ce_p7)
+          pieces = ce_a.collecting_events_within_radius_of(2000000)
+          expect(pieces.count).to eq(1)
+          expect(pieces).to include(ce_b)
+          expect(pieces).not_to include(ce_area_v)
         end
 
         specify 'find other CEs that have GRs whose GI or EGI intersects the source GI' do

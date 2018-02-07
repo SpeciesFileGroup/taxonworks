@@ -134,6 +134,10 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
   context 'stub_new' do
     include_context 'stuff for complex geo tests'
 
+    before {
+      ce_a
+      gr_a
+    }
     let(:otu) { FactoryBot.create(:valid_otu) }
 
     specify 'creates some number of ADs' do

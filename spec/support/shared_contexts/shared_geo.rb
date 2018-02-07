@@ -230,6 +230,8 @@ shared_context 'stuff for complex geo tests' do
                             '"coordinates":[[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}' }
 
 # need some collecting events
+  let(:ce_area_v) { FactoryBot.create(:collecting_event, verbatim_label: 'ce_area_v collecting event test') }
+
   let(:ce_a) {
     ce = FactoryBot.create(:collecting_event,
                            start_date_year:   1971,
@@ -362,21 +364,25 @@ shared_context 'stuff for complex geo tests' do
 
   let(:spooler) { co_b_otus.where('name like ?', '%spooler%').first }
   let(:p4) { co_b_otus.where(name: 'P4').first }
+  let(:p_a) { GeographicItem.new(point: item_a.st_centroid) }
+  let(:p_b) { GeographicItem.new(point: item_b.st_centroid) }
 
   let(:gr_a) { FactoryBot.create(:georeference_verbatim_data,
                                  api_request:           'area_a',
                                  collecting_event:      ce_a,
                                  error_geographic_item: item_a,
-                                 geographic_item:       GeographicItem.new(point: item_a.st_centroid),
+                                 geographic_item:       p_a,
                                  creator:               geo_user,
                                  updater:               geo_user)
   }
 
+  let(:err_b) { GeographicItem.create(polygon: RSPEC_GEO_FACTORY.polygon(polygon_inner)) }
+
   let(:gr_b) { FactoryBot.create(:georeference_verbatim_data,
                                  api_request:           'area_b',
                                  collecting_event:      ce_b,
-                                 error_geographic_item: item_b,
-                                 geographic_item:       GeographicItem.new(point: item_b.st_centroid),
+                                 error_geographic_item: err_b,
+                                 geographic_item:       p_b,
                                  creator:               geo_user,
                                  updater:               geo_user)
   }
