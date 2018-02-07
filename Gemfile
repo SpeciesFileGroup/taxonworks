@@ -37,7 +37,6 @@ gem 'responders', '~> 2.4' # Used?!
 
 # Email
 gem 'exception_notification', '~> 4.2.1'
-gem 'mail', '~> 2.7.0.rc1'
 
 # Models
 gem 'bcrypt', '~> 3.1.11'
