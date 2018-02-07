@@ -6,8 +6,18 @@ class OtusController < ApplicationController
   # GET /otus
   # GET /otus.json
   def index
-    @recent_objects = Otu.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    end
+
+  def index
+    respond_to do |format|
+      format.html do
+        @recent_objects = Otu.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @otus = Otu.where(filter_params).with_project_id(sessions_current_project_id)
+      }
+    end
   end
 
   # GET /otus/1
@@ -207,4 +217,9 @@ class OtusController < ApplicationController
   def user_map
     {user_header_map: {'otu' => 'otu_name'}}
   end
+
+  def filter_params
+    params.permit(:taxon_name_id)
+  end
+
 end
