@@ -28,6 +28,10 @@
           </a>
           <div class="taxon-options">
             <radial-annotator :global-id="taxon.global_id"/>
+            <otu-radial
+              class="otu-radial"
+              :taxon-id="taxon.id"
+              :taxon-name="taxon.object_tag"/>
             <span
               v-if="taxon.id"
               @click="showModal = true"
@@ -43,6 +47,7 @@
 </template>
 <script>
 
+import OtuRadial from '../../../components/otu/otu.vue'
 const radialAnnotator = require('../../../components/annotator/annotator.vue').default
 
 const GetterNames = require('../store/getters/getters').GetterNames
@@ -51,7 +56,8 @@ const modal = require('../../../components/modal.vue').default
 export default {
   components: {
     modal,
-    radialAnnotator
+    radialAnnotator,
+    OtuRadial
   },
   data: function () {
     return {
@@ -126,11 +132,14 @@ export default {
   .taxon-options {
     display: flex;
     justify-content: space-between;
-    width: 70px;
+    width: 90px;
   }
   .radial-annotator {
     width:30px;
     margin-left: 14px;
+  }
+  .otu-radial {
+    margin-right: 6px;
   }
   .header {
     padding: 1em;

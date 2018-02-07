@@ -29,4 +29,9 @@ module OtusHelper
     otus.collect { |o| link_to(o.name, o) }.join(',')
   end
 
+  def otus_radial(object)
+    otu = object.metamorphosize
+    content_tag(:div, '', 'data-taxon-name' => object_tag(otu), 'data-taxon-id' => otu.id, 'data-otu-radial' => 'true')
+  end
+
 end
