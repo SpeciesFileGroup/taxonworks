@@ -5,6 +5,13 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
   context 'with properly built collection of objects' do
     include_context 'stuff for complex geo tests'
 
+    before {
+      co_a
+      co_b
+      gr_a
+      gr_b
+    }
+
     context 'area search' do
       context 'named area' do
         let(:params) { {geographic_area_ids: [area_e.id]} }
@@ -89,8 +96,8 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
     end
 
     context 'identifier search' do
-      let(:user) { User.find(1) }
-      let(:project) { Project.find(1) }
+      # let(:user) { User.find(1) }
+      # let(:project) { Project.find(1) }
 
       let(:co_32) { Specimen.last }
       let(:co_30) { Specimen.find(co_32.id - 2) }
@@ -100,16 +107,16 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
 
       specify 'numbers' do
 
-        2.times { FactoryBot.create(:valid_namespace, creator: user, updater: user) }
+        2.times { FactoryBot.create(:valid_namespace, creator: geo_user, updater: geo_user) }
         ns1 = Namespace.first
         ns2 = Namespace.second
-        2.times { FactoryBot.create(:valid_specimen, creator: user, updater: user, project: project) }
+        2.times { FactoryBot.create(:valid_specimen, creator: geo_user, updater: geo_user, project: geo_project) }
         (1..10).each { |identifier|
-          sp = FactoryBot.create(:valid_specimen, creator: user, updater: user, project: project)
+          sp = FactoryBot.create(:valid_specimen, creator: geo_user, updater: geo_user, project: geo_project)
           id = FactoryBot.create(:identifier_local_catalog_number,
-                                 updater:           user,
-                                 project:           project,
-                                 creator:           user,
+                                 updater:           geo_user,
+                                 project:           geo_project,
+                                 creator:           geo_user,
                                  identifier_object: sp,
                                  namespace:         (identifier.even? ? ns1 : ns2),
                                  identifier:        identifier)
@@ -126,30 +133,30 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
     context 'user/date search' do
       let!(:pat_admin) {
         peep = FactoryBot.create(:valid_user, name: 'Pat Project Administrator', by: joe)
-        ProjectMember.create!(project: project, user: peep, by: joe)
+        ProjectMember.create!(project: geo_project, user: peep, by: joe)
         peep
       }
       let!(:pat) {
         peep = FactoryBot.create(:valid_user, name: 'Pat The Other', by: joe)
-        ProjectMember.create!(project: project, user: peep, by: joe)
+        ProjectMember.create!(project: geo_project, user: peep, by: joe)
         peep
       }
       let!(:joe) { User.find(1) }
       let!(:joe2) {
         peep = FactoryBot.create(:valid_user, name: 'Joe Number Two', by: joe)
-        ProjectMember.create!(project: project, user: peep, by: joe)
+        ProjectMember.create!(project: geo_project, user: peep, by: joe)
         peep
       }
 
       specify 'selected object' do
-        2.times { FactoryBot.create(:valid_specimen, creator: pat, updater: pat_admin, project: project) }
+        2.times { FactoryBot.create(:valid_specimen, creator: pat, updater: pat_admin, project: geo_project) }
         (1..10).each { |specimen|
           sp = FactoryBot.create(:valid_specimen,
                                  creator:    (specimen.even? ? joe : pat),
                                  created_at: "200#{specimen - 1}/01/#{specimen}",
                                  updated_at: "200#{specimen - 1}/07/#{specimen}",
                                  updater:    (specimen.even? ? pat : joe),
-                                 project:    project)
+                                 project:    geo_project)
         }
 
         params = {user: 'All users', date_type_select: 'created_at'}
@@ -195,18 +202,18 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
     context 'combined search' do
       let!(:pat_admin) {
         peep = FactoryBot.create(:valid_user, name: 'Pat Project Administrator', by: joe)
-        ProjectMember.create!(project: project, user: peep, by: joe)
+        ProjectMember.create!(project: geo_project, user: peep, by: joe)
         peep
       }
       let!(:pat) {
         peep = FactoryBot.create(:valid_user, name: 'Pat The Other', by: joe)
-        ProjectMember.create!(project: project, user: peep, by: joe)
+        ProjectMember.create!(project: geo_project, user: peep, by: joe)
         peep
       }
       let!(:joe) { User.find(1) }
       let!(:joe2) {
         peep = FactoryBot.create(:valid_user, name: 'Joe Number Two', by: joe)
-        ProjectMember.create!(project: project, user: peep, by: joe)
+        ProjectMember.create!(project: geo_project, user: peep, by: joe)
         peep
       }
 
@@ -214,21 +221,21 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
         c_objs = [co_a, co_b]
 
 # Specimen creation/update dates and Identifier/namespace
-        2.times { FactoryBot.create(:valid_namespace, creator: user, updater: user) }
+        2.times { FactoryBot.create(:valid_namespace, creator: geo_user, updater: geo_user) }
         ns1 = Namespace.first
         ns2 = Namespace.second
-        2.times { FactoryBot.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: project) }
+        2.times { FactoryBot.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: geo_project) }
         c_objs.each_with_index { |sp, index|
           sp.update_column(:created_by_id, (index.odd? ? joe.id : pat.id))
           sp.update_column(:created_at, "200#{index}/01/#{index + 1}")
           sp.update_column(:updated_at, "200#{index}/07/#{index + 1}")
           sp.update_column(:updated_by_id, (index.odd? ? pat.id : joe.id))
-          sp.update_column(:project_id, project.id)
+          sp.update_column(:project_id, geo_project.id)
           sp.save!
           FactoryBot.create(:identifier_local_catalog_number,
-                            updater:           user,
-                            project:           project,
-                            creator:           user,
+                            updater:           geo_user,
+                            project:           geo_project,
+                            creator:           geo_user,
                             identifier_object: sp,
                             namespace:         (index.even? ? ns1 : ns2),
                             identifier:        (index + 1).to_s)

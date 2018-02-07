@@ -7,6 +7,11 @@ require 'support/shared_contexts/shared_geo'
 describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
   include_context 'stuff for complex geo tests'
 
+  before {
+    gr_a
+    gr_b
+  }
+
   let(:otu) { FactoryBot.create(:valid_otu) }
   let(:source) { FactoryBot.create(:valid_source) }
 
@@ -215,17 +220,7 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
                                                                                  [10.0, -10.0, 0.0], [0.0, -10.0, 0.0],
                                                                                  [0.0, 10.0, 0.0]]]]},
                                             'properties' => {'asserted_distribution' => {'id' => objects[1].id}},
-                                            'id'         => (feature_index.to_i + 1)},
-                                           {'type'       => 'Feature',
-                                            'geometry'   => {'type'        => 'MultiPolygon',
-                                                             'coordinates' => [[[[1.0, -1.0, 0.0], [9.0, -1.0, 0.0],
-                                                                                 [9.0, -9.0, 0.0], [9.0, -1.0, 0.0],
-                                                                                 [1.0, -1.0, 0.0]]],
-                                                                               [[[2.5, -2.5, 0.0], [7.5, -2.5, 0.0],
-                                                                                 [7.5, -7.5, 0.0], [2.5, -7.5, 0.0],
-                                                                                 [2.5, -2.5, 0.0]]]]},
-                                            'properties' => {'asserted_distribution' => {'id' => objects[2].id}},
-                                            'id'         => (feature_index.to_i + 2)}]})
+                                            'id'         => (feature_index.to_i + 1)}]})
       end
     end
   end

@@ -9,6 +9,13 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
     }
     include_context 'stuff for complex geo tests'
 
+    before {
+      co_a
+      co_b
+      gr_a
+      gr_b
+    }
+
     context 'area search' do
       context 'named area' do
         let(:params) { {geographic_area_ids: [area_b.id]} }

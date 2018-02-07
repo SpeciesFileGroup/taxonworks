@@ -4,15 +4,15 @@ RSPEC_GEO_FACTORY = Gis::FACTORY
 shared_context 'stuff for complex geo tests' do
 
   let(:geo_user) {
-    u        = @user.nil? ? User.find(1) : @user
+    u = @user.nil? ? User.find(1) : @user
     # $user    = u
-    # $user_id = u.id
+    $user_id = u.id
     u
   }
   let(:geo_project) {
-    p           = @project.nil? ? Project.find(1) : @project
+    p = @project.nil? ? Project.find(1) : @project
     # $project    = p
-    # $project_id = p.id
+    $project_id = p.id
     p
   }
   let(:joe) { geo_user }
@@ -117,6 +117,7 @@ shared_context 'stuff for complex geo tests' do
                                parent:               earth)
       area.geographic_items << polygon_b
       area.save!
+      area
     }
   end
 
@@ -256,7 +257,7 @@ shared_context 'stuff for complex geo tests' do
                            updater:           geo_user,
                            creator:           joe)
     # ce.save!
-    ce.reload
+    # ce.reload
     ce
   }
 
@@ -350,6 +351,18 @@ shared_context 'stuff for complex geo tests' do
     co
   }
 
+  let(:co_a_otus) { co_a.otus }
+
+  let(:abra) { co_a_otus.where(name: 'Abra').first }
+  let(:otu_a) { co_a_otus.where(name: 'Otu_A').first }
+  let(:cadabra) { co_a_otus.where(name: 'Abra cadabra').first }
+  let(:alakazam) { co_a_otus.where('name like ?', '%alakazam%').first }
+
+  let(:co_b_otus) { co_b.otus }
+
+  let(:spooler) { co_b_otus.where('name like ?', '%spooler%').first }
+  let(:p4) { co_b_otus.where(name: 'P4').first }
+
   let(:gr_a) { FactoryBot.create(:georeference_verbatim_data,
                                  api_request:           'area_a',
                                  collecting_event:      ce_a,
@@ -391,6 +404,7 @@ shared_context 'stuff for complex geo tests' do
                                         FactoryBot.create(:valid_taxon_name,
                                                           rank_class: Ranks.lookup(:iczn, 'Family'),
                                                           name:       'Topdogidae',
+                                                          project:    geo_project,
                                                           creator:    geo_user,
                                                           updater:    geo_user),
                       creator:          geo_user,
@@ -403,6 +417,7 @@ shared_context 'stuff for complex geo tests' do
                                         FactoryBot.create(:valid_taxon_name,
                                                           rank_class: Ranks.lookup(:iczn, 'Family'),
                                                           name:       'Nutherdogidae',
+                                                          project:    geo_project,
                                                           creator:    geo_user,
                                                           updater:    geo_user),
                       creator:          geo_user,
