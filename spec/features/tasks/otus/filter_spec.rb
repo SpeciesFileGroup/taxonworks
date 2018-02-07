@@ -72,7 +72,8 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
         it 'renders count of otus from a specific name without descendants' do
           visit(index_path)
           page.execute_script "$('#set_nomen')[0].scrollIntoView()"
-          fill_autocomplete('nomen_id_for_by_nomen', with: 'bee', select: co_b.taxon_names.last.id)
+          fill_autocomplete('nomen_id_for_by_nomen', with: 'bee',
+                            select: co_b.taxon_names.where(name: 'beevitis').first.id)
           click_button('Set Nomenclature')
           expect(find('#nomen_count')).to have_text('1') # 'beevitis'
         end
@@ -95,7 +96,8 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           find('#descendants').click
           fill_autocomplete('nomen_id_for_by_nomen', with: 'Topdog', select: top_dog.taxon_name.id)
           click_button('Set Nomenclature')
-          expect(find('#nomen_count')).to have_text('6') # Top Dog, Top dog by Bill, Abra, Abra cadabra, Abra cadabra alakazam, Sargon's spooler
+          expect(find('#nomen_count')).to have_text('6')
+          # Top Dog, Top dog by Bill, Abra, Abra cadabra, Abra cadabra alakazam, Sargon's spooler
         end
 
         it 'renders count of otus from a specific name with descendants with specific rank' do
@@ -115,9 +117,11 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           visit(index_path)
           page.execute_script "$('#set_author')[0].scrollIntoView()"
           find('#and_or_select__and_').click
-          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Sa', select_id: sargon.id, object_type: 'author')
+          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Sa',
+                                       select_id: sargon.id, object_type: 'author')
           wait_for_ajax
-          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Pe', select_id: daryl.id, object_type: 'author')
+          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Pe',
+                                       select_id: daryl.id, object_type: 'author')
           wait_for_ajax
           click_button('Set Author')
           wait_for_ajax
@@ -128,11 +132,14 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           visit(index_path)
           page.execute_script "$('#set_author')[0].scrollIntoView()"
           find('#and_or_select__or_').click
-          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Sa', select_id: sargon.id, object_type: 'author')
+          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Sa',
+                                       select_id: sargon.id, object_type: 'author')
           wait_for_ajax
-          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Bi', select_id: bill.id, object_type: 'author')
+          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Bi',
+                                       select_id: bill.id, object_type: 'author')
           wait_for_ajax
-          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Te', select_id: ted.id, object_type: 'author')
+          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Te',
+                                       select_id: ted.id, object_type: 'author')
           wait_for_ajax
           click_button('Set Author')
           wait_for_ajax
