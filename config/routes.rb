@@ -518,6 +518,7 @@ TaxonWorks::Application.routes.draw do
 
   resources :taxon_names do
     concerns [:data_routes]
+    resources :otus, shallow: true, only: [:index], defaults: {format: :json}
     resources :taxon_name_classifications, shallow: true, only: [:index], defaults: {format: :json}
 
     # TODO, check
