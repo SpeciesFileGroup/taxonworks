@@ -15,6 +15,13 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
       # NOTE: The following *has* to be *after* the sign_in_and_select_project !
       include_context 'stuff for complex geo tests'
 
+      before {
+        co_a
+        co_b
+        gr_a
+        gr_b
+      }
+
       describe '#set_area', js: true do #
         it 'renders count of otus in a specific names area' do
           visit(index_path)
