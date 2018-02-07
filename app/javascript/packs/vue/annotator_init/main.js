@@ -15,15 +15,15 @@ Object.assign(TW.vue.annotator, {
       $(element).attr('id', id)
 
       new Vue({
-			  	el: `#${id}`,
-			  	render: function (createElement) {
-			  		return createElement(App, {
-			  			props: {
-			  				id: id,
-			  				globalId: globalId
-			  			}
-			  		})
-			  	}
+        el: `#${id}`,
+        render: function (createElement) {
+          return createElement(App, {
+            props: {
+              id: id,
+              globalId: globalId
+            }
+          })
+        }
       })
     }
   }
@@ -31,8 +31,8 @@ Object.assign(TW.vue.annotator, {
 
 $(document).on('turbolinks:load', function () {
   if ($('[data-radial-annotator="true"]').length) {
-  	$('[data-radial-annotator="true"]').each(function () {
-  		TW.vue.annotator.init(this)
-  	})
+    $('[data-radial-annotator="true"]').each(function () {
+      TW.vue.annotator.init(this)
+    })
   }
 })

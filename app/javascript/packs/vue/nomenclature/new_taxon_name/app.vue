@@ -86,6 +86,7 @@
 
 <script>
 import showForThisGroup from './helpers/showForThisGroup'
+import Otu from '../../components/otu/otu.vue'
 var sourcePicker = require('./components/sourcePicker.vue').default
 var relationshipPicker = require('./components/relationshipPicker.vue').default
 var statusPicker = require('./components/statusPicker.vue').default
@@ -122,7 +123,8 @@ export default {
     pickOriginalCombination,
     typeBlock,
     genderBlock,
-    checkChanges
+    checkChanges,
+    Otu
   },
   computed: {
     getTaxon () {
