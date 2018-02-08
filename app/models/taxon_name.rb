@@ -110,15 +110,9 @@
 #   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed.
 #   This string should NOT include the author year (see verbatim_author and year_of_publication for those data).
 #
-# TODO: @mjy etymology column in taxon_names is not covered here. Is tis correct below?
 # @!attribute etymology
 #   @return [String]
-#   the derivation and history of the name
-#
-# TODO: @mjy etymology column in taxon_names is not covered here. Is tis correct below?
-# @!attribute etymology
-#   @return [String]
-#   the derivation and history of the name
+#   the derivation and history of the name in written form
 #
 class TaxonName < ApplicationRecord
 
@@ -141,6 +135,7 @@ class TaxonName < ApplicationRecord
   # Allows users to provide arbitrary annotations that "over-ride" rank string
   ALTERNATE_VALUES_FOR = [:rank_class].freeze # don't even think about putting this on #name
 
+  # TODO: Move to taxon name classification.rb
   EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS = [
     'TaxonNameClassification::Iczn::Unavailable::NotLatin',
     'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters',
@@ -166,9 +161,6 @@ class TaxonName < ApplicationRecord
   # @return [Boolean]
   #   When true cached values are not built
   attr_accessor :no_cached
-
-  # Deprecated
-  # before_validation :set_type_if_empty
 
   after_save :create_new_combination_if_absent
 

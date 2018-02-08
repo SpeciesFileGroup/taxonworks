@@ -13,15 +13,20 @@ module Shared::IsData
     include Scopes
   end
 
+  # @return [Object]
+  #   the same object, but namespaced to the base class
+  #   used many places, might be good target for optimization
   def metamorphosize
     return self if self.class.descends_from_active_record?
     self.becomes(self.class.base_class)
   end
 
+  # @return [Boolean]
   def is_community?
     self.class < Shared::SharedAcrossProjects ? true : false
   end
 
+  # @return [Boolean]
   def is_in_use?
     self.class.reflect_on_all_associations(:has_many).each do |r|
       return true if self.send(r.name).count > 0
