@@ -2,6 +2,7 @@
 module GeoBuild
 # rubocop:disable Metrics/MethodLength
   def self.simple_world(user_id = 1, project_id = 1)
+    raise 'Can\'t use \'simple_world\' method any more.'
     temp_user    = $user_id
     temp_project = $project_id
 
@@ -201,7 +202,8 @@ module GeoBuild
 # @return [True]
 #   nukes geo related tables, only to be used in after(:all)
   def self.clean_slate_geo # rubocop:disable Metrics/AbcSize
-    # Order matters!
+    raise 'Can\'t use \'clean_slate_geo\' method any more.'
+# Order matters!
     TaxonDetermination.delete_all
     ApplicationRecord.connection.reset_pk_sequence!('taxon_determinations')
 
@@ -694,6 +696,7 @@ module GeoBuild
 # @param [Integer] project_id to use to build objects
 # @return [$user_id]
   def self.prepare_test(user_id, project_id)
+    raise 'Can\'t use \'prepare_test\' method any more.'
     if $user_id.nil?
       if user_id.nil?
         u        = User.order(:id).first
@@ -723,6 +726,7 @@ module GeoBuild
 # @param [User] user
 # @return [Hash] of debug names and ids
   def self.generate_geo_test_objects(user_id, project_id, run_in_console = false, user = nil)
+    raise 'Can\'t use \'generate_geo_test_objects\' method any more.'
 
     prepare_test(user_id, project_id) if run_in_console
 
@@ -907,6 +911,7 @@ module GeoBuild
   end
 
   def self.generate_ce_test_objects(user_id, project_id, run_in_console = false, user = nil)
+    raise 'Can\'t use \'generate_ce_test_objects\' method any more.'
     @debug_names = generate_geo_test_objects(user_id, project_id, run_in_console, user) if @p0.nil?
 
     @ce_p0 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p0')
@@ -1175,6 +1180,7 @@ Two different shapes with the same name, 'East Boxia', and
 =end
   def self.generate_political_areas_with_collecting_events(user_id = nil, project_id = nil,
                                                       run_in_console = false, user = nil)
+    raise 'Can\'t use \'generate_political_areas_with_collecting_events\' method any more.'
 
     prepare_test(user_id, project_id) unless run_in_console
 
@@ -1661,6 +1667,7 @@ Two different shapes with the same name, 'East Boxia', and
   def self.generate_collecting_events(user = nil)
     # now to build the CollectingEvents
     # 16 collecting events, one for each of the smallest boxes
+    raise 'Can\'t use \'generate_collecting_events\' method any more.'
 
     user ||= User.find($user_id)
     raise 'no user provided or determinable for generate_collecting_events' if user.nil?
