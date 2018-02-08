@@ -1,20 +1,21 @@
 require 'rails_helper'
-require_relative '../support/shared_contexts/geo/build_rspec_geo'
+# require_relative '../support/shared_contexts/geo/build_rspec_geo'
 
 # include the subclasses, perhaps move this out
 Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| require_dependency file }
 
 describe GeographicItem, type: :model, group: :geo do
+  include_context 'stuff for complex geo tests'
 
   let(:geographic_item) { GeographicItem.new }
 
   after(:all) {
-    GeoBuild.clean_slate_geo
+    # GeoBuild.clean_slate_geo
   }
 
   context 'using ce_test_objects' do
     before(:all) {
-      generate_ce_test_objects(1, 1)
+      # generate_ce_test_objects(1, 1)
     }
 
     let(:geographic_item) { FactoryBot.build(:geographic_item) }
@@ -133,7 +134,7 @@ describe GeographicItem, type: :model, group: :geo do
       context 'type is set before validation when column is provided (assumes type is null)' do
         GeographicItem::DATA_TYPES.each do |t|
           specify "for #{t}" do
-            geographic_item.send("#{t}=", SIMPLE_SHAPES[t])
+            geographic_item.send("#{t}=", GeoBuild::SIMPLE_SHAPES[t])
             expect(geographic_item.valid?).to be_truthy
             expect(geographic_item.type).to eq("GeographicItem::#{t.to_s.camelize}")
           end
@@ -153,7 +154,7 @@ describe GeographicItem, type: :model, group: :geo do
       end
 
       specify '#geo_object_type when item not saved' do
-        geographic_item.point = SIMPLE_SHAPES[:point]
+        geographic_item.point = GeoBuild::SIMPLE_SHAPES[:point]
         expect(geographic_item.geo_object_type).to eq(:point)
       end
     end
@@ -196,36 +197,30 @@ describe GeographicItem, type: :model, group: :geo do
     context 'geo_object interactions (Geographical attribute of GeographicItem)' do
 
       specify 'Certain line_string shapes cannot be polygons, others can.' do
-        @k.reload # can't make a polygon out of a line_string which crosses itself
-        @d.reload # can make a (closed) polygon out of a line_string which is either closed, or open
+        # @k.reload # can't make a polygon out of a line_string which crosses itself
+        # @d.reload # can make a (closed) polygon out of a line_string which is either closed, or open
 
-        expect(RSPEC_GEO_FACTORY.polygon(@k.geo_object)).to be_nil
-        expect(RSPEC_GEO_FACTORY.polygon(@d.geo_object).to_s).not_to be_nil
+        expect(RSPEC_GEO_FACTORY.polygon(k.geo_object)).to be_nil
+        expect(RSPEC_GEO_FACTORY.polygon(d.geo_object).to_s).not_to be_nil
       end
 
       specify 'That one object contains another, or not.' do
-        expect(@k.contains?(@p1.geo_object)).to be_truthy
-        expect(@k.contains?(@p17.geo_object)).to be_falsey
+        expect(k.contains?(p1.geo_object)).to be_truthy
+        expect(k.contains?(p17.geo_object)).to be_falsey
 
-        expect(@p1.within?(@k.geo_object)).to be_truthy
-        expect(@p17.within?(@k.geo_object)).to be_falsey
+        expect(p1.within?(k.geo_object)).to be_truthy
+        expect(p17.within?(k.geo_object)).to be_falsey
       end
 
       specify 'That one object intersects another, or not.' do # using geographic_item.intersects?
-        expect(@e1.intersects?(@e2.geo_object)).to be_truthy
-        expect(@e1.intersects?(@e3.geo_object)).to be_falsey
-        expect(@p1.intersects?(@k.geo_object)).to be_truthy
-        expect(@p17.intersects?(@k.geo_object)).to be_falsey
+        expect(e1.intersects?(e2.geo_object)).to be_truthy
+        expect(e1.intersects?(e3.geo_object)).to be_falsey
+        expect(p1.intersects?(k.geo_object)).to be_truthy
+        expect(p17.intersects?(k.geo_object)).to be_falsey
       end
 
       specify 'Two polygons may have various intersections.' do
-        @e.reload
-        e0      = @e.geo_object # a collection of polygons
-        shapeE1 = e0.geometry_n(0)
-        shapeE2 = e0.geometry_n(1)
-        shapeE3 = e0.geometry_n(2)
-        shapeE4 = e0.geometry_n(3)
-        shapeE5 = e0.geometry_n(4)
+        # @e.reload
 
         expect(shapeE1.intersects?(shapeE2)).to be_truthy
         expect(shapeE1.intersects?(shapeE3)).to be_falsey
@@ -233,20 +228,20 @@ describe GeographicItem, type: :model, group: :geo do
         expect(shapeE1.overlaps?(shapeE2)).to be_truthy
         expect(shapeE1.overlaps?(shapeE3)).to be_falsey
 
-        expect(shapeE1.intersection(shapeE2)).to eq(E1_AND_E2)
-        expect(shapeE1.intersection(shapeE4)).to eq(E1_AND_E4)
+        expect(shapeE1.intersection(shapeE2)).to eq(GeoBuild::E1_AND_E2)
+        expect(shapeE1.intersection(shapeE4)).to eq(GeoBuild::E1_AND_E4)
 
-        expect(shapeE1.union(shapeE2)).to eq(E1_OR_E2)
-        expect(shapeE1.union(shapeE5)).to eq(E1_OR_E5)
+        expect(shapeE1.union(shapeE2)).to eq(GeoBuild::E1_OR_E2)
+        expect(shapeE1.union(shapeE5)).to eq(GeoBuild::E1_OR_E5)
       end
 
       specify 'Two polygons may have various adjacencies.' do
-        e0      = @e.geo_object # a collection of polygons
-        shapeE1 = e0.geometry_n(0)
-        shapeE2 = e0.geometry_n(1)
-        shapeE3 = e0.geometry_n(2)
-        shapeE4 = e0.geometry_n(3)
-        shapeE5 = e0.geometry_n(4)
+        # e0      = @e.geo_object # a collection of polygons
+        # shapeE1 = e0.geometry_n(0)
+        # shapeE2 = e0.geometry_n(1)
+        # shapeE3 = e0.geometry_n(2)
+        # shapeE4 = e0.geometry_n(3)
+        # shapeE5 = e0.geometry_n(4)
 
         expect(shapeE1.touches?(shapeE5)).to be_falsey
         expect(shapeE2.touches?(shapeE3)).to be_truthy
@@ -258,54 +253,54 @@ describe GeographicItem, type: :model, group: :geo do
       end
 
       specify 'Two different object types have various intersections.' do
-        a        = @a.geo_object
-        k        = @k.geo_object
-        l        = @l.geo_object
-        e        = @e.geo_object
-        f        = @f.geo_object
-        f1       = f.geometry_n(0)
-        f2       = f.geometry_n(1)
-        p16      = @p16.geo_object
-        p16_on_a = P16_ON_A
-        r        = a.intersection(p16)
+        # a        = @a.geo_object
+        # k        = @k.geo_object
+        # l        = @l.geo_object
+        # e        = @e.geo_object
+        # f        = @f.geo_object
+        # f1       = f.geometry_n(0)
+        # f2       = f.geometry_n(1)
+        # p16      = @p16.geo_object
+        # p16_on_a = P16_ON_A
+        # r        = a.intersection(p16)
 
         expect(r.factory.projection_factory).to eq(p16_on_a.factory.projection_factory)
         # Now that these are the same factory the equivalence is the "same"
         expect(r).to eq(p16_on_a)
 
-        expect(l.intersects?(k)).to be_truthy
-        expect(l.intersects?(e)).to be_falsey
+        expect(l.geo_object.intersects?(k.geo_object)).to be_truthy
+        expect(l.geo_object.intersects?(e.geo_object)).to be_falsey
 
         expect(f1.intersection(f2)).to be_truthy
       end
 
       specify 'Objects can be related by distance' do
-        p1  = @p1.geo_object
-        p10 = @p10.geo_object
-        p17 = @p17.geo_object
+        # p1  = @p1.geo_object
+        # p10 = @p10.geo_object
+        # p17 = @p17.geo_object
+        #
+        # k = @k.geo_object
 
-        k = @k.geo_object
+        expect(p17.geo_object.distance(k.geo_object)).to be < p10.geo_object.distance(k.geo_object)
 
-        expect(p17.distance(k)).to be < p10.distance(k)
+        expect(k.near(p1.geo_object, 0)).to be_truthy
+        expect(k.near(p17.geo_object, 2)).to be_truthy
+        expect(k.near(p10.geo_object, 5)).to be_falsey
 
-        expect(@k.near(@p1.geo_object, 0)).to be_truthy
-        expect(@k.near(@p17.geo_object, 2)).to be_truthy
-        expect(@k.near(@p10.geo_object, 5)).to be_falsey
-
-        expect(@k.far(@p1.geo_object, 0)).to be_falsey
-        expect(@k.far(@p17.geo_object, 1)).to be_truthy
-        expect(@k.far(@p10.geo_object, 5)).to be_truthy
+        expect(k.far(p1.geo_object, 0)).to be_falsey
+        expect(k.far(p17.geo_object, 1)).to be_truthy
+        expect(k.far(p10.geo_object, 5)).to be_truthy
       end
 
       specify 'Outer Limits' do
-        everything = @all_items.geo_object
-        expect(everything.convex_hull()).to eq(CONVEX_HULL)
+        everything = all_items.geo_object
+        expect(everything.convex_hull()).to eq(GeoBuild::CONVEX_HULL)
       end
     end
 
     context 'That GeographicItems provide certain methods.' do
       specify 'self.geo_object returns stored data' do
-        geographic_item.point = ROOM2024
+        geographic_item.point = GeoBuild::ROOM2024
         expect(geographic_item.save).to be_truthy
         # also 'respond_to'
         # after the save, the default factory type of geographic_item is
@@ -314,7 +309,7 @@ describe GeographicItem, type: :model, group: :geo do
         # See the model for a method to change the default factory for a given
         # column (in our case, all).
         geo_id = geographic_item.id
-        expect(geographic_item.geo_object).to eq ROOM2024
+        expect(geographic_item.geo_object).to eq(GeoBuild::ROOM2024)
         geographic_item.reload
         expect(GeographicItem.find(geo_id).geo_object).to eq geographic_item.geo_object
       end
@@ -345,38 +340,38 @@ describe GeographicItem, type: :model, group: :geo do
       end
 
       specify '#contains? if one object is inside the area defined by the other (watch out for holes)' do
-        expect(@k.contains?(@p1.geo_object)).to be_truthy
-        expect(@e1.contains?(@p10.geo_object)).to be_falsey
+        expect(k.contains?(p1.geo_object)).to be_truthy
+        expect(e1.contains?(p10.geo_object)).to be_falsey
       end
 
       specify '#st_npoints returns the number of included points for a valid GeoItem' do
-        expect(@p0.st_npoints).to eq(1)
-        expect(@a.st_npoints).to eq(4)
-        expect(@b.st_npoints).to eq(13)
-        expect(@h.st_npoints).to eq(5)
-        expect(@f.st_npoints).to eq(4)
-        expect(@g.st_npoints).to eq(12)
-        expect(@all_items.st_npoints).to eq(157)
-        expect(@outer_limits.st_npoints).to eq(7)
+        expect(p0.st_npoints).to eq(1)
+        expect(a.st_npoints).to eq(4)
+        expect(b.st_npoints).to eq(13)
+        expect(h.st_npoints).to eq(5)
+        expect(f.st_npoints).to eq(4)
+        expect(g.st_npoints).to eq(12)
+        expect(all_items.st_npoints).to eq(157)
+        expect(outer_limits.st_npoints).to eq(7)
       end
 
       specify '#valid_geometry? returns \'true\' for a valid GeoObject' do
-        expect(@p0.valid_geometry?).to be_truthy
-        expect(@a.valid_geometry?).to be_truthy
-        expect(@b.valid_geometry?).to be_truthy
-        expect(@h.valid_geometry?).to be_truthy
-        expect(@f.valid_geometry?).to be_truthy
-        expect(@g.valid_geometry?).to be_truthy
-        expect(@all_items.valid_geometry?).to be_truthy
+        expect(p0.valid_geometry?).to be_truthy
+        expect(a.valid_geometry?).to be_truthy
+        expect(b.valid_geometry?).to be_truthy
+        expect(h.valid_geometry?).to be_truthy
+        expect(f.valid_geometry?).to be_truthy
+        expect(g.valid_geometry?).to be_truthy
+        expect(all_items.valid_geometry?).to be_truthy
       end
 
       specify '#st_centroid returns a lat/lng of the centroid of the GeoObject' do
         # select st_centroid('multipoint (-4.0 4.0 0.0, 4.0 4.0 0.0, 4.0 -4.0 0.0, -4.0 -4.0 0.0)');
-        expect(@item_d.st_centroid).to eq('POINT(-0 -0)')
+        expect(item_a.st_centroid).to eq('POINT(5 5)')
       end
 
       specify '#center_coords' do
-        expect(@item_d.center_coords).to eq(['-0.000000', '-0.000000'])
+        expect(item_a.center_coords).to eq(['5.000000', '5.000000'])
       end
 
       context '#shape on new' do
@@ -434,8 +429,8 @@ describe GeographicItem, type: :model, group: :geo do
       end
 
       specify '::containing_sql' do
-        test1 = 'ST_Contains(polygon::geometry, (select geom_alias_tbl.point::geometry from geographic_items geom_alias_tbl where geom_alias_tbl.id = 2))'
-        expect(GeographicItem.containing_sql('polygon', @p1.to_param, @p1.geo_object_type)).to eq(test1)
+        test1 = 'ST_Contains(polygon::geometry, (select geom_alias_tbl.point::geometry from geographic_items geom_alias_tbl where geom_alias_tbl.id = 1))'
+        expect(GeographicItem.containing_sql('polygon', p1.to_param, p1.geo_object_type)).to eq(test1)
       end
 
       specify '::eval_for_type' do
@@ -447,78 +442,88 @@ describe GeographicItem, type: :model, group: :geo do
 
       context 'scopes (GeographicItems can be found by searching with) ' do
         # GeographicItem.within_radius(x).excluding(some_gi).with_collecting_event.include_collecting_event.collect{|a| a.collecting_event}
+        before {
+          ce_a
+          ce_b
+          gr_a
+          gr_b
+        }
         specify '::geo_with_collecting_event' do
-          pieces = GeographicItem.geo_with_collecting_event.order('id').to_a
-          expect(pieces.count).to eq(21) # p12 will be listed twice, once for e1, and once for e2
-          expect(pieces).to include(@p0.reload, @p1.reload, @p2.reload, @p3.reload,
-                                    @p4.reload, @p5.reload, @p6.reload, @p7.reload,
-                                    @p8.reload, @p9.reload, @p10.reload, @p11.reload,
-                                    @p12.reload, @p13.reload, @p14.reload, @p15.reload,
-                                    @p16.reload, @p17.reload, @p18.reload, @p19.reload,
-                                    @item_d.reload) #
-          expect(pieces).not_to include(@e4.reload)
+          pieces = GeographicItem.geo_with_collecting_event.to_a
+          expect(pieces.count).to eq(2)
+          expect(pieces).to include(p_a, p_b) #
+          expect(pieces).not_to include(e4)
         end
 
         specify '::err_with_collecting_event' do
-          pieces = GeographicItem.err_with_collecting_event.order('id').to_a
-          expect(pieces.count).to eq(9) # @e1, @e2 listed twice, @k listed three times
-          expect(pieces).to include(@b2, @b, @e1, @e2, @k, @item_d) #
-          expect(pieces).not_to include(@e4, @b1)
+          pieces = GeographicItem.err_with_collecting_event.to_a
+          expect(pieces.count).to eq(2)
+          expect(pieces).to include(item_a, err_b) #
+          expect(pieces).not_to include(g, p17)
         end
 
         specify '::with_collecting_event_through_georeferences' do
           pieces = GeographicItem.with_collecting_event_through_georeferences.order('id').to_a
-          expect(pieces.count).to eq(26) # @k only listed once
-          expect(pieces).to contain_exactly(@p0, @p1, @p2, @p3,
-                                            @p4, @p5, @p6, @p7,
-                                            @p8, @p9, @p10, @p11,
-                                            @p12, @p13, @p14, # @p12c,
-                                            @p15, @p16, @p17, @p18,
-                                            @p19, @item_d, @e1, @e2,
-                                            @k, @b, @b2) #
-          expect(pieces).not_to include(@e4)
+          expect(pieces.count).to eq(4)
+          expect(pieces).to contain_exactly(item_a, p_a, p_b, err_b) #
+          expect(pieces).not_to include(e4)
         end
 
         specify '::include_collecting_event' do
           # skip 'construction of method'
-          pieces = GeographicItem.include_collecting_event.order('id').to_a
-          expect(pieces.count).to eq(60)
-          expect(pieces).to eq(@all_gi)
+          pieces = GeographicItem.include_collecting_event.to_a
+          expect(pieces.count).to eq(6)
+          expect(pieces).to include(item_b, item_a, err_b, p_a, p_b, item_e)
         end
 
-
         context '::containing' do
+          before {
+            k
+            l
+            b
+            b1
+            b2
+            e1
+          }
           specify 'find the polygon containing the points' do
-            expect(GeographicItem.containing(@p1.id).to_a).to contain_exactly(@k)
+            expect(GeographicItem.containing(p1.id).to_a).to contain_exactly(k)
           end
 
           specify 'find the polygon containing all three points' do
-            expect(GeographicItem.containing(@p1.id, @p2.id, @p3.id).to_a).to contain_exactly(@k)
+            expect(GeographicItem.containing(p1.id, p2.id, p3.id).to_a).to contain_exactly(k)
           end
 
           specify 'find that a line string can contain a point' do
-            expect(GeographicItem.containing(@p4.id).to_a).to contain_exactly(@l)
+            expect(GeographicItem.containing(p4.id).to_a).to contain_exactly(l)
           end
 
           specify 'point in two polygons, but not their intersection' do
-            expect(GeographicItem.containing(@p18.id).to_a).to contain_exactly(@b1, @b2)
+            expect(GeographicItem.containing(p18.id).to_a).to contain_exactly(b1, b2)
           end
 
           specify 'point in two polygons, one with a hole in it' do
-            expect(GeographicItem.containing(@p19.id).to_a).to contain_exactly(@b1, @b)
+            expect(GeographicItem.containing(p19.id).to_a).to contain_exactly(b1, b)
           end
         end
 
         context '::are_contained_in - returns objects which contained in another object.' do
+          before {
+            e1
+            k
+          }
 
           # OR!
           specify 'three things inside and one thing outside k' do
-            expect(GeographicItem.are_contained_in_item('polygon', [@p1, @p2, @p3, @p11]).to_a).to contain_exactly(@e1, @k)
+            expect(GeographicItem.are_contained_in_item('polygon',
+                                                        [p1, p2, p3, p11]).to_a)
+              .to contain_exactly(e1, k)
           end
 
           # OR!
           specify 'one thing inside one thing, and another thing inside another thing' do
-            expect(GeographicItem.are_contained_in_item('polygon', [@p1, @p11]).to_a).to contain_exactly(@e1, @k)
+            expect(GeographicItem.are_contained_in_item('polygon',
+                                                        [p1, p11]).to_a)
+              .to contain_exactly(e1, k)
           end
 
           #
@@ -554,112 +559,200 @@ describe GeographicItem, type: :model, group: :geo do
         end
 
         context '::contained_by' do
+          before {
+            p1
+            p2
+            p3
+            p11
+            p12
+          }
           specify 'find the points in a polygon' do
-            expect(GeographicItem.contained_by(@k.id).to_a).to contain_exactly(@p1, @p2, @p3)
+            expect(GeographicItem.contained_by(k.id).to_a).to contain_exactly(p1, p2, p3)
           end
 
           specify 'find the (overlapping) points in a polygon' do
-            overlapping_point = FactoryBot.create(:geographic_item_point, point: POINT12.as_binary)
-            expect(GeographicItem.contained_by(@e1.id).to_a).to contain_exactly(@p12, overlapping_point, @p11)
+            overlapping_point = FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT12.as_binary)
+            expect(GeographicItem.contained_by(e1.id).to_a).to contain_exactly(p12, overlapping_point, p11)
           end
         end
 
         context '::are_contained_in_item_by_id - returns objects which contained in another object.' do
+          before {
+            p0
+            p1
+            p2
+            p3
+            p12
+            p13
+            b1
+            b2
+            b
+            e1
+            e2
+            k
+          }
 
           specify 'one thing inside k' do
-            expect(GeographicItem.are_contained_in_item_by_id('polygon', @p1.id).to_a).to eq([@k])
+            expect(GeographicItem.are_contained_in_item_by_id('polygon', p1.id).to_a).to eq([k])
           end
 
           specify 'three things inside k (in array)' do
-            expect(GeographicItem.are_contained_in_item_by_id('polygon', [@p1.id, @p2.id, @p3.id]).to_a).to eq([@k])
+            expect(GeographicItem.are_contained_in_item_by_id('polygon',
+                                                              [p1.id, p2.id, p3.id]).to_a)
+              .to eq([k])
           end
 
           specify 'three things inside k (as seperate parameters)' do
-            expect(GeographicItem.are_contained_in_item_by_id('polygon', @p1.id, @p2.id, @p3.id).to_a).to eq([@k])
+            expect(GeographicItem.are_contained_in_item_by_id('polygon', p1.id,
+                                                              p2.id,
+                                                              p3.id).to_a)
+              .to eq([k])
           end
 
           specify 'one thing outside k' do
-            expect(GeographicItem.are_contained_in_item_by_id('polygon', @p4.id).to_a).to eq([])
+            expect(GeographicItem.are_contained_in_item_by_id('polygon', p4.id).to_a)
+              .to eq([])
           end
 
           specify ' one thing inside two things (overlapping)' do
-            expect(GeographicItem.are_contained_in_item_by_id('polygon', @p12.id).to_a.sort).to contain_exactly(@e1, @e2)
+            expect(GeographicItem.are_contained_in_item_by_id('polygon', p12.id).to_a.sort)
+              .to contain_exactly(e1, e2)
           end
 
           specify 'three things inside and one thing outside k' do
-            expect(GeographicItem.are_contained_in_item_by_id('polygon', [@p1.id, @p2.id, @p3.id, @p11.id]).to_a).to contain_exactly(@e1, @k)
+            expect(GeographicItem.are_contained_in_item_by_id('polygon',
+                                                              [p1.id, p2.id,
+                                                               p3.id, p11.id]).to_a)
+              .to contain_exactly(e1, k)
           end
 
           specify 'one thing inside one thing, and another thing inside another thing' do
-            expect(GeographicItem.are_contained_in_item_by_id('polygon', [@p1.id, @p11.id]).to_a).to contain_exactly(@e1, @k)
+            expect(GeographicItem.are_contained_in_item_by_id('polygon',
+                                                              [p1.id, p11.id]).to_a)
+              .to contain_exactly(e1, k)
           end
 
           specify 'two things inside one thing, and (1)' do
-            expect(GeographicItem.are_contained_in_item_by_id('polygon', @p18.id).to_a).to contain_exactly(@b1, @b2)
+            expect(GeographicItem.are_contained_in_item_by_id('polygon', p18.id).to_a)
+              .to contain_exactly(b1, b2)
           end
 
           specify 'two things inside one thing, and (2)' do
-            expect(GeographicItem.are_contained_in_item_by_id('polygon', @p19.id).to_a).to contain_exactly(@b1, @b)
+            expect(GeographicItem.are_contained_in_item_by_id('polygon', p19.id).to_a)
+              .to contain_exactly(b1, b)
           end
         end
 
         context '::is_contained_by - returns objects which are contained by other objects.' do
+          before {
+            b
+            p0
+            p1
+            p2
+            p3
+            p11
+            p12
+            p13
+            p18
+            p19
+          }
           specify ' three things inside k' do
-            expect(GeographicItem.is_contained_by('any', @k).excluding(@k).to_a).to contain_exactly(@p1, @p2, @p3)
+            expect(GeographicItem.is_contained_by('any', k).excluding(k).to_a)
+              .to contain_exactly(p1, p2, p3)
           end
 
           specify 'one thing outside k' do
-            expect(GeographicItem.is_contained_by('any', @p4).excluding(@p4).to_a).to eq([])
+            expect(GeographicItem.is_contained_by('any', p4).excluding(p4).to_a).to eq([])
           end
 
           specify 'three things inside and one thing outside k' do
-            expect(GeographicItem.is_contained_by('any', [@e2, @k]).excluding([@k, @e2]).to_a).to contain_exactly(@p0, @p1, @p2, @p3, @p12, @p13, @item_a) # , @p12c
+            pieces = GeographicItem.is_contained_by('any',
+                                                    [e2, k]).excluding([k, e2]).to_a
+            expect(pieces).to contain_exactly(p0, p1, p2, p3, p12, p13) # , @p12c
 
           end
 
           # other objects are returned as well, we just don't care about them:
           # we want to find p1 inside K, and p11 inside e1
           specify 'one specific thing inside one thing, and another specific thing inside another thing' do
-            expect(GeographicItem.is_contained_by('any', [@e1, @k]).to_a).to include(@p1, @p11)
+            expect(GeographicItem.is_contained_by('any',
+                                                  [e1, k]).to_a)
+              .to include(p1, p11)
           end
 
-          specify 'one thing (p19) inside a polygon (b) with interior, and another inside the interior which is NOT included (p18)' do
-            expect(GeographicItem.is_contained_by('any', @b).excluding(@b).to_a).to eq([@p19])
+          specify 'one thing (p19) inside a polygon (b) with interior, and another inside ' \
+                  'the interior which is NOT included (p18)' do
+            expect(GeographicItem.is_contained_by('any', b).excluding(b).to_a).to eq([p19])
           end
 
-          specify 'three things inside two things. Notice that the outer ring of b is co-incident with b1, and thus "contained".' do
-            expect(GeographicItem.is_contained_by('any', [@b1, @b2]).excluding([@b1, @b2]).to_a).to contain_exactly(@p18, @p19, @b)
+          specify 'three things inside two things. Notice that the outer ring of b ' \
+                  'is co-incident with b1, and thus "contained".' do
+            expect(GeographicItem.is_contained_by('any',
+                                                  [b1, b2]).excluding([b1, b2]).to_a)
+              .to contain_exactly(p18, p19, b)
           end
 
           # other objects are returned as well, we just don't care about them
           # we want to find p19 inside b and b1, but returned only once
           specify 'both b and b1 contain p19, which gets returned only once' do
-            expect(GeographicItem.is_contained_by('any', [@b1, @b]).to_a).to include(@p19)
+            expect(GeographicItem.is_contained_by('any',
+                                                  [b1, b]).to_a)
+              .to include(p19)
           end
         end
 
-        specify '::excluding([]) drop specifc item[s] from any scope (list of objects.)' do
-          # @p2 would have been in the list, except for the exclude
-          expect(GeographicItem.excluding([@p2]).ordered_by_shortest_distance_from('point', @p3).limit(3).to_a).to eq([@p1, @p4, @p17])
-          # @p2 would *not* have been in the list anyway
-          expect(GeographicItem.excluding([@p2]).ordered_by_longest_distance_from('point', @p3).limit(3).to_a).to eq([@r2024, @r2022, @r2020])
-          # @r2022 would  have been in the list, except for the exclude
-          expect(GeographicItem.excluding([@r2022]).ordered_by_longest_distance_from('point', @p3).limit(3).to_a).to eq([@r2024, @r2020, @p10])
-        end
+        context '::excluding([])' do
+          before { [p1, p4, p17, r2024, r2022, r2020, p10].each { |object| object } }
 
+          specify 'drop specifc item[s] from any scope (list of objects.)' do
+            # @p2 would have been in the list, except for the exclude
+            expect(GeographicItem.excluding([p2])
+                     .ordered_by_shortest_distance_from('point', p3)
+                     .limit(3).to_a)
+              .to eq([p1, p4, p17])
+            # @p2 would *not* have been in the list anyway
+            expect(GeographicItem.excluding([p2])
+                     .ordered_by_longest_distance_from('point', p3)
+                     .limit(3).to_a)
+              .to eq([r2024, r2022, r2020])
+            # @r2022 would  have been in the list, except for the exclude
+            expect(GeographicItem.excluding([r2022])
+                     .ordered_by_longest_distance_from('point', p3)
+                     .limit(3).to_a)
+              .to eq([r2024, r2020, p10])
+          end
+        end
         # specify '::excluding_self to drop self from any list of objects' do
         #   skip 'construction of scenario'
         # expect(GeographicItem.ordered_by_shortest_distance_from('point', @p7).limit(5)).to_a).to eq([@p2, @p1, @p4])
         # end
 
-        specify '::ordered_by_shortest_distance_from orders objects by distance from passed object' do
-          expect(GeographicItem.ordered_by_shortest_distance_from('point', @p3).limit(3).to_a).to eq([@p2, @p1, @p4])
-          expect(GeographicItem.ordered_by_shortest_distance_from('line_string', @p3).limit(3).to_a).to eq([@outer_limits, @l, @f1])
-          expect(GeographicItem.ordered_by_shortest_distance_from('polygon', @p3).limit(3).to_a).to eq([@e5, @e3, @e4])
-          expect(GeographicItem.ordered_by_shortest_distance_from('multi_point', @p3).limit(3).to_a).to eq([@h, @rooms])
-          expect(GeographicItem.ordered_by_shortest_distance_from('multi_line_string', @p3).limit(3).to_a).to eq([@f, @c])
-          expect(GeographicItem.ordered_by_shortest_distance_from('multi_polygon', @p3).limit(3).to_a).to eq([@g])
-          expect(GeographicItem.ordered_by_shortest_distance_from('geometry_collection', @p3).limit(3).to_a).to eq([@e, @j])
+        context '::ordered_by_shortest_distance_from' do
+          before { [p1, p2, p4, outer_limits, l, f1, e5, e3, e4, h, rooms, f, c, g, e, j].each { |object| object } }
+
+          specify ' orders objects by distance from passed object' do
+            expect(GeographicItem.ordered_by_shortest_distance_from('point', p3)
+                     .limit(3).to_a)
+              .to eq([p2, p1, p4])
+            expect(GeographicItem.ordered_by_shortest_distance_from('line_string', p3)
+                     .limit(3).to_a)
+              .to eq([outer_limits, l, f1])
+            expect(GeographicItem.ordered_by_shortest_distance_from('polygon', p3)
+                     .limit(3).to_a)
+              .to eq([e5, e3, e4])
+            expect(GeographicItem.ordered_by_shortest_distance_from('multi_point', p3)
+                     .limit(3).to_a)
+              .to eq([h, rooms])
+            expect(GeographicItem.ordered_by_shortest_distance_from('multi_line_string', p3)
+                     .limit(3).to_a)
+              .to eq([f, c])
+            expect(GeographicItem.ordered_by_shortest_distance_from('multi_polygon', p3)
+                     .limit(3).to_a)
+              .to eq([g])
+            expect(GeographicItem.ordered_by_shortest_distance_from('geometry_collection', p3)
+                     .limit(3).to_a)
+              .to eq([e, j])
+          end
         end
 
         specify '::ordered_by_longest_distance_from orders objects by distance from passed object' do
