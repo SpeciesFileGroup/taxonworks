@@ -1,5 +1,4 @@
 
-
 module Shared::IsData::Annotation
 
   extend ActiveSupport::Concern
@@ -21,7 +20,6 @@ module Shared::IsData::Annotation
   ].freeze
 
   module ClassMethods
-
     # @return [Boolean]
     # true if model is an "annotator" (e.g. identifiers, tags, notes, data attributes, alternate values, citations), i.e. data that references another data element through STI
     def annotates?
@@ -36,7 +34,6 @@ module Shared::IsData::Annotation
         self < k ? true : false
       end
     end
-  
   end
 
   # Determines whether the instance can be annotated
