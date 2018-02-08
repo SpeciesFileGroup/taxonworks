@@ -8,33 +8,32 @@ describe Project, type: :model do
 
   let(:project) { FactoryBot.build(:project) }
 
-  let(:user) { User.create(
+  let(:user) { User.create!(
     password:  'password',
     password_confirmation: 'password',
     email: 'user_model@example.com',
     name: 'Bob', 
-    is_self_created: true
+    self_created: true
   ) }
 
   specify 'create 1' do
-    expect(Project.create(name: 'TEST')).to be_truthy
+    expect(Project.create!(name: 'TEST')).to be_truthy
   end
 
-  specify 'create 2' do
-    user_id = $user_id
-    $user_id = nil
-    expect(Project.create(name: 'TEST')).to be_truthy
-    $user_id = user_id 
-  end
+  context 'nil globals' do
+    before do 
+      $user_id = nil
+      $project_id = nil
+    end
 
-  specify 'create 3' do
-    user_id = $user_id
-    project_id = $project_id
-    $user_id = nil
-    $project_id = nil
-    expect(Project.create(name: 'TEST')).to be_truthy
-    $user_id = user_id 
-    $project_id = project_id
+    after do
+      $user_id = 1 
+      $project_id = 1 
+    end
+
+    specify 'create 2' do
+      expect(Project.create!(name: 'TEST', by: user)).to be_truthy
+    end
   end
 
   context 'confirm test setup' do
