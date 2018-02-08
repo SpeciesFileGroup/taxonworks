@@ -117,6 +117,7 @@
       },
       displayAnnotator: function () {
         this.display = true
+        this.currentAnnotator = undefined
         this.loadMetadata()
       },
       loadMetadata: function () {
