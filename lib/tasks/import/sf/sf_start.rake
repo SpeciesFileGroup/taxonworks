@@ -30,7 +30,7 @@ namespace :tw do
           editor_error_counter = 0
 
           file.each_with_index do |row, i|
-            source_id = get_tw_source_id[row['RefID']]
+            source_id = get_tw_source_id[row['RefID']]  # since now suppressing FileIDs, source_id for a reference may not exist
             next if source_id.nil?
             # Reloop if TW.source record is verbatim
             # next if Source.find(source_id).try(:class) == Source::Verbatim # << Hernán's, Source.find(source_id).type == 'Source::Verbatim'
@@ -152,6 +152,7 @@ namespace :tw do
           # loop through Refs and store only those w/editors
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
 
           tw_source_id_editor_list = []
@@ -160,6 +161,7 @@ namespace :tw do
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each do |row|
+            next if skipped_file_ids.include? row['FileID'].to_i
             ref_id = row['RefID']
 
             logger.info "working with SF.RefID = #{ref_id}, TW.source_id = #{get_tw_source_id[ref_id]} \n"
@@ -186,6 +188,7 @@ namespace :tw do
           #   Verbatim => not used
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_serial_id = import.get('SFPubIDToTWSerialID') # for FK
           get_sf_ref_link = import.get('RefIDToRefLink') # key is SF.RefID, value is URL string
@@ -213,6 +216,7 @@ namespace :tw do
 
           file.each_with_index do |row, i|
             # break if i == 20
+            next if skipped_file_ids.include? row['FileID'].to_i
             next if row['ContainingRefID'].to_i > 0 # Create source in second loop
             next if (row['Title'].empty? and row['PubID'] == '0' and row['Series'].empty? and row['Volume'].empty? and row['Issue'].empty? and row['ActualYear'].empty? and row['StatedYear'].empty?) or row['AccessCode'] == '4'
             ref_id = row['RefID']
@@ -363,6 +367,8 @@ namespace :tw do
 
           logger.info 'Running map_pub_types...'
 
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
 
           get_sf_pub_type_string = {} # key = SF.PubID, value = SF.PubType
 
@@ -370,6 +376,7 @@ namespace :tw do
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each_with_index do |row|
+            next if skipped_file_ids.include? row['FileID'].to_i
 
             pub_type = row['PubType']
             if pub_type == '1'
@@ -385,7 +392,6 @@ namespace :tw do
             get_sf_pub_type_string[row['PubID']] = pub_type_string
           end
 
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFPubIDToPubTypeString', get_sf_pub_type_string)
 
           puts 'SFPubIDToPubTypeString'
@@ -399,12 +405,16 @@ namespace :tw do
 
           logger.info 'Running create_sf_book_hash...'
 
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
+
           get_sf_booktitle_publisher_address = {} # key = SF.PubID, value = booktitle, publisher, and address from tblPubs
 
           path = @args[:data_directory] + 'tblPubs.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
             next unless row['PubType'] == '3' # book
 
             logger.info "working with PubID #{row['PubID']}"
@@ -412,7 +422,6 @@ namespace :tw do
             get_sf_booktitle_publisher_address[row['PubID']] = {booktitle: row['ShortName'], publisher: row['Publisher'], address: row['PlacePublished']}
           end
 
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFPubIDTitlePublisherAddress', get_sf_booktitle_publisher_address)
 
           puts 'SFPubIDTitlePublisherAddress'
@@ -430,22 +439,24 @@ namespace :tw do
           user = User.find_by_email('mbeckman@illinois.edu')
           $user_id = user.id  # not sure if this is really needed?
 
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
+
           path = @args[:data_directory] + 'tblFiles.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each_with_index do |row, i|
             file_id = row['FileID']
             next if file_id == '0'
+            next if skipped_file_ids.include? file_id.to_i
 
             website_name = row['WebsiteName'].downcase # want to be lower case
 
-            project = Project.new(
-                name: "#{website_name}_species_file(#{Time.now})"
-            )
-
+            project = Project.new(name: "#{website_name}_species_file(#{Time.now})", without_root_taxon_name: true)
             # byebug
             
             if project.save
+              Protonym.create!(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project: project, creator: user, updater: user, cached_html: 'Root')
 
               get_tw_project_id[file_id] = project.id.to_s
 
@@ -458,7 +469,6 @@ namespace :tw do
             end
           end
 
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFFileIDToTWProjectID', get_tw_project_id)
           puts 'SFFileIDToTWProjectID'
           ap get_tw_project_id
@@ -716,6 +726,9 @@ namespace :tw do
           # 'Key3' => Namespace.find_or_create_by(name: '3i_Source_ID', short_name: '3i_Source_ID')     # 'Key3' was key in hash @data.keywords.merge! in 3i.rake ??
           auth_user_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblAuthUsers', short_name: 'SF AuthUserID')
 
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
+
           # find unique editors/admin, i.e. people getting users accounts in TW
           unique_auth_users = {} # unique sf.authorized users with edit+ access, not stored in Import, used only in this task
           sf_file_user_id_to_sf_auth_user_id = {} # not stored in Import; multiple file users map onto same auth user
@@ -729,6 +742,7 @@ namespace :tw do
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
             au_id = row['AuthUserID']
             fu_id = row['FileUserID']
             # next if [0, 8].freeze.include?(row['Access'].to_i)
@@ -800,7 +814,6 @@ namespace :tw do
           end
 
           # Save the file user mappings to the import table
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFFileUserIDToTWUserID', get_tw_user_id)
           import.set('SFFileUserIDToSFFileID', get_sf_file_id) # will be used when tables containing FileID are imported
 
