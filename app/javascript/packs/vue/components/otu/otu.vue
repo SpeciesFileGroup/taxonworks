@@ -70,25 +70,30 @@
       }
     },
     mounted() {
-      this.loadOtus(this.taxonId)
+      GetOtus(this.taxonId).then(response => {
+        this.list = response
+      })
     },
     methods: {
       openApp() {
-        this.modalOpen = true
         if(this.emptyList) {
           this.createOtu(this.taxonId);
         }
-      },
-      loadOtus(id) {
-        GetOtus(id).then(response => {
-          this.list = response
-        })
+        else if(this.list.length === 1) {
+          this.redirectTo(this.list[0].id)
+        }
+        else {
+          this.modalOpen = true
+        }
       },
       createOtu(id) {
         this.creatingOtu = true
         CreateOtu(id).then(response => {
-          window.location.href = `/tasks/otus/browse/${response.id}`
+          this.redirectTo(response.id)
         }) 
+      },
+      redirectTo(id) {
+        window.location.href = `/tasks/otus/browse/${id}`
       }
     }
   }
