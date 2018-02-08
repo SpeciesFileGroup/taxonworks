@@ -115,6 +115,7 @@
 <style type="text/css" lang="scss">
   .radial-annotator {
     .citation_annotator {
+      overflow-y: scroll;
       button {
         min-width: 100px;
       }
