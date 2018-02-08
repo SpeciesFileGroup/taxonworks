@@ -2,29 +2,47 @@ require 'rails_helper'
 
 describe Project, type: :model do
 
-  let(:project) { FactoryBot.build(:project) }
-
   before(:all) {
     Rails.application.eager_load!
   }
 
+  let(:project) { FactoryBot.build(:project) }
 
-  context 'new project' do
-    specify 'create' do
-      user = User.create(password:              'password',
-                         password_confirmation: 'password',
-                         email:                 'user_model@example.com',
-                         name:                  'Bob'
-      )
-      project1 = Project.create(name: 'TEST')
-      expect(project1.id.nil?).to be_falsey
-    end
+  let(:user) { User.create(
+    password:  'password',
+    password_confirmation: 'password',
+    email: 'user_model@example.com',
+    name: 'Bob', 
+    is_self_created: true
+  ) }
 
+  specify 'create 1' do
+    expect(Project.create(name: 'TEST')).to be_truthy
   end
 
-  context 'test setup audit' do
+  specify 'create 2' do
+    user_id = $user_id
+    $user_id = nil
+    expect(Project.create(name: 'TEST')).to be_truthy
+    $user_id = user_id 
+  end
+
+  specify 'create 3' do
+    user_id = $user_id
+    project_id = $project_id
+    $user_id = nil
+    $project_id = nil
+    expect(Project.create(name: 'TEST')).to be_truthy
+    $user_id = user_id 
+    $project_id = project_id
+  end
+
+  context 'confirm test setup' do
     specify 'one project with id 1 exists from model setup' do
       expect(Project.count).to eq(1)
+    end
+
+    specify 'the one project has id 1' do
       expect(Project.first.id).to eq(1)
     end
 
@@ -40,6 +58,7 @@ describe Project, type: :model do
       end
       expect(missing_factories.empty?).to be_truthy, "missing #{missing_factories.count} valid_ factories for #{missing_factories.join(", ")}."
     end
+
   end
 
   context 'associations' do
@@ -72,11 +91,11 @@ describe Project, type: :model do
     end
 
     context 'requires' do
-      specify 'name' do
+      specify '#name' do
         expect(project.errors.include?(:name)).to be_truthy
       end
 
-      specify 'valid with name' do
+      specify 'valid with #name' do
         project.name = 'Validation'
         expect(project.valid?).to be_truthy
       end
@@ -88,9 +107,9 @@ describe Project, type: :model do
         project.save!
       }
 
-      specify 'name duplicate names are not allowed' do
+      specify '#name duplicate names are not allowed' do
         p = Project.new(name: 'Foo')
-        expect(p.valid?).to be_falsey
+        p.valid?
         expect(p.errors.include?(:name)).to be_truthy
       end
     end
@@ -107,12 +126,15 @@ describe Project, type: :model do
     end
 
     specify 'can be cleared with #clear_workbench_settings' do
-      expect(project.clear_workbench_settings).to be_truthy
+      project.clear_workbench_settings
       expect(project.workbench_settings).to eq(Project::DEFAULT_WORKBENCH_SETTINGS)
     end
 
-    specify 'default_path defaults to DEFAULT_WORKBENCH_STARTING_PATH' do
+    specify 'default_path defaults to DEFAULT_WORKBENCH_STARTING_PATH 1' do
       expect(project.workbench_starting_path).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
+    end
+
+    specify 'default_path defaults to DEFAULT_WORKBENCH_STARTING_PATH 2' do
       expect(project.workbench_settings['workbench_starting_path']).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
     end
 
