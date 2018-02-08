@@ -42,6 +42,10 @@ TaxonWorks::Application.routes.draw do
     get ':global_id/metadata', action: :metadata, defaults: {format: :json}
   end
 
+  scope :graph, controller: :graph do
+    get ':global_id/metadata', action: :metadata, defaults: {format: :json}
+  end
+
   resources :projects do
     concerns [:data_routes]
     member do

@@ -1,4 +1,4 @@
-# A biological association biological relationship between two entities one of (CollectionObject, OTU).
+# An edge between two entities one of (CollectionObject, Otu), defines a biological relatinships between the two.
 #
 # @!attribute biological_relationship_id
 #   @return [Integer]
@@ -32,7 +32,6 @@ class BiologicalAssociation < ApplicationRecord
   include Shared::Notes
   include Shared::Confidences
   include Shared::IsData
-
 
   belongs_to :biological_relationship, inverse_of: :biological_associations
   belongs_to :biological_association_subject, polymorphic: true
