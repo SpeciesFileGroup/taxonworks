@@ -72,16 +72,17 @@ class Queries::Query
 
   def strings
     a = query_string.split(/\s+/).select{|t| !(t =~ /\d+/)} 
-    a.empty? ? [ ] : a
+    a.empty? ? [] : a
   end
 
   def alphabetic_strings
-    a = query_string.gsub(/[^a-zA-Z]/, ' ').split(/\s+/).select{|t| !(t =~ /\d+/)} 
-    a.empty? ? [  ] : a
+    a = query_string.gsub(/[^a-zA-Z]/, ' ').split(/\s+/) # .select{|t| !(t =~ /\d+/)} 
+    a.empty? ? [] : a
   end
 
   def years
-    integers.select{|a| a =~ /\b\d{4}\b/}.map(&:to_s).compact
+    query_string.scan(/\d{4}/).to_a.uniq
+    # integers.select{|a| a =~ /\b\d{4}\b/}.map(&:to_s).compact
   end
 
   # @return [Boolean]
@@ -98,6 +99,12 @@ class Queries::Query
     else
       []
     end
+  end
+
+  # @return [String]
+  #   if `foo and 123 and stuff` then %foo%and%123%and%stuff%
+  def wildcard_pieces
+   '%' + query_string.gsub(/\s+/, '%') + '%'
   end
 
   # Replace with a full text indexing approach

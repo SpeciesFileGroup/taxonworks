@@ -61,11 +61,51 @@ module Queries
       end 
 
       # @return [ActiveRecord::Relation]
-      #   author matches any
+      #   author matches any full word exactly
       def autocomplete_any_author
-        a = table[:cached_author_string].matches("%#{query_string}%")
+        a = table[:cached_author_string].matches_regexp('\m' + query_string + '\M')
         base_query.where(a.to_sql).limit(20) 
       end 
+
+      # @return [ActiveRecord::Relation]
+      #   author matches partial string 
+      def autocomplete_partial_author
+        a = table[:cached_author_string].matches('%' + query_string + '%')
+        base_query.where(a.to_sql).limit(5) 
+      end 
+
+      # @return [ActiveRecord::Relation]
+      #   author matches partial string 
+      def autocomplete_year
+        a = table[:year].eq_any(years)
+        base_query.where(a.to_sql).limit(5) 
+      end 
+
+      # @return [ActiveRecord::Relation]
+      #   title matches start 
+      def autocomplete_start_of_title
+        a = table[:title].matches(query_string + '%')
+        base_query.where(a.to_sql).limit(5) 
+      end 
+
+      # @return [ActiveRecord::Relation]
+      #   author matches partial string 
+      def autocomplete_wildcard_pieces
+        a = table[:cached].matches(wildcard_pieces)
+        base_query.where(a.to_sql).limit(5) 
+      end 
+
+      # @return [ActiveRecord::Relation]
+      #   year, suffix 
+      def autocomplete_year_letter
+        year_letter = query_string.match(/\d{4}([a-zAZ]+)/).to_a.last
+        a = table[:year].eq(years.first).and(table[:year_suffix].eq(year_letter))
+        base_query.where(a.to_sql).limit(10) 
+      end
+
+     def autocomplete_author_year_letter
+       autocomplete_year_letter.merge(autocomplete_exact_author)
+     end 
 
       # @return [Array]
       def autocomplete

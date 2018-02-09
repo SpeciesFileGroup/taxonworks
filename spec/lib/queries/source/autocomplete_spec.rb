@@ -46,7 +46,7 @@ describe Queries::Source::Autocomplete, type: :model do
 
   let!(:s6) { Source::Verbatim.create!(verbatim: 'foo' )  }
 
-  # Sources in project 
+  # Sources in prquoject 
   # Sources not in project
   
   let(:query) { Queries::Source::Autocomplete.new('') }
@@ -58,75 +58,63 @@ describe Queries::Source::Autocomplete, type: :model do
 
   specify '#autocomplete_any_author 1' do
     query.terms = 'Smith' 
-    expect(query.autocomplete_exact_author.map(&:id)).to contain_exactly(s2.id, s3.id, s4.id)
+    expect(query.autocomplete_any_author.map(&:id)).to contain_exactly(s2.id, s3.id, s4.id)
   end
 
-# specify '#autocomplete_top_name 2' do
-#   query.terms = 'Erasmoneura' 
-#   expect(query.autocomplete_top_name.first).to eq(genus) 
-# end
+  specify '#autocomplete_any_author 2' do
+    query.terms = 'Smit' 
+    expect(query.autocomplete_any_author.map(&:id)).to contain_exactly()
+  end
 
-# specify '#autocomplete_top_cached' do
-#   query.terms = name 
-#   expect(query.autocomplete_top_cached.first).to eq(species)
-# end
+  specify '#autocomplete_partial_author 1' do
+    query.terms = 'Smit' 
+    expect(query.autocomplete_partial_author.map(&:id)).to contain_exactly(s2.id, s3.id, s4.id)
+  end
 
-# specify '#autocomplete_cached_end_wildcard 3' do
-#   query.terms = 'Erasmon'
-#   expect(query.autocomplete_cached_end_wildcard.to_a).to contain_exactly(genus, species)
-# end
+  specify '#autocomplete_year 1' do
+    query.terms = 'Smith, 1940, Bogus 1924a'
+    expect(query.autocomplete_year.map(&:id)).to contain_exactly(s4.id, s5.id)
+  end
 
-# specify '#autocomplete_wildcard_joined_strings 1' do
-#   query.terms = 'vuln'
-#   expect(query.autocomplete_wildcard_joined_strings).to include(species)
-# end
+  specify '#autocomplete_start_of_title 1' do
+    query.terms = 'Bad cops'
+    expect(query.autocomplete_start_of_title.map(&:id)).to contain_exactly(s2.id, s3.id)
+  end
 
-# specify '#autocomplete_wildcard_joined_strings 2' do
-#   query.terms = 'rasmon'
-#   expect(query.autocomplete_wildcard_joined_strings.first).to eq(genus)
-# end
+  specify '#autocomplete_wildcard_pieces 1' do
+    query.terms = 'Bad rubyco'
+    expect(query.autocomplete_wildcard_pieces.map(&:id)).to contain_exactly(s3.id)
+  end
 
-# specify '#autocomplete_wildcard_joined_strings 3' do
-#   query.terms = 'ulner'
-#   expect(query.autocomplete_wildcard_joined_strings.first).to eq(species)
-# end
+  specify '#autocomplete_wildcard_pieces 2' do
+    query.terms = 'Smi rubyco'
+    expect(query.autocomplete_wildcard_pieces.map(&:id)).to contain_exactly(s3.id)
+  end
 
-# specify '#autocomplete_wildcard_joined_strings 4' do
-#   query.terms = 'neur nerat'
-#   expect(query.autocomplete_wildcard_joined_strings).to include(species)
-# end
+  specify '#autocomplete_wildcard_pieces 3' do
+    query.terms = 'Smi 1921 rubyco'
+    expect(query.autocomplete_wildcard_pieces.map(&:id)).to contain_exactly(s3.id)
+  end
 
-# specify '#autocomplete_wildcard_joined_strings 5' do
-#   query.terms = 'E vul'
-#   expect(query.autocomplete_wildcard_joined_strings.first).to eq(species)
-# end
+  specify '#autocomplete_year_letter 1' do
+    query.terms = '1921a'
+    expect(query.autocomplete_year_letter.map(&:id)).to contain_exactly(s3.id)
+  end
 
-# specify '#autocomplete_wildcard_joined_strings 6' do
-#   query.terms = 'E. vul'
-#   expect(query.autocomplete_wildcard_joined_strings.first).to eq(species)
-# end
+  specify '#autocomplete_year_letter 2' do
+    query.terms = '1921'
+    expect(query.autocomplete_year_letter.map(&:id)).to contain_exactly()
+  end
 
-# specify '#autocomplete_wildcard_author_year_joined_pieces 1' do
-#   query.terms = 'Fitch'
-#   expect(query.autocomplete_wildcard_author_year_joined_pieces.first).to eq(species)
-# end
+  specify '#autocomplete_author_year_letter 1' do
+    query.terms = 'Smith 1921a'
+    expect(query.autocomplete_author_year_letter.map(&:id).first).to eq(s3.id)
+  end
 
-# specify '#autocomplete_wildcard_author_year_joined_pieces 2' do
-#   query.terms = 'Say'
-#   expect(query.autocomplete_wildcard_author_year_joined_pieces.first).to eq(species)
-# end
+  specify '#autocomplete 1' do
+    query.terms = 'Smith 1921a'
+    expect(query.autocomplete.map(&:id).first).to eq(s3.id)
+  end
 
-# specify '#autocomplete_wildcard_author_year_joined_pieces 3' do
-#   query.terms = '1800'
-#   expect(query.autocomplete_wildcard_author_year_joined_pieces.first).to eq(species)
-# end
-
-# specify '#autocomplete_wildcard_author_year_joined_pieces 4' do
-#   query.terms = 'Fitch 1800'
-#   expect(query.autocomplete_wildcard_author_year_joined_pieces.first).to eq(species)
-# end
-
-
-  # etc. ---
 
 end
