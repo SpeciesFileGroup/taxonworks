@@ -17,6 +17,7 @@ namespace :tw do
           logger.info 'Creating relationships from StatusFlags...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
           # get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
@@ -35,6 +36,7 @@ namespace :tw do
           error_counter = 0
 
           file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
             next unless row['TaxonNameID'].to_i > 0
             next if get_tw_otu_id.has_key?(row['TaxonNameID']) # check if OTU was made
             next if row['TaxonNameStr'].start_with?('1100048-1143863') # name = MiscImages (body parts)
@@ -332,16 +334,12 @@ namespace :tw do
           logger.info 'Creating some related taxa (from tblRelatedTaxa)...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           # get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
 
-          # @todo: Temporary "fix" to convert all values to string; will be fixed next time taxon names are imported and following do can be deleted
-          get_tw_taxon_name_id.each do |key, value|
-            get_tw_taxon_name_id[key] = value.to_s
-          end
-
-          path = @args[:data_directory] + 'tblRelatedTaxa.txt'
+          path = @args[:data_directory] + 'sfRelatedTaxa.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           count_found = 0
@@ -349,6 +347,7 @@ namespace :tw do
           suppressed_counter = 0
 
           file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
             # next if get_tw_otu_id.has_key?(row['FamilyNameID']) # ignore if ill-formed family name created only as OTU
 
             older_name_id = get_tw_taxon_name_id[row['OlderNameID']].to_i
