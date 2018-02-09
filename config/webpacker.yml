@@ -14,7 +14,6 @@ default: &default
   cache_manifest: false
 
   extensions:
-    - .coffee
     - .erb
     - .js
     - .jsx
