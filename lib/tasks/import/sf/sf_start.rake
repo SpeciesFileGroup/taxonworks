@@ -452,11 +452,15 @@ namespace :tw do
 
             website_name = row['WebsiteName'].downcase # want to be lower case
 
-            project = Project.new(name: "#{website_name}_species_file(#{Time.now})", without_root_taxon_name: true)
+            # project = Project.new(name: "#{website_name}_species_file(#{Time.now})", without_root_taxon_name: true)
+            project = Project.new(
+                name: "#{website_name}_species_file(#{Time.now})"
+            )
+
             # byebug
             
             if project.save
-              Protonym.create!(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project: project, creator: user, updater: user, cached_html: 'Root')
+              # Protonym.create!(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project: project, creator: user, updater: user, cached_html: 'Root')
 
               get_tw_project_id[file_id] = project.id.to_s
 

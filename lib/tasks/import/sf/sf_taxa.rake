@@ -709,6 +709,7 @@ namespace :tw do
           logger.info 'Creating all SF taxa (pass 1)...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_rank_string = import.get('SFRankIDToTWRankString')
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
@@ -744,6 +745,7 @@ namespace :tw do
           file.each_with_index do |row, i|
 
             taxon_name_id = row['TaxonNameID']
+            next if skipped_file_ids.include? row['FileID'].to_i
             next unless taxon_name_id.to_i > 0
             next if row['TaxonNameStr'].start_with?('1100048-1143863') # name = MiscImages (body parts)
             next if row['RankID'] == '90' # TaxonNameID = 1221948, Name = Deletable, RankID = 90 == Life, FileID = 1
@@ -937,7 +939,8 @@ namespace :tw do
 
           get_otu_sf_above_id = {} # key = SF.TaxonNameID of bad valid name, value = SF.AboveID of bad valid name
 
-          path = @args[:data_directory] + 'sfMakeOTUs.txt'
+          path = @args[:data_directory] + 'sfMakeOTUs.txt' # @todo: Need new version of this file containing FileID
+          # not a problem right now but eventually should change
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
@@ -967,7 +970,8 @@ namespace :tw do
 
           get_sf_parent_id = {} # key = SF.TaxonNameID of synonym, value = SF.TaxonNameID of new parent
 
-          path = @args[:data_directory] + 'sfSynonymParents.txt'
+          path = @args[:data_directory] + 'sfSynonymParents.txt' # @todo: Need new version of this file containing FileID
+              # not a problem right now but eventually should change
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
@@ -991,6 +995,9 @@ namespace :tw do
         LoggedTask.define create_animalia_below_root: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time after projects created BUT not after animalia species created (must restore to before)
 
+          # user = User.find_by_email('mbeckman@illinois.edu')
+          # $user_id = user.id
+
           logger.info 'Running create_animalia_below_root...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
@@ -1005,6 +1012,7 @@ namespace :tw do
 
             animalia_taxon_name = Protonym.new(
                 name: 'Animalia',
+                cached_html: 'Animalia',
                 parent_id: this_project.root_taxon_name.id,
                 rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom',
                 project_id: project_id,
