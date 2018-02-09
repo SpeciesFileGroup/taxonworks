@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
-describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
+describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_event] do
   include_context 'stuff for complex geo tests'
 
   let(:collecting_event) { CollectingEvent.new }
@@ -10,13 +10,6 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
   let(:country) { state.parent }
 
   context 'with political areas and collecting events generated' do
-    before(:all) {
-      # GeoBuild.generate_political_areas_with_collecting_events
-    }
-    after(:all) {
-      # clean_slate_geo
-    }
-
     context 'geographic names' do
       before { collecting_event.save! }
 
@@ -61,21 +54,19 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         end
 
         context 'with a verbatim georeference' do
-          before do
+          before {
+            [ce_a, ce_b].each { |obj| obj }
             collecting_event.update_attributes!(
               verbatim_latitude:  '5.0',
               verbatim_longitude: '5.0'
             )
             Georeference::VerbatimData.create!(collecting_event: collecting_event)
-          end
+          }
 
           specify 'country, state, county are cached on creation of georeference' do
             # expect(collecting_event.cached_geographic_name_classification).to eq( {:country=>"West Boxia",
             # :state=>"QT", :county=>"M1"} )
-            expect(collecting_event.cached_geographic_name_classification).to eq({country: 'West Boxia',
-                                                                                  state:   'West Boxia',
-                                                                                  county:  'QTM2'})
-
+            expect(collecting_event.cached_geographic_name_classification).to eq({country: 'E', state: 'A'})
           end
         end
 
@@ -230,14 +221,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     # we will likely need to write some sql generators to do this efficiently.  To start
     # you could just pick one column, and we can abstract out the problem later.
     context 'when the CE has a GR' do
-      before(:all) {
-        # generate_ce_test_objects(1, 1)
-      }
-
-      before {
-        gr_a
-        gr_b
-      }
+      before { [ce_a, gr_a, ce_b, gr_b, ce_p1, gr01, ce_p2, gr02, ce_p3, gr03].each { |obj| obj } }
 
       context 'and that GR has some combination of GIs, and EGIs' do
         specify 'that the count of which can be found' do
@@ -245,7 +229,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
           # ce_a
           results = ce_a.all_geographic_items
           expect(results.count).to eq(2)
-          expect(results.map(&:id)).to include(p_a.id, item_a.id)
+          expect(results.map(&:id)).to include(p_a.id, new_box_a.id)
           # ce_b
           results = ce_b.all_geographic_items
           expect(results.count).to eq(2)
@@ -265,53 +249,38 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         end
 
         specify 'find other CEs that have GRs whose GI or EGI intersects the source GI' do
-          pieces = @ce_p2.collecting_events_intersecting_with
-          # @ce_p2.first will find @k and @p2
-          # @k will find @p1, @p2, @p3, filter out @p2, and return @p1 and @p3
+          pieces = ce_p2.collecting_events_intersecting_with
           expect(pieces.count).to eq(2)
-          expect(pieces).to include(@ce_p1, @ce_p3)
-          expect(pieces).not_to include(@ce_p7) # even though @p17 is close to @k
+          expect(pieces).to include(ce_p1, ce_p3)
+          expect(pieces).not_to include(ce_a) # even though @p17 is close to @k
         end
       end
 
       context 'and that GR has both GI and EGI' do
         # was: 'find other CEs that have GR whose GIs or EGIs are within some radius of the EGI'
         specify 'find other CEs that have GR whose GIs are within some radius' do
-          pieces = @ce_p2.collecting_events_within_radius_of(1000000)
-          expect(pieces.count).to eq(4)
-          expect(pieces).to include(@ce_p1, @ce_p3,
-                                    @ce_p4, @ce_p7)
-          # @ce_p1 is included because of @p1,
-          # @ce_p3 is included because of @p3,
-          # @ce_p4 is included because of @p4,
-          # @ce_p7 is included because of @p17 (near @k)
-          expect(pieces).not_to include(@ce_p0)
+          pieces = ce_p2.collecting_events_within_radius_of(1000000)
+          expect(pieces.count).to eq(2)
+          expect(pieces).to include(ce_p1, ce_p3)
+          expect(pieces).not_to include(@ce_a)
         end
 
         specify 'find other CEs that have GRs whose GIs or EGIs are contained in the EGI' do
           # skip 'contained in error_gi'
-          pieces = @ce_p1.collecting_events_contained_in_error
-          expect(pieces.count).to eq(1)
-          expect(pieces.first).to eq(@ce_p2)
-          expect(pieces).not_to include(@ce_p1)
+          pieces = ce_p1.collecting_events_contained_in_error
+          expect(pieces.count).to eq(2)
+          expect(pieces).to contain_exactly(ce_p3, ce_p2)
+          expect(pieces).not_to include(ce_p1)
         end
       end
 
-
       context 'geolocate responses from collecting_event' do
         # rubocop:disable Style/StringHashKeys
-        before(:all) {
-          # GeoBuild.generate_political_areas_with_collecting_events
-        }
-
-        after(:all) {
-          # clean_slate_geo
-        }
 
         context 'geolocate_ui_params' do
           specify 'geolocate_ui_params from locality' do
             # @ce_n3 was built with locality, with no verbatim_lat/long
-            expect(@ce_n3.geolocate_ui_params).to eq({'country'       => 'Old Boxia',
+            expect(ce_n3.geolocate_ui_params).to eq({'country'       => 'Old Boxia',
                                                       'state'         => 'N3',
                                                       'county'        => nil,
                                                       'locality'      => 'Greater Boxia Lake',
@@ -454,32 +423,6 @@ context 'georeferences' do
 end
 
 context 'geopolitical labels' do
-
-  # this context is here 2x, see if we can simlify it
-  before(:all) {
-    # create some bogus countries, states, provinces, counties, and a parish
-    GeoBuild.generate_political_areas_with_collecting_events
-    #
-    # The idea:
-    #    - geopolitical names all come from GeographicArea, as classified by GeographicAreaType
-    #    - we can arrive at a geographic_area from a collecting event in 2 ways
-    #       1) @collecting_event.geographic_area is set, this is easy, we can use it specifically
-    #          if it's the right type, or climb up to a specific levelN category to check if not
-    #       2) @collecting_event.georeferences.first is set.
-    #          In the case of 2) we must use the georeference to find the minimum containing geographic_area
-    #          of type "state" for example
-    #   - it is possible (but hopefully unlikely) that multiple geographic areas of type "state" might be return,
-    #
-    # We want to derive labels in two stages
-    #     1) a hash stage finds all possible values, where keys are a string, and values are an array, e.g.
-    #         'Canada' => [@geographic_area1, @geographic_area2]
-    #     2) a name stage use the hash from 1) to pick the "best" label (see priorities in tests)
-    #
-  }
-
-  after(:all) {
-    clean_slate_geo
-  }
 
   context 'countries' do
     context 'should return hash of the country with #countries_hash' do
