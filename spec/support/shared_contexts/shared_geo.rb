@@ -17,9 +17,12 @@ shared_context 'stuff for complex geo tests' do
   }
   let(:joe) { geo_user }
 
-  let(:gat_parish) { GeographicAreaType.create!(name: 'Parish', creator: geo_user, updater: geo_user) }
+  let(:country_gat) { GeographicAreaType.create!(name: 'Country', creator: geo_user, updater: geo_user) }
+  let(:state_gat) { GeographicAreaType.create!(name: 'State', creator: geo_user, updater: geo_user) }
+  let(:county_gat) { GeographicAreaType.create!(name: 'County', creator: geo_user, updater: geo_user) }
+  let(:parish_gat) { GeographicAreaType.create!(name: 'Parish', creator: geo_user, updater: geo_user) }
   let(:planet_gat) { GeographicAreaType.create!(name: 'Planet', creator: geo_user, updater: geo_user) }
-  let(:gat_land_mass) { GeographicAreaType.create!(name: 'Land Mass', creator: geo_user, updater: geo_user) }
+  let(:land_mass_gat) { GeographicAreaType.create!(name: 'Land Mass', creator: geo_user, updater: geo_user) }
 
 # include_context 'stuff for area_a'
 
@@ -53,17 +56,17 @@ shared_context 'stuff for complex geo tests' do
   let(:shape_e) { RSPEC_GEO_FACTORY.polygon(list_shape_e) }
 
   let(:new_box_a) { FactoryBot.create(:geographic_item_multi_polygon,
-                                   multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_a]),
-                                   creator:                         geo_user,
-                                   updater:                         geo_user) }
+                                      multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_a]),
+                                      creator:       geo_user,
+                                      updater:       geo_user) }
   let(:new_box_b) { FactoryBot.create(:geographic_item_multi_polygon,
-                                   multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_b]),
-                                   creator:                         geo_user,
-                                   updater:                         geo_user) }
+                                      multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_b]),
+                                      creator:       geo_user,
+                                      updater:       geo_user) }
   let(:new_box_e) { FactoryBot.create(:geographic_item_multi_polygon,
-                                   multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_e]),
-                                   creator:                         geo_user,
-                                   updater:                         geo_user) }
+                                      multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_e]),
+                                      creator:       geo_user,
+                                      updater:       geo_user) }
 
   let(:earth) { FactoryBot.create(:earth_geographic_area,
                                   geographic_area_type: planet_gat,
@@ -83,7 +86,7 @@ shared_context 'stuff for complex geo tests' do
     let(:area_linestring) {
       area = FactoryBot.create(:level0_geographic_area,
                                name:                 'linestring',
-                               geographic_area_type: gat_land_mass,
+                               geographic_area_type: land_mass_gat,
                                iso_3166_a3:          nil,
                                iso_3166_a2:          nil,
                                parent:               earth)
@@ -114,7 +117,7 @@ shared_context 'stuff for complex geo tests' do
     let(:area_polygon) {
       area = FactoryBot.create(:level0_geographic_area,
                                name:                 'polygon',
-                               geographic_area_type: gat_land_mass,
+                               geographic_area_type: land_mass_gat,
                                iso_3166_a3:          nil,
                                iso_3166_a2:          nil,
                                parent:               earth)
@@ -136,7 +139,7 @@ shared_context 'stuff for complex geo tests' do
     let(:area_multipoint) {
       area = FactoryBot.create(:level0_geographic_area,
                                name:                 'multipoint',
-                               geographic_area_type: gat_land_mass,
+                               geographic_area_type: land_mass_gat,
                                iso_3166_a3:          nil,
                                iso_3166_a2:          nil,
                                parent:               earth)
@@ -154,7 +157,7 @@ shared_context 'stuff for complex geo tests' do
     let(:area_multilinestring) {
       area = FactoryBot.create(:level0_geographic_area,
                                name:                 'multilinestring',
-                               geographic_area_type: gat_land_mass,
+                               geographic_area_type: land_mass_gat,
                                iso_3166_a3:          nil,
                                iso_3166_a2:          nil,
                                parent:               earth)
@@ -175,7 +178,7 @@ shared_context 'stuff for complex geo tests' do
     let(:area_multipolygon) {
       area = FactoryBot.create(:level0_geographic_area,
                                name:                 'multipolygon',
-                               geographic_area_type: gat_land_mass,
+                               geographic_area_type: land_mass_gat,
                                iso_3166_a3:          nil,
                                iso_3166_a2:          nil,
                                parent:               earth,
@@ -190,7 +193,7 @@ shared_context 'stuff for complex geo tests' do
   let(:area_e) {
     area = FactoryBot.create(:level0_geographic_area,
                              name:                 'E',
-                             geographic_area_type: gat_land_mass,
+                             geographic_area_type: land_mass_gat,
                              iso_3166_a3:          nil,
                              iso_3166_a2:          nil,
                              parent:               earth,
@@ -204,7 +207,7 @@ shared_context 'stuff for complex geo tests' do
   let(:area_a) {
     area = FactoryBot.create(:level1_geographic_area,
                              name:                 'A',
-                             geographic_area_type: gat_parish,
+                             geographic_area_type: parish_gat,
                              iso_3166_a3:          nil,
                              iso_3166_a2:          nil,
                              parent:               area_e,
@@ -218,7 +221,7 @@ shared_context 'stuff for complex geo tests' do
   let(:area_b) {
     area = FactoryBot.create(:level1_geographic_area,
                              name:                 'B',
-                             geographic_area_type: gat_parish,
+                             geographic_area_type: parish_gat,
                              iso_3166_a3:          nil,
                              iso_3166_a2:          nil,
                              parent:               area_e,
@@ -470,13 +473,13 @@ shared_context 'stuff for complex geo tests' do
     let(:all_items) { FactoryBot.create(:geographic_item_geometry_collection,
                                         geometry_collection: GeoBuild::ALL_SHAPES.as_binary) } # 54
     let(:outer_limits) { FactoryBot.create(:geographic_item_line_string,
-                                          line_string: GeoBuild::CONVEX_HULL.exterior_ring.as_binary) } # 55
+                                           line_string: GeoBuild::CONVEX_HULL.exterior_ring.as_binary) } # 55
 
     let(:p0) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT0.as_binary) } # 0
     let(:p1) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT1.as_binary) }
-    let(:p2) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT2.as_binary)  } # 2
-    let(:p3) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT3.as_binary)  } # 3
-    let(:p4) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT4.as_binary)  } # 3
+    let(:p2) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT2.as_binary) } # 2
+    let(:p3) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT3.as_binary) } # 3
+    let(:p4) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT4.as_binary) } # 3
     let(:p10) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT10.as_binary) } # 10 } #
     let(:p11) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT11.as_binary) } # 11 } #
     let(:p12) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT12.as_binary) } # 10 } #
@@ -489,42 +492,42 @@ shared_context 'stuff for complex geo tests' do
 
     let(:a) { FactoryBot.create(:geographic_item_line_string, line_string: GeoBuild::SHAPE_A.as_binary) } # 24 } #
     let(:b) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::SHAPE_B.as_binary) } # 27
-    let(:c1) { FactoryBot.create(:geographic_item_line_string, line_string: GeoBuild::SHAPE_C1)  } # 28
-    let(:c2) { FactoryBot.create(:geographic_item_line_string, line_string: GeoBuild::SHAPE_C2)  } # 28
-    let(:c3) { FactoryBot.create(:geographic_item_line_string, line_string: GeoBuild::SHAPE_C3)  } # 29
+    let(:c1) { FactoryBot.create(:geographic_item_line_string, line_string: GeoBuild::SHAPE_C1) } # 28
+    let(:c2) { FactoryBot.create(:geographic_item_line_string, line_string: GeoBuild::SHAPE_C2) } # 28
+    let(:c3) { FactoryBot.create(:geographic_item_line_string, line_string: GeoBuild::SHAPE_C3) } # 29
     let(:c) { FactoryBot.create(:geographic_item_multi_line_string,
-                               multi_line_string: GeoBuild::SHAPE_C.as_binary)  } # 30
+                                multi_line_string: GeoBuild::SHAPE_C.as_binary) } # 30
     let(:d) { FactoryBot.create(:geographic_item_line_string, line_string: GeoBuild::SHAPE_D.as_binary) }
     let(:b1) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::SHAPE_B_OUTER.as_binary) } # 25
-    let(:b2) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::SHAPE_B_INNER.as_binary)  } # 26
+    let(:b2) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::SHAPE_B_INNER.as_binary) } # 26
     let(:e0) { e.geo_object } # a collection of polygons
-    let(:e1) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::POLY_E1.as_binary)}  # 35
+    let(:e1) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::POLY_E1.as_binary) } # 35
     let(:e2) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::POLY_E2.as_binary) } # 33
     let(:e3) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::POLY_E3.as_binary) } # 34
-    let(:e4) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::POLY_E4.as_binary)}  # 35
-    let(:e5) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::POLY_E5.as_binary)}  # 35
+    let(:e4) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::POLY_E4.as_binary) } # 35
+    let(:e5) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::POLY_E5.as_binary) } # 35
     let(:e) { FactoryBot.create(:geographic_item_geometry_collection,
                                 geometry_collection: GeoBuild::SHAPE_E.as_binary) } # 37
-    let(:f1) { FactoryBot.create(:geographic_item_line_string, line_string: GeoBuild::SHAPE_F1.as_binary)  } # 38
-    let(:f2) { FactoryBot.create(:geographic_item_line_string, line_string: GeoBuild::SHAPE_F2.as_binary)  } # 39
+    let(:f1) { FactoryBot.create(:geographic_item_line_string, line_string: GeoBuild::SHAPE_F1.as_binary) } # 38
+    let(:f2) { FactoryBot.create(:geographic_item_line_string, line_string: GeoBuild::SHAPE_F2.as_binary) } # 39
     # let(:f1) { f.geo_object.geometry_n(0) } #
     # let(:f2) { f.geo_object.geometry_n(1) } #
     let(:f) { FactoryBot.create(:geographic_item_multi_line_string,
                                 multi_line_string: GeoBuild::SHAPE_F.as_binary) } # 40
-    let(:g1) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::SHAPE_G1.as_binary)  } # 41
-    let(:g2) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::SHAPE_G2.as_binary)  } # 42
-    let(:g3) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::SHAPE_G3.as_binary)  } # 43
+    let(:g1) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::SHAPE_G1.as_binary) } # 41
+    let(:g2) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::SHAPE_G2.as_binary) } # 42
+    let(:g3) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::SHAPE_G3.as_binary) } # 43
     let(:g) { FactoryBot.create(:geographic_item_multi_polygon,
                                 multi_polygon: GeoBuild::SHAPE_G.as_binary) } # 44
     let(:h) { FactoryBot.create(:geographic_item_multi_point, multi_point: GeoBuild::SHAPE_H.as_binary) } # 45
-    let(:j) { FactoryBot.create(:geographic_item_geometry_collection, geometry_collection: GeoBuild::SHAPE_J)  } # 47
+    let(:j) { FactoryBot.create(:geographic_item_geometry_collection, geometry_collection: GeoBuild::SHAPE_J) } # 47
     let(:k) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::SHAPE_K.as_binary) }
     let(:l) { FactoryBot.create(:geographic_item_line_string, line_string: GeoBuild::SHAPE_L.as_binary) } # 49 } #
 
-    let(:r2020) { FactoryBot.create(:geographic_item_point, point: GeoBuild::ROOM2020.as_binary)  } # 50
-    let(:r2022) { FactoryBot.create(:geographic_item_point, point: GeoBuild::ROOM2022.as_binary)  } # 51
-    let(:r2024) { FactoryBot.create(:geographic_item_point, point: GeoBuild::ROOM2024.as_binary)  } # 52
-    let(:rooms) { FactoryBot.create(:geographic_item_multi_point, multi_point: GeoBuild::ROOMS20NN.as_binary)  } # 53
+    let(:r2020) { FactoryBot.create(:geographic_item_point, point: GeoBuild::ROOM2020.as_binary) } # 50
+    let(:r2022) { FactoryBot.create(:geographic_item_point, point: GeoBuild::ROOM2022.as_binary) } # 51
+    let(:r2024) { FactoryBot.create(:geographic_item_point, point: GeoBuild::ROOM2024.as_binary) } # 52
+    let(:rooms) { FactoryBot.create(:geographic_item_multi_point, multi_point: GeoBuild::ROOMS20NN.as_binary) } # 53
 
     let(:shapeE1) { e0.geometry_n(0) } #
     let(:shapeE2) { e0.geometry_n(1) } #
@@ -535,12 +538,67 @@ shared_context 'stuff for complex geo tests' do
     let(:r) { a.geo_object.intersection(p16.geo_object) } #
     let(:p16_on_a) { GeoBuild::P16_ON_A } #
 
-    let(:item_a) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::BOX_1)  } # 57
-    let(:item_b) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::BOX_2)  } # 58
-    let(:item_c) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::BOX_3)  } # 59
-    let(:item_d) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::BOX_4)  } # 60
+    let(:item_a) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::BOX_1) } # 57
+    let(:item_b) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::BOX_2) } # 58
+    let(:item_c) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::BOX_3) } # 59
+    let(:item_d) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::BOX_4) } # 60
 
     b = FactoryBot.build(:geographic_item_polygon, polygon: GeoBuild::SHAPE_B.as_binary) # 27
+
+    let(:ce_p1) { FactoryBot.create(:collecting_event, verbatim_label: '@ce_p1 collect_event test') }
+
+    let(:gr01) { FactoryBot.create(:georeference_verbatim_data,
+                                   api_request:           'gr01',
+                                   collecting_event:      ce_p1,
+                                   error_geographic_item: k,
+                                   geographic_item:       p1) } #  3
+
+    let(:gr11) { FactoryBot.create(:georeference_verbatim_data,
+                                   api_request:           'gr11',
+                                   error_geographic_item: e1,
+                                   collecting_event:      ce_p1,
+                                   geographic_item:       p11) } #  4
+
+    let(:ce_p2) { FactoryBot.create(:collecting_event, verbatim_label: '@ce_p2 collect_event test') }
+    let(:gr02) { FactoryBot.create(:georeference_verbatim_data,
+                                   api_request:           'gr02',
+                                   collecting_event:      ce_p2,
+                                   error_geographic_item: k,
+                                   geographic_item:       p2) }
+    let(:gr121) { FactoryBot.create(:georeference_verbatim_data,
+                                    api_request:           'gr121',
+                                    collecting_event:      ce_p2,
+                                    error_geographic_item: e1,
+                                    geographic_item:       p12) }
+
+    let(:ce_p3) { FactoryBot.create(:collecting_event, verbatim_label: '@ce_p3 collect_event test') }
+    let(:gr03) { FactoryBot.create(:georeference_verbatim_data,
+                                   api_request:           'gr03',
+                                   collecting_event:      ce_p3,
+                                   error_geographic_item: k,
+                                   geographic_item:       p3) }
+    let(:gr13) { FactoryBot.create(:georeference_verbatim_data,
+                                   api_request:           'gr13',
+                                   collecting_event:      ce_p3,
+                                   error_geographic_item: e2,
+                                   geographic_item:       p13) }
+
+    let(:ce_n3) { FactoryBot.create(:collecting_event,
+                                    start_date_year:   1982,
+                                    start_date_month:  2,
+                                    start_date_day:    2,
+                                    end_date_year:     1984,
+                                    end_date_month:    9,
+                                    end_date_day:      15,
+                                    verbatim_locality: 'Greater Boxia Lake',
+                                    verbatim_label:    '@ce_n3',
+                                    geographic_area:   area_n3) }
+    let(:gr_n3) { FactoryBot.create(:georeference_verbatim_data,
+                                    api_request:           'gr_n3',
+                                    collecting_event:      ce_n3,
+                                    error_geographic_item: item_n3,
+                                    geographic_item:       GeographicItem.new(point: item_n3.st_centroid)) }
+    let(:co_n3) { FactoryBot.create(:valid_collection_object, {collecting_event: ce_n3}) }
 
   end
 # before {
