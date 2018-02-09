@@ -4,7 +4,7 @@ require 'rails_helper'
 # include the subclasses, perhaps move this out
 Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| require_dependency file }
 
-describe GeographicItem, type: :model, group: :geo do
+describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
   include_context 'stuff for complex geo tests'
 
   let(:geographic_item) { GeographicItem.new }
@@ -271,7 +271,7 @@ describe GeographicItem, type: :model, group: :geo do
         expect(l.geo_object.intersects?(k.geo_object)).to be_truthy
         expect(l.geo_object.intersects?(e.geo_object)).to be_falsey
 
-        expect(f1.intersection(f2)).to be_truthy
+        expect(f.geo_object.geometry_n(0).intersection(f.geo_object.geometry_n(1))).to be_truthy
       end
 
       specify 'Objects can be related by distance' do
@@ -367,11 +367,11 @@ describe GeographicItem, type: :model, group: :geo do
 
       specify '#st_centroid returns a lat/lng of the centroid of the GeoObject' do
         # select st_centroid('multipoint (-4.0 4.0 0.0, 4.0 4.0 0.0, 4.0 -4.0 0.0, -4.0 -4.0 0.0)');
-        expect(item_a.st_centroid).to eq('POINT(5 5)')
+        expect(new_box_a.st_centroid).to eq('POINT(5 5)')
       end
 
       specify '#center_coords' do
-        expect(item_a.center_coords).to eq(['5.000000', '5.000000'])
+        expect(new_box_a.center_coords).to eq(['5.000000', '5.000000'])
       end
 
       context '#shape on new' do
@@ -385,11 +385,15 @@ describe GeographicItem, type: :model, group: :geo do
         end
         specify 'for polygon' do
           object.shape = '{"type":"Feature","geometry":{"type":"Polygon",' \
-            '"coordinates":[[[-90.25122106075287,38.619731572825145],[-86.12036168575287,39.77758382625017],[-87.62384042143822,41.89478088863241],[-90.25122106075287,38.619731572825145]]]},"properties":{}}'
+            '"coordinates":[[[-90.25122106075287,38.619731572825145],[-86.12036168575287,39.77758382625017],' \
+            '[-87.62384042143822,41.89478088863241],[-90.25122106075287,38.619731572825145]]]},"properties":{}}'
           expect(object.valid?).to be_truthy
         end
         specify 'for linestring' do
-          object.shape = '{"type":"Feature","geometry":{"type":"LineString","coordinates":[[-90.25122106075287,38.619731572825145],[-86.12036168575287,39.77758382625017],[-87.62384042143822,41.89478088863241]]},"properties":{}}'
+          object.shape = '{"type":"Feature","geometry":{"type":"LineString","coordinates":[' \
+                          '[-90.25122106075287,38.619731572825145],' \
+                          '[-86.12036168575287,39.77758382625017],' \
+                          '[-87.62384042143822,41.89478088863241]]},"properties":{}}'
           expect(object.valid?).to be_truthy
         end
         specify 'for circle' do
@@ -404,7 +408,8 @@ describe GeographicItem, type: :model, group: :geo do
     context 'class methods' do
 
       specify '::geometry_sql' do
-        test = 'select geom_alias_tbl.polygon::geometry from geographic_items geom_alias_tbl where geom_alias_tbl.id = 2'
+        test = 'select geom_alias_tbl.polygon::geometry from geographic_items geom_alias_tbl ' \
+                'where geom_alias_tbl.id = 2'
         expect(GeographicItem.geometry_sql(2, :polygon)).to eq(test)
       end
 
@@ -420,7 +425,8 @@ describe GeographicItem, type: :model, group: :geo do
         expect(GeographicItem).to respond_to(:disjoint_from)
       end
 
-      specify '::within_radius_of_item to find all objects which are within a specific distance of a geographic item.' do
+      specify '::within_radius_of_item to find all objects which are within a specific ' \
+              'distance of a geographic item.' do
         expect(GeographicItem).to respond_to(:within_radius_of_item)
       end
 
@@ -429,8 +435,10 @@ describe GeographicItem, type: :model, group: :geo do
       end
 
       specify '::containing_sql' do
-        test1 = 'ST_Contains(polygon::geometry, (select geom_alias_tbl.point::geometry from geographic_items geom_alias_tbl where geom_alias_tbl.id = 1))'
-        expect(GeographicItem.containing_sql('polygon', p1.to_param, p1.geo_object_type)).to eq(test1)
+        test1 = 'ST_Contains(polygon::geometry, (select geom_alias_tbl.point::geometry from ' \
+                "geographic_items geom_alias_tbl where geom_alias_tbl.id = #{p1.id}))"
+        expect(GeographicItem.containing_sql('polygon',
+                                             p1.to_param, p1.geo_object_type)).to eq(test1)
       end
 
       specify '::eval_for_type' do
@@ -441,13 +449,10 @@ describe GeographicItem, type: :model, group: :geo do
       end
 
       context 'scopes (GeographicItems can be found by searching with) ' do
-        # GeographicItem.within_radius(x).excluding(some_gi).with_collecting_event.include_collecting_event.collect{|a| a.collecting_event}
-        before {
-          ce_a
-          ce_b
-          gr_a
-          gr_b
-        }
+        # GeographicItem.within_radius(x).excluding(some_gi).with_collecting_event.include_collecting_event
+        # .collect{|a| a.collecting_event}
+        before { [ce_a, ce_b, gr_a, gr_b].each { |obj| obj } }
+
         specify '::geo_with_collecting_event' do
           pieces = GeographicItem.geo_with_collecting_event.to_a
           expect(pieces.count).to eq(2)
@@ -458,14 +463,14 @@ describe GeographicItem, type: :model, group: :geo do
         specify '::err_with_collecting_event' do
           pieces = GeographicItem.err_with_collecting_event.to_a
           expect(pieces.count).to eq(2)
-          expect(pieces).to include(item_a, err_b) #
+          expect(pieces).to include(new_box_a, err_b) #
           expect(pieces).not_to include(g, p17)
         end
 
         specify '::with_collecting_event_through_georeferences' do
           pieces = GeographicItem.with_collecting_event_through_georeferences.order('id').to_a
           expect(pieces.count).to eq(4)
-          expect(pieces).to contain_exactly(item_a, p_a, p_b, err_b) #
+          expect(pieces).to contain_exactly(new_box_a, p_a, p_b, err_b) #
           expect(pieces).not_to include(e4)
         end
 
@@ -473,18 +478,12 @@ describe GeographicItem, type: :model, group: :geo do
           # skip 'construction of method'
           pieces = GeographicItem.include_collecting_event.to_a
           expect(pieces.count).to eq(6)
-          expect(pieces).to include(item_b, item_a, err_b, p_a, p_b, item_e)
+          expect(pieces).to include(new_box_b, new_box_a, err_b, p_a, p_b, new_box_e)
         end
 
         context '::containing' do
-          before {
-            k
-            l
-            b
-            b1
-            b2
-            e1
-          }
+          before { [k, l, b, b1, b2, e1].each { |obj| obj } }
+
           specify 'find the polygon containing the points' do
             expect(GeographicItem.containing(p1.id).to_a).to contain_exactly(k)
           end
@@ -507,10 +506,7 @@ describe GeographicItem, type: :model, group: :geo do
         end
 
         context '::are_contained_in - returns objects which contained in another object.' do
-          before {
-            e1
-            k
-          }
+          before { [e1, k].each { |obj| obj } }
 
           # OR!
           specify 'three things inside and one thing outside k' do
@@ -559,13 +555,8 @@ describe GeographicItem, type: :model, group: :geo do
         end
 
         context '::contained_by' do
-          before {
-            p1
-            p2
-            p3
-            p11
-            p12
-          }
+          before { [p1, p2, p3, p11, p12].each { |obj| obj } }
+
           specify 'find the points in a polygon' do
             expect(GeographicItem.contained_by(k.id).to_a).to contain_exactly(p1, p2, p3)
           end
@@ -577,20 +568,7 @@ describe GeographicItem, type: :model, group: :geo do
         end
 
         context '::are_contained_in_item_by_id - returns objects which contained in another object.' do
-          before {
-            p0
-            p1
-            p2
-            p3
-            p12
-            p13
-            b1
-            b2
-            b
-            e1
-            e2
-            k
-          }
+          before { [p0, p1, p2, p3, p12, p13, b1, b2, b, e1, e2, k].each { |obj| obj } }
 
           specify 'one thing inside k' do
             expect(GeographicItem.are_contained_in_item_by_id('polygon', p1.id).to_a).to eq([k])
@@ -644,18 +622,8 @@ describe GeographicItem, type: :model, group: :geo do
         end
 
         context '::is_contained_by - returns objects which are contained by other objects.' do
-          before {
-            b
-            p0
-            p1
-            p2
-            p3
-            p11
-            p12
-            p13
-            p18
-            p19
-          }
+          before { [b, p0, p1, p2, p3, p11, p12, p13, p18, p19].each { |obj| obj } }
+
           specify ' three things inside k' do
             expect(GeographicItem.is_contained_by('any', k).excluding(k).to_a)
               .to contain_exactly(p1, p2, p3)
@@ -728,7 +696,7 @@ describe GeographicItem, type: :model, group: :geo do
         # end
 
         context '::ordered_by_shortest_distance_from' do
-          before { [p1, p2, p4, outer_limits, l, f1, e5, e3, e4, h, rooms, f, c, g, e, j].each { |object| object } }
+          before { [p1, p2, p4, outer_limits, l, f1, e5, e3, e4, h, rooms, f, c, g, e, j].each { |obj| obj } }
 
           specify ' orders objects by distance from passed object' do
             expect(GeographicItem.ordered_by_shortest_distance_from('point', p3)
@@ -748,60 +716,98 @@ describe GeographicItem, type: :model, group: :geo do
               .to eq([f, c])
             expect(GeographicItem.ordered_by_shortest_distance_from('multi_polygon', p3)
                      .limit(3).to_a)
-              .to eq([g])
+              .to eq([new_box_e, new_box_b, new_box_a])
             expect(GeographicItem.ordered_by_shortest_distance_from('geometry_collection', p3)
                      .limit(3).to_a)
               .to eq([e, j])
           end
         end
 
-        specify '::ordered_by_longest_distance_from orders objects by distance from passed object' do
-          expect(GeographicItem.ordered_by_longest_distance_from('point', @p3).limit(3).to_a).to eq([@r2024, @r2022, @r2020])
-          expect(GeographicItem.ordered_by_longest_distance_from('line_string', @p3).limit(3).to_a).to eq([@c3, @c1, @c2])
-          expect(GeographicItem.ordered_by_longest_distance_from('polygon', @p3).limit(4).to_a).to eq([@g1, @g2, @g3, @b2])
-          expect(GeographicItem.ordered_by_longest_distance_from('multi_point', @p3).limit(3).to_a).to eq([@rooms, @h])
-          expect(GeographicItem.ordered_by_longest_distance_from('multi_line_string', @p3).limit(3).to_a).to eq([@c, @f])
-          expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', @p3).limit(3).to_a).to eq([@g])
-          expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', @p3).limit(3).to_a).to eq([@j, @e])
+        context '::ordered_by_longest_distance_from' do
+          before { [r2024, r2022, r2020, c3, c1, c2, g1, g2, g3, b2, rooms, h, c, f, g, j, e].each { |obj| obj } }
+
+          specify 'orders objects by distance from passed object' do
+
+            expect(GeographicItem.ordered_by_longest_distance_from('point', p3)
+                     .limit(3).to_a)
+              .to eq([r2024, r2022, r2020])
+            expect(GeographicItem.ordered_by_longest_distance_from('line_string', p3)
+                     .limit(3).to_a)
+              .to eq([c3, c1, c2])
+            expect(GeographicItem.ordered_by_longest_distance_from('polygon', p3)
+                     .limit(4).to_a)
+              .to eq([g1, g2, g3, b2])
+            expect(GeographicItem.ordered_by_longest_distance_from('multi_point', p3)
+                     .limit(3).to_a)
+              .to eq([rooms, h])
+            expect(GeographicItem.ordered_by_longest_distance_from('multi_line_string', p3)
+                     .limit(3).to_a)
+              .to eq([c, f])
+            expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', p3)
+                     .limit(3).to_a)
+              .to eq([g, new_box_a, new_box_e])
+            expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', p3)
+                     .limit(3).to_a)
+              .to eq([j, e])
+          end
         end
 
-        specify "::disjoint_from list of objects (uses 'and')." do
-          expect(GeographicItem.disjoint_from('point', [@e1, @e2, @e3, @e4, @e5]).order(:id).limit(1).to_a).to contain_exactly(@p1)
+        context '::disjoint_from' do
+          before { [p1].each { |obj| obj } }
+
+          specify "list of objects (uses 'and')." do
+            expect(GeographicItem.disjoint_from('point',
+                                                [e1, e2, e3, e4, e5])
+                     .order(:id)
+                     .limit(1).to_a)
+              .to contain_exactly(p_b)
+          end
         end
 
-        specify '::within_radius_of_item returns objects within a specific distance of an object.' do
-          expect(GeographicItem.within_radius_of_item(@p0.id, 1000000).where(type: ['GeographicItem::Polygon'])).to contain_exactly(@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d)
-        end
+        context '::within_radius_of_item' do
+          before { [e2, e3, e4, e5, item_a, item_b, item_c, item_d, k, r2022, r2024, p14].each { |obj| obj } }
 
-        specify '::within_radius_of_item("any", ...)' do
-          expect(GeographicItem.within_radius_of_item(@p0.id, 1000000)).to include(@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d)
-        end
+          specify 'returns objects within a specific distance of an object.' do
+            pieces = GeographicItem.within_radius_of_item(p0.id, 1000000)
+                       .where(type: ['GeographicItem::Polygon'])
+            expect(pieces).to contain_exactly(err_b, e2, e3, e4, e5, item_a, item_b, item_c, item_d)
+          end
 
-        specify "::intersecting list of objects (uses 'or')" do
-          expect(GeographicItem.intersecting('polygon', [@l])).to eq([@k])
-          expect(GeographicItem.intersecting('polygon', [@f1])).to eq([]) # Is this right?
-        end
+          specify '::within_radius_of_item("any", ...)' do
+            expect(GeographicItem.within_radius_of_item(p0.id, 1000000))
+              .to include(e2, e3, e4, e5, item_a, item_b, item_c, item_d)
+          end
 
-        specify '::select_distance_with_geo_object provides an extra column called \'distance\' to the output objects' do
-          result = GeographicItem.select_distance_with_geo_object('point', @r2020).limit(3).order('distance').where_distance_greater_than_zero('point', @r2020).to_a
-          # get back these three points
-          expect(result).to eq([@r2022, @r2024, @p14])
-          # 5 meters
-          expect(result.first.distance).to be_within(0.1).of(5.008268179)
-          # 10 meters
-          expect(result[1].distance).to be_within(0.1).of(10.016536381)
-          # 5,862 km (3,642 miles)
-          expect(result[2].distance).to be_within(0.1).of(5862006.0029975)
-        end
+          specify "::intersecting list of objects (uses 'or')" do
+            expect(GeographicItem.intersecting('polygon', [l])).to eq([k])
+            expect(GeographicItem.intersecting('polygon', [f1]))
+              .to eq([]) # Is this right?
+          end
 
-        specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-          expect(GeographicItem.with_is_valid_geometry_column(@p0)).to be_truthy
-          expect(GeographicItem.with_is_valid_geometry_column(@a)).to be_truthy
-          expect(GeographicItem.with_is_valid_geometry_column(@b)).to be_truthy
-          expect(GeographicItem.with_is_valid_geometry_column(@h)).to be_truthy
-          expect(GeographicItem.with_is_valid_geometry_column(@f)).to be_truthy
-          expect(GeographicItem.with_is_valid_geometry_column(@g)).to be_truthy
-          expect(GeographicItem.with_is_valid_geometry_column(@all_items)).to be_truthy
+          specify '::select_distance_with_geo_object provides an extra column called ' \
+                '\'distance\' to the output objects' do
+            result = GeographicItem.select_distance_with_geo_object('point', r2020)
+                       .limit(3).order('distance')
+                       .where_distance_greater_than_zero('point', r2020).to_a
+            # get back these three points
+            expect(result).to eq([r2022, r2024, p14])
+            # 5 meters
+            expect(result.first.distance).to be_within(0.1).of(5.008268179)
+            # 10 meters
+            expect(result[1].distance).to be_within(0.1).of(10.016536381)
+            # 5,862 km (3,642 miles)
+            expect(result[2].distance).to be_within(0.1).of(5862006.0029975)
+          end
+
+          specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
+            expect(GeographicItem.with_is_valid_geometry_column(p0)).to be_truthy
+            expect(GeographicItem.with_is_valid_geometry_column(a)).to be_truthy
+            expect(GeographicItem.with_is_valid_geometry_column(b)).to be_truthy
+            expect(GeographicItem.with_is_valid_geometry_column(h)).to be_truthy
+            expect(GeographicItem.with_is_valid_geometry_column(f)).to be_truthy
+            expect(GeographicItem.with_is_valid_geometry_column(g)).to be_truthy
+            expect(GeographicItem.with_is_valid_geometry_column(all_items)).to be_truthy
+          end
         end
       end
     end

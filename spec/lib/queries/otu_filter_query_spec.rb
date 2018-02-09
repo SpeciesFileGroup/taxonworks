@@ -27,7 +27,7 @@ describe Queries::OtuFilterQuery, type: :model, group: [:geo, :collection_object
 
         specify 'specific nomen' do
           result = Queries::OtuFilterQuery.new(params).result
-          expect(result).to contain_exactly(p4, spooler, nuther_dog)
+          expect(result).to contain_exactly(otu_p4, spooler, nuther_dog)
         end
       end
 
