@@ -448,14 +448,10 @@ namespace :tw do
           # About 100 family names not compatible with type genus relationship, mostly genus group names (see log)
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
-
-          # @todo: Temporary "fix" to convert all values to string; will be fixed next time taxon names are imported and following do can be deleted
-          get_tw_taxon_name_id.each do |key, value|
-            get_tw_taxon_name_id[key] = value.to_s
-          end
 
           path = @args[:data_directory] + 'tblTypeGenera.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -464,6 +460,7 @@ namespace :tw do
           error_counter = 0
 
           file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
             next if get_tw_otu_id.has_key?(row['FamilyNameID']) # ignore if ill-formed family name created only as OTU
 
             genus_name_id = get_tw_taxon_name_id[row['GenusNameID']].to_i
@@ -506,6 +503,7 @@ namespace :tw do
           logger.info 'Creating type species...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
@@ -536,6 +534,7 @@ namespace :tw do
           no_genus_counter = 0
 
           file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
             next if row['SpeciesNameID'] == '0'
             next if [1143402, 1143425, 1143430, 1143432, 1143436].freeze.include?(row['GenusNameID'].to_i) # used for excluded Beckma ids
             next if [1109922, 1195997, 1198855].freeze.include?(row['GenusNameID'].to_i) # bad data in Orthoptera (first) and Psocodea (rest)
@@ -937,13 +936,17 @@ namespace :tw do
 
           logger.info 'Running create otus for ill-formed names hash...'
 
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
+
           get_otu_sf_above_id = {} # key = SF.TaxonNameID of bad valid name, value = SF.AboveID of bad valid name
 
-          path = @args[:data_directory] + 'sfMakeOTUs.txt' # @todo: Need new version of this file containing FileID
+          path = @args[:data_directory] + 'sfMakeOTUs.txt'
           # not a problem right now but eventually should change
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
+            next if skipped_file_ids.include? row['FileID'].to_i
             # byebug
             # puts row.inspect
             taxon_name_id = row['TaxonNameID']
@@ -953,7 +956,6 @@ namespace :tw do
             get_otu_sf_above_id[taxon_name_id] = above_id
           end
 
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFIllFormedNameIDToSFAboveID', get_otu_sf_above_id)
 
           puts 'SFIllFormedNameIDToSFAboveID'
@@ -968,13 +970,17 @@ namespace :tw do
 
           logger.info 'Running SF new synonym, nomen novum, nomen dubium parent hash...'
 
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
+
           get_sf_parent_id = {} # key = SF.TaxonNameID of synonym, value = SF.TaxonNameID of new parent
 
-          path = @args[:data_directory] + 'sfSynonymParents.txt' # @todo: Need new version of this file containing FileID
+          path = @args[:data_directory] + 'sfSynonymParents.txt'
               # not a problem right now but eventually should change
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
+            next if skipped_file_ids.include? row['FileID'].to_i
             # byebug
             # puts row.inspect
             taxon_name_id = row['TaxonNameID']
@@ -982,7 +988,6 @@ namespace :tw do
             get_sf_parent_id[taxon_name_id] = row['NewAboveID']
           end
 
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFSynonymIDToSFParentID', get_sf_parent_id)
 
           puts 'SFSynonymIDToSFParentID'
