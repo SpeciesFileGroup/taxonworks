@@ -26,25 +26,42 @@ class Queries::Query
   end
 
   # @return [Array]
-  #   the results of the query as an *array*
+  #   the results of the query as ActiveRecord objects 
   def result
     []
   end
 
+  # @return [Scope]
+  # stub
   def scope
     where('1 = 2') 
   end
 
+  # @return [Array]
   def terms=(string)
     @query_string = string
     build_terms
     terms 
   end
 
+  # @return [Array]
+  def terms
+    @terms ||= build_terms
+  end
+
+  # @return [Array]  
+  #   a reasonable (starting) interpretation of any query string
+  # Ultimately we should replace this concept with full text indexing.
+  def build_terms
+    @terms = @query_string.blank? ? [] : [end_wildcard, start_and_end_wildcard]  
+  end
+
+  # @return [String]
   def start_wildcard
     '%' + query_string 
   end
 
+  # @return [String]
   def end_wildcard
     query_string + '%'
   end
@@ -54,8 +71,22 @@ class Queries::Query
     '%' + query_string + '%'
   end
 
-  def terms
-    @terms ||= build_terms
+  # @return [Array]
+  def alphabetic_strings
+    Utilities::Strings.alphabetic_strings(query_string)
+  end
+
+  # @return [Array]
+  #   those strings that represent years
+  def years
+    query_string.scan(/\d{4}/).to_a.uniq
+  end
+
+  # @return [String, nil]
+  #    the first letter recognized as coming directly past the first year
+  #      `Smith, 1920a. ... ` returns `a` 
+  def year_letter
+    query_string.match(/\d{4}([a-zAZ]+)/).to_a.last
   end
 
   # @return [Array]
@@ -65,26 +96,6 @@ class Queries::Query
     query_string.split(/\s+/).select{|t| Utilities::Strings.is_i?(t)}
   end
 
-  # @return [Array]
-  def wildcard_wrapped_integers
-    integers.collect{|i| "%#{i}%"}
-  end
-
-  def strings
-    a = query_string.split(/\s+/).select{|t| !(t =~ /\d+/)} 
-    a.empty? ? [] : a
-  end
-
-  def alphabetic_strings
-    a = query_string.gsub(/[^a-zA-Z]/, ' ').split(/\s+/) # .select{|t| !(t =~ /\d+/)} 
-    a.empty? ? [] : a
-  end
-
-  def years
-    query_string.scan(/\d{4}/).to_a.uniq
-    # integers.select{|a| a =~ /\b\d{4}\b/}.map(&:to_s).compact
-  end
-
   # @return [Boolean]
   #   true if the query string only contains integers
   def only_integers?
@@ -92,30 +103,39 @@ class Queries::Query
   end
 
   # @return [Array]
-  #   if 5 or fewer strings, those strings wrapped in wildcards, else none
+  #   if 5 or fewer alphabetic_strings, those alphabetic_strings wrapped in wildcards, else none.
+  #  Used in *unordered* AND searchs 
   def fragments
-    if strings && strings.count < 6
-      strings.collect{|a| "%#{a}%"}
+    a = alphabetic_strings
+    if a.size > 1 && a.size < 6
+      a.collect{|a| "%#{a}%"}
     else
       []
     end
   end
-
-  # @return [String]
-  #   if `foo and 123 and stuff` then %foo%and%123%and%stuff%
-  def wildcard_pieces
-   '%' + query_string.gsub(/\s+/, '%') + '%'
+ 
+  # @return [Array]
+  #   split on whitespace
+  def pieces
+    query_string.split(/\s+/)
   end
 
-  # Replace with a full text indexing approach
-  def build_terms
-    @terms = @query_string.blank? ? [] : [end_wildcard, start_and_end_wildcard]  # query_string.split(/\s+/).compact.collect{|t| [t, "#{t}%", "%#{t}%"]}.flatten
+  # @return [Array]
+  def wildcard_wrapped_integers
+    integers.collect{|i| "%#{i}%"}
+  end
+
+  # @return [String]
+  #   if `foo, and 123 and stuff` then %foo%and%123%and%stuff%
+  def wildcard_pieces
+   '%' + query_string.gsub(/[\s\W]+/, '%') + '%'
   end
 
   def no_digits 
     query_string.gsub(/\d/, '').strip
   end
 
+  # @return [Integer]
   def dynamic_limit
     limit = 10 
     case query_string.length
@@ -127,9 +147,6 @@ class Queries::Query
     limit
   end
 
-  def pieces
-    query_string.split(/\s+/)
-  end
 
   # generic multi-use bits
   #   table is defined in each query, it is the class of instances being returned
