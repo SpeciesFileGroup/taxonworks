@@ -9,7 +9,6 @@ module Queries
         fragment_year_matches   # keyword style ANDs years
       ].compact
 
-      
       a = clauses.shift
       clauses.each do |b|
         a = a.or(b)
@@ -37,29 +36,6 @@ module Queries
     # @return [ActiveRecord::Relation]
     def all
       Source.where(where_sql).limit(500).distinct.order(:cached)
-    end
-
-    def autocomplete
-      queries = []
-      queries.push Source.where(only_ids.to_sql).limit(20).order(:cached) if only_ids
-      queries.push Source.where(cached.to_sql).limit(20).order(:cached) if cached
-      queries.push Source.where(fragment_year_matches.to_sql).limit(20).order(:cached) if fragment_year_matches
-
-      updated_queries = []
-      queries.each_with_index do |q ,i|  
-        a = q.joins(:project_sources).where(member_of_project_id.to_sql) if project_id
-        a ||= q
-        updated_queries[i] = a
-      end
-
-      result = []
-      updated_queries.each do |q|
-        result += q.to_a
-        result.uniq!
-        break if result.count > 19
-      end
-
-      result[0..19]
     end
 
     # @return [ActiveRecord::Relation]
