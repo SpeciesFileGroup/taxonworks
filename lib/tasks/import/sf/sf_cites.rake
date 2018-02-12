@@ -594,6 +594,9 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
           logger.info 'Running import_nomenclator_strings...'
 
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
+
           get_nomenclator_string = {} # key = SF.NomenclatorID, value = SF.nomenclator_string
 
           count_found = 0
@@ -602,6 +605,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
             nomenclator_id = row['NomenclatorID']
             next if nomenclator_id == '0'
 
@@ -612,7 +616,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             get_nomenclator_string[nomenclator_id] = nomenclator_string
           end
 
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFNomenclatorIDToSFNomenclatorString', get_nomenclator_string)
 
           puts = 'SFNomenclatorIDToSFNomenclatorString'
