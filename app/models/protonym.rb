@@ -257,6 +257,12 @@ class Protonym < TaxonName
     Protonym.ancestors_and_descendants_of(self).not_self(self).to_a
   end
 
+  # @return [Protonym]
+  #   a name ready to become the root
+  def self.stub_root(project_id: nil, by: nil)
+    Protonym.new(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project_id: project_id, by: by)
+  end
+
   def self.family_group_base(name_string)
     name_string.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)$/)
     $1 || name_string
