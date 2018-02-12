@@ -16,20 +16,8 @@ describe Source::Bibtex, type: :model, group: :sources do
     BibTeX::Entry.new(bibtex_type: 'book', title: 'Valid Bibtex of America', author: 'Smith, James')
   }
 
-  #let(:invalid_gem_bibtex_book) {
-  #  BibTeX::Entry.new(bibtex_type: 'book', title: 'InValid Bibtex of America',  author: 'Smith, James', year: 1921)
-  #}
-
   let(:gem_bibtex_bibliography) {
     BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
-  }
-
-  let(:simple1_gem_bibtex) {
-    BibTeX::Entry.new()
-  }
-
-  let(:simple2_gem_bibtex) {
-    BibTeX::Entry.new()
   }
 
   after(:all) {
@@ -119,18 +107,19 @@ describe Source::Bibtex, type: :model, group: :sources do
         expect(gem_bibtex_bibliography[-1].urldate).to eq('2010-12-06')
       end
 
+      # WHY?
       specify 'simple identity' do
-        expect(simple1_gem_bibtex).to eq(simple2_gem_bibtex)
+        expect( BibTeX::Entry.new()).to eq(BibTeX::Entry.new())
       end
 
-      specify 'simple complex entity' do
+      specify 'complex(?) entity identity ' do
         expect(gem_bibtex_entry1).to eq(gem_bibtex_entry2)
       end
     end
 
     context 'Should handle BibTeX formatting' do
       # BibTeX.parse doesn't handle math version so no sub or sup (e.g. 20<sup>th</sup>)
-      specify 'Strings are output properly' do
+      specify 'Strings are output properly 1' do
         citation_string = %q(@Article{py03,
                                     title = "The \t{oo} annual meeting of {BibTeX}--users",
                                     author = "D\'{e}coret, X{\ae}vier and Victor, Paul {\'E}mile",
@@ -138,16 +127,20 @@ describe Source::Bibtex, type: :model, group: :sources do
                                     publisher = "@ sign publishing",
                                     journal = "{Bib}TeX journal of \{funny\} ch\'{a}r{\aa}cter{\$}",
                                     year = {2003}})
+
         a               = BibTeX.parse(citation_string).convert(:latex)
         entry           = a.first
         src             = Source::Bibtex.new_from_bibtex(entry)
         expect(src.valid?).to be_truthy
         expect(src.save).to be_truthy
-        expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). BibTeX journal of {funny} cháråcter$.')
-        expect(src.cached_string('html')).to eq('Décoret, X. &amp; Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). <i>BibTeX journal of {funny} cháråcter$</i>.')
 
-        # input = 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.'
-        # src   = Source.new_from_citation({citation: input, resolve: true})
+        expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). BibTeX journal of {funny} cháråcter$.')
+
+        expect(src.cached_string('html')).to eq('Décoret, X. &amp; Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). <i>BibTeX journal of {funny} cháråcter$</i>.')
+      end
+
+      # input = 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.'
+      specify 'Strings are output properly 1' do
         citation_string = "@book{Brauer_1909,
             doi = {10.5962/bhl.title.1086},
             url = {http://dx.doi.org/10.5962/bhl.title.1086},
@@ -156,13 +149,14 @@ describe Source::Bibtex, type: :model, group: :sources do
             author = {August Brauer},
             title = {Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.}
           }"
-        a               = BibTeX.parse(citation_string).convert(:latex)
-        entry           = a.first
-        src             = Source::Bibtex.new_from_bibtex(entry)
+        a  = BibTeX.parse(citation_string).convert(:latex)
+        entry  = a.first
+        src  = Source::Bibtex.new_from_bibtex(entry)
         expect(src.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution. Available from: http://dx.doi.org/10.5962/bhl.title.1086.')
+      end
 
-        # input = 'Grubbs; Baumann & DeWalt. 2014. A review of the Nearctic genus Prostoia (Ricker) (Plecoptera: Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff and Kirchner. Zookeys. '
-        # src   = Source.new_from_citation({citation: input, resolve: true})
+      # input = 'Grubbs; Baumann & DeWalt. 2014. A review of the Nearctic genus Prostoia (Ricker) (Plecoptera: Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff and Kirchner. Zookeys. '
+      specify 'Strings are output properly 3' do
         citation_string = "@article{Grubbs_2014,
             doi = {10.3897/zookeys.401.7299},
             url = {http://dx.doi.org/10.3897/zookeys.401.7299},
@@ -175,9 +169,9 @@ describe Source::Bibtex, type: :model, group: :sources do
             title = {A review of the Nearctic genus Prostoia (Ricker) (Plecoptera, Nemouridae), with the description of a new species and a surprising range extension for P.~hallasi Kondratieff {\&} Kirchner},
             journal = {{ZooKeys}}
           }"
-        a               = BibTeX.parse(citation_string).convert(:latex)
-        entry           = a.first
-        src             = Source::Bibtex.new_from_bibtex(entry)
+        a = BibTeX.parse(citation_string).convert(:latex)
+        entry = a.first
+        src  = Source::Bibtex.new_from_bibtex(entry)
         expect(src.cached_string('html')).to eq('Grubbs, S., Baumann, R., DeWalt, R. &amp; Tweddale, T. (2014) A review of the Nearctic genus Prostoia (Ricker) (Plecoptera, Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff &amp; Kirchner. <i>ZooKeys</i> 401, 11–30.')
       end
     end
@@ -964,14 +958,15 @@ describe Source::Bibtex, type: :model, group: :sources do
       context 'Must facilitate letter annotations on year' do
         specify 'correctly generates year suffix from BibTeX entry' do
           bibtex_entry_year = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: '1921b')
-          src               = Source::Bibtex.new_from_bibtex(bibtex_entry_year)
+          src = Source::Bibtex.new_from_bibtex(bibtex_entry_year)
           expect(src.year.to_s).to eq('1921') # year is an int by default
           expect(src.year_suffix).to eq('b')
           expect(src.year_with_suffix).to eq('1921b')
         end
+
         specify 'correctly converts year suffix to BibTeX entry' do
-          src               = FactoryBot.create(:valid_source_bibtex)
-          src[:year]        = '1922'
+          src = FactoryBot.create(:valid_source_bibtex)
+          src[:year] = '1922'
           src[:year_suffix] = 'c'
           expect(src.year_with_suffix).to eq('1922c')
           bibtex_entry = src.to_bibtex
@@ -1016,22 +1011,14 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     context 'associations' do
       context 'roles' do
-
-        let(:vp1) { FactoryBot.create(:valid_person) } # Smith
-        let(:vp2) { FactoryBot.create(:source_person_prefix) } # Von Adams, John
+        let(:vp1) { Person.create!(last_name: 'Smith')  } 
+        let(:vp2) { Person.create!(last_name: 'Adams', first_name: 'John', prefix: 'Von') }
 
         specify 'after create/saved populate author/editor roles' do
           # bs1 was saved in the "before", since the authors already exist in the db,
           # the roles should be automatically set? (Yes)
           # skip
         end
-=begin
-      # cached values are tested above in "after save"
-      specify 'after create/saved authors are cached in cached_author_string' do
-        # Editors are not cached.
-      end
-      skip
-=end
 
         context 'check cached strings after update' do
           specify 'authors' do
@@ -1173,9 +1160,12 @@ describe Source::Bibtex, type: :model, group: :sources do
   context 'soft validations' do
     let(:source_bibtex) { FactoryBot.build(:soft_valid_bibtex_source_article) }
 
-    specify 'missing authors' do
+    specify 'missing authors 1' do
       source_bibtex.soft_validate(:recommended_fields)
       expect(source_bibtex.soft_validations.messages_on(:base).empty?).to be_truthy
+    end
+
+    specify 'missing authors 2' do
       source_bibtex.author = nil
       source_bibtex.save
       source_bibtex.soft_validate(:recommended_fields)

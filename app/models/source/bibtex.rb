@@ -432,7 +432,7 @@ class Source::Bibtex < Source
     b
   end
 
-  # @param type [String] either author or editor
+  # @param type [String] either `author` or `editor`
   # @return [String]
   #   the bibtex version of the name strings created from the TW people
   #   BibTeX format is 'lastname, firstname and lastname,firstname and lastname, firstname'
@@ -450,8 +450,8 @@ class Source::Bibtex < Source
     end
   end
 
-  # @param type [String] either author or editor
-  # @return[String]
+  # @param type [String] either `author` or `editor`
+  # @return [String]
   #   A human readable version of the person list
   #   'firstname lastname, firstname lastname, & firstname lastname'
   #  TODO: DEPRECATE
@@ -608,23 +608,6 @@ class Source::Bibtex < Source
     end
   end
 
-  # @return [String, nil]
-  #   last names formatted as displayed in nomenclatural authority (iczn), prioritizes
-  #   normalized people records before bibtex author string
-  def authority_name
-    if authors.count == 0 # no normalized people, use string, !! not .any? because of in-memory setting?!
-      if author.blank?
-        return nil
-      else
-        b = to_bibtex
-        b.parse_names
-        return Utilities::Strings.authorship_sentence( b.author.tokens.collect{|t| t.last} )
-      end
-    else # use normalized records
-      return Utilities::Strings.authorship_sentence( authors.collect{|a| a.full_last_name} )
-    end
-  end
-
   def isbn=(value)
     write_attribute(:isbn, value)
     unless value.blank?
@@ -697,8 +680,8 @@ class Source::Bibtex < Source
   #endregion getters & setters
 
   def has_authors? # is there a bibtex author or author roles?
-    return true if !(self.author.blank?) # author attribute is empty
-    return false if self.new_record? # nothing saved yet, so no author roles are saved yet
+    return true if !(author.blank?) # author attribute is empty
+    return false if new_record? # nothing saved yet, so no author roles are saved yet
     # self exists in the db
     (self.authors.count > 0) ? (return true) : (return false)
   end
@@ -720,7 +703,6 @@ class Source::Bibtex < Source
     false
   end
 
-  #region time/date related
 
   # @return [Integer]
   #  The effective year of publication as per nomenclatural rules
@@ -743,7 +725,22 @@ class Source::Bibtex < Source
     end
   end
 
-  #endregion    time/date related
+  # @return [String, nil]
+  #   last names formatted as displayed in nomenclatural authority (iczn), prioritizes
+  #   normalized people records before bibtex author string
+  def authority_name
+    if authors.count == 0 # no normalized people, use string, !! not .any? because of in-memory setting?!
+      if author.blank?
+        return nil
+      else
+        b = to_bibtex
+        b.parse_names
+        return Utilities::Strings.authorship_sentence( b.author.tokens.collect{|t| t.last} )
+      end
+    else # use normalized records
+      return Utilities::Strings.authorship_sentence( authors.collect{|a| a.full_last_name} )
+    end
+  end
 
   # @return [BibTex::Bibliography]
   #   initialized with this source as an entry
@@ -822,8 +819,9 @@ class Source::Bibtex < Source
       valid = true
     end
     if !valid
-      errors.add(:base,
-                 'Missing core data. A TaxonWorks source must have one of the following: author, editor, booktitle, title, url, journal, year, or stated year'
+      errors.add(
+        :base,
+        'Missing core data. A TaxonWorks source must have one of the following: author, editor, booktitle, title, url, journal, year, or stated year'
       )
     end
   end
