@@ -77,5 +77,12 @@ module Utilities::Strings
     last_names.to_sentence(two_words_connector: ' & ', last_word_connector: ' & ')
   end
 
+  # @return [Array]
+  #   array of whitespace split strings, with any string containing a digit eliminated  
+  def self.alphabetic_strings(string)
+    a = string.gsub(/[^a-zA-Z]/, ' ').split(/\s+/) 
+    a.empty? ? [] : a
+  end
+
 end
 
