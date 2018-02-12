@@ -338,7 +338,7 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
 
           specify 'geolocate_ui_params_string from lat/long' do
             #pending 'creation of a method for geolocate_ui_params_string'
-            expect(@ce_m1.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/' \
+            expect(ce_b.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/' \
                                                           'webgeoreflight.aspx?country=Big Boxia&state=QT&county=M1&locality=Lesser Boxia Lake&points=27.5|33.5|Lesser Boxia Lake|0|3&georef=run|false|false|true|true|false|false|false|0&gc=Tester')
           end
         end
