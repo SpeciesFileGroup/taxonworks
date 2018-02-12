@@ -5,7 +5,7 @@ describe Queries::Source::Autocomplete, type: :model do
   # Authors
   let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
   let(:p2) { FactoryBot.create(:valid_person, last_name: 'Jones') }
-  let(:p3) { FactoryBot.create(:valid_person, last_name: 'von Brandt') }
+  let(:p3) { FactoryBot.create(:valid_person, last_name: 'Brandt', prefix: 'von') }
 
   let(:j1) { FactoryBot.create(:valid_serial, name: 'Journal of Stuff and Things') }
   let!(:a1) { AlternateValue::Abbreviation.create!(value: 'J. S. and T.', alternate_value_object: j1, alternate_value_object_attribute: :name) }
@@ -106,15 +106,50 @@ describe Queries::Source::Autocomplete, type: :model do
     expect(query.autocomplete_year_letter.map(&:id)).to contain_exactly()
   end
 
-  specify '#autocomplete_author_year_letter 1' do
+  specify '#autocomplete_exact_author_year_letter 1' do
     query.terms = 'Smith 1921a'
-    expect(query.autocomplete_author_year_letter.map(&:id).first).to eq(s3.id)
+    expect(query.autocomplete_exact_author_year_letter.map(&:id).first).to eq(s3.id)
   end
+
+  specify '#autocomplete_exact_author_year 1' do
+    query.terms = 'Smith 1921a'
+    expect(query.autocomplete_exact_author_year.map(&:id).first).to eq(s3.id)
+  end
+
+  specify '#autocomplete_wildcard_pieces_and_year' do
+    # !! cached currently renders von on the outside, so `von Brandt` won't match
+    query.terms = 'Jones, Brandt & Smith, 1924'
+    expect(query.autocomplete_wildcard_pieces_and_year.map(&:id).first).to eq(s4.id)
+  end
+
+  specify 'autocomplete_wildcard_author_exact_year' do
+    query.terms = 'ones andt 1924'
+    expect(query.autocomplete_wildcard_author_exact_year.map(&:id).first).to eq(s4.id)
+  end
+
+  specify 'autocomplete_wildcard_anywhere 1' do
+    query.terms = 'andt Things about'
+    expect(query.autocomplete_wildcard_anywhere.map(&:id).first).to eq(s4.id)
+  end
+
+  specify 'autocomplete_wildcard_anywhere 2' do
+    query.terms = 'black brandt'
+    expect(query.autocomplete_wildcard_anywhere.map(&:id).first).to eq(s5.id)
+  end
+
+  # ----
 
   specify '#autocomplete 1' do
     query.terms = 'Smith 1921a'
     expect(query.autocomplete.map(&:id).first).to eq(s3.id)
   end
+
+  specify '#autocomplete 2' do
+    query.terms = 'Smith 1921z'
+    expect(query.autocomplete.map(&:id).first).to eq(s3.id)
+  end
+
+
 
 
 end

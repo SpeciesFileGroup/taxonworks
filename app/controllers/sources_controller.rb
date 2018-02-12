@@ -91,11 +91,14 @@ class SourcesController < ApplicationController
   end
 
   def autocomplete
-    @sources = Queries::Source::Autocomplete.new(autocomplete_params)
+    @sources = Queries::Source::Autocomplete.new(
+      params.require(:term),
+      autocomplete_params
+    ).autocomplete
   end
 
   def autocomplete_params
-    params.permit(:scope).merge(project_id: sessions_current_project_id)
+    params.permit(:limit_to_project).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
   def search
