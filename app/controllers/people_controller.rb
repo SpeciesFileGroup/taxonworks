@@ -69,6 +69,7 @@ class PeopleController < ApplicationController
     @people =  Person.order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
+  # TODO: deprecate!
   def search
     if params[:id].blank?
       redirect_to people_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
@@ -78,7 +79,7 @@ class PeopleController < ApplicationController
   end
 
   def autocomplete
-    @people = Person.find_for_autocomplete(params).limit(50)
+    @people = people
     data = @people.collect do |t|
       {id:              t.id,
        label:           t.name,
@@ -92,8 +93,8 @@ class PeopleController < ApplicationController
     render json: data
   end
 
-  # TODO: Deprecate for autocomplete, and fix, there should not be an inner join here likely, it's restricting values to only those who are 
-  # already authors
+  # TODO: Deprecate for autocomplete with params
+  # this is used only in specific forms where you want to find people who are ALREADY taxon name authors
   def taxon_name_author_autocomplete
     @authors = Person.joins(:roles).where(roles: {type: 'TaxonNameAuthor', project_id: sessions_current_project_id}).find_for_autocomplete(params.permit(:term)).distinct.order('people.cached').limit(50)
     data = @authors.collect do |a|
@@ -111,7 +112,7 @@ class PeopleController < ApplicationController
 
   # GET /people/download
   def download
-    send_data Person.generate_download( Person.all ), type: 'text', filename: "people_#{DateTime.now}.csv"
+    send_data Download.generate_csv(Person.all), type: 'text', filename: "people_#{DateTime.now}.csv"
   end
 
   def roles
@@ -122,14 +123,19 @@ class PeopleController < ApplicationController
     render json: ROLES
   end
 
-  # TODO: deprecate for autocompelte
+  # TODO: deprecate for autocomplete
   def lookup_person
-    @people = Person.find_for_autocomplete(params)
+    @people = people
     render json: @people.collect{|p|
       {
         label: p.bibtex_name,
         object_id: p.id}
     }
+  end
+
+  def people
+    t = params.require(:term)
+    Person.select("people.*, length(cached) c").where('cached ILIKE ? OR cached ILIKE ? OR cached = ?', "#{t}%", "%#{t}%", t).distinct.order('c ASC', 'cached ASC').limit(50)
   end
 
   # GET /person/:id/details

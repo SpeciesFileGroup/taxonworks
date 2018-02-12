@@ -29,7 +29,7 @@
 #
 # @!attribute cached
 #   @return [String]
-#   @todo
+#      full name 
 #
 class Person < ApplicationRecord
   include Housekeeping::Users
@@ -42,17 +42,20 @@ class Person < ApplicationRecord
   include Shared::HasPapertrail 
   include Shared::IsData
 
-  # Class constants
   ALTERNATE_VALUES_FOR = [:last_name, :first_name].freeze
 
   validates_presence_of :last_name, :type
   before_validation :set_type_if_blank
 
-  # after_save :update_bibtex_sources
-  after_save :set_cached
+  # @return [Boolean]
+  #   When true cached values are not built
+  attr_accessor :no_cached
 
-  validates :type, inclusion: {in:      ['Person::Vetted', 'Person::Unvetted'],
-                               message: '%{value} is not a validly_published type'}
+  after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
+
+  validates :type, inclusion: {
+    in: ['Person::Vetted', 'Person::Unvetted'],
+    message: '%{value} is not a validly_published type'}
 
   has_many :roles, dependent: :destroy, inverse_of: :person
   has_many :author_roles, class_name: 'SourceAuthor'
@@ -71,110 +74,109 @@ class Person < ApplicationRecord
   has_many :human_sources, through: :source_roles, source: :role_object, source_type: 'Source::Human'
   has_many :collecting_events, through: :collector_roles, source: :role_object, source_type: 'CollectingEvent'
   has_many :taxon_determinations, through: :determiner_roles, source: :role_object, source_type: 'TaxonDetermination'
-  has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName'
+  has_many :authored_taxon_names, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName'
   has_many :type_material, through: :type_designator_roles, source: :role_object, source_type: 'TypeMaterial'
   has_many :georeferences, through: :georeferencer_roles, source: :role_object, source_type: 'Georeference'
 
-  #scope :named, -> (name) {where(name: name)}
-  #scope :named_smith, where(last_name: 'Smith')
-  scope :named_smith, -> { where(last_name: 'Smith') }
-  #scope :smith_start, -> {where(last_name: start_with?('Smith'))}  # have tried multiple ways to select records where last_name like 'Smith%' without success
   scope :created_before, -> (time) { where('created_at < ?', time) }
   scope :with_role, -> (role) { includes(:roles).where(roles: {type: role}) }
   scope :ordered_by_last_name, -> { order(:last_name) }
 
   def name
-    [self.first_name, self.prefix, self.last_name, self.suffix].compact.join(' ').strip
+    [first_name, prefix, last_name, suffix].compact.join(' ')
   end
 
   # @return [String]
   #   The person's name in BibTeX format (von last, Jr, first)
   def bibtex_name
     out = ''
-    out << self.prefix + ' ' unless self.prefix.blank?
-    out << self.last_name unless self.last_name.blank?
-    out << ', ' unless out.blank? || (self.first_name.blank? && self.suffix.blank?)
-    out << self.suffix unless self.suffix.blank?
-    out << ', ' unless out.end_with?(', ') || self.first_name.blank? || out.blank?
-    out << self.first_name unless self.first_name.blank?
+
+    out << prefix + ' ' unless prefix.blank?
+    out << last_name unless last_name.blank?
+    out << ', ' unless out.blank? || (first_name.blank? && suffix.blank?)
+    out << suffix unless suffix.blank?
+    
+    out << ', ' unless out.end_with?(', ') || first_name.blank? || out.blank?
+    out << first_name unless first_name.blank?
     out.strip
   end
 
   # @return [String]
   #   The person's full last name including prefix & suffix (von last Jr)
   def full_last_name
-    out = ''
-    out << self.prefix + ' ' unless self.prefix.blank?
-    out << self.last_name unless self.last_name.blank?
-    out << ' ' + self.suffix unless self.suffix.blank?
-    out.strip
+    [prefix, last_name, suffix].compact.join(' ')
   end
 
+  # @return [Boolean]
   def is_author?
-    self.author_roles.to_a.length > 0
+    author_roles.to_a.length > 0
   end
 
+  # @return [Boolean]
   def is_editor?
-    self.editor_roles.to_a.length > 0
+    editor_roles.to_a.length > 0
   end
 
+  # @return [Boolean]
   def is_source?
-    self.source_roles.to_a.length > 0
+    source_roles.to_a.length > 0
   end
 
+  # @return [Boolean]
   def is_collector?
-    self.collector_roles.to_a.length > 0
+    collector_roles.to_a.length > 0
   end
 
+  # @return [Boolean]
   def is_determiner?
-    self.determiner_roles.to_a.length > 0
+    determiner_roles.to_a.length > 0
   end
 
+  # @return [Boolean]
   def is_taxon_name_author?
-    self.taxon_name_author_roles.to_a.length > 0
+    taxon_name_author_roles.to_a.length > 0
   end
 
+  # @return [Boolean]
   def is_type_designator?
-    self.type_designator_roles.to_a.length > 0
+    type_designator_roles.to_a.length > 0
   end
-
+  
+  # @return [Boolean]
   def is_georeferencer?
-    self.georeferencer_roles.to_a.length > 0
+    georeferencer_roles.to_a.length > 0
   end
 
-  # TODO: TEST!
+  # @return [Array of Hashes]
+  #   use citeproc to parse strings 
   def self.parser(name_string)
     BibTeX::Entry.new(type: :book, author: name_string).parse_names.to_citeproc['author']
   end
 
-  # TODO: TEST!
+  # @return [Array of People]
+  #    return people for name strings
   def self.parse_to_people(name_string)
-    self.parser(name_string).collect { |n| Person::Unvetted.new(last_name: n['family'], first_name: n['given'], prefix: n['non-dropping-particle']) }
-  end
-
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
+    parser(name_string).collect{|n| Person::Unvetted.new(last_name: n['family'], first_name: n['given'], prefix: n['non-dropping-particle']) }
   end
 
   protected
 
+  # TODO: deprecate this, always set explicitly
   def set_type_if_blank
     self.type = 'Person::Unvetted' if self.type.blank?
   end
 
-  def self.find_for_autocomplete(params)
-    where('cached ILIKE ? OR cached ILIKE ? OR cached = ?', "#{params[:term]}%", "%#{params[:term]}%", params[:term])
+  def set_cached
+    update_column(:cached, bibtex_name) 
+    set_taxon_name_cached_author_year
   end
 
-  def set_cached
-    update_column(:cached, self.bibtex_name) if errors.empty? 
+  def set_taxon_name_cached_author_year
+    if saved_change_to_last_name? || saved_change_to_prefix? || saved_change_to_suffix? 
+      authored_taxon_names.reload.each do |t|
+        t.send(:set_cached) # TODO: optimize, perhaps on set_author_year
+      end 
+    end
   end
 
 end
