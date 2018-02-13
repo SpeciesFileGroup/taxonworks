@@ -85,7 +85,7 @@ Object.assign(TW.views.people.role_picker, {
     var autocomplete_input = form.find(".role_picker_autocomplete");
 
     autocomplete_input.autocomplete({
-      source: '/people/lookup_person',
+      source: '/people/autocomplete',
       open: function (event, ui) {
         TW.views.people.role_picker.bind_hover(form);
       },

@@ -4,7 +4,7 @@
       <autocomplete
         :autofocus="true"
         class="separate-right"
-        url="/people/lookup_person"
+        url="/people/autocomplete"
         label="label"
         min="2"
         @getInput="setInput"
