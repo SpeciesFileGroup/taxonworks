@@ -6,8 +6,8 @@ class PeopleController < ApplicationController
   # GET /people
   # GET /people.json
   def index
-    @people = Person.all.includes(:creator, :updater)
-    @recent_objects = Person.order(updated_at: :desc).limit(10)
+    @people =  Person.order(updated_at: :desc).limit(10)  
+    @recent_objects = @people
     render '/shared/data/all/index'
   end
 
@@ -66,7 +66,7 @@ class PeopleController < ApplicationController
   end
 
   def list
-    @people =  Person.order(:id).page(params[:page]) #.per(10) #.per(3)
+    @people =  Person.order(:cached).page(params[:page]) 
   end
 
   # TODO: deprecate!
@@ -132,6 +132,6 @@ class PeopleController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def person_params
-    params.require(:person).permit(:type, :last_name, :first_name, :suffix, :prefix)
+    params.require(:person).permit(:type, :last_name, :first_name, :suffix, :prefix, :year_born, :year_died, :year_active_start, :year_active_end)
   end
 end
