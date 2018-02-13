@@ -4,7 +4,9 @@ json.array! @taxon_names do |t|
   json.label_html autocomplete_tag(t, params[:term]) 
 
   json.response_values do 
-    json.set! params[:method], t.id
+    if params[:method]
+      json.set! params[:method], t.id
+    end
   end 
 end
 
