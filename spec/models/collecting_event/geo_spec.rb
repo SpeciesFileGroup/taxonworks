@@ -449,24 +449,53 @@ context 'geopolitical labels' do
 
       context 'when more than one possible name is present' do
         specify 'derived from geographic_area_chain' do
-          [err_b, area_e, area_l2].each { |obj| obj }
+          [err_b, gr_b, area_e, area_l2].each { |obj| obj }
           # 'E' is synonymous with 'R2'
           # ce_n1 has no georeference, so the only way to 'E' is through geographic_area
           list = ce_n1.countries_hash
           expect(list).to include({'E' => [area_e]})
           expect(list).to include({'R2' => [area_r2]})
-          #  'Great Northern Land Mass' contains 'Q', and thus m1, but is NOT type 'Country'
+          #  'L2' is outside R2
           expect(list).to_not include({'L2' => [area_l2]})
+          # 'B' is in R2 (E), but is NOT a country
+          expect(list).to_not include({'B' => [area_b]})
         end
-        specify 'derived from georeference -> geographic_areas chain' do
+
+        context 'derived from georeference in P1B' do
           # @ce_p1 has both geographic_area and georeference; georeference has priority
-          list = ce_p1.countries_hash
-          expect(list).to include({'Q' => [area_q]})
-          expect(list).to include({'Big Boxia' => [area_big_boxia]})
-          expect(list.keys).to include('East Boxia')
-          expect(list['East Boxia']).to include(area_east_boxia_1, area_east_boxia_2)
-          #  'Great Northern Land Mass' contains 'Q', and thus p1, but is NOT type 'Country'
-          expect(list).to_not include({'F' => [area_f]})
+          before(:all) do
+            [gr_p1b, area_big_boxia, area_east_boxia_1, area_east_boxia_2].map(&:tap)
+          end
+
+          specify 'derived from georeference -> geographic_areas chain - Q' do
+            expect(ce_p1b.countries_hash).to include({'Q' => [area_q]})
+          end
+
+          specify 'derived from georeference -> geographic_areas chain - Big Boxia' do
+            expect(ce_p1b.countries_hash).to include({'Big Boxia' => [area_big_boxia]})
+          end
+
+          specify 'derived from georeference -> geographic_areas chain - East Boxia' do
+              expect(ce_p1b.countries_hash.keys).to include('East Boxia')
+          end
+
+          specify 'derived from georeference -> geographic_areas chain - East Boxia new and ols names' do
+              expect(ce_p1b.countries_hash['East Boxia']).to include(area_east_boxia_1, area_east_boxia_2)
+          end
+
+          specify 'derived from georeference -> geographic_areas chain - NOT GNLM' do
+            #  'Great Northern Land Mass' contains 'Q', and thus p1b, but is NOT type 'Country'
+          expect(ce_p1b.countries_hash).to_not include({'Great Northern Land Mass' => [area_land_mass]})
+          end
+
+          # specify 'derived from georeference -> geographic_areas chain' do
+          #   list = ce_p1b.countries_hash
+          #   expect(list).to include({'Q' => [area_q]})
+          #   expect(list).to include({'Big Boxia' => [area_big_boxia]})
+          #   expect(list.keys).to include('East Boxia')
+          #   expect(list['East Boxia']).to include(area_east_boxia_1, area_east_boxia_2)
+          #   expect(list).to_not include({'Great Northern Land Mass' => [area_land_mass]})
+          # end
         end
       end
     end
