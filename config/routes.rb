@@ -422,7 +422,7 @@ TaxonWorks::Application.routes.draw do
       get :details
     end
     collection do
-      get :lookup_person
+     # get :lookup_person
       get 'taxon_name_author_autocomplete'
     end
   end

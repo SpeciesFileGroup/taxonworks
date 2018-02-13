@@ -80,17 +80,6 @@ class PeopleController < ApplicationController
 
   def autocomplete
     @people = people
-    data = @people.collect do |t|
-      {id:              t.id,
-       label:           t.name,
-       response_values: {
-           params[:method] => t.id
-       },
-       label_html:     t.name
-      }
-    end
-
-    render json: data
   end
 
   # TODO: Deprecate for autocomplete with params
@@ -106,7 +95,6 @@ class PeopleController < ApplicationController
        label_html: a.cached
       }
     end
-
     render json: data
   end
 
@@ -123,21 +111,6 @@ class PeopleController < ApplicationController
     render json: ROLES
   end
 
-  # TODO: deprecate for autocomplete
-  def lookup_person
-    @people = people
-    render json: @people.collect{|p|
-      {
-        label: p.bibtex_name,
-        object_id: p.id}
-    }
-  end
-
-  def people
-    t = params.require(:term)
-    Person.select("people.*, length(cached) c").where('cached ILIKE ? OR cached ILIKE ? OR cached = ?', "#{t}%", "%#{t}%", t).distinct.order('c ASC', 'cached ASC').limit(50)
-  end
-
   # GET /person/:id/details
   def details
     @person = Person.includes(:roles).find(params[:id])
@@ -145,14 +118,20 @@ class PeopleController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_person
-      @person = Person.find(params[:id])
-      @recent_object = @person
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def person_params
-      params.require(:person).permit(:type, :last_name, :first_name, :suffix, :prefix)
-    end
+  def people
+    t = params.require(:term)
+    Person.select("people.*, length(cached) c").where('cached ILIKE ? OR cached ILIKE ? OR cached = ?', "#{t}%", "%#{t}%", t).distinct.order('c ASC', 'cached ASC').limit(50)
+  end
+
+  # Use callbacks to share common setup or constraints between actions.
+  def set_person
+    @person = Person.find(params[:id])
+    @recent_object = @person
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def person_params
+    params.require(:person).permit(:type, :last_name, :first_name, :suffix, :prefix)
+  end
 end
