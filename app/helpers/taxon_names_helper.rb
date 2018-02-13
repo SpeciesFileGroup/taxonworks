@@ -8,7 +8,7 @@ module TaxonNamesHelper
     taxon_name.cached_html.try(:html_safe) || taxon_name.name
   end
 
-  def autocomplete_tag(taxon_name, term)
+  def taxon_name_autocomplete_tag(taxon_name, term)
     return nil if taxon_name.nil?
     klass = taxon_name.rank_class ? taxon_name.rank_class.nomenclatural_code : nil
 
