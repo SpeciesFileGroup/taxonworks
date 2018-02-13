@@ -1,7 +1,7 @@
 json.array! @taxon_names do |t|
   json.id t.id
   json.label taxon_name_autocomplete_selected_tag(t)
-  json.label_html autocomplete_tag(t, params[:term]) 
+  json.label_html taxon_name_autocomplete_tag(t, params[:term]) 
 
   json.response_values do 
     if params[:method]
