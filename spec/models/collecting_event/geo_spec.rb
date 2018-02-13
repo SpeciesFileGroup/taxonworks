@@ -463,29 +463,34 @@ context 'geopolitical labels' do
 
         context 'derived from georeference in P1B' do
           # @ce_p1 has both geographic_area and georeference; georeference has priority
-          before(:all) do
-            [gr_p1b, area_big_boxia, area_east_boxia_1, area_east_boxia_2].map(&:tap)
-          end
+          # before(:all) do
+          #   [gr_p1b, area_big_boxia, area_east_boxia_1, area_east_boxia_2].map(&:tap)
+          # end
 
           specify 'derived from georeference -> geographic_areas chain - Q' do
+            gr_p1b
             expect(ce_p1b.countries_hash).to include({'Q' => [area_q]})
           end
 
           specify 'derived from georeference -> geographic_areas chain - Big Boxia' do
+            [gr_p1b, area_big_boxia].each { |obj| obj }
             expect(ce_p1b.countries_hash).to include({'Big Boxia' => [area_big_boxia]})
           end
 
           specify 'derived from georeference -> geographic_areas chain - East Boxia' do
-              expect(ce_p1b.countries_hash.keys).to include('East Boxia')
+            [gr_p1b, area_east_boxia_1].each { |obj| obj }
+            expect(ce_p1b.countries_hash.keys).to include('East Boxia')
           end
 
           specify 'derived from georeference -> geographic_areas chain - East Boxia new and ols names' do
-              expect(ce_p1b.countries_hash['East Boxia']).to include(area_east_boxia_1, area_east_boxia_2)
+            [gr_p1b, area_east_boxia_1, area_east_boxia_2].each { |obj| obj }
+            expect(ce_p1b.countries_hash['East Boxia']).to include()
           end
 
           specify 'derived from georeference -> geographic_areas chain - NOT GNLM' do
             #  'Great Northern Land Mass' contains 'Q', and thus p1b, but is NOT type 'Country'
-          expect(ce_p1b.countries_hash).to_not include({'Great Northern Land Mass' => [area_land_mass]})
+            gr_p1b
+            expect(ce_p1b.countries_hash).to_not include({'Great Northern Land Mass' => [area_land_mass]})
           end
 
           # specify 'derived from georeference -> geographic_areas chain' do
