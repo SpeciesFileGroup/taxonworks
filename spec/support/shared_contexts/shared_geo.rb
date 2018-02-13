@@ -695,8 +695,6 @@ shared_context 'stuff for complex geo tests' do
     let(:item_c) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::BOX_3) } # 59
     let(:item_d) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::BOX_4) } # 60
 
-    b = FactoryBot.build(:geographic_item_polygon, polygon: GeoBuild::SHAPE_B.as_binary) # 27
-
     let(:ce_p1) { FactoryBot.create(:collecting_event, verbatim_label: '@ce_p1 collect_event test') }
 
     let(:gr01) { FactoryBot.create(:georeference_verbatim_data,
@@ -758,6 +756,126 @@ shared_context 'stuff for complex geo tests' do
                                     error_geographic_item: item_n3,
                                     geographic_item:       GeographicItem.new(point: item_n3.st_centroid)) }
     let(:co_n3) { FactoryBot.create(:valid_collection_object, {collecting_event: ce_n3}) }
+
+    begin # build the collecting event for an object in P1(B), part of Big Boxia
+      let(:ce_p1b) { FactoryBot.create(:collecting_event,
+                                       start_date_year:  1974,
+                                       start_date_month: 4,
+                                       start_date_day:   4,
+                                       verbatim_label:   '@ce_p1b',
+                                       geographic_area:  area_p1b) }
+      let(:co_p1b) { FactoryBot.create(:valid_collection_object, {collecting_event: ce_p1b}) }
+      let(:gr_p1b) { FactoryBot.create(:georeference_verbatim_data,
+                                       api_request:           'gr_p1b',
+                                       collecting_event:      ce_p1b,
+                                       error_geographic_item: item_p1b,
+                                       geographic_item:       GeographicItem.new(point: item_p1b.st_centroid)) }
+      let(:area_land_mass) {
+        area = FactoryBot.create(:level0_geographic_area,
+                                 name:                 'Great Northern Land Mass',
+                                 geographic_area_type: land_mass_gat,
+                                 iso_3166_a3:          nil,
+                                 iso_3166_a2:          nil,
+                                 parent:               earth)
+        area.geographic_items << item_w
+        area.save!
+        area
+      }
+      let(:area_p1b) {
+        area        = FactoryBot.create(:level2_geographic_area,
+                                        name:                 'P1B',
+                                        geographic_area_type: parish_gat,
+                                        parent:               area_u)
+        area.level0 = area_u
+        area.geographic_items << item_p1b
+        area.save!
+        area
+      }
+      let(:area_u) {
+        area = FactoryBot.create(:level1_geographic_area,
+                                 name:                 'QU',
+                                 tdwgID:               nil,
+                                 geographic_area_type: state_gat,
+                                 parent:               area_q)
+        area.geographic_items << item_u
+        area.save!
+        area
+      }
+      let(:area_q) {
+        area = FactoryBot.create(:level0_geographic_area,
+                                 name:                 'Q',
+                                 geographic_area_type: country_gat,
+                                 iso_3166_a3:          'QQQ',
+                                 iso_3166_a2:          'QQ',
+                                 parent:               area_land_mass)
+        area.geographic_items << item_q
+        area.save!
+        area
+      }
+      let(:area_east_boxia_1) {
+        area = FactoryBot.create(:level0_geographic_area,
+                                 name:                 'East Boxia',
+                                 geographic_area_type: country_gat,
+                                 iso_3166_a3:          'EB1',
+                                 iso_3166_a2:          nil,
+                                 parent:               area_land_mass)
+        area.geographic_items << item_eb_1
+        area.save!
+        area
+      }
+      let(:area_east_boxia_2) {
+        area = FactoryBot.create(:level0_geographic_area,
+                                 name:                 'East Boxia',
+                                 geographic_area_type: country_gat,
+                                 iso_3166_a3:          'EB2',
+                                 iso_3166_a2:          nil,
+                                 parent:               area_land_mass)
+        area.geographic_items << item_eb_2
+        area.save!
+        area
+      }
+      let(:area_big_boxia) {
+        area = FactoryBot.create(:level0_geographic_area,
+                                 name:                 'Big Boxia',
+                                 geographic_area_type: country_gat,
+                                 iso_3166_a3:          nil,
+                                 iso_3166_a2:          nil,
+                                 parent:               area_land_mass)
+        area.geographic_items << item_bb
+        area.save!
+        area
+      }
+
+      let(:shape_p1b) { GeoBuild.make_box(GeoBuild::POINT_M1_P0, 3, 0, 1, 1) }
+      let(:shape_q) { GeoBuild.make_box(shape_m1[0].exterior_ring.points[0], 0, 0, 4, 2) }
+      let(:shape_m1) { GeoBuild.make_box(GeoBuild::POINT_M1_P0, 0, 0, 1, 1) }
+      let(:shape_ob) { GeoBuild.make_box(GeoBuild::POINT_M1_P0, 0, 0, 2, 4) }
+      let(:shape_eb_1) { GeoBuild.make_box(GeoBuild::POINT_M1_P0, 3, 0, 1, 4) }
+      let(:shape_eb_2) { GeoBuild.make_box(GeoBuild::POINT_M1_P0, 2, 0, 2, 2) }
+      let(:shape_wb) { GeoBuild.make_box(GeoBuild::POINT_M1_P0, 0, 0, 1, 4) }
+      let(:shape_w) { GeoBuild.make_box(GeoBuild::POINT_M1_P0, 0, 0, 4, 4) }
+      let(:shape_u) { GeoBuild.make_box(shape_o1[0].exterior_ring.points[0], 0, 0, 2, 2) }
+      let(:shape_o1) { GeoBuild.make_box(GeoBuild::POINT_M1_P0, 2, 0, 1, 1) }
+
+
+      # secondary country shapes
+      # same shape as Q, different object
+      let(:item_bb) { FactoryBot.create(:geographic_item, multi_polygon: shape_q) }
+
+      # superseded country shapes
+      let(:item_q) { FactoryBot.create(:geographic_item, multi_polygon: shape_q) }
+      let(:item_u) { FactoryBot.create(:geographic_item, multi_polygon: shape_u) }
+      let(:item_ob) { FactoryBot.create(:geographic_item, multi_polygon: shape_ob) }
+      let(:item_eb_1) { FactoryBot.create(:geographic_item, multi_polygon: shape_eb_1) }
+      let(:item_eb_2) { FactoryBot.create(:geographic_item, multi_polygon: shape_eb_2) }
+      let(:item_wb) { FactoryBot.create(:geographic_item, multi_polygon: shape_wb) }
+      let(:item_p1b) { FactoryBot.create(:geographic_item, multi_polygon: shape_p1b) }
+
+      # the entire land mass
+      let(:item_w) { FactoryBot.create(:geographic_item, multi_polygon: shape_w) }
+    end
+
+    b = FactoryBot.build(:geographic_item_polygon, polygon: GeoBuild::SHAPE_B.as_binary) # 27
 
   end
 # before {
@@ -1107,3 +1225,119 @@ shared_context 'stuff for complex geo tests' do
   end
   # rubocop:enable Metrics/MethodLength
 end
+
+=begin
+
+4 by 4 matrix of squares:
+
+* Q, R, and S are level 0 spaces, i.e., 'Country'.
+* M3 through P4, T and U are level 1 spaces, i.e., 'State (Province)'.
+* M1 through P2 are level 2 spaces, i.e., 'County (Parish)'.
+* M1-upper_left is at (33, 28).
+
+* Great Northern Land Mass overlays Q, R, and S.
+
+!!!! 0,0 = 33, 28 !!!!
+
+|------|------|------|------| |------|------|------|------|
+|      |      |      |      | |                           |
+|  M1  |  N1  |  O1  |  P1  | |                           |
+|      |      |      |      | |                           |
+|------|------|------|------| |                           |
+|      |      |      |      | |                           |
+|  M2  |  N2  |  O2  |  P2  | |                           |
+|      |      |      |      | |                           |
+|------|------|------|------| | Great Northern Land Mass  |
+|      |      |      |      | |                           |
+|  M3  |  N3  |  O3  |  P3  | |                           |
+|      |      |      |      | |                           |
+|------|------|------|------| |                           |
+|      |      |      |      | |                           |
+|  M4  |  N4  |  O4  |  P4  | |                           |
+|      |      |      |      | |                           |
+|------|------|------|------| |------|------|------|------|
+
+Big Boxia overlays Q
+
+|------|------|------|------| |------|------|------|------|
+|                           | |             |             |
+|                           | |             |             |
+|                           | |             |             |
+|       Q, aka Big Boxia    | |     QT      |     QU      |
+|                           | |             |             |
+|                           | |             |             |
+|                           | |             |             |
+|------|------|------|------| |------|------|------|------|
+|             |             | |      |      |      |      |
+|             |             | | RM3  | RN3  | SO3  | SP3  |
+|             |             | |      |      |      |      |
+|      R      |      S      | |------|------|------|------|
+|             |             | |      |      |      |      |
+|             |             | | RM4  | RN4  | SO4  | SP4  |
+|             |             | |      |      |      |      |
+|------|------|------|------| |------|------|------|------|
+
+|------|------|------|------| -
+|      |      |      |      | |
+| QTM1 | QTN1 | QUO1 | QUP1 | |
+|      |      |      |      | |
+|------|------|------|------| | <== Big Boxia overlays Q
+|      |      |      |      | |
+| QTM2 | QTN2 | QUO2 | QUP2 | |
+|      |      |      |      | |
+|------|------|------|------| -
+|      |      |      |      |
+| RM3  | RN3  | SO3  | SP3  |
+|      |      |      |      |
+|------|------|------|------|
+|      |      |      |      |
+| RM4  | RN4  | SO4  | SP4  |
+|      |      |      |      |
+|------|------|------|------|
+
+     /\
+     ||
+
+Old Boxia overlays R, and western Q.
+
+|------|------|------|------| |------|------|------|------|
+|             |      |      | |      |      |      |      |
+|             |  O1  |  P1  | |      | QTN1 | QUO1 |      |
+|             |      |      | |      |      |      |      |
+|             |------|------| |      |------|------|      |
+|             |      |      | |      |      |      |      |
+|             |  O2  |  P2  | |      | QTN2 | QUO2 |      |
+|     Old     |      |      | | West |      |      | East |
+|    Boxia    |------|------| |Boxia |------|------|Boxia |
+|             |      |      | |      |      |      |      |
+|             |  O3  |  P3  | |      | RN3  | SO3  |      |
+|             |      |      | |      |      |      |      |
+|             |------|------| |      |------|------|      |
+|             |      |      | |      |      |      |      |
+|             |  O4  |  P4  | |      | RN4  | SO4  |      |
+|             |      |      | |      |      |      |      |
+|------|------|------|------| |------|------|------|------|
+
+Two different shapes with the same name, 'East Boxia', and
+'East Boxia' (the square) is also listed as a state in
+'Old Boxia'.
+
+|------|------|------|------| |------|------|------|------|
+|      |      |      |      | |      |      |             |
+|  M1  |  N1  |  O1  |      | | QTM1 | QTN1 |             |
+|      |      |      |      | |      |      |     East    |
+|------|------|------|      | |------|------|    Boxia    |
+|      |      |      |      | |      |      |             |
+|  M2  |  N2  |  O2  |      | | QTM2 | QTN2 |             |
+|      |      |      | East | |      |      |             |
+|------|------|------|Boxia | |------|------|------|------|
+|      |      |      |      | |      |      |      |      |
+|  M3  |  N3  |  O3  |      | | RM3  | RN3  | SO3  | SP3  |
+|      |      |      |      | |      |      |      |      |
+|------|------|------|      | |------|------|------|------|
+|      |      |      |      | |      |      |      |      |
+|  M4  |  N4  |  O4  |      | | RM4  | RN4  | SO4  | SP4  |
+|      |      |      |      | |      |      |      |      |
+|------|------|------|------| |------|------|------|------|
+
+=end
