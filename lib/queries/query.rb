@@ -107,7 +107,7 @@ class Queries::Query
   #  Used in *unordered* AND searchs 
   def fragments
     a = alphabetic_strings
-    if a.size > 1 && a.size < 6
+    if a.size > 0 && a.size < 6
       a.collect{|a| "%#{a}%"}
     else
       []

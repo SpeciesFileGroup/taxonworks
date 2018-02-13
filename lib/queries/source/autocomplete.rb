@@ -53,7 +53,7 @@ module Queries
 
       # @return [ActiveRecord::Relation]
       #   author matches partial string 
-      def autocomplete_wildcard_pieces
+      def autocomplete_ordered_wildcard_pieces
         base_query.where(match_ordered_wildcard_pieces.to_sql).limit(5) 
       end 
 
@@ -176,8 +176,8 @@ module Queries
           autocomplete_exact_author_year_letter,
           autocomplete_exact_author_year,
           autocomplete_wildcard_author_exact_year,
-          autocomplete_wildcard_pieces,
           autocomplete_wildcard_anywhere_exact_year,
+          autocomplete_ordered_wildcard_pieces,
           autocomplete_wildcard_anywhere
         ]
 
@@ -206,23 +206,6 @@ module Queries
       def project_sources_table
         ProjectSource.arel_table
       end
-
-      # def author_roles_table 
-      #   AuthorRole.arel_table
-      # end 
-
-      # def authors_table
-      #   Person.arel_table
-      # end 
-
-      # def authors_join
-      #   table.join(author_roles_table).on(
-      #     table[:id].eq(author_roles[:role_object_id]),
-      #     author_roles[:role_object_type].eq('Author')
-      #   ).join(authors_table).on(
-      #     author_roles[:person_id].eq(authors_table[:id])
-      #   )
-      # end
     end
   end
 end
