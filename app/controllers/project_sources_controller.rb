@@ -30,6 +30,7 @@ class ProjectSourcesController < ApplicationController
     render :create # same code
   end
 
+  # TODO: deprecate for sources autocomplete
   def autocomplete
     @sources =  Queries::SourceFilterQuery.new(params[:term], project_id: sessions_current_project_id).by_project_all.limit(50)
     data     = @sources.collect do |t|
