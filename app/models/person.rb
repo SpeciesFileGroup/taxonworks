@@ -1,4 +1,5 @@
-# A human. Data only, not users. There are two classes of people: vetted and unvetted.
+# A human. Data only, not users. There are two classes of people: vetted and unvetted.  
+# !! People are only related to data via Roles. 
 #
 # A vetted person
 # * Has two or more roles
@@ -27,6 +28,22 @@
 #   @return [String]
 #   string following the *last/family* name
 #
+# @!attribute year_active_start 
+#   @return [Integer]
+#     (rough) starting point of when person made scientific assertions that were dissemenated (i.e. could be seen by others) 
+#
+# @!attribute year_active_end
+#   @return [Integer]
+#     (rough) ending point of when person made scientific assertions that were dissemenated (i.e. could be seen by others) 
+#
+# @!attribute year_born
+#   @return [Integer]
+#     born on 
+#
+## @!attribute year_died
+#   @return [Integer]
+#     year died 
+#
 # @!attribute cached
 #   @return [String]
 #      full name 
@@ -44,12 +61,24 @@ class Person < ApplicationRecord
 
   ALTERNATE_VALUES_FOR = [:last_name, :first_name].freeze
 
-  validates_presence_of :last_name, :type
-  before_validation :set_type_if_blank
-
   # @return [Boolean]
   #   When true cached values are not built
   attr_accessor :no_cached
+
+  validates_presence_of :last_name, :type
+
+  validates :year_born, inclusion: { in: 0..Date.today.year }, allow_nil: true
+  validates :year_died, inclusion: { in: 0..Date.today.year }, allow_nil: true
+  validates :year_active_start, inclusion: { in: 0..Date.today.year }, allow_nil: true
+  validates :year_active_end, inclusion: { in: 0..Date.today.year }, allow_nil: true
+            
+  validate :died_after_born
+  validate :activity_ended_after_started
+  validate :not_active_after_death
+  validate :not_active_before_birth
+  validate :not_gandalf
+
+  before_validation :set_type_if_blank
 
   after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
 
@@ -81,6 +110,12 @@ class Person < ApplicationRecord
   scope :created_before, -> (time) { where('created_at < ?', time) }
   scope :with_role, -> (role) { includes(:roles).where(roles: {type: role}) }
   scope :ordered_by_last_name, -> { order(:last_name) }
+
+  # @return [Boolean]
+  #   !! overwrites IsData#is_in_use?
+  def is_in_use?
+    roles.any?
+  end
 
   def name
     [first_name, prefix, last_name, suffix].compact.join(' ')
@@ -160,6 +195,28 @@ class Person < ApplicationRecord
   end
 
   protected
+
+  def died_after_born
+    errors.add(:year_born, 'is older than died year') if year_born && year_died && year_born > year_died
+  end
+
+  def activity_ended_after_started
+    errors.add(:year_active_start, 'is older than died year') if year_active_start && year_active_end && year_active_start > year_active_end
+  end
+
+  def not_active_after_death
+    errors.add(:year_active_start, 'is older than year of death') if year_active_start && year_died && year_active_start > year_died
+    errors.add(:year_active_end, 'is older than year of death') if year_active_end && year_died && year_active_end > year_died
+  end
+
+  def not_active_before_birth
+    errors.add(:year_active_start, 'is younger than than year of birth') if year_active_start && year_born && year_active_start < year_born
+    errors.add(:year_active_end, 'is younger than year of birth') if year_active_end && year_born && year_active_end < year_born
+  end
+
+  def not_gandalf
+    errors.add(:base, 'fountain of eternal life does not exist yet') if year_born && year_died && year_died - year_born > 117
+  end
 
   # TODO: deprecate this, always set explicitly
   def set_type_if_blank

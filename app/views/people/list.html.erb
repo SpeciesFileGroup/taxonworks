@@ -8,6 +8,10 @@
     <%= fancy_th_tag(name: 'First name') -%>
     <%= fancy_th_tag(name: 'Suffix') -%>
     <%= fancy_th_tag(name: 'Prefix') -%>
+    <%= fancy_th_tag(name: 'Year born', group: 'year') -%>
+    <%= fancy_th_tag(name: 'Year died', group: 'year') -%>
+    <%= fancy_th_tag(name: 'Year active start', group: 'year') -%>
+    <%= fancy_th_tag(name: 'Year active end', group: 'year') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
@@ -21,6 +25,10 @@
           <td><%= person.first_name %></td>
           <td><%= person.suffix %></td>
           <td><%= person.prefix %></td>
+          <td><%= person.year_born %></td>
+          <td><%= person.year_died %> </td>
+          <td><%= person.year_active_start %></td>
+          <td><%= person.year_active_end %></td>
           <%= fancy_metadata_cells_tag(person) -%>
       <% end %>
   <% end %>

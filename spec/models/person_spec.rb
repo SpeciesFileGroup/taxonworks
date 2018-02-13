@@ -2,7 +2,8 @@ require 'rails_helper'
 
 describe Person, type: :model do
 
-  let(:person) { FactoryBot.build(:person) }
+  let(:person) { Person.new }
+  
   let(:source_bibtex) {
     FactoryBot.create(:valid_source_bibtex)
   }
@@ -10,11 +11,28 @@ describe Person, type: :model do
     FactoryBot.create(:valid_source_human)
   }
 
+  context 'used?' do
+    before do
+      person.last_name = 'Smith'
+      person.save!
+    end
+
+    specify '#is_in_use? 1' do
+      expect(person.is_in_use?).to be_falsey
+    end
+
+    specify '#is_in_use? 2' do
+      c = FactoryBot.create(:valid_collecting_event)
+      c.collectors << person
+      expect(person.is_in_use?).to be_truthy
+    end
+  end
+
   context 'validation' do
     before do
       person.valid?
     end
-
+    
     specify 'last_name is required' do
       expect(person.errors.keys).to include(:last_name)
     end
@@ -32,6 +50,49 @@ describe Person, type: :model do
       person.valid?
       expect(person.errors.include?(:type)).to be_truthy 
     end
+  end
+
+  context 'years' do
+    before { person.year_died = 1920 }
+    specify 'died after birth' do
+      person.year_born = 1930
+      person.valid?
+      expect(person.errors.include?(:year_born)).to be_truthy
+    end
+
+    specify 'not active after death - active start' do
+      person.year_active_start = 1930
+      person.valid?
+      expect(person.errors.include?(:year_active_start)).to be_truthy
+    end
+
+    specify 'not active after death - active end' do
+      person.year_active_end = 1930
+      person.valid?
+      expect(person.errors.include?(:year_active_end)).to be_truthy
+    end
+
+    specify 'not active before birth - active start' do
+      person.year_born = 1920
+      person.year_active_start = 1890
+      person.valid?
+      expect(person.errors.include?(:year_active_start)).to be_truthy
+    end
+
+    specify 'not active before birth - active end' do
+      person.year_born = 1920
+      person.year_active_end = 1890
+      person.valid?
+      expect(person.errors.include?(:year_active_end)).to be_truthy
+    end
+
+    specify 'lifespan' do
+      person.year_born = 1900
+      person.year_died = 2018
+      person.valid?
+      expect(person.errors.include?(:base)).to be_truthy
+    end
+
   end
 
   context 'instance methods' do
