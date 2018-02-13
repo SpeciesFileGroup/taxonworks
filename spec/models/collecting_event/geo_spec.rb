@@ -280,48 +280,48 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
         context 'geolocate_ui_params' do
           specify 'geolocate_ui_params from locality' do
             # @ce_n3 was built with locality, with no verbatim_lat/long
-            expect(ce_n3.geolocate_ui_params).to eq({'country'       => 'Old Boxia',
-                                                      'state'         => 'N3',
-                                                      'county'        => nil,
-                                                      'locality'      => 'Greater Boxia Lake',
-                                                      'Latitude'      => 25.5,
-                                                      'Longitude'     => 34.5,
-                                                      'Placename'     => 'Greater Boxia Lake',
-                                                      'Score'         => '0',
-                                                      'Uncertainty'   => '3',
-                                                      'H20'           => 'false',
-                                                      'HwyX'          => 'false',
-                                                      'Uncert'        => 'true',
-                                                      'Poly'          => 'true',
-                                                      'DisplacePoly'  => 'false',
-                                                      'RestrictAdmin' => 'false',
-                                                      'BG'            => 'false',
-                                                      'LanguageIndex' => '0',
-                                                      'gc'            => 'Tester'
-                                                     })
+            expect(ce_a.geolocate_ui_params).to eq({'country'       => 'E',
+                                                    'state'         => 'A',
+                                                    'county'        => nil,
+                                                    'locality'      => 'environs of A',
+                                                    'Latitude'      => 5.0,
+                                                    'Longitude'     => 5.0,
+                                                    'Placename'     => 'environs of A',
+                                                    'Score'         => '0',
+                                                    'Uncertainty'   => '3',
+                                                    'H20'           => 'false',
+                                                    'HwyX'          => 'false',
+                                                    'Uncert'        => 'true',
+                                                    'Poly'          => 'true',
+                                                    'DisplacePoly'  => 'false',
+                                                    'RestrictAdmin' => 'false',
+                                                    'BG'            => 'false',
+                                                    'LanguageIndex' => '0',
+                                                    'gc'            => 'Tester'
+                                                   })
           end
 
           specify 'geolocate_ui_params from lat/long' do
             # @ce_m1.georeference was built from verbatim data; no locality
-            expect(@ce_m1.geolocate_ui_params).to eq({'country'       => 'Big Boxia',
-                                                      'state'         => 'QT',
-                                                      'county'        => 'M1',
-                                                      'locality'      => 'Lesser Boxia Lake',
-                                                      'Latitude'      => 27.5,
-                                                      'Longitude'     => 33.5,
-                                                      'Placename'     => 'Lesser Boxia Lake',
-                                                      'Score'         => '0',
-                                                      'Uncertainty'   => '3',
-                                                      'H20'           => 'false',
-                                                      'HwyX'          => 'false',
-                                                      'Uncert'        => 'true',
-                                                      'Poly'          => 'true',
-                                                      'DisplacePoly'  => 'false',
-                                                      'RestrictAdmin' => 'false',
-                                                      'BG'            => 'false',
-                                                      'LanguageIndex' => '0',
-                                                      'gc'            => 'Tester'
-                                                     })
+            expect(ce_b.geolocate_ui_params).to eq({'country'       => 'E',
+                                                    'state'         => nil,
+                                                    'county'        => 'B',
+                                                    'locality'      => 'environs of B',
+                                                    'Latitude'      => -5.0,
+                                                    'Longitude'     => 5.0,
+                                                    'Placename'     => 'environs of B',
+                                                    'Score'         => '0',
+                                                    'Uncertainty'   => '3',
+                                                    'H20'           => 'false',
+                                                    'HwyX'          => 'false',
+                                                    'Uncert'        => 'true',
+                                                    'Poly'          => 'true',
+                                                    'DisplacePoly'  => 'false',
+                                                    'RestrictAdmin' => 'false',
+                                                    'BG'            => 'false',
+                                                    'LanguageIndex' => '0',
+                                                    'gc'            => 'Tester'
+                                                   })
           end
         end
 
@@ -329,17 +329,22 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
 
           specify 'geolocate_ui_params_string from locality' do
             #pending 'creation of a method for geolocate_ui_params_string'
-            expect(@ce_n3.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/' \
-                                                  'webgeoreflight.aspx?country=Old Boxia&state=N3&county=&' \
-                                                  'locality=Greater Boxia Lake&points=25.5|34.5|Greater Boxia ' \
-                                                  'Lake|0|3&georef=run|false|false|true|true|false|false' \
-                                                  '|false|0&gc=Tester')
+            expect(ce_a.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/' \
+                                                          'webgeoreflight.aspx?country=E&state=A' \
+                                                          '&county=&locality=environs of A' \
+                                                          '&points=5.0|5.0|environs of A|0|3' \
+                                                          '&georef=run|false|false|true|true|false|false|false|0' \
+                                                          '&gc=Tester')
           end
 
           specify 'geolocate_ui_params_string from lat/long' do
             #pending 'creation of a method for geolocate_ui_params_string'
             expect(ce_b.geolocate_ui_params_string).to eq('http://www.museum.tulane.edu/geolocate/web/' \
-                                                          'webgeoreflight.aspx?country=Big Boxia&state=QT&county=M1&locality=Lesser Boxia Lake&points=27.5|33.5|Lesser Boxia Lake|0|3&georef=run|false|false|true|true|false|false|false|0&gc=Tester')
+                                                          'webgeoreflight.aspx?country=E&state=' \
+                                                          '&county=B&locality=environs of B' \
+                                                          '&points=-5.0|5.0|environs of B|0|3' \
+                                                          '&georef=run|false|false|true|true|false|false|false|0' \
+                                                          '&gc=Tester')
           end
         end
       end
@@ -360,7 +365,6 @@ end
 
 context 'georeferences' do
   context 'verbatim georeferences using with_verbatim_data_georeference: true' do
-
     context 'on new()' do
       specify 'creates a verbatim georeference using new()' do
         c = CollectingEvent.new(verbatim_latitude: '10.001', verbatim_longitude: '10', project: @project, with_verbatim_data_georeference: true)
@@ -423,45 +427,46 @@ context 'georeferences' do
 end
 
 context 'geopolitical labels' do
+  include_context 'stuff for complex geo tests'
 
   context 'countries' do
     context 'should return hash of the country with #countries_hash' do
       context 'when one possible name is present' do
         specify 'derived from geographic_area_chain' do
           # @ce_o3 has no georeference, so the only way to 'S' is through geographic_area
-          list = @ce_o3.countries_hash
-          expect(list).to include({'S' => [@area_s]})
-          expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
+          list = ce_area_v.countries_hash
+          expect(list).to include({'E' => [area_e]})
+          expect(list).to_not include({'A' => [area_a]})
         end
         specify 'derived from georeference -> geographic_areas chain' do
+          [gr_p4, area_c, area_r2].each { |obj| obj }
           # @ce_p4 has no geographic_area, so the only way to 'S' is through georeference
-          list = @ce_p4.countries_hash
-          expect(list).to include({'S' => [@area_s]})
-          expect(list).to include({'East Boxia' => [@area_east_boxia_1]})
-          expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
+          list = ce_p4.countries_hash
+          expect(list).to include({'C' => [area_c]})
+          expect(list).to_not include({'A' => [area_a]})
         end
       end
 
       context 'when more than one possible name is present' do
         specify 'derived from geographic_area_chain' do
-          # 'Q' is synonymous with 'Big Boxia'
-          # @ce_n1 has no georeference, so the only way to 'Q' is through geographic_area
-          list = @ce_n1.countries_hash
-          expect(list).to include({'Q' => [@area_q]})
-          expect(list).to include({'Old Boxia' => [@area_old_boxia]})
-          expect(list).to include({'Big Boxia' => [@area_big_boxia]})
+          [err_b, area_e, area_l2].each { |obj| obj }
+          # 'E' is synonymous with 'R2'
+          # ce_n1 has no georeference, so the only way to 'E' is through geographic_area
+          list = ce_n1.countries_hash
+          expect(list).to include({'E' => [area_e]})
+          expect(list).to include({'R2' => [area_r2]})
           #  'Great Northern Land Mass' contains 'Q', and thus m1, but is NOT type 'Country'
-          expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
+          expect(list).to_not include({'L2' => [area_l2]})
         end
         specify 'derived from georeference -> geographic_areas chain' do
           # @ce_p1 has both geographic_area and georeference; georeference has priority
-          list = @ce_p1.countries_hash
-          expect(list).to include({'Q' => [@area_q]})
-          expect(list).to include({'Big Boxia' => [@area_big_boxia]})
+          list = ce_p1.countries_hash
+          expect(list).to include({'Q' => [area_q]})
+          expect(list).to include({'Big Boxia' => [area_big_boxia]})
           expect(list.keys).to include('East Boxia')
-          expect(list['East Boxia']).to include(@area_east_boxia_1, @area_east_boxia_2)
+          expect(list['East Boxia']).to include(area_east_boxia_1, area_east_boxia_2)
           #  'Great Northern Land Mass' contains 'Q', and thus p1, but is NOT type 'Country'
-          expect(list).to_not include({'Great Northern Land Mass' => [@area_land_mass]})
+          expect(list).to_not include({'F' => [area_f]})
         end
       end
     end
@@ -470,7 +475,7 @@ context 'geopolitical labels' do
       context 'derivation priority' do
         specify 'it should return nil when no georeference or CollectingEvent#geographic_area_id is present' do
           # @ce_v is the right CE for this test.
-          expect(@ce_v.country_name).to be_nil
+          expect(ce_area_v.country_name).to be_nil
         end
         specify 'it should return the value derived from the georeference "chain" if both present' do
           # @ce_o1 has a GR, and a GA, and leads to 'Big Boxia', 'East Boxia', and 'Q'
