@@ -213,15 +213,6 @@ class Source < ApplicationRecord
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
 
-  def reject_project_sources(attributed)
-    return true if attributed['project_id'].blank?
-    return true if ProjectSource.where(project_id: attributed['project_id'], source_id: id).any?
-  end
-
-  def cited_objects
-    self.citations.collect { |t| t.citation_object }
-  end
-
   # Create a new Source instance from a full text citatation.  By default
   # try to resolve the citation against Crossref, use the returned
   # bibtex to populate the object if it successfully resolves.
@@ -305,13 +296,29 @@ class Source < ApplicationRecord
     return {records: sources, count: valid}
   end
 
+  # @return [Array]
+  #    objects this source is linked to through citations
+  def cited_objects
+    self.citations.collect { |t| t.citation_object }
+  end
+
   def is_bibtex?
     type == 'Source::Bibtex'
   end
 
+  # @return [Boolean]
+  def is_in_project?(project_id)
+    projects.where(id: project_id).any?
+  end
+
   protected
 
-  # in subclasses
+  def reject_project_sources(attributed)
+    return true if attributed['project_id'].blank?
+    return true if ProjectSource.where(project_id: attributed['project_id'], source_id: id).any?
+  end
+
+  # Defined in subclasses
   def set_cached
   end
 

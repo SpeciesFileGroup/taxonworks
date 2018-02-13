@@ -95,6 +95,7 @@ class SourcesController < ApplicationController
       params.require(:term),
       autocomplete_params
     ).autocomplete
+
   end
 
   def autocomplete_params
