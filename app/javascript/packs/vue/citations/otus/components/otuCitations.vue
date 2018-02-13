@@ -6,11 +6,9 @@
     <ul class="slide-panel-category-content">
       <li
         v-for="item in items"
+        @click="setSource(item)"
         class="flex-separate middle slide-panel-category-item">
         <span v-html="item.source.object_tag"/>
-        <div
-          class="circle-button btn-delete"
-          @click="removeCitation(item)"/>
       </li>
     </ul>
   </div>
@@ -31,6 +29,11 @@ export default {
       this.$http.delete('/citations/' + item.id).then(() => {
         this.$store.commit(MutationNames.RemoveOtuFormCitationList, item.id)
         this.$store.commit(MutationNames.RemoveSourceFormCitationList, item.id)
+      })
+    },
+    setSource(item) {
+      this.$http.get(`/sources/${item.source.id}`).then(response => {
+        this.$store.commit(MutationNames.SetSourceSelected, response.body)
       })
     }
   }
