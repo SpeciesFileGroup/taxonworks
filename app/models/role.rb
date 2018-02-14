@@ -50,6 +50,7 @@ class Role < ApplicationRecord
 
   def vet_person
     if Role.where(person_id: person_id).any?
+      c = Role.where(person_id: person_id).count 
       p = Person.find(person_id)
       y = role_object.try(:year)
       y ||= role_object.try(:year_of_publication)
@@ -59,7 +60,7 @@ class Role < ApplicationRecord
 
       begin
         p.update(
-          type: 'Person::Vetted',
+          type: (c > 1 ? 'Person::Vetted' : 'Person::Unvetted'),
           year_active_end: yae, 
           year_active_start: yas
         )
