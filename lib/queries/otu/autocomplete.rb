@@ -11,7 +11,7 @@ module Queries
   #
 
   # Lots of optimization possible, at minimum this is nice for nested OR
-  class OtuAutocompleteQuery < Queries::Query
+  class Otu::Autocomplete < Queries::Query
 
     def where_sql
       with_project_id.and(or_clauses).to_sql
@@ -35,15 +35,15 @@ module Queries
     # @return [Scope]
     def all
       # For references, this is equivalent: Otu.eager_load(:taxon_name).where(where_sql)
-      Otu.includes(:taxon_name).where(where_sql).references(:taxon_names).order(name: :asc).limit(50).order('taxon_names.cached ASC')
+      ::Otu.includes(:taxon_name).where(where_sql).references(:taxon_names).order(name: :asc).limit(50).order('taxon_names.cached ASC')
     end
 
     def taxon_name_table
-      TaxonName.arel_table
+      ::TaxonName.arel_table
     end
 
     def table
-      Otu.arel_table
+      ::Otu.arel_table
     end
 
     def taxon_name_named

@@ -1,5 +1,4 @@
 module Queries
-
   # noinspection RubyTooManyInstanceVariablesInspection,RubyResolve
   class CollectionObjectFilterQuery < Queries::Query
 
@@ -9,8 +8,7 @@ module Queries
     attr_accessor :query_otu_id, :query_otu_descendants
     attr_accessor :query_id_namespace, :query_range_start, :query_range_stop
     attr_accessor :query_user, :query_date_type_select,
-                  :query_user_date_range_end, :query_user_date_range_start
-
+      :query_user_date_range_end, :query_user_date_range_start
 
     # Resolved/processed results
     attr_accessor :start_date, :end_date, :user_date_start, :user_date_end
@@ -76,7 +74,7 @@ module Queries
     # @return [Scope]
     def otu_scope
       # Challenge: Refactor to use a join pattern instead of SELECT IN
-      inner_scope = with_descendants? ? Otu.self_and_descendants_of(query_otu_id) : Otu.where(id: query_otu_id)
+      inner_scope = with_descendants? ? ::Otu.self_and_descendants_of(query_otu_id) : ::Otu.where(id: query_otu_id)
       CollectionObject.joins(:otus).where(otus: {id: inner_scope})
     end
 
@@ -117,22 +115,22 @@ module Queries
       @user_date_end                   += ' 23:59:59' # and end of date days
 
       scope = case query_date_type_select
-                when 'created_at', nil
-                  CollectionObject.created_in_date_range(@user_date_start, @user_date_end)
-                when 'updated_at'
-                  CollectionObject.updated_in_date_range(@user_date_start, @user_date_end)
-                else
-                  CollectionObject.all
+              when 'created_at', nil
+                CollectionObject.created_in_date_range(@user_date_start, @user_date_end)
+              when 'updated_at'
+                CollectionObject.updated_in_date_range(@user_date_start, @user_date_end)
+              else
+                CollectionObject.all
               end
 
       unless query_user == 'All users' || query_user == 0
         user_id = User.get_user_id(query_user)
         scope   = case query_date_type_select
-                    when 'created_at'
-                      # noinspection RubyResolve
-                      scope.created_by_user(user_id)
-                    when 'updated_at'
-                      scope.updated_by_user(user_id)
+                  when 'created_at'
+                    # noinspection RubyResolve
+                    scope.created_by_user(user_id)
+                  when 'updated_at'
+                    scope.updated_by_user(user_id)
                   end
       end
       scope
