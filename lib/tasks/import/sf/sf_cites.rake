@@ -229,7 +229,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
               # @todo: Test if OTU exists? Add citation to OTU? Also add notes, nomenclator, tags, confidences?
               sf_taxon_name_id = row['TaxonNameID']
-              if get_tw_otu_id.has_key?(sf_taxon_name_id)
+              if get_tw_otu_id[sf_taxon_name_id]
                 logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} created as OTU (otu_only_counter = #{otu_only_counter += 1})"
                 # otu_id = get_tw_otu_id[sf_taxon_name_id]
                 # create_otu_cite(logger, row, otu_id)
@@ -292,7 +292,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
               citation.update(metadata.merge(pages: cite_pages))
               logger.info "Citation found: citation.id = #{citation.id}, taxon_name_id = #{taxon_name_id}, cite_pages = '#{cite_pages}' (cite_found_counter = #{cite_found_counter += 1})"
 
-              if get_containing_source_id.has_key?(source_id.to_s) # create taxon_name_author role for contained Refs only
+              if get_containing_source_id[source_id.to_s] # create taxon_name_author role for contained Refs only
 
                 # byebug
 
@@ -303,12 +303,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                       type: 'TaxonNameAuthor',
                       role_object_id: taxon_name_id,
                       role_object_type: 'TaxonName',
-                      # position: row['SeqNum'],
                       project_id: project_id, # role is project_role
-                  # created_at: row['CreatedOn'],
-                  # updated_at: row['LastUpdate'],
-                  # created_by_id: get_tw_user_id[row['CreatedBy']],
-                  # updated_by_id: get_tw_user_id[row['ModifiedBy']]
                   )
                 end
               end
