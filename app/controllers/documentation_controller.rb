@@ -85,22 +85,8 @@ class DocumentationController < ApplicationController
     end
   end
 
-  def autocomplete
-    @documentation = Documentation.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-    data = @documentation.collect do |t|
-      {id: t.id,
-       label: ApplicationController.helpers.documentation_tag(t),
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html: ApplicationController.helpers.documentation_autocomplete_selected_tag(t)
-      }
-    end
-
-    render json: data
-  end
-
   private
+
   def set_documentation
     @documentation = Documentation.find(params[:id])
   end

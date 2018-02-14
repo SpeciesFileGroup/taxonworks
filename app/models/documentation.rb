@@ -2,7 +2,7 @@
 # Data types that can be document use Shared::Documentation.
 #
 # Documentation is to Documents as Depictions are to Images.
-# !!Documentation is both singular and plural!!
+# !!`Documentation` is both singular and plural!!
 #
 # @!attribute documentation_object_id
 #   @return [String]
@@ -15,10 +15,6 @@
 # @!attribute document_id
 #   @return [String]
 #     the id of the Document
-#
-# @!attribute page_map
-#   @return [Hash]
-#     maps page numbers, key is Document page, value is Recorded page (e.g. first page of the pdf => published page 10)
 #
 # @!attribute position 
 #   @return [Integer]
