@@ -121,7 +121,7 @@ module Queries
       end
 
       def all
-        TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
+        ::TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
           includes(:ancestor_hierarchies).
           where(where_sql).
           references(:taxon_name_hierarchies).

@@ -20,7 +20,7 @@ module Queries
     end
 
     def all 
-      CollectionObject.
+      ::CollectionObject.
         includes(:identifiers, taxon_determinations: [ otu: [:taxon_name], determiners: [] ] ).
         where(where_sql).
         references(:taxon_names, :otus, :identifiers)
@@ -53,15 +53,15 @@ module Queries
     end
 
     def taxon_name_table
-      TaxonName.arel_table
+      ::TaxonName.arel_table
     end
 
     def otu_table
-      Otu.arel_table
+      ::Otu.arel_table
     end
 
     def table
-      CollectionObject.arel_table
+      ::CollectionObject.arel_table
     end
 
     # @return [Arel::Nodes::Grouping]
