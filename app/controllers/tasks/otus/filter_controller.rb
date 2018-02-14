@@ -49,7 +49,7 @@ class Tasks::Otus::FilterController < ApplicationController
   protected
 
   def otus
-    Queries::OtuFilterQuery.new(filter_params)
+    Queries::Otu::Filter.new(filter_params)
       .result
       .with_project_id(sessions_current_project_id)
   end
