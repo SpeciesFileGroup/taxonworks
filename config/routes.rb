@@ -594,6 +594,11 @@ TaxonWorks::Application.routes.draw do
   ### End of data resources ###
 
   scope :tasks do
+
+    scope :object_annotations, controller: 'tasks/object_annotations' do
+      get 'index', as: 'annotate_objects'
+    end
+
     scope :taxa do
       scope :browse, controller: 'tasks/taxa/browse' do
         get 'index', as: 'browse_taxon_task'
