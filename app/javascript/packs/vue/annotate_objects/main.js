@@ -11,13 +11,13 @@ Object.assign(TW.views.tasks.annotate_object, {
   init: function () {
     Vue.use(vueResource)
 
-    var store = require('./store/store.js').newStore()
+    //var store = require('./store/store.js').newStore()
     var App = require('./app.vue').default
     var token = $('[name="csrf-token"]').attr('content')
     Vue.http.headers.common['X-CSRF-Token'] = token
 
     new Vue({
-      store,
+      //store,
       el: '#annotate_object',
       render: function (createElement) {
         return createElement(App)

@@ -34,10 +34,10 @@
 </template>
 
 <script>
-  const GetterNames = require('../store/getters/getters').GetterNames
-  const MutationNames = require('../store/mutations/mutations').MutationNames
-  const autocomplete = require('../../../components/autocomplete.vue').default
-  const modal = require('../../../components/modal.vue').default
+//  const GetterNames = require('../store/getters/getters').GetterNames
+//  const MutationNames = require('../store/mutations/mutations').MutationNames
+  import autocomplete from '../components/autocomplete.vue'
+  import modal from '../components/modal.vue'
 
   export default {
     data: function () {
@@ -51,13 +51,13 @@
     },
     computed: {
       source() {
-        return this.$store.getters[GetterNames.GetSourceSelected]
+        //return this.$store.getters[GetterNames.GetSourceSelected]
       }
     },
     methods: {
       loadSource: function (item) {
         this.$http.get('/sources/' + item.id).then(response => {
-          this.$store.commit(MutationNames.SetSourceSelected, response.body)
+          //this.$store.commit(MutationNames.SetSourceSelected, response.body)
           this.showModal = false
         })
       }
