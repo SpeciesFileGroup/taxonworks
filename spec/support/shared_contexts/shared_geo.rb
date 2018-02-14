@@ -1124,12 +1124,12 @@ shared_context 'stuff for complex geo tests' do
     begin # build the collecting events associated with M1 and M1A
       let(:ce_m1) {
         ce             = FactoryBot.create(:collecting_event,
-                                            start_date_year:   1971,
-                                            start_date_month:  1,
-                                            start_date_day:    1,
-                                            verbatim_locality: 'Lesser Boxia Lake',
-                                            verbatim_label:    '@ce_m1',
-                                            geographic_area:   area_m1)
+                                           start_date_year:   1971,
+                                           start_date_month:  1,
+                                           start_date_day:    1,
+                                           verbatim_locality: 'Lesser Boxia Lake',
+                                           verbatim_label:    '@ce_m1',
+                                           geographic_area:   area_m1)
         td_m1          = FactoryBot.create(:valid_taxon_determination)
         co_m1          = td_m1.biological_collection_object
         td_m1.otu.name = 'Find me, I\'m in M1!'
@@ -1170,19 +1170,161 @@ shared_context 'stuff for complex geo tests' do
         area
       }
       let(:item_m1) { FactoryBot.create(:geographic_item, multi_polygon: shape_m1) }
+      let(:area_qtm1) {
+        area = FactoryBot.create(:level2_geographic_area,
+                                 name:                 'QTM1',
+                                 geographic_area_type: county_gat,
+                                 parent:               area_t_1)
+        area.geographic_items << item_m1
+        area.save!
+        area
+      }
     end
 
     begin # build the collecting event for objects in V
       # this one is just a collecting event, no georeferences or geographic_area, so, even though it
       # has an otu, that otu can't be found
       let(:ce_v) { FactoryBot.create(:collecting_event,
-                                start_date_year:  1991,
-                                start_date_month: 1,
-                                start_date_day:   1,
-                                verbatim_label:   '@ce_v',
-                                geographic_area:  nil) }
+                                     start_date_year:  1991,
+                                     start_date_month: 1,
+                                     start_date_day:   1,
+                                     verbatim_label:   '@ce_v',
+                                     geographic_area:  nil) }
       let(:co_v) { FactoryBot.create(:valid_collection_object, {collecting_event: ce_v}) }
 
+    end
+
+    begin # build the collection object for objects in P2B
+      let(:ce_p2b) { FactoryBot.create(:collecting_event,
+                                       start_date_year:  1978,
+                                       start_date_month: 8,
+                                       start_date_day:   8,
+                                       verbatim_label:   '@ce_p2b',
+                                       geographic_area:  area_p2b) }
+      # @gr_p2   = FactoryBot.create(:georeference_verbatim_data,
+      #                               api_request: 'gr_p2',
+      #                               collecting_event: @ce_p2,
+      #                               error_geographic_item: @item_p2,
+      #                               geographic_item: GeographicItem.new(point: @item_p2.st_centroid))
+      let(:co_p2b) { FactoryBot.create(:valid_collection_object, {collecting_event: ce_p2b}) }
+
+      let(:area_p2b) {
+        area        = FactoryBot.create(:level2_geographic_area,
+                                        name:                 'P2',
+                                        geographic_area_type: parish_gat,
+                                        parent:               area_u)
+        area.level0 = area_u
+        area.geographic_items << item_p2b
+        area.save!
+        area
+      }
+      let(:item_p2b) { FactoryBot.create(:geographic_item, multi_polygon: shape_p2b) }
+      let(:shape_p2b) { GeoBuild.make_box(GeoBuild::POINT_M1_P0, 3, 1, 1, 1) }
+
+      let(:area_qup2) {
+        area = FactoryBot.create(:level2_geographic_area,
+                                 name:                 'QUP2',
+                                 tdwgID:               nil,
+                                 geographic_area_type: parish_gat,
+                                 parent:               area_u)
+        area.geographic_items << item_p2b
+        area.save!
+        area
+      }
+    end
+
+    begin # buile collecting event for objects in M2
+      let(:ce_m2) { FactoryBot.create(:collecting_event,
+                                      start_date_year:  1975,
+                                      start_date_month: 5,
+                                      start_date_day:   5,
+                                      verbatim_label:   '@ce_m2 in Big Boxia',
+                                      geographic_area:  area_big_boxia) }
+      let(:co_m2) { FactoryBot.create(:valid_collection_object, {collecting_event: ce_m2}) }
+      let(:gr_m2) { FactoryBot.create(:georeference_verbatim_data,
+                                      api_request:           'gr_m2 in Big Boxia',
+                                      collecting_event:      ce_m2,
+                                      error_geographic_item: item_m2,
+                                      geographic_item:       GeographicItem.new(point: item_m2.st_centroid)) }
+
+      let(:area_m2) {
+        area        = FactoryBot.create(:level2_geographic_area,
+                                        name:                 'M2',
+                                        geographic_area_type: county_gat,
+                                        parent:               area_t_1)
+        area.level0 = area_t_1
+        area.geographic_items << item_m2
+        area.save!
+        area
+      }
+      let(:item_m2) { FactoryBot.create(:geographic_item, multi_polygon: shape_m2) }
+      let(:shape_m2) { GeoBuild.make_box(GeoBuild::POINT_M1_P0, 0, 1, 1, 1) }
+    end
+
+    begin # build the collecting event for objects in N1
+      let(:ce_n1) { FactoryBot.create(:collecting_event,
+                                      start_date_year:  1972,
+                                      start_date_month: 2,
+                                      start_date_day:   2,
+                                      verbatim_label:   '@ce_n1',
+                                      geographic_area:  area_n1) }
+      let(:co_n1) { FactoryBot.create(:valid_collection_object, {collecting_event: ce_n1}) }
+      # @gr_n1 = FactoryBot.create(:georeference_verbatim_data,
+      #                             api_request: 'gr_n1',
+      #                             collecting_event: @ce_n1,
+      #                             error_geographic_item: @item_n1,
+      #                             geographic_item: GeographicItem.new(point: @item_n1.st_centroid))
+
+      let(:area_n1) {
+        area        = FactoryBot.create(:level2_geographic_area,
+                                        name:                 'N1',
+                                        geographic_area_type: county_gat,
+                                        parent:               area_t_1)
+        area.level0 = area_t_1
+        area.geographic_items << item_n1
+        area.save!
+        area
+      }
+      let(:item_n1) { FactoryBot.create(:geographic_item, multi_polygon: shape_n1) }
+      let(:shape_n1) { GeoBuild.make_box(GeoBuild::POINT_M1_P0, 1, 0, 1, 1) }
+
+      let(:area_qtn1) {
+        area = FactoryBot.create(:level2_geographic_area,
+                                 name:                 'QTN1',
+                                 geographic_area_type: county_gat,
+                                 parent:               area_t_1)
+        area.geographic_items << item_n1
+        area.save!
+        area
+      }
+    end
+
+    begin # build the collecting event for objects in O2
+      let(:ce_o2) { FactoryBot.create(:collecting_event,
+                                      start_date_year:  1977,
+                                      start_date_month: 7,
+                                      start_date_day:   7,
+                                      verbatim_label:   '@ce_o2',
+                                      geographic_area:  area_o2) }
+      let(:gr_o2) { FactoryBot.create(:georeference_verbatim_data,
+                                      api_request:           'gr_o2',
+                                      collecting_event:      ce_o2,
+                                      error_geographic_item: item_o2,
+                                      geographic_item:       GeographicItem.new(point: item_o2.st_centroid)) }
+      let(:co_o2) { FactoryBot.create(:valid_collection_object, {collecting_event: ce_o2}) }
+
+      let(:area_o2) {
+        area        = FactoryBot.create(:level2_geographic_area,
+                                        name:                 'O2',
+                                        geographic_area_type: parish_gat,
+                                        parent:               area_u)
+        area.level0 = @area_u
+        area.geographic_items << item_o2
+        area.save!
+        area
+      }
+      let(:item_o2) { FactoryBot.create(:geographic_item, multi_polygon: shape_o2) }
+      let(:shape_o2) {GeoBuild. make_box(GeoBuild::POINT_M1_P0, 2, 1, 1, 1) }
     end
 
     b = FactoryBot.build(:geographic_item_polygon, polygon: GeoBuild::SHAPE_B.as_binary) # 27

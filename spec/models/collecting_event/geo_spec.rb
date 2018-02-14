@@ -626,8 +626,8 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
             expect(ce_v.state_name).to be_nil
           end
           specify 'it should return the value derived from the georeference "chain" if both present' do
-            # @ce_p1 has a GR, and a GA. 'East Boxia' and 'U' will be the found names
-            expect(ce_p1.state_name).to eq('East Boxia') # 'East Boxia' is alphabetically first.
+            # @ce_p1 has a GR, and a GA. 'East Boxia' and 'QU' will be the found names
+            expect(ce_p1b.state_name).to eq('East Boxia') # 'East Boxia' is alphabetically first.
           end
           specify 'it should return the value derived from the geographic_area chain if ' \
                   'georeference chain is not present' do
@@ -659,7 +659,7 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
         context 'when one possible name is present' do
           specify 'derived from geographic_area_chain' do
             # @ce_p2 has no georeference, so the only way to 'P2' is through geographic_area
-            expect(ce_p2.counties_hash).to include({'P2' => [area_p2]}, {'QUP2' => [area_qup2]})
+            expect(ce_p2b.counties_hash).to include({'P2' => [area_p2b]}, {'QUP2' => [area_qup2]})
           end
           specify 'derived from georeference -> geographic_areas chain' do
             # @ce_m2 has no geographic_area, so the only way to 'M2' is through georeference
@@ -693,30 +693,30 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
         context 'derivation priority' do
           specify 'it should return nil when no georeference or CollectingEvent#geographic_area_id is present' do
             # @ce_v is the right CE for this test.
-            expect(@ce_v.county_name).to be_nil
+            expect(ce_v.county_name).to be_nil
           end
           specify 'it should return the value derived from the georeference "chain" if both present' do
             # @ce_p1 has a GR, and a GA.
-            expect(@ce_p1.county_name).to eq('P1')
+            expect(ce_p1.county_name).to eq('P1')
           end
           specify 'it should return the value derived from the geographic_area chain if georeference chain is not present' do
             # @ce_n1 has no GR.
-            expect(@ce_n1.county_name).to eq('N1')
+            expect(ce_n1.county_name).to eq('N1')
           end
         end
 
         context 'result priority' do
           specify 'it should return #counties_hash.keys.first when only one key is present' do
             # @ce_o1 leads to only one GA (named area).
-            expect(@ce_o1.county_name).to eq('O1')
+            expect(ce_o1.county_name).to eq('O1')
           end
           specify 'it should return the #counties_hash.key that has the most #countries_hash.values if more than one present' do
             # @ce_n2 leads back to three GAs; 'N2', and two named 'QTN2'.
-            expect(@ce_n2.county_name).to eq('QTN2')
+            expect(ce_n2.county_name).to eq('QTN2')
           end
           specify 'it should return the first #counties_hash.key when an equal number of .values is present' do
             # @ce_o2 leads back to two GAs; 'O2', and 'QUO2'
-            expect(@ce_o2.county_name).to eq('O2')
+            expect(ce_o2.county_name).to eq('O2')
           end
         end
       end
