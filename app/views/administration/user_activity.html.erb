@@ -35,13 +35,21 @@
       <% end %> 
     </ol>
   </div>
+</div>
 
-  <div class="item item4">
-    <h2> By last sign in</h2>
-    <%= line_chart User.group_by_day(:last_sign_in_at).count %>
+<div class="flexbox">
+  <div class="item item1">
+    <h2> Last seen - past week </h2>
+    <%= column_chart  User.where('last_seen_at > ?', 1.week.ago).group_by_day_of_week(:last_seen_at, format: "%a").count, 
+      discrete: true, ytitle: 'Number of signins'
+    %>
 
-    <h2> By times signed in</h2>
-    <%= column_chart User.group(:sign_in_count).count, discrete: true %>
+  <h2> Sign in count - past week</h2>
+  <%= column_chart User.where('last_sign_in_at > ?', 1.week.ago).group_by_day_of_week(:last_sign_in_at, format: "%a").count %>
+
+  <h2> Sign in count - total</h2>
+  <p> Minimum one signin </p>
+  <%= column_chart User.where('sign_in_count > 0').group(:sign_in_count).count, discrete: true, xtitle: 'Times signed in', ytitle: 'Number signins' %>
   </div>
 </div>
 
