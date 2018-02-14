@@ -776,7 +776,7 @@ describe Source::Bibtex, type: :model, group: :sources do
               expect(source_bibtex.send(method.to_sym).first.first_name).to eq('D.')
               author1_id = source_bibtex.send(method.to_sym).first.id
               author1    = Person.find(author1_id)
-              expect(author1).to be_instance_of(Person::Unvetted)
+              expect(author1).to be_instance_of(Person::Vetted)
               expect(Person.where(last_name: 'Thomas', first_name: 'D.').to_a.include?(author1)).to be_truthy
 
               expect(source_bibtex.send(method.to_sym).last.last_name).to eq('Hunt')
@@ -833,7 +833,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(@source_bibtex.authors.first.first_name).to eq('D.')
           author1_id = @source_bibtex.authors.first.id
           author1    = Person.find(author1_id)
-          expect(author1).to be_instance_of(Person::Unvetted)
+          expect(author1).to be_instance_of(Person::Vetted)
           expect(Person.where(last_name: 'Thomas', first_name: 'D.').to_a.include?(author1)).to be_truthy
 
           expect(@source_bibtex.authors.last.last_name).to eq('Hunt')
@@ -1199,9 +1199,9 @@ describe Source::Bibtex, type: :model, group: :sources do
 
   context 'nested attributes' do
     #let(:b){Source::Bibtex.new}
-    let(:person1) { Person::Unvetted.create!(last_name: 'un') }
-    let(:person2) { Person::Unvetted.create!(last_name: 'deux') }
-    let(:person3) { Person::Unvetted.create!(last_name: 'trois') }
+    let(:person1) { Person::Vetted.create!(last_name: 'un') }
+    let(:person2) { Person::Vetted.create!(last_name: 'deux') }
+    let(:person3) { Person::Vetted.create!(last_name: 'trois') }
     let(:required_params) { {bibtex_type: 'article', title: 'Three Frenchmen'} }
 
     context 'with new source' do
