@@ -60,6 +60,10 @@ class GeographicAreasController < ApplicationController
     send_data GeographicArea.generate_download(GeographicArea.all), type: 'text', filename: "geographic_areas_#{DateTime.now}.csv"
   end
 
+  def select_options
+    @geographic_areas = GeographicArea.select_optimized(sessions_current_user_id, sessions_current_project_id)
+  end
+
   private
 
   # TODO: move to a concern?

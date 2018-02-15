@@ -393,6 +393,56 @@ class GeographicArea < ApplicationRecord
     result
   end
 
+  # @param used_on [String] one of `CollectingEvent` (default) or `AssertedDistribution`
+  # @return [Scope]
+  #    the max 10 most recently used (1 week, could parameterize) geographic_areas, as used `use_on` 
+  def self.used_recently(used_on = 'CollectingEvent')
+
+   t = case used_on
+       when 'CollectingEvent'
+         CollectingEvent.arel_table
+       when 'AsserteDistribution'
+         CollectingEvent.arel_table
+       end
+   
+    p = GeographicArea.arel_table 
+
+    # i is a select manager
+    i = t.project(t['geographic_area_id'], t['created_at']).from(t)
+      .where(t['created_at'].gt( 1.weeks.ago ))
+      .order(t['created_at'])
+
+    # z is a table alias 
+    z = i.as('recent_t')
+
+    GeographicArea.joins(
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['geographic_area_id'].eq(p['id'])))
+    ).distinct.limit(10)
+  end
+
+  # @params target [String] one of `CollectingEvent` or `AssertedDistribution`
+  # @return [Hash] geographic_areas optimized for user selection
+  def self.select_optimized(user_id, project_id, target = 'Citation')
+    h = {
+      quick: [],
+      pinboard: Topic.pinned_by(user_id).where(project_id: project_id).to_a
+    }
+
+    case target 
+    when 'Citation'
+      h[:recent] = Topic.where(project_id: project_id).used_on_klass(klass).used_recently('Citation').limit(10).distinct.to_a
+    when 'Content'
+      h[:recent] = Topic.joins(:contents).where(project_id: project_id).used_recently('Content').limit(10).distinct.to_a
+    end
+
+    h[:quick] = (Topic.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq 
+    h
+  end
+
+
+
+
+
   protected
 
   before_destroy :check_for_children

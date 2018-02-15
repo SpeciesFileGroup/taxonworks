@@ -269,8 +269,9 @@ TaxonWorks::Application.routes.draw do
   resources :geographic_areas do
     concerns [:data_routes]
     collection do
-      post 'display_coordinates'
+      post 'display_coordinates' # TODO should not be POST
       get 'display_coordinates', as: 'getdisplaycoordinates'
+      get :select_options, defaults: {format: :json}
     end
   end
 
