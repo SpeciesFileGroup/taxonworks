@@ -1,20 +1,17 @@
 <template>
-    <ul>
-        <li
-                v-for="label, key in list"
-                @click="selectType(key)">
-            <label>
-                <input
-                        name="annotation-type"
-                        type="radio"
-                        :value="key"
-                        @click="selectType(key)">
-                <span
-                        class="new-combination-rank-list-taxon-name"
-                        v-html="label"/>
-            </label>
-        </li>
-        <ul>
+  <ul>
+    <li v-for="label, key in list">
+      <label @click="selectType(key)">
+        <input
+          name="annotation-type"
+          type="radio"
+          :value="key">
+        <span
+          class="new-combination-rank-list-taxon-name"
+          v-html="label"/>
+      </label>
+    </li>
+  </ul>
 </template>
 
 <script>
