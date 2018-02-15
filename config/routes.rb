@@ -111,6 +111,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :biological_relationships do
     concerns [:data_routes]
+    collection do
+      get :select_options, defaults: {format: :json}
+    end
   end
 
   resources :character_states do

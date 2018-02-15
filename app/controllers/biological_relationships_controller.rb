@@ -91,7 +91,9 @@ class BiologicalRelationshipsController < ApplicationController
     render json: data
   end
 
-  
+  def select_options
+    @biological_relationships = BiologicalRelationship.select_optimized(sessions_current_user_id, sessions_current_project_id)
+  end
 
   private
     # Use callbacks to share common setup or constraints between actions.

@@ -1,6 +1,7 @@
 class KeywordsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
+  # TODO: deprecate for CVT + params
   def autocomplete
     predicates = Keyword.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).distinct
 
@@ -17,6 +18,7 @@ class KeywordsController < ApplicationController
     render json: data
   end
 
+  # TODO: deprecat for CVT + params
   def lookup_keyword
     @keywords = Keyword.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
     render(json: @keywords.collect { |t|
