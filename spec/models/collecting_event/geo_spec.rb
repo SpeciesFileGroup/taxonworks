@@ -221,6 +221,33 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
     # you could just pick one column, and we can abstract out the problem later.
     context 'when the CE has a GR' do
 
+      context 'has_one preferred_georeference' do
+
+        specify 'of none' do
+          expect(ce_area_v.preferred_georeference).to eq(nil)
+        end
+
+        specify 'of one' do
+          [ce_o2, gr_o2].each
+          ce_o2.reload
+          expect(ce_o2.preferred_georeference).to eq(gr_o2)
+        end
+
+        context 'of many' do
+          before {
+            [ce_n2, gr_n2_b, gr_n2_a].each
+            ce_n2.reload
+          }
+
+          specify 'eq' do
+            expect(ce_n2.preferred_georeference).to eq(gr_n2_b)
+          end
+
+          specify 'not eq' do
+            expect(ce_n2.preferred_georeference).not_to eq(gr_n2_a)
+          end
+        end
+      end
       context 'and that GR has some combination of GIs, and EGIs' do
         before { [gr_a, gr_b].each }
         # pending 'fixing the bug in all_geographic_items' # todo: @mjy
@@ -245,6 +272,7 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
 
         context 'find other CEs that have GRs whose GI or EGI is within some radius of the source GI' do
           specify 'ce_b' do
+            ce_a.reload
             expect(ce_a.collecting_events_within_radius_of(2_000_000)).to include(ce_b)
           end
 
