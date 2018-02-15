@@ -42,14 +42,14 @@ class GeographicAreasController < ApplicationController
 
   def autocomplete
     @geographic_areas = Queries::GeographicAreaAutocompleteQuery.new(params[:term]).all
-    data              = @geographic_areas.collect do |t|
+    data = @geographic_areas.collect do |t|
       show_this = render_to_string(partial: 'autocomplete_geographic_area', locals: {term: params[:term], geographic_area: t } )
-      {id:              t.id,
-       label:           t.name,
+      {id:  t.id,
+       label: t.name,
        response_values: {
          params[:method] => t.id
        },
-       label_html:    show_this
+       label_html: show_this
       }
     end
     render json: data
@@ -60,24 +60,22 @@ class GeographicAreasController < ApplicationController
     send_data GeographicArea.generate_download(GeographicArea.all), type: 'text', filename: "geographic_areas_#{DateTime.now}.csv"
   end
 
+  # GET /geographic_areas/select_options.json
   def select_options
-    @geographic_areas = GeographicArea.select_optimized(sessions_current_user_id, sessions_current_project_id)
+    @geographic_areas = GeographicArea.select_optimized(sessions_current_user_id, sessions_current_project_id, params.permit(:target)[:target])
   end
 
   private
 
-  # TODO: move to a concern?
-
-  # Use callbacks to share common setup or constraints between actions.
   def set_geographic_area
     @geographic_area = GeographicArea.find(params[:id])
-    @recent_object   = @geographic_area
+    @recent_object = @geographic_area
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def geographic_area_params
-    params.require(:geographic_area).permit(:name, :level0_id, :level1_id, :level2_id, :parent_id,
-                                            :geographic_area_type_id, :iso_3166_a2, :iso_3166_a3, :tdwgID,
-                                            :data_origin)
+    params.require(:geographic_area).permit(
+      :name, :level0_id, :level1_id, :level2_id, :parent_id,
+      :geographic_area_type_id, :iso_3166_a2, :iso_3166_a3, :tdwgID,
+      :data_origin)
   end
 end

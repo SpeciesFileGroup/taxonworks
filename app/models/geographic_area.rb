@@ -420,28 +420,30 @@ class GeographicArea < ApplicationRecord
     ).distinct.limit(10)
   end
 
-  # @params target [String] one of `CollectingEvent` or `AssertedDistribution`
+  # @params target [String] one of `CollectingEvent` or `AssertedDistribution` 
   # @return [Hash] geographic_areas optimized for user selection
-  def self.select_optimized(user_id, project_id, target = 'Citation')
+  def self.select_optimized(user_id, project_id, target = 'CollectingEvent')
+
     h = {
       quick: [],
-      pinboard: Topic.pinned_by(user_id).where(project_id: project_id).to_a
+      pinboard: GeographicArea.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
     }
 
     case target 
-    when 'Citation'
-      h[:recent] = Topic.where(project_id: project_id).used_on_klass(klass).used_recently('Citation').limit(10).distinct.to_a
-    when 'Content'
-      h[:recent] = Topic.joins(:contents).where(project_id: project_id).used_recently('Content').limit(10).distinct.to_a
+    when 'CollectingEvent'
+      h[:recent] = GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id}).
+        used_recently('CollectingEvent').
+        limit(10).distinct.to_a
+    when 'AssertedDistribution'
+      h[:recent] = GeographicArea.joins(:asserted_distributions).
+        where(asserted_distributions: {project_id: project_id}).
+        used_recently('AssertedDistribution').
+        limit(10).distinct.to_a
     end
 
-    h[:quick] = (Topic.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq 
+    h[:quick] = (GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a  + h[:recent][0..3]).uniq 
     h
   end
-
-
-
-
 
   protected
 
