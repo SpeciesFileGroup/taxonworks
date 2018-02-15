@@ -786,7 +786,7 @@ def generate_ce_test_objects(user_id, project_id, run_in_console = false, user =
                              geographic_item:       @p13)
 
   @ce_p4 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p4 collect_event test')
-  # the order of the folling two GRs is important for #preferred_georeference testing
+  # the order of the following two GRs is important for #preferred_georeference testing
   @gr14  = FactoryBot.create(:georeference_verbatim_data,
                              api_request:      'gr14',
                              collecting_event: @ce_p4,
