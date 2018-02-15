@@ -215,6 +215,27 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
       before(:all) {
         generate_ce_test_objects(1, 1)
       }
+      after(:all) { clean_slate_geo }
+
+      context 'has_one preferred_georeference' do
+
+        specify 'of none' do
+          expect(@ce_area_v.preferred_georeference).to eq(nil)
+        end
+
+        specify 'of one' do
+          expect(@ce_one_gr.preferred_georeference).to eq(@gr_one_gr)
+        end
+
+        specify 'of many (eq)' do
+          expect(@ce_p4.preferred_georeference).to eq(@gr14)
+        end
+
+        specify 'of many (not eq)' do
+          expect(@ce_p4.preferred_georeference).not_to eq(@gr04)
+        end
+
+      end
 
       context 'and that GR has some combination of GIs, and EGIs' do
         specify 'that the count of which can be found' do

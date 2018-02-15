@@ -786,14 +786,15 @@ def generate_ce_test_objects(user_id, project_id, run_in_console = false, user =
                              geographic_item:       @p13)
 
   @ce_p4 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p4 collect_event test')
-  @gr04  = FactoryBot.create(:georeference_verbatim_data,
-                             api_request:      'gr04',
-                             collecting_event: @ce_p4,
-                             geographic_item:  @p4)
+  # the order of the folling two GRs is important for #preferred_georeference testing
   @gr14  = FactoryBot.create(:georeference_verbatim_data,
                              api_request:      'gr14',
                              collecting_event: @ce_p4,
                              geographic_item:  @p14)
+  @gr04  = FactoryBot.create(:georeference_verbatim_data,
+                             api_request:      'gr04',
+                             collecting_event: @ce_p4,
+                             geographic_item:  @p4)
 
   @ce_p5 = FactoryBot.create(:collecting_event, verbatim_label: '@ce_p5')
   @gr05  = FactoryBot.create(:georeference_verbatim_data,
@@ -855,10 +856,12 @@ def generate_ce_test_objects(user_id, project_id, run_in_console = false, user =
 
   @ce_area_v = FactoryBot.create(:collecting_event, verbatim_label: '@ce_area_v collecting event test')
 
-  # @gr_area_v = FactoryBot.create(:georeference_verbatim_data,
-  #                                 api_request: 'gr_area_v',
-  #                                 collecting_event: @ce_area_v,
-  #                                 geographic_item: @item_v)
+  @ce_one_gr = FactoryBot.create(:collecting_event, verbatim_label: '@ce_one_gr, only one gr')
+
+  @gr_one_gr = FactoryBot.create(:georeference_verbatim_data,
+                                 api_request:      'gr_one_gr',
+                                 collecting_event: @ce_one_gr,
+                                 geographic_item:  @item_a)
 end
 
 
