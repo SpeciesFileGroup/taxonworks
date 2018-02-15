@@ -27,7 +27,7 @@
     },
     methods: {
       selectType(type) {
-        this.$emit('select', type)
+        this.$emit('select', type.valueOf())
       }
     }
   }
