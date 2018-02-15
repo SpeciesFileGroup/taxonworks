@@ -684,10 +684,10 @@ class CollectingEvent < ApplicationRecord
   # @param [Double] distance in meters
   # @return [Scope]
   def collecting_events_within_radius_of(distance)
-    # return CollectingEvent.where(id: -1) if !preferred_georeference
-    # geographic_item_id = preferred_georeference.geographic_item_id
-    geographic_item_id = preferred_georeference.try(:geographic_item_id)
-    geographic_item_id = Georeference.where(collecting_event_id: id).first.geographic_item_id if geographic_item_id.nil?
+    return CollectingEvent.none if !preferred_georeference
+    geographic_item_id = preferred_georeference.geographic_item_id
+    # geographic_item_id = preferred_georeference.try(:geographic_item_id)
+    # geographic_item_id = Georeference.where(collecting_event_id: id).first.geographic_item_id if geographic_item_id.nil?
     CollectingEvent.not_self(self)
       .joins(:geographic_items)
       .where(GeographicItem.within_radius_of_item_sql(geographic_item_id, distance))

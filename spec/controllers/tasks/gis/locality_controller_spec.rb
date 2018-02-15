@@ -3,17 +3,11 @@ require 'support/shared_contexts/shared_geo'
 
 describe Tasks::Gis::LocalityController, type: :controller, group: [:geo, :shared_geo] do
   include_context 'stuff for complex geo tests'
-  # before(:all) {
-  #   # GeoBuild.generate_ce_test_objects(1, 1)
-  # }
 
   before(:each) {
     sign_in
+    [ce_a, ce_b, gr_a, gr_b]
   }
-
-  # after(:all) {
-  #   # GeoBuild.clean_slate_geo
-  # }
 
   describe 'GET nearby' do
     it 'returns http success' do

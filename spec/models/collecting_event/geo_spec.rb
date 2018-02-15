@@ -54,12 +54,12 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
         end
 
         context 'with a verbatim georeference' do
-          before {
-            collecting_event.update_attributes!(
-              verbatim_latitude:  '5.0',
-              verbatim_longitude: '5.0'
-            )
-            Georeference::VerbatimData.create!(collecting_event: collecting_event)
+          before { [area_e, area_a].each
+          collecting_event.update_attributes!(
+            verbatim_latitude:  '5.0',
+            verbatim_longitude: '5.0'
+          )
+          Georeference::VerbatimData.create!(collecting_event: collecting_event)
           }
 
           specify 'country, state, county are cached on creation of georeference' do
@@ -222,56 +222,72 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
     context 'when the CE has a GR' do
 
       context 'and that GR has some combination of GIs, and EGIs' do
+        before { [gr_a, gr_b].each }
+        # pending 'fixing the bug in all_geographic_items' # todo: @mjy
         specify 'that the count of which can be found' do
-          # pending 'fixing the bug in all_geographic_items' # todo: @mjy
           # ce_a
-          results = ce_a.all_geographic_items
-          expect(results.count).to eq(2)
-          expect(results.map(&:id)).to include(p_a.id, new_box_a.id)
+          expect(ce_a.all_geographic_items).to contain_exactly(p_a, new_box_a)
+        end
+
+        specify 'that the count of which can be found' do
           # ce_b
-          results = ce_b.all_geographic_items
-          expect(results.count).to eq(2)
-          expect(results.map(&:id)).to include(err_b.id, p_b.id)
+          expect(ce_b.all_geographic_items).to contain_exactly(err_b, p_b)
+        end
+
+        specify 'that the count of which can be found' do
           # ce_area_v has no GR or GA.
-          results = ce_area_v.all_geographic_items
-          expect(results.count).to eq(0)
+          expect(ce_area_v.all_geographic_items.count).to eq(0)
         end
       end
 
       context 'and that GR has a GI but no EGI' do
-        specify 'find other CEs that have GRs whose GI or EGI is within some radius of the source GI' do
-          expect(ce_a.collecting_events_within_radius_of(2_000_000)).to include(ce_b)
-        end
-        specify 'find other CEs that have GRs whose GI or EGI is within some radius of the source GI' do
-          expect(ce_a.collecting_events_within_radius_of(2_000_000)).not_to include(ce_area_v)
+        before { [gr_a, gr_b, ce_area_v].each }
+
+        context 'find other CEs that have GRs whose GI or EGI is within some radius of the source GI' do
+          specify 'ce_b' do
+            expect(ce_a.collecting_events_within_radius_of(2_000_000)).to include(ce_b)
+          end
+
+          specify 'ce_area_v' do
+            expect(ce_a.collecting_events_within_radius_of(2_000_000)).not_to include(ce_area_v)
+          end
         end
 
-        specify 'find other CEs that have GRs whose GI or EGI intersects the source GI' do
-          expect(ce_p2s.collecting_events_intersecting_with.count).to eq(2)
+        context 'find other CEs that have GRs whose GI or EGI intersects the source GI' do
+          before { [gr02s, gr121s, gr01s, gr11s, gr03s, gr13s, gr_a].each }
+
+          specify 'ce_p1s, ce_p3s' do
+            expect(ce_p2s.collecting_events_intersecting_with).to contain_exactly(ce_p1s, ce_p3s)
+          end
+
+          specify 'not ce_a' do
+            expect(ce_p2s.collecting_events_intersecting_with).not_to include(ce_a) # even though @p17 is close to @k
+          end
         end
-        specify 'find other CEs that have GRs whose GI or EGI intersects the source GI' do
-          expect(ce_p2s.collecting_events_intersecting_with).to include(ce_p1s, ce_p3s)
-        end
-        specify 'find other CEs that have GRs whose GI or EGI intersects the source GI' do
-          expect(ce_p2s.collecting_events_intersecting_with).not_to include(ce_a) # even though @p17 is close to @k
-        end
+
       end
 
       context 'and that GR has both GI and EGI' do
-        # was: 'find other CEs that have GR whose GIs or EGIs are within some radius of the EGI'
-        specify 'find other CEs that have GR whose GIs are within some radius' do
-          pieces = ce_p2s.collecting_events_within_radius_of(1000000)
-          expect(pieces.count).to eq(2)
-          expect(pieces).to include(ce_p1s, ce_p3s)
-          expect(pieces).not_to include(ce_a)
+        before { [gr02s, gr121s, gr01s, gr11s, gr03s, gr13s, gr_a].each }
+        context 'find other CEs that have GR whose GIs are within some radius' do
+          # was: 'find other CEs that have GR whose GIs or EGIs are within some radius of the EGI'
+          specify 'ce_p3s, ce_s, ce_p1s' do
+            expect(ce_p2s.collecting_events_within_radius_of(1000000)).to contain_exactly(ce_p1s, ce_p3s)
+          end
+          specify 'ce_p3s, ce_s, ce_p1s' do
+            expect(ce_p2s.collecting_events_within_radius_of(1000000)).not_to include(ce_a)
+          end
         end
 
-        specify 'find other CEs that have GRs whose GIs or EGIs are contained in the EGI' do
-          # skip 'contained in error_gi'
-          pieces = ce_p1s.collecting_events_contained_in_error
-          expect(pieces.count).to eq(2)
-          expect(pieces).to contain_exactly(ce_p3s, ce_p2s)
-          expect(pieces).not_to include(ce_p1s)
+        context 'find other CEs that have GRs whose GIs or EGIs are contained in the EGI' do
+          specify 'ce_p3s, ce_p2s, ce_p1s' do
+            # skip 'contained in error_gi'
+            expect(ce_p1s.collecting_events_contained_in_error).to contain_exactly(ce_p3s, ce_p2s)
+          end
+          specify 'ce_p3s, ce_p2s, ce_p1s' do
+            # skip 'contained in error_gi'
+            expect(ce_p1s.collecting_events_contained_in_error).not_to include(ce_p1s)
+          end
         end
       end
 
@@ -356,7 +372,7 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
     let(:earth) { FactoryBot.create(:earth_geographic_area) }
 
     specify 'suceeds without entering a nasty loop' do
-      expect(CollectingEvent.create(geographic_area: earth)).to be_truthy
+      CollectingEvent.create!(geographic_area: earth)
       expect(CollectingEvent.last.geographic_name_classification).to eq({})
     end
   end
@@ -366,11 +382,10 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
     context 'verbatim georeferences using with_verbatim_data_georeference: true' do
       context 'on new()' do
         specify 'creates a verbatim georeference using new()' do
-          c = CollectingEvent.new(verbatim_latitude:               '10.001',
-                                  verbatim_longitude:              '10',
-                                  project:                         geo_project,
-                                  with_verbatim_data_georeference: true)
-          expect(c.save!).to be_truthy
+          c = CollectingEvent.create!(verbatim_latitude:               '10.001',
+                                      verbatim_longitude:              '10',
+                                      project:                         geo_project,
+                                      with_verbatim_data_georeference: true)
           expect(c.verbatim_data_georeference.id).to be_truthy
         end
       end
@@ -523,15 +538,6 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
               gr_p1b
               expect(ce_p1b.countries_hash).to_not include({'Great Northern Land Mass' => [area_land_mass]})
             end
-
-            # specify 'derived from georeference -> geographic_areas chain' do
-            #   list = ce_p1b.countries_hash
-            #   expect(list).to include({'Q' => [area_q]})
-            #   expect(list).to include({'Big Boxia' => [area_big_boxia]})
-            #   expect(list.keys).to include('East Boxia')
-            #   expect(list['East Boxia']).to include(area_east_boxia_1, area_east_boxia_2)
-            #   expect(list).to_not include({'Great Northern Land Mass' => [area_land_mass]})
-            # end
           end
         end
       end

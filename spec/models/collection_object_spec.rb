@@ -1,6 +1,8 @@
 require 'rails_helper'
+require 'support/shared_contexts/shared_geo'
 
 describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
+  include_context 'stuff for complex geo tests'
 
   let(:collection_object) { CollectionObject.new() }
   let(:ranged_lot_category) { FactoryBot.create(:valid_ranged_lot_category) }
@@ -99,22 +101,22 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 
       context 'using .update' do
         specify 'a specimen when total changed to > 1 changes to a Lot' do
-          s.update(total: 5)
+          s.update!(total: 5)
           expect(s.type).to eq('Lot')
         end
 
         specify 'a Lot when total changes to 1 changes to Specimen' do
-          l.update(total: 1)
+          l.update!(total: 1)
           expect(l.type).to eq('Specimen')
         end
 
         specify 'a Lot when assigned a ranged lot and nilled total changes to RangedLot' do
-          l.update(total: nil, ranged_lot_category: ranged_lot_category)
+          l.update!(total: nil, ranged_lot_category: ranged_lot_category)
           expect(l.type).to eq('RangedLot')
         end
 
         specify 'a Specimen when assigned a ranged lot and nilled total changes to RangedLot' do
-          s.update(total: nil, ranged_lot_category: ranged_lot_category)
+          s.update!(total: nil, ranged_lot_category: ranged_lot_category)
           expect(s.type).to eq('RangedLot')
         end
       end
@@ -257,19 +259,13 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
   end
 
   context ':in_date_range' do
+
     describe 'various date ranges' do
-      # let (:collecting_event_ids) {CollectingEvent.in_date_range({search_start_date: '1981/01/01', search_end_date: '1981/1/1'}).pluck(:id)}
-      # let (:area_object_ids) {CollectionObject.all.pluck(:id)} # because all of the relevant collection objects created are in this area})
-      before(:all) {
-        GeoBuild.generate_political_areas_with_collecting_events
-      }
-      after(:all) {
-        GeoBuild.clean_slate_geo
-      }
 
       describe 'spanning a single day' do
         specify 'should find 1 record' do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1981/01/01', search_end_date: '1981/1/1'})
+          collection_objects = CollectionObject.in_date_range({search_start_date: '1981/01/01',
+                                                               search_end_date: '1981/1/1'})
           expect(collection_objects.count).to eq(1)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m3')
         end
@@ -277,7 +273,8 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 
       describe 'spanning a single month' do
         specify 'should find 1 record' do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1974/04/01', search_end_date: '1974/4/30'})
+          collection_objects = CollectionObject.in_date_range({search_start_date: '1974/04/01',
+                                                               search_end_date: '1974/4/30'})
           expect(collection_objects.count).to eq(1)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_p1')
         end
@@ -343,14 +340,6 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
   end
 
   context ':from_collecting_events' do
-    before(:all) {
-      GeoBuild.generate_political_areas_with_collecting_events
-    }
-
-    after(:all) {
-      GeoBuild.clean_slate_geo
-    }
-
     let(:project_id) { CollectionObject.order(:id).first.project_id }
 
     describe 'all collecting events' do
@@ -538,5 +527,4 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     it_behaves_like 'taggable'
     it_behaves_like 'is_data'
   end
-
 end
