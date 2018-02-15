@@ -201,8 +201,8 @@ class Source < ApplicationRecord
   ALTERNATE_VALUES_FOR = [:address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
                           :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
 
-  has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
   has_many :citations, inverse_of: :source, dependent: :restrict_with_error
+  has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
   has_many :project_sources, dependent: :destroy
   has_many :projects, through: :project_sources
 
@@ -212,15 +212,6 @@ class Source < ApplicationRecord
   validates :type, inclusion: { in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim'] }
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
-
-  def reject_project_sources(attributed)
-    return true if attributed['project_id'].blank?
-    return true if ProjectSource.where(project_id: attributed['project_id'], source_id: id).any?
-  end
-
-  def cited_objects
-    self.citations.collect { |t| t.citation_object }
-  end
 
   # Create a new Source instance from a full text citatation.  By default
   # try to resolve the citation against Crossref, use the returned
@@ -305,13 +296,29 @@ class Source < ApplicationRecord
     return {records: sources, count: valid}
   end
 
+  # @return [Array]
+  #    objects this source is linked to through citations
+  def cited_objects
+    self.citations.collect { |t| t.citation_object }
+  end
+
   def is_bibtex?
     type == 'Source::Bibtex'
   end
 
+  # @return [Boolean]
+  def is_in_project?(project_id)
+    projects.where(id: project_id).any?
+  end
+
   protected
 
-  # in subclasses
+  def reject_project_sources(attributed)
+    return true if attributed['project_id'].blank?
+    return true if ProjectSource.where(project_id: attributed['project_id'], source_id: id).any?
+  end
+
+  # Defined in subclasses
   def set_cached
   end
 

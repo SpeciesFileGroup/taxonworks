@@ -48,8 +48,8 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
 
       context 'caching' do
         context 'with no data' do
-          specify '#cached_geographic_name_classification returns ' do
-            expect(collecting_event.cached_geographic_name_classification).to eq()
+          specify '#cached_geographic_name_classification returns {}' do
+            expect(collecting_event.cached_geographic_name_classification).to eq({})
           end
         end
 
@@ -127,7 +127,7 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
             end
 
             specify '#cached_geographic_name_classification returns {  }' do
-              expect(collecting_event.cached_geographic_name_classification).to eq()
+              expect(collecting_event.cached_geographic_name_classification).to eq({})
             end
           end
         end
@@ -357,7 +357,7 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
 
     specify 'suceeds without entering a nasty loop' do
       expect(CollectingEvent.create(geographic_area: earth)).to be_truthy
-      expect(CollectingEvent.last.geographic_name_classification).to eq()
+      expect(CollectingEvent.last.geographic_name_classification).to eq({})
     end
   end
 

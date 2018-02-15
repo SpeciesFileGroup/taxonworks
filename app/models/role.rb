@@ -49,9 +49,24 @@ class Role < ApplicationRecord
   protected
 
   def vet_person
-    if Role.where(person_id: self.person_id).count > 1
+    if Role.where(person_id: person_id).any?
+      c = Role.where(person_id: person_id).count 
       p = Person.find(person_id)
-      p.update(type: 'Person::Vetted')
+      y = role_object.try(:year)
+      y ||= role_object.try(:year_of_publication)
+      
+      yas = [y, person.year_active_start].compact.map(&:to_i).min
+      yae = [y, person.year_active_end].compact.map(&:to_i).max
+
+      begin
+        p.update(
+          type: (c > 1 ? 'Person::Vetted' : 'Person::Unvetted'),
+          year_active_end: yae, 
+          year_active_start: yas
+        )
+      rescue ActiveRecord::RecordInvalid
+        # probably a year conflict, allow quietly        
+      end
     end
   end
 

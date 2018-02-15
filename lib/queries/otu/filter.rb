@@ -1,6 +1,6 @@
 module Queries
 
-  class OtuFilterQuery < Queries::Query
+  class Otu::Filter < Queries::Query
 
     # Query variables
     attr_accessor :query_geographic_area_ids, :query_shape
@@ -79,28 +79,28 @@ module Queries
       r42i = CollectionObject.joins(:geographic_items)
                .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
                .distinct
-      Otu.joins(:collection_objects).where(collection_objects: {id: r42i})
+      ::Otu.joins(:collection_objects).where(collection_objects: {id: r42i})
     end
 
     # @return [Scope]
     def shape_scope
       r42i = GeographicItem.gather_map_data(query_shape, 'CollectionObject').distinct
-      Otu.joins(:collection_objects).where(collection_objects: {id: r42i})
+      ::Otu.joins(:collection_objects).where(collection_objects: {id: r42i})
     end
 
     # @return [Scope]
     def nomen_scope
-      scope1 = Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
+      scope1 = ::Otu.joins(:taxon_name).where(taxon_name_id: query_nomen_id)
       scope  = scope1
       if scope1.any?
-        scope = Otu.self_and_descendants_of(scope1.first.id, query_rank_class) if with_descendants?
+        scope = ::Otu.self_and_descendants_of(scope1.first.id, query_rank_class) if with_descendants?
       end
       scope
     end
 
     # @return [Scope]
     def verbatim_scope
-      Otu.joins(:taxon_name).where('taxon_names.cached_author_year ILIKE ?', "%#{query_verbatim_author_string}%")
+      ::Otu.joins(:taxon_name).where('taxon_names.cached_author_year ILIKE ?', "%#{query_verbatim_author_string}%")
     end
 
 =begin
@@ -113,21 +113,21 @@ module Queries
       case query_and_or_select
         when '_or_', nil
 
-          p = Person.arel_table
+          p = ::Person.arel_table
 
           c = p[:id].eq(query_author_ids.shift)
           query_author_ids.each do |i|
             c = c.or(p[:id].eq(i))
           end
 
-          Otu.joins(taxon_name: [roles: [:person]]).where(roles: {type: 'TaxonNameAuthor'}).where(c.to_sql).distinct
+          ::Otu.joins(taxon_name: [roles: [:person]]).where(roles: {type: 'TaxonNameAuthor'}).where(c.to_sql).distinct
 
         when '_and_'
           table_alias = 'tna' # alias for 'TaxonNameAuthor'
 
-          o = Otu.arel_table
-          t = TaxonName.arel_table
-          r = Role.arel_table
+          o = ::Otu.arel_table
+          t = ::TaxonName.arel_table
+          r = ::Role.arel_table
 
           b = o.project(o[Arel.star]).from(o)
                 .join(t)
@@ -151,7 +151,7 @@ module Queries
           b = b.as("z_#{table_alias}")
 
           # noinspection RubyResolve
-          Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+          ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
     end
 
@@ -169,8 +169,8 @@ module Queries
 
     # @return [Scope]
     def result
-      return Otu.none if applied_scopes.empty?
-      a = Otu.all
+      return ::Otu.none if applied_scopes.empty?
+      a = ::Otu.all
       applied_scopes.each do |scope|
         a = a.merge(self.send(scope))
       end

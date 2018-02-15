@@ -7,8 +7,12 @@ describe Source, type: :model, group: :sources do
     Source.destroy_all
   }
 
+  specify '#is_in_project? 1' do
+    expect(source.is_in_project?(1)).to be_falsey  
+  end
+
   context 'associations' do
-    specify 'sources have citations' do
+    specify '#citations' do
       expect(source.citations << Citation.new()).to be_truthy
     end
   end

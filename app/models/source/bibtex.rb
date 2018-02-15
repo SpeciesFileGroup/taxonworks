@@ -241,7 +241,7 @@ require 'csl/styles'
 #
 # @!attribute bibtex_type
 #   @return [String]
-#   @todo
+#    one of VALID_BIBTEX_TYPES (config/initializers/constants/_controlled_vocabularies/bibtex_constants.rb, keys there are symbols)
 #
 # @!attribute day
 #   @return [Integer]
@@ -285,7 +285,7 @@ require 'csl/styles'
 #
 # @!attribute url
 #   @return [String]
-#   A TW required attribute (TW requires a value in one of the required attributes.)
+#   A TW required attribute for certain bibtex_types (TW requires a value in one of the required attributes.)
 #
 # @!attribute author
 #   @return [String] the list of author names in BibTeX format
@@ -297,18 +297,6 @@ require 'csl/styles'
 #   each author name should be separated by the word " and ". It should be noted that all the names before the
 #   comma are treated as a single last name.
 #
-# @!attribute cached
-#   @return [String]
-#   Non-Bibtex attribute that is cross-referenced.
-#
-# @!attribute cached_author_string
-#   @return [String]
-#   Non-Bibtex attribute that is cross-referenced.
-#
-# @!attribute cached_nomenclature_date
-#   @return [DateTime]
-#      the date of the publication for nomenclatural purposes
-#
 class Source::Bibtex < Source
 
   attr_accessor :authors_to_create
@@ -316,6 +304,7 @@ class Source::Bibtex < Source
   # @todo :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
 
   # TW required fields (must have one of these fields filled in)
+  # either year or stated_year is acceptable
   TW_REQUIRED_FIELDS = [
     :author,
     :editor,
@@ -325,7 +314,7 @@ class Source::Bibtex < Source
     :journal,
     :year,
     :stated_year
-  ].freeze # either year or stated_year is acceptable
+  ].freeze 
 
   belongs_to :serial, inverse_of: :sources
   belongs_to :source_language, class_name: 'Language', foreign_key: :language_id, inverse_of: :sources
@@ -340,46 +329,41 @@ class Source::Bibtex < Source
   before_validation :create_authors, if: -> {!authors_to_create.nil?}
   before_validation :check_has_field
 
-  #region validations
   validates_inclusion_of :bibtex_type,
-                         in:      ::VALID_BIBTEX_TYPES,
-                         message: '%{value} is not a valid source type'
+    in: ::VALID_BIBTEX_TYPES,
+    message: '"%{value}" is not a valid source type'
 
   validates_presence_of :year,
-                        if:      -> {!month.blank? || !stated_year.blank?},
-                        message: 'is required when month or stated_year is provided'
+    if: -> {!month.blank? || !stated_year.blank?},
+    message: 'is required when month or stated_year is provided'
 
   # @todo refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
   validates :year, date_year: {min_year: 1000, max_year: Time.now.year + 2, message: 'must be an integer greater than 999 and no more than 2 years in the future'}
 
   validates_presence_of :month,
-                        unless:  -> {day.nil?},
-                        message: 'is required when day is provided'
+    unless: -> {day.nil?},
+    message: 'is required when day is provided'
 
   validates_inclusion_of :month,
-                         in:          ::VALID_BIBTEX_MONTHS,
-                         allow_blank: true,
-                         message:     ' month'
+    in: ::VALID_BIBTEX_MONTHS,
+    allow_blank: true,
+    message: ' month'
 
   validates :day, date_day: {year_sym: :year, month_sym: :month},
-            unless:         -> {year.nil? || month.nil?}
+    unless: -> {year.nil? || month.nil?}
 
-  validates :url, format: {with: URI::regexp(%w(http https ftp)),
-                              message: '[%{value}] is not a valid URL'}, allow_blank: true
-
-  #endregion validations
+  validates :url, format: {
+    with: URI::regexp(%w(http https ftp)),
+    message: '[%{value}] is not a valid URL'}, allow_blank: true
 
   # includes nil last, exclude it explicitly with another condition if need be
   scope :order_by_nomenclature_date, -> {order(:cached_nomenclature_date)}
 
-  #region soft_validate setup calls
   soft_validate(:sv_has_some_type_of_year, set: :recommended_fields)
   soft_validate(:sv_contains_a_writer, set: :recommended_fields)
   soft_validate(:sv_has_title, set: :recommended_fields)
   soft_validate(:sv_is_article_missing_journal, set: :recommended_fields)
-  #  soft_validate(:sv_has_url, set: :recommended_fields) # probably should be sv_has_identifier instead of sv_has_url
   soft_validate(:sv_missing_required_bibtex_fields, set: :bibtex_fields)
-  #endregion
 
   #region ruby-bibtex related
 
@@ -448,7 +432,7 @@ class Source::Bibtex < Source
     b
   end
 
-  # @param type [String] either author or editor
+  # @param type [String] either `author` or `editor`
   # @return [String]
   #   the bibtex version of the name strings created from the TW people
   #   BibTeX format is 'lastname, firstname and lastname,firstname and lastname, firstname'
@@ -462,12 +446,12 @@ class Source::Bibtex < Source
       when 1
         return self.send(methods).first.bibtex_name
       else
-        return self.send(methods).collect {|a| a.bibtex_name}.join(' and ')
+        return self.send(methods).collect{|a| a.bibtex_name}.join(' and ')
     end
   end
 
-  # @param type [String] either author or editor
-  # @return[String]
+  # @param type [String] either `author` or `editor`
+  # @return [String]
   #   A human readable version of the person list
   #   'firstname lastname, firstname lastname, & firstname lastname'
   #  TODO: DEPRECATE
@@ -507,7 +491,6 @@ class Source::Bibtex < Source
   # before validate assign serial if matching & not doesn't have a serial currently assigned.
   # @todo if there is an ISSN it should look up to see it the serial already exists.
   def self.new_from_bibtex(bibtex_entry = nil)
-
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
 
     s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
@@ -625,23 +608,6 @@ class Source::Bibtex < Source
     end
   end
 
-  # @return [String, nil]
-  #   last names formatted as displayed in nomenclatural authority (iczn), prioritizes
-  #   normalized people records before bibtex author string
-  def authority_name
-    if authors.count == 0 # no normalized people, use string, !! not .any? because of in-memory setting?!
-      if author.blank?
-        return nil
-      else
-        b = to_bibtex
-        b.parse_names
-        return Utilities::Strings.authorship_sentence( b.author.tokens.collect {|t| t.last} )
-      end
-    else # use normalized records
-      return Utilities::Strings.authorship_sentence( authors.collect {|a| a.full_last_name} )
-    end
-  end
-
   def isbn=(value)
     write_attribute(:isbn, value)
     unless value.blank?
@@ -714,8 +680,8 @@ class Source::Bibtex < Source
   #endregion getters & setters
 
   def has_authors? # is there a bibtex author or author roles?
-    return true if !(self.author.blank?) # author attribute is empty
-    return false if self.new_record? # nothing saved yet, so no author roles are saved yet
+    return true if !(author.blank?) # author attribute is empty
+    return false if new_record? # nothing saved yet, so no author roles are saved yet
     # self exists in the db
     (self.authors.count > 0) ? (return true) : (return false)
   end
@@ -737,7 +703,6 @@ class Source::Bibtex < Source
     false
   end
 
-  #region time/date related
 
   # @return [Integer]
   #  The effective year of publication as per nomenclatural rules
@@ -760,7 +725,22 @@ class Source::Bibtex < Source
     end
   end
 
-  #endregion    time/date related
+  # @return [String, nil]
+  #   last names formatted as displayed in nomenclatural authority (iczn), prioritizes
+  #   normalized people records before bibtex author string
+  def authority_name
+    if authors.count == 0 # no normalized people, use string, !! not .any? because of in-memory setting?!
+      if author.blank?
+        return nil
+      else
+        b = to_bibtex
+        b.parse_names
+        return Utilities::Strings.authorship_sentence( b.author.tokens.collect{|t| t.last} )
+      end
+    else # use normalized records
+      return Utilities::Strings.authorship_sentence( authors.collect{|a| a.full_last_name} )
+    end
+  end
 
   # @return [BibTex::Bibliography]
   #   initialized with this source as an entry
@@ -839,8 +819,9 @@ class Source::Bibtex < Source
       valid = true
     end
     if !valid
-      errors.add(:base,
-                 'Missing core data. A TaxonWorks source must have one of the following: author, editor, booktitle, title, url, journal, year, or stated year'
+      errors.add(
+        :base,
+        'Missing core data. A TaxonWorks source must have one of the following: author, editor, booktitle, title, url, journal, year, or stated year'
       )
     end
   end

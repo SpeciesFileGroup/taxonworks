@@ -8,6 +8,27 @@ module TaxonNamesHelper
     taxon_name.cached_html.try(:html_safe) || taxon_name.name
   end
 
+  def taxon_name_autocomplete_tag(taxon_name, term)
+    return nil if taxon_name.nil?
+    klass = taxon_name.rank_class ? taxon_name.rank_class.nomenclatural_code : nil
+
+    a = ''
+    if taxon_name.parent_id
+      a = content_tag(:span, class: :subtle) do
+        '(' +
+          taxon_name.rank ? taxon_name.rank : 'Combination' +
+          ', parent ' +
+          taxon_name_tag(taxon_name.parent) +
+          ')'
+      end
+    end
+
+    content_tag(:span, class: :klass) do
+      taxon_name.cached_html_name_and_author_year.gsub(/(#{term})/i, content_tag(:mark, '\1')).html_safe +
+        a.html_safe
+    end
+  end
+
   # @return [String]
   #   the taxon name in original combination, without author year, with HTML
   def original_taxon_name_tag(taxon_name)

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Queries::TaxonNameAutocompleteQuery, type: :model do
+describe Queries::TaxonName::Autocomplete, type: :model do
 
   let(:root) { FactoryBot.create(:root_taxon_name)}
   let(:genus) { Protonym.create(name: 'Erasmoneura', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
@@ -8,7 +8,7 @@ describe Queries::TaxonNameAutocompleteQuery, type: :model do
 
   let(:name) { 'Erasmoneura vulnerata' }
 
-  let(:query) { Queries::TaxonNameAutocompleteQuery.new('') }
+  let(:query) { Queries::TaxonName::Autocomplete.new('') }
 
  
   # some patterns - 

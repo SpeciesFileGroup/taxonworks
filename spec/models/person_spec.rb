@@ -2,20 +2,37 @@ require 'rails_helper'
 
 describe Person, type: :model do
 
-  let(:person) { FactoryBot.build(:person) }
+  let(:person) { Person.new }
+  
   let(:source_bibtex) {
     FactoryBot.create(:valid_source_bibtex)
   }
   let(:human_source) {
     FactoryBot.create(:valid_source_human)
   }
-  #let(:coll_event) { CollectingEvent.new }
+
+  context 'used?' do
+    before do
+      person.last_name = 'Smith'
+      person.save!
+    end
+
+    specify '#is_in_use? 1' do
+      expect(person.is_in_use?).to be_falsey
+    end
+
+    specify '#is_in_use? 2' do
+      c = FactoryBot.create(:valid_collecting_event)
+      c.collectors << person
+      expect(person.is_in_use?).to be_truthy
+    end
+  end
 
   context 'validation' do
     before do
       person.valid?
     end
-
+    
     specify 'last_name is required' do
       expect(person.errors.keys).to include(:last_name)
     end
@@ -25,43 +42,95 @@ describe Person, type: :model do
     end
 
     specify 'validly_published type is either vetted or unvetted' do
-      #expect(person.type).to eq('Person::Vetted' or 'Person::Unvetted')
-      #expect(['Person::Vetted', 'Person::Unvetted'].include?(person.type)).to be_truthy
       expect(person.errors.include?(:type)).to be_falsey
+    end
+
+    specify 'invalid_published type is either vetted or unvetted' do
       person.type='funny'
       person.valid?
-      expect(person.errors.include?(:type)).to be_truthy #should have an error
+      expect(person.errors.include?(:type)).to be_truthy 
     end
+  end
+
+  context 'years' do
+    before { person.year_died = 1920 }
+    specify 'died after birth' do
+      person.year_born = 1930
+      person.valid?
+      expect(person.errors.include?(:year_born)).to be_truthy
+    end
+
+    specify 'not active after death - active start' do
+      person.year_active_start = 1930
+      person.valid?
+      expect(person.errors.include?(:year_active_start)).to be_truthy
+    end
+
+    specify 'not active after death - active end' do
+      person.year_active_end = 1930
+      person.valid?
+      expect(person.errors.include?(:year_active_end)).to be_truthy
+    end
+
+    specify 'not active before birth - active start' do
+      person.year_born = 1920
+      person.year_active_start = 1890
+      person.valid?
+      expect(person.errors.include?(:year_active_start)).to be_truthy
+    end
+
+    specify 'not active before birth - active end' do
+      person.year_born = 1920
+      person.year_active_end = 1890
+      person.valid?
+      expect(person.errors.include?(:year_active_end)).to be_truthy
+    end
+
+    specify 'lifespan' do
+      person.year_born = 1900
+      person.year_died = 2018
+      person.valid?
+      expect(person.errors.include?(:base)).to be_truthy
+    end
+
   end
 
   context 'instance methods' do
-    specify '#bibtex_name formats correctly' do
-      p = FactoryBot.build(:source_person_jones) #  Mike Jones
-      expect(p.bibtex_name).to eq('Jones, Mike')
-      p = FactoryBot.build(:source_person_prefix) #  John Von Adams
-      expect(p.bibtex_name).to eq('Von Adams, John')
-      p = FactoryBot.build(:source_person_suffix) #  James Adams Jr.
-      expect(p.bibtex_name).to eq('Adams, Jr., James')
-      p = FactoryBot.build(:source_person_both_ps) #  Janet Von Adams III
-      expect(p.bibtex_name).to eq('Von Adams, III, Janet')
-      p = FactoryBot.build(:source_person_jones)
-      p.first_name = ''             # Jones
-      expect(p.bibtex_name).to eq('Jones')
-      p.first_name = 'Sarah'
-      p.last_name = ''
-      expect(p.bibtex_name).to eq('Sarah')
+    specify '#bibtex_name formats correctly 1' do
+      expect(Person.new(last_name: 'Jones', first_name: 'Mike').bibtex_name).to eq('Jones, Mike')
+    end
+    
+    specify '#bibtex_name formats correctly 2' do
+      expect(Person.new(last_name: 'Jones').bibtex_name).to eq('Jones')
+    end
+
+    specify '#bibtex_name formats correctly 3' do
+      expect(Person.new(first_name: 'Sarah').bibtex_name).to eq('Sarah')
+    end
+
+    specify '#bibtex_name formats correctly 4' do
+      expect(Person.new(last_name: 'James', first_name: 'Adams', prefix: 'Von').bibtex_name).to eq('Von James, Adams')
+    end
+
+    specify '#bibtex_name formats correctly 5' do
+      expect(Person.new(last_name: 'James', first_name: 'Adams', suffix: 'Jr.').bibtex_name).to eq('James, Jr., Adams')
+    end
+
+    specify '#bibtex_name formats correctly 6' do
+      expect(Person.new(last_name: 'Adams', first_name: 'Janet', suffix: 'III', prefix: 'Von').bibtex_name).to eq('Von Adams, III, Janet')
     end
   end
 
-  context 'class methods' do
-    # skip '.parser(name_string)'
-    # skip '.parse_to_people(name_srting)'
+  specify '.parser' do
+    expect(Person.parser('Smith, Sarah')).to eq([{"family"=>"Smith", "given"=>"Sarah"}])
+  end
+
+  specify '.parse_to_people' do
+     r = Person.parse_to_people('Smith, Sarah')
+     expect(r.first.last_name).to eq('Smith')
   end
 
   context 'associations' do
-
-    #role orders: source_authors, source_editors, source_sources, collectors, (taxon_)determiners, taxon_name_authors, type_designators
-
     context 'has_many' do
       specify 'roles' do
         expect(person).to respond_to(:roles)
@@ -88,7 +157,7 @@ describe Person, type: :model do
       end
 
       specify 'taxon_name_author' do
-        expect(person).to respond_to(:taxon_name_authors)
+        expect(person).to respond_to(:authored_taxon_names)
       end
 
       specify 'type_designations' do

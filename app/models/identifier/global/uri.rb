@@ -1,4 +1,4 @@
-URI_SCHEMES = URI.scheme_list.keys # + ['UDP']
+# URI_SCHEMES = URI.scheme_list.keys # + ['UDP']
 
 # Universal Resource Identifier
 class Identifier::Global::Uri < Identifier::Global
@@ -16,7 +16,7 @@ class Identifier::Global::Uri < Identifier::Global
           begin
             uri = URI(identifier)
             scheme = uri.scheme.upcase
-            unless URI_SCHEMES.include?(scheme)
+            unless URI.scheme_list.keys.include?(scheme)
               errors.add(:identifier, "#{scheme} is not in the URI schemes list.")
             end
           rescue
