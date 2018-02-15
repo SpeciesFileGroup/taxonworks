@@ -401,7 +401,7 @@ class GeographicArea < ApplicationRecord
    t = case used_on
        when 'CollectingEvent'
          CollectingEvent.arel_table
-       when 'AsserteDistribution'
+       when 'AssertedDistribution'
          CollectingEvent.arel_table
        end
    
