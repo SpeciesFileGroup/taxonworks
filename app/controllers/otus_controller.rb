@@ -6,7 +6,7 @@ class OtusController < ApplicationController
   # GET /otus
   # GET /otus.json
   def index
-    end
+  end
 
   def index
     respond_to do |format|
@@ -97,13 +97,13 @@ class OtusController < ApplicationController
 
     data = @otus.collect do |t|
       {
-        id:              t.id,
-        label:           ApplicationController.helpers.otu_autocomplete_selected_tag(t),
-        gid:             t.to_global_id.to_s,
+        id:  t.id,
+        label: ApplicationController.helpers.otu_autocomplete_selected_tag(t),
+        gid: t.to_global_id.to_s,
         response_values: {
           params[:method] => t.id
         },
-        label_html:      ApplicationController.helpers.otu_tag(t)
+        label_html: ApplicationController.helpers.otu_tag(t)
       }
     end
 
@@ -197,6 +197,10 @@ class OtusController < ApplicationController
   def by_name
     @otu_name = params.require(:name)
     @otu_ids = Queries::Otu::Autocomplete.new(@otu_name, project_id: params.require(:project_id)).all.pluck(:id)
+  end
+
+  def select_options
+    @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
   private

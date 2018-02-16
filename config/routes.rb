@@ -389,6 +389,8 @@ TaxonWorks::Application.routes.draw do
 
   resources :otus do
     concerns [:data_routes ]
+    resources :biological_associations, shallow: true, only: [:index], defaults: {format: :json}
+
     resources :contents, only: [:index]
     collection do
       post :preview_simple_batch_load # should be get
@@ -399,6 +401,8 @@ TaxonWorks::Application.routes.draw do
 
       post :preview_identifiers_batch_load
       post :create_identifiers_batch_load
+
+      get :select_options, defaults: {format: :json}
     end
   end
 
