@@ -96,13 +96,15 @@ class BiologicalRelationshipsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_biological_relationship
       @biological_relationship = BiologicalRelationship.find(params[:id])
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
     def biological_relationship_params
-      params.require(:biological_relationship).permit(:name, :is_transitive, :is_reflexive, :created_by_id, :updated_by_id, :project_id)
+      params.require(:biological_relationship).permit(
+        :name, :is_transitive, :is_reflexive, 
+        :created_by_id, :updated_by_id, :project_id,
+        origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
+      )
     end
 end
