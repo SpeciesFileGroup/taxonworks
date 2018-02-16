@@ -21,8 +21,8 @@ class BiologicalAssociationsController < ApplicationController
   def index_params
     if params[:otu_id]
       { biological_association_subject_id: params.require(:otu_id), biological_association_subject_type: 'Otu' }
-    elsif params[:specimen_id]
-      { biological_association_subject_id: params.require(:specimen_id), biological_association_subject_type: 'CollectionObject' }
+    elsif params[:collection_object_id]
+      { biological_association_subject_id: params.require(:collection_object_id), biological_association_subject_type: 'CollectionObject' }
     end
   end
 
