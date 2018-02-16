@@ -156,10 +156,11 @@ TaxonWorks::Application.routes.draw do
     end
 
     collection do
-      post :preview_castor_batch_load
-      post :create_castor_batch_load
-      get :preview_simple_batch_load # should be get
+      post :preview_castor_batch_load # should be get
+      post :create_castor_batch_load # should be get
+      get :preview_simple_batch_load 
       post :create_simple_batch_load
+      get :select_options, defaults: {format: :json}
     end
   end
   match 'collection_objects/by_identifier/:identifier', to: 'collection_objects#by_identifier', via: :get
@@ -713,6 +714,9 @@ TaxonWorks::Application.routes.draw do
         get 'download', action: 'download', as: 'download_collection_object_filter_result'
         post 'tag_all', action: 'tag_all', as: 'tag_all_collection_object_filter_result',  defaults: {format: :json}
       end
+
+
+      
     end
 
     scope :otus do

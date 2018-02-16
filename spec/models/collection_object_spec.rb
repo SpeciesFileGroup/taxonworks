@@ -528,6 +528,33 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     end
   end
 
+  context 'used recently' do
+    before do
+      collection_object.total = 1
+      collection_object.save!
+    end
+
+    let(:otu) { FactoryBot.create(:valid_otu) }
+    let!(:biological_association) { FactoryBot.create(:valid_biological_association, biological_association_subject: collection_object) }
+    let!(:taxon_determination) { FactoryBot.create(:valid_taxon_determination, otu: otu, biological_collection_object: collection_object) }
+
+    specify ".used_recently('TaxonDetermination')" do
+      expect(CollectionObject.used_recently('TaxonDetermination').to_a).to include(collection_object.becomes!(Specimen))
+    end
+
+    specify ".used_recently('BiologicalAssociation')" do
+      expect(CollectionObject.used_recently('BiologicalAssociation').to_a).to include(collection_object.becomes!(Specimen))
+    end
+
+    specify '.selected_optimized 1' do
+      expect(CollectionObject.select_optimized(collection_object.created_by_id, collection_object.project_id, 'BiologicalAssociation')).to include({recent: [collection_object.becomes!(Specimen)]})
+    end
+
+    specify '.selected_optimized 2' do
+      expect(CollectionObject.select_optimized(collection_object.created_by_id, collection_object.project_id, 'TaxonDetermination')).to include({quick: [collection_object.becomes!(Specimen)]})
+    end
+  end
+
   context 'concerns' do
     it_behaves_like 'citations'
     it_behaves_like 'containable'

@@ -170,7 +170,7 @@ class Otu < ApplicationRecord
 
   # @param used_on [String] required, one of `AssertedDistribution`, `Content`, `BiologicalAssociation`
   # @return [Scope]
-  #    the max 10 most recently used topics, as `used_on`
+  #    the max 10 most recently used otus, as `used_on`
   def self.used_recently(used_on = '')
 
     t = case used_on 
