@@ -698,40 +698,40 @@ shared_context 'stuff for complex geo tests' do
     let(:ce_p1s) { FactoryBot.create(:collecting_event, verbatim_label: '@ce_p1s collect_event test') }
 
     let(:gr01s) { FactoryBot.create(:georeference_verbatim_data,
-                                   api_request:           'gr01',
-                                   collecting_event:      ce_p1s,
-                                   error_geographic_item: k,
-                                   geographic_item:       p1) } #  3
+                                    api_request:           'gr01',
+                                    collecting_event:      ce_p1s,
+                                    error_geographic_item: k,
+                                    geographic_item:       p1) } #  3
 
     let(:gr11s) { FactoryBot.create(:georeference_verbatim_data,
-                                   api_request:           'gr11',
-                                   error_geographic_item: e1,
-                                   collecting_event:      ce_p1s,
-                                   geographic_item:       p11) } #  4
+                                    api_request:           'gr11',
+                                    error_geographic_item: e1,
+                                    collecting_event:      ce_p1s,
+                                    geographic_item:       p11) } #  4
 
     let(:ce_p2s) { FactoryBot.create(:collecting_event, verbatim_label: '@ce_p2s collect_event test') }
     let(:gr02s) { FactoryBot.create(:georeference_verbatim_data,
-                                   api_request:           'gr02s',
-                                   collecting_event:      ce_p2s,
-                                   error_geographic_item: k,
-                                   geographic_item:       p2) }
-    let(:gr121s) { FactoryBot.create(:georeference_verbatim_data,
-                                    api_request:           'gr121s',
+                                    api_request:           'gr02s',
                                     collecting_event:      ce_p2s,
-                                    error_geographic_item: e1,
-                                    geographic_item:       p12) }
+                                    error_geographic_item: k,
+                                    geographic_item:       p2) }
+    let(:gr121s) { FactoryBot.create(:georeference_verbatim_data,
+                                     api_request:           'gr121s',
+                                     collecting_event:      ce_p2s,
+                                     error_geographic_item: e1,
+                                     geographic_item:       p12) }
 
     let(:ce_p3s) { FactoryBot.create(:collecting_event, verbatim_label: '@ce_p3s collect_event test') }
     let(:gr03s) { FactoryBot.create(:georeference_verbatim_data,
-                                   api_request:           'gr03s',
-                                   collecting_event:      ce_p3s,
-                                   error_geographic_item: k,
-                                   geographic_item:       p3) }
+                                    api_request:           'gr03s',
+                                    collecting_event:      ce_p3s,
+                                    error_geographic_item: k,
+                                    geographic_item:       p3) }
     let(:gr13s) { FactoryBot.create(:georeference_verbatim_data,
-                                   api_request:           'gr13s',
-                                   collecting_event:      ce_p3s,
-                                   error_geographic_item: e2,
-                                   geographic_item:       p13) }
+                                    api_request:           'gr13s',
+                                    collecting_event:      ce_p3s,
+                                    error_geographic_item: e2,
+                                    geographic_item:       p13) }
 
     # let(:ce_n1) { FactoryBot.create(:collecting_event,
     #                                 start_date_year:  1972,
@@ -1159,6 +1159,7 @@ shared_context 'stuff for complex geo tests' do
         ce.save!
         ce
       }
+      let(:co_m1) { ce_m1.collection_objects.first }
       let(:gr_m1) { FactoryBot.create(:georeference_verbatim_data,
                                       api_request:           'gr_m1',
                                       collecting_event:      ce_m1,
@@ -1253,6 +1254,18 @@ shared_context 'stuff for complex geo tests' do
       }
     end
 
+    begin # build the collecting event for objects in P3B
+      # @ce_p3b has no georeference
+      let(:ce_p3b) { FactoryBot.create(:collecting_event,
+                                       start_date_year:  1984,
+                                       start_date_month: 4,
+                                       start_date_day:   4,
+                                       verbatim_label:   '@ce_p3b',
+                                       geographic_area:  area_s) }
+      let(:co_p3b) { FactoryBot.create(:valid_collection_object, {collecting_event: ce_p3b}) }
+
+    end
+
     begin # buile collecting event for objects in M2
       let(:ce_m2) { FactoryBot.create(:collecting_event,
                                       start_date_year:  1975,
@@ -1345,6 +1358,33 @@ shared_context 'stuff for complex geo tests' do
       }
       let(:item_o2) { FactoryBot.create(:geographic_item, multi_polygon: shape_o2) }
       let(:shape_o2) { GeoBuild.make_box(GeoBuild::POINT_M1_P0, 2, 1, 1, 1) }
+    end
+
+    begin # build for collecting event for objects in M3
+      let(:ce_m3) { FactoryBot.create(:collecting_event,
+                                      start_date_year:  1981,
+                                      start_date_month: 1,
+                                      start_date_day:   1,
+                                      verbatim_label:   '@ce_m3',
+                                      geographic_area:  area_m3) }
+      let(:gr_m3) { FactoryBot.create(:georeference_verbatim_data,
+                                      api_request:           'gr_m3',
+                                      collecting_event:      @ce_m3,
+                                      error_geographic_item: item_m3,
+                                      geographic_item:       GeographicItem.new(point: item_m3.st_centroid)) }
+      let(:co_m3) { FactoryBot.create(:valid_collection_object, {collecting_event: ce_m3}) }
+
+      let(:area_m3) {
+        area = FactoryBot.create(:level1_geographic_area,
+                                 name:                 'M3',
+                                 tdwgID:               nil,
+                                 geographic_area_type: province_gat,
+                                 parent:               area_r)
+        area.geographic_items << item_m3
+        area.save!
+        area
+      }
+      let(:item_m3) { FactoryBot.create(:geographic_item, multi_polygon: shape_m3) }
     end
 
     b = FactoryBot.build(:geographic_item_polygon, polygon: GeoBuild::SHAPE_B.as_binary) # 27

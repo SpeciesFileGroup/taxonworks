@@ -41,25 +41,25 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
         collection_object.ranged_lot_category_id = 10
       }
       specify 'when a CollectionObject' do
-        expect(collection_object.valid?).to be_falsey
+        collection_object.valid?
         expect(collection_object.errors.include?(:ranged_lot_category_id)).to be_truthy
       end
 
       specify 'when a Specimen' do
         collection_object.type = 'Specimen'
-        expect(collection_object.valid?).to be_falsey
+        collection_object.valid?
         expect(collection_object.errors.include?(:ranged_lot_category_id)).to be_truthy
       end
 
       specify 'when a Lot' do
         collection_object.type = 'Lot'
-        expect(collection_object.valid?).to be_falsey
+        collection_object.valid?
         expect(collection_object.errors.include?(:ranged_lot_category_id)).to be_truthy
       end
 
       specify 'when a RangedLot' do
         collection_object.type = 'RangedLot'
-        expect(collection_object.valid?).to be_falsey
+        collection_object.valid?
         expect(collection_object.errors.include?(:ranged_lot_category_id)).to be_truthy
       end
     end
@@ -136,16 +136,16 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
   context 'after save' do
     let!(:c) { Delayed::Job.count }
     context 'without no_cached = true' do
-      before {Specimen.create!}
+      before { Specimen.create! }
       specify 'a delayed_job is added' do
         expect(Delayed::Job.count).to eq(c + 1)
       end
     end
 
     context 'with no_cached = true' do
-      before {Specimen.create!(no_cached: true)}
+      before { Specimen.create!(no_cached: true) }
       specify 'a delayed_job not added' do
-        expect(Delayed::Job.count).to eq(c )
+        expect(Delayed::Job.count).to eq(c)
       end
     end
   end
@@ -170,18 +170,18 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     end
 
     context 'has_many' do
-      before {collection_object.total = 1}
+      before { collection_object.total = 1 }
       # technically not supposed to have these, they are to be biological only
       specify 'taxon_determinations' do
         collection_object.taxon_determinations << FactoryBot.create(:valid_taxon_determination)
-        expect(collection_object.save).to be_truthy
+        collection_object.save!
         collection_object.reload
         expect(collection_object.taxon_determinations.first).to be_truthy
       end
 
       specify 'type_designations' do
-        expect(collection_object.type_designations << FactoryBot.create(:valid_type_material)).to be_truthy
-        expect(collection_object.save).to be_truthy
+        collection_object.type_designations << FactoryBot.create(:valid_type_material)
+        collection_object.save!
         expect(collection_object.type_designations.count).to eq(1)
       end
     end
@@ -264,59 +264,65 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 
       describe 'spanning a single day' do
         specify 'should find 1 record' do
+          [co_m3, co_p1b].each
           collection_objects = CollectionObject.in_date_range({search_start_date: '1981/01/01',
-                                                               search_end_date: '1981/1/1'})
-          expect(collection_objects.count).to eq(1)
-          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m3')
+                                                               search_end_date:   '1981/1/1'})
+          expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_m3)
         end
       end
 
       describe 'spanning a single month' do
         specify 'should find 1 record' do
+          [co_m3, co_p1b].each
           collection_objects = CollectionObject.in_date_range({search_start_date: '1974/04/01',
-                                                               search_end_date: '1974/4/30'})
-          expect(collection_objects.count).to eq(1)
-          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_p1')
+                                                               search_end_date:   '1974/4/30'})
+          expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_p1b)
         end
       end
 
       describe 'spanning a single year' do
         specify 'should find 2 records' do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1971/01/01', search_end_date: '1971/12/31'})
-          expect(collection_objects.count).to eq(2)
-          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m1', '@ce_m1a')
+          [co_m1, co_m1a]
+          collection_objects = CollectionObject.in_date_range({search_start_date: '1971/01/01',
+                                                               search_end_date:   '1971/12/31'})
+          expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_m1, ce_m1a)
         end
       end
 
       describe 'spanning four months of a year' do
         specify 'should find 1 record' do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1971/05/01', search_end_date: '1971/8/31'})
-          expect(collection_objects.count).to eq(1)
-          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m1a')
+          [co_m1, co_m1a].each
+          collection_objects = CollectionObject.in_date_range({search_start_date: '1971/05/01',
+                                                               search_end_date:   '1971/8/31'})
+          expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_m1a)
         end
       end
 
       describe 'spanning a partial year' do
         specify 'should find 2 records' do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1971/01/01', search_end_date: '1971/08/31'})
-          expect(collection_objects.count).to eq(2)
-          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m1', '@ce_m1a')
+          [co_m1, co_m1a, co_p1b].each
+          collection_objects = CollectionObject.in_date_range({search_start_date: '1971/01/01',
+                                                               search_end_date:   '1971/08/31'})
+          expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_m1, ce_m1a)
         end
       end
 
       describe 'spanning parts of two years' do
         specify 'should find 2 records' do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1974/03/01', search_end_date: '1975/06/30'})
-          expect(collection_objects.count).to eq(2)
-          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m2 in Big Boxia', '@ce_p1')
+          [co_m2, co_p1b, co_m1a]
+          collection_objects = CollectionObject.in_date_range({search_start_date: '1974/03/01',
+                                                               search_end_date:   '1975/06/30'})
+          expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_m2, ce_p1b)
         end
       end
 
       describe 'spanning parts of several years' do
         specify 'should find 4 records' do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1974/03/01', search_end_date: '1976/08/31'})
-          expect(collection_objects.count).to eq(4)
-          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m2 in Big Boxia', '@ce_p1', '@ce_n2', '@ce_n2')
+          [co_n2_a, co_n2_b, co_m2, co_p1b, co_p3b].each
+          collection_objects = CollectionObject.in_date_range({search_start_date: '1974/03/01',
+                                                               search_end_date:   '1976/08/31'})
+          # expect(collection_objects.count).to eq(4)
+          expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_m2, ce_p1b, ce_n2, ce_n2)
         end
       end
 
@@ -330,71 +336,90 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 
       describe 'spanning parts of two years in a non-greedy search for 1982/02/02-1984/09/15' do
         specify 'should find 1 record' do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1982/02/01', search_end_date: '1984/06/30', partial_overlap: 'Off'})
-          expect(collection_objects.count).to eq(2)
-          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_o3',
-                                                                                                      '@ce_p3')
+          [co_o3, co_p3b, co_m1].each
+          collection_objects = CollectionObject.in_date_range({search_start_date: '1982/02/01',
+                                                               search_end_date:   '1984/06/30',
+                                                               partial_overlap:   'Off'})
+          expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_o3, ce_p3b)
         end
       end
     end
   end
 
   context ':from_collecting_events' do
-    let(:project_id) { CollectionObject.order(:id).first.project_id }
+    before {
+      [co_a, co_b, co_n3, co_p1b, co_o1,
+       co_o3, co_n2_a, co_n2_b, co_n4, co_m1a,
+       co_v, co_p2b, co_p3b, co_m3, co_n1,
+       co_o2, co_m3].each
+    }
+    let(:project_id) { geo_project }
 
     describe 'all collecting events' do
       specify 'should find 19 collection objects' do
         collecting_event_ids = CollectingEvent.all.pluck(:id)
-        collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids, [], false, project_id)
-        expect(CollectionObject.count).to eq(20)
-        expect(collection_objects.count).to eq(19)
+        collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
+                                                                       [],
+                                                                       false,
+                                                                       project_id)
+        # expect(CollectionObject.count).to eq(16)
+        expect(collection_objects.count).to eq(16)
       end
     end
 
     describe 'slice of collecting events by dates' do
-      specify 'should find 10 collection objects' do
+      specify 'should find 9 collection objects' do
         # this is not a particular date range, but it covers collecting events which have more than one
         # collection object
-        collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01', search_end_date: '1979/12/31', partial_overlap: 'on'}).pluck(:id)
-        area_object_ids = CollectionObject.all.pluck(:id) # equivalent to the whole world - not a very good isolation test
-        collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
-                                                                       area_object_ids,
-                                                                       true,
-                                                                       project_id)
-        expect(collecting_event_ids.count).to eq(9)
-        expect(collection_objects.count).to eq(10)
+        collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01',
+                                                              search_end_date:   '1979/12/31',
+                                                              partial_overlap:   'on'}).pluck(:id)
+        # equivalent to the whole world - not a very good isolation test
+        area_object_ids    = CollectionObject.all.pluck(:id)
+        collection_objects = CollectionObject.from_collecting_events(collecting_event_ids,
+                                                                     area_object_ids,
+                                                                     true,
+                                                                     project_id)
+        # expect(collecting_event_ids.count).to eq(9)
+        expect(collection_objects.count).to eq(9)
       end
     end
 
     describe 'slice of collecting_events by area' do
       specify 'should find 1 collecting object' do
-        collecting_event_ids = CollectingEvent.contained_within(@item_r).pluck(:id) + (CollectingEvent.contained_within(@item_s).pluck(:id))
+        area_col_event_ids = CollectingEvent.contained_within(item_r).pluck(:id) +
+          (CollectingEvent.contained_within(item_s).pluck(:id))
+        area_object_ids    = CollectionObject.where(collecting_event_id: area_col_event_ids).map(&:id)
+        date_col_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01',
+                                                            search_end_date:   '1982/12/31',
+                                                            partial_overlap:   'off'}).pluck(:id)
+        collection_objects = CollectionObject.from_collecting_events(date_col_event_ids,
+                                                                     area_object_ids,
+                                                                     false,
+                                                                     project_id)
+        # expect(collecting_event_ids.count).to eq(10)
+        # expect(collection_objects.count).to eq(1)
+        expect(collection_objects).to contain_exactly(co_m3)
+      end
+
+      specify 'should find 2 collecting objects' do
+        collecting_event_ids = CollectingEvent.contained_within(item_r).pluck(:id) +
+          (CollectingEvent.contained_within(item_s).pluck(:id))
         area_object_ids      = CollectionObject.where(collecting_event_id: collecting_event_ids).map(&:id)
-        collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01', search_end_date: '1982/12/31', partial_overlap: 'off'}).pluck(:id)
+        collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01',
+                                                              search_end_date:   '1982/12/31',
+                                                              partial_overlap:   'On'}).pluck(:id)
         collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
                                                                        area_object_ids,
                                                                        false,
                                                                        project_id)
-        expect(collecting_event_ids.count).to eq(10)
-        expect(collection_objects.count).to eq(1)
-        expect(collection_objects).to contain_exactly(@co_m3)
-      end
-
-      specify 'should find 2 collecting objects' do
-        collecting_event_ids = CollectingEvent.contained_within(@item_r).pluck(:id) + (CollectingEvent.contained_within(@item_s).pluck(:id))
-        area_object_ids = CollectionObject.where(collecting_event_id: collecting_event_ids).map(&:id)
-        collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01', search_end_date: '1982/12/31', partial_overlap: 'On'}).pluck(:id)
-        collection_objects = CollectionObject.from_collecting_events(collecting_event_ids,
-                                                                     area_object_ids,
-                                                                     false,
-                                                                     project_id)
         expect(collecting_event_ids.count).to eq(11)
         expect(collection_objects.count).to eq(2)
-        expect(collection_objects).to contain_exactly(@co_m3, @co_n3)
+        expect(collection_objects).to contain_exactly(co_m3, co_n3)
       end
 
       specify 'should find 0 collecting objects' do
-        collecting_event_ids = CollectingEvent.contained_within(@item_wb).pluck(:id)
+        collecting_event_ids = CollectingEvent.contained_within(item_wb).pluck(:id)
         collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
                                                                        [],
                                                                        true,
@@ -409,34 +434,34 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
   end
 
   context 'identifier scopes' do
-    let(:ns1) {Namespace.first}
-    let(:ns2) {Namespace.second}
-    let(:type_cat_no) {'Identifier::Local::CatalogNumber'}
+    let(:ns1) { Namespace.first }
+    let(:ns2) { Namespace.second }
+    let(:type_cat_no) { 'Identifier::Local::CatalogNumber' }
 
-    let(:id_attributes) {{namespace: nil,
-                          project_id: $project_id,
-                          type: nil,
-                          identifier: nil}}
+    let(:id_attributes) { {namespace:  nil,
+                           project_id: $project_id,
+                           type:       nil,
+                           identifier: nil} }
     before :all do
       CollectionObject.delete_all
       ActiveRecord::Base.connection.reset_pk_sequence!('collection_objects')
 
-      3.times {FactoryBot.create(:valid_namespace)}
-      2.times {FactoryBot.create(:valid_specimen)}
+      3.times { FactoryBot.create(:valid_namespace) }
+      2.times { FactoryBot.create(:valid_specimen) }
       FactoryBot.create(:identifier_local_import,
-                         identifier_object: Specimen.first,
-                         namespace: Namespace.third,
-                         identifier: 'First specimen')
+                        identifier_object: Specimen.first,
+                        namespace:         Namespace.third,
+                        identifier:        'First specimen')
       FactoryBot.create(:identifier_local_import,
-                         identifier_object: Specimen.second,
-                         namespace: Namespace.third,
-                         identifier: 'Second specimen')
-      (1..10).each {|identifier|
+                        identifier_object: Specimen.second,
+                        namespace:         Namespace.third,
+                        identifier:        'Second specimen')
+      (1..10).each { |identifier|
         sp = FactoryBot.create(:valid_specimen)
         id = FactoryBot.create(:identifier_local_catalog_number,
-                                identifier_object: sp,
-                                namespace: (identifier.even? ? Namespace.first : Namespace.second),
-                                identifier: identifier)
+                               identifier_object: sp,
+                               namespace:         (identifier.even? ? Namespace.first : Namespace.second),
+                               identifier:        identifier)
       }
     end
 
