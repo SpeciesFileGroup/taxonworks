@@ -224,7 +224,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']].to_i
             # next unless TaxonName.where(id: taxon_name_id).any?
 
-            if !TaxonName.where(id: taxon_name_id).exists?
+            if taxon_name_id.nil?   #!TaxonName.where(id: taxon_name_id).exists?
               logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} was not created in TW (no_taxon_counter = #{no_taxon_counter += 1})"
 
               # @todo: Test if OTU exists? Add citation to OTU? Also add notes, nomenclator, tags, confidences?
@@ -237,11 +237,16 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               next
             end
 
-            project_id = TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
             sf_ref_id = row['RefID']
             source_id = get_tw_source_id[sf_ref_id].to_i
 
             next if source_id == 0
+
+            protonym = TaxonName.find(taxon_name_id)
+
+            project_id = protonym.project_id.to_s  #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
+            nomenclator_string = get_nomenclator_string[row['NomenclatorID']]
+            nomenclator_string = nomenclator_string[1..-2] if !nomenclator_string.nil?
 
             logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
 SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
@@ -310,7 +315,36 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
 
             else # create new citation
 
-                 # combination check
+              if nomenclator_string
+
+                unless protonym.cached_original_combination == nomenclator_string
+                                   combination = nil
+                    check_result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
+                  if check_result.is_unambiguous? && !(nomenclator_string =~ /\sform\s/)
+                     combination = check_result.combination
+
+                     # rescue/log save here
+
+                     combination.project_id = project_id
+                     # TODO: override $user_id if need be
+
+                     if combination.genus
+                      combination.save!
+                      taxon_name_id = combination.id  # At this point (3) do we use taxon_name_id for anything OTHER THAN the citation  (yes lots of loggin)
+
+                      logger.info "wooOoOooOo"
+                     end
+                  else
+                    # ... this is all the funny exceptions (4)
+                  end
+
+                end
+                
+
+
+              end
+
+              # combination check
                  # synonym or taxon_name_relationship check
 
               citation = Citation.new(
@@ -336,7 +370,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
 
                 # yes I know this is ugly but it works
                 if citation.errors.messages[:source_id].nil?
-                  logger.info "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
+                  logger.info "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id},
 SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
                   next
                 else # make pages unique and save again
@@ -345,11 +379,11 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                     begin
                       citation.save!
                     rescue ActiveRecord::RecordInvalid
-                      logger.info "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
+                      logger.info "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
                       next
                     end
                   else # citation error was not already been taken (other validation failure)
-                    logger.info "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
+                    logger.info "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
                     next
                   end
                 end
@@ -359,13 +393,13 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             ### After citation updated or created
 
             ## Nomenclator: DataAttribute of citation, NomenclatorID > 0
-            if row['NomenclatorID'] != '0' # OR could value: be evaluated below based on NomenclatorID?
+            if nomenclator_string # OR could value: be evaluated below based on NomenclatorID?
               da = DataAttribute.new(type: 'ImportAttribute',
                                      attribute_subject_id: citation.id,
                                      attribute_subject_type: 'Citation',
                                      # attribute_subject: citation,        replaces two lines above
                                      import_predicate: 'Nomenclator',
-                                     value: get_nomenclator_string[row['NomenclatorID']],
+                                     value: nomenclator_string,
                                      project_id: project_id,
                                      created_at: row['CreatedOn'],
                                      updated_at: row['LastUpdate'],
@@ -398,10 +432,11 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               next
             end
 
-            otu_id = get_taxon_name_otu_id[taxon_name_id.to_s].to_i
+            # !! from here on we're back to referencing OTUs that were created PRE combination world
+            otu_id = get_taxon_name_otu_id[protonym.id.to_s].to_i
 
             if otu_id == 0
-              logger.warn "OTU error, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (OTU not found: #{otu_not_found_counter += 1})"
+              logger.warn "OTU error, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id} (OTU not found: #{otu_not_found_counter += 1})"
               next
             end
 
@@ -436,7 +471,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               otu_citation.save!
               puts 'OTU citation created'
             rescue ActiveRecord::RecordInvalid
-              logger.error "OTU citation ERROR SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} = otu_id #{otu_id} (error_counter = #{error_counter += 1}): " + otu_citation.errors.full_messages.join(';')
+              logger.error "OTU citation ERROR SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id} = otu_id #{otu_id} (error_counter = #{error_counter += 1}): " + otu_citation.errors.full_messages.join(';')
             end
 
 
