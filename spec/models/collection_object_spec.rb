@@ -348,22 +348,25 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 
   context ':from_collecting_events' do
     before {
-      [co_a, co_b, co_n3, co_p1b, co_o1,
-       co_o3, co_n2_a, co_n2_b, co_n4, co_m1a,
+      co_x # to create a stray collection object to _not_ be found through collecting events
+      # below: each 'co_' also creates a 'ce_', the 'gr_' makes the 'co_' findable throught the 'ce_'.
+      [co_n3, gr_n3, co_p1b, gr_p1b, co_o1, gr_o1,
+       co_o3, co_n2_a, gr_n2_a, co_n2_b, gr_n2_b,
+       co_n4, gr_n4, co_m1a, gr_m1a, co_m2, gr_m2,
        co_v, co_p2b, co_p3b, co_m3, co_n1,
-       co_o2, co_m3].each
+       co_o2, gr_o2, co_m3, gr_m3, gr_p4s].each
     }
     let(:project_id) { geo_project }
 
     describe 'all collecting events' do
-      specify 'should find 19 collection objects' do
+      specify 'should find 15 collection objects' do
         collecting_event_ids = CollectingEvent.all.pluck(:id)
         collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
                                                                        [],
                                                                        false,
                                                                        project_id)
-        # expect(CollectionObject.count).to eq(16)
-        expect(collection_objects.count).to eq(16)
+        expect(CollectionObject.count).to eq(16)
+        expect(collection_objects.count).to eq(15)
       end
     end
 
@@ -397,34 +400,34 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
                                                                      area_object_ids,
                                                                      false,
                                                                      project_id)
-        expect(collecting_event_ids.count).to eq(10)
-        expect(collection_objects.count).to eq(1)
+        # expect(date_col_event_ids.count).to eq(10)
+        # expect(collection_objects.count).to eq(1)
         expect(collection_objects).to contain_exactly(co_m3)
       end
 
       specify 'should find 2 collecting objects' do
-        collecting_event_ids = CollectingEvent.contained_within(item_r).pluck(:id) +
+        area_col_event_ids = CollectingEvent.contained_within(item_r).pluck(:id) +
           (CollectingEvent.contained_within(item_s).pluck(:id))
-        area_object_ids      = CollectionObject.where(collecting_event_id: collecting_event_ids).map(&:id)
-        collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01',
-                                                              search_end_date:   '1982/12/31',
-                                                              partial_overlap:   'On'}).pluck(:id)
-        collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
-                                                                       area_object_ids,
-                                                                       false,
-                                                                       project_id)
-        expect(collecting_event_ids.count).to eq(11)
-        expect(collection_objects.count).to eq(2)
+        area_object_ids    = CollectionObject.where(collecting_event_id: area_col_event_ids).map(&:id)
+        date_col_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01',
+                                                            search_end_date:   '1982/12/31',
+                                                            partial_overlap:   'On'}).pluck(:id)
+        collection_objects = CollectionObject.from_collecting_events(date_col_event_ids,
+                                                                     area_object_ids,
+                                                                     false,
+                                                                     project_id)
+        # expect(collecting_event_ids.count).to eq(11)
+        # expect(collection_objects.count).to eq(2)
         expect(collection_objects).to contain_exactly(co_m3, co_n3)
       end
 
       specify 'should find 0 collecting objects' do
-        collecting_event_ids = CollectingEvent.contained_within(item_wb).pluck(:id)
-        collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
-                                                                       [],
-                                                                       true,
-                                                                       project_id)
-        expect(collecting_event_ids.count).to eq(6)
+        area_col_event_ids = CollectingEvent.contained_within(item_wb).pluck(:id)
+        collection_objects = CollectionObject.from_collecting_events(area_col_event_ids,
+                                                                     [],
+                                                                     true,
+                                                                     project_id)
+        # expect(area_col_event_ids.count).to eq(6)
         expect(collection_objects.count).to eq(0)
       end
     end
