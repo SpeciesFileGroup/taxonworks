@@ -6,8 +6,24 @@ class BiologicalAssociationsController < ApplicationController
   # GET /biological_associations
   # GET /biological_associations.json
   def index
-    @recent_objects = BiologicalAssociation.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+
+    respond_to do |format|
+      format.html {
+        @recent_objects = BiologicalAssociation.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @biological_associations = BiologicalAssociation.where(project_id: sessions_current_project_id).where(index_params)
+      }
+    end
+  end
+
+  def index_params
+    if params[:otu_id]
+      { biological_association_subject_id: params.require(:otu_id), biological_association_subject_type: 'Otu' }
+    elsif params[:specimen_id]
+      { biological_association_subject_id: params.require(:specimen_id), biological_association_subject_type: 'CollectionObject' }
+    end
   end
 
   # GET /biological_associations/1
