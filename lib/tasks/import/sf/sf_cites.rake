@@ -224,7 +224,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']].to_i
             # next unless TaxonName.where(id: taxon_name_id).any?
 
-            if taxon_name_id.nil?   #!TaxonName.where(id: taxon_name_id).exists?
+            if taxon_name_id.nil? #!TaxonName.where(id: taxon_name_id).exists?
               logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} was not created in TW (no_taxon_counter = #{no_taxon_counter += 1})"
 
               # @todo: Test if OTU exists? Add citation to OTU? Also add notes, nomenclator, tags, confidences?
@@ -244,9 +244,9 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             protonym = TaxonName.find(taxon_name_id)
 
-            project_id = protonym.project_id.to_s  #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
+            project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
             nomenclator_string = get_nomenclator_string[row['NomenclatorID']]
-            nomenclator_string = nomenclator_string[1..-2] if !nomenclator_string.nil?
+            # nomenclator_string = nomenclator_string[1..-2] if !nomenclator_string.nil?  # was used to strip out single quotes
 
             logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
 SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
@@ -318,34 +318,41 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
               if nomenclator_string
 
                 unless protonym.cached_original_combination == nomenclator_string
-                                   combination = nil
-                    check_result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
-                  if check_result.is_unambiguous? && !(nomenclator_string =~ /\sform\s/)
-                     combination = check_result.combination
+                  combination = nil
+                  check_result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
 
-                     # rescue/log save here
 
-                     combination.project_id = project_id
-                     # TODO: override $user_id if need be
+                  begin
+                    if check_result.is_unambiguous? && !(nomenclator_string =~ /\sform\s/)
+                      combination = check_result.combination
 
-                     if combination.genus
-                      combination.save!
-                      taxon_name_id = combination.id  # At this point (3) do we use taxon_name_id for anything OTHER THAN the citation  (yes lots of loggin)
+                      # rescue/log save here
 
-                      logger.info "wooOoOooOo"
-                     end
-                  else
-                    # ... this is all the funny exceptions (4)
+                      combination.project_id = project_id
+                      # TODO: override $user_id if need be
+
+                      if combination.genus
+                        combination.save!
+                        taxon_name_id = combination.id # At this point (3) do we use taxon_name_id for anything OTHER THAN the citation  (yes lots of loggin)
+
+                        logger.info "Successful COMBINATION"
+                      end
+                    else
+                      # ... this is all the funny exceptions (4)
+                      logger.info "Funny exceptions ELSE"
+                    end
+
+                  rescue ActiveRecord::RecordInvalid
+                    logger.error "Combination ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + combination.errors.full_messages.join(';')
                   end
 
+
                 end
-                
-
-
               end
 
+
               # combination check
-                 # synonym or taxon_name_relationship check
+              # synonym or taxon_name_relationship check
 
               citation = Citation.new(
                   metadata.merge(
