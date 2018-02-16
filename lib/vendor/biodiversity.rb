@@ -141,8 +141,14 @@ module TaxonWorks
           nil
         end
 
+        # return only references to ambiguous protonyms
+        #
+        # Parse 'form' 
+        # Parse 'parse 'Var" 
+
         # @return [Boolean]
         #   true if there for each parsed piece of there name there is 1 and only 1 result
+        #   !! TODO: check to see 1) there are at least genus and species and 2) (First) there is a parse result at all
         def is_unambiguous?
           RANK_MAP.each_key do |r|
             if !send(r).nil?
