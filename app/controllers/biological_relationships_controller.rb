@@ -6,8 +6,15 @@ class BiologicalRelationshipsController < ApplicationController
   # GET /biological_relationships
   # GET /biological_relationships.json
   def index
-    @recent_objects = BiologicalRelationship.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = BiologicalRelationship.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @biological_relationships = BiologicalRelationship.where(filter_sql).with_project_id(sessions_current_project_id).order(:name)
+      }
+    end
   end
 
   # GET /biological_relationships/1
@@ -82,7 +89,7 @@ class BiologicalRelationshipsController < ApplicationController
       {id: t.id,
        label: ApplicationController.helpers.biological_relationship_tag(t),
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
        label_html: ApplicationController.helpers.biological_relationship_tag(t)
       }
@@ -96,15 +103,20 @@ class BiologicalRelationshipsController < ApplicationController
   end
 
   private
-    def set_biological_relationship
-      @biological_relationship = BiologicalRelationship.find(params[:id])
-    end
 
-    def biological_relationship_params
-      params.require(:biological_relationship).permit(
-        :name, :is_transitive, :is_reflexive, 
-        :created_by_id, :updated_by_id, :project_id,
-        origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
-      )
-    end
+  def filter_sql
+    {}
+  end
+
+  def set_biological_relationship
+    @biological_relationship = BiologicalRelationship.find(params[:id])
+  end
+
+  def biological_relationship_params
+    params.require(:biological_relationship).permit(
+      :name, :is_transitive, :is_reflexive, 
+      :created_by_id, :updated_by_id, :project_id,
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
+    )
+  end
 end
