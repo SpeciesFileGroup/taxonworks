@@ -319,35 +319,44 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
 
                 unless protonym.cached_original_combination == nomenclator_string
                   combination = nil
-                  check_result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
-
 
                   begin
-                    if check_result.is_unambiguous? && !(nomenclator_string =~ /\sform\s/)
-                      combination = check_result.combination
-
-                      # rescue/log save here
-
-                      combination.project_id = project_id
-                      # TODO: override $user_id if need be
-
-                      if combination.genus
-                        combination.save!
-                        taxon_name_id = combination.id # At this point (3) do we use taxon_name_id for anything OTHER THAN the citation  (yes lots of loggin)
-
-                        logger.info "Successful COMBINATION"
-                      end
-                    else
-                      # ... this is all the funny exceptions (4)
-                      logger.info "Funny exceptions ELSE"
-                    end
-
+                  check_result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
                   rescue ActiveRecord::RecordInvalid
-                    logger.error "Combination ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + combination.errors.full_messages.join(';')
+                    logger.error "check_result ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, check_result = #{check_result}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + check_result.errors.full_messages.join(';')
                   end
 
 
+                  if check_result.is_unambiguous? && !(nomenclator_string =~ /\sform\s/)
+                    
+                    combination = check_result.combination
+
+                    # what's in check_result, count of species
+
+                    combination.project_id = project_id
+                    # TODO: override $user_id if need be
+
+                    if combination.genus
+
+
+                      begin
+
+                       combination.save!
+                        taxon_name_id = combination.id # At this point (3) do we use taxon_name_id for anything OTHER THAN the citation  (yes lots of loggin)
+
+                      rescue ActiveRecord::RecordInvalid
+                        logger.error "Combination ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + combination.errors.full_messages.join(';')
+                      end
+
+
+                      logger.info "Successful COMBINATION"
+                    end
+                  else
+                    # ... this is all the funny exceptions (4)
+                    logger.info "Funny exceptions ELSE"
+                  end
                 end
+                
               end
 
 
