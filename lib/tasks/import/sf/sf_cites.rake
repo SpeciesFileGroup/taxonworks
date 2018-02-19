@@ -315,20 +315,14 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
 
             else # create new citation
 
-              if nomenclator_string
+              if nomenclator_string && !(protonym.cached_original_combination == nomenclator_string)
+                combination = nil
 
-                unless protonym.cached_original_combination == nomenclator_string
-                  combination = nil
-
-                  begin
+                begin
                   check_result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
-                  rescue ActiveRecord::RecordInvalid
-                    logger.error "check_result ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, check_result = #{check_result}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + check_result.errors.full_messages.join(';')
-                  end
-
 
                   if check_result.is_unambiguous? && !(nomenclator_string =~ /\sform\s/)
-                    
+
                     combination = check_result.combination
 
                     # what's in check_result, count of species
@@ -337,45 +331,46 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                     # TODO: override $user_id if need be
 
                     if combination.genus
-
-
-                      begin
-
-                       combination.save!
-                        taxon_name_id = combination.id # At this point (3) do we use taxon_name_id for anything OTHER THAN the citation  (yes lots of loggin)
-
-                      rescue ActiveRecord::RecordInvalid
-                        logger.error "Combination ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + combination.errors.full_messages.join(';')
-                      end
-
-
+                      combination.save!
+                      taxon_name_id = combination.id # At this point (3) do we use taxon_name_id for anything OTHER THAN the citation  (yes lots of loggin)
                       logger.info "Successful COMBINATION"
                     end
+
                   else
                     # ... this is all the funny exceptions (4)
                     logger.info "Funny exceptions ELSE"
                   end
-                end
-                
-              end
 
+                  # Put all the rescue statements in one place
+                rescue ActiveRecord::RecordInvalid
+                  # I don't think this check is right now - there is no .errors method on check_result, which returns an instance of TaxonWorks::Vendor::Biodiversity::Result.new()
+                  # logger.error "check_result ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, check_result = #{check_result}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + check_result.errors.full_messages.join(';')
+
+                  # !! both messages might not make sense now
+                  logger.error "Combination ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + combination.errors.full_messages.join(';')
+                rescue ActiveRecord::TypeError
+                  # message about type / problems with   TaxonWorks::Vendor::Biodiversity::Result
+                rescue 
+                  raise
+                end
+              end # end block that does stuff if nomenclator_string exists
 
               # combination check
               # synonym or taxon_name_relationship check
 
-              citation = Citation.new(
-                  metadata.merge(
-                      source_id: source_id,
-                      pages: cite_pages,
-                      is_original: (row['SeqNum'] == '1' ? true : false),
-                      citation_object_type: 'TaxonName',
-                      citation_object_id: taxon_name_id,
+            citation = Citation.new(
+              metadata.merge(
+                source_id: source_id,
+                pages: cite_pages,
+                is_original: (row['SeqNum'] == '1' ? true : false),
+                citation_object_type: 'TaxonName',
+                citation_object_id: taxon_name_id,
 
-                      # housekeeping for citation
-                      project_id: project_id,
-                      created_at: row['CreatedOn'],
-                      updated_at: row['LastUpdate'],
-                      created_by_id: get_tw_user_id[row['CreatedBy']],
+                # housekeeping for citation
+                project_id: project_id,
+                created_at: row['CreatedOn'],
+                updated_at: row['LastUpdate'],
+                created_by_id: get_tw_user_id[row['CreatedBy']],
                       updated_by_id: get_tw_user_id[row['ModifiedBy']]
                   )
               )
