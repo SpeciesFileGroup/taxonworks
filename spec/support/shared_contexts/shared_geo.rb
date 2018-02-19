@@ -17,14 +17,6 @@ shared_context 'stuff for complex geo tests' do
   }
   let(:joe) { geo_user }
 
-  let(:country_gat) { GeographicAreaType.create!(name: 'Country', creator: geo_user, updater: geo_user) }
-  let(:state_gat) { GeographicAreaType.create!(name: 'State', creator: geo_user, updater: geo_user) }
-  let(:province_gat) { GeographicAreaType.create!(name: 'Province', creator: geo_user, updater: geo_user) }
-  let(:county_gat) { GeographicAreaType.create!(name: 'County', creator: geo_user, updater: geo_user) }
-  let(:parish_gat) { GeographicAreaType.create!(name: 'Parish', creator: geo_user, updater: geo_user) }
-  let(:planet_gat) { GeographicAreaType.create!(name: 'Planet', creator: geo_user, updater: geo_user) }
-  let(:land_mass_gat) { GeographicAreaType.create!(name: 'Land Mass', creator: geo_user, updater: geo_user) }
-
 # include_context 'stuff for area_a'
 
   let(:list_shape_a) {
@@ -136,11 +128,6 @@ shared_context 'stuff for complex geo tests' do
                                        multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([shape_r2]),
                                        creator:       geo_user,
                                        updater:       geo_user) }
-
-  let(:earth) { FactoryBot.create(:earth_geographic_area,
-                                  geographic_area_type: planet_gat,
-                                  creator:              geo_user,
-                                  updater:              geo_user) }
 
 # need some areas
   begin
@@ -676,11 +663,6 @@ shared_context 'stuff for complex geo tests' do
     let(:k) { FactoryBot.create(:geographic_item_polygon, polygon: GeoBuild::SHAPE_K.as_binary) }
     let(:l) { FactoryBot.create(:geographic_item_line_string, line_string: GeoBuild::SHAPE_L.as_binary) } # 49 } #
 
-    let(:r2020) { FactoryBot.create(:geographic_item_point, point: GeoBuild::ROOM2020.as_binary) } # 50
-    let(:r2022) { FactoryBot.create(:geographic_item_point, point: GeoBuild::ROOM2022.as_binary) } # 51
-    let(:r2024) { FactoryBot.create(:geographic_item_point, point: GeoBuild::ROOM2024.as_binary) } # 52
-    let(:rooms) { FactoryBot.create(:geographic_item_multi_point, multi_point: GeoBuild::ROOMS20NN.as_binary) } # 53
-
     let(:shapeE1) { e0.geometry_n(0) } #
     let(:shapeE2) { e0.geometry_n(1) } #
     let(:shapeE3) { e0.geometry_n(2) } #
@@ -740,7 +722,338 @@ shared_context 'stuff for complex geo tests' do
     #                                 verbatim_label:   '@ce_n1',
     #                                 geographic_area:  area_r2) }
 
+    begin # make some easy-to-use pieces
+      let(:gat_list) { GeographicAreaType.all.map(&:name) }
+      let(:ga_list) { GeographicArea.all.order(:name).map(&:name) }
+    end
+
+    begin # real world objects
+      let(:country_gat) { GeographicAreaType.create!(name: 'Country', creator: geo_user, updater: geo_user) }
+      let!(:state_gat) { GeographicAreaType.create!(name: 'State', creator: geo_user, updater: geo_user) }
+      let(:province_gat) { GeographicAreaType.create!(name: 'Province', creator: geo_user, updater: geo_user) }
+      let!(:county_gat) { GeographicAreaType.create!(name: 'County', creator: geo_user, updater: geo_user) }
+      let(:parish_gat) { GeographicAreaType.create!(name: 'Parish', creator: geo_user, updater: geo_user) }
+      let(:planet_gat) { GeographicAreaType.create!(name: 'Planet', creator: geo_user, updater: geo_user) }
+      let(:land_mass_gat) { GeographicAreaType.create!(name: 'Land Mass', creator: geo_user, updater: geo_user) }
+
+      let(:cc_shape) {GeoBuild::CHAMPAIGN_CO}
+      let(:fc_shape) {GeoBuild::FORD_CO}
+      let(:il_shape) {GeoBuild::ILLINOIS}
+
+      let(:champaign) {
+        cc = FactoryBot.create(:valid_geographic_area_stack)
+        cc.geographic_items << GeographicItem::MultiPolygon.create!(multi_polygon: cc_shape)
+        cc
+      }
+      let(:illinois) {
+        il = champaign.parent
+        il.geographic_items << GeographicItem::MultiPolygon.create!(multi_polygon: il_shape)
+        il
+      }
+      let(:ford) {
+        fc = FactoryBot.create(:level2_geographic_area, name: 'Ford', parent: illinois)
+        # fc.geographic_items << GeographicItem::MultiPolygon.create!(multi_polygon: fc_shape)
+        fc
+      }
+      let(:usa) { illinois.parent }
+      let(:earth) {
+        usa.parent
+      }
+
+      let(:r2020) { FactoryBot.create(:geographic_item_point, point: GeoBuild::ROOM2020.as_binary) } # 50
+      let(:r2022) { FactoryBot.create(:geographic_item_point, point: GeoBuild::ROOM2022.as_binary) } # 51
+      let(:r2024) { FactoryBot.create(:geographic_item_point, point: GeoBuild::ROOM2024.as_binary) } # 52
+      let(:rooms) { FactoryBot.create(:geographic_item_multi_point, multi_point: GeoBuild::ROOMS20NN.as_binary) } # 53
+
+    end
+
     begin # objects in Big Boxia
+      let(:big_boxia) {
+        [area_q, area_qtm1, area_qtm2, area_qtn1, area_qtn2_1, area_qtn2_2,
+         area_qup2,
+         area_r, area_rm3, area_rm4, area_rn3, area_rn4,
+         area_m3, area_n3, area_m4, area_n4, area_n2,
+         area_s, area_t_1, area_t_2, area_u,
+         area_m1, area_m2, area_n1,
+         area_old_boxia, area_big_boxia,
+         west_boxia, east_boxia].each
+      }
+
+      let(:area_big_boxia) {
+        area = FactoryBot.create(:level0_geographic_area,
+                                 name:                 'Big Boxia',
+                                 geographic_area_type: country_gat,
+                                 iso_3166_a3:          nil,
+                                 iso_3166_a2:          nil,
+                                 parent:               area_land_mass)
+        area.geographic_items << item_bb
+        area.save!
+        area
+      }
+
+      begin # objects in Q
+        let(:area_u) {
+          area = FactoryBot.create(:level1_geographic_area,
+                                   name:                 'QU',
+                                   tdwgID:               nil,
+                                   geographic_area_type: state_gat,
+                                   parent:               area_q)
+          area.geographic_items << item_u
+          area.save!
+          area
+        }
+        let(:area_q) {
+          area = FactoryBot.create(:level0_geographic_area,
+                                   name:                 'Q',
+                                   geographic_area_type: country_gat,
+                                   iso_3166_a3:          'QQQ',
+                                   iso_3166_a2:          'QQ',
+                                   parent:               area_land_mass)
+          area.geographic_items << item_q
+          area.save!
+          area
+        }
+
+        let(:area_old_boxia) {
+          area = FactoryBot.create(:level0_geographic_area,
+                                   name:                 'Old Boxia',
+                                   geographic_area_type: country_gat,
+                                   iso_3166_a3:          'OB1',
+                                   iso_3166_a2:          nil,
+                                   parent:               area_land_mass)
+          area.geographic_items << item_ob
+          area.save!
+          area
+        }
+        let(:area_qtm2) {
+          area = FactoryBot.create(:level2_geographic_area,
+                                   name:                 'QTM2',
+                                   geographic_area_type: county_gat,
+                                   parent:               area_t_1)
+          area.geographic_items << item_m1
+          area.save!
+          area
+        }
+        let(:area_quo1) {
+          area = FactoryBot.create(:level2_geographic_area,
+                                   name:                 'QUO1',
+                                   geographic_area_type: parish_gat,
+                                   parent:               area_u)
+          # @area_quo1.geographic_items << @item_o1
+          area.save!
+          area
+        }
+        let(:area_quo2) {
+          area = FactoryBot.create(:level2_geographic_area,
+                                   name:                 'QUO2',
+                                   geographic_area_type: parish_gat,
+                                   parent:               area_u)
+          area.geographic_items << item_o2
+          area.save!
+          area
+        }
+        let(:area_qup1) {
+          area = FactoryBot.create(:level2_geographic_area,
+                                   name:                 'QUP1',
+                                   tdwgID:               nil,
+                                   geographic_area_type: parish_gat,
+                                   parent:               area_u)
+          area.geographic_items << item_p1
+          area.save!
+          area
+        }
+        let(:area_qtn2_1) {
+          area = FactoryBot.create(:level2_geographic_area,
+                                   name:                 'QTN2',
+                                   geographic_area_type: county_gat,
+                                   parent:               area_t_1)
+          area.geographic_items << item_n2
+          area.save!
+          area
+        }
+        let(:area_qtn2_2) {
+          area = FactoryBot.create(:level2_geographic_area,
+                                   name:                 'QTN2',
+                                   geographic_area_type: county_gat,
+                                   parent:               area_t_2)
+          area.geographic_items << item_n2
+          area.save!
+        }
+      end
+
+      begin # objects in S
+        let(:area_s) {
+          area = FactoryBot.create(:level0_geographic_area,
+                                   name:                 'S',
+                                   geographic_area_type: country_gat,
+                                   iso_3166_a3:          'SSS',
+                                   iso_3166_a2:          'SS',
+                                   parent:               area_land_mass)
+          area.geographic_items << item_s
+          area.save!
+          area
+        }
+
+      end
+
+      begin # objects in R
+        let(:area_r) {
+          area = FactoryBot.create(:level0_geographic_area,
+                                   name:                 'R',
+                                   geographic_area_type: country_gat,
+                                   iso_3166_a3:          'RRR',
+                                   iso_3166_a2:          'RR',
+                                   parent:               area_land_mass)
+          area.geographic_items << item_r
+          area.save!
+          area
+        }
+        let(:area_rm3) {
+          area = FactoryBot.create(:level1_geographic_area,
+                                   name:                 'RM3',
+                                   tdwgID:               nil,
+                                   geographic_area_type: province_gat,
+                                   parent:               area_r)
+          area.geographic_items << item_m3
+          area.save!
+          area
+        }
+        let(:area_rm4) {
+          area = FactoryBot.create(:level1_geographic_area,
+                                   name:                 'RM4',
+                                   tdwgID:               nil,
+                                   geographic_area_type: province_gat,
+                                   parent:               area_r)
+          area.geographic_items << item_m4
+          area.save!
+          area
+        }
+        let(:area_rn3) {
+          area = FactoryBot.create(:level1_geographic_area,
+                                   name:                 'RN3',
+                                   tdwgID:               nil,
+                                   geographic_area_type: province_gat,
+                                   parent:               area_r)
+          area.geographic_items << item_n3
+          area.save!
+
+          area
+        }
+        let(:area_rn4) {
+          area = FactoryBot.create(:level1_geographic_area,
+                                   name:                 'RN4',
+                                   tdwgID:               nil,
+                                   geographic_area_type: province_gat,
+                                   parent:               area_r)
+          area.geographic_items << item_n4
+          area.save!
+          area
+        }
+
+        let(:area_rn3) {
+          area = FactoryBot.create(:level1_geographic_area,
+                                   name:                 'RN3',
+                                   tdwgID:               nil,
+                                   geographic_area_type: province_gat,
+                                   parent:               area_r)
+          area.geographic_items << item_n3
+          area.save!
+          area
+        }
+        let(:area_rn4) {
+          area = FactoryBot.create(:level1_geographic_area,
+                                   name:                 'RN4',
+                                   tdwgID:               nil,
+                                   geographic_area_type: province_gat,
+                                   parent:               area_r)
+          area.geographic_items << item_n4
+          area.save!
+          area
+        }
+        let(:area_m3) {
+          area = FactoryBot.create(:level1_geographic_area,
+                                   name:                 'M3',
+                                   tdwgID:               nil,
+                                   geographic_area_type: province_gat,
+                                   parent:               area_r)
+          area.geographic_items << item_m3
+          area.save!
+          area
+        }
+        let(:area_n3) {
+          area = FactoryBot.create(:level1_geographic_area,
+                                   name:                 'N3',
+                                   tdwgID:               nil,
+                                   geographic_area_type: province_gat,
+                                   parent:               area_r)
+          area.geographic_items << item_n3
+          area.save!
+          area
+        }
+        let(:area_m4) {
+          area = FactoryBot.create(:level1_geographic_area,
+                                   name:                 'M4',
+                                   tdwgID:               nil,
+                                   geographic_area_type: province_gat,
+                                   parent:               area_r)
+          area.geographic_items << item_m4
+          area.save!
+          area
+        }
+        let(:area_n4) {
+          area = FactoryBot.create(:level1_geographic_area,
+                                   name:                 'N4',
+                                   tdwgID:               nil,
+                                   geographic_area_type: province_gat,
+                                   parent:               area_r)
+          area.geographic_items << item_n4
+          area.save!
+          area
+        }
+
+        let(:gr_n3_ob) { FactoryBot.create(:georeference_verbatim_data,
+                                           api_request:           'gr_n3_ob',
+                                           collecting_event:      ce_old_boxia_2,
+                                           error_geographic_item: item_ob,
+                                           geographic_item:       GeographicItem.new(point: item_n3.st_centroid)) }
+        let(:ce_old_boxia_2) { FactoryBot.create(:collecting_event,
+                                                 start_date_year:  1993,
+                                                 start_date_month: 3,
+                                                 start_date_day:   3,
+                                                 verbatim_label:   '@ce_old_boxia_2',
+                                                 geographic_area:  area_old_boxia) }
+        let(:item_m4) { FactoryBot.create(:geographic_item, multi_polygon: shape_m4) }
+        let(:item_r) { FactoryBot.create(:geographic_item, multi_polygon: shape_r) }
+        let(:shape_r) { GeoBuild.make_box(shape_m3[0]
+                                            .exterior_ring.points[0], 0, 0, 2, 2) }
+        let(:shape_m4) { GeoBuild.make_box(GeoBuild::POINT_M1_P0, 0, 3, 1, 1) }
+      end # building stuff in R
+      begin # western big boxia
+        let(:west_boxia) { [area_west_boxia_1, area_west_boxia_3].each }
+        let(:area_west_boxia_1) {
+          area = FactoryBot.create(:level0_geographic_area,
+                                   name:                 'West Boxia',
+                                   geographic_area_type: country_gat,
+                                   iso_3166_a3:          'WB1',
+                                   iso_3166_a2:          nil,
+                                   parent:               area_land_mass)
+          area.geographic_items << item_wb
+          area.save!
+          area
+        }
+        let(:area_west_boxia_3) {
+          area = FactoryBot.create(:level1_geographic_area,
+                                   name:                 'West Boxia',
+                                   geographic_area_type: state_gat,
+                                   iso_3166_a3:          'WB3',
+                                   iso_3166_a2:          nil,
+                                   parent:               area_old_boxia)
+          area.geographic_items << item_wb
+          area.save!
+          area
+        }
+      end
+
       let(:co_x) { FactoryBot.create(:valid_collection_object) }
       begin
         let(:ce_n3) { FactoryBot.create(:collecting_event,
@@ -769,20 +1082,6 @@ shared_context 'stuff for complex geo tests' do
           area.save!
           area
         }
-        let(:area_r) {
-          area = FactoryBot.create(:level0_geographic_area,
-                                   name:                 'R',
-                                   geographic_area_type: country_gat,
-                                   iso_3166_a3:          'RRR',
-                                   iso_3166_a2:          'RR',
-                                   parent:               area_land_mass)
-          area.geographic_items << item_r
-          area.save!
-          area
-        }
-        let(:item_r) { FactoryBot.create(:geographic_item, multi_polygon: shape_r) }
-        let(:shape_r) { GeoBuild.make_box(shape_m3[0]
-                                            .exterior_ring.points[0], 0, 0, 2, 2) }
         let(:shape_m3) { GeoBuild.make_box(GeoBuild::POINT_M1_P0, 0, 2, 1, 1) }
         let(:item_n3) { FactoryBot.create(:geographic_item, multi_polygon: shape_n3) }
         let(:shape_n3) { GeoBuild.make_box(GeoBuild::POINT_M1_P0, 1, 2, 1, 1) }
@@ -821,60 +1120,6 @@ shared_context 'stuff for complex geo tests' do
           area.save!
           area
         }
-        let(:area_u) {
-          area = FactoryBot.create(:level1_geographic_area,
-                                   name:                 'QU',
-                                   tdwgID:               nil,
-                                   geographic_area_type: state_gat,
-                                   parent:               area_q)
-          area.geographic_items << item_u
-          area.save!
-          area
-        }
-        let(:area_q) {
-          area = FactoryBot.create(:level0_geographic_area,
-                                   name:                 'Q',
-                                   geographic_area_type: country_gat,
-                                   iso_3166_a3:          'QQQ',
-                                   iso_3166_a2:          'QQ',
-                                   parent:               area_land_mass)
-          area.geographic_items << item_q
-          area.save!
-          area
-        }
-        let(:area_east_boxia_1) {
-          area = FactoryBot.create(:level0_geographic_area,
-                                   name:                 'East Boxia',
-                                   geographic_area_type: country_gat,
-                                   iso_3166_a3:          'EB1',
-                                   iso_3166_a2:          nil,
-                                   parent:               area_land_mass)
-          area.geographic_items << item_eb_1
-          area.save!
-          area
-        }
-        let(:area_east_boxia_2) {
-          area = FactoryBot.create(:level0_geographic_area,
-                                   name:                 'East Boxia',
-                                   geographic_area_type: country_gat,
-                                   iso_3166_a3:          'EB2',
-                                   iso_3166_a2:          nil,
-                                   parent:               area_land_mass)
-          area.geographic_items << item_eb_2
-          area.save!
-          area
-        }
-        let(:area_big_boxia) {
-          area = FactoryBot.create(:level0_geographic_area,
-                                   name:                 'Big Boxia',
-                                   geographic_area_type: country_gat,
-                                   iso_3166_a3:          nil,
-                                   iso_3166_a2:          nil,
-                                   parent:               area_land_mass)
-          area.geographic_items << item_bb
-          area.save!
-          area
-        }
 
         let(:shape_p1b) { GeoBuild.make_box(GeoBuild::POINT_M1_P0, 3, 0, 1, 1) }
         let(:shape_q) { GeoBuild.make_box(shape_m1[0].exterior_ring.points[0], 0, 0, 4, 2) }
@@ -905,6 +1150,7 @@ shared_context 'stuff for complex geo tests' do
         let(:item_w) { FactoryBot.create(:geographic_item, multi_polygon: shape_w) }
 
         # some other areas
+        let(:east_boxia) { [area_east_boxia_1, area_east_boxia_2, area_east_boxia_2] }
         let(:area_east_boxia_1) {
           area = FactoryBot.create(:level0_geographic_area,
                                    name:                 'East Boxia',
@@ -1060,17 +1306,6 @@ shared_context 'stuff for complex geo tests' do
                                               .exterior_ring.points[0], 0, 0, 2, 2) }
         let(:item_n2) { FactoryBot.create(:geographic_item, multi_polygon: shape_n2) }
         let(:shape_n2) { GeoBuild.make_box(GeoBuild::POINT_M1_P0, 1, 1, 1, 1) }
-        let(:area_old_boxia) {
-          area = FactoryBot.create(:level0_geographic_area,
-                                   name:                 'Old Boxia',
-                                   geographic_area_type: country_gat,
-                                   iso_3166_a3:          'OB1',
-                                   iso_3166_a2:          nil,
-                                   parent:               area_land_mass)
-          area.geographic_items << item_ob
-          area.save!
-          area
-        }
         let(:area_t_2) {
           area = FactoryBot.create(:level1_geographic_area,
                                    name:                 'QT',
@@ -1085,23 +1320,6 @@ shared_context 'stuff for complex geo tests' do
         let(:shape_t_2) { GeoBuild.make_box(shape_m1[0]
                                               .exterior_ring.points[0], 0, 0, 2, 2) }
 
-        let(:area_qtn2_1) {
-          area = FactoryBot.create(:level2_geographic_area,
-                                   name:                 'QTN2',
-                                   geographic_area_type: county_gat,
-                                   parent:               area_t_1)
-          area.geographic_items << item_n2
-          area.save!
-          area
-        }
-        let(:area_qtn2_2) {
-          area = FactoryBot.create(:level2_geographic_area,
-                                   name:                 'QTN2',
-                                   geographic_area_type: county_gat,
-                                   parent:               area_t_2)
-          area.geographic_items << item_n2
-          area.save!
-        }
       end
 
       begin # build the collecting event for objects in N4
@@ -1387,6 +1605,14 @@ shared_context 'stuff for complex geo tests' do
           area
         }
         let(:item_m3) { FactoryBot.create(:geographic_item, multi_polygon: shape_m3) }
+      end
+
+      begin # shapes
+
+      end
+
+      begin # items
+
       end
 
       b = FactoryBot.build(:geographic_item_polygon, polygon: GeoBuild::SHAPE_B.as_binary) # 27
