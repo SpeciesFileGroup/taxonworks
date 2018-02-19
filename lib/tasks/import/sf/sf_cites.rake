@@ -242,7 +242,11 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             next if source_id == 0
 
-            protonym = TaxonName.find(taxon_name_id)
+            begin
+              protonym = TaxonName.find(taxon_name_id)
+            rescue ActiveRecord::RecordNotFound
+              logger.error "Bad taxon_name_id SF.TaxonNameID = #{row['TaxonNameID']}, get_tw_otu_id = #{get_tw_otu_id[row['TaxonNameID']]}, get_tw_taxon_name_id = #{get_tw_taxon_name_id[row['TaxonNameID']]}" + protonym.errors.full_messages.join(';')
+            end
 
             project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
             nomenclator_string = get_nomenclator_string[row['NomenclatorID']]
@@ -341,16 +345,17 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                     logger.info "Funny exceptions ELSE"
                   end
 
-                  # Put all the rescue statements in one place
+                    # Put all the rescue statements in one place
                 rescue ActiveRecord::RecordInvalid
                   # I don't think this check is right now - there is no .errors method on check_result, which returns an instance of TaxonWorks::Vendor::Biodiversity::Result.new()
                   # logger.error "check_result ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, check_result = #{check_result}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + check_result.errors.full_messages.join(';')
 
                   # !! both messages might not make sense now
                   logger.error "Combination ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + combination.errors.full_messages.join(';')
-                rescue ActiveRecord::TypeError
+                rescue TypeError
                   # message about type / problems with   TaxonWorks::Vendor::Biodiversity::Result
-                rescue 
+                  logger.error "Bad nomenclator string? nomen str = #{nomenclator_string}"
+                rescue
                   raise
                 end
               end # end block that does stuff if nomenclator_string exists
@@ -358,19 +363,19 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
               # combination check
               # synonym or taxon_name_relationship check
 
-            citation = Citation.new(
-              metadata.merge(
-                source_id: source_id,
-                pages: cite_pages,
-                is_original: (row['SeqNum'] == '1' ? true : false),
-                citation_object_type: 'TaxonName',
-                citation_object_id: taxon_name_id,
+              citation = Citation.new(
+                  metadata.merge(
+                      source_id: source_id,
+                      pages: cite_pages,
+                      is_original: (row['SeqNum'] == '1' ? true : false),
+                      citation_object_type: 'TaxonName',
+                      citation_object_id: taxon_name_id,
 
-                # housekeeping for citation
-                project_id: project_id,
-                created_at: row['CreatedOn'],
-                updated_at: row['LastUpdate'],
-                created_by_id: get_tw_user_id[row['CreatedBy']],
+                      # housekeeping for citation
+                      project_id: project_id,
+                      created_at: row['CreatedOn'],
+                      updated_at: row['LastUpdate'],
+                      created_by_id: get_tw_user_id[row['CreatedBy']],
                       updated_by_id: get_tw_user_id[row['ModifiedBy']]
                   )
               )
