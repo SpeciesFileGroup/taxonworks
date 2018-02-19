@@ -115,6 +115,11 @@ class BiologicalAssociationsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def biological_association_params
-    params.require(:biological_association).permit(:biological_relationship_id, :biological_association_subject_id, :biological_association_subject_type, :biological_association_object_id, :biological_association_object_type, :created_by_id, :updated_by_id, :project_id)
+    params.require(:biological_association).permit(
+      :biological_relationship_id, :biological_association_subject_id, :biological_association_subject_type, 
+      :biological_association_object_id, :biological_association_object_type,
+      :subject_global_id,
+      :object_global_id
+    )
   end
 end
