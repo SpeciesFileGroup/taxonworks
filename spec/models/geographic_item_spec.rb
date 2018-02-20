@@ -192,6 +192,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       specify 'Certain line_string shapes cannot be polygons, others can.' do
         expect(RSPEC_GEO_FACTORY.polygon(k.geo_object)).to be_nil
       end
+
       specify 'Certain line_string shapes cannot be polygons, others can.' do
         expect(RSPEC_GEO_FACTORY.polygon(d.geo_object).to_s).not_to be_nil
       end
@@ -199,343 +200,137 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       specify 'That one object contains another, or not.' do
         expect(k.contains?(p1.geo_object)).to be_truthy
       end
+
       specify 'That one object contains another, or not.' do
         expect(k.contains?(p17.geo_object)).to be_falsey
       end
+
       specify 'That one object contains another, or not.' do
         expect(p17.within?(k.geo_object)).to be_falsey
       end
+
       specify 'That one object contains another, or not.' do
         expect(p17.within?(k.geo_object)).to be_falsey
       end
 
       specify 'That one object intersects another, or not.' do # using geographic_item.intersects?
         expect(e1.intersects?(e2.geo_object)).to be_truthy
-        # expect(e1.intersects?(e3.geo_object)).to be_falsey
-        # expect(p1.intersects?(k.geo_object)).to be_truthy
-        # expect(p17.intersects?(k.geo_object)).to be_falsey
       end
+
       specify 'That one object intersects another, or not.' do # using geographic_item.intersects?
-        # expect(e1.intersects?(e2.geo_object)).to be_truthy
         expect(e1.intersects?(e3.geo_object)).to be_falsey
-        # expect(p1.intersects?(k.geo_object)).to be_truthy
-        # expect(p17.intersects?(k.geo_object)).to be_falsey
       end
+
       specify 'That one object intersects another, or not.' do # using geographic_item.intersects?
-        # expect(e1.intersects?(e2.geo_object)).to be_truthy
-        # expect(e1.intersects?(e3.geo_object)).to be_falsey
         expect(p1.intersects?(k.geo_object)).to be_truthy
-        # expect(p17.intersects?(k.geo_object)).to be_falsey
       end
+
       specify 'That one object intersects another, or not.' do # using geographic_item.intersects?
-        # expect(e1.intersects?(e2.geo_object)).to be_truthy
-        # expect(e1.intersects?(e3.geo_object)).to be_falsey
-        # expect(p1.intersects?(k.geo_object)).to be_truthy
         expect(p17.intersects?(k.geo_object)).to be_falsey
       end
 
       specify 'Two polygons may have various intersections.' do
-        # @e.reload
-
         expect(shapeE1.intersects?(shapeE2)).to be_truthy
-        # expect(shapeE1.intersects?(shapeE3)).to be_falsey
-        #
-        # expect(shapeE1.overlaps?(shapeE2)).to be_truthy
-        # expect(shapeE1.overlaps?(shapeE3)).to be_falsey
-        #
-        # expect(shapeE1.intersection(shapeE2)).to eq(GeoBuild::E1_AND_E2)
-        # expect(shapeE1.intersection(shapeE4)).to eq(GeoBuild::E1_AND_E4)
-        #
-        # expect(shapeE1.union(shapeE2)).to eq(GeoBuild::E1_OR_E2)
-        # expect(shapeE1.union(shapeE5)).to eq(GeoBuild::E1_OR_E5)
       end
-      specify 'Two polygons may have various intersections.' do
-        # @e.reload
 
-        # expect(shapeE1.intersects?(shapeE2)).to be_truthy
+      specify 'Two polygons may have various intersections.' do
         expect(shapeE1.intersects?(shapeE3)).to be_falsey
-
-        # expect(shapeE1.overlaps?(shapeE2)).to be_truthy
-        # expect(shapeE1.overlaps?(shapeE3)).to be_falsey
-        #
-        # expect(shapeE1.intersection(shapeE2)).to eq(GeoBuild::E1_AND_E2)
-        # expect(shapeE1.intersection(shapeE4)).to eq(GeoBuild::E1_AND_E4)
-        #
-        # expect(shapeE1.union(shapeE2)).to eq(GeoBuild::E1_OR_E2)
-        # expect(shapeE1.union(shapeE5)).to eq(GeoBuild::E1_OR_E5)
       end
+
       specify 'Two polygons may have various intersections.' do
-        # @e.reload
-
-        # expect(shapeE1.intersects?(shapeE2)).to be_truthy
-        # expect(shapeE1.intersects?(shapeE3)).to be_falsey
-
         expect(shapeE1.overlaps?(shapeE2)).to be_truthy
-        # expect(shapeE1.overlaps?(shapeE3)).to be_falsey
-        #
-        # expect(shapeE1.intersection(shapeE2)).to eq(GeoBuild::E1_AND_E2)
-        # expect(shapeE1.intersection(shapeE4)).to eq(GeoBuild::E1_AND_E4)
-        #
-        # expect(shapeE1.union(shapeE2)).to eq(GeoBuild::E1_OR_E2)
-        # expect(shapeE1.union(shapeE5)).to eq(GeoBuild::E1_OR_E5)
       end
-      specify 'Two polygons may have various intersections.' do
-        # @e.reload
 
-        # expect(shapeE1.intersects?(shapeE2)).to be_truthy
-        # expect(shapeE1.intersects?(shapeE3)).to be_falsey
-        #
-        # expect(shapeE1.overlaps?(shapeE2)).to be_truthy
+      specify 'Two polygons may have various intersections.' do
         expect(shapeE1.overlaps?(shapeE3)).to be_falsey
-
-        # expect(shapeE1.intersection(shapeE2)).to eq(GeoBuild::E1_AND_E2)
-        # expect(shapeE1.intersection(shapeE4)).to eq(GeoBuild::E1_AND_E4)
-        #
-        # expect(shapeE1.union(shapeE2)).to eq(GeoBuild::E1_OR_E2)
-        # expect(shapeE1.union(shapeE5)).to eq(GeoBuild::E1_OR_E5)
       end
+
       specify 'Two polygons may have various intersections.' do
-        # @e.reload
-
-        # expect(shapeE1.intersects?(shapeE2)).to be_truthy
-        # expect(shapeE1.intersects?(shapeE3)).to be_falsey
-        #
-        # expect(shapeE1.overlaps?(shapeE2)).to be_truthy
-        # expect(shapeE1.overlaps?(shapeE3)).to be_falsey
-
         expect(shapeE1.intersection(shapeE2)).to eq(GeoBuild::E1_AND_E2)
-        # expect(shapeE1.intersection(shapeE4)).to eq(GeoBuild::E1_AND_E4)
-        #
-        # expect(shapeE1.union(shapeE2)).to eq(GeoBuild::E1_OR_E2)
-        # expect(shapeE1.union(shapeE5)).to eq(GeoBuild::E1_OR_E5)
       end
-      specify 'Two polygons may have various intersections.' do
-        # @e.reload
 
-        # expect(shapeE1.intersects?(shapeE2)).to be_truthy
-        # expect(shapeE1.intersects?(shapeE3)).to be_falsey
-        #
-        # expect(shapeE1.overlaps?(shapeE2)).to be_truthy
-        # expect(shapeE1.overlaps?(shapeE3)).to be_falsey
-        #
-        # expect(shapeE1.intersection(shapeE2)).to eq(GeoBuild::E1_AND_E2)
+      specify 'Two polygons may have various intersections.' do
         expect(shapeE1.intersection(shapeE4)).to eq(GeoBuild::E1_AND_E4)
-        #
-        # expect(shapeE1.union(shapeE2)).to eq(GeoBuild::E1_OR_E2)
-        # expect(shapeE1.union(shapeE5)).to eq(GeoBuild::E1_OR_E5)
       end
+
       specify 'Two polygons may have various intersections.' do
-        # @e.reload
-
-        # expect(shapeE1.intersects?(shapeE2)).to be_truthy
-        # expect(shapeE1.intersects?(shapeE3)).to be_falsey
-        #
-        # expect(shapeE1.overlaps?(shapeE2)).to be_truthy
-        # expect(shapeE1.overlaps?(shapeE3)).to be_falsey
-        #
-        # expect(shapeE1.intersection(shapeE2)).to eq(GeoBuild::E1_AND_E2)
-        # expect(shapeE1.intersection(shapeE4)).to eq(GeoBuild::E1_AND_E4)
-
         expect(shapeE1.union(shapeE2)).to eq(GeoBuild::E1_OR_E2)
-        # expect(shapeE1.union(shapeE5)).to eq(GeoBuild::E1_OR_E5)
       end
-      specify 'Two polygons may have various intersections.' do
-        # @e.reload
 
-        # expect(shapeE1.intersects?(shapeE2)).to be_truthy
-        # expect(shapeE1.intersects?(shapeE3)).to be_falsey
-        #
-        # expect(shapeE1.overlaps?(shapeE2)).to be_truthy
-        # expect(shapeE1.overlaps?(shapeE3)).to be_falsey
-        #
-        # expect(shapeE1.intersection(shapeE2)).to eq(GeoBuild::E1_AND_E2)
-        # expect(shapeE1.intersection(shapeE4)).to eq(GeoBuild::E1_AND_E4)
-        #
-        # expect(shapeE1.union(shapeE2)).to eq(GeoBuild::E1_OR_E2)
+      specify 'Two polygons may have various intersections.' do
         expect(shapeE1.union(shapeE5)).to eq(GeoBuild::E1_OR_E5)
       end
 
       specify 'Two polygons may have various adjacencies.' do
         expect(shapeE1.touches?(shapeE5)).to be_falsey
-        # expect(shapeE2.touches?(shapeE3)).to be_truthy
-        # expect(shapeE2.touches?(shapeE5)).to be_falsey
-        #
-        # expect(shapeE1.disjoint?(shapeE5)).to be_truthy
-        # expect(shapeE2.disjoint?(shapeE5)).to be_truthy
-        # expect(shapeE2.disjoint?(shapeE4)).to be_falsey
       end
+
       specify 'Two polygons may have various adjacencies.' do
-        # expect(shapeE1.touches?(shapeE5)).to be_falsey
         expect(shapeE2.touches?(shapeE3)).to be_truthy
-        # expect(shapeE2.touches?(shapeE5)).to be_falsey
-        #
-        # expect(shapeE1.disjoint?(shapeE5)).to be_truthy
-        # expect(shapeE2.disjoint?(shapeE5)).to be_truthy
-        # expect(shapeE2.disjoint?(shapeE4)).to be_falsey
       end
+
       specify 'Two polygons may have various adjacencies.' do
-        # expect(shapeE1.touches?(shapeE5)).to be_falsey
-        # expect(shapeE2.touches?(shapeE3)).to be_truthy
         expect(shapeE2.touches?(shapeE5)).to be_falsey
-
-        # expect(shapeE1.disjoint?(shapeE5)).to be_truthy
-        # expect(shapeE2.disjoint?(shapeE5)).to be_truthy
-        # expect(shapeE2.disjoint?(shapeE4)).to be_falsey
       end
-      specify 'Two polygons may have various adjacencies.' do
-        # expect(shapeE1.touches?(shapeE5)).to be_falsey
-        # expect(shapeE2.touches?(shapeE3)).to be_truthy
-        # expect(shapeE2.touches?(shapeE5)).to be_falsey
 
+      specify 'Two polygons may have various adjacencies.' do
         expect(shapeE1.disjoint?(shapeE5)).to be_truthy
-        # expect(shapeE2.disjoint?(shapeE5)).to be_truthy
-        # expect(shapeE2.disjoint?(shapeE4)).to be_falsey
       end
+
       specify 'Two polygons may have various adjacencies.' do
-        # expect(shapeE1.touches?(shapeE5)).to be_falsey
-        # expect(shapeE2.touches?(shapeE3)).to be_truthy
-        # expect(shapeE2.touches?(shapeE5)).to be_falsey
-        #
-        # expect(shapeE1.disjoint?(shapeE5)).to be_truthy
         expect(shapeE2.disjoint?(shapeE5)).to be_truthy
-        # expect(shapeE2.disjoint?(shapeE4)).to be_falsey
       end
+
       specify 'Two polygons may have various adjacencies.' do
-        # expect(shapeE1.touches?(shapeE5)).to be_falsey
-        # expect(shapeE2.touches?(shapeE3)).to be_truthy
-        # expect(shapeE2.touches?(shapeE5)).to be_falsey
-        #
-        # expect(shapeE1.disjoint?(shapeE5)).to be_truthy
-        # expect(shapeE2.disjoint?(shapeE5)).to be_truthy
         expect(shapeE2.disjoint?(shapeE4)).to be_falsey
       end
 
       specify 'Two different object types have various intersections.' do
         expect(r.factory.projection_factory).to eq(p16_on_a.factory.projection_factory)
-        # Now that these are the same factory the equivalence is the "same"
-        # expect(r).to eq(p16_on_a)
-        #
-        # expect(l.geo_object.intersects?(k.geo_object)).to be_truthy
-        # expect(l.geo_object.intersects?(e.geo_object)).to be_falsey
-        #
-        # expect(f.geo_object.geometry_n(0).intersection(f.geo_object.geometry_n(1))).to be_truthy
       end
+
       specify 'Two different object types have various intersections.' do
-        # expect(r.factory.projection_factory).to eq(p16_on_a.factory.projection_factory)
         # Now that these are the same factory the equivalence is the "same"
         expect(r).to eq(p16_on_a)
-
-        # expect(l.geo_object.intersects?(k.geo_object)).to be_truthy
-        # expect(l.geo_object.intersects?(e.geo_object)).to be_falsey
-        #
-        # expect(f.geo_object.geometry_n(0).intersection(f.geo_object.geometry_n(1))).to be_truthy
       end
-      specify 'Two different object types have various intersections.' do
-        # expect(r.factory.projection_factory).to eq(p16_on_a.factory.projection_factory)
-        # Now that these are the same factory the equivalence is the "same"
-        # expect(r).to eq(p16_on_a)
 
+      specify 'Two different object types have various intersections.' do
         expect(l.geo_object.intersects?(k.geo_object)).to be_truthy
-        # expect(l.geo_object.intersects?(e.geo_object)).to be_falsey
-        #
-        # expect(f.geo_object.geometry_n(0).intersection(f.geo_object.geometry_n(1))).to be_truthy
       end
+
       specify 'Two different object types have various intersections.' do
-        # expect(r.factory.projection_factory).to eq(p16_on_a.factory.projection_factory)
-        # Now that these are the same factory the equivalence is the "same"
-        # expect(r).to eq(p16_on_a)
-        #
-        # expect(l.geo_object.intersects?(k.geo_object)).to be_truthy
         expect(l.geo_object.intersects?(e.geo_object)).to be_falsey
-
-        # expect(f.geo_object.geometry_n(0).intersection(f.geo_object.geometry_n(1))).to be_truthy
       end
+
       specify 'Two different object types have various intersections.' do
-        # expect(r.factory.projection_factory).to eq(p16_on_a.factory.projection_factory)
-        # Now that these are the same factory the equivalence is the "same"
-        # expect(r).to eq(p16_on_a)
-
-        # expect(l.geo_object.intersects?(k.geo_object)).to be_truthy
-        # expect(l.geo_object.intersects?(e.geo_object)).to be_falsey
-
         expect(f.geo_object.geometry_n(0).intersection(f.geo_object.geometry_n(1))).to be_truthy
       end
 
       specify 'Objects can be related by distance' do
         expect(p17.geo_object.distance(k.geo_object)).to be < p10.geo_object.distance(k.geo_object)
-        #
-        # expect(k.near(p1.geo_object, 0)).to be_truthy
-        # expect(k.near(p17.geo_object, 2)).to be_truthy
-        # expect(k.near(p10.geo_object, 5)).to be_falsey
-        #
-        # expect(k.far(p1.geo_object, 0)).to be_falsey
-        # expect(k.far(p17.geo_object, 1)).to be_truthy
-        # expect(k.far(p10.geo_object, 5)).to be_truthy
       end
-      specify 'Objects can be related by distance' do
-        # expect(p17.geo_object.distance(k.geo_object)).to be < p10.geo_object.distance(k.geo_object)
 
+      specify 'Objects can be related by distance' do
         expect(k.near(p1.geo_object, 0)).to be_truthy
-        # expect(k.near(p17.geo_object, 2)).to be_truthy
-        # expect(k.near(p10.geo_object, 5)).to be_falsey
-        #
-        # expect(k.far(p1.geo_object, 0)).to be_falsey
-        # expect(k.far(p17.geo_object, 1)).to be_truthy
-        # expect(k.far(p10.geo_object, 5)).to be_truthy
       end
+
       specify 'Objects can be related by distance' do
-        # expect(p17.geo_object.distance(k.geo_object)).to be < p10.geo_object.distance(k.geo_object)
-        #
-        # expect(k.near(p1.geo_object, 0)).to be_truthy
         expect(k.near(p17.geo_object, 2)).to be_truthy
-        # expect(k.near(p10.geo_object, 5)).to be_falsey
-        #
-        # expect(k.far(p1.geo_object, 0)).to be_falsey
-        # expect(k.far(p17.geo_object, 1)).to be_truthy
-        # expect(k.far(p10.geo_object, 5)).to be_truthy
       end
+
       specify 'Objects can be related by distance' do
-        # expect(p17.geo_object.distance(k.geo_object)).to be < p10.geo_object.distance(k.geo_object)
-        #
-        # expect(k.near(p1.geo_object, 0)).to be_truthy
-        # expect(k.near(p17.geo_object, 2)).to be_truthy
         expect(k.near(p10.geo_object, 5)).to be_falsey
-
-        # expect(k.far(p1.geo_object, 0)).to be_falsey
-        # expect(k.far(p17.geo_object, 1)).to be_truthy
-        # expect(k.far(p10.geo_object, 5)).to be_truthy
       end
-      specify 'Objects can be related by distance' do
-        # expect(p17.geo_object.distance(k.geo_object)).to be < p10.geo_object.distance(k.geo_object)
-        #
-        # expect(k.near(p1.geo_object, 0)).to be_truthy
-        # expect(k.near(p17.geo_object, 2)).to be_truthy
-        # expect(k.near(p10.geo_object, 5)).to be_falsey
 
+      specify 'Objects can be related by distance' do
         expect(k.far(p1.geo_object, 0)).to be_falsey
-        # expect(k.far(p17.geo_object, 1)).to be_truthy
-        # expect(k.far(p10.geo_object, 5)).to be_truthy
       end
+
       specify 'Objects can be related by distance' do
-        # expect(p17.geo_object.distance(k.geo_object)).to be < p10.geo_object.distance(k.geo_object)
-        #
-        # expect(k.near(p1.geo_object, 0)).to be_truthy
-        # expect(k.near(p17.geo_object, 2)).to be_truthy
-        # expect(k.near(p10.geo_object, 5)).to be_falsey
-        #
-        # expect(k.far(p1.geo_object, 0)).to be_falsey
         expect(k.far(p17.geo_object, 1)).to be_truthy
-        # expect(k.far(p10.geo_object, 5)).to be_truthy
       end
+
       specify 'Objects can be related by distance' do
-        # expect(p17.geo_object.distance(k.geo_object)).to be < p10.geo_object.distance(k.geo_object)
-        #
-        # expect(k.near(p1.geo_object, 0)).to be_truthy
-        # expect(k.near(p17.geo_object, 2)).to be_truthy
-        # expect(k.near(p10.geo_object, 5)).to be_falsey
-        #
-        # expect(k.far(p1.geo_object, 0)).to be_falsey
-        # expect(k.far(p17.geo_object, 1)).to be_truthy
         expect(k.far(p10.geo_object, 5)).to be_truthy
       end
 
@@ -551,40 +346,15 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       }
       specify 'self.geo_object returns stored data' do
         expect(geographic_item.save!).to be_truthy
-        # also 'respond_to'
-        # after the save, the default factory type of geographic_item is
-        # #<RGeo::Geographic::Factory> and the
-        # factory for p1 is #<RGeo::Geos::ZMFactory>, so the two points do not match.
-        # See the model for a method to change the default factory for a given
-        # column (in our case, all).
       end
+
       specify 'self.geo_object returns stored data' do
-        # geographic_item.point = GeoBuild::ROOM2024
-        # expect(geographic_item.save).to be_truthy
-        # also 'respond_to'
-        # after the save, the default factory type of geographic_item is
-        # #<RGeo::Geographic::Factory> and the
-        # factory for p1 is #<RGeo::Geos::ZMFactory>, so the two points do not match.
-        # See the model for a method to change the default factory for a given
-        # column (in our case, all).
         geographic_item.save!
         geo_id = geographic_item.id
         expect(geographic_item.geo_object).to eq(GeoBuild::ROOM2024)
-        # geographic_item.reload
-        # expect(GeographicItem.find(geo_id).geo_object).to eq geographic_item.geo_object
       end
+
       specify 'self.geo_object returns stored data' do
-        # geographic_item.point = GeoBuild::ROOM2024
-        # expect(geographic_item.save).to be_truthy
-        # also 'respond_to'
-        # after the save, the default factory type of geographic_item is
-        # #<RGeo::Geographic::Factory> and the
-        # factory for p1 is #<RGeo::Geos::ZMFactory>, so the two points do not match.
-        # See the model for a method to change the default factory for a given
-        # column (in our case, all).
-        # geo_id = geographic_item.id
-        # expect(geographic_item.geo_object).to eq(GeoBuild::ROOM2024)
-        # geographic_item.reload
         geographic_item.save!
         geo_id = geographic_item.id
         expect(GeographicItem.find(geo_id).geo_object).to eq geographic_item.geo_object
@@ -611,6 +381,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       specify '#near' do
         expect(geographic_item).to respond_to(:near)
       end
+
       specify '#far' do
         expect(geographic_item).to respond_to(:far)
       end
@@ -618,157 +389,72 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       specify '#contains? if one object is inside the area defined by the other (watch out for holes)' do
         expect(k.contains?(p1.geo_object)).to be_truthy
       end
+
       specify '#contains? if one object is inside the area defined by the other (watch out for holes)' do
         expect(e1.contains?(p10.geo_object)).to be_falsey
       end
 
       specify '#st_npoints returns the number of included points for a valid GeoItem' do
         expect(p0.st_npoints).to eq(1)
-        # expect(a.st_npoints).to eq(4)
-        # expect(b.st_npoints).to eq(13)
-        # expect(h.st_npoints).to eq(5)
-        # expect(f.st_npoints).to eq(4)
-        # expect(g.st_npoints).to eq(12)
-        # expect(all_items.st_npoints).to eq(157)
-        # expect(outer_limits.st_npoints).to eq(7)
       end
+
       specify '#st_npoints returns the number of included points for a valid GeoItem' do
-        # expect(p0.st_npoints).to eq(1)
         expect(a.st_npoints).to eq(4)
-        # expect(b.st_npoints).to eq(13)
-        # expect(h.st_npoints).to eq(5)
-        # expect(f.st_npoints).to eq(4)
-        # expect(g.st_npoints).to eq(12)
-        # expect(all_items.st_npoints).to eq(157)
-        # expect(outer_limits.st_npoints).to eq(7)
       end
+
       specify '#st_npoints returns the number of included points for a valid GeoItem' do
-        # expect(p0.st_npoints).to eq(1)
-        # expect(a.st_npoints).to eq(4)
         expect(b.st_npoints).to eq(13)
-        # expect(h.st_npoints).to eq(5)
-        # expect(f.st_npoints).to eq(4)
-        # expect(g.st_npoints).to eq(12)
-        # expect(all_items.st_npoints).to eq(157)
-        # expect(outer_limits.st_npoints).to eq(7)
       end
+
       specify '#st_npoints returns the number of included points for a valid GeoItem' do
-        # expect(p0.st_npoints).to eq(1)
-        # expect(a.st_npoints).to eq(4)
-        # expect(b.st_npoints).to eq(13)
         expect(h.st_npoints).to eq(5)
-        # expect(f.st_npoints).to eq(4)
-        # expect(g.st_npoints).to eq(12)
-        # expect(all_items.st_npoints).to eq(157)
-        # expect(outer_limits.st_npoints).to eq(7)
       end
+
       specify '#st_npoints returns the number of included points for a valid GeoItem' do
-        # expect(p0.st_npoints).to eq(1)
-        # expect(a.st_npoints).to eq(4)
-        # expect(b.st_npoints).to eq(13)
-        # expect(h.st_npoints).to eq(5)
         expect(f.st_npoints).to eq(4)
-        # expect(g.st_npoints).to eq(12)
-        # expect(all_items.st_npoints).to eq(157)
-        # expect(outer_limits.st_npoints).to eq(7)
       end
+
       specify '#st_npoints returns the number of included points for a valid GeoItem' do
-        # expect(p0.st_npoints).to eq(1)
-        # expect(a.st_npoints).to eq(4)
-        # expect(b.st_npoints).to eq(13)
-        # expect(h.st_npoints).to eq(5)
-        # expect(f.st_npoints).to eq(4)
         expect(g.st_npoints).to eq(12)
-        # expect(all_items.st_npoints).to eq(157)
-        # expect(outer_limits.st_npoints).to eq(7)
       end
+
       specify '#st_npoints returns the number of included points for a valid GeoItem' do
-        # expect(p0.st_npoints).to eq(1)
-        # expect(a.st_npoints).to eq(4)
-        # expect(b.st_npoints).to eq(13)
-        # expect(h.st_npoints).to eq(5)
-        # expect(f.st_npoints).to eq(4)
-        # expect(g.st_npoints).to eq(12)
         expect(all_items.st_npoints).to eq(157)
-        # expect(outer_limits.st_npoints).to eq(7)
       end
+
       specify '#st_npoints returns the number of included points for a valid GeoItem' do
-        # expect(p0.st_npoints).to eq(1)
-        # expect(a.st_npoints).to eq(4)
-        # expect(b.st_npoints).to eq(13)
-        # expect(h.st_npoints).to eq(5)
-        # expect(f.st_npoints).to eq(4)
-        # expect(g.st_npoints).to eq(12)
-        # expect(all_items.st_npoints).to eq(157)
         expect(outer_limits.st_npoints).to eq(7)
       end
 
       specify '#valid_geometry? returns \'true\' for a valid GeoObject' do
         expect(p0.valid_geometry?).to be_truthy
-        # expect(a.valid_geometry?).to be_truthy
-        # expect(b.valid_geometry?).to be_truthy
-        # expect(h.valid_geometry?).to be_truthy
-        # expect(f.valid_geometry?).to be_truthy
-        # expect(g.valid_geometry?).to be_truthy
-        # expect(all_items.valid_geometry?).to be_truthy
       end
+
       specify '#valid_geometry? returns \'true\' for a valid GeoObject' do
-        # expect(p0.valid_geometry?).to be_truthy
         expect(a.valid_geometry?).to be_truthy
-        # expect(b.valid_geometry?).to be_truthy
-        # expect(h.valid_geometry?).to be_truthy
-        # expect(f.valid_geometry?).to be_truthy
-        # expect(g.valid_geometry?).to be_truthy
-        # expect(all_items.valid_geometry?).to be_truthy
       end
+
       specify '#valid_geometry? returns \'true\' for a valid GeoObject' do
-        # expect(p0.valid_geometry?).to be_truthy
-        # expect(a.valid_geometry?).to be_truthy
         expect(b.valid_geometry?).to be_truthy
-        # expect(h.valid_geometry?).to be_truthy
-        # expect(f.valid_geometry?).to be_truthy
-        # expect(g.valid_geometry?).to be_truthy
-        # expect(all_items.valid_geometry?).to be_truthy
       end
+
       specify '#valid_geometry? returns \'true\' for a valid GeoObject' do
-        # expect(p0.valid_geometry?).to be_truthy
-        # expect(a.valid_geometry?).to be_truthy
-        # expect(b.valid_geometry?).to be_truthy
         expect(h.valid_geometry?).to be_truthy
-        # expect(f.valid_geometry?).to be_truthy
-        # expect(g.valid_geometry?).to be_truthy
-        # expect(all_items.valid_geometry?).to be_truthy
       end
+
       specify '#valid_geometry? returns \'true\' for a valid GeoObject' do
-        # expect(p0.valid_geometry?).to be_truthy
-        # expect(a.valid_geometry?).to be_truthy
-        # expect(b.valid_geometry?).to be_truthy
-        # expect(h.valid_geometry?).to be_truthy
         expect(f.valid_geometry?).to be_truthy
-        # expect(g.valid_geometry?).to be_truthy
-        # expect(all_items.valid_geometry?).to be_truthy
       end
+
       specify '#valid_geometry? returns \'true\' for a valid GeoObject' do
-        # expect(p0.valid_geometry?).to be_truthy
-        # expect(a.valid_geometry?).to be_truthy
-        # expect(b.valid_geometry?).to be_truthy
-        # expect(h.valid_geometry?).to be_truthy
-        # expect(f.valid_geometry?).to be_truthy
         expect(g.valid_geometry?).to be_truthy
-        # expect(all_items.valid_geometry?).to be_truthy
       end
+
       specify '#valid_geometry? returns \'true\' for a valid GeoObject' do
-        # expect(p0.valid_geometry?).to be_truthy
-        # expect(a.valid_geometry?).to be_truthy
-        # expect(b.valid_geometry?).to be_truthy
-        # expect(h.valid_geometry?).to be_truthy
-        # expect(f.valid_geometry?).to be_truthy
-        # expect(g.valid_geometry?).to be_truthy
         expect(all_items.valid_geometry?).to be_truthy
       end
 
       specify '#st_centroid returns a lat/lng of the centroid of the GeoObject' do
-        # select st_centroid('multipoint (-4.0 4.0 0.0, 4.0 4.0 0.0, 4.0 -4.0 0.0, -4.0 -4.0 0.0)');
         expect(new_box_a.st_centroid).to eq('POINT(5 5)')
       end
 
@@ -785,12 +471,14 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             '"properties":{"name":"Paxton City Hall"}}'
           expect(object.valid?).to be_truthy
         end
+
         specify 'for polygon' do
           object.shape = '{"type":"Feature","geometry":{"type":"Polygon",' \
             '"coordinates":[[[-90.25122106075287,38.619731572825145],[-86.12036168575287,39.77758382625017],' \
             '[-87.62384042143822,41.89478088863241],[-90.25122106075287,38.619731572825145]]]},"properties":{}}'
           expect(object.valid?).to be_truthy
         end
+
         specify 'for linestring' do
           object.shape = '{"type":"Feature","geometry":{"type":"LineString","coordinates":[' \
                           '[-90.25122106075287,38.619731572825145],' \
@@ -798,6 +486,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
                           '[-87.62384042143822,41.89478088863241]]},"properties":{}}'
           expect(object.valid?).to be_truthy
         end
+
         specify 'for circle' do
           object.shape = '{"type":"Feature","geometry":{"type":"Point",' \
             '"coordinates":[-88.09681320155505,40.461195702960666]},' \
@@ -845,48 +534,37 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
       specify '::eval_for_type' do
         expect(GeographicItem.eval_for_type('polygon')).to eq('GeographicItem::Polygon')
-        # expect(GeographicItem.eval_for_type('linestring')).to eq('GeographicItem::LineString')
-        # expect(GeographicItem.eval_for_type('point')).to eq('GeographicItem::Point')
-        # expect(GeographicItem.eval_for_type('other_thing')).to eq(nil)
       end
+
       specify '::eval_for_type' do
-        # expect(GeographicItem.eval_for_type('polygon')).to eq('GeographicItem::Polygon')
         expect(GeographicItem.eval_for_type('linestring')).to eq('GeographicItem::LineString')
-        # expect(GeographicItem.eval_for_type('point')).to eq('GeographicItem::Point')
-        # expect(GeographicItem.eval_for_type('other_thing')).to eq(nil)
       end
+
       specify '::eval_for_type' do
-        # expect(GeographicItem.eval_for_type('polygon')).to eq('GeographicItem::Polygon')
-        # expect(GeographicItem.eval_for_type('linestring')).to eq('GeographicItem::LineString')
         expect(GeographicItem.eval_for_type('point')).to eq('GeographicItem::Point')
-        # expect(GeographicItem.eval_for_type('other_thing')).to eq(nil)
       end
+
       specify '::eval_for_type' do
-        # expect(GeographicItem.eval_for_type('polygon')).to eq('GeographicItem::Polygon')
-        # expect(GeographicItem.eval_for_type('linestring')).to eq('GeographicItem::LineString')
-        # expect(GeographicItem.eval_for_type('point')).to eq('GeographicItem::Point')
         expect(GeographicItem.eval_for_type('other_thing')).to eq(nil)
       end
 
       context 'scopes (GeographicItems can be found by searching with) ' do
-        # GeographicItem.within_radius(x).excluding(some_gi).with_collecting_event.include_collecting_event
-        # .collect{|a| a.collecting_event}
         before {
           [ce_a, ce_b, gr_a, gr_b].each
         }
 
         specify '::geo_with_collecting_event' do
           expect(GeographicItem.geo_with_collecting_event.to_a).to include(p_a, p_b) #
-          # expect(GeographicItem.geo_with_collecting_event.to_a).not_to include(e4)
         end
+
         specify '::geo_with_collecting_event' do
-          # expect(GeographicItem.geo_with_collecting_event.to_a).to include(p_a, p_b) #
           expect(GeographicItem.geo_with_collecting_event.to_a).not_to include(e4)
         end
 
         specify '::err_with_collecting_event' do
           expect(GeographicItem.err_with_collecting_event.to_a).to include(new_box_a, err_b) #
         end
+
         specify '::err_with_collecting_event' do
           expect(GeographicItem.err_with_collecting_event.to_a).not_to include(g, p17)
         end
@@ -895,6 +573,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           expect(GeographicItem.with_collecting_event_through_georeferences.order('id').to_a)
             .to contain_exactly(new_box_a, p_a, p_b, err_b) #
         end
+
         specify '::with_collecting_event_through_georeferences' do
           expect(GeographicItem.with_collecting_event_through_georeferences.order('id').to_a)
             .not_to include(e4)
@@ -1103,6 +782,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
                      .limit(3).to_a)
               .to eq([p1, p4, p17])
           end
+
           specify 'drop specifc item[s] from any scope (list of objects.)' do
             # @p2 would *not* have been in the list anyway
             expect(GeographicItem.excluding([p2])
@@ -1110,6 +790,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
                      .limit(3).to_a)
               .to eq([r2024, r2022, r2020])
           end
+
           specify 'drop specifc item[s] from any scope (list of objects.)' do
             # @r2022 would have been in the list, except for the exclude
             expect(GeographicItem.excluding([r2022])
@@ -1149,6 +830,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             #          .limit(3).to_a)
             #   .to eq([e, j])
           end
+
           specify ' orders objects by distance from passed object' do
             # expect(GeographicItem.ordered_by_shortest_distance_from('point', p3)
             #          .limit(3).to_a)
@@ -1172,6 +854,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             #          .limit(3).to_a)
             #   .to eq([e, j])
           end
+
           specify ' orders objects by distance from passed object' do
             # expect(GeographicItem.ordered_by_shortest_distance_from('point', p3)
             #          .limit(3).to_a)
@@ -1195,6 +878,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             #          .limit(3).to_a)
             #   .to eq([e, j])
           end
+
           specify ' orders objects by distance from passed object' do
             # expect(GeographicItem.ordered_by_shortest_distance_from('point', p3)
             #          .limit(3).to_a)
@@ -1218,6 +902,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             #          .limit(3).to_a)
             #   .to eq([e, j])
           end
+
           specify ' orders objects by distance from passed object' do
             # expect(GeographicItem.ordered_by_shortest_distance_from('point', p3)
             #          .limit(3).to_a)
@@ -1241,6 +926,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             #          .limit(3).to_a)
             #   .to eq([e, j])
           end
+
           specify ' orders objects by distance from passed object' do
             # expect(GeographicItem.ordered_by_shortest_distance_from('point', p3)
             #          .limit(3).to_a)
@@ -1264,6 +950,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             #          .limit(3).to_a)
             #   .to eq([e, j])
           end
+
           specify ' orders objects by distance from passed object' do
             # expect(GeographicItem.ordered_by_shortest_distance_from('point', p3)
             #          .limit(3).to_a)
@@ -1317,6 +1004,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             #          .limit(3).to_a)
             #   .to eq([j, e])
           end
+
           specify 'orders objects by distance from passed object' do
 
             # expect(GeographicItem.ordered_by_longest_distance_from('point', p3)
@@ -1341,6 +1029,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             #          .limit(3).to_a)
             #   .to eq([j, e])
           end
+
           specify 'orders objects by distance from passed object' do
 
             # expect(GeographicItem.ordered_by_longest_distance_from('point', p3)
@@ -1365,6 +1054,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             #          .limit(3).to_a)
             #   .to eq([j, e])
           end
+
           specify 'orders objects by distance from passed object' do
 
             # expect(GeographicItem.ordered_by_longest_distance_from('point', p3)
@@ -1389,6 +1079,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             #          .limit(3).to_a)
             #   .to eq([j, e])
           end
+
           specify 'orders objects by distance from passed object' do
 
             # expect(GeographicItem.ordered_by_longest_distance_from('point', p3)
@@ -1413,6 +1104,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             #          .limit(3).to_a)
             #   .to eq([j, e])
           end
+
           specify 'orders objects by distance from passed object' do
 
             # expect(GeographicItem.ordered_by_longest_distance_from('point', p3)
@@ -1431,12 +1123,14 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             #          .limit(3).to_a)
             #   .to eq([c, f])
             expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', p3)
+                     .excluding([champaign.default_geographic_item, illinois.default_geographic_item])
                      .limit(3).to_a)
-              .to eq([champaign.default_geographic_item, illinois.default_geographic_item, g])
+              .to eq([g, new_box_a, new_box_e])
             # expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', p3)
             #          .limit(3).to_a)
             #   .to eq([j, e])
           end
+
           specify 'orders objects by distance from passed object' do
 
             # expect(GeographicItem.ordered_by_longest_distance_from('point', p3)
@@ -1492,6 +1186,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           specify "::intersecting list of objects (uses 'or')" do
             expect(GeographicItem.intersecting('polygon', [l])).to eq([k])
           end
+
           specify "::intersecting list of objects (uses 'or')" do
             expect(GeographicItem.intersecting('polygon', [f1]))
               .to eq([]) # Is this right?
@@ -1505,6 +1200,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             # get back these three points
             expect(result).to eq([r2022, r2024, p14])
           end
+
           specify '::select_distance_with_geo_object provides an extra column called ' \
                 '\'distance\' to the output objects' do
             result = GeographicItem.select_distance_with_geo_object('point', r2020)
@@ -1513,6 +1209,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             # 5 meters
             expect(result.first.distance).to be_within(0.1).of(5.008268179)
           end
+
           specify '::select_distance_with_geo_object provides an extra column called ' \
                 '\'distance\' to the output objects' do
             result = GeographicItem.select_distance_with_geo_object('point', r2020)
@@ -1521,6 +1218,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             # 10 meters
             expect(result[1].distance).to be_within(0.1).of(10.016536381)
           end
+
           specify '::select_distance_with_geo_object provides an extra column called ' \
                 '\'distance\' to the output objects' do
             result = GeographicItem.select_distance_with_geo_object('point', r2020)
@@ -1539,6 +1237,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             # expect(GeographicItem.with_is_valid_geometry_column(g)).to be_truthy
             # expect(GeographicItem.with_is_valid_geometry_column(all_items)).to be_truthy
           end
+
           specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
             # expect(GeographicItem.with_is_valid_geometry_column(p0)).to be_truthy
             expect(GeographicItem.with_is_valid_geometry_column(a)).to be_truthy
@@ -1548,6 +1247,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             # expect(GeographicItem.with_is_valid_geometry_column(g)).to be_truthy
             # expect(GeographicItem.with_is_valid_geometry_column(all_items)).to be_truthy
           end
+
           specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
             # expect(GeographicItem.with_is_valid_geometry_column(p0)).to be_truthy
             # expect(GeographicItem.with_is_valid_geometry_column(a)).to be_truthy
@@ -1557,6 +1257,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             # expect(GeographicItem.with_is_valid_geometry_column(g)).to be_truthy
             # expect(GeographicItem.with_is_valid_geometry_column(all_items)).to be_truthy
           end
+
           specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
             # expect(GeographicItem.with_is_valid_geometry_column(p0)).to be_truthy
             # expect(GeographicItem.with_is_valid_geometry_column(a)).to be_truthy
@@ -1566,6 +1267,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             # expect(GeographicItem.with_is_valid_geometry_column(g)).to be_truthy
             # expect(GeographicItem.with_is_valid_geometry_column(all_items)).to be_truthy
           end
+
           specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
             # expect(GeographicItem.with_is_valid_geometry_column(p0)).to be_truthy
             # expect(GeographicItem.with_is_valid_geometry_column(a)).to be_truthy
@@ -1575,6 +1277,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             # expect(GeographicItem.with_is_valid_geometry_column(g)).to be_truthy
             # expect(GeographicItem.with_is_valid_geometry_column(all_items)).to be_truthy
           end
+
           specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
             # expect(GeographicItem.with_is_valid_geometry_column(p0)).to be_truthy
             # expect(GeographicItem.with_is_valid_geometry_column(a)).to be_truthy
@@ -1584,6 +1287,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             expect(GeographicItem.with_is_valid_geometry_column(g)).to be_truthy
             # expect(GeographicItem.with_is_valid_geometry_column(all_items)).to be_truthy
           end
+
           specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
             # expect(GeographicItem.with_is_valid_geometry_column(p0)).to be_truthy
             # expect(GeographicItem.with_is_valid_geometry_column(a)).to be_truthy
