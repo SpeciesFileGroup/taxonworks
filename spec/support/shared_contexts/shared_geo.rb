@@ -728,7 +728,7 @@ shared_context 'stuff for complex geo tests' do
     end
 
     begin # real world objects
-      let(:country_gat) { GeographicAreaType.create!(name: 'Country', creator: geo_user, updater: geo_user) }
+      let!(:country_gat) { GeographicAreaType.create!(name: 'Country', creator: geo_user, updater: geo_user) }
       let!(:state_gat) { GeographicAreaType.create!(name: 'State', creator: geo_user, updater: geo_user) }
       let(:province_gat) { GeographicAreaType.create!(name: 'Province', creator: geo_user, updater: geo_user) }
       let!(:county_gat) { GeographicAreaType.create!(name: 'County', creator: geo_user, updater: geo_user) }

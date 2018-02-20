@@ -871,7 +871,9 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       context 'scopes (GeographicItems can be found by searching with) ' do
         # GeographicItem.within_radius(x).excluding(some_gi).with_collecting_event.include_collecting_event
         # .collect{|a| a.collecting_event}
-        before { [ce_a, ce_b, gr_a, gr_b].each }
+        before {
+          [ce_a, ce_b, gr_a, gr_b].each
+        }
 
         specify '::geo_with_collecting_event' do
           expect(GeographicItem.geo_with_collecting_event.to_a).to include(p_a, p_b) #
@@ -1288,7 +1290,9 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         end
 
         context '::ordered_by_longest_distance_from' do
-          before { [r2024, r2022, r2020, c3, c1, c2, g1, g2, g3, b2, rooms, h, c, f, g, j, e].each }
+          before {
+            [r2024, r2022, r2020, c3, c1, c2, g1, g2, g3, b2, rooms, h, c, f, g, j, e].each
+          }
 
           specify 'orders objects by distance from passed object' do
             expect(GeographicItem.ordered_by_longest_distance_from('point', p3)
@@ -1428,7 +1432,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             #   .to eq([c, f])
             expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', p3)
                      .limit(3).to_a)
-              .to eq([g, new_box_a, new_box_e])
+              .to eq([champaign.default_geographic_item, illinois.default_geographic_item, g])
             # expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', p3)
             #          .limit(3).to_a)
             #   .to eq([j, e])
