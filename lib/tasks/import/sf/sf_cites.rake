@@ -224,7 +224,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']].to_i
             # next unless TaxonName.where(id: taxon_name_id).any?
 
-            if taxon_name_id.nil?   #!TaxonName.where(id: taxon_name_id).exists?
+            if taxon_name_id.nil? #!TaxonName.where(id: taxon_name_id).exists?
               logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} was not created in TW (no_taxon_counter = #{no_taxon_counter += 1})"
 
               # @todo: Test if OTU exists? Add citation to OTU? Also add notes, nomenclator, tags, confidences?
@@ -242,11 +242,15 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             next if source_id == 0
 
-            protonym = TaxonName.find(taxon_name_id)
+            begin
+              protonym = TaxonName.find(taxon_name_id)
+            rescue ActiveRecord::RecordNotFound
+              logger.error "Bad taxon_name_id SF.TaxonNameID = #{row['TaxonNameID']}, get_tw_otu_id = #{get_tw_otu_id[row['TaxonNameID']]}, get_tw_taxon_name_id = #{get_tw_taxon_name_id[row['TaxonNameID']]}" + protonym.errors.full_messages.join(';')
+            end
 
-            project_id = protonym.project_id.to_s  #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
+            project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
             nomenclator_string = get_nomenclator_string[row['NomenclatorID']]
-            nomenclator_string = nomenclator_string[1..-2] if !nomenclator_string.nil?
+            # nomenclator_string = nomenclator_string[1..-2] if !nomenclator_string.nil?  # was used to strip out single quotes
 
             logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
 SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
@@ -315,37 +319,49 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
 
             else # create new citation
 
-              if nomenclator_string
+              if nomenclator_string && !(protonym.cached_original_combination == nomenclator_string)
+                combination = nil
 
-                unless protonym.cached_original_combination == nomenclator_string
-                                   combination = nil
-                    check_result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
+                begin
+                  check_result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
+
                   if check_result.is_unambiguous? && !(nomenclator_string =~ /\sform\s/)
-                     combination = check_result.combination
 
-                     # rescue/log save here
+                    combination = check_result.combination
 
-                     combination.project_id = project_id
-                     # TODO: override $user_id if need be
+                    # what's in check_result, count of species
 
-                     if combination.genus
+                    combination.project_id = project_id
+                    # TODO: override $user_id if need be
+
+                    if combination.genus
                       combination.save!
-                      taxon_name_id = combination.id  # At this point (3) do we use taxon_name_id for anything OTHER THAN the citation  (yes lots of loggin)
+                      taxon_name_id = combination.id # At this point (3) do we use taxon_name_id for anything OTHER THAN the citation  (yes lots of loggin)
+                      logger.info "Successful COMBINATION"
+                    end
 
-                      logger.info "wooOoOooOo"
-                     end
                   else
                     # ... this is all the funny exceptions (4)
+                    logger.info "Funny exceptions ELSE"
                   end
 
+                    # Put all the rescue statements in one place
+                rescue ActiveRecord::RecordInvalid
+                  # I don't think this check is right now - there is no .errors method on check_result, which returns an instance of TaxonWorks::Vendor::Biodiversity::Result.new()
+                  # logger.error "check_result ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, check_result = #{check_result}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + check_result.errors.full_messages.join(';')
+
+                  # !! both messages might not make sense now
+                  logger.error "Combination ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + combination.errors.full_messages.join(';')
+                rescue TypeError
+                  # message about type / problems with   TaxonWorks::Vendor::Biodiversity::Result
+                  logger.error "Bad nomenclator string? nomen str = #{nomenclator_string}"
+                rescue
+                  raise
                 end
-                
-
-
-              end
+              end # end block that does stuff if nomenclator_string exists
 
               # combination check
-                 # synonym or taxon_name_relationship check
+              # synonym or taxon_name_relationship check
 
               citation = Citation.new(
                   metadata.merge(

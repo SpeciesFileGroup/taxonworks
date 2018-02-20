@@ -5,11 +5,14 @@ module TaxonWorks
     # Links parsed string results to Protonyms/Combinations in TaxonWorks
     module Biodiversity
 
+      # !! Values aren't used right now
       RANK_MAP = {
         genus: :genus,
         subgenus: :infragenus,
         species: :species,
-        subspecies: :infraspecies
+        subspecies: :infraspecies,
+        variety: :infraspecies,
+        form: :infraspecies
       }.freeze
 
       class Result
@@ -74,37 +77,44 @@ module TaxonWorks
           {}
         end
 
-        # @return [String, false]
+        # @return [String, nil]
         def genus
           detail[:genus] && detail[:genus][:string]
         end
 
-        # @return [String, false]
+        # @return [String, nil] 
         def subgenus
           detail[:infragenus] && detail[:infragenus][:string]
         end
 
-        # @return [String, false]
+        # @return [String, nil]
         def species
           detail[:species] && detail[:species][:string]
         end
 
-        # @return [String, false]
+        # @return [String, nil]
         def subspecies
-          if m = detail[:infraspecies]
-            m.each do |n|
-              return n[:string] if n[:rank] == 'n/a'
-            end
-          end
+          infraspecies('n/a')
         end
 
-        # @return [String, false]
+        # @return [String, nil]
         def variety
+          infraspecies('var.')
+        end
+
+        # @return [String, nil]
+        def form
+          infraspecies('form')
+        end
+
+        # @return [String, nil]
+        def infraspecies(biodiversity_rank)
           if m = detail[:infraspecies]
             m.each do |n|
-              return n[:string] if n[:rank] == 'var.'
+              return n[:string] if n[:rank] == biodiversity_rank
             end
           end
+          nil 
         end
 
         def finest_rank
@@ -170,11 +180,10 @@ module TaxonWorks
         end
 
         # @return [ String, false ]
+        #   rank is one of `genus`, `subgenus`, `species, `subspecies`, `variety`, `form`
         def string(rank = nil)
-          self.send(rank)
+          send(rank)
         end
-
-        # TODO: var., form
 
         # @return [Scope]
         def basic_scope(rank)
@@ -208,7 +217,7 @@ module TaxonWorks
           s = case rank
               when :genus, :subgenus
                 basic_scope(rank).is_genus_group
-              when :species, :subspecies
+              when :species, :subspecies, :variety, :form
                 basic_scope(rank).is_species_group
               else
                 Protonym.none
