@@ -39,7 +39,7 @@ module TaxonWorks
         # Hash of rank => [Protonyms] like { genus: [<#>, <#>] }
         attr_reader :result
 
-        # String, the bit after ' in '
+        # @return [String] the bit after ` in `
         attr_reader :citation
 
         # query_string:
@@ -117,10 +117,12 @@ module TaxonWorks
           nil 
         end
 
+        # @return [Symbol, nil] like `:genus`
         def finest_rank
           RANK_MAP.keys.reverse.each do |k|
             return k if send(k)
           end
+          nil
         end
 
         # @return [Hash, nil]
@@ -158,11 +160,10 @@ module TaxonWorks
 
         # @return [Boolean]
         #   true if there for each parsed piece of there name there is 1 and only 1 result
-        #   !! TODO: check to see 1) there are at least genus and species and 2) (First) there is a parse result at all
         def is_unambiguous?
           RANK_MAP.each_key do |r|
             if !send(r).nil?
-              return false unless unambiguous_at?(r)
+              return false unless !send(r).nil? && !unambiguous_at?(r).nil?
             end
           end
           true
@@ -173,10 +174,17 @@ module TaxonWorks
           author_year.size > 0
         end
 
-        # @return [Boolean]
-        #   true if there is a single matching result
+        # @return [Protonym, nil]
+        #   true if there is a single matching result or nominotypical subs
         def unambiguous_at?(rank)
-          protonym_result[rank].size == 1
+          return protonym_result[rank].first if protonym_result[rank].size == 1
+          if protonym_result[rank].size == 2
+            n1 = protonym_result[rank].first
+            n2 = protonym_result[rank].last
+            return n2 if n2.nominotypical_sub_of?(n1) 
+            return n1 if n1.nominotypical_sub_of?(n2) 
+          end
+          nil 
         end
 
         # @return [ String, false ]
@@ -246,12 +254,13 @@ module TaxonWorks
 
         # @return [Hash]
         def parse_values
-          h = {}
+          h = {
+            author: author,
+            year: year
+          }
           RANK_MAP.each_key do |r|
             h[r] = send(r)
           end
-          h[:author] = author
-          h[:year] = year
           h
         end
 
@@ -272,21 +281,36 @@ module TaxonWorks
         end
 
         # @return [Combination]
-        #   ranks that are unambigous have their protonyms set
+        #   ranks that are unambiguous have their Protonym set
         def combination
           c = Combination.new
           RANK_MAP.each_key do |r|
-            c.send("#{r}_id=", protonym_result[r].first.try(:id)) if unambiguous_at?(r)
+            c.send("#{r}=", unambiguous_at?(r))
           end
           c
         end
 
         # @return [Combination, false]
-        #    the combination, if it exists
+        #    the Combination, if it exists
         def combination_exists?
           if is_unambiguous?
-            Combination.match_exists?(combination.protonym_ids_params)
+            Combination.match_exists?(combination.protonym_ids_params) # TODO: pass name?
+          else
+            false
           end
+        end
+
+        def author_word_position 
+          if a = parse_result[:scientificName] 
+            if b = a[:positions]
+              c = b.select{|k,v| v[0] == 'author_word'}.keys.min
+              p = [name.length, c].min 
+            end
+          end
+        end
+
+        def name_without_author_year
+          name[0..author_word_position - 1].strip 
         end
 
       end

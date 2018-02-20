@@ -1113,7 +1113,7 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  # TODO: move to Protonym
+  # TODO: move to Protonym when we eliminate TaxonName.new()
   def check_new_parent_class
     if is_protonym? && parent_id != parent_id_was && !parent_id_was.nil? && nomenclatural_code == :iczn
       if old_parent = TaxonName.find_by(id: parent_id_was)

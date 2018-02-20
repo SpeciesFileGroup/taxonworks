@@ -368,7 +368,6 @@ class Protonym < TaxonName
     FAMILY_RANK_NAMES.include?(rank_string)
   end
 
-
   def reduce_list_of_synonyms(list)
     return [] if list.empty?
     list1 = list.select{|s| s.id == s.lowest_rank_coordinated_taxon.id}
@@ -638,9 +637,23 @@ class Protonym < TaxonName
     end
   end
 
-
+  # @return [boolean]
+  def nominotypical_sub_of?(protonym)
+    is_genus_or_species_rank? && parent == protonym && parent.name == protonym.name
+  end
 
   protected
+
+  # TODO: move to Protonym
+  def check_new_parent_class
+    if is_protonym? && parent_id != parent_id_was && !parent_id_was.nil? && nomenclatural_code == :iczn
+      if old_parent = TaxonName.find_by(id: parent_id_was)
+        if (rank_name == 'subgenus' || rank_name == 'subspecies') && old_parent.name == name
+          errors.add(:parent_id, "The nominotypical #{rank_name} #{name} can not be moved out of the nominal #{old_parent.rank_name}")
+        end
+      end
+    end
+  end
 
   def name_is_latinized
     errors.add(:name, 'Name must be latinized, no digits or spaces allowed') if !is_latin?
@@ -659,6 +672,16 @@ class Protonym < TaxonName
     unless r.blank?
       if self.parent != r.object_taxon_name
         errors.add(:parent_id, "Taxon has a relationship 'incertae sedis' - delete the relationship before changing the parent")
+      end
+    end
+  end
+
+  def check_new_parent_class
+    if parent_id != parent_id_was && !parent_id_was.nil? && nomenclatural_code == :iczn
+      if old_parent = TaxonName.find_by(id: parent_id_was)
+        if (rank_name == 'subgenus' || rank_name == 'subspecies') && old_parent.name == name
+          errors.add(:parent_id, "The nominotypical #{rank_name} #{name} can not be moved out of the nominal #{old_parent.rank_name}")
+        end
       end
     end
   end
