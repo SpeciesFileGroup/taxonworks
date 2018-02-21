@@ -357,17 +357,6 @@ class GeographicArea < ApplicationRecord
     Georeference::GeoLocate::RequestUI.new(geolocate_attributes).request_params_string
   end
 
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
   # @return [Hash]
   #   query_line => [Array of GeographicArea]
   # @params [text]
