@@ -194,7 +194,7 @@ class Combination < TaxonName
     Combination.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(c['id']))))
   end
 
-  # @return [Combination]
+  # @return [Combination, false]
   # @params keyword_args [Hash] like `{genus: 123, :species: 456}` (note no `_id` suffix)
   #    the matching Combination if it exists, otherwise false
   #    if name is provided then cached must match (i.e. verbatim_name if provided must also match)

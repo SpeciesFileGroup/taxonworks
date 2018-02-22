@@ -38,8 +38,8 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
         end
 
         specify '#combination_exists? 1' do
-          c = Combination.create!(genus: genus1, species: species1)
-          expect(result.combination_exists?).to eq(c)
+          a = Combination.create!(genus: genus1, species: species1)
+          expect(result.combination_exists?).to eq(a)
         end
       end
 
@@ -63,6 +63,14 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
 
           specify '#preparse' do
             expect(result.preparse).to contain_exactly(result.name)
+          end
+
+          specify '#author_word_position' do
+            expect(result.author_word_position).to eq(8)
+          end
+
+          specify '#name_without_author_year' do
+            expect(result.name_without_author_year).to eq('Aus bus')
           end
 
           specify '#is_unambiguous?' do
@@ -243,10 +251,14 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
           expect(result.result[:protonyms][:subgenus]).to contain_exactly(genus1, subgenus)
         end
 
-        specify '#combination' do
+        specify '#combination 1' do
           c = result.combination
-          expect(c.genus_id).to eq(nil)
-          expect(c.subgenus_id).to eq(nil)
+          expect(c.genus_id).to eq(subgenus.id)
+        end
+
+        specify '#combination 2' do
+          c = result.combination
+          expect(c.subgenus_id).to eq(subgenus.id)
         end
       end
     end

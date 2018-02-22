@@ -236,18 +236,26 @@ namespace :tw do
               address = get_sf_booktitle_publisher_address[pub_id][address]
             end
 
-            actual_year = row['ActualYear']
-            stated_year = row['StatedYear']
+          #  actual_year = row['ActualYear']
+          #  stated_year = row['StatedYear']
 
-            if actual_year.include?('-') or stated_year.include?('-') or pub_type_string == 'unpublished'
-              source = Source::Verbatim.new(
-                  verbatim: get_sf_verbatim_ref[ref_id],
-                  created_at: row['CreatedOn'],
-                  updated_at: row['LastUpdate'],
-                  created_by_id: get_tw_user_id[row['CreatedBy']],
-                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
-              )
-            else
+            actual_year = row['ActualYear'].split('-').map(&:to_i).min
+            stated_year = row['StatedYear'].split('-').map(&:to_i).min
+
+            if actual_year.include?('-')
+              
+              # some data attribute
+            end
+
+          #  if actual_year.include?('-') or stated_year.include?('-') or pub_type_string == 'unpublished'
+          #    source = Source::Verbatim.new(
+          #        verbatim: get_sf_verbatim_ref[ref_id],
+          #        created_at: row['CreatedOn'],
+          #        updated_at: row['LastUpdate'],
+          #        created_by_id: get_tw_user_id[row['CreatedBy']],
+          #        updated_by_id: get_tw_user_id[row['ModifiedBy']]
+          #    )
+          #  else
               source = Source::Bibtex.new(
                   bibtex_type: pub_type_string,
                   title: row['Title'],
@@ -267,7 +275,7 @@ namespace :tw do
                   created_by_id: get_tw_user_id[row['CreatedBy']],
                   updated_by_id: get_tw_user_id[row['ModifiedBy']]
               )
-            end
+           # end
 
             begin
               source.save!

@@ -221,7 +221,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           base_uri = 'http://speciesfile.org/legacy/'
 
           file.each_with_index do |row, i|
-            taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']].to_i
+            taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']] # cannot to_i because if nil, nil.to_i = 0
             # next unless TaxonName.where(id: taxon_name_id).any?
 
             if taxon_name_id.nil? #!TaxonName.where(id: taxon_name_id).exists?
@@ -242,14 +242,11 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             next if source_id == 0
 
-            begin
-              protonym = TaxonName.find(taxon_name_id)
-            rescue ActiveRecord::RecordNotFound
-              logger.error "Bad taxon_name_id SF.TaxonNameID = #{row['TaxonNameID']}, get_tw_otu_id = #{get_tw_otu_id[row['TaxonNameID']]}, get_tw_taxon_name_id = #{get_tw_taxon_name_id[row['TaxonNameID']]}" + protonym.errors.full_messages.join(';')
-            end
+            protonym = TaxonName.find(taxon_name_id)
 
             project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
             nomenclator_string = get_nomenclator_string[row['NomenclatorID']]
+            nomenclator_string.gsub("variety", "var.") unless nomenclator_string.nil?
             # nomenclator_string = nomenclator_string[1..-2] if !nomenclator_string.nil?  # was used to strip out single quotes
 
             logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
@@ -325,8 +322,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                 begin
                   check_result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
 
-                  if check_result.is_unambiguous? && !(nomenclator_string =~ /\sform\s/)
-
+                  if check_result.is_unambiguous?
                     combination = check_result.combination
 
                     # what's in check_result, count of species
@@ -342,11 +338,12 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
 
                   else
                     # ... this is all the funny exceptions (4)
-                    logger.info "Funny exceptions ELSE"
+                    logger.info "Funny exceptions ELSE #{check_result.detail}"
                   end
 
                     # Put all the rescue statements in one place
                 rescue ActiveRecord::RecordInvalid
+                  logger.error "Record is invalid (error # #{error_counter += 1})"
                   # I don't think this check is right now - there is no .errors method on check_result, which returns an instance of TaxonWorks::Vendor::Biodiversity::Result.new()
                   # logger.error "check_result ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, check_result = #{check_result}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + check_result.errors.full_messages.join(';')
 
