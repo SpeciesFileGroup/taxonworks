@@ -273,6 +273,16 @@ describe Combination, type: :model, group: :nomenclature do
     end
   end
 
+  context "validate uniqueness" do
+    specify 'protonym_ids_params' do
+      combination.genus = genus
+      combination.subgenus = genus
+      combination.species = species
+      combination.subspecies = species
+      expect(combination.protonym_ids_params).to eq({genus: genus.id, subgenus: genus.id, species: species.id, subspecies: species.id})
+    end
+  end
+
   context 'soft validation' do
     specify 'runs all validations without error' do
       expect(combination.soft_validate).to be_truthy

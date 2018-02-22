@@ -585,7 +585,12 @@ namespace :tw do
               c = Combination.new()
               c.genus = TaxonName.find(origgen) unless origgen.nil?
               c.subgenus = taxon
-              c.save!
+              c.save
+              if c.id.nil?
+                c1 = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id))
+                byebug if c1.blank?
+                c = c1
+              end
               taxon = c
             end
 
@@ -739,7 +744,11 @@ namespace :tw do
               c.genus = TaxonName.find(origgen) unless origgen.nil?
               c.subgenus = TaxonName.find(origsubgen) unless origsubgen.nil?
               c.species = taxon
-              c.save!
+              c.save
+              if c.id.nil?
+                c = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id))
+                byebug if c.blank?
+              end
               taxon = c
             end
             taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
@@ -815,10 +824,10 @@ namespace :tw do
               c.subgenus = TaxonName.find(origsubgen) unless origsubgen.nil?
               c.species = TaxonName.find(origspecies) unless origspecies.nil?
               c.subspecies = taxon
-              begin
-                c.save!
-              rescue ActiveRecord::RecordInvalid
-                byebug
+              taxon.save
+              if c.id.nil?
+                c = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id), subspecies: c.subspecies.try(:id))
+                byebug if c.blank?
               end
               taxon = c
             end
