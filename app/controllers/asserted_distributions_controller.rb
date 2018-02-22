@@ -6,8 +6,19 @@ class AssertedDistributionsController < ApplicationController
   # GET /asserted_distributions
   # GET /asserted_distributions.json
   def index
+    respond_to do |format|
+      format.html {
     @recent_objects = AssertedDistribution.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
+      }
+      format.json {
+        @asserted_distributions = AssertedDistribution.where(project_id: sessions_current_project_id).where(index_params)
+      }
+    end
+  end
+
+  def index_params
+    params.permit(:otu_id, :geographic_area_id)
   end
 
   # GET /asserted_distributions/1

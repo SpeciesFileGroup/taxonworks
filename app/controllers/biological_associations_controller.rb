@@ -6,7 +6,6 @@ class BiologicalAssociationsController < ApplicationController
   # GET /biological_associations
   # GET /biological_associations.json
   def index
-
     respond_to do |format|
       format.html {
         @recent_objects = BiologicalAssociation.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)

@@ -391,6 +391,7 @@ TaxonWorks::Application.routes.draw do
   resources :otus do
     concerns [:data_routes ]
     resources :biological_associations, shallow: true, only: [:index], defaults: {format: :json}
+    resources :asserted_distributions, shallow: true, only: [:index], defaults: {format: :json}
 
     resources :contents, only: [:index]
     collection do
