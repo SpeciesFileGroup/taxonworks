@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
-describe Tasks::Gis::MatchGeoreferenceController, type: :controller, group: :shared_geo do
+describe Tasks::Gis::MatchGeoreferenceController, type: :controller, group: [:geo, :shared_geo] do
   include_context 'stuff for complex geo tests'
   let(:ce1) { CollectingEvent.new(verbatim_label:    'One of these',
                                   verbatim_locality: 'Hazelwood Rock') }
