@@ -127,7 +127,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       context 'type is set before validation when column is provided (assumes type is null)' do
         GeographicItem::DATA_TYPES.each do |t|
           specify "for #{t}" do
-            geographic_item.send("#{t}=", GeoBuild::SIMPLE_SHAPES[t])
+            geographic_item.send("#{t}=", simple_shapes[t])
             expect(geographic_item.valid?).to be_truthy
             expect(geographic_item.type).to eq("GeographicItem::#{t.to_s.camelize}")
           end
@@ -147,7 +147,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       end
 
       specify '#geo_object_type when item not saved' do
-        geographic_item.point = GeoBuild::SIMPLE_SHAPES[:point]
+        geographic_item.point = simple_shapes[:point]
         expect(geographic_item.geo_object_type).to eq(:point)
       end
     end
@@ -176,8 +176,6 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
       specify 'a point, when provided, has a legal geography' do
         geographic_item.point = RSPEC_GEO_FACTORY.point(180.0, 85.0)
-
-        # geographic_item.valid?
         expect(geographic_item.valid?).to be_truthy
       end
 
@@ -246,19 +244,19 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       end
 
       specify 'Two polygons may have various intersections.' do
-        expect(shapeE1.intersection(shapeE2)).to eq(GeoBuild::E1_AND_E2)
+        expect(shapeE1.intersection(shapeE2)).to eq(e1_and_e2)
       end
 
       specify 'Two polygons may have various intersections.' do
-        expect(shapeE1.intersection(shapeE4)).to eq(GeoBuild::E1_AND_E4)
+        expect(shapeE1.intersection(shapeE4)).to eq(e1_and_e4)
       end
 
       specify 'Two polygons may have various intersections.' do
-        expect(shapeE1.union(shapeE2)).to eq(GeoBuild::E1_OR_E2)
+        expect(shapeE1.union(shapeE2)).to eq(e1_or_e2)
       end
 
       specify 'Two polygons may have various intersections.' do
-        expect(shapeE1.union(shapeE5)).to eq(GeoBuild::E1_OR_E5)
+        expect(shapeE1.union(shapeE5)).to eq(e1_or_e5)
       end
 
       specify 'Two polygons may have various adjacencies.' do
@@ -335,13 +333,13 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       end
 
       specify 'Outer Limits' do
-        expect(all_items.geo_object.convex_hull()).to eq(GeoBuild::CONVEX_HULL)
+        expect(all_items.geo_object.convex_hull()).to eq(convex_hull)
       end
     end
 
     context 'That GeographicItems provide certain methods.' do
       before {
-        geographic_item.point = GeoBuild::ROOM2024
+        geographic_item.point = room2024
         geographic_item.valid?
       }
       specify 'self.geo_object returns stored data' do
@@ -351,7 +349,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       specify 'self.geo_object returns stored data' do
         geographic_item.save!
         geo_id = geographic_item.id
-        expect(geographic_item.geo_object).to eq(GeoBuild::ROOM2024)
+        expect(geographic_item.geo_object).to eq(room2024)
       end
 
       specify 'self.geo_object returns stored data' do
@@ -665,7 +663,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           end
 
           specify 'find the (overlapping) points in a polygon' do
-            overlapping_point = FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT12.as_binary)
+            overlapping_point = FactoryBot.create(:geographic_item_point, point: point12.as_binary)
             expect(GeographicItem.contained_by(e1.id).to_a).to contain_exactly(p12, overlapping_point, p11)
           end
         end
@@ -811,165 +809,39 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             expect(GeographicItem.ordered_by_shortest_distance_from('point', p3)
                      .limit(3).to_a)
               .to eq([p2, p1, p4])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([outer_limits, l, f1])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('polygon', p3)
-            #          .limit(3).to_a)
-            #   .to eq([e5, e3, e4])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('multi_point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([h, rooms])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('multi_line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([f, c])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('multi_polygon', p3)
-            #          .limit(3).to_a)
-            #   .to eq([new_box_e, new_box_b, new_box_a])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('geometry_collection', p3)
-            #          .limit(3).to_a)
-            #   .to eq([e, j])
           end
 
           specify ' orders objects by distance from passed object' do
-            # expect(GeographicItem.ordered_by_shortest_distance_from('point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([p2, p1, p4])
             expect(GeographicItem.ordered_by_shortest_distance_from('line_string', p3)
                      .limit(3).to_a)
               .to eq([outer_limits, l, f1])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('polygon', p3)
-            #          .limit(3).to_a)
-            #   .to eq([e5, e3, e4])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('multi_point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([h, rooms])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('multi_line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([f, c])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('multi_polygon', p3)
-            #          .limit(3).to_a)
-            #   .to eq([new_box_e, new_box_b, new_box_a])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('geometry_collection', p3)
-            #          .limit(3).to_a)
-            #   .to eq([e, j])
           end
 
           specify ' orders objects by distance from passed object' do
-            # expect(GeographicItem.ordered_by_shortest_distance_from('point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([p2, p1, p4])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([outer_limits, l, f1])
             expect(GeographicItem.ordered_by_shortest_distance_from('polygon', p3)
                      .limit(3).to_a)
               .to eq([e5, e3, e4])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('multi_point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([h, rooms])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('multi_line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([f, c])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('multi_polygon', p3)
-            #          .limit(3).to_a)
-            #   .to eq([new_box_e, new_box_b, new_box_a])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('geometry_collection', p3)
-            #          .limit(3).to_a)
-            #   .to eq([e, j])
           end
 
           specify ' orders objects by distance from passed object' do
-            # expect(GeographicItem.ordered_by_shortest_distance_from('point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([p2, p1, p4])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([outer_limits, l, f1])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('polygon', p3)
-            #          .limit(3).to_a)
-            #   .to eq([e5, e3, e4])
             expect(GeographicItem.ordered_by_shortest_distance_from('multi_point', p3)
                      .limit(3).to_a)
               .to eq([h, rooms])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('multi_line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([f, c])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('multi_polygon', p3)
-            #          .limit(3).to_a)
-            #   .to eq([new_box_e, new_box_b, new_box_a])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('geometry_collection', p3)
-            #          .limit(3).to_a)
-            #   .to eq([e, j])
           end
 
           specify ' orders objects by distance from passed object' do
-            # expect(GeographicItem.ordered_by_shortest_distance_from('point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([p2, p1, p4])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([outer_limits, l, f1])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('polygon', p3)
-            #          .limit(3).to_a)
-            #   .to eq([e5, e3, e4])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('multi_point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([h, rooms])
             expect(GeographicItem.ordered_by_shortest_distance_from('multi_line_string', p3)
                      .limit(3).to_a)
               .to eq([f, c])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('multi_polygon', p3)
-            #          .limit(3).to_a)
-            #   .to eq([new_box_e, new_box_b, new_box_a])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('geometry_collection', p3)
-            #          .limit(3).to_a)
-            #   .to eq([e, j])
           end
 
           specify ' orders objects by distance from passed object' do
-            # expect(GeographicItem.ordered_by_shortest_distance_from('point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([p2, p1, p4])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([outer_limits, l, f1])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('polygon', p3)
-            #          .limit(3).to_a)
-            #   .to eq([e5, e3, e4])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('multi_point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([h, rooms])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('multi_line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([f, c])
             expect(GeographicItem.ordered_by_shortest_distance_from('multi_polygon', p3)
                      .limit(3).to_a)
               .to eq([new_box_e, new_box_b, new_box_a])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('geometry_collection', p3)
-            #          .limit(3).to_a)
-            #   .to eq([e, j])
           end
 
           specify ' orders objects by distance from passed object' do
-            # expect(GeographicItem.ordered_by_shortest_distance_from('point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([p2, p1, p4])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([outer_limits, l, f1])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('polygon', p3)
-            #          .limit(3).to_a)
-            #   .to eq([e5, e3, e4])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('multi_point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([h, rooms])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('multi_line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([f, c])
-            # expect(GeographicItem.ordered_by_shortest_distance_from('multi_polygon', p3)
-            #          .limit(3).to_a)
-            #   .to eq([new_box_e, new_box_b, new_box_a])
             expect(GeographicItem.ordered_by_shortest_distance_from('geometry_collection', p3)
                      .limit(3).to_a)
               .to eq([e, j])
@@ -982,175 +854,43 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           }
 
           specify 'orders objects by distance from passed object' do
-            expect(GeographicItem.ordered_by_longest_distance_from('point', p3)
-                     .limit(3).to_a)
+            expect(GeographicItem.ordered_by_longest_distance_from('point', p3).limit(3).to_a)
               .to eq([r2024, r2022, r2020])
-            # expect(GeographicItem.ordered_by_longest_distance_from('line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([c3, c1, c2])
-            # expect(GeographicItem.ordered_by_longest_distance_from('polygon', p3)
-            #          .limit(4).to_a)
-            #   .to eq([g1, g2, g3, b2])
-            # expect(GeographicItem.ordered_by_longest_distance_from('multi_point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([rooms, h])
-            # expect(GeographicItem.ordered_by_longest_distance_from('multi_line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([c, f])
-            # expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', p3)
-            #          .limit(3).to_a)
-            #   .to eq([g, new_box_a, new_box_e])
-            # expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', p3)
-            #          .limit(3).to_a)
-            #   .to eq([j, e])
           end
 
           specify 'orders objects by distance from passed object' do
 
-            # expect(GeographicItem.ordered_by_longest_distance_from('point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([r2024, r2022, r2020])
             expect(GeographicItem.ordered_by_longest_distance_from('line_string', p3)
                      .limit(3).to_a)
               .to eq([c3, c1, c2])
-            # expect(GeographicItem.ordered_by_longest_distance_from('polygon', p3)
-            #          .limit(4).to_a)
-            #   .to eq([g1, g2, g3, b2])
-            # expect(GeographicItem.ordered_by_longest_distance_from('multi_point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([rooms, h])
-            # expect(GeographicItem.ordered_by_longest_distance_from('multi_line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([c, f])
-            # expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', p3)
-            #          .limit(3).to_a)
-            #   .to eq([g, new_box_a, new_box_e])
-            # expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', p3)
-            #          .limit(3).to_a)
-            #   .to eq([j, e])
           end
 
           specify 'orders objects by distance from passed object' do
-
-            # expect(GeographicItem.ordered_by_longest_distance_from('point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([r2024, r2022, r2020])
-            # expect(GeographicItem.ordered_by_longest_distance_from('line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([c3, c1, c2])
             expect(GeographicItem.ordered_by_longest_distance_from('polygon', p3)
                      .limit(4).to_a)
               .to eq([g1, g2, g3, b2])
-            # expect(GeographicItem.ordered_by_longest_distance_from('multi_point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([rooms, h])
-            # expect(GeographicItem.ordered_by_longest_distance_from('multi_line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([c, f])
-            # expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', p3)
-            #          .limit(3).to_a)
-            #   .to eq([g, new_box_a, new_box_e])
-            # expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', p3)
-            #          .limit(3).to_a)
-            #   .to eq([j, e])
           end
 
           specify 'orders objects by distance from passed object' do
-
-            # expect(GeographicItem.ordered_by_longest_distance_from('point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([r2024, r2022, r2020])
-            # expect(GeographicItem.ordered_by_longest_distance_from('line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([c3, c1, c2])
-            # expect(GeographicItem.ordered_by_longest_distance_from('polygon', p3)
-            #          .limit(4).to_a)
-            #   .to eq([g1, g2, g3, b2])
             expect(GeographicItem.ordered_by_longest_distance_from('multi_point', p3)
                      .limit(3).to_a)
               .to eq([rooms, h])
-            # expect(GeographicItem.ordered_by_longest_distance_from('multi_line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([c, f])
-            # expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', p3)
-            #          .limit(3).to_a)
-            #   .to eq([g, new_box_a, new_box_e])
-            # expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', p3)
-            #          .limit(3).to_a)
-            #   .to eq([j, e])
           end
 
           specify 'orders objects by distance from passed object' do
-
-            # expect(GeographicItem.ordered_by_longest_distance_from('point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([r2024, r2022, r2020])
-            # expect(GeographicItem.ordered_by_longest_distance_from('line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([c3, c1, c2])
-            # expect(GeographicItem.ordered_by_longest_distance_from('polygon', p3)
-            #          .limit(4).to_a)
-            #   .to eq([g1, g2, g3, b2])
-            # expect(GeographicItem.ordered_by_longest_distance_from('multi_point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([rooms, h])
             expect(GeographicItem.ordered_by_longest_distance_from('multi_line_string', p3)
                      .limit(3).to_a)
               .to eq([c, f])
-            # expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', p3)
-            #          .limit(3).to_a)
-            #   .to eq([g, new_box_a, new_box_e])
-            # expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', p3)
-            #          .limit(3).to_a)
-            #   .to eq([j, e])
           end
 
           specify 'orders objects by distance from passed object' do
-
-            # expect(GeographicItem.ordered_by_longest_distance_from('point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([r2024, r2022, r2020])
-            # expect(GeographicItem.ordered_by_longest_distance_from('line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([c3, c1, c2])
-            # expect(GeographicItem.ordered_by_longest_distance_from('polygon', p3)
-            #          .limit(4).to_a)
-            #   .to eq([g1, g2, g3, b2])
-            # expect(GeographicItem.ordered_by_longest_distance_from('multi_point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([rooms, h])
-            # expect(GeographicItem.ordered_by_longest_distance_from('multi_line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([c, f])
             expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', p3)
                      .excluding([champaign.default_geographic_item, illinois.default_geographic_item])
                      .limit(3).to_a)
               .to eq([g, new_box_a, new_box_e])
-            # expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', p3)
-            #          .limit(3).to_a)
-            #   .to eq([j, e])
           end
 
           specify 'orders objects by distance from passed object' do
-
-            # expect(GeographicItem.ordered_by_longest_distance_from('point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([r2024, r2022, r2020])
-            # expect(GeographicItem.ordered_by_longest_distance_from('line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([c3, c1, c2])
-            # expect(GeographicItem.ordered_by_longest_distance_from('polygon', p3)
-            #          .limit(4).to_a)
-            #   .to eq([g1, g2, g3, b2])
-            # expect(GeographicItem.ordered_by_longest_distance_from('multi_point', p3)
-            #          .limit(3).to_a)
-            #   .to eq([rooms, h])
-            # expect(GeographicItem.ordered_by_longest_distance_from('multi_line_string', p3)
-            #          .limit(3).to_a)
-            #   .to eq([c, f])
-            # expect(GeographicItem.ordered_by_longest_distance_from('multi_polygon', p3)
-            #          .limit(3).to_a)
-            #   .to eq([g, new_box_a, new_box_e])
             expect(GeographicItem.ordered_by_longest_distance_from('geometry_collection', p3)
                      .limit(3).to_a)
               .to eq([j, e])
@@ -1230,71 +970,29 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
 
           specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
             expect(GeographicItem.with_is_valid_geometry_column(p0)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(a)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(b)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(h)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(f)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(g)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(all_items)).to be_truthy
           end
 
           specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            # expect(GeographicItem.with_is_valid_geometry_column(p0)).to be_truthy
             expect(GeographicItem.with_is_valid_geometry_column(a)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(b)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(h)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(f)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(g)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(all_items)).to be_truthy
           end
 
           specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            # expect(GeographicItem.with_is_valid_geometry_column(p0)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(a)).to be_truthy
             expect(GeographicItem.with_is_valid_geometry_column(b)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(h)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(f)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(g)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(all_items)).to be_truthy
           end
 
           specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            # expect(GeographicItem.with_is_valid_geometry_column(p0)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(a)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(b)).to be_truthy
             expect(GeographicItem.with_is_valid_geometry_column(h)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(f)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(g)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(all_items)).to be_truthy
           end
 
           specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            # expect(GeographicItem.with_is_valid_geometry_column(p0)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(a)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(b)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(h)).to be_truthy
             expect(GeographicItem.with_is_valid_geometry_column(f)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(g)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(all_items)).to be_truthy
           end
 
           specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            # expect(GeographicItem.with_is_valid_geometry_column(p0)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(a)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(b)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(h)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(f)).to be_truthy
             expect(GeographicItem.with_is_valid_geometry_column(g)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(all_items)).to be_truthy
           end
 
           specify '::with_is_valid_geometry_column returns \'true\' for a valid GeoItem' do
-            # expect(GeographicItem.with_is_valid_geometry_column(p0)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(a)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(b)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(h)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(f)).to be_truthy
-            # expect(GeographicItem.with_is_valid_geometry_column(g)).to be_truthy
             expect(GeographicItem.with_is_valid_geometry_column(all_items)).to be_truthy
           end
         end

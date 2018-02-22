@@ -8,8 +8,8 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
   let(:earth) { FactoryBot.create(:earth_geographic_area) }
   let(:g_a_t) { FactoryBot.create(:testbox_geographic_area_type) }
 
-  let(:e_g_i) { GeographicItem.create(polygon: GeoBuild::BOX_1) }
-  let(:item_d) { GeographicItem.create(polygon: GeoBuild::BOX_4) }
+  let(:e_g_i) { GeographicItem.create(polygon: box_1) }
+  let(:item_d) { GeographicItem.create(polygon: box_4) }
 
   let!(:g_a) {
     GeographicArea.create(name:                 'Box_4',
@@ -135,12 +135,12 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
         }
 
         specify 'geographic_item without error_radius, error_depth, or error_geographic_item' do
-          georeference.geographic_item = GeographicItem.new(point: GeoBuild::SIMPLE_SHAPES[:point])
+          georeference.geographic_item = GeographicItem.new(point: simple_shapes[:point])
           expect(georeference.valid?).to be_truthy
         end
 
         specify 'geographic_item with error_radius' do
-          georeference.geographic_item = GeographicItem.new(point: GeoBuild::SIMPLE_SHAPES[:point])
+          georeference.geographic_item = GeographicItem.new(point: simple_shapes[:point])
           georeference.error_radius    = 10000
           expect(georeference.valid?).to be_truthy
         end
@@ -161,7 +161,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
       context 'malformed geographic_items' do
         specify 'errors which result from badly formed error_geographic_item values' do
           g = Georeference::VerbatimData.new(collecting_event:      collecting_event_with_geographic_area,
-                                             error_geographic_item: GeographicItem.new(polygon: GeoBuild::POLY_E1))
+                                             error_geographic_item: GeographicItem.new(polygon: poly_e1))
           g.valid?
           expect(g.errors.keys.include?(:error_geographic_item)).to be_truthy
           expect(g.errors.keys.include?(:collecting_event)).to be_truthy
@@ -179,11 +179,11 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
       end
 
       context 'testing geographic_item/error against geographic area provided through collecting event' do
-        let(:p0) { GeographicItem.new(point: GeoBuild::POINT0) }
-        let(:p18) { GeographicItem.new(point: GeoBuild::POINT18) }
-        let(:gi_b1) { GeographicItem.create!(polygon: GeoBuild::SHAPE_B_OUTER) }
-        let(:gi_b2) { GeographicItem.create!(polygon: GeoBuild::SHAPE_B_INNER) }
-        let(:gi_e1) { GeographicItem.create!(polygon: GeoBuild::POLY_E1) }
+        let(:p0) { GeographicItem.new(point: point0) }
+        let(:p18) { GeographicItem.new(point: point18) }
+        let(:gi_b1) { GeographicItem.create!(polygon: shape_b_outer) }
+        let(:gi_b2) { GeographicItem.create!(polygon: shape_b_inner) }
+        let(:gi_e1) { GeographicItem.create!(polygon: poly_e1) }
         let(:ga_e1) {
           GeographicArea.create!(name:                                         'test area E1',
                                  data_origin:                                  'Test Data',
@@ -295,7 +295,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
         georeference = Georeference::VerbatimData.new(collecting_event:      collecting_event_with_geographic_area,
                                                       error_geographic_item: e_g_i)
         expect(georeference.save!).to be_truthy
-        expect(georeference.error_box.geo_object.to_s).to eq(GeoBuild::BOX_1.to_s)
+        expect(georeference.error_box.geo_object.to_s).to eq(box_1.to_s)
       end
     end
     context 'batch_create_from_georeference_matcher' do
@@ -333,7 +333,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
     let(:gr1) { FactoryBot.create(:valid_georeference,
                                   collecting_event: FactoryBot.create(:valid_collecting_event),
                                   geographic_item:  FactoryBot.create(:geographic_item_with_polygon,
-                                                                      polygon: GeoBuild::SHAPE_K)) }
+                                                                      polygon: shape_k)) }
     let(:gr_poly) { FactoryBot.create(:valid_georeference_geo_locate) }
     let(:gr_point) { FactoryBot.create(:valid_georeference_verbatim_data) }
 
@@ -396,7 +396,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
                                 parent:                                       p_a,
                                 level0:                                       p_a,
                                 geographic_areas_geographic_items_attributes: [{geographic_item: item_a,
-                                                                                data_origin: 'Test Data'}])
+                                                                                data_origin:     'Test Data'}])
 
       g_a2 = GeographicArea.new(name:        'Box_2',
                                 data_origin: 'Test Data',
@@ -405,7 +405,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
                                 parent:                                       p_a,
                                 level0:                                       p_a,
                                 geographic_areas_geographic_items_attributes: [{geographic_item: item_b,
-                                                                                data_origin: 'Test Data'}])
+                                                                                data_origin:     'Test Data'}])
 
       g_a3 = GeographicArea.new(name:        'Box_3',
                                 data_origin: 'Test Data',
@@ -414,7 +414,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
                                 parent:                                       p_a,
                                 level0:                                       p_a,
                                 geographic_areas_geographic_items_attributes: [{geographic_item: item_c,
-                                                                                data_origin: 'Test Data'}]
+                                                                                data_origin:     'Test Data'}]
       )
 
       g_a4 = GeographicArea.new(name:                                         'Box_4',
@@ -423,7 +423,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
                                 parent:                                       p_a,
                                 level0:                                       p_a,
                                 geographic_areas_geographic_items_attributes: [{geographic_item: item_d,
-                                                                                data_origin: 'Test Data'}])
+                                                                                data_origin:     'Test Data'}])
 
       g_a4.save!
 

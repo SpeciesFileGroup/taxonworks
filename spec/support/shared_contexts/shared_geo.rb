@@ -1124,25 +1124,25 @@ shared_context 'stuff for complex geo tests' do
 
 
     let(:p0) { FactoryBot.create(:geographic_item_point, point: point0.as_binary) } # 0
-    let(:p1) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT1.as_binary) }
-    let(:p2) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT2.as_binary) } # 2
-    let(:p3) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT3.as_binary) } # 3
-    let(:p4) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT4.as_binary) } # 3
-    let(:p5) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT5.as_binary) } # 5
-    let(:p6) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT6.as_binary) } # 6
-    let(:p7) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT7.as_binary) } # 7
-    let(:p8) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT8.as_binary) } # 8
-    let(:p9) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT9.as_binary) } # 9
-    let(:p10) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT10.as_binary) } # 10 } #
-    let(:p11) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT11.as_binary) } # 11 } #
-    let(:p12) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT12.as_binary) } # 10 } #
-    let(:p13) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT13.as_binary) } # 10 } #
-    let(:p14) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT14.as_binary) } # 14 } #
-    let(:p15) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT15.as_binary) } # 15
-    let(:p16) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT16.as_binary) } # 16
-    let(:p17) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT17.as_binary) } # 17
-    let(:p18) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT18.as_binary) } # 18
-    let(:p19) { FactoryBot.create(:geographic_item_point, point: GeoBuild::POINT19.as_binary) } # 19
+    let(:p1) { FactoryBot.create(:geographic_item_point, point: point1.as_binary) }
+    let(:p2) { FactoryBot.create(:geographic_item_point, point: point2.as_binary) } # 2
+    let(:p3) { FactoryBot.create(:geographic_item_point, point: point3.as_binary) } # 3
+    let(:p4) { FactoryBot.create(:geographic_item_point, point: point4.as_binary) } # 3
+    let(:p5) { FactoryBot.create(:geographic_item_point, point: point5.as_binary) } # 5
+    let(:p6) { FactoryBot.create(:geographic_item_point, point: point6.as_binary) } # 6
+    let(:p7) { FactoryBot.create(:geographic_item_point, point: point7.as_binary) } # 7
+    let(:p8) { FactoryBot.create(:geographic_item_point, point: point8.as_binary) } # 8
+    let(:p9) { FactoryBot.create(:geographic_item_point, point: point9.as_binary) } # 9
+    let(:p10) { FactoryBot.create(:geographic_item_point, point: point10.as_binary) } # 10 } #
+    let(:p11) { FactoryBot.create(:geographic_item_point, point: point11.as_binary) } # 11 } #
+    let(:p12) { FactoryBot.create(:geographic_item_point, point: point12.as_binary) } # 10 } #
+    let(:p13) { FactoryBot.create(:geographic_item_point, point: point13.as_binary) } # 10 } #
+    let(:p14) { FactoryBot.create(:geographic_item_point, point: point14.as_binary) } # 14 } #
+    let(:p15) { FactoryBot.create(:geographic_item_point, point: point15.as_binary) } # 15
+    let(:p16) { FactoryBot.create(:geographic_item_point, point: point16.as_binary) } # 16
+    let(:p17) { FactoryBot.create(:geographic_item_point, point: point17.as_binary) } # 17
+    let(:p18) { FactoryBot.create(:geographic_item_point, point: point18.as_binary) } # 18
+    let(:p19) { FactoryBot.create(:geographic_item_point, point: point19.as_binary) } # 19
 
     let(:a) { FactoryBot.create(:geographic_item_line_string, line_string: shape_a1.as_binary) } # 24 } #
     let(:b) { FactoryBot.create(:geographic_item_polygon, polygon: shape_b.as_binary) } # 27
@@ -1185,7 +1185,6 @@ shared_context 'stuff for complex geo tests' do
     let(:shapeE5) { e0.geometry_n(4) } #
 
     let(:r) { a.geo_object.intersection(p16.geo_object) } #
-    # let(:p16_on_a) { GeoBuild::P16_ON_A } #
 
     let(:item_a) { FactoryBot.create(:geographic_item_polygon, polygon: box_1) } # 57
     let(:item_b) { FactoryBot.create(:geographic_item_polygon, polygon: box_2) } # 58

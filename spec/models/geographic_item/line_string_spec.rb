@@ -1,8 +1,10 @@
 require 'rails_helper'
+require 'support/shared_contexts/shared_geo'
 
-describe GeographicItem::LineString, type:  :model, group: :geo do
+describe GeographicItem::LineString, type: :model, group: [:geo, :shared_geo] do
+  include_context 'stuff for complex geo tests'
   context 'that this item' do
-    let(:a) { FactoryBot.create(:geographic_item_line_string, line_string: GeoBuild::SHAPE_A.as_binary) }
+    let(:a) { FactoryBot.create(:geographic_item_line_string, line_string: shape_a1.as_binary) }
     specify 'represents a line_string' do
       expect(a.type).to eq('GeographicItem::LineString')
       expect(a.valid?).to be_truthy
