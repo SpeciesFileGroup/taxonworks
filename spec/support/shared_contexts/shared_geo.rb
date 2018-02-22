@@ -1,4 +1,5 @@
 # require 'support/shared_contexts/geo/area_a'
+# rubocop:disable Metrics/AbcSize
 
 RSPEC_GEO_FACTORY = Gis::FACTORY
 shared_context 'stuff for complex geo tests' do
@@ -2610,3 +2611,4 @@ def make_box(base, offset_x, offset_y, size_x, size_y) # rubocop:disable Metrics
   )
   RSPEC_GEO_FACTORY.multi_polygon([box])
 end
+# rubocop:enable Metrics/AbcSize
