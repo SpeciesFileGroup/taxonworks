@@ -28,7 +28,7 @@
           </a>
           <div class="taxon-options">
             <radial-annotator :global-id="taxon.global_id"/>
-            <otu-radial
+            <otu
               class="otu-radial"
               :taxon-id="taxon.id"
               :taxon-name="taxon.object_tag"/>
@@ -47,7 +47,7 @@
 </template>
 <script>
 
-import OtuRadial from '../../../components/otu/otu.vue'
+import Otu from '../../../components/otu/otu.vue'
 const radialAnnotator = require('../../../components/annotator/annotator.vue').default
 
 const GetterNames = require('../store/getters/getters').GetterNames
@@ -57,7 +57,7 @@ export default {
   components: {
     modal,
     radialAnnotator,
-    OtuRadial
+    Otu
   },
   data: function () {
     return {
