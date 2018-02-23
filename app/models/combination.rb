@@ -204,7 +204,6 @@ class Combination < TaxonName
     else
       a = find_by_protonym_ids(keyword_args).where(cached: name).first
     end
- 
     a ? a : false
   end
 

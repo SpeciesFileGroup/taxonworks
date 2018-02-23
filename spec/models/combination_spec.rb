@@ -59,6 +59,30 @@ describe Combination, type: :model, group: :nomenclature do
       expect(c.valid?).to be_falsey
     end
 
+    specify 'uniqueness including original combination' do
+      species.original_genus = genus
+      species.original_species = species
+      species.save
+      c = Combination.new(genus: genus, species: species, verbatim_name: "")
+      expect(c.valid?).to be_falsey
+    end
+
+    specify 'uniqueness including original combination different name' do
+      species.original_genus = genus
+      species.original_species = species
+      species.save
+      c = Combination.new(genus: genus, species: species, verbatim_name: "Erythroneura vite")
+      expect(c.valid?).to be_truthy
+    end
+
+    specify 'protonym_ids_params' do
+      combination.genus = genus
+      combination.subgenus = genus
+      combination.species = species
+      combination.subspecies = species
+      expect(combination.protonym_ids_params).to eq(genus: genus.id, subgenus: genus.id, species: species.id, subspecies: species.id)
+    end
+
     specify 'species combination is valid with two protonyms' do
       basic_combination.valid?
       expect(basic_combination.protonyms.last.rank_string).to eq('NomenclaturalRank::Iczn::SpeciesGroup::Species')
@@ -270,16 +294,6 @@ describe Combination, type: :model, group: :nomenclature do
     
     specify 'works' do
       expect(basic_combination.destroy).to be_truthy
-    end
-  end
-
-  context "validate uniqueness" do
-    specify 'protonym_ids_params' do
-      combination.genus = genus
-      combination.subgenus = genus
-      combination.species = species
-      combination.subspecies = species
-      expect(combination.protonym_ids_params).to eq(genus: genus.id, subgenus: genus.id, species: species.id, subspecies: species.id)
     end
   end
 
