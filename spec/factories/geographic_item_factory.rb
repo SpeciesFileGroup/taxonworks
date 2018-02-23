@@ -43,7 +43,7 @@ FactoryBot.define do
     end
 
     factory :geographic_item_with_multi_polygon do
-      multi_polygon { GI_MULTI_POLYGON }
+      multi_polygon { GeoBuild::GI_MULTI_POLYGON }
       type 'GeographicItem::MultiPolygon'
     end
   end
