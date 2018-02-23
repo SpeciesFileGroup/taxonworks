@@ -38,50 +38,60 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
         end
 
         specify '#combination_exists? 1' do
-          c = Combination.create!(genus: genus1, species: species1)
-          expect(result.combination_exists?).to eq(c)
+          a = Combination.create!(genus: genus1, species: species1)
+          expect(result.combination_exists?).to eq(a)
         end
       end
 
-      context 'unambiguous' do
-        before do
-          result.name = 'Aus bus Smith and Jones, 1920'
-          result.parse
-          result.build_result
-        end
+      context 'matches' do
+        context 'unambiguous' do
+          before do
+            result.name = 'Aus bus Smith and Jones, 1920'
+            result.parse
+            result.build_result
+          end
 
-        let(:combination) { result.combination }
+          let(:combination) { result.combination }
 
-        specify 'genus' do
-          expect(result.genus).to eq('Aus') 
-        end
+          specify 'genus' do
+            expect(result.genus).to eq('Aus') 
+          end
 
-        specify '#protonym_result' do
-          expect(result.protonym_result[:genus]).to include(genus1)
-        end
+          specify '#protonym_result' do
+            expect(result.protonym_result[:genus]).to include(genus1)
+          end
 
-        specify '#preparse' do
-          expect(result.preparse).to contain_exactly(result.name)
-        end
-        
-        specify '#is_unambiguous?' do
-          expect(result.is_unambiguous?).to eq(true)
-        end
+          specify '#preparse' do
+            expect(result.preparse).to contain_exactly(result.name)
+          end
 
-        specify '#finest_rank' do
-          expect(result.finest_rank). to eq(:species)
-        end
+          specify '#author_word_position' do
+            expect(result.author_word_position).to eq(8)
+          end
 
-        specify '#combination genus' do
-          expect(combination.genus_id).to eq(genus1.id)
-        end
+          specify '#name_without_author_year' do
+            expect(result.name_without_author_year).to eq('Aus bus')
+          end
 
-        specify '#combination species' do
-          expect(combination.species_id).to eq(species1.id)
-        end
+          specify '#is_unambiguous?' do
+            expect(result.is_unambiguous?).to eq(true)
+          end
 
-        specify '#grouped_protonyms1' do
-          expect(result.grouped_protonyms(:species)).to contain_exactly(species1)
+          specify '#finest_rank' do
+            expect(result.finest_rank). to eq(:species)
+          end
+
+          specify '#combination genus' do
+            expect(combination.genus_id).to eq(genus1.id)
+          end
+
+          specify '#combination species' do
+            expect(combination.species_id).to eq(species1.id)
+          end
+
+          specify '#grouped_protonyms1' do
+            expect(result.grouped_protonyms(:species)).to contain_exactly(species1)
+          end
         end
 
         context 'match author year' do
@@ -107,6 +117,32 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
             expect(result.grouped_protonyms(:species)).to contain_exactly(species3)
           end
         end 
+
+        context 'infraspecifics' do
+          specify '#string 1' do
+            result.name = 'Aus bus form cus Smith and Jones, 1920'
+            result.parse
+            expect(result.string('form')).to eq('cus') 
+          end
+
+          specify '#string 2' do
+            result.name = 'Aus bus var. cus Smith and Jones, 1920'
+            result.parse
+            expect(result.string('variety')).to eq('cus') 
+          end
+
+          specify '#string 3' do
+            result.name = 'Aus bus cus var. dus Smith and Jones, 1920'
+            result.parse
+            expect(result.string('subspecies')).to eq('cus') 
+          end
+
+          specify '#build_result succeeds' do
+            result.name = 'Aus bus form cus Smith and Jones, 1920'
+            result.parse
+            expect(result.build_result).to be_truthy
+          end
+        end
       end
 
       context 'species with ambiguity' do
@@ -215,10 +251,14 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
           expect(result.result[:protonyms][:subgenus]).to contain_exactly(genus1, subgenus)
         end
 
-        specify '#combination' do
+        specify '#combination 1' do
           c = result.combination
-          expect(c.genus_id).to eq(nil)
-          expect(c.subgenus_id).to eq(nil)
+          expect(c.genus_id).to eq(subgenus.id)
+        end
+
+        specify '#combination 2' do
+          c = result.combination
+          expect(c.subgenus_id).to eq(subgenus.id)
         end
       end
     end
@@ -248,7 +288,6 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
         end
       end
     end
-
   end
 end 
 
