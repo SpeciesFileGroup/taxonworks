@@ -279,7 +279,7 @@ describe Combination, type: :model, group: :nomenclature do
       combination.subgenus = genus
       combination.species = species
       combination.subspecies = species
-      expect(combination.protonym_ids_params).to eq({genus: genus.id, subgenus: genus.id, species: species.id, subspecies: species.id})
+      expect(combination.protonym_ids_params).to eq(genus: genus.id, subgenus: genus.id, species: species.id, subspecies: species.id)
     end
   end
 

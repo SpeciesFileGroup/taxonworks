@@ -222,9 +222,9 @@ class Combination < TaxonName
   end
 
   # @return [Hash]
-  #  like `{ genus: 1, species: 2 }`
+  #   like `{ genus: 1, species: 2 }`
   def protonym_ids_params
-    protonyms.inject({}) {|hsh, p| hsh.merge!( p.rank.to_sym => p.id )}
+    protonyms_by_rank.inject({}) {|hsh, p| hsh.merge!( p[0].to_sym => p[1].id )}
   end
 
   # Overrides {TaxonName#full_name_hash}
@@ -257,7 +257,7 @@ class Combination < TaxonName
   def protonyms_by_rank
     result = {}
     APPLICABLE_RANKS.each do |rank|
-      if protonym = self.send(rank)
+      if protonym = send(rank)
         result[rank] = protonym
       end
     end
