@@ -151,7 +151,8 @@ class AssertedDistributionsController < ApplicationController
       :otu_id, :geographic_area_id,
       :is_absent,
       otu_attributes: [:id, :_destroy, :name, :taxon_name_id],
-      origin_citation_attributes: [:id, :_destroy, :source_id, :pages] 
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
+      citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages]
     )
   end
 
