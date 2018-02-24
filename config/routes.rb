@@ -615,7 +615,7 @@ TaxonWorks::Application.routes.draw do
 
     scope :taxa do
       scope :browse, controller: 'tasks/taxa/browse' do
-        get '/', action: :index, as: 'browse_taxon_task'
+        get '/:otu_id', action: :index, as: 'browse_taxon_task'
       end
     end
 
