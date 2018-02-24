@@ -24,7 +24,7 @@
             v-for="item in list"
             :key="item.id">
             <a
-              :href="`/tasks/otus/browse/${item.id}`"
+              :href="`/tasks/taxa/browse/${item.id}`"
               v-html="item.object_tag"/>
           </li>
         </ul>
@@ -93,7 +93,7 @@
         }) 
       },
       redirectTo(id) {
-        window.location.href = `/tasks/otus/browse/${id}`
+        window.location.href = `/tasks/taxa/browse/${id}`
       }
     }
   }
