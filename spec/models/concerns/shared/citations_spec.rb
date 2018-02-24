@@ -52,6 +52,13 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
         expect(t.citations.first.is_original?).to be_truthy
       end
 
+      specify '#source can be set with nested attributed and previously saved object 2' do
+        t = TestCitable.create
+        expect(t.update( citations_attributes: [ {source_id: source.to_param} ] )).to be_truthy
+        expect(t.citations.reload.count).to eq(1)
+        expect(t.citations.first.is_original?).to be_falsey
+      end
+
       context 'with a is_original citation' do
         before do
           citation.is_original = true
@@ -294,7 +301,6 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
       expect(TestCitable.oldest_by_citation).to eq(d)
     end
   end
-
 end
 
 class TestCitable < ApplicationRecord
