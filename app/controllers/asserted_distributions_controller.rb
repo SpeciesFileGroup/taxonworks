@@ -84,13 +84,13 @@ class AssertedDistributionsController < ApplicationController
 
   def autocomplete
     @asserted_distributions = AssertedDistribution.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
-    data                    = @asserted_distributions.collect do |t|
-      {id:              t.id,
-       label:           AssertedDistributionsHelper.asserted_distribution_tag(t), # in helper
+    data  = @asserted_distributions.collect do |t|
+      {id: t.id,
+       label: AssertedDistributionsHelper.asserted_distribution_tag(t), # in helper
        response_values: {
          params[:method] => t.id
        },
-       label_html:      AssertedDistributionsHelper.asserted_distribution_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: AssertedDistributionsHelper.asserted_distribution_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
     render json: data
@@ -143,7 +143,7 @@ class AssertedDistributionsController < ApplicationController
   
   def set_asserted_distribution
     @asserted_distribution = AssertedDistribution.with_project_id(sessions_current_project_id).find(params[:id])
-    @recent_object         = @asserted_distribution
+    @recent_object = @asserted_distribution
   end
 
   def asserted_distribution_params

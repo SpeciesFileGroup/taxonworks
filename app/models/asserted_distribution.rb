@@ -140,6 +140,7 @@ class AssertedDistribution < ApplicationRecord
     result
   end
 
+  # TODO: deprecate
   def self.generate_download(scope)
     CSV.generate do |csv|
       csv << column_names
