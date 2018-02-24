@@ -50,9 +50,12 @@
       filterList() {
         let newList = []
         let that = this;
+
         if(this.asserted_distribution.origin_citation_attributes.source_id) {
           this.list.forEach(item => {
-            if(item.source.id == that.asserted_distribution.origin_citation_attributes.source_id) {
+            if(item.citations.find(citation => { 
+                return citation.source_id == that.asserted_distribution.origin_citation_attributes.source_id 
+              })) {
               newList.push(item)
             }
           })
@@ -75,6 +78,7 @@
       createAsserted() {
         this.create('/asserted_distributions.json', { asserted_distribution: this.asserted_distribution }).then(response => {
           this.list.push(response.body)
+          console.log(response.body)
         })
       },
       newAsserted() {

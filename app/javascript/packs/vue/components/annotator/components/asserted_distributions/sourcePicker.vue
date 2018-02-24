@@ -82,6 +82,7 @@
       cleanCitation() {
         this.autocompleteLabel = undefined
         this.citation = this.newCitation()
+        this.autocompleteLabel = ''
         this.$emit('create', this.citation);
       }
     }
