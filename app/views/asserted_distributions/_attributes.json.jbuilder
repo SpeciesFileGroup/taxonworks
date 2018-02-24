@@ -5,7 +5,7 @@ json.origin_citation_source_id asserted_distribution.origin_citation_source_id
 json.partial! '/shared/data/all/metadata', object: asserted_distribution, klass: 'AssertedDistribution'
 
 json.citations do
-  json.array! asserted_distribution.citations, partial: '/citations/attributes', as: :citation
+  json.array! asserted_distribution.citations.reload, partial: '/citations/attributes', as: :citation
 end
 
 json.otu do
