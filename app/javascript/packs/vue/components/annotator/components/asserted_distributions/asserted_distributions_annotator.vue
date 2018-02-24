@@ -5,7 +5,7 @@
       <source-picker @create="setSource"/>
       <div>
         <spinner
-          v-if="!asserted_distribution.origin_citation_attributes.source_id"
+          v-if="!asserted_distribution.citations_attributes[0].source_id"
           :show-legend="false"
           :show-spinner="false"/>
         <geographic-area 
@@ -51,10 +51,10 @@
         let newList = []
         let that = this;
 
-        if(this.asserted_distribution.origin_citation_attributes.source_id) {
+        if(this.asserted_distribution.citations_attributes[0].source_id) {
           this.list.forEach(item => {
             if(item.citations.find(citation => { 
-                return citation.source_id == that.asserted_distribution.origin_citation_attributes.source_id 
+                return citation.source_id == that.asserted_distribution.citations_attributes[0].source_id 
               })) {
               newList.push(item)
             }
@@ -64,6 +64,9 @@
         else {
           return this.list
         }
+      },
+      existingArea() {
+        return this.list.find(item => { return item.geographic_area_id == this.asserted_distribution.geographic_area_id })
       }
     },
     data() {
@@ -76,23 +79,31 @@
     },
     methods: {
       createAsserted() {
-        this.create('/asserted_distributions.json', { asserted_distribution: this.asserted_distribution }).then(response => {
-          this.list.push(response.body)
-          console.log(response.body)
-        })
+        if(!this.existingArea) {
+          this.asserted_distribution.citations_attributes[0]['is_original'] = true
+          this.create('/asserted_distributions.json', { asserted_distribution: this.asserted_distribution }).then(response => {
+            this.list.push(response.body)
+          })
+        }
+        else {
+          this.asserted_distribution['id'] = this.existingArea.id
+          this.update(`/asserted_distributions/${this.existingArea.id}.json`, { asserted_distribution: this.asserted_distribution }).then(response => {
+            this.list.push(response.body)
+          })          
+        }
       },
       newAsserted() {
         return { 
           otu_id: this.splittedGlobalId,
           geographic_area_id: undefined,
-          origin_citation_attributes: {
+          citations_attributes: [{
             source_id: undefined
-          },
+          }],
           is_absent: undefined
         }
       },
       setSource(source) {
-        this.asserted_distribution.origin_citation_attributes.source_id = source.source_id
+        this.asserted_distribution.citations_attributes[0].source_id = source.source_id
         this.asserted_distribution.is_absent = source.is_absent
       }
     },
