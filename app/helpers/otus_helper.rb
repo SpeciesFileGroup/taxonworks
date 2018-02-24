@@ -31,7 +31,7 @@ module OtusHelper
 
   def otus_init(object)
     otu = object.metamorphosize
-    content_tag(:div, '', 'data-taxon-name' => object_tag(otu), 'data-taxon-id' => otu.id, 'data-otu-init' => 'true')
+    content_tag(:div, '', 'data-taxon-name' => object_tag(otu), 'data-taxon-id' => otu.id, 'data-otu-button' => 'true')
   end
 
   def otus_radial(object)
