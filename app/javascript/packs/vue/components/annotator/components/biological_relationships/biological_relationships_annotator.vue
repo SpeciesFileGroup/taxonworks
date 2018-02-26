@@ -9,7 +9,9 @@
             class="separate-left"
             data-icon="reset"/>
         </h3>
-        <h3 v-else>Choose relationship</h3>
+        <h3
+          class="subtle"
+          v-else>Choose relationship</h3>
       </template>
 
       <template>
@@ -21,18 +23,21 @@
             data-icon="reset"/>
         </h3>
         <h3 v-else>
-          <span>Choose relation</span>
+          <span class="subtle">Choose relation</span>
         </h3>
       </template>
     </div>
 
     <biological
       v-if="!biologicalRelationship"
+      class="separate-bottom"
       @select="biologicalRelationship = $event"/>
     <related
       v-if="!biologicalRelation"
+      class="separate-bottom separate-top"
       @select="biologicalRelation = $event"/>
     <new-citation
+      class="separate-top"
       @create="citation = $event"
       :global-id="globalId"/>
 

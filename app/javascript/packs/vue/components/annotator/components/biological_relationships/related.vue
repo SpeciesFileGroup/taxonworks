@@ -5,7 +5,6 @@
       :options="tabOptions"
       v-model="view"
       name="related"/>
-
     <template v-if="otuView">
       <switch-component
         :options="Object.keys(smartOtu)"
@@ -27,7 +26,7 @@
         label="label"
         min="2"
         @getItem="sendRelated($event)"
-        placeholder="Select a otu"
+        placeholder="Select an otu"
         param="term"/>
     </template>
 

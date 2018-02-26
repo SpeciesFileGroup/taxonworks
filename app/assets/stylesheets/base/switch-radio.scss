@@ -36,6 +36,7 @@
   }
 
   input:checked + label {
+    box-shadow: 0 1px 1px 0px rgba(0, 0, 0, 0.2) inset;
     background-color: $navigation_background;
     color: rgba(0, 0, 0, 0.6);
     border: 1px solid $navigation_border;
