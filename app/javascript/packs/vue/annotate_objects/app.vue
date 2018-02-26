@@ -1,12 +1,14 @@
 <template>
   <div>
-    <annotation-types @select="testResult = $event"/>
-    <span>Selected: {{ testResult }}</span>
-  </div>
     <div>
-        <models @select="testResult = $event"/>
-        <span>Selected: {{ testResult }}</span>
+      <annotation-types @select="testResult = $event"/>
+      <span>Selected: {{ testResult }}</span>
     </div>
+    <div>
+      <models @select="testResult = $event"/>
+      <span>Selected: {{ testResult }}</span>
+    </div>
+  </div>
 </template>
 <script>
 
