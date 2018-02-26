@@ -20,7 +20,8 @@
       url="/geographic_areas/autocomplete"
       label="label"
       min="2"
-      :send-label="selected"
+      :clear-after="true"
+      :autofocus="true"
       @getItem="sendGeographic"
       placeholder="Select a geographic area"
       param="term"/>
