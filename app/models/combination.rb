@@ -162,6 +162,7 @@ class Combination < TaxonName
   # @return [Scope]
   # @params keyword_args [Hash] like `{genus: 123, :species: 456}` (note no `_id` suffix)
   def self.find_by_protonym_ids(**keyword_args)
+    keyword_args.compact!
     return Combination.none if keyword_args.empty?
 
     c = Combination.arel_table
@@ -178,13 +179,11 @@ class Combination < TaxonName
     i = 0
     keyword_args.each do |rank, id|
       r_a = r.alias("foo_#{i}")
-
       b = b.join(r_a).on(
         r_a['object_taxon_name_id'].eq(a['id']),
         r_a['type'].eq(TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES[rank]),
         r_a['subject_taxon_name_id'].eq(id)
       )
-
       i += 1
     end
 

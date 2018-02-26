@@ -149,6 +149,11 @@ describe Combination, type: :model, group: :nomenclature do
       expect(Combination.match_exists?(genus: genus.id, species: species.id)).to eq(basic_combination)
     end
 
+    specify '.match_exists? 1b' do
+      basic_combination.update(verbatim_name: 'Aus bus')
+      expect(Combination.match_exists?(genus: genus.id, subgenus: nil, species: species.id)).to eq(basic_combination)
+    end
+
     specify '.match_exists? 2' do
       expect(Combination.match_exists?(genus: genus.id, species: species2.id)).to eq(false)
     end

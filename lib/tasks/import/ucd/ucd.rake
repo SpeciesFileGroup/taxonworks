@@ -746,8 +746,9 @@ namespace :tw do
               c.species = taxon
               c.save
               if c.id.nil?
-                c = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id))
-                byebug if c.blank?
+                c1 = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id))
+                byebug if c1.blank?
+                c = c1
               end
               taxon = c
             end
@@ -824,10 +825,11 @@ namespace :tw do
               c.subgenus = TaxonName.find(origsubgen) unless origsubgen.nil?
               c.species = TaxonName.find(origspecies) unless origspecies.nil?
               c.subspecies = taxon
-              taxon.save
+              c.save
               if c.id.nil?
-                c = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id), subspecies: c.subspecies.try(:id))
-                byebug if c.blank?
+                c1 = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id), subspecies: c.subspecies.try(:id))
+                byebug if c1.blank?
+                c = c1
               end
               taxon = c
             end
@@ -1413,7 +1415,9 @@ namespace :tw do
             taxon = @root
           else
             rnk = 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order'
-            if row['Family'] =~/^[A-Z]\w*aceae/
+            if row['Order'] == 'Bacteria'
+              rnk = 'NomenclaturalRank::Icn::HigherClassificationGroup::Kingdom'
+            elsif row['Family'] =~/^[A-Z]\w*aceae/
               rnk = 'NomenclaturalRank::Icn::HigherClassificationGroup::Order'
             end
             taxon = Protonym.find_or_create_by(name: name, parent: @root, rank_class: rnk, project_id: $project_id)
@@ -1502,7 +1506,7 @@ namespace :tw do
           end
 
           # it could become invalid if verbatim_author is set? 
-          taxon = TaxonName.find(parent) unless taxon.valid? # bad form to re-use variable name - and this doesn't make sense, you already have a parent why find it again?
+          taxon = TaxonName.find(parent.id) unless taxon.valid? # bad form to re-use variable name - and this doesn't make sense, you already have a parent why find it again?
           taxon.identifiers.create(type: 'Identifier::Local::Import', namespace_id: @data.keywords['hos_number'], identifier: row['HosNumber']) if !row['HosNumber'].blank?
         end
       end
