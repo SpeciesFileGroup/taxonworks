@@ -16,7 +16,7 @@
 
       <template>
         <h3 v-if="biologicalRelation">
-          <span v-html="biologicalRelation.object_tag"/>
+          <span v-html="displayRelated"/>
           <span
             @click="biologicalRelation = undefined"
             class="separate-left"
@@ -77,6 +77,14 @@
     computed: {
       validateFields() {
         return this.biologicalRelationship && this.biologicalRelation
+      },
+      displayRelated() {
+        if(this.biologicalRelation) {
+          return (this.biologicalRelation['object_tag'] ? this.biologicalRelation.object_tag : this.biologicalRelation.label_html)
+        }
+        else {
+          return undefined
+        }
       }
     },
     data() {

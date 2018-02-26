@@ -23,7 +23,7 @@
       <autocomplete
         v-else
         url="/otus/autocomplete"
-        label="label"
+        label="label_html"
         min="2"
         @getItem="sendRelated($event)"
         placeholder="Select an otu"
