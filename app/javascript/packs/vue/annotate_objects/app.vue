@@ -15,8 +15,8 @@ import Models from './models/models'
 
 export default {
   components: {
-    AnnotationTypes/*,
-    Models*/
+    AnnotationTypes,
+    Models
   },
   data() {
     return {
