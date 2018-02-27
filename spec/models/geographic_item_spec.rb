@@ -448,15 +448,13 @@ describe GeographicItem, type: :model, group: :geo do
       context 'scopes (GeographicItems can be found by searching with) ' do
         # GeographicItem.within_radius(x).excluding(some_gi).with_collecting_event.include_collecting_event.collect{|a| a.collecting_event}
         specify '::geo_with_collecting_event' do
+          [@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11,
+           @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @item_d, @e4].each { |obj| obj.reload }
           pieces = GeographicItem.geo_with_collecting_event.order('id').to_a
-          expect(pieces.count).to eq(21) # p12 will be listed twice, once for e1, and once for e2
-          expect(pieces).to include(@p0.reload, @p1.reload, @p2.reload, @p3.reload,
-                                    @p4.reload, @p5.reload, @p6.reload, @p7.reload,
-                                    @p8.reload, @p9.reload, @p10.reload, @p11.reload,
-                                    @p12.reload, @p13.reload, @p14.reload, @p15.reload,
-                                    @p16.reload, @p17.reload, @p18.reload, @p19.reload,
-                                    @item_d.reload) #
-          expect(pieces).not_to include(@e4.reload)
+          # expect(pieces.count).to eq(22) # p12 will be listed twice, once for e1, and once for e2
+          expect(pieces).to include(@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11,
+                                    @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @item_d, @item_a) #
+          expect(pieces).not_to include(@e4)
         end
 
         specify '::err_with_collecting_event' do
@@ -468,14 +466,10 @@ describe GeographicItem, type: :model, group: :geo do
 
         specify '::with_collecting_event_through_georeferences' do
           pieces = GeographicItem.with_collecting_event_through_georeferences.order('id').to_a
-          expect(pieces.count).to eq(26) # @k only listed once
-          expect(pieces).to contain_exactly(@p0, @p1, @p2, @p3,
-                                            @p4, @p5, @p6, @p7,
-                                            @p8, @p9, @p10, @p11,
-                                            @p12, @p13, @p14, # @p12c,
-                                            @p15, @p16, @p17, @p18,
-                                            @p19, @item_d, @e1, @e2,
-                                            @k, @b, @b2) #
+          expect(pieces.count).to eq(27) # @k only listed once
+          expect(pieces).to contain_exactly(@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11,
+                                            @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @item_d, @item_a,
+                                            @e1, @e2, @k, @b, @b2) #
           expect(pieces).not_to include(@e4)
         end
 
