@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
-describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
+describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_objects] do
   include_context 'stuff for complex geo tests'
 
   let(:collection_object) { CollectionObject.new() }

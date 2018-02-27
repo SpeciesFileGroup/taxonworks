@@ -4,6 +4,21 @@
 RSPEC_GEO_FACTORY = Gis::FACTORY
 shared_context 'stuff for complex geo tests' do
 
+  begin # constructing user and project unless feature testing
+    let(:geo_user) {
+      u = @user.nil? ? User.find(1) : @user
+      # $user    = u
+      $user_id = u.id
+      u
+    }
+    let(:geo_project) {
+      p = @project.nil? ? Project.find(1) : @project
+      # $project    = p
+      $project_id = p.id
+      p
+    }
+
+  end
   begin # conversion  of constants to 'let's
 
     let(:simple_shapes) { {
@@ -444,18 +459,7 @@ shared_context 'stuff for complex geo tests' do
     let(:p16_on_a) { RSPEC_GEO_FACTORY.parse_wkt('POINT (-23.0 18.0 0.0)') }
 
   end
-  let(:geo_user) {
-    u = @user.nil? ? User.find(1) : @user
-    # $user    = u
-    $user_id = u.id
-    u
-  }
-  let(:geo_project) {
-    p = @project.nil? ? Project.find(1) : @project
-    # $project    = p
-    $project_id = p.id
-    p
-  }
+
   let(:joe) { geo_user }
 
 # include_context 'stuff for area_a'
