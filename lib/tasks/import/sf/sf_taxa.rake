@@ -786,7 +786,7 @@ namespace :tw do
             name_status = row['NameStatus']
             status_flags = row['StatusFlags']
 
-            if get_otu_sf_above_id[taxon_name_id] # temporary, create OTU, not TaxonName
+            if get_otu_sf_above_id[taxon_name_id] # temporary, create OTU, not TaxonName; create citation, too
               otu = Otu.new(
                   name: row['Name'],
                   taxon_name_id: parent_id,
@@ -799,6 +799,9 @@ namespace :tw do
 
               if otu.save
                 logger.info "Note!! Created OTU for temporary or ill-formed taxon SF.TaxonNameID = #{taxon_name_id}, otu.id = #{otu.id}"
+
+                otu.citations << Citation.new(source_id: get_tw_source_id[row['RefID']], is_original: true, project_id: project_id) if row['RefID'].to_i > 0
+
                 get_tw_otu_id[row['TaxonNameID']] = otu.id.to_s
                 get_sf_name_status[row['TaxonNameID']] = name_status
                 get_sf_status_flags[row['TaxonNameID']] = status_flags
@@ -876,7 +879,7 @@ namespace :tw do
               begin
                 taxon_name.save!
 
-              # if one of anticipated import errors, add classification, then try to save again...
+                  # if one of anticipated import errors, add classification, then try to save again...
               rescue ActiveRecord::RecordInvalid
                 taxon_name.taxon_name_classifications.new(
                     type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin',
@@ -975,7 +978,7 @@ namespace :tw do
           get_sf_parent_id = {} # key = SF.TaxonNameID of synonym, value = SF.TaxonNameID of new parent
 
           path = @args[:data_directory] + 'sfSynonymParents.txt'
-              # not a problem right now but eventually should change
+          # not a problem right now but eventually should change
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|

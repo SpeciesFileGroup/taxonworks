@@ -162,6 +162,7 @@ class Combination < TaxonName
   # @return [Scope]
   # @params keyword_args [Hash] like `{genus: 123, :species: 456}` (note no `_id` suffix)
   def self.find_by_protonym_ids(**keyword_args)
+    keyword_args.compact!
     return Combination.none if keyword_args.empty?
 
     c = Combination.arel_table
@@ -178,13 +179,11 @@ class Combination < TaxonName
     i = 0
     keyword_args.each do |rank, id|
       r_a = r.alias("foo_#{i}")
-
       b = b.join(r_a).on(
         r_a['object_taxon_name_id'].eq(a['id']),
         r_a['type'].eq(TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES[rank]),
         r_a['subject_taxon_name_id'].eq(id)
       )
-
       i += 1
     end
 
@@ -204,7 +203,6 @@ class Combination < TaxonName
     else
       a = find_by_protonym_ids(keyword_args).where(cached: name).first
     end
- 
     a ? a : false
   end
 
@@ -222,9 +220,9 @@ class Combination < TaxonName
   end
 
   # @return [Hash]
-  #  like `{ genus: 1, species: 2 }`
+  #   like `{ genus: 1, species: 2 }`
   def protonym_ids_params
-    protonyms.inject({}) {|hsh, p| hsh.merge!( p.rank.to_sym => p.id )}
+    protonyms_by_rank.inject({}) {|hsh, p| hsh.merge!( p[0].to_sym => p[1].id )}
   end
 
   # Overrides {TaxonName#full_name_hash}
@@ -257,7 +255,7 @@ class Combination < TaxonName
   def protonyms_by_rank
     result = {}
     APPLICABLE_RANKS.each do |rank|
-      if protonym = self.send(rank)
+      if protonym = send(rank)
         result[rank] = protonym
       end
     end

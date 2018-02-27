@@ -6,27 +6,29 @@
       </h3>
     </div>
     <template v-if="list.length">
-      <ul v-if="expanded">
-        <li
-          class="no_bullets"
-          v-for="taxon in inOrder(list)">
-          <label
-            class="middle new-combination-rank-list-label"
-            @mousedown="rankChoose = taxon" >
-            <input
-              ref="rankRadio"
-              :name="`new-combination-rank-list-${rankName}`"
-              @keyup.enter="rankChoose = taxon"
-              class="new-combination-rank-list-input"
-              type="radio"
-              :checked="checkRankSelected(taxon)"
-              :value="taxon">
-            <span
-              class="new-combination-rank-list-taxon-name"
-              v-html="taxon.original_combination"/>
-          </label>
-        </li>
-      </ul>
+      <template v-if="expanded">
+        <ul>
+          <li
+            class="no_bullets"
+            v-for="taxon in inOrder(list)">
+            <label
+              class="middle new-combination-rank-list-label"
+              @mousedown="rankChoose = taxon" >
+              <input
+                ref="rankRadio"
+                :name="`new-combination-rank-list-${rankName}`"
+                @keyup.enter="rankChoose = taxon"
+                class="new-combination-rank-list-input"
+                type="radio"
+                :checked="checkRankSelected(taxon)"
+                :value="taxon">
+              <span
+                class="new-combination-rank-list-taxon-name"
+                v-html="taxon.original_combination"/>
+            </label>
+          </li>
+        </ul>
+      </template>
       <div
         class="maxheight content middle item"
         v-else>
@@ -37,14 +39,51 @@
     </template>
     <template v-else>
       <div class="maxheight content middle item">
-        <h3>{{ parseString }} not found</h3>
+        <h3 v-if="selected">
+          <b><span v-html="selected.original_combination"/></b>
+        </h3>
+        <h3 v-else>{{ parseString }} not found</h3>
       </div>
     </template>
+    <div class="search-combination-field">
+      <div>
+        <button
+          class="normal-input button button-default"
+          v-if="expanded && !displaySearch"
+          @click="displaySearch = true"
+          type="button">Search
+        </button>
+      </div>
+      <div
+        v-if="displaySearch"
+        class="horizontal-left-content middle">
+        <autocomplete
+          url="/taxon_names/autocomplete"
+          label="label_html"
+          display="label"
+          min="2"
+          placeholder="Search an taxon name"
+          @getItem="getFromAutocomplete"
+          param="term"
+          :add-params="{ 'type[]': 'Protonym', 'nomenclature_group[]': rankName }"/>
+        <a
+          class="separate-left" 
+          target="_blank"
+          href="/tasks/nomenclature/new_taxon_name">New
+        </a>
+      </div>
+    </div>
   </div>
 </template>
 <script>
 
+import Autocomplete from '../../components/autocomplete.vue'
+import { GetTaxonName } from '../request/resources'
+
 export default {
+  components: {
+    Autocomplete
+  },
   props: {
     list: {
       type: Array,
@@ -73,17 +112,25 @@ export default {
   },
   data: function () {
     return {
-      expanded: true
+      expanded: true,
+      haltWatcher: false,
+      displaySearch: false
     }
   },
   watch: {
     list: {
       handler (newVal) {
-        if (newVal.length == 1) {
-          this.rankChoose = newVal[0]
-          this.expanded = false
-        } else {
-          this.expanded = true
+        if(!this.haltWatcher) {
+          if (newVal.length == 1) {
+            this.rankChoose = newVal[0]
+            this.expanded = false
+          } else {
+            this.expanded = true
+          }
+          this.displaySearch = false;
+        }
+        else {
+          this.haltWatcher = false
         }
       },
       immediate: true
@@ -97,7 +144,8 @@ export default {
       return false
     },
     expandList: function () {
-      if (this.list.length > 1) { this.expanded = true }
+      this.displaySearch = false;
+      this.expanded = true
     },
     inOrder (list) {
       let newOrder = list.slice(0)
@@ -107,6 +155,14 @@ export default {
         return 0
       })
       return newOrder
+    },
+    getFromAutocomplete(event) {
+      GetTaxonName(event.id).then(response => {
+        this.selectTaxon(response)
+        this.haltWatcher = true
+        this.displaySearch = false;
+        this.$emit('addToList', { rank:this.rankName, taxon: response })
+      })
     },
     selectTaxon (taxon) {
       this.expanded = false
@@ -148,6 +204,9 @@ export default {
     }
     .maxheight {
       flex:1
+    }
+    .search-combination-field {
+      margin-left: 1em;
     }
     .new-combination-rank-list-label {
       display: flex !important;

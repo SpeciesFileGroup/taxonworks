@@ -38,7 +38,7 @@ namespace :tw do
           # 'taxa:create_otus_for_ill_formed_names_hash',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/4_after_create_otus',
           #
-          # 'taxa:create_all_sf_taxa_pass1',
+          'taxa:create_all_sf_taxa_pass1',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/5_after_run_all_taxa',
           #
           # 'taxa:create_type_species',
@@ -58,7 +58,7 @@ namespace :tw do
           # 'cites:create_sf_taxon_name_authors',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/9_after_taxon_authors',
           #
-          'cites:create_citations',
+          # 'cites:create_citations',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/10_after_citations',
           #
           # 'cites:create_otu_cites',
@@ -478,6 +478,15 @@ Error logs:
 [ERROR]2018-02-09 18:23:49.067: TaxonNameRelationship 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement' ERROR tw.project_id 21, object: SF.TaxonNameID 1221122 = TW.taxon_name_id 115974, subject: SF.TaxonNameID 1219980 = TW.taxon_name_id 115014 (Error # 235): Object taxon name Order rank of Grylloblattodea is not compatible with the as incertae sedis relationship;Type Relationship as incertae sedis is not compatible with the order rank of Grylloblattodea
 [ERROR]2018-02-09 18:23:49.828: TaxonNameRelationship 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement' ERROR tw.project_id 21, object: SF.TaxonNameID 1221746 = TW.taxon_name_id 115992, subject: SF.TaxonNameID 1219980 = TW.taxon_name_id 115014 (Error # 236): Object taxon name Order rank of Grylloblattodea is not compatible with the as incertae sedis relationship;Type Relationship as incertae sedis is not compatible with the order rank of Grylloblattodea
 
+[INFO]2018-02-23 20:56:37.174: Logged task tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 completed!
+[INFO]2018-02-23 20:56:37.176: All tasks completed. Dumping summary for each task...
+=== Summary of warnings and errors for task tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 ===
+[WARN]2018-02-23 15:38:34.846: ALERT: Could not find parent_id of SF.TaxonNameID = 1221949 (error 1)! Set to animalia_id = 23
+[WARN]2018-02-23 15:38:34.915: ALERT: Could not find parent_id of SF.TaxonNameID = 1234281 (error 2)! Set to animalia_id = 34
+[WARN]2018-02-23 16:38:06.068: ALERT: Could not find parent_id of SF.TaxonNameID = 1236452 (error 3)! Set to animalia_id = 23
+[ERROR]2018-02-23 16:38:06.258: TaxonName ERROR (count = 1) AFTER synonym test (SF.TaxonNameID = 1236454, parent_id = 24750): Parent The parent rank (subspecies) is not higher than the rank (subspecies) of this taxon
+[ERROR]2018-02-23 18:16:58.446: TaxonName ERROR (count = 2) AFTER synonym test (SF.TaxonNameID = 1225991, parent_id = 61292): Parent The parent rank (subspecies) is not higher than the rank (subspecies) of this taxon
+[ERROR]2018-02-23 18:26:00.065: TaxonName ERROR (count = 3) AFTER synonym test (SF.TaxonNameID = 1170406, parent_id = 64916): Parent The parent rank (subspecies) is not higher than the rank (subspecies) of this taxon
 
 
 
