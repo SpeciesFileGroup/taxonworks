@@ -22,7 +22,8 @@
       <div>
         <div v-if="!isCombinationEmpty()">
           <preview-view
-          :combination="newCombination.protonyms"/>
+          @onVerbatimChange="newCombination.verbatim_name = $event"
+          :combination="newCombination"/>
         </div>
 
         <div class="flexbox">
@@ -148,7 +149,6 @@ export default {
       })
     },
     addTaxonToList(event) {
-      console.log(event);
       this.rankLists[event.rank].push(event.taxon)
     },
     editCombination (literalString, combination) {
@@ -165,11 +165,16 @@ export default {
       this.setNewCombination(combination)
     },
     setNewCombination (combination) {
-      let newCombination = Object.assign({}, { id: combination.id }, { origin_citation: (combination['origin_citation'] ? combination.origin_citation : undefined)}, { protonyms: combination.protonyms })
+      let newCombination = Object.assign({}, 
+        { id: combination.id }, 
+        { origin_citation: (combination['origin_citation'] ? combination.origin_citation : undefined)}, 
+        { protonyms: combination.protonyms },
+        { verbatim_name: combination.verbatim_name })
       this.newCombination = newCombination
     },
     createNewCombination () {
       return {
+        verbatim_name: undefined,
         protonyms: {
           subspecies: undefined,
           species: undefined,
