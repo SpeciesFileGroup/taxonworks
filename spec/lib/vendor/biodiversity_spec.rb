@@ -17,6 +17,35 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
       expect( result.nomenclature_code = :icn ).to be_truthy
     end
 
+    context '#parseable' do
+     
+      specify '#parseable 1' do
+        result.name = 'Aus bus cf. bus Smith and Jones, 1920'
+        result.parse
+        expect(result.parseable).to eq(false)
+      end 
+
+      specify '#parseable 2' do
+        result.name = 'asdfasdfasf'
+        result.parse
+        expect(result.parseable).to eq(false)
+      end 
+    end
+
+    context '#genus' do
+      specify 'as uninomial' do
+        result.name = 'Bus'
+        result.parse
+        expect(result.genus).to eq('Bus')
+      end
+
+      specify 'as binomial' do
+        result.name = 'Bus aus'
+        result.parse
+        expect(result.genus).to eq('Bus')
+      end
+    end
+
     context 'parsing' do
       let!(:root) { FactoryBot.create(:root_taxon_name) }
       let!(:genus1) { Protonym.create(name: 'Aus', parent: root, rank_class: Ranks.lookup(:iczn, :genus) ) }
@@ -40,6 +69,23 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
         specify '#combination_exists? 1' do
           a = Combination.create!(genus: genus1, species: species1)
           expect(result.combination_exists?).to eq(a)
+        end
+      end
+
+      context '#other_matches' do
+        let!(:genus2) { Protonym.create!(name: 'Aus', parent: genus1, rank_class: Ranks.lookup(:iczn, :subgenus)) }
+        let!(:c) { Combination.create!(genus: genus1,  species: species1, verbatim_name: 'Aus buss') }
+
+        specify '#other_matches 1' do
+          result.name = 'Aus'
+          result.parse
+          expect(result.other_matches[:subgenus]).to include(genus2)
+        end
+
+        specify '#other_matches 2' do
+          result.name = 'Aus buss Smith and Jones, 1920'
+          result.parse
+          expect(result.other_matches[:verbatim]).to include(c)
         end
       end
 

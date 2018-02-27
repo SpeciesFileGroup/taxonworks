@@ -15,4 +15,12 @@ json.data do
 end
 
 
-
+json.other_matches do
+  @result[:other_matches].keys.each do |k|
+    json.set! k do
+      json.array! @result[:other_matches][k] do |t|
+        json.partial! '/taxon_names/attributes', taxon_name: t
+      end
+    end
+  end
+end
