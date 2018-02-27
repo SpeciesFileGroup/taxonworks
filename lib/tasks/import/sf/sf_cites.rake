@@ -190,6 +190,14 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
         desc 'time rake tw:project_import:sf_import:cites:create_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_citations: [:data_directory, :environment, :user_id] do |logger|
 
+          # @todo: Note changes to get_nomenclator_string => get_nomenclator_metadata
+          # if get_sf_booktitle_publisher_address[pub_id]
+          #   booktitle = get_sf_booktitle_publisher_address[pub_id][booktitle]
+          #   publisher = get_sf_booktitle_publisher_address[pub_id][publisher]
+          #   address = get_sf_booktitle_publisher_address[pub_id][address]
+          # end
+
+
           logger.info 'Creating citations...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
@@ -631,16 +639,16 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
         end
 
-        desc 'time rake tw:project_import:sf_import:cites:import_nomenclator_strings user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:cites:import_nomenclator_metadata user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define import_nomenclator_strings: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
-          logger.info 'Running import_nomenclator_strings...'
+          logger.info 'Running import_nomenclator_metadata...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
 
-          get_nomenclator_string = {} # key = SF.NomenclatorID, value = SF.nomenclator_string
+          get_nomenclator_metadata = {} # key = SF.NomenclatorID, value = nomenclator_string, ident_qualifier, file_id
 
           count_found = 0
 
@@ -656,13 +664,13 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             logger.info "Working with SF.NomenclatorID '#{nomenclator_id}', SF.NomenclatorString '#{nomenclator_string}' (count #{count_found += 1}) \n"
 
-            get_nomenclator_string[nomenclator_id] = nomenclator_string
+            get_nomenclator_metadata[nomenclator_id] = {nomenclator_string: nomenclator_string, ident_qualifier: row['IdentQualifier'], file_id: row['FileID']}
           end
 
-          import.set('SFNomenclatorIDToSFNomenclatorString', get_nomenclator_string)
+          import.set('SFNomenclatorIDToSFNomenclatorMetadata', get_nomenclator_metadata)
 
-          puts = 'SFNomenclatorIDToSFNomenclatorString'
-          ap get_nomenclator_string
+          puts = 'SFNomenclatorIDToSFNomenclatorMetadata'
+          ap get_nomenclator_metadata
         end
 
       end
