@@ -32,6 +32,7 @@
             :key="key"
             ref="listGroup"
             @onTaxonSelect="newCombination.protonyms[key] = $event"
+            @addToList="addTaxonToList"
             :selected="newCombination.protonyms[key]"
             :rank-name="key"
             :parse-string="parseRanks[key]"
@@ -55,9 +56,8 @@
           <button
             class="normal-input button button-default"
             @click="expandAll()"
-            :disabled="enableEdit"
             tabindex="-1"
-            type="button"><span data-icon="reset">Undo</span>
+            type="button"><span data-icon="reset">Unlock</span>
           </button>
         </div>
       </div>
@@ -146,6 +146,10 @@ export default {
           return resolve(response)
         })
       })
+    },
+    addTaxonToList(event) {
+      console.log(event);
+      this.rankLists[event.rank].push(event.taxon)
     },
     editCombination (literalString, combination) {
       this.newCombination = combination
