@@ -201,6 +201,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           logger.info 'Creating citations...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # Note this is an OTU associated with a SF.TaxonNameID (probably a bad taxon name)
@@ -209,7 +210,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
           # @todo: why isn't RefIDToVerbatimRef used here? mb 29 Sept 2017
 
-          get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
+          get_nomenclator_metadata = import.get('SFNomenclatorIDToSFNomenclatorMetadata')
           get_cvt_id = import.get('CvtProjUriID')
           get_containing_source_id = import.get('TWSourceIDToContainingSourceID') # use to determine if taxon_name_author must be created (orig desc only)
           get_sf_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors') # contains ordered array of SF.PersonIDs
@@ -238,7 +239,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               # @todo: Test if OTU exists? Add citation to OTU? Also add notes, nomenclator, tags, confidences?
               sf_taxon_name_id = row['TaxonNameID']
               if get_tw_otu_id[sf_taxon_name_id]
-                logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} created as OTU (otu_only_counter = #{otu_only_counter += 1})"
+                logger.warn "SF.TaxonNameID = #{sf_taxon_name_id} created as OTU (otu_only_counter = #{otu_only_counter += 1})"
                 # otu_id = get_tw_otu_id[sf_taxon_name_id]
                 # create_otu_cite(logger, row, otu_id)
               end
@@ -250,12 +251,25 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             next if source_id == 0
 
+            # test nomenclator info
+            nomenclator_id = row['NomenclatorID']
+            nomenclator_string = get_nomenclator_metadata[nomenclator_id][row['NomenclatorString']]
+            nomenclator_ident_qualifier = get_nomenclator_metadata[nomenclator_id][row['IdentQualifier']]
+            sf_file_id = get_nomenclator_metadata[nomenclator_id][row['FileID']]
+            if nomenclator_id > '0'
+              if nomenclator_ident_qualifier.! blank? # has some irrelevant text in it
+                logger.warn "No citation created because IdentQualifier has irrelevant value: (SF.FileID: #{sf_file_id}, SF.TaxonNameID: #{sf_taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']})"
+                # create data attr on taxon_name
+                # get next
+              end
+            end
+
             protonym = TaxonName.find(taxon_name_id)
 
             project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
-            nomenclator_string = get_nomenclator_string[row['NomenclatorID']]
-            nomenclator_string.gsub("variety", "var.") unless nomenclator_string.nil?
-            # nomenclator_string = nomenclator_string[1..-2] if !nomenclator_string.nil?  # was used to strip out single quotes
+
+
+
 
             logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
 SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
@@ -346,7 +360,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
 
                   else
                     # ... this is all the funny exceptions (4)
-                    logger.info "Funny exceptions ELSE #{check_result.detail}"
+                    logger.info "Funny exceptions ELSE nomenclator_string #{check_result.detail}"
                   end
 
                     # Put all the rescue statements in one place
