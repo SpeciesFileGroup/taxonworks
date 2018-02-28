@@ -339,6 +339,7 @@ module TaxonWorks
         # @return [Hash]
         #   `:verbatim` - names that have verbatim supplied, these should be the only names NOT parsed that user is interested in
         #   `:subgenus` - names that exactly match a subgenus, these are potential new combinations as Genus alone 
+        #   `:original_combination` - names that exactly match the original combination
         def other_matches
           h = { 
             verbatim: [],
