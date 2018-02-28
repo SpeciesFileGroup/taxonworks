@@ -342,7 +342,8 @@ module TaxonWorks
         def other_matches
           h = { 
             verbatim: [],
-            subgenus: []
+            subgenus: [], 
+            original: []
           }
 
           h[:verbatim] = TaxonName.where(project_id: project_id, cached: name_without_author_year).
@@ -353,6 +354,12 @@ module TaxonWorks
             name: genus, 
             rank_class: Ranks.lookup(nomenclature_code, :subgenus)
           ).all.to_a
+
+          h[:original_combination] = Protonym.where(project_id: project_id). 
+          where(
+            'cached_original_combination = ?', 
+            Utilities::Strings.nil_wrap('<i>', name_without_author_year, '</i>')
+          ).all.to_a if parseable
 
           h
         end

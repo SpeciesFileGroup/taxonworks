@@ -73,19 +73,27 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
       end
 
       context '#other_matches' do
-        let!(:genus2) { Protonym.create!(name: 'Aus', parent: genus1, rank_class: Ranks.lookup(:iczn, :subgenus)) }
+        let!(:genus2) { Protonym.create!(name: 'Zus', parent: genus1, rank_class: Ranks.lookup(:iczn, :subgenus)) }
         let!(:c) { Combination.create!(genus: genus1,  species: species1, verbatim_name: 'Aus buss') }
 
-        specify '#other_matches 1' do
-          result.name = 'Aus'
+        specify '#other_matches :subgenus' do
+          result.name = 'Zus'
           result.parse
           expect(result.other_matches[:subgenus]).to include(genus2)
         end
 
-        specify '#other_matches 2' do
+        specify '#other_matches :verbatim' do
           result.name = 'Aus buss Smith and Jones, 1920'
           result.parse
           expect(result.other_matches[:verbatim]).to include(c)
+        end
+
+        specify '#other_matches :original_combination' do
+          species1.original_genus = genus2
+          species1.save!
+          result.name = 'Zus bus'
+          result.parse
+          expect(result.other_matches[:original_combination]).to include(species1)
         end
       end
 

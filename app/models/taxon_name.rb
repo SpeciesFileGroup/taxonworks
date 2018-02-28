@@ -50,7 +50,7 @@
 #
 # @!attribute cached_original_combination
 #   @return [String]
-#   name as formed in original combination.
+#     name as formed in original combination, **WITH HTML*, TODO: remove HTML?
 #
 # @!attribute cached_secondary_homonym
 #   @return [String]
