@@ -21,6 +21,7 @@
           @click="$emit('edit', Object.assign({}, item))">Edit
         </span>
         <span
+          v-if="remove"
           class="circle-button btn-delete"
           @click="$emit('delete', item)">Remove
         </span>
@@ -48,6 +49,10 @@ export default {
     edit: {
       type: Boolean,
       default: false
+    },
+    remove: {
+      type: Boolean,
+      default: true
     },
     annotator: {
       type: Boolean,

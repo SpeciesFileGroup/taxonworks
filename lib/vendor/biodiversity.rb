@@ -42,6 +42,8 @@ module TaxonWorks
         # @return [String] the bit after ` in `
         attr_reader :citation
 
+        attr_reader :parseable
+
         # query_string:
         #
         # mode:
@@ -60,26 +62,46 @@ module TaxonWorks
         #   a Biodiversity name parser result
         def parse
           n, @citation = preparse
-          @parse_result ||= ScientificNameParser.new.parse(n)
+
+          begin
+            @parse_result ||= ScientificNameParser.new.parse(n)
+          rescue NoMethodError => e
+            case e.message
+            when /canonical/
+              @parseable = false 
+            else
+              raise
+            end
+          end
+
+          @parse_result
         end
 
+        # @return [Boolean]
+        def parseable
+          @parseable = parse_result[:scientificName][:parsed] if @parseable.nil?
+          @parseable 
+        end
+
+        # @return [Array]
+        #  TODO: deprecate
         def preparse
           name.split(' in ')
         end
 
         # @return [Hash]
         def detail
-          if a = parse_result[:scientificName]
-            if a[:details]
-              return a[:details].first
-            end
+          if parseable 
+            a = parse_result[:scientificName]
+            a ||= parse_result[:uninomial]
+            return a[:details].first if a[:details]                 
           end
           {}
         end
 
         # @return [String, nil]
         def genus
-          detail[:genus] && detail[:genus][:string]
+          (detail[:genus] && detail[:genus][:string]) || (detail[:uninomial] && detail[:uninomial][:string])
         end
 
         # @return [String, nil] 
@@ -277,6 +299,7 @@ module TaxonWorks
           @result[:parse] = parse_values
           @result[:unambiguous] = is_unambiguous?
           @result[:existing_combination_id] = combination_exists?.try(:id)
+          @result[:other_matches] = other_matches
           @result
         end
 
@@ -304,13 +327,41 @@ module TaxonWorks
           if a = parse_result[:scientificName] 
             if b = a[:positions]
               c = b.select{|k,v| v[0] == 'author_word'}.keys.min
-              p = [name.length, c].min 
+              p = [name.length, c].compact.min 
             end
           end
         end
 
         def name_without_author_year
           name[0..author_word_position - 1].strip 
+        end
+
+        # @return [Hash]
+        #   `:verbatim` - names that have verbatim supplied, these should be the only names NOT parsed that user is interested in
+        #   `:subgenus` - names that exactly match a subgenus, these are potential new combinations as Genus alone 
+        def other_matches
+          h = { 
+            verbatim: [],
+            subgenus: [], 
+            original: []
+          }
+
+          h[:verbatim] = TaxonName.where(project_id: project_id, cached: name_without_author_year).
+            where('verbatim_name is not null').order(:cached).all.to_a if parseable
+          
+          h[:subgenus] = Protonym.where(
+            project_id: project_id, 
+            name: genus, 
+            rank_class: Ranks.lookup(nomenclature_code, :subgenus)
+          ).all.to_a
+
+          h[:original_combination] = Protonym.where(project_id: project_id). 
+          where(
+            'cached_original_combination = ?', 
+            Utilities::Strings.nil_wrap('<i>', name_without_author_year, '</i>')
+          ).all.to_a if parseable
+
+          h
         end
 
       end

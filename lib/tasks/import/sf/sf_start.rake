@@ -230,7 +230,7 @@ namespace :tw do
             publisher = nil
             address = nil
 
-            if get_sf_booktitle_publisher_address.has_key?(pub_id)
+            if get_sf_booktitle_publisher_address[pub_id]
               booktitle = get_sf_booktitle_publisher_address[pub_id][booktitle]
               publisher = get_sf_booktitle_publisher_address[pub_id][publisher]
               address = get_sf_booktitle_publisher_address[pub_id][address]

@@ -190,9 +190,18 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
         desc 'time rake tw:project_import:sf_import:cites:create_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_citations: [:data_directory, :environment, :user_id] do |logger|
 
+          # @todo: Note changes to get_nomenclator_string => get_nomenclator_metadata
+          # if get_sf_booktitle_publisher_address[pub_id]
+          #   booktitle = get_sf_booktitle_publisher_address[pub_id][booktitle]
+          #   publisher = get_sf_booktitle_publisher_address[pub_id][publisher]
+          #   address = get_sf_booktitle_publisher_address[pub_id][address]
+          # end
+
+
           logger.info 'Creating citations...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # Note this is an OTU associated with a SF.TaxonNameID (probably a bad taxon name)
@@ -201,7 +210,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
           # @todo: why isn't RefIDToVerbatimRef used here? mb 29 Sept 2017
 
-          get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
+          get_nomenclator_metadata = import.get('SFNomenclatorIDToSFNomenclatorMetadata')
           get_cvt_id = import.get('CvtProjUriID')
           get_containing_source_id = import.get('TWSourceIDToContainingSourceID') # use to determine if taxon_name_author must be created (orig desc only)
           get_sf_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors') # contains ordered array of SF.PersonIDs
@@ -230,7 +239,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               # @todo: Test if OTU exists? Add citation to OTU? Also add notes, nomenclator, tags, confidences?
               sf_taxon_name_id = row['TaxonNameID']
               if get_tw_otu_id[sf_taxon_name_id]
-                logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} created as OTU (otu_only_counter = #{otu_only_counter += 1})"
+                logger.warn "SF.TaxonNameID = #{sf_taxon_name_id} created as OTU (otu_only_counter = #{otu_only_counter += 1})"
                 # otu_id = get_tw_otu_id[sf_taxon_name_id]
                 # create_otu_cite(logger, row, otu_id)
               end
@@ -242,12 +251,25 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             next if source_id == 0
 
+            # test nomenclator info
+            nomenclator_id = row['NomenclatorID']
+            nomenclator_string = get_nomenclator_metadata[nomenclator_id][row['NomenclatorString']]
+            nomenclator_ident_qualifier = get_nomenclator_metadata[nomenclator_id][row['IdentQualifier']]
+            sf_file_id = get_nomenclator_metadata[nomenclator_id][row['FileID']]
+            if nomenclator_id > '0'
+              if nomenclator_ident_qualifier.! blank? # has some irrelevant text in it
+                logger.warn "No citation created because IdentQualifier has irrelevant value: (SF.FileID: #{sf_file_id}, SF.TaxonNameID: #{sf_taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']})"
+                # create data attr on taxon_name
+                # get next
+              end
+            end
+
             protonym = TaxonName.find(taxon_name_id)
 
             project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
-            nomenclator_string = get_nomenclator_string[row['NomenclatorID']]
-            nomenclator_string.gsub("variety", "var.") unless nomenclator_string.nil?
-            # nomenclator_string = nomenclator_string[1..-2] if !nomenclator_string.nil?  # was used to strip out single quotes
+
+
+
 
             logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
 SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
@@ -338,7 +360,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
 
                   else
                     # ... this is all the funny exceptions (4)
-                    logger.info "Funny exceptions ELSE #{check_result.detail}"
+                    logger.info "Funny exceptions ELSE nomenclator_string #{check_result.detail}"
                   end
 
                     # Put all the rescue statements in one place
@@ -631,16 +653,16 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
         end
 
-        desc 'time rake tw:project_import:sf_import:cites:import_nomenclator_strings user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:cites:import_nomenclator_metadata user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define import_nomenclator_strings: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
-          logger.info 'Running import_nomenclator_strings...'
+          logger.info 'Running import_nomenclator_metadata...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
 
-          get_nomenclator_string = {} # key = SF.NomenclatorID, value = SF.nomenclator_string
+          get_nomenclator_metadata = {} # key = SF.NomenclatorID, value = nomenclator_string, ident_qualifier, file_id
 
           count_found = 0
 
@@ -656,13 +678,13 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             logger.info "Working with SF.NomenclatorID '#{nomenclator_id}', SF.NomenclatorString '#{nomenclator_string}' (count #{count_found += 1}) \n"
 
-            get_nomenclator_string[nomenclator_id] = nomenclator_string
+            get_nomenclator_metadata[nomenclator_id] = {nomenclator_string: nomenclator_string, ident_qualifier: row['IdentQualifier'], file_id: row['FileID']}
           end
 
-          import.set('SFNomenclatorIDToSFNomenclatorString', get_nomenclator_string)
+          import.set('SFNomenclatorIDToSFNomenclatorMetadata', get_nomenclator_metadata)
 
-          puts = 'SFNomenclatorIDToSFNomenclatorString'
-          ap get_nomenclator_string
+          puts = 'SFNomenclatorIDToSFNomenclatorMetadata'
+          ap get_nomenclator_metadata
         end
 
       end
