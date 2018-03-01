@@ -53,12 +53,12 @@ namespace :tw do
           #
           #
           # ### cites section took 423m23.501s
-          'cites:import_nomenclator_strings',
-          'cites:create_cvts_for_citations',
-          'cites:create_sf_taxon_name_authors',
+          # 'cites:import_nomenclator_strings',
+          # 'cites:create_cvts_for_citations',
+          # 'cites:create_sf_taxon_name_authors',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/9_after_taxon_authors',
           #
-          # 'cites:create_citations',
+          'cites:create_citations',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/10_after_citations',
           #
           # 'cites:create_otu_cites',
