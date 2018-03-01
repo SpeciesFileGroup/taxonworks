@@ -1,16 +1,17 @@
 var TW = TW || {}
 TW.vue = TW.vue || {}
-TW.vue.otuButton = TW.vue.otuButton || {}
+TW.vue.otuRadial = TW.vue.otuRadial || {}
 
 import Vue from 'vue'
 
-Object.assign(TW.vue.otuButton, {
+Object.assign(TW.vue.otuRadial, {
   init: function (element) {
     var App = require('./app.vue').default
 
-    let id = `otu-button-${(Math.random().toString(36).substr(2, 5))}`
+    let id = `otu-radial-${(Math.random().toString(36).substr(2, 5))}`
     let taxonId = $(element).attr('data-taxon-id')
     let taxonName = $(element).attr('data-taxon-name')
+    let redirect = $(element).attr('data-redirect')
 
     if (taxonId && taxonName) {
       $(element).attr('id', id)
@@ -22,7 +23,8 @@ Object.assign(TW.vue.otuButton, {
             props: {
               id: id,
               taxonName: taxonName,
-              taxonId: taxonId
+              taxonId: taxonId,
+              redirect: (redirect == 'true' ? true : false)
             }
           })
         }
@@ -34,7 +36,7 @@ Object.assign(TW.vue.otuButton, {
 $(document).on('turbolinks:load', function () {
   if ($('[data-otu-button="true"]').length) {
     $('[data-otu-button="true"]').each(function () {
-      TW.vue.otuButton.init(this)
+      TW.vue.otuRadial.init(this)
     })
   }
 })

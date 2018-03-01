@@ -1,16 +1,17 @@
 <template>
-  <otu-radial
+  <otu-button
     :id="id"
     :taxon-name="taxonName"
+    :redirect="redirect"
     :taxon-id="taxonId"/>
 </template>
 <script>
 
-  import OtuRadial from '../components/otu/otu.vue'
+  import OtuButton from '../components/otu/otu.vue'
 
   export default {
     components: {
-      OtuRadial
+      OtuButton
     },
     props: {
       id: {
@@ -23,6 +24,10 @@
       },
       taxonName: {
         type: String,
+        required: true
+      },
+      redirect: {
+        type: Boolean,
         required: true
       }
     }

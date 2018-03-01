@@ -37,6 +37,7 @@
         </div>
       </modal>
       <span
+        v-if="showBottom"
         type="button"
         class="circle-button btn-radial"
         @click="displayAnnotator()">Radial annotator
@@ -95,6 +96,10 @@
       globalId: {
         type: String,
         required: true
+      },
+      showBottom: {
+        type: Boolean,
+        default: true
       },
       components: {
         type: Object,
