@@ -504,9 +504,10 @@ class CollectingEvent < ApplicationRecord
   # @param [String] lat
   # @param [String] long
   # @param [String] piece
+  # @param [Integer] project_id
   # @param [Boolean] include_values true if to include records whicgh already have verbatim lat/longs
   # @return [Scope] of matching collecting events
-  def similar_lat_longs(lat, long, piece = '', include_values = true)
+  def similar_lat_longs(lat, long, project_id, piece = '', include_values = true)
     sql = '('
     sql += "verbatim_label LIKE '%#{sql_tick_fix(lat)}%'" unless lat.blank?
     sql += " or verbatim_label LIKE '%#{sql_tick_fix(long)}%'" unless long.blank?
@@ -515,22 +516,25 @@ class CollectingEvent < ApplicationRecord
     sql += ' and (verbatim_latitude is null or verbatim_longitude is null)' unless include_values
 
     retval = CollectingEvent.where(sql)
-               .with_project_id($project_id)
+               .with_project_id(project_id)
                .order(:id)
                .where.not(id: id).distinct
     retval
   end
 
+  # @param [String] lat
+  # @param [String] long
   # @param [String] piece
+  # @param [Integer] project_id
   # @param [Boolean] include_values true if to include records whicgh already have verbatim lat/longs
   # @return [Scope] of matching collecting events
-  def similar_dates(lat, long, piece = '', include_values = true)
+  def similar_dates(lat, long, project_id, piece = '', include_values = true)
     sql = '('
     sql += ')'
     sql += ' and (verbatim_date is null)' unless include_values
 
     retval = CollectingEvent.where(sql)
-               .with_project_id($project_id)
+               .with_project_id(project_id)
                .order(:id)
                .where.not(id: id).distinct
     retval
