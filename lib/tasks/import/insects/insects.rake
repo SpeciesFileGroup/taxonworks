@@ -166,7 +166,7 @@ namespace :tw do
         handle_preparation_types_insects(@data1, @import)
         handle_people_insects(@data1, @import)
         GC.start
-        handle_taxa_insects(@data1, @import)
+        #handle_taxa_insects(@data1, @import)
         GC.start
         handle_loans_insects(@data1, @import)
         GC.start
@@ -1714,7 +1714,7 @@ namespace :tw do
             recipient_email = data.people_id[row['RecipientID']]['Email']
             recipient_email = nil if recipient_email.to_s.include?(' ') || recipient_email.to_s.include?("\r") || recipient_email.to_s.include?(',') || recipient_email.to_s.include?('’')
 
-            row['DateReceived'] = '' if time_from_field(row['DateReceived']) < time_from_field(row['DateProcessed'])
+            row['DateReceived'] = '' if !time_from_field(row['DateReceived']).nil? && !time_from_field(row['DateReceived']) && time_from_field(row['DateReceived']) < time_from_field(row['DateProcessed'])
 
             l = Loan.create( date_requested: time_from_field(row['DateRequested']),
                              request_method: row['MethodOfRequest'],
