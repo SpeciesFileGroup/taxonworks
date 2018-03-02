@@ -1,4 +1,3 @@
-require_relative '../support/shared_contexts/geo/build_rspec_geo'
 FactoryBot.define do
 
   minLat = -85
