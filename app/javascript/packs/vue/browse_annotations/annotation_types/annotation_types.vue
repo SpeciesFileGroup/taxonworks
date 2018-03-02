@@ -22,18 +22,29 @@
         type: String,
       }
     },
+    watch: {
+      value(newVal) {
+        this.getResult(newVal)
+      }
+    },
     data() {
       return {
         list: {
           tags: 'Tags (by Keyword)',
           data_attributes: 'Data attribues (by Predicates)',
           confidence: 'Confidence (by Confidence Level)'
-        }
+        },
+        result: undefined
       }
     },
     methods: {
       selectType(type) {
         this.$emit('input', type.valueOf())
+      },
+      getResult(newVal) {
+        this.$http.post('/url/here', { propertyHere: newVal }).then(response => {
+          this.result = response.body
+        })
       }
     }
   }
