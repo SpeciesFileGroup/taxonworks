@@ -1,7 +1,7 @@
 <template>
     <div class="flexbox">
         <div class="annotation_type">
-            <annotation-types @select="filter.annotation_type = $event"/>
+            <annotation-types v-model="filter.annotation_type"/>
             <span>Selected: {{ filter.annotation_type }}</span>
         </div>
         <div class="annotation_on">
@@ -39,12 +39,13 @@
     data() {
       return {
         filter: {
-          annotation_type: undefined,
+          annotation_type: 'confidence',
           model: undefined
         }
       }
     },
     watch: {
+      //This will check if any value inside of filter object has change
       filter: {
         handler() {
           this.processCall()
