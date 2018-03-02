@@ -20,6 +20,7 @@
         <div class="annotation_logic">
 
         </div>
+        <button type="submit">Process</button>
     </div>
 </template>
 <script>
