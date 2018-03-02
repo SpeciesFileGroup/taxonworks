@@ -1,15 +1,15 @@
 <template>
     <div class="flexbox">
         <div class="annotation_type">
-            <annotation-types @select="annotation_type = $event"/>
-            <span>Selected: {{ annotation_type }}</span>
+            <annotation-types @select="filter.annotation_type = $event"/>
+            <span>Selected: {{ filter.annotation_type }}</span>
         </div>
         <div class="annotation_on">
 
         </div>
         <div class="annotation_for">
-            <models @select="model = $event"/>
-            <span>Selected: {{ model }}</span>
+            <models @select="filter.model = $event"/>
+            <span>Selected: {{ filter.model }}</span>
         </div>
         <div class="annotation_by">
 
@@ -35,10 +35,21 @@
       AnnotationTypes,
       Models
     },
+
     data() {
       return {
-        annotation_type: undefined,
-        model: undefined
+        filter: {
+          annotation_type: undefined,
+          model: undefined
+        }
+      }
+    },
+    watch: {
+      filter: {
+        handler() {
+          this.processCall()
+        },
+        deep: true
       }
     },
     methods: {
