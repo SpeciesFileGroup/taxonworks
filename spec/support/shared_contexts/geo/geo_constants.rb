@@ -1,10 +1,4 @@
 module GeoBuild
-  LIST_K           = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-33, -11, 0.0),
-                                                    RSPEC_GEO_FACTORY.point(-33, -23, 0.0),
-                                                    RSPEC_GEO_FACTORY.point(-21, -23, 0.0),
-                                                    RSPEC_GEO_FACTORY.point(-21, -11, 0.0),
-                                                    RSPEC_GEO_FACTORY.point(-27, -13, 0.0)])
-  SHAPE_K          = RSPEC_GEO_FACTORY.polygon(LIST_K)
   GI_LS01          = RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-32, 21, 0.0),
                                                     RSPEC_GEO_FACTORY.point(-25, 21, 0.0),
                                                     RSPEC_GEO_FACTORY.point(-25, 16, 0.0),

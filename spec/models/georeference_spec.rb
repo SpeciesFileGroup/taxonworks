@@ -321,7 +321,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
       # gr1 = FactoryBot.create(:valid_georeference,
       #                           collecting_event: FactoryBot.create(:valid_collecting_event),
       #                           geographic_item:  FactoryBot.create(:geographic_item_with_polygon,
-      #                                                               polygon: GeoBuild::SHAPE_K))
+      #                                                               polygon: shape_k))
       # # swap out the polygon with another shape if needed
       #
       # @gr_poly  = FactoryBot.create(:valid_georeference_geo_locate)
