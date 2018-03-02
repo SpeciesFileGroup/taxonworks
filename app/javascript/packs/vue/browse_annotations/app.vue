@@ -20,7 +20,7 @@
         <div class="annotation_logic">
 
         </div>
-        <span id="json_of_post">...</span>
+        <span v-for="json in result">{{ json }}</span>
         <button
           @click="processCall"
           type="submit">Process</button>
