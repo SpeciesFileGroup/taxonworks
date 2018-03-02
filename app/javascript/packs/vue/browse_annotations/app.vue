@@ -1,15 +1,15 @@
 <template>
     <div class="flexbox">
         <div class="annotation_type">
-            <annotation-types @select="testResult = $event"/>
-            <span>Selected: {{ testResult }}</span>
+            <annotation-types @select="annotation_type = $event"/>
+            <span>Selected: {{ annotation_type }}</span>
         </div>
         <div class="annotation_on">
 
         </div>
         <div class="annotation_for">
-            <models @select="testResult = $event"/>
-            <span>Selected: {{ testResult }}</span>
+            <models @select="model = $event"/>
+            <span>Selected: {{ model }}</span>
         </div>
         <div class="annotation_by">
 
@@ -35,7 +35,8 @@
     },
     data() {
       return {
-        testResult: undefined
+        annotation_type: undefined,
+        model: undefined
       }
     },
   }
