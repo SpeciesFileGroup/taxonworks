@@ -207,9 +207,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # Note this is an OTU associated with a SF.TaxonNameID (probably a bad taxon name)
           get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID') # Note this is the OTU offically associated with a real TW.taxon_name_id
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
-
-          # @todo: why isn't RefIDToVerbatimRef used here? mb 29 Sept 2017
-
+          get_sf_verbatim_ref = import.get('RefIDToVerbatimRef') # key is SF.RefID, value is verbatim string
           get_nomenclator_metadata = import.get('SFNomenclatorIDToSFNomenclatorMetadata')
           get_cvt_id = import.get('CvtProjUriID')
           get_containing_source_id = import.get('TWSourceIDToContainingSourceID') # use to determine if taxon_name_author must be created (orig desc only)
@@ -236,7 +234,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             if taxon_name_id.nil? #!TaxonName.where(id: taxon_name_id).exists?
               logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} was not created in TW (no_taxon_counter = #{no_taxon_counter += 1})"
 
-              # @todo: Test if OTU exists? Add citation to OTU? Also add notes, nomenclator, tags, confidences?
+              # @todo: Test if OTU exists? Citations added to OTUs in next rake task.  What about add notes, nomenclator, tags, confidences?
               sf_taxon_name_id = row['TaxonNameID']
               if get_tw_otu_id[sf_taxon_name_id]
                 logger.warn "SF.TaxonNameID = #{sf_taxon_name_id} created as OTU (otu_only_counter = #{otu_only_counter += 1})"
@@ -251,25 +249,30 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             next if source_id == 0
 
+            protonym = TaxonName.find(taxon_name_id)
+            project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
+
             # test nomenclator info
             nomenclator_id = row['NomenclatorID']
             nomenclator_string = get_nomenclator_metadata[nomenclator_id][row['NomenclatorString']]
             nomenclator_ident_qualifier = get_nomenclator_metadata[nomenclator_id][row['IdentQualifier']]
             sf_file_id = get_nomenclator_metadata[nomenclator_id][row['FileID']]
             if nomenclator_id > '0'
-              if nomenclator_ident_qualifier.! blank? # has some irrelevant text in it
-                logger.warn "No citation created because IdentQualifier has irrelevant value: (SF.FileID: #{sf_file_id}, SF.TaxonNameID: #{sf_taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']})"
+              if nomenclator_ident_qualifier.present? # has some irrelevant text in it
+                logger.warn "No citation created because IdentQualifier has irrelevant data: (SF.FileID: #{sf_file_id}, SF.TaxonNameID: #{sf_taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']})"
                 # create data attr on taxon_name
-                # get next
+                Note.create!(
+                    attribute_object: protonym,
+                    text: "Citation to '#{get_verbatim_ref[sf_ref_id]}' not created because accompanying nomenclator ('#{nomenclator_string}') contains irrelevant data ('#{nomenclator_ident_qualifier}')",
+                    project_id: project_id,
+                    created_at: row['CreatedOn'], # housekeeping data from citation not created
+                    updated_at: row['LastUpdate'],
+                    created_by_id: get_tw_user_id[row['CreatedBy']],
+                    updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                )
+                next
               end
             end
-
-            protonym = TaxonName.find(taxon_name_id)
-
-            project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
-
-
-
 
             logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
 SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
@@ -315,7 +318,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
             citation = Citation.where(source_id: source_id, citation_object_type: 'TaxonName', citation_object_id: taxon_name_id, is_original: true).first
             if citation != nil and orig_desc_source_id != source_id
               orig_desc_source_id = source_id # prevents duplicate citation to same source being processed as original description
-              citation.notes << Note.new(text: row['Note'], project_id: project_id) unless row['Note'].blank? # project_id? ; what is << ?
+              citation.notes << Note.new(text: row['Note'], project_id: project_id) unless row['Note'].blank?
               # citation.update_column(:pages, cite_pages) # update pages to cite_pages
               citation.update(metadata.merge(pages: cite_pages))
               logger.info "Citation found: citation.id = #{citation.id}, taxon_name_id = #{taxon_name_id}, cite_pages = '#{cite_pages}' (cite_found_counter = #{cite_found_counter += 1})"
