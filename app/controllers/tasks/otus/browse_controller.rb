@@ -1,4 +1,4 @@
-class Tasks::Taxa::BrowseController < ApplicationController
+class Tasks::Otus::BrowseController < ApplicationController
   include TaskControllerConfiguration
 
   # GET

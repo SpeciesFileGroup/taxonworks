@@ -613,9 +613,9 @@ TaxonWorks::Application.routes.draw do
       get 'index', as: 'annotate_objects'
     end
 
-    scope :taxa do
-      scope :browse, controller: 'tasks/taxa/browse' do
-        get '/(:otu_id)', action: :index, as: 'browse_taxon_task'
+    scope :otus do
+      scope :browse, controller: 'tasks/otus/browse' do
+        get '/(:otu_id)', action: :index, as: 'browse_otus_task'
       end
     end
 
