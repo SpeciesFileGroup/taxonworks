@@ -2,6 +2,7 @@
   <div>
     <span 
       class="circle-button button-default"
+      :title="redirect ? 'Otu browse' : 'Otu radial'"
       :class="[{ 'button-submit': !list.length }, (redirect ? 'btn-hexagon-empty-w' : 'btn-hexagon-w')]"
       @click="openApp">Otu
     </span>

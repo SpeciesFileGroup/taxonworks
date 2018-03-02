@@ -38,8 +38,10 @@
       </modal>
       <span
         v-if="showBottom"
+        :title="buttonTitle"
         type="button"
-        class="circle-button btn-radial"
+        class="circle-button"
+        :class="[buttonClass]"
         @click="displayAnnotator()">Radial annotator
       </span>
     </div>
@@ -100,6 +102,14 @@
       showBottom: {
         type: Boolean,
         default: true
+      },
+      buttonClass: {
+        type: String,
+        default: 'btn-radial'
+      },
+      buttonTitle: {
+        type: String,
+        default: 'Radial annotator'
       },
       components: {
         type: Object,

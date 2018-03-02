@@ -298,7 +298,7 @@ new_combination_task:
     - nomenclature
   status: prototype
   description: 'Create a new or subsequent nomenclatural combination.'
-browse_taxon_task:
+browse_otus_task:
   hub: true
   name: 'Browse taxa'
   related:
