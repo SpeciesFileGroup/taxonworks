@@ -1247,6 +1247,56 @@ shared_context 'stuff for complex geo tests' do
     end
 
     begin # real world objects
+      let(:ga_data_origin) { 'Test Data' }
+      let(:parent_earth) {
+        ga = GeographicArea.create!(name:                 'Earth',
+                                    parent_id:            nil,
+                                    level0_id:            nil,
+                                    geographic_area_type: planet_gat,
+                                    data_origin:          ga_data_origin,
+                                    created_by_id:        geo_user.id,
+                                    updated_by_id:        geo_user.id)
+        ga
+      }
+      let(:parent_country) {
+        ga        = GeographicArea.create!(name:                 'United States of America',
+                                           iso_3166_a3:          'USA',
+                                           iso_3166_a2:          'US',
+                                           parent:               parent_earth,
+                                           geographic_area_type: country_gat,
+                                           data_origin:          ga_data_origin,
+                                           created_by_id:        geo_user.id,
+                                           updated_by_id:        geo_user.id)
+        ga.level0 = ga
+        ga.save!
+        ga
+      }
+      let(:parent_state) {
+        ga        = GeographicArea.create!(name:                 'Illinois',
+                                           tdwgID:               '74ILL-00',
+                                           parent:               parent_country,
+                                           geographic_area_type: state_gat,
+                                           data_origin:          ga_data_origin,
+                                           created_by_id:        geo_user.id,
+                                           updated_by_id:        geo_user.id)
+        ga.level1 = ga
+        ga.level0 = ga.parent
+        ga.save!
+        ga
+      }
+      let(:parent_county) {
+        ga        = GeographicArea.create!(name:                 'Champaign',
+                                           parent:               parent_state,
+                                           geographic_area_type: county_gat,
+                                           data_origin:          ga_data_origin,
+                                           created_by_id:        geo_user.id,
+                                           updated_by_id:        geo_user.id)
+        ga.level2 = ga
+        ga.level1 = ga.parent
+        ga.level0 = ga.parent.parent
+        ga.save!
+        ga
+      }
       let!(:country_gat) { GeographicAreaType.create!(name: 'Country', creator: geo_user, updater: geo_user) }
       let!(:state_gat) { GeographicAreaType.create!(name: 'State', creator: geo_user, updater: geo_user) }
       let(:province_gat) { GeographicAreaType.create!(name: 'Province', creator: geo_user, updater: geo_user) }
@@ -1260,7 +1310,8 @@ shared_context 'stuff for complex geo tests' do
       let(:il_shape) { GeoBuild::ILLINOIS }
 
       let(:champaign) {
-        cc = FactoryBot.create(:valid_geographic_area_stack)
+        # cc = FactoryBot.create(:valid_geographic_area_stack)
+        cc = parent_county
         cc.geographic_items << GeographicItem::MultiPolygon.create!(multi_polygon: cc_shape)
         cc
       }
