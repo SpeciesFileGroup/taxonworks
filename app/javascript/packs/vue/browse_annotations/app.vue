@@ -20,7 +20,9 @@
         <div class="annotation_logic">
 
         </div>
-        <button type="submit">Process</button>
+        <button
+          @click="processCall"
+          type="submit">Process</button>
     </div>
 </template>
 <script>
@@ -39,5 +41,14 @@
         model: undefined
       }
     },
+    methods: {
+      processCall() {
+        let data = {} // Here would be the structure that you will need to make for the response, but could be directly done on data()
+        this.$http.post('/tasks/browse_annotations/process_submit', data).then(response => {
+          //Here is the example of how to make a post and get the data from the response
+          console.log(response)
+        })
+      }
+    }
   }
 </script>
