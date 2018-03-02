@@ -10,6 +10,14 @@ class Tasks::BrowseAnnotationsController < ApplicationController
     render({json: params})
   end
 
+  def annotation_on
+
+  end
+
+  def annotation_for
+
+  end
+
   def process_submit
     render({json: params})
   end
@@ -18,4 +26,11 @@ class Tasks::BrowseAnnotationsController < ApplicationController
     render({json: params})
   end
 
+  def get_dates
+
+  end
+
+  def get_logic
+
+  end
 end
