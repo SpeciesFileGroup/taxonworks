@@ -2292,16 +2292,6 @@ Two different shapes with the same name, 'East Boxia', and
         }
         let(:item_m3) { FactoryBot.create(:geographic_item, multi_polygon: shape_m3) }
       end
-
-      begin # shapes
-
-      end
-
-      begin # items
-
-      end
-
-      # b = FactoryBot.build(:geographic_item_polygon, polygon: GeoBuild::SHAPE_B.as_binary) # 27
     end
   end
 # before {

@@ -9,7 +9,7 @@ FactoryBot.define do
 
 # FactoryBot.build(:geographic_item, :random_point)
   trait :random_point do
-    point { GeoBuild::RSPEC_GEO_FACTORY.point(minLat + rng.rand * (maxLat - minLat),
+    point { RSPEC_GEO_FACTORY.point(minLat + rng.rand * (maxLat - minLat),
                                               minLng + rng.rand * (maxLng - minLng)) }
   end
 
