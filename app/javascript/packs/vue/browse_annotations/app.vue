@@ -20,6 +20,7 @@
         <div class="annotation_logic">
 
         </div>
+        <span id="json_of_post">...</span>
         <button
           @click="processCall"
           type="submit">Process</button>
@@ -44,15 +45,15 @@
         }
       }
     },
-    watch: {
-      //This will check if any value inside of filter object has change
-      filter: {
-        handler() {
-          this.processCall()
-        },
-        deep: true
-      }
-    },
+    // watch: {
+    //   //This will check if any value inside of filter object has change
+    //   filter: {
+    //     handler() {
+    //       this.processCall()
+    //     },
+    //     deep: true
+    //   }
+    // },
     methods: {
       processCall() {
         let data = {} // Here would be the structure that you will need to make for the response, but could be directly done on data()
