@@ -13,6 +13,7 @@ require 'benchmark'
 #
 #
 # redis-server /usr/local/etc/redis.conf          ## to start redis. It should be done before the rake started.
+# redis-server ~/redis-4.0.8/redis.conf on a test machine
 # a = Redis.new
 # a.set(a, b)
 # a.get(a)
@@ -166,7 +167,7 @@ namespace :tw do
         handle_preparation_types_insects(@data1, @import)
         handle_people_insects(@data1, @import)
         GC.start
-        #handle_taxa_insects(@data1, @import)
+        handle_taxa_insects(@data1, @import)
         GC.start
         handle_loans_insects(@data1, @import)
         GC.start
