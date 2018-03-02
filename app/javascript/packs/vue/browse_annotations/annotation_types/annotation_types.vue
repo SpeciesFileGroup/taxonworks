@@ -1,8 +1,9 @@
 <template>
   <ul>
-    <li v-for="label, key in list">
+    <li v-for="(label, key) in list">
       <label @click="selectType(key)">
         <input
+          :checked="value === key"
           name="annotation-type"
           type="radio"
           :value="key">
@@ -16,6 +17,11 @@
 
 <script>
   export default {
+    props: {
+      value: {
+        type: String,
+      }
+    },
     data() {
       return {
         list: {
@@ -27,7 +33,7 @@
     },
     methods: {
       selectType(type) {
-        this.$emit('select', type.valueOf())
+        this.$emit('input', type.valueOf())
       }
     }
   }
