@@ -1,5 +1,4 @@
 class TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm < TaxonNameRelationship::Iczn::Invalidating::Usage
-
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000061'.freeze
 
   def self.disjoint_taxon_name_relationships
@@ -25,7 +24,6 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm < Ta
     :iczn_set_as_family_group_name_form_of
   end
 
-  # as.
   def self.inverse_assignment_method
     # aus.misspelling = bus
     :iczn_family_group_name_form
