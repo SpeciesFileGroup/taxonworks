@@ -8,7 +8,7 @@
 
         </div>
         <div class="annotation_for">
-            <models @select="filter.model = $event"/>
+            <models @select="filter.model = $event" @model_selected="common = $event"/>
             <span>Selected: {{ filter.model }}</span>
         </div>
         <div class="annotation_by">
@@ -21,6 +21,7 @@
 
         </div>
         <annotation_type @annotation_type_selected="common = $event"/>
+        <annotation_type @model_selected="common = $event"/>
         <span v-for="json in result">{{ json }}</span>
         <button
           @click="processCall"
