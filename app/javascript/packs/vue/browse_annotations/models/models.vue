@@ -16,6 +16,16 @@
 
 <script>
   export default {
+    props: {
+      value: {
+        type: String,
+      }
+    },
+    watch: {
+      value(newVal) {
+        this.getResult(newVal)
+      }
+    },
     data() {
       return {
         list: {
@@ -28,7 +38,13 @@
     methods: {
       selectModel(type) {
         this.$emit('select', type.valueOf())
+      },
+      getResult(newVal) {
+        this.$http.post('/tasks/browse_annotations/set_model', {propertyHere: newVal}).then(response => {
+          this.$emit('model_selected', response.body)
+        })
       }
+
     }
   }
 </script>

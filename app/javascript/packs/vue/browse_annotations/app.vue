@@ -20,7 +20,7 @@
         <div class="annotation_logic">
 
         </div>
-        <annotation_type @annotation_type_selected="theDataNameProperty = $event"/>
+        <annotation_type @annotation_type_selected="common = $event"/>
         <span v-for="json in result">{{ json }}</span>
         <button
           @click="processCall"
@@ -42,7 +42,8 @@
       return {
         filter: {
           annotation_type: 'confidence',
-          model: undefined
+          model: undefined,
+          common: undefined
         }
       }
     },
