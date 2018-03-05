@@ -31,7 +31,7 @@
 #        to a registrant.
 #
 class Identifier::Global::Doi < Identifier::Global
-  validates :identifier, format: {with: /(\A10)\.([\d\.]*)\/.*\z/, message: 'Invalid DOI.'}
+  validates :identifier, format: {with: /\A(10)\.([\d\.]*)\/.*\z/, message: 'Invalid DOI.'}
 
   before_validation :handle_prefixes
 
