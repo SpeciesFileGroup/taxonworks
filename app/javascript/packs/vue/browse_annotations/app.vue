@@ -20,6 +20,7 @@
         <div class="annotation_logic">
 
         </div>
+        <annotation_type @annotation_type_selected="theDataNameProperty = $event"/>
         <span v-for="json in result">{{ json }}</span>
         <button
           @click="processCall"

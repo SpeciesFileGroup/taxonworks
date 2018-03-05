@@ -45,8 +45,10 @@
         this.$emit('input', type.valueOf())
       },
       getResult(newVal) {
+        // this.$http.post('/tasks/browse_annotations/get_type', {json: newVal}).then(response => {
+        //   this.result = response.body
         this.$http.post('/tasks/browse_annotations/get_type', {propertyHere: newVal}).then(response => {
-          this.result = response.body
+          this.$emit('annotation_type_selected', response.body)
         })
       }
     }
