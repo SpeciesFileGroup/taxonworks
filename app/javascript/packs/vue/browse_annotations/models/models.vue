@@ -1,17 +1,21 @@
 <template>
-    <ul>
-        <li v-for="label, key in list">
-            <label @click="selectModel(key)">
-                <input
-                        name="model"
-                        type="radio"
-                        :value="key">
-                <span
-                        class="new-combination-rank-list-taxon-name"
-                        v-html="label"/>
-            </label>
-        </li>
-    </ul>
+    <div>
+        <ul>
+            <li v-for="label, key in list">
+                <label @click="selectModel(key)">
+                    <input
+                            :checked="value === key"
+                            name="model"
+                            type="radio"
+                            :value="key">
+                    <span
+                            class="new-combination-rank-list-taxon-name"
+                            v-html="label"/>
+                </label>
+            </li>
+        </ul>
+        <span v-for="(item, key) in result"> {{ key }} : {{ item }} </span>
+    </div>
 </template>
 
 <script>
@@ -32,7 +36,8 @@
           otu: 'by OTU',
           taxon_name: 'by Taxon Name',
           specimen: 'by Specimen'
-        }
+        },
+        result: undefined
       }
     },
     methods: {
@@ -44,7 +49,6 @@
           this.$emit('model_selected', response.body)
         })
       }
-
     }
   }
 </script>
