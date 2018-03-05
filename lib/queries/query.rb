@@ -105,7 +105,7 @@ module Queries
     end
 
     # @return [Array]
-    #   if 5 or fewer alphabetic_strings, those alphabetic_strings wrapped in wildcards, else none.
+    #   if 1-5 alphabetic_strings, those alphabetic_strings wrapped in wildcards, else none.
     #  Used in *unordered* AND searchs 
     def fragments
       a = alphabetic_strings
@@ -221,13 +221,24 @@ module Queries
     end
 
     # @return [ActiveRecord::Relation, nil]
-    # cached matches full query string wildcarded
+    #   cached matches full query string wildcarded
     def cached
       if !terms.empty?
         table[:cached].matches_any(terms)
       else
         nil
       end
+    end
+
+    # match ALL wildcards, but unordered, if 2 - 6 pieces provided
+    def match_wildcard_cached
+      b = fragments
+      return nil if b.empty?
+      a = table[:cached].matches_all(b)
+    end 
+
+    def match_ordered_wildcard_pieces_in_cached
+      a = table[:cached].matches(wildcard_pieces)
     end
 
     def combine_or_clauses(clauses)
@@ -244,6 +255,28 @@ module Queries
     #   default the autocomplete result to all
     def autocomplete
       all.to_a
+    end
+
+    
+    # @return [ActiveRecord::Relation]
+    def autocomplete_ordered_wildcard_pieces_in_cached
+      base_query.where(match_ordered_wildcard_pieces_in_cached.to_sql).limit(5) 
+    end 
+
+
+    # @return [ActiveRecord::Relation]
+    #   removes years/integers!
+    def autocomplete_cached_wildcard_anywhere
+      a = match_wildcard_cached
+      return nil if a.nil?
+      base_query.where(a.to_sql).limit(20) 
+    end
+
+    # @return [ActiveRecord::Relation]
+    def autocomplete_cached
+      a = cached 
+      return nil if a.nil?
+      base_query.where(a.to_sql).limit(20) 
     end
 
   end
