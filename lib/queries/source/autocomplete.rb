@@ -162,7 +162,7 @@ module Queries
 
         updated_queries = []
         queries.each_with_index do |q ,i|  
-          a = q.joins(:project_sources).where(member_of_project_id.to_sql) if project_id && !limit_to_project
+          a = q.joins(:project_sources).where(member_of_project_id.to_sql) if project_id && limit_to_project
           a ||= q
           updated_queries[i] = a
         end
