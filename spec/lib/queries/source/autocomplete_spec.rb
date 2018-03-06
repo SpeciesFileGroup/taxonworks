@@ -81,19 +81,19 @@ describe Queries::Source::Autocomplete, type: :model do
     expect(query.autocomplete_start_of_title.map(&:id)).to contain_exactly(s2.id, s3.id)
   end
 
-  specify '#autocomplete_ordered_wildcard_pieces 1' do
+  specify '#autocomplete_ordered_wildcard_pieces_in_cached 1' do
     query.terms = 'Bad rubyco'
-    expect(query.autocomplete_ordered_wildcard_pieces.map(&:id)).to contain_exactly(s3.id)
+    expect(query.autocomplete_ordered_wildcard_pieces_in_cached.map(&:id)).to contain_exactly(s3.id)
   end
 
-  specify '#autocomplete_ordered_wildcard_pieces 2' do
+  specify '#autocomplete_ordered_wildcard_pieces_in_cached 2' do
     query.terms = 'Smi rubyco'
-    expect(query.autocomplete_ordered_wildcard_pieces.map(&:id)).to contain_exactly(s3.id)
+    expect(query.autocomplete_ordered_wildcard_pieces_in_cached.map(&:id)).to contain_exactly(s3.id)
   end
 
-  specify '#autocomplete_ordered_wildcard_pieces 3' do
+  specify '#autocomplete_ordered_wildcard_pieces_in_cached 3' do
     query.terms = 'Smi 1921 rubyco'
-    expect(query.autocomplete_ordered_wildcard_pieces.map(&:id)).to contain_exactly(s3.id)
+    expect(query.autocomplete_ordered_wildcard_pieces_in_cached.map(&:id)).to contain_exactly(s3.id)
   end
 
   specify '#autocomplete_year_letter 1' do
@@ -127,9 +127,9 @@ describe Queries::Source::Autocomplete, type: :model do
     expect(query.autocomplete_wildcard_author_exact_year.map(&:id).first).to eq(s4.id)
   end
 
-  specify 'autocomplete_wildcard_anywhere 1' do
+  specify 'autocomplete_cached_wildcard_anywhere 1' do
     query.terms = 'andt Things about'
-    expect(query.autocomplete_wildcard_anywhere.map(&:id).first).to eq(s4.id)
+    expect(query.autocomplete_cached_wildcard_anywhere.map(&:id).first).to eq(s4.id)
   end
 
   specify 'autocomplete_wildcard_anywhere_exact_year 1' do
@@ -147,9 +147,9 @@ describe Queries::Source::Autocomplete, type: :model do
     expect(query.autocomplete_wildcard_anywhere_exact_year.map(&:id).first).to eq(s5.id)
   end
 
-  specify 'autocomplete_wildcard_anywhere' do
+  specify 'autocomplete_cached_wildcard_anywhere' do
     query.terms = 'black brandt'
-    expect(query.autocomplete_wildcard_anywhere.map(&:id).first).to eq(s5.id)
+    expect(query.autocomplete_cached_wildcard_anywhere.map(&:id).first).to eq(s5.id)
   end
 
   specify '#autocomplete 1' do

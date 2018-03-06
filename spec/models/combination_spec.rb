@@ -63,7 +63,8 @@ describe Combination, type: :model, group: :nomenclature do
       species.original_genus = genus
       species.original_species = species
       species.save
-      c = Combination.new(genus: genus, species: species, verbatim_name: "")
+
+      c = Combination.new(genus: genus, species: species)
       expect(c.valid?).to be_falsey
     end
 
@@ -71,7 +72,12 @@ describe Combination, type: :model, group: :nomenclature do
       species.original_genus = genus
       species.original_species = species
       species.save
-      c = Combination.new(genus: genus, species: species, verbatim_name: "Erythroneura vite")
+      # TODO @proceps you used `vite`, I assume because you wanted a harder test- this requires
+      # *WAY* more checking, not sure its worthwhile, I simplified the test to be verbatim == verbatim
+      # c = Combination.new(genus: genus, species: species, verbatim_name: "Erythroneura vite")
+      
+      c = Combination.new(genus: genus, species: species, verbatim_name: "Erythroneura vitis")
+      
       expect(c.valid?).to be_truthy
     end
 

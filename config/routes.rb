@@ -42,6 +42,10 @@ TaxonWorks::Application.routes.draw do
     get ':global_id/metadata', action: :metadata, defaults: {format: :json}
   end
 
+  scope :graph, controller: :graph do
+    get ':global_id/metadata', action: :metadata, defaults: {format: :json}
+  end
+
   resources :projects do
     concerns [:data_routes]
     member do
@@ -107,6 +111,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :biological_relationships do
     concerns [:data_routes]
+    collection do
+      get :select_options, defaults: {format: :json}
+  end
   end
 
   resources :character_states do
@@ -149,10 +156,11 @@ TaxonWorks::Application.routes.draw do
     end
 
     collection do
-      post :preview_castor_batch_load
-      post :create_castor_batch_load
-      get :preview_simple_batch_load # should be get
+      post :preview_castor_batch_load # should be get
+      post :create_castor_batch_load # should be get
+      get :preview_simple_batch_load 
       post :create_simple_batch_load
+      get :select_options, defaults: {format: :json}
     end
   end
   match 'collection_objects/by_identifier/:identifier', to: 'collection_objects#by_identifier', via: :get
@@ -262,8 +270,9 @@ TaxonWorks::Application.routes.draw do
   resources :geographic_areas do
     concerns [:data_routes]
     collection do
-      post 'display_coordinates'
+      post 'display_coordinates' # TODO should not be POST
       get 'display_coordinates', as: 'getdisplaycoordinates'
+      get :select_options, defaults: {format: :json}
     end
   end
 
@@ -381,6 +390,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :otus do
     concerns [:data_routes ]
+    resources :biological_associations, shallow: true, only: [:index], defaults: {format: :json}
+    resources :asserted_distributions, shallow: true, only: [:index], defaults: {format: :json}
+
     resources :contents, only: [:index]
     collection do
       post :preview_simple_batch_load # should be get
@@ -391,6 +403,8 @@ TaxonWorks::Application.routes.draw do
 
       post :preview_identifiers_batch_load
       post :create_identifiers_batch_load
+
+      get :select_options, defaults: {format: :json}
     end
   end
 
@@ -416,10 +430,6 @@ TaxonWorks::Application.routes.draw do
     member do
       get :roles
       get :details
-    end
-    collection do
-     # get :lookup_person
-      get 'taxon_name_author_autocomplete'
     end
   end
 
@@ -599,10 +609,9 @@ TaxonWorks::Application.routes.draw do
       get 'index', as: 'annotate_objects'
     end
 
-    scope :taxa do
-      scope :browse, controller: 'tasks/taxa/browse' do
-        get 'index', as: 'browse_taxon_task'
-      end
+    scope :otus do
+      scope :browse, controller: 'tasks/otus/browse' do
+        get '/(:otu_id)', action: :index, as: 'browse_otus_task'
     end
 
     scope :type_material do

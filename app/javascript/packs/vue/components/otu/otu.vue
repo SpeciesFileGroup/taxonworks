@@ -1,8 +1,9 @@
 <template>
   <div>
     <span 
-      class="circle-button btn-hexagon-w button-default"
-      :class="{ 'button-submit': !list.length }"
+      class="circle-button button-default"
+      :title="redirect ? 'Otu browse' : 'Otu radial'"
+      :class="[{ 'button-submit': !list.length }, (redirect ? 'btn-hexagon-empty-w' : 'btn-hexagon-w')]"
       @click="openApp">Otu
     </span>
     <modal
@@ -24,7 +25,8 @@
             v-for="item in list"
             :key="item.id">
             <a
-              :href="`/tasks/otus/browse/${item.id}`"
+              href="#"
+              @click="processCall(item)"
               v-html="item.object_tag"/>
           </li>
         </ul>
@@ -33,6 +35,11 @@
           legend="Creating Otu..."/>
       </div>
     </modal>
+    <radial-annotator
+      ref="annotator"
+      type="graph"
+      :show-bottom="false"
+      :global-id="globalId"/>
   </div>
 </template>
 
@@ -40,12 +47,14 @@
 
   import Modal from '../modal.vue'
   import Spinner from '../spinner.vue'
+  import RadialAnnotator from '../annotator/annotator.vue'
   import { GetOtus, CreateOtu } from './request/resources'
 
   export default {
     components: {
       Modal,
-      Spinner
+      Spinner,
+      RadialAnnotator
     },
     props: {
       taxonId: {
@@ -55,7 +64,11 @@
       taxonName: {
         type: String,
         default: ''
-      }
+      },
+      redirect: {
+        type: Boolean,
+        default: true
+      },
     },
     computed: {
       emptyList() {
@@ -64,6 +77,7 @@
     },
     data() {
       return {
+        globalId: '',
         modalOpen: false,
         creatingOtu: false,
         list: []
@@ -80,17 +94,36 @@
           this.createOtu(this.taxonId);
         }
         else if(this.list.length === 1) {
-          this.redirectTo(this.list[0].id)
+          this.processCall(this.list[0])
         }
         else {
           this.modalOpen = true
         }
       },
+      openRadial(otu) {
+        this.globalId = otu.global_id
+        this.$nextTick(()=> {
+          this.$refs.annotator.displayAnnotator()
+        })
+      },
       createOtu(id) {
         this.creatingOtu = true
         CreateOtu(id).then(response => {
-          this.redirectTo(response.id)
+          if(this.redirect) {
+            this.redirectTo(response.id)
+          }
+          else {
+            this.openRadial(response)
+          }
         }) 
+      },
+      processCall(otu) {
+        if(this.redirect) {
+          this.redirectTo(otu.id)
+        }
+        else {
+          this.openRadial(otu)
+        }
       },
       redirectTo(id) {
         window.location.href = `/tasks/otus/browse/${id}`

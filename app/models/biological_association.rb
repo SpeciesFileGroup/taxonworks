@@ -1,4 +1,4 @@
-# A biological association biological relationship between two entities one of (CollectionObject, OTU).
+# An edge between two entities (one of CollectionObject, Otu on either side), defining a biological relationships between the two.
 #
 # @!attribute biological_relationship_id
 #   @return [Integer]
@@ -33,7 +33,6 @@ class BiologicalAssociation < ApplicationRecord
   include Shared::Confidences
   include Shared::IsData
 
-
   belongs_to :biological_relationship, inverse_of: :biological_associations
   belongs_to :biological_association_subject, polymorphic: true
   belongs_to :biological_association_object, polymorphic: true
@@ -45,6 +44,22 @@ class BiologicalAssociation < ApplicationRecord
 
   validates_uniqueness_of :biological_association_subject_id, scope: [:biological_association_subject_type, :biological_association_object_id, :biological_association_object_type, :biological_relationship_id]
 
+  attr_accessor :subject_global_id
+  attr_accessor :object_global_id
+
+  def subject_global_id=(value)
+    o = GlobalID::Locator.locate(value)
+    write_attribute(:biological_association_subject_id, o.id)
+    write_attribute(:biological_association_subject_type, o.metamorphosize.class.name)
+  end
+
+  def object_global_id=(value)
+    o = GlobalID::Locator.locate(value)
+    write_attribute(:biological_association_object_id, o.id)
+    write_attribute(:biological_association_object_type, o.metamorphosize.class.name)
+  end
+
+  # TODO: remove, this makes little sense as an autocomplete ...
   def self.find_for_autocomplete(params)
     Queries::BiologicalAssociationAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
   end

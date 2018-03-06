@@ -53,14 +53,8 @@ module Queries
 
       # @return [ActiveRecord::Relation]
       #   author matches partial string 
-      def autocomplete_ordered_wildcard_pieces
-        base_query.where(match_ordered_wildcard_pieces.to_sql).limit(5) 
-      end 
-
-      # @return [ActiveRecord::Relation]
-      #   author matches partial string 
       def autocomplete_wildcard_pieces_and_year
-        a = match_ordered_wildcard_pieces
+        a = match_ordered_wildcard_pieces_in_cached
         b = match_year
         return nil if a.nil? || b.nil?
         c = a.and(b)
@@ -111,20 +105,6 @@ module Queries
         base_query.where(c.to_sql).limit(10) 
       end
 
-      # removes years!
-      def autocomplete_wildcard_anywhere
-        a = match_wildcard_cached
-        return nil if a.nil?
-        base_query.where(a.to_sql).limit(20) 
-      end
-
-      # match ALL wildcards, but unordered, if 2 - 6 pieces provided
-      def match_wildcard_cached
-        b = fragments
-        return nil if b.empty?
-        a = table[:cached].matches_all(b)
-      end 
-
       # match ALL wildcards, but unordered, if 2 - 6 pieces provided
       def match_wildcard_author
         b = fragments
@@ -144,10 +124,6 @@ module Queries
         a = years.first
         return nil if a.nil?
         table[:year].eq(a)
-      end
-
-      def match_ordered_wildcard_pieces
-        a = table[:cached].matches(wildcard_pieces)
       end
 
       def author_from_author_year
@@ -177,15 +153,16 @@ module Queries
           autocomplete_exact_author_year,
           autocomplete_wildcard_author_exact_year,
           autocomplete_wildcard_anywhere_exact_year,
-          autocomplete_ordered_wildcard_pieces,
-          autocomplete_wildcard_anywhere
+          autocomplete_ordered_wildcard_pieces_in_cached,
+          autocomplete_cached_wildcard_anywhere,
+          autocomplete_start_of_title
         ]
 
         queries.compact!
 
         updated_queries = []
         queries.each_with_index do |q ,i|  
-          a = q.joins(:project_sources).where(member_of_project_id.to_sql) if project_id && !limit_to_project
+          a = q.joins(:project_sources).where(member_of_project_id.to_sql) if project_id && limit_to_project
           a ||= q
           updated_queries[i] = a
         end

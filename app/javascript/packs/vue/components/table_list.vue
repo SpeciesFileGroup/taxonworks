@@ -67,9 +67,14 @@
         if (Array.isArray(attributes)) {
           let obj = object
 
-          attributes.forEach(function (property) {
-            obj = obj[property]
-          })
+          for (var i = 0; i < attributes.length; i++) {
+            if(obj.hasOwnProperty(attributes[i])) {
+              obj = obj[attributes[i]]
+            }
+            else {
+              return null
+            }
+          }
           return obj
         }
         return object[attributes]

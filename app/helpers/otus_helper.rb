@@ -29,9 +29,18 @@ module OtusHelper
     otus.collect { |o| link_to(o.name, o) }.join(',')
   end
 
-  def otus_radial(object)
+  def otus_redirect(object)
     otu = object.metamorphosize
-    content_tag(:div, '', 'data-taxon-name' => object_tag(otu), 'data-taxon-id' => otu.id, 'data-otu-radial' => 'true')
+    content_tag(:div, '', 'data-taxon-name' => object_tag(otu), 'data-redirect' => 'true', 'data-taxon-id' => otu.id, 'data-otu-button' => 'true')
+  end
+
+  def otus_radial_disambiguate(object)
+    otu = object.metamorphosize
+    content_tag(:div, '', 'data-taxon-name' => object_tag(otu), 'data-redirect' => 'false', 'data-taxon-id' => otu.id, 'data-otu-button' => 'true')
+  end
+
+  def otus_radial(object)
+    content_tag(:div, '', 'data-global-id' => object.to_global_id.to_s, 'data-otu-radial' => 'true')
   end
 
 end

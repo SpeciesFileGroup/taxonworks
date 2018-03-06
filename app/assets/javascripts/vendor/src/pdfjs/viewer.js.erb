@@ -8,9 +8,9 @@ Object.assign(TW.views.shared.slideout.pdf, {
 
   textCopy: '',
 
-  init: function() {
+  init: function () {
 
-  'use strict';
+    'use strict';
 
     var pdfDocument = void 0;
     var PAGE_HEIGHT = void 0;
@@ -19,10 +19,10 @@ Object.assign(TW.views.shared.slideout.pdf, {
     var actualPage;
 
     PDFJS.workerSrc = '<%= asset_path("vendor/src/pdfjs/pdf.worker.js") %>';
-    PDFJS.disableWorker = true; 
+    PDFJS.disableWorker = true;
 
     function loadPDF(pdfUrl, pageNumber) {
-    
+
       var createPDF = PDFJS.getDocument(pdfUrl);
 
       $('#viewer').empty();
@@ -76,7 +76,7 @@ Object.assign(TW.views.shared.slideout.pdf, {
       createPDF.then(function (pdf) {
         $("#pdfViewerContainer span").remove();
         $("#pdfViewerContainer").removeClass('box-spinner');
-        $("#viewer").parent().removeClass('spinner');          
+        $("#viewer").parent().removeClass('spinner');
         pdfDocument = pdf;
 
         var viewer = document.getElementById('viewer');
@@ -104,10 +104,10 @@ Object.assign(TW.views.shared.slideout.pdf, {
 
       pdfDocument.getPage(num).then(function (pdfPage) {
         var viewport = pdfPage.getViewport(actualScale);
-        page.style.width = viewport.width  + 'px';
+        page.style.width = viewport.width + 'px';
         page.style.height = viewport.height + 'px';
       });
-      
+
       page.className = 'page';
       wrapper.className = 'canvasWrapper';
       textLayer.className = 'textLayer';
@@ -117,10 +117,10 @@ Object.assign(TW.views.shared.slideout.pdf, {
       page.setAttribute('data-page-number', num);
 
       canvas.setAttribute('id', 'page' + num);
-      
-        
+
+
       page.appendChild(wrapper);
-      page.appendChild(textLayer);   
+      page.appendChild(textLayer);
       wrapper.appendChild(canvas);
 
       return page;
@@ -136,39 +136,40 @@ Object.assign(TW.views.shared.slideout.pdf, {
         var viewport = pdfPage.getViewport(actualScale);
         PAGE_HEIGHT = viewport.height;
 
-        $(container).empty();
-        $(canvas).empty();
+        if (page.getAttribute('data-loaded') === 'false') {
+          $(container).empty();
+          $(canvas).empty();
 
-        canvas.width = viewport.width * 2;
-        canvas.height = viewport.height * 2;
+          canvas.width = viewport.width * 2;
+          canvas.height = viewport.height * 2;
 
-        canvas.style.width = "100%";
-        canvas.style.height = "100%";
-        wrapper.style.width = viewport.width;
-        wrapper.style.height = viewport.height;
+          canvas.style.width = "100%";
+          canvas.style.height = "100%";
+          wrapper.style.width = viewport.width;
+          wrapper.style.height = viewport.height;
 
-        page.style.width = viewport.width  + 'px';
-        page.style.height = viewport.height + 'px';
-        container.style.width = viewport.width  + 'px';
-        container.style.height = viewport.height + 'px';
-        canvasContext.scale(2,2);    
+          page.style.width = viewport.width + 'px';
+          page.style.height = viewport.height + 'px';
+          container.style.width = viewport.width + 'px';
+          container.style.height = viewport.height + 'px';
+          canvasContext.scale(2, 2);
 
-        pdfPage.render({
-          canvasContext: canvasContext,
-          viewport: viewport
-        });
-
-        pdfPage.getTextContent().then(function (textContent) {
-          PDFJS.renderTextLayer({
-            textContent: textContent,
-            container: container,
-            viewport: viewport,
-            textDivs: []
+          pdfPage.render({
+            canvasContext: canvasContext,
+            viewport: viewport
           });
-        });
 
-        page.setAttribute('data-loaded', 'true');
+          pdfPage.getTextContent().then(function (textContent) {
+            PDFJS.renderTextLayer({
+              textContent: textContent,
+              container: container,
+              viewport: viewport,
+              textDivs: []
+            });
+          });
 
+          page.setAttribute('data-loaded', 'true');
+        }
         return pdfPage;
       });
     }
@@ -178,36 +179,32 @@ Object.assign(TW.views.shared.slideout.pdf, {
     }
 
     function handleWindowScroll(scrollPosition) {
-
       var visiblePageNum = Math.round(scrollPosition / PAGE_HEIGHT) + 1;
       actualPage = getPageScroll(scrollPosition);
-      var visiblePage = $('.page[data-page-number="' + visiblePageNum + '"][data-loaded="false"]');
       updatePageNumber(getPageScroll(scrollPosition));
-      if ($(visiblePage).attr('data-loaded') == 'false') {
-        $(visiblePage).attr('data-loaded', 'true');
-        loadPage(visiblePageNum);
-      }
+      loadPage(visiblePageNum);
     }
-    $("#pageNumber").keypress(function(e) {
-        if(e.which == 13) {
-          var
-            min = Number($("#pageNumber").attr('min')),
-            max = Number($("#pageNumber").attr('max')),
-            num = Number($("#pageNumber").val());
-            
-          if(num > max) {
-            $("#pageNumber").val(max)
-          } else if(num < min) {
-            $("#pageNumber").val(min)
-          }
-          scrollToPage($("#pageNumber").val());
-          handleWindowScroll(document.querySelector('[data-page-number="' + num + '"]').offsetTop)
+
+    $("#pageNumber").keypress(function (e) {
+      if (e.which == 13) {
+        var
+          min = Number($("#pageNumber").attr('min')),
+          max = Number($("#pageNumber").attr('max')),
+          num = Number($("#pageNumber").val());
+
+        if (num > max) {
+          $("#pageNumber").val(max)
+        } else if (num < min) {
+          $("#pageNumber").val(min)
         }
+        scrollToPage($("#pageNumber").val());
+        handleWindowScroll(document.querySelector('[data-page-number="' + num + '"]').offsetTop)
+      }
     });
 
     function scrollToPage(num) {
-        event.preventDefault();
-        document.querySelector('#pdfViewerContainer').scrollTop = document.querySelector('[data-page-number="' + num + '"]').offsetTop
+      event.preventDefault();
+      document.querySelector('#pdfViewerContainer').scrollTop = document.querySelector('[data-page-number="' + num + '"]').offsetTop
     };
 
     function updatePageNumber(num) {
@@ -215,39 +212,39 @@ Object.assign(TW.views.shared.slideout.pdf, {
     }
 
     function resetLoadedStatus(num) {
-        $('.page').each(function(i) {
-            $(this).attr('data-loaded', 'false');
-        });
+      $('.page').each(function (i) {
+        $(this).attr('data-loaded', 'false');
+      });
     }
 
     function displayPage(pdf, num) {
       pdf.getPage(num).then(function getPage(page) { renderPage(page); });
     }
 
-    $("#nextbutton").on('click', function() {
-      nextPage();   
+    $("#nextbutton").on('click', function () {
+      nextPage();
     });
 
-         
-    $("#prevbutton").on('click', function() {
+
+    $("#prevbutton").on('click', function () {
       prevPage();
     });
 
 
-    $("#zoominbutton").on('click', function() {     
+    $("#zoominbutton").on('click', function () {
       actualScale = actualScale + 0.25;
       resetLoadedStatus(actualPage);
-      loadPage(actualPage);            
+      loadPage(actualPage);
     });
 
-    $("#zoomoutbutton").on('click', function() {  
+    $("#zoomoutbutton").on('click', function () {
       if (actualScale <= 0.25) {
         return;
       }
       actualScale = actualScale - 0.25;
-      resetLoadedStatus(actualPage);            
+      resetLoadedStatus(actualPage);
       loadPage(actualPage);
-    }); 
+    });
 
     function nextPage() {
       changePage(actualPage + 1);
@@ -259,7 +256,7 @@ Object.assign(TW.views.shared.slideout.pdf, {
 
     function changePage(page) {
       var element = document.querySelector('[data-page-number="' + page + '"]');
-      if(element) {
+      if (element) {
         var position = element.offsetTop;
 
         $(".slide-document .slide-panel-content").animate({
@@ -276,56 +273,56 @@ Object.assign(TW.views.shared.slideout.pdf, {
 
     // Events
 
-    var that = this, 
-        cursorPosition = 0;
+    var that = this,
+      cursorPosition = 0;
 
-    $("body").on("click", "input, textarea", function(e) {
-      if(viewerActive()) {
-        if(this.selectionStart === this.selectionEnd) { 
+    $("body").on("click", "input, textarea", function (e) {
+      if (viewerActive()) {
+        if (this.selectionStart === this.selectionEnd) {
           cursorPosition = $(this).getCursorPosition();
         }
       }
-    });       
+    });
 
-    $('#viewer').mouseup(function() {
+    $('#viewer').mouseup(function () {
       that.textCopy = getSelectedText();
     });
 
-    $("body").on("dblclick", "textarea, input", function() {
-      if(viewerActive()) {
-        $(this).val(insertStringInPosition($(this).val(),that.textCopy, cursorPosition));
+    $("body").on("dblclick", "textarea, input", function () {
+      if (viewerActive()) {
+        $(this).val(insertStringInPosition($(this).val(), that.textCopy, cursorPosition));
       }
     });
 
-    $('[data-pdfviewer]').on("click", function() {
+    $('[data-pdfviewer]').on("click", function () {
       $('#pdfViewerContainer').attr("data-sourceid", $(this).attr("data-sourceid"));
       loadPDF($(this).attr("data-pdfviewer"));
-    });    
+    });
 
-    $('.slide-document .slide-panel-content').scroll(function() {
-        handleWindowScroll($(this).scrollTop());
-    }); 
+    $('.slide-document .slide-panel-content').scroll(function () {
+      handleWindowScroll($(this).scrollTop());
+    });
 
     $('.slide-document').resizable({
       handles: "w"
     });
 
-    $(document).on("pdfviewer:loadpdf", function(event) {
+    $(document).on("pdfviewer:loadpdf", function (event) {
       TW.views.shared.slideout.openSlideoutPanel($('[data-panel-name="pdfviewer"]'))
       loadPDF(event.detail.url, Number(event.detail.pageNumber));
     });
 
     function getSelectedText() {
-        if (window.getSelection) {
-            return window.getSelection().toString();
-        } else if (document.selection) {
-            return document.selection.createRange().text;
-        }
-        return '';
+      if (window.getSelection) {
+        return window.getSelection().toString();
+      } else if (document.selection) {
+        return document.selection.createRange().text;
+      }
+      return '';
     }
   }
 });
 
-$(document).on('turbolinks:load', function() {
+$(document).on('turbolinks:load', function () {
   TW.views.shared.slideout.pdf.init();
 });

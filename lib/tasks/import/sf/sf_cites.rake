@@ -214,6 +214,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           get_sf_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors') # contains ordered array of SF.PersonIDs
           get_tw_person_id = import.get('SFPersonIDToTWPersonID')
 
+          otu_not_found_array = []
+
           path = @args[:data_directory] + 'tblCites.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
@@ -228,18 +230,17 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           base_uri = 'http://speciesfile.org/legacy/'
 
           file.each_with_index do |row, i|
-            taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']] # cannot to_i because if nil, nil.to_i = 0
-            # next unless TaxonName.where(id: taxon_name_id).any?
+            sf_taxon_name_id = row['TaxonNameID']
+            taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # cannot to_i because if nil, nil.to_i = 0
 
-            if taxon_name_id.nil? #!TaxonName.where(id: taxon_name_id).exists?
-              logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} was not created in TW (no_taxon_counter = #{no_taxon_counter += 1})"
-
-              # @todo: Test if OTU exists? Citations added to OTUs in next rake task.  What about add notes, nomenclator, tags, confidences?
-              sf_taxon_name_id = row['TaxonNameID']
+            if taxon_name_id.nil?
               if get_tw_otu_id[sf_taxon_name_id]
-                logger.warn "SF.TaxonNameID = #{sf_taxon_name_id} created as OTU (otu_only_counter = #{otu_only_counter += 1})"
-                # otu_id = get_tw_otu_id[sf_taxon_name_id]
-                # create_otu_cite(logger, row, otu_id)
+                logger.warn "SF.TaxonNameID = #{sf_taxon_name_id} previously created as OTU (otu_only_counter = #{otu_only_counter += 1})"
+              elsif otu_not_found_array.include? sf_taxon_name_id # already in array (probably seqnum > 1)
+                logger.warn "SF.TaxonNameID = #{sf_taxon_name_id} already in otu_not_found_array (total in otu_not_found_counter = #{otu_not_found_counter})"
+              else
+                otu_not_found_array << sf_taxon_name_id # add SF.TaxonNameID to otu_not_found_array
+                logger.warn "SF.TaxonNameID = #{sf_taxon_name_id} added to otu_not_found_array (otu_not_found_counter = #{otu_not_found_counter += 1})"
               end
               next
             end
@@ -254,10 +255,10 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             # test nomenclator info
             nomenclator_id = row['NomenclatorID']
-            nomenclator_string = get_nomenclator_metadata[nomenclator_id][row['NomenclatorString']]
-            nomenclator_ident_qualifier = get_nomenclator_metadata[nomenclator_id][row['IdentQualifier']]
-            sf_file_id = get_nomenclator_metadata[nomenclator_id][row['FileID']]
             if nomenclator_id > '0'
+              nomenclator_string = get_nomenclator_metadata[nomenclator_id][row['NomenclatorString']]
+              nomenclator_ident_qualifier = get_nomenclator_metadata[nomenclator_id][row['IdentQualifier']]
+              sf_file_id = get_nomenclator_metadata[nomenclator_id][row['FileID']]
               if nomenclator_ident_qualifier.present? # has some irrelevant text in it
                 logger.warn "No citation created because IdentQualifier has irrelevant data: (SF.FileID: #{sf_file_id}, SF.TaxonNameID: #{sf_taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']})"
                 # create data attr on taxon_name
@@ -342,6 +343,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
             else # create new citation
 
               if nomenclator_string && !(protonym.cached_original_combination == nomenclator_string)
+                # what is value of above line?
+
                 combination = nil
 
                 begin
@@ -363,7 +366,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
 
                   else
                     # ... this is all the funny exceptions (4)
-                    logger.info "Funny exceptions ELSE nomenclator_string #{check_result.detail}"
+                    logger.info "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', check_result.detail = '#{check_result.detail}'"
                   end
 
                     # Put all the rescue statements in one place

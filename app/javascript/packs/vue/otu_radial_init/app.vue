@@ -1,30 +1,27 @@
 <template>
-  <otu-radial
+  <radial-annotator
     :id="id"
-    :taxon-name="taxonName"
-    :taxon-id="taxonId"/>
+    type="graph"
+    buttonClass="btn-hexagon-w button-default"
+    :global-id="globalId"/>
 </template>
 <script>
 
-  import OtuRadial from '../components/otu/otu.vue'
+  import RadialAnnotator from '../components/annotator/annotator.vue'
 
   export default {
     components: {
-      OtuRadial
+      RadialAnnotator
     },
     props: {
       id: {
         type: String,
         required: true
       },
-      taxonId: {
+      globalId: {
         type: String,
         required: true
       },
-      taxonName: {
-        type: String,
-        required: true
-      }
     }
   }
 </script>

@@ -44,7 +44,9 @@
               :show-spinner="false"
               :show-legend="false"
               v-if="!getTaxon.id"/>
-            <block-layout anchor="original-combination" v-help.section.originalCombination.container>
+            <block-layout
+              anchor="original-combination"
+              v-help.section.originalCombination.container>
               <h3 slot="header">Original Combination</h3>
               <div slot="body">
                 <pick-original-combination/>

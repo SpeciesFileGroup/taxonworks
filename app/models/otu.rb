@@ -19,7 +19,6 @@
 #   The id of the nomenclatural name for this OTU.  The presence of a nomenclatural name carries no biological meaning, it is
 #   simply a means to organize concepts within a nomenclatural system.
 #
-#
 # TODO Semantics vs. taxon_name_id
 #
 class Otu < ApplicationRecord
@@ -37,9 +36,14 @@ class Otu < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::IsData
 
+  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations]
+
   belongs_to :taxon_name, inverse_of: :otus
 
   has_many :asserted_distributions, inverse_of: :otu
+
+  has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject 
+  has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object
 
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
@@ -89,9 +93,7 @@ class Otu < ApplicationRecord
 
   accepts_nested_attributes_for :common_names, allow_destroy: true
 
-  #region class methods
-
-  # return [Scope] the otus bound to that taxon name and its descendants
+  # return [Scope] the Otus bound to that taxon name and its descendants
   def self.for_taxon_name(taxon_name)
     if taxon_name.kind_of?(String) || taxon_name.kind_of?(Integer)
       tn = TaxonName.find(taxon_name)
@@ -129,9 +131,6 @@ class Otu < ApplicationRecord
     new_otus
   end
 
-  #endregion
-
-  #region instance methods
   # Hernán - this is extremely hacky, I'd like to
   # map core keys to procs, use yield:, use cached values,
   # add logic for has_many handling (e.g. identifiers) etc.
@@ -163,11 +162,70 @@ class Otu < ApplicationRecord
   end
 
   def distribution_geoJSON
-    a_ds   = Gis::GeoJSON.feature_collection(geographic_areas_from_asserted_distributions, :asserted_distributions)
-    c_os   = Gis::GeoJSON.feature_collection(collecting_events, :collecting_events_georeferences)
-    c_es   = Gis::GeoJSON.feature_collection(geographic_areas_from_collecting_events, :collecting_events_geographic_area)
-    retval = Gis::GeoJSON.aggregation([a_ds, c_os, c_es], :distribution)
-    retval
+    a_ds = Gis::GeoJSON.feature_collection(geographic_areas_from_asserted_distributions, :asserted_distributions)
+    c_os = Gis::GeoJSON.feature_collection(collecting_events, :collecting_events_georeferences)
+    c_es = Gis::GeoJSON.feature_collection(geographic_areas_from_collecting_events, :collecting_events_geographic_area)
+    Gis::GeoJSON.aggregation([a_ds, c_os, c_es], :distribution)
+  end
+
+  # @param used_on [String] required, one of `AssertedDistribution`, `Content`, `BiologicalAssociation`
+  # @return [Scope]
+  #    the max 10 most recently used otus, as `used_on`
+  def self.used_recently(used_on = '')
+
+    t = case used_on 
+        when 'AssertedDistribution'
+          AssertedDistribution.arel_table
+        when 'Content'
+          Content.arel_table
+        when 'BiologicalAssociation'
+          BiologicalAssociation.arel_table
+        end
+
+    p = Otu.arel_table 
+
+    # i is a select manager
+    i = case used_on 
+        when 'BiologicalAssociation'
+          t.project(t['biological_association_subject_id'], t['created_at']).from(t)
+            .where(
+              t['created_at'].gt(1.weeks.ago).and(
+                t['biological_association_subject_type'].eq('Otu')
+              )
+          )
+            .order(t['created_at'])
+        else
+          t.project(t['otu_id'], t['created_at']).from(t)
+            .where(t['created_at'].gt( 1.weeks.ago ))
+            .order(t['created_at'])
+        end
+
+    # z is a table alias 
+    z = i.as('recent_t')
+
+    j = case used_on
+        when 'BiologicalAssociation' 
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
+            z['biological_association_subject_id'].eq(p['id'])  
+          ))
+        else
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['otu_id'].eq(p['id'])))
+        end
+
+    Otu.joins(j).distinct.limit(10)
+  end
+
+  # @params target [String] one of `AssertedDistribution`, `Content`, `BiologicalAssociation`
+  # @return [Hash] otus optimized for user selection
+  def self.select_optimized(user_id, project_id, target = '')
+    h = {
+      quick: [],
+      pinboard: Otu.pinned_by(user_id).where(project_id: project_id).to_a
+    }
+
+    h[:recent] = Otu.joins(target.tableize.to_sym).where(project_id: project_id).used_recently(target).limit(10).distinct.to_a
+    h[:quick] = (Otu.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq 
+    h
   end
 
   protected
@@ -190,10 +248,6 @@ class Otu < ApplicationRecord
     end
   end
 
-  # def collecting_event_geoJSON
-  #   Gis::GeoJSON.feature_collection(collecting_events, :collecting_events)
-  # end
-  #endregion
 end
 
 

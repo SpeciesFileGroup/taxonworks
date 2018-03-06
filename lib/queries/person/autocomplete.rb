@@ -1,0 +1,102 @@
+module Queries
+  module Person 
+    class Autocomplete < Queries::Query
+
+      # @return [Array]
+      # @param limit_to_role [String] any Role class, like `TaxonNameAuthor`, `SourceAuthor`, `SourceEditor`, `Collector` ... etc.
+      attr_accessor :limit_to_roles
+
+      # any project == all roles
+      # project_id - the target project in general 
+      # 
+
+      def initialize(string, roles: :all)
+        @limit_to_roles = roles
+        super
+      end
+
+      def base_query
+        ::Person.select('people.*')
+      end
+
+      def role_match
+        a = roles_table[:type].eq_any(limit_to_roles)
+        a = a.and(roles_table[:project_id].eq(project_id)) if !project_id.blank?
+        a
+      end
+
+      def role_project_match
+        roles_table[:project_id].eq(project_id)
+      end
+
+      def autocomplete_exact_match
+        base_query.where(
+          table[:cached].eq(normalize_name).to_sql
+        ).limit(20)
+      end
+      
+      def autocomplete_exact_inverted
+        base_query.where(
+          table[:cached].eq(invert_name).to_sql
+        ).limit(20)
+      end
+
+      # TODO: Use bibtex parser!!
+      def normalize(string)
+        string.strip.split(/\s*\,\s*/, 2).join(', ')
+      end
+
+      # @return [String] simple name inversion
+      #   given `Sarah Smith` return `Smith, Sarah`
+      def invert_name
+        normalize(
+          query_string.split(/\s+/, 2).reverse.map(&:strip).join(', ')
+        )
+      end
+
+      def normalize_name
+        normalize(query_string)
+      end
+
+      def roles_assigned?
+        limit_to_roles.kind_of?(Array) && limit_to_roles.any?
+      end
+
+      # @return [Array]
+      def autocomplete
+        queries = [
+          autocomplete_exact_match,
+          autocomplete_exact_inverted,
+          autocomplete_ordered_wildcard_pieces_in_cached,
+          autocomplete_cached_wildcard_anywhere, # in Queries::Query
+          autocomplete_cached 
+        ]
+
+        queries.compact!
+
+        updated_queries = []
+        queries.each_with_index do |q ,i|  
+          a = q.joins(:roles).where(role_match.to_sql) if roles_assigned?
+          a ||= q
+          updated_queries[i] = a
+        end
+
+        result = []
+        updated_queries.each do |q|
+          result += q.to_a
+          result.uniq!
+          break if result.count > 19
+        end
+        result[0..19]
+      end
+
+      def table
+        ::Person.arel_table
+      end
+
+      def roles_table 
+        ::Role.arel_table
+      end
+    end
+  end
+end

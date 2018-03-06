@@ -13,7 +13,9 @@ module Features
     def fill_autocomplete(field, options = {})
       raise "fill_autocomplete requires with: 'search term' and an ID to select (e.g. select: 2)" if options[:with].nil? || options[:select].nil?
       fill_in field, with: options[:with]
+      
       wait_for_ajax
+
       page_body = page.body
       css_selector = %Q{li.ui-menu-item a[data-model-id="#{options[:select]}"]}
       expect(page).to have_css(css_selector)

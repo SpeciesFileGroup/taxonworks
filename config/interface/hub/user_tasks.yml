@@ -298,11 +298,10 @@ new_combination_task:
     - nomenclature
   status: prototype
   description: 'Create a new or subsequent nomenclatural combination.'
-
-browse_taxon_task:
+browse_otus_task:
   hub: true
-  name: 'TODO: Task name'
+  name: 'Browse taxa'
   related:
   categories:
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Browse through brief summaries of data for an OTU, including ability to annotate and add related data.'
