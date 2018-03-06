@@ -12,7 +12,7 @@
             <span>Selected: {{ filter.model }}</span>
         </div>
         <div class="annotation_by">
-
+            some text will show now
         </div>
         <div class="annotation_dates">
 
