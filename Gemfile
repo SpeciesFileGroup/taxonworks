@@ -70,7 +70,7 @@ gem 'citeproc-ruby', '~> 1.1.10'
 gem 'csl-styles', '~> 1.0.1.8'
 gem 'ref2bibtex', '~> 0.2.1'
 # gem 'latex-decode', '~> 0.2.2'
-gem 'pdf-reader', '~> 2.0'
+gem 'pdf-reader', '~> 2.1'
 
 # UI/UX
 gem 'chartkick', '~> 2.3.2'
