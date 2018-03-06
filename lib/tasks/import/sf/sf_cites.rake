@@ -213,6 +213,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           get_containing_source_id = import.get('TWSourceIDToContainingSourceID') # use to determine if taxon_name_author must be created (orig desc only)
           get_sf_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors') # contains ordered array of SF.PersonIDs
           get_tw_person_id = import.get('SFPersonIDToTWPersonID')
+          get_sf_file_id = import.get('SFTaxonNameIDToSFFileID')
 
           otu_not_found_array = []
 
@@ -231,6 +232,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
           file.each_with_index do |row, i|
             sf_taxon_name_id = row['TaxonNameID']
+            sf_file_id = get_sf_file_id[sf_taxon_name_id]
+            next if skipped_file_ids.include? sf_file_id.to_i
             taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # cannot to_i because if nil, nil.to_i = 0
 
             if taxon_name_id.nil?
@@ -252,19 +255,20 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             protonym = TaxonName.find(taxon_name_id)
             project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
+            nomenclator_string = nil
 
             # test nomenclator info
             nomenclator_id = row['NomenclatorID']
-            if nomenclator_id > '0'
-              nomenclator_string = get_nomenclator_metadata[nomenclator_id][row['NomenclatorString']]
-              nomenclator_ident_qualifier = get_nomenclator_metadata[nomenclator_id][row['IdentQualifier']]
-              sf_file_id = get_nomenclator_metadata[nomenclator_id][row['FileID']]
+            if nomenclator_id != '0'
+              nomenclator_string = get_nomenclator_metadata[nomenclator_id]['nomenclator_string']
+              nomenclator_ident_qualifier = get_nomenclator_metadata[nomenclator_id]['ident_qualifier']
+              # sf_file_id = get_nomenclator_metadata[nomenclator_id]['file_id']
               if nomenclator_ident_qualifier.present? # has some irrelevant text in it
                 logger.warn "No citation created because IdentQualifier has irrelevant data: (SF.FileID: #{sf_file_id}, SF.TaxonNameID: #{sf_taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']})"
                 # create data attr on taxon_name
                 Note.create!(
                     attribute_object: protonym,
-                    text: "Citation to '#{get_verbatim_ref[sf_ref_id]}' not created because accompanying nomenclator ('#{nomenclator_string}') contains irrelevant data ('#{nomenclator_ident_qualifier}')",
+                    text: "Citation to '#{get_sf_verbatim_ref[sf_ref_id]}' not created because accompanying nomenclator ('#{nomenclator_string}') contains irrelevant data ('#{nomenclator_ident_qualifier}')",
                     project_id: project_id,
                     created_at: row['CreatedOn'], # housekeeping data from citation not created
                     updated_at: row['LastUpdate'],
@@ -336,21 +340,24 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                       role_object_id: taxon_name_id,
                       role_object_type: 'TaxonName',
                       project_id: project_id, # role is project_role
-                  )
+                      )
                 end
               end
 
             else # create new citation
 
-              if nomenclator_string && !(protonym.cached_original_combination == nomenclator_string)
-                # what is value of above line?
+              # byebug
 
+              if nomenclator_string && !(protonym.cached_original_combination == "<i>#{nomenclator_string}</i>")
+                # what is value of above line?
+                logger.info "Checking for combinations = '#{nomenclator_string}'"
                 combination = nil
 
                 begin
                   check_result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
 
                   if check_result.is_unambiguous?
+                    logger.info "unambiguous result"
                     combination = check_result.combination
 
                     # what's in check_result, count of species
@@ -366,7 +373,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
 
                   else
                     # ... this is all the funny exceptions (4)
-                    logger.info "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', check_result.detail = '#{check_result.detail}'"
+                    logger.info "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', check_result.protonym_result = '#{check_result.protonym_result}'"
                   end
 
                     # Put all the rescue statements in one place
@@ -520,6 +527,30 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             # Not included in initial import; after import, in TW, when we calculate CoL output derived from OTUs, and if CoL output is clearly wrong then revisit this issue
 
           end
+        end
+
+        desc 'time rake tw:project_import:sf_import:cites:create_sf_taxon_file_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define create_sf_taxon_file_id_hash: [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Running create_sf_taxon_file_id_hash...'
+
+          get_sf_file_id = {} # key = SF.TaxonNameID, value = SF.FileID
+
+          path = @args[:data_directory] + 'sfTaxonNameIDFileIDs.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+          file.each_with_index do |row, i|
+
+            logger.info "Working with SF.TaxonNameID = '#{row['TaxonNameID']}', SF.FileID = '#{row['FileID']}' \n"
+
+            get_sf_file_id[row['TaxonNameID']] = row['FileID']
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFTaxonNameIDToSFFileID', get_sf_file_id)
+
+          puts = 'SFTaxonNameIDToSFFileID'
+          ap get_sf_file_id
         end
 
         # def create_otu_cite(logger, row, otu_id)
