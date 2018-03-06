@@ -595,7 +595,7 @@ DEPENDENCIES
   timecop (~> 0.9.1)
   turbolinks (~> 5.1.0)
   tzinfo-data (~> 1.2017.2)
-  uglifier (~> 4.1.4)
+  uglifier (~> 4.1.6)
   validates_timeliness (~> 4.0.2)
   vcr (~> 4.0.0)
   web-console (~> 3.5.1)
