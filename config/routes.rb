@@ -604,6 +604,12 @@ TaxonWorks::Application.routes.draw do
   ### End of data resources ###
 
   scope :tasks do
+    scope :descriptors do
+      scope :new_descriptor, controller: 'tasks/descriptors/new_descriptor' do
+        get '/', as: 'new_descriptor_task', action: :index
+      end
+    end
+
 
     scope :object_annotations, controller: 'tasks/object_annotations' do
       get 'index', as: 'annotate_objects'

@@ -305,3 +305,11 @@ browse_otus_task:
   categories:
   status: prototype
   description: 'Browse through brief summaries of data for an OTU, including ability to annotate and add related data.'
+
+new_descriptor_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
