@@ -181,7 +181,7 @@ module TaxonWorks
         # Parse 'parse 'Var" 
 
         # @return [Boolean]
-        #   true if there for each parsed piece of there name there is 1 and only 1 result
+        #   true if for each parsed piece of there name there is 1 and only 1 result
         def is_unambiguous?
           RANK_MAP.each_key do |r|
             if !send(r).nil?
