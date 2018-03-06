@@ -1,9 +1,7 @@
 require 'rails_helper'
-require_relative '../../../support/shared_contexts/make_simple_world'
+require 'support/shared_contexts/shared_geo'
 
-
-describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors] do
-
+describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, :shared_geo] do
   context 'using simple_world' do
     let(:page_title) { 'Otus by area' }
     let(:index_path) { otus_filter_task_path }
@@ -13,42 +11,15 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors] 
     context 'signed in as a user' do
       before {
         sign_in_user_and_select_project
-        simple_world(@user.id, @project.id)
       }
+      # NOTE: The following *has* to be *after* the sign_in_and_select_project !
+      include_context 'stuff for complex geo tests'
 
-      # need some people
-      let(:sargon) { Person.where(first_name: 'of Akkad', last_name: 'Sargon').first }
-      let(:andy) { Person.where(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author').first }
-      let(:daryl) { Person.where(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon').first }
-      let(:ted) { Person.where(last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC').first }
-      let(:bill) { Person.where(first_name: 'Bill', last_name: 'Ardson').first }
-
-      # need some otus
-      let(:top_dog) { Otu.where(name: 'Top Dog').first }
-      let(:nuther_dog) { Otu.where(name: 'Another Dog').first }
-      let(:spooler) { Otu.where('name like ?', '%spooler%').first }
-      let(:p4) { Otu.where(name: 'P4').first }
-      let(:by_bill) { Otu.where('name like ?', '%by Bill%').first }
-      let(:otu_a) { Otu.where(name: 'Otu_A').first }
-      let(:abra) { Otu.where(name: 'Abra').first }
-      let(:cadabra) { Otu.where('name like ?', '%cadabra%').first }
-      let(:alakazam) { Otu.where('name like ?', '%alakazam%').first }
-
-      # need some areas
-      let(:area_a) { GeographicArea.where(name: 'A').first }
-      let(:area_b) { GeographicArea.where(name: 'B').first }
-      let(:area_e) { GeographicArea.where(name: 'E').first }
-      let(:json_string) { '{"type":"Feature", "properties":{}, "geometry":{"type":"MultiPolygon", "coordinates":[[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}' }
-
-      # need some collection objects
-      let(:co_a) {
-        object = CollectingEvent.where(verbatim_label: 'Eh?').first
-        object.collection_objects.first
-      }
-
-      let(:co_b) {
-        object = CollectingEvent.where(verbatim_label: 'Bah').first
-        object.collection_objects.first
+      before {
+        co_a
+        co_b
+        gr_a
+        gr_b
       }
 
       describe '#set_area', js: true do #
@@ -101,7 +72,8 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors] 
         it 'renders count of otus from a specific name without descendants' do
           visit(index_path)
           page.execute_script "$('#set_nomen')[0].scrollIntoView()"
-          fill_autocomplete('nomen_id_for_by_nomen', with: 'bee', select: co_b.taxon_names.last.id)
+          fill_autocomplete('nomen_id_for_by_nomen', with: 'bee',
+                            select: co_b.taxon_names.where(name: 'beevitis').first.id)
           click_button('Set Nomenclature')
           expect(find('#nomen_count')).to have_text('1') # 'beevitis'
         end
@@ -124,7 +96,8 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors] 
           find('#descendants').click
           fill_autocomplete('nomen_id_for_by_nomen', with: 'Topdog', select: top_dog.taxon_name.id)
           click_button('Set Nomenclature')
-          expect(find('#nomen_count')).to have_text('6') # Top Dog, Top dog by Bill, Abra, Abra cadabra, Abra cadabra alakazam, Sargon's spooler
+          expect(find('#nomen_count')).to have_text('6')
+          # Top Dog, Top dog by Bill, Abra, Abra cadabra, Abra cadabra alakazam, Sargon's spooler
         end
 
         it 'renders count of otus from a specific name with descendants with specific rank' do
@@ -144,9 +117,11 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors] 
           visit(index_path)
           page.execute_script "$('#set_author')[0].scrollIntoView()"
           find('#and_or_select__and_').click
-          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Sa', select_id: sargon.id, object_type: 'author')
+          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Sa',
+                                       select_id: sargon.id, object_type: 'author')
           wait_for_ajax
-          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Pe', select_id: daryl.id, object_type: 'author')
+          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Pe',
+                                       select_id: daryl.id, object_type: 'author')
           wait_for_ajax
           click_button('Set Author')
           wait_for_ajax
@@ -157,11 +132,14 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors] 
           visit(index_path)
           page.execute_script "$('#set_author')[0].scrollIntoView()"
           find('#and_or_select__or_').click
-          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Sa', select_id: sargon.id, object_type: 'author')
+          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Sa',
+                                       select_id: sargon.id, object_type: 'author')
           wait_for_ajax
-          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Bi', select_id: bill.id, object_type: 'author')
+          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Bi',
+                                       select_id: bill.id, object_type: 'author')
           wait_for_ajax
-          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Te', select_id: ted.id, object_type: 'author')
+          fill_autocomplete_and_select('author_picker_autocomplete', with: 'Te',
+                                       select_id: ted.id, object_type: 'author')
           wait_for_ajax
           click_button('Set Author')
           wait_for_ajax

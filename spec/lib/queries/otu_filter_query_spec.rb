@@ -1,51 +1,30 @@
 require 'rails_helper'
-require_relative '../../../support/shared_contexts/make_simple_world'
+require 'support/shared_contexts/shared_geo'
 
-describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, :otus] do
+describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, :otus, :shared_geo] do
 
   context 'with properly built collection of objects' do
+    include_context 'stuff for complex geo tests'
+
     before {
-      simple_world
-    }
-    # need some people
-    let(:sargon) { Person.where(first_name: 'of Akkad', last_name: 'Sargon').first }
-    let(:andy) { Person.where(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author').first }
-    let(:daryl) { Person.where(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon').first }
-    let(:ted) { Person.where(last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC').first }
-    let(:bill) { Person.where(first_name: 'Bill', last_name: 'Ardson').first }
-
-    # need some otus
-    let(:top_dog) { Otu.where(name: 'Top Dog').first }
-    let(:nuther_dog) { Otu.where(name: 'Another Dog').first }
-    let(:spooler) { Otu.where('name like ?', '%spooler%').first }
-    let(:p4) { Otu.where(name: 'P4').first }
-    let(:by_bill) { Otu.where('name like ?', '%by Bill%').first }
-    let(:otu_a) { Otu.where(name: 'Otu_A').first }
-    let(:abra) { Otu.where(name: 'Abra').first }
-    let(:cadabra) { Otu.where('name like ?', '%cadabra%').first }
-    let(:alakazam) { Otu.where('name like ?', '%alakazam%').first }
-
-    # need some areas
-    let(:area_a) { GeographicArea.where(name: 'A').first }
-    let(:area_b) { GeographicArea.where(name: 'B').first }
-
-    # need some collection objects
-    let(:co_a) {
-      object = CollectingEvent.where(verbatim_label: 'Eh?').first
-      object.collection_objects.first
+      co_a
+      co_b
+      gr_a
+      gr_b
     }
 
     context 'area search' do
       context 'named area' do
         let(:params) { {geographic_area_ids: [area_b.id]} }
-        let(:result) { Queries::Otu::Filter.new(params).result }
 
         specify 'nomen count' do
+          result = Queries::Otu::Filter.new(params).result
           expect(result.count).to eq(3)
         end
 
         specify 'specific nomen' do
-          expect(result).to contain_exactly(p4, spooler, nuther_dog)
+          result = Queries::Otu::Filter.new(params).result
+          expect(result).to contain_exactly(otu_p4, spooler, nuther_dog)
         end
       end
 
@@ -67,38 +46,35 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     context 'nomen search' do
       context 'with descendants' do
         specify 'with rank' do
-          params_with = {
-            nomen_id: top_dog.taxon_name_id,
-            descendants: '1',
-            rank_class: Ranks.lookup(:iczn, :species)}
-          result = Queries::Otu::Filter.new(params_with).result
+          params_with = {nomen_id:    top_dog.taxon_name_id,
+                         descendants: '1',
+                         rank_class:  'NomenclaturalRank::Iczn::SpeciesGroup::Species'}
+          result      = Queries::Otu::Filter.new(params_with).result
           expect(result).to contain_exactly(spooler, cadabra)
         end
 
         specify 'with same rank' do
-          params_with = {
-            nomen_id: top_dog.taxon_name_id,
-            descendants: '1',
-            rank_class: Ranks.lookup(:iczn, :family)}
-          result = Queries::Otu::Filter.new(params_with).result
+          params_with = {nomen_id:    top_dog.taxon_name_id,
+                         descendants: '1',
+                         rank_class:  'NomenclaturalRank::Iczn::FamilyGroup::Family'}
+          result      = Queries::Otu::Filter.new(params_with).result
           expect(result).to contain_exactly(top_dog, by_bill)
         end
 
         specify 'without rank' do
-          params_with = {
-            nomen_id: top_dog.taxon_name_id,
-            descendants: '1',
-            rank_class: nil}
-          result = Queries::Otu::Filter.new(params_with).result
+          params_with = {nomen_id:    top_dog.taxon_name_id,
+                         descendants: '1',
+                         rank_class: nil}
+          result      = Queries::Otu::Filter.new(params_with).result
           expect(result).to contain_exactly(spooler, top_dog, abra, by_bill, cadabra, alakazam)
         end
       end
 
       specify 'without descendants' do
-        params_without = {
-          nomen_id: top_dog.taxon_name_id,
-          rank_class: Ranks.lookup(:iczn, :species)}
-        result = Queries::Otu::Filter.new(params_without).result
+        params_without = {nomen_id:    top_dog.taxon_name_id,
+                          # descendants: nil,
+                          rank_class:  'NomenclaturalRank::Iczn::SpeciesGroup::Species'}
+        result         = Queries::Otu::Filter.new(params_without).result
         expect(result).to contain_exactly(top_dog, by_bill)
       end
     end
@@ -144,6 +120,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       context 'or' do
         specify 'otus by authors' do
           params = {author_ids: [bill.id, sargon.id, daryl.id], and_or_select: '_or_'}
+
           result = Queries::Otu::Filter.new(params).result
           expect(result).to contain_exactly(spooler, cadabra, nuther_dog)
         end
@@ -155,13 +132,12 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
 
         tn     = co_a.taxon_names.select { |t| t if t.name == 'cadabra' }.first
         params = {}
-        params.merge!(author_ids: [bill.id, daryl.id], and_or_select: '_or_')
-        params.merge!(verbatim_author_string: 'Bill A')
-        params.merge!(geographic_area_ids: [area_a.id])
-        params.merge!(
-          nomen_id:  top_dog.taxon_name_id,
-          descendants: '1',
-          rank_class:  'NomenclaturalRank::Iczn::SpeciesGroup::Species')
+        params.merge!({author_ids: [bill.id, daryl.id], and_or_select: '_or_'})
+        params.merge!({verbatim_author_string: 'Bill A'})
+        params.merge!({geographic_area_ids: [area_a.id]})
+        params.merge!({nomen_id:    top_dog.taxon_name_id,
+                       descendants: '1',
+                       rank_class:  'NomenclaturalRank::Iczn::SpeciesGroup::Species'})
 
         result = Queries::Otu::Filter.new(params).result
         expect(result).to contain_exactly(tn.otus.first)

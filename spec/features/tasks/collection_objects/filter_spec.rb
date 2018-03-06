@@ -1,7 +1,7 @@
 require 'rails_helper'
-require_relative '../../../support/shared_contexts/make_simple_world'
+require 'support/shared_contexts/shared_geo'
 
-describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :collection_objects] do
+describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :collection_objects, :shared_geo] do
 
   context 'with properly built collection of objects' do
     let(:page_title) { 'Collection objects by area and date' }
@@ -10,47 +10,11 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
     it_behaves_like 'a_login_required_and_project_selected_controller'
 
     context 'signed in as a user' do
-      before {
-        sign_in_user_and_select_project
-        simple_world(@user.id, @project.id)
-      }
-      # need some people
-      let(:sargon) { Person.where(first_name: 'of Akkad', last_name: 'Sargon').first }
-      let(:andy) { Person.where(first_name: 'Andy', last_name: 'Worehall', prefix: 'Non-author').first }
-      let(:daryl) { Person.where(first_name: 'Daryl', last_name: 'Penfold', prefix: 'with Sargon').first }
-      let(:ted) { Person.where(last_name: 'Pomaroy', first_name: 'Ted', prefix: 'HEWIC').first }
-      let(:bill) { Person.where(first_name: 'Bill', last_name: 'Ardson').first }
+      before { sign_in_user_and_select_project }
+      # NOTE: The following *has* to be *after* the sign_in_and_select_project !
+      include_context 'stuff for complex geo tests'
 
-      # need some otus
-      let(:top_dog) { Otu.where(name: 'Top Dog').first }
-      let(:nuther_dog) { Otu.where(name: 'Another Dog').first }
-      let(:spooler) { Otu.where('name like ?', '%spooler%').first }
-      let(:p4) { Otu.where(name: 'P4').first }
-      let(:by_bill) { Otu.where('name like ?', '%by Bill%').first }
-      let(:otu_a) { Otu.where(name: 'Otu_A').first }
-      let(:abra) { Otu.where(name: 'Abra').first }
-      let(:cadabra) { Otu.where('name like ?', '%cadabra%').first }
-      let(:alakazam) { Otu.where('name like ?', '%alakazam%').first }
-
-      # need some areas
-      let(:area_a) { GeographicArea.where(name: 'A').first }
-      let(:area_b) { GeographicArea.where(name: 'B').first }
-      let(:area_e) { GeographicArea.where(name: 'E').first }
-      let(:json_string) { '{"type":"Feature", "properties":{}, "geometry":{"type":"MultiPolygon", ' \
-                              '"coordinates":[[[[0, 10, 0], [10, 10, 0], [10, -10, 0], [0, -10, 0], [0, 10, 0]]]]}}' }
-
-      # need some collection objects
-      let(:co_a) {
-        object = CollectingEvent.where(verbatim_label: 'Eh?').first
-        object.collection_objects.first
-      }
-
-      let(:co_b) {
-        object = CollectingEvent.where(verbatim_label: 'Bah').first
-        object.collection_objects.first
-      }
-
-
+      before { [co_a, co_b, gr_a, gr_b].each }
 
       context 'triggering the by_otu facet' do
         describe '#set_otu', js: true, resolution: true do
@@ -60,7 +24,7 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
           before do
             # can't use `a = specimen.otus << otu_test` because $user_id and $project_id don't exist.
             TaxonDetermination.create!(otu: otu_test, biological_collection_object: specimen,
-                                       by: @user, project: @project)
+                                       by:  @user, project: @project)
             visit(collection_objects_filter_task_path)
           end
 
@@ -85,12 +49,12 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             (1..10).each { |identifier|
               sp = FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project)
               id = FactoryBot.create(:identifier_local_catalog_number,
-                                      updater:           @user,
-                                      project:           @project,
-                                      creator:           @user,
-                                      identifier_object: sp,
-                                      namespace:         (identifier.even? ? ns1 : ns2),
-                                      identifier:        identifier)
+                                     updater:           @user,
+                                     project:           @project,
+                                     creator:           @user,
+                                     identifier_object: sp,
+                                     namespace:         (identifier.even? ? ns1 : ns2),
+                                     identifier:        identifier)
             }
             visit(collection_objects_filter_task_path)
           end
@@ -185,19 +149,19 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             @ns3 = Namespace.third
             2.times { FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project) }
             FactoryBot.create(:identifier_local_import,
-                               identifier_object: Specimen.first,
-                               namespace:         @ns3,
-                               identifier:        'First specimen', creator: @user, updater: @user, project: @project)
+                              identifier_object: Specimen.first,
+                              namespace:         @ns3,
+                              identifier:        'First specimen', creator: @user, updater: @user, project: @project)
             FactoryBot.create(:identifier_local_import,
-                               identifier_object: Specimen.second,
-                               namespace:         @ns3,
-                               identifier:        'Second specimen', creator: @user, updater: @user, project: @project)
+                              identifier_object: Specimen.second,
+                              namespace:         @ns3,
+                              identifier:        'Second specimen', creator: @user, updater: @user, project: @project)
             (1..10).each { |identifier|
               sp = FactoryBot.create(:valid_specimen, creator: @user, updater: @user, project: @project)
               id = FactoryBot.create(:identifier_local_catalog_number,
-                                      identifier_object: sp,
-                                      namespace:         (identifier.even? ? @ns1 : @ns2),
-                                      identifier:        identifier, creator: @user, updater: @user, project: @project)
+                                     identifier_object: sp,
+                                     namespace:         (identifier.even? ? @ns1 : @ns2),
+                                     identifier:        identifier, creator: @user, updater: @user, project: @project)
             }
 
             expect(Specimen.with_identifier('PSUC_FEM 1').count).to eq(1)
@@ -278,11 +242,11 @@ describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :colle
             2.times { FactoryBot.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: @project) }
             (1..10).each { |specimen|
               sp = FactoryBot.create(:valid_specimen,
-                                      creator:    (specimen.even? ? joe : pat),
-                                      created_at: "200#{specimen - 1}/01/#{specimen}",
-                                      updated_at: "200#{specimen - 1}/07/#{specimen}",
-                                      updater:    (specimen.even? ? pat : joe),
-                                      project:    @project)
+                                     creator:    (specimen.even? ? joe : pat),
+                                     created_at: "200#{specimen - 1}/01/#{specimen}",
+                                     updated_at: "200#{specimen - 1}/07/#{specimen}",
+                                     updater:    (specimen.even? ? pat : joe),
+                                     project:    @project)
             }
 
             expect(Specimen.created_by_user(pat_admin).count).to eq(2)
