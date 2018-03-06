@@ -119,9 +119,9 @@ group :development do
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
-  gem 'parallel_tests', '~> 2.21.0'
+  gem 'parallel_tests', '~> 2.21.2', require: false
   gem 'web-console', '~> 3.5.1'
-  gem 'rubocop', '~> 0.52.0'
+  gem 'rubocop', '~> 0.53.0'
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
 end
 
