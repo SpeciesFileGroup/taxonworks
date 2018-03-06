@@ -612,6 +612,7 @@ TaxonWorks::Application.routes.draw do
     scope :otus do
       scope :browse, controller: 'tasks/otus/browse' do
         get '/(:otu_id)', action: :index, as: 'browse_otus_task'
+      end
     end
 
     scope :type_material do
