@@ -37,8 +37,11 @@
         </div>
       </modal>
       <span
+        v-if="showBottom"
+        :title="buttonTitle"
         type="button"
-        class="circle-button btn-radial"
+        class="circle-button"
+        :class="[buttonClass]"
         @click="displayAnnotator()">Radial annotator
       </span>
     </div>
@@ -46,7 +49,7 @@
 </template>
 <script>
 
-  import radialMenu from './components/radialMenu.vue'
+  import radialMenu from '../radialMenu.vue'
   import modal from '../modal.vue'
   import spinner from '../spinner.vue'
 
@@ -62,6 +65,8 @@
   import alternate_valuesAnnotator from './components/alternate_value_annotator.vue'
   import citationsAnnotator from './components/citations/citation_annotator.vue'
   import protocol_relationshipsAnnotator from './components/protocol_annotator.vue'
+  import biological_associationsAnnotator from './components/biological_relationships/biological_relationships_annotator.vue'
+  import asserted_distributionsAnnotator from './components/asserted_distributions/asserted_distributions_annotator.vue'
 
   import Icons from './images/icons.js'
 
@@ -81,7 +86,9 @@
       alternate_valuesAnnotator,
       identifiersAnnotator,
       tagsAnnotator,
-      protocol_relationshipsAnnotator
+      protocol_relationshipsAnnotator,
+      biological_associationsAnnotator,
+      asserted_distributionsAnnotator
     },
     props: {
       reload: {
@@ -91,6 +98,28 @@
       globalId: {
         type: String,
         required: true
+      },
+      showBottom: {
+        type: Boolean,
+        default: true
+      },
+      buttonClass: {
+        type: String,
+        default: 'btn-radial'
+      },
+      buttonTitle: {
+        type: String,
+        default: 'Radial annotator'
+      },
+      components: {
+        type: Object,
+        default: () => {
+          return {}
+        }
+      },
+      type: {
+        type: String,
+        default: 'annotations'
       }
     },
     data: function () {
@@ -125,10 +154,10 @@
         this.globalIdSaved = this.globalId
 
         let that = this
-        this.getList(`/annotations/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
+        this.getList(`/${this.type}/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
           that.metadata = response.body
           that.title = response.body.object_tag
-          that.menuOptions = that.createMenuOptions(response.body.annotation_types)
+          that.menuOptions = that.createMenuOptions(response.body.endpoints)
           that.url = response.body.url
         })
       },

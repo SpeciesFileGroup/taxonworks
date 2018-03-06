@@ -22,7 +22,11 @@ const handleError = function (json) {
   let errorMessage = ''
 
   errors.forEach(function (item) {
-    errorMessage += json[item].join('<br>')
+    if (Array.isArray(json[item])) {
+      errorMessage += json[item].join('<br>')
+    } else {
+      errorMessage += json[item]
+    }
   })
 
   TW.workbench.alert.create(errorMessage, 'error')

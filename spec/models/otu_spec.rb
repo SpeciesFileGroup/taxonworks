@@ -3,10 +3,6 @@ require 'rails_helper'
 describe Otu, type: :model do
 
   let(:otu) { Otu.new }
-  before(:all) do
-    TaxonName.delete_all
-    TaxonNameHierarchy.delete_all
-  end
 
   after(:all) do
     TaxonNameRelationship.delete_all
@@ -140,12 +136,8 @@ describe Otu, type: :model do
       specify 'returns multiple Otus' do
         expect(Otu.batch_create(params).count).to eq(2)
       end
-
     end
-
   end
-
-
 
   context 'complex interactions' do
     context 'distribution' do
@@ -223,8 +215,37 @@ describe Otu, type: :model do
     end
   end
 
+  context 'used recently' do
+    before do
+      otu.name = 'Foo recently'
+      otu.save!
+    end
 
+    let(:s) { FactoryBot.create(:valid_specimen) }
+    let!(:content) { FactoryBot.create(:valid_content, otu: otu) }
+    let!(:biological_association) { FactoryBot.create(:valid_biological_association, biological_association_subject: otu) }
+    let!(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution, otu: otu) }
 
+    specify ".used_recently('Content')" do
+      expect(Otu.used_recently('Content').to_a).to include(otu)
+    end
+
+    specify ".used_recently('BiologicalAssociation')" do
+      expect(Otu.used_recently('BiologicalAssociation').to_a).to include(otu)
+    end
+
+    specify '.selected_optimized 1' do
+      expect(Otu.select_optimized(otu.created_by_id, otu.project_id, 'BiologicalAssociation')).to include({recent: [otu]})
+    end
+
+    specify '.selected_optimized 2' do
+      expect(Otu.select_optimized(otu.created_by_id, otu.project_id, 'Content')).to include({quick: [otu]})
+    end
+
+    specify '.selected_optimized 3' do
+      expect(Otu.select_optimized(otu.created_by_id, otu.project_id, 'AssertedDistribution')).to include({quick: [otu]})
+    end
+  end
 
   context 'concerns' do
     it_behaves_like 'citations'

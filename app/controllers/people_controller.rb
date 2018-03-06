@@ -69,6 +69,7 @@ class PeopleController < ApplicationController
     @people =  Person.order(:cached).page(params[:page]) 
   end
 
+  # TODO: deprecate!
   def search
     if params[:id].blank?
       redirect_to people_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
@@ -83,22 +84,6 @@ class PeopleController < ApplicationController
       autocomplete_params
     ).autocomplete
   end
-
-  # TODO: Deprecate for autocomplete with params
-  # this is used only in specific forms where you want to find people who are ALREADY taxon name authors
-  # def taxon_name_author_autocomplete
-  #   @authors = Person.joins(:roles).where(roles: {type: 'TaxonNameAuthor', project_id: sessions_current_project_id}).find_for_autocomplete(params.permit(:term)).distinct.order('people.cached').limit(50)
-  #   data = @authors.collect do |a|
-  #     {id: a.id,
-  #      label: a.name,
-  #      response_values: {
-  #          params[:method] => a.id
-  #      },
-  #      label_html: a.cached
-  #     }
-  #   end
-  #   render json: data
-  # end
 
   # GET /people/download
   def download

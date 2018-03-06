@@ -75,7 +75,9 @@ describe AssertedDistribution, type: :model, group: :geo do
       end
 
       specify 'all attributes with #new validates' do
-        a = AssertedDistribution.new(otu: otu, geographic_area: geographic_area, citations_attributes: [{source_id: source.id}])
+        a = AssertedDistribution.new(
+          otu: otu, geographic_area: geographic_area, 
+          citations_attributes: [{source_id: source.id}])
         expect(a.save).to be_truthy
         expect(a.citations.count).to eq(1)
       end

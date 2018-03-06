@@ -357,17 +357,6 @@ class GeographicArea < ApplicationRecord
     Georeference::GeoLocate::RequestUI.new(geolocate_attributes).request_params_string
   end
 
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
   # @return [Hash]
   #   query_line => [Array of GeographicArea]
   # @params [text]
@@ -391,6 +380,58 @@ class GeographicArea < ApplicationRecord
       result[q] = r
     end
     result
+  end
+
+  # @param used_on [String] one of `CollectingEvent` (default) or `AssertedDistribution`
+  # @return [Scope]
+  #    the max 10 most recently used (1 week, could parameterize) geographic_areas, as used `use_on` 
+  def self.used_recently(used_on = 'CollectingEvent')
+
+   t = case used_on
+       when 'CollectingEvent'
+         CollectingEvent.arel_table
+       when 'AssertedDistribution'
+         CollectingEvent.arel_table
+       end
+   
+    p = GeographicArea.arel_table 
+
+    # i is a select manager
+    i = t.project(t['geographic_area_id'], t['created_at']).from(t)
+      .where(t['created_at'].gt( 1.weeks.ago ))
+      .order(t['created_at'])
+
+    # z is a table alias 
+    z = i.as('recent_t')
+
+    GeographicArea.joins(
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['geographic_area_id'].eq(p['id'])))
+    ).distinct.limit(10)
+  end
+
+  # @params target [String] one of `CollectingEvent` or `AssertedDistribution` 
+  # @return [Hash] geographic_areas optimized for user selection
+  def self.select_optimized(user_id, project_id, target = 'CollectingEvent')
+
+    h = {
+      quick: [],
+      pinboard: GeographicArea.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
+    }
+
+    case target 
+    when 'CollectingEvent'
+      h[:recent] = GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id}).
+        used_recently('CollectingEvent').
+        limit(10).distinct.to_a
+    when 'AssertedDistribution'
+      h[:recent] = GeographicArea.joins(:asserted_distributions).
+        where(asserted_distributions: {project_id: project_id}).
+        used_recently('AssertedDistribution').
+        limit(10).distinct.to_a
+    end
+
+    h[:quick] = (GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a  + h[:recent][0..3]).uniq 
+    h
   end
 
   protected

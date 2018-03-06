@@ -12,6 +12,7 @@ class Topic < ControlledVocabularyTerm
 
   scope :used_on_klass, -> (klass) { joins(:citations).where(citations: {citation_object_type: klass} ) } 
 
+  # TODO: Deprecate for CVT + params (if not already done)
   def self.find_for_autocomplete(params)
     term = "#{params[:term]}%"
     where_string = "name LIKE '#{term}' OR name ILIKE '%#{term}' OR name = '#{term}' OR definition ILIKE '%#{term}'"

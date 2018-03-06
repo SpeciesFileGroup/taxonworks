@@ -1,18 +1,18 @@
+
+import Vue from 'vue'
+
 var TW = TW || {}
 TW.vue = TW.vue || {}
 TW.vue.otuRadial = TW.vue.otuRadial || {}
-
-import Vue from 'vue'
 
 Object.assign(TW.vue.otuRadial, {
   init: function (element) {
     var App = require('./app.vue').default
 
     let id = `otu-radial-${(Math.random().toString(36).substr(2, 5))}`
-    let taxonId = $(element).attr('data-taxon-id')
-    let taxonName = $(element).attr('data-taxon-name')
+    let globalId = $(element).attr('data-global-id')
 
-    if (taxonId && taxonName) {
+    if (globalId) {
       $(element).attr('id', id)
 
       new Vue({
@@ -21,8 +21,7 @@ Object.assign(TW.vue.otuRadial, {
           return createElement(App, {
             props: {
               id: id,
-              taxonName: taxonName,
-              taxonId: taxonId
+              globalId: globalId
             }
           })
         }

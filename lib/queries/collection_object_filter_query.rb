@@ -74,7 +74,7 @@ module Queries
     # @return [Scope]
     def otu_scope
       # Challenge: Refactor to use a join pattern instead of SELECT IN
-      inner_scope = with_descendants? ? ::OÍtu.self_and_descendants_of(query_otu_id) : ::Otu.where(id: query_otu_id)
+      inner_scope = with_descendants? ? ::Otu.self_and_descendants_of(query_otu_id) : ::Otu.where(id: query_otu_id)
       CollectionObject.joins(:otus).where(otus: {id: inner_scope})
     end
 

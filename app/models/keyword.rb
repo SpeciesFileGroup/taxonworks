@@ -5,7 +5,7 @@ class Keyword < ControlledVocabularyTerm
   scope :used_on_klass, -> (klass) { joins(:tags).where(tags: {tag_object_type: klass} ) } # remember to .distinct 
 
   # @return [Scope]
-  #    the max 10 most recently used confidence levels
+  #    the max 10 most recently used keywords
   def self.used_recently
     t = Tag.arel_table
     k = Keyword.arel_table 

@@ -112,6 +112,9 @@ class CollectionObject < ApplicationRecord
   has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object
   has_one :deaccession_recipient, through: :deaccession_recipient_role, source: :person
 
+  has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject 
+  has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object
+
   has_many :derived_collection_objects, inverse_of: :collection_object
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
   has_many :sqed_depictions, through: :depictions
@@ -587,6 +590,63 @@ class CollectionObject < ApplicationRecord
 
   def sv_missing_repository
     # see biological_collection_object
+  end
+
+  # @param used_on [String] required, one of `TaxonDetermination`, `BiologicalAssociation`
+  # @return [Scope]
+  #    the max 10 most recently used collection_objects, as `used_on`
+  def self.used_recently(used_on = '')
+    t = case used_on 
+        when 'TaxonDetermination'
+          TaxonDetermination.arel_table
+        when 'BiologicalAssociation'
+          BiologicalAssociation.arel_table
+        end
+
+    p = CollectionObject.arel_table 
+
+    # i is a select manager
+    i = case used_on 
+        when 'BiologicalAssociation'
+          t.project(t['biological_association_subject_id'], t['created_at']).from(t)
+            .where(
+              t['created_at'].gt(1.weeks.ago).and(
+                t['biological_association_subject_type'].eq('CollectionObject') # !! note it's not biological_collection_object_id
+              )
+          )
+            .order(t['created_at'])
+        else
+          t.project(t['biological_collection_object_id'], t['created_at']).from(t)
+            .where(t['created_at'].gt( 1.weeks.ago ))
+            .order(t['created_at'])
+        end
+
+    # z is a table alias 
+    z = i.as('recent_t')
+
+    j = case used_on
+        when 'BiologicalAssociation' 
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
+            z['biological_association_subject_id'].eq(p['id'])  
+          ))
+        else
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_collection_object_id'].eq(p['id']))) # !! note it's not biological_collection_object_id
+        end
+
+    CollectionObject.joins(j).distinct.limit(10)
+  end
+
+  # @params target [String] one of `TaxonDetermination`, `BiologicalAssociation` 
+  # @return [Hash] otus optimized for user selection
+  def self.select_optimized(user_id, project_id, target = '')
+    h = {
+      quick: [],
+      pinboard: CollectionObject.pinned_by(user_id).where(project_id: project_id).to_a
+    }
+
+    h[:recent] = CollectionObject.joins(target.tableize.to_sym).where(project_id: project_id).used_recently(target).limit(10).distinct.to_a
+    h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq 
+    h
   end
 
   protected

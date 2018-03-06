@@ -27,7 +27,8 @@
             <span v-html="taxon.cached_author_year"/>
           </a>
           <div class="taxon-options">
-            <radial-annotator :global-id="taxon.global_id"/>
+            <radial-annotator
+              :global-id="taxon.global_id"/>
             <otu-radial
               class="otu-radial"
               :taxon-id="taxon.id"
@@ -134,11 +135,12 @@ export default {
     justify-content: space-between;
     width: 90px;
   }
-  .radial-annotator {
+  .annotator {
     width:30px;
     margin-left: 14px;
   }
   .otu-radial {
+    margin-left: 6px;
     margin-right: 6px;
   }
   .header {
