@@ -42,6 +42,8 @@ export default {
       let keys = Object.keys(this.newCombination.protonyms)
       let combination = {}
 
+      combination['verbatim_name'] = this.newCombination.verbatim_name
+
       if (this.newCombination.hasOwnProperty('origin_citation_attributes')) {
         combination['origin_citation_attributes'] = this.newCombination.origin_citation_attributes
       }

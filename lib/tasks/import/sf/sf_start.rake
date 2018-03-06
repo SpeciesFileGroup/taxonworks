@@ -30,7 +30,7 @@ namespace :tw do
           editor_error_counter = 0
 
           file.each_with_index do |row, i|
-            source_id = get_tw_source_id[row['RefID']]  # since now suppressing FileIDs, source_id for a reference may not exist
+            source_id = get_tw_source_id[row['RefID']] # since now suppressing FileIDs, source_id for a reference may not exist
             next if source_id.nil?
             # Reloop if TW.source record is verbatim
             # next if Source.find(source_id).try(:class) == Source::Verbatim # << Hernán's, Source.find(source_id).type == 'Source::Verbatim'
@@ -230,47 +230,47 @@ namespace :tw do
             publisher = nil
             address = nil
 
-            if get_sf_booktitle_publisher_address.has_key?(pub_id)
+            if get_sf_booktitle_publisher_address[pub_id]
               booktitle = get_sf_booktitle_publisher_address[pub_id][booktitle]
               publisher = get_sf_booktitle_publisher_address[pub_id][publisher]
               address = get_sf_booktitle_publisher_address[pub_id][address]
             end
 
-            actual_year = row['ActualYear']
-            stated_year = row['StatedYear']
+            # if year range, select min year (record full verbatim ref as data attribute after save)
+            actual_year = row['ActualYear'].split('-').map(&:to_i).min
+            stated_year = row['StatedYear'].split('-').map(&:to_i).min
 
-            if actual_year.include?('-') or stated_year.include?('-') or pub_type_string == 'unpublished'
-              source = Source::Verbatim.new(
-                  verbatim: get_sf_verbatim_ref[ref_id],
-                  created_at: row['CreatedOn'],
-                  updated_at: row['LastUpdate'],
-                  created_by_id: get_tw_user_id[row['CreatedBy']],
-                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
-              )
-            else
-              source = Source::Bibtex.new(
-                  bibtex_type: pub_type_string,
-                  title: row['Title'],
-                  booktitle: booktitle.blank? ? nil : booktitle,
-                  publisher: publisher.blank? ? nil : publisher,
-                  address: address.blank? ? nil : address,
-                  serial_id: get_tw_serial_id[row['PubID']],
-                  series: row['Series'],
-                  volume: row['Volume'],
-                  number: row['Issue'],
-                  pages: row['RefPages'],
-                  year: actual_year,
-                  stated_year: stated_year,
-                  url: row['LinkID'].to_i > 0 ? get_sf_ref_link[ref_id] : nil,
-                  created_at: row['CreatedOn'],
-                  updated_at: row['LastUpdate'],
-                  created_by_id: get_tw_user_id[row['CreatedBy']],
-                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
-              )
-            end
+            source = Source::Bibtex.new(
+                bibtex_type: pub_type_string,
+                title: row['Title'],
+                booktitle: booktitle.blank? ? nil : booktitle,
+                publisher: publisher.blank? ? nil : publisher,
+                address: address.blank? ? nil : address,
+                serial_id: get_tw_serial_id[row['PubID']],
+                series: row['Series'],
+                volume: row['Volume'],
+                number: row['Issue'],
+                pages: row['RefPages'],
+                year: actual_year,
+                stated_year: stated_year,
+                url: row['LinkID'].to_i > 0 ? get_sf_ref_link[ref_id] : nil,
+                created_at: row['CreatedOn'],
+                updated_at: row['LastUpdate'],
+                created_by_id: get_tw_user_id[row['CreatedBy']],
+                updated_by_id: get_tw_user_id[row['ModifiedBy']]
+            )
+            # end
 
             begin
               source.save!
+
+              if row['ActualYear'].include?('-')  or row['StatedYear'].include?('-')
+                source.data_attributes << ImportAttribute.new(import_predicate: 'SF verbatim reference for year range', value: get_sf_verbatim_ref[ref_id])
+              end
+
+              if pub_type_string == 'unpublished'
+                source.data_attributes << ImportAttribute.new(import_predicate: 'SF verbatim reference for unpublished reference', value: get_sf_verbatim_ref[ref_id])
+              end
 
               source_id = source.id.to_s
               get_tw_source_id[ref_id] = source_id
@@ -437,7 +437,7 @@ namespace :tw do
 
           # create mb as project member for each project -- comment out for Sandbox
           user = User.find_by_email('mbeckman@illinois.edu')
-          $user_id = user.id  # not sure if this is really needed?
+          $user_id = user.id # not sure if this is really needed?
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
@@ -458,7 +458,7 @@ namespace :tw do
             )
 
             # byebug
-            
+
             if project.save
               # Protonym.create!(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project: project, creator: user, updater: user, cached_html: 'Root')
 
@@ -839,7 +839,7 @@ namespace :tw do
           logger.info 'Running list_skipped_file_ids...'
 
           skipped_file_ids = [
-              9,  # Lepidoptera
+              9, # Lepidoptera
               24, # Collembola
               48, # Rhyparochromidae
               54, # Heteroptera
@@ -857,7 +857,7 @@ namespace :tw do
               86, # Scutelleridae
               88, # Praxibulini
               89, # Prostoia
-              92  # Dysoniini
+              92 # Dysoniini
           ]
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')

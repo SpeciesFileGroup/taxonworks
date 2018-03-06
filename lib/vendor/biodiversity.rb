@@ -5,11 +5,14 @@ module TaxonWorks
     # Links parsed string results to Protonyms/Combinations in TaxonWorks
     module Biodiversity
 
+      # !! Values aren't used right now
       RANK_MAP = {
         genus: :genus,
         subgenus: :infragenus,
         species: :species,
-        subspecies: :infraspecies
+        subspecies: :infraspecies,
+        variety: :infraspecies,
+        form: :infraspecies
       }.freeze
 
       class Result
@@ -36,8 +39,10 @@ module TaxonWorks
         # Hash of rank => [Protonyms] like { genus: [<#>, <#>] }
         attr_reader :result
 
-        # String, the bit after ' in '
+        # @return [String] the bit after ` in `
         attr_reader :citation
+
+        attr_reader :parseable
 
         # query_string:
         #
@@ -57,60 +62,89 @@ module TaxonWorks
         #   a Biodiversity name parser result
         def parse
           n, @citation = preparse
-          @parse_result ||= ScientificNameParser.new.parse(n)
+
+          begin
+            @parse_result ||= ScientificNameParser.new.parse(n)
+          rescue NoMethodError => e
+            case e.message
+            when /canonical/
+              @parseable = false 
+            else
+              raise
+            end
+          end
+
+          @parse_result
         end
 
+        # @return [Boolean]
+        def parseable
+          @parseable = parse_result[:scientificName][:parsed] if @parseable.nil?
+          @parseable 
+        end
+
+        # @return [Array]
+        #  TODO: deprecate
         def preparse
           name.split(' in ')
         end
 
         # @return [Hash]
         def detail
-          if a = parse_result[:scientificName]
-            if a[:details]
-              return a[:details].first
-            end
+          if parseable 
+            a = parse_result[:scientificName]
+            a ||= parse_result[:uninomial]
+            return a[:details].first if a[:details]                 
           end
           {}
         end
 
-        # @return [String, false]
+        # @return [String, nil]
         def genus
-          detail[:genus] && detail[:genus][:string]
+          (detail[:genus] && detail[:genus][:string]) || (detail[:uninomial] && detail[:uninomial][:string])
         end
 
-        # @return [String, false]
+        # @return [String, nil] 
         def subgenus
           detail[:infragenus] && detail[:infragenus][:string]
         end
 
-        # @return [String, false]
+        # @return [String, nil]
         def species
           detail[:species] && detail[:species][:string]
         end
 
-        # @return [String, false]
+        # @return [String, nil]
         def subspecies
-          if m = detail[:infraspecies]
-            m.each do |n|
-              return n[:string] if n[:rank] == 'n/a'
-            end
-          end
+          infraspecies('n/a')
         end
 
-        # @return [String, false]
+        # @return [String, nil]
         def variety
-          if m = detail[:infraspecies]
-            m.each do |n|
-              return n[:string] if n[:rank] == 'var.'
-            end
-          end
+          infraspecies('var.')
         end
 
+        # @return [String, nil]
+        def form
+          infraspecies('form')
+        end
+
+        # @return [String, nil]
+        def infraspecies(biodiversity_rank)
+          if m = detail[:infraspecies]
+            m.each do |n|
+              return n[:string] if n[:rank] == biodiversity_rank
+            end
+          end
+          nil 
+        end
+
+        # @return [Symbol, nil] like `:genus`
         def finest_rank
           RANK_MAP.keys.reverse.each do |k|
             return k if send(k)
           end
+          nil
         end
 
         # @return [Hash, nil]
@@ -141,12 +175,17 @@ module TaxonWorks
           nil
         end
 
+        # return only references to ambiguous protonyms
+        #
+        # Parse 'form' 
+        # Parse 'parse 'Var" 
+
         # @return [Boolean]
         #   true if there for each parsed piece of there name there is 1 and only 1 result
         def is_unambiguous?
           RANK_MAP.each_key do |r|
             if !send(r).nil?
-              return false unless unambiguous_at?(r)
+              return false unless !send(r).nil? && !unambiguous_at?(r).nil?
             end
           end
           true
@@ -157,18 +196,24 @@ module TaxonWorks
           author_year.size > 0
         end
 
-        # @return [Boolean]
-        #   true if there is a single matching result
+        # @return [Protonym, nil]
+        #   true if there is a single matching result or nominotypical subs
         def unambiguous_at?(rank)
-          protonym_result[rank].size == 1
+          return protonym_result[rank].first if protonym_result[rank].size == 1
+          if protonym_result[rank].size == 2
+            n1 = protonym_result[rank].first
+            n2 = protonym_result[rank].last
+            return n2 if n2.nominotypical_sub_of?(n1) 
+            return n1 if n1.nominotypical_sub_of?(n2) 
+          end
+          nil 
         end
 
         # @return [ String, false ]
+        #   rank is one of `genus`, `subgenus`, `species, `subspecies`, `variety`, `form`
         def string(rank = nil)
-          self.send(rank)
+          send(rank)
         end
-
-        # TODO: var., form
 
         # @return [Scope]
         def basic_scope(rank)
@@ -202,7 +247,7 @@ module TaxonWorks
           s = case rank
               when :genus, :subgenus
                 basic_scope(rank).is_genus_group
-              when :species, :subspecies
+              when :species, :subspecies, :variety, :form
                 basic_scope(rank).is_species_group
               else
                 Protonym.none
@@ -231,12 +276,13 @@ module TaxonWorks
 
         # @return [Hash]
         def parse_values
-          h = {}
+          h = {
+            author: author,
+            year: year
+          }
           RANK_MAP.each_key do |r|
             h[r] = send(r)
           end
-          h[:author] = author
-          h[:year] = year
           h
         end
 
@@ -253,25 +299,70 @@ module TaxonWorks
           @result[:parse] = parse_values
           @result[:unambiguous] = is_unambiguous?
           @result[:existing_combination_id] = combination_exists?.try(:id)
+          @result[:other_matches] = other_matches
           @result
         end
 
         # @return [Combination]
-        #   ranks that are unambigous have their protonyms set
+        #   ranks that are unambiguous have their Protonym set
         def combination
           c = Combination.new
           RANK_MAP.each_key do |r|
-            c.send("#{r}_id=", protonym_result[r].first.try(:id)) if unambiguous_at?(r)
+            c.send("#{r}=", unambiguous_at?(r))
           end
           c
         end
 
         # @return [Combination, false]
-        #    the combination, if it exists
+        #    the Combination, if it exists
         def combination_exists?
           if is_unambiguous?
-            Combination.match_exists?(combination.protonym_ids_params)
+            Combination.match_exists?(combination.protonym_ids_params) # TODO: pass name?
+          else
+            false
           end
+        end
+
+        def author_word_position 
+          if a = parse_result[:scientificName] 
+            if b = a[:positions]
+              c = b.select{|k,v| v[0] == 'author_word'}.keys.min
+              p = [name.length, c].compact.min 
+            end
+          end
+        end
+
+        def name_without_author_year
+          name[0..author_word_position - 1].strip 
+        end
+
+        # @return [Hash]
+        #   `:verbatim` - names that have verbatim supplied, these should be the only names NOT parsed that user is interested in
+        #   `:subgenus` - names that exactly match a subgenus, these are potential new combinations as Genus alone 
+        #   `:original_combination` - names that exactly match the original combination
+        def other_matches
+          h = { 
+            verbatim: [],
+            subgenus: [], 
+            original: []
+          }
+
+          h[:verbatim] = TaxonName.where(project_id: project_id, cached: name_without_author_year).
+            where('verbatim_name is not null').order(:cached).all.to_a if parseable
+          
+          h[:subgenus] = Protonym.where(
+            project_id: project_id, 
+            name: genus, 
+            rank_class: Ranks.lookup(nomenclature_code, :subgenus)
+          ).all.to_a
+
+          h[:original_combination] = Protonym.where(project_id: project_id). 
+          where(
+            'cached_original_combination = ?', 
+            Utilities::Strings.nil_wrap('<i>', name_without_author_year, '</i>')
+          ).all.to_a if parseable
+
+          h
         end
 
       end

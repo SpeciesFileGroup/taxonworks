@@ -26,6 +26,7 @@ export default {
         }
       }
       CreatePlacement(this.combination.placement.target, data).then(response => {
+        TW.workbench.alert.create(`Updated parent of ${response.name} to ${response.parent.name}`, 'notice')
         this.$emit('created', response)
       })
     }

@@ -10,7 +10,7 @@
       :legend-style="{ fontSize: '14px', color: '#444', textAlign: 'center', paddingTop: '20px'}"
       v-if="searching"/>
     <div
-      class="panel new-combination-box"
+      class="panel new-combination-box separate-bottom"
       v-if="Object.keys(rankLists).length">
 
       <div
@@ -22,7 +22,8 @@
       <div>
         <div v-if="!isCombinationEmpty()">
           <preview-view
-          :combination="newCombination.protonyms"/>
+          @onVerbatimChange="newCombination.verbatim_name = $event"
+          :combination="newCombination"/>
         </div>
 
         <div class="flexbox">
@@ -32,6 +33,7 @@
             :key="key"
             ref="listGroup"
             @onTaxonSelect="newCombination.protonyms[key] = $event"
+            @addToList="addTaxonToList"
             :selected="newCombination.protonyms[key]"
             :rank-name="key"
             :parse-string="parseRanks[key]"
@@ -55,33 +57,52 @@
           <button
             class="normal-input button button-default"
             @click="expandAll()"
-            :disabled="enableEdit"
             tabindex="-1"
-            type="button"><span data-icon="reset">Undo</span>
+            type="button"><span data-icon="reset">Unlock</span>
           </button>
         </div>
       </div>
-
     </div>
+
+    <div
+      class="panel new-combination-box separate-top"
+      v-if="existMatches">
+      <div
+        class="header flex-separate middle">
+        <h3>Other matches</h3>
+      </div>
+      <div class="flexbox">
+        <match-group
+          v-for="(list, key) in otherMatches"
+          v-if="list.length"
+          :key="key"
+          :rank-name="key"
+          :list="list"/>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script>
 
 import { GetParse, GetCombination } from '../request/resources'
-import listGroup from './listGroup.vue'
-import saveCombination from './saveCombination.vue'
-import previewView from './previewView.vue'
-import sourcePicker from './sourcePicker.vue'
-import spinner from '../../components/spinner.vue'
+import ListGroup from './listGroup.vue'
+import SaveCombination from './saveCombination.vue'
+import PreviewView from './previewView.vue'
+import SourcePicker from './sourcePicker.vue'
+import Spinner from '../../components/spinner.vue'
+import DisplayList from '../../components/displayList.vue'
+import MatchGroup from './matchGroup.vue'
 
 export default {
   components: {
-    listGroup,
-    sourcePicker,
-    saveCombination,
-    previewView,
-    spinner
+    MatchGroup,
+    ListGroup,
+    SourcePicker,
+    SaveCombination,
+    PreviewView,
+    Spinner
   },
   props: {
     taxonName: {
@@ -96,12 +117,21 @@ export default {
       return (Object.keys(this.rankLists).find((rank) => {
         return this.rankLists[rank] && this.rankLists[rank].length > 1
       }) == undefined)
+    },
+    existMatches() {
+      for(var key in this.otherMatches) {
+        if(this.otherMatches[key].length) {
+          return true
+        }
+      }
+      return false
     }
   },
   data: function () {
     return {
       rankLists: {},
       parseRanks: {},
+      otherMatches: {},
       searching: false,
       saving: false,
       newCombination: this.createNewCombination()
@@ -110,6 +140,7 @@ export default {
   watch: {
     taxonName (newVal) {
       this.newCombination = this.createNewCombination()
+      this.otherMatches = {}
       if (newVal) {
         this.setRankList(newVal).then(response => {
           if (response.data.existing_combination_id) {
@@ -125,6 +156,7 @@ export default {
   },
   methods: {
     reset () {
+      this.otherMatches = []
       this.newCombination = this.createNewCombination()
       this.rankLists = {}
       this.parseRanks = {}
@@ -138,6 +170,8 @@ export default {
           this.rankLists = response.data.protonyms
           this.parseRanks = response.data.parse
           this.searching = false
+          console.log(response);
+          this.otherMatches = response.other_matches
           this.$nextTick(() => {
             if (response.data.unambiguous) {
               this.$refs.saveButton.setFocus()
@@ -146,6 +180,9 @@ export default {
           return resolve(response)
         })
       })
+    },
+    addTaxonToList(event) {
+      this.rankLists[event.rank].push(event.taxon)
     },
     editCombination (literalString, combination) {
       this.newCombination = combination
@@ -161,11 +198,16 @@ export default {
       this.setNewCombination(combination)
     },
     setNewCombination (combination) {
-      let newCombination = Object.assign({}, { id: combination.id }, { origin_citation: (combination['origin_citation'] ? combination.origin_citation : undefined)}, { protonyms: combination.protonyms })
+      let newCombination = Object.assign({}, 
+        { id: combination.id }, 
+        { origin_citation: (combination['origin_citation'] ? combination.origin_citation : undefined)}, 
+        { protonyms: combination.protonyms },
+        { verbatim_name: combination.verbatim_name })
       this.newCombination = newCombination
     },
     createNewCombination () {
       return {
+        verbatim_name: undefined,
         protonyms: {
           subspecies: undefined,
           species: undefined,

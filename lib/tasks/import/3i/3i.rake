@@ -266,7 +266,7 @@ namespace :tw do
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
         $project_id = 1
-=begin
+#=begin
         handle_controlled_vocabulary_3i
         handle_litauthors_3i
         handle_references_3i
@@ -284,7 +284,7 @@ namespace :tw do
         handle_characters_3i
         handle_state_3i
         handle_chartable_3i
-=end
+#end
         soft_validations_3i
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"

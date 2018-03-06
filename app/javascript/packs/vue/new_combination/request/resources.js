@@ -55,6 +55,10 @@ const GetCombination = function (id) {
   return ajaxCall('get', `/combinations/${id}.json`)
 }
 
+const GetTaxonName = function(id) {
+  return ajaxCall('get', `/taxon_names/${id}.json`)
+}
+
 const CreateCombination = function (combination) {
   return ajaxCall('post', `/combinations`, combination)
 }
@@ -73,6 +77,7 @@ const CreatePlacement = function (id, taxon_name) {
 
 export {
   GetParse,
+  GetTaxonName,
   GetCombination,
   CreatePlacement,
   GetLastCombinations,

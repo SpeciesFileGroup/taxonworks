@@ -33,16 +33,60 @@ describe Combination, type: :model, group: :nomenclature do
   end
 
   context 'validation' do
-    before {combination.valid?}
+    
+    before { combination.valid? }
+
     specify 'is invalid without at least two protonyms' do
       expect(combination.errors.include?(:base)).to be_truthy
     end
 
-    specify 'combinations must be unique' do
+    specify 'combinations without verbatim name must be unique' do
       basic_combination.save
       c = Combination.new(genus: genus, species: species)
       expect(c.valid?).to be_falsey
       expect(c.errors.messages[:base].include?('Combination exists.')).to be_truthy
+    end
+
+    specify 'uniqueness takes into account verbatim_name 1' do
+      basic_combination.save
+      c = Combination.new(genus: genus, species: species, verbatim_name: "Aus zus")
+      expect(c.valid?).to be_truthy
+    end
+
+    specify 'uniqueness does not include empty string' do
+      basic_combination.save
+      c = Combination.new(genus: genus, species: species, verbatim_name: "")
+      expect(c.valid?).to be_falsey
+    end
+
+    specify 'uniqueness including original combination' do
+      species.original_genus = genus
+      species.original_species = species
+      species.save
+
+      c = Combination.new(genus: genus, species: species)
+      expect(c.valid?).to be_falsey
+    end
+
+    specify 'uniqueness including original combination different name' do
+      species.original_genus = genus
+      species.original_species = species
+      species.save
+      # TODO @proceps you used `vite`, I assume because you wanted a harder test- this requires
+      # *WAY* more checking, not sure its worthwhile, I simplified the test to be verbatim == verbatim
+      # c = Combination.new(genus: genus, species: species, verbatim_name: "Erythroneura vite")
+      
+      c = Combination.new(genus: genus, species: species, verbatim_name: "Erythroneura vitis")
+      
+      expect(c.valid?).to be_truthy
+    end
+
+    specify 'protonym_ids_params' do
+      combination.genus = genus
+      combination.subgenus = genus
+      combination.species = species
+      combination.subspecies = species
+      expect(combination.protonym_ids_params).to eq(genus: genus.id, subgenus: genus.id, species: species.id, subspecies: species.id)
     end
 
     specify 'species combination is valid with two protonyms' do
@@ -106,6 +150,16 @@ describe Combination, type: :model, group: :nomenclature do
       expect(Combination.match_exists?(genus: genus.id, species: species.id)).to eq(basic_combination)
     end
 
+    specify '.match_exists? 1a' do
+      basic_combination.update(verbatim_name: 'Aus bus')
+      expect(Combination.match_exists?(genus: genus.id, species: species.id)).to eq(basic_combination)
+    end
+
+    specify '.match_exists? 1b' do
+      basic_combination.update(verbatim_name: 'Aus bus')
+      expect(Combination.match_exists?(genus: genus.id, subgenus: nil, species: species.id)).to eq(basic_combination)
+    end
+
     specify '.match_exists? 2' do
       expect(Combination.match_exists?(genus: genus.id, species: species2.id)).to eq(false)
     end
@@ -116,6 +170,20 @@ describe Combination, type: :model, group: :nomenclature do
 
     specify '.match_exists? 4' do
       expect(Combination.match_exists?(genus: genus.id, species: species.id, subspecies: species.id)).to eq(false)
+    end
+
+    specify '.match_exists? nil name' do
+      expect(Combination.match_exists?(nil, genus: genus.id, species: species.id)).to eq(basic_combination)
+    end
+    
+    specify '.match_exists? empty string name' do
+      expect(Combination.match_exists?("", genus: genus.id, species: species.id)).to eq(basic_combination)
+    end
+
+    specify '.match_exists with name' do
+      n = 'Blorf mgorf'
+      basic_combination.update(verbatim_name: n)
+      expect(Combination.match_exists?(n, genus: genus.id, species: species.id)).to eq(basic_combination)
     end
   end
 
@@ -262,8 +330,6 @@ describe Combination, type: :model, group: :nomenclature do
       combination.source = source_older_than_combination  # 1940
       combination.genus = genus    # 1950
       combination.soft_validate(:dates)
-      
-      # expect(combination.soft_validations.messages_on(:source_id).count).to eq(1)
        expect(combination.soft_validations.messages_on(:base).count).to eq(1)
     end
 

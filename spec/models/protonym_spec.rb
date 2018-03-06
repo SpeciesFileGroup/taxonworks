@@ -2,6 +2,7 @@ require 'rails_helper'
 
 describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
+  # TODO: cleanup don't leave dirty .... 
   before(:all) do
     TaxonNameRelationship.delete_all
     TaxonNameClassification.delete_all
@@ -214,11 +215,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
   end
 
-
-
-
-
-
   context 'parallel creation of OTUs' do
     let(:p) {Protonym.new(parent: @order , name: 'Aus', rank_class: Ranks.lookup(:iczn, 'genus')) }
 
@@ -235,6 +231,31 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       p.save!
       expect(Otu.count).to eq(0)
     end
+  end
+
+  context 'nominotypical detection' do
+    let(:g1) { Protonym.create!(name: 'Aus', parent: root, rank_class: Ranks.lookup(:iczn, :genus)) }
+    let(:g2) { Protonym.create!(name: 'Aus', parent: g1, rank_class: Ranks.lookup(:iczn, :subgenus)) }
+
+    let(:s1) { Protonym.create!(name: 'aus', parent: root, rank_class: Ranks.lookup(:iczn, :species)) }
+    let(:s2) { Protonym.create!(name: 'aus', parent: s1, rank_class: Ranks.lookup(:iczn, :subspecies)) }
+
+    specify '#nominotypical_sub_of? 1' do
+      expect(g1.nominotypical_sub_of?(g2)).to be_falsey
+    end
+
+    specify '#nominotypical_sub_of? 2' do
+      expect(g2.nominotypical_sub_of?(g1)).to be_truthy
+    end
+
+    specify '#nominotypical_sub_of? 3' do
+      expect(s1.nominotypical_sub_of?(s2)).to be_falsey
+    end
+
+    specify '#nominotypical_sub_of? 4' do
+      expect(s2.nominotypical_sub_of?(s1)).to be_truthy
+    end
+
   end
 
 end

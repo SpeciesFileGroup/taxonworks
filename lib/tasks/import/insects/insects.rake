@@ -13,6 +13,7 @@ require 'benchmark'
 #
 #
 # redis-server /usr/local/etc/redis.conf          ## to start redis. It should be done before the rake started.
+# redis-server ~/redis-4.0.8/redis.conf on a test machine
 # a = Redis.new
 # a.set(a, b)
 # a.get(a)
@@ -1714,7 +1715,7 @@ namespace :tw do
             recipient_email = data.people_id[row['RecipientID']]['Email']
             recipient_email = nil if recipient_email.to_s.include?(' ') || recipient_email.to_s.include?("\r") || recipient_email.to_s.include?(',') || recipient_email.to_s.include?('’')
 
-            row['DateReceived'] = '' if time_from_field(row['DateReceived']) < time_from_field(row['DateProcessed'])
+            row['DateReceived'] = '' if !time_from_field(row['DateReceived']).nil? && !time_from_field(row['DateReceived']) && time_from_field(row['DateReceived']) < time_from_field(row['DateProcessed'])
 
             l = Loan.create( date_requested: time_from_field(row['DateRequested']),
                              request_method: row['MethodOfRequest'],

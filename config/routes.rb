@@ -113,7 +113,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     collection do
       get :select_options, defaults: {format: :json}
-    end
+  end
   end
 
   resources :character_states do
@@ -431,10 +431,6 @@ TaxonWorks::Application.routes.draw do
       get :roles
       get :details
     end
-    collection do
-     # get :lookup_person
-      get 'taxon_name_author_autocomplete'
-    end
   end
 
   resources :predicates, only: [] do
@@ -616,7 +612,6 @@ TaxonWorks::Application.routes.draw do
     scope :otus do
       scope :browse, controller: 'tasks/otus/browse' do
         get '/(:otu_id)', action: :index, as: 'browse_otus_task'
-      end
     end
 
     scope :type_material do
@@ -715,9 +710,6 @@ TaxonWorks::Application.routes.draw do
         get 'download', action: 'download', as: 'download_collection_object_filter_result'
         post 'tag_all', action: 'tag_all', as: 'tag_all_collection_object_filter_result',  defaults: {format: :json}
       end
-
-
-      
     end
 
     scope :otus do

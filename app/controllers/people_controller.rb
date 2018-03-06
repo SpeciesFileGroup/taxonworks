@@ -79,23 +79,10 @@ class PeopleController < ApplicationController
   end
 
   def autocomplete
-    @people = people
-  end
-
-  # TODO: Deprecate for autocomplete with params
-  # this is used only in specific forms where you want to find people who are ALREADY taxon name authors
-  def taxon_name_author_autocomplete
-    @authors = Person.joins(:roles).where(roles: {type: 'TaxonNameAuthor', project_id: sessions_current_project_id}).find_for_autocomplete(params.permit(:term)).distinct.order('people.cached').limit(50)
-    data = @authors.collect do |a|
-      {id: a.id,
-       label: a.name,
-       response_values: {
-           params[:method] => a.id
-       },
-       label_html: a.cached
-      }
-    end
-    render json: data
+    @people = Queries::Person::Autocomplete.new(
+      params.require(:term),
+      autocomplete_params
+    ).autocomplete
   end
 
   # GET /people/download
@@ -119,19 +106,21 @@ class PeopleController < ApplicationController
 
   private
 
-  def people
-    t = params.require(:term)
-    Person.select("people.*, length(cached) c").where('cached ILIKE ? OR cached ILIKE ? OR cached = ?', "#{t}%", "%#{t}%", t).distinct.order('c ASC', 'cached ASC').limit(50)
+  def autocomplete_params
+    params.permit(roles: []).to_h.symbolize_keys
   end
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_person
     @person = Person.find(params[:id])
     @recent_object = @person
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def person_params
-    params.require(:person).permit(:type, :last_name, :first_name, :suffix, :prefix, :year_born, :year_died, :year_active_start, :year_active_end)
+    params.require(:person).permit(
+      :type, 
+      :last_name, :first_name, 
+      :suffix, :prefix, 
+      :year_born, :year_died, :year_active_start, :year_active_end
+    )
   end
 end

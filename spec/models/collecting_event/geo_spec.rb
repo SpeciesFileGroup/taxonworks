@@ -215,6 +215,27 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
       before(:all) {
         generate_ce_test_objects(1, 1)
       }
+      after(:all) { clean_slate_geo }
+
+      context 'has_one preferred_georeference' do
+
+        specify 'of none' do
+          expect(@ce_area_v.preferred_georeference).to eq(nil)
+        end
+
+        specify 'of one' do
+          expect(@ce_one_gr.preferred_georeference).to eq(@gr_one_gr)
+        end
+
+        specify 'of many (eq)' do
+          expect(@ce_p4.preferred_georeference).to eq(@gr14)
+        end
+
+        specify 'of many (not eq)' do
+          expect(@ce_p4.preferred_georeference).not_to eq(@gr04)
+        end
+
+      end
 
       context 'and that GR has some combination of GIs, and EGIs' do
         specify 'that the count of which can be found' do
@@ -236,8 +257,8 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
       context 'and that GR has a GI but no EGI' do
         specify 'find other CEs that have GRs whose GI or EGI is within some radius of the source GI' do
-          pieces = @ce_p7.collecting_events_within_radius_of(2000000)
-          expect(pieces.count).to eq(6)
+          pieces = @ce_p7.collecting_events_within_radius_of(2_000_000)
+          expect(pieces.count).to eq(7)
           expect(pieces).to include(@ce_p0, # @ce_p2, @ce_p3,
                                     @ce_p5, @ce_p6, @ce_p8, @ce_p9)
           expect(pieces).not_to include(@ce_p1, @ce_p4, @ce_p7)
@@ -256,7 +277,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
       context 'and that GR has both GI and EGI' do
         # was: 'find other CEs that have GR whose GIs or EGIs are within some radius of the EGI'
         specify 'find other CEs that have GR whose GIs are within some radius' do
-          pieces = @ce_p2.collecting_events_within_radius_of(1000000)
+          pieces = @ce_p2.collecting_events_within_radius_of(1_000_000)
           expect(pieces.count).to eq(4)
           expect(pieces).to include(@ce_p1, @ce_p3,
                                     @ce_p4, @ce_p7)

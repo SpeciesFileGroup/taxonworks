@@ -46,6 +46,8 @@
 #     3) "Aus brocen" is used for "Aus broken".  If the curators decide not to create a new protonym, perhaps because
 #        they feel "brocen" was a printing press error that left off the straight bit of the "k" then they should minimally
 #        include "Aus brocen" in this field, rather than just "brocen". An alternative is to create a new Protonym "brocen".
+#     4) 'Aus (Aus)' was originally described in 1920.  "(Aus)" was used in a new combination alone as "Aus".  This is the only case
+#        in which combination may contain a single protonym.
 #   @return [String]
 #
 # @!attribute parent_id
@@ -59,12 +61,7 @@ class Combination < TaxonName
                         series subseries species subspecies variety subvariety form subform}.freeze
 
   before_validation :set_parent
-  validate :is_unique
-
-  def protonym_ids_params
-    protonyms.inject({}) {|hsh, p| hsh.merge!( p.rank.to_sym => p.id )}
-  end
-
+  
   # Overwritten here from TaxonName to allow for destroy
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship',
     foreign_key: :object_taxon_name_id,
@@ -79,6 +76,7 @@ class Combination < TaxonName
 
   has_many :combination_taxon_names, through: :combination_relationships, source: :subject_taxon_name
 
+  
   TaxonNameRelationship.descendants.each do |d|
     if d.respond_to?(:assignment_method)
       if d.name.to_s =~ /TaxonNameRelationship::SourceClassifiedAs/
@@ -151,13 +149,63 @@ class Combination < TaxonName
     where('taxon_name_relationships.type = ? and taxon_name_relationships.subject_taxon_name_id = ?', rank, protonym).
     references(:combination_relationships)}
 
-  validate :at_least_two_protonyms_are_included,
-    :parent_is_properly_set
+  validate :is_unique
+  validate :does_not_exist_as_original_combination, unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' } 
+  validate :parent_is_properly_set , unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' } 
+  validate :composition, unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' } 
+  validates :rank_class, absence: true
 
   soft_validate(:sv_combination_duplicates, set: :combination_duplicates)
   soft_validate(:sv_year_of_publication_matches_source, set: :dates)
   soft_validate(:sv_year_of_publication_not_older_than_protonyms, set: :dates)
   soft_validate(:sv_source_not_older_than_protonyms, set: :dates)
+
+  # @return [Scope]
+  # @params keyword_args [Hash] like `{genus: 123, :species: 456}` (note no `_id` suffix)
+  def self.find_by_protonym_ids(**keyword_args)
+    keyword_args.compact!
+    return Combination.none if keyword_args.empty?
+
+    c = Combination.arel_table
+    r = TaxonNameRelationship.arel_table
+
+    a = c.alias("a_foo")
+
+    b = c.project(a[Arel.star]).from(a)
+          .join(r)
+          .on(r['object_taxon_name_id'].eq(a['id']))
+
+    s = []
+
+    i = 0
+    keyword_args.each do |rank, id|
+      r_a = r.alias("foo_#{i}")
+      b = b.join(r_a).on(
+        r_a['object_taxon_name_id'].eq(a['id']),
+        r_a['type'].eq(TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES[rank]),
+        r_a['subject_taxon_name_id'].eq(id)
+      )
+      i += 1
+    end
+
+    b = b.group(a['id']).having(r['object_taxon_name_id'].count.eq(keyword_args.keys.count))
+    b = b.as("z_bar")
+
+    Combination.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(c['id']))))
+  end
+
+  # @return [Combination, false]
+  # @params keyword_args [Hash] like `{genus: 123, :species: 456}` (note no `_id` suffix)
+  #    the matching Combination if it exists, otherwise false
+  #    if name is provided then cached must match (i.e. verbatim_name if provided must also match)
+  def self.match_exists?(name = nil, **keyword_args)
+    if name.blank?
+      a = find_by_protonym_ids(keyword_args).first
+    else
+      a = find_by_protonym_ids(keyword_args).where(cached: name).first
+    end
+    a ? a : false
+  end
 
   # @return [Boolean]
   #   true if the finest level (typically species) is currently has the same parent
@@ -168,11 +216,14 @@ class Combination < TaxonName
   # @return [Array of TaxonName]
   #   pre-ordered by rank
   def protonyms
-    if new_record?
-      protonyms_by_association
-    else
-      combination_taxon_names.sort{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string)}  # .ordered_by_rank
-    end
+    return  protonyms_by_association if new_record?
+    combination_taxon_names.sort{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string) }  # .ordered_by_rank
+  end
+
+  # @return [Hash]
+  #   like `{ genus: 1, species: 2 }`
+  def protonym_ids_params
+    protonyms_by_rank.inject({}) {|hsh, p| hsh.merge!( p[0].to_sym => p[1].id )}
   end
 
   # Overrides {TaxonName#full_name_hash}
@@ -205,7 +256,7 @@ class Combination < TaxonName
   def protonyms_by_rank
     result = {}
     APPLICABLE_RANKS.each do |rank|
-      if protonym = self.send(rank)
+      if protonym = send(rank)
         result[rank] = protonym
       end
     end
@@ -240,7 +291,7 @@ class Combination < TaxonName
         :combination_genus, :combination_subgenus, :combination_species, :combination_subspecies, :combination_variety, :combination_form
     ]
 
-    defined_relations = self.combination_relationships.all
+    defined_relations = combination_relationships.all
     created_already = defined_relations.collect{|a| a.class}
     new_relations = []
 
@@ -254,8 +305,8 @@ class Combination < TaxonName
   end
 
   def get_valid_taxon_name
-    c = self.protonyms_by_rank
-    return self if c.blank?
+    c = protonyms_by_rank
+    return self if c.empty?
     c[c.keys.last].valid_taxon_name
   end
 
@@ -285,46 +336,36 @@ class Combination < TaxonName
   end
 
   # @return [Scope]
-  # @params keyword_args [Hash] like `{genus: 123, :species: 456}` (note no `_id` suffix)
-  def self.find_by_protonym_ids(**keyword_args)
-    return Combination.none if keyword_args.empty?
+  #   AHA from http://stackoverflow.com/questions/28568205/rails-4-arel-join-on-subquery
+  #   See also Descriptor::Gene
+  def exists_as_original_combination?
+    data = protonym_ids_params 
+    return Protonym.none if !data.keys.any?
 
-    c = Combination.arel_table
-    r = TaxonNameRelationship.arel_table
+    s  = Protonym.arel_table
+    sr = TaxonNameRelationship.arel_table
 
-    a = c.alias("a_foo")
+    j = s.alias('j') # required for group/having purposes
 
-    b = c.project(a[Arel.star]).from(a)
-          .join(r)
-          .on(r['object_taxon_name_id'].eq(a['id']))
+    b = s.project(j[Arel.star]).from(j)
+      .join(sr)
+      .on(sr['object_taxon_name_id'].eq(j['id']))
 
-    s = []
-
-    i = 0
-    keyword_args.each do |rank, id|
-      r_a = r.alias("foo_#{i}")
-
-      b = b.join(r_a).on(
-        r_a['object_taxon_name_id'].eq(a['id']),
-        r_a['type'].eq(TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES[rank]),
-        r_a['subject_taxon_name_id'].eq(id)
+    # Build an aliased join for each set of attributes
+    data.each do |rank, id|
+      sr_a = sr.alias("b_#{rank}")
+      b = b.join(sr_a).on(
+        sr_a['object_taxon_name_id'].eq(j['id']),
+        sr_a['type'].eq("TaxonNameRelationship::OriginalCombination::Original#{rank.capitalize}"),
+        sr_a['subject_taxon_name_id'].eq(id)
       )
-
-      i += 1
     end
 
-    b = b.group(a['id']).having(r['object_taxon_name_id'].count.eq(keyword_args.keys.count))
-    b = b.as("z_bar")
+    b = b.group(j['id']).having(sr['object_taxon_name_id'].count.eq(data.count))
 
-    Combination.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(c['id']))))
-  end
+    b = b.as('join_alias')
 
-  # @return [Combination]
-  # @params keyword_args [Hash] like `{genus: 123, :species: 456}` (note no `_id` suffix)
-  #    the matching Combination if it exists, otherwise false
-  def self.match_exists?(**keyword_args)
-    a = find_by_protonym_ids(keyword_args).first
-    a ? a : false
+    Protonym.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(s['id']))))
   end
 
   protected
@@ -337,75 +378,77 @@ class Combination < TaxonName
 
   # TODO: this is a TaxonName level validation, it doesn't belong here
   def sv_year_of_publication_matches_source
-    source_year = self.source.nomenclature_year if self.source
-    if self.year_of_publication && source_year
-      soft_validations.add(:year_of_publication, 'The published date of the combination is not the same as provided by the original publication') if source_year != self.year_of_publication
+    source_year = source.nomenclature_year if source
+    if year_of_publication && source_year
+      soft_validations.add(:year_of_publication, 'The published date of the combination is not the same as provided by the original publication') if source_year != year_of_publication
     end
   end
 
   def sv_source_not_older_than_protonyms
-    source_year = self.source.nomenclature_year if self.source
+    source_year = source.try(:nomenclature_year) 
     target_year = earliest_protonym_year
     if source_year && target_year
-      soft_validations.add(:base, "The publication date of combination (#{source_year}) is older than the original publication date of one of the taxa in the combination (#{target_year}") if source_year < target_year
+      soft_validations.add(:base, "The publication date of combination (#{source_year}) is older than the original publication date of one of the name in the combination (#{target_year}") if source_year < target_year
     end
   end
 
   def sv_year_of_publication_not_older_than_protonyms
-    combination_year = self.year_of_publication
-    target_year = earliest_protonym_year
-    if combination_year && target_year
-      soft_validations.add(:year_of_publication,  "The publication date of combination (#{combination_year}) is older than the original publication date of one of the taxa in the combination (#{target_year}") if combination_year < target_year
+    if year_of_publication && earliest_protonym_year
+      soft_validations.add(:year_of_publication,  "The publication date of combination (#{year_of_publication}) is older than the original publication date of one of the name in the combination (#{earliest_protonym_year}") if year_of_publication < earliest_protonym_year
     end
   end
 
   def sv_combination_duplicates
-    duplicate = Combination.not_self(self).with_cached_html(self.cached_html)
+    duplicate = Combination.not_self(self).with_cached_html(cached_html)
     soft_validations.add(:base, 'Combination is a duplicate') unless duplicate.empty?
   end
 
   def set_parent
-    names = self.protonyms
-    if names.count > 0
-      self.parent = names.first.parent if names.first.parent
-    end
+    names = protonyms
+    write_attribute(:parent_id, names.first.parent.id) if names.count > 0 && names.first.parent
   end
 
-  # validations
-
-  # The parent of a Combination is the parent of the highest ranked protonym in that combination
+  # The parent of a Combination is the parent of the highest ranked protonym in that Combination
   def parent_is_properly_set
     check = protonyms.first
-    if self.parent && check && check.parent
-      errors.add(:base, 'Parent is not highest ranked member') if  self.parent != check.parent
+    if parent && check && check.parent
+      errors.add(:base, 'Parent is not highest ranked name.') if parent != check.parent
     end
   end
 
-  def at_least_two_protonyms_are_included
+  def composition 
     c = protonyms.count
 
     if c == 0
-      errors.add(:base, 'Combination includes no taxa, it is not valid')
-    else
-      rank = protonyms.last.rank_string
-
-      if rank =~/Species/
-        errors.add(:base, 'Combination includes only one taxon, it is not valid') if c < 2
-      elsif rank =~/Genus/
-        errors.add(:base, 'Combination includes more than two taxa, it is not valid') if c > 2
-      else
-        errors.add(:base, 'Combination includes more than one taxon, it is not valid') if c > 1
+      errors.add(:base, 'Combination includes no names.')
+      return
+    end
+    
+    protonyms.each do |p|
+      if !p.is_genus_or_species_rank?
+        errors.add(:base, 'Combination includes one or more non-species or genus group names.') 
+        return 
       end
     end
-  end
-
-  def validate_rank_class_class
-    errors.add(:rank_class, 'Combination should not have rank. Delete the rank') if rank_class.present?
+    
+    # There are more than one protonyms, which seem to be valid elements  
+    p = protonyms.last
+    errors.add(:base, 'Combination includes only one name and that is name is not a genus name.') if c < 2 && p.is_species_rank?
+    errors.add(:base, 'Combination includes more than two genus group names.') if c > 2 && p.is_genus_rank?
   end
 
   def is_unique
-    if a = Combination.match_exists?(protonym_ids_params)
+    if a = Combination.match_exists?(verbatim_name, protonym_ids_params)
       errors.add(:base, 'Combination exists.') if a.id != id
+    end
+  end
+
+  def does_not_exist_as_original_combination
+    if a = exists_as_original_combination?.first
+      if a
+        n = "<i>#{verbatim_name}</i>" == a.cached_original_combination # TODO: get rid of italics on cached original combination
+        errors.add(:base, "Combination exists as protonym with original combination set (#{a.cached}).") unless !verbatim_name.blank? && n
+      end
     end
   end
 
