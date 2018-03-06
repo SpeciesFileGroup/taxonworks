@@ -44,7 +44,8 @@
         filter: {
           annotation_type: 'confidence',
           model: undefined,
-          common: undefined
+          common: undefined,
+          result: undefined
         }
       }
     },
