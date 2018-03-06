@@ -150,6 +150,7 @@ class Combination < TaxonName
     references(:combination_relationships)}
 
   validate :is_unique
+  validate :does_not_exist_as_original_combination, unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' } 
   validate :parent_is_properly_set , unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' } 
   validate :composition, unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' } 
   validates :rank_class, absence: true
@@ -334,6 +335,39 @@ class Combination < TaxonName
     html
   end
 
+  # @return [Scope]
+  #   AHA from http://stackoverflow.com/questions/28568205/rails-4-arel-join-on-subquery
+  #   See also Descriptor::Gene
+  def exists_as_original_combination?
+    data = protonym_ids_params 
+    return Protonym.none if !data.keys.any?
+
+    s  = Protonym.arel_table
+    sr = TaxonNameRelationship.arel_table
+
+    j = s.alias('j') # required for group/having purposes
+
+    b = s.project(j[Arel.star]).from(j)
+      .join(sr)
+      .on(sr['object_taxon_name_id'].eq(j['id']))
+
+    # Build an aliased join for each set of attributes
+    data.each do |rank, id|
+      sr_a = sr.alias("b_#{rank}")
+      b = b.join(sr_a).on(
+        sr_a['object_taxon_name_id'].eq(j['id']),
+        sr_a['type'].eq("TaxonNameRelationship::OriginalCombination::Original#{rank.capitalize}"),
+        sr_a['subject_taxon_name_id'].eq(id)
+      )
+    end
+
+    b = b.group(j['id']).having(sr['object_taxon_name_id'].count.eq(data.count))
+
+    b = b.as('join_alias')
+
+    Protonym.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(s['id']))))
+  end
+
   protected
 
   # @return [Array of TaxonNames, nil]
@@ -406,6 +440,15 @@ class Combination < TaxonName
   def is_unique
     if a = Combination.match_exists?(verbatim_name, protonym_ids_params)
       errors.add(:base, 'Combination exists.') if a.id != id
+    end
+  end
+
+  def does_not_exist_as_original_combination
+    if a = exists_as_original_combination?.first
+      if a
+        n = "<i>#{verbatim_name}</i>" == a.cached_original_combination # TODO: get rid of italics on cached original combination
+        errors.add(:base, "Combination exists as protonym with original combination set (#{a.cached}).") unless !verbatim_name.blank? && n
+      end
     end
   end
 
