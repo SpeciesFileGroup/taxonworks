@@ -95,7 +95,7 @@ GEM
       treetop (~> 1.6.8)
       unicode_utils (~> 1.4)
     builder (3.2.3)
-    byebug (9.1.0)
+    byebug (10.0.0)
     capistrano (3.10.1)
       airbrussh (>= 1.0.0)
       i18n
@@ -515,7 +515,7 @@ DEPENDENCIES
   bibtex-ruby (~> 4.4.6)
   binding_of_caller
   biodiversity (~> 3.4.2)
-  byebug (~> 9.1.0)
+  byebug (~> 10.0)
   capistrano-npm (~> 1.0.2)
   capybara (~> 2.17.0)
   chartkick (~> 2.2.4)
