@@ -560,7 +560,7 @@ DEPENDENCIES
   psych (~> 3.0.2)
   rabl (~> 0.13.1)
   rack-cors (~> 1.0.1)
-  rails (~> 5.1.4)
+  rails (~> 5.1.5)
   rails-controller-testing (~> 1.0.2)
   rails-jquery-autocomplete (~> 1.0.3)
   rainbow (~> 3.0.0)
