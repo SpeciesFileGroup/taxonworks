@@ -42,22 +42,20 @@ describe 'Otus', type: :feature do
       end
 
       describe 'GET /otus/n' do
-        before {
-          visit otu_path(Otu.second)
-        }
-
+        before { visit otu_path(Otu.second) }
         it_behaves_like 'a_data_model_with_standard_show'
       end
 
       describe 'GET /api/v1/otus/by_name/{variants of name}' do
 
         let(:taxon_name_root) {
-          Protonym.find_or_create_by(name:          'Root',
-                                     rank_class:    'NomenclaturalRank',
-                                     created_by_id: @user.id,
-                                     updated_by_id: @user.id,
-                                     parent_id:     nil,
-                                     project_id:    @project.id)
+          Protonym.find_or_create_by(
+            name: 'Root',
+            rank_class: 'NomenclaturalRank',
+            created_by_id: @user.id,
+            updated_by_id: @user.id,
+            parent_id: nil,
+            project_id: @project.id)
         }
 
         let(:taxon_name) {

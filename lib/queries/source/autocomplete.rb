@@ -154,7 +154,8 @@ module Queries
           autocomplete_wildcard_author_exact_year,
           autocomplete_wildcard_anywhere_exact_year,
           autocomplete_ordered_wildcard_pieces_in_cached,
-          autocomplete_cached_wildcard_anywhere
+          autocomplete_cached_wildcard_anywhere,
+          autocomplete_start_of_title
         ]
 
         queries.compact!
