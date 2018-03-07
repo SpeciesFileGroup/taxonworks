@@ -5,12 +5,7 @@ describe Queries::CollectionObjectFilterQuery, type: :model, group: [:geo, :coll
   context 'with properly built collection of objects' do
     include_context 'stuff for complex geo tests'
 
-    before {
-      co_a
-      co_b
-      gr_a
-      gr_b
-    }
+    before { [co_a, co_b, gr_a, gr_b].each }
 
     context 'area search' do
       context 'named area' do

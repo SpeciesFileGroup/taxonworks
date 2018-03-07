@@ -42,21 +42,23 @@ describe GeographicArea, type: :model, group: [:geo, :shared_goe] do
   end
 
   context 'instance methods' do
-    specify '#tdwg_ids' do
-      geographic_area.tdwgID = '41SCS-PI'
-      expect(geographic_area.tdwg_ids[:lvl1]).to eq('4')
-    end
-    specify '#tdwg_ids' do
-      geographic_area.tdwgID = '41SCS-PI'
-      expect(geographic_area.tdwg_ids[:lvl2]).to eq('41')
-    end
-    specify '#tdwg_ids' do
-      geographic_area.tdwgID = '41SCS-PI'
-      expect(geographic_area.tdwg_ids[:lvl3]).to eq('SCS')
-    end
-    specify '#tdwg_ids' do
-      geographic_area.tdwgID = '41SCS-PI'
-      expect(geographic_area.tdwg_ids[:lvl4]).to eq('SCS-PI')
+    context '#tdwg_ids' do
+      specify 'level 1' do
+        geographic_area.tdwgID = '41SCS-PI'
+        expect(geographic_area.tdwg_ids[:lvl1]).to eq('4')
+      end
+      specify 'level 2' do
+        geographic_area.tdwgID = '41SCS-PI'
+        expect(geographic_area.tdwg_ids[:lvl2]).to eq('41')
+      end
+      specify 'level 3' do
+        geographic_area.tdwgID = '41SCS-PI'
+        expect(geographic_area.tdwg_ids[:lvl3]).to eq('SCS')
+      end
+      specify 'level 4' do
+        geographic_area.tdwgID = '41SCS-PI'
+        expect(geographic_area.tdwg_ids[:lvl4]).to eq('SCS-PI')
+      end
     end
 
     specify '#tdwg_level' do

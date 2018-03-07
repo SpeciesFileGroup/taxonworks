@@ -72,10 +72,7 @@ Lint/ReturnInVoidContext:
 Lint/StringConversionInInterpolation:
   Enabled: true
 
-Performance/HashEachMethods:
-  Enabled: true
-  
-  Lint/UselessAccessModifier:
+Lint/UselessAccessModifier:
   Enabled: true
 
 Performance/Size:
@@ -106,7 +103,7 @@ Lint/DuplicateCaseCondition:
 
 # Layout/EmptyLinesAroundAccessModifier:
 #   Enabled: false
-#  
+#
 # Lint/InterpolationCheck:
 #   Enabled: false
 
