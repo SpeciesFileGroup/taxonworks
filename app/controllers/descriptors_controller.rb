@@ -39,7 +39,6 @@ class DescriptorsController < ApplicationController
   # POST /descriptors.json
   def create
     @descriptor = Descriptor.new(descriptor_params)
-
     respond_to do |format|
       if @descriptor.save
         format.html { redirect_to @descriptor.metamorphosize, notice: 'Descriptor was successfully created.' }
@@ -77,18 +76,6 @@ class DescriptorsController < ApplicationController
 
   def autocomplete
     @descriptors = Queries::DescriptorAutocompleteQuery.new(params.require(:term), project_id: sessions_current_project_id).all
-
-    data = @descriptors.collect do |t|
-      {id:              t.id,
-       label:           t.name,
-       gid:             t.to_global_id.to_s,
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html:      t.name
-      }
-    end
-    render json: data
   end
 
   def search
@@ -99,6 +86,7 @@ class DescriptorsController < ApplicationController
     end
   end
 
+  # TODO: remove for shared end point
   # GET /annotations
   def annotations
     @object = @descriptor
@@ -137,7 +125,7 @@ class DescriptorsController < ApplicationController
 private
 
   def set_descriptor
-    @descriptor = Descriptor.find(params[:id])
+    @descriptor = Descriptor.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def descriptor_params
