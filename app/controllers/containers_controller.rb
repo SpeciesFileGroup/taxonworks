@@ -77,28 +77,18 @@ class ContainersController < ApplicationController
   end
 
   def autocomplete
-    @containers = Queries::ContainerAutocompleteQuery.new(params.merge(project_id: sessions_current_project_id)).result
-    data = @containers.collect do |t|
-      {id: t.id,
-       label: t.id, #  ApplicationController.helpers.container_tag(t),
-       gid: t.to_global_id.to_s,
-       response_values: {
-           params[:method] => t.id
-       },
-       label_html: t.id #  ApplicationController.helpers.container_tag(t)  
-      }
-    end
-    render json: data
+    @containers = Queries::ContainerAutocompleteQuery.new(
+      params.require(:term), 
+      {project_id: sessions_current_project_id}
+    ).result
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_container
-      @container = Container.with_project_id(sessions_current_project_id).find(params[:id])
-    end
+  def set_container
+    @container = Container.with_project_id(sessions_current_project_id).find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def container_params
-      params.require(:container).permit(:parent_id, :type, :name, :disposition, :size_x, :size_y, :size_z)
-    end
+  def container_params
+    params.require(:container).permit(:parent_id, :type, :name, :disposition, :size_x, :size_y, :size_z)
+  end
 end
