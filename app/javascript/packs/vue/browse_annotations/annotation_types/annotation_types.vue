@@ -50,7 +50,7 @@
         this.$http.post('/tasks/browse_annotations/get_type', {annotationType: newVal}).then(response => {
           console.log(response);
           this.$emit('annotation_type_selected', response.body)
-          this.$emit(result, response.body)
+          this.$emit('result', response)
         })
       }
     }

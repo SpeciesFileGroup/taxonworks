@@ -48,7 +48,7 @@
         this.$http.post('/tasks/browse_annotations/set_model', {annotationFor: newVal}).then(response => {
           console.log(response);
           this.$emit('model_selected', response.body);
-          this.$emit(result, response.body)
+          this.$emit('result', response)
         })
       }
     }
