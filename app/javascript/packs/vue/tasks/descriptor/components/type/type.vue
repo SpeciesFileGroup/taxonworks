@@ -1,10 +1,14 @@
 <template>
 <div>
   <h2>Type</h2>
-  <ul>
+  <ul class="no_bullets">
     <li
       v-for="(label, key) in types"
-      :key="key"> {{ label }}
+      :key="key">
+      <label>
+        <input type="radio" name="type-descriptor"/>
+        {{ label }}
+      </label>
     </li>
   </ul>
 </div>

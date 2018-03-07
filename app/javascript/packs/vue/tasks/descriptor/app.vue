@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h1>New descriptor</h1>
     <type-component/>
   </div>
 </template>

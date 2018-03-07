@@ -14,7 +14,7 @@ Object.assign(TW.views.tasks.descriptor, {
     Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
 
     new Vue({
-		  	el: '#vue_new_combination',
+		  	el: '#descriptor_task',
 		  	render: function (createElement) {
 		  		return createElement(App)
 		  	}
