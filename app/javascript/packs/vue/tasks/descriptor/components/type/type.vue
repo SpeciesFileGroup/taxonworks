@@ -37,7 +37,7 @@
     data() {
       return {
         types: {
-          'Descriptor::Continuous': '',
+          'Descriptor::Continuous': 'Quantitative (i.e continuous, e.g. a measurement)',
           'Descriptor::Gene': 'Gene',
           'Descriptor::PresenceAbsence': 'Presence absence', 
           'Descriptor::Qualitative': 'Qualitative (e.g. a phylogenetic character, or telegraphic description)',
