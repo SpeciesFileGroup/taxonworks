@@ -1,7 +1,6 @@
 module Queries
   class ContainerAutocompleteQuery < Queries::Query
 
-
     def where_sql
       with_project_id.or(with_identifier_like)
     end
