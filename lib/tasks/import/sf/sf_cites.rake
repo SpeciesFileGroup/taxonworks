@@ -213,11 +213,11 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           get_containing_source_id = import.get('TWSourceIDToContainingSourceID') # use to determine if taxon_name_author must be created (orig desc only)
           get_sf_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors') # contains ordered array of SF.PersonIDs
           get_tw_person_id = import.get('SFPersonIDToTWPersonID')
-          get_sf_file_id = import.get('SFTaxonNameIDToSFFileID')
+          # get_sf_file_id = import.get('SFTaxonNameIDToSFFileID')
 
           otu_not_found_array = []
 
-          path = @args[:data_directory] + 'tblCites.txt'
+          path = @args[:data_directory] + 'sfCites.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           count_found = 0
@@ -232,7 +232,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
           file.each_with_index do |row, i|
             sf_taxon_name_id = row['TaxonNameID']
-            sf_file_id = get_sf_file_id[sf_taxon_name_id]
+            sf_file_id = row['FileID']  # get_sf_file_id[sf_taxon_name_id]
             next if skipped_file_ids.include? sf_file_id.to_i
             taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # cannot to_i because if nil, nil.to_i = 0
 
@@ -266,8 +266,10 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               if nomenclator_ident_qualifier.present? # has some irrelevant text in it
                 logger.warn "No citation created because IdentQualifier has irrelevant data: (SF.FileID: #{sf_file_id}, SF.TaxonNameID: #{sf_taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']})"
                 # create data attr on taxon_name
+
                 Note.create!(
-                    attribute_object: protonym,
+                    note_object_type: protonym,
+                    note_object_id: taxon_name_id,
                     text: "Citation to '#{get_sf_verbatim_ref[sf_ref_id]}' not created because accompanying nomenclator ('#{nomenclator_string}') contains irrelevant data ('#{nomenclator_ident_qualifier}')",
                     project_id: project_id,
                     created_at: row['CreatedOn'], # housekeeping data from citation not created
@@ -350,11 +352,13 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
 
               if nomenclator_string && !(protonym.cached_original_combination == "<i>#{nomenclator_string}</i>")
                 # what is value of above line?
-                logger.info "Checking for combinations = '#{nomenclator_string}'"
+                logger.info "Checking for combinations: nomenclator_string = '#{nomenclator_string}', protonym.cached_original_combination = '#{protonym.cached_original_combination}'"
                 combination = nil
 
                 begin
                   check_result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
+
+                  
 
                   if check_result.is_unambiguous?
                     logger.info "unambiguous result"
