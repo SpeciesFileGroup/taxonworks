@@ -5,7 +5,7 @@
 </template>
 <script>
 
-  import TypeComponent from '../components/type/type.vue'
+  import TypeComponent from './components/type/type.vue'
 
   export default {
     components: {
