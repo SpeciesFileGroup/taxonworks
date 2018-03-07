@@ -2,9 +2,9 @@ namespace :tw do
   namespace :initialize do
 
     desc 'call "rake tw:initialize:load_language", requires data_directory'
-    task :load_languages => [:data_directory, :environment, :user_id] do |t|
+    task load_languages: [:data_directory, :environment, :user_id] do |t|
   
-      print "Loading languages..." 
+      print 'Loading languages...' 
       if Language.all.count > 0 
         puts 'There are existing languages, doing nothing.'.red.on_white 
         raise 
@@ -14,7 +14,7 @@ namespace :tw do
        
       # TODO: check checksums of incoming files?
       begin
-        ActiveRecord::Base.transaction do
+        ApplicationRecord.transaction do
           File.foreach(file) do |row| 
             v = row.split(/\|/) # Ugh CSV with pipes as delimiters is borked.
             r = Language.new(

@@ -2,19 +2,20 @@
 #
 # @!attribute taxon_name_id
 #   @return [Integer]
-#     the id of the TaxonName being classified 
+#     the id of the TaxonName being classified
 #
 # @!attribute type
 #   @return [String]
-#     the type of classifiction (Rails STI) 
+#     the type of classifiction (Rails STI)
 #
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
 #
-class TaxonNameClassification < ActiveRecord::Base
+class TaxonNameClassification < ApplicationRecord
   include Housekeeping
-  include Shared::Citable
+  include Shared::Citations
+  include Shared::Notes
   include Shared::IsData
   include SoftValidation
 
@@ -38,8 +39,10 @@ class TaxonNameClassification < ActiveRecord::Base
   soft_validate(:sv_validate_disjoint_classes, set: :validate_disjoint_classes)
   soft_validate(:sv_not_specific_classes, set: :not_specific_classes)
 
-  after_save :set_cached_names_for_taxon_names
-  after_destroy :set_cached_names_for_taxon_names
+  after_save :set_cached
+  after_destroy :set_cached
+  #  after_save :set_cached_names_for_taxon_names
+  # after_destroy :set_cached_names_for_taxon_names
 
   def nomenclature_code
     return :iczn if type.match(/::Iczn/)
@@ -48,11 +51,16 @@ class TaxonNameClassification < ActiveRecord::Base
     return nil
   end
 
+  # TODO: fix
+  def self.label
+    name.demodulize.underscore.humanize.downcase
+  end
+
   # @return [String]
   #   the class name, "validated" against the known list of names
   def type_name
-   r = self.type.to_s
-   TAXON_NAME_CLASSIFICATION_NAMES.include?(r) ? r : nil
+    r = self.type.to_s
+    TAXON_NAME_CLASSIFICATION_NAMES.include?(r) ? r : nil
   end
 
   def type_class=(value)
@@ -65,7 +73,7 @@ class TaxonNameClassification < ActiveRecord::Base
   end
 
   # @return [String]
-  #   a humanized class name, with code appended to differentiate 
+  #   a humanized class name, with code appended to differentiate
   #   !! explored idea of LABEL in individual subclasses, use this if this doesn't work
   #   this is helper-esqe, but also useful in validation, so here for now
   def classification_label
@@ -93,7 +101,7 @@ class TaxonNameClassification < ActiveRecord::Base
   def self.code_applicability_end_year
     9999
   end
- 
+
   # @return [Array of Strings of NomenclaturalRank names]
   # nomenclatural ranks to which this class is applicable, that is, only {TaxonName}s of these {NomenclaturalRank}s may be classified as this class
   def self.applicable_ranks
@@ -107,13 +115,21 @@ class TaxonNameClassification < ActiveRecord::Base
   end
 
   # @return [String, nil]
-  #  if applicable, a DWC gbif status for this class 
+  #  if applicable, a DWC gbif status for this class
   def self.gbif_status
     nil
   end
 
-  # @todo Perhaps not inherit these three methods?
-  
+  def self.assignable
+    false
+  end
+
+ #def self.common
+ #  false
+ #end
+
+  # @todo Perhaps not inherit these three meaxonNameClassificationsHelper::descendants_collection( TaxonNameClassification::Latinized )thods?
+
   # @return [Array of Strings]
   #   the possible suffixes for a {TaxonName} name (species) classified as this class, for example see {TaxonNameClassification::Latinized::Gender::Masculine}
   #   used to validate gender agreement of species name with a genus
@@ -122,7 +138,7 @@ class TaxonNameClassification < ActiveRecord::Base
   end
 
   # @return [Array of Strings]
-  #   the questionable suffixes for a {TaxonName} name classified as this class, for example see {TaxonNameClassification::Latinized::Gender::Masculine} 
+  #   the questionable suffixes for a {TaxonName} name classified as this class, for example see {TaxonNameClassification::Latinized::Gender::Masculine}
   def self.questionable_species_endings
     []
   end
@@ -137,32 +153,21 @@ class TaxonNameClassification < ActiveRecord::Base
     const_defined?(:NOMEN_URI, false) ? self::NOMEN_URI : nil
   end
 
+  def set_cached
+    set_cached_names_for_taxon_names
+  end
+
   def set_cached_names_for_taxon_names
     begin
       TaxonName.transaction do
         t = taxon_name
+
         if type_name =~ /Fossil|Hybrid/
-          t.update_columns(cached: t.get_full_name,
-                           cached_html: t.get_full_name_html)
-        elsif type_name =~ /Adjective|Participle/ && t.masculine_name.blank? && t.feminine_name.blank? && t.neuter_name.blank?
-          m_name, f_name, n_name = nil, nil, nil
-          if t.name.end_with?('is')
-            m_name, f_name, n_name = t.name, t.name, t.name[0..-3] + 'e'
-          elsif t.name.end_with?('e')
-            m_name, f_name, n_name = t.name[0..-2] + 'is', t.name = t.name[0..-2] + 'is', t.name
-          elsif t.name.end_with?('us')
-            m_name, f_name, n_name = t.name, t.name[0..-3] + 'a', t.name[0..-3] + 'um'
-          elsif t.name.end_with?('er')
-            m_name, f_name, n_name = t.name, t.name[0..-3] + 'ra', t.name[0..-3] + 'rum'
-          elsif t.name.end_with?('um') && !t.name.end_with?('rum')
-            m_name, f_name, n_name = t.name[0..-3] + 'us', t.name[0..-3] + 'a', t.name
-          elsif t.name.end_with?('a') && !t.name.end_with?('ra')
-            m_name, f_name, n_name = t.name[0..-3] + 'us', t.name, t.name[0..-3] + 'um'
-          elsif t.name.end_with?('or')
-          end
-          t.update_columns(:masculine_name => m_name,
-                           :feminine_name => f_name,
-                           :neuter_name => n_name)
+          t.update_columns(
+            cached: t.get_full_name,
+            cached_html: t.get_full_name_html
+          )
+
         elsif TAXON_NAME_CLASS_NAMES_VALID.include?(type_name)
           vn = t.get_valid_taxon_name
           vn.update_column(:cached_valid_taxon_name_id, vn.id)  # update self too!
@@ -171,13 +176,14 @@ class TaxonNameClassification < ActiveRecord::Base
           end
         end
       end
-    rescue ActiveRecord::RecordInvalid 
+    rescue ActiveRecord::RecordInvalid
+      # should return false here, right?
     end
-    false
+    false # TODO: why false, success == true?
   end
 
   #region Validation
-  # @todo validate, that all the taxon_classes in the table could be linked to taxon_classes in classes (if those had changed)
+  # @TODO validate, that all the taxon_classes in the table could be linked to taxon_classes in classes (if those had changed)
   def validate_uniqueness_of_latinized
     if /Latinized/.match(self.type_name)
       lat = TaxonNameClassification.where(taxon_name_id: self.taxon_name_id).with_type_contains('Latinized').not_self(self)
@@ -199,13 +205,13 @@ class TaxonNameClassification < ActiveRecord::Base
     if TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type)
       # self.type_class is a Class
       if not self.type_class.applicable_ranks.include?(self.taxon_name.rank_string)
-        soft_validations.add(:type, "The status #{self.type_name} is unapplicable to the taxon #{self.taxon_name.cached_html} at the rank of #{self.taxon_name.rank_class.rank_name}")
+        soft_validations.add(:type, "The status '#{self.type_class.label}' is unapplicable to the taxon #{self.taxon_name.cached_html} at the rank of #{self.taxon_name.rank_class.rank_name}")
       end
     end
     y = self.taxon_name.year_of_publication
     if not y.nil?
       if y > self.type_class.code_applicability_end_year || y < self.type_class.code_applicability_start_year
-        soft_validations.add(:type, "The status  #{self.type_name} is unapplicable to the taxon #{self.taxon_name.cached_html} published in the year #{y.to_s}")
+        soft_validations.add(:type, "The status '#{self.type_class.label}' is unapplicable to the taxon #{self.taxon_name.cached_html} published in the year #{y}")
       end
     end
   end
@@ -213,7 +219,7 @@ class TaxonNameClassification < ActiveRecord::Base
   def sv_validate_disjoint_classes
     classifications = TaxonNameClassification.where_taxon_name(self.taxon_name).not_self(self)
     classifications.find_each  do |i|
-      soft_validations.add(:type, "The status  #{self.type_name} conflicting with another status: '#{i.type_name}'") if self.type_class.disjoint_taxon_name_classes.include?(i.type_name)
+      soft_validations.add(:type, "The status  '#{self.type_class.label}' conflicting with another status: '#{i.type_class.label}'") if self.type_class.disjoint_taxon_name_classes.include?(i.type_name)
     end
   end
 
@@ -256,32 +262,25 @@ class TaxonNameClassification < ActiveRecord::Base
         soft_validations.add(:type, 'Please specify if the name is Legitimate or Illegitimate')
       when 'TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate'
         soft_validations.add(:type, 'Please specify the reasons for the name being Legitimate')
-      when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Illegitimate')
-      when 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective' || 'TaxonNameClassification::Latinized::PartOfSpeech::Participle'
+      # when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate'
+      #   soft_validations.add(:type, 'Please specify the reasons for the name being Illegitimate')
+      when 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective' ||
+           'TaxonNameClassification::Latinized::PartOfSpeech::Participle'
         t = taxon_name.name
-        if !t.end_with?('us') && !t.end_with?('a') && !t.end_with?('um') && !t.end_with?('is') && !t.end_with?('e') && !t.end_with?('or') && !t.end_with?('er')
-            soft_validations.add(:type, 'Adjective or participle name should end with one of the following endings: -us, -a, -um, -is, -e, -er, -or')
+        if !t.end_with?('us') &&
+          !t.end_with?('a') &&
+          !t.end_with?('um') &&
+          !t.end_with?('is') &&
+          !t.end_with?('e') &&
+          !t.end_with?('or') &&
+          !t.end_with?('er')
+          soft_validations.add(:type, 'Adjective or participle name should end with one of the ' \
+                                              'following endings: -us, -a, -um, -is, -e, -er, -or')
         end
     end
   end
 
   #endregion
-
-  def self.find_for_autocomplete(params)
-    where(id: params[:term]).with_project_id(params[:project_id])
-  end
-
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
 
   def self.annotates?
     true
@@ -293,7 +292,6 @@ class TaxonNameClassification < ActiveRecord::Base
 
   private
 
-
   def nomenclature_code_matches
     if taxon_name && type && nomenclature_code
       errors.add(:taxon_name, "#{taxon_name.cached_html} belongs to #{taxon_name.rank_class.nomenclatural_code} nomenclatural code, but the status used from #{nomenclature_code} nomenclature code") if nomenclature_code != taxon_name.rank_class.nomenclatural_code
@@ -301,26 +299,29 @@ class TaxonNameClassification < ActiveRecord::Base
   end
 
   def validate_taxon_name_classification
-    errors.add(:type, "Status not found") if !self.type.nil? and !TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type.to_s)
+    errors.add(:type, 'Status not found') if !self.type.nil? and !TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type.to_s)
   end
+
 
   # @todo move these to a shared library (see NomenclaturalRank too)
   def self.collect_to_s(*args)
     args.collect{|arg| arg.to_s}
   end
-  
+
   # @todo move these to a shared library (see NomenclaturalRank too)
+  # !! using this strongly suggests something can be optimized, meomized etc.
   def self.collect_descendants_to_s(*classes)
     ans = []
     classes.each do |klass|
       ans += klass.descendants.collect{|k| k.to_s}
     end
-    ans    
+    ans
   end
- 
+
   # @todo move these to a shared library (see NomenclaturalRank too)
+  # !! using this strongly suggests something can be optimized, meomized etc.
   def self.collect_descendants_and_itself_to_s(*classes)
     classes.collect{|k| k.to_s} + self.collect_descendants_to_s(*classes)
   end
-  
+
 end

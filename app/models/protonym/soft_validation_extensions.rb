@@ -4,10 +4,10 @@ module Protonym::SoftValidationExtensions
 
     VALIDATIONS = {
       sv_validate_parent_rank: {
-        set: :validate_parent_rank,
-        resolution: [],
-        name: 'Validate parent rank',
-        description: 'Validates parent rank.' 
+        set:         :validate_parent_rank,
+        resolution:  [],
+        name:        'Validate parent rank',
+        description: 'Validates parent rank.'
       },
 
       sv_missing_relationships: { set: :missing_relationships},
@@ -23,15 +23,15 @@ module Protonym::SoftValidationExtensions
       sv_source_not_older_then_description: { set: :dates},
       sv_original_combination_relationships: { set: :original_combination_relationships},
       sv_extant_children: { set: :extant_children}
-    }
+    }.freeze
 
-    VALIDATIONS.keys.each do |k|
+    VALIDATIONS.each_key do |k|
       Protonym.soft_validate(k, VALIDATIONS[k])
     end
   end
-  
-  module Instance 
-   
+
+  module Instance
+
     def sv_source_not_older_then_description
       if self.source && self.year_of_publication
         soft_validations.add(:base, 'The year of publication of the taxon and the year in the original reference do not match') if self.try(:source).try(:year) != self.year_of_publication
@@ -49,11 +49,11 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_missing_relationships
-      if is_species_rank? 
+      if is_species_rank?
         soft_validations.add(:base, 'Missing relationship: Original genus is not selected') if self.original_genus.nil?
-      elsif is_genus_rank? 
+      elsif is_genus_rank?
         soft_validations.add(:base, 'Missing relationship: Type species is not selected') if self.type_species.nil?
-      elsif is_family_rank? 
+      elsif is_family_rank?
         soft_validations.add(:base, 'Missing relationship: Type genus is not selected') if self.type_genus.nil?
       end
       if !self.iczn_set_as_homonym_of.nil? || !TaxonNameClassification.where_taxon_name(self).with_type_string('TaxonNameClassification::Iczn::Available::Invalid::Homonym').empty?
@@ -64,7 +64,7 @@ module Protonym::SoftValidationExtensions
     def sv_missing_classifications
       if is_species_rank?
         soft_validations.add(:base, 'Part of speech is not specified. Please select if the name is a noun or an adjective.') if self.part_of_speech_class.nil?
-      elsif is_genus_rank? 
+      elsif is_genus_rank?
         if self.gender_class.nil?
           g = genus_suggested_gender
           soft_validations.add(:base, "Gender is not specified#{ g.nil? ? '' : ' (possible gender is ' + g + ')'}")
@@ -73,54 +73,51 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_species_gender_agreement
-      if is_species_rank? 
-        s = self.part_of_speech_name
-        unless self.part_of_speech_name.nil?
-          if s =~ /(adjective|participle)/
-
-            if self.feminine_name.blank?
-              soft_validations.add(:feminine_name, "The species name is marked as #{self.part_of_speech_name}, but the name spelling in feminine is not provided")
+      if is_species_rank?
+        s = part_of_speech_name
+        unless part_of_speech_name.nil?
+          if %w{adjective participle}.include?(s)
+            if feminine_name.blank?
+              soft_validations.add(:feminine_name, "The species name is marked as #{part_of_speech_name}, but the name spelling in feminine is not provided")
             else
-              e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Feminine, self.feminine_name)
+              e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Feminine, feminine_name)
               unless e.nil?
                 soft_validations.add(:feminine_name, "Name has a non feminine ending: -#{e}")
               end
             end
 
-            if self.masculine_name.blank?
-              soft_validations.add(:masculine_name, "The species name is marked as #{self.part_of_speech_name}, but the name spelling in masculine is not provided")
+            if masculine_name.blank?
+              soft_validations.add(:masculine_name, "The species name is marked as #{part_of_speech_name}, but the name spelling in masculine is not provided")
             else
-              e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Masculine, self.masculine_name)
+              e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Masculine, masculine_name)
               unless e.nil?
                 soft_validations.add(:masculine_name, "Name has a non masculine ending: -#{e}")
               end
             end
 
-            if self.neuter_name.blank?
-              soft_validations.add(:neuter_name, "The species name is marked as #{self.part_of_speech_name}, but the name spelling in neuter is not provided")
+            if neuter_name.blank?
+              soft_validations.add(:neuter_name, "The species name is marked as #{part_of_speech_name}, but the name spelling in neuter is not provided")
             else
-              e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Neuter, self.neuter_name)
+              e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Neuter, neuter_name)
               unless e.nil?
                 soft_validations.add(:neuter_name, "Name has a non neuter ending: -#{e}")
               end
             end
 
-            if self.masculine_name.blank? && self.feminine_name.blank? && self.neuter_name.blank?
+            if masculine_name.blank? && feminine_name.blank? && neuter_name.blank?
               g = self.ancestor_at_rank('genus').gender_class
               unless g.nil?
                 e = species_questionable_ending(g, self.name)
                 unless e.nil?
-                  soft_validations.add(:name, "Name has non #{g.class_name} ending: -#{e}")
+                  soft_validations.add(:name, "Name has non #{g.class.name} ending: -#{e}")
                 end
               end
             end
 
           else
-
-            soft_validations.add(:feminine_name, 'Alternative spelling is not required for the name which is not adjective or participle.') unless self.feminine_name.blank?
-            soft_validations.add(:masculine_name, 'Alternative spelling is not required for the name which is not adjective or participle.')  unless self.masculine_name.blank?
-            soft_validations.add(:neuter_name, 'Alternative spelling is not required for the name which is not adjective or participle.')  unless self.neuter_name.blank?
-
+            soft_validations.add(:feminine_name, 'Alternative spelling is not required for the name which is not adjective or participle.') unless feminine_name.blank?
+            soft_validations.add(:masculine_name, 'Alternative spelling is not required for the name which is not adjective or participle.')  unless masculine_name.blank?
+            soft_validations.add(:neuter_name, 'Alternative spelling is not required for the name which is not adjective or participle.')  unless neuter_name.blank?
           end
         end
       end
@@ -128,6 +125,7 @@ module Protonym::SoftValidationExtensions
 
     # !! TODO: @proceps - make these individual validations !! way too complex here
     def sv_validate_coordinated_names
+      r = self.iczn_set_as_incorrect_original_spelling_of_relationship
       list_of_coordinated_names.each do |t|
         soft_validations.add(:base, "The original publication does not match with the original publication of the coordinated #{t.rank_class.rank_name}",
                              fix: :sv_fix_coordinated_names, success_message: 'Original publication was updated') unless (self.source && t.source) && (self.source.id == t.source.id)
@@ -140,11 +138,11 @@ module Protonym::SoftValidationExtensions
         soft_validations.add(:base, "The part of speech status does not match with the part of speech of the coordinated #{t.rank_class.rank_name}",
                              fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if rank_string =~ /Species/ && self.part_of_speech_class != t.part_of_speech_class
         soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Original genus was updated') unless self.original_genus == t.original_genus
+                             fix: :sv_fix_coordinated_names, success_message: 'Original genus was updated') if self.original_genus != t.original_genus && r.blank?
         soft_validations.add(:base, "The original subgenus does not match with the original subgenus of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Original subgenus was updated') unless self.original_subgenus == t.original_subgenus
+                             fix: :sv_fix_coordinated_names, success_message: 'Original subgenus was updated') if self.original_subgenus != t.original_subgenus && r.blank?
         soft_validations.add(:base, "The original species does not match with the original species of the coordinated #{t.rank_class.rank_name}",
-                             fix: :sv_fix_coordinated_names, success_message: 'Original species was updated') unless self.original_species == t.original_species
+                             fix: :sv_fix_coordinated_names, success_message: 'Original species was updated') if self.original_species != t.original_species && r.blank?
         soft_validations.add(:base, "The type species does not match with the type species of the coordinated #{t.rank_class.rank_name}",
                              fix: :sv_fix_coordinated_names, success_message: 'Type species was updated') unless self.type_species == t.type_species
         soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}",
@@ -161,14 +159,14 @@ module Protonym::SoftValidationExtensions
 
     end
 
-    # TODO: way too long 
+    # TODO: way too long
     def sv_fix_coordinated_names
       fixed = false
       gender = self.gender_class
       speech = self.part_of_speech_class
 
       list_of_coordinated_names.each do |t|
-        if t.source && (source != t.source) 
+        if t.source && (source != t.source)
           self.source = t.source
           fixed = true
         end
@@ -186,19 +184,19 @@ module Protonym::SoftValidationExtensions
         t_gender = t.gender_class
 
         if gender.nil? && gender != t_gender
-          self.TaxonNameClassification.build(type: t_gender.to_s)
+          self.taxon_name_classifications.build(type: t_gender.to_s)
           fixed = true
         end
 
         t_speech = t.part_of_speech_class
 
         if speech.nil? && speech != t_speech
-          self.TaxonNameClassification.build(type: t_speech.to_s)
+          self.taxon_name_classifications.build(type: t_speech.to_s)
           fixed = true
         end
 
         if self.gender_class.nil? && !t.gender_class.nil?
-          self.taxon_name_classification.build(type: t.gender_name)
+          self.taxon_name_classifications.build(type: t.gender_class.to_s)
           fixed = true
         end
 
@@ -292,7 +290,7 @@ module Protonym::SoftValidationExtensions
 
     def sv_single_sub_taxon
       if self.rank_class
-        rank = rank_string 
+        rank = rank_string
         if rank != 'potentially_validating rank' && self.rank_class.nomenclatural_code == :iczn && %w(subspecies subgenus subtribe tribe subfamily).include?(self.rank_class.rank_name)
           sisters = self.parent.descendants.with_rank_class(rank).select{|t| t.id == t.cached_valid_taxon_name_id}
           if rank =~ /Family/
@@ -306,6 +304,8 @@ module Protonym::SoftValidationExtensions
           end
           if search_name.include?(self.parent.name) && sisters.count == 1
             soft_validations.add(:base, "#{self.cached_html} is a single #{self.rank_class.rank_name} in the nominal #{self.parent.rank_class.rank_name} #{self.parent.cached_html}")
+          elsif !sister_names.include?(self.parent.name) && !sisters.empty? && self.parent.name == Protonym.family_group_base(self.parent.name) && rank =~ /Family/
+            # do nothing
           elsif !sister_names.include?(self.parent.name) && !sisters.empty?
             soft_validations.add(:base, "The parent #{self.parent.rank_class.rank_name} #{self.parent.cached_html} of this #{self.rank_class.rank_name} does not contain nominotypical #{self.rank_class.rank_name} #{self.parent.name}",
                                  fix: :sv_fix_add_nominotypical_sub, success_message: "Nominotypical #{self.rank_class.rank_name} #{self.parent.name} was added to nominal #{self.parent.rank_class.rank_name} #{self.parent.name}")
@@ -315,8 +315,8 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_fix_add_nominotypical_sub
-      rank = rank_string 
-      p = self.parent
+      rank  = rank_string
+      p     = self.parent
       prank = p.rank_string
       if (rank =~ /Family/ && prank =~ /Family/) || (rank =~ /Genus/ && prank =~ /Genus/) || (rank =~ /Species/ && prank =~ /Species/)
         begin
@@ -373,9 +373,11 @@ module Protonym::SoftValidationExtensions
           if rank_string =~ /Species/
             primary_types = self.get_primary_type
             unless primary_types.empty?
-              p = primary_types.collect!{|t| t.biological_object_id}
+              p                 = primary_types.collect {|t| t.biological_object_id}
               possible_synonyms = Protonym.with_type_material_array(p).that_is_valid.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self).with_project(self.project_id)
             end
+          elsif rank_string =~ /Family/ && self.name == Protonym.family_group_base(self.name)
+            # do nothing
           else
             type = self.type_taxon_name
             unless type.nil?
@@ -458,9 +460,9 @@ module Protonym::SoftValidationExtensions
         ids = relationships.collect{|r| r.subject_taxon_name_id}
 
         if !ids.include?(self.id)
-          soft_validations.add(:base, 'Missing relationship: In the original combination, the original rank of #{self.cached_html} is not specified.')
+          soft_validations.add(:base, "Missing relationship: In the original combination, the original rank of #{self.cached_html} is not specified.")
         elsif ids.last != self.id
-          soft_validations.add(:base, 'Invalid original combination relationship: #{self.cached_html} should be moved to the lowest rank')
+          soft_validations.add(:base, "Invalid original combination relationship: #{self.cached_html} should be moved to the lowest rank")
         end
       end
     end
@@ -469,9 +471,11 @@ module Protonym::SoftValidationExtensions
       unless self.parent_id.blank?
         if self.is_fossil?
           taxa = Protonym.where(parent_id: self.id)
+          z = 0
           unless taxa.empty?
             taxa.find_each do |t|
-              soft_validations.add(:base, 'Extinct taxon #{self.cached_html} has extant children') unless t.is_fossil?
+              soft_validations.add(:base, "Extinct taxon #{self.cached_html} has extant children") if !t.is_fossil? && z == 0
+              z = 1
             end
           end
         end

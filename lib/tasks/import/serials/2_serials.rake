@@ -3,7 +3,7 @@ namespace :tw do
     namespace :serial do
 
       desc 'call like "rake tw:import:serial:serials_4_build_SF_serials data_directory=/Users/eef/src/data/serialdata/working_data/SFSerialExport.txt user_id=1" '
-      task :serials_4_build_SF_serials => [:environment, :data_directory, :user_id] do |t|
+      task serials_4_build_SF_serials: [:environment, :data_directory, :user_id] do |t|
         file = @args[:data_directory] +  'SF_serial_Final.txt' # was SerialExport.txt' 
         # must be run after MX/treehopper serial import
 
@@ -13,7 +13,7 @@ namespace :tw do
         error_msg = [] # array for error messages
 
         begin
-          ActiveRecord::Base.transaction do
+          ApplicationRecord.transaction do
             set_serial_import_predicates
 
             CSV.foreach(file,
@@ -87,7 +87,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                             unless ava[0].alternate_value_object.data_attributes.where(import_predicate:
                                                                                          @mx_t_serial_importID_name).any?
                               tmp1 =
-                                "attributes: #{ava[0].alternate_value_object.data_attributes.to_s}"
+                                "attributes: #{ava[0].alternate_value_object.data_attributes}"
                             else
                               tmp1 =
                                 "MX_T_importID #{ava[0].alternate_value_object.data_attributes.where(
@@ -95,7 +95,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                             end
                             if ava[1].alternate_value_object.data_attributes.where(import_predicate:
                                                                                      @mx_t_serial_importID_name).first.nil?
-                              tmp2 = "attributes: #{ava[1].alternate_value_object.data_attributes.to_s}"
+                              tmp2 = "attributes: #{ava[1].alternate_value_object.data_attributes}"
                             else
                               tmp2 =
                                 "\n MX_T_importID #{ava[1].alternate_value_object.data_attributes.where(
@@ -129,13 +129,13 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
                   case nsa.count # how many serials were found for this value?
                     when 0
                       puts ["\nskipping - unable to find MX serial ", fname, 'importID', importID, 'MX_T_ImportID',
-                            mx_import_id].join(" : ")
+                            mx_import_id].join(' : ')
                       next
                     when 1 # found 1 and only 1 serial - we're good!
                       ns = nsa.first
                     else
                       puts ["\nskipping - match > 1 MX serials ", fname, 'importID', importID, 'MX_T_ImportID',
-                            mx_import_id].join(" : ")
+                            mx_import_id].join(' : ')
                       next
                   end
                 end
@@ -307,7 +307,7 @@ need to confirm that the 2 serials are the same and add the SF data as Alternate
         warn_msg  = [] # array for warnings
 
         begin
-          ActiveRecord::Base.transaction do
+          ApplicationRecord.transaction do
             set_serial_import_predicates
 
             CSV.foreach(file,
@@ -359,7 +359,7 @@ SFImportIDMap.txt
                       s.data_attributes << ImportAttribute.new(import_predicate: @sf_pubID_name,
                                                               value:            sfID)
                     when 1 # found it  -> skip it
-                      msg = "found an existing identifier #{(i.first).to_s}"
+                      msg = "found an existing identifier #{(i.first)}"
                       warn_msg << msg
                     else # found more than 1 -> error
                       msg = "skipping - found multiple existing identifiers #{i.count} importID #{importID}"
@@ -376,7 +376,7 @@ SFImportIDMap.txt
                       s.data_attributes << ImportAttribute.new(import_predicate: @sf_pub_regID_name,
                                                               value:            sfregID)
                     when 1 # found it  -> skip it
-                      msg = "found an existing identifier #{(i.first).to_s}"
+                      msg = "found an existing identifier #{(i.first)}"
                       warn_msg << msg
                     else # found more than 1 -> error
                       msg = "skipping - found multiple existing identifiers #{i.count} importID #{importID}"
@@ -404,7 +404,7 @@ SFImportIDMap.txt
       end #end task
 
       desc 'call like "rake tw:import:serial:serials_6_add_SF_altnames data_directory=/Users/eef/src/data/serialdata/working_data/ user_id=1 " '
-      task :serials_6_add_SF_altnames => [:environment, :user_id, :data_directory ] do |t|
+      task serials_6_add_SF_altnames: [:environment, :user_id, :data_directory ] do |t|
         file = @args[:data_directory] + 'SF_Altnames.txt' # was 'SFaltnames.txt'
 
         raise 'There are no existing serials, doing nothing.' if Serial.all.count == 0
@@ -416,7 +416,7 @@ SFImportIDMap.txt
         warn_msg  = [] # array for warnings
 
         begin
-          ActiveRecord::Base.transaction do
+          ApplicationRecord.transaction do
             set_serial_import_predicates
 
             CSV.foreach(file,
@@ -480,7 +480,7 @@ Column : SQL column name :  data desc
                       s.data_attributes << ImportAttribute.new(import_predicate: @sf_pubID_name,
                                                                 value:            sfID)
                     when 1 # found it  -> skip it
-                      msg = "found an existing identifier #{(i.first).to_s}"
+                      msg = "found an existing identifier #{(i.first)}"
                       warn_msg << msg
                     else # found more than 1 -> error
                       msg = "skipping - found multiple existing identifiers #{i.count} importID #{importID}"
@@ -499,7 +499,7 @@ Column : SQL column name :  data desc
                       s.data_attributes << ImportAttribute.new(import_predicate: @sf_pub_regID_name,
                                                               value:            sfregID)
                     when 1 # found it  -> skip it
-                      msg = "found an existing identifier #{(i.first).to_s}"
+                      msg = "found an existing identifier #{(i.first)}"
                       warn_msg << msg
                     else # found more than 1 -> error
                       msg = "skipping - found multiple existing identifiers #{i.count} importID #{importID}"

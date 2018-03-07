@@ -1,12 +1,12 @@
 require 'rails_helper'
 
 #Api::V1::TaxonNamesController
-xdescribe ApiController, :type => :controller do
+xdescribe ApiController, type: :controller do
 # before(:each) {
 #   sign_in
 # }
 
-#  let(:user) { FactoryGirl.build(:user_valid_token) }
+#  let(:user) { FactoryBot.build(:user_valid_token) }
 
   context 'sessions_current_user is set' do
     # specify 'with a token in header' do

@@ -8,24 +8,24 @@ describe 'Authentication', type: :feature do
 
     context 'when credentials match existing user' do
 
-      let(:valid_user) { FactoryGirl.create(:valid_user, id: 1) }
+      let(:valid_user) { FactoryBot.create(:valid_user, id: 1) }
 
       it 'should sign user in' do
-        sign_in_with(valid_user.email, TEST_USER_PASSWORD)
+        sign_in_with(valid_user.email, Rails.configuration.x.test_user_password )
 
         expect(subject).to have_link('Account') # TODO, add href
         expect(subject).not_to have_link('Sign out', href: signin_path)
 
-        expect(subject).to have_content "Dashboard" 
-        expect(subject).to have_content "Projects" 
+        expect(subject).to have_content 'Dashboard' 
+        expect(subject).to have_content 'Projects' 
       end
     end
 
     context 'when credentials do not match existing user' do
       it 'should not sign user in' do
         visit signin_path
-        fill_in 'Email',    with: "" 
-        fill_in 'Password', with: "" 
+        fill_in 'Email',    with: '' 
+        fill_in 'Password', with: '' 
         click_button 'Sign in'
         expect(subject).to have_title('Sign in | TaxonWorks')
         expect(subject).to have_button('Sign in')

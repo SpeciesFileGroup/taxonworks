@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'ControlledVocabularyTerms', :type => :feature do
+describe 'ControlledVocabularyTerms', type: :feature do
   let(:page_title) { 'Controlled vocabulary terms' }
   let(:index_path) { controlled_vocabulary_terms_path }
 
@@ -8,11 +8,11 @@ describe 'ControlledVocabularyTerms', :type => :feature do
   end
 
   context 'signed in as a user, with some records created' do
-    let(:p) { FactoryGirl.create(:root_taxon_name, user_project_attributes(@user, @project).merge(source: nil)) }
+    let(:p) { FactoryBot.create(:root_taxon_name, user_project_attributes(@user, @project).merge(source: nil)) }
     before {
       sign_in_user_and_select_project
       5.times {
-        FactoryGirl.create(:valid_controlled_vocabulary_term, user_project_attributes(@user, @project))
+        FactoryBot.create(:valid_controlled_vocabulary_term, user_project_attributes(@user, @project))
       }
     }
     after {

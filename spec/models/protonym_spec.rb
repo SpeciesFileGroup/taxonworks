@@ -2,12 +2,13 @@ require 'rails_helper'
 
 describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
+  # TODO: cleanup don't leave dirty .... 
   before(:all) do
     TaxonNameRelationship.delete_all
     TaxonNameClassification.delete_all
     TaxonName.delete_all
     TaxonNameHierarchy.delete_all
-    @order = FactoryGirl.create(:iczn_order)
+    @order = FactoryBot.create(:iczn_order)
   end
 
   after(:all) do
@@ -74,10 +75,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   
   context 'usage' do
     before(:each) do
-      @f = FactoryGirl.create(:relationship_family, name: 'Aidae', parent: @order)
-      @g = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @f)
-      @o = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @f)
-      @s = FactoryGirl.create(:relationship_species, name: 'aus', parent: @g)
+      @f = FactoryBot.create(:relationship_family, name: 'Aidae', parent: @order)
+      @g = FactoryBot.create(:relationship_genus, name: 'Aus', parent: @f)
+      @o = FactoryBot.create(:relationship_genus, name: 'Bus', parent: @f)
+      @s = FactoryBot.create(:relationship_species, name: 'aus', parent: @g)
     end
 
     specify 'assign an original description genus' do
@@ -91,28 +92,29 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     specify 'has at most one original description genus' do
       expect(@s.original_combination_relationships.count).to eq(0)
       # Example 1) recasting
-      temp_relation = FactoryGirl.build(:taxon_name_relationship,
+      temp_relation = FactoryBot.create(:taxon_name_relationship,
                                                         subject_taxon_name: @o,
                                                         object_taxon_name: @s,
                                                         type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
-      temp_relation.save
+#      temp_relation.save
       # Recast as the subclass
-      first_original_genus_relation = temp_relation.becomes(temp_relation.type_class)
+  #    first_original_genus_relation = temp_relation.becomes(temp_relation.type_class)
       expect(@s.original_combination_relationships.count).to eq(1)
 
       # Example 2) just use the right subclass to start
-      first_original_subgenus_relation = FactoryGirl.build(:taxon_name_relationship_original_combination,
+      first_original_subgenus_relation = FactoryBot.create(:taxon_name_relationship_original_combination,
                                                            subject_taxon_name: @g,
                                                            object_taxon_name: @s,
                                                            type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
-      first_original_subgenus_relation.save
+      # first_original_subgenus_relation.save
       expect(@s.original_combination_relationships.count).to eq(2)
-      extra_original_genus_relation = FactoryGirl.build(:taxon_name_relationship,
+
+      extra_original_genus_relation = FactoryBot.build(:taxon_name_relationship,
                                               subject_taxon_name: @g,
                                               object_taxon_name: @s,
                                               type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       expect(extra_original_genus_relation.valid?).to be_falsey
-      extra_original_genus_relation.save
+     # extra_original_genus_relation.save
       expect(@s.original_combination_relationships.count).to eq(2)
     end
 
@@ -130,7 +132,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     specify 'synonym has at most one valid name' do
-      genus = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @f)
+      genus = FactoryBot.create(:relationship_genus, name: 'Cus', parent: @f)
       genus.iczn_set_as_subjective_synonym_of = @g
       expect(genus.save).to be_truthy
       genus.iczn_set_as_synonym_of = @o
@@ -213,11 +215,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
   end
 
-
-
-
-
-
   context 'parallel creation of OTUs' do
     let(:p) {Protonym.new(parent: @order , name: 'Aus', rank_class: Ranks.lookup(:iczn, 'genus')) }
 
@@ -234,6 +231,31 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       p.save!
       expect(Otu.count).to eq(0)
     end
+  end
+
+  context 'nominotypical detection' do
+    let(:g1) { Protonym.create!(name: 'Aus', parent: root, rank_class: Ranks.lookup(:iczn, :genus)) }
+    let(:g2) { Protonym.create!(name: 'Aus', parent: g1, rank_class: Ranks.lookup(:iczn, :subgenus)) }
+
+    let(:s1) { Protonym.create!(name: 'aus', parent: root, rank_class: Ranks.lookup(:iczn, :species)) }
+    let(:s2) { Protonym.create!(name: 'aus', parent: s1, rank_class: Ranks.lookup(:iczn, :subspecies)) }
+
+    specify '#nominotypical_sub_of? 1' do
+      expect(g1.nominotypical_sub_of?(g2)).to be_falsey
+    end
+
+    specify '#nominotypical_sub_of? 2' do
+      expect(g2.nominotypical_sub_of?(g1)).to be_truthy
+    end
+
+    specify '#nominotypical_sub_of? 3' do
+      expect(s1.nominotypical_sub_of?(s2)).to be_falsey
+    end
+
+    specify '#nominotypical_sub_of? 4' do
+      expect(s2.nominotypical_sub_of?(s1)).to be_truthy
+    end
+
   end
 
 end

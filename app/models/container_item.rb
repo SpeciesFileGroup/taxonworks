@@ -36,7 +36,7 @@
 #   @return [Integer]
 #     a z coordinate for this item in its container
 #
-class ContainerItem < ActiveRecord::Base
+class ContainerItem < ApplicationRecord
   has_closure_tree
 
   include Housekeeping
@@ -75,7 +75,7 @@ class ContainerItem < ActiveRecord::Base
   # @return [container]
   #   the container for this ContainerItem
   def container
-    parent(true).try(:contained_object) || Container.none
+    reload_parent.try(:contained_object) || Container.none
   end
 
   def global_entity
@@ -85,11 +85,6 @@ class ContainerItem < ActiveRecord::Base
   def global_entity=(entity)
     contained_object = GlobalID::Locator.locate entity
   end
-
-  def self.find_for_autocomplete(params)
-    Queries::ContainerItemAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
-  end
-
 
   protected
 
@@ -133,8 +128,5 @@ class ContainerItem < ActiveRecord::Base
       errors.add(:contained_object, 'is already in a container_item')
     end
   end
-
-
-
 
 end

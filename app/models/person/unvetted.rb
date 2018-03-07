@@ -2,7 +2,7 @@
 #
 class Person::Unvetted < Person
   def foo
-    puts "bar"
+    puts 'bar'
   end
 end
 

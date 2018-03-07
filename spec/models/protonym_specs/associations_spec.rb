@@ -5,7 +5,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   before(:all) do
     TaxonName.delete_all
     TaxonNameRelationship.delete_all
-    @order = FactoryGirl.create(:iczn_order)
+    @order = FactoryBot.create(:iczn_order)
   end
 
   after(:all) do
@@ -22,14 +22,14 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
   context 'associations' do
     before(:all) do
-      @family = FactoryGirl.create(:relationship_family, name: 'Aidae', parent: @order)
-      @genus = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
-      @protonym = FactoryGirl.create(:relationship_species, name: 'aus', parent: @genus)
-      @species_type_of_genus = FactoryGirl.create(:taxon_name_relationship,
+      @family = FactoryBot.create(:relationship_family, name: 'Aidae', parent: @order)
+      @genus = FactoryBot.create(:relationship_genus, name: 'Aus', parent: @family)
+      @protonym = FactoryBot.create(:relationship_species, name: 'aus', parent: @genus)
+      @species_type_of_genus = FactoryBot.create(:taxon_name_relationship,
                                                   subject_taxon_name: @protonym,
                                                   object_taxon_name: @genus,
                                                   type: 'TaxonNameRelationship::Typification::Genus::Monotypy::Original')
-      @genus_type_of_family = FactoryGirl.create(:taxon_name_relationship,
+      @genus_type_of_family = FactoryBot.create(:taxon_name_relationship,
                                                  subject_taxon_name: @genus,
                                                  object_taxon_name: @family,
                                                  type: 'TaxonNameRelationship::Typification::Family')
@@ -51,12 +51,12 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'gender' do
-        gender = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
+        gender = FactoryBot.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
         expect(gender.valid?).to be_truthy
         expect(gender.errors.include?(:taxon_name_id)).to be_falsey
         @genus.reload
         expect(@genus.gender_name).to eq('masculine')
-        gender2 = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
+        gender2 = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
         gender2.valid?
         expect(gender2.errors.include?(:taxon_name_id)).to be_truthy
       end
@@ -109,7 +109,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         end 
 
         specify 'has at most one has_type relationship' do
-          extra_type_relation = FactoryGirl.build_stubbed(:taxon_name_relationship,
+          extra_type_relation = FactoryBot.build_stubbed(:taxon_name_relationship,
                                                           subject_taxon_name: @genus,
                                                           object_taxon_name: @family,
                                                           type: 'TaxonNameRelationship::Typification::Family')
@@ -120,8 +120,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
       context 'latinized' do
         specify 'has at most one latinization' do
-          c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
-          c2 = FactoryGirl.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Ajective')
+          c1 = FactoryBot.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
+          c2 = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
           expect(c2.valid?).to be_falsey
         end
       end 

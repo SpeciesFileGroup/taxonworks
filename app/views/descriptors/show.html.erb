@@ -1,0 +1,10 @@
+<%= content_for :associated do -%>
+  <h3> Observations </h3>
+  <ul>
+    <% @descriptor.observations.each do |o| -%>
+      <%= content_tag(:li, observation_tag(o)) %> 
+    <% end %>
+  </ul>
+<% end %>
+
+<%= render(partial: 'shared/data/project/show', locals: {object: @descriptor}) -%>

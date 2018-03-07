@@ -1,22 +1,22 @@
 module NomenclatureCatalog
 
-  # A Catalog Entry contains the metadata the nomenclatural history of a single "reference" taxon name.  
-  # Mutiple CatalogEntries would make up a catalog.  
+  # A Catalog Entry contains the metadata the nomenclatural history of a single "reference" taxon name.
+  # Mutiple CatalogEntries would make up a catalog.
   class CatalogEntry
-  
-    # Each item is a line item in the Entry 
+
+    # Each item is a line item in the Entry
     attr_accessor :items
 
     # Topics are extracted from each item and cached here
     attr_accessor :topics
-  
+
     # All observed dates for this entry
     attr_accessor :dates
 
     # All sources
     attr_accessor :sources
 
-    # The taxon name being referenced in this entry (think of it as the header) 
+    # The taxon name being referenced in this entry (think of it as the header)
     attr_accessor :reference_taxon_name
 
     def initialize(taxon_name = nil)
@@ -39,7 +39,7 @@ module NomenclatureCatalog
 
     # @return [Array of Topics]
     #   an extraction of all Topics referenced in citations that
-    #   were observed in this CatalogEntry for the source 
+    #   were observed in this CatalogEntry for the source
     def topics_for_source(source)
       topics = []
       items.each do |i|
@@ -62,7 +62,7 @@ module NomenclatureCatalog
       @dates
     end
 
-    def sources 
+    def sources
       @sources ||= all_sources
       @sources
     end
@@ -75,7 +75,7 @@ module NomenclatureCatalog
     def year_hash
       h = {}
       dates.each do |d|
-        if h[d.year] 
+        if h[d.year]
           h[d.year] += 1
         else
           h[d.year] = 1
@@ -84,7 +84,7 @@ module NomenclatureCatalog
       h
     end
 
-   protected 
+   protected
 
     def item_names(catalog_item)
       [reference_taxon_name, catalog_item.taxon_name, catalog_item.other_name].compact.uniq
@@ -93,11 +93,11 @@ module NomenclatureCatalog
     def all_names
       n = [ reference_taxon_name]
       items.each do |i|
-        n.push item_names(i) 
+        n.push item_names(i)
       end
       n.flatten.uniq.sort_by!(&:cached)
       n
-    end 
+    end
 
     # @return [Array of Sources]
     #   as extracted for all EntryItems, orderd alphabetically by full citation
@@ -109,7 +109,7 @@ module NomenclatureCatalog
           s.push i.object.subject_taxon_name.origin_citation.try(:source) if i.object.object_taxon_name != reference_taxon_name
         end
       end
-      s.compact.uniq.sort_by{|a| a.cached}
+      s.compact.uniq.sort_by {|a| a.cached}
     end
 
     def all_dates
@@ -119,9 +119,9 @@ module NomenclatureCatalog
       end
 
       items.each do |i|
-       d.push i.nomenclature_date
+        d.push i.nomenclature_date
       end
-      d.compact.sort 
+      d.compact.sort
     end
 
     def all_topics

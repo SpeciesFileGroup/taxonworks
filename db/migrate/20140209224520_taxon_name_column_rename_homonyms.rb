@@ -1,4 +1,4 @@
-class TaxonNameColumnRenameHomonyms < ActiveRecord::Migration
+class TaxonNameColumnRenameHomonyms < ActiveRecord::Migration[4.2]
   def change
     rename_column :taxon_names, :primary_homonym, :cached_primary_homonym
     rename_column :taxon_names, :secondary_homonym, :cached_secondary_homonym

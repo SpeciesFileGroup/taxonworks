@@ -1,7 +1,7 @@
 class NomenclaturalRank::Icn::FamilyGroup::Subtribe < NomenclaturalRank::Icn::FamilyGroup
 
   def self.parent_rank
-      NomenclaturalRank::Icn::FamilyGroup::Tribe
+    NomenclaturalRank::Icn::FamilyGroup::Tribe
   end
 
   def self.validate_name_format(taxon_name)
@@ -16,6 +16,6 @@ class NomenclaturalRank::Icn::FamilyGroup::Subtribe < NomenclaturalRank::Icn::Fa
   end
 
   def self.abbreviation
-    "subtr."
+    'subtr.'
   end
 end

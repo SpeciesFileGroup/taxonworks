@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'PreparationTypes', :type => :feature do
+describe 'PreparationTypes', type: :feature do
   let(:page_title) { 'Preparation types' }
   it_behaves_like 'a_login_required_controller' do
     let(:index_path) { preparation_types_path }
@@ -9,7 +9,7 @@ describe 'PreparationTypes', :type => :feature do
   context 'signed in as user, with some records created' do
     before do
       sign_in_user
-      5.times { factory_girl_create_for_user(:valid_preparation_type, @user) }
+      5.times { factory_bot_create_for_user(:valid_preparation_type, @user) }
     end
 
     describe 'GET /preparation_types' do

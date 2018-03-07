@@ -1,8 +1,6 @@
 module Queries
 
-  class GeographicAreaAutocompleteQuery <   Queries::Query
-
-    include Arel::Nodes
+  class GeographicAreaAutocompleteQuery <  Queries::Query
 
     # TODO: use or_clauses
     def where_sql

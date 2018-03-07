@@ -1,11 +1,11 @@
 require 'rails_helper'
-describe Topic, :type => :model do
-  let(:topic) { FactoryGirl.build(:topic) }
+describe Topic, type: :model do
+  let(:topic) { FactoryBot.build(:topic) }
 
   # validation is handlded in superclass or associated classes
 
-  context "associations" do
-    context "has many" do
+  context 'associations' do
+    context 'has many' do
       specify 'citation_topics' do
         expect(topic).to respond_to(:citation_topics)
       end

@@ -1,6 +1,6 @@
 class TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedSpecificNamesInZoology < TaxonNameClassification::Iczn::Unavailable::Suppressed
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000059'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000059'.freeze
 
   def self.applicable_ranks
     SPECIES_RANK_NAMES_ICZN

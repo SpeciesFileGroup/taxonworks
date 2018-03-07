@@ -26,16 +26,12 @@ function initialize_js(root) {
 }
 
 
-$(document).ready(function() {
+$(document).on('turbolinks:load', function() {
   initialize_js($("body"));
   $('body').mx_flash();
 
   // Attach to the mx_spinner -- any link-to-remotes will trigger this spinner effect.
-  $("form[data-remote],a[data-remote],input[data-remote]")
-    .bind('ajax:before', function() {
-      $('body').mx_spinner('show');
-    })
-    .bind('ajax:complete', function() {
-      $('body').mx_spinner('hide');
-    });
+  $(document).on('ajax:before', "form[data-remote],a[data-remote],input[data-remote]", function() { $('body').mx_spinner('show'); })
+  $(document).on('ajax:complete', "form[data-remote],a[data-remote],input[data-remote]", function() { $('body').mx_spinner('hide'); })
+
 });

@@ -1,22 +1,22 @@
 require 'rails_helper'
 
-describe User, :type => :model do
+describe User, type: :model do
 
-  let(:user) { User.new(password: 'password',
+  let(:user) { User.new(password:              'password',
                         password_confirmation: 'password',
-                        email: 'user_model@example.com',
-                        name: 'Bob'
+                        email:                 'user_model@example.com',
+                        name:                  'Bob'
   ) }
   subject { user }
 
   context 'associations' do
     context 'has_many' do
       specify 'projects' do
-        expect(user.projects << Project.new()).to be_truthy
+        expect(user.projects << Project.new).to be_truthy
       end
 
       specify 'pinboard_items' do
-        expect(user.pinboard_items << PinboardItem.new()).to be_truthy
+        expect(user.pinboard_items << PinboardItem.new).to be_truthy
       end
     end
   end
@@ -75,11 +75,11 @@ describe User, :type => :model do
       end
 
       specify '#administered_projects' do
-        expect(user.administered_projects).to contain_exactly(Project.find($project_id) )
+        expect(user.administered_projects).to contain_exactly(Project.find($project_id))
       end
 
       specify '#administers_projects?' do
-        expect(user.administers_projects?).to be true 
+        expect(user.administers_projects?).to be true
       end
 
     end
@@ -167,7 +167,7 @@ describe User, :type => :model do
       expect(user.password_reset_token).to be_nil
     end
 
-    include_examples "random_token_methods" do
+    include_examples 'random_token_methods' do
       let(:token_name) { :password_reset }
     end
   end
@@ -178,9 +178,9 @@ describe User, :type => :model do
     end
 
     describe '#generate_api_access_token' do
-      it 'returns a secure random string generated from RandomToken.generate' do
-        value = RandomToken.generate
-        allow(RandomToken).to receive(:generate).and_return(value)
+      it 'returns a secure random string generated from Utilities::RandomToken.generate' do
+        value = Utilities::RandomToken.generate
+        allow(Utilities::RandomToken).to receive(:generate).and_return(value)
         expect(user.generate_api_access_token).to eq(value)
       end
 
@@ -194,8 +194,8 @@ describe User, :type => :model do
   context 'user activity summaries' do
     before {
       user.save
-      4.times { (FactoryGirl.create(:valid_otu, creator: user, updater: user)) }
-      @last_otu = FactoryGirl.create(:valid_otu, creator: user, updater: user)
+      4.times { (FactoryBot.create(:valid_otu, creator: user, updater: user)) }
+      @last_otu = FactoryBot.create(:valid_otu, creator: user, updater: user)
     }
 
     # specify '.last Otu created by me' do
@@ -222,20 +222,20 @@ describe User, :type => :model do
 
       specify 'with a route and no recent object' do
         user.add_recently_visited_to_footprint('/otus/')
-        expect(user.footprints).to eq('recently_visited' =>  [{'/otus/' => {}}])
+        expect(user.footprints).to eq('recently_visited' => [{'/otus/' => {}}])
       end
 
       specify 'with a route and a recent object' do
         user.add_recently_visited_to_footprint(object_route, otu)
-        expect(user.footprints).to eq('recently_visited' => [ {object_route => {object_type: 'Otu', object_id: otu.id}} ])
+        expect(user.footprints).to eq('recently_visited' => [{object_route => {'object_type' => 'Otu', 'object_id' => otu.id}}])
       end
 
       specify 'with the same route and recent object > 1x' do
         user.add_recently_visited_to_footprint(object_route, otu)
         user.add_recently_visited_to_footprint(object_route, otu)
         user.add_recently_visited_to_footprint(object_route, otu)
-        
-        expect(user.footprints).to eq('recently_visited' => [ {object_route => {object_type: 'Otu', object_id: otu.id}} ])
+
+        expect(user.footprints).to eq('recently_visited' => [{object_route => {'object_type' => 'Otu', 'object_id' => otu.id}}])
       end
 
       specify 'current limit is 10 items' do
@@ -246,17 +246,92 @@ describe User, :type => :model do
       end
 
     end
-   
+
   end
 
   context 'scopes' do
     let(:p) { Project.create(name: 'Stubbed for project member test') }
-    let!(:u) { User.create(name: 'Jones', email: 'abc@example.com', self_created: true, password: 'acdadewsr1A') }
+    let(:u1) { User.first.id }
+    let!(:u2) { User.create(name: 'Jones', email: 'abc@example.com', self_created: true, password: 'acdadewsr1A') }
 
     specify '.not_in_project' do
-      expect(User.not_in_project(1).to_a).to include(u)
+      expect(User.not_in_project(1).to_a).to include(u2)
     end
 
+    specify '.in_project' do
+      expect(User.in_project(1).to_a).to include(u1)
+    end
+
+  end
+
+  context 'finding user ids' do
+    let!(:u1) { FactoryBot.create(:valid_user, {name: 'Pat One', email: 'Pat1@work.com'}) }
+    let!(:u2) { FactoryBot.create(:valid_user, {name: 'Pat Two', email: 'Pat2@home.net'}) }
+    let!(:u3) { FactoryBot.create(:valid_user, {name: 'Pat Three', email: 'Pat3@work.net'}) }
+    let!(:u4) { FactoryBot.create(:valid_user, {name: 'Pat Four', email: 'Pat4@vacation.net'}) }
+
+    context 'find one user id' do
+
+      specify 'no user' do
+        expect(User.get_user_id('Pat2')).to eq(nil)
+      end
+
+      specify 'by full name' do
+        expect(User.get_user_id('Pat Two')).to eq(u2.id)
+      end
+
+      specify 'by email' do
+        expect(User.get_user_id('Pat1@work.com')).to eq(u1.id)
+      end
+
+      specify 'by id' do
+        expect(User.get_user_id(u1.id)).to eq(u1.id)
+      end
+
+      specify 'by id as string' do
+        expect(User.get_user_id(u1.id.to_s)).to eq(u1.id)
+      end
+
+      specify 'by User' do
+        expect(User.get_user_id(u4)).to eq(u4.id)
+      end
+
+    end
+
+    context 'find multiple user ids' do
+
+      specify 'no user' do
+        expect(User.get_user_ids('Ted', 'Mary', 'Sid')).to eq([])
+      end
+
+      specify 'by partial name' do
+        expect(User.get_user_ids('Two')).to eq([u2.id])
+        expect(User.get_user_ids('Pat')).to contain_exactly(u1.id, u2.id, u3.id, u4.id)
+      end
+
+      specify 'by partial email' do
+        expect(User.get_user_ids('.net')).to contain_exactly(u2.id, u3.id, u4.id)
+      end
+
+      specify 'by id' do
+        expect(User.get_user_ids(u4.id, u3.id, u1.id)).to contain_exactly(u1.id, u3.id, u4.id)
+      end
+
+      specify 'by User' do
+        expect(User.get_user_ids(u4, u2, u1)).to contain_exactly(u1.id, u2.id, u4.id)
+      end
+
+      specify 'by mixed input' do
+        expect(User.get_user_ids(u1.id, 'three', u2, 'vacation', 'at2@')).to contain_exactly(u1.id,
+                                                                                             u2.id,
+                                                                                             u3.id,
+                                                                                             u4.id)
+      end
+
+      specify 'by mixed input' do
+        expect(User.get_user_ids(u1.id, 'pat one', u1, 'work.com', 'at1@')).to contain_exactly(u1.id)
+      end
+    end
   end
 
   context 'concerns' do

@@ -1,6 +1,6 @@
-class TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication < TaxonNameRelationship::Iczn::Invalidating::Usage
+class TaxonNameRelationship::Iczn::Invalidating::Misapplication < TaxonNameRelationship::Iczn::Invalidating
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000274'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000274'.freeze
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +

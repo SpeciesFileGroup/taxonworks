@@ -3,8 +3,8 @@ require 'rails_helper'
 describe LoanItem, type: :model, group: :loans do
 
   let(:loan_item) { LoanItem.new }
-  let(:valid_loan_item) { FactoryGirl.create(:valid_loan_item) }
-  let(:loan) { FactoryGirl.create(:valid_loan) }
+  let(:valid_loan_item) { FactoryBot.create(:valid_loan_item) }
+  let(:loan) { FactoryBot.create(:valid_loan) }
 
   context 'validation' do
     before{ loan_item.valid? }
@@ -26,21 +26,21 @@ describe LoanItem, type: :model, group: :loans do
   end
 
   context 'as part of a loan' do
-    
+
     before { loan_item.loan = loan }
 
     specify 'a specimen can be added to loan item' do
-      loan_item.loan_item_object = FactoryGirl.create(:valid_specimen)
+      loan_item.loan_item_object = FactoryBot.create(:valid_specimen)
       expect(loan_item.valid?).to be_truthy
     end
 
     specify 'a container can be added to loan item' do
-      loan_item.loan_item_object = FactoryGirl.create(:valid_container)
+      loan_item.loan_item_object = FactoryBot.create(:valid_container)
       expect(loan_item.valid?).to be_truthy
     end
 
     specify 'an OTU alone can be added to loan item' do
-      loan_item.loan_item_object = FactoryGirl.create(:valid_otu)
+      loan_item.loan_item_object = FactoryBot.create(:valid_otu)
       expect(loan_item.valid?).to be_truthy
     end
   end
@@ -60,12 +60,84 @@ describe LoanItem, type: :model, group: :loans do
       specify '#returned? is true' do
         expect(loan_item.returned?).to be_truthy
       end
-
     end
-
-
   end
 
+  context '.batch_create' do
+    let(:s1) { FactoryBot.create(:valid_specimen) } 
+    let(:s2) { FactoryBot.create(:valid_specimen) } 
+    let(:o1) { FactoryBot.create(:valid_otu) } 
+    let(:o2) { FactoryBot.create(:valid_otu) } 
+    let(:c1) { FactoryBot.create(:valid_container) } 
+    let(:c2) { FactoryBot.create(:valid_container) } 
+
+    context 'from tags' do
+      let(:keyword) { FactoryBot.create(:valid_keyword) }
+      let!(:t1) { Tag.create(keyword: keyword, tag_object: s1) }  
+      let!(:t2) { Tag.create(keyword: keyword, tag_object: o2) }  
+      let!(:t3) { Tag.create(keyword: keyword, tag_object: c1) }  
+
+      context 'not supplying klass' do
+        let(:params) { { keyword_id: keyword.id, batch_type: 'tags', loan_id: loan.id } }
+        before { LoanItem.batch_create(params) }
+        specify 'loan_items are created for all types' do
+          expect(LoanItem.count).to eq(3)
+        end
+      end
+
+      context 'supplying klass' do
+        let(:params) { { keyword_id: keyword.id, batch_type: 'tags', loan_id: loan.id } }
+
+        specify 'Otu' do
+          LoanItem.batch_create(params.merge(klass: 'Otu'))
+          expect(LoanItem.count).to eq(1)
+        end
+        
+        specify 'Container' do
+          LoanItem.batch_create(params.merge(klass: 'Container'))
+          expect(LoanItem.count).to eq(1)
+        end
+
+        specify 'CollectionObject' do
+          LoanItem.batch_create(params.merge(klass: 'CollectionObject'))
+          expect(LoanItem.count).to eq(1)
+        end
+      end
+    end
+
+    context 'from pinboard' do
+      let!(:p1) { PinboardItem.create!(pinned_object: s1, user_id: user_id) }
+      let!(:p2) { PinboardItem.create!(pinned_object: o2, user_id: user_id) }
+      let!(:p3) { PinboardItem.create!(pinned_object: c1, user_id: user_id) }
+
+      let(:params) { { batch_type: 'pinboard', loan_id: loan.id, user_id: user_id, project_id: project_id } }
+      
+      context 'not supplying klass' do
+        before { LoanItem.batch_create(params) }
+        specify 'loan_items are created for all types' do
+          expect(LoanItem.count).to eq(3)
+        end
+      end
+
+      context 'supplying klass' do
+
+        specify 'Otu' do
+          LoanItem.batch_create(params.merge(klass: 'Otu'))
+          expect(LoanItem.count).to eq(1)
+        end
+        
+        specify 'Container' do
+          LoanItem.batch_create(params.merge(klass: 'Container'))
+          expect(LoanItem.count).to eq(1)
+        end
+
+        specify 'CollectionObject' do
+          LoanItem.batch_create(params.merge(klass: 'CollectionObject'))
+          expect(LoanItem.count).to eq(1)
+        end
+      end
+    end
+  end
 
   context 'concerns' do
     it_behaves_like 'is_data'

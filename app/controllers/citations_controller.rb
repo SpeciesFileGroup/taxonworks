@@ -11,7 +11,8 @@ class CitationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @citations = Citation.where(project_id: sessions_current_project_id).where(shallow_filter_params)
+        @citations = Citation.where(project_id: sessions_current_project_id)
+          .where(polymorphic_filter_params( 'citation_object', Citation.related_foreign_keys))
       }
     end
   end
@@ -33,7 +34,12 @@ class CitationsController < ApplicationController
 
   # Presently only used in autocomplete
   def show
-    redirect_to @citation.annotated_object.metamorphosize
+    respond_to do |format|
+      format.html {
+        redirect_to url_for(@citation.annotated_object.metamorphosize)
+      }
+      format.json {}
+    end
   end
 
   # POST /citations
@@ -42,10 +48,10 @@ class CitationsController < ApplicationController
     @citation = Citation.new(citation_params)
     respond_to do |format|
       if @citation.save
-        format.html { redirect_to @citation.citation_object.metamorphosize, notice: 'Citation was successfully created.' }
+        format.html { redirect_to url_for(@citation.citation_object.metamorphosize), notice: 'Citation was successfully created.' }
         format.json { render :show, status: :created, location: @citation }
       else
-        format.html { redirect_to :back, notice: 'Citation was NOT successfully created.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was NOT successfully created.')}
         format.json { render json: @citation.errors, status: :unprocessable_entity }
       end
     end
@@ -56,10 +62,10 @@ class CitationsController < ApplicationController
   def update
     respond_to do |format|
       if @citation.update(citation_params)
-        format.html { redirect_to @citation.citation_object.metamorphosize, notice: 'Citation was successfully updated.' }
+        format.html { redirect_to url_for(@citation.citation_object.metamorphosize), notice: 'Citation was successfully updated.' }
         format.json { render :show, location: @citation }
       else
-        format.html { redirect_to :back, notice: 'Citation was NOT successfully updated.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was NOT successfully updated.')}
         format.json { render json: @citation.errors, status: :unprocessable_entity }
       end
     end
@@ -70,7 +76,7 @@ class CitationsController < ApplicationController
   def destroy
     @citation.destroy
     respond_to do |format|
-      format.html { redirect_to :back, notice: 'Citation was successfully destroyed.' }
+      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was successfully destroyed.')}
       format.json { head :no_content }
     end
   end
@@ -100,34 +106,15 @@ class CitationsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # GET /citations/download
   def download
-    send_data Citation.generate_download( Citation.where(project_id: sessions_current_project_id) ), type: 'text', filename: "citations_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Citation.where(project_id: sessions_current_project_id)), type: 'text', filename: "citations_#{DateTime.now}.csv"
   end
 
   private
-
-  def shallow_filter_params
-    # !! We should only ever get here from a shallow resource
-    h = params.permit(
-      :content_id,
-      :otu_id
-      # add other polymorphic references here as implementd, e.g. taxon_name_id for citations on TaxonNames
-    ).to_h 
-
-    if h.size > 1 || h.size == 0 
-      respond_to do |format|
-        format.html { render plain: '404 Not Found', status: :unprocessable_entity and return }
-        format.json { render json: {success: false}, status: :unprocessable_entity and return }
-      end
-    end
-
-    model = h.keys.first.split('_').first.classify
-    return {citation_object_type: model, citation_object_id: h.values.first}
-  end
 
   def filter_params
     params.permit(:citation_object_type, :citation_object_id, :source_id).merge(project_id: sessions_current_project_id)
@@ -140,10 +127,12 @@ class CitationsController < ApplicationController
   def citation_params
     params.require(:citation).permit(
       :citation_object_type, :citation_object_id, :source_id, :pages, :is_original,
+      :annotated_global_entity,
       citation_topics_attributes: [
         :id, :_destroy, :pages, :topic_id,
         topic_attributes: [:id, :_destroy, :name, :definition]
-      ]
+      ],
+      topics_attributes: [:name, :definition]
     )
   end
 end

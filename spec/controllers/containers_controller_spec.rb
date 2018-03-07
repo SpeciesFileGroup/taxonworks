@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe ContainersController, :type => :controller do
+describe ContainersController, type: :controller do
 before(:each) {
   sign_in
 }
@@ -26,7 +26,7 @@ before(:each) {
 # This should return the minimal set of attributes required to create a valid
   # AlternateValue. As you add validations to AlternateValue, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_container).attributes) }
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryBot.build(:valid_container).attributes) }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -37,115 +37,116 @@ before(:each) {
     request.env['HTTP_REFERER'] = list_otus_path # logical example
   }
 
-  describe "POST create" do
-    describe "with valid params" do
-      it "creates a new Container" do
+  describe 'POST create' do
+    describe 'with valid params' do
+      it 'creates a new Container' do
         expect {
-          post :create, {:container => valid_attributes}, valid_session
+          post :create, params: {container: valid_attributes}, session: valid_session
         }.to change(Container, :count).by(1)
       end
 
-      it "assigns a newly created container as @container" do
-        post :create, {:container => valid_attributes}, valid_session
+      it 'assigns a newly created container as @container' do
+        post :create, params: {container: valid_attributes}, session: valid_session
         expect(assigns(:container)).to be_a(Container)
         expect(assigns(:container)).to be_persisted
       end
 
-      it "redirects to :back" do
-        post :create, {:container => valid_attributes}, valid_session
+      it 'redirects to :back' do
+        post :create, params: {container: valid_attributes}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
 
-    describe "with invalid params" do
-      it "assigns a newly created but unsaved container as @container" do
+    describe 'with invalid params' do
+      it 'assigns a newly created but unsaved container as @container' do
         # Trigger the behavior that occurs when invalid params are submitted
         # Container.any_instance.stub(:save).and_return(false)
-        # post :create, {:container => { "name" => "invalid value" }}, valid_session
+        # post :create, params: {container: { "name": "invalid value" }}, session: valid_session
         # assigns(:container).should be_a_new(Container)
         allow_any_instance_of(Container).to receive(:save).and_return(false)
-        post :create, {:container => {:invalid => 'params'}}, valid_session
+        post :create, params: {container: {invalid: 'params'}}, session: valid_session
         expect(assigns(:container)).to be_a_new(Container)
       end
 
-      it "re-renders the :back template" do
+      it 're-renders the :back template' do
         # Trigger the behavior that occurs when invalid params are submitted
         # Container.any_instance.stub(:save).and_return(false)
-        # post :create, {:container => { "name" => "invalid value" }}, valid_session
+        # post :create, params: {container: { "name": "invalid value" }}, session: valid_session
         # response.should redirect_to(list_otus_path)
         allow_any_instance_of(Container).to receive(:save).and_return(false)
-        post :create, {:container => {:invalid => 'params'}}, valid_session
+        post :create, params: {container: {invalid: 'params'}}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
   end
 
-  describe "PUT update" do
-    describe "with valid params" do
-      it "updates the requested container" do
+  describe 'PUT update' do
+    describe 'with valid params' do
+      let(:update_params) {ActionController::Parameters.new({name: 'smorf'}).permit(:name)}
+      it 'updates the requested container' do
         container = Container.create! valid_attributes
         # Assuming there are no other containers in the database, this
         # specifies that the Container created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        # Container.any_instance.should_receive(:update).with({ "name" => "1" })
-        # put :update, {:id => container.to_param, :container => { "name" => "1" }}, valid_session
-        # todo @mjy Why don't next two lines work with "value" instead of "name"? AlternateValues (random example) uses 'value' => 'Smorf' for first expect, then value: 'Smorf' for second. Those fail here but name seems to work???
-        expect_any_instance_of(Container).to receive(:update).with({"name" => 'Smorf'})
-        put :update, {:id => container.to_param, :container => {"name" => 'Smorf'}}, valid_session
+        # Container.any_instance.should_receive(:update).with({ "name": "1" })
+        # put :update, params: {id: container.to_param, container: { "name": "1" }}, session: valid_session
+        # todo @mjy Why don't next two lines work with "value" instead of "name"? AlternateValues (random example) uses 'value': 'Smorf' for first expect, then value: 'Smorf' for second. Those fail here but name seems to work???
+        expect_any_instance_of(Container).to receive(:update).with(update_params)
+        put :update, params: {id: container.to_param, container: update_params}, session: valid_session
       end
 
-      it "assigns the requested container as @container" do
+      it 'assigns the requested container as @container' do
         container = Container.create! valid_attributes
-        put :update, {:id => container.to_param, :container => valid_attributes}, valid_session
+        put :update, params: {id: container.to_param, container: valid_attributes}, session: valid_session
         # assigns(:container).should eq(container)
         expect(assigns(:container)).to eq(container)
       end
 
-      it "redirects to :back" do
+      it 'redirects to :back' do
         container = Container.create! valid_attributes
-        put :update, {:id => container.to_param, :container => valid_attributes}, valid_session
+        put :update, params: {id: container.to_param, container: valid_attributes}, session: valid_session
         # response.should redirect_to(list_otus_path)
         expect(response).to redirect_to(list_otus_path)
       end
     end
 
-    describe "with invalid params" do
-      it "assigns the container as @container" do
+    describe 'with invalid params' do
+      it 'assigns the container as @container' do
         container = Container.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         # Container.any_instance.stub(:save).and_return(false)
-        # put :update, {:id => container.to_param, :container => { "name" => "invalid value" }}, valid_session
+        # put :update, params: {id: container.to_param, container: { "name": "invalid value" }}, session: valid_session
         # assigns(:container).should eq(container)
         allow_any_instance_of(Container).to receive(:save).and_return(false)
-        put :update, {:id => container.to_param, :container => {:invalid => 'parms'}}, valid_session
+        put :update, params: {id: container.to_param, container: {invalid: 'parms'}}, session: valid_session
         expect(assigns(:container)).to eq(container)
       end
 
-      it "re-renders the :back template" do
+      it 're-renders the :back template' do
         container = Container.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         # Container.any_instance.stub(:save).and_return(false)
-        # put :update, {:id => container.to_param, :container => { "name" => "invalid value" }}, valid_session
+        # put :update, params: {id: container.to_param, container: { "name": "invalid value" }}, session: valid_session
         # response.should redirect_to(list_otus_path)
         allow_any_instance_of(Container).to receive(:save).and_return(false)
-        put :update, {:id => container.to_param, :container => {:invalid => 'parms'}}, valid_session
+        put :update, params: {id: container.to_param, container: {invalid: 'parms'}}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
   end
 
-  describe "DELETE destroy" do
-    it "destroys the requested container" do
+  describe 'DELETE destroy' do
+    it 'destroys the requested container' do
       container = Container.create! valid_attributes
       expect {
-        delete :destroy, {:id => container.to_param}, valid_session
+        delete :destroy, params: {id: container.to_param}, session: valid_session
       }.to change(Container, :count).by(-1)
     end
 
-    it "redirects to :back" do
+    it 'redirects to :back' do
       container = Container.create! valid_attributes
-      delete :destroy, {:id => container.to_param}, valid_session
+      delete :destroy, params: {id: container.to_param}, session: valid_session
       expect(response).to redirect_to(list_otus_path)
     end
   end

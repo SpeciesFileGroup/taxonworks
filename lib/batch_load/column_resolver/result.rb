@@ -22,7 +22,7 @@ module BatchLoad::ColumnResolver
     end
 
     def resolvable?
-     item && error_messages.size == 0 && items == [] # a little redundant, but keep it safe
+      item && error_messages.size == 0 && items == [] # a little redundant, but keep it safe
     end
 
     def multiple_matches?

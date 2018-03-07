@@ -6,7 +6,7 @@ class ContainersController < ApplicationController
   # GET /containers
   # GET /containers.json
   def index
-    @recent_objects = Container.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = Container.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -25,7 +25,7 @@ class ContainersController < ApplicationController
   end
 
   def list
-    @containers = Container.with_project_id($project_id).order(:id).page(params[:page]) #.per(10)
+    @containers = Container.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10)
   end
 
   # POST /containers
@@ -35,10 +35,10 @@ class ContainersController < ApplicationController
 
     respond_to do |format|
       if @container.save
-        format.html { redirect_to :back, notice: 'Container was successfully created.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was successfully created.')}
         format.json { render json: @container, status: :created, location: @container }
       else
-        format.html { redirect_to :back, notice: 'Container was NOT successfully created.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was NOT successfully created.')}
         format.json { render json: @container.errors, status: :unprocessable_entity }
       end
     end
@@ -49,10 +49,10 @@ class ContainersController < ApplicationController
   def update
     respond_to do |format|
       if @container.update(container_params)
-        format.html { redirect_to :back, notice: 'Container was successfully updated.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was successfully updated.')}
         format.json { head :no_content }
       else
-        format.html { redirect_to :back, notice: 'Container was NOT successfully updated.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was NOT successfully updated.')}
         format.json { render json: @container.errors, status: :unprocessable_entity }
       end
     end
@@ -63,7 +63,7 @@ class ContainersController < ApplicationController
   def destroy
     @container.destroy
     respond_to do |format|
-      format.html { redirect_to :back, notice: 'Container was successfully destroyed.' }
+      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was successfully destroyed.')}
       format.json { head :no_content }
     end
   end
@@ -77,8 +77,7 @@ class ContainersController < ApplicationController
   end
 
   def autocomplete
-    @containers = Container.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-
+    @containers = Queries::ContainerAutocompleteQuery.new(params.merge(project_id: sessions_current_project_id)).result
     data = @containers.collect do |t|
       {id: t.id,
        label: t.id, #  ApplicationController.helpers.container_tag(t),
@@ -89,13 +88,13 @@ class ContainersController < ApplicationController
        label_html: t.id #  ApplicationController.helpers.container_tag(t)  
       }
     end
-    render :json => data
+    render json: data
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_container
-      @container = Container.with_project_id($project_id).find(params[:id])
+      @container = Container.with_project_id(sessions_current_project_id).find(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

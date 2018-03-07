@@ -6,6 +6,10 @@ TW.views.shared.slideout = TW.views.shared.slideout || {};
 Object.assign(TW.views.shared.slideout, {
 	init: function() {
 		var that = this;
+
+		$(document).off('click', '.slide-panel-category-header');
+		$(document).off('click', '.slide-panel-circle-icon');
+
 		$(document).on('click', '.slide-panel-circle-icon', function() {		
 			that.closeHideSlideoutPanel($(this).closest('.slide-panel'));
 		});
@@ -82,7 +86,6 @@ Object.assign(TW.views.shared.slideout, {
 	}				
 });
 
-$(document).ready(function() {
-	var slideout = TW.views.shared.slideout;
-	slideout.init();
+$(document).on('turbolinks:load', function() {
+	TW.views.shared.slideout.init();
 });

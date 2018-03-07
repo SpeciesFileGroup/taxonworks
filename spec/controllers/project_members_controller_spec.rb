@@ -18,10 +18,10 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-RSpec.describe ProjectMembersController, :type => :controller do
+RSpec.describe ProjectMembersController, type: :controller do
   before {
     sign_in_administrator 
-    @unplaced_user = FactoryGirl.create(:valid_user)
+    @unplaced_user = FactoryBot.create(:valid_user)
   }
 
   # This should return the minimal set of attributes required to create a valid
@@ -36,132 +36,132 @@ RSpec.describe ProjectMembersController, :type => :controller do
   # ProjectMembersController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET new" do
-    it "assigns a new project_member as @project_member" do
-      get :new, {project_member: {project_id: 1}}, valid_session
+  describe 'GET new' do
+    it 'assigns a new project_member as @project_member' do
+      get :new, params: {project_member: {project_id: 1}}, session: valid_session
       expect(assigns(:project_member)).to be_a_new(ProjectMember)
     end
   end
 
-  describe "GET edit" do
-    it "assigns the requested project_member as @project_member" do
+  describe 'GET edit' do
+    it 'assigns the requested project_member as @project_member' do
       project_member = ProjectMember.create! valid_attributes
-      get :edit, {:id => project_member.to_param}, valid_session
+      get :edit, params: {id: project_member.to_param}, session: valid_session
       expect(assigns(:project_member)).to eq(project_member)
     end
   end
 
-  describe "POST create" do
-    describe "with valid params" do
-      it "creates a new ProjectMember" do
+  describe 'POST create' do
+    describe 'with valid params' do
+      it 'creates a new ProjectMember' do
         expect {
-          post :create, {:project_member => valid_attributes}, valid_session
+          post :create, params: {project_member: valid_attributes}, session: valid_session
         }.to change(ProjectMember, :count).by(1)
       end
 
-      it "assigns a newly created project_member as @project_member" do
-        post :create, {:project_member => valid_attributes}, valid_session
+      it 'assigns a newly created project_member as @project_member' do
+        post :create, params: {project_member: valid_attributes}, session: valid_session
         expect(assigns(:project_member)).to be_a(ProjectMember)
         expect(assigns(:project_member)).to be_persisted
       end
 
-      it "redirects to the project overview page" do
-        post :create, {:project_member => valid_attributes}, valid_session
+      it 'redirects to the project overview page' do
+        post :create, params: {project_member: valid_attributes}, session: valid_session
         expect(response).to redirect_to(project_path(1))
       end
     end
 
-    describe "with invalid params" do
-      it "assigns a newly created but unsaved project_member as @project_member" do
-        post :create, {:project_member => invalid_attributes}, valid_session
+    describe 'with invalid params' do
+      it 'assigns a newly created but unsaved project_member as @project_member' do
+        post :create, params: {project_member: invalid_attributes}, session: valid_session
         expect(assigns(:project_member)).to be_a_new(ProjectMember)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {:project_member => invalid_attributes}, valid_session
-        expect(response).to render_template("new")
+        post :create, params: {project_member: invalid_attributes}, session: valid_session
+        expect(response).to render_template('new')
       end
     end
   end
 
-  describe "POST create_many" do
-    describe "with valid params" do
-      it "creates a new ProjectMember" do
+  describe 'POST create_many' do
+    describe 'with valid params' do
+      it 'creates a new ProjectMember' do
         expect {
-          post :create_many, {:project_member => create_many_valid_attributes}, valid_session
+          post :create_many, params: {project_member: create_many_valid_attributes}, session: valid_session
         }.to change(ProjectMember, :count).by(1)
       end
     end
 
-    describe "with invalid params (no project_id)" do
-      it "assigns a stubbed project_member as @project_member" do
-        post :create_many, {:project_member => invalid_attributes}, valid_session
+    describe 'with invalid params (no project_id)' do
+      it 'assigns a stubbed project_member as @project_member' do
+        post :create_many, params: {project_member: invalid_attributes}, session: valid_session
         expect(response.status).to eq(404)
         #expect(response).to render_template('many_new')
         #expect(assigns(:project_member)).to be_a_new(ProjectMember)
       end
     end
 
-    describe "with invalid params (invalid user_id)" do
-      it "assigns a stubbed project_member as @project_member" do
-        post :create_many, {:project_member => invalid_attributes.merge(project_id: 1, user_ids: [12312, 123321])}, valid_session
+    describe 'with invalid params (invalid user_id)' do
+      it 'assigns a stubbed project_member as @project_member' do
+        post :create_many, params: {project_member: invalid_attributes.merge(project_id: 1, user_ids: [12312, 123321])}, session: valid_session
         expect(response).to redirect_to( many_new_project_members_path) 
       end
     end
   end 
 
-  describe "PUT update" do
-    describe "with valid params" do
+  describe 'PUT update' do
+    describe 'with valid params' do
       let(:new_attributes) {
         { is_project_administrator:  true}
       }
 
-      it "updates the requested project_member" do
+      it 'updates the requested project_member' do
         project_member = ProjectMember.create! valid_attributes
-        put :update, {id: project_member.to_param, project_member: new_attributes }, valid_session
+        put :update, params: {id: project_member.to_param, project_member: new_attributes}, session: valid_session
         project_member.reload
         expect(assigns(:project_member)).to eq(project_member)
       end
 
-      it "assigns the requested project_member as @project_member" do
+      it 'assigns the requested project_member as @project_member' do
         project_member = ProjectMember.create! valid_attributes
-        put :update, {:id => project_member.to_param, :project_member => valid_attributes}, valid_session
+        put :update, params: {id: project_member.to_param, project_member: valid_attributes}, session: valid_session
         expect(assigns(:project_member)).to eq(project_member)
       end
 
-      it "redirects to the project_member" do
+      it 'redirects to the project_member' do
         project_member = ProjectMember.create! valid_attributes
-        put :update, {:id => project_member.to_param, :project_member => valid_attributes}, valid_session
+        put :update, params: {id: project_member.to_param, project_member: valid_attributes}, session: valid_session
         expect(response).to redirect_to(project_path(1))
       end
     end
 
-    describe "with invalid params" do
-      it "assigns the project_member as @project_member" do
+    describe 'with invalid params' do
+      it 'assigns the project_member as @project_member' do
         project_member = ProjectMember.create! valid_attributes
-        put :update, {:id => project_member.to_param, :project_member => invalid_attributes}, valid_session
+        put :update, params: {id: project_member.to_param, project_member: invalid_attributes}, session: valid_session
         expect(assigns(:project_member)).to eq(project_member)
       end
 
       it "re-renders the 'edit' template" do
         project_member = ProjectMember.create! valid_attributes
-        put :update, {:id => project_member.to_param, :project_member => invalid_attributes}, valid_session
-        expect(response).to render_template("edit")
+        put :update, params: {id: project_member.to_param, project_member: invalid_attributes}, session: valid_session
+        expect(response).to render_template('edit')
       end
     end
   end
 
-  describe "DELETE destroy" do
-    it "destroys the requested project_member" do
+  describe 'DELETE destroy' do
+    it 'destroys the requested project_member' do
       project_member = ProjectMember.create! valid_attributes
       expect {
-        delete :destroy, {:id => project_member.to_param}, valid_session
+        delete :destroy, params: {id: project_member.to_param}, session: valid_session
       }.to change(ProjectMember, :count).by(-1)
     end
 
-    it "redirects to the related project page" do
+    it 'redirects to the related project page' do
       project_member = ProjectMember.create! valid_attributes
-      delete :destroy, {:id => project_member.to_param}, valid_session
+      delete :destroy, params: {id: project_member.to_param}, session: valid_session
       expect(response).to redirect_to(project_path(1))
     end
   end

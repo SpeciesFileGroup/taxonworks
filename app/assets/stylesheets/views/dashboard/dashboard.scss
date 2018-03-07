@@ -1,32 +1,28 @@
-@import 'base/palette';
-@import 'base/whitespace';
-@import 'base/fonts';
-
 #dashboard {
-	display: flex;
-	flex-direction:column;
-	justify-content:flex-start;
-	align-items:center;
-	h1 {
-		margin: $standard_margin;
-		font-size: $font_title;
-	}
-	.flexbox {
-		max-width: 1280px;
-		display: flex;
-		flex-direction: row; 
-		flex-wrap: nowrap;
-		justify-content: center;
-		width: 100%;
-		.space-distance {
-			margin-left: $standard_margin;
-			margin-right: $standard_margin;
-		}	
-		h2 {
-			font-size: $font_title;
-		}	
-		h3 {
-			font-size: $font_subtitle;
-		}				
-	}
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  h1 {
+    margin: $standard_margin;
+    font-size: $font_title;
+  }
+  .flexbox {
+    max-width: 1280px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    width: 100%;
+    .space-distance {
+      margin-left: $standard_margin;
+      margin-right: $standard_margin;
+    }
+    h2 {
+      font-size: $font_title;
+    }
+    h3 {
+      font-size: $font_subtitle;
+    }
+  }
 }

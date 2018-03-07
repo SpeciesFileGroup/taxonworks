@@ -2,91 +2,111 @@ require 'rails_helper'
 
 describe Loan, type: :model, group: :loans do
 
-  context 'concerns' do
-    it_behaves_like 'is_data'
+  let(:loan) { Loan.new }
+
+  specify 'valid with lender_address' do
+    loan.lender_address = '123 N. South'
+    expect(loan.valid?).to be_truthy
   end
 
-  context 'loan with items' do
-    let(:test_support) {
-      reload!
-      vial     = Container.find(39386)
-      rack     = vial.container_item.container
-      room     = rack.container_item.container
-      building = room.container_item.container
-      site     = building.container_item.container
-      loan     = Loan.find(3111)
+  context 'cloning records' do
+    let(:cloned_attributes) { 
+      {
+        lender_address: '123 S. North Av',
+        recipient_address: '456 E. West St',
+        recipient_email: 'foo@example.com',
+        recipient_phone: '888-123-4567',
+        recipient_country: 'USA',
+        supervisor_email: 'bar@example.com',
+        recipient_honorarium: 'Dr.'
+      }
     }
+
+    before do 
+      loan.update_attributes(cloned_attributes)  
+    end
+
+    context '#clone_from clones' do
+      let(:loan1) { Loan.new(clone_from: loan.id) }
+
+      Loan::CLONED_ATTRIBUTES.each do |a|
+        specify "#{a}" do
+          expect(loan1.send(a)).to eq(loan.send(a))
+        end
+      end
+    end
+  end
+
+  context 'loan items' do
+    context 'can be' do
+      specify 'collection_objects' do
+        expect(loan.loan_items.build(loan_item_object: Specimen.create)).to be_truthy
+      end
+    end
+  end
+
+  context '#loan_items' do
+
     # build container hierarchy
-    let(:specimens) { [Specimen.create, Specimen.create] }
-    let(:vial) { Container.containerize(specimens, Container::Vial) }
+    let(:specimen) { Specimen.create }
+    let(:vial) { Container.containerize([specimen], Container::Vial) }
     let(:vial_rack) { Container.containerize([vial], Container::VialRack) }
     let(:room) { Container.containerize([vial_rack], Container::Room) }
     let(:building) { Container.containerize([room], Container::Building) }
     let(:site) { Container.containerize([building], Container::Site) }
 
-    # build loan
-    let(:new_loan) { FactoryGirl.create(:valid_loan) }
-    let(:loan) {
-      new_loan.loan_items << loan_item_0
-      new_loan.loan_items << loan_item_1
-      new_loan.loan_items << loan_item_2
-      new_loan
-    }
-
-    #build loan_items
-    let(:specimen) { FactoryGirl.create(:valid_specimen) }
-    let(:otu) { FactoryGirl.create(:valid_otu) }
-    let(:loan_item_0) {
-      site.save
-      FactoryGirl.create(:loan_item, {loan:             new_loan,
-                                      loan_item_object: site})
-    }
-    let(:loan_item_1) { FactoryGirl.create(:valid_loan_item, {loan:             new_loan,
-                                                              loan_item_object: specimen}) }
-    let(:loan_item_2) { FactoryGirl.create(:valid_loan_item, {loan:             new_loan,
-                                                              loan_item_object: otu}) }
-
-    specify 'finding collection object from a complex loan' do
-      expect(loan.collection_objects).to contain_exactly(specimen,
-                                                         specimens[1],
-                                                         specimens[0])
+    before do
+      loan.lender_address = '123 N. South St.'
+      loan.save!
     end
 
-    specify 'build a valid complex loan' do
-      expect(loan.valid?).to be_truthy
-      expect(loan.save).to be_truthy
-      expect(loan.loan_items[0].loan_item_object
-               .container_items[0].contained_object
-               .container_items[0].contained_object
-               .container_items[0].contained_object
-               .container_items[0].contained_object).to eq(vial)
+    context 'enumerating loan items' do
+      before  do
+        loan.loan_items << LoanItem.new(loan_item_object: specimen)
+      end 
+
+      specify '#loan_items' do
+        expect(loan.loan_items.first.persisted?).to be_truthy
+      end
+
+      specify '#collection_objects' do
+        expect(loan.collection_objects).to contain_exactly(specimen)
+      end
+
+      specify 'can not be destroyed' do
+        expect(loan.destroy).to be_falsey
+      end
     end
 
-    specify 'can not be destroyed' do
-      expect(loan.destroy).to be_falsey
+    context 'objects via containers' do
+      before {
+        loan.loan_items << LoanItem.new(loan_item_object: site)
+      }
+
+      specify '#collection_objects' do
+        expect(loan.collection_objects).to contain_exactly(specimen)
+      end
     end
+
+    context 'objects via Otus' do
+      let(:otu) { Otu.create(name: 'Blobasaurus') } 
+      let!(:determination) { TaxonDetermination.create(otu: otu, biological_collection_object: specimen) }
+
+      before do 
+        loan.loan_items << LoanItem.new(loan_item_object: otu)
+      end 
+
+      specify '#collection_objects' do
+        expect(loan.collection_objects).to contain_exactly(specimen)
+      end
+    end
+
+
 
   end
 
-  context 'loan_items' do
-    let(:loan1) { li_specimen.loan }
-
-    let(:li_specimen) { FactoryGirl.create(:valid_loan_item_specimen) }
-
-    context 'create a loan item' do
-      specify 'create an OTU loan item' do
-        expect(true).to be_truthy
-      end
-
-      specify 'create a collection object loan item' do
-        expect(true).to be_truthy
-      end
-
-      describe 'create a container loan item' do
-        specify 'create some collection objects to put in a container' do
-          expect(true).to be_truthy
-        end
-      end
-    end
+  context 'concerns' do
+    it_behaves_like 'is_data'
   end
+
 end

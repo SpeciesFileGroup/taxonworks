@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'TaxonNameRelationships', :type => :feature do
+describe 'TaxonNameRelationships', type: :feature do
   let(:page_title) { 'Taxon name relationships' }
   let(:index_path) { taxon_name_relationships_path }
 
@@ -10,7 +10,7 @@ describe 'TaxonNameRelationships', :type => :feature do
     before {
       sign_in_user_and_select_project
 
-      root = FactoryGirl.create(:root_taxon_name, project: @project, by: @user)
+      root = FactoryBot.create(:root_taxon_name, project: @project, by: @user)
 
       genera = []
       %w{Aa Ba Ca Da}.each do |n|

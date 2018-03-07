@@ -5,7 +5,7 @@ class NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Species < Nomenclatur
   end
 
   def self.abbreviation
-    "sp."
+    'sp.'
   end
 
 end

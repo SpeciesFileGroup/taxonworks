@@ -18,10 +18,15 @@ module TaxonWorks
     # -- all .rb files in that directory are automatically loaded.
 
     # Pre-load all libraries in /lib
+    # config.autoload_paths += %W(#{config.root}/lib) # #{config.root}/extras
 
-    config.autoload_paths += %W(#{config.root}/lib) # #{config.root}/extras
+    # TODO: clean module/class names so that this works:
+    # config.autoload_paths += Dir[ Rails.root.join('lib', '**/') ]
 
-    # Breaks rake/loading becahse of existing Rails.application.eager_load! statements 
+    config.autoload_paths << "#{Rails.root}/lib"
+    config.autoload_paths << "#{Rails.root}/lib/vendor"
+
+    # Breaks rake/loading becahse of existing Rails.application.eager_load! statements
     # config.eager_load_paths += %W(#{config.root}/lib) # #{config.root}/extras
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
@@ -38,7 +43,8 @@ module TaxonWorks
     config.active_record.schema_format :ruby
 
     # Raise error on `after_rollback`/`after_commit` callbacks
-    config.active_record.raise_in_transactional_callbacks = true
+    # deprecated, no replacement R5.0
+    # config.active_record.raise_in_transactional_callbacks = true
 
     config.active_job.queue_adapter = :delayed_job
 
@@ -55,9 +61,27 @@ module TaxonWorks
         wkb_parser:              {support_ewkb: true},
         wkb_generator:           {hex_format: true, emit_ewkb_srid: true})
     end
- 
+
     # config.logger = Logger.new(STDOUT)
     # config.logger = Log4r::Logger.new('Application Log')
+
+    config.middleware.insert_before 0, Rack::Cors, debug: true, logger: (-> {Rails.logger}) do
+      allow do
+        origins '*'
+
+        resource '/cors',
+          headers: :any,
+          methods: [:post],
+          credentials: false, # true,
+          max_age: 0
+
+        resource '*',
+          headers: :any,
+          methods: [:get, :post, :delete, :put, :patch, :options, :head],
+          max_age: 0,
+          credentials: false
+      end
+    end
 
   end
 end

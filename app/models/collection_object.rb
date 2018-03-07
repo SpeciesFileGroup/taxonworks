@@ -56,29 +56,30 @@
 #   @return [Date]
 #   The date when the object was removed from tracking.  If provide then Repository must be null?! TODO: resolve
 #
-class CollectionObject < ActiveRecord::Base
+class CollectionObject < ApplicationRecord
 
   include GlobalID::Identification
   include Housekeeping
-  include Shared::Citable
+  include Shared::Citations
   include Shared::Containable
   include Shared::DataAttributes
   include Shared::Loanable
   include Shared::HasRoles
-  include Shared::Identifiable
-  include Shared::Notable
-  include Shared::Taggable
+  include Shared::Identifiers
+  include Shared::Notes
+  include Shared::Tags
   include Shared::Depictions
   include Shared::OriginRelationship
-  include Shared::Confidence
+  include Shared::Confidences
+  include Shared::ProtocolRelationships
+  include Shared::HasPapertrail
   include Shared::IsData
   include SoftValidation
 
   include Shared::IsDwcOccurrence
-  include CollectionObject::DwcExtensions 
+  include CollectionObject::DwcExtensions
 
-  is_origin_for :collection_objects
-  has_paper_trail :on => [:update] 
+  is_origin_for 'CollectionObject', 'Extract'
 
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
@@ -87,8 +88,8 @@ class CollectionObject < ActiveRecord::Base
   #  When true, cached values are not built
   attr_accessor :no_cached
 
-  after_save :add_to_dwc_occurrence, if: '!self.no_cached'
-  
+  after_save :add_to_dwc_occurrence, unless: -> { self.no_cached }
+
   # Otu delegations
   delegate :name, to: :current_otu, prefix: :otu, allow_nil: true # could be Otu#otu_name?
   delegate :id, to: :current_otu, prefix: :otu, allow_nil: true
@@ -101,7 +102,7 @@ class CollectionObject < ActiveRecord::Base
 
   # Repository delegations
   delegate :acronym, to: :repository, prefix: :repository, allow_nil: true
-  delegate :url, to: :repository, prefix: :repository, allow_nil: true 
+  delegate :url, to: :repository, prefix: :repository, allow_nil: true
 
   # Preparation delegations
   delegate :name, to: :preparation_type, prefix: :preparation_type, allow_nil: true
@@ -111,17 +112,19 @@ class CollectionObject < ActiveRecord::Base
   has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object
   has_one :deaccession_recipient, through: :deaccession_recipient_role, source: :person
 
+  has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject 
+  has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object
+
   has_many :derived_collection_objects, inverse_of: :collection_object
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
   has_many :sqed_depictions, through: :depictions
 
-  # This must come before taxon determinations !!
-  has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
+  has_many :observations, inverse_of: :collection_object
 
-  has_many :taxon_names, through: :otus
-
-  # This is a problem, but here for the forseeable future for nested attributes purporses.
+  # This is a problem, but here for the foreseeable future for nested attributes purporses.
   has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object
+  has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
+  has_many :taxon_names, through: :otus
 
   has_many :type_designations, class_name: 'TypeMaterial', foreign_key: :biological_object_id, inverse_of: :material
 
@@ -133,7 +136,7 @@ class CollectionObject < ActiveRecord::Base
   has_many :georeferences, through: :collecting_event
   has_many :geographic_items, through: :georeferences
 
-  accepts_nested_attributes_for :otus, allow_destroy: true
+  accepts_nested_attributes_for :otus, allow_destroy: true, reject_if: :reject_otus
   accepts_nested_attributes_for :taxon_determinations, allow_destroy: true, reject_if: :reject_taxon_determinations
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
@@ -146,21 +149,31 @@ class CollectionObject < ActiveRecord::Base
   soft_validate(:sv_missing_accession_fields, set: :missing_accession_fields)
   soft_validate(:sv_missing_deaccession_fields, set: :missing_deaccession_fields)
 
-  def preferred_catalog_number
-    Identifier::Local::CatalogNumber.where(identifier_object: self).first 
-  end
-
-  def missing_determination
-    # see BiologicalCollectionObject
-  end
-
-  def self.find_for_autocomplete(params)
-    Queries::BiologicalCollectionObjectAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id]).includes(taxon_determinations: [:determiners]).limit(50)
+  scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
+  scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
+  #
+  # This is a hack, maybe related to a Rails 5.1 bug.
+  # It returns the SQL that works in 5.0/4.2 that
+  # links CollectionObject to Sequences:
+  # joins(derived_extracts: [:derived_sequences])
+  def self.sequence_join_hack_sql
+    %Q{INNER JOIN  "origin_relationships"
+               ON  "origin_relationships"."old_object_id" = "collection_objects"."id"
+                  AND  "origin_relationships"."new_object_type" = 'Extract'
+                  AND  "origin_relationships"."old_object_type" = 'CollectionObject'
+       INNER JOIN  "extracts"
+               ON  "extracts"."id" =  "origin_relationships"."new_object_id"
+       INNER JOIN  "origin_relationships" "origin_relationships_extracts_join"
+               ON  "origin_relationships_extracts_join"."old_object_id" = "extracts"."id"
+                  AND  "origin_relationships_extracts_join"."new_object_type" = 'Sequence'
+                  AND  "origin_relationships_extracts_join"."old_object_type" = 'Extract'
+       INNER JOIN  "sequences"
+               ON  "sequences"."id" = "origin_relationships_extracts_join"."new_object_id"}
   end
 
   # TODO: move to a helper
   def self.breakdown_status(collection_objects)
-    collection_objects = [collection_objects] if !(collection_objects.class == Array)
+    collection_objects = [collection_objects] if collection_objects.class != Array
 
     breakdown = {
       total_objects:     collection_objects.length,
@@ -183,7 +196,7 @@ class CollectionObject < ActiveRecord::Base
   # @return [Hash]
   #   a unque list of buffered_ values observed in the collection objects passed
   def self.breakdown_buffered(collection_objects)
-    collection_objects = [collection_objects] if !(collection_objects.class == Array)
+    collection_objects = [collection_objects] if collection_objects.class != Array
     breakdown          = {}
     categories         = BUFFERED_ATTRIBUTES
 
@@ -204,6 +217,16 @@ class CollectionObject < ActiveRecord::Base
     breakdown
   end
 
+  # @return [Identifier::Local::CatalogNumber, nil]
+  #   the first (position) catalog number for this collection object
+  def preferred_catalog_number
+    Identifier::Local::CatalogNumber.where(identifier_object: self).first
+  end
+
+  # see BiologicalCollectionObject
+  def missing_determination
+  end
+
   # return [Boolean]
   #    True if instance is a subclass of BiologicalCollectionObject
   def biological?
@@ -215,7 +238,7 @@ class CollectionObject < ActiveRecord::Base
     (h['biocuration classifications'] = self.biocuration_classes) if self.biological? && self.biocuration_classifications.any?
     h
   end
-  
+
   # @param [String] rank
   # @return [String] if a determination exists, and the Otu in the determination has a taxon name then return the taxon name at the rank supplied
   def name_at_rank_string(rank)
@@ -268,7 +291,7 @@ class CollectionObject < ActiveRecord::Base
 
         end
       else
-        table_data.each { |_key, value|
+        table_data.each_value { |value|
           csv << value.collect { |item|
             item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
           }
@@ -278,13 +301,13 @@ class CollectionObject < ActiveRecord::Base
   end
 
 
-  # TODO: this should be refactored to be collection object centric AFTER 
+  # TODO: this should be refactored to be collection object centric AFTER
   # it is spec'd
   def self.earliest_date(project_id)
     a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).minimum(:start_date_year)
     b = CollectingEvent.joins(:collection_objects).where(project_id: project_id).minimum(:end_date_year)
 
-    return '1700/01/01' if a.nil? && b.nil?
+    return EARLIEST_DATE if a.nil? && b.nil?  # 1700-01-01
 
     d = nil
 
@@ -298,13 +321,13 @@ class CollectionObject < ActiveRecord::Base
     d.to_s + '/01/01'
   end
 
-  # TODO: this should be refactored to be collection object centric AFTER 
+  # TODO: this should be refactored to be collection object centric AFTER
   # it is spec'd
   def self.latest_date(project_id)
     a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:start_date_year)
     b = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:end_date_year)
 
-    c = Time.now.strftime("%Y/%m/%d")
+    c = Time.now.strftime('%Y/%m/%d')
 
     return c if a.nil? && b.nil?
 
@@ -331,7 +354,7 @@ class CollectionObject < ActiveRecord::Base
   def self.in_geographic_item(geographic_item, limit, steps = false)
     geographic_item_id = geographic_item.id
     if steps
-      gi     = GeographicItem.find(geographic_item_id)
+      gi = GeographicItem.find(geographic_item_id)
       # find the geographic_items inside gi
       step_1 = GeographicItem.is_contained_by('any', gi) # .pluck(:id)
       # find the georeferences from the geographic_items
@@ -386,8 +409,8 @@ class CollectionObject < ActiveRecord::Base
       all_import_das   = collection_object.collecting_event.import_attributes
       group            = collection[:ce]
       unless group.nil?
-        group.keys.each { |type_key|
-          group[type_key.to_sym].keys.each { |header|
+        group.each_key { |type_key|
+          group[type_key.to_sym].each_key { |header|
             this_val = nil
             case type_key.to_sym
               when :in
@@ -448,7 +471,7 @@ class CollectionObject < ActiveRecord::Base
       unless group.nil?
         unless group.empty?
           unless group[:in].empty?
-            group[:in].keys.each { |header|
+            group[:in].each_key { |header|
               this_val = nil
               all_internal_das.each { |da|
                 if da.predicate.name == header
@@ -461,7 +484,7 @@ class CollectionObject < ActiveRecord::Base
         end
         unless group.empty?
           unless group[:im].empty?
-            group[:im].keys.each { |header|
+            group[:im].each_key { |header|
               this_val = nil
               all_import_das.each { |da|
                 if da.import_predicate == header
@@ -500,7 +523,7 @@ class CollectionObject < ActiveRecord::Base
       unless group.nil?
         unless group.empty?
           unless group[:in].empty?
-            group[:in].keys.each { |header|
+            group[:in].each_key { |header|
               this_val = collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0'
               retval.push(this_val) # push one value (nil or not) for each selected header
             }
@@ -517,7 +540,7 @@ class CollectionObject < ActiveRecord::Base
   #   and collection objects (usually by inclusion in geographic areas/items)
   def self.from_collecting_events(collecting_event_ids, area_object_ids, area_set, project_id)
     collecting_events_clause = {collecting_event_id: collecting_event_ids, project: project_id}
-    area_objects_clause = {id: area_object_ids, project: project_id}
+    area_objects_clause      = {id: area_object_ids, project: project_id}
 
     if (collecting_event_ids.empty?)
       collecting_events_clause = {project: project_id}
@@ -529,10 +552,10 @@ class CollectionObject < ActiveRecord::Base
         area_objects_clause = 'false'
       end
     end
-    
+
     retval = CollectionObject.joins(:collecting_event)
-                 .where(collecting_events_clause)
-                 .where(area_objects_clause)
+               .where(collecting_events_clause)
+               .where(area_objects_clause)
     retval
   end
 
@@ -542,7 +565,7 @@ class CollectionObject < ActiveRecord::Base
   # @return [Scope] of selected collection objects through collecting events with georeferences, remember to scope to project!
   def self.in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
     allow_partial = (partial_overlap.downcase == 'off' ? false : true) # TODO: Just get the correct values from the form!
-    where_sql = CollectingEvent.date_sql_from_dates(search_start_date, search_end_date, allow_partial)
+    where_sql     = CollectingEvent.date_sql_from_dates(search_start_date, search_end_date, allow_partial)
     joins(:collecting_event).where(where_sql)
   end
 
@@ -569,11 +592,69 @@ class CollectionObject < ActiveRecord::Base
     # see biological_collection_object
   end
 
+  # @param used_on [String] required, one of `TaxonDetermination`, `BiologicalAssociation`
+  # @return [Scope]
+  #    the max 10 most recently used collection_objects, as `used_on`
+  def self.used_recently(used_on = '')
+    t = case used_on 
+        when 'TaxonDetermination'
+          TaxonDetermination.arel_table
+        when 'BiologicalAssociation'
+          BiologicalAssociation.arel_table
+        end
+
+    p = CollectionObject.arel_table 
+
+    # i is a select manager
+    i = case used_on 
+        when 'BiologicalAssociation'
+          t.project(t['biological_association_subject_id'], t['created_at']).from(t)
+            .where(
+              t['created_at'].gt(1.weeks.ago).and(
+                t['biological_association_subject_type'].eq('CollectionObject') # !! note it's not biological_collection_object_id
+              )
+          )
+            .order(t['created_at'])
+        else
+          t.project(t['biological_collection_object_id'], t['created_at']).from(t)
+            .where(t['created_at'].gt( 1.weeks.ago ))
+            .order(t['created_at'])
+        end
+
+    # z is a table alias 
+    z = i.as('recent_t')
+
+    j = case used_on
+        when 'BiologicalAssociation' 
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
+            z['biological_association_subject_id'].eq(p['id'])  
+          ))
+        else
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_collection_object_id'].eq(p['id']))) # !! note it's not biological_collection_object_id
+        end
+
+    CollectionObject.joins(j).distinct.limit(10)
+  end
+
+  # @params target [String] one of `TaxonDetermination`, `BiologicalAssociation` 
+  # @return [Hash] otus optimized for user selection
+  def self.select_optimized(user_id, project_id, target = '')
+    h = {
+      quick: [],
+      pinboard: CollectionObject.pinned_by(user_id).where(project_id: project_id).to_a
+    }
+
+    h[:recent] = CollectionObject.joins(target.tableize.to_sym).where(project_id: project_id).used_recently(target).limit(10).distinct.to_a
+    h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq 
+    h
+  end
+
   protected
 
   def add_to_dwc_occurrence
     get_dwc_occurrence
   end
+
   handle_asynchronously :add_to_dwc_occurrence, run_at: Proc.new { 20.seconds.from_now }
 
   def check_that_both_of_category_and_total_are_not_present
@@ -595,25 +676,26 @@ class CollectionObject < ActiveRecord::Base
     true
   end
 
-  def reject_taxon_determinations(attributed)
-
-    a = attributed['otu_id']
-    b = attributed['otu_attributes'] 
-
-    return true if !a.present? && !b.present?
-
-    if a.present?
-      return true if b.present? && ( b['name'].present? || b['taxon_name_id'].present? ) # not both
-      return false 
-    end
-
-    if b.present?
-      return true if !b['name'].present? && !b['taxon_name_id'].present?
-    end 
-
-    false
+  def reject_otus(attributed)
+    a = attributed['taxon_name_id']
+    b = attributed['name']
+    a.blank? && b.blank?
   end
 
+  # @return [Boolean]
+  def reject_taxon_determinations(attributed)
+    a = attributed['otu_id']
+    b = attributed['otu']
+    c = attributed['otu_attributes']
+    d = true
+    if c
+      d = c['name'].blank? && c['taxon_name_id'].blank? && c['taxon_name'].blank?
+    end
+
+    return true if a.blank? && b.blank? && d
+    return true if a.present? && b.present? && c.present?
+    false
+  end
 
   def reject_collecting_event(attributed)
     reject = true

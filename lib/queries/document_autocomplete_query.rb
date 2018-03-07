@@ -1,7 +1,6 @@
 module Queries
 
   class DocumentAutocompleteQuery < Queries::Query
-    include Arel::Nodes
 
     def where_sql
       or_clauses.to_sql

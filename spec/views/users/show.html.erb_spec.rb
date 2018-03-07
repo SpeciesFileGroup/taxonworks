@@ -1,4 +1,5 @@
 require 'rails_helper'
+=begin
 
 describe "users/show", :type => :view do
   before(:each) do
@@ -15,3 +16,4 @@ describe "users/show", :type => :view do
     expect(rendered).to match(/smith/)
   end
 end
+=end

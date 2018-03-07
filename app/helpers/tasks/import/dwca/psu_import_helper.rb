@@ -11,14 +11,14 @@ module Tasks::Import::Dwca::PsuImportHelper
     unless row[:warn].blank?
       row[:warn].each do |warning|
         # unless warning.blank?
-          output += content_tag(:ul, content_tag(:li, warning, class: 'brown'))
+        output += content_tag(:ul, content_tag(:li, warning, class: 'brown'))
         # end
       end
     end
     unless row[:err].blank?
       row[:err].each do |error|
         # unless error.blank?
-          output += content_tag(:ul, content_tag(:li, error, class: 'red'))
+        output += content_tag(:ul, content_tag(:li, error, class: 'red'))
         # end
       end
     end

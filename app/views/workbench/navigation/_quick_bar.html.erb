@@ -1,25 +1,25 @@
 <nav id="quick_bar">
-<div class="horizontal_navbar">
-  <div class="hub-project">
-	<%= link_to('Hub', hub_path, class: [:hub_link, (request.path == '/hub' ? :on_hub : nil)].compact) -%>
+  <div class="horizontal_navbar">
+    <div class="hub-project">
+      <%= content_tag(:div, link_to('Hub', hub_path, class: [:hub_link, (request.path == '/hub' ? :on_hub : nil)].compact), class: [:hub_circle, :hub_link_background]) -%>
 
-  <% if request.path == '/' -%>
-    <%= content_tag(:h1, "Dashboard for " + user_tag(sessions_current_user), class: :hub_project_name) -%> 
-  <% else %>
-    <%= link_to(sessions_current_project.name,hub_path,class: :hub_project_name) if sessions_current_project -%> 
-  <% end %> 
+      <% if request.path == '/' -%>
+        <%= content_tag(:h1, "Dashboard for " + user_tag(sessions_current_user), class: :hub_project_name) -%>
+      <% else %>
+        <%= link_to(sessions_current_project.name, hub_path, class: :hub_project_name) if sessions_current_project -%>
+      <% end %>
 
-  </div>
+    </div>
 
   </div>
   <% if @data_model -%>
-    <ul class="horizontal_navbar context-menu">
-      <% if Hub::Data::BY_NAME[@data_model.name] -%> 
+    <ul class="context-menu">
+      <% if Hub::Data::BY_NAME[@data_model.name] -%>
         <%= content_tag(:li, link_to(Hub::Data::BY_NAME[@data_model.name].name, @data_model, 'class' => 'active-section')) -%>
         <% Hub::Data::BY_NAME[@data_model.name].related_models.each do |m| -%>
-          <%= quick_bar_link(m) -%> 
+          <%= quick_bar_link(m) -%>
         <% end %>
-      <% end %> 
+      <% end %>
     </ul>
   <% end %>
 </nav>

@@ -1,53 +1,40 @@
 # A note is a text annotation on a data instance (record).
-# 
-# Notes are text only notes on instances that belong to some project (e.g. models that include Shared::IsData).
-# For global instances use DataAttribute.
 #
-# Notes may include any text excluding pipes ('|'). Pipes are a reserved object separator for output.
+# Notes are text only annotations on instances that belong to some project (i.e. models that include Housekeeping::Projects).
+#
+# To annotate global (models that do not include Housekeeping::Projects) instances use a DataAttribute.
 #
 # @!attribute text
 #   @return [String]
-#     The content of the note, in Markdown if you wish. 
+#     The content of the note, in Markdown if you wish.
 #
 # @!attribute note_object_type
 #   @return [String]
-#     The object being annotated. 
+#     The object being annotated.
 #
 # @!attribute note_object_attribute
 #   @return [String]
-#     The specific attribute being annotated. 
+#     The specific attribute being annotated.
 #
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
 #
-class Note < ActiveRecord::Base
+class Note < ApplicationRecord
   include Housekeeping
-  include Shared::IsData 
+  include Shared::IsData
   include Shared::AttributeAnnotations
-  include Shared::Taggable
-
-  belongs_to :note_object, polymorphic: true
-  #  before_validation :no_pipes
-
+  include Shared::Tags
+  include Shared::PolymorphicAnnotator
+  polymorphic_annotates(:note_object)
+  
   # Please DO NOT include the following, they get in the way
   # of the present housekeeping approach. A not null constraint exists
-  # to catch these at present. 
+  # to catch these at present.
   #    validates_associated :note_object
   #    validates_presence_of :note_object_id, :note_object_type
   validates_presence_of :text
   validates_uniqueness_of :text, scope: [:note_object_id, :note_object_type, :project_id]
-
-  # Format a note
-  def note_string
-    "#{updated_at}: #{updater.name}: #{text}" + (note_object_attribute.blank? ? "" : "[on: #{note_object_attribute}]")
-  end
-
-  # @return [NoteObject]
-  #   alias to simplify reference across classes 
-  def annotated_object
-    note_object 
-  end
 
   def self.annotated_attribute_column
     :note_object_attribute
@@ -61,22 +48,10 @@ class Note < ActiveRecord::Base
     where('text LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
   end
 
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
+  # TODO: make a helper
+  # Format a note
+  def note_string
+    "#{updated_at}: #{updater.name}: #{text}" + (note_object_attribute.blank? ? '' : "[on: #{note_object_attribute}]")
   end
 
-  protected
-
- # def no_pipes
- #   if !self.text.blank?
- #     errors.add(:text, 'TW notes may not contain a pipe (||)') if self.text.include?('||')
- #   end
- # end
 end

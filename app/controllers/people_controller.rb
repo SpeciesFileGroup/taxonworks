@@ -6,8 +6,8 @@ class PeopleController < ApplicationController
   # GET /people
   # GET /people.json
   def index
-    @people = Person.all.includes(:creator, :updater)
-    @recent_objects = Person.order(updated_at: :desc).limit(10)
+    @people =  Person.order(updated_at: :desc).limit(10)  
+    @recent_objects = @people
     render '/shared/data/all/index'
   end
 
@@ -66,9 +66,10 @@ class PeopleController < ApplicationController
   end
 
   def list
-    @people =  Person.order(:id).page(params[:page]) #.per(10) #.per(3)
+    @people =  Person.order(:cached).page(params[:page]) 
   end
 
+  # TODO: deprecate!
   def search
     if params[:id].blank?
       redirect_to people_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
@@ -78,53 +79,48 @@ class PeopleController < ApplicationController
   end
 
   def autocomplete
-    @people = Person.find_for_autocomplete(params)
-    data = @people.collect do |t|
-      {id:              t.id,
-       label:           t.name,
-       response_values: {
-           params[:method] => t.id
-       },
-       label_html:     t.name 
-      }
-    end
-
-    render :json => data
+    @people = Queries::Person::Autocomplete.new(
+      params.require(:term),
+      autocomplete_params
+    ).autocomplete
   end
 
   # GET /people/download
   def download
-    send_data Person.generate_download( Person.all ), type: 'text', filename: "people_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Person.all), type: 'text', filename: "people_#{DateTime.now}.csv"
   end
 
   def roles
-
   end
 
-  def lookup_person
-    @people = Person.find_for_autocomplete(params)
-    render :json => @people.collect{|p|
-      {
-        label: p.bibtex_name,
-        object_id: p.id}
-    }
+  # GET /people/role_types.json
+  def role_types
+    render json: ROLES
   end
 
   # GET /person/:id/details
-  def details 
+  def details
     @person = Person.includes(:roles).find(params[:id])
-    render partial: '/people/picker_details', locals: {person:  @person} 
+    render partial: '/people/picker_details', locals: {person:  @person}
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_person
-      @person = Person.find(params[:id])
-      @recent_object = @person
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def person_params
-      params.require(:person).permit(:type, :last_name, :first_name, :suffix, :prefix)
-    end
+  def autocomplete_params
+    params.permit(roles: []).to_h.symbolize_keys
+  end
+
+  def set_person
+    @person = Person.find(params[:id])
+    @recent_object = @person
+  end
+
+  def person_params
+    params.require(:person).permit(
+      :type, 
+      :last_name, :first_name, 
+      :suffix, :prefix, 
+      :year_born, :year_died, :year_active_start, :year_active_end
+    )
+  end
 end

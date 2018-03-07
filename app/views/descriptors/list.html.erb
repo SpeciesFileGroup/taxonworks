@@ -1,0 +1,27 @@
+<%= render("/shared/data/all/list/list_header", objects: @descriptor) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Short name') -%>
+    <%= fancy_th_tag(name: 'Type') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @descriptor.each do |descriptor| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= descriptor.name %></td>
+          <td><%= descriptor.short_name %></td>
+          <td><%= descriptor.type %></td>
+          <%= fancy_metadata_cells_tag(descriptor) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>
+
+
+

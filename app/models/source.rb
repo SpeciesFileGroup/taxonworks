@@ -2,7 +2,7 @@
 #
 # The primary purpose of Source metadata is to allow the user to find the source, that's all.
 #
-# See https://en.wikipedia.org/wiki/BibTeX for a definition of attributes, in nearly all cases they are 1:1 with the TW model.  We use this https://github.com/inukshuk/bibtex-ruby awesomeness.  See https://github.com/inukshuk/bibtex-ruby/tree/master/lib/bibtex/entry, in particular rdf_converter.rb for the types of field managed. 
+# See https://en.wikipedia.org/wiki/BibTeX for a definition of attributes, in nearly all cases they are 1:1 with the TW model.  We use this https://github.com/inukshuk/bibtex-ruby awesomeness.  See https://github.com/inukshuk/bibtex-ruby/tree/master/lib/bibtex/entry, in particular rdf_converter.rb for the types of field managed.
 #
 #
 # @!attribute serial_id
@@ -99,7 +99,9 @@
 #
 # @!attribute type
 #   @return [String]
-#     An exception to the 1:1 modelling.  We retain for Rails STI usage. Either Source::Verbatim or Source::Bibtex.  The former can only consist of a single field (the full citation as a string).  The latter is a Bibtex model.  See "bibtex_type" for the bibtex attribute "type".
+#     An exception to the 1:1 modelling.  We retain for Rails STI usage. Either Source::Verbatim or Source::Bibtex.  
+#     The former can only consist of a single field (the full citation as a string).  
+#     The latter is a Bibtex model.  See "bibtex_type" for the bibtex attribute "type".
 #
 # @!attribute bibtex_type
 #   @return [String]
@@ -111,7 +113,7 @@
 #
 # @!attribute doi
 #   @return [String]
-#    When provided also cloned to an Identifier::Global. See https://en.wikipedia.org/wiki/BibTeX#Field_types  
+#    When provided also cloned to an Identifier::Global. See https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute abstract
 #   @return [String]
@@ -143,7 +145,7 @@
 #
 # @!attribute verbatim
 #   @return [String]
-#     the full citation, used only for type = SourceVerbatim 
+#     the full citation, used only for type = SourceVerbatim
 #
 # @!attribute verbatim_contents
 #   @return [String]
@@ -155,7 +157,7 @@
 #
 # @!attribute language_id
 #   @return [Integer]
-#     The TaxonWorks normalization of language to Language. 
+#     The TaxonWorks normalization of language to Language.
 #
 # @!attribute translator
 #   @return [String]
@@ -163,7 +165,7 @@
 #
 # @!attribute year_suffix
 #   @return [String]
-#     Arbitrary user-provided suffix to the year.  Use is highly discouraged. 
+#     Arbitrary user-provided suffix to the year.  Use is highly discouraged.
 #
 # @!attribute url
 #   @return [String]
@@ -179,45 +181,37 @@
 #
 # @!attribute cached_nomenclature_date
 #   @return [DateTime]
-#     Date sensu nomenclature algorithm in TaxonWorks (see Utilities::Dates) 
+#     Date sensu nomenclature algorithm in TaxonWorks (see Utilities::Dates)
 #
-class Source < ActiveRecord::Base
+class Source < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::AlternateValues
   include Shared::DataAttributes
-  include Shared::HasRoles
-  include Shared::Identifiable
-  include Shared::Notable
+  include Shared::Identifiers
+  include Shared::Notes
   include Shared::SharedAcrossProjects
-  include Shared::Taggable
+  include Shared::Tags
+  include Shared::Documentation 
+  include Shared::HasRoles
   include Shared::IsData
-  include Shared::Documentation
-
-  has_paper_trail :on => [:update]
+  include Shared::HasPapertrail
+  include SoftValidation
 
   ALTERNATE_VALUES_FOR = [:address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
                           :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
 
+  has_many :citations, inverse_of: :source, dependent: :restrict_with_error
   has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
-  has_many :citations, inverse_of: :source, dependent: :restrict_with_error 
   has_many :project_sources, dependent: :destroy
   has_many :projects, through: :project_sources
 
-  before_save :set_cached
+  after_save :set_cached
 
   validates_presence_of :type
+  validates :type, inclusion: { in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim'] }
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
- 
-  def reject_project_sources(attributed)
-    return true if attributed['project_id'].blank? 
-    return true if ProjectSource.where(project_id: attributed['project_id'], source_id: id).any?
-  end 
-
-  def cited_objects
-    self.citations.collect { |t| t.citation_object }
-  end
 
   # Create a new Source instance from a full text citatation.  By default
   # try to resolve the citation against Crossref, use the returned
@@ -263,21 +257,22 @@ class Source < ActiveRecord::Base
     false
   end
 
-  def self.batch_preview(file: nil, ** args)
+  # Redirect type here
+  def self.batch_preview(file)
     bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'))
-    @sources     = []
+    sources = []
     bibliography.each do |record|
       a = Source::Bibtex.new_from_bibtex(record)
       # v = a.valid?
       a.soft_validate()
-      @sources.push(a)
+      sources.push(a)
     end
-    @sources
+    sources
   end
 
-  def self.batch_create(file: nil, ** args)
-    @sources = []
-    @valid   = 0
+  def self.batch_create(file)
+    sources = []
+    valid  = 0
     begin
       error_msg = []
       Source.transaction do
@@ -286,49 +281,45 @@ class Source < ActiveRecord::Base
           a = Source::Bibtex.new_from_bibtex(record)
           if a.valid?
             if a.save
-              @valid += 1
+              valid += 1
             end
             a.soft_validate()
           else
             error_msg = a.errors.messages.to_s
           end
-          @sources.push(a)
+          sources.push(a)
         end
       end
     rescue
       return false
     end
-    {records: @sources, count: @valid}
+    return {records: sources, count: valid}
   end
 
-  # TODO: remove and use code in  Shared::IsData::Levenshtein
-  def nearest_by_levenshtein(compared_string: nil, column: 'cached', limit: 10)
-    return Source.none if compared_string.nil?
-    order_str = Source.send(:sanitize_sql_for_conditions, ["levenshtein(sources.#{column}, ?)", compared_string])
-    Source.where('id <> ?', self.to_param).
-      order(order_str).
-      limit(limit)
-  end
-
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
+  # @return [Array]
+  #    objects this source is linked to through citations
+  def cited_objects
+    self.citations.collect { |t| t.citation_object }
   end
 
   def is_bibtex?
     type == 'Source::Bibtex'
   end
 
+  # @return [Boolean]
+  def is_in_project?(project_id)
+    projects.where(id: project_id).any?
+  end
+
   protected
 
+  def reject_project_sources(attributed)
+    return true if attributed['project_id'].blank?
+    return true if ProjectSource.where(project_id: attributed['project_id'], source_id: id).any?
+  end
+
+  # Defined in subclasses
   def set_cached
-    # in subclasses
   end
 
 end

@@ -5,7 +5,7 @@ module Shared::Depictions
   extend ActiveSupport::Concern
 
   included do
-   # attr_accessor :image_array
+    Depiction.related_foreign_keys.push self.name.foreign_key
 
     has_many :depictions, validate: true, as: :depiction_object, dependent: :destroy, inverse_of: :depiction_object
     has_many :images, validate: true, through: :depictions

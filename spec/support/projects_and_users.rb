@@ -1,5 +1,3 @@
-require_relative 'config/initialization_constants' 
-
 module ProjectsAndUsers
 
   def self.clean_slate 
@@ -13,13 +11,13 @@ module ProjectsAndUsers
   # This is used before all tests of type :model, :controller, :helper
   def self.spin_up_projects_users_and_housekeeping
     # Order matters 
-    FactoryGirl.create(:valid_user, id: 1, self_created: true)
+    FactoryBot.create(:valid_user, id: 1, self_created: true)
     $user_id = 1
-    FactoryGirl.create(:valid_project, id: 1, without_root_taxon_name: true)
+    FactoryBot.create(:valid_project, id: 1, without_root_taxon_name: true)
     $project_id = 1
-    FactoryGirl.create(:project_member, user_id: 1, project_id: 1)
+    FactoryBot.create(:project_member, user_id: 1, project_id: 1)
 
     # TODO: Not sure why this is required, perhaps Spring related?! 
-    ActiveRecord::Base.connection.tables.each { |t| ActiveRecord::Base.connection.reset_pk_sequence!(t) }
+    ApplicationRecord.connection.tables.each { |t| ApplicationRecord.connection.reset_pk_sequence!(t) }
   end
 end

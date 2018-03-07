@@ -70,7 +70,19 @@ module Utilities::Strings
     [pre, content, post].compact.join.html_safe
   end
 
+  # @return [String, nil]
+  # TODO: DEPRECATE
+  def self.authorship_sentence(last_names = [])
+    return nil if last_names.empty?
+    last_names.to_sentence(two_words_connector: ' & ', last_word_connector: ' & ')
+  end
 
+  # @return [Array]
+  #   array of whitespace split strings, with any string containing a digit eliminated  
+  def self.alphabetic_strings(string)
+    a = string.gsub(/[^a-zA-Z]/, ' ').split(/\s+/) 
+    a.empty? ? [] : a
+  end
 
 end
 

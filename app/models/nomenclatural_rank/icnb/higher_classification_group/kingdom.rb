@@ -1,7 +1,7 @@
 class NomenclaturalRank::Icnb::HigherClassificationGroup::Kingdom < NomenclaturalRank::Icnb::HigherClassificationGroup
 
   def self.parent_rank
-     NomenclaturalRank::Icnb
+    NomenclaturalRank::Icnb
   end
 
 end

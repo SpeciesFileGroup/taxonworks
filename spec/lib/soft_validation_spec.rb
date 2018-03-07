@@ -194,11 +194,11 @@ describe 'SoftValidation', group: :soft_validation do
           expect(softy.soft_validations.on(:mohr).size).to eq(1)
           expect(softy.fix_soft_validations).to be_truthy
           expect(softy.soft_validations.fixes_run?).to eq(:automatic)
-          expect(softy.soft_validations.fix_messages).to eq(base: ['no longer hungry, cooked a cheezeburger'], mohr: ["fix not run, no automatic fix available"])
+          expect(softy.soft_validations.fix_messages).to eq(base: ['no longer hungry, cooked a cheezeburger'], mohr: ['fix not run, no automatic fix available'])
 
           # TODO: Move out  
           expect(softy.soft_validations.on(:mohr).size).to eq(1)
-          expect(softy.soft_validations.messages).to eq(["hungry (for cheez)!", "hungry!"] ) 
+          expect(softy.soft_validations.messages).to eq(['hungry (for cheez)!', 'hungry!'] ) 
           expect(softy.soft_validations.messages_on(:mohr)).to eq(['hungry (for cheez)!'] ) 
         end
 
@@ -206,7 +206,7 @@ describe 'SoftValidation', group: :soft_validation do
           expect(softy.soft_validations.on(:mohr).size).to eq(1)
           expect(softy.fix_soft_validations(:requested)).to be_truthy
           expect(softy.soft_validations.fixes_run?).to eq(:requested) 
-          expect(softy.soft_validations.fix_messages).to eq(mohr: ["fix not run, no automatic fix available"], base: ['fix available, but not triggered'])
+          expect(softy.soft_validations.fix_messages).to eq(mohr: ['fix not run, no automatic fix available'], base: ['fix available, but not triggered'])
         end
 
       end

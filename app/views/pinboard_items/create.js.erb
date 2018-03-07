@@ -1,35 +1,40 @@
 $('[data-pin-button-item-id="<%= @pinboard_item.pinned_object_id -%>"]').replaceWith("<%= j pin_item_to_pinboard_link(@pinboard_item.pinned_object, sessions_current_user) -%>");
 $('body').mx_spinner('hide');
-TW.workbench.alert.create("Pinboard item was successfully created.")
+TW.workbench.alert.create("Pinboard item was successfully created.", "notice");
 
-var injectItem = `<li class="slide-panel-category-item" data-pin-item="<%= @pinboard_item.id -%>" id="<%= "order_#{@pinboard_item.id}" -%>"> 
-                <div> 
-                  <span class="handle" data-icon="scroll-v"></span> 
-                  <%= object_link(@pinboard_item.pinned_object) -%> 
-                </div> 
-                <div class="itemOptions">
-                  <%= if @pinboard_item.pinned_object_type == 'Document' && @pinboard_item.pinned_object.document_file_content_type.eql?("application/pdf") 
-                        content_tag(:a, "PDF Viewer", class: :pdfviewerItem , data: { pdfviewer: @pinboard_item.pinned_object.document_file(:original, false) }) 
-                      end 
-                    %> 
-                  <%= link_to('Remove', pinboard_item_path(@pinboard_item), class: :remove, method: :delete) -%> 
-                </div> 
+var injectItem = `<li class="slide-panel-category-item" data-insert="false" data-pinboard-object-id="<%= @pinboard_item.pinned_object.id -%>" data-pinboard-item-id="<%= @pinboard_item.id -%>" data-pin-item="<%= @pinboard_item.id -%>" id="<%= "order_#{@pinboard_item.id}" -%>">
+                <div class="handle flex-separate middle ui-sortable-handle">
+                  <%= object_link(@pinboard_item.pinned_object) -%>
+                </div>
+                <div class="pinboard-dropdown">
+                  <div class="pinboard-menu-bar"></div>
+                  <div class="pinboard-menu-bar"></div>
+                  <div class="pinboard-menu-bar"></div>
+                  <div class="itemOptions pinboard-dropdown-content">
+                    <%= link_to('Remove', pinboard_item_path(@pinboard_item), class: ['remove', 'circle-button', 'button-delete'], method: :delete, remote: true) -%>
+                    <%= if @pinboard_item.pinned_object_type == 'Document' && @pinboard_item.pinned_object.document_file_content_type.eql?("application/pdf")
+                          content_tag(:a, "PDF Viewer", class: :pdfviewerItem , data: { pdfviewer: @pinboard_item.pinned_object.document_file(:original, false) })
+                        end
+                      %>
+                    <a class="circle-button button-pinboard-default button-submit option-default" data-remote="true" rel="nofollow" data-method="put" href="/pinboard_items/<%= @pinboard_item.id -%>?pinboard_item%5Bis_inserted%5D=true">Make default</a>
+                  </div>
+                </div>
               </li>`
 
-if(!$('[data-pin-caterogy="<%= @pinboard_item.pinned_object_type -%>"]').length) {
-	var injectCategory = ` <div id="order_<%= @pinboard_item.pinned_object_type.pluralize -%>">
-						      <div class="slide-panel-category-header"><%= @pinboard_item.pinned_object_type.pluralize -%></div>
-						      	<ul class="slide-panel-category-content"
-									            data-pin-caterogy="<%= @pinboard_item.pinned_object_type -%>"
-									            data-sortable
-									            data-sortable-items="li"
-									            data-sortable-on-change-url="<%= update_position_pinboard_items_path -%>"
-									           >
-								</ul>
-							</div>`;
+if (!$('[data-pinboard-section="<%= @pinboard_item.pinned_object_type.pluralize -%>"]').length) {
+  var injectCategory = ` <div id="order_<%= @pinboard_item.pinned_object_type.pluralize -%>">
+                  <div class="slide-panel-category-header"><%= @pinboard_item.pinned_object_type.pluralize -%></div>
+                    <ul class="slide-panel-category-content"
+                              data-pinboard-section="<%= @pinboard_item.pinned_object_type.pluralize -%>"
+                              data-sortable
+                              data-sortable-items="li"
+                              data-sortable-on-change-url="<%= update_position_pinboard_items_path -%>"
+                             >
+                </ul>
+              </div>`;
 
-	$(injectCategory).appendTo('#pinboard');						
+  $(injectCategory).appendTo('#pinboard');
 }
 
-$(injectItem).appendTo('[data-pin-caterogy="<%= @pinboard_item.pinned_object_type -%>"]');
+$(injectItem).appendTo('[data-pinboard-section="<%= @pinboard_item.pinned_object_type.pluralize -%>"]');
 

@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-describe OtuPageLayout, :type => :model do
-  let(:otu_page_layout) {FactoryGirl.build(:otu_page_layout)} 
+describe OtuPageLayout, type: :model do
+  let(:otu_page_layout) {FactoryBot.build(:otu_page_layout)}
 
   context 'validation' do
     context 'required' do
@@ -14,15 +14,15 @@ describe OtuPageLayout, :type => :model do
       end
     end
 
- end
+  end
 
   context 'associations' do
     specify 'otu_page_layout_sections' do
-      expect(otu_page_layout).to respond_to(:otu_page_layout_sections) 
+      expect(otu_page_layout).to respond_to(:otu_page_layout_sections)
     end
 
     specify 'topics' do
-      expect(otu_page_layout).to respond_to(:topics) 
+      expect(otu_page_layout).to respond_to(:topics)
     end
   end
 

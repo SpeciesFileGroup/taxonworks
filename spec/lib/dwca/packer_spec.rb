@@ -22,7 +22,7 @@ describe Dwca::Packer::Data, type: :model do
     context 'with some occurrence records created' do
       before do 
         5.times do 
-          f = FactoryGirl.create(:valid_specimen) 
+          f = FactoryBot.create(:valid_specimen) 
           f.get_dwc_occurrence
         end 
       end

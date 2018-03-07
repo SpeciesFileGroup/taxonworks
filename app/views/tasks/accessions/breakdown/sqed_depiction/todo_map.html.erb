@@ -9,7 +9,7 @@
 
   <% @sqed_depictions.each do |i| -%>
     <%= content_tag(:div, class: "card #{i.depiction.depiction_object.buffered_collecting_event.blank? ? '' : 'finished'}") do -%> 
-      <%= content_tag(:p, link_to(i.id, sqed_depiction_breakdown_task_path(i), 'data-no-turbolink' => 'true')) -%>
+      <%= content_tag(:p, link_to(i.id, sqed_depiction_breakdown_task_path(i), 'data-turbolinks' => 'false')) -%>
     <% end %>
   <% end %>
 </div>

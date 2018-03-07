@@ -18,12 +18,12 @@ module GeographicItemsHelper
   def geographic_item_link(geographic_item, link_text = nil)
     return nil if geographic_item.nil?
     link_text ||= geographic_item.to_param
-    link_to(link_text, geographic_item_path(geographic_item), data: {no_turbolink: true})
+    link_to(link_text, geographic_item_path(geographic_item), data: {turbolinks: false})
   end
 
   def geographic_item_links(geographic_items)
     return content_tag(:em, 'none') if geographic_items.count == 0
-    geographic_items.collect { |a| geographic_item_link(a) }.join(", ").html_safe
+    geographic_items.collect { |a| geographic_item_link(a) }.join(', ').html_safe
   end
 
   def geographic_item_parent_nav_links(geographic_item)

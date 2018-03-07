@@ -58,7 +58,7 @@ namespace :tw do
     end
 
     desc 'Add code here to experiment with Redis'
-    task :redis_experiment => [:init_redis] do
+    task redis_experiment: [:init_redis] do
 
     end
   end

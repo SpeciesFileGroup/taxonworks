@@ -8,7 +8,6 @@ TW.vendor.lib.google.maps = TW.vendor.lib.google.maps || {};
 
 Object.assign(TW.vendor.lib.google.maps, {               // internally referred to as 'this'; externally as TW.vendor.lib.google.maps
 
-
     mapIcons: {    // hash of defined colors and their paths
       empty: '<%= asset_path('map_icons/mm_20_empty.png') %>',
       black: '<%= asset_path('map_icons/mm_20_black.png') %>',
@@ -24,7 +23,36 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       shadow: '<%= asset_path('map_icons/mm_20_shadow.png') %>'
     },
 
+    isGoogleMapsAPILoaded: false,
+    isProcessing: false,
+
+    //Load Google Maps
+    loadGoogleMapsAPI: function () {
+      return new Promise(function (resolve) {
+        if (this.isGoogleMapsAPILoaded || (typeof window.google == 'object')) {
+          resolve(true);
+        }
+        else {
+          var that = this,
+            script = document.createElement("script");
+
+          script.type = "text/javascript";
+          script.src = "http://maps.google.com/maps/api/js?v=3&key=AIzaSyDKkPt458dNMlfIWbpQCbClJoVq2vP_k4E&libraries=drawing";
+          if (!this.isProcessing) {
+            document.head.appendChild(script);
+          }
+          this.isProcessing = true;
+          script.onload = function () {
+            that.isGoogleMapsAPILoaded = true;
+            that.isProcessing = false;
+            resolve(true);
+          }
+        }
+      })
+    },
+
     initializeMap: function (canvas, feature_collection) {
+
       var myOptions = {
         zoom: 1,
         center: {lat: 0, lng: 0}, //center_lat_long, set to 0,0
@@ -442,7 +470,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       // TODO: is this doing two things? What is the code after the above doing, altering the content of feature_collection_data
       // ANSWER: this sets the bounds, including zoom level ^ & v
       // ?! does this actually affect/return anything?!
-      //	get data object encoded as geoJSON (deprecated: and disseminate to google (deprecated: and leaflet arrays))
+      //  get data object encoded as geoJSON (deprecated: and disseminate to google (deprecated: and leaflet arrays))
       var data = feature_collection_data;
       if (typeof (data) != "undefined") {
         var dataArray = [];
@@ -508,7 +536,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       if (thisType.type == "FeatureCollection") {
         for (i = 0; i < thisType.features.length; i++) {
           if (typeof (thisType.features[i].type) != "undefined") {
-            this.getFeature(thisType.features[i], bounds);		//  recurse if FeatureCollection
+            this.getFeature(thisType.features[i], bounds);    //  recurse if FeatureCollection
           }     //thisType != undefined
         }        //for i
         return
@@ -517,7 +545,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       if (thisType.type == "GeometryCollection") {
         for (i = 0; i < thisType.geometries.length; i++) {
           if (typeof (thisType.geometries[i].type) != "undefined") {
-            this.getTypeData(thisType.geometries[i], bounds);		//  recurse if GeometryCollection
+            this.getTypeData(thisType.geometries[i], bounds);    //  recurse if GeometryCollection
           }     //thisType != undefined
         }       //for i
       }
@@ -633,7 +661,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       }
 
       if (thisType.type == "MultiPolygon") {
-        for (j = 0; j < thisType.coordinates.length; j++) {		// j iterates over multipolygons   *-
+        for (j = 0; j < thisType.coordinates.length; j++) {    // j iterates over multipolygons   *-
           for (k = 0; k < thisType.coordinates[j].length; k++) {  //k iterates over polygons
             for (l = 0; l < thisType.coordinates[j][k].length; l++) {
               this.xgtlt(bounds, thisType.coordinates[j][k][l][0]);

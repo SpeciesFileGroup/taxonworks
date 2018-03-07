@@ -1,10 +1,6 @@
 
 // Styling particular to the hub controller and views
 
-@import 'base/palette';
-@import 'base/whitespace';
-@import 'base/fonts';
-
 #hub {
   a {
     text-decoration: none;
@@ -79,18 +75,18 @@
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        padding-top: $standard_padding;
-        padding-bottom: $standard_padding*0.8;
         margin-bottom: $standard_padding*0.5;
-        margin-right: $standard_padding*2;
-
-        border-bottom: 2px solid transparent;
-        border-top: 2px solid transparent;
       }
+
       a {
+        padding: $standard_padding*2;
+        padding-top: $standard_padding;
+        padding-bottom: $standard_padding*0.9;
         font-size:$font_small;
         font-weight: 300;
         text-transform: uppercase;
+        border-bottom: 2px solid transparent;
+        border-top: 2px solid transparent;
       }
     }
   }  

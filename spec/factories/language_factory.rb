@@ -1,6 +1,6 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
+# Read about factories at https://github.com/thoughtbot/factory_bot
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :language, traits: [:creator_and_updater] do
     factory :valid_language do
       alpha_3_bibliographic 'ABC'

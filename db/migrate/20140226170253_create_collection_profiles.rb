@@ -1,4 +1,4 @@
-class CreateCollectionProfiles < ActiveRecord::Migration
+class CreateCollectionProfiles < ActiveRecord::Migration[4.2]
   def change
     create_table :collection_profiles do |t|
       t.references :container, index: true

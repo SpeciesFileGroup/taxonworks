@@ -22,9 +22,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
   context 'methods' do
     specify 'is_fassil' do
-      g = FactoryGirl.create(:relationship_genus)
+      g = FactoryBot.create(:relationship_genus)
       expect(g.is_fossil?).to be_falsey
-      FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Fossil')
+      FactoryBot.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Fossil')
       g.reload
       expect(g.is_fossil?).to be_truthy
     end
@@ -40,12 +40,12 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     specify 'all_generic_placements' do
-      family = FactoryGirl.create(:relationship_family)
-      genus = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: family)
-      genus1 = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: family)
-      genus2 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: family)
-      genus3 = FactoryGirl.create(:relationship_genus, name: 'Dus', parent: family)
-      species = FactoryGirl.create(:iczn_species, parent: genus)
+      family = FactoryBot.create(:relationship_family)
+      genus = FactoryBot.create(:relationship_genus, name: 'Aus', parent: family)
+      genus1 = FactoryBot.create(:relationship_genus, name: 'Bus', parent: family)
+      genus2 = FactoryBot.create(:relationship_genus, name: 'Cus', parent: family)
+      genus3 = FactoryBot.create(:relationship_genus, name: 'Dus', parent: family)
+      species = FactoryBot.create(:iczn_species, parent: genus)
       species.reload
       expect(species.all_generic_placements).to eq(['Aus'])
       species.original_genus = genus1
@@ -63,16 +63,16 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     context 'coordinated names' do
       before(:all) do
-        @family = FactoryGirl.create(:iczn_family, name: 'Cicadellidae')
-        @subfamily = FactoryGirl.create(:iczn_subfamily, name: 'Cicadellinae', parent: @family)
-        @tribe = FactoryGirl.create(:iczn_tribe, name: 'Cicadellini', parent: @subfamily)
-        @tribe1 = FactoryGirl.create(:iczn_tribe, name: 'Proconiini', parent: @subfamily)
-        @genus = FactoryGirl.create(:iczn_genus, name: 'Aus', parent: @tribe)
-        @genus1 = FactoryGirl.create(:iczn_genus, name: 'Bus', parent: @tribe)
-        @subgenus = FactoryGirl.create(:iczn_subgenus, name: 'Aus', parent: @genus)
-        @species = FactoryGirl.create(:iczn_species, name: 'aus', parent: @subgenus)
-        @subspecies = FactoryGirl.create(:iczn_subspecies, name: 'aus', parent: @species)
-        @subspecies1 = FactoryGirl.create(:iczn_subspecies, name: 'bus', parent: @species)
+        @family = FactoryBot.create(:iczn_family, name: 'Cicadellidae')
+        @subfamily = FactoryBot.create(:iczn_subfamily, name: 'Cicadellinae', parent: @family)
+        @tribe = FactoryBot.create(:iczn_tribe, name: 'Cicadellini', parent: @subfamily)
+        @tribe1 = FactoryBot.create(:iczn_tribe, name: 'Proconiini', parent: @subfamily)
+        @genus = FactoryBot.create(:iczn_genus, name: 'Aus', parent: @tribe)
+        @genus1 = FactoryBot.create(:iczn_genus, name: 'Bus', parent: @tribe)
+        @subgenus = FactoryBot.create(:iczn_subgenus, name: 'Aus', parent: @genus)
+        @species = FactoryBot.create(:iczn_species, name: 'aus', parent: @subgenus)
+        @subspecies = FactoryBot.create(:iczn_subspecies, name: 'aus', parent: @species)
+        @subspecies1 = FactoryBot.create(:iczn_subspecies, name: 'bus', parent: @species)
         @family.reload
         @subfamily.reload
         @tribe.reload
@@ -116,14 +116,14 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     context 'get_primary_type' do
       specify 'primary' do
-        type = FactoryGirl.create(:valid_type_material)
+        type = FactoryBot.create(:valid_type_material)
         expect(type.protonym.get_primary_type).to eq([type])
       end
 
       specify 'syntypes' do
-        type1 = FactoryGirl.create(:syntype_type_material)
+        type1 = FactoryBot.create(:syntype_type_material)
         p = type1.protonym
-        type2 = FactoryGirl.create(:syntype_type_material, protonym: p)
+        type2 = FactoryBot.create(:syntype_type_material, protonym: p)
         expect(p).to eq(type2.protonym)
         p.reload
         expect(p.get_primary_type.sort_by{|i| i.id}).to eq([type1, type2])
@@ -131,14 +131,14 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     specify 'has_same_primary_types' do
-      species1 = FactoryGirl.create(:relationship_species)
-      species2 = FactoryGirl.create(:relationship_species, parent: species1.ancestor_at_rank('genus'))
+      species1 = FactoryBot.create(:relationship_species)
+      species2 = FactoryBot.create(:relationship_species, parent: species1.ancestor_at_rank('genus'))
       species1.reload
       expect(species1.has_same_primary_type(species2)).to be_truthy
-      type1 = FactoryGirl.create(:valid_type_material, protonym: species1)
+      type1 = FactoryBot.create(:valid_type_material, protonym: species1)
       species1.reload
       expect(species1.has_same_primary_type(species2)).to be_falsey
-      type2 = FactoryGirl.create(:valid_type_material, protonym: species2)
+      type2 = FactoryBot.create(:valid_type_material, protonym: species2)
       species1.reload
       expect(species1.has_same_primary_type(species2)).to be_falsey
       type2.biological_object_id = type1.biological_object_id
@@ -148,8 +148,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     specify 'iczn_set_as_incorrect_original_spelling_of_relationship' do
-      species1 = FactoryGirl.create(:relationship_species, name: 'aus')
-      species2 = FactoryGirl.create(:relationship_species, name: 'bus', parent: species1.ancestor_at_rank('genus'))
+      species1 = FactoryBot.create(:relationship_species, name: 'aus')
+      species2 = FactoryBot.create(:relationship_species, name: 'bus', parent: species1.ancestor_at_rank('genus'))
       relationship = TaxonNameRelationship.create(subject_taxon_name: species2, object_taxon_name: species1, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling')
       species1.reload
       species2.reload
@@ -158,8 +158,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     specify 'iczn_uncertain_placement_relationship' do
-      family = FactoryGirl.create(:relationship_family)
-      species = FactoryGirl.create(:relationship_species, parent: family)
+      family = FactoryBot.create(:relationship_family)
+      species = FactoryBot.create(:relationship_species, parent: family)
       expect(species.iczn_uncertain_placement_relationship).to be_falsey
       relationship = TaxonNameRelationship.create(subject_taxon_name: species, object_taxon_name: family, type: 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
       species.reload
@@ -167,12 +167,12 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     specify 'original_combination_class_relationships' do
-      genus = FactoryGirl.create(:relationship_genus)
-      subgenus = FactoryGirl.create(:iczn_subgenus, parent: genus)
-      species = FactoryGirl.create(:relationship_species, parent: subgenus)
-      subspecies = FactoryGirl.create(:iczn_subspecies, parent: species)
+      genus = FactoryBot.create(:relationship_genus)
+      subgenus = FactoryBot.create(:iczn_subgenus, parent: genus)
+      species = FactoryBot.create(:relationship_species, parent: subgenus)
+      subspecies = FactoryBot.create(:iczn_subspecies, parent: species)
 
-      expect(subspecies.original_combination_class_relationships.collect{|i| i.to_s}.sort).to eq(["TaxonNameRelationship::OriginalCombination::OriginalForm", "TaxonNameRelationship::OriginalCombination::OriginalGenus", "TaxonNameRelationship::OriginalCombination::OriginalSpecies", "TaxonNameRelationship::OriginalCombination::OriginalSubgenus", "TaxonNameRelationship::OriginalCombination::OriginalSubspecies", "TaxonNameRelationship::OriginalCombination::OriginalVariety"])
+      expect(subspecies.original_combination_class_relationships.collect{|i| i.to_s}.sort).to eq(['TaxonNameRelationship::OriginalCombination::OriginalForm', 'TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::OriginalCombination::OriginalSpecies', 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus', 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies', 'TaxonNameRelationship::OriginalCombination::OriginalVariety'])
 
       r1 = TaxonNameRelationship.create(subject_taxon_name: genus, object_taxon_name: subspecies, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       r2 = TaxonNameRelationship.create(subject_taxon_name: subgenus, object_taxon_name: subspecies, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')

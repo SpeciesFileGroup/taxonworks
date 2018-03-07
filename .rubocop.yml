@@ -1,5 +1,11 @@
+inherit_from: .rubocop_todo.yml
+
 # Documentation: http://www.rubydoc.info/gems/rubocop
+
 AllCops:
+  TargetRubyVersion: 2.4
+  DisabledByDefault: true
+  MaxFilesInCache: 8000 # Limit growth of cache
   Include:
     - '**/Rakefile'
     - '**/config.ru'
@@ -7,90 +13,102 @@ AllCops:
     - 'db/**/*'
     - 'script/**/*'
     - 'tmp/**/*'
+    - 'node_modules/**/*'
+    - '.yardoc/**/*'
+    - '.idea/**/*'
+    - '.bundle/**/*'
+    - 'coverage/**/*'
+    - 'volumes/**/*'
+    - 'public/packs/**/*'
+    - 'public/packs-test/**/*'
+    - 'bin/**/*'
 
 Rails:
   Enabled: true
 
-Style/EmptyLineBetweenDefs:
-  # If true, this parameter means that single line method definitions don't
-  # need an empty line between them.
-  AllowAdjacentOneLineDefs: true
-
-Style/EmptyLinesAroundClassBody:
-  EnforcedStyle: empty_lines
-
-Style/ClassAndModuleChildren:
-  EnforcedStyle: compact 
-
-Style/CaseIndentation:
-  Enabled: false
-
-Style/SpaceInsideHashLiteralBraces:
-  Enabled: false
-
-Style/MultilineMethodCallIndentation:
-  Enabled: false
-
-Style/BlockDelimiters:
-  Enabled: false
-
-Style/ExtraSpacing:
-  Enabled: false
-  AllowForAlignment: false
-  ForceEqualSignAlignment: true
-
-Style/SpaceAroundOperators:
+Style/StringLiterals:
   Enabled: true
-  AllowForAlignment: true
+#  AutoCorrect: false
+
+Style/StringHashKeys:
+  Enabled: true
+
+Style/HashSyntax:
+  Enabled: true
+  EnforcedStyle: ruby19
+#  AutoCorrect: false
 
 Metrics/LineLength:
-  Max: 250
-# Use empty lines between defs.
+  Enabled: true
+  Max: 120
+  AllowHeredoc: true
+  AllowURI: true
+  URISchemes: [http, https]
+  IgnoreCopDirectives: false
 
 Metrics/MethodLength:
-  CountComments: false  # count full line comments?
-  Max: 20
+  Enabled: true
+  CountComments: false
+  Max: 25
 
 Metrics/ClassLength:
-  CountComments: false  # count full line comments?
-  Max: 600
-
-Metrics/ModuleLength:
-  CountComments: false  # count full line comments?
+  Enabled: true
+  CountComments: false
   Max: 1000
 
-Metrics/ParameterLists:
-  Max: 5
-  CountKeywordArgs: false
+Layout/IndentationWidth:
+  Enabled: true
+  Width: 2
 
-Rails/FindBy:
-  Include:
-    - app/models/**/*.rb
-    - lib/**/*.rb
+Lint/MissingCopEnableDirective:
+  Enabled: true
 
-Rails/FindEach:
-  Include:
-    - app/models/**/*.rb
-    - lib/**/*.rb
+Metrics/BlockNesting:
+  Enabled: true
 
-Rails/Output:
-  Include:
-    - app/**/*.rb
-    - config/**/*.rb
-    - db/**/*.rb
-    - lib/**/*.rb
+Lint/ReturnInVoidContext:
+  Enabled: true
 
-Rails/ReadWriteAttribute:
-  Include:
-    - app/models/**/*.rb
-    - lib/**/*.rb
+Lint/StringConversionInInterpolation:
+  Enabled: true
 
-Rails/ScopeArgs:
-  Include:
-    - app/models/**/*.rb
-    - lib/**/*.rb
+Performance/HashEachMethods:
+  Enabled: true
+  
+  Lint/UselessAccessModifier:
+  Enabled: true
 
-Rails/Validation:
-  Include:
-    - app/models/**/*.rb
-    - lib/**/*.rb
+Performance/Size:
+  Enabled: true
+
+Rails/Date:
+  Enabled: true
+
+Rails/SaveBang:
+  Enabled: true
+
+Style/LineEndConcatenation:
+  Enabled: true
+
+Style/MutableConstant:
+  Enabled: true
+
+Lint/DuplicateCaseCondition:
+  Enabled: true
+
+# TODO: select possible additions by setting `Enabled: true`
+
+#Lint/UnneededCopDisableDirective:
+#  Enabled: false
+
+# Layout/EmptyLines:
+#   Enabled: false
+
+# Layout/EmptyLinesAroundAccessModifier:
+#   Enabled: false
+#  
+# Lint/InterpolationCheck:
+#   Enabled: false
+
+# Lint/RegexpAsCondition:
+#   Enabled: false

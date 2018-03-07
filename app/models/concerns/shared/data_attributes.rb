@@ -4,6 +4,8 @@ module Shared::DataAttributes
   extend ActiveSupport::Concern
 
   included do
+    DataAttribute.related_foreign_keys.push self.name.foreign_key
+
     has_many :data_attributes, as: :attribute_subject, validate: true, dependent: :destroy
     accepts_nested_attributes_for :data_attributes
   end

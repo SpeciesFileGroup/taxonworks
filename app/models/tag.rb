@@ -1,21 +1,20 @@
-# A Tag links a ControlledVocabularyTerm::Keyword to a Data object. 
+# A Tag links a ControlledVocabularyTerm::Keyword to a Data object.
 #
 # @!attribute keyword_id
 #   @return [Integer]
-#     the controlled vocabulary term used in the tag 
+#      the keyword used in this tag
 #
 # @!attribute tag_object_id
 #   @return [Integer]
-#      Rails polymorphic. The id of of the object being tagged.
+#      Rails polymorphic, id of the object being tagged
 #
 # @!attribute tag_object_type
 #   @return [String]
-#      Rails polymorphic.  The type of the object being tagged. 
+#      Rails polymorphic, type of the object being tagged
 #
 # @!attribute tag_object_attribute
 #   @return [String]
-#      the specific attribute (column) that this tag is in reference to.  Optional.  When not
-#      provided the tag pertains to the whole object. 
+#      the specific attribute being referenced with the tag (not required)
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -24,19 +23,18 @@
 # @!attribute position
 #   @return [Integer]
 #     a user definable sort code on the tags on an object, handled by acts_as_list
-#      
-class Tag < ActiveRecord::Base
+#
+class Tag < ApplicationRecord
   include Housekeeping
   include Shared::IsData
   include Shared::AttributeAnnotations
-
-  acts_as_list scope: [:tag_object_id, :tag_object_type]
+  include Shared::MatrixHooks
+  include Shared::PolymorphicAnnotator
+  polymorphic_annotates(:tag_object)
+  acts_as_list scope: [:tag_object_id, :tag_object_type, :keyword_id]
 
   belongs_to :keyword, inverse_of: :tags, validate: true
-  belongs_to :tag_object, polymorphic: true
-
-  # Not all tagged subclasses are keyword based, use this object for display
-  belongs_to :controlled_vocabulary_term, foreign_key: :keyword_id, inverse_of: :tags
+  belongs_to :controlled_vocabulary_term, foreign_key: :keyword_id, inverse_of: :tags # Not all tagged subclasses are Keyword based, use this object for display
 
   validates :keyword, presence: true
   validate :keyword_is_allowed_on_object
@@ -46,37 +44,93 @@ class Tag < ActiveRecord::Base
 
   accepts_nested_attributes_for :keyword, reject_if: :reject_keyword, allow_destroy: true
 
+  def self.tag_objects(objects, keyword_id = nil)
+    return nil if keyword_id.nil? or objects.empty?
+    objects.each do |o|
+      o.tags << Tag.new(keyword_id: keyword_id)
+    end
+  end
+
+  def self.exists?(global_id, keyword_id, project_id)
+    o = GlobalID::Locator.locate(global_id)
+    return false unless o
+    Tag.where(project_id: project_id, tag_object: o, keyword_id: keyword_id).first
+  end
+
   # The column name containing the attribute name being annotated
   def self.annotated_attribute_column
     :tag_object_attribute
   end
 
-  def tag_object_class
-    tag_object.class
+  # @return [{"matrix_column_item": matrix_column_item, "descriptor": descriptor}, false]
+  #   the hash corresponding to the keyword used in this tag if it exists
+  def matrix_column_item
+    mci = ObservationMatrixColumnItem::TaggedDescriptor.where(controlled_vocabulary_term_id: keyword_id).limit(1)
+
+    if mci.any?
+      return { matrix_column_item: mci.first, descriptor: tag_object }
+    else
+      return false
+    end
   end
 
-  def tag_object_global_entity
-    self.tag_object.to_global_id if self.tag_object.present?
-  end
+  # @return [{"matrix_row_item": matrix_column_item, "object": object}, false]
+  # the hash corresponding to the keyword used in this tag if it exists
+  def matrix_row_item
+    mri = ObservationMatrixRowItem::TaggedRowItem.where(controlled_vocabulary_term_id: keyword_id).limit(1)
 
-  def tag_object_global_entity=(entity)
-    self.tag_object = GlobalID::Locator.locate entity
-  end
-
-  def self.find_for_autocomplete(params)
-    # TODO: @mjy below code is running but not giving results we want
-    terms = params[:term].split.collect { |t| "'#{t}%'" }.join(' or ')
-    joins(:keyword).where('controlled_vocabulary_terms.name like ?', terms).with_project_id(params[:project_id]) 
-    terms
-  end
-
-  # @return [TagObject]
-  #   alias to simplify reference across classes 
-  def annotated_object
-    tag_object
+    if mri.any?
+      return { matrix_row_item: mri.first, object: tag_object }
+    else
+      return false
+    end
   end
 
   protected
+
+  def keyword_is_allowed_on_object
+    return true if keyword.nil? || tag_object.nil? || !keyword.respond_to?(:can_tag)
+    if !keyword.can_tag.include?(tag_object.class.name)
+      errors.add(:keyword, "this keyword class (#{tag_object.class}) can not be attached to a #{tag_object_type}")
+    end
+  end
+
+  def object_can_be_tagged_with_keyword
+    return true if keyword.nil? || tag_object.nil? || !tag_object.respond_to?(:taggable_with)
+    if !tag_object.taggable_with.include?(keyword.class.name)
+      errors.add(:tag_object, "this tag_object_type (#{tag_object.class}) can not be tagged with this keyword class (#{keyword.class})")
+    end
+  end
+
+  def reject_keyword(attributed)
+    attributed['name'].blank? || attributed['definition'].blank?
+  end
+
+  def self.tag_objects(objects, keyword_id = nil)
+    return nil if keyword_id.nil? or !objects.any?
+    raise 'cross project tagging of objects detected' if objects.first.project_id != Keyword.find(keyword_id).project_id
+    objects.each do |o|
+      o.tags << Tag.new(keyword_id: keyword_id)
+    end
+  end
+
+  def self.exists?(global_id, keyword_id, project_id)
+    o = GlobalID::Locator.locate(global_id)
+    return false unless o
+    Tag.where(project_id: project_id, tag_object: o, keyword_id: keyword_id).first
+  end
+
+  # @return [Boolean]
+  #   destroy all tags with the keyword_id provided, true if success, false if failure
+  def self.batch_remove(keyword_id, klass = nil)
+    return false if keyword_id.blank?
+    if klass.blank?
+      return true if Tag.where(keyword_id: keyword_id).destroy_all
+    else
+      return true if Tag.where(keyword_id: keyword_id, tag_object_type: klass).destroy_all
+    end
+    false
+  end
 
   def keyword_is_allowed_on_object
     return true if keyword.nil? || tag_object.nil? || !keyword.respond_to?(:can_tag)

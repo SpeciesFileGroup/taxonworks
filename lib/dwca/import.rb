@@ -1,32 +1,32 @@
-module Dwca::Import 
+module Dwca::Import
 
   def self.new_dwc(path_to_archive)
-    DarwinCore.new(path_to_archive)   
+    DarwinCore.new(path_to_archive)
   end
 
-  class Manager 
-    attr_accessor :field_index 
+  class Manager
+    attr_accessor :field_index
     attr_accessor :available_objects
     attr_accessor :row_number
-    alias_method  :i, :row_number 
+    alias_method  :i, :row_number
     attr_accessor :data, :errors
     attr_accessor :tw_objects
 
     def initialize(opts = {})
       opts = {
-        data: [],        # dwc.core.read[0] 
+        data: [],        # dwc.core.read[0]
         errors: [],      # dwc.core.read[1]
         core_fields: {}, # dwc.core.fields
         row_number: 1    # default starting row index
       }.merge!(opts)
       @data, @errors, @row_number = opts[:data], opts[:errors], opts[:row_number]
-      @available_objects = referenced_models(opts[:core_fields]) 
+      @available_objects = referenced_models(opts[:core_fields])
       @tw_objects = TwObjects.new()
-      @field_index = opts[:core_fields].inject({}){|hsh, a| hsh.merge(a[:term] => (a[:index]) )} 
+      @field_index = opts[:core_fields].inject({}){|hsh, a| hsh.merge(a[:term] => (a[:index]) )}
     end
 
     def row_id(row)
-      row[0] 
+      row[0]
     end
 
     def cell(row, attribute)
@@ -35,7 +35,7 @@ module Dwca::Import
 
     def build_object(row, object)
       klass = object.class.name.underscore.to_sym
-      DWC2TW[klass].keys.each do |attr|
+      DWC2TW[klass].each_key do |attr|
         method = DWC2TW[klass][attr][:in]
         if method && object.respond_to?(method)
           object.send(method, cell(row, attr))
@@ -49,7 +49,7 @@ module Dwca::Import
       row_objects.each do |r|
         result[r] = build_object(row, r.to_s.classify.safe_constantize.new)
       end
-      result 
+      result
     end
 
     # 2nd pass
@@ -72,9 +72,9 @@ module Dwca::Import
     def referenced_models(core_fields)
       core_fields = core_fields.collect{|i| i[:term]}
       models = []
-      DWC2TW.keys.each do |k|
+      DWC2TW.each_key do |k|
         if (core_fields & DWC2TW[k].keys) != []
-          models.push k 
+          models.push k
         end
       end
       models.sort
@@ -86,18 +86,18 @@ module Dwca::Import
     Manger.new(
       data: data,
       errors: errors,
-      core_fields: darwin_core_archive.core.fields 
+      core_fields: darwin_core_archive.core.fields
     )
   end
 
   RUNTIME =  {
-    'http://purl.org/dc/terms/modified'           => nil, # bubble up? 
+    'http://purl.org/dc/terms/modified'           => nil, # bubble up?
     'http://purl.org/dc/terms/language'           => nil, # one of  http://www.ietf.org/rfc/rfc4646.txt
     'http://rs.tdwg.org/dwc/terms/collectionCode' => nil, # default='Insect Collection' the name, acronym, coden, or initialism identifying the collection or data set from which the record was derived.
-    'http://rs.tdwg.org/dwc/terms/datasetID'      => nil, # An identifier for the set of data. May be a global unique identifier or an identifier specific to a collection or institution. 
+    'http://rs.tdwg.org/dwc/terms/datasetID'      => nil, # An identifier for the set of data. May be a global unique identifier or an identifier specific to a collection or institution.
     'http://rs.tdwg.org/dwc/terms/datasetName'    => nil, # default='Illinois Natural History Survey'  The name identifying the data set from which the record was derived.
-    'http://rs.tdwg.org/dwc/terms/basisOfRecord'  => nil, # default='Preserved Specimen'               The specific nature of the data record - a subtype of the dcterms:type. Recommended best practice is to use a controlled vocabulary such as the Darwin Core Type Vocabulary (http://rs.tdwg.org/dwc/terms/type-vocabulary/index.htm). 
-  }                                                          
+    'http://rs.tdwg.org/dwc/terms/basisOfRecord'  => nil, # default='Preserved Specimen'               The specific nature of the data record - a subtype of the dcterms:type. Recommended best practice is to use a controlled vocabulary such as the Darwin Core Type Vocabulary (http://rs.tdwg.org/dwc/terms/type-vocabulary/index.htm).
+  }.freeze
 
   DWC2TW = {
     otu: {
@@ -125,25 +125,25 @@ module Dwca::Import
       'http://rs.tdwg.org/dwc/terms/nomenclaturalCode'        => {in: nil,                 out: :iczn_code?}
     },
 
-    collection_object: { 
+    collection_object: {
       'http://rs.tdwg.org/dwc/terms/institutionID'     => {in: nil,     out: nil},             # Who owns it
-      'http://rs.tdwg.org/dwc/terms/institutionCode'   => {in: nil,     out: nil},             # The name (or acronym) in use by the institution having custody of the object(s) or information referred to in the record. 
+      'http://rs.tdwg.org/dwc/terms/institutionCode'   => {in: nil,     out: nil},             # The name (or acronym) in use by the institution having custody of the object(s) or information referred to in the record.
       'http://rs.tdwg.org/dwc/terms/individualCount'   => {in: :total=, out: :total},
     },
 
     collecting_event: {
       'http://rs.tdwg.org/dwc/terms/samplingProtocol'  => {in: :verbatim_method=,            out: :verbatim_method},
-      'http://rs.tdwg.org/dwc/terms/eventDate'         => {in: nil,                          out: nil},  # out: date_range 
+      'http://rs.tdwg.org/dwc/terms/eventDate'         => {in: nil,                          out: nil},  # out: date_range
       'http://rs.tdwg.org/dwc/terms/habitat'           => {in: :macro_habitat=,              out: :habitat},
       'http://rs.tdwg.org/dwc/terms/locality'          => {in: :verbatim_locality=,          out: :verbatim_locality},
       'http://rs.tdwg.org/dwc/terms/verbatimElevation' => {in: nil,                          out: :elevation},
       'http://rs.tdwg.org/dwc/terms/country'           => {in: nil,                          out: :country},
       'http://rs.tdwg.org/dwc/terms/stateProvince'     => {in: nil,                          out: :state},
       'http://rs.tdwg.org/dwc/terms/county'            => {in: nil,                          out: :county},
-      'http://rs.tdwg.org/dwc/terms/waterBody'         => {in: nil,                          out: :water_body}                                    
+      'http://rs.tdwg.org/dwc/terms/waterBody'         => {in: nil,                          out: :water_body}
     },
 
-    georeference: {  
+    georeference: {
       'http://rs.tdwg.org/dwc/terms/coordinateUncertaintyInMeters' => {in: nil, out: nil},
       'http://rs.tdwg.org/dwc/terms/decimalLatitude'               => {in: :verbatim_latitude, out: :verbatim_latitude},
       'http://rs.tdwg.org/dwc/terms/decimalLongitude'              => {in: :verbatim_longitude, out: :verbatim_longitude},
@@ -166,7 +166,7 @@ module Dwca::Import
     type_specimen: {
       'http://rs.tdwg.org/dwc/terms/typeStatus' => {in: :type_type, out: :type_type}
     },
-  }
+  }.freeze
 
 class TwObjects < Struct.new( *Dwca::Import::DWC2TW.keys.collect{|k| "#{k}s".to_sym }, :rows);
 end

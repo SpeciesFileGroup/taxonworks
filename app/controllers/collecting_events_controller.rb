@@ -6,7 +6,7 @@ class CollectingEventsController < ApplicationController
   # GET /collecting_events
   # GET /collecting_events.jso
   def index
-    @recent_objects = CollectingEvent.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = CollectingEvent.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -64,7 +64,7 @@ class CollectingEventsController < ApplicationController
   end
 
   def card
-   @target = params[:target] 
+    @target = params[:target]
   end
 
   def test
@@ -72,7 +72,7 @@ class CollectingEventsController < ApplicationController
   end
 
   def list
-    @collecting_events = CollectingEvent.with_project_id($project_id).order(:id).page(params[:page])
+    @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
   end
 
   # GET /collecting_events/search
@@ -98,20 +98,20 @@ class CollectingEventsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
  # GET /collecting_events/autocomplete_collecting_event_verbatim_locality?term=asdf
   # see rails-jquery-autocomplete
   def autocomplete_collecting_event_verbatim_locality
     term = params[:term]
-    values = CollectingEvent.where(project_id: $project_id).where("verbatim_locality ILIKE ?", term + '%').select(:verbatim_locality, 'length(verbatim_locality)').distinct.limit(20).order('length(verbatim_locality)').order('verbatim_locality ASC').all
-    render :json => values.map { |v| { :label => v.verbatim_locality, :value => v.verbatim_locality} }
+    values = CollectingEvent.where(project_id: sessions_current_project_id).where('verbatim_locality ILIKE ?', term + '%').select(:verbatim_locality, 'length(verbatim_locality)').distinct.limit(20).order('length(verbatim_locality)').order('verbatim_locality ASC').all
+    render json: values.map { |v| { label: v.verbatim_locality, value: v.verbatim_locality} }
   end
 
   # GET /collecting_events/download
   def download
-    send_data CollectingEvent.generate_download(CollectingEvent.where(project_id: $project_id)), type: 'text', filename: "collecting_events_#{DateTime.now.to_s}.csv"
+    send_data CollectingEvent.generate_download(CollectingEvent.where(project_id: sessions_current_project_id)), type: 'text', filename: "collecting_events_#{DateTime.now}.csv"
   end
 
    # GET collecting_events/batch_load
@@ -124,7 +124,7 @@ class CollectingEventsController < ApplicationController
       digest_cookie(params[:file].tempfile, :batch_collecting_events_md5)
       render 'collecting_events/batch_load/simple/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end
@@ -133,8 +133,34 @@ class CollectingEventsController < ApplicationController
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_collecting_events_md5)
       @result = BatchLoad::Import::CollectingEvent.new(batch_params)
       if @result.create
-        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collection objects were created."
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collecting events were created."
         render 'collecting_events/batch_load/simple/create' and return
+      else
+        flash[:alert] = 'Batch import failed.'
+      end
+    else
+      flash[:alert] = 'File to batch upload must be supplied.'
+    end
+    render :batch_load
+  end
+
+  def preview_castor_batch_load
+    if params[:file]
+      @result = BatchLoad::Import::CollectingEvents::CastorInterpreter.new(batch_params)
+      digest_cookie(params[:file].tempfile, :Castor_collecting_events_md5)
+      render 'collecting_events/batch_load/castor/preview'
+    else
+      flash[:notice] = 'No file provided!'
+      redirect_to action: :batch_load
+    end
+  end
+
+  def create_castor_batch_load
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Castor_collecting_events_md5)
+      @result = BatchLoad::Import::CollectingEvents::CastorInterpreter.new(batch_params)
+      if @result.create
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collecting events were created."
+        render 'collecting_events/batch_load/castor/create' and return
       else
         flash[:alert] = 'Batch import failed.'
       end
@@ -148,7 +174,7 @@ class CollectingEventsController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_collecting_event
-    @collecting_event = CollectingEvent.with_project_id($project_id).find(params[:id])
+    @collecting_event = CollectingEvent.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object    = @collecting_event
   end
 
@@ -172,6 +198,6 @@ class CollectingEventsController < ApplicationController
   end
 
   def batch_params
-    params.permit(:ce_namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
+    params.permit(:ce_namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 end

@@ -1,6 +1,10 @@
 class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000168'
+  def self.assignable
+    true
+  end
+
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000168'.freeze
 
   def self.disjoint_taxon_name_classes
     self.parent.disjoint_taxon_name_classes +
@@ -55,14 +59,14 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
 
   class BasedOnSuppressedGenus < TaxonNameClassification::Iczn::Unavailable
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000207'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000207'.freeze
 
     extend InnerClassFamilyGroup
   end
 
   class IncorrectOriginalSpelling < TaxonNameClassification::Iczn::Unavailable
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000217'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000217'.freeze
 
     extend InnerClass
 
@@ -76,14 +80,14 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
 
   class LessThanTwoLetters < TaxonNameClassification::Iczn::Unavailable
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000210'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000210'.freeze
 
     extend InnerClass
   end
 
   class NotLatin < TaxonNameClassification::Iczn::Unavailable
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000201'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000201'.freeze
 
     extend InnerClass
     # LABEL = 'not Latin (ICZN)'
@@ -91,7 +95,7 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
 
   class NotLatinizedAfter1899 < TaxonNameClassification::Iczn::Unavailable
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000208'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000208'.freeze
 
     extend InnerClassFamilyGroup
 
@@ -102,7 +106,7 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
 
   class NotLatinizedBefore1900AndNotAccepted < TaxonNameClassification::Iczn::Unavailable
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000209'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000209'.freeze
 
     extend InnerClassFamilyGroup
 
@@ -113,35 +117,35 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
 
   class NotNominativePlural < TaxonNameClassification::Iczn::Unavailable
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000202'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000202'.freeze
 
     extend InnerClassFamilyGroup
   end
 
   class NotNounInNominativeSingular < TaxonNameClassification::Iczn::Unavailable
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000211'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000211'.freeze
 
     extend InnerClassGenusGroup
   end
 
   class NotNounOrAdjective < TaxonNameClassification::Iczn::Unavailable
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000212'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000212'.freeze
 
     extend InnerClassSpeciesGroup
   end
 
   class NotScientificPlural < TaxonNameClassification::Iczn::Unavailable
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000205'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000205'.freeze
 
     extend InnerClassFamilyGroup
   end
 
   class PreLinnean < TaxonNameClassification::Iczn::Unavailable
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000218'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000218'.freeze
 
     extend InnerClass
 
@@ -152,21 +156,21 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
 
   class UnavailableAndNotUsedAsValidBefore2000 < TaxonNameClassification::Iczn::Unavailable
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000213'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000213'.freeze
 
     extend InnerClassFamilyGroupUnavailableBefore2000
   end
 
   class UnavailableAndRejectedByAuthorBefore2000 < TaxonNameClassification::Iczn::Unavailable
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000214'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000214'.freeze
 
     extend InnerClassFamilyGroupUnavailableBefore2000
   end
 
-  class UnavailableUnderIcn < TaxonNameClassification::Iczn::Unavailable
+  class UnavailableUnderIczn < TaxonNameClassification::Iczn::Unavailable
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000200'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000200'.freeze
 
     extend InnerClass
 
@@ -177,7 +181,7 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
 
   class VarietyOrFormAfter1960 < TaxonNameClassification::Iczn::Unavailable
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000198'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000198'.freeze
 
     extend InnerClassSpeciesGroup
     

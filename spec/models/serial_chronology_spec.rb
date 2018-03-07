@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe SerialChronology, :type => :model do
+describe SerialChronology, type: :model do
 
   context 'concerns' do
     it_behaves_like 'is_data'

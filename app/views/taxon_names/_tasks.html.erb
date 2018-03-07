@@ -1,3 +1,10 @@
-<% if GENUS_AND_SPECIES_RANK_NAMES.include?(@taxon_name.rank_string) %>
-    <%= content_tag(:li, edit_original_combination_task_link(@taxon_name)) -%>    
+<%= content_tag(:li, edit_taxon_name_link(@taxon_name, target: :edit_task) ) -%>
+
+<% if @taxon_name.is_protonym? && @taxon_name.is_species_rank? %>
+  <%= content_tag(:li, 
+                  link_to(
+                    content_tag(:span, 'Edit type material (task)', 'data-icon' => 'edit', class: 'small-icon'), 
+                    edit_type_material_task_path(protonym_id: @taxon_name, target: :edit_type_material),
+                    class: 'navigation-item')
+                 ) -%>
 <% end %>

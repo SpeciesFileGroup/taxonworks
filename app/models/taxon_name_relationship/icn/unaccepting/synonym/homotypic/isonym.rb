@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Isonym < TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000396'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000396'.freeze
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +

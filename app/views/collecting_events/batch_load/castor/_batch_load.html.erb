@@ -1,0 +1,35 @@
+<div>
+  <h2> Castor batch load </h2>
+
+  <div class="flexbox full_viewport_whitespace">
+    <div class="item item1 one_third_width">
+      <h3> Description and requirements </h3>
+
+      <p> Creates collecting events from a Castor to TaxonWorks exported collecting events file. Attaches at most 2 identifiers of type Identifier::Local::CollectingEvent to each collection object.</p>
+      <ul>
+        <li>A tab-delimited, UTF-8 compatible text file is required.</li>
+        <li>Column headers are here <%= link_to('sample template', asset_path('batch_load_templates/collecting_events/collecting_events_castor_batch_load.tab'), target: '_blank') %>.</li>
+        <li>Multiple uploads of the same data will do something, not sure.</li>
+        <li>Only creates collecting events if the column value of "locality_database" of the current row is "DRM"</li>
+        <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>
+        <li>Assumes a namespace with name "DRMFieldNumbers" and shortname "DRMFN" exists</li>
+        <li>Identifier Global::Uri will be attached with the value of the "guid" column if not blank</li>
+        <li>Identifier with namespace DRMFieldNumbers will be attached with the value of the "locality_code_prefix" + "locality_code_string" column if not blank and "locality_code_prefix" is not "NONE"</li>
+      </ul>
+    </div>
+
+    <div class="item item2 one_third_width">
+      <h3> Example file </h3>
+
+      <p> Part of the example tab delimited formatted file. 
+        In the example whitespace is a tab. View sample file template.</p>
+
+      <pre class="fixed_width_font">guid locality_code_prefix locality_code_string longitude latitude method error georeference_error_units verbatim_location...</pre>
+    </div>
+
+    <div class="item item3">
+      <h3> Go! </h3>
+      <%= render partial: '/collecting_events/batch_load/castor/form', locals: {url: preview_castor_batch_load_collecting_events_path, submit: :preview} -%>
+    </div>
+  </div>
+</div>

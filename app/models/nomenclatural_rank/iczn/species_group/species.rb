@@ -7,4 +7,5 @@ class NomenclaturalRank::Iczn::SpeciesGroup::Species < NomenclaturalRank::Iczn::
   def self.abbreviation
     'sp.'
   end
+
 end

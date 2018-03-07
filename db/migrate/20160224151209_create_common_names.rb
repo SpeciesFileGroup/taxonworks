@@ -1,4 +1,4 @@
-class CreateCommonNames < ActiveRecord::Migration
+class CreateCommonNames < ActiveRecord::Migration[4.2]
   def change
     create_table :common_names do |t|
       t.string :name, null: false, index: true

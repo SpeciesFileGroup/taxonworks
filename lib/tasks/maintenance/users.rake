@@ -3,13 +3,13 @@ namespace :tw do
     namespace :users do
 
       desc 'dump email addresses for all users of this instance (STDOUT/screen)'
-      task  :dump_emails =>  [:environment] do |t|
+      task  dump_emails: [:environment] do |t|
         puts "\n" + User.pluck(:email).join(',') + "\n\n"
       end
 
       # rake tw:maintenance:users:send_maintenance:email file=some_file subject = 'Some subject'
       desc "send an email to *all users* regarding pending maintenance, use sparingly - <file=some_file subject='some subject'>" 
-      task  :send_maintenance_email =>  [:environment, :file] do |t|
+      task  send_maintenance_email: [:environment, :file] do |t|
         subject = ENV['subject']
         subject ||= 'TaxonWorks maintenance'
 

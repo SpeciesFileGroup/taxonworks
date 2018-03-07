@@ -1,5 +1,6 @@
 module IdentifiersHelper
 
+  # @return [String, nil]
   def identifier_tag(identifier)
     return nil if identifier.nil?
     if identifier.new_record?
@@ -9,9 +10,16 @@ module IdentifiersHelper
     end
   end
 
+  # @return [String, nil]
   def identifier_annotation_tag(identifier)
     return nil if identifier.nil?
     content_tag(:span, identifier.cached, class: [:annotation__identifier])
+  end
+
+  # @return [String, nil]
+  def identifier_type_tag(identifier)
+    return nil if identifier.nil?
+    identifier.class.name.demodulize.underscore.humanize.downcase
   end
 
   # @return [String]
@@ -22,6 +30,10 @@ module IdentifiersHelper
       content_tag(:ul, class: 'annotations_identifier_list') do
       object.identifiers.collect{|a| content_tag(:li, identifier_annotation_tag(a)) }.join.html_safe 
     end
+  end
+
+  def simple_identifier_list_tag(object)
+    object.identifiers.collect{|a| content_tag(:spane, identifier_annotation_tag(a)) }.join.html_safe 
   end
 
   def identifiers_tag(object)
@@ -58,25 +70,12 @@ module IdentifiersHelper
     true 
   end
   
-  # SHORT_NAMES = {
-  #     doi:   Identifier::Global::Doi,
-  #     isbn:  Identifier::Global::Isbn,
-  #     issn:  Identifier::Global::Issn,
-  #     lccn:  Identifier::Global::Lccn,
-  #     orcid: Identifier::Global::Orcid,
-  #     uri:   Identifier::Global::Uri,
-  #     uuid:  Identifier::Global::Uuid,
-  #     catalog_number: Identifier::Local::CatalogNumber,
-  #     trip_code: Identifier::Local::TripCode,
-  #     import: Identifier::Local::Import,
-  #     otu_utility: Identifier::Local::OtuUtility,
-  #     accession_code: Identifier::Local::AccessionCode,
-  #     unknown: Identifier::Unknown
-  # }
   def identifier_type_select_options
-    Identifier::SHORT_NAMES.collect { |k, v| [k.to_s.humanize, v.name] }
+    a = []
+    %I{global local unknown}.each do |t|
+      a += IDENTIFIERS_JSON[t][:all].collect{|b,c| [c[:label], b]}
+    end
+    a
   end
-
-
 
 end

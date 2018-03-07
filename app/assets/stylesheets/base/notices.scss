@@ -1,9 +1,6 @@
-@import 'base/palette';
-@import 'base/whitespace';
-
 .alert {
   display: flex;
-  z-index: 999;
+  z-index: 99999;
   position: fixed;
   flex-direction: row;
   margin: 0px;
@@ -11,8 +8,8 @@
   left: 50%;
   bottom: 0px;
   transform: translateX(-50%);
-  padding: $standard_padding; 
-  border-top:none;
+  padding: $standard_padding;
+  border-top: none;
   border-top-right-radius: 3px;
   border-top-left-radius: 3px;
   animation: alert-show 3s ease;
@@ -36,16 +33,17 @@
   }
 
   &.alert-notice {
-  	box-shadow: 0px 0px 0px 1px $color-complement-3;
+    box-shadow: 0px 0px 0px 1px $color-complement-3;
     background: $color-complement-2;
   }
 
   &.alert-alert {
-  	box-shadow: 0px 0px 0px 1px $color-primary-3;
+    box-shadow: 0px 0px 0px 1px $color-primary-3;
     background: $color-primary-2;
   }
 }
+
 .alert-error {
   box-shadow: 0px 0px 0px 1px $color-primary-3;
-  background: $color-primary-2; 
+  background: $color-primary-2;
 }

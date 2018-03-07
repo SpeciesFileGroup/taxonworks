@@ -1,36 +1,37 @@
-# TypeMaterial is a definition of goverened type  
+# TypeMaterial links CollectionObjects to Protonyms.  It is the single direct relationship between nomenclature and collection objects in TaxonWorks (all other name/collection object relationships coming through OTUs).
+# TypeMaterial is based on specific rules of nomenclature, it only includes those types (e.g. "holotype") that are specifically goverened (e.g. "topotype" is not allowed).
 #
 # @!attribute protonym_id
 #   @return [Integer]
-#     the protonym in question 
+#     the protonym in question
 #
 # @!attribute biological_object_id
 #   @return [Integer]
-#     the specimen record 
+#     the CollectionObject
 #
 # @!attribute type_type
 #   @return [String]
-#     the type of Type relationship (e.g. holotyp) 
+#     the type of Type relationship (e.g. holotype)
 #
 # @!attribute project_id
-#   @return [Integer]
+#   @return [Integer
 #   the project ID
 #
 # @!attribute position
 #   @return [Integer]
-#    sort column 
+#    sort column
 #
-class TypeMaterial < ActiveRecord::Base
+class TypeMaterial < ApplicationRecord
   include Housekeeping
-  include Shared::Citable
+  include Shared::Citations
   include Shared::DataAttributes
   include Shared::HasRoles
-  include Shared::Identifiable
+  include Shared::Identifiers
   include Shared::IsData
-  include Shared::Notable
-  include Shared::Taggable
+  include Shared::Notes
+  include Shared::Tags
   include SoftValidation
-  
+
   # Keys are valid values for type_type, values are
   # required Class for material
   ICZN_TYPES = {
@@ -43,8 +44,8 @@ class TypeMaterial < ActiveRecord::Base
     'paratypes' => Lot,
     'syntypes' => Lot,
     'paralectotypes' => Lot
-  }
-     
+  }.freeze
+
   ICN_TYPES = {
       'holotype' => Specimen,
       'paratype' => Specimen,
@@ -57,7 +58,7 @@ class TypeMaterial < ActiveRecord::Base
       'syntypes' => Lot,
       'isotypes' => Lot,
       'isosyntypes' => Lot
-  }
+  }.freeze
 
   belongs_to :material, foreign_key: :biological_object_id, class_name: 'CollectionObject', inverse_of: :type_designations
   belongs_to :protonym
@@ -65,15 +66,17 @@ class TypeMaterial < ActiveRecord::Base
   has_many :type_designators, through: :type_designator_roles, source: :person
 
   accepts_nested_attributes_for :type_designators, :type_designator_roles, allow_destroy: true
+  accepts_nested_attributes_for :material, allow_destroy: true
 
-  scope :where_protonym, -> (taxon_name) {where(protonym_id: taxon_name)}
-  scope :with_type_string, -> (base_string) {where('type_type LIKE ?', "#{base_string}" ) }
-  scope :with_type_array, -> (base_array) {where('type_type IN (?)', base_array ) }
+  scope :where_protonym, -> (taxon_name) { where(protonym_id: taxon_name) }
+  scope :with_type_string, -> (base_string) { where('type_type LIKE ?', "#{base_string}" ) }
+  scope :with_type_array, -> (base_array) { where('type_type IN (?)', base_array ) }
 
   scope :primary, -> {where(type_type: %w{neotype lectotype holotype}).order('biological_object_id')}
   scope :syntypes, -> {where(type_type: %w{syntype syntypes}).order('biological_object_id')}
 
   #  scope :primary_with_protonym_array, -> (base_array) {select('type_type, source_id, biological_object_id').group('type_type, source_id, biological_object_id').where("type_materials.type_type IN ('neotype', 'lectotype', 'holotype', 'syntype', 'syntypes') AND type_materials.protonym_id IN (?)", base_array ) }
+
   scope :primary_with_protonym_array, -> (base_array) {select('type_type, biological_object_id').group('type_type, biological_object_id').where("type_materials.type_type IN ('neotype', 'lectotype', 'holotype', 'syntype', 'syntypes') AND type_materials.protonym_id IN (?)", base_array ) }
 
   soft_validate(:sv_single_primary_type, set: :single_primary_type)
@@ -84,68 +87,62 @@ class TypeMaterial < ActiveRecord::Base
   validates_presence_of :type_type
 
   validate :check_type_type
+  validate :check_protonym_rank
 
   # TODO: really should be validating uniqueness at this point, it's type material, not garbage records
 
   def type_source
-    if !!self.source
-      self.source
-    elsif !!self.protonym
-      if !!self.protonym.source
-        self.protonym.source
-      else
-        nil
-      end
-    else
-      nil
-    end
+    [source, protonym.try(:source), nil].compact.first
   end
 
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
+  def legal_type_type(code, type_type)
+    case code
+    when :iczn
+      ICZN_TYPES.keys.include?(type_type)
+    when :icn
+      ICZN_TYPES.keys.include?(type_type)
+    else
+      false
     end
   end
 
   protected
 
-  #region Validation
-
   def check_type_type
-    if self.protonym
-      code = self.protonym.rank_class.nomenclatural_code 
-      if (code == :iczn && !ICZN_TYPES.keys.include?(self.type_type)) || (code == :icn && !ICN_TYPES.keys.include?(self.type_type))
-        errors.add(:type_type, 'Not a legal type for the nomenclatural code provided') 
-      end
-      unless self.protonym.rank_class.parent.to_s =~ /Species/
-        errors.add(:protonym_id, 'Type cannot be designated, name is not a species group name')
-      end
+    if protonym
+      code = protonym.rank_class.nomenclatural_code
+      errors.add(:type_type, 'Not a legal type for the nomenclatural code provided') if !legal_type_type(code, type_type)
     end
   end
 
-  #endregion
-
-  #region Soft Validation
+  def check_protonym_rank
+    errors.add(:protonym_id, 'Type cannot be designated, name is not a species group name') if protonym && !protonym.is_species_rank?
+  end
 
   def sv_single_primary_type
-    primary_types = TypeMaterial.with_type_array(['holotype', 'neotype', 'lectotype']).where_protonym(self.protonym).not_self(self)
-    syntypes = TypeMaterial.with_type_array(['syntype', 'syntypes']).where_protonym(self.protonym)
-    if self.type_type == 'syntype' || self.type_type == 'syntypes'
+
+    primary_types = TypeMaterial.with_type_array(['holotype', 'neotype', 'lectotype']).where_protonym(protonym).not_self(self)
+    syntypes = TypeMaterial.with_type_array(['syntype', 'syntypes']).where_protonym(protonym)
+
+    if type_type =~ /syntype/
       soft_validations.add(:type_type, 'Other primary types selected for the taxon are conflicting with the syntypes') unless primary_types.empty?
     end
-    if self.type_type == 'holotype' || self.type_type == 'neotype' || self.type_type == 'lectotype'
+
+    if ['holotype', 'neotype', 'lectotype'].include?(type_type)
       soft_validations.add(:type_type, 'More than one primary type associated with the taxon') if !primary_types.empty? || !syntypes.empty?
     end
   end
 
   def sv_type_source
-    soft_validations.add(:base, 'Source is not selected neither for type nor for taxon') unless type_source 
+    soft_validations.add(:base, 'Source is not selected neither for type nor for taxon') unless type_source
+    if %w(paralectotype neotype lectotype paralectotypes).include?(type_type)
+      if source.nil?
+        soft_validations.add(:base, "Source for #{type_type} designation is not selected ") if source.nil?
+      elsif !protonym.try(:source).nil? && source.nomenclature_date && protonym.nomenclature_date
+        soft_validations.add(:base, "#{type_type.capitalize} could not be designated in the original publication") if source == protonym.source
+        soft_validations.add(:base, "#{type_type.capitalize} could not be designated before taxon description") if source.nomenclature_date < protonym.nomenclature_date
+      end
+    end
   end
 
-  #endregion
 end

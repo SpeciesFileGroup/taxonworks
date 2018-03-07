@@ -1,0 +1,27 @@
+
+<%= render("/shared/data/all/list/list_header", objects: @character_states) -%>
+
+
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Name') %>
+    <%= fancy_th_tag(name: 'Label') %>
+    <%= fancy_th_tag(name: 'Descriptor') %>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+    <% @character_states.each do |character_state| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+        <td><%= character_state.name %></td>
+        <td><%= character_state.label %></td>
+        <td><%= descriptor_tag(character_state.descriptor) %></td>
+        <%= fancy_metadata_cells_tag(character_state) -%>
+      <% end %>
+    <% end %>
+  </tbody>
+</table>

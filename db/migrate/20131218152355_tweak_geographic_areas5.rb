@@ -1,4 +1,4 @@
-class TweakGeographicAreas5 < ActiveRecord::Migration
+class TweakGeographicAreas5 < ActiveRecord::Migration[4.2]
 =begin
   create_table "geographic_areas", force: true do |t|
     t.string   "name"

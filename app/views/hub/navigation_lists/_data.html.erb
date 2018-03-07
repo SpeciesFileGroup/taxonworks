@@ -1,31 +1,31 @@
 <%= render "/hub/hub_category_filter" %>
 <div id="data_cards">
-	<% Hub::Data::SECTIONS.each do |s| -%>
-	<div data-section="<%= s -%>" class="data_section">
-		<div class="cards-section">
-			<% Hub::Data.visual_items_for(s).each do |i| %>  
-			<div class="card-container">
-				<%= data_card(i) -%> 
-			</div>		      
-			<% end %>
-		</div>
-		<div class="data_section_label">
-			<div class="data-controls">
-				<a class="cards-up" href="#" data-icon="arrow-up"></a>
-				<a class="cards-down" href="#" data-icon="arrow-down"></a>
-			</div>
-			<h3>
-				<%= s -%>
-			</h3>
-		</div>
-		<div data-attribute="empty" class="subtle center_text">
-			<h1>None</h1>
-			<div class="reset-all-filters">
-				<div class="restart-background"></div>
-				<h1>Reset</h1>
-			</div>	
-		</div>	
-	</div>
-	<% end %>	
+  <% Hub::Data::SECTIONS.each do |s| -%>
+    <div data-section="<%= s -%>" class="data_section">
+      <div class="cards-section">
+        <% Hub::Data.visual_items_for(s).each do |i| %>
+          <div class="card-container">
+            <%= data_card(i) -%>
+          </div>
+        <% end %>
+      </div>
+      <div class="data_section_label">
+        <div class="data-controls">
+          <a class="cards-up" href="#" data-icon="arrow-up"></a>
+          <a class="cards-down" href="#" data-icon="arrow-down"></a>
+        </div>
+        <h3>
+          <%= s -%>
+        </h3>
+      </div>
+      <div data-attribute="empty" class="subtle center_text">
+        <h1>None</h1>
+        <div class="reset-all-filters">
+          <div class="restart-background"></div>
+          <h1>Reset</h1>
+        </div>
+      </div>
+    </div>
+  <% end %>
 </div>
 

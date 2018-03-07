@@ -1,0 +1,50 @@
+// see application for notices related styling
+
+.warning {
+  background-color: $color-primary-4;
+}
+
+// same as warning?!
+.failure {
+  background-color: $color-primary-4;
+}
+
+.success {
+  background-color: $color-complement-4;
+}
+
+// deprecate for .success
+.passed {
+  background-color: $color-complement-4;
+}
+
+
+
+.subtle {
+  color: $color-secondary-2-2;
+}
+
+.disabled {
+  color: $color-secondary-2-2;
+}
+
+.mx-spinner {
+  position: absolute;
+  background-image: image-url('spinner.gif'); 
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-color: #aeaeae;
+  opacity: 0.9;
+}
+
+.instruction {
+  color: $color-secondary-2-2;
+}
+
+// intent is a sticky note like message that stays in place
+.sticky {
+  @extend .string_emphasis;
+  @extend .small_space;
+  background-color: $color-secondary-1-2;
+}
+

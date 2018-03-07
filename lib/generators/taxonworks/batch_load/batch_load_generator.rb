@@ -2,10 +2,10 @@
 class Taxonworks::BatchLoadGenerator < Rails::Generators::Base
   desc 'Stub files for a new batch_load for a particular class.'
 
-  source_root File.expand_path("../templates", __FILE__)
+  source_root File.expand_path('../templates', __FILE__)
 
   argument :model_name, type: 'string', required: true, banner: '<ModelName>'
-  argument :name, type: 'string', required: true, banner: '<batch_loader_name>'
+  argument :batch_loader_name, type: 'string', required: true, banner: '<batch_loader_name>'
 
   # when I generate a new batch_load
   #    then I can see that batch_load in the application
@@ -13,7 +13,7 @@ class Taxonworks::BatchLoadGenerator < Rails::Generators::Base
  
   # Fail if existing batch_loader exists 
   def create_interpreter 
-    template 'interpreter', "lib/batch_load/import/#{model_path_prefix}/#{name}_interpreter.rb"
+    template 'interpreter', "lib/batch_load/import/#{table_name}/#{batch_loader_name}_interpreter.rb"
   end
 
   def add_routes
@@ -31,7 +31,7 @@ class Taxonworks::BatchLoadGenerator < Rails::Generators::Base
 
   def add_views
     %w{_batch_load _form create preview}.each do |t|
-      template "views/#{t}", "app/views/#{model_path_prefix}/batch_load/#{name}/#{t}.html.erb"
+      template "views/#{t}", "app/views/#{model_path_prefix}/batch_load/#{batch_loader_name}/#{t}.html.erb"
     end
   end
 
@@ -53,32 +53,34 @@ class Taxonworks::BatchLoadGenerator < Rails::Generators::Base
   private
 
   def interpreter_class
-    "BatchLoad::Import::#{model_name.pluralize}::#{name.classify}Interpreter"
+    "#{batch_loader_name.split('_').map(&:capitalize).join('')}Interpreter"
   end
 
-  def batch_load_name
-    name.capitalize.humanize
+  def full_interpreter_class
+    "BatchLoad::Import::#{model_name.pluralize}::#{interpreter_class}"
   end
 
-  def model_path_prefix 
-    "#{model_name.tableize}"
+  def model_path_prefix
+    table_name
+  end
+
+  def table_name 
+    model_name.tableize
   end
 
   def cookie_name
-    batch_load_name + '_' + model_path_prefix + '_md5'
+    "#{batch_loader_name}_batch_load_#{table_name}_md5"
   end
 
   def model_controller
-    "#{model_name}sController"
+    "#{model_name.pluralize}Controller"
   end
 
   def preview_url
-    "preview_#{name}_batch_load_#{model_path_prefix}_path"  
+    "preview_#{batch_loader_name}_batch_load_#{table_name}_path"  
   end
 
   def create_url
-    "create_#{name}_batch_load_#{model_path_prefix}"  
+    "create_#{batch_loader_name}_batch_load_#{table_name}_path"  
   end
-
-
 end

@@ -1,0 +1,107 @@
+
+
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Descriptor:</strong>
+  <%= descriptor_tag( @observation.descriptor ) %>
+</p>
+
+<p>
+  <strong>Otu:</strong>
+  <%= otu_tag( @observation.otu ) %>
+</p>
+
+<p>
+  <strong>Collection object:</strong>
+  <%= collection_object_tag( @observation.collection_object ) %>
+</p>
+
+
+<% if @observation.type =~ /Qualitative/ -%>
+
+<p>
+  <strong>Character state:</strong>
+  <%= character_state_tag( @observation.character_state ) %>
+</p>
+<% end %>
+
+<p>
+  <strong>Frequency:</strong>
+  <%= @observation.frequency %>
+</p>
+
+<p>
+  <strong>Continuous value:</strong>
+  <%= @observation.continuous_value %>
+</p>
+
+<p>
+  <strong>Continuous unit:</strong>
+  <%= @observation.continuous_unit %>
+</p>
+
+<% if @observation.type =~ /Sample/ -%>
+<p>
+  <strong>Sample n:</strong>
+  <%= @observation.sample_n %>
+</p>
+
+<p>
+  <strong>Sample min:</strong>
+  <%= @observation.sample_min %>
+</p>
+
+<p>
+  <strong>Sample max:</strong>
+  <%= @observation.sample_max %>
+</p>
+
+<p>
+  <strong>Sample median:</strong>
+  <%= @observation.sample_median %>
+</p>
+
+<p>
+  <strong>Sample mean:</strong>
+  <%= @observation.sample_mean %>
+</p>
+
+<p>
+  <strong>Sample units:</strong>
+  <%= @observation.sample_units %>
+</p>
+
+<p>
+  <strong>Sample standard error:</strong>
+  <%= @observation.sample_standard_error %>
+</p>
+
+<% end %>
+
+
+<p>
+  <strong>Presence:</strong>
+  <%= @observation.presence %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @observation.description %>
+</p>
+
+<p>
+  <strong>Cached:</strong>
+  <%= @observation.cached %>
+</p>
+
+<p>
+  <strong>Cached column label:</strong>
+  <%= @observation.cached_column_label %>
+</p>
+
+<p>
+  <strong>Cached row label:</strong>
+  <%= @observation.cached_row_label %>
+</p>
+

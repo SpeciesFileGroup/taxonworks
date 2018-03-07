@@ -5,5 +5,13 @@
 # @!attribute identifier 
 #   @return [String]
 #   The *verbatim* value of this identifier.
-class Identifier::Unknown < Identifier 
+class Identifier::Unknown < Identifier
+
+  validates_uniqueness_of :identifier
+
+  protected
+
+  def set_cached
+    update_column(:cached, identifier)
+  end 
 end

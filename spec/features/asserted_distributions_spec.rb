@@ -1,11 +1,11 @@
 require 'rails_helper'
 
-describe "AssertedDistributions", :type => :feature do
+describe 'AssertedDistributions', type: :feature do
   let(:page_title) { 'Asserted distributions' }
   let(:index_path) { asserted_distributions_path }
-  let(:a) { FactoryGirl.create(:valid_geographic_area_type, by: @user) }
-  let(:g) { FactoryGirl.create(:valid_geographic_area, geographic_area_type: a, by: @user) }
-  let(:s) { factory_girl_create_for_user(:valid_source_bibtex, @user) }
+  let(:a) { FactoryBot.create(:valid_geographic_area_type, by: @user) }
+  let(:g) { FactoryBot.create(:valid_geographic_area, geographic_area_type: a, by: @user) }
+  let(:s) { factory_bot_create_for_user(:valid_source_bibtex, @user) }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
@@ -14,9 +14,9 @@ describe "AssertedDistributions", :type => :feature do
       sign_in_user_and_select_project
       # TODO: Figure out why these two variables are *not* properly set in this set of tests, but are, in other feature test sets
       $user_id = @user.id; $project_id = @project.id
-      5.times { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
+      5.times { factory_bot_create_for_user_and_project(:valid_otu, @user, @project) }
       5.times.each_with_index { |i|
-        FactoryGirl.create(:valid_asserted_distribution,
+        FactoryBot.create(:valid_asserted_distribution,
                            otu:             Otu.all[i],
                            geographic_area: g,
                            source:          s,
@@ -64,7 +64,7 @@ describe "AssertedDistributions", :type => :feature do
         s = Source.first
 
         click_link('New')
-        expect(page.has_field?('asserted_distribution[otu_id]', :type => 'text')).to be_truthy
+        expect(page.has_field?('asserted_distribution[otu_id]', type: 'text')).to be_truthy
 
         expect(page.has_field?('geographic_area_id_for_asserted_distribution', type: 'text')).to be_truthy
         expect(page.has_field?('source_id_for_original_citation_asserted_distribution', type: 'text')).to be_truthy

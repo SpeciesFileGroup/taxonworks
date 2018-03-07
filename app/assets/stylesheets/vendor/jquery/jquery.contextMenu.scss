@@ -1,5 +1,5 @@
 @charset "UTF-8";
-@import "base/palette";
+
 /*!
  * jQuery contextMenu - Plugin for simple contextMenu handling
  *
@@ -52,6 +52,10 @@
 
 .context-menu-icon-show {
   background-image: image-url("show.svg");
+}
+
+.context-menu-icon-pin {
+  background-image: image-url("pin.svg");
 }
 
 .context-menu-icon.context-menu-hover:before {

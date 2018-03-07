@@ -25,35 +25,27 @@ module ModelHelper
     "valid_#{class_factory_name(klass)}"
   end
 
-  # Model specific helpers
-
   def find_or_create_root_taxon_name
     if t = TaxonName.where(parent_id: nil).first
       return t
     else
-      return FactoryGirl.create(:root_taxon_name)
+      return FactoryBot.create(:root_taxon_name)
     end
+  end
+
+  # @return [Integer, nil]
+  #    accessor to the global
+  def user_id
+    $user_id
+  end
+
+  # @return [Integer, nil]
+  #    accessor to the global
+  def project_id
+    $project_id
   end
 end
 
-# RSpec.describe "around filter" do
-#   around(:example) do |example|
-#     puts "around example before #{awesome_print(example.parameters)}"
-#     example.run
-#     puts "around example after"
-#   end
 
-#   before(:example) do
-#     puts "before example"
-#   end
-
-#   after(:example) do
-#     puts "after example"
-#   end
-
-#   it "gets run in order" do
-#     puts "in the example"
-#   end
-# end
 
 

@@ -1,45 +1,84 @@
 =begin
 Shared code for extending data classes with an OriginRelationship
 
-  Instructions on how to use this concern:
-    1) Include this concern in the table that can have origin relationship target tables
-    2) Call "is_origin_for" with valid target tables
-      ex is_origin_for :collection_objects, collecting_events etc
+  How to use this concern:
+    1) In BOTH related models, Include this concern (`include Shared::OriginRelationship`)
+    2) In the "old" model call "is_origin_for" with valid class names, as strings, e.g.:
+       `is_origin_for 'CollectionObject', 'CollectionObject::BiologicalCollectionObject'`
+    3) has_many :derived_<foo> associations are created for each is_origin_for()
+
+    !! You must redundantly provide STI subclasses and parent classes if you want to allow both.  Providing
+       a superclass does *not* provide the subclasses.
 
 =end
 module Shared::OriginRelationship
   extend ActiveSupport::Concern
 
   included do
+    related_class = self.name
+
+    attr_accessor :origin
+
+    # These are technically only necessary on the new side, but are OK to spam on the old side (some of which need it)
     has_many :origin_relationships, as: :old_object, validate: true, dependent: :destroy
+    has_many :related_origin_relationships, class_name: 'OriginRelationship', as: :new_object, validate: true, dependent: :destroy
+
     accepts_nested_attributes_for :origin_relationships, reject_if: :reject_origin_relationships
+
+    before_validation :set_origin, if: -> {origin.present?}
+  end
+
+  def set_origin
+    [origin].flatten.each do |object|
+      related_origin_relationships.build(old_object: object)
+    end
   end
 
   module ClassMethods
     def is_origin_for(*args)
       if args.length == 0
-        raise ArgumentError.new("is_origin_for must have an array full of valid target tables supplied!")
+        raise ArgumentError.new('is_origin_for must have an array full of valid target tables supplied!')
       end
-      
-      # Returns the valid target tables in symbol form
-      define_method :valid_origin_target_tables do
+
+      # @return [Array of Strings]
+      #   valid new_object Classes
+      define_method :valid_new_object_classes do
         args
       end
 
-      # Returns the valid target tables in class form
-      define_singleton_method :valid_origin_target_classes do
-        args.collect{ |table_symbol| table_symbol.to_s.classify.constantize }
+      # @return [Array of Strings]
+      #   valid new_object Classes
+      define_singleton_method :valid_new_object_classes do
+        args
+      end
+
+      args.each do |a|
+        relationship = 'derived_' + a.demodulize.tableize
+        has_many relationship.to_sym, source_type: a, through: :origin_relationships, source: :new_object
       end
     end
+  end
+
+  # @return [Objects]
+  #   an array of instances, the source of this object
+  def old_objects
+    related_origin_relationships.collect{|a| a.old_object}
+  end
+
+  # @return [Objects]
+  #   an array of instances
+  def new_objects
+    origin_relationships.collect{|a| a.new_object}
   end
 
   private
 
   def reject_origin_relationships(attributes)
-    if !defined? valid_origin_target_tables
-      raise NoMethodError.new('"is_origin_for" must be called with valid target tables in the class including the "OriginRelationship" module!')
+    o = attributes['new_object']
+    if !defined? valid_new_object_classes
+      raise NoMethodError.new("#{self.class.name} missing module 'Shared::OriginRelationship' or \"is_origin_for()\" is not being called")
     end
 
-    attributes['new_object'].blank? || !valid_origin_target_tables.include?(attributes['new_object'].class.table_name.to_sym)
+    o.blank? || !valid_new_object_classes.include?(o.class.name)
   end
 end

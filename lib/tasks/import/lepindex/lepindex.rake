@@ -55,7 +55,7 @@ namespace :tw do
         end
       end
 
-      task :import_images => [:environment, :data_directory, :user_id, :project_id] do |t|
+      task import_images: [:environment, :data_directory, :user_id, :project_id] do |t|
         path = @args[:data_directory] + 'image_index.tab' #  @data.image_index_filename 
 
         start_row = ENV['start_row'] 
@@ -69,7 +69,7 @@ namespace :tw do
           next if i < start_row
 
           begin
-            ActiveRecord::Base.transaction do 
+            ApplicationRecord.transaction do 
               slice.each do |row|
                 id = row[0]
                 f = row[1]
@@ -96,7 +96,7 @@ namespace :tw do
                   puts Rainbow("Error: Can not find image #{f}, for id: #{id}, skipped").red
                 end
               end
-              puts Rainbow("group handled").yellow
+              puts Rainbow('group handled').yellow
               i += transaction_size 
             end
 
@@ -107,7 +107,7 @@ namespace :tw do
         end
       end
 
-      task :import_all_lep_index => [:data_directory, :environment] do |t|
+      task import_all_lep_index: [:data_directory, :environment] do |t|
 
         @list_of_relationships = []
 
@@ -123,7 +123,7 @@ namespace :tw do
           'Junior objective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective',
           'Junior subjective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
           'Junior subjective Synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
-          'Misidentification' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication',
+          'Misidentification' => 'TaxonNameRelationship::Iczn::Invalidating::Misapplication',
           'Nomen nudum: Published as synonym and not validated before 1961' => 'TaxonNameRelationship::Iczn::Invalidating',
           'Objective replacement name: Junior subjective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
           'Unnecessary replacement name' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName',
@@ -185,7 +185,7 @@ namespace :tw do
           main_build_loop_lepindex
         else
 
-          ActiveRecord::Base.transaction do
+          ApplicationRecord.transaction do
             begin
               main_build_loop_lepindex
             rescue
@@ -602,8 +602,8 @@ namespace :tw do
                       protonym.data_attributes.create!(import_predicate: k, value: @data.images_index[row['TaxonNo']][k], type: 'ImportAttribute') unless @data.images_index[row['TaxonNo']][k].blank?
                     end
 
-                    file1 = @data.images_index[row['TaxonNo']]['Front_image'].blank? ? nil : @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/').to_s + @data.images_index[row['TaxonNo']]['Front_image'].to_s
-                    file2 = @data.images_index[row['TaxonNo']]['Back_image'].blank? ? nil : @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/').to_s + @data.images_index[row['TaxonNo']]['Back_image'].to_s
+                    file1 = @data.images_index[row['TaxonNo']]['Front_image'].blank? ? nil : @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub('Q:\\', '').gsub('\\', '/').to_s + @data.images_index[row['TaxonNo']]['Front_image'].to_s
+                    file2 = @data.images_index[row['TaxonNo']]['Back_image'].blank? ? nil : @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub('Q:\\', '').gsub('\\', '/').to_s + @data.images_index[row['TaxonNo']]['Back_image'].to_s
 
                     @image_index.puts [protonym.id, "\t", file1, "\n"].join if file1
                     @image_index.puts [protonym.id, "\t", file2, "\n"].join if file2

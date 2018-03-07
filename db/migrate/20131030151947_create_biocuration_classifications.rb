@@ -1,4 +1,4 @@
-class CreateBiocurationClassifications < ActiveRecord::Migration
+class CreateBiocurationClassifications < ActiveRecord::Migration[4.2]
   def change
     create_table :biocuration_classifications do |t|
       t.references :biocuration_class, index: true

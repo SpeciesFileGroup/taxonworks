@@ -2,7 +2,7 @@ module LoansHelper
 
   def loan_tag(loan)
     return nil if loan.nil?
-    [loan.id, loan.people.collect{|a| a.name}.join(', '), loan.recipient_address].delete_if{|b| b.blank? }.join(" - ").gsub(/\n/, '; ') 
+    [loan.id, loan.loan_recipients.collect{|a| a.name}.join(', '), loan.recipient_address].delete_if{|b| b.blank? }.join(' - ').gsub(/\n/, '; ') 
   end
 
   def loan_link(loan)
@@ -16,7 +16,7 @@ module LoansHelper
 
 
   def loan_status_tag(object)
-    if object.is_loanable? && object.has_been_loaned?
+    if object.has_loans? && object.has_been_loaned?
       content_tag(:h3, 'Loan status') + 
         content_tag(:ul) do
         (on_loan_tag(object) +
@@ -30,23 +30,40 @@ module LoansHelper
   end
 
   def on_loan_tag(object)
-    if object.is_loanable? && object.on_loan?
+    if object.has_loans? && object.on_loan?
       content_tag(:li) do
-        ('On ' + 
-          link_to('loan', object.loan) + '.' +
-          " Due back on #{object.loan_return_date}. #{overdue_tag(object.loan)}").html_safe
+        ['On ' +  link_to('loan', object.loan) + '.', 
+          loan_overdue_tag(object.loan), 
+          loan_due_back_tag(object.loan)
+        ].join(' ').html_safe
+           #{overdue_tag(object.loan)}").html_safe
       end
     else
       ''
     end
   end
 
-  def overdue_tag(loan)
-    if loan.overdue?
-      "#{loan.days_overdue} days overdue."
+  def loan_overdue_tag(loan)
+    if loan.date_return_expected.present?
+      if loan.overdue?
+        "#{loan.days_overdue} days overdue."
+      else
+        "#{loan.days_until_due} days until due."  
+      end
     else
-      "#{loan.days_until_due} days until due."  
+      content_tag(:span, 'Due date NOT PROVIDED.', data: {icon: :warning})
     end
+
   end
+
+  def loan_due_back_tag(loan)
+    'Due back on ' + 
+      ( loan.date_return_expected.present? ? loan.date_return_expected.to_s : 'NOT PROVIDED' ) +
+     '.'
+  end 
+
+  def keywords_on_loanable_items
+    Keyword.joins(:tags).where(project_id: sessions_current_project_id).where(tags: {tag_object_type: ['Container', 'Otu', 'CollectionObject']}).distinct.all
+  end 
 
 end

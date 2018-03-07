@@ -6,15 +6,15 @@ require 'fileutils'
 namespace :tw do
   namespace :development do
     desc 'generate housekeeping migration for all models with housekeeping concern'
-    task  :generate_housekeeping_migration =>  [:environment] do |t|
+    task  generate_housekeeping_migration: [:environment] do |t|
 
       # Ensure that we have all models loaded
       Rails.application.eager_load!
 
-      puts "# known subclasses of ActiveRecord::Base  #{ActiveRecord::Base.subclasses.collect{|a| a.name}.sort.join(", ")} \n"
+      puts "# known subclasses of ApplicationRecord  #{ApplicationRecord.subclasses.collect{|a| a.name}.sort.join(", ")} \n"
 
       migrated, not_migrated = [], []
-      ActiveRecord::Base.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
+      ApplicationRecord.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
         hit = false
         if d.ancestors.include?(Housekeeping::Users)
           hit = true
@@ -34,16 +34,16 @@ namespace :tw do
 
 
     desc 'generate not null template migration'
-    task  :generate_not_null_migration =>  [:environment] do |t|
+    task  generate_not_null_migration: [:environment] do |t|
       # Ensure that we have all models loaded
       Rails.application.eager_load!
 
       migrated, not_migrated = [], []
-      ActiveRecord::Base.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
+      ApplicationRecord.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
         puts "# #{d.name}" 
         d.columns.each do |c|
          # if c.name =~ /.+_id|.*_?type|position|type|name|created_at|updated_at/
-            puts "# #{d.name}.connection.execute('alter table #{d.table_name} alter #{c.name} set not null;')" 
+          puts "# #{d.name}.connection.execute('alter table #{d.table_name} alter #{c.name} set not null;')" 
          # end
         end
         puts "\n"
@@ -52,12 +52,12 @@ namespace :tw do
 
 
     desc 'generate index template migration'
-    task  :generate_index_migration =>  [:environment] do |t|
+    task  generate_index_migration: [:environment] do |t|
       # Ensure that we have all models loaded
       Rails.application.eager_load!
 
       migrated, not_migrated = [], []
-      ActiveRecord::Base.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
+      ApplicationRecord.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
         puts "# #{d.name}" 
         d.columns.each do |c|
           if c.name =~ /.+_id|.*_?type|position|type|lft|rgt|position/ # lft/rgt are not here any more
@@ -69,12 +69,12 @@ namespace :tw do
     end
 
     desc 'generate fk template migration'
-    task  :generate_fk_migration =>  [:environment] do |t|
+    task  generate_fk_migration: [:environment] do |t|
       # Ensure that we have all models loaded
       Rails.application.eager_load!
 
       migrated, not_migrated = [], []
-      ActiveRecord::Base.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
+      ApplicationRecord.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
         puts "# #{d.name}" 
         d.columns.each do |c|
           if c.name =~ /.+_id/

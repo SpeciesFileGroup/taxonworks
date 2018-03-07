@@ -7,5 +7,17 @@
 // To reference this file, add <%= javascript_pack_tag 'application' %> to the appropriate
 // layout file, like app/views/layouts/application.html.erb
 
-require('./vue/citations/otus/main.js');
-require('./vue/content/editor/main.js');
+require('./vue/citations/otus/main.js')
+require('./vue/content/editor/main.js')
+require('./vue/nomenclature/new_taxon_name/main.js')
+require('./vue/loan/main.js')
+require('./vue/matrix_row_coder/main.js')
+require('./vue/annotator_init/main.js')
+require('./vue/otu_radial_init/main.js')
+require('./vue/otu_button_init/main.js')
+require('./vue/type_specimens/main.js')
+require('./vue/new_combination/main.js')
+require('./vue/annotate_objects/main.js')
+
+// Styles
+require('./style/application.scss')

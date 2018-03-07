@@ -1,6 +1,6 @@
 class TaxonNameClassification::Latinized::PartOfSpeech::Adjective < TaxonNameClassification::Latinized::PartOfSpeech
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000050'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000050'.freeze
 
   def self.disjoint_taxon_name_classes
     self.parent.disjoint_taxon_name_classes +
@@ -9,5 +9,13 @@ class TaxonNameClassification::Latinized::PartOfSpeech::Adjective < TaxonNameCla
                                                  TaxonNameClassification::Latinized::PartOfSpeech::Participle)
   end
 
+  def self.assignable
+    true
+  end
+
+  def set_cached 
+    set_gender_in_taxon_name
+    super
+  end
 
 end

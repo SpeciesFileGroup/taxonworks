@@ -1,4 +1,4 @@
-class DropAwesomeNestedSetFromTaxonName < ActiveRecord::Migration
+class DropAwesomeNestedSetFromTaxonName < ActiveRecord::Migration[4.2]
   def change
     remove_column :taxon_names, :lft
     remove_column :taxon_names, :rgt

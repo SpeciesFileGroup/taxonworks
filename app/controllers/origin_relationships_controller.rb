@@ -1,5 +1,4 @@
 class OriginRelationshipsController < ApplicationController
-
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_origin_relationship, only: [:show, :edit, :update, :destroy]
@@ -23,6 +22,10 @@ class OriginRelationshipsController < ApplicationController
 
   # GET /origin_relationships/1/edit
   def edit
+  end
+
+  def list
+    @origin_relationships = OriginRelationship.with_project_id(sessions_current_project_id).page(params[:page])
   end
 
   # POST /origin_relationships
@@ -65,14 +68,40 @@ class OriginRelationshipsController < ApplicationController
     end
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_origin_relationship
-      @origin_relationship = OriginRelationship.find(params[:id])
+  def search
+    if params[:id].blank?
+      redirect_to origin_relationships_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    else
+      redirect_to origin_relationship_path(params[:id])
+    end
+  end
+
+  def autocomplete
+    @origin_relationships = origin_relationship.where(project_id: sessions_current_project_id).where('origin_relationship ILIKE ?', "#{params[:term]}%")
+
+    data = @origin_relationships.collect do |t|
+      {id:              t.id,
+       label:           t.origin_relationship,
+       gid:             t.to_global_id.to_s,
+       response_values: {
+         params[:method] => t.id
+       },
+       label_html:      t.origin_relationship
+      }
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def origin_relationship_params
-      params.require(:origin_relationship).permit(:old_object_id, :old_object_type, :new_object_id, :new_object_type, :position, :created_by_id, :updated_by_id, :project_id)
-    end
+    render json: data
+  end
+
+  private
+
+  # Use callbacks to share common setup or constraints between actions.
+  def set_origin_relationship
+    @origin_relationship = OriginRelationship.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def origin_relationship_params
+    params.require(:origin_relationship).permit(:old_object_id, :old_object_type, :new_object_id, :new_object_type, :position, :created_by_id, :updated_by_id, :project_id)
+  end
 end

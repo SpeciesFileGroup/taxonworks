@@ -6,7 +6,7 @@ class OtuPageLayoutsController < ApplicationController
   # GET /otu_page_layouts
   # GET /otu_page_layouts.json
   def index
-    @recent_objects = OtuPageLayout.where(project_id: $project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = OtuPageLayout.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -67,7 +67,7 @@ class OtuPageLayoutsController < ApplicationController
   end
 
   def list
-    @otu_page_layouts = OtuPageLayout.with_project_id($project_id).order(:name).page(params[:page]) #.per(10) 
+    @otu_page_layouts = OtuPageLayout.with_project_id(sessions_current_project_id).order(:name).page(params[:page]) #.per(10) 
   end
 
 
@@ -84,14 +84,14 @@ class OtuPageLayoutsController < ApplicationController
        label_html: ApplicationController.helpers.otu_page_layout_tag(t)
       }
 
-      render :json => data
+      render json: data
     end
   end
 
   private 
 
   def set_otu_page_layout
-    @otu_page_layout = OtuPageLayout.with_project_id($project_id).find(params[:id])
+    @otu_page_layout = OtuPageLayout.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @otu_page_layout
   end
 

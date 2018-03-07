@@ -13,6 +13,7 @@ require 'benchmark'
 #
 #
 # redis-server /usr/local/etc/redis.conf          ## to start redis. It should be done before the rake started.
+# redis-server ~/redis-4.0.8/redis.conf on a test machine
 # a = Redis.new
 # a.set(a, b)
 # a.get(a)
@@ -22,7 +23,7 @@ namespace :tw do
   namespace :project_import do
     namespace :insects do
 
-      IMPORT_NAME = 'insects'
+      IMPORT_NAME = 'insects'.freeze
 
       # A utility class to index data.
       class ImportedData1
@@ -80,17 +81,17 @@ namespace :tw do
         'U.S.A' => 'United States',
         'MEXICO' => 'Mexico',
         'U. S. A. ' => 'United States'
-      }
+      }.freeze
 
       def geo_translate(name)
         GEO_NAME_TRANSLATOR[name] ? GEO_NAME_TRANSLATOR[name] : name
       end
 
       # Attributes to use from specimens.txt
-      SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
+      SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}.freeze
 
       # Attributes to strip on CollectingEvent creation
-      STRIP_LIST = %w{ModifiedBy ModifiedOn CreatedBy CreatedOn Latitude Longitude Elevation} # the last three are calculated
+      STRIP_LIST = %w{ModifiedBy ModifiedOn CreatedBy CreatedOn Latitude Longitude Elevation}.freeze # the last three are calculated
 
 #      TAXA = {}
 #      PEOPLE = {}
@@ -100,7 +101,7 @@ namespace :tw do
       alternately, add: \n
         restore_from_dump=true   (attempt to load the data from the dump) \n
         no_transaction=true      (don't wrap import in a transaction, this will also force a dump of the data)\n"
-      task :import_insects => [:environment, :data_directory] do |t, args|
+      task import_insects: [:environment, :data_directory] do |t, args|
         puts @args
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/TXT/**/*.txt"])
 
@@ -114,7 +115,7 @@ namespace :tw do
             puts 'Importing without a transaction (data will be left in the database).'
             main_build_loop_insects
           else
-            ActiveRecord::Base.transaction do 
+            ApplicationRecord.transaction do 
               main_build_loop_insects
               raise
             end
@@ -175,7 +176,7 @@ namespace :tw do
 
         build_localities_index_insects(@data1)
 
-        puts "Indexing collecting events."
+        puts 'Indexing collecting events.'
         # should be run to clear redis database. if specimen from diffrent tables run one buy one, data could be left in Redis and reused
 
         @redis.flushall
@@ -201,17 +202,17 @@ namespace :tw do
         handle_locality_images(@data1)
         handle_loan_images(@data1)
 
-        puts "\n!! Unmatched localities: (#{@data1.unmatched_localities.keys.count}): " + @data1.unmatched_localities.keys.sort.join(", ")
-        puts "\n!! Unmatched taxa: (#{@data1.unmatched_taxa.keys.count}): " + @data1.unmatched_taxa.keys.sort.join(", ")
-        puts "\n!! Invalid_specimens: (#{@data1.invalid_specimens.keys.count}): " + @data1.invalid_specimens.sort.join(", ")
-        puts "\n!! Duplicate_specimen_IDs: (#{@data1.duplicate_specimen_ids.keys.count}): " + @data1.duplicate_specimen_ids.sort.join(", ")
+        puts "\n!! Unmatched localities: (#{@data1.unmatched_localities.keys.count}): " + @data1.unmatched_localities.keys.sort.join(', ')
+        puts "\n!! Unmatched taxa: (#{@data1.unmatched_taxa.keys.count}): " + @data1.unmatched_taxa.keys.sort.join(', ')
+        puts "\n!! Invalid_specimens: (#{@data1.invalid_specimens.keys.count}): " + @data1.invalid_specimens.sort.join(', ')
+        puts "\n!! Duplicate_specimen_IDs: (#{@data1.duplicate_specimen_ids.keys.count}): " + @data1.duplicate_specimen_ids.sort.join(', ')
 
         @import.save!
         puts "\n\n !! Success \n\n"
       end
 
       def handle_projects_and_users_insects(data, import)
-        print "Handling projects and users "
+        print 'Handling projects and users '
         email = 'inhs_admin@replace.me'
         project_name = 'INHS Insect Collection'
         user_name = 'INHS Insect Collection Import'
@@ -230,7 +231,7 @@ namespace :tw do
           user = User.where(email: email)
           if user.empty?
             pwd = rand(36**10).to_s(36)
-            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true, is_flagged_for_password_reset: true)
+            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true, is_flagged_for_password_reset: false)
           else
             user = user.first
           end
@@ -279,7 +280,7 @@ namespace :tw do
         biocuration_classes.each do |bc|
           b = BiocurationClass.where(name: bc, project_id: $project_id)
           if b.empty?
-            b = BiocurationClass.create(name: bc, definition: bc + ' specimen')
+            b = BiocurationClass.create(name: bc, definition: bc + ' specimen..........')
           else
             b = b.first
           end
@@ -345,7 +346,7 @@ namespace :tw do
       end
 
       def handle_namespaces_insects(data, import)
-        print "Handling namespaces  "
+        print 'Handling namespaces  '
 
         catalogue_namespaces = [
             'Acari',
@@ -377,11 +378,13 @@ namespace :tw do
         if import.metadata['namespaces']
           @taxon_namespace = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS Taxon Code', short_name: 'Taxon Code').first
           @accession_namespace = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS Legacy Accession Code', short_name: 'Accession Code').first
+          @user_namespace = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS Legacy User ID', short_name: 'User ID').first
           print "from database.\n"
         else
           print "as newly parsed.\n"
           @taxon_namespace = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS Taxon Code', short_name: 'Taxon Code')
           @accession_namespace = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS Legacy Accession Code', short_name: 'Accession Code')
+          @user_namespace = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS Legacy User ID', short_name: 'User ID')
           import.metadata['namespaces'] = true
         end
 
@@ -505,10 +508,10 @@ namespace :tw do
             'Bulk dry' => 'Unsorted dry specimens',
             'Envelope' => 'Dry specimen(s) in envelope',
             'Pill box' => 'Specimens in pill box',
-            'Jar' => 'Specimen(s) in jar',
-            'Pin' => 'Specimen(s) on pin',
-            'Slide' => 'Specimen(s) on slide',
-            'Vial' => 'Specimen(s) in vial'
+            'Jar' => 'Specimen(s) in jar...',
+            'Pin' => 'Specimen(s) on pin...',
+            'Slide' => 'Specimen(s) on slide.',
+            'Vial' => 'Specimen(s) in vial..'
         }.freeze
 
         preparation_types.each do |pt|
@@ -580,7 +583,7 @@ namespace :tw do
 
       # Builds all the controlled vocabulary terms (tags/keywords)
       def handle_controlled_vocabulary_insects(data, import)
-        print "Handling CV "
+        print 'Handling CV '
         if import.metadata['controlled_vocabulary']
           print "from database.\n"
           Predicate.all.each do |cv|
@@ -600,7 +603,7 @@ namespace :tw do
           data.keywords.merge!('INHS_imported' => Keyword.create(name: 'INHS_imported', definition: 'Imported from INHS Insect collection database.'))
           data.keywords.merge!('INHS_letters' => Keyword.create(name: 'INHS_letters', definition: 'Loan correspondance imported from INHS Insect collection database.'))
           data.keywords.merge!('body part (not genitalia)' => Keyword.create(name: 'body part (not genitalia)', definition: 'Dissected body part (not genitalia).'))
-          data.keywords.merge!('genitalia' => Keyword.create(name: 'genitalia', definition: 'Dissected genitalia.'))
+          data.keywords.merge!('genitalia' => Keyword.create(name: 'genitalia', definition: 'Dissected genitalia...'))
 
           # from collecting_events
           PREDICATES.each do |p|
@@ -669,7 +672,7 @@ namespace :tw do
                                     'Genitalia' => 'Dissected genitalia (often mounted on a slide)',
                                     'Host' => 'An animal or plant on or in which a parasite or commensal organism lives',
                                     'Herbivor' => 'An animal that feeds on plants',
-                                    'Mate' => 'breeding partner',
+                                    'Mate' => 'breeding partner.........',
                                     'Parasitoid' => 'An organism that lives in or on another organism',
                                     'Pollinator' => 'An insect pollinating a plant',
                                     'Pollinated plant' => 'A plant visited by insects',
@@ -689,40 +692,40 @@ namespace :tw do
 
       def find_or_create_collection_user_insects(id, data)
 #      DataAttribute.where(attribute_subject_type: "User", import_predicate: "PeopleID", project_id: $project_id).first.attribute_subject
-       if id.blank?
+        if id.blank?
           $user_id
-        elsif data.user_index[id]
-          data.user_index[id].id
-        elsif data.people_id[id]
-          p = data.people_id[id]
-          email = p['Email'].nil? ? nil : p['Email'].downcase
-          email = 'user_' + id + '@unavailable.email.net' if email.blank?
+         elsif data.user_index[id]
+           data.user_index[id].id
+         elsif data.people_id[id]
+           p = data.people_id[id]
+           email = p['Email'].nil? ? nil : p['Email'].downcase
+           email = 'user_' + id + '@unavailable.email.net' if email.blank?
 
-          user_name = ([p['LastName']] + [p['FirstName']]).compact.join(', ')
+           user_name = ([p['LastName']] + [p['FirstName']]).compact.join(', ')
 
-          existing_user = User.where(email: email.downcase)
+           existing_user = User.where(email: email.downcase)
 
-          if existing_user.empty?
-            pwd = rand(36**10).to_s(36)
-            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, is_flagged_for_password_reset: true,
-                   data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: 'PeopleID', type: 'ImportAttribute'} ],
-                   tags_attributes:   [ { keyword: data.keywords['INHS_imported'] } ]
-            )
-#                   data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: data.keywords['PeopleID'].name, controlled_vocabulary_term_id: data.keywords['PeopleID'].id, type: 'ImportAttribute'} ],
-            #user.tags.create(keyword: data.keywords['INHS_imported'])
-          else
-            user = existing_user.first
-          end
+           if existing_user.empty?
+             pwd = rand(36**10).to_s(36)
+             user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, is_flagged_for_password_reset: true,
+                    #data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: 'PeopleID', type: 'ImportAttribute'} ],
+                    tags_attributes:   [ { keyword: data.keywords['INHS_imported'] } ]
+             )
+             user.identifiers.create(identifier: p['PeopleID'], namespace: @user_namespace, type: 'Identifier::Local::Import')
 
-          unless p['SupervisorID'].blank?
-            s = data.people_id[p['SupervisorID']]
-            user.notes.create(text: 'Student of ' + s['FirstName'] + ' ' + s['LastName']) unless s.blank?
-          end
-          data.user_index[id] = user
-          user.id
-        else
-          $user_id
-        end
+           else
+             user = existing_user.first
+           end
+
+           unless p['SupervisorID'].blank?
+             s = data.people_id[p['SupervisorID']]
+             user.notes.create(text: 'Student of ' + s['FirstName'] + ' ' + s['LastName']) unless s.blank?
+           end
+           data.user_index[id] = user
+           user.id
+         else
+           $user_id
+         end
       end
 
       $found_geographic_areas = {}
@@ -774,7 +777,7 @@ namespace :tw do
         unless ce['AccessionNumber'].blank?
           cached_identifier = nil
           if !ce['Collection'].blank?
-           cached_identifier =  'Accession Code ' + ce['Collection'] + ' ' + ce['AccessionNumber']
+            cached_identifier =  'Accession Code ' + ce['Collection'] + ' ' + ce['AccessionNumber']
           else
             cached_identifier = 'Accession Code ' + ce['AccessionNumber']
           end
@@ -939,11 +942,11 @@ namespace :tw do
       def handle_people_insects(data, import)
         path = @args[:data_directory] + 'TXT/people.txt'
         raise 'file not found' if not File.exists?(path)
-        f = CSV.open(path, col_sep: "\t", :headers => true)
+        f = CSV.open(path, col_sep: "\t", headers: true)
 
         print 'Handling people '
         if import.metadata['people']
-          print "from database.  Indexing People by PeopleID..."
+          print 'from database.  Indexing People by PeopleID...'
           f.each do |row|
             data.people_id[row['PeopleID']] = row
           end
@@ -1005,9 +1008,9 @@ namespace :tw do
       # -- is on the OTU
       #   TaxonCode      New Namespace Identifier 
       def handle_taxa_insects(data, import)
-        print "Handling taxa "
+        print 'Handling taxa '
         if import.metadata['taxa']
-          print "from database.  Indexing OTUs by TaxonCode..."
+          print 'from database.  Indexing OTUs by TaxonCode...'
 #          Identifier.where(namespace_id: @taxon_namespace.id).each do |i|
 #            data.otus.merge!(i.identifier => i.identifier_object)
 #          end
@@ -1020,7 +1023,7 @@ namespace :tw do
           raise 'file not found' if not File.exists?(path)
 
           parent_index = {}
-          f = CSV.open(path, col_sep: "\t", :headers => true)
+          f = CSV.open(path, col_sep: "\t", headers: true)
 
           code = :iczn
           i = 0
@@ -1113,7 +1116,7 @@ namespace :tw do
 
         path = @args[:data_directory] + 'TXT/localities.txt'
         raise 'file not found' if not File.exists?(path)
-        lo = CSV.open(path, col_sep: "\t", :headers => true)
+        lo = CSV.open(path, col_sep: "\t", headers: true)
 
         print "\nIndexing localities..."
 
@@ -1140,9 +1143,9 @@ namespace :tw do
 
         path = @args[:data_directory] + 'TXT/specimens_new_partially_resolved.txt'
         raise 'file not found' if not File.exists?(path)
-        lo = CSV.open(path, col_sep: "\t", :headers => true)
+        lo = CSV.open(path, col_sep: "\t", headers: true)
 
-        print "Indexing partially resolved specimens..."
+        print 'Indexing partially resolved specimens...'
 
         ## localities = {}
         lo.each do |row|
@@ -1167,11 +1170,11 @@ namespace :tw do
       def index_specimen_records_from_specimens_insects(data, import)
         start = @redis.keys.count
         collecting_event = nil
-        puts " specimen records from specimens.txt"
+        puts ' specimen records from specimens.txt'
         path = @args[:data_directory] + 'TXT/specimens.txt'
         raise 'file not found' if not File.exists?(path)
 
-        sp = CSV.open(path, col_sep: "\t", :headers => true)
+        sp = CSV.open(path, col_sep: "\t", headers: true)
 
         specimen_fields = %w{ Prefix CatalogNumber PreparationType TaxonCode LocalityCode AccessionSource DeaccessionRecipient DeaccessionCause DeaccessionDate DateCollectedBeginning DateCollectedEnding Collector LocalityLabel AccessionNumberLabel DeterminationLabel OtherLabel SpecialCollection IdentifiedBy YearIdentified CollectionMethod Habitat Type TypeName Remarks AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens Checked OldLocalityCode OldCollector OldIdentifiedBy CreatedBy CreatedOn ModifiedOn ModifiedBy }.freeze
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }.freeze
@@ -1263,11 +1266,11 @@ namespace :tw do
       def index_host_plants_insects(data)
         # Host
         # TaxonCode
-        puts " host plants from hostplants.txt"
+        puts ' host plants from hostplants.txt'
         path = @args[:data_directory] + 'TXT/hostplants.txt'
         raise 'file not found' if not File.exists?(path)
 
-        sp = CSV.open(path, col_sep: "\t", :headers => true)
+        sp = CSV.open(path, col_sep: "\t", headers: true)
 
         sp.each_with_index do |row, i|
           print "\r#{i}      "
@@ -1284,7 +1287,7 @@ namespace :tw do
         path = @args[:data_directory] + 'TXT/specimens_new.txt'
         raise 'file not found' if not File.exists?(path)
 
-        sp = CSV.open(path, col_sep: "\t", :headers => true)
+        sp = CSV.open(path, col_sep: "\t", headers: true)
 
         specimen_fields = %w{ Prefix CatalogNumber PreparationType TaxonCode LocalityCode DateCollectedBeginning DateCollectedEnding Collector LocalityLabel AccessionNumberLabel DeterminationLabel OtherLabel SpecialCollection IdentifiedBy YearIdentified CollectionMethod Habitat Type TypeName Remarks AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens Checked OldLocalityCode OldCollector OldIdentifiedBy CreatedBy CreatedOn ModifiedOn ModifiedBy }.freeze
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }.freeze
@@ -1404,11 +1407,11 @@ namespace :tw do
 
       def index_specimen_records_from_neon(data, import)
         start = @redis.keys.count
-        puts " specimen records from neon.txt"
+        puts ' specimen records from neon.txt'
         path = @args[:data_directory] + 'TXT/neon.txt'
         raise 'file not found' if not File.exists?(path)
 
-        sp = CSV.open(path, col_sep: "\t", :headers => true)
+        sp = CSV.open(path, col_sep: "\t", headers: true)
 
         specimen_fields = %w{ SampleID MuseumID TaxonCode IdentifiedBy IdentifierEmail IdentifierInstitution IdentificationMethod TaxonomyNotes ExtraInfo Remarks VoucherStatus TissueDescriptor AssociatedTaxa AssociatedSpecimens ExternalURLs Collector DateCollectedBeginning DateCollectedEnding CollectionMethod LocalityCode GPSSource CoordinateAccuracy EventTime CollectionDateAccuracy SamplingProtocol CollectionNotes SiteCode AdultMale AdultFemale AdultUnsexed }
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
@@ -1498,7 +1501,7 @@ namespace :tw do
       end
 
       def add_bioculation_class_insects(o, bcc, data)
-          BiocurationClassification.create(biocuration_class: data.biocuration_classes['Adult'], biological_collection_object: o) if bcc == 'AdultMale' || bcc =='AdultFemale' || bcc == 'AdultUnsexed'
+        BiocurationClassification.create(biocuration_class: data.biocuration_classes['Adult'], biological_collection_object: o) if bcc == 'AdultMale' || bcc =='AdultFemale' || bcc == 'AdultUnsexed'
           BiocurationClassification.create(biocuration_class: data.biocuration_classes['Male'], biological_collection_object: o) if bcc == 'AdultMale'
           BiocurationClassification.create(biocuration_class: data.biocuration_classes['Female'], biological_collection_object: o) if bcc == 'AdultFemale'
           BiocurationClassification.create(biocuration_class: data.biocuration_classes['Immature'], biological_collection_object: o) if bcc == 'Immature'
@@ -1527,7 +1530,7 @@ namespace :tw do
             if !row['Type'].blank?
               type = TYPE_TYPE[row['Type'].downcase]
               unless type.nil?
-                type = type + 's' if o.type == "Lot"
+                type = type + 's' if o.type == 'Lot'
                 tm = TypeMaterial.create(protonym_id: otu.taxon_name_id, material: o, type_type: type )
                 if !tm.id.blank? # tm.valid?
                   tm.data_attributes.create(type: 'InternalAttribute', controlled_vocabulary_term_id: data.keywords['TypeName'], value: row['TypeName']) unless row['TypeName'].blank?
@@ -1546,7 +1549,7 @@ namespace :tw do
         path = @args[:data_directory] + 'TXT/accessions_new.txt' # self contained
         raise 'file not found' if not File.exists?(path)
 
-        ac = CSV.open(path, col_sep: "\t", :headers => true)
+        ac = CSV.open(path, col_sep: "\t", headers: true)
 
         fields = %w{LocalityLabel Habitat Host AccessionNumber Country State County Locality Park DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Elev_m Elev_ft NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Comments PrecisionCode Datum ModifiedBy ModifiedOn}
 
@@ -1575,7 +1578,7 @@ namespace :tw do
 
         path = @args[:data_directory] + 'TXT/ledgers.txt'
         raise 'file not found' if not File.exists?(path)
-        le = CSV.open(path, col_sep: "\t", :headers => true)
+        le = CSV.open(path, col_sep: "\t", headers: true)
 
         fields = %w{Collection AccessionNumber LedgerBook LedgersCountry LedgersState LedgersCounty LedgersLocality DateCollectedBeginning DateCollectedEnding Collector Order Family Genus Species HostGenus HostSpecies Sex LedgersComments Description Remarks LocalityCode OldLocalityCode CreatedBy CreatedOn}
 
@@ -1621,7 +1624,7 @@ namespace :tw do
       def handle_associations_insects(data, import)
         path = @args[:data_directory] + 'TXT/associations.txt'
         raise 'file not found' if not File.exists?(path)
-        as = CSV.open(path, col_sep: "\t", :headers => true)
+        as = CSV.open(path, col_sep: "\t", headers: true)
         #fields = %w{ Prefix CatalogNumber AssociatedPrefix AssociatedCatalogNumber AssociatedTaxonCode Type }
         puts "\n  Handle associations \n"
 
@@ -1683,11 +1686,11 @@ namespace :tw do
       def handle_loans_insects(data, import)
         path = @args[:data_directory] + 'TXT/loans.txt'
         raise 'file not found' if not File.exists?(path)
-        lo = CSV.open(path, col_sep: "\t", :headers => true)
+        lo = CSV.open(path, col_sep: "\t", headers: true)
         #fields = %w{ InvoiceID ExpectedDateOfReturn DateReceived DateProcessed DateRequested MethodOfRequest Processor RecipientID Signature StudentSignature Comments TotalRecordsOnLoan TotalRecordsReturned TotalRecordsRemaining TotalSpecimensOnLoan TotalSpeciemsnReturned TotalSpeciemsnRemaining Canceled CreatedBy }
         print "\nHandling Loans "
         if import.metadata['loans']
-          print "from database.  Indexing Loans by InvoiceID..."
+          print 'from database.  Indexing Loans by InvoiceID...'
           Identifier.where(namespace_id: data.namespaces['Invoice']).find_each do |l|
             data.loans[l.identifier] = l.identifier_object
           end
@@ -1695,6 +1698,7 @@ namespace :tw do
         else
           print "as newly parsed.\n"
           i = 0
+          lender_address = 'INHS Insect Collection, Illinois Natural History Survey, 1816 S. Oak st., Champaign, IL 61820'
           lo.each do |row|
             i += 1
             print "\r#{i}"
@@ -1702,13 +1706,16 @@ namespace :tw do
             date_closed = (row['Canceled'] == 'Canceled') ? Time.current : nil
             row['Signature'] = nil if row['Signature'].to_s.length == 1
             row['StudentSignature'] = nil if row['StudentSignature'].to_s.length == 1
-            country = parse_geographic_area_insects({'Country' => data.people_id[row['RecipientID']]['Country']})
-            country = country.nil? ? nil : country.id
+            #country = parse_geographic_area_insects({'Country' => data.people_id[row['RecipientID']]['Country']})
+            #country = country.nil? ? nil : country.id
+            country = data.people_id[row['RecipientID']]['Country']
             supervisor = data.people_index[data.people_id[row['RecipientID']]['SupervisorID']]
             supervisor_email = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Email']
             supervisor_phone = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Phone']
             recipient_email = data.people_id[row['RecipientID']]['Email']
-            recipient_email = nil if recipient_email.to_s.include?(' ') || recipient_email.to_s.include?("\r") || recipient_email.to_s.include?(",") || recipient_email.to_s.include?("’")
+            recipient_email = nil if recipient_email.to_s.include?(' ') || recipient_email.to_s.include?("\r") || recipient_email.to_s.include?(',') || recipient_email.to_s.include?('’')
+
+            row['DateReceived'] = '' if !time_from_field(row['DateReceived']).nil? && !time_from_field(row['DateReceived']) && time_from_field(row['DateReceived']) < time_from_field(row['DateProcessed'])
 
             l = Loan.create( date_requested: time_from_field(row['DateRequested']),
                              request_method: row['MethodOfRequest'],
@@ -1724,6 +1731,7 @@ namespace :tw do
                              #supervisor_person: supervisor,
                              supervisor_email: supervisor_email,
                              supervisor_phone: supervisor_phone,
+                             lender_address: lender_address,
                              date_closed: date_closed,
                              created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
                              created_at: time_from_field(row['CreatedOn'])
@@ -1748,11 +1756,11 @@ namespace :tw do
       def handle_loans_insects_without_specimens(data)
         start = @redis.keys.count
         collecting_event = nil
-        puts "Loan specimen records from specimens.txt"
+        puts 'Loan specimen records from specimens.txt'
         path = @args[:data_directory] + 'TXT/specimens.txt'
         raise 'file not found' if not File.exists?(path)
 
-        sp = CSV.open(path, col_sep: "\t", :headers => true)
+        sp = CSV.open(path, col_sep: "\t", headers: true)
 
         specimen_fields = %w{ Prefix CatalogNumber TaxonCode AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
@@ -1779,7 +1787,7 @@ namespace :tw do
 
         path = @args[:data_directory] + 'TXT/loan_specimen.txt'
         raise 'file not found' if not File.exists?(path)
-        ls = CSV.open(path, col_sep: "\t", :headers => true)
+        ls = CSV.open(path, col_sep: "\t", headers: true)
         #fields = %w{ Prefix CatalogNumber InvoiceID Status DateReturned }
         print "Handling loan_specimens\n"
 
@@ -1842,7 +1850,7 @@ namespace :tw do
       def handle_letters_insects(data)
         path = @args[:data_directory] + 'TXT/letters.txt'
         raise 'file not found' if not File.exists?(path)
-        ls = CSV.open(path, col_sep: "\t", :headers => true)
+        ls = CSV.open(path, col_sep: "\t", headers: true)
         #fields = %w{ InvoiceID RecipientID Salutation Body Creator CreatedOn }
         print "\nHandling letters\n"
 
@@ -1865,7 +1873,7 @@ namespace :tw do
       def handle_collection_profile_insects(data)
         path = @args[:data_directory] + 'TXT/collection_profile.txt'
         raise 'file not found' if not File.exists?(path)
-        ls = CSV.open(path, col_sep: "\t", :headers => true)
+        ls = CSV.open(path, col_sep: "\t", headers: true)
         #fields = %w{ ID Room Label1_1 Label1_2 Label1_3 Label1_4 Label2_1 Label2_2 Label2_3 Label2_4 TaxonCode Remarks CollectionType ConservationStatus ProcessingState ContainerCondition ConditionOfLabels IdentificationLevel ArangementLevel DataQuality ComputerizationLevel NumberOfSpecimens NumberOfVialsSlides Print1 Print2 CreatedBy CreatedOn ModifiedBy ModifiedOn }
         print "\nHandling collection profile\n"
 
@@ -1878,18 +1886,6 @@ namespace :tw do
           otu = Identifier.where(project_id: $project_id, cached: 'Taxon Code ' + row['TaxonCode'].to_s, identifier_object_type: 'Otu').first.try(:identifier_object)
           
           room = find_or_create_room_insects(row, data)
-
-          container = Container.create!(created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
-                                       created_at: time_from_field(row['CreatedOn']),
-                                       updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
-                                       updated_at: time_from_field(row['ModifiedOn']),
-                                       #parent_id: room,
-                                       type: container_type[row['CollectionType']],
-                                       name: nil,
-                                       contained_in: room
-          )
-          container.identifiers.create!(namespace: data.namespaces['container'], identifier: row['ID'], type: 'Identifier::Local::ContainerCode') unless row['ID'].blank?
-
 
           ['Label1_1', 'Label1_2', 'Label1_3', 'Label1_4', 'Label2_1', 'Label2_2', 'Label2_3', 'Label2_4'].each do |l|
             row[l] = nil if row[l].blank?
@@ -1907,28 +1903,45 @@ namespace :tw do
               label1 = [label1.join(' '), label2.join(' ')].compact.join("\n")
               label2 = nil
           end
-          unless label1.blank?
-            cl1 = ContainerLabel.create!(label: label1,
-                                        date_printed: time_from_field(row['ModifiedOn']),
-                                        position: 1,
-                                        created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
-                                        created_at: time_from_field(row['CreatedOn']),
-                                        updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
-                                        updated_at: time_from_field(row['ModifiedOn']),
-                                        container: container
-              )
-          end
-          unless label2.blank?
-            cl2 = ContainerLabel.create!(label: label2,
-                                        date_printed: time_from_field(row['ModifiedOn']),
-                                        position: 2,
-                                        created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
-                                        created_at: time_from_field(row['CreatedOn']),
-                                        updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
-                                        updated_at: time_from_field(row['ModifiedOn']),
-                                        container: container
-              )
-          end
+
+          labels = [label1, label2].compact.join("\n----\n")
+
+
+          container = Container.create!(created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
+                                       created_at: time_from_field(row['CreatedOn']),
+                                       updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
+                                       updated_at: time_from_field(row['ModifiedOn']),
+                                       #parent_id: room,
+                                       type: container_type[row['CollectionType']],
+                                       name: nil,
+                                       contained_in: room,
+                                       print_label: labels
+          )
+          container.identifiers.create!(namespace: data.namespaces['container'], identifier: row['ID'], type: 'Identifier::Local::ContainerCode') unless row['ID'].blank?
+
+
+#          unless label1.blank?
+#            cl1 = ContainerLabel.create!(label: label1,
+#                                        date_printed: time_from_field(row['ModifiedOn']),
+#                                        position: 1,
+#                                        created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
+#                                        created_at: time_from_field(row['CreatedOn']),
+#                                        updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
+#                                        updated_at: time_from_field(row['ModifiedOn']),
+#                                        container: container
+#              )
+#          end
+#          unless label2.blank?
+#            cl2 = ContainerLabel.create!(label: label2,
+#                                        date_printed: time_from_field(row['ModifiedOn']),
+#                                        position: 2,
+#                                        created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
+#                                        created_at: time_from_field(row['CreatedOn']),
+#                                        updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
+#                                        updated_at: time_from_field(row['ModifiedOn']),
+#                                        container: container
+#              )
+#          end
 
           cp = CollectionProfile.create!(container: container,
                                    otu_id: otu,
@@ -2094,8 +2107,8 @@ namespace :tw do
 
       def parse_dates_insects(ce)
         sdm, sdd, sdy, edm, edd, edy = nil, nil, nil, nil, nil, nil
-        ( sdm, sdd, sdy = ce['DateCollectedBeginning'].split("/") ) if !ce['DateCollectedBeginning'].blank?
-        ( edm, edd, edy = ce['DateCollectedEnding'].split("/")    ) if !ce['DateCollectedEnding'].blank?
+        ( sdm, sdd, sdy = ce['DateCollectedBeginning'].split('/') ) if !ce['DateCollectedBeginning'].blank?
+        ( edm, edd, edy = ce['DateCollectedEnding'].split('/')    ) if !ce['DateCollectedEnding'].blank?
 
         sdy = sdy.to_i unless sdy.blank?
         edy = edy.to_i unless edy.blank?
@@ -2132,7 +2145,7 @@ namespace :tw do
       def restore_from_pg_dump
         raise 'Database is not empty, it is not possible to restore from all.dump.' if Project.count > 0
         puts 'Restoring from all.dump (to avoid this use no_dump_load=true when calling the rake task).'
-        ActiveRecord::Base.connection.execute('delete from schema_migrations')
+        ApplicationRecord.connection.execute('delete from schema_migrations')
         Support::Database.pg_restore_all('taxonworks_development', dump_directory(@args[:data_directory]),  'all.dump')
       end
 

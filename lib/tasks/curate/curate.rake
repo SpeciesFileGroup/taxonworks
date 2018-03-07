@@ -3,8 +3,8 @@ namespace :tw do
   # Tasks that auto-curate data
   namespace :curate do
 
-    desc "Index collection objects into dwc_occurrence records, no updating, only creation"
-    task :build_dwc_occurrences => [:environment] do |t|
+    desc 'Index collection objects into dwc_occurrence records, no updating, only creation'
+    task build_dwc_occurrences: [:environment] do |t|
       if ENV['total'] 
         total = ENV['total'].to_i
       else
@@ -19,7 +19,7 @@ namespace :tw do
 
       begin
         records.order(:id).limit(total).in_groups_of(20, false) do |group|
-          ActiveRecord::Base.transaction do
+          ApplicationRecord.transaction do
             print Rainbow("Writing\n").bold
             group.each do |o|
               z = o.get_dwc_occurrence

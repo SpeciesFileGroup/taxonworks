@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe ProjectSource do
 
-  let(:project_source) { FactoryGirl.build(:project_source) }
+  let(:project_source) { FactoryBot.build(:project_source) }
 
   context 'validation' do
     before(:each) {
@@ -23,7 +23,7 @@ describe ProjectSource do
 
   context 'validation' do
     specify 'source is unique per project' do
-      s = FactoryGirl.create(:valid_source)
+      s = FactoryBot.create(:valid_source)
       a = ProjectSource.new(project_id: 1, source: s)
       b = ProjectSource.new(project_id: 1, source: s)
       expect(a.save).to be_truthy

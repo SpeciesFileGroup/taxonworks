@@ -1,0 +1,44 @@
+<div>
+  <h2> Castor batch load </h2>
+
+  <div class="flexbox full_viewport_whitespace">
+    <div class="item item1 one_third_width">
+      <h3> Description and requirements </h3>
+
+      <p>
+        Creates collection objects, extracts, and taxon determinations from a Castor to TaxonWorks exported collection objects file. Attaches at most 5 identifiers to each collection object and at most 1 identifier to each extract.</p>
+      <ul>
+        <li>A tab-delimited, UTF-8 compatible text file is required.</li>
+        <li>Column headers are here <%= link_to('sample template', asset_path('batch_load_templates/collection_objects/collection_objects_castor_batch_load.tab'), target: '_blank') -%>).</li>
+        <li>Multiple uploads of the same data will do something, not sure.</li>
+        <li>Only creates collection objects if the column value of "locality_code_prefix" of the current row is "DRM"</li>
+        <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>
+        <li>Assumes a namespace with name "DRMLabVoucher" and shortname "DRMLV" exists</li>
+        <li>Assumes a namespace with name "DRMDNAVoucher" and shortname "DRMDNA" exists</li>
+        <li>Assumes a namespace with name "GenBank" and shortname "GBK" exists</li>
+        <li>Identifier Global::Uri will be attached with the value of the "guid" column if not blank to each collection object</li>
+        <li>Identifier Global::MorphbankSpecimenNumber will be attached with the value of the "morphbank_specimen_id" column if not blank to each collection object</li>
+        <li>Identifier with namespace DRMLabVoucher will be attached with the value of the "voucher_number_prefix" + "voucher_number_string" column once if not blank to each collection object</li>
+        <li>Identifier with namespace DRMDNAVoucher will be attached with the value of the "sample_code_prefix" and "sample_code" column if not blank to each collection object</li>
+        <li>Identifier with namespace GenBank will be attached with the value of the "sample_code_prefix" and "sample_code" columns if not blank to each extract</li>
+        <li>DataAttribute of predicate "SpecimenNumber" with value of "specimen_number" will be attached if not blank to each collection object.</li>
+        <li>Only links to a collecting event that has an attached Identifier Global::Uri and with a value that matches this objects "collecting_event_guid" column</li>
+        <li>Creates taxon determinations between each collection object and all its matching otus</li>
+      </ul>
+    </div>
+
+    <div class="item item2 one_third_width">
+      <h3> Example file </h3>
+
+      <p> Part of the example tab delimited formatted file. 
+        In the example whitespace is a tab. View sample file template.</p>
+
+      <pre class="fixed_width_font">guid morphbank_specimen_id sample_code_prefix sample_code suffix det_confidence id_notes locality_code_prefix locality_code_string...</pre>
+    </div>
+
+    <div class="item item3">
+      <h3> Go! </h3>
+      <%= render partial: '/collection_objects/batch_load/castor/form', locals: {url: preview_castor_batch_load_collection_objects_path, submit: :preview} -%>
+    </div>
+  </div>
+</div>

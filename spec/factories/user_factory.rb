@@ -1,6 +1,4 @@
-require_relative '../../spec/support/config/initialization_constants'
-
-FactoryGirl.define do
+FactoryBot.define do
   sequence :email do |n|
     "person#{n}@example.com"
   end
@@ -11,8 +9,8 @@ FactoryGirl.define do
 
   # See spec/support/projects_and_users.rb for the TEST_USER_PASSWORD
   trait :user_password do     
-    password { TEST_USER_PASSWORD }              # {} lets us lazy load the variable
-    password_confirmation { TEST_USER_PASSWORD }  
+    password { Rails.configuration.x.test_user_password }              # {} lets us lazy load the variable
+    password_confirmation {  Rails.configuration.x.test_user_password }  
   end
 
   trait :user_valid_token do

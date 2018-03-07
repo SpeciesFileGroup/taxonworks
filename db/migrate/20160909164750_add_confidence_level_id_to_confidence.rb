@@ -1,4 +1,4 @@
-class AddConfidenceLevelIdToConfidence < ActiveRecord::Migration
+class AddConfidenceLevelIdToConfidence < ActiveRecord::Migration[4.2]
   
   def change
     add_column :confidences, :confidence_level_id, :integer, index: true, null: false

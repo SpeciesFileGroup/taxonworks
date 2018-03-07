@@ -1,12 +1,14 @@
-# A collection object that is classified as being biological in origin. 
+# A collection object that is classified as being biological in origin.
 #
 class CollectionObject::BiologicalCollectionObject < CollectionObject
+  is_origin_for 'Extract', 'CollectionObject::BiologicalCollectionObject'
+
   has_many :biocuration_classifications,  inverse_of: :biological_collection_object
   has_many :biocuration_classes, through: :biocuration_classifications, inverse_of: :biological_collection_objects
- 
-  # See parent class for comments, this belongs here, but interferes with accepts_nested_attributes 
+
+  # See parent class for comments, this belongs here, but interferes with accepts_nested_attributes
   # has_many :taxon_determinations, inverse_of: :biological_collection_object, dependent: :destroy, foreign_key: :biological_collection_object_id
- 
+
   accepts_nested_attributes_for :biocuration_classes, allow_destroy: true
   accepts_nested_attributes_for :biocuration_classifications, allow_destroy: true
 
@@ -50,7 +52,7 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
   end
 
   def sv_missing_determination
-    soft_validations.add(:base, 'Determination is missing') if self.current_taxon_determination(true).nil?
+    soft_validations.add(:base, 'Determination is missing') if self.reload_current_taxon_determination.nil?
   end
 
   def sv_missing_collecting_event

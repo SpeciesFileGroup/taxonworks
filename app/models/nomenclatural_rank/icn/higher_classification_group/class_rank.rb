@@ -1,7 +1,7 @@
 class NomenclaturalRank::Icn::HigherClassificationGroup::ClassRank < NomenclaturalRank::Icn::HigherClassificationGroup
 
   def self.parent_rank
-     NomenclaturalRank::Icn::HigherClassificationGroup::Subphylum
+    NomenclaturalRank::Icn::HigherClassificationGroup::Subphylum
   end
 
   def self.validate_name_format(taxon_name)
@@ -11,7 +11,7 @@ class NomenclaturalRank::Icn::HigherClassificationGroup::ClassRank < Nomenclatur
   end
 
   def rank_name
-    "class"
+    'class'
   end
 
 end

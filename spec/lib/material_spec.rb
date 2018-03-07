@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'material'
 
-describe 'Material' do 
+describe 'Material' do
 
   before(:all) {
     ProjectsAndUsers.spin_up_projects_users_and_housekeeping
@@ -17,22 +17,22 @@ describe 'Material' do
       @one_object_stub['collection_objects']['object1'] = {'total' => nil}
       @one_object_stub['identifier'] = {}
 
-      @two_objects_stub = {'collection_objects' => {}} 
+      @two_objects_stub = {'collection_objects' => {}}
       @two_objects_stub['collection_objects']['object1'] = {'total' => nil}
       @two_objects_stub['collection_objects']['object2'] = {'total' => nil}
-   
+
       @two_objects_stub['identifier'] = {}
 
-      @attribute1 = FactoryGirl.create(:valid_biocuration_class, name: 'adult', definition: 'Big and scary.' )
-      @attribute2 = FactoryGirl.create(:valid_biocuration_class, name: 'larva', definition: 'Wormy')
-      @attribute3 = FactoryGirl.create(:valid_biocuration_class, name: 'uncategorized', definition: 'Can not figure it out.')
-      @attribute4 = FactoryGirl.create(:valid_biocuration_class, name: 'male', definition: 'Not female.')
+      @attribute1 = FactoryBot.create(:valid_biocuration_class, name: 'adult', definition: 'Big and scary, and longer than this.' )
+      @attribute2 = FactoryBot.create(:valid_biocuration_class, name: 'larva', definition: 'Wormy, not nice and juicy.')
+      @attribute3 = FactoryBot.create(:valid_biocuration_class, name: 'uncategorized', definition: 'Can not figure it out.')
+      @attribute4 = FactoryBot.create(:valid_biocuration_class, name: 'male', definition: 'Not female, probably with some Y chromosome.')
 
-      @namespace = FactoryGirl.create(:valid_namespace)
+      @namespace = FactoryBot.create(:valid_namespace)
     }
 
     specify 'returns a response instance of Material::QuickVerbatimResponse' do
-      expect(Material.create_quick_verbatim().class).to eq(Material::QuickVerbatimResponse) 
+      expect(Material.create_quick_verbatim().class).to eq(Material::QuickVerbatimResponse)
     end
 
     specify 'returns no collection objects when no options are passed' do
@@ -57,7 +57,7 @@ describe 'Material' do
 
     specify 'uses the buffered_ values when provided' do
       event = 'ABCD'
-      opts = @one_object_stub.merge('collection_object' => {'buffered_collecting_event' => event}) 
+      opts = @one_object_stub.merge('collection_object' => {'buffered_collecting_event' => event})
       @one_object_stub['collection_objects']['object1']['total'] = 1
       expect(Material.create_quick_verbatim(opts).collection_objects.count).to eq(1)
       expect(Material.create_quick_verbatim(opts).collection_objects.first.buffered_collecting_event).to eq(event)
@@ -78,7 +78,7 @@ describe 'Material' do
         'note' => {'text' => text}
       )
       response = Material.create_quick_verbatim(opts)
-      expect(response.collection_objects.first.notes.to_a.count).to eq(1)
+      expect(response.collection_objects.first.notes.to_a.size).to eq(1)
       expect(response.collection_objects.first.notes.first.text).to eq(text)
     end
 
@@ -86,7 +86,7 @@ describe 'Material' do
       text = 'Some text.'
       @two_objects_stub['collection_objects']['object1']['total'] = 1
       @two_objects_stub['collection_objects']['object2']['total'] = 2
-    
+
       opts = @two_objects_stub.merge(
         'note' => {'text' => text}
       )
@@ -96,9 +96,9 @@ describe 'Material' do
     end
 
     specify 'material can be assigned to a repository' do
-      repository = FactoryGirl.create(:valid_repository)
+      repository = FactoryBot.create(:valid_repository)
       @one_object_stub['collection_objects']['object1']['total'] = 1
-      opts = @one_object_stub.merge('repository' => {'id' => repository.id}) 
+      opts = @one_object_stub.merge('repository' => {'id' => repository.id})
       r = Material.create_quick_verbatim(opts)
       expect(r.collection_objects.first.repository).to eq(repository)
     end
@@ -114,8 +114,8 @@ describe 'Material' do
                                                                                    @attribute4.to_param => '1' }
       r = Material.create_quick_verbatim(@two_objects_stub)
 
-      expect(r.collection_objects.first.biocuration_classifications.to_a.count).to eq(4)
-      expect(r.collection_objects.last.biocuration_classifications.to_a.count).to eq(2)
+      expect(r.collection_objects.first.biocuration_classifications.to_a.size).to eq(4)
+      expect(r.collection_objects.last.biocuration_classifications.to_a.size).to eq(2)
     end
 
     specify 'identifier is assigned to a single object if a single object is created' do
@@ -181,13 +181,13 @@ describe Material::QuickVerbatimResponse do
   end
 
   context '#duplicate_with_locks' do
-    let(:namespace) { FactoryGirl.create(:valid_namespace) }
-    let(:repository) { FactoryGirl.create(:valid_repository, name: 'The vault.') }
+    let(:namespace) { FactoryBot.create(:valid_namespace) }
+    let(:repository) { FactoryBot.create(:valid_repository, name: 'The vault.') }
     before {
       form_params = {
         'note' => {'text' => 'Locked me.'},
         'identifier' => {'namespace_id' => namespace.id, 'identifier' => '123'},
-        'repository' => {'id' => repository.id}, 
+        'repository' => {'id' => repository.id},
         'locks' => {
           'locks' => { # proxy for object
             'namespace' => '0',
@@ -196,7 +196,7 @@ describe Material::QuickVerbatimResponse do
             'collecting_event' => '0',
             'determinations' => '0',
             'other_labels' => '0',
-            'note' => '1'          
+            'note' => '1'
           }
         }
       }
@@ -218,11 +218,11 @@ describe Material::QuickVerbatimResponse do
 
     context 'persists related objects -' do
       specify 'note' do
-        expect(@new.note.text).to eq('Locked me.')  
+        expect(@new.note.text).to eq('Locked me.')
       end
 
       specify 'identifier' do
-        expect(@new.identifier.namespace).to eq(namespace)  
+        expect(@new.identifier.namespace).to eq(namespace)
       end
     end
 
@@ -233,7 +233,7 @@ describe Material::QuickVerbatimResponse do
     specify 'increments identifier' do
       expect(@new.identifier.identifier).to eq('124')
     end
-  end 
+  end
 
   context 'identifier increments' do
     context 'when #lock_increment true' do
@@ -241,56 +241,56 @@ describe Material::QuickVerbatimResponse do
         response.locks.lock('locks', 'increment') #  = '1' # coming off form_params()
       }
       specify '#next_identifier is +1 when #lock_increment' do
-        response.identifier = FactoryGirl.build(:valid_identifier, identifier: '1')
+        response.identifier = FactoryBot.build(:valid_identifier, identifier: '1')
         expect(response.next_identifier).to eq('2')
       end
 
       specify '#next_identifier is +1 when #lock_increment and pre-fixed alphanumeric' do
-        response.identifier = FactoryGirl.build(:valid_identifier, identifier: 'A1')
+        response.identifier = FactoryBot.build(:valid_identifier, identifier: 'A1')
         expect(response.next_identifier).to eq('A2')
       end
 
       specify '#next_identifier is +1 when #lock_increment and post-fixed alphanumeric' do
-        response.identifier = FactoryGirl.build(:valid_identifier, identifier: '1A')
+        response.identifier = FactoryBot.build(:valid_identifier, identifier: '1A')
         expect(response.next_identifier).to eq('2A')
       end
 
       specify '#next_identifier is +1 when #lock_increment and pre and post-fixed alphanumeric' do
-        response.identifier = FactoryGirl.build(:valid_identifier, identifier: 'AB1A')
+        response.identifier = FactoryBot.build(:valid_identifier, identifier: 'AB1A')
         expect(response.next_identifier).to eq('AB2A')
       end
     end
   end
-  
+
   specify '#collection_objects' do
-    expect(response.collection_objects).to eq([]) 
+    expect(response.collection_objects).to eq([])
   end
 
   # specify '#next_identifier(IdentifierFactory)' do
-  #   expect(response.next_identifier.class).to eq(Identifier) 
+  #   expect(response.next_identifier.class).to eq(Identifier)
   # end
 
   specify '#identifier' do
-    expect(response.identifier.class).to eq(Identifier::Local::CatalogNumber) 
+    expect(response.identifier.class).to eq(Identifier::Local::CatalogNumber)
   end
 
   specify '#repository' do
-    expect(response.repository.class).to eq(Repository) 
+    expect(response.repository.class).to eq(Repository)
   end
 
   specify '#note' do
-    expect(response.note.class).to eq(Note) 
+    expect(response.note.class).to eq(Note)
   end
 
   specify '#save' do
-    a = FactoryGirl.build(:valid_specimen)
-    i = FactoryGirl.build(:valid_identifier_local_catalog_number, identifier_object: nil)
-    n = Note.new(text: "fasdfasdf")
-    b = FactoryGirl.create(:valid_biocuration_class) 
-    c = FactoryGirl.build(:valid_container)
+    a = FactoryBot.build(:valid_specimen)
+    i = FactoryBot.build(:valid_identifier_local_catalog_number, identifier_object: nil)
+    n = Note.new(text: 'fasdfasdf')
+    b = FactoryBot.create(:valid_biocuration_class)
+    c = FactoryBot.build(:valid_container)
 
     a.contained_in = c
-    a.identifiers << i 
+    a.identifiers << i
     a.notes << n
     a.biocuration_classifications.build(biocuration_class: b)
     # a.biocuration_classes << b
@@ -304,8 +304,8 @@ describe Material::QuickVerbatimResponse do
 
     success, errors = response.save
 
-    expect(success).to be(true) 
-   
+    expect(success).to be(true)
+
     expect(Specimen.count).to eq(1)
     expect(Identifier.count).to eq(1)
     expect(Note.count).to eq(1)

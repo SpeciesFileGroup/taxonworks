@@ -1,19 +1,19 @@
 <%= render "/hub/hub_category_filter" %>
 <div id="task_carrousel">
-	<div class="task-section">
-		<% UserTasks.hub_tasks.each do |task| -%>
-		<%= task_card(task) -%>
-		<% end %>
-		<div class="subtle center_text no-tasks">
-			<h1>No tasks found</h1>
-		</div>
-		<div class="reset-all-filters">
-			<div class="restart-background"></div>
-			<h1>Reset</h1>
-		</div>		
-	</div>
-	<div class="navigation">
-		<div class="task-nav-list">
-		</div>
-	</div>
+  <div class="task-section">
+    <% UserTasks.hub_tasks.each do |task| -%>
+      <%= task_card(task) -%>
+    <% end %>
+    <div class="subtle center_text no-tasks">
+      <h1>No tasks found</h1>
+    </div>
+    <div class="reset-all-filters">
+      <div class="restart-background"></div>
+      <h1>Reset</h1>
+    </div>
+  </div>
+  <div class="navigation">
+    <div class="task-nav-list">
+    </div>
+  </div>
 </div>

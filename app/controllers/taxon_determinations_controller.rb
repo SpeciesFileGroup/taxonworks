@@ -6,12 +6,12 @@ class TaxonDeterminationsController < ApplicationController
   # GET /taxon_determinations
   # GET /taxon_determinations.json
   def index
-    @recent_objects = TaxonDetermination.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = TaxonDetermination.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
   def list
-    @taxon_determinations = TaxonDetermination.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @taxon_determinations = TaxonDetermination.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   # GET /taxon_determinations/1
@@ -89,18 +89,18 @@ class TaxonDeterminationsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # GET /taxon_determinations/download
   def download
-    send_data TaxonDetermination.generate_download( TaxonDetermination.where(project_id: $project_id) ), type: 'text', filename: "taxon_determinations_#{DateTime.now.to_s}.csv"
+    send_data TaxonDetermination.generate_download( TaxonDetermination.where(project_id: sessions_current_project_id) ), type: 'text', filename: "taxon_determinations_#{DateTime.now}.csv"
   end
 
   private
     def set_taxon_determination
-      @taxon_determination = TaxonDetermination.with_project_id($project_id).find(params[:id])
-      @recent_object = @taxon_determination 
+      @taxon_determination = TaxonDetermination.with_project_id(sessions_current_project_id).find(params[:id])
+      @recent_object = @taxon_determination
     end
 
     def taxon_determination_params

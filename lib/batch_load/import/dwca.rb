@@ -130,6 +130,7 @@ module BatchLoad
             test_list.include?(:end_date_day) or
             test_list.include?(:end_date_month) or
             test_list.include?(:end_date_year)
+            @warns.push(c_e.errors.full_messages)
             @warns.push("eventDate (#{c_e.verbatim_date}) does not parse properly.")
 
             c_e.start_date_day   = nil
@@ -145,7 +146,7 @@ module BatchLoad
           c_e.save if c_e.new_record?
           unless c_e_notes.blank?
             apply_note = false
-            c_e_notes.keys.each {|kee|
+            c_e_notes.each_key {|kee|
               c_e_n = c_e_notes[kee]
               if c_e.notes.present?
                 c_e.notes.each {|note|
@@ -185,14 +186,14 @@ module BatchLoad
         c_o.save!
         # add the possible biological_associations, new? otu to collection_object
         unless b_a_s.blank?
-          b_a_s.keys.each {|kee|
+          b_a_s.each_key {|kee|
             b_a                                = b_a_s[kee]
             b_a.biological_association_subject = c_o
           }
         end
         # add notes to collection_object, if required
         unless c_o_notes.blank?
-          c_o_notes.keys.each {|kee|
+          c_o_notes.each_key {|kee|
             c_o_notes[kee].note_object = c_o
           }
         end
@@ -242,7 +243,7 @@ module BatchLoad
         # add notes to georeference, if required
         unless g_r_notes.blank?
           apply_note = false
-          g_r_notes.keys.each {|kee|
+          g_r_notes.each_key {|kee|
             g_r_n = g_r_notes[kee]
             if g_r.notes.present?
               g_r.notes.each {|note|
@@ -263,7 +264,7 @@ module BatchLoad
         # g_r.save
 
         begin # make sure all objects for this row get saved
-          @row_objects.keys.each {|kee|
+          @row_objects.each_key {|kee|
             objects = @row_objects[kee]
             case objects.class.to_s
               when 'Array'
@@ -314,7 +315,7 @@ module BatchLoad
     private
 
 # package up the results of the process into a hash
-# @param [Integer] current line_counter/rows key
+# @param [Integer] line_counter current line_counter/rows key
 # @return [Integer] new line_counter/rows key
     def loop_end(line_counter)
       @rows[line_counter][:row_objects] = @row_objects
@@ -324,7 +325,7 @@ module BatchLoad
     end
 
     def dump_hash(objects)
-      objects.keys.each {|kee|
+      objects.each_key {|kee|
         object = objects[kee]
         unless object.blank?
           if object.class.to_s == 'Hash'
@@ -338,7 +339,7 @@ module BatchLoad
 
     def save_hash(objects)
       l_errs = []
-      objects.keys.each {|kee|
+      objects.each_key {|kee|
         object = objects[kee]
         unless object.blank?
           if object.class.to_s == 'Hash'
@@ -535,7 +536,7 @@ module BatchLoad
       date_params = {}
       unless d_s.blank?
         trials = Utilities::Dates.hunt_dates(d_s, kees)
-        trials.keys.each {|kee|
+        trials.each_key {|kee|
           trial = trials[kee]
           unless trial.blank?
             case kee
@@ -739,8 +740,8 @@ module BatchLoad
           => [:foo, :bar]
           2.3.3 :061 >
 =end
-# @param [Array] of Strings which represent the TSV file headers
-# @param [Hash] of the method names (as keys) for the tasks, with lists of required headers (as values)
+# @param [Array] headers array of Strings which represent the TSV file headers
+# @param [Hash] tasks hash of the method names (as keys) for the tasks, with lists of required headers (as values)
 # @return [Array] of named tasks to perform, based on the presents of task's word list in the header list
 # intersection of the word list from the tasks hash (per key) and the list of headers
     def triage(headers, tasks)

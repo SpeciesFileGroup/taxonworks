@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Exception notification', :type => :feature do
+describe 'Exception notification', type: :feature do
   before { ActionMailer::Base.deliveries.clear }
   
   it 'sends an email when an exception occurs' do

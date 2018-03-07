@@ -6,7 +6,7 @@ namespace :tw do
       namespace :cites do
 
         desc 'time rake tw:project_import:sf_import:cites:create_otu_cites user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_otu_cites => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_otu_cites: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating citations for OTUs...'
 
@@ -188,21 +188,34 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
         end
 
         desc 'time rake tw:project_import:sf_import:cites:create_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_citations => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_citations: [:data_directory, :environment, :user_id] do |logger|
+
+          # @todo: Note changes to get_nomenclator_string => get_nomenclator_metadata
+          # if get_sf_booktitle_publisher_address[pub_id]
+          #   booktitle = get_sf_booktitle_publisher_address[pub_id][booktitle]
+          #   publisher = get_sf_booktitle_publisher_address[pub_id][publisher]
+          #   address = get_sf_booktitle_publisher_address[pub_id][address]
+          # end
+
 
           logger.info 'Creating citations...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # Note this is an OTU associated with a SF.TaxonNameID (probably a bad taxon name)
           get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID') # Note this is the OTU offically associated with a real TW.taxon_name_id
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
-          get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
+          get_sf_verbatim_ref = import.get('RefIDToVerbatimRef') # key is SF.RefID, value is verbatim string
+          get_nomenclator_metadata = import.get('SFNomenclatorIDToSFNomenclatorMetadata')
           get_cvt_id = import.get('CvtProjUriID')
           get_containing_source_id = import.get('TWSourceIDToContainingSourceID') # use to determine if taxon_name_author must be created (orig desc only)
           get_sf_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors') # contains ordered array of SF.PersonIDs
           get_tw_person_id = import.get('SFPersonIDToTWPersonID')
+          get_sf_file_id = import.get('SFTaxonNameIDToSFFileID')
+
+          otu_not_found_array = []
 
           path = @args[:data_directory] + 'tblCites.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -218,27 +231,53 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           base_uri = 'http://speciesfile.org/legacy/'
 
           file.each_with_index do |row, i|
-            taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']].to_i
-            # next unless TaxonName.where(id: taxon_name_id).any?
+            sf_taxon_name_id = row['TaxonNameID']
+            sf_file_id = get_sf_file_id[sf_taxon_name_id]
+            next if skipped_file_ids.include? sf_file_id.to_i
+            taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # cannot to_i because if nil, nil.to_i = 0
 
-            if !TaxonName.where(id: taxon_name_id).exists?
-              logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} was not created in TW (no_taxon_counter = #{no_taxon_counter += 1})"
-
-              # @todo: Test if OTU exists? Add citation to OTU? Also add notes, nomenclator, tags, confidences?
-              sf_taxon_name_id = row['TaxonNameID']
-              if get_tw_otu_id.has_key?(sf_taxon_name_id)
-                logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} created as OTU (otu_only_counter = #{otu_only_counter += 1})"
-                # otu_id = get_tw_otu_id[sf_taxon_name_id]
-                # create_otu_cite(logger, row, otu_id)
+            if taxon_name_id.nil?
+              if get_tw_otu_id[sf_taxon_name_id]
+                logger.warn "SF.TaxonNameID = #{sf_taxon_name_id} previously created as OTU (otu_only_counter = #{otu_only_counter += 1})"
+              elsif otu_not_found_array.include? sf_taxon_name_id # already in array (probably seqnum > 1)
+                logger.warn "SF.TaxonNameID = #{sf_taxon_name_id} already in otu_not_found_array (total in otu_not_found_counter = #{otu_not_found_counter})"
+              else
+                otu_not_found_array << sf_taxon_name_id # add SF.TaxonNameID to otu_not_found_array
+                logger.warn "SF.TaxonNameID = #{sf_taxon_name_id} added to otu_not_found_array (otu_not_found_counter = #{otu_not_found_counter += 1})"
               end
               next
             end
 
-            project_id = TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
             sf_ref_id = row['RefID']
             source_id = get_tw_source_id[sf_ref_id].to_i
 
             next if source_id == 0
+
+            protonym = TaxonName.find(taxon_name_id)
+            project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
+            nomenclator_string = nil
+
+            # test nomenclator info
+            nomenclator_id = row['NomenclatorID']
+            if nomenclator_id != '0'
+              nomenclator_string = get_nomenclator_metadata[nomenclator_id]['nomenclator_string']
+              nomenclator_ident_qualifier = get_nomenclator_metadata[nomenclator_id]['ident_qualifier']
+              # sf_file_id = get_nomenclator_metadata[nomenclator_id]['file_id']
+              if nomenclator_ident_qualifier.present? # has some irrelevant text in it
+                logger.warn "No citation created because IdentQualifier has irrelevant data: (SF.FileID: #{sf_file_id}, SF.TaxonNameID: #{sf_taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']})"
+                # create data attr on taxon_name
+                Note.create!(
+                    attribute_object: protonym,
+                    text: "Citation to '#{get_sf_verbatim_ref[sf_ref_id]}' not created because accompanying nomenclator ('#{nomenclator_string}') contains irrelevant data ('#{nomenclator_ident_qualifier}')",
+                    project_id: project_id,
+                    created_at: row['CreatedOn'], # housekeeping data from citation not created
+                    updated_at: row['LastUpdate'],
+                    created_by_id: get_tw_user_id[row['CreatedBy']],
+                    updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                )
+                next
+              end
+            end
 
             logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
 SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
@@ -284,12 +323,12 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
             citation = Citation.where(source_id: source_id, citation_object_type: 'TaxonName', citation_object_id: taxon_name_id, is_original: true).first
             if citation != nil and orig_desc_source_id != source_id
               orig_desc_source_id = source_id # prevents duplicate citation to same source being processed as original description
-              citation.notes << Note.new(text: row['Note'], project_id: project_id) unless row['Note'].blank? # project_id? ; what is << ?
+              citation.notes << Note.new(text: row['Note'], project_id: project_id) unless row['Note'].blank?
               # citation.update_column(:pages, cite_pages) # update pages to cite_pages
               citation.update(metadata.merge(pages: cite_pages))
               logger.info "Citation found: citation.id = #{citation.id}, taxon_name_id = #{taxon_name_id}, cite_pages = '#{cite_pages}' (cite_found_counter = #{cite_found_counter += 1})"
 
-              if get_containing_source_id.has_key?(source_id.to_s) # create taxon_name_author role for contained Refs only
+              if get_containing_source_id[source_id.to_s] # create taxon_name_author role for contained Refs only
 
                 # byebug
 
@@ -300,17 +339,62 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                       type: 'TaxonNameAuthor',
                       role_object_id: taxon_name_id,
                       role_object_type: 'TaxonName',
-                      # position: row['SeqNum'],
                       project_id: project_id, # role is project_role
-                  # created_at: row['CreatedOn'],
-                  # updated_at: row['LastUpdate'],
-                  # created_by_id: get_tw_user_id[row['CreatedBy']],
-                  # updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                  )
+                      )
                 end
               end
 
             else # create new citation
+
+              # byebug
+
+              if nomenclator_string && !(protonym.cached_original_combination == "<i>#{nomenclator_string}</i>")
+                # what is value of above line?
+                logger.info "Checking for combinations = '#{nomenclator_string}'"
+                combination = nil
+
+                begin
+                  check_result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
+
+                  if check_result.is_unambiguous?
+                    logger.info "unambiguous result"
+                    combination = check_result.combination
+
+                    # what's in check_result, count of species
+
+                    combination.project_id = project_id
+                    # TODO: override $user_id if need be
+
+                    if combination.genus
+                      combination.save!
+                      taxon_name_id = combination.id # At this point (3) do we use taxon_name_id for anything OTHER THAN the citation  (yes lots of loggin)
+                      logger.info "Successful COMBINATION"
+                    end
+
+                  else
+                    # ... this is all the funny exceptions (4)
+                    logger.info "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', check_result.protonym_result = '#{check_result.protonym_result}'"
+                  end
+
+                    # Put all the rescue statements in one place
+                rescue ActiveRecord::RecordInvalid
+                  logger.error "Record is invalid (error # #{error_counter += 1})"
+                  # I don't think this check is right now - there is no .errors method on check_result, which returns an instance of TaxonWorks::Vendor::Biodiversity::Result.new()
+                  # logger.error "check_result ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, check_result = #{check_result}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + check_result.errors.full_messages.join(';')
+
+                  # !! both messages might not make sense now
+                  logger.error "Combination ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + combination.errors.full_messages.join(';')
+                rescue TypeError
+                  # message about type / problems with   TaxonWorks::Vendor::Biodiversity::Result
+                  logger.error "Bad nomenclator string? nomen str = #{nomenclator_string}"
+                rescue
+                  raise
+                end
+              end # end block that does stuff if nomenclator_string exists
+
+              # combination check
+              # synonym or taxon_name_relationship check
+
               citation = Citation.new(
                   metadata.merge(
                       source_id: source_id,
@@ -334,7 +418,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
 
                 # yes I know this is ugly but it works
                 if citation.errors.messages[:source_id].nil?
-                  logger.info "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
+                  logger.info "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id},
 SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
                   next
                 else # make pages unique and save again
@@ -343,11 +427,11 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                     begin
                       citation.save!
                     rescue ActiveRecord::RecordInvalid
-                      logger.info "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
+                      logger.info "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
                       next
                     end
                   else # citation error was not already been taken (other validation failure)
-                    logger.info "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
+                    logger.info "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
                     next
                   end
                 end
@@ -357,13 +441,13 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             ### After citation updated or created
 
             ## Nomenclator: DataAttribute of citation, NomenclatorID > 0
-            if row['NomenclatorID'] != '0' # OR could value: be evaluated below based on NomenclatorID?
+            if nomenclator_string # OR could value: be evaluated below based on NomenclatorID?
               da = DataAttribute.new(type: 'ImportAttribute',
                                      attribute_subject_id: citation.id,
                                      attribute_subject_type: 'Citation',
                                      # attribute_subject: citation,        replaces two lines above
                                      import_predicate: 'Nomenclator',
-                                     value: get_nomenclator_string[row['NomenclatorID']],
+                                     value: nomenclator_string,
                                      project_id: project_id,
                                      created_at: row['CreatedOn'],
                                      updated_at: row['LastUpdate'],
@@ -396,10 +480,11 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               next
             end
 
-            otu_id = get_taxon_name_otu_id[taxon_name_id.to_s].to_i
+            # !! from here on we're back to referencing OTUs that were created PRE combination world
+            otu_id = get_taxon_name_otu_id[protonym.id.to_s].to_i
 
             if otu_id == 0
-              logger.warn "OTU error, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (OTU not found: #{otu_not_found_counter += 1})"
+              logger.warn "OTU error, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id} (OTU not found: #{otu_not_found_counter += 1})"
               next
             end
 
@@ -434,7 +519,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               otu_citation.save!
               puts 'OTU citation created'
             rescue ActiveRecord::RecordInvalid
-              logger.error "OTU citation ERROR SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} = otu_id #{otu_id} (error_counter = #{error_counter += 1}): " + otu_citation.errors.full_messages.join(';')
+              logger.error "OTU citation ERROR SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id} = otu_id #{otu_id} (error_counter = #{error_counter += 1}): " + otu_citation.errors.full_messages.join(';')
             end
 
 
@@ -444,13 +529,37 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           end
         end
 
+        desc 'time rake tw:project_import:sf_import:cites:create_sf_taxon_file_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define create_sf_taxon_file_id_hash: [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Running create_sf_taxon_file_id_hash...'
+
+          get_sf_file_id = {} # key = SF.TaxonNameID, value = SF.FileID
+
+          path = @args[:data_directory] + 'sfTaxonNameIDFileIDs.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+          file.each_with_index do |row, i|
+
+            logger.info "Working with SF.TaxonNameID = '#{row['TaxonNameID']}', SF.FileID = '#{row['FileID']}' \n"
+
+            get_sf_file_id[row['TaxonNameID']] = row['FileID']
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFTaxonNameIDToSFFileID', get_sf_file_id)
+
+          puts = 'SFTaxonNameIDToSFFileID'
+          ap get_sf_file_id
+        end
+
         # def create_otu_cite(logger, row, otu_id)
         #   # citation, notes, NameStatus, StatusFlags, OriginalGenusID, Distribution, Ecology, CurrentConceptID, NecAuthor, dataflags, extinct, fileID
         #
         # end
 
         desc 'time rake tw:project_import:sf_import:cites:create_sf_taxon_name_authors user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_sf_taxon_name_authors => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_sf_taxon_name_authors: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_sf_taxon_name_authors...'
 
@@ -485,7 +594,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
         desc 'time rake tw:project_import:sf_import:cites:create_cvts_for_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # @todo Do I really need a data_directory if I'm using a Postgres table? Not that it hurts...
-        LoggedTask.define :create_cvts_for_citations => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_cvts_for_citations: [:data_directory, :environment, :user_id] do |logger|
 
           # Create controlled vocabulary terms (CVTS) for NewNameStatus, TypeInfo, and CiteInfoFlags; CITES_CVTS below in all caps denotes constant
 
@@ -513,21 +622,21 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               ],
 
               type_info: [
-                  {name: 'unspecified type information', definition: 'unspecified type information', uri: 'http://speciesfile.org/legacy/type_info/1', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'ruling by Commission', definition: 'ruling by Commission', uri: 'http://speciesfile.org/legacy/type_info/2', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'designated syntypes', definition: 'designated syntypes', uri: 'http://speciesfile.org/legacy/type_info/11', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'designated holotype', definition: 'designated holotype', uri: 'http://speciesfile.org/legacy/type_info/12', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'designated lectotype', definition: 'designated lectotype', uri: 'http://speciesfile.org/legacy/type_info/13', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'designated neotype', definition: 'designated neotype', uri: 'http://speciesfile.org/legacy/type_info/14', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'removed syntype(s)', definition: 'removed syntype(s)', uri: 'http://speciesfile.org/legacy/type_info/15', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'original monotypy', definition: 'original monotypy', uri: 'http://speciesfile.org/legacy/type_info/21', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'original designation', definition: 'original designation', uri: 'http://speciesfile.org/legacy/type_info/22', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'subsequent designation', definition: 'subsequent designation', uri: 'http://speciesfile.org/legacy/type_info/23', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'monotypy and original designation', definition: 'monotypy and original designation', uri: 'http://speciesfile.org/legacy/type_info/24', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'removed potential type(s)', definition: 'removed potential type(s)', uri: 'http://speciesfile.org/legacy/type_info/25', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'absolute tautonomy', definition: 'absolute tautonomy', uri: 'http://speciesfile.org/legacy/type_info/26', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'Linnaean tautonomy', definition: 'Linnaean tautonomy', uri: 'http://speciesfile.org/legacy/type_info/27', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'inherited from replaced name', definition: 'inherited from replaced name', uri: 'http://speciesfile.org/legacy/type_info/29', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                  {name: 'unspecified type information', definition: 'tblTypeInfo: unspecified type information', uri: 'http://speciesfile.org/legacy/type_info/1', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                  {name: 'ruling by Commission', definition: 'tblTypeInfo: ruling by Commission', uri: 'http://speciesfile.org/legacy/type_info/2', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                  {name: 'designated syntypes', definition: 'tblTypeInfo: designated syntypes', uri: 'http://speciesfile.org/legacy/type_info/11', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                  {name: 'designated holotype', definition: 'tblTypeInfo: designated holotype', uri: 'http://speciesfile.org/legacy/type_info/12', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                  {name: 'designated lectotype', definition: 'tblTypeInfo: designated lectotype', uri: 'http://speciesfile.org/legacy/type_info/13', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                  {name: 'designated neotype', definition: 'tblTypeInfo: designated neotype', uri: 'http://speciesfile.org/legacy/type_info/14', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                  {name: 'removed syntype(s)', definition: 'tblTypeInfo: removed syntype(s)', uri: 'http://speciesfile.org/legacy/type_info/15', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                  {name: 'original monotypy', definition: 'tblTypeInfo: original monotypy', uri: 'http://speciesfile.org/legacy/type_info/21', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                  {name: 'original designation', definition: 'tblTypeInfo: original designation', uri: 'http://speciesfile.org/legacy/type_info/22', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                  {name: 'subsequent designation', definition: 'tblTypeInfo: subsequent designation', uri: 'http://speciesfile.org/legacy/type_info/23', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                  {name: 'monotypy and original designation', definition: 'tblTypeInfo: monotypy and original designation', uri: 'http://speciesfile.org/legacy/type_info/24', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                  {name: 'removed potential type(s)', definition: 'tblTypeInfo: removed potential type(s)', uri: 'http://speciesfile.org/legacy/type_info/25', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                  {name: 'absolute tautonomy', definition: 'tblTypeInfo: absolute tautonomy', uri: 'http://speciesfile.org/legacy/type_info/26', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                  {name: 'Linnaean tautonomy', definition: 'tblTypeInfo: Linnaean tautonomy', uri: 'http://speciesfile.org/legacy/type_info/27', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                  {name: 'inherited from replaced name', definition: 'tblTypeInfo: inherited from replaced name', uri: 'http://speciesfile.org/legacy/type_info/29', uri_relation: 'skos:closeMatch', type: 'Keyword'},
               ],
 
               # uri end number represents bit position, not value
@@ -545,18 +654,18 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               ],
 
               info_flag_status: [
-                  {name: 'partial data or needs review', definition: 'partial data or needs review', uri: 'http://speciesfile.org/legacy/info_flag_status/1', uri_relation: 'skos:closeMatch', type: 'ConfidenceLevel'},
-                  {name: 'complete data', definition: 'complete data', uri: 'http://speciesfile.org/legacy/info_flag_status/2', uri_relation: 'skos:closeMatch', type: 'ConfidenceLevel'},
+                  {name: 'partial data or needs review', definition: 'InfoFlagStatus: partial data or needs review', uri: 'http://speciesfile.org/legacy/info_flag_status/1', uri_relation: 'skos:closeMatch', type: 'ConfidenceLevel'},
+                  {name: 'complete data', definition: 'InfoFlagStatus: complete data', uri: 'http://speciesfile.org/legacy/info_flag_status/2', uri_relation: 'skos:closeMatch', type: 'ConfidenceLevel'},
               ]
 
-          }
+          }.freeze
 
           logger.info 'Running create_cvts_for_citations...'
 
           get_cvt_id = {} # key = project_id, value = {tag/topic uri, cvt.id.to_s}
 
           # Project.all.each do |project|
-          get_tw_project_id.values.each do |project_id|
+          get_tw_project_id.each_value do |project_id|
             # next unless project.name.end_with?('species_file')
 
             # project_id = project.id.to_s
@@ -565,7 +674,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             get_cvt_id[project_id] = {} # initialized for outer loop with project_id
 
-            CITES_CVTS.keys.each do |column| # tblCites.ColumnName
+            CITES_CVTS.each_key do |column| # tblCites.ColumnName
               CITES_CVTS[column].each do |params|
                 cvt = ControlledVocabularyTerm.create!(params.merge(project_id: project_id)) # want this to be integer
                 get_cvt_id[project_id][cvt.uri] = cvt.id.to_s
@@ -581,13 +690,16 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
         end
 
-        desc 'time rake tw:project_import:sf_import:cites:import_nomenclator_strings user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :import_nomenclator_strings => [:data_directory, :environment, :user_id] do |logger|
+        desc 'time rake tw:project_import:sf_import:cites:import_nomenclator_metadata user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define import_nomenclator_strings: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
-          logger.info 'Running import_nomenclator_strings...'
+          logger.info 'Running import_nomenclator_metadata...'
 
-          get_nomenclator_string = {} # key = SF.NomenclatorID, value = SF.nomenclator_string
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
+
+          get_nomenclator_metadata = {} # key = SF.NomenclatorID, value = nomenclator_string, ident_qualifier, file_id
 
           count_found = 0
 
@@ -595,6 +707,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
             nomenclator_id = row['NomenclatorID']
             next if nomenclator_id == '0'
 
@@ -602,14 +715,13 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             logger.info "Working with SF.NomenclatorID '#{nomenclator_id}', SF.NomenclatorString '#{nomenclator_string}' (count #{count_found += 1}) \n"
 
-            get_nomenclator_string[nomenclator_id] = nomenclator_string
+            get_nomenclator_metadata[nomenclator_id] = {nomenclator_string: nomenclator_string, ident_qualifier: row['IdentQualifier'], file_id: row['FileID']}
           end
 
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
-          import.set('SFNomenclatorIDToSFNomenclatorString', get_nomenclator_string)
+          import.set('SFNomenclatorIDToSFNomenclatorMetadata', get_nomenclator_metadata)
 
-          puts = 'SFNomenclatorIDToSFNomenclatorString'
-          ap get_nomenclator_string
+          puts = 'SFNomenclatorIDToSFNomenclatorMetadata'
+          ap get_nomenclator_metadata
         end
 
       end

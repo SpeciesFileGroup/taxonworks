@@ -55,19 +55,37 @@
 #   @return [String]
 #     as in Prof. Mrs. Dr. M. Mr. etc.
 #
-class Loan < ActiveRecord::Base
+class Loan < ApplicationRecord
   include Housekeeping
-  include Shared::IsData
   include Shared::DataAttributes
-  include Shared::Identifiable
-  include Shared::Notable
-  include Shared::Taggable
+  include Shared::Identifiers
+  include Shared::Notes
+  include Shared::Tags
   include SoftValidation
   include Shared::Depictions
   include Shared::HasRoles
   include Shared::Documentation
+  include Shared::HasPapertrail
+  include Shared::IsData
 
-  has_paper_trail :on => [:update] 
+  CLONED_ATTRIBUTES = [
+    :lender_address,
+    :recipient_address,
+    :recipient_email,
+    :recipient_phone,
+    :recipient_country,
+    :supervisor_email,
+    :supervisor_phone,
+    :recipient_honorarium, 
+  ]
+
+  # A Loan#id, when present values
+  # from that record are copied 
+  # from the referenced loan, when 
+  # not otherwised populated
+  attr_accessor :clone_from
+
+  after_initialize :clone_attributes, if: Proc.new{|l| l.clone_from.present? && l.new_record? }
 
   has_many :loan_items, dependent: :restrict_with_error
 
@@ -77,8 +95,9 @@ class Loan < ActiveRecord::Base
   has_many :loan_recipients, through: :loan_recipient_roles, source: :person
   has_many :loan_supervisors, through: :loan_supervisor_roles, source: :person
 
-  validates :supervisor_email, format: {with: User::VALID_EMAIL_REGEX}, if: '!supervisor_email.blank?'
-  validates :recipient_email, format: {with: User::VALID_EMAIL_REGEX}, if: '!recipient_email.blank?'
+  not_super = lambda {!supervisor_email.blank?}
+  validates :supervisor_email, format: {with: User::VALID_EMAIL_REGEX}, if: not_super
+  validates :recipient_email, format: {with: User::VALID_EMAIL_REGEX}, if: not_super
 
   validates :lender_address, presence: true
 
@@ -96,20 +115,6 @@ class Loan < ActiveRecord::Base
     where('recipient_email LIKE ?', "#{params[:term]}%")
   end
 
-  # @return [CSV]
-  # Generate a CSV version of the raw Loans table for the given scope
-  # Ripped from http://railscasts.com/episodes/362-exporting-csv-and-excel
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
   # @return [Scope] of CollectionObject
   def collection_objects
     list = collection_object_ids
@@ -120,52 +125,73 @@ class Loan < ActiveRecord::Base
     end
   end
 
+  # @return [Boolean, nil]
   def overdue?
-    Time.now.to_date > date_return_expected && !date_closed.present?
+    if date_return_expected.present?
+      Time.now.to_date > date_return_expected && !date_closed.present?
+    else
+      nil
+    end
   end
 
+  # @return [Integer, nil]
   def days_overdue
-    (Time.now.to_date - date_return_expected).to_i
+    if date_return_expected.present?
+      (Time.now.to_date - date_return_expected).to_i
+    else
+      nil
+    end
   end
 
+  # @return [Integer, false]
   def days_until_due
-    (date_return_expected - Time.now.to_date ).to_i
+    date_return_expected && (date_return_expected - Time.now.to_date ).to_i
+  end
+
+  # @return [Array] collection_object ids
+  def collection_object_ids
+    retval = []
+    loan_items.each do |li|
+      case li.loan_item_object_type
+      when 'Container'
+        retval += li.loan_item_object.all_collection_object_ids
+      when 'CollectionObject' 
+        retval.push(li.loan_item_object_id)
+      when 'Otu'
+        retval += li.loan_item_object.collection_objects.pluck(:id)
+      else
+      end
+    end
+    retval
   end
 
   protected
 
-  def recieved_after_sent
-    errors.add(:date_received, 'must be received on or after sent') if date_received.present? && date_sent.present? && date_received < date_sent 
+  def clone_attributes
+    l = Loan.find(clone_from)
+    CLONED_ATTRIBUTES.each do |a|
+      write_attribute(a, l.send(a))
+    end
+
+    l.loan_recipients.each do |p|
+      roles.build(type: 'LoanRecipient', person: p)
+    end
+
+    l.loan_supervisors.each do |p|
+      roles.build(type: 'LoanSupervisor', person: p)
+    end
   end
-  
+
+  def recieved_after_sent
+    errors.add(:date_received, 'must be received on or after sent') if date_received.present? && date_sent.present? && date_received < date_sent
+  end
+
   def returned_after_recieved
-    errors.add(:date_closed, 'must be closed on or after received') if date_closed.present? && date_received.present? && date_closed < date_received 
+    errors.add(:date_closed, 'must be closed on or after received') if date_closed.present? && date_received.present? && date_closed < date_received
   end
 
   def return_expected_after_sent
     errors.add(:date_return_expected, 'must be expected after sent') if date_return_expected.present? && date_sent.present? && date_return_expected < date_sent
-  end
-  
-  # @return [Array] collection_object ids
-  def collection_object_ids
-    # pile1 = Loan.joins(:loan_items).where(loan_items: {loan_id: self.id})
-    retval = []
-    loan_items.pluck(:id).each { |item_id|
-      item = LoanItem.find(item_id)
-      case item.loan_item_object_type
-        when /contain/i # if this item is a container
-          retval.push(item.loan_item_object.all_collection_object_ids)
-        when /object/i # if this item is a collection object
-          retval.push(item.loan_item_object_id)
-        else
-          # right now (07/13/16), since there are no other models which are 'containable', do nothing
-      end
-    }
-    retval.flatten
-  end
-
-  def reject_taxon_determinations(attributed)
-    attributed['loan_item_object_type'].blank?
   end
 
   def reject_loan_items(attributed)

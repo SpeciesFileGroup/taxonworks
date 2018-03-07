@@ -1,4 +1,4 @@
-class TweakPoints3 < ActiveRecord::Migration
+class TweakPoints3 < ActiveRecord::Migration[4.2]
   def change
     remove_columns :geographic_items, :point,
                    :line_string,

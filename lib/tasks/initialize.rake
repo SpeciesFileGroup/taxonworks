@@ -6,33 +6,39 @@ namespace :tw do
   #  We are intentionally not using the seed functionality.
   namespace :initialize do
     desc "create an administrator, and set ENV['user_id'] to that users id if successfull"
-    task :create_administrator => [:environment] do |t|
-      puts "add an administrator: "
-      print "email: "
+    task create_administrator: [:environment] do |t|
+      puts 'add an administrator: '
+      print 'email: '
       email = STDIN.gets.strip
-      print "name: "
+      print 'name: '
       name = STDIN.gets.strip
-      print "password: "
+      print 'password: '
       password = STDIN.noecho(&:gets).strip
       puts
-      print "confirm password: "
+      print 'confirm password: '
       password_confirmation = STDIN.noecho(&:gets).strip
       puts
 
-      u = User.create(name: name, email: email, password: password, password_confirmation: password_confirmation, is_administrator: true, self_created: true)
+      u = User.create!(name:                  name,
+                      email:                 email,
+                      password:              password,
+                      password_confirmation: password_confirmation,
+                      is_administrator:      true,
+                      self_created:          true)
 
       if u.valid?
-        ENV["user_id"] = u.to_param
+        ENV['user_id'] = u.to_param
         puts "Successfully created TaxonWorks administrator #{name}."
       else
         raise "Failed to create TaxonWorks administrator (#{u.errors.messages})."
       end
     end
 
-    task :check_for_clean_database => [:environment] do |t|
+    task check_for_clean_database: [:environment] do |t|
       Rails.application.eager_load!
       errored = false
-      ActiveRecord::Base.descendants.each do |klass|
+      ApplicationRecord.descendants.each do |klass|
+        puts "#{klass.name}"
         if klass.count > 0
           puts "#{klass.name} has records".red
           errored = true
@@ -40,15 +46,15 @@ namespace :tw do
       end
 
       if errored
-        puts "Database has some existing data!".red
+        puts 'Database has some existing data!'.red
         raise
       else
-        puts "Database *appears* empty.".yellow
+        puts 'Database *appears* empty.'.yellow
       end
 
     end
 
-    task :check_for_initialization_data => [:environment, :data_directory] do |t|
+    task check_for_initialization_data: [:environment, :data_directory] do |t|
       manifest = %w{
        ISO-639-2_utf-8.txt
        biorepositories.csv
@@ -73,14 +79,14 @@ namespace :tw do
         end
       end
       if errored
-        puts "Initialization missing data!".red
+        puts 'Initialization missing data!'.red
         raise
       else
-        puts "Found all required files.".yellow
+        puts 'Found all required files.'.yellow
       end
     end
 
-    task :validate_initialization => [:environment] do
+    task validate_initialization: [:environment] do
       errors = false
       # TODO: have @tuckerjd sanity check this list, is something missing from Geo?
       [Serial, SerialChronology, Identifier, DataAttribute, AlternateValue,
@@ -112,11 +118,11 @@ namespace :tw do
     #    :is_administrator: true
     #    :name: smith
     #
-    task :validate_users => [:environment, :data_directory] do
+    task validate_users: [:environment, :data_directory] do
       file      = @args[:data_directory] + 'users.yml'
       user_data = {}
 
-      print "Checking for users.yml ..."
+      print 'Checking for users.yml ...'
       if File.exist?(file)
         print "found, validating.\n"
         user_data = YAML.load_file(file)
@@ -129,15 +135,15 @@ namespace :tw do
         attributes = v.merge(email: k, self_created: true)
         u          = User.new(attributes)
         unless u.valid?
-          puts "Invalid user in users.yml: #{attributes}. #{u.errors.full_messages.join(" ")}".red
+          puts "Invalid user in users.yml: #{attributes}. #{u.errors.full_messages.join(' ')}".red
           exit
         end
       end
-      puts "Users in users.yml are valid.".yellow
+      puts 'Users in users.yml are valid.'.yellow
     end
 
-    desc "Load users from users.yml - rake tw:initialize:load_users data_directory=/path/to/file/"
-    task :load_users => [:environment, :data_directory, :validate_users] do
+    desc 'Load users from users.yml - rake tw:initialize:load_users data_directory=/path/to/file/'
+    task load_users: [:environment, :data_directory, :validate_users] do
       file      = @args[:data_directory] + 'users.yml'
       user_data = {}
       users     = []
@@ -157,21 +163,21 @@ namespace :tw do
       puts "#{users.length} users loaded.".yellow
     end
 
-    desc "Fully initialize a production server"
-    task :all => [
-      :environment,
-      :check_for_clean_database,
-      :check_for_initialization_data,
-      :validate_users,
-      :create_administrator,
-      :load_users,
-      :load_repositories,
-      :load_languages,
-      :load_geo,
-      :load_serials,
-      :validate_initialization
-    ] do
-      puts "Success! Welcome to TaxonWorks.".yellow
+    desc 'Fully initialize a production server'
+    task all: [
+                :environment,
+                :check_for_clean_database,
+                :check_for_initialization_data,
+                :validate_users,
+                :create_administrator,
+                :load_users,
+                :load_repositories,
+                :load_languages,
+                :load_geo,
+                :load_serials,
+                :validate_initialization
+              ] do
+      puts 'Success! Welcome to TaxonWorks.'.yellow
     end
 
 

@@ -6,7 +6,6 @@ TW.views.tasks.nomenclature.browse = TW.views.tasks.nomenclature.browse || {};
 
 Object.assign(TW.views.tasks.nomenclature.browse, {
 
-
 	init: function() {
 		var soft_validations = undefined;
 		function fillSoftValidation() {
@@ -25,7 +24,6 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 								if(!soft_validations.hasOwnProperty($(that).attr('id'))) {
 							  		Object.defineProperty(soft_validations, $(that).attr('id'), { value: response.validations.soft_validations });
 							  	}
-							  	console.log(soft_validations);
 							}
 							else {
 							  	$(that).remove();
@@ -36,6 +34,9 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 			}
 		}
 
+		TW.workbench.keyboard.createShortcut((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + "+t","Edit taxon name", "Browse nomenclature", function() {
+			window.location.replace($('[data-task="new_taxon_name"]').attr('href'));
+		});
 
 		$('.filter .open').on('click', function() {
 			$(this).css('transform', 'rotate(' + ($(this).rotationInfo().deg + 180) + 'deg)');
@@ -44,6 +45,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 			}
 		});
 
+    // TODO: move to an external generic utilities helper
 		function isActive(tag, className) {
 			if($(tag).hasClass(className)) {
 				$(tag).removeClass(className);
@@ -54,6 +56,16 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 				return false;
 			}
 		}
+
+		$('[data-history-valid-name="true"]').each(function() {
+			if(!$(this).has('[data-icon="ok"]').length) {
+				$(this).prepend('<span data-icon="ok"></span>');
+			}
+		})
+		$('[data-history-origin]').each(function() {
+			var type = $(this).attr("data-history-origin");
+			$(this).prepend('<span class="history__origin ' + type + '">' + type + '</span>');
+		})
 
 		$('[data-global-id]').on('click', function() {
 			var list = '';
@@ -84,7 +96,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 			}
 		});
 
-		$( document ).ajaxStop(function() {
+		$(document).ajaxStop(function() {
 		   $('[data-filter=".soft_validation_anchor"]').mx_spinner('hide');
 		});
 		
@@ -137,7 +149,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 					$($(this).attr('data-filter-font')).animate({
 	            		fontSize: '0px'
 	        		});
-					$($(this).attr('data-filter-row')).parents('.history__record').hide(255);
+					$($(this).attr('data-filter-row')).hide(255);
 					$($(this).attr('data-filter')).hide(255);
 				}
 				else {
@@ -145,7 +157,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 					$($(this).attr('data-filter-font')).animate({
 	            	fontSize: '100%'
 	        		});
-	        		$($(this).attr('data-filter-row')).parents('.history__record').show(255);		
+	        		$($(this).attr('data-filter-row')).show(255);		
 	        		$($(this).attr('data-filter')).show(255);
 				}
 			}
@@ -153,9 +165,8 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 	}
 });
 
-$(document).ready(function() {
+$(document).on('turbolinks:load', function() {
   if($("#browse-view").length) {
-  	var init_browseNomenclature = TW.views.tasks.nomenclature.browse;
-  	init_browseNomenclature.init();
+    TW.views.tasks.nomenclature.browse.init();
   }
 });

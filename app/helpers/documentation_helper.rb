@@ -11,10 +11,6 @@ module DocumentationHelper
     link_to(documentation_tag(documentation).html_safe, documentation)
   end
 
-  def documentation_search_form
-    render('/documentation/quick_search_form')
-  end
-
   def document_viewer_target(object)
     viewer_documents(object).first
   end

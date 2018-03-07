@@ -9,6 +9,6 @@ class NomenclaturalRank::Icn::GenusGroup::Section < NomenclaturalRank::Icn::Genu
   end
 
   def self.abbreviation
-    "sect."
+    'sect.'
   end
 end

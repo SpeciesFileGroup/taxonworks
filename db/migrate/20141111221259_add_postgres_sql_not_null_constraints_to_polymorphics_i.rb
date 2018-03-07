@@ -1,4 +1,4 @@
-class AddPostgresSqlNotNullConstraintsToPolymorphicsI < ActiveRecord::Migration
+class AddPostgresSqlNotNullConstraintsToPolymorphicsI < ActiveRecord::Migration[4.2]
   def change
 
     Note.connection.execute('ALTER TABLE notes ALTER COLUMN note_object_type SET NOT NULL;')

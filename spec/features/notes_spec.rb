@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Notes', :type => :feature do
+describe 'Notes', type: :feature do
   let(:index_path) { notes_path }
   let(:page_title) { 'Notes' }
 

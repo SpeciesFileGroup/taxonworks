@@ -1,9 +1,3 @@
-<% content_for :add do %>
-    <% if @taxon_name.is_protonym? -%>
-        <li><%= link_to('Add status/classification', new_taxon_name_classification_path(taxon_name_classification: {taxon_name_id: @taxon_name.to_param})) -%></li>
-        <li><%= new_combination_for_protonym_link(@taxon_name) -%></li>
-    <% end %>
-<% end %>
 
 <% content_for :tasks do %>
     <%= render('tasks') -%>
@@ -37,7 +31,7 @@
       <%= content_tag(:li, link_to(
         'Distribution',
         taxon_name_distribution_data_task_path(@taxon_name.to_param),
-        'data-no-turbolink' => true)) 
+        'data-turbolinks' => false)) 
       %>
   <% end %>
 

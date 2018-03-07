@@ -1,3 +1,3 @@
-module.exports = function(state, list) {
-	state.source_citations = list;
-};
+module.exports = function (state, list) {
+  state.source_citations = list
+}

@@ -33,10 +33,10 @@ namespace :tw do
 
       desc 'the full import for eucharitids' 
       # rake tw:project_import:eucharitid:import_eucharitid data_directory=/Users/matt/src/sf/import/eucharitid/data/original/eucharitid/ 
-      task :import_eucharitid => [:data_directory, :environment] do |t, args| 
+      task import_eucharitid: [:data_directory, :environment] do |t, args| 
         puts @args
 
-        ActiveRecord::Base.transaction do 
+        ApplicationRecord.transaction do 
           begin
             @project, @user = initiate_project_and_users('eucharitid', 'John Heraty')
             #           @namespace = Namespace.new(name: 'eucharitid', short_name: 'eucharitid')
@@ -45,13 +45,13 @@ namespace :tw do
             #        Rake::Task["tw:project_import:eucharitid:inspect_original_files"].execute
 
             @ref_index = {} 
-            Rake::Task["tw:project_import:eucharitid:build_sources"].execute
+            Rake::Task['tw:project_import:eucharitid:build_sources'].execute
 
             puts ap(@ref_index)
 
 
-            Rake::Task["tw:project_import:eucharitid:build_higher_classification"].execute
-            Rake::Task["tw:project_import:eucharitid:handle_genera"].execute
+            Rake::Task['tw:project_import:eucharitid:build_higher_classification'].execute
+            Rake::Task['tw:project_import:eucharitid:handle_genera'].execute
 
             puts "\n\n !! Success \n\n"
             raise
@@ -62,7 +62,7 @@ namespace :tw do
       end
 
       desc 'inspecting original data'
-      task :inspect_original_files => [:data_directory, :environment] do |t, args| 
+      task inspect_original_files: [:data_directory, :environment] do |t, args| 
         files = %w{
           BA_ASSO
           BA_CITS
@@ -80,10 +80,10 @@ namespace :tw do
           path = @args[:data_directory] + file  + '.txt'
           raise "file #{path} not found" if not File.exists?(path)
 
-          f = CSV.open(path,  :encoding => 'utf-16', col_sep: "\t", headers: true ) # was le
+          f = CSV.open(path,  encoding: 'utf-16', col_sep: "\t", headers: true ) # was le
 
           if f.count > 1
-            puts (file + ": " + f.headers.join(", ") + "\n") 
+            puts (file + ': ' + f.headers.join(', ') + "\n") 
           end
 
           #f.each do |row|
@@ -93,7 +93,7 @@ namespace :tw do
         end
       end
 
-      task :build_sources => [:data_directory, :environment] do |t, args| 
+      task build_sources: [:data_directory, :environment] do |t, args| 
         index = {
         }
 
@@ -125,7 +125,7 @@ namespace :tw do
         # RFYRPUBL
         # RFYRPRINT
 
-        f = CSV.open(path, :encoding => 'utf-16', col_sep: "\t", headers: true ) # was le
+        f = CSV.open(path, encoding: 'utf-16', col_sep: "\t", headers: true ) # was le
         invalid = []
         all = []
         volp = []
@@ -207,7 +207,7 @@ namespace :tw do
         f.close
       end
 
-      task :build_higher_classification => [:data_directory, :environment] do |t, args|
+      task build_higher_classification: [:data_directory, :environment] do |t, args|
         path = @args[:data_directory] + 'BA_GEN.txt'
         raise "file #{path} not found" if not File.exists?(path)
         root = TaxonName.create(name: 'Root', parent_id: nil, rank_class: 'NomenclaturalRank')
@@ -215,7 +215,7 @@ namespace :tw do
 
         eurytomidae = TaxonName.create(name: 'Eurytomidae', parent: root, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family')
 
-        f = CSV.open(path,  :encoding => 'utf-16', col_sep: "\t", headers: true ) 
+        f = CSV.open(path,  encoding: 'utf-16', col_sep: "\t", headers: true ) 
         higher = []
         subfams = []
         tribes = []
@@ -237,10 +237,10 @@ namespace :tw do
 
         ap higher
         ap subfams.uniq
-        ap tribes.uniq 
+        ap tribes.uniq
       end
 
-      task :handle_genera => [:data_directory, :environment] do |t, args|
+      task handle_genera: [:data_directory, :environment] do |t, args|
         path = @args[:data_directory] + 'BA_GEN.txt'
         raise "file #{path} not found" if not File.exists?(path)
 
@@ -248,41 +248,41 @@ namespace :tw do
 
         aa_records = []
 
-        f = CSV.open(path,  :encoding => 'utf-16', col_sep: "\t", headers: true ) 
+        f = CSV.open(path,  encoding: 'utf-16', col_sep: "\t", headers: true ) 
 
         invalid = []
 
         av_rels = {
-          "EU" => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation', 
-          "HJ" => 'TaxonNameRelationship::Iczn::Invalidating::Homonym',
-          "IS" => 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement', # one record - check
-          "SJ" => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',   #  'junior synonym' or 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective'
+          'EU' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation', 
+          'HJ' => 'TaxonNameRelationship::Iczn::Invalidating::Homonym',
+          'IS' => 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement', # one record - check
+          'SJ' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',   #  'junior synonym' or 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective'
 
-          "MG" => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',  #  'misspelling of a genus name'  (New protonym + relationship to AV record listed)
-          "SH" => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym',  #  'synonym and homonym' ?
-          "RN" => 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName',  #  'replacement name'
-          "RH" => nil,  #  'replacment name, that is a homonym' # have both a ReplacmentName and Homonym relationship
+          'MG' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',  #  'misspelling of a genus name'  (New protonym + relationship to AV record listed)
+          'SH' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym',  #  'synonym and homonym' ?
+          'RN' => 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName',  #  'replacement name'
+          'RH' => nil,  #  'replacment name, that is a homonym' # have both a ReplacmentName and Homonym relationship
         }
       
         citations = {
-          "SD" => 'subsequent description',
-          "SU" => 'subsequent use',  # also 'in key ()' derived from data
-          "MI" => nil,  #  'missidentification'  .. ? 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication'       
+          'SD' => 'subsequent description',
+          'SU' => 'subsequent use',  # also 'in key ()' derived from data
+          'MI' => nil,  #  'missidentification'  .. ? 'TaxonNameRelationship::Iczn::Invalidating::Misapplication'
         
         }
 
         tags = {
-          "SN" => nil,  #  'new synonymy (unpublished)' 
+          'SN' => nil,  #  'new synonymy (unpublished)' 
         }
         
         combinations = {
-          "LC" => nil,  #  'change in status level'  # ONE RECORD -  Boucek used a protonym @ genus as a subgenus  
-          "PR" => nil,  #  'revived status (position)' with citation - revived status is calculable automatically
+          'LC' => nil,  #  'change in status level'  # ONE RECORD -  Boucek used a protonym @ genus as a subgenus  
+          'PR' => nil,  #  'revived status (position)' with citation - revived status is calculable automatically
         }
 
         av_stats_2_classifications = {
-          "AV" => nil,  #  'accepted valid name (Add type species)
-          "TR" => nil,  #  'taxon removed from family' # one record  Protonym -> !! HANDLE MANUALLY -> homonym, originally classified as         
+          'AV' => nil,  #  'accepted valid name (Add type species)
+          'TR' => nil,  #  'taxon removed from family' # one record  Protonym -> !! HANDLE MANUALLY -> homonym, originally classified as         
         }
 
         # when STAUTH, STYEAR, STLET are present then we create a protonym for the record, regardless of AV or not
@@ -292,7 +292,7 @@ namespace :tw do
 
           codes.merge!(row['GNSTATUS'] => nil)
 
-          authors = row['GNAUTH'].gsub(/\sand\s|&|,/, "!").split('!')
+          authors = row['GNAUTH'].gsub(/\sand\s|&|,/, '!').split('!')
           citation_code = authors[0][0..5].strip
           authors[1..authors.length].each do |a|
             a.strip!
@@ -303,12 +303,12 @@ namespace :tw do
           citation_code.gsub!(/[\[\]]/, '')
 
           puts citation_code
-          puts "!! not found" if !@ref_index[citation_code]
+          puts '!! not found' if !@ref_index[citation_code]
 
           # Handle valid genera
           if !(row['VGENUS'] =~ /Aa/i) 
 
-            if row['GNSTATUS'] == "AV"
+            if row['GNSTATUS'] == 'AV'
               parent_name = [ row['TRIBE'], row['SUBTRIBE'], row['SUBFAM'] ].compact.first
               parent = TaxonName.where(name: parent_name).first
 
@@ -327,7 +327,7 @@ namespace :tw do
          #  aa_records.push([row['OGENUS'], row['VGENUS']]) if 
         end
 
-        puts "INVALID AV GENUS RECORDS:"
+        puts 'INVALID AV GENUS RECORDS:'
         ap invalid
 
         ap codes

@@ -5,7 +5,7 @@ module Dwca::Generator
     path = Rails.root.join('tmp/dwc_' + SecureRandom.hex + '.tar.gz')
     gen = DarwinCore::Generator.new(path)
     
-    core = [["http://rs.tdwg.org/dwc/terms/taxonID"]]
+    core = [['http://rs.tdwg.org/dwc/terms/taxonID']]
     gen.add_core(core, 'core.txt')
     gen.add_meta_xml
     gen.pack

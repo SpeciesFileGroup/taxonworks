@@ -23,7 +23,6 @@ class Identifier::Global::Lccn < Identifier::Global
   validate :using_iccn_class
 
   def using_iccn_class
-    retval = true
     unless identifier.nil?
       lccn = identifier
 
@@ -53,28 +52,23 @@ class Identifier::Global::Lccn < Identifier::Global
             end
         end
         year = century + year_a
-        return true
+        return
       end
 
-      return retval unless (year_b.nil? or serial_b.nil?)
+      return unless (year_b.nil? or serial_b.nil?)
 
       unless year_b.nil?
         year = year_b.to_i
         if (year > Time.now.year) or (year < 2001)
           errors.add(:identifier, "'#{identifier}' is too far in the future, or before 2001.")
-          return false
+          return
         end
       else
         if serial_b.nil?
           errors.add(:identifier, "'#{identifier}' is an improperly formed LCCN.")
-          return false
+          return
         end
       end
-
-      # errors.add(:identifier, "'#{identifier}' is an improperly formed LCCN.")
-      # return false
-
     end
-    retval
   end
 end

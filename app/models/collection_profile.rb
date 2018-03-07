@@ -1,57 +1,57 @@
 # A collection profile, extensible, but currently sensu INHS/Colin Favret.
-# See Favret, C., et al. "Profiling natural history collections: A method for quantitative and comparative health assessment." 
+# See Favret, C., et al. "Profiling natural history collections: A method for quantitative and comparative health assessment."
 # Collection Forum. Vol. 22. No. 1-2. 2007.
 #
 # Data is validated against a .yml definition in config/initializers/constants/data/collection_profile_indices.yml
-# That file is loaded to COLLECTION_PROFILE_INDICES[:Favret][:dry][:conservation_status][1] 
+# That file is loaded to COLLECTION_PROFILE_INDICES[:Favret][:dry][:conservation_status][1]
 #
 # @!attribute container_id
 #   @return [Integer]
-#      the (physical) Container beign profiled 
+#      the (physical) Container beign profiled
 #
 # @!attribute otu_id
 #   @return [Integer]
-#     the encompassing taxon found in this container 
+#     the encompassing taxon found in this container
 #
 # @!attribute conservation_status
 #   @return [Integer]
-#    See Favret et al. (2007) (cited above) 
+#    See Favret et al. (2007) (cited above)
 #
 # @!attribute processing_state
 #   @return [Integer]
-#    See Favret et al. (2007) (cited above) 
+#    See Favret et al. (2007) (cited above)
 #
 # @!attribute container_condition
 #   @return [Integer]
-#    See Favret et al. (2007) (cited above) 
+#    See Favret et al. (2007) (cited above)
 #
 # @!attribute condition_of_labels
 #   @return [Integer]
-#    See Favret et al. (2007) (cited above) 
+#    See Favret et al. (2007) (cited above)
 #
 # @!attribute identification_level
 #   @return [Integer]
-#    See Favret et al. (2007) (cited above) 
+#    See Favret et al. (2007) (cited above)
 #
 # @!attribute arrangement_level
 #   @return [Integer]
-#    See Favret et al. (2007) (cited above) 
+#    See Favret et al. (2007) (cited above)
 #
 # @!attribute data_quality
 #   @return [Integer]
-#    See Favret et al. (2007) (cited above) 
+#    See Favret et al. (2007) (cited above)
 #
 # @!attribute computerization_level
 #   @return [Integer]
-#    See Favret et al. (2007) (cited above) 
+#    See Favret et al. (2007) (cited above)
 #
 # @!attribute number_of_collection_objects
 #   @return [Integer]
-#     a count of the number of collection objects in this container (asserted, not as calculated in TW) 
+#     a count of the number of collection objects in this container (asserted, not as calculated in TW)
 #
 # @!attribute number_of_containers
 #   @return [Integer]
-#     a count of the number of containers inside this container (asserted, not as calculated in TW) 
+#     a count of the number of containers inside this container (asserted, not as calculated in TW)
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -61,13 +61,13 @@
 #   @return [String]
 #     one of 'wet', 'dry', 'slide' sensu Favret.  Model is extensible via editing .yml and new profile types.
 #
-class CollectionProfile < ActiveRecord::Base
+class CollectionProfile < ApplicationRecord
   include Housekeeping
-  include Shared::IsData 
   include SoftValidation
-  include Shared::Identifiable
-  include Shared::Notable
-  include Shared::Taggable
+  include Shared::Identifiers
+  include Shared::Notes
+  include Shared::Tags
+  include Shared::IsData
 
   belongs_to :container
   belongs_to :otu
@@ -77,11 +77,11 @@ class CollectionProfile < ActiveRecord::Base
   attr_accessor :force_update
 
   scope :with_collection_type_string, -> (type_string) {where(collection_type: type_string)}
-  scope :with_container_id, -> (container) {where(container_id: container) }                    
-  scope :with_otu_id, -> (otu) {where(otu_id: otu)  }                                          
+  scope :with_container_id, -> (container) {where(container_id: container)}
+  scope :with_otu_id, -> (otu) {where(otu_id: otu)}
 
   # Use shared scopes lib/housekeeping/timestamps for this
-  # deprecated for timestamps#created_before_date 
+  # deprecated for timestamps#created_before_date
   # scope :created_before_date, -> (date) { where('"collection_profiles"."id" in (SELECT DISTINCT ON (id) id FROM collection_profiles WHERE created_at < ? ORDER BY id, created_at DESC)', "#{date}")}
 
   validates :conservation_status,
@@ -94,11 +94,11 @@ class CollectionProfile < ActiveRecord::Base
             :computerization_level,
             :collection_type, presence: true
 
-  validate :validate_type, 
-    :validate_number,
-    :validate_indices
+  validate :validate_type,
+           :validate_number,
+           :validate_indices
 
-  validate :prevent_editing, unless: 'self.force_update'
+  validate :prevent_editing, unless: -> {self.force_update}
 
   # region Profile indices
 
@@ -149,7 +149,7 @@ class CollectionProfile < ActiveRecord::Base
     unless self.collection_type.blank?
       ct = self.collection_type.to_sym
 
-      COLLECTION_PROFILE_INDICES[:Favret][ct].keys.each do |a|
+      COLLECTION_PROFILE_INDICES[:Favret][ct].each_key do |a|
         v = self.send(a)
         unless v.nil?
           errors.add(a.to_sym, 'Invalid entry') if COLLECTION_PROFILE_INDICES[:Favret][ct][a.to_sym][v].nil?

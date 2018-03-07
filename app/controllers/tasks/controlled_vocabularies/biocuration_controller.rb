@@ -45,8 +45,8 @@ class Tasks::ControlledVocabularies::BiocurationController < ApplicationControll
   def set_view_variables
     @new_biocuration_group  = BiocurationGroup.new
     @new_biocuration_class  = BiocurationClass.new
-    @biocuration_groups = BiocurationGroup.with_project_id($project_id).all
-    @biocuration_classes = BiocurationClass.with_project_id($project_id)
+    @biocuration_groups = BiocurationGroup.with_project_id(sessions_current_project_id).all
+    @biocuration_classes = BiocurationClass.with_project_id(sessions_current_project_id)
     @available_biocuration_classes = @biocuration_groups.inject({}) {|hsh, bg| hsh.merge( bg =>  (@biocuration_classes - bg.biocuration_classes) )  }
     @biocuration_classes_without_groups = @biocuration_classes.without_tags 
     @new_tag = Tag.new

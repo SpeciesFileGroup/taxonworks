@@ -1,4 +1,5 @@
 module Queries
+  
   # Presently, search by:
   #   !! UPDATE THIS
   #    id
@@ -6,11 +7,8 @@ module Queries
   #    identifier#cached
   #    geographic_area#name (term, term%)
   #
-
+  #
   class CollectingEventAutocompleteQuery
-    include Arel::Nodes
-
-    attr_accessor :terms
 
     def initialize(string)
       build_terms(string)

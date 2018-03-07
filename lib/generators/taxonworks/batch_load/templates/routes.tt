@@ -1,9 +1,7 @@
-# routes added to <%= model_name.tableize %> by batch_load generator
-resource :<%= model_name.tableize %> do
+# routes added to <%= table_name %> by batch_load generator
+resource :<%= table_name %> do
   collection do
-    get :preview_<%= name %>_batch_load
-    post :create_<%= name %>_batch_load
+    post :preview_<%= batch_loader_name %>_batch_load
+    post :create_<%= batch_loader_name %>_batch_load
   end
 end
-
-

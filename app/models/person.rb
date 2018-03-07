@@ -1,4 +1,5 @@
-# A human. Data only, not users. There are two classes of people: vetted and unvetted.
+# A human. Data only, not users. There are two classes of people: vetted and unvetted.  
+# !! People are only related to data via Roles. 
 #
 # A vetted person
 # * Has two or more roles
@@ -8,7 +9,7 @@
 # * Has no or 1 role
 # * Has no annotations
 #
-# A unvetted person becomes automatically vetted when they have > 1 roles or they 
+# A unvetted person becomes automatically vetted when they have > 1 roles or they
 # have an annotation associated with them.
 #
 # @!attribute type
@@ -18,8 +19,8 @@
 # @!attribute last_name
 #   @return [String]
 #   the last/family name
-#     
-# @!attribute first name 
+#
+# @!attribute first name
 #   @return [String]
 #   the first name, includes initials if the are provided
 #
@@ -27,34 +28,63 @@
 #   @return [String]
 #   string following the *last/family* name
 #
+# @!attribute year_active_start 
+#   @return [Integer]
+#     (rough) starting point of when person made scientific assertions that were dissemenated (i.e. could be seen by others) 
+#
+# @!attribute year_active_end
+#   @return [Integer]
+#     (rough) ending point of when person made scientific assertions that were dissemenated (i.e. could be seen by others) 
+#
+# @!attribute year_born
+#   @return [Integer]
+#     born on 
+#
+## @!attribute year_died
+#   @return [Integer]
+#     year died 
+#
 # @!attribute cached
 #   @return [String]
-#   @todo
+#      full name 
 #
-class Person < ActiveRecord::Base
+class Person < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::AlternateValues
   include Shared::DataAttributes
-  include Shared::Identifiable
-  include Shared::Notable
+  include Shared::Identifiers
+  include Shared::Notes
   include Shared::SharedAcrossProjects
+  include Shared::HasPapertrail 
   include Shared::IsData
 
- 
- has_paper_trail :on => [:update] 
+  ALTERNATE_VALUES_FOR = [:last_name, :first_name].freeze
 
-  # Class constants
-  ALTERNATE_VALUES_FOR = [:last_name, :first_name]
+  # @return [Boolean]
+  #   When true cached values are not built
+  attr_accessor :no_cached
 
   validates_presence_of :last_name, :type
+
+  validates :year_born, inclusion: { in: 0..Date.today.year }, allow_nil: true
+  validates :year_died, inclusion: { in: 0..Date.today.year }, allow_nil: true
+  validates :year_active_start, inclusion: { in: 0..Date.today.year }, allow_nil: true
+  validates :year_active_end, inclusion: { in: 0..Date.today.year }, allow_nil: true
+            
+  validate :died_after_born
+  validate :activity_ended_after_started
+  validate :not_active_after_death
+  validate :not_active_before_birth
+  validate :not_gandalf
+
   before_validation :set_type_if_blank
 
-  # after_save :update_bibtex_sources
-  before_save :set_cached
+  after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
 
-  validates :type, inclusion: {in:      ['Person::Vetted', 'Person::Unvetted'],
-                               message: "%{value} is not a validly_published type"}
+  validates :type, inclusion: {
+    in: ['Person::Vetted', 'Person::Unvetted'],
+    message: '%{value} is not a validly_published type'}
 
   has_many :roles, dependent: :destroy, inverse_of: :person
   has_many :author_roles, class_name: 'SourceAuthor'
@@ -73,110 +103,137 @@ class Person < ActiveRecord::Base
   has_many :human_sources, through: :source_roles, source: :role_object, source_type: 'Source::Human'
   has_many :collecting_events, through: :collector_roles, source: :role_object, source_type: 'CollectingEvent'
   has_many :taxon_determinations, through: :determiner_roles, source: :role_object, source_type: 'TaxonDetermination'
-  has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName'
+  has_many :authored_taxon_names, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName'
   has_many :type_material, through: :type_designator_roles, source: :role_object, source_type: 'TypeMaterial'
   has_many :georeferences, through: :georeferencer_roles, source: :role_object, source_type: 'Georeference'
-  
-  #scope :named, -> (name) {where(name: name)}
-  #scope :named_smith, where(last_name: 'Smith')
-  scope :named_smith, -> { where(last_name: 'Smith') }
-  #scope :smith_start, -> {where(last_name: start_with?('Smith'))}  # have tried multiple ways to select records where last_name like 'Smith%' without success
+
   scope :created_before, -> (time) { where('created_at < ?', time) }
   scope :with_role, -> (role) { includes(:roles).where(roles: {type: role}) }
   scope :ordered_by_last_name, -> { order(:last_name) }
 
+  # @return [Boolean]
+  #   !! overwrites IsData#is_in_use?
+  def is_in_use?
+    roles.any?
+  end
+
   def name
-    [self.first_name, self.prefix, self.last_name, self.suffix].compact.join(' ').strip
+    [first_name, prefix, last_name, suffix].compact.join(' ')
   end
 
   # @return [String]
   #   The person's name in BibTeX format (von last, Jr, first)
   def bibtex_name
     out = ''
-    out << self.prefix + ' ' unless self.prefix.blank?
-    out << self.last_name unless self.last_name.blank?
-    out << ', ' unless out.blank? || (self.first_name.blank? && self.suffix.blank?)
-    out << self.suffix unless self.suffix.blank?
-    out << ', ' unless out.end_with?(', ') || self.first_name.blank? || out.blank?
-    out << self.first_name unless self.first_name.blank?
+
+    out << prefix + ' ' unless prefix.blank?
+    out << last_name unless last_name.blank?
+    out << ', ' unless out.blank? || (first_name.blank? && suffix.blank?)
+    out << suffix unless suffix.blank?
+    
+    out << ', ' unless out.end_with?(', ') || first_name.blank? || out.blank?
+    out << first_name unless first_name.blank?
     out.strip
   end
 
   # @return [String]
   #   The person's full last name including prefix & suffix (von last Jr)
   def full_last_name
-    out = ''
-    out << self.prefix + ' ' unless self.prefix.blank?
-    out << self.last_name unless self.last_name.blank?
-    out << ' ' + self.suffix unless self.suffix.blank?
-    out.strip
+    [prefix, last_name, suffix].compact.join(' ')
   end
 
+  # @return [Boolean]
   def is_author?
-    self.author_roles.to_a.length > 0
+    author_roles.to_a.length > 0
   end
 
+  # @return [Boolean]
   def is_editor?
-    self.editor_roles.to_a.length > 0
+    editor_roles.to_a.length > 0
   end
 
+  # @return [Boolean]
   def is_source?
-    self.source_roles.to_a.length > 0
+    source_roles.to_a.length > 0
   end
 
+  # @return [Boolean]
   def is_collector?
-    self.collector_roles.to_a.length > 0
+    collector_roles.to_a.length > 0
   end
 
+  # @return [Boolean]
   def is_determiner?
-    self.determiner_roles.to_a.length > 0
+    determiner_roles.to_a.length > 0
   end
 
+  # @return [Boolean]
   def is_taxon_name_author?
-    self.taxon_name_author_roles.to_a.length > 0
+    taxon_name_author_roles.to_a.length > 0
   end
 
+  # @return [Boolean]
   def is_type_designator?
-    self.type_designator_roles.to_a.length > 0
+    type_designator_roles.to_a.length > 0
   end
-
+  
+  # @return [Boolean]
   def is_georeferencer?
-    self.georeferencer_roles.to_a.length > 0
+    georeferencer_roles.to_a.length > 0
   end
 
-  # TODO: TEST!
+  # @return [Array of Hashes]
+  #   use citeproc to parse strings 
   def self.parser(name_string)
     BibTeX::Entry.new(type: :book, author: name_string).parse_names.to_citeproc['author']
   end
 
-  # TODO: TEST!
+  # @return [Array of People]
+  #    return people for name strings
   def self.parse_to_people(name_string)
-    self.parser(name_string).collect { |n| Person::Unvetted.new(last_name: n['family'], first_name: n['given'], prefix: n['non-dropping-particle']) }
-  end
-
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
+    parser(name_string).collect{|n| Person::Unvetted.new(last_name: n['family'], first_name: n['given'], prefix: n['non-dropping-particle']) }
   end
 
   protected
 
+  def died_after_born
+    errors.add(:year_born, 'is older than died year') if year_born && year_died && year_born > year_died
+  end
+
+  def activity_ended_after_started
+    errors.add(:year_active_start, 'is older than died year') if year_active_start && year_active_end && year_active_start > year_active_end
+  end
+
+  def not_active_after_death
+    errors.add(:year_active_start, 'is older than year of death') if year_active_start && year_died && year_active_start > year_died
+    errors.add(:year_active_end, 'is older than year of death') if year_active_end && year_died && year_active_end > year_died
+  end
+
+  def not_active_before_birth
+    errors.add(:year_active_start, 'is younger than than year of birth') if year_active_start && year_born && year_active_start < year_born
+    errors.add(:year_active_end, 'is younger than year of birth') if year_active_end && year_born && year_active_end < year_born
+  end
+
+  def not_gandalf
+    errors.add(:base, 'fountain of eternal life does not exist yet') if year_born && year_died && year_died - year_born > 117
+  end
+
+  # TODO: deprecate this, always set explicitly
   def set_type_if_blank
     self.type = 'Person::Unvetted' if self.type.blank?
   end
 
-  def self.find_for_autocomplete(params)
-    where('cached ILIKE ? OR cached ILIKE ? OR cached = ?', "#{params[:term]}%", "%#{params[:term]}%", params[:term]) 
+  def set_cached
+    update_column(:cached, bibtex_name) 
+    set_taxon_name_cached_author_year
   end
 
-  def set_cached
-    self.cached = self.bibtex_name if self.errors.empty?
+  def set_taxon_name_cached_author_year
+    if saved_change_to_last_name? || saved_change_to_prefix? || saved_change_to_suffix? 
+      authored_taxon_names.reload.each do |t|
+        t.send(:set_cached) # TODO: optimize, perhaps on set_author_year
+      end 
+    end
   end
 
 end

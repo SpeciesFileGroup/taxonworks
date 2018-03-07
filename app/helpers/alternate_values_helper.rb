@@ -43,8 +43,8 @@ module AlternateValuesHelper
                     alternate_value_object_attribute: 'name'})
     if f.object.alternate_values.any?
       fields = f.fields_for(:alternate_values, new_object,
-                            :child_index => 'new_alternate_values') do |builder|
-        render('alternate_values/alternate_value_fields', :avf => builder)
+                            child_index: 'new_alternate_values') do |builder|
+        render('alternate_values/alternate_value_fields', avf: builder)
       end
     else
       fields = nil

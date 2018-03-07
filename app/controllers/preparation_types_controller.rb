@@ -6,9 +6,14 @@ class PreparationTypesController < ApplicationController
   # GET /preparation_types
   # GET /preparation_types.json
   def index
-    @preparation_types = PreparationType.all
-    @recent_objects = PreparationType.order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      @preparation_types = PreparationType.all
+      format.html do
+        @recent_objects = PreparationType.order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json { }
+    end
   end
 
   # GET /preparation_types/1
@@ -79,7 +84,7 @@ class PreparationTypesController < ApplicationController
 
   # GET /preparation_types/download
   def download
-    send_data PreparationType.generate_download(PreparationType.all), type: 'text', filename: "preparation_types_#{DateTime.now.to_s}.csv"
+    send_data PreparationType.generate_download(PreparationType.all), type: 'text', filename: "preparation_types_#{DateTime.now}.csv"
   end
 
   # def autocomplete

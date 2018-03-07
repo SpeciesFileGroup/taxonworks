@@ -2,39 +2,32 @@
 
   <div class="navigation-controls filter">
 
-    <div class="navigation-item active" data-filter=".history__origin">
-      <span data-icon="hide" class="small-icon">Origin</span>
+    <div class="navigation-item" data-filter-row='[data-history-is-subsequent="true"]'>
+      <span data-icon="show" class="small-icon">History</span>
     </div>  
+
+    <div class="navigation-item" data-filter-row='[data-history-origin="combination"]'>
+      <span data-icon="show" class="small-icon">Combinations</span>
+    </div>  
+
+    <div class="navigation-item" data-filter-row='[data-history-origin="taxon_name_relationship"]'>
+      <span data-icon="show" class="small-icon">Relationships</span>
+    </div>  
+
+    <div class="navigation-item" data-filter-row=".history__type_information">
+      <span data-icon="show" class="small-icon">Type information</span>
+    </div> 
+  </div>
+
+
+  <div class="navigation-controls filter">
 
     <div class="navigation-item active" data-filter=".soft_validation_anchor">
       <span data-icon="hide" class="small-icon">Validation</span>
     </div>  
 
-    <div class="navigation-item active" data-filter=".annotation__note">
-      <span data-icon="hide" class="small-icon">Notes</span>
-    </div>  
-
-    <div class="navigation-item" data-filter-font=".status">
-      <span data-icon="show" class="small-icon">Status</span>
-    </div>  
-  </div>
-
-
-  <div class="navigation-controls filter">
-    <div class="navigation-item" data-filter=".citations">
-      <span data-icon="show" class="small-icon">Citations</span>
-    </div>  
-
-    <div class="navigation-item" data-filter=".otus">
-      <span data-icon="show" class="small-icon">OTUs</span>
-    </div>  
-
-    <div class="navigation-item" data-filter-font=".history__type_information">
-      <span data-icon="show" class="small-icon">Type information</span>
-    </div> 
-
-    <div class="navigation-item" data-filter-row=".history__origin.combination, .history__origin.taxon_name_relationship">
-      <span data-icon="show" class="small-icon">Relationships/Combinations</span>
+    <div class="navigation-item active" data-filter=".history__origin">
+      <span data-icon="hide" class="small-icon">Origin</span>
     </div>  
   </div>
 

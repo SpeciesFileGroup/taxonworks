@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe "TypeMaterials", :type => :feature do
+RSpec.describe 'TypeMaterials', type: :feature do
   # Capybara.default_wait_time = 15
 
 
@@ -14,15 +14,15 @@ RSpec.describe "TypeMaterials", :type => :feature do
       sign_in_user_and_select_project
     }
 
-    let!(:root) { factory_girl_create_for_user_and_project(:root_taxon_name, @user, @project) }
+    let!(:root) { factory_bot_create_for_user_and_project(:root_taxon_name, @user, @project) }
 
     context 'with some records created' do
 
       let!(:p) { Protonym.create!(name: 'aus', rank_class: Ranks.lookup(:iczn, 'species'), parent: root, by: @user, project: project) } 
-      let!(:s) { factory_girl_create_for_user_and_project(:valid_specimen, @user, @project) }
+      let!(:s) { factory_bot_create_for_user_and_project(:valid_specimen, @user, @project) }
       before do
         10.times {
-          FactoryGirl.create(:valid_type_material,
+          FactoryBot.create(:valid_type_material,
                              material: s,
                              protonym: p,
                              type: 'paratype',
@@ -57,12 +57,12 @@ RSpec.describe "TypeMaterials", :type => :feature do
     context 'creating a new type_materials' do
       context 'testing the new type_materials form' do
         #  - a namespace short name 'INHSIC' is created
-        let(:namesp) { FactoryGirl.create(:namespace, {creator: @user, updater: @user,
+        let(:namesp) { FactoryBot.create(:namespace, {creator: @user, updater: @user,
                                                        name: 'INHSIC', short_name: 'INHSIC',
                                                        verbatim_short_name: 'INHSIC'}) }
 
         #  - a specimen is created
-        let(:specimen) { FactoryGirl.create(:valid_specimen, user_project_attributes(@user, @project)) }
+        let(:specimen) { FactoryBot.create(:valid_specimen, user_project_attributes(@user, @project)) }
 
         specify 'filling out the form', js: true do
 

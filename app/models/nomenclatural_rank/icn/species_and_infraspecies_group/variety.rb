@@ -10,6 +10,6 @@ class NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Variety < Nomenclatur
   end
 
   def self.abbreviation
-    "var."
+    'var.'
   end
 end

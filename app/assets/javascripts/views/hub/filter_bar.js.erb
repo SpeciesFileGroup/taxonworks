@@ -1,91 +1,101 @@
-$(document).ready(function() {
-  if($("#filter").length) {
-    initFilterBar();
+var TW = TW || {};
+TW.workbench = TW.workbench || {};
+TW.workbench.hub = TW.workbench.hub || {};
+TW.workbench.hub.filter_hub = TW.workbench.hub.filter_hub || {};
+
+Object.assign(TW.workbench.hub.filter_hub, {
+
+  init: function () {
+    $('[data-filter-category="nomenclature"]').prepend('<img src="<%= asset_path("new.svg") %>"/>');
+    $('[data-filter-category="source"]').prepend('<img src="<%= asset_path("book.svg") %>"/>');
+    $('[data-filter-category="collection_object"]').prepend('<img src="<%= asset_path("picking.svg") %>"/>');
+    $('[data-filter-category="collecting_event"]').prepend('<img src="<%= asset_path("geo_location.svg") %>"/>');
+    $('[data-filter-category="biology"]').prepend('<img src="<%= asset_path("biology.svg") %>"/>');
+    $('[data-filter-category="matrix"]').prepend('<img src="<%= asset_path("matrix.svg") %>"/>');
+    $('[data-filter-category="dna"]').prepend('<img src="<%= asset_path("helix.svg") %>"/>');
+
+    function deactivateBackgroundColorLink(selector) {
+      $(selector).removeClass("activated");
+    }
+
+    function activateBackgroundColorLink(selector) {
+      $(selector).addClass("activated");
+    }
+
+    function changeBackgroundColorLink(selector) {
+      if ($(selector).hasClass("activated")) {
+        deactivateBackgroundColorLink(selector);
+      }
+      else {
+        activateBackgroundColorLink(selector);
+      }
+    }
+
+    $('#filter [data-filter-category]').on('click', function () {
+      changeBackgroundColorLink('[data-filter-category="' + $(this).attr("data-filter-category") + '"]');
+    });
+
+    $('#filter .filter-category [data-filter-category]').on('click', function () {
+      var hasClass = $(this).hasClass("activated");
+      deactivateBackgroundColorLink('.filter-category [data-filter-category]');
+      if (hasClass) {
+        $('.status-name').text($(this).data("filter-category"));
+        $('.status-name').css("color", $(this).css("background-color"));
+        activateBackgroundColorLink('[data-filter-category="' + $(this).attr("data-filter-category") + '"]');
+      }
+      else {
+        restartFilterStatus();
+      }
+    });
+
+
+    //Add classes for cards when the filter status is active
+    $('#filter .switch input').on('click', function () {
+      if ($(this).is(':checked')) {
+        $('.filter-category').css('display', 'flex');
+        $('.filter-category').hide();
+        $('.filter-category').show("slide", {direction: "left"}, 250);
+        $('.filter-category').fadeIn(250);
+        $('.filter_data').each(function () {
+          if ($(this).children().length > 0) {
+            $(this).addClass("categories");
+          }
+          else {
+            $(this).addClass("status");
+          }
+        });
+      }
+      else {
+        restartFilterStatus();
+        deactivateBackgroundColorLink('.filter-category [data-filter-category]');
+        $('.filter-category').hide("slide", {direction: "left"}, 500);
+
+        $('.filter_data').each(function () {
+          $(this).removeClass("categories");
+          $(this).removeClass("status");
+        });
+      }
+    });
+
+    function restartFilterStatus() {
+      $('.status-name').css("color", "#444");
+      $('.status-name').text("Status");
+    }
+
+    $('#filter [data-filter-category="reset"]').on('click', function () {
+      restartFilterStatus();
+      deactivateBackgroundColorLink('[data-filter-category]');
+    });
+
+    $('.reset-all-filters').on('click', function () {
+      restartFilterStatus();
+      deactivateBackgroundColorLink('[data-filter-category]');
+    });
   }
 });
 
-function initFilterBar() {
-	$('[data-filter-category="nomenclature"]').prepend('<img src="<%= asset_path("new.svg") %>"/>');
-	$('[data-filter-category="source"]').prepend('<img src="<%= asset_path("book.svg") %>"/>');
-	$('[data-filter-category="collection_object"]').prepend('<img src="<%= asset_path("picking.svg") %>"/>');
-  $('[data-filter-category="collecting_event"]').prepend('<img src="<%= asset_path("geo_location.svg") %>"/>'); 
-  $('[data-filter-category="biology"]').prepend('<img src="<%= asset_path("biology.svg") %>"/>'); 
-
-  function deactivateBackgroundColorLink(selector) {
-    $(selector).removeClass("activated");
+$(document).on('turbolinks:load', function () {
+  if ($("#filter").length) {
+    TW.workbench.hub.filter_hub.init();
   }
-
-  function activateBackgroundColorLink(selector) {
-    $(selector).addClass("activated");
-  }
-
-  function changeBackgroundColorLink(selector) {
-    if ($(selector).hasClass("activated")) {
-      deactivateBackgroundColorLink(selector);
-    }
-    else {
-      activateBackgroundColorLink(selector);
-    }
-  }
-  $('#filter [data-filter-category]').on('click', function() {
-    changeBackgroundColorLink('[data-filter-category="'+ $(this).attr("data-filter-category") +'"]');
-  }); 
-
-  $('#filter .filter-category [data-filter-category]').on('click', function() {
-    var hasClass = $(this).hasClass("activated");
-    deactivateBackgroundColorLink('.filter-category [data-filter-category]');
-    if(hasClass) {
-      $('.status-name').text($(this).data("filter-category"));
-      $('.status-name').css("color", $(this).css("background-color"));
-      activateBackgroundColorLink('[data-filter-category="'+ $(this).attr("data-filter-category") +'"]');      
-    }
-    else {
-      restartFilterStatus();
-    }
-  }); 
-
-
-  //Add classes for cards when the filter status is active
-  $('#filter .switch input').on('click', function() {
-    if($(this).is(':checked')) {
-      $('.filter-category').css('display','flex');
-      $('.filter-category').hide();
-      $('.filter-category').show("slide", { direction: "left" }, 250);
-      $('.filter-category').fadeIn(250);
-      $('.filter_data').each(function() {
-        if($(this).children().length > 0) {
-          $(this).addClass("categories");
-        }
-        else {
-          $(this).addClass("status");
-        }
-      });      
-    }
-    else {
-      restartFilterStatus();
-      deactivateBackgroundColorLink('.filter-category [data-filter-category]');
-      $('.filter-category').hide("slide", { direction: "left" }, 500);
-
-      $('.filter_data').each(function() {
-        $(this).removeClass("categories");
-        $(this).removeClass("status");
-      });       
-    }
-  }); 
-
-  function restartFilterStatus() {
-      $('.status-name').css("color", "#444");
-      $('.status-name').text("Status");
-  }
-
-  $('#filter [data-filter-category="reset"]').on('click', function() {
-    restartFilterStatus();   
-    deactivateBackgroundColorLink('[data-filter-category]');
-  });     
-
-  $('.reset-all-filters').on('click', function() {
-    restartFilterStatus();  
-    deactivateBackgroundColorLink('[data-filter-category]');
-  }); 
-
-}
+});

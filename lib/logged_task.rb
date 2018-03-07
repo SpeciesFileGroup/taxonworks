@@ -22,7 +22,7 @@ module LoggedTask
 
         logger.info("Logged task #{task.name} completed!")
         if task_number == @@root_task_number
-          logger.info("All tasks completed. Dumping summary for each task...")
+          logger.info('All tasks completed. Dumping summary for each task...')
           @@loggers.each { | logger | logger.summary }
         end
       rescue => exception
@@ -35,18 +35,16 @@ module LoggedTask
     Rake::Task.define_task(task_sym) { @@root_task_number = task_number unless @@root_task_number }
   end
 
-  private
-
   class TaskLogger
 
     def initialize(task_full_name)
-      names = task_full_name.split(":")
+      names = task_full_name.split(':')
       task_name = names.pop
-      path = Rails.root.join("log", "rake_tasks")
+      path = Rails.root.join('log', 'rake_tasks')
 
       FileUtils.mkdir_p(path)
       time = Time.now.strftime('%Y-%m-%d_%H%M%S.%N')
-      @log_file = File.new(path.join("#{time}-#{names.join(".")}.#{task_name}.log"), "w")
+      @log_file = File.new(path.join("#{time}-#{names.join(".")}.#{task_name}.log"), 'w')
       @warns_and_errors = []
       @task_full_name = task_full_name
     end
@@ -71,11 +69,11 @@ module LoggedTask
       # TODO: Write all warnings and errors together
       write("=== Summary of warnings and errors for task #{@task_full_name} ===", nil)
       if @warns_and_errors.empty?
-        write("(NONE)", nil)
+        write('(NONE)', nil)
       else
         @warns_and_errors.each { | e | write(e[:msg], nil, e[:color]) }
       end
-      write("", nil)
+      write('', nil)
     end
 
     private

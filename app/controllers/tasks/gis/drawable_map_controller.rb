@@ -12,7 +12,7 @@ class Tasks::Gis::DrawableMapController < ApplicationController
         else
       end
     else
-      feature   = RGeo::GeoJSON.decode(value, :json_parser => :json)
+      feature   = RGeo::GeoJSON.decode(value, json_parser: :json)
       # isolate the WKT
       geometry  = feature.geometry
       this_type = geometry.geometry_type.to_s.downcase

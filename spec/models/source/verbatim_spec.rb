@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Source::Verbatim, :type => :model do
+describe Source::Verbatim, type: :model do
 
   let(:verbatim_source) { Source::Verbatim.new }
   let(:citation) { '111111111111111111111111111111' }
@@ -13,10 +13,10 @@ describe Source::Verbatim, :type => :model do
     end
 
     specify 'only #verbatim can be provided (ignores cached)' do
-      verbatim_source.title = "A cold-fusion driven engine for computing."
+      verbatim_source.title = 'A cold-fusion driven engine for computing.'
       verbatim_source.valid?
       expect(verbatim_source.errors.include?(:title)).to be_truthy
-    end 
+    end
   end
 
   context '#cached' do

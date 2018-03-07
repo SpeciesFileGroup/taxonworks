@@ -1,8 +1,8 @@
 require 'rails_helper'
 
-describe TaxonNamesHelper, :type => :helper do
+describe TaxonNamesHelper, type: :helper do
   context 'a taxon_name needs some helpers' do
-    let(:taxon_name) {FactoryGirl.create(:valid_protonym) }
+    let(:taxon_name) {FactoryBot.create(:valid_protonym) }
 
     specify '#taxon_name_for_select' do
       expect(taxon_name_for_select(taxon_name)).to eq('Aaidae')
@@ -20,7 +20,7 @@ describe TaxonNamesHelper, :type => :helper do
       expect(taxon_name_link(taxon_name)).to have_link('Aaidae')
     end
 
-    specify "#taxon_name_rank_select_tag" do
+    specify '#taxon_name_rank_select_tag' do
       expect(taxon_name_rank_select_tag(taxon_name: taxon_name, code: :iczn)).to have_select('taxon_name_rank_class')
     end
   end

@@ -1,4 +1,4 @@
-class TweakSourceColumns < ActiveRecord::Migration
+class TweakSourceColumns < ActiveRecord::Migration[4.2]
   def change
     add_column :sources, :day, :integer
     

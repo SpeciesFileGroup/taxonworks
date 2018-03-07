@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).on('turbolinks:load', function() {
   if($(".easyzoom").length) {
     images();
   }

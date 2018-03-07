@@ -1,42 +1,42 @@
 # A SqedDepiction identifies a depiction as sqed (https://github.com/SpeciesFileGroup/sqed) parsable, and
 # records the metadata required for parsing a stage image.
 #
-# @!attribute boundary_color 
+# @!attribute boundary_color
 #   @return [Symbol]
 #   Color of the boundaries in the image, default/recommendation is green.
-# 
-# @!attribute boundary_finder 
+#
+# @!attribute boundary_finder
 #   @return [String]
 #   Name of the sqed BoundaryFinder class to use, e.g. 'Sqed::BoundaryFinder::ColorLineFinder'
 #
-# @!attribute has_border  
+# @!attribute has_border
 #   @return [Boolean]
 #     True if the stage image has a border than needs to be detected
 #
-# @!attribute layout  
+# @!attribute layout
 #   @return [Symbol]
 #   The Sqed layout, like :cross, :equal_cross, :vertical_offset_cross, :internal_box etc.
 #
-# @!attribute metadata_map  
+# @!attribute metadata_map
 #   @return [Hash]
-#   The sqed metadata map, e.g. {0 => :curator_metadata, 1 => :identifier, 2 => :image_registration, 3 => :annotated_specimen }.  
+#   The sqed metadata map, e.g. {0 => :curator_metadata, 1 => :identifier, 2 => :image_registration, 3 => :annotated_specimen }.
 #
-# @!attribute specimen_coordinates 
+# @!attribute specimen_coordinates
 #   @return [Hash]
 #    Not presently used, the specific coordinates bounding the specimen(s) only
 #
-# @!attribute result_boundaries 
+# @!attribute result_boundaries
 #   @return [Hash]
-#    A cache for the result 
+#    A cache for the result
 #
 # @!attribute result_ocr
 #   @return [Hash]
-#    A cache for the ocr result 
+#    A cache for the ocr result
 #
-class SqedDepiction < ActiveRecord::Base
+class SqedDepiction < ApplicationRecord
   include Housekeeping
-  include Shared::Taggable
-  include Shared::Notable
+  include Shared::Tags
+  include Shared::Notes
 
   belongs_to :depiction
   #  has_one :depiction_object, through: :depiction
@@ -47,7 +47,7 @@ class SqedDepiction < ActiveRecord::Base
   validates_presence_of  :metadata_map, :boundary_color
   validates_inclusion_of :layout, in: SqedConfig::LAYOUTS.keys.map(&:to_s)
   validates_inclusion_of :boundary_finder, in: %w{Sqed::BoundaryFinder::ColorLineFinder Sqed::BoundaryFinder::Cross}
-  validates_inclusion_of :has_border, :in => [true, false]
+  validates_inclusion_of :has_border, in: [true, false]
 
   accepts_nested_attributes_for :depiction
 
@@ -87,17 +87,18 @@ class SqedDepiction < ActiveRecord::Base
   # @return [Array of symbols]
   #   the (named) sections in this depiction that may have collecting event label metadata
   def collecting_event_sections
+      # !! master merge
     [:collecting_event_labels, :annotated_specimen] & extraction_metadata[:target_metadata_map].values
   end
 
   def nearby_sqed_depictions(before = 5, after = 5)
-    a = SqedDepiction.where(project_id: project_id).where("id > ?", id).order(:id).limit(after)
-    b = SqedDepiction.where(project_id: project_id).where("id < ?", id).order('id DESC').limit(before)
+    a = SqedDepiction.where(project_id: project_id).where('id > ?', id).order(:id).limit(after)
+    b = SqedDepiction.where(project_id: project_id).where('id < ?', id).order('id DESC').limit(before)
     return { before: b, after: a}
   end
 
   def next_sqed_depiction
-    sd = SqedDepiction.where(project_id: project_id).where("id > ?", id).order(:id).limit(1)
+    sd = SqedDepiction.where(project_id: project_id).where('id > ?', id).order(:id).limit(1)
     sd.any? ? sd.first : SqedDepiction.where(project_id: project_id).first
   end
 
@@ -124,6 +125,6 @@ class SqedDepiction < ActiveRecord::Base
 
   def sqed_metadata_map
     metadata_map.inject({}){|hsh, i| hsh.merge(i[0].to_i => i[1].to_sym)}
-  end 
+  end
 
 end

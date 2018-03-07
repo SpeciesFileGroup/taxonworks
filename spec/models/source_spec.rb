@@ -7,8 +7,12 @@ describe Source, type: :model, group: :sources do
     Source.destroy_all
   }
 
+  specify '#is_in_project? 1' do
+    expect(source.is_in_project?(1)).to be_falsey  
+  end
+
   context 'associations' do
-    specify 'sources have citations' do
+    specify '#citations' do
       expect(source.citations << Citation.new()).to be_truthy
     end
   end
@@ -55,8 +59,8 @@ describe Source, type: :model, group: :sources do
   end
 
   context 'cited objects' do
-    let(:o) { FactoryGirl.create(:valid_otu) }
-    let(:a) { FactoryGirl.create(:valid_source_bibtex) }
+    let(:o) { FactoryBot.create(:valid_otu) }
+    let(:a) { FactoryBot.create(:valid_source_bibtex) }
 
     specify 'returns a scope' do
       expect(source.cited_objects).to eq([])
@@ -70,18 +74,26 @@ describe Source, type: :model, group: :sources do
   end
 
   context 'fuzzy matching' do
-    before {
-      @s1 = FactoryGirl.create(:valid_source_verbatim, verbatim: 'This is a base string.')
-      @s2 = FactoryGirl.create(:valid_source_verbatim, verbatim: 'This is a base string.')
-      @s3 = FactoryGirl.create(:valid_source_verbatim, verbatim: 'This is a roof string.')
-      @s4 = FactoryGirl.create(:valid_source_verbatim, verbatim: 'This is a r00f string.')
-    }
 
-    specify 'nearest_by_levenshtein(compared_string: nil, column: "cached", limit: 10)' do
-      expect(@s1.nearest_by_levenshtein(compared_string: @s1.verbatim).first).to eq(@s2)
-      expect(@s2.nearest_by_levenshtein(compared_string: @s2.verbatim).first).to eq(@s1)
-      expect(@s3.nearest_by_levenshtein(compared_string: @s3.verbatim).first).to eq(@s4)
-      expect(@s4.nearest_by_levenshtein(compared_string: @s4.verbatim).first).to eq(@s3)
+    let!(:s1) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a base string.') }
+    let!(:s3) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a roof string.') }
+    let!(:s2) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a base string.') }
+    let!(:s4) { FactoryBot.create(:valid_source_verbatim, verbatim: 'This is a r00f string.') }
+
+    specify '#nearest_by_levenshtein(compared_string, column, limit) 1' do
+      expect(s1.nearest_by_levenshtein(s1.verbatim, :cached).first).to eq(s2)
+    end
+
+    specify '#nearest_by_levenshtein 2' do
+      expect(s2.nearest_by_levenshtein(s2.verbatim, :cached).first).to eq(s1)
+    end
+
+    specify '#nearest_by_levenshtein 3' do
+      expect(s3.nearest_by_levenshtein(s3.verbatim, :cached).first).to eq(s4)
+    end
+
+    specify '#nearest_by_levenshtein 4' do
+      expect(s4.nearest_by_levenshtein(s4.verbatim, :cached).first).to eq(s3)
     end
   end
 

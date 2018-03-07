@@ -21,9 +21,7 @@
           <%= new_for_model_link(@data_model)  -%>
         </div>
 
-        <div class="content">
           <%= yield :additional_navigation -%>
-        </div>
       </div>
     </div>
 
@@ -32,23 +30,20 @@
         <div class="title action-line">
           <div class="inline">
             <span><%= object_tag(object) -%></span>
-            <span data-view="development">&nbsp;[ id: <%= object.id -%> ]</span>
+            <span data-view="development">&nbsp;[ id: <%= object.id -%>, global_id: <%= CGI.escape(object.to_global_id.to_s) -%> ]</span>
           </div>
-          <ul class="horizontal_navbar context-menu" >
-            <li data-icon="show"><a href="#" view-bottom>Development view</a></li>
-            <li><%= pin_item_to_pinboard_link(object, sessions_current_user) -%></li>
+          <ul class="context-menu">
+            <li><a data-icon="show" href="#" data-turbolinks="false" view-bottom>Development view</a></li>
+            <li><%= radial_annotator(object) %></li>
+            <li><%= tag_default_icon(object) %></li>
+            <li><%= pin_item_to_pinboard_link(object, sessions_current_user) %></li>
           </ul>
         </div> 
 
         <div class="navigation-controls">
           <%= edit_object_link(object) if controller.respond_to?(:edit) -%>
-          <%= destroy_object_link(object) if controller.respond_to?(:destroy) -%>  
-          <div class="navigation-item menu-drop">
-            <span id="show_annotate_dropdown" class="small-icon" data-icon="add">Annotate</span>
-            <ul class="dropdown">
-              <%= annotate_links(object: object) -%>
-            </ul>
-          </div>                
+          <%= destroy_object_link(object) if controller.respond_to?(:destroy) %>  
+       
           <div id="show_tasks_dropdown" class="navigation-item menu-drop">
             <span data-icon="task" class="small-icon">Tasks</span>
             <ul class="dropdown">
@@ -65,7 +60,7 @@
             <span data-icon="annotate" class="small-icon">Report</span>
             <ul class="dropdown">
               <%= related_data_link_tag(object) -%>
-              <%= papertrail_link_tag(object) -%>
+              <%= papertrail_link_tag(object) %>
               <%= yield :report -%>
             </ul>
           </div>    

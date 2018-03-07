@@ -12,7 +12,7 @@
 #
 # Example use:
 #
-#    class WithUser < ActiveRecord::Base
+#    class WithUser < ApplicationRecord
 #      include SomeConcern 
 #      include FakeTable 
 #    end

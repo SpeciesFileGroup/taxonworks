@@ -28,23 +28,22 @@
 #   @return [String]
 #   @todo
 #
-class Serial < ActiveRecord::Base
+class Serial < ApplicationRecord
   # Include statements, and acts_as_type
   include Housekeeping::Users
   include Housekeeping::Timestamps  # needed for the views
   include Shared::AlternateValues # abbreviations, alternate titles, language translations
   include Shared::DataAttributes  # equivalent of a note for a global class i.e. cross project note
-  include Shared::Notable # project note
-  include Shared::Identifiable
-  include Shared::Taggable
+  include Shared::Notes # project note
+  include Shared::Identifiers
+  include Shared::Tags
   include Shared::IsData
   include SoftValidation
   include Shared::SharedAcrossProjects
-
-  has_paper_trail :on => [:update]
+  include Shared::HasPapertrail
 
   # Class constants
-  ALTERNATE_VALUES_FOR = [:name, :publisher, :place_published]
+  ALTERNATE_VALUES_FOR = [:name, :publisher, :place_published].freeze
   # Class variables
   # Callbacks
   # Associations, in order: belongs_to, has_one,has_many
@@ -67,7 +66,7 @@ class Serial < ActiveRecord::Base
   has_many :immediately_succeeding_serials, through: :preceding_serial_chronologies, source: :succeeding_serial # class is 'Serial'
   # .to_a will return an array of serials - single succeeding chronology will be multiple serials if there is a split
 
-  accepts_nested_attributes_for :alternate_values, :reject_if => lambda { |av| av[:value].blank? }, :allow_destroy => true
+  accepts_nested_attributes_for :alternate_values, reject_if: lambda { |av| av[:value].blank? }, allow_destroy: true
 
   # TODO handle translations (which are simultaneous)
 
@@ -122,7 +121,7 @@ class Serial < ActiveRecord::Base
 
 
   # @return [Scope]
-  #   Levenshtein calculated related records per supplied column 
+  #   Levenshtein calculated related records per supplied column
   def nearest_by_levenshtein(compared_string = nil, column = 'name', limit = 10)
     return Serial.none if compared_string.blank?
 
@@ -142,7 +141,7 @@ class Serial < ActiveRecord::Base
     if self.new_record?
       ret_val = Serial.exists?(name: self.name)
     else
-      ret_val = Serial.where("name = '#{Utilities::Strings.escape_single_quote(self.name)}' AND NOT (id = #{self.id})").to_a.count > 0
+      ret_val = Serial.where("name = '#{Utilities::Strings.escape_single_quote(self.name)}' AND NOT (id = #{self.id})").to_a.size > 0
     end
 
     if ret_val == false
@@ -153,7 +152,7 @@ class Serial < ActiveRecord::Base
         ret_val = true
       end
     end
-    ret_val 
+    ret_val
   end
 
 =begin

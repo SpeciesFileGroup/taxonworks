@@ -2,8 +2,8 @@ require 'rails_helper'
 
 describe Workbench::ObjectHelper, type: :helper do
 
-  let(:specimen) {FactoryGirl.create(:valid_specimen) } 
-  let(:internal_attribute) {FactoryGirl.create(:valid_data_attribute_internal_attribute) } 
+  let(:specimen) {FactoryBot.create(:valid_specimen) } 
+  let(:internal_attribute) {FactoryBot.create(:valid_data_attribute_internal_attribute) } 
   let(:biological_collection_object) { CollectionObject::BiologicalCollectionObject.create(total: 1) } 
 
   # Internal attribute has its own method

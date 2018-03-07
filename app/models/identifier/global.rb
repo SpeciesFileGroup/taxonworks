@@ -14,7 +14,7 @@
 class Identifier::Global < Identifier
 
   validates :namespace_id, absence: true
-  validates :relation, inclusion: {in: SKOS_RELATIONS.keys}, allow_nil: true
+  validates :relation, inclusion: {in: ::SKOS_RELATIONS.keys}, allow_nil: true
   validate :permit_only_one_global_without_relation_supplied_per_type
 
   # Identifier can only be used once, i.e. mapped to a single TW concept
@@ -23,12 +23,12 @@ class Identifier::Global < Identifier
   protected
 
   def set_cached
-    self.cached = identifier
+    update_column(:cached, identifier)
   end
 
   def permit_only_one_global_without_relation_supplied_per_type
-    if identifier_object && identifier_object.identifiers.where(type:self.type.to_s).where.not(id: self.id ).any?
-      errors.add(:relation, " an existing identifier of type #{self.type} exists, a relation for this identifier must be provided") if self.relation.nil?
+    if identifier_object && identifier_object.identifiers.where(type: type.to_s).where.not(id: id ).any?
+      errors.add(:relation, " an existing identifier of type #{type} exists, a relation for this identifier must be provided") if self.relation.nil?
     end
   end
 

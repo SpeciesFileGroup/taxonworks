@@ -5,20 +5,23 @@
 # For example the triple:
 #
 #    Subject: Aus aus - TaxonNameRelationship::Iczn::Invalidating::Synonym - Object: Bus bus
-# 
+#
 # Can be read as:
-#   
+#
 #    aus synonym OF bus
-#  
+#
 #  Note that not all relationships are reflective.  We can't say, for the example above we can't say
-#  
+#
 #    bus valid_name OF aus
-#    
-# Note that we can not say that all names that are subjects are valid, for instance, this is determined on a case by case basis. 
 #
-# TaxonNameRelationships have a domain (attributes on the subject) and range (attributes on the object).  So if you use 
-# a relatinship you may be asserting a TaxonNameClassification also exists for the subject or object.
+# Note that we can not say that all names that are subjects are valid, this is determined on a case by case basis.
 #
+# TaxonNameRelationships have a domain (attributes on the subject) and range (attributes on the object).  So if you use
+# a relationship you may be asserting a TaxonNameClassification also exists for the subject or object.
+#
+# @todo SourceClassifiedAs is not really Combination in the other sense
+# @todo validate, that all the relationships in the table could be linked to relationships in classes (if those had changed)
+# @todo Check if more than one species associated with the genus in the original paper
 #
 # @!attribute subject_taxon_name_id
 #   @return [Integer]
@@ -26,7 +29,7 @@
 #
 # @!attribute object_taxon_name_id
 #   @return [Integer]
-#    the object taxon name 
+#    the object taxon name
 #
 # @!attribute type
 #   @return [String]
@@ -36,9 +39,10 @@
 #   @return [Integer]
 #   the project ID
 #
-class TaxonNameRelationship < ActiveRecord::Base
+class TaxonNameRelationship < ApplicationRecord
   include Housekeeping
-  include Shared::Citable
+  include Shared::Citations
+  include Shared::Notes
   include Shared::IsData
   include SoftValidation
 
@@ -49,20 +53,19 @@ class TaxonNameRelationship < ActiveRecord::Base
   belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id, inverse_of: :taxon_name_relationships  # left side
   belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id, inverse_of: :related_taxon_name_relationships    # right side
 
-  after_save :set_cached_names_for_taxon_names, unless: 'self.no_cached'
-  after_destroy :set_cached_names_for_taxon_names, unless: 'self.no_cached'
+  after_save :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
+  after_destroy :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
 
   validates_presence_of :type, message: 'Relationship type should be specified'
-  validates_presence_of :subject_taxon_name_id, message: 'Missing taxon name on the left side'
-  validates_presence_of :object_taxon_name_id, message: 'Missing taxon name on the right side'
+  validates_presence_of :subject_taxon_name, message: 'Missing taxon name on the left side'
+  validates_presence_of :object_taxon_name, message: 'Missing taxon name on the right side'
 
-  # TODO: these are likely not speced!  May have to change them to reference object rather than id
   validates_uniqueness_of :object_taxon_name_id, scope: :type, if: :is_combination?
   validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id], unless: :is_combination?
 
   validate :validate_type, :validate_subject_and_object_are_not_identical
 
-  with_options unless: '!subject_taxon_name || !object_taxon_name' do |v|
+  with_options unless: -> {!subject_taxon_name || !object_taxon_name} do |v|
     v.validate :validate_subject_and_object_share_code,
       :validate_uniqueness_of_typification_object,
       #:validate_uniqueness_of_synonym_subject,
@@ -89,19 +92,18 @@ class TaxonNameRelationship < ActiveRecord::Base
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
   scope :where_object_in_taxon_names, -> (taxon_name_array) {where('"taxon_name_relationships"."object_taxon_name_id" IN (?)', taxon_name_array)}
-#  scope :with_type_string, -> (type_string) {where('"taxon_name_relationships"."type" LIKE ?', "#{type_string}" ) }
 
-  scope :with_type_string, -> (type_string) { where(sanitize_sql_array(["taxon_name_relationships.type = '%s'", type_string])) } #   #{?type_string}"where('"taxon_name_relationships"."type" LIKE ?', "#{type_string}" ) }
+  scope :with_type_string, -> (type_string) { where(sanitize_sql_array(["taxon_name_relationships.type = '%s'", type_string])) }
 
-  scope :with_type_base,     -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "#{base_string}%" ) } 
-  scope :with_type_contains, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "%#{base_string}%" ) } 
+  scope :with_type_base, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "#{base_string}%")}
+  scope :with_type_contains, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "%#{base_string}%")}
 
   scope :with_two_type_bases, -> (base_string1, base_string2) {where("taxon_name_relationships.type LIKE '#{base_string1}%' OR taxon_name_relationships.type LIKE '#{base_string2}%'" ) }
   scope :with_type_array, -> (base_array) {where('taxon_name_relationships.type IN (?)', base_array ) }
 
   # @return [Array of TaxonNameClassification]
   #  the inferable TaxonNameClassification(s) added to the subject when this relationship is used
-  #  !! Not implemented 
+  #  !! Not implemented
   def subject_properties
     []
   end
@@ -118,7 +120,6 @@ class TaxonNameRelationship < ActiveRecord::Base
   def self.valid_subject_ranks
     []
   end
-
 
   # @return [Array of NomenclatureRank]
   #   the valid ranks to which the object name can belong, set in subclasses. (right side)
@@ -163,17 +164,17 @@ class TaxonNameRelationship < ActiveRecord::Base
   #   :direct - subject is younger than object
   #   :reverse - object is younger than subject
   def self.nomenclatural_priority
-    nil 
+    nil
   end
 
   # @return [String]
-  #    the status inferred by the relationship to the object name 
+  #    the status inferred by the relationship to the object name
   def object_status
     self.type_name.demodulize.underscore.humanize.downcase
   end
 
   # @return [String]
-  #    the status inferred by the relationship to the subject name 
+  #    the status inferred by the relationship to the subject name
   def subject_status
     self.type_name.demodulize.underscore.humanize.downcase
   end
@@ -220,11 +221,6 @@ class TaxonNameRelationship < ActiveRecord::Base
     TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.safe_constantize : r
   end
 
-  # TODO: match on either name
-  def self.find_for_autocomplete(params)
-    where(id: params[:term]).with_project_id(params[:project_id])
-  end
-
   # @return [String, nil]
   #   the NOMEN uri for this type
   def self.nomen_uri
@@ -237,7 +233,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     self.source ? (self.source.cached_nomenclature_date ? self.source.cached_nomenclature_date.to_time : Time.now) : Time.now
   end
 
-  # @todo SourceClassifiedAs is not really Combination in the other sense
+  # @TODO SourceClassifiedAs is not really Combination in the other sense
   def is_combination?
     !!/TaxonNameRelationship::(OriginalCombination|Combination)/.match(self.type.to_s)
   end
@@ -350,30 +346,34 @@ class TaxonNameRelationship < ActiveRecord::Base
        #  t.update_columns(:cached_original_combination => t.get_original_combination,
        #                   :cached_primary_homonym => t.get_genus_species(:original, :self),
        #                   :cached_primary_homonym_alternative_spelling => t.get_genus_species(:original, :alternative))
-        if self.is_combination?
-          t = self.object_taxon_name
-          t.update_columns(:cached_original_combination => t.get_original_combination,
-                           :cached => t.get_full_name,
-                           :cached_html => t.get_full_name_html,
-                           :cached_author_year => t.get_author_and_year,
-                           :cached_valid_taxon_name_id => t.get_valid_taxon_name.id)
-#        elsif self.type_name =~/Misspelling/
-#          t = self.subject_taxon_name
+        if is_combination?
+          t = object_taxon_name
+          t.update_columns(
+            cached_original_combination:  t.get_original_combination,
+            cached: t.get_full_name,
+            cached_html: t.get_full_name_html,
+            cached_author_year: t.get_author_and_year,
+            cached_valid_taxon_name_id: t.get_valid_taxon_name.id
+          )
+          #        elsif self.type_name =~/Misspelling/
+          #          t = self.subject_taxon_name
 #          t.update_column(:cached_misspelling, t.get_cached_misspelling)
-        elsif self.type_name =~/TaxonNameRelationship::Hybrid/
-          t = self.object_taxon_name
-          t.update_columns(:cached => t.get_full_name,
-                           :cached_html => t.get_full_name_html)
-        elsif self.type_name =~/SourceClassifiedAs/
-          t = self.subject_taxon_name
+        elsif type_name =~/TaxonNameRelationship::Hybrid/ # TODO: move to Hybrid
+          t = object_taxon_name
+          t.update_columns(
+            cached: t.get_full_name,
+            cached_html: t.get_full_name_html
+          )
+        elsif type_name =~/SourceClassifiedAs/
+          t = subject_taxon_name
           t.update_column(:cached_classified_as, t.get_cached_classified_as)
-        elsif TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
-          t = self.subject_taxon_name
-          if self.type_name =~/Misspelling/
+        elsif TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(type_name)
+          t = subject_taxon_name
+          if type_name =~/Misspelling/
             t.update_column(:cached_misspelling, t.get_cached_misspelling)
           end
-          t.update_columns(:cached => t.get_full_name,
-                           :cached_html => t.get_full_name_html)
+          t.update_columns(cached: t.get_full_name,
+                           cached_html: t.get_full_name_html)
           vn = t.get_valid_taxon_name
           vn.list_of_invalid_taxon_names.each do |s|
             s.update_column(:cached_valid_taxon_name_id, vn.id)
@@ -385,7 +385,7 @@ class TaxonNameRelationship < ActiveRecord::Base
       end
 
     # no point in rescuing and not returning somthing
-    rescue
+    rescue ActiveRecord::RecordInvalid
       raise
     end
     false
@@ -413,24 +413,24 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def sv_validate_disjoint_object
-    classifications = self.object_taxon_name.taxon_name_classifications(true).map{|i| i.type_name}
+    classifications = self.object_taxon_name.taxon_name_classifications.reload.map {|i| i.type_name}
     disjoint_object_classes = self.type_class.disjoint_object_classes
     compare = disjoint_object_classes & classifications
     compare.each do |i|
       c = i.demodulize.underscore.humanize.downcase
       soft_validations.add(:type, "#{self.subject_status.capitalize} relationship is conflicting with the taxon status: '#{c}'")
-      soft_validations.add(:object_taxon_name_id, "{self.object_taxon_name.cached_html} has a conflicting status: '#{c}'")
+      soft_validations.add(:object_taxon_name_id, "#{self.object_taxon_name.cached_html} has a conflicting status: '#{c}'")
     end
   end
 
   def sv_validate_disjoint_subject
-    classifications = self.subject_taxon_name.taxon_name_classifications(true).map{|i| i.type_name}
+    classifications = self.subject_taxon_name.taxon_name_classifications.reload.map {|i| i.type_name}
     disjoint_subject_classes = self.type_class.disjoint_subject_classes
     compare = disjoint_subject_classes & classifications
     compare.each do |i|
       c = i.demodulize.underscore.humanize.downcase
       soft_validations.add(:type, "#{self.subject_status.capitalize} ronflicting with the status: '#{c}'")
-      soft_validations.add(:subject_taxon_name_id, "{self.subject_taxon_name.cached_html} has a conflicting status: '#{c}'")
+      soft_validations.add(:subject_taxon_name_id, "#{self.subject_taxon_name.cached_html} has a conflicting status: '#{c}'")
     end
   end
 
@@ -469,11 +469,11 @@ class TaxonNameRelationship < ActiveRecord::Base
         end
 
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961'
-       
+
         soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described before 1961") if s.year_of_publication > 1960
         soft_validations.add(:type, "#{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} described in the same original genus #{s.original_genus}, they are primary homonyms") if s.original_genus == o.original_genus && !s.original_genus.nil?
         soft_validations.add(:base, 'The original publication is not selected') unless source
-       
+
         soft_validations.add(:base, "#{s.cached_html_name_and_author_year} should not be treated as a homonym established before 1961") if self.source && self.source.year > 1960
 
         if (s.all_generic_placements & o.all_generic_placements).empty?
@@ -485,10 +485,10 @@ class TaxonNameRelationship < ActiveRecord::Base
         soft_validations.add(:base, "#{s.cached_html_name_and_author_year} should be accepted as a replacement name before 1961") if self.source && self.source.year > 1960
 
       when 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
-        soft_validations.add(:type, "Genus #{o.cached_html_name_and_author_year} described after 1930 is nomen nudum, if type was not designated in the original publication") if o.year_of_publication > 1930
+        soft_validations.add(:type, "Genus #{o.cached_html_name_and_author_year} described after 1930 is nomen nudum, if type was not designated in the original publication") if o.year_of_publication && o.year_of_publication > 1930
       when 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName'
-        r1 = TaxonNameRelationshin.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym', subject_taxon_name_id: o.id, object_taxon_name_id: s.id).first
-        r2 = TaxonNameRelationshin.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName', subject_taxon_name_id: s.id, object_taxon_name_id: o.id).first
+        r1 = TaxonNameRelationship.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym', subject_taxon_name_id: o.id, object_taxon_name_id: s.id).first
+        r2 = TaxonNameRelationship.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName', subject_taxon_name_id: s.id, object_taxon_name_id: o.id).first
         soft_validations.add(:base, "Missing relationship: #{s.cached_html_name_and_author_year} is a replacement name for #{o.cached_html_name_and_author_year}. Please add an objective synonym relationship(either 'replaced homonym' or 'unnecessary replacement name')") if r1.nil? && r2.nil?
       when 'TaxonNameRelationship::Typification::Genus::Monotypy::Original'
         # @todo Check if more than one species associated with the genus in the original paper
@@ -626,22 +626,22 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
   end
 
-#  def sv_fix_synonym_linked_to_valid_name
-#    if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
-#      obj = self.object_taxon_name
-#      unless obj.get_valid_taxon_name == obj
-#        self.object_taxon_name = obj.get_valid_taxon_name
-#        begin
-#          TaxonName.transaction do
-#            self.save
-#            return true
-#          end
-#        rescue
-#        end
-#      end
-#    end
-#    false
-#  end
+  #  def sv_fix_synonym_linked_to_valid_name
+  #    if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
+  #      obj = self.object_taxon_name
+  #      unless obj.get_valid_taxon_name == obj
+  #        self.object_taxon_name = obj.get_valid_taxon_name
+  #        begin
+  #          TaxonName.transaction do
+  #            self.save
+  #            return true
+  #          end
+  #        rescue
+  #        end
+  #      end
+  #    end
+  #    false
+  #  end
 
   def sv_fix_subject_parent_update
     if TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)
@@ -674,16 +674,16 @@ class TaxonNameRelationship < ActiveRecord::Base
       date1 = self.subject_taxon_name.nomenclature_date
       date2 = self.object_taxon_name.nomenclature_date
      if !!date1 and !!date2
-        invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & self.subject_taxon_name.taxon_name_classifications.collect{|c| c.type_class.to_s}
+       invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & self.subject_taxon_name.taxon_name_classifications.collect{|c| c.type_class.to_s}
         case self.type_class.nomenclatural_priority
           when :direct
             if date2 > date1 && invalid_statuses.empty?
               if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Homonym/
-                soft_validations.add(:type, "#{self.object_status.capitalize} #{self.object_taxon_name.cached_html_name_and_author_year} should not be older than #{self.subject_taxon_name.cached_html_name_and_author_year}")
+                soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be older than #{self.object_status} #{self.object_taxon_name.cached_html_name_and_author_year}")
               elsif self.type_name =~ /::Iczn::/ && TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).with_two_type_bases('TaxonNameRelationship::Iczn::Invalidating::Homonym', 'TaxonNameRelationship::Iczn::Validating').not_self(self).empty?
-                soft_validations.add(:type, "#{self.object_status.capitalize} #{self.object_taxon_name.cached_html_name_and_author_year} should not be older than #{self.subject_taxon_name.cached_html_name_and_author_year}, unless it is also a homonym or conserved name")
+              soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be older than #{self.object_status} #{self.object_taxon_name.cached_html_name_and_author_year}, unless it is also a homonym or conserved name")
               elsif self.type_name =~ /::Icn::/ && TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).with_two_type_bases('TaxonNameRelationship::Icn::Accepting::Conserved', 'TaxonNameRelationship::Icn::Accepting::Sanctioned').not_self(self).empty?
-                soft_validations.add(:type, "#{self.object_status.capitalize} #{self.object_taxon_name.cached_html_name_and_author_year} should not be older than #{self.subject_taxon_name.cached_html_name_and_author_year}, unless it is also conserved or sanctioned name")
+                soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be older than #{self.object_status} #{self.object_taxon_name.cached_html_name_and_author_year}, unless it is also conserved or sanctioned name")
               end
             end
           when :reverse
@@ -699,47 +699,45 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
   end
 
-
-
   def sv_coordinated_taxa
-    s = self.subject_taxon_name
-    o = self.object_taxon_name
-    if self.type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn|OriginalCombination|Combination|Typification)/
+    s = subject_taxon_name
+    o = object_taxon_name
+    if type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn|OriginalCombination|Combination|Typification)/
       s_new = s.lowest_rank_coordinated_taxon
       if s != s_new
         soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} #{s.cached_html} to #{s_new.rank_class.rank_name} #{s.cached_html}",
                              fix: :sv_fix_coordinated_subject_taxa, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
       end
-      if self.type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn)/
+      if type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn)/
         o_new = o.lowest_rank_coordinated_taxon
 
 
-      if o != o_new && self.type_name != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
-        soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o.cached_html}",
-                             fix: :sv_fix_coordinated_object_taxa, success_message: "Relationship moved to  #{o_new.rank_class.rank_name}")
-      end
+        if o != o_new && type_name != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+          soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o.cached_html}",
+                               fix: :sv_fix_coordinated_object_taxa, success_message: "Relationship moved to  #{o_new.rank_class.rank_name}")
+        end
 
       end
-#    elsif self.type_name =~ /TaxonNameRelationship::(OriginalCombination|Combination)/
+      #    elsif self.type_name =~ /TaxonNameRelationship::(OriginalCombination|Combination)/
 
-#      list = s.list_of_coordinated_names + [s]
-#      if s.rank_string =~ /Species/ # species group
-#        s_new =  list.detect{|t| t.rank_class.rank_name == 'species'}
-#      elsif s.rank_string =~ /Genus/
-#        s_new =  list.detect{|t| t.rank_class.rank_name == 'genus'}
-#      else
-#        s_new = s
-#      end
+      #      list = s.list_of_coordinated_names + [s]
+      #      if s.rank_string =~ /Species/ # species group
+      #        s_new =  list.detect{|t| t.rank_class.rank_name == 'species'}
+      #      elsif s.rank_string =~ /Genus/
+      #        s_new =  list.detect{|t| t.rank_class.rank_name == 'genus'}
+      #      else
+      #        s_new = s
+      #      end
 
-#      if s != s_new
-#        soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} to #{s_new.rank_class.rank_name}",
-#                             fix: :sv_fix_combination_relationship, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
-#      end
+      #      if s != s_new
+      #        soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} to #{s_new.rank_class.rank_name}",
+      #                             fix: :sv_fix_combination_relationship, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
+      #      end
     end
   end
 
   def sv_fix_coordinated_subject_taxa
-    s = self.subject_taxon_name
+    s = subject_taxon_name
     s_new = s.lowest_rank_coordinated_taxon
     if s != s_new
       self.subject_taxon_name = s_new
@@ -793,21 +791,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     false
   end
 
-
   #endregion
-
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
-  private
 
   def self.collect_to_s(*args)
     args.collect{|arg| arg.to_s}
@@ -818,7 +802,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     classes.each do |klass|
       ans += klass.descendants.collect{|k| k.to_s}
     end
-    ans    
+    ans
   end
 
   def self.collect_descendants_and_itself_to_s(*classes)

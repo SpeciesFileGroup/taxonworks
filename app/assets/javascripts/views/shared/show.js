@@ -5,7 +5,6 @@ TW.views.shared.show = TW.views.shared.show || {};
 
 Object.assign(TW.views.shared.show, {
   init: function() {
-
     var
       that = this;
 
@@ -70,9 +69,9 @@ Object.assign(TW.views.shared.show, {
   }  
 });
 
-$(document).ready(function() {
+
+$(document).on('turbolinks:load', function() {
   if($("#show").length) {
-    var init_show = TW.views.shared.show;
-    init_show.init();
+    TW.views.shared.show.init();
   }
 });

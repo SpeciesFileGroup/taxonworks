@@ -1,7 +1,7 @@
 module BatchLoad::BatchLoadHelper
 
   def warn_level_input(result)
-    str     = "Import level:<br>&nbsp;"
+    str     = 'Import level:<br>&nbsp;'
     options = [radio_button_tag(:import_level, :warn, selected: true) + ' warn']
     options << radio_button_tag(:import_level, :line_strict) + ' line strict' if result.line_strict_level_ok?
     options << radio_button_tag(:import_level, :strict) + ' strict' if result.strict_level_ok?
@@ -29,7 +29,7 @@ module BatchLoad::BatchLoadHelper
     content_tag(:td) do
       content_tag(:table, border: true) do
         rp.objects.collect { |klass, objs|
-          content_tag(:tr, content_tag(:td, "-") +
+          content_tag(:tr, content_tag(:td, '-') +
                            objs.collect { |o|
                              content_tag(:tr,
                                          content_tag(:td, (o.valid? ? content_tag(:span, 'None.', class: 'subtle') : "#{o.errors.full_messages.join('; ')}"))

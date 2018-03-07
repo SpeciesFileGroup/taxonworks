@@ -1,6 +1,6 @@
 class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassification::Iczn::Unavailable
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000169'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000169'.freeze
 
   # LABEL = 'non binomial (ICZN)'
 
@@ -14,7 +14,7 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
 
   class NotUninomial < TaxonNameClassification::Iczn::Unavailable::NonBinomial
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000170'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000170'.freeze
 
     def self.applicable_ranks
       FAMILY_AND_ABOVE_RANK_NAMES + GENUS_RANK_NAMES_ICZN
@@ -30,7 +30,7 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
 
   class SpeciesNotBinomial < TaxonNameClassification::Iczn::Unavailable::NonBinomial
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000172'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000172'.freeze
 
     def applicable_ranks
       SPECIES_RANK_NAMES_ICZN
@@ -46,7 +46,7 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
 
   class SubgenusNotIntercalare < TaxonNameClassification::Iczn::Unavailable::NonBinomial
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000171'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000171'.freeze
 
     def self.applicable_ranks
       GENUS_RANK_NAMES_ICZN
@@ -62,7 +62,7 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
 
   class SubspeciesNotTrinomial < TaxonNameClassification::Iczn::Unavailable::NonBinomial
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000173'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000173'.freeze
 
     def applicable_ranks
       SPECIES_RANK_NAMES_ICZN

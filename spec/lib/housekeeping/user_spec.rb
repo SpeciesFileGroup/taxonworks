@@ -2,8 +2,8 @@ require 'rails_helper'
 
 describe 'Housekeeping::User' do
 
-  let!(:user) {FactoryGirl.create(:valid_user, id: 1)}
-  let!(:other_user) {FactoryGirl.create(:valid_user, id: 2)}
+  let!(:user) { FactoryBot.create(:valid_user, id: 1, name: 'Ren') }
+  let!(:other_user) { FactoryBot.create(:valid_user, id: 2, name: 'Stimpy') }
 
   context 'Users' do
 
@@ -42,8 +42,8 @@ describe 'Housekeeping::User' do
       end
 
       specify 'does not override creator' do
-        instance.creator = user 
-        instance.by = other_user
+        instance.creator = user
+        instance.by      = other_user
         expect(instance.creator).to eq(user)
       end
 
@@ -67,7 +67,7 @@ describe 'Housekeeping::User' do
       let(:i) { HousekeepingTestClass::WithUser.new }
 
       context 'presence of the id itself' do
-        before(:each) { $user_id = nil } 
+        before(:each) { $user_id = nil }
 
         specify 'created_by_id is required' do
           i.valid?
@@ -84,12 +84,12 @@ describe 'Housekeeping::User' do
         before(:each) { $user_id = 49999 } # better not be one, but fragile
 
         specify 'creator must exist' do
-          i.valid? 
+          i.valid?
           expect(i.errors.include?(:creator)).to be_truthy
         end
 
         specify 'updater must exist' do
-          i.valid? 
+          i.valid?
           expect(i.errors.include?(:updater)).to be_truthy
         end
       end
@@ -112,10 +112,10 @@ describe 'Housekeeping::User' do
 
           context 'when provided' do
             before {
-              $user_id = user.id
-              i.created_by_id = other_user.id 
-              i.updated_by_id = other_user.id 
-              i.valid? 
+              $user_id        = user.id
+              i.created_by_id = other_user.id
+              i.updated_by_id = other_user.id
+              i.valid?
             }
             specify 'creator should not be overridden' do
               expect(i.creator).to eq(other_user)
@@ -161,9 +161,9 @@ describe 'Housekeeping::User' do
           before {
             $user_id = user.id
           }
-          let(:created_instance) { 
-            a = HousekeepingTestClass::WithUser.new() 
-            a.save! 
+          let(:created_instance) {
+            a = HousekeepingTestClass::WithUser.new()
+            a.save!
             a
           }
 
@@ -176,18 +176,17 @@ describe 'Housekeeping::User' do
           end
         end
 
-               
 
         context 'after save, subsequent updates' do
           before {
             $user_id = user.id
             i.save!
           }
- 
+
           context 'on updated and updater is provided' do
             before {
-              i.updated_by_id = other_user.id 
-              i.valid? 
+              i.updated_by_id = other_user.id
+              i.valid?
             }
             specify 'updater should be that provided' do
               expect(i.updater).to eq(other_user)
@@ -196,9 +195,9 @@ describe 'Housekeeping::User' do
 
           context 'on updated and updater is not provided' do
             before {
-              $user_id = other_user.id 
-              i.string = "Foo"
-              i.valid? 
+              $user_id = other_user.id
+              i.string = 'Foo'
+              i.valid?
             }
 
             specify 'updater should be that provided' do
@@ -209,7 +208,7 @@ describe 'Housekeeping::User' do
           context 'on update when not changed and $user_id = nil' do
             before {
               $user_id = nil
-              i.string = "Bar"
+              i.string = 'Bar'
             }
 
             specify 'updater is updated to nil, and record is no longer valid' do
@@ -229,18 +228,41 @@ describe 'Housekeeping::User' do
         expect(HousekeepingTestClass::WithUser).to respond_to(:all_updaters)
       end
     end
+
+    context 'class scopes' do
+      let!(:sp1){ FactoryBot.create(:valid_geographic_item, creator: user, updater: other_user) }
+      let!(:sp2){ FactoryBot.create(:valid_geographic_item, creator: other_user, updater: user) }
+
+      specify 'created_by_user' do
+        expect(GeographicItem.created_by_user(user).pluck(:id)).to contain_exactly(sp1.id)
+        expect(GeographicItem.created_by_user(other_user).pluck(:id)).to contain_exactly(sp2.id)
+        expect(GeographicItem.created_by_user(user.id).pluck(:id)).to contain_exactly(sp1.id)
+        expect(GeographicItem.created_by_user(other_user.id).pluck(:id)).to contain_exactly(sp2.id)
+        expect(GeographicItem.created_by_user(user.name).pluck(:id)).to contain_exactly(sp1.id)
+        expect(GeographicItem.created_by_user(other_user.name).pluck(:id)).to contain_exactly(sp2.id)
+      end
+
+      specify 'updated_by_user' do
+        expect(GeographicItem.updated_by_user(user).pluck(:id)).to contain_exactly(sp2.id)
+        expect(GeographicItem.updated_by_user(other_user).pluck(:id)).to contain_exactly(sp1.id)
+        expect(GeographicItem.updated_by_user(user.id).pluck(:id)).to contain_exactly(sp2.id)
+        expect(GeographicItem.updated_by_user(other_user.id).pluck(:id)).to contain_exactly(sp1.id)
+        expect(GeographicItem.updated_by_user(user.name).pluck(:id)).to contain_exactly(sp2.id)
+        expect(GeographicItem.updated_by_user(other_user.name).pluck(:id)).to contain_exactly(sp1.id)
+      end
+    end
   end
 end
 
 module HousekeepingTestClass
-  class WithBoth  < ActiveRecord::Base 
-    include FakeTable  
-    include Housekeeping 
+  class WithBoth < ApplicationRecord
+    include FakeTable
+    include Housekeeping
   end
 
-  class WithUser < ActiveRecord::Base
-    include FakeTable 
-    include Housekeeping::Users 
+  class WithUser < ApplicationRecord
+    include FakeTable
+    include Housekeeping::Users
   end
 
 end

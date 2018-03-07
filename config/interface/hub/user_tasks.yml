@@ -11,9 +11,8 @@
 #
 #   name* - a friendly human readable name describing the task
 #   description - a sentence or two further defining what the task will do for the user
-#   related_prefixes - an array members must be route prefixes and may include user tasks or data prefixes
 #   hub - true if this tasks should appear at the hub, these tasks MAY NOT require parameters
-#   categories - an array of one ore more of [CollectingEvent, CollectionObject, Source, TaxonName]
+#   categories - an array of one ore more of [collecting_events, geographic_areas, source, nomenclature, matrix, dna]
 #   status - one of [complete, stable, prototype,  unknown (default) ]
 #               complete: users can expect the interfaces to remain in their present form
 #               stable: primary elements are complete, but minor changes (CSS, feedback etc.) may change
@@ -58,14 +57,13 @@ verify_accessions_task:
 quick_verbatim_material_task:
   hub: true
   name: 'Quick verbatim material'
-  description: 'Create new specimen or lot records with verbatim data attached directly to the collection object record.'
+  description: 'Quickly create a new specimen or lot records by transcribing verbatim label data and other minimal information.  Does not reference Collecting Events or OTUs.'
   related:
     - namespaces
     - build_biocuration_groups_task
   categories:
-    - collecting_event
     - collection_object
-  status: prototype
+  status: stable 
 create_verbatim_material_task:
   name:
 new_verbatim_reference_task:
@@ -168,12 +166,20 @@ report_dwc_task:
     - collecting_event
 collection_objects_filter_task:
   hub: true
-  name: 'Collection objects by area, date and OTU.'
+  name: 'Collection objects filter by area, date, OTU, identifier and user/creation date.'
   related:
   categories:
     - collection_object
   status: prototype
-  description: 'Find collection objects using an area, date range, or taxon determination (OTU).'
+  description: 'Find collection objects using an area, date range, taxon determination (OTU), applied identifier, or user/created date range.'
+otus_filter_task:
+  hub: true
+  name: 'OTU lookup by geography, nomenclature, or author'
+  related:
+  categories:
+    - otu
+  status: prototype
+  description: 'Find OTUs nomenclaturally or geographically'
 geographic_area_lookup_task:
   hub: true
   name: 'Geographic area lookup'
@@ -215,6 +221,14 @@ cite_otus_task_task:
     - source
   status: prototype
   description: 'Add citations to OTUs.  Optionally add topics to citations.  For example assertions like "Smith, 1920 referenced Biology of Aus bus" are possible.'
+new_taxon_name_task:
+  hub: true
+  name: 'New taxon name'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Create or edit a taxon name along with its related metadata including original combinations, status, type material and synonym.'
 dates_index_task:
   hub: true
   name: 'Stepwise collecting event parser - Dates'
@@ -251,3 +265,43 @@ browse_collection_objects_task:
     - collection_object
   status: prototype
   description: 'Report everything known about a collection object (specimen, lot, ranged lot). Includes determinations, loan history, images, collecting event, catalog numbers, etc.'
+index_row_coder_task:
+  hub: true
+  name: 'Matrix row coder'
+  related:
+  categories:
+    - matrix
+  status: prototype
+  description: 'Code a matrix row.'
+edit_loan_task:
+  hub: true
+  name: 'Edit loans'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Create and edit loans.'
+edit_type_material_task:
+  hub: true
+  name: 'New type specimen'
+  related:
+  categories:
+    - nomenclature
+    - collection_object
+  status: prototype
+  description: 'Add type material records for species group names.'
+new_combination_task:
+  hub: true
+  name: 'New combination'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Create a new or subsequent nomenclatural combination.'
+browse_otus_task:
+  hub: true
+  name: 'Browse taxa'
+  related:
+  categories:
+  status: prototype
+  description: 'Browse through brief summaries of data for an OTU, including ability to annotate and add related data.'

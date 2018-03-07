@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Source::Bibtex, type: :model, group: :sources do
 
-  let(:bibtex) { FactoryGirl.build(:source_bibtex) }
+  let(:bibtex) { FactoryBot.build(:source_bibtex) }
 
   let(:gem_bibtex_entry1) {
     BibTeX::Entry.new(bibtex_type: 'book', title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
@@ -16,20 +16,8 @@ describe Source::Bibtex, type: :model, group: :sources do
     BibTeX::Entry.new(bibtex_type: 'book', title: 'Valid Bibtex of America', author: 'Smith, James')
   }
 
-  #let(:invalid_gem_bibtex_book) {
-  #  BibTeX::Entry.new(bibtex_type: 'book', title: 'InValid Bibtex of America',  author: 'Smith, James', year: 1921)
-  #}
-
   let(:gem_bibtex_bibliography) {
     BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
-  }
-
-  let(:simple1_gem_bibtex) {
-    BibTeX::Entry.new()
-  }
-
-  let(:simple2_gem_bibtex) {
-    BibTeX::Entry.new()
   }
 
   after(:all) {
@@ -119,18 +107,19 @@ describe Source::Bibtex, type: :model, group: :sources do
         expect(gem_bibtex_bibliography[-1].urldate).to eq('2010-12-06')
       end
 
+      # WHY?
       specify 'simple identity' do
-        expect(simple1_gem_bibtex).to eq(simple2_gem_bibtex)
+        expect( BibTeX::Entry.new()).to eq(BibTeX::Entry.new())
       end
 
-      specify 'simple complex entity' do
+      specify 'complex(?) entity identity ' do
         expect(gem_bibtex_entry1).to eq(gem_bibtex_entry2)
       end
     end
 
-    context "Should handle BibTeX formatting" do
+    context 'Should handle BibTeX formatting' do
       # BibTeX.parse doesn't handle math version so no sub or sup (e.g. 20<sup>th</sup>)
-      specify 'Strings are output properly' do
+      specify 'Strings are output properly 1' do
         citation_string = %q(@Article{py03,
                                     title = "The \t{oo} annual meeting of {BibTeX}--users",
                                     author = "D\'{e}coret, X{\ae}vier and Victor, Paul {\'E}mile",
@@ -138,16 +127,20 @@ describe Source::Bibtex, type: :model, group: :sources do
                                     publisher = "@ sign publishing",
                                     journal = "{Bib}TeX journal of \{funny\} ch\'{a}r{\aa}cter{\$}",
                                     year = {2003}})
+
         a               = BibTeX.parse(citation_string).convert(:latex)
         entry           = a.first
         src             = Source::Bibtex.new_from_bibtex(entry)
         expect(src.valid?).to be_truthy
         expect(src.save).to be_truthy
-        expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). BibTeX journal of {funny} cháråcter$.')
-        expect(src.cached_string('html')).to eq('Décoret, X. &amp; Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). <i>BibTeX journal of {funny} cháråcter$</i>.')
 
-        # input = 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.'
-        # src   = Source.new_from_citation({citation: input, resolve: true})
+        expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). BibTeX journal of {funny} cháråcter$.')
+
+        expect(src.cached_string('html')).to eq('Décoret, X. &amp; Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). <i>BibTeX journal of {funny} cháråcter$</i>.')
+      end
+
+      # input = 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.'
+      specify 'Strings are output properly 1' do
         citation_string = "@book{Brauer_1909,
             doi = {10.5962/bhl.title.1086},
             url = {http://dx.doi.org/10.5962/bhl.title.1086},
@@ -156,13 +149,14 @@ describe Source::Bibtex, type: :model, group: :sources do
             author = {August Brauer},
             title = {Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.}
           }"
-        a               = BibTeX.parse(citation_string).convert(:latex)
-        entry           = a.first
-        src             = Source::Bibtex.new_from_bibtex(entry)
+        a  = BibTeX.parse(citation_string).convert(:latex)
+        entry  = a.first
+        src  = Source::Bibtex.new_from_bibtex(entry)
         expect(src.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution. Available from: http://dx.doi.org/10.5962/bhl.title.1086.')
+      end
 
-        # input = 'Grubbs; Baumann & DeWalt. 2014. A review of the Nearctic genus Prostoia (Ricker) (Plecoptera: Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff and Kirchner. Zookeys. '
-        # src   = Source.new_from_citation({citation: input, resolve: true})
+      # input = 'Grubbs; Baumann & DeWalt. 2014. A review of the Nearctic genus Prostoia (Ricker) (Plecoptera: Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff and Kirchner. Zookeys. '
+      specify 'Strings are output properly 3' do
         citation_string = "@article{Grubbs_2014,
             doi = {10.3897/zookeys.401.7299},
             url = {http://dx.doi.org/10.3897/zookeys.401.7299},
@@ -175,10 +169,10 @@ describe Source::Bibtex, type: :model, group: :sources do
             title = {A review of the Nearctic genus Prostoia (Ricker) (Plecoptera, Nemouridae), with the description of a new species and a surprising range extension for P.~hallasi Kondratieff {\&} Kirchner},
             journal = {{ZooKeys}}
           }"
-        a               = BibTeX.parse(citation_string).convert(:latex)
-        entry           = a.first
-        src             = Source::Bibtex.new_from_bibtex(entry)
-        expect(src.cached_string('html')).to eq("Grubbs, S., Baumann, R., DeWalt, R. &amp; Tweddale, T. (2014) A review of the Nearctic genus Prostoia (Ricker) (Plecoptera, Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff &amp; Kirchner. <i>ZooKeys</i> 401, 11–30.")
+        a = BibTeX.parse(citation_string).convert(:latex)
+        entry = a.first
+        src  = Source::Bibtex.new_from_bibtex(entry)
+        expect(src.cached_string('html')).to eq('Grubbs, S., Baumann, R., DeWalt, R. &amp; Tweddale, T. (2014) A review of the Nearctic genus Prostoia (Ricker) (Plecoptera, Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff &amp; Kirchner. <i>ZooKeys</i> 401, 11–30.')
       end
     end
 
@@ -287,8 +281,8 @@ describe Source::Bibtex, type: :model, group: :sources do
       #     expect(b[:note].to_s).to eq(out_note3 + '|' + out_note2 + '|' + out_note1) # should be 3 notes or'ed together.
       #   end
       context 'TW serial conversion' do
-        let(:src) { FactoryGirl.build(:soft_valid_bibtex_source_article) }
-        let(:serial1) { FactoryGirl.create(:valid_serial) }  # create so serial1 has an ID
+        let(:src) { FactoryBot.build(:soft_valid_bibtex_source_article) }
+        let(:serial1) { FactoryBot.create(:valid_serial) }  # create so serial1 has an ID
 
         specify 'serial gets converted properly to bibtex journal' do
           expect(src.valid?).to be_truthy
@@ -307,7 +301,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         end
 
         specify 'issn gets converted properly' do
-          issn = FactoryGirl.build(:issn_identifier)
+          issn = FactoryBot.build(:issn_identifier)
           serial1.identifiers <<  issn
           expect(serial1.save).to be_truthy
           src.serial = serial1
@@ -315,41 +309,41 @@ describe Source::Bibtex, type: :model, group: :sources do
           src.soft_validate()
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
-          expect(bib.issn).to eq(serial1.identifiers.of_type(:issn).first.identifier)
+          expect(bib.issn).to eq(serial1.identifiers.where(type: 'Identifier::Global::Issn').first.identifier)
         end
       end
 
       context 'identifiers to bibtex' do
-        let(:src) { FactoryGirl.build(:soft_valid_bibtex_source_article) }
+        let(:src) { FactoryBot.build(:soft_valid_bibtex_source_article) }
 
         specify 'url gets converted properly' do
-          url = FactoryGirl.build(:uri_identifier)
+          url = FactoryBot.build(:uri_identifier)
           src.identifiers << url
           expect(src.save).to be_truthy
           src.soft_validate()
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
-          expect(bib[:url]).to eq(src.identifiers.of_type(:uri).first.identifier)
+          expect(bib[:url]).to eq(src.identifiers.where(type: 'Identifier::Global::Uri').first.identifier)
         end
 
         specify 'isbn gets converted properly' do
-          isbn = FactoryGirl.build(:isbn_identifier)
+          isbn = FactoryBot.build(:isbn_identifier)
           src.identifiers << isbn
           expect(src.save).to be_truthy
           src.soft_validate()
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
-          expect(bib[:isbn]).to eq(src.identifiers.of_type(:isbn).first.identifier)
+          expect(bib[:isbn]).to eq(src.identifiers.where(type: 'Identifier::Global::Isbn').first.identifier)
         end
 
         specify 'doi gets converted properly' do
-          doi = FactoryGirl.build(:doi_identifier)
+          doi = FactoryBot.build(:doi_identifier)
           src.identifiers << doi
           expect(src.save).to be_truthy
           src.soft_validate()
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
-          expect(bib[:doi]).to eq(src.identifiers.of_type(:doi).first.identifier)
+          expect(bib[:doi]).to eq(src.identifiers.where(type: 'Identifier::Global::Doi').first.identifier)
         end
       end
 
@@ -381,10 +375,10 @@ describe Source::Bibtex, type: :model, group: :sources do
     #  end
 
     specify 'with an isbn in a BibTeX::Entry, convert it to an Identifier' do
-      identifier                 = '1-84356-028-3'
+      identifier  = '1-84356-028-3'
       valid_gem_bibtex_book.isbn = identifier
-      s                          = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
-      expect(s.identifiers.to_a.count).to eq(1)
+      s  = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+      expect(s.identifiers.to_a.size).to eq(1)
       expect(s.identifiers.first.identifier).to eq(identifier)
       expect(s.save).to be_truthy
       expect(s.identifiers.first.id.nil?).to be_falsey
@@ -394,10 +388,10 @@ describe Source::Bibtex, type: :model, group: :sources do
     context 'with an issn in a BibTeX::Entry, convert it to an Identifier' do
       %w{2049-3630 1050-124x 1050-124X}.each do |n|
         specify "ISSN #{n}" do
-          identifier                 = "ISSN #{n}"
+          identifier = "ISSN #{n}"
           valid_gem_bibtex_book.issn = identifier
-          s                          = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
-          expect(s.identifiers.to_a.count).to eq(1)
+          s = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+          expect(s.identifiers.to_a.size).to eq(1)
           expect(s.identifiers.first.identifier).to eq(identifier)
           expect(s.save).to be_truthy
           expect(s.identifiers.first.id.nil?).to be_falsey
@@ -415,7 +409,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       identifier                = '10.2345/S1384107697000225'
       valid_gem_bibtex_book.doi = identifier
       s                         = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
-      expect(s.identifiers.to_a.count).to eq(1)
+      expect(s.identifiers.to_a.size).to eq(1)
       expect(s.identifiers.first.identifier).to eq(identifier)
       expect(s.save).to be_truthy
       expect(s.identifiers.first.id.nil?).to be_falsey
@@ -425,7 +419,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
   context 'validation' do
     specify 'must have a valid bibtex_type' do
-      local_src = FactoryGirl.build(:valid_source_bibtex)
+      local_src = FactoryBot.build(:valid_source_bibtex)
       expect(local_src.valid?).to be_truthy
       local_src.bibtex_type = 'test'
       expect(local_src.valid?).to be_falsey
@@ -447,10 +441,10 @@ describe Source::Bibtex, type: :model, group: :sources do
     end
 
     context 'test date related fields' do
-      let(:source_bibtex) { FactoryGirl.build(:valid_source_bibtex) }
+      let(:source_bibtex) { FactoryBot.build(:valid_source_bibtex) }
 
       specify 'if present year, must be an integer an greater than 999 and no more than 2 years in the future' do
-        error_msg          = 'year must be an integer greater than 999 and no more than 2 years in the future'
+        error_msg          = 'must be an integer greater than 999 and no more than 2 years in the future'
         source_bibtex.year = 'test'
         expect(source_bibtex.valid?).to be_falsey
         expect(source_bibtex.errors.messages[:year].include?(error_msg)).to be_truthy
@@ -478,7 +472,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
 
       specify 'if month is set, there must be a year' do
-        error_msg           = 'year is required when month or stated_year is provided'
+        error_msg           = 'is required when month or stated_year is provided'
         source_bibtex.month = 'feb'
         expect(source_bibtex.valid?).to be_falsey
         expect(source_bibtex.errors.messages[:year].include?(error_msg)).to be_truthy
@@ -546,7 +540,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           source_bibtex.year = 1945
         }
         specify 'if day is present there must be a month' do
-          error_msg         = 'month is required when day is provided'
+          error_msg         = 'is required when day is provided'
           source_bibtex.day = 31
           expect(source_bibtex.valid?).to be_falsey
           expect(source_bibtex.errors.messages[:month].include?(error_msg)).to be_truthy
@@ -564,7 +558,7 @@ describe Source::Bibtex, type: :model, group: :sources do
     end
 
     context 'on save set cached values - single author' do
-      let(:l_src) { FactoryGirl.create(:soft_valid_bibtex_source_article) }
+      let(:l_src) { FactoryBot.create(:soft_valid_bibtex_source_article) }
 
       specify 'save src' do
         expect(l_src.save).to be_truthy
@@ -594,7 +588,7 @@ describe Source::Bibtex, type: :model, group: :sources do
     end
 
     context 'before save set cached values - multiple authors' do
-      let(:l_src) { FactoryGirl.build(:src_mult_authors) }
+      let(:l_src) { FactoryBot.build(:src_mult_authors) }
 
       specify 'src should save' do
         expect(l_src.save).to be_truthy
@@ -610,8 +604,8 @@ describe Source::Bibtex, type: :model, group: :sources do
         end
 
         context 'correctly creates authority_name & cached_author_string' do
-          let(:source_bibtex) { FactoryGirl.build(:valid_source_bibtex) }
-          
+          let(:source_bibtex) { FactoryBot.build(:valid_source_bibtex) }
+
           context 'with author, but without authors' do
             specify 'single author' do
               source_bibtex.author = 'Thomas, D.'
@@ -653,7 +647,7 @@ describe Source::Bibtex, type: :model, group: :sources do
     end
 
     specify 'the url must be valid' do
-      src = FactoryGirl.build(:valid_source_bibtex)
+      src = FactoryBot.build(:valid_source_bibtex)
       err = '] is not a valid URL'
       expect(src.valid?).to be_truthy # nil url is valid
       src.url = 'bad url'
@@ -677,8 +671,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     specify 'with << and an existing object' do
       expect(bibtex.roles.count).to eq(0)
-      # this pattern appears to save off Person before it is added!
-      bibtex.authors << Person.new(last_name: "Smith")
+      bibtex.authors << Person.new(last_name: 'Smith')
       expect(bibtex.save).to be_truthy
 
       expect(bibtex.authors.first.creator.nil?).to be_falsey
@@ -700,38 +693,9 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     context 'with a new object' do
       let(:s) { Source::Bibtex.new(title: 'Roles II', year: 1924, bibtex_type: 'book') }
-      # Deprecated for accepts_nested_attributes_for
-      # todo: Beth, write new tests.
-      # specify 'with new object, <<, and existing Person' do
-      #   expect(s.roles.count).to eq(0)
-      #   s.authors << Person.create(last_name: 'Jones')
-      #   expect(s.save).to be_truthy
-      #   expect(s.roles(true).size).to eq(1)
-      #   expect(s.roles.first.valid?).to be_truthy
-      #   expect(s.roles.first.creator.nil?).to be_falsey
-      #   expect(s.roles.first.updater.nil?).to be_falsey
-      #   expect(s.roles.first.project_id.nil?).to be_truthy
-      #
-      #   expect(s.authors.first.creator.nil?).to be_falsey
-      #   expect(s.authors.first.updater.nil?).to be_falsey
-      # end
-      #
-      # specify 'with new object, <<, and new Person' do
-      #   expect(s.roles.count).to eq(0)
-      #   s.authors << Person.new(last_name: 'Jones')
-      #   expect(s.save).to be_truthy
-      #   expect(s.roles.count).to eq(1)
-      #   expect(s.roles.first.creator.nil?).to be_falsey
-      #   expect(s.roles.first.updater.nil?).to be_falsey
-      #   expect(s.roles.first.project_id.nil?).to be_truthy
-      #
-      #   expect(s.authors.first.creator.nil?).to be_falsey
-      #   expect(s.authors.first.updater.nil?).to be_falsey
-      # end
-
       # A setter solution that approximates nested_attributes_for (which can't be used on polymorphic through)
       specify 'with new and authors_to_create pattern' do
-        s.authors_to_create = [{last_name: "Yabbadabbadoo."}]
+        s.authors_to_create = [{last_name: 'Yabbadabbadoo.'}]
         expect(s.save).to be_truthy
         expect(s.roles.count).to eq(1)
         expect(s.roles.first.creator.nil?).to be_falsey
@@ -755,8 +719,7 @@ describe Source::Bibtex, type: :model, group: :sources do
   context 'instance methods - ' do
     before(:each) {
       # this is a TW Source::Bibtex - type article, with just a title
-      @source_bibtex = FactoryGirl.build(:valid_source_bibtex)
-      #@bibtex_book   = FactoryGirl.build(:valid_bibtex_source_book_title_only)
+      @source_bibtex = FactoryBot.build(:valid_source_bibtex)
     }
     context 'with an existing instance of Source::Bibtex' do
 
@@ -780,7 +743,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
         %w{author editor}.each do |a|
           context "creates people for #{a}s" do
-            let(:source_bibtex) { FactoryGirl.build(:valid_source_bibtex) }
+            let(:source_bibtex) { FactoryBot.build(:valid_source_bibtex) }
             specify "single #{a}" do
               method = "#{a}s"
               source_bibtex.send("#{a}=".to_sym, 'Smith, Bill')
@@ -790,7 +753,7 @@ describe Source::Bibtex, type: :model, group: :sources do
               source_bibtex.reload
               expect(source_bibtex.send(method.to_sym).size).to eq(1)
               #@source_bibtex.reload
-              expect(source_bibtex.send(method.to_sym).to_a.count).to eq(1)
+              expect(source_bibtex.send(method.to_sym).to_a.size).to eq(1)
               expect((source_bibtex.send(method.to_sym)).first.last_name).to eq('Smith')
               expect((source_bibtex.send(method.to_sym)).first.first_name).to eq('Bill')
             end
@@ -808,7 +771,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
               source_bibtex.reload
 
-              expect(source_bibtex.send(method.to_sym).to_a.count).to eq(3)
+              expect(source_bibtex.send(method.to_sym).to_a.size).to eq(3)
               expect(source_bibtex.send(method.to_sym).first.last_name).to eq('Thomas')
               expect(source_bibtex.send(method.to_sym).first.first_name).to eq('D.')
               author1_id = source_bibtex.send(method.to_sym).first.id
@@ -822,35 +785,35 @@ describe Source::Bibtex, type: :model, group: :sources do
           end
 
           specify "#{a}s returns correctly ordered arrays" do
-            method       = "#{a}s"
+            method       = "#{a}s".to_sym
             method_roles = "#{a}_roles"
             @source_bibtex.send("#{a}=".to_sym, 'Thomas, D. and Fowler, Chad and Hunt, Andy')
             expect(@source_bibtex.save).to be_truthy
-            expect(@source_bibtex.send(method.to_sym).size).to eq(0)
+            expect(@source_bibtex.send(method).size).to eq(0)
             expect(@source_bibtex.create_related_people_and_roles).to be_truthy
             @source_bibtex.reload
             @source_bibtex.authors.reload
             @source_bibtex.editors.reload
-            expect(@source_bibtex.send(method.to_sym).to_a.count).to eq(3)
+            expect(@source_bibtex.send(method).to_a.size).to eq(3)
 
-            a_id       = @source_bibtex.send(method.to_sym).first.id
+            a_id       = @source_bibtex.send(method).first.id
             a_role_obj = @source_bibtex.send(method_roles.to_sym)[0]
-            expect(@source_bibtex.send(method.to_sym)[0].last_name).to eq('Thomas')
-            expect(@source_bibtex.send(method.to_sym)[0].first_name).to eq('D.')
+            expect(@source_bibtex.send(method)[0].last_name).to eq('Thomas')
+            expect(@source_bibtex.send(method)[0].first_name).to eq('D.')
             expect(a_role_obj.position).to eq(1)
             expect(a_role_obj.person_id).to eq(a_id)
 
-            a_id       = @source_bibtex.send(method.to_sym)[1].id
+            a_id       = @source_bibtex.send(method)[1].id
             a_role_obj = @source_bibtex.send(method_roles.to_sym)[1]
-            expect(@source_bibtex.send(method.to_sym)[1].last_name).to eq('Fowler')
-            expect(@source_bibtex.send(method.to_sym)[1].first_name).to eq('Chad')
+            expect(@source_bibtex.send(method)[1].last_name).to eq('Fowler')
+            expect(@source_bibtex.send(method)[1].first_name).to eq('Chad')
             expect(a_role_obj.position).to eq(2)
             expect(a_role_obj.person_id).to eq(a_id)
 
-            a_id       = @source_bibtex.send(method.to_sym).last.id
+            a_id       = @source_bibtex.send(method).last.id
             a_role_obj = @source_bibtex.send(method_roles.to_sym)[2]
-            expect(@source_bibtex.send(method.to_sym)[2].last_name).to eq('Hunt')
-            expect(@source_bibtex.send(method.to_sym)[2].first_name).to eq('Andy')
+            expect(@source_bibtex.send(method)[2].last_name).to eq('Hunt')
+            expect(@source_bibtex.send(method)[2].first_name).to eq('Andy')
             expect(a_role_obj.position).to eq(3)
             expect(a_role_obj.person_id).to eq(a_id)
           end
@@ -865,7 +828,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(@source_bibtex.create_related_people_and_roles).to be_truthy
           @source_bibtex.reload
 
-          expect(@source_bibtex.authors.to_a.count).to eq(3)
+          expect(@source_bibtex.authors.to_a.size).to eq(3)
           expect(@source_bibtex.authors.first.last_name).to eq('Thomas')
           expect(@source_bibtex.authors.first.first_name).to eq('D.')
           author1_id = @source_bibtex.authors.first.id
@@ -876,7 +839,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(@source_bibtex.authors.last.last_name).to eq('Hunt')
           expect(@source_bibtex.authors.last.first_name).to eq('Andy')
 
-          expect(@source_bibtex.editors.to_a.count).to eq(1)
+          expect(@source_bibtex.editors.to_a.size).to eq(1)
           expect(@source_bibtex.editors.first.last_name).to eq('Smith')
           expect(@source_bibtex.editors.first.first_name).to eq('Bill')
         end
@@ -907,7 +870,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         context ".has_#{a}s? should evaluate both the #{a} attribute & roles" do
           let(:has_method) { "has_#{a}s?" }
 
-          specify "returns false if neither exist" do
+          specify 'returns false if neither exist' do
             expect(@source_bibtex.send(has_method)).to be_falsey
           end
 
@@ -974,9 +937,9 @@ describe Source::Bibtex, type: :model, group: :sources do
         Source.destroy_all
         @source_bibtex.year = 2002 # @source_bibtex has no date, title: 'article 1 just title'
         expect(@source_bibtex.save).to be_truthy
-        FactoryGirl.create(:valid_bibtex_source_book_title_only) # 'valid book with just a title' : no date
-        FactoryGirl.create(:valid_thesis) # 'Bugs by Beth': june 1982
-        FactoryGirl.create(:valid_misc) # 'misc source': july 4 2010
+        FactoryBot.create(:valid_bibtex_source_book_title_only) # 'valid book with just a title' : no date
+        FactoryBot.create(:valid_thesis) # 'Bugs by Beth': june 1982
+        FactoryBot.create(:valid_misc) # 'misc source': july 4 2010
         @sources = Source::Bibtex.order(id: :asc)
         expect(@sources.count).to eq(4)
 
@@ -995,14 +958,15 @@ describe Source::Bibtex, type: :model, group: :sources do
       context 'Must facilitate letter annotations on year' do
         specify 'correctly generates year suffix from BibTeX entry' do
           bibtex_entry_year = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: '1921b')
-          src               = Source::Bibtex.new_from_bibtex(bibtex_entry_year)
+          src = Source::Bibtex.new_from_bibtex(bibtex_entry_year)
           expect(src.year.to_s).to eq('1921') # year is an int by default
           expect(src.year_suffix).to eq('b')
           expect(src.year_with_suffix).to eq('1921b')
         end
+
         specify 'correctly converts year suffix to BibTeX entry' do
-          src               = FactoryGirl.create(:valid_source_bibtex)
-          src[:year]        = '1922'
+          src = FactoryBot.create(:valid_source_bibtex)
+          src[:year] = '1922'
           src[:year_suffix] = 'c'
           expect(src.year_with_suffix).to eq('1922c')
           bibtex_entry = src.to_bibtex
@@ -1012,25 +976,34 @@ describe Source::Bibtex, type: :model, group: :sources do
 
       context '#cached_string correctly formats ' do
 
+        # Expected result is a resolved citation of Source::Bibtex
         let(:src1) {
           VCR.use_cassette('source_citation_brauer') {
             Source.new_from_citation(citation: 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.', resolve: true)
           }
         }
 
+        # Expected result is a resolved citation of Source::Bibtex
         let(:src2) {
           VCR.use_cassette('source_citation_kevan') {
             Source.new_from_citation(citation: 'Kevan, D.K.M. & Wighton. 1981. Paleocene orthopteroids from south-central Alberta, Canada. Canadian Journal of Earth Sciences. 18(12):1824-1837', resolve: true)
           }
         }
 
-        specify 'text' do
+        specify 'text1' do
           expect(src1.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. G. Fischer, Available from: https://doi.org/10.5962%2Fbhl.title.1086.')
+        end
+
+        specify 'text2' do
           expect(src2.cached_string('text')).to eq('Kevan, D.K.M.E. & Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. Canadian Journal of Earth Sciences 18, 1824–1837.')
         end
-        specify 'html' do
+
+        specify 'html1' do
           expect(src1.cached_string('html')).to eq(
             'Brauer, A. (1909) <i>Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.</i> G. Fischer, Available from: https://doi.org/10.5962%2Fbhl.title.1086.')
+        end
+
+        specify 'html2' do
           expect(src2.cached_string('html')).to eq('Kevan, D.K.M.E. &amp; Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. <i>Canadian Journal of Earth Sciences</i> 18, 1824–1837.')
         end
       end
@@ -1038,26 +1011,18 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     context 'associations' do
       context 'roles' do
-
-        let(:vp1) { FactoryGirl.create(:valid_person) } # Smith
-        let(:vp2) { FactoryGirl.create(:source_person_prefix) } # Von Adams, John
+        let(:vp1) { Person.create!(last_name: 'Smith')  } 
+        let(:vp2) { Person.create!(last_name: 'Adams', first_name: 'John', prefix: 'Von') }
 
         specify 'after create/saved populate author/editor roles' do
           # bs1 was saved in the "before", since the authors already exist in the db,
           # the roles should be automatically set? (Yes)
           # skip
         end
-=begin
-      # cached values are tested above in "after save"
-      specify 'after create/saved authors are cached in cached_author_string' do
-        # Editors are not cached.
-      end
-      skip
-=end
 
         context 'check cached strings after update' do
           specify 'authors' do
-            src1 = FactoryGirl.create(:soft_valid_bibtex_source_article)
+            src1 = FactoryBot.create(:soft_valid_bibtex_source_article)
             src1.save
             expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
             expect(src1.cached_author_string).to eq('Person')
@@ -1074,7 +1039,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           end
 
           specify 'editors' do
-            src1 = FactoryGirl.create(:src_editor)
+            src1 = FactoryBot.create(:src_editor)
             src1.save
             expect(src1.cached).to eq('Person, T. ed. (1700) I am a soft valid article. Journal of Test Articles.')
 
@@ -1124,16 +1089,11 @@ describe Source::Bibtex, type: :model, group: :sources do
 
         # pending 'test TW identifiers'
       end
-
     end
   end
 
 
   context 'class methods' do
-    # create_with_roles(bibtex_entry, opts = {})
-    #    opts = {
-    #      use_vetted_people: false
-    #    }.merge!(opts)
 
     context '#new_from_bibtex' do
       let(:citation_string) { %q(@book{international_commission_on_zoological_nomenclature_international_1999,
@@ -1144,20 +1104,22 @@ describe Source::Bibtex, type: :model, group: :sources do
                                     urldate = {2010-12-06},
                                     publisher = {International Trust for Zoological Nomenclature},
                                     author = {International Commission on Zoological Nomenclature},
+                                    type = {Journal Article},
                                     year = {1999}})
       }
-      let(:bibtex_entry) { BibTeX.parse(citation_string).first }
 
-      specify 'handles non-recognized keys as ImportAttributes' do
-        expect(a = Source::Bibtex.new_from_bibtex(bibtex_entry)).to be_truthy
-        expect(a.save).to be_truthy
-        a.reload
-        expect(a.data_attributes.count).to eq(1)
-        expect(a.data_attributes.first.type).to eq('ImportAttribute')
-        expect(a.data_attributes.first.import_predicate).to eq('urldate')
-        expect(a.data_attributes.first.value).to eq('2010-12-06')
+      let(:bibtex_entry) { BibTeX.parse(citation_string).first }
+      let(:a) { Source::Bibtex.new_from_bibtex(bibtex_entry) }
+
+      before { a.save }
+
+      specify 'import keys for non-recognized attributes' do
+        expect(a.import_attributes.map(&:import_predicate)).to contain_exactly('urldate', 'type') #  eq('urldate')
       end
 
+      specify 'values for import predicates' do
+        expect(a.import_attributes.map(&:value)).to contain_exactly('2010-12-06', 'Journal Article') #  eq('urldate')
+      end
     end
 
     context 'create_with_roles(BibTeX::Entry instance)' do
@@ -1196,11 +1158,14 @@ describe Source::Bibtex, type: :model, group: :sources do
 =end
 
   context 'soft validations' do
-    let(:source_bibtex) { FactoryGirl.build(:soft_valid_bibtex_source_article) }
+    let(:source_bibtex) { FactoryBot.build(:soft_valid_bibtex_source_article) }
 
-    specify 'missing authors' do
+    specify 'missing authors 1' do
       source_bibtex.soft_validate(:recommended_fields)
       expect(source_bibtex.soft_validations.messages_on(:base).empty?).to be_truthy
+    end
+
+    specify 'missing authors 2' do
       source_bibtex.author = nil
       source_bibtex.save
       source_bibtex.soft_validate(:recommended_fields)
@@ -1234,10 +1199,10 @@ describe Source::Bibtex, type: :model, group: :sources do
 
   context 'nested attributes' do
     #let(:b){Source::Bibtex.new}
-    let(:person1) { Person::Unvetted.create!(last_name: "un") }
-    let(:person2) { Person::Unvetted.create!(last_name: "deux") }
-    let(:person3) { Person::Unvetted.create!(last_name: "trois") }
-    let(:required_params) { {bibtex_type: 'article', title: "Three Frenchmen"} }
+    let(:person1) { Person::Unvetted.create!(last_name: 'un') }
+    let(:person2) { Person::Unvetted.create!(last_name: 'deux') }
+    let(:person3) { Person::Unvetted.create!(last_name: 'trois') }
+    let(:required_params) { {bibtex_type: 'article', title: 'Three Frenchmen'} }
 
     context 'with new source' do
       context 'creates new author role with existing person' do
@@ -1246,10 +1211,10 @@ describe Source::Bibtex, type: :model, group: :sources do
         ) }
         let(:b) { Source::Bibtex.create!(params) }
         specify 'has one role' do
-          expect(b.roles(true).size).to eq(1)
+          expect(b.roles.reload.size).to eq(1)
         end
         specify 'has one author' do
-          expect(b.authors(true).size).to eq(1)
+          expect(b.authors.reload.size).to eq(1)
         end
       end
 
@@ -1259,10 +1224,10 @@ describe Source::Bibtex, type: :model, group: :sources do
         ) }
         let(:b) { Source::Bibtex.create!(params) }
         specify 'has one role' do
-          expect(b.roles(true).size).to eq(1)
+          expect(b.roles.reload.size).to eq(1)
         end
         specify 'has one author' do
-          expect(b.authors(true).size).to eq(1)
+          expect(b.authors.reload.size).to eq(1)
         end
       end
 
@@ -1287,7 +1252,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         let(:params) { required_params.merge(one_author_params) }
         specify 'update adds role' do
           expect(b.update(params)).to be_truthy
-          expect(b.roles(true).size).to eq(1)
+          expect(b.roles.reload.size).to eq(1)
         end
       end
 
@@ -1297,7 +1262,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         ) }
         specify 'update adds role' do
           expect(b.update(params)).to be_truthy
-          expect(b.roles(true).size).to eq(1)
+          expect(b.roles.reload.size).to eq(1)
         end
       end
 
@@ -1308,9 +1273,9 @@ describe Source::Bibtex, type: :model, group: :sources do
             author_roles_attributes: [{id: b.roles.first.id, _destroy: 1}]
           } }
           specify 'update destroys role' do
-            expect(b.roles(true).size).to eq(1)
+            expect(b.roles.reload.size).to eq(1)
             expect(b.update(params)).to be_truthy
-            expect(b.roles(true).size).to eq(0)
+            expect(b.roles.reload.size).to eq(0)
           end
         end
       end
@@ -1321,15 +1286,15 @@ describe Source::Bibtex, type: :model, group: :sources do
           author_roles_attributes: [{id: b.roles.second.id, _destroy: 1}]
         } }
         specify 'three authors exist' do
-          expect(b.authors(true).size).to eq(3)
+          expect(b.authors.reload.size).to eq(3)
         end
         specify 'update updates position' do
-          expect(b.authors(true).count).to eq(3)
+          expect(b.authors.reload.count).to eq(3)
           expect(b.authority_name).to eq('un, deux & trois')
           expect(b.update(params)).to be_truthy
-          expect(b.authors(true).count).to eq(2)
+          expect(b.authors.reload.count).to eq(2)
           expect(b.authority_name).to eq('un & trois')
-          expect(b.roles(true).first.position).to eq(1)
+          expect(b.roles.reload.first.position).to eq(1)
           expect(b.roles.last.position).to eq(2)
           expect(b.authors.last.last_name).to eq('trois')
         end
@@ -1341,11 +1306,11 @@ describe Source::Bibtex, type: :model, group: :sources do
           author_roles_attributes: [{id: b.roles.second.id, position: 1}, {id: b.roles.third.id, position: 2}, {id: b.roles.first.id, position: 3}]
         } }
         specify 'update updates position' do
-          expect(b.authors(true).count).to eq(3)
+          expect(b.authors.reload.count).to eq(3)
           expect(b.authority_name).to eq('un, deux & trois')
           expect(b.update(params)).to be_truthy
-          expect(b.authors(true).collect { |a| a.last_name }).to eq(%w{deux trois un})
-          expect(b.authors(true).count).to eq(3)
+          expect(b.authors.reload.collect {|a| a.last_name}).to eq(%w{deux trois un})
+          expect(b.authors.reload.count).to eq(3)
           expect(b.authority_name).to eq('deux, trois & un')
         end
       end
@@ -1420,7 +1385,7 @@ describe Source::Bibtex, type: :model, group: :sources do
     #       # array.push(LaTeX.decode %q{" \`{o} \"{o} \.{o} \H{o} \d{o} {\OE} \aa \O \ss "})
 
     #       # array.push(LaTeX.decode %q{ '{o} \~{o} \u{o} \H{o} \t{oo} \b{o} \ae \AA \l  ?'})
-    #       # 
+    #       #
     #       # array.push(LaTeX.decode %q{" \^{o} \={o} \V{o} \c{o} \oe \ae \o \L !' "})
 
     #       # array.push(LaTeX.decode %q{" \`{e} \"{a} \.{a} \c{c} {\oe}  \\{oe}a"})

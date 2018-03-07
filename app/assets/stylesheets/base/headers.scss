@@ -1,63 +1,60 @@
-@import 'base/palette';
-@import 'base/whitespace';
-@import 'base/fonts';
-
 #header_bar {
-	margin:0 auto;
-	padding-left:$standard_padding;
-	padding-right:$standard_padding;
-	align-items:center;
-	background-color: $color-header;	
-	height:50px;
+  margin: 0 auto;
+  padding-left: $standard_padding;
+  padding-right: $standard_padding;
+  align-items: center;
+  background-color: $color-header;
+  height: 50px;
 
-	a {
-		padding: $standard_padding;
-	}
+  a {
+    padding: $standard_padding;
+  }
 
-	#taxonworks {
-		a {
-			color: #FFF;
-			padding: 0px;
-			font-size: 20px;
-			font-weight: 300;
-			text-decoration: none;
-		}
-	}
+  #taxonworks {
+    .logo {
+      width: 160px;
+      height: 20px;
+      background-image: image-url('taxonworks-white.svg');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: left center;
+      padding: 0px;
+      text-decoration: none;
+    }
+  }
 
-	#session_nav {
-		flex-grow: 0;
-		a {  
-			padding: 0px;
-			color: #FFF;
+  #session_nav {
+    flex-grow: 0;
+    a {
+      padding: 0px;
+      color: #FFF;
 
-		}
-		li {
-			padding-left: $standard_padding;
-		}
-	}
+    }
+    li {
+      padding-left: $standard_padding;
+    }
+  }
 }
 
 #header_bar.sandbox {
-	background-color: $color-primary-0;
-	#session_nav a { 
-		color: $color-secondary-2-4;
-	}
+  background-color: $color-primary-0;
+  #session_nav a {
+    color: $color-secondary-2-4;
+  }
 
-	#taxonworks a {
-		color: $default_text;
-	}
-} 
-
-.current_hub_category {
-	border-bottom: 2px solid $color-secondary-2-4 !important;
+  #taxonworks a {
+    color: $default_text;
+  }
 }
+
 .current_hub_category a {
-	color: $default_text !important;
+  border-bottom: 2px solid $color-secondary-2-4 !important;
+  color: $default_text !important;
 }
 
 #main {
-	margin:0 auto;
-	padding-left:$standard_padding;
-	padding-right:$standard_padding;
+  margin: 0 auto;
+  padding-left: $standard_padding;
+  padding-right: $standard_padding;
 }
 

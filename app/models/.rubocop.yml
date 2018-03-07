@@ -3,7 +3,7 @@ inherit_from: ../../.rubocop.yml
 Metrics/BlockNesting:
   Max: 4
 
-Style/MultilineOperationIndentation:
+Layout/MultilineOperationIndentation:
   Enabled: false
 
 #Metrics/AbcSize:

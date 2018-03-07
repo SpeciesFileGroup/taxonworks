@@ -7,22 +7,21 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
 
   def make_dates_method_headers
     list = Utilities::Dates::REGEXP_DATES
-    selector_row = ""
-    list.keys.each_with_index {|kee, dex|
+    selector_row = ''
+    list.each_key {|kee|
       selector_row += content_tag(:th, Utilities::Dates::REGEXP_DATES[kee][:hdr],
                                   data: {help: Utilities::Dates::REGEXP_DATES[kee][:hlp]})
     }
     selector_row.html_safe
   end
 
-
-  # @param [Array] must be array of symbols from Utilities::Dates::REGEXP_DATES.keys (optional)
+  # @param [Array] filters must be array of symbols from Utilities::Dates::REGEXP_DATES.keys (optional)
   def make_dates_selected_method_boxes(filters = Utilities::Dates::REGEXP_DATES.keys)
     list = Utilities::Dates::REGEXP_DATES
-    box_row = ""
-    list.keys.each { |kee|
+    box_row = ''
+    list.each_key { |kee|
       checked = filters.include?(kee)
-      box_row += content_tag(:td, check_box_tag("filters[]", kee.to_s, checked), align: 'center')
+      box_row += content_tag(:td, check_box_tag('filters[]', kee.to_s, checked), align: 'center')
     }
     box_row.html_safe
   end
@@ -31,7 +30,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
   def make_dates_rows(label, filters)
     return nil if label.nil?
     tests = Utilities::Dates.hunt_dates(label, filters)
-    tests.keys.collect.with_index do |kee, dex|
+    tests.keys.each_with_index do |kee, dex|
       trial = tests[kee]
       method = trial.delete(:method) # extract the method from the trial and save it
       next if trial.blank? # if this leaves the trial empty, skip
@@ -57,7 +56,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::DatesHelper
   # @param [String] pieces is either piece, or lat, long
   # @param [Scope] collection is a scope of CollectingEvent
   # "identical matches" result table
-  def make_dates_matching_table(*pieces, collection)
+  def make_dates_matching_table(*pieces, collection)  # rubocop:disable Metrics/MethodLength
     columns = ['CEID', 'Match', 'Start Date', 'End Date', 'Verbatim Date', 'Select']
 
     thead = content_tag(:thead) do

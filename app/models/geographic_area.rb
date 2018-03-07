@@ -45,7 +45,7 @@
 #   @return [String]
 #   Text describing the source of the data used for creation (TDWG, GADM, NaturalEarth, etc.).
 #
-class GeographicArea < ActiveRecord::Base
+class GeographicArea < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::IsData
@@ -68,14 +68,14 @@ class GeographicArea < ActiveRecord::Base
   validates :geographic_area_type, presence: true
   validates_presence_of :geographic_area_type_id
 
-  validates :parent, presence: true, unless: 'self.name == "Earth"' || ENV['NO_GEO_VALID']
-  validates :level0, presence: true, allow_nil: true, unless: 'self.name == "Earth"'
+  validates :parent, presence: true, unless: -> {self.name == 'Earth'} # || ENV['NO_GEO_VALID']}
+  validates :level0, presence: true, allow_nil: true, unless: -> {self.name == 'Earth'}
   validates :level1, presence: true, allow_nil: true
   validates :level2, presence: true, allow_nil: true
   validates :name, presence: true, length: {minimum: 1}
   validates :data_origin, presence: true
 
-  scope :descendants_of, -> (geographic_area) {with_ancestor(geographic_area) } 
+  scope :descendants_of, -> (geographic_area) {with_ancestor(geographic_area)}
   scope :ancestors_of, -> (geographic_area) { joins(:descendant_hierarchies).order('geographic_area_hierarchies.generations DESC').where(geographic_area_hierarchies: {descendant_id: geographic_area.id}).where('geographic_area_hierarchies.ancestor_id != ?', geographic_area.id) }
 
   scope :self_and_ancestors_of, -> (geographic_area) {
@@ -92,12 +92,12 @@ class GeographicArea < ActiveRecord::Base
   #     .uniq
   # }
 
-  #  HashAggregate  (cost=100.89..100.97 rows=8 width=77) 
+  #  HashAggregate  (cost=100.89..100.97 rows=8 width=77)
   scope :ancestors_and_descendants_of, -> (geographic_area) do
     a = GeographicArea.self_and_ancestors_of(geographic_area)
     b = GeographicArea.descendants_of(geographic_area)
     GeographicArea.from("((#{a.to_sql}) UNION (#{b.to_sql})) as geographic_areas")
-  end 
+  end
 
   scope :with_name_like, lambda { |string|
     where(['name like ?', "#{string}%"])
@@ -161,7 +161,7 @@ class GeographicArea < ActiveRecord::Base
 
   # @param [GeographicArea]
   # @return [Scope] of geographic_areas
-  def self.is_contained_by(geographic_area) # rubocop:disable Style/PredicateName
+  def self.is_contained_by(geographic_area)
     pieces = nil
     if geographic_area.geographic_items.any?
       pieces = GeographicItem.is_contained_by('any_poly', geographic_area.geo_object)
@@ -201,7 +201,7 @@ class GeographicArea < ActiveRecord::Base
   end
 
   # @return [Scope] of areas which have at least one shape
-  def self.have_shape? # rubocop:disable Style/PredicateName
+  def self.have_shape?
     joins(:geographic_areas_geographic_items).select('distinct(geographic_areas.id)')
   end
 
@@ -238,14 +238,14 @@ class GeographicArea < ActiveRecord::Base
     GeographicArea.descendants_of(self).where('level2_id IS NOT NULL')
   end
 
-  # @param [String] name of geographic_area_type (e.g., 'Country', 'State', 'City')
+  # @param [String] geographic_area_type name of geographic_area_type (e.g., 'Country', 'State', 'City')
   # @return [Scope] descendants of this instance which have specific types, such as counties of a state.
   def descendants_of_geographic_area_type(geographic_area_type)
     GeographicArea.descendants_of(self).includes([:geographic_area_type])
       .where(geographic_area_types: {name: geographic_area_type})
   end
 
-  # @param [Array] geographic_area_type names
+  # @param [Array] geographic_area_type_names names
   # @return [Scope] descendants of this instance which have specific types, such as cities and counties of a province.
   def descendants_of_geographic_area_types(geographic_area_type_names)
     GeographicArea.descendants_of(self).includes([:geographic_area_type])
@@ -268,7 +268,7 @@ class GeographicArea < ActiveRecord::Base
     data_origin[-1]
   end
 
-  def has_shape? # rubocop:disable Style/PredicateName
+  def has_shape?
     geographic_items.any?
   end
 
@@ -357,40 +357,81 @@ class GeographicArea < ActiveRecord::Base
     Georeference::GeoLocate::RequestUI.new(geolocate_attributes).request_params_string
   end
 
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
   # @return [Hash]
   #   query_line => [Array of GeographicArea]
-  # @params [text] 
+  # @params [text]
   #   one result set per line (\r\n)
   #   lines can have child:parent:parent name patterns
   def self.matching(text, has_shape = false, invert = false)
     if text.nil? || text.length == 0
-      return Hash.new('No query provided!' => []) 
+      return Hash.new('No query provided!' => [])
     end
 
     text.gsub!(/\r\n/, "\n")
 
-    result = {} 
+    result  = {}
     queries = text.split("\n")
     queries.each do |q|
       names = q.strip.split(':')
-      names.reverse! if invert 
+      names.reverse! if invert
       names.collect{|s| s.strip}
-      r = GeographicArea.with_name_and_parent_names(names)
-      r = r.joins(:geographic_items) if has_shape
-      result[q] = r 
-    end 
+      r         = GeographicArea.with_name_and_parent_names(names)
+      r         = r.joins(:geographic_items) if has_shape
+      result[q] = r
+    end
     result
+  end
+
+  # @param used_on [String] one of `CollectingEvent` (default) or `AssertedDistribution`
+  # @return [Scope]
+  #    the max 10 most recently used (1 week, could parameterize) geographic_areas, as used `use_on` 
+  def self.used_recently(used_on = 'CollectingEvent')
+
+   t = case used_on
+       when 'CollectingEvent'
+         CollectingEvent.arel_table
+       when 'AssertedDistribution'
+         CollectingEvent.arel_table
+       end
+   
+    p = GeographicArea.arel_table 
+
+    # i is a select manager
+    i = t.project(t['geographic_area_id'], t['created_at']).from(t)
+      .where(t['created_at'].gt( 1.weeks.ago ))
+      .order(t['created_at'])
+
+    # z is a table alias 
+    z = i.as('recent_t')
+
+    GeographicArea.joins(
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['geographic_area_id'].eq(p['id'])))
+    ).distinct.limit(10)
+  end
+
+  # @params target [String] one of `CollectingEvent` or `AssertedDistribution` 
+  # @return [Hash] geographic_areas optimized for user selection
+  def self.select_optimized(user_id, project_id, target = 'CollectingEvent')
+
+    h = {
+      quick: [],
+      pinboard: GeographicArea.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
+    }
+
+    case target 
+    when 'CollectingEvent'
+      h[:recent] = GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id}).
+        used_recently('CollectingEvent').
+        limit(10).distinct.to_a
+    when 'AssertedDistribution'
+      h[:recent] = GeographicArea.joins(:asserted_distributions).
+        where(asserted_distributions: {project_id: project_id}).
+        used_recently('AssertedDistribution').
+        limit(10).distinct.to_a
+    end
+
+    h[:quick] = (GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a  + h[:recent][0..3]).uniq 
+    h
   end
 
   protected
@@ -399,7 +440,7 @@ class GeographicArea < ActiveRecord::Base
 
   def check_for_children
     unless leaf?
-      errors[:base] << "has attached names, delete these first"
+      errors[:base] << 'has attached names, delete these first'
       return false
     end
   end

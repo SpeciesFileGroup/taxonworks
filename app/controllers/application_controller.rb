@@ -3,10 +3,18 @@ class ApplicationController < ActionController::Base
   include Workbench::SessionsHelper
   include ProjectsHelper
 
+
+
+
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
+
+  rescue_from ActionController::ParameterMissing do |exception| 
+    raise unless request.format == :json 
+    render json: { error: exception }, status: 400 
+  end
 
   attr_writer :is_data_controller, :is_task_controller
 
@@ -34,6 +42,12 @@ class ApplicationController < ActionController::Base
         render(json: {success: false}, status: :unauthorized) && return
       end
     end
+
+    headers['Access-Control-Allow-Origin'] = '*'
+    headers['Access-Control-Allow-Methods'] = 'POST, PUT, DELETE, GET, OPTIONS'
+    headers['Access-Control-Request-Method'] = '*'
+    headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+
     true
   end
 

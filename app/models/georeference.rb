@@ -1,4 +1,3 @@
-# rubocop:disable Metrics/AbcSize, MethodLength, CyclomaticComplexity
 # A georeference is an assertion that some shape, as derived from some method, describes the location of some collecting event.
 #
 # A georeference contains three components:
@@ -61,12 +60,12 @@
 #   @return [Boolean]
 #   True if this georeference represents an average vertical distance, otherwise false.
 #
-class Georeference < ActiveRecord::Base
+class Georeference < ApplicationRecord
   include Housekeeping
-  include Shared::Notable
-  include Shared::Taggable
+  include Shared::Notes
+  include Shared::Tags
   include Shared::IsData
-  include Shared::Citable
+  include Shared::Citations
   include Shared::HasRoles
 
   attr_accessor :iframe_response # used to pass the geolocate from Tulane through
@@ -107,7 +106,7 @@ class Georeference < ActiveRecord::Base
   #  When true, cascading cached values (e.g. in CollectingEvent) are not built
   attr_accessor :no_cached
 
-  after_save :set_cached, if: '!self.no_cached'
+  after_save :set_cached, unless: -> {self.no_cached}
 
   # instance methods
 
@@ -393,10 +392,10 @@ class Georeference < ActiveRecord::Base
   def check_error_geo_item_intersects_area
     # case 5.5
     retval = true
-    unless collecting_event.nil?
-      unless error_geographic_item.nil?
-        if error_geographic_item.geo_object # is NOT false
-          unless collecting_event.geographic_area.nil?
+    if collecting_event.present?
+      if error_geographic_item.present?
+        if error_geographic_item.geo_object.present?
+          if collecting_event.geographic_area.present?
             retval = collecting_event.geographic_area.default_geographic_item.intersects?(error_geographic_item.geo_object)
           end
         end
@@ -405,13 +404,14 @@ class Georeference < ActiveRecord::Base
     retval
   end
 
-  # @return [Boolean] true if geographic_item.geo_object is completely contained in collecting_event.geographic_area.default_geographic_item
+  # @return [Boolean]
+  #    true if geographic_item.geo_object is completely contained in collecting_event.geographic_area.default_geographic_item
   def check_obj_inside_area
     # case 6
     retval = true
-    unless collecting_event.nil?
-      unless geographic_item.nil? || collecting_event.geographic_area.nil?
-        unless geographic_item.geo_object.nil? || collecting_event.geographic_area.default_geographic_item.nil?
+    if collecting_event.present?
+      if geographic_item.present? && collecting_event.geographic_area.present?
+        if geographic_item.geo_object && collecting_event.geographic_area.default_geographic_item.present?
           retval = collecting_event.geographic_area.default_geographic_item.contains?(geographic_item.geo_object)
         end
       end
@@ -510,8 +510,10 @@ class Georeference < ActiveRecord::Base
     end
   end
 
-  # @param [Double, Double, Double, Double] two latitude/longitude pairs in decimal degrees
-  #   find the heading between them.
+  # @param [Double] from_lat_
+  # @param [Double] from_lon_
+  # @param [Double] to_lat_
+  # @param [Double] to_lon_
   # @return [Double] Heading is returned as an angle in degrees clockwise from North.
   def heading(from_lat_, from_lon_, to_lat_, to_lon_)
     from_lat_rad_  = RADIANS_PER_DEGREE * from_lat_

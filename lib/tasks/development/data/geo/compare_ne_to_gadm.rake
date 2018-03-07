@@ -6,7 +6,7 @@ namespace :tw do
       namespace :geo do
 
         desc 'Compare the NaturalEarth country name data to the level_0 level data from GADM2.'
-        task :compare_ne_to_gadm => :environment do
+        task compare_ne_to_gadm: :environment do
 
           matched   = 0
           unmatched = 0

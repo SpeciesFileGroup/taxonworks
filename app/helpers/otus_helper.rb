@@ -4,7 +4,7 @@ module OtusHelper
     return nil if otu.nil?
     a = content_tag(:span, otu.name, class: :otu_tag_otu_name) if otu.name
     b = content_tag(:span, full_taxon_name_tag(otu.taxon_name).html_safe, class: :otu_tag_taxon_name) if otu.taxon_name_id
-    content_tag(:span, [a,b].flatten.join.html_safe, class: :otu_tag)
+    content_tag(:span, [a,b].compact.join.html_safe, class: :otu_tag)
   end
 
   # @return [String]
@@ -26,7 +26,21 @@ module OtusHelper
   end
 
   def otus_link_list_tag(otus)
-    otus.collect { |o| link_to(o.name, o) }.join(",")
+    otus.collect { |o| link_to(o.name, o) }.join(',')
+  end
+
+  def otus_redirect(object)
+    otu = object.metamorphosize
+    content_tag(:div, '', 'data-taxon-name' => object_tag(otu), 'data-redirect' => 'true', 'data-taxon-id' => otu.id, 'data-otu-button' => 'true')
+  end
+
+  def otus_radial_disambiguate(object)
+    otu = object.metamorphosize
+    content_tag(:div, '', 'data-taxon-name' => object_tag(otu), 'data-redirect' => 'false', 'data-taxon-id' => otu.id, 'data-otu-button' => 'true')
+  end
+
+  def otus_radial(object)
+    content_tag(:div, '', 'data-global-id' => object.to_global_id.to_s, 'data-otu-radial' => 'true')
   end
 
 end

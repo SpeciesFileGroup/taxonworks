@@ -3,39 +3,37 @@ require 'rails_helper'
 describe 'Documention', type: :model, group: :documentation do
   let(:instance_with_documentation) { TestDocumentable.new }
 
-  let(:document1) { fixture_file_upload(Rails.root + 'spec/files/documents/tiny.pdf', 'application/pdf') }
+  let(:document1) { fixture_file_upload(Spec::Support::Utilities::Files.generate_pdf, 'application/pdf') }
   let(:document2) { fixture_file_upload(Rails.root + 'spec/files/documents/tiny.txt', 'text/plain') }
 
-  let(:document_attributes) { 
+  let(:document_attributes) {
     { document_file: document1 }
   }
 
   context 'associations' do
-    specify 'has many documentation/#has_documentation?' do
-      # test that the method notations exists
+    specify '#documents' do
       expect(instance_with_documentation).to respond_to(:documents)
-      expect(instance_with_documentation.documentation.size == 0).to be_truthy
+    end
+
+    specify '#documentation' do 
+      expect(instance_with_documentation).to respond_to(:documentation)
     end
   end
 
-  context 'methods' do
-    specify '#has_documentation? (none)' do
-      expect(instance_with_documentation).to respond_to(:has_documentation?)
-      expect(instance_with_documentation.has_documentation?).to be_falsey
-    end
+  specify '#documented? (none)' do
+    expect(instance_with_documentation.documented?).to be_falsey 
+  end
 
-    specify '#has_documentation? (1)' do
-      expect(instance_with_documentation.documents << Document.new).to be_truthy
-      expect(instance_with_documentation.has_documentation?).to be_truthy
-      expect(instance_with_documentation.documentation.size == 1).to be_truthy
-    end
+  specify '#documented? (1)' do
+    instance_with_documentation.documents << Document.new
+    expect(instance_with_documentation.documented?).to be_truthy
   end
 
   context 'object with documentation' do
     context 'on destroy' do
       specify 'attached documentation is destroyed' do
         expect(Documentation.count).to eq(0)
-        instance_with_documentation.documentation << FactoryGirl.build(:valid_documentation)
+        instance_with_documentation.documentation << FactoryBot.build(:valid_documentation)
         instance_with_documentation.save
         expect(Documentation.count).to eq(1)
         expect(instance_with_documentation.destroy).to be_truthy
@@ -66,20 +64,20 @@ describe 'Documention', type: :model, group: :documentation do
     }
 
     specify '#document_array' do
-      expect(instance_with_documentation).to respond_to('document_array=') 
+      expect(instance_with_documentation).to respond_to('document_array=')
     end
 
     specify 'succeeds' do
       instance_with_documentation.document_array = data
       expect(instance_with_documentation.save).to be_truthy
       expect(instance_with_documentation.documents.count).to eq(2)
-      expect(instance_with_documentation.documents.first.id).to be_truthy 
+      expect(instance_with_documentation.documents.first.id).to be_truthy
     end
   end
 
 end
 
-class TestDocumentable < ActiveRecord::Base
+class TestDocumentable < ApplicationRecord
   include FakeTable
   include Shared::Documentation
 end

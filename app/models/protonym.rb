@@ -1,14 +1,12 @@
-# Force the loading of TaxonNameRelationships in all worlds.  This allows us to edit without restarting in development. 
+# Force the loading of TaxonNameRelationships in all worlds.  This allows us to edit without restarting in development.
 Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {|file| require_dependency file }
-
 
 # A *monomial* TaxonName, a record implies a first usage. This follows Pyle's concept almost exactly.
 #
-# We inject a lot of relationship helper methods here, in this format. 
+# We inject a lot of relationship helper methods here, in this format.
 #   subject                      object
 #   Aus      original_genus of   bus
 #   aus      type_species of     Bus
-#
 #
 class Protonym < TaxonName
 
@@ -17,12 +15,12 @@ class Protonym < TaxonName
 
   alias_method :original_combination_source, :source
 
-  FAMILY_GROUP_ENDINGS = %w{ini ina inae idae oidae odd ad oidea}
+  FAMILY_GROUP_ENDINGS = %w{ini ina inae idae oidae odd ad oidea}.freeze
 
   validates_presence_of :name
-  validates_presence_of :rank_class, message: 'is a required field' 
-  validates_presence_of :name, message: 'is a required field' 
-  
+  validates_presence_of :rank_class, message: 'is a required field'
+  validates_presence_of :name, message: 'is a required field'
+
   validate :validate_rank_class_class,
     :validate_parent_rank_is_higher,
     :check_new_rank_class,
@@ -32,7 +30,7 @@ class Protonym < TaxonName
     :name_is_latinized,
     :name_is_valid_format
 
-  after_create :create_otu,  if: 'self.also_create_otu'
+  after_create :create_otu, if: -> {self.also_create_otu}
 
   has_one :type_taxon_name_relationship, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
@@ -73,7 +71,7 @@ class Protonym < TaxonName
       if d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification)/ # |SourceClassifiedAs
         relationships = "#{d.assignment_method}_relationships".to_sym
         has_many relationships, -> {
-          where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
+          where("taxon_name_relationships.type LIKE '#{d.name}%'")
         }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
         has_many d.assignment_method.to_s.pluralize.to_sym, through: relationships, source: :object_taxon_name
       end
@@ -83,7 +81,7 @@ class Protonym < TaxonName
       if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icnb|SourceClassifiedAs)/
         relationships = "#{d.inverse_assignment_method}_relationships".to_sym
         has_many relationships, -> {
-          where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
+          where("taxon_name_relationships.type LIKE '#{d.name}%'")
         }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
         has_many d.inverse_assignment_method.to_s.pluralize.to_sym, through: relationships, source: :subject_taxon_name
       end
@@ -98,8 +96,8 @@ class Protonym < TaxonName
 
   # TODO: this is not really needed
   scope :named, -> (name) {where(name: name)}
-  
-  scope :with_name_in_array, -> (array) { where('name in (?)', array) }  
+
+  scope :with_name_in_array, -> (array) {where('name in (?)', array)}
 
   # find classifications for taxon
   scope :with_taxon_name_classifications_on_taxon_name, -> (t) { includes(:taxon_name_classifications).where('taxon_name_classifications.taxon_name_id = ?', t).references(:taxon_name_classifications) }
@@ -126,12 +124,15 @@ class Protonym < TaxonName
   scope :with_project, -> (project_id) {where(project_id: project_id)}
 
   # TODO: isn't this the way to do it now? (It does not work, may need extra investigation. DD)
-#   scope :that_is_valid, -> {where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') }
+  #   scope :that_is_valid, -> {where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') }
 
   scope :that_is_valid, -> {
     joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
     where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type ILIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type ILIKE 'TaxonNameRelationship::Icn::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Icnb::Unaccepting%')")
   }
+
+  scope :is_species_group, -> { where("rank_class ILIKE '%speciesgroup%'") }
+  scope :is_genus_group, -> { where("rank_class ILIKE '%genusgroup%'") }
 
   # @return [Array of Strings]
   #   genera where the species was placed
@@ -140,12 +141,12 @@ class Protonym < TaxonName
     return nil unless valid_name.rank_string !=~/Species/
     descendants_and_self = valid_name.descendants + [self] + self.combinations
     relationships        = TaxonNameRelationship.where_object_in_taxon_names(descendants_and_self).with_two_type_bases('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::Combination::Genus')
-    (relationships.collect { |r| r.subject_taxon_name.name } + [self.ancestor_at_rank('genus').name]).uniq
+    (relationships.collect { |r| r.subject_taxon_name.name } + [self.ancestor_at_rank('genus').try(:name)]).uniq
   end
 
   # @return [boolean]
   def is_fossil?
-    taxon_name_classifications.with_type_contains('::Fossil').any? 
+    taxon_name_classifications.with_type_contains('::Fossil').any?
   end
 
   def list_of_coordinated_names
@@ -168,8 +169,10 @@ class Protonym < TaxonName
         unless search_name.nil?
           list = Protonym.ancestors_and_descendants_of(self).not_self(self).
             with_rank_class_including(search_rank).
-            with_name_in_array(search_name).
-            as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym') 
+            # TODO @proceps Rails 5.0 makes this scope fail, for reasons I have not yet investigated. @tuckerjd
+            # with_name_in_array(search_name).
+            where('name in (?)', search_name).
+            as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym')
         else
           list = []
         end
@@ -198,7 +201,8 @@ class Protonym < TaxonName
   # @return [String, nil]
   #   a string, without parenthesis, that includes author and year
   def get_author_and_year
-    case self.rank_class.try(:nomenclatural_code)
+    # times_called
+    case rank_class.try(:nomenclatural_code)
       when :iczn
         ay = iczn_author_and_year
       when :icn
@@ -206,7 +210,7 @@ class Protonym < TaxonName
       when :icnb
         ay = icn_author_and_year
       else
-        ay = ([self.author_string] + [self.year_integer]).compact.join(' ')
+        ay = ([author_string] + [year_integer]).compact.join(' ')
     end
     ay.blank? ? nil : ay
   end
@@ -215,7 +219,6 @@ class Protonym < TaxonName
     return nil if rank_class.nil?
     genus = nil
     name1 = nil
-
 
     if self.rank_string =~ /Species/
       if genus_option == :original
@@ -254,6 +257,12 @@ class Protonym < TaxonName
     Protonym.ancestors_and_descendants_of(self).not_self(self).to_a
   end
 
+  # @return [Protonym]
+  #   a name ready to become the root
+  def self.stub_root(project_id: nil, by: nil)
+    Protonym.new(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project_id: project_id, by: by)
+  end
+
   def self.family_group_base(name_string)
     name_string.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)$/)
     $1 || name_string
@@ -283,8 +292,8 @@ class Protonym < TaxonName
 
   # !! TODO: Should not be possible- fix the incoming data
   # @return [Boolean]
-  #    true if taxon2 has the same primary type 
-  def has_same_primary_type(taxon2) 
+  #    true if taxon2 has the same primary type
+  def has_same_primary_type(taxon2)
     return true unless rank_class.parent.to_s =~ /Species/
 
     taxon1_types = get_primary_type.sort_by{|i| i.id}
@@ -292,11 +301,11 @@ class Protonym < TaxonName
     return true if taxon1_types.empty? && taxon2_types.empty? # both are empty !! If they are both empty then they don't have the same type, the have no types  !!
     return false if taxon1_types.empty? || taxon2_types.empty? # one is empty
 
-    taxon1_types.map(&:biological_object_id) == taxon2_types.map(&:biological_object_id) # collect{|i| i.biological_object_id} 
+    taxon1_types.map(&:biological_object_id) == taxon2_types.map(&:biological_object_id) # collect{|i| i.biological_object_id}
   end
 
-  # return [Array of TaxonNameRelationship]
-  #   classes that are applicable to this name, as deterimined by Rank
+  # return [Array]
+  #  TaxonNameRelationship classes that are applicable to this name, as deterimined by Rank
   def original_combination_class_relationships
     relations = []
     TaxonNameRelationship::OriginalCombination.descendants.each do |r|
@@ -305,6 +314,8 @@ class Protonym < TaxonName
     relations
   end
 
+  # @return [Array]
+  #   A relationships for each possible original combination relationship
   def original_combination_relationships_and_stubs
     # TODO: figure out where to really put this, likely in one big sort
     display_order = [
@@ -312,18 +323,17 @@ class Protonym < TaxonName
     ]
 
     defined_relations = self.original_combination_relationships.all
-    created_already = defined_relations.collect{|a| a.class}
-    new_relations = [] 
+    created_already   = defined_relations.collect{|a| a.class}
+    new_relations     = []
 
     original_combination_class_relationships.each do |r|
       new_relations.push( r.new(object_taxon_name: self) ) if !created_already.include?(r)
     end
 
     (new_relations + defined_relations).sort{|a,b|
-      display_order.index(a.class.inverse_assignment_method) <=> display_order.index(b.class.inverse_assignment_method) 
+      display_order.index(a.class.inverse_assignment_method) <=> display_order.index(b.class.inverse_assignment_method)
     }
   end
-
 
   # @return [Boolean]
   #   whether this name has one of the TaxonNameClassifications that except it from being tested as latinized
@@ -332,10 +342,8 @@ class Protonym < TaxonName
     # !((type == 'Protonym') && (taxon_name_classifications.collect{|t| t.type} & EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?)
 
     # Is faster than above?
-    if type == 'Protonym'
-      taxon_name_classifications.each do |tc| # ! find_each
-        return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
-      end
+    taxon_name_classifications.each do |tc| # ! find_each
+      return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
     end
     false
   end
@@ -352,28 +360,12 @@ class Protonym < TaxonName
     GENUS_RANK_NAMES.include?(rank_string)
   end
 
+  def is_genus_or_species_rank?
+    is_species_rank? || is_genus_rank?
+  end
+
   def is_family_rank?
     FAMILY_RANK_NAMES.include?(rank_string)
-  end
-
-  # TODO: Why protected?  What does it do?
-  def genus_suggested_gender
-    return nil unless rank_string =~/Genus/
-    TAXON_NAME_CLASSIFICATION_GENDER_CLASSES.each do |g|
-      g.possible_genus_endings.each do |e|
-        return g.name.demodulize.underscore.humanize.downcase if self.name =~ /^[a-zA-Z]*#{e}$/
-      end
-    end
-    nil
-  end
-
-  # TODO: why protected?
-  def species_questionable_ending(g, n)
-    return nil unless rank_string =~ /Species/
-    g.questionable_species_endings.each do |e|
-      return e if n =~ /^[a-z]*#{e}$/
-    end
-    nil
   end
 
   def reduce_list_of_synonyms(list)
@@ -442,11 +434,226 @@ class Protonym < TaxonName
     else
       n = self.name.squish
     end
-    
+
     return n
   end
 
+  def genus_suggested_gender
+    return nil unless rank_string =~/Genus/
+    TAXON_NAME_CLASSIFICATION_GENDER_CLASSES.each do |g|
+      g.possible_genus_endings.each do |e|
+        return g.name.demodulize.underscore.humanize.downcase if self.name =~ /^[a-zA-Z]*#{e}$/
+      end
+    end
+    nil
+  end
+
+  def species_questionable_ending(taxon_name_classification_class, tested_name)
+    return nil unless is_species_rank?
+    taxon_name_classification_class.questionable_species_endings.each do |e|
+      return e if tested_name =~ /^[a-z]*#{e}$/
+    end
+    nil
+  end
+
+
+  # TODO: refactor to use us a hash!
+  # Returns a String representing the name as originally published
+  def get_original_combination
+    # strategy is to get the original hash, and swap in values for pertinent relationships
+    str = nil
+
+    if is_genus_or_species_rank?  # TODO: by definition it's a protonym
+      relationships = self.original_combination_relationships.reload # force a reload of the relationships
+
+      return nil if relationships.count == 0
+
+      # This can be greatly simplified by swapping in names to the hash method
+
+      relationships = relationships.sort_by{|r| r.type_class.order_index }
+      genus         = ''
+      subgenus      = ''
+      superspecies  = ''
+      species       = ''
+      gender        = nil
+      g1 = nil
+      s1 = nil
+
+      relationships.each do |i|
+        if i.object_taxon_name_id == i.subject_taxon_name_id && !i.object_taxon_name.verbatim_name.blank?
+          case i.type # subject_status
+            when /OriginalGenus/ #'original genus'
+              genus  = '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+              gender = i.subject_taxon_name.gender_name
+              g1 = true
+            when /OriginalSubgenus/ # 'original subgenus'
+              subgenus += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalSpecies/ #  'original species'
+              species += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+              s1 = true
+            when /OriginalSubspecies/ # 'original subspecies'
+              species += '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalVariety/ #  'original variety'
+              species += 'var. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalSubvariety/ # 'original subvariety'
+              species += 'subvar. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalForm/ # 'original form'
+              species += 'f. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+            when /OriginalSubform/ #  'original subform'
+              species += 'subf. <i>' + i.subject_taxon_name.verbatim_name + '</i> '
+          end
+        else
+          case i.type # subject_status
+            when /OriginalGenus/ #'original genus'
+              genus  = '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+              gender = i.subject_taxon_name.gender_name
+              g1 = true
+            when /OriginalSubgenus/ # 'original subgenus'
+              subgenus += '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+  #          when /OriginalSection/ # 'original section'
+  #            subgenus += 'sect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+  #          when /OriginalSubsection/ #'original subsection'
+  #            subgenus += 'subsect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+  #          when /OriginalSeries/ # 'original series'
+  #            subgenus += 'ser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+  #          when /OriginalSubseries/ #  'original subseries'
+  #            subgenus += 'subser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
+            when /OriginalSpecies/ #  'original species'
+              species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+              s1 = true
+            when /OriginalSubspecies/ # 'original subspecies'
+              species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalVariety/ #  'original variety'
+              species += 'var. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalSubvariety/ # 'original subvariety'
+              species += 'subvar. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalForm/ # 'original form'
+              species += 'f. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+            when /OriginalSubform/ #  'original subform'
+              species += 'subf. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
+          end
+        end
+      end
+
+      original_name = self.verbatim_name.nil? ? self.name_with_misspelling(nil) : self.verbatim_name
+      if !relationships.empty? && relationships.collect{|i| i.subject_taxon_name}.last.lowest_rank_coordinated_taxon.id != self.lowest_rank_coordinated_taxon.id
+        if self.rank_string =~ /Genus/
+          if genus.blank?
+            genus += '<i>' + original_name + '</i> '
+            g1 = true
+          else
+            subgenus += '<i>' + original_name + '</i> '
+          end
+        elsif self.rank_string =~ /Species/
+          species += '<i>' + original_name + '</i> '
+          s1 = true
+          # genus = '<i>' + self.ancestor_at_rank('genus').name_with_misspelling(nil) + '</i> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
+        end
+      end
+
+      subgenus = '(' + subgenus.squish + ') ' unless subgenus.empty?
+      genus = '[GENUS NOT SPECIFIED]' + genus.to_s if g1.nil?
+      species = '[SPECIES NOT SPECIFIED]' + species.to_s if s1.nil? && !species.empty?
+      str = (genus + subgenus + superspecies + species).gsub(' [sic]', '</i> [sic]<i>').gsub('</i> <i>', ' ').gsub('<i></i>', '').gsub('<i> ', ' <i>').squish
+    end
+    str.blank? ? nil : str
+  end
+
+
+  # TODO: @proceps - confirm this is only applicable to Protonym, NOT Combination
+  def update_cached_original_combinations
+    update_columns(
+      cached_original_combination: get_original_combination,
+      cached_primary_homonym: get_genus_species(:original, :self),
+      cached_primary_homonym_alternative_spelling: get_genus_species(:original, :alternative))
+  end
+
+
+  def set_cached_species_homonym
+    update_columns(
+      cached_secondary_homonym: get_genus_species(:current, :self),
+      cached_secondary_homonym_alternative_spelling: get_genus_species(:current, :alternative)
+    )
+  end
+
+  # TODO: @proceps - confirm this is only applicable to Protonym, NOT Combination
+  # Should this be in Protonym
+  def set_cached_names_for_dependants
+    dependants = []
+    related_through_original_combination_relationships = []
+    combination_relationships = []
+
+    TaxonName.transaction do
+      if is_genus_or_species_rank?
+        dependants = Protonym.descendants_of(self).to_a
+        related_through_original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
+        combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
+      end
+
+     #  dependants.push(self) # combination does hit here
+
+      # Combination can hit here
+      classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
+
+      # TODO: not used!?
+      # hybrid_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('Hybrid')
+
+      dependants.each do |i|
+        columns_to_update = {
+          cached: i.get_full_name,
+          cached_html: i.get_full_name_html
+        }
+
+        if i.is_species_rank?
+          columns_to_update[:cached_secondary_homonym] = i.get_genus_species(:current, :self)
+          columns_to_update[:cached_secondary_homonym_alternative_spelling] = i.get_genus_species(:current, :alternative)
+        end
+
+        i.update_columns(columns_to_update)
+      end
+
+      related_through_original_combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
+        i.update_cached_original_combinations
+      end
+
+      # Update values in Combinations
+      combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
+        i.update_columns(
+          cached: i.get_full_name,
+          cached_html: i.get_full_name_html)
+      end
+
+      classified_as_relationships.collect{|i| i.subject_taxon_name}.uniq.each do |i|
+        i.update_column(:cached_classified_as, i.get_cached_classified_as)
+      end
+
+      classified_as_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
+        i.update_columns(
+          cached: i.get_full_name,
+          cached_html: i.get_full_name_html
+        )
+      end
+
+    end
+  end
+
+  # @return [boolean]
+  def nominotypical_sub_of?(protonym)
+    is_genus_or_species_rank? && parent == protonym && parent.name == protonym.name
+  end
+
   protected
+
+  # TODO: move to Protonym
+  def check_new_parent_class
+    if is_protonym? && parent_id != parent_id_was && !parent_id_was.nil? && nomenclatural_code == :iczn
+      if old_parent = TaxonName.find_by(id: parent_id_was)
+        if (rank_name == 'subgenus' || rank_name == 'subspecies') && old_parent.name == name
+          errors.add(:parent_id, "The nominotypical #{rank_name} #{name} can not be moved out of the nominal #{old_parent.rank_name}")
+        end
+      end
+    end
+  end
 
   def name_is_latinized
     errors.add(:name, 'Name must be latinized, no digits or spaces allowed') if !is_latin?
@@ -460,8 +667,6 @@ class Protonym < TaxonName
     Otu.create(by: self.creator, project: self.project, taxon_name_id: self.id)
   end
 
-  #region Validation
-
   def new_parent_taxon_name
     r = self.iczn_uncertain_placement_relationship
     unless r.blank?
@@ -471,103 +676,79 @@ class Protonym < TaxonName
     end
   end
 
+  def check_new_parent_class
+    if parent_id != parent_id_was && !parent_id_was.nil? && nomenclatural_code == :iczn
+      if old_parent = TaxonName.find_by(id: parent_id_was)
+        if (rank_name == 'subgenus' || rank_name == 'subspecies') && old_parent.name == name
+          errors.add(:parent_id, "The nominotypical #{rank_name} #{name} can not be moved out of the nominal #{old_parent.rank_name}")
+        end
+      end
+    end
+  end
+
   def validate_rank_class_class
     errors.add(:rank_class, 'Rank not found') unless RANKS.include?(rank_string)
-  end 
-
-  #endregion
-
-
-  def set_cached_names
-    super 
-    if self.errors.empty? && !self.no_cached
-
-      # set_cached_higher_classification
-      set_primary_homonym
-      set_primary_homonym_alternative_spelling
-
-      if rank_string =~ /Species/
-        set_secondary_homonym
-        set_secondary_homonym_alternative_spelling
-      end
-      set_cached_misspelling
-    end
   end
 
   def set_cached
-    self.cached = get_full_name
+    super
+    set_cached_names_for_dependants # !!! do we run set cached names 2 x !?!
+    set_cached_original_combination
+    set_cached_homonymy
+    set_cached_species_homonym if is_species_rank?
+    set_cached_misspelling
   end
 
-  def set_cached_html
-    self.cached_html = get_full_name_html
+
+  def set_cached_homonymy
+    update_columns(
+      cached_primary_homonym: get_genus_species(:original, :self),
+      cached_primary_homonym_alternative_spelling: get_genus_species(:original, :alternative)
+    )
   end
 
+  # all three in one update here
   def set_cached_misspelling
-    self.cached_misspelling = get_cached_misspelling
-  end
-
-  # Deprecated
-  # def set_cached_higher_classification
-  #   self.cached_higher_classification = get_higher_classification
-  # end
-
-  def set_primary_homonym
-    self.cached_primary_homonym = get_genus_species(:original, :self)
-  end
-
-  def set_primary_homonym_alternative_spelling
-    self.cached_primary_homonym_alternative_spelling = get_genus_species(:original, :alternative)
-  end
-
-  def set_secondary_homonym
-    self.cached_secondary_homonym = get_genus_species(:current, :self)
-  end
-
-  def set_secondary_homonym_alternative_spelling
-    self.cached_secondary_homonym_alternative_spelling = get_genus_species(:current, :alternative)
+    update_column(:cached_misspelling, get_cached_misspelling)
   end
 
   def set_cached_original_combination
-    self.cached_original_combination = get_original_combination
-  end
-
-  def set_cached_valid_taxon_name_id
-    begin
-      TaxonName.transaction do
-        self.update_column(:cached_valid_taxon_name_id, self.get_valid_taxon_name.id)
-        #self.valid_taxon_name = get_valid_taxon_name
-      end
-    rescue
-    end
+    update_column(:cached_original_combination, get_original_combination)
   end
 
   #endregion
 
-  # Update cached values when a related taxon changes (e.g. new genus, or new original genus) 
-  # Combination caching is handled in Combination
+  # Validate whether cached names need to be rebuilt.
+  #
+  # TODO: this is kind of pointless, we generate
+  # all the alues need for cached, names, at that point
+  # the cached values should just be persisted
+  # The logic here also duplicates the tracking
+  # needed for building cached names.
+  #
+  # Refactor this to single methods, one each to validate
+  # cached name?
+  #
   def sv_cached_names
-    # if updated, update also set_cached_names
-    # if type == 'Protonym'
     is_cached = true
-    is_cached = false if self.cached_author_year != get_author_and_year
+    is_cached = false if cached_author_year != get_author_and_year
 
-    if is_cached # don't run the tests if it's already false # self.class == Protonym
-      if self.cached_html != get_full_name_html ||
-          self.cached_misspelling != get_cached_misspelling ||
-          self.cached_original_combination != get_original_combination ||
-          #          self.cached_higher_classification != get_higher_classification ||
-          self.cached_primary_homonym != get_genus_species(:original, :self) ||
-          self.cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
-          self.rank_string =~ /Species/ && (self.cached_secondary_homonym != get_genus_species(:current, :self) || self.cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative))
-        is_cached = false
-      end
+    if is_cached && cached_html != get_full_name_html ||
+      cached_misspelling != get_cached_misspelling ||
+      cached_original_combination != get_original_combination ||
+      cached_primary_homonym != get_genus_species(:original, :self) ||
+      cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
+      rank_string =~ /Species/ &&
+        (cached_secondary_homonym != get_genus_species(:current, :self) ||
+          cached_secondary_homonym_alternative_spelling != get_genus_species(:current,
+                                                                             :alternative))
+      is_cached = false
     end
 
     soft_validations.add(
       :base, 'Cached values should be updated',
       fix: :sv_fix_cached_names, success_message: 'Cached values were updated'
     ) if !is_cached
-    # end
   end
 
 end

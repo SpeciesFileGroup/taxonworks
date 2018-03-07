@@ -8,17 +8,17 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
     let(:file_name) { 'spec/files/batch/collection_object/CollectionObjectTestErr.tsv' }
     let(:setup) {
       ns_2
-      csv1 = CSV.read(file_name, {headers: true, header_converters: :downcase, col_sep: "\t", encoding: "UTF-8"})
+      csv1 = CSV.read(file_name, {headers: true, header_converters: :downcase, col_sep: "\t", encoding: 'UTF-8'})
       csv1.each do |row|
         ident = row[1]
         # the following invocation also creates a valid specimen as a collection_object
-        id_er = FactoryGirl.create(:valid_identifier, namespace: ns_1, identifier: ident)
+        id_er = FactoryBot.create(:valid_identifier, namespace: ns_1, identifier: ident)
         co    = id_er.identifier_object
         case ident
           when '35397' # create a collecting event to find later
             error = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
             ns_ce = Namespace.where(short_name: row['collecting_event_identifier_namespace_short_name']).first
-            ce    = FactoryGirl.create(:valid_collecting_event,
+            ce    = FactoryBot.create(:valid_collecting_event,
                                        {verbatim_locality:                   row['verbatim_location'],
                                         verbatim_geolocation_uncertainty:    error.empty? ? nil : error,
                                         start_date_day:                      row['start_day'],
@@ -49,7 +49,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
           when '38866' # create a collecting event to find later
             error               = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
             ns_ce               = Namespace.where(short_name: row['collecting_event_identifier_namespace_short_name']).first
-            ce                  = FactoryGirl.create(:valid_collecting_event,
+            ce                  = FactoryBot.create(:valid_collecting_event,
                                                      {verbatim_locality:                   row['verbatim_location'],
                                                       verbatim_geolocation_uncertainty:    error.empty? ? nil : error,
                                                       start_date_day:                      row['start_day'],
@@ -109,7 +109,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
         expect(bingo).to be_truthy
         expect(bingo.total_lines).to eq(208)
         expect(bingo.processed_rows[1].parse_errors).to include('No collection object with cached identifier \'MuleDeer 35614\' exists.')
-        expect(bingo.processed_rows[11].parse_errors).to include('Collecting event problems: identifiers.identifier: has already been taken: ')
+        expect(bingo.processed_rows[11].parse_errors).to include('Collecting event problems: identifiers.identifier: 58170 already taken: ')
         expect(bingo.processed_rows[16].parse_errors).to include('No available namespace \'MuleDear\'.', 'Collecting event problems: identifiers.namespace: can\'t be blank: ')
         expect(bingo.processed_rows[61].objects[:ce].first.verbatim_locality).to eq('Collecting Event No. 59353')
       end
@@ -121,14 +121,14 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
     let(:file_name) { 'spec/files/batch/collection_object/CollectionObjectTest.tsv' }
     let(:setup) {
       ns_2
-      csv1 = CSV.read(file_name, {headers: true, header_converters: :downcase, col_sep: "\t", encoding: "UTF-8"})
+      csv1 = CSV.read(file_name, {headers: true, header_converters: :downcase, col_sep: "\t", encoding: 'UTF-8'})
       csv1.each do |row|
         ident = row[1]
         case ident
           when '35397' # create a collecting event to find later
             error = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
             ns_ce = Namespace.where(short_name: row['collecting_event_identifier_namespace_short_name']).first
-            ce    = FactoryGirl.create(:valid_collecting_event,
+            ce    = FactoryBot.create(:valid_collecting_event,
                                        {verbatim_locality:                   row['verbatim_location'],
                                         verbatim_geolocation_uncertainty:    error.empty? ? nil : error,
                                         start_date_day:                      row['start_day'],
@@ -156,7 +156,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
           else
         end
         # the following invocation also creates a valid specimen as a collection_object
-        FactoryGirl.create(:valid_identifier, namespace: ns_1, identifier: ident)
+        FactoryBot.create(:valid_identifier, namespace: ns_1, identifier: ident)
       end
     }
     let(:csv_args) { {headers: true, col_sep: "\t", encoding: 'UTF-8'} }
@@ -168,17 +168,17 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
 
     let(:upload_file) { fixture_file_upload(file_name) }
     let(:import) {
-     BatchLoad::Import::CollectionObjects::new(project_id: project.id,
-                                               user_id:    user.id,
-                                               file:       upload_file,
-                                               user_header_map:
-                                                           {'otu'         => 'otu_name',
-                                                            'start_day'   => 'start_date_day',
-                                                            'start_month' => 'start_date_month',
-                                                            'start_year'  => 'start_date_year',
-                                                            'end_day'     => 'end_date_day',
-                                                            'end_month'   => 'end_date_month',
-                                                            'end_year'    => 'end_date_year'}
+      BatchLoad::Import::CollectionObjects::new(project_id: project.id,
+                                                user_id:    user.id,
+                                                file:       upload_file,
+                                                user_header_map:
+                                                            {'otu'         => 'otu_name',
+                                                             'start_day'   => 'start_date_day',
+                                                             'start_month' => 'start_date_month',
+                                                             'start_year'  => 'start_date_year',
+                                                             'end_day'     => 'end_date_day',
+                                                             'end_month'   => 'end_date_month',
+                                                             'end_year'    => 'end_date_year'}
       )
     }
 

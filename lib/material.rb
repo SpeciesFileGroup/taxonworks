@@ -10,17 +10,21 @@ module Material
       'note' => nil,
       'biocuration_classes' => [],
       'repository' => {'id' => nil},
+      'preparation_type' => {'id' => nil},
       'collection_object' => {}
-    }.merge!(options)
+    }.merge(options)
 
     response = QuickVerbatimResponse.new(opts)
 
     objects = {}
-    opts['collection_objects'].keys.each do |k|
+    opts['collection_objects'].each_key do |k|
       objects.merge!(k => opts['collection_objects'][k]) if !opts['collection_objects'][k]['total'].blank?
     end
 
-    stub_object_attributes = CollectionObject::BiologicalCollectionObject.new(opts['collection_object'].merge('repository_id' => opts['repository']['id']))
+    stub_object_attributes = CollectionObject::BiologicalCollectionObject.new(opts['collection_object'].merge(
+      'repository_id' => opts['repository']['id'],
+      'preparation_type_id' => opts['preparation_type']['id']
+    ))
 
     if opts['identifier'] && !opts['identifier']['namespace_id'].blank? && !opts['identifier']['identifier'].blank?
       identifier = Identifier::Local::CatalogNumber.new(
@@ -33,13 +37,14 @@ module Material
     
     note = Note.new(opts['note']) if opts['note'] && !opts['note']['text'].blank? 
     repository = Repository.find(opts['repository']['id']) if opts['repository'] && !opts['repository']['id'].blank?
+    preparation_type = PreparationType.find(opts['preparation_type']['id']) if opts['preparation_type'] && !opts['preparation_type']['id'].blank?
 
-    objects.keys.each do |o|
+    objects.each_key do |o|
       object = stub_object_attributes.dup
       object.total = objects[o]['total']
 
       if objects[o]['biocuration_classes'] 
-        objects[o]['biocuration_classes'].keys.each do |k|
+        objects[o]['biocuration_classes'].each_key do |k|
           object.biocuration_classifications.build(biocuration_class: BiocurationClass.find(k)) 
         end
       end
@@ -56,13 +61,14 @@ module Material
     response.note = note if note
     response.identifier = identifier if identifier
     response.repository = repository if repository
+    response.preparation_type = preparation_type if preparation_type 
 
     response 
   end
 
   # A Container to store results of create_quick_verbatim
   class QuickVerbatimResponse
-    LOCKS = %w{namespace repository increment collecting_event determinations other_labels note}
+    LOCKS = %w{namespace repository preparation_type increment collecting_event determinations other_labels note}.freeze
 
     attr_accessor :quick_verbatim_object
     attr_accessor :locks
@@ -73,6 +79,7 @@ module Material
     attr_accessor :namespace
     attr_accessor :identifier
     attr_accessor :repository
+    attr_accessor :preparation_type
     attr_accessor :note
 
     def initialize(options = {})
@@ -88,6 +95,7 @@ module Material
 
       @note       = Note.new(form_params['note'])
       @repository = Repository.find(form_params['repository']['id']) if (form_params['repository'] && !form_params['repository']['id'].blank?)
+      @preparation_type = PreparationType.find(form_params['preparation_type']['id']) if (form_params['preparation_type'] && !form_params['preparation_type']['id'].blank?)
       @identifier = Identifier::Local::CatalogNumber.new(form_params['identifier'])
       @namespace  = identifier.namespace 
     end
@@ -118,6 +126,14 @@ module Material
       @repository ||= Repository.new
     end
 
+    def preparation_type=(value)
+      @preparation_type = value
+    end
+
+    def preparation_type
+      @preparation_type ||= PreparationType.new
+    end
+
     def namespace=(value)
       @namespace = value
     end
@@ -142,7 +158,7 @@ module Material
       end
 
       begin
-        ActiveRecord::Base.transaction do
+        ApplicationRecord.transaction do
 
           collection_objects.each do |o|
             if o.contained_in
@@ -168,6 +184,7 @@ module Material
       # nullify if not locked
       #
       n.repository = nil if !locked?('repository')
+      n.preparation_type = nil if !locked?('preparation_type')
       n.namespace  = nil if !locked?('namespace')
       n.note       = nil if !locked?('note')
       

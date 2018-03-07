@@ -14,7 +14,7 @@ class DynamicContent
   # !! e.g. we shouldn't need a render_header? instance method here
 
   def section_header
-    "Unamed section for "#{self.class.name}."
+    'Unamed section for '#{self.class.name}."
   end
 
   def public_header

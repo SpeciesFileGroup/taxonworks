@@ -12,7 +12,7 @@ module Shared::DualAnnotator
   attr_accessor :is_community_annotation
 
   def is_community_annotation?
-    self.is_community_annotation == true
+    (is_community_annotation == true) || is_community_annotation.to_s == 'true'
   end
 
 end

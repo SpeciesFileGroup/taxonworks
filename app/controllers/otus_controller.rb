@@ -6,8 +6,18 @@ class OtusController < ApplicationController
   # GET /otus
   # GET /otus.json
   def index
-    @recent_objects = Otu.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    end
+
+  def index
+    respond_to do |format|
+      format.html do
+        @recent_objects = Otu.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @otus = Otu.where(filter_params).with_project_id(sessions_current_project_id)
+      }
+    end
   end
 
   # GET /otus/1
@@ -83,7 +93,7 @@ class OtusController < ApplicationController
   end
 
   def autocomplete
-    @otus = Queries::OtuAutocompleteQuery.new(params.require(:term), project_id: sessions_current_project_id).all
+    @otus = Queries::Otu::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).all
 
     data = @otus.collect do |t|
       {
@@ -97,7 +107,7 @@ class OtusController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   def batch_load
@@ -127,15 +137,70 @@ class OtusController < ApplicationController
     end
   end
 
+  def preview_identifiers_batch_load
+    if params[:file]
+      @result = BatchLoad::Import::Otus::IdentifiersInterpreter.new(batch_params)
+      digest_cookie(params[:file].tempfile, :batch_load_otus_identifiers_md5)
+      render('otus/batch_load/identifiers/preview')
+    else
+      flash[:notice] = 'No file provided!'
+      redirect_to action: :batch_load
+    end
+  end
+
+  def create_identifiers_batch_load
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_load_otus_identifiers_md5)
+      @result = BatchLoad::Import::Otus::IdentifiersInterpreter.new(batch_params)
+      if @result.create
+        flash[:notice] = "Successfully processed file, #{@result.total_records_created} otus were created."
+        render('otus/batch_load/identifiers/create')
+        return
+      else
+        flash[:alert] = 'Batch import failed.'
+      end
+      render(:batch_load)
+    end
+  end
+
+  def preview_simple_batch_file_load
+    if params[:files]
+      @result = BatchFileLoad::Import::Otus::SimpleInterpreter.new(batch_params)
+      digest_cookie(params[:files][0].tempfile, :batch_file_load_simple_md5)
+      render 'otus/batch_file_load/simple/preview'
+    else
+      flash[:notice] = 'No file(s) provided!'
+      redirect_to action: :batch_load
+    end
+  end
+
+  def create_simple_batch_file_load
+    if params[:files] && digested_cookie_exists?(params[:files][0].tempfile, :batch_file_load_simple_md5)
+      @result = BatchFileLoad::Import::Otus::SimpleInterpreter.new(batch_params)
+
+      if @result.create
+        flash[:notice] = "Successfully processed #{@result.total_files_processed} file(s), #{@result.total_records_created} otus were created."
+        render 'otus/batch_file_load/simple/create'
+        return
+      else
+        flash[:alert] = 'Batch import failed.'
+        render :batch_load
+      end
+    end
+  end
+
   # GET /otus/download
   def download
-    send_data Download.generate_csv(Otu.where(project_id: sessions_current_project_id)), type: 'text', filename: "otus_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Otu.where(project_id: sessions_current_project_id)), type: 'text', filename: "otus_#{DateTime.now}.csv"
   end
 
   # GET api/v1/otus/by_name/:name?token=:token&project_id=:id
   def by_name
     @otu_name = params.require(:name)
-    @otu_ids = Queries::OtuAutocompleteQuery.new(@otu_name, project_id: params.require(:project_id)).all.pluck(:id)
+    @otu_ids = Queries::Otu::Autocomplete.new(@otu_name, project_id: params.require(:project_id)).all.pluck(:id)
+  end
+
+  def select_options
+    @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
   private
@@ -150,10 +215,15 @@ class OtusController < ApplicationController
   end
 
   def batch_params
-    params.permit(:name, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
+    params.permit(:name, :file, :import_level, files: []).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
   def user_map
     {user_header_map: {'otu' => 'otu_name'}}
   end
+
+  def filter_params
+    params.permit(:taxon_name_id)
+  end
+
 end

@@ -1,6 +1,6 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
+# Read about factories at https://github.com/thoughtbot/factory_bot
 
-FactoryGirl.define do
-  factory :identifier_global_orcid, :class => 'Identifier::Global::Orcid', traits: [:housekeeping] do
+FactoryBot.define do
+  factory :identifier_global_orcid, class: 'Identifier::Global::Orcid', traits: [:housekeeping] do
   end
 end

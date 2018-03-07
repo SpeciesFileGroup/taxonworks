@@ -2,9 +2,9 @@ namespace :tw do
   namespace :initialize do
 
     desc 'call like "rake tw:intialize:load_repositories", required data_directory'
-    task :load_repositories => [:data_directory, :environment, :user_id] do |t|
+    task load_repositories: [:data_directory, :environment, :user_id] do |t|
 
-      print "Loading repositories..."
+      print 'Loading repositories...'
       if Repository.all.count > 0 
         puts 'There are existing repositories, doing nothing.'.red.on_white 
         raise 
@@ -15,8 +15,8 @@ namespace :tw do
       # TODO: check checksums of incoming files?
 
       begin
-        ActiveRecord::Base.transaction do
-          f = CSV.open(file, :headers => true)
+        ApplicationRecord.transaction do
+          f = CSV.open(file, headers: true)
           f.each do |row|
             r = Repository.new(
               url: row['URL'],

@@ -16,7 +16,7 @@
 #
 # @!attribute controlled_vocabulary_term_id
 #   @return [Integer]
-#     Id of the Predicate for InternalAttributes 
+#     Id of the Predicate for InternalAttributes
 #
 # @!attribute value
 #   @return [String]
@@ -26,12 +26,12 @@
 #   @return [Integer]
 #   the project ID
 #
-class DataAttribute < ActiveRecord::Base
+class DataAttribute < ApplicationRecord
   include Housekeeping
-  include Shared::IsData 
+  include Shared::IsData
   include Shared::DualAnnotator
-
-  belongs_to :attribute_subject, polymorphic: true
+  include Shared::PolymorphicAnnotator
+  polymorphic_annotates('attribute_subject')
 
   # Please DO NOT include the following:  (follows Identifier approach)
   #   validates_presence_of :attribute_subject_type, :attribute_subject_id
@@ -43,27 +43,10 @@ class DataAttribute < ActiveRecord::Base
     where('value LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
   end
 
-  # @return [NoteObject]
-  #   alias to simplify reference across classes 
-  def annotated_object
-    attribute_subject
-  end
-
   # @return [Boolean]
   #   true if value can be edited, i.e. an InternalAttribute
   def editable?
     self.type == 'InternalAttribute'
-  end
-
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
   end
 
   # @return [String]

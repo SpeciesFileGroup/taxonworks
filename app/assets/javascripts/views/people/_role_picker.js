@@ -85,7 +85,7 @@ Object.assign(TW.views.people.role_picker, {
     var autocomplete_input = form.find(".role_picker_autocomplete");
 
     autocomplete_input.autocomplete({
-      source: '/people/lookup_person',
+      source: '/people/autocomplete',
       open: function (event, ui) {
         TW.views.people.role_picker.bind_hover(form);
       },
@@ -142,12 +142,11 @@ Object.assign(TW.views.people.role_picker, {
     var random_index = new Date().getTime();
     var role_list = form.find(".role_list");
 
-    // type
-    role_list.append($('<input hidden name="' + base_class + '[roles_attributes][' + random_index + '][type]" value="' + form.data('role-type') + '" >'));
-    role_list.append($('<input hidden name="' + base_class + '[roles_attributes][' + random_index + '][person_id]" value="' + person_id + '" >'));
-
     // insert visible list item
-    role_list.append($('<li class="role_item" data-role-index="' + random_index + '">').append(label).append('&nbsp;').append(TW.views.people.role_picker.remove_link()));
+    role_list.append($('<li class="role_item" data-role-index="' + random_index + '">').append(label).append('&nbsp;').append(TW.views.people.role_picker.remove_link())
+    .append($('<input hidden name="' + base_class + '[roles_attributes][' + random_index + '][type]" value="' + form.data('role-type') + '" >'))
+    .append($('<input hidden name="' + base_class + '[roles_attributes][' + random_index + '][person_id]" value="' + person_id + '" >')));
+
   },
 
   insert_new_person: function (form) {
@@ -171,7 +170,7 @@ Object.assign(TW.views.people.role_picker, {
   },
 
   remove_link: function () {
-    var link = $('<a href="#" class="remove_role">remove</a>');
+    var link = $('<a href="#" data-turbolinks="false" data-icon="trash" class="remove_role"></a>');
     TW.views.people.role_picker.bind_remove_links(link);
     return link;
   },
@@ -283,17 +282,10 @@ Object.assign(TW.views.people.role_picker, {
 
 });
 
-var _initialize_role_picker_widget;
-
-_initialize_role_picker_widget = function
-  init_role_picker() {
+$(document).on("turbolinks:load", function()  {
   $('.role_picker').each(function () {
     var role_type = $(this).data('role-type');
     TW.views.people.role_picker.initialize_role_picker($(this), role_type);
   });
-};
+});
 
-// Initialize the script on page load
-$(document).ready(_initialize_role_picker_widget);
-
-// This event is added by jquery.turbolinks automatically!? - see https://github.com/rails/turbolinks#jqueryturbolinks

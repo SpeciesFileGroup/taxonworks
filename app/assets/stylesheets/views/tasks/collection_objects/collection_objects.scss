@@ -1,85 +1,79 @@
-@import 'base/palette';
-@import 'base/fonts';
-@import 'base/whitespace';
-@import 'base/buttons';
+#co_by_area_and_date, #otu_by_area_and_nomen {
+  position: relative;
 
-#co_by_area_and_date {
-	position: relative;
+  h1, h2 {
+    font-weight: 400;
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+  h1 {
+    color: #666;
+  }
 
-	h1, h2 {		
-		font-weight: 400;
-		margin-top: 20px;
-		margin-bottom: 10px;
-	}
-	h1 {
-		color: #666;
-	}
+  .area_selection {
+    .ui-menu-item, .area_item {
+      span {
+        display: none;
+      }
+    }
+  }
 
-	.area_selection {
-		.ui-menu-item, .area_item  {
-			span {
-				display: none;
-			}
-		}
-	}
-	
-	.filter-button {
-		background-color: green;
-		background-image: image-url("filter.svg");
-	}
+  .filter-button {
+    background-color: green;
+    background-image: image-url("filter.svg");
+  }
 
-	#find_area_and_date_commit {
-		@extend .button-default;
-		top:15px;
-		right: 20px;
-		opacity: 1;
-		background-image: none;
-		border-radius: 3px;
-		height: 30px;
-	}
+  #find_area_and_date_commit, #find_area_and_nomen_commit {
+    @extend .button-default;
+    top: 15px;
+    right: 20px;
+    opacity: 1;
+    background-image: none;
+    border-radius: 3px;
+    height: 30px;
+  }
 
-	#result_view, .range-label {
-		display: none;
-	}
+  #result_view, .range-label {
+    display: none;
+  }
 
-	#reset_slider, #set_area, #set_otu {
-		margin-top: $standard_margin;
-	}
-	#result_span {
-		display: none;
-	}
+  #set_area, #set_otu {
+    margin-top: $standard_margin;
+  }
+  #result_span {
+    display: none;
+  }
 
-	.area_list {
-		padding-left: $standard_padding;
-		list-style: none;
-	}
-	#filter-collection-objects {
+  .area_list {
+    padding-left: $standard_padding;
+    list-style: none;
+  }
+  #filter-collection-objects, #filter-otus {
 
-		.panel, .slide-panel {
-			box-sizing: border-box;
-			width: 590px;
-			min-width: 590px;	
-		}
+    .panel, .slide-panel {
+      box-sizing: border-box;
+      width: 590px;
+      min-width: 590px;
+    }
 
-		h3 {
-			text-align: right;
-			display: block;
-		}		
+    h3 {
+      text-align: right;
+      display: block;
+    }
 
-		.warning-date {
-			color: red;
-		}
+    .warning-date {
+      color: red;
+    }
 
-		.title-filter-categories {
-			font-size: $font_small;
-			border-bottom: 1px solid $navigation-border;
-		}
-	}
+    .title-filter-categories {
+      font-size: $font_small;
+      border-bottom: 1px solid $navigation-border;
+    }
+  }
 
-
-	#set_area_form {
-		#textAreaSelector {
-			display: none;
-		}
-	}
+  #set_area_form {
+    #textAreaSelector {
+      display: none;
+    }
+  }
 }

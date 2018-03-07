@@ -25,6 +25,10 @@ module TagsHelper
     render '/tags/quick_search_form'
   end
 
+  def tag_default_icon(object)
+    content_tag(:span, 'Tag', data: {'tag-object-global-id' => object.to_global_id.to_s, 'default-tagged-id' => is_default_tagged?(object), 'inserted-keyword-count' => inserted_keyword_tag_count  }, class: [:default_tag_widget, 'circle-button', 'btn-disabled'])
+  end
+
   def tag_link(tag)
     return nil if tag.nil?
     link_to(tag_tag(tag), metamorphosize_if(tag.tag_object))
@@ -35,11 +39,14 @@ module TagsHelper
   end
 
   def add_tag_link(object: nil, attribute: nil) # tag_object is to be tagged
-    link_to('Add tag',
-            new_tag_path(tag_object_id: object.id, tag_object_type: object.class.name, tag_object_attribute: attribute),
-            id: "tag_splat_#{object.class}_#{object.id}"
-            # José - icon via class and or data-attribute here
-           )
+    if object.has_tags?
+      link_to('Add tag',
+              new_tag_path(tag_object_id: object.id, tag_object_type: object.class.name, tag_object_attribute: attribute),
+              id: "tag_splat_#{object.class}_#{object.id}"
+             )
+    else
+      nil
+    end
   end
 
   def destroy_tag_link(tag)
@@ -50,6 +57,26 @@ module TagsHelper
   #   indicates a custom partial should be used, see list_helper.rb
   def tags_recent_objects_partial
     true
+  end
+
+  # Session related helpers
+
+  def inserted_keyword
+    inserted_pinboard_item_object_for_klass('Keyword')
+  end
+
+  def inserted_keyword_tag_count
+    inserted_keyword.try(:tags).try(:count)
+  end
+
+  # @return [Integer, false]
+  #   true if the object is tagged, and is tagged with the keyword presently defaulted on the pinboard
+  def is_default_tagged?(object)
+    return false if object.blank?
+    keyword = inserted_keyword
+    return false if keyword.blank?
+    t = Tag.where(tag_object: object, keyword: keyword).first.try(:id)
+    t ? t : false
   end
 
 end

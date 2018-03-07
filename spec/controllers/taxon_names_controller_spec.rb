@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe TaxonNamesController, :type => :controller do
+describe TaxonNamesController, type: :controller do
   before(:each) {
     sign_in
   }
@@ -26,7 +26,7 @@ describe TaxonNamesController, :type => :controller do
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
-  let(:root_name) { FactoryGirl.create(:root_taxon_name) }
+  let(:root_name) { FactoryBot.create(:root_taxon_name) }
   let(:valid_attributes) { {name: 'Aidae', rank_class: Ranks.lookup(:iczn, 'family'), parent_id: root_name.id, type: 'Protonym' }}
 
   # This should return the minimal set of values that should be in the session
@@ -34,120 +34,121 @@ describe TaxonNamesController, :type => :controller do
   # TaxonNamesController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET list" do
-    it "with no other parameters, assigns 20/page taxon_names as @taxon_names" do
+  describe 'GET list' do
+    it 'with no other parameters, assigns 20/page taxon_names as @taxon_names' do
       taxon_name = TaxonName.create! valid_attributes
-      get :list, {}, valid_session
+      get :list, params: {}, session: valid_session
       expect(assigns(:taxon_names)).to include(taxon_name.becomes(taxon_name.type.constantize))
     end
 
-    it "renders the list template" do
-      get :list, {}, valid_session
-      expect(response).to render_template("list")
+    it 'renders the list template' do
+      get :list, params: {}, session: valid_session
+      expect(response).to render_template('list')
     end
   end
 
-  describe "GET index" do
-    it "assigns all taxon_names as @taxon_names" do
+  describe 'GET index' do
+    it 'assigns all taxon_names as @taxon_names' do
       taxon_name = TaxonName.create!(valid_attributes)
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       # The following means that @taxon_names = TaxonName.all in the controller.
       # todo @mjy following line (coming from Otu) is slightly different than others, i.e. others eq(taxon_name)
       expect(assigns(:recent_objects)).to include(taxon_name.becomes(taxon_name.type.constantize))
     end
   end
 
-  describe "GET show" do
-    it "assigns the requested taxon_name as @taxon_name" do
+  describe 'GET show' do
+    it 'assigns the requested taxon_name as @taxon_name' do
       taxon_name = TaxonName.create! valid_attributes
-      get :show, {:id => taxon_name.to_param}, valid_session
+      get :show, params: {id: taxon_name.to_param}, session: valid_session
       expect(assigns(:taxon_name)).to eq(taxon_name.becomes(taxon_name.type.constantize))
     end
   end
 
-  describe "GET new" do
-    it "assigns a new taxon_name as @taxon_name" do
-      get :new, {}, valid_session
+  describe 'GET new' do
+    it 'assigns a new taxon_name as @taxon_name' do
+      get :new, params: {}, session: valid_session
       expect(assigns(:taxon_name)).to be_a_new(TaxonName)
     end
   end
 
-  describe "GET edit" do
-    it "assigns the requested taxon_name as @taxon_name" do
+  describe 'GET edit' do
+    it 'assigns the requested taxon_name as @taxon_name' do
       taxon_name = TaxonName.create! valid_attributes
-      get :edit, {:id => taxon_name.to_param}, valid_session
+      get :edit, params: {id: taxon_name.to_param}, session: valid_session
       expect(assigns(:taxon_name)).to eq(taxon_name.becomes(taxon_name.type.constantize))
     end
   end
 
-  describe "POST create" do
-    describe "with valid params" do
-      it "creates a new TaxonName" do
+  describe 'POST create' do
+    describe 'with valid params' do
+      it 'creates a new TaxonName' do
         expect {
-          post :create, {:taxon_name => valid_attributes}, valid_session
+          post :create, params: {taxon_name: valid_attributes}, session: valid_session
         }.to change(TaxonName, :count).by(2) # both root and a name are created
       end
 
-      it "assigns a newly created taxon_name as @taxon_name" do
-        post :create, {:taxon_name => valid_attributes}, valid_session
+      it 'assigns a newly created taxon_name as @taxon_name' do
+        post :create, params: {taxon_name: valid_attributes}, session: valid_session
         expect(assigns(:taxon_name)).to be_a(TaxonName)
         expect(assigns(:taxon_name)).to be_persisted
       end
 
-      it "redirects to the created taxon_name" do
-        post :create, {:taxon_name => valid_attributes}, valid_session
+      it 'redirects to the created taxon_name' do
+        post :create, params: {taxon_name: valid_attributes}, session: valid_session
         expect(response).to redirect_to(TaxonName.last.becomes(TaxonName))
       end
     end
 
-    describe "with invalid params" do
-      it "assigns a newly created but unsaved taxon_name as @taxon_name" do
+    describe 'with invalid params' do
+      it 'assigns a newly created but unsaved taxon_name as @taxon_name' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaxonName).to receive(:save).and_return(false)
-        post :create, {:taxon_name => {"name" => "invalid value"}}, valid_session
+        post :create, params: {taxon_name: {'name' => 'invalid value'}}, session: valid_session
         expect(assigns(:taxon_name)).to be_a_new(TaxonName)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaxonName).to receive(:save).and_return(false)
-        post :create, {:taxon_name => {"name" => "invalid value"}}, valid_session
-        expect(response).to render_template("new")
+        post :create, params: {taxon_name: {'name' => 'invalid value'}}, session: valid_session
+        expect(response).to render_template('new')
       end
     end
   end
 
-  describe "PUT update" do
-    describe "with valid params" do
-      it "updates the requested taxon_name" do
+  describe 'PUT update' do
+    describe 'with valid params' do
+      it 'updates the requested taxon_name' do
         taxon_name = TaxonName.create! valid_attributes
         # Assuming there are no other taxon_names in the database, this
         # specifies that the TaxonName created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        expect_any_instance_of(TaxonName).to receive(:update).with({"name" => "MyString"})
-        put :update, {:id => taxon_name.to_param, :taxon_name => {"name" => "MyString"}}, valid_session
+        update_params = ActionController::Parameters.new({'name' => 'MyString'}).permit(:name)
+        expect_any_instance_of(TaxonName).to receive(:update).with(update_params)
+        put :update, params: {id: taxon_name.to_param, taxon_name: {'name' => 'MyString'}}, session: valid_session
       end
 
-      it "assigns the requested taxon_name as @taxon_name" do
+      it 'assigns the requested taxon_name as @taxon_name' do
         taxon_name = TaxonName.create! valid_attributes
-        put :update, {:id => taxon_name.to_param, :taxon_name => valid_attributes}, valid_session
+        put :update, params: {id: taxon_name.to_param, taxon_name: valid_attributes}, session: valid_session
         expect(assigns(:taxon_name)).to eq(taxon_name.becomes(taxon_name.type.constantize))
       end
 
-      it "redirects to the taxon_name" do
+      it 'redirects to the taxon_name' do
         taxon_name = TaxonName.create! valid_attributes
-        put :update, {:id => taxon_name.to_param, :taxon_name => valid_attributes}, valid_session
+        put :update, params: {id: taxon_name.to_param, taxon_name: valid_attributes}, session: valid_session
         expect(response).to redirect_to(taxon_name.becomes(TaxonName))
       end
     end
 
-    describe "with invalid params" do
-      it "assigns the taxon_name as @taxon_name" do
+    describe 'with invalid params' do
+      it 'assigns the taxon_name as @taxon_name' do
         taxon_name = TaxonName.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaxonName).to receive(:save).and_return(false)
-        put :update, {:id => taxon_name.to_param, :taxon_name => {"name" => "invalid value"}}, valid_session
+        put :update, params: {id: taxon_name.to_param, taxon_name: {'name' => 'invalid value'}}, session: valid_session
         expect(assigns(:taxon_name)).to eq(taxon_name.becomes(taxon_name.type.constantize))
       end
 
@@ -155,22 +156,22 @@ describe TaxonNamesController, :type => :controller do
         taxon_name = TaxonName.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaxonName).to receive(:save).and_return(false)
-        put :update, {:id => taxon_name.to_param, :taxon_name => {"name" => "invalid value"}}, valid_session
-        expect(response).to render_template("edit")
+        put :update, params: {id: taxon_name.to_param, taxon_name: {'name' => 'invalid value'}}, session: valid_session
+        expect(response).to render_template('edit')
       end
     end
 
-    describe "DELETE destroy" do
-      it "destroys the requested taxon_name" do
+    describe 'DELETE destroy' do
+      it 'destroys the requested taxon_name' do
         taxon_name = TaxonName.create! valid_attributes
         expect {
-          delete :destroy, {:id => taxon_name.to_param}, valid_session
+          delete :destroy, params: {id: taxon_name.to_param}, session: valid_session
         }.to change(TaxonName, :count).by(-1)
       end
 
-      it "redirects to the taxon_name list" do
+      it 'redirects to the taxon_name list' do
         taxon_name = TaxonName.create! valid_attributes
-        delete :destroy, {:id => taxon_name.to_param}, valid_session
+        delete :destroy, params: {id: taxon_name.to_param}, session: valid_session
         expect(response).to redirect_to(taxon_names_url)
       end
     end

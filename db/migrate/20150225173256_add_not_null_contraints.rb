@@ -1,4 +1,4 @@
-class AddNotNullContraints < ActiveRecord::Migration
+class AddNotNullContraints < ActiveRecord::Migration[4.2]
   def change
       # AlternateValue
        AlternateValue.connection.execute('alter table alternate_values alter value set not null;')
@@ -133,16 +133,6 @@ class AddNotNullContraints < ActiveRecord::Migration
        ContainerItem.connection.execute('alter table container_items alter created_by_id set not null;')
        ContainerItem.connection.execute('alter table container_items alter updated_by_id set not null;')
        ContainerItem.connection.execute('alter table container_items alter project_id set not null;')
-
-      # ContainerLabel
-       ContainerLabel.connection.execute('alter table container_labels alter label set not null;')
-       ContainerLabel.connection.execute('alter table container_labels alter position set not null;')
-       ContainerLabel.connection.execute('alter table container_labels alter created_by_id set not null;')
-       ContainerLabel.connection.execute('alter table container_labels alter updated_by_id set not null;')
-       ContainerLabel.connection.execute('alter table container_labels alter project_id set not null;')
-       ContainerLabel.connection.execute('alter table container_labels alter created_at set not null;')
-       ContainerLabel.connection.execute('alter table container_labels alter updated_at set not null;')
-       ContainerLabel.connection.execute('alter table container_labels alter container_id set not null;')
 
       # Content
        Content.connection.execute('alter table contents alter text set not null;')

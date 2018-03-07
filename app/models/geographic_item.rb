@@ -26,7 +26,7 @@ require 'rgeo'
 #   @return [String]
 #     Rails STI, determines the geography column as well
 #
-class GeographicItem < ActiveRecord::Base
+class GeographicItem < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::IsData
@@ -113,22 +113,20 @@ class GeographicItem < ActiveRecord::Base
     end
 
     # TODO: * rename to reflect either/or and what is being returned
-    # @param [Integer] geographic_area_id
+    # @param [Integer] geographic_area_ids
     # @param [String] shape_in in JSON (TODO: what kind? / details on specification)
     # @param [String] search_object_class
-    # @param [Boolean] paging (default false)
-    # @param [Integer] page (default 1)
     # @return [Scope] of the requested search_object_type
-    def gather_selected_data(geographic_area_id, shape_in, search_object_class)
+    def gather_selected_data(geographic_area_ids, shape_in, search_object_class)
       if shape_in.blank?
         # get the shape from the geographic area, if possible
         finding                    = search_object_class.constantize
         target_geographic_item_ids = []
-        if geographic_area_id.blank?
+        if geographic_area_ids.blank?
           found = finding.none
         else
           # now use method from collection_object_filter_query
-          geographic_area_id.each do |gaid|
+          geographic_area_ids.each do |gaid|
             target_geographic_item_ids.push(GeographicArea.joins(:geographic_items)
                                               .find(gaid)
                                               .default_geographic_item.id)
@@ -350,7 +348,7 @@ class GeographicItem < ActiveRecord::Base
         # [61666, 61661, 61659, 61654, 61639]
         r = GeographicItem.where(
           # GeographicItem.contained_by_wkt_shifted_sql(GeographicItem.find(id).geo_object.to_s)
-          GeographicItem.contained_by_wkt_shifted_sql(ActiveRecord::Base.connection.execute("SELECT ST_AsText((SELECT polygon FROM geographic_items WHERE id = #{id}))").first['st_astext'])
+          GeographicItem.contained_by_wkt_shifted_sql(ApplicationRecord.connection.execute("SELECT ST_AsText((SELECT polygon FROM geographic_items WHERE id = #{id}))").first['st_astext'])
         ).to_a
         results.push(r)
       end
@@ -533,7 +531,6 @@ class GeographicItem < ActiveRecord::Base
       end
     end
 
-    # @param [String] column_name
     # @param [GeographicItem#id] geographic_item_id
     # @param [Float] distance in meters
     # @return [ActiveRecord::Relation]
@@ -561,7 +558,7 @@ class GeographicItem < ActiveRecord::Base
     end
 
     # @param [String] column_name to search
-    # @param [GeographicItem] geographic_item_id or array of geographic_item_ids to be tested.
+    # @param [GeographicItem] geographic_item_ids or array of geographic_item_ids to be tested.
     # @return [Scope] of GeographicItems
     #
     # If this scope is given an Array of GeographicItems as a second parameter,
@@ -1037,39 +1034,40 @@ class GeographicItem < ActiveRecord::Base
 
   # @param [geo_object]
   # @return [Boolean]
-  def contains?(geo_object)
-    self.geo_object.contains?(geo_object)
+  def contains?(target_geo_object)
+    return nil if target_geo_object.nil?
+    self.geo_object.contains?(target_geo_object)
   end
 
   # @param [geo_object]
   # @return [Boolean]
-  def within?(geo_object)
-    self.geo_object.within?(geo_object)
+  def within?(target_geo_object)
+    self.geo_object.within?(target_geo_object)
   end
 
   # @param [geo_object]
   # @return [Boolean]
-  def intersects?(geo_object)
-    self.geo_object.intersects?(geo_object)
+  def intersects?(target_geo_object)
+    self.geo_object.intersects?(target_geo_object)
   end
 
   # @TODO doesn't work?
   # @param [geo_object]
   # @return [Boolean]
-  def distance?(geo_object)
-    self.geo_object.distance?(geo_object)
+  def distance?(target_geo_object)
+    self.geo_object.distance?(target_geo_object)
   end
 
   # @param [geo_object, Double]
   # @return [Boolean]
-  def near(geo_object, distance)
-    self.geo_object.buffer(distance).contains?(geo_object)
+  def near(target_geo_object, distance)
+    self.geo_object.buffer(distance).contains?(target_geo_object)
   end
 
   # @param [geo_object, Double]
   # @return [Boolean]
-  def far(geo_object, distance)
-    !near(geo_object, distance)
+  def far(target_geo_object, distance)
+    !near(target_geo_object, distance)
   end
 
   # @return [GeoJSON hash]

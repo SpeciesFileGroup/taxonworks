@@ -104,5 +104,4 @@ TW.tasks.accessions.quick.simple = {
 
 }; // end widget 
 
-$(document).ready(TW.tasks.accessions.quick.simple.init);
-
+$(document).on('turbolinks:load', TW.tasks.accessions.quick.simple.init);

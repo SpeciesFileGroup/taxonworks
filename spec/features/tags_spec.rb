@@ -25,7 +25,7 @@ describe 'Tags', type: :feature, group: :tags do
     let(:keywords) do
       keywords = []
       ['slow', 'medium', 'fast'].each do |n|
-        keywords.push FactoryGirl.create(:valid_keyword, name: n, by: @user, project: @project)
+        keywords.push FactoryBot.create(:valid_keyword, name: n, by: @user, project: @project)
       end
       keywords
     end
@@ -40,6 +40,8 @@ describe 'Tags', type: :feature, group: :tags do
       it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
+=begin
+   TODO: radial annotator test
     context 'tagging a object through tag/new' do
       before { visit otu_path(o) }
 
@@ -116,6 +118,7 @@ describe 'Tags', type: :feature, group: :tags do
 
       end
     end
+=end
   end
 end
 

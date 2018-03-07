@@ -56,16 +56,16 @@ namespace :tw do
         @args[:boundary_color] = @args[:boundary_color].to_sym
 
 
-        puts Rainbow("Using attributes:").yellow
+        puts Rainbow('Using attributes:').yellow
         print @args
 
         puts Rainbow("\nProcessing images: \n").yellow
 
         begin
-          Dir.glob(@args[:data_directory] + "**/*.*").sort.in_groups_of(@args[:transaction_total], false) do |group| 
-            ActiveRecord::Base.transaction do 
+          Dir.glob(@args[:data_directory] + '**/*.*').sort.in_groups_of(@args[:transaction_total], false) do |group| 
+            ApplicationRecord.transaction do 
               group.each do |f|
-                print Rainbow(f).blue + ": "
+                print Rainbow(f).blue + ': '
 
                 if SqedDepiction.joins(:image).where(images: {image_file_fingerprint: Digest::MD5.file(f).hexdigest }, project_id: $project_id).any?
                   print "exists as depiction, skipping\n"
@@ -97,11 +97,11 @@ namespace :tw do
                   end 
 
                 else
-                  print(" failed, skipping - " + sqed_depiction.errors.full_messages.join("; ").red + "\n")
+                  print(' failed, skipping - ' + sqed_depiction.errors.full_messages.join('; ').red + "\n")
                 end
               end
 
-              puts Rainbow("group handled").yellow
+              puts Rainbow('group handled').yellow
             end # end transaction
           end
 

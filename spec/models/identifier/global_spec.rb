@@ -1,7 +1,7 @@
 require 'rails_helper'
 describe Identifier::Global, type: :model, group: :identifiers do
 
-  let!(:otu) { FactoryGirl.create(:valid_otu) }
+  let!(:otu) { FactoryBot.create(:valid_otu) }
   let(:global_identifier) {Identifier::Global.new}
 
   context 'validation' do
@@ -52,17 +52,22 @@ describe Identifier::Global, type: :model, group: :identifiers do
     specify 'same identifer is allowed b/w project (same type)' do
       id = 'http://abc.net/bar/22'
       expect(otu.identifiers << Identifier::Global::Uri.new(identifier: id )).to be_truthy
-      p = FactoryGirl.create(:valid_project, name: 'New Project')
-      i = Identifier::Global::Uri.new(identifier: id, identifier_object: FactoryGirl.create(:valid_otu, project_id: p.id), project_id: p.id)
+      p = FactoryBot.create(:valid_project, name: 'New Project')
+      i = Identifier::Global::Uri.new(identifier: id, identifier_object: FactoryBot.create(:valid_otu, project_id: p.id), project_id: p.id)
       expect(i.valid?).to be_truthy
       expect(i.errors.include?(:identifier)).to be_falsey
     end
 
     specify 'namespace_id is nil' do
-      global_identifier.namespace_id = FactoryGirl.create(:valid_namespace).id
+      global_identifier.namespace_id = FactoryBot.create(:valid_namespace).id
       global_identifier.valid?
       expect(global_identifier.errors.include?(:namespace_id)).to be_truthy
     end
+  end
 
+  specify 'cached is set' do
+    id = 'http://abc.net/bar/22'
+    i = Identifier::Global::Uri.create!(identifier: id, identifier_object: Otu.create(name: 'aaa'))
+    expect(i.reload.cached).to eq(id)
   end
 end

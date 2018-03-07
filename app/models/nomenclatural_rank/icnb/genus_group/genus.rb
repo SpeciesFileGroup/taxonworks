@@ -5,6 +5,6 @@ class NomenclaturalRank::Icnb::GenusGroup::Genus < NomenclaturalRank::Icnb::Genu
   end
 
   def self.abbreviation
-    "gen."
+    'gen.'
   end
 end

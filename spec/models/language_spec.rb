@@ -1,13 +1,13 @@
 require 'rails_helper'
 
-describe Language, :type => :model do
+describe Language, type: :model do
 
   let(:language) {Language.new}
 
   context 'validation' do
     before(:each) {
-     language.valid?
-    } 
+      language.valid?
+    }
     specify 'require english_name' do
       expect(language.errors.include?(:english_name)).to be_truthy
     end
@@ -18,9 +18,9 @@ describe Language, :type => :model do
   end
 
   context 'find values' do
-    let!(:eng) {FactoryGirl.create(:english) }
-    let!(:rus) {FactoryGirl.create(:russian) }
-    let!(:cre) {FactoryGirl.create(:creole_eng) }
+    let!(:eng) { FactoryBot.create(:english) }
+    let!(:rus) { FactoryBot.create(:russian) }
+    let!(:cre) { FactoryBot.create(:creole_eng) }
 
     specify '#with_english_name_containing scope should return a list of matching languages(like)' do
       lang_a = Language.with_english_name_containing('russ')
@@ -53,7 +53,7 @@ describe Language, :type => :model do
     specify '#with_english_name_or_abbreviation finds exact in many fields for Array search value' do
       expect(Language.with_english_name_or_abbreviation(['eng', 'Russian']).count).to eq(2)
     end
-   end
+  end
 
   context 'concerns' do
     it_behaves_like 'is_data'

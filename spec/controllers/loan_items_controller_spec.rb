@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe LoanItemsController, :type => :controller do
+describe LoanItemsController, type: :controller do
   before(:each) {
     sign_in
   }
@@ -26,9 +26,9 @@ describe LoanItemsController, :type => :controller do
   # This should return the minimal set of attributes required to create a valid
   # LoanItem. As you add validations to LoanItem, be sure to
   # adjust the attributes here as well.
-  let(:loan) {FactoryGirl.create(:valid_loan) }
-  let(:loan_object) {FactoryGirl.create(:valid_otu) }
-  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_loan_item, loan_item_object: loan_object, loan: loan).attributes) }
+  let(:loan) {FactoryBot.create(:valid_loan) }
+  let(:loan_object) {FactoryBot.create(:valid_otu) }
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryBot.build(:valid_loan_item, loan_item_object: loan_object, loan: loan).attributes) }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -39,38 +39,38 @@ describe LoanItemsController, :type => :controller do
     request.env['HTTP_REFERER'] = list_otus_path # logical example
   }
 
-  describe "POST create" do
-    describe "with valid params" do
-      it "creates a new LoanItem" do
+  describe 'POST create' do
+    describe 'with valid params' do
+      it 'creates a new LoanItem' do
         expect {
-          post :create, {:loan_item => valid_attributes}, valid_session
+          post :create, params: {loan_item: valid_attributes}, session: valid_session
         }.to change(LoanItem, :count).by(1)
       end
 
-      it "assigns a newly created loan_item as @loan_item" do
-        post :create, {:loan_item => valid_attributes}, valid_session
+      it 'assigns a newly created loan_item as @loan_item' do
+        post :create, params: {loan_item: valid_attributes}, session: valid_session
         expect(assigns(:loan_item)).to be_a(LoanItem)
         expect(assigns(:loan_item)).to be_persisted
       end
 
-      it "redirects to :back" do
-        post :create, {:loan_item => valid_attributes}, valid_session
+      it 'redirects to :back' do
+        post :create, params: {loan_item: valid_attributes}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
 
-    describe "with invalid params" do
-      it "assigns a newly created but unsaved loan_item as @loan_item" do
+    describe 'with invalid params' do
+      it 'assigns a newly created but unsaved loan_item as @loan_item' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(LoanItem).to receive(:save).and_return(false)
-        post :create, {:loan_item => {:invalid => 'parms'}}, valid_session
+        post :create, params: {loan_item: {invalid: 'parms'}}, session: valid_session
         expect(assigns(:loan_item)).to be_a_new(LoanItem)
       end
 
-      it "re-renders the :back template" do
+      it 're-renders the :back template' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(LoanItem).to receive(:save).and_return(false)
-        post :create, {:loan_item => {:invalid => 'parms'}}, valid_session
+        post :create, params: {loan_item: {invalid: 'parms'}}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
@@ -84,53 +84,54 @@ describe LoanItemsController, :type => :controller do
         # specifies that the LoanItem created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        expect_any_instance_of(LoanItem).to receive(:update).with({'collection_object_status' => 'confused'})
-        put :update, {:id => loan_item.to_param, :loan_item => {collection_object_status: 'confused'}}, valid_session
+        update_params = ActionController::Parameters.new({collection_object_status: 'confused'}).permit(:collection_object_status)
+        expect_any_instance_of(LoanItem).to receive(:update).with(update_params)
+        put :update, params: {id: loan_item.to_param, loan_item: {collection_object_status: 'confused'}}, session: valid_session
       end
 
-      it "assigns the requested loan_item as @loan_item" do
+      it 'assigns the requested loan_item as @loan_item' do
         loan_item = LoanItem.create! valid_attributes
-        put :update, {:id => loan_item.to_param, :loan_item => valid_attributes}, valid_session
+        put :update, params: {id: loan_item.to_param, loan_item: valid_attributes}, session: valid_session
         expect(assigns(:loan_item)).to eq(loan_item)
       end
 
-      it "redirects to :back" do
+      it 'redirects to :back' do
         loan_item = LoanItem.create! valid_attributes
-        put :update, {:id => loan_item.to_param, :loan_item => valid_attributes}, valid_session
+        put :update, params: {id: loan_item.to_param, loan_item: valid_attributes}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
 
-    describe "with invalid params" do
-      it "assigns the loan_item as @loan_item" do
+    describe 'with invalid params' do
+      it 'assigns the loan_item as @loan_item' do
         loan_item = LoanItem.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(LoanItem).to receive(:save).and_return(false)
-        put :update, {:id => loan_item.to_param, :loan_item => {:invalid => 'parms'}}, valid_session
+        put :update, params: {id: loan_item.to_param, loan_item: {invalid: 'parms'}}, session: valid_session
         expect(assigns(:loan_item)).to eq(loan_item)
       end
 
-      it "re-renders the :back template" do
+      it 're-renders the :back template' do
         loan_item = LoanItem.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(LoanItem).to receive(:save).and_return(false)
-        put :update, {:id => loan_item.to_param, :loan_item => {:invalid => 'parms'}}, valid_session
+        put :update, params: {id: loan_item.to_param, loan_item: {invalid: 'parms'}}, session: valid_session
         expect(response).to redirect_to(list_otus_path)
       end
     end
   end
 
-  describe "DELETE destroy" do
-    it "destroys the requested loan_item" do
+  describe 'DELETE destroy' do
+    it 'destroys the requested loan_item' do
       loan_item = LoanItem.create! valid_attributes
       expect {
-        delete :destroy, {:id => loan_item.to_param}, valid_session
+        delete :destroy, params: {id: loan_item.to_param}, session: valid_session
       }.to change(LoanItem, :count).by(-1)
     end
 
-    it "redirects to :back" do
+    it 'redirects to :back' do
       loan_item = LoanItem.create! valid_attributes
-      delete :destroy, {:id => loan_item.to_param}, valid_session
+      delete :destroy, params: {id: loan_item.to_param}, session: valid_session
       expect(response).to redirect_to(list_otus_path)
     end
   end

@@ -3,19 +3,29 @@ class NotesController < ApplicationController
 
   before_action :set_note, only: [:update, :destroy]
 
+  # GET /notes
+  # GET /notes.json
+  # GET /<model>/:id/notes.json
+  def index
+    respond_to do |format|
+      format.html {
+        @recent_objects = Note.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @notes = Note.where(project_id: sessions_current_project_id).where(
+          polymorphic_filter_params('note_object', Note.related_foreign_keys)
+        )
+      }
+    end
+  end
+
   def new
     @note = Note.new(note_params)
   end
 
   def edit
     @note = Note.find_by_id(params[:id]).metamorphosize
-  end
-
-  # GET /notes
-  # GET /notes.json
-  def index
-    @recent_objects = Note.where(project_id: $project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
   end
 
   # POST /notes
@@ -28,7 +38,7 @@ class NotesController < ApplicationController
         format.html { redirect_to @note.note_object.metamorphosize, notice: 'Note was successfully created.' }
         format.json { render json: @note, status: :created, location: @note }
       else
-        format.html { redirect_to :back, notice: 'Note was NOT successfully created.' }
+        format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Note was NOT successfully created.')}
         format.json { render json: @note.errors, status: :unprocessable_entity }
       end
     end
@@ -40,9 +50,9 @@ class NotesController < ApplicationController
     respond_to do |format|
       if @note.update(note_params)
         format.html { redirect_to @note.note_object.metamorphosize, notice: 'Note was successfully created.' }
-        format.json { render json: @note, status: :created, location: @note }
+        format.json { render action: 'show', status: :created, location: @note }
       else
-        format.html { redirect_to :back, notice: 'Note was NOT successfully updated.' }
+        format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Note was NOT successfully updated.')}
         format.json { render json: @note.errors, status: :unprocessable_entity }
       end
     end
@@ -53,13 +63,14 @@ class NotesController < ApplicationController
   def destroy
     @note.destroy
     respond_to do |format|
-      format.html { redirect_to :back, notice: 'Note was successfully destroyed.' }
+      # TODO: probably needs to be changed
+      format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Note was successfully destroyed.')}
       format.json { head :no_content }
     end
   end
 
   def list
-    @notes = Note.where(project_id: $project_id).order(:note_object_type).page(params[:page])
+    @notes = Note.where(project_id: sessions_current_project_id).order(:note_object_type).page(params[:page])
   end
 
   # GET /notes/search
@@ -84,23 +95,21 @@ class NotesController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # GET /notes/download
   def download
-    send_data Note.generate_download(Note.where(project_id: $project_id)), type: 'text', filename: "notes_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Note.where(project_id: sessions_current_project_id)), type: 'text', filename: "notes_#{DateTime.now}.csv"
   end
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_note
-    @note = Note.with_project_id($project_id).find(params[:id])
+    @note = Note.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def note_params
-    params.require(:note).permit(:text, :note_object_id, :note_object_type, :note_object_attribute)
+    params.require(:note).permit(:text, :note_object_id, :note_object_type, :note_object_attribute, :annotated_global_entity)
   end
 end

@@ -1,15 +1,12 @@
 class AnnotationsController < ApplicationController
-  # todo: @mjy is this required? Some of what it does would be redundant, if this controller is used only for a partial
-  # include DataControllerConfiguration
 
-  def new_alternate_values
-    @object    = Serial.first
-    # todo: will be expanded to any attribute of any project(?)
-    @attribute = @object.name
-  end
+  before_action :require_sign_in_and_project_selection
 
-  def create_alternate_values
-
+  # GET /annotations/:global_id/metadata
+  def metadata
+    @object = GlobalID::Locator.locate(params.require(:global_id))
+    render(json: { success: false}, status: :not_found) if @object.nil?
+    render(json: { 'message' => 'Record not found' }, status: :unauthorized) if !@object.is_community? && @object.project_id != sessions_current_project_id
   end
 
 end

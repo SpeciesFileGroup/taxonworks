@@ -1,9 +1,11 @@
 <%= form_tag(search_sources_path, {method: :get}) do %>
   <%= render 'workbench/elements/forms/ajax_select',
-    controller: '/project_sources',
-    object:     nil,
-    method:     'id',
-    tag_id:     'source_id_for_project_source_quick_search_form'
+             controller:  '/project_sources',
+             object:      nil,
+             autofocus:   true,
+             send_select: true,
+             method:      'id',
+             tag_id:      'source_id_for_project_source_quick_search_form'
   %>
   <%= submit_tag 'Show' %>
 <% end %>

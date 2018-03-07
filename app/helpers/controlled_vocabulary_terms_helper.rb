@@ -22,10 +22,9 @@ module ControlledVocabularyTermsHelper
     render('/controlled_vocabulary_terms/quick_search_form')
   end
 
-  # TODO: make the color an attribute and apply it after, give a border
-  def color_tag(css_color = nil, value)
-    return value if css_color.nil?
-    content_tag(:span, value, style: "background-color: #{css_color};")
+  def controlled_vocabulary_term_autocomplete_item(controlled_vocabulary_term)
+    controlled_vocabulary_term_tag(controlled_vocabulary_term) + 
+      content_tag(:span, ' (' + controlled_vocabulary_term.type + ')', class: [:subtle]) 
   end
 
 end

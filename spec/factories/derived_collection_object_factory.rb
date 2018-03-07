@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :derived_collection_object, traits: [:housekeeping] do
     factory :valid_derived_collection_object do
       association :collection_object, factory: :valid_specimen

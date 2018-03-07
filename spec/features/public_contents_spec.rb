@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'PublicContents', :type => :feature do
+describe 'PublicContents', type: :feature do
   context 'resource routes' do
     #  before { 
     #    sign_in_user_and_select_project

@@ -1,65 +1,61 @@
-@import 'base/palette';   
-@import 'base/whitespace'; 
-@import 'base/fonts'; 
-
 #browse-view {
-	#third-column {
-		max-width: 400px;
-	}
-	.name {
-		font-size: 18px;
-	}
+  #third-column {
+    max-width: 400px;
+  }
+  .name {
+    font-size: 18px;
+  }
 
-	.ui-autocomplete {
-		width: 500px;
-		white-space: normal;
-	}
-	.ui-autocomplete-input {
-	 	box-sizing: border-box !important;
-	 	min-width: 240px !important;
-	 	max-width: 240px !important;
-	}
+  .ui-autocomplete {
+    width: 500px;
+    white-space: normal;
+  }
+  .ui-autocomplete-input {
+    box-sizing: border-box !important;
+    min-width: 240px !important;
+    max-width: 240px !important;
+  }
 
-	@media screen and (min-width: 980px) {
-		.ui-autocomplete {
-			width: auto;
-			white-space: nowrap;
-		}
-	}
-	.soft_validation_anchor {
-		cursor: pointer;
-		margin-left: 5px;
-		display: none;
-	}
-	.annotation__note {
-		display: none;
-	}
-	.modal-container {
-		width: 600px;
-	}
-	.history__origin {
-		display: none;
-		color: #FFF;
-		padding-left: 7px;
-		padding-right: 7px;
-		margin-right: 4px;
-		border-radius: 3px;
-		&.protonym {
-			background-color: #7986CB;
-		}
-		&.combination {
-			background-color: #FFB74D;
-		}
-		&.taxon_name_relationship {
-			background-color: #9575CD;
-		}
-		&.error {
-			background-color: #A1887F;
-		}
-	}
+  @media screen and (min-width: 980px) {
+    .ui-autocomplete {
+      width: auto;
+      white-space: nowrap;
+    }
+  }
+  .soft_validation_anchor {
+    cursor: pointer;
+    margin-left: 5px;
+    display: none;
+  }
+  .annotation__note {
+    display: none;
+  }
+  .modal-container {
+    width: 600px;
+  }
+  .history__origin {
+    display: none;
+    color: #FFF;
+    padding-left: 7px;
+    padding-right: 7px;
+    margin-right: 4px;
+    border-radius: 3px;
+    &.protonym {
+      background-color: #7986CB;
+    }
+    &.combination {
+      background-color: #FFB74D;
+    }
+    &.taxon_name_relationship {
+      background-color: #9575CD;
+    }
+    &.error {
+      background-color: #A1887F;
+    }
+  }
 }
 
 .history__citation_notes p {
- display: inline;
- font-weight: normal;
+  display: inline;
+  font-weight: normal;
 }

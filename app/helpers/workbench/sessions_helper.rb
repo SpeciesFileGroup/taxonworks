@@ -27,10 +27,10 @@ module Workbench::SessionsHelper
 
     user.update_columns(
       remember_token: User.encrypt(remember_token),
-      sign_in_count: (user.sign_in_count + 1), 
+      sign_in_count: (user.sign_in_count + 1),
       last_sign_in_at: user.current_sign_in_at,
       current_sign_in_at: Time.now,
-      last_sign_in_ip: user.current_sign_in_ip, 
+      last_sign_in_ip: user.current_sign_in_ip,
       current_sign_in_ip: request.ip
     )
 
@@ -57,15 +57,15 @@ module Workbench::SessionsHelper
   end
 
   def sessions_current_project
-   return nil unless sessions_current_project_id
-   if @sessions_current_project.nil? || @sessions_current_project.id != sessions_current_project_id  
+    return nil unless sessions_current_project_id
+   if @sessions_current_project.nil? || @sessions_current_project.id != sessions_current_project_id
      @sessions_current_project = Project.find(sessions_current_project_id)
    end
      @sessions_current_project
   end
 
   def sessions_select_project(project)
-   self.sessions_current_project_id = project.id 
+    self.sessions_current_project_id = project.id
    sessions_current_project
   end
 
@@ -76,13 +76,13 @@ module Workbench::SessionsHelper
   # Authorization methods
   def is_administrator?
     sessions_signed_in? && sessions_current_user.is_administrator?
-  end 
+  end
 
   # Can be optimized to just look at ProjectMembers likely
   def is_project_administrator?
-    sessions_signed_in? && sessions_project_selected? && 
-    sessions_current_project.project_members.exists?(is_project_administrator: true, user_id: sessions_current_user_id) 
-  end 
+    sessions_signed_in? && sessions_project_selected? &&
+    sessions_current_project.project_members.exists?(is_project_administrator: true, user_id: sessions_current_user_id)
+  end
 
   def administers_projects?
     sessions_signed_in? && (is_administrator? || sessions_current_user.administers_projects? )
@@ -91,49 +91,49 @@ module Workbench::SessionsHelper
   # A superuser is an administrator or a person who is a project_administrator IN THE CURRENTLY SELECTED PROJECT
   def is_superuser?
     sessions_signed_in? && ( is_administrator? || is_project_administrator? )
-  end 
+  end
 
   def is_project_member?(user, project)
-    project.project_members.include?(user) 
+    project.project_members.include?(user)
   end
 
   def authorize_project_selection(user, project)
-    project.project_members.where(user: user, project: project) 
+    project.project_members.where(user: user, project: project)
   end
 
   def require_sign_in
-    redirect_to root_url, notice: "Please sign in." unless sessions_signed_in?
+    redirect_to root_url, notice: 'Please sign in.' unless sessions_signed_in?
   end
 
   def require_project_selection
-    redirect_to root_url, notice: "Please select a project." unless sessions_current_project
+    redirect_to root_url, notice: 'Please select a project.' unless sessions_current_project
   end
 
   def require_sign_in_and_project_selection
-    redirect_to root_url, notice: "Whoa there, sign in and select a project first." unless sessions_signed_in? && sessions_project_selected?
+    redirect_to root_url, notice: 'Whoa there, sign in and select a project first.' unless sessions_signed_in? && sessions_project_selected?
   end
 
   def require_administrator_sign_in
-    redirect_to root_url, notice: "Please sign in as an administrator." unless is_administrator? 
+    redirect_to root_url, notice: 'Please sign in as an administrator.' unless is_administrator?
   end
 
   def require_project_administrator_sign_in
-    redirect_to root_url, notice: "Please sign in as a project administrator." unless is_project_administrator? 
+    redirect_to root_url, notice: 'Please sign in as a project administrator.' unless is_project_administrator?
   end
 
   def require_superuser_sign_in
-    redirect_to root_url, notice: "Please sign in as a project administrator or administrator." unless is_superuser?
+    redirect_to root_url, notice: 'Please sign in as a project administrator or administrator.' unless is_superuser?
   end
 
   # User is some project_administrator or administrator
   def can_administer_projects?
-    redirect_to root_url, notice: "Please sign in as a project administrator or administrator." unless administers_projects?
+    redirect_to root_url, notice: 'Please sign in as a project administrator or administrator.' unless administers_projects?
   end
- 
+
   # TODO: make this a non-controller method
   def session_header_links
     [
-      project_settings_link, 
+      project_settings_link,
       administration_link,
       link_to('Account', sessions_current_user),
       link_to('Sign out', signout_path, method: :delete, id: 'sign_out')

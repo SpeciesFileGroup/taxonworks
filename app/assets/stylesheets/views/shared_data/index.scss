@@ -1,93 +1,89 @@
-@import 'base/dimensions';
-@import 'base/whitespace';
-@import 'base/palette';
-
 // Used for model/index routes only
 
 #model_index.shared {
-  border-left:4px solid $color-secondary-1-3;
+  border-left: 4px solid $color-secondary-1-3;
 }
 
 #model_index.application_defined {
-  border-left:4px solid $color-primary-4;
-}	
+  border-left: 4px solid $color-primary-4;
+}
 
 #model_index {
-  border-radius:2px;
-  margin:0 auto;
-  min-width:1080px;
+  border-radius: 2px;
+  margin: 0 auto;
+  min-width: 1080px;
   position: absolute;
-  z-index:5;
+  z-index: 5;
   top: 40%;
   left: 50%;
   padding-left: $standard_padding;
   padding-right: $standard_padding;
   transform: translateY(-75%) translateX(-50%);
-  background-color:$panel_background;
-  box-shadow: 0 1px 2px rgba(0,0,0,.2);
-  align-items: center; 
+  background-color: $panel_background;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
+  align-items: center;
   border-left: 4px solid $color-secondary-2-4;
 
   &.flexbox {
     justify-content: space-around;
-	flex-flow: row nowrap;
+    flex-flow: row nowrap;
   }
 
   .item2 {
-	form {
-		display: flex;
-		flex-wrap: nowrap;
-		align-items: center;
-		flex-grow: 1;
-	}
+    form {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      flex-grow: 1;
+    }
   }
-	.favourite_link {
-	    background-image: image-url('empty_star.svg');
-	    background-size: 24px;
-	    background-position: left, center;
-	    font-size: 0px;
-	    background-repeat: no-repeat;
-	    text-decoration: none;
-	    width: 30px;
-	  }
-	 .unfavorite_link {
-	    font-size: 0px;
-	    width: 30px;
-	    background-image: image-url('star.svg');
-	    background-size: 24px;
-	    background-position: left, center;
-	    background-repeat: no-repeat;    
-	    text-decoration: none;   
-	    width: 30px;
-	}
-  
+  .favourite_link {
+    background-image: image-url('empty_star.svg');
+    background-size: 24px;
+    background-position: left, center;
+    font-size: 0px;
+    background-repeat: no-repeat;
+    text-decoration: none;
+    width: 30px;
+  }
+  .unfavorite_link {
+    font-size: 0px;
+    width: 30px;
+    background-image: image-url('star.svg');
+    background-size: 24px;
+    background-position: left, center;
+    background-repeat: no-repeat;
+    text-decoration: none;
+    width: 30px;
+  }
+
   h1 {
-	font-weight: 300;	     	
+    font-weight: 300;
   }
-  
+
   a {
-  	font-weight: 300;
-	text-decoration:none;
-	flex-wrap: nowrap;
+    font-weight: 300;
+    text-decoration: none;
+    flex-wrap: nowrap;
   }
-  
+
   input[type="text"] {
-  	flex-grow: 1;
-  	margin-right: $standard_margin*0.25;
+    flex-grow: 1;
+    margin-right: $standard_margin*0.25;
   }
-  
+
   .fav-link {
-  	max-width: 24px;
+    max-width: 24px;
   }
-  
+
   .item {
-  	padding-left: $standard_padding*0.25;
-  	padding-right: $standard_padding*0.25;
-	  text-align: center;
-	  display: flex;
-	  flex-direction: row;
-	  justify-content: center;
-	  align-items: center;
+    padding-left: $standard_padding*0.25;
+    padding-right: $standard_padding*0.25;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
   }
 }
 

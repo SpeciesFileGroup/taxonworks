@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe "CollectionObjectObservations", type: :feature do
+RSpec.describe 'CollectionObjectObservations', type: :feature do
   let(:index_path) { collection_object_observations_path }
   let(:page_title) { 'Collection object observation' }
 
@@ -12,7 +12,7 @@ RSpec.describe "CollectionObjectObservations", type: :feature do
     context 'with some records created' do
       
       before {
-        10.times { factory_girl_create_for_user_and_project(:valid_collection_object_observation, @user, @project) }
+        10.times { factory_bot_create_for_user_and_project(:valid_collection_object_observation, @user, @project) }
       }
 
       context 'GET /collection_object_observations' do
@@ -22,9 +22,8 @@ RSpec.describe "CollectionObjectObservations", type: :feature do
 
         specify 'that it has an AJAX autocomplete box', js: true do
           select_text = 'Select a collection object observation'
-          expect(page).to have_button('Show')
           expect(page).to have_field(select_text) # TODO: inflect
-          fill_in(select_text, :with => 'a')
+          fill_in(select_text, with: 'a')
         end
 
        it_behaves_like 'a_data_model_with_standard_index'

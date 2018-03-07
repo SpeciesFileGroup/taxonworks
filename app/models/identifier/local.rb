@@ -23,7 +23,7 @@
 class Identifier::Local < Identifier
 
   validates :namespace, presence: true
-  validates_uniqueness_of :identifier, scope: [:namespace_id, :project_id, :type]
+  validates_uniqueness_of :identifier, scope: [:namespace_id, :project_id, :type], message: lambda { |error, attributes| "#{attributes[:value]} already taken"}
 
   # Exact match on identifier + namespace
   # @param [String, String]
@@ -39,7 +39,7 @@ class Identifier::Local < Identifier
   protected
 
   def set_cached
-    self.cached = namespace.short_name + " " + identifier.to_s
+    update_column(:cached, namespace.short_name + ' ' + identifier.to_s)
   end
 
 end

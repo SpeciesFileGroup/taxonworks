@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe GeographicItemsController, :type => :controller do
+describe GeographicItemsController, type: :controller do
   before(:each) {
     sign_in
   }
@@ -9,7 +9,7 @@ describe GeographicItemsController, :type => :controller do
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    strip_housekeeping_attributes( FactoryGirl.build(:valid_geographic_item).attributes )
+    strip_housekeeping_attributes( FactoryBot.build(:valid_geographic_item).attributes )
   }
 
   # This should return the minimal set of values that should be in the session
@@ -17,19 +17,19 @@ describe GeographicItemsController, :type => :controller do
   # GeographicItemsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET show" do
-    it "assigns the requested geographic_item as @geographic_item" do
+  describe 'GET show' do
+    it 'assigns the requested geographic_item as @geographic_item' do
       geographic_item = GeographicItem.create!(valid_attributes)
 
-      get :show, {:id => geographic_item.to_param}, valid_session
+      get :show, params: {id: geographic_item.to_param}, session: valid_session
       expect(assigns(:geographic_item)).to eq(geographic_item.becomes(GeographicItem::Point))
     end
   end
 
-  describe "GET edit" do
-    it "assigns the requested geographic_item as @geographic_item" do
+  describe 'GET edit' do
+    it 'assigns the requested geographic_item as @geographic_item' do
       geographic_item = GeographicItem.create!(valid_attributes)
-      get :edit, {:id => geographic_item.to_param}, valid_session
+      get :edit, params: {id: geographic_item.to_param}, session: valid_session
       expect(assigns(:geographic_item)).to eq(geographic_item.becomes(GeographicItem::Point))
     end
   end
@@ -43,18 +43,18 @@ describe GeographicItemsController, :type => :controller do
 #       # receives the :update_attributes message with whatever params are
 #       # submitted in the request.
 #       expect_any_instance_of(GeographicItem).to receive(:update).with({'point' => ""})
-#       put :update, {:id => geographic_item.to_param, :geographic_item => {'point' => ""}}, valid_session
+#       put :update, params: {id: geographic_item.to_param, :geographic_item => {'point' => ""}}, session: valid_session
 #     end
 
 #     it "assigns the requested geographic_item as @geographic_item" do
 #       geographic_item = GeographicItem.create!(valid_attributes)
-#       put :update, {:id => geographic_item.to_param, :geographic_item => valid_attributes}, valid_session
+#       put :update, params: {id: geographic_item.to_param, :geographic_item => valid_attributes}, session: valid_session
 #       expect(assigns(:geographic_item)).to eq(geographic_item.becomes(GeographicItem::Point))
 #     end
 
 #     it "redirects to the geographic_item" do
 #       geographic_item = GeographicItem.create!(valid_attributes)
-#       put :update, {:id => geographic_item.to_param, :geographic_item => valid_attributes}, valid_session
+#       put :update, params: {id: geographic_item.to_param, :geographic_item => valid_attributes}, session: valid_session
 #       expect(response).to redirect_to(geographic_item)
 #     end
 #   end
@@ -64,7 +64,7 @@ describe GeographicItemsController, :type => :controller do
 #       geographic_item = GeographicItem.create!(valid_attributes)
 #       # Trigger the behavior that occurs when invalid params are submitted
 #       allow_any_instance_of(GeographicItem).to receive(:save).and_return(false)
-#       put :update, {:id => geographic_item.to_param, :geographic_item => {"point" => "invalid value"}}, valid_session
+#       put :update, params: {id: geographic_item.to_param, :geographic_item => {"point" => "invalid value"}}, session: valid_session
 #       expect(assigns(:geographic_item)).to eq(geographic_item.becomes(GeographicItem::Point))
 #     end
 
@@ -72,7 +72,7 @@ describe GeographicItemsController, :type => :controller do
 #       geographic_item = GeographicItem.create!(valid_attributes)
 #       # Trigger the behavior that occurs when invalid params are submitted
 #       allow_any_instance_of(GeographicItem).to receive(:save).and_return(false)
-#       put :update, {:id => geographic_item.to_param, :geographic_item => {"point" => "invalid value"}}, valid_session
+#       put :update, params: {id: geographic_item.to_param, :geographic_item => {"point" => "invalid value"}}, session: valid_session
 #       expect(response).to render_template("edit")
 #     end
 #   end
@@ -82,13 +82,13 @@ describe GeographicItemsController, :type => :controller do
 #   it "destroys the requested geographic_item" do
 #     geographic_item = GeographicItem.create!(valid_attributes)
 #     expect {
-#       delete :destroy, {:id => geographic_item.to_param}, valid_session
+#       delete :destroy, params: {id: geographic_item.to_param}, session: valid_session
 #     }.to change(GeographicItem, :count).by(-1)
 #   end
 
 #   it "redirects to the geographic_items list" do
 #     geographic_item = GeographicItem.create!(valid_attributes)
-#     delete :destroy, {:id => geographic_item.to_param}, valid_session
+#     delete :destroy, params: {id: geographic_item.to_param}, session: valid_session
 #     expect(response).to redirect_to(geographic_items_url)
 #   end
 # end

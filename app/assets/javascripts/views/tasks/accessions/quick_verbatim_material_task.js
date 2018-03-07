@@ -21,7 +21,7 @@ function bind_remove_row_link(link) {
  });     
 }
 
-$(document).ready(function() {
+$(document).on("tubolinks:load", function() {
   $(".add_total_row").on("click", function(event) {
     update_attribute_names(this);
     bind_remove_row_link(this);

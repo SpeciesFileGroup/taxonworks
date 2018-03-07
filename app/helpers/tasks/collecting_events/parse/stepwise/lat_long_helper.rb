@@ -7,8 +7,8 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
 
   def make_method_headers
     list         = Utilities::Geo::REGEXP_COORD
-    selector_row = ""
-    list.keys.each { |kee|
+    selector_row = ''
+    list.each_key { |kee|
       selector_row += content_tag(:th, kee.to_s.upcase,
                                   data: {help: Utilities::Geo::REGEXP_COORD[kee][:hlp]})
     }
@@ -16,13 +16,13 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
   end
 
 
-  # @param [Array] must be array of symbols from Utilities::Geo::REGEXP_COORD
+  # @param [Array] filters must be array of symbols from Utilities::Geo::REGEXP_COORD
   def make_selected_method_boxes(filters = Utilities::Geo::REGEXP_COORD.keys)
     list    = Utilities::Geo::REGEXP_COORD
-    box_row = ""
-    list.keys.each { |kee|
+    box_row = ''
+    list.each_key { |kee|
       checked = filters.include?(kee)
-      box_row += content_tag(:td, check_box_tag("filters[]", kee.to_s, checked), align: 'center')
+      box_row += content_tag(:td, check_box_tag('filters[]', kee.to_s, checked), align: 'center')
     }
     box_row.html_safe
   end

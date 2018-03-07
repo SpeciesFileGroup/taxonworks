@@ -13,7 +13,7 @@
 #
 module UserTasks
 
-  CATEGORIES = %w{nomenclature source collection_object collecting_event biology}.freeze
+  CATEGORIES = %w{nomenclature source collection_object collecting_event biology matrix dna}.freeze
 
   # A convenience wrapper for handling user task related metadata.
   class UserTask

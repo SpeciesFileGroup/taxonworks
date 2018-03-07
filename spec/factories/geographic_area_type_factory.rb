@@ -1,11 +1,11 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
+# Read about factories at https://github.com/thoughtbot/factory_bot
 
-FactoryGirl.define do
+FactoryBot.define do
 
   trait :planet_gat do
     geographic_area_type {
       GeographicAreaType.find_or_create_by(name: 'Planet')
-   }
+    }
   end
 
   trait :country_gat do
@@ -34,7 +34,7 @@ FactoryGirl.define do
 
   factory :geographic_area_type, traits: [:creator_and_updater] do
     factory :valid_geographic_area_type do
-      name {Faker::Lorem.word + Time.now.to_s}
+      name { Faker::Lorem.word + Time.now.to_s }
     end
 
     factory :planet_geographic_area_type do

@@ -9,6 +9,6 @@ class NomenclaturalRank::Icn::GenusGroup::Subsection < NomenclaturalRank::Icn::G
   end
 
   def self.abbreviation
-    "subsect."
+    'subsect.'
   end
 end

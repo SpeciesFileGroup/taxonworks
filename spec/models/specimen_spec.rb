@@ -1,28 +1,30 @@
 require 'rails_helper'
 
-describe Specimen, :type => :model do
+describe Specimen, type: :model, group: :collection_objects do
   let(:specimen) { Specimen.new }
 
-  context "validation" do
-    before(:each) do 
+  context 'validation' do
+    before(:each) do
       specimen.valid?
     end
 
     specify 'valid_specimen is valid' do
-      s = FactoryGirl.build(:valid_specimen)
-      expect(s.creator == s.updater).to be_truthy
-      expect(s.project).to be_truthy
-      expect(s.save).to be_truthy
+      s = FactoryBot.build(:valid_specimen)
+      expect(s.valid?).to be_truthy
     end
 
-    specify "total must be one" do 
+    specify '#total must be one' do
       expect(specimen.total).to eq(1)
     end
   end
 
-  context "concerns" do
-    it_behaves_like "containable"
-    it_behaves_like "identifiable"
+  specify '#derived_extracts' do
+    expect(specimen).to respond_to(:derived_extracts)
+  end
+
+  context 'concerns' do
+    it_behaves_like 'containable'
+    it_behaves_like 'identifiable'
   end
 
 end

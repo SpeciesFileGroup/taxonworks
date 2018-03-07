@@ -1,3 +1,3 @@
-module.exports = function(state) {
-	return state.selected.topics
-};
+module.exports = function (state) {
+  return state.selected.topics
+}

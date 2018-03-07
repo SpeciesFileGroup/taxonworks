@@ -4,13 +4,13 @@ namespace :tw do
       namespace :geo do
 
         desc 'Rebuilds the closure_tree indexing on GeographicAreas.'
-        task :rebuild_geographic_areas_nesting => [:environment, :geo_dev_init] do
+        task rebuild_geographic_areas_nesting: [:environment, :geo_dev_init] do
           puts "\n\n#{Time.now.strftime "%H:%M:%S"}."
           if $user_id.nil?
 
             u = User.order(:id).first
             if u.nil?
-              # FactoryGirl is not allowed in rake tasks
+              # FactoryBot is not allowed in rake tasks
               u = User.create!(id: 1, email: 'test@example.com', name: 'Rake user', password: '12345678', self_created: true)
             end
             $user_id = u.id
@@ -22,17 +22,17 @@ namespace :tw do
 
         # !! It is recommended that you start from scratch prior to running this.
         #  rake db:drop RAILS_ENV=development && rake db:create RAILS_ENV=development && rake db:migrate RAILS_ENV=development && rake db:seed RAILS_ENV=development
-        #  
+        #
         desc "Builds GeographicAreas, simultaneously builds GeographicAreaTypes if needed and stubs GeographicAreasGeographicItems.\n
                 rake tw:development:data:geo:build_geographic_areas data_directory=/Users/matt/src/sf/tw/gaz/ user_id=1 database_role=matt NO_GEO_NESTING=1 NO_GEO_VALID=1"
-        task :build_geographic_areas => [:environment, :geo_dev_init, :data_directory, :user_id, :build_temporary_shapefile_tables] do
-          @connection = ActiveRecord::Base.connection
+        task build_geographic_areas: [:environment, :geo_dev_init, :data_directory, :user_id, :build_temporary_shapefile_tables] do
+          @connection = ApplicationRecord.connection
           @earth      = build_earth # make sure the earth record exists and is available
           @data_index = GeoAreasIndex.new(@earth)
 
           build_areas_from_country_codes
 
-          IMPORT_TABLES.keys.each do |source_table|
+          IMPORT_TABLES.each_key do |source_table|
             self.send("build_areas_from_#{source_table}")
           end
 
@@ -93,10 +93,10 @@ namespace :tw do
             end
           end
 
-          # Recursively builds internal nodes. 
+          # Recursively builds internal nodes.
           def recurse_nodes(parent_names, source_tmp_geo_area)
             if parent_names.count > 1
-              parents = parent_names.dup # Tricky! 
+              parents = parent_names.dup # Tricky!
               name    = parents.shift
               puts "building internal node: #{name} : #{parents} "
               add_item(
@@ -119,7 +119,7 @@ namespace :tw do
 
           # If you add an attribute, it must be included here.
           def build_individual_areas
-            @index.values.each do |n|
+            @index.each_value do |n|
               geographic_area_type = (n.temp_area.geographic_area_type_name.blank? ? 'Unknown' : n.temp_area.geographic_area_type_name)
               n.geographic_area    = GeographicArea.new(
                 name:                 n.temp_area.name, # Clean name at this point if needed.
@@ -133,14 +133,14 @@ namespace :tw do
           end
 
           def update_parents
-            @index.values.each do |n|
+            @index.each_value do |n|
               next if n.temp_area.name == 'Earth' # This is a bit ugh, but let's us use fewer exceptions?
               n.geographic_area.parent = @index[n.temp_area.parent_index].geographic_area
             end
           end
 
           def update_levels
-            @index.values.each do |n|
+            @index.each_value do |n|
               next if n.temp_area.name == 'Earth'
               l0, l1, l2               = n.temp_area.level0_index, n.temp_area.level1_index, n.temp_area.level2_index
               n.geographic_area.level0 = @index[l0].geographic_area if l0 != {}
@@ -150,7 +150,7 @@ namespace :tw do
           end
 
           def save_all
-            puts "Saving.."
+            puts 'Saving..'
             save_geographic_areas
             raise if names_not_saved.count > 0
             create_geographic_areas_geographic_items
@@ -158,7 +158,7 @@ namespace :tw do
           end
 
           def create_geographic_areas_geographic_items
-            @index.values.each do |n|
+            @index.each_value do |n|
               n.temp_area.shapes.each do |s|
                 GeographicAreasGeographicItem.create!(geographic_area: n.geographic_area, data_origin: s[0], origin_gid: s[1], date_valid_from: s[2], date_valid_to: s[3])
               end
@@ -166,7 +166,7 @@ namespace :tw do
           end
 
           def save_geographic_areas
-            @index.values.each do |n|
+            @index.each_value do |n|
               recursively_save(n.geographic_area)
             end
           end
@@ -180,7 +180,7 @@ namespace :tw do
             geographic_area.save!
           end
 
-          # The following methods should not be used to handle/parse incoming data, 
+          # The following methods should not be used to handle/parse incoming data,
           # they are for debugging/reporting only.
 
           def all_name_strings
@@ -188,7 +188,7 @@ namespace :tw do
           end
 
           def duplicate_name_strings
-            @duplicate_names.collect { |a| a.name }.sort.uniq
+            @duplicate_names.collect {|a| a.name}.sort.uniq
           end
 
           def internal_names
@@ -202,7 +202,7 @@ namespace :tw do
           # These should be empty Arrays
 
           def names_not_indexed
-            names.select { |n| !@index[n.index] }
+            names.reject { |n| @index[n.index] }
           end
 
           def names_without_parent_arrays
@@ -227,7 +227,7 @@ namespace :tw do
         # Instances store attributes of the to be created GeographicArea and related records
         class TempArea
           attr_accessor :name, :tdwgID, :iso_3166_a2, :source_table, :iso_3166_a3 # Base attributes, source_table is both GeographicArea#data_origin and GeographicAreasGeographicItem#data_origin
-          attr_accessor :lvl0, :lvl1, :lvl2, :parent_names, :geographic_area_type_name # Used to build related records 
+          attr_accessor :lvl0, :lvl1, :lvl2, :parent_names, :geographic_area_type_name # Used to build related records
           attr_accessor :source_table_gid, :shapes, :date_valid_from, :date_valid_to # GeographicAreasGeographicItem attributes
           attr_accessor :is_internal_node # internal nodes have no shapes
 
@@ -374,7 +374,7 @@ namespace :tw do
         end
 
         def build_areas_from_tdwg_l1
-          puts "tdwg level 1"
+          puts 'tdwg level 1'
           source_table = 'tdwg_l1'
           all_records(source_table).each do |r|
             @data_index.add_item(
@@ -389,7 +389,7 @@ namespace :tw do
         end
 
         def build_areas_from_tdwg_l2
-          puts "tdwg level 2"
+          puts 'tdwg level 2'
           source_table = 'tdwg_l2'
           all_records(source_table).each do |r|
             @data_index.add_item(
@@ -404,7 +404,7 @@ namespace :tw do
         end
 
         def build_areas_from_tdwg_l3
-          puts "tdwg level 3"
+          puts 'tdwg level 3'
           source_table = 'tdwg_l3'
           all_records(source_table).each do |r|
             @data_index.add_item(
@@ -419,7 +419,7 @@ namespace :tw do
         end
 
         def build_areas_from_tdwg_l4
-          puts "tdwg level 4"
+          puts 'tdwg level 4'
           source_table = 'tdwg_l4'
           all_records(source_table).each do |r|
             @data_index.add_item(
@@ -446,7 +446,7 @@ namespace :tw do
         end
 
         def build_areas_from_ne_countries
-          puts "indexing ne_countries"
+          puts 'indexing ne_countries'
           source_table = 'ne_countries'
 
           all_records(source_table).each do |r|
@@ -463,7 +463,7 @@ namespace :tw do
         end
 
         def build_areas_from_ne_states
-          puts "indexing ne_states"
+          puts 'indexing ne_states'
           source_table = 'ne_states'
           all_records(source_table).each do |r|
             @data_index.add_item(
@@ -477,7 +477,7 @@ namespace :tw do
           end
         end
 
-        # The following may need to be reviewed for re-implementation, MAYBE. 
+        # The following may need to be reviewed for re-implementation, MAYBE.
         #
         # @gadm_xlate = YAML.load(File.read(@args[:data_directory] + 'data/external/import_helpers/gadm_translations.yaml'))
         # @tdwg_xlate = YAML.load(File.read(@args[:data_directory] + 'data/external/import_helpers/tdwg_translations.yaml'))

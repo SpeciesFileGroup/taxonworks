@@ -1,4 +1,4 @@
-class CreateAttributes < ActiveRecord::Migration
+class CreateAttributes < ActiveRecord::Migration[4.2]
   def change
     create_table :attributes do |t|
       t.string :type

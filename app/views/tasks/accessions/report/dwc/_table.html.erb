@@ -15,6 +15,7 @@
     <th> Latitude </th>
     <th> Longitude </th>
     <th> Precision (m) </th>
+    <th> Tag </th>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
@@ -34,8 +35,9 @@
       <td> <%= o.dwc_county -%> </td>
       <td> <%= o.dwc_locality -%> </td>
       <td> <%= o.dwc_latitude -%> </td>
-      <td> <%= o.dwc_longitude -%>  </td>
+      <td> <%= o.dwc_longitude -%> </td>
       <td> Precision (m) </td>
+      <td> <%= tag_default_icon(o) -%> </td>
       <%= fancy_metadata_cells_tag(o) -%>
     <% end %>
 

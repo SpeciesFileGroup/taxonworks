@@ -1,5 +1,5 @@
 # SourceSource is a Role
-FactoryGirl.define do
+FactoryBot.define do
   factory :source_author, class: SourceAuthor, traits: [:creator_and_updater] do
     factory :valid_source_author do
       association :person, factory: :valid_person

@@ -4,7 +4,7 @@ module DataControllerConfiguration::SharedDataControllerConfiguration
   included do
     include DataControllerConfiguration
     before_action :require_sign_in
-    before_filter :set_is_shared_data_model
+    before_action :set_is_shared_data_model
   end
 
   protected

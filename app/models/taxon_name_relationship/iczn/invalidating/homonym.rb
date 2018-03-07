@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship::Iczn::Invalidating
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000289'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000289'.freeze
 
   soft_validate(:sv_validate_homonym_relationships, set: :validate_homonym_relationships)
 
@@ -40,7 +40,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
     # bus.set_as_iczn_homonym_of(aus)
     :iczn_set_as_homonym_of
   end
-  
+
   # as.
   def self.inverse_assignment_method
     # aus.iczn_homonym = bus
@@ -49,18 +49,18 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
 
   def sv_add_synonym_for_homonym
     # if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Homonym/
-      if self.subject_taxon_name.iczn_set_as_synonym_of.nil?
-        unless self.subject_taxon_name.iczn_replacement_names.empty?
-          self.subject_taxon_name.iczn_set_as_synonym_of = self.object_taxon_name
-          begin
-            TaxonNameRelationship.transaction do
-              self.save
-              return true
-            end
-          rescue
+    if self.subject_taxon_name.iczn_set_as_synonym_of.nil?
+      unless self.subject_taxon_name.iczn_replacement_names.empty?
+        self.subject_taxon_name.iczn_set_as_synonym_of = self.object_taxon_name
+        begin
+          TaxonNameRelationship.transaction do
+            self.save
+            return true
           end
+        rescue
         end
       end
+    end
     # end
     false
   end

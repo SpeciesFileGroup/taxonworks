@@ -1,5 +1,5 @@
 require 'rails_helper'
-require_relative '../../support/geo/build_rspec_geo'
+# require_relative '../../support/shared_contexts/geo/build_rspec_geo'
 
 # include the subclasses, perhaps move this out
 Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| require_dependency file }
@@ -22,7 +22,7 @@ describe GeographicItem, type: :model, group: :geo do
 
   # after(:all) { clean_slate_geo }
 
-  let(:shift_method) { PSQL_VERSION == '2.2' ? "ST_ShiftLongitude" : "ST_Shift_Longitude" }
+  let(:shift_method) { PSQL_VERSION >= 2.2 ? 'ST_ShiftLongitude' : 'ST_Shift_Longitude' }
 
   context 'anti-meridian' do
     # Containers left side/object/A component of ST_Contains(A, B)
@@ -298,7 +298,7 @@ describe GeographicItem, type: :model, group: :geo do
       end
 
       context 'set of crossing object ids is detected' do
-        specify "[crossing_box, r_l_line, l_r_line] returns true" do
+        specify '[crossing_box, r_l_line, l_r_line] returns true' do
           expect(GeographicItem.crosses_anti_meridian_by_id?([crossing_box.id,
                                                               r_l_line.id,
                                                               l_r_line.id])).to be_truthy
@@ -306,7 +306,7 @@ describe GeographicItem, type: :model, group: :geo do
       end
 
       context 'set of heterogeneous object ids is detected' do
-        specify "[eastern_box, r_l_line, l_r_line] returns true" do
+        specify '[eastern_box, r_l_line, l_r_line] returns true' do
           expect(GeographicItem.crosses_anti_meridian_by_id?([eastern_box.id,
                                                               crossing_box.id,
                                                               r_l_line.id,
@@ -359,11 +359,11 @@ describe GeographicItem, type: :model, group: :geo do
     context 'verify GeographicItem.crosses_anti_meridian?(wkt) works' do
       let(:eastern_box_text) { 'POLYGON(( 176.0 27.0,  179.0 27.0,  179.0 25.0,  176.0 25.0,  176.0 27.0))' }
 
-      specify "left_right_anti_box" do
+      specify 'left_right_anti_box' do
         expect(GeographicItem.crosses_anti_meridian?(left_right_anti_box)).to be_truthy
       end
 
-      specify "eastern_box_text" do
+      specify 'eastern_box_text' do
         expect(GeographicItem.crosses_anti_meridian?(eastern_box_text)).to be_falsey
       end
     end

@@ -11,8 +11,8 @@
     </div>
 
     <div class="field">
-      <%= check_box_tag('project_members_only', :checked, !@alternate_value.project_id.nil? ) %>
-      <%= label_tag "Make this alternate value visible only to project members." %>
+      <%= check_box_tag('alternate_value[is_community_annotation]', true, !@alternate_value.project_id.nil? ) %>
+      <%= label_tag "Make this alternate value visible to everyone (project members and community)." %>
     </div>
 
     <div class="field">

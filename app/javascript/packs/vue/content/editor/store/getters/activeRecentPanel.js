@@ -1,3 +1,3 @@
-module.exports = function(state) {
-	return state.panels.recent
-};
+module.exports = function (state) {
+  return state.panels.recent
+}

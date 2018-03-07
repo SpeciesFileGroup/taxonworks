@@ -1,4 +1,4 @@
-class UpdateDateFieldsOnTaxonDetermination < ActiveRecord::Migration
+class UpdateDateFieldsOnTaxonDetermination < ActiveRecord::Migration[4.2]
   def change
 
    remove_column :taxon_determinations, :year_made

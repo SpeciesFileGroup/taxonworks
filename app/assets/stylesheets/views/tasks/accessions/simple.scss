@@ -1,125 +1,121 @@
-@import 'base/palette';
-@import 'base/whitespace';
-@import 'views/shared_data/show';
-
 #simple-specimen-task {
-	
-	padding:0px;
-	border:none;
 
-	.otu_picker > label {
-		display: none !important;
-	}
+  padding: 0px;
+  border: none;
 
-	.expandable {
-		width: 344px !important;
-	}
+  .otu_picker > label {
+    display: none !important;
+  }
 
-	.side_by_side_fields {
-		input {
-			width: 152px;
-		}
-	}
+  .expandable {
+    width: 344px !important;
+  }
 
-	.field  {
-		align-items: center;
-		display: flex;
-		flex-direction: row;
+  .side_by_side_fields {
+    input {
+      width: 152px;
+    }
+  }
 
-		textarea {
-			width: 330px;
-			display: inline-block;
-		}
+  .field {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
 
-		label {
-			margin-right: 5px;
-			width: 120px;
-			text-align: right;
-			display: inline-block;
-		}		
+    textarea {
+      width: 330px;
+      display: inline-block;
+    }
 
-	}
+    label {
+      margin-right: 5px;
+      width: 120px;
+      text-align: right;
+      display: inline-block;
+    }
 
-	#new_otu {
-		.field {
-			display: flex;
-			flex-direction: column;
-			align-items: left;
-			label {
-				text-align: left;
-			}
-		}
-	}
+  }
 
-	.panels-container {
-		justify-content: space-between;
-	}
+  #new_otu {
+    .field {
+      display: flex;
+      flex-direction: column;
+      align-items: left;
+      label {
+        text-align: left;
+      }
+    }
+  }
 
-	#dropzone_previews {
-		margin: 0px;
-		text-align: left;
-		width: 340px;
-		display: flex;
-		justify-content: flex-start;
-		flex-direction: row;
-		border:1px solid $navigation-border;
-		background-color: $body-background;
-		display: block;
-		border-radius: 3px;
-	}
+  .panels-container {
+    justify-content: space-between;
+  }
 
-	#collecting_event_fields {
-		padding-right: 10px;
-		border-right: 1px solid $navigation-border;
-	}
+  #dropzone_previews {
+    margin: 0px;
+    text-align: left;
+    width: 340px;
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: row;
+    border: 1px solid $navigation-border;
+    background-color: $body-background;
+    display: block;
+    border-radius: 3px;
+  }
 
-	#selected_collecting_event {
-		display: flex;
-		flex-direction: row;
-		justify-content: flex-end;
-	}
+  #collecting_event_fields {
+    padding-right: 10px;
+    border-right: 1px solid $navigation-border;
+  }
 
-	hr {
-		width: 100%;
-		border: 0;
-		height: 0;
-		border-top: 1px solid rgba(0, 0, 0, 0.1);
-		border-bottom: 1px solid rgba(255, 255, 255, 0.3);		
-	}
+  #selected_collecting_event {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+  }
 
-	#collecting_event_filter {
-		background-color: $color-secondary-2-1;
-		ul {
-			padding: 0px;
-			margin: 0px;
-			padding: $standard_padding;
-			width: 400px;
-			max-height: 500px;
-			border:1px solid $navigation-border;
-			overflow: scroll;	
-		}
+  hr {
+    width: 100%;
+    border: 0;
+    height: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  }
 
-		li {
-			border-bottom: 1px solid $navigation-border;
-			display: flex;
-			list-style: none;
-			align-items: center;
-			padding: 5px;
-			justify-content: space-between;
+  #collecting_event_filter {
+    background-color: $color-secondary-2-1;
+    ul {
+      padding: 0px;
+      margin: 0px;
+      padding: $standard_padding;
+      width: 400px;
+      max-height: 500px;
+      border: 1px solid $navigation-border;
+      overflow: scroll;
+    }
 
-			a {
-				cursor: pointer;
-				display: block;
-				padding-left: 10px;
-			}
-		}
+    li {
+      border-bottom: 1px solid $navigation-border;
+      display: flex;
+      list-style: none;
+      align-items: center;
+      padding: 5px;
+      justify-content: space-between;
 
-		li:last-child {
-			border-bottom: none;
-		}
-	}
+      a {
+        cursor: pointer;
+        display: block;
+        padding-left: 10px;
+      }
+    }
 
-	.flex-wrap-row {
-		margin-left: auto;
-	}
+    li:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .flex-wrap-row {
+    margin-left: auto;
+  }
 }

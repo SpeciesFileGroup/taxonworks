@@ -1,0 +1,83 @@
+#new_taxon_name_task {
+
+  .hardValidation {
+    color: red;
+    &::first-letter {
+      text-transform: uppercase;
+    }
+  }
+  .table-entrys-list {
+    span::first-letter {
+      text-transform: uppercase;
+    }
+  }
+  .status-item {
+    span::first-letter {
+      text-transform: uppercase;
+    }
+  }
+
+  .switch-radio {
+    label {
+      width: 70px;
+      display: flex;
+      justify-content: space-around;
+    }
+  }
+  .gender {
+    span:first-letter {
+      text-transform: capitalize;
+    }
+  }
+
+  .edit-content, .CodeMirror, .CodeMirror-scroll {
+    min-height: 150px;
+  }
+
+  .original-combination {
+    display: flex;
+    flex-direction: row;
+    .rank-name-label {
+      width: 100px;
+      margin-right: 8px;
+      max-width: 100px;
+      min-width: 100px;
+      text-align: right;
+      vertical-align: middle;
+      line-height: 40px;
+    }
+    .row, .vue-autocomplete {
+      line-height: 40px;
+      height: 40px;
+    }
+    .current-name {
+      position: static;
+      background-color: rgb(255, 255, 0);
+    }
+    .handle {
+      width: 15px;
+      background-position: center;
+
+    }
+    .item-draggable {
+      display: flex;
+      min-height: 40px;
+      flex-direction: row;
+    }
+  }
+
+  button:disabled {
+    background-color: transparent;
+    border-color: rgba(0, 0, 0, 0.2);
+  }
+
+  .tree-status {
+    list-style: none;
+    li {
+      margin-top: 6px;
+      button:first-letter {
+        text-transform: capitalize;
+      }
+    }
+  }
+}

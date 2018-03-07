@@ -1,6 +1,6 @@
 # A special purpose notes field that records the notes of someone observing one or more collection objects.
 #
-# Includes verbatim block of text (perhaps json too ultimately) that details observations on a collection object.  
+# Includes verbatim block of text (perhaps json too ultimately) that details observations on a collection object.
 # Should only include notes on CollectionObjects, not field observations, i.e. this is a precursor of a CollectionObject instance.
 #
 # Example usages:
@@ -16,11 +16,11 @@
 #   @return [Integer]
 #   the project ID
 #
-class CollectionObjectObservation < ActiveRecord::Base
+class CollectionObjectObservation < ApplicationRecord
   include Housekeeping
   include Shared::IsData
-  include Shared::Taggable
-  include Shared::Notable
+  include Shared::Tags
+  include Shared::Notes
   include Shared::Depictions
 
   has_many :derived_collection_objects, inverse_of: :collection_object_observations
@@ -30,7 +30,7 @@ class CollectionObjectObservation < ActiveRecord::Base
 
   def self.find_for_autocomplete(params)
     term = "#{params[:term]}%"
-    where('data LIKE ? OR data ILIKE ? OR data = ?', term, "#{term}%", "%term").where(project_id: params[:project_id])
+    where('data LIKE ? OR data ILIKE ? OR data = ?', term, "#{term}%", '%term').where(project_id: params[:project_id])
   end
 
   def self.generate_download(scope)

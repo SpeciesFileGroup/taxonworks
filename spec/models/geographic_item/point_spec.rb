@@ -1,8 +1,10 @@
 require 'rails_helper'
+require 'support/shared_contexts/shared_geo'
 
-describe GeographicItem::Point, type: :model, group: :geo do
+describe GeographicItem::Point, type: :model, group: [:geo, :shared_geo] do
+  include_context 'stuff for complex geo tests'
   context 'that this item' do
-    let(:r2024) { FactoryGirl.build(:geographic_item_point, :point => ROOM2024.as_binary) }
+    let(:r2024) { FactoryBot.build(:geographic_item_point, point: room2024.as_binary) }
 
     specify 'represents a point' do
       expect(r2024.type).to eq('GeographicItem::Point')

@@ -7,7 +7,7 @@ module Dwca::Packer
   #
   # With help from http://thinkingeek.com/2013/11/15/create-temporary-zip-file-send-response-rails/
   #
-  # Usage: 
+  # Usage:
   #  begin
   #   data = Dwca::Packer::Data.new(DwcOccurrence.where(project_id: sessions_current_project_id)
   #  ensure
@@ -30,8 +30,8 @@ module Dwca::Packer
     #   the data as a CSV object
     def csv
       Download.generate_csv(
-        scope.computed_columns, 
-        trim_columns: true, 
+        scope.computed_columns,
+        trim_columns: true,
         trim_rows: true,
         header_converters: [:dwc_headers]
       )
@@ -43,9 +43,9 @@ module Dwca::Packer
       return [] if no_records?
       d = CSV.open(data, headers: true, col_sep: "\t")
       d.read
-      h = d.headers 
+      h = d.headers
       d.rewind
-      h.shift # get rid of id, it's special in meta 
+      h.shift # get rid of id, it's special in meta
       h
     end
 
@@ -75,31 +75,31 @@ module Dwca::Packer
     # This is a stub, and only half-heartedly done. You should be using IPT for the time being.
     # @return [Tempfile]
     #   metadata about this dataset
-    # See also 
-    #    https://github.com/gbif/ipt/wiki/resourceMetadata 
-    #    https://github.com/gbif/ipt/wiki/resourceMetadata#exemplar-datasets 
-    def eml 
+    # See also
+    #    https://github.com/gbif/ipt/wiki/resourceMetadata
+    #    https://github.com/gbif/ipt/wiki/resourceMetadata#exemplar-datasets
+    def eml
       return @eml if @eml
       @eml = Tempfile.new('eml.xml')
 
       # This may need to be logged somewhere
-      identifier = SecureRandom.uuid 
+      identifier = SecureRandom.uuid
 
       # This should be build elsewhere, and ultimately derived from a TaxonWorks::Dataset model
       builder = Nokogiri::XML::Builder.new do |xml|
         xml['eml'].eml(
-          'xmlns:eml' => 'eml://ecoinformatics.org/eml-2.1.1', 
+          'xmlns:eml' => 'eml://ecoinformatics.org/eml-2.1.1',
           'xmlns:dc' => 'http://purl.org/dc/terms/',
           'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
           'xsi:schemaLocation' => 'eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.1/eml.xsd',
           'packageId' => identifier,
           'system' => 'http://taxonworks.org',
-          'scope' => 'system',  
+          'scope' => 'system',
           'xml:lang' => 'eng'
         ) {
           xml.dataset {
             xml.alternate_identifier identifier
-            xml.title("xml:lang" => 'eng').text "STUB - YOUR TITLE HERE"
+            xml.title('xml:lang' => 'eng').text 'STUB - YOUR TITLE HERE'
             xml.creator {
               xml.individualName {
                 xml.givenName 'STUB'
@@ -128,9 +128,9 @@ module Dwca::Packer
             xml.additionalMetadata {
               xml.metadata {
                 xml.gbif {
-                  xml.dateStamp 
+                  xml.dateStamp
                   xml.hierarchyLevel
-                  xml.citation(identifier: 'STUB').text 'DATASET CITATION STUB' 
+                  xml.citation(identifier: 'STUB').text 'DATASET CITATION STUB'
                   xml.resourceLogoURL 'SOME URL'
                   xml.formationPeriod 'SOME PERIOD'
                   xml.livingTimePeriod 'SOME PERIOD'
@@ -139,17 +139,17 @@ module Dwca::Packer
               }
             }
           }
-        } 
-      end 
+        }
+      end
 
-      @eml.write(builder.to_xml) 
+      @eml.write(builder.to_xml)
       @eml.flush
       @eml
     end
 
     # @return [Tempfile]
     #   the actual data file
-    def meta 
+    def meta
       return @meta if @meta
 
       @meta = Tempfile.new('meta.xml')
@@ -158,17 +158,17 @@ module Dwca::Packer
         xml.archive('xmlns' => 'http://rs.tdwg.org/dwc/text/') {
           xml.core(encoding: 'UTF-8', linesTerminatedBy: '\n', fieldsTerminatedBy: '\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.tdwg.org/dwc/terms/Occurrence') {
             xml.files {
-              xml.location 'data.csv' 
+              xml.location 'data.csv'
             }
             xml.id(index: 0)
             csv_headers.each_with_index do |h,i|
               xml.field(index: i+1, term: DwcOccurrence::DC_NAMESPACE + h)
             end
           }
-        } 
-      end 
+        }
+      end
 
-      @meta.write(builder.to_xml) 
+      @meta.write(builder.to_xml)
       @meta.flush
       @meta
     end
@@ -179,26 +179,26 @@ module Dwca::Packer
       Zip::OutputStream.open(zipfile) { |zos| }
 
       Zip::File.open(zipfile.path, Zip::File::CREATE) do |zip|
-        zip.add('data.csv', data.path)    
-        zip.add('meta.xml', meta.path)    
-        zip.add('eml.xml', eml.path)    
+        zip.add('data.csv', data.path)
+        zip.add('meta.xml', meta.path)
+        zip.add('eml.xml', eml.path)
       end
 
       File.read(zipfile.path)
     end
 
     # @return [Tempfile]
-    #   the zipfile 
+    #   the zipfile
     def zipfile
       @zipfile ||= Tempfile.new(filename)
       @zipfile
     end
 
     # @return [String]
-    # the name of zipfile 
+    # the name of zipfile
     def filename
-      @filename ||= "dwc_occurrences_#{DateTime.now.to_s}.zip"
-      @filename 
+      @filename ||= "dwc_occurrences_#{DateTime.now}.zip"
+      @filename
     end
 
     # @return [True]

@@ -5,7 +5,7 @@ class PredicatesController < ApplicationController
     predicates = Predicate.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
 
     data = predicates.collect do |t|
-      str = t.name + ": " + t.definition
+      str = t.name + ': ' + t.definition
       {id: t.id,
        label: str,
        response_values: {
@@ -14,7 +14,14 @@ class PredicatesController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
+
+
+  def select_options
+    @predicates = Predicate.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:klass))
+  end
+
+
 
 end

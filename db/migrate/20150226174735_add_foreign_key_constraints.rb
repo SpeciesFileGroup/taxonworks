@@ -1,4 +1,4 @@
-class AddForeignKeyConstraints < ActiveRecord::Migration
+class AddForeignKeyConstraints < ActiveRecord::Migration[4.2]
   def change
 
     AlternateValue.connection.execute('alter table alternate_values add foreign key (language_id) references languages (id);')
@@ -85,11 +85,6 @@ class AddForeignKeyConstraints < ActiveRecord::Migration
     ContainerItem.connection.execute('alter table container_items add foreign key (created_by_id) references users (id);')
     ContainerItem.connection.execute('alter table container_items add foreign key (updated_by_id) references users (id);')
     ContainerItem.connection.execute('alter table container_items add foreign key (project_id) references projects (id);')
-
-    ContainerLabel.connection.execute('alter table container_labels add foreign key (created_by_id) references users (id);')
-    ContainerLabel.connection.execute('alter table container_labels add foreign key (updated_by_id) references users (id);')
-    ContainerLabel.connection.execute('alter table container_labels add foreign key (project_id) references projects (id);')
-    ContainerLabel.connection.execute('alter table container_labels add foreign key (container_id) references containers (id);')
 
     Content.connection.execute('alter table contents add foreign key (otu_id) references otus (id);')
     Content.connection.execute('alter table contents add foreign key (topic_id) references controlled_vocabulary_terms (id);')

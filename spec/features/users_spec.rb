@@ -8,10 +8,10 @@ describe 'Users' do
   # When an administrator signs in, what does he see, what can he do?
   # # When an admin creates new user, how does he initialize user password?
 
-  let(:user_update_ok_text) {'Changes to your account information have been saved.'} 
+  let(:user_update_ok_text) {'Changes to your account information have been saved.'}
 
   context 'when user is signed in' do # before user signs in, s/he is on /signin page
-    context 'with unprivileged user' do  
+    context 'with unprivileged user' do
       before {
         sign_in_user
         visit root_path
@@ -99,12 +99,12 @@ describe 'Users' do
         before { click_link 'Administration' }
 
         context 'for projects' do
-          specify 'header' do 
+          specify 'header' do
             expect(page).to have_css('span', text: 'Projects')
           end
 
           specify 'new' do
-            expect(page).to have_link('New', href: new_project_path )   
+            expect(page).to have_link('New', href: new_project_path )
           end
 
           specify 'overview' do
@@ -118,7 +118,7 @@ describe 'Users' do
           end
 
           specify 'create' do
-            expect(page).to have_link('New', href: signup_path)    
+            expect(page).to have_link('New', href: signup_path)
           end
         end
       end
@@ -149,13 +149,13 @@ describe 'Users' do
       end
 
       context 'when not an administrator' do   # how would a non administrator get to this page? By entering the URL manually in the browser's address bar
-        before { 
+        before {
           sign_in_user
-          visit users_path 
+          visit users_path
         }
         it 'should redirect to dashboard and provide a notice' do
           expect(page.current_path).to eq('/') # TODO: eq(dashboard_path) doesn't work and the fact that root is also dashboard#index is being assumed rather than tested
-          expect(page).to have_content('Please sign in as an administrator.') 
+          expect(page).to have_content('Please sign in as an administrator.')
         end
       end
     end
@@ -170,33 +170,33 @@ describe 'Users' do
 
         describe 'basic attributes contents' do
           # it 'shows *', skip: 'Add specs for missing attributes' # TODO: Finish the spec
-      
+
           describe 'API access token' do
             let(:token_label) { 'API access token' }
-        
+
             context 'when there is no token' do
               it 'doesn\'t show the API access token label' do
                 expect(page).to_not have_content(token_label)
               end
             end
-        
+
             context 'when there is a token' do
               before {
                 @user.generate_api_access_token
-                @user.save       
+                @user.save
                 visit user_path(@user)
               }
-          
+
               it 'shows the API access token label' do
                 expect(page).to have_content(token_label)
               end
-          
+
               it 'shows the API access token string' do
                 expect(page).to have_content(@user.api_access_token)
               end
             end
           end
-      
+
           it 'provides a link to edit the account' do
             expect(page).to have_link('Edit', href: edit_user_path(@user))
           end
@@ -204,7 +204,7 @@ describe 'Users' do
           #   expect(page).to have_link('View my statistics', href: user_statistics_path)
             # what projects I belong, currently logged into projects,
           # end
-        end 
+        end
       end
 
       context 'when editing self' do         # this is either edit oneself or an admin editing someone else
@@ -212,15 +212,15 @@ describe 'Users' do
           sign_in_user
           visit edit_user_path(@user)
         }
-   
+
         it 'should let user edit their account information' do
-          txt = "Editing user"
+          txt = 'Editing user'
           expect(page).to have_selector('h1', text: txt)
           fill_in 'Email', with: 'edit_user_modified@example.com'
           fill_in 'Password', with: '1234ZZZ!'
           fill_in 'Password confirmation', with: '1234ZZZ!'
           click_button 'Update User'
-   
+
           expect(page).to have_text(user_update_ok_text)
         end
       end
@@ -250,36 +250,36 @@ describe 'Users' do
   context 'when user is not signed in' do
     before(:all) { spin_up_project_and_users }
     before { visit root_path }
-    
+
     feature 'forgotten password reset' do
       before { click_link 'Forgot password?' }
-      
+
       scenario 'invalid email' do
         fill_in 'Email', with: 'invalid@example.com'
         click_button 'Send e-mail'
-        
+
         expect(page).to have_text('The supplied e-mail does not belong to a registered user')
       end
-      
+
       scenario 'empty email' do
         click_button 'Send e-mail'
-        
+
         expect(page).to have_text('No e-mail was given')
       end
-      
+
       context 'valid email' do
         before do
           fill_in 'Email', with: 'user@example.com'
           click_button 'Send e-mail'
         end
-        
+
         scenario 'request password reset' do
           password = '12345678abcd'
           expect(page).to have_content('Password reset request sent!')
           mail = ActionMailer::Base.deliveries.last
           path = mail.body.match(/http(s)?:\/\/[^\/]+(?<path>\S+)/)['path']
           visit path
-          # current error is 'Token not present or expired.' 
+          # current error is 'Token not present or expired.'
           fill_in 'Password', with: password
           fill_in 'Password confirmation', with: password
           click_button 'Change password'
@@ -296,14 +296,14 @@ describe 'Users' do
 
     feature 'flagged for password reset' do
       before {
-          User.create!(name: 'Test',
-            email: 'flagged@example.com',
-            password: '12345678',
-            password_confirmation: '12345678',
-            self_created: true,
-            is_flagged_for_password_reset: true)
+        User.create!(name:                          'Test',
+                     email:                         'flagged@example.com',
+                     password:                      '12345678',
+                     password_confirmation:         '12345678',
+                     self_created:                  true,
+                     is_flagged_for_password_reset: true)
       }
-    
+
       scenario 'requesting password reset from sign in process' do
         password = '12345678abcd'
         visit root_path

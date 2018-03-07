@@ -3,10 +3,10 @@ require 'rails_helper'
 describe DwcOccurrence, type: :model, group: :darwin_core do
 
   let(:dwc_occurrence) { DwcOccurrence.new }
-  let(:collection_object) { FactoryGirl.create(:valid_specimen) } 
-  let(:source_human) { FactoryGirl.create(:valid_source_human) }
-  let(:source_bibtex) { FactoryGirl.create(:valid_source_bibtex) }
-  let(:asserted_distribution) { FactoryGirl.create(:valid_asserted_distribution) } 
+  let(:collection_object) { FactoryBot.create(:valid_specimen) } 
+  let(:source_human) { FactoryBot.create(:valid_source_human) }
+  let(:source_bibtex) { FactoryBot.create(:valid_source_bibtex) }
+  let(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution) } 
 
   context 'validation' do
     context 'with a new instance' do

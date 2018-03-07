@@ -1,26 +1,38 @@
 @keyframes rotate {
-	from {-webkit-transform: rotate(360deg);}
-	to {-webkit-transform: rotate(0deg);}
-}	
+  from {
+    -webkit-transform: rotate(360deg);
+  }
+  to {
+    -webkit-transform: rotate(0deg);
+  }
+}
 
 @keyframes rotate-inverted {
-	from {-webkit-transform: rotate(0deg);}
-	to {-webkit-transform: rotate(360deg);}
-} 
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
 
 @keyframes alert-show {
-	0%  { 		
-		opacity: 0.50;
-		transform: translateY(100%) translateX(-50%);
-	}
-	25% { 
-		transform: translateY(0%) translateX(-50%);
-		opacity: 1; 
-		
-	} 	
+  0% {
+    opacity: 0.50;
+    transform: translateY(100%) translateX(-50%);
+  }
+  25% {
+    transform: translateY(0%) translateX(-50%);
+    opacity: 1;
+
+  }
 }
 
 @keyframes shining {
-  from { box-shadow:0px 0px 5px 2px #0066cc; }
-  to { box-shadow:0px 0px 5px 2px #0066cc; }
+  from {
+    box-shadow: 0px 0px 5px 2px #0066cc;
+  }
+  to {
+    box-shadow: 0px 0px 5px 2px #0066cc;
+  }
 }

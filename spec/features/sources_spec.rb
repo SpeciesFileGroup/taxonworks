@@ -10,43 +10,33 @@ describe 'Sources', type: :feature, group: :sources do
   context 'signed in as user, with some records created' do
     before do
       sign_in_user_and_select_project
-      5.times { factory_girl_create_for_user(:valid_source, @user) }
+      5.times { factory_bot_create_for_user(:valid_source, @user) }
     end
 
     describe 'GET /sources' do
-      before {
-        visit sources_path }
+      before { visit sources_path }
 
       it_behaves_like 'a_data_model_with_standard_index'
     end
 
     describe 'GET /sources/list' do
-      before do
-        visit list_sources_path
-      end
-
+      before { visit list_sources_path }
       it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
     describe 'GET /sources/n' do
-      before {
-        visit source_path Source.second
-      }
-
+      before { visit source_path Source.second }
       it_behaves_like 'a_data_model_with_standard_show'
     end
 
-
     context 'editing an existing source' do
-      before {
-        visit sources_path 
-      }
+      before { visit sources_path }
 
       specify 'I can find my bibtex source and it has an edit link & I can edit the source', js: true do
-        @src_bibtex = factory_girl_create_for_user(:soft_valid_bibtex_source_article, @user)
+        src_bibtex = factory_bot_create_for_user(:soft_valid_bibtex_source_article, @user)
 
-        fill_autocomplete('source_id_for_quick_search_form', with: @src_bibtex.title, select: @src_bibtex.id)
-        click_button('Show')
+        fill_autocomplete('source_id_for_quick_search_form', with: src_bibtex.title, select: src_bibtex.id)
+
         expect(page).to have_content('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
         expect(page).to have_link('Edit')
         click_link('Edit')
@@ -61,21 +51,20 @@ describe 'Sources', type: :feature, group: :sources do
 
         expect(page).to have_selector('#source_verbatim', visible: false)
 
-        fill_in('Author', with: 'Wombat, H.P.') 
-        fill_in('Year', with: '1920') 
+        fill_in('Author', with: 'Wombat, H.P.')
+        fill_in('Year', with: '1920')
         click_button('Update Bibtex')
-        expect(page).to have_content("Source was successfully updated.")
+        expect(page).to have_content('Source was successfully updated.')
         expect(page).to have_content('Wombat, H.P. (1920) I am a soft valid article. Journal of Test Articles.')
       end
 
       specify 'I can find my verbatim source and it has an edit link & I can edit the source', js: true do
-        @src_verbatim = factory_girl_create_for_user(:valid_source_verbatim, @user)
-        tmp           = @src_verbatim.verbatim
+        src_verbatim = factory_bot_create_for_user(:valid_source_verbatim, @user)
+        tmp = src_verbatim.verbatim
 
-        fill_autocomplete('source_id_for_quick_search_form', with: @src_verbatim.cached, select: @src_verbatim.id)
+        fill_autocomplete('source_id_for_quick_search_form', with: src_verbatim.cached, select: src_verbatim.id)
 
-        click_button('Show')
-        expect(page).to have_content(@src_verbatim.cached)
+        expect(page).to have_content(src_verbatim.cached)
         expect(page).to have_link('Edit')
         click_link('Edit')
 
@@ -83,8 +72,6 @@ describe 'Sources', type: :feature, group: :sources do
         # expect(page.has_checked_field?('source_type_sourceverbatim')).to be_truthy
 
         expect(find_field('Verbatim').value).to eq(tmp)
-
-        #      expect(page.has_field?('Author')).to be_falsey
 
         expect(page).to have_selector('#source_author', visible: false)
         expect(page).to have_selector('#source_journal', visible: false)
@@ -110,25 +97,20 @@ describe 'Sources', type: :feature, group: :sources do
 =end
 
     end
-
-
-
-
-
   end
 
-  context "as a user create a record" do
-    before {
+  context 'as a user create a record' do
+    before do 
       sign_in_user_and_select_project
-      Source::Bibtex.create!(by: @user,
-                             bibtex_type:  'article',
-                             title:        'Article Title',
-                             author:       'Author1',
-                             year:         '2014',
-                             journal:      'Test journal'
-                            )
-
-    }
+      Source::Bibtex.create!(
+        by: @user,
+        bibtex_type: 'article',
+        title: 'Article Title',
+        author: 'Author1',
+        year: '2014',
+        journal: 'Test journal'
+      )
+    end 
 
     context 'later, sign in as administrator' do
       before{ sign_in_with(@administrator.email, @password) }
@@ -171,9 +153,9 @@ describe 'Sources', type: :feature, group: :sources do
       expect(page.has_checked_field?('source_type_sourcebibtex')).to be_truthy
 
       # many fields are present including 'Verbatim contents', but not the 'Verbatim' textbox
-      expect(page.has_field?('source_title', :type => 'textarea')).to be_truthy
-      expect(page.has_field?('source_verbatim_contents', :type => 'textarea')).to be_truthy
-      expect(page.has_no_field?('source_verbatim', :type => 'textarea')).to be_truthy
+      expect(page.has_field?('source_title', type: 'textarea')).to be_truthy
+      expect(page.has_field?('source_verbatim_contents', type: 'textarea')).to be_truthy
+      expect(page.has_no_field?('source_verbatim', type: 'textarea')).to be_truthy
 
       select('article', from: 'source_bibtex_type')
 
@@ -190,7 +172,7 @@ describe 'Sources', type: :feature, group: :sources do
       click_link('New')
       choose('source_type_sourceverbatim') # select the Verbatim radio button
       expect(page.has_checked_field?('source_type_sourceverbatim')).to be_truthy
-      expect(page.has_field?('source_verbatim', :type => 'textarea')).to be_truthy
+      expect(page.has_field?('source_verbatim', type: 'textarea')).to be_truthy
       # TODO when Capybara works better so field('field').visible? is accurate add visibility tests.
       #      expect(page.has_no_field?('source_title', :type => 'textarea')).to be_truthy
       # The 'Verbatim' textbox is the only field available.

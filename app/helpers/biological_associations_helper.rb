@@ -2,7 +2,7 @@ module BiologicalAssociationsHelper
 
   def biological_association_tag(biological_association)
     return nil if biological_association.nil?
-    object_tag(biological_association.biological_association_subject) + " " + content_tag(:span, biological_relationship_tag(biological_association.biological_relationship), class: :notice) + " " + 
+    object_tag(biological_association.biological_association_subject) + ' ' + content_tag(:span, biological_relationship_tag(biological_association.biological_relationship), class: :notice) + ' ' + 
       object_tag(biological_association.biological_association_subject) 
   end
 

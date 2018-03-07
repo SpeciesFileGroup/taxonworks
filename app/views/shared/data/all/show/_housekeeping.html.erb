@@ -1,22 +1,23 @@
 <div class="attribute_set" data-title="Record housekeeping">
-	<p>
-	<strong>Created by:</strong>
-	<%= object_tag(object.creator) %>
-	</p>
+  <p>
+    <strong>Created by:</strong>
+    <%= object_tag(object.creator) %>
+  </p>
 
-	<p>
-	<strong>Updated by:</strong>
-	<%= object_tag(object.updater) %>
-	</p>
+  <p>
+    <strong>Updated by:</strong>
+    <%= object_tag(object.updater) %>
+  </p>
 
-	<p>
-	<strong>Updated at:</strong>
-	<%= object.updated_at.to_formatted_s(:long)    -%> 
-	</p>
+  <p>
+    <strong>Created at:</strong>
+    <%= object.created_at.to_formatted_s(:long) -%>
+  </p>
 
-	<p>
-	<strong>Created at:</strong>
-	 <%=object.created_at.to_formatted_s(:long)    -%> 
-	</p>
+  <p>
+    <strong>Updated at:</strong>
+    <%= object.updated_at.to_formatted_s(:long) -%>
+  </p>
+
 </div>
 

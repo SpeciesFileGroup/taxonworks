@@ -46,8 +46,7 @@ Object.assign(TW.views.collecting_events.form, {
   
 });
 
-$(document).ready(function() {
-    
+$(document).on('turbolinks:load', function() {
   if($("#collecting_event_form").length) {
 
     var _init_index = TW.views.collecting_events.form;

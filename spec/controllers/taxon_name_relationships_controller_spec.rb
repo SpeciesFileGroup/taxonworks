@@ -18,122 +18,123 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-describe TaxonNameRelationshipsController, :type => :controller do
+describe TaxonNameRelationshipsController, type: :controller do
   before(:each) {
-    sign_in 
+    sign_in
   }
 
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { 
-    strip_housekeeping_attributes( FactoryGirl.build(:valid_taxon_name_relationship).attributes )
-  }  
+  let(:valid_attributes) {
+    strip_housekeeping_attributes( FactoryBot.build(:valid_taxon_name_relationship).attributes )
+  }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
   # TaxonNameRelationshipsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
-  describe "GET index" do
-    it "assigns recent taxon_name_relationships as @recent_objects" do
+  describe 'GET index' do
+    it 'assigns recent taxon_name_relationships as @recent_objects' do
       taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       expect(assigns(:recent_objects)).to eq([taxon_name_relationship])
     end
   end
 
-  describe "GET show" do
-    it "assigns the requested taxon_name_relationship as @taxon_name_relationship" do
+  describe 'GET show' do
+    it 'assigns the requested taxon_name_relationship as @taxon_name_relationship' do
       taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
-      get :show, {:id => taxon_name_relationship.to_param}, valid_session
+      get :show, params: {id: taxon_name_relationship.to_param}, session: valid_session
       expect(assigns(:taxon_name_relationship)).to eq(taxon_name_relationship)
     end
   end
 
-  describe "GET new" do
-    it "assigns a new taxon_name_relationship as @taxon_name_relationship" do
-      get :new, {}, valid_session
+  describe 'GET new' do
+    it 'assigns a new taxon_name_relationship as @taxon_name_relationship' do
+      get :new, params: {}, session: valid_session
       expect(assigns(:taxon_name_relationship)).to be_a_new(TaxonNameRelationship)
     end
   end
 
-  describe "GET edit" do
-    it "assigns the requested taxon_name_relationship as @taxon_name_relationship" do
+  describe 'GET edit' do
+    it 'assigns the requested taxon_name_relationship as @taxon_name_relationship' do
       taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
-      get :edit, {:id => taxon_name_relationship.to_param}, valid_session
+      get :edit, params: {id: taxon_name_relationship.to_param}, session: valid_session
       expect(assigns(:taxon_name_relationship)).to eq(taxon_name_relationship)
     end
   end
 
-  describe "POST create" do
-    describe "with valid params" do
-      it "creates a new TaxonNameRelationship" do
+  describe 'POST create' do
+    describe 'with valid params' do
+      it 'creates a new TaxonNameRelationship' do
         expect {
-          post :create, {:taxon_name_relationship => valid_attributes}, valid_session
+          post :create, params: {taxon_name_relationship: valid_attributes}, session: valid_session
         }.to change(TaxonNameRelationship, :count).by(1)
       end
 
-      it "assigns a newly created taxon_name_relationship as @taxon_name_relationship" do
-        post :create, {:taxon_name_relationship => valid_attributes}, valid_session
+      it 'assigns a newly created taxon_name_relationship as @taxon_name_relationship' do
+        post :create, params: {taxon_name_relationship: valid_attributes}, session: valid_session
         expect(assigns(:taxon_name_relationship)).to be_a(TaxonNameRelationship)
         expect(assigns(:taxon_name_relationship)).to be_persisted
       end
 
-      it "redirects to the created taxon_name_relationship" do
-        post :create, {:taxon_name_relationship => valid_attributes}, valid_session
+      it 'redirects to the created taxon_name_relationship' do
+        post :create, params: {taxon_name_relationship: valid_attributes}, session: valid_session
         expect(response).to redirect_to(TaxonNameRelationship.last.metamorphosize)
       end
     end
 
-    describe "with invalid params" do
-      it "assigns a newly created but unsaved taxon_name_relationship as @taxon_name_relationship" do
+    describe 'with invalid params' do
+      it 'assigns a newly created but unsaved taxon_name_relationship as @taxon_name_relationship' do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaxonNameRelationship).to receive(:save).and_return(false)
-        post :create, {:taxon_name_relationship => { "subject_taxon_name_id" => "invalid value" }}, valid_session
+        post :create, params: {taxon_name_relationship: {'subject_taxon_name_id' => 'invalid value'}}, session: valid_session
         expect(assigns(:taxon_name_relationship)).to be_a_new(TaxonNameRelationship)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaxonNameRelationship).to receive(:save).and_return(false)
-        post :create, {:taxon_name_relationship => { "subject_taxon_name_id" => "invalid value" }}, valid_session
-        expect(response).to render_template("new")
+        post :create, params: {taxon_name_relationship: {'subject_taxon_name_id' => 'invalid value'}}, session: valid_session
+        expect(response).to render_template('new')
       end
     end
   end
 
-  describe "PUT update" do
-    describe "with valid params" do
-      it "updates the requested taxon_name_relationship" do
+  describe 'PUT update' do
+    describe 'with valid params' do
+      it 'updates the requested taxon_name_relationship' do
         taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
         # Assuming there are no other taxon_name_relationships in the database, this
         # specifies that the TaxonNameRelationship created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        expect_any_instance_of(TaxonNameRelationship).to receive(:update).with({ "subject_taxon_name_id" => "1" })
-        put :update, {:id => taxon_name_relationship.to_param, :taxon_name_relationship => { "subject_taxon_name_id" => "1" }}, valid_session
+        update_params = ActionController::Parameters.new({'subject_taxon_name_id' => '1'}).permit(:subject_taxon_name_id)
+        expect_any_instance_of(TaxonNameRelationship).to receive(:update).with(update_params)
+        put :update, params: {id: taxon_name_relationship.to_param, taxon_name_relationship: {'subject_taxon_name_id' => '1'}}, session: valid_session
       end
 
-      it "assigns the requested taxon_name_relationship as @taxon_name_relationship" do
+      it 'assigns the requested taxon_name_relationship as @taxon_name_relationship' do
         taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
-        put :update, {:id => taxon_name_relationship.to_param, :taxon_name_relationship => valid_attributes}, valid_session
+        put :update, params: {id: taxon_name_relationship.to_param, taxon_name_relationship: valid_attributes}, session: valid_session
         expect(assigns(:taxon_name_relationship)).to eq(taxon_name_relationship)
       end
 
-      it "redirects to the taxon_name_relationship" do
+      it 'redirects to the taxon_name_relationship' do
         taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
-        put :update, {:id => taxon_name_relationship.to_param, :taxon_name_relationship => valid_attributes}, valid_session
+        put :update, params: {id: taxon_name_relationship.to_param, taxon_name_relationship: valid_attributes}, session: valid_session
         expect(response).to redirect_to(taxon_name_relationship.becomes(TaxonNameRelationship))
       end
     end
 
-    describe "with invalid params" do
-      it "assigns the taxon_name_relationship as @taxon_name_relationship" do
+    describe 'with invalid params' do
+      it 'assigns the taxon_name_relationship as @taxon_name_relationship' do
         taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaxonNameRelationship).to receive(:save).and_return(false)
-        put :update, {:id => taxon_name_relationship.to_param, :taxon_name_relationship => { "subject_taxon_name_id" => "invalid value" }}, valid_session
+        put :update, params: {id: taxon_name_relationship.to_param, taxon_name_relationship: {'subject_taxon_name_id' => 'invalid value'}}, session: valid_session
         expect(assigns(:taxon_name_relationship)).to eq(taxon_name_relationship)
       end
 
@@ -141,23 +142,23 @@ describe TaxonNameRelationshipsController, :type => :controller do
         taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         allow_any_instance_of(TaxonNameRelationship).to receive(:save).and_return(false)
-        put :update, {:id => taxon_name_relationship.to_param, :taxon_name_relationship => { "subject_taxon_name_id" => "invalid value" }}, valid_session
-        expect(response).to render_template("edit")
+        put :update, params: {id: taxon_name_relationship.to_param, taxon_name_relationship: {'subject_taxon_name_id' => 'invalid value'}}, session: valid_session
+        expect(response).to render_template('edit')
       end
     end
   end
 
-  describe "DELETE destroy" do
-    it "destroys the requested taxon_name_relationship" do
+  describe 'DELETE destroy' do
+    it 'destroys the requested taxon_name_relationship' do
       taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
       expect {
-        delete :destroy, {:id => taxon_name_relationship.to_param}, valid_session
+        delete :destroy, params: {id: taxon_name_relationship.to_param}, session: valid_session
       }.to change(TaxonNameRelationship, :count).by(-1)
     end
 
-    it "redirects to the taxon_name_relationships list" do
+    it 'redirects to the taxon_name_relationships list' do
       taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
-      delete :destroy, {:id => taxon_name_relationship.to_param}, valid_session
+      delete :destroy, params: {id: taxon_name_relationship.to_param}, session: valid_session
       expect(response).to redirect_to(taxon_name_relationships_url)
     end
   end

@@ -1,6 +1,9 @@
-FactoryGirl.define do
+FactoryBot.define do
 
   factory :taxon_name_relationship, traits: [:housekeeping] do
+
+    initialize_with { new(type: type) } 
+
     factory :valid_taxon_name_relationship do
       association :subject_taxon_name, factory: :relationship_genus
       association :object_taxon_name, factory: :relationship_family

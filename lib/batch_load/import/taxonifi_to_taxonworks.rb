@@ -63,13 +63,13 @@ module BatchLoad
       begin
         @name_collection ||= ::Taxonifi::Lumper.create_name_collection(csv: csv)
       rescue Taxonifi::Assessor::RowAssessor::RowAssessorError
-        @file_errors.push "Error assessing a row of data in the inputfile."
+        @file_errors.push 'Error assessing a row of data in the inputfile.'
       end
     end
 
     def build_protonyms
       if name_collection.nil?
-        @file_errors.push "No names were readable in the file."
+        @file_errors.push 'No names were readable in the file.'
         return
       end
 

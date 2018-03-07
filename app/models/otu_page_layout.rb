@@ -1,18 +1,18 @@
 # An OtuPageLayout defines the (gross) content and presentation order of an OTU page.  Within an
 # otu page layout you may select any number of Topics, or dynamically generate report types.
-# Each section will be filled with content for a particular OTU when the layout is selected for that OTU. 
+# Each section will be filled with content for a particular OTU when the layout is selected for that OTU.
 #
 # @!attribute name
 #   @return [String]
-#     The name of the layout 
+#     The name of the layout
 #
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
 #
-class OtuPageLayout < ActiveRecord::Base
+class OtuPageLayout < ApplicationRecord
   include Housekeeping
-  include Shared::IsData 
+  include Shared::IsData
 
   has_many :otu_page_layout_sections, -> { order(:position) }, inverse_of: :otu_page_layout, dependent: :destroy
   has_many :standard_sections, -> { order(:position) }, class_name: 'OtuPageLayoutSection::StandardSection', inverse_of: :otu_page_layout, dependent: :destroy

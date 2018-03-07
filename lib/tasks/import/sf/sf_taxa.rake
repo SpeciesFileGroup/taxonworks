@@ -12,11 +12,12 @@ namespace :tw do
         # user	57m35.616s
         # sys	2m26.810s
 
-        LoggedTask.define :create_status_flag_relationships => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_status_flag_relationships: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating relationships from StatusFlags...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
           # get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
@@ -35,6 +36,7 @@ namespace :tw do
           error_counter = 0
 
           file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
             next unless row['TaxonNameID'].to_i > 0
             next if get_tw_otu_id.has_key?(row['TaxonNameID']) # check if OTU was made
             next if row['TaxonNameStr'].start_with?('1100048-1143863') # name = MiscImages (body parts)
@@ -166,7 +168,7 @@ namespace :tw do
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression'
                     bit_flag_name = 'suppressed by ruling'
                   when 9 # misapplied
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication'
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Misapplication'
                     bit_flag_name = 'misapplied'
 
                   # - - -
@@ -326,22 +328,18 @@ namespace :tw do
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_some_related_taxa user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_some_related_taxa => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_some_related_taxa: [:data_directory, :environment, :user_id] do |logger|
           # 45 errors, 2.5 minutes
 
           logger.info 'Creating some related taxa (from tblRelatedTaxa)...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           # get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
 
-          # @todo: Temporary "fix" to convert all values to string; will be fixed next time taxon names are imported and following do can be deleted
-          get_tw_taxon_name_id.each do |key, value|
-            get_tw_taxon_name_id[key] = value.to_s
-          end
-
-          path = @args[:data_directory] + 'tblRelatedTaxa.txt'
+          path = @args[:data_directory] + 'sfRelatedTaxa.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           count_found = 0
@@ -349,6 +347,7 @@ namespace :tw do
           suppressed_counter = 0
 
           file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
             # next if get_tw_otu_id.has_key?(row['FamilyNameID']) # ignore if ill-formed family name created only as OTU
 
             older_name_id = get_tw_taxon_name_id[row['OlderNameID']].to_i
@@ -361,7 +360,7 @@ namespace :tw do
                                  '4' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
                                  '5' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
                                  '6' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName',
-                                 '7' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication',
+                                 '7' => 'TaxonNameRelationship::Iczn::Invalidating::Misapplication',
                                  '8' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling', # lapsus calami>>corrected lapsus
                                  '9' => 'TaxonNameRelationship::Iczn::Invalidating' # ::Synonym' # nomen nudum>>nomen nudum made available
             }
@@ -440,7 +439,7 @@ namespace :tw do
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_type_genera user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_type_genera => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_type_genera: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating type genera...'
 
@@ -448,14 +447,10 @@ namespace :tw do
           # About 100 family names not compatible with type genus relationship, mostly genus group names (see log)
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
-
-          # @todo: Temporary "fix" to convert all values to string; will be fixed next time taxon names are imported and following do can be deleted
-          get_tw_taxon_name_id.each do |key, value|
-            get_tw_taxon_name_id[key] = value.to_s
-          end
 
           path = @args[:data_directory] + 'tblTypeGenera.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -464,6 +459,7 @@ namespace :tw do
           error_counter = 0
 
           file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
             next if get_tw_otu_id.has_key?(row['FamilyNameID']) # ignore if ill-formed family name created only as OTU
 
             genus_name_id = get_tw_taxon_name_id[row['GenusNameID']].to_i
@@ -501,11 +497,12 @@ namespace :tw do
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_type_species user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_type_species => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_type_species: [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating type species...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
@@ -536,6 +533,7 @@ namespace :tw do
           no_genus_counter = 0
 
           file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
             next if row['SpeciesNameID'] == '0'
             next if [1143402, 1143425, 1143430, 1143432, 1143436].freeze.include?(row['GenusNameID'].to_i) # used for excluded Beckma ids
             next if [1109922, 1195997, 1198855].freeze.include?(row['GenusNameID'].to_i) # bad data in Orthoptera (first) and Psocodea (rest)
@@ -694,7 +692,7 @@ namespace :tw do
         ############ check if taxon description requires a source where ContainingRefID > 0
 
         desc 'time rake tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_all_sf_taxa_pass1 => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_all_sf_taxa_pass1: [:data_directory, :environment, :user_id] do |logger|
 
           # real	310m28.726s
           # user	207m23.957s
@@ -703,13 +701,13 @@ namespace :tw do
           # [INFO]2017-03-15 15:43:39.366: Logged task tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 completed!
           # [INFO]2017-03-15 15:43:39.367: All tasks completed. Dumping summary for each task...
           # === Summary of warnings and errors for task tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 ===
-          #     [ERROR]2017-03-15 13:11:40.264: TaxonName ERROR (1) AFTER synonym test (SF.TaxonNameID = 1225991, parent_id = 68332): Parent The parent rank (subspecies) is not higher than subspecies
+          # [ERROR]2017-03-15 13:11:40.264: TaxonName ERROR (1) AFTER synonym test (SF.TaxonNameID = 1225991, parent_id = 68332): Parent The parent rank (subspecies) is not higher than subspecies
           # [ERROR]2017-03-15 13:20:22.621: TaxonName ERROR (2) AFTER synonym test (SF.TaxonNameID = 1170406, parent_id = 71920): Parent The parent rank (subspecies) is not higher than subspecies
-
 
           logger.info 'Creating all SF taxa (pass 1)...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_rank_string = import.get('SFRankIDToTWRankString')
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
@@ -734,7 +732,7 @@ namespace :tw do
           no_parent_counter = 0
 
           invalid_name_keywords = {}
-          get_tw_project_id.values.each do |project_id|
+          get_tw_project_id.each_value do |project_id|
             k = Keyword.find_or_create_by(
                 name: 'Taxon name validation failed',
                 definition: 'Taxon name validation failed',
@@ -745,6 +743,7 @@ namespace :tw do
           file.each_with_index do |row, i|
 
             taxon_name_id = row['TaxonNameID']
+            next if skipped_file_ids.include? row['FileID'].to_i
             next unless taxon_name_id.to_i > 0
             next if row['TaxonNameStr'].start_with?('1100048-1143863') # name = MiscImages (body parts)
             next if row['RankID'] == '90' # TaxonNameID = 1221948, Name = Deletable, RankID = 90 == Life, FileID = 1
@@ -766,7 +765,7 @@ namespace :tw do
               else
                 parent_id = get_tw_taxon_name_id[get_sf_parent_id[taxon_name_id]] # assumes tw_taxon_name_id exists
               end
-            elsif get_otu_sf_above_id.has_key?(taxon_name_id) # ill-formed sf taxon name, will make OTU
+            elsif get_otu_sf_above_id[taxon_name_id] # ill-formed sf taxon name, will make OTU
               parent_id = get_tw_taxon_name_id[get_otu_sf_above_id[taxon_name_id]]
               # problem with two instances of parent not properly selected when nominotypical species, seems to default to nominotypical subspecies:
               # TaxonNameID 1225991 (Plec, tadzhikistanicum, nomen dubium, parent should be 1166943)
@@ -787,8 +786,7 @@ namespace :tw do
             name_status = row['NameStatus']
             status_flags = row['StatusFlags']
 
-            # if name_status == '2' or get_otu_sf_above_id.has_key?(taxon_name_id) # temporary, create OTU, not TaxonName
-            if get_otu_sf_above_id.has_key?(taxon_name_id) # temporary, create OTU, not TaxonName
+            if get_otu_sf_above_id[taxon_name_id] # temporary, create OTU, not TaxonName; create citation, too
               otu = Otu.new(
                   name: row['Name'],
                   taxon_name_id: parent_id,
@@ -801,6 +799,9 @@ namespace :tw do
 
               if otu.save
                 logger.info "Note!! Created OTU for temporary or ill-formed taxon SF.TaxonNameID = #{taxon_name_id}, otu.id = #{otu.id}"
+
+                otu.citations << Citation.new(source_id: get_tw_source_id[row['RefID']], is_original: true, project_id: project_id) if row['RefID'].to_i > 0
+
                 get_tw_otu_id[row['TaxonNameID']] = otu.id.to_s
                 get_sf_name_status[row['TaxonNameID']] = name_status
                 get_sf_status_flags[row['TaxonNameID']] = status_flags
@@ -819,6 +820,13 @@ namespace :tw do
                   name: row['Name'],
                   parent_id: parent_id,
                   rank_class: get_tw_rank_string[row['RankID']],
+
+                  data_attributes_attributes: [
+                      {type: 'ImportAttribute',
+                       import_predicate: 'SF.TaxonNameID',
+                       value: taxon_name_id,
+                       project_id: project_id
+                      }],
 
                   # housekeeping attributed to SF last_editor, etc.
                   origin_citation_attributes: {source_id: get_tw_source_id[row['RefID']],
@@ -870,11 +878,6 @@ namespace :tw do
 
               begin
                 taxon_name.save!
-                  # logger.info "taxon_name.id = #{taxon_name.id}"
-                  #  get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s
-                  #  get_sf_name_status[row['TaxonNameID']] = name_status
-                  #  get_sf_status_flags[row['TaxonNameID']] = status_flags
-                  #  get_taxon_name_otu_id[taxon_name.id.to_s] = taxon_name.otus.last.id.to_s
 
                   # if one of anticipated import errors, add classification, then try to save again...
               rescue ActiveRecord::RecordInvalid
@@ -899,9 +902,7 @@ namespace :tw do
                   taxon_name.save!
                 end
 
-                # taxon_name.save! # taxon won't be saved if something wrong with classifications_attributes, read about !
-                # @todo: Make sure get_tw_taxon_name_id.value is string
-                get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s # original import made this an integer
+                get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s # force to string
                 get_sf_name_status[row['TaxonNameID']] = name_status
                 get_sf_status_flags[row['TaxonNameID']] = status_flags
                 get_taxon_name_otu_id[taxon_name.id.to_s] = taxon_name.otus.last.id.to_s
@@ -932,17 +933,22 @@ namespace :tw do
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_otus_for_ill_formed_names_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_otus_for_ill_formed_names_hash => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_otus_for_ill_formed_names_hash: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
           logger.info 'Running create otus for ill-formed names hash...'
 
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
+
           get_otu_sf_above_id = {} # key = SF.TaxonNameID of bad valid name, value = SF.AboveID of bad valid name
 
           path = @args[:data_directory] + 'sfMakeOTUs.txt'
+          # not a problem right now but eventually should change
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
+            next if skipped_file_ids.include? row['FileID'].to_i
             # byebug
             # puts row.inspect
             taxon_name_id = row['TaxonNameID']
@@ -952,7 +958,6 @@ namespace :tw do
             get_otu_sf_above_id[taxon_name_id] = above_id
           end
 
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFIllFormedNameIDToSFAboveID', get_otu_sf_above_id)
 
           puts 'SFIllFormedNameIDToSFAboveID'
@@ -962,17 +967,22 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:taxa:create_sf_synonym_id_to_new_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # also nomina nuda and dubia IDs to new parent.id hash
-        LoggedTask.define :create_sf_synonym_id_to_new_parent_id_hash => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_sf_synonym_id_to_new_parent_id_hash: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
           logger.info 'Running SF new synonym, nomen novum, nomen dubium parent hash...'
 
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
+
           get_sf_parent_id = {} # key = SF.TaxonNameID of synonym, value = SF.TaxonNameID of new parent
 
           path = @args[:data_directory] + 'sfSynonymParents.txt'
+          # not a problem right now but eventually should change
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
+            next if skipped_file_ids.include? row['FileID'].to_i
             # byebug
             # puts row.inspect
             taxon_name_id = row['TaxonNameID']
@@ -980,7 +990,6 @@ namespace :tw do
             get_sf_parent_id[taxon_name_id] = row['NewAboveID']
           end
 
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFSynonymIDToSFParentID', get_sf_parent_id)
 
           puts 'SFSynonymIDToSFParentID'
@@ -990,8 +999,11 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:taxa:create_animalia_below_root user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # creates Animalia taxon name subordinate to each project Root (and make hash of project.id, animalia.id
-        LoggedTask.define :create_animalia_below_root => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_animalia_below_root: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time after projects created BUT not after animalia species created (must restore to before)
+
+          # user = User.find_by_email('mbeckman@illinois.edu')
+          # $user_id = user.id
 
           logger.info 'Running create_animalia_below_root...'
 
@@ -1000,15 +1012,16 @@ namespace :tw do
 
           get_animalia_id = {} # key = TW.project_id, value = TW.taxon_name_id = 'Animalia'
 
-          get_tw_project_id.values.each do |project_id|
+          get_tw_project_id.each_value do |project_id|
 
             this_project = Project.find(project_id)
             logger.info "working with project.id: #{project_id}, root_name: #{this_project.root_taxon_name.name}, root_name_id: #{this_project.root_taxon_name.id}"
 
             animalia_taxon_name = Protonym.new(
                 name: 'Animalia',
+                cached_html: 'Animalia',
                 parent_id: this_project.root_taxon_name.id,
-                rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
+                rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom',
                 project_id: project_id,
             )
 
@@ -1019,13 +1032,13 @@ namespace :tw do
 
           import.set('ProjectIDToAnimaliaID', get_animalia_id)
 
-          puts "ProjectIDToAnimaliaID"
+          puts 'ProjectIDToAnimaliaID'
           ap get_animalia_id
 
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_rank_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_rank_hash => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define create_rank_hash: [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
           logger.info 'Running create_rank_hash...'

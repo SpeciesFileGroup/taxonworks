@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
 
   trait :random_verbatim_label do
     verbatim_label { Utilities::Strings.random_string(8) }
@@ -45,7 +45,7 @@ FactoryGirl.define do
 
     factory :collecting_event_point_c do
       verbatim_locality 'Champaign Co., Illinois'
-      verbatim_label "City of Champaign"
+      verbatim_label 'City of Champaign'
       minimum_elevation 735
       verbatim_latitude '40.116402'
       verbatim_longitude '-88.243386'
@@ -53,7 +53,7 @@ FactoryGirl.define do
 
     factory :collecting_event_point_u do
       verbatim_locality 'Champaign Co., Illinois'
-      verbatim_label "Urbana City Building"
+      verbatim_label 'Urbana City Building'
       minimum_elevation 726
       verbatim_latitude '40.110037'
       verbatim_longitude '-88.204517'

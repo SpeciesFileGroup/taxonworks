@@ -1,8 +1,8 @@
 require 'rails_helper'
 
-describe ProjectMember, :type => :model do
+describe ProjectMember, type: :model do
 
-  let(:project_member) {FactoryGirl.build(:project_member) }
+  let(:project_member) {FactoryBot.build(:project_member) }
 
   context 'associations' do
     context 'belongs_to' do

@@ -14,7 +14,7 @@ describe '/tasks/collecting_events/parse/stepwise/dates', type: :feature, group:
 
       context 'with some records created' do
         let(:ce_find) {# found because date is contained
-          FactoryGirl.create(:valid_collecting_event,
+          FactoryBot.create(:valid_collecting_event,
                              verbatim_label: 'Strange verbatim_label #1. Matched by DD7 [40.092067, -88.249519] 21 August, 1997',
                              verbatim_latitude: nil,
                              verbatim_longitude: nil,
@@ -24,7 +24,7 @@ describe '/tasks/collecting_events/parse/stepwise/dates', type: :feature, group:
                              project: @project)
         }
         let(:ce_dont_find) {# not found because no date is contained
-          FactoryGirl.create(:valid_collecting_event,
+          FactoryBot.create(:valid_collecting_event,
                              verbatim_label: "Don't find me! n40º5'31.4412\" w88∫11′43.3″",
                              verbatim_latitude: "n40º5'31.4412\"",
                              verbatim_longitude: 'w88∫11′43.3″',

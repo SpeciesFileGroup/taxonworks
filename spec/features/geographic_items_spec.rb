@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'GeographicItems', :type => :feature do
+describe 'GeographicItems', type: :feature do
 
   # skip 'until the view pages of GeographicItems are more clearly specified.'
   # it_behaves_like 'a_login_required_and_project_selected_controller' do

@@ -61,7 +61,7 @@ describe Container, type: :model, group: :containers do
   end
 
   context 'container items' do
-    let(:c) { FactoryGirl.create(:valid_container) }
+    let(:c) { FactoryBot.create(:valid_container) }
 
     specify '#container_items' do
       expect(container).to respond_to(:container_items)
@@ -156,7 +156,7 @@ describe Container, type: :model, group: :containers do
 
 
     # a single collection objects for another container
-    let(:specimen) { FactoryGirl.create(:valid_specimen) }
+    let(:specimen) { FactoryBot.create(:valid_specimen) }
 
     let(:add_specimen) { rack.add_container_items([specimen]) }
 
@@ -180,7 +180,7 @@ describe Container, type: :model, group: :containers do
     # a pair of collection objects for one container
     let(:specimens) { [Specimen.create, Specimen.create] }
     # a single collection objects for another container
-    let(:specimen) { FactoryGirl.create(:valid_specimen) }
+    let(:specimen) { FactoryBot.create(:valid_specimen) }
 
     specify 'finding some collection objects somewhere in the stack' do
       expect(site.save).to be_truthy

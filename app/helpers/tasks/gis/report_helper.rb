@@ -1,6 +1,6 @@
 module Tasks::Gis::ReportHelper
 
-  ALLHEADERS = ['Collecting Event', 'Collection Object', 'Bio classification']
+  ALLHEADERS = ['Collecting Event', 'Collection Object', 'Bio classification'].freeze
 
   # @return [String] for download button and hidden field for geographic area id
   def helper_download_button
@@ -51,7 +51,7 @@ module Tasks::Gis::ReportHelper
     retval = []
     %w(ce co bc).each { |column|
       group = @selected_column_names[column.to_sym]
-      group.keys.each { |type|
+      group.each_key { |type|
         retval.push(group[type].keys)
       } unless group.nil?
     } unless @selected_column_names.nil?
@@ -174,15 +174,15 @@ module Tasks::Gis::ReportHelper
     retstring
   end
 
-  # @return [Array]
-  #   TODO: of array of Georeferences OR geographic areas? -> why
+  # @return [Array] of geo_objects which may have a shape to display
   def report_georeferences(collection_objects, geographic_area)
 
     # all georeferences for a set of collection objects
     #  retval = collection_objects.map(&:collecting_event).uniq.map(&:georeferences).flatten
-    retval = Georeference.joins(collecting_event: [:collection_objects]).where(collection_objects: {id: collection_objects})
+    retval = Georeference.joins(collecting_event: [:collection_objects]).
+      where(collection_objects: {id: collection_objects}).to_a
 
-    if retval.empty?
+    if retval.empty? # if no georeferences, show the geographic_area
       retval.push(geographic_area)
     end
     retval
@@ -261,5 +261,19 @@ module Tasks::Gis::ReportHelper
     @c_o_table_data[c_o.id.to_s] = retval
     retval
   end
+
+  def report_paging_info
+    # <p><%= page_entries_info(@collection_objects) %></p> <%= paginate @collection_objects %>
+    if @list_collection_objects.any?
+      page_entries_info(@list_collection_objects)
+    end
+  end
+
+  def report_paging
+    if @list_collection_objects.any?
+      paginate(@list_collection_objects, remote: true)
+    end
+  end
+
 
 end

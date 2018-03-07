@@ -3,7 +3,7 @@ module CitationsHelper
   def citation_tag(citation)
     return nil if citation.nil?
     citation_string = citation_author_year(citation)
-    [citation.citation_object.class.name, ": ", object_tag(citation.citation_object.metamorphosize), " in ", citation_source_body(citation)].compact.join.html_safe
+    [citation.citation_object.class.name, ': ', object_tag(citation.citation_object.metamorphosize), ' in ', citation_source_body(citation)].compact.join.html_safe
   end
 
   def citation_source_body(citation)
@@ -39,7 +39,7 @@ module CitationsHelper
     content_tag(:h3, 'Citations') +
       content_tag(:ul, class: 'annotations__citation_list') do
       object.citations.collect{|t| 
-       content_tag(:li, citation_annotation_tag(t)) 
+        content_tag(:li, citation_annotation_tag(t)) 
       }.join.html_safe
     end
   end

@@ -17,7 +17,7 @@
 #   @return [Integer]
 #   the project ID
 #
-class DerivedCollectionObject < ActiveRecord::Base
+class DerivedCollectionObject < ApplicationRecord
   include Housekeeping
   include Shared::IsData
 

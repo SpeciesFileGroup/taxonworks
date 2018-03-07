@@ -1,34 +1,43 @@
 require 'rails_helper'
 
-describe Georeference::GeoLocate, type: :model, group: :geo do
+describe Georeference::GeoLocate, type: :model, group: [:geo] do
 
   let(:geo_locate) { Georeference::GeoLocate.new }
   let(:request_params) { {country: 'USA', state: 'IL', doPoly: 'true', locality: 'Urbana'} }
   let(:request) { Georeference::GeoLocate::Request.new(request_params) }
   let(:response) { VCR.use_cassette('geo-locate-with-request') { request.response } }
-  let(:georeference_from_build) { VCR.use_cassette('geo-locate-with-build') { Georeference::GeoLocate.build(request_params) } }
+  let(:georeference_from_build) {
+    VCR.use_cassette('geo-locate-with-build') { Georeference::GeoLocate.build(request_params) }
+  }
 
   # Behaviour -
   #   all values, regardless of whether they are clicked on, are saved to iFrame
-  iframe_example_values = {drawn_polygon:                            '|||33.219077,-97.166004,41.974734,-107.185535,46.625796,-89.958972,46.625796,-89.958972,33.219077,-97.166004',
+  iframe_example_values = {drawn_polygon:                            '|||33.219077,-97.166004,41.974734,' \
+                                        '-107.185535,46.625796,-89.958972,46.625796,-89.958972,33.219077,-97.166004',
                            drawn_point:                              '36.816903|-112.986316||',
                            drawn_point_with_uncertainty:             '41.449859|-98.220691|190700|',
-                           drawn_point_with_polygon_and_uncertainty: '41.449859|-98.220691|1100000|37.377719,-107.361316,46.018832,-99.802723,37.09783,-86.619129,37.377719,-107.361316',
+                           drawn_point_with_polygon_and_uncertainty: '41.449859|-98.220691|1100000|37.377719,' \
+                                        '-107.361316,46.018832,-99.802723,37.09783,-86.619129,37.377719,-107.361316',
                            georeferenced_point_no_polygon:           '52.65|-106.333333|3036|Unavailable'
   }
 
   context '.parse_iframe_result' do
     specify 'for point alone' do
-      expect(Georeference::GeoLocate.parse_iframe_result(iframe_example_values[:drawn_point])).to eq(['36.816903', '-112.986316', nil, nil])
+      expect(Georeference::GeoLocate.parse_iframe_result(iframe_example_values[:drawn_point]))
+        .to eq(['36.816903', '-112.986316', nil, nil])
     end
 
     specify 'for point and uncertainty' do
-      expect(Georeference::GeoLocate.parse_iframe_result(iframe_example_values[:drawn_point_with_uncertainty])).to eq(['41.449859', '-98.220691', '190700', nil])
+      expect(Georeference::GeoLocate.parse_iframe_result(iframe_example_values[:drawn_point_with_uncertainty]))
+        .to eq(['41.449859', '-98.220691', '190700', nil])
     end
 
     specify 'for point, uncertainty, and polygon' do
-      expect(Georeference::GeoLocate.parse_iframe_result(iframe_example_values[:drawn_point_with_polygon_and_uncertainty])).to eq(
-                                                                                                                                 ['41.449859', '-98.220691', '1100000', [['-107.361316', '37.377719'], ['-86.619129', '37.09783'], ['-99.802723', '46.018832'], ['-107.361316', '37.377719']]])
+      expect(Georeference::GeoLocate
+               .parse_iframe_result(iframe_example_values[:drawn_point_with_polygon_and_uncertainty]))
+        .to eq(['41.449859', '-98.220691', '1100000',
+                [['-107.361316', '37.377719'], ['-86.619129', '37.09783'],
+                 ['-99.802723', '46.018832'], ['-107.361316', '37.377719']]])
     end
   end
 
@@ -39,7 +48,7 @@ describe Georeference::GeoLocate, type: :model, group: :geo do
 
     specify 'is valid for a drawn point with no further metadata' do
       geo_locate.iframe_response = iframe_example_values[:drawn_point]
-      expect(geo_locate.valid?).to be_truthy, geo_locate.errors.full_messages.join(" ")
+      expect(geo_locate.valid?).to be_truthy, geo_locate.errors.full_messages.join(' ')
     end
 
     specify 'is valid for a drawn point with uncertainty' do
@@ -49,7 +58,7 @@ describe Georeference::GeoLocate, type: :model, group: :geo do
 
     specify 'is valid for a drawn point, polygon and uncertainty' do
       geo_locate.iframe_response = iframe_example_values[:drawn_point_with_polygon_and_uncertainty]
-      expect(geo_locate.valid?).to be_truthy, geo_locate.errors.full_messages.join(" ")
+      expect(geo_locate.valid?).to be_truthy, geo_locate.errors.full_messages.join(' ')
     end
 
     specify 'is valid for a georeference point with no polygon' do
@@ -85,12 +94,12 @@ describe Georeference::GeoLocate, type: :model, group: :geo do
     end
 
     specify 'with a collecting event #build produces a valid instance' do
-      @a.collecting_event = FactoryGirl.build(:valid_collecting_event)
+      @a.collecting_event = FactoryBot.build(:valid_collecting_event)
       expect(@a.valid?).to be_truthy
     end
 
     specify 'a built, valid, instance is geometrically(?) correct' do
-      @a.collecting_event = FactoryGirl.build(:valid_collecting_event)
+      @a.collecting_event = FactoryBot.build(:valid_collecting_event)
       expect(@a.save).to be_truthy
       expect(@a.error_geographic_item.geo_object.contains?(@a.geographic_item.geo_object)).to be_truthy
     end
@@ -104,12 +113,14 @@ describe Georeference::GeoLocate, type: :model, group: :geo do
 
     specify '#with doPoly false instance should have no error polygon' do
       VCR.use_cassette('geo-locate-with-build-using-false-doPoly-param') do
-        @a = Georeference::GeoLocate.build({country: 'usa', state: 'IL', doPoly: 'false', locality: 'Urbana'})
+        @a = Georeference::GeoLocate.build({country: 'usa', state: 'IL',
+                                            doPoly:  'false', locality: 'Urbana'})
         expect(@a.error_geographic_item.nil?).to be_truthy
       end
     end
 
-    # Note: three meters was chosen as a minimum, because that is (usually) the smallest circle of uncertainty provided by current GPS units.
+    # Note: three meters was chosen as a minimum, because that is (usually) the smallest
+    # circle of uncertainty provided by current GPS units.
     specify 'with doUncert false error_radius should be 3(?)' do
       VCR.use_cassette('geo-locate-with-build-using-false-doUncert-param') do
         @a = Georeference::GeoLocate.build({country:  'usa', state: 'IL', doPoly: 'true',
@@ -133,22 +144,22 @@ describe Georeference::GeoLocate, type: :model, group: :geo do
       expect(geo_locate.error_radius.to_i > 5000).to be_truthy # Bad test
     end
 
+# rubocop:disable Style/StringHashKeys
     specify '.request_hash' do
-      expect(georeference_from_build.request_hash).to eq({"country"      => "USA",
-                                                          "state"        => "IL",
-                                                          "county"       => "",
-                                                          "locality"     => "Urbana",
-                                                          "enableH2O"    => "false",
-                                                          "hwyX"         => "false",
-                                                          "doUncert"     => "true",
-                                                          "doPoly"       => "true",
-                                                          "displacePoly" => "false",
-                                                          "languageKey"  => "0",
-                                                          "fmt"          => "json"})
+      expect(georeference_from_build.request_hash).to eq({'country'      => 'USA',
+                                                          'state'        => 'IL',
+                                                          'county'       => '',
+                                                          'locality'     => 'Urbana',
+                                                          'enableH2O'    => 'false',
+                                                          'hwyX'         => 'false',
+                                                          'doUncert'     => 'true',
+                                                          'doPoly'       => 'true',
+                                                          'displacePoly' => 'false',
+                                                          'languageKey'  => '0',
+                                                          'fmt'          => 'json'})
     end
   end
-
-
+  # rubocop:enable Style/StringHashKeys
   context 'Request' do
     specify 'has a @response' do
       expect(request.respond_to?(:response)).to be_truthy
@@ -164,7 +175,9 @@ describe Georeference::GeoLocate, type: :model, group: :geo do
 
     specify '.build_param_string' do # '.make_request builds a request string' do
       expect(request.build_param_string).to be_truthy
-      expect(request.request_param_string).to eq('country=USA&state=IL&county=&locality=Urbana&enableH2O=false&hwyX=false&doUncert=true&doPoly=true&displacePoly=false&languageKey=0&fmt=json')
+      expect(request.request_param_string).to eq('country=USA&state=IL&county=&locality=Urbana' \
+                                                  '&enableH2O=false&hwyX=false&doUncert=true&doPoly=true' \
+                                                  '&displacePoly=false&languageKey=0&fmt=json')
     end
 
     specify '.locate' do

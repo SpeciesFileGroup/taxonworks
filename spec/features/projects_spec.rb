@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Project Handling', :type => :feature do
+describe 'Project Handling', type: :feature do
 
   subject { page }
 
@@ -12,7 +12,7 @@ describe 'Project Handling', :type => :feature do
     context 'when a user is signed in they see a list of projects (in the hub)' do
       it 'should have a list of project links' do 
         expect(subject).to have_link('My Project', href: select_project_path(@project) )
-        expect(subject).to have_css("a", text: 'My Project' )
+        expect(subject).to have_css('a', text: 'My Project' )
       end
     end
 
@@ -22,7 +22,7 @@ describe 'Project Handling', :type => :feature do
       }
 
       it 'should select that project and reference it in the hub' do
-        expect(subject).to have_content "Hub"
+        expect(subject).to have_content 'Hub'
         expect(subject).to have_content('My Project') 
       end
     end
@@ -37,8 +37,8 @@ describe 'Project Handling', :type => :feature do
       it 'should unselect the project when logged back in' do
         sign_in_with(@previous_user.email, @previous_password)
         visit root_path
-        expect(subject).to have_no_css("mark a", text: 'My Project' )
-        expect(subject).to have_css("a", text: 'My Project' )
+        expect(subject).to have_no_css('mark a', text: 'My Project' )
+        expect(subject).to have_css('a', text: 'My Project' )
       end
     end
 
@@ -184,7 +184,7 @@ describe 'Project Handling', :type => :feature do
   context 'with some projects created' do
     before {
       sign_in_user
-      5.times { factory_girl_create_for_user(:valid_project, @user)   } 
+      5.times { factory_bot_create_for_user(:valid_project, @user)   } 
     } 
 
     describe 'GET /projects/list' do

@@ -1,3 +1,5 @@
+<p data-icon='warning'> An editor task is available, use <%= link_to('Edit taxon name', new_taxon_name_task_path(@taxon_name.metamorphosize)) -%>.</p>
+
 <%= form_for(@taxon_name.metamorphosize) do |f| %>
   <%= render 'shared/errors', object: @taxon_name %>
 

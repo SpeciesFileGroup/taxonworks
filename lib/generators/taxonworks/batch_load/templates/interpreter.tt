@@ -1,40 +1,44 @@
 # TODO: THIS IS A GENERATED STUB, it does not function
 module BatchLoad
-  class Import::<%= model_name.pluralize -%>::<%= name.classify -%>Interpreter < BatchLoad::Import
+  class Import::<%= model_name -%>::<%= interpreter_class -%> < BatchLoad::Import
 
     def initialize(**args)
-      @foos = {}
+      @<%= table_name %> = {}
       super(args)
     end
 
     # TODO: update this
-    def build_foos
+    def build_<%= table_name %>
+      @total_data_lines = 0
+      i = 0
 
-      i = 1
       # loop throw rows
       csv.each do |row|
+        i += 1
 
         parse_result = BatchLoad::RowParse.new
-        parse_result.objects[:foo] = []
+        parse_result.objects[:<%= table_name.singularize %>] = []
 
         @processed_rows[i] = parse_result
 
         begin # processing
-           # use a BatchLoad::ColumnResolver or other method to match row data to TW 
-           #  ...
+          # use a BatchLoad::ColumnResolver or other method to match row data to TW 
+          #  ...
+
+          @total_data_lines += 1
         rescue
            # ....
         end
-        i += 1
       end
+
+      @total_lines = i
     end
 
     def build
       if valid?
-        build_foos
+        build_<%= table_name %>
         @processed = true
       end
     end
-
   end
 end

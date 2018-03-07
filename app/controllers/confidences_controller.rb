@@ -5,9 +5,19 @@ class ConfidencesController < ApplicationController
 
   # GET /confidences
   # GET /confidences.json
+  # GET /<model>/:id/confidences.json
   def index
-    @recent_objects = Confidence.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html {
+        @recent_objects = Confidence.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @confidences = Confidence.where(project_id: sessions_current_project_id).where(
+          polymorphic_filter_params('confidence_object', Confidence.related_foreign_keys)
+        )
+      }
+    end
   end
 
   # GET /confidences/new
@@ -29,11 +39,11 @@ class ConfidencesController < ApplicationController
     @confidence = Confidence.new(confidence_params)
     respond_to do |format|
       if @confidence.save
-        format.html { redirect_to @confidence.confidence_object.metamorphosize, notice: 'Confidence was successfully created.' }
+        format.html { redirect_to url_for(@confidence.confidence_object.metamorphosize), notice: 'Confidence was successfully created.' }
         format.json { render :show, status: :created, location: @confidence }
       else
-        format.html { 
-          redirect_to :back, notice: 'Confidence was NOT successfully created.'
+        format.html {
+          redirect_back(fallback_location: (request.referer || root_path), notice: 'Confidence was NOT successfully created.')
         }
         format.json { render json: @confidence.errors, status: :unprocessable_entity }
       end
@@ -84,17 +94,21 @@ class ConfidencesController < ApplicationController
 
   # GET /confidences/download
   def download
-    send_data Download.generate_csv(Confidence.where(project_id: sessions_current_project_id)), type: 'text', filename: "confidences_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Confidence.where(project_id: sessions_current_project_id)), type: 'text', filename: "confidences_#{DateTime.now}.csv"
   end
 
   private
-  
+
   def set_confidence
     @confidence = Confidence.find(params[:id])
   end
 
   def confidence_params
-    params.require(:confidence).permit(:confidence_level_id, :confidence_object_id, :confidence_object_type)
+    params.require(:confidence).permit(
+      :annotated_global_entity,
+      :confidence_level_id, :confidence_object_id, :confidence_object_type,
+      confidence_level_attributes: [:_destroy, :id, :name, :definition, :uri, :uri_relation]
+    )
   end
 
   def confidence_object
@@ -103,7 +117,9 @@ class ConfidencesController < ApplicationController
 
   def confidences_params
     params.require(:confidence_object).permit(
-      confidences_attributes: [:_destroy, :id, :confidence_level_id]
+      :annotated_global_entity,
+      :confidence_level_id,
+      confidence_level_attributes: [:_destroy, :id, :name, :definition, :uri, :uri_relation]
     )
   end
 

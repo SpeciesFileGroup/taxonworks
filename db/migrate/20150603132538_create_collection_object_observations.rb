@@ -1,4 +1,4 @@
-class CreateCollectionObjectObservations < ActiveRecord::Migration
+class CreateCollectionObjectObservations < ActiveRecord::Migration[4.2]
   def change
     create_table :collection_object_observations do |t|
       t.text :data, index: true

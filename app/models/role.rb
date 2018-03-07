@@ -2,36 +2,36 @@
 #
 # @!attribute person_id
 #   @return [Integer]
-#    The ID of the person in the role. 
+#    The ID of the person in the role.
 #
 # @!attribute type
 #   @return [String]
-#    The type (subclass) of the role, e.g. TaxonDeterminer. 
+#    The type (subclass) of the role, e.g. TaxonDeterminer.
 #
 # @!attribute role_object_id
 #   @return [Integer]
-#     The id of the object the role is bound to. 
+#     The id of the object the role is bound to.
 #
 # @!attribute role_object_type
 #   @return [String]
-#     THe class of the object the role is bound to. 
+#     THe class of the object the role is bound to.
 #
 # @!attribute position
 #   @return [Integer]
-#     Sort order. 
+#     Sort order.
 #
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
 #
-class Role < ActiveRecord::Base
+class Role < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::IsData
 
   acts_as_list scope: [:type, :role_object_type, :role_object_id]
 
-  belongs_to :role_object, polymorphic: :true, validate: true
+  belongs_to :role_object, polymorphic: :true #, validate: true
   belongs_to :person, inverse_of: :roles, validate: true
   accepts_nested_attributes_for :person, reject_if: :all_blank, allow_destroy: true
 
@@ -49,9 +49,24 @@ class Role < ActiveRecord::Base
   protected
 
   def vet_person
-    if Role.where(person_id: self.person_id).count > 1
+    if Role.where(person_id: person_id).any?
+      c = Role.where(person_id: person_id).count 
       p = Person.find(person_id)
-      p.update(type: 'Person::Vetted')
+      y = role_object.try(:year)
+      y ||= role_object.try(:year_of_publication)
+      
+      yas = [y, person.year_active_start].compact.map(&:to_i).min
+      yae = [y, person.year_active_end].compact.map(&:to_i).max
+
+      begin
+        p.update(
+          type: (c > 1 ? 'Person::Vetted' : 'Person::Unvetted'),
+          year_active_end: yae, 
+          year_active_start: yas
+        )
+      rescue ActiveRecord::RecordInvalid
+        # probably a year conflict, allow quietly        
+      end
     end
   end
 

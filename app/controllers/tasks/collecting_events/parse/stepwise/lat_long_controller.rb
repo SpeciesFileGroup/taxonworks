@@ -1,4 +1,4 @@
-DEFAULT_SQL_REGEXS = []
+DEFAULT_SQL_REGEXS = [].freeze
 class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationController
   include TaskControllerConfiguration
 
@@ -101,7 +101,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     piece          = similar_params[:piece]
     include_values = (similar_params[:include_values].nil?) ? false : true
     ce             = CollectingEvent.find(similar_params[:collecting_event_id])
-    selected_items = ce.similar_lat_longs(lat, long, piece, include_values)
+    selected_items = ce.similar_lat_longs(lat, long, sessions_current_project_id, piece, include_values)
 
     retval[:count] = selected_items.count.to_s
     retval[:table] = render_to_string(partial: 'lat_long_matching_table',

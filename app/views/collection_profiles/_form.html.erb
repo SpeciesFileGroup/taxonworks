@@ -33,7 +33,7 @@
         <%= f.label :collection_type %>
         <%= content_tag(:em, '(changing type will reset values)') -%>
         <br>
-        <% COLLECTION_PROFILE_INDICES[:Favret].keys.each do |v| -%>
+        <% COLLECTION_PROFILE_INDICES[:Favret].each_key do |v| -%>
           <%= f.radio_button(:collection_type, v, class: [:collection_type_option]) -%> <%= label_tag(v, v) -%> <br>
         <% end %>
       </div>

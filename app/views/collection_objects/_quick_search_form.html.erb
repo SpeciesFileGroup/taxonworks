@@ -1,11 +1,11 @@
 <%= form_tag(search_collection_objects_path, {method: :get}) do %>
-    <%= render partial: 'workbench/elements/forms/ajax_select',
-               locals:  {controller: 'collection_objects',
-                         object:     nil,
-                         method:     'id',
-                         tag_id:     'collection_object_id_for_quick_search_form',
-                         size:       '',
-                         display:    ''} %>
-<%#= button_to 'Edit', edit_otu_path %>
-    <%= submit_tag 'Show' %>
+  <%= render 'workbench/elements/forms/ajax_select',
+             controller:  'collection_objects',
+             object:      nil,
+             method:      'id',
+             autofocus:   true,
+             send_select: true,
+             tag_id:      'collection_object_id_for_quick_search_form',
+             size:        '',
+             display:     '' %>
 <% end %>

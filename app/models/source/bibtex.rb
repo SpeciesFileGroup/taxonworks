@@ -241,7 +241,7 @@ require 'csl/styles'
 #
 # @!attribute bibtex_type
 #   @return [String]
-#   @todo
+#    one of VALID_BIBTEX_TYPES (config/initializers/constants/_controlled_vocabularies/bibtex_constants.rb, keys there are symbols)
 #
 # @!attribute day
 #   @return [Integer]
@@ -285,7 +285,7 @@ require 'csl/styles'
 #
 # @!attribute url
 #   @return [String]
-#   A TW required attribute (TW requires a value in one of the required attributes.)
+#   A TW required attribute for certain bibtex_types (TW requires a value in one of the required attributes.)
 #
 # @!attribute author
 #   @return [String] the list of author names in BibTeX format
@@ -297,26 +297,14 @@ require 'csl/styles'
 #   each author name should be separated by the word " and ". It should be noted that all the names before the
 #   comma are treated as a single last name.
 #
-# @!attribute cached
-#   @return [String]
-#   Non-Bibtex attribute that is cross-referenced.
-#
-# @!attribute cached_author_string
-#   @return [String]
-#   Non-Bibtex attribute that is cross-referenced.
-#
-# @!attribute cached_nomenclature_date
-#   @return [DateTime]
-#      the date of the publication for nomenclatural purposes
-#
 class Source::Bibtex < Source
-  include SoftValidation
 
   attr_accessor :authors_to_create
 
   # @todo :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
 
   # TW required fields (must have one of these fields filled in)
+  # either year or stated_year is acceptable
   TW_REQUIRED_FIELDS = [
     :author,
     :editor,
@@ -326,71 +314,56 @@ class Source::Bibtex < Source
     :journal,
     :year,
     :stated_year
-  ] # either year or stated_year is acceptable
+  ].freeze 
 
   belongs_to :serial, inverse_of: :sources
-  belongs_to :source_language, class_name: "Language", foreign_key: :language_id, inverse_of: :sources
+  belongs_to :source_language, class_name: 'Language', foreign_key: :language_id, inverse_of: :sources
   # above to handle clash with bibtex language field.
 
-  has_many :author_roles, -> { order('roles.position ASC') }, class_name: 'SourceAuthor', as: :role_object, validate: true
-  has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person, validate: true # self.author & self.authors should match or one of them should be empty
-  has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor', as: :role_object, validate: true # ditto for self.editor & self.editors
-  has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person, validate: true
+  has_many :author_roles, -> {order('roles.position ASC')}, class_name: 'SourceAuthor', as: :role_object, validate: true
+  has_many :authors, -> {order('roles.position ASC')}, through: :author_roles, source: :person, validate: true # self.author & self.authors should match or one of them should be empty
+  has_many :editor_roles, -> {order('roles.position ASC')}, class_name: 'SourceEditor', as: :role_object, validate: true # ditto for self.editor & self.editors
+  has_many :editors, -> {order('roles.position ASC')}, through: :editor_roles, source: :person, validate: true
   accepts_nested_attributes_for :authors, :editors, :author_roles, :editor_roles, allow_destroy: true
 
-  before_validation :create_authors, if: '!authors_to_create.nil?'
+  before_validation :create_authors, if: -> {!authors_to_create.nil?}
   before_validation :check_has_field
-  before_save :set_cached_nomenclature_date
 
-  #region validations
   validates_inclusion_of :bibtex_type,
-                         in:      ::VALID_BIBTEX_TYPES,
-                         message: '%{value} is not a valid source type'
+    in: ::VALID_BIBTEX_TYPES,
+    message: '"%{value}" is not a valid source type'
 
   validates_presence_of :year,
-                        if:      '!month.blank? || !stated_year.blank?',
-                        message: 'year is required when month or stated_year is provided'
+    if: -> {!month.blank? || !stated_year.blank?},
+    message: 'is required when month or stated_year is provided'
 
   # @todo refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
-  validates_numericality_of :year,
-                            only_integer:          true, greater_than: 999,
-                            less_than_or_equal_to: Time.now.year + 2,
-                            allow_blank:           true,
-                            message:               'year must be an integer greater than 999 and no more than 2 years in the future'
+  validates :year, date_year: {min_year: 1000, max_year: Time.now.year + 2, message: 'must be an integer greater than 999 and no more than 2 years in the future'}
 
   validates_presence_of :month,
-                        if:      '!day.nil?',
-                        message: 'month is required when day is provided'
+    unless: -> {day.nil?},
+    message: 'is required when day is provided'
 
   validates_inclusion_of :month,
-                         in:          ::VALID_BIBTEX_MONTHS,
-                         allow_blank: true,
-                         message:     ' month'
+    in: ::VALID_BIBTEX_MONTHS,
+    allow_blank: true,
+    message: ' month'
 
-  validates_numericality_of :day,
-                            allow_blank:           true,
-                            only_integer:          true,
-                            greater_than:          0,
-                            less_than_or_equal_to: Proc.new { |a| Time.utc(a.year, a.month).end_of_month.day },
-                            :unless                => 'year.nil? || month.nil?',
-                            message:               '%{value} is not a valid day for the month provided'
+  validates :day, date_day: {year_sym: :year, month_sym: :month},
+    unless: -> {year.nil? || month.nil?}
 
-  validates :url, :format => {:with    => URI::regexp(%w(http https ftp)),
-                              message: "[%{value}] is not a valid URL"}, allow_blank: true
-
-  #endregion validations
+  validates :url, format: {
+    with: URI::regexp(%w(http https ftp)),
+    message: '[%{value}] is not a valid URL'}, allow_blank: true
 
   # includes nil last, exclude it explicitly with another condition if need be
-  scope :order_by_nomenclature_date, -> { order(:cached_nomenclature_date) }
+  scope :order_by_nomenclature_date, -> {order(:cached_nomenclature_date)}
 
-  #region soft_validate setup calls
   soft_validate(:sv_has_some_type_of_year, set: :recommended_fields)
   soft_validate(:sv_contains_a_writer, set: :recommended_fields)
   soft_validate(:sv_has_title, set: :recommended_fields)
   soft_validate(:sv_is_article_missing_journal, set: :recommended_fields)
-  #  soft_validate(:sv_has_url, set: :recommended_fields) # probably should be sv_has_identifier instead of sv_has_url
   soft_validate(:sv_missing_required_bibtex_fields, set: :bibtex_fields)
-  #endregion
 
   #region ruby-bibtex related
 
@@ -405,7 +378,7 @@ class Source::Bibtex < Source
   # @return [BibTeX::Entry]
   #   entry equivalent to self
   def to_bibtex
-    b = BibTeX::Entry.new(:bibtex_type => self[:bibtex_type])
+    b = BibTeX::Entry.new(bibtex_type: self[:bibtex_type])
     ::BIBTEX_FIELDS.each do |f|
       if (!self.send(f).blank?) && !(f == :bibtex_type)
         b[f] = self.send(f)
@@ -423,7 +396,7 @@ class Source::Bibtex < Source
     b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable
     unless self.serial.nil?
       b[:journal] = self.serial.name
-      issns       = self.serial.identifiers.of_type(:issn)
+      issns       = self.serial.identifiers.where(type: 'Identifier::Global::Issn') # of_type(:issn)
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
       end
@@ -431,23 +404,23 @@ class Source::Bibtex < Source
 
     unless self.serial.nil?
       b[:journal] = self.serial.name
-      issns       = self.serial.identifiers.of_type(:issn)
+      issns       = self.serial.identifiers.where(type: 'Identifier::Global::Issn') # .of_type(:issn)
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
       end
     end
 
-    uris = self.identifiers.of_type(:uri)
+    uris = self.identifiers.where(type: 'Identifier::Global::Uri') # of_type(:uri)
     unless uris.empty?
       b[:url] = uris.first.identifier # TW only allows one URI per object
     end
 
-    isbns = self.identifiers.of_type(:isbn)
+    isbns = self.identifiers.where(type: 'Identifier::Global::Isbn') #.of_type(:isbn)
     unless isbns.empty?
       b[:isbn] = isbns.first.identifier # TW only allows one ISBN per object
     end
 
-    dois = self.identifiers.of_type(:doi)
+    dois = self.identifiers.where(type: 'Identifier::Global::Doi') #.of_type(:isbn)
     unless dois.empty?
       b[:doi] = dois.first.identifier # TW only allows one DOI per object
     end
@@ -455,11 +428,11 @@ class Source::Bibtex < Source
     b.author = self.compute_bibtex_names('author') unless (!self.authors.any? && self.author.blank?)
     b.editor = self.compute_bibtex_names('editor') unless (!self.editors.any? && self.editor.blank?)
 
-    b.key    = self.id unless self.new_record? # id.blank?
+    b.key = self.id unless self.new_record?
     b
   end
 
-  # @param type [String] either author or editor
+  # @param type [String] either `author` or `editor`
   # @return [String]
   #   the bibtex version of the name strings created from the TW people
   #   BibTeX format is 'lastname, firstname and lastname,firstname and lastname, firstname'
@@ -473,14 +446,15 @@ class Source::Bibtex < Source
       when 1
         return self.send(methods).first.bibtex_name
       else
-        return self.send(methods).collect { |a| a.bibtex_name }.join(' and ')
+        return self.send(methods).collect{|a| a.bibtex_name}.join(' and ')
     end
   end
 
-  # @param type [String] either author or editor
-  # @return[String]
+  # @param type [String] either `author` or `editor`
+  # @return [String]
   #   A human readable version of the person list
   #   'firstname lastname, firstname lastname, & firstname lastname'
+  #  TODO: DEPRECATE
   def compute_human_names(type)
     method  = type
     methods = type + 's'
@@ -490,7 +464,7 @@ class Source::Bibtex < Source
       when 1
         return self.send(methods).first.name
       else
-        return self.send(methods).collect { |a| a.name }.to_sentence(last_word_connector: ' & ')
+        return self.send(methods).collect {|a| a.name}.to_sentence(last_word_connector: ' & ')
     end
   end
 
@@ -508,26 +482,29 @@ class Source::Bibtex < Source
   # Usage:
   #    a = BibTeX::Entry.new(bibtex_type: 'book', title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
   #    b = Source::Bibtex.new(a)
-  # 
-  # @param bibtex_entry [BibTex::Entry] the BibTex::Entry to convert 
-  # @return [Source::BibTex.new] a new instance 
+  #
+  # @param bibtex_entry [BibTex::Entry] the BibTex::Entry to convert
+  # @return [Source::BibTex.new] a new instance
   # @todo annote to project specific note?
   # @todo if it finds one & only one match for serial assigns the serial ID, and if not it just store in journal title
   # serial with alternate_value on name .count = 1 assign .first
   # before validate assign serial if matching & not doesn't have a serial currently assigned.
   # @todo if there is an ISSN it should look up to see it the serial already exists.
   def self.new_from_bibtex(bibtex_entry = nil)
-
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
-    s                 = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
+
+    s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
+
     import_attributes = []
+
     bibtex_entry.fields.each do |key, value|
       if key == :keywords
         s.verbatim_keywords = value
         next
       end
+
       v = value.to_s.strip
-      if s.respond_to?(key.to_sym)
+      if s.respond_to?(key.to_sym) && key != :type
         s.send("#{key}=", v)
       else
         import_attributes.push({import_predicate: key, value: v, type: 'ImportAttribute'})
@@ -546,7 +523,7 @@ class Source::Bibtex < Source
   # @return [String] A string that represents the authors last_names and year (no suffix)
   def author_year
     return 'not yet calculated' if self.new_record?
-    [cached_author_string, year].compact.join(", ")
+    [cached_author_string, year].compact.join(', ')
   end
 
   # Modified from build, the issues with polymorphic has_many and build
@@ -631,23 +608,6 @@ class Source::Bibtex < Source
     end
   end
 
-  # @return [String, nil]
-  #   last names formatted as displayed in nomenclatural authority (iczn), prioritizes
-  #   normalized people records before bibtex author string
-  def authority_name
-    if authors.count == 0 # no normalized people, use string, !! not .any? because of in-memory setting?!
-      if author.blank?
-        return nil 
-      else
-        b = to_bibtex
-        b.parse_names
-        return b.author.tokens.collect{ |t| t.last }.to_sentence(last_word_connector: ' & ', two_words_connector: ' & ')
-      end
-    else # use normalized records 
-      return authors.collect{ |a| a.full_last_name }.to_sentence(last_word_connector: ' & ', two_words_connector: ' & ')
-    end
-  end
-
   def isbn=(value)
     write_attribute(:isbn, value)
     unless value.blank?
@@ -663,7 +623,7 @@ class Source::Bibtex < Source
   end
 
   def isbn
-    identifier_string_of_type(:isbn)
+    identifier_string_of_type('Identifier::Global::Isbn')
   end
 
   def doi=(value)
@@ -681,7 +641,7 @@ class Source::Bibtex < Source
   end
 
   def doi
-    identifier_string_of_type(:doi)
+    identifier_string_of_type('Identifier::Global::Doi')
   end
 
   # @todo Are ISSN only Serials now? Maybe - the raw bibtex source may come in with an ISSN in which case
@@ -698,7 +658,7 @@ class Source::Bibtex < Source
   end
 
   def issn
-    identifier_string_of_type(:issn)
+    identifier_string_of_type('Identifier::Global::Issn')
   end
 
   # turn bibtex URL field into a Ruby URI object
@@ -706,11 +666,11 @@ class Source::Bibtex < Source
     URI(self.url) unless self.url.blank?
   end
 
-  # @return [Identifier]
-  #   the identifier of this type, relies on Identifier to enforce has_one for Global identifiers,
+  # @return [String]
+  #   the identifier of this type, relies on Identifier to enforce has_one for Global identifiers
   #   !! behaviour for Identifier::Local types may be unexpected
-  def identifier_string_of_type(type)
-    identifiers.of_type(type).first.try(:identifier)
+  def identifier_string_of_type(type_value)
+    identifiers.where(type: type_value).first.try(:identifier)
   end
 
   # @todo if language is set => set language_id
@@ -720,8 +680,8 @@ class Source::Bibtex < Source
   #endregion getters & setters
 
   def has_authors? # is there a bibtex author or author roles?
-    return true if !(self.author.blank?) # author attribute is empty
-    return false if self.new_record? # nothing saved yet, so no author roles are saved yet
+    return true if !(author.blank?) # author attribute is empty
+    return false if new_record? # nothing saved yet, so no author roles are saved yet
     # self exists in the db
     (self.authors.count > 0) ? (return true) : (return false)
   end
@@ -743,38 +703,51 @@ class Source::Bibtex < Source
     false
   end
 
-  #region time/date related
-
-  # @return [Date] 
-  #  An memoizer, getter for cached_nomenclature_date, computes if not .persisted?
-  def date
-    set_cached_nomenclature_date if !self.persisted?
-    self.cached_nomenclature_date
-  end
 
   # @return [Integer]
   #  The effective year of publication as per nomenclatural rules
   def nomenclature_year
-    date.year if date
+    cached_nomenclature_date.year
   end
 
-  def set_cached_nomenclature_date
-    self.cached_nomenclature_date = Utilities::Dates.nomenclature_date(
-      self.day,
-      Utilities::Dates.month_index(self.month), # this allows values from bibtex like 'may' to be handled 
-      self.year
-    )
+  #  Month handling allows values from bibtex like 'may' to be handled
+  def nomenclature_date
+    Utilities::Dates.nomenclature_date( day,  Utilities::Dates.month_index(month), year)
   end
 
-  #endregion    time/date related
+  # @return [Date]
+  #  An memoizer, getter for cached_nomenclature_date, computes if not .persisted?
+  def cached_nomenclature_date
+    if !persisted?
+      nomenclature_date
+    else
+      read_attribute(:cached_nomenclature_date)
+    end
+  end
 
+  # @return [String, nil]
+  #   last names formatted as displayed in nomenclatural authority (iczn), prioritizes
+  #   normalized people records before bibtex author string
+  def authority_name
+    if authors.count == 0 # no normalized people, use string, !! not .any? because of in-memory setting?!
+      if author.blank?
+        return nil
+      else
+        b = to_bibtex
+        b.parse_names
+        return Utilities::Strings.authorship_sentence( b.author.tokens.collect{|t| t.last} )
+      end
+    else # use normalized records
+      return Utilities::Strings.authorship_sentence( authors.collect{|a| a.full_last_name} )
+    end
+  end
 
   # @return [BibTex::Bibliography]
   #   initialized with this source as an entry
   def bibtex_bibliography
-    bx_entry = to_bibtex
+    bx_entry      = to_bibtex
     bx_entry.year = '0000' if bx_entry.year.blank? # cludge to fix render problem with year
-    b = BibTeX::Bibliography.new
+    b             = BibTeX::Bibliography.new
     b.add(bx_entry)
     b
   end
@@ -782,16 +755,19 @@ class Source::Bibtex < Source
   # @return [String]
   #   this source, rendered in the provided CSL style, as text
   def render_with_style(style = 'vancouver', format = 'text')
-    cp = CiteProc::Processor.new(style: style, format: format) # There is a problem with the zootaxa format and letters!
+    cp = CiteProc::Processor.new(style: style, format: format)
     cp.import(bibtex_bibliography.to_citeproc)
     cp.render(:bibliography, id: cp.items.keys.first).first.strip
-  end 
+  end
 
   # @return [String]
   #   a full representation, using bibtex
   # String must be length > 0
+  #
+  # There (was) a problem with the zootaxa format and letters!
+  #  https://github.com/citation-style-language/styles/pull/2305
   def cached_string(format = 'text')
-    return nil  unless (format == 'text') || (format == 'html')
+    return nil unless (format == 'text') || (format == 'html')
     str = render_with_style('zootaxa', format) # the current TaxonWorks default ... make a constant
     str.sub('(0ADAD)', '') # citeproc renders year 0000 as (0ADAD)
   end
@@ -813,19 +789,17 @@ class Source::Bibtex < Source
 
   # set cached values and copies active record relations into bibtex values
   def set_cached
-    if self.errors.empty?
-      tmp                       = cached_string('text')
-      self.cached               = tmp
+    if errors.empty?
+      attributes_to_update = {
+        cached: cached_string('text'),
+        cached_nomenclature_date: nomenclature_date,
+        cached_author_string: authority_name
+      }
 
-      if self.author.blank? && self.authors.size > 0
-        self.author = self.compute_bibtex_names('author')
-      end
+      attributes_to_update[:author] = compute_bibtex_names('author') if author.blank? && authors.size > 0
+      attributes_to_update[:editor] = compute_bibtex_names('editor') if editor.blank? && editors.size > 0
 
-      if self.editor.blank? && self.editors.size > 0
-        self.editor = self.compute_bibtex_names('editor')
-      end
-
-      self.cached_author_string = authority_name
+      update_columns(attributes_to_update)
     end
   end
 
@@ -845,8 +819,9 @@ class Source::Bibtex < Source
       valid = true
     end
     if !valid
-      errors.add(:base,
-                 'Missing core data. A TaxonWorks source must have one of the following: author, editor, booktitle, title, url, journal, year, or stated year'
+      errors.add(
+        :base,
+        'Missing core data. A TaxonWorks source must have one of the following: author, editor, booktitle, title, url, journal, year, or stated year'
       )
     end
   end
@@ -919,7 +894,7 @@ class Source::Bibtex < Source
     if self.chapter.blank? && self.pages.blank?
       soft_validations.add(:bibtex_type, 'Valid BibTeX requires either a chapter or pages with sources of type inbook.')
 
-      #  soft_validations.add(:chapter, 'Valid BibTeX requires either a chapter or pages with sources of type inbook.')
+      # soft_validations.add(:chapter, 'Valid BibTeX requires either a chapter or pages with sources of type inbook.')
       # soft_validations.add(:pages, 'Valid BibTeX requires either a chapter or pages with sources of type inbook.')
     end
   end

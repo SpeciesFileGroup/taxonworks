@@ -9,13 +9,13 @@ class Taxonworks::TaskGenerator < Rails::Generators::Base
   argument :methods_actions_names, type: 'array', required: true, banner: '<method_name:action:route_name>'
 
   def check_args
-    error_str = ""
+    error_str = ''
 
-    if path_to_controller[0] == "/"
+    if path_to_controller[0] == '/'
       error_str += "ERROR: 'path_to_controller' can't begin with a '/'\n"
     end
 
-    if path_to_controller[path_to_controller.length - 1] != "/"
+    if path_to_controller[path_to_controller.length - 1] != '/'
       error_str += "ERROR: 'path_to_controller' must end with a '/'\n"
     end
 
@@ -26,25 +26,25 @@ class Taxonworks::TaskGenerator < Rails::Generators::Base
   end
 
   def process_args
-    @paths = path_to_controller.split("/")
+    @paths = path_to_controller.split('/')
     @route_methods = Array.new
     @route_actions = Array.new
     @route_names = Array.new
 
     methods_actions_names.each do |str|
-        split_str = str.split(":")
-        method = split_str[0]
-        action = split_str[1]
-        name = split_str[2] || "#{method}_#{controller_base_name}"
+      split_str = str.split(':')
+      method    = split_str[0]
+      action    = split_str[1]
+      name      = split_str[2] || "#{method}_#{controller_base_name}"
 
-        @route_methods.push(method)
-        @route_actions.push(action)
-        @route_names.push(name + "_task")
+      @route_methods.push(method)
+      @route_actions.push(action)
+      @route_names.push(name + '_task')
     end
   end
 
   def add_scopes_to_routes
-    scopes = ["scope :tasks"]
+    scopes = ['scope :tasks']
     scope_index = 0
 
     @paths.each do |path|
@@ -53,7 +53,7 @@ class Taxonworks::TaskGenerator < Rails::Generators::Base
 
     innermost_scope_str = "scope :#{controller_base_name}, controller: 'tasks/#{path_to_controller}#{controller_base_name}'"
 
-    File.read("config/routes.rb").split("\n").each do |line|
+    File.read('config/routes.rb').split("\n").each do |line|
       if line.include?(innermost_scope_str)
         puts "ERROR: \"#{innermost_scope_str}\" already exists!"
         abort
@@ -67,19 +67,19 @@ class Taxonworks::TaskGenerator < Rails::Generators::Base
       abort
     end
 
-    route_str = ""
-    indent_str = "  "
+    route_str = ''
+    indent_str = '  '
 
     scopes.each_with_index do |scope, index|
       if index >= scope_index
-        route_str += "#{indent_str}#{scope} do\n" 
+        route_str += "#{indent_str}#{scope} do\n"
       end
 
-      indent_str += "  "
+      indent_str += '  '
     end
 
     route_str += "#{indent_str}#{innermost_scope_str} do\n"
-    
+
     @route_actions.each_with_index do |action, index|
       route_str += "#{indent_str}  #{action} '#{@route_methods[index]}', as: '#{@route_names[index]}'\n"
     end
@@ -87,20 +87,20 @@ class Taxonworks::TaskGenerator < Rails::Generators::Base
     route_str += "#{indent_str}end\n"
 
     scopes.length.downto(scope_index + 1) do
-      indent_str.chomp!("  ")
+      indent_str.chomp!('  ')
       route_str += "#{indent_str}end\n"
     end
 
     route_str += "\n"
-    insert_into_file("config/routes.rb", route_str, after: "#{scopes[scope_index - 1]} do\n")
+    insert_into_file('config/routes.rb', route_str, after: "#{scopes[scope_index - 1]} do\n")
   end
 
   def add_to_user_task
     user_tasks_str = "\n"
 
     @route_names.each_with_index do |name, index|
-      next if @route_actions[index] != "get"
-      
+      next if @route_actions[index] != 'get'
+
       user_tasks_str += "#{name}:\n"
       user_tasks_str += "  hub: true\n"
       user_tasks_str += "  name: 'TODO: Task name'\n"
@@ -110,11 +110,11 @@ class Taxonworks::TaskGenerator < Rails::Generators::Base
       user_tasks_str += "  description: 'TODO: Task description'\n"
     end
 
-    append_to_file "config/interface/hub/user_tasks.yml", user_tasks_str
+    append_to_file 'config/interface/hub/user_tasks.yml', user_tasks_str
   end
 
   def create_controller_folders
-    directory_name = "app/controllers/tasks"
+    directory_name = 'app/controllers/tasks'
 
     @paths.each do |path|
       directory_name += "/#{path}"
@@ -123,11 +123,11 @@ class Taxonworks::TaskGenerator < Rails::Generators::Base
   end
 
   def create_controller
-    template "controller", "app/controllers/tasks/#{path_to_controller}#{controller_base_name}_controller.rb"
+    template 'controller', "app/controllers/tasks/#{path_to_controller}#{controller_base_name}_controller.rb"
   end
 
   def create_view_folders
-    directory_name = "app/views/tasks"
+    directory_name = 'app/views/tasks'
 
     @paths.each do |path|
       directory_name += "/#{path}"
@@ -144,19 +144,19 @@ class Taxonworks::TaskGenerator < Rails::Generators::Base
   end
 
   private
-  
+
   def controller_class_name
     controller_base_name.titleize.tr(' ', '')
   end
 
   def full_controller_class_name
-    controller_name = "Tasks::"
-    controller_name += @paths.inject("") do |str, elem|
-      str += "#{elem.titleize.tr(' ', '')}::" 
+    controller_name = 'Tasks::'
+    controller_name += @paths.inject('') do |str, elem|
+      str += "#{elem.titleize.tr(' ', '')}::"
     end
 
     controller_name += controller_class_name
     "#{controller_name.chomp("::")}Controller"
   end
 
-end 
+end

@@ -1,4 +1,4 @@
-class CreateDepictions < ActiveRecord::Migration
+class CreateDepictions < ActiveRecord::Migration[4.2]
   def change
     create_table :depictions do |t|
       t.string :depiction_object_type, index: true

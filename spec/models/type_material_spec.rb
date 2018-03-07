@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TypeMaterial, :type => :model do
+describe TypeMaterial, type: :model, group: :nomenclature do
 
   after(:all) {
     TypeMaterial.delete_all
@@ -8,6 +8,7 @@ describe TypeMaterial, :type => :model do
   }
 
   let(:type_material) {TypeMaterial.new}
+  let(:protonym) { FactoryBot.create(:relationship_species) }
 
   context 'associations' do
     context 'belongs to' do
@@ -51,11 +52,11 @@ describe TypeMaterial, :type => :model do
   context 'general' do
     context 'Protonym restrictions and linkages' do
       let(:iczn_type) { 
-        FactoryGirl.build(:type_material, protonym: FactoryGirl.build(:relationship_species, parent: nil))
+        FactoryBot.build(:type_material, protonym: FactoryBot.build(:relationship_species, parent: nil))
       }
 
       let(:icn_type) {
-        FactoryGirl.build(:type_material, protonym: FactoryGirl.build(:icn_species, parent: nil))
+        FactoryBot.build(:type_material, protonym: FactoryBot.build(:icn_species, parent: nil))
       }
 
       specify 'type_type is one of ICZN_TYPES.keys for ICZN name' do
@@ -79,41 +80,26 @@ describe TypeMaterial, :type => :model do
       end
 
       specify 'protonym not a species' do
-        t = FactoryGirl.build(:valid_type_material, protonym: FactoryGirl.build(:relationship_genus, parent: nil))
+        t = FactoryBot.build(:valid_type_material, protonym: FactoryBot.build(:relationship_genus, parent: nil))
         t.valid?
         expect(t.errors.include?(:protonym_id)).to be_truthy
-        t.protonym = FactoryGirl.build(:relationship_species, parent: nil)
+        t.protonym = FactoryBot.build(:relationship_species, parent: nil)
         t.valid?
         expect(t.errors.include?(:protonym_id)).to be_falsey
       end
-    end
-
-    context 'Material restrictions' do
-      # @proceps, nothing was done with @type_material, so I consolidated that nothing to a let here
-      let(:type_material) {
-        a = FactoryGirl.build_stubbed(:type_material)
-        a.protonym = FactoryGirl.build_stubbed(:relationship_species, parent: nil)
-        a
-      }
- 
-      # xspecify 'type_type restricts the BiologicalObject subclass to an _TYPES.value' do
-      # end
-
-      # xspecify 'collection_object is a BiologicalCollectionObject' do
-      # end
     end
   end
 
   context 'methods' do
     let(:iczn_type) {
-      FactoryGirl.build(:valid_type_material)
+      FactoryBot.build(:valid_type_material)
     }
 
     let(:icn_type) {
-      FactoryGirl.build(:valid_type_material, protonym: FactoryGirl.build(:icn_species))
+      FactoryBot.build(:valid_type_material, protonym: FactoryBot.build(:icn_species))
     }
 
-    let(:t) {FactoryGirl.create(:valid_type_material, source: FactoryGirl.create(:valid_source_bibtex)) }
+    let(:t) {FactoryBot.create(:valid_type_material, source: FactoryBot.create(:valid_source_bibtex)) }
 
     specify 'type_source from protonym' do
       expect(iczn_type.type_source).to eq(iczn_type.protonym.source)
@@ -126,10 +112,20 @@ describe TypeMaterial, :type => :model do
     # skip 'TypeDesignator role(s) should be possible when a specific person needs to be identified as the person who designated the type'
   end
 
+  context 'nested attributes' do
+    let!(:a) { TypeMaterial.create!(protonym: protonym, material_attributes: {total: 1, buffered_collecting_event: 'Not far from the moon.'} , type_type: 'holotype') }
+    specify 'creates collection object' do
+      expect(a.material.id).to be_truthy
+    end
+  end
+
   context 'soft validation' do
-    let!(:species) {FactoryGirl.create(:relationship_species) }
-    let!(:iczn_type) {FactoryGirl.create(:valid_type_material, protonym: species) }
-    let(:t) {FactoryGirl.create(:valid_type_material, protonym: species)  }
+    let!(:species) {FactoryBot.create(:relationship_species) }
+    let!(:iczn_type) {FactoryBot.create(:valid_type_material, protonym: species) }
+    let!(:iczn_lectotype) {FactoryBot.create(:valid_type_material, protonym: species, type_type: 'lectotype') }
+    let(:t) {FactoryBot.create(:valid_type_material, protonym: species)  }
+    let(:source1) {FactoryBot.create(:valid_source_bibtex, year: 2000)}
+    let(:source2) {FactoryBot.create(:valid_source_bibtex, year: 2017)}
 
     context 'only one primary type' do
       specify 'for neotype' do
@@ -145,14 +141,43 @@ describe TypeMaterial, :type => :model do
       end
     end
 
-    specify 'source is nil' do
-      iczn_type.soft_validate(:type_source)
-      expect(iczn_type.soft_validations.messages_on(:base).count).to eq(1)
+    context 'missing source' do
+      specify 'source is nil' do
+        iczn_type.soft_validate(:type_source)
+        expect(iczn_type.soft_validations.messages_on(:base).count).to eq(1)
+      end
+
+      specify 'source is nil for lectotype' do
+        species.source = source1
+        iczn_lectotype.soft_validate(:type_source)
+        expect(iczn_lectotype.soft_validations.messages_on(:base).count).to eq(1)
+      end
+
+      specify 'source is the same for lectotype' do
+        iczn_lectotype.source = source1
+        species.source = source1
+        iczn_lectotype.soft_validate(:type_source)
+        expect(iczn_lectotype.soft_validations.messages_on(:base).count).to eq(1)
+      end
+
+      specify 'source is older for lectotype' do
+        iczn_lectotype.source = source1
+        species.source = source2
+        iczn_lectotype.soft_validate(:type_source)
+        expect(iczn_lectotype.soft_validations.messages_on(:base).count).to eq(1)
+      end
+
+      specify 'source is properly set for lectotype' do
+        iczn_lectotype.source = source2
+        species.source = source1
+        iczn_lectotype.soft_validate(:type_source)
+        expect(iczn_lectotype.soft_validations.messages_on(:base).count).to eq(0)
+      end
     end
   end
 
   context 'concerns' do
-    it_behaves_like 'citable'
+    it_behaves_like 'citations'
     it_behaves_like 'is_data'
   end
 

@@ -6,8 +6,19 @@ class AssertedDistributionsController < ApplicationController
   # GET /asserted_distributions
   # GET /asserted_distributions.json
   def index
-    @recent_objects = AssertedDistribution.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    respond_to do |format|
+      format.html {
+    @recent_objects = AssertedDistribution.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
+      }
+      format.json {
+        @asserted_distributions = AssertedDistribution.where(project_id: sessions_current_project_id).where(index_params)
+      }
+    end
+  end
+
+  def index_params
+    params.permit(:otu_id, :geographic_area_id)
   end
 
   # GET /asserted_distributions/1
@@ -68,21 +79,21 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def list
-    @asserted_distributions = AssertedDistribution.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @asserted_distributions = AssertedDistribution.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   def autocomplete
     @asserted_distributions = AssertedDistribution.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
-    data                    = @asserted_distributions.collect do |t|
-      {id:              t.id,
-       label:           AssertedDistributionsHelper.asserted_distribution_tag(t), # in helper
+    data  = @asserted_distributions.collect do |t|
+      {id: t.id,
+       label: AssertedDistributionsHelper.asserted_distribution_tag(t), # in helper
        response_values: {
          params[:method] => t.id
        },
-       label_html:      AssertedDistributionsHelper.asserted_distribution_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: AssertedDistributionsHelper.asserted_distribution_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
-    render :json => data
+    render json: data
   end
 
   def search
@@ -95,7 +106,7 @@ class AssertedDistributionsController < ApplicationController
 
   # GET /asserted_distributions/download
   def download
-    send_data AssertedDistribution.generate_download(AssertedDistribution.where(project_id: $project_id)), type: 'text', filename: "asserted_distributions_#{DateTime.now.to_s}.csv"
+    send_data AssertedDistribution.generate_download(AssertedDistribution.where(project_id: sessions_current_project_id)), type: 'text', filename: "asserted_distributions_#{DateTime.now}.csv"
   end
 
   # GET /asserted_distributions/batch_load
@@ -108,7 +119,7 @@ class AssertedDistributionsController < ApplicationController
       digest_cookie(params[:file].tempfile, :batch_asserted_distributions_md5)
       render 'asserted_distributions/batch_load/simple/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load 
     end
   end
@@ -131,18 +142,21 @@ class AssertedDistributionsController < ApplicationController
   private
   
   def set_asserted_distribution
-    @asserted_distribution = AssertedDistribution.with_project_id($project_id).find(params[:id])
-    @recent_object         = @asserted_distribution
+    @asserted_distribution = AssertedDistribution.with_project_id(sessions_current_project_id).find(params[:id])
+    @recent_object = @asserted_distribution
   end
 
   def asserted_distribution_params
-    params.require(:asserted_distribution).permit(:otu_id, :geographic_area_id, :source_id, :is_absent,
-                                                  otu_attributes: [:id, :_destroy, :name, :taxon_name_id],
-                                                  origin_citation_attributes: [:id, :_destroy, :source_id] 
-                                                 )
+    params.require(:asserted_distribution).permit(
+      :otu_id, :geographic_area_id,
+      :is_absent,
+      otu_attributes: [:id, :_destroy, :name, :taxon_name_id],
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
+      citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages]
+    )
   end
 
   def batch_params
-    params.permit(:data_origin, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
+    params.permit(:data_origin, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 end

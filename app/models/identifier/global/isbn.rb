@@ -25,7 +25,6 @@ class Identifier::Global::Isbn < Identifier::Global
   validate :using_isbn_class
 
   def using_isbn_class
-    retval = true
     unless identifier.nil?
       isbn = identifier.upcase
       # 'ISBN-13: 978-0-596-52068-7'
@@ -50,7 +49,7 @@ class Identifier::Global::Isbn < Identifier::Global
       /[^\dX]/ =~ isbn
       unless $&.nil?
         errors.add(:identifier, "'#{identifier}' is an improperly formed ISBN.")
-        return false
+        return
       end
       # the final (checksum) digit has alreaqdy been identified, so we need 12 or 9 here
       /^(?<isbn_13>\d{12})\d$|^(?<isbn_10>\d{9}).$/ =~ isbn
@@ -59,7 +58,7 @@ class Identifier::Global::Isbn < Identifier::Global
           (isbn_10.nil? and isbn_13.nil?) or
           ((isbn_10.nil? and type == '10') or (isbn_13.nil? and type == '13'))
         errors.add(:identifier, "'#{identifier}' has the wrong number of digits.")
-        return false
+        return
       end
 
       data = isbn.slice(0, isbn.size - 1)
@@ -98,11 +97,9 @@ class Identifier::Global::Isbn < Identifier::Global
       # check_byte and/or last might be an 'X'
       if check_byte.to_s != last
         errors.add(:identifier, "'#{identifier}' has bad check digit.")
-        return false
+        return
       end
-
     end
-    retval
   end
 
   def ten_or_thirteen_digits?

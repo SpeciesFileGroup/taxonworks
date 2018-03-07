@@ -6,7 +6,7 @@ namespace :tw do
       namespace :geo do
 
         desc 'Compare the NaturalEarth country name data at 10m, 50m, 110m.'
-        task :compare_ne10_50_110 => [:environment, :geo_dev_init] do
+        task compare_ne10_50_110: [:environment, :geo_dev_init] do
 
           matched   = 0
           unmatched = 0
@@ -46,20 +46,20 @@ namespace :tw do
             n110.merge!({item.attributes['adm0_a3'] => item.attributes['name'].titlecase})
           }
 
-          n50.each { |key, value| n10.delete(key) }
-          n110.each { |key, value| n50.delete(key) }
+          n50.each_key { |key| n10.delete(key) }
+          n110.each_key { |key| n50.delete(key) }
 
           # n110 will be empty
-          n50.each { |key, value|
+          n50.each_key { |key|
             n110.delete(key)
           }
 
           # n50 will contain only one object, "{"ATC"=>"Ashmore And Cartier Is."}"
-          n10.each { |key, value|
+          n10.each_key { |key|
             n50.delete(key)
           }
 
-          n110.each {|key, value|
+          n110.each_key {|key|
             n50.delete(key)
             n10.delete(key)
           }

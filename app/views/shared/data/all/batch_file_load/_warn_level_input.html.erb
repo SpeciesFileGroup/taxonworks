@@ -1,0 +1,26 @@
+Import level:
+<br>
+
+<%= radio_button_tag(:import_level, :warn, checked: true) %>
+<%= label_tag(:import_level_warn, "warn") %>
+<br>
+
+<% if @result.file_strict_level_ok? %>
+<%= radio_button_tag(:import_level, :file_strict) %>
+<%= label_tag(:import_level_file_strict, "file strict") %>
+<br>
+<% end %>
+
+<% if @result.object_strict_level_ok? %>
+<%= radio_button_tag(:import_level, :object_strict) %>
+<%= label_tag(:import_level_object_strict, "object strict") %>
+<br>
+<% end %>
+
+<% if @result.file_object_strict_level_ok? %>
+<%= radio_button_tag(:import_level, :file_object_strict) %>
+<%= label_tag(:import_level_file_object_strict, "file object strict") %>
+<br>
+<% end %>
+
+<br>

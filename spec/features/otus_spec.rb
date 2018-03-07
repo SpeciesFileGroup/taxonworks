@@ -7,18 +7,19 @@ describe 'Otus', type: :feature do
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
   context 'signed in as a user' do
-    before do 
+    before do
+      # TODO: Fix occasional "Capybara::ElementNotFound: Unable to find field "session_email" with id session_email"
       sign_in_user_and_select_project
       @user.generate_api_access_token
       @user.save!
-    end 
+    end
 
     context 'with some records created' do
-      before do 
-        5.times { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
-        FactoryGirl.create(:valid_otu, name: 'Find me', creator: @user, updater: @user, project: @project)
+      before do
+        5.times { factory_bot_create_for_user_and_project(:valid_otu, @user, @project) }
+        FactoryBot.create(:valid_otu, name: 'Find me', creator: @user, updater: @user, project: @project)
         Otu.last.update_column(:name, 'something_unmatchable 44')
-      end 
+      end
 
       context 'GET /otus' do
         before { visit index_path }
@@ -27,7 +28,6 @@ describe 'Otus', type: :feature do
 
         specify 'that it has an AJAX autocomplete box', js: true do
           select_text = 'Select a otu'
-          expect(page).to have_button('Show')
           expect(page).to have_field(select_text) # TODO: inflect
           fill_in(select_text, with: 'a')
         end
@@ -42,22 +42,20 @@ describe 'Otus', type: :feature do
       end
 
       describe 'GET /otus/n' do
-        before { 
-          visit otu_path(Otu.second)
-        }
-
+        before { visit otu_path(Otu.second) }
         it_behaves_like 'a_data_model_with_standard_show'
       end
 
       describe 'GET /api/v1/otus/by_name/{variants of name}' do
 
         let(:taxon_name_root) {
-          Protonym.find_or_create_by(name:          'Root',
-                                     rank_class:    'NomenclaturalRank',
-                                     created_by_id: @user.id,
-                                     updated_by_id: @user.id,
-                                     parent_id:     nil,
-                                     project_id:    @project.id)
+          Protonym.find_or_create_by(
+            name: 'Root',
+            rank_class: 'NomenclaturalRank',
+            created_by_id: @user.id,
+            updated_by_id: @user.id,
+            parent_id: nil,
+            project_id: @project.id)
         }
 
         let(:taxon_name) {
@@ -74,12 +72,12 @@ describe 'Otus', type: :feature do
           )
         }
 
-        let(:otu) { Otu.fifth } # has custom name
+        let(:otu) { Otu.where(name: 'something_unmatchable 44').first } # has custom name
         let(:otu2) { taxon_name.otus.first }
 
         it 'Returns a response including an array of ids for an otu name' do
           route = URI.escape("/api/v1/otus/by_name/#{otu.name}?project_id=#{@project.id}&token=#{@user.api_access_token}")
-          visit route 
+          visit route
           expect(JSON.parse(page.body)['result']['otu_ids']).to eq([otu.id])
         end
 

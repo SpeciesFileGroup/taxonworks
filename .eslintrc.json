@@ -1,0 +1,20 @@
+{
+  "extends": [
+    "standard",
+    "eslint:recommended",
+    "plugin:vue/strongly-recommended"
+  ],
+  "plugins": [
+    "vue",
+    "import"
+  ],
+  "env": {
+    "browser": "true",
+    "es6": "true",
+    "jquery": "true"
+  },
+  "globals": {
+    "TW": "true",
+    "jquery": "true"
+  }
+}

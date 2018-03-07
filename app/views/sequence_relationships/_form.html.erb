@@ -1,0 +1,37 @@
+<%= form_for(@sequence_relationship) do |f| %>
+    <%= render 'shared/errors', object: @sequence_relationship %>
+
+    <div class="required">
+      <div class="field">
+        <%= f.label :type %>
+        <br>
+        <%= f.select :type, options_for_select(SEQUENCE_RELATIONSHIP_TYPE_SELECT, @sequence_relationship.type) %>
+      </div>
+
+      <div class="field">
+        <%= f.label :subject_sequence_id %>
+        <br>
+        <%= render partial: 'workbench/elements/forms/ajax_select',
+                   locals:  {controller:  'sequences',
+                             object: 'sequence_relationship',
+                             method:  'subject_sequence_id',
+                             tag_id:  'subject_sequence_id_for_sequence_relationship',
+                             display:  sequence_autocomplete_selected_tag(@sequence_relationship.subject_sequence_id),
+                             size: 20} %>
+      </div>
+
+      <div class="field">
+        <%= f.label :object_sequence_id %>
+        <br>
+        <%= render partial: 'workbench/elements/forms/ajax_select',
+                   locals:  {controller:  'sequences',
+                             object: 'sequence_relationship',
+                             method:  'object_sequence_id',
+                             tag_id:  'object_sequence_id_for_sequence_relationship',
+                             display:  sequence_autocomplete_selected_tag(@sequence_relationship.object_sequence_id),
+                             size: 20} %>
+      </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+<% end %>

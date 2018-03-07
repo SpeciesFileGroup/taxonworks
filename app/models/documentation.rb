@@ -2,37 +2,41 @@
 # Data types that can be document use Shared::Documentation.
 #
 # Documentation is to Documents as Depictions are to Images.
-# !!Documentation is both singular and plural!!
+# !!`Documentation` is both singular and plural!!
 #
-# @!attribute documentation_object_id 
+# @!attribute documentation_object_id
 #   @return [String]
-#    the id of the documented object 
+#    the id of the documented object
 #
 # @!attribute documentation_object_type
 #   @return [String]
-#    the type of the documented object 
+#    the type of the documented object
 #
 # @!attribute document_id
 #   @return [String]
-#     the id of the Document 
+#     the id of the Document
 #
-# @!attribute page_map 
-#   @return [Hash]
-#     maps page numbers, key is Document page, value is Recorded page (e.g. first page of the pdf => published page 10)
+# @!attribute position 
+#   @return [Integer]
+#     for acts as list, scopes to document
 #
-class Documentation < ActiveRecord::Base
+class Documentation < ApplicationRecord
+
+  acts_as_list scope: [:project_id, :documentation_object_id, :documentation_object_type]
+
   include Housekeeping
-  include Shared::Identifiable
-  include Shared::Notable
-  include Shared::Taggable
+  include Shared::Identifiers
+  include Shared::Notes
+  include Shared::Tags
   include Shared::IsData
   include SoftValidation
-
+  include Shared::PolymorphicAnnotator
+  polymorphic_annotates(:documentation_object)
 
   # These are all handled on the database side as not-null constraints
   # They can't be validated because we use accepts_nested_attributes
   # validates_presence_of :documentation_object_type, :documentation_object_id, :document_id
-  # We catch invalid statements with this around: 
+  # We catch invalid statements with this around:
   around_save :catch_statement_invalid
 
   belongs_to :documentation_object, polymorphic: true
@@ -43,16 +47,16 @@ class Documentation < ActiveRecord::Base
   accepts_nested_attributes_for :document
   accepts_nested_attributes_for :documentation_object
 
-  protected 
+  protected
 
   def catch_statement_invalid
     begin
       yield # calls :after_save callback
     rescue ActiveRecord::StatementInvalid => e
-      if e.original_exception.class.name == 'PG::NotNullViolation'
+      if e.cause.class.name == 'PG::NotNullViolation'
         errors.add(:base, 'a required field was not provided')
       else
-        raise 
+        raise
       end
     end
   end

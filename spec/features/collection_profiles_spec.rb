@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'CollectionProfiles', :type => :feature do
+describe 'CollectionProfiles', type: :feature do
   let(:page_title) { 'Collection profiles' }
   it_behaves_like 'a_login_required_and_project_selected_controller' do 
     let(:index_path) { collection_profiles_path }

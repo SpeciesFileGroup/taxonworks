@@ -1,4 +1,4 @@
-class ExpandTaxonNameCachedColumnNames < ActiveRecord::Migration
+class ExpandTaxonNameCachedColumnNames < ActiveRecord::Migration[4.2]
   def change
     rename_column :taxon_names, :cached_primary_homonym_alt, :cached_primary_homonym_alternative_spelling
     rename_column :taxon_names, :cached_secondary_homonym_alt, :cached_secondary_homonym_alternative_spelling

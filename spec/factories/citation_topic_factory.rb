@@ -1,10 +1,10 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
+# Read about factories at https://github.com/thoughtbot/factory_bot
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :citation_topic, traits: [:housekeeping] do
     topic nil
     citation nil
-    pages "MyString"
+    pages 'MyString'
 
     factory :valid_citation_topic do
       association :topic, factory: :valid_topic

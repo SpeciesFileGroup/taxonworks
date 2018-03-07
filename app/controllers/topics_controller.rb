@@ -12,7 +12,7 @@ class TopicsController < ApplicationController
     topics = Topic.order(:name).where(project_id: sessions_current_project_id).all
 
     data = topics.collect do |t|
-      str = t.name + ": " + t.definition
+      str = t.name + ': ' + t.definition
       { id: t.id,
         name: t.name,
         definition: t.definition, 
@@ -22,7 +22,7 @@ class TopicsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # POST /controlled_vocabulary_terms
@@ -51,7 +51,7 @@ class TopicsController < ApplicationController
         format.html {
           flash[:notice] = 'Controlled vocabulary term NOT successfully created.'
           if redirect_url == :back
-            redirect_to :back
+            redirect_back(fallback_location: (request.referer || root_path), notice: 'Controlled vocabulary term NOT successfully created.')
           else
             render action: 'new'
           end
@@ -66,7 +66,7 @@ class TopicsController < ApplicationController
     topics = Topic.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
 
     data = topics.collect do |t|
-      str = t.name + ": " + t.definition
+      str = t.name + ': ' + t.definition
       {id:              t.id,
        label:           str,
        response_values: {
@@ -75,12 +75,12 @@ class TopicsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   def lookup_topic
     @topics = Topic.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-    render(:json => @topics.collect { |t|
+    render(json: @topics.collect { |t|
       {
         label:     t.name,
         object_id: t.id,
@@ -91,7 +91,11 @@ class TopicsController < ApplicationController
 
   def get_definition
     @topic = Topic.find(params[:id])
-    render(:json => {definition: @topic.definition})
+    render(json: {definition: @topic.definition})
+  end
+
+  def select_options
+    @topics = Topic.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:klass), params.permit(:target)[:target])
   end
 
 end

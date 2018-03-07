@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Determiner, :type => :model do
+describe Determiner, type: :model do
   let(:determiner) {Determiner.new}
 
   context 'associations' do

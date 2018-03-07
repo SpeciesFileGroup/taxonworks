@@ -6,8 +6,15 @@ class ControlledVocabularyTermsController < ApplicationController
   # GET /controlled_vocabulary_terms
   # GET /controlled_vocabulary_terms.json
   def index
-    @recent_objects = ControlledVocabularyTerm.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = ControlledVocabularyTerm.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @controlled_vocabulary_terms = ControlledVocabularyTerm.where(filter_params).with_project_id(sessions_current_project_id).order(:name)
+      }
+    end
   end
 
   # GET /controlled_vocabulary_terms/1
@@ -31,7 +38,7 @@ class ControlledVocabularyTermsController < ApplicationController
     @controlled_vocabulary_term = ControlledVocabularyTerm.new(controlled_vocabulary_term_params)
     respond_to do |format|
       if @controlled_vocabulary_term.save
-        format.html { redirect_to @controlled_vocabulary_term.metamorphosize, notice: "#{@controlled_vocabulary_term.type} '#{@controlled_vocabulary_term.name}' was successfully created."}
+        format.html { redirect_to url_for(@controlled_vocabulary_term.metamorphosize), notice: "#{@controlled_vocabulary_term.type} '#{@controlled_vocabulary_term.name}' was successfully created."}
         format.json { 
           render action: 'show', status: :created, location: @controlled_vocabulary_term.metamorphosize 
         }
@@ -52,7 +59,7 @@ class ControlledVocabularyTermsController < ApplicationController
   def update
     respond_to do |format|
       if @controlled_vocabulary_term.update(controlled_vocabulary_term_params)
-        format.html { redirect_to @controlled_vocabulary_term.metamorphosize, notice: 'Controlled vocabulary term was successfully updated.' }
+        format.html { redirect_to url_for(@controlled_vocabulary_term.metamorphosize), notice: 'Controlled vocabulary term was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }
@@ -97,24 +104,18 @@ class ControlledVocabularyTermsController < ApplicationController
   end
 
   def autocomplete
-    @controlled_vocabulary_terms = ControlledVocabularyTerm.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-
-    data = @controlled_vocabulary_terms.collect do |t|
-      {id: t.id,
-       label: ApplicationController.helpers.controlled_vocabulary_term_tag(t),
-       response_values: {
-           params[:method] => t.id
-       },
-       label_html: ApplicationController.helpers.controlled_vocabulary_term_tag(t)
-      }
-    end
-
-    render :json => data
+    @controlled_vocabulary_terms = Queries::ControlledVocabularyTermAutocompleteQuery.new(
+      params.require(:term), 
+      of_type: filter_params[:type], 
+      project_id: sessions_current_project_id
+    ).all
   end
 
   # GET /controlled_vocabulary_terms/download
   def download
-    send_data ControlledVocabularyTerm.generate_download(ControlledVocabularyTerm.where(project_id: sessions_current_project_id)), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now.to_s}.csv"
+    send_data ControlledVocabularyTerm.generate_download(
+      ControlledVocabularyTerm.where(project_id: sessions_current_project_id)
+    ), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now}.csv"
   end
 
   # GET /controlled_vocabulary_terms/1/tagged_objects
@@ -123,14 +124,19 @@ class ControlledVocabularyTermsController < ApplicationController
   end 
 
   private
-  # Use callbacks to share common setup or constraints between actions.
+
   def set_controlled_vocabulary_term
     @controlled_vocabulary_term = ControlledVocabularyTerm.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @controlled_vocabulary_term
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def controlled_vocabulary_term_params
     params.require(:controlled_vocabulary_term).permit(:type, :name, :definition, :uri, :uri_relation, :css_color)
   end
+
+  def filter_params
+    h = params.permit(of_type: []).to_h.symbolize_keys
+    return { type: h[:of_type], project_id: sessions_current_project_id }
+  end
+
 end

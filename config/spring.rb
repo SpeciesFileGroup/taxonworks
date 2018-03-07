@@ -1,1 +1,1 @@
-Spring.watch "config/routes/api.rb"
+Spring.watch 'config/routes/api.rb'

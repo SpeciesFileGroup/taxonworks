@@ -3,9 +3,9 @@
 class Georeference::GeoLocate < Georeference
   attr_accessor :api_response, :iframe_response
 
-  URI_HOST       = 'www.museum.tulane.edu'
-  URI_PATH       = '/webservices/geolocatesvcv2/glcwrap.aspx?'
-  URI_EMBED_PATH = '/geolocate/web/webgeoreflight.aspx?'
+  URI_HOST       = 'www.museum.tulane.edu'.freeze
+  URI_PATH       = '/webservices/geolocatesvcv2/glcwrap.aspx?'.freeze
+  URI_EMBED_PATH = '/geolocate/web/webgeoreflight.aspx?'.freeze
 
   def api_response=(response)
     self.geographic_item = make_geographic_point(response.coordinates[0], response.coordinates[1])
@@ -108,7 +108,7 @@ class Georeference::GeoLocate < Georeference
   # @return [Array]
   # parsing the four possible bits of a response into an array
   def self.parse_iframe_result(response_string)
-    lat, long, error_radius, uncertainty_polygon = response_string.split("|")
+    lat, long, error_radius, uncertainty_polygon = response_string.split('|')
     uncertainty_points                           = nil
     unless uncertainty_polygon.nil?
       if uncertainty_polygon =~ /unavailable/i # todo: there are many more possible error conditions
@@ -169,7 +169,7 @@ class Georeference::GeoLocate < Georeference
       'BG'            => 'false',
       'LanguageIndex' => '0',
       'gc'            => 'Tester'
-    }
+    }.freeze
 
     attr_reader :request_params, :request_params_string, :request_params_hash
 
@@ -186,10 +186,10 @@ class Georeference::GeoLocate < Georeference
       ga                     = request_params_hash
       params_string          = 'http://' + URI_HOST +
         URI_EMBED_PATH +
-        "country=#{ga['country']}&state=#{ga['state']}&county=#{ga['county']}&locality=#{ga['locality']}&points=" +
-        "#{ga['Latitude']}|#{ga['Longitude']}|#{ga['Placename']}|#{ga['Score']}|#{ga['Uncertainty']}" +
-        "&georef=run|#{ga['H20']}|#{ga['HwyX']}|#{ga['Uncert']}|#{ga['Poly']}|#{ga['DisplacePoly']}|" +
-        "#{ga['RestrictAdmin']}|#{ga['BG']}|#{ga['LanguageIndex']}" +
+        "country=#{ga['country']}&state=#{ga['state']}&county=#{ga['county']}&locality=#{ga['locality']}&points=" \
+        "#{ga['Latitude']}|#{ga['Longitude']}|#{ga['Placename']}|#{ga['Score']}|#{ga['Uncertainty']}" \
+        "&georef=run|#{ga['H20']}|#{ga['HwyX']}|#{ga['Uncert']}|#{ga['Poly']}|#{ga['DisplacePoly']}|" \
+        "#{ga['RestrictAdmin']}|#{ga['BG']}|#{ga['LanguageIndex']}" \
         "&gc=#{ga['gc']}"
       @request_params_string = params_string # URI.encode(params_string)
     end
@@ -218,7 +218,7 @@ class Georeference::GeoLocate < Georeference
       displacePoly: 'false',
       languageKey:  '0',
       fmt:          'json' # or geojson ?
-    }
+    }.freeze
 
     attr_accessor :succeeded
     attr_reader :request_params, :response, :request_param_string

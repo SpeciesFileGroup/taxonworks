@@ -2,32 +2,37 @@
   <div>
     <div class="slide-panel-category-header">{{ title }}</div>
     <ul class="slide-panel-category-content">
-      <li v-for="item in items" @click="save(select, item)" class="slide-panel-category-item"><span v-html="item.object_tag"></span></li>
+      <li
+        v-for="item in items"
+        @click="save(select, item)"
+        class="slide-panel-category-item">
+        <span v-html="item.object_tag"/>
+      </li>
     </ul>
-  </div>      
+  </div>
 </template>
 
 <script>
-  const GetterNames = require('../store/getters/getters').GetterNames;
-  const MutationNames = require('../store/mutations/mutations').MutationNames;
+  import {GetterNames} from '../store/getters/getters'
+  import {MutationNames} from '../store/mutations/mutations'
 
   export default {
-    props: ['ajaxUrl','setItems', 'select', 'getItems', 'title'],
-    name: 'recent-list',
+    props: ['ajaxUrl', 'setItems', 'select', 'getItems', 'title'],
+    name: 'RecentList',
     computed: {
       items() {
-        return this.$store.getters[GetterNames.GetRecent](this.getItems);
+        return this.$store.getters[GetterNames.GetRecent](this.getItems)
       }
     },
-    mounted: function() {
+    mounted: function () {
       this.$http.get(this.ajaxUrl).then(response => {
-        this.$store.commit(MutationNames[this.setItems], response.body);
-      });
+        this.$store.commit(MutationNames[this.setItems], response.body)
+      })
     },
     methods: {
-      save: function(saveMethod, item) {
-        this.$store.commit(MutationNames[saveMethod], item);
-      },
+      save: function (saveMethod, item) {
+        this.$store.commit(MutationNames[saveMethod], item)
+      }
     }
-  };
+  }
 </script>

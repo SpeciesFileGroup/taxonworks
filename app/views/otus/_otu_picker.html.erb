@@ -9,7 +9,7 @@
       class: 'otu_picker_autocomplete expandable', 
       placeholder: 'Select or create an OTU' 
     %>
-    <%= link_to 'Add new', '#', id: :otu_picker_add_new, class: 'new_plus', hidden: true %> 
+    <%= link_to 'Add new', '#', id: :otu_picker_add_new, data: { turbolinks: false }, class: 'new_plus', hidden: true %> 
   </div>
 
   <div id="new_otu" class="add_new" hidden >
@@ -39,8 +39,8 @@
           <%= o.hidden_field :id, value: f.object.try(:object_method).to_param, id: :selected_otu_id, name: "#{f.object_name}[#{field_name}]" -%>
 
           <div class="link">
-            <%= link_to "Add", '#', id: 'otu_picker_add_ok', title: 'Add'  %>
-            <%= link_to "Undo", '#', id: 'otu_picker_new_undo', title: 'Undo'  %>
+            <%= link_to "Add", '#', id: 'otu_picker_add_ok', data: { turbolinks: false }, title: 'Add'  %>
+            <%= link_to "Undo", '#', id: 'otu_picker_new_undo', data: { turbolinks: false }, title: 'Undo'  %>
           </div>
         </div>
       </div>

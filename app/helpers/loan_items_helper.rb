@@ -8,7 +8,7 @@ module LoanItemsHelper
       (loan_item.returned? ? "returned #{loan_item.date_returned}" : nil), 
       (loan_item.disposition.blank? ? nil : content_tag(:span, loan_item.disposition, class: :warning)),
       "(#{loan_item.loan_item_object_type})" 
-    ].compact.join("&nbsp;").html_safe
+    ].compact.join('&nbsp;').html_safe
   end
 
   def loan_item_link(loan_item)

@@ -1,4 +1,4 @@
-class CreateOriginRelationships < ActiveRecord::Migration
+class CreateOriginRelationships < ActiveRecord::Migration[4.2]
   def change
     create_table :origin_relationships do |t|
       t.references :old_object, polymorphic: true, index: true, null: false

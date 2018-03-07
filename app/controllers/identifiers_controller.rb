@@ -3,6 +3,23 @@ class IdentifiersController < ApplicationController
 
   before_action :set_identifier, only: [:update, :destroy]
 
+  # GET /identifiers
+  # GET /identifiers.json
+  def index
+    respond_to do |format|
+      format.html {
+        @recent_objects = Identifier.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @identifiers = Identifier.where(project_id: sessions_current_project_id).where(
+          polymorphic_filter_params(
+            'identifier_object', Identifier.related_foreign_keys  )
+        )
+      }
+    end
+  end
+
   def new
     @identifier = Identifier.new(identifier_params)
   end
@@ -12,13 +29,6 @@ class IdentifiersController < ApplicationController
     @identifier = Identifier.find_by_id(params[:id]).metamorphosize
   end
 
-  # GET /identifiers
-  # GET /identifiers.json
-  def index
-    @recent_objects = Identifier.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
-  end
-
   # POST /identifiers
   # POST /identifiers.json
   def create
@@ -26,7 +36,7 @@ class IdentifiersController < ApplicationController
     respond_to do |format|
       if @identifier.save
         format.html { redirect_to @identifier.identifier_object.metamorphosize, notice: 'Identifier was successfully created.' }
-        format.json { render json: @identifier, status: :created, location: @identifier.becomes(Identifier) }
+        format.json { render action: 'show', status: :created, location: @identifier.becomes(Identifier) }
       else
         format.html { render 'new', notice: 'Identifier was NOT successfully created.' }
         format.json { render json: @identifier.errors, status: :unprocessable_entity }
@@ -42,7 +52,7 @@ class IdentifiersController < ApplicationController
         format.html { redirect_to @identifier.identifier_object.metamorphosize, notice: 'Identifier was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { redirect_to :back, notice: 'Identifier was NOT successfully updated.' }
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Identifier was NOT successfully created.')}
         format.json { render json: @identifier.errors, status: :unprocessable_entity }
       end
     end
@@ -53,13 +63,13 @@ class IdentifiersController < ApplicationController
   def destroy
     @identifier.destroy
     respond_to do |format|
-      format.html { redirect_to :back, notice: 'Identifier was successfully destroyed.' }
+      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Identifier was successfully destroyed.')}
       format.json { head :no_content }
     end
   end
 
   def list
-    @identifiers = Identifier.where(project_id: $project_id).includes(:updater).page(params[:page])
+    @identifiers = Identifier.where(project_id: sessions_current_project_id).includes(:updater).page(params[:page])
   end
 
   # GET /identifier/search
@@ -87,22 +97,28 @@ class IdentifiersController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # GET /identifiers/download
   def download
-    send_data Identifier.generate_download( Identifier.where(project_id: $project_id) ), type: 'text', filename: "identifiers_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Identifier.where(project_id: sessions_current_project_id)), type: 'text', filename: "identifiers_#{DateTime.now}.csv"
+  end
+
+  # GET /taxon_name_relationships/taxon_name_relationship_types
+  def identifier_types
+    render json: IDENTIFIERS_JSON
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
+
   def set_identifier
-    @identifier = Identifier.with_project_id($project_id).find(params[:id])
+    @identifier = Identifier.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def identifier_params
-    params.require(:identifier).permit(:id, :identifier_object_id, :identifier_object_type, :identifier, :type, :namespace_id)
+    params.require(:identifier).permit(
+      :id, :identifier_object_id, :identifier_object_type, :identifier, :type, :namespace_id, :annotated_global_entity
+    )
   end
 end

@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :confidence, traits: [:housekeeping] do
     factory :valid_confidence do
       association :confidence_object, factory: :valid_specimen

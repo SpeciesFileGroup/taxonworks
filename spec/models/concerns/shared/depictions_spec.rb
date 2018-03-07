@@ -6,9 +6,9 @@ describe 'Depictions', type: :model do
   let(:image1) { fixture_file_upload(Rails.root + 'spec/files/images/tiny.png', 'image/png') }
   let(:image2) { fixture_file_upload(Rails.root + 'spec/files/images/W3$rd fi(le%=name!.png', 'image/png') }
 
-  let(:image_attributes) { 
-    { image_file: image1  }
-   }
+  let(:image_attributes) {
+    {image_file: image1}
+  }
 
   context 'associations' do
     specify 'has many depictions/#has_depictions?' do
@@ -35,7 +35,7 @@ describe 'Depictions', type: :model do
     context 'on destroy' do
       specify 'attached depictions are destroyed' do
         expect(Depiction.count).to eq(0)
-        instance_with_depiction.depictions << FactoryGirl.build(:valid_depiction)
+        instance_with_depiction.depictions << FactoryBot.build(:valid_depiction)
         instance_with_depiction.save
         expect(Depiction.count).to eq(1)
         expect(instance_with_depiction.destroy).to be_truthy
@@ -47,7 +47,7 @@ describe 'Depictions', type: :model do
   context 'create with nested depiction' do
     specify 'works by nesting image_attributes' do
       expect(TestDepictionable.create!(
-        depictions_attributes: [ {image_attributes:  image_attributes  }  ]
+        depictions_attributes: [{image_attributes: image_attributes}]
       )).to be_truthy
       expect(Image.count).to eq(1)
       expect(Depiction.count).to eq(1)
@@ -62,18 +62,18 @@ describe 'Depictions', type: :model do
 
   context 'create with #image_array' do
     let(:data) {
-      { "0" => image1, "1" => image2 }
+      {'0' => image1, '1' => image2}
     }
 
     specify '#image_array' do
-      expect(instance_with_depiction).to respond_to('image_array=') 
+      expect(instance_with_depiction).to respond_to('image_array=')
     end
 
     specify 'succeeds' do
       instance_with_depiction.image_array = data
       expect(instance_with_depiction.save).to be_truthy
       expect(instance_with_depiction.images.count).to eq(2)
-      expect(instance_with_depiction.images.first.id).to be_truthy 
+      expect(instance_with_depiction.images.first.id).to be_truthy
     end
 
   end
@@ -81,7 +81,7 @@ describe 'Depictions', type: :model do
 
 end
 
-class TestDepictionable < ActiveRecord::Base
+class TestDepictionable < ApplicationRecord
   include FakeTable
   include Shared::Depictions
 end

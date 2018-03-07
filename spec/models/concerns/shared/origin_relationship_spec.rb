@@ -1,12 +1,20 @@
 require 'rails_helper'
 
-context 'OriginRelationship', :type => :model do
-  let(:matching_origin_targets) do
-    { origin_relationships_attributes: [{ new_object: TestClass.new }] }
-  end
+context 'OriginRelationship', type: :model do
+  context 'configuration' do
+    before do
+      TestClass.is_origin_for('TestClass')
+    end
 
-  let(:mismatching_origin_targets) do
-    { origin_relationships_attributes: [{ new_object: MismatchingClass.new }] }
+    let(:t) { TestClass.new }
+
+    specify '.valid_new_object_classes' do
+      expect(TestClass.valid_new_object_classes).to contain_exactly('TestClass') 
+    end
+
+    specify '#valid_new_object_classes' do
+      expect(t.valid_new_object_classes).to contain_exactly('TestClass') 
+    end
   end
 
   context 'associations' do
@@ -16,49 +24,121 @@ context 'OriginRelationship', :type => :model do
   end
 
   context 'validations' do
+    let(:matching_origin_targets) do
+      { origin_relationships_attributes: [{ new_object: TestClass.new }] }
+    end
+
     context 'with "is_origin_for"' do
       context 'matching target origins' do
-        specify 'origin_relationship successfully added' do
-          origin_object = WithIsOriginForMatching.new(matching_origin_targets)
-          origin_object.save!
 
+        let(:origin_object) { WithIsOriginForMatching.new(matching_origin_targets) }
+
+        before {
+          origin_object.save!
+        }
+
+        specify 'origin_relationship successfully added' do
           expect(origin_object.origin_relationships.length).to be 1
         end
       end
 
       context 'mismatching target origins' do
-        specify 'origin_relationship unsuccessfully added' do
-          origin_object = WithIsOriginForMatching.new(mismatching_origin_targets)
+        let(:o) { OriginRelationship.new( new_object: MismatchingClass.new, old_object: TestClass.new) }
 
-          expect(origin_object.valid?).to be_falsey
+        let(:mismatching_origin_targets) do
+          { origin_relationships_attributes: [{ new_object: MismatchingClass.new }] }
+        end
+
+        specify 'invalid old/new pairs are invalid' do
+          expect(o.valid?).to be_falsey
+          expect(o.errors.include?(:new_object)).to be_truthy
+        end 
+
+        specify 'origin_relationship rejected on save' do
+          origin_object = WithIsOriginForMatching.create(mismatching_origin_targets)
+          expect(origin_object.new_objects.count).to eq(0)
         end
       end
     end
   end
+
+  context 'new/old objects' do
+    let(:o) { WithIsOriginForMatching.create }
+    let(:n) { TestClass.create }
+
+
+    context '#origin' do
+      context 'with #origin=' do
+        before do
+          n.origin = o
+          n.save 
+        end
+
+        specify 'can create a relationship' do
+          expect(n.related_origin_relationships.count).to eq(1)
+        end
+      end
+
+      context 'with params' do
+        let!(:z) { TestClass.create!(origin: o) }
+      
+        specify 'can create a relationship' do
+          expect(z.related_origin_relationships.count).to eq(1)
+          expect(z.old_objects).to contain_exactly(o)
+        end 
+      end
+
+    end
+
+
+    specify '#old_objects' do 
+      expect(o).to respond_to(:old_objects)
+      expect(n).to respond_to(:old_objects)
+    end
+
+    specify '#new_objects' do
+      expect(o).to respond_to(:new_objects)
+      expect(n).to respond_to(:new_objects)
+    end
+
+    context 'returning objects' do
+      let!(:relationship) { OriginRelationship.create!(old_object: o, new_object: n) }
+
+      specify '#new_objects' do
+        expect(o.new_objects).to contain_exactly(n)
+      end
+
+      specify '#old_objects' do
+        expect(n.old_objects).to contain_exactly(o)
+      end
+    end
+
+  end
 end
 
-class BaseOriginRelationShip < ActiveRecord::Base
+class BaseOriginRelationShip < ApplicationRecord
   include Housekeeping
   include FakeTable
   include Shared::OriginRelationship
 end
 
-class WithIsOriginForMatching < ActiveRecord::Base
+class WithIsOriginForMatching < ApplicationRecord
   include Housekeeping
   include FakeTable
   include Shared::OriginRelationship
 
-  is_origin_for :test_classes
+  is_origin_for 'TestClass'
 end
 
 # This has to be named "TestClass" since the fake table type
 # when converted to a symbol is ":test_classes"
-class TestClass < ActiveRecord::Base
+class TestClass < ApplicationRecord
   include Housekeeping
   include FakeTable
+  include Shared::OriginRelationship
 end
 
-class MismatchingClass < ActiveRecord::Base
+class MismatchingClass < ApplicationRecord
   include Housekeeping
   include FakeTable
 end

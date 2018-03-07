@@ -1,17 +1,20 @@
 module Queries
 
   class ControlledVocabularyTermAutocompleteQuery < Queries::Query
-    include Arel::Nodes
 
-    attr_accessor :object_type
+    # [Array]
+    #   of :type 
+    attr_accessor :of_type
 
-    def initialize(string, project_id: nil, object_type: nil)
+    def initialize(string, project_id: nil, of_type: [])
       super(string, project_id: project_id) 
-      @object_type = object_type
+      @of_type = of_type
     end
 
     def where_sql
-      with_project_id.and(with_type).and(or_clauses).to_sql
+      a = with_project_id.and(or_clauses)
+      a = a.and(with_type) if !of_type.blank?
+      a.to_sql
     end
 
     def or_clauses
@@ -31,7 +34,7 @@ module Queries
     
     # @return [Scope]
     def all 
-      ControlledVocabularyTerm.where(where_sql).limit(50)
+      ControlledVocabularyTerm.where(where_sql).order(:type, :name).limit(20)
     end
 
     def table
@@ -43,7 +46,7 @@ module Queries
     end
 
     def with_type 
-      table[:type].eq(object_type)
+      table[:type].eq_any(of_type)
     end
 
     def uri_equal_to
@@ -54,7 +57,8 @@ module Queries
       table[:definition].matches_any(terms)
     end
 
-    def uri_matches
+    # not used
+    def uri_eq
       table[:uri].eq(query_string) 
     end
 

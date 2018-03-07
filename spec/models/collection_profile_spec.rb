@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-describe CollectionProfile, :type => :model do
-  let(:collection_profile) { FactoryGirl.build(:collection_profile) }
+describe CollectionProfile, type: :model do
+  let(:collection_profile) { FactoryBot.build(:collection_profile) }
 
   context 'associations' do
     context 'belongs_to' do
@@ -15,7 +15,7 @@ describe CollectionProfile, :type => :model do
   end
 
   context 'attributes include' do
-    COLLECTION_PROFILE_INDICES[:Favret][:wet].keys.each do |k|
+    COLLECTION_PROFILE_INDICES[:Favret][:wet].each_key do |k|
       specify "#{k}" do
         expect(collection_profile).to respond_to(k)
       end
@@ -23,14 +23,14 @@ describe CollectionProfile, :type => :model do
   end
 
   context 'validation' do
-    let(:dry_collection_profile) { FactoryGirl.create(:dry_collection_profile) }
+    let(:dry_collection_profile) { FactoryBot.create(:dry_collection_profile) }
 
     specify 'a valid profile' do
       expect(dry_collection_profile.valid?).to be_truthy
     end
 
     context 'data is restricted to legal values' do
-      let(:p) { FactoryGirl.build_stubbed(:dry_collection_profile,
+      let(:p) { FactoryBot.build_stubbed(:dry_collection_profile,
                                           conservation_status: 5,
                                           processing_state: 5,
                                           container_condition: 5,
@@ -48,7 +48,7 @@ describe CollectionProfile, :type => :model do
       context 'Favret - nothing matches 5' do
         before { p.valid? }
         
-        COLLECTION_PROFILE_INDICES[:Favret][:dry].keys.each do |k|
+        COLLECTION_PROFILE_INDICES[:Favret][:dry].each_key do |k|
           specify "#{k}" do
             expect(p.errors.include?(k.to_sym)).to be_truthy 
           end
@@ -57,7 +57,7 @@ describe CollectionProfile, :type => :model do
     end
 
     context 'updates' do
-      let!(:p) { FactoryGirl.create(:dry_collection_profile) }
+      let!(:p) { FactoryBot.create(:dry_collection_profile) }
       before {   p.updated_at = Time.now + 5.days }
 
       specify 'are not subsequently allowed' do

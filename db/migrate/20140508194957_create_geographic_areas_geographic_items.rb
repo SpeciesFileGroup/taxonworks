@@ -1,4 +1,4 @@
-class CreateGeographicAreasGeographicItems < ActiveRecord::Migration
+class CreateGeographicAreasGeographicItems < ActiveRecord::Migration[4.2]
   def change
     create_table :geographic_areas_geographic_items do |t|
       t.references :geographic_area, index: true

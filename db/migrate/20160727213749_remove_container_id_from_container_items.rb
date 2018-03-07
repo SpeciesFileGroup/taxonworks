@@ -1,4 +1,4 @@
-class RemoveContainerIdFromContainerItems < ActiveRecord::Migration
+class RemoveContainerIdFromContainerItems < ActiveRecord::Migration[4.2]
   # !! this is a breaking change, if you have data in your database
   # it will not be converted
   def change

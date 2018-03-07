@@ -4,18 +4,21 @@ module Shared::AlternateValues
   extend ActiveSupport::Concern
 
   included do
-    has_many :alternate_values, as: :alternate_value_object, validate: false, dependent: :destroy
+    AlternateValue.related_foreign_keys.push self.name.foreign_key
+
+    has_many :alternate_values, as: :alternate_value_object, validate: true, dependent: :destroy
+    accepts_nested_attributes_for :alternate_values
   end
 
   def alternate_valued?
     self.alternate_values.any?
   end
 
-
-  #returns a sorted Array of associated values
+  # @return [Array]
+  #   a sorted Array of associated values
+  #   eg. returns self.name from otu.all_values_for(name)
   # @param attr [Symbol]
   def all_values_for(attr)
-    # eg. returns self.name from otu.all_values_for(name)
     values = [self.send(attr)]
     if alternate_valued?
       alternate_values.each do |v|
@@ -26,7 +29,7 @@ module Shared::AlternateValues
   end
 
   module ClassMethods
-
+    
     # @return [Scope]
     # @param [:symbol] the column name/attribute
     # @param [String, Integer, etc] the value to look for
@@ -53,5 +56,4 @@ module Shared::AlternateValues
     end
 
   end
-
 end

@@ -1,5 +1,3 @@
-require_relative 'config/initialization_constants' 
-
 # Helpers for controller specs (typically those automatically generated).
 # 
 # These methods should be used within a before(:each) block.
@@ -61,7 +59,8 @@ module ControllerSpecHelper
   def sign_in_user
     remember_token = User.secure_random_token
     cookies.permanent[:remember_token] = remember_token
-    User.find(1).update_attribute(:remember_token, User.encrypt(remember_token)) 
+    User.find(1).update_attribute(:remember_token, User.encrypt(remember_token))
+    set_user_project(1, nil)
   end
 
 end

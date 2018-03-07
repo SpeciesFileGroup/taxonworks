@@ -1,0 +1,27 @@
+<% subject_sequence = Sequence.find(@sequence_relationship.subject_sequence_id) %>
+<% object_sequence = Sequence.find(@sequence_relationship.object_sequence_id) %>
+
+<p>
+  <strong>Subject sequence:</strong>
+  <%= sequence_link(subject_sequence) %>
+</p>
+
+<p>
+  <strong>Subject sequence type:</strong>
+  <%= subject_sequence.sequence_type %>
+</p>
+
+<p>
+  <strong>Object sequence:</strong>
+  <%= sequence_link(object_sequence) %>
+</p>
+
+<p>
+  <strong>Object sequence type:</strong>
+  <%= object_sequence.sequence_type %>
+</p>
+
+<p>
+  <strong>Sequence relationship type:</strong>
+  <%= @sequence_relationship.type %>
+</p>

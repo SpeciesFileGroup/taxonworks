@@ -1,4 +1,4 @@
-FROM phusion/passenger-ruby23:0.9.20
+FROM phusion/passenger-ruby24:0.9.25
 MAINTAINER Matt Yoder
 ENV LAST_FULL_REBUILD 2017-03-19
 
@@ -68,6 +68,8 @@ RUN chmod +x /etc/my_init.d/init.sh && \
 RUN chown 9999:9999 /app/public/images/tmp
 
 ENV RAILS_ENV production
+
+CMD ["/sbin/my_init"]
 
 CMD ["/sbin/my_init"]
 

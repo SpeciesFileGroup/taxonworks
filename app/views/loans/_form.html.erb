@@ -95,9 +95,35 @@
       </div>
    </div>
 
-    <div class="item item3">
-      <%= render "/loan_items/loan_item_selector", f: f, loan: @loan %>
-    </div>
+   <div class="item item3">
+     <h3> Add loan items by tag</h3>
+     <% keywords_on_loanable_items.each do |k| %>
+       <h3><%= object_tag(k) %></h3>
+       <% total = 0 %>
+       <% [Otu, CollectionObject, Container].each do |c| -%>
+         <% count = c.joins(:tags).where(tags: {keyword: k}).count %>
+         <% if count > 0 %> 
+           <%= c.name -%> : <%= count -%> 
+           <%= button_tag(:add, class: :add_by_class_button, data: {keyword_id: k.id, klass: c.name, loan_id: @loan.id }) -%> 
+           <%= button_tag(:clear, class: :clear_by_class_button, data: {keyword_id: k.id, klass: c.name, loan_id: @loan.id }) -%> <br/> 
+           <% total += count %>
+         <% end %>
+
+       <% end %>
+       <% if total > 0 %>
+         Add to loan all <%= total -%>, and their contents where applicable.
+         <%= button_tag(:add_all, class: :add_all_button, data: {keyword_id: k.id, loan_id: @loan.id }) -%><br>
+       <% end %>
+     <% end %>
+
+     <h3> Add loan items by pinboard</h3>
+     <% sessions_current_user.pinboard_items.where(project_id: sessions_current_project_id, pinned_object_type: ['Otu', 'Container', 'CollectionObject']).each do |group| -%>
+       <%= group -%>
+     <% end %>
+
+     <%= render "/loan_items/loan_item_selector", f: f, loan: @loan %>  
+   </div>
+
   </div>
 
   <div class="actions">

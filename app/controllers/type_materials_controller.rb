@@ -6,8 +6,15 @@ class TypeMaterialsController < ApplicationController
   # GET /type_materials
   # GET /type_materials.json
   def index
-    @recent_objects = TypeMaterial.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = TypeMaterial.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @type_materials = TypeMaterial.where(filter_params).with_project_id(sessions_current_project_id)
+      }
+    end
   end
 
   # GET /type_materials/1
@@ -32,7 +39,7 @@ class TypeMaterialsController < ApplicationController
 
     respond_to do |format|
       if @type_material.save
-        msg = "Type material (#{@type_material.type_type}) " +
+        msg = "Type material (#{@type_material.type_type}) " \
             "for #{@type_material.protonym.cached} was successfully created."
         format.html { redirect_to @type_material,
                                   notice: msg }
@@ -85,28 +92,40 @@ class TypeMaterialsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # GET /type_materials/download
   def download
-    send_data TypeMaterial.generate_download(TypeMaterial.where(project_id: $project_id)), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(TypeMaterial.where(project_id: sessions_current_project_id)), type: 'text', filename: "type_materials_#{DateTime.now}.csv"
   end
 
+  def type_types
+    render json: {
+      icn: TypeMaterial::ICN_TYPES.inject({}){|hsh, k| hsh.merge!(k[0] =>  k[1].name)},
+      iczn: TypeMaterial::ICZN_TYPES.inject({}){|hsh, k| hsh.merge!(k[0] => k[1].name)}
+    }
+  end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
+
+  def filter_params
+    params.permit(:protonym_id, :biological_object_id, :type_type)
+  end
+
   def set_type_material
-    @type_material = TypeMaterial.with_project_id($project_id).find(params[:id])
+    @type_material = TypeMaterial.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @type_material
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def type_material_params
     params.require(:type_material).permit(
         :protonym_id, :biological_object_id, :type_type,
         roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
-        origin_citation_attributes: [:id, :_destroy, :source_id] 
-    ) 
+        origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
+        material_attributes: [
+          :id, :buffered_collecting_event, :buffered_other_labels, :buffered_determinations,
+          :total, :collecting_event_id, :preparation_type_id, :repository_id]
+    )
   end
 end

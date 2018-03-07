@@ -1,4 +1,4 @@
-class CreateBiologicalAssociationsBiologicalAssociationsGraphs < ActiveRecord::Migration
+class CreateBiologicalAssociationsBiologicalAssociationsGraphs < ActiveRecord::Migration[4.2]
   def change
     create_table :biological_associations_biological_associations_graphs do |t|
       t.references :biological_association_graph # TODO: add migration with index names 

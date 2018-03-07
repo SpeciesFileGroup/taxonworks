@@ -77,8 +77,7 @@ Object.assign(TW.views.shared.quick_bar, {
 	
 });
 
-$(document).ready( function() {
-	var init_quickBar = TW.views.shared.quick_bar;
-	init_quickBar.init_quickBar();
+$(document).on('turbolinks:load', function() {
+	TW.views.shared.quick_bar.init_quickBar();
 });
 

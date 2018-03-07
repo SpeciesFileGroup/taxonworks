@@ -3,9 +3,6 @@
 # If you wish to capture verbatim determinations then they should be added to CollectionObject#buffered_determinations,
 # i.e. TaxonDeterminations are fully "normalized".
 #
-# Note: Following line not displayed in Yard (copied here so you can find it in context in the code):
-# @todo factor these out (see also TaxonDetermination, Source::Bibtex)
-#
 # @!attribute biological_collection_object_id
 #   @return [Integer]
 #   BiologicalCollectionObject, the object being determined
@@ -17,7 +14,7 @@
 # @!attribute position
 #   @return [Integer]
 #     for acts_as_list, !! the determinations with the smallest position is the current/preferred determination,
-#     i.e. the one that you want to be seen for the collection object, it is NOT necessarily the most recent 
+#     i.e. the one that you want to be seen for the collection object, it is NOT necessarily the most recent
 #     determination made
 #
 # @!attribute project_id
@@ -26,68 +23,56 @@
 #
 # @!attribute year_made
 #   @return [Integer]
-#   the year the determination was made, abbreviations like '02' are allowed
-#   @todo this column used to be a String; would '02' be a legitimate Integer value?
+#     the 4 digit year the determination was made
 #
 # @!attribute month_made
 #   @return [Integer]
-#   the month the determination was made. Literal values like Roman Numerals, abbreviations ('Jan.') etc. are allowed, but not all forms can be interpreted.
-#   @todo this column used to be a String; I don't think Roman numerals or abbreviations could be entered any longer
+#     the month the determination was made
 #
 # @!attribute day_made
 #   @return [Integer]
 #   the day of the month the determination was made
 #
-class TaxonDetermination < ActiveRecord::Base
+class TaxonDetermination < ApplicationRecord
   acts_as_list scope: [:biological_collection_object_id]
 
   include Housekeeping
-  include Shared::Citable
+  include Shared::Citations
+  include Shared::DataAttributes
+  include Shared::Notes
+  include Shared::Confidences
   include Shared::HasRoles
   include Shared::IsData
 
   belongs_to :otu, inverse_of: :taxon_determinations
-  belongs_to :biological_collection_object, class_name: 'CollectionObject', inverse_of: :taxon_determinations
+  belongs_to :biological_collection_object, class_name: 'CollectionObject', inverse_of: :taxon_determinations, foreign_key: :biological_collection_object_id
 
   has_many :determiner_roles, class_name: 'Determiner', as: :role_object
   has_many :determiners, through: :determiner_roles, source: :person
 
-  accepts_nested_attributes_for :determiners, :biological_collection_object, :determiner_roles, allow_destroy: true
-  accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank?  }
+  # validates :biological_collection_object, presence: true
+  # validates :otu, presence: true # TODO - probably bad, and preventing nested determinations, should just use DB validation
 
-  validates :biological_collection_object, presence: true
-  validates :otu, presence: true # TODO - probably bad, and preventing nested determinations, should just use DB validation
+  accepts_nested_attributes_for :determiners 
+  accepts_nested_attributes_for :determiner_roles, allow_destroy: true
 
-  # @todo factor these out (see also TaxonDetermination, Source::Bibtex)
-  validates_numericality_of :year_made,
-                            only_integer:          true,
-                            greater_than:          1757,
-                            less_than_or_equal_to: Time.now.year,
-                            allow_nil:             true,
-                            message:               ' must be a 4 digit integer greater than 1757'
-  validates_inclusion_of :month_made,
-                         in:        1..12,
-                         allow_nil: true,
-                         message:   ' is not an integer from 1-12'
-  validates_numericality_of :day_made,
-                            unless:                'year_made.nil? || month_made.nil? || ![*(1..12)].include?(month_made)',
-                            allow_nil:             true,
-                            only_integer:          true,
-                            greater_than:          0,
-                            less_than:             32,
-                            less_than_or_equal_to: Proc.new { |a| Time.utc(a.year_made, a.month_made).end_of_month.day },
-                            message:               '%{value} is not valid for the month provided'
+  # accepts_nested_attributes_for :biological_collection_object
+  accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: :reject_otu 
+
+  validates :year_made, date_year: { min_year: 1757, max_year: Time.now.year }
+  validates :month_made, date_month: true
+  validates :day_made, date_day: {year_sym: :year_made, month_sym: :month_made}, unless: -> {year_made.nil? || month_made.nil?}
 
   before_save :set_made_fields_if_not_provided
   after_create :sort_to_top
 
-  def sort_to_top 
+  def sort_to_top
     reload
     self.move_to_top
   end
 
   def date
-    [year_made, month_made, day_made].compact.join("-")
+    [year_made, month_made, day_made].compact.join('-')
   end
 
   def sort_date
@@ -111,12 +96,17 @@ class TaxonDetermination < ActiveRecord::Base
 
   protected
 
+  def reject_otu(attributed)
+    attributed['name'].blank? && attributed['taxon_name_id'].blank?
+  end
+
   def set_made_fields_if_not_provided
     if self.year_made.blank? && self.month_made.blank? && self.day_made.blank?
       self.year_made  = Time.now.year
       self.month_made = Time.now.month
       self.day_made   = Time.now.day
     end
+    true
   end
 
 end

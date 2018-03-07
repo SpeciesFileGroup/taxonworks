@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'People', :type => :feature do
+describe 'People', type: :feature do
   let(:page_title) { 'People' }
   let(:index_path) { people_path }
 
@@ -9,7 +9,7 @@ describe 'People', :type => :feature do
   context 'signed in as user, with some records created' do
     before do
       sign_in_user_and_select_project
-      5.times { factory_girl_create_for_user(:valid_person, @user) }
+      5.times { factory_bot_create_for_user(:valid_person, @user) }
     end
 
     describe 'GET /people' do

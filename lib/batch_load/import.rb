@@ -97,7 +97,7 @@ module BatchLoad
                                                 lambda { |h| h.strip },
                                                 lambda { |h| user_map(h) }],
                             col_sep:           "\t",
-                            encoding:          "UTF-8"})
+                            encoding:          'UTF-8'})
 
 
           #  rescue Encoding::UndefinedConversionError => e
@@ -161,8 +161,8 @@ module BatchLoad
       @create_attempted = true
       if ready_to_create?
         # TODO: (additional!?) enumerate order per klass for save off
-        sorted_processed_rows.each do |i, rp|
-          rp.objects.each do |object_type, objs|
+        sorted_processed_rows.each_value do |rp|
+          rp.objects.each_value do |objs|
             objs.each do |o|
               o.save
             end

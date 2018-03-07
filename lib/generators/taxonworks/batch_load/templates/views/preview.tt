@@ -3,7 +3,7 @@
 <%% end %>
 
 <%%= content_for :batch_form do -%>
-  <%%= render partial: '/<%= model_path_prefix %>/batch_load/<%= name %>/form', locals: {url: create_<%= name %>_batch_load_<%= model_path_prefix %>_path, submit: :create} -%>
+  <%%= render partial: '/<%= table_name %>/batch_load/<%= batch_loader_name %>/form', locals: {url: <%= create_url %>, submit: :create} -%>
 <%% end %>
 
 <%%= content_for :line_breakdown do -%>
@@ -13,6 +13,7 @@
       <th class="four_character_width">data count</th>
       <th> name(s) </th>
       <th class=""> data errors* </th>
+      <th class=""> parse errors </th>
     </tr>
 
     <%% @result.sorted_processed_rows.each do |i, rp| -%>
@@ -22,16 +23,11 @@
         <td>
           <%%= 'EXAMPLE' -%>
         </td> 
-
-        <td>
-          <%%= 'EXAMPLE' -%>
-        </td> 
-
+        <%%= batch_data_errors_td(rp) -%>
+        <%%= batch_parse_errors_td(rp) -%>
       </tr>
     <%% end -%> 
   </table>
 <%% end %>
 
-
 <%%= render partial: '/shared/data/all/batch_load/preview' -%>
-

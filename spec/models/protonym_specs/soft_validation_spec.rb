@@ -21,11 +21,11 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   let(:protonym) { Protonym.new }
 
   #TODO citeproc gem doesn't currently support lastname without firstname
-  let(:source) { FactoryGirl.create(:valid_source_bibtex, year: 1940, author: 'Dmitriev, D.')   }
+  let(:source) { FactoryBot.create(:valid_source_bibtex, year: 1940, author: 'Dmitriev, D.')   }
 
   context 'soft_validation' do
     before(:each) do
-      @subspecies = FactoryGirl.create(:iczn_subspecies)
+      @subspecies = FactoryBot.create(:iczn_subspecies)
 
       @kingdom = @subspecies.ancestor_at_rank('kingdom')
       @family = @subspecies.ancestor_at_rank('family')
@@ -55,7 +55,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     context 'valid parent rank' do
       before {
-        @variety = FactoryGirl.create(:icn_variety)
+        @variety = FactoryBot.create(:icn_variety)
       }
 
       specify 'parent rank should be valid' do
@@ -67,7 +67,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'invalid parent rank' do
-        t = FactoryGirl.build(:iczn_subgenus, parent: @family)
+        t = FactoryBot.build(:iczn_subgenus, parent: @family)
         t.soft_validate(:validate_parent_rank)
         expect(t.soft_validations.messages_on(:rank_class).empty?).to be_falsey
       end
@@ -75,7 +75,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     context 'year and source do not match' do
       specify 'A taxon had not been described at the date of the reference' do
-        p = FactoryGirl.build(:relationship_species, name: 'aus', year_of_publication: 1940, source: source, parent: @genus)
+        p = FactoryBot.build(:relationship_species, name: 'aus', year_of_publication: 1940, source: source, parent: @genus)
         p.soft_validate(:dates)
         expect(p.soft_validations.messages_on(:base).empty?).to be_truthy
         p.year_of_publication = 2000
@@ -85,7 +85,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     context 'missing_fields' do
-      specify "source author, year are missing" do
+      specify 'source author, year are missing' do
         @species.soft_validate(:missing_fields)
         expect(@species.soft_validations.messages_on(:base).empty?).to be_truthy
         expect(@species.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
@@ -101,7 +101,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     context 'coordinated taxa' do
       context 'mismatching author in genus' do
         before do 
-          @sgen = FactoryGirl.create(:iczn_subgenus, verbatim_author: nil, year_of_publication: nil, parent: @genus, source: @genus.source)
+          @sgen = FactoryBot.create(:iczn_subgenus, verbatim_author: nil, year_of_publication: nil, parent: @genus, source: @genus.source)
           @sgen.original_genus = @genus
           @sgen.save!
           @genus.reload
@@ -144,8 +144,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'mismatching author, year and type genus in family' do
-        tribe = FactoryGirl.create(:iczn_tribe, name: 'Typhlocybini', verbatim_author: nil, year_of_publication: nil, parent: @subfamily)
-        genus = FactoryGirl.create(:relationship_genus, verbatim_author: 'Dmitriev', name: 'Typhlocyba', year_of_publication: 2013, parent: tribe)
+        tribe = FactoryBot.create(:iczn_tribe, name: 'Typhlocybini', verbatim_author: nil, year_of_publication: nil, parent: @subfamily)
+        genus = FactoryBot.create(:relationship_genus, verbatim_author: 'Dmitriev', name: 'Typhlocyba', year_of_publication: 2013, parent: tribe)
         @subfamily.type_genus = genus
         expect(@subfamily.save).to be_truthy
         @subfamily.soft_validate(:validate_coordinated_names)
@@ -170,9 +170,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'mismatching author and year in incorrect_original_spelling' do
-        s1 = FactoryGirl.create(:relationship_species, name: 'aus', verbatim_author: 'Dmitriev', year_of_publication: 2000, parent: @genus)
-        s2 = FactoryGirl.create(:relationship_species, name: 'bus', verbatim_author: nil, year_of_publication: nil, parent: @genus)
-        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s2, object_taxon_name: s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling')
+        s1 = FactoryBot.create(:relationship_species, name: 'aus', verbatim_author: 'Dmitriev', year_of_publication: 2000, parent: @genus)
+        s2 = FactoryBot.create(:relationship_species, name: 'bus', verbatim_author: nil, year_of_publication: nil, parent: @genus)
+        r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s2, object_taxon_name: s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling')
         s2.soft_validate(:validate_coordinated_names)
         #author in species and incorrect original spelling are different
         expect(s2.soft_validations.messages_on(:verbatim_author).size).to eq(1)
@@ -186,8 +186,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
       context 'mismatching type specimens' do
         before do
-          @ssp1 = FactoryGirl.create(:iczn_subspecies, name: 'vitis', parent: @species)
-          type_material = FactoryGirl.create(:valid_type_material, protonym: @ssp1)
+          @ssp1 = FactoryBot.create(:iczn_subspecies, name: 'vitis', parent: @species)
+          type_material = FactoryBot.create(:valid_type_material, protonym: @ssp1)
           @species.soft_validate(:validate_coordinated_names)
           @ssp1.soft_validate(:validate_coordinated_names)
         end
@@ -215,8 +215,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         #missign type genus
         @subfamily.soft_validate(:missing_relationships)
         expect(@subfamily.soft_validations.messages_on(:base).size).to eq(1)
-        g = FactoryGirl.create(:iczn_genus, name: 'Typhlocyba', parent: @subfamily)
-        r = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @subfamily, type: 'TaxonNameRelationship::Typification::Family' )
+        g = FactoryBot.create(:iczn_genus, name: 'Typhlocyba', parent: @subfamily)
+        r = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @subfamily, type: 'TaxonNameRelationship::Typification::Family' )
         @subfamily.soft_validate
         expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_falsey
         @subfamily.fix_soft_validations
@@ -229,7 +229,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       specify 'only one subtribe in a tribe' do
         @subtribe.soft_validate(:single_sub_taxon)
         expect(@subtribe.soft_validations.messages_on(:base).empty?).to be_falsey
-        other_subtribe = FactoryGirl.create(:iczn_subtribe, name: 'Aina', parent: @tribe)
+        other_subtribe = FactoryBot.create(:iczn_subtribe, name: 'Aina', parent: @tribe)
         expect(other_subtribe.valid?).to be_truthy
         @subtribe.reload
         @subtribe.type_genus = @genus
@@ -250,8 +250,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(@species.soft_validations.messages_on(:base).size).to eq(1)
       end
       specify 'more than one type is selected' do
-        t1 = FactoryGirl.create(:valid_type_material, protonym: @species, type_type: 'neotype')
-        t2 = FactoryGirl.create(:valid_type_material, protonym: @species, type_type: 'holotype')
+        t1 = FactoryBot.create(:valid_type_material, protonym: @species, type_type: 'neotype')
+        t2 = FactoryBot.create(:valid_type_material, protonym: @species, type_type: 'holotype')
         @species.soft_validate(:primary_types)
         expect(@species.soft_validations.messages_on(:base).size).to eq(1)
       end
@@ -261,7 +261,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       specify 'gender of genus is not selected' do
         @genus.soft_validate(:missing_classifications)
         expect(@genus.soft_validations.messages_on(:base).size).to eq(1)
-        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
+        c1 = FactoryBot.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
         @genus.soft_validate(:missing_classifications)
         expect(@genus.soft_validations.messages_on(:base).empty?).to be_truthy
       end
@@ -269,19 +269,19 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       specify 'part of speech of species is not selected' do
         @species.soft_validate(:missing_classifications)
         expect(@species.soft_validations.messages_on(:base).size).to eq(1)
-        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Latinized::PartOfSpeech::NounInApposition')
+        c1 = FactoryBot.create(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Latinized::PartOfSpeech::NounInApposition')
         @species.soft_validate(:missing_classifications)
         expect(@species.soft_validations.messages_on(:base).empty?).to be_truthy
       end
 
       specify 'possible gender' do
-        g = FactoryGirl.create(:relationship_genus, name: 'Cyclops', parent: @family)
+        g = FactoryBot.create(:relationship_genus, name: 'Cyclops', parent: @family)
         g.soft_validate(:missing_classifications)
         expect(g.soft_validations.messages_on(:base).first =~ /masculine/).to be_truthy
       end
 
       specify 'missing alternative spellings for species participle' do
-        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Participle')
+        c1 = FactoryBot.create(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Participle')
         @species.soft_validate(:species_gender_agreement)
         expect(@species.soft_validations.messages_on(:masculine_name).size).to eq(0)
         expect(@species.soft_validations.messages_on(:feminine_name).size).to eq(0)
@@ -298,17 +298,17 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'unnecessary alternative spellings for species noun' do
-        s = FactoryGirl.create(:relationship_species, parent: @genus, masculine_name: 'foo', feminine_name: 'foo', neuter_name: 'foo')
-        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase')
+        s = FactoryBot.create(:relationship_species, parent: @genus, masculine_name: 'foo', feminine_name: 'foo', neuter_name: 'foo')
+        c1 = FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase')
         s.soft_validate(:species_gender_agreement)
         expect(s.soft_validations.messages_on(:masculine_name).size).to eq(1)
         expect(s.soft_validations.messages_on(:feminine_name).size).to eq(1)
         expect(s.soft_validations.messages_on(:neuter_name).size).to eq(1)
       end
 
-      specify 'unproper noun names' do
-        s = FactoryGirl.create(:relationship_species, parent: @genus, masculine_name: 'vita', feminine_name: 'vitus', neuter_name: 'viter')
-        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+      specify 'unproper noun names (endings incorrect)' do
+        s = FactoryBot.create(:relationship_species, parent: @genus, masculine_name: 'vita', feminine_name: 'vitus', neuter_name: 'viter')
+        c1 = FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
         s.soft_validate(:species_gender_agreement)
         expect(s.soft_validations.messages_on(:masculine_name).size).to eq(1)
         expect(s.soft_validations.messages_on(:feminine_name).size).to eq(1)
@@ -316,8 +316,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'proper noun names' do
-        s = FactoryGirl.create(:relationship_species, parent: @genus, masculine_name: 'niger', feminine_name: 'nigra', neuter_name: 'nigrum')
-        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+        s = FactoryBot.create(:relationship_species, parent: @genus, masculine_name: 'niger', feminine_name: 'nigra', neuter_name: 'nigrum')
+        c1 = FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
         s.soft_validate(:species_gender_agreement)
         expect(s.soft_validations.messages_on(:masculine_name).empty?).to be_truthy
         expect(s.soft_validations.messages_on(:feminine_name).empty?).to be_truthy
@@ -325,9 +325,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'species matches genus' do
-        s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'niger')
-        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
-        c2 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+        s = FactoryBot.create(:relationship_species, parent: @genus, name: 'niger')
+        c1 = FactoryBot.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
+        c2 = FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
         s.soft_validate(:species_gender_agreement)
         expect(s.soft_validations.messages_on(:name).size).to eq(0)
         s.feminine_name = nil
@@ -341,7 +341,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     context 'problematic relationships' do
       specify 'missing type genus genus' do
-        gen = FactoryGirl.create(:iczn_genus, name: 'Cus', parent: @family)
+        gen = FactoryBot.create(:iczn_genus, name: 'Cus', parent: @family)
         @family.soft_validate(:missing_relationships)
         @family.type_genus = gen
         expect(@family.save).to be_truthy
@@ -350,11 +350,11 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'type genus in wrong subfamily' do
-        other_subfamily = FactoryGirl.create(:iczn_subfamily, name: 'Cinae', parent: @family)
-        gen = FactoryGirl.create(:iczn_genus, name: 'Cus', parent: other_subfamily)
-        gen_syn = FactoryGirl.create(:iczn_genus, name: 'Dus', parent: other_subfamily)
-        r = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: other_subfamily, type: 'TaxonNameRelationship::Typification::Family' )
-        r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: gen_syn, object_taxon_name: gen, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym' )
+        other_subfamily = FactoryBot.create(:iczn_subfamily, name: 'Cinae', parent: @family)
+        gen = FactoryBot.create(:iczn_genus, name: 'Cus', parent: other_subfamily)
+        gen_syn = FactoryBot.create(:iczn_genus, name: 'Dus', parent: other_subfamily)
+        r = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: other_subfamily, type: 'TaxonNameRelationship::Typification::Family' )
+        r2 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: gen_syn, object_taxon_name: gen, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym' )
         expect(r.save).to be_truthy
         other_subfamily.reload
         @genus.reload
@@ -394,7 +394,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'incertae sedis' do
-        species = FactoryGirl.create(:relationship_species, parent: @family)
+        species = FactoryBot.create(:relationship_species, parent: @family)
         expect(species.valid?).to be_truthy
         species.soft_validate(:validate_parent_rank)
         expect(species.soft_validations.messages_on(:rank_class).size).to eq(1)
@@ -407,7 +407,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'parent priority' do
-        subgenus = FactoryGirl.create(:iczn_subgenus, year_of_publication: 1758, source: nil, parent: @genus)
+        subgenus = FactoryBot.create(:iczn_subgenus, year_of_publication: 1758, source: nil, parent: @genus)
         subgenus.soft_validate(:parent_priority)
         expect(subgenus.soft_validations.messages_on(:base).size).to eq(1)
         subgenus.year_of_publication = 2000
@@ -446,10 +446,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     context 'missing synonym relationship' do
 
       specify 'same type species' do
-        msg = "Missing relationship: genus <i>Aus</i> should be a synonym of <i>Bus</i> Say, 1850 since they share the same type"
-        g1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
-        g2 = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family)
-        s1 = FactoryGirl.create(:relationship_species, name: 'cus', parent: g1)
+        msg = 'Missing relationship: genus <i>Aus</i> should be a synonym of <i>Bus</i> Say, 1850 since they share the same type'
+        g1 = FactoryBot.create(:relationship_genus, name: 'Aus', parent: @family)
+        g2 = FactoryBot.create(:relationship_genus, name: 'Bus', parent: @family)
+        s1 = FactoryBot.create(:relationship_species, name: 'cus', parent: g1)
         g1.type_species = s1
         g2.type_species = s1
         expect(g1.save).to be_truthy
@@ -469,10 +469,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
       
       specify 'same type specimen' do
-        s1 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
-        s2 = FactoryGirl.create(:relationship_species, name: 'cus', parent: @genus)
-        t1 = FactoryGirl.create(:valid_type_material, protonym: s1, type_type: 'holotype')
-        t2 = FactoryGirl.create(:valid_type_material, protonym: s2, type_type: 'neotype', biological_object_id: t1.biological_object_id)
+        s1 = FactoryBot.create(:relationship_species, name: 'bus', parent: @genus)
+        s2 = FactoryBot.create(:relationship_species, name: 'cus', parent: @genus)
+        t1 = FactoryBot.create(:valid_type_material, protonym: s1, type_type: 'holotype')
+        t2 = FactoryBot.create(:valid_type_material, protonym: s2, type_type: 'neotype', biological_object_id: t1.biological_object_id)
         expect(s1.save).to be_truthy
         expect(s2.save).to be_truthy
         s1.soft_validate(:homotypic_synonyms)
@@ -487,38 +487,38 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'primary homonym' do
-        s1 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
-        s2 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
+        s1 = FactoryBot.create(:relationship_species, name: 'bus', parent: @genus)
+        s2 = FactoryBot.create(:relationship_species, name: 'bus', parent: @genus)
         s1.original_genus = @genus
         s2.original_genus = @genus
         expect(s1.save).to be_truthy
         expect(s2.save).to be_truthy
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).size).to eq(1)
-        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClassification::Iczn::Unavailable, taxon_name: s1)
+        FactoryBot.create(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Unavailable', taxon_name: s1)
         expect(s1.save).to be_truthy
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).empty?).to be_truthy
       end
 
       specify 'primary homonym with alternative spelling' do
-        s1 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
-        s2 = FactoryGirl.create(:relationship_species, name: 'ba', parent: @genus)
+        s1 = FactoryBot.create(:relationship_species, name: 'bus', parent: @genus)
+        s2 = FactoryBot.create(:relationship_species, name: 'ba', parent: @genus)
         s1.original_genus = @genus
         s2.original_genus = @genus
         expect(s1.save).to be_truthy
         expect(s2.save).to be_truthy
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).size).to eq(1)
-        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClassification::Iczn::Unavailable, taxon_name: s1)
+        FactoryBot.create(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Unavailable', taxon_name: s1)
         expect(s1.save).to be_truthy
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).empty?).to be_truthy
       end
       
       specify 'secondary homonym' do
-        s1 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
-        s2 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
+        s1 = FactoryBot.create(:relationship_species, name: 'bus', parent: @genus)
+        s2 = FactoryBot.create(:relationship_species, name: 'bus', parent: @genus)
         expect(s1.save).to be_truthy
         expect(s2.save).to be_truthy
         s1.soft_validate(:potential_homonyms)
@@ -529,22 +529,22 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(s1.soft_validations.messages_on(:base).empty?).to be_truthy
       end
       specify 'secondary homonym with alternative spelling' do
-        s1 = FactoryGirl.create(:relationship_species, name: 'bus', parent: @genus)
-        s2 = FactoryGirl.create(:relationship_species, name: 'ba', parent: @genus)
+        s1 = FactoryBot.create(:relationship_species, name: 'bus', parent: @genus)
+        s2 = FactoryBot.create(:relationship_species, name: 'ba', parent: @genus)
         expect(s1.save).to be_truthy
         expect(s2.save).to be_truthy
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).size).to eq(1)
-        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClassification::Iczn::Unavailable, taxon_name: s1)
+        FactoryBot.create(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Unavailable', taxon_name: s1)
         expect(s1.save).to be_truthy
         s1.soft_validate(:potential_homonyms)
         expect(s1.soft_validations.messages_on(:base).empty?).to be_truthy
       end
 
       specify 'genus homonym' do
-        g1 = FactoryGirl.create(:relationship_genus, name: 'Bbbus', parent: @family, year_of_publication: 1900)
-        g2 = FactoryGirl.create(:relationship_genus, name: 'Cccus', parent: @family)
-        g3 = FactoryGirl.create(:iczn_subgenus, name: 'Bbbus', parent: g2, year_of_publication: 1850)
+        g1 = FactoryBot.create(:relationship_genus, name: 'Bbbus', parent: @family, year_of_publication: 1900)
+        g2 = FactoryBot.create(:relationship_genus, name: 'Cccus', parent: @family)
+        g3 = FactoryBot.create(:iczn_subgenus, name: 'Bbbus', parent: g2, year_of_publication: 1850)
         expect(g1.save).to be_truthy
         expect(g2.save).to be_truthy
         expect(g3.save).to be_truthy
@@ -557,9 +557,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'family homonym alternative spelling' do
-        f1 = FactoryGirl.create(:relationship_family, name: 'Bbbidae', parent: @kingdom, year_of_publication: 1900)
-        f2 = FactoryGirl.create(:relationship_family, name: 'Cccidae', parent: @kingdom)
-        f3 = FactoryGirl.create(:iczn_subfamily, name: 'Bbbinae', parent: f2, year_of_publication: 1800)
+        f1 = FactoryBot.create(:relationship_family, name: 'Bbbidae', parent: @kingdom, year_of_publication: 1900)
+        f2 = FactoryBot.create(:relationship_family, name: 'Cccidae', parent: @kingdom)
+        f3 = FactoryBot.create(:iczn_subfamily, name: 'Bbbinae', parent: f2, year_of_publication: 1800)
         expect(f1.save).to be_truthy
         expect(f2.save).to be_truthy
         expect(f3.save).to be_truthy
@@ -572,9 +572,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'homonym without replacement name' do
-        g1 = FactoryGirl.create(:relationship_genus, name: 'Bbbus', parent: @family, year_of_publication: 1900)
-        g2 = FactoryGirl.create(:relationship_genus, name: 'Cccus', parent: @family)
-        g3 = FactoryGirl.create(:iczn_subgenus, name: 'Bbbus', parent: g2, year_of_publication: 1850)
+        g1 = FactoryBot.create(:relationship_genus, name: 'Bbbus', parent: @family, year_of_publication: 1900)
+        g2 = FactoryBot.create(:relationship_genus, name: 'Cccus', parent: @family)
+        g3 = FactoryBot.create(:iczn_subgenus, name: 'Bbbus', parent: g2, year_of_publication: 1850)
         g3.type_species = @species
         g3.iczn_set_as_homonym_of = g1
         expect(g3.save).to be_truthy
@@ -587,9 +587,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'missing original combination relationships to self' do
-        g = FactoryGirl.create(:relationship_genus)
-        s1 = FactoryGirl.create(:relationship_species, parent: g)
-        s2 = FactoryGirl.create(:relationship_species, parent: g)
+        g = FactoryBot.create(:relationship_genus)
+        s1 = FactoryBot.create(:relationship_species, parent: g)
+        s2 = FactoryBot.create(:relationship_species, parent: g)
         s1.soft_validate(:original_combination_relationships)
         expect(s1.soft_validations.messages_on(:base).empty?).to be_truthy
         TaxonNameRelationship.create(subject_taxon_name: g, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
@@ -610,13 +610,13 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     context 'fossils' do
       specify 'extinct genus with extant species' do
-        g = FactoryGirl.create(:relationship_genus)
-        s = FactoryGirl.create(:relationship_species, parent: g)
-        FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Fossil')
+        g = FactoryBot.create(:relationship_genus)
+        s = FactoryBot.create(:relationship_species, parent: g)
+        FactoryBot.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Fossil')
         g.reload
         g.soft_validate(:extant_children)
         expect(g.soft_validations.messages_on(:base).size).to eq(1)
-        FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Fossil')
+        FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Fossil')
         g.reload
         g.soft_validate(:extant_children)
         expect(g.soft_validations.messages_on(:base).empty?).to be_truthy

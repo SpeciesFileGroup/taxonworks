@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Confidences', type: :feature, group: :annotations do
+describe 'Confidences', type: :feature, group: :annotators do
   let(:index_path) { confidences_path }
   let(:page_title) { 'Confidences' }
 
@@ -8,6 +8,7 @@ describe 'Confidences', type: :feature, group: :annotations do
 
   context 'signed in as a user, with some records created' do
     before do
+      # TODO: Fix occasional "Capybara::ElementNotFound: Unable to find field "session_email" with id session_email"
       sign_in_user_and_select_project
     end
 
@@ -16,10 +17,10 @@ describe 'Confidences', type: :feature, group: :annotations do
     let!(:confidence_levels) do
       confidence_levels = []
       ['Sure', 'Maybe', 'No!'].each do |n|
-        confidence_levels.push ConfidenceLevel.create!(name: n, definition: "Really, #{n}.", by: @user, project: @project) 
+        confidence_levels.push ConfidenceLevel.create!(name: n, definition: "Really, #{n}, the extreme edition.", by: @user, project: @project)
       end
       confidence_levels
-    end 
+    end
 
     let!(:confidences) do
       confidences = []
@@ -43,26 +44,24 @@ describe 'Confidences', type: :feature, group: :annotations do
       before { visit otu_path(o) }
 
       context 'using the annotation menu' do
-        before do
-          find('#show_annotate_dropdown').hover
-          click_link 'Add confidence'
+      # TODO: test radial menu'
+      # before do
+      #   find('#show_annotate_dropdown').hover
+      #   click_link 'Add confidence'
 
-          fill_autocomplete_and_select('confidence_level_picker_autocomplete',
-                                       object_type: 'confidence-level',
-                                       with: confidence_levels[2].name,
-                                       select_id: confidence_levels[2].id)
-          click_button('Update')
-          expect(page).to have_text('Successfully updated record.')
-        end
+      #   fill_autocomplete_and_select('confidence_level_picker_autocomplete',
+      #                                object_type: 'confidence-level',
+      #                                with: confidence_levels[2].name,
+      #                                select_id: confidence_levels[2].id)
+      #   click_button('Update')
+      #   expect(page).to have_text('Successfully updated record.')
+      # end
 
-        specify 'confidence is added', js: true do
-          expect(o.confidence_levels).to contain_exactly(*confidence_levels)
-        end
+      # specify 'confidence is added', js: true do
+      #   expect(o.confidence_levels).to contain_exactly(*confidence_levels)
+      # end
       end
     end
 
   end
 end
-
-
-

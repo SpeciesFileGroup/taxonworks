@@ -1,4 +1,4 @@
-# A ProjectSource links sources to projects. 
+# A ProjectSource links sources to projects.
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -6,11 +6,11 @@
 #
 # @!attribute source_id
 #   @return [Integer]
-#     the source  
+#     the source
 #
-class ProjectSource < ActiveRecord::Base
+class ProjectSource < ApplicationRecord
   include Housekeeping
-  include Shared::IsData 
+  include Shared::IsData
 
   belongs_to :project, inverse_of: :project_sources
   belongs_to :source, inverse_of: :project_sources

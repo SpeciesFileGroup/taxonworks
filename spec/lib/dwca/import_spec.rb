@@ -27,7 +27,7 @@ describe Dwca::Import do
   context 'TW objects' do
     specify 'Dwc::Import::TwObjects' do
       d = Dwca::Import::TwObjects.new
-      Dwca::Import::DWC2TW.keys.each do |m|
+      Dwca::Import::DWC2TW.each_key do |m|
         expect(d).to respond_to("#{m}s".to_sym)
       end
     end
@@ -53,7 +53,7 @@ describe Dwca::Import do
     end
 
     specify 'field_index' do
-      expect(manager.field_index["http://rs.tdwg.org/dwc/terms/samplingProtocol"]).to eq(1)
+      expect(manager.field_index['http://rs.tdwg.org/dwc/terms/samplingProtocol']).to eq(1)
     end
 
     specify 'cell' do

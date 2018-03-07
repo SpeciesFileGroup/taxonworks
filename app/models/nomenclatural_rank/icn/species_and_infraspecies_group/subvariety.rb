@@ -9,6 +9,6 @@ class NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Subvariety < Nomencla
   end
 
   def self.abbreviation
-    "subvar."
+    'subvar.'
   end
 end

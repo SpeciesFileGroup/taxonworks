@@ -68,10 +68,10 @@ module Tasks::Gis::LocalityHelper
     distance = collecting_event_1.distance_to(collecting_event_2.preferred_georeference.geographic_item_id).round # to the nearest meter
     case
       when distance >= 1000.0
-        metric   = "%1.3fkm"
+        metric   = '%1.3fkm'
         distance /= 1000.0
       else
-        metric = "%im"
+        metric = '%im'
     end
     metric % distance
   end

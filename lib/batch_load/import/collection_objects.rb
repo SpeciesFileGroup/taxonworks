@@ -182,11 +182,11 @@ module BatchLoad
     def test_build
       file_name = 'spec/files/batch/collection_object/CollectionObjectTest.tsvP'
       ns_1      = Namespace.find_by(short_name: 'PSUC')
-      csv1      = CSV.read(file_name, {headers: true, header_converters: :downcase, col_sep: "\t", encoding: "UTF-8"})
+      csv1      = CSV.read(file_name, {headers: true, header_converters: :downcase, col_sep: "\t", encoding: 'UTF-8'})
 
       csv1.each do |row|
         # the following invocation also creates a valid specimen as a collection_object
-        # FactoryGirl.create(:valid_identifier, namespace: ns_1, identifier: ident)
+        # FactoryBot.create(:valid_identifier, namespace: ns_1, identifier: ident)
         co = CollectionObject.new(type: 'Specimen', total: 1, preparation_type_id: 5)
         id = Identifier.new(namespace:  ns_1,
                             type:       'Identifier::Local::CatalogNumber',

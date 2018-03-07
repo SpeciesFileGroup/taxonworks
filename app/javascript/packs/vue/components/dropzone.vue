@@ -1,9 +1,12 @@
 <template>
-  <form :action="url" class="dropzone vue-dropzone" :id="id"></form>
+  <form
+    :action="url"
+    class="dropzone vue-dropzone"
+    :id="id"/>
 </template>
 
 <script>
-export default {
+  export default {
     props: {
       id: {
         type: String,
@@ -51,24 +54,24 @@ export default {
       headers: {
         type: Object
       },
-			language: {
-				type: Object,
-				default: function() {
-					return {
-						dictDefaultMessage: '<br>Drop files here to upload',
-						dictCancelUpload: 'Cancel upload',
-						dictCancelUploadConfirmation: 'Are you sure you want to cancel this upload?',
-						dictFallbackMessage: 'Your browser does not support drag and drop file uploads.',
-						dictFallbackText: 'Please use the fallback form below to upload your files like in the olden days.',
-						dictFileTooBig: 'File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.',
-						dictInvalidFileType: `You can't upload files of this type.`,
-						dictMaxFilesExceeded: 'You can not upload any more files. (max: {{maxFiles}})',
-						dictRemoveFile: 'Remove',
-						dictRemoveFileConfirmation: null,
-						dictResponseError: 'Server responded with {{statusCode}} code.',
-					}
-				}
-			},
+      language: {
+        type: Object,
+        default: function () {
+          return {
+            dictDefaultMessage: '<br>Drop files here to upload',
+            dictCancelUpload: 'Cancel upload',
+            dictCancelUploadConfirmation: 'Are you sure you want to cancel this upload?',
+            dictFallbackMessage: 'Your browser does not support drag and drop file uploads.',
+            dictFallbackText: 'Please use the fallback form below to upload your files like in the olden days.',
+            dictFileTooBig: 'File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.',
+            dictInvalidFileType: `You can't upload files of this type.`,
+            dictMaxFilesExceeded: 'You can not upload any more files. (max: {{maxFiles}})',
+            dictRemoveFile: 'Remove',
+            dictRemoveFileConfirmation: null,
+            dictResponseError: 'Server responded with {{statusCode}} code.'
+          }
+        }
+      },
       useCustomDropzoneOptions: {
         type: Boolean,
         default: false
@@ -96,29 +99,29 @@ export default {
         if (this.useFontAwesome) {
           return '<i class="fa fa-cloud-upload"></i>'
         } else {
-          return  '<i class="material-icons">cloud_upload</i>'
+          return '<i class="material-icons">cloud_upload</i>'
         }
       },
       doneIcon: function () {
         if (this.useFontAwesome) {
           return '<i class="fa fa-check"></i>'
         } else {
-          return  ' <i class="material-icons">done</i>'
+          return ' <i class="material-icons">done</i>'
         }
       },
       errorIcon: function () {
         if (this.useFontAwesome) {
           return '<i class="fa fa-close"></i>'
         } else {
-          return  ' <i class="material-icons">error</i>'
+          return ' <i class="material-icons">error</i>'
         }
       }
     },
-    mounted () {
+    mounted() {
       if (this.$isServer) {
         return
       }
-      Dropzone.autoDiscover = false;
+      Dropzone.autoDiscover = false
       var element = document.getElementById(this.id)
       if (!this.useCustomDropzoneOptions) {
         this.dropzone = new Dropzone(element, {
@@ -132,17 +135,17 @@ export default {
           autoProcessQueue: this.autoProcessQueue,
           headers: this.headers,
           previewTemplate: '<div class="dz-preview dz-file-preview">  <div class="dz-image" style="width:' + this.thumbnailWidth + 'px;height:' + this.thumbnailHeight + 'px"><img data-dz-thumbnail /></div>  <div class="dz-details">    <div class="dz-size"><span data-dz-size></span></div>    <div class="dz-filename"><span data-dz-name></span></div>  </div>  <div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div>  <div class="dz-error-message"><span data-dz-errormessage></span></div>  <div class="dz-success-mark">' + this.doneIcon + ' </div>  <div class="dz-error-mark">' + this.errorIcon + '</div></div>',
-					dictDefaultMessage: this.cloudIcon + this.language.dictDefaultMessage,
-    			dictCancelUpload: this.language.dictCancelUpload,
-    			dictCancelUploadConfirmation: this.language.dictCancelUploadConfirmation,
-    			dictFallbackMessage: this.language.dictFallbackMessage,
-    			dictFallbackText: this.language.dictFallbackText,
-    			dictFileTooBig: this.language.dictFileTooBig,
-    			dictInvalidFileType: this.language.dictInvalidFileType,
-    			dictMaxFilesExceeded: this.language.dictMaxFilesExceeded,
-    			dictRemoveFile: this.language.dictRemoveFile,
-    			dictRemoveFileConfirmation: this.language.dictRemoveFileConfirmation,
-    			dictResponseError: this.language.dictResponseError
+          dictDefaultMessage: this.cloudIcon + this.language.dictDefaultMessage,
+          dictCancelUpload: this.language.dictCancelUpload,
+          dictCancelUploadConfirmation: this.language.dictCancelUploadConfirmation,
+          dictFallbackMessage: this.language.dictFallbackMessage,
+          dictFallbackText: this.language.dictFallbackText,
+          dictFileTooBig: this.language.dictFileTooBig,
+          dictInvalidFileType: this.language.dictInvalidFileType,
+          dictMaxFilesExceeded: this.language.dictMaxFilesExceeded,
+          dictRemoveFile: this.language.dictRemoveFile,
+          dictRemoveFileConfirmation: this.language.dictRemoveFileConfirmation,
+          dictResponseError: this.language.dictResponseError
         })
       } else {
         this.dropzone = new Dropzone(element, this.dropzoneOptions)
@@ -167,18 +170,18 @@ export default {
       this.dropzone.on('error', function (file, error, xhr) {
         vm.$emit('vdropzone-error', file, error, xhr)
       })
-      this.dropzone.on('sending', function(file, xhr, formData){
+      this.dropzone.on('sending', function (file, xhr, formData) {
         vm.$emit('vdropzone-sending', file, xhr, formData)
       })
-      this.dropzone.on('sendingmultiple', function(file, xhr, formData){
+      this.dropzone.on('sendingmultiple', function (file, xhr, formData) {
         vm.$emit('vdropzone-sending-multiple', file, xhr, formData)
       })
-      this.dropzone.on('queuecomplete', function(file, xhr, formData){
+      this.dropzone.on('queuecomplete', function (file, xhr, formData) {
         vm.$emit('vdropzone-queue-complete', file, xhr, formData)
       })
     },
-    beforeDestroy () {
-      this.dropzone.destroy();
+    beforeDestroy() {
+      this.dropzone.destroy()
     }
-  };
+  }
 </script>

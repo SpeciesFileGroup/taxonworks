@@ -96,12 +96,9 @@ Object.assign(TW.views.shared.list, {
     }
   });
 
-  $(document).ready(initContextMenus);
-  $(document).on('page:change', initContextMenus);
-  $(document).ready(headerTableOptions);
-  $(document).on('page:change', headerTableOptions);
-  $(document).ready(orderLists);
-  $(document).on('page:load', orderLists);
+  initContextMenus();
+  headerTableOptions();
+  orderLists();
 
   function orderLists() {
     $("table").tablesorter({
@@ -124,6 +121,9 @@ Object.assign(TW.views.shared.list, {
           case "edit":
             location.href = $(this).find("[data-edit] a").attr('href');
             break;
+          case "pin":
+            $(this).find("[data-pin] a").click();
+            break;
           case "delete":
             $(this).find("[data-delete] a").click();
             break;
@@ -133,6 +133,7 @@ Object.assign(TW.views.shared.list, {
         "show": {name: "Show", icon: "show"},
         "sep1": "---------",
         "edit": {name: "Edit", icon: "edit"},
+        "pin": {name: "Pin/Unpin", icon: "pin"},
         "delete": {name: "Delete", icon: "delete"}
       }
     });
@@ -165,9 +166,8 @@ Object.assign(TW.views.shared.list, {
 }
 });
 
-$(document).ready(function () {
+$(document).on('turbolinks:load', function() {
   if ($("table").length) {
-    var lists = TW.views.shared.list
-    lists.init();
+    TW.views.shared.list.init();
   }
 });

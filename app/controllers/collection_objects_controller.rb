@@ -7,7 +7,7 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects
   # GET /collection_objects.json
   def index
-    @recent_objects = CollectionObject.recent_from_project_id($project_id)
+    @recent_objects = CollectionObject.recent_from_project_id(sessions_current_project_id)
                         .order(updated_at: :desc)
                         .includes(:identifiers, :taxon_determinations)
                         .limit(10)
@@ -17,8 +17,6 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects/1
   # GET /collection_objects/1.json
   def show
-    # TODO: With the separation of images and geo_json, this path is no longer required.
-    @images = params['include'] == ['images'] ? @collection_object.images : nil
   end
 
   # GET /collection_objects/depictions/1
@@ -64,7 +62,7 @@ class CollectionObjectsController < ApplicationController
 
     respond_to do |format|
       if @collection_object.save
-        format.html { redirect_to @collection_object.metamorphosize, notice: 'Collection object was successfully created.' }
+        format.html { redirect_to url_for(@collection_object.metamorphosize), notice: 'Collection object was successfully created.' }
         format.json { render action: 'show', status: :created, location: @collection_object.metamorphosize }
       else
         format.html { render action: 'new' }
@@ -79,11 +77,11 @@ class CollectionObjectsController < ApplicationController
     respond_to do |format|
       if @collection_object.update(collection_object_params)
         @collection_object = @collection_object.metamorphosize
-        format.html { redirect_to @collection_object, notice: 'Collection object was successfully updated.' }
-        format.json { respond_with_bip(@collection_object) }
+        format.html { redirect_to url_for(@collection_object), notice: 'Collection object was successfully updated.' }
+        format.json { render :show, status: :ok, location: @collection_object }
       else
         format.html { render action: 'edit' }
-        format.json { respond_with_bip(@collection_object) }
+        format.json { render json: @collection_object.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -100,7 +98,9 @@ class CollectionObjectsController < ApplicationController
 
   # GET /collection_objects/list
   def list
-    @collection_objects = CollectionObject.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @collection_objects = CollectionObject.with_project_id(sessions_current_project_id)
+                            .order(:id)
+                            .page(params[:page]) #.per(10) #.per(3)
   end
 
   # GET /collection_object/search
@@ -113,23 +113,28 @@ class CollectionObjectsController < ApplicationController
   end
 
   def autocomplete
-    @collection_objects = CollectionObject.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
-    data                = @collection_objects.collect do |t|
-      {id:              t.id,
-       label:           ApplicationController.helpers.collection_object_tag(t),
+    @collection_objects =
+      Queries::BiologicalCollectionObjectAutocompleteQuery.new(
+        params[:term],
+        project_id: sessions_current_project_id
+    ).autocomplete
+
+    data = @collection_objects.collect do |t|
+      {id: t.id,
+       label: ApplicationController.helpers.collection_object_tag(t),
        gid: t.to_global_id.to_s,
        response_values: {
          params[:method] => t.id
        },
-       label_html:      ApplicationController.helpers.collection_object_tag(t) # render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: ApplicationController.helpers.collection_object_tag(t)
       }
     end
-    render :json => data
+    render json: data
   end
 
   # GET /collection_objects/download
   def download
-    send_data Download.generate_csv(CollectionObject.where(project_id: sessions_current_project_id), header_converters: []), type: 'text', filename: "collection_objects_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(CollectionObject.where(project_id: sessions_current_project_id), header_converters: []), type: 'text', filename: "collection_objects_#{DateTime.now}.csv"
   end
 
   # GET collection_objects/batch_load
@@ -167,10 +172,40 @@ class CollectionObjectsController < ApplicationController
     @container_item = ContainerItem.new(contained_object: @collection_object)
   end
 
+  def preview_castor_batch_load
+    if params[:file]
+      @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(batch_params)
+      digest_cookie(params[:file].tempfile, :Castor_collection_objects_md5)
+      render 'collection_objects/batch_load/castor/preview'
+    else
+      flash[:notice] = 'No file provided!'
+      redirect_to action: :batch_load
+    end
+  end
+
+  def create_castor_batch_load
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Castor_collection_objects_md5)
+      @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(batch_params)
+      if @result.create
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
+        render 'collection_objects/batch_load/castor/create' and return
+      else
+        flash[:alert] = 'Batch import failed.'
+      end
+    else
+      flash[:alert] = 'File to batch upload must be supplied.'
+    end
+    render :batch_load
+  end
+
+  def select_options
+    @collection_objects = CollectionObject.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
+  end
+
   private
 
   def set_collection_object
-    @collection_object = CollectionObject.with_project_id($project_id).find(params[:id])
+    @collection_object = CollectionObject.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object     = @collection_object
   end
 
@@ -178,7 +213,7 @@ class CollectionObjectsController < ApplicationController
     params.require(:collection_object).permit(
       :total, :preparation_type_id, :repository_id,
       :ranged_lot_category_id, :collecting_event_id,
-      :buffered_collecting_event, :buffered_deteriminations,
+      :buffered_collecting_event, :buffered_determinations,
       :buffered_other_labels, :deaccessioned_at, :deaccession_reason,
       :contained_in,
       collecting_event_attributes: []
@@ -186,7 +221,7 @@ class CollectionObjectsController < ApplicationController
   end
 
   def batch_params
-    params.permit(:namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: $project_id).symbolize_keys
+    params.permit(:namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
   def user_map
@@ -200,3 +235,5 @@ class CollectionObjectsController < ApplicationController
   end
 
 end
+
+require_dependency Rails.root.to_s + '/lib/batch_load/import/collection_objects/castor_interpreter.rb'

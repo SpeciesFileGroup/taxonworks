@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
   let(:collecting_event) { CollectingEvent.new }
-  let(:county) { FactoryGirl.create(:valid_geographic_area_stack) }
+  let(:county) { FactoryBot.create(:valid_geographic_area_stack) }
   let(:state) { county.parent }
   let(:country) { state.parent }
 
@@ -110,15 +110,15 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
     end
 
     specify 'start_date_day is invalid when not an integer' do
-      collecting_event.start_date_day = "a"
+      collecting_event.start_date_day = 'a'
       collecting_event.valid?
       expect(collecting_event.errors.include?(:start_date_day)).to be_falsey
     end
 
     specify 'start_date_day is value bound by month' do
-      collecting_event.start_date_year  = "1945" # requires year for leaps
-      collecting_event.start_date_month = "2"
-      collecting_event.start_date_day   = "30"
+      collecting_event.start_date_year  = '1945' # requires year for leaps
+      collecting_event.start_date_month = '2'
+      collecting_event.start_date_day   = '30'
       collecting_event.valid?
       expect(collecting_event.errors.include?(:start_date_day)).to be_truthy
     end
@@ -138,15 +138,15 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
     end
 
     specify 'end_date_day is invalid when not an integer' do
-      collecting_event.end_date_day = "a"
+      collecting_event.end_date_day = 'a'
       collecting_event.valid?
       expect(collecting_event.errors.include?(:end_date_day)).to be_falsey
     end
 
     specify 'end_date_day is value bound by month' do
-      collecting_event.end_date_year  = "1945" # requires year for leaps
-      collecting_event.end_date_month = "2"
-      collecting_event.end_date_day   = "30"
+      collecting_event.end_date_year  = '1945' # requires year for leaps
+      collecting_event.end_date_month = '2'
+      collecting_event.end_date_day   = '30'
       collecting_event.valid?
       expect(collecting_event.errors.include?(:end_date_day)).to be_truthy
     end
@@ -173,13 +173,13 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
 
     specify 'end date is > start date when both are provided' do
       message                           = 'End date is earlier than start date.'
-      collecting_event.start_date_day   = "26"
-      collecting_event.start_date_month = "6"
-      collecting_event.start_date_year  = "1970"
+      collecting_event.start_date_day   = '26'
+      collecting_event.start_date_month = '6'
+      collecting_event.start_date_year  = '1970'
 
-      collecting_event.end_date_day = "24"
-      collecting_event.end_date_month = "7"
-      collecting_event.end_date_year  = "1970"
+      collecting_event.end_date_day = '24'
+      collecting_event.end_date_month = '7'
+      collecting_event.end_date_year  = '1970'
 
       expect(collecting_event.valid?).to be_truthy
       expect(collecting_event.errors[:base].include?(message)).to be_falsey
@@ -205,8 +205,8 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
 
     specify 'md5_of_verbatim_collecting_event is unique within project' do
       label = "Label\nAnother line\nYet another line."
-      c1    = FactoryGirl.create(:valid_collecting_event, verbatim_label: label)
-      c2    = FactoryGirl.build(:valid_collecting_event, verbatim_label: label)
+      c1    = FactoryBot.create(:valid_collecting_event, verbatim_label: label)
+      c2    = FactoryBot.build(:valid_collecting_event, verbatim_label: label)
       expect(c2.valid?).to be_falsey
       expect(c2.errors[:md5_of_verbatim_label].count).to eq(1)
     end
@@ -315,11 +315,11 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
 
   context 'fuzzy matching' do
     before {
-      @c1 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a base string.')
-      @c2 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a base string.')
+      @c1 = FactoryBot.create(:valid_collecting_event, verbatim_locality: 'This is a base string.')
+      @c2 = FactoryBot.create(:valid_collecting_event, verbatim_locality: 'This is a base string.')
 
-      @c3 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a roof string.')
-      @c4 = FactoryGirl.create(:valid_collecting_event, verbatim_locality: 'This is a r00f string.')
+      @c3 = FactoryBot.create(:valid_collecting_event, verbatim_locality: 'This is a roof string.')
+      @c4 = FactoryBot.create(:valid_collecting_event, verbatim_locality: 'This is a r00f string.')
     }
 
     specify 'nearest_by_levenshtein(compared_string = nil, column = "verbatim_locality", limit = 10)' do
@@ -345,7 +345,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
   end
 
   context 'concerns' do
-    it_behaves_like 'citable'
+    it_behaves_like 'citations'
     it_behaves_like 'data_attributes'
     it_behaves_like 'identifiable'
     it_behaves_like 'notable'

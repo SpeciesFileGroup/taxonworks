@@ -1,49 +1,82 @@
 require 'rails_helper'
 
 describe 'Pinnable', type: :model do
-  let(:user1) { FactoryGirl.create(:valid_user) }
-  let(:instance_with_pin) { TestPinnable.new }
+  let(:user1) { FactoryBot.create(:valid_user) }
+  let(:instance_with_pin) { TestPinnable.create! }
 
-  context 'associations' do
-    specify 'has many pins/#pinned?' do
-      # test that the method notations exists
-      expect(instance_with_pin).to respond_to(:pinboard_items)
-      expect(instance_with_pin.pinboard_items.size == 0).to be_truthy
-      # currently has no pins
-    end
+  specify '#pinboard_items' do
+    expect(instance_with_pin).to respond_to(:pinboard_items)
   end
 
-  context 'methods' do
-    specify '#pinned? (none)' do
-      expect(instance_with_pin).to respond_to(:pinboard_items)
-      expect(instance_with_pin.pinned?(user1)).to be_falsey
-    end
-    specify '#pinned? (1)' do
-      instance_with_pin.save
-      pinboard_item1 = PinboardItem.new(user: user1, pinned_object: instance_with_pin)
-      expect(pinboard_item1.save).to be_truthy
+  specify '#pinboard_items 2' do
+    expect(instance_with_pin.pinboard_items.count).to eq(0)
+  end
+
+  specify '#pinned? (none)' do
+    expect(instance_with_pin.pinned?(user1)).to be_falsey
+  end
+
+  context 'pinned' do
+    let!(:pinboard_item1) { PinboardItem.create(user: user1, pinned_object: instance_with_pin)} 
+    
+    specify '#pinned?' do
       expect(instance_with_pin.pinned?(user1)).to be_truthy
-      expect(instance_with_pin.pinboard_items.size == 1).to be_truthy
+    end
+
+    specify '#pinboard_items' do
+      expect(instance_with_pin.pinboard_items.count).to eq(1)
+    end
+    
+    specify '#pinboard_item_for' do
+      expect(instance_with_pin.pinboard_item_for(user1)).to eq(pinboard_item1)
+    end
+
+    specify '#inserted? (1)' do
+      expect(instance_with_pin.inserted?(user1)).to be_falsey 
+    end
+
+    specify '#inserted? (2)' do
+      pinboard_item1.update_column(:is_inserted, true)
+      expect(instance_with_pin.inserted?(user1)).to be_truthy
+    end
+
+    specify '.pinned_by' do
+      expect(TestPinnable.pinned_by(user1.id)).to contain_exactly(instance_with_pin)
+    end
+
+    specify '.pinboard_inserted 1' do
+      expect(TestPinnable.pinboard_inserted).to contain_exactly()
+    end
+
+    specify '.pinboard_inserted 2' do
+      pinboard_item1.update_column(:is_inserted, true)
+      expect(TestPinnable.pinboard_inserted).to contain_exactly(instance_with_pin)
     end
   end
 
-  context 'object with pins' do
+  context 'object with pinboard_items' do
+    let!(:pinboard_item1) { PinboardItem.create!(user: user1, pinned_object: instance_with_pin) }
+
+    specify 'item was created' do
+      expect(PinboardItem.count).to eq(1)
+    end
+
     context 'on destroy' do
-      specify 'attached pins are destroyed' do
-        expect(PinboardItem.count).to eq(0)
-        instance_with_pin.save
-        pinboard_item1 = PinboardItem.new(user: user1, pinned_object: instance_with_pin)
-        expect(pinboard_item1.save).to be_truthy
-        expect(instance_with_pin.pinned?(user1)).to be_truthy
-        expect(PinboardItem.count).to eq(1)
-        expect(instance_with_pin.destroy).to be_truthy
+      before { instance_with_pin.destroy }
+
+      specify 'related pinboard_items are destroyed 1' do
+        expect(instance_with_pin.pinboard_items.reload.count).to eq(0)
+      end
+
+      specify 'related pinboard_items are destroyed 2' do
         expect(PinboardItem.count).to eq(0)
       end
     end
   end
+
 end
 
-class TestPinnable < ActiveRecord::Base
+class TestPinnable < ApplicationRecord
   include FakeTable
   include Shared::IsData
 end

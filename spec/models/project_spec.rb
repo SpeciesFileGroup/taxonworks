@@ -2,20 +2,51 @@ require 'rails_helper'
 
 describe Project, type: :model do
 
-  let(:project) { FactoryGirl.build(:project) }
-
   before(:all) {
     Rails.application.eager_load!
   }
 
-  context 'test setup audit' do
+  let(:project) { FactoryBot.build(:project) }
+
+  let(:user) { User.create!(
+    password:  'password',
+    password_confirmation: 'password',
+    email: 'user_model@example.com',
+    name: 'Bob', 
+    self_created: true
+  ) }
+
+  specify 'create 1' do
+    expect(Project.create!(name: 'TEST')).to be_truthy
+  end
+
+  context 'nil globals' do
+    before do 
+      $user_id = nil
+      $project_id = nil
+    end
+
+    after do
+      $user_id = 1 
+      $project_id = 1 
+    end
+
+    specify 'create 2' do
+      expect(Project.create!(name: 'TEST', by: user)).to be_truthy
+    end
+  end
+
+  context 'confirm test setup' do
     specify 'one project with id 1 exists from model setup' do
       expect(Project.count).to eq(1)
+    end
+
+    specify 'the one project has id 1' do
       expect(Project.first.id).to eq(1)
     end
 
     specify 'a valid_ factory exists for each has_many association' do
-      existing_factories = FactoryGirl.factories.map(&:name)
+      existing_factories = FactoryBot.factories.map(&:name)
       missing_factories = []
       Project.reflect_on_all_associations(:has_many).each do |r|
         next if r.klass.table_name == 'test_classes'
@@ -26,6 +57,7 @@ describe Project, type: :model do
       end
       expect(missing_factories.empty?).to be_truthy, "missing #{missing_factories.count} valid_ factories for #{missing_factories.join(", ")}."
     end
+
   end
 
   context 'associations' do
@@ -58,11 +90,11 @@ describe Project, type: :model do
     end
 
     context 'requires' do
-      specify 'name' do
+      specify '#name' do
         expect(project.errors.include?(:name)).to be_truthy
       end
 
-      specify 'valid with name' do
+      specify 'valid with #name' do
         project.name = 'Validation'
         expect(project.valid?).to be_truthy
       end
@@ -74,9 +106,9 @@ describe Project, type: :model do
         project.save!
       }
 
-      specify 'name duplicate names are not allowed' do
+      specify '#name duplicate names are not allowed' do
         p = Project.new(name: 'Foo')
-        expect(p.valid?).to be_falsey
+        p.valid?
         expect(p.errors.include?(:name)).to be_truthy
       end
     end
@@ -87,24 +119,28 @@ describe Project, type: :model do
       project.name = 'Workbench settings'
       project.save!
     }
-    
+
     specify 'are set to default' do
       expect(project.workbench_settings).to eq(Project::DEFAULT_WORKBENCH_SETTINGS)
     end
 
     specify 'can be cleared with #clear_workbench_settings' do
-      expect(project.clear_workbench_settings).to be_truthy
+      project.clear_workbench_settings
       expect(project.workbench_settings).to eq(Project::DEFAULT_WORKBENCH_SETTINGS)
     end
-    
-    specify 'default_path defaults to DEFAULT_WORKBENCH_STARTING_PATH' do
+
+    specify 'default_path defaults to DEFAULT_WORKBENCH_STARTING_PATH 1' do
       expect(project.workbench_starting_path).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
+    end
+
+    specify 'default_path defaults to DEFAULT_WORKBENCH_STARTING_PATH 2' do
       expect(project.workbench_settings['workbench_starting_path']).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
     end
 
     specify 'updating an attribute is a little tricky, use _will_change!' do
       expect(project.workbench_starting_path).to eq(Project::DEFAULT_WORKBENCH_STARTING_PATH)
-      expect(project.workbench_settings_will_change!).to eq({"workbench_starting_path" => "/hub"}) # was changed from nil
+      expect(project.workbench_settings).to eq({'workbench_starting_path' => '/hub'}) # was changed from nil
+      # expect(project.workbench_settings_will_change!).to eq({"workbench_starting_path" => "/hub"}) # was changed from nil
       expect(project.workbench_settings['workbench_starting_path'] = '/dashboard').to be_truthy
       expect(project.save!).to be_truthy
       project.reload
@@ -117,7 +153,7 @@ describe Project, type: :model do
       project.name = 'Root taxon name'
     }
 
-    context 'anything but true creates a name' do 
+    context 'anything but true creates a name' do
       specify 'on save by default a root taxon name is created' do
         expect(TaxonName.any?).to be_falsey
         project.save!
@@ -127,7 +163,7 @@ describe Project, type: :model do
 
       specify 'on save by default a root taxon name *is* created when without root taxon name is ""' do
         expect(project.taxon_names.count).to eq(0)
-        project.without_root_taxon_name = ""
+        project.without_root_taxon_name = ''
         project.save!
         expect(project.taxon_names.size).to eq(1)
       end
@@ -140,12 +176,12 @@ describe Project, type: :model do
     end
 
     specify 'on save by default a root taxon name is not created when without root taxon name is true, on .new()' do
-      p = Project.create!(name: "testing root taxon name", without_root_taxon_name: true)
+      p = Project.create!(name: 'testing root taxon name', without_root_taxon_name: true)
       expect(p.taxon_names.count).to eq(0)
     end
 
     context '#root_taxon_name ' do
-      let!(:p) { Project.create!(name: "testing root taxon name", without_root_taxon_name: true) }
+      let!(:p) { Project.create!(name: 'testing root taxon name', without_root_taxon_name: true) }
       specify 'returns the Root taxon name' do
         expect(p.root_taxon_name).to eq(TaxonName.first)
       end
@@ -158,9 +194,9 @@ describe Project, type: :model do
       project.save!
 
       project.asserted_distributions << AssertedDistribution.new(
-        otu:             FactoryGirl.create(:valid_otu),
-        geographic_area: FactoryGirl.create(:valid_geographic_area),
-        source:          FactoryGirl.create(:valid_source)
+        otu:             FactoryBot.create(:valid_otu),
+        geographic_area: FactoryBot.create(:valid_geographic_area),
+        source:          FactoryBot.create(:valid_source)
       )
       project.save!
     }
@@ -175,7 +211,7 @@ describe Project, type: :model do
   end
 
   context 'destroying (nuking) a project' do
-    let(:u) { FactoryGirl.create(:valid_user, email: 'tester@example.com', name: 'Dr. Strangeglove') } 
+    let(:u) {FactoryBot.create(:valid_user, email: 'tester@example.com', name: 'Dr. Strangeglove')}
     let(:p) { Project.create!(name: 'a little bit of everything', created_by_id: u.to_param, updated_by_id: u.to_param) }
 
     after(:all) {
@@ -196,16 +232,16 @@ describe Project, type: :model do
 
       exceptions = [:valid_project, :valid_user, :valid_taxon_name]
 
-      FactoryGirl.factories.each { |factory|
+      FactoryBot.factories.each { |factory|
         f_name = factory.to_s
         next if exceptions.include?(f_name)
 
         if f_name =~ /^valid_/
           begin
             if factory.build_class.columns.include?(:project)
-              test_factory = FactoryGirl.build(f_name, project: p)
+              test_factory = FactoryBot.build(f_name, project: p)
             else
-              test_factory = FactoryGirl.build(f_name)
+              test_factory = FactoryBot.build(f_name)
             end
           rescue => detail
             @failed_factories[f_name] = detail
@@ -228,7 +264,7 @@ describe Project, type: :model do
 
         end
       }
-      
+
       length = @failed_factories.length
       if length > 0
         @project_build_err_msg += "\n#{length} invalid #{'factory'.pluralize(length)}.\n"
@@ -249,7 +285,7 @@ describe Project, type: :model do
       before(:each) {
         p.nuke
       }
-     
+
       # need to wipe image folder here
 
       specify '#nuke nukes "everything"' do
@@ -257,14 +293,14 @@ describe Project, type: :model do
         #    expect(class_that_was_built.all.reload.count).to eq(0)
         orphans                 = {}
         project_destroy_err_msg = "Project id should be #{p.id}"
-        FactoryGirl.factories.each { |factory|
+        FactoryBot.factories.each { |factory|
           f_name = factory.name
           if f_name =~ /^valid/
             this_class = factory.build_class
             if this_class.column_names.include?('project_id')
               count = this_class.where(project_id: p.id).all.reload.count
               if count > 0
-                project_destroy_err_msg += "\nFactory '#{f_name}': #{this_class.to_s}: #{count} orphan #{'record'.pluralize(count)}, remaining project_ids: #{this_class.all.pluck(:project_id).uniq.join(',')}."
+                project_destroy_err_msg += "\nFactory '#{f_name}': #{this_class}: #{count} orphan #{'record'.pluralize(count)}, remaining project_ids: #{this_class.all.pluck(:project_id).uniq.join(',')}."
                 orphans[this_class]          = count
               end
             end
@@ -280,7 +316,7 @@ describe Project, type: :model do
         # loop through shared models (e.g. Serial, Person, Source), ensure that any data that was created remains
         # We may need a constant that stores a *string* representative of the shared classes to loop through,
         #   but for now just enumerate a number of them
-        FactoryGirl.factories.each { |factory|
+        FactoryBot.factories.each { |factory|
           f_name = factory.to_s
           if f_name =~ /^valid_/
             this_class = factory.build_class

@@ -4,7 +4,7 @@ module TaxonDeterminationsHelper
   #    a descriptor, contains name only (if you want to include the identifier use collection_object_tag) 
   def taxon_determination_tag(taxon_determination) 
     return nil if taxon_determination.nil?
-    ['determined as', determination_tag(taxon_determination) ].join(" ")
+    ['determined as', determination_tag(taxon_determination) ].join(' ')
   end
 
   # @return [String]
@@ -14,7 +14,7 @@ module TaxonDeterminationsHelper
     [ taxon_determination_name(taxon_determination),
       taxon_determination_by(taxon_determination),
       taxon_determination_on(taxon_determination)
-    ].join(" ")
+    ].join(' ')
   end
 # 
   # @return [String]
@@ -23,7 +23,7 @@ module TaxonDeterminationsHelper
     [ link_to(taxon_determination_name(taxon_determination), taxon_determination.otu),
       taxon_determination_by(taxon_determination),
       taxon_determination_on(taxon_determination)
-    ].join(" ").html_safe
+    ].join(' ').html_safe
   end
 
   # @return [String]

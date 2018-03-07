@@ -1,7 +1,7 @@
 class NomenclaturalRank::Icnb::FamilyGroup::Subfamily < NomenclaturalRank::Icnb::FamilyGroup
 
   def self.parent_rank
-      NomenclaturalRank::Icnb::FamilyGroup::Family
+    NomenclaturalRank::Icnb::FamilyGroup::Family
   end
 
   def self.validate_name_format(taxon_name)
@@ -15,6 +15,6 @@ class NomenclaturalRank::Icnb::FamilyGroup::Subfamily < NomenclaturalRank::Icnb:
   end
 
   def self.abbreviation
-    "subfam."
+    'subfam.'
   end
 end

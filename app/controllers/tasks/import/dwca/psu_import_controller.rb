@@ -15,7 +15,7 @@ class Tasks::Import::Dwca::PsuImportController < ApplicationController
       digest_cookie(params[:file].tempfile, :psu_import_md5)
       render 'do_psu_import'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :index
     end
   end
@@ -39,7 +39,9 @@ class Tasks::Import::Dwca::PsuImportController < ApplicationController
   private
 
   def import_params
-    params.permit(:dwca_namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
+    params.permit(:dwca_namespace, :file, :import_level)
+      .merge(user_id:    sessions_current_user_id,
+             project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
   # what to do (because you are PSUC_FEM) before you try to load the entire file
@@ -54,7 +56,7 @@ class Tasks::Import::Dwca::PsuImportController < ApplicationController
 
     kingdom            = Protonym.find_or_create_by(name:       'Animalia',
                                                     parent_id:  root.id,
-                                                    rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
+                                                    rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom',
                                                     project_id: p_id)
     pre_load[:kingdom] = kingdom
 

@@ -1,4 +1,4 @@
-class CreateTaggedSectionKeywords < ActiveRecord::Migration
+class CreateTaggedSectionKeywords < ActiveRecord::Migration[4.2]
   def change
     create_table :tagged_section_keywords do |t|
       t.references :otu_page_layout_section, index: true

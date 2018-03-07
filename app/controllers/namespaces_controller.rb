@@ -9,7 +9,7 @@ def preview_simple_batch_load
     digest_cookie(params[:file].tempfile, :Simple_namespaces_md5)
     render 'namespaces/batch_load/simple/preview'
   else
-    flash[:notice] = "No file provided!"
+    flash[:notice] = 'No file provided!'
     redirect_to action: :batch_load 
   end
 end
@@ -105,8 +105,8 @@ end
   end
 
   def autocomplete
-    @namespaces = Namespace.find_for_autocomplete(params)
-
+    @namespaces = Queries::NamespaceAutocompleteQuery.new(params.require(:term)).all
+    
     data = @namespaces.collect do |t|
       {id: t.id,
        label: ApplicationController.helpers.namespace_tag(t),
@@ -117,27 +117,30 @@ end
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # GET /namespaces/download
   def download
-    send_data Namespace.generate_download(Namespace.all), type: 'text', filename: "namespaces_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Namespace.all), type: 'text', filename: "namespaces_#{DateTime.now}.csv"
+  end
+
+  def select_options
+    @namespaces = Namespace.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:klass])
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
+
   def set_namespace
     @namespace = Namespace.find(params[:id])
     @recent_object = @namespace
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def namespace_params
     params.require(:namespace).permit(:institution, :name, :short_name, :verbatim_short_name)
   end
 
   def batch_params
-    params.permit(:file, :import_level).merge(user_id: sessions_current_user_id, project_id: $project_id).symbolize_keys
+    params.permit(:file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 end

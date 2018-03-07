@@ -12,7 +12,9 @@ class DepictionsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @depictions = Depiction.where(project_id: sessions_current_project_id).where(filter_params).order(:position)
+        @depictions = Depiction.where(project_id: sessions_current_project_id).where(
+          polymorphic_filter_params('depiction_object', Depiction.related_foreign_keys) 
+        )
       }
     end
   end
@@ -93,32 +95,16 @@ class DepictionsController < ApplicationController
 
   private 
 
-  # handle the polymorphic resource
-  def filter_params
-    h = params.permit(
-      :content_id
-    ).to_h
-    if h.size > 1 
-      respond_to do |format|
-        format.html { render plain: '404 Not Found', status: :unprocessable_entity and return }
-        format.json { render json: {success: false}, status: :unprocessable_entity and return }
-      end
-    end
-
-    model = h.keys.first.split('_').first.classify
-    return {depiction_object_type: model, depiction_object_id: h.values.first}
-  end
-
-  # def depiction_object
-  #   filter_params[:depiction_object_type].find(filter_params[:depiction_object_id])
-  # end
-
   def set_depiction
     @depiction = Depiction.find(params[:id])
   end
 
   def depiction_params
-    params.require(:depiction).permit(:depiction_object_id, :depiction_object_type, :caption, :figure_label, image_attributes: [:image_file])
+    params.require(:depiction).permit(
+      :depiction_object_id, :depiction_object_type,
+      :annotated_global_entity, :caption,
+      :figure_label, image_attributes: [:image_file]
+    )
   end
 
 end

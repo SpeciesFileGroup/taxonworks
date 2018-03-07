@@ -19,7 +19,6 @@ class Identifier::Global::Issn < Identifier::Global
   # @todo the validator for this identifier has been perverted so as to *NOT* require the preamble 'ISSN ', even though the ISSN spec is quite specific about its being there, because the Bibtex gem does not return it with the ISSN vslue as it should.
   def using_issn_class
     validate_preamble = false
-    retval = true
     unless identifier.nil?
       issn = identifier.upcase
 
@@ -28,7 +27,7 @@ class Identifier::Global::Issn < Identifier::Global
 
       if part_1.nil? or part_2.nil? or last.nil? or (preamble.nil? and validate_preamble)
         errors.add(:identifier, "'#{identifier}' is an improperly formed ISSN.")
-        return false
+        return
       end
 
       data = part_1 + part_2
@@ -47,9 +46,8 @@ class Identifier::Global::Issn < Identifier::Global
 
       if sum != 0
         errors.add(:identifier, "'#{identifier}' has bad check digit.")
-        return false
+        return
       end
     end
-    retval
   end
 end

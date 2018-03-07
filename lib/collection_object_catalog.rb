@@ -29,7 +29,7 @@ module CollectionObjectCatalog
     :added_attribute,
     :biologically_classified,
     :fossilized_between, # chronological time period b/w which specimen was fossilized
-  ]
+  ].freeze
 
   def self.data_for(collection_object)
     o = collection_object

@@ -23,7 +23,7 @@
 #   @return [Integer]
 #   @todo
 #
-class PublicContent < ActiveRecord::Base
+class PublicContent < ApplicationRecord
   include Housekeeping
 
   belongs_to :otu

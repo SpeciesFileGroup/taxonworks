@@ -1,11 +1,11 @@
 require 'rails_helper'
 
 # TODO: Rewrite or remove this API.
-xdescribe Api::V1::TaxonNamesController, :type => :controller do
+xdescribe Api::V1::TaxonNamesController, type: :controller do
 
-  describe "Taxon names API" do
+  describe 'Taxon names API' do
 
-    describe "all method" do
+    describe 'all method' do
       # it "returns http success" do
       # #TODO: Check why "get" is requiring explicit format specifier whilst accessing the controller with curl doesn't. Also, is it better this way?
       #   get 'all', format: :json

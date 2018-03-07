@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling < TaxonNameRelationship::Iczn::Invalidating::Usage
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000044'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000044'.freeze
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
@@ -9,7 +9,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpellin
   end
 
   def object_status
-    'justified emendation'
+    'correct spelling'
   end
 
   def subject_status

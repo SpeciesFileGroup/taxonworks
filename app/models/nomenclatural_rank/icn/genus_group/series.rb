@@ -9,6 +9,6 @@ class NomenclaturalRank::Icn::GenusGroup::Series < NomenclaturalRank::Icn::Genus
   end
 
   def self.abbreviation
-    "ser."
+    'ser.'
   end
 end

@@ -2,7 +2,7 @@ module ContainersHelper
 
   def container_tag(container)
     return nil if container.nil?
-    container.name ? container.name : (container.class.name + " [" + container.to_param + "]").html_safe
+    container.name ? container.name : (container.class.name + ' [' + container.to_param + ']').html_safe
   end
 
   def container_link(container)
@@ -43,7 +43,7 @@ module ContainersHelper
       s += " [#{c.disposition}]" if !c.disposition.blank? 
       parts.push s 
     end
-    parts.join("; ") 
+    parts.join('; ') 
   end
 
   # TODO: move content to containers/_card

@@ -10,7 +10,7 @@
   <% @list_collection_objects.each_with_index do |c_o, index| %>
       <% this_row = build_row(c_o) %>
       <tr>
-        <td><%= link_to(this_row[0], c_o.get_otu) unless c_o.get_otu.nil? %></td>
+        <td><%= link_to(this_row[0], c_o.otus.first) unless c_o.otus.first.nil? %></td>
         <% this_row[1..7].each { |item| %>
             <td><%= item.to_s.html_safe if item %></td>
         <% } %>

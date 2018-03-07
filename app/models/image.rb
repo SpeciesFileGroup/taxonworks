@@ -38,17 +38,17 @@
 #   @return (String)
 #   Added by paperclip_meta gem, stores the sizes of derived images
 #
-class Image < ActiveRecord::Base
+class Image < ApplicationRecord
   include Housekeeping
-  include Shared::Identifiable
-  include Shared::Notable
-  include Shared::Taggable
-  include Shared::Protocols
+  include Shared::Identifiers
+  include Shared::Notes
+  include Shared::Tags
+  include Shared::ProtocolRelationships
   include Shared::IsData
   include SoftValidation
 
   #constants
-  MISSING_IMAGE_PATH = '/public/images/missing.jpg'
+  MISSING_IMAGE_PATH = '/public/images/missing.jpg'.freeze
 
   has_many :depictions, inverse_of: :image, dependent: :restrict_with_error
 
@@ -56,23 +56,23 @@ class Image < ActiveRecord::Base
 
   # also using https://github.com/teeparham/paperclip-meta
   has_attached_file :image_file,
-                    styles:           {:medium => '300x300>', :thumb => '100x100>'},
+                    styles:           {medium: '300x300>', thumb: '100x100>'},
                     default_url:      MISSING_IMAGE_PATH,
                     filename_cleaner:  Utilities::CleanseFilename
 
   #:restricted_characters => /[^A-Za-z0-9\.]/,
-  validates_attachment_content_type :image_file, :content_type => /\Aimage\/.*\Z/
+  validates_attachment_content_type :image_file, content_type: /\Aimage\/.*\Z/
   validates_attachment_presence :image_file
   validates_attachment_size :image_file, greater_than: 1.kilobytes
 
   soft_validate(:sv_duplicate_image?)
 
   def has_duplicate?
-    Image.where(:image_file_fingerprint => self.image_file_fingerprint).count > 1
+    Image.where(image_file_fingerprint: self.image_file_fingerprint).count > 1
   end
 
   def duplicate_images
-   Image.where(:image_file_fingerprint => self.image_file_fingerprint).not_self(self).to_a
+    Image.where(image_file_fingerprint: self.image_file_fingerprint).not_self(self).to_a
   end
 
   def exif
@@ -84,11 +84,8 @@ class Image < ActiveRecord::Base
     unless self.new_record? # only process if record exists
       tmp     = `identify -format "%[EXIF:*]" #{self.image_file.url}` # returns a string (exif:tag=value\n)
       # following removes the exif, spits and recombines string as a hash
-      ret_val = tmp.split("\n").collect { |b|
-                                          b.gsub("exif:", "").split("=")
-                                        }.inject({}) { |hsh, c|
-                                                        hsh.merge(c[0] => c[1])
-                                                    }
+      ret_val = tmp.split("\n").collect { |b| b.gsub('exif:', '').split('=') }
+                  .inject({}) { |hsh, c| hsh.merge(c[0] => c[1]) }
       # might be able to tmp.split("\n").collect { |b|
       # b.gsub("exif:", "").split("=")
       # }.inject(ret_val) { |hsh, c|
@@ -195,21 +192,21 @@ class Image < ActiveRecord::Base
     end
   end
 
- #  def filename(layout_section_type)
- #    'tmp/' + tempfile(layout_section_type).path.split('/').last
- #  end
+  #  def filename(layout_section_type)
+  #    'tmp/' + tempfile(layout_section_type).path.split('/').last
+  #  end
 
- #  def tempfile(layout_section_type)
- #    tempfile = Tempfile.new([layout_section_type.to_s, '.jpg'], "#{Rails.root.to_s}/public/images/tmp", encoding: 'ASCII-8BIT' ) 
- #    tempfile.write(zoomed_image(layout_section_type).to_blob)
- #    tempfile
- #  end
+  #  def tempfile(layout_section_type)
+  #    tempfile = Tempfile.new([layout_section_type.to_s, '.jpg'], "#{Rails.root.to_s}/public/images/tmp", encoding: 'ASCII-8BIT' )
+  #    tempfile.write(zoomed_image(layout_section_type).to_blob)
+  #    tempfile
+  #  end
 
   def self.cropped(params)
     image = Image.find(params[:id])
     img = Magick::Image.read(image.image_file.path(:original)).first
 
-    cropped = img.crop(   
+    cropped = img.crop(
                        params[:x].to_i,
                        params[:y].to_i,
                        params[:width].to_i,
@@ -235,9 +232,9 @@ class Image < ActiveRecord::Base
       else # tall into wide
         c.resize((params[:box_width ].to_f * ratio / box_ratio).to_i, params[:box_height].to_i )
       end
-    else  # < 
+    else # <
       if ratio > 1 # wide into tall
-        c.resize(params[:box_width ].to_i, (params[:box_height].to_f / ratio * box_ratio).to_i )   
+        c.resize(params[:box_width].to_i, (params[:box_height].to_f / ratio * box_ratio).to_i)
       else # tall into tall
         c.resize((params[:box_width ].to_f / ratio * box_ratio).to_i, params[:box_height].to_i)
       end
@@ -246,7 +243,7 @@ class Image < ActiveRecord::Base
 
   def self.scaled_to_box_blob(params)
     scaled_to_box(params).to_blob
-  end 
+  end
 
   def self.resized_blob(params)
     resized(params).to_blob
@@ -273,7 +270,6 @@ class Image < ActiveRecord::Base
     end
   end
 
-  #region soft_validation
   # Check md5 fingerprint against existing fingerprints
   def sv_duplicate_image?
     if has_duplicate?
@@ -281,5 +277,4 @@ class Image < ActiveRecord::Base
     end
   end
 
-  #endregion  soft_validation
 end

@@ -6,13 +6,13 @@ class ContentsController < ApplicationController
   # GET /contents
   # GET /contents.json
   def index
-    respond_to do |format| 
-      format.html do 
+    respond_to do |format|
+      format.html do
         @recent_objects = Content.where(project_id: sessions_current_project_id).recently_updated(10)
         render '/shared/data/all/index'
-      end 
-      format.json { 
-        @contents = filtered_content 
+      end
+      format.json {
+        @contents = filtered_content
       }
     end
   end
@@ -38,7 +38,7 @@ class ContentsController < ApplicationController
 
     respond_to do |format|
       if @content.save
-        format.html { redirect_to @content.metamorphosize, notice: 'Content was successfully created.' }
+        format.html { redirect_to url_for(@content.metamorphosize), notice: 'Content was successfully created.' }
         format.json { render :show, status: :created, location: @content.metamorphosize }
       else
         format.html { render :new }
@@ -52,7 +52,7 @@ class ContentsController < ApplicationController
   def update
     respond_to do |format|
       if @content.update(content_params)
-        format.html { redirect_to @content.metamorphosize, notice: 'Content was successfully updated.' }
+        format.html { redirect_to url_for(@content.metamorphosize), notice: 'Content was successfully updated.' }
         format.json { render :show, status: :ok, location: @content.metamorphosize }
       else
         format.html { render :edit }
@@ -72,7 +72,7 @@ class ContentsController < ApplicationController
   end
 
   def list
-    @contents = Content.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) 
+    @contents = Content.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
   end
 
   def search
@@ -101,21 +101,21 @@ class ContentsController < ApplicationController
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # GET /contents/download
   def download
-    send_data Content.generate_download( Content.where(project_id: sessions_current_project_id) ), type: 'text', filename: "contents_#{DateTime.now.to_s}.csv"
+    send_data Content.generate_download( Content.where(project_id: sessions_current_project_id) ), type: 'text', filename: "contents_#{DateTime.now}.csv"
   end
 
   private
- 
+
   def filtered_content
     p =  params.permit(:otu_id, :topic_id, :hours_ago, :most_recent_updates).to_h.symbolize_keys
-    p[:most_recent_updates] = 10 if p.empty? 
+    p[:most_recent_updates] = 10 if p.empty?
     Queries::ContentFilterQuery.new(p)
-      .all 
+      .all
       .with_project_id(sessions_current_project_id)
   end
 
