@@ -8,7 +8,7 @@
 
         </div>
         <div class="annotation_for">
-            <models v-model="filter.model = $event" @model_selected="filter.common = $event"/>
+            <models v-model="filter.model" @model_selected="filter.common"/>
             <span>Selected: {{ filter.model }}</span>
         </div>
         <div class="annotation_by">
