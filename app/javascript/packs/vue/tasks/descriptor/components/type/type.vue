@@ -6,7 +6,11 @@
       v-for="(label, key) in types"
       :key="key">
       <label>
-        <input type="radio" v-model="selection" :value="key" name="type-descriptor"/>
+        <input
+          type="radio"
+          v-model="selection"
+          :value="key"
+          name="type-descriptor"/>
         {{ label }}
       </label>
     </li>
