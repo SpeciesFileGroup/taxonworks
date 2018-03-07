@@ -15,7 +15,7 @@
         <td><%= link_to user.name, user_path(user) %></td>
         <td><%= user.email %></td>
         <td><%= content_tag(:span, user.is_administrator?, class: user.is_administrator? ? 'passed' : nil) %></td>
-        <td><%= user.projects.order(:name).collect { |p| p.name }.join('; ').html_safe %></td>
+        <td><%= h(user.projects.order(:name).collect { |p| p.name }.join('; ')).html_safe %></td>
         <td><span class="disabled"> Destroy </span>
     <% end %>
   </table>
