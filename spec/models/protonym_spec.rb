@@ -92,29 +92,30 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     specify 'has at most one original description genus' do
       expect(@s.original_combination_relationships.count).to eq(0)
       # Example 1) recasting
-      temp_relation = FactoryBot.create(:taxon_name_relationship,
-                                                        subject_taxon_name: @o,
-                                                        object_taxon_name: @s,
-                                                        type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
-#      temp_relation.save
+      temp_relation = FactoryBot.create(
+        :taxon_name_relationship,
+        subject_taxon_name: @o,
+        object_taxon_name: @s,
+        type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+      
       # Recast as the subclass
-  #    first_original_genus_relation = temp_relation.becomes(temp_relation.type_class)
+      # first_original_genus_relation = temp_relation.becomes(temp_relation.type_class)
       expect(@s.original_combination_relationships.count).to eq(1)
 
       # Example 2) just use the right subclass to start
-      first_original_subgenus_relation = FactoryBot.create(:taxon_name_relationship_original_combination,
-                                                           subject_taxon_name: @g,
-                                                           object_taxon_name: @s,
-                                                           type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
-      # first_original_subgenus_relation.save
+      first_original_subgenus_relation = FactoryBot.create(
+        :taxon_name_relationship_original_combination,
+        subject_taxon_name: @g,
+        object_taxon_name: @s,
+        type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
       expect(@s.original_combination_relationships.count).to eq(2)
 
-      extra_original_genus_relation = FactoryBot.build(:taxon_name_relationship,
-                                              subject_taxon_name: @g,
-                                              object_taxon_name: @s,
-                                              type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+      extra_original_genus_relation = FactoryBot.build(
+        :taxon_name_relationship,
+        subject_taxon_name: @g,
+        object_taxon_name: @s,
+        type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       expect(extra_original_genus_relation.valid?).to be_falsey
-     # extra_original_genus_relation.save
       expect(@s.original_combination_relationships.count).to eq(2)
     end
 
@@ -188,13 +189,13 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
       context 'when rank ICN family' do
         specify "is validly_published when ending in '-aceae'" do
-          protonym.name       = 'Aaceae'
+          protonym.name = 'Aaceae'
           protonym.rank_class = Ranks.lookup(:icn, 'family')
           protonym.valid?
           expect(protonym.errors.include?(:name)).to be_falsey
         end
         specify "is invalidly_published when not ending in '-aceae'" do
-          protonym.name       = 'Aus'
+          protonym.name = 'Aus'
           protonym.rank_class = Ranks.lookup(:icn, 'family')
           protonym.valid?
           expect(protonym.errors.include?(:name)).to be_truthy
@@ -254,6 +255,19 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     specify '#nominotypical_sub_of? 4' do
       expect(s2.nominotypical_sub_of?(s1)).to be_truthy
+    end
+  end
+
+
+  context 'citation' do
+    let(:s) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:g1) { Protonym.create!(name: 'Aus', parent: root, rank_class: Ranks.lookup(:iczn, :genus)) }
+    let!(:c) { Citation.create(citation_object: g1, source: s, is_original: true) }
+
+    specify 'destroying original citation as nested attributes' do
+      expect( g1.reload.origin_citation.nil?).to be_falsey
+      expect( g1.update!(origin_citation_attributes: {id: c.id, _destroy: true} ) ).to be_truthy
+      expect( g1.reload.origin_citation.nil?).to be_truthy
     end
 
   end
