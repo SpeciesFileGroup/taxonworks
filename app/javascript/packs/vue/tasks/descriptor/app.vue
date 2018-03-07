@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>New descriptor</h1>
-    <type-component/>
+    <type-component v-model="descriptor.type"/>
   </div>
 </template>
 <script>
@@ -12,5 +12,12 @@
     components: {
       TypeComponent
     },
+    data() {
+      return {
+        descriptor: {
+          type: undefined
+        }
+      }
+    }
   }
 </script>

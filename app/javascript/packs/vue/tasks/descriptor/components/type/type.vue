@@ -6,7 +6,7 @@
       v-for="(label, key) in types"
       :key="key">
       <label>
-        <input type="radio" name="type-descriptor"/>
+        <input type="radio" v-model="selection" :value="key" name="type-descriptor"/>
         {{ label }}
       </label>
     </li>
@@ -15,6 +15,21 @@
 </template>
 <script>
   export default {
+    props: {
+      value: {
+        type: String,
+      }
+    },
+    computed: {
+      selection: {
+        get() {
+          return this.value
+        },
+        set(value) {
+          this.$emit('input', value)
+        }
+      }
+    },
     data() {
       return {
         types: {
@@ -26,6 +41,6 @@
           'Descriptor::Working': '',
         }
       }
-    }
+    },
   }
 </script>
