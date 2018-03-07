@@ -42,7 +42,7 @@
     },
     methods: {
       selectModel(type) {
-        this.$emit('select', type.valueOf())
+        this.$emit('input', type.valueOf())
       },
       getResult(newVal) {
         this.$http.post('/tasks/browse_annotations/set_model', {annotationFor: newVal}).then(response => {

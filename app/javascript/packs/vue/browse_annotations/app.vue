@@ -8,11 +8,11 @@
 
         </div>
         <div class="annotation_for">
-            <models @select="filter.model = $event" @model_selected="filter.common = $event"/>
+            <models v-model="filter.model = $event" @model_selected="filter.common = $event"/>
             <span>Selected: {{ filter.model }}</span>
         </div>
         <div class="annotation_by">
-            some text will show now
+            <!--some text will show now no more -->
         </div>
         <div class="annotation_dates">
 
@@ -20,8 +20,8 @@
         <div class="annotation_logic">
 
         </div>
-        <annotation-types @annotation_type_selected="filter.common = $event"/>
-        <annotation-types @model_selected="filter.common = $event"/>
+        <!--<annotation-types @annotation_type_selected="filter.common = $event"/>-->
+        <!--<annotation-types @model_selected="filter.common = $event"/>-->
         <span v-for="json in filter.result">{{ json }}</span>
         <button
           @click="processCall"
