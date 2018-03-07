@@ -46,7 +46,7 @@
       },
       getResult(newVal) {
         this.$http.post('/tasks/browse_annotations/set_model', {annotationFor: newVal}).then(response => {
-          this.$emit('model_selected', response.body)
+          this.$emit('model_selected', response)
         })
       }
     }
