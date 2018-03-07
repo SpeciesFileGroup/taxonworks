@@ -48,10 +48,8 @@
         // this.$http.post('/tasks/browse_annotations/get_type', {json: newVal}).then(response => {
         //   this.result = response.body
         this.$http.post('/tasks/browse_annotations/get_type', {annotationType: newVal}).then(response => {
-          console.log('response should be here ...');
           console.log(response);
-          console.log('response should be here repeated...');
-          this.$emit('annotation_type_selected', response)
+          this.$emit('annotation_type_selected', response.body)
         })
       }
     }

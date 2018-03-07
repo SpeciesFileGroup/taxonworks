@@ -23,9 +23,11 @@
         <!--<annotation-types @annotation_type_selected="filter.common = $event"/>-->
         <!--<annotation-types @model_selected="filter.common = $event"/>-->
         <span v-for="json in filter.result">{{ json }}</span>
+        <span v-if="filter.common">{{ filter.common }}</span>
         <button
-          @click="processCall"
-          type="submit">Process</button>
+                @click="processCall"
+                type="submit">Process
+        </button>
     </div>
 </template>
 <script>
