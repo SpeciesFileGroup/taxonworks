@@ -3,5 +3,5 @@
 <h2>Source list for <%= @person.name %></h2>
 
 <% @sources.each do |source| %>
-    <%= source_link(source).html_safe %><br>
+    <%= h(source_link(source)).html_safe %><br>
 <% end %>
