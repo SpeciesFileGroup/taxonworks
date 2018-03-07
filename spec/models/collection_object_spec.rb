@@ -328,7 +328,9 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
 
       describe 'excludes parts of two years in a non-greedy search for 1982/02/02-1984/09/15' do
         specify 'should find no records' do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1982/02/01', search_end_date: '1983/01/31', partial_overlap: 'Off'})
+          collection_objects = CollectionObject.in_date_range({search_start_date: '1982/02/01',
+                                                               search_end_date: '1983/01/31',
+                                                               partial_overlap: 'Off'})
           expect(collection_objects.count).to eq(0)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly()
         end
@@ -522,21 +524,25 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
     describe 'using combo method' do
       describe 'sorted' do
         specify 'without namespace' do
-          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no).map(&:id)).to eq([3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no).map(&:id))
+            .to eq([3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
         end
 
         specify 'with namespace' do
-          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, ns1).map(&:id)).to eq([4, 6, 8, 10, 12])
+          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, ns1).map(&:id))
+            .to eq([4, 6, 8, 10, 12])
         end
       end
 
       describe 'unsorted' do
         specify 'without namespace' do
-          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, nil, false).map(&:id)).to contain_exactly(3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, nil, false).map(&:id))
+            .to contain_exactly(3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
         end
 
         specify 'with namespace' do
-          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, ns1, false).map(&:id)).to contain_exactly(4, 6, 8, 10, 12)
+          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, ns1, false).map(&:id))
+            .to contain_exactly(4, 6, 8, 10, 12)
         end
       end
     end
@@ -552,23 +558,33 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
     end
 
     let(:otu) { FactoryBot.create(:valid_otu) }
-    let!(:biological_association) { FactoryBot.create(:valid_biological_association, biological_association_subject: collection_object) }
-    let!(:taxon_determination) { FactoryBot.create(:valid_taxon_determination, otu: otu, biological_collection_object: collection_object) }
+    let!(:biological_association) { FactoryBot.create(:valid_biological_association,
+                                                      biological_association_subject: collection_object) }
+    let!(:taxon_determination) { FactoryBot.create(:valid_taxon_determination, otu: otu,
+                                                   biological_collection_object: collection_object) }
 
     specify ".used_recently('TaxonDetermination')" do
-      expect(CollectionObject.used_recently('TaxonDetermination').to_a).to include(collection_object.becomes!(Specimen))
+      expect(CollectionObject.used_recently('TaxonDetermination').to_a)
+        .to include(collection_object.becomes!(Specimen))
     end
 
     specify ".used_recently('BiologicalAssociation')" do
-      expect(CollectionObject.used_recently('BiologicalAssociation').to_a).to include(collection_object.becomes!(Specimen))
+      expect(CollectionObject.used_recently('BiologicalAssociation').to_a)
+        .to include(collection_object.becomes!(Specimen))
     end
 
     specify '.selected_optimized 1' do
-      expect(CollectionObject.select_optimized(collection_object.created_by_id, collection_object.project_id, 'BiologicalAssociation')).to include({recent: [collection_object.becomes!(Specimen)]})
+      expect(CollectionObject.select_optimized(collection_object.created_by_id,
+                                               collection_object.project_id,
+                                               'BiologicalAssociation'))
+        .to include({recent: [collection_object.becomes!(Specimen)]})
     end
 
     specify '.selected_optimized 2' do
-      expect(CollectionObject.select_optimized(collection_object.created_by_id, collection_object.project_id, 'TaxonDetermination')).to include({quick: [collection_object.becomes!(Specimen)]})
+      expect(CollectionObject.select_optimized(collection_object.created_by_id,
+                                               collection_object.project_id,
+                                               'TaxonDetermination'))
+        .to include({quick: [collection_object.becomes!(Specimen)]})
     end
   end
 

@@ -15,12 +15,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
       # NOTE: The following *has* to be *after* the sign_in_and_select_project !
       include_context 'stuff for complex geo tests'
 
-      before {
-        co_a
-        co_b
-        gr_a
-        gr_b
-      }
+      before { [co_a, co_b, gr_a, gr_b].each }
 
       describe '#set_area', js: true do #
         it 'renders count of otus in a specific names area' do
@@ -73,7 +68,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           visit(index_path)
           page.execute_script "$('#set_nomen')[0].scrollIntoView()"
           fill_autocomplete('nomen_id_for_by_nomen', with: 'bee',
-                            select: co_b.taxon_names.where(name: 'beevitis').first.id)
+                            select:                        co_b.taxon_names.where(name: 'beevitis').first.id)
           click_button('Set Nomenclature')
           expect(find('#nomen_count')).to have_text('1') # 'beevitis'
         end
@@ -118,10 +113,10 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           page.execute_script "$('#set_author')[0].scrollIntoView()"
           find('#and_or_select__and_').click
           fill_autocomplete_and_select('author_picker_autocomplete', with: 'Sa',
-                                       select_id: sargon.id, object_type: 'author')
+                                       select_id:                          sargon.id, object_type: 'author')
           wait_for_ajax
           fill_autocomplete_and_select('author_picker_autocomplete', with: 'Pe',
-                                       select_id: daryl.id, object_type: 'author')
+                                       select_id:                          daryl.id, object_type: 'author')
           wait_for_ajax
           click_button('Set Author')
           wait_for_ajax
@@ -133,13 +128,13 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           page.execute_script "$('#set_author')[0].scrollIntoView()"
           find('#and_or_select__or_').click
           fill_autocomplete_and_select('author_picker_autocomplete', with: 'Sa',
-                                       select_id: sargon.id, object_type: 'author')
+                                       select_id:                          sargon.id, object_type: 'author')
           wait_for_ajax
           fill_autocomplete_and_select('author_picker_autocomplete', with: 'Bi',
-                                       select_id: bill.id, object_type: 'author')
+                                       select_id:                          bill.id, object_type: 'author')
           wait_for_ajax
           fill_autocomplete_and_select('author_picker_autocomplete', with: 'Te',
-                                       select_id: ted.id, object_type: 'author')
+                                       select_id:                          ted.id, object_type: 'author')
           wait_for_ajax
           click_button('Set Author')
           wait_for_ajax
