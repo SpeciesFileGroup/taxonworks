@@ -157,24 +157,24 @@ module Queries
 
       def autocomplete_cached_end_wildcard
         a = table[:cached].matches("#{query_string}%")
-        base_query.where(a.to_sql).order('char_length(cached), cached ASC').limit(20)
+        base_query.where(a.to_sql).limit(20)
       end
 
       def autocomplete_cached_name_end_wildcard
         a = table[:name].matches("#{query_string}%")
-        base_query.where(a.to_sql).order('char_length(cached), cached ASC').limit(20)
+        base_query.where(a.to_sql).limit(20)
       end
 
       def autocomplete_cached_wildcard_whitespace
         a = table[:cached].matches("#{query_string.gsub(' ', '%')}")
-        base_query.where(a.to_sql).order('char_length(cached), cached ASC').limit(20)
+        base_query.where(a.to_sql).limit(20)
       end
 
       def autocomplete_name_author_year_fragment
         f = fragments 
         if f.size == 2
           a = table[:name].matches(f[0]).and(table[:cached_author_year].matches(f[1]))
-          base_query.where(a.to_sql).order('char_length(cached), cached ASC').limit(20)
+          base_query.where(a.to_sql).limit(20)
         else
           nil
         end
@@ -254,7 +254,8 @@ module Queries
 
       def base_query
         ::TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
-          includes(:ancestor_hierarchies)
+          includes(:ancestor_hierarchies).
+          order('char_length(cached), cached ASC')
       end
 
       def table
