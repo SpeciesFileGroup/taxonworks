@@ -42,7 +42,8 @@ class DescriptorsController < ApplicationController
     respond_to do |format|
       if @descriptor.save
         # format.html { redirect_to @descriptor.metamorphosize, notice: 'Descriptor was successfully created.' }
-        format.html { redirect_to "/descriptors/#{@descriptor.id}", notice: 'Descriptor was successfully created.' }
+        format.html { redirect_to @descriptor, notice: 'Descriptor was successfully created.' }
+        # format.html { redirect_to "/descriptors/#{@descriptor.id}", notice: 'Descriptor was successfully created.' }
         format.json { render :show, status: :created, location: @descriptor.metamorphosize }
       else
         format.html { render :new }
