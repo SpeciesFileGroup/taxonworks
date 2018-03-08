@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h2>Definition</h2>
     <div class="field">
       <label>Name</label>
       <input
@@ -22,3 +23,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+  label {
+    display: block;
+  }
+</style>
