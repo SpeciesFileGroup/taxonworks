@@ -8,7 +8,8 @@ class DescriptorsController < ApplicationController
   def index
     respond_to do |format|
       format.html do
-        @recent_objects = Descriptor.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        @recent_objects = Descriptor.recent_from_project_id(sessions_current_project_id)
+                            .order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
       format.json {
@@ -42,8 +43,9 @@ class DescriptorsController < ApplicationController
 
     respond_to do |format|
       if @descriptor.save
-        # format.html { redirect_to @descriptor.metamorphosize, notice: 'Descriptor was successfully created.' }
-        format.html { redirect_to "/descriptors/#{@descriptor.id}", notice: 'Descriptor was successfully created.' }
+        format.html { redirect_to url_for(@descriptor.metamorphosize),
+                                  notice: 'Descriptor was successfully created.' }
+        # format.html { redirect_to "/descriptors/#{@descriptor.id}", notice: 'Descriptor was successfully created.' }
         format.json { render :show, status: :created, location: @descriptor.metamorphosize }
       else
         format.html { render :new }
@@ -57,7 +59,8 @@ class DescriptorsController < ApplicationController
   def update
     respond_to do |format|
       if @descriptor.update(descriptor_params)
-        format.html { redirect_to url_for(@descriptor.metamorphosize), notice: 'Descriptor was successfully updated.' }
+        format.html { redirect_to url_for(@descriptor.metamorphosize),
+                                  notice: 'Descriptor was successfully updated.' }
         format.json { render :show, status: :ok, location: @descriptor.metamorphosize }
       else
         format.html { render :edit }
@@ -69,7 +72,7 @@ class DescriptorsController < ApplicationController
   # DELETE /descriptors/1
   # DELETE /descriptors/1.json
   def destroy
-    @descriptor.destroy
+    @descriptor.destroy!
     respond_to do |format|
       format.html { redirect_to descriptors_url, notice: 'Descriptor was successfully destroyed.' }
       format.json { head :no_content }
@@ -77,16 +80,17 @@ class DescriptorsController < ApplicationController
   end
 
   def autocomplete
-    @descriptors = Queries::DescriptorAutocompleteQuery.new(params.require(:term), project_id: sessions_current_project_id).all
+    @descriptors = Queries::DescriptorAutocompleteQuery
+                     .new(params.require(:term), project_id: sessions_current_project_id).all
 
     data = @descriptors.collect do |t|
-      {id:              t.id,
-       label:           t.name,
-       gid:             t.to_global_id.to_s,
+      {id: t.id,
+       label: t.name,
+       gid: t.to_global_id.to_s,
        response_values: {
          params[:method] => t.id
        },
-       label_html:      t.name
+       label_html: t.name
       }
     end
     render json: data
@@ -94,7 +98,8 @@ class DescriptorsController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to descriptors_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to descriptors_path, notice: 'You must select an item from the list with a click or ' \
+                                                'tab press before clicking show.'
     else
       redirect_to descriptor_path(params[:id])
     end
@@ -121,10 +126,12 @@ class DescriptorsController < ApplicationController
   end
 
   def create_modify_gene_descriptor_batch_load
-    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :modify_gene_descriptor_batch_load_descriptors_md5)
+    if params[:file] && digested_cookie_exists?(params[:file]
+                                                  .tempfile, :modify_gene_descriptor_batch_load_descriptors_md5)
       @result = BatchLoad::Import::Descriptors::ModifyGeneDescriptorInterpreter.new(batch_params)
-      if @result.create
-        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} Gene Descriptors were modified."
+      if @result.create!
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} " \
+                            'Gene Descriptors were modified.'
         render 'descriptors/batch_load/modify_gene_descriptor/create' and return
       else
         flash[:alert] = 'Batch import failed.'
@@ -135,7 +142,7 @@ class DescriptorsController < ApplicationController
     render :batch_load
   end
 
-private
+  private
 
   def set_descriptor
     @descriptor = Descriptor.find(params[:id])
@@ -146,6 +153,7 @@ private
   end
 
   def batch_params
-    params.permit(:file).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
+    params.permit(:file).merge(user_id: sessions_current_user_id,
+                               project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 end
