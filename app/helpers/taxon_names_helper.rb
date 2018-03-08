@@ -15,16 +15,19 @@ module TaxonNamesHelper
     a = ''
     if taxon_name.parent_id
       a = content_tag(:span, class: :subtle) do
-        '(' +
-          taxon_name.rank ? taxon_name.rank : 'Combination' +
+        (' (' +
+          (taxon_name.rank || 'Combination') +
           ', parent ' +
-          taxon_name_tag(taxon_name.parent) +
-          ')'
+          taxon_name_tag(taxon_name.parent).html_safe +
+          ')').html_safe
       end
     end
 
     content_tag(:span, class: :klass) do
-      taxon_name.cached_html_name_and_author_year.gsub(/(#{term})/i, content_tag(:mark, '\1')).html_safe +
+      taxon_name.
+        cached_html_name_and_author_year.
+        gsub(/(#{term})/i, content_tag(:mark, '\1')).
+        html_safe +
         a.html_safe
     end
   end
