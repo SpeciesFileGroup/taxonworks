@@ -32,6 +32,14 @@ describe Combination, type: :model, group: :nomenclature do
     end
   end
 
+  specify '#protonym_ids_params' do
+    combination.genus = genus
+    combination.subgenus = genus
+    combination.species = species
+    combination.subspecies = species
+    expect(combination.protonym_ids_params).to eq(genus: genus.id, subgenus: genus.id, species: species.id, subspecies: species.id)
+  end
+
   context 'validation' do
     
     before { combination.valid? }
@@ -76,17 +84,9 @@ describe Combination, type: :model, group: :nomenclature do
       # *WAY* more checking, not sure its worthwhile, I simplified the test to be verbatim == verbatim
       # c = Combination.new(genus: genus, species: species, verbatim_name: "Erythroneura vite")
       
-      c = Combination.new(genus: genus, species: species, verbatim_name: "Erythroneura vitis")
+      c = Combination.new(genus: genus, species: species, verbatim_name: "Erythroneura viti")
       
       expect(c.valid?).to be_truthy
-    end
-
-    specify 'protonym_ids_params' do
-      combination.genus = genus
-      combination.subgenus = genus
-      combination.species = species
-      combination.subspecies = species
-      expect(combination.protonym_ids_params).to eq(genus: genus.id, subgenus: genus.id, species: species.id, subspecies: species.id)
     end
 
     specify 'species combination is valid with two protonyms' do

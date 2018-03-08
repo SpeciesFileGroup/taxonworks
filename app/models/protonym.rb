@@ -458,13 +458,14 @@ class Protonym < TaxonName
 
 
   # TODO: refactor to use us a hash!
-  # Returns a String representing the name as originally published
+  # @return [String, nil]
+  #   the string representing the name as originally published
   def get_original_combination
     # strategy is to get the original hash, and swap in values for pertinent relationships
     str = nil
 
-    if is_genus_or_species_rank?  # TODO: by definition it's a protonym
-      relationships = self.original_combination_relationships.reload # force a reload of the relationships
+    if is_genus_or_species_rank?  
+      relationships = self.original_combination_relationships.reload 
 
       return nil if relationships.count == 0
 
@@ -483,7 +484,7 @@ class Protonym < TaxonName
         if i.object_taxon_name_id == i.subject_taxon_name_id && !i.object_taxon_name.verbatim_name.blank?
           case i.type # subject_status
             when /OriginalGenus/ #'original genus'
-              genus  = '<i>' + i.subject_taxon_name.verbatim_name + '</i> '
+              genus  = '<i>' + i.subject_taxon_name.verbatim_name + '</i> ' # why verbatim_name? 
               gender = i.subject_taxon_name.gender_name
               g1 = true
             when /OriginalSubgenus/ # 'original subgenus'
@@ -559,7 +560,6 @@ class Protonym < TaxonName
     str.blank? ? nil : str
   end
 
-
   # TODO: @proceps - confirm this is only applicable to Protonym, NOT Combination
   def update_cached_original_combinations
     update_columns(
@@ -567,7 +567,6 @@ class Protonym < TaxonName
       cached_primary_homonym: get_genus_species(:original, :self),
       cached_primary_homonym_alternative_spelling: get_genus_species(:original, :alternative))
   end
-
 
   def set_cached_species_homonym
     update_columns(
