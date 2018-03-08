@@ -305,11 +305,14 @@ browse_otus_task:
   categories:
   status: prototype
   description: 'Browse through brief summaries of data for an OTU, including ability to annotate and add related data.'
-
 new_descriptor_task:
   hub: true
-  name: 'TODO: Task name'
+  name: 'New Descriptor'
   related:
+    - character_states
+    - observations
+    - observation_matrices
   categories:
+    - matrix
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Create and update descriptors (e.g. phylogenetic or descriptive characters).'
