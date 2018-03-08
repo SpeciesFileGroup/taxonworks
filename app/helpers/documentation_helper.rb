@@ -38,11 +38,11 @@ module DocumentationHelper
 
   end
 
-  def document_toggle_tag(object)
+  # @param [Object] object
+  def document_toggle_tag(object) # TODO: Apparently unused...
     content_tag(:div, class: 'document_toggle_tag') do
       viewer_documents.each do |document_id|
-        doc = Document.find(document_id)
-        content_tag(:span, link_to(content_tag(doc, '/view/pdf/link/or/onclick')))
+        # content_tag(:span, link_to(content_tag(Document.find(document_id), '/view/pdf/link/or/onclick')))
       end
     end
   end
