@@ -338,7 +338,7 @@ class Combination < TaxonName
   # @return [Scope]
   #   AHA from http://stackoverflow.com/questions/28568205/rails-4-arel-join-on-subquery
   #   See also Descriptor::Gene
-  def exists_as_original_combination?
+  def protonyms_matching_original_relationships
     data = protonym_ids_params 
     return Protonym.none if !data.keys.any?
 
@@ -444,11 +444,9 @@ class Combination < TaxonName
   end
 
   def does_not_exist_as_original_combination
-    if a = exists_as_original_combination?.first
-      if a
-        n = "<i>#{verbatim_name}</i>" == a.cached_original_combination # TODO: get rid of italics on cached original combination
-        errors.add(:base, "Combination exists as protonym with original combination set (#{a.cached}).") unless !verbatim_name.blank? && n
-      end
+    n = "<i>#{get_full_name}</i>" # TODO: get rid of italics on cached original combination
+    if a = protonyms_matching_original_relationships.where('taxon_names.cached_original_combination = ?', n)
+      errors.add(:base, "Combination exists as protonym(s) with matching original combination (#{a.all.pluck(:cached).join(', ')}).") if a.any?
     end
   end
 
