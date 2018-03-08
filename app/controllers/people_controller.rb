@@ -6,7 +6,7 @@ class PeopleController < ApplicationController
   # GET /people
   # GET /people.json
   def index
-    @people =  Person.order(updated_at: :desc).limit(10)  
+    @people         = Person.order(updated_at: :desc).limit(10)
     @recent_objects = @people
     render '/shared/data/all/index'
   end
@@ -32,7 +32,8 @@ class PeopleController < ApplicationController
 
     respond_to do |format|
       if @person.save
-        format.html { redirect_to @person.metamorphosize, notice: "Person '#{@person.name}' was successfully created." }
+        format.html { redirect_to url_for(@person.metamorphosize),
+                                  notice: "Person '#{@person.name}' was successfully created." }
         format.json { render action: 'show', status: :created, location: @person }
       else
         format.html { render action: 'new' }
@@ -46,7 +47,7 @@ class PeopleController < ApplicationController
   def update
     respond_to do |format|
       if @person.update(person_params)
-        format.html { redirect_to @person.metamorphosize, notice: 'Person was successfully updated.' }
+        format.html { redirect_to url_for(@person.metamorphosize), notice: 'Person was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }
@@ -58,7 +59,7 @@ class PeopleController < ApplicationController
   # DELETE /people/1
   # DELETE /people/1.json
   def destroy
-    @person.destroy
+    @person.destroy!
     respond_to do |format|
       format.html { redirect_to people_url }
       format.json { head :no_content }
@@ -66,13 +67,14 @@ class PeopleController < ApplicationController
   end
 
   def list
-    @people =  Person.order(:cached).page(params[:page]) 
+    @people = Person.order(:cached).page(params[:page])
   end
 
   # TODO: deprecate!
   def search
     if params[:id].blank?
-      redirect_to people_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to people_path, notice: 'You must select an item from the list with a click ' \
+                                          'or tab press before clicking show.'
     else
       redirect_to person_path(params[:id])
     end
@@ -101,7 +103,7 @@ class PeopleController < ApplicationController
   # GET /person/:id/details
   def details
     @person = Person.includes(:roles).find(params[:id])
-    render partial: '/people/picker_details', locals: {person:  @person}
+    render partial: '/people/picker_details', locals: {person: @person}
   end
 
   private
@@ -111,15 +113,15 @@ class PeopleController < ApplicationController
   end
 
   def set_person
-    @person = Person.find(params[:id])
+    @person        = Person.find(params[:id])
     @recent_object = @person
   end
 
   def person_params
     params.require(:person).permit(
-      :type, 
-      :last_name, :first_name, 
-      :suffix, :prefix, 
+      :type,
+      :last_name, :first_name,
+      :suffix, :prefix,
       :year_born, :year_died, :year_active_start, :year_active_end
     )
   end

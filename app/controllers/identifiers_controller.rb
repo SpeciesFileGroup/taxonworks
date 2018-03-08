@@ -35,7 +35,8 @@ class IdentifiersController < ApplicationController
     @identifier = Identifier.new(identifier_params)
     respond_to do |format|
       if @identifier.save
-        format.html { redirect_to @identifier.identifier_object.metamorphosize, notice: 'Identifier was successfully created.' }
+        format.html { redirect_to url_for(@identifier.identifier_object.metamorphosize),
+                                  notice: 'Identifier was successfully created.' }
         format.json { render action: 'show', status: :created, location: @identifier.becomes(Identifier) }
       else
         format.html { render 'new', notice: 'Identifier was NOT successfully created.' }
@@ -49,7 +50,8 @@ class IdentifiersController < ApplicationController
   def update
     respond_to do |format|
       if @identifier.update(identifier_params)
-        format.html { redirect_to @identifier.identifier_object.metamorphosize, notice: 'Identifier was successfully updated.' }
+        format.html { redirect_to url_for(@identifier.identifier_object.metamorphosize),
+                                  notice: 'Identifier was successfully updated.' }
         format.json { head :no_content }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Identifier was NOT successfully created.')}
@@ -75,7 +77,7 @@ class IdentifiersController < ApplicationController
   # GET /identifier/search
   def search
     if @identifier = Identifier.find(params[:id])
-      redirect_to @identifier.identifier_object.metamorphosize
+      redirect_to url_for(@identifier.identifier_object.metamorphosize)
     else
       redirect_to identifier_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     end

@@ -6,7 +6,8 @@ class SequenceRelationshipsController < ApplicationController
   # GET /sequence_relationships
   # GET /sequence_relationships.json
   def index
-    @recent_objects = SequenceRelationship.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = SequenceRelationship.recent_from_project_id(sessions_current_project_id)
+                        .order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -35,7 +36,8 @@ class SequenceRelationshipsController < ApplicationController
 
     respond_to do |format|
       if @sequence_relationship.save
-        format.html { redirect_to sequence_relationship_path(@sequence_relationship), notice: 'Sequence relationship was successfully created.' }
+        format.html { redirect_to sequence_relationship_path(@sequence_relationship),
+                                  notice: 'Sequence relationship was successfully created.' }
         format.json { render :show, status: :created, location: @sequence_relationship }
       else
         format.html { render :new }
@@ -49,7 +51,8 @@ class SequenceRelationshipsController < ApplicationController
   def update
     respond_to do |format|
       if @sequence_relationship.update(sequence_relationship_params)
-        format.html { redirect_to @sequence_relationship.metamorphosize, notice: 'Sequence relationship was successfully updated.' }
+        format.html { redirect_to url_for(@sequence_relationship.metamorphosize),
+                                  notice: 'Sequence relationship was successfully updated.' }
         format.json { render :show, status: :ok, location: @sequence_relationship }
       else
         format.html { render :edit }
@@ -61,16 +64,18 @@ class SequenceRelationshipsController < ApplicationController
   # DELETE /sequence_relationships/1
   # DELETE /sequence_relationships/1.json
   def destroy
-    @sequence_relationship.destroy
+    @sequence_relationship.destroy!
     respond_to do |format|
-      format.html { redirect_to sequence_relationships_url, notice: 'Sequence relationship was successfully destroyed.' }
+      format.html { redirect_to sequence_relationships_url,
+                                notice: 'Sequence relationship was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
 
   def search
     if params[:id].blank?
-      redirect_to sequence_relationships_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to sequence_relationships_path, notice: 'You must select an item from the list with a ' \
+                                                            'click or tab press before clicking show.'
     else
       redirect_to sequence_relationship_path(params[:id])
     end
@@ -79,22 +84,23 @@ class SequenceRelationshipsController < ApplicationController
   def batch_load
   end
 
-  def preview_primers_batch_load 
-    if params[:file] 
+  def preview_primers_batch_load
+    if params[:file]
       @result = BatchLoad::Import::SequenceRelationships::PrimersInterpreter.new(batch_params)
       digest_cookie(params[:file].tempfile, :Primers_sequences_md5)
       render 'sequence_relationships/batch_load/primers/preview'
     else
       flash[:notice] = 'No file provided!'
-      redirect_to action: :batch_load 
+      redirect_to action: :batch_load
     end
   end
 
   def create_primers_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Primers_sequences_md5)
       @result = BatchLoad::Import::SequenceRelationships::PrimersInterpreter.new(batch_params)
-      if @result.create
-        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} sequence relationships were created."
+      if @result.create!
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} " \
+                            'sequence relationships were created.'
         render 'sequence_relationships/batch_load/primers/create' and return
       else
         flash[:alert] = 'Batch import failed.'
@@ -106,17 +112,19 @@ class SequenceRelationshipsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_sequence_relationship
-      @sequence_relationship = SequenceRelationship.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_sequence_relationship
+    @sequence_relationship = SequenceRelationship.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def sequence_relationship_params
-      params.require(:sequence_relationship).permit(:subject_sequence_id, :type, :object_sequence_id, :created_by_id, :updated_by_id, :project_id)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def sequence_relationship_params
+    params.require(:sequence_relationship).permit(:subject_sequence_id, :type,
+                                                  :object_sequence_id, :created_by_id, :updated_by_id, :project_id)
+  end
 
-    def batch_params
-      params.permit(:name, :file, :import_level, files: []).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
-    end
+  def batch_params
+    params.permit(:name, :file, :import_level, files: [])
+      .merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
+  end
 end

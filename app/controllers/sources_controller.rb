@@ -31,52 +31,61 @@ class SourcesController < ApplicationController
   # POST /sources
   # POST /sources.json
   # TODO: move all the logic to model(s)
+  # rubocop:disable Metrics/BlockNesting TODO: check on this
   def create
     @source = Source.new(source_params)
 
     respond_to do |format|
       if @source.save
         case @source.type
-        when 'Source::Bibtex'
-          format.html {redirect_to @source.metamorphosize, notice: "Source by '#{@source.author}' was successfully created."}
-        when 'Source::Verbatim'
-          format.html {redirect_to @source.metamorphosize, notice: "Source '#{@source.cached}' was successfully created."}
-        else # type human
-          format.html {redirect_to @source.metamorphosize, notice: "Source '#{@source.cached_author_string}' was successfully created."}
+          when 'Source::Bibtex'
+            format.html { redirect_to url_for(@source.metamorphosize),
+                                      notice: "Source by '#{@source.author}' was successfully created." }
+          when 'Source::Verbatim'
+            format.html { redirect_to url_for(@source.metamorphosize),
+                                      notice: "Source '#{@source.cached}' was successfully created." }
+          else # type human
+            format.html { redirect_to url_for(@source.metamorphosize),
+                                      notice: "Source '#{@source.cached_author_string}' was successfully created." }
         end
-        format.json {render action: 'show', status: :created, location: @source}
+        format.json { render action: 'show', status: :created, location: @source }
       else
         if @source.type == 'Source::Bibtex' && source_params['roles_attributes'].try(:count).to_i > 0
           # has an author or editor so force create...
-          if @source.errors.get(:base).include?('Missing core data. A TaxonWorks source must have one of the following: author, editor, booktitle, title, url, journal, year, or stated year')
+          if @source.errors.get(:base).include?('Missing core data. A TaxonWorks source must have one of ' \
+                                                  'the following: author, editor, booktitle, title, url, ' \
+                                                  'journal, year, or stated year')
             @source.title = 'forced'
-            if @source.save
+            if @source.save!
               @source.title = ''
-              @source.save #TODO may need to add a test to confirm it saves the second time.
-              format.html {redirect_to @source.metamorphosize, notice: "Source by '#{@source.author}' was successfully created."}
+              @source.save! #TODO may need to add a test to confirm it saves the second time.
+              format.html { redirect_to url_for(@source.metamorphosize),
+                                        notice: "Source by '#{@source.author}' was successfully created." }
             else
-              format.html {render action: 'new'}
-              format.json {render json: @source.errors, status: :unprocessable_entity}
+              format.html { render action: 'new' }
+              format.json { render json: @source.errors, status: :unprocessable_entity }
             end
           end
         else
-          format.html {render action: 'new'}
-          format.json {render json: @source.errors, status: :unprocessable_entity}
+          format.html { render action: 'new' }
+          format.json { render json: @source.errors, status: :unprocessable_entity }
         end
       end
     end
   end
+
+  # rubocop:enable Metrics/BlockNesting
 
   # PATCH/PUT /sources/1
   # PATCH/PUT /sources/1.json
   def update
     respond_to do |format|
       if @source.update(source_params)
-        format.html {redirect_to @source.metamorphosize, notice: 'Source was successfully updated.'}
-        format.json {head :no_content}
+        format.html { redirect_to url_for(@source.metamorphosize), notice: 'Source was successfully updated.' }
+        format.json { head :no_content }
       else
-        format.html {render action: 'edit'}
-        format.json {render json: @source.errors, status: :unprocessable_entity}
+        format.html { render action: 'edit' }
+        format.json { render json: @source.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -84,10 +93,10 @@ class SourcesController < ApplicationController
   # DELETE /sources/1
   # DELETE /sources/1.json
   def destroy
-    @source.destroy
+    @source.destroy!
     respond_to do |format|
-      format.html {redirect_to sources_url}
-      format.json {head :no_content}
+      format.html { redirect_to sources_url }
+      format.json { head :no_content }
     end
   end
 
@@ -104,7 +113,8 @@ class SourcesController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to sources_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to sources_path, notice: 'You must select an item from the list with a click or tab ' \
+                                          'press before clicking show.'
     else
       redirect_to source_path(params[:id])
     end
@@ -118,27 +128,28 @@ class SourcesController < ApplicationController
     file = params.require(:file)
     redirect_to batch_load_sources_path, notice: 'No file has been selected.' and return if file.blank?
     file_ok, mimetype = Utilities::Files.recognized_batch_file_type?(file.tempfile)
-    if !file_ok 
-      redirect_to batch_load_sources_path, notice: "File '#{file.original_filename}' is of type '#{mimetype}', and not processable as BibTex."
+    if !file_ok
+      redirect_to batch_load_sources_path,
+                  notice: "File '#{file.original_filename}' is of type '#{mimetype}', and not processable as BibTex."
     else
-      @sources = Source.batch_preview(file.tempfile)
-      sha256 = Digest::SHA256.file(file.tempfile)
+      @sources                    = Source.batch_preview(file.tempfile)
+      sha256                      = Digest::SHA256.file(file.tempfile)
       cookies[:batch_sources_md5] = sha256.hexdigest
       render 'sources/batch_load/bibtex_batch_preview'
     end
   end
 
   def create_bibtex_batch_load
-    file = params.require(:file) 
-    redirect_to batch_load_sources_path, notice: 'no file has been selected' and return if file.blank? 
+    file = params.require(:file)
+    redirect_to batch_load_sources_path, notice: 'no file has been selected' and return if file.blank?
     sha256 = Digest::SHA256.file(file.tempfile)
     if cookies[:batch_sources_md5] == sha256.hexdigest
       if result_hash = Source.batch_create(file.tempfile)
-        # error in results?  
-        @count = result_hash[:count]
-        @sources = result_hash[:records]
+        # error in results?
+        @count         = result_hash[:count]
+        @sources       = result_hash[:records]
         flash[:notice] = "Successfully batch created #{@count} sources."
-        render 'sources/batch_load/bibtex_batch_create' 
+        render 'sources/batch_load/bibtex_batch_create'
       else
         flash[:notice] = 'Failed to create sources.'
         redirect_to batch_load_sources_path
@@ -174,16 +185,16 @@ class SourcesController < ApplicationController
       :abstract, :copyright, :language, :stated_year, :verbatim,
       :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
       :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type,
-      roles_attributes: [
-        :id,
-        :_destroy,
-        :type,
-        :person_id,
-        :position,
-        person_attributes: [
-          :last_name, :first_name, :suffix, :prefix
-        ]
-      ],
+      roles_attributes:           [
+                                    :id,
+                                    :_destroy,
+                                    :type,
+                                    :person_id,
+                                    :position,
+                                    person_attributes: [
+                                                         :last_name, :first_name, :suffix, :prefix
+                                                       ]
+                                  ],
       project_sources_attributes: [:project_id]
     )
   end
