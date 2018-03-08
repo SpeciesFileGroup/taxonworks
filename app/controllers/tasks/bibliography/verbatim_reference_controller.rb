@@ -5,10 +5,10 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
   def new
   end
 
-  def preview 
+  def preview
     if citation_param.blank?
-      flash[:notice] = 'Provide a citation.' 
-      render :new and return 
+      flash[:notice] = 'Provide a citation.'
+      render :new and return
     else
       @source = Source.new_from_citation(citation: citation_param)
     end
@@ -18,10 +18,10 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
     @source = Source.new(source_params)
     if @source.save
       flash[:notice] = 'Created source as verbatim.'
-      redirect_to @source.metamorphosize
+      redirect_to url_for(@source.metamorphosize)
     else
       flash[:notice] = "Failed to create verbatim source. #{@source.errors.full_messages}."
-      render :new 
+      render :new
     end
   end
 
@@ -38,7 +38,7 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
           flash[:notice] << 'Associated People records were not created.'
         end
       end
-      redirect_to @source.metamorphosize
+      redirect_to url_for(@source.metamorphosize)
     else
       flash[:notice] = "An error occurred while creating the source record. #{@source.errors.messages}"
       redirect_to new_verbatim_reference_task_path(request.parameters)
@@ -49,9 +49,9 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
 
   def citation_param
     begin
-      params.require(:citation) 
-    rescue ActionController::ParameterMissing 
-      nil      
+      params.require(:citation)
+    rescue ActionController::ParameterMissing
+      nil
     end
   end
 
@@ -63,5 +63,5 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
                                   )
   end
 
-  
+
 end

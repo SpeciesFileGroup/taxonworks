@@ -10,7 +10,8 @@ class ObservationsController < ApplicationController
   def index
     respond_to do |format|
       format.html do
-        @recent_objects = Observation.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        @recent_objects = Observation.recent_from_project_id(sessions_current_project_id)
+                            .order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
       format.json {
@@ -44,7 +45,8 @@ class ObservationsController < ApplicationController
 
     respond_to do |format|
       if @observation.save
-        format.html { redirect_to observation_path(@observation.metamorphosize), notice: 'Observation was successfully created.' }
+        format.html { redirect_to observation_path(@observation.metamorphosize),
+                                  notice: 'Observation was successfully created.' }
         format.json { render :show, status: :created, location: @observation.metamorphosize }
       else
         format.html { render :new }
@@ -58,7 +60,8 @@ class ObservationsController < ApplicationController
   def update
     respond_to do |format|
       if @observation.update(observation_params)
-        format.html { redirect_to @observation.metamorphosize, notice: 'Observation was successfully updated.' }
+        format.html { redirect_to url_for(@observation.metamorphosize),
+                                  notice: 'Observation was successfully updated.' }
         format.json { render :show, status: :ok, location: @observation.metamorphosize }
       else
         format.html { render :edit }
@@ -70,7 +73,7 @@ class ObservationsController < ApplicationController
   # DELETE /observations/1
   # DELETE /observations/1.json
   def destroy
-    @observation.destroy
+    @observation.destroy!
     respond_to do |format|
       format.html { redirect_to observations_url, notice: 'Observation was successfully destroyed.' }
       format.json { head :no_content }
