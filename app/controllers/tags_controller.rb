@@ -13,7 +13,7 @@ class TagsController < ApplicationController
       }
       format.json {
         @tags = Tag.where(project_id: sessions_current_project_id).where(
-          polymorphic_filter_params('tag_object', Tag.related_foreign_keys )
+          polymorphic_filter_params('tag_object', Tag.related_foreign_keys)
         )
       }
     end
@@ -21,15 +21,17 @@ class TagsController < ApplicationController
 
   def new
     if !Keyword.with_project_id(sessions_current_project_id).any? # if there are none
-      @return_path = "/tags/new?tag[tag_object_attribute]=&tag[tag_object_id]=#{params[:tag_object_id]}&tag[tag_object_type]=#{params[:tag_object_type]}"
-      redirect_to new_controlled_vocabulary_term_path(return_path: @return_path), notice: 'Create a keyword or two first!' and return
+      @return_path = "/tags/new?tag[tag_object_attribute]=&tag[tag_object_id]=#{params[:tag_object_id]}" \
+                                      "&tag[tag_object_type]=#{params[:tag_object_type]}"
+      redirect_to new_controlled_vocabulary_term_path(return_path: @return_path),
+                  notice: 'Create a keyword or two first!' and return
     end
 
     @taggable_object = taggable_object
   end
 
-  def tag_object_update 
-    taggable_object.update(taggable_object_params)
+  def tag_object_update
+    taggable_object.update!(taggable_object_params)
     redirect_back(fallback_location: (request.referer || root_path))
   end
 
@@ -39,11 +41,13 @@ class TagsController < ApplicationController
     @tag = Tag.new(tag_params)
     respond_to do |format|
       if @tag.save
-        format.html { redirect_to @tag.tag_object.metamorphosize, notice: 'Tag was successfully created.' }
+        format.html { redirect_to url_for(@tag.tag_object.metamorphosize),
+                                  notice: 'Tag was successfully created.' }
         format.json { render action: 'show', status: :created, location: @tag }
       else
         format.html {
-          redirect_back(fallback_location: (request.referer || root_path), notice: 'Tag was NOT successfully created.')
+          redirect_back(fallback_location: (request.referer || root_path),
+                        notice: 'Tag was NOT successfully created.')
         }
         format.json { render json: @tag.errors, status: :unprocessable_entity }
       end
@@ -55,10 +59,12 @@ class TagsController < ApplicationController
   def update
     respond_to do |format|
       if @tag.update(tag_params)
-        format.html { redirect_to @tag.tag_object.metamorphosize, notice: 'Tag was successfully updated.' }
+        format.html { redirect_to url_for(@tag.tag_object.metamorphosize),
+                                  notice: 'Tag was successfully updated.' }
         format.json { render :show, status: :ok, location: @tag }
       else
-        format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Tag was NOT successfully updated.') }
+        format.html { redirect_back(fallback_location: (request.referer || root_path),
+                                    notice: 'Tag was NOT successfully updated.') }
         format.json { render json: @tag.errors, status: :unprocessable_entity }
       end
     end
@@ -67,10 +73,11 @@ class TagsController < ApplicationController
   # DELETE /tags/1
   # DELETE /tags/1.json
   def destroy
-    @tag.destroy
+    @tag.destroy!
     respond_to do |format|
       # TODO: probably needs to be changed with new annotator
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Tag was successfully destroyed.')}
+      format.html { redirect_back(fallback_location: (request.referer || root_path),
+                                  notice: 'Tag was successfully destroyed.') }
       format.json { head :no_content }
     end
   end
@@ -82,7 +89,8 @@ class TagsController < ApplicationController
   # GET /tags/search
   def search
     if params[:id].blank?
-      redirect_to tags_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to tags_path, notice: 'You must select an item from the list with a click or tab ' \
+                                          'press before clicking show.'
     else
       redirect_to tag_path(params[:id])
     end
@@ -95,7 +103,7 @@ class TagsController < ApplicationController
       {id: t.id,
        label: ApplicationController.helpers.tag_tag(t),
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
        label_html: ApplicationController.helpers.tag_tag(t)
       }
@@ -114,15 +122,16 @@ class TagsController < ApplicationController
 
   # GET /tags/download
   def download
-    send_data Download.generate_csv(Tag.where(project_id: sessions_current_project_id)), type: 'text', filename: "tags_#{DateTime.now}.csv"
+    send_data Download.generate_csv(Tag.where(project_id: sessions_current_project_id)),
+              type: 'text', filename: "tags_#{DateTime.now}.csv"
   end
 
   # POST /tags/batch_remove?keyword_id=123&klass=456
   def batch_remove
     if Tag.batch_remove(params.require(:keyword_id), params.require(:klass))
-      render json: { success: true }
+      render json: {success: true}
     else
-      render json: { success: false}
+      render json: {success: false}
     end
   end
 
@@ -144,12 +153,12 @@ class TagsController < ApplicationController
       tags_attributes: [:_destroy, :id, :keyword_id, :position,
                         keyword_attributes: [:name, :definition, :uri, :html_color]
 
-    ])
+      ])
   end
 
   def taggable_object
     params.require(:tag_object_type).constantize.find(params.require(:tag_object_id))
   end
- 
+
 end
 
