@@ -145,7 +145,7 @@ browse_nomenclature_task:
   hub: true
   name: 'Browse nomenclature'
   description: 'Browse through nomenclature, focusing on a single record at a time.'
-  status: prototype
+  status: stable 
   categories:
     - nomenclature
 nomenclature_by_source_task:
@@ -227,7 +227,7 @@ new_taxon_name_task:
   related:
   categories:
     - nomenclature
-  status: prototype
+  status: stable 
   description: 'Create or edit a taxon name along with its related metadata including original combinations, status, type material and synonym.'
 dates_index_task:
   hub: true
@@ -288,7 +288,7 @@ edit_type_material_task:
   categories:
     - nomenclature
     - collection_object
-  status: prototype
+  status: stable
   description: 'Add type material records for species group names.'
 new_combination_task:
   hub: true
@@ -296,7 +296,7 @@ new_combination_task:
   related:
   categories:
     - nomenclature
-  status: prototype
+  status: stable 
   description: 'Create a new or subsequent nomenclatural combination.'
 browse_otus_task:
   hub: true
