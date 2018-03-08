@@ -35,10 +35,12 @@ class NotesController < ApplicationController
 
     respond_to do |format|
       if @note.save
-        format.html { redirect_to @note.note_object.metamorphosize, notice: 'Note was successfully created.' }
+        format.html { redirect_to url_for(@note.note_object.metamorphosize),
+                                  notice: 'Note was successfully created.' }
         format.json { render json: @note, status: :created, location: @note }
       else
-        format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Note was NOT successfully created.')}
+        format.html { redirect_back(fallback_location: (request.referer || root_path),
+                                    notice:            'Note was NOT successfully created.') }
         format.json { render json: @note.errors, status: :unprocessable_entity }
       end
     end
@@ -49,10 +51,12 @@ class NotesController < ApplicationController
   def update
     respond_to do |format|
       if @note.update(note_params)
-        format.html { redirect_to @note.note_object.metamorphosize, notice: 'Note was successfully created.' }
+        format.html { redirect_to url_for(@note.note_object.metamorphosize),
+                                  notice: 'Note was successfully created.' }
         format.json { render action: 'show', status: :created, location: @note }
       else
-        format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Note was NOT successfully updated.')}
+        format.html { redirect_back(fallback_location: (request.referer || root_path),
+                                    notice:            'Note was NOT successfully updated.') }
         format.json { render json: @note.errors, status: :unprocessable_entity }
       end
     end
@@ -64,7 +68,8 @@ class NotesController < ApplicationController
     @note.destroy
     respond_to do |format|
       # TODO: probably needs to be changed
-      format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Note was successfully destroyed.')}
+      format.html { redirect_back(fallback_location: (request.referer || root_path),
+                                  notice:            'Note was successfully destroyed.') }
       format.json { head :no_content }
     end
   end
@@ -76,7 +81,8 @@ class NotesController < ApplicationController
   # GET /notes/search
   def search
     if params[:id].blank?
-      redirect_to note_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to note_path, notice: 'You must select an item from the list with a click or' \
+                                        ' tab press before clicking show.'
     else
       redirect_to note_path(params[:id])
     end
@@ -87,11 +93,11 @@ class NotesController < ApplicationController
 
     data = @notes.collect do |t|
       str = render_to_string(partial: 'tag', locals: {note: t})
-      {id: t.id,
-       label: str,
+      {id:              t.id,
+       label:           str,
        response_values: {
-           params[:method] => t.id},
-       label_html: str
+         params[:method] => t.id},
+       label_html:      str
       }
     end
 
@@ -100,7 +106,9 @@ class NotesController < ApplicationController
 
   # GET /notes/download
   def download
-    send_data Download.generate_csv(Note.where(project_id: sessions_current_project_id)), type: 'text', filename: "notes_#{DateTime.now}.csv"
+    send_data Download.generate_csv(Note.where(project_id: sessions_current_project_id)),
+              type:     'text',
+              filename: "notes_#{DateTime.now}.csv"
   end
 
   private
@@ -110,6 +118,7 @@ class NotesController < ApplicationController
   end
 
   def note_params
-    params.require(:note).permit(:text, :note_object_id, :note_object_type, :note_object_attribute, :annotated_global_entity)
+    params.require(:note).permit(:text, :note_object_id, :note_object_type,
+                                 :note_object_attribute, :annotated_global_entity)
   end
 end
