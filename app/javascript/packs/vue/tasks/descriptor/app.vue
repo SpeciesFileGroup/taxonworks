@@ -1,7 +1,9 @@
 <template>
   <div>
     <h1>New descriptor</h1>
-    <type-component v-model="descriptor.type"/>
+    <type-component 
+    :descriptor-id="descriptor['id']"
+    v-model="descriptor.type"/>
     <template v-if="descriptor.type">
       <definition-component/>
       <template v-if="existComponent">

@@ -7,6 +7,7 @@
       :key="key">
       <label>
         <input
+          :disabled="descriptorId"
           type="radio"
           v-model="selection"
           :value="key"
@@ -22,7 +23,8 @@
     props: {
       value: {
         type: String,
-      }
+      },
+      descriptorId
     },
     computed: {
       selection: {
