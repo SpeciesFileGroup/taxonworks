@@ -73,8 +73,7 @@ class ProjectsController < ApplicationController
     set_project
     if authorize_project_selection(sessions_current_user, @project)
       sessions_select_project(@project)
-      to_where = @project.workbench_starting_path
-      redirect_to "#{to_where}" # see def go_to for unprotected redirect mitigation
+      redirect_to go_to # see def go_to for unprotected redirect mitigation
     else
       redirect_to root_path, notice: 'You are not a member of that project!'
     end
