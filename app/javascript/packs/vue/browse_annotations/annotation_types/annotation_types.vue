@@ -14,7 +14,7 @@
         </label>
       </li>
     </ul>
-    <span v-for="(item, key) in result"> {{ key }} : {{ item }} </span>
+      <span v-for="(item, key) in result"> {{ key }} : {{ item }} <br></span>
   </div>
 </template>
 
@@ -45,12 +45,10 @@
         this.$emit('input', type.valueOf())
       },
       getResult(newVal) {
-        // this.$http.post('/tasks/browse_annotations/get_type', {json: newVal}).then(response => {
-        //   this.result = response.body
         this.$http.post('/tasks/browse_annotations/get_type', {annotationType: newVal}).then(response => {
-          console.log(response);
+          // console.log(response); // this is necessary to show traffic?
           this.$emit('annotation_type_selected', response.body)
-          this.$emit('result', response)
+          this.result = response.body;
         })
       }
     }

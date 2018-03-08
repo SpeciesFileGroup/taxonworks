@@ -20,9 +20,7 @@
         <div class="annotation_logic">
 
         </div>
-        <!--<annotation-types @annotation_type_selected="filter.common = $event"/>-->
-        <!--<annotation-types @model_selected="filter.common = $event"/>-->
-        <!--<span v-for="json in filter.result">{{ json }}</span>-->
+        <span v-for="whatever in filter.result">{{ whatever }}</span>
         <!--<span v-if="filter.common">{{ filter.common }}</span>-->
         <span>{{ filter.common }}</span>
         <button

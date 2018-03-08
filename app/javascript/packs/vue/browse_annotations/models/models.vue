@@ -14,7 +14,7 @@
                 </label>
             </li>
         </ul>
-        <!--<span v-for="(item, key) in result"> {{ key }} : {{ item }} </span>-->
+        <span v-for="(item, key) in result"> {{ key }} : {{ item }} <br></span>
     </div>
 </template>
 
@@ -46,9 +46,9 @@
       },
       getResult(newVal) {
         this.$http.post('/tasks/browse_annotations/set_model', {annotationFor: newVal}).then(response => {
-          console.log(response);
+          // console.log(response);
           this.$emit('model_selected', response.body);
-          this.$emit('result', response)
+          this.result = response.body;
         })
       }
     }
