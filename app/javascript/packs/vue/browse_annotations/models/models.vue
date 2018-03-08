@@ -14,7 +14,7 @@
                 </label>
             </li>
         </ul>
-        <span v-for="(item, key) in result"> {{ key }} : {{ item }} </span>
+        <!--<span v-for="(item, key) in result"> {{ key }} : {{ item }} </span>-->
     </div>
 </template>
 
