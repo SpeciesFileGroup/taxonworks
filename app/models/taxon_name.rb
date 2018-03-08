@@ -163,7 +163,6 @@ class TaxonName < ApplicationRecord
   attr_accessor :no_cached
 
   after_save :create_new_combination_if_absent
-
   after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
   after_save :set_cached_warnings, if: Proc.new {|n| n.no_cached }
 
@@ -179,6 +178,7 @@ class TaxonName < ApplicationRecord
     :check_new_parent_class,
     :validate_source_type,
     :validate_one_root_per_project
+
 
   validates_presence_of :type, message: 'is not specified'
 
@@ -1147,7 +1147,11 @@ class TaxonName < ApplicationRecord
   end
 
   def validate_source_type
-    errors.add(:base, 'Source must be a Bibtex') if source && source.type != 'Source::Bibtex'
+    a = source && source.type != 'Source::Bibtex'
+    b = origin_citation && origin_citation.try(:source).try(:type) != 'Source::Bibtex'
+    if a || b 
+      errors.add(:base, 'Source must be a Bibtex')
+    end 
   end
 
   #TODO: validate that all the ranks in the table could be linked to ranks in classes (if those had changed)
