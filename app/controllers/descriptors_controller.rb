@@ -122,6 +122,10 @@ class DescriptorsController < ApplicationController
     render :batch_load
   end
 
+  def units
+    render json: UNITS
+  end
+
 private
 
   def set_descriptor

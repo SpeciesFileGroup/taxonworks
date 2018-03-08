@@ -249,7 +249,8 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_modify_gene_descriptor_batch_load
       post :create_modify_gene_descriptor_batch_load
-    end
+      get :units
+    end  
   end
 
   resources :documentation do
