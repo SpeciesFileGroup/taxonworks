@@ -260,16 +260,24 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
 
   context 'citation' do
-    let(:s) { FactoryBot.create(:valid_source_bibtex) }
     let!(:g1) { Protonym.create!(name: 'Aus', parent: root, rank_class: Ranks.lookup(:iczn, :genus)) }
-    let!(:c) { Citation.create(citation_object: g1, source: s, is_original: true) }
 
-    specify 'destroying original citation as nested attributes' do
-      expect( g1.reload.origin_citation.nil?).to be_falsey
-      expect( g1.update!(origin_citation_attributes: {id: c.id, _destroy: true} ) ).to be_truthy
-      expect( g1.reload.origin_citation.nil?).to be_truthy
+    context 'original citation via nested attributes' do
+      let!(:c) { Citation.create(citation_object: g1, source: s, is_original: true) }
+      let(:s) { FactoryBot.create(:valid_source_bibtex) }
+      specify 'destroying original citation as nested attributes' do
+        expect( g1.reload.origin_citation.nil?).to be_falsey
+        expect( g1.update!(origin_citation_attributes: {id: c.id, _destroy: true} ) ).to be_truthy
+        expect( g1.reload.origin_citation.nil?).to be_truthy
+      end
     end
 
+    context 'verbatim references' do
+      let(:v) { FactoryBot.create(:valid_source_verbatim) } 
+      specify 'are not allowed via nested attributes' do
+        expect(g1.update(origin_citation_attributes: { source_id: v.id })).to be_falsey
+      end
+    end
   end
 
 end
