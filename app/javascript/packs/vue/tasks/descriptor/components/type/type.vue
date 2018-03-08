@@ -42,7 +42,7 @@
           'Descriptor::PresenceAbsence': 'Presence absence', 
           'Descriptor::Qualitative': 'Qualitative (e.g. a phylogenetic character, or telegraphic description)',
           'Descriptor::Sample': 'Sample ( a statistical summary, n, min, max, std, etc.)',
-          'Descriptor::Working': '',
+          'Descriptor::Working': 'Free text',
         }
       }
     },

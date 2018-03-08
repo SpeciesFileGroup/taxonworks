@@ -133,7 +133,7 @@ private
   end
 
   def descriptor_params
-    params.require(:descriptor).permit(:name, :short_name, :type)
+    params.require(:descriptor).permit(:name, :short_name, :description, :position, :type, :gene_attribute_logic, :default_unit)
   end
 
   def batch_params

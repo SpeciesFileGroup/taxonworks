@@ -31,6 +31,11 @@ const CreateDescriptor = function (data) {
   return ajaxCall('post', `/descriptors.json`, data)
 }
 
+const GetUnits = function() {
+  return ajaxCall('get','/descriptors/units')
+}
+
 export {
-  CreateDescriptor
+  CreateDescriptor,
+  GetUnits
 }
