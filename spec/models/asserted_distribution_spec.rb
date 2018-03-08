@@ -77,8 +77,8 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
 
       specify 'all attributes with #new validates' do
         a = AssertedDistribution.new(
-          otu: otu, 
-          geographic_area: geographic_area, 
+          otu:                  otu,
+          geographic_area:      geographic_area,
           citations_attributes: [{source_id: source.id}])
         expect(a.save).to be_truthy
         expect(a.citations.count).to eq(1)
@@ -135,10 +135,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
   context 'stub_new' do
     include_context 'stuff for complex geo tests'
 
-    before {
-      ce_a
-      gr_a
-    }
+    before { [ce_a, gr_a].each }
     let(:otu) { FactoryBot.create(:valid_otu) }
 
     specify 'creates some number of ADs' do

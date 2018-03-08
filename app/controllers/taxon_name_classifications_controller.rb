@@ -1,18 +1,20 @@
 class TaxonNameClassificationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_name_classification, only: [ :update, :destroy, :show]
+  before_action :set_taxon_name_classification, only: [:update, :destroy, :show]
 
   # GET /taxon_name_relationships
   # GET /taxon_name_relationships.json
   def index
     respond_to do |format|
       format.html do
-        @recent_objects = TaxonNameClassification.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        @recent_objects = TaxonNameClassification.recent_from_project_id(sessions_current_project_id)
+                            .order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_name_classifications = TaxonNameClassification.where(filter_params).with_project_id(sessions_current_project_id)
+        @taxon_name_classifications = TaxonNameClassification.where(filter_params)
+                                        .with_project_id(sessions_current_project_id)
       }
     end
   end
@@ -28,11 +30,13 @@ class TaxonNameClassificationsController < ApplicationController
 
     respond_to do |format|
       if @taxon_name_classification.save
-        format.html {redirect_to @taxon_name_classification.taxon_name.metamorphosize, notice: 'Taxon name classification was successfully created.'}
+        format.html { redirect_to url_for(@taxon_name_classification.taxon_name.metamorphosize),
+                                  notice: 'Taxon name classification was successfully created.' }
         format.json { render :show, status: :created, location: @taxon_name_classification.metamorphosize }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Taxon name classification was NOT successfully created.')}
-        format.json {render json: @taxon_name_classification.errors, status: :unprocessable_entity}
+        format.html { redirect_back(fallback_location: (request.referer || root_path),
+                                    notice:            'Taxon name classification was NOT successfully created.') }
+        format.json { render json: @taxon_name_classification.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -43,11 +47,13 @@ class TaxonNameClassificationsController < ApplicationController
     respond_to do |format|
       if @taxon_name_classification.update(taxon_name_classification_params)
         @taxon_name_classification.reload
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Taxon name classification was successfully updated.')}
+        format.html { redirect_back(fallback_location: (request.referer || root_path),
+                                    notice:            'Taxon name classification was successfully updated.') }
         format.json { render :show, status: :ok, location: @taxon_name_classification.metamorphosize }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Taxon name classification was NOT successfully updated.')}
-        format.json {render json: @taxon_name_classification.errors, status: :unprocessable_entity}
+        format.html { redirect_back(fallback_location: (request.referer || root_path),
+                                    notice:            'Taxon name classification was NOT successfully updated.') }
+        format.json { render json: @taxon_name_classification.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -68,21 +74,25 @@ class TaxonNameClassificationsController < ApplicationController
   # DELETE /taxon_name_classifications/1
   # DELETE /taxon_name_classifications/1.json
   def destroy
-    @taxon_name_classification.destroy
+    @taxon_name_classification.destroy!
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Taxon name classification was successfully destroyed.')}
-      format.json {head :no_content}
+      format.html { redirect_back(fallback_location: (request.referer || root_path),
+                                  notice:            'Taxon name classification was successfully destroyed.') }
+      format.json { head :no_content }
     end
   end
 
   def list
-    @taxon_name_classifications = TaxonNameClassification.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
+    @taxon_name_classifications = TaxonNameClassification.with_project_id(sessions_current_project_id)
+                                    .order(:id).page(params[:page])
   end
 
   # GET /taxon_name_classifications/search
   def search
     if params[:id].blank?
-      redirect_to taxon_name_classification_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to taxon_name_classification_path,
+                  notice: 'You must select an item from the list with a click or ' \
+                            'tab press before clicking show.'
     else
       redirect_to taxon_name_classification_path(params[:id])
     end
@@ -97,7 +107,8 @@ class TaxonNameClassificationsController < ApplicationController
        response_values: {
          params[:method] => t.id
        },
-       label_html:      TaxonNameClassificationsHelper.taxon_name_classification_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html:      TaxonNameClassificationsHelper.taxon_name_classification_tag(t)
+       #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
 
@@ -106,7 +117,8 @@ class TaxonNameClassificationsController < ApplicationController
 
   # GET /taxon_name_classifications/download
   def download
-    send_data Download.generate_csv(TaxonNameClassification.where(project_id: session_current_project_id)), type: 'text', filename: "taxon_name_classifications_#{DateTime.now}.csv"
+    send_data Download.generate_csv(TaxonNameClassification.where(project_id: session_current_project_id)),
+              type: 'text', filename: "taxon_name_classifications_#{DateTime.now}.csv"
   end
 
   def taxon_name_classification_types

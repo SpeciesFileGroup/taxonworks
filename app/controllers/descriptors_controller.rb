@@ -42,7 +42,8 @@ class DescriptorsController < ApplicationController
 
     respond_to do |format|
       if @descriptor.save
-        format.html { redirect_to @descriptor.metamorphosize, notice: 'Descriptor was successfully created.' }
+        # format.html { redirect_to @descriptor.metamorphosize, notice: 'Descriptor was successfully created.' }
+        format.html { redirect_to "/descriptors/#{@descriptor.id}", notice: 'Descriptor was successfully created.' }
         format.json { render :show, status: :created, location: @descriptor.metamorphosize }
       else
         format.html { render :new }
@@ -56,7 +57,7 @@ class DescriptorsController < ApplicationController
   def update
     respond_to do |format|
       if @descriptor.update(descriptor_params)
-        format.html { redirect_to @descriptor.metamorphosize, notice: 'Descriptor was successfully updated.' }
+        format.html { redirect_to url_for(@descriptor.metamorphosize), notice: 'Descriptor was successfully updated.' }
         format.json { render :show, status: :ok, location: @descriptor.metamorphosize }
       else
         format.html { render :edit }

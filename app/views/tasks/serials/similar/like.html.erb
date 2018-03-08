@@ -3,7 +3,7 @@
 <div class="flexbox" id="like_serial"  >
   <div class="item item1 one_fifth_width">
     <%= render(partial: 'serials/attributes') -%>
-    <%= link_to('back', serial_path(@serial)) -%> 
+    <%= link_to('back', serial_path(@serial)) -%>
   </div>
 
   <div class="item item1 one_half_width">
@@ -12,7 +12,7 @@
         <th></th>
         <th></th>
         <th></th>
-      </td> 
+      </td>
         <% @similar_serials.each do |serial| -%>
           <tr>
             <td><%= link_to(serial.name, serial_path(serial)) -%></td>
@@ -20,7 +20,7 @@
             <td><%= link_to('edit', edit_serial_path(serial)) -%></td>
 
             <% serial.annotations.keys.sort.each do |k| -%>
-              <td><%= serial.annotations[k].collect{|o| object_tag(o)}.join('; ').html_safe -%></td>
+              <td><%= h(serial.annotations[k].collect{|o| object_tag(o)}.join('; ')).html_safe -%></td>
             <% end %>
 
           </tr>

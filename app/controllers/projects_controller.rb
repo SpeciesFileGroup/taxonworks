@@ -73,7 +73,7 @@ class ProjectsController < ApplicationController
     set_project
     if authorize_project_selection(sessions_current_user, @project)
       sessions_select_project(@project)
-      redirect_to @project.workbench_starting_path
+      redirect_to go_to # see def go_to for unprotected redirect mitigation
     else
       redirect_to root_path, notice: 'You are not a member of that project!'
     end
@@ -137,5 +137,8 @@ class ProjectsController < ApplicationController
     params.require(:project).permit(:name)
   end
 
+  def go_to
+    @project.workbench_starting_path
+  end
 
 end

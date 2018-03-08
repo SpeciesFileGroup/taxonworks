@@ -50,7 +50,8 @@ class LoansController < ApplicationController
   def update
     respond_to do |format|
       if @loan.update(loan_params)
-        format.html { redirect_to @loan.reload, notice: 'Loan was successfully updated.' }
+        @loan.reload
+        format.html { redirect_to @loan, notice: 'Loan was successfully updated.' }
         format.json { render :show, status: :ok, location: @loan }
       else
         format.html { render :edit }
@@ -103,7 +104,7 @@ class LoansController < ApplicationController
   end
 
   private
-  
+
   def set_loan
     @loan = Loan.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @loan
@@ -113,18 +114,18 @@ class LoansController < ApplicationController
     params.require(:loan).permit(:date_requested, :request_method, :date_sent, :date_received,
                                  :date_return_expected, :recipient_person_id, :recipient_address,
                                  :recipient_email, :recipient_phone, :recipient_country, :supervisor_person_id,
-                                 :supervisor_email, :supervisor_phone, :date_closed, :recipient_honorarium, 
+                                 :supervisor_email, :supervisor_phone, :date_closed, :recipient_honorarium,
                                  :lender_address,
                                  :clone_from,
                                  loan_items_attributes: [
-                                   :_destroy, 
-                                   :id, 
+                                   :_destroy,
+                                   :id,
                                    :global_entity,
                                    :loan_item_object_type,
                                    :loan_item_object_id,
                                    :position,
-                                   :total, 
-                                   :disposition, 
+                                   :total,
+                                   :disposition,
                                    :date_,
                                    :date_returned_jquery ],
                                  roles_attributes: [

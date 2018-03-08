@@ -8,11 +8,13 @@ class TaxonNameRelationshipsController < ApplicationController
   def index
     respond_to do |format|
       format.html do
-        @recent_objects = TaxonNameRelationship.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        @recent_objects = TaxonNameRelationship.recent_from_project_id(sessions_current_project_id)
+                            .order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_name_relationships = TaxonNameRelationship.where(filter_sql).with_project_id(sessions_current_project_id)
+        @taxon_name_relationships = TaxonNameRelationship.where(filter_sql)
+                                      .with_project_id(sessions_current_project_id)
       }
     end
   end
@@ -39,7 +41,8 @@ class TaxonNameRelationshipsController < ApplicationController
 
     respond_to do |format|
       if @taxon_name_relationship.save
-        format.html { redirect_to @taxon_name_relationship.metamorphosize, notice: 'Taxon name relationship was successfully created.' }
+        format.html { redirect_to url_for(@taxon_name_relationship.metamorphosize),
+                                  notice: 'Taxon name relationship was successfully created.' }
         format.json { render action: 'show', status: :created, location: @taxon_name_relationship.metamorphosize }
       else
         format.html { render action: 'new' }
@@ -54,7 +57,8 @@ class TaxonNameRelationshipsController < ApplicationController
     respond_to do |format|
       if @taxon_name_relationship.update(taxon_name_relationship_params)
         @taxon_name_relationship.reload
-        format.html { redirect_to @taxon_name_relationship.metamorphosize, notice: 'Taxon name relationship was successfully updated.' }
+        format.html { redirect_to url_for(@taxon_name_relationship.metamorphosize),
+                                  notice: 'Taxon name relationship was successfully updated.' }
         format.json { render :show, status: :ok, location: @taxon_name_relationship.metamorphosize }
       else
         format.html { render action: 'edit' }
@@ -66,36 +70,40 @@ class TaxonNameRelationshipsController < ApplicationController
   # DELETE /taxon_name_relationships/1
   # DELETE /taxon_name_relationships/1.json
   def destroy
-    @taxon_name_relationship.destroy
+    @taxon_name_relationship.destroy!
     respond_to do |format|
-      format.html { redirect_to taxon_name_relationships_url, notice: 'Taxon name relationship was successfully destroyed.' }
+      format.html { redirect_to taxon_name_relationships_url,
+                                notice: 'Taxon name relationship was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
 
   def list
-    @taxon_name_relationships = TaxonNameRelationship.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
+    @taxon_name_relationships = TaxonNameRelationship.with_project_id(sessions_current_project_id)
+                                  .order(:id).page(params[:page])
   end
 
   # GET /taxon_name_relationships/search
   def search
     if params[:id].blank?
-      redirect_to taxon_name_relationship_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to taxon_name_relationship_path,
+                  notice: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to taxon_name_relationship_path(params[:id])
     end
   end
 
   def autocomplete
-    @taxon_name_relationships = TaxonNameRelationship.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-    data = @taxon_name_relationships.collect do |t|
+    @taxon_name_relationships = TaxonNameRelationship
+                                  .find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    data                      = @taxon_name_relationships.collect do |t|
       n = ApplicationController.helpers.taxon_name_relationship_tag(t)
-      {id: t.id,
-       label: n,
+      {id:              t.id,
+       label:           n,
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
-       label_html: n
+       label_html:      n
       }
     end
 
@@ -104,7 +112,8 @@ class TaxonNameRelationshipsController < ApplicationController
 
   # GET /taxon_name_relationships/download
   def download
-    send_data Download.generate_csv(TaxonNameRelationship.where(project_id: sessions_current_project_id)), type: 'text', filename: "taxon_name_relationships_#{DateTime.now}.csv"
+    send_data Download.generate_csv(TaxonNameRelationship.where(project_id: sessions_current_project_id)),
+              type: 'text', filename: "taxon_name_relationships_#{DateTime.now}.csv"
   end
 
   # GET /taxon_name_relationships/type_relationships

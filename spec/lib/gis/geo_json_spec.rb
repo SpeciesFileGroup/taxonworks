@@ -7,10 +7,7 @@ require 'support/shared_contexts/shared_geo'
 describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
   include_context 'stuff for complex geo tests'
 
-  before {
-    gr_a
-    gr_b
-  }
+  before { [gr_a, gr_b].each }
 
   let(:otu) { FactoryBot.create(:valid_otu) }
   let(:source) { FactoryBot.create(:valid_source) }

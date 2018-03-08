@@ -40,7 +40,8 @@ class DocumentationController < ApplicationController
 
     respond_to do |format|
       if @documentation.save
-        format.html { redirect_to @documentation.metamorphosize, notice: 'Documentation was successfully created.' }
+        format.html { redirect_to url_for(@documentation.metamorphosize),
+                                  notice: 'Documentation was successfully created.' }
         format.json { render action: 'show', status: :created, location: @documentation }
       else
         format.html { render action: 'new' }
@@ -54,7 +55,8 @@ class DocumentationController < ApplicationController
   def update
     respond_to do |format|
       if @documentation.update(documentation_params)
-        format.html { redirect_to @documentation.metamorphosize, notice: 'Documentation was successfully updated.' }
+        format.html { redirect_to url_for(@documentation.metamorphosize),
+                                  notice: 'Documentation was successfully updated.' }
         format.json { render :show, status: :ok, location: @documentation }
       else
         format.html { render :edit }
@@ -94,7 +96,7 @@ class DocumentationController < ApplicationController
   def documentation_params
     params.require(:documentation).permit(
       :documentation_object_id, :documentation_object_type, :document_id, :annotated_global_entity, :position,
-      document_attributes: [:document_file] 
+      document_attributes: [:document_file]
     )
   end
 end
