@@ -190,7 +190,7 @@ class Georeference < ApplicationRecord
   def self.filter(params)
     collecting_events = CollectingEvent.filter(params)
 
-    georeferences = Georeference.where('collecting_event_id in (?)', collecting_events.pluck(:id))
+    georeferences = Georeference.where('collecting_event_id in (?)', collecting_events.ids)
     georeferences
   end
 
