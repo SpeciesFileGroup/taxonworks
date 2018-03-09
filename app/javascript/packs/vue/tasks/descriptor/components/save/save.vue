@@ -2,7 +2,7 @@
   <button
     @click="saveDescriptor"
     class="normal-input button button-submit"
-    type="button">Create</button>
+    type="button">{{ descriptor['id'] ? 'Update' : 'Create' }}</button>
 </template>
 <script>
 

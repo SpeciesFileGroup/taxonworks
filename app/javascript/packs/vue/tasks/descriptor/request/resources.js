@@ -31,11 +31,16 @@ const CreateDescriptor = function (data) {
   return ajaxCall('post', `/descriptors.json`, { descriptor: data })
 }
 
+const UpdateDescriptor = function (data) {
+  return ajaxCall('patch', `/descriptors/${data.id}.json`, { descriptor: data })
+}
+
 const GetUnits = function() {
   return ajaxCall('get','/descriptors/units')
 }
 
 export {
   CreateDescriptor,
+  UpdateDescriptor,
   GetUnits
 }
