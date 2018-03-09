@@ -141,7 +141,7 @@ class DescriptorsController < ApplicationController
   def descriptor_params
     params.require(:descriptor).permit(
       :name, :short_name, :description, :position, :type, :gene_attribute_logic, :default_unit,
-      character_states_attributes: []
+      character_states_attributes: [:id, :descriptor_id, :_destroy, :label, :name, :position]
     )
   end
 
