@@ -40,6 +40,7 @@ class Descriptor < ApplicationRecord
   def qualitative?
     type == 'Descriptor::Qualitative'
   end
+  
   protected
 
   def type_is_subclassed

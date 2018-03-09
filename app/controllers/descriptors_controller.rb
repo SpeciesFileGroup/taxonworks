@@ -79,24 +79,7 @@ class DescriptorsController < ApplicationController
   end
 
   def autocomplete
-    <<<<<<< HEAD
     @descriptors = Queries::DescriptorAutocompleteQuery.new(params.require(:term), project_id: sessions_current_project_id).all
-    =======
-      @descriptors = Queries::DescriptorAutocompleteQuery
-      .new(params.require(:term), project_id: sessions_current_project_id).all
-
-    data = @descriptors.collect do |t|
-      {id: t.id,
-       label: t.name,
-       gid: t.to_global_id.to_s,
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html: t.name
-      }
-    end
-    render json: data
-    >>>>>>> Fixup for Gemnasium/Brakeman unprotected redirect warning,
   end
 
   def search
