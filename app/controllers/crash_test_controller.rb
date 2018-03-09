@@ -4,7 +4,7 @@ class CrashTestController < ApplicationController
     a = 1
     b = a - 1
     c = 2 * b
-    a / b
+    c / (a - 1)
   end
 
 end
