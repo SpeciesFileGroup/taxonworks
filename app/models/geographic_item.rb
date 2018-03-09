@@ -108,8 +108,7 @@ class GeographicItem < ApplicationRecord
     #   UI is to abandon the search, and prompt the user to refactor the query.
     def crosses_anti_meridian_by_id?(*ids)
       GeographicItem.find_by_sql(
-        ["SELECT ST_Intersects((SELECT single_geometry FROM (?) as left_intersect), ST_GeogFromText(?)) as r;",
-         GeographicItem.single_geometry_sql(*ids), ANTI_MERIDIAN]
+        "SELECT ST_Intersects((SELECT single_geometry FROM (#{GeographicItem.single_geometry_sql(*ids)}) as left_intersect), ST_GeogFromText('#{ANTI_MERIDIAN}')) as r;"
       ).first.r
     end
 
