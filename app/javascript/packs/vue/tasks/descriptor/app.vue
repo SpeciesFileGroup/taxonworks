@@ -16,6 +16,7 @@
       <template v-if="existComponent">
         <component 
           v-if="descriptor.type && showDescriptor" :is="loadComponent + 'Component'"
+          @save="saveDescriptor"
           :descriptor="descriptor"/>
       </template>
     </template>
@@ -63,6 +64,7 @@
         if(this.descriptor.hasOwnProperty('id')) {
           UpdateDescriptor(descriptor).then(response => {
             this.descriptor = response;
+            console.log(descriptor)
           })
         }
         else {
