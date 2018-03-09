@@ -140,7 +140,10 @@ class DescriptorsController < ApplicationController
   end
 
   def descriptor_params
-    params.require(:descriptor).permit(:name, :short_name, :description, :position, :type, :gene_attribute_logic, :default_unit)
+    params.require(:descriptor).permit(
+      :name, :short_name, :description, :position, :type, :gene_attribute_logic, :default_unit,
+      character_states_attributes: []
+    )
   end
 
   def batch_params
