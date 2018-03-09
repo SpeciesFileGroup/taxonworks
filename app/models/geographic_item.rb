@@ -108,7 +108,8 @@ class GeographicItem < ApplicationRecord
     #   UI is to abandon the search, and prompt the user to refactor the query.
     def crosses_anti_meridian_by_id?(*ids)
       GeographicItem.find_by_sql(
-        "SELECT ST_Intersects((SELECT single_geometry FROM (#{GeographicItem.single_geometry_sql(*ids)}) as left_intersect), ST_GeogFromText('#{ANTI_MERIDIAN}')) as r;"
+        ["SELECT ST_Intersects((SELECT single_geometry FROM (?) as left_intersect), ST_GeogFromText(?)) as r;",
+         GeographicItem.single_geometry_sql(*ids), ANTI_MERIDIAN]
       ).first.r
     end
 
@@ -120,7 +121,7 @@ class GeographicItem < ApplicationRecord
     def gather_selected_data(geographic_area_ids, shape_in, search_object_class)
       if shape_in.blank?
         # get the shape from the geographic area, if possible
-        finding                    = search_object_class.constantize
+        finding = search_object_class.constantize
         target_geographic_item_ids = []
         if geographic_area_ids.blank?
           found = finding.none
@@ -148,15 +149,15 @@ class GeographicItem < ApplicationRecord
     #   e.g. Return all CollectionObjects in this drawn area
     #        Return all CollectionObjects in the radius around this point
     def gather_map_data(feature, search_object_class)
-      finding   = search_object_class.constantize
+      finding = search_object_class.constantize
       g_feature = RGeo::GeoJSON.decode(feature, json_parser: :json)
       if g_feature.nil?
         finding.none
       else
-        geometry   = g_feature.geometry # isolate the WKT
+        geometry = g_feature.geometry # isolate the WKT
         shape_type = geometry.geometry_type.to_s.downcase
-        geometry   = geometry.as_text
-        radius     = g_feature['radius']
+        geometry = geometry.as_text
+        radius = g_feature['radius']
 
         query = finding.joins(:geographic_items)
 
@@ -243,10 +244,10 @@ class GeographicItem < ApplicationRecord
     end
 
     def is_contained_by_sql(column_name, geographic_item)
-      geo_id   = geographic_item.id
+      geo_id = geographic_item.id
       geo_type = geographic_item.geo_object_type
       template = '(ST_Contains((select geographic_items.%s::geometry from geographic_items where geographic_items.id = %d), %s::geometry))'
-      retval   = []
+      retval = []
       column_name.downcase!
       case column_name
         when 'any'
@@ -486,9 +487,9 @@ class GeographicItem < ApplicationRecord
     #
     def with_collecting_event_through_georeferences
       geographic_items = GeographicItem.arel_table
-      georeferences    = Georeference.arel_table
-      g1               = georeferences.alias('a')
-      g2               = georeferences.alias('b')
+      georeferences = Georeference.arel_table
+      g1 = georeferences.alias('a')
+      g2 = georeferences.alias('b')
 
       c = geographic_items.join(g1, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g1[:geographic_item_id]))
             .join(g2, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g2[:error_geographic_item_id]))
@@ -1086,8 +1087,8 @@ class GeographicItem < ApplicationRecord
   def to_geo_json_feature
     @geometry ||= to_geo_json
     {
-      'type'       => 'Feature',
-      'geometry'   => geometry,
+      'type' => 'Feature',
+      'geometry' => geometry,
       'properties' => {
         'geographic_item' => {
           'id' => id}
@@ -1102,7 +1103,7 @@ class GeographicItem < ApplicationRecord
   # @param [String] value
   def shape=(value)
     unless value.blank?
-      geom      = RGeo::GeoJSON.decode(value, json_parser: :json)
+      geom = RGeo::GeoJSON.decode(value, json_parser: :json)
       this_type = JSON.parse(value)['geometry']['type']
 
       # TODO: @tuckerjd isn't this set automatically? Or perhaps the callback isn't hit in this approach?
@@ -1129,7 +1130,7 @@ class GeographicItem < ApplicationRecord
 
   def set_type_if_geography_present
     if type.blank?
-      column    = geo_type
+      column = geo_type
       self.type = "GeographicItem::#{column.to_s.camelize}" if column
     end
   end
