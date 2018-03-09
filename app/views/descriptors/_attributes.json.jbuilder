@@ -1,4 +1,4 @@
-json.extract! descriptor, :id, :name, :short_name, :description, :default_unit
+json.extract! descriptor, :id, :name, :short_name, :description, :default_unit,
   :type, :position, 
   :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
 
