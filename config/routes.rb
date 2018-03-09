@@ -605,8 +605,12 @@ TaxonWorks::Application.routes.draw do
 
   scope :tasks do
 
-    scope :object_annotations, controller: 'tasks/object_annotations' do
-      get 'index', as: 'annotate_objects'
+    scope :browse_annotations, controller: 'tasks/browse_annotations' do
+      get 'index', as: 'browse_annotations_task'
+      get 'process_submit'
+      post 'process_submit'
+      post 'get_type'
+      post 'set_model'
     end
 
     scope :otus do

@@ -1,12 +1,12 @@
 var TW = TW || {}
 TW.views = TW.views || {}
 TW.views.tasks = TW.views.tasks || {}
-TW.views.tasks.annotate_object = TW.views.tasks.annotate_object || {}
+TW.views.tasks.browse_annotations = TW.views.tasks.browse_annotations || {}
 
 import Vue from 'vue'
 import vueResource from 'vue-resource'
 
-Object.assign(TW.views.tasks.annotate_object, {
+Object.assign(TW.views.tasks.browse_annotations, {
 
   init: function () {
     Vue.use(vueResource)
@@ -18,7 +18,7 @@ Object.assign(TW.views.tasks.annotate_object, {
 
     new Vue({
       //store,
-      el: '#annotate_object',
+      el: '#browse_annotations',
       render: function (createElement) {
         return createElement(App)
       }
@@ -27,7 +27,7 @@ Object.assign(TW.views.tasks.annotate_object, {
 })
 
 $(document).on('turbolinks:load', function () {
-  if ($('#annotate_object').length) {
-    TW.views.tasks.annotate_object.init()
+  if ($('#browse_annotations').length) {
+    TW.views.tasks.browse_annotations.init()
   }
 })
