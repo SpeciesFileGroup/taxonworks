@@ -9,6 +9,5 @@ class Tasks::Serials::SimilarController < ApplicationController
     @similar_serials = @serial.nearest_by_levenshtein(@serial.name[0..254])
     @related_routes = UserTasks.related_routes('similar_serials_task')
   end
-  
 
 end
