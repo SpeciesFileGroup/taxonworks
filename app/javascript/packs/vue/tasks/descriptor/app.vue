@@ -5,11 +5,19 @@
     :descriptor-id="descriptor['id']"
     v-model="descriptor.type"/>
     <template v-if="descriptor.type">
-      <definition-component/>
+      <definition-component 
+      :name="descriptor.name"
+      :description="descriptor.description"
+      @onNameChange="descriptor.name = $event"
+      @onDescriptionChange="descriptor.description = $event"/>
       <template v-if="existComponent">
-        <component v-if="descriptor.type && showDescriptor" :is="loadComponent + 'Component'"/>
+        <component 
+          v-if="descriptor.type && showDescriptor" :is="loadComponent + 'Component'"
+          :descriptor="descriptor"/>
       </template>
-      <create-component v-else/>
+      <create-component 
+        v-else
+        @save="saveDescriptor(descriptor)"/>
     </template>
   </div>
 </template>
@@ -20,6 +28,7 @@
   import QualitativeComponent from './components/character/character.vue'
   import ContinuousComponent from './components/units/units.vue'
   import CreateComponent from './components/save/save.vue'
+  import { CreateDescriptor } from './request/resources'
 
   export default {
     components: {
@@ -44,8 +53,16 @@
       return {
         descriptor: {
           type: undefined,
-          define
+          name: undefined,
+          description: undefined
         }
+      }
+    },
+    methods: {
+      saveDescriptor(descriptor) {
+        CreateDescriptor(descriptor).then(response => {
+          this.descriptor = response;
+        })
       }
     }
   }

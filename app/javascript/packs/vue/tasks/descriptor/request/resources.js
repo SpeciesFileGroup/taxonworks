@@ -28,7 +28,7 @@ const handleError = function (json) {
 }
 
 const CreateDescriptor = function (data) {
-  return ajaxCall('post', `/descriptors.json`, data)
+  return ajaxCall('post', `/descriptors.json`, { descriptor: data })
 }
 
 const GetUnits = function() {

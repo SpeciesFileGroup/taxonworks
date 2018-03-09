@@ -5,22 +5,42 @@
       <label>Name</label>
       <input
         type="text"
-        v-model="name"/>
+        v-model="processName"/>
     </div>
     <div class="field">
       <label>Description</label>
-      <textarea v-model="description"></textarea>
+      <textarea v-model="processDescription"></textarea>
     </div>
   </div>
 </template>
 <script>
 export default {
-  data() {
-    return {
-      name: undefined,
-      description: undefined
+  props: {
+    name: {
+      default: undefined
+    },
+    description: {
+      default: undefined
     }
-  }
+  },
+  computed: {
+    processName: {
+      get() {
+        return this.name
+      },
+      set(value) {
+        this.$emit('onNameChange', value)
+      }
+    },
+    processDescription: {
+      get() {
+        return this.description
+      },
+      set(value) {
+        this.$emit('onDescriptionChange', value)
+      }
+    }
+  },
 }
 </script>
 <style scoped>

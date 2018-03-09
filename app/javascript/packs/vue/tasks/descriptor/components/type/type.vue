@@ -24,7 +24,9 @@
       value: {
         type: String,
       },
-      descriptorId
+      descriptorId: {
+        default: undefined
+      }
     },
     computed: {
       selection: {
