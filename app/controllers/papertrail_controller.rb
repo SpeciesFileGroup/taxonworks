@@ -3,6 +3,7 @@ class PapertrailController < ApplicationController
 
   # GET /papertrail
   def papertrail
+    redirect_to hub_path, notice: 'You requested a papertrail for nothing.' and return if params[:object_type].blank?
     @object = params[:object_type].constantize.find(params[:object_id])
      record_not_found if invalid_object(@object)
   end
