@@ -35,12 +35,22 @@ const UpdateDescriptor = function (data) {
   return ajaxCall('patch', `/descriptors/${data.id}.json`, { descriptor: data })
 }
 
+const DeleteDescriptor = function (id) {
+  return ajaxCall('delete', `/descriptors/${id}.json`)
+}
+
+const LoadDescriptor = function (id) {
+  return ajaxCall('get', `/descriptors/${id}.json`)
+}
+
 const GetUnits = function() {
   return ajaxCall('get','/descriptors/units')
 }
 
 export {
   CreateDescriptor,
+  DeleteDescriptor,
   UpdateDescriptor,
+  LoadDescriptor,
   GetUnits
 }

@@ -1,32 +1,45 @@
 <template>
-  <div>
-    <h2>Definition</h2>
-    <div class="field">
-      <label>Name</label>
-      <input
-        type="text"
-        v-model="processName"/>
+  <div class="panel basic-information">
+    <div class="header">
+      <h3>Definition</h3>
     </div>
-    <div class="field">
-      <label>Description</label>
-      <textarea v-model="processDescription"></textarea>
+    <div class="body">
+      <div class="field">
+        <label>Name</label>
+        <input
+          type="text"
+          v-model="processName"/>
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <textarea
+          v-model="processDescription"
+          rows="5"></textarea>
+      </div>
+      <create-component 
+        :descriptor="descriptor"
+        @save="$emit('save', descriptor)"/>
     </div>
   </div>
 </template>
 <script>
+
+import CreateComponent from '../save/save.vue'
+
 export default {
+  components: {
+    CreateComponent
+  },
   props: {
-    name: {
-      default: undefined
+    descriptor: {
+      type: Object,
+      required: true
     },
-    description: {
-      default: undefined
-    }
   },
   computed: {
     processName: {
       get() {
-        return this.name
+        return this.descriptor.name
       },
       set(value) {
         this.$emit('onNameChange', value)
@@ -34,7 +47,7 @@ export default {
     },
     processDescription: {
       get() {
-        return this.description
+        return this.descriptor.description
       },
       set(value) {
         this.$emit('onDescriptionChange', value)

@@ -607,7 +607,7 @@ TaxonWorks::Application.routes.draw do
   scope :tasks do
     scope :descriptors do
       scope :new_descriptor, controller: 'tasks/descriptors/new_descriptor' do
-        get '/', as: 'new_descriptor_task', action: :index
+        get '(:id)', action: :index, as: 'new_descriptor_task'
       end
     end
 

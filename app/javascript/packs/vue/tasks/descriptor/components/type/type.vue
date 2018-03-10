@@ -1,22 +1,26 @@
 <template>
-<div>
-  <h2>Type</h2>
-  <ul class="no_bullets">
-    <li
-      v-for="(label, key) in types"
-      :key="key">
-      <label>
-        <input
-          :disabled="descriptorId"
-          type="radio"
-          v-model="selection"
-          :value="key"
-          name="type-descriptor"/>
-        {{ label }}
-      </label>
-    </li>
-  </ul>
-</div>
+  <div class="panel basic-information">
+    <div class="header">
+      <h3>Type</h3>
+    </div>
+    <div class="body">
+      <ul class="no_bullets">
+        <li
+          v-for="(label, key) in types"
+          :key="key">
+          <label>
+            <input
+              :disabled="descriptorId"
+              type="radio"
+              v-model="selection"
+              :value="key"
+              name="type-descriptor"/>
+            {{ label }}
+          </label>
+        </li>
+      </ul>
+    </div>
+  </div>
 </template>
 <script>
   export default {
