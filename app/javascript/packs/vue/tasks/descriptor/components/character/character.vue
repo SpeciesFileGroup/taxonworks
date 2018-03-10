@@ -32,11 +32,14 @@
           @end="onSortable">
           <li
             class="flex-separate middle"
-            v-for="(label, index) in list">
-            <span> {{ label.object_tag }} </span>
-            <span
-              class="circle-button btn-delete"
-              @click="removeCharacter(index)"/>
+            v-for="(character, index) in list">
+            <span> {{ character.object_tag }} </span>
+            <div class="horizontal-left-content middle">
+              <radial-annotator :global-id="character.global_id"/>
+              <span
+                class="circle-button btn-delete"
+                @click="removeCharacter(index)"/>
+            </div>
           </li>
         </draggable>
       </ul>
@@ -45,13 +48,13 @@
 </template>
 <script>
 
-import DisplayList from '../../../../components/displayList.vue'
+import RadialAnnotator from '../../../../components/annotator/annotator.vue'
 import Draggable from 'vuedraggable'
 
 export default {
   components: {
-    DisplayList,
-    Draggable
+    Draggable,
+    RadialAnnotator
   },
   props: {
     descriptor: {
