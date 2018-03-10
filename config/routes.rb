@@ -629,6 +629,10 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :observation_matrices do
+      scope :new_matrix, controller: 'tasks/observation_matrices/new_matrix' do
+        get 'index', as: 'new_matrix_task_task'
+      end
+
       scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do
         get 'index', as: 'index_row_coder_task'
         get 'set', as: 'set_row_coder_task'
