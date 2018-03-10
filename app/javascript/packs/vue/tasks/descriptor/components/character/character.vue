@@ -8,6 +8,7 @@
         <div class="field">
           <label>Label</label>
           <input
+            class="character-input"
             maxlength="2"
             type="text"
             v-model="label"/>
@@ -124,3 +125,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+  .character-input {
+    width: 40px !important;
+  }
+</style>
