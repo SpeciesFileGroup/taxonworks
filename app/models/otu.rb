@@ -43,7 +43,7 @@ class Otu < ApplicationRecord
   has_many :asserted_distributions, inverse_of: :otu
 
   has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject 
-  has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object
+  has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object, class_name: 'BiologicalAssociation'
 
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
