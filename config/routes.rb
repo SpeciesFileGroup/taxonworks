@@ -249,7 +249,8 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_modify_gene_descriptor_batch_load
       post :create_modify_gene_descriptor_batch_load
-    end
+      get :units
+    end  
   end
 
   resources :documentation do
@@ -604,6 +605,12 @@ TaxonWorks::Application.routes.draw do
   ### End of data resources ###
 
   scope :tasks do
+    scope :descriptors do
+      scope :new_descriptor, controller: 'tasks/descriptors/new_descriptor' do
+        get '(:id)', action: :index, as: 'new_descriptor_task'
+      end
+    end
+
 
     scope :object_annotations, controller: 'tasks/object_annotations' do
       get 'index', as: 'annotate_objects'
