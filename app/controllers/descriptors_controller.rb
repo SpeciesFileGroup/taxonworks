@@ -43,7 +43,8 @@ class DescriptorsController < ApplicationController
     respond_to do |format|
       if @descriptor.save
         format.html { redirect_to url_for(@descriptor.metamorphosize),
-                      notice: 'Descriptor was successfully created.' }
+          notice: 'Descriptor was successfully created.' }
+
         format.json { render :show, status: :created, location: @descriptor.metamorphosize }
       else
         format.html { render :new }
@@ -118,6 +119,7 @@ class DescriptorsController < ApplicationController
       if @result.create!
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} " \
           'Gene Descriptors were modified.'
+
         render 'descriptors/batch_load/modify_gene_descriptor/create' and return
       else
         flash[:alert] = 'Batch import failed.'

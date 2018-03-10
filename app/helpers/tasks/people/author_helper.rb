@@ -13,8 +13,8 @@ module Tasks::People::AuthorHelper
     select_authors(letter).count
   end
 
-  def select_authors(letter)
-    Person.with_role('SourceAuthor').where("last_name ilike '#{letter}%'").order(:last_name).select(:last_name)
+  def select_authors(letter)  # TODO: @mjy
+    Person.with_role('SourceAuthor').where('last_name ilike ?', letter).order(:last_name).select(:last_name)
   end
 
   def cite_count(source)
