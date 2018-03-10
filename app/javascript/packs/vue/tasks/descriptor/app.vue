@@ -43,6 +43,7 @@
         </div>
         <div id="cright-panel" v-if="descriptor['id']">
           <preview-component
+            class="separate-left"
             :descriptor="descriptor"
             @remove="removeDescriptor"/>
         </div>
