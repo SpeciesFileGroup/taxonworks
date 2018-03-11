@@ -174,6 +174,8 @@ export default {
           that.$store.dispatch(ActionNames.LoadTaxonStatus, taxonId)
           that.$store.dispatch(ActionNames.LoadTaxonRelationships, taxonId)
           that.loading = false
+        }, () => {
+          that.loading = false
         })
       } else {
         that.loading = false
