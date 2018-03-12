@@ -60,7 +60,7 @@ export default {
       }
     },
     removeSpaces (str) {
-      str = str.replace(/^\s+|\s{2,}$|\./g, '')
+      str = str.replace(/^\s+|\s{2,}$|\.\s/g, '')
       str = str.replace(/\s{2,}/g, ' ')
       return str
     },
