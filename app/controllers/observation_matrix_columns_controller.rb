@@ -6,8 +6,15 @@ class ObservationMatrixColumnsController < ApplicationController
   # GET /matrix_columns
   # GET /matrix_columns.json
   def index
-    @recent_objects = ObservationMatrixColumn.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = ObservationMatrixColumn.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json { 
+        @observation_matrix_columns = ObservationMatrixColumn.where(filter_params).with_project_id(sessions_current_project_id).order('observation_matrix_columns.position')
+      }
+    end
   end
 
   # GET /matrix_columns/1
@@ -20,6 +27,10 @@ class ObservationMatrixColumnsController < ApplicationController
   end
 
   private
+
+  def filter_params
+    params.permit(:descriptor_id, :observation_matrix_id)
+  end
 
   def set_observation_matrix_column
     @observation_matrix_column = ObservationMatrixColumn.find(params[:id])

@@ -6,9 +6,16 @@ class ObservationMatrixRowItemsController < ApplicationController
   # GET /matrix_row_items
   # GET /matrix_row_items.json
   def index
-    @recent_objects = ObservationMatrixRowItem.recent_from_project_id(sessions_current_project_id)
-                        .order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = ObservationMatrixRowItem.recent_from_project_id(sessions_current_project_id)
+          .order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @observation_matrix_row_items = ObservationMatrixRowItem.where(filter_params).with_project_id(sessions_current_project_id)
+      }
+    end
   end
 
   # GET /matrix_row_items/1
@@ -18,7 +25,7 @@ class ObservationMatrixRowItemsController < ApplicationController
 
   def list
     @observation_matrix_row_items = ObservationMatrixRow.with_project_id(sessions_current_project_id)
-                                      .page(params[:page])
+      .page(params[:page])
   end
 
   # GET /matrix_row_items/new
@@ -38,7 +45,7 @@ class ObservationMatrixRowItemsController < ApplicationController
     respond_to do |format|
       if @observation_matrix_row_item.save
         format.html { redirect_to url_for(@observation_matrix_row_item.metamorphosize),
-                                  notice: 'Matrix row item was successfully created.' }
+                      notice: 'Matrix row item was successfully created.' }
         format.json { render :show, status: :created, location: @observation_matrix_row_item }
       else
         format.html { render :new }
@@ -53,7 +60,7 @@ class ObservationMatrixRowItemsController < ApplicationController
     respond_to do |format|
       if @observation_matrix_row_item.update(observation_matrix_row_item_params)
         format.html { redirect_to url_for(@observation_matrix_row_item.metamorphosize),
-                                  notice: 'Matrix row item was successfully updated.' }
+                      notice: 'Matrix row item was successfully updated.' }
         format.json { render :show, status: :ok, location: @observation_matrix_row_item }
       else
         format.html { render :edit }
@@ -68,19 +75,25 @@ class ObservationMatrixRowItemsController < ApplicationController
     @observation_matrix_row_item.destroy!
     respond_to do |format|
       format.html { redirect_to observation_matrix_row_items_url,
-                                notice: 'Matrix row item was successfully destroyed.' }
+                    notice: 'Matrix row item was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
 
   private
+
+  def filter_params
+    params.permit(:observation_matrix_id, :otu_id, :controlled_vocabulary_term_id, :collection_object_id, :type)
+  end
+
   def set_observation_matrix_row_item
     @observation_matrix_row_item = ObservationMatrixRowItem.find(params[:id])
   end
 
   def observation_matrix_row_item_params
-    params.require(:observation_matrix_row_item).permit(:observation_matrix_id, :type,
-                                                        :collection_object_id, :otu_id,
-                                                        :controlled_vocabulary_term_id, :type)
+    params.require(:observation_matrix_row_item).permit(
+      :observation_matrix_id, :type,
+      :collection_object_id, :otu_id,
+      :controlled_vocabulary_term_id, :type, :position)
   end
 end

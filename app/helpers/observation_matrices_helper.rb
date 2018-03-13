@@ -5,8 +5,8 @@ module ObservationMatricesHelper
     observation_matrix.name
   end
 
-  def matrices_search_form
-    render('/matrices/quick_search_form')
+  def observation_matrices_search_form
+    render('/observation_matrices/quick_search_form')
   end
 
   def observation_matrix_link(observation_matrix)

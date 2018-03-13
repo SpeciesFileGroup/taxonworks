@@ -1,1 +1,1 @@
-json.extract! @observation_matrix_column, :id, :matrix_id, :descriptor_id, :position, :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
+render 'attributes', observation_matrix_column: @observation_matrix_column

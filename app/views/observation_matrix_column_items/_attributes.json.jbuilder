@@ -1,0 +1,5 @@
+json.extract! observation_matrix_column_item, :id, :obseration_matrix_id, :type, :descriptor_id, :controlled_vocabulary_term_id,
+  :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at, :position
+
+
+

@@ -360,6 +360,8 @@ TaxonWorks::Application.routes.draw do
 
     resources :observation_matrix_columns, shallow: true, only: [:index], defaults: {format: :json}
     resources :observation_matrix_rows, shallow: true, only: [:index], defaults: {format: :json}
+    resources :observation_matrix_row_items, shallow: true, only: [:index], defaults: {format: :json}
+    resources :observation_matrix_column_items, shallow: true, only: [:index], defaults: {format: :json}
   end
 
   resources :observation_matrix_columns, only: [:index, :show] do

@@ -66,6 +66,7 @@ begin
     # row 5
     # is empty
 
+    # TODO: this is wrong you can not directly create these 
     m.descriptors << [d1, d2, d3, d4, d5]
     m.otus << [r1, r2, r3] 
     m.collection_objects << [r4, r5] 

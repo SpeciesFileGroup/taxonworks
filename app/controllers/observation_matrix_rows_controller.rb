@@ -27,13 +27,11 @@ class ObservationMatrixRowsController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
   def set_matrix_row
     @observation_matrix_row = ObservationMatrixRow.find(params[:id])
   end
 
   def filter_params
-    params.permit(:matrix_id)
+    params.permit(:observation_matrix_id, :collection_object_id, :otu_id)
   end
-
 end
