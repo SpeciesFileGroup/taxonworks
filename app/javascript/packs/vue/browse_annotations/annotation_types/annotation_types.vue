@@ -30,7 +30,7 @@
         this.getResult(newVal)
       }
     },
-    data() {
+    data: function () {
       return {
         list: {
           tags: 'Tags (by Keyword)',
@@ -39,6 +39,12 @@
         },
         result: undefined
       }
+    },
+    mounted: function () {
+      this.$http.get('/tasks/browse_annotations/get_type_list').then(response => {
+        console.log(response); // this is necessary to show traffic?
+        this.annotation_types = response;
+      })
     },
     methods: {
       selectType(type) {

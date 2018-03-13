@@ -20,7 +20,7 @@
         <div class="annotation_logic">
 
         </div>
-        <span v-for="whatever in filter.result">{{ whatever }}</span>
+        <!--<span v-for="whatever in filter.result">{{ whatever }}</span>-->
         <!--<span v-if="filter.common">{{ filter.common }}</span>-->
         <span>{{ filter.common }}</span>
         <button
