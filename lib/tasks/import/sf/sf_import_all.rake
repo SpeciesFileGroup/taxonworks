@@ -61,7 +61,9 @@ namespace :tw do
           # 'cites:create_sf_taxon_file_id_hash'
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/9b_after_taxa_file_ids',
           #
-          'cites:create_citations',
+          'cites:check_original_genus_ids'
+          #
+          # 'cites:create_citations',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/10_after_citations',
           #
           # 'cites:create_otu_cites',
