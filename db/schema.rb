@@ -524,7 +524,6 @@ ActiveRecord::Schema.define(version: 20180307142443) do
     t.text "description"
     t.string "gene_attribute_logic"
     t.string "cached_gene_attribute_sql"
-    t.string "default_units"
     t.string "default_unit"
     t.index ["created_by_id"], name: "index_descriptors_on_created_by_id"
     t.index ["name"], name: "index_descriptors_on_name"
