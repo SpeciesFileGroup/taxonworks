@@ -9,11 +9,13 @@ class ObservationMatrixRowItem < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
 
-  acts_as_list
+  acts_as_list scope: [:observation_matrix_id, :project_id]
 
   ALL_STI_ATTRIBUTES = [:otu_id, :collection_object_id, :controlled_vocabulary_term_id].freeze
 
   belongs_to :observation_matrix
+  belongs_to :otu, inverse_of: :observation_matrix_row_items
+  belongs_to :collection_object, inverse_of: :observation_matrix_row_items
 
   validates_presence_of :observation_matrix
   validate :type_is_subclassed

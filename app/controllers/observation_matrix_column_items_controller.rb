@@ -5,9 +5,16 @@ class ObservationMatrixColumnItemsController < ApplicationController
   # GET /observation_matrix_column_items
   # GET /observation_matrix_column_items.json
   def index
-    @recent_objects = ObservationMatrixColumnItem.recent_from_project_id(sessions_current_project_id)
-      .order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = ObservationMatrixColumnItem.recent_from_project_id(sessions_current_project_id)
+          .order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @observation_matrix_column_items = ObservationMatrixColumnItem.where(filter_params).with_project_id(sessions_current_project_id)
+      }
+    end
   end
 
   # GET /observation_matrix_column_items/1
@@ -73,6 +80,11 @@ class ObservationMatrixColumnItemsController < ApplicationController
   end
 
   private
+
+  def filter_params
+    params.permit(:observation_matrix_id, :descriptor_id, :type)
+  end
+
   def set_observation_matrix_column_item
     @observation_matrix_column_item = ObservationMatrixColumnItem.find(params[:id])
   end

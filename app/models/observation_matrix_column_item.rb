@@ -8,14 +8,14 @@ class ObservationMatrixColumnItem < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
 
-  acts_as_list scope: [:observation_matrix_id]
+  acts_as_list scope: [:observation_matrix_id, :project_id]
 
   ALL_STI_ATTRIBUTES = [:descriptor_id, :controlled_vocabulary_term_id].freeze
 
-  belongs_to :observation_matrix
+  belongs_to :observation_matrix, inverse_of: :observation_matrix_column_items
 
   # TODO: remove from subclasses
-  belongs_to :descriptor
+  belongs_to :descriptor, inverse_of: :observation_matrix_column_items
   belongs_to :controlled_vocabulary_term
 
   #  belongs_to :controlled_vocabulary_term (belongs elsewhere)
@@ -41,7 +41,9 @@ class ObservationMatrixColumnItem < ApplicationRecord
   end
 
   def cleanup_single_matrix_column(descriptor_id, mc = nil)
-    mc ||= ObservationMatrixColumn.where(descriptor_id: descriptor_id, observation_matrix: observation_matrix).first
+    mc ||= ObservationMatrixColumn.where(
+      descriptor_id: descriptor_id, 
+      observation_matrix: observation_matrix).first
 
     current = mc.reference_count - 1
     if current == 0
@@ -52,7 +54,8 @@ class ObservationMatrixColumnItem < ApplicationRecord
   end
 
   def update_single_matrix_column(descriptor)
-    mc = ObservationMatrixColumn.find_or_create_by(observation_matrix: observation_matrix, descriptor: descriptor)
+    mc = ObservationMatrixColumn.find_or_create_by(
+      observation_matrix: observation_matrix, descriptor: descriptor)
     mc.update_columns(reference_count: mc.reference_count + 1)
   end
 

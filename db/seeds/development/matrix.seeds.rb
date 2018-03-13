@@ -1,3 +1,6 @@
+
+# rake db:seed 
+#
 raise 'not so fast' if Rails.env == 'production'
 
 project_id = ENV['project_id']
@@ -10,7 +13,8 @@ $project_id = project_id
 
 begin
   ApplicationRecord.transaction do 
-    m = ObservationMatrix.create(name: 'Matrix demo')
+    n = "Seeded matrix #{Time.now.strftime("%h %d - %H:%M:%S")}"
+    m = ObservationMatrix.create(name: n)
 
     d1 = Descriptor::Qualitative.create(name: 'Hair color')
     d2 = Descriptor::Qualitative.create(name: 'Head size')
@@ -66,14 +70,23 @@ begin
     # row 5
     # is empty
 
-    # TODO: this is wrong you can not directly create these 
-    m.descriptors << [d1, d2, d3, d4, d5]
-    m.otus << [r1, r2, r3] 
-    m.collection_objects << [r4, r5] 
+    [d1, d2, d3, d4, d5].each do |d|
+      m.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: d)
+    end
+
+    [r1, r2, r3].each do |r|
+      m.observation_matrix_row_items << ObservationMatrixRowItem::SingleOtu.new(otu: r)
+    end 
+
+    [r4, r5].each do |r|
+      m.observation_matrix_row_items << ObservationMatrixRowItem::SingleCollectionObject.new(collection_object: r)
+    end 
 
     puts Rainbow("in Project #{$project_id}").purple
-    puts Rainbow("Built matrix with id #{m.id}.").blue
+    puts Rainbow("Built matrix with id #{m.id}, '#{n}'.").blue
     puts Rainbow("Built otus with ids #{[r1, r2, r3].collect{|z| z.id}.join(',')}.").blue
+    puts Rainbow("Built collection objects with ids #{[r4, r5].collect{|z| z.id}.join(',')}.").blue
+    puts Rainbow("Built descriptors with ids #{[d1, d2, d3, d4, d5].collect{|z| z.id}.join(',')}.").blue
   end
 rescue => e
   puts Rainbow("Failed: #{e}").red

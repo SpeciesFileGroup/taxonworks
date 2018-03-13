@@ -8,9 +8,9 @@ class ObservationMatrixRow < ApplicationRecord
 
   acts_as_list
 
-  belongs_to :observation_matrix
-  belongs_to :otu
-  belongs_to :collection_object
+  belongs_to :observation_matrix, inverse_of: :observation_matrix_rows
+  belongs_to :otu, inverse_of: :observation_matrix_rows
+  belongs_to :collection_object, inverse_of: :observation_matrix_rows
 
   after_initialize :set_reference_count
 

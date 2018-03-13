@@ -4,8 +4,8 @@ class ObservationMatrixColumn < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
 
-  belongs_to :observation_matrix
-  belongs_to :descriptor
+  belongs_to :observation_matrix, inverse_of: :observation_matrix_columns
+  belongs_to :descriptor, inverse_of: :observation_matrix_columns
 
   has_many :observations, foreign_key: :descriptor_id
 
