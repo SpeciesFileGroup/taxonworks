@@ -44,6 +44,10 @@ module TaxonWorks
 
         attr_reader :parseable
 
+        # @return [Hash]
+        #   a memoized result of the matching TW protonyms per rank
+        attr_reader :protonym_result
+
         # query_string:
         #
         # mode:
@@ -198,6 +202,7 @@ module TaxonWorks
 
         # @return [Protonym, nil]
         #   true if there is a single matching result or nominotypical subs
+        # @param rank [Symbol] like `:genus` or `:species`
         def unambiguous_at?(rank)
           return protonym_result[rank].first if protonym_result[rank].size == 1
           if protonym_result[rank].size == 2
@@ -209,13 +214,44 @@ module TaxonWorks
           nil 
         end
 
+        # @return [Array]
+        #   the ranks, as symbols, at which there are multiple (>1) Protonym matches
+        def ambiguous_ranks
+          a = [ ]
+          protonym_result.each do |k, v|
+            a.push k if v.count > 1
+          end
+          a 
+        end
+
+        # @return [Combination]
+        # @param target_protonym_ids [Hash] like like `{genus: 123, species: 345}`
+        #   Given a targeted list of ids checks to see if
+        #      a) there is an *ambiguous* result at the rank AND
+        #      b) there is a Protonym with the id provided in the ambiguous result
+        #   If a and b are both true then the combination once ambiguous result is set to the id provided in targeted_protonym_ids
+        def disambiguated_combination(target_protonym_ids = {})
+          return nil unless target_protonym_ids.any?
+          c = combination
+          b = ambiguous_ranks
+
+          target_protonym_ids.each do |rank, id|
+            if b.include?(rank)
+              c.send("#{rank}_id=", id) if protonym_result[rank].map(&:id).include?(id)
+            end
+          end
+          c
+        end
+
         # @return [ String, false ]
+        # @param rank [Symbol, String] 
         #   rank is one of `genus`, `subgenus`, `species, `subspecies`, `variety`, `form`
         def string(rank = nil)
           send(rank)
         end
 
         # @return [Scope]
+        # @param rank [Symbol] like `:genus` or `:species`
         def basic_scope(rank)
           Protonym.where(
             project_id: project_id,
@@ -224,6 +260,7 @@ module TaxonWorks
         end
 
         # @return [Scope]
+        # @param rank [Symbol] like `:genus` or `:species`
         def protonyms(rank)
           case mode
           when :ranked
@@ -242,6 +279,7 @@ module TaxonWorks
         end
 
         # @return [Scope]
+        # @param rank [Symbol] like `:genus` or `:species`
         #   Protonyms grouped by nomenclatural group, for a rank
         def grouped_protonyms(rank)
           s = case rank
@@ -267,11 +305,13 @@ module TaxonWorks
         # @return [Hash]
         #   we inspect this internally, so it has to be decoupled
         def protonym_result
+          return @protonym_result if @protonym_result
           h = {}
           RANK_MAP.each_key do |r|
             h[r] = protonyms(r).to_a
           end
-          h
+          @protonym_result = h
+          @protonym_result
         end
 
         # @return [Hash]
@@ -364,6 +404,7 @@ module TaxonWorks
 
           h
         end
+
 
       end
     end
