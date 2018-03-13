@@ -14,7 +14,8 @@ Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| requi
 #           <----|-----X
 #                |
 #
-# The take home message- if you use ST_Contains(ST_ShiftLongitude(), ST_ShiftLongitude()) then everything will "just work".
+# The take home message- if you use ST_Contains(ST_ShiftLongitude(), ST_ShiftLongitude())
+# then everything will "just work".
 # IFF the "A" argument crosses the anti-meridian.
 #
 #
@@ -78,13 +79,15 @@ describe GeographicItem, type: :model, group: :geo do
           context 'entirely enclosed in right-left anti-box' do
             specify 'left-right anti line' do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(ST_GeomFromText('#{right_left_anti_box}'), ST_GeomFromText('#{left_right_anti_line}')) as r;"
+                "SELECT ST_Contains(ST_GeomFromText('#{right_left_anti_box}'), " \
+                    "ST_GeomFromText('#{left_right_anti_line}')) as r;"
               ).first.r).to be false
             end
 
             specify 'right-left anti line' do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(ST_GeomFromText('#{right_left_anti_box}'), ST_GeomFromText('#{right_left_anti_line}')) as r;"
+                "SELECT ST_Contains(ST_GeomFromText('#{right_left_anti_box}'), " \
+                    "ST_GeomFromText('#{right_left_anti_line}')) as r;"
               ).first.r).to be false
             end
           end
@@ -92,13 +95,15 @@ describe GeographicItem, type: :model, group: :geo do
           context 'entirely enclosed in left-right anti-box' do
             specify 'left-right anti line' do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(ST_GeomFromText('#{left_right_anti_box}'), ST_GeomFromText('#{left_right_anti_line}')) as r;"
+                "SELECT ST_Contains(ST_GeomFromText('#{left_right_anti_box}'), " \
+                    "ST_GeomFromText('#{left_right_anti_line}')) as r;"
               ).first.r).to be false
             end
 
             specify 'west-east line' do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(ST_GeomFromText('#{left_right_anti_box}'), ST_GeomFromText('#{right_left_anti_line}')) as r;"
+                "SELECT ST_Contains(ST_GeomFromText('#{left_right_anti_box}'), " \
+                    "ST_GeomFromText('#{right_left_anti_line}')) as r;"
               ).first.r).to be false
             end
           end
@@ -158,7 +163,8 @@ describe GeographicItem, type: :model, group: :geo do
             ['-90 26', '0 26', '90 26'].each do |p| # points in really wide box
               specify "shifted #{b}/#{p}" do
                 expect(GeographicItem.find_by_sql(
-                  "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), ST_GeomFromText('POINT(#{p})')) as r;"
+                  "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), " \
+                    "ST_GeomFromText('POINT(#{p})')) as r;"
                 ).first.r).to be false
               end
             end
@@ -166,20 +172,23 @@ describe GeographicItem, type: :model, group: :geo do
             ['180 26', '179.9 26'].each do |p| # points not in really wide box
               specify "shifted #{b}/#{p}" do
                 expect(GeographicItem.find_by_sql(
-                  "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), ST_GeomFromText('POINT(#{p})')) as r;"
+                  "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), " \
+                    "ST_GeomFromText('POINT(#{p})')) as r;"
                 ).first.r).to be true
               end
             end
 
             specify "#{b} (positive shifted does not contain negative point)" do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), ST_GeomFromText('POINT(-179.9 26)')) as r;"
+                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), " \
+                    "ST_GeomFromText('POINT(-179.9 26)')) as r;"
               ).first.r).to be false
             end
 
             specify "#{b} (both shifted does contain point)" do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), #{shift_method}(ST_GeomFromText('POINT(-179.9 26)'))) as r;"
+                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), " \
+                    "#{shift_method}(ST_GeomFromText('POINT(-179.9 26)'))) as r;"
               ).first.r).to be true
             end
           end
@@ -190,13 +199,15 @@ describe GeographicItem, type: :model, group: :geo do
           context 'entirely enclosed in right-left anti-box' do
             specify 'left-right anti line' do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{right_left_anti_box}')), #{shift_method}(ST_GeomFromText('#{left_right_anti_line}'))) as r;"
+                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{right_left_anti_box}')), " \
+                    "#{shift_method}(ST_GeomFromText('#{left_right_anti_line}'))) as r;"
               ).first.r).to be true
             end
 
             specify 'west-east line' do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{right_left_anti_box}')), #{shift_method}(ST_GeomFromText('#{right_left_anti_line}'))) as r;"
+                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{right_left_anti_box}')), " \
+                    "#{shift_method}(ST_GeomFromText('#{right_left_anti_line}'))) as r;"
               ).first.r).to be true
             end
           end
@@ -204,24 +215,28 @@ describe GeographicItem, type: :model, group: :geo do
           context 'entirely enclosed in left-right anti-box' do
             specify 'left-right anti line' do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{left_right_anti_box}')), #{shift_method}(ST_GeomFromText('#{left_right_anti_line}'))) as r;"
+                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{left_right_anti_box}')), " \
+                    "#{shift_method}(ST_GeomFromText('#{left_right_anti_line}'))) as r;"
               ).first.r).to be true
             end
 
             specify 'right-left anti line' do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{left_right_anti_box}')), #{shift_method}(ST_GeomFromText('#{right_left_anti_line}'))) as r;"
+                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{left_right_anti_box}')), " \
+                    "#{shift_method}(ST_GeomFromText('#{right_left_anti_line}'))) as r;"
               ).first.r).to be true
             end
           end
 
           context 'not (completely) contained/enclosed' do
-            @out = %I{left_right_anti_line_partial right_left_anti_line_partial left_right_anti_line_out right_left_anti_line_out}
+            @out = %I{left_right_anti_line_partial right_left_anti_line_partial
+            left_right_anti_line_out right_left_anti_line_out}
 
             @out.each do |s|
               specify "#{s}" do
                 expect(GeographicItem.find_by_sql(
-                  "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{right_left_anti_box}')), #{shift_method}(ST_GeomFromText('#{send(s)}'))) as r;"
+                  "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{right_left_anti_box}')), " \
+                    "#{shift_method}(ST_GeomFromText('#{send(s)}'))) as r;"
                 ).first.r).to be false
               end
             end
@@ -289,35 +304,37 @@ describe GeographicItem, type: :model, group: :geo do
         l_r_line
       }
 
-      context 'each crossing object id is detected' do
-        %I{crossing_box r_l_line l_r_line}.each do |item|
-          specify "#{item} returns true" do
-            expect(GeographicItem.crosses_anti_meridian_by_id?(send(item).id)).to be_truthy
+      context 'detecting items which cross the anti-meridian by id' do
+        context 'each crossing object id is detected' do
+          %I{crossing_box r_l_line l_r_line}.each do |item|
+            specify "#{item} returns true" do
+              expect(GeographicItem.crosses_anti_meridian_by_id?(send(item).id)).to be_truthy
+            end
           end
         end
-      end
 
-      context 'set of crossing object ids is detected' do
-        specify '[crossing_box, r_l_line, l_r_line] returns true' do
-          expect(GeographicItem.crosses_anti_meridian_by_id?([crossing_box.id,
-                                                              r_l_line.id,
-                                                              l_r_line.id])).to be_truthy
+        context 'set of crossing object ids is detected' do
+          specify '[crossing_box, r_l_line, l_r_line] returns true' do
+            expect(GeographicItem.crosses_anti_meridian_by_id?([crossing_box.id,
+                                                                r_l_line.id,
+                                                                l_r_line.id])).to be_truthy
+          end
         end
-      end
 
-      context 'set of heterogeneous object ids is detected' do
-        specify '[eastern_box, r_l_line, l_r_line] returns true' do
-          expect(GeographicItem.crosses_anti_meridian_by_id?([eastern_box.id,
-                                                              crossing_box.id,
-                                                              r_l_line.id,
-                                                              l_r_line.id])).to be_truthy
+        context 'set of heterogeneous object ids is detected' do
+          specify '[eastern_box, r_l_line, l_r_line] returns true' do
+            expect(GeographicItem.crosses_anti_meridian_by_id?([eastern_box.id,
+                                                                crossing_box.id,
+                                                                r_l_line.id,
+                                                                l_r_line.id])).to be_truthy
+          end
         end
-      end
 
-      context 'each non-crossing object id is not detected' do
-        %I{eastern_box western_box}.each do |item|
-          specify "#{item} returns true" do
-            expect(GeographicItem.crosses_anti_meridian_by_id?(send(item).id)).to be_falsey
+        context 'each non-crossing object id is not detected' do
+          %I{eastern_box western_box}.each do |item|
+            specify "#{item} returns false" do
+              expect(GeographicItem.crosses_anti_meridian_by_id?(send(item).id)).to be_falsey
+            end
           end
         end
       end
@@ -328,30 +345,36 @@ describe GeographicItem, type: :model, group: :geo do
         specify 'results from single non-meridian crossing polygon is found' do
           # invokes geometry_sql2
           # using contained_by_with_antimeridian_check is not harmful for non-crossing objects
-          expect(GeographicItem.contained_by_with_antimeridian_check(western_box.id).map(&:id)).to contain_exactly(point_in_western_box.id)
+          expect(GeographicItem.contained_by_with_antimeridian_check(western_box.id).map(&:id))
+            .to contain_exactly(point_in_western_box.id)
         end
 
         specify 'results from multiple non-meridian crossing polygons are found' do
           # invokes geometry_sql2
           # using contained_by_with_antimeridian_check is not harmful for non-crossing objects
-          expect(GeographicItem.contained_by_with_antimeridian_check(eastern_box.id, western_box.id).map(&:id)).to contain_exactly(point_in_eastern_box.id, point_in_western_box.id)
+          expect(GeographicItem.contained_by_with_antimeridian_check(eastern_box.id, western_box.id).map(&:id))
+            .to contain_exactly(point_in_eastern_box.id, point_in_western_box.id)
         end
 
         specify 'results from single meridian crossing polygon are found' do
           # why is crossing_box not finding l_r_line or r_l_line
           # why does crossing_box find point_in_eastern_box
-          expect(GeographicItem.contained_by_with_antimeridian_check(crossing_box.id).map(&:id)).to contain_exactly(l_r_line.id, r_l_line.id)
+          expect(GeographicItem.contained_by_with_antimeridian_check(crossing_box.id).map(&:id))
+            .to contain_exactly(l_r_line.id, r_l_line.id)
         end
 
         specify 'results from merdian crossing and non-meridian crossing polygons are found' do
           # why is crossing_box not finding l_r_line or r_l_line
-          expect(GeographicItem.contained_by_with_antimeridian_check(eastern_box.id, western_box.id, crossing_box.id).map(&:id)).to contain_exactly(point_in_eastern_box.id, point_in_western_box.id, l_r_line.id, r_l_line.id)
+          expect(GeographicItem.contained_by_with_antimeridian_check(eastern_box.id, western_box.id, crossing_box.id)
+                   .map(&:id)).to contain_exactly(point_in_eastern_box.id, point_in_western_box.id,
+                                                  l_r_line.id, r_l_line.id)
         end
 
         specify 'shifting an already shifted polygon has no effect' do
           shifted_wkt = eastern_box.geo_object.to_s
           expect(shifted_wkt =~ /-/).to be_falsey
-          expect(GeographicItem.where(GeographicItem.contained_by_wkt_sql(shifted_wkt)).map(&:id)).to contain_exactly(point_in_eastern_box.id)
+          expect(GeographicItem.where(GeographicItem.contained_by_wkt_sql(shifted_wkt)).map(&:id))
+            .to contain_exactly(point_in_eastern_box.id)
         end
       end
     end
