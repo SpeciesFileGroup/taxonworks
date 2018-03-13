@@ -35,6 +35,14 @@ class Tasks::BrowseAnnotationsController < ApplicationController
     render({json: params})
   end
 
+  def get_model_list
+    render(json: {
+        otu: 'by OTU',
+        taxon_name: 'by Taxon Name',
+        specimen: 'by Specimen'}
+    )
+  end
+
   def get_dates
     render({json: params})
   end

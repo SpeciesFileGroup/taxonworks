@@ -33,12 +33,15 @@
     data() {
       return {
         list: {
-          otu: 'by OTU',
-          taxon_name: 'by Taxon Name',
-          specimen: 'by Specimen'
         },
         result: undefined
       }
+    },
+    mounted: function () {
+      this.$http.get('/tasks/browse_annotations/get_model_list').then(response => {
+        console.log(response); // this is necessary to show traffic?
+        this.list = response.body;
+      })
     },
     methods: {
       selectModel(type) {
