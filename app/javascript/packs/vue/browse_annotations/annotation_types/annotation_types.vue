@@ -33,9 +33,6 @@
     data: function () {
       return {
         list: {
-          tags: 'Tags (by Keyword)',
-          data_attributes: 'Data attribues (by Predicates)',
-          confidence: 'Confidence (by Confidence Level)'
         },
         result: undefined
       }
@@ -43,7 +40,7 @@
     mounted: function () {
       this.$http.get('/tasks/browse_annotations/get_type_list').then(response => {
         console.log(response); // this is necessary to show traffic?
-        this.annotation_types = response;
+        this.list = response.body;
       })
     },
     methods: {
