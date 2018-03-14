@@ -371,7 +371,7 @@ class GeographicItem < ApplicationRecord
       crossing_ids.each do |id|
         # [61666, 61661, 61659, 61654, 61639]
         q1 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_AsText((SELECT polygon FROM geographic_items ' \
-            "WHERE id = ?))", id])
+            'WHERE id = ?))', id])
         r = GeographicItem.where(
           # GeographicItem.contained_by_wkt_shifted_sql(GeographicItem.find(id).geo_object.to_s)
           GeographicItem.contained_by_wkt_shifted_sql(
@@ -1041,9 +1041,12 @@ class GeographicItem < ApplicationRecord
   # @param [Integer] geographic_item_id
   # @return [Double] distance in meters (slower, more accurate)
   def st_distance(geographic_item_id) # geo_object
-    deg = GeographicItem.where(id: id)
-            .pluck("ST_Distance((#{GeographicItem.select_geography_sql(self.id)}), " \
-                    "(#{GeographicItem.select_geography_sql(geographic_item_id)})) as d").first
+    q1 = "ST_Distance((#{GeographicItem.select_geography_sql(id)}), " \
+                    "(#{GeographicItem.select_geography_sql(geographic_item_id)})) as d"
+    q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance((?),(?)) as d',
+                                                       GeographicItem.select_geography_sql(self.id),
+                                                       GeographicItem.select_geography_sql(geographic_item_id)])
+    deg = GeographicItem.where(id: id).pluck(q1).first
     deg * Utilities::Geo::ONE_WEST
   end
 
@@ -1052,12 +1055,12 @@ class GeographicItem < ApplicationRecord
   # @param [Integer] geographic_item_id
   # @return [Double] distance in meters (faster, less accurate)
   def st_distance_spheroid(geographic_item_id)
-    q1 = "ST_Distance_Spheroid((#{GeographicItem.select_geometry_sql(self.id)})," \
+    q1 = "ST_Distance_Spheroid((#{GeographicItem.select_geometry_sql(id)})," \
                     "(#{GeographicItem.select_geometry_sql(geographic_item_id)}),'#{Gis::SPHEROID}') as distance"
-    q2 = ['ST_Distance_Spheroid((?),(?),?) as distance',
-          GeographicItem.select_geometry_sql(self.id),
-          GeographicItem.select_geometry_sql(geographic_item_id),
-          Gis::SPHEROID]
+    q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance_Spheroid((?),(?),?) as distance',
+                                                       GeographicItem.select_geometry_sql(self.id),
+                                                       GeographicItem.select_geometry_sql(geographic_item_id),
+                                                       Gis::SPHEROID])
     # q3 = self.class.sanitize_sql_array(["ST_Distance_Spheroid((:sql1),(:sql2),:sphere) as distance",
     #                                     sql1: GeographicItem.select_geometry_sql(self.id),
     #                                     sql2: GeographicItem.select_geometry_sql(geographic_item_id),
