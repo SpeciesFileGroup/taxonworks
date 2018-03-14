@@ -574,13 +574,12 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             species_id = get_tw_taxon_name_id[taxon_name_id]
             next unless species_id
 
-            logger.info "Working with SF.TaxonNameID #{taxon_name_id} = TW.taxon_name_id (count #{count_found += 1}) \n"
-
             original_genus_id = get_tw_taxon_name_id[row['OriginalGenusID']]  # if error?
 
             species_protonym = Protonym.find(species_id)
-            if !species_protonym.original_genus.nil?
+            if species_protonym.original_genus.nil?
               # species_protonym.update(original_genus: )
+              logger.info "Working with SF.TaxonNameID #{taxon_name_id} = TW.taxon_name_id (count #{count_found += 1}) \n"
               TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(
                   subject_taxon_name_id: original_genus_id,
                   object_taxon_name_id: species_id,
