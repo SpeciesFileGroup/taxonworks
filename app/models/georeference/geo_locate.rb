@@ -14,12 +14,12 @@ class Georeference::GeoLocate < Georeference
 
   def iframe_response=(response_string)
     lat, long, error_radius, uncertainty_points = Georeference::GeoLocate.parse_iframe_result(response_string)
-    self.geographic_item                        = make_geographic_point(long, lat, '0.0') unless lat.blank? and long.blank?
+    self.geographic_item = make_geographic_point(long, lat, '0.0') unless lat.blank? and long.blank?
     if uncertainty_points.nil?
       # make a circle from the geographic_item
       unless error_radius.blank?
         q1 = "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{error_radius.to_f / 111319.444444444});"
-        q2 = ActiveRecord::Base.send(:sanitize_sql_array, ["SELECT ST_BUFFER(?, ?);",
+        q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_BUFFER(?, ?);',
                                                            self.geographic_item.geo_object.to_s,
                                                            (error_radius.to_f / 111319.444444444)])
         value = GeographicItem.connection.select_all(q2).first['st_buffer']
@@ -44,7 +44,8 @@ class Georeference::GeoLocate < Georeference
   # @return [Object] GeographicItem::Polygon, either found, or created
   def make_err_polygon(wkb)
     polygon  = Gis::FACTORY.parse_wkb(wkb)
-    test_grs = GeographicItem::Polygon.where("polygon = ST_GeographyFromText('#{polygon}')")
+    # ActiveRecord::Base.send(:sanitize_sql_array, ['polygon = ST_GeographyFromText(?)', polygon.to_s])
+    test_grs = GeographicItem::Polygon.where(['polygon = ST_GeographyFromText(?)', polygon.to_s])
     if test_grs.empty?
       test_grs = [GeographicItem.new(polygon: polygon)]
     end
@@ -64,7 +65,8 @@ class Georeference::GeoLocate < Georeference
     if x.blank? or y.blank?
       test_grs = []
     else
-      test_grs = GeographicItem::Point.where("point = ST_GeographyFromText('POINT(#{x} #{y})::geography')").where("ST_Z(point::geometry) = #{z}")
+      test_grs = GeographicItem::Point.where("point = ST_GeographyFromText('POINT(#{x} #{y})::geography')")
+                   .where("ST_Z(point::geometry) = #{z}")
     end
     if test_grs.empty? # put a new one in the array
       test_grs = [GeographicItem.new(point: Gis::FACTORY.point(x, y, z))]
@@ -103,7 +105,8 @@ class Georeference::GeoLocate < Georeference
     unless uncertainty_polygon.nil?
       err_array = []
       uncertainty_polygon.each { |point| err_array.push(Gis::FACTORY.point(point[0], point[1])) }
-      self.error_geographic_item = GeographicItem.new(polygon: Gis::FACTORY.polygon(Gis::FACTORY.line_string(err_array)))
+      self.error_geographic_item =
+        GeographicItem.new(polygon: Gis::FACTORY.polygon(Gis::FACTORY.line_string(err_array)))
     end
   end
 
@@ -151,6 +154,7 @@ class Georeference::GeoLocate < Georeference
   #   '&points=|||low|&georef=run|false|false|true|true|false|false|false|0&gc=Tester'
   # end
 
+  #rubocop:disable Style/StringHashKeys
   # This class is used to create the string which will be sent to Tulane
   class RequestUI
     REQUEST_PARAMS = {
@@ -173,6 +177,7 @@ class Georeference::GeoLocate < Georeference
       'LanguageIndex' => '0',
       'gc'            => 'Tester'
     }.freeze
+    #rubocop:enable Style/StringHashKeys
 
     attr_reader :request_params, :request_params_string, :request_params_hash
 
@@ -182,7 +187,9 @@ class Georeference::GeoLocate < Georeference
       @succeeded = nil
     end
 
-    # "http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=United States of America&state=Illinois&locality=Champaign&points=40.091622|-88.241179|Champaign|low|7000&georef=run|false|false|true|true|false|false|false|0&gc=Tester"
+    # "http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=United States of
+    # America&state=Illinois&locality=Champaign&points=40.091622
+    # |-88.241179|Champaign|low|7000&georef=run|false|false|true|true|false|false|false|0&gc=Tester"
     # @return [String] a string to invoke as an api call to hunt for a particular place.
     def build_param_string
       # @request_param_string ||= @request_params.collect { |key, value| "#{key}=#{value}" }.join('&')
