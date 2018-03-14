@@ -998,12 +998,12 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         end
 
         context 'distance to others' do
-          xspecify 'slow' do
-            expect(p1.st_distance(p2.id)).to eq(4.47213595499958)
+          specify 'slow' do
+            expect(p1.st_distance(p2.id)).to be_within(0.1).of(497835.8972059313)
           end
 
-          xspecify 'fast' do
-            xexpect(p1.st_distance_spheroid(p2.id)).to eq(479988.253998808)
+          specify 'fast' do
+            expect(p1.st_distance_spheroid(p2.id)).to be_within(0.1).of(479988.253998808)
           end
         end
       end

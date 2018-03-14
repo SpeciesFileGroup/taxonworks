@@ -1036,15 +1036,18 @@ class GeographicItem < ApplicationRecord
     return geo_object.centroid
   end
 
+  # @param [Integer] geographic_item_id
   # @return [Double] distance in meters (slower, more accurate)
   def st_distance(geographic_item_id) # geo_object
-    GeographicItem.where(id: id)
+    deg = GeographicItem.where(id: id)
       .pluck("ST_Distance((#{GeographicItem.select_geography_sql(self.id)}), " \
                     "(#{GeographicItem.select_geography_sql(geographic_item_id)})) as d").first
+    deg * Utilities::Geo::ONE_WEST
   end
 
   alias_method :distance_to, :st_distance
 
+  # @param [Integer] geographic_item_id
   # @return [Double] distance in meters (faster, less accurate)
   def st_distance_spheroid(geographic_item_id)
     GeographicItem.where(id: id)
