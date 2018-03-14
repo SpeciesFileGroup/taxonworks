@@ -60,7 +60,7 @@ namespace :tw do
           # 'cites:check_original_genus_ids',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/9_after_orig_genus_ids',
           #
-          # 'cites:create_citations',
+          'cites:create_citations',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/10_after_citations',
           #
           # 'cites:create_otu_cites',

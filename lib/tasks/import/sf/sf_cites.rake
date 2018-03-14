@@ -237,6 +237,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           otu_not_found_counter = 0
           orig_desc_source_id = 0 # make sure only first cite to original description is handled as such (when more than one cite to same source)
           otu_only_counter = 0
+          successful_combination_counter = 0
 
           base_uri = 'http://speciesfile.org/legacy/'
 
@@ -388,12 +389,12 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                         if combination.genus
                           combination.save!
                           taxon_name_id = combination.id # At this point (3) do we use taxon_name_id for anything OTHER THAN the citation  (yes lots of loggin)
-                          logger.info "Successful COMBINATION"
+                          logger.info "Successful COMBINATION counter = '#{successful_combination_counter += 1}'"
                         end
 
                       else
                         # ... this is all the funny exceptions (4)
-                        logger.info "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', check_result.detail = '#{check_result.detail}' (funny_exceptions_counter = #{funny_exceptions_counter += 1}"
+                        logger.info "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', check_result.detail = '#{check_result.detail}', check_result.ambiguous_ranks = '#{check_result.ambiguous_ranks}' (funny_exceptions_counter = #{funny_exceptions_counter += 1}"
                       end
                     end
 

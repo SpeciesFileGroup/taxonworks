@@ -5,7 +5,7 @@
 #
 # They are applicable to genus group names and finer epithets.
 #
-# All elements of the combination must be defined, nothing is assumed based on the relationhip to the parent.
+# All elements of the combination must be defined, nothing is assumed based on the relationship to the parent.
 #
 #  c = Combination.new
 #  c.genus = a_protonym_genus
