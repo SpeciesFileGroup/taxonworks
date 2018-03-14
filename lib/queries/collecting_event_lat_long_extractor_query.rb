@@ -31,8 +31,8 @@ DEPRECATION WARNING: Passing a column to `quote` has been deprecated. It is only
       collecting_event_id = 0 if collecting_event_id.nil?
 
       @collecting_event_id = collecting_event_id
-      @filters             = filters
-      @project_id         = project_id
+      @filters = filters
+      @project_id = project_id
     end
 
     # @return [String] of all of the regexs available at this time
@@ -48,7 +48,9 @@ DEPRECATION WARNING: Passing a column to `quote` has been deprecated. It is only
         regex_function(kee)
       end.join(' OR ')
       # remove the names from the named groups: these don't work for sql regexs
-      Arel.sql("(#{all_filters.gsub('?<lat>', '').gsub('?<long>', '')})")
+      q1 = "(#{all_filters.gsub('?<lat>', '').gsub('?<long>', '')})"
+      q2 = ActiveRecord::Base.send(:sanitize_sql_array, ["(?)", all_filters.gsub('?<lat>', '').gsub('?<long>', '')])
+      Arel.sql(q1)
     end
 
     def where_sql
@@ -70,7 +72,7 @@ DEPRECATION WARNING: Passing a column to `quote` has been deprecated. It is only
     def verbatim_label_not_empty
       vl = Arel::Attribute.new(Arel::Table.new(:collecting_events), :verbatim_label)
       Arel::Nodes::NamedFunction.new('length', [vl]).gt(0)
-        # Arel::Nodes::NamedFunction.new('length', [vl]).gt(Arel::Nodes::Quoted.new(0))
+      # Arel::Nodes::NamedFunction.new('length', [vl]).gt(Arel::Nodes::Quoted.new(0))
     end
 
     def verbatim_lat_long_empty
