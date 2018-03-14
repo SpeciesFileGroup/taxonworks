@@ -48,7 +48,7 @@ class PinboardItem < ApplicationRecord
 
   scope :for_object, -> (object) { where(pinned_object_id: object.id, pinned_object_type: object.class.to_s) }
 
-  def self.reorder(pinboard_item_ids)
+  def self.reorder_by(pinboard_item_ids)
     pinboard_item_ids.each_with_index do |id, i|
       PinboardItem.find(id).update_attribute(:position, i)
     end

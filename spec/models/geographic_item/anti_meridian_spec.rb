@@ -292,16 +292,9 @@ describe GeographicItem, type: :model, group: :geo do
       let(:point_in_england) { GeographicItem.create(point: Gis::FACTORY.parse_wkt('POINT(1 26.0)')) }
       let(:point_in_western_box) { GeographicItem.create(point: Gis::FACTORY.parse_wkt('POINT(-177.0 26.0)')) }
 
-      let(:build_structure) {
-        western_box
-        eastern_box
-        point_in_western_box
-        point_in_eastern_box
-        point_in_europe
-        point_in_england
-        crossing_box
-        r_l_line
-        l_r_line
+      let(:build_structure) { [western_box, eastern_box, point_in_western_box,
+                               point_in_eastern_box, point_in_europe, point_in_england,
+                               crossing_box, r_l_line, l_r_line]
       }
 
       context 'detecting items which cross the anti-meridian by id' do

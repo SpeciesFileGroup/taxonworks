@@ -109,10 +109,11 @@ class GeographicItem < ApplicationRecord
     #   more of which crosses the anti-meridian.  In this case the current TW strategy within the
     #   UI is to abandon the search, and prompt the user to refactor the query.
     def crosses_anti_meridian_by_id?(*ids)
-      GeographicItem.find_by_sql(
-        ["SELECT ST_Intersects((SELECT single_geometry FROM (#{GeographicItem.single_geometry_sql(*ids)}) as " \
+      q1 = ["SELECT ST_Intersects((SELECT single_geometry FROM (#{GeographicItem.single_geometry_sql(*ids)}) as " \
             'left_intersect), ST_GeogFromText(?)) as r;', ANTI_MERIDIAN]
-      ).first.r
+      q2 = ['SELECT ST_Intersects((SELECT single_geometry FROM (?) as ' \
+            'left_intersect), ST_GeogFromText(?)) as r;', GeographicItem.single_geometry_sql(*ids), ANTI_MERIDIAN]
+      GeographicItem.find_by_sql(q1).first.r
     end
 
     # TODO: * rename to reflect either/or and what is being returned
@@ -369,11 +370,12 @@ class GeographicItem < ApplicationRecord
 
       crossing_ids.each do |id|
         # [61666, 61661, 61659, 61654, 61639]
+        q1 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_AsText((SELECT polygon FROM geographic_items ' \
+            "WHERE id = ?))", id])
         r = GeographicItem.where(
           # GeographicItem.contained_by_wkt_shifted_sql(GeographicItem.find(id).geo_object.to_s)
           GeographicItem.contained_by_wkt_shifted_sql(
-            ApplicationRecord.connection.execute('SELECT ST_AsText((SELECT polygon FROM geographic_items ' \
-            "WHERE id = #{id}))").first['st_astext'])
+            ApplicationRecord.connection.execute(q1).first['st_astext'])
         ).to_a
         results.push(r)
       end
@@ -1052,7 +1054,7 @@ class GeographicItem < ApplicationRecord
   def st_distance_spheroid(geographic_item_id)
     q1 = "ST_Distance_Spheroid((#{GeographicItem.select_geometry_sql(self.id)})," \
                     "(#{GeographicItem.select_geometry_sql(geographic_item_id)}),'#{Gis::SPHEROID}') as distance"
-    q2 = ["ST_Distance_Spheroid((?),(?),?) as distance",
+    q2 = ['ST_Distance_Spheroid((?),(?),?) as distance',
           GeographicItem.select_geometry_sql(self.id),
           GeographicItem.select_geometry_sql(geographic_item_id),
           Gis::SPHEROID]
