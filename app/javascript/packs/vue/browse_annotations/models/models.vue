@@ -6,7 +6,7 @@
                     <input
                             :checked="value === key"
                             name="model"
-                            type="radio"
+                            type="checkbox"
                             :value="key">
                     <span
                             class="new-combination-rank-list-taxon-name"
