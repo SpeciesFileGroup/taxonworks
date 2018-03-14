@@ -114,12 +114,6 @@ class Tag < ApplicationRecord
     end
   end
 
-  def self.exists?(global_id, keyword_id, project_id)
-    o = GlobalID::Locator.locate(global_id)
-    return false unless o
-    Tag.where(project_id: project_id, tag_object: o, keyword_id: keyword_id).first
-  end
-
   # @return [Boolean]
   #   destroy all tags with the keyword_id provided, true if success, false if failure
   def self.batch_remove(keyword_id, klass = nil)
