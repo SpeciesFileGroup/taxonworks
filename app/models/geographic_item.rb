@@ -1040,7 +1040,7 @@ class GeographicItem < ApplicationRecord
   # @return [Double] distance in meters (slower, more accurate)
   def st_distance(geographic_item_id) # geo_object
     deg = GeographicItem.where(id: id)
-      .pluck("ST_Distance((#{GeographicItem.select_geography_sql(self.id)}), " \
+            .pluck("ST_Distance((#{GeographicItem.select_geography_sql(self.id)}), " \
                     "(#{GeographicItem.select_geography_sql(geographic_item_id)})) as d").first
     deg * Utilities::Geo::ONE_WEST
   end
@@ -1050,10 +1050,21 @@ class GeographicItem < ApplicationRecord
   # @param [Integer] geographic_item_id
   # @return [Double] distance in meters (faster, less accurate)
   def st_distance_spheroid(geographic_item_id)
-    GeographicItem.where(id: id)
-      .pluck("ST_Distance_Spheroid((#{GeographicItem.select_geometry_sql(self.id)})," \
-                    "(#{GeographicItem.select_geometry_sql(geographic_item_id)}),'#{Gis::SPHEROID}') as distance")
-      .first
+    q1 = "ST_Distance_Spheroid((#{GeographicItem.select_geometry_sql(self.id)})," \
+                    "(#{GeographicItem.select_geometry_sql(geographic_item_id)}),'#{Gis::SPHEROID}') as distance"
+    q2 = ["ST_Distance_Spheroid((?),(?),?) as distance",
+          GeographicItem.select_geometry_sql(self.id),
+          GeographicItem.select_geometry_sql(geographic_item_id),
+          Gis::SPHEROID]
+    # q3 = self.class.sanitize_sql_array(["ST_Distance_Spheroid((:sql1),(:sql2),:sphere) as distance",
+    #                                     sql1: GeographicItem.select_geometry_sql(self.id),
+    #                                     sql2: GeographicItem.select_geometry_sql(geographic_item_id),
+    #                                     sphere: Gis::SPHEROID])
+    # q4 = self.class.sanitize_sql_array(["ST_Distance_Spheroid((?),(?),?) as distance",
+    #                                     GeographicItem.select_geometry_sql(self.id),
+    #                                     GeographicItem.select_geometry_sql(geographic_item_id),
+    #                                     Gis::SPHEROID])
+    GeographicItem.where(id: id).pluck(q1).first
   end
 
   # @return [String]
