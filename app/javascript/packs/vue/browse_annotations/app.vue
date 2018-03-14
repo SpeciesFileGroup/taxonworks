@@ -4,10 +4,12 @@
             <annotation-types v-model="filter.annotation_type" @annotation_type_selected="filter.common = $event"/>
             <span>Selected: {{ filter.annotation_type }}</span>
         </div>
-        <div class="annotation_on">
-
-        </div>
         <div class="annotation_for">
+            <models v-model="filter.annotation_for" @for_selected="filter.common = $event"
+                    @result="filter.result = $event"/>
+            <span>Selected: {{ filter.annotation_for }}</span>
+        </div>
+        <div class="annotation_on">
             <models v-model="filter.model" @model_selected="filter.common = $event" @result="filter.result = $event"/>
             <span>Selected: {{ filter.model }}</span>
         </div>
@@ -31,13 +33,15 @@
 </template>
 <script>
 
-  import AnnotationTypes from './annotation_types/annotation_types'
-  import Models from './models/models'
+  import AnnotationTypes from './components/annotation_types'
+  import AnnotationOn from './components/annotation_on'
+  import AnnotationFor from './components/annotation_for'
 
   export default {
     components: {
       AnnotationTypes,
-      Models
+      AnnotationOn,
+      AnnotationFor
     },
 
     data() {

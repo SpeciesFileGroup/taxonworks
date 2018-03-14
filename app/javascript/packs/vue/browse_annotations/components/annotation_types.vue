@@ -50,7 +50,7 @@
       getResult(newVal) {
         this.$http.post('/tasks/browse_annotations/get_type', {annotationType: newVal}).then(response => {
           // console.log(response); // this is necessary to show traffic?
-          this.$emit('annotation_type_selected', response.body)
+          this.$emit('annotation_type_selected', response.body);
           this.result = response.body;
         })
       }

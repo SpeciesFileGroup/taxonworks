@@ -29,6 +29,17 @@ class Tasks::BrowseAnnotationsController < ApplicationController
     render({json: params})
   end
 
+  def get_for_list
+    render(json: {
+        "tag": "selected keyword)",
+        "data_attribute": "selectd predicate",
+        "alternate_value": "selected alternate value",
+        "notes": "notes"
+    }
+    )
+  end
+
+
   def process_submit
     render({json: params})
   end
