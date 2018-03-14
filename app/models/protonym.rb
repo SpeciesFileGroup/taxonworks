@@ -81,8 +81,9 @@ class Protonym < TaxonName
     if d.respond_to?(:inverse_assignment_method)
       if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icnb|SourceClassifiedAs)/
         relationships = "#{d.inverse_assignment_method}_relationships".to_sym
+        # ActiveRecord::Base.send(:sanitize_sql_array, [d.name])
         has_many relationships, -> {
-          where("taxon_name_relationships.type LIKE '#{d.name}%'")
+          where(['taxon_name_relationships.type LIKE ', d.name])
         }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
         has_many d.inverse_assignment_method.to_s.pluralize.to_sym, through: relationships, source: :subject_taxon_name
       end
