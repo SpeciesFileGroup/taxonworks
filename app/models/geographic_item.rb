@@ -111,8 +111,8 @@ class GeographicItem < ApplicationRecord
     def crosses_anti_meridian_by_id?(*ids)
       q1 = ["SELECT ST_Intersects((SELECT single_geometry FROM (#{GeographicItem.single_geometry_sql(*ids)}) as " \
             'left_intersect), ST_GeogFromText(?)) as r;', ANTI_MERIDIAN]
-      q2 = ['SELECT ST_Intersects((SELECT single_geometry FROM (?) as ' \
-            'left_intersect), ST_GeogFromText(?)) as r;', GeographicItem.single_geometry_sql(*ids), ANTI_MERIDIAN]
+      q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Intersects((SELECT single_geometry FROM (?) as ' \
+            'left_intersect), ST_GeogFromText(?)) as r;', GeographicItem.single_geometry_sql(*ids), ANTI_MERIDIAN])
       GeographicItem.find_by_sql(q1).first.r
     end
 
@@ -768,9 +768,12 @@ class GeographicItem < ApplicationRecord
     #
 
     def distance_between(geographic_item_id1, geographic_item_id2)
-      GeographicItem.where(id: geographic_item_id1)
-        .pluck("st_distance(#{GeographicItem::GEOGRAPHY_SQL}, " \
-                    "(#{select_geography_sql(geographic_item_id2)})) as distance").first
+      q1 = "st_distance(#{GeographicItem::GEOGRAPHY_SQL}, " \
+                    "(#{select_geography_sql(geographic_item_id2)})) as distance"
+      q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['st_distance(?, (?)) as distance',
+                                                         GeographicItem::GEOGRAPHY_SQL,
+                                                         select_geography_sql(geographic_item_id2)])
+      GeographicItem.where(id: geographic_item_id1).pluck(q1).first
     end
 
     # @return [Hash]

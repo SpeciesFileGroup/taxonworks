@@ -432,6 +432,13 @@ class CollectingEvent < ApplicationRecord
           sql_string += " or print_label ilike '%#{any_label_fragment}%'"
           sql_string += " or document_label ilike '%#{any_label_fragment}%'"
           sql_string += ')'
+          # sql_string = ActiveRecord::Base.send(:sanitize_sql_array, ['? (verbatim_label ilike ? ' \
+          #                                                            'or print_label ilike ? ' \
+          #                                                            'or document_label ilike ?)',
+          #                                                            prefix,
+          #                                                            any_label_fragment,
+          #                                                            any_label_fragment,
+          #                                                            any_label_fragment])
         end
 
         unless id_fragment.blank?
