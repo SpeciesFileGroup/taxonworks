@@ -1,5 +1,5 @@
 class PinboardItemsController < ApplicationController
-  before_action :require_sign_in 
+  before_action :require_sign_in
   before_action :set_pinboard_item, only: [:destroy, :update]
 
   # POST /pinboard_items
@@ -36,7 +36,7 @@ class PinboardItemsController < ApplicationController
 
   # Stub a "reorder" method
   def update_position
-    PinboardItem.reorder(params.require(:order))
+    PinboardItem.reorder_by(params.require(:order))
     render nothing: true
   end
 
