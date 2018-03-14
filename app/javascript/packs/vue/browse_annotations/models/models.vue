@@ -4,7 +4,6 @@
             <li v-for="label, key in list">
                 <label @click="selectModel(key)">
                     <input
-                            :checked="value === key"
                             name="model"
                             type="checkbox"
                             :value="key">
