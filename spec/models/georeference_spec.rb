@@ -338,11 +338,9 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
     let(:gr_point) { FactoryBot.create(:valid_georeference_verbatim_data) }
 
     specify '.within_radius_of(geographic_item_id, distance)' do
-      expect(Georeference).to respond_to(:within_radius_of_item)
-      [gr_poly, gr_point].each
+      [gr_poly, gr_point, gr1].each
       expect(Georeference.within_radius_of_item(gr_point.geographic_item.to_param, 112000).to_a)
-        .to contain_exactly(gr_poly, gr_point)
-      # but specifically *not* gr1
+        .to contain_exactly(gr_poly, gr_point)      # but specifically *not* gr1
     end
 
     context '.with_locality_like(string)' do

@@ -1060,10 +1060,6 @@ class GeographicItem < ApplicationRecord
     #                                     sql1: GeographicItem.select_geometry_sql(self.id),
     #                                     sql2: GeographicItem.select_geometry_sql(geographic_item_id),
     #                                     sphere: Gis::SPHEROID])
-    # q4 = self.class.sanitize_sql_array(["ST_Distance_Spheroid((?),(?),?) as distance",
-    #                                     GeographicItem.select_geometry_sql(self.id),
-    #                                     GeographicItem.select_geometry_sql(geographic_item_id),
-    #                                     Gis::SPHEROID])
     GeographicItem.where(id: id).pluck(q1).first
   end
 
