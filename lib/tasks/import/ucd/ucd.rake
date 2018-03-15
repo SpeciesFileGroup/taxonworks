@@ -514,7 +514,12 @@ namespace :tw do
               else # elsif taxon.id == taxon1.id
                 c = Combination.new()
                 c.genus = taxon
-                c.save!
+                c.save
+                if c.id.nil?
+                  c1 = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id))
+                  byebug if c1.blank?
+                  c = c1
+                end
                 taxon = c
               end
 
