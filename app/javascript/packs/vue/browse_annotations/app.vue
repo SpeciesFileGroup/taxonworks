@@ -5,12 +5,13 @@
             <span>Selected: {{ filter.annotation_type }}</span>
         </div>
         <div class="annotation_for">
-            <models v-model="filter.annotation_for" @for_selected="filter.common = $event"
-                    @result="filter.result = $event"/>
-            <span>Selected: {{ filter.annotation_for }}</span>
+            <annotation-for v-model="filter.annotation_for" @for_selected="filter.common = $event"
+                            @result="filter.result = $event"/>
+            <span>Selected: {{ filter.for }}</span>
         </div>
         <div class="annotation_on">
-            <models v-model="filter.model" @model_selected="filter.common = $event" @result="filter.result = $event"/>
+            <annotation-on v-model="filter.model" @model_selected="filter.common = $event"
+                           @result="filter.result = $event"/>
             <span>Selected: {{ filter.model }}</span>
         </div>
         <div class="annotation_by">
