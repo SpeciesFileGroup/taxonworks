@@ -46,7 +46,7 @@
         this.$emit('input', type.valueOf())
       },
       getResult(newVal) {
-        this.$http.post('/tasks/browse_annotations/set_for', {annotationFor: newVal}).then(response => {
+        this.$http.post('/tasks/browse_annotations/annotation_for', {annotationFor: newVal}).then(response => {
           // console.log(response);
           this.$emit('for_selected', response.body);
           this.$emit('result', response.body);
