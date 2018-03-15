@@ -1,8 +1,12 @@
 <template>
-    <div>
-        <input
-                name="annotation-dates"
+    <div class="flexbox">
+        <input v-model="start"
+               name="dateStart"
                 type="date"
+        />
+        <input v-model="end"
+               name="dateEnd"
+               type="date"
         />
 
         <span v-for="(item, key) in result"> {{ key }} : {{ item }} <br></span>

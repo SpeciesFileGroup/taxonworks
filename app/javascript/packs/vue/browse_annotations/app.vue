@@ -42,9 +42,9 @@
   export default {
     components: {
       AnnotationTypes,
-      AnnotationDates,
+      AnnotationFor,
       AnnotationOn,
-      AnnotationFor
+      AnnotationDates
     },
 
     data() {
