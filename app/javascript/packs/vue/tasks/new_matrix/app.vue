@@ -7,11 +7,11 @@
 
 <script>
 
-import newMaxtrix from './components/newMatrix/newMatrix'
+import newMatrix from './components/newMatrix/newMatrix'
 
 export default {
   components: {
-    newMaxtrix
+    newMatrix
   },
   computed: {
   },

@@ -35,6 +35,22 @@ const GetMatrixObservation = function(id) {
   return ajaxCall('get',`/observation_matrices/${id}.json`)
 }
 
+const GetMatrixObservationColumnItems = function(id) {
+  return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_column_items.json`)
+}
+
+const GetMatrixObservationRowItems = function(id) {
+  return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_row_items.json`)
+}
+
+const GetMatrixObservationRows = function(id) {
+  return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_rows.json`)
+}
+
+const GetMatrixObservationColumns = function(id) {
+  return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_columns.json`)
+}
+
 export {
   CreateMatrix,
   GetMatrixObservation,
