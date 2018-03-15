@@ -1,10 +1,10 @@
 <template>
     <div class="flexbox">
-        <input v-model="start"
+        <input v-model="annotaton_dates.start"
                name="dateStart"
                 type="date"
         />
-        <input v-model="end"
+        <input v-model="annotaton_dates.end"
                name="dateEnd"
                type="date"
         />
