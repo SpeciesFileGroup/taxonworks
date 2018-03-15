@@ -615,6 +615,7 @@ TaxonWorks::Application.routes.draw do
       post 'get_type'
       post 'annotation_for'
       post 'set_model'
+      post 'set_dates'
     end
 
     scope :otus do

@@ -18,7 +18,7 @@
             <!--some text will show now no more -->
         </div>
         <div class="annotation_dates">
-
+            <annotation-dates v-model="filter.annotation_dates" @annotation_dates_selected="filter.common = $event"
         </div>
         <div class="annotation_logic">
 
@@ -37,6 +37,7 @@
   import AnnotationTypes from './components/annotation_types'
   import AnnotationOn from './components/annotation_on'
   import AnnotationFor from './components/annotation_for'
+  import AnnotationDates from './components/annotation_dates'
 
   export default {
     components: {
