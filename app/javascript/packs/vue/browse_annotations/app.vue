@@ -5,9 +5,9 @@
             <span>Selected: {{ filter.annotation_type }}</span>
         </div>
         <div class="annotation_for">
-            <annotation-for v-model="filter.annotation_for" @for_selected="filter.common = $event"
+            <annotation-for v-model="filter.for_selected" @for_selected="filter.common = $event"
                             @result="filter.result = $event"/>
-            <span>Selected: {{ filter.for }}</span>
+            <span>Selected: {{ filter.for_selected }}</span>
         </div>
         <div class="annotation_on">
             <annotation-on v-model="filter.model" @model_selected="filter.common = $event"
