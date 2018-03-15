@@ -56,7 +56,7 @@ class Tasks::BrowseAnnotationsController < ApplicationController
     )
   end
 
-  def get_dates
+  def set_dates
     render({json: params})
   end
 
