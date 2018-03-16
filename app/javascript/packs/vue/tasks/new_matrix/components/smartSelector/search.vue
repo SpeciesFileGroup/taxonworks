@@ -61,13 +61,11 @@ export default {
   methods: {
     createRowItem() {
       let data = {
-        observation_matrix_row_item: {
-          observation_matrix_id: this.matrix.id,
-          type: (this.type === 'Otu' ? 'ObservationMatrixRowItem::SingleOtu' : 'ObservationMatrixRowItem::SingleCollectionObject'),
-        }
+        observation_matrix_id: this.matrix.id,
+        type: (this.type === 'Otu' ? 'ObservationMatrixRowItem::SingleOtu' : 'ObservationMatrixRowItem::SingleCollectionObject'),
       }
 
-      data.observation_matrix_row_item[(this.type === 'Otu' ? 'otu_id' : 'collection_object_id')] = this.objectId
+      data[(this.type === 'Otu' ? 'otu_id' : 'collection_object_id')] = this.objectId
 
       this.$store.dispatch(ActionNames.CreateRowItem, data)
     }
