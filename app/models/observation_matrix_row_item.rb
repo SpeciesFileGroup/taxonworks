@@ -13,7 +13,7 @@ class ObservationMatrixRowItem < ApplicationRecord
 
   ALL_STI_ATTRIBUTES = [:otu_id, :collection_object_id, :controlled_vocabulary_term_id].freeze
 
-  belongs_to :observation_matrix
+  belongs_to :observation_matrix, inverse_of: :observation_matrix_row_items
   belongs_to :otu, inverse_of: :observation_matrix_row_items
   belongs_to :collection_object, inverse_of: :observation_matrix_row_items
 
