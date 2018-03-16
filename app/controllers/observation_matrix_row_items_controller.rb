@@ -3,8 +3,8 @@ class ObservationMatrixRowItemsController < ApplicationController
 
   before_action :set_observation_matrix_row_item, only: [:show, :edit, :update, :destroy]
 
-  # GET /matrix_row_items
-  # GET /matrix_row_items.json
+  # GET /observation_matrix_row_items
+  # GET /observation_matrix_row_items.json
   def index
     respond_to do |format|
       format.html do
@@ -18,8 +18,8 @@ class ObservationMatrixRowItemsController < ApplicationController
     end
   end
 
-  # GET /matrix_row_items/1
-  # GET /matrix_row_items/1.json
+  # GET /observation_matrix_row_items/1
+  # GET /observation_matrix_row_items/1.json
   def show
   end
 
@@ -28,17 +28,17 @@ class ObservationMatrixRowItemsController < ApplicationController
       .page(params[:page])
   end
 
-  # GET /matrix_row_items/new
+  # GET /observation_matrix_row_items/new
   def new
     @observation_matrix_row_item = ObservationMatrixRowItem.new
   end
 
-  # GET /matrix_row_items/1/edit
+  # GET /observation_matrix_row_items/1/edit
   def edit
   end
 
-  # POST /matrix_row_items
-  # POST /matrix_row_items.json
+  # POST /observation_matrix_row_items
+  # POST /observation_matrix_row_items.json
   def create
     @observation_matrix_row_item = ObservationMatrixRowItem.new(observation_matrix_row_item_params)
 
@@ -54,8 +54,8 @@ class ObservationMatrixRowItemsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /matrix_row_items/1
-  # PATCH/PUT /matrix_row_items/1.json
+  # PATCH/PUT /observation_matrix_row_items/1
+  # PATCH/PUT /observation_matrix_row_items/1.json
   def update
     respond_to do |format|
       if @observation_matrix_row_item.update(observation_matrix_row_item_params)
@@ -69,8 +69,8 @@ class ObservationMatrixRowItemsController < ApplicationController
     end
   end
 
-  # DELETE /matrix_row_items/1
-  # DELETE /matrix_row_items/1.json
+  # DELETE /observation_matrix_row_items/1
+  # DELETE /observation_matrix_row_items/1.json
   def destroy
     @observation_matrix_row_item.destroy!
     respond_to do |format|
