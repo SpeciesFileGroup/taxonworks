@@ -63,7 +63,7 @@ export default {
       let data = {
         observation_matrix_row_item: {
           observation_matrix_id: this.matrix.id,
-          type: this.type,
+          type: (this.type === 'Otu' ? 'ObservationMatrixRowItem::SingleOtu' : 'ObservationMatrixRowItem::SingleCollectionObject'),
         }
       }
 
