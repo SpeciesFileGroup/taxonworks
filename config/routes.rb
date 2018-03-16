@@ -632,7 +632,7 @@ TaxonWorks::Application.routes.draw do
 
     scope :observation_matrices do
       scope :new_matrix, controller: 'tasks/observation_matrices/new_matrix' do
-        get 'index', as: 'new_matrix_task_task'
+        get '(:id)', action: :index, as: 'new_matrix_task_task'
       end
 
       scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do

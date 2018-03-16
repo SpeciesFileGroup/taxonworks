@@ -52,11 +52,15 @@ const GetMatrixObservationColumns = function(id) {
 }
 
 const CreateRowItem = function(data) {
-  return ajaxCall('post',`/matrix_row_items.json`, data)
+  return ajaxCall('post',`/observation_matrix_row_items.json`, data)
 }
 
 export {
   CreateMatrix,
   CreateRowItem,
   GetMatrixObservation,
+  GetMatrixObservationColumnItems,
+  GetMatrixObservationRowItems,
+  GetMatrixObservationRows,
+  GetMatrixObservationColumns,
 }
