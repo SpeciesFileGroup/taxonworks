@@ -46,7 +46,7 @@ class ObservationMatrixRowItemsController < ApplicationController
       if @observation_matrix_row_item.save
         format.html { redirect_to url_for(@observation_matrix_row_item.metamorphosize),
                       notice: 'Matrix row item was successfully created.' }
-        format.json { render :show, status: :created, location: @observation_matrix_row_item }
+        format.json { render :show, status: :created, location: @observation_matrix_row_item.metamorphosize }
       else
         format.html { render :new }
         format.json { render json: @observation_matrix_row_item.errors, status: :unprocessable_entity }
@@ -61,7 +61,7 @@ class ObservationMatrixRowItemsController < ApplicationController
       if @observation_matrix_row_item.update(observation_matrix_row_item_params)
         format.html { redirect_to url_for(@observation_matrix_row_item.metamorphosize),
                       notice: 'Matrix row item was successfully updated.' }
-        format.json { render :show, status: :ok, location: @observation_matrix_row_item }
+        format.json { render :show, status: :ok, location: @observation_matrix_row_item.metamorphosize }
       else
         format.html { render :edit }
         format.json { render json: @observation_matrix_row_item.errors, status: :unprocessable_entity }
@@ -83,7 +83,8 @@ class ObservationMatrixRowItemsController < ApplicationController
   private
 
   def filter_params
-    params.permit(:observation_matrix_id, :otu_id, :controlled_vocabulary_term_id, :collection_object_id, :type)
+    params.permit(
+      :observation_matrix_id, :otu_id, :controlled_vocabulary_term_id, :collection_object_id, :type)
   end
 
   def set_observation_matrix_row_item
