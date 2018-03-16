@@ -28,7 +28,7 @@ export default {
         return this.value
       },
       set(value) {
-        this.emit('value', value)
+        this.$emit('value', value)
       }
     }
   }
