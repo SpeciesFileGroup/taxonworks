@@ -14,7 +14,9 @@ function makeInitialState () {
       name: undefined,
       project_id: undefined,
       global_id: undefined
-    }
+    },
+    matrixRowItems: [],
+    matrixColumnItems: []
   }
 }
 

@@ -51,7 +51,12 @@ const GetMatrixObservationColumns = function(id) {
   return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_columns.json`)
 }
 
+const CreateRowItem = function(data) {
+  return ajaxCall('post',`/matrix_row_items.json`, data)
+}
+
 export {
   CreateMatrix,
+  CreateRowItem,
   GetMatrixObservation,
 }

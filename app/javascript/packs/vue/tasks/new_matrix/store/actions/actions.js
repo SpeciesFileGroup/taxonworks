@@ -1,17 +1,8 @@
-/*
 import ActionNames from './actionNames'
-import loadTypeMaterial from './loadTypeMaterial'
+import createRowItem from './createRowItem'
 
 const ActionFunctions = {
-  [ActionNames.LoadTypeMaterial]: loadTypeMaterial,
-  [ActionNames.LoadTypeMaterials]: loadTypeMaterials,
-  [ActionNames.LoadTaxonName]: loadTaxonName,
-  [ActionNames.CreateTypeMaterial]: createTypeMaterial,
-  [ActionNames.RemoveTypeSpecimen]: removeTypeSpecimen,
-  [ActionNames.UpdateTypeSpecimen]: updateTypeSpecimen,
-  [ActionNames.SetNewTypeMaterial]: setNewTypeMaterial,
-  [ActionNames.UpdateCollectionObject]: updateCollectionObject
+  [ActionNames.CreateRowItem]: createRowItem,
 }
 
 export { ActionNames, ActionFunctions }
-*/
