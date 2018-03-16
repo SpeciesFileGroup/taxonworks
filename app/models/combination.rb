@@ -446,7 +446,7 @@ class Combination < TaxonName
   def does_not_exist_as_original_combination
     n = "<i>#{get_full_name}</i>" # TODO: get rid of italics on cached original combination
     if a = protonyms_matching_original_relationships.where('taxon_names.cached_original_combination = ?', n)
-      errors.add(:base, "Combination exists as protonym(s) with matching original combination (#{a.all.pluck(:cached).join(', ')}).") if a.any?
+      errors.add(:base, "Combination exists as protonym(s) with matching original combination: #{a.all.pluck(:cached).join(', ')}.") if a.any?
     end
   end
 
