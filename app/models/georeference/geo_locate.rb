@@ -65,8 +65,9 @@ class Georeference::GeoLocate < Georeference
     if x.blank? or y.blank?
       test_grs = []
     else
-      test_grs = GeographicItem::Point.where("point = ST_GeographyFromText('POINT(#{x} #{y})::geography')")
-                   .where("ST_Z(point::geometry) = #{z}")
+      test_grs = GeographicItem::Point
+                   .where(["point = ST_GeographyFromText('POINT(? ?)::geography')", x.to_f, y.to_f])
+                   .where(["ST_Z(point::geometry) = ?", z.to_f])
     end
     if test_grs.empty? # put a new one in the array
       test_grs = [GeographicItem.new(point: Gis::FACTORY.point(x, y, z))]
