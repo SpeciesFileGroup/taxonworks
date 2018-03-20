@@ -32,9 +32,9 @@
 class Serial < ApplicationRecord
   # Include statements, and acts_as_type
   include Housekeeping::Users
-  include Housekeeping::Timestamps  # needed for the views
+  include Housekeeping::Timestamps # needed for the views
   include Shared::AlternateValues # abbreviations, alternate titles, language translations
-  include Shared::DataAttributes  # equivalent of a note for a global class i.e. cross project note
+  include Shared::DataAttributes # equivalent of a note for a global class i.e. cross project note
   include Shared::Notes # project note
   include Shared::Identifiers
   include Shared::Tags
@@ -130,11 +130,11 @@ class Serial < ApplicationRecord
     return Serial.none if compared_string.blank?
 
     # Levenshtein in postgres requires all strings be 255 or fewer
-      order_str = Serial.send(:sanitize_sql_for_conditions,
+    order_str = Serial.send(:sanitize_sql_for_conditions,
                             ["levenshtein(Substring(serials.#{column} from 0 for 250), ?)",
                              compared_string[0..250]])
 
-      Serial.where('id <> ?', self.to_param).
+    Serial.where('id <> ?', self.to_param).
       order(order_str).
       limit(limit)
   end
@@ -146,8 +146,10 @@ class Serial < ApplicationRecord
     if self.new_record?
       ret_val = Serial.exists?(name: self.name)
     else
-      ret_val = Serial.where("name = '#{Utilities::Strings
-                                          .escape_single_quote(self.name)}' AND NOT (id = #{self.id})").to_a.size > 0
+      name_str = ActiveRecord::Base.send(:sanitize_sql_array, ['name = ? AND NOT (id = ?)',
+                                                               Utilities::Strings.escape_single_quote(self.name),
+                                                               self.id])
+      ret_val = Serial.where(name_str).to_a.size > 0
     end
 
     if ret_val == false
@@ -167,7 +169,7 @@ class Serial < ApplicationRecord
   end
 =end
 
-  def all_previous(start_serial=self)
+  def all_previous(start_serial = self)
     # provides an array of all previous incarnations of me
 
     out_array = []
@@ -180,7 +182,7 @@ class Serial < ApplicationRecord
     return out_array
   end
 
-  def all_succeeding(start_serial=self)
+  def all_succeeding(start_serial = self)
     # provides an array of all succeeding incarnations of me
     out_array = []
     start_serial.immediately_succeeding_serials.order(:name).find_each do |serial|
