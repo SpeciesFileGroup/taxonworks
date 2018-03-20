@@ -36,7 +36,7 @@ module Tasks::Gis::LocalityHelper
   # localities within @geographic_item which have a verbatim_locality starting with letter
   def select_locality(letter)
     s = CollectingEvent.where(id: @collecting_events.ids)
-          .where('verbatim_locality like ?', letter.to_s)
+          .where('verbatim_locality like ?', letter.to_s + '%')
           .order(:verbatim_locality)
     s
   end
