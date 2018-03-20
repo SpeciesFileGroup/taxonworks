@@ -68,6 +68,7 @@ class CharacterStatesController < ApplicationController
     @character_states = CharacterState.with_project_id(sessions_current_project_id).page(params[:page])
   end
 
+  # TODO: remove
   # GET /character_states/annotations.json
   def annotations
     @object = @character_state
@@ -80,7 +81,7 @@ class CharacterStatesController < ApplicationController
   end
 
   def character_state_params
-    params.require(:character_state).permit(:name, :label, :descriptor_id, :position, :project_id, :updated_by_id, :created_by_id)
+    params.require(:character_state).permit(:name, :label, :descriptor_id, :position)
   end
 
 end

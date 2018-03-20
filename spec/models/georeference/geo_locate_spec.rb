@@ -3,6 +3,7 @@ require 'rails_helper'
 describe Georeference::GeoLocate, type: :model, group: [:geo] do
 
   let(:geo_locate) { Georeference::GeoLocate.new }
+  let(:geo_locate2) { Georeference::GeoLocate.new }
   let(:request_params) { {country: 'USA', state: 'IL', doPoly: 'true', locality: 'Urbana'} }
   let(:request) { Georeference::GeoLocate::Request.new(request_params) }
   let(:response) { VCR.use_cassette('geo-locate-with-request') { request.response } }
@@ -49,6 +50,14 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
     specify 'is valid for a drawn point with no further metadata' do
       geo_locate.iframe_response = iframe_example_values[:drawn_point]
       expect(geo_locate.valid?).to be_truthy, geo_locate.errors.full_messages.join(' ')
+    end
+
+    specify 'finds previously created point' do
+      geo_locate.iframe_response = iframe_example_values[:drawn_point]
+      geo_locate.save
+      geo_locate2.collecting_event = CollectingEvent.new
+      geo_locate2.iframe_response = iframe_example_values[:drawn_point]
+      expect(geo_locate.geographic_item.id).to eq(geo_locate2.geographic_item.id)
     end
 
     specify 'is valid for a drawn point with uncertainty' do

@@ -122,6 +122,7 @@ group :development do
   gem 'parallel_tests', '~> 2.21.2', require: false
   gem 'web-console', '~> 3.5.1'
   gem 'rubocop', '~> 0.53.0'
+  gem 'brakeman', '~> 4.2.0', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
 end
 

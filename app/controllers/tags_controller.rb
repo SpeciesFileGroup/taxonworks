@@ -113,7 +113,9 @@ class TagsController < ApplicationController
   end
 
   def exists
-    if @tag = Tag.exists?(params.require(:global_id), params.require(:keyword_id), sessions_current_project_id)
+    if @tag = Tag.exists?(['?', params.require(:global_id)],
+                          params.require(:keyword_id),
+                          sessions_current_project_id)
       render :show
     else
       render json: false
@@ -157,7 +159,7 @@ class TagsController < ApplicationController
   end
 
   def taggable_object
-    params.require(:tag_object_type).constantize.find(params.require(:tag_object_id))
+    whitelist_constantize(params.require(:tag_object_type)).find(params.require(:tag_object_id))
   end
 
 end

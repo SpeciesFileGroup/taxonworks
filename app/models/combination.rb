@@ -5,7 +5,7 @@
 #
 # They are applicable to genus group names and finer epithets.
 #
-# All elements of the combination must be defined, nothing is assumed based on the relationhip to the parent.
+# All elements of the combination must be defined, nothing is assumed based on the relationship to the parent.
 #
 #  c = Combination.new
 #  c.genus = a_protonym_genus
@@ -335,12 +335,13 @@ class Combination < TaxonName
     html
   end
 
-  # @return [Scope]
+  # @return [Protonym Scope]
+  # @params protonym_ids [Hash] like `{genus: 4, species: 5}`
+  #   the absence of _id in the keys in part reflects integration with Biodiversity gem
   #   AHA from http://stackoverflow.com/questions/28568205/rails-4-arel-join-on-subquery
   #   See also Descriptor::Gene
-  def protonyms_matching_original_relationships
-    data = protonym_ids_params 
-    return Protonym.none if !data.keys.any?
+  def self.protonyms_matching_original_relationships(protonym_ids = {})
+    return Protonym.none if !protonym_ids.keys.any?
 
     s  = Protonym.arel_table
     sr = TaxonNameRelationship.arel_table
@@ -352,7 +353,7 @@ class Combination < TaxonName
       .on(sr['object_taxon_name_id'].eq(j['id']))
 
     # Build an aliased join for each set of attributes
-    data.each do |rank, id|
+    protonym_ids.each do |rank, id|
       sr_a = sr.alias("b_#{rank}")
       b = b.join(sr_a).on(
         sr_a['object_taxon_name_id'].eq(j['id']),
@@ -361,11 +362,24 @@ class Combination < TaxonName
       )
     end
 
-    b = b.group(j['id']).having(sr['object_taxon_name_id'].count.eq(data.count))
+    b = b.group(j['id']).having(sr['object_taxon_name_id'].count.eq(protonym_ids.count))
 
     b = b.as('join_alias')
 
     Protonym.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(s['id']))))
+  end
+
+  # @return [Protonym Scope] hmmm- a Protonym class method?!
+  #    Protonyms matching original relations, if name provided then name added as an additional check on verbatim match
+  # @params name [String, nil] the *already HTMLized* version of the name (use Combiantion.get_full_name_html if you need to mock a result)
+  def self.matching_protonyms(name = nil, **protonym_ids)
+    q = nil 
+    if name.nil?
+      q = protonyms_matching_original_relationships(protonym_ids)
+    else
+      q = protonyms_matching_original_relationships(protonym_ids).where('taxon_names.cached_original_combination = ?', name)
+    end
+    q 
   end
 
   protected
@@ -444,9 +458,8 @@ class Combination < TaxonName
   end
 
   def does_not_exist_as_original_combination
-    n = "<i>#{get_full_name}</i>" # TODO: get rid of italics on cached original combination
-    if a = protonyms_matching_original_relationships.where('taxon_names.cached_original_combination = ?', n)
-      errors.add(:base, "Combination exists as protonym(s) with matching original combination (#{a.all.pluck(:cached).join(', ')}).") if a.any?
+    if a = Combination.matching_protonyms(get_full_name_html, protonym_ids_params)
+      errors.add(:base, "Combination exists as protonym(s) with matching original combination: #{a.all.pluck(:cached).join(', ')}.") if a.any?
     end
   end
 

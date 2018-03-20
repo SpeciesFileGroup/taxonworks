@@ -37,32 +37,32 @@ RSpec.describe PinboardItem do
     let!(:b) { PinboardItem.create!(pinned_object: FactoryBot.create(:valid_otu, name: 'blorf'), is_inserted: false, user_id: 1) }
     let!(:c) { PinboardItem.create!(pinned_object: FactoryBot.create(:valid_specimen,), is_inserted: true, user_id: 1) }
 
-    specify '.reorder' do
-      PinboardItem.reorder([b.id, a.id])
-      expect(b.position > a.position).to be_truthy 
+    specify '.reorder_by' do
+      PinboardItem.reorder_by([b.id, a.id])
+      expect(b.position > a.position).to be_truthy
     end
 
     specify '#is_inserted: true' do
       b.update_attribute(:is_inserted, true)
       b.reload
-      expect(b.is_inserted?).to be(true)  
+      expect(b.is_inserted?).to be(true)
     end
 
     specify '#is_inserted: "true"' do
       b.update_attribute(:is_inserted, 'true')
       b.reload
-      expect(b.is_inserted?).to be(true) 
+      expect(b.is_inserted?).to be(true)
     end
 
     context 'when is_inserted: true set' do
       before { b.update_attribute(:is_inserted, true)}
 
       specify 'others are false' do
-        expect(a.reload.is_inserted?).to be(false) 
+        expect(a.reload.is_inserted?).to be(false)
       end
 
       specify 'but unrelated records remain set' do
-        expect(c.is_inserted?).to be(true)  
+        expect(c.is_inserted?).to be(true)
       end
     end
   end

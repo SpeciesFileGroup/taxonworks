@@ -6,7 +6,8 @@
 #
 # @!attribute primary_language_id
 #   @return [Integer]
-#   The id of the Language - language of this serial.  According to the ISSN a new ISSN is minted for a journal that changes languages.
+#   The id of the Language - language of this serial.  According to the ISSN a new ISSN is minted for a journal that
+#     changes languages.
 #
 # @!attribute first_year_of_issue
 #   @return [Integer]
@@ -31,9 +32,9 @@
 class Serial < ApplicationRecord
   # Include statements, and acts_as_type
   include Housekeeping::Users
-  include Housekeeping::Timestamps  # needed for the views
+  include Housekeeping::Timestamps # needed for the views
   include Shared::AlternateValues # abbreviations, alternate titles, language translations
-  include Shared::DataAttributes  # equivalent of a note for a global class i.e. cross project note
+  include Shared::DataAttributes # equivalent of a note for a global class i.e. cross project note
   include Shared::Notes # project note
   include Shared::Identifiers
   include Shared::Tags
@@ -63,10 +64,12 @@ class Serial < ApplicationRecord
   has_many :immediately_preceding_serials, through: :succeeding_serial_chronologies, source: :preceding_serial
   # .to_a will return an array of serials - single preceding chronology will be multiple serials if there is a merge
 
-  has_many :immediately_succeeding_serials, through: :preceding_serial_chronologies, source: :succeeding_serial # class is 'Serial'
+  has_many :immediately_succeeding_serials, through: :preceding_serial_chronologies, source: :succeeding_serial
+  # class is 'Serial'
   # .to_a will return an array of serials - single succeeding chronology will be multiple serials if there is a split
 
-  accepts_nested_attributes_for :alternate_values, reject_if: lambda { |av| av[:value].blank? }, allow_destroy: true
+  accepts_nested_attributes_for :alternate_values, reject_if: lambda { |av| av[:value].blank? },
+                                allow_destroy: true
 
   # TODO handle translations (which are simultaneous)
 
@@ -90,7 +93,8 @@ class Serial < ApplicationRecord
     test should be in alternate value
   # select all serials with this translation name - fine to implement scope here, but primary
     test should be in alternate value
-  # TODO follow question (7/16/14) - Matt - there are translations as different serials (different ISSNs) and translations of the name of the current serial which are alternate values
+  # TODO follow question (7/16/14) - Matt - there are translations as different serials (different ISSNs) and
+  # translations of the name of the current serial which are alternate values
 =end
 
   # "Hard" Validations
@@ -111,7 +115,7 @@ class Serial < ApplicationRecord
         limit = 20
     end
 
-    where("name LIKE '#{t}%'").order(:name).limit(limit)
+    where(['name LIKE ?', t.to_s]).order(:name).limit(limit)
   end
 
   # Instance methods
@@ -125,11 +129,12 @@ class Serial < ApplicationRecord
   def nearest_by_levenshtein(compared_string = nil, column = 'name', limit = 10)
     return Serial.none if compared_string.blank?
 
+    # Levenshtein in postgres requires all strings be 255 or fewer
     order_str = Serial.send(:sanitize_sql_for_conditions,
-                            ["levenshtein(Substring(serials.#{column} from 0 for 250), ?)", # Levenshtein in postgres requires all strings be 255 or fewer
+                            ["levenshtein(Substring(serials.#{column} from 0 for 250), ?)",
                              compared_string[0..250]])
 
-      Serial.where('id <> ?', self.to_param).
+    Serial.where('id <> ?', self.to_param).
       order(order_str).
       limit(limit)
   end
@@ -141,7 +146,10 @@ class Serial < ApplicationRecord
     if self.new_record?
       ret_val = Serial.exists?(name: self.name)
     else
-      ret_val = Serial.where("name = '#{Utilities::Strings.escape_single_quote(self.name)}' AND NOT (id = #{self.id})").to_a.size > 0
+      name_str = ActiveRecord::Base.send(:sanitize_sql_array, ['name = ? AND NOT (id = ?)',
+                                                               Utilities::Strings.escape_single_quote(self.name),
+                                                               self.id])
+      ret_val = Serial.where(name_str).to_a.size > 0
     end
 
     if ret_val == false
@@ -161,7 +169,7 @@ class Serial < ApplicationRecord
   end
 =end
 
-  def all_previous(start_serial=self)
+  def all_previous(start_serial = self)
     # provides an array of all previous incarnations of me
 
     out_array = []
@@ -174,7 +182,7 @@ class Serial < ApplicationRecord
     return out_array
   end
 
-  def all_succeeding(start_serial=self)
+  def all_succeeding(start_serial = self)
     # provides an array of all succeeding incarnations of me
     out_array = []
     start_serial.immediately_succeeding_serials.order(:name).find_each do |serial|
@@ -207,6 +215,7 @@ class Serial < ApplicationRecord
   end
 
   def match_alternate_value?
-    #Select value from AlternateValue WHERE alternate_value_object_type = 'Serial' AND alternate_value_object_attribute = 'name'
+    #Select value from AlternateValue WHERE alternate_value_object_type = 'Serial'
+    # AND alternate_value_object_attribute = 'name'
   end
 end

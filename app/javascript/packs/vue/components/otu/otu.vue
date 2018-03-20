@@ -3,7 +3,7 @@
     <span 
       class="circle-button button-default"
       :title="redirect ? 'Otu browse' : 'Otu radial'"
-      :class="[{ 'button-submit': !list.length }, (redirect ? 'btn-hexagon-empty-w' : 'btn-hexagon-w')]"
+      :class="[{ 'button-submit': emptyList }, (redirect ? 'btn-hexagon-empty-w' : 'btn-hexagon-w')]"
       @click="openApp">Otu
     </span>
     <modal
@@ -80,24 +80,35 @@
         globalId: '',
         modalOpen: false,
         creatingOtu: false,
+        loaded: false,
         list: []
       }
     },
     mounted() {
-      GetOtus(this.taxonId).then(response => {
-        this.list = response
+      this.getOtuList()
+      document.addEventListener("vue-otu:created", (event) => {
+        if(this.taxonId == event.detail.taxonId)
+          this.list = event.detail.list
       })
     },
     methods: {
+      getOtuList() {
+        GetOtus(this.taxonId).then(response => {
+          this.loaded = true
+          this.list = response
+        })
+      },
       openApp() {
-        if(this.emptyList) {
-          this.createOtu(this.taxonId);
-        }
-        else if(this.list.length === 1) {
-          this.processCall(this.list[0])
-        }
-        else {
-          this.modalOpen = true
+        if(this.loaded) {
+          if(this.emptyList) {
+            this.createOtu(this.taxonId);
+          }
+          else if(this.list.length === 1) {
+            this.processCall(this.list[0])
+          }
+          else {
+            this.modalOpen = true
+          }
         }
       },
       openRadial(otu) {
@@ -109,6 +120,8 @@
       createOtu(id) {
         this.creatingOtu = true
         CreateOtu(id).then(response => {
+          this.list.push(response)
+          this.sendCreatedEvent()
           if(this.redirect) {
             this.redirectTo(response.id)
           }
@@ -116,6 +129,15 @@
             this.openRadial(response)
           }
         }) 
+      },
+      sendCreatedEvent() {
+        let event = new CustomEvent("vue-otu:created", {
+          detail: {
+            taxonId: this.taxonId,
+            list: this.list
+          }
+        });
+        document.dispatchEvent(event)
       },
       processCall(otu) {
         if(this.redirect) {

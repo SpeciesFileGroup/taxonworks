@@ -185,6 +185,30 @@ describe Combination, type: :model, group: :nomenclature do
       basic_combination.update(verbatim_name: n)
       expect(Combination.match_exists?(n, genus: genus.id, species: species.id)).to eq(basic_combination)
     end
+
+    specify '.matching_protonyms 1' do
+      species.original_genus = genus
+      species.original_subgenus = genus
+      species.original_species = species
+      species.save!
+      expect(Combination.matching_protonyms(nil, genus: genus.id, subgenus: genus.id, species: species.id).to_a).to contain_exactly(species)
+    end
+
+    specify '.matching_protonyms 2' do
+      species.original_genus = genus
+      species.original_subgenus = genus
+      species.original_species = species
+      species.save!
+      expect(Combination.matching_protonyms(species.cached_original_combination, genus: genus.id, subgenus: genus.id, species: species.id).to_a).to contain_exactly(species)
+    end
+
+    specify '.matching_protonyms 3' do
+      species.original_genus = genus
+      species.original_subgenus = genus
+      species.original_species = species
+      species.save!
+      expect(Combination.matching_protonyms("Aus bus", genus: genus.id, subgenus: genus.id, species: species.id).to_a).to contain_exactly()
+    end
   end
 
   context 'instance methods' do

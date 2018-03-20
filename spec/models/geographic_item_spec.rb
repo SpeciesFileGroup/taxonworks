@@ -996,6 +996,16 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
             expect(GeographicItem.with_is_valid_geometry_column(all_items)).to be_truthy
           end
         end
+
+        context 'distance to others' do
+          specify 'slow' do
+            expect(p1.st_distance(p2.id)).to be_within(0.1).of(497835.8972059313)
+          end
+
+          specify 'fast' do
+            expect(p1.st_distance_spheroid(p2.id)).to be_within(0.1).of(479988.253998808)
+          end
+        end
       end
     end
   end # end using ce_test_objects

@@ -16,11 +16,11 @@
         <%= f.label :matrix_id %>
         <br>
         <%= render partial: 'workbench/elements/forms/ajax_select',
-                   locals:  {controller:  'matrices',
-                             object: 'matrix_row_item',
-                             method:  'matrix_id',
-                             tag_id:  'matrix_id_for_matrix_row_item',
-                             display:  matrix_tag(@observation_matrix_row_item.observation_matrix),
+                   locals:  {controller:  'observation_matrices',
+                             object: 'observation_matrix_row_item',
+                             method:  'observation_matrix_id',
+                             tag_id:  'observation_matrix_id_for_matrix_row_item',
+                             display:  observation_matrix_tag(@observation_matrix_row_item.observation_matrix),
                              size: 20} %>
   </div>
 
@@ -32,7 +32,7 @@
         <br>
         <%= render partial: 'workbench/elements/forms/ajax_select',
                    locals:  {controller:  '/otus',
-                             object: 'matrix_row_item',
+                             object: 'observation_matrix_row_item',
                              method:  'otu_id',
                              tag_id:  'otu_id_for_matrix_row_item',
                              display:  otu_tag(@observation_matrix_row_item.object_is?('Otu')),
@@ -44,7 +44,7 @@
         <br>
         <%= render partial: 'workbench/elements/forms/ajax_select',
                    locals:  {controller:  '/collection_objects',
-                             object: 'matrix_row_item',
+                             object: 'observation_matrix_row_item',
                              method:  'collection_object_id',
                              tag_id:  'collection_object_id_for_matrix_row_item',
                              display:  collection_object_tag(@observation_matrix_row_item.object_is?('CollectionObject')),
@@ -56,7 +56,7 @@
         <br>
         <%= render partial: 'workbench/elements/forms/ajax_select',
                    locals:  {controller:  '/keywords',
-                             object: 'matrix_row_item',
+                             object: 'observation_matrix_row_item',
                              method:  'controlled_vocabulary_term_id',
                              tag_id:  'controlled_vocabulary_term_id_for_matrix_row_item',
                              display:  controlled_vocabulary_term_tag(@observation_matrix_row_item.object_is?('ControlledVocabularyTerm')),

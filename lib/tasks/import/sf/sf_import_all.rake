@@ -56,10 +56,9 @@ namespace :tw do
           # 'cites:import_nomenclator_strings',
           # 'cites:create_cvts_for_citations',
           # 'cites:create_sf_taxon_name_authors',
-          # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/9_after_taxon_authors',
-          #  @todo merge following with above group
-          # 'cites:create_sf_taxon_file_id_hash'
-          # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/9b_after_taxa_file_ids',
+          # 'cites:create_sf_taxon_file_id_hash',
+          # 'cites:check_original_genus_ids',
+          # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/9_after_orig_genus_ids',
           #
           'cites:create_citations',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/10_after_citations',
@@ -97,7 +96,7 @@ namespace :tw do
           # 'specimens:create_sf_loc_col_events_metadata',
           # 'specimens:collection_objects',
           # 'tw:db:dump backup_directory=/Users/mbeckman/src/db_backup/20_after_collections_objects'
-      
+
       ] do
         puts 'Ran all tasks!'
       end

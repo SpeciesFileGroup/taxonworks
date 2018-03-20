@@ -187,6 +187,16 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           end
         end
 
+
+        def nomenclator_is_original_combination?(protonym, nomenclator_string)
+          protonym.cached_original_combination == "<i>#{nomenclator_string}</i>"
+        end
+
+        def nomenclator_is_current_name?(protonym, nomenclator_string)
+          protonym.cached == nomenclator_string
+        end
+
+
         desc 'time rake tw:project_import:sf_import:cites:create_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_citations: [:data_directory, :environment, :user_id] do |logger|
 
@@ -222,17 +232,18 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
           count_found = 0
           error_counter = 0
-          no_taxon_counter = 0
+          funny_exceptions_counter = 0
           cite_found_counter = 0
           otu_not_found_counter = 0
           orig_desc_source_id = 0 # make sure only first cite to original description is handled as such (when more than one cite to same source)
           otu_only_counter = 0
+          successful_combination_counter = 0
 
           base_uri = 'http://speciesfile.org/legacy/'
 
           file.each_with_index do |row, i|
             sf_taxon_name_id = row['TaxonNameID']
-            sf_file_id = row['FileID']  # get_sf_file_id[sf_taxon_name_id]
+            sf_file_id = row['FileID'] # get_sf_file_id[sf_taxon_name_id]
             next if skipped_file_ids.include? sf_file_id.to_i
             taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # cannot to_i because if nil, nil.to_i = 0
 
@@ -350,51 +361,55 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
 
               # byebug
 
-              if nomenclator_string && !(protonym.cached_original_combination == "<i>#{nomenclator_string}</i>")
-                # what is value of above line?
-                logger.info "Checking for combinations: nomenclator_string = '#{nomenclator_string}', protonym.cached_original_combination = '#{protonym.cached_original_combination}'"
-                combination = nil
+              if nomenclator_string
+                if !nomenclator_is_original_combination?(protonym, nomenclator_string) && !nomenclator_is_current_name?(protonym, nomenclator_string)
 
-                begin
-                  check_result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
+                  # at this point we have to inspect (parse) the string
 
-                  
+                  combination = nil
 
-                  if check_result.is_unambiguous?
-                    logger.info "unambiguous result"
-                    combination = check_result.combination
+                  begin
 
-                    # what's in check_result, count of species
+                    potential_matches = TaxonName.where(cached: nomenclator_string, project_id: project_id)
+                    if potential_matches.count == 1
+                      taxon_name_id = potential_matches.first.id
+                    else
+                      # UHOH, what to do?
+                      # This means that the string we have matches multiple possible protonyms and
+                      # we cant automatically determine which to cite
+                      check_result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
 
-                    combination.project_id = project_id
-                    # TODO: override $user_id if need be
 
-                    if combination.genus
-                      combination.save!
-                      taxon_name_id = combination.id # At this point (3) do we use taxon_name_id for anything OTHER THAN the citation  (yes lots of loggin)
-                      logger.info "Successful COMBINATION"
+                      if check_result.is_unambiguous?
+                        combination = check_result.combination
+
+                        combination.project_id = project_id
+                        # TODO: override $user_id if need be
+
+                        if combination.genus
+                          combination.save!
+                          taxon_name_id = combination.id # At this point (3) do we use taxon_name_id for anything OTHER THAN the citation  (yes lots of loggin)
+                          logger.info "Successful COMBINATION counter = '#{successful_combination_counter += 1}'"
+                        end
+
+                      else
+                        # ... this is all the funny exceptions (4)
+                        logger.info "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', check_result.detail = '#{check_result.detail}', check_result.ambiguous_ranks = '#{check_result.ambiguous_ranks}' (funny_exceptions_counter = #{funny_exceptions_counter += 1}"
+                      end
                     end
 
-                  else
-                    # ... this is all the funny exceptions (4)
-                    logger.info "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', check_result.protonym_result = '#{check_result.protonym_result}'"
+                      # Put all the rescue statements in one place
+                  rescue ActiveRecord::RecordInvalid
+                    logger.error "Combination ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + combination.errors.full_messages.join(';')
+                  rescue TypeError
+                    # message about type / problems with   TaxonWorks::Vendor::Biodiversity::Result
+                    logger.error "Bad nomenclator string? nomen str = #{nomenclator_string}"
+                  rescue
+                    raise
                   end
-
-                    # Put all the rescue statements in one place
-                rescue ActiveRecord::RecordInvalid
-                  logger.error "Record is invalid (error # #{error_counter += 1})"
-                  # I don't think this check is right now - there is no .errors method on check_result, which returns an instance of TaxonWorks::Vendor::Biodiversity::Result.new()
-                  # logger.error "check_result ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, check_result = #{check_result}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + check_result.errors.full_messages.join(';')
-
-                  # !! both messages might not make sense now
-                  logger.error "Combination ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + combination.errors.full_messages.join(';')
-                rescue TypeError
-                  # message about type / problems with   TaxonWorks::Vendor::Biodiversity::Result
-                  logger.error "Bad nomenclator string? nomen str = #{nomenclator_string}"
-                rescue
-                  raise
                 end
-              end # end block that does stuff if nomenclator_string exists
+              end
+              # end block that does stuff if nomenclator_string exists
 
               # combination check
               # synonym or taxon_name_relationship check
@@ -533,6 +548,50 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           end
         end
 
+        desc 'time rake tw:project_import:sf_import:cites:check_original_genus_ids user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define check_original_genus_ids: [:data_directory, :environment, :user_id] do |logger|
+          # Though TW species groups, etc. have an original genus, SF ones do not: Do not infer it at this time
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
+          get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
+          get_tw_project_id = import.get('SFFileIDToTWProjectID')
+          get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID') # key = SF.TaxonNameID, value = TW.taxon_name.id
+
+          count_found = 0
+
+          path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+          file.each_with_index do |row, i|
+            taxon_name_id = row['TaxonNameID']
+            next if skipped_file_ids.include? row['FileID'].to_i
+            next unless taxon_name_id.to_i > 0
+            next unless row['RankID'].to_i < 11 # only look at species and subspecies
+            next if row['OriginalGenusID'] == '0'
+            next if row['TaxonNameStr'].start_with?('1100048-1143863') # name = MiscImages (body parts)
+            next if row['AccessCode'].to_i == 4
+
+            species_id = get_tw_taxon_name_id[taxon_name_id]
+            next unless species_id
+
+            original_genus_id = get_tw_taxon_name_id[row['OriginalGenusID']]  # if error?
+
+            species_protonym = Protonym.find(species_id)
+            if species_protonym.original_genus.nil?
+              # species_protonym.update(original_genus: )
+              logger.info "Working with SF.TaxonNameID #{taxon_name_id} = TW.taxon_name_id (count #{count_found += 1}) \n"
+              TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(
+                  subject_taxon_name_id: original_genus_id,
+                  object_taxon_name_id: species_id,
+                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                  updated_by_id: get_tw_user_id[row['CreatedBy']],
+                  project_id: get_tw_project_id[row['FileID']])
+            end
+          end
+        end
+
+
         desc 'time rake tw:project_import:sf_import:cites:create_sf_taxon_file_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_sf_taxon_file_id_hash: [:data_directory, :environment, :user_id] do |logger|
 
@@ -557,10 +616,10 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           ap get_sf_file_id
         end
 
-        # def create_otu_cite(logger, row, otu_id)
-        #   # citation, notes, NameStatus, StatusFlags, OriginalGenusID, Distribution, Ecology, CurrentConceptID, NecAuthor, dataflags, extinct, fileID
-        #
-        # end
+# def create_otu_cite(logger, row, otu_id)
+#   # citation, notes, NameStatus, StatusFlags, OriginalGenusID, Distribution, Ecology, CurrentConceptID, NecAuthor, dataflags, extinct, fileID
+#
+# end
 
         desc 'time rake tw:project_import:sf_import:cites:create_sf_taxon_name_authors user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_sf_taxon_name_authors: [:data_directory, :environment, :user_id] do |logger|
@@ -597,7 +656,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
         end
 
         desc 'time rake tw:project_import:sf_import:cites:create_cvts_for_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        # @todo Do I really need a data_directory if I'm using a Postgres table? Not that it hurts...
+# @todo Do I really need a data_directory if I'm using a Postgres table? Not that it hurts...
         LoggedTask.define create_cvts_for_citations: [:data_directory, :environment, :user_id] do |logger|
 
           # Create controlled vocabulary terms (CVTS) for NewNameStatus, TypeInfo, and CiteInfoFlags; CITES_CVTS below in all caps denotes constant

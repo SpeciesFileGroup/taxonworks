@@ -1,6 +1,7 @@
 # Shared code for Citations.
 #
-#  The default behaviour with order by youngest source and oldest source is to place records with NIL *last* in the list.
+#  The default behaviour with order by youngest source and oldest source is to place records with NIL *last*
+# in the list.
 #  When multiple citations exist the earliest or latest is used in the sort order.
 #
 module Shared::Citations
@@ -27,15 +28,22 @@ module Shared::Citations
     scope :without_citations, -> {includes(:citations).where(citations: {id: nil})}
 
     # scope :order_by_youngest_source_first, -> {
-    #  joins("LEFT OUTER JOIN citations on #{related_table_name}.id = citations.citation_object_id LEFT OUTER JOIN sources ON citations.source_id = sources.id").
-    #  group("#{related_table_name}.id").order("MAX(COALESCE(sources.cached_nomenclature_date, Date('1-1-0001'))) DESC").
+    #  joins("LEFT OUTER JOIN citations on #{related_table_name}.id = citations.citation_object_id
+    # LEFT OUTER JOIN sources ON citations.source_id = sources.id").
+    #  group("#{related_table_name}.id").order("MAX(COALESCE(sources.cached_nomenclature_date,
+    # Date('1-1-0001'))) DESC").
     #  where("((citations.citation_object_type = '#{related_class}') OR (citations.citation_object_type is null))")
     # }
 
     scope :order_by_youngest_source_first, -> {
-      joins("LEFT OUTER JOIN citations ON #{related_table_name}.id = citations.citation_object_id AND citations.citation_object_type = '#{related_class}'
-             LEFT OUTER JOIN sources ON citations.source_id = sources.id").
-        group("#{related_table_name}.id").order("MAX(COALESCE(sources.cached_nomenclature_date, Date('1-1-0001'))) DESC")
+      join_str = ActiveRecord::Base.send(:sanitize_sql_array,
+                                         ["LEFT OUTER JOIN citations ON #{related_table_name}.id = " \
+                                          'citations.citation_object_id ' \
+                                          'AND citations.citation_object_type = ? LEFT OUTER JOIN sources ' \
+                                          'ON citations.source_id = sources.id',
+                                          related_class])
+      joins(join_str).group("#{related_table_name}.id")
+        .order("MAX(COALESCE(sources.cached_nomenclature_date, Date('1-1-0001'))) DESC")
     }
 
     # SEE https://github.com/rails/arel/issues/399 for issue with ordering by named function
@@ -51,7 +59,8 @@ module Shared::Citations
     #  #    Arel::Nodes::OuterJoin.new(join.left, join.right)
     #  #  end
 
-    #  joins("LEFT OUTER JOIN citations on #{related_table_name}.id = citations.citation_object_id LEFT OUTER JOIN sources ON citations.source_id = sources.id").
+    #  joins("LEFT OUTER JOIN citations on #{related_table_name}.id = citations.citation_object_id
+    # LEFT OUTER JOIN sources ON citations.source_id = sources.id").
     #    where("citations.citation_object_type = '#{related_class}'").
     #    group(r).
     #    order(func.desc)
@@ -73,13 +82,16 @@ module Shared::Citations
 
 
       # was
-      #      joins("LEFT OUTER JOIN citations ON #{related_table_name}.id = citations.citation_object_id LEFT OUTER JOIN sources ON citations.source_id = sources.id").
+      #      joins("LEFT OUTER JOIN citations ON #{related_table_name}.id = citations.citation_object_id LEFT OUTER
+      # JOIN sources ON citations.source_id = sources.id").
       #      where("citations.citation_object_type = '#{related_class}' OR citations.citation_object_type is null").
-
-      joins("LEFT OUTER JOIN citations ON #{related_table_name}.id = citations.citation_object_id AND citations.citation_object_type = '#{related_class}'
-            LEFT OUTER JOIN sources ON citations.source_id = sources.id").
-        group(r).
-        order(func2)
+      join_str = ActiveRecord::Base.send(:sanitize_sql_array,
+                                         ["LEFT OUTER JOIN citations ON #{related_table_name}.id = " \
+                                          'citations.citation_object_id ' \
+                                          'AND citations.citation_object_type = ? LEFT OUTER JOIN sources ' \
+                                          'ON citations.source_id = sources.id',
+                                          related_class])
+      joins(join_str).group(r).order(func2)
     end
 
     accepts_nested_attributes_for :citations, reject_if: :reject_citations, allow_destroy: true

@@ -98,7 +98,11 @@ class TaxonNameRelationship < ApplicationRecord
   scope :with_type_base, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "#{base_string}%")}
   scope :with_type_contains, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "%#{base_string}%")}
 
-  scope :with_two_type_bases, -> (base_string1, base_string2) {where("taxon_name_relationships.type LIKE '#{base_string1}%' OR taxon_name_relationships.type LIKE '#{base_string2}%'" ) }
+  scope :with_two_type_bases, -> (base_string1, base_string2) {
+    where("taxon_name_relationships.type LIKE ? OR taxon_name_relationships.type LIKE ?",
+          "#{base_string1}%",
+          "#{base_string2}%")
+  }
   scope :with_type_array, -> (base_array) {where('taxon_name_relationships.type IN (?)', base_array ) }
 
   # @return [Array of TaxonNameClassification]

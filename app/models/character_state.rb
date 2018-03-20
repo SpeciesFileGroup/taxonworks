@@ -27,7 +27,7 @@ class CharacterState < ApplicationRecord
 
   ALTERNATE_VALUES_FOR = [:name, :label].freeze
 
-  belongs_to :descriptor
+  belongs_to :descriptor, inverse_of: :character_states, class_name: 'Descriptor::Qualitative'
 
   validates :descriptor, presence: true
   validates_presence_of :name
