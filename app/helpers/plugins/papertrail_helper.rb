@@ -6,7 +6,7 @@ module Plugins::PapertrailHelper
   end
 
   def papertrail_link_tag(object)
-    content_tag(:li, link_to('Papertrail', papertrail_path(object_type: object.class, object_id: object.id))) if object.respond_to?(:versions) 
+    content_tag(:li, link_to('Papertrail', papertrail_path(object_type: object.metamorphosize.class, object_id: object.id))) if object.respond_to?(:versions) 
   end
 
 =begin
@@ -201,7 +201,7 @@ module Plugins::PapertrailHelper
   # "created_by_id"
   # "updated_by_id"
   # "project_id"
-  def filter_out_attributes attributes
+  def filter_out_attributes(attributes)
     attributes_filter = ['id', 'created_at', 'created_by_id', 'updated_by_id', 'project_id']
     filtered_attributes = {}
 
