@@ -89,7 +89,7 @@ class ProjectsController < ApplicationController
 
   def per_relationship_recent_stats
     Rails.application.eager_load!
-    @relationship = params.permit(:relationship)[:relationship]
+    @relationship = params.require(:relationship) # params.permit(:relationship)[:relationship]
   end
 
   def list

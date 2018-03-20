@@ -112,7 +112,7 @@ class ConfidencesController < ApplicationController
   end
 
   def confidence_object
-    params.require(:confidence_object_type).constantize.find(params.require(:confidence_object_id))
+    whitelist_constantize(params.require(:confidence_object_type)).find(params.require(:confidence_object_id))
   end
 
   def confidences_params
