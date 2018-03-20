@@ -159,7 +159,7 @@ class TagsController < ApplicationController
   end
 
   def taggable_object
-    params.require(:tag_object_type).constantize.find(params.require(:tag_object_id))
+    whitelist_constantize(params.require(:tag_object_type)).find(params.require(:tag_object_id))
   end
 
 end
