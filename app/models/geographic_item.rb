@@ -193,7 +193,9 @@ class GeographicItem < ApplicationRecord
     # @return [String]
     #   a SQL select statement that returns the geography for the geographic_item with the specified id
     def select_geography_sql(geographic_item_id)
-      "SELECT #{GeographicItem::GEOMETRY_SQL} from geographic_items where geographic_items.id = #{geographic_item_id}"
+      ActiveRecord::Base.send(:sanitize_sql_for_conditions, [
+        "SELECT #{GeographicItem::GEOMETRY_SQL} from geographic_items where geographic_items.id = ?", 
+        geographic_item_id])
     end
 
     # @return [String]
@@ -296,18 +298,21 @@ class GeographicItem < ApplicationRecord
     #   a select query that returns a single geometry (column name 'single_geometry' for the collection of ids
     # provided via ST_Collect)
     def st_collect_sql(*geographic_item_ids)
-      "SELECT ST_Collect(f.the_geom) AS single_geometry
+      geographic_item_ids.flatten! 
+      ActiveRecord::Base.send(:sanitize_sql_for_conditions, [
+        "SELECT ST_Collect(f.the_geom) AS single_geometry
        FROM (
           SELECT (ST_DUMP(#{GeographicItem::GEOMETRY_SQL})).geom as the_geom
           FROM geographic_items
-          WHERE id in (#{geographic_item_ids.join(',')}))
-        AS f"
+          WHERE id in (?))
+        AS f", geographic_item_ids ])
     end
 
     #  # @return [String]
     #    returns one or more geographic items combined as a single geometry in column 'single'
     def single_geometry_sql(*geographic_item_ids)
-      "(SELECT single.single_geometry FROM (#{GeographicItem.st_collect_sql(geographic_item_ids)}) AS single)"
+      a = GeographicItem.st_collect_sql(geographic_item_ids)
+      "(SELECT single.single_geometry FROM (" + a + " ) AS single)"
     end
 
     # @return [String]
@@ -817,8 +822,8 @@ class GeographicItem < ApplicationRecord
        FROM (
           SELECT (ST_DUMP(#{GeographicItem::GEOMETRY_SQL})).geom AS the_geom
           FROM geographic_items
-          WHERE id IN (#{geographic_item_ids.join(',')}))
-        AS g;"
+          WHERE id IN (?))
+        AS g;", geographic_item_ids.flatten
       )
     end
 
