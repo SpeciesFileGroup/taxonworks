@@ -239,6 +239,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           otu_only_counter = 0
           successful_combination_counter = 0
 
+          unique_bad_nomenclators = {}
+
           base_uri = 'http://speciesfile.org/legacy/'
 
           file.each_with_index do |row, i|
@@ -379,7 +381,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                       # we cant automatically determine which to cite
                       check_result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
 
-
                       if check_result.is_unambiguous?
                         combination = check_result.combination
 
@@ -392,9 +393,74 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                           logger.info "Successful COMBINATION counter = '#{successful_combination_counter += 1}'"
                         end
 
+                      elsif protonym.rank == "species"
+                        test_combo = check_result.disambiguated_combination(species: protonym)
+                        if test_combo.get_full_name == nomenclator_string
+                          test_combo.save!
+                          taxon_name_id = test_combo.id
+                        end
+
+
                       else
                         # ... this is all the funny exceptions (4)
-                        logger.info "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', check_result.detail = '#{check_result.detail}', check_result.ambiguous_ranks = '#{check_result.ambiguous_ranks}' (funny_exceptions_counter = #{funny_exceptions_counter += 1}"
+
+                        if protonym.rank == "species"
+                          test_combo = check_result.disambiguated_combination(species: protonym)
+                          if test_combo.get_full_name == nomenclator_string
+                            test_combo.save!
+                            taxon_name_id = test_combo.id
+                          else
+                            # dupl code for now
+                            funny_exceptions_counter += 1
+                            unique_bad_nomenclators[nomenclator_string] = project_id
+
+                            logger.warn "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', check_result.detail = '#{check_result.detail}', check_result.ambiguous_ranks = '#{check_result.ambiguous_ranks}' (unique_bad_nomenclators.count = #{unique_bad_nomenclators.count})"
+
+                            logger.warn "Unaccounted for species errors"
+                          end
+                        end
+
+
+=begin
+
+cr.disambiguated_combo genus: value, species: value, etc.
+cr.combination => 
+cr.ambiguous_ranks
+cr.protonyms(:genus) returns genus obj incl id => genus_id = cr.protonyms(:genus).pluck(:id)
+cr.finest_rank => :species
+cr.species => "reticulata"
+current_cite_id = [from cite record]
+current_cite_object = Protonym.find(current_cite_id)
+current_cite_object_name = Protonym.find(current_cite_id).name
+cr_name = cr.species => "reticulata"
+
+has_genus = cr.detail.has_key?(:genus)
+
+find all ranks in nomenclator_string
+find where unambiguous (get protonym_ids for those)
+find out if current cite name matches ambiguous finest, match them up
+
+priority of steps
+accumulate all given IDs that we know (genus, species subgenus)
+have current name's ID, rank, parent_id, parent_rank,
+get parent ID and orig genus ID (if species)
+(acts_as_list gem with hierarchical methods)
+
+other_matches
+c2.get_full_name == nomenclator_string
+
+cr nomen_str
+c2 = cr.disambiguated_combination(species: current_name_id)
+c2.get_full_name == nomenclator_string (must check)
+ c2.save!
+ set taxon_name_id = c2.id
+
+=end
+
+                        funny_exceptions_counter += 1
+                        unique_bad_nomenclators[nomenclator_string] = project_id
+
+                        logger.warn "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', check_result.detail = '#{check_result.detail}', check_result.ambiguous_ranks = '#{check_result.ambiguous_ranks}' (unique_bad_nomenclators.count = #{unique_bad_nomenclators.count})"
                       end
                     end
 
@@ -546,6 +612,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             # Not included in initial import; after import, in TW, when we calculate CoL output derived from OTUs, and if CoL output is clearly wrong then revisit this issue
 
           end
+
+          logger.info "total funny exceptions = '#{funny_exceptions_counter}', total unique_bad_nomenclators = '#{unique_bad_nomenclators.count}', \n unique_bad_nomenclators = '#{unique_bad_nomenclators}'"
         end
 
         desc 'time rake tw:project_import:sf_import:cites:check_original_genus_ids user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
@@ -575,7 +643,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             species_id = get_tw_taxon_name_id[taxon_name_id]
             next unless species_id
 
-            original_genus_id = get_tw_taxon_name_id[row['OriginalGenusID']]  # if error?
+            original_genus_id = get_tw_taxon_name_id[row['OriginalGenusID']] # if error?
 
             species_protonym = Protonym.find(species_id)
             if species_protonym.original_genus.nil?
@@ -612,7 +680,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFTaxonNameIDToSFFileID', get_sf_file_id)
 
-          puts = 'SFTaxonNameIDToSFFileID'
+          puts 'SFTaxonNameIDToSFFileID'
           ap get_sf_file_id
         end
 
