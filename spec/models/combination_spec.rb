@@ -186,28 +186,28 @@ describe Combination, type: :model, group: :nomenclature do
       expect(Combination.match_exists?(n, genus: genus.id, species: species.id)).to eq(basic_combination)
     end
 
-    specify '.match_exists with protonym 1' do
+    specify '.matching_protonyms 1' do
       species.original_genus = genus
       species.original_subgenus = genus
       species.original_species = species
-      species.save
-      expect(Combination.match_exists?( nil,genus: genus.id, subgenus: genus.id, species: species.id)).to eq(species)
+      species.save!
+      expect(Combination.matching_protonyms(nil, genus: genus.id, subgenus: genus.id, species: species.id).to_a).to contain_exactly(species)
     end
 
-    specify '.match_exists with protonym 2' do
+    specify '.matching_protonyms 2' do
       species.original_genus = genus
       species.original_subgenus = genus
       species.original_species = species
-      species.save
-      expect(Combination.match_exists?(species.cached, genus: genus.id, subgenus: genus.id, species: species.id)).to eq(species)
+      species.save!
+      expect(Combination.matching_protonyms(species.cached_original_combination, genus: genus.id, subgenus: genus.id, species: species.id).to_a).to contain_exactly(species)
     end
 
-    specify '.match_exists with protonym 3' do
+    specify '.matching_protonyms 3' do
       species.original_genus = genus
       species.original_subgenus = genus
       species.original_species = species
-      species.save
-      expect(Combination.match_exists?("Aus bus", genus: genus.id, subgenus: genus.id, species: species.id)).to eq(false)
+      species.save!
+      expect(Combination.matching_protonyms("Aus bus", genus: genus.id, subgenus: genus.id, species: species.id).to_a).to contain_exactly()
     end
   end
 
