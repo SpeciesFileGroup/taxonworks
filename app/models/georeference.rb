@@ -152,8 +152,10 @@ class Georeference < ApplicationRecord
   #   a polygon representing the buffer
   def error_radius_buffer_polygon
     return nil if error_radius.nil? || geographic_item.nil?
-    value = GeographicItem.connection.select_all(
-      "SELECT ST_BUFFER('#{geographic_item.geo_object}', #{error_radius / 111_319.444444444});").first['st_buffer']
+    sql_str = ActivRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Buffer(?, ?)',
+                                                           geographic_item.geo_object.to_s,
+                                                           (error_radius / 111_319.444444444)])
+    value = GeographicItem.connection.select_all(sql_str).first['st_buffer']
     Gis::FACTORY.parse_wkb(value)
   end
 
@@ -213,7 +215,7 @@ class Georeference < ApplicationRecord
     # => "name='foo''bar' and group_id=4"
     q1 = "ST_Distance(#{GeographicItem::GEOGRAPHY_SQL}, " \
             "(#{GeographicItem.select_geography_sql(geographic_item_id)})) < #{distance}"
-    q2 = ActiveRecord::Base.send(:sanitize_sql_array, ["ST_Distance(?, (?)) < ?",
+    q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance(?, (?)) < ?',
                                                        GeographicItem::GEOGRAPHY_SQL,
                                                        GeographicItem.select_geography_sql(geographic_item_id),
                                                        distance])
