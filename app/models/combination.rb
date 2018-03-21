@@ -61,7 +61,7 @@ class Combination < TaxonName
                         series subseries species subspecies variety subvariety form subform}.freeze
 
   before_validation :set_parent
-  
+
   # Overwritten here from TaxonName to allow for destroy
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship',
     foreign_key: :object_taxon_name_id,
@@ -76,7 +76,7 @@ class Combination < TaxonName
 
   has_many :combination_taxon_names, through: :combination_relationships, source: :subject_taxon_name
 
-  
+
   TaxonNameRelationship.descendants.each do |d|
     if d.respond_to?(:assignment_method)
       if d.name.to_s =~ /TaxonNameRelationship::SourceClassifiedAs/
@@ -88,7 +88,7 @@ class Combination < TaxonName
       if d.name.to_s =~ /TaxonNameRelationship::Combination/ # |SourceClassifiedAs
         relationships = "#{d.assignment_method}_relationships".to_sym
         has_many relationships, -> {
-          where("taxon_name_relationships.type LIKE '#{d.name}%'")
+          where('taxon_name_relationships.type LIKE ?', d.name + '%')
         }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
         has_many d.assignment_method.to_s.pluralize.to_sym, through: relationships, source: :object_taxon_name
       end
@@ -98,7 +98,7 @@ class Combination < TaxonName
       if d.name.to_s =~ /TaxonNameRelationship::SourceClassifiedAs/
         relationships = "#{d.inverse_assignment_method}_relationships".to_sym
         has_many relationships, -> {
-          where("taxon_name_relationships.type LIKE '#{d.name}%'")
+          where('taxon_name_relationships.type LIKE ?', d.name + '%')
         }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
         has_many d.inverse_assignment_method.to_s.pluralize.to_sym, through: relationships, source: :subject_taxon_name
       end
@@ -150,9 +150,9 @@ class Combination < TaxonName
     references(:combination_relationships)}
 
   validate :is_unique
-  validate :does_not_exist_as_original_combination, unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' } 
-  validate :parent_is_properly_set , unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' } 
-  validate :composition, unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' } 
+  validate :does_not_exist_as_original_combination, unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' }
+  validate :parent_is_properly_set , unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' }
+  validate :composition, unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' }
   validates :rank_class, absence: true
 
   soft_validate(:sv_combination_duplicates, set: :combination_duplicates)
@@ -373,13 +373,13 @@ class Combination < TaxonName
   #    Protonyms matching original relations, if name provided then name added as an additional check on verbatim match
   # @params name [String, nil] the *already HTMLized* version of the name (use Combiantion.get_full_name_html if you need to mock a result)
   def self.matching_protonyms(name = nil, **protonym_ids)
-    q = nil 
+    q = nil
     if name.nil?
       q = protonyms_matching_original_relationships(protonym_ids)
     else
       q = protonyms_matching_original_relationships(protonym_ids).where('taxon_names.cached_original_combination = ?', name)
     end
-    q 
+    q
   end
 
   protected
@@ -399,7 +399,7 @@ class Combination < TaxonName
   end
 
   def sv_source_not_older_than_protonyms
-    source_year = source.try(:nomenclature_year) 
+    source_year = source.try(:nomenclature_year)
     target_year = earliest_protonym_year
     if source_year && target_year
       soft_validations.add(:base, "The publication date of combination (#{source_year}) is older than the original publication date of one of the name in the combination (#{target_year}") if source_year < target_year
@@ -430,22 +430,22 @@ class Combination < TaxonName
     end
   end
 
-  def composition 
+  def composition
     c = protonyms.count
 
     if c == 0
       errors.add(:base, 'Combination includes no names.')
       return
     end
-    
+
     protonyms.each do |p|
       if !p.is_genus_or_species_rank?
-        errors.add(:base, 'Combination includes one or more non-species or genus group names.') 
-        return 
+        errors.add(:base, 'Combination includes one or more non-species or genus group names.')
+        return
       end
     end
-    
-    # There are more than one protonyms, which seem to be valid elements  
+
+    # There are more than one protonyms, which seem to be valid elements
     p = protonyms.last
     errors.add(:base, 'Combination includes only one name and that is name is not a genus name.') if c < 2 && p.is_species_rank?
     errors.add(:base, 'Combination includes more than two genus group names.') if c > 2 && p.is_genus_rank?
