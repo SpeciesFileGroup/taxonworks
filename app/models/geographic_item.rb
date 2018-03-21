@@ -194,7 +194,7 @@ class GeographicItem < ApplicationRecord
     #   a SQL select statement that returns the geography for the geographic_item with the specified id
     def select_geography_sql(geographic_item_id)
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, [
-        "SELECT #{GeographicItem::GEOMETRY_SQL} from geographic_items where geographic_items.id = ?", 
+        "SELECT #{GeographicItem::GEOMETRY_SQL} from geographic_items where geographic_items.id = ?",
         geographic_item_id])
     end
 
@@ -298,7 +298,7 @@ class GeographicItem < ApplicationRecord
     #   a select query that returns a single geometry (column name 'single_geometry' for the collection of ids
     # provided via ST_Collect)
     def st_collect_sql(*geographic_item_ids)
-      geographic_item_ids.flatten! 
+      geographic_item_ids.flatten!
       ActiveRecord::Base.send(:sanitize_sql_for_conditions, [
         "SELECT ST_Collect(f.the_geom) AS single_geometry
        FROM (
@@ -312,7 +312,7 @@ class GeographicItem < ApplicationRecord
     #    returns one or more geographic items combined as a single geometry in column 'single'
     def single_geometry_sql(*geographic_item_ids)
       a = GeographicItem.st_collect_sql(geographic_item_ids)
-      "(SELECT single.single_geometry FROM (" + a + " ) AS single)"
+      '(SELECT single.single_geometry FROM (' + a + ' ) AS single)'
     end
 
     # @return [String]
