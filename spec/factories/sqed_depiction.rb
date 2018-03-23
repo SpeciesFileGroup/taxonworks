@@ -6,9 +6,9 @@ FactoryBot.define do
       boundary_finder 'Sqed::BoundaryFinder::ColorLineFinder'
       has_border false
       layout 'cross'
-      metadata_map '{ 0 => curator_metadata, 1 => identifier, 2 => image_registration, 3 => annotated_specimen }' # notice whitespace critical!  
-      result_boundary_coordinates ''
-      result_ocr '{}'
+      metadata_map {{ 0 => 'curator_metadata', 1 => 'identifier', 2 => 'image_registration', 3 => 'annotated_specimen' }}
+      result_boundary_coordinates {} 
+      result_ocr {}
     end
   end
 end
