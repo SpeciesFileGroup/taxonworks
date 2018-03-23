@@ -26,6 +26,9 @@ module TaxonWorks
     config.autoload_paths << "#{Rails.root}/lib"
     config.autoload_paths << "#{Rails.root}/lib/vendor"
 
+    #Include separate assets
+    config.assets.precompile += %w( separated_application.js )
+
     # Breaks rake/loading becahse of existing Rails.application.eager_load! statements
     # config.eager_load_paths += %W(#{config.root}/lib) # #{config.root}/extras
 

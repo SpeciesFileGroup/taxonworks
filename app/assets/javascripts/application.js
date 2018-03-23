@@ -28,7 +28,6 @@
 //= require_tree ./vendor/lib
 //= require_tree ./vendor/lib/jquery
 //= require_tree ./views
-//= require_tree ./utilities
 //= require_tree ./workbench
 //= require turbolinks
 
