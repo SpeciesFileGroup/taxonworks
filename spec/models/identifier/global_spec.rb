@@ -95,19 +95,5 @@ describe Identifier::Global, type: :model, group: :identifiers do
       end
       expect(global_identifier.soft_validations.messages_on(:identifier).count).to eq(1)
     end
-
-    specify 'non-conforming URI' do
-      global_identifier.identifier = 'data.nhm.ac.uk/object/a9bdc16d-c9ba-4e32-9311-d5250af2b5ac'
-      VCR.use_cassette('non-conforming URI') do
-        global_identifier.soft_validate(:resolved)
-      end
-      expect(global_identifier.soft_validations.messages_on(:identifier).count).to eq(1)
-    end
-
-    specify 'empty URI' do
-      global_identifier.identifier = ''
-      global_identifier.soft_validate(:resolved)
-      expect(global_identifier.soft_validations.messages_on(:identifier).count).to eq(1)
-    end
   end
 end

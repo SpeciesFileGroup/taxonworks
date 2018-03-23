@@ -30,7 +30,7 @@ module Utilities
     end
 
     # @param [String] text
-    # @return [Boolean] true if URI site responds positivly to the request
+    # @return [Object] URI site responce to the request
     def self.ask_about(text)
       uri  = URI.parse(text)
       http = ::Net::HTTP.start(uri.host)
