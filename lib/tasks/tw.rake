@@ -10,9 +10,9 @@ namespace :tw do
   end
 
   task server_name: [:environment] do
-    @args               ||= {}
-    n                   = @args[:server_name]
-    n                   ||= 'localhost'
+    @args ||= {}
+    n = @args[:server_name]
+    n ||= 'localhost'
     @args[:server_name] = n
   end
 
@@ -22,14 +22,14 @@ namespace :tw do
 
   # TODO: update "database_user" to something more specific and reflective of what we see in Kubernetes by default?
   task database_user: [:environment] do
-    @args                 ||= {}
+    @args ||= {}
     @args[:database_user] = ENV['database_user']
     @args[:database_user] ||= Rails.configuration.database_configuration[Rails.env]['username']
   end
 
   desc 'set the database_host to ENV of database_host or use "0.0.0.0"'
   task :database_host do |t|
-    @args                 ||= {}
+    @args ||= {}
     @args[:database_host] = (ENV['database_host'] || '0.0.0.0')
   end
 
