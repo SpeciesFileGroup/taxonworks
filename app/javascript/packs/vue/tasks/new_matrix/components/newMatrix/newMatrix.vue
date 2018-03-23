@@ -31,7 +31,7 @@ export default {
   computed: {
     matrixName: {
       get() {
-        return this.$store.getters[GetterNames.matrixName]
+        return this.$store.getters[GetterNames.GetMatrix].name
       },
       set(value) {
         this.$store.commit(MutationNames.SetMatrixName, value)
