@@ -811,13 +811,6 @@ TaxonWorks::Application.routes.draw do
       end
     end
 
-    scope :gis, controller: 'tasks/gis/report' do
-      get 'report', action: 'new', as: 'gis_report_task'
-      get 'download/:geographic_area_id', action: 'download', as: 'gis_report_download'
-      post 'location_report_list'
-      get 'location_report_list', action: 'repaint'
-    end
-
     scope :gis, controller: 'tasks/gis/locality' do
       get 'nearby(/:id)', action: 'nearby', as: 'nearby_locality_task'
       get 'within(/:id)', action: 'within', as: 'within_locality_task'
