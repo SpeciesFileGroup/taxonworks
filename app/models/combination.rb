@@ -341,6 +341,7 @@ class Combination < TaxonName
   #   AHA from http://stackoverflow.com/questions/28568205/rails-4-arel-join-on-subquery
   #   See also Descriptor::Gene
   def self.protonyms_matching_original_relationships(protonym_ids = {})
+    protonym_ids.compact!
     return Protonym.none if !protonym_ids.keys.any?
 
     s  = Protonym.arel_table

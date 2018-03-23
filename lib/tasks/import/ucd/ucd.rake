@@ -517,6 +517,7 @@ namespace :tw do
                 c.save
                 if c.id.nil?
                   c1 = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id))
+                  c1 = Combination.matching_protonyms(c.get_full_name_html, genus: c.genus.try(:id)).first if c1.blank?
                   byebug if c1.blank?
                   c = c1
                 end
@@ -593,6 +594,7 @@ namespace :tw do
               c.save
               if c.id.nil?
                 c1 = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id))
+                c1 = Combination.matching_protonyms(c.get_full_name_html, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id)).first if c1.blank?
                 byebug if c1.blank?
                 c = c1
               end
@@ -752,6 +754,7 @@ namespace :tw do
               c.save
               if c.id.nil?
                 c1 = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id))
+                c1 = Combination.matching_protonyms(c.get_full_name_html, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id)).first if c1.blank?
                 byebug if c1.blank?
                 c = c1
               end
@@ -833,6 +836,7 @@ namespace :tw do
               c.save
               if c.id.nil?
                 c1 = Combination.match_exists?(c.get_full_name, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id), subspecies: c.subspecies.try(:id))
+                c1 = Combination.matching_protonyms(c.get_full_name_html, genus: c.genus.try(:id), subgenus: c.subgenus.try(:id), species: c.species.try(:id), subspecies: c.subspecies.try(:id)).first if c1.blank?
                 byebug if c1.blank?
                 c = c1
               end

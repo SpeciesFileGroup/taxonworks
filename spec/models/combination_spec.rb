@@ -207,7 +207,7 @@ describe Combination, type: :model, group: :nomenclature do
       species.original_subgenus = genus
       species.original_species = species
       species.save!
-      expect(Combination.matching_protonyms("Aus bus", genus: genus.id, subgenus: genus.id, species: species.id).to_a).to contain_exactly()
+      expect(Combination.matching_protonyms("Aus bus", genus: genus.id, subgenus: genus.id, species: species.id, subspecies: nil).to_a).to contain_exactly()
     end
   end
 

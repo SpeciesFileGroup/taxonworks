@@ -22,7 +22,7 @@ TW.utilities.browserCompatibility = TW.utilities.browserCompatibility || {};
 
 TW.utilities.browserCompatibility = {
 
-  incompatibilityBrowserLists: ['MSIE', 'Trident/'],
+  incompatibilityBrowsersList: ['MSIE', 'Trident/'],
 
   injectMotal: function() {
     if(this.incompatibilityBrowser()) {
@@ -32,8 +32,8 @@ TW.utilities.browserCompatibility = {
 
   incompatibilityBrowser: function() {
     var ua = window.navigator.userAgent;
-    for(var i = 0; i < this.incompatibilityBrowserLists.length; i++) {
-      if(ua.indexOf(this.incompatibilityBrowserLists[i]) > 0) {
+    for(var i = 0; i < this.incompatibilityBrowsersList.length; i++) {
+      if(ua.indexOf(this.incompatibilityBrowsersList[i]) > 0) {
         return true
       }
     }
