@@ -90,7 +90,6 @@ namespace :tw do
     end
 
     @args[:backup_directory] = (ENV['backup_directory'] || default)
-
     raise "path (#{@args[:backup_directory]}) not found" if !Dir.exists?(@args[:backup_directory])
     @args
   end
