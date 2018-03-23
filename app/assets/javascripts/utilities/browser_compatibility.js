@@ -22,7 +22,7 @@ TW.utilities.browserCompatibility = TW.utilities.browserCompatibility || {};
 
 TW.utilities.browserCompatibility = {
 
-  incompatibilityBrowserLists: ['MSIE', 'Trident/', 'Safari'],
+  incompatibilityBrowserLists: ['MSIE', 'Trident/'],
 
   injectMotal: function() {
     if(this.incompatibilityBrowser()) {
