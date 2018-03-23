@@ -2,7 +2,8 @@
 
 <div class="breakdown_nav">
   <%= render '/tasks/accessions/breakdown/breakdown_nav_items' -%>
-  <div> <%= link_to('Buffered breakdown', collection_object_buffered_data_breakdown_task_path(@result.depiction.depiction_object), 'data-turbolinks' => false) -%> </div>
+  <div> <%= link_to('Buffered breakdown', collection_object_buffered_data_breakdown_task_path(@result.depiction.depiction_object),
+                    'data-turbolinks' => false) -%> </div>
 </div>
 
 <div id="breakdown_sqed_depiction" class="flexbox sqed_breakdown">
@@ -19,7 +20,7 @@
     <div id="littlebox">
       <% @result.image_sections.each_with_index do |section, i| -%>
         <span>  
-          <%= content_tag(:span, "[#{i + 1}]", class: :ctrl_link, style: 'float: left') -%>
+          <%= content_tag(:span, "[#{i + 1}]", class: :ctrl_link, style: 'float: left', title: section.to_s.humanize) -%>
           <%= image_tag(@result.image_path_for_large_image(section), id: "little#{i}", class: "little_image clickable", style: "vertical-align:middle;") -%> 
       </span>
       <% end %>
@@ -33,7 +34,7 @@
 
     <div id="ocr_result">
       <div id="selected_text"></div>
-      <div id="selected_text_options" class="subtle"> Append [q], Replace [w]</div>
+      <div id="selected_text_options" class="subtle">Append [q], Replace [w]</div>
     </div>
 
     <div id="selected_picture">
@@ -107,7 +108,7 @@
     });
 
     $('.destroyable').on('click', function () {
-        var name = $(this).data('object-name'); // ('object_name');
+        var name = $(this).data('object-name');
         var field = $(this).parent('div.field');
 
         field.html('removed, save required');
@@ -168,7 +169,6 @@
         };
 
         var dragStart = function () {
-
             // Save some starting values
             this.ox = this.attr('x');
             this.oy = this.attr('y');
