@@ -3,7 +3,7 @@
 function get_todays_date(){
     let today = new Date();
     
-    return convert_date_to_string(new Date());
+    return convert_date_to_string_underscore(new Date());
 }
 
 // Returns a date obj as a string in format of 'mm/dd/yyyy'
@@ -29,6 +29,11 @@ function convert_date_to_string(dateObj){
 function convert_date_to_string(date) {
     var time = new Date(date);
     return (time.getFullYear() + "/" + (time.getMonth() + 1)+ "/" + time.getDate());
+}
+
+function convert_date_to_string_underscore(date) {
+    var time = new Date(date);
+    return (time.getFullYear() + "-" + ((time.getMonth().toString().length < 2 ? "0" + (time.getMonth() + 1) : time.getMonth() + 1))+ "-" + ((time.getDate().toString().length < 2 ? "0" + time.getDate() : time.getDate())));
 }
 
 function dateFormat(date, fmt) {
