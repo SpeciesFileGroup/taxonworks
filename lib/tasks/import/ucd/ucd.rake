@@ -1,10 +1,9 @@
 require 'fileutils'
 
-
-### ./bin/webpack-dev-server
+### nohup bundle exec rake tw:project_import:ucd:import_ucd no_transaction=true data_directory=/home/matt/src/sandbox/imports/ucd/working/ RAILS_ENV=production reset=true &
+### nohup bundle exec rake tw:project_import:ucd:import_ucd no_transaction=true data_directory=/home/matt/src/sandbox/imports/ucd/working/ &
 ### rake tw:project_import:ucd:import_ucd data_directory=/Users/proceps/src/sf/import/ucd/working/ no_transaction=true
 ### rake tw:db:restore backup_directory=/Users/proceps/src/sf/import/ucd/dump/ file=2016-09-07_211456UTC.dump
-
 
 # COLL.txt          Done
 # COUNTRY.txt       Done
