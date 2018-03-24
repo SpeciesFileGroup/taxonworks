@@ -42,5 +42,6 @@ TW.utilities.browserCompatibility = {
 }
 
 $(document).ready(function() {
+  
   TW.utilities.browserCompatibility.injectMotal();
 });
