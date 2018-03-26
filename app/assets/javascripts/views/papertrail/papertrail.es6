@@ -68,7 +68,7 @@ PAPERTRAIL = {
         //$(".datepicker").change(PAPERTRAIL.update_versions_list);
 
         $("#start_datepicker").val(PAPERTRAIL.get_oldest_version_date());
-        $("#end_datepicker").val(get_todays_date());
+        //$("#end_datepicker").val(get_todays_date());
 
         // Update the versions list for the first time
         PAPERTRAIL.update_versions_list();
