@@ -1,10 +1,10 @@
 <template>
     <div class="flexbox">
-        <input v-model="annotaton_dates.start"
+        <input v-model="annotation_dates.start"
                name="dateStart"
-                type="date"
+               type="date"
         />
-        <input v-model="annotaton_dates.end"
+        <input v-model="annotation_dates.end"
                name="dateEnd"
                type="date"
         />
@@ -27,10 +27,11 @@
     },
     data: function () {
       return {
-        annotaton_dates: {
+        annotation_dates: {
           start: undefined,
           end: undefined
-        }
+        },
+        result: undefined
       }
     },
     // mounted: function () {

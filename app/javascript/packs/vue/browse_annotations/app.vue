@@ -21,7 +21,7 @@
             <annotation-dates v-model="filter.annotation_dates" @annotation_dates_selected="filter.common = $event"/>
         </div>
         <div class="annotation_logic" style="alignment: center">
-            <span style="alignment: center">AND / OR</span>
+            <annotation-logic v-model="filter.annotation_logic" @annotation_logic_selected="filter.common = $event"/>
         </div>
         <!--<span v-for="whatever in filter.result">{{ whatever }}</span>-->
         <!--<span v-if="filter.common">{{ filter.common }}</span>-->
@@ -38,13 +38,15 @@
   import AnnotationOn from './components/annotation_on'
   import AnnotationFor from './components/annotation_for'
   import AnnotationDates from './components/annotation_dates'
+  import AnnotationLogic from './components/annotation_logic'
 
   export default {
     components: {
       AnnotationTypes,
       AnnotationFor,
       AnnotationOn,
-      AnnotationDates
+      AnnotationDates,
+      AnnotationLogic
     },
 
     data() {

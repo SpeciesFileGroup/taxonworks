@@ -32,7 +32,7 @@ class Tasks::BrowseAnnotationsController < ApplicationController
   def get_for_list
     render(json: {
         "tag": "selected keyword)",
-        "data_attribute": "selectd predicate",
+        "data_attribute": "selected predicate",
         "alternate_value": "selected alternate value",
         "notes": "notes"
     }
@@ -60,7 +60,7 @@ class Tasks::BrowseAnnotationsController < ApplicationController
     render({json: params})
   end
 
-  def get_logic
+  def set_logic
     render({json: params})
   end
 end
