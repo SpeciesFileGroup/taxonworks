@@ -268,12 +268,18 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             protonym = TaxonName.find(taxon_name_id)
             project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
+            housekeeping = {    # not used yet
+                project_id: project_id,
+                            created_at: row['CreatedOn'],
+                            updated_at: row['LastUpdate'],
+                            created_by_id: get_tw_user_id[row['CreatedBy']],
+                            updated_by_id: get_tw_user_id[row['ModifiedBy']]}
             nomenclator_string = nil
 
             # test nomenclator info
             nomenclator_id = row['NomenclatorID']
             if nomenclator_id != '0'
-              nomenclator_string = get_nomenclator_metadata[nomenclator_id]['nomenclator_string']
+              nomenclator_string = get_nomenclator_metadata[nomenclator_id]['nomenclator_string'].gsub('.  ', '. ') # delete 2nd space after period in var, form, etc.
               nomenclator_ident_qualifier = get_nomenclator_metadata[nomenclator_id]['ident_qualifier']
               # sf_file_id = get_nomenclator_metadata[nomenclator_id]['file_id']
               if nomenclator_ident_qualifier.present? # has some irrelevant text in it
@@ -381,43 +387,45 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                       # we cant automatically determine which to cite
                       check_result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
 
+                      test_combo = check_result.disambiguated_combination(species: protonym)
+
                       if check_result.is_unambiguous?
                         combination = check_result.combination
 
                         combination.project_id = project_id
+                        # add cite housekeeping
                         # TODO: override $user_id if need be
 
                         if combination.genus
+                          # todo: what if no genus?
                           combination.save!
                           taxon_name_id = combination.id # At this point (3) do we use taxon_name_id for anything OTHER THAN the citation  (yes lots of loggin)
                           logger.info "Successful COMBINATION counter = '#{successful_combination_counter += 1}'"
-                        end
 
-                      elsif protonym.rank == "species"
-                        test_combo = check_result.disambiguated_combination(species: protonym)
-                        if test_combo.get_full_name == nomenclator_string
+                        elsif protonym.rank == "species" && test_combo.get_full_name == nomenclator_string
+                          # testing known genus and homonym current species
+                          # add cite housekeeping
                           test_combo.save!
                           taxon_name_id = test_combo.id
-                        end
+
+                          # other test cases:
+                          # test is_subspecies and species.name = subspecies.name
+                          # test is_subspecies and different rank names
+                          # test has subgenus (and above test cases)
+                          #
+                          # difficult cases:
+                          # misspelling of current taxon w/o synonym
 
 
-                      else
-                        # ... this is all the funny exceptions (4)
+                        else
+                          # ... this is all the funny exceptions (4)
 
-                        if protonym.rank == "species"
-                          test_combo = check_result.disambiguated_combination(species: protonym)
-                          if test_combo.get_full_name == nomenclator_string
-                            test_combo.save!
-                            taxon_name_id = test_combo.id
-                          else
-                            # dupl code for now
-                            funny_exceptions_counter += 1
-                            unique_bad_nomenclators[nomenclator_string] = project_id
+                          funny_exceptions_counter += 1
+                          unique_bad_nomenclators[nomenclator_string] = project_id
 
-                            logger.warn "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', check_result.detail = '#{check_result.detail}', check_result.ambiguous_ranks = '#{check_result.ambiguous_ranks}' (unique_bad_nomenclators.count = #{unique_bad_nomenclators.count})"
+                          logger.warn "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', check_result.detail = '#{check_result.detail}', check_result.ambiguous_ranks = '#{check_result.ambiguous_ranks}' (unique_bad_nomenclators.count = #{unique_bad_nomenclators.count})"
 
-                            logger.warn "Unaccounted for species errors"
-                          end
+                          logger.warn "Unaccounted for species errors"
                         end
 
 
