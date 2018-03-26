@@ -23,7 +23,7 @@
       </div>
       <div class="end_datepicker_box">
         <label for="end_datepicker">End Date</label>
-        <input id="end_datepicker" type="date" placeholder="Select end date...">
+        <input id="end_datepicker" type="date" placeholder="Select end date..." value="<%= @object.updated_at.strftime("%Y-%m-%d") -%>">
       </div>
       <div id="datepicker_error_box">
         <%= content_tag :p, nil, id: :datepicker_error_message, data: {icon: :warning}, class: :subtle -%>
