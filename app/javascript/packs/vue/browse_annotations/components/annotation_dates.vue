@@ -3,10 +3,12 @@
         <input v-model="annotation_dates.start"
                name="dateStart"
                type="date"
+               @click="selectDate()"
         />
         <input v-model="annotation_dates.end"
                name="dateEnd"
                type="date"
+               @click="selectDate()"
         />
 
         <span v-for="(item, key) in result"> {{ key }} : {{ item }} <br></span>
