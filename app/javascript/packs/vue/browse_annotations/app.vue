@@ -15,13 +15,13 @@
             <span>Selected: {{ filter.model }}</span>
         </div>
         <div class="annotation_by">
-            <!--some text will show now no more -->
+            some controls will show now no more
         </div>
         <div class="annotation_dates">
             <annotation-dates v-model="filter.annotation_dates" @annotation_dates_selected="filter.common = $event"/>
         </div>
-        <div class="annotation_logic">
-
+        <div class="annotation_logic" style="alignment: center">
+            <span style="alignment: center">AND / OR</span>
         </div>
         <!--<span v-for="whatever in filter.result">{{ whatever }}</span>-->
         <!--<span v-if="filter.common">{{ filter.common }}</span>-->
