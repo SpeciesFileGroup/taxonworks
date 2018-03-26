@@ -2,7 +2,12 @@
   <div id="vue_new_matrix_task">
     <h1>New matrix</h1>
     <new-matrix/>
-    <search-component v-if="matrix.id"/>
+    <div>
+      <search-component v-if="matrix.id"/>
+    </div>
+    <div>
+      <rows-table/>
+    </div>
   </div>
 </template>
 
@@ -10,6 +15,7 @@
 
 import NewMatrix from './components/newMatrix/newMatrix'
 import SearchComponent from './components/smartSelector/search.vue'
+import rowsTable from './components/tables/rows'
 
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
@@ -17,6 +23,7 @@ import { ActionNames } from './store/actions/actions'
 export default {
   components: {
     NewMatrix,
+    rowsTable,
     SearchComponent
   },
   computed: {
