@@ -2,17 +2,23 @@
   <div class="version_header">
     <input class="version_checkbox" type="checkbox" value="<%= papertrail.index %>" data-version-index="<%= papertrail.index %>">
     <p>
+      <strong>Version:</strong>
+      <%= content_tag(:span, papertrail.index + 1) -%> <%= content_tag(:span, '(Most recent difference)') if papertrail_iteration.first? -%> 
+    </p>
+  
+    <p>
       <strong>Author:</strong>
       <%= User.find(papertrail.whodunnit).name %>
     </p>
     <p>
       <strong>Updated at:</strong>
       <% attributes = papertrail.reify.attributes %>
-      <%= attributes["updated_at"] %>
+      <%= attributes["updated_at"] %> - <%= time_ago_in_words(attributes['updated_at']) -%> ago
     </p>
   </div>
+
   <div id="version_details_<%= papertrail.index %>" data-object-type="<%= object_type %>" class="version_details">
-      <strong>Attributes</strong>
+      <strong>Attributes then:</strong>
       
       <% attributes = filter_out_attributes(attributes) %>
       <% attributes.delete("updated_at") %>
@@ -24,9 +30,10 @@
           <label for="<%= input_id %>"><%= key.to_s.humanize %>: <%= value %></label>
         </div>
       <% end %>
-    </div>
+  </div>
+
     <div class="version_restore_buttons">
-      <button class="button_restore_mode button button-submit" data-papertrail-index="<%= papertrail.index %>">Restore</button>
-      <button id="button_confirm_restore_<%= papertrail.index %>" class="button_confirm_restore" data-papertrail-index="<%= papertrail.index %>">Confirm Restore</button> 
+      <%= button_tag 'Restore', class: ['button_restore_mode', :button, 'normal-input', 'button-default'], data: {'papertrail-index' => papertrail.index} -%>
+      <%= button_tag 'Restore', id: 'button_confirm_restore_' + papertrail.index.to_s, class: ['button_confirm_restore', :button, 'normal-input', 'button-submit'], data: {'papertrail-index' => papertrail.index} -%>
     </div>
 </div>

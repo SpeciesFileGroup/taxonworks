@@ -60,10 +60,6 @@ class PapertrailController < ApplicationController
     end
   end
 
-  def compare_params
-    params.permit(:version_a, :version_b)
-  end
-
   def compare
     klass = whitelist_constantize(params.require(:object_type))
     @object = klass.find(params.require(:object_id))
@@ -72,11 +68,14 @@ class PapertrailController < ApplicationController
       record_not_found
     else
       @result = TaxonWorks::Vendor::Papertrail.compare(@object, compare_params)
-     render 'compare'
+      @result ? render('compare') : record_not_found 
     end
   end
 
   protected
 
+  def compare_params
+    params.permit(:version_a, :version_b)
+  end
 
 end

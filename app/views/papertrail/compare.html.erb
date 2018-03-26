@@ -8,7 +8,7 @@
       </td>
 
       <td>
-        <h3>Older
+        <h3>Older (Version <%= @result[:index_old].to_s -%>)
           <span class="version_restore_buttons">
             <button class="button_restore_mode" data-type="old">Restore</button>
             <button id="button_confirm_restore_old" class="button_confirm_restore" data-type="old">Confirm Restore</button>
@@ -21,7 +21,7 @@
           <h3>Current
             <span class="version_restore_buttons" style="visibility: hidden">
           <% else %>
-            <h3>Newer
+            <h3>Newer <%= @result[:index_new].to_s -%>)
               <span class="version_restore_buttons">
               <% end %>
 
