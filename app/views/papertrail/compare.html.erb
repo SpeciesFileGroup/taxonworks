@@ -10,8 +10,8 @@
       <td>
         <h3>Older (Version <%= @result[:index_old].to_s -%>)
           <span class="version_restore_buttons">
-            <button class="button_restore_mode" data-type="old">Restore</button>
-            <button id="button_confirm_restore_old" class="button_confirm_restore" data-type="old">Confirm Restore</button>
+            <button class="button_restore_mode button button-default" data-type="old">Restore</button>
+            <button id="button_confirm_restore_old" class="button_confirm_restore button button-submit" data-type="old">Confirm Restore</button>
           </span>
         </h3>
       </td>
@@ -25,8 +25,8 @@
               <span class="version_restore_buttons">
               <% end %>
 
-              <button class="button_restore_mode" data-type="new">Restore</button>
-              <button id="button_confirm_restore_new" class="button_confirm_restore"  data-type="new">Confirm Restore</button>
+              <button class="button_restore_mode button button-default" data-type="new">Restore</button>
+              <button id="button_confirm_restore_new" class="button_confirm_restore button button-submit"  data-type="new">Confirm Restore</button>
               </span>
             </h3>
       </td>
