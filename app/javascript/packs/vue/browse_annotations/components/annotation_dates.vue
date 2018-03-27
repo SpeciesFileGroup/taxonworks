@@ -26,8 +26,8 @@
     data: function () {
       return {
         annotation_dates: {
-          start: undefined,
-          end: undefined
+          start: "2011-01-01",
+          end: "2015-11-11"
         },
         result: undefined
       }
