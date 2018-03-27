@@ -33,7 +33,7 @@
     data: function () {
       return {
         annotation_logic: {
-          andOr: "And"
+          andOr: undefined
         },
         result: undefined,
         list: {
