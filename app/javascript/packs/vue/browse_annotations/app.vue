@@ -19,7 +19,7 @@
     </div>
     <div class="annotation_dates">
       <annotation-dates v-model="filter.annotation_dates" @annotation_dates_selected="filter.common = $event"/>
-      <span>Selected: {{ filter.annotation_dates.start.toString() }} - {{ filter.annotation_dates.end.toString() }}</span>
+      <span>Selected: {{ filter.annotation_dates.start }} - {{ filter.annotation_dates.end }}</span>
     </div>
     <div class="annotation_logic" style="alignment: center">
       <annotation-logic v-model="filter.annotation_logic" @annotation_logic_selected="filter.common = $event"/>
@@ -55,7 +55,10 @@
       return {
         filter: {
           annotation_type: 'confidence',
-          annotation_dates: {start: "2011-01-01", end: "2015-11-11"},
+          annotation_dates: { 
+            start: "2011-01-01", 
+            end: "2015-11-11"
+          },
           model: undefined,
           common: undefined,
           result: undefined
