@@ -28,19 +28,19 @@ namespace :tw do
 
       # Import Sqed formatted images.
       # By default it assumes :cross pattern and layout.  If you want to provide anything else
-      # you should provide both a target_pattern and a target_layout
+      # you should provide both a `pattern` and a `layout`
       #
       # Basic format: 
       #   rake tw:batch_load:sqed_depiction:import total=1 data_directory=/Users/matt/Desktop/images/ project_id=1 user_id=1 
       # Extended format:
-      #   rake tw:batch_load:sqed_depiction:import total=1 target_layout=cross metadata_map="{"0": "curator_metadata", "1": "identifier", "2": "image_registration", "3": "annotated_specimen"}" boundary_finder='Sqed::BoundaryFinder::ColorLineFinder' data_directory=/Users/matt/Desktop/images/ preprocess_result=false project_id=1 user_id=1 
+      #   rake tw:batch_load:sqed_depiction:import total=1 layout=cross metadata_map="{"0": "curator_metadata", "1": "identifier", "2": "image_registration", "3": "annotated_specimen"}" boundary_finder='Sqed::BoundaryFinder::ColorLineFinder' data_directory=/Users/matt/Desktop/images/ preprocess_result=false project_id=1 user_id=1 
       desc 'import sqed formated collection object depictions'
       task import: [:environment, :project_id, :user_id, :data_directory] do |t|
 
         @args.merge!(transaction_total: ENV['transaction_total'] || 20)
 
         # These match sqed and sqed_depiction extraction_metadata patterns
-        @args.merge!(target_layout: (ENV['target_layout'] || :cross))
+        @args.merge!(layout: (ENV['layout'] || :cross))
         @args.merge!(boundary_finder: (ENV['boundary_finder'] || 'Sqed::BoundaryFinder::ColorLineFinder'))
         @args.merge!(metadata_map: (ENV['metadata_map'] || '{"0": "curator_metadata", "1": "identifier", "2": "image_registration", "3": "annotated_specimen"}'))
 
@@ -79,7 +79,7 @@ namespace :tw do
                   boundary_color: @args[:boundary_color],
                   boundary_finder: @args[:boundary_finder],
                   has_border: @args[:has_border],
-                  layout: @args[:target_layout],
+                  layout: @args[:layout],
                   metadata_map: @args[:metadata_map],
 
                   depiction_attributes: { 

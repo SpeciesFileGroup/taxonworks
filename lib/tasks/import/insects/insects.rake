@@ -154,7 +154,8 @@ namespace :tw do
       #  neon.txt
 
       def main_build_loop_insects
-        @import = Import.find_or_create_by(name: IMPORT_NAME)  
+
+        @import = Import.find_or_create_by(name: IMPORT_NAME)
         @import.metadata ||= {} 
         
         handle_projects_and_users_insects(@data1, @import)
@@ -199,6 +200,7 @@ namespace :tw do
         GC.start
         handle_letters_insects(@data1)
         handle_collection_profile_insects(@data1)
+
         handle_locality_images(@data1)
         handle_loan_images(@data1)
 
@@ -1713,9 +1715,10 @@ namespace :tw do
             supervisor_email = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Email']
             supervisor_phone = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Phone']
             recipient_email = data.people_id[row['RecipientID']]['Email']
-            recipient_email = nil if recipient_email.to_s.include?(' ') || recipient_email.to_s.include?("\r") || recipient_email.to_s.include?(',') || recipient_email.to_s.include?('’')
+            recipient_email = 'not_provided@email.com' if recipient_email.nil? || recipient_email.to_s.include?(' ') || recipient_email.to_s.include?("\r") || recipient_email.to_s.include?(',') || recipient_email.to_s.include?('’')
 
-            row['DateReceived'] = '' if !time_from_field(row['DateReceived']).nil? && !time_from_field(row['DateReceived']) && time_from_field(row['DateReceived']) < time_from_field(row['DateProcessed'])
+            row['DateReceived'] = '' if !time_from_field(row['DateReceived']).nil? && !time_from_field(row['DateProcessed']).nil? && time_from_field(row['DateReceived']) < time_from_field(row['DateProcessed'])
+            row['ExpectedDateOfReturn'] = '' if !time_from_field(row['ExpectedDateOfReturn']).nil? && !time_from_field(row['DateProcessed']).nil? && time_from_field(row['ExpectedDateOfReturn']) < time_from_field(row['DateProcessed'])
 
             l = Loan.create( date_requested: time_from_field(row['DateRequested']),
                              request_method: row['MethodOfRequest'],

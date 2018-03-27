@@ -62,10 +62,13 @@ PAPERTRAIL = {
 
         // Set up the datepickers and callbacks
         $(".datepicker").datepicker();
-        $(".datepicker").change(PAPERTRAIL.update_versions_list);
+        $("#start_datepicker, #end_datepicker").on('change', function() {
+            PAPERTRAIL.update_versions_list();
+        })
+        //$(".datepicker").change(PAPERTRAIL.update_versions_list);
 
         $("#start_datepicker").val(PAPERTRAIL.get_oldest_version_date());
-        $("#end_datepicker").val(get_todays_date());
+        //$("#end_datepicker").val(get_todays_date());
 
         // Update the versions list for the first time
         PAPERTRAIL.update_versions_list();
@@ -77,7 +80,6 @@ PAPERTRAIL = {
 
         let user_names = PAPERTRAIL.get_users_from_list();
         let dates = PAPERTRAIL.get_dates();
-
         // Iterate over each version checking it against users and dates from the filter box
         for(let version_index = 0; version_index < PAPERTRAIL.$versions.length; version_index++){
             let hide = false;
@@ -363,9 +365,8 @@ PAPERTRAIL = {
         // This assumes that the last element in the version list is the oldest
         // This is dependant on the order that the version list is passed
         // into the papertrail partial
-        let date_string = PAPERTRAIL.$versions[PAPERTRAIL.$versions.length - 1].getAttribute("data-date-created").replace(/-/g, "/");
-
-        return convert_date_to_string(new Date(date_string));
+        let date_string = PAPERTRAIL.$versions[PAPERTRAIL.$versions.length - 1].getAttribute("data-date-created");
+        return convert_date_to_string_underscore(new Date(date_string));
     }
 };
 

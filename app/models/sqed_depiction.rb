@@ -39,7 +39,6 @@ class SqedDepiction < ApplicationRecord
   include Shared::Notes
 
   belongs_to :depiction
-  #  has_one :depiction_object, through: :depiction
 
   has_one :image, through: :depiction
 
@@ -56,10 +55,10 @@ class SqedDepiction < ApplicationRecord
       boundary_color: boundary_color.to_sym,
       boundary_finder: boundary_finder,
       has_border: has_border,
-      target_layout: layout.to_sym,
-      target_metadata_map: sqed_metadata_map
+      layout: layout.to_sym,
+      metadata_map: sqed_metadata_map
     }
- end
+  end
 
   def depiction_object
     depiction.depiction_object
@@ -72,7 +71,7 @@ class SqedDepiction < ApplicationRecord
   # @return [SqedDepiction]
   #   the next record in which the collection object has no buffered data
   def next_without_data
-    object =  SqedDepiction.without_collection_object_data.with_project_id(project_id).where('collection_objects.id <> ?', self.depiction_object.id).order(:id).first
+    object = SqedDepiction.without_collection_object_data.with_project_id(project_id).where('collection_objects.id <> ?', self.depiction_object.id).order(:id).first
     object.nil? ? SqedDepiction.where(project_id: project_id).order(:id).first : object.sqed_depictions.first
   end
 

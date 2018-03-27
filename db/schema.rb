@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180307142443) do
+ActiveRecord::Schema.define(version: 20180322031114) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -524,6 +524,7 @@ ActiveRecord::Schema.define(version: 20180307142443) do
     t.text "description"
     t.string "gene_attribute_logic"
     t.string "cached_gene_attribute_sql"
+    t.string "default_units"
     t.string "default_unit"
     t.index ["created_by_id"], name: "index_descriptors_on_created_by_id"
     t.index ["name"], name: "index_descriptors_on_name"
@@ -1522,8 +1523,8 @@ ActiveRecord::Schema.define(version: 20180307142443) do
     t.string "boundary_finder", null: false
     t.boolean "has_border", null: false
     t.string "layout", null: false
-    t.hstore "metadata_map", null: false
-    t.hstore "specimen_coordinates"
+    t.jsonb "metadata_map", default: {}, null: false
+    t.jsonb "specimen_coordinates", default: {}, null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
