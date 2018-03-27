@@ -16,10 +16,10 @@ Object.assign(TW.tasks.accessions.report.dwc, {
 
       $(".dwc_row_stub").each(function() {
         var id = $(this).data('collectionObjectId');
-       
+        $("#dwc_occurrence_table").mx_spinner('show');
         $.get('dwc/row/' + id, {}, function (local_data) {
           // $("#area_count").text(local_data.html);
-          // $("#select_area").mx_spinner('hide');
+           $("#dwc_occurrence_table").mx_spinner('hide');
         });
 
       });
@@ -29,7 +29,7 @@ Object.assign(TW.tasks.accessions.report.dwc, {
 ); // end widget
 
 $(document).on('turbolinks:load', function() {
-  TW.tasks.accessions.report.dwc.init_dwc_report
+  TW.tasks.accessions.report.dwc.init_dwc_report()
 });
 
 
