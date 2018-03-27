@@ -5,8 +5,10 @@
         <span class="switch-option horizontal-center-content">{{ options[0] }}</span>
         <span class="switch-option horizontal-center-content">{{ options[1] }}</span>
       </div>
-      <input type="checkbox" v-model="checked"/>
-      <div class="slider"></div>
+      <input
+        type="checkbox"
+        v-model="checked">
+      <div class="slider"/>
     </label>
   </div>
 </template>
@@ -28,7 +30,7 @@ export default {
         return this.value
       },
       set(value) {
-        this.$emit('value', value)
+        this.$emit('input', value)
       }
     }
   }

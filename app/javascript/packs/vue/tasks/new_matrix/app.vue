@@ -19,6 +19,7 @@ import rowsTable from './components/tables/rows'
 
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
+import { MutationNames } from './store/mutations/mutations';
 
 export default {
   components: {
@@ -29,7 +30,7 @@ export default {
   computed: {
     matrix() {
       return this.$store.getters[GetterNames.GetMatrix]
-    }
+    },
   },
   data() {
     return {

@@ -2,17 +2,21 @@
   <div>
     <div class="field">
       <label>Name</label><br>
-      <input 
+      <input
         v-model="matrixName"
-        type="text"/>
+        type="text">
     </div>
     <button
       v-if="!matrix.id"
       @click="create"
       class="normal-input button button-submit"
       type="button">Create</button>
-    <switch-component :options="['Column', 'Row']" v-model="test"/>
-    <switch-component :options="['Fixed', 'Dynamic']" v-model="test2"/>
+    <switch-component
+      :options="['Column', 'Row']"
+      v-model="matrixView"/>
+    <switch-component
+      :options="['Fixed', 'Dynamic']"
+      v-model="matrixMode"/>
   </div>
 </template>
 
@@ -45,15 +49,25 @@ export default {
         this.$store.commit(MutationNames.SetMatrix, value)
       }
     },
+    matrixView: {
+      get() {
+        return (this.$store.getters[GetterNames.GetMatrixView] == 'column' ? true : false)
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetMatrixView, (value ? 'column' : 'row'))
+      }
+    },
+    matrixMode: {
+      get() {
+        return (this.$store.getters[GetterNames.GetMatrixMode] == 'fixed' ? true : false)
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetMatrixMode, (value ? 'fixed' : 'dynamic'))
+      }
+    },
     validateData() {
       return this.$store.getters[GetterNames.GetMatrix].name &&
             !this.$store.getters[GetterNames.GetMatrix].id
-    }
-  },
-  data() {
-    return {
-      test: true,
-      test2: false
     }
   },
   methods: {

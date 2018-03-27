@@ -3,8 +3,8 @@
     <table-list
       :list="list"
       :destroy="true"
-      :header="['name', 'current matches', 'remove']"
-      :attributes="['row_object_label', 'row_object_label']"  />
+      :header="['name', 'current matches', '']"
+      :attributes="['observation_matrix_row_object_label', 'row_object_label']"  />
   </div>
 </template>
 
