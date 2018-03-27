@@ -20,7 +20,7 @@
   export default {
     props: {
       value: {
-        type: String,
+        type: Object,
       }
     },
     data: function () {
