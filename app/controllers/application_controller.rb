@@ -150,7 +150,7 @@ class ApplicationController < ActionController::Base
     if Rails.env.development?
       ApplicationEnumeration.data_models.inject({}){|hsh, k| hsh.merge!(k.name => k)}.fetch(klass_name)
     elsif Rails.env.production?
-      DATA_MODELS.fetch(klass_name)
+      ::DATA_MODELS.fetch(klass_name)
     else
       raise TaxonWorks::Error, 'whitelist attempted in unknown environment'
     end
