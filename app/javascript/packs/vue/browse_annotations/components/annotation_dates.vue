@@ -35,6 +35,7 @@
     methods: {
       getResult() {
         this.$http.post('/tasks/browse_annotations/set_dates', {annotationDates: this.annotation_dates}).then(response => {
+          this.$emit('input', response.body.annotationDates);
           this.$emit('annotation_dates_selected', response.body);
           this.result = response.body;
         })
