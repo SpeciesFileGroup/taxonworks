@@ -14,6 +14,7 @@
                 </label>
             </li>
         </ul>
+        <!--<span v-for="(item, key) in result"> {{ key }} : {{ item }} <br></span>-->
     </div>
 </template>
 
@@ -32,7 +33,7 @@
     data: function () {
       return {
         annotation_logic: {
-          andOr: undefined
+          andOr: "And"
         },
         result: undefined,
         list: {

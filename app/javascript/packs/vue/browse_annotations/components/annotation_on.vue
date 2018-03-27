@@ -13,7 +13,7 @@
                 </label>
             </li>
         </ul>
-        <span v-for="(item, key) in result"> {{ key }} : {{ item }} <br></span>
+        <!--<span v-for="(item, key) in result"> {{ key }} : {{ item }} <br></span>-->
     </div>
 </template>
 

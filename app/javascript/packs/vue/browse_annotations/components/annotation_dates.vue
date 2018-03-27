@@ -1,17 +1,18 @@
 <template>
     <div class="flexbox">
-        <input v-model="annotation_dates.start"
-               name="dateStart"
-               type="date"
-               @change="getResult()"
+        Start: <input v-model="annotation_dates.start"
+                      name="dateStart"
+                      type="date"
+                      @change="getResult()"
         />
-        <input v-model="annotation_dates.end"
+        <br>
+        End: <input v-model="annotation_dates.end"
                name="dateEnd"
                type="date"
                @change="getResult()"
         />
 
-        <span v-for="(item, key) in result"> {{ key }} : {{ item }} <br></span>
+        <!--<span v-for="(item, key) in result"> {{ key }} : {{ item }} <br></span>-->
     </div>
 </template>
 
