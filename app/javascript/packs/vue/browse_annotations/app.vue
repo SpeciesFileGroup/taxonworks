@@ -55,9 +55,9 @@
       return {
         filter: {
           annotation_type: 'confidence',
-          annotation_dates: { 
-            start: "2011-01-01", 
-            end: "2015-11-11"
+          annotation_dates: {
+            start: undefined,
+            end: undefined
           },
           model: undefined,
           common: undefined,
