@@ -39,7 +39,7 @@ Style/HashSyntax:
 #  AutoCorrect: false
 
 Metrics/LineLength:
-  Enabled: true
+  Enabled: false
   Max: 120
   AllowHeredoc: true
   AllowURI: true
