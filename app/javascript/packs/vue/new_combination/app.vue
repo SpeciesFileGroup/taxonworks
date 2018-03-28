@@ -1,10 +1,13 @@
 <template>
   <div id="vue_new_combination">
-    <h1>New combination</h1>
+    <h1
+    v-help.newCombination
+    >New combination</h1>
     <div class="panel content new-combination-box separate-bottom">
       <input-search
         ref="inputSearch"
         placeholder="Type a new combination (names should already exist)."
+        v-help.nomenclatorSearch
         @onTaxonName="setTaxon"/>
     </div>
     <new-combination
