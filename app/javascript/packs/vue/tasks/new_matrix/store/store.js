@@ -15,7 +15,7 @@ function makeInitialState () {
       project_id: undefined,
       global_id: undefined
     },
-    matrixView: 'rows',
+    matrixView: 'row',
     matrixMode: 'fixed',
     matrixRowItems: [],
     matrixColumnItems: []

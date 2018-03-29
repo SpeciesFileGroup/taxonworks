@@ -1,22 +1,27 @@
 <template>
-  <div>
-    <div class="field">
-      <label>Name</label><br>
-      <input
-        v-model="matrixName"
-        type="text">
+  <div class="panel basic-information">
+    <div class="header">
+      <h3>Matrix</h3>
     </div>
-    <button
-      v-if="!matrix.id"
-      @click="create"
-      class="normal-input button button-submit"
-      type="button">Create</button>
-    <switch-component
-      :options="['Column', 'Row']"
-      v-model="matrixView"/>
-    <switch-component
-      :options="['Fixed', 'Dynamic']"
-      v-model="matrixMode"/>
+    <div class="body">
+      <div class="field">
+        <label>Name</label><br>
+        <input
+          v-model="matrixName"
+          type="text">
+      </div>
+      <button
+        v-if="!matrix.id"
+        @click="create"
+        class="normal-input button button-submit"
+        type="button">Create</button>
+      <switch-component
+        :options="['Column', 'Row']"
+        v-model="matrixView"/>
+      <switch-component
+        :options="['Fixed', 'Dynamic']"
+        v-model="matrixMode"/>
+    </div>
   </div>
 </template>
 
