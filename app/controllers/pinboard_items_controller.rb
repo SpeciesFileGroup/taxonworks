@@ -37,7 +37,7 @@ class PinboardItemsController < ApplicationController
   # Stub a "reorder" method
   def update_position
     PinboardItem.reorder_by(params.require(:order))
-    render nothing: true
+    head :ok
   end
 
   # DELETE /pinboard_items/1
