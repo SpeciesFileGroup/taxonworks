@@ -203,7 +203,6 @@ Object.assign(TW.views.shared.slideout.pdf, {
     });
 
     function scrollToPage(num) {
-      event.preventDefault();
       document.querySelector('#pdfViewerContainer').scrollTop = document.querySelector('[data-page-number="' + num + '"]').offsetTop
     };
 
