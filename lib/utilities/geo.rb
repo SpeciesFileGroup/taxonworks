@@ -60,6 +60,8 @@ To add a new (discovered) symbol:
     # 123 m > 123 meters > 123 m.
     # 123 km > 123 km. > 123 kilometers
     #
+    # @param [String] elev_in
+    # @return [Float]
     def self.distance_in_meters(elev_in)
       elev_in   = '0.0 meters' if elev_in.blank?
       elevation = elev_in.strip.downcase
@@ -77,12 +79,13 @@ To add a new (discovered) symbol:
       end
       scale = 1.0 # default is meters
 
-      /(?<ft>f[oe]*[t]*\.*)|(?<m>[^k]m(eters)*[\.]*)|(?<km>kilometer(s)*|k[m]*[\.]*)/ =~ pieces[piece]
+      /(?<ft>f[oe]*[t]*\.*)|(?<m>[^k]m(eters)*[\.]*)|(?<km>kilometer(s)*|k[m]*[\.]*)|(?<mi>mi(le(s)*)*)/ =~ pieces[piece]
       # scale = $&
 
       scale = 1.0 unless m.blank?
       scale = 0.3048 unless ft.blank?
       scale = 1000.0 unless km.blank?
+      scale = 1_609.344 unless mi.blank?
 
       elev = value * scale
 
