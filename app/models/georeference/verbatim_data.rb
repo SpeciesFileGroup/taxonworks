@@ -3,6 +3,8 @@
 class Georeference::VerbatimData < Georeference
 
   # rubocop:disable Metrics/MethodLength
+  # @param [ActionController::Parameters] params
+  # @return [Ignored]
   def initialize(params = {})
     super
 
