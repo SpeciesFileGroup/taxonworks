@@ -11,8 +11,8 @@ module BiologicalAssociationsHelper
     link_to(biological_association_tag(biological_association).html_safe, biological_association)
   end
 
-  def biological_associations_search_form
-    render('/biological_associations/quick_search_form')
-  end
+  # def biological_associations_search_form
+  #   render('/biological_associations/quick_search_form')
+  # end
 
 end
