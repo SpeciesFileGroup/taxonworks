@@ -1,7 +1,9 @@
+<h1>Otu browse</h1>
 
-
-
-<%= taxon_name_browse_link(@otu.taxon_name) -%>
+<div class="horizontal-left-content">
+  <h2 class="separate-right"><%= taxon_name_browse_link(@otu.taxon_name) -%></h2>
+  <h2><%= otu_tag(@otu) -%></h2>
+</div>
+<a href="/otus/<%= @otu.id -%>">Back</a>
 <div data-otu-radial="true" data-global-id="<%= @otu.to_global_id.to_s %>"></div>
-
 

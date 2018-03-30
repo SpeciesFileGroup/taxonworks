@@ -41,6 +41,7 @@ TW.utilities.browserCompatibility = {
   }
 }
 
-$(document).on('turbolinks:load', function() {
+$(document).ready(function() {
+  
   TW.utilities.browserCompatibility.injectMotal();
 });

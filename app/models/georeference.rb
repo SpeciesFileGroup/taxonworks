@@ -123,7 +123,7 @@ class Georeference < ApplicationRecord
     type.demodulize.underscore
   end
 
-  # @return [GeographicItem]
+  # @return [GeographicItem, nil]
   #   a square which represents either the bounding box of the
   #   circle represented by the error_radius, or the bounding box of the error_geographic_item
   #   !! We assume the radius calculation is always larger (TODO: do we?  discuss with Jim)
@@ -173,16 +173,19 @@ class Georeference < ApplicationRecord
     )
   end
 
+  # @return [Float]
   def latitude
     geographic_item.center_coords[1]
   end
 
+  # @return [Float]
   def longitude
     geographic_item.center_coords[0]
   end
 
   # TODO: parametrize to include gazeteer
   #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
+  # @return [JSON Feature]
   def to_simple_json_feature
     geometry = RGeo::GeoJSON.encode(geographic_item.geo_object)
     {
@@ -253,6 +256,8 @@ class Georeference < ApplicationRecord
     partial_gr
   end
 
+  # @param [Scope] scope of Georeferences to download
+  # @return [CSV]
   def self.generate_download(scope)
     CSV.generate do |csv|
       csv << column_names
@@ -265,7 +270,8 @@ class Georeference < ApplicationRecord
   end
 
   # TODO: not yet sure what the params are going to look like. what is below just represents a guess
-  # @param [Hash] arguments from _collecting_event_selection form
+  # @param [ActionController::Parameters] arguments from _collecting_event_selection form
+  # @return [Array] of georeferences
   def self.batch_create_from_georeference_matcher(arguments)
     gr = Georeference.find(arguments[:georeference_id].to_param)
 
@@ -310,6 +316,7 @@ class Georeference < ApplicationRecord
 
   protected
 
+  # @return [Hash] of names of geographic areas
   def set_cached
     collecting_event.cache_geographic_names
   end
@@ -514,6 +521,7 @@ class Georeference < ApplicationRecord
       error_radius > 20_000_000 # 20,000 km
   end
 
+  # @return [Ignored]
   def geographic_item_present_if_error_radius_provided
     if !error_radius.blank? &&
       geographic_item_id.blank? && # provide existing

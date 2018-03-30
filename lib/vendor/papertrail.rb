@@ -4,7 +4,7 @@ module TaxonWorks
     # Functions for Papertrail
     module Papertrail 
 
-      # @Return [Hash] a summary of the differences in two versions of the object
+      # @Return [Hash, false] a summary of the differences in two versions of the object
       # @param object [Obect] any instance of an IsData class
       # @param verstion_a [String|Integer] papertrail index of a version to compare
       # @param verstion_b [String|Integer] papertrail index of a version to compare
@@ -27,9 +27,8 @@ module TaxonWorks
         # as in the state of the obj before it was created, aka all attributes null
         # thus why index of 1 (when it actually has attributes) is the smallest
         # an index can be for a proper version
-        if version_index_a < 1 || version_index_a >= object.versions.length
-          record_not_found
-          return
+        if version_index_a < 0 || version_index_a >= object.versions.length
+          return false
         end
 
         # If version_b index is outside the range treat it as if it means that
@@ -63,12 +62,15 @@ module TaxonWorks
         if(version_index_a == version_index_b)
 #         r[:user_new] = User.find(object['updated_by_id']).name  # wrong!
 #         r[:user_old] = User.find(r[:attributes_old]['updated_by_id']).name  # wrong!
-          r[:attributes_new] = object.attributes;
+          r[:attributes_new] = object.attributes
           r[:comparing_current] = true
         end
 
         r[:user_new] = User.find(version_a.whodunnit).name
         r[:user_old] = User.find(version_b.whodunnit).name
+
+        r[:index_old] = version_index_a
+        r[:index_new] = version_index_b
 
     #   r[:attributes_new] = view_context.filter_out_attributes(r[:attributes_new])
     #   r[:attributes_old] = view_context.filter_out_attributes(r[:attributes_old])

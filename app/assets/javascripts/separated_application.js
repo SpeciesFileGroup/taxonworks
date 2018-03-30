@@ -1,1 +1,1 @@
-//= require utilities/browser_compatibility.js
+//= require separated/utilities/browser/browser_compatibility.js

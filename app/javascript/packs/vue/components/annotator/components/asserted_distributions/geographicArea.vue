@@ -18,7 +18,7 @@
     <autocomplete
       v-else
       url="/geographic_areas/autocomplete"
-      label="label"
+      label="label_html"
       min="2"
       :clear-after="true"
       :autofocus="true"

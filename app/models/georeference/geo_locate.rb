@@ -7,11 +7,15 @@ class Georeference::GeoLocate < Georeference
   URI_PATH       = '/webservices/geolocatesvcv2/glcwrap.aspx?'.freeze
   URI_EMBED_PATH = '/geolocate/web/webgeoreflight.aspx?'.freeze
 
+  # @param [Response] response
+  # @return [RGeo object]
   def api_response=(response)
     self.geographic_item = make_geographic_point(response.coordinates[0], response.coordinates[1])
     make_error_geographic_item(response.uncertainty_polygon, response.uncertainty_radius)
   end
 
+  # @param [String] response_string
+  # @return [RGeo object]
   def iframe_response=(response_string)
     lat, long, error_radius, uncertainty_points = Georeference::GeoLocate.parse_iframe_result(response_string)
     self.geographic_item = make_geographic_point(long, lat, '0.0') unless lat.blank? and long.blank?
@@ -36,12 +40,13 @@ class Georeference::GeoLocate < Georeference
     self.geographic_item
   end
 
+  # @return [Hash] of api request pieces
   def request_hash
     Hash[*self.api_request.split('&').collect { |a| a.split('=', 2) }.flatten]
   end
 
   # @param [String] wkb
-  # @return [Object] GeographicItem::Polygon, either found, or created
+  # @return [GeographicItem::Polygon] GeographicItem::Polygon, either found, or created
   def make_err_polygon(wkb)
     polygon  = Gis::FACTORY.parse_wkb(wkb)
     # ActiveRecord::Base.send(:sanitize_sql_array, ['polygon = ST_GeographyFromText(?)', polygon.to_s])
@@ -67,7 +72,7 @@ class Georeference::GeoLocate < Georeference
     else
       test_grs = GeographicItem::Point
                    .where(["point = ST_GeographyFromText('POINT(? ?)::geography')", x.to_f, y.to_f])
-                   .where(["ST_Z(point::geometry) = ?", z.to_f])
+                   .where(['ST_Z(point::geometry) = ?', z.to_f])
     end
     if test_grs.empty? # put a new one in the array
       test_grs = [GeographicItem.new(point: Gis::FACTORY.point(x, y, z))]
@@ -101,6 +106,9 @@ class Georeference::GeoLocate < Georeference
 
 
   # @todo get geoJson results and handle all this automatically?
+  # @param [RGeo::Polygon] uncertainty_polygon
+  # @param [Integer] uncertainty_radius in meters
+  # @return [Ignored]
   def make_error_geographic_item(uncertainty_polygon, uncertainty_radius)
     self.error_radius = uncertainty_radius if !uncertainty_radius.nil?
     unless uncertainty_polygon.nil?
@@ -111,7 +119,7 @@ class Georeference::GeoLocate < Georeference
     end
   end
 
-  # @param [String] response_string
+  # @param [String] response_string from Tulane
   # @return [Array]
   # parsing the four possible bits of a response into an array
   def self.parse_iframe_result(response_string)
@@ -128,6 +136,8 @@ class Georeference::GeoLocate < Georeference
   end
 
   # Build a georeference starting with a set of request parameters.
+  # @param [ActionController::Parameters] request_params
+  # @return [GeoLocate]
   def self.build(request_params)
     g = self.new
 
@@ -182,6 +192,8 @@ class Georeference::GeoLocate < Georeference
 
     attr_reader :request_params, :request_params_string, :request_params_hash
 
+    # @param [ActionController::Parameters] request_params
+    # @return [Ignored]
     def initialize(request_params)
       @request_params_hash = REQUEST_PARAMS.merge(request_params)
       build_param_string
@@ -234,17 +246,19 @@ class Georeference::GeoLocate < Georeference
     attr_accessor :succeeded
     attr_reader :request_params, :response, :request_param_string
 
+    # @param [ActionController::Parameters] request_params
+    # @return [Ignored]
     def initialize(request_params)
       @request_params = REQUEST_PARAMS.merge(request_params)
       @succeeded      = nil
     end
 
-    # @return sets the response attribute.
+    # @return [Ignored] sets the response attribute.
     def locate
       @response = Georeference::GeoLocate::Response.new(self)
     end
 
-    # @return sets the @request_param_string attribute.
+    # @return [Ignored] sets the @request_param_string attribute.
     def build_param_string
       @request_param_string ||= @request_params.collect { |key, value| "#{key}=#{value}" }.join('&')
     end
@@ -255,7 +269,7 @@ class Georeference::GeoLocate < Georeference
       URI_PATH + @request_param_string
     end
 
-    # @return [Bool] true if request was successful
+    # @return [Boolean] true if request was successful
     def succeeded?
       @succeeded
     end
@@ -264,12 +278,13 @@ class Georeference::GeoLocate < Georeference
     def response
       @response ||= locate
     end
-
   end
 
   class Response
     attr_accessor :result
 
+    # @param [JSON object] request
+    # @return [Ignored]
     def initialize(request)
       @result           = JSON.parse(call_api(Georeference::GeoLocate::URI_HOST, request))
       request.succeeded = true if @result['numResults'].to_i == 1
@@ -295,9 +310,9 @@ class Georeference::GeoLocate < Georeference
     protected
 
     # @param [String, String] host domain name, request string.
+    # @return [HTTP object]
     def call_api(host, request)
       Net::HTTP.get(host, request.request_string)
     end
   end
-
 end
