@@ -54,7 +54,7 @@
     data() {
       return {
         filter: {
-          annotation_type: 'confidence',
+          annotation_type: undefined,
           annotation_dates: {
             start: undefined,
             end: undefined
