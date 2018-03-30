@@ -48,6 +48,8 @@ To add a new (discovered) symbol:
     class ConvertToDecimalDegrees
       attr_reader(:dd, :dms)
 
+      # @param [String] coordinate
+      # @return [Ignored]
       def initialize(coordinate)
         @dms = coordinate
         @dd  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(coordinate)
@@ -149,7 +151,9 @@ To add a new (discovered) symbol:
       dd7:  {reg: /\[(?<lat>-?\d+[\.,]\d+|\-?d+),.*?(?<long>-?\d+[\.,]\d+|\-?d+)\]/i,
              hlp: 'decimal degrees, no ordinal, specific format, e.g. [12.263, -49.398]'}
     }.freeze
-
+    # @param [String] label
+    # @param [String] filters
+    # @return [Array] of possible coordinate strings
     def self.hunt_lat_long_full(label, filters = REGEXP_COORD.keys)
       trials = {}
       filters.each_with_index {|kee, dex|
@@ -167,6 +171,10 @@ To add a new (discovered) symbol:
       trials
     end
 
+    # rubocop:disable Metrics/MethodLength, Metrics/BlockNesting
+    # @param [String] label
+    # @param [String] how
+    # @return [Hash] of possible lat/long pairs
     def self.hunt_lat_long(label, how = ' ')
       if how.nil?
         pieces = [label]
@@ -204,7 +212,11 @@ To add a new (discovered) symbol:
       end
       lat_long
     end
+    # rubocop:enable Metrics/MethodLength, Metrics/BlockNesting
 
+    # @param [String] label
+    # @param [Array] filters
+    # @return [Array]
     def self.hunt_wrapper(label, filters = REGEXP_COORD.keys)
 
       trials = self.hunt_lat_long_full(label, filters)
@@ -220,11 +232,13 @@ To add a new (discovered) symbol:
       trials
     end
 
+    # @param [String] c as single character
+    # @return [Boolean]
     def self.is_lat_long_special(c)
       SPECIAL_LATLONG_SYMBOLS.include?(c)
     end
 
-
+    # rubocop:disable Metrics/MethodLength
     # 42∞5'18.1"S88∞11'43.3"W
     # S42∞5'18.1"W88∞11'43.3"
     # S42∞5.18'W88∞11.43'
@@ -238,6 +252,8 @@ To add a new (discovered) symbol:
     #
     # no limit test, unless there is a ordinal letter included
     #
+    # @param [String] dms_in
+    # @return [Float] decimal degrees
     def self.degrees_minutes_seconds_to_decimal_degrees(dms_in) # rubocop:disable Metrics/PerceivedComplexity !! But this is too complex :)
       match_string = nil
       # no_point     = false
@@ -308,13 +324,19 @@ To add a new (discovered) symbol:
       return nil if dd.abs > limit || dd == 0.0
       dd.round(6).to_s
     end
+    # rubocop:enable Metrics/MethodLength
 
+    # @param [String] char as singlr character
+    # @return [String]
     def uni_string(char)
       format('\\u%04X', char.ord)
       # "\\#{sprintf('u%04X', char.ord)}"
       # '\\u%04X' % [char.ord]
     end
 
+    # rubocop:disable Metrics/MethodLength
+    # @param [ActionController::Parameters] params
+    # @return [Integer]
     def self.nearby_from_params(params)
       nearby_distance = params['nearby_distance'].to_i
       nearby_distance = CollectingEvent::NEARBY_DISTANCE if nearby_distance == 0
@@ -355,8 +377,12 @@ To add a new (discovered) symbol:
       params['digit2'] = decade.to_s
       digit * decade
     end
+    # rubocop:enable Metrics/MethodLength
 
     # confirm that this says that the error radius is one degree or smaller
+    # @param [RGeo::Point] geo_object
+    # @param [Integer] error_radius
+    # @return [RGeo::Polygon]
     def self.error_box_for_point(geo_object, error_radius)
       p0      = geo_object
       delta_x = (error_radius / ONE_WEST) / Math.cos(p0.y * Math::PI / 180)
@@ -376,6 +402,7 @@ To add a new (discovered) symbol:
 
     # make a diamond 2 * radius tall and 2 * radius wide, with the reference point as center
     # NOT TESTED/USED
+    # @return [RGeo::Polygon]
     def diamond_error_box
       p0      = geo_object
       delta_x = (error_radius / ONE_WEST) / Math.cos(p0.y * Math::PI / 180)

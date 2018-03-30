@@ -276,6 +276,7 @@ class CollectingEvent < ApplicationRecord
   soft_validate(:sv_minimally_check_for_a_label)
 
   # @param [String]
+  # @return [Ignored]
   def verbatim_label=(value)
     write_attribute(:verbatim_label, value)
     write_attribute(:md5_of_verbatim_label, Utilities::Strings.generate_md5(value))
@@ -287,21 +288,21 @@ class CollectingEvent < ApplicationRecord
     # Scopes
     #
 
-    # @param geographic_item [GeographicItem]
+    # @param [GeographicItem] geographic_item
     # @return [Scope]
     # TODO: use joins(:geographic_items).where(containing scope), simplied to
     def contained_within(geographic_item)
       CollectingEvent.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(geographic_item.id))
     end
 
-    # @param collecting_events [CollectingEvent Scope]
+    # @param [CollectingEvent Scope] collecting_events
     # @return [Scope] without self (if included)
     # TODO: DRY, use general form of this
     def excluding(collecting_events)
       where.not(id: collecting_events)
     end
 
-    # @param params [Hash] of parameters for this search
+    # @param [ActionController::Parameters] params for this search
     # @return [Scope] of collecting_events found by (partial) verbatim_locality
     def find_for_autocomplete(params)
       Queries::CollectingEventAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
@@ -311,6 +312,7 @@ class CollectingEvent < ApplicationRecord
     # Other
     #
 
+    # rubocop:disable Metrics/MethodLength
     # engineered for search_start_date/search_end_date (yyyy/mm/dd)
     # @param [String] search_start_date (yyyy/mm/dd)
     # @param [String] search_end_date (yyyy/mm/dd)
@@ -392,10 +394,11 @@ class CollectingEvent < ApplicationRecord
       sql_string = st_string + (allow_partial ? ' or ' : ' and ') + en_string + special_part
       sql_string
     end
+    # rubocop:enable Metrics/MethodLength
 
-    # @param [Hash] search_start_date string in form 'yyyy/mm/dd'
-    # @param [Hash] search_end_date string in form 'yyyy/mm/dd'
-    # @param [Hash] partial_overlap 'on' or 'off'
+    # @param [String] search_start_date string in form 'yyyy/mm/dd'
+    # @param [String] search_end_date string in form 'yyyy/mm/dd'
+    # @param [String] partial_overlap 'on' or 'off'
     # @return [Scope] of selected collecting events with georeferences
     def in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
       allow_partial = (partial_overlap.downcase == 'off' ? false : true)
@@ -403,7 +406,8 @@ class CollectingEvent < ApplicationRecord
       where(sql_string).distinct # TODO: uniq should likely not be here
     end
 
-    # @param [Hash] params in the style Rails of 'params'
+    # rubocop:disable Metrics/MethodLength
+    # @param [ActionController::Parameters] params in the style Rails of 'params'
     # @return [Scope] of selected collecting_events
     # TODO: ARELIZE, likely in lib/queries
     def filter(params)
@@ -455,6 +459,7 @@ class CollectingEvent < ApplicationRecord
 
       collecting_events
     end
+    # rubocop:enable Metrics/MethodLength
 
     # @param [Scope]
     # @return [CSV]
@@ -469,7 +474,7 @@ class CollectingEvent < ApplicationRecord
       end
     end
 
-    # @return [true]
+    # @return [Boolean] always true
     #   A development method only. Attempts to create a verbatim georeference for every
     #   collecting event record that doesn't have one.
     #   TODO: this needs to be in a rake task or somewhere else
@@ -502,10 +507,11 @@ class CollectingEvent < ApplicationRecord
       true
     end
 
+    # @return [Array] of strings of only the non-cached and non-housekeeping column names
     def data_attributes
-      column_names.reject { |c| %w{id project_id created_by_id updated_by_id created_at updated_at project_id}.include?(c) || c =~ /^cached/ }
+      column_names.reject { |c| %w{id project_id created_by_id updated_by_id created_at updated_at project_id}
+                                  .include?(c) || c =~ /^cached/ }
     end
-
   end # << end class methods
 
   # @param [String] lat
@@ -580,14 +586,18 @@ class CollectingEvent < ApplicationRecord
 
   # @return [String]
   def end_date_string
-    date = end_date
-    "#{'%02d' % date.day}/#{'%02d' % date.month}/#{'%4d' % date.year}" unless date.nil?
+    date_string(end_date)
   end
 
   # @return [String]
   def start_date_string
-    date = start_date
-    "#{'%02d' % date.day}/#{'%02d' % date.month}/#{'%4d' % date.year}" unless date.nil?
+    date_string(start_date)
+  end
+
+  # @param [Date]
+  # @return [String]
+  def date_string(text)
+    "#{'%02d' % text.day}/#{'%02d' % text.month}/#{'%4d' % text.year}" unless text.nil?
   end
 
   # @return [Time]
@@ -664,6 +674,7 @@ class CollectingEvent < ApplicationRecord
 
   # @return [Integer]
   # @todo figure out how to convert verbatim_geolocation_uncertainty in different units (ft, m, km, mi) into meters
+  # @TODO: See Utilities::Geo.distance_in_meters(String)
   def get_error_radius
     return nil if verbatim_geolocation_uncertainty.blank?
     return verbatim_geolocation_uncertainty.to_i if is.number?(verbatim_geolocation_uncertainty)
@@ -998,6 +1009,7 @@ class CollectingEvent < ApplicationRecord
     ? Copy of 'locality'
 =end
 
+  # rubocop:disable Style/StringHashKeys
   # @return [Hash]
   #   parameters from collecting event that are of use to geolocate
   def geolocate_attributes
@@ -1073,6 +1085,7 @@ class CollectingEvent < ApplicationRecord
     end
     base
   end
+  # rubocop:enable Style/StringHashKeys
 
   # @return [CollectingEvent]
   #   return the next collecting event without a georeference in this collecting events project sort order
