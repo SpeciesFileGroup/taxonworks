@@ -116,15 +116,16 @@ module BatchLoad
 
     def taxon_name_authors_hash(taxonifi_name)
       author_attributes = []
-      taxonifi_name.authors.each do |a|
+      taxonifi_name.authors.each_with_index do |a,i|
         suffix = a.suffix.join(' ') if !a.suffix.nil?
         author_attributes.push({
                                  last_name:  a.last_name,
-                                 first_name: [a.first_name, a.initials_string].compact.join(' '),
-                                 suffix:     suffix, # this might not be right, have to 2x check
+                                 first_name: a.first_name,
+                                 prefix: a.initials_string,
+                                 suffix: suffix, 
                                })
       end
-      author_attributes
+      author_attributes.reverse
     end
   end
 end
