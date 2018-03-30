@@ -61,12 +61,13 @@ To add a new (discovered) symbol:
     # 123 ft > 123 ft. > 123 feet > 1 foot > 123 f > 123 f.
     # 123 m > 123 meters > 123 m.
     # 123 km > 123 km. > 123 kilometers
+    # 123 mi > 123 milee > 123 miles
     #
-    # @param [String] elev_in
+    # @param [String] dist_in
     # @return [Float]
-    def self.distance_in_meters(elev_in)
-      elev_in   = '0.0 meters' if elev_in.blank?
-      elevation = elev_in.strip.downcase
+    def self.distance_in_meters(dist_in)
+      dist_in   = '0.0 meters' if dist_in.blank?
+      elevation = dist_in.strip.downcase
       pieces    = elevation.split(' ')
       value     = elevation.to_f
       if pieces.count > 1 # two pieces, second is distance unit
@@ -89,9 +90,9 @@ To add a new (discovered) symbol:
       scale = 1000.0 unless km.blank?
       scale = 1_609.344 unless mi.blank?
 
-      elev = value * scale
+      distance = value * scale
 
-      elev
+      distance
     end
 
     #  ' = \u0027, converted so that the regex can be used for SQL
