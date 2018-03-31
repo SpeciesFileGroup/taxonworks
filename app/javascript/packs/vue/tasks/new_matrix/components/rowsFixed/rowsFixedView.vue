@@ -17,23 +17,21 @@
 <script>
 
 import smartSelector from '../shared/smartSelector'
-import searchComponent from './search'
+import pinboardComponent from './byPinboard.vue'
+import objectComponent from './byObject.vue'
 
 export default {
   components: {
     smartSelector,
-    searchComponent
-  },
-  computed: {
-    componentExist() {
-      return this.$options.components[this.view + 'Component']
-    }
+    pinboardComponent,
+    objectComponent
   },
   data() {
     return {
-      smartOptions: ['quick', 'recent', 'search'],
+      smartOptions: ['Object', 'Tag', 'Pinboard'],
       view: undefined
     }
   }
+
 }
 </script>
