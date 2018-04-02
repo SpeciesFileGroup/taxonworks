@@ -1,6 +1,20 @@
+# Each ObservationMatrixColumnItem is set of descriptors (1 or more)
 #
-# Each ObservationMatrixColumnItem is set of descriptors
+# @!attribute observation_matrix_id 
+#   @return [Integer] id of the matrix 
 #
+# @!attribute descriptor_id 
+#   @return [Integer] id of the descriptor (a single/static subclass)
+#
+# @!attribute controlled_vocabulary_term_id
+#   @return [Integer] id of the Keyword (a dynamic subclass) 
+#
+# @!attribute position 
+#   @return [Integer] a sort order 
+#
+# @!attribute cached_observation_matrix_column_item_id
+#   @return [Integer] if the column item is derived from a ::Single<FOO> subclass, the id of that instance
+# 
 class ObservationMatrixColumnItem < ApplicationRecord
   include Housekeeping
   include Shared::Identifiers
@@ -43,7 +57,8 @@ class ObservationMatrixColumnItem < ApplicationRecord
   def cleanup_single_matrix_column(descriptor_id, mc = nil)
     mc ||= ObservationMatrixColumn.where(
       descriptor_id: descriptor_id, 
-      observation_matrix: observation_matrix).first
+      observation_matrix: observation_matrix
+    ).first
 
     current = mc.reference_count - 1
     if current == 0
@@ -55,8 +70,10 @@ class ObservationMatrixColumnItem < ApplicationRecord
 
   def update_single_matrix_column(descriptor)
     mc = ObservationMatrixColumn.find_or_create_by(
-      observation_matrix: observation_matrix, descriptor: descriptor)
+      observation_matrix: observation_matrix, 
+      descriptor: descriptor)
     mc.update_columns(reference_count: mc.reference_count + 1)
+    mc.update_columns(cached_observation_matrix_column_item_id: id) if type =~ /Single/ 
   end
 
   def self.human_name
@@ -77,7 +94,7 @@ class ObservationMatrixColumnItem < ApplicationRecord
     false
   end
 
-  # @return [Array] of ObservationMatrixRowItems
+  # @return [Array] of ObservationMatrixColumnItems
   def self.batch_create(params)
     case params[:batch_type]
     when 'tags'
@@ -115,7 +132,7 @@ class ObservationMatrixColumnItem < ApplicationRecord
   def self.batch_create_from_pinboard(observation_matrix_id, project_id, user_id, klass)
     return false if observation_matrix_id.blank? || project_id.blank? || user_id.blank?
     created = []
-    ObservationMatrixRow.transaction do
+    ObservationMatrixColumn.transaction do
       begin
         if klass
           klass.constantize.joins(:pinboard_items).where(pinboard_items: {user_id: user_id, project_id: project_id}).each do |o|

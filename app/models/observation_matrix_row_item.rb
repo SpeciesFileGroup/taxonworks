@@ -1,5 +1,19 @@
+# Each ObservationMatrixRowItem is set of Otus or Collection Objects (1 or more)
 #
-# A MatrixRowItem defines a set of one OR MORE matrix rows depending on their class.
+# @!attribute observation_matrix_id 
+#   @return [Integer] id of the matrix 
+#
+# @!attribute otu_id 
+#   @return [Integer] id of an (single) Otu based row
+#
+# @!attribute collection_object_id 
+#   @return [Integer] id of a (single) CollectObject based row
+#
+# @!attribute position 
+#   @return [Integer] a sort order 
+#
+# @!attribute cached_observation_matrix_row_item_id
+#   @return [Integer] if the column item is derived from a ::Single<FOO> subclass, the id of that instance
 #
 class ObservationMatrixRowItem < ApplicationRecord
   include Housekeeping
@@ -48,12 +62,13 @@ class ObservationMatrixRowItem < ApplicationRecord
     mr = nil
 
     if object.is_a? Otu
-      mr = ObservationMatrixRow.find_or_create_by(observation_matrix: observation_matrix, otu: object)
+      mr = ObservationMatrixRow.find_or_create_by(observation_matrix: observation_matrix, otu: object, )
     elsif object.is_a? CollectionObject
       mr = ObservationMatrixRow.find_or_create_by(observation_matrix: observation_matrix, collection_object: object)
     end
 
     mr.update_columns(reference_count: mr.reference_count + 1)
+    mr.update_columns(cached_observation_matrix_row_item_id: id) if type =~ /Single/ 
   end
 
   def cleanup_single_matrix_row(object)
