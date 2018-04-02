@@ -77,7 +77,92 @@ class ObservationMatrixColumnItem < ApplicationRecord
     false
   end
 
-  protected
+  # @return [Array] of ObservationMatrixRowItems
+  def self.batch_create(params)
+    case params[:batch_type]
+    when 'tags'
+      batch_create_from_tags(params[:keyword_id], params[:klass], params[:observation_matrix_id])
+    when 'pinboard'
+      batch_create_from_pinboard(params[:observation_matrix_id], params[:project_id], params[:user_id], params[:klass])
+    end
+  end
+
+  # @params klass [String] the subclass of the Descriptor ike `Descriptor::Working` or `Descriptor::Continuous`
+  # @return [Array, false]
+  def self.batch_create_from_tags(keyword_id, klass, observation_matrix_id)
+    created = []
+    ObservationMatrixColumnItem.transaction do
+      begin
+        if klass
+          klass.constantize.joins(:tags).where(tags: {keyword_id: keyword_id } ).each do |o|
+            created.push create_for(o, observation_matrix_id)
+          end
+        else
+          created += create_for_tags(
+            Tag.where(keyword_id: keyword_id, tag_object_type: 'Descriptor').all,
+            observation_matrix_id
+          )       
+        end
+      rescue ActiveRecord::RecordInvalid => e
+        return false
+      end
+    end
+    return created
+  end
+
+  # @params klass [String] the class name like `Otu` or `CollectionObject`
+  # @return [Array, false]
+  def self.batch_create_from_pinboard(observation_matrix_id, project_id, user_id, klass)
+    return false if observation_matrix_id.blank? || project_id.blank? || user_id.blank?
+    created = []
+    ObservationMatrixRow.transaction do
+      begin
+        if klass
+          klass.constantize.joins(:pinboard_items).where(pinboard_items: {user_id: user_id, project_id: project_id}).each do |o|
+            created.push create_for(o, observation_matrix_id)
+          end
+        else
+          created += create_for_pinboard_items(
+            PinboardItem.where(project_id: project_id, user_id: user_id, pinned_object_type: 'Descriptor').all,
+            observation_matrix_id
+          )
+        end
+      rescue ActiveRecord::RecordInvalid => e
+        return false
+      end
+    end
+    return created
+  end
+
+  private
+
+  # @return [Array]
+  def self.create_for_tags(tag_scope, observation_matrix_id)
+    a = []
+    tag_scope.each do |o|
+      a.push create_for(o.tag_object, observation_matrix_id)
+    end
+    a
+  end
+
+  # @param pinboard_item_scope [PinboardItem Scope]
+  # @return [Array]
+  #   create observation matrix row items for all scope items
+  def self.create_for_pinboard_items(pinboard_item_scope, observation_matrix_id)
+    a = []
+    pinboard_item_scope.each do |o|
+      a.push create_for(o.pinned_object, observation_matrix_id)
+    end
+    a 
+  end
+
+  def self.create_for(object, observation_matrix_id)
+    ObservationMatrixColumnItem.create!(
+      observation_matrix_id: observation_matrix_id,
+      descriptor_id: object.id,
+      type: 'ObservationMatrixColumnItem::SingleDescriptor'
+    )
+  end
 
   def other_subclass_attributes_not_set
     (ALL_STI_ATTRIBUTES - self.class.subclass_attributes).each do |atr|

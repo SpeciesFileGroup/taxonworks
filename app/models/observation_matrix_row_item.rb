@@ -136,7 +136,7 @@ class ObservationMatrixRowItem < ApplicationRecord
     ObservationMatrixRowItem.transaction do
       begin
         if klass
-          klass.constantize.joins(:tags).where(tags: {keyword_id: keyword_id, tag_object_type: klass } ).each do |o|
+          klass.constantize.joins(:tags).where(tags: {keyword_id: keyword_id} ).each do |o|
             created.push create_for(o, observation_matrix_id)
           end
         else
@@ -160,7 +160,7 @@ class ObservationMatrixRowItem < ApplicationRecord
     ObservationMatrixRow.transaction do
       begin
         if klass
-          klass.constantize.joins(:pinboard_items).where(pinboard_items: {user_id: user_id, project_id: project_id, pinned_object_type: klass}).each do |o|
+          klass.constantize.joins(:pinboard_items).where(pinboard_items: {user_id: user_id, project_id: project_id}).each do |o|
             created.push create_for(o, observation_matrix_id)
           end
         else
