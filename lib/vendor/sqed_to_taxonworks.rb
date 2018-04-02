@@ -1,5 +1,7 @@
+# A middle-layer wrapper between Sqed and TaxonWorks
 module SqedToTaxonworks
 
+  # Stores and handles metadata linking a TW depiction to the Sqed library.
   class Result
 
     SMALL_WIDTH = 100
@@ -65,7 +67,7 @@ module SqedToTaxonworks
     end
 
     def sqed
-      @sqed ||= Sqed.new( sqed_depiction.extraction_metadata.merge(target_image: original_image) )
+      @sqed ||= Sqed.new( sqed_depiction.extraction_metadata.merge(image: original_image) )
     end
 
     # Minimize use of this if possible, depend on the cached values when possible.
@@ -76,8 +78,6 @@ module SqedToTaxonworks
     def original_image
       @original_image ||= Magick::Image.read(depiction.image.image_file.path(:original)).first
     end
-
-    # instance methods
 
     def namespace_locked?
       !namespace_id.nil?
@@ -92,13 +92,11 @@ module SqedToTaxonworks
     end
 
     def cache_boundaries
-      sqed_depiction.update_column(:result_boundary_coordinates, ActiveSupport::JSON.encode(sqed.boundaries.coordinates))
-      sqed_depiction.reload # get the json version of the attribute back
+      sqed_depiction.update_column(:result_boundary_coordinates, sqed.boundaries.coordinates)
     end
 
     def cache_ocr
-      sqed_depiction.update_column(:result_ocr, ActiveSupport::JSON.encode(sqed_result.text))
-      sqed_depiction.reload # get the json version of the attribute back
+      sqed_depiction.update_column(:result_ocr, sqed_result.text)
     end
 
     def cache_all
@@ -107,7 +105,7 @@ module SqedToTaxonworks
     end
 
     def ocr_for(layout_section_type)
-      index = sqed_depiction.extraction_metadata[:target_metadata_map].key(layout_section_type)
+      index = sqed_depiction.extraction_metadata[:metadata_map].key(layout_section_type)
       if ocr_cached?
         sqed_depiction.result_ocr[layout_section_type.to_s] && sqed_depiction.result_ocr[layout_section_type.to_s]['text']
       else
@@ -118,7 +116,7 @@ module SqedToTaxonworks
     end
 
     def coords_for(layout_section_type)
-      index = sqed_depiction.extraction_metadata[:target_metadata_map].key(layout_section_type)
+      index = sqed_depiction.extraction_metadata[:metadata_map].key(layout_section_type)
       if boundaries_cached?
         sqed_depiction.result_boundary_coordinates[index.to_s].to_a # TODO- hmm, why the to_s needed here
       else # do not do the OCR if only coords asked for
@@ -150,7 +148,7 @@ module SqedToTaxonworks
 
     # @return [Array]
     def image_sections
-      (sqed_depiction.extraction_metadata[:target_metadata_map].values - [:image_registration, :specimen])
+      (sqed_depiction.extraction_metadata[:metadata_map].values - [:image_registration])
     end
 
     # @return [Symbol]

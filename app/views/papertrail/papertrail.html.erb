@@ -1,31 +1,32 @@
-<h2 id="papertrail_header" data-object-id="<%= @object.id %>" data-object-type="<%= @object.class %>"> Papertrail for <%= object_tag(@object) -%> </h2>
+<h2 id="papertrail_header" data-object-id="<%= @object.id %>" data-object-type="<%= @object.metamorphosize.class %>"> Papertrail for <%= object_tag(@object) -%> </h2>
 
 <div><%= link_to('Back', @object.metamorphosize)  -%></div>
 
 <div>
   <div id="filter_box">
-    <h3 id="filter_title"  data-help="Use this filter to limit displayed changes to only those by the specified user(s) and between the specified date range.">Filter by</h3>
+    <h3 id="filter_title" data-help="Use this filter to limit displayed changes to only those by the specified user(s) and between the specified date range.">Filter by</h3>
     <div id="user_box">
-      <% unique_authors = get_unique_authors(@object.versions.drop(1).reverse) %>
+      <div>
+        <% get_unique_authors(@object.versions.reverse).each do |key, value| %>
+          <div class="user_item_box">
+            <input id="<%= value %>" class="user_item" type="checkbox" data-user-name="<%= value %>" >
+            <label for="<%= value %>"><%= value %></label>
+          </div>
+        <% end %>
+      </div>
 
-      <% unique_authors.each do |key, value| %>
-        <div class="user_item_box">
-          <input id="<%= value %>" class="user_item" type="checkbox" data-user-name="<%= value %>">
-          <label for="<%= value %>"><%= value %></label>
-        </div>
-      <% end %>
     </div>
     <div id="datepicker_box">
       <div class="start_datepicker_box">
         <label for="start_datepicker">Start Date</label>
-        <input id="start_datepicker" class="datepicker" type="text" placeholder="Select start date...">
+        <input id="start_datepicker" type="date" placeholder="Select start date..." value="<%= @object.created_at.strftime("%Y-%m-%d") -%>">
       </div>
       <div class="end_datepicker_box">
         <label for="end_datepicker">End Date</label>
-        <input id="end_datepicker" class="datepicker" type="text" placeholder="Select end date...">
+        <input id="end_datepicker" type="date" placeholder="Select end date..." value="<%= @object.updated_at.strftime("%Y-%m-%d") -%>">
       </div>
       <div id="datepicker_error_box">
-        <p id="datepicker_error_message"></p>
+        <%= content_tag :p, nil, id: :datepicker_error_message, data: {icon: :warning}, class: :subtle -%>
       </div>
     </div>
   </div>
@@ -33,15 +34,16 @@
   <div id="compare_box">
     <h3 id="compare_title" data-help="Use this filter to compare revisions.">Compare by</h3>
     <p id="compare_info">Click 
-    <button id="button_select" data-select-mode="0">Select to compare</button> and checkboxes appear on the uppper left of each Revision.  Selecting one or more checkboxes enables compare button.
-    <button id="button_compare_selected">Compare selected</button>
+    <%= button_tag 'Select to compare', id: 'button_select', data: {'select-mode' => 0}, class: ['normal-input', :button, 'button-default'] -%>
+    and checkboxes appear on the uppper left of each Revision.  Selecting one or more checkboxes enables compare button.
+    <%= button_tag 'Compare selected', id: 'button_compare_selected', class: ['normal-input', :button, 'button-default'] -%>
     </p>
   </div>
 
   <br/>
 </div>
 
-<h3 data-help="Each block represents one update. Clicking Restore will let you select one or more changes to restore. Click to select the specific changes you wish to restore, then click Confirm Restore."> Revisions </h3>
-<%= render(partial: 'papertrail', collection: @object.versions.drop(1).reverse, locals: {object_id: @object.id, object_type: @object.class}) -%>
+<h3 data-help="Each block represents one update. Clicking Restore will let you select one or more changes to restore. Click to select the specific changes you wish to restore, then click Confirm Restore."> Revisions (<%= @object.versions.count -%> total)</h3>
 
+<%= render(partial: 'papertrail', collection: @object.versions.reverse, locals: {object_id: @object.id, object_type: @object.metamorphosize.class }) -%>
 

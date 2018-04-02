@@ -249,7 +249,8 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_modify_gene_descriptor_batch_load
       post :create_modify_gene_descriptor_batch_load
-    end
+      get :units
+    end  
   end
 
   resources :documentation do
@@ -604,6 +605,12 @@ TaxonWorks::Application.routes.draw do
   ### End of data resources ###
 
   scope :tasks do
+    scope :descriptors do
+      scope :new_descriptor, controller: 'tasks/descriptors/new_descriptor' do
+        get '(:id)', action: :index, as: 'new_descriptor_task'
+      end
+    end
+
 
     scope :browse_annotations, controller: 'tasks/browse_annotations' do
       get 'index', as: 'browse_annotations_task'
@@ -806,13 +813,6 @@ TaxonWorks::Application.routes.draw do
         post 'create_biocuration_group'
         post 'create_biocuration_class'
       end
-    end
-
-    scope :gis, controller: 'tasks/gis/report' do
-      get 'report', action: 'new', as: 'gis_report_task'
-      get 'download/:geographic_area_id', action: 'download', as: 'gis_report_download'
-      post 'location_report_list'
-      get 'location_report_list', action: 'repaint'
     end
 
     scope :gis, controller: 'tasks/gis/locality' do

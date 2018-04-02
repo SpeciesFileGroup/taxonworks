@@ -1,13 +1,14 @@
 <template>
   <form>
     <div
-      class="basic-information panel"
-      v-help.section.author.container>
+      class="basic-information panel">
       <a
         name="author"
         class="anchor"/>
       <div class="header flex-separate middle">
-        <h3>Author</h3>
+      <h3
+      v-help.section.author.container
+      >Author</h3>
         <expand
           @changed="expanded = !expanded"
           :expanded="expanded"/>
@@ -26,7 +27,9 @@
               v-model="show"
               value="source">
             <label for="author-picker-source">
-              <span>Source</span>
+            <span
+            v-help.section.author.source
+             >Source</span>
               <div v-if="citation">
                 <span
                   class="small-icon icon-without-space"
@@ -38,10 +41,11 @@
               id="author-picker-verbatim"
               type="radio"
               class="normal-input"
-              v-model="show"
+              v-model="show" 
               value="verbatim">
-            <label for="author-picker-verbatim">
-              Verbatim
+            <label for="author-picker-verbatim"
+            v-help.section.author.verbatim
+            > Verbatim
               <div v-if="verbatimFieldsWithData">
                 <span
                   class="small-icon icon-without-space"
@@ -54,8 +58,11 @@
               type="radio"
               class="normal-input"
               v-model="show"
+              v-help.section.author.person
               value="person">
-            <label for="author-picker-person">
+            <label for="author-picker-person"
+            v-help.section.author.person
+            >
               <span>Person</span>
               <div v-if="roles.length">
                 ({{ roles.length }})

@@ -76,9 +76,11 @@ class GeographicItem < ApplicationRecord
   has_many :ne_geographic_areas, class_name: 'GeographicArea', foreign_key: :ne_geo_item_id
   has_many :tdwg_geographic_areas, class_name: 'GeographicArea', foreign_key: :tdwg_geo_item_id
   has_many :georeferences
-  has_many :georeferences_through_error_geographic_item, class_name: 'Georeference', foreign_key: :error_geographic_item_id
+  has_many :georeferences_through_error_geographic_item,
+           class_name: 'Georeference', foreign_key: :error_geographic_item_id
   has_many :collecting_events_through_georeferences, through: :georeferences, source: :collecting_event
-  has_many :collecting_events_through_georeference_error_geographic_item, through: :georeferences_through_error_geographic_item, source: :collecting_event
+  has_many :collecting_events_through_georeference_error_geographic_item,
+           through: :georeferences_through_error_geographic_item, source: :collecting_event
 
   before_validation :set_type_if_geography_present
 
@@ -91,15 +93,17 @@ class GeographicItem < ApplicationRecord
 
   class << self
 
+    # @param [String] wkt
     # @return [Boolean]
     #   whether or not the wtk intersects with the anti-meridian
     #   !! StrongParams security considerations
     def crosses_anti_meridian?(wkt)
       GeographicItem.find_by_sql(
-        "SELECT ST_Intersects(ST_GeogFromText('#{wkt}'), ST_GeogFromText('#{ANTI_MERIDIAN}')) as r;"
+        ['SELECT ST_Intersects(ST_GeogFromText(?), ST_GeogFromText(?)) as r;', wkt, ANTI_MERIDIAN]
       ).first.r
     end
 
+    # @param [Integer] ids
     # @return [Boolean]
     #   whether or not any GeographicItem passed intersects the anti-meridian
     #   !! StrongParams security considerations
@@ -107,9 +111,11 @@ class GeographicItem < ApplicationRecord
     #   more of which crosses the anti-meridian.  In this case the current TW strategy within the
     #   UI is to abandon the search, and prompt the user to refactor the query.
     def crosses_anti_meridian_by_id?(*ids)
-      GeographicItem.find_by_sql(
-        "SELECT ST_Intersects((SELECT single_geometry FROM (#{GeographicItem.single_geometry_sql(*ids)}) as left_intersect), ST_GeogFromText('#{ANTI_MERIDIAN}')) as r;"
-      ).first.r
+      q1 = ["SELECT ST_Intersects((SELECT single_geometry FROM (#{GeographicItem.single_geometry_sql(*ids)}) as " \
+            'left_intersect), ST_GeogFromText(?)) as r;', ANTI_MERIDIAN]
+      q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Intersects((SELECT single_geometry FROM (?) as ' \
+            'left_intersect), ST_GeogFromText(?)) as r;', GeographicItem.single_geometry_sql(*ids), ANTI_MERIDIAN])
+      GeographicItem.find_by_sql(q1).first.r
     end
 
     # TODO: * rename to reflect either/or and what is being returned
@@ -120,7 +126,7 @@ class GeographicItem < ApplicationRecord
     def gather_selected_data(geographic_area_ids, shape_in, search_object_class)
       if shape_in.blank?
         # get the shape from the geographic area, if possible
-        finding                    = search_object_class.constantize
+        finding = search_object_class.constantize
         target_geographic_item_ids = []
         if geographic_area_ids.blank?
           found = finding.none
@@ -131,7 +137,8 @@ class GeographicItem < ApplicationRecord
                                               .find(gaid)
                                               .default_geographic_item.id)
           end
-          found = finding.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
+          found = finding.joins(:geographic_items)
+                    .where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
         end
       else
         found = gather_map_data(shape_in, search_object_class)
@@ -139,7 +146,9 @@ class GeographicItem < ApplicationRecord
       found
     end
 
-    # @param [String] feature in JSON, looks like '{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-40.078125,10.614539227964332],[-49.21875,-17.185577279306226],[-23.203125,-15.837353550148276],[-40.078125,10.614539227964332]]]},"properties":{}}'
+    # @param [String] feature in JSON, looks like '{"type":"Feature","geometry":{"type":"Polygon",
+    # "coordinates":[[[-40.078125,10.614539227964332],[-49.21875,-17.185577279306226],
+    # [-23.203125,-15.837353550148276],[-40.078125,10.614539227964332]]]},"properties":{}}'
     # @param [String] search_object_class
     # @return [Scope] of the requested search_object_type
     #   This function takes a feature, i.e. a string that is the result
@@ -148,15 +157,15 @@ class GeographicItem < ApplicationRecord
     #   e.g. Return all CollectionObjects in this drawn area
     #        Return all CollectionObjects in the radius around this point
     def gather_map_data(feature, search_object_class)
-      finding   = search_object_class.constantize
+      finding = search_object_class.constantize
       g_feature = RGeo::GeoJSON.decode(feature, json_parser: :json)
       if g_feature.nil?
         finding.none
       else
-        geometry   = g_feature.geometry # isolate the WKT
+        geometry = g_feature.geometry # isolate the WKT
         shape_type = geometry.geometry_type.to_s.downcase
-        geometry   = geometry.as_text
-        radius     = g_feature['radius']
+        geometry = geometry.as_text
+        radius = g_feature['radius']
 
         query = finding.joins(:geographic_items)
 
@@ -186,9 +195,12 @@ class GeographicItem < ApplicationRecord
     # @return [String]
     #   a SQL select statement that returns the geography for the geographic_item with the specified id
     def select_geography_sql(geographic_item_id)
-      "SELECT #{GeographicItem::GEOMETRY_SQL} from geographic_items where geographic_items.id = #{geographic_item_id}"
+      ActiveRecord::Base.send(:sanitize_sql_for_conditions, [
+        "SELECT #{GeographicItem::GEOMETRY_SQL} from geographic_items where geographic_items.id = ?",
+        geographic_item_id])
     end
 
+    # @param [Symbol] choice
     # @return [String]
     #   a fragment returning either latitude or longitude columns
     def lat_long_sql(choice)
@@ -196,24 +208,36 @@ class GeographicItem < ApplicationRecord
       f = "'D.DDDDDD'" # TODO: probably a constant somewhere
       v = (choice == :latitude ? 1 : 2)
       "CASE type
-        WHEN 'GeographicItem::GeometryCollection' THEN split_part(ST_AsLatLonText(ST_Centroid(geometry_collection::geometry), #{f}), ' ', #{v})
-        WHEN 'GeographicItem::LineString' THEN split_part(ST_AsLatLonText(ST_Centroid(line_string::geometry), #{f}), ' ', #{v})
-        WHEN 'GeographicItem::MultiPolygon' THEN split_part(ST_AsLatLonText(ST_Centroid(multi_polygon::geometry), #{f}), ' ', #{v})
-        WHEN 'GeographicItem::Point' THEN split_part(ST_AsLatLonText(ST_Centroid(point::geometry), #{f}), ' ', #{v})
-        WHEN 'GeographicItem::Polygon' THEN split_part(ST_AsLatLonText(ST_Centroid(polygon::geometry), #{f}), ' ', #{v})
-        WHEN 'GeographicItem::MultiLineString' THEN split_part(ST_AsLatLonText(ST_Centroid(multi_line_string::geometry), #{f} ), ' ', #{v})
-        WHEN 'GeographicItem::MultiPoint' THEN split_part(ST_AsLatLonText(ST_Centroid(multi_point::geometry), #{f}), ' ', #{v})
+        WHEN 'GeographicItem::GeometryCollection' THEN split_part(ST_AsLatLonText(ST_Centroid" \
+            "(geometry_collection::geometry), #{f}), ' ', #{v})
+        WHEN 'GeographicItem::LineString' THEN split_part(ST_AsLatLonText(ST_Centroid(line_string::geometry), " \
+            "#{f}), ' ', #{v})
+        WHEN 'GeographicItem::MultiPolygon' THEN split_part(ST_AsLatLonText(" \
+            "ST_Centroid(multi_polygon::geometry), #{f}), ' ', #{v})
+        WHEN 'GeographicItem::Point' THEN split_part(ST_AsLatLonText(" \
+            "ST_Centroid(point::geometry), #{f}), ' ', #{v})
+        WHEN 'GeographicItem::Polygon' THEN split_part(ST_AsLatLonText(" \
+            "ST_Centroid(polygon::geometry), #{f}), ' ', #{v})
+        WHEN 'GeographicItem::MultiLineString' THEN split_part(ST_AsLatLonText(" \
+            "ST_Centroid(multi_line_string::geometry), #{f} ), ' ', #{v})
+        WHEN 'GeographicItem::MultiPoint' THEN split_part(ST_AsLatLonText(" \
+            "ST_Centroid(multi_point::geometry), #{f}), ' ', #{v})
       END as #{choice}"
     end
 
+    # @param [Integer] geographic_item_id
+    # @param [Integer] distance
     # @return [String]
     def within_radius_of_item_sql(geographic_item_id, distance)
       "ST_DWithin((#{GeographicItem::GEOGRAPHY_SQL}), (#{select_geography_sql(geographic_item_id)}), #{distance})"
     end
 
+    # @param [String] wkt
+    # @param [Integer] distance
     # @return [String]
     def within_radius_of_wkt_sql(wkt, distance)
-      "ST_DWithin((#{GeographicItem::GEOGRAPHY_SQL}), ST_Transform( ST_GeomFromText('#{wkt}', 4326), 4326), #{distance})"
+      "ST_DWithin((#{GeographicItem::GEOGRAPHY_SQL}), ST_Transform( ST_GeomFromText('#{wkt}', " \
+            "4326), 4326), #{distance})"
     end
 
     # @param [String, Integer, String]
@@ -236,17 +260,24 @@ class GeographicItem < ApplicationRecord
 
     # @param [Integer, String]
     # @return [String]
-    #   a SQL fragment that represents the geometry of the geographic item specified (which has data in the source_column_name, i.e. geo_object_type)
+    #   a SQL fragment that represents the geometry of the geographic item specified (which has data in the
+    # source_column_name, i.e. geo_object_type)
     def geometry_sql(geographic_item_id = nil, source_column_name = nil)
       return 'false' if geographic_item_id.nil? || source_column_name.nil?
-      "select geom_alias_tbl.#{source_column_name}::geometry from geographic_items geom_alias_tbl where geom_alias_tbl.id = #{geographic_item_id}"
+      "select geom_alias_tbl.#{source_column_name}::geometry from geographic_items geom_alias_tbl " \
+            "where geom_alias_tbl.id = #{geographic_item_id}"
     end
 
+    # rubocop:disable Metrics/MethodLength
+    # @param [String] column_name
+    # @param [GeographicItem] geographic_item
+    # @return [String] of SQL
     def is_contained_by_sql(column_name, geographic_item)
-      geo_id   = geographic_item.id
+      geo_id = geographic_item.id
       geo_type = geographic_item.geo_object_type
-      template = '(ST_Contains((select geographic_items.%s::geometry from geographic_items where geographic_items.id = %d), %s::geometry))'
-      retval   = []
+      template = '(ST_Contains((select geographic_items.%s::geometry from geographic_items where ' \
+                      'geographic_items.id = %d), %s::geometry))'
+      retval = []
       column_name.downcase!
       case column_name
         when 'any'
@@ -270,25 +301,33 @@ class GeographicItem < ApplicationRecord
       retval
     end
 
+    # @param [Interger, Array of Integer] geographic_item_ids
     # @return [String]
-    #   a select query that returns a single geometry (column name 'single_geometry' for the collection of ids provided via ST_Collect)
+    #   a select query that returns a single geometry (column name 'single_geometry' for the collection of ids
+    # provided via ST_Collect)
     def st_collect_sql(*geographic_item_ids)
-      "SELECT ST_Collect(f.the_geom) AS single_geometry
+      geographic_item_ids.flatten!
+      ActiveRecord::Base.send(:sanitize_sql_for_conditions, [
+        "SELECT ST_Collect(f.the_geom) AS single_geometry
        FROM (
           SELECT (ST_DUMP(#{GeographicItem::GEOMETRY_SQL})).geom as the_geom
           FROM geographic_items
-          WHERE id in (#{geographic_item_ids.join(',')}))
-        AS f"
+          WHERE id in (?))
+        AS f", geographic_item_ids ])
     end
 
-    #  # @return [String]
+    # @param [Interger, Array of Integer] geographic_item_ids
+    # @return [String]
     #    returns one or more geographic items combined as a single geometry in column 'single'
     def single_geometry_sql(*geographic_item_ids)
-      "(SELECT single.single_geometry FROM (#{GeographicItem.st_collect_sql(geographic_item_ids)}) AS single)"
+      a = GeographicItem.st_collect_sql(geographic_item_ids)
+      '(SELECT single.single_geometry FROM (' + a + ' ) AS single)'
     end
 
+    # @param [Interger, Array of Integer] geographic_item_ids
     # @return [String]
-    #   returns a single geometry "column" (paren wrapped) as "single" for multiple geographic item ids, or the geometry as 'geometry' for a single id
+    #   returns a single geometry "column" (paren wrapped) as "single" for multiple geographic item ids, or the
+    # geometry as 'geometry' for a single id
     def geometry_sql2(*geographic_item_ids)
       geographic_item_ids.flatten! # *ALWAYS* reduce the pile to a single level of ids
       if geographic_item_ids.count == 1
@@ -298,6 +337,8 @@ class GeographicItem < ApplicationRecord
       end
     end
 
+    # @param [Interger, Array of Integer] geographic_item_ids
+    # @return [String]
     def containing_where_sql(*geographic_item_ids)
       "ST_CoveredBy(
       #{GeographicItem.geometry_sql2(*geographic_item_ids)},
@@ -311,6 +352,8 @@ class GeographicItem < ApplicationRecord
       END)"
     end
 
+    # @param [Interger, Array of Integer] geographic_item_ids
+    # @return [String]
     def containing_where_sql_geog(*geographic_item_ids)
       "ST_CoveredBy(
       #{GeographicItem.geometry_sql2(*geographic_item_ids)},
@@ -324,6 +367,7 @@ class GeographicItem < ApplicationRecord
       END)"
     end
 
+    # @param [Interger, Array of Integer] ids
     # @return [Array]
     #   If we detect that some query id has crossed the meridian, then loop through
     #   and "manually" build up a list of results.
@@ -331,7 +375,7 @@ class GeographicItem < ApplicationRecord
     #   Note that this does not return a Scope, so you can't chain it like contained_by?
     # TODO: test this
     def contained_by_with_antimeridian_check(*ids)
-      ids.flatten! # make sure there is only one level of splat  (*)
+      ids.flatten! # make sure there is only one level of splat (*)
       results = []
 
       crossing_ids = []
@@ -346,9 +390,12 @@ class GeographicItem < ApplicationRecord
 
       crossing_ids.each do |id|
         # [61666, 61661, 61659, 61654, 61639]
+        q1 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_AsText((SELECT polygon FROM geographic_items ' \
+            'WHERE id = ?))', id])
         r = GeographicItem.where(
           # GeographicItem.contained_by_wkt_shifted_sql(GeographicItem.find(id).geo_object.to_s)
-          GeographicItem.contained_by_wkt_shifted_sql(ApplicationRecord.connection.execute("SELECT ST_AsText((SELECT polygon FROM geographic_items WHERE id = #{id}))").first['st_astext'])
+          GeographicItem.contained_by_wkt_shifted_sql(
+            ApplicationRecord.connection.execute(q1).first['st_astext'])
         ).to_a
         results.push(r)
       end
@@ -356,6 +403,7 @@ class GeographicItem < ApplicationRecord
       results.flatten.uniq
     end
 
+    # @params [String] well known text
     # @return [String] the SQL fragment for the specific geometry type, shifted by longitude
     # Note: this routine is called when it is already known that the A argument crosses anti-meridian
     def contained_by_wkt_shifted_sql(wkt)
@@ -395,6 +443,7 @@ class GeographicItem < ApplicationRecord
       retval
     end
 
+    # @param [Interger, Array of Integer] geographic_item_ids
     # @return [String] sql for contained_by via ST_ContainsProperly
     # Note: Can not use GEOMETRY_SQL because geometry_collection is not supported in ST_ContainsProperly
     # Note: !! If the target GeographicItem#id crosses the anti-meridian then you may/will get unexpected results.
@@ -411,6 +460,7 @@ class GeographicItem < ApplicationRecord
       END)"
     end
 
+    # @param [RGeo:Point] rgeo_point
     # @return [String] sql for containing via ST_CoveredBy
     # TODO: Remove the hard coded 4326 reference
     # TODO: should this be wkt_point instead of rgeo_point?
@@ -421,32 +471,42 @@ class GeographicItem < ApplicationRecord
        )"
     end
 
+    # @param [Interger] geographic_item_id
+    # @return [String] SQL for geometries
     # example, not used
     def geometry_for_sql(geographic_item_id)
-      'SELECT ' + GeographicItem::GEOMETRY_SQL + " AS geometry FROM geographic_items WHERE id = #{geographic_item_id} LIMIT 1"
+      'SELECT ' + GeographicItem::GEOMETRY_SQL + ' AS geometry FROM geographic_items WHERE id = ' \
+            "#{geographic_item_id} LIMIT 1"
     end
 
+    # @param [Interger, Array of Integer] geographic_item_ids
+    # @return [String] SQL for geometries
     # example, not used
     def geometry_for_collection_sql(*geographic_item_ids)
-      'SELECT ' + GeographicItem::GEOMETRY_SQL + " AS geometry FROM geographic_items WHERE id IN ( #{geographic_item_ids.join(',')} )"
+      'SELECT ' + GeographicItem::GEOMETRY_SQL + ' AS geometry FROM geographic_items WHERE id IN ' \
+            "( #{geographic_item_ids.join(',')} )"
     end
 
     #
     # Scopes
     #
 
+    # @param [Interger, Array of Integer] geographic_item_ids
     # @return [Scope]
     #    the geographic items containing these collective geographic_item ids, not including self
     def containing(*geographic_item_ids)
       where(GeographicItem.containing_where_sql(geographic_item_ids)).not_ids(*geographic_item_ids)
     end
 
+    # @param [Interger, Array of Integer] geographic_item_ids
     # @return [Scope]
-    #    the geographic items contained by any of these geographic_item ids, not including self (works via ST_ContainsProperly)
+    #    the geographic items contained by any of these geographic_item ids, not including self
+    # (works via ST_ContainsProperly)
     def contained_by(*geographic_item_ids)
       where(GeographicItem.contained_by_where_sql(geographic_item_ids))
     end
 
+    # @param [RGeo::Point] rgeo_point
     # @return [Scope]
     #    the geographic items containing this point
     # TODO: should be containing_wkt ?
@@ -454,8 +514,8 @@ class GeographicItem < ApplicationRecord
       where(GeographicItem.containing_where_for_point_sql(rgeo_point))
     end
 
-    # @return [Scope]
     # @param [String] 'ASC' or 'DESC'
+    # @return [Scope]
     def ordered_by_area(direction = 'ASC')
       order("ST_Area(#{GeographicItem::GEOMETRY_SQL}) #{direction}")
     end
@@ -486,9 +546,9 @@ class GeographicItem < ApplicationRecord
     #
     def with_collecting_event_through_georeferences
       geographic_items = GeographicItem.arel_table
-      georeferences    = Georeference.arel_table
-      g1               = georeferences.alias('a')
-      g2               = georeferences.alias('b')
+      georeferences = Georeference.arel_table
+      g1 = georeferences.alias('a')
+      g2 = georeferences.alias('b')
 
       c = geographic_items.join(g1, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g1[:geographic_item_id]))
             .join(g2, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g2[:error_geographic_item_id]))
@@ -545,7 +605,8 @@ class GeographicItem < ApplicationRecord
     #   that are disjoint from the passed geographic_items
     def disjoint_from(column_name, *geographic_items)
       q = geographic_items.flatten.collect { |geographic_item|
-        "ST_DISJOINT(#{column_name}::geometry, (#{geometry_sql(geographic_item.to_param, geographic_item.geo_object_type)}))"
+        "ST_DISJOINT(#{column_name}::geometry, (#{geometry_sql(geographic_item.to_param,
+                                                               geographic_item.geo_object_type)}))"
       }.join(' and ')
 
       where(q)
@@ -553,10 +614,13 @@ class GeographicItem < ApplicationRecord
 
     # @return [Scope]
     #   see are_contained_in_item_by_id
+    # @param [String] column_name
+    # @param [GeographicItem, Array] geographic_items
     def are_contained_in_item(column_name, *geographic_items)
       are_contained_in_item_by_id(column_name, geographic_items.flatten.map(&:id))
     end
 
+    # rubocop:disable Metrics/MethodLength
     # @param [String] column_name to search
     # @param [GeographicItem] geographic_item_ids or array of geographic_item_ids to be tested.
     # @return [Scope] of GeographicItems
@@ -592,7 +656,8 @@ class GeographicItem < ApplicationRecord
         else
           q = geographic_item_ids.flatten.collect { |geographic_item_id|
             # discover the item types, and convert type to database type for 'multi_'
-            b = GeographicItem.where(id: geographic_item_id).pluck(:type)[0].split(':')[2].downcase.gsub('lti', 'lti_')
+            b = GeographicItem.where(id: geographic_item_id)
+                  .pluck(:type)[0].split(':')[2].downcase.gsub('lti', 'lti_')
             # a = GeographicItem.find(geographic_item_id).geo_object_type
             GeographicItem.containing_sql(column_name, geographic_item_id, b)
           }.join(' or ')
@@ -601,6 +666,8 @@ class GeographicItem < ApplicationRecord
           where(q) # .excluding(geographic_items)
       end
     end
+
+    # rubocop:enable Metrics/MethodLength
 
     # @param [String] column_name
     # @param [String] geometry of WKT
@@ -636,12 +703,13 @@ class GeographicItem < ApplicationRecord
       end
     end
 
-    # @return [Scope]
+    # rubocop:disable Metrics/MethodLength
     #    containing the items the shape of which is contained in the geographic_item[s] supplied.
     # @param column_name [String] can be any of DATA_TYPES, or 'any' to check against all types, 'any_poly' to check
     # against 'polygon' or 'multi_polygon', or 'any_line' to check against 'line_string' or 'multi_line_string'.
     #  CANNOT be 'geometry_collection'.
     # @param geographic_items [GeographicItem] Can be a single GeographicItem, or an array of GeographicItem.
+    # @return [Scope]
     def is_contained_by(column_name, *geographic_items)
       column_name.downcase!
       case column_name
@@ -669,18 +737,21 @@ class GeographicItem < ApplicationRecord
 
         else
           q = geographic_items.flatten.collect { |geographic_item|
-            GeographicItem.reverse_containing_sql(column_name, geographic_item.to_param, geographic_item.geo_object_type)
+            GeographicItem.reverse_containing_sql(column_name, geographic_item.to_param,
+                                                  geographic_item.geo_object_type)
           }.join(' or ')
           where(q) # .excluding(geographic_items)
       end
     end
 
+    # rubocop:enable Metrics/MethodLength
 
     # @param [String, GeographicItem]
     # @return [Scope]
     def ordered_by_shortest_distance_from(column_name, geographic_item)
       if true # check_geo_params(column_name, geographic_item)
-        select_distance_with_geo_object(column_name, geographic_item).where_distance_greater_than_zero(column_name, geographic_item).order('distance')
+        select_distance_with_geo_object(column_name, geographic_item)
+          .where_distance_greater_than_zero(column_name, geographic_item).order('distance')
       else
         where('false')
       end
@@ -708,7 +779,8 @@ class GeographicItem < ApplicationRecord
     # @param [String, GeographicItem]
     # @return [Scope]
     def where_distance_greater_than_zero(column_name, geographic_item)
-      where("#{column_name} is not null and ST_Distance(#{column_name}, GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0")
+      where("#{column_name} is not null and ST_Distance(#{column_name}, " \
+                    "GeomFromEWKT('srid=4326;#{geographic_item.geo_object}')) > 0")
     end
 
     # @param [GeographicItem]
@@ -719,6 +791,7 @@ class GeographicItem < ApplicationRecord
 
     # @return [Scope]
     #   includes an 'is_valid' attribute (True/False) for the passed geographic_item.  Uses St_IsValid.
+    # @param [RGeo object] geographic_item
     def with_is_valid_geometry_column(geographic_item)
       where(id: geographic_item.id).select("ST_IsValid(ST_AsBinary(#{geographic_item.geo_object_type})) is_valid")
     end
@@ -727,10 +800,19 @@ class GeographicItem < ApplicationRecord
     # Other
     #
 
+    # @param [Integer] geographic_item_id1
+    # @param [Integer] geographic_item_id2
+    # @return [Float]
     def distance_between(geographic_item_id1, geographic_item_id2)
-      GeographicItem.where(id: geographic_item_id1).pluck("st_distance(#{GeographicItem::GEOGRAPHY_SQL}, (#{select_geography_sql(geographic_item_id2)})) as distance").first
+      q1 = "ST_Distance(#{GeographicItem::GEOGRAPHY_SQL}, " \
+                    "(#{select_geography_sql(geographic_item_id2)})) as distance"
+      q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance(?, (?)) as distance',
+                                                         GeographicItem::GEOGRAPHY_SQL,
+                                                         select_geography_sql(geographic_item_id2)])
+      GeographicItem.where(id: geographic_item_id1).pluck(q1).first
     end
 
+    # @param [RGeo::Point] point
     # @return [Hash]
     #   as per #inferred_geographic_name_hierarchy but for Rgeo point
     def point_inferred_geographic_name_hierarchy(point)
@@ -761,19 +843,23 @@ class GeographicItem < ApplicationRecord
     end
 
     # example, not used
+    # @param [Integer] geographic_item_id
+    # @return [RGeo::Geographic object]
     def geometry_for(geographic_item_id)
       GeographicItem.select(GeographicItem::GEOMETRY_SQL + ' AS geometry').find(geographic_item_id)['geometry']
     end
 
     # example, not used
+    # @param [Integer, Array] geographic_item_ids
+    # @return [Scope]
     def st_multi(*geographic_item_ids)
       GeographicItem.find_by_sql(
         "SELECT ST_Multi(ST_Collect(g.the_geom)) AS singlegeom
        FROM (
           SELECT (ST_DUMP(#{GeographicItem::GEOMETRY_SQL})).geom AS the_geom
           FROM geographic_items
-          WHERE id IN (#{geographic_item_ids.join(',')}))
-        AS g;"
+          WHERE id IN (?))
+        AS g;", geographic_item_ids.flatten
       )
     end
 
@@ -781,13 +867,19 @@ class GeographicItem < ApplicationRecord
     # def check_fix_wkt(wkt_string)
     #   clean_string = wkt_string.downcase.gsub('(', '').gsub(')', '') #    # make the string convenient
     #   if clean_string.include? 'polygon' #                                # to look for the case we are treating
-    #     coord_string = clean_string.gsub('polygon ', '') #                # synthesize a polygon feature - the hard way!
+    #     coord_string = clean_string.gsub('polygon ', '') #                # synthesize a polygon feature -
+    # the hard way!
     #     coordinates  = parse_wkt_coords(coord_string)
     #     # check for anti-meridian crossing polygon
-    #     value        = '{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [' + coordinates + ']}, "properties": {}}'
-    #     # e.g., value: "{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[141.6796875,68.46379955520322],[154.3359375,41.64007838467894],[-143.0859375,49.49667452747045],[141.6796875,68.46379955520322]]]},"properties":{}}"
+    #     value        = '{"type": "Feature", "geometry": {"type": "Polygon",
+    # "coordinates": [' + coordinates + ']}, "properties": {}}'
+    #     # e.g., value: "{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[141.6796875,
+    # 68.46379955520322],[154.3359375,41.64007838467894],
+    # [-143.0859375,49.49667452747045],[141.6796875,68.46379955520322]]]},"properties":{}}"
     #     feature      = RGeo::GeoJSON.decode(value, :json_parser => :json)
-    #     # e.g., feature: #<RGeo::GeoJSON::Feature:0x3fd189717f4c id=nil geom="POLYGON ((141.6796875 68.46379955520322, 154.3359375 41.64007838467894, -143.0859375 49.49667452747045, 141.6796875 68.46379955520322))">
+    #     # e.g., feature: #<RGeo::GeoJSON::Feature:0x3fd189717f4c id=nil geom="POLYGON ((141.6796875
+    # 68.46379955520322, 154.3359375 41.64007838467894, -143.0859375 49.49667452747045,
+    # 141.6796875 68.46379955520322))">
     #     geometry     = feature.geometry
     #     geometry     = geometry.as_text
     #     ob           = JSON.parse(value)
@@ -932,9 +1024,11 @@ class GeographicItem < ApplicationRecord
   #     returning country, state, and county categories
   def inferred_geographic_name_hierarchy
     v = {}
-    # !! Ordering by name is arbitrary, and likely to cause downstream problems, but might solve non-deterministic merge issue.
+    # !! Ordering by name is arbitrary, and likely to cause downstream problems,
+    # but might solve non-deterministic merge issue.
     # !! The real solution here is to add a sort to prioritize by gazeteer.
-    # !! This ordering basically means that if two areas with country (for example) level are found, the first in the alphabet is selected, then sorting by id if equally named
+    # !! This ordering basically means that if two areas with country (for example) level are found,
+    # the first in the alphabet is selected, then sorting by id if equally named
     (containing_geographic_areas
        .joins(:geographic_areas_geographic_items)
        .merge(GeographicAreasGeographicItem.ordered_by_data_origin)
@@ -972,8 +1066,10 @@ class GeographicItem < ApplicationRecord
   # @return [Array]
   #   the lat, long, as STRINGs for the centroid of this geographic item
   def center_coords
-    r = GeographicItem.find_by_sql("Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem::GEOMETRY_SQL}), 'D.DDDDDD'), ' ', 1) latitude,
-    split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem::GEOMETRY_SQL}), 'D.DDDDDD'), ' ', 2) longitude from geographic_items where id = #{id};")[0]
+    r = GeographicItem.find_by_sql("Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem::GEOMETRY_SQL}), " \
+                    "'D.DDDDDD'), ' ', 1) latitude, split_part(ST_AsLatLonText(ST_Centroid" \
+                    "(#{GeographicItem::GEOMETRY_SQL}), 'D.DDDDDD'), ' ', 2) " \
+                    "longitude from geographic_items where id = #{id};")[0]
 
     [r.latitude, r.longitude]
   end
@@ -986,22 +1082,42 @@ class GeographicItem < ApplicationRecord
     return geo_object.centroid
   end
 
+  # @param [Integer] geographic_item_id
   # @return [Double] distance in meters (slower, more accurate)
   def st_distance(geographic_item_id) # geo_object
-    GeographicItem.where(id: id).pluck("ST_Distance((#{GeographicItem.select_geography_sql(self.id)}), (#{GeographicItem.select_geography_sql(geographic_item_id)})) as d").first
+    q1 = "ST_Distance((#{GeographicItem.select_geography_sql(id)}), " \
+                    "(#{GeographicItem.select_geography_sql(geographic_item_id)})) as d"
+    q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance((?),(?)) as d',
+                                                       GeographicItem.select_geography_sql(self.id),
+                                                       GeographicItem.select_geography_sql(geographic_item_id)])
+    deg = GeographicItem.where(id: id).pluck(q1).first
+    deg * Utilities::Geo::ONE_WEST
   end
 
   alias_method :distance_to, :st_distance
 
+  # @param [Integer] geographic_item_id
   # @return [Double] distance in meters (faster, less accurate)
   def st_distance_spheroid(geographic_item_id)
-    GeographicItem.where(id: id).pluck("ST_Distance_Spheroid((#{GeographicItem.select_geometry_sql(self.id)}),(#{GeographicItem.select_geometry_sql(geographic_item_id)}),'#{Gis::SPHEROID}') as distance").first
+    q1 = "ST_Distance_Spheroid((#{GeographicItem.select_geometry_sql(id)})," \
+                    "(#{GeographicItem.select_geometry_sql(geographic_item_id)}),'#{Gis::SPHEROID}') as distance"
+    q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance_Spheroid((?),(?),?) as distance',
+                                                       GeographicItem.select_geometry_sql(self.id),
+                                                       GeographicItem.select_geometry_sql(geographic_item_id),
+                                                       Gis::SPHEROID])
+    # q3 = self.class.sanitize_sql_array(["ST_Distance_Spheroid((:sql1),(:sql2),:sphere) as distance",
+    #                                     sql1: GeographicItem.select_geometry_sql(self.id),
+    #                                     sql2: GeographicItem.select_geometry_sql(geographic_item_id),
+    #                                     sphere: Gis::SPHEROID])
+    GeographicItem.where(id: id).pluck(q1).first
   end
 
   # @return [String]
   #   a WKT POINT representing the centroid of the geographic item
   def st_centroid
-    GeographicItem.where(id: to_param).pluck("ST_AsEWKT(ST_Centroid(#{GeographicItem::GEOMETRY_SQL}))").first.gsub(/SRID=\d*;/, '')
+    GeographicItem.where(id: to_param)
+      .pluck("ST_AsEWKT(ST_Centroid(#{GeographicItem::GEOMETRY_SQL}))")
+      .first.gsub(/SRID=\d*;/, '')
   end
 
   # @return [Integer]
@@ -1011,7 +1127,8 @@ class GeographicItem < ApplicationRecord
   end
 
   # @return [Symbol]
-  #   the geo type (i.e. column like :point, :multipolygon).  References the first-found object, according to the list of DATA_TYPES, or nil
+  #   the geo type (i.e. column like :point, :multipolygon).  References the first-found object,
+  # according to the list of DATA_TYPES, or nil
   def geo_object_type
     if self.class.name == 'GeographicItem' # a proxy check for new records
       geo_type
@@ -1079,15 +1196,17 @@ class GeographicItem < ApplicationRecord
   # @return [GeoJSON hash]
   #   raw Postgis (much faster)
   def to_geo_json
-    JSON.parse(GeographicItem.connection.select_all("SELECT ST_AsGeoJSON(#{geo_object_type}::geometry) a FROM geographic_items WHERE id=#{id};").first['a'])
+    JSON.parse(GeographicItem.connection.select_all("SELECT ST_AsGeoJSON(#{geo_object_type}::geometry) a " \
+                    "FROM geographic_items WHERE id=#{id};").first['a'])
   end
 
+  # rubocop:disable Style/StringHashKeys
   # @return [GeoJSON Feature] the shape as a GeoJSON Feature
   def to_geo_json_feature
     @geometry ||= to_geo_json
     {
-      'type'       => 'Feature',
-      'geometry'   => geometry,
+      'type' => 'Feature',
+      'geometry' => geometry,
       'properties' => {
         'geographic_item' => {
           'id' => id}
@@ -1095,14 +1214,17 @@ class GeographicItem < ApplicationRecord
     }
   end
 
+  # rubocop:enable Style/StringHashKeys
+
   # '{"type":"Feature","geometry":{"type":"Point","coordinates":[2.5,4.0]},"properties":{"color":"red"}}'
   # '{"type":"Feature","geometry":{"type":"Polygon","coordinates":"[[[-125.29394388198853, 48.584480409793],
   # [-67.11035013198853, 45.09937589848195],[-80.64550638198853, 25.01924647619111],[-117.55956888198853,
   # 32.5591595028449],[-125.29394388198853, 48.584480409793]]]"},"properties":{}}'
   # @param [String] value
+  # @return [Boolean, RGeo object]
   def shape=(value)
     unless value.blank?
-      geom      = RGeo::GeoJSON.decode(value, json_parser: :json)
+      geom = RGeo::GeoJSON.decode(value, json_parser: :json)
       this_type = JSON.parse(value)['geometry']['type']
 
       # TODO: @tuckerjd isn't this set automatically? Or perhaps the callback isn't hit in this approach?
@@ -1127,13 +1249,15 @@ class GeographicItem < ApplicationRecord
     nil
   end
 
+  # @return [Boolean, String] false if already set, or type to which it was set
   def set_type_if_geography_present
     if type.blank?
-      column    = geo_type
+      column = geo_type
       self.type = "GeographicItem::#{column.to_s.camelize}" if column
     end
   end
 
+  # @param [RGeo::Point] point
   # @return [Array] of a point
   def point_to_a(point)
     data = []
@@ -1141,11 +1265,13 @@ class GeographicItem < ApplicationRecord
     data
   end
 
+  # @param [RGeo::Point] point
   # @return [Hash] of a point
   def point_to_hash(point)
     {points: [point_to_a(point)]}
   end
 
+  # @param [RGeo::MultiPoint] multi_point
   # @return [Array] of points
   def multi_point_to_a(multi_point)
     data = []
@@ -1157,11 +1283,11 @@ class GeographicItem < ApplicationRecord
 
   # @return [Hash] of points
   def multi_point_to_hash(_multi_point)
-    # when we encounter a multi_point type, we only stick the points into the array, NOT the
-    # it's identity as a group
+    # when we encounter a multi_point type, we only stick the points into the array, NOT it's identity as a group
     {points: multi_point_to_a(multi_point)}
   end
 
+  # @param [Reo::LineString] line_string
   # @return [Array] of points in the line
   def line_string_to_a(line_string)
     data = []
@@ -1171,11 +1297,13 @@ class GeographicItem < ApplicationRecord
     data
   end
 
+  # @param [Reo::LineString] line_string
   # @return [Hash] of points in the line
   def line_string_to_hash(line_string)
     {lines: [line_string_to_a(line_string)]}
   end
 
+  # @param [RGeo::Polygon] polygon
   # @return [Array] of points in the polygon (exterior_ring ONLY)
   def polygon_to_a(polygon)
     # TODO: handle other parts of the polygon; i.e., the interior_rings (if they exist)
@@ -1186,12 +1314,14 @@ class GeographicItem < ApplicationRecord
     data
   end
 
+  # @param [RGeo::Polygon] polygon
   # @return [Hash] of points in the polygon (exterior_ring ONLY)
   def polygon_to_hash(polygon)
     {polygons: [polygon_to_a(polygon)]}
   end
 
-  # @return [Array] of line_strings as arrays points
+  # @return [Array] of line_strings as arrays of points
+  # @param [RGeo::MultiLineString] multi_line_string
   def multi_line_string_to_a(multi_line_string)
     data = []
     multi_line_string.each { |line_string|
@@ -1204,12 +1334,13 @@ class GeographicItem < ApplicationRecord
     data
   end
 
-  # @return [Hash] of line_strings as hashes points
+  # @return [Hash] of line_strings as hashes of points
   def multi_line_string_to_hash(_multi_line_string)
     {lines: to_a}
   end
 
-  # @return [Array] of arrays points in the polygons (exterior_ring ONLY)
+  # @param [RGeo::MultiPolygon] multi_polygon
+  # @return [Array] of arrays of points in the polygons (exterior_ring ONLY)
   def multi_polygon_to_a(multi_polygon)
     data = []
     multi_polygon.each { |polygon|
@@ -1222,7 +1353,7 @@ class GeographicItem < ApplicationRecord
     data
   end
 
-  # @return [Hash] of hashes points in the polygons (exterior_ring ONLY)
+  # @return [Hash] of hashes of points in the polygons (exterior_ring ONLY)
   def multi_polygon_to_hash(_multi_polygon)
     {polygons: to_a}
   end

@@ -214,6 +214,16 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
             result.build_result
           end
 
+          specify '#ambiguous_ranks' do
+            expect(result.ambiguous_ranks).to contain_exactly(:species)
+          end
+
+          specify '#disambiguated_combination' do
+            c = result.disambiguated_combination( { species: species2.id } )
+            expect(c.genus).to eq(genus1)
+            expect(c.species).to eq(species2)
+          end
+
           specify '#is_authored?' do
             expect(result.is_authored?).to eq(true)
           end

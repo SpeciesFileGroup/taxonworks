@@ -25,8 +25,7 @@ RSpec.describe SqedDepiction, type: :model do
 
   end
 
-  context 'hstore fields' do
-
+  context 'jsonb fields' do
     let(:metadata_map) { {0 => :curator_metadata, 1 => :identifier, 2 => :image_registration, 3 => :annotated_specimen} }
 
     specify 'metadata_map serializes a hash' do
@@ -43,11 +42,11 @@ RSpec.describe SqedDepiction, type: :model do
     end
 
     specify ':layout' do
-      expect(valid_sqed_depiction.extraction_metadata[:target_layout]).to eq(:cross)
+      expect(valid_sqed_depiction.extraction_metadata[:layout]).to eq(:cross)
     end
 
     specify ':metadata_map' do
-      expect(valid_sqed_depiction.extraction_metadata[:target_metadata_map]).to eq({0 => :curator_metadata, 1 => :identifier, 2 => :image_registration, 3 => :annotated_specimen})
+      expect(valid_sqed_depiction.extraction_metadata[:metadata_map]).to eq({0 => :curator_metadata, 1 => :identifier, 2 => :image_registration, 3 => :annotated_specimen})
     end
 
     specify ':has_border' do

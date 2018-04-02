@@ -68,14 +68,14 @@ class GeographicArea < ApplicationRecord
   validates :geographic_area_type, presence: true
   validates_presence_of :geographic_area_type_id
 
-  validates :parent, presence: true, unless: -> {self.name == 'Earth'} # || ENV['NO_GEO_VALID']}
-  validates :level0, presence: true, allow_nil: true, unless: -> {self.name == 'Earth'}
+  validates :parent, presence: true, unless: -> { self.name == 'Earth' } # || ENV['NO_GEO_VALID']}
+  validates :level0, presence: true, allow_nil: true, unless: -> { self.name == 'Earth' }
   validates :level1, presence: true, allow_nil: true
   validates :level2, presence: true, allow_nil: true
   validates :name, presence: true, length: {minimum: 1}
   validates :data_origin, presence: true
 
-  scope :descendants_of, -> (geographic_area) {with_ancestor(geographic_area)}
+  scope :descendants_of, -> (geographic_area) { with_ancestor(geographic_area) }
   scope :ancestors_of, -> (geographic_area) { joins(:descendant_hierarchies).order('geographic_area_hierarchies.generations DESC').where(geographic_area_hierarchies: {descendant_id: geographic_area.id}).where('geographic_area_hierarchies.ancestor_id != ?', geographic_area.id) }
 
   scope :self_and_ancestors_of, -> (geographic_area) {
@@ -193,7 +193,7 @@ class GeographicArea < ApplicationRecord
   # @param longitude [Double] Decimal degrees
   # @return [Scope] all areas which contain the point specified.
   def self.find_by_lat_long(latitude = 0.0, longitude = 0.0)
-    point        = "POINT(#{longitude} #{latitude})"
+    point        = ActiveRecord::Base.send(:sanitize_sql_array, ['POINT(:long :lat)', long: longitude, lat: latitude])
     where_clause = "ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))" \
       " OR ST_Contains(multi_polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))"
     retval       = GeographicArea.joins(:geographic_items).where(where_clause)
@@ -268,6 +268,7 @@ class GeographicArea < ApplicationRecord
     data_origin[-1]
   end
 
+  # @return [Boolean]
   def has_shape?
     geographic_items.any?
   end
@@ -290,6 +291,7 @@ class GeographicArea < ApplicationRecord
     geographic_items.joins(:geographic_areas_geographic_items).merge(GeographicAreasGeographicItem.ordered_by_data_origin).first # .merge on same line as joins()
   end
 
+  # rubocop:disable Style/StringHashKeys
   # @return [Hash] of the pieces of a GeoJSON 'Feature'
   def to_geo_json_feature
     to_simple_json_feature.merge(
@@ -305,7 +307,7 @@ class GeographicArea < ApplicationRecord
   # TODO: parametrize to include gazeteer
   #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
   def to_simple_json_feature
-    result = {
+    result             = {
       'type'       => 'Feature',
       'properties' => {}
     }
@@ -374,34 +376,35 @@ class GeographicArea < ApplicationRecord
     queries.each do |q|
       names = q.strip.split(':')
       names.reverse! if invert
-      names.collect{|s| s.strip}
+      names.collect { |s| s.strip }
       r         = GeographicArea.with_name_and_parent_names(names)
       r         = r.joins(:geographic_items) if has_shape
       result[q] = r
     end
     result
   end
+  # rubocop:enable Style/StringHashKeys
 
   # @param used_on [String] one of `CollectingEvent` (default) or `AssertedDistribution`
   # @return [Scope]
-  #    the max 10 most recently used (1 week, could parameterize) geographic_areas, as used `use_on` 
+  #    the max 10 most recently used (1 week, could parameterize) geographic_areas, as used `use_on`
   def self.used_recently(used_on = 'CollectingEvent')
 
-   t = case used_on
-       when 'CollectingEvent'
-         CollectingEvent.arel_table
-       when 'AssertedDistribution'
-         CollectingEvent.arel_table
-       end
-   
-    p = GeographicArea.arel_table 
+    t = case used_on
+          when 'CollectingEvent'
+            CollectingEvent.arel_table
+          when 'AssertedDistribution'
+            CollectingEvent.arel_table
+        end
+
+    p = GeographicArea.arel_table
 
     # i is a select manager
     i = t.project(t['geographic_area_id'], t['created_at']).from(t)
-      .where(t['created_at'].gt( 1.weeks.ago ))
-      .order(t['created_at'])
+          .where(t['created_at'].gt(1.weeks.ago))
+          .order(t['created_at'])
 
-    # z is a table alias 
+    # z is a table alias
     z = i.as('recent_t')
 
     GeographicArea.joins(
@@ -409,28 +412,28 @@ class GeographicArea < ApplicationRecord
     ).distinct.limit(10)
   end
 
-  # @params target [String] one of `CollectingEvent` or `AssertedDistribution` 
+  # @params target [String] one of `CollectingEvent` or `AssertedDistribution`
   # @return [Hash] geographic_areas optimized for user selection
   def self.select_optimized(user_id, project_id, target = 'CollectingEvent')
 
     h = {
-      quick: [],
+      quick:    [],
       pinboard: GeographicArea.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
     }
 
-    case target 
-    when 'CollectingEvent'
-      h[:recent] = GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id}).
-        used_recently('CollectingEvent').
-        limit(10).distinct.to_a
-    when 'AssertedDistribution'
-      h[:recent] = GeographicArea.joins(:asserted_distributions).
-        where(asserted_distributions: {project_id: project_id}).
-        used_recently('AssertedDistribution').
-        limit(10).distinct.to_a
+    case target
+      when 'CollectingEvent'
+        h[:recent] = GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id}).
+          used_recently('CollectingEvent').
+          limit(10).distinct.to_a
+      when 'AssertedDistribution'
+        h[:recent] = GeographicArea.joins(:asserted_distributions).
+          where(asserted_distributions: {project_id: project_id}).
+          used_recently('AssertedDistribution').
+          limit(10).distinct.to_a
     end
 
-    h[:quick] = (GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a  + h[:recent][0..3]).uniq 
+    h[:quick] = (GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent][0..3]).uniq
     h
   end
 

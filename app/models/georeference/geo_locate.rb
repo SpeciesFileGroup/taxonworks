@@ -7,19 +7,26 @@ class Georeference::GeoLocate < Georeference
   URI_PATH       = '/webservices/geolocatesvcv2/glcwrap.aspx?'.freeze
   URI_EMBED_PATH = '/geolocate/web/webgeoreflight.aspx?'.freeze
 
+  # @param [Response] response
+  # @return [RGeo object]
   def api_response=(response)
     self.geographic_item = make_geographic_point(response.coordinates[0], response.coordinates[1])
     make_error_geographic_item(response.uncertainty_polygon, response.uncertainty_radius)
   end
 
+  # @param [String] response_string
+  # @return [RGeo object]
   def iframe_response=(response_string)
     lat, long, error_radius, uncertainty_points = Georeference::GeoLocate.parse_iframe_result(response_string)
-    self.geographic_item                        = make_geographic_point(long, lat, '0.0') unless lat.blank? and long.blank?
+    self.geographic_item = make_geographic_point(long, lat, '0.0') unless lat.blank? and long.blank?
     if uncertainty_points.nil?
       # make a circle from the geographic_item
       unless error_radius.blank?
-        value                      = GeographicItem.connection.select_all(
-          "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{error_radius.to_f / 111319.444444444});").first['st_buffer']
+        q1 = "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{error_radius.to_f / 111319.444444444});"
+        q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_BUFFER(?, ?);',
+                                                           self.geographic_item.geo_object.to_s,
+                                                           (error_radius.to_f / 111319.444444444)])
+        value = GeographicItem.connection.select_all(q2).first['st_buffer']
         # circle                     = Gis::FACTORY.parse_wkb(value)
         # make_error_geographic_item([[long, lat], [long, lat], [long, lat]], error_radius)
         # a = GeographicItem.new(polygon: circle)
@@ -33,15 +40,17 @@ class Georeference::GeoLocate < Georeference
     self.geographic_item
   end
 
+  # @return [Hash] of api request pieces
   def request_hash
     Hash[*self.api_request.split('&').collect { |a| a.split('=', 2) }.flatten]
   end
 
   # @param [String] wkb
-  # @return [Object] GeographicItem::Polygon, either found, or created
+  # @return [GeographicItem::Polygon] GeographicItem::Polygon, either found, or created
   def make_err_polygon(wkb)
     polygon  = Gis::FACTORY.parse_wkb(wkb)
-    test_grs = GeographicItem::Polygon.where("polygon = ST_GeographyFromText('#{polygon}')")
+    # ActiveRecord::Base.send(:sanitize_sql_array, ['polygon = ST_GeographyFromText(?)', polygon.to_s])
+    test_grs = GeographicItem::Polygon.where(['polygon = ST_GeographyFromText(?)', polygon.to_s])
     if test_grs.empty?
       test_grs = [GeographicItem.new(polygon: polygon)]
     end
@@ -61,7 +70,9 @@ class Georeference::GeoLocate < Georeference
     if x.blank? or y.blank?
       test_grs = []
     else
-      test_grs = GeographicItem::Point.where("point = ST_GeographyFromText('POINT(#{x} #{y})::geography')").where("ST_Z(point::geometry) = #{z}")
+      test_grs = GeographicItem::Point
+                   .where(["point = ST_GeographyFromText('POINT(? ?)::geography')", x.to_f, y.to_f])
+                   .where(['ST_Z(point::geometry) = ?', z.to_f])
     end
     if test_grs.empty? # put a new one in the array
       test_grs = [GeographicItem.new(point: Gis::FACTORY.point(x, y, z))]
@@ -95,16 +106,20 @@ class Georeference::GeoLocate < Georeference
 
 
   # @todo get geoJson results and handle all this automatically?
+  # @param [RGeo::Polygon] uncertainty_polygon
+  # @param [Integer] uncertainty_radius in meters
+  # @return [Ignored]
   def make_error_geographic_item(uncertainty_polygon, uncertainty_radius)
     self.error_radius = uncertainty_radius if !uncertainty_radius.nil?
     unless uncertainty_polygon.nil?
       err_array = []
       uncertainty_polygon.each { |point| err_array.push(Gis::FACTORY.point(point[0], point[1])) }
-      self.error_geographic_item = GeographicItem.new(polygon: Gis::FACTORY.polygon(Gis::FACTORY.line_string(err_array)))
+      self.error_geographic_item =
+        GeographicItem.new(polygon: Gis::FACTORY.polygon(Gis::FACTORY.line_string(err_array)))
     end
   end
 
-  # @param [String] response_string
+  # @param [String] response_string from Tulane
   # @return [Array]
   # parsing the four possible bits of a response into an array
   def self.parse_iframe_result(response_string)
@@ -121,6 +136,8 @@ class Georeference::GeoLocate < Georeference
   end
 
   # Build a georeference starting with a set of request parameters.
+  # @param [ActionController::Parameters] request_params
+  # @return [GeoLocate]
   def self.build(request_params)
     g = self.new
 
@@ -148,6 +165,7 @@ class Georeference::GeoLocate < Georeference
   #   '&points=|||low|&georef=run|false|false|true|true|false|false|false|0&gc=Tester'
   # end
 
+  #rubocop:disable Style/StringHashKeys
   # This class is used to create the string which will be sent to Tulane
   class RequestUI
     REQUEST_PARAMS = {
@@ -170,16 +188,21 @@ class Georeference::GeoLocate < Georeference
       'LanguageIndex' => '0',
       'gc'            => 'Tester'
     }.freeze
+    #rubocop:enable Style/StringHashKeys
 
     attr_reader :request_params, :request_params_string, :request_params_hash
 
+    # @param [ActionController::Parameters] request_params
+    # @return [Ignored]
     def initialize(request_params)
       @request_params_hash = REQUEST_PARAMS.merge(request_params)
       build_param_string
       @succeeded = nil
     end
 
-    # "http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=United States of America&state=Illinois&locality=Champaign&points=40.091622|-88.241179|Champaign|low|7000&georef=run|false|false|true|true|false|false|false|0&gc=Tester"
+    # "http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=United States of
+    # America&state=Illinois&locality=Champaign&points=40.091622
+    # |-88.241179|Champaign|low|7000&georef=run|false|false|true|true|false|false|false|0&gc=Tester"
     # @return [String] a string to invoke as an api call to hunt for a particular place.
     def build_param_string
       # @request_param_string ||= @request_params.collect { |key, value| "#{key}=#{value}" }.join('&')
@@ -223,17 +246,19 @@ class Georeference::GeoLocate < Georeference
     attr_accessor :succeeded
     attr_reader :request_params, :response, :request_param_string
 
+    # @param [ActionController::Parameters] request_params
+    # @return [Ignored]
     def initialize(request_params)
       @request_params = REQUEST_PARAMS.merge(request_params)
       @succeeded      = nil
     end
 
-    # @return sets the response attribute.
+    # @return [Ignored] sets the response attribute.
     def locate
       @response = Georeference::GeoLocate::Response.new(self)
     end
 
-    # @return sets the @request_param_string attribute.
+    # @return [Ignored] sets the @request_param_string attribute.
     def build_param_string
       @request_param_string ||= @request_params.collect { |key, value| "#{key}=#{value}" }.join('&')
     end
@@ -244,7 +269,7 @@ class Georeference::GeoLocate < Georeference
       URI_PATH + @request_param_string
     end
 
-    # @return [Bool] true if request was successful
+    # @return [Boolean] true if request was successful
     def succeeded?
       @succeeded
     end
@@ -253,12 +278,13 @@ class Georeference::GeoLocate < Georeference
     def response
       @response ||= locate
     end
-
   end
 
   class Response
     attr_accessor :result
 
+    # @param [JSON object] request
+    # @return [Ignored]
     def initialize(request)
       @result           = JSON.parse(call_api(Georeference::GeoLocate::URI_HOST, request))
       request.succeeded = true if @result['numResults'].to_i == 1
@@ -284,9 +310,9 @@ class Georeference::GeoLocate < Georeference
     protected
 
     # @param [String, String] host domain name, request string.
+    # @return [HTTP object]
     def call_api(host, request)
       Net::HTTP.get(host, request.request_string)
     end
   end
-
 end

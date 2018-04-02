@@ -21,12 +21,12 @@ module Tasks::Gis::LocalityHelper
 
     "<p><h3 style=\"#{style}\">#{letter}</h3> <a href=\"#top\">top</a></p>"
 
-      # TODO: change to class
-      # content_tag(:p) do
-      #   content_tag(:h3, letter, style: style ) do
-      #     link_to('top', '#top')
-      #   end
-      # end
+    # TODO: change to class
+    # content_tag(:p) do
+    #   content_tag(:h3, letter, style: style ) do
+    #     link_to('top', '#top')
+    #   end
+    # end
   end
 
   def select_locality_count(letter)
@@ -35,9 +35,10 @@ module Tasks::Gis::LocalityHelper
 
   # localities within @geographic_item which have a verbatim_locality starting with letter
   def select_locality(letter)
-    CollectingEvent.where(id: @collecting_events.map(&:id))
-      .where("verbatim_locality like '#{letter}%'")
-      .order(:verbatim_locality)
+    s = CollectingEvent.where(id: @collecting_events.ids)
+          .where('verbatim_locality like ?', letter.to_s + '%')
+          .order(:verbatim_locality)
+    s
   end
 
   def locality_georeferences(collecting_events, geographic_area)
@@ -65,10 +66,11 @@ module Tasks::Gis::LocalityHelper
   end
 
   def distance_between(collecting_event_1, collecting_event_2)
-    distance = collecting_event_1.distance_to(collecting_event_2.preferred_georeference.geographic_item_id).round # to the nearest meter
+    distance = collecting_event_1.distance_to(collecting_event_2.preferred_georeference.geographic_item_id).round
+    # to the nearest meter
     case
       when distance >= 1000.0
-        metric   = '%1.3fkm'
+        metric = '%1.3fkm'
         distance /= 1000.0
       else
         metric = '%im'

@@ -20,15 +20,8 @@ RSpec.describe CharacterState, type: :model, group: :matrix do
     end
   end
 
-  context '#descriptor.type' do
-    before do 
-      character_state.descriptor = Descriptor.new 
-      character_state.valid?
-    end
-
-    specify 'is invalid if not Descriptor::Qualitative' do
-      expect(character_state.errors.include?(:descriptor)).to be_truthy
-    end
+  specify '#descriptor.type is invalid if not Descriptor::Qualitative' do
+    expect {character_state.descriptor = Descriptor.new}.to raise_error ActiveRecord::AssociationTypeMismatch
   end
 
   context 'a valid character state' do

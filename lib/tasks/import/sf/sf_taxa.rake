@@ -694,6 +694,10 @@ namespace :tw do
         desc 'time rake tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_all_sf_taxa_pass1: [:data_directory, :environment, :user_id] do |logger|
 
+          ################ NOTE NOTE NOTE
+          # Some OriginalGenusIDs are not being created if they have not been imported yet. Order by TaxonNameStr ensured current genus exists.
+          # To be fixed in separate task prior to creating citations (check_original_genus_ids).
+
           # real	310m28.726s
           # user	207m23.957s
           # sys	6m50.530s

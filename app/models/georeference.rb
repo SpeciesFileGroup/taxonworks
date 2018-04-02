@@ -1,4 +1,5 @@
-# A georeference is an assertion that some shape, as derived from some method, describes the location of some collecting event.
+# A georeference is an assertion that some shape, as derived from some method, describes the location of
+# some collecting event.
 #
 # A georeference contains three components:
 #    1) A reference to a CollectingEvent (who, where, when, how)
@@ -20,7 +21,8 @@
 # @!attribute error_radius
 #   @return [Integer]
 #   the radius of the area of horizontal uncertainty of the accuracy of the location of
-#   this georeference definition. Measured in meters. Corresponding error areas are draw from the st_centroid() of the geographic item.
+#   this georeference definition. Measured in meters. Corresponding error areas are draw from the
+# st_centroid() of the geographic item.
 #
 # @!attribute error_depth
 #   @return [Integer]
@@ -78,8 +80,12 @@ class Georeference < ApplicationRecord
 
   has_many :collection_objects, through: :collecting_event
 
-  has_many :georeferencer_roles, -> {order('roles.position ASC')}, class_name: 'Georeferencer', as: :role_object, validate: true
-  has_many :georeferencers, -> {order('roles.position ASC')}, through: :georeferencer_roles, source: :person, validate: true
+  has_many :georeferencer_roles, -> { order('roles.position ASC') },
+           class_name: 'Georeferencer',
+           as: :role_object, validate: true
+  has_many :georeferencers, -> { order('roles.position ASC') },
+           through: :georeferencer_roles,
+           source: :person, validate: true
 
   validates :geographic_item, presence: true
   validates :type, presence: true
@@ -106,7 +112,7 @@ class Georeference < ApplicationRecord
   #  When true, cascading cached values (e.g. in CollectingEvent) are not built
   attr_accessor :no_cached
 
-  after_save :set_cached, unless: -> {self.no_cached}
+  after_save :set_cached, unless: -> { self.no_cached }
 
   # instance methods
 
@@ -117,7 +123,7 @@ class Georeference < ApplicationRecord
     type.demodulize.underscore
   end
 
-  # @return [GeographicItem]
+  # @return [GeographicItem, nil]
   #   a square which represents either the bounding box of the
   #   circle represented by the error_radius, or the bounding box of the error_geographic_item
   #   !! We assume the radius calculation is always larger (TODO: do we?  discuss with Jim)
@@ -146,42 +152,50 @@ class Georeference < ApplicationRecord
   #   a polygon representing the buffer
   def error_radius_buffer_polygon
     return nil if error_radius.nil? || geographic_item.nil?
-    value = GeographicItem.connection.select_all(
-      "SELECT ST_BUFFER('#{geographic_item.geo_object}', #{error_radius / 111_319.444444444});").first['st_buffer']
+    sql_str = ActivRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Buffer(?, ?)',
+                                                           geographic_item.geo_object.to_s,
+                                                           (error_radius / 111_319.444444444)])
+    value = GeographicItem.connection.select_all(sql_str).first['st_buffer']
     Gis::FACTORY.parse_wkb(value)
   end
 
+  # rubocop:disable Style/StringHashKeys
   # Called by Gis::GeoJSON.feature_collection
   # @return [Hash] formed as a GeoJSON 'Feature'
   def to_geo_json_feature
     to_simple_json_feature.merge(
       'properties' => {
         'georeference' => {
-          'id'  => id,
+          'id' => id,
           'tag' => "Georeference ID = #{id}"
         }
       }
     )
   end
 
+  # @return [Float]
   def latitude
     geographic_item.center_coords[1]
   end
 
+  # @return [Float]
   def longitude
     geographic_item.center_coords[0]
   end
 
   # TODO: parametrize to include gazeteer
   #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
+  # @return [JSON Feature]
   def to_simple_json_feature
     geometry = RGeo::GeoJSON.encode(geographic_item.geo_object)
     {
-      'type'       => 'Feature',
-      'geometry'   => geometry,
+      'type' => 'Feature',
+      'geometry' => geometry,
       'properties' => {}
     }
   end
+
+  # rubocop:enable Style/StringHashKeys
 
   # class methods
 
@@ -194,12 +208,21 @@ class Georeference < ApplicationRecord
     georeferences
   end
 
-  # @param [geographic_item.id, double]
-  # @return [scope] georeferences
+  # @param [Integer] geographic_item_id
+  # @param [Integer] distance
+  # @return [Scope] georeferences
   #   all georeferences within some distance of a geographic_item, by id
   def self.within_radius_of_item(geographic_item_id, distance)
     return where(id: -1) if geographic_item_id.nil? || distance.nil?
-    Georeference.joins(:geographic_item).where("st_distance(#{GeographicItem::GEOGRAPHY_SQL}, (#{GeographicItem.select_geography_sql(geographic_item_id)})) < #{distance}")
+    # sanitize_sql_array(["name=:name and group_id=:group_id", name: "foo'bar", group_id: 4])
+    # => "name='foo''bar' and group_id=4"
+    q1 = "ST_Distance(#{GeographicItem::GEOGRAPHY_SQL}, " \
+            "(#{GeographicItem.select_geography_sql(geographic_item_id)})) < #{distance}"
+    q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance(?, (?)) < ?',
+                                                       GeographicItem::GEOGRAPHY_SQL,
+                                                       GeographicItem.select_geography_sql(geographic_item_id),
+                                                       distance])
+    Georeference.joins(:geographic_item).where(q1)
   end
 
   # @param [String] locality string
@@ -228,16 +251,18 @@ class Georeference < ApplicationRecord
   # geographic_areas as a GeographicArea
   # TODO: or, (in the future) a string matching a geographic_area.name
   def self.with_geographic_area(geographic_area)
-    partials   = CollectingEvent.where(geographic_area: geographic_area)
+    partials = CollectingEvent.where(geographic_area: geographic_area)
     partial_gr = Georeference.where('collecting_event_id in (?)', partials.pluck(:id))
     partial_gr
   end
 
+  # @param [Scope] scope of Georeferences to download
+  # @return [CSV]
   def self.generate_download(scope)
     CSV.generate do |csv|
       csv << column_names
       scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect {|i|
+        csv << o.attributes.values_at(*column_names).collect { |i|
           i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
         }
       end
@@ -245,7 +270,8 @@ class Georeference < ApplicationRecord
   end
 
   # TODO: not yet sure what the params are going to look like. what is below just represents a guess
-  # @param [Hash] arguments from _collecting_event_selection form
+  # @param [ActionController::Parameters] arguments from _collecting_event_selection form
+  # @return [Array] of georeferences
   def self.batch_create_from_georeference_matcher(arguments)
     gr = Georeference.find(arguments[:georeference_id].to_param)
 
@@ -255,18 +281,18 @@ class Georeference < ApplicationRecord
 
     unless collecting_event_list.nil?
       collecting_event_list.each do |event_id|
-        new_gr = Georeference.new(collecting_event_id:      event_id.to_i,
-                                  geographic_item_id:       gr.geographic_item_id,
-                                  error_radius:             gr.error_radius,
-                                  error_depth:              gr.error_depth,
+        new_gr = Georeference.new(collecting_event_id: event_id.to_i,
+                                  geographic_item_id: gr.geographic_item_id,
+                                  error_radius: gr.error_radius,
+                                  error_depth: gr.error_depth,
                                   error_geographic_item_id: gr.error_geographic_item_id,
-                                  type:                     gr.type,
-                                  is_public:                gr.is_public,
-                                  api_request:              gr.api_request,
-                                  is_undefined_z:           gr.is_undefined_z,
-                                  is_median_z:              gr.is_median_z)
+                                  type: gr.type,
+                                  is_public: gr.is_public,
+                                  api_request: gr.api_request,
+                                  is_undefined_z: gr.is_undefined_z,
+                                  is_median_z: gr.is_median_z)
         if new_gr.valid? # generally, this catches the case of multiple identical georeferences per collecting_event.
-          new_gr.save
+          new_gr.save!
           result.push new_gr
         end
       end
@@ -283,13 +309,14 @@ class Georeference < ApplicationRecord
   # TODO: Arelize
   def self.with_locality_as(string, like)
     likeness = like ? '%' : ''
-    query    = "verbatim_locality #{like ? 'ilike' : '='} '#{likeness}#{string}#{likeness}'"
+    query = "verbatim_locality #{like ? 'ilike' : '='} '#{likeness}#{string}#{likeness}'"
 
     Georeference.where(collecting_event: CollectingEvent.where(query))
   end
 
   protected
 
+  # @return [Hash] of names of geographic areas
   def set_cached
     collecting_event.cache_geographic_names
   end
@@ -351,7 +378,7 @@ class Georeference < ApplicationRecord
     retval = true
     if collecting_event
       ga_gi = collecting_event.geographic_area_default_geographic_item
-      eb    = error_box
+      eb = error_box
       unless error_radius.blank? # rubocop:disable Style/IfUnlessModifier
         retval = ga_gi.contains?(eb) if ga_gi && eb
       end
@@ -368,7 +395,8 @@ class Georeference < ApplicationRecord
       unless error_geographic_item.nil?
         if error_geographic_item.geo_object # is NOT false
           unless collecting_event.geographic_area.nil?
-            retval = collecting_event.geographic_area.default_geographic_item.contains?(error_geographic_item.geo_object)
+            retval = collecting_event.geographic_area.default_geographic_item
+                       .contains?(error_geographic_item.geo_object)
           end
         end
       end
@@ -385,7 +413,8 @@ class Georeference < ApplicationRecord
       if error_geographic_item.present?
         if error_geographic_item.geo_object.present?
           if collecting_event.geographic_area.present?
-            retval = collecting_event.geographic_area.default_geographic_item.intersects?(error_geographic_item.geo_object)
+            retval = collecting_event.geographic_area.default_geographic_item
+                       .intersects?(error_geographic_item.geo_object)
           end
         end
       end
@@ -394,7 +423,8 @@ class Georeference < ApplicationRecord
   end
 
   # @return [Boolean]
-  #    true if geographic_item.geo_object is completely contained in collecting_event.geographic_area.default_geographic_item
+  #    true if geographic_item.geo_object is completely contained in collecting_event.geographic_area
+  # .default_geographic_item
   def check_obj_inside_area
     # case 6
     retval = true
@@ -491,6 +521,7 @@ class Georeference < ApplicationRecord
       error_radius > 20_000_000 # 20,000 km
   end
 
+  # @return [Ignored]
   def geographic_item_present_if_error_radius_provided
     if !error_radius.blank? &&
       geographic_item_id.blank? && # provide existing
@@ -505,11 +536,11 @@ class Georeference < ApplicationRecord
   # @param [Double] to_lon_
   # @return [Double] Heading is returned as an angle in degrees clockwise from North.
   def heading(from_lat_, from_lon_, to_lat_, to_lon_)
-    from_lat_rad_  = RADIANS_PER_DEGREE * from_lat_
-    to_lat_rad_    = RADIANS_PER_DEGREE * to_lat_
+    from_lat_rad_ = RADIANS_PER_DEGREE * from_lat_
+    to_lat_rad_ = RADIANS_PER_DEGREE * to_lat_
     delta_lon_rad_ = RADIANS_PER_DEGREE * (to_lon_ - from_lon_)
-    y_             = ::Math.sin(delta_lon_rad_) * ::Math.cos(to_lat_rad_)
-    x_             = ::Math.cos(from_lat_rad_) * ::Math.sin(to_lat_rad_) -
+    y_ = ::Math.sin(delta_lon_rad_) * ::Math.cos(to_lat_rad_)
+    x_ = ::Math.cos(from_lat_rad_) * ::Math.sin(to_lat_rad_) -
       ::Math.sin(from_lat_rad_) * ::Math.cos(to_lat_rad_) * ::Math.cos(delta_lon_rad_)
     DEGREES_PER_RADIAN * ::Math.atan2(y_, x_)
   end

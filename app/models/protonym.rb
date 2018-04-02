@@ -70,8 +70,9 @@ class Protonym < TaxonName
 
       if d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification)/ # |SourceClassifiedAs
         relationships = "#{d.assignment_method}_relationships".to_sym
+        # ActiveRecord::Base.send(:sanitize_sql_array, [d.name])
         has_many relationships, -> {
-          where("taxon_name_relationships.type LIKE '#{d.name}%'")
+          where('taxon_name_relationships.type LIKE ?', d.name + '%')
         }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
         has_many d.assignment_method.to_s.pluralize.to_sym, through: relationships, source: :object_taxon_name
       end
@@ -80,8 +81,9 @@ class Protonym < TaxonName
     if d.respond_to?(:inverse_assignment_method)
       if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icnb|SourceClassifiedAs)/
         relationships = "#{d.inverse_assignment_method}_relationships".to_sym
+        # ActiveRecord::Base.send(:sanitize_sql_array, [d.name])
         has_many relationships, -> {
-          where("taxon_name_relationships.type LIKE '#{d.name}%'")
+          where('taxon_name_relationships.type LIKE ?', d.name + '%')
         }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
         has_many d.inverse_assignment_method.to_s.pluralize.to_sym, through: relationships, source: :subject_taxon_name
       end
@@ -464,8 +466,8 @@ class Protonym < TaxonName
     # strategy is to get the original hash, and swap in values for pertinent relationships
     str = nil
 
-    if is_genus_or_species_rank?  
-      relationships = self.original_combination_relationships.reload 
+    if is_genus_or_species_rank?
+      relationships = self.original_combination_relationships.reload
 
       return nil if relationships.count == 0
 
@@ -484,7 +486,7 @@ class Protonym < TaxonName
         if i.object_taxon_name_id == i.subject_taxon_name_id && !i.object_taxon_name.verbatim_name.blank?
           case i.type # subject_status
             when /OriginalGenus/ #'original genus'
-              genus  = '<i>' + i.subject_taxon_name.verbatim_name + '</i> ' # why verbatim_name? 
+              genus  = '<i>' + i.subject_taxon_name.verbatim_name + '</i> ' # why verbatim_name?
               gender = i.subject_taxon_name.gender_name
               g1 = true
             when /OriginalSubgenus/ # 'original subgenus'

@@ -236,7 +236,7 @@ class Image < ApplicationRecord
       if ratio > 1 # wide into tall
         c.resize(params[:box_width].to_i, (params[:box_height].to_f / ratio * box_ratio).to_i)
       else # tall into tall
-        c.resize((params[:box_width ].to_f / ratio * box_ratio).to_i, params[:box_height].to_i)
+        c.resize((params[:box_width ].to_f).to_i, (params[:box_height].to_f / ratio * box_ratio).to_i)
       end
     end
   end

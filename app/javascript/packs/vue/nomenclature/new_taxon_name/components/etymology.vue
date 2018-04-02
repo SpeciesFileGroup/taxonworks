@@ -1,12 +1,12 @@
 <template>
-  <div
-    class="basic-information panel"
-    v-help.section.etymology.container>
+  <div class="basic-information panel">
     <a
       name="etymology"
       class="anchor"/>
     <div class="header flex-separate middle">
-      <h3>Etymology</h3>
+    <h3
+    v-help.section.etymology.container
+    >Etymology</h3>
       <expand
         @changed="expanded = !expanded"
         :expanded="expanded"/>

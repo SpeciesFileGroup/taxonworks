@@ -4,7 +4,6 @@
 #
 # Contains NOMEN classes of rank/hierarchy in various format.
 #
-
 # ICN, ICZN, ICNB class names ordered in an Array
 ICN = NomenclaturalRank::Icn.ordered_ranks.map(&:to_s).freeze 
 ICZN = NomenclaturalRank::Iczn.ordered_ranks.map(&:to_s).freeze
@@ -118,3 +117,4 @@ RANKS_JSON = {
 }.freeze
 
 # expected parent rank, check for validation purpose
+#

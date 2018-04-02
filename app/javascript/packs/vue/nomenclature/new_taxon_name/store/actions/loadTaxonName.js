@@ -6,11 +6,16 @@ const filterObject = require('../../helpers/filterObject')
 module.exports = function ({ commit, state, dispatch }, id) {
   return new Promise(function (resolve, reject) {
     loadTaxonName(id).then(response => {
-      commit(MutationNames.SetNomenclaturalCode, response.nomenclatural_code)
-      commit(MutationNames.SetTaxon, filterObject(response))
-      dispatch('setParentAndRanks', response.parent)
-      dispatch('loadSoftValidation', 'taxon_name')
-      return resolve()
+      if(response.hasOwnProperty('parent')) {
+        commit(MutationNames.SetNomenclaturalCode, response.nomenclatural_code)
+        commit(MutationNames.SetTaxon, filterObject(response))
+        dispatch('setParentAndRanks', response.parent)
+        dispatch('loadSoftValidation', 'taxon_name')
+        return resolve()
+      }
+      else {
+        return reject()
+      }
     })
   })
 }

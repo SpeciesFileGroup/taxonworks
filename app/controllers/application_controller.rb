@@ -1,10 +1,8 @@
 # this is the main controller
+require_dependency 'lib/application_enumeration.rb'
 class ApplicationController < ActionController::Base
   include Workbench::SessionsHelper
   include ProjectsHelper
-
-
-
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
@@ -145,5 +143,16 @@ class ApplicationController < ActionController::Base
 
   def project_matches(object)
     object.try(:project_id) == sessions_current_project_id
+  end
+
+  # @param klass_name [String] a model name inheriting from IsData
+  def whitelist_constantize(klass_name)
+    if Rails.env.development?
+      ApplicationEnumeration.data_models.inject({}){|hsh, k| hsh.merge!(k.name => k)}.fetch(klass_name)
+    elsif Rails.env.production?
+      ::DATA_MODELS.fetch(klass_name)
+    else
+      raise TaxonWorks::Error, 'whitelist attempted in unknown environment'
+    end
   end
 end

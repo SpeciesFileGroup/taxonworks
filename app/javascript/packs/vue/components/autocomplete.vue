@@ -29,6 +29,9 @@ Parameters:
       :placeholder="placeholder"
       @input="checkTime(), sendType()"
       v-model="type"
+      @keydown.down="downKey"
+      @keydown.up="upKey"
+      @keydown.enter="enterKey"
       :autofocus="autofocus"
       :disabled="disabled"
       :class="{'ui-autocomplete-loading' : spinner, 'vue-autocomplete-input-search' : !spinner }">
@@ -41,7 +44,7 @@ Parameters:
         class="vue-autocomplete-item"
         :class="activeClass(index)"
         @mouseover="itemActive(index)"
-        @click.prevent="itemClicked(item), sendItem(item)">
+        @click.prevent="itemClicked(index)">
         <span v-html="item[label]"/>
       </li>
     </ul>
@@ -160,6 +163,21 @@ export default {
   },
 
   methods: {
+    downKey() {
+      if(this.showList && this.current < this.json.length)
+        this.current++
+    },
+
+    upKey() {
+      if(this.showList && this.current > 0)
+        this.current--
+    },
+
+    enterKey() {
+      if(this.showList && this.current > -1 && this.current < this.json.length)
+        this.itemClicked(this.current)
+    },
+
     sendItem: function (item) {
       this.$emit('input', item)
       this.$parent.$emit(this.eventSend, item)
@@ -176,14 +194,15 @@ export default {
       this.json = []
     },
 
-    itemClicked: function (item) {
-      if (this.display.length) { this.type = (this.clearAfter ? '' : item[this.display]) } else {
-        this.type = (this.clearAfter ? '' : item[this.label])
+    itemClicked: function (index) {
+      if (this.display.length) { this.type = (this.clearAfter ? '' : this.json[index][this.display]) } else {
+        this.type = (this.clearAfter ? '' : this.json[index][this.label])
       }
 
       if (this.autofocus) {
         this.$refs.autofocus.focus()
       }
+      this.sendItem(this.json[index])
       this.showList = false
     },
 
@@ -208,6 +227,7 @@ export default {
 
     checkTime: function () {
       var that = this
+      this.current = -1
       this.searchEnd = false
       if (this.getRequest) {
         clearTimeout(this.getRequest)

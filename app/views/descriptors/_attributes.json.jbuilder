@@ -1,6 +1,8 @@
-json.extract! descriptor, :id, :name, :short_name, :description, :type, :position, :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
-json.object_tag descriptor_tag(descriptor)
-json.url descriptor_url(descriptor, format: :json)
+json.extract! descriptor, :id, :name, :short_name, :description, :default_unit,
+  :type, :position, 
+  :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
+
+json.partial! '/shared/data/all/metadata', object: descriptor, klass: descriptor.type 
 
 if descriptor.qualitative?
   json.character_states do 

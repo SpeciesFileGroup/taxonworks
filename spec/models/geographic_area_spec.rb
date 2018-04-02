@@ -310,7 +310,9 @@ describe GeographicArea, type: :model, group: [:geo, :shared_goe] do
 
     let(:geographic_area) { champaign }
     let(:gi) {
+      geographic_area.geographic_areas_geographic_items
       geo_item = GeographicItem::Polygon.create!(polygon: RSPEC_GEO_FACTORY.polygon(list_k))
+      geographic_area.geographic_areas_geographic_items.first.destroy!
       geographic_area.geographic_areas_geographic_items << GeographicAreasGeographicItem.new(geographic_item: geo_item,
                                                                                              data_origin:     'SFG')
       geo_item

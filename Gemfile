@@ -83,7 +83,7 @@ gem 'redcarpet', '~> 3.4'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '0.4.0'
-gem 'sqed', '0.3.2'
+gem 'sqed', '0.4.1'
 gem 'dwc-archive', '~> 0.9.11'
 gem 'biodiversity', '~> 3.4.2'
 gem 'ruby-units', '~> 2.2.0', require: 'ruby_units/namespaced'
@@ -122,6 +122,7 @@ group :development do
   gem 'parallel_tests', '~> 2.21.2', require: false
   gem 'web-console', '~> 3.5.1'
   gem 'rubocop', '~> 0.53.0'
+  gem 'brakeman', '~> 4.2.0', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
 end
 
