@@ -26,7 +26,7 @@ module BatchLoad
       super(args)
     end
 
-    # @return [Project]
+    # @return [String]
     def parent_taxon_name
       Project.find(@project_id).root_taxon_name
     end

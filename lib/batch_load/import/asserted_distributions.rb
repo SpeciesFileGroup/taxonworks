@@ -6,6 +6,8 @@ module BatchLoad
 
     attr_accessor :data_origin
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(data_origin: nil, **args)
       @asserted_distributions = {}
       @data_origin            = data_origin
@@ -18,6 +20,7 @@ module BatchLoad
     #   @data_origin: one of:
     #                       ["gadm", "SFG", "ne_states", "country_names_and_code_elements",
     #                         "ne_countries", "tdwg_l3", "tdwg_l2", "tdwg_l1", "tdwg_l4"]
+    # @return [Integer]
     def build_asserted_distributions
       i = 1
       csv.each do |row|
@@ -49,6 +52,7 @@ module BatchLoad
       @total_lines = i - 1
     end
 
+    # @return [Boolean]
     def build
       if valid?
         build_asserted_distributions
