@@ -1,42 +1,39 @@
-# This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the rake db:seed (or created alongside the db with db:setup).
-#
-# Examples:
-#
-#   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
-#   Mayor.create(name: 'Emanuel', city: cities.first)
 
+class TaxonWorks::SeedError < StandardError; end;
 
 case Rails.env
 
-  when 'development'
-    FactoryBot.create(:administrator, email: 'admin@example.com') unless User.where(is_administrator: true).first
+when 'development'
+  begin
+    ApplicationRecord.transaction do
+      a, u, p = nil, nil, nil 
+      if User.where(is_administrator: true).any?
+        raise TaxonWorks::SeedError, Rainbow('An administrator exists.').red
+      else 
+        a = User.create!(:administrator, email: 'admin@example.com', password: 'taxonworks', password_confirmation: 'taxonworks', is_administrator: true, self_created: true)
+      end
 
-    u = User.where(is_administrator: [false, nil]).first
-    unless u
-    # Creates 1,1 project/users
-      u = FactoryBot.create(:valid_user, email: 'user@example.com')
+      if User.where.not(is_administrator: true).any?
+        raise TaxonWorks::SeedError, Rainbow('A user exists.').red
+      else
+        u = User.create!(email: 'user@example.com', password: 'taxonworks', password_confirmation: 'taxonworks', self_created: true)
+      end
     end
-   
-    p = FactoryBot.create(:valid_project, creator: u, updater: u)
-    FactoryBot.create(:project_member, project: p, user: u, creator: u, updater: u)
 
-    # These will interfere with importing geographic_items.dmp because it creates related records
-    # FactoryBot.create(:level2_geographic_area)
-    # FactoryBot.create(:geographic_item_with_polygon)
+    p = Project.create!(name: 'Default', by: a)
+    ProjectMember.create!(project: p, user: u, by: u)
 
-    $user_id = u.id
-    $project_id = p.id
+    puts Rainbow("Created an administrator #{a.email}, user #{u.email}, and project #{p.name} with them in it.").blue
+  rescue ActiveRecord::RecordInvalid => e
+    puts Rainbow("Failed with #{e.error.full_messages.join(', ')}.").red
+  rescue TaxonWorks::SeedError => e
+    puts e.message
+  rescue
+    raise
+  end
 
-    FactoryBot.create(:iczn_subspecies)
-    FactoryBot.create(:icn_variety)
-
-    20.times { FactoryBot.create(:valid_asserted_distribution)}
-
-  when 'production'
-    # Never ever do anything.  Production should be seeded with a Rake task or deploy script if need be.
-
-  when 'test'
-
+when 'production'
+  # Never ever do anything.  Production should be seeded with a Rake task or deploy script if need be.
+when 'test'
 
 end
