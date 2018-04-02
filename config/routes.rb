@@ -638,6 +638,8 @@ TaxonWorks::Application.routes.draw do
 
     scope :observation_matrices do
       scope :new_matrix, controller: 'tasks/observation_matrices/new_matrix' do
+        get 'observation_matrix_row_item_metadata', as: 'observation_matrix_row_item_metdata', defaults: {format: :json}
+        get 'observation_matrix_column_item_metadata', as: 'observation_matrix_column_item_metdata', defaults: {format: :json}
         get '(:id)', action: :index, as: 'new_matrix_task_task'
       end
 

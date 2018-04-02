@@ -5,4 +5,10 @@ class Tasks::ObservationMatrices::NewMatrixController < ApplicationController
   def index
   end
 
+  def observation_matrix_row_item_metadata
+  end
+
+  def observation_matrix_column_item_metadata
+  end
+
 end
