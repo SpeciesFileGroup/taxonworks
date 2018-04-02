@@ -1,12 +1,15 @@
 module BatchLoad
   class Import::Sequences::PrimersInterpreter < BatchLoad::Import
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(**args)
       @sequences = {}
       super(args)
     end
 
     # TODO: update this
+    # @return [Integer]
     def build_sequences
       @total_data_lines = 0;
 
@@ -100,6 +103,7 @@ module BatchLoad
       end
     end
 
+    # @return [Boolean]
     def build
       if valid?
         build_sequences

@@ -16,6 +16,8 @@ module BatchLoad
     # Required to handle some defaults
     attr_accessor :project_id
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(nomenclature_code: nil, parent_taxon_name_id: nil, also_create_otu: false, **args)
       @nomenclature_code = nomenclature_code
       @parent_taxon_name_id = parent_taxon_name_id
@@ -23,15 +25,19 @@ module BatchLoad
 
       super(args)
     end
-    
-    def parent_taxon_name 
+
+    # @return [Project]
+    def parent_taxon_name
       Project.find(@project_id).root_taxon_name
     end
-    
+
+    # @return [Integer]
     def parent_taxon_name_id
       parent_taxon_name.id
     end
 
+    # rubocop:disable Metrics/MethodLength
+    # @return [Integer]
     def build_taxon_names
       @total_data_lines = 0
       i = 0
@@ -65,7 +71,7 @@ module BatchLoad
             verbatim_author: verbatim_author(row['author_year']),
             taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
           }
-            
+
           if row['original_name']
             original_protonym_attributes = {
               verbatim_name: row['original_name'],
@@ -105,7 +111,7 @@ module BatchLoad
           else
             p.parent = taxon_names[parent_taxon_name_id]
           end
-          
+
           # TaxonNameRelationship
           related_name_id = row['related_name_id']
 
@@ -151,7 +157,9 @@ module BatchLoad
 
       @total_lines = i
     end
+    # rubocop:enable Metrics/MethodLength
 
+    # @return [Boolean]
     def build
       if valid?
         build_taxon_names
@@ -161,18 +169,24 @@ module BatchLoad
 
     private
 
+    # @param [String] author_year
+    # @return [String]
     def year_of_publication(author_year)
       split_author_year = author_year.split(' ')
       year = split_author_year[split_author_year.length - 1]
       year =~ /\A\d+\z/ ? year : ''
     end
 
+    # @param [String] author_year
+    # @return [String]
     def verbatim_author(author_year)
-      author_end_index = author_year.rindex(' ') 
+      author_end_index = author_year.rindex(' ')
       author_end_index ||= author_year.length
       author_year[0...author_end_index]
     end
 
+    # @param [String] author_info
+    # @return [Array]
     def taxon_name_authors_attributes(author_info)
       multiple_author_query = 'and'
       multiple_author_index = author_info.index(multiple_author_query)
@@ -186,6 +200,8 @@ module BatchLoad
       author_infos
     end
 
+    # @param [String] author_string
+    # @return [Hash]
     def author_info(author_string)
       seperator_query = ' '
       separator_index = author_string.index(seperator_query)
@@ -197,7 +213,7 @@ module BatchLoad
         separator_index += seperator_query.length
         split_author_info = author_string.split(seperator_query)
         last_name = split_author_info[0]
-        first_name = split_author_info[1] 
+        first_name = split_author_info[1]
       end
 
       { last_name: last_name, first_name: first_name, suffix: 'suffix' }

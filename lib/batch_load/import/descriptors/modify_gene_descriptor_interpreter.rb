@@ -1,11 +1,14 @@
 module BatchLoad
   class Import::Descriptors::ModifyGeneDescriptorInterpreter < BatchLoad::Import
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(**args)
       @descriptors = {}
       super(args)
     end
 
+    # @return [Integer]
     def build_descriptors
       @total_data_lines = 0
       i = 0
@@ -37,7 +40,7 @@ module BatchLoad
             primers.split(', ').each do |primer_name|
               primer_sequence = Sequence.with_any_value_for(:name, primer_name).take
               next if primer_sequence.blank?
-              
+
               gene_attribute = GeneAttribute.find_by(descriptor: gene_descriptor, sequence: primer_sequence, sequence_relationship_type: sequence_relationship_type)
               next if gene_attribute.blank?
 
@@ -60,6 +63,7 @@ module BatchLoad
       @total_lines = i
     end
 
+    # @return [Boolean]
     def build
       if valid?
         build_descriptors

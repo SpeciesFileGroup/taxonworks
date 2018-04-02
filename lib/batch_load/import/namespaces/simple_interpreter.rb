@@ -1,10 +1,13 @@
 module BatchLoad
   class Import::Namespaces::SimpleInterpreter < BatchLoad::Import
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(**args)
       super(args)
     end
 
+    # @return [Integer]
     def build_namespaces
       @total_data_lines = 0
       i = 0
@@ -38,6 +41,7 @@ module BatchLoad
       @total_lines = i
     end
 
+    # @return [Boolean]
     def build
       if valid?
         build_namespaces
