@@ -378,6 +378,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :observation_matrix_row_items do
     concerns [:data_routes]
+    collection do
+      post :batch_create
+    end
   end
 
   resources :notes, except: [:show] do
