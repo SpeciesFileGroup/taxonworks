@@ -434,6 +434,9 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                   #
                   # difficult cases:
                   # misspelling of current taxon w/o synonym
+                  # nomenclator name different than current name (probably synonymized)
+                  # disambiguating genera/subgenera
+                  # same author, same combination applied to multiple species synonymized under same valid name
 
 
                   # else
