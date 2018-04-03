@@ -845,7 +845,7 @@ class TaxonName < ApplicationRecord
     eo = '<i>'
     ec = '</i>'
     return "#{eo}#{verbatim_name}#{ec}".gsub(' f. ', ec + ' f. ' + eo).gsub(' var. ', ec + ' var. ' + eo) if !verbatim_name.nil? && type == 'Combination'
-    return "#{eo}#{name}#{ec}" if rank_string == 'NomenclaturalRank::Iczn::GenusGroup::Supergenus' || rank_string == 'NomenclaturalRank::Icnb::GenusGroup::Supergenus'
+    return fossil? ? "&#8224; #{eo}#{name}#{ec}" : "#{eo}#{name}#{ec}" if rank_string == 'NomenclaturalRank::Iczn::GenusGroup::Supergenus' || rank_string == 'NomenclaturalRank::Icnb::GenusGroup::Supergenus'
     d = full_name_hash
 
     elements = []
