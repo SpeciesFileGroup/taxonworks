@@ -17,7 +17,7 @@ require('./vue/otu_radial_init/main.js')
 require('./vue/otu_button_init/main.js')
 require('./vue/type_specimens/main.js')
 require('./vue/new_combination/main.js')
-require('./vue/annotate_objects/main.js')
+require('./vue/browse_annotations/main.js')
 require('./vue/tasks/descriptor/main')
 
 // Styles

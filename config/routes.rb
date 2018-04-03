@@ -40,6 +40,7 @@ TaxonWorks::Application.routes.draw do
 
   scope :annotations, controller: :annotations do
     get ':global_id/metadata', action: :metadata, defaults: {format: :json}
+    get :types, defaults: {format: :json}
   end
 
   scope :graph, controller: :graph do
@@ -591,7 +592,7 @@ TaxonWorks::Application.routes.draw do
 
 
   # Generate shallow routes for annotations based on model properties, like
-  # otu_citations GET    /otus/:otu_id/citations(.:format)    citations#index
+  # otu_citations GET /otus/:otu_id/citations(.:format) citations#index
   ApplicationEnumeration.data_models.each do |m|
     Shared::IsData::Annotation::ANNOTATION_TYPES.each do |t|
       if m.send("has_#{t}?")
@@ -611,9 +612,18 @@ TaxonWorks::Application.routes.draw do
       end
     end
 
-
-    scope :object_annotations, controller: 'tasks/object_annotations' do
-      get 'index', as: 'annotate_objects'
+    scope :browse_annotations, controller: 'tasks/browse_annotations' do
+      get 'index', as: 'browse_annotations_task'
+      get 'get_type_list'
+      get 'get_model_list'
+      get 'get_for_list'
+      get 'process_submit'
+      post 'process_submit'
+      post 'get_type'
+      post 'annotation_for'
+      post 'set_model'
+      post 'set_dates'
+      post 'set_logic'
     end
 
     scope :otus do
