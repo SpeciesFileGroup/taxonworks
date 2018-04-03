@@ -1,4 +1,3 @@
-raise 'not so fast' if Rails.env == 'production'
 
 project_id = ENV['project_id']
 user_id = project_id = ENV['project_id']
