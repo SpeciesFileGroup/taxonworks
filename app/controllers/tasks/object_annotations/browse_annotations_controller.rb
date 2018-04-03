@@ -11,7 +11,7 @@ class Tasks::BrowseAnnotationsController < ApplicationController
   end
 
   def get_type_list
-    render(json: Annotations.types)
+    # render(json: Annotations.types)
     render(json: {
         "tags": "Tags (by Keyword)",
         "data_attributes": "Data attribues (by Predicates)",
