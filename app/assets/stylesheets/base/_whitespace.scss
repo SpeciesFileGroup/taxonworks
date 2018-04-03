@@ -14,6 +14,10 @@ $pane_margin: .2em;
   word-break: break-all;
 }
 
+.break_words_pre {
+  white-space: pre-wrap;
+}
+
 .tiny_space {
   padding: 4px
 }

@@ -170,16 +170,18 @@ module BatchLoad
     private
 
     # @param [String] author_year
-    # @return [String]
+    # @return [String, nil]
     def year_of_publication(author_year)
+      return nil if author_year.blank?
       split_author_year = author_year.split(' ')
       year = split_author_year[split_author_year.length - 1]
       year =~ /\A\d+\z/ ? year : ''
     end
 
     # @param [String] author_year
-    # @return [String]
+    # @return [String, nil]
     def verbatim_author(author_year)
+      return nil if author_year.blank?
       author_end_index = author_year.rindex(' ')
       author_end_index ||= author_year.length
       author_year[0...author_end_index]
@@ -188,6 +190,7 @@ module BatchLoad
     # @param [String] author_info
     # @return [Array]
     def taxon_name_authors_attributes(author_info)
+      return [] if author_info.blank?
       multiple_author_query = 'and'
       multiple_author_index = author_info.index(multiple_author_query)
       split_author_info = multiple_author_index.nil? ? [author_info] : author_info.split(multiple_author_query)
