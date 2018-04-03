@@ -709,9 +709,10 @@ module BatchLoad
       snp = @parser.parse(sn)
 
       # find or create Protonym based on exact match of row['scientificname'] and taxon_names.cached
-
-      t_n       = Protonym.find_or_create_by!(cached: snp[:scientificName][:canonical], project_id: @project_id)
+      # rubocop:disable Rails/SaveBang
+      t_n       = Protonym.find_or_create_by(cached: snp[:scientificName][:canonical], project_id: @project_id)
       this_rank = row['taxonrank'].downcase.to_sym
+      # rubocop:enable Rails/SaveBang
 
       if t_n.new_record?
         case this_rank
