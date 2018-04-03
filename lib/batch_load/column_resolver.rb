@@ -6,6 +6,8 @@ module BatchLoad::ColumnResolver
 
   class << self
 
+    # @param [Hash] columns
+    # @return [BatchLoad::ColumnResolver::Result]
     def otu(columns)
       r = BatchLoad::ColumnResolver::Result.new
 
@@ -29,6 +31,8 @@ module BatchLoad::ColumnResolver
       r
     end
 
+    # @param [Hash] columns
+    # @return [BatchLoad::ColumnResolver::Result]
     def collection_object_by_identifier(columns)
       r = BatchLoad::ColumnResolver::Result.new
 
@@ -52,6 +56,8 @@ module BatchLoad::ColumnResolver
       r
     end
 
+    # @param [Hash] columns
+    # @return [BatchLoad::ColumnResolver::Result]
     def source(columns)
       r = BatchLoad::ColumnResolver::Result.new
 
@@ -73,6 +79,10 @@ module BatchLoad::ColumnResolver
       r
     end
 
+    # rubocop:disable Metrics/MethodLength
+    # @param [Hash] columns
+    # @param [String] data_origin
+    # @return [BatchLoad::ColumnResolver::Result]
     def geographic_area(columns, data_origin = nil)
       r = BatchLoad::ColumnResolver::Result.new
 
@@ -113,7 +123,6 @@ module BatchLoad::ColumnResolver
 
       r
     end
+    # rubocop:enable Metrics/MethodLength
   end
-
-
 end
