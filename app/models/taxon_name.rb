@@ -841,7 +841,7 @@ class TaxonName < ApplicationRecord
   #  a monomial if names is above genus, or a full epithet if below, includes html
   def get_full_name_html
     return verbatim_name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
-    return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
+    return fossil? ? '&#8224; ' + name : name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     eo = '<i>'
     ec = '</i>'
     return "#{eo}#{verbatim_name}#{ec}".gsub(' f. ', ec + ' f. ' + eo).gsub(' var. ', ec + ' var. ' + eo) if !verbatim_name.nil? && type == 'Combination'
