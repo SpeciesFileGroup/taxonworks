@@ -21,6 +21,8 @@ module BatchLoad
     # Required to handle some defaults
     attr_accessor :project_id
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(nomenclature_code: nil, parent_taxon_name_id: nil, also_create_otu: false, **args)
       @nomenclature_code    = nomenclature_code
       @also_create_otu      = also_create_otu
@@ -29,6 +31,7 @@ module BatchLoad
       super(args)
     end
 
+    # @return [TaxonName]
     def parent_taxon_name
       return @parent_taxon_name if @parent_taxon_name
       if !@parent_taxon_name_id.blank?
@@ -44,11 +47,13 @@ module BatchLoad
       @parent_taxon_name
     end
 
+    # @return [Symbol]
     def nomenclature_code
       @nomenclature_code ||= @parent_taxon_name.rank_class.nomenclatural_code
       @nomenclature_code.to_sym
     end
 
+    # @return [Boolean]
     def build
       if valid?
         build_name_collection
@@ -59,6 +64,7 @@ module BatchLoad
 
     protected
 
+    # @return [Ignored]
     def build_name_collection
       begin
         @name_collection ||= ::Taxonifi::Lumper.create_name_collection(csv: csv)
@@ -67,6 +73,7 @@ module BatchLoad
       end
     end
 
+    # @return [Integer]
     def build_protonyms
       if name_collection.nil?
         @file_errors.push 'No names were readable in the file.'
@@ -114,6 +121,8 @@ module BatchLoad
       true
     end
 
+    # @param [TaxonName] taxonifi_name
+    # @return [Array]
     def taxon_name_authors_hash(taxonifi_name)
       author_attributes = []
       taxonifi_name.authors.each_with_index do |a,i|
@@ -122,7 +131,7 @@ module BatchLoad
                                  last_name:  a.last_name,
                                  first_name: a.first_name,
                                  prefix: a.initials_string,
-                                 suffix: suffix, 
+                                 suffix: suffix,
                                })
       end
       author_attributes.reverse

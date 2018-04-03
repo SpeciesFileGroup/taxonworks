@@ -6,11 +6,14 @@ module BatchLoad
 
     attr_accessor :otus
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(**args)
       @otus = {}
       super(args)
     end
 
+    # @return [Integer]
     def build_otus
       # test_build
       build_objects = {}
@@ -44,6 +47,7 @@ module BatchLoad
       @total_lines = i - 1
     end
 
+    # @return [Boolean]
     def build
       if valid?
         build_otus
