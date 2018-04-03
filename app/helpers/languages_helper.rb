@@ -5,4 +5,9 @@ module LanguagesHelper
     language.english_name
   end
 
+  # There is no path, we fake it.
+  def language_link(language)
+    language.english_name
+  end
+
 end

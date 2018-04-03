@@ -124,7 +124,7 @@ module Workbench::NavigationHelper
     klass_name = object.class.base_class.name.underscore
     link_method = klass_name + '_link'
 
-    # if a customized link to method is available use that, otherwise use a generic
+    # If a customized link to method is available use that, otherwise use a generic
     if self.respond_to?(link_method)
       send(link_method, object)
     else
