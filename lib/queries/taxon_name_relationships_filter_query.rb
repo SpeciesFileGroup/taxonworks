@@ -6,6 +6,8 @@ module Queries
 
     attr_accessor :keyword_args
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(taxon_name_id: nil, project_id: nil, **keyword_args)
       return table.none if taxon_name_id.nil?
       @taxon_name_id = taxon_name_id
@@ -31,8 +33,8 @@ module Queries
     # @return [ActiveRecord::Relation]
     def or_clauses
       clauses = [
-        as_subject, 
-        as_object, 
+        as_subject,
+        as_object,
       ].compact
 
       clauses.push as_subject.or(as_object) if clauses.empty?
@@ -62,8 +64,8 @@ module Queries
 
     # @return [ActiveRecord::Relation, nil]
     def and_clauses
-      if relationship_types.any? 
-        table[:type].eq_any(relationship_types) 
+      if relationship_types.any?
+        table[:type].eq_any(relationship_types)
       else
         nil
       end
@@ -76,13 +78,14 @@ module Queries
       clause.to_sql
     end
 
+    # @return [Arel::Table]
     def table
       TaxonNameRelationship.arel_table
     end
 
     # @return [ActiveRecord::Relation, nil]
     def as_subject
-      if as_subject? 
+      if as_subject?
         table[:subject_taxon_name_id].eq(taxon_name_id)
       else
         nil
@@ -91,7 +94,7 @@ module Queries
 
     # @return [ActiveRecord::Relation, nil]
     def as_object
-      if as_object? 
+      if as_object?
         table[:object_taxon_name_id].eq(taxon_name_id)
       else
         nil

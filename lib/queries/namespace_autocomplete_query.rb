@@ -1,5 +1,6 @@
 module Queries
   class NamespaceAutocompleteQuery < Queries::Query
+    # @return [String]
     def where_sql
       named.or(or_clauses).to_sql
     end
@@ -16,7 +17,7 @@ module Queries
         a = a.or(b)
       end
       a
-    end 
+    end
 
     def short_named
       table[:short_name].matches_any(terms)

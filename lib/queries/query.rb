@@ -6,7 +6,7 @@
 #  And this:
 #    http://blog.arkency.com/2013/12/rails4-preloading/
 #    User.includes(:addresses).where("addresses.country = ?", "Poland").references(:addresses)
-#  
+#
 # TODO: Define #all as a stub (Array or AR)
 #
 #
@@ -21,6 +21,8 @@ module Queries
     # limit based on size and potentially properties of terms
     attr_accessor :dynamic_limit
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(string, project_id: nil, **keyword_args)
       @query_string = string
       @project_id = project_id
@@ -28,7 +30,7 @@ module Queries
     end
 
     # @return [Array]
-    #   the results of the query as ActiveRecord objects 
+    #   the results of the query as ActiveRecord objects
     def result
       []
     end
@@ -36,14 +38,14 @@ module Queries
     # @return [Scope]
     # stub
     def scope
-      where('1 = 2') 
+      where('1 = 2')
     end
 
     # @return [Array]
     def terms=(string)
       @query_string = string
       build_terms
-      terms 
+      terms
     end
 
     # @return [Array]
@@ -51,16 +53,16 @@ module Queries
       @terms ||= build_terms
     end
 
-    # @return [Array]  
+    # @return [Array]
     #   a reasonable (starting) interpretation of any query string
     # Ultimately we should replace this concept with full text indexing.
     def build_terms
-      @terms = @query_string.blank? ? [] : [end_wildcard, start_and_end_wildcard]  
+      @terms = @query_string.blank? ? [] : [end_wildcard, start_and_end_wildcard]
     end
 
     # @return [String]
     def start_wildcard
-      '%' + query_string 
+      '%' + query_string
     end
 
     # @return [String]
@@ -86,7 +88,7 @@ module Queries
 
     # @return [String, nil]
     #    the first letter recognized as coming directly past the first year
-    #      `Smith, 1920a. ... ` returns `a` 
+    #      `Smith, 1920a. ... ` returns `a`
     def year_letter
       query_string.match(/\d{4}([a-zAZ]+)/).to_a.last
     end
@@ -101,12 +103,12 @@ module Queries
     # @return [Boolean]
     #   true if the query string only contains integers
     def only_integers?
-      !(query_string =~ /[^\d\s]/i) && !integers.empty? 
+      !(query_string =~ /[^\d\s]/i) && !integers.empty?
     end
 
     # @return [Array]
     #   if 1-5 alphabetic_strings, those alphabetic_strings wrapped in wildcards, else none.
-    #  Used in *unordered* AND searchs 
+    #  Used in *unordered* AND searchs
     def fragments
       a = alphabetic_strings
       if a.size > 0 && a.size < 6
@@ -133,18 +135,19 @@ module Queries
       '%' + query_string.gsub(/[\s\W]+/, '%') + '%'
     end
 
-    def no_digits 
+    # @return [String]
+    def no_digits
       query_string.gsub(/\d/, '').strip
     end
 
     # @return [Integer]
     def dynamic_limit
-      limit = 10 
+      limit = 10
       case query_string.length
       when 0..3
-        limit = 20 
+        limit = 20
       else
-        limit = 100 
+        limit = 100
       end
       limit
     end
@@ -153,11 +156,13 @@ module Queries
     # generic multi-use bits
     #   table is defined in each query, it is the class of instances being returned
 
+    # @return [Scope]
     def parent_child_join
       table.join(parent).on(table[:parent_id].eq(parent[:id])).join_sources # !! join_sources ftw
     end
 
     # Match at two levels, for example, 'wa te" will match "Washington Co., Texas"
+    # @return [Arel::Nodes::Grouping]
     def parent_child_where
       a,b = query_string.split(/\s+/, 2)
       return table[:id].eq(-1) if a.nil? || b.nil?
@@ -181,30 +186,35 @@ module Queries
         with_id
       else
         nil
-      end 
+      end
     end
 
+    # @return [Arel::Nodes::Matches]
     def named
       table[:name].matches_any(terms)
     end
 
+    # @return [Arel::Nodes::Matches]
     def exactly_named
       table[:name].eq(query_string)
     end
 
-    def parent 
-      table.alias 
+    # @return [Arel::Nodes::TableAlias]
+    def parent
+      table.alias
     end
 
     # TODO: nil/or clause this
+    # @return [Arel::Nodes::Equality]
     def with_project_id
-      if project_id 
+      if project_id
         table[:project_id].eq(project_id)
       else
-        nil      
+        nil
       end
     end
 
+    # @return [Arel::Table]
     def identifier_table
       Identifier.arel_table
     end
@@ -216,6 +226,7 @@ module Queries
       identifier_table[:cached].matches_any(a)
     end
 
+    # @return [Arel::Nodes::Equality]
     def with_identifier
       identifier_table[:cached].eq(query_string)
     end
@@ -231,16 +242,19 @@ module Queries
     end
 
     # match ALL wildcards, but unordered, if 2 - 6 pieces provided
+    # @return [Arel::Nodes::Matches]
     def match_wildcard_cached
       b = fragments
       return nil if b.empty?
       a = table[:cached].matches_all(b)
-    end 
+    end
 
+    # @return [Arel::Nodes::Matches]
     def match_ordered_wildcard_pieces_in_cached
       a = table[:cached].matches(wildcard_pieces)
     end
 
+    # @return [Arel::Nodes::Grouping]
     def combine_or_clauses(clauses)
       clauses.compact!
       raise TaxonWorks::Error, 'combine_or_clauses called without a clause, ensure at least one exists' unless !clauses.empty?
@@ -257,11 +271,11 @@ module Queries
       all.to_a
     end
 
-    
+
     # @return [ActiveRecord::Relation]
     def autocomplete_ordered_wildcard_pieces_in_cached
-      base_query.where(match_ordered_wildcard_pieces_in_cached.to_sql).limit(5) 
-    end 
+      base_query.where(match_ordered_wildcard_pieces_in_cached.to_sql).limit(5)
+    end
 
 
     # @return [ActiveRecord::Relation]
@@ -269,14 +283,14 @@ module Queries
     def autocomplete_cached_wildcard_anywhere
       a = match_wildcard_cached
       return nil if a.nil?
-      base_query.where(a.to_sql).limit(20) 
+      base_query.where(a.to_sql).limit(20)
     end
 
     # @return [ActiveRecord::Relation]
     def autocomplete_cached
-      a = cached 
+      a = cached
       return nil if a.nil?
-      base_query.where(a.to_sql).limit(20) 
+      base_query.where(a.to_sql).limit(20)
     end
 
   end

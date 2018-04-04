@@ -1,9 +1,11 @@
 module Queries
   class DescriptorAutocompleteQuery < Queries::Query
+    # @return [String]
     def where_sql
       with_project_id.and(or_clauses).to_sql
     end
 
+    # @return [Arel::Nodes::Grouping]
     def or_clauses
       clauses = [
         named,
@@ -18,14 +20,17 @@ module Queries
       a
     end
 
+    # @return [Arel::Nodes::Matches]
     def short_named
       table[:short_name].matches_any(terms)
     end
 
+    # @return [Scope]
     def all
       Descriptor.where(where_sql)
     end
 
+    # @return [Arel::Table]
     def table
       Descriptor.arel_table
     end

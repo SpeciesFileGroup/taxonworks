@@ -1,6 +1,6 @@
 module Queries
-  
-  class ContentFilterQuery 
+
+  class ContentFilterQuery
     include Arel::Nodes
 
     attr_accessor :topic_id
@@ -9,6 +9,8 @@ module Queries
     attr_accessor :query_string
     attr_accessor :most_recent_updates
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(topic_id: nil, otu_id: nil, hours_ago: nil, query_string: nil, most_recent_updates: nil)
       raise ArgumentError.new('missing a filter') if topic_id.nil? && otu_id.nil? && hours_ago.nil? && most_recent_updates.nil? # TODO: support query_string
 
@@ -19,6 +21,7 @@ module Queries
       @most_recent_updates = most_recent_updates.to_i
     end
 
+    # @return [String, nil]
     def where_sql
 
       clauses = [
@@ -37,7 +40,7 @@ module Queries
     end
 
     # @return [Scope]
-    def all 
+    def all
       q = Content.includes(:otu, :topic)
       s = where_sql
       q = q.where(s).references(:topics, :otus) if s
@@ -45,25 +48,29 @@ module Queries
       q
     end
 
+    # @return [Arel::Table]
     def table
-      Content.arel_table  
+      Content.arel_table
     end
 
+    # @return [Arel::Nodes::Equatity]
     def for_topic
       table[:topic_id].eq(topic_id) if topic_id
     end
 
+    # @return [Arel::Nodes::Equatity]
     def for_otu
       table[:otu_id].eq(otu_id) if otu_id
     end
 
-    def recent 
+    # @return [Arel::Nodes::Equatity]
+    def recent
       table[:updated_at].gt(hours_ago.hours.ago) if hours_ago
     end
 
    #def recently_updated
    #  if most_recent_updates.nonzero?
-   #    table['id'].eq_any( 
+   #    table['id'].eq_any(
    #                       Content.order(table['updated_at']).take(most_recent_updates)
    #                      )
    #  end
