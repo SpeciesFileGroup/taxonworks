@@ -24,7 +24,7 @@ class ObservationMatrixRowItemsController < ApplicationController
   end
 
   def list
-    @observation_matrix_row_items = ObservationMatrixRow.with_project_id(sessions_current_project_id)
+    @observation_matrix_row_items = ObservationMatrixRowItem.with_project_id(sessions_current_project_id)
       .page(params[:page])
   end
 

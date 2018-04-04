@@ -1,1 +1,1 @@
-render 'attributes', observation_matrix_row: @observation_matrix_row
+json.partial! 'attributes', observation_matrix_row: @observation_matrix_row

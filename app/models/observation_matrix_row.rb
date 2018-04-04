@@ -28,6 +28,10 @@ class ObservationMatrixRow < ApplicationRecord
     [otu, collection_object].compact.first
   end
 
+  def row_object_class_name
+    row_object.class.name
+  end
+
   private
 
   def otu_and_collection_object_blank

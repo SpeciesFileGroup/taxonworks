@@ -2,8 +2,8 @@ module ObservationMatrixRowItemsHelper
   def observation_matrix_row_item_tag(observation_matrix_row_item)
     return nil if observation_matrix_row_item.nil?
     [
-      observation_matrix_tag(observation_matrix_row_item.matrix),
-      object_tag(observation_matrix_row_item.observation_matrix_row_item_object)
+      observation_matrix_tag(observation_matrix_row_item.observation_matrix),
+      object_tag(observation_matrix_row_item.matrix_row_item_object)
     ].compact.join(': ')
   end
 
