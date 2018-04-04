@@ -63,8 +63,16 @@ const CreateColumnBatchLoad = function (params) {
   return ajaxCall('post', '/observation_matrix_column_items/batch_create', params)
 }
 
-const batchRemoveKeyword = function (id, type) {
+const BatchRemoveKeyword = function (id, type) {
   return ajaxCall('post', `/tags/batch_remove?keyword_id=${id}&klass=${type}`)
+}
+
+const RemoveRow = function(id) {
+  return ajaxCall('delete', `/observation_matrix_row_items/${id}.json`)
+}
+
+const RemoveColumn = function(id) {
+  return ajaxCall('delete', `/observation_matrix_column_items/${id}.json`)
 }
 
 
@@ -78,5 +86,7 @@ export {
   GetMatrixObservationColumns,
   GetMatrixColumnMetadata,
   GetMatrixRowMetadata,
-  batchRemoveKeyword
+  BatchRemoveKeyword,
+  RemoveRow,
+  RemoveColumn
 }

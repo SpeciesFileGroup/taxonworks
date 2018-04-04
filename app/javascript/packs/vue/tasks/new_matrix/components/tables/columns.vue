@@ -3,6 +3,7 @@
     <table-list
       :list="list"
       :destroy="true"
+      @delete="removeRow"
       :header="['name', 'current matches', '']"
       :attributes="[['descriptor','object_tag'], 'row_object_label']"/>
   </div>
@@ -11,6 +12,7 @@
 <script>
 
 import { GetterNames } from '../../store/getters/getters'
+import ActionNames from '../../store/actions/actionNames'
 import tableList from '../../../../components/table_list.vue'
 
 export default {
@@ -22,10 +24,10 @@ export default {
       return this.$store.getters[GetterNames.GetMatrixColumns]
     }
   },
-  data() {
-    return {
-
+  methods: {
+    removeRow(column) {
+      this.$store.dispatch(ActionNames.RemoveColumn, column.id)
     }
-  },
+  }
 }
 </script>

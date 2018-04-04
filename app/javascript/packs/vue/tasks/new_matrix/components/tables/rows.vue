@@ -3,14 +3,15 @@
     <table-list
       :list="list"
       :destroy="true"
+      @delete="removeRow"
       :header="['name', 'current matches', '']"
-      :attributes="['observation_matrix_row_object_label', 'row_object_label']"  />
+      :attributes="['observation_matrix_row_object_label', 'row_object_label']"/>
   </div>
 </template>
 
 <script>
 
-import { MutationNames } from '../../store/mutations/mutations'
+import ActionNames from '../../store/actions/actionNames'
 import { GetterNames } from '../../store/getters/getters'
 import tableList from '../../../../components/table_list.vue'
 
@@ -23,10 +24,10 @@ export default {
       return this.$store.getters[GetterNames.GetMatrixRows]
     }
   },
-  data() {
-    return {
-
+  methods: {
+    removeRow(row) {
+      this.$store.dispatch(ActionNames.RemoveRow, row.id)
     }
-  },
+  }
 }
 </script>
