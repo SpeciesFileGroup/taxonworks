@@ -199,6 +199,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
         def m_single_match(knowns) # test for single match
           potential_matches = TaxonName.where(cached: knowns[:nomenclator_string], project_id: knowns[:project_id])
           if potential_matches.count == 1
+            puts 'm_single_match'
             return true, potential_matches.first
           end
           return false, nil
@@ -207,6 +208,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
         def m_unambiguous(knowns) # test combination is unambiguous and has genus
           if knowns[:check_result].is_unambiguous?
             if knowns[:check_result].genus
+              puts 'm_unambiguous'
               return true, knowns[:check_result].combination
             end
           end
@@ -217,7 +219,23 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           if knowns[:protonym].rank == "species"
             a = knowns[:check_result].disambiguated_combination(species: knowns[:protonym].id)
             if a.get_full_name == knowns[:nomenclator_string]
+              puts 'm_current_species_homonym'
               return true, a
+            end
+          end
+          return false, nil
+        end
+
+        def m_sibling_synonym(knowns) # tests known genus and current species is synonym of sibling
+          if knowns[:protonym].rank == "species"
+            if knowns[:check_result].protonyms(:genus).count == 1
+              if knowns[:protonym].siblings.where(name: knowns[:check_result].species).count == 1 # species name
+                a = knowns[:check_result].disambiguated_combination(genus: knowns[:check_result].protonyms(:genus).id, species: knowns[:protonym].siblings.where(name: knowns[:check_result].species).id)
+                if a.get_full_name == knowns[:nomenclator_string]
+                  puts 'm_sibling_synonym'
+                  return true, a
+                end
+              end
             end
           end
           return false, nil
@@ -389,7 +407,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
             else # create new citation
               # byebug
 
-              if !nomenclator_string.blank? && !nomenclator_string.include?('?')  # has ? in string, skip combo but record string as tag
+              if !nomenclator_string.blank? && !nomenclator_string.include?('?') # has ? in string, skip combo but record string as tag
                 if !nomenclator_is_original_combination?(protonym, nomenclator_string) && !nomenclator_is_current_name?(protonym, nomenclator_string)
 
                   combination = nil
@@ -408,7 +426,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                   }
                   done = false
 
-                  [:m_single_match, :m_unambiguous, :m_current_species_homonym].each do |m|
+                  [:m_single_match, :m_unambiguous, :m_current_species_homonym, :m_sibling_synonym].each do |m|
                     passed, c = send(m, knowns) # return passed & c (= combination); args to m (= method), knowns
                     if passed
                       if c.new_record?
@@ -436,7 +454,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                   # misspelling of current taxon w/o synonym
                   # nomenclator name different than current name (probably synonymized)
                   # disambiguating genera/subgenera
-                  # same author, same combination applied to multiple species synonymized under same valid name
+                  # same author, same combination applied to multiple species synonymized under same valid name: create citation for the synonymy relationship
 
 
                   # else
