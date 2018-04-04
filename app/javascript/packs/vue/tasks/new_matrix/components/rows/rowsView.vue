@@ -6,10 +6,12 @@
     <div class="body">
       <smart-selector
         :options="smartOptions"
+        :add-option="moreOptions"
         v-model="view"
         name="rows-smart"/>
       <component 
         v-if="componentExist"
+        :list="selectorLists[view]"
         :is="view + 'Component'"/>
     </div>
   </div>
@@ -18,6 +20,7 @@
 
 import smartSelector from '../shared/smartSelector'
 import searchComponent from './search'
+import { GetSmartSelector } from '../../request/resources'
 
 export default {
   components: {
@@ -31,9 +34,17 @@ export default {
   },
   data() {
     return {
-      smartOptions: ['quick', 'recent', 'search'],
+      smartOptions: [],
+      moreOptions: ['search'],
+      selectorLists: undefined,
       view: undefined
     }
-  }
+  },
+  mounted() {
+    GetSmartSelector('keywords').then(response => {
+      this.smartOptions = Object.keys(response)
+      this.selectorLists = response
+    })
+  },
 }
 </script>

@@ -3,7 +3,7 @@
     <table-list
       :list="list"
       :destroy="true"
-      @delete="removeRow"
+      @delete="removeColumn"
       :header="['name', 'current matches', '']"
       :attributes="[['descriptor','object_tag'], 'row_object_label']"/>
   </div>
@@ -25,7 +25,7 @@ export default {
     }
   },
   methods: {
-    removeRow(column) {
+    removeColumn(column) {
       this.$store.dispatch(ActionNames.RemoveColumn, column.id)
     }
   }

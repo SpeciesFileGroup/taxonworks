@@ -75,6 +75,10 @@ const RemoveColumn = function(id) {
   return ajaxCall('delete', `/observation_matrix_column_items/${id}.json`)
 }
 
+const GetSmartSelector = function(type) {
+  return ajaxCall('get', `/${type}/select_options?klass=ObservationMatrix`)
+}
+
 
 export {
   CreateMatrix,
@@ -87,6 +91,7 @@ export {
   GetMatrixColumnMetadata,
   GetMatrixRowMetadata,
   BatchRemoveKeyword,
+  GetSmartSelector,
   RemoveRow,
   RemoveColumn
 }
