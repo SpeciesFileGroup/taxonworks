@@ -35,14 +35,6 @@ const GetMatrixObservation = function(id) {
   return ajaxCall('get',`/observation_matrices/${id}.json`)
 }
 
-const GetMatrixObservationColumnItems = function(id) {
-  return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_column_items.json`)
-}
-
-const GetMatrixObservationRowItems = function(id) {
-  return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_row_items.json`)
-}
-
 const GetMatrixObservationRows = function(id) {
   return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_rows.json`)
 }
@@ -51,16 +43,40 @@ const GetMatrixObservationColumns = function(id) {
   return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_columns.json`)
 }
 
+const GetMatrixColumnMetadata = function() {
+  return ajaxCall('get', `/tasks/observation_matrices/new_matrix/observation_matrix_column_item_metadata`)
+}
+
+const GetMatrixRowMetadata = function() {
+  return ajaxCall('get', `/tasks/observation_matrices/new_matrix/observation_matrix_row_item_metadata`)
+}
+
 const CreateRowItem = function(data) {
   return ajaxCall('post',`/observation_matrix_row_items.json`, data)
 }
 
+const CreateRowBatchLoad = function (params) {
+  return ajaxCall('post', '/observation_matrix_row_items/batch_create', params)
+}
+
+const CreateColumnBatchLoad = function (params) {
+  return ajaxCall('post', '/observation_matrix_column_items/batch_create', params)
+}
+
+const batchRemoveKeyword = function (id, type) {
+  return ajaxCall('post', `/tags/batch_remove?keyword_id=${id}&klass=${type}`)
+}
+
+
 export {
   CreateMatrix,
+  CreateRowBatchLoad,
+  CreateColumnBatchLoad,
   CreateRowItem,
   GetMatrixObservation,
-  GetMatrixObservationColumnItems,
-  GetMatrixObservationRowItems,
   GetMatrixObservationRows,
   GetMatrixObservationColumns,
+  GetMatrixColumnMetadata,
+  GetMatrixRowMetadata,
+  batchRemoveKeyword
 }

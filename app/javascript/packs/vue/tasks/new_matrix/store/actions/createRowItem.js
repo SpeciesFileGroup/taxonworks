@@ -1,14 +1,13 @@
 import { MutationNames } from '../mutations/mutations'
 import { CreateRowItem } from '../../request/resources'
+import ActionNames from '../actions/actionNames'
 
-export default function ({ commit, state }, data) {
-  return new Promise((resolve, rejected) => {
-    console.log(data)
+export default function ({ commit, state, dispatch }, data) {
+  return new Promise((resolve, reject) => {
     CreateRowItem({ observation_matrix_row_item: data }).then(response => {
+      dispatch(ActionNames.GetMatrixObservationRows, state.matrix.id)
       TW.workbench.alert.create('Row item was successfully created.', 'notice')
       return resolve(response)
     })
-  }, (response) => {
-    return rejected(response)
   })
-};
+}

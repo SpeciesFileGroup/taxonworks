@@ -1,19 +1,16 @@
 import { MutationNames } from '../mutations/mutations'
-import { GetMatrixObservation, GetMatrixObservationRows, GetMatrixObservationColumns } from '../../request/resources'
+import ActionNames from '../actions/actionNames'
+import { GetMatrixObservation } from '../../request/resources'
 
-export default function ({ commit, state }, id) {
-  return new Promise((resolve, rejected) => {
+export default function ({ commit, state, dispatch }, id) {
+  return new Promise((resolve, reject) => {
     GetMatrixObservation(id).then(response => {
       commit(MutationNames.SetMatrix, response)
-      GetMatrixObservationRows(id).then(rows => {
-        commit(MutationNames.SetMatrixRows, rows)
-      });
-      GetMatrixObservationColumns(id).then(columns => {
-        commit(MutationNames.SetMatrixColumns, columns)
-      });
+      dispatch(ActionNames.GetMatrixObservationRows, id)
+      dispatch(ActionNames.GetMatrixObservationColumns, id)
       return resolve(response)
     }, (response) => {
-      return rejected(response)
+      return reject(response)
     })
   })
-};
+}

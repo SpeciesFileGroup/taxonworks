@@ -2,13 +2,15 @@
   <div id="vue_new_matrix_task">
     <h1>New matrix</h1>
     <new-matrix/>
-    <div>
-      <template v-if="matrix.id">
-        <rows-view v-if="isRow"/>
-      </template>
+    <div
+      v-if="matrix.id"
+      class="separate-top">
+      <rows-view v-if="isRow"/>
+      <columns-view v-else/>
     </div>
     <div v-if="matrix.id">
       <rows-table/>
+      <columns-table/>
     </div>
   </div>
 </template>
@@ -16,18 +18,21 @@
 <script>
 
 import NewMatrix from './components/newMatrix/newMatrix'
-import rowsTable from './components/tables/rows'
-import rowsView from './components/rows/rowsView'
+import RowsTable from './components/tables/rows'
+import ColumnsTable from './components/tables/columns'
+import RowsView from './components/rows/rowsView'
+import columnsView from './components/columns/columnsView'
 
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
-import { MutationNames } from './store/mutations/mutations'
 
 export default {
   components: {
     NewMatrix,
-    rowsTable,
-    rowsView,
+    RowsTable,
+    RowsView,
+    ColumnsTable,
+    columnsView
   },
   computed: {
     matrix() {
