@@ -3,12 +3,15 @@
 # Contains methods used in /config/initializers/constants/ranks.rb to generate Rank Classes
 module Ranks
 
-  # Returns true if rank.to_s is the name of a NomenclaturalRank.
+  # @return [Boolean] true if rank.to_s is the name of a NomenclaturalRank.
+  # @param [String] rank
   def self.valid?(rank)
     ::RANKS.include?(rank.to_s)
   end
 
-  # Returns a String representing the name of the NomenclaturalRank class
+  # @param [Symbol] code
+  # @param [Symbol] rank
+  # @return [String] representing the name of the NomenclaturalRank class
   #   Ranks::lookup(:iczn, 'superfamily')   # => 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily'
   def self.lookup(code, rank)
     rank = rank.to_s

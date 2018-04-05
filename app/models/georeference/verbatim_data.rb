@@ -54,7 +54,7 @@ class Georeference::VerbatimData < Georeference
       self.geographic_item = test_grs.first
     end
 
-    geographic_item
+    # geographic_item
   end
   # rubocop:enable Metrics/MethodLength
 end

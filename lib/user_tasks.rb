@@ -1,11 +1,11 @@
-# Within TaxonWorks (not Rails) a tasks 
+# Within TaxonWorks (not Rails) a tasks
 # is a bit of work that references 2
 # or more data models at once, and that
-# should be understandable without 
-# complicated context.  Tasks should 
+# should be understandable without
+# complicated context.  Tasks should
 # typically do a single thing well, however
 # complex forms (sensu single page apps)
-# fall into this category as well. 
+# fall into this category as well.
 #
 # The UserTasks module provides developer
 # support for tracking, testing, and integrating
@@ -19,7 +19,7 @@ module UserTasks
   class UserTask
 
     # @return [String, nil]
-    #   the human readable, "friendly" name for this task. 
+    #   the human readable, "friendly" name for this task.
     attr_accessor :name
 
     # @return [String]
@@ -48,27 +48,31 @@ module UserTasks
 
     # attr_reader :defaults
 
+    # @param [Array] data
+    # @return [Ignored]
     def initialize(data)
-      raise "Improperly defined user task #{data} in user_tasks.yml." if data.nil? || data[0].nil? 
-      attributes = data[1] 
-      @prefix = data[0] 
+      raise "Improperly defined user task #{data} in user_tasks.yml." if data.nil? || data[0].nil?
+      attributes = data[1]
+      @prefix = data[0]
       @name = attributes['name']
       @description = attributes['description']
       @related = attributes['related']
-      @hub = (attributes['hub'] ? true : false) 
+      @hub = (attributes['hub'] ? true : false)
       @status = attributes['status']
       @categories = attributes['categories']
 
      #route = Rails.application.routes.named_routes.get('update_serial_find_task')
 
-     #@defaults = route.required_defaults 
+     #@defaults = route.required_defaults
      #@defaults.merge!(verb: route.verb)
     end
 
+    # @return [Array]
     def categories
       @categories.nil? ? [] : @categories
     end
-    
+
+    # @return [String]
     def status
       @status.nil? ? 'unknown' : @status
     end
@@ -100,35 +104,35 @@ module UserTasks
   end
 
   # The raw YAML (Hash)
-  TASK_DATA = YAML.load_file(Rails.root + 'config/interface/hub/user_tasks.yml').freeze 
+  TASK_DATA = YAML.load_file(Rails.root + 'config/interface/hub/user_tasks.yml').freeze
 
   tasks = {}
   TASK_DATA.each do |td|
     tasks.merge!(td[0] => UserTask.new(td))
   end
 
-  # A Hash of prefix => UserTasks::UserTask 
+  # A Hash of prefix => UserTasks::UserTask
   INDEXED_TASKS = tasks.freeze
 
-  # @return [Array of UserTasks::UserTask]
+  # @return [Array] of UserTasks::UserTask
   #    the UserTasks instances
   def self.tasks
     INDEXED_TASKS.values.sort!{|a, b| a.name <=> b.name }
   end
 
-  # @return [Array of UserTasks::UserTask]
+  # @return [Array] of UserTasks::UserTask
   #    the UserTasks instances that don't require parameters (i.e. can be linked to from anywhere)
   def self.parameter_free_tasks
-    tasks.select{|t| !t.requires_params?} 
+    tasks.select{|t| !t.requires_params?}
   end
 
-  # @return [Array of UserTasks::UserTask]
-  #    the UserTasks instances that have @hub == true 
+  # @return [Array] of UserTasks::UserTask
+  #    the UserTasks instances that have @hub == true
   def self.hub_tasks
-    tasks.select{|t| t.hub} 
+    tasks.select{|t| t.hub}
   end
 
-  # @param prefix 
+  # @param [String] prefix
   #   A rails route prefix
   # @return [UserTasks::UserTask, nil]
   #    a instance of a UserTasks::UserTask
@@ -136,6 +140,7 @@ module UserTasks
     INDEXED_TASKS[prefix]
   end
 
+  # @param [String] prefix
   # @return [String]
   #   translate a related prefix into a name string if present, else return the string as is
   def self.related_name(prefix)
@@ -143,9 +148,11 @@ module UserTasks
       t.name
     else
       prefix
-    end 
+    end
   end
 
+  # @param [String] prefix
+  # @return [UserTasks::UserTask, nil]
   def self.related_routes(prefix)
     INDEXED_TASKS[prefix].related
   end

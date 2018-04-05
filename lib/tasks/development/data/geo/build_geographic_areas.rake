@@ -238,7 +238,7 @@ namespace :tw do
               self.send("#{k}=", v)
             end
             add_shape(attribute_hash)
-            true
+            # true
           end
 
           # Handle the shape-related metadata

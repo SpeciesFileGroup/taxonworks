@@ -1,10 +1,10 @@
 # net/http helpers
-module TaxonworksNet 
+module TaxonworksNet
 
   # @return [String]
   #  the commit date of the current commit based
   #  on the Capistrano provided 'REVISION' as
-  #  supplied by githubs API 
+  #  supplied by githubs API
   def self.commit_date
     revision = commit_sha
     if revision
@@ -20,12 +20,13 @@ module TaxonworksNet
     end
   end
 
+  # @return [Ignored]
   def self.commit_sha
     file = Rails.root + 'REVISION'
     if File.exists?(file)
       File.read(file).strip
     else
-      nil 
+      nil
     end
   end
 

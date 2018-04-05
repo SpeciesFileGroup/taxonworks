@@ -9,7 +9,7 @@ module Queries
     # @param [Hash] args
     # @return [Ignored]
     def initialize(taxon_name_id: nil, project_id: nil, **keyword_args)
-      return table.none if taxon_name_id.nil?
+      return if taxon_name_id.nil?
       @taxon_name_id = taxon_name_id
       @project_id = project_id
       @keyword_args = keyword_args
