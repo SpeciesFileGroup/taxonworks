@@ -196,8 +196,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           protonym.cached == nomenclator_string
         end
 
-        def m_single_match(knowns) # test for single match
-          potential_matches = TaxonName.where(cached: knowns[:nomenclator_string], project_id: knowns[:project_id])
+        def m_single_match(kn) # test for single match
+          potential_matches = TaxonName.where(cached: kn[:nomenclator_string], project_id: kn[:project_id])
           if potential_matches.count == 1
             puts 'm_single_match'
             return true, potential_matches.first
@@ -205,20 +205,20 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           return false, nil
         end
 
-        def m_unambiguous(knowns) # test combination is unambiguous and has genus
-          if knowns[:check_result].is_unambiguous?
-            if knowns[:check_result].genus
+        def m_unambiguous(kn) # test combination is unambiguous and has genus
+          if kn[:cr].is_unambiguous?
+            if kn[:cr].genus
               puts 'm_unambiguous'
-              return true, knowns[:check_result].combination
+              return true, kn[:cr].combination
             end
           end
           return false, nil
         end
 
-        def m_current_species_homonym(knowns) # test known genus and current species homonym
-          if knowns[:protonym].rank == "species"
-            a = knowns[:check_result].disambiguated_combination(species: knowns[:protonym].id)
-            if a.get_full_name == knowns[:nomenclator_string]
+        def m_current_species_homonym(kn) # test known genus and current species homonym
+          if kn[:protonym].rank == "species"
+            a = kn[:cr].disambiguated_combination(species: kn[:protonym].id)
+            if a.get_full_name == kn[:nomenclator_string]
               puts 'm_current_species_homonym'
               return true, a
             end
@@ -226,12 +226,12 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           return false, nil
         end
 
-        def m_sibling_synonym(knowns) # tests known genus and current species is synonym of sibling
-          if knowns[:protonym].rank == "species"
-            if knowns[:check_result].protonyms(:genus).count == 1
-              if knowns[:protonym].siblings.where(name: knowns[:check_result].species).count == 1 # species name
-                a = knowns[:check_result].disambiguated_combination(genus: knowns[:check_result].protonyms(:genus).id, species: knowns[:protonym].siblings.where(name: knowns[:check_result].species).id)
-                if a.get_full_name == knowns[:nomenclator_string]
+        def m_sibling_synonym(kn) # tests known genus and current species is synonym of sibling
+          if kn[:protonym].rank == "species"
+            if kn[:cr].protonyms(:genus).count == 1
+              if kn[:protonym].siblings.where(name: kn[:cr].species).count == 1 # species name
+                a = kn[:cr].disambiguated_combination(genus: kn[:cr].protonyms(:genus).id, species: kn[:protonym].siblings.where(name: kn[:cr].species).id)
+                if a.get_full_name == kn[:nomenclator_string]
                   puts 'm_sibling_synonym'
                   return true, a
                 end
@@ -239,6 +239,29 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             end
           end
           return false, nil
+        end
+
+        def m_get_ids(kn)
+          total = kn[:cr].detail.count
+          count = 0
+          # total.each do |id|
+          # if kn[:cr].genus
+          #   genus_id = send(:get_genus_id, kn)
+          #   if !genus_id.nil?
+          #     if kn[:cr].subgenus
+          #
+          #     end
+          #
+          #
+          #   end
+          # end
+        end
+
+        def get_genus_id(kn)
+          if kn[:cr].protonyms(:genus).count == 1
+            return kn[:cr].protonyms(:genus).id
+          end
+          return nil
         end
 
 
@@ -416,18 +439,18 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                   # [INFO]2018-03-21 04:23:59.785: total funny exceptions = '13410', total unique_bad_nomenclators = '4933'
                   # [INFO]2018-03-30 03:43:54.967: total funny exceptions = '56295', total unique_bad_nomenclators = '23051', new combo total = 14097
                   # [INFO]2018-03-31 18:44:23.471: total funny exceptions = '35106', total unique_bad_nomenclators = '15822', new combo total = 21,275
-                  check_result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
+                  cr = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
 
-                  knowns = {
+                  kn = {
                       project_id: project_id,
                       nomenclator_string: nomenclator_string,
-                      check_result: check_result,
+                      cr: cr,
                       protonym: protonym
                   }
                   done = false
 
                   [:m_single_match, :m_unambiguous, :m_current_species_homonym, :m_sibling_synonym].each do |m|
-                    passed, c = send(m, knowns) # return passed & c (= combination); args to m (= method), knowns
+                    passed, c = send(m, kn) # return passed & c (= combination); args to m (= method), kn (= knowns)
                     if passed
                       if c.new_record?
                         c.by = 1
@@ -465,7 +488,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                     funny_exceptions_counter += 1
                     unique_bad_nomenclators[nomenclator_string] = project_id
 
-                    logger.warn "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', check_result.detail = '#{check_result.detail}', check_result.ambiguous_ranks = '#{check_result.ambiguous_ranks}' (unique_bad_nomenclators.count = #{unique_bad_nomenclators.count})"
+                    logger.warn "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', cr.detail = '#{cr.detail}', cr.ambiguous_ranks = '#{cr.ambiguous_ranks}' (unique_bad_nomenclators.count = #{unique_bad_nomenclators.count})"
                   end
                 end
 
@@ -511,7 +534,7 @@ c2.get_full_name == nomenclator_string (must check)
                 #     funny_exceptions_counter += 1
                 #     unique_bad_nomenclators[nomenclator_string] = project_id
                 #
-                #     logger.warn "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', check_result.detail = '#{check_result.detail}', check_result.ambiguous_ranks = '#{check_result.ambiguous_ranks}' (unique_bad_nomenclators.count = #{unique_bad_nomenclators.count})"
+                #     logger.warn "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', cr.detail = '#{cr.detail}', cr.ambiguous_ranks = '#{cr.ambiguous_ranks}' (unique_bad_nomenclators.count = #{unique_bad_nomenclators.count})"
                 #   end
                 # end
 
