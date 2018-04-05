@@ -5,8 +5,9 @@ describe User, type: :model do
   let(:user) { User.new(password:              'password',
                         password_confirmation: 'password',
                         email:                 'user_model@example.com',
-                        name:                  'Bob'
-  ) }
+                        name:                  'Bob',
+
+                        ) }
   subject { user }
 
   context 'associations' do
@@ -21,9 +22,14 @@ describe User, type: :model do
     end
   end
 
-  context 'preferences' do
+  context 'stored preferences' do
     specify '#hub_favorites' do
       expect(user.hub_favorites).to eq({})
+    end
+
+    specify '#preferences' do
+      user
+      expect(user.preferences).to eq({})
     end
 
     specify '#footprints' do
@@ -90,7 +96,7 @@ describe User, type: :model do
   end
 
   context 'with password, password confirmation, name < 2 characters, and email' do
-    before { user.password = user.name= 'a' }
+    before { user.password = user.name = 'a' }
     it { is_expected.to be_invalid }
   end
 
@@ -155,7 +161,6 @@ describe User, type: :model do
     end
   end
 
-
   describe 'remember token' do
     before { user.save }
     it(:remember_token) { is_expected.not_to be_blank }
@@ -193,7 +198,7 @@ describe User, type: :model do
 
   context 'user activity summaries' do
     before {
-      user.save
+      user.save!
       4.times { (FactoryBot.create(:valid_otu, creator: user, updater: user)) }
       @last_otu = FactoryBot.create(:valid_otu, creator: user, updater: user)
     }
@@ -330,6 +335,26 @@ describe User, type: :model do
 
       specify 'by mixed input' do
         expect(User.get_user_ids(u1.id, 'pat one', u1, 'work.com', 'at1@')).to contain_exactly(u1.id)
+      end
+    end
+  end
+
+  context 'stored user preferences' do
+    context 'chime methods' do
+
+      specify 'disable_chime' do
+        user.disable_chime
+        expect(user.chime_enabled?).to eq(false)
+      end
+
+      specify 'enable_chime' do
+        user.enable_chime
+        expect(user.chime_enabled?).to eq(true)
+      end
+
+      specify 'chime_enabled?' do
+        user.disable_chime
+        expect(user.chime_enabled?).to eq(false)
       end
     end
   end

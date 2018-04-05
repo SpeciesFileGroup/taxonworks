@@ -108,6 +108,8 @@ class User < ApplicationRecord
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
 
+  store :preferences, accessors: [:disable_chime], coder: JSON
+
   attr_accessor :set_new_api_access_token
   attr_accessor :self_created
 
@@ -141,10 +143,12 @@ class User < ApplicationRecord
 
   scope :is_administrator, -> { where(is_administrator: true) }
 
+  # @return [Scope]
   def administered_projects
     projects.where(id: project_members.where(is_project_administrator: true).pluck(:project_id))
   end
 
+  # @return [Boolean]
   def administers_projects?
     administered_projects.any?
   end
@@ -254,6 +258,30 @@ class User < ApplicationRecord
     read_attribute(:hub_favorites) || {}
   end
 
+  # @param [Boolean] state
+  # @return [Ignored]
+  def able_chime(state)
+    preferences[:disable_chime] = (not state)
+  end
+
+  # @return [Ignored]
+  def enable_chime
+    able_chime(false)
+  end
+
+  # @return [Ignored]
+  def disable_chime
+    able_chime(true)
+  end
+
+  # @return [Boolean]
+  def chime_enabled?
+    preferences[:disable_chime]
+  end
+
+  # rubocop:disable Style/StringHashKeys
+  # @param [Hash] options
+  # @return [Boolean] always true
   def add_page_to_favorites(options = {}) # name: nil, kind: nil, project_id: nil
     validate_favorite_options(options)
     n       = options[:name]
@@ -267,6 +295,7 @@ class User < ApplicationRecord
     update_column(:hub_favorites, u)
     true
   end
+  # rubocop:enable Style/StringHashKeys
 
   def remove_page_from_favorites(options = {}) # name: nil, kind: nil, project_id: nil
     validate_favorite_options(options)
@@ -334,6 +363,7 @@ class User < ApplicationRecord
     self.send("created_#{klass_string}").count #klass.where(creator:self).count
   end
 
+  # rubocop:disable Metrics/MethodLength
   # @return [Hash]
   #
   # @user.get_class_created_updated # => { "projects" => {created: 10, first_created: datetime, updated: 10, last_updated: datetime} }
@@ -373,6 +403,7 @@ class User < ApplicationRecord
     end
     data
   end
+  # rubocop:enable Metrics/MethodLength
 
   def generate_api_access_token
     self.api_access_token = Utilities::RandomToken.generate
