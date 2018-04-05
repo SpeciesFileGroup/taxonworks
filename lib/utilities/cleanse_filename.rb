@@ -8,8 +8,8 @@ class Utilities::CleanseFilename
 
   # downcase and replace all non-alphanumerics with '_'
   # @param [String] filename
-    # @return [String]
-    def self.call(filename)
+  # @return [String]
+  def self.call(filename)
     filename.to_s.downcase.gsub(/[^A-Za-z0-9\.]/, '_')
 
    #tmp = (filename.to_s.downcase).split('.')

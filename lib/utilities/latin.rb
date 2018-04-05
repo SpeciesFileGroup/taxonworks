@@ -13,20 +13,20 @@ module Utilities::Latin
   # rubocop:enable Style/StringHashKeys
 
   # @param [String] name1
-# @param [String] name2
-# @return [Boolean]
+  # @param [String] name2
+  # @return [Boolean]
   def self.same_root_name?(name1, name2)
     return false if (name1.length - name2.length).abs > 1
   end
 
-# An Array of all endings sorted by length, longest first
-# @return [Array]
+  # An Array of all endings sorted by length, longest first
+  # @return [Array]
   def self.all_endings
     (ENDINGS.keys + ENDINGS.values).flatten.sort{|a,b| b.length <=> a.length}
   end
 
-# @param [String] name
-# @return [Boolean]
+  # @param [String] name
+  # @return [Boolean]
   def self.root(name)
     return false if name.nil? || name.class != String
     self.all_endings.each do |e|
@@ -36,7 +36,6 @@ module Utilities::Latin
     end
     false
   end
-
 end
 
 

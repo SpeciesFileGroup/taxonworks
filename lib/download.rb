@@ -1,28 +1,30 @@
-# Code that translates scopes into downloadable tab-delimited CSV. Dependant on Postgresql. 
+# Code that translates scopes into downloadable tab-delimited CSV. Dependant on Postgresql.
 #
 module Download
 
-  # @params exclude_columns [Array] delete referenced columns from result 
-  # @params trim_rows [Array] delete rows from result if no data provided
-  # @params trim_columns [Array] delete columns from result if no data provided
-   # @return [String]
   #   translate a scope into a CSV table, with optional tweaks to the data
   #
-  # This is a very nice reference for future consideration: 
+  # This is a very nice reference for future consideration:
   #   http://collectiveidea.com/blog/archives/2015/03/05/optimizing-rails-for-memory-usage-part-3-pluck-and-database-laziness
+  # @param [Scope] scope
+  # @param [Array] exclude_columns
+  # @param [Array] header_converters
+  # @param [Boolean] trim_rows
+  # @param [Boolean] trim_columns
+  # @return [CSV]
   def self.generate_csv(scope, exclude_columns: [], header_converters: [], trim_rows: false, trim_columns: false)
 
     # Check to see if keys is deterministicly ordered
     column_names = scope.columns_hash.keys
-   
+
     h = CSV.new(column_names.join(','), header_converters: header_converters, headers: true)
     h.read
-    
+
     headers = CSV::Row.new(h.headers, h.headers, true)
 
     tbl = CSV::Table.new([headers])
-   
-    # Pluck rows is from postgresql_cursor gem  
+
+    # Pluck rows is from postgresql_cursor gem
     scope.pluck_rows(*column_names).each do |o|
       tbl << o.collect{|v| Utilities::Strings.sanitize_for_csv(v) }
       # If keys are not deterministic: .attributes.values_at(*column_names).collect{|v| Utilities::Strings.sanitize_for_csv(v) }
@@ -36,24 +38,24 @@ module Download
     tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
   end
 
-  # @param table [CSV::Table]
-  # @param columns [Array]
-  # @return [CSV::Table]
-  #   delete the specified columns
+    # @param table [CSV::Table]
+    # @param columns [Array]
+    # @return [CSV::Table]
+    #   delete the specified columns
   def self.delete_columns(tbl, columns = [])
     return tbl if columns.empty?
     columns.each do |col|
       tbl.delete(col.to_s)
     end
-   tbl 
+   tbl
   end
 
-  # @return [CSV::Table]
-  # @param table [CSV::Table]
-  # @param skip_id [Boolean] if true ignore the 'id'l column in consideration of whether to delete this row
-  #   delete rows if there are no values in any cell (of course doing this in the scope is better!)
+    # @return [CSV::Table]
+    # @param table [CSV::Table]
+    # @param skip_id [Boolean] if true ignore the 'id'l column in consideration of whether to delete this row
+    #   delete rows if there are no values in any cell (of course doing this in the scope is better!)
   def self.trim_rows(table, skip_id = true)
-    headers = table.headers 
+    headers = table.headers
     headers = headers - ['id'] if skip_id
     table.by_row!.delete_if do |row|
       d = true
@@ -64,12 +66,12 @@ module Download
       end
       d
     end
-    table  
+    table
   end
 
-  # @return [CSV::Table]
-  # @param table [CSV::Table]
-  #   remove columns without any non-#blank? values (of course doing this in the scope is better!)
+    # @return [CSV::Table]
+    # @param table [CSV::Table]
+    #   remove columns without any non-#blank? values (of course doing this in the scope is better!)
   def self.trim_columns(table)
     table.by_col!.delete_if do |h, col|
       d = true
@@ -81,7 +83,7 @@ module Download
       end
       d
     end
-    table 
+    table
   end
 
 end

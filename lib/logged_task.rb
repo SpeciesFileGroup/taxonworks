@@ -3,7 +3,9 @@ module LoggedTask
   @@task_number = 0
   @@root_task_number = nil
   @@loggers = []
-
+# @param [Array] args
+# @param [Block] block
+# @return [Ignored]
   def self.define(*args, &block)
     task_number = @@task_number += 1
 
