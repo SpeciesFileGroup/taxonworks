@@ -14,7 +14,7 @@
       </div>
     </div>
     <button
-      v-if="objectId"
+      :disabled="!objectId"
       class="normal-input button button-submit"
       type="button"
       @click="createColumnItem">Create

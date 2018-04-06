@@ -6,6 +6,7 @@ import getMatrixObservationColumns from './loadColumnItems'
 import loadMatrix from './loadMatrix'
 import removeRow from './removeRow'
 import removeColumn from './removeColumn'
+import updateMatrix from './updateMatrix'
 
 const ActionFunctions = {
   [ActionNames.CreateRowItem]: createRowItem,
@@ -14,7 +15,8 @@ const ActionFunctions = {
   [ActionNames.GetMatrixObservationRows]: getMatrixObservationRows,
   [ActionNames.GetMatrixObservationColumns]: getMatrixObservationColumns,
   [ActionNames.RemoveRow]: removeRow,
-  [ActionNames.RemoveColumn]: removeColumn
+  [ActionNames.RemoveColumn]: removeColumn,
+  [ActionNames.UpdateMatrix]: updateMatrix
 }
 
 export { ActionNames, ActionFunctions }

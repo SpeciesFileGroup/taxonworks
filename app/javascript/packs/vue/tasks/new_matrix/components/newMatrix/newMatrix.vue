@@ -14,7 +14,14 @@
         v-if="!matrix.id"
         @click="create"
         class="normal-input button button-submit"
-        type="button">Create</button>
+        type="button">Create
+      </button>
+      <button
+        v-else
+        @click="updateMatrix"
+        class="normal-input button button-submit"
+        type="button">Update
+      </button>
       <switch-component
         :options="['Column', 'Row']"
         v-model="matrixView"/>
@@ -32,6 +39,7 @@ import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 
 import SwitchComponent from './switch.vue'
+import { ActionNames } from '../../store/actions/actions';
 
 export default {
   components: {
@@ -80,6 +88,9 @@ export default {
       CreateMatrix(this.matrix).then(response => {
         this.matrix = response
       }); 
+    },
+    updateMatrix() {
+      this.$store.dispatch(ActionNames.UpdateMatrix)
     }
   }
 }

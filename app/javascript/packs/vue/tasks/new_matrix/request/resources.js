@@ -31,6 +31,10 @@ const CreateMatrix = function (data) {
   return ajaxCall('post', `/observation_matrices.json`, { observation_matrix: data })
 }
 
+const UpdateMatrix = function (id, data) {
+  return ajaxCall('patch', `/observation_matrices/${id}.json`, { observation_matrix: data })
+}
+
 const GetMatrixObservation = function(id) {
   return ajaxCall('get',`/observation_matrices/${id}.json`)
 }
@@ -83,10 +87,6 @@ const GetSmartSelector = function(type) {
   return ajaxCall('get', `/${type}/select_options?klass=ObservationMatrix`)
 }
 
-const batchRemoveKeyword = function (id, type) {
-  return ajaxCall('post', `/tags/batch_remove?keyword_id=${id}&klass=${type}`)
-}
-
 export {
   CreateMatrix,
   CreateRowBatchLoad,
@@ -99,8 +99,8 @@ export {
   GetMatrixColumnMetadata,
   GetMatrixRowMetadata,
   BatchRemoveKeyword,
-  batchRemoveKeyword,
   GetSmartSelector,
+  UpdateMatrix,
   RemoveRow,
   RemoveColumn
 }

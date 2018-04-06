@@ -20,7 +20,9 @@
 <script>
 
 import smartSelector from '../shared/smartSelector'
-//import searchComponent from './search'
+import searchComponent from './search'
+import tagsComponent from '../shared/tag_list'
+
 import { 
   default as quickComponent, 
   default as recentComponent, 
@@ -34,9 +36,11 @@ import { GetterNames } from '../../store/getters/getters'
 export default {
   components: {
     smartSelector,
+    tagsComponent,
     quickComponent,
     recentComponent,
     pinboardComponent,
+    searchComponent
   },
   computed: {
     componentExist() {
@@ -49,7 +53,7 @@ export default {
   data() {
     return {
       smartOptions: [],
-      moreOptions: ['search'],
+      moreOptions: ['tags', 'search'],
       selectorLists: undefined,
       view: undefined
     }
