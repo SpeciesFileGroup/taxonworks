@@ -11,12 +11,6 @@
         type="button"
         @click="batchLoad(key, matrixId)">Create
       </button>
-      <button
-        v-if="key != 'total'"
-        class="separate-left button normal-input button-delete"
-        type="button"
-        @click="removeKeyword(item.object.id, key)">Remove
-      </button>
     </div>
   </div>
 </template>

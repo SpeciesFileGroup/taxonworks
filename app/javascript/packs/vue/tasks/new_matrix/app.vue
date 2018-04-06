@@ -6,8 +6,8 @@
       v-if="matrix.id"
       class="separate-top">
       <template v-if="isFixed">
-        <rows-view v-if="isRow"/>
-        <columns-view v-else/>
+        <rows-fixed v-if="isRow"/>
+        <columns-fixed v-else/>
       </template>
       <template v-else>
         <rows-dynamic v-if="isRow"/>
@@ -26,8 +26,8 @@
 import NewMatrix from './components/newMatrix/newMatrix'
 import RowsTable from './components/tables/rows'
 import ColumnsTable from './components/tables/columns'
-import RowsView from './components/rows/rowsView'
-import columnsView from './components/columns/columnsView'
+import RowsFixed from './components/rows/fixed'
+import columnsFixed from './components/columns/fixed'
 
 import rowsDynamic from './components/rows/dynamic'
 import columnDynamic from './components/columns/dynamic'
@@ -39,10 +39,10 @@ export default {
   components: {
     NewMatrix,
     RowsTable,
-    RowsView,
+    RowsFixed,
     rowsDynamic,
     ColumnsTable,
-    columnsView,
+    columnsFixed,
     columnDynamic
   },
   computed: {

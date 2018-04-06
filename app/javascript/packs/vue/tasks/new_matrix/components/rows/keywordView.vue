@@ -25,7 +25,7 @@
 </template>
 <script>
 
-  import { CreateRowBatchLoad } from '../../request/resources'
+  import { CreateRowBatchLoad, BatchRemoveKeyword } from '../../request/resources'
   import { GetterNames } from '../../store/getters/getters'
   import { ActionNames } from '../../store/actions/actions'
 
@@ -54,6 +54,12 @@
           klass: (type == 'total' ? undefined : type)
         }
         CreateRowBatchLoad(object).then((response) => {
+          this.$store.dispatch(ActionNames.GetMatrixObservationRows, this.matrixId)
+        })
+      },
+      removeKeyword(id, type) {
+        BatchRemoveKeyword(id, type).then(response => {
+          console.log(response)
           this.$store.dispatch(ActionNames.GetMatrixObservationRows, this.matrixId)
         })
       }

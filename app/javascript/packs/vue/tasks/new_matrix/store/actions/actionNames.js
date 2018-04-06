@@ -1,5 +1,6 @@
 const ActionNames = {
   CreateRowItem: 'createRowItem',
+  CreateColumnItem: 'createColumnItem',
   LoadMatrix: 'loadMatrix',
   GetMatrixObservationRows: 'getMatrixObservationRows',
   GetMatrixObservationColumns: 'getMatrixObservationColumns',
