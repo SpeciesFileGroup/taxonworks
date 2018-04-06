@@ -5,8 +5,14 @@
     <div
       v-if="matrix.id"
       class="separate-top">
-      <rows-view v-if="isRow"/>
-      <columns-view v-else/>
+      <template v-if="isFixed">
+        <rows-view v-if="isRow"/>
+        <columns-view v-else/>
+      </template>
+      <template v-else>
+        <rows-dynamic v-if="isRow"/>
+        <column-dynamic v-else/>
+      </template>
     </div>
     <div v-if="matrix.id">
       <rows-table/>
@@ -23,6 +29,9 @@ import ColumnsTable from './components/tables/columns'
 import RowsView from './components/rows/rowsView'
 import columnsView from './components/columns/columnsView'
 
+import rowsDynamic from './components/rows/dynamic'
+import columnDynamic from './components/columns/dynamic'
+
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
 
@@ -31,8 +40,10 @@ export default {
     NewMatrix,
     RowsTable,
     RowsView,
+    rowsDynamic,
     ColumnsTable,
-    columnsView
+    columnsView,
+    columnDynamic
   },
   computed: {
     matrix() {
@@ -40,6 +51,9 @@ export default {
     },
     isRow() {
       return (this.$store.getters[GetterNames.GetMatrixView] == 'row' ? true : false) 
+    },
+    isFixed() {
+      return (this.$store.getters[GetterNames.GetMatrixMode] == 'fixed' ? true : false)
     }
   },
   data() {

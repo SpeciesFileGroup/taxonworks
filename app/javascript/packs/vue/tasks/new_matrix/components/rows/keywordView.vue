@@ -1,31 +1,33 @@
 <template>
   <div>
-    <div
-      class="tag_list"
-      v-for="(object, key) in list.totals"
-      v-if="object">
-      <div class="capitalize tag_label">{{ key }}</div>
-      <div class="tag_total">{{ object }}</div>
-      <button
-        class="button normal-input button-submit"
-        type="button"
-        @click="batchLoad(key, matrixId)">Create
-      </button>
-      <button
-        v-if="key != 'total'"
-        class="separate-left button normal-input button-delete"
-        type="button"
-        @click="removeKeyword(item.object.id, key)">Remove
-      </button>
+    <div v-for="object in list">
+      <hr>
+      <b><p v-html="object.object.object_tag"/></b>
+      <div
+        class="tag_list"
+        v-for="(keywordCount, key) in object.totals">
+        <div class="capitalize tag_label">{{ key }}</div>
+        <div class="tag_total">{{ keywordCount }}</div>
+        <button
+          class="button normal-input button-submit"
+          type="button"
+          @click="batchLoad(key, matrixId, key, object.object.id)">Create
+        </button>
+        <button
+          v-if="key != 'total'"
+          class="separate-left button normal-input button-delete"
+          type="button"
+          @click="removeKeyword(matrixId, key)">Remove
+        </button>
+      </div>
     </div>
   </div>
 </template>
-
 <script>
 
   import { CreateRowBatchLoad } from '../../request/resources'
   import { GetterNames } from '../../store/getters/getters'
-  import { ActionNames } from '../../store/actions/actions';
+  import { ActionNames } from '../../store/actions/actions'
 
   export default {
     props: {
@@ -36,7 +38,7 @@
       batchType: {
         type: String,
         required: true
-      }
+      },
     },
     computed: {
       matrixId() {
@@ -44,11 +46,12 @@
       }
     },
     methods: {
-      batchLoad(classType, matrixId) {
+      batchLoad(classType, matrixId, type, keywordId) {
         let object = {
           observation_matrix_id: matrixId,
-          batch_type: this.batchType,
-          klass: classType
+          keyword_id: keywordId,
+          batch_type: 'tags',
+          klass: (type == 'total' ? undefined : type)
         }
         CreateRowBatchLoad(object).then((response) => {
           this.$store.dispatch(ActionNames.GetMatrixObservationRows, this.matrixId)
