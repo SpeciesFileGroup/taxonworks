@@ -45,7 +45,7 @@ class ObservationMatrixColumnItemsController < ApplicationController
       if @observation_matrix_column_item.save
         format.html { redirect_to url_for(@observation_matrix_column_item.metamorphosize),
                       notice: 'Matrix column item was successfully created.' }
-        format.json { render :show, status: :created, location: @observation_matrix_column_item }
+        format.json { render :show, status: :created, location: @observation_matrix_column_item.metamorphosize }
       else
         format.html { render :new }
         format.json { render json: @observation_matrix_column_item.errors, status: :unprocessable_entity }
