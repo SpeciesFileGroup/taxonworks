@@ -242,19 +242,33 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
         end
 
         def m_get_ids(kn)
-          total = kn[:cr].detail.count
+          total = kn[:cr].detail.keys.count
           count = 0
-          # total.each do |id|
-          # if kn[:cr].genus
-          #   genus_id = send(:get_genus_id, kn)
-          #   if !genus_id.nil?
-          #     if kn[:cr].subgenus
-          #
-          #     end
-          #
-          #
-          #   end
-          # end
+          total.each do
+            rank = kn[:cr].keys[count.to_s]
+            case rank
+            when 'genus'
+              genus_id = send(:get_genus_id, kn)
+              return false, nil if genus_id.nil?
+              # a = {genus:, genus_id}
+            when 'subgenus'
+              subgenus_id = send(:get_subgenus_id, kn)
+              return false, nil if subgenus_id.nil?
+            when 'species'
+              species_id = send(:get_species_id, kn)
+              return false, nil if species_id.nil?
+            when 'subspecies'
+              subspecies_id = send(:get_subspecies_id, kn)
+              return false, nil if subspecies_id.nil?
+            else
+              puts 'rank not anticipated' # could be species_group, etc. (ranks not included in SF nomenclators)
+              return false, nil
+            end
+            count += 1
+            break if total = count
+          end
+          # here after break
+          # need something to indicate which pieces should go into trial combination
         end
 
         def get_genus_id(kn)
@@ -306,6 +320,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           source_used_counter = 0
 
           unique_bad_nomenclators = {}
+          new_name_status = {}  # todo: key = NewNameStatusID, value = count of instances, initialize values 0 - 22 (some values are missing)
 
           base_uri = 'http://speciesfile.org/legacy/'
 
@@ -478,6 +493,11 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                   # nomenclator name different than current name (probably synonymized)
                   # disambiguating genera/subgenera
                   # same author, same combination applied to multiple species synonymized under same valid name: create citation for the synonymy relationship
+                  #
+                  # other tasks
+                  # add counter for NewNameStatusID: each value?
+                  # add citation to synonym combination if value already used or is it citation to relationship? Show example of Gastrimargus determinatus vitripennis
+                  #
 
 
                   # else
@@ -587,7 +607,9 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                     begin
                       citation.save!
                     rescue ActiveRecord::RecordInvalid
+                      # [ERROR]2018-03-30 17:09:43.127: Citation ERROR [TW.project_id: 11, SF.TaxonNameID 1152999 = TW.taxon_name_id 47338, SF.RefID 16047 = TW.source_id 12047, SF.SeqNum 2, nomenclator_string = Limnoperla jaffueli, name_status = 3] (total_error_counter = 1, source_used_counter = 1): Source has already been taken
                       logger.error "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}, nomenclator_string = #{nomenclator_string}, name_status = #{row['NewNameStatusID']}] (total_error_counter = #{error_counter += 1}, source_used_counter = #{source_used_counter += 1}): " + citation.errors.full_messages.join(';')
+                      logger.info "NewNameStatusID = #{new_name_status[row['NewNameStatusID']] += 1}"
                       next
                     end
                   else # citation error was not already been taken (other validation failure)
@@ -689,7 +711,10 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
           end
 
-          logger.info "total funny exceptions = '#{funny_exceptions_counter}', total unique_bad_nomenclators = '#{unique_bad_nomenclators.count}', \n unique_bad_nomenclators = '#{unique_bad_nomenclators}'"
+          # logger.info "total funny exceptions = '#{funny_exceptions_counter}', total unique_bad_nomenclators = '#{unique_bad_nomenclators.count}', \n unique_bad_nomenclators = '#{unique_bad_nomenclators}'"
+          ap "total funny exceptions = '#{funny_exceptions_counter}', total unique_bad_nomenclators = '#{unique_bad_nomenclators.count}', \n unique_bad_nomenclators = '#{unique_bad_nomenclators}'"
+          puts 'new_name_status hash:'
+          ap new_name_status
         end
 
         desc 'time rake tw:project_import:sf_import:cites:check_original_genus_ids user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
