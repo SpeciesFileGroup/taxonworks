@@ -339,26 +339,6 @@ describe User, type: :model do
     end
   end
 
-  context 'stored user preferences' do
-    context 'chime methods' do
-
-      specify 'disable_chime' do
-        user.disable_chime
-        expect(user.chime_enabled?).to eq(false)
-      end
-
-      specify 'enable_chime' do
-        user.enable_chime
-        expect(user.chime_enabled?).to eq(true)
-      end
-
-      specify 'chime_enabled?' do
-        user.disable_chime
-        expect(user.chime_enabled?).to eq(false)
-      end
-    end
-  end
-
   context 'concerns' do
     it_behaves_like 'data_attributes'
     it_behaves_like 'notable'
