@@ -62,7 +62,7 @@ class Person < ApplicationRecord
   ALTERNATE_VALUES_FOR = [:last_name, :first_name].freeze
 
   # @return [Boolean]
-  #   When true cached values are not built
+  #   true when cached values have not been built
   attr_accessor :no_cached
 
   validates_presence_of :last_name, :type
@@ -199,15 +199,43 @@ class Person < ApplicationRecord
                                                          prefix: n['non-dropping-particle']) }
   end
 
+=begin
+  What is the logic to declare one person 'identical' to another
+
+  Easy tests:
+    0) person.id: if this is the same as self.id, must be same record.
+                  OR
+    1) person.last_name == last_name
+                AND
+    2) person.first_name == first_name
+                AND
+      a) person.cached == cached
+
+    3) person.prefix (subsumed by 'cached'?)
+    4) person.suffix (subsumed by 'cached'?)
+
+  A little harder:
+    5) person.year_born (if both available)
+    6) person.year_died (if both available)
+    7) person.year_active_start (if both available)
+    8) person.year_active_end (if both available)
+
+  More complex:
+    9) person.authored_taxon_names is same set as authored_taxon_names
+      a) count is the same
+                  AND
+      b) taxon names match
+=end
+
   # @param [Person] person to which this instance is to be compared
   # @return [Boolean]
-  def similar(person)
+  def identical(person)
 
   end
 
   # @param [Person] person to which this instance is to be compared
   # @return [Boolean]
-  def identical(person)
+  def similar(person)
 
   end
 
