@@ -314,7 +314,7 @@ class Source::Bibtex < Source
     :journal,
     :year,
     :stated_year
-  ].freeze 
+  ].freeze
 
   belongs_to :serial, inverse_of: :sources
   belongs_to :source_language, class_name: 'Language', foreign_key: :language_id, inverse_of: :sources
@@ -338,7 +338,8 @@ class Source::Bibtex < Source
     message: 'is required when month or stated_year is provided'
 
   # @todo refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
-  validates :year, date_year: {min_year: 1000, max_year: Time.now.year + 2, message: 'must be an integer greater than 999 and no more than 2 years in the future'}
+  validates :year, date_year: {min_year: 1000, max_year: Time.now.year + 2,
+                               message: 'must be an integer greater than 999 and no more than 2 years in the future'}
 
   validates_presence_of :month,
     unless: -> {day.nil?},
@@ -367,14 +368,17 @@ class Source::Bibtex < Source
 
   #region ruby-bibtex related
 
+  # @return [Array] journal, nil or name
   def journal
     [read_attribute(:journal), (self.serial.blank? ? nil : self.serial.name)].compact.first
   end
 
+  # @return [String]
   def verbatim_journal
     read_attribute(:journal)
   end
 
+  # rubocop:disable Metrics/MethodLength
   # @return [BibTeX::Entry]
   #   entry equivalent to self
   def to_bibtex
@@ -431,8 +435,9 @@ class Source::Bibtex < Source
     b.key = self.id unless self.new_record?
     b
   end
+  # rubocop:enable Metrics/MethodLength
 
-  # @param type [String] either `author` or `editor`
+  # @param [String] type either `author` or `editor`
   # @return [String]
   #   the bibtex version of the name strings created from the TW people
   #   BibTeX format is 'lastname, firstname and lastname,firstname and lastname, firstname'
@@ -450,7 +455,7 @@ class Source::Bibtex < Source
     end
   end
 
-  # @param type [String] either `author` or `editor`
+  # @param [String] type either `author` or `editor`
   # @return [String]
   #   A human readable version of the person list
   #   'firstname lastname, firstname lastname, & firstname lastname'
@@ -483,7 +488,7 @@ class Source::Bibtex < Source
   #    a = BibTeX::Entry.new(bibtex_type: 'book', title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
   #    b = Source::Bibtex.new(a)
   #
-  # @param bibtex_entry [BibTex::Entry] the BibTex::Entry to convert
+  # @param [BibTex::Entry] bibtex_entry the BibTex::Entry to convert
   # @return [Source::BibTex.new] a new instance
   # @todo annote to project specific note?
   # @todo if it finds one & only one match for serial assigns the serial ID, and if not it just store in journal title
@@ -526,8 +531,10 @@ class Source::Bibtex < Source
     [cached_author_string, year].compact.join(', ')
   end
 
+  # rubocop:disable Metrics/MethodLength
   # Modified from build, the issues with polymorphic has_many and build
   # are more than we want to tackle right now
+  # @return [Array, Boolean] of names, or false
   def create_related_people_and_roles
     return false if !self.valid? ||
       self.new_record? ||
@@ -560,7 +567,10 @@ class Source::Bibtex < Source
     end
     true
   end
+  # rubocop:enable Metrics/MethodLength
 
+  # @param [BibTeX::Name] bibtex_author
+  # @return [Person, Boolean] new person, or false
   def self.bibtex_author_to_person(bibtex_author)
     return false if bibtex_author.class != BibTeX::Name
     Person.new(
@@ -576,6 +586,8 @@ class Source::Bibtex < Source
 
   #region getters & setters
 
+  # @param [String, Integer] value
+  # @return [Integer] value of year
   def year=(value)
     if value.class == String
       value =~ /\A(\d\d\d\d)([a-zA-Z]*)\z/
@@ -587,6 +599,8 @@ class Source::Bibtex < Source
     end
   end
 
+  # @param [String] value
+  # @return [String]
   def month=(value)
     v = Utilities::Dates::SHORT_MONTH_FILTER[value]
     v = v.to_s if !v.nil?
@@ -594,6 +608,8 @@ class Source::Bibtex < Source
   end
 
   # Used only on import from BibTeX records
+  # @param [String] value
+  # @return [String]
   def note=(value)
     write_attribute(:note, value)
     if !self.note.blank? && self.new_record?
@@ -608,12 +624,14 @@ class Source::Bibtex < Source
     end
   end
 
+  # @param [String] value
+  # @return [String]
   def isbn=(value)
     write_attribute(:isbn, value)
     unless value.blank?
       if tw_isbn = self.identifiers.where(type: 'Identifier::Global::Isbn').first
         if tw_isbn.identifier != value
-          tw_isbn.destroy
+          tw_isbn.destroy!
           self.identifiers.build(type: 'Identifier::Global::Isbn', identifier: value)
         end
       else
@@ -622,16 +640,19 @@ class Source::Bibtex < Source
     end
   end
 
+  # @return [String]
   def isbn
     identifier_string_of_type('Identifier::Global::Isbn')
   end
 
+  # @param [String] value
+  # @return [String]
   def doi=(value)
     write_attribute(:doi, value)
     unless value.blank?
       if tw_doi = self.identifiers.where(type: 'Identifier::Global::Doi').first
         if tw_doi.identifier != value
-          tw_doi.destroy
+          tw_doi.destroy!
           self.identifiers.build(type: 'Identifier::Global::Doi', identifier: value)
         end
       else
@@ -640,12 +661,15 @@ class Source::Bibtex < Source
     end
   end
 
+  # @return [String]
   def doi
     identifier_string_of_type('Identifier::Global::Doi')
   end
 
   # @todo Are ISSN only Serials now? Maybe - the raw bibtex source may come in with an ISSN in which case
   # we need to set the serial based on ISSN.
+  # @param [String] value
+  # @return [String]
   def issn=(value)
     write_attribute(:issn, value)
     unless value.blank?
@@ -657,16 +681,19 @@ class Source::Bibtex < Source
     end
   end
 
+  # @return [String]
   def issn
     identifier_string_of_type('Identifier::Global::Issn')
   end
 
   # turn bibtex URL field into a Ruby URI object
+  # @return [URI]
   def url_as_uri
     URI(self.url) unless self.url.blank?
   end
 
-  # @return [String]
+  # @param [String] type_value
+  # @return [Identifier]
   #   the identifier of this type, relies on Identifier to enforce has_one for Global identifiers
   #   !! behaviour for Identifier::Local types may be unexpected
   def identifier_string_of_type(type_value)
@@ -679,6 +706,7 @@ class Source::Bibtex < Source
   # end
   #endregion getters & setters
 
+  # @return [Boolean]
   def has_authors? # is there a bibtex author or author roles?
     return true if !(author.blank?) # author attribute is empty
     return false if new_record? # nothing saved yet, so no author roles are saved yet
@@ -686,6 +714,7 @@ class Source::Bibtex < Source
     (self.authors.count > 0) ? (return true) : (return false)
   end
 
+  # @return [Boolean]
   def has_editors?
     return true if !(self.editor.blank?)
     # editor attribute is empty
@@ -694,10 +723,12 @@ class Source::Bibtex < Source
     (self.editors.count > 0) ? (return true) : (return false)
   end
 
+  # @return [Boolean]
   def has_writer? # contains either an author or editor
     (has_authors?) || (has_editors?) ? true : false
   end
 
+  # @return [Boolean]
   def has_some_year? # is there a year or stated year?
     return true if !(self.year.blank?) || !(self.stated_year.blank?)
     false
@@ -711,6 +742,7 @@ class Source::Bibtex < Source
   end
 
   #  Month handling allows values from bibtex like 'may' to be handled
+  # @return [Time]
   def nomenclature_date
     Utilities::Dates.nomenclature_date( day,  Utilities::Dates.month_index(month), year)
   end
@@ -752,14 +784,17 @@ class Source::Bibtex < Source
     b
   end
 
-  # @return [String]
   #   this source, rendered in the provided CSL style, as text
+  # @param [String] style
+  # @param [String] format
+  # @return [String]
   def render_with_style(style = 'vancouver', format = 'text')
     cp = CiteProc::Processor.new(style: style, format: format)
     cp.import(bibtex_bibliography.to_citeproc)
     cp.render(:bibliography, id: cp.items.keys.first).first.strip
   end
 
+  # @param [String] format
   # @return [String]
   #   a full representation, using bibtex
   # String must be length > 0
@@ -772,8 +807,21 @@ class Source::Bibtex < Source
     str.sub('(0ADAD)', '') # citeproc renders year 0000 as (0ADAD)
   end
 
+  # @param [Source] source
+  # @return [Boolean]
+  def similar(source)
+    false
+  end
+
+  # @param [Source] source
+  # @return [Boolean]
+  def identical(source)
+    false
+  end
+
   protected
 
+  # @return [Ignored]
   def create_authors
     begin
       Person.transaction do
@@ -788,6 +836,7 @@ class Source::Bibtex < Source
   end
 
   # set cached values and copies active record relations into bibtex values
+  # @return [Ignored]
   def set_cached
     if errors.empty?
       attributes_to_update = {
@@ -806,6 +855,7 @@ class Source::Bibtex < Source
   #region hard validations
 
   # must have at least one of the required fields (TW_REQUIRED_FIELDS)
+  # @return [Ignored]
   def check_has_field
     valid = false
     TW_REQUIRED_FIELDS.each do |i|
@@ -829,6 +879,7 @@ class Source::Bibtex < Source
   #endregion  hard validations
 
   #region Soft_validation_methods
+  # @return [Ignored]
   def sv_has_authors
     # only used in validating BibTeX output
     if !(has_authors?)
@@ -836,12 +887,14 @@ class Source::Bibtex < Source
     end
   end
 
+  # @return [Ignored]
   def sv_contains_a_writer # neither author nor editor
     if !has_writer?
       soft_validations.add(:base, 'There is neither author, nor editor associated with this source.')
     end
   end
 
+  # @return [Ignored]
   def sv_has_title
     if self.title.blank?
       unless self.soft_validations.messages.include?('There is no title associated with this source.')
@@ -850,12 +903,14 @@ class Source::Bibtex < Source
     end
   end
 
+  # @return [Ignored]
   def sv_has_some_type_of_year
     if !has_some_year?
       soft_validations.add(:base, 'There is no year nor is there a stated year associated with this source.')
     end
   end
 
+  # @return [Ignored]
   def sv_year_exists
     # only used in validating BibTeX output
     if year.blank?
@@ -870,6 +925,7 @@ class Source::Bibtex < Source
   #   soft_validations.add(:bibtex_type, 'The source is missing a journal name.') if self.journal.blank?
   # end
 
+  # @return [Ignored]
   def sv_is_article_missing_journal
     if self.bibtex_type == 'article'
       if self.journal.blank? and self.serial.blank?
@@ -878,18 +934,21 @@ class Source::Bibtex < Source
     end
   end
 
+  # @return [Ignored]
   def sv_has_a_publisher
     if self.publisher.blank?
       soft_validations.add(:publisher, 'Valid BibTeX requires a publisher to be associated with this source.')
     end
   end
 
+  # @return [Ignored]
   def sv_has_booktitle
     if self.booktitle.blank?
       soft_validations.add(:booktitle, 'Valid BibTeX requires a book title to be associated with this source.')
     end
   end
 
+  # @return [Ignored]
   def sv_is_contained_has_chapter_or_pages
     if self.chapter.blank? && self.pages.blank?
       soft_validations.add(:bibtex_type, 'Valid BibTeX requires either a chapter or pages with sources of type inbook.')
@@ -899,24 +958,29 @@ class Source::Bibtex < Source
     end
   end
 
+  # @return [Ignored]
   def sv_has_school
     if self.school.blank?
       soft_validations.add(:school, 'Valid BibTeX requires a school associated with any thesis.')
     end
   end
 
+  # @return [Ignored]
   def sv_has_institution
     if self.institution.blank?
       soft_validations.add(:institution, 'Valid BibTeX requires an institution with a tech report.')
     end
   end
 
+  # @return [Ignored]
   def sv_has_note
     if (self.note.blank?) && (!self.notes.any?)
       soft_validations.add(:note, 'Valid BibTeX requires a note with an unpublished source.')
     end
   end
 
+  # rubocop:disable Metrics/MethodLength
+  # @return [Ignored]
   def sv_missing_required_bibtex_fields
     case self.bibtex_type
       when 'article' #:article       => [:author,:title,:journal,:year]
@@ -980,8 +1044,7 @@ class Source::Bibtex < Source
         sv_has_note
     end
   end
-
+  # rubocop:enable Metrics/MethodLength
   #endregion   Soft_validation_methods
-
 end
 
