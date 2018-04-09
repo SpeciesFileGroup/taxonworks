@@ -1,5 +1,5 @@
-# A human. Data only, not users. There are two classes of people: vetted and unvetted.  
-# !! People are only related to data via Roles. 
+# A human. Data only, not users. There are two classes of people: vetted and unvetted.
+# !! People are only related to data via Roles.
 #
 # A vetted person
 # * Has two or more roles
@@ -28,25 +28,25 @@
 #   @return [String]
 #   string following the *last/family* name
 #
-# @!attribute year_active_start 
+# @!attribute year_active_start
 #   @return [Integer]
-#     (rough) starting point of when person made scientific assertions that were dissemenated (i.e. could be seen by others) 
+#     (rough) starting point of when person made scientific assertions that were dissemenated (i.e. could be seen by others)
 #
 # @!attribute year_active_end
 #   @return [Integer]
-#     (rough) ending point of when person made scientific assertions that were dissemenated (i.e. could be seen by others) 
+#     (rough) ending point of when person made scientific assertions that were dissemenated (i.e. could be seen by others)
 #
 # @!attribute year_born
 #   @return [Integer]
-#     born on 
+#     born on
 #
 ## @!attribute year_died
 #   @return [Integer]
-#     year died 
+#     year died
 #
 # @!attribute cached
 #   @return [String]
-#      full name 
+#      full name
 #
 class Person < ApplicationRecord
   include Housekeeping::Users
@@ -56,7 +56,7 @@ class Person < ApplicationRecord
   include Shared::Identifiers
   include Shared::Notes
   include Shared::SharedAcrossProjects
-  include Shared::HasPapertrail 
+  include Shared::HasPapertrail
   include Shared::IsData
 
   ALTERNATE_VALUES_FOR = [:last_name, :first_name].freeze
@@ -67,11 +67,11 @@ class Person < ApplicationRecord
 
   validates_presence_of :last_name, :type
 
-  validates :year_born, inclusion: { in: 0..Date.today.year }, allow_nil: true
-  validates :year_died, inclusion: { in: 0..Date.today.year }, allow_nil: true
-  validates :year_active_start, inclusion: { in: 0..Date.today.year }, allow_nil: true
-  validates :year_active_end, inclusion: { in: 0..Date.today.year }, allow_nil: true
-            
+  validates :year_born, inclusion: { in: 0..Time.now.year }, allow_nil: true
+  validates :year_died, inclusion: { in: 0..Time.now.year }, allow_nil: true
+  validates :year_active_start, inclusion: { in: 0..Time.now.year }, allow_nil: true
+  validates :year_active_end, inclusion: { in: 0..Time.now.year }, allow_nil: true
+
   validate :died_after_born
   validate :activity_ended_after_started
   validate :not_active_after_death
@@ -117,6 +117,7 @@ class Person < ApplicationRecord
     roles.any?
   end
 
+  # @return [String]
   def name
     [first_name, prefix, last_name, suffix].compact.join(' ')
   end
@@ -130,7 +131,7 @@ class Person < ApplicationRecord
     out << last_name unless last_name.blank?
     out << ', ' unless out.blank? || (first_name.blank? && suffix.blank?)
     out << suffix unless suffix.blank?
-    
+
     out << ', ' unless out.end_with?(', ') || first_name.blank? || out.blank?
     out << first_name unless first_name.blank?
     out.strip
@@ -176,14 +177,14 @@ class Person < ApplicationRecord
   def is_type_designator?
     type_designator_roles.to_a.length > 0
   end
-  
+
   # @return [Boolean]
   def is_georeferencer?
     georeferencer_roles.to_a.length > 0
   end
 
   # @return [Array of Hashes]
-  #   use citeproc to parse strings 
+  #   use citeproc to parse strings
   def self.parser(name_string)
     BibTeX::Entry.new(type: :book, author: name_string).parse_names.to_citeproc['author']
   end
@@ -224,15 +225,15 @@ class Person < ApplicationRecord
   end
 
   def set_cached
-    update_column(:cached, bibtex_name) 
+    update_column(:cached, bibtex_name)
     set_taxon_name_cached_author_year
   end
 
   def set_taxon_name_cached_author_year
-    if saved_change_to_last_name? || saved_change_to_prefix? || saved_change_to_suffix? 
+    if saved_change_to_last_name? || saved_change_to_prefix? || saved_change_to_suffix?
       authored_taxon_names.reload.each do |t|
         t.send(:set_cached) # TODO: optimize, perhaps on set_author_year
-      end 
+      end
     end
   end
 
