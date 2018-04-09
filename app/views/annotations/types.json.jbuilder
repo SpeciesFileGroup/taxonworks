@@ -9,7 +9,7 @@ json.set! :types do
   end
 
   json.set! :confidences do
-    json.label 'Confidence'
+    json.label 'Confidences'
     json.klass 'Confidence'
     json.url confidences_url
     json.total Confidence.where(project_id: sessions_current_project_id).count

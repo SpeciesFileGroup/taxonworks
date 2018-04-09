@@ -38,10 +38,26 @@
       }
     },
     mounted: function () {
-      this.$http.get('/tasks/browse_annotations/get_type_list').then(response => {
+      // this.$http.get('/annotations/types').then(response => {
+      this.$http.get('/annotations/types').then(response => {
         // console.log(response); // this is necessary to show traffic?
-        this.list = response.body;
-      })
+        // this.list = response.body.types; // replaced below with selected element items
+        //   let types = {};
+        //   let rbTypes = response.body.types;
+        //   Object.keys(rbTypes).forEach(function (key) {
+        //       types[rbTypes[key]["klass"]] = rbTypes[key]["label"];
+        //     }
+        //   );
+        //   this.list = types;
+        let listTypes = {};
+        let rbTypes = response.body.types;
+        Object.keys(rbTypes).forEach(function (key) {
+          listTypes[rbTypes[key]["klass"]] = rbTypes[key]["label"];
+          }
+        );
+        this.list = listTypes;
+      }
+      )
     },
     methods: {
       selectType(type) {

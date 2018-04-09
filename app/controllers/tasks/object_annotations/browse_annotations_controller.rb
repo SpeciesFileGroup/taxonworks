@@ -11,15 +11,15 @@ class Tasks::BrowseAnnotationsController < ApplicationController
   end
 
   def get_type_list
-    # render(json: Annotations.types)
-    render(json: {
-        "tags": "Tags (by Keyword)",
-        "data_attributes": "Data attribues (by Predicates)",
-        "confidence": "Confidence (by Confidence Level)",
-        "alternate_values": "Alternate values",
-        "notes": "notes"
-    }
-    )
+    render(json: AnnotationsController.types)
+    # render(json: {
+    #     "tags": "Tags (by Keyword)",
+    #     "data_attributes": "Data attribues (by Predicates)",
+    #     "confidence": "Confidence (by Confidence Level)",
+    #     "alternate_values": "Alternate values",
+    #     "notes": "notes"
+    # }
+    # )
   end
 
   def annotation_on
