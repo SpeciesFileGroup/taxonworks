@@ -67,10 +67,10 @@ class Person < ApplicationRecord
 
   validates_presence_of :last_name, :type
 
-  validates :year_born, inclusion: { in: 0..Time.now.year }, allow_nil: true
-  validates :year_died, inclusion: { in: 0..Time.now.year }, allow_nil: true
-  validates :year_active_start, inclusion: { in: 0..Time.now.year }, allow_nil: true
-  validates :year_active_end, inclusion: { in: 0..Time.now.year }, allow_nil: true
+  validates :year_born, inclusion: {in: 0..Time.now.year}, allow_nil: true
+  validates :year_died, inclusion: {in: 0..Time.now.year}, allow_nil: true
+  validates :year_active_start, inclusion: {in: 0..Time.now.year}, allow_nil: true
+  validates :year_active_end, inclusion: {in: 0..Time.now.year}, allow_nil: true
 
   validate :died_after_born
   validate :activity_ended_after_started
@@ -80,10 +80,10 @@ class Person < ApplicationRecord
 
   before_validation :set_type_if_blank
 
-  after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
+  after_save :set_cached, unless: Proc.new { |n| n.no_cached || errors.any? }
 
   validates :type, inclusion: {
-    in: ['Person::Vetted', 'Person::Unvetted'],
+    in:      ['Person::Vetted', 'Person::Unvetted'],
     message: '%{value} is not a validly_published type'}
 
   has_many :roles, dependent: :destroy, inverse_of: :person
@@ -194,9 +194,9 @@ class Person < ApplicationRecord
   # @return [Array] of People
   #    return people for name strings
   def self.parse_to_people(name_string)
-    parser(name_string).collect{|n| Person::Unvetted.new(last_name: n['family'],
-                                                         first_name: n['given'],
-                                                         prefix: n['non-dropping-particle']) }
+    parser(name_string).collect { |n| Person::Unvetted.new(last_name:  n['family'],
+                                                           first_name: n['given'],
+                                                           prefix:     n['non-dropping-particle']) }
   end
 
 =begin
@@ -230,7 +230,16 @@ class Person < ApplicationRecord
   # @param [Person] person to which this instance is to be compared
   # @return [Boolean]
   def identical(person)
+    retval = false
+    return true if (id == person.id)
+    # two different instances of Person
+    retval = (last_name == person.lastname and first_name == person.first_name and cached == person.cached)
 
+    retval = retval and (year_born == person.year_born and year_died == person.year_died)
+
+    retval = retval and (year_sctive_start == person.year_sctive_start and year_active_end == person.year_active_end)
+
+    retval
   end
 
   # @param [Person] person to which this instance is to be compared
