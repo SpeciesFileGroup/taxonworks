@@ -183,12 +183,14 @@ class Person < ApplicationRecord
     georeferencer_roles.to_a.length > 0
   end
 
+  # @param [String] name_string
   # @return [Array] of Hashes
   #   use citeproc to parse strings
   def self.parser(name_string)
     BibTeX::Entry.new(type: :book, author: name_string).parse_names.to_citeproc['author']
   end
 
+  # @param [String] name_string
   # @return [Array] of People
   #    return people for name strings
   def self.parse_to_people(name_string)
@@ -197,40 +199,60 @@ class Person < ApplicationRecord
                                                          prefix: n['non-dropping-particle']) }
   end
 
+  # @param [Person] person to which this instance is to be compared
+  # @return [Boolean]
+  def similar(person)
+
+  end
+
+  # @param [Person] person to which this instance is to be compared
+  # @return [Boolean]
+  def identical(person)
+
+  end
+
   protected
 
+  # @return [Ignored]
   def died_after_born
     errors.add(:year_born, 'is older than died year') if year_born && year_died && year_born > year_died
   end
 
+  # @return [Ignored]
   def activity_ended_after_started
     errors.add(:year_active_start, 'is older than died year') if year_active_start && year_active_end && year_active_start > year_active_end
   end
 
+  # @return [Ignored]
   def not_active_after_death
     errors.add(:year_active_start, 'is older than year of death') if year_active_start && year_died && year_active_start > year_died
     errors.add(:year_active_end, 'is older than year of death') if year_active_end && year_died && year_active_end > year_died
   end
 
+  # @return [Ignored]
   def not_active_before_birth
     errors.add(:year_active_start, 'is younger than than year of birth') if year_active_start && year_born && year_active_start < year_born
     errors.add(:year_active_end, 'is younger than year of birth') if year_active_end && year_born && year_active_end < year_born
   end
 
+  # @return [Ignored]
   def not_gandalf
     errors.add(:base, 'fountain of eternal life does not exist yet') if year_born && year_died && year_died - year_born > 117
   end
 
   # TODO: deprecate this, always set explicitly
+  # @return [Ignored]
   def set_type_if_blank
     self.type = 'Person::Unvetted' if self.type.blank?
   end
 
+  # @return [Ignored]
   def set_cached
     update_column(:cached, bibtex_name)
     set_taxon_name_cached_author_year
   end
 
+  # @return [Ignored]
   def set_taxon_name_cached_author_year
     if saved_change_to_last_name? || saved_change_to_prefix? || saved_change_to_suffix?
       authored_taxon_names.reload.each do |t|
