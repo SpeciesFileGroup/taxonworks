@@ -12,7 +12,11 @@
 </template>
 
 <script>
+  import SwitchComponent from './switch.vue'
   export default {
+    components: {
+      SwitchComponent
+    },
     props: {
       value: {
         type: String,
@@ -29,12 +33,12 @@
         result: undefined
       }
     },
-    mounted: function () {
-      this.$http.get('/tasks/browse_annotations/get_for_list').then(response => {
-        console.log(response); // this is necessary to show traffic?
-        this.list = response.body;
-      })
-    },
+    // mounted: function () {
+    //   this.$http.get('/tasks/browse_annotations/get_for_list').then(response => {
+    //     console.log(response); // this is necessary to show traffic?
+    //     this.list = response.body;
+    //   })
+    // },
     methods: {
       selectFor(type) {
         this.$emit('input', type.valueOf())
