@@ -72,7 +72,7 @@
 
   export default {
     mixins: [CRUD],
-    name: 'RadialAnnotator',
+    name: 'radial-annotator',
     components: {
       radialMenu,
       modal,
