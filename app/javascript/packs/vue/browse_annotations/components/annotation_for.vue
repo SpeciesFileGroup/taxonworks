@@ -1,18 +1,27 @@
 <template>
-    <div>
-      <button
-        v-for="(label, key) in list"
-        :key="key"
-        type="button"
-        @click="selectFor(key)"
-        class="bottom button-submit normal-input biocuration-toggle-button"
-        v-html="label"/>
-      <span v-for="(item, key) in result" :key="key"> {{ key }} : {{ item }} <br></span>
-    </div>
+  <div>
+    <smart-selector 
+      :options="tabs"
+      name="annotation"
+      v-model="view"/>
+    <button
+      v-for="(label, key) in list"
+      :key="key"
+      type="button"
+      @click="selectFor(key)"
+      class="bottom button-submit normal-input biocuration-toggle-button"
+      v-html="label"/>
+    <span v-for="(item, key) in result" :key="key"> {{ key }} : {{ item }} <br></span>
+  </div>
 </template>
 
 <script>
+  import smartSelector from './smartSelector.vue'
+
   export default {
+    components: {
+      smartSelector
+    },
     props: {
       value: {
         type: String,
@@ -26,11 +35,18 @@
     data() {
       return {
         list: {},
+        tabs: ['quick', 'recent', 'pinboard'], //This is hard coded for now, but should be taking from the entry point.
+        view: undefined,
         result: undefined
       }
     },
     mounted: function () {
       this.$http.get('/tasks/browse_annotations/get_for_list').then(response => {
+        //You need a different structure for the smart selector. 
+        // When you have it, you should get the keys of the object to create the tab list
+        //
+        // this.tabs = Object.keys(response.body)
+        //
         console.log(response); // this is necessary to show traffic?
         this.list = response.body;
       })

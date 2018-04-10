@@ -4,7 +4,7 @@
         v-for="(item, index) in options.concat(addOption)">
       <template v-if="filter(item)">
         <input
-            :key="item"
+            :key="index"
             @click="$emit('input', item)"
             :value="item"
             :id="`switch-${name}-${index}`"
