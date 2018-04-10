@@ -1004,10 +1004,15 @@ namespace :tw do
               end
               #
             elsif taxon.rank_string =~ /Family/
-              c.family = taxon
+              c = Protonym.new(origin_citation_attributes: {source_id: source, pages: row['Page']}, verbatim_author: row['Author'], year_of_publication: row['Year'])
+              tnr = c.taxon_name_relationships.new(object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
+              c.name = taxon.name
+              c.rank_class = taxon.rank_class
+              #c.family = taxon
               c.verbatim_name = row['Name'].to_s
-              #tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
-              #byebug unless tnr.valid?
+              c.parent_id = taxon.parent_id
+              c.save
+              byebug if c.id.nil?
             end
             c.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['YearRem'].id, value: row['YearRem']) unless row['YearRem'].blank?
 

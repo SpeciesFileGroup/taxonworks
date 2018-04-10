@@ -375,7 +375,7 @@ class Combination < TaxonName
   # @params name [String, nil] the *already HTMLized* version of the name (use Combiantion.get_full_name_html if you need to mock a result)
   def self.matching_protonyms(name = nil, **protonym_ids)
     q = nil
-    if name.nil?
+    if name.empty?
       q = protonyms_matching_original_relationships(protonym_ids)
     else
       q = protonyms_matching_original_relationships(protonym_ids).where('taxon_names.cached_original_combination = ?', name)

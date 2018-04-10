@@ -500,7 +500,7 @@ namespace :tw do
               taxon.save!
             end
 
-            @data.all_genera_index[taxon.name] = taxon.id
+            @data.all_genera_index[taxon.name] = taxon.id if @data.all_genera_index[taxon.name].nil?
 
             if row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
               if changed
@@ -568,7 +568,7 @@ namespace :tw do
               byebug
             end
 
-            @data.all_genera_index[name] = taxon.id
+            @data.all_genera_index[name] = taxon.id if @data.all_genera_index[name].nil?
 
             if changed
 #              r = nil
@@ -724,7 +724,7 @@ namespace :tw do
 
             # !?! DON'T Create identifier ... (invalid)
             @data.taxon_codes[row['TaxonCode']] = taxon.id
-            @data.all_species_index[row['CitGenus'].to_s + ' ' + name] = taxon.id
+            @data.all_species_index[row['CitGenus'].to_s + ' ' + name] = taxon.id if @data.all_species_index[row['CitGenus'].to_s + ' ' + name].nil?
             #@data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
             taxon1 = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
 
@@ -732,6 +732,7 @@ namespace :tw do
             if changed
 #              r = nil
               r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name_id: taxon1) if taxon.id != taxon1
+              byebug if r.id.nil?
 #              if !r.nil? && r.id.nil?
 #                taxon2 = Protonym.new(name: name, parent_id: parent, project_id: $project_id)
 #                taxon2.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'

@@ -171,6 +171,14 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
           t.valid?
           expect(t.errors.include?(:name)).to be_truthy
         end
+        specify "is validly_published when it is family group name form" do
+          t1 = Protonym.create(name: 'Aidae', rank_class: Ranks.lookup(:iczn, 'family'), parent: root)
+          t = Protonym.new(name: 'Aus', rank_class: Ranks.lookup(:iczn, 'family'), parent: root)
+          t2 = t.taxon_name_relationships.new(object_taxon_name: t1, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
+          t.valid?
+          expect(t.errors.include?(:name)).to be_falsey
+        end
+
 
         specify 'is invalidly_published when not capitalized' do
           protonym.name       = 'fooidae'
