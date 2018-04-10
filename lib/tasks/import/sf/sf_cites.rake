@@ -242,9 +242,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
         end
 
         def m_get_ids(kn)
-          total = kn[:cr].detail.keys.count
           count = 0
-          total.each do
+          kn[:cr].detail.keys.each do
             rank = kn[:cr].keys[count.to_s]
             case rank
             when 'genus'
@@ -265,7 +264,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               return false, nil
             end
             count += 1
-            break if total = count
           end
           # here after break
           # need something to indicate which pieces should go into trial combination
@@ -320,7 +318,21 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           source_used_counter = 0
 
           unique_bad_nomenclators = {}
-          new_name_status = {}  # todo: key = NewNameStatusID, value = count of instances, initialize values 0 - 22 (some values are missing)
+          new_name_status = {1 => 0, # unchanged  # key = NewNameStatusID, value = count of instances, initialize keys 1 - 22 = 0 (some keys are missing)
+                             2 => 0, # new name
+                             3 => 0, # made synonym
+                             4 => 0, # made valid or temporary
+                             5 => 0, # new combination
+                             6 => 0, # new nomen nudum
+                             7 => 0, # nomen dubium
+                             8 => 0, # missed previous change
+                             9 => 0, # still synonym, but of different taxon
+                             10 => 0, # gender change
+                             17 => 0, # new corrected name
+                             18 => 0, # different combination
+                             19 => 0, # made valid in new combination
+                             20 => 0, # incorrect name before correct
+                             22 => 0} # misapplied name
 
           base_uri = 'http://speciesfile.org/legacy/'
 
