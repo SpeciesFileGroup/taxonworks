@@ -1,12 +1,13 @@
 <template>
     <div>
       <button
-        v-for="label, key in list"
+        v-for="(label, key) in list"
+        :key="key"
         type="button"
         @click="selectFor(key)"
         class="bottom button-submit normal-input biocuration-toggle-button"
         v-html="label"/>
-      <span v-for="(item, key) in result"> {{ key }} : {{ item }} <br></span>
+      <span v-for="(item, key) in result" :key="key"> {{ key }} : {{ item }} <br></span>
     </div>
 </template>
 

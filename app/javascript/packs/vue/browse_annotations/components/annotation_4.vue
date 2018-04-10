@@ -4,6 +4,7 @@
         v-for="(item, index) in options.concat(addOption)">
       <template v-if="filter(item)">
         <input
+            :key="item"
             @click="$emit('input', item)"
             :value="item"
             :id="`switch-${name}-${index}`"
@@ -13,6 +14,7 @@
             class="normal-input button-active"
         >
         <label
+            :key="item"
             :for="`switch-${name}-${index}`"
             class="capitalize">{{ item }}
         </label>
@@ -21,33 +23,32 @@
   </div>
 </template>
 <script>
-    export default {
-        props: {
-            options: {
-                type: Array,
-                required: true
-            },
-            value: {
-                required: true
-            },
-            addOption: {
-                type: Array,
-                required: false,
-                default: () => {
-                    return []
-                }
-            },
-            name: {
-                type: String,
-                required: true
-            },
-            filter: {
-                type: Function,
-                default: () => {
-                    return true
-                }
-            }
-        }
+export default {
+  props: {
+    options: {
+      type: Array,
+      required: true
+    },
+    value: {
+      required: true
+    },
+    addOption: {
+      type: Array,
+      required: false,
+      default: () => {
+        return [];
+      }
+    },
+    name: {
+      type: String,
+      required: true
+    },
+    filter: {
+      type: Function,
+      default: () => {
+        return true;
+      }
     }
-
+  }
+};
 </script>
