@@ -1,21 +1,27 @@
 <template>
-    <div>
-      <button
-        v-for="(label, key) in list"
-        :key="key"
-        type="button"
-        @click="selectFor(key)"
-        class="bottom button-submit normal-input biocuration-toggle-button"
-        v-html="label"/>
-      <span v-for="(item, key) in result" :key="key"> {{ key }} : {{ item }} <br></span>
-    </div>
+  <div>
+    <smart-selector 
+      :options="tabs"
+      name="annotation"
+      v-model="view"/>
+    <button
+      v-for="(label, key) in list"
+      :key="key"
+      type="button"
+      @click="selectFor(key)"
+      class="bottom button-submit normal-input biocuration-toggle-button"
+      v-html="label"/>
+    <span v-for="(item, key) in result" :key="key"> {{ key }} : {{ item }} <br></span>
+  </div>
 </template>
 
 <script>
-  import SwitchComponent from './switch.vue'
+
+  import smartSelector from './smartSelector.vue'
+
   export default {
     components: {
-      SwitchComponent
+      smartSelector
     },
     props: {
       value: {
@@ -30,6 +36,8 @@
     data() {
       return {
         list: {},
+        tabs: ['quick', 'recent', 'pinboard', 'all'], //This is hard coded for now, but should be taking from the entry point.
+        view: undefined,
         result: undefined
       }
     },
@@ -39,6 +47,7 @@
     //     this.list = response.body;
     //   })
     // },
+
     methods: {
       selectFor(type) {
         this.$emit('input', type.valueOf())
