@@ -1,9 +1,9 @@
-json.row_object do |row_object|
-  case @observation_matrix_row 
+json.row_object do 
+  case @observation_matrix_row.row_object_class_name 
   when 'Otu'
-    row_object.partial! '/otus/attributes', otu: row_object 
+    json.partial! '/otus/attributes', otu: @observation_matrix_row.row_object 
   when 'CollectionObject'
-    row_object.partial! '/collection_object/attributes', collection_object: row_object 
+    json.partial! '/collection_object/attributes', collection_object: @observation_matrix_row.row_object 
   else
     raise
   end

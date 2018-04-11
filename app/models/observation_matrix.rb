@@ -24,6 +24,4 @@ class ObservationMatrix < ApplicationRecord
   # TODO: restrict these- you can not directly create these!
   has_many :descriptors, through: :observation_matrix_columns, inverse_of: :observation_matrices
 
-
-
 end
