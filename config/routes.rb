@@ -354,8 +354,8 @@ TaxonWorks::Application.routes.draw do
 
   resources :observation_matrices do
     concerns [:data_routes]
-    member do
-      get 'row', {format: :json}
+    collection do
+      get 'row', defaults: {format: :json} # TODO: not a collection, but service
     end
 
     resources :observation_matrix_columns, shallow: true, only: [:index], defaults: {format: :json}
