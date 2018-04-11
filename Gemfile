@@ -5,8 +5,8 @@ gem 'rack-cors', '~> 1.0.1', require: 'rack/cors'
 ruby '2.4.3'
 
 gem 'rake', '~> 12.0'
-gem 'rails', '~> 5.1.5'
-gem 'pg', '~> 0.21.0' # 1.0 not compatible with 5.1.4
+gem 'rails', '5.2.0'
+gem 'pg', '~> 1.0' # 1.0 not compatible with 5.1.4
 gem 'activerecord-postgis-adapter', '~> 5.2.1'
 
 gem 'hiredis', '~> 0.6.1'
@@ -43,8 +43,8 @@ gem 'bcrypt', '~> 3.1.11'
 gem 'closure_tree', '~> 6.6'
 gem 'delayed_job_active_record', '~> 4.1.2'
 gem 'validates_timeliness', '~> 4.0.2'
-gem 'paper_trail', '~> 8.1.2'
-gem 'acts_as_list', '~> 0.9.7'
+gem 'paper_trail', '~> 9.0.0'
+gem 'acts_as_list', '~> 0.9.11'
 gem 'modularity', '~> 2.0.1' # Used!?
 gem 'paperclip', '~> 5.2'
 gem 'paperclip-meta', '~> 3.0'
