@@ -25,7 +25,7 @@ class ObservationMatrixRowsController < ApplicationController
     @observation_matrix_rows = ObservationMatrixRow.where(project_id: sessions_current_project_id).page(params[:page])
   end
 
-  # POST /observation_matrix_rows?id[]=1&id[]=2
+  # POST /observation_matrix_rows/sort?id[]=1&id[]=2
   def sort
     ObservationMatrixRow.sort(params.require(:ids))
     head :no_content 
