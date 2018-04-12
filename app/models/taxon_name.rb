@@ -141,9 +141,18 @@ class TaxonName < ApplicationRecord
     'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters',
     'TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899',
     'TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted',
-    'TaxonNameClassification::Iczn::Unavailable::NonBinomial',
-    'TaxonNameClassification::Iczn::Available::Invalid::FamilyGroupNameForm'
+    'TaxonNameClassification::Iczn::Unavailable::NonBinomial'
+    #'TaxonNameClassification::Iczn::Available::Invalid::FamilyGroupNameForm'
   ].freeze
+
+  EXCEPTED_FORM_TAXON_NAME_RELATIONSHIPS = [
+      'TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling',
+      'TaxonNameRelationship::Icnb::Unaccepting::Usage::Misspelling',
+      'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm',
+      'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling',
+      'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
+      ].freeze
+
 
   NO_CACHED_MESSAGE = 'REBUILD PROJECT TAXON NAME CACHE'.freeze
 

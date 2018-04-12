@@ -268,6 +268,7 @@ export default {
           this.showList = (this.json.length > 0)
           this.spinner = false
           this.searchEnd = true
+          this.$emit('found', this.showList)
         }, response => {
           // error callback
           this.spinner = false
