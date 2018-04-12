@@ -48,9 +48,9 @@ module Tasks::Gis::OtuDistributionDataHelper
     # fail
     case @type_tag
       when 'Otu'
-        link_object = Otu.with_project_id(sessions_current_project_id).order(id: :asc).where("id > #{@distribution.otus.first.id}").limit(1).pluck(:id).first
+        link_object = Otu.where("id > #{@distribution.otus.first.id}").with_project_id(sessions_current_project_id).order(id: :asc).limit(1).pluck(:id).first
       when 'Taxon name'
-        link_object = TaxonName.with_project_id(sessions_current_project_id).order(id: :asc).where("id > #{taxon_name.id}").limit(1).pluck(:id).first
+        link_object = TaxonName.where("id > #{taxon_name.id}").with_project_id(sessions_current_project_id).order(id: :asc).limit(1).pluck(:id).first
       else
     end
     # else
