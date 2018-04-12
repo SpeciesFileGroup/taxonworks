@@ -574,7 +574,7 @@ namespace :tw do
                   @data.people[author] = a
                 end
               end
-              sa = SourceAuthor.create(person_id: a, role_object: source, position: i + 1) unless a.nil?
+              sa = SourceAuthor.create!(person_id: a, role_object: source, position: i + 1) unless a.nil?
             end
             source.save!
             source.project_sources.create!
@@ -1024,7 +1024,7 @@ namespace :tw do
 
 
             begin
-              if !i3_combination.blank? && i3_combination != c.cached
+              if c.type == 'Combination' && !i3_combination.blank? && i3_combination != c.cached
                 #c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'combination_in_3i', value: i3_combination)
                 #c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'name_in_3i', value: row['Name'])
                 c.verbatim_name = i3_combination if c.verbatim_name.blank?
@@ -1046,13 +1046,13 @@ namespace :tw do
             else
               taxonid = taxon.id
             end
-            taxon.verbatim_name = row['Name'].split(' ').last
             taxon.original_species_relationship.destroy unless taxon.original_species_relationship.blank?
             taxon.original_subspecies_relationship.destroy unless taxon.original_subspecies_relationship.blank?
             taxon.original_variety_relationship.destroy unless taxon.original_variety_relationship.blank?
             taxon.original_form_relationship.destroy unless taxon.original_form_relationship.blank?
 
             taxon = TaxonName.find(taxonid) ## Do not delete this line
+            taxon.verbatim_name = row['Name'].split(' ').last
             taxon.original_species = find_taxon_3i(row['OriginalSpecies']) unless row['OriginalSpecies'].blank?
             taxon.original_subspecies = find_taxon_3i(row['OrigOriginalSubSpecies']) unless row['OriginalSubSpecies'].blank?
             taxon.original_variety = taxon if row['Name'].include?(' var. ')

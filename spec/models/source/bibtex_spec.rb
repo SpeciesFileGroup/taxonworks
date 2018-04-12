@@ -626,6 +626,13 @@ describe Source::Bibtex, type: :model, group: :sources do
               expect(l_src.save).to be_truthy
               expect(l_src.cached_author_string).to eq('Thomas, Fowler & Hunt')
             end
+            specify 'SourceAuthor role' do
+              a = Person.parse_to_people('Dmitriev, D.A.').first
+              a.save
+              sa = SourceAuthor.create!(person_id: a.id, role_object: source_bibtex)
+              source_bibtex.reload
+              expect(source_bibtex.cached_author_string).to eq('Dmitriev')
+            end
           end
 
           context 'without author or authors' do
