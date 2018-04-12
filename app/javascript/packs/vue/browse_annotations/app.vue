@@ -1,17 +1,24 @@
 <template>
   <div class="flexbox">
     <div class="annotation_type">
-      <annotation-types v-model="filter.annotation_type" @annotation_type_selected="filter.common = $event"/>
+      <annotation-types
+        v-model="filter.annotation_type"
+        @annotation_type_selected="filter.common = $event"/>
       <span>Selected: {{ filter.annotation_type }}</span>
     </div>
     <div class="annotation_for">
-      <annotation-for v-model="filter.for_selected" @for_selected="filter.common = $event"
-                      @result="filter.result = $event"/>
+      <annotation-for
+        v-model="filter.for_selected"
+        :annotation-type="filter.annotation_type"
+        @for_selected="filter.common = $event"
+        @result="filter.result = $event"/>
       <span>Selected: {{ filter.for_selected }}</span>
     </div>
     <div class="annotation_on">
-      <annotation-on v-model="filter.model" @model_selected="filter.common = $event"
-                     @result="filter.result = $event"/>
+      <annotation-on
+        v-model="filter.model"
+        @model_selected="filter.common = $event"
+        @result="filter.result = $event"/>
       <span>Selected: {{ filter.model }}</span>
     </div>
     <div class="annotation_by">
@@ -54,7 +61,10 @@
     data() {
       return {
         filter: {
-          annotation_type: undefined,
+          annotation_type: {
+            type: undefined,
+            used_on: undefined
+          },
           annotation_dates: {
             start: undefined,
             end: undefined

@@ -1,16 +1,18 @@
 <template>
   <div>
     <ul>
-      <li v-for="(label, key) in list" :key="key">
+      <li
+        v-for="(item, key) in typesList"
+        :key="key">
         <label @click="selectType(key)">
           <input
-            :checked="value === key"
+            :checked="value.type === key"
             name="annotation-type"
             type="radio"
             :value="key">
           <span
             class="new-combination-rank-list-taxon-name"
-            v-html="label"/>
+            v-html="item.label"/>
         </label>
       </li>
     </ul>
@@ -22,47 +24,40 @@
   export default {
     props: {
       value: {
-        type: String,
+        type: Object,
+        required: true
       }
     },
     watch: {
-      value(newVal) {
-        this.getResult(newVal)
+      value: {
+        handler(newVal) {
+          this.getResult(newVal)
+        },
+        deep: true
       }
     },
     data: function () {
       return {
-        list: {
-        },
-        used_on: {},
+        typesList: undefined,
         result: undefined
       }
     },
     mounted: function () {
-      // this.$http.get('/annotations/types').then(response => {
       this.$http.get('/annotations/types').then(response => {
-        let listTypes = {};
-        let onList = {};
-        let rbTypes = response.body.types;
-        Object.keys(rbTypes).forEach(function (key) {
-          listTypes[rbTypes[key]["klass"]] = rbTypes[key]["label"];
-          onList[rbTypes[key]["klass"]] = rbTypes[key]["used_on"];
-          }
-        );
-        this.used_on = onList;
-        this.list = listTypes;
-      }
-      )
+        this.typesList = response.body.types
+      })
     },
     methods: {
       selectType(type) {
-        this.$emit('input', type.valueOf());
-        // map the selected type(klass) to the list in used_on
-        // here or in the parent?
-        this.$emit('annotation_type_selected', onList[type.valueOf()]);
+        let selected = {
+          type: type,
+          used_on: this.typesList[type].used_on
+        }
+        this.$emit('input', selected);
+        this.$emit('annotation_type_selected', this.typesList[type]);
       },
       getResult(newVal) {
-        this.$http.post('/tasks/browse_annotations/get_type', {annotationType: newVal}).then(response => {
+        this.$http.post('/tasks/browse_annotations/get_type', { annotationType: newVal.type }).then(response => {
           // console.log(response); // this is necessary to show traffic?
           this.$emit('annotation_type_selected', response.body);
           this.result = response.body;

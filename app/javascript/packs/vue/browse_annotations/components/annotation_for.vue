@@ -26,11 +26,26 @@
     props: {
       value: {
         type: String,
-      }
+      },
+      annotationType: {
+        type: Object,
+        required: true
+      },
     },
     watch: {
       value(newVal) {
         this.getResult(newVal)
+      },
+      annotationType: {
+        handler(newVal) {
+          if(newVal) {
+            // Here is where you trigger the method to populate the smart selector
+            // you will take the values of type and used_on from annotationType object.
+            // annotationType.type
+            // aanotationType.used_on
+          }
+        },
+        deep: true
       }
     },
     data() {
