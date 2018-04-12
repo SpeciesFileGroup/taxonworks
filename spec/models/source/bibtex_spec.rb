@@ -630,7 +630,6 @@ describe Source::Bibtex, type: :model, group: :sources do
               a = Person.parse_to_people('Dmitriev, D.A.').first
               a.save
               sa = SourceAuthor.create!(person_id: a.id, role_object: source_bibtex)
-              source_bibtex.reload
               expect(source_bibtex.cached_author_string).to eq('Dmitriev')
             end
           end
