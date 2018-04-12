@@ -56,7 +56,10 @@
     },
     methods: {
       selectType(type) {
-        this.$emit('input', type.valueOf())
+        this.$emit('input', type.valueOf());
+        // map the selected type(klass) to the list in used_on
+        // here or in the parent?
+        this.$emit('annotation_type_selected', onList[type.valueOf()]);
       },
       getResult(newVal) {
         this.$http.post('/tasks/browse_annotations/get_type', {annotationType: newVal}).then(response => {
