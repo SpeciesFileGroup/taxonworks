@@ -1,7 +1,7 @@
 <template>
     <div>
         <ul>
-            <li v-for="label, key in list">
+            <li v-for="label, key in list" >
                 <label @click="selectModel(key)">
                     <input
                             name="model"
