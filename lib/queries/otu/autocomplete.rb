@@ -52,7 +52,7 @@ module Queries
 
     # @return [Arel::Nodes::Matches]
     def taxon_name_named
-      taxon_name_table[:name].matches_any(terms)
+      taxon_name_table[:cached].matches_any(terms)
     end
 
     # @return [Arel::Nodes::Matches]
