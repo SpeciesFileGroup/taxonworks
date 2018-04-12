@@ -4,6 +4,7 @@ json.set! :types do
     json.label 'Tags'
     json.klass 'Tag'
     json.url tags_url
+    json.select_options_url select_options_keywords_url
     json.total Tag.where(project_id: sessions_current_project_id).count
     json.used_on Tag.where(project_id: sessions_current_project_id).select(:tag_object_type).distinct.order(:tag_object_type).pluck(:tag_object_type)
   end
@@ -12,6 +13,7 @@ json.set! :types do
     json.label 'Confidences'
     json.klass 'Confidence'
     json.url confidences_url
+    json.select_options_url select_options_confidence_levels_url
     json.total Confidence.where(project_id: sessions_current_project_id).count
     json.used_on Confidence.where(project_id: sessions_current_project_id).select(:confidence_object_type).distinct.order(:confidence_object_type).pluck(:confidence_object_type)
   end
@@ -20,6 +22,7 @@ json.set! :types do
     json.label 'Data attributes'
     json.klass 'DataAttribute'
     json.url data_attributes_url
+    json.select_options_url select_options_predicates_url
     json.total DataAttribute.where(project_id: sessions_current_project_id).count
     json.used_on DataAttribute.where(project_id: sessions_current_project_id).select(:attribute_subject_type).distinct.order(:attribute_subject_type).pluck(:attribute_subject_type)
   end
