@@ -16,29 +16,41 @@ export default {
   data: function () {
     return {
       initializeData: {
-				  matrixId: 2,
-				  otuId: 121574,
-				  apiBase: '',
-				  apiParams: {
-				    project_id: 1,
-				    token: ''
-				  }
+        rowId: 2,
+        otuId: 121574,
+        apiBase: '',
+        apiParams: {
+          project_id: 140,
+          token: ''
+        }
       }
     }
   },
+  mounted() {
+    this.GetParams()
+  },
   methods: {
+    GetParams() {
+      let urlParams = new URLSearchParams(window.location.search)
+      let rowId = urlParams.get('observation_matrix_row_id')
+
+      if ((/^\d+$/).test(rowId)) {
+        this.initializeData.rowId = Number(rowId)
+        this.loadMatrix()
+      }
+    },
     loadMatrix () {
       var props = this.initializeData
       const store = newStore(new MatrixRowCoderRequest())
-
+      console.log("Se")
       new Vue({
-				    el: '#matrix_row_coder',
-				    store,
-				    render: function (createElement) {
-				        return createElement(MatrixRowCoder, {
-				            props
-				        })
-				    }
+        el: '#matrix_row_coder',
+        store,
+        render: function (createElement) {
+          return createElement(MatrixRowCoder, {
+            props
+          })
+        }
       })
     }
   }

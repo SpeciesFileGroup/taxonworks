@@ -64,7 +64,7 @@ export default function ({ commit, state }, args) {
   function makeBasePayload () {
     return {
       descriptor_id: args.descriptorId,
-      otu_id: state.taxonId,
+      observation_object_global_id: state.taxonId,
       type: observation.type
     }
   }

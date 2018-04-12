@@ -78,9 +78,12 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
     }
   }
 
-  getMatrixRow (matrixId, otuId) {
-    const extraParams = { otu_id: otuId }
-    const url = this.buildGetUrl(`/observation_matrices/${matrixId}/row.json`, extraParams)
+  getMatrixRow (rowId, globalId) {
+    const extraParams = {
+      global_id: globalId,
+      observation_matrix_row_id: rowId
+    }
+    const url = this.buildGetUrl(`/observation_matrices/row.json`, extraParams)
     return getJSON(url)
       .then(data => {
         console.log(`getMatrixRow:`, data)
@@ -88,9 +91,9 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
       })
   }
 
-  getObservations (otuId, descriptorId) {
+  getObservations (globalId, descriptorId) {
     const extraParams = {
-      otu_id: otuId,
+      observation_object_global_id: globalId,
       descriptor_id: descriptorId
     }
     const url = this.buildGetUrl(`/observations.json`, extraParams)
@@ -110,6 +113,7 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
   }
 
   createObservation (payload) {
+    console.log(payload)
     const url = `${this.apiBase}/observations.json`
     return postJSON(url, Object.assign(payload, this.apiParams))
   }
