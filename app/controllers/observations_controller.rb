@@ -94,6 +94,7 @@ class ObservationsController < ApplicationController
 
   def observation_params
     params.require(:observation).permit(
+      :observation_object_global_id,
       :descriptor_id, :otu_id, :collection_object_id,
       :character_state_id, :frequency,
       :continuous_value, :continuous_unit,
