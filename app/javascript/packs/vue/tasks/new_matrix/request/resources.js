@@ -87,6 +87,14 @@ const GetSmartSelector = function(type) {
   return ajaxCall('get', `/${type}/select_options?klass=ObservationMatrix`)
 }
 
+const SortRows = function(ids) {
+  return ajaxCall('get', `/observation_matrix_rows/sort`, ids)
+}
+
+const SortColumns = function(ids) {
+  return ajaxCall('get', `/observation_matrix_columns/sort`, ids)
+}
+
 export {
   CreateMatrix,
   CreateRowBatchLoad,
@@ -102,5 +110,7 @@ export {
   GetSmartSelector,
   UpdateMatrix,
   RemoveRow,
-  RemoveColumn
+  RemoveColumn,
+  SortColumns,
+  SortRows
 }

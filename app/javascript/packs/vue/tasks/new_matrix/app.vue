@@ -15,8 +15,7 @@
       </template>
     </div>
     <div v-if="matrix.id">
-      <rows-table/>
-      <columns-table/>
+      <tables-component/>
     </div>
   </div>
 </template>
@@ -24,8 +23,7 @@
 <script>
 
 import NewMatrix from './components/newMatrix/newMatrix'
-import RowsTable from './components/tables/rows'
-import ColumnsTable from './components/tables/columns'
+import TablesComponent from './components/tables/view'
 import RowsFixed from './components/rows/fixed'
 import columnsFixed from './components/columns/fixed'
 
@@ -38,10 +36,9 @@ import { ActionNames } from './store/actions/actions'
 export default {
   components: {
     NewMatrix,
-    RowsTable,
     RowsFixed,
     rowsDynamic,
-    ColumnsTable,
+    TablesComponent,
     columnsFixed,
     columnDynamic
   },
@@ -54,6 +51,12 @@ export default {
     },
     isFixed() {
       return (this.$store.getters[GetterNames.GetMatrixMode] == 'fixed' ? true : false)
+    },
+    columnList() {
+      return this.$store.getters[GetterNames.GetMatrixColumns]
+    },
+    matrixId() {
+      return this.$store.getters[GetterNames.GetMatrix].id
     }
   },
   data() {
