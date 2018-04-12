@@ -15,6 +15,8 @@ class Observation < ApplicationRecord
   belongs_to :otu, inverse_of: :observations
   belongs_to :collection_object, inverse_of: :observations
 
+  after_initialize :convert_observation_object_global_id
+
   validates_presence_of :descriptor
 
   validate :otu_or_collection_object_set
@@ -28,7 +30,11 @@ class Observation < ApplicationRecord
   end
 
   def observation_object_global_id=(value)
-    object = GlobalID::Locator.locate(value)
+    set_observation_object_id(GlobalID::Locator.locate(value))
+    @observation_object_global_id = value
+  end
+
+  def set_observation_object_id(object)
     case object.metamorphosize.class.name
     when 'Otu'
       write_attribute(:otu_id, object.id)
@@ -37,14 +43,21 @@ class Observation < ApplicationRecord
     else
       return false
     end 
-    @row_object_global_id = value
   end
 
   def observation_object_global_id
-    observation_object.to_global_id.to_s
+    if observation_object
+      observation_object.to_global_id.to_s
+    else
+      @observation_object_global_id
+    end
   end
 
   protected
+
+  def convert_observation_object_global_id
+    set_observation_object_id(GlobalID::Locator.locate(observation_object_global_id)) if observation_object_global_id 
+  end
 
   def otu_or_collection_object_set
     if otu_id.blank? && collection_object_id.blank? && otu.blank? && collection_object.blank?
