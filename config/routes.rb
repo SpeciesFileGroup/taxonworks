@@ -366,6 +366,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :observation_matrix_columns, only: [:index, :show] do
     concerns [:data_routes]
+    collection do
+      post 'sort', {format: :json}
+    end
   end
 
   resources :observation_matrix_rows, only: [:index, :show] do

@@ -20,6 +20,16 @@ class ObservationMatrixRow < ApplicationRecord
   validates_uniqueness_of :otu_id, scope: [:observation_matrix_id], if: -> {!otu_id.nil?}
   validates_uniqueness_of :collection_object_id, scope: [:observation_matrix_id], if: -> {!collection_object_id.nil?}
 
+  # @param array [Array]
+  # @return true
+  #   incrementally sort the supplied ids
+  def self.sort(array)
+    array.each_with_index do |id, index|
+      ObservationMatrixRow.where(id: id).update_all(position: index + 1) 
+    end
+    true
+  end
+
   def set_reference_count
     self.reference_count ||= 0
   end
