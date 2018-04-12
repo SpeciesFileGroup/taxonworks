@@ -227,34 +227,34 @@ class Person < ApplicationRecord
       b) taxon names match
 =end
 
-  # @param [Person] person to which this instance is to be compared
-  # @return [Boolean]
-  def identical(person)
-    # same record
-    retval = (id == person.id)
-    unless retval
-      # two different instances of Person
-      retval = (last_name == person.last_name and first_name == person.first_name and cached == person.cached)
-      retval = (retval and (year_born == person.year_born and year_died == person.year_died))
-      retval = (retval and (year_active_start == person.year_active_start and \
-                            year_active_end == person.year_active_end))
-
-      tn_ids  = taxon_name_author_roles.pluck(:role_object_id)
-      count  = tn_ids.count
-      retval = (retval and (count == person.taxon_name_author_roles.count))
-      if retval and (count > 0) # is still true and there are any roles to test
-        # Boolean of the intersection of two sets of role object ids equals the local list?
-        retval = (retval and ((tn_ids & person.taxon_name_author_roles.pluck(:role_object_id)) == tn_ids))
-      end
-    end
-    retval
-  end
-
-  # @param [Person] person to which this instance is to be compared
-  # @return [Boolean]
-  def similar(person)
-
-  end
+  # # @param [Person] person to which this instance is to be compared
+  # # @return [Boolean]
+  # def identical(person)
+  #   # same record
+  #   retval = (id == person.id)
+  #   unless retval
+  #     # two different instances of Person
+  #     retval = (last_name == person.last_name and first_name == person.first_name and cached == person.cached)
+  #     retval = (retval and (year_born == person.year_born and year_died == person.year_died))
+  #     retval = (retval and (year_active_start == person.year_active_start and \
+  #                           year_active_end == person.year_active_end))
+  #
+  #     tn_ids  = taxon_name_author_roles.pluck(:role_object_id)
+  #     count  = tn_ids.count
+  #     retval = (retval and (count == person.taxon_name_author_roles.count))
+  #     if retval and (count > 0) # is still true and there are any roles to test
+  #       # Boolean of the intersection of two sets of role object ids equals the local list?
+  #       retval = (retval and ((tn_ids & person.taxon_name_author_roles.pluck(:role_object_id)) == tn_ids))
+  #     end
+  #   end
+  #   retval
+  # end
+  #
+  # # @param [Person] person to which this instance is to be compared
+  # # @return [Boolean]
+  # def similar(person)
+  #
+  # end
 
   protected
 

@@ -1,5 +1,5 @@
 # Shared code for a classes that are "data" sensu TaxonWorks (things like Projects, users, and preferences are not data).
-# 
+#
 # !! This module must in included last !!
 #
 module Shared::IsData
@@ -39,6 +39,8 @@ module Shared::IsData
     false
   end
 
+  # @param [Symbol] keys
+  # @return [Hash]
   def errors_excepting(*keys)
     valid?
     keys.each do |k|
@@ -47,12 +49,25 @@ module Shared::IsData
     errors
   end
 
+  # @return [Scope]
+  def similar
+
+  end
+
+  # @return [Scope]
+  def identical
+
+  end
+
+  # @param [Symbol] keys
+  # @return [Array]
   def full_error_messages_excepting(*keys)
     errors_excepting(*keys).full_messages
   end
 
   module ClassMethods
 
+    # @return [Boolean]
     def is_community?
       self < Shared::SharedAcrossProjects ? true : false
     end
@@ -60,9 +75,9 @@ module Shared::IsData
     # @return [Boolean]
     #   use update vs. a set of ids, but require the update to pass for all or none
     def batch_update_attribute(ids: [], attribute: nil, value: nil)
-      return false if ids.empty? || attribute.nil? || value.nil? 
+      return false if ids.empty? || attribute.nil? || value.nil?
       begin
-        self.transaction do 
+        self.transaction do
           self.where(id: ids).find_each do |li|
             li.update(attribute => value)
           end

@@ -219,77 +219,77 @@ describe Person, type: :model do
         end
       end
 
-      context 'matching' do
-        context '#identical' do
-          specify 'matching id' do
-            # same record
-            expect(person1.identical(person1)).to be_truthy
-          end
-
-          specify 'full matching' do
-            # duplicate record
-            expect(person1.identical(person1a)).to be_truthy
-          end
-
-          specify 'full match test life years' do
-            # life year mismatch
-            expect(person1.identical(person1b)).to be_falsey
-          end
-
-          specify 'full match test active years' do
-            # active year mismatch
-            person1.year_born = 2000
-            person1.year_died = 2015
-            person1.save!
-            expect(person1.identical(person1b)).to be_falsey
-          end
-
-          specify 'full match test active years only' do
-            # life year mismatch, active year match
-            person1.year_active_start = 2012
-            person1.year_active_end   = 2015
-            person1.save!
-            expect(person1.identical(person1b)).to be_falsey
-          end
-
-          specify 'full match all years' do
-            # role count mismatch with no taxon name authorship
-            person1.year_born         = 2000
-            person1.year_died         = 2015
-            person1.year_active_start = 2012
-            person1.year_active_end   = 2015
-            person1.save!
-            expect(person1.identical(person1b)).to be_falsey
-          end
-
-          specify 'full match test roles count' do
-            # role count mismatch with taxon name authorship
-            person1.year_born         = 2000
-            person1.year_died         = 2015
-            person1.year_active_start = 2012
-            person1.year_active_end   = 2015
-            person1.save!
-            tn1.taxon_name_authors << person1
-            expect(person1.identical(person1b)).to be_falsey
-          end
-
-          specify 'full match test with roles' do
-            # complete match
-            person1.year_born         = 2000
-            person1.year_died         = 2015
-            person1.year_active_start = 2012
-            person1.year_active_end   = 2015
-            person1.save!
-            tn1.taxon_name_authors << person1
-            tn2.taxon_name_authors << person1
-            expect(person1.identical(person1b)).to be_truthy
-          end
-        end
-
-        context '#similar' do
-
-        end
-      end
+      # context 'matching' do
+      #   context '#identical' do
+      #     specify 'matching id' do
+      #       # same record
+      #       expect(person1.identical(person1)).to be_truthy
+      #     end
+      #
+      #     specify 'full matching' do
+      #       # duplicate record
+      #       expect(person1.identical(person1a)).to be_truthy
+      #     end
+      #
+      #     specify 'full match test life years' do
+      #       # life year mismatch
+      #       expect(person1.identical(person1b)).to be_falsey
+      #     end
+      #
+      #     specify 'full match test active years' do
+      #       # active year mismatch
+      #       person1.year_born = 2000
+      #       person1.year_died = 2015
+      #       person1.save!
+      #       expect(person1.identical(person1b)).to be_falsey
+      #     end
+      #
+      #     specify 'full match test active years only' do
+      #       # life year mismatch, active year match
+      #       person1.year_active_start = 2012
+      #       person1.year_active_end   = 2015
+      #       person1.save!
+      #       expect(person1.identical(person1b)).to be_falsey
+      #     end
+      #
+      #     specify 'full match all years' do
+      #       # role count mismatch with no taxon name authorship
+      #       person1.year_born         = 2000
+      #       person1.year_died         = 2015
+      #       person1.year_active_start = 2012
+      #       person1.year_active_end   = 2015
+      #       person1.save!
+      #       expect(person1.identical(person1b)).to be_falsey
+      #     end
+      #
+      #     specify 'full match test roles count' do
+      #       # role count mismatch with taxon name authorship
+      #       person1.year_born         = 2000
+      #       person1.year_died         = 2015
+      #       person1.year_active_start = 2012
+      #       person1.year_active_end   = 2015
+      #       person1.save!
+      #       tn1.taxon_name_authors << person1
+      #       expect(person1.identical(person1b)).to be_falsey
+      #     end
+      #
+      #     specify 'full match test with roles' do
+      #       # complete match
+      #       person1.year_born         = 2000
+      #       person1.year_died         = 2015
+      #       person1.year_active_start = 2012
+      #       person1.year_active_end   = 2015
+      #       person1.save!
+      #       tn1.taxon_name_authors << person1
+      #       tn2.taxon_name_authors << person1
+      #       expect(person1.identical(person1b)).to be_truthy
+      #     end
+      #   end
+      #
+      #   context '#similar' do
+      #
+      #   end
+      # end
     end
 
     # TODO: Fix.
