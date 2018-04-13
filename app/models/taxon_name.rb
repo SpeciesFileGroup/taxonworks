@@ -1259,7 +1259,7 @@ class TaxonName < ApplicationRecord
     else # TODO: This seems like a different validation, split with above?
       classifications = self.taxon_name_classifications.reload
       classification_names = classifications.map { |i| i.type_name }
-      compare              = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & classification_names
+      compare = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & classification_names
       unless compare.empty?
 
         unless Protonym.with_parent_taxon_name(self).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
