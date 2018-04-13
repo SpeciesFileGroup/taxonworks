@@ -1,8 +1,5 @@
 # An array of OTU distributions
 #
-#
-#
-#
 class Distribution
 
   # A cache of the aggregate data to be parsed into json per OTU
@@ -186,15 +183,15 @@ class Distribution
     result
   end
   # rubocop:enable Metrics/MethodLength
-  #
+  
   # @param [JSON] json
   # @param [AssertedDistribution] asserted_distribution
   # @param [Object] data
   # @return [JSON]
   def asserted_distribution_properties(json, asserted_distribution, data)
-    json['properties'].merge!('label' => asserted_distribution.geographic_area.name)
-    json['properties']['metadata'].merge!('GeographicArea' => asserted_distribution.geographic_area.attributes)
-    json['properties']['metadata'].merge!('Source' => asserted_distribution.source.attributes)
+    json['properties']['label'] =  asserted_distribution.geographic_area.name
+    json['properties']['metadata']['GeographicArea'] = asserted_distribution.geographic_area.attributes
+    json['properties']['metadata']['Source'] = asserted_distribution.source.attributes if asserted_distribution.source
   end
 
   # @param [JSON] json
@@ -202,8 +199,8 @@ class Distribution
   # @param [Object] data
   # @return [JSON]
   def collecting_event_geographic_area_properties(json, collecting_event, data)
-    json['properties'].merge!('label' => collecting_event.geographic_area.name)
-    json['properties']['metadata'].merge!('GeographicArea' => collecting_event.geographic_area.attributes)
+    json['properties']['label'] = collecting_event.geographic_area.name
+    json['properties']['metadata']['GeographicArea'] = collecting_event.geographic_area.attributes
   end
 
   # @param [JSON] json
@@ -211,7 +208,7 @@ class Distribution
   # @param [CollectingEvent] data
   # @return [JSON]
   def collecting_event_georeference_properties(json, georeference, data)
-    json['properties'].merge!('label' => "Collecting event #{data.id}.")
+    json['properties']['label'] = "Collecting event #{data.id}."
   end
   # rubocop:enable Style/StringHashKeys
 
