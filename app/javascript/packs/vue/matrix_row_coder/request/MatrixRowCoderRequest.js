@@ -61,7 +61,8 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
 
   setApi ({apiBase, apiParams}) {
     this.apiBase = apiBase
-    this.apiParams = apiParams
+    this.apiParams = {}
+//    this.apiParams = {apiParams}
   }
 
   buildGetUrl (url, extraParams = {}) {
