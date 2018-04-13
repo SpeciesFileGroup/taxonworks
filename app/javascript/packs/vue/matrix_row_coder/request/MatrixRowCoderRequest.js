@@ -34,8 +34,6 @@ function putJSON (url, payload) {
       json: payload
     }
 
-    console.log(options.url)
-    console.log(options.json)
     browserRequest.put(options, (error, response, body) => {
       if (error) { reject(error) } else { resolve(body) }
     })
@@ -116,7 +114,6 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
   }
 
   createObservation (payload) {
-    console.log(payload)
     const url = `${this.apiBase}/observations.json`
     return postJSON(url, Object.assign(payload, this.apiParams))
   }
