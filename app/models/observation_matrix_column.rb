@@ -11,13 +11,28 @@ class ObservationMatrixColumn < ApplicationRecord
 
   after_initialize :set_reference_count
 
-  def set_reference_count
-    self.reference_count ||= 0
-  end
-
   acts_as_list
 
   validates_presence_of :observation_matrix, :descriptor
   validates_uniqueness_of :descriptor_id, scope: [:observation_matrix_id, :project_id]
+
+  # @param array [Array]
+  # @return true
+  #   incrementally sort the supplied ids
+  def self.sort(array)
+    array.each_with_index do |id, index|
+      ObservationMatrixColumn.where(id: id).update_all(position: index + 1) 
+    end
+    true
+  end
+
+  protected
+
+  def set_reference_count
+    reference_count ||= 0
+  end
+
+
+
 
 end

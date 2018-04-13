@@ -26,6 +26,12 @@ class ObservationMatrixColumnsController < ApplicationController
     @observation_matrix_columns = ObservationMatrixColumn.with_project_id(sessions_current_project_id).page(params[:page])
   end
 
+  # POST /observation_matrix_columns/sort?id[]=1&id[]=2
+  def sort
+    ObservationMatrixColumn.sort(params.require(:ids))
+    head :no_content 
+  end
+
   private
 
   def filter_params
