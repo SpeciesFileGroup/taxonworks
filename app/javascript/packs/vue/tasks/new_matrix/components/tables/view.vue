@@ -7,6 +7,7 @@
       :attributes="['observation_matrix_row_object_label']"
       :global-id-path="['observation_matrix_row_object_global_id']"
       @delete="removeRow"
+      :edit="true"
       @order="updateRowsOrder"/>
     </div>
     <columns-table

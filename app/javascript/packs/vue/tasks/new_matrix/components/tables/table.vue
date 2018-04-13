@@ -18,8 +18,14 @@
             v-for="label in attributes"
             v-html="getValue(item, label)"/>
           <td class="vue-table-options">
+            <a
+              v-if="edit"
+              type="button"
+              target="_blank"
+              class="circle-button btn-edit"
+              :href="`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${item.id}`"/>
             <radial-annotator
-              :global-id="getValue(item, globalIdPath)"/>
+            :global-id="getValue(item, globalIdPath)"/>
             <span
               class="circle-button btn-delete"
               @click="$emit('delete', item)">Remove
@@ -55,6 +61,10 @@
       attributes: {
         type: Array,
         required: true
+      },
+      edit: {
+        type: Boolean,
+        default: false
       },
       globalIdPath: {
         type: Array,
