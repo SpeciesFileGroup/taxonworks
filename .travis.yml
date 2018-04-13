@@ -13,6 +13,7 @@ branches:
   only:
     - master
     - development
+    - rails52
 addons:
   postgresql: "9.5"
   firefox: "latest"
