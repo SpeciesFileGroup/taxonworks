@@ -259,7 +259,7 @@ class Source < ApplicationRecord
 
   # Redirect type here
   def self.batch_preview(file)
-    bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'))
+    bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'), filter: :latex)
     sources = []
     bibliography.each do |record|
       a = Source::Bibtex.new_from_bibtex(record)
@@ -276,7 +276,7 @@ class Source < ApplicationRecord
     begin
       error_msg = []
       Source.transaction do
-        bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'))
+        bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'), filter: :latex)
         bibliography.each do |record|
           a = Source::Bibtex.new_from_bibtex(record)
           if a.valid?
