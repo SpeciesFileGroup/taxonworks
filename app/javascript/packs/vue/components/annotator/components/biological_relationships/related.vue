@@ -20,14 +20,9 @@
           @select="sendRelated(item)"
           :key="item.id"/>
       </template>
-      <autocomplete
+      <otu-autocomplete
         v-else
-        url="/otus/autocomplete"
-        label="label_html"
-        min="2"
-        @getItem="sendRelated($event)"
-        placeholder="Select an otu"
-        param="term"/>
+        @getItem="sendRelated($event)"/>
     </template>
 
     <template v-else>
@@ -59,6 +54,7 @@
 
 <script>
 
+  import OtuAutocomplete from '../../../otu/otu_picker/otu_picker.vue'
   import TagItem from '../shared/item_tag.vue'
   import SwitchComponent from '../shared/switch.vue'
   import Autocomplete from '../../../autocomplete.vue'
@@ -69,7 +65,8 @@
     components: {
       TagItem,
       SwitchComponent,
-      Autocomplete
+      Autocomplete,
+      OtuAutocomplete
     },
     computed: {
       otuView() {

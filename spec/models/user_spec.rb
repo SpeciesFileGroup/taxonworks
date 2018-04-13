@@ -5,8 +5,9 @@ describe User, type: :model do
   let(:user) { User.new(password:              'password',
                         password_confirmation: 'password',
                         email:                 'user_model@example.com',
-                        name:                  'Bob'
-  ) }
+                        name:                  'Bob',
+
+                        ) }
   subject { user }
 
   context 'associations' do
@@ -21,9 +22,14 @@ describe User, type: :model do
     end
   end
 
-  context 'preferences' do
+  context 'stored preferences' do
     specify '#hub_favorites' do
       expect(user.hub_favorites).to eq({})
+    end
+
+    specify '#preferences' do
+      user
+      expect(user.preferences).to eq({})
     end
 
     specify '#footprints' do
@@ -90,7 +96,7 @@ describe User, type: :model do
   end
 
   context 'with password, password confirmation, name < 2 characters, and email' do
-    before { user.password = user.name= 'a' }
+    before { user.password = user.name = 'a' }
     it { is_expected.to be_invalid }
   end
 
@@ -155,7 +161,6 @@ describe User, type: :model do
     end
   end
 
-
   describe 'remember token' do
     before { user.save }
     it(:remember_token) { is_expected.not_to be_blank }
@@ -193,7 +198,7 @@ describe User, type: :model do
 
   context 'user activity summaries' do
     before {
-      user.save
+      user.save!
       4.times { (FactoryBot.create(:valid_otu, creator: user, updater: user)) }
       @last_otu = FactoryBot.create(:valid_otu, creator: user, updater: user)
     }
@@ -220,6 +225,7 @@ describe User, type: :model do
 
     context 'add_recently_visited_to_footprint' do
 
+      # rubocop:disable Style/StringHashKeys
       specify 'with a route and no recent object' do
         user.add_recently_visited_to_footprint('/otus/')
         expect(user.footprints).to eq('recently_visited' => [{'/otus/' => {}}])
@@ -227,7 +233,8 @@ describe User, type: :model do
 
       specify 'with a route and a recent object' do
         user.add_recently_visited_to_footprint(object_route, otu)
-        expect(user.footprints).to eq('recently_visited' => [{object_route => {'object_type' => 'Otu', 'object_id' => otu.id}}])
+        expect(user.footprints).to eq('recently_visited' => [{object_route => {'object_type' => 'Otu',
+                                                                               'object_id' => otu.id}}])
       end
 
       specify 'with the same route and recent object > 1x' do
@@ -235,8 +242,10 @@ describe User, type: :model do
         user.add_recently_visited_to_footprint(object_route, otu)
         user.add_recently_visited_to_footprint(object_route, otu)
 
-        expect(user.footprints).to eq('recently_visited' => [{object_route => {'object_type' => 'Otu', 'object_id' => otu.id}}])
+        expect(user.footprints).to eq('recently_visited' => [{object_route => {'object_type' => 'Otu',
+                                                                               'object_id' => otu.id}}])
       end
+      # rubocop:enable Style/StringHashKeys
 
       specify 'current limit is 10 items' do
         (0..25).each do |i|

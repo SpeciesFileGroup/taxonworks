@@ -66,6 +66,10 @@ module Utilities::Dates
     retval
   end
 
+  #
+  # @params [year: integer]
+  # @params [month: integer, nil]
+  # @params [day: integer, nil]
   # @return[Time] a UTC time (Uses Time instead of Date so that it can be saved as a UTC object -
   #   See http://www.ruby-doc.org/core-2.0.0/Time.html)
   #   Returns nomenclature_date based on computation of the values of :year, :month, :day.
@@ -74,10 +78,6 @@ module Utilities::Dates
   #    if :day is empty, returns the last day of the month
   #
   # Use self.month_index to convert months prior to handling them here
-  #
-  # @params [year: integer]
-  # @params [month: integer, nil]
-  # @params [day: integer, nil]
   #
   def self.nomenclature_date(day = nil, month = nil, year = nil)
     if year.nil?

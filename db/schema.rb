@@ -10,13 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180322031114) do
+ActiveRecord::Schema.define(version: 20180405191108) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "fuzzystrmatch"
   enable_extension "hstore"
+  enable_extension "fuzzystrmatch"
 
   create_table "alternate_values", id: :serial, force: :cascade do |t|
     t.text "value", null: false
@@ -524,6 +524,7 @@ ActiveRecord::Schema.define(version: 20180322031114) do
     t.text "description"
     t.string "gene_attribute_logic"
     t.string "cached_gene_attribute_sql"
+    t.string "default_units"
     t.string "default_unit"
     t.index ["created_by_id"], name: "index_descriptors_on_created_by_id"
     t.index ["name"], name: "index_descriptors_on_name"
@@ -1071,6 +1072,8 @@ ActiveRecord::Schema.define(version: 20180322031114) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "reference_count"
+    t.integer "cached_static_item_id"
+    t.integer "cached_observation_matrix_column_item_id"
     t.index ["created_by_id"], name: "index_observation_matrix_columns_on_created_by_id"
     t.index ["descriptor_id"], name: "index_observation_matrix_columns_on_descriptor_id"
     t.index ["observation_matrix_id"], name: "imc_om_index"
@@ -1110,6 +1113,8 @@ ActiveRecord::Schema.define(version: 20180322031114) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "reference_count"
+    t.integer "cached_static_item_id"
+    t.integer "cached_observation_matrix_row_item_id"
     t.index ["collection_object_id"], name: "index_observation_matrix_rows_on_collection_object_id"
     t.index ["created_by_id"], name: "index_observation_matrix_rows_on_created_by_id"
     t.index ["observation_matrix_id"], name: "omr_om_index"
@@ -1729,6 +1734,7 @@ ActiveRecord::Schema.define(version: 20180322031114) do
     t.json "hub_favorites"
     t.datetime "last_seen_at"
     t.integer "time_active", default: 0
+    t.json "preferences", default: {}
     t.index ["created_by_id"], name: "index_users_on_created_by_id"
     t.index ["remember_token"], name: "index_users_on_remember_token"
     t.index ["updated_by_id"], name: "index_users_on_updated_by_id"

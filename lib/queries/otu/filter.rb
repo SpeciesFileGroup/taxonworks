@@ -16,6 +16,8 @@ module Queries
     #   @a
     # end
     #
+    # @param [Hash] params
+    # @return [Ignored]
     def initialize(params)
       params.reject! { |_k, v| v.blank? }
 
@@ -30,10 +32,12 @@ module Queries
       @query_descendants            = params[:descendants]
     end
 
+    # @return [Boolean]
     def area_set?
       !query_geographic_area_ids.nil?
     end
 
+    # @return [Boolean]
     def author_set?
       case query_author_ids
         when nil
@@ -43,18 +47,22 @@ module Queries
       end
     end
 
+    # @return [Boolean]
     def nomen_set?
       !query_nomen_id.nil?
     end
 
+    # @return [Boolean]
     def verbatim_set?
       !query_verbatim_author_string.blank?
     end
 
+    # @return [Boolean]
     def shape_set?
       !query_shape.nil?
     end
 
+    # @return [Boolean]
     def with_descendants?
       !query_descendants.nil?
     end
@@ -103,6 +111,7 @@ module Queries
       ::Otu.joins(:taxon_name).where('taxon_names.cached_author_year ILIKE ?', "%#{query_verbatim_author_string}%")
     end
 
+    # rubocop:disable Metrics/MethodLength
 =begin
       1. find all selected taxon name authors
       2. find all taxon_names which are associated with result #1
@@ -154,6 +163,7 @@ module Queries
           ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     # @return [Array]
     #   determine which scopes to apply based on parameters provided
