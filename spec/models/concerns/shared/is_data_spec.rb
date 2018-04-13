@@ -22,15 +22,28 @@ describe 'Shared::IsData', type: :model do
     end
 
     specify '#metamorphosize' do
-      expect(is_data_subclass_instance.metamorphosize.class.name).to eq('TestIsData' )
+      expect(is_data_subclass_instance.metamorphosize.class.name).to eq('TestIsData')
     end
- 
+
+    context 'comparing records' do
+      specify '#similar' do
+        expect(is_data_instance.similar).to eq(TestIsData.none)
+      end
+
+      specify 'identical' do
+        expect(is_data_instance.identical).to eq(TestIsData.none)
+      end
+    end
+
   end
 end
 
 class TestIsData < ApplicationRecord
   include FakeTable
   include Shared::IsData
+
+  IGNORE_SIMILAR   = [:type, :parent_id].freeze
+  IGNORE_IDENTICAL = [:type, :parent_id].freeze
 end
 
 class TestIsDataSubclass < TestIsData

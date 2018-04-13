@@ -13,6 +13,30 @@ module Shared::IsData
     include Scopes
   end
 
+  module ClassMethods
+
+    # @return [Boolean]
+    def is_community?
+      self < Shared::SharedAcrossProjects ? true : false
+    end
+
+    # @return [Boolean]
+    #   use update vs. a set of ids, but require the update to pass for all or none
+    def batch_update_attribute(ids: [], attribute: nil, value: nil)
+      return false if ids.empty? || attribute.nil? || value.nil?
+      begin
+        self.transaction do
+          self.where(id: ids).find_each do |li|
+            li.update(attribute => value)
+          end
+        end
+      rescue
+        return false
+      end
+      true
+    end
+  end
+
   # @return [Object]
   #   the same object, but namespaced to the base class
   #   used many places, might be good target for optimization
@@ -51,12 +75,21 @@ module Shared::IsData
 
   # @return [Scope]
   def similar
+    klass = self.class
+    attr = strip_similar_attributes(attributes)
 
+    # 'none' until testing is finished
+    scope = klass.not_self(self).none
+    scope
   end
 
   # @return [Scope]
   def identical
+    klass = self.class
+    attr = strip_identical_attributes(attributes)
 
+    scope = klass.where(attr).not_self(self)
+    scope
   end
 
   # @param [Symbol] keys
@@ -65,28 +98,22 @@ module Shared::IsData
     errors_excepting(*keys).full_messages
   end
 
-  module ClassMethods
+  protected
 
-    # @return [Boolean]
-    def is_community?
-      self < Shared::SharedAcrossProjects ? true : false
-    end
-
-    # @return [Boolean]
-    #   use update vs. a set of ids, but require the update to pass for all or none
-    def batch_update_attribute(ids: [], attribute: nil, value: nil)
-      return false if ids.empty? || attribute.nil? || value.nil?
-      begin
-        self.transaction do
-          self.where(id: ids).find_each do |li|
-            li.update(attribute => value)
-          end
-        end
-      rescue
-        return false
-      end
-      true
-    end
+  # @param [Hash] attr is hash with string keys
+  # @return [Hash]
+  def strip_similar_attributes(attr = {})
+    # convert ignore list from symbols to strings for subsequent include
+    ig = (RESERVED_ATTRIBUTES.dup + self.class::IGNORE_SIMILAR.dup).map(&:to_s)
+    attr.delete_if { |kee, value| ig.include?(kee) }
+    attr
   end
 
+  # @param [Hash] attr
+  # @return [Hash]
+  def strip_identical_attributes(attr = {})
+    ig = (RESERVED_ATTRIBUTES.dup + self.class::IGNORE_IDENTICAL.dup).map(&:to_s)
+    attr.delete_if { |kee, value| ig.include?(kee) }
+    attr
+  end
 end

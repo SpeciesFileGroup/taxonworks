@@ -60,6 +60,8 @@ class Person < ApplicationRecord
   include Shared::IsData
 
   ALTERNATE_VALUES_FOR = [:last_name, :first_name].freeze
+  IGNORE_SIMILAR       = [:type].freeze
+  IGNORE_IDENTICAL     = [:type, :first_name, :last_name, :prefix, :suffix].freeze
 
   # @return [Boolean]
   #   true when cached values have not been built

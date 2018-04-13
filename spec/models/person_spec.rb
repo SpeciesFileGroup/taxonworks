@@ -173,7 +173,12 @@ describe Person, type: :model do
     end
 
     context 'usage and rendering' do
-      let(:person1) { FactoryBot.create(:person, first_name: 'January', last_name: 'Smith') }
+      let(:person1) {
+        p = FactoryBot.create(:person,
+                              first_name: 'January', last_name: 'Smith',
+                              prefix:     'Dr.', suffix: 'III')
+        p
+      }
       let(:person1a) {
         p = person1.dup
         p.save!
@@ -182,6 +187,7 @@ describe Person, type: :model do
       let(:person1b) {
         p = FactoryBot.create(:person,
                               first_name:        'January', last_name: 'Smith',
+                              prefix:            'Dr.', suffix: 'III',
                               year_born:         2000, year_died: 2015,
                               year_active_start: 2012, year_active_end: 2015)
         tn2.taxon_name_authors << p
@@ -214,82 +220,65 @@ describe Person, type: :model do
 
         context 'rendering' do
           specify 'initials, last name only' do
-            expect(person1.name).to eq('January Smith')
+            person1.first_name = 'J.'
+            person1.prefix = nil
+            person1.suffix = nil
+            person1.save!
+            expect(person1.name).to eq('J. Smith')
           end
         end
       end
 
-      # context 'matching' do
-      #   context '#identical' do
-      #     specify 'matching id' do
-      #       # same record
-      #       expect(person1.identical(person1)).to be_truthy
-      #     end
-      #
-      #     specify 'full matching' do
-      #       # duplicate record
-      #       expect(person1.identical(person1a)).to be_truthy
-      #     end
-      #
-      #     specify 'full match test life years' do
-      #       # life year mismatch
-      #       expect(person1.identical(person1b)).to be_falsey
-      #     end
-      #
-      #     specify 'full match test active years' do
-      #       # active year mismatch
-      #       person1.year_born = 2000
-      #       person1.year_died = 2015
-      #       person1.save!
-      #       expect(person1.identical(person1b)).to be_falsey
-      #     end
-      #
-      #     specify 'full match test active years only' do
-      #       # life year mismatch, active year match
-      #       person1.year_active_start = 2012
-      #       person1.year_active_end   = 2015
-      #       person1.save!
-      #       expect(person1.identical(person1b)).to be_falsey
-      #     end
-      #
-      #     specify 'full match all years' do
-      #       # role count mismatch with no taxon name authorship
-      #       person1.year_born         = 2000
-      #       person1.year_died         = 2015
-      #       person1.year_active_start = 2012
-      #       person1.year_active_end   = 2015
-      #       person1.save!
-      #       expect(person1.identical(person1b)).to be_falsey
-      #     end
-      #
-      #     specify 'full match test roles count' do
-      #       # role count mismatch with taxon name authorship
-      #       person1.year_born         = 2000
-      #       person1.year_died         = 2015
-      #       person1.year_active_start = 2012
-      #       person1.year_active_end   = 2015
-      #       person1.save!
-      #       tn1.taxon_name_authors << person1
-      #       expect(person1.identical(person1b)).to be_falsey
-      #     end
-      #
-      #     specify 'full match test with roles' do
-      #       # complete match
-      #       person1.year_born         = 2000
-      #       person1.year_died         = 2015
-      #       person1.year_active_start = 2012
-      #       person1.year_active_end   = 2015
-      #       person1.save!
-      #       tn1.taxon_name_authors << person1
-      #       tn2.taxon_name_authors << person1
-      #       expect(person1.identical(person1b)).to be_truthy
-      #     end
-      #   end
-      #
-      #   context '#similar' do
-      #
-      #   end
-      # end
+      context 'matching' do
+        context '#identical' do
+          specify 'full matching' do
+            # duplicate record
+            [person1, person1a, person1b]
+            expect(person1.identical.ids).to contain_exactly(person1a.id)
+          end
+
+          specify 'full match test life years' do
+            # life year mismatch
+            [person1, person1a, person1b]
+            expect(person1.identical.ids).to contain_exactly(person1a.id)
+          end
+
+          specify 'full match test active years' do
+            # active year mismatch
+            [person1, person1a, person1b]
+            person1.year_born = 2000
+            person1.year_died = 2015
+            person1.save!
+            expect(person1.identical.count).to eq(0)
+          end
+
+          specify 'full match test active years only' do
+            # life year mismatch, active year match
+            [person1, person1a, person1b]
+            person1.year_active_start = 2012
+            person1.year_active_end   = 2015
+            person1.save!
+            expect(person1.identical.count).to eq(0)
+          end
+
+          specify 'full match all years' do
+            # role count mismatch with no taxon name authorship
+            [person1, person1a, person1b]
+            person1.year_born         = 2000
+            person1.year_died         = 2015
+            person1.year_active_start = 2012
+            person1.year_active_end   = 2015
+            person1.save!
+            expect(person1.identical.ids).to contain_exactly(person1b.id)
+          end
+        end
+
+        context '#similar' do
+          specify 'matching id' do
+            expect(person1b.similar).to eq(Person.none)
+          end
+        end
+      end
     end
 
     # TODO: Fix.
