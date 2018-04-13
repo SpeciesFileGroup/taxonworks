@@ -311,15 +311,16 @@ class Source < ApplicationRecord
     projects.where(id: project_id).any?
   end
 
+
   protected
+
+  # Defined in subclasses
+  def set_cached
+  end
 
   def reject_project_sources(attributed)
     return true if attributed['project_id'].blank?
     return true if ProjectSource.where(project_id: attributed['project_id'], source_id: id).any?
-  end
-
-  # Defined in subclasses
-  def set_cached
   end
 
 end

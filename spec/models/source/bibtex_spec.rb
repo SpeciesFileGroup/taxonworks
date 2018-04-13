@@ -613,12 +613,14 @@ describe Source::Bibtex, type: :model, group: :sources do
               expect(source_bibtex.cached_author_string).to eq('Thomas')
               expect(source_bibtex.authority_name).to eq('Thomas')
             end
+
             specify 'multiple authors' do
               source_bibtex.author ='Thomas, D. and Fowler, Chad and Hunt, Andy'
               source_bibtex.save
               expect(source_bibtex.cached_author_string).to eq('Thomas, Fowler & Hunt')
               expect(source_bibtex.authority_name).to eq('Thomas, Fowler & Hunt')
             end
+
             specify 'valid Source::Bibtex but not valid BibTex::Entry' do
               l_src.year = nil
               l_src.soft_validate
@@ -626,6 +628,7 @@ describe Source::Bibtex, type: :model, group: :sources do
               expect(l_src.save).to be_truthy
               expect(l_src.cached_author_string).to eq('Thomas, Fowler & Hunt')
             end
+
             specify 'SourceAuthor role' do
               a = Person.parse_to_people('Dmitriev, D.A.').first
               a.save
@@ -1077,7 +1080,7 @@ describe Source::Bibtex, type: :model, group: :sources do
             expect(bibtex.save).to be_truthy # save record to get an ID
             expect(bibtex.send(method) << vp1).to be_truthy # assigns author but doesn't save role
             expect(bibtex.save).to be_truthy # saving bibtex also saves role
-            expect(bibtex.send(method).first).to eq(vp1)
+            expect(bibtex.send(method).first.id).to eq(vp1.id)
           end
 
           specify "#{i}_roles" do

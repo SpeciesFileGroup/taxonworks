@@ -11,7 +11,7 @@ class Role::SourceRole < Role
   after_save :update_source_cached
 
   def update_source_cached
-    role_object.set_cached if role_object.respond_to?(:set_cached)
+    role_object.send(:set_cached) if role_object.respond_to?(:set_cached, true)
   end
 
 end
