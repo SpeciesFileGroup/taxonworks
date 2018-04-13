@@ -27,11 +27,11 @@ describe 'Shared::IsData', type: :model do
 
     context 'comparing records' do
       specify '#similar' do
-        expect(is_data_instance.similar).to eq(TestIsData.none)
+        expect(is_data_instance.similar.to_a).to eq(TestIsData.none.to_a)
       end
 
       specify 'identical' do
-        expect(is_data_instance.identical).to eq(TestIsData.none)
+        expect(is_data_instance.identical.to_a).to eq(TestIsData.none.to_a)
       end
     end
 
