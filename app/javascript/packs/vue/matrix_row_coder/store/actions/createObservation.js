@@ -20,7 +20,7 @@ export default function ({ commit, state }, args) {
 
   if (observation.type === ObservationTypes.Sample) { setupSamplePayload(payload) }
 
-  return state.request.createObservation(payload)
+  return state.request.createObservation({ observation: payload })
     .then(responseData => {
       commit(MutationNames.SetDescriptorSaving, {
         descriptorId: args.descriptorId,

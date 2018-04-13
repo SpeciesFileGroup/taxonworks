@@ -42,7 +42,6 @@ export default {
     loadMatrix () {
       var props = this.initializeData
       const store = newStore(new MatrixRowCoderRequest())
-      console.log("Se")
       new Vue({
         el: '#matrix_row_coder',
         store,

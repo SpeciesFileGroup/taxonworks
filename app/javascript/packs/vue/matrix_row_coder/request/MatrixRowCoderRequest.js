@@ -34,6 +34,8 @@ function putJSON (url, payload) {
       json: payload
     }
 
+    console.log(options.url)
+    console.log(options.json)
     browserRequest.put(options, (error, response, body) => {
       if (error) { reject(error) } else { resolve(body) }
     })
