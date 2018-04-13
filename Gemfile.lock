@@ -531,7 +531,7 @@ DEPENDENCIES
   factory_bot_rails (~> 4.8.2)
   faker (~> 1.8.7)
   ffi-geos (~> 1.2.0)
-  geckodriver-helper (~> 0.0.3)
+  geckodriver-helper (~> 0.0.5)
   groupdate (~> 4.0.0)
   guard-rspec (~> 4.7.3)
   hiredis (~> 0.6.1)
