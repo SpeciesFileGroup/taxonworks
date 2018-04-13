@@ -20,6 +20,8 @@ export default function ({ commit, state }, args) {
 
   if (observation.type === ObservationTypes.Sample) { setupSamplePayload(payload) }
 
+  if (observation.type === ObservationTypes.Continuous) { setupContinuosPayload(payload) }
+
   return state.request.createObservation({ observation: payload })
     .then(responseData => {
       commit(MutationNames.SetDescriptorSaving, {
@@ -46,6 +48,13 @@ export default function ({ commit, state }, args) {
 
   function setupPresencePayload (payload) {
     return Object.assign(payload, { presence: observation.isChecked })
+  }
+
+  function setupContinuosPayload (payload) {
+    return Object.assign(payload, { 
+      continuous_value: observation.continuousValue,
+      continuous_unit: observation.continuousUnit
+    })
   }
 
   function setupSamplePayload (payload) {
