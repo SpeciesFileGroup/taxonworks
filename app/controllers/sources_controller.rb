@@ -130,10 +130,10 @@ class SourcesController < ApplicationController
     file_ok, mimetype = Utilities::Files.recognized_batch_file_type?(file.tempfile)
     if !file_ok
       redirect_to batch_load_sources_path,
-                  notice: "File '#{file.original_filename}' is of type '#{mimetype}', and not processable as BibTex."
+        notice: "File '#{file.original_filename}' is of type '#{mimetype}', and not processable as BibTex."
     else
-      @sources                    = Source.batch_preview(file.tempfile)
-      sha256                      = Digest::SHA256.file(file.tempfile)
+      @sources  = Source.batch_preview(file.tempfile)
+      sha256 = Digest::SHA256.file(file.tempfile)
       cookies[:batch_sources_md5] = sha256.hexdigest
       render 'sources/batch_load/bibtex_batch_preview'
     end

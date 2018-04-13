@@ -4,6 +4,12 @@
   <h2 class="separate-right"><%= taxon_name_browse_link(@otu.taxon_name) -%></h2>
   <h2><%= otu_tag(@otu) -%></h2>
 </div>
+
 <a href="/otus/<%= @otu.id -%>">Back</a>
+
 <div data-otu-radial="true" data-global-id="<%= @otu.to_global_id.to_s %>"></div>
 
+<% @otu.contents.each do |c| -%>
+  <h3><%= object_tag(c.topic) -%></h3>
+  <div><%= c.text -%></div>
+<% end %> 

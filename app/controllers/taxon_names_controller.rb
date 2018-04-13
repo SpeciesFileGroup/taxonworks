@@ -80,19 +80,6 @@ class TaxonNamesController < ApplicationController
       params[:term],
       autocomplete_params.to_h
     ).autocomplete
-
-   #data = @taxon_names.collect do |t|
-   #  str = render_to_string(partial: 'autocomplete_tag', locals: {taxon_name: t, term: params[:term] })
-   #  {id:              t.id,
-   #   label:           ApplicationController.helpers.taxon_name_autocomplete_selected_tag(t),
-   #   response_values: {
-   #     params[:method] => t.id
-   #   },
-   #   label_html: str
-   #  }
-   #end
-
-   #render json: data
   end
 
   def autocomplete_params
