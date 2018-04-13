@@ -1,12 +1,20 @@
 <template>
   <div>
+    <div>
     <rows-table
       :list="rowsList"
-      :matrix-id="matrix"
+      :matrix-id="matrixId"
+      :attributes="['observation_matrix_row_object_label']"
+      :global-id-path="['observation_matrix_row_object_global_id']"
+      @delete="removeRow"
       @order="updateRowsOrder"/>
+    </div>
     <columns-table
       :list="columnsList"
-      :matrix-id="matrix"
+      :matrix-id="matrixId"
+      :attributes="[['descriptor', 'name']]"
+      :global-id-path="['descriptor','global_id']"
+      @delete="removeColumn"
       @order="updateColumnsOrder"/>
   </div>
 </template>
@@ -15,8 +23,9 @@
 import { 
   default as RowsTable, 
   default as ColumnsTable 
-} from './rows.vue'
+} from './table.vue'
 
+import { SortRows, SortColumns, RemoveRow, RemoveColumn } from '../../request/resources'
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
 
@@ -26,8 +35,8 @@ export default {
     ColumnsTable
   },
   computed: {
-    matrix() {
-      return this.$store.getters[GetterNames.GetMatrix]
+    matrixId() {
+      return this.$store.getters[GetterNames.GetMatrix].id
     },
     columnsList() {
       return this.$store.getters[GetterNames.GetMatrixColumns]
@@ -35,9 +44,6 @@ export default {
     rowsList() {
       return this.$store.getters[GetterNames.GetMatrixRows]
     },
-    matrixId() {
-      return this.$store.getters[GetterNames.GetMatrix].id
-    }
   },
   methods: {
     removeColumn(column) {
@@ -46,12 +52,16 @@ export default {
     removeRow(row) {
       this.$store.dispatch(ActionNames.RemoveRow, row.id)
     },
-    updateRowsOrder() {
-
+    updateRowsOrder(ids) {
+      SortRows(ids).then(() => {
+        this.$store.dispatch(ActionNames.GetMatrixObservationRows, this.matrixId)
+      })
     },
-    updateColumnsOrder() {
-      
-    }
+    updateColumnsOrder(ids) {
+      SortColumns(ids).then(() => {
+        this.$store.dispatch(ActionNames.GetMatrixObservationColumns, this.matrixId)
+      })
+    },
   }
 }
 </script>

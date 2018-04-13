@@ -88,12 +88,13 @@ const GetSmartSelector = function(type) {
 }
 
 const SortRows = function(ids) {
-  return ajaxCall('get', `/observation_matrix_rows/sort`, ids)
+  return ajaxCall('patch', `/observation_matrix_rows/sort`, { ids: ids })
 }
 
 const SortColumns = function(ids) {
-  return ajaxCall('get', `/observation_matrix_columns/sort`, ids)
+  return ajaxCall('patch', `/observation_matrix_columns/sort`, { ids: ids })
 }
+
 
 export {
   CreateMatrix,
