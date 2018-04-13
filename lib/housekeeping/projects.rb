@@ -26,15 +26,20 @@ module Housekeeping::Projects
 
   module ClassMethods
     # Scopes
+    # @param [Project] project
+    # @return [Scope]
     def in_project(project)
       where(project: project)
     end
 
+    # @param [Integer] project_id
+    # @return [Scope]
     def with_project_id(project_id)
       where(project_id: project_id)
     end
   end
 
+  # @return [Ignored]
   def set_project_id
     if self.new_record?
       self.project_id ||= $project_id
@@ -49,10 +54,12 @@ module Housekeeping::Projects
   #  # end
   #end
 
+  # @return [Boolean]
   def annotates_community_object?
     self.respond_to?(:is_community_annotation?) && self.is_community_annotation?
   end
 
+  # @return [Boolean]
   def is_community?
     (self.class <= Shared::SharedAcrossProjects) ? true : false
   end

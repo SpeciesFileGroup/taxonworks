@@ -1,11 +1,15 @@
 module BatchLoad
   class Import::CollectionObjects::CastorInterpreter < BatchLoad::Import
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(**args)
       @collection_objects = {}
       super(args)
     end
 
+    # rubocop:disable Metrics/MethodLength
+    # @return [Integer]
     def build_collection_objects
       # GenBank           GBK
       # DRMLabVoucher     DRMLV
@@ -32,29 +36,29 @@ module BatchLoad
 
         # Only accept records from DRM to keep things simple for now
         next if row['locality_database'] != 'DRM'
-        
+
         begin # processing
           # Text for sample code identifiers for both extract and specimen
           sample_code_identifier_text = "#{row['sample_code_prefix']}#{row['sample_code']}"
 
           # Extract identifiers
-          extract_identifier_genbank = { 
+          extract_identifier_genbank = {
             namespace: namespace_genbank,
             type: 'Identifier::Local::CatalogNumber',
-            identifier: sample_code_identifier_text 
+            identifier: sample_code_identifier_text
           }
 
           extract_identifiers = []
           extract_identifiers.push(extract_identifier_genbank) if sample_code_identifier_text.present?
 
-          extract_attributes = { 
-            quantity_value: 0, 
-            quantity_unit: 0, 
-            verbatim_anatomical_origin: row['taxon_name'], 
-            year_made: 2015, 
-            month_made: 10, 
+          extract_attributes = {
+            quantity_value: 0,
+            quantity_unit: 0,
+            verbatim_anatomical_origin: row['taxon_name'],
+            year_made: 2015,
+            month_made: 10,
             day_made: 10,
-            identifiers_attributes: extract_identifiers 
+            identifiers_attributes: extract_identifiers
           }
 
           extract = Extract.new(extract_attributes)
@@ -75,25 +79,25 @@ module BatchLoad
           else
             drm_lab_voucher_texts[co_identifier_drm_lab_voucher_text] = true
           end
-          
+
           # Collection object identifiers
           co_identifier_castor = {
             type: 'Identifier::Global::Uri',
-            identifier: co_identifier_castor_text 
+            identifier: co_identifier_castor_text
           }
 
           co_identifier_morphbank = {
             type: 'Identifier::Global::MorphbankSpecimenNumber',
-            identifier: co_identifier_morphbank_text 
+            identifier: co_identifier_morphbank_text
           }
-                                   
-          co_identifier_drm_lab_voucher = { 
+
+          co_identifier_drm_lab_voucher = {
             namespace: namespace_drm_lab_voucher,
             type: 'Identifier::Local::CatalogNumber',
-            identifier: co_identifier_drm_lab_voucher_text 
-          }                                     
+            identifier: co_identifier_drm_lab_voucher_text
+          }
 
-          co_identifier_drm_dna = { 
+          co_identifier_drm_dna = {
             namespace: namespace_drm_dna_voucher,
             type: 'Identifier::Local::CatalogNumber',
             identifier: sample_code_identifier_text
@@ -105,23 +109,23 @@ module BatchLoad
           co_identifiers.push(co_identifier_morphbank)          if co_identifier_morphbank_text.present?
           co_identifiers.push(co_identifier_drm_lab_voucher)    if co_identifier_drm_lab_voucher_text.present?
           co_identifiers.push(co_identifier_drm_dna)            if sample_code_identifier_text.present?
-          
+
           # OriginRelationship between CollecitonObject and Extract
           co_origin_relationships_attributes = [{ new_object: extract }]
 
           # Data attributes
           co_data_attributes = []
-          
+
           if row['specimen_number'].present?
             co_data_attributes.push({
               type: 'ImportAttribute',
               import_predicate: 'SpecimenNumber',
-              value: row['specimen_number'] 
+              value: row['specimen_number']
             })
           end
 
           # Create collection object
-          co = CollectionObject.new({ 
+          co = CollectionObject.new({
             type: 'Specimen',
             total: 1,
             identifiers_attributes: co_identifiers,
@@ -150,7 +154,9 @@ module BatchLoad
 
       @total_lines = i
     end
+    # rubocop:enable Metrics/MethodLength
 
+    # @return [Boolean]
     def build
       if valid?
         build_collection_objects

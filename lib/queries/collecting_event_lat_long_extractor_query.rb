@@ -35,7 +35,7 @@ information. (called from where_sql at
 
     # @param [Integer] collecting_event_id
     # @param [Integer] project_id
-    # @param [Object] filters
+    # @param [Integer] Project_id
     def initialize(collecting_event_id: nil, project_id: nil, filters: [])
 
       collecting_event_id = 0 if collecting_event_id.nil?
@@ -63,6 +63,7 @@ information. (called from where_sql at
       Arel.sql(q1)
     end
 
+    # @return [String]
     def where_sql
       # with_project_id.and
       # TODO: make sure you select the one of the following lines which suits your purpose: with or without
@@ -71,6 +72,7 @@ information. (called from where_sql at
       # (verbatim_label_not_empty).and(starting_after).and(filter_scopes).to_sql
     end
 
+    # @return [Arel::Table]
     def table
       CollectingEvent.arel_table
     end
@@ -80,16 +82,19 @@ information. (called from where_sql at
       CollectingEvent.where(where_sql)
     end
 
+    # @return [Arel::Nodes::NamedFunction]
     def verbatim_label_not_empty
       vl = Arel::Attribute.new(Arel::Table.new(:collecting_events), :verbatim_label)
       Arel::Nodes::NamedFunction.new('length', [vl]).gt(0)
       # Arel::Nodes::NamedFunction.new('length', [vl]).gt(Arel::Nodes::Quoted.new(0))
     end
 
+    # @return [String]
     def verbatim_lat_long_empty
       Arel.sql('(verbatim_latitude is null or verbatim_longitude is null)')
     end
 
+    # @return [Arel::Attribute]
     def starting_after
       start_id = Arel::Attribute.new(Arel::Table.new(:collecting_events), :id)
       start_id.gt(Arel::Nodes::Quoted.new(collecting_event_id))

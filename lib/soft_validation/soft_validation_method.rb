@@ -1,6 +1,6 @@
 module SoftValidation
- 
-  # A metadata structure for each soft validation 
+
+  # A metadata structure for each soft validation
   class SoftValidationMethod
 
     # @param[Symbol]
@@ -12,21 +12,23 @@ module SoftValidation
     attr_accessor :klass
 
     # @return[String, nil]
-    #  human name/title of this soft validation 
+    #  human name/title of this soft validation
     attr_accessor :name
-   
+
     # @return[String, nil]
-    # human description of this soft validation 
+    # human description of this soft validation
     attr_accessor :description
-    
+
     # @return[Array, nil]
-    # of symbols 
+    # of symbols
     attr_accessor :resolution
 
     # @return[Symbol, nil]
-    #  assign this soft validation method to a set   
+    #  assign this soft validation method to a set
     attr_accessor :set
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(options)
       raise(SoftValidationError, 'missing method and klass') if options[:method].nil? || options[:klass].nil?
 
@@ -35,6 +37,8 @@ module SoftValidation
       end
     end
 
+    # @param [Array] v
+    # @return [Array]
     def resolution=(v)
       raise(SoftValidationError, 'resolution: must be an Array') if v && v.class != Array
       @resolution = v
@@ -42,6 +46,7 @@ module SoftValidation
       @resolution
     end
 
+    # @return [Array]
     def resolution
       @resolution || []
     end
@@ -53,7 +58,7 @@ module SoftValidation
     end
 
     # @return[Boolean]
-    #   whether there resolutions    
+    #   whether there resolutions
     def resolutions?
       resolution.size > 0
     end

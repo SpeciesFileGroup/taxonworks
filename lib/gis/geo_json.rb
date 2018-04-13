@@ -37,6 +37,7 @@ module Gis::GeoJSON
      }
 =end
 
+  # rubocop:disable Style/StringHashKeys
 # @param objects [Array feature_collections]
 # @return [JSON object]
   def self.aggregation(objects, properties = nil)
@@ -88,6 +89,8 @@ module Gis::GeoJSON
     result
   end
 
+# @param [Object] object
+# @return [Hash]
   def self.feature(object)
     result = {
       'type'     => 'FeatureCollection',
@@ -103,5 +106,6 @@ module Gis::GeoJSON
 #   inserted_attributes = {foo: "bar"} # some of self.attributes, but not all
 #   f.feature(self.geo_object, self.id, inserted_attributes)
 # end
+# rubocop:enable Style/StringHashKeys
 
 end

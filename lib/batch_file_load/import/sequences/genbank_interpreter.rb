@@ -2,6 +2,8 @@ module BatchFileLoad
   class Import::Sequences::GenbankInterpreter < BatchFileLoad::Import
     include BatchLoad::Helpers::Sequences
 
+    # @param [Array] args
+    # @return [Ignored]
     def initialize(**args)
       super(args)
     end
@@ -9,14 +11,14 @@ module BatchFileLoad
 =begin
     Sequences
     &v = begginning file name
-    g, ,f, p, a, n, follow _& 
+    g, ,f, p, a, n, follow _&
 
     V = voucher number ex DRMDNA1408: LINK To Extract with matching CollectionObject identifier namespace DRMDNA
     G = gene code name
-    F = gene fragement: ignore 
+    F = gene fragement: ignore
     P = publication within internal: ignore
     A = accession number, genbank code, IDENTIFIER: ATTACH Sequence identifier namespace GenBank
-    N = human readable name: ignore 
+    N = human readable name: ignore
 
     ex
     &vDRMDNA1299_&gCOI_&fCOIBC_&pPUB019_&aKJ624355_&nBembidion obliquulum.fas
@@ -27,6 +29,7 @@ module BatchFileLoad
 
       nested attributes!
 =end
+    # @return [Array]
     def build
       return if !valid?
       @processed = true

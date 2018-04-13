@@ -39,6 +39,8 @@ module Hub::Data
 
     attr_accessor :application_defined
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(klass, attributes)
       attributes ||= {}
       raise "Improperly defined user task #{data} in user_tasks.yml." if klass.nil?
@@ -54,26 +56,32 @@ module Hub::Data
       @related_models = attributes['related_models']
     end
 
+    # @return [String]
     def status
       @status.nil? ? 'unknown' : @status
     end
 
+    # @return [Array]
     def categories
       @categories.nil? ? [] : @categories
     end
 
+    # @return [Array]
     def related_models
       @related_models.nil? ? [] : @related_models
     end
 
+    # @return [nil, String]
     def shared_css
       shared.nil? ? nil : 'shared'
     end
 
+    # @return [nil, String]
     def application_css
       application_defined.nil? ? nil : 'application_defined'
     end
 
+    # @return [String]
     def combined_css
       [shared_css, application_css].compact.join(' ')
     end
@@ -88,6 +96,7 @@ module Hub::Data
   data = {}
   by_name = {}
 
+  # rubocop:disable Style/StringHashKeys
   SECTIONS.each do |s|
     data[s] = []
     CONFIG_DATA[s].each_key do |d|
@@ -97,19 +106,25 @@ module Hub::Data
       by_name[d] = n
     end
   end
+  # rubocop:enable Style/StringHashKeys
 
   # A Hash of prefix => UserTasks::UserTask
   INDEX = data
   BY_NAME = by_name
 
+  # @param [String] section
+  # @return [Object]
   def self.items_for(section)
     INDEX[section]
   end
 
+  # @param [String] section
+  # @return [Array]
   def self.visual_items_for(section)
     INDEX[section].select{|a| !a.hide}
   end
 
+  # @param [String] prefix
   # @return [String]
   #   translate a related prefix into a name string if present, else return the string as is
   def self.related_name(prefix)
@@ -120,6 +135,8 @@ module Hub::Data
     end
   end
 
+  # @param [String] prefix
+  # @return [Object]
   def self.related_routes(prefix)
     INDEXED_TASKS[prefix].related
   end

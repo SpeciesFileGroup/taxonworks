@@ -45,8 +45,13 @@ class Role < ApplicationRecord
   validates_uniqueness_of :person_id, scope: [:role_object_id, :role_object_type, :type]
 
   after_save :vet_person
+  after_save :update_cached
 
   protected
+
+  def update_cached
+    role_object.send(:set_cached) if role_object.respond_to?(:set_cached, true)
+  end
 
   def vet_person
     if Role.where(person_id: person_id).any?

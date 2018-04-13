@@ -1,5 +1,5 @@
 module Queries
-  module Person 
+  module Person
     class Autocomplete < Queries::Query
 
       # @return [Array]
@@ -7,34 +7,41 @@ module Queries
       attr_accessor :limit_to_roles
 
       # any project == all roles
-      # project_id - the target project in general 
-      # 
+      # project_id - the target project in general
+      #
 
+      # @param [Hash] args
+      # @return [Ignored]
       def initialize(string, roles: :all)
         @limit_to_roles = roles
         super
       end
 
+      # @return [Scope]
       def base_query
         ::Person.select('people.*')
       end
 
+      # @return [Arel::Nodes::Equatity]
       def role_match
         a = roles_table[:type].eq_any(limit_to_roles)
         a = a.and(roles_table[:project_id].eq(project_id)) if !project_id.blank?
         a
       end
 
+      # @return [Arel::Nodes::Equatity]
       def role_project_match
         roles_table[:project_id].eq(project_id)
       end
 
+      # @return [Scope]
       def autocomplete_exact_match
         base_query.where(
           table[:cached].eq(normalize_name).to_sql
         ).limit(20)
       end
-      
+
+      # @return [Scope]
       def autocomplete_exact_inverted
         base_query.where(
           table[:cached].eq(invert_name).to_sql
@@ -42,6 +49,8 @@ module Queries
       end
 
       # TODO: Use bibtex parser!!
+      # @param [String] string
+      # @return [String]
       def normalize(string)
         string.strip.split(/\s*\,\s*/, 2).join(', ')
       end
@@ -54,10 +63,12 @@ module Queries
         )
       end
 
+      # @return [String]
       def normalize_name
         normalize(query_string)
       end
 
+      # @return [Boolean]
       def roles_assigned?
         limit_to_roles.kind_of?(Array) && limit_to_roles.any?
       end
@@ -69,13 +80,13 @@ module Queries
           autocomplete_exact_inverted,
           autocomplete_ordered_wildcard_pieces_in_cached,
           autocomplete_cached_wildcard_anywhere, # in Queries::Query
-          autocomplete_cached 
+          autocomplete_cached
         ]
 
         queries.compact!
 
         updated_queries = []
-        queries.each_with_index do |q ,i|  
+        queries.each_with_index do |q ,i|
           a = q.joins(:roles).where(role_match.to_sql) if roles_assigned?
           a ||= q
           updated_queries[i] = a
@@ -90,11 +101,13 @@ module Queries
         result[0..19]
       end
 
+      # @return [Arel::Table]
       def table
         ::Person.arel_table
       end
 
-      def roles_table 
+      # @return [Arel::Table]
+      def roles_table
         ::Role.arel_table
       end
     end

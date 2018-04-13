@@ -12,6 +12,8 @@ module Dwca::Import
     attr_accessor :data, :errors
     attr_accessor :tw_objects
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(opts = {})
       opts = {
         data: [],        # dwc.core.read[0]
@@ -25,14 +27,21 @@ module Dwca::Import
       @field_index = opts[:core_fields].inject({}){|hsh, a| hsh.merge(a[:term] => (a[:index]) )}
     end
 
+    # @param [CSV::Row] row
+    # @return [Integer]
     def row_id(row)
       row[0]
     end
 
+    # @param [CSV::Row] row
+    # @param [CSV::Row::Cell] attribute
     def cell(row, attribute)
       row[@field_index[attribute]]
     end
 
+    # @param [CSV::Row] row
+    # @param [Object] object
+    # @return [Object]
     def build_object(row, object)
       klass = object.class.name.underscore.to_sym
       DWC2TW[klass].each_key do |attr|
@@ -44,6 +53,9 @@ module Dwca::Import
       object
     end
 
+    # @param [CSV::Row] row
+    # @param [Array] row_objects
+    # @return [Object]
     def build_row_objects(row, row_objects)
       result = row_objects.inject({}){|hsh, a| hsh.merge(a => nil)} # might need to be a hash
       row_objects.each do |r|
@@ -53,6 +65,9 @@ module Dwca::Import
     end
 
     # 2nd pass
+    # @param [CSV::Row] row
+    # @param [Array] row_objects
+    # @return [None]
     def relate_row_objects(row, row_objects)
       # specimen -> identifier, collecting_event, biocuration_classification, taxon_determination, type_specimen
       # otu -> taxon_name, biological_association
@@ -60,6 +75,8 @@ module Dwca::Import
       # taxon_name -> taxon_name
     end
 
+    # @param [CSV] data
+    # @return [Ignored]
     def self.build(data)
       data.rows[0..10].each do |row|
         puts row
@@ -69,6 +86,8 @@ module Dwca::Import
     protected
 
     # Given the core_fields what TW objects are possible
+    # @param [Array] core_fields
+    # @return [Array]
     def referenced_models(core_fields)
       core_fields = core_fields.collect{|i| i[:term]}
       models = []
@@ -81,6 +100,8 @@ module Dwca::Import
     end
   end
 
+  # @param [CSV] darwin_core_archive
+  # @return [Manager]
   def self.new_manager(darwin_core_archive)
     data, errors = darwin_core_archive.core.read
     Manger.new(
@@ -90,6 +111,7 @@ module Dwca::Import
     )
   end
 
+  # rubocop:disable Style/StringHashKeys
   RUNTIME =  {
     'http://purl.org/dc/terms/modified'           => nil, # bubble up?
     'http://purl.org/dc/terms/language'           => nil, # one of  http://www.ietf.org/rfc/rfc4646.txt
@@ -168,9 +190,10 @@ module Dwca::Import
     },
   }.freeze
 
-class TwObjects < Struct.new( *Dwca::Import::DWC2TW.keys.collect{|k| "#{k}s".to_sym }, :rows);
-end
+  # rubocop:enable Style/StringHashKeys
 
+  class TwObjects < Struct.new( *Dwca::Import::DWC2TW.keys.collect{|k| "#{k}s".to_sym }, :rows);
+  end
 end
 
 # methods parse dwcDate => returns month day year

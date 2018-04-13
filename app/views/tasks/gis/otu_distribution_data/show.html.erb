@@ -1,95 +1,98 @@
 <h1>Task: <%= "#{@type_tag}" %>  distribution</h1>
-<h3>Taxon name: <%= object_link(@taxon_name) %></h3>
-<p>
-  <%= forward_back_taxon_name_distribution(@taxon_name) %>
-</p>
-
 <div id="otu_distribution_widget">
   <div class="flexbox">
     <div class="item item1">
-      <!-- OTU count :<%#= @distribution.otus.count %>-->
+
+      <% case @type_tag %>
+      <% when 'Taxon name' %>
+        <h3>Taxon name: <%= object_link(@taxon_name) %></h3>
+        <p><%= distribution_previous_next(@taxon_name, @type_tag) %></p>
+      <% when 'Otu' %>
+        <h3>Otu: <%= object_link(@otu) %></h3>
+        <p><%= distribution_previous_next(@otu, @type_tag, @distribution) %></p>
+      <% else %>
+          ?!
+      <% end %>
+
       <%= paginate @distribution.otus %>
       <%= page_entries_info @distribution.otus %>
+
       <% @distribution.otus.each do |otu| %>
-          <table border="1">
-            <tbody>
+        <table border="1">
+          <tbody>
             <tr>
-              <!--<th><h3>Otu</h3></th>-->
-              <!--<th><h4>Otu</h4></th>-->
               <th>Otu</th>
               <th style="width:400px">
-                <!--<h4>-->
                 <%= link_to(otu_tag(otu), otu_path(otu.to_param), {id: "link_otu_#{otu.id}"}) %>
-                <!--</h4>-->
               </th>
             </tr>
             <% unless otu.asserted_distributions.empty? %>
-                <tr>
-                  <td align="center">
-                    <%= check_box_tag("check_asserted_distribution_#{otu.id}", nil, true) %>
-                  </td>
-                  <td align="center">
-                    <span id='<%= "span_asserted_distribution_otu_id_#{otu.id}" %>'>
-                      <%= "distributions (#{otu.asserted_distributions.count}#{without_shape?(otu.asserted_distributions)}) (asserted distributions)" %>
-                    </span>
-                  </td>
-                </tr>
+              <tr>
+                <td>
+                  <%= check_box_tag("check_asserted_distribution_#{otu.id}", nil, true) %>
+                </td>
+                <td>
+                  <span id='<%= "span_asserted_distribution_otu_id_#{otu.id}" %>'>
+                    <%= "distributions (#{otu.asserted_distributions.count}#{without_shape?(otu.asserted_distributions)}) (asserted distributions)" %>
+                  </span>
+                </td>
+              </tr>
             <% end %>
             <% unless otu.collection_objects.empty? %>
-                <tr>
-                  <td align="center">
-                    <%= check_box_tag("check_collecting_event_georeference_#{otu.id}", nil, true) %>
-                  </td>
-                  <td align="center">
-                    <span id="<%= "span_collecting_event_georeference_otu_id_#{otu.id}" %>">
-                        <%= "collection_objects (#{otu.collection_objects.count}) (collecting events georeferences)" %>
-                    </span>
-                  </td>
-                </tr>
+              <tr>
+                <td>
+                  <%= check_box_tag("check_collecting_event_georeference_#{otu.id}", nil, true) %>
+                </td>
+                <td>
+                  <span id="<%= "span_collecting_event_georeference_otu_id_#{otu.id}" %>">
+                    <%= "collection_objects (#{otu.collection_objects.count}) (collecting events georeferences)" %>
+                  </span>
+                </td>
+              </tr>
             <% end %>
             <% unless otu.collecting_events.empty? %>
-                <tr>
-                  <td align="center">
-                    <%= check_box_tag("check_collecting_event_geographic area_#{otu.id}", nil, true) %>
-                  </td>
-                  <td align="center">
-                    <span id="<%= "span_collecting_event_geographic_area_otu_id_#{otu.id}" %>">
-                        <%= "collecting event gazeteer records (#{otu.collecting_events.count}) (collecting events geographic area)" %>
-                    </span>
-                  </td>
-                </tr>
+              <tr>
+                <td>
+                  <%= check_box_tag("check_collecting_event_geographic area_#{otu.id}", nil, true) %>
+                </td>
+                <td>
+                  <span id="<%= "span_collecting_event_geographic_area_otu_id_#{otu.id}" %>">
+                    <%= "collecting event gazeteer records (#{otu.collecting_events.count}) (collecting events geographic area)" %>
+                  </span>
+                </td>
+              </tr>
             <% end %>
-            </tbody>
-          </table>
-      <% end %>
-    </div>
-    <div class="item item2">
-      <%#=	 break_it_here %>
-      <%= render(partial: 'layouts/map_header') -%>
-      <%#= simple_map(@distribution) %>
-      <div id='_displayed_distribution_form'
-           data-feature-collection='<%= @distribution.to_json.to_json -%>'
-           data-map-center='POINT (0.0 0.0 0.0)'
-           data-map-canvas='displayed_distribution_canvas'
-      >
-        <table border="1">
-          <tbody>
-          <tr>
-            <td>
-              <div id="displayed_distribution_canvas" style="width:512px; height: 256px;"></div>
-              <span id="map_coords"></span>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div id="displayed_distribution_style"></div>
-            </td>
-          </tr>
           </tbody>
         </table>
+      <% end %>
+    </div>
+
+    <div class="item item2">
+      <%= render(partial: 'layouts/map_header') -%>
+      <div id='_displayed_distribution_form'
+         data-feature-collection='<%= @distribution.to_json.to_json -%>'
+         data-map-center='POINT (0.0 0.0 0.0)'
+         data-map-canvas='displayed_distribution_canvas'
+         >
+
+         <table border="1">
+           <tbody>
+             <tr>
+               <td>
+                 <div id="displayed_distribution_canvas" style="width:640px; height: 640px;"></div>
+                 <span id="map_coords"></span>
+               </td>
+             </tr>
+             <tr>
+               <td>
+                 <div id="displayed_distribution_style"></div>
+               </td>
+             </tr>
+           </tbody>
+         </table>
+
       </div>
     </div>
-    <div class="item item3">
-    </div>
+    
   </div>
 </div>

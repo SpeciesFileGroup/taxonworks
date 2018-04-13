@@ -1,11 +1,15 @@
 module BatchLoad
   class Import::CollectingEvents::CastorInterpreter < BatchLoad::Import
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(**args)
       @collecting_events = {}
       super(args)
     end
 
+    # rubocop:disable Metrics/MethodLength
+    # @return [Integer]
     def build_collecting_events
       # DRMFieldNumbers DRMFN
       namespace_drm_field_numbers = Namespace.find_by(name: 'DRMFieldNumbers')
@@ -29,17 +33,17 @@ module BatchLoad
           # Text for identifiers
           ce_identifier_castor_text = row['guid']
           ce_identifier_drm_field_numbers_text = "#{row['locality_code_prefix']}#{row['locality_code_string']}" if row['locality_code_prefix'] != 'NONE'
-      
+
           # Identifiers
           ce_identifier_castor = {
             type: 'Identifier::Global::Uri',
-            identifier: ce_identifier_castor_text 
+            identifier: ce_identifier_castor_text
           }
-                                          
-          ce_identifier_drm_field_numbers = { 
+
+          ce_identifier_drm_field_numbers = {
             namespace: namespace_drm_field_numbers,
             type: 'Identifier::Local::TripCode',
-            identifier: ce_identifier_drm_field_numbers_text 
+            identifier: ce_identifier_drm_field_numbers_text
           }
 
           # Collecting event
@@ -47,7 +51,7 @@ module BatchLoad
           ce_identifiers.push(ce_identifier_castor)             if ce_identifier_castor_text.present?
           ce_identifiers.push(ce_identifier_drm_field_numbers)  if ce_identifier_drm_field_numbers_text.present?
 
-          ce_attributes = { 
+          ce_attributes = {
             verbatim_locality:                row['verbatim_location'],
             verbatim_geolocation_uncertainty: (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip,
             verbatim_date:                    row['verbatim_date'],
@@ -96,7 +100,7 @@ module BatchLoad
 
           if geographic_area_params.length > 0
             geographic_areas = GeographicArea.find_by_self_and_parents(geographic_area_params)
-            
+
             if geographic_areas.any?
               geographic_area = geographic_areas.first
               ce.geographic_area = geographic_area
@@ -112,7 +116,9 @@ module BatchLoad
 
       @total_lines = i
     end
+    # rubocop:enable Metrics/MethodLength
 
+    # @return [Boolean]
     def build
       if valid?
         build_collecting_events

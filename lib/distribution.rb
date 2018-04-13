@@ -1,17 +1,14 @@
 # An array of OTU distributions
 #
-#
-# 
-#
 class Distribution
 
-  # A cache of the aggregate data to be parsed into json per OTU 
-  # { 
+  # A cache of the aggregate data to be parsed into json per OTU
+  # {
   #    otu_id => [
-  #      [ asserted_distribution, geographic_area, type ], 
-  #      [ collecting_event, georeference, type ], 
-  #      [ collecting_event, geographic_area, type ] 
-  #    ] 
+  #      [ asserted_distribution, geographic_area, type ],
+  #      [ collecting_event, georeference, type ],
+  #      [ collecting_event, geographic_area, type ]
+  #    ]
   # }
   attr_accessor :map_source_objects
 
@@ -19,11 +16,13 @@ class Distribution
   #  [ asserted_distribution, :collecting_event_geographic_area, :collecting_event_georeference ]
   attr_accessor :source_object_types
 
-  # the list of OTUs to generate distributions for 
+  # the list of OTUs to generate distributions for
   attr_accessor :otus
 
   attr_accessor :preferred_georeference_only
 
+  # @param [Hash] args
+  # @return [Ignored]
   def initialize(
     source_object_types: [
       :asserted_distribution,
@@ -37,10 +36,12 @@ class Distribution
     @otus                        = otus
   end
 
+  # @return [Hash]
   def map_source_objects
     @map_source_objects ||= build_map_source_objects
   end
 
+  # @return [Hash]
   def build_map_source_objects
     @map_source_objects = {} if @map_source_objects.nil?
     otus.each do |o|
@@ -52,6 +53,8 @@ class Distribution
     @map_source_objects
   end
 
+  # @param [Otu] otu
+  # @param [String] type
   def insert_source_objects(otu, type)
     records_with_data = self.send("get_data_for_#{type}s", otu) # all returned data must have geographic_item at this point
     records_with_data.each do |r|
@@ -59,15 +62,27 @@ class Distribution
     end
   end
 
-  # json insert necessary 
+  # json insert necessary
+  # @param [Otu] otu
+  # @param [Source] source
+  # @param [String] type
+  # @return [Array]
   def insert_for_asserted_distribution(otu, source, type)
     insert_source_object(otu, source, source.geographic_area, type)
   end
 
+  # @param [Otu] otu
+  # @param [Source] source
+  # @param [String] type
+  # @return [Array]
   def insert_for_collecting_event_geographic_area(otu, source, type)
     insert_source_object(otu, source, source.geographic_area, type)
   end
 
+  # @param [Otu] otu
+  # @param [Source] source
+  # @param [String] type
+  # @return [Ignored]
   def insert_for_collecting_event_georeference(otu, source, type)
     georeferences = (preferred_georeference_only ? [source.georeferences.first] : source.georeferences)
     georeferences.each do |g|
@@ -75,32 +90,48 @@ class Distribution
     end
   end
 
+  # @param [Otu] otu
+  # @param [Source] source
+  # @param [Object] data
+  # @param [String] type
   def insert_source_object(otu, source, data, type)
     @map_source_objects[otu.id].push([source, data, type])
   end
 
+  # @param [CollectingEvent] collecting_event
+  # @return [GeographicItem, nil]
   def geographic_item_for_collecting_event_geographic_area(collecting_event)
     collecting_event.geographic_area.geographic_items.first
   end
 
+  # @param [CollectingEvent] collecting_event
+  # @return [GeographicItem, nil]
   def geographic_item_for_collecting_event_georeference(collecting_event)
     asserted_distribution.geographic_area.geographic_items.first
   end
 
+  # @param [Otu] otu
+  # @return [Scope]
   def get_data_for_asserted_distributions(otu)
     otu.asserted_distributions # .where(geographic_area has a shape clause)
   end
 
   # have a better has_many method for this I think
+  # @param [Otu] otu
+  # @return [Scope]
   def get_data_for_collecting_event_geographic_areas(otu)
     otu.collecting_events.joins(geographic_area: [:geographic_items])
   end
 
+  # @param [Otu] otu
+  # @return [Array]
   def get_data_for_collecting_event_georeferences(otu)
     [otu]
   end
 
-
+  # rubocop:disable Metrics/MethodLength
+  # rubocop:disable Style/StringHashKeys
+  # @return [JSON]
   def to_json
     result = {
       'otu_ids' => map_source_objects.keys
@@ -151,20 +182,34 @@ class Distribution
     end
     result
   end
-
+  # rubocop:enable Metrics/MethodLength
+  
+  # @param [JSON] json
+  # @param [AssertedDistribution] asserted_distribution
+  # @param [Object] data
+  # @return [JSON]
   def asserted_distribution_properties(json, asserted_distribution, data)
-    json['properties'].merge!('label' => asserted_distribution.geographic_area.name)
-    json['properties']['metadata'].merge!('GeographicArea' => asserted_distribution.geographic_area.attributes)
-    json['properties']['metadata'].merge!('Source' => asserted_distribution.source.attributes)
+    json['properties']['label'] =  asserted_distribution.geographic_area.name
+    json['properties']['metadata']['GeographicArea'] = asserted_distribution.geographic_area.attributes
+    json['properties']['metadata']['Source'] = asserted_distribution.source.attributes if asserted_distribution.source
   end
 
+  # @param [JSON] json
+  # @param [CollectingEvent] collecting_event
+  # @param [Object] data
+  # @return [JSON]
   def collecting_event_geographic_area_properties(json, collecting_event, data)
-    json['properties'].merge!('label' => collecting_event.geographic_area.name)
-    json['properties']['metadata'].merge!('GeographicArea' => collecting_event.geographic_area.attributes)
+    json['properties']['label'] = collecting_event.geographic_area.name
+    json['properties']['metadata']['GeographicArea'] = collecting_event.geographic_area.attributes
   end
 
+  # @param [JSON] json
+  # @param [Geoeference] georeference
+  # @param [CollectingEvent] data
+  # @return [JSON]
   def collecting_event_georeference_properties(json, georeference, data)
-    json['properties'].merge!('label' => "Collecting event #{data.id}.")
+    json['properties']['label'] = "Collecting event #{data.id}."
   end
+  # rubocop:enable Style/StringHashKeys
 
 end

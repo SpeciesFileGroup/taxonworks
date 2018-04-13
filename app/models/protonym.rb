@@ -347,6 +347,9 @@ class Protonym < TaxonName
     taxon_name_classifications.each do |tc| # ! find_each
       return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
     end
+    taxon_name_relationships.each do |tr|
+      return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_RELATIONSHIPS.include?(tr.type)
+    end
     false
   end
 

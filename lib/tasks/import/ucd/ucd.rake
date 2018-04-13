@@ -500,7 +500,7 @@ namespace :tw do
               taxon.save!
             end
 
-            @data.all_genera_index[taxon.name] = taxon.id
+            @data.all_genera_index[taxon.name] = taxon.id if @data.all_genera_index[taxon.name].nil?
 
             if row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
               if changed
@@ -568,7 +568,7 @@ namespace :tw do
               byebug
             end
 
-            @data.all_genera_index[name] = taxon.id
+            @data.all_genera_index[name] = taxon.id if @data.all_genera_index[name].nil?
 
             if changed
 #              r = nil
@@ -724,7 +724,7 @@ namespace :tw do
 
             # !?! DON'T Create identifier ... (invalid)
             @data.taxon_codes[row['TaxonCode']] = taxon.id
-            @data.all_species_index[row['CitGenus'].to_s + ' ' + name] = taxon.id
+            @data.all_species_index[row['CitGenus'].to_s + ' ' + name] = taxon.id if @data.all_species_index[row['CitGenus'].to_s + ' ' + name].nil?
             #@data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
             taxon1 = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
 
@@ -732,6 +732,7 @@ namespace :tw do
             if changed
 #              r = nil
               r = TaxonNameRelationship::Iczn::Invalidating.create(subject_taxon_name: taxon, object_taxon_name_id: taxon1) if taxon.id != taxon1
+              byebug if r.id.nil?
 #              if !r.nil? && r.id.nil?
 #                taxon2 = Protonym.new(name: name, parent_id: parent, project_id: $project_id)
 #                taxon2.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
@@ -1719,7 +1720,7 @@ namespace :tw do
           'IO' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling', # 'Incorrect original spelling of',
           'IT' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective', # 'Isotypic (same primary type) with',
           'JH' => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary', # 'Junior primary homonym of',
-          'LA' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Lapsus for',
+          'LA' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Lapsus for',
           'MA' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Misidentified as',
           'MB' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelling of genus and species names of',
           'MF' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelt family group name',
@@ -1734,7 +1735,7 @@ namespace :tw do
           'NR' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression', # 'Name rejected in favour of',
           'NQ' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Nomen nudum, but identified subsequently as',
           'OT' => 'TaxonNameRelationship::Typification::Genus::RulingByCommission', # 'Placed on official list as type species of',
-          'PL' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Possible lapsus for',
+          'PL' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Possible lapsus for',
           'PM' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Misidentification (in part) of',
           'PO' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Possible misidentification of',
           'RN' => 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName', # 'Replacement name',
@@ -1742,7 +1743,7 @@ namespace :tw do
           'SA' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation', # 'Spelling rejected',
           'SE' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelling based on incorrect emendation of',
           'SH' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym', # 'Junior synonym and homonym of',
-          'SL' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'New status, lapsus for',
+          'SL' => 'TaxonNameRelationship::Iczn::Invalidating', # 'New status, lapsus for',
           'ST' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym', # 'Synonymized, by implication, with',
           'SY' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym', # 'Synonym of',
           'TD' => 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation', # 'Designated type species of',
@@ -1758,6 +1759,7 @@ namespace :tw do
 
         classification = {
           'AN' => 'TaxonNameClassification::Iczn::Available', # 'Available name',
+          'LA' => 'TaxonNameClassification::Iczn::Unavailable', # 'Lapsus for',
           'ND' => 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium', # 'Nomen dubium',
           'NN' => 'TaxonNameClassification::Iczn::Unavailable::NomenNudum', # 'Nomen nudum',
           'NP' => 'TaxonNameClassification::Iczn::Unavailable::NomenNudum', # 'Nomen nudum, new combination for',
@@ -1766,7 +1768,9 @@ namespace :tw do
           'OG' => 'TaxonNameClassification::Iczn::Available::OfficialListOfGenericNamesInZoology', # 'Placed on Official List of Generic Names',
           'OR' => 'TaxonNameClassification::Iczn::Unavailable::Suppressed', # 'Placed on Official List of Rejected Names',
           'OS' => 'TaxonNameClassification::Iczn::Available::OfficialListOfSpecificNamesInZoology', # 'Placed on Official List of Species Names',
+          'PL' => 'TaxonNameClassification::Iczn::Unavailable', # 'Possible lapsus for',
           'SI' => 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium', # 'Species inquirenda',
+          'SL' => 'TaxonNameClassification::Iczn::Unavailable', # 'New status, lapsus for',
           'UI' => 'TaxonNameClassification::Iczn::Unavailable', # 'Unavailable name, identified subsequently as',
           'UV' => 'TaxonNameClassification::Iczn::Unavailable', # 'Unavailable name',
         }.freeze
@@ -1824,6 +1828,7 @@ namespace :tw do
           'IS' => 'Incertae sedis',
           'JE' => 'Justified emendation of',
           'JG' => 'Misspelt generic name, justified emendation of',
+          'LA' => 'Lapsus for', # 'Lapsus for',
           'MA' => 'Misidentified as', # 'Misidentified as',
           'MI' => 'Misidentification', # 'Misidentification',
           'MO' => 'Misidentification of', # 'Misidentification of',
@@ -1832,12 +1837,14 @@ namespace :tw do
           'NS' => 'New species',
           'PC' => 'Possible new combination in',
           'PF' => 'Possible new combination for',
+          'PL' => 'Possible lapsus for', # 'Possible lapsus for',
           'PM' => 'Misidentification (in part) of', # 'Misidentification (in part) of',
           'PO' => 'Possible misidentification of', # 'Possible misidentification of',
           'PV' => 'Possibly valid species',
           'RT' => 'Request to ICZN for type species designation as',
           'SP' => 'Request to ICZN for suppression in favour of',
           'SG' => 'Subgenus',
+          'SL' => 'New status, lapsus for', # 'New status, lapsus for',
           'SZ' => 'Superfamily',
           'TC' => 'Type species cited as',
           'VF' => 'Family of',
