@@ -25,7 +25,7 @@ class Predicate < ControlledVocabularyTerm
 
   def self.select_optimized(user_id, project_id, klass)
     h = {
-      recent: Predicate.where(project_id: project_id).used_on_klass(klass).used_recently.limit(10).distinct.to_a,
+      recent: Predicate.used_on_klass(klass).used_recently.where(project_id: project_id).limit(10).distinct.to_a,
       pinboard:  Predicate.pinned_by(user_id).where(project_id: project_id).to_a
     }
 
