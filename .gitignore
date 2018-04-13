@@ -6,6 +6,7 @@
 
 .ctags
 .idea/
+.vscode/
 *.tmp
 *~
 *.bak

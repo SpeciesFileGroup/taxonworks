@@ -139,7 +139,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
 
               # yes I know this is ugly but it works
               if citation.errors.messages[:source_id].nil?
-                logger.info "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
+                logger.error "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
 SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
                 next
               else # make pages unique and save again
@@ -148,11 +148,11 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   begin
                     citation.save!
                   rescue ActiveRecord::RecordInvalid
-                    logger.info "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
+                    logger.error "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
                     next
                   end
                 else # citation error was not already been taken (other validation failure)
-                  logger.info "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
+                  logger.error "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
                   next
                 end
               end
@@ -196,16 +196,92 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           protonym.cached == nomenclator_string
         end
 
+        def m_single_match(kn) # test for single match
+          potential_matches = TaxonName.where(cached: kn[:nomenclator_string], project_id: kn[:project_id])
+          if potential_matches.count == 1
+            puts 'm_single_match'
+            return true, potential_matches.first
+          end
+          return false, nil
+        end
+
+        def m_unambiguous(kn) # test combination is unambiguous and has genus
+          if kn[:cr].is_unambiguous?
+            if kn[:cr].genus
+              puts 'm_unambiguous'
+              return true, kn[:cr].combination
+            end
+          end
+          return false, nil
+        end
+
+        def m_current_species_homonym(kn) # test known genus and current species homonym
+          if kn[:protonym].rank == "species"
+            a = kn[:cr].disambiguated_combination(species: kn[:protonym].id)
+            if a.get_full_name == kn[:nomenclator_string]
+              puts 'm_current_species_homonym'
+              return true, a
+            end
+          end
+          return false, nil
+        end
+
+        def m_sibling_synonym(kn) # tests known genus and current species is synonym of sibling
+          if kn[:protonym].rank == "species"
+            if kn[:cr].protonyms(:genus).count == 1
+              if kn[:protonym].siblings.where(name: kn[:cr].species).count == 1 # species name
+                a = kn[:cr].disambiguated_combination(genus: kn[:cr].protonyms(:genus).id, species: kn[:protonym].siblings.where(name: kn[:cr].species).id)
+                if a.get_full_name == kn[:nomenclator_string]
+                  puts 'm_sibling_synonym'
+                  return true, a
+                end
+              end
+            end
+          end
+          return false, nil
+        end
+
+        def m_get_ids(kn)
+          count = 0
+          kn[:cr].detail.keys.each do
+            rank = kn[:cr].keys[count.to_s]
+            case rank
+            when 'genus'
+              genus_id = send(:get_genus_id, kn)
+              return false, nil if genus_id.nil?
+              # a = {genus:, genus_id}
+            when 'subgenus'
+              subgenus_id = send(:get_subgenus_id, kn)
+              return false, nil if subgenus_id.nil?
+            when 'species'
+              species_id = send(:get_species_id, kn)
+              return false, nil if species_id.nil?
+            when 'subspecies'
+              subspecies_id = send(:get_subspecies_id, kn)
+              return false, nil if subspecies_id.nil?
+            else
+              puts 'rank not anticipated' # could be species_group, etc. (ranks not included in SF nomenclators)
+              return false, nil
+            end
+            count += 1
+          end
+          # here after break
+          # need something to indicate which pieces should go into trial combination
+        end
+
+        def get_genus_id(kn)
+          if kn[:cr].protonyms(:genus).count == 1
+            return kn[:cr].protonyms(:genus).id
+          end
+          return nil
+        end
+
 
         desc 'time rake tw:project_import:sf_import:cites:create_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_citations: [:data_directory, :environment, :user_id] do |logger|
 
-          # @todo: Note changes to get_nomenclator_string => get_nomenclator_metadata
-          # if get_sf_booktitle_publisher_address[pub_id]
-          #   booktitle = get_sf_booktitle_publisher_address[pub_id][booktitle]
-          #   publisher = get_sf_booktitle_publisher_address[pub_id][publisher]
-          #   address = get_sf_booktitle_publisher_address[pub_id][address]
-          # end
+          logger.info 'Creating list of taxa with AccessCode = 4'
+          taxa_access_code_4 = [1143399, 1143399, 1143402, 1143402, 1143403, 1143403, 1143403, 1143404, 1143405, 1143406, 1143408, 1143414, 1143415, 1143416, 1143417, 1143418, 1143419, 1143420, 1143421, 1143422, 1143423, 1143425, 1143430, 1143431, 1143434, 1143435, 1143436, 1143437, 1143438, 1207769, 1232866]
 
 
           logger.info 'Creating citations...'
@@ -237,13 +313,31 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           otu_not_found_counter = 0
           orig_desc_source_id = 0 # make sure only first cite to original description is handled as such (when more than one cite to same source)
           otu_only_counter = 0
-          successful_combination_counter = 0
+          new_combination_counter = 0
+          total_combination_counter = 0
+          source_used_counter = 0
 
           unique_bad_nomenclators = {}
+          new_name_status = {1 => 0, # unchanged  # key = NewNameStatusID, value = count of instances, initialize keys 1 - 22 = 0 (some keys are missing)
+                             2 => 0, # new name
+                             3 => 0, # made synonym
+                             4 => 0, # made valid or temporary
+                             5 => 0, # new combination
+                             6 => 0, # new nomen nudum
+                             7 => 0, # nomen dubium
+                             8 => 0, # missed previous change
+                             9 => 0, # still synonym, but of different taxon
+                             10 => 0, # gender change
+                             17 => 0, # new corrected name
+                             18 => 0, # different combination
+                             19 => 0, # made valid in new combination
+                             20 => 0, # incorrect name before correct
+                             22 => 0} # misapplied name
 
           base_uri = 'http://speciesfile.org/legacy/'
 
           file.each_with_index do |row, i|
+            next if taxa_access_code_4.include? row['TaxonNameID'].to_i
             sf_taxon_name_id = row['TaxonNameID']
             sf_file_id = row['FileID'] # get_sf_file_id[sf_taxon_name_id]
             next if skipped_file_ids.include? sf_file_id.to_i
@@ -251,12 +345,12 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             if taxon_name_id.nil?
               if get_tw_otu_id[sf_taxon_name_id]
-                logger.warn "SF.TaxonNameID = #{sf_taxon_name_id} previously created as OTU (otu_only_counter = #{otu_only_counter += 1})"
+                logger.info "SF.TaxonNameID = #{sf_taxon_name_id} previously created as OTU (otu_only_counter = #{otu_only_counter += 1})"
               elsif otu_not_found_array.include? sf_taxon_name_id # already in array (probably seqnum > 1)
-                logger.warn "SF.TaxonNameID = #{sf_taxon_name_id} already in otu_not_found_array (total in otu_not_found_counter = #{otu_not_found_counter})"
+                logger.info "SF.TaxonNameID = #{sf_taxon_name_id} already in otu_not_found_array (total in otu_not_found_counter = #{otu_not_found_counter})"
               else
                 otu_not_found_array << sf_taxon_name_id # add SF.TaxonNameID to otu_not_found_array
-                logger.warn "SF.TaxonNameID = #{sf_taxon_name_id} added to otu_not_found_array (otu_not_found_counter = #{otu_not_found_counter += 1})"
+                logger.info "SF.TaxonNameID = #{sf_taxon_name_id} added to otu_not_found_array (otu_not_found_counter = #{otu_not_found_counter += 1})"
               end
               next
             end
@@ -268,12 +362,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
             protonym = TaxonName.find(taxon_name_id)
             project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
-            housekeeping = {    # not used yet
-                project_id: project_id,
-                            created_at: row['CreatedOn'],
-                            updated_at: row['LastUpdate'],
-                            created_by_id: get_tw_user_id[row['CreatedBy']],
-                            updated_by_id: get_tw_user_id[row['ModifiedBy']]}
             nomenclator_string = nil
 
             # test nomenclator info
@@ -283,7 +371,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               nomenclator_ident_qualifier = get_nomenclator_metadata[nomenclator_id]['ident_qualifier']
               # sf_file_id = get_nomenclator_metadata[nomenclator_id]['file_id']
               if nomenclator_ident_qualifier.present? # has some irrelevant text in it
-                logger.warn "No citation created because IdentQualifier has irrelevant data: (SF.FileID: #{sf_file_id}, SF.TaxonNameID: #{sf_taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']})"
+                # logger.warn "No citation created because IdentQualifier has irrelevant data: (SF.FileID: #{sf_file_id}, SF.TaxonNameID: #{sf_taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']})"
                 # create data attr on taxon_name
 
                 Note.create!(
@@ -300,7 +388,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               end
             end
 
-            logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
+            logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{sf_taxon_name_id} = TW.taxon_name_id #{taxon_name_id},
 SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
 
             cite_pages = row['CitePages']
@@ -347,7 +435,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
               citation.notes << Note.new(text: row['Note'], project_id: project_id) unless row['Note'].blank?
               # citation.update_column(:pages, cite_pages) # update pages to cite_pages
               citation.update(metadata.merge(pages: cite_pages))
-              logger.info "Citation found: citation.id = #{citation.id}, taxon_name_id = #{taxon_name_id}, cite_pages = '#{cite_pages}' (cite_found_counter = #{cite_found_counter += 1})"
+              # logger.info "Citation found: citation.id = #{citation.id}, taxon_name_id = #{taxon_name_id}, cite_pages = '#{cite_pages}' (cite_found_counter = #{cite_found_counter += 1})"
 
               if get_containing_source_id[source_id.to_s] # create taxon_name_author role for contained Refs only
 
@@ -365,71 +453,81 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                 end
               end
 
-            else # create new citation
 
+            else # create new citation
               # byebug
 
-              if nomenclator_string
+              if !nomenclator_string.blank? && !nomenclator_string.include?('?') # has ? in string, skip combo but record string as tag
                 if !nomenclator_is_original_combination?(protonym, nomenclator_string) && !nomenclator_is_current_name?(protonym, nomenclator_string)
-
-                  # at this point we have to inspect (parse) the string
 
                   combination = nil
 
-                  begin
+                  # begin # multiple matches, need to parse
+                  # [INFO]2018-03-21 04:23:59.785: total funny exceptions = '13410', total unique_bad_nomenclators = '4933'
+                  # [INFO]2018-03-30 03:43:54.967: total funny exceptions = '56295', total unique_bad_nomenclators = '23051', new combo total = 14097
+                  # [INFO]2018-03-31 18:44:23.471: total funny exceptions = '35106', total unique_bad_nomenclators = '15822', new combo total = 21,275
+                  cr = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
 
-                    potential_matches = TaxonName.where(cached: nomenclator_string, project_id: project_id)
-                    if potential_matches.count == 1
-                      taxon_name_id = potential_matches.first.id
-                    else
-                      # UHOH, what to do?
-                      # This means that the string we have matches multiple possible protonyms and
-                      # we cant automatically determine which to cite
-                      check_result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: nomenclator_string, project_id: project_id, code: :iczn)
+                  kn = {
+                      project_id: project_id,
+                      nomenclator_string: nomenclator_string,
+                      cr: cr,
+                      protonym: protonym
+                  }
+                  done = false
 
-                      test_combo = check_result.disambiguated_combination(species: protonym)
-
-                      if check_result.is_unambiguous?
-                        combination = check_result.combination
-
-                        combination.project_id = project_id
-                        # add cite housekeeping
-                        # TODO: override $user_id if need be
-
-                        if combination.genus
-                          # todo: what if no genus?
-                          combination.save!
-                          taxon_name_id = combination.id # At this point (3) do we use taxon_name_id for anything OTHER THAN the citation  (yes lots of loggin)
-                          logger.info "Successful COMBINATION counter = '#{successful_combination_counter += 1}'"
-
-                        elsif protonym.rank == "species" && test_combo.get_full_name == nomenclator_string
-                          # testing known genus and homonym current species
-                          # add cite housekeeping
-                          test_combo.save!
-                          taxon_name_id = test_combo.id
-
-                          # other test cases:
-                          # test is_subspecies and species.name = subspecies.name
-                          # test is_subspecies and different rank names
-                          # test has subgenus (and above test cases)
-                          #
-                          # difficult cases:
-                          # misspelling of current taxon w/o synonym
+                  [:m_single_match, :m_unambiguous, :m_current_species_homonym, :m_sibling_synonym].each do |m|
+                    passed, c = send(m, kn) # return passed & c (= combination); args to m (= method), kn (= knowns)
+                    if passed
+                      if c.new_record?
+                        c.by = 1
+                        c.project_id = project_id
+                        c.save!
+                        new_combination_counter += 1
+                      end
+                      done = true
+                      taxon_name_id = c.id
+                      total_combination_counter += 1
+                    end
+                    break if done
+                  end
 
 
-                        else
-                          # ... this is all the funny exceptions (4)
+                  # other test cases:
+                  # test is_subspecies and species.name = subspecies.name
+                  # test is_subspecies and different rank names
+                  # test has subgenus (and above test cases)
+                  # test genus homonyms (other_matches?)
+                  # if current name is species and there is no genus nomenclator, skip it
+                  #
+                  # difficult cases:
+                  # misspelling of current taxon w/o synonym
+                  # nomenclator name different than current name (probably synonymized)
+                  # disambiguating genera/subgenera
+                  # same author, same combination applied to multiple species synonymized under same valid name: create citation for the synonymy relationship
+                  #
+                  # other tasks
+                  # add counter for NewNameStatusID: each value?
+                  # add citation to synonym combination if value already used or is it citation to relationship? Show example of Gastrimargus determinatus vitripennis
+                  #
 
-                          funny_exceptions_counter += 1
-                          unique_bad_nomenclators[nomenclator_string] = project_id
 
-                          logger.warn "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', check_result.detail = '#{check_result.detail}', check_result.ambiguous_ranks = '#{check_result.ambiguous_ranks}' (unique_bad_nomenclators.count = #{unique_bad_nomenclators.count})"
+                  # else
+                  # ... this is all the funny exceptions (4)
+                  if done
+                    logger.info Rainbow("Successful combination: new_combination_counter = #{new_combination_counter}, total_combination_counter = #{total_combination_counter}").rebeccapurple.bold
+                  else # unsuccessful
+                    funny_exceptions_counter += 1
+                    unique_bad_nomenclators[nomenclator_string] = project_id
 
-                          logger.warn "Unaccounted for species errors"
-                        end
+                    logger.warn "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', cr.detail = '#{cr.detail}', cr.ambiguous_ranks = '#{cr.ambiguous_ranks}' (unique_bad_nomenclators.count = #{unique_bad_nomenclators.count})"
+                  end
+                end
 
 
 =begin
+
+documentation block only
 
 cr.disambiguated_combo genus: value, species: value, etc.
 cr.combination => 
@@ -465,25 +563,26 @@ c2.get_full_name == nomenclator_string (must check)
 
 =end
 
-                        funny_exceptions_counter += 1
-                        unique_bad_nomenclators[nomenclator_string] = project_id
+                #     funny_exceptions_counter += 1
+                #     unique_bad_nomenclators[nomenclator_string] = project_id
+                #
+                #     logger.warn "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', cr.detail = '#{cr.detail}', cr.ambiguous_ranks = '#{cr.ambiguous_ranks}' (unique_bad_nomenclators.count = #{unique_bad_nomenclators.count})"
+                #   end
+                # end
 
-                        logger.warn "Funny exceptions ELSE nomenclator_string = '#{nomenclator_string}', check_result.detail = '#{check_result.detail}', check_result.ambiguous_ranks = '#{check_result.ambiguous_ranks}' (unique_bad_nomenclators.count = #{unique_bad_nomenclators.count})"
-                      end
-                    end
-
-                      # Put all the rescue statements in one place
-                  rescue ActiveRecord::RecordInvalid
-                    logger.error "Combination ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + combination.errors.full_messages.join(';')
-                  rescue TypeError
-                    # message about type / problems with   TaxonWorks::Vendor::Biodiversity::Result
-                    logger.error "Bad nomenclator string? nomen str = #{nomenclator_string}"
-                  rescue
-                    raise
-                  end
-                end
+                # Put all the rescue statements in one place
+                #     rescue ActiveRecord::RecordInvalid
+                #       logger.error "Combination ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + combination.errors.full_messages.join(';')
+                #     rescue TypeError
+                #       # message about type / problems with   TaxonWorks::Vendor::Biodiversity::Result
+                #       logger.error "Bad nomenclator string? nomen str = #{nomenclator_string}"
+                #     rescue
+                #       raise
+                #     end
+                #   end
+                # end
               end
-              # end block that does stuff if nomenclator_string exists
+              # block that does stuff if nomenclator_string exists
 
               # combination check
               # synonym or taxon_name_relationship check
@@ -511,7 +610,7 @@ c2.get_full_name == nomenclator_string (must check)
 
                 # yes I know this is ugly but it works
                 if citation.errors.messages[:source_id].nil?
-                  logger.info "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id},
+                  logger.error "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id},
 SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
                   next
                 else # make pages unique and save again
@@ -520,11 +619,13 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                     begin
                       citation.save!
                     rescue ActiveRecord::RecordInvalid
-                      logger.info "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
+                      # [ERROR]2018-03-30 17:09:43.127: Citation ERROR [TW.project_id: 11, SF.TaxonNameID 1152999 = TW.taxon_name_id 47338, SF.RefID 16047 = TW.source_id 12047, SF.SeqNum 2, nomenclator_string = Limnoperla jaffueli, name_status = 3] (total_error_counter = 1, source_used_counter = 1): Source has already been taken
+                      logger.error "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}, nomenclator_string = #{nomenclator_string}, name_status = #{row['NewNameStatusID']}], (current_error_counter = #{error_counter += 1}, source_used_counter = #{source_used_counter += 1}): " + citation.errors.full_messages.join(';')
+                      logger.info "NewNameStatusID = #{row['NewNameStatusID']}, count = #{new_name_status[row['NewNameStatusID'].to_i] += 1}"
                       next
                     end
                   else # citation error was not already been taken (other validation failure)
-                    logger.info "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
+                    logger.error "Citation ERROR [TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
                     next
                   end
                 end
@@ -534,13 +635,14 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             ### After citation updated or created
 
             ## Nomenclator: DataAttribute of citation, NomenclatorID > 0
+
             if nomenclator_string # OR could value: be evaluated below based on NomenclatorID?
               da = DataAttribute.new(type: 'ImportAttribute',
-                                     attribute_subject_id: citation.id,
-                                     attribute_subject_type: 'Citation',
-                                     # attribute_subject: citation,        replaces two lines above
+                                     # attribute_subject_id: citation.id,
+                                     # attribute_subject_type: 'Citation',
+                                     attribute_subject: citation, # replaces two lines above
                                      import_predicate: 'Nomenclator',
-                                     value: nomenclator_string,
+                                     value: "#{nomenclator_string} (TW.project_id: #{project_id}, SF.TaxonNameID #{sf_taxon_name_id} = TW.taxon_name_id #{taxon_name_id}, SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']})",
                                      project_id: project_id,
                                      created_at: row['CreatedOn'],
                                      updated_at: row['LastUpdate'],
@@ -549,7 +651,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               )
               begin
                 da.save!
-                puts 'DataAttribute Nomenclator created'
+                  # puts 'DataAttribute Nomenclator created'
               rescue ActiveRecord::RecordInvalid # da not valid
                 logger.error "DataAttribute Nomenclator ERROR NomenclatorID = #{row['NomenclatorID']}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (error_counter = #{error_counter += 1}): " + da.errors.full_messages.join(';')
               end
@@ -621,7 +723,10 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
           end
 
-          logger.info "total funny exceptions = '#{funny_exceptions_counter}', total unique_bad_nomenclators = '#{unique_bad_nomenclators.count}', \n unique_bad_nomenclators = '#{unique_bad_nomenclators}'"
+          # logger.info "total funny exceptions = '#{funny_exceptions_counter}', total unique_bad_nomenclators = '#{unique_bad_nomenclators.count}', \n unique_bad_nomenclators = '#{unique_bad_nomenclators}'"
+          ap "total funny exceptions = '#{funny_exceptions_counter}', total unique_bad_nomenclators = '#{unique_bad_nomenclators.count}', \n unique_bad_nomenclators = '#{unique_bad_nomenclators}'"
+          puts 'new_name_status hash:'
+          ap new_name_status
         end
 
         desc 'time rake tw:project_import:sf_import:cites:check_original_genus_ids user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'

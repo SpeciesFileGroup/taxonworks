@@ -102,6 +102,9 @@ module SoftValidation
 
   module ClassMethods
 
+    # @param [Symbol] method
+    # @param [Hash] options
+    # @return [Boolean]
     # self.name is the class name, e.g. Otu
     def soft_validate(method, options = {})
       options[:klass] = self
@@ -111,12 +114,18 @@ module SoftValidation
       true
     end
 
+    # @param [Symbol] method
+    # @param [Hash] options
+    # @return [SoftValidationMethod]
     def add_method(method, options)
       n                                       = self.name
       self.soft_validation_methods[n]         ||= {}
       self.soft_validation_methods[n][method] = SoftValidationMethod.new(options)
     end
 
+    # @param [Hash] method
+    # @param [Hash] options
+    # @return [Ignored]
     def add_to_set(method, options)
       n   = self.name
       set = options[:set]
@@ -132,7 +141,7 @@ module SoftValidation
       end
     end
 
-    # @return [True]
+    # @return [Boolean] always true
     #   indicates that this class has included SoftValidation
     def soft_validates?
       true
@@ -145,12 +154,10 @@ module SoftValidation
     end
 
     # an internal accessor for self.soft_validation_methods
-    # @return [Array of Symbol]
+    # @param [Symbol] set the set to return
+    # @param [Boolean] ancestors whether to also return the ancestors validation methods
+    # @return [Array] of Symbol
     #   the names of the soft validation methods
-    # @param [:set, Symbol]
-    #   the set to return
-    # @param [:ancestors, Boolean]
-    #    whether to also return the ancestors validation methods
     def soft_validators(set: :all, include_ancestors: true)
       methods = []
       # klass_validators = self.soft_validation_methods[self.name][set] if has_self_soft_validations?
@@ -165,6 +172,7 @@ module SoftValidation
       methods
     end
 
+    # @return [Hash]
     def soft_validation_descriptions
       result = {}
       soft_validators.each do |v|
@@ -173,10 +181,12 @@ module SoftValidation
       result
     end
 
+    # @return [Hash]
     def ancestor_klasses_with_validation
       ANCESTORS_WITH_SOFT_VALIDATIONS[self]
     end
 
+    # @return [Ignored]
     def reset_soft_validation!
       self.soft_validation_methods = {self.name => {}}
       self.soft_validation_sets = { self.name =>  {all:  [] } }
@@ -186,17 +196,19 @@ module SoftValidation
 
   # instance methods
 
+  # @return [SoftValidations]
   def soft_validations
     @soft_validation_result ||= SoftValidations.new(self)
   end
 
+  # @return [Nil]
   def clear_soft_validations
     @soft_validation_result = nil
   end
 
-  # @return [True]
-  # @param [:set, Symbol] the set of soft validations to run
-  # @param [:ancestors, Boolean] whether to also validate ancestors soft validations
+  # @param [Symbol] set the set of soft validations to run
+  # @param [Boolean] ancestors whether to also validate ancestors soft validations
+  # @return [Boolean] always true
   def soft_validate(set = :all, include_ancestors = true)
     clear_soft_validations
     soft_validations
@@ -218,6 +230,8 @@ module SoftValidation
     true
   end
 
+  # @param [Symbol] scope
+  # @return [Boolean]
   def fix_soft_validations(scope = :automatic)
     return false if !soft_validated?
     raise 'invalid scope passed to fix_soft_validations' if ![:all, :automatic, :requested].include?(scope)
@@ -240,14 +254,17 @@ module SoftValidation
     true
   end
 
+  # @return [Boolean]
   def soft_validated?
     soft_validations.validated?
   end
 
+  # @return [Boolean]
   def soft_fixed?
     soft_validations.fixes_run?
   end
 
+  # @return [Boolean]
   def soft_valid?
     soft_validations.complete?
   end
@@ -255,6 +272,6 @@ module SoftValidation
 end
 
 # Original version was an AR extension, might revert to this at some point.
-# class ApplicationRecord  
+# class ApplicationRecord
 #   include SoftValidation
 # end

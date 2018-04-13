@@ -59,6 +59,8 @@ module BatchLoad
     # User provided map of their header (key) to our attribute (value)
     attr_accessor :user_header_map
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(project_id: nil, user_id: nil, file: nil, process: true, import_level: :warn, user_header_map: {})
       @processed    = false
       @import_level = import_level
@@ -83,12 +85,15 @@ module BatchLoad
 
     # The file to be processed
     # params[:file].tempfile coming from a multipart form
+    # @param [File] value
+    # @return [File]
     def file=(value)
       @file = value
       csv
       @file
     end
 
+    # @return [CSV, nil]
     def csv
       begin
         @csv ||= CSV.parse(@file.tempfile.read.force_encoding('utf-8'),
@@ -113,20 +118,25 @@ module BatchLoad
       end
     end
 
+    # @param [String] h
+    # @return [String]
     def user_map(h)
       @user_header_map[h] ? @user_header_map[h] : h
     end
 
+    # @return [Boolean]
     def valid?
       return false unless @project_id && @user && @file && csv && errors.empty? && file_errors.empty?
       true
     end
 
     # return [Boolean] whether the instance is configured
+    # @return [Boolean]
     def ready_to_create?
       valid? && processed? && import_level_ok?
     end
 
+    # @return [Boolean]
     def import_level_ok?
       case import_level.to_sym
         when :warn
@@ -140,10 +150,12 @@ module BatchLoad
       end
     end
 
+    # @return [Boolean]
     def warn_level_ok?
       true
     end
 
+    # @return [Boolean]
     def strict_level_ok?
       all_objects.each do |o|
         return false unless o.valid?
@@ -151,12 +163,14 @@ module BatchLoad
       true
     end
 
+    # @return [Boolean]
     def line_strict_level_ok?
       total_data_lines == valid_objects.size
     end
 
     # Iterates in line order and attempts to save each record
     # return [true]
+    # @return [Boolean]
     def create
       @create_attempted = true
       if ready_to_create?
@@ -176,6 +190,7 @@ module BatchLoad
       true
     end
 
+    # @return [Ignored]
     def build
       raise 'This method must be provided in each respective subclass.'
     end

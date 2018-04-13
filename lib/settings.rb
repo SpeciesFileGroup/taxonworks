@@ -31,7 +31,9 @@ module Settings
   @@sandbox_commit_date = nil
 
   @@selenium_settings = {}
-
+  # @param [Hash] config
+  # @param [Hash] hash
+  # @return [Boolean]
   def self.load_from_hash(config, hash)
     invalid_sections = hash.keys - VALID_SECTIONS
     raise Error, "#{invalid_sections} are not valid sections" unless invalid_sections.empty?
@@ -49,10 +51,15 @@ module Settings
     true
   end
 
+  # @return [Hash]
   def self.get_config_hash
     @@config_hash
   end
 
+  # @param [Hash] config
+  # @param [String] path
+  # @param [Symbol] set_name
+  # @return [Ignored]
   def self.load_from_file(config, path, set_name)
     hash = YAML.load_file(path)
     if hash.keys.include?(set_name.to_s)
@@ -63,38 +70,50 @@ module Settings
     end
   end
 
+  # @param [Hash] config
+  # @param [Symbol] set_name
+  # @return [Ignored]
   def self.load_from_settings_file(config, set_name)
     self.load_from_file(config, 'config/application_settings.yml', set_name) if File.exist?('config/application_settings.yml')
   end
 
+  # @return [String]
   def self.default_data_directory
     @@default_data_directory
   end
 
+  # @return [String]
   def self.backup_directory
     @@backup_directory
   end
 
+  # @return [String]
   def self.mail_domain
     @@mail_domain
   end
 
+  # @return [Boolean]
   def self.sandbox_mode?
     @@sandbox_mode
   end
 
+  # @return [String]
   def self.sandbox_commit_sha
     @@sandbox_commit_sha
   end
 
+  # @return [Date]
   def self.sandbox_commit_date
     @@sandbox_commit_date
   end
 
+  # @return [Hash]
   def self.selenium_settings
     @@selenium_settings
   end
 
+  # @param [String] path
+  # @return [Ignored]
   def self.setup_directory(path)
     if !Dir.exists?(path)
       # TODO: use/open a logger
@@ -104,6 +123,8 @@ module Settings
     end
   end
 
+  # @param [String] path
+  # @return [String]
   def self.load_default_data_directory(path)
     @@default_data_directory = nil
     if !path.nil?
@@ -113,6 +134,8 @@ module Settings
     end
   end
 
+  # @param [String] path
+  # @return [String]
   def self.load_backup_directory(path)
     @@backup_directory = nil
     if !path.nil?
@@ -122,12 +145,17 @@ module Settings
     end
   end
 
+  # @param [Hash] config
+  # @param [Hash] settings
+  # @return [Ignored]
   def self.load_exception_notification(config, settings)
     if settings
       config.middleware.use ExceptionNotification::Rack, email: process_exception_notification(settings)
     end
   end
 
+  # @param [Hash] settings
+  # @return [Hash]
   def self.process_exception_notification(settings)
     missing = EXCEPTION_NOTIFICATION_SETTINGS - settings.keys
     raise Error, "Missing #{missing} settings in exception_notification" unless missing.empty?
@@ -142,6 +170,8 @@ module Settings
     settings
   end
 
+  # @param [Hash] settings
+  # @return [Ignored]
   def self.load_interface(settings)
     if settings
       invalid = settings.keys - [:sandbox_mode]
@@ -154,6 +184,8 @@ module Settings
     end
   end
 
+  # @param [Hash] settings
+  # @return [Hash]
   def self.load_selenium_config(settings)
     invalid = settings.keys - [:browser, :marionette, :firefox_binary_path, :chromedriver_path]
 
@@ -166,6 +198,9 @@ module Settings
     end
   end
 
+  # @param [Hash] config
+  # @param [Hash] settings
+  # @return [Hash]
   def self.load_action_mailer_smtp_settings(config, settings)
     if settings
       config.action_mailer.delivery_method = :smtp
@@ -173,16 +208,24 @@ module Settings
     end
   end
 
+  # @param [Hash] config
+  # @param [String] url_host
+  # @return [Boolean]
   def self.load_action_mailer_url_host(config, url_host)
     if url_host
       config.action_mailer.default_url_options = { host: url_host }
     end
   end
 
+  # @param [Hash] config
+  # @param [String] mail_domain
+  # @return [String]
   def self.load_mail_domain(config, mail_domain)
     @@mail_domain = mail_domain
   end
 
+  # @param [Hash] config
+  # @return [Boolean]
   def self.load_test_defaults(config)
     load_from_hash(config, {
       exception_notification: {

@@ -1,14 +1,14 @@
 <template>
-  <form
-    class="panel basic-information"
-    v-help.section.relationship.container>
+  <form class="panel basic-information">
     <a
       name="relationship"
       class="anchor"/>
     <div
       class="header flex-separate middle"
       :class="{ 'validation-warning' : softValidation.taxonRelationshipList.list.length }">
-      <h3>Relationship</h3>
+      <h3
+      v-help.section.relationship.container
+      >Relationship</h3>
       <expand
         @changed="expanded = !expanded"
         :expanded="expanded"/>

@@ -35,6 +35,7 @@ module Queries
       Arel.sql("(#{all_filters.gsub('?<year>', '').gsub('?<month>', '')})")
     end
 
+    # @return [String] of sql
     def where_sql
       # with_project_id.and
       # TODO: make sure you select the one of the following which suits your purpose: with or without Verbatim_lat/long preset
@@ -42,6 +43,7 @@ module Queries
         # (verbatim_label_not_empty).and(starting_after_id).and(filter_scopes).to_sql
     end
 
+    # @return [Arel::Table]
     def table
       CollectingEvent.arel_table
     end
@@ -51,15 +53,18 @@ module Queries
       CollectingEvent.where(where_sql)
     end
 
+    # @return [Arel::Nodes::NamedFunction]
     def verbatim_label_not_empty
       vl = Arel::Attribute.new(Arel::Table.new(:collecting_events), :verbatim_label)
       Arel::Nodes::NamedFunction.new('length', [vl]).gt(0)
     end
 
+    # @return [String]
     def verbatim_date_empty
       Arel.sql('(verbatim_date is null)')
     end
 
+    # @return [Arel::Attribute]
     def starting_after_id
       start_id = Arel::Attribute.new(Arel::Table.new(:collecting_events), :id)
       start_id.gt(Arel::Nodes::Quoted.new(collecting_event_id))

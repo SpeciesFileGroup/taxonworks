@@ -141,10 +141,12 @@ class User < ApplicationRecord
 
   scope :is_administrator, -> { where(is_administrator: true) }
 
+  # @return [Scope] of projects
   def administered_projects
     projects.where(id: project_members.where(is_project_administrator: true).pluck(:project_id))
   end
 
+  # @return [Boolean]
   def administers_projects?
     administered_projects.any?
   end
@@ -203,6 +205,8 @@ class User < ApplicationRecord
     user_ids.flatten.uniq
   end
 
+  # @param [Integer] project_id
+  # @return [Scope] of users
   def self.not_in_project(project_id)
     ids = ProjectMember.where(project_id: project_id).pluck(:user_id)
     return where(false) if ids.empty?
@@ -216,44 +220,49 @@ class User < ApplicationRecord
     ProjectMember.where(project_id: project_id).distinct.pluck(:user_id)
   end
 
+  # @return [String] of token
   def User.secure_random_token
     SecureRandom.urlsafe_base64
   end
 
+  # @param [String] token
+  # @return [String]
   def User.encrypt(token)
     Digest::SHA1.hexdigest(token.to_s)
   end
 
-  # @return [true, false]
-  # true if user is_administrator or is_project_administrator
+  # @param [Project] project
+  # @return [Boolean] true if user is_administrator or is_project_administrator
   def is_superuser?(project = nil)
     is_administrator || is_project_administrator?(project)
   end
 
-  # @return [Boolean]
-  # true if is_administrator = true
+  # @return [Boolean] true if is_administrator = true
   def is_administrator?
     is_administrator.blank? ? false : true
   end
 
-  # @return [true, false]
-  # true if user is_project_administrator for the project passed
-  # @param project [Project]
+  # @param [Project] project
+  # @return [Boolean] true if user is_project_administrator for the project passed
   def is_project_administrator?(project = nil)
     return false if project.nil?
     project.project_members.where(user_id: id).first.is_project_administrator
   end
 
-  # @params [Project, Integer]
+  # @param [Project, Integer]
   # @return [Boolean]
   def member_of?(project)
     ProjectMember.where(project_id: project, user_id: self.id).any?
   end
 
+  # @return [Hash]
   def hub_favorites
     read_attribute(:hub_favorites) || {}
   end
 
+  # rubocop:disable Style/StringHashKeys
+  # @param [Hash] options
+  # @return [Boolean] always true
   def add_page_to_favorites(options = {}) # name: nil, kind: nil, project_id: nil
     validate_favorite_options(options)
     n       = options[:name]
@@ -267,7 +276,10 @@ class User < ApplicationRecord
     update_column(:hub_favorites, u)
     true
   end
+  # rubocop:enable Style/StringHashKeys
 
+  # @param [Hash] options
+  # @return [Ignored]
   def remove_page_from_favorites(options = {}) # name: nil, kind: nil, project_id: nil
     validate_favorite_options(options)
     new_routes = hub_favorites.clone
@@ -275,12 +287,15 @@ class User < ApplicationRecord
     update_column(:hub_favorites, new_routes)
   end
 
+  # @param [Hash] options
+  # @return [Boolean]
   def validate_favorite_options(options)
     return false if !options.select { |k, v| k.nil? || v.nil? }.empty?
     return false if !member_of?(options['project_id'])
     true
   end
 
+  # @return [Ignored]
   def update_last_seen_at
 
     a = 0
@@ -294,6 +309,9 @@ class User < ApplicationRecord
 
   end
 
+  # @param [String] recent_route
+  # @param [Object] recent_object
+  # @return [Boolean] always true
   def add_recently_visited_to_footprint(recent_route, recent_object = nil)
     case recent_route
       when /\A\/\Z/ # the root path '/'
@@ -320,22 +338,26 @@ class User < ApplicationRecord
   end
 
   # TODO:  This needs to show cross-project pinboard items as well
+  # @param [Integer] project_id
+  # @return [Scope] of pinboard items
   def pinboard_hash(project_id)
     pinboard_items.where(project_id: project_id).order('pinned_object_type DESC, position').to_a.group_by { |a| a.pinned_object_type }
   end
 
-  # @return [Integer]
-  #   the total records of this klass created by this user
+  # @param [String] klass
+  # @return [Integer] the total records of this klass created by this user
   def total_objects(klass) # klass_name is a string, need .constantize in next line
     klass.where(creator: self).count
   end
 
+  # @param [String] klass_string
+  # @return [Integer]
   def total_objects2(klass_string)
     self.send("created_#{klass_string}").count #klass.where(creator:self).count
   end
 
+  # rubocop:disable Metrics/MethodLength
   # @return [Hash]
-  #
   # @user.get_class_created_updated # => { "projects" => {created: 10, first_created: datetime, updated: 10, last_updated: datetime} }
   def get_class_created_updated
     Rails.application.eager_load! if Rails.env.development?
@@ -373,30 +395,34 @@ class User < ApplicationRecord
     end
     data
   end
+  # rubocop:enable Metrics/MethodLength
 
+  # @return [String]
   def generate_api_access_token
     self.api_access_token = Utilities::RandomToken.generate
   end
 
+  # @return [Boolean] always true
   def require_password_presence
     @require_password_presence = true
   end
 
   private
 
+  # @return [String]
   def set_remember_token
     self.remember_token = User.encrypt(User.secure_random_token)
   end
 
+  # @return [Boolean]
   def validate_password?
     password.present? || password_confirmation.present? || @require_password_presence
   end
 
+  # @return [Ignored]
   def configure_self_created
     if !self.new_record? && self.creator.nil? && self.updater.nil?
       self.update_columns(created_by_id: self.id, updated_by_id: self.id) # !?
     end
   end
-
-
 end

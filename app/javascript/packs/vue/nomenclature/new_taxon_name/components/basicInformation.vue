@@ -1,12 +1,14 @@
 <template>
   <form
     class="panel basic-information"
-    v-help.section.basic.container>
+    >
     <a
       name="basic-information"
       class="anchor"/>
     <div class="header flex-separate middle">
-      <h3>Basic information</h3>
+      <h3
+      v-help.section.basic.container
+      >Basic information</h3>
       <expand
         @changed="expanded = !expanded"
         :expanded="expanded"/>
@@ -26,7 +28,7 @@
           </hard-validation>
         </div>
         <div class="field separate-top">
-          <label>Parent</label>
+          <label v-help.section.basic.parent>Parent</label>
           <parent-picker/>
         </div>
         <rank-selector v-if="parent"/>
@@ -35,6 +37,7 @@
       </div>
       <div class="column-right item">
         <check-exist
+          :max-results="0"
           :taxon="taxon"
           class="separate-left"
           url="/taxon_names/autocomplete"

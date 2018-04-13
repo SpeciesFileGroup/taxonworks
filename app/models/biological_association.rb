@@ -59,9 +59,4 @@ class BiologicalAssociation < ApplicationRecord
     write_attribute(:biological_association_object_type, o.metamorphosize.class.name)
   end
 
-  # TODO: remove, this makes little sense as an autocomplete ...
-  def self.find_for_autocomplete(params)
-    Queries::BiologicalAssociationAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
-  end
-
 end

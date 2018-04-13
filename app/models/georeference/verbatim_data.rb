@@ -3,6 +3,8 @@
 class Georeference::VerbatimData < Georeference
 
   # rubocop:disable Metrics/MethodLength
+  # @param [ActionController::Parameters] params
+  # @return [Ignored]
   def initialize(params = {})
     super
 
@@ -52,7 +54,7 @@ class Georeference::VerbatimData < Georeference
       self.geographic_item = test_grs.first
     end
 
-    geographic_item
+    # geographic_item
   end
   # rubocop:enable Metrics/MethodLength
 end

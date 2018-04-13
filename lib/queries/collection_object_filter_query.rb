@@ -13,8 +13,10 @@ module Queries
     # Resolved/processed results
     attr_accessor :start_date, :end_date, :user_date_start, :user_date_end
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(params)
-      params.reject! { |_k, v| v.blank? }
+      params.reject! { |_k, v| v.blank? } # dump all entries with empty values
 
       @query_geographic_area_ids   = params[:geographic_area_ids]
       @query_shape                 = params[:drawn_area_shape]
@@ -35,36 +37,44 @@ module Queries
     end
 
     # Only set (and therefor ultimately use) dates if they were provided!
+    # @return [Ignored]
     def set_and_order_dates
       if query_start_date || query_end_date
         @start_date, @end_date = Utilities::Dates.normalize_and_order_dates(query_start_date, query_end_date)
       end
     end
 
+    # @return [Boolean]
     def area_set?
       !query_geographic_area_ids.nil?
     end
 
+    # @return [Boolean]
     def date_set?
       !start_date.nil?
     end
 
+    # @return [Boolean]
     def otu_set?
       !query_otu_id.nil?
     end
 
+    # @return [Boolean]
     def shape_set?
       !query_shape.nil?
     end
 
+    # @return [Boolean]
     def with_descendants?
       query_otu_descendants == 'on'
     end
 
+    # @return [Boolean]
     def identifier_set?
       query_range_start.present? || query_range_stop.present?
     end
 
+    # @return [Boolean]
     def user_date_set?
       query_user.present? or (query_user_date_range_start.present? or query_user_date_range_end.present?)
     end
@@ -99,6 +109,7 @@ module Queries
         .where(CollectingEvent.date_sql_from_dates(start_date, end_date, query_date_partial_overlap))
     end
 
+    # @return [Scope]
     def identifier_scope
       ns = nil
       ns = Namespace.where(short_name: query_id_namespace).first if query_id_namespace.present?
@@ -108,6 +119,7 @@ module Queries
     end
 
     # noinspection RubyResolve
+    # @return [Scope]
     def user_date_scope
       @user_date_start, @user_date_end = Utilities::Dates.normalize_and_order_dates(query_user_date_range_start,
                                                                                     query_user_date_range_end)
@@ -136,7 +148,7 @@ module Queries
       scope
     end
 
-    # @return [Array]
+    # @return [Array] of symbols refering to methods
     #   determine which scopes to apply based on parameters provided
     def applied_scopes
       scopes = []

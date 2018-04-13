@@ -52,6 +52,7 @@ module Housekeeping::Users
   #   Otu.new(name: 'Aus', by: @user)
   attr_accessor :by
 
+  # rubocop:disable Lint/ReturnInVoidContext
   # @return [self, nil]
   #   a new_record settor to set both creator and updater
   def by=(value)
@@ -61,15 +62,20 @@ module Housekeeping::Users
     self.updated_by_id = value.to_param
     self
   end
+  # rubocop:enable Lint/ReturnInVoidContext
 
   protected
 
+  # @return [Ignored]
   def set_created_by_id
     self.created_by_id ||= $user_id
   end
 
-  # TODO: This method _is not_ called in an 'after_save' operation (in User), so this deprecation warning does not apply (?) It _may_ be called in an 'after_save' situation through some other model. It may help to unwind the logic.
+  # TODO: This method _is not_ called in an 'after_save' operation (in User), so this deprecation warning
+  # does not apply (?) It _may_ be called in an 'after_save' situation through some other model.
+  # It may help to unwind the logic.
   # WRT .changed? vs .saved_changes? Deprecation warning
+  # @return [Ignored]
   def set_updated_by_id
     ActiveSupport::Deprecation.silence do
       if (self.changed? || self.new_record?) && !self.updated_by_id_changed? && self.by.blank?

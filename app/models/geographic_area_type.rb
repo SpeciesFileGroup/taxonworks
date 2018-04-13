@@ -10,12 +10,9 @@ class GeographicAreaType < ApplicationRecord
   include Housekeeping::Timestamps
   include Shared::IsData
 
-  # rubocop:disable Style/WordArray
-  COUNTRY_LEVEL_TYPES = ['Country', 'Governorate'].freeze
-  STATE_LEVEL_TYPES   = ['State', 'Province', 'District', 'Prefecture', 'Region',
-                         'Territory', 'Republic', 'Area', 'Oblast', 'Krai'].freeze
-  COUNTY_LEVEL_TYPES  = ['County', 'Parish', 'Borough', 'Canton', 'Department', 'Raion'].freeze
-  # rubocop:enable Style/WordArray
+  COUNTRY_LEVEL_TYPES = %w(Country Governorate).freeze
+  STATE_LEVEL_TYPES   = %w(State Province District Prefecture Region Territory Republic Area Oblast Krai).freeze
+  COUNTY_LEVEL_TYPES  = %w(County Parish Borough Canton Department Raion).freeze
 
   has_many :geographic_areas, inverse_of: :geographic_area_type
 

@@ -19,6 +19,7 @@
             v-for="attr in attributes"
             v-html="getValue(item, attr)"/>
           <td class="vue-table-options">
+            <radial-annotator :global-id="item.global_id"/>
             <span
               v-if="edit"
               class="circle-button btn-edit"
@@ -35,7 +36,13 @@
   </div>
 </template>
 <script>
+
+  import RadialAnnotator from './annotator/annotator.vue'
+
   export default {
+    components: {
+      RadialAnnotator
+    },
     props: {
       list: {
         type: Array,
@@ -57,10 +64,17 @@
         type: Boolean,
         default: true
       },
+      annotator: {
+        type: Boolean,
+        default: false
+      },
       edit: {
         type: Boolean,
         default: false
       }
+    },
+    mounted() {
+      this.$options.components['RadialAnnotator'] = RadialAnnotator
     },
     methods: {
       getValue(object, attributes) {

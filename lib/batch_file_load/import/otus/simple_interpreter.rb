@@ -1,9 +1,12 @@
 module BatchFileLoad
   class Import::Otus::SimpleInterpreter < BatchFileLoad::Import
+    # @param [Array] args
+    # @return [Ignored]
     def initialize(**args)
       super(args)
     end
 
+    # @return [Array]
     def build
       return if !valid?
       @processed = true

@@ -66,6 +66,10 @@ module Utilities::Dates
     retval
   end
 
+  #
+  # @params [year: integer]
+  # @params [month: integer, nil]
+  # @params [day: integer, nil]
   # @return[Time] a UTC time (Uses Time instead of Date so that it can be saved as a UTC object -
   #   See http://www.ruby-doc.org/core-2.0.0/Time.html)
   #   Returns nomenclature_date based on computation of the values of :year, :month, :day.
@@ -74,10 +78,6 @@ module Utilities::Dates
   #    if :day is empty, returns the last day of the month
   #
   # Use self.month_index to convert months prior to handling them here
-  #
-  # @params [year: integer]
-  # @params [month: integer, nil]
-  # @params [day: integer, nil]
   #
   def self.nomenclature_date(day = nil, month = nil, year = nil)
     if year.nil?
@@ -96,10 +96,13 @@ module Utilities::Dates
     end
   end
 
+  # @param [String] date_string
+  # @return [String]
   def mdy_parse_date(date_string)
     date_string
   end
 
+  # rubocop:disable Metrics/MethodLength
   # @return [String] of sql to test dates
   # @param [Hash] params
   # TODO: still needs more work for some date combinations
@@ -176,8 +179,13 @@ module Utilities::Dates
     end
     sql_string
   end
+  # rubocop:enable Metrics/MethodLength
 
   # Pass integers
+  # @param [Integer] hour
+  # @param [Integer] minute
+  # @param [Integer] second
+  # @return [String]
   def self.format_to_hours_minutes_seconds(hour, minute, second)
     h, m, s = nil, nil, nil
     h = ('%02d' % hour) if hour
@@ -260,6 +268,9 @@ module Utilities::Dates
     return start_date.gsub('-', '/'), end_date.gsub('-', '/')
   end
 
+  # @param [Array] label of strings
+  # @param [Array] pieces of strings
+  # @return [Array] of strings
   def self.make_verbatim_date_piece(label, pieces)
     left = label.index(pieces[0])
     right = left + pieces[0].length - 1 #
@@ -299,6 +310,8 @@ module Utilities::Dates
     end
   end
 
+  # @param [String] year
+  # @return [String]
   def self.fix_2_digit_year(year)
     if year.length < 4
       year = year.gsub("'", '')
@@ -314,6 +327,9 @@ module Utilities::Dates
     year
   end
 
+  # @param [String] label
+  # @param [Array] filters of regexes
+  # @return [Array] of possible interpretations of dates
   def self.hunt_dates(label, filters = REGEXP_DATES.keys)
     trials = {}
     filters.each_with_index {|kee, dex|
@@ -333,6 +349,9 @@ module Utilities::Dates
     trials
   end
 
+  # @param [Hash] trial of date strings
+  # @return [Boolean]
+  # check for as invalid day number per month for start and end date
   def self.invalid_month_day(trial)
     retval = false
     if trial[:start_date_day].to_i > 31 or trial[:end_date_day].to_i > 31
@@ -350,6 +369,10 @@ module Utilities::Dates
     retval
   end
 
+  # rubocop:disable Metrics/MethodLength
+  # @param [Hash] trial
+  # @param [Array] match_data of Regex results
+  # @return [Hash]
   def self.extract_dates(trial, match_data)
     end_date_year, end_date_month, end_date_day = 0, 0, 0
     case trial[:method].downcase.to_sym
@@ -533,6 +556,7 @@ module Utilities::Dates
     end
     trial
   end
+  # rubocop:enable Metrics/MethodLength
 
   REGEXP_DATES = {
       month_dd_yyyy_2: {reg: /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]\s?(\d\d?)[\.;,]?[\s\.,\/](\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})\s?[-\u2013\/]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?[\s,\/]\s?(\d\d?)[\.;,]?[\s,\/]\s?(\d{4}|[\u0027´`\u02B9\u02BC\u02CA]?\s?\d{2})/i,

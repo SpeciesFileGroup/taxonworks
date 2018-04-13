@@ -2,25 +2,32 @@ module Utilities::Hashes
 
   # Pass two hashes, a and b, print out those
   # situations in which a.merge(b) would change
-  # a value assigned in a to something different (assigned in b) 
+  # a value assigned in a to something different (assigned in b)
+  # @param [Hash] a
+  # @param [Hash] b
+  # @return [Ignored]
   def self.puts_collisions(a, b)
     a.each do |i,j|
-      if b[i] && !j.blank? && b[i] != j 
+      if b[i] && !j.blank? && b[i] != j
         puts "#{i}: [#{j}] != [#{b[i]}]"
       end
     end
   end
 
   # Delete all matching keys in array from the hsh
+  # @param [Hash] hsh
+  # @param [Array] array
+  # @return [Hash]
   def self.delete_keys(hsh, array)
     hsh.delete_if{|k,v| array.include?(k)}
   end
 
+  # @param [Hash] hash
+  # @return [Hash]
   def self.symbolize_keys(hash)
     hash.inject({}) do |h, (k, v)|
       h[k.is_a?(String) ? k.to_sym : k] = (v.is_a?(Hash) ? symbolize_keys(v) : v)
       h
     end
   end
-
 end

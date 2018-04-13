@@ -1,5 +1,7 @@
 module Utilities::Numbers
 
+  # @param [Integer] number
+  # @return [Array] of numbers 0 - 32
   def self.get_bits(number)
     # created by Jim Tucker, 20161012
     # parameter is decimal number representing a bit map

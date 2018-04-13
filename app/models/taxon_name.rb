@@ -141,9 +141,18 @@ class TaxonName < ApplicationRecord
     'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters',
     'TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899',
     'TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted',
-    'TaxonNameClassification::Iczn::Unavailable::NonBinomial',
-    'TaxonNameClassification::Iczn::Available::Invalid::FamilyGroupNameForm'
+    'TaxonNameClassification::Iczn::Unavailable::NonBinomial'
+    #'TaxonNameClassification::Iczn::Available::Invalid::FamilyGroupNameForm'
   ].freeze
+
+  EXCEPTED_FORM_TAXON_NAME_RELATIONSHIPS = [
+      'TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling',
+      'TaxonNameRelationship::Icnb::Unaccepting::Usage::Misspelling',
+      'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm',
+      'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling',
+      'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
+      ].freeze
+
 
   NO_CACHED_MESSAGE = 'REBUILD PROJECT TAXON NAME CACHE'.freeze
 
@@ -558,6 +567,10 @@ class TaxonName < ApplicationRecord
     #   !TaxonNameClassification.where_taxon_name(self).with_type_contains('Hybrid').empty? ? true : false
   end
 
+  def is_genus_or_species_rank?
+    false
+  end
+
   # @return [TaxonName]
   #  a valid taxon_name for an invalid name or self for valid name.
   #  a stub here - See Protonym and Combination
@@ -841,11 +854,11 @@ class TaxonName < ApplicationRecord
   #  a monomial if names is above genus, or a full epithet if below, includes html
   def get_full_name_html
     return verbatim_name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
-    return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
+    return fossil? ? '&#8224; ' + name : name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     eo = '<i>'
     ec = '</i>'
     return "#{eo}#{verbatim_name}#{ec}".gsub(' f. ', ec + ' f. ' + eo).gsub(' var. ', ec + ' var. ' + eo) if !verbatim_name.nil? && type == 'Combination'
-    return "#{eo}#{name}#{ec}" if rank_string == 'NomenclaturalRank::Iczn::GenusGroup::Supergenus' || rank_string == 'NomenclaturalRank::Icnb::GenusGroup::Supergenus'
+    return fossil? ? "&#8224; #{eo}#{name}#{ec}" : "#{eo}#{name}#{ec}" if rank_string == 'NomenclaturalRank::Iczn::GenusGroup::Supergenus' || rank_string == 'NomenclaturalRank::Icnb::GenusGroup::Supergenus'
     d = full_name_hash
 
     elements = []
@@ -1246,7 +1259,7 @@ class TaxonName < ApplicationRecord
     else # TODO: This seems like a different validation, split with above?
       classifications = self.taxon_name_classifications.reload
       classification_names = classifications.map { |i| i.type_name }
-      compare              = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & classification_names
+      compare = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & classification_names
       unless compare.empty?
 
         unless Protonym.with_parent_taxon_name(self).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?

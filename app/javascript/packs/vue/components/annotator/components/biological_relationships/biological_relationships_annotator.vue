@@ -54,6 +54,7 @@
       :header="['Relationship', 'type', 'object tag', 'Citation', '']"
       :attributes="[['biological_relationship', 'name'], 'biological_association_object_type', 'object_tag', ['source','object_tag']]"
       :list="list"
+      :annotator="true"
       @delete="removeItem"/>
   </div>
 </template>

@@ -193,10 +193,10 @@ class GeographicArea < ApplicationRecord
   # @param longitude [Double] Decimal degrees
   # @return [Scope] all areas which contain the point specified.
   def self.find_by_lat_long(latitude = 0.0, longitude = 0.0)
-    point = ActiveRecord::Base.send(:sanitize_sql_array, ['POINT(:long :lat)', long: longitude, lat: latitude])
+    point        = ActiveRecord::Base.send(:sanitize_sql_array, ['POINT(:long :lat)', long: longitude, lat: latitude])
     where_clause = "ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))" \
       " OR ST_Contains(multi_polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))"
-    retval = GeographicArea.joins(:geographic_items).where(where_clause)
+    retval       = GeographicArea.joins(:geographic_items).where(where_clause)
     retval
   end
 
@@ -268,6 +268,7 @@ class GeographicArea < ApplicationRecord
     data_origin[-1]
   end
 
+  # @return [Boolean]
   def has_shape?
     geographic_items.any?
   end
@@ -290,12 +291,13 @@ class GeographicArea < ApplicationRecord
     geographic_items.joins(:geographic_areas_geographic_items).merge(GeographicAreasGeographicItem.ordered_by_data_origin).first # .merge on same line as joins()
   end
 
+  # rubocop:disable Style/StringHashKeys
   # @return [Hash] of the pieces of a GeoJSON 'Feature'
   def to_geo_json_feature
     to_simple_json_feature.merge(
       'properties' => {
         'geographic_area' => {
-          'id' => id,
+          'id'  => id,
           'tag' => name
         }
       }
@@ -305,11 +307,11 @@ class GeographicArea < ApplicationRecord
   # TODO: parametrize to include gazeteer
   #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
   def to_simple_json_feature
-    result = {
-      'type' => 'Feature',
+    result             = {
+      'type'       => 'Feature',
       'properties' => {}
     }
-    area = geographic_items.order(:id)
+    area               = geographic_items.order(:id)
     result['geometry'] = area.first.to_geo_json unless area.empty?
     result
   end
@@ -332,14 +334,14 @@ class GeographicArea < ApplicationRecord
   #   this instance's attributes applicable to GeoLocate
   def geolocate_attributes
     parameters = {
-      'county' => level2.try(:name),
-      'state' => level1.try(:name),
+      'county'  => level2.try(:name),
+      'state'   => level1.try(:name),
       'country' => level0.try(:name)
     }
 
     if item = geographic_area_map_focus # rubocop:disable Lint/AssignmentInCondition
       parameters['Longitude'] = item.point.x
-      parameters['Latitude'] = item.point.y
+      parameters['Latitude']  = item.point.y
     end
 
     parameters
@@ -369,18 +371,19 @@ class GeographicArea < ApplicationRecord
 
     text.gsub!(/\r\n/, "\n")
 
-    result = {}
+    result  = {}
     queries = text.split("\n")
     queries.each do |q|
       names = q.strip.split(':')
       names.reverse! if invert
       names.collect { |s| s.strip }
-      r = GeographicArea.with_name_and_parent_names(names)
-      r = r.joins(:geographic_items) if has_shape
+      r         = GeographicArea.with_name_and_parent_names(names)
+      r         = r.joins(:geographic_items) if has_shape
       result[q] = r
     end
     result
   end
+  # rubocop:enable Style/StringHashKeys
 
   # @param used_on [String] one of `CollectingEvent` (default) or `AssertedDistribution`
   # @return [Scope]
@@ -414,7 +417,7 @@ class GeographicArea < ApplicationRecord
   def self.select_optimized(user_id, project_id, target = 'CollectingEvent')
 
     h = {
-      quick: [],
+      quick:    [],
       pinboard: GeographicArea.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
     }
 
