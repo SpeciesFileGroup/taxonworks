@@ -1,4 +1,4 @@
-# Methods for enumerating models, tables, columns etc. 
+# Methods for enumerating models, tables, columns etc.
 #
 # !! If you think that a method belongs here chances are it already exists in a Rails extension.
 #
@@ -9,7 +9,7 @@ module ApplicationEnumeration
   # TODO: This should be a require check likely, for lib/taxon_works.rb or some such
   Rails.application.eager_load!
 
-  # return [Array]
+  # @return [Array]
   #   a list symbols that represent populated, non "cached", non "_id", non reserved attributes
   def self.alternate_value_attributes(object)
     if object.class::ALTERNATE_VALUES_FOR.blank?
@@ -19,7 +19,8 @@ module ApplicationEnumeration
     end
   end
 
-  # return [Array of Symbols]
+  # @param [Object] object
+  # @return [Array of Symbols]
   #   a whitelist of the attributes of a given instance that may be annotated
   # !! Some models have blacklists (e.g. Serial)
   def self.annotatable_attributes(object)
@@ -42,7 +43,7 @@ module ApplicationEnumeration
   #   all superclass models that are community/shared
   def self.community_data_classes
     superclass_models.select{|a| a < Shared::SharedAcrossProjects }
-  end 
+  end
 
   # @return [Array]
   #   all superclass data models
@@ -51,20 +52,23 @@ module ApplicationEnumeration
   end
 
   # !! See the built in self.descendants for actual inheritance tracking, this is path based.
-  # return  [Array of Classes] 
-  #   all models in the /app/models/#{klass.name} (not necessarily inheriting) 
+  # @param [Object] klass
+  # @return  [Array of Classes]
+  #   all models in the /app/models/#{klass.name} (not necessarily inheriting)
   # Used in Ranks.
   def self.all_submodels(klass)
     Dir.glob(Rails.root + "app/models/#{klass.name.underscore}/**/*.rb").collect{|a| self.model_from_file_name(a) }
   end
 
-  # return [Class] 
+  # @param [String] file_name
+  # @return [Class]
   #   represented by a path included filename from /app/models.
   # e.g. given 'app/models/specimen.rb' the Specimen class is returned
   def self.model_from_file_name(file_name)
     file_name.split(/app\/models\//).last[0..-4].split(/\\/).collect{|b| b.camelize}.join('::').safe_constantize
   end
 
+  # @param [Object] parent
   # @return [Hash]
   def self.nested_subclasses(parent = self)
     parent.subclasses.inject({}) { | hsh, subclass |

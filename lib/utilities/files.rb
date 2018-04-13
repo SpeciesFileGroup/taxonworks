@@ -1,5 +1,7 @@
 module Utilities::Files
 
+  # @param [Array] files
+  # @return [Ignored]
   def self.lines_per_file(files)
     puts 'Lines per file: '
     files.each do |f|
@@ -7,6 +9,7 @@ module Utilities::Files
     end
   end
 
+  # @param [String] file
   # @return [Array [Boolean, String]]
   def self.recognized_batch_file_type?(file)
     mimetype = `file -b "#{file.path}"`.gsub(/\n/, '')
@@ -17,6 +20,4 @@ module Utilities::Files
       return [false, mimetype]
     end
   end
-
-
 end

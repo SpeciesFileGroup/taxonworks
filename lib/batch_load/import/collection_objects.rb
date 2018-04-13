@@ -10,6 +10,8 @@ module BatchLoad
 
     attr_accessor :namespace
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(**args)
       @collection_objects   = {}
       @collecting_events    = {}
@@ -18,6 +20,8 @@ module BatchLoad
       super(args)
     end
 
+    # rubocop:disable Metrics/MethodLength
+    # @return [Integer]
     def build_collection_objects
       # test_build
       build_objects = {}
@@ -179,6 +183,7 @@ module BatchLoad
 
     end
 
+    # @return [Ignored]
     def test_build
       file_name = 'spec/files/batch/collection_object/CollectionObjectTest.tsvP'
       ns_1      = Namespace.find_by(short_name: 'PSUC')
@@ -197,10 +202,11 @@ module BatchLoad
           co.save
         end
       end
-
     end
 
+    # rubocop:disable Metrics/MethodLength
     # process each row for information:
+    # @return [Integer]
     def build_collection_objects_ori
       ce_a1         = ''
       ce_m1         = ''
@@ -282,7 +288,9 @@ module BatchLoad
       end
       @total_lines = i - 1
     end
+    # rubocop:enable Metrics/MethodLength
 
+    # @return [Boolean]
     def build
       if valid?
         build_collection_objects

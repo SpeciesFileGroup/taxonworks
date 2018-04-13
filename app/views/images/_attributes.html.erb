@@ -1,6 +1,6 @@
 <div class="easyzoom easyzoom--overlay">
-  <a href="<%= @image.image_file.url %>">
-    <%= image_tag(@image.image_file.url, 'class' => 'imageZoom') %>
+  <a href="<%= @image.image_file.url(:medium) %>">
+    <%= image_tag(@image.image_file.url(:medium), 'class' => 'imageZoom') %>
   </a>
 </div>
 <div class="attribute_set" data-title="Information" data-view="development">

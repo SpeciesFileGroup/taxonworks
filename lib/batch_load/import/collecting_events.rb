@@ -6,19 +6,24 @@ module BatchLoad
 
     attr_accessor :ce_namespace
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(ce_namespace: nil, **args)
       @collecting_events = {}
       @ce_namespace      = ce_namespace
       super(args)
     end
 
+    # @return [Hash]
     def preview_collecting_events
       @preview_table = {}
 
       @preview_table
     end
 
+    # rubocop:disable Metrics/MethodLength
     # process each row for information:
+    # @return [Integer]
     def build_collecting_events
       i = 1 # accounting for headers
       # identifier namespace
@@ -81,7 +86,9 @@ module BatchLoad
       end
       @total_lines = i - 1
     end
+    # rubocop:enable Metrics/MethodLength
 
+    # @return [Boolean]
     def build
       if valid?
         build_collecting_events

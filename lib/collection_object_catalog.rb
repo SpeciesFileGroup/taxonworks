@@ -31,22 +31,31 @@ module CollectionObjectCatalog
     :fossilized_between, # chronological time period b/w which specimen was fossilized
   ].freeze
 
+  # rubocop:disable Metrics/MethodLength
+  # @param [CollectionObject] collection_object
+  # @return [CollectionObjectCatalog::CatalogEntry]
   def self.data_for(collection_object)
     o = collection_object
     data = CollectionObjectCatalog::CatalogEntry.new(o)
-    
-    data.items << CollectionObjectCatalog::EntryItem.new(type: :collected_on, object: o.collecting_event, start_date: o.collecting_event.start_date, end_date: o.collecting_event.end_date) if o.collecting_event_id.present? 
+
+    data.items << CollectionObjectCatalog::EntryItem.new(type: :collected_on, object: o.collecting_event, start_date: o.collecting_event.start_date, end_date: o.collecting_event.end_date) if o.collecting_event_id.present?
 
     o.biocuration_classifications.each do |b|
-      data.items << CollectionObjectCatalog::EntryItem.new(type: :biologically_classified, object: b, start_date: b.created_at.to_time) 
+      data.items << CollectionObjectCatalog::EntryItem.new(type: :biologically_classified,
+                                                           object: b,
+                                                           start_date: b.created_at.to_time)
     end
 
     o.versions.each do |v|
-      data.items << CollectionObjectCatalog::EntryItem.new(type: :updated_metadata, object: v, start_date: v.created_at.to_time) 
+      data.items << CollectionObjectCatalog::EntryItem.new(type: :updated_metadata,
+                                                           object: v,
+                                                           start_date: v.created_at.to_time)
     end
 
     o.georeferences.each do |g|
-      data.items << CollectionObjectCatalog::EntryItem.new(type: :georeferenced, object: g, start_date: g.created_at.to_time)
+      data.items << CollectionObjectCatalog::EntryItem.new(type: :georeferenced,
+                                                           object: g,
+                                                           start_date: g.created_at.to_time)
     end
 
     # Broken, definitely broken
@@ -56,41 +65,54 @@ module CollectionObjectCatalog
     end
 
     o.taxon_determinations.each do |td|
-      data.items << CollectionObjectCatalog::EntryItem.new(type: :determined, object: td, start_date: td.sort_date) 
+      data.items << CollectionObjectCatalog::EntryItem.new(type: :determined, object: td, start_date: td.sort_date)
     end
 
     o.identifiers.each do |i|
-      data.items << CollectionObjectCatalog::EntryItem.new(type: :given_identifier, object: i, start_date: i.created_at) 
+      data.items << CollectionObjectCatalog::EntryItem.new(type: :given_identifier,
+                                                           object: i,
+                                                           start_date: i.created_at)
     end
 
     o.loans.each do |l|
-      data.items << CollectionObjectCatalog::EntryItem.new(type: :sent_for_loan, object: l, start_date: l.date_sent.to_time) if l.date_sent
+      data.items << CollectionObjectCatalog::EntryItem.new(type: :sent_for_loan,
+                                                           object: l,
+                                                           start_date: l.date_sent.to_time) if l.date_sent
       data.items << CollectionObjectCatalog::EntryItem.new(type: :returned_from_loan, object: l, start_date: l.date_closed.to_time) if l.date_closed
     end
 
     o.tags.each do |t|
-      data.items << CollectionObjectCatalog::EntryItem.new(type: :tagged, object: t, start_date: t.created_at.to_time) 
+      data.items << CollectionObjectCatalog::EntryItem.new(type: :tagged, object: t, start_date: t.created_at.to_time)
     end
 
     o.data_attributes.each do |d|
-      data.items << CollectionObjectCatalog::EntryItem.new(type: :added_attribute, object: d, start_date: d.created_at.to_time) 
+      data.items << CollectionObjectCatalog::EntryItem.new(type: :added_attribute,
+                                                           object: d,
+                                                           start_date: d.created_at.to_time)
     end
 
     o.notes.each do |n|
-      data.items << CollectionObjectCatalog::EntryItem.new(type: :added_note, object: n, start_date: n.created_at.to_time) 
+      data.items << CollectionObjectCatalog::EntryItem.new(type: :added_note,
+                                                           object: n,
+                                                           start_date: n.created_at.to_time)
     end
 
     o.images.each do |i|
-      data.items << CollectionObjectCatalog::EntryItem.new(type: :imaged, object: i, start_date: i.created_at.to_time) 
+      data.items << CollectionObjectCatalog::EntryItem.new(type: :imaged,
+                                                           object: i,
+                                                           start_date: i.created_at.to_time)
     end
 
-    data.items << CollectionObjectCatalog::EntryItem.new(type: :containerized, object: o.container, start_date: c.created_at.to_time)  if o.container
+    data.items << CollectionObjectCatalog::EntryItem.new(type: :containerized,
+                                                         object: o.container,
+                                                         start_date: c.created_at.to_time)  if o.container
 
     # in eyelet
-    # extracts, sequences, 
+    # extracts, sequences,
 
     data
   end
+  # rubocop:enable Metrics/MethodLength
 
 end
 

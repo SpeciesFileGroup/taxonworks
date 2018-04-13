@@ -2,10 +2,12 @@ module Queries
 
   class DocumentAutocompleteQuery < Queries::Query
 
+    # @return [String]
     def where_sql
       or_clauses.to_sql
     end
 
+    # @return [Arel::Nodes::Grouping]
     def or_clauses
       clauses = [
         file_name_like,
@@ -17,17 +19,19 @@ module Queries
         a = a.or(b)
       end
       a
-    end 
-   
+    end
+
+    # @return [Arel::Nodes::Matches]
     def file_name_like
       table[:document_file_file_name].matches(end_wildcard)
     end
 
     # @return [Scope]
-    def all 
+    def all
       Document.where(where_sql).limit(200).order(:id)
     end
 
+    # @return [Arel::Table]
     def table
       Document.arel_table
     end

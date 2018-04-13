@@ -7,7 +7,11 @@ module BatchFileLoad
     attr_reader :file_errors
     attr_reader :filenames
     attr_reader :file_contents
-
+    # @param [Integer] project_id
+    # @param [Integer] user_id
+    # @param [Array] files
+    # @param [Symbol] import_level
+    # @return [Ignored]
     def initialize(project_id: nil, user_id: nil, files: nil, import_level: :warn)
       @project_id = project_id
       @user = User.find(user_id)
@@ -43,7 +47,8 @@ module BatchFileLoad
       build
     end
 
-    # Attempts to save each object from the files into the database
+# Attempts to save each object from the files into the database
+    # @return [Ignored]
     def create
       if ready_to_create?
         @total_records_created = 0
@@ -59,65 +64,76 @@ module BatchFileLoad
       end
     end
 
-    # Returns the number of objects that were successfully saved to the database
+# Returns the number of objects that were successfully saved to the database
+    # @return [Integer]
     def total_records_created
       @total_records_created
     end
 
-    # Returns the total number of projects that got processed from each file
+# Returns the total number of projects that got processed from each file
+    # @return [Integer]
     def total_records_processed
       get_all_objects.length
     end
 
-    # Returns the number of files that got processed
+# Returns the number of files that got processed
+    # @return [Integer]
     def total_files_processed
       @processed_files[:names].length
     end
 
-    # Checks if valid housekeeping and file attributes were supplied
+# Checks if valid housekeeping and file attributes were supplied
+    # @return [Boolean]
     def valid?
       @project_id && @user && @filenames && @file_contents
     end
 
-    # Anything can happen
+# Anything can happen
+    # @return [Boolean]
     def warn_level_ok?
       true
     end
 
-    # There must be records from each file
+# There must be records from each file
+    # @return [Boolean]
     def file_strict_level_ok?
       @filenames.each_with_index do |filename, index|
         return false if filename != @processed_files[:names][index] || @processed_files[:objects][index].empty?
       end
     end
 
-    # Every record must be valid
+# Every record must be valid
+    # @return [Boolean]
     def object_strict_level_ok?
       get_all_objects.each do |object|
         return false if !object.valid?
       end
     end
 
-    # There must be records from every file and every record must be valid
+# There must be records from every file and every record must be valid
+    # @return [Boolean]
     def file_object_strict_level_ok?
       file_strict_level_ok? && object_strict_level_ok?
     end
 
     protected
 
-    # Subclass implemented function that is responsible for interpreting the imported data from the files
+# Subclass implemented function that is responsible for interpreting the imported data from the files
+    # @return [Ignored]
     def build
       raise 'This method must be provided in the respective subclass.'
     end
 
     private
 
-    # Returns true if ready to create all the objects and store in the database
+# Returns true if ready to create all the objects and store in the database
+    # @return [Boolean]
     def ready_to_create?
       valid? && @processed && import_level_ok?
     end
 
-    # Checks if a file passes the specificed import level
+# Checks if a file passes the specificed import level
+    # @return [Boolean]
     def import_level_ok?
       case @import_level.to_sym
         when :warn
@@ -133,7 +149,8 @@ module BatchFileLoad
       end
     end
 
-    # Returns an array that has every object from each file
+# Returns an array that has every object from each file
+    # @return [Array]
     def get_all_objects
       all_objects = []
 

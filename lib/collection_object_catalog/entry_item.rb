@@ -1,7 +1,7 @@
 module CollectionObjectCatalog
 
-  # Is 1:1 with an event in the history of the object, as indexed by date (range) 
-  class EntryItem 
+  # Is 1:1 with an event in the history of the object, as indexed by date (range)
+  class EntryItem
 
     # The base object from which this event is derived, required
     attr_accessor :object
@@ -9,13 +9,15 @@ module CollectionObjectCatalog
     # Arbitrary categorization of event as per EVENT_TYPES, required
     attr_accessor :type
 
-    # The earliest point at which the event could have happened. 
+    # The earliest point at which the event could have happened.
     # If end_date is not provided *assumed* to be exact
     attr_accessor :start_date
 
     # The latest point at which the event could have happened.
     attr_accessor :end_date
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(object: nil, type: nil, start_date: nil, end_date: nil)
       raise TaxonWorks::Error, ':object is nil' if object.nil?
       raise TaxonWorks::Error, ':type is nil' if type.nil?
@@ -29,6 +31,7 @@ module CollectionObjectCatalog
       @end_date = end_date
     end
 
+    # @return [String]
     def object_class_name
       object.class.name
     end

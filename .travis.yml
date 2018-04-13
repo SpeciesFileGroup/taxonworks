@@ -7,12 +7,13 @@ cache:
 dist: trusty
 sudo: required
 rvm:
-  - 2.4.3
+  - 2.4.4
 bundler_args: --without development
 branches:
   only:
     - master
     - development
+    - rails52
 addons:
   postgresql: "9.5"
   firefox: "latest"

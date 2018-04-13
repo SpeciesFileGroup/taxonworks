@@ -8,10 +8,4 @@ class Role::SourceRole < Role
 
   validates :project_id, absence: true
 
-  after_save :update_source_cached
-
-  def update_source_cached
-    role_object.set_cached if role_object.respond_to?(:set_cached)
-  end
-
 end

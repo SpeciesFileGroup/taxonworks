@@ -13,6 +13,8 @@ module BatchLoad
     attr_accessor :rows
     attr_accessor :row_objects
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(dwca_namespace: nil, **args)
       @dwca_namespace    = dwca_namespace
       @root              = args.delete(:root)
@@ -42,6 +44,7 @@ module BatchLoad
       super(args)
     end
 
+    # @return [Hash]
     def preview_dwca
       @preview_table = {}
 
@@ -80,6 +83,9 @@ module BatchLoad
       occurrenceID
 =end
 # process each row for information:
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/BlockNesting
+    # @return [Integer]
     def build_dwca
       line_counter = 1 # accounting for headers
 
@@ -104,7 +110,7 @@ module BatchLoad
         # save the (possible new) taxon_name
         t_n.save! if t_n.new_record?
         # associate the taxon_name with the otu
-        otu = Otu.find_or_create_by(taxon_name: t_n)
+        otu = Otu.find_or_create_by!(taxon_name: t_n)
         otu.save! if otu.new_record?
         @row_objects[:make_otu] = otu
 
@@ -300,7 +306,10 @@ module BatchLoad
       end
       @total_lines = line_counter - 1
     end
+    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/BlockNesting
 
+    # @return [Boolean]
     def build
       if valid?
         build_dwca
@@ -308,6 +317,7 @@ module BatchLoad
       end
     end
 
+    # @return [Ignored]
     def create
 
     end
@@ -324,6 +334,8 @@ module BatchLoad
       line_counter + 1
     end
 
+    # @param [Hash] objects
+    # @return [Ignored]
     def dump_hash(objects)
       objects.each_key {|kee|
         object = objects[kee]
@@ -337,6 +349,8 @@ module BatchLoad
       }
     end
 
+    # @param [Hash] objects
+    # @return [Array]
     def save_hash(objects)
       l_errs = []
       objects.each_key {|kee|
@@ -357,6 +371,7 @@ module BatchLoad
     end
 
 # only for use in a TaxonWorks rails console
+    # @return [Ignored]
     def _setup
       $project    = Project.where(name: 'BatchLoad Test').first
       $project_id = $project.id
@@ -372,6 +387,8 @@ module BatchLoad
                                                project_id: $project_id)
     end
 
+    # @param [CSV::Row] row
+    # @return [Hash]
     def make_ba(row)
       # for each associatedTaxa, find or create an otu, and creata a biological association for it,
       # connecting it to a collection_object
@@ -382,9 +399,9 @@ module BatchLoad
 
         taxa.each {|bio_assoc|
           unless bio_assoc.blank?
-            br                = BiologicalRelationship.find_or_create_by(name:       'associated_taxa',
+            br                = BiologicalRelationship.find_or_create_by!(name:       'associated_taxa',
                                                                          project_id: @project_id)
-            otu               = Otu.find_or_create_by(name:       bio_assoc,
+            otu               = Otu.find_or_create_by!(name:       bio_assoc,
                                                       project_id: @project_id)
             ba                = BiologicalAssociation.new(biological_relationship:             br,
                                                           biological_association_object:       otu,
@@ -397,6 +414,8 @@ module BatchLoad
       retval
     end
 
+    # @param [CSV::Row] row
+    # @return [Hash]
     def make_ident(row)
       ident  = {}
       cat_no = row['catalognumber'].split(' ')
@@ -422,6 +441,8 @@ module BatchLoad
     end
 
 # make_prsn:  %w(georeferencedby),
+    # @param [CSV::Row] row
+    # @return [Hash]
     def make_prsn(row)
       ppl = {}
       # check for person's name
@@ -431,7 +452,7 @@ module BatchLoad
         else
           # make a person to be used as a 'georeferencer'
           parsed    = Person.parser(name)
-          pr        = Person.find_or_create_by(last_name:  parsed[0]['family'],
+          pr        = Person.find_or_create_by!(last_name:  parsed[0]['family'],
                                                first_name: parsed[0]['given'])
           ppl[:g_r] = pr
         end
@@ -439,7 +460,10 @@ module BatchLoad
       ppl
     end
 
+    # rubocop:disable Metrics/MethodLength
 # available data comes from Tulane geolocation action, reflected by the fact that the georefernce is a GeoLocate
+    # @param [CSV::Row] row
+    # @return [Georeference]
     def make_gr(row)
       geo_by = row['georeferencedby']
       # lat, long           = (lat.length > 0) ? lat : nil, (long.length > 0) ? long : nil
@@ -482,7 +506,8 @@ module BatchLoad
       g_r
     end
 
-# @return [Hash] of notes where key is object type
+    # @param [CSV::Row] row
+    # @return [Hash] of notes where key is object type
     def make_notes(row)
       ret_val = {}
       begin
@@ -518,7 +543,10 @@ module BatchLoad
 
       ret_val
     end
+    #rubocop:enable Metrics/MethodLength
 
+    # @param [CSV::Row] row
+    # @return [Hash]
     def make_tag(row)
       ret_val = {}
       ret_val.merge!(err: [])
@@ -527,7 +555,10 @@ module BatchLoad
       ret_val
     end
 
-# a full set of symbolized filter names (kees, below) can be found in Utilities::Dates::REGEXP_DATES.keys
+    #rubocop:disable Metrics/MethodLength
+    # a full set of symbolized filter names (kees, below) can be found in Utilities::Dates::REGEXP_DATES.keys
+    # @param [CSV::Row] row
+    # @return [Hash]
     def make_ce(row)
       ret_val     = {}
       kees        = [:yyyy_mm_dd, :mm_dd_yy]
@@ -582,13 +613,19 @@ module BatchLoad
 
       ret_val
     end
+    #rubocop:enable Metrics/MethodLength
 
+    # @param [CSV::Row] row
+    # @return [Otu]
     def make_otu(row)
       Otu.new
     end
 
+    #rubocop:disable Metrics/MethodLength
 # make_co:  %w(individualcount organismquantity organismquantitytype)
 # http://rs.gbif.org/vocabulary/gbif/quantity_type_2015-07-10.xml
+    # @param [CSV::Row] row
+    # @return [Hash]
     def make_co(row)
       ret_val = {}
       warn    = []
@@ -598,7 +635,8 @@ module BatchLoad
       oqt     = row['organismquantitytype']
       combo   = false
       if ic.present? and (oqt.present? or oq.present?)
-        # warn.push('Choose either individualCount or the combination of organismQuantity and organismQuantityType, not both.')
+        # warn.push('Choose either individualCount or the combination of organismQuantity and organismQuantityType,
+        # not both.')
         combo = true
       end
       if (ic.to_i > 1) and combo
@@ -635,8 +673,12 @@ module BatchLoad
 
       ret_val
     end
+    #rubocop:enable Metrics/MethodLength
 
+    #rubocop:disable Metrics/MethodLength
 # make_tn:    %w(scientificname taxonrank family kingdom)
+    # @param [CSV::Row] row
+    # @return [Hash]
     def make_tn(row)
       ret_val      = {species: nil, genus: nil, tribe: nil}
       this_kingdom = row['kingdom']
@@ -667,9 +709,10 @@ module BatchLoad
       snp = @parser.parse(sn)
 
       # find or create Protonym based on exact match of row['scientificname'] and taxon_names.cached
-
+      # rubocop:disable Rails/SaveBang
       t_n       = Protonym.find_or_create_by(cached: snp[:scientificName][:canonical], project_id: @project_id)
       this_rank = row['taxonrank'].downcase.to_sym
+      # rubocop:enable Rails/SaveBang
 
       if t_n.new_record?
         case this_rank
@@ -719,12 +762,17 @@ module BatchLoad
 
       ret_val
     end
+    #rubocop:enable Metrics/MethodLength
 
 # make_td:    %w(scientificname basisofrecord individualcount organismquantity organismquantitytype recordedby)
+    # @param [CSV::Row] row
+    # @return [TaxonDetermination]
     def make_td(row)
       TaxonDetermination.new
     end
 
+    # @param [String] code
+    # @return [nil, GeographicArea]
     def code_to_name(code)
       code.nil? ? nil : GeographicArea.where(iso_3166_a2: code).try(:first).try(:name)
     end

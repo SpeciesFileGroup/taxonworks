@@ -19,6 +19,8 @@ module NomenclatureCatalog
     # The taxon name being referenced in this entry (think of it as the header)
     attr_accessor :reference_taxon_name
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(taxon_name = nil)
       @items = []
       @reference_taxon_name = taxon_name
@@ -37,6 +39,7 @@ module NomenclatureCatalog
       items.select{|i| i.object_class =~ /TaxonNameRelationship/}
     end
 
+    # @param [Source] source
     # @return [Array of Topics]
     #   an extraction of all Topics referenced in citations that
     #   were observed in this CatalogEntry for the source
@@ -48,30 +51,36 @@ module NomenclatureCatalog
       topics.uniq
     end
 
+    # @return [Scope]
     def topics
       @topics ||= all_topics
       @topics
     end
 
+    # @return [Array]
     def date_range
       [dates.first, dates.last].compact
     end
 
+    # @return [Scope]
     def dates
       @dates ||= all_dates
       @dates
     end
 
+    # @return [Scope]
     def sources
       @sources ||= all_sources
       @sources
     end
 
+    # @return [Scope]
     def names
       @names ||= all_names
       @names
     end
 
+    # @return [Hash]
     def year_hash
       h = {}
       dates.each do |d|
@@ -86,10 +95,13 @@ module NomenclatureCatalog
 
    protected
 
+    # @param [CatalogEntry] catalog_item
+    # @return [Array]
     def item_names(catalog_item)
       [reference_taxon_name, catalog_item.taxon_name, catalog_item.other_name].compact.uniq
     end
 
+    # @return [Array]
     def all_names
       n = [ reference_taxon_name]
       items.each do |i|
@@ -112,6 +124,7 @@ module NomenclatureCatalog
       s.compact.uniq.sort_by {|a| a.cached}
     end
 
+    # @return [Array]
     def all_dates
       d = []
       sources.each do |s|
@@ -124,6 +137,7 @@ module NomenclatureCatalog
       d.compact.sort
     end
 
+    # @return [Array]
     def all_topics
       t = []
       sources.each do |s|

@@ -1,11 +1,14 @@
 module BatchLoad
   class Import::SequenceRelationships::PrimersInterpreter < BatchLoad::Import
 
+    # @param [Hash] args
+    # @return [Ignored]
     def initialize(**args)
       @sequence_relationships = {}
       super(args)
     end
 
+    # @return [Integer]
     def build_sequence_relationships
       @total_data_lines = 0
       i = 0
@@ -39,7 +42,7 @@ module BatchLoad
           sequence = Sequence.with_namespaced_identifier('DRMSequenceId', sequence_id).take
           next if sequence.blank?
           created_sequence_relationship = false
-          
+
           ['forward_primers', 'reverse_primers'].each do |primer_type|
             primers = row[primer_type]
             next if primers.blank?
@@ -48,7 +51,7 @@ module BatchLoad
             primers.split(', ').each do |primer_name|
               primer_sequence = Sequence.with_any_value_for(:name, primer_name).take
               next if primer_sequence.blank?
-              
+
               sequence_relationship = SequenceRelationship.new({
                 subject_sequence: primer_sequence,
                 object_sequence: sequence,
@@ -63,7 +66,7 @@ module BatchLoad
                 sequence: primer_sequence,
                 sequence_relationship_type: sequence_relationship_type
               }
-              
+
               if !gene_attributes.key?(gene_attribute_props)
                 gene_attributes[gene_attribute_props] = true
                 parse_result.objects[:gene_attribute].push(GeneAttribute.new(gene_attribute_props))
@@ -81,6 +84,7 @@ module BatchLoad
       @total_lines = i
     end
 
+    # @return [Boolean]
     def build
       if valid?
         build_sequence_relationships

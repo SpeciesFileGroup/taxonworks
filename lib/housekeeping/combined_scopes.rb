@@ -7,6 +7,8 @@ module Housekeeping::CombinedScopes
 
   module ClassMethods
 
+    # @param [Integer] project_id
+    # @return [Scope]
     def recent_from_project_id(project_id)
       t = self.arel_table
 
@@ -16,9 +18,11 @@ module Housekeeping::CombinedScopes
           )
       )
 
-      where(c.to_sql) 
+      where(c.to_sql)
     end
 
+    # @param [Integer] limit
+    # @return [Scope]
     def recently_updated(limit)
       self.order(updated_at: :desc).limit(limit)
     end

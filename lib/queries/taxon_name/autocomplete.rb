@@ -8,7 +8,7 @@ module Queries
       attr_accessor :nomenclature_group
 
       # @return [Boolean, nil]
-      #  &valid=<"true"|"false"> 
+      #  &valid=<"true"|"false">
       #     if 'true'  then id == cached_valid_taxon_name_id
       #     if 'false' then id != cached_valid_taxon_name
       #     if nil   then no check made, i.e. all names
@@ -28,15 +28,18 @@ module Queries
       #   if 'true' then only #name = query_string results are returned (no fuzzy matching)
       attr_accessor :exact
 
+      # @param [Hash] args
+      # @return [Ignored]
       def initialize(string, project_id: nil, valid: nil, nomenclature_group: [], type: [], parent_id: [], exact: false)
         @nomenclature_group = nomenclature_group
-        @valid = valid == 'true' ? true : (valid == 'false' ? false : nil) 
-        @type = type 
-        @parent_id = parent_id 
-        @exact = exact == 'true' ? true : (exact == 'false' ? false : nil) 
+        @valid = valid == 'true' ? true : (valid == 'false' ? false : nil)
+        @type = type
+        @parent_id = parent_id
+        @exact = exact == 'true' ? true : (exact == 'false' ? false : nil)
         super
       end
 
+      # @return [Arel:Nodes]
       def or_clauses
         clauses = []
 
@@ -57,6 +60,7 @@ module Queries
         a
       end
 
+      # @return [Arel:Nodes, nil]
       def and_clauses
         clauses = [
           valid_state,
@@ -74,6 +78,7 @@ module Queries
         a
       end
 
+      # @return [Arel:Nodes]
       def or_and
         a = or_clauses
         b = and_clauses
@@ -85,6 +90,7 @@ module Queries
         end
       end
 
+      # @return [String]
       def where_sql
         with_project_id.and(or_and).to_sql
       end
@@ -97,13 +103,15 @@ module Queries
       end
 
       # and clause
+      # @return [Arel::Nodes::<>, nil]
       def is_type
         return nil if type.empty?
         table[:type].eq_any(type)
       end
 
       # and clause, limit to ancestors or [ids]
-      def with_parent_id 
+      # @return [Arel::Nodes::<>, nil]
+      def with_parent_id
         return nil if parent_id.empty?
         taxon_name_hierarchies_table[:ancestor_id].eq_any(parent_id)
       end
@@ -116,10 +124,12 @@ module Queries
       end
 
       # and_clause
+      # @return [Array]
       def nomenclature_group
         @nomenclature_group.collect{|g| "%::#{g}%"}
       end
 
+      # @return [Scope]
       def all
         ::TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
           includes(:ancestor_hierarchies).
@@ -128,50 +138,61 @@ module Queries
           limit(dynamic_limit).order('char_length(taxon_names.cached), taxon_names.cached').distinct.all
       end
 
+      # @return [Scope]
       def autocomplete_top_name
         a = table[:name].eq(query_string)
         base_query.where(a.to_sql).order('cached ASC').limit(20)
       end
 
+      # @return [Scope]
       def autocomplete_top_cached
         a = table[:cached].matches("#{query_string}")
         base_query.where(a.to_sql).limit(1)
       end
 
+      # @return [Scope]
       def autocomplete_top_cached_subgenus
         a = table[:cached].matches("%(#{query_string})")
         base_query.where(a.to_sql).limit(1)
       end
 
+      # @param [String] result
+      # @return [Scope]
       def autocomplete_genus_species1(result)
         return nil if result.nil?
         a = table[:cached].matches(result)
         base_query.where(a.to_sql).order('type DESC, cached ASC').limit(8)
       end
 
+      # @param [String] result
+      # @return [Scope]
       def autocomplete_genus_species2(result)
         return nil if result.nil?
         a = table[:cached].matches(result + '%')
         base_query.where(a.to_sql).order('type DESC, cached ASC').limit(8)
       end
 
+      # @return [Scope]
       def autocomplete_cached_end_wildcard
         a = table[:cached].matches("#{query_string}%")
         base_query.where(a.to_sql).limit(20)
       end
 
+      # @return [Scope]
       def autocomplete_cached_name_end_wildcard
         a = table[:name].matches("#{query_string}%")
         base_query.where(a.to_sql).limit(20)
       end
 
+      # @return [Scope]
       def autocomplete_cached_wildcard_whitespace
         a = table[:cached].matches("#{query_string.gsub(' ', '%')}")
         base_query.where(a.to_sql).limit(20)
       end
 
+      # @return [Scope, nil]
       def autocomplete_name_author_year_fragment
-        f = fragments 
+        f = fragments
         if f.size == 2
           a = table[:name].matches(f[0]).and(table[:cached_author_year].matches(f[1]))
           base_query.where(a.to_sql).limit(20)
@@ -180,23 +201,27 @@ module Queries
         end
       end
 
+      # @return [Scope]
       def autocomplete_name_author_year
         a = table[:cached_author_year].matches("#{query_string.gsub(/[,\s]/, '%')}")
         base_query.where(a.to_sql).order('cached ASC').limit(20)
       end
 
+      # @return [Scope, nil]
       def autocomplete_wildcard_author_year_joined_pieces
         return nil if pieces.empty?
         a = table[:cached_author_year].matches("%#{pieces.join('%')}%")
         base_query.where(a.to_sql).order('cached ASC').limit(20)
       end
 
+      # @return [Scope, nil]
       def autocomplete_wildcard_joined_strings
         return nil if alphabetic_strings.empty?
         a = table[:cached].matches("%#{alphabetic_strings.join('%')}%")
         base_query.where(a.to_sql).limit(1)
       end
 
+      # rubocop:disable Metrics/MethodLength
       # @return [Array]
       def autocomplete
         z = genus_species
@@ -234,6 +259,7 @@ module Queries
 
         result[0..19]
       end
+      # rubocop:enable Metrics/MethodLength
 
       # @return [String, nil]
       #   parse and only return what is assumed to be genus/species, with a wildcard in front
@@ -246,31 +272,35 @@ module Queries
           a = n.first[:genus][:string]
           b = n.first[:species][:string]
 
-          a + '%' + b 
+          a + '%' + b
         else
           nil
         end
       end
 
+      # @return [Scope]
       def base_query
         ::TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
           includes(:ancestor_hierarchies).
           order('char_length(cached), cached ASC')
       end
 
+      # @return [Arel::Table]
       def table
         ::TaxonName.arel_table
       end
 
+      # @return [Arel::Table]
       def taxon_name_hierarchies_table
         Arel::Table.new('taxon_name_hierarchies')
-      end 
+      end
 
+      # @return [Arel::Nodes::Matches]
       def with_cached_author_year
         table[:cached_author_year].matches_any(terms)
       end
 
-      # Note this overwrites the commonly used Geo parent/child! 
+      # Note this overwrites the commonly used Geo parent/child!
       # def parent_child_where
       #   b,a = query_string.split(/\s+/, 2)
       #   return table[:id].eq('-1') if a.nil? || b.nil?
