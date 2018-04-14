@@ -51,14 +51,14 @@ export default {
     })
 
     this.$store.dispatch(ActionNames.RequestMatrixRow, {
-      matrixId: this.$props.matrixId,
+      rowId: this.$props.rowId,
       otuId: this.$props.otuId
     })
     this.$store.dispatch(ActionNames.RequestConfidenceLevels)
   },
   name: 'MatrixRowCoder',
   props: {
-    matrixId: Number,
+    rowId: Number,
     otuId: Number,
     apiBase: String,
     apiParams: Object

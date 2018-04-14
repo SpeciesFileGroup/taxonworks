@@ -33,6 +33,8 @@ class Descriptor < ApplicationRecord
   has_many :observation_matrix_column_items, inverse_of: :descriptor
   has_many :observation_matrix_columns, inverse_of: :descriptor
 
+  has_many :observation_matrices, through: :observation_matrix_columns
+
   soft_validate(:sv_short_name_is_short)
 
   def self.human_name

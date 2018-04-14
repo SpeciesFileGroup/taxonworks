@@ -352,11 +352,10 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+
+  match 'observation_matrices/row/', to: 'observation_matrices#row', via: :get, method: :json
   resources :observation_matrices do
     concerns [:data_routes]
-    member do
-      get 'row', {format: :json}
-    end
 
     resources :observation_matrix_columns, shallow: true, only: [:index], defaults: {format: :json}
     resources :observation_matrix_rows, shallow: true, only: [:index], defaults: {format: :json}

@@ -14,7 +14,7 @@ export default function ({state, commit}, descriptorId) {
     isSaving: true
   })
 
-  return state.request.updateObservation(observation.id, makePayload(observation))
+  return state.request.updateObservation(observation.id, { observation: makePayload(observation) })
     .then(_ => {
       commit(MutationNames.SetDescriptorSaving, {
         descriptorId,

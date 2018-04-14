@@ -5,11 +5,11 @@ import makeEmptyObservationsFor from '../helpers/makeEmptyObservationsFor'
 
 export default function ({commit, state}, args) {
   const {
-    matrixId,
+    rowId,
     otuId
   } = args
 
-  return state.request.getMatrixRow(matrixId, otuId)
+  return state.request.getMatrixRow(rowId, otuId)
     .then(response => {
       const descriptors = response.descriptors.map(transformDescriptorForViewmodel)
       commit(MutationNames.SetDescriptors, descriptors)
@@ -21,10 +21,10 @@ export default function ({commit, state}, args) {
 
       function addOtuToState () {
         const {
-          id,
+          global_id,
           object_tag
-        } = response.otu
-        commit(MutationNames.SetTaxonId, id)
+        } = response.row_object
+        commit(MutationNames.SetTaxonId, global_id)
         commit(MutationNames.SetTaxonTitle, object_tag)
       }
     })

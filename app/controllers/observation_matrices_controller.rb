@@ -1,7 +1,7 @@
 class ObservationMatricesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_matrix, only: [:show, :edit, :update, :destroy, :row]
+  before_action :set_matrix, only: [:show, :edit, :update, :destroy]
 
   # GET /observation_matrices
   # GET /observation_matrices.json
@@ -80,10 +80,9 @@ class ObservationMatricesController < ApplicationController
     end
   end
 
-  # GET /observation_matrices/:id/row.json?otu_id=1
+  # GET /observation_matrices/row.json?observation_matrix_row_id=1
   def row
-    @descriptors = @observation_matrix.descriptors
-    @otu = Otu.find(params[:otu_id])
+    @observation_matrix_row = ObservationMatrixRow.where(project_id: sessions_current_project_id).find(params.require(:observation_matrix_row_id))
   end
 
   def download
