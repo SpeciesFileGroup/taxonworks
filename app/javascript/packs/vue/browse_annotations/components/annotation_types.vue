@@ -51,7 +51,8 @@
       selectType(type) {
         let selected = {
           type: type,
-          used_on: this.typesList[type].used_on
+          used_on: this.typesList[type].used_on,
+          select_options_url: this.typesList[type].select_options_url
         }
         this.$emit('input', selected);
         this.$emit('annotation_type_selected', this.typesList[type]);

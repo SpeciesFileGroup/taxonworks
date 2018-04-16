@@ -43,10 +43,10 @@
             // you will take the values of type and used_on from annotationType object.
             // annotationType.type
             // aanotationType.used_on
-            this.smartSelector = annotationType.select_options_url;
+            this.smartSelector = newVal.select_options_url;
           }
         },
-        deep: true.
+        deep: true
       }
     },
     data() {
