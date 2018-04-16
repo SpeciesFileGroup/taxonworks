@@ -3,8 +3,7 @@
     <table class="vue-table">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Options</th>
+          <th v-for="label in header"> {{ label }} </th>
         </tr>
       </thead>
       <draggable
@@ -59,6 +58,10 @@
         required: true
       },
       attributes: {
+        type: Array,
+        required: true
+      },
+      header: {
         type: Array,
         required: true
       },
@@ -117,6 +120,7 @@
 
   .vue-table {
     width: 100%;
+    margin-top: 0px;
     .vue-table-options {
       display: flex;
       flex-direction: row;
