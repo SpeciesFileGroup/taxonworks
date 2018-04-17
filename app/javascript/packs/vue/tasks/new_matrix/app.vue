@@ -1,21 +1,25 @@
 <template>
   <div id="vue_new_matrix_task">
     <h1>New matrix</h1>
-    <new-matrix/>
-    <div
-      v-if="matrix.id"
-      class="separate-top">
-      <template v-if="isFixed">
-        <rows-fixed v-if="isRow"/>
-        <columns-fixed v-else/>
-      </template>
-      <template v-else>
-        <rows-dynamic v-if="isRow"/>
-        <column-dynamic v-else/>
-      </template>
-    </div>
-    <div v-if="matrix.id">
-      <tables-component/>
+    <div class="flexbox horizontal-center-content align-start">
+      <div class="cleft">
+        <new-matrix/>
+        <div
+          v-if="matrix.id"
+          class="separate-top">
+          <template v-if="isFixed">
+            <rows-fixed v-if="isRow"/>
+            <columns-fixed v-else/>
+          </template>
+          <template v-else>
+            <rows-dynamic v-if="isRow"/>
+            <column-dynamic v-else/>
+          </template>
+        </div>
+      </div>
+      <div v-if="matrix.id">
+        <tables-component/>
+      </div>
     </div>
   </div>
 </template>
@@ -82,4 +86,41 @@ export default {
 }
 
 </script>
+<style lang="scss">
+  #vue_new_matrix_task {
+    flex-direction: column-reverse;
+    margin: 0 auto;
+    margin-top: 1em;
+    max-width: 1240px;
 
+    .cleft, .cright {
+      min-width: 450px;
+      max-width: 450px;
+      width: 400px;
+    }
+    #cright-panel {
+      width: 350px;
+      max-width: 350px;
+    }
+    .cright-fixed-top {
+      top:68px;
+      width: 1240px;
+      z-index:200;
+      position: fixed;
+    }
+    .anchor {
+       display:block;
+       height:65px;
+       margin-top:-65px;
+       visibility:hidden;
+    }
+    hr {
+        height: 1px;
+        color: #f5f5f5;
+        background: #f5f5f5;
+        font-size: 0;
+        margin: 15px;
+        border: 0;
+    }
+  }
+</style>

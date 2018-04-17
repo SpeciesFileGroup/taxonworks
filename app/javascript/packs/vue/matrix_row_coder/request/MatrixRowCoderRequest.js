@@ -81,7 +81,6 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
 
   getMatrixRow (rowId, globalId) {
     const extraParams = {
-      global_id: globalId,
       observation_matrix_row_id: rowId
     }
     const url = this.buildGetUrl(`/observation_matrices/row.json`, extraParams)

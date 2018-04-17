@@ -1,18 +1,19 @@
 <template>
-  <div>
-    <div>
+  <div class="flexbox horizontal-left-content align-start">
     <rows-table
+      class="separate-left separate-right"
       :list="rowsList"
       :matrix-id="matrixId"
+      :header="['Row name', 'Options']"
       :attributes="['observation_matrix_row_object_label']"
       :global-id-path="['observation_matrix_row_object_global_id']"
       @delete="removeRow"
       :edit="true"
       @order="updateRowsOrder"/>
-    </div>
     <columns-table
       :list="columnsList"
       :matrix-id="matrixId"
+      :header="['Column name', 'Options']"
       :attributes="[['descriptor', 'name']]"
       :global-id-path="['descriptor','global_id']"
       @delete="removeColumn"
