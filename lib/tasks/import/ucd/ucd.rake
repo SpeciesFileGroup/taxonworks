@@ -2107,6 +2107,7 @@ $project_id = 2
                 subgenus = s.original_subgenus
                 species = s.original_subspecies
                 subspecies = s.original_subspecies
+                s.verbatim_name = s.cached_original_combination.gsub('<i>', '').gsub('</i>', '')
                 s.original_genus_relationship.destroy unless genus.blank?
                 s.original_subgenus_relationship.destroy unless subgenus.blank?
                 s.original_species_relationship.destroy unless species.blank?
@@ -2121,7 +2122,7 @@ $project_id = 2
                 s.subgenus = subgenus
                 s.species = species
                 s.subspecies = subspecies
-                s.save!
+                s.save
               elsif s.cached_valid_taxon_name_id == svalid && o.citations.empty? && !s.citations.empty? && o.taxon_name_classifications.empty?
                 fixed += 1
                 TaxonNameRelationship.create(subject_taxon_name: o, object_taxon_name: s, type: 'TaxonNameRelationship::Iczn::Invalidating')
