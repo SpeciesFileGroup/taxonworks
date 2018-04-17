@@ -5,7 +5,7 @@
       v-if="json.length > 0">
       <li
         v-for="(item, index) in json"
-        v-if="index < maxResults">
+        v-if="maxResults == 0 || index < maxResults">
         <a
           target="_blank"
           :href="makeUrl(item.id)"
@@ -117,6 +117,13 @@ export default {
         }
       }).then(response => {
         this.json = response.body
+        this.json.sort(((a, b) => {
+          if (a.label < b.label)
+            return -1;
+          if (a.label > b.label)
+            return 1;
+          return 0;
+        }))
         this.spinner = false
         this.$emit('existing', this.json)
       }, response => {
@@ -139,6 +146,8 @@ export default {
     min-height:100px;
   }
   .find-taxonname-list {
+    max-height: 200px;
+    overflow-y: scroll;
     margin-top: 1.2em;
     box-sizing: border-box;
     min-width: 250px;

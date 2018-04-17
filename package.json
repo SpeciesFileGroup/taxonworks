@@ -60,9 +60,11 @@
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
     "eslint-plugin-vue": "^4.2.2",
+    "increase-memory-limit": "^1.0.6",
     "webpack-dev-server": "^2.11.1"
   },
   "scripts": {
+    "increase-memory-limit": "node_modules/.bin/increase-memory-limit",
     "eslint-webpack": "node_modules/.bin/eslint app/javascript/packs/** --ext .vue, .js; exit 0",
     "eslint-webpack-fix": "node_modules/.bin/eslint app/javascript/packs/** --ext .vue, .js --fix; exit 0"
   }

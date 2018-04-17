@@ -37,6 +37,7 @@
       </div>
       <div class="column-right item">
         <check-exist
+          :max-results="0"
           :taxon="taxon"
           class="separate-left"
           url="/taxon_names/autocomplete"

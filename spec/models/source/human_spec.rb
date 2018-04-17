@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Source::Human, type: :model, group: [:human, :source] do
+describe Source::Human, type: :model, group: [:people, :sources] do
   let(:tom) { Person.create!(last_name: 'Smith', first_name: 'Tom')  }
   let(:sue) { Person.create!(last_name: 'Sunny', first_name: 'Sue')  }
   let(:franklin) { Person.create!(last_name: 'Roosevelt', first_name: 'Franklin')  }

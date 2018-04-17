@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rack-cors', '~> 1.0.1', require: 'rack/cors'
 
-ruby '2.4.3'
+ruby '2.4.4'
 
 gem 'rake', '~> 12.0'
 gem 'rails', '5.2.0'
@@ -108,7 +108,7 @@ group :test, :development do
   gem 'byebug', '~> 10.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 4.8.2'
   gem 'selenium-webdriver', '~> 3.10'
-  gem 'geckodriver-helper', '~> 0.0.3'
+  gem 'geckodriver-helper', '~> 0.0.5'
   gem 'prawn', '~> 2.2.2'
 end
 
@@ -134,7 +134,7 @@ end
 group :test do
   gem 'rspec', '~> 3.6'
   gem 'coveralls', '~> 0.8.21', require: false
-  gem 'capybara', '~> 2.18.0'
+  gem 'capybara', '~> 3.0'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.3.0'
   gem 'vcr', '~> 4.0.0'
