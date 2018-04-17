@@ -1,16 +1,12 @@
 <template>
   <div>
     <ul>
-      <li v-for="label, key in list" >
-        <label @click="selectModel(key)">
-          <input
-            name="model"
-            type="checkbox"
-            :value="key">
-          <span
-            class="new-combination-rank-list-taxon-name"
-            v-html="label"/>
-        </label>
+      <li v-for="label in annotationType.used_on">        
+        <button
+          type="button"
+          class="button normal-input button-default"
+          @click="selectModel(label)">{{ label }}
+        </button>
       </li>
     </ul>
   <!--<span v-for="(item, key) in result"> {{ key }} : {{ item }} <br></span>-->
