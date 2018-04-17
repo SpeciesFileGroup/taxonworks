@@ -43,7 +43,19 @@ export default {
           // you will take the values of type and used_on from annotationType object.
           // annotationType.type
           // aanotationType.used_on
-          this.list = newVal;
+          // var myVal = newVal.usedOn;
+          // var myList = {};
+          
+          // myVal.forEach(function(val) {
+          //   myList[myVal.type] = myVal.usedOn;
+          // });
+          for (let i = 0; i<newVal.used_on.count; i++) {
+            this.list[newVal.used_on[i]] = newVal.used_on[i];
+          }
+          // newVal.used_on.forEach( function(used) {
+          //   this.list[used] = used;
+          // })
+          // this.list = newVal.usedOn;
           // this.smartSelector = newVal.select_options_url;
         }
       }
