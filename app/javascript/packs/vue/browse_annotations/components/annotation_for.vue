@@ -24,9 +24,11 @@
       smartSelector
     },
     props: {
+
       value: {
         type: String,
       },
+
       annotationType: {
         type: Object,
         required: true
