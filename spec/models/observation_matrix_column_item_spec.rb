@@ -48,16 +48,21 @@ RSpec.describe ObservationMatrixColumnItem, type: :model, group: :matrix do
     end
   end
 
-  context '.batch_create' do
+  context '.create' do
     let(:d1) { FactoryBot.create(:valid_descriptor_continuous) } 
     let(:d2) { FactoryBot.create(:valid_descriptor_sample) }
     let(:d3) { FactoryBot.create(:valid_descriptor_working) }
 
-    context 'from tags' do
-      let(:keyword) { FactoryBot.create(:valid_keyword) }
-      let!(:t1) { Tag.create!(keyword: keyword, tag_object: d1) }  
-      let!(:t2) { Tag.create!(keyword: keyword, tag_object: d2) }  
-      let!(:t3) { Tag.create!(keyword: keyword, tag_object: d3) }  
+    specify 'singly' do
+      expect(ObservationMatrixColumnItem.create!(descriptor: d1, observation_matrix: observation_matrix, type: 'ObservationMatrixColumnItem::SingleDescriptor')).to be_truthy
+    end
+
+    context '.batch_create' do
+      context 'from tags' do
+        let(:keyword) { FactoryBot.create(:valid_keyword) }
+        let!(:t1) { Tag.create!(keyword: keyword, tag_object: d1) }
+        let!(:t2) { Tag.create!(keyword: keyword, tag_object: d2) }
+        let!(:t3) { Tag.create!(keyword: keyword, tag_object: d3) }
 
       context 'not supplying klass' do
         let(:params) { { keyword_id: keyword.id, batch_type: 'tags', observation_matrix_id: observation_matrix.id } }
@@ -107,6 +112,7 @@ RSpec.describe ObservationMatrixColumnItem, type: :model, group: :matrix do
         end
       end
     end
+  end
   end
 
   context 'concerns' do

@@ -1,3 +1,24 @@
+# An ObservationMatrixColumn defines the column in an observation matrix.
+# ObservationMatrixColumn items are only created and destroyed through references to ObservationMatrixColumnItems, never directly!
+
+# @!attribute observation_matrix_id
+#   @return [Integer]
+#     the observation matrix
+#
+# @!attribute descriptor_id
+#   @return [Integer]
+#     the descriptor in the column
+#
+# @!attribute reference_count
+#   @return [Integer]
+#     a count of how many times this descriptor is referenced from observation_matrix_column_items.  A column
+#     can be present via individual reference, or via reference through dynamic column sets.
+#
+# @!attribute cached_observation_matrix_column_item_id 
+#   @return [Integer]
+#      if the reference_count is 1, and the presence of this column is here because of 
+#      reference to a /Single/ ObservationMatrixColumnItem column, then cache the ID of that column  
+#    
 class ObservationMatrixColumn < ApplicationRecord
   include Housekeeping
   include Shared::IsData
@@ -31,8 +52,5 @@ class ObservationMatrixColumn < ApplicationRecord
   def set_reference_count
     reference_count ||= 0
   end
-
-
-
 
 end

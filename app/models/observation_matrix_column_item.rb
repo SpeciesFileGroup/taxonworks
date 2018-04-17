@@ -1,4 +1,4 @@
-# Each ObservationMatrixColumnItem is set of descriptors (1 or more)
+# Each ObservationMatrixColumnItem is set containing 1 or more descriptors.
 #
 # @!attribute observation_matrix_id 
 #   @return [Integer] id of the matrix 
@@ -9,11 +9,11 @@
 # @!attribute controlled_vocabulary_term_id
 #   @return [Integer] id of the Keyword (a dynamic subclass) 
 #
+# @!attribute type 
+#   @return [String] the column type 
+#
 # @!attribute position 
 #   @return [Integer] a sort order 
-#
-# @!attribute cached_observation_matrix_column_item_id
-#   @return [Integer] if the column item is derived from a ::Single<FOO> subclass, the id of that instance
 # 
 class ObservationMatrixColumnItem < ApplicationRecord
   include Housekeeping
@@ -72,7 +72,7 @@ class ObservationMatrixColumnItem < ApplicationRecord
     mc = ObservationMatrixColumn.find_or_create_by(
       observation_matrix: observation_matrix, 
       descriptor: descriptor)
-    mc.update_columns(reference_count: mc.reference_count + 1)
+    mc.update_columns(reference_count: (mc.reference_count || 0) + 1)
     mc.update_columns(cached_observation_matrix_column_item_id: id) if type =~ /Single/ 
   end
 

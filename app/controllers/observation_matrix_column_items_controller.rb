@@ -96,8 +96,6 @@ class ObservationMatrixColumnItemsController < ApplicationController
     params.permit(:batch_type, :observation_matrix_id, :keyword_id, :klass).to_h.symbolize_keys.merge(project_id: sessions_current_project_id, user_id: sessions_current_user_id)
   end
 
-
-
   def filter_params
     params.permit(:observation_matrix_id, :descriptor_id, :type)
   end
@@ -108,7 +106,10 @@ class ObservationMatrixColumnItemsController < ApplicationController
 
   def observation_matrix_column_item_params
     params.require(:observation_matrix_column_item).permit(
-      :observation_matrix_id, :type,
-      :descriptor_id, :keyword_id, :position)
+      :observation_matrix_id,
+      :type,
+      :descriptor_id,
+      :keyword_id, 
+      :position)
   end
 end
