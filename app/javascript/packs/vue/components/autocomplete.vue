@@ -47,6 +47,7 @@ Parameters:
         @click.prevent="itemClicked(index)">
         <span v-html="item[label]"/>
       </li>
+      <li v-if="json.length = 20">Results may be truncated</li>
     </ul>
     <ul v-if="type && searchEnd && !json.length">
       <li>--None--</li>
