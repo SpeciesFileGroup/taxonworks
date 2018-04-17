@@ -2089,7 +2089,7 @@ namespace :tw do
             s = t.subject_taxon_name
             svalid = s.cached_valid_taxon_name_id
             o = t.object_taxon_name
-            if t.subject_taxon_name.taxon_name_classifications.nil?
+            if s.taxon_name_classifications.nil?
               t.destroy
               if s.cached_valid_taxon_name_id == svalid && s.cached_secondary_homonym_alternative_spelling == o.cached_secondary_homonym_alternative_spelling
                 genus = s.original_genus
@@ -2111,7 +2111,7 @@ namespace :tw do
                 s.species = species
                 s.subspecies = subspecies
                 s.save!
-              elsif s.cached_valid_taxon_name_id == svalid && o.citations.nil? && !s.citations.nil
+              elsif s.cached_valid_taxon_name_id == svalid && o.citations.nil? && !s.citations.nil && o.taxon_name_classifications.nil?
                 TaxonNameRelationship.create(subject_taxon_name: o, object_taxon_name: s, type: 'TaxonNameRelationship::Iczn::Invalidating')
               elsif s.cached_valid_taxon_name_id == svalid
                 TaxonNameRelationship.create(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating')
