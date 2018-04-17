@@ -24,7 +24,9 @@
       smartSelector
     },
     props: {
-
+      selectOptionsUrl: {
+        type: String
+      },
       value: {
         type: String,
       },

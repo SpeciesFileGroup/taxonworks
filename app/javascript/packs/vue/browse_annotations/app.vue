@@ -9,6 +9,7 @@
     <div class="annotation_for">
       <annotation-for
         v-model="filter.for_selected"
+        :select-options-url="filter.annotation_type.select_options_url"
         :annotation-type="filter.annotation_type"
         @for_selected="filter.common = $event"
         @result="filter.result = $event"/>
@@ -17,6 +18,7 @@
     <div class="annotation_on">
       <annotation-on
         v-model="filter.model"
+        :used-on="filter.annotation_type.used_on"
         @model_selected="filter.common = $event"
         @result="filter.result = $event"/>
       <span>Selected: {{ filter.model }}</span>
@@ -69,7 +71,8 @@
         filter: {
           annotation_type: {
             type: undefined,
-            used_on: undefined
+            used_on: undefined,
+            select_options_url: undefined
           },
           annotation_dates: {
             start: undefined,
