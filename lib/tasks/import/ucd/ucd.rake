@@ -140,6 +140,11 @@ namespace :tw do
 
         @data = ImportedDataUcd.new
 
+$user_id = 1
+$project_id = 2
+
+=begin
+
         handle_projects_and_users_ucd
 
         handle_countries_ucd
@@ -175,6 +180,7 @@ namespace :tw do
         print "\n\n !! Pre soft validation done. End time: #{Time.now} \n\n"
         
         soft_validations_ucd
+=end
 
         invalid_relationship_remove
 
@@ -2078,20 +2084,25 @@ namespace :tw do
       end
 
       def invalid_relationship_remove
+
+        print "\nHandling Invalid relationships\n"
+
         fixed = 0
+        combinations = 0
         i = 0
 
         TaxonNameRelationship.where(project_id: $project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating').find_each do |t|
           i += 1
-          print "\r#{i}    Fixes applied: #{fixed}"
-
-          if t.citations.nil?
+          print "\r#{i}    Fixes applied: #{fixed}    Combinations created: #{combinations}"
+#byebug
+          if t.citations.empty?
             s = t.subject_taxon_name
             svalid = s.cached_valid_taxon_name_id
             o = t.object_taxon_name
-            if s.taxon_name_classifications.nil?
+            if s.taxon_name_classifications.empty?
               t.destroy
               if s.cached_valid_taxon_name_id == svalid && s.cached_secondary_homonym_alternative_spelling == o.cached_secondary_homonym_alternative_spelling
+                combinations += 1
                 genus = s.original_genus
                 subgenus = s.original_subgenus
                 species = s.original_subspecies
@@ -2111,12 +2122,13 @@ namespace :tw do
                 s.species = species
                 s.subspecies = subspecies
                 s.save!
-              elsif s.cached_valid_taxon_name_id == svalid && o.citations.nil? && !s.citations.nil && o.taxon_name_classifications.nil?
+              elsif s.cached_valid_taxon_name_id == svalid && o.citations.empty? && !s.citations.empty? && o.taxon_name_classifications.empty?
+                fixed += 1
                 TaxonNameRelationship.create(subject_taxon_name: o, object_taxon_name: s, type: 'TaxonNameRelationship::Iczn::Invalidating')
               elsif s.cached_valid_taxon_name_id == svalid
                 TaxonNameRelationship.create(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating')
               else
-                # t is not needed
+                fixed += 1
               end
             end
           end
