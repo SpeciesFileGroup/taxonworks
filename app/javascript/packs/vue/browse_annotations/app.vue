@@ -25,12 +25,18 @@
       some controls will show now no more
     </div>
     <div class="annotation_dates">
-      <annotation-dates v-model="filter.annotation_dates" @annotation_dates_selected="filter.common = $event"/>
+      <annotation-dates 
+        v-model="filter.annotation_dates" 
+        @annotation_dates_selected="filter.common = $event"/>
       <span>Selected: {{ filter.annotation_dates.start }} - {{ filter.annotation_dates.end }}</span>
     </div>
-    <div class="annotation_logic" style="alignment: center">
-      <annotation-logic v-model="filter.annotation_logic" @annotation_logic_selected="filter.common = $event"/>
-      <!--<span>Selected: {{ // filter.annotation_logic.andOr }}</span>-->
+    <div 
+      class="annotation_logic"
+      style="alignment: center">
+      <annotation-logic
+        v-model="filter.annotation_logic"
+        @annotation_logic_selected="filter.common = $event"/>
+    <!--<span>Selected: {{ // filter.annotation_logic.andOr }}</span>-->
     </div>
     <!--<span v-for="whatever in filter.result">{{ whatever }}</span>-->
     <!--<span v-if="filter.common">{{ filter.common }}</span>-->
