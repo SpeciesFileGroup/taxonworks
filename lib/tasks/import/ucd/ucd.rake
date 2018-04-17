@@ -176,6 +176,8 @@ namespace :tw do
         
         soft_validations_ucd
 
+        invalid_relationship_remove
+
         print "\n\n !! Success. End time: #{Time.now} \n\n"
 
       end
@@ -2071,6 +2073,52 @@ namespace :tw do
           t.fix_soft_validations
           t.soft_validations.soft_validations.each do |f|
             fixed += 1  if f.fixed?
+          end
+        end
+      end
+
+      def invalid_relationship_remove
+        fixed = 0
+        i = 0
+
+        TaxonNameRelationship.where(project_id: $project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating').find_each do |t|
+          i += 1
+          print "\r#{i}    Fixes applied: #{fixed}"
+
+          if t.citations.nil?
+            s = t.subject_taxon_name
+            svalid = s.cached_valid_taxon_name_id
+            o = t.object_taxon_name
+            if t.subject_taxon_name.taxon_name_classifications.nil?
+              t.destroy
+              if s.cached_valid_taxon_name_id == svalid && s.cached_secondary_homonym_alternative_spelling == o.cached_secondary_homonym_alternative_spelling
+                genus = s.original_genus
+                subgenus = s.original_subgenus
+                species = s.original_subspecies
+                subspecies = s.original_subspecies
+                s.original_genus_relationship.destroy unless genus.blank?
+                s.original_subgenus_relationship.destroy unless subgenus.blank?
+                s.original_species_relationship.destroy unless species.blank?
+                s.original_subspecies_relationship.destroy unless subspecies.blank?
+                s.type = 'Combination'
+                s.rank = nil
+                s.author = nil
+                s.year = nil
+                s.parent = nil
+                s.verbatim_name = c.original_combination.gsub('<i>', '').gsub('</i>', '')
+                s.genus = genus
+                s.subgenus = subgenus
+                s.species = species
+                s.subspecies = subspecies
+                s.save!
+              elsif s.cached_valid_taxon_name_id == svalid && o.citations.nil? && !s.citations.nil
+                TaxonNameRelationship.create(subject_taxon_name: o, object_taxon_name: s, type: 'TaxonNameRelationship::Iczn::Invalidating')
+              elsif s.cached_valid_taxon_name_id == svalid
+                TaxonNameRelationship.create(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating')
+              else
+                # t is not needed
+              end
+            end
           end
         end
       end

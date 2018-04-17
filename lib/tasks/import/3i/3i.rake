@@ -268,8 +268,8 @@ namespace :tw do
         $project_id = 1
 #=begin
         handle_controlled_vocabulary_3i
-        handle_litauthors_3i
-        handle_references_3i
+        #ahandle_litauthors_3i
+        #handle_references_3i
         handle_transl_3i
         handle_taxonomy_3i
         handle_taxon_name_relationships_3i
@@ -718,6 +718,7 @@ namespace :tw do
             #parent = row['Parent'].blank? ? @root : Protonym.with_identifier('3i_Taxon_ID ' + row['Parent']).find_by(project_id: $project_id)
             parent = row['Parent'].blank? ? @root : @data.incertae_sedis[row['Parent']] ? TaxonName.find(@data.incertae_sedis[row['Parent']]) : find_taxon_3i(row['Parent'])
 
+            byebug if parent.nil?
             if row['Rank'] == '0'
               rank = parent.rank_class
               if rank.parent.to_s == 'NomenclaturalRank::Iczn::FamilyGroup'
@@ -881,6 +882,7 @@ namespace :tw do
           taxon = find_taxon_3i(row['Key'])
           if !taxon.nil? ### original combinations, synonyms, types
             taxon.original_genus = find_taxon_3i(row['OrigGen']) unless row['OrigGen'].blank?
+            taxon.original_subgenus = find_taxon_3i(row['OrigSubGen']) unless row['OrigSubGen'].blank?
             taxon.original_species = find_taxon_3i(row['OriginalSpecies']) unless row['OriginalSpecies'].blank?
             taxon.original_subspecies = find_taxon_3i(row['OriginalSubSpecies']) unless row['OriginalSubSpecies'].blank?
             taxon.original_variety = taxon if row['Name'].include?(' var. ')
