@@ -76,7 +76,7 @@ module Shared::IsData
   # @return [Scope]
   def similar
     klass = self.class
-    attr = strip_similar_attributes(attributes)
+    attr  = strip_similar_attributes(attributes)
 
     # 'none' until testing is finished
     scope = klass.not_self(self).none
@@ -86,7 +86,7 @@ module Shared::IsData
   # @return [Scope]
   def identical
     klass = self.class
-    attr = strip_identical_attributes(attributes)
+    attr  = strip_identical_attributes(attributes)
 
     scope = klass.where(attr).not_self(self)
     scope
@@ -100,20 +100,37 @@ module Shared::IsData
 
   protected
 
-  # @param [Hash] attr is hash with string keys
+  # @param [Hash] attr is hash
   # @return [Hash]
   def strip_similar_attributes(attr = {})
-    # convert ignore list from symbols to strings for subsequent include
-    ig = (RESERVED_ATTRIBUTES.dup + self.class::IGNORE_SIMILAR.dup).map(&:to_s)
+    begin # test to see if thiss class has an IGNORE_SIMILAR constant
+      ig = add_class_list(self.class::IGNORE_SIMILAR)
+    rescue NameError
+      ig = RESERVED_ATTRIBUTES.dup
+    end
     attr.delete_if { |kee, value| ig.include?(kee) }
     attr
   end
 
-  # @param [Hash] attr
+  # @param [Hash] attr is hash
   # @return [Hash]
   def strip_identical_attributes(attr = {})
-    ig = (RESERVED_ATTRIBUTES.dup + self.class::IGNORE_IDENTICAL.dup).map(&:to_s)
+    begin # test to see if thiss class has an IGNORE_IDENTICAL constant
+      ig = add_class_list(self.class::IGNORE_IDENTICAL)
+    rescue NameError
+      ig = RESERVED_ATTRIBUTES.dup
+    end
     attr.delete_if { |kee, value| ig.include?(kee) }
     attr
+  end
+
+  # @param [Array] list of symbols to be ignored
+  # @return [Array] of strings to be ignored
+  def add_class_list(list)
+    ig_list  = RESERVED_ATTRIBUTES.dup
+    add_list = list.dup if list.any?
+    ig_list  += add_list if add_list
+    # convert ignore list from symbols to strings for subsequent include test
+    return ig_list.map(&:to_s)
   end
 end
