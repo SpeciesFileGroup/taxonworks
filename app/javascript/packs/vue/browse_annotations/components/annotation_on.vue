@@ -42,7 +42,7 @@ export default {
           // you will take the values of type and used_on from annotationType object.
           // annotationType.type
           // aanotationType.used_on
-          this.list = 
+          this.list = newVal;
           this.smartSelector = newVal.select_options_url;
         }
       }
