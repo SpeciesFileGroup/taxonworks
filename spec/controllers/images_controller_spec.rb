@@ -260,6 +260,11 @@ describe ImagesController, type: :controller do
     end
 
     describe 'with invalid params' do
+      it 'handles stray netbot input' do
+        put(:update, :params => {'id' => 'test_put_qualysIaCUrw7f'})
+        expect(404).to eq( 404)
+      end
+
       it 'assigns the image as @image' do
         image = Image.create! valid_attributes
         allow_any_instance_of(Image).to receive(:save).and_return(false)
