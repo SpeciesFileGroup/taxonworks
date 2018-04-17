@@ -79,7 +79,7 @@ class DescriptorsController < ApplicationController
   end
 
   def autocomplete
-    @descriptors = Queries::DescriptorAutocompleteQuery.new(params.require(:term), project_id: sessions_current_project_id).all
+    @descriptors = Queries::Descriptor::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).all
   end
 
   def search
