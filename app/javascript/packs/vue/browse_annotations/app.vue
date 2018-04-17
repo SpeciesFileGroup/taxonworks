@@ -19,6 +19,7 @@
       <annotation-on
         v-model="filter.model"
         :used-on="filter.annotation_type.used_on"
+        :annotation-type="filter.annotation_type"
         @model_selected="filter.common = $event"
         @result="filter.result = $event"/>
       <span>Selected: {{ filter.model }}</span>

@@ -44,7 +44,7 @@ export default {
           // annotationType.type
           // aanotationType.used_on
           this.list = newVal;
-          this.smartSelector = newVal.select_options_url;
+          // this.smartSelector = newVal.select_options_url;
         }
       }
     }
