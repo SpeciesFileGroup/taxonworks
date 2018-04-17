@@ -185,6 +185,10 @@ export default {
       this.$emit('getItem', item)
     },
 
+    cleanInput() {
+      this.type = ''
+    },
+
     limitList: function (list) {
       if (this.limit == 0) { return list }
 
