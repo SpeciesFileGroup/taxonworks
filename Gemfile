@@ -41,7 +41,7 @@ gem 'exception_notification', '~> 4.2.1'
 # Models
 gem 'bcrypt', '~> 3.1.11'
 gem 'closure_tree', '~> 6.6'
-gem 'delayed_job_active_record', '~> 4.1.2'
+gem 'delayed_job_active_record', '~> 4.1.3'
 gem 'validates_timeliness', '~> 4.0.2'
 gem 'paper_trail', '~> 8.1.2'
 gem 'acts_as_list', '~> 0.9.7'
