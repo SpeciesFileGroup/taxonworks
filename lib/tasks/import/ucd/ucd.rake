@@ -2112,10 +2112,10 @@ $project_id = 2
                 s.original_species_relationship.destroy unless species.blank?
                 s.original_subspecies_relationship.destroy unless subspecies.blank?
                 s.type = 'Combination'
-                s.rank = nil
-                s.author = nil
-                s.year = nil
-                s.parent = nil
+                s.rank_class = nil
+                s.verbatim_author = nil
+                s.year_of_publication = nil
+                s.parent_id = nil
                 s.verbatim_name = c.original_combination.gsub('<i>', '').gsub('</i>', '')
                 s.genus = genus
                 s.subgenus = subgenus
