@@ -22,14 +22,15 @@
         class="normal-input button button-submit"
         type="button">Update
       </button>
-      <br>
-      <label>Select:</label>
-      <switch-component
-        :options="['Column', 'Row']"
-        v-model="matrixView"/>
-      <switch-component
-        :options="['Fixed', 'Dynamic']"
-        v-model="matrixMode"/>
+      <div class="separate-top">
+        <label class="separate-top">Select:</label>
+        <switch-component
+          :options="['Column', 'Row']"
+          v-model="matrixView"/>
+        <switch-component
+          :options="['Fixed', 'Dynamic']"
+          v-model="matrixMode"/>
+      </div>
     </div>
   </div>
 </template>
