@@ -20,11 +20,12 @@
 <script>
 export default {
   props: {
-
     value: {
       type: String
     },
-
+    usedOn: {
+      type: Array
+    },
     annotationType: {
       type: Object,
       required: true
