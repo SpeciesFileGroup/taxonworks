@@ -46,7 +46,7 @@ export default {
           //   myList[myVal.type] = myVal.usedOn;
           // });
           for (let i = 0; i<newVal.used_on.count; i++) {
-            this.list[newVal.type[i]] = newVal.used_on[i];
+            this.list[newVal.used_on[i]] = newVal.used_on[i];
           }
           // newVal.used_on.forEach( function(used) {
           //   this.list[used] = used;
