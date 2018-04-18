@@ -14,13 +14,15 @@ class Keyword < ControlledVocabularyTerm
     i = t.project(t['keyword_id'], t['created_at']).from(t)
       .where(t['created_at'].gt( 1.weeks.ago ))
       .order(t['created_at'])
-     
+      .take(10)
+      .distinct
+
     # z is a table alias 
     z = i.as('recent_t')
 
     Keyword.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['keyword_id'].eq(k['id'])))
-    ).distinct.limit(10)
+    )
   end
 
   def tagged_objects
@@ -34,7 +36,7 @@ class Keyword < ControlledVocabularyTerm
   def self.select_optimized(user_id, project_id, klass)
     h = {
       recent: Keyword.where(project_id: project_id).used_on_klass(klass).used_recently.limit(10).distinct.to_a,
-      pinboard:  Keyword.pinned_by(user_id).where(project_id: project_id).to_a
+      pinboard: Keyword.pinned_by(user_id).where(project_id: project_id).to_a
     }
 
     h[:quick] = (Keyword.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq

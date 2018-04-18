@@ -1000,6 +1000,7 @@ class TaxonName < ApplicationRecord
     p = nil
 
     misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication')
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
 
     if self.type == 'Combination'
       c = self.protonyms_by_rank
@@ -1009,8 +1010,14 @@ class TaxonName < ApplicationRecord
       taxon = self
     end
 
-    a = [taxon.try(:author_string)]
-    y = [taxon.try(:year_integer)]
+    mobj = misspelling.empty? ? nil : misspelling.first.object_taxon_name
+    if !mobj.blank?
+      a = [mobj.try(:author_string)]
+      y = [mobj.try(:year_integer)]
+    else
+      a = [taxon.try(:author_string)]
+      y = [taxon.try(:year_integer)]
+    end
 
     if a[0] =~ /^\(.+\)$/ # (Author)
       a[0] = a[0][1..-2] ## remove parentheses in the author string
