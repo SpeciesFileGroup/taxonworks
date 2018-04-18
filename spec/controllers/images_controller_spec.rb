@@ -179,6 +179,7 @@ describe ImagesController, type: :controller do
           before { get :show, params: {id: -1, format: :json}, session: valid_session }
 
           it 'returns an unsuccessful JSON response' do
+            # rubocop:disable Style/StringHashKeys
             expect(JSON.parse(response.body)).to eq({'success' => false})
           end
         end
@@ -296,9 +297,10 @@ describe ImagesController, type: :controller do
   context 'not signed in' do
     describe 'with invalid params' do
       it 'handles stray netbot input' do
-        put(:update, :params => {'id' => 'test_put_qualysIaCUrw7f'})
+        put(:update, params: {'id' => 'test_put_qualysIaCUrw7f'})
         expect(response.response_code).to eq(302)
       end
     end
   end
+  # rubocop:enable Style/StringHashKeys
 end
