@@ -47,7 +47,7 @@ Parameters:
         @click.prevent="itemClicked(index)">
         <span v-html="item[label]"/>
       </li>
-      <li v-if="json.length = 20">Results may be truncated</li>
+      <li v-if="json.length == 20">Results may be truncated</li>
     </ul>
     <ul v-if="type && searchEnd && !json.length">
       <li>--None--</li>
@@ -183,6 +183,10 @@ export default {
       this.$emit('input', item)
       this.$parent.$emit(this.eventSend, item)
       this.$emit('getItem', item)
+    },
+
+    cleanInput() {
+      this.type = ''
     },
 
     limitList: function (list) {
