@@ -30,7 +30,6 @@
       value: {
         type: String,
       },
-
       annotationType: {
         type: Object,
         required: true
@@ -71,6 +70,11 @@
     methods: {
       selectFor(type) {
         this.$emit('input', type.valueOf())
+      },
+      getSelectOptions(onModel) {
+        this.$http.post(selectOptionsUrl, {klass: onModel}).then( response => {
+          this.list = response.body;
+        })
       },
       getResult(newVal) {
         this.$http.post('/tasks/browse_annotations/annotation_for', {annotationFor: newVal}).then(response => {

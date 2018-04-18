@@ -10,7 +10,7 @@
       <annotation-for
         v-model="filter.for_selected"
         :select-options-url="filter.annotation_type.select_options_url"
-        :annotation-type="filter.annotation_type"
+        :on-model="filter.model"
         @for_selected="filter.common = $event"
         @result="filter.result = $event"/>
       <span>Selected: {{ filter.for_selected }}</span>
