@@ -27,6 +27,9 @@
       selectOptionsUrl: {
         type: String
       },
+      onModel: {
+        type: String
+      },
       value: {
         type: String,
       },
