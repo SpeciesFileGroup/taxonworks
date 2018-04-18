@@ -16,14 +16,16 @@
         <div
           v-if="disabled"
           class="CodeMirror cm-s-paper CodeMirror-wrap"/>
-        <markdown-editor
-          v-else
-          class="edit-content"
-          v-model="record.content.text"
-          :configs="config"
-          @input="handleInput"
-          ref="contentText"
-          @dblclick="addCitation"/>
+        <template v-else>
+          <markdown-editor
+            v-if="loadMarkwdown"
+            class="edit-content"
+            v-model="record.content.text"
+            :configs="config"
+            @input="handleInput"
+            ref="contentText"
+            @dblclick="addCitation"/>
+        </template>
       </div>
       <div
         v-if="compareContent && !preview"
@@ -97,6 +99,7 @@
       return {
         autosave: 0,
         firstInput: true,
+        loadMarkwdown: true,
         currentSourceID: '',
         newRecord: true,
         preview: false,
@@ -148,7 +151,6 @@
     },
 
     created: function () {
-      var that = this
       this.$on('addCloneCitation', function (itemText) {
         this.record.content.text += itemText
         this.autoSave()
@@ -305,6 +307,10 @@
             this.$store.commit(MutationNames.SetContent, undefined)
             this.newRecord = true
           }
+        })
+        this.loadMarkwdown = false;
+        this.$nextTick(() => {
+          this.loadMarkwdown = true;
         })
       }
     }
