@@ -4,7 +4,8 @@
       <li v-for="label in annotationType.used_on">        
         <button
           type="button"
-          class="button normal-input button-default"
+          :class="{ 'button-default': (label != value)}"
+          class="button normal-input"
           @click="selectModel(label)">{{ label }}
         </button>
       </li>
