@@ -251,7 +251,7 @@ class Combination < TaxonName
     data
   end
 
-  # @return [Array of TaxonNames, nil]
+  # @return [Hash of {rank: Protonym}, nil]
   #   the component names for this combination prior to it being saved (used to return values prior to save)
   def protonyms_by_rank
     result = {}
@@ -263,7 +263,7 @@ class Combination < TaxonName
     result
   end
 
-  # @return [Array of Integer]
+  # @return [Array of Integers]
   #   the collective years the protonyms were (nomenclaturaly) published on (ordered from genus to below)
   def publication_years
     description_years = protonyms.collect{|a| a.nomenclature_date ? a.nomenclature_date.year : nil}.compact
