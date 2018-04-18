@@ -394,22 +394,24 @@ class GeographicArea < ApplicationRecord
           when 'CollectingEvent'
             CollectingEvent.arel_table
           when 'AssertedDistribution'
-            CollectingEvent.arel_table
+            AssertedDistribution.arel_table
         end
 
     p = GeographicArea.arel_table
 
     # i is a select manager
     i = t.project(t['geographic_area_id'], t['created_at']).from(t)
-          .where(t['created_at'].gt(1.weeks.ago))
-          .order(t['created_at'])
+      .where(t['created_at'].gt(1.weeks.ago))
+      .order(t['created_at'])
+      .take(10)
+      .distinct
 
     # z is a table alias
     z = i.as('recent_t')
 
     GeographicArea.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['geographic_area_id'].eq(p['id'])))
-    ).distinct.limit(10)
+    )
   end
 
   # @params target [String] one of `CollectingEvent` or `AssertedDistribution`
