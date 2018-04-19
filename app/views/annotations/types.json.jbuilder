@@ -6,7 +6,9 @@ json.set! :types do
     json.url tags_url
     json.select_options_url select_options_keywords_url
     json.total Tag.where(project_id: sessions_current_project_id).count
-    json.used_on Tag.where(project_id: sessions_current_project_id).select(:tag_object_type).distinct.order(:tag_object_type).pluck(:tag_object_type)
+    ar = Tag.where(project_id: sessions_current_project_id).select(:tag_object_type).distinct.order(:tag_object_type).pluck(:tag_object_type)
+    json.used_on ar
+    json.used_on_pretty prettify(ar)
   end
 
   json.set! :confidences do
@@ -15,7 +17,9 @@ json.set! :types do
     json.url confidences_url
     json.select_options_url select_options_confidence_levels_url
     json.total Confidence.where(project_id: sessions_current_project_id).count
-    json.used_on Confidence.where(project_id: sessions_current_project_id).select(:confidence_object_type).distinct.order(:confidence_object_type).pluck(:confidence_object_type)
+    ar = Confidence.where(project_id: sessions_current_project_id).select(:confidence_object_type).distinct.order(:confidence_object_type).pluck(:confidence_object_type)
+    json.used_on ar
+    json.used_on_pretty prettify(ar)
   end
 
   json.set! :data_attributes do
@@ -24,7 +28,9 @@ json.set! :types do
     json.url data_attributes_url
     json.select_options_url select_options_predicates_url
     json.total DataAttribute.where(project_id: sessions_current_project_id).count
-    json.used_on DataAttribute.where(project_id: sessions_current_project_id).select(:attribute_subject_type).distinct.order(:attribute_subject_type).pluck(:attribute_subject_type)
+    ar = DataAttribute.where(project_id: sessions_current_project_id).select(:attribute_subject_type).distinct.order(:attribute_subject_type).pluck(:attribute_subject_type)
+    json.used_on ar
+    json.used_on_pretty prettify(ar)
   end
 
   json.set! :alternate_values do
@@ -32,7 +38,10 @@ json.set! :types do
     json.klass 'AlternateValue'
     json.url alternate_values_url
     json.total AlternateValue.where(project_id: sessions_current_project_id).count
-    json.used_on AlternateValue.where(project_id: sessions_current_project_id).select(:alternate_value_object_type).distinct.order(:alternate_value_object_type).pluck(:alternate_value_object_type)
+    ar = AlternateValue.where(project_id: sessions_current_project_id).select(:alternate_value_object_type).distinct.order(:alternate_value_object_type).pluck(:alternate_value_object_type)
+    json.used_on ar
+    json.used_on_pretty prettify(ar)
+
   end
 
   json.set! :notes do
@@ -40,7 +49,9 @@ json.set! :types do
     json.klass 'Note'
     json.url notes_url
     json.total Note.where(project_id: sessions_current_project_id).count
-    json.used_on Note.where(project_id: sessions_current_project_id).select(:note_object_type).distinct.order(:note_object_type).pluck(:note_object_type)
+    ar = Note.where(project_id: sessions_current_project_id).select(:note_object_type).distinct.order(:note_object_type).pluck(:note_object_type)
+    json.used_on ar
+    json.used_on_pretty prettify(ar)
   end
 
 end
