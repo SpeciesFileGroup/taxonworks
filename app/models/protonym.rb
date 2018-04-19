@@ -462,6 +462,39 @@ class Protonym < TaxonName
   end
 
 
+  # @return [Boolean]
+  #   Wraps set_original_combination with result from Biodiversity parse
+  #   !!You must can optionally pre-calculate a disambiguated protonym if you wish to use one. 
+  # @param biodiversity_result [ Biodiversity.result ]
+  # @param relationship_housekeeping [Hash] like `{project_id: 22, created_by_id: 2}`
+  def build_original_combination_from_biodiversity(biodiversity_result, relationship_housekeeping = {})
+    br = biodiversity_result
+    return false if br.nil?
+    c = [br.disambiguated_combination, br.combination].first
+    build_original_combinations(c, relationship_housekeeping)
+    true
+  end
+
+  # @return [Boolean]
+  # @param combination [Combination]
+  # @param relationship_housekeeping [Hash] like `{project_id: 22, created_by_id: 2}`
+  #   builds, but does not save, original relationships for all corresponding protonyms in a combination
+  #   !! Replaces existing relationship without checking identify if they are there!
+  def build_original_combinations(combination, relationship_housekeeping)
+    return false if c.nil?
+    c.protonyms_by_rank.each do |rank, p|
+      send("original_#{rank}=", p)
+    end 
+
+    if !relationship_housekeeping.empty? 
+      c.protonyms_by_rank.each do |rank, p|
+        r = send("original_#{rank}_relationship")
+        r.write_attributes(relationship_housekeeping)
+      end
+    end
+    true
+  end
+
   # TODO: refactor to use us a hash!
   # @return [String, nil]
   #   the string representing the name as originally published

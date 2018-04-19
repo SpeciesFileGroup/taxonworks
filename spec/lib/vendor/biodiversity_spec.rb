@@ -66,7 +66,7 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
           expect(result.combination_exists?).to eq(false)
         end
 
-        specify '#combination_exists? 1' do
+        specify '#combination_exists? 2' do
           a = Combination.create!(genus: genus1, species: species1)
           expect(result.combination_exists?).to eq(a)
         end
@@ -107,7 +107,11 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
 
           let(:combination) { result.combination }
 
-          specify 'genus' do
+          specify '#name_count' do
+            expect(result.name_count).to eq(2)
+          end
+
+          specify '#genus' do
             expect(result.genus).to eq('Aus') 
           end
 
@@ -218,10 +222,15 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
             expect(result.ambiguous_ranks).to contain_exactly(:species)
           end
 
-          specify '#disambiguated_combination' do
-            c = result.disambiguated_combination( { species: species2.id } )
+          specify '#disambiguate_combination' do
+            c = result.disambiguate_combination( { species: species2.id } )
             expect(c.genus).to eq(genus1)
             expect(c.species).to eq(species2)
+          end
+
+          specify '#disambiguated_combination' do
+            c = result.disambiguate_combination( { species: species2.id } )
+            expect(result.disambiguated_combination).to eq(c)
           end
 
           specify '#is_authored?' do
@@ -335,6 +344,11 @@ describe TaxonWorks::Vendor::Biodiversity, type: :model do
       end
 
       context 'result[:parse]' do
+
+        specify '#name_count' do
+          expect(result.name_count).to eq(4)
+        end
+
         specify '#result1' do
           expect(result.result[:parse][:genus]).to eq('Zzus')
         end
