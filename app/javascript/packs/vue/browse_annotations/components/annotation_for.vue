@@ -40,8 +40,8 @@
     },
     watch: {
 
-      value(newVal) {
-        this.getResult(newVal);
+      selectOptionsUrl(newVal) {
+        this.getSelectOptions(newVal);
       },
 
       annotationType: {
@@ -79,7 +79,7 @@
         this.$emit('input', type.valueOf())
       },
       getSelectOptions(onModel) {
-        this.$http.post(selectOptionsUrl, {klass: onModel}).then( response => {
+        this.$http.post(this.selectOptionsUrl, {klass: this.onModel}).then( response => {
           this.list = response.body;
         })
       },
