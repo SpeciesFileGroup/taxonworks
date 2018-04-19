@@ -38,7 +38,7 @@ module AnnotationsHelper
   # @return [Array]
   #   of { ClassName => human name } 
   def klass_and_labels(klass_names)
-    klass_names.collect{|n| { n => n.tableize.humanize}}
+    klass_names.collect{|n| [n, n.tableize.humanize]}.to_h
   end
 
 end
