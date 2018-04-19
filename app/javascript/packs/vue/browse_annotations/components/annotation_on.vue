@@ -22,10 +22,12 @@
 export default {
   props: {
     value: {
-      type: String
+      type: String,
+      default: ''
     },
     usedOn: {
-      type: Array
+      type: Array,
+      default: undefined
     },
     annotationType: {
       type: Object,
