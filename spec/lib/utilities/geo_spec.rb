@@ -137,6 +137,8 @@ describe 'Geo', group: :geo do
         end
       end
     end
+
+    # rubocop:disable Style/StringHashKeys
     context 'single use case for lat/long hunt_wrapper' do
       use_case = {'  N 23.23  W 44.44  ' => {'DD1A' => {method: 'text, DD1A'},
                                              'DD1B' => {piece:  'N 23.23  W 44.44',
@@ -162,7 +164,7 @@ describe 'Geo', group: :geo do
 
       use_case.each { |label, result|
         @entry += 1
-        specify "case #{@entry}: #{label} should yield #{result}" do
+        specify "case #{@entry}: '#{label}' should yield #{result}" do
           this_case = Utilities::Geo.hunt_wrapper(label)
           expect(this_case).to eq(result)
         end
@@ -588,7 +590,7 @@ describe 'Geo', group: :geo do
 
       use_cases.each { |label, result|
         @entry += 1
-        specify "case #{@entry}: #{label} should yield #{result}" do
+        specify "case #{@entry}: '#{label}' should yield #{result}" do
           use_case = Utilities::Geo.hunt_wrapper(label)
           expect(use_case).to eq(result)
         end
@@ -709,7 +711,7 @@ describe 'Geo', group: :geo do
 
       use_cases.each { |co_ordinate, result|
         @entry += 1
-        specify "case #{@entry}: #{co_ordinate} should yield #{result}" do
+        specify "case #{@entry}: '#{co_ordinate}' should yield #{result}" do
           use_case = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(co_ordinate)
           expect(use_case).to eq(result)
         end
@@ -718,47 +720,123 @@ describe 'Geo', group: :geo do
   end
 
   context 'adjusting digits from params[] to 1-2-5 sequence' do
-    params = {'nearby_distance' => '0', 'digit1' => '0', 'digit2' => '0'}
+    let(:near) { 'nearby_distance' }
+    let(:params) { {near => '0', 'digit1' => '0', 'digit2' => '0'} }
+    let(:garbage) { 'inconsistant input value' }
+    let(:two_fifty) { '250' }
+    let(:five_k) { '5000' }
+    let(:one_to_5) { '12345' }
+    let(:one_sixty_five_k) { '165432' }
 
-    specify 'garbage converts to 5000, 5, 1000' do
-      params['nearby_distance'] = 'inconsistant input value'
-      expect(Utilities::Geo.nearby_from_params(params)).to eq(5_000)
-      expect(params['digit1']).to eq('5')
-      expect(params['digit2']).to eq('1000')
+    context 'garbage converts to 5000, 5, 1000' do
+
+      specify 'distance' do
+        params[near] = garbage
+        result       = Utilities::Geo.nearby_from_params(params)
+        expect(result).to eq(5_000)
+      end
+
+      specify 'digit1' do
+        params[near] = garbage
+        Utilities::Geo.nearby_from_params(params)
+        expect(params['digit1']).to eq('5')
+      end
+
+      specify 'digit2' do
+        params[near] = garbage
+        Utilities::Geo.nearby_from_params(params)
+        expect(params['digit2']).to eq('1000')
+      end
     end
 
-    specify '250 converts to 500, 5, 100' do
-      params['nearby_distance'] = '250'
-      expect(Utilities::Geo.nearby_from_params(params)).to eq(500)
-      expect(params['digit1']).to eq('5')
-      expect(params['digit2']).to eq('100')
+    context '250 converts to 500, 5, 100' do
+
+      specify 'distance' do
+        params[near] = two_fifty
+        result       = Utilities::Geo.nearby_from_params(params)
+        expect(result).to eq(500)
+      end
+
+      specify 'digit1' do
+        params[near] = two_fifty
+        Utilities::Geo.nearby_from_params(params)
+        expect(params['digit1']).to eq('5')
+      end
+
+      specify 'digit2' do
+        params[near] = two_fifty
+        Utilities::Geo.nearby_from_params(params)
+        expect(params['digit2']).to eq('100')
+      end
     end
 
-    specify '5000 converts to 5000, 5, 1000' do
-      params['nearby_distance'] = '5000'
-      expect(Utilities::Geo.nearby_from_params(params)).to eq(5_000)
-      expect(params['digit1']).to eq('5')
-      expect(params['digit2']).to eq('1000')
+    context '5000 converts to 5000, 5, 1000' do
+
+      specify 'distance' do
+        params[near] = five_k
+        result       = Utilities::Geo.nearby_from_params(params)
+        expect(result).to eq(5_000)
+      end
+
+      specify 'digit1' do
+        params[near] = two_fifty
+        Utilities::Geo.nearby_from_params(params)
+        expect(params['digit1']).to eq('5')
+      end
+
+      specify 'digit2' do
+        params[near] = two_fifty
+        Utilities::Geo.nearby_from_params(params)
+        expect(params['digit2']).to eq('100')
+      end
     end
 
-    specify '12345 converts to 20000, 2, 10000' do
-      params['nearby_distance'] = '12345'
-      expect(Utilities::Geo.nearby_from_params(params)).to eq(10_000)
-      expect(params['digit1']).to eq('1')
-      expect(params['digit2']).to eq('10000')
+    context '12345 converts to 20000, 2, 10000' do
+
+      specify 'distance' do
+        params[near] = one_to_5
+        result       = Utilities::Geo.nearby_from_params(params)
+        expect(result).to eq(10_000)
+      end
+
+      specify 'digit1' do
+        params[near] = one_to_5
+        Utilities::Geo.nearby_from_params(params)
+        expect(params['digit1']).to eq('1')
+      end
+
+      specify 'digit2' do
+        params[near] = one_to_5
+        Utilities::Geo.nearby_from_params(params)
+        expect(params['digit2']).to eq('10000')
+      end
     end
 
-    specify '165432 converts to 200000, 2, 100000' do
-      params['nearby_distance'] = '165432'
-      expect(Utilities::Geo.nearby_from_params(params)).to eq(200_000)
-      expect(params['digit1']).to eq('2')
-      expect(params['digit2']).to eq('100000')
+    context '165432 converts to 200000, 2, 100000' do
+
+      specify 'distance' do
+        params[near] = one_sixty_five_k
+        result       = Utilities::Geo.nearby_from_params(params)
+        expect(result).to eq(200_000)
+      end
+
+      specify 'digit1' do
+        params[near] = one_sixty_five_k
+        Utilities::Geo.nearby_from_params(params)
+        expect(params['digit1']).to eq('2')
+      end
+
+      specify 'digit2' do
+        params[near] = one_sixty_five_k
+        Utilities::Geo.nearby_from_params(params)
+        expect(params['digit2']).to eq('100000')
+      end
     end
   end
 
   context 'elevation_in_meters' do
     context 'single use cases' do
-      specify "case #{'123 miles'} should yield #{123}" do
+      specify "case '123 miles' should yield #{197_949.312}" do
         expect(Utilities::Geo.distance_in_meters('123 mi')).to eq(197_949.312)
       end
     end
@@ -789,12 +867,13 @@ describe 'Geo', group: :geo do
 
       @entry = 0
 
-      use_cases.each { |elevation, result|
+      use_cases.each { |distance, result|
         @entry += 1
-        specify "case #{@entry}: #{elevation} should yield #{result}" do
-          expect(Utilities::Geo.distance_in_meters(elevation)).to be_within(0.1).of(result)
+        specify "case #{@entry}: '#{distance}' should yield #{result}" do
+          expect(Utilities::Geo.distance_in_meters(distance)).to be_within(0.1).of(result)
         end
       }
     end
   end
+  # rubocop:enable Style/StringHashKeys
 end
