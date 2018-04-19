@@ -481,13 +481,13 @@ class Protonym < TaxonName
   #   builds, but does not save, original relationships for all corresponding protonyms in a combination
   #   !! Replaces existing relationship without checking identify if they are there!
   def build_original_combinations(combination, relationship_housekeeping)
-    return false if c.nil?
-    c.protonyms_by_rank.each do |rank, p|
+    return false if combination.nil?
+    combination.protonyms_by_rank.each do |rank, p|
       send("original_#{rank}=", p)
     end 
 
     if !relationship_housekeeping.empty? 
-      c.protonyms_by_rank.each do |rank, p|
+      combination.protonyms_by_rank.each do |rank, p|
         r = send("original_#{rank}_relationship")
         r.write_attributes(relationship_housekeeping)
       end
