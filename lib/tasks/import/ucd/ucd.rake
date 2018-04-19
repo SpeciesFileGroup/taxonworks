@@ -2094,14 +2094,16 @@ $project_id = 2
         j = 0
         print "\nHandling Invalid relationships: synonyms of synonyms\n"
         tr = TaxonNameRelationship.where(project_id: $project_id).with_type_base('TaxonNameRelationship::Iczn::Invalidating')
-        tr.find_each do |t|
+        tr.each do |t|
+          j += 1
+          print "\r#{j}    Fixes applied: #{fixed}   "
           s = t.subject_taxon_name
           o = t.object_taxon_name
-          ovalid = o.cached_valid_taxon_name
-          print "\r#{j}    Fixes applied: #{fixed}   "
+          ovalid = o.valid_taxon_name
+          #next unless o.name == 'adscendens'
           if o.id != o.cached_valid_taxon_name_id && o.citations.empty? && o.name == ovalid.name
-            tr.object_taxon_name = ovalid
-            tr.save!
+            t.object_taxon_name = ovalid
+            t.save
             fixed += 1
           end
         end
@@ -2110,7 +2112,7 @@ $project_id = 2
 
       print "\nHandling Invalid relationships: synonyms to combinations\n"
       tr = TaxonNameRelationship.where(project_id: $project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating')
-        tr.find_each do |t|
+        tr.each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}    Combinations created: #{combinations}"
 
@@ -2118,6 +2120,8 @@ $project_id = 2
             s = t.subject_taxon_name
             svalid = s.cached_valid_taxon_name_id
             o = t.object_taxon_name
+            #next unless o.name == 'adscendens'
+            #byebug
             if s.taxon_name_classifications.empty?
               t.destroy
               if s.cached_valid_taxon_name_id == svalid && s.cached_secondary_homonym_alternative_spelling == o.cached_secondary_homonym_alternative_spelling
@@ -2152,7 +2156,7 @@ $project_id = 2
               elsif s.cached_valid_taxon_name_id == svalid && o.citations.empty? && !s.citations.empty? && o.taxon_name_classifications.empty?
                 fixed += 1
                 TaxonNameRelationship.create!(subject_taxon_name: o, object_taxon_name: s, type: 'TaxonNameRelationship::Iczn::Invalidating')
-              elsif s.cached_valid_taxon_name_id == svalid
+              elsif s.cached_valid_taxon_name_id != svalid
                 TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating')
               else
                 fixed += 1
