@@ -11,6 +11,7 @@
         v-model="filter.for_selected"
         :select-options-url="filter.annotation_type.select_options_url"
         :on-model="filter.model"
+        :annotation-type="filter.annotation_type"
         @for_selected="filter.common = $event"
         @result="filter.result = $event"/>
       <span>Selected: {{ filter.for_selected }}</span>
