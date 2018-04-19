@@ -1,14 +1,14 @@
 <template>
   <div>
     <ul>
-      <li 
-        v-for="label in annotationType.used_on"      
-        :key=label >
+      <li
+          v-for="(label, key) in annotationType.used_on"
+          :key=label >
         <button
-          type="button"
-          :class="{ 'button-default': (label != value)}"
-          class="button normal-input"
-          @click="selectModel(label)">{{ label }}
+            type="button"
+            :class="{ 'button-default': (key != value)}"
+            class="button normal-input"
+            @click="selectModel(key)">{{ label }}
         </button>
       </li>
     </ul>
