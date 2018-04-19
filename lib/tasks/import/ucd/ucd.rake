@@ -2090,6 +2090,25 @@ $project_id = 2
         fixed = 0
         combinations = 0
         i = 0
+
+        j = 0
+        print "\nHandling Invalid relationships: synonyms of synonyms\n"
+        tr = TaxonNameRelationship.where(project_id: $project_id).with_type_base('TaxonNameRelationship::Iczn::Invalidating')
+        tr.find_each do |t|
+          s = t.subject_taxon_name
+          o = t.object_taxon_name
+          ovalid = o.cached_valid_taxon_name
+          print "\r#{j}    Fixes applied: #{fixed}   "
+          if o.id != o.cached_valid_taxon_name_id && o.citations.empty? && o.name == ovalid.name
+            tr.object_taxon_name = ovalid
+            tr.save!
+            fixed += 1
+          end
+        end
+
+
+
+      print "\nHandling Invalid relationships: synonyms to combinations\n"
       tr = TaxonNameRelationship.where(project_id: $project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating')
         tr.find_each do |t|
           i += 1
@@ -2123,10 +2142,6 @@ $project_id = 2
                   s.original_subspecies_relationship.destroy unless subspecies.blank?
                   s.destroy
                   s = Combination.new
-                  #s.rank_class = nil
-                  #s.verbatim_author = nil
-                  #s.year_of_publication = nil
-                  #s.parent_id = nil
                   s.verbatim_name = vname
                   s.genus = genus unless genus.nil?
                   s.subgenus = subgenus unless subgenus.nil?
