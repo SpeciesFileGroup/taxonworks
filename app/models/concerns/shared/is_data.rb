@@ -79,7 +79,7 @@ module Shared::IsData
     attr  = strip_similar_attributes(attributes)
 
     # 'none' until testing is finished
-    scope = klass.not_self(self).none
+    scope = klass.where(attr).not_self(self).none
     scope
   end
 
@@ -103,24 +103,24 @@ module Shared::IsData
   # @param [Hash] attr is hash
   # @return [Hash]
   def strip_similar_attributes(attr = {})
-    begin # test to see if thiss class has an IGNORE_SIMILAR constant
+    begin # test to see if this class has an IGNORE_SIMILAR constant
       ig = add_class_list(self.class::IGNORE_SIMILAR)
     rescue NameError
       ig = RESERVED_ATTRIBUTES.dup
     end
-    attr.delete_if { |kee, value| ig.include?(kee) }
+    attr.delete_if { |kee, _value| ig.include?(kee) }
     attr
   end
 
   # @param [Hash] attr is hash
   # @return [Hash]
   def strip_identical_attributes(attr = {})
-    begin # test to see if thiss class has an IGNORE_IDENTICAL constant
+    begin # test to see if this class has an IGNORE_IDENTICAL constant
       ig = add_class_list(self.class::IGNORE_IDENTICAL)
     rescue NameError
       ig = RESERVED_ATTRIBUTES.dup
     end
-    attr.delete_if { |kee, value| ig.include?(kee) }
+    attr.delete_if { |kee, _value| ig.include?(kee) }
     attr
   end
 
