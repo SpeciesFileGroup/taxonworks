@@ -1,6 +1,7 @@
 <template>
   <div class="qualitative-descriptor">
     <summary-view :descriptor="descriptor">
+      <radial-annotator :global-id="descriptor.globalId"/>
       <ul>
         <li v-for="characterState in descriptor.characterStates">
           <label>
@@ -17,9 +18,7 @@
 
     <zoomed-view :descriptor="descriptor">
       <h2 class="qualitative-descriptor__descriptor-title">{{ descriptor.title }}</h2>
-      <div class="qualitative-descriptor__descriptor-details">
-        <descriptor-details :descriptor="descriptor"/>
-      </div>
+        <radial-annotator :global-id="descriptor.globalId"/>
       <div class="qualitative-descriptor__character-state-list">
         <div
           class="qualitative-descriptor__character-state"
@@ -34,9 +33,6 @@
 
               {{ characterState.label }}: {{ characterState.name }}
             </label>
-          </div>
-          <div class="qualitative-descriptor__observation-details">
-            <observation-details :observation="getCharacterStateObservation(characterState.id)"/>
           </div>
         </div>
       </div>
@@ -53,8 +49,8 @@ import { GetterNames } from '../../store/getters/getters'
 
 import summaryView from '../SummaryView/SummaryView.vue'
 import zoomedView from '../ZoomedView/ZoomedView.vue'
+import RadialAnnotator from '../../../components/annotator/annotator'
 
-import observationDetails from '../ObservationDetails/ObservationDetails.vue'
 import descriptorDetails from '../DescriptorDetails/DescriptorDetails.vue'
 
 export default {
@@ -106,8 +102,8 @@ export default {
   components: {
     summaryView,
     zoomedView,
-    observationDetails,
-    descriptorDetails
+    descriptorDetails,
+    RadialAnnotator
   }
 }
 </script>

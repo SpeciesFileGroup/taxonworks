@@ -5,10 +5,11 @@ TW.views.tasks.matrix_row_coder = TW.views.tasks.matrix_row_coder || {}
 
 import Vue from 'vue'
 import props from './props'
-import tempApp from './tempApp.vue'
 
 Object.assign(TW.views.tasks.matrix_row_coder, {
   init: function () {
+    var tempApp = require('./tempApp.vue').default
+
     new Vue({
 		    el: '#matrix_row_coder_bar',
 		    render: function (createElement) {

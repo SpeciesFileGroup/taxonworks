@@ -41,6 +41,7 @@ function makeBaseDescriptor (descriptorData) {
     id: descriptorData.id,
     componentName: getComponentNameForDescriptorType(descriptorData),
     title: descriptorData.object_tag,
+    globalId: descriptorData.global_id,
     description: getDescription(descriptorData),
     isZoomed: false,
     isUnsaved: false,
