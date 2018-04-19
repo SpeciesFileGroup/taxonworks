@@ -5,6 +5,7 @@ describe 'Shared::IsData', type: :model do
   let(:is_data_instance) { TestIsData.new }
   let(:is_data2_instance) { TestIsData2.new }
   let(:is_data_class) { TestIsData }
+  let(:is_data_class2) { TestIsData2 }
 
   let(:is_data_subclass_instance) { TestIsDataSubclass.new }
 
@@ -47,7 +48,32 @@ describe 'Shared::IsData', type: :model do
         end
       end
     end
+  end
 
+  context 'class methods' do
+    context 'finding records' do
+      let(:attr) { is_data_instance.attributes }
+      let(:attr2) { is_data2_instance.attributes }
+      context 'with IGNORE_CONSTANTS' do
+        specify '#similar' do
+          expect(TestIsData.similar(attr).to_a).to eq(TestIsData.none.to_a)
+        end
+
+        specify 'identical' do
+          expect(TestIsData.identical(attr).to_a).to eq(TestIsData.none.to_a)
+        end
+      end
+
+      context 'without IGNORE_CONSTANTS' do
+        specify '#similar' do
+          expect(TestIsData2.similar(attr2).to_a).to eq(TestIsData2.none.to_a)
+        end
+
+        specify 'identical' do
+          expect(TestIsData2.identical(attr2).to_a).to eq(TestIsData2.none.to_a)
+        end
+      end
+    end
   end
 end
 
