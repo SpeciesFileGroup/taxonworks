@@ -35,13 +35,10 @@ module AnnotationsHelper
     content_tag(:div, '', 'data-global-id' => object.to_global_id.to_s, 'data-radial-annotator' => 'true')
   end
 
-  # @return array
-  # input is array of CamelCase model names
-  # result is separated
-  def prettify(tg)
-    tgt = []
-    tg.collect {|t| tgt.push(t.tableize.humanize)}
-    tgt
+  # @return [Array]
+  #   of { ClassName => human name } 
+  def klass_and_labels(klass_names)
+    klass_names.collect{|n| { n => n.tableize.humanize}}
   end
 
 end
