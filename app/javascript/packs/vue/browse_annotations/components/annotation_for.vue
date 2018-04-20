@@ -5,16 +5,13 @@
       name="annotation"
       v-model="view"/>
     <button
-      v-for="(label, key) in list[view]"
-      :key="key"
+      v-if="view"
+      v-for="item in list[view]"
+      :key="item.id"
       type="button"
-      @click="selectFor(key)"
+      @click="selectFor(item)"
       class="bottom button-submit normal-input biocuration-toggle-button"
-      v-html="label"/>
-    <span
-      v-for="(item, key) in result"
-      :key="key"> {{ key }} : {{ item }}<br>
-    </span>
+      v-html="item.name"/>
   </div>
 </template>
 
@@ -34,7 +31,7 @@
         type: String
       },
       value: {
-        type: String,
+        type: Number,
       },
     },
     watch: {
@@ -45,17 +42,18 @@
     data() {
       return {
         list: {},
-        tabs: ['quick', 'recent', 'pinboard', 'all'], //This is hard coded for now, but should be taking from the entry point.
+        tabs: [],
         view: undefined,
         result: undefined
       }
     },
     methods: {
       selectFor(type) {
-        this.$emit('input', type.valueOf())
+        this.$emit('input', type)
       },
       getSelectOptions(onModel) {
         this.$http.get(this.selectOptionsUrl, { params: { klass: this.onModel } }).then( response => {
+          this.tabs = Object.keys(response.body)
           this.list = response.body;
         })
       },
