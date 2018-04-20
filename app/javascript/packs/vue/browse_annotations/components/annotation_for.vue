@@ -5,7 +5,7 @@
       name="annotation"
       v-model="view"/>
     <button
-      v-for="(label, key) in list"
+      v-for="(label, key) in list[view]"
       :key="key"
       type="button"
       @click="selectFor(key)"
