@@ -52,25 +52,28 @@ describe 'Shared::IsData', type: :model do
 
   context 'class methods' do
     context 'finding records' do
-      let(:attr) { is_data_instance.attributes }
-      let(:attr2) { is_data2_instance.attributes }
-      context 'with IGNORE_CONSTANTS' do
-        specify '#similar' do
-          expect(TestIsData.similar(attr).to_a).to eq(TestIsData.none.to_a)
+
+      context 'responding' do
+        let(:attr) { is_data_instance.attributes }
+        let(:attr2) { is_data2_instance.attributes }
+        context 'with IGNORE_CONSTANTS' do
+          specify '#similar' do
+            expect(TestIsData.similar(attr).to_a).to eq(TestIsData.none.to_a)
+          end
+
+          specify 'identical' do
+            expect(TestIsData.identical(attr).to_a).to eq(TestIsData.none.to_a)
+          end
         end
 
-        specify 'identical' do
-          expect(TestIsData.identical(attr).to_a).to eq(TestIsData.none.to_a)
-        end
-      end
+        context 'without IGNORE_CONSTANTS' do
+          specify '#similar' do
+            expect(TestIsData2.similar(attr2).to_a).to eq(TestIsData2.none.to_a)
+          end
 
-      context 'without IGNORE_CONSTANTS' do
-        specify '#similar' do
-          expect(TestIsData2.similar(attr2).to_a).to eq(TestIsData2.none.to_a)
-        end
-
-        specify 'identical' do
-          expect(TestIsData2.identical(attr2).to_a).to eq(TestIsData2.none.to_a)
+          specify 'identical' do
+            expect(TestIsData2.identical(attr2).to_a).to eq(TestIsData2.none.to_a)
+          end
         end
       end
     end

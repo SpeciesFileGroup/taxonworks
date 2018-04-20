@@ -36,15 +36,28 @@ module Shared::IsData
       true
     end
 
+=begin
+---------------------------
+             1   2   3   4       s returned for similar
+---------------------------
+1    |abc |  C   s   si  s       i returned for identical
+---------------------------
+2    |abcd|  s   C   s   s       C returned if class method, identical or similar
+---------------------------
+3    |abc |  si  s   C   s
+---------------------------
+4    | bc |              C
+---------------------------
+=end
+
     # @param [Hash] attr of matchable attributes
     # @return [Scope]
     def similar(attr)
       klass = self
-      s = Stripper.new
-      attr  = s.strip_similar_attributes(klass, attr)
+      attr  = Stripper.new.strip_similar_attributes(klass, attr)
+      attr  = attr.select { |_kee, val| val.present? }
 
-      # 'none' until testing is finished
-      scope = klass.where(attr).none
+      scope = klass.where(attr)
       scope
     end
 
@@ -52,8 +65,7 @@ module Shared::IsData
     # @return [Scope]
     def identical(attr)
       klass = self
-      s = Stripper.new
-      attr  = s.strip_identical_attributes(klass, attr)
+      attr  = Stripper.new.strip_identical_attributes(klass, attr)
 
       scope = klass.where(attr)
       scope
@@ -99,21 +111,26 @@ module Shared::IsData
   # @return [Scope]
   def similar
     klass = self.class
-    s = Stripper.new
-    attr  = s.strip_similar_attributes(klass, attributes)
-
-    # 'none' until testing is finished
-    scope = klass.where(attr).not_self(self)
+    attr  = Stripper.new.strip_similar_attributes(klass, attributes)
+    # matching only those attributes from the instance which are not empty
+    attr  = attr.select { |_kee, val| val.present? }
+    if id
+      scope = klass.where(attr).not_self(self)
+    else
+      scope = klass.where(attr)
+    end
     scope
   end
 
   # @return [Scope]
   def identical
     klass = self.class
-    s = Stripper.new
-    attr  = s.strip_identical_attributes(klass, attributes)
-
-    scope = klass.where(attr).not_self(self)
+    attr  = Stripper.new.strip_identical_attributes(klass, attributes)
+    if id
+      scope = klass.where(attr).not_self(self)
+    else
+      scope = klass.where(attr)
+    end
     scope
   end
 
