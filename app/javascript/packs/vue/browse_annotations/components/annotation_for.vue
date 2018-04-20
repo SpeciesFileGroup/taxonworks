@@ -34,7 +34,7 @@
         type: String
       },
       value: {
-        type: String,
+        type: Number,
       },
     },
     watch: {
