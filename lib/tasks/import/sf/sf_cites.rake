@@ -236,6 +236,19 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           return false, nil
         end
 
+
+        # Returns a symbol/name of the decision to
+        # be taken for the row in question
+        def decide(knowns)
+
+
+        end
+
+        # something that can be called in decide
+        def decide_method_a
+
+        end
+
         desc 'time rake tw:project_import:sf_import:cites:create_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define create_citations: [:data_directory, :environment, :user_id] do |logger|
 
@@ -293,6 +306,24 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                              22 => 0} # misapplied name
 
           base_uri = 'http://speciesfile.org/legacy/'
+
+          # For each citation row, we must do something, this is the list of those somethings
+          decisions = [
+
+          ]
+
+          # Each decision has an outcome, which involves calling one or more methods.
+          # Everything that must be done for the citation row in question must be done
+          # through one of these methods
+          decision_methods = {
+
+
+          }
+
+
+
+
+
 
           file.each_with_index do |row, i|
             next if taxa_access_code_4.include? row['TaxonNameID'].to_i
@@ -429,7 +460,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
 
                 done = false
 
-                [:m_original_combination, :m_single_match, :m_unambiguous, :m_current_species_homonym].each do |m|
+                [:m_single_match, :m_unambiguous, :m_current_species_homonym].each do |m|
                   passed, c = send(m, kn) # return passed & c (= combination); args to m (= method), kn (= knowns)
                   if passed
                     if c.new_record?
