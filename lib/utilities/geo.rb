@@ -134,7 +134,7 @@ To add a new (discovered) symbol:
       dm1:  {reg: /(?<lat>\d+\s*[\*°o\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*[NS])[\.,;]?\s*(?<long>\d+\s*[\*°ºo\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*[WE])/i,
              hlp: "degrees, decimal minutes, trailing ordinal, e.g. 45 54.2'N, 78 43.5'E"},
 
-      dms2: {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ ´\u0027\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA][´\u0027\u02B9\u02BC\u02CA]?)[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ \u0027´\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA]?[´\u0027\u02B9\u02BC\u02CA]?)/i,
+      dms2: {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ ´\u0027\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA][´\u0027\u02B9\u02BC\u02CA]?)[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ \u0027´\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA]?[´\u0027\u02B9\u02BC\u02CA]?)/i,
              hlp: "degrees, minutes, decimal seconds, leading ordinal, e.g. S42°5'18.1\" W88º11'43.3\""},
 
       dm3:  {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*([ ´\u0027\u02B9\u02BC\u02CA]))[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?)/i,
