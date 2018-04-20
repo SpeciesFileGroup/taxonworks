@@ -38,7 +38,7 @@
       },
     },
     watch: {
-      selectOptionsUrl(newVal) {
+      onModel(newVal) {
         this.getSelectOptions(newVal);
       },
     },
@@ -55,7 +55,7 @@
         this.$emit('input', type.valueOf())
       },
       getSelectOptions(onModel) {
-        this.$http.post(this.selectOptionsUrl, {klass: this.onModel}).then( response => {
+        this.$http.get(this.selectOptionsUrl, {klass: this.onModel}).then( response => {
           this.list = response.body;
         })
       },

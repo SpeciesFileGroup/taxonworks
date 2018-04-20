@@ -23,7 +23,7 @@ export default {
       default: ''
     },
     usedOn: {
-      type: Array,
+      type: Object,
       default: undefined
     },
     annotationType: {
