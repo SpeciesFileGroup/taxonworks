@@ -55,7 +55,7 @@
         this.$emit('input', type.valueOf())
       },
       getSelectOptions(onModel) {
-        this.$http.get(this.selectOptionsUrl, {klass: this.onModel}).then( response => {
+        this.$http.get(this.selectOptionsUrl, { params: { klass: this.onModel } }).then( response => {
           this.list = response.body;
         })
       },
