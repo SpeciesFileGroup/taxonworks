@@ -54,7 +54,9 @@
       getSelectOptions(onModel) {
         this.$http.get(this.selectOptionsUrl, { params: { klass: this.onModel } }).then( response => {
           this.tabs = Object.keys(response.body);
+          console.log(Object.keys(response.body));
           this.list = response.body;
+          console.log(response.body);
         })
       },
       getResult(newVal) {
