@@ -36,6 +36,7 @@
     },
     watch: {
       onModel(newVal) {
+        if(newVal.selectOptionsUrl == undefined) {return true}
         this.getSelectOptions(newVal);
       },
     },
