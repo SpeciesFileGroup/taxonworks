@@ -141,7 +141,7 @@ namespace :tw do
         @data = ImportedDataUcd.new
 
 $user_id = 1
-$project_id = 2
+$project_id = 1
 
 #=begin
 
@@ -2216,28 +2216,31 @@ $project_id = 2
           end
         end
 #end
-        print "\nHandling Invalid relationships: fix combination relationships\n"
-        i = 0
-        fixed = 0
-        tr = TaxonNameRelationship.where(project_id: $project_id).with_type_contains('Combination')
-        tr.each do |t|
-          i += 1
-          print "\r#{i}    Fixes applied: #{fixed}   "
-          s = t.subject_taxon_name
-          if s.type == 'Combination'
-            if !s.subspecies.nil?
-              t.subject_taxon_name = s.subspecies
-            elsif !s.species.nil?
-              t.subject_taxon_name = s.species
-            elsif !s.subgenus.nil?
-              t.subject_taxon_name = s.subgenus
-            elsif !s.genus.nil?
-              t.subject_taxon_name = s.genus
-            end
-            t.save!
-            fixed += 1
-          end
-        end
+
+#        print "\nHandling Invalid relationships: fix combination relationships\n"
+#        i = 0
+#        fixed = 0
+#        tr = TaxonNameRelationship.where(project_id: $project_id).with_type_contains('Combination')
+#        tr.each do |t|
+#          i += 1
+#          print "\r#{i}    Fixes applied: #{fixed}   "
+#          s = t.subject_taxon_name
+#          if s.type == 'Combination'
+#            byebug
+#            if !s.subspecies.nil?
+#              t.subject_taxon_name = s.subspecies
+#            elsif !s.species.nil?
+#              t.subject_taxon_name = s.species
+#            elsif !s.subgenus.nil?
+#              t.subject_taxon_name = s.subgenus
+#            elsif !s.genus.nil?
+#              t.subject_taxon_name = s.genus
+#            end
+
+#            t.save
+#            fixed += 1 if t.valid?
+#          end
+#        end
         end
 
     end
