@@ -77,6 +77,7 @@ function transformCharacterStateForViewmodel (characterStateData) {
     id: characterStateData.id,
     name: characterStateData.name,
     label: characterStateData.label,
+    globalId: characterStateData.global_id,
     description: characterStateData.description || null
   }
 }

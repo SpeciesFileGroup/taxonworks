@@ -1,9 +1,10 @@
 <template>
   <div class="qualitative-descriptor">
     <summary-view :descriptor="descriptor">
-      <radial-annotator :global-id="descriptor.globalId"/>
       <ul>
-        <li v-for="characterState in descriptor.characterStates">
+        <li
+          class="horizontal-left-content"
+          v-for="characterState in descriptor.characterStates">
           <label>
             <input
               type="checkbox"
@@ -12,19 +13,22 @@
 
             {{ characterState.label }}: {{ characterState.name }}
           </label>
+          <radial-annotator :global-id="characterState.globalId"/>
         </li>
       </ul>
     </summary-view>
 
     <zoomed-view :descriptor="descriptor">
-      <h2 class="qualitative-descriptor__descriptor-title">{{ descriptor.title }}</h2>
+      <h2 class="qualitative-descriptor__descriptor-title horizontal-left-content">
+        {{ descriptor.title }}
         <radial-annotator :global-id="descriptor.globalId"/>
+      </h2>
       <div class="qualitative-descriptor__character-state-list">
         <div
           class="qualitative-descriptor__character-state"
           v-for="characterState in descriptor.characterStates">
 
-          <div class="qualitative-descriptor__character-state-details">
+          <div class="qualitative-descriptor__character-state-details horizontal-left-content">
             <label>
               <input
                 type="checkbox"
@@ -33,6 +37,7 @@
 
               {{ characterState.label }}: {{ characterState.name }}
             </label>
+            <radial-annotator :global-id="characterState.globalId"/>
           </div>
         </div>
       </div>

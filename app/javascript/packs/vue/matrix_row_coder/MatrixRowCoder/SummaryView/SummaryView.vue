@@ -1,6 +1,8 @@
 <template>
   <div class="summary-view" :class="{ 'summary-view--unsaved': isUnsaved, 'summary-view--saved-at-least-once': savedAtLeastOnce }">
-    <h2 class="summary-view__title">{{ descriptor.title }}</h2>
+    <h2 class="summary-view__title horizontal-left-content">{{ descriptor.title }}
+      <radial-annotator :global-id="descriptor.globalId"/>
+    </h2>
     <p>
       <button @click="zoomIn" type="button">Zoom</button>
     </p>
@@ -18,6 +20,7 @@ import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 
 import saveCountdown from '../SaveCountdown/SaveCountdown.vue'
+import RadialAnnotator from '../../../components/annotator/annotator'
 
 export default {
   name: 'SummaryView',
@@ -39,7 +42,8 @@ export default {
     }
   },
   components: {
-    saveCountdown
+    saveCountdown,
+    RadialAnnotator
   }
 }
 </script>

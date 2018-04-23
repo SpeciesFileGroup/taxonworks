@@ -32,6 +32,7 @@
 import { mapState } from 'vuex'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
+import RadialAnnotator from '../../components/annotator/annotator'
 
 const computed = mapState({
   title: state => state.taxonTitle,
@@ -78,7 +79,8 @@ export default {
     continuousDescriptor,
     presenceDescriptor,
     qualitativeDescriptor,
-    sampleDescriptor
+    sampleDescriptor,
+    RadialAnnotator
   }
 }
 </script>
