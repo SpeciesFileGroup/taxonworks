@@ -143,7 +143,7 @@ namespace :tw do
 $user_id = 1
 $project_id = 2
 
-=begin
+#=begin
 
         handle_projects_and_users_ucd
 
@@ -180,7 +180,7 @@ $project_id = 2
         print "\n\n !! Pre soft validation done. End time: #{Time.now} \n\n"
         
         soft_validations_ucd
-=end
+#end
 
         invalid_relationship_remove
 
@@ -438,6 +438,7 @@ $project_id = 2
           if !row['ValGenus'].blank? && @data.genera_index[row['ValGenus']].nil?
             name = row['ValGenus']
             taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
+            taxon.name = 'Luna' if taxon.name == 'luna'
             taxon.parent_id = find_family_id_ucd(row['Family']) if taxon.parent_id.nil?
             taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil? && row['ValSpecies'].blank?
             taxon.verbatim_author = row['ValAuthor'] if taxon.verbatim_author.nil? && row['ValSpecies'].blank?
@@ -2089,7 +2090,7 @@ $project_id = 2
         combinations = 0
         i = 0
 
-=begin
+#=begin
         j = 0
         print "\nHandling Invalid relationships: synonyms of synonyms\n"
         tr = TaxonNameRelationship.where(project_id: $project_id).with_type_base('TaxonNameRelationship::Iczn::Invalidating')
@@ -2214,7 +2215,7 @@ $project_id = 2
             end
           end
         end
-=end
+#end
         print "\nHandling Invalid relationships: fix combination relationships\n"
         i = 0
         fixed = 0
@@ -2224,11 +2225,19 @@ $project_id = 2
           print "\r#{i}    Fixes applied: #{fixed}   "
           s = t.subject_taxon_name
           if s.type == 'Combination'
-            t.subject_taxon_name_id = s.cached_valid_taxon_name_id
+            if !s.subspecies.nil?
+              t.subject_taxon_name = s.subspecies
+            elsif !s.species.nil?
+              t.subject_taxon_name = s.species
+            elsif !s.subgenus.nil?
+              t.subject_taxon_name = s.subgenus
+            elsif !s.genus.nil?
+              t.subject_taxon_name = s.genus
+            end
+            t.save!
             fixed += 1
           end
         end
-
         end
 
     end
