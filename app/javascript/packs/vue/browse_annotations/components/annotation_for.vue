@@ -3,6 +3,7 @@
     <smart-selector 
       :options="tabs"
       name="annotation"
+      :add-option="['all']"
       v-model="view"/>
     <button
       v-if="view"
@@ -25,6 +26,9 @@
     },
     props: {
       selectOptionsUrl: {
+        type: String
+      },
+      allSelectOptionUrl: {
         type: String
       },
       onModel: {
@@ -58,6 +62,10 @@
           console.log(Object.keys(response.body));
           this.list = response.body;
           console.log(response.body);
+        this.$http.get(this.allSelectOptionUrl).then( response => {
+          this.list['all'] = response.body;
+          console.log(response.body);
+        })
         })
       },
       getResult(newVal) {
