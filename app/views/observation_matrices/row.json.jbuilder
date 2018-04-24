@@ -1,11 +1,14 @@
-json.row_object do 
-  case @observation_matrix_row.row_object_class_name 
-  when 'Otu'
-    json.partial! '/otus/attributes', otu: @observation_matrix_row.row_object 
-  when 'CollectionObject'
-    json.partial! '/collection_object/attributes', collection_object: @observation_matrix_row.row_object 
-  else
-    raise
+json.partial! "row_object", row_object: @observation_matrix_row.row_object
+
+if a = @observation_matrix_row.next_row
+  json.next_row do
+    json.partial! "/observation_matrix_rows/attributes", observation_matrix_row:  a
+  end
+end
+
+if a = @observation_matrix_row.previous_row
+  json.previous_row do
+    json.partial! "/observation_matrix_rows/attributes", observation_matrix_row: a
   end
 end
 
@@ -14,7 +17,3 @@ json.descriptors do |descriptors|
     descriptors.partial! '/descriptors/attributes', descriptor: descriptor
   end
 end
-
-
-
-

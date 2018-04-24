@@ -42,6 +42,14 @@ class ObservationMatrixRow < ApplicationRecord
     row_object.class.name
   end
 
+  def next_row
+    observation_matrix.observation_matrix_rows.where("position > ?", position).order(:position).first 
+  end
+
+  def previous_row
+    observation_matrix.observation_matrix_rows.where("position < ?", position).order(:position).first 
+  end
+
   private
 
   def otu_and_collection_object_blank
