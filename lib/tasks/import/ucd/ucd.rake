@@ -140,10 +140,10 @@ namespace :tw do
 
         @data = ImportedDataUcd.new
 
-$user_id = 1
-$project_id = 2
+#$user_id = 1
+#$project_id = 1
 
-=begin
+#=begin
 
         handle_projects_and_users_ucd
 
@@ -180,7 +180,7 @@ $project_id = 2
         print "\n\n !! Pre soft validation done. End time: #{Time.now} \n\n"
         
         soft_validations_ucd
-=end
+#end
 
         invalid_relationship_remove
 
@@ -438,6 +438,7 @@ $project_id = 2
           if !row['ValGenus'].blank? && @data.genera_index[row['ValGenus']].nil?
             name = row['ValGenus']
             taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
+            taxon.name = 'Luna' if taxon.name == 'luna'
             taxon.parent_id = find_family_id_ucd(row['Family']) if taxon.parent_id.nil?
             taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil? && row['ValSpecies'].blank?
             taxon.verbatim_author = row['ValAuthor'] if taxon.verbatim_author.nil? && row['ValSpecies'].blank?
@@ -2085,13 +2086,62 @@ $project_id = 2
 
       def invalid_relationship_remove
 
-        print "\nHandling Invalid relationships\n"
-
         fixed = 0
         combinations = 0
         i = 0
+
+#=begin
+        j = 0
+        print "\nHandling Invalid relationships: synonyms of synonyms\n"
+        tr = TaxonNameRelationship.where(project_id: $project_id).with_type_base('TaxonNameRelationship::Iczn::Invalidating')
+        tr.each do |t|
+          j += 1
+          print "\r#{j}    Fixes applied: #{fixed}   "
+          s = t.subject_taxon_name
+          o = t.object_taxon_name
+          sval = s.valid_taxon_name
+          #next unless s.name == 'mala' || s.name == 'Narayana' || s.name == 'subaenea' || s.name == 'subaeneus'
+          if o.rank_string =~ /Family/
+            if o.id != sval.id && o.cached_primary_homonym_alternative_spelling == sval.cached_primary_homonym_alternative_spelling
+              t.object_taxon_name = sval
+              t.save
+              fixed += 1
+            end
+            if s.cached_primary_homonym_alternative_spelling != o.cached_primary_homonym_alternative_spelling && s.origin_citation.nil?
+              Protonym.where(cached_valid_taxon_name_id: sval.id, cached_primary_homonym_alternative_spelling: s.cached_primary_homonym_alternative_spelling).not_self(s).each do |p|
+                if !p.origin_citation.nil?
+                  t.object_taxon_name = p
+                  t.save
+                  fixed += 1
+                end
+              end
+
+            end
+          else
+            if o.id != sval.id && o.cached_secondary_homonym_alternative_spelling == sval.cached_secondary_homonym_alternative_spelling
+              t.object_taxon_name = sval
+              t.save
+              fixed += 1
+            end
+            if s.cached_secondary_homonym_alternative_spelling != o.cached_secondary_homonym_alternative_spelling && s.origin_citation.nil?
+              Protonym.where(cached_valid_taxon_name_id: sval.id, cached_secondary_homonym_alternative_spelling: s.cached_secondary_homonym_alternative_spelling).not_self(s).each do |p|
+               if !p.origin_citation.nil?
+                  t.object_taxon_name = p
+                  t.save
+                  fixed += 1
+                end
+              end
+            end
+          end
+
+        end
+#end
+
+
+
+      print "\nHandling Invalid relationships: synonyms to combinations\n"
       tr = TaxonNameRelationship.where(project_id: $project_id).with_type_string('TaxonNameRelationship::Iczn::Invalidating')
-        tr.find_each do |t|
+        tr.each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}    Combinations created: #{combinations}"
 
@@ -2099,51 +2149,99 @@ $project_id = 2
             s = t.subject_taxon_name
             svalid = s.cached_valid_taxon_name_id
             o = t.object_taxon_name
+            shas = s.cached_secondary_homonym_alternative_spelling
+
+            #next unless s.name == 'mala' || s.name == 'Narayana' || s.name == 'subaenea' || s.name == 'subaeneus'
+            #byebug
             if s.taxon_name_classifications.empty?
               t.destroy
-              if s.cached_valid_taxon_name_id == svalid && s.cached_secondary_homonym_alternative_spelling == o.cached_secondary_homonym_alternative_spelling
-                if o.rank_string =~ /Family/
-                  if Protonym.family_group_base(s.name) == Protonym.family_group_base(o.name)
+              s.save
+                if o.rank_string =~ /Family/ && s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling
                     fixed += 1
-                    TaxonNameRelationship.create(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
-                  else
-                    TaxonNameRelationship.create(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating')
-                  end
-                else
+                    TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
+                elsif (o.rank_string =~ /Species/  && shas == o.cached_secondary_homonym_alternative_spelling) ||
+                    (o.rank_string =~ /Genus/  && s.cached_primary_homonym_alternative_spelling == o.cached_primary_homonym_alternative_spelling)
                   combinations += 1
                   genus = s.original_genus
                   subgenus = s.original_subgenus
                   species = s.original_species
                   subspecies = s.original_subspecies
-                  s.verbatim_name = s.cached_original_combination.gsub('<i>', '').gsub('</i>', '')
+                  vname = s.cached_original_combination.gsub('<i>', '').gsub('</i>', '')
                   s.original_genus_relationship.destroy unless genus.blank?
                   s.original_subgenus_relationship.destroy unless subgenus.blank?
                   s.original_species_relationship.destroy unless species.blank?
                   s.original_subspecies_relationship.destroy unless subspecies.blank?
-                  s.type = 'Combination'
-                  s.rank_class = nil
-                  s.verbatim_author = nil
-                  s.year_of_publication = nil
                   s.parent_id = nil
-                  s.verbatim_name = s.cached_original_combination.gsub('<i>', '').gsub('</i>', '')
-                  s.genus = genus
-                  s.subgenus = subgenus
-                  s.species = species
-                  s.subspecies = subspecies
+                  s.year_of_publication = nil
+                  s.verbatim_author = nil
+                  s.rank_class = nil
+                  s.type = 'Combination'
+                  s = s.becomes(Combination)
+                  #s.destroy
+                  #s = Combination.new
+                  s.genus = genus unless genus.nil?
+                  s.subgenus = subgenus unless subgenus.nil?
+                  s.species = species unless species.nil?
+                  s.subspecies = subspecies unless subspecies.nil?
+                  s.verbatim_name = vname
+                  if !s.subspecies.nil?
+                    s.subspecies = o
+                  elsif !s.species.nil?
+                    s.species = o
+                  elsif !s.subgenus.nil?
+                    s.subgenus = o
+                  elsif !s.genus.nil?
+                    s.genus = o
+                  end
                   s.save
-                end
-              elsif s.cached_valid_taxon_name_id == svalid && o.citations.empty? && !s.citations.empty? && o.taxon_name_classifications.empty?
-                fixed += 1
-                TaxonNameRelationship.create(subject_taxon_name: o, object_taxon_name: s, type: 'TaxonNameRelationship::Iczn::Invalidating')
-              elsif s.cached_valid_taxon_name_id == svalid
-                TaxonNameRelationship.create(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating')
+                  unless s.valid?
+                    s = Protonym.find(s.id)
+                    TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating')
+         #           c1 = Combination.match_exists?(s.get_full_name, genus: s.genus.try(:id), subgenus: s.subgenus.try(:id), species: s.species.try(:id), subspecies: s.subspecies.try(:id))
+         #           c1 = Combination.matching_protonyms(s.get_full_name_html, genus: s.genus.try(:id), subgenus: s.subgenus.try(:id), species: s.species.try(:id), subspecies: s.subspecies.try(:id)).first if c1.blank?
+         #           byebug if c1.blank?
+         #           s = c1
+                  end
+
+
+#              elsif s.cached_valid_taxon_name_id == svalid && o.citations.empty? && !s.citations.empty? && o.taxon_name_classifications.empty?
+#                fixed += 1
+#                TaxonNameRelationship.create!(subject_taxon_name: o, object_taxon_name: s, type: 'TaxonNameRelationship::Iczn::Invalidating')
+              elsif s.cached_valid_taxon_name_id != svalid
+                TaxonNameRelationship.create!(subject_taxon_name: s, object_taxon_name: o, type: 'TaxonNameRelationship::Iczn::Invalidating')
               else
                 fixed += 1
               end
             end
           end
         end
-      end
+#end
+
+#        print "\nHandling Invalid relationships: fix combination relationships\n"
+#        i = 0
+#        fixed = 0
+#        tr = TaxonNameRelationship.where(project_id: $project_id).with_type_contains('Combination')
+#        tr.each do |t|
+#          i += 1
+#          print "\r#{i}    Fixes applied: #{fixed}   "
+#          s = t.subject_taxon_name
+#          if s.type == 'Combination'
+#            byebug
+#            if !s.subspecies.nil?
+#              t.subject_taxon_name = s.subspecies
+#            elsif !s.species.nil?
+#              t.subject_taxon_name = s.species
+#            elsif !s.subgenus.nil?
+#              t.subject_taxon_name = s.subgenus
+#            elsif !s.genus.nil?
+#              t.subject_taxon_name = s.genus
+#            end
+
+#            t.save
+#            fixed += 1 if t.valid?
+#          end
+#        end
+        end
 
     end
   end
