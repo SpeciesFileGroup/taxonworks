@@ -1,4 +1,6 @@
-json.partial! "row_object", row_object: @observation_matrix_row.row_object
+json.row_object do
+  json.partial! "row_object", row_object: @observation_matrix_row.row_object
+end
 
 json.observation_matrix do
   json.partial! "/observation_matrices/attributes", observation_matrix: @observation_matrix_row.observation_matrix  
