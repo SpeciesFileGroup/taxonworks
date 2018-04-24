@@ -102,7 +102,8 @@ class OtusController < ApplicationController
   # @return [Ignored]
   def search
     if params[:id].blank?
-      redirect_to otus_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to(otus_path,
+                  notice: 'You must select an item from the list with a click or tab press before clicking show.')
     else
       redirect_to otu_path(params[:id])
     end
@@ -216,7 +217,9 @@ class OtusController < ApplicationController
   # GET /otus/download
   # @return [Ignored]
   def download
-    send_data Download.generate_csv(Otu.where(project_id: sessions_current_project_id)), type: 'text', filename: "otus_#{DateTime.now}.csv"
+    send_data Download.generate_csv(Otu.where(project_id: sessions_current_project_id)),
+              type: 'text',
+              filename: "otus_#{DateTime.now}.csv"
   end
 
   # GET api/v1/otus/by_name/:name?token=:token&project_id=:id
