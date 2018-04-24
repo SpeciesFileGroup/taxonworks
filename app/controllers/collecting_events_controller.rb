@@ -111,7 +111,9 @@ class CollectingEventsController < ApplicationController
 
   # GET /collecting_events/download
   def download
-    send_data CollectingEvent.generate_download(CollectingEvent.where(project_id: sessions_current_project_id)), type: 'text', filename: "collecting_events_#{DateTime.now}.csv"
+    send_data(Download.generate_csv(CollectingEvent.where(project_id: sessions_current_project_id)),
+              type: 'text',
+              filename: "collecting_events_#{DateTime.now}.csv")
   end
 
    # GET collecting_events/batch_load
