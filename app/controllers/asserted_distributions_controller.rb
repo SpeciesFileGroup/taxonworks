@@ -8,11 +8,14 @@ class AssertedDistributionsController < ApplicationController
   def index
     respond_to do |format|
       format.html {
-    @recent_objects = AssertedDistribution.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+        @recent_objects = AssertedDistribution.recent_from_project_id(sessions_current_project_id)
+                            .order(updated_at: :desc)
+                            .limit(10)
+        render '/shared/data/all/index'
       }
       format.json {
-        @asserted_distributions = AssertedDistribution.where(project_id: sessions_current_project_id).where(index_params)
+        @asserted_distributions = AssertedDistribution.where(project_id: sessions_current_project_id)
+                                    .where(index_params)
       }
     end
   end
@@ -70,8 +73,8 @@ class AssertedDistributionsController < ApplicationController
   # DELETE /asserted_distributions/1.json
   def destroy
     @asserted_distribution.mark_citations_for_destruction
-    @asserted_distribution.destroy
-  
+    @asserted_distribution.destroy!
+
     respond_to do |format|
       format.html { redirect_to asserted_distributions_url, notice: 'Asserted distribution was successfully destroyed.' }
       format.json { head :no_content }
@@ -106,28 +109,31 @@ class AssertedDistributionsController < ApplicationController
 
   # GET /asserted_distributions/download
   def download
-    send_data AssertedDistribution.generate_download(AssertedDistribution.where(project_id: sessions_current_project_id)), type: 'text', filename: "asserted_distributions_#{DateTime.now}.csv"
+    send_data(Download.generate_csv(AssertedDistribution.where(project_id: sessions_current_project_id)),
+              type:     'text',
+              filename: "asserted_distributions_#{DateTime.now}.csv")
   end
 
   # GET /asserted_distributions/batch_load
   def batch_load
   end
 
-  def preview_simple_batch_load 
+  def preview_simple_batch_load
     if params[:file]
       @result =  BatchLoad::Import::AssertedDistributions.new(batch_params)
       digest_cookie(params[:file].tempfile, :batch_asserted_distributions_md5)
       render 'asserted_distributions/batch_load/simple/preview'
     else
       flash[:notice] = 'No file provided!'
-      redirect_to action: :batch_load 
+      redirect_to action: :batch_load
     end
   end
 
+  # rubocop:disable Rails/SaveBang
   def create_simple_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_asserted_distributions_md5)
       @result =  BatchLoad::Import::AssertedDistributions.new(batch_params)
-      if @result.create 
+      if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} asserted distributions were created."
         render 'asserted_distributions/batch_load/simple/create' and return
       else
@@ -136,11 +142,12 @@ class AssertedDistributionsController < ApplicationController
     else
       flash[:alert] = 'File to batch upload must be supplied.'
     end
-    render :batch_load 
+    render :batch_load
   end
+  # rubocop:enable Rails/SaveBang
 
   private
-  
+
   def set_asserted_distribution
     @asserted_distribution = AssertedDistribution.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @asserted_distribution
