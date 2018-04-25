@@ -40,8 +40,8 @@
     },
     watch: {
       onModel(newVal) {
-        if(newVal.selectOptionsUrl == undefined) {return true}
-        this.getSelectOptions(newVal);
+        if(this.selectOptionsUrl)
+          this.getSelectOptions(newVal)
       },
     },
     data() {
