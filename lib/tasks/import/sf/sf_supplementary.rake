@@ -63,6 +63,10 @@ namespace :tw do
               end
             end
 
+            # if row['SourceID'].to_i > 0
+            #   title += ", source_id = #{get_tw_source_id[row['SourceID']]}"
+            # end
+
             logger.info "attribute_subject_id = #{attribute_subject_id}, attribute_subject_type = #{attribute_subject_type}, title = #{title}"
 
             begin
