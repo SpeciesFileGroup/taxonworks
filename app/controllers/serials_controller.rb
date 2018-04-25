@@ -63,7 +63,7 @@ class SerialsController < ApplicationController
   # DELETE /serials/1
   # DELETE /serials/1.json
   def destroy
-    @serial.destroy
+    @serial.destroy!
     respond_to do |format|
       format.html { redirect_to serials_url }
       format.json { head :no_content }
@@ -98,7 +98,9 @@ class SerialsController < ApplicationController
 
   # GET /serials/download
   def download
-    send_data Serial.generate_download(Serial.all), type: 'text', filename: "serials_#{DateTime.now}.csv"
+    send_data(Download.generate_csv(Serial.all),
+              type:     'text',
+              filename: "serials_#{DateTime.now}.csv")
   end
 
   private
