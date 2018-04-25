@@ -40,7 +40,6 @@ module Hub::Data
     attr_accessor :application_defined
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(klass, attributes)
       attributes ||= {}
       raise "Improperly defined user task #{data} in user_tasks.yml." if klass.nil?

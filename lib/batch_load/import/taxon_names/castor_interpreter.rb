@@ -17,7 +17,6 @@ module BatchLoad
     attr_accessor :project_id
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(nomenclature_code: nil, parent_taxon_name_id: nil, also_create_otu: false, **args)
       @nomenclature_code = nomenclature_code
       @parent_taxon_name_id = parent_taxon_name_id

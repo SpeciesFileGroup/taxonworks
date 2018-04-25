@@ -276,7 +276,6 @@ class CollectingEvent < ApplicationRecord
   soft_validate(:sv_minimally_check_for_a_label)
 
   # @param [String]
-  # @return [Ignored]
   def verbatim_label=(value)
     write_attribute(:verbatim_label, value)
     write_attribute(:md5_of_verbatim_label, Utilities::Strings.generate_md5(value))

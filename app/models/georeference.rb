@@ -521,7 +521,6 @@ class Georeference < ApplicationRecord
       error_radius > 20_000_000 # 20,000 km
   end
 
-  # @return [Ignored]
   def geographic_item_present_if_error_radius_provided
     if !error_radius.blank? &&
       geographic_item_id.blank? && # provide existing

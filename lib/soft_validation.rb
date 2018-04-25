@@ -125,7 +125,6 @@ module SoftValidation
 
     # @param [Hash] method
     # @param [Hash] options
-    # @return [Ignored]
     def add_to_set(method, options)
       n   = self.name
       set = options[:set]
@@ -186,7 +185,6 @@ module SoftValidation
       ANCESTORS_WITH_SOFT_VALIDATIONS[self]
     end
 
-    # @return [Ignored]
     def reset_soft_validation!
       self.soft_validation_methods = {self.name => {}}
       self.soft_validation_sets = { self.name =>  {all:  [] } }
