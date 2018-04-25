@@ -10,6 +10,7 @@
       <annotation-for
         v-model="filter.for_selected"
         :select-options-url="filter.annotation_type.select_options_url"
+        :all-select-option-url="filter.annotation_type.all_select_option_url"
         :on-model="filter.model"
         :annotation-type="filter.annotation_type"
         @for_selected="filter.common = $event"
@@ -74,7 +75,8 @@
           annotation_type: {
             type: undefined,
             used_on: undefined,
-            select_options_url: undefined
+            select_options_url: undefined,
+            all_select_option_url: undefined
           },
           annotation_dates: {
             start: undefined,
