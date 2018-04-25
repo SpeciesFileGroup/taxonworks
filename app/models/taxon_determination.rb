@@ -51,13 +51,14 @@ class TaxonDetermination < ApplicationRecord
   has_many :determiners, through: :determiner_roles, source: :person
 
   # validates :biological_collection_object, presence: true
-  # validates :otu, presence: true # TODO - probably bad, and preventing nested determinations, should just use DB validation
+  # validates :otu, presence: true
+  # # TODO - probably bad, and preventing nested determinations, should just use DB validation
 
-  accepts_nested_attributes_for :determiners 
+  accepts_nested_attributes_for :determiners
   accepts_nested_attributes_for :determiner_roles, allow_destroy: true
 
   # accepts_nested_attributes_for :biological_collection_object
-  accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: :reject_otu 
+  accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: :reject_otu
 
   validates :year_made, date_year: { min_year: 1757, max_year: Time.now.year }
   validates :month_made, date_month: true
@@ -66,40 +67,37 @@ class TaxonDetermination < ApplicationRecord
   before_save :set_made_fields_if_not_provided
   after_create :sort_to_top
 
+  # @return [Object]
   def sort_to_top
     reload
     self.move_to_top
   end
 
+  # @return [String]
   def date
     [year_made, month_made, day_made].compact.join('-')
   end
 
+  # @return [Time]
   def sort_date
     Utilities::Dates.nomenclature_date(day_made, month_made, year_made)
   end
 
+  # @param [ActionController::Parameters] params
+  # @return [Scope]
   def self.find_for_autocomplete(params)
     where(id: params[:term]).with_project_id(params[:project_id])
   end
 
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
   protected
 
+  # @param [Hash] attributed
+  # @return [Boolean]
   def reject_otu(attributed)
     attributed['name'].blank? && attributed['taxon_name_id'].blank?
   end
 
+  # @return [Boolean] always true
   def set_made_fields_if_not_provided
     if self.year_made.blank? && self.month_made.blank? && self.day_made.blank?
       self.year_made  = Time.now.year
