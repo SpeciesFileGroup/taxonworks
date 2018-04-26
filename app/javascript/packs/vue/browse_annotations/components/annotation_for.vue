@@ -10,8 +10,8 @@
       v-for="item in list[view]"
       :key="item.id"
       type="button"
-      @click="selectFor(item)"
       class="bottom button-submit normal-input biocuration-toggle-button"
+      @click="selectFor(item)"
       v-html="item.name"/>
   </div>
 </template>
@@ -35,7 +35,7 @@
         type: String
       },
       value: {
-        type: String,
+        type: Object,
       },
     },
     watch: {
@@ -49,7 +49,8 @@
         list: {},
         tabs: [],
         view: undefined,
-        result: undefined
+        result: undefined,
+        selectedList: []
       }
     },
     methods: {
