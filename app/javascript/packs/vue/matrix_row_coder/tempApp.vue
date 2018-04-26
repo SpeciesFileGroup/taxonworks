@@ -74,7 +74,6 @@ export default {
         apiParams: this.initializeData.apiParams
       })
       request.getMatrixRow(this.initializeData.rowId).then(response => {
-        console.log(response)
         this.matrixRow = response
       })
     },
