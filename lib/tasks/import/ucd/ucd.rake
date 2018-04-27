@@ -2237,19 +2237,19 @@ namespace :tw do
 #end
 
 
-        print "\nHandling Invalid relationships: cached valid\n"
-        i = 0
-        fixed = 0
-        tn = TaxonName.where(project_id: $project_id)
-        tn.each do |t|
-          i += 1
-          print "\r#{i}    wrong cached valid fixed: #{fixed}   "
-          if t.cached_valid_taxon_name_id != t.id && t.valid_taxon_name.type == 'Combination'
-            t.save
-            fixed += 1 if t.valid_taxon_name.type == 'Protonym'
-            byebug if t.valid_taxon_name.type == 'Combination'
-          end
-        end
+#        print "\nHandling Invalid relationships: cached valid\n"
+#        i = 0
+#        fixed = 0
+#        tn = TaxonName.where(project_id: $project_id)
+#        tn.each do |t|
+#          i += 1
+#          print "\r#{i}    wrong cached valid fixed: #{fixed}   "
+#          if t.cached_valid_taxon_name_id != t.id && t.valid_taxon_name.type == 'Combination'
+#            t.save
+#            fixed += 1 if t.valid_taxon_name.type == 'Protonym'
+#            byebug if t.valid_taxon_name.type == 'Combination'
+#          end
+#        end
 
 
 #        print "\nHandling Invalid relationships: wrong combination relationships\n"
