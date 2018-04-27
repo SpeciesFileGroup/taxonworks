@@ -34,23 +34,14 @@ class RangedLotCategory < ApplicationRecord
 
   soft_validate(:sv_range_does_not_overlap)
 
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
   protected
 
+  # @return [Object]
   def validate_values
     errors.add(:maximum_value, 'minimum value must be less than maximum value') if self.minimum_value && self.maximum_value && (self.minimum_value >= self.maximum_value)
   end
 
+  # @return [Object]
   def sv_range_does_not_overlap
     soft_validations.add(:minimum_value, 'The range of values overlaps with another defined range of values.') if RangedLotCategory.where('minimum_value >= ? and maximum_value <= ? and project_id = ?', minimum_value, maximum_value, project_id)
   end

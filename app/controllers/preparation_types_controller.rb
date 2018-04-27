@@ -12,7 +12,7 @@ class PreparationTypesController < ApplicationController
         @recent_objects = PreparationType.order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
-      format.json { }
+      format.json {}
     end
   end
 
@@ -84,9 +84,9 @@ class PreparationTypesController < ApplicationController
 
   # GET /preparation_types/download
   def download
-    send_data( Download.generate_csv(PreparationType.all),
-               type: 'text',
-               filename: "preparation_types_#{DateTime.now}.csv")
+    send_data(Download.generate_csv(PreparationType.all),
+              type: 'text',
+              filename: "preparation_types_#{DateTime.now}.csv")
   end
 
   # def autocomplete
@@ -106,6 +106,7 @@ class PreparationTypesController < ApplicationController
   # end
 
   private
+
   # Use callbacks to share common setup or constraints between actions.
   def set_preparation_type
     @preparation_type = PreparationType.find(params[:id])
