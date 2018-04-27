@@ -10,6 +10,7 @@
       v-for="item in list[view]"
       :key="item.id"
       type="button"
+      :class="{ 'button-default': (selectedList['key'] != value)}"
       class="bottom button-submit normal-input biocuration-toggle-button"
       @click="selectFor(item)"
       v-html="item.name"/>
