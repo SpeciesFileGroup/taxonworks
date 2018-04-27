@@ -10,15 +10,15 @@
       v-for="item in list[view]"
       :key="item.id"
       type="button"
-      :class="{ 'button-default': (selectedList['key'] != value)}"
-      class="bottom button-submit normal-input biocuration-toggle-button"
+      :class="{ 'button-default': (selectedList[item.id] != value)}"
+      class="normal-input biocuration-toggle-button"
       @click="selectFor(item)"
       v-html="item.name"/>
   </div>
 </template>
 
 <script>
-
+  // class="bottom button-submit normal-input biocuration-toggle-button"
   import smartSelector from './smartSelector.vue'
 
   export default {
@@ -55,13 +55,13 @@
       }
     },
     methods: {
-      selectFor(type) {
-        this.$emit('input', type);
-        if(this.selectedList[type.id]){
-          delete(this.selectedList[type.id])
+      selectFor(item) {
+        this.$emit('input', item);
+        if(this.selectedList[item.id]){
+          delete(this.selectedList[item.id])
         }
         else {
-          this.selectedList[type.id] = type;
+          this.selectedList[item.id] = item;
         }
       },
       getSelectOptions(onModel) {
