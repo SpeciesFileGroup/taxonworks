@@ -55,7 +55,13 @@
     },
     methods: {
       selectFor(type) {
-        this.$emit('input', type)
+        this.$emit('input', type);
+        if(this.selectedList[type.id]){
+          delete(this.selectedList[type.id])
+        }
+        else {
+          this.selectedList[type.id] = type;
+        }
       },
       getSelectOptions(onModel) {
         this.$http.get(this.selectOptionsUrl, { params: { klass: this.onModel } }).then( response => {
