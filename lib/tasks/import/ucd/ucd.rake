@@ -179,11 +179,12 @@ namespace :tw do
 
         print "\n\n !! Pre soft validation done. End time: #{Time.now} \n\n"
         
-        soft_validations_ucd
 #end
 
         invalid_relationship_remove
         invalid_relationship_remove
+
+        soft_validations_ucd
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
 
@@ -214,7 +215,11 @@ namespace :tw do
 
           project = Project.create!(name: 'UCD ' + Time.now.to_s, by: user)
 
-          ProjectMember.create(project: project, user: user, is_project_administrator: true, by: user)                    
+          ProjectMember.create(project: project, user: user, is_project_administrator: true, by: user)
+
+          user1 = User.where(email: 'arboridia@gmail.com').first
+
+          ProjectMember.create(project: project, user: user1, is_project_administrator: true, by: user1) unless user1.nil?
 
           @data.project_id = project.id
           @data.user_id = user.id 
