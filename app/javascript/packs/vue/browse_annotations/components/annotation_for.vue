@@ -10,8 +10,8 @@
       v-for="item in list[view]"
       :key="item.id"
       type="button"
-      :class="{ 'button-default': (selectedList[item.id] != value)}"
-      class="normal-input biocuration-toggle-button"
+      :class="{ 'button-default': (selectedList.hasOwnProperty(item.id))}"
+      class="button normal-input biocuration-toggle-button"
       @click="selectFor(item)"
       v-html="item.name"/>
   </div>
@@ -51,18 +51,18 @@
         tabs: [],
         view: undefined,
         result: undefined,
-        selectedList: []
+        selectedList: {}
       }
     },
     methods: {
       selectFor(item) {
-        this.$emit('input', item);
-        if(this.selectedList[item.id]){
-          delete(this.selectedList[item.id])
+        if(this.selectedList.hasOwnProperty(item.id)) {
+          this.$delete(this.selectedList, item.id)
         }
         else {
-          this.selectedList[item.id] = item;
+          this.$set(this.selectedList, item.id, item);
         }
+        this.$emit('input', this.selectedList);
       },
       getSelectOptions(onModel) {
         this.$http.get(this.selectOptionsUrl, { params: { klass: this.onModel } }).then( response => {
