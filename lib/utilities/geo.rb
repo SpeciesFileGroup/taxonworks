@@ -94,7 +94,7 @@ To add a new (discovered) symbol:
 
       distance
     end
-
+=begin
     #  ' = \u0027, converted so that the regex can be used for SQL
     REGEXP_COORD_1 = {
       # tt1: /\D?(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i,
@@ -118,7 +118,7 @@ To add a new (discovered) symbol:
 
       dd7:  /\[(-?\d+[\.|,]\d+|\-?d+),.*?(-?\d+[\.|,]\d+|\-?d+)\]/i
     }.freeze
-
+=end
     #  ' = \u0027, converted so that the regex can be used for SQL
     REGEXP_COORD   = {
       # tt1: /\D?(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i,
@@ -131,22 +131,22 @@ To add a new (discovered) symbol:
       dd2:  {reg: /(?<lat>\d+[\. ]\d+\u0027?\s*[NS]),?\s*(?<long>\d+[\. ]\d+\u0027?\s*[EW])/i,
              hlp: "decimal degrees, trailing ordinal, e.g. 43.836' N, 89.258' W"},
 
-      dm1:  {reg: /(?<lat>\d+\s*[\*°ººo\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*[NS])[\.,;]?\s*(?<long>\d+\s*[\*°ººo\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*[WE])/i,
+      dm1:  {reg: /(?<lat>\d+\s*[\*°o\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*[NS])[\.,;]?\s*(?<long>\d+\s*[\*°ºo\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*[WE])/i,
              hlp: "degrees, decimal minutes, trailing ordinal, e.g. 45 54.2'N, 78 43.5'E"},
 
-      dms2: {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ººo\u02DA ]\s*\d+\s*[ ´\u0027\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA][´\u0027\u02B9\u02BC\u02CA]?)[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ººo\u02DA ]\s*\d+\s*[ \u0027´\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA]?[´\u0027\u02B9\u02BC\u02CA]?)/i,
+      dms2: {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ ´\u0027\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA][´\u0027\u02B9\u02BC\u02CA]?)[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ \u0027´\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA]?[´\u0027\u02B9\u02BC\u02CA]?)/i,
              hlp: "degrees, minutes, decimal seconds, leading ordinal, e.g. S42°5'18.1\" W88º11'43.3\""},
 
-      dm3:  {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ººo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*([ ´\u0027\u02B9\u02BC\u02CA]))[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ººo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?)/i,
+      dm3:  {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*([ ´\u0027\u02B9\u02BC\u02CA]))[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?)/i,
              hlp: "degrees, decimal minutes, leading ordinal, e.g. S42º5.18' W88°11.43'"},
 
-      dms4: {reg: /(?<lat>\d+\s*[\*°ººo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+"?\s*[NS])\s*(?<long>\d+\s*[\*°ººo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+["\u0027]?\s*[EW])/i,
+      dms4: {reg: /(?<lat>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+"?\s*[NS])\s*(?<long>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+["\u0027]?\s*[EW])/i,
              hlp: "degrees, minutes, decimal seconds, trailing ordinal, e.g. 24º7'2.0\"S65º24'13.1\"W"},
 
-      dd5:  {reg: /(?<lat>[NS]\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ººo\u02DA ])[\.,;]?\s*(?<long>([WE])\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ººo\u02DA ]?)/i,
+      dd5:  {reg: /(?<lat>[NS]\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ])[\.,;]?\s*(?<long>([WE])\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]?)/i,
              hlp: 'decimal degrees, leading ordinal, e.g. S42.18° W88.34°'},
 
-      dd6:  {reg: /(?<lat>(\d+[\.,]\d+|\d+)\s*[\*°ººo\u02DA ]\s*[NS])[\.,;]?\s*(?<long>(\d+[\.|,]\d+|\d+)\s*[\*°ººo\u02DA ]\s*[WE])/i,
+      dd6:  {reg: /(?<lat>(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]\s*[NS])[\.,;]?\s*(?<long>(\d+[\.|,]\d+|\d+)\s*[\*°ºo\u02DA ]\s*[WE])/i,
              hlp: 'decimal degrees, trailing ordinal, e.g. 42.18°S 88.43°W'},
 
       dd7:  {reg: /\[(?<lat>-?\d+[\.,]\d+|\-?d+),.*?(?<long>-?\d+[\.,]\d+|\-?d+)\]/i,
@@ -157,7 +157,7 @@ To add a new (discovered) symbol:
     # @return [Array] of possible coordinate strings
     def self.hunt_lat_long_full(label, filters = REGEXP_COORD.keys)
       trials = {}
-      filters.each_with_index {|kee, dex|
+      filters.each_with_index {|kee, _dex|
         kee_string         = kee.to_s.upcase
         trials[kee_string] = {}
         named              = REGEXP_COORD[kee][:reg].match(label)
@@ -226,7 +226,7 @@ To add a new (discovered) symbol:
         trial = self.hunt_lat_long(label, sep)
         found = "#{trial[:piece]}"
         unless trial[:lat].nil? and !trial[:long].nil?
-          found = "(#{sep})" if found.blank?
+          _found = "(#{sep})" if found.blank?
         end
         trials["(#{sep})"] = trial.merge!(method: "(#{sep})")
       }
@@ -304,10 +304,10 @@ To add a new (discovered) symbol:
       # @match_string = $&
       degrees = degrees.to_f
       case ordinal
-        when 'W', 'S'
-          sign = -1.0
-        else
-          sign = 1.0
+      when 'W', 'S'
+        sign = -1.0
+      else
+        sign = 1.0
       end
       if degrees < 0
         sign    *= -1
@@ -316,10 +316,10 @@ To add a new (discovered) symbol:
       frac = ((minutes.to_f * 60.0) + seconds.to_f) / 3600.0
       dd   = (degrees + frac) * sign
       case ordinal
-        when 'N', 'S'
-          limit = 90.0
-        else
-          limit = 180.0
+      when 'N', 'S'
+        limit = 90.0
+      else
+        limit = 180.0
       end
       # return "#{dms}: Out of range (#{dd})" if dd.abs > limit
       return nil if dd.abs > limit || dd == 0.0
@@ -343,35 +343,35 @@ To add a new (discovered) symbol:
       nearby_distance = CollectingEvent::NEARBY_DISTANCE if nearby_distance == 0
 
       decade = case nearby_distance.to_s.length
-                 when 1..2
-                   10
-                 when 3
-                   100
-                 when 4
-                   1_000
-                 when 5
-                   10_000
-                 when 6
-                   100_000
-                 when 7
-                   1_000_000
-                 when 8
-                   10_000_000
-                 else
-                   10
+               when 1..2
+                 10
+               when 3
+                 100
+               when 4
+                 1_000
+               when 5
+                 10_000
+               when 6
+                 100_000
+               when 7
+                 1_000_000
+               when 8
+                 10_000_000
+               else
+                 10
                end
       digit  = (nearby_distance.to_f / decade.to_f).round
 
       case digit
-        when 0..1
-          digit = 1
-        when 2
-          digit = 2
-        when 3..5
-          digit = 5
-        when 6..10
-          decade *= 10
-          digit = 1
+      when 0..1
+        digit = 1
+      when 2
+        digit = 2
+      when 3..5
+        digit = 5
+      when 6..10
+        decade *= 10
+        digit = 1
       end
 
       params['digit1'] = digit.to_s

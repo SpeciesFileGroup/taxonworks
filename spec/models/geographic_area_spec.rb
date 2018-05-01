@@ -199,12 +199,17 @@ describe GeographicArea, type: :model, group: [:geo, :shared_goe] do
         end
       end
 
-      specify 'descendants and descendants_of' do
-        expect(GeographicArea.descendants_of(earth)).to eq([usa,
-                                                            illinois,
-                                                            champaign,
-                                                            ford])
-        expect(illinois.descendants.to_a).to contain_exactly(champaign, ford)
+      context 'descendants and descendants_of' do
+        specify 'from root object' do
+          expect(GeographicArea.descendants_of(earth)).to contain_exactly(usa,
+                                                                          illinois,
+                                                                          champaign,
+                                                                          ford)
+        end
+
+        specify 'from subordinant' do
+          expect(illinois.descendants.to_a).to contain_exactly(champaign, ford)
+        end
       end
 
       specify 'ancestors and ancestors_of' do
