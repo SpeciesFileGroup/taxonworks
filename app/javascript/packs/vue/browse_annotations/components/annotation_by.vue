@@ -17,12 +17,12 @@
     props: {},
     data: function () {
       return {
-        membersList: undefined
+        membersList: {}
       }
     },
     mounted: function () {
       this.$http.get('/project_members.json').then(response => {
-        this.membersList = response.body.names
+        this.membersList = response.body
       })
     },
     methods: {
