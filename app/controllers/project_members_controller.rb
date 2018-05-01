@@ -6,6 +6,12 @@ class ProjectMembersController < ApplicationController
   before_action :set_available_users, only: [:many_new, :new]
   before_action :set_form_variables, only: [:many_new]
 
+
+  # GET /project_members.json
+  def index
+    @project_members = ProjectMember.where(project_id: sessions_current_project_id)
+  end
+
   # GET /project_members/new
   def new
     @project_member = ProjectMember.new(project_member_params)
