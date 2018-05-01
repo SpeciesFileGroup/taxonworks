@@ -1,8 +1,12 @@
 <template>
   <div>
+    <template v-if="matrixRow">
     <h1
-      v-if="matrixRow"
       v-html="matrixRow.observation_matrix.object_tag"/>
+      <a :href="`/tasks/observation_matrices/new_matrix/${matrixRow.observation_matrix.id}`">
+        Edit observation matrix
+      </a>
+    </template>
     <div class="content-menu">
       <template v-if="!initializeData.rowId">
         <input
