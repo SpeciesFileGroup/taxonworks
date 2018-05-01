@@ -17,31 +17,6 @@
         </li>
       </ul>
     </summary-view>
-
-    <zoomed-view :descriptor="descriptor">
-      <h2 class="qualitative-descriptor__descriptor-title horizontal-left-content">
-        {{ descriptor.title }}
-        <radial-annotator :global-id="descriptor.globalId"/>
-      </h2>
-      <div class="qualitative-descriptor__character-state-list">
-        <div
-          class="qualitative-descriptor__character-state"
-          v-for="characterState in descriptor.characterStates">
-
-          <div class="qualitative-descriptor__character-state-details horizontal-left-content">
-            <label>
-              <input
-                type="checkbox"
-                :checked="isStateChecked(characterState.id)"
-                @change="updateStateChecked(characterState.id, $event)" >
-
-              {{ characterState.label }}: {{ characterState.name }}
-            </label>
-            <radial-annotator :global-id="characterState.globalId"/>
-          </div>
-        </div>
-      </div>
-    </zoomed-view>
   </div>
 </template>
 
@@ -53,7 +28,6 @@ import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 
 import summaryView from '../SummaryView/SummaryView.vue'
-import zoomedView from '../ZoomedView/ZoomedView.vue'
 import RadialAnnotator from '../../../components/annotator/annotator'
 
 import descriptorDetails from '../DescriptorDetails/DescriptorDetails.vue'
@@ -106,7 +80,6 @@ export default {
   },
   components: {
     summaryView,
-    zoomedView,
     descriptorDetails,
     RadialAnnotator
   }

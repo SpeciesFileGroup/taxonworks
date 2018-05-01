@@ -4,30 +4,33 @@
       v-if="matrixRow"
       v-html="matrixRow.observation_matrix.object_tag"/>
     <div class="content-menu">
-      <input
-        type="number"
-        placeholder="Observation matrix row ID"
-        v-model="initializeData.rowId">
-      <button
-        type="button"
-        class="button normal-input button-default"
-        :disabled="!initializeData.rowId"
-        @click="loadMatrix">Change
-      </button>
+      <template v-if="!initializeData.rowId">
+        <input
+          type="number"
+          placeholder="Observation matrix row ID"
+          v-model="initializeData.rowId">
+        <button
+          type="button"
+          class="button normal-input button-default"
+          :disabled="!initializeData.rowId"
+          @click="loadMatrix">Change
+        </button>
+      </template>
       <template v-if="matrixRow">
-        <span> | </span>
-        <button
-          type="button"
-          class="button normal-input button-default"
-          v-if="matrixRow.hasOwnProperty('previous_row')"
-          @click="initializeData.rowId = matrixRow.previous_row.id; loadMatrix()"
-          v-html="matrixRow.previous_row.row_object.object_tag"/>
-        <button
-          type="button"
-          class="button normal-input button-default"
-          v-if="matrixRow.hasOwnProperty('next_row')"
-          @click="initializeData.rowId = matrixRow.next_row.id; loadMatrix()"
-          v-html="matrixRow.next_row.row_object.object_tag"/>
+        <p>
+          <button
+            type="button"
+            class="button normal-input button-default"
+            v-if="matrixRow.hasOwnProperty('previous_row')"
+            @click="initializeData.rowId = matrixRow.previous_row.id; loadMatrix()"
+            v-html="matrixRow.previous_row.row_object.object_tag"/>
+          <button
+            type="button"
+            class="button normal-input button-default"
+            v-if="matrixRow.hasOwnProperty('next_row')"
+            @click="initializeData.rowId = matrixRow.next_row.id; loadMatrix()"
+            v-html="matrixRow.next_row.row_object.object_tag"/>
+        </p>
       </template>
     </div>
   </div>

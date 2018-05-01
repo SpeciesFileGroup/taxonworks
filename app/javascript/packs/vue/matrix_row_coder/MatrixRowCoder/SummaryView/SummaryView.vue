@@ -1,11 +1,17 @@
 <template>
   <div class="summary-view" :class="{ 'summary-view--unsaved': isUnsaved, 'summary-view--saved-at-least-once': savedAtLeastOnce }">
-    <h2 class="summary-view__title horizontal-left-content">{{ descriptor.title }}
-      <radial-annotator :global-id="descriptor.globalId"/>
+    <h2 class="summary-view__title flex-separate">
+      <div class="horizontal-left-content">
+        {{ descriptor.title }}
+        <radial-annotator :global-id="descriptor.globalId"/>
+      </div>
+      <p>
+        <button
+          type="button"
+          @click="returnTop">Top
+        </button>
+      </p>
     </h2>
-    <p>
-      <button @click="zoomIn" type="button">Zoom</button>
-    </p>
     <div>
       <slot/>
     </div>
@@ -39,6 +45,9 @@ export default {
         descriptorId: this.descriptor.id,
         isZoomed: true
       })
+    },
+    returnTop: function() {
+      window.scrollTo(0, 0)
     }
   },
   components: {

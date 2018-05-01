@@ -13,6 +13,7 @@ export default function ({commit, state}, args) {
     .then(response => {
       const descriptors = response.descriptors.map(transformDescriptorForViewmodel)
       commit(MutationNames.SetDescriptors, descriptors)
+      commit(MutationNames.SetMatrixRow, response)
 
       const emptyObservations = makeEmptyObservationsForDescriptors(descriptors)
       emptyObservations.forEach(o => commit(MutationNames.SetObservation, o))

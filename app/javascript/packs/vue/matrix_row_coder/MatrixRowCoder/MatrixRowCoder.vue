@@ -1,19 +1,23 @@
 <template>
   <div id="matrix_row_coder" class="matrix-row-coder">
     <h1 class="matrix-row-coder__title" v-html="title"/>
-    <ul class="matrix-row-coder__descriptor-menu">
-      <li v-for="descriptor in descriptors">
-        <div>
-          {{ descriptor.title }}
-          <button
-            @click="zoomDescriptor(descriptor.id)"
-            type="button">
-
-            Zoom
-          </button>
-        </div>
-      </li>
-    </ul>
+    <div>
+      <div class="flex-wrap-row flex-separate">
+        <ul
+          class="matrix-row-coder__descriptor-menu flex-wrap-column"
+          v-for="descriptorGroup in descriptors.chunk(Math.ceil(descriptors.length/3))">
+          <li v-for="descriptor in descriptorGroup">
+            <div>
+              <a
+                class="matrix-row-coder__descriptor-item"
+                :data-icon="observationsCount(descriptor.id)"
+                @click="zoomDescriptor(descriptor.id)"
+                v-html="descriptor.title"/>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
     <ul class="matrix-row-coder__descriptor-list">
       <li
         class="matrix-row-coder__descriptor-container"
@@ -30,7 +34,7 @@
 
 <script>
 import { mapState } from 'vuex'
-import { MutationNames } from '../store/mutations/mutations'
+import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import RadialAnnotator from '../../components/annotator/annotator'
 
@@ -67,12 +71,11 @@ export default {
   computed,
   methods: {
     zoomDescriptor (descriptorId) {
-      this.$store.commit(MutationNames.SetDescriptorZoom, {
-        descriptorId,
-        isZoomed: true
-      })
       const top = document.querySelector(`[data-descriptor-id="${descriptorId}"]`).getBoundingClientRect().top
       window.scrollTo(0, top)
+    },
+    observationsCount(descriptorId) {
+      return (this.$store.getters[GetterNames.GetObservationsFor](descriptorId).length ? 'ok' : 'no-observation')
     }
   },
   components: {
