@@ -48,6 +48,7 @@ gem 'acts_as_list', '~> 0.9.7'
 gem 'modularity', '~> 2.0.1' # Used!?
 gem 'paperclip', '~> 5.2'
 gem 'paperclip-meta', '~> 3.0'
+gem 'shortener', '~> 0.7.2'
 
 # javascript
 gem 'sprockets-rails', '~> 3.2.0'
@@ -96,7 +97,6 @@ gem 'term-ansicolor', '~> 1.6' # DEPRECATED
 gem 'chronic', '~> 0.10.2'
 gem 'logical_query_parser'
 gem 'logic_tools'
-gem 'shortener', '~> 0.7.2'
 
 # Deploy, deprecated soon
 gem 'capistrano-npm', '~> 1.0.2'
