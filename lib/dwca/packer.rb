@@ -21,7 +21,6 @@ module Dwca::Packer
     attr_reader :filename
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(record_scope)
       raise ArgumentError, 'must pass a scope' if !record_scope.kind_of?( ActiveRecord::Relation )
       @scope = record_scope

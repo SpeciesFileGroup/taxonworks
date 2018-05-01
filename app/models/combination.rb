@@ -217,7 +217,9 @@ class Combination < TaxonName
   #   pre-ordered by rank
   def protonyms
     return  protonyms_by_association if new_record?
-    combination_taxon_names.sort{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string) }  # .ordered_by_rank
+    p =  combination_taxon_names.sort{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string) }  # .ordered_by_rank
+    return  protonyms_by_association if p.empty?
+    return p
   end
 
   # @return [Hash]
@@ -251,7 +253,7 @@ class Combination < TaxonName
     data
   end
 
-  # @return [Array of TaxonNames, nil]
+  # @return [Hash of {rank: Protonym}, nil]
   #   the component names for this combination prior to it being saved (used to return values prior to save)
   def protonyms_by_rank
     result = {}
@@ -263,7 +265,7 @@ class Combination < TaxonName
     result
   end
 
-  # @return [Array of Integer]
+  # @return [Array of Integers]
   #   the collective years the protonyms were (nomenclaturaly) published on (ordered from genus to below)
   def publication_years
     description_years = protonyms.collect{|a| a.nomenclature_date ? a.nomenclature_date.year : nil}.compact
@@ -383,13 +385,13 @@ class Combination < TaxonName
     q
   end
 
-  protected
-
   # @return [Array of TaxonNames, nil]
   #   return the component names for this combination prior to it being saved
   def protonyms_by_association
     APPLICABLE_RANKS.collect{|r| self.send(r)}.compact
   end
+
+  protected
 
   # TODO: this is a TaxonName level validation, it doesn't belong here
   def sv_year_of_publication_matches_source

@@ -64,7 +64,7 @@ export default {
   },
   computed: {
     validateFields() {
-      return this.otu.name && this.otu.taxon_name_id
+      return this.otu.name
     }
   },
   data() {

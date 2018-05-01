@@ -63,6 +63,7 @@
     "webpack-dev-server": "^2.11.1"
   },
   "scripts": {
+    "webpack-dev-server": "NODE_OPTIONS=$NODE_OPTIONS' --max_old_space_size=4096' ./bin/webpack-dev-server",
     "eslint-webpack": "node_modules/.bin/eslint app/javascript/packs/** --ext .vue, .js; exit 0",
     "eslint-webpack-fix": "node_modules/.bin/eslint app/javascript/packs/** --ext .vue, .js --fix; exit 0"
   }

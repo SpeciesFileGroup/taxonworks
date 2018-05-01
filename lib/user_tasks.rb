@@ -49,7 +49,6 @@ module UserTasks
     # attr_reader :defaults
 
     # @param [Array] data
-    # @return [Ignored]
     def initialize(data)
       raise "Improperly defined user task #{data} in user_tasks.yml." if data.nil? || data[0].nil?
       attributes = data[1]

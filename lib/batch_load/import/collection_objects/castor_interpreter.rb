@@ -2,7 +2,6 @@ module BatchLoad
   class Import::CollectionObjects::CastorInterpreter < BatchLoad::Import
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(**args)
       @collection_objects = {}
       super(args)

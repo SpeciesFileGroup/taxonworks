@@ -8,7 +8,6 @@ module Queries
       attr_accessor :limit_to_project
 
       # @param [Hash] args
-      # @return [Ignored]
       def initialize(string, project_id: nil, limit_to_project: false)
         @limit_to_project = limit_to_project
         super

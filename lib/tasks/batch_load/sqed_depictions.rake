@@ -67,8 +67,8 @@ namespace :tw do
               group.each do |f|
                 print Rainbow(f).blue + ': '
 
-                if SqedDepiction.joins(:image).where(images: {image_file_fingerprint: Digest::MD5.file(f).hexdigest }, project_id: $project_id).any?
-                  print "exists as depiction, skipping\n"
+                if SqedDepiction.joins(:image).where(images: {image_file_fingerprint: Digest::MD5.file(f).hexdigest}, sqed_depictions: {project_id: $project_id}).any?
+                  print Rainbow("exists as depiction, skipping\n").red
                   next
                 end
 

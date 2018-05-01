@@ -2,7 +2,6 @@ module BatchLoad
   class Import::Sequences::PrimersInterpreter < BatchLoad::Import
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(**args)
       @sequences = {}
       super(args)
