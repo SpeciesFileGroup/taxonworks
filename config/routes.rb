@@ -158,7 +158,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_castor_batch_load # should be get
       post :create_castor_batch_load # should be get
-      get :preview_simple_batch_load 
+      get :preview_simple_batch_load
       post :create_simple_batch_load
       get :select_options, defaults: {format: :json}
     end
@@ -250,7 +250,7 @@ TaxonWorks::Application.routes.draw do
       post :preview_modify_gene_descriptor_batch_load
       post :create_modify_gene_descriptor_batch_load
       get :units
-    end  
+    end
   end
 
   resources :documentation do
@@ -731,6 +731,8 @@ TaxonWorks::Application.routes.draw do
         get 'download', action: 'download', as: 'download_otus_filter_result'
       end
     end
+
+    get '/:id' => "shortener/shortened_urls#show"
 
     # Scopes arranged alphabetically first level below :tasks
 
