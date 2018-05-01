@@ -355,7 +355,7 @@ describe Combination, type: :model, group: :nomenclature do
     specify 'missing source and year' do
       combination.soft_validate(:missing_fields)
       expect(combination.soft_validations.messages_on(:base).empty?).to be_falsey
-      expect(combination.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
+      expect(combination.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
     end
 
     specify 'year of combination and year of source do not match' do

@@ -268,8 +268,8 @@ namespace :tw do
         $project_id = 1
 #=begin
         handle_controlled_vocabulary_3i
-        #ahandle_litauthors_3i
-        #handle_references_3i
+        handle_litauthors_3i
+        handle_references_3i
         handle_transl_3i
         handle_taxonomy_3i
         handle_taxon_name_relationships_3i
