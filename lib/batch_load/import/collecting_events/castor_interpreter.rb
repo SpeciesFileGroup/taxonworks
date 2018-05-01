@@ -2,7 +2,6 @@ module BatchLoad
   class Import::CollectingEvents::CastorInterpreter < BatchLoad::Import
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(**args)
       @collecting_events = {}
       super(args)

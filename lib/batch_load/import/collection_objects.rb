@@ -11,7 +11,6 @@ module BatchLoad
     attr_accessor :namespace
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(**args)
       @collection_objects   = {}
       @collecting_events    = {}
@@ -183,7 +182,6 @@ module BatchLoad
 
     end
 
-    # @return [Ignored]
     def test_build
       file_name = 'spec/files/batch/collection_object/CollectionObjectTest.tsvP'
       ns_1      = Namespace.find_by(short_name: 'PSUC')
