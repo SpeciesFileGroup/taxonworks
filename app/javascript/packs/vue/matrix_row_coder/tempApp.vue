@@ -8,7 +8,7 @@
       </a>
     </template>
     <div class="content-menu">
-      <template v-if="!initializeData.rowId">
+      <template v-if="!matrixRow">
         <input
           type="number"
           placeholder="Observation matrix row ID"
