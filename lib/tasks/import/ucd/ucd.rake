@@ -140,10 +140,10 @@ namespace :tw do
 
         @data = ImportedDataUcd.new
 
-$user_id = 1
-$project_id = 1
+#$user_id = 1
+#$project_id = 1
 
-=begin
+#=begin
 
         handle_projects_and_users_ucd
 
@@ -178,12 +178,10 @@ $project_id = 1
         handle_dist_ucd
 
         print "\n\n !! Pre soft validation done. End time: #{Time.now} \n\n"
-        
-#end
 
         invalid_relationship_remove
         invalid_relationship_remove
-=end
+#end
         soft_validations_ucd
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
@@ -2058,8 +2056,6 @@ $project_id = 1
         i = 0
         TaxonName.where(project_id: $project_id).find_each do |t|
           i += 1
-          next if i < 260
-          byebug
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
           t.fix_soft_validations
