@@ -5,7 +5,7 @@ gem 'rack-cors', '~> 1.0.1', require: 'rack/cors'
 ruby '2.4.4'
 
 gem 'rake', '~> 12.0'
-gem 'rails', '~> 5.1.5'
+gem 'rails', '~> 5.1.6'
 gem 'pg', '~> 0.21.0' # 1.0 not compatible with 5.1.4
 gem 'activerecord-postgis-adapter', '~> 5.2.1'
 
@@ -96,6 +96,7 @@ gem 'term-ansicolor', '~> 1.6' # DEPRECATED
 gem 'chronic', '~> 0.10.2'
 gem 'logical_query_parser'
 gem 'logic_tools'
+gem 'shortener', '~> 0.7.2'
 
 # Deploy, deprecated soon
 gem 'capistrano-npm', '~> 1.0.2'
