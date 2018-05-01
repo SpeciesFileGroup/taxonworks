@@ -27,7 +27,8 @@
       <span>Selected: {{ filter.model }}</span>
     </div>
     <div class="annotation_by">
-      some controls will show now no more
+      <annotation-by
+        v-model="filter.member_selected" />
     </div>
     <div class="annotation_dates">
       <annotation-dates 
@@ -59,9 +60,11 @@
   import AnnotationFor from './components/annotation_for'
   import AnnotationDates from './components/annotation_dates'
   import AnnotationLogic from './components/annotation_logic'
+  import Annotation_by from "./components/annotation_by";
 
   export default {
     components: {
+      AnnotationBy,
       AnnotationTypes,
       AnnotationFor,
       AnnotationOn,

@@ -10,8 +10,8 @@
       v-for="item in list[view]"
       :key="item.id"
       type="button"
-      :class="{ 'button-default': (selectedList.hasOwnProperty(item.id))}"
-      class="button normal-input biocuration-toggle-button"
+      :class="{ ' button-submit': (selectedList.hasOwnProperty(item.id))}"
+      class="button normal-input button-default biocuration-toggle-button"
       @click="selectFor(item)"
       v-html="item.name"/>
   </div>
