@@ -1000,6 +1000,7 @@ class TaxonName < ApplicationRecord
     p = nil
 
     misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication')
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
 
     if self.type == 'Combination'
       c = self.protonyms_by_rank
@@ -1009,8 +1010,14 @@ class TaxonName < ApplicationRecord
       taxon = self
     end
 
-    a = [taxon.try(:author_string)]
-    y = [taxon.try(:year_integer)]
+    mobj = misspelling.empty? ? nil : misspelling.first.object_taxon_name
+    if !mobj.blank?
+      a = [mobj.try(:author_string)]
+      y = [mobj.try(:year_integer)]
+    else
+      a = [taxon.try(:author_string)]
+      y = [taxon.try(:year_integer)]
+    end
 
     if a[0] =~ /^\(.+\)$/ # (Author)
       a[0] = a[0][1..-2] ## remove parentheses in the author string
@@ -1153,7 +1160,7 @@ class TaxonName < ApplicationRecord
       end
 
       old_rank_group = rank_class_was.safe_constantize.parent
-      if rank_class.parent != old_rank_group
+      if type == 'Protonym' && rank_class.parent != old_rank_group
         errors.add(:rank_class, "A new taxon rank (#{rank_name}) should be in the #{old_rank_group.rank_name} rank group")
       end
     end
@@ -1208,10 +1215,10 @@ class TaxonName < ApplicationRecord
     soft_validations.add(:base, 'Original publication is not selected') if self.source.nil?
     soft_validations.add(:verbatim_author, 'Author is missing',
                          fix: :sv_fix_missing_author,
-                         success_message: 'Author was updated') if self.author_string.nil?
+                         success_message: 'Author was updated') if self.author_string.nil? && self.type != 'Combination'
     soft_validations.add(:year_of_publication, 'Year is missing',
                          fix: :sv_fix_missing_year,
-                         success_message: 'Year was updated') if self.year_integer.nil?
+                         success_message: 'Year was updated') if self.year_integer.nil? && self.type != 'Combination'
   end
 
   def sv_fix_missing_author

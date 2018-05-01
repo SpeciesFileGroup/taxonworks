@@ -71,7 +71,7 @@ class SqedDepiction < ApplicationRecord
   # @return [SqedDepiction]
   #   the next record in which the collection object has no buffered data
   def next_without_data
-    object = SqedDepiction.without_collection_object_data.with_project_id(project_id).where('collection_objects.id <> ?', self.depiction_object.id).order(:id).first
+    object = SqedDepiction.without_collection_object_data.with_project_id(project_id).where('collection_objects.id <> ?', depiction_object.id).where('sqed_depictions.id > ?', id).order(:id).first
     object.nil? ? SqedDepiction.where(project_id: project_id).order(:id).first : object.sqed_depictions.first
   end
 

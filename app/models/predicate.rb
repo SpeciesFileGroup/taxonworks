@@ -14,13 +14,15 @@ class Predicate < ControlledVocabularyTerm
     i = i.project(i['controlled_vocabulary_term_id'], i['created_at']).from(i)
       .where(i['created_at'].gt( 1.weeks.ago ))
       .order(i['created_at'])
+      .take(10)
+      .distinct
      
     # z is a table alias 
     z = i.as('recent_t')
 
     Predicate.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['controlled_vocabulary_term_id'].eq(p['id'])))
-    ).distinct.limit(10)
+    )
   end
 
   def self.select_optimized(user_id, project_id, klass)
