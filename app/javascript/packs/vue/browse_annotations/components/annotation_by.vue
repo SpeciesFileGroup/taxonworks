@@ -1,8 +1,7 @@
 <template>
   <div>
-          v-for="(member, key) in membersList"
     <button
-        v-for="member in list[view]"
+        v-for="member in membersList"
         :key="member.id"
         type="button"
         :class="{ ' button-submit': (membersList.hasOwnProperty(member.id))}"
@@ -15,9 +14,7 @@
 
 <script>
   export default {
-    props: {
-
-    },
+    props: {},
     data: function () {
       return {
         membersList: undefined
@@ -30,13 +27,14 @@
     },
     methods: {
       selectMember(item) {
-        if(this.membersList.hasOwnProperty(item.id)) {
+        if (this.membersList.hasOwnProperty(item.id)) {
           this.$delete(this.membersList, item.id)
         }
         else {
           this.$set(this.membersList, item.id, item);
         }
         this.$emit('input', this.membersList);
+      }
     }
   }
 </script>

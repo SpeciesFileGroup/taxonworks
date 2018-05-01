@@ -60,7 +60,7 @@
   import AnnotationFor from './components/annotation_for'
   import AnnotationDates from './components/annotation_dates'
   import AnnotationLogic from './components/annotation_logic'
-  import Annotation_by from "./components/annotation_by";
+  import AnnotationBy from "./components/annotation_by";
 
   export default {
     components: {
