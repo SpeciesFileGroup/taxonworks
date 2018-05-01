@@ -6,7 +6,8 @@ class OtusController < ApplicationController
   # GET /otus
   # GET /otus.json
   def index
-    end
+    # see app/views/otus/index.json.jbuilder
+  end
 
   def index
     respond_to do |format|
@@ -23,6 +24,8 @@ class OtusController < ApplicationController
   # GET /otus/1
   # GET /otus/1.json
   def show
+    # see app/views/otus/show.html.erb
+    # see app/views/otus/show.json.jbuilder
   end
 
   # GET /otus/new
@@ -32,6 +35,7 @@ class OtusController < ApplicationController
 
   # GET /otus/1/edit
   def edit
+    # see app/views/otus/edit.html.erb
   end
 
   def list
@@ -46,7 +50,7 @@ class OtusController < ApplicationController
     respond_to do |format|
       if @otu.save
         format.html { redirect_to @otu,
-                      notice: "Otu '#{@otu.name}' was successfully created." }
+                                  notice: "Otu '#{@otu.name}' was successfully created." }
         format.json { render action: :show, status: :created, location: @otu }
       else
         format.html { render action: 'new' }
@@ -69,6 +73,7 @@ class OtusController < ApplicationController
     end
   end
 
+  # rubocop:disable Rails/SaveBang
   # DELETE /otus/1
   # DELETE /otus/1.json
   def destroy
@@ -86,7 +91,8 @@ class OtusController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to otus_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to(otus_path,
+                  notice: 'You must select an item from the list with a click or tab press before clicking show.')
     else
       redirect_to otu_path(params[:id])
     end
@@ -111,6 +117,7 @@ class OtusController < ApplicationController
   end
 
   def batch_load
+    # see app/views/otus/batch_load.html.erb
   end
 
   def preview_simple_batch_load
@@ -190,13 +197,15 @@ class OtusController < ApplicationController
 
   # GET /otus/download
   def download
-    send_data Download.generate_csv(Otu.where(project_id: sessions_current_project_id)), type: 'text', filename: "otus_#{DateTime.now}.csv"
+    send_data Download.generate_csv(Otu.where(project_id: sessions_current_project_id)),
+              type: 'text',
+              filename: "otus_#{DateTime.now}.csv"
   end
 
   # GET api/v1/otus/by_name/:name?token=:token&project_id=:id
   def by_name
     @otu_name = params.require(:name)
-    @otu_ids = Queries::Otu::Autocomplete.new(@otu_name, project_id: params.require(:project_id)).all.pluck(:id)
+    @otu_ids  = Queries::Otu::Autocomplete.new(@otu_name, project_id: params.require(:project_id)).all.pluck(:id)
   end
 
   def select_options
@@ -206,7 +215,7 @@ class OtusController < ApplicationController
   private
 
   def set_otu
-    @otu = Otu.with_project_id(sessions_current_project_id).find(params[:id])
+    @otu           = Otu.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @otu
   end
 
@@ -215,15 +224,21 @@ class OtusController < ApplicationController
   end
 
   def batch_params
-    params.permit(:name, :file, :import_level, files: []).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
-  end
-
-  def user_map
-    {user_header_map: {'otu' => 'otu_name'}}
+    params.permit(:name, :file, :import_level, files: [])
+      .merge(user_id:    sessions_current_user_id,
+             project_id: sessions_current_project_id)
+      .to_h
+      .symbolize_keys
   end
 
   def filter_params
     params.permit(:taxon_name_id)
   end
 
+  # rubocop:disable Style/StringHashKeys
+  def user_map
+    {user_header_map: {'otu' => 'otu_name'}}
+  end
+  # rubocop:enable Style/StringHashKeys
+  # rubocop:enable Rails/SaveBang
 end

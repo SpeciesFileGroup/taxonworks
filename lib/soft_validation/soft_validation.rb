@@ -36,7 +36,6 @@ module SoftValidation
     attr_accessor :attribute, :message, :fix, :fix_trigger, :success_message, :failure_message, :fixed, :resolution
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(options = {})
       @fixed = :fix_not_yet_run
 

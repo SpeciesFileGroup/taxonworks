@@ -20,7 +20,6 @@ module SoftValidation
     attr_accessor :soft_validations, :instance, :validated, :fixes_run
 
     # @param[ActiveRecord] a instance of some ActiveRecord model
-    # @return [Ignored]
     def initialize(instance)
       @validated = false
       @fixes_run = false

@@ -6,7 +6,8 @@ class CollectionObjectObservationsController < ApplicationController
   # GET /collection_object_observations
   # GET /collection_object_observations.json
   def index
-    @recent_objects = CollectionObjectObservation.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = CollectionObjectObservation.recent_from_project_id(sessions_current_project_id)
+                        .order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -20,8 +21,6 @@ class CollectionObjectObservationsController < ApplicationController
     @collection_object_observation = CollectionObjectObservation.new
   end
 
-
-
   # GET /collection_object_observations/1/edit
   def edit
   end
@@ -33,7 +32,8 @@ class CollectionObjectObservationsController < ApplicationController
 
     respond_to do |format|
       if @collection_object_observation.save
-        format.html { redirect_to @collection_object_observation, notice: 'Collection object observation was successfully created.' }
+        format.html { redirect_to @collection_object_observation,
+                                  notice: 'Collection object observation was successfully created.' }
         format.json { render :show, status: :created, location: @collection_object_observation }
       else
         format.html { render :new }
@@ -47,7 +47,8 @@ class CollectionObjectObservationsController < ApplicationController
   def update
     respond_to do |format|
       if @collection_object_observation.update(collection_object_observation_params)
-        format.html { redirect_to @collection_object_observation, notice: 'Collection object observation was successfully updated.' }
+        format.html { redirect_to @collection_object_observation,
+                                  notice: 'Collection object observation was successfully updated.' }
         format.json { render :show, status: :ok, location: @collection_object_observation }
       else
         format.html { render :edit }
@@ -59,15 +60,17 @@ class CollectionObjectObservationsController < ApplicationController
   # DELETE /collection_object_observations/1
   # DELETE /collection_object_observations/1.json
   def destroy
-    @collection_object_observation.destroy
+    @collection_object_observation.destroy!
     respond_to do |format|
-      format.html { redirect_to collection_object_observations_url, notice: 'Collection object observation was successfully destroyed.' }
+      format.html { redirect_to collection_object_observations_url,
+                                notice: 'Collection object observation was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
 
   def list
-    @collection_object_observations = CollectionObjectObservation.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10)
+    @collection_object_observations = CollectionObjectObservation.with_project_id(sessions_current_project_id)
+                                        .order(:id).page(params[:page]) #.per(10)
   end
 
   def autocomplete
@@ -87,7 +90,8 @@ class CollectionObjectObservationsController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to collection_object_observations_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to collection_object_observations_path,
+                  notice: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to collection_object_observation_path(params[:id])
     end
@@ -95,7 +99,9 @@ class CollectionObjectObservationsController < ApplicationController
 
   # GET /collection_object_observations/download
   def download
-    send_data CollectionObjectObservation.generate_download( CollectionObjectObservation.where(project_id: sessions_current_project_id) ), type: 'text', filename: "collection_object_observations_#{DateTime.now}.csv"
+    send_data(Download.generate_csv(CollectionObjectObservation.where(project_id: sessions_current_project_id)),
+              type: 'text',
+              filename: "collection_object_observations_#{DateTime.now}.csv")
   end
 
   private

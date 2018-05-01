@@ -7,7 +7,6 @@ module Queries
     attr_accessor :of_type
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(string, project_id: nil, of_type: [])
       super(string, project_id: project_id)
       @of_type = of_type

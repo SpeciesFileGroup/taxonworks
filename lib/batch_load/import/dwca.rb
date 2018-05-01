@@ -14,7 +14,6 @@ module BatchLoad
     attr_accessor :row_objects
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(dwca_namespace: nil, **args)
       @dwca_namespace    = dwca_namespace
       @root              = args.delete(:root)
@@ -317,7 +316,6 @@ module BatchLoad
       end
     end
 
-    # @return [Ignored]
     def create
 
     end
@@ -335,7 +333,6 @@ module BatchLoad
     end
 
     # @param [Hash] objects
-    # @return [Ignored]
     def dump_hash(objects)
       objects.each_key {|kee|
         object = objects[kee]
@@ -371,7 +368,6 @@ module BatchLoad
     end
 
 # only for use in a TaxonWorks rails console
-    # @return [Ignored]
     def _setup
       $project    = Project.where(name: 'BatchLoad Test').first
       $project_id = $project.id

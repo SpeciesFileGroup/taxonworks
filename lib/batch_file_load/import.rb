@@ -11,7 +11,6 @@ module BatchFileLoad
     # @param [Integer] user_id
     # @param [Array] files
     # @param [Symbol] import_level
-    # @return [Ignored]
     def initialize(project_id: nil, user_id: nil, files: nil, import_level: :warn)
       @project_id = project_id
       @user = User.find(user_id)
@@ -48,7 +47,6 @@ module BatchFileLoad
     end
 
 # Attempts to save each object from the files into the database
-    # @return [Ignored]
     def create
       if ready_to_create?
         @total_records_created = 0
@@ -119,7 +117,6 @@ module BatchFileLoad
     protected
 
 # Subclass implemented function that is responsible for interpreting the imported data from the files
-    # @return [Ignored]
     def build
       raise 'This method must be provided in the respective subclass.'
     end

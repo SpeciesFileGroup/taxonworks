@@ -1,7 +1,6 @@
 module Utilities::Files
 
   # @param [Array] files
-  # @return [Ignored]
   def self.lines_per_file(files)
     puts 'Lines per file: '
     files.each do |f|

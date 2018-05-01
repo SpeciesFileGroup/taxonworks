@@ -67,14 +67,17 @@ class Image < ApplicationRecord
 
   soft_validate(:sv_duplicate_image?)
 
+  # @return [Boolean]
   def has_duplicate?
     Image.where(image_file_fingerprint: self.image_file_fingerprint).count > 1
   end
 
+  # @return [Array]
   def duplicate_images
     Image.where(image_file_fingerprint: self.image_file_fingerprint).not_self(self).to_a
   end
 
+  # @return [Hash]
   def exif
     # returns a hash of EXIF data if present, empty hash if not.do
     # EXIF data tags/specifications -  http://web.archive.org/web/20131018091152/http://exif.org/Exif2-2.PDF
@@ -97,6 +100,7 @@ class Image < ApplicationRecord
     ret_val # return
   end
 
+  # @return [Nil]
   def gps_data
     # if there is EXIF data, pulls out geographic coordinates & returns hash of lat/long in decimal degrees
     # (5 digits after decimal point if available)
@@ -119,30 +123,24 @@ class Image < ApplicationRecord
 
   end
 
+  # @param [ActionController::Parameters] params
+  # @return [Scope]
   def self.find_for_autocomplete(params)
     where(id: params[:term]).with_project_id(params[:project_id])
   end
 
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
   # Returns the true, unscaled height/width ratio
-  def hw_ratio # :yields: Float
+  # @return [Float]
+  def hw_ratio
     raise if height.nil? || width.nil? # if they are something has gone badly wrong
     return (height.to_f / width.to_f)
   end
 
+  # rubocop:disable Style/StringHashKeys
   # used in ImageHelper#image_thumb_tag
   # asthetic scaling of very narrow images in thumbnails
-  def thumb_scaler # :yields: Hash
+  # @return [Hash]
+  def thumb_scaler
     a = self.hw_ratio
     if a < 0.6
       { 'width' => 200, 'height' => 200 * a}
@@ -150,17 +148,24 @@ class Image < ApplicationRecord
       {}
     end
   end
+  # rubocop:enable Style/StringHashKeys
 
   # the scale factor is typically the same except in a few cases where we skew small thumbs
-  def width_scale_for_size(size = :medium) # :yields: Float
+  # @param [Symbol] size
+  # @return [Float]
+  def width_scale_for_size(size = :medium)
     (width_for_size(size).to_f / width.to_f)
   end
 
-  def height_scale_for_size(size = :medium) # :yields: Float
+  # @param [Symbol] size
+  # @return [Float]
+  def height_scale_for_size(size = :medium)
     height_for_size(size).to_f / height.to_f
   end
 
-  def width_for_size(size = :medium) # :yields: Float
+  # @param [Symbol] size
+  # @return [Float]
+  def width_for_size(size = :medium)
     a = self.hw_ratio
     case size
     when :thumb
@@ -176,7 +181,9 @@ class Image < ApplicationRecord
     end
   end
 
-  def height_for_size(size = :medium) # :yields: Float
+  # @param [Symbol] size
+  # @return [Float]
+  def height_for_size(size = :medium)
     a = self.hw_ratio
     case size
     when :thumb
@@ -202,6 +209,8 @@ class Image < ApplicationRecord
   #    tempfile
   #  end
 
+  # @param [ActionController::Parameters] params
+  # @return [Magick::Image]
   def self.cropped(params)
     image = Image.find(params[:id])
     img = Magick::Image.read(image.image_file.path(:original)).first
@@ -216,11 +225,15 @@ class Image < ApplicationRecord
     cropped
   end
 
+  # @param [ActionController::Parameters] params
+  # @return [Magick::Image]
   def self.resized(params)
     c = cropped(params)
     c.resize(params[:new_width].to_i, params[:new_height].to_i)
   end
 
+  # @param [ActionController::Parameters] params
+  # @return [Magick::Image]
   def self.scaled_to_box(params)
     c = cropped(params)
     ratio = c.columns.to_f / c.rows.to_f
@@ -241,20 +254,27 @@ class Image < ApplicationRecord
     end
   end
 
+  # @param [ActionController::Parameters] params
+  # @return [Magick::Image]
   def self.scaled_to_box_blob(params)
     scaled_to_box(params).to_blob
   end
 
+  # @param [ActionController::Parameters] params
+  # @return [Magick::Image]
   def self.resized_blob(params)
     resized(params).to_blob
   end
 
+  # @param [ActionController::Parameters] params
+  # @return [Magick::Image]
   def self.cropped_blob(params)
     cropped(params).to_blob
   end
 
   protected
 
+  # @return [Integer, Nil]
   def extract_tw_attributes
     # NOTE: assumes content type is an image.
     tempfile = image_file.queued_for_write[:original]
@@ -271,9 +291,11 @@ class Image < ApplicationRecord
   end
 
   # Check md5 fingerprint against existing fingerprints
+  # @return [Object]
   def sv_duplicate_image?
     if has_duplicate?
-      soft_validations.add(:image_file_fingerprint, 'This image is a duplicate of an image already stored.')
+      soft_validations.add(:image_file_fingerprint,
+                           'This image is a duplicate of an image already stored.')
     end
   end
 

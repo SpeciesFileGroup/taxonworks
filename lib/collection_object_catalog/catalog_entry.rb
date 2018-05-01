@@ -12,7 +12,6 @@ module CollectionObjectCatalog
     attr_accessor :reference_collection_object
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(collection_object = nil)
       @items = []
       @reference_collection_object = collection_object

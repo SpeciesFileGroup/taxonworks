@@ -39,7 +39,6 @@ module Housekeeping::Projects
     end
   end
 
-  # @return [Ignored]
   def set_project_id
     if self.new_record?
       self.project_id ||= $project_id

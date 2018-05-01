@@ -22,7 +22,6 @@ module Queries
     attr_accessor :dynamic_limit
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(string, project_id: nil, **keyword_args)
       @query_string = string
       @project_id = project_id

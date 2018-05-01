@@ -7,7 +7,6 @@ module Queries
     attr_accessor :keyword_args
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(taxon_name_id: nil, project_id: nil, **keyword_args)
       return if taxon_name_id.nil?
       @taxon_name_id = taxon_name_id

@@ -38,16 +38,16 @@ class ControlledVocabularyTermsController < ApplicationController
     @controlled_vocabulary_term = ControlledVocabularyTerm.new(controlled_vocabulary_term_params)
     respond_to do |format|
       if @controlled_vocabulary_term.save
-        format.html { redirect_to url_for(@controlled_vocabulary_term.metamorphosize), notice: "#{@controlled_vocabulary_term.type} '#{@controlled_vocabulary_term.name}' was successfully created."}
-        format.json { 
-          render action: 'show', status: :created, location: @controlled_vocabulary_term.metamorphosize 
+        format.html { redirect_to url_for(@controlled_vocabulary_term.metamorphosize), notice: "#{@controlled_vocabulary_term.type} '#{@controlled_vocabulary_term.name}' was successfully created." }
+        format.json {
+          render action: 'show', status: :created, location: @controlled_vocabulary_term.metamorphosize
         }
       else
         format.html {
           flash[:notice] = 'Controlled vocabulary term NOT successfully created.'
           render action: 'new'
         }
-        format.json { 
+        format.json {
           render json: @controlled_vocabulary_term.errors, status: :unprocessable_entity
         }
       end
@@ -105,23 +105,23 @@ class ControlledVocabularyTermsController < ApplicationController
 
   def autocomplete
     @controlled_vocabulary_terms = Queries::ControlledVocabularyTermAutocompleteQuery.new(
-      params.require(:term), 
-      of_type: filter_params[:type], 
+      params.require(:term),
+      of_type: filter_params[:type],
       project_id: sessions_current_project_id
     ).all
   end
 
   # GET /controlled_vocabulary_terms/download
   def download
-    send_data ControlledVocabularyTerm.generate_download(
-      ControlledVocabularyTerm.where(project_id: sessions_current_project_id)
-    ), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now}.csv"
+    send_data(Download.generate_csv(ControlledVocabularyTerm.where(project_id: sessions_current_project_id)),
+              type: 'text',
+              filename: "controlled_vocabulary_terms_#{DateTime.now}.csv")
   end
 
   # GET /controlled_vocabulary_terms/1/tagged_objects
   def tagged_objects
     set_controlled_vocabulary_term
-  end 
+  end
 
   private
 
@@ -136,7 +136,7 @@ class ControlledVocabularyTermsController < ApplicationController
 
   def filter_params
     h = params.permit(of_type: []).to_h.symbolize_keys
-    return { type: h[:of_type], project_id: sessions_current_project_id }
+    return {type: h[:of_type], project_id: sessions_current_project_id}
   end
 
 end
