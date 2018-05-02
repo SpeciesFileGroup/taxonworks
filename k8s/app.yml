@@ -59,13 +59,13 @@ spec:
             httpGet:
               path: /ping
               port: 80
-            initialDelaySeconds: 500 # 30 
+            initialDelaySeconds: 1000 # 30 
             timeoutSeconds: 3
           livenessProbe:
             httpGet:
               path: /ping
               port: 80
-            initialDelaySeconds: 500 # 180
+            initialDelaySeconds: 1000 # 180
             timeoutSeconds: 3
           env:
             - name: RAILS_ENV
