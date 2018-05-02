@@ -54,7 +54,7 @@ module Shared::IsData
     # @return [Scope]
     def similar(attr)
       klass = self
-      attr  = Stripper.new.strip_similar_attributes(klass, attr)
+      attr  = Stripper.strip_similar_attributes(klass, attr)
       attr  = attr.select { |_kee, val| val.present? }
 
       scope = klass.where(attr)
@@ -65,7 +65,7 @@ module Shared::IsData
     # @return [Scope]
     def identical(attr)
       klass = self
-      attr  = Stripper.new.strip_identical_attributes(klass, attr)
+      attr  = Stripper.strip_identical_attributes(klass, attr)
 
       scope = klass.where(attr)
       scope
@@ -111,7 +111,7 @@ module Shared::IsData
   # @return [Scope]
   def similar
     klass = self.class
-    attr  = Stripper.new.strip_similar_attributes(klass, attributes)
+    attr  = Stripper.strip_similar_attributes(klass, attributes)
     # matching only those attributes from the instance which are not empty
     attr  = attr.select { |_kee, val| val.present? }
     if id
@@ -125,7 +125,7 @@ module Shared::IsData
   # @return [Scope]
   def identical
     klass = self.class
-    attr  = Stripper.new.strip_identical_attributes(klass, attributes)
+    attr  = Stripper.strip_identical_attributes(klass, attributes)
     if id
       scope = klass.where(attr).not_self(self)
     else
@@ -140,12 +140,12 @@ module Shared::IsData
     errors_excepting(*keys).full_messages
   end
 
-  class Stripper
+  module Stripper
     # protected
 
     # @param [Hash] attr is hash
     # @return [Hash]
-    def strip_similar_attributes(klass, attr = {})
+    def self.strip_similar_attributes(klass, attr = {})
       begin # test to see if this class has an IGNORE_SIMILAR constant
         ig = add_class_list(klass::IGNORE_SIMILAR)
       rescue NameError
@@ -157,7 +157,7 @@ module Shared::IsData
 
     # @param [Hash] attr is hash
     # @return [Hash]
-    def strip_identical_attributes(klass, attr = {})
+    def self.strip_identical_attributes(klass, attr = {})
       begin # test to see if this class has an IGNORE_IDENTICAL constant
         ig = add_class_list(klass::IGNORE_IDENTICAL)
       rescue NameError
@@ -169,7 +169,7 @@ module Shared::IsData
 
     # @param [Array] list of symbols to be ignored
     # @return [Array] of strings to be ignored
-    def add_class_list(list)
+    def self.add_class_list(list)
       ig_list  = RESERVED_ATTRIBUTES.dup
       add_list = list.dup if list.any?
       ig_list  += add_list if add_list
