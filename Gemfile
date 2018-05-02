@@ -5,7 +5,7 @@ gem 'rack-cors', '~> 1.0.1', require: 'rack/cors'
 ruby '2.4.4'
 
 gem 'rake', '~> 12.0'
-gem 'rails', '~> 5.1.5'
+gem 'rails', '~> 5.1.6'
 gem 'pg', '~> 0.21.0' # 1.0 not compatible with 5.1.4
 gem 'activerecord-postgis-adapter', '~> 5.2.1'
 
@@ -18,8 +18,8 @@ gem 'redis', '~> 4.0.0'
 gem 'thor', '~> 0.19.4' # See https://github.com/rails/rails/issues/27229
 gem 'rubyzip', '~> 1.2.1'
 gem 'daemons', '~> 1.2.6'
-gem 'tzinfo-data', '~> 1.2017.2'
-gem 'psych', '~> 3.0.2' # '2.2.4'
+gem 'tzinfo-data', '~> 1.2018.4' 
+gem 'psych', '~> 3.0.2' 
 gem 'rmagick', '~> 2.16'
 
 # Geo
@@ -41,7 +41,7 @@ gem 'exception_notification', '~> 4.2.1'
 # Models
 gem 'bcrypt', '~> 3.1.11'
 gem 'closure_tree', '~> 6.6'
-gem 'delayed_job_active_record', '~> 4.1.2'
+gem 'delayed_job_active_record', '~> 4.1.3'
 gem 'validates_timeliness', '~> 4.0.2'
 gem 'paper_trail', '~> 8.1.2'
 gem 'acts_as_list', '~> 0.9.7'
@@ -53,10 +53,10 @@ gem 'paperclip-meta', '~> 3.0'
 gem 'sprockets-rails', '~> 3.2.0'
 gem 'sprockets', '~> 3.7.1'
 gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
-gem 'webpacker', '~> 3.3.0'
-gem 'uglifier', '~> 4.1.6'
+gem 'webpacker', '~> 3.5.2'
+gem 'uglifier', '~> 4.1.10'
 
-gem 'jquery-rails', '~> 4.3.1'
+gem 'jquery-rails', '~> 4.3.3'
 gem 'jquery-ui-rails', '~> 6.0.1'
 gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
@@ -86,7 +86,7 @@ gem 'taxonifi', '0.4.0'
 gem 'sqed', '0.4.1'
 gem 'dwc-archive', '~> 0.9.11'
 gem 'biodiversity', '~> 3.5.0'
-gem 'ruby-units', '~> 2.2.0', require: 'ruby_units/namespaced'
+gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 # Minor Utils/helpers
 gem 'awesome_print', '~> 1.8'
@@ -120,8 +120,8 @@ group :development do
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
   gem 'parallel_tests', '~> 2.21.2', require: false
-  gem 'web-console', '~> 3.5.1'
-  gem 'rubocop', '~> 0.53.0'
+  gem 'web-console', '~> 3.6.2'
+  gem 'rubocop', '~> 0.55.0'
   gem 'brakeman', '~> 4.2.0', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
 end
@@ -134,11 +134,11 @@ end
 group :test do
   gem 'rspec', '~> 3.6'
   gem 'coveralls', '~> 0.8.21', require: false
-  gem 'capybara', '~> 3.0'
+  gem 'capybara', '~> 3.0.3'
   gem 'timecop', '~> 0.9.1'
-  gem 'webmock', '~> 3.3.0'
+  gem 'webmock', '~> 3.4.1'
   gem 'vcr', '~> 4.0.0'
-  gem 'database_cleaner', '~> 1.6.1'
+  gem 'database_cleaner', '~> 1.7.0'
   gem 'rails-controller-testing', '~> 1.0.2'
 
 # gem 'simplecov', :require => false
