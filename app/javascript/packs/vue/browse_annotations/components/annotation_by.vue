@@ -4,10 +4,10 @@
         v-for="member in membersList"
         :key="member.id"
         type="button"
-        :class="{ ' button-submit': (membersList.hasOwnProperty(member.id))}"
+        :class="{ ' button-submit': (selectedList.hasOwnProperty(member.id))}"
         class="button normal-input button-default biocuration-toggle-button"
         @click="selectMember(member)"
-        v-html="member.name"/>
+        v-html="member.user.name"/>
   </div>
   <!--<span v-for="(member, key) in result"> {{ key }} : {{ member }} <br></span>-->
 </template>
@@ -17,7 +17,8 @@
     props: {},
     data: function () {
       return {
-        membersList: {}
+        membersList: [],
+        selectedList: {}
       }
     },
     mounted: function () {
@@ -27,13 +28,13 @@
     },
     methods: {
       selectMember(item) {
-        if (this.membersList.hasOwnProperty(item.id)) {
-          this.$delete(this.membersList, item.id)
+        if (this.selectedList.hasOwnProperty(item.id)) {
+          this.$delete(this.selectedList, item.id)
         }
         else {
-          this.$set(this.membersList, item.id, item);
+          this.$set(this.selectedList, item.id, item);
         }
-        this.$emit('input', this.membersList);
+        this.$emit('input', this.selectedList);
       }
     }
   }
