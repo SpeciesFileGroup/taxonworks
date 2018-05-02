@@ -151,6 +151,13 @@ class ObservationMatrixColumnItem < ApplicationRecord
     return created
   end
 
+  # @return [Boolean]
+  #   whether this is a dynamic or fixed class
+  #   override in subclasses
+  def is_dynamic?
+    false
+  end
+
   private
 
   # @return [Array]

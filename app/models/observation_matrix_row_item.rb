@@ -120,6 +120,13 @@ class ObservationMatrixRowItem < ApplicationRecord
     matrix_row_item_object.class.name == object_type ? matrix_row_item_object : nil
   end
 
+  # @return [Boolean]
+  #   whether this is a dynamic or fixed class
+  #   override in subclasses
+  def is_dynamic?
+    false
+  end
+
   protected
 
   def other_subclass_attributes_not_set
