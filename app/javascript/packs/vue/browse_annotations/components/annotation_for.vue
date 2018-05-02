@@ -75,14 +75,15 @@
           console.log(response.body);
         })
         })
-      },
-      getResult(newVal) {
-        this.$http.post('/tasks/browse_annotations/annotation_for', {annotationFor: newVal}).then(response => {
-          this.$emit('for_selected', response.body);
-          this.$emit('result', response.body);
-          this.result = response.body;
-        })
       }
+      // ,
+      // getResult(newVal) {
+      //   this.$http.post('/tasks/browse_annotations/annotation_for', {annotationFor: newVal}).then(response => {
+      //     this.$emit('for_selected', response.body);
+      //     this.$emit('result', response.body);
+      //     this.result = response.body;
+      //   })
+      // }
     }
   }
 </script>

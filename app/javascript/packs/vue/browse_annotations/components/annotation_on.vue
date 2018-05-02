@@ -34,7 +34,8 @@ export default {
 
   watch: {
     value(newVal) {
-      this.getResult(newVal);
+      // this.getResult(newVal);
+      this.selectModel(newVal);
     },
   },
   data() {
@@ -46,16 +47,17 @@ export default {
   methods: {
     selectModel(type) {
       this.$emit("input", type.valueOf());
-    },
-    getResult(newVal) {
-      this.$http
-        .post("/tasks/browse_annotations/set_model", { annotationFor: newVal })
-        .then(response => {
-          this.$emit("model_selected", response.body);
-          this.$emit("result", response.body);
-          this.result = response.body;
-        });
     }
+    // ,
+    // getResult(newVal) {
+    //   this.$http
+    //     .post("/tasks/browse_annotations/set_model", { annotationFor: newVal })
+    //     .then(response => {
+    //       this.$emit("model_selected", response.body);
+          // this.$emit("result", response.body);
+          // this.result = response.body;
+        // });
+    // }
   }
 };
 </script>

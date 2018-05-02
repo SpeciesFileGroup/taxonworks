@@ -4,7 +4,7 @@
       <annotation-types
         v-model="filter.annotation_type"
         @annotation_type_selected="filter.common = $event"/>
-      <span>Selected: {{ filter.annotation_type }}</span>
+      <!--<span>Selected: {{ filter.annotation_type }}</span>-->
     </div>
     <div class="annotation_for">
       <annotation-for
@@ -15,7 +15,7 @@
         :annotation-type="filter.annotation_type"
         @for_selected="filter.common = $event"
         @result="filter.result = $event"/>
-      <span>Selected: {{ filter.for_selected }}</span>
+      <!--<span>Selected: {{ filter.for_selected }}</span>-->
     </div>
     <div class="annotation_on">
       <annotation-on
@@ -24,7 +24,7 @@
         :annotation-type="filter.annotation_type"
         @model_selected="filter.common = $event"
         @result="filter.result = $event"/>
-      <span>Selected: {{ filter.model }}</span>
+      <!--<span>Selected: {{ filter.model }}</span>-->
     </div>
     <div class="annotation_by">
       <annotation-by
@@ -34,7 +34,7 @@
       <annotation-dates 
         v-model="filter.annotation_dates" 
         @annotation_dates_selected="filter.common = $event"/>
-      <span>Selected: {{ filter.annotation_dates.start }} - {{ filter.annotation_dates.end }}</span>
+      <!--<span>Selected: {{ filter.annotation_dates.start }} - {{ filter.annotation_dates.end }}</span>-->
     </div>
     <div 
       class="annotation_logic"

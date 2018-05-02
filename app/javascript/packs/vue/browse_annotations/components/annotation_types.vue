@@ -31,7 +31,8 @@
     watch: {
       value: {
         handler(newVal) {
-          this.getResult(newVal)
+          // this.getResult(newVal)
+          this.selectType(newVal)
         },
         deep: true
       }
@@ -57,14 +58,15 @@
         };
         this.$emit('input', selected);
         this.$emit('annotation_type_selected', this.typesList[type]);
-      },
-      getResult(newVal) {
-        this.$http.post('/tasks/browse_annotations/get_type', { annotationType: newVal.type }).then(response => {
-          // console.log(response); // this is necessary to show traffic?
-          this.$emit('annotation_type_selected', response.body);
-          this.result = response.body;
-        })
       }
+      // ,
+      // getResult(newVal) {
+      //   this.$http.post('/tasks/browse_annotations/get_type', { annotationType: newVal.type }).then(response => {
+      //     console.log(response); // this is necessary to show traffic?
+          // this.$emit('annotation_type_selected', response.body);
+          // this.result = response.body;
+        // })
+      // }
     }
   }
 </script>
