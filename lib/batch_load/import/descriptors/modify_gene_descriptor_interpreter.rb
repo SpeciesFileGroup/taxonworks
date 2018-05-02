@@ -2,7 +2,6 @@ module BatchLoad
   class Import::Descriptors::ModifyGeneDescriptorInterpreter < BatchLoad::Import
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(**args)
       @descriptors = {}
       super(args)

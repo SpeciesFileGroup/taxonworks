@@ -10,7 +10,6 @@ class BatchLoad::RowParse
   attr_accessor :objects
 
 
-  # @return [Ignored]
   def initialize
     @created      = false
     @parsed       = false

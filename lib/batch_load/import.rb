@@ -60,7 +60,6 @@ module BatchLoad
     attr_accessor :user_header_map
 
     # @param [Hash] args
-    # @return [Ignored]
     def initialize(project_id: nil, user_id: nil, file: nil, process: true, import_level: :warn, user_header_map: {})
       @processed    = false
       @import_level = import_level
@@ -190,7 +189,6 @@ module BatchLoad
       true
     end
 
-    # @return [Ignored]
     def build
       raise 'This method must be provided in each respective subclass.'
     end

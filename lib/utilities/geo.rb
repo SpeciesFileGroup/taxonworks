@@ -49,7 +49,6 @@ To add a new (discovered) symbol:
       attr_reader(:dd, :dms)
 
       # @param [String] coordinate
-      # @return [Ignored]
       def initialize(coordinate)
         @dms = coordinate
         @dd  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(coordinate)
