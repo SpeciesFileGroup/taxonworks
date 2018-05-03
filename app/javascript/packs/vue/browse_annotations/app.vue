@@ -15,7 +15,7 @@
         :annotation-type="filter.annotation_type"
         @for_selected="filter.common = $event"
         @result="filter.result = $event"/>
-      <!--<span>Selected: {{ filter.for_selected }}</span>-->
+      <span>Result: {{ filter.result }}</span>
     </div>
     <div class="annotation_on">
       <annotation-on

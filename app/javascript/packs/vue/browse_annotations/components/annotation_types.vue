@@ -16,7 +16,6 @@
         </label>
       </li>
     </ul>
-    <!--<span v-for="(item, key) in result"> {{ key }} : {{ item }} <br></span>-->
   </div>
 </template>
 
@@ -31,8 +30,8 @@
     watch: {
       value: {
         handler(newVal) {
-          // this.getResult(newVal)
-          this.selectType(newVal)
+          this.getResult(newVal)
+          // this.selectType(newVal)
         },
         deep: true
       }
@@ -40,7 +39,8 @@
     data: function () {
       return {
         typesList: undefined,
-        result: undefined
+        result: undefined,
+          selected: {}
       }
     },
     mounted: function () {
@@ -50,23 +50,23 @@
     },
     methods: {
       selectType(type) {
-        let selected = {
+         this.selected = {
           type: type,
           used_on: this.typesList[type].used_on,
           select_options_url: this.typesList[type].select_options_url,
           all_select_option_url: this.typesList[type].all_select_option_url
         };
-        this.$emit('input', selected);
+        this.$emit('input', this.selected);
         this.$emit('annotation_type_selected', this.typesList[type]);
       }
-      // ,
-      // getResult(newVal) {
-      //   this.$http.post('/tasks/browse_annotations/get_type', { annotationType: newVal.type }).then(response => {
-      //     console.log(response); // this is necessary to show traffic?
-          // this.$emit('annotation_type_selected', response.body);
-          // this.result = response.body;
-        // })
-      // }
+      ,
+      getResult(newVal) {
+        this.$http.post('/tasks/browse_annotations/get_type', { annotationType: newVal.type }).then(response => {
+          console.log(response); // this is necessary to show traffic?
+          this.$emit('annotation_type_selected', response.body);
+          this.result = response.body;
+        })
+      }
     }
   }
 </script>
