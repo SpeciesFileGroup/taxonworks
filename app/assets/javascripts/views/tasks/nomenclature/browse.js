@@ -57,6 +57,66 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 			}
 		}
 
+		function checkStates(element) {
+			var filters = JSON.parse($(element).attr('data-hidden'))
+			if(!filters.length) {
+				$(element).show(255);
+			}
+			else {
+				$(element).hide(255);
+			}
+		}
+
+		function elementFilter(type, hide) {
+			$(type).each(function() {
+				if(hide) {
+					addHiddenData($(this), type);
+				}
+				else {
+					removeHiddenData($(this), type);
+				}
+				checkStates($(this))
+			})
+		}
+
+		function retrieveElementFilters(element) {
+			var attributes = $(element).attr('data-hidden');
+			if(attributes) {
+				attributes = JSON.parse(attributes)
+			}
+			if(Array.isArray(attributes)) {
+				return attributes
+			}
+			else {
+				return []
+			}
+		}
+
+		function getFilterPosition(list, type) {
+			return list.findIndex(function(item) {
+				return item == type
+			})
+		}
+
+		function addHiddenData(element, type) {
+			var attributes = retrieveElementFilters($(element));
+
+			if(getFilterPosition(attributes, type) < 0) {
+				attributes.push(type)
+				$(element).attr('data-hidden', JSON.stringify(attributes))
+			}
+		}
+
+		function removeHiddenData(element, type) {
+			var attributes = retrieveElementFilters($(element));
+			var position = getFilterPosition(attributes, type)
+
+			if(position > -1) {
+				attributes.splice(position, 1);
+				$(element).attr('data-hidden', JSON.stringify(attributes))
+			}
+		}
+
 		$('[data-history-valid-name="true"]').each(function() {
 			if(!$(this).has('[data-icon="ok"]').length) {
 				$(this).prepend('<span data-icon="ok"></span>');
@@ -135,10 +195,10 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 						isActive($(this),'active');
 					}
 					$($(this).attr('data-filter-font')).animate({
-	            		fontSize: '100%'
-	        		});
-	        		$($(this).attr('data-filter-row')).parents('.history__record').show(255);
-	        		$($(this).attr('data-filter')).show(255);
+	          fontSize: '100%'
+	        });
+	    		$($(this).attr('data-filter-row')).parents('.history__record').show(255);
+	    		$($(this).attr('data-filter')).show(255);
 					$($(this).children()).attr('data-icon', 'show');
 				});
 			}
@@ -147,18 +207,20 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 				if($(this).children().attr('data-icon') == "show") {
 					$($(this).children()).attr('data-icon', 'hide');
 					$($(this).attr('data-filter-font')).animate({
-	            		fontSize: '0px'
-	        		});
-					$($(this).attr('data-filter-row')).hide(255);
+						fontSize: '0px'
+					});
+
+					elementFilter($(this).attr('data-filter-row'), true)
 					$($(this).attr('data-filter')).hide(255);
 				}
 				else {
 					$($(this).children()).attr('data-icon', 'show');
 					$($(this).attr('data-filter-font')).animate({
-	            	fontSize: '100%'
-	        		});
-	        		$($(this).attr('data-filter-row')).show(255);		
-	        		$($(this).attr('data-filter')).show(255);
+						fontSize: '100%'
+					});
+							
+					elementFilter($(this).attr('data-filter-row'), false)	
+					$($(this).attr('data-filter')).show(255);
 				}
 			}
 		});
