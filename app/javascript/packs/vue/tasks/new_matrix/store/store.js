@@ -18,7 +18,9 @@ function makeInitialState () {
     matrixView: 'row',
     matrixMode: 'fixed',
     matrixRowItems: [],
-    matrixColumnItems: []
+    matrixColumnItems: [],
+    matrixRowDynamicItems: [],
+    matrixColumnDynamicItems: []
   }
 }
 

@@ -8,6 +8,8 @@ export default function ({ commit, state, dispatch }, id) {
       commit(MutationNames.SetMatrix, response)
       dispatch(ActionNames.GetMatrixObservationRows, id)
       dispatch(ActionNames.GetMatrixObservationColumns, id)
+      dispatch(ActionNames.GetMatrixObservationRowsDynamic, id)
+      dispatch(ActionNames.GetMatrixObservationColumnsDynamic, id)
       return resolve(response)
     }, (response) => {
       return reject(response)

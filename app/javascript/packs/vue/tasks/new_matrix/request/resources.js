@@ -43,8 +43,16 @@ const GetMatrixObservationRows = function(id) {
   return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_rows.json`)
 }
 
+const GetMatrixObservationRowsDynamic = function(id) {
+  return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_row_items.json?type=ObservationMatrixRowItem::TaggedRowItem`)
+}
+
 const GetMatrixObservationColumns = function(id) {
   return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_columns.json`)
+}
+
+const GetMatrixObservationColumnsDynamic = function(id) {
+  return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_column_items.json?type=ObservationMatrixColumnItem::TaggedDescriptor`)
 }
 
 const GetMatrixColumnMetadata = function() {
@@ -104,7 +112,9 @@ export {
   CreateColumnItem,
   GetMatrixObservation,
   GetMatrixObservationRows,
+  GetMatrixObservationRowsDynamic,
   GetMatrixObservationColumns,
+  GetMatrixObservationColumnsDynamic,
   GetMatrixColumnMetadata,
   GetMatrixRowMetadata,
   BatchRemoveKeyword,

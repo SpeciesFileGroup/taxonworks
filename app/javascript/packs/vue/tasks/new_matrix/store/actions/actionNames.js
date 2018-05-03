@@ -4,6 +4,8 @@ const ActionNames = {
   LoadMatrix: 'loadMatrix',
   GetMatrixObservationRows: 'getMatrixObservationRows',
   GetMatrixObservationColumns: 'getMatrixObservationColumns',
+  GetMatrixObservationRowsDynamic: 'getMatrixObservationRowsDynamic',
+  GetMatrixObservationColumnsDynamic: 'getMatrixObservationColumnsDynamic',
   RemoveRow: 'removeRow',
   RemoveColumn: 'removeColumn',
   UpdateMatrix: 'updateMatrix'
