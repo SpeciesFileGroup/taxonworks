@@ -1,7 +1,6 @@
 module ObservationMatrixColumnItemsHelper
 
-  # TODO: write a meaningful name generator, requires
-  # subclass instance methods(?) or subclass helper methods
+  # !! when dynamic columns are extended this will have to reflect other types than tags 
   def observation_matrix_column_item_tag(observation_matrix_column_item)
     return nil if observation_matrix_column_item.nil?
     if observation_matrix_column_item.is_dynamic?
