@@ -65,7 +65,9 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :project_members, except: [:index, :show] do
-    get :show, defaults: {format: :json}
+    member do
+      get :show, defaults: {format: :json}
+    end
     collection do
       get :many_new
       get :index, defaults: {format: :json}

@@ -12,13 +12,17 @@ class ProjectMembersController < ApplicationController
     @project_members = ProjectMember.where(project_id: sessions_current_project_id)
   end
 
+  def show
+    @project_member = ProjectMember.where(project_id: sessions_current_project_id).find(params[:id])
+  end
+
   # GET /project_members/new
   def new
     @project_member = ProjectMember.new(project_member_params)
     redirect_to project_path(@project_member.project), alert: 'There are no additional users available to add to this project.' if !@available_users.any?
   end
 
-    # GET /project_members/1/edit
+  # GET /project_members/1/edit
   def edit
   end
 
@@ -28,11 +32,11 @@ class ProjectMembersController < ApplicationController
 
     respond_to do |format|
       if @project_member.save
-        format.html { redirect_to project_path(@project_member.project),
-                      notice: "User #{@project_member.user.name}' was successfully added to #{@project_member.project.name}." }
+        format.html {redirect_to project_path(@project_member.project),
+                                 notice: "User #{@project_member.user.name}' was successfully added to #{@project_member.project.name}."}
       else
         set_available_users
-        format.html { render action: 'new' }
+        format.html {render action: 'new'}
       end
     end
   end
@@ -64,11 +68,11 @@ class ProjectMembersController < ApplicationController
   def update
     respond_to do |format|
       if @project_member.update(project_member_params)
-        format.html { redirect_to  project_path(@project_member.project), notice: 'Project member was successfully updated.' }
-        format.json { render :show, status: :ok, location: @project_member }
+        format.html {redirect_to project_path(@project_member.project), notice: 'Project member was successfully updated.'}
+        format.json {render :show, status: :ok, location: @project_member}
       else
-        format.html { render :edit }
-        format.json { render json: @project_member.errors, status: :unprocessable_entity }
+        format.html {render :edit}
+        format.json {render json: @project_member.errors, status: :unprocessable_entity}
       end
     end
   end
@@ -78,8 +82,8 @@ class ProjectMembersController < ApplicationController
   def destroy
     @project_member.destroy
     respond_to do |format|
-      format.html { redirect_to project_path(@project_member.project), notice: 'Project member was successfully destroyed.' }
-      format.json { head :no_content }
+      format.html {redirect_to project_path(@project_member.project), notice: 'Project member was successfully destroyed.'}
+      format.json {head :no_content}
     end
   end
 
@@ -97,8 +101,8 @@ class ProjectMembersController < ApplicationController
     @project_member = ProjectMember.find(params[:id])
   end
 
- def set_member_project
-   @member_project = Project.find(project_id_param)
+  def set_member_project
+    @member_project = Project.find(project_id_param)
   end
 
   def project_member_params

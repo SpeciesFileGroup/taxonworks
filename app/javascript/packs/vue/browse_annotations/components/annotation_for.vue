@@ -18,7 +18,6 @@
 </template>
 
 <script>
-  // class="bottom button-submit normal-input biocuration-toggle-button"
   import smartSelector from './smartSelector.vue'
 
   export default {
@@ -43,7 +42,7 @@
       onModel(newVal) {
         if(this.selectOptionsUrl)
           this.getSelectOptions(newVal)
-      },
+      }
     },
     data() {
       return {
@@ -76,14 +75,6 @@
         })
         })
       }
-      // ,
-      // getResult(newVal) {
-      //   this.$http.post('/tasks/browse_annotations/annotation_for', {annotationFor: newVal}).then(response => {
-      //     this.$emit('for_selected', response.body);
-      //     this.$emit('result', response.body);
-      //     this.result = response.body;
-      //   })
-      // }
-    }
+     }
   }
 </script>

@@ -9,7 +9,6 @@
         @click="selectMember(member)"
         v-html="member.user.name"/>
   </div>
-  <!--<span v-for="(member, key) in result"> {{ key }} : {{ member }} <br></span>-->
 </template>
 
 <script>

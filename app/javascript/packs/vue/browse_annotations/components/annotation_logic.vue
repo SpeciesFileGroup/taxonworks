@@ -14,7 +14,6 @@
                 </label>
             </li>
         </ul>
-        <!--<span v-for="(item, key) in result"> {{ key }} : {{ item }} <br></span>-->
     </div>
 </template>
 
@@ -42,22 +41,9 @@
         }
       }
     },
-    // mounted: function () {
-    //   this.$http.get('/tasks/browse_annotations/get_type_list').then(response => {
-    //     console.log(response); // this is necessary to show traffic?
-    //     this.list = response.body;
-    //   })
-    // },
     methods: {
       selectLogic(type) {
         this.$emit('input', type.valueOf())
-      },
-      getResult(newVal) {
-        this.$http.post('/tasks/browse_annotations/set_logic', {annotationLogic: newVal}).then(response => {
-          // console.log(response); // this is necessary to show traffic?
-          this.$emit('annotation_logic_selected', response.body);
-          this.result = response.body;
-        })
       }
     }
   }
