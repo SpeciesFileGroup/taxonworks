@@ -2,7 +2,7 @@
   <button
     @click="sendItem(item.id)"
     type="button"
-    class="normal-input button tag_button button-default"
+    class="normal-input button tag_button button-data"
     v-html="item[display]"/>
 </template>
 
