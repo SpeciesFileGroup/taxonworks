@@ -87,7 +87,7 @@
           },
           model: undefined,
           common: undefined,
-          result: undefined
+          result: 'initial result'
         }
       }
     },
